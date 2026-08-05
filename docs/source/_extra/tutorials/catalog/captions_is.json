@@ -154,19 +154,97 @@
       "id": "07_mask",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Mask. Skiptaðu út fjórstöðvarmikroskóp tilrauninni í kjarn, frumur, lípíðdropa og parazitumáskar."
+          "narration": "Mask opnast með stillingarborðinu til vinstri og rekstrartækið til hægri. Konsólinn skýrir skönnun mappa, staðfestingu, framfarir, viðvörun og útgáfu pípulínunnar."
         },
         {
-          "narration": "Opnuðu grímuna frá kjarnaöflunni. Notaðu upplýsingasafnið með 13 sviðum. Seðill núll er kjarn, seðill eitt er endoplasma reticulum, seðill tvö er lípíddropa og seðill þrjú er parazitur."
+          "narration": "Fylkið undir konsólunni tekur við staðbundnum spurningum eða boðum. AI skipta skilaboðum í gegnum valinn þjónustuaðila með áskrift, og viðhliðinn pilt opnar þjónustuaðilinn."
         },
         {
-          "narration": "Í aðalmyndunarsvæðinu er hægt að greina kjarninn úr núllum, frumur úr endoplasma-reticulum-kanali, lípíddropa með vinnuflæði organella og parazitum úr þriðja kanali."
+          "narration": "Fylgjanir birgir hvort Claude, ChatGPT og Gemini skipunarlínu viðskiptavinir eru settir ásamt uppsetningu þeirra og innritun skipanir. Skilríki eru hjá söluaðila."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. Skoðaðu umboðsvið og keyrið síðan fjórar skiptingarferðirnar yfir gagnasetinn."
+          "narration": "Í Skráningunni Settings stjórnar viðbrögð dýpd, AI-stuðlað villuskýringar, valfrjáls GitHub vandamál tilkynningar, innritun, og spaCR-vitandi kerfisspurn."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið, inniheldur möskapallinn samræmdir hlutmerki og sameinuð mynd-með-mskjölur sem eru tilbúnir til að mæla."
+          "narration": "Drag orig möppuna í Mask. spaCR uppgötvar CQ1 skránafn mynstur, sýnir fyrirsýn vel, sviði, tíma, dýpd, og kanal metadata, notar að plötu ID mun sjálfgefið til plötu1, svo geymir regex."
+        },
+        {
+          "narration": "Essentials sýnir litla stillingar sem þarf til að reka Mask. Töluna fyrir neðan stjórnunum segir frá því hversu mörg af fullum stillingum eru augljóst í dag."
+        },
+        {
+          "narration": "Breyttar takmarkanir á eyðublaðinu til gildi sem eru mismunandi frá sjálfstæðum Mask, sem gerir innfluttaðar eða breyttar stillingar auðvelt að endurskoða."
+        },
+        {
+          "narration": "Breyttu milli nauðsynlegra og allra stillinga án þess að missa gildi. Öll stillingar sýna öllum flokkum, þ.m.t. aukin og beta stjórnun."
+        },
+        {
+          "narration": "Recipes geymir núverandi stillingar undir nafni, beitir aftur geymdu stillingu eða flytur inn og sendir út endurteknar stillingar skrá."
+        },
+        {
+          "narration": "Sendaðu fjarlæg snjallsmyndum úr skilgreindum Mask stillingum og sendu þeim í dreifð störf vinnusvæði."
+        },
+        {
+          "narration": "Distributed Jobs kortar staðbundnar leiðir til fjarstæðrar vinnustaðar, Slurm hóp, eða stillta skipan, og sendir síðan inn og fylgist með sama Mask hlaupa."
+        },
+        {
+          "narration": "Input og Metadata skilgreinir uppspretta mappan, kanalaskipti, stækkun, metadata tegund, og hvaða sérsniðinn skránafn regex."
+        },
+        {
+          "narration": "Vinnuflóð og prófunarstjórn stjórnar fyrirvinnslu, grímuframleiðslu, þurrum rekstri, endurnýjunarhegðun og litlum prófunarmyndum."
+        },
+        {
+          "narration": "Myndfyrirvinnslu hópar eðlilegast, spá, uppscaling, sameiningu og eyðileggja val sem notuð eru fyrir skiptingu."
+        },
+        {
+          "narration": "Fjarasegmentun inniheldur framburð frumur, þvermál, þröskulær, bakgrunnshandferð og frumur-efnisfiltar."
+        },
+        {
+          "narration": "Kjarnahlutfall veitir viðeigandi módel, þröskulendur, bakgrunnsréttu og hlutfiltrar fyrir kjarna."
+        },
+        {
+          "narration": "Sjúklingasegmentun flokkar fyrirmyndina og hreinsunarreglur sem notaðar eru til að greina og sía parazitarefni."
+        },
+        {
+          "narration": "Organelle Segmentation velur upp morfologið og greiningu organella, hreinsun myndar, aðferð-sérhæf stjórnun, hlutfiltrar og samantekt foreldra-svæði."
+        },
+        {
+          "narration": "Gæðastjórn setur sjálfvirkar athugasemdir fyrir hlutalög, stærðshlutfall, mörk, forsjáþekking, skipt hegðun og viðunandi sviðsvik."
+        },
+        {
+          "narration": "Volumetric Processing inniheldur beta stjórnir fyrir z stacks, spá, anisotropy, voxel kalibrering og þrívídd stitching."
+        },
+        {
+          "narration": "Time Axes og Tracking inniheldur beta stjórnir fyrir fjögurravíddar gögn, ramma millibili, að fylgjast með bakgrunnum og framsetningarmörkum."
+        },
+        {
+          "narration": "Visualization and Diagnostics stjórnar fyrirsýniskjölum, litakjölum, myndstærð, staðalögun og dæmi sviði."
+        },
+        {
+          "narration": "Útgangur og geymsla ákveður hvaða myndir, grímur, milliflötur og þrengdar niðurstöður eru geymdar."
+        },
+        {
+          "narration": "Greiðslustund og áreiðanleiki felur í sér aðgerðir sem tengjast mistökum, endurnýjanleika, logging, starfsmannatal, flokka og útfærslu valmöguleika."
+        },
+        {
+          "narration": "Lögðu á Live Preview og hlaðið upp myndinni af bráðamóttöku á kanáli tvö. Þetta svið inniheldur aðeins frumurinn sem notaður er í greinarmyndinni um skiptingu."
+        },
+        {
+          "narration": "Í Live Settings skaltu velja frambúð, leyfa að jafna og stillta neðsta hlutfallið á 2 og efsta hlutfallið á 99,5."
+        },
+        {
+          "narration": "Kynntu forsýninguna og stækkuðu í samræmdu kjarn- og niðurstöðubanna. Umfjöllun um yfirlagningu á að fylgja frumurum sem eru skilgreind í ER."
+        },
+        {
+          "narration": "Breyttu niðurstöðuhylfinu á Flæði til að skoða flæðingarvöllinn Cellpose sem notaður er til að mynda hluti."
+        },
+        {
+          "narration": "Skiptu yfir á Mask til að skoða hlutina í algjörtalinu beint. Hver litur er eitt hlut og svartur er bakimerki núll."
+        },
+        {
+          "narration": "Farðu aftur í Live Settings og stilltu aðeins lágmarksvæðið á sílu til 10000 pixla. Grófnar grófmaskarnar sem geymdar eru í geymslu eru síaðar strax án þess að Cellpose verði endurnýjað."
+        },
+        {
+          "narration": "Eftir stærðarfiltrinn missa lítil frambúðarefni útlínur sínar og aðeins hlutir sem eru að minnsta kosti 10000 pikslar eftir. Samanberðu þetta við ófiltreraða yfirlagningu."
         }
       ]
     },
@@ -174,19 +252,79 @@
       "id": "08_measure",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Measure. Útleiða á hvern fyrirbæri, morfólíu, textúr, colocalization og rúmlega eiginleika úr skiptum myndum."
+          "narration": "Mælingin opnast með stillingunum til vinstri og rekstrartækið til hægri. Konsólinn skýrir upp úrlausn, staðfestingu, framfarir, viðvörun og mælingarútgang."
         },
         {
-          "narration": "Opið mæli frá kjarnaskiptinu. Veldu verkefnið sem inniheldur myndir og grímur sem Mask hefur framleitt."
+          "narration": "Fylkið undir konsólunni tekur við staðbundnum spurningum eða boðum. Leyfa AI til að leiða spurningu í gegnum valinn þjónustuaðila og nota tilheyrandi pílu til að opna þjónustuaðilinn."
         },
         {
-          "narration": "Í aðalmyndasvæðinu skal nota kanal einn, endoplasma reticulum, sem áhugaveginn kanal og velja hlutartípa og lögunar fjölskyldur til að mæla."
+          "narration": "Greiðsluaðila tilkynna hvort Claude, ChatGPT og Gemini skipunarlínu viðskiptavinir eru settir upp og sýnir uppsetningu þeirra og innritun skipanir. Greiðslur veitenda eru áfram hjá söluaðila."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. sjá frumgróður þegar þörf er á, og vinna síðan við hvert valda svið og hlutartíp."
+          "narration": "AI stillingar stjórnar viðbrögð dýpt, sjálfvirkar villur útskýringar, valfrjálsan GitHub vandamál skýrslu, innritun, og spaCR-vitandi kerfisspurn."
         },
         {
-          "narration": "Þegar vinnufljósið er lokið geymir mælingar db eftirsóknarlegar ein- og hlutalínur og valfrjáls myndatökur til athugasemda eða flokkunar."
+          "narration": "Drag samanfangs möppuna sem Mask hefur framleitt í Measure. Þessar röður eru þegar með spaCR verkefni metadata, svo Measure leysa uppspretta beint og þarf ekki hrá mynd skránafn regex aftur."
+        },
+        {
+          "narration": "Essentials sýnir þétt sett af mælingar stillingar sem þarf til að hlaupa, en talinn skýrir hversu margar stillingar eru nú sýnilegar."
+        },
+        {
+          "narration": "Breyttar takmörkunar á paneli til gildi sem eru öðruvísi en sjálfgefin mælingar, sem gerir innfluttar stillingar og tilvitað breytingar auðvelt að endurskoða."
+        },
+        {
+          "narration": "Allar stillingar sýna alla mælikvarðaflokka, þ.m.t. háþróaðar áreiðanleika- og beta-kalibreringsstjórnir, án þess að breytingar á núverandi gildum verði gerðar."
+        },
+        {
+          "narration": "Recipes geymir núverandi mælikvarðainnskráningu undir nafni, beitir henni aftur síðar eða flytur inn og sendir út endurtekjanlegt stillingarskjala."
+        },
+        {
+          "narration": "Sendaðu fjarlæg snjallsmyndum af löndum mælingar stillingum og sendir þeim til dreifðar störf."
+        },
+        {
+          "narration": "Distributed Jobs kortar staðbundnar leiðir til fjarstæðrar vinnustaðar, Slurm-hópa eða skipulagsskrá, sendir síðan inn og fylgist með sama Measure run."
+        },
+        {
+          "narration": "Input and Experiment skilgreinir uppsprettaverkefnið og tilraunaheitið sem skrifað er í útgöngur þess."
+        },
+        {
+          "narration": "Mask and Channel Mapping býður upp á myndastöðvar, frumur, kjarna, sjúkdómsfrumur og líffræðilega merkingarflaugar, afleiðandi sítoplasma og hvaða tíma röð sem er."
+        },
+        {
+          "narration": "Mælingar eiginleikar velur sparað mælingar, samræmi og Manders samantekningar, homogenity fjarlægðir, radial dreifingar og organelle samantekningar."
+        },
+        {
+          "narration": "Efnisfiltrun kveður á um lágmarksstærð fyrir hverja hólf, hvort ekki sýktar frumur eru varðveittir og hvernig meðhöndla eru sjúkdómsfrumur sem fara yfir kantin."
+        },
+        {
+          "narration": "Crop Output stjórnir geymdu PNGs og röður, crop hlut og stærð, leiðir, útbreiðslu, grenndarboxar, og normalisering."
+        },
+        {
+          "narration": "Forsýni og greiningar stjórna plötum og litlu prófunarmyndinni sem notuð er áður en fullkomið tilraun er gerð."
+        },
+        {
+          "narration": "3D útfærsla inniheldur beta anisotropy og voxel stærð stjórn sem umbreyta volumetric pixels mælingar í eðlisfræðilegar stærðir."
+        },
+        {
+          "narration": "Stjórnartíma og áreiðanleika hóparnir endurreisa hegðun, strangar mistök, mistök stefnu, endurtekjanleika, þurra rekstur, logging og starfsmanna tal."
+        },
+        {
+          "narration": "Hræða Live Preview og hlaða einn fullbúinn sameiningarskrá. Gallerið hertir 40 alvöru frumur eftir kjarni og sjúkdómaefni á fimm sviðum."
+        },
+        {
+          "narration": "Algengt staðfestir tilraunarsetningu, mælt kanal frá núll til þriggja, frumur á sviði fjóra, kjarna á sviði fimm, sjúklingasvæði á sviði sex, afleiðandi sítoplasma og prófunarleiða."
+        },
+        {
+          "narration": "Object Crops skrifar 224 með 224 piksel framboð PNGs með því að nota kanala núll, eitt og tvö. Sparað eðlileiki er ekki í gangi; einungis lifandi gallería notar tímabundið 1 til 99 prósentíll sýning."
+        },
+        {
+          "narration": "Filtrar krefjast frumna með a.m.k. 3500 pikslar, kjarna með a.m.k. 1000 og sjúkdómaefna með a.m.k. 250. Ósmittuð frumur halda áfram að vera fjarlægð og sjúkdómsfrumur sem fara yfir kantin eru sameinaðir."
+        },
+        {
+          "narration": "Veldu kanal 1 til að skoða ER-merkið sem notað er sem áhugaverður niðurstreymiskanal. Þetta breytir aðeins galleríunni; Measure stillur stillingar úr öllum fjórum stillingum."
+        },
+        {
+          "narration": "Í lokið prófskrá kemur fram að 5 af 5 sviðum hafi náð árangri. measurements.db inniheldur 455 frumur og sítoplasmar, 605 kjarna, 1031 sjúkdómafrum og 455 frumur sem eru tilbúnir til merkingar og flokkunar."
         }
       ]
     },
@@ -194,19 +332,76 @@
       "id": "09_annotate",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Annotate. Skoðaðu einstaka gróður á netinu og veitið áreiðanlegar merkingar til módelþjálfunar eða gæðaeftirlits."
+          "narration": "Annotate hefst með því að framleiðslutengingin sé forgangsröðun. Opnaðu Console þegar þú þarft gagnagrunn skilaboð, vista stöðu, viðvörun, eða spjall sviði; sama hnappinn leynir það aftur til að skila rými í myndir."
         },
         {
-          "narration": "Opnaðu athugasemdir úr kjarnaöflunni. Opnaðu verkefni með hlutföllum og veldu gagnagrunnaborðið og athugasemda."
+          "narration": "Vísindaskipinn sendir fyrirspurn í gegnum valinn þjónustuaðila. Notaðu viðkomandi pilt til að velja uppstilla þjónustuaðila eða opna þjónustuaðila stjórnun."
         },
         {
-          "narration": "Í helstu skipulagssvæðinu skaltu velja flokkar, sýningarsvæði, flokkun, sýnatöku og allar sía sem skilgreina yfirlit."
+          "narration": "Greiðsluaðila tilkynna hvort Claude, ChatGPT og Gemini skipunarlínu viðskiptavinir eru settir upp og gefur þeim uppsetningar og innritunarskipanir. Skilríki eru hjá hverjum söluaðila."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. merkja fyrirmyndandi hlutir, geyma oft og skoða aftur óvissa eða ágreinandi dæmi."
+          "narration": "AI stillingar stjórnar viðbrögð dýpt, sjálfvirkar villur útskýringar, valfrjálsan GitHub vandamál skýrslu, innritun, og spaCR-vitandi kerfisspurn."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið, eru athugasemdir skrifaðar aftur í verkefnis gagnagrunn með fyrirbæra auðkenningar heilbrigð."
+          "narration": "Drag mæluð tilraun mappið í Annotate. spaCR leysir upp measurements.db, tengir aftur geymd ræktunarbraut til þessa tölvu, skapar spaCR_Tutorial stóluna og hlaðar upp raunverulegar myndafrumur."
+        },
+        {
+          "narration": "Settings nafna uppspretta og athugasemda stólinn, stjórnar gróðurstærð, myndartípu, sýnilegum og eðlilegum leiðum, prósentílum, valfrjálsu útfærslum, hlut eða mælingarfiltrum og óvissa röð með fjölbreytni vernd."
+        },
+        {
+          "narration": "Síða teljanda sýnir 128 sýnilegar rætur af 81.969. Hvítur hringur merkir áhersluðu uppskeru, en flokkslitir hringir sýna merkingar sem þegar hafa verið skipuð í spaCR_Tutorial."
+        },
+        {
+          "narration": "Opnaðu lyklaborðið hvenær sem er. Tölur 1 til 9 merkja og framfara, núll hreinsar eitt uppskeru, piltur eða HJK L hreyfing, Space skipar, Backspace skilar, U fellur niður og Enter sparar og framfarir."
+        },
+        {
+          "narration": "Þrýstið á 1 til að skipta 1. flokki að áhersluðum uppskeru. Hringurinn breytist í flokkalit og fókusinn færst í næsta ómerkt mynd."
+        },
+        {
+          "narration": "Smelltu á 2 til að skipta 2. flokki. Flokkar eru tölfræðilegar og tilraunarskilgreindar, svo skráðu hvað hvert númer þýðir áður en liðið byrjar að merkja."
+        },
+        {
+          "narration": "Pistur lyklar færa áhersluna án þess að breyta merkinu. Space stígur fram og Backspace stígur aftur, sem gerir fljótan endurskoðun möguleg án þess að ná til mús."
+        },
+        {
+          "narration": "Smelltu á U til að afnema nýjustu lyklaborðið. Gróðurinn kemur aftur í fyrri stöðu, áherslan færist aftur til þess og stöðubandurinn staðfestir að það er ekki gert."
+        },
+        {
+          "narration": "Hægt er að nota músinn. Með vinstri smelli er flokk 1 tilgreindur ávöxtun í gegnum sömu bakgrunn-spara leið sem notaður er af lyklaborð merkingar."
+        },
+        {
+          "narration": "Með hægri smelli er flokkur 2 tilgreindur. Að smella á sama flokk á þeirri uppskeru aftur hreinsa það, en að smella á hinn flokk breytir það beint."
+        },
+        {
+          "narration": "Flokkartal staðfestir sparaða mannfjölda og sýnir litinn sem notað er fyrir hverja flokka hring. Þessi námskeið hefur tvö dæmi í 1. flokki og tvö í 2. flokki."
+        },
+        {
+          "narration": "Umfjöllun endurskoðunar merkingar eftir flokki, plötu, brunn, uppspretta, og virk að læra umferð. Þessir fjórir dæmi koma frá einum brunn, sem er tilvitað of þéttt fyrir þjálfun og sýnir hvers vegna það er nauðsynlegt að athuga umfjöllunina."
+        },
+        {
+          "narration": "Næsta sparar eftirfarandi vinnu og hlaða næsta fullu síðu. Enter framkvæmir sömu save-and-advance aðgerð án þess að yfirgefa gildið."
+        },
+        {
+          "narration": "Til baka skilar einni síðu en varðveitir hverja viðkomandi athugasemdir. Síða upp og Alt vinstri veita lyklaborð valkostir."
+        },
+        {
+          "narration": "Skip til síðari athugasemdir hoppar á síðuna sem inniheldur síðasta sparað merki, sem gerir það auðvelt að endurreisa langa athugasemdir."
+        },
+        {
+          "narration": "Runds sýnir framhaldandi nákvæmni eftir hvern endurmenntun í virkum nám og metir hvort nýleg merkingu hafi bætt líkan. Ekkert curve birtist fyrr en nægileg fulltrúar merkingar styðja fyrsta umferð."
+        },
+        {
+          "narration": "Retrain passar út úr geymdum merkingum, markar eftirfarandi ræktun og skipar aftur valfrjálsan óvissu röð. Staða línan skráir hringinn, haldin niðurstaða, veikasti flokkur, og stöðvunar leiðbeiningar."
+        },
+        {
+          "narration": "Þjálfunarfræði færir þetta verkefni og athugasemdir til myndatöflunarinnar. Train XG veitir sömu merkingarmerki fyrir mælikvarðaflokkarann. Báðir opna fyrirfram skipulögð stýrikerfi, hvorugur byrjar að æfa sig strax."
+        },
+        {
+          "narration": "Fjarlægur dálkur er markvisst geymdur vegna þess að hann fjarlægir öll merkingar í valinni dálki. Vinsamlegast staðfesta nákvæma nafn spjaldsins áður en þú heldur áfram; þetta námskeið aflýsir viðvöruna og heldur merkingunum."
+        },
+        {
+          "narration": "Fjórar dæmi merkingar eru nú vistað í measurements.db undir spaCR_Tutorial með fyrirbærabraut þeirra og uppruna heilbrigð. Haltu áfram yfir brunn og plötur áður en þú notar þær til að þjálfa módel."
         }
       ]
     },

@@ -4,47 +4,247 @@
   "voice": "if_sara",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 54.7,
+  "total_duration": 311.675,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.925,
-      "scene_end": 10.375,
-      "duration": 10.375,
-      "text": "Questo tutorial riguarda Annotate.Rivedi colture singole su una griglia e assegna etichette affidabili per la formazione dei modelli o il controllo della qualità."
+      "speech_end": 14.525,
+      "scene_end": 14.975,
+      "duration": 14.975,
+      "text": "Annotare inizia con la rete delle colture priorizzata. Aprire la console quando hai bisogno di messaggi di database, salvare lo stato, gli avvertimenti o il campo di chat; lo stesso pulsante lo nasconde di nuovo per restituire lo spazio alle immagini.",
+      "speech_text": "Annotare inizia con la rete delle colture priorizzata. Aprire la console quando hai bisogno di messaggi di database, salvare lo stato, gli avvertimenti o il campo di chat; lo stesso pulsante lo nasconde di nuovo per restituire lo spazio alle immagini.",
+      "phonemes": "annotˈare inˈiʦia kon la rˈete dˌelle koltˈure prioriʣːˈata. aprˈire la kˈɔnsole kwˈando aj bizˈoɲɲo dɪ meSˈaʤːɪ dɪ databˈɛiz, salvˈare lo stˈato, ʎɪ avvertimˈentɪ o il kˈampo dɪ ʧˈat; lo stˈeSo pʊlsˈante lo naskˈonde dɪ nʊˈɔvo per restitʊˈire lo spˈaʦio ˌalle immˈaʤinɪ."
     },
     {
       "scene": 2,
-      "speech_start": 10.375,
-      "speech_end": 18.85,
-      "scene_end": 19.3,
-      "duration": 8.925,
-      "text": "Apri Annotate dalla sezione Core. Apri un progetto con colture di oggetti e seleziona la tabella del database e la colonna di annotate."
+      "speech_start": 14.975,
+      "speech_end": 26.1,
+      "scene_end": 26.55,
+      "duration": 11.575000000000001,
+      "text": "L'interruttore AI invia una domanda attraverso il fornitore selezionato. Utilizzare la freccia adiacente per scegliere un provider configurato o la gestione del provider aperto.",
+      "speech_text": "L'interruttore AI invia una domanda attraverso il fornitore selezionato. Utilizzare la freccia adiacente per scegliere un provider configurato o la gestione del provider aperto.",
+      "phonemes": "linterɾʊtːˈore ˌaːˈiː ɪnvˈɪa ˌʊna domˈanda atːravˈɛrso il fornitˈore seleʦjonˈato. ʊtiliʣːˈare la frˈeʧːa adjaʧˈɛnte per ʃˈeʎere ʊn provˈaider konfiɡʊrˈato o la ʤestjˈone del provˈaider apˈɛrto."
     },
     {
       "scene": 3,
-      "speech_start": 19.3,
-      "speech_end": 29.65,
-      "scene_end": 30.099999999999998,
-      "duration": 10.799999999999997,
-      "text": "Nella zona di configurazione principale, scegliere classi, canali di visualizzazione, classificazione, campionamento e qualsiasi filtro che definisca l'insieme di revisione."
+      "speech_start": 26.55,
+      "speech_end": 38.575,
+      "scene_end": 39.025000000000006,
+      "duration": 12.475000000000005,
+      "text": "I fornitori segnalano se i client di linea di comando Claude, ChatGPT e Gemini sono installati e forniscono i loro comandi di installazione e login. Le credenziali restano con ogni venditore.",
+      "speech_text": "I fornitori segnalano se i client di linea di comando Claude, ChatGPT e Gemini sono installati e forniscono i loro comandi di installazione e login. Le credenziali restano con ogni venditore.",
+      "phonemes": "i fornitˈorɪ seɲˈalano se i kliˈent dɪ lˈinea dɪ komˈando klˈaʊde, ʧˈat ʤˌipˌitˈɪ e ʤˈɛminɪ sˌono installˈatɪ e fornˈiskono i lˌɔro komˈandɪ dɪ installaʦiˈone e lˈɔɡ in. le kredenʦjˈalɪ rˈɛstano kon ˌoɲɲɪ venditˈore."
     },
     {
       "scene": 4,
-      "speech_start": 30.099999999999998,
-      "speech_end": 44.625,
-      "scene_end": 45.075,
-      "duration": 14.975000000000005,
-      "text": "Prima di eseguire l'esecuzione completa, rivedere le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. etichettare oggetti rappresentativi, salvare frequentemente e rivedere esempi incerti o in conflitto."
+      "speech_start": 39.025000000000006,
+      "speech_end": 51.62500000000001,
+      "scene_end": 52.07500000000001,
+      "duration": 13.050000000000004,
+      "text": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spaCR.",
+      "speech_text": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spàker.",
+      "phonemes": "le impostaʦiˈonɪ ˌaːˈiː kontrˈɔllano la profonditˈa dˌella rispˈosta, le spjeɡaʦiˈonɪ aʊtomˈatike dˌeʎɪ erɾˈorɪ, la seɲalaʦiˈone opʦionˈale dˌA problˈɛmɪ ʤˈit ˈub, il lˈɔɡ in e il prˈompt del sistˈɛma konsapˈevole dɪ spˈaker."
     },
     {
       "scene": 5,
-      "speech_start": 45.075,
-      "speech_end": 54.050000000000004,
-      "scene_end": 54.7,
-      "duration": 9.625,
-      "text": "Quando il flusso di lavoro è terminato, le annotative vengono scritte di nuovo nel database del progetto con identificatori di oggetti intatti."
+      "speech_start": 52.07500000000001,
+      "speech_end": 66.35000000000001,
+      "scene_end": 66.80000000000001,
+      "duration": 14.725000000000001,
+      "text": "Trascinare la cartella dell'esperimento misurato in Annotate. spaCR risolve measurements.db, ancora i percorsi di raccolta memorizzati a questo computer, crea la colonna spaCR_Tutorial e carica le immagini delle cellule reali.",
+      "speech_text": "Trascinare la cartella dell'esperimento misurato in Annotate. spàker risolve measurements dot db, ancora i percorsi di raccolta memorizzati a questo computer, crea la colonna spàker_Tutorial e carica le immagini delle cellule reali.",
+      "phonemes": "traʃinˈare la kartˈɛlla dellesperimˈento mizʊrˈato in annotˈate. spˈaker rizˈolve meazʊrˈɛments dˈot d̪ˌiːbˈi, ankˈora i perkˈorsɪ dɪ rakːˈɔlta memoriʣːˈatɪ a kwˌesto kompjˈuter, krˈɛa la kolˈonna spˈaker tʊtˈɔrial e kˈarika le immˈaʤinɪ dˌelle ʧˈɛllʊle reˈalɪ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 66.80000000000001,
+      "speech_end": 82.92500000000001,
+      "scene_end": 83.37500000000001,
+      "duration": 16.575000000000003,
+      "text": "Le impostazioni definiscono la fonte e la colonna di annotamento, controllano la dimensione del raccolto, il tipo di immagine, i canali visibili e normalizzati, i percentili, gli outline opzionali, i filtri di oggetti o di misura e una coda di incertezza con protezione della diversità.",
+      "speech_text": "Le impostazioni definiscono la fonte e la colonna di annotamento, controllano la dimensione del raccolto, il tipo di immagine, i canali visibili e normalizzati, i percentili, gli outline opzionali, i filtri di oggetti o di misura e una coda di incertezza con protezione della diversità.",
+      "phonemes": "le impostaʦiˈonɪ definˈiskono la fˈonte e la kolˈonna dɪ annotamˈento, kontrˈɔllano la dimensjˈone del rakːˈɔlto, il tˈipo dɪ immˈaʤine, i kanˈalɪ vizˈibilɪ e normaliʣːˈatɪ, i perʧentˈilɪ, ʎɪ oʊtlˈine opʦionˈalɪ, i fˈiltrɪ dɪ oʤːˈɛtːɪ o dɪ mizˈura e ˌʊna kˈoda dɪ inʧertˈeʦːa kon proteʦiˈone dˌella diversitˈa."
+    },
+    {
+      "scene": 7,
+      "speech_start": 83.37500000000001,
+      "speech_end": 97.97500000000001,
+      "scene_end": 98.42500000000001,
+      "duration": 15.049999999999997,
+      "text": "Il contatore delle pagine mostra 128 colture visibili su 81.969. Un anello bianco segna il raccolto focalizzato, mentre gli anelli di colore di classe mostrano le etichette già assegnate in spaCR_Tutorial.",
+      "speech_text": "Il contatore delle pagine mostra 128 colture visibili su 81.969. Un anello bianco segna il raccolto focalizzato, mentre gli anelli di colore di classe mostrano le etichette già assegnate in spàker_Tutorial.",
+      "phonemes": "il kontatˈore dˌelle pˈaʤine mˈostra ʧˈɛnto ventˈɔtːo koltˈure vizˈibilɪ sʊ otːˈantˈuno.noveʧˈɛnto seSˈantanˈɔve. ʊn anˈɛllo bjˈanko sˈeɲɲa il rakːˈɔlto fokaliʣːˈato, mˌentre ʎɪ anˈɛllɪ dɪ kolˈore dɪ klˈaSe mˈɔstrano le etikˈetːe ʤˈa aSeɲˈate in spˈaker tʊtˈɔrial."
+    },
+    {
+      "scene": 8,
+      "speech_start": 98.42500000000001,
+      "speech_end": 112.82500000000002,
+      "scene_end": 113.27500000000002,
+      "duration": 14.850000000000009,
+      "text": "Apri il tasto di riferimento della tastiera in qualsiasi momento. Numeri da 1 a 9 etichettano e avanzano, zero cancella un raccolto, frecce o movimento HJ K L, Space skips, Backspace restituisce, U annulla, e Enter salva e avanza.",
+      "speech_text": "Apri il tasto di riferimento della tastiera in qualsiasi momento. Numeri da 1 a 9 etichettano e avanzano, zero cancella un raccolto, frecce o movimento HJ K L, Space skips, Backspace restituisce, U annulla, e Enter salva e avanza.",
+      "phonemes": "ˈaprɪ il tˈasto dɪ riferimˈento dˌella tastiˈɛra in kwalsˈiazɪ momˈento. nˈumerɪ da ˈuno a nˈɔve etikˈetːano e avˈanʦano, ʣˈɛro kanʧˈɛlla ʊn rakːˈɔlto, frˈɛʧːe o movimˈento ˌakːaˌi lˈuŋɡa kˈapːa ˈɛlle, spˈaʧe skˈips, bakːspˈaʧe restitʊˈiʃe, ˈu annˈulla, e ˈenter sˈalva e avˈanʦa."
+    },
+    {
+      "scene": 9,
+      "speech_start": 113.27500000000002,
+      "speech_end": 123.82500000000002,
+      "scene_end": 124.27500000000002,
+      "duration": 11.0,
+      "text": "Presione 1 per assegnare la classe 1 al raccolto focalizzato. Il suo anello cambia il colore della classe, e il focus avanza verso l'immagine non etichettata successiva.",
+      "speech_text": "Presione 1 per assegnare la classe 1 al raccolto focalizzato. Il suo anello cambia il colore della classe, e il focus avanza verso l'immagine non etichettata successiva.",
+      "phonemes": "preziˈone ˈuno per aSeɲˈare la klˈaSe ˈuno al rakːˈɔlto fokaliʣːˈato. il sˌʊo anˈɛllo kˈambia il kolˈore dˌella klˈaSe, e il fˈokʊs avˈanʦa vˌɛrso limmˈaʤine non etiketːˈata sʊʧːeSˈiva."
+    },
+    {
+      "scene": 10,
+      "speech_start": 124.27500000000002,
+      "speech_end": 134.925,
+      "scene_end": 135.375,
+      "duration": 11.09999999999998,
+      "text": "Presi 2 per assegnare la classe 2. Le classi sono numeriche e definite da esperimenti, quindi registrare cosa significa ogni numero prima che un team inizia l'etichettatura.",
+      "speech_text": "Presi 2 per assegnare la classe 2. Le classi sono numeriche e definite da esperimenti, quindi registrare cosa significa ogni numero prima che un team inizia l'etichettatura.",
+      "phonemes": "prˈezɪ dˈue per aSeɲˈare la klˈaSe dˈue. le klˈaSɪ sˌono nʊmˈɛrike e definˈite da esperimˈentɪ, kwˈindɪ reʤistrˈare kˈɔza siɲˈifika ˌoɲɲɪ nˈumero prˈima ke ʊn tˈiːm inˈiʦia letiketːatˈura."
+    },
+    {
+      "scene": 11,
+      "speech_start": 135.375,
+      "speech_end": 147.525,
+      "scene_end": 147.975,
+      "duration": 12.599999999999994,
+      "text": "Le tastiere delle frecce spostano l'attenzione senza cambiare l'etichetta. Lo spazio fa passi avanti e il Backspace fa passi indietro, il che rende possibile una rapida revisione senza raggiungere il mouse.",
+      "speech_text": "Le tastiere delle frecce spostano l'attenzione senza cambiare l'etichetta. Lo spazio fa passi avanti e il Backspace fa passi indietro, il che rende possibile una rapida revisione senza raggiungere il mouse.",
+      "phonemes": "le tastiˈɛre dˌelle frˈɛʧːe spˈɔstano latːenʦiˈone sˌɛnʦa kambjˈare letikˈetːa. lo spˈaʦio fˈa pˈaSɪ avˈantɪ e il bakːspˈaʧe fˈa pˈaSɪ indjˈɛtro, il ke rˈɛnde poSˈibile ˌʊna rˈapida reviziˈone sˌɛnʦa raʤːˈunʤere il mˈaʊs."
+    },
+    {
+      "scene": 12,
+      "speech_start": 147.975,
+      "speech_end": 159.29999999999998,
+      "scene_end": 159.74999999999997,
+      "duration": 11.774999999999977,
+      "text": "Presi U per annullare l'ultima etichetta della tastiera. Il raccolto torna al suo stato precedente, l'attenzione si sposta di nuovo verso di esso, e la striscia di stato conferma l'annullamento.",
+      "speech_text": "Presi U per annullare l'ultima etichetta della tastiera. Il raccolto torna al suo stato precedente, l'attenzione si sposta di nuovo verso di esso, e la striscia di stato conferma l'annullamento.",
+      "phonemes": "prˈezɪ ˈu per annʊllˈare lˈultima etikˈetːa dˌella tastiˈɛra. il rakːˈɔlto tˈorna al sˌʊo stˈato preʧedˈɛnte, latːenʦiˈone sɪ spˈɔsta dɪ nʊˈɔvo vˌɛrso dɪ ˈeSo, e la strˈiʃa dɪ stˈato konfˈerma lannʊllamˈento."
+    },
+    {
+      "scene": 13,
+      "speech_start": 159.74999999999997,
+      "speech_end": 171.22499999999997,
+      "scene_end": 171.67499999999995,
+      "duration": 11.924999999999983,
+      "text": "La notazione del mouse rimane disponibile. Un clic a sinistra assegna la classe 1 a un raccolto attraverso lo stesso percorso di salvataggio di sfondo utilizzato dalle etichette della tastiera.",
+      "speech_text": "La notazione del mouse rimane disponibile. Un clic a sinistra assegna la classe 1 a un raccolto attraverso lo stesso percorso di salvataggio di sfondo utilizzato dalle etichette della tastiera.",
+      "phonemes": "la notaʦiˈone del mˈaʊs rimˈane disponˈibile. ʊn klˈik a sinˈistra aSˈeɲɲa la klˈaSe ˈuno a ʊn rakːˈɔlto atːravˈɛrso lo stˈeSo perkˈorso dɪ salvatˈaʤːo dɪ sfˈondo ʊtiliʣːˈato dˌalle etikˈetːe dˌella tastiˈɛra."
+    },
+    {
+      "scene": 14,
+      "speech_start": 171.67499999999995,
+      "speech_end": 181.59999999999997,
+      "scene_end": 182.04999999999995,
+      "duration": 10.375,
+      "text": "Con un clic destro viene assegnata la classe 2. Fare clic sulla stessa classe su quel raccolto la ripudi, mentre fare clic sull'altra classe la cambia direttamente.",
+      "speech_text": "Con un clic destro viene assegnata la classe 2. Fare clic sulla stessa classe su quel raccolto la ripudi, mentre fare clic sull'altra classe la cambia direttamente.",
+      "phonemes": "kon ʊn klˈik dˈɛstro vjˈɛne aSeɲˈata la klˈaSe dˈue. fˈare klˈik sˌʊlla stˈeSa klˈaSe sʊ kwel rakːˈɔlto la ripˈudɪ, mˌentre fˈare klˈik sʊllˈaltra klˈaSe la kˈambia diretːamˈente."
+    },
+    {
+      "scene": 15,
+      "speech_start": 182.04999999999995,
+      "speech_end": 193.04999999999995,
+      "scene_end": 193.49999999999994,
+      "duration": 11.449999999999989,
+      "text": "Il conteggio di classe conferma la popolazione salvata e mostra il colore utilizzato per ogni anello di classe. Questo tutorial ha due esempi nella classe 1 e due nella classe 2.",
+      "speech_text": "Il conteggio di classe conferma la popolazione salvata e mostra il colore utilizzato per ogni anello di classe. Questo tutorial ha due esempi nella classe 1 e due nella classe 2.",
+      "phonemes": "il kontˈeʤːo dɪ klˈaSe konfˈerma la popolaʦiˈone salvˈata e mˈostra il kolˈore ʊtiliʣːˈato per ˌoɲɲɪ anˈɛllo dɪ klˈaSe. kwˌesto tʊtˈɔrial a dˈue ezˈɛmpɪ nˈella klˈaSe ˈuno e dˈue nˈella klˈaSe dˈue."
+    },
+    {
+      "scene": 16,
+      "speech_start": 193.49999999999994,
+      "speech_end": 208.44999999999993,
+      "scene_end": 208.89999999999992,
+      "duration": 15.399999999999977,
+      "text": "La copertura verifica le etichette per classe, piatto, pozzo, fonte e round di apprendimento attivo. Questi quattro esempi provengono da un solo pozzo, che è intenzionalmente troppo concentrato per la formazione e dimostra perché la copertura deve essere controllata.",
+      "speech_text": "La copertura verifica le etichette per classe, piatto, pozzo, fonte e round di apprendimento attivo. Questi quattro esempi provengono da un solo pozzo, che è intenzionalmente troppo concentrato per la formazione e dimostra perché la copertura deve essere controllata.",
+      "phonemes": "la kopertˈura verˈifika le etikˈetːe per klˈaSe, pjˈatːo, pˈoʦːo, fˈonte e rˈawnd dɪ apːrendimˈento atːˈivo. kwˌestɪ kwˈatːro ezˈɛmpɪ provˈeŋɡono da ʊn sˈolo pˈoʦːo, ke e intenʦjonalmˈente trˈɔpːo konʧentrˈato per la formaʦiˈone e dimˈɔstra perkˌe la kopertˈura dˈɛve ˈɛSere kontrollˈata."
+    },
+    {
+      "scene": 17,
+      "speech_start": 208.89999999999992,
+      "speech_end": 218.54999999999993,
+      "scene_end": 218.99999999999991,
+      "duration": 10.099999999999994,
+      "text": "Next salva il lavoro in sospeso e carica la pagina completa successiva. Enter esegue la stessa azione di salvataggio e avanzamento senza lasciare la griglia.",
+      "speech_text": "Next salva il lavoro in sospeso e carica la pagina completa successiva. Enter esegue la stessa azione di salvataggio e avanzamento senza lasciare la griglia.",
+      "phonemes": "nˈekst sˈalva il lavˈɔro in sospˈezo e kˈarika la pˈaʤina komplˈɛta sʊʧːeSˈiva. ˈenter ezˈeɡwe la stˈeSa aʦiˈone dɪ salvatˈaʤːo e avanʦamˈento sˌɛnʦa laʃˈare la ɡrˈiʎa."
+    },
+    {
+      "scene": 18,
+      "speech_start": 218.99999999999991,
+      "speech_end": 227.04999999999993,
+      "scene_end": 227.49999999999991,
+      "duration": 8.5,
+      "text": "Il back restituisce una pagina conservando ogni annotazione impegnata. Page Up e Alt Left forniscono alternative alla tastiera.",
+      "speech_text": "Il back restituisce una pagina conservando ogni annotazione impegnata. Page Up e Alt Left forniscono alternative alla tastiera.",
+      "phonemes": "il bˈakː restitʊˈiʃe ˌʊna pˈaʤina konservˈando ˌoɲɲɪ annotaʦiˈone impeɲˈata. pˈɛiʤ ˌʌp e ˈalt lˈeft fornˈiskono alternatˈive ˌalla tastiˈɛra."
+    },
+    {
+      "scene": 19,
+      "speech_start": 227.49999999999991,
+      "speech_end": 236.62499999999991,
+      "scene_end": 237.0749999999999,
+      "duration": 9.574999999999989,
+      "text": "Salta l'ultimo annotato e passa alla pagina che contiene l'ultima etichetta salvata, rendendo facile riprendere una lunga sessione di annotamento.",
+      "speech_text": "Salta l'ultimo annotato e passa alla pagina che contiene l'ultima etichetta salvata, rendendo facile riprendere una lunga sessione di annotamento.",
+      "phonemes": "sˈalta lˈultimo annotˈato e pˈaSa ˌalla pˈaʤina ke kontjˈɛne lˈultima etikˈetːa salvˈata, rendˈɛndo fˈaʧile riprˈɛndere ˌʊna lˈuŋɡa seSjˈone dɪ annotamˈento."
+    },
+    {
+      "scene": 20,
+      "speech_start": 237.0749999999999,
+      "speech_end": 252.5749999999999,
+      "scene_end": 253.0249999999999,
+      "duration": 15.949999999999989,
+      "text": "I round mostrano l'accuratezza del modello dopo ogni riqualificazione dell'apprendimento attivo e valutano se l'etichettatura recente ha migliorato il modello. Nessuna curva appare finché non ci sono sufficienti etichette rappresentative per supportare un primo round.",
+      "speech_text": "I round mostrano l'accuratezza del modello dopo ogni riqualificazione dell'apprendimento attivo e valutano se l'etichettatura recente ha migliorato il modello. Nessuna curva appare finché non ci sono sufficienti etichette rappresentative per supportare un primo round.",
+      "phonemes": "i rˈawnd mˈɔstrano lakːʊratˈeʦːa del modˈɛllo dˈopo ˌoɲɲɪ rikwalifikaʦiˈone dellapːrendimˈento atːˈivo e vˈalʊtano se letiketːatˈura reʧˈɛnte a miʎorˈato il modˈɛllo. neSˌʊna kˈurva apːˈare finkˈe non ʧɪ sˌono sʊffiʧˈɛntɪ etikˈetːe rapːrezentatˈive per sʊpːortˈare ʊn prˈimo rˈawnd."
+    },
+    {
+      "scene": 21,
+      "speech_start": 253.0249999999999,
+      "speech_end": 265.64999999999986,
+      "scene_end": 266.09999999999985,
+      "duration": 13.07499999999996,
+      "text": "Retrain si adatta alle etichette salvate, puntua le colture rimanenti e riordina la coda di incertezza opzionale. La linea di stato registra il round, il risultato trattenuto, la classe più debole e la guida di arresto.",
+      "speech_text": "Retrain si adatta alle etichette salvate, puntua le colture rimanenti e riordina la coda di incertezza opzionale. La linea di stato registra il round, il risultato trattenuto, la classe più debole e la guida di arresto.",
+      "phonemes": "rˈɛtrIn sɪ adˈatːa ˌalle etikˈetːe salvˈate, pˈuntʊa le koltˈure rimanˈɛntɪ e riˈordina la kˈoda dɪ inʧertˈeʦːa opʦionˈale. la lˈinea dɪ stˈato reʤˈistra il rˈawnd, il rizʊltˈato tratːenˈuto, la klˈaSe pjʊ dˈebole e la ɡwˈida dɪ arɾˈɛsto."
+    },
+    {
+      "scene": 22,
+      "speech_start": 266.09999999999985,
+      "speech_end": 282.74999999999983,
+      "scene_end": 283.1999999999998,
+      "duration": 17.099999999999966,
+      "text": "Il curriculum di Treno consegna questo progetto e la colonna di annotamento al classificatore di immagini. Train XG consegna le stesse etichette al classificatore delle caratteristiche di misurazione. Entrambi aprono un modulo preconfigurato; nessuno inizia l'addestramento immediatamente.",
+      "speech_text": "Il curriculum di Treno consegna questo progetto e la colonna di annotamento al classificatore di immagini. Train XG consegna le stesse etichette al classificatore delle caratteristiche di misurazione. Entrambi aprono un modulo preconfigurato; nessuno inizia l'addestramento immediatamente.",
+      "phonemes": "il kʊrɾˈikʊlʊm dɪ trˈɛno konsˈeɲɲa kwˌesto proʤˈɛtːo e la kolˈonna dɪ annotamˈento al klaSifikatˈore dɪ immˈaʤinɪ. trˈIn ˌiksʤˈi konsˈeɲɲa le stˈeSe etikˈetːe al klaSifikatˈore dˌelle kaɾatːerˈistike dɪ mizʊraʦiˈone. entrˈambɪ ˈaprono ʊn mˈɔdʊlo prekonfiɡʊrˈato; neSˌʊno inˈiʦia ladːestramˈento immedjatamˈente."
+    },
+    {
+      "scene": 23,
+      "speech_start": 283.1999999999998,
+      "speech_end": 296.7749999999998,
+      "scene_end": 297.2249999999998,
+      "duration": 14.024999999999977,
+      "text": "La colonna chiara viene guardata intenzionalmente perché rimuove ogni etichetta nella colonna selezionata. Confirmare l'esatto nome della colonna prima di procedere; questo tutorial cancella l'avvertimento e conserva le etichette.",
+      "speech_text": "La colonna chiara viene guardata intenzionalmente perché rimuove ogni etichetta nella colonna selezionata. Confirmare l'esatto nome della colonna prima di procedere; questo tutorial cancella l'avvertimento e conserva le etichette.",
+      "phonemes": "la kolˈonna kjˈaɾa vjˈɛne ɡwardˈata intenʦjonalmˈente perkˌe rimʊˈove ˌoɲɲɪ etikˈetːa nˈella kolˈonna seleʦjonˈata. konfirmˈare lezˈatːo nˈome dˌella kolˈonna prˈima dɪ proʧˈedere; kwˌesto tʊtˈɔrial kanʧˈɛlla lavvertimˈento e konsˈɛrva le etikˈetːe."
+    },
+    {
+      "scene": 24,
+      "speech_start": 297.2249999999998,
+      "speech_end": 311.0249999999998,
+      "scene_end": 311.6749999999998,
+      "duration": 14.449999999999989,
+      "text": "Le quattro etichette di esempio sono ora salvate in measurements.db sotto spaCR_Tutorial con i loro percorsi degli oggetti e la loro provenienza intatta. Continua attraverso pozzi e piatti prima di usarli per addestrare un modello.",
+      "speech_text": "Le quattro etichette di esempio sono ora salvate in measurements dot db sotto spàker_Tutorial con i loro percorsi degli oggetti e la loro provenienza intatta. Continua attraverso pozzi e piatti prima di usarli per addestrare un modello.",
+      "phonemes": "le kwˈatːro etikˈetːe dɪ ezˈɛmpio sˌono ˈora salvˈate in meazʊrˈɛments dˈot d̪ˌiːbˈi sˈotːo spˈaker tʊtˈɔrial kon i lˌɔro perkˈorsɪ dˌeʎɪ oʤːˈɛtːɪ e la lˌɔro provenjˈɛnʦa intˈatːa. kontˈinʊa atːravˈɛrso pˈoʦːɪ e pjˈatːɪ prˈima dɪ ʊzˈarlɪ per adːestrˈare ʊn modˈɛllo."
     }
   ]
 }

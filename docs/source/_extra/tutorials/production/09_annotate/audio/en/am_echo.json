@@ -4,47 +4,247 @@
   "voice": "am_echo",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 45.55,
+  "total_duration": 261.55,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.7,
-      "scene_end": 9.149999999999999,
-      "duration": 9.149999999999999,
-      "text": "This tutorial covers Annotate. Review single-object crops on a grid and assign reliable labels for model training or quality control."
+      "speech_end": 11.8,
+      "scene_end": 12.25,
+      "duration": 12.25,
+      "text": "Annotate starts with the crop grid prioritized. Open Console when you need database messages, save status, warnings, or the chat field; the same button hides it again to return the space to images.",
+      "speech_text": "Annotate starts with the crop grid prioritized. Open Console when you need database messages, save status, warnings, or the chat field; the same button hides it again to return the space to images.",
+      "phonemes": "ˈænətˌAt stˈɑɹts wɪð ðə kɹˈɑp ɡɹˈɪd pɹIˈɔɹətˌIzd. ˈOpᵊn kˈɑnsˌOl wˌɛn ju nˈid dˈæTəbˌAs mˈɛsɪʤᵻz, sˈAv stˈATəs, wˈɔɹnɪŋz, ɔɹ ðə ʧˈæt fˈild; ðə sˈAm bˈʌtn hˈIdz ɪt əɡˈɛn tə ɹətˈɜɹn ðə spˈAs tʊ ˈɪmɪʤᵻz."
     },
     {
       "scene": 2,
-      "speech_start": 9.149999999999999,
-      "speech_end": 16.825,
-      "scene_end": 17.275,
-      "duration": 8.125,
-      "text": "Open Annotate from the Core section. Open a project with object crops and select the database table and annotation column."
+      "speech_start": 12.25,
+      "speech_end": 21.225,
+      "scene_end": 21.675,
+      "duration": 9.425,
+      "text": "The AI switch sends a question through the selected provider. Use the adjacent arrow to choose a configured provider or open provider management.",
+      "speech_text": "The AI switch sends a question through the selected provider. Use the adjacent arrow to choose a configured provider or open provider management.",
+      "phonemes": "ði ˈAˌI swˈɪʧ sˈɛndz ɐ kwˈɛsʧᵊn θɹu ðə səlˈɛktᵻd pɹəvˈIdəɹ. jˈuz ði əʤˈAsᵊnt ˈɛɹO tə ʧˈuz ɐ kənfˈɪɡjəɹd pɹəvˈIdəɹ ɔɹ ˈOpᵊn pɹəvˈIdəɹ mˈænɪʤmənt."
     },
     {
       "scene": 3,
-      "speech_start": 17.275,
-      "speech_end": 25.4,
-      "scene_end": 25.849999999999998,
-      "duration": 8.575,
-      "text": "In the main configuration area, choose classes, display channels, sorting, sampling, and any filters that define the review set."
+      "speech_start": 21.675,
+      "speech_end": 32.425,
+      "scene_end": 32.875,
+      "duration": 11.2,
+      "text": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and gives their install and login commands. Credentials stay with each vendor.",
+      "speech_text": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and gives their install and login commands. Credentials stay with each vendor.",
+      "phonemes": "pɹəvˈIdəɹz ɹəpˈɔɹts wˈɛðəɹ ðə klˈɔd, ʧˌætʤˌipˌitˈi, ænd ʤˈɛmənˌI kəmˈændlˌIn klˈIənts ɑɹ ɪnstˈɔld ænd ɡˈɪvz ðɛɹ ɪnstˈɔl ænd lˈɔɡˌɪn kəmˈændz. kɹədˈɛnʧᵊlz stˈA wɪð ˈiʧ vˈɛndəɹ."
     },
     {
       "scene": 4,
-      "speech_start": 25.849999999999998,
-      "speech_end": 37.599999999999994,
-      "scene_end": 38.05,
-      "duration": 12.2,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. label representative objects, save frequently, and revisit uncertain or conflicting examples."
+      "speech_start": 32.875,
+      "speech_end": 42.2,
+      "scene_end": 42.650000000000006,
+      "duration": 9.775000000000006,
+      "text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+      "speech_text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spacer-aware system prompt.",
+      "phonemes": "ˈAˌI sˈɛTɪŋz kəntɹˈOlz ɹəspˈɑns dˈɛpθ, ˌɔTəmˈæTɪk ˈɛɹəɹ ˌɛksplənˈAʃənz, ˈɑpʃənᵊl ɡˌɪthˈʌb ˈɪʃu ɹᵻpˈɔɹTɪŋ, sˈInˌɪn, ænd ðə spˈAsəɹəwˌɛɹ sˈɪstəm pɹˈɑmpt."
     },
     {
       "scene": 5,
-      "speech_start": 38.05,
-      "speech_end": 44.9,
-      "scene_end": 45.55,
-      "duration": 7.5,
-      "text": "When the workflow finishes, annotations are written back to the project database with object identifiers intact."
+      "speech_start": 42.650000000000006,
+      "speech_end": 55.22500000000001,
+      "scene_end": 55.67500000000001,
+      "duration": 13.025000000000006,
+      "text": "Drag the measured experiment folder into Annotate. spaCR resolves measurements.db, reanchors its stored crop paths to this computer, creates the spaCR_Tutorial column, and loads the real cell images.",
+      "speech_text": "Drag the measured experiment folder into Annotate. spacer resolves measurements dot db, reanchors its stored crop paths to this computer, creates the spacer_Tutorial column, and loads the real cell images.",
+      "phonemes": "dɹˈæɡ ðə mˈɛʒəɹd ɪkspˈɛɹəmənt fˈOldəɹ ˈɪntu ˈænətˌAt. spˈAsəɹ ɹəzˈɔlvz mˈɛʒəɹmᵊnts dˈɑt dˌibˈi, ɹˈiæŋkəɹz ɪts stˈɔɹd kɹˈɑp pˈæðz tə ðɪs kəmpjˈuTəɹ, kɹiˈAts ðə spˌAsəɹtutˈɔɹiəl kˈɑləm, ænd lˈOdz ðə ɹˈiᵊl sˈɛl ˈɪmɪʤᵻz."
+    },
+    {
+      "scene": 6,
+      "speech_start": 55.67500000000001,
+      "speech_end": 69.05000000000001,
+      "scene_end": 69.50000000000001,
+      "duration": 13.825000000000003,
+      "text": "Settings names the source and annotation column, controls crop size, image type, visible and normalized channels, percentiles, optional outlines, object or measurement filters, and an uncertainty queue with diversity protection.",
+      "speech_text": "Settings names the source and annotation column, controls crop size, image type, visible and normalized channels, percentiles, optional outlines, object or measurement filters, and an uncertainty queue with diversity protection.",
+      "phonemes": "sˈɛTɪŋz nˈAmz ðə sˈɔɹs ænd ˌænətˈAʃən kˈɑləm, kəntɹˈOlz kɹˈɑp sˈIz, ˈɪmɪʤ tˈIp, vˈɪzəbᵊl ænd nˈɔɹməlˌIzd ʧˈænᵊlz, pəɹsˈɛntˌIlz, ˈɑpʃənᵊl ˈWtlˌInz, ˈɑbʤəkt ɔɹ mˈɛʒəɹmᵊnt fˈɪltəɹz, ænd ɐn ˌʌnsˈɜɹtᵊnti kjˈu wɪð dəvˈɜɹsəTi pɹətˈɛkʃən."
+    },
+    {
+      "scene": 7,
+      "speech_start": 69.50000000000001,
+      "speech_end": 81.82500000000002,
+      "scene_end": 82.27500000000002,
+      "duration": 12.775000000000006,
+      "text": "The page counter shows 128 visible crops out of 81,969. A white ring marks the focused crop, while class-colored rings show labels already assigned in spaCR_Tutorial.",
+      "speech_text": "The page counter shows 128 visible crops out of 81,969. A white ring marks the focused crop, while class-colored rings show labels already assigned in spacer_Tutorial.",
+      "phonemes": "ðə pˈAʤ kˈWntəɹ ʃˈOz wˈʌn hˈʌndɹəd twˈɛnti ˈAt vˈɪzəbᵊl kɹˈɑps ˈWt ʌv ˈATi wˈʌn θˈWzᵊnd nˈIn hˈʌndɹəd sˈɪksti nˈIn. ɐ wˈIt ɹˈɪŋ mˈɑɹks ðə fˈOkəst kɹˈɑp, wˌIl klˌæskˈʌləɹd ɹˈɪŋz ʃˈO lˈAbəlz ˌɔlɹˈɛdi əsˈInd ɪn spˌAsəɹtutˈɔɹiəl."
+    },
+    {
+      "scene": 8,
+      "speech_start": 82.27500000000002,
+      "speech_end": 95.17500000000003,
+      "scene_end": 95.62500000000003,
+      "duration": 13.350000000000009,
+      "text": "Open the keyboard reference at any time. Numbers 1 through 9 label and advance, zero clears one crop, arrows or H J K L move, Space skips, Backspace returns, U undoes, and Enter saves and advances.",
+      "speech_text": "Open the keyboard reference at any time. Numbers 1 through 9 label and advance, zero clears one crop, arrows or H J K L move, Space skips, Backspace returns, U undoes, and Enter saves and advances.",
+      "phonemes": "ˈOpᵊn ðə kˈibˌɔɹd ɹˈɛfəɹəns æt ˈɛni tˈIm. nˈʌmbəɹz wˈʌn θɹu nˈIn lˈAbəl ænd ədvˈæns, zˈɪɹO klˈɪɹz wˈʌn kɹˈɑp, ˈɛɹOz ɔɹ ˈAʧ ʤˈA kˈA ˈɛl mˈuv, spˈAs skˈɪps, bˈækspˌAs ɹətˈɜɹnz, jˈu ˌʌndˈʌz, ænd ˈɛntəɹ sˈAvz ænd ədvˈænsᵻz."
+    },
+    {
+      "scene": 9,
+      "speech_start": 95.62500000000003,
+      "speech_end": 104.35000000000002,
+      "scene_end": 104.80000000000003,
+      "duration": 9.174999999999997,
+      "text": "Press 1 to assign class 1 to the focused crop. Its ring changes to the class color, and focus advances to the next unlabeled image.",
+      "speech_text": "Press 1 to assign class 1 to the focused crop. Its ring changes to the class color, and focus advances to the next unlabeled image.",
+      "phonemes": "pɹˈɛs wˈʌn tʊ əsˈIn klˈæs wˈʌn tə ðə fˈOkəst kɹˈɑp. ˌɪts ɹˈɪŋ ʧˈAnʤᵻz tə ðə klˈæs kˈʌləɹ, ænd fˈOkəs ədvˈænsᵻz tə ðə nˈɛkst ˌʌnlˈAbəld ˈɪmɪʤ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 104.80000000000003,
+      "speech_end": 113.50000000000003,
+      "scene_end": 113.95000000000003,
+      "duration": 9.150000000000006,
+      "text": "Press 2 to assign class 2. Classes are numeric and experiment-defined, so record what each number means before a team begins labeling.",
+      "speech_text": "Press 2 to assign class 2. Classes are numeric and experiment-defined, so record what each number means before a team begins labeling.",
+      "phonemes": "pɹˈɛs tˈu tʊ əsˈIn klˈæs tˈu. klˈæsᵻz ɑɹ numˈɛɹɪk ænd ɪkspˈɛɹəməntdəfˌInd, sˌO ɹəkˈɔɹd wˌʌt ˈiʧ nˈʌmbəɹ mˈinz bəfˈɔɹ ɐ tˈim bəɡˈɪnz lˈAbᵊlɪŋ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 113.95000000000003,
+      "speech_end": 123.45000000000003,
+      "scene_end": 123.90000000000003,
+      "duration": 9.950000000000003,
+      "text": "Arrow keys move the focus without changing a label. Space steps forward and Backspace steps back, which makes rapid review possible without reaching for the mouse.",
+      "speech_text": "Arrow keys move the focus without changing a label. Space steps forward and Backspace steps back, which makes rapid review possible without reaching for the mouse.",
+      "phonemes": "ˈɛɹO kˈiz mˈuv ðə fˈOkəs wɪðˈWt ʧˈAnʤɪŋ ɐ lˈAbəl. spˈAs stˈɛps fˈɔɹwəɹd ænd bˈækspˌAs stˈɛps bˈæk, wˌɪʧ mˌAks ɹˈæpəd ɹəvjˈu pˈɑsəbᵊl wɪðˈWt ɹˈiʧɪŋ fɔɹ ðə mˈWs."
+    },
+    {
+      "scene": 12,
+      "speech_start": 123.90000000000003,
+      "speech_end": 133.00000000000003,
+      "scene_end": 133.45000000000002,
+      "duration": 9.549999999999983,
+      "text": "Press U to undo the latest keyboard label. The crop returns to its previous state, the focus moves back to it, and the status strip confirms the undo.",
+      "speech_text": "Press U to undo the latest keyboard label. The crop returns to its previous state, the focus moves back to it, and the status strip confirms the undo.",
+      "phonemes": "pɹˈɛs jˈu tʊ ˌʌndˈu ðə lˈATᵻst kˈibˌɔɹd lˈAbəl. ðə kɹˈɑp ɹətˈɜɹnz tʊ ɪts pɹˈiviəs stˈAt, ðə fˈOkəs mˈuvz bˈæk tʊ ɪt, ænd ðə stˈATəs stɹˈɪp kənfˈɜɹmz ði ˌʌndˈu."
+    },
+    {
+      "scene": 13,
+      "speech_start": 133.45000000000002,
+      "speech_end": 142.20000000000002,
+      "scene_end": 142.65,
+      "duration": 9.199999999999989,
+      "text": "Mouse annotation remains available. A left click assigns class 1 to a crop through the same background-save path used by keyboard labels.",
+      "speech_text": "Mouse annotation remains available. A left click assigns class 1 to a crop through the same background-save path used by keyboard labels.",
+      "phonemes": "mˈWs ˌænətˈAʃən ɹəmˈAnz əvˈAləbᵊl. ɐ lˈɛft klˈɪk əsˈInz klˈæs wˈʌn tə ɐ kɹˈɑp θɹu ðə sˈAm bˈækɡɹˌWndsˌAv pˈæθ jˈuzd bI kˈibˌɔɹd lˈAbəlz."
+    },
+    {
+      "scene": 14,
+      "speech_start": 142.65,
+      "speech_end": 150.5,
+      "scene_end": 150.95,
+      "duration": 8.299999999999983,
+      "text": "A right click assigns class 2. Clicking the same class on that crop again clears it, while clicking the other class changes it directly.",
+      "speech_text": "A right click assigns class 2. Clicking the same class on that crop again clears it, while clicking the other class changes it directly.",
+      "phonemes": "ɐ ɹˈIt klˈɪk əsˈInz klˈæs tˈu. klˈɪkɪŋ ðə sˈAm klˈæs ˌɔn ðˈæt kɹˈɑp əɡˈɛn klˈɪɹz ɪt, wˌIl klˈɪkɪŋ ði ˈʌðəɹ klˈæs ʧˈAnʤᵻz ɪt dəɹˈɛktli."
+    },
+    {
+      "scene": 15,
+      "speech_start": 150.95,
+      "speech_end": 160.52499999999998,
+      "scene_end": 160.97499999999997,
+      "duration": 10.024999999999977,
+      "text": "Class counts confirms the saved population and displays the color used for each class ring. This tutorial has two examples in class 1 and two in class 2.",
+      "speech_text": "Class counts confirms the saved population and displays the color used for each class ring. This tutorial has two examples in class 1 and two in class 2.",
+      "phonemes": "klˈæs kˈWnts kənfˈɜɹmz ðə sˈAvd pˌɑpjəlˈAʃən ænd dəsplˈAz ðə kˈʌləɹ jˈuzd fɔɹ ˈiʧ klˈæs ɹˈɪŋ. ðˌɪs tutˈɔɹiəl hæz tˈu ɪɡzˈæmpəlz ɪn klˈæs wˈʌn ænd tˈu ɪn klˈæs tˈu."
+    },
+    {
+      "scene": 16,
+      "speech_start": 160.97499999999997,
+      "speech_end": 173.37499999999997,
+      "scene_end": 173.82499999999996,
+      "duration": 12.849999999999994,
+      "text": "Coverage audits labels by class, plate, well, source, and active-learning round. These four examples come from one well, which is intentionally too concentrated for training and demonstrates why coverage must be checked.",
+      "speech_text": "Coverage audits labels by class, plate, well, source, and active-learning round. These four examples come from one well, which is intentionally too concentrated for training and demonstrates why coverage must be checked.",
+      "phonemes": "kˈʌvəɹɪʤ ˈɔdəts lˈAbəlz bI klˈæs, plˈAt, wˈɛl, sˈɔɹs, ænd ˌæktɪvlˈɜɹnɪŋ ɹˈWnd. ðˌiz fˈɔɹ ɪɡzˈæmpəlz kˈʌm fɹʌm wˈʌn wˈɛl, wˌɪʧ ɪz ɪntˈɛnʧᵊnəli tˈu kˈɑnsəntɹˌATᵻd fɔɹ tɹˈAnɪŋ ænd dˈɛmənstɹˌAts wˌI kˈʌvəɹɪʤ mˈʌst bi ʧˈɛkt."
+    },
+    {
+      "scene": 17,
+      "speech_start": 173.82499999999996,
+      "speech_end": 181.92499999999995,
+      "scene_end": 182.37499999999994,
+      "duration": 8.549999999999983,
+      "text": "Next saves pending work and loads the next full page. Enter performs the same save-and-advance action without leaving the grid.",
+      "speech_text": "Next saves pending work and loads the next full page. Enter performs the same save-and-advance action without leaving the grid.",
+      "phonemes": "nˈɛkst sˈAvz pˈɛndɪŋ wˈɜɹk ænd lˈOdz ðə nˈɛkst fˈʊl pˈAʤ. ˈɛntəɹ pəɹfˈɔɹmz ðə sˈAm sˈAvændədvˈæns ˈækʃən wɪðˈWt lˈivɪŋ ðə ɡɹˈɪd."
+    },
+    {
+      "scene": 18,
+      "speech_start": 182.37499999999994,
+      "speech_end": 190.19999999999993,
+      "scene_end": 190.64999999999992,
+      "duration": 8.274999999999977,
+      "text": "Back returns one page while preserving every committed annotation. Page Up and Alt Left provide keyboard alternatives.",
+      "speech_text": "Back returns one page while preserving every committed annotation. Page Up and Alt Left provide keyboard alternatives.",
+      "phonemes": "bˈæk ɹətˈɜɹnz wˈʌn pˈAʤ wˌIl pɹɪzˈɜɹvɪŋ ˈɛvəɹi kəmˈɪTᵻd ˌænətˈAʃən. pˈAʤ ˌʌp ænd ˈɔlt lˈɛft pɹəvˈId kˈibˌɔɹd ɔltˈɜɹnəTɪvz."
+    },
+    {
+      "scene": 19,
+      "speech_start": 190.64999999999992,
+      "speech_end": 198.87499999999991,
+      "scene_end": 199.3249999999999,
+      "duration": 8.674999999999983,
+      "text": "Skip to last annotated jumps to the page containing the final saved label, making it easy to resume a long annotation session.",
+      "speech_text": "Skip to last annotated jumps to the page containing the final saved label, making it easy to resume a long annotation session.",
+      "phonemes": "skˈɪp tə lˈæst ˈænətˌATᵻd ʤˈʌmps tə ðə pˈAʤ kəntˈAnɪŋ ðə fˈInᵊl sˈAvd lˈAbəl, mˈAkɪŋ ɪt ˈizi tə ɹəzˈum ɐ lˈɔŋ ˌænətˈAʃən sˈɛʃən."
+    },
+    {
+      "scene": 20,
+      "speech_start": 199.3249999999999,
+      "speech_end": 211.3499999999999,
+      "scene_end": 211.7999999999999,
+      "duration": 12.474999999999994,
+      "text": "Rounds displays held-out accuracy after each active-learning retrain and evaluates whether recent labeling improved the model. No curve appears until enough representative labels support a first round.",
+      "speech_text": "Rounds displays held-out accuracy after each active-learning retrain and evaluates whether recent labeling improved the model. No curve appears until enough representative labels support a first round.",
+      "phonemes": "ɹˈWndz dəsplˈAz hˈɛldˌWt ˈækjəɹəsi ˈæftəɹ ˈiʧ ˌæktɪvlˈɜɹnɪŋ ɹitɹˈAn ænd əvˈæljʊˌAts wˈɛðəɹ ɹˈisᵊnt lˈAbᵊlɪŋ ɪmpɹˈuvd ðə mˈɑdᵊl. nˈO kˈɜɹv əpˈɪɹz ˌʌntˈɪl ɪnˈʌf ɹˌɛpɹəzˈɛntəTɪv lˈAbəlz səpˈɔɹt ɐ fˈɜɹst ɹˈWnd."
+    },
+    {
+      "scene": 21,
+      "speech_start": 211.7999999999999,
+      "speech_end": 223.3499999999999,
+      "scene_end": 223.7999999999999,
+      "duration": 12.0,
+      "text": "Retrain fits from the saved labels, scores the remaining crops, and reranks the optional uncertainty queue. The status line records the round, held-out result, weakest class, and stopping guidance.",
+      "speech_text": "Retrain fits from the saved labels, scores the remaining crops, and reranks the optional uncertainty queue. The status line records the round, held-out result, weakest class, and stopping guidance.",
+      "phonemes": "ɹitɹˈAn fˈɪts fɹʌm ðə sˈAvd lˈAbəlz, skˈɔɹz ðə ɹəmˈAnɪŋ kɹˈɑps, ænd ɹᵻɹˈæŋks ði ˈɑpʃənᵊl ˌʌnsˈɜɹtᵊnti kjˈu. ðə stˈATəs lˈIn ɹəkˈɔɹdz ðə ɹˈWnd, hˈɛldˌWt ɹəzˈʌlt, wˈikᵻst klˈæs, ænd stˈɑpɪŋ ɡˈIdəns."
+    },
+    {
+      "scene": 22,
+      "speech_start": 223.7999999999999,
+      "speech_end": 236.3499999999999,
+      "scene_end": 236.7999999999999,
+      "duration": 13.0,
+      "text": "Train CV hands this project and annotation column to the image classifier. Train XG hands the same labels to the measurement-feature classifier. Both open a preconfigured module; neither starts training immediately.",
+      "speech_text": "Train CV hands this project and annotation column to the image classifier. Train XG hands the same labels to the measurement-feature classifier. Both open a preconfigured module; neither starts training immediately.",
+      "phonemes": "tɹˈAn sˌivˈi hˈændz ðɪs pɹˈɑʤˌɛkt ænd ˌænətˈAʃən kˈɑləm tə ði ˈɪmɪʤ klˈæsəfˌIəɹ. tɹˈAn ˌɛksʤˈi hˈændz ðə sˈAm lˈAbəlz tə ðə mˈɛʒəɹmᵊntfˌiʧəɹ klˈæsəfˌIəɹ. bˈOθ ˈOpᵊn ɐ pɹˌikənfˈɪɡjəɹd mˈɑʤul; nˈiðəɹ stˈɑɹts tɹˈAnɪŋ ɪmˈidiətli."
+    },
+    {
+      "scene": 23,
+      "speech_start": 236.7999999999999,
+      "speech_end": 248.4749999999999,
+      "scene_end": 248.9249999999999,
+      "duration": 12.125,
+      "text": "Clear column is intentionally guarded because it removes every label in the selected column. Confirm the exact column name before proceeding; this tutorial cancels the warning and keeps its labels.",
+      "speech_text": "Clear column is intentionally guarded because it removes every label in the selected column. Confirm the exact column name before proceeding; this tutorial cancels the warning and keeps its labels.",
+      "phonemes": "klˈɪɹ kˈɑləm ɪz ɪntˈɛnʧᵊnəli ɡˈɑɹdᵻd bəkˈʌz ɪt ɹəmˈuvz ˈɛvəɹi lˈAbəl ɪn ðə səlˈɛktᵻd kˈɑləm. kənfˈɜɹm ði ɪɡzˈækt kˈɑləm nˈAm bəfˈɔɹ pɹəsˈidɪŋ; ðɪs tutˈɔɹiəl kˈænsᵊlz ðə wˈɔɹnɪŋ ænd kˈips ɪts lˈAbəlz."
+    },
+    {
+      "scene": 24,
+      "speech_start": 248.9249999999999,
+      "speech_end": 260.8999999999999,
+      "scene_end": 261.5499999999999,
+      "duration": 12.625,
+      "text": "The four example labels are now saved in measurements.db under spaCR_Tutorial with their object paths and provenance intact. Continue across wells and plates before using them to train a model.",
+      "speech_text": "The four example labels are now saved in measurements dot db under spacer_Tutorial with their object paths and provenance intact. Continue across wells and plates before using them to train a model.",
+      "phonemes": "ðə fˈɔɹ ɪɡzˈæmpəl lˈAbəlz ɑɹ nˈW sˈAvd ɪn mˈɛʒəɹmᵊnts dˈɑt dˌibˈi ˈʌndəɹ spˌAsəɹtutˈɔɹiəl wɪð ðɛɹ ˈɑbʤəkt pˈæðz ænd pɹˈɑvənᵊns ɪntˈækt. kəntˈɪnju əkɹˈɔs wˈɛlz ænd plˈAts bəfˈɔɹ jˈuzɪŋ ðˌɛm tə tɹˈAn ɐ mˈɑdᵊl."
     }
   ]
 }

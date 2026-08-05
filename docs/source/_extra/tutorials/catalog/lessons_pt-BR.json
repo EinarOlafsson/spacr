@@ -370,47 +370,257 @@
       "id": "07_mask",
       "number": 7,
       "slug": "mask",
-      "title": "Mask",
+      "title": "Máscara",
       "series": 1,
       "app_key": "mask",
       "section": "Core",
-      "description": "Segmente o experimento de microscopia de quatro canais fornecido em núcleos, células, gotas de lipídios e máscaras de parasitas.",
+      "description": "Configure Mask, inspecione cada categoria de configurações e valida a segmentação celular no experimento de microscopia fornecido.",
       "objectives": [
-        "Mapear os quatro canais de aquisição corretamente.",
-        "Configurar a segmentação celular, núcleo, organel e parasita.",
-        "Exerce a máscara e inspecione as saídas da máscara."
+        "Use o console, controles de bate-papo, receitas e fluxo de trabalho remoto de envio.",
+        "Importar a pasta de imagem CQ1 e verificar o regex de metadados detectados automaticamente.",
+        "Inspecte os contornos das células, fluxos Cellpose, objetos e um filtro de área mínima vivo."
       ],
-      "prerequisite": "Use o conjunto de dados do tutorial de quatro canais fornecido.",
+      "prerequisite": "Use o experimento tutorial spaCR e suas configurações de Máscara fornecidas.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange a Mascara. Segmente o experimento de microscopia de quatro canais fornecido em núcleos, células, gotas de lipídios e máscaras de parasitas.",
-          "visual": "overview",
+          "narration": "A máscara abre com o painel de configuração à esquerda e o console de execução à direita. O console relata os scans de pastas, validação, progresso, avisos e saída do pipeline.",
+          "visual": "01_console",
           "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange a Mascara. Segmente o experimento de microscopia de quatro canais fornecido em núcleos, células, gotas de lipídios e máscaras de parasitas."
+          "speech_text": "A máscara abre com o painel de configuração à esquerda e o console de execução à direita. O console relata os scans de pastas, validação, progresso, avisos e saída do pipeline."
         },
         {
-          "narration": "Abra Mask na seção Core. O canal zero é núcleo, o canal um é retículo endoplasmático, o canal dois é gotas de lipídios e o canal três é parasito.",
-          "visual": "input",
+          "narration": "O campo abaixo do console aceita perguntas ou comandos locais. O switch de IA encaminha uma mensagem através de um provedor selecionado com sustentação de assinatura, e a seta adjacente abre o menu do provedor.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Abra Mask na seção Core. O canal zero é núcleo, o canal um é retículo endoplasmático, o canal dois é gotas de lipídios e o canal três é parasito."
+          "speech_text": "O campo abaixo do console aceita perguntas ou comandos locais. O switch de IA encaminha uma mensagem através de um provedor selecionado com sustentação de assinatura, e a seta adjacente abre o menu do provedor."
         },
         {
-          "narration": "Na área de configuração principal, detecte núcleos do canal zero, células do canal endoplasmico-retículo, gotas de lipídios com o fluxo de trabalho das manchas organélicas e parasitas do canal três.",
-          "visual": "settings",
+          "narration": "A guia Fornecedores mostra se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados, além de seus comandos de instalação e login. As credenciais permanecem com o vendedor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, detecte núcleos do canal zero, células do canal endoplasmico-retículo, gotas de lipídios com o fluxo de trabalho das manchas organélicas e parasitas do canal três."
+          "speech_text": "A guia Fornecedores mostra se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados, além de seus comandos de instalação e login. As credenciais permanecem com o vendedor."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível. Verifique um campo representativo, em seguida, execute as quatro passagens de segmentação através do conjunto de dados.",
-          "visual": "run",
+          "narration": "A guia Configurações controla a profundidade da resposta, explicações de erros assistidas por IA, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível. Verifique um campo representativo, em seguida, execute as quatro passagens de segmentação através do conjunto de dados."
+          "speech_text": "A guia Configurações controla a profundidade da resposta, explicações de erros assistidas por IA, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do espáquer."
         },
         {
-          "narration": "Quando o fluxo de trabalho estiver concluído, a pasta de máscaras contém rótulos de objetos alinhados e matrizes de imagem e máscara combinadas prontas para medição.",
-          "visual": "output",
+          "narration": "Arraste a pasta de orig para a Máscara. O spaCR detecta o padrão de nome de arquivo CQ1, examina bem, campo, tempo, profundidade e metadados de canal, observa que o ID de placa será padrão para plate1, e depois salva o regex.",
+          "visual": "05_metadata",
+          "focus_key": "metadata_dialog",
+          "click_key": "save",
+          "hold_after": 0.45,
+          "speech_text": "Arraste a pasta de orig para a Máscara. O espáquer detecta o padrão de nome de arquivo C Q 1, examina bem, campo, tempo, profundidade e metadados de canal, observa que o ID de placa será padrão para plate1, e depois salva o regex."
+        },
+        {
+          "narration": "Os elementos essenciais mostram o pequeno conjunto de configurações necessárias para executar o Mask. A contagem abaixo dos controles informa quantas das configurações completas estão atualmente visíveis.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Os elementos essenciais mostram o pequeno conjunto de configurações necessárias para executar o Mask. A contagem abaixo dos controles informa quantas das configurações completas estão atualmente visíveis."
+        },
+        {
+          "narration": "Os limites modificados limitam o formulário a valores que diferem das definições padrão do Mask, tornando as configurações importadas ou editadas fáceis de rever.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Os limites modificados limitam o formulário a valores que diferem das definições padrão do Mask, tornando as configurações importadas ou editadas fáceis de rever."
+        },
+        {
+          "narration": "Troque entre as configurações Essenciais e Todas sem perder valores. Todas as configurações expõem todas as categorias, incluindo controles avançados e beta.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Troque entre as configurações Essenciais e Todas sem perder valores. Todas as configurações expõem todas as categorias, incluindo controles avançados e beta."
+        },
+        {
+          "narration": "As receitas guardam as configurações atuais sob um nome, reaplicam uma configuração guardada ou importam e exportam um arquivo de configurações reutilizável.",
+          "visual": "09_recipes",
+          "focus_key": "recipes_dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "As receitas guardam as configurações atuais sob um nome, reaplicam uma configuração guardada ou importam e exportam um arquivo de configurações reutilizável."
+        },
+        {
+          "narration": "Envie instantâneos remotos das configurações resolvidas de Máscara e envia-os para o espaço de trabalho de Trabalhos Distribuídos.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envie instantâneos remotos das configurações resolvidas de Máscara e envia-os para o espaço de trabalho de Trabalhos Distribuídos."
+        },
+        {
+          "narration": "O Jobs Distribuído mapeia os caminhos locais para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução do Mask.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "O Jobs Distribuído mapeia os caminhos locais para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução do Mask."
+        },
+        {
+          "narration": "Input and Metadata define a pasta fonte, atribuições de canal, ampliação, tipo de metadados e qualquer regex de nome de arquivo personalizado.",
+          "visual": "12_category_01_input_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Input and Metadata define a pasta fonte, atribuições de canal, ampliação, tipo de metadados e qualquer regex de nome de arquivo personalizado."
+        },
+        {
+          "narration": "O fluxo de trabalho e a execução de testes controlam o pré-processamento, a geração de máscaras, a execução seca, o comportamento de retomada e as pequenas amostras do modo de teste.",
+          "visual": "12_category_02_workflow_test_run",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "O fluxo de trabalho e a execução de testes controlam o pré-processamento, a geração de máscaras, a execução seca, o comportamento de retomada e as pequenas amostras do modo de teste."
+        },
+        {
+          "narration": "Grupos de pré-processamento de imagens normalização, projeção, aumento de escala, consolidação e denotação de escolhas aplicadas antes da segmentação.",
+          "visual": "12_category_03_image_preprocessing",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Grupos de pré-processamento de imagens normalização, projeção, aumento de escala, consolidação e denotação de escolhas aplicadas antes da segmentação."
+        },
+        {
+          "narration": "A Segmentação de Células contém o modelo de célula, o diâmetro, os limiares, a manipulação de fundo e os filtros de objetos celulares.",
+          "visual": "12_category_04_cell_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "A Segmentação de Células contém o modelo de célula, o diâmetro, os limiares, a manipulação de fundo e os filtros de objetos celulares."
+        },
+        {
+          "narration": "A Segmentação Nuclear fornece o modelo correspondente, os limiares, a correção de fundo e os filtros de objetos para os núcleos.",
+          "visual": "12_category_05_nucleus_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "A Segmentação Nuclear fornece o modelo correspondente, os limiares, a correção de fundo e os filtros de objetos para os núcleos."
+        },
+        {
+          "narration": "A Segmentação de Patógenos agrupa o modelo e as regras de limpeza usadas para detectar e filtrar objetos parasitas.",
+          "visual": "12_category_06_pathogen_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "A Segmentação de Patógenos agrupa o modelo e as regras de limpeza usadas para detectar e filtrar objetos parasitas."
+        },
+        {
+          "narration": "A Segmentação Organelle seleciona a morfologia e o detector de organelas, a limpeza da imagem, os controles específicos do método, os filtros de objetos e o resumo do compartimento-mãe.",
+          "visual": "12_category_07_organelle_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "A Segmentação Organelle seleciona a morfologia e o detector de organelas, a limpeza da imagem, os controles específicos do método, os filtros de objetos e o resumo do compartimento-mãe."
+        },
+        {
+          "narration": "O Controle de Qualidade define verificações automáticas para contagens de objetos, proporções de tamanho, fronteiras, cobertura de primeiro plano, comportamento dividido e falhas de campo aceitáveis.",
+          "visual": "12_category_08_quality_control",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "O Controle de Qualidade define verificações automáticas para contagens de objetos, proporções de tamanho, fronteiras, cobertura de primeiro plano, comportamento dividido e falhas de campo aceitáveis."
+        },
+        {
+          "narration": "O processamento volumétrico contém controles beta para pilhas z, projeção, anisotropia, calibração de voxel e costura tridimensional.",
+          "visual": "12_category_09_volumetric_processing_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "O processamento volumétrico contém controles beta para pilhas z, projeção, anisotropia, calibração de voxel e costura tridimensional."
+        },
+        {
+          "narration": "Time Axes and Tracking contém controles beta para dados quadridimensionais, intervalos de quadros, backends de rastreamento e limites de deslocamento.",
+          "visual": "12_category_10_time_axes_tracking_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Time Axes and Tracking contém controles beta para dados quadridimensionais, intervalos de quadros, backends de rastreamento e limites de deslocamento."
+        },
+        {
+          "narration": "Visualização e Diagnóstico controla gráficos de antevisão, mapas de cores, tamanho de figura, normalização de gráfico e campos de exemplo.",
+          "visual": "12_category_11_visualization_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Visualização e Diagnóstico controla gráficos de antevisão, mapas de cores, tamanho de figura, normalização de gráfico e campos de exemplo."
+        },
+        {
+          "narration": "Output and Storage decide quais imagens, máscaras, matrizes intermediárias e resultados comprimidos são mantidos.",
+          "visual": "12_category_12_output_storage",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Output and Storage decide quais imagens, máscaras, matrizes intermediárias e resultados comprimidos são mantidos."
+        },
+        {
+          "narration": "O tempo de execução e a confiabilidade contêm manuseio de falhas, reprodução, registro, contagem de trabalhadores, lotes e opções de execução do pipeline.",
+          "visual": "12_category_13_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "O tempo de execução e a confiabilidade contêm manuseio de falhas, reprodução, registro, contagem de trabalhadores, lotes e opções de execução do pipeline."
+        },
+        {
+          "narration": "Ativa a exibição ao vivo e carrega a imagem de emergência do canal dois. Este campo contém apenas o sinal de célula utilizado para o exemplo de segmentação.",
+          "visual": "25_cell_ready",
+          "focus_key": "canvases",
+          "click_key": "live",
+          "hold_after": 0.45,
+          "speech_text": "Ativa a exibição ao vivo e carrega a imagem de emergência do canal dois. Este campo contém apenas o sinal de célula utilizado para o exemplo de segmentação."
+        },
+        {
+          "narration": "Na configuração ao vivo, selecione célula, ativa a normalização e defina o percentil inferior em 2 e o percentil superior em 99,5.",
+          "visual": "26_live_normalization",
+          "focus_key": "normalization",
+          "hold_after": 0.45,
+          "speech_text": "Na configuração ao vivo, selecione célula, ativa a normalização e defina o percentil inferior em 2 e o percentil superior em 99,5."
+        },
+        {
+          "narration": "Execute a pré-visualização e zoome para os painéis de origem e resultados sincronizados. Os contornos de sobreposição devem seguir os limites das células definidos pela ER.",
+          "visual": "27_cell_outlines",
+          "focus_key": "action_and_canvases",
+          "click_key": "run_preview",
+          "hold_after": 0.45,
+          "speech_text": "Execute a pré-visualização e zoome para os painéis de origem e resultados sincronizados. Os contornos de sobreposição devem seguir os limites das células definidos pela ER."
+        },
+        {
+          "narration": "Passe o painel de resultados para Fluxos para inspecionar o campo de fluxo Cellpose utilizado para formar objetos.",
+          "visual": "28_cell_flows",
+          "focus_key": "action_and_canvases",
+          "click_key": "view_mode",
+          "hold_after": 0.45,
+          "speech_text": "Passe o painel de resultados para Fluxos para inspecionar o campo de fluxo Cellpose utilizado para formar objetos."
+        },
+        {
+          "narration": "Passe para Masks para ver os objetos de célula inteira diretamente. Cada cor é um objeto e o preto continua a ser o rótulo de fundo zero.",
+          "visual": "29_cell_objects",
+          "focus_key": "action_and_canvases",
+          "click_key": "view_mode",
+          "hold_after": 0.45,
+          "speech_text": "Passe para Masks para ver os objetos de célula inteira diretamente. Cada cor é um objeto e o preto continua a ser o rótulo de fundo zero."
+        },
+        {
+          "narration": "Regressar às configurações ao vivo e definir apenas a área mínima da célula para 10000 pixels. As máscaras crudas armazenadas em cache são filtradas imediatamente sem reiniciar o Cellpose.",
+          "visual": "30_cell_size_filter",
+          "focus_key": "cell_filters",
+          "click_key": "min_area",
+          "hold_after": 0.45,
+          "speech_text": "Regressar às configurações ao vivo e definir apenas a área mínima da célula para 10000 pixels. As máscaras crudas armazenadas em cache são filtradas imediatamente sem reiniciar o Cellpose."
+        },
+        {
+          "narration": "Após o filtro de tamanho, os objetos de células pequenas perdem os seus contornos e só restam objetos com pelo menos 10000 pixels. Compare isto com a sobreposição não filtrada.",
+          "visual": "31_cell_filtered",
+          "focus_key": "canvases",
           "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho estiver concluído, a pasta de máscaras contém rótulos de objetos alinhados e matrizes de imagem e máscara combinadas prontas para medição."
+          "speech_text": "Após o filtro de tamanho, os objetos de células pequenas perdem os seus contornos e só restam objetos com pelo menos 10000 pixels. Compare isto com a sobreposição não filtrada."
         }
       ]
     },
@@ -418,47 +628,207 @@
       "id": "08_measure",
       "number": 8,
       "slug": "measure",
-      "title": "Measure",
+      "title": "Medida",
       "series": 1,
       "app_key": "measure",
       "section": "Core",
-      "description": "Extrair intensidade por objeto, morfologia, textura, colocalização e características espaciais de imagens segmentadas.",
+      "description": "Configure Measure, inspecione suas categorias de configuração e visualize as culturas reais de células únicas de matrizes completas de Mask.",
       "objectives": [
-        "Entenda quando usar a Measure.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Importar matrizes combinadas e usar o console, IA, receitas e fluxo de trabalho remoto.",
+        "Revisar todas as categorias de configurações de medida sem recitar todos os parâmetros.",
+        "Inspectar culturas de células reais, o canal de emergência, filtros e resultados de testes concluídos."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Complete Masque primeiro para que o projeto contenha matrizes de imagem e rótulos combinadas.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange a medida. Extrair intensidade por objeto, morfologia, textura, colocalização e características espaciais de imagens segmentadas.",
-          "visual": "overview",
+          "narration": "A medida abre com as suas configurações à esquerda e a consola de execução à direita. O console relata a resolução da fonte, validação, progresso, avisos e saída de medição.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange a medida. Extrair intensidade por objeto, morfologia, textura, colocalização e características espaciais de imagens segmentadas."
+          "speech_text": "A medida abre com as suas configurações à esquerda e a consola de execução à direita. O console relata a resolução da fonte, validação, progresso, avisos e saída de medição."
         },
         {
-          "narration": "Abra Measure na seção Core. Abra a medida na seção Core. Selecione o projeto que contém pilhas de imagem e máscaras produzidas pela Mask.",
-          "visual": "input",
+          "narration": "O campo abaixo do console aceita perguntas ou comandos locais. Permitir que a IA encaminhe uma pergunta através do provedor selecionado e use a seta adjacente para abrir o menu do provedor.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Abra Measure na seção Core. Abra a medida na seção Core. Selecione o projeto que contém pilhas de imagem e máscaras produzidas pela Mask."
+          "speech_text": "O campo abaixo do console aceita perguntas ou comandos locais. Permitir que a IA encaminhe uma pergunta através do provedor selecionado e use a seta adjacente para abrir o menu do provedor."
         },
         {
-          "narration": "Na área de configuração principal, use o canal um, o retículo endoplasmático, como o canal de interesse e escolha os tipos de objetos e as famílias de características para medir.",
-          "visual": "settings",
+          "narration": "Os provedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e mostram seus comandos de instalação e login. As credenciais do fornecedor permanecem com o fornecedor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, use o canal um, o retículo endoplasmático, como o canal de interesse e escolha os tipos de objetos e as famílias de características para medir."
+          "speech_text": "Os provedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e mostram seus comandos de instalação e login. As credenciais do fornecedor permanecem com o fornecedor."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
-          "visual": "run",
+          "narration": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+          "speech_text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do espáquer."
         },
         {
-          "narration": "Quando o fluxo de trabalho estiver concluído, os pontos de medição db armazenam linhas rastreáveis de um único objeto e culturas opcionais de imagem para anotação ou classificação.",
-          "visual": "output",
+          "narration": "Arraste a pasta combinada produzida pela Mask para Measure. Essas matrizes já carregam metadados do projeto spaCR, por isso a Measure resolve a fonte diretamente e não precisa novamente do nome de arquivo da imagem crua regex.",
+          "visual": "05_folder",
+          "focus_key": "src",
+          "hold_after": 0.45,
+          "speech_text": "Arraste a pasta combinada produzida pela Mask para Measure. Essas matrizes já carregam metadados do projeto espáquer, por isso a Measure resolve a fonte diretamente e não precisa novamente do nome de arquivo da imagem crua regex."
+        },
+        {
+          "narration": "Essentials mostra o conjunto compacto de configurações de medida necessárias para uma corrida, enquanto a contagem relata quantas configurações estão atualmente visíveis.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials mostra o conjunto compacto de configurações de medida necessárias para uma corrida, enquanto a contagem relata quantas configurações estão atualmente visíveis."
+        },
+        {
+          "narration": "Os limites modificados limitam o painel a valores que diferem dos padrões de medida, tornando as configurações importadas e as alterações deliberadas fáceis de auditar.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Os limites modificados limitam o painel a valores que diferem dos padrões de medida, tornando as configurações importadas e as alterações deliberadas fáceis de auditar."
+        },
+        {
+          "narration": "Todas as configurações expõem todas as categorias de medidas, incluindo controles avançados de fiabilidade e de calibração beta, sem alterar os valores atuais.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Todas as configurações expõem todas as categorias de medidas, incluindo controles avançados de fiabilidade e de calibração beta, sem alterar os valores atuais."
+        },
+        {
+          "narration": "As receitas guardam a configuração atual da medida sob um nome, reaplicam-na mais tarde ou importam e exportam um arquivo de configurações reutilizável.",
+          "visual": "09_recipes",
+          "focus_key": "recipes_dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "As receitas guardam a configuração atual da medida sob um nome, reaplicam-na mais tarde ou importam e exportam um arquivo de configurações reutilizável."
+        },
+        {
+          "narration": "Enviar instantâneos remotos das configurações de medida resolvidas e enviá-los para Funções Distribuídas.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Enviar instantâneos remotos das configurações de medida resolvidas e enviá-los para Funções Distribuídas."
+        },
+        {
+          "narration": "O Jobs Distribuído mapeia os caminhos locais para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução de Medidas.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "O Jobs Distribuído mapeia os caminhos locais para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução de Medidas."
+        },
+        {
+          "narration": "Input and Experiment identifica o projeto fonte e o nome do experimento escrito em suas saídas.",
+          "visual": "12_category_01_input_experiment",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Input and Experiment identifica o projeto fonte e o nome do experimento escrito em suas saídas."
+        },
+        {
+          "narration": "O Mapeamento de Máscaras e Canais atribui canais de imagem, células, núcleos, patógenos e planos de etiqueta de órgãos, citoplasma derivado e quaisquer objetos de série temporal.",
+          "visual": "12_category_02_mask_channel_mapping",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "O Mapeamento de Máscaras e Canais atribui canais de imagem, células, núcleos, patógenos e planos de etiqueta de órgãos, citoplasma derivado e quaisquer objetos de série temporal."
+        },
+        {
+          "narration": "Características de medição escolhe medidas salvas, correlações e resumos de Manders, distâncias de homogeneidade, distribuições radiais e resumos de organelos.",
+          "visual": "12_category_03_measurement_features",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Características de medição escolhe medidas salvas, correlações e resumos de Manders, distâncias de homogeneidade, distribuições radiais e resumos de organelos."
+        },
+        {
+          "narration": "O Object Filtering define o tamanho mínimo para cada compartimento, se as células não infectadas são mantidas e como as células patógenas que atravessam as bordas são manuseadas.",
+          "visual": "12_category_04_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "O Object Filtering define o tamanho mínimo para cada compartimento, se as células não infectadas são mantidas e como as células patógenas que atravessam as bordas são manuseadas."
+        },
+        {
+          "narration": "Os controles de saída de culturas salvaram PNGs e matrizes, objeto e tamanho de culturas, canais, dilatação, caixas de limite e normalização.",
+          "visual": "12_category_05_crop_output",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Os controles de saída de culturas salvaram PNGs e matrizes, objeto e tamanho de culturas, canais, dilatação, caixas de limite e normalização."
+        },
+        {
+          "narration": "A Preview and Diagnostics controla os gráficos e a pequena amostra do modo de ensaio utilizada antes de se comprometer com um experimento completo.",
+          "visual": "12_category_06_preview_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "A Preview and Diagnostics controla os gráficos e a pequena amostra do modo de ensaio utilizada antes de se comprometer com um experimento completo."
+        },
+        {
+          "narration": "A calibração 3D contém controles beta anisotrópicos e de tamanho de voxel que convertem as medições de pixels volumétricos em dimensões físicas.",
+          "visual": "12_category_07_3d_calibration_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "A calibração 3D contém controles beta anisotrópicos e de tamanho de voxel que convertem as medições de pixels volumétricos em dimensões físicas."
+        },
+        {
+          "narration": "Os grupos de tempo de execução e de confiabilidade retomam o comportamento, erros rigorosos, política de falhas, reproducibilidade, corridas secas, logging e contagem de trabalhadores.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Os grupos de tempo de execução e de confiabilidade retomam o comportamento, erros rigorosos, política de falhas, reproducibilidade, corridas secas, logging e contagem de trabalhadores."
+        },
+        {
+          "narration": "Enable Live Preview e carregue uma matriz combinada completa. A galeria agrupa 40 culturas celulares reais por núcleo e conteúdo de patógenos em cinco campos de teste.",
+          "visual": "20_cell_crops",
+          "focus_key": "live_and_grid",
+          "click_key": "live",
+          "hold_after": 0.45,
+          "speech_text": "Enable Live Preview e carregue uma matriz combinada completa. A galeria agrupa 40 culturas celulares reais por núcleo e conteúdo de patógenos em cinco campos de teste."
+        },
+        {
+          "narration": "General confirma a identidade do experimento, canais medidos de zero a três, plano de máscara celular quatro, plano de núcleo cinco, plano de patógeno seis, citoplasma derivado e modo de teste.",
+          "visual": "21_general",
+          "focus_key": "tab",
+          "hold_after": 0.45,
+          "speech_text": "General confirma a identidade do experimento, canais medidos de zero a três, plano de máscara celular quatro, plano de núcleo cinco, plano de patógeno seis, citoplasma derivado e modo de teste."
+        },
+        {
+          "narration": "O Object Crops escreve PNGs de células de 224 por 224 pixels usando os canais zero, um e dois. A normalização guardada permanece desativada; a galeria ao vivo sozinha usa um trecho temporário de exibição de 1 a 99 percentil.",
+          "visual": "22_object_crops",
+          "focus_key": "tab",
+          "hold_after": 0.45,
+          "speech_text": "O Object Crops escreve PNGs de células de 224 por 224 pixels usando os canais zero, um e dois. A normalização guardada permanece desativada; a galeria ao vivo sozinha usa um trecho temporário de exibição de 1 a 99 percentil."
+        },
+        {
+          "narration": "Os filtros exigem células de pelo menos 3500 pixels, núcleos de pelo menos 1000 e patógenos de pelo menos 250. As células não infectadas permanecem separadas e as células patógenas transversais são fundidas.",
+          "visual": "23_filters",
+          "focus_key": "tab",
+          "hold_after": 0.45,
+          "speech_text": "Os filtros exigem células de pelo menos 3500 pixels, núcleos de pelo menos 1000 e patógenos de pelo menos 250. As células não infectadas permanecem separadas e as células patógenas transversais são fundidas."
+        },
+        {
+          "narration": "Selecionar o canal 1 para inspecionar o sinal de emergência utilizado como o canal de interesse a jusante. Isso altera apenas a galeria; Measure ainda extrai recursos de todos os quatro canais configurados.",
+          "visual": "24_er_channel",
+          "focus_key": "grid",
+          "click_key": "channel",
+          "hold_after": 0.45,
+          "speech_text": "Selecionar o canal 1 para inspecionar o sinal de emergência utilizado como o canal de interesse a jusante. Isso altera apenas a galeria; Measure ainda extrai recursos de todos os quatro canais configurados."
+        },
+        {
+          "narration": "O livro-razão de ensaio completado relata o êxito de 5 de 5 campos. measurements.db contém 455 células e citoplasmas, 605 núcleos, 1031 patógenos e 455 culturas celulares prontas para anotação e classificação.",
+          "visual": "25_outputs",
+          "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho estiver concluído, os pontos de medição db armazenam linhas rastreáveis de um único objeto e culturas opcionais de imagem para anotação ou classificação."
+          "speech_text": "O livro-razão de ensaio completado relata o êxito de 5 de 5 campos. measurements dot db contém 455 células e citoplasmas, 605 núcleos, 1031 patógenos e 455 culturas celulares prontas para anotação e classificação."
         }
       ]
     },
@@ -466,47 +836,198 @@
       "id": "09_annotate",
       "number": 9,
       "slug": "annotate",
-      "title": "Annotate",
+      "title": "Anotado",
       "series": 1,
       "app_key": "annotate",
       "section": "Core",
-      "description": "Revisão de culturas de um único objeto numa grade e atribuição de rótulos fiáveis para formação de modelos ou controlo da qualidade.",
+      "description": "Etiquetar culturas reais de célula única em uma coluna de banco de dados dedicada, cobertura de auditoria e anotações manuais para classificadores de imagem ou de medição.",
       "objectives": [
-        "Entenda quando utilizar o Annotate.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Criar e configurar a coluna de anotação spaCR_Tutorial em um experimento real medido.",
+        "Use anotações de mouse e teclado, navegação, cancelamento, contagem, cobertura e controles de aprendizado ativo.",
+        "Salvar de forma segura os rótulos e compreender as remessas de Classify CV e Classify ML."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Completar a medida em primeiro lugar para que o projeto contenha medidas/measurements.db e culturas PNG de células.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange o Annotate. Revisar culturas de um único objeto numa grade e atribuir rótulos confiáveis para treinamento de modelos ou controle de qualidade.",
-          "visual": "overview",
+          "narration": "A anotação começa com a rede de culturas priorizada. Abra o Console quando precisar de mensagens de banco de dados, salvar status, avisos ou o campo de bate-papo; o mesmo botão o esconde novamente para devolver o espaço às imagens.",
+          "visual": "01_console",
+          "focus_key": "console_and_chat",
+          "click_key": "console_toggle",
           "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange o Annotate. Revisar culturas de um único objeto numa grade e atribuir rótulos confiáveis para treinamento de modelos ou controle de qualidade."
+          "speech_text": "A anotação começa com a rede de culturas priorizada. Abra o Console quando precisar de mensagens de banco de dados, salvar status, avisos ou o campo de bate-papo; o mesmo botão o esconde novamente para devolver o espaço às imagens."
         },
         {
-          "narration": "Abra Annotate na seção Core. Abra Anotado na seção Core. Abra um projeto com culturas de objetos e selecione a tabela de banco de dados e a coluna de anotações.",
-          "visual": "input",
+          "narration": "O interruptor de IA envia uma pergunta através do provedor selecionado. Use a seta adjacente para escolher um provedor configurado ou gerenciamento de provedor aberto.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Abra Annotate na seção Core. Abra Anotado na seção Core. Abra um projeto com culturas de objetos e selecione a tabela de banco de dados e a coluna de anotações."
+          "speech_text": "O interruptor de IA envia uma pergunta através do provedor selecionado. Use a seta adjacente para escolher um provedor configurado ou gerenciamento de provedor aberto."
         },
         {
-          "narration": "Na área de configuração principal, escolha classes, canais de exibição, classificação, amostragem e quaisquer filtros que definam o conjunto de revisão.",
-          "visual": "settings",
+          "narration": "Os provedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e fornecem os comandos de instalação e login. As credenciais ficam com cada vendedor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, escolha classes, canais de exibição, classificação, amostragem e quaisquer filtros que definam o conjunto de revisão."
+          "speech_text": "Os provedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e fornecem os comandos de instalação e login. As credenciais ficam com cada vendedor."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. etiquete objetos representativos, salve com frequência e revisite exemplos incertos ou conflitantes.",
-          "visual": "run",
+          "narration": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. etiquete objetos representativos, salve com frequência e revisite exemplos incertos ou conflitantes."
+          "speech_text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do espáquer."
         },
         {
-          "narration": "Quando o fluxo de trabalho termina, as anotações são escritas de volta para o banco de dados do projeto com identificadores de objetos intactos.",
-          "visual": "output",
+          "narration": "Arraste a pasta do experimento medido para Annotate. spaCR resolve measurements.db, ancora os seus caminhos de colheita armazenados neste computador, cria a coluna spaCR_Tutorial e carrega as imagens reais da célula.",
+          "visual": "05_folder",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Arraste a pasta do experimento medido para Annotate. espáquer resolve measurements dot db, ancora os seus caminhos de colheita armazenados neste computador, cria a coluna espáquer_Tutorial e carrega as imagens reais da célula."
+        },
+        {
+          "narration": "As configurações nomeiam a coluna de fonte e anotação, controlam o tamanho da coluna, o tipo de imagem, os canais visíveis e normalizados, os percentilhos, os contornos opcionais, os filtros de objetos ou de medição e uma fila de incerteza com proteção à diversidade.",
+          "visual": "06_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "As configurações nomeiam a coluna de fonte e anotação, controlam o tamanho da coluna, o tipo de imagem, os canais visíveis e normalizados, os percentilhos, os contornos opcionais, os filtros de objetos ou de medição e uma fila de incerteza com proteção à diversidade."
+        },
+        {
+          "narration": "O contador de páginas mostra 128 culturas visíveis de 81.969. Um anel branco marca a colheita focada, enquanto os anéis de cor de classe mostram os rótulos já atribuídos em spaCR_Tutorial.",
+          "visual": "07_grid",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "O contador de páginas mostra 128 culturas visíveis de 81.969. Um anel branco marca a colheita focada, enquanto os anéis de cor de classe mostram os rótulos já atribuídos em espáquer_Tutorial."
+        },
+        {
+          "narration": "Abra a referência do teclado a qualquer momento. Os números 1 a 9 etiquetar e avançar, zero limpar uma colheita, flechas ou HJ K L mover, Space skips, Backspace retorna, U desfaz, e Enter salva e avança.",
+          "visual": "08_keyboard_reference",
+          "focus_key": "legend",
+          "click_key": "legend_button",
+          "hold_after": 0.45,
+          "speech_text": "Abra a referência do teclado a qualquer momento. Os números 1 a 9 etiquetar e avançar, zero limpar uma colheita, flechas ou HJ K L mover, Space skips, Backspace retorna, U desfaz, e Enter salva e avança."
+        },
+        {
+          "narration": "Pressão 1 para atribuir classe 1 à colheita focada. Seu anel muda para a cor da classe, e o foco avança para a próxima imagem sem rótulo.",
+          "visual": "09_keyboard_class_one",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Pressão 1 para atribuir classe 1 à colheita focada. Seu anel muda para a cor da classe, e o foco avança para a próxima imagem sem rótulo."
+        },
+        {
+          "narration": "Pressão 2 para atribuir a classe 2. As aulas são numéricas e definidas por experimento, por isso, registem o que cada número significa antes que uma equipe comece a rotulagem.",
+          "visual": "10_keyboard_class_two",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Pressão 2 para atribuir a classe 2. As aulas são numéricas e definidas por experimento, por isso, registem o que cada número significa antes que uma equipe comece a rotulagem."
+        },
+        {
+          "narration": "As teclas de flecha movem o foco sem alterar um rótulo. O espaço avança e o Backspace retrocede, o que torna possível uma revisão rápida sem atingir o mouse.",
+          "visual": "11_navigation",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "As teclas de flecha movem o foco sem alterar um rótulo. O espaço avança e o Backspace retrocede, o que torna possível uma revisão rápida sem atingir o mouse."
+        },
+        {
+          "narration": "Pressione U para desfazer o último rótulo do teclado. A colheita retorna ao seu estado anterior, o foco muda de volta para ela, e a faixa de status confirma o anulado.",
+          "visual": "12_undo",
+          "focus_key": "legend",
+          "hold_after": 0.45,
+          "speech_text": "Pressione U para desfazer o último rótulo do teclado. A colheita retorna ao seu estado anterior, o foco muda de volta para ela, e a faixa de status confirma o anulado."
+        },
+        {
+          "narration": "A anotação do rato permanece disponível. Um clique esquerdo atribui classe 1 a uma colheita através do mesmo caminho de armazenamento de fundo usado pelos rótulos do teclado.",
+          "visual": "13_mouse_class_one",
+          "focus_key": "crop",
+          "click_key": "crop",
+          "hold_after": 0.45,
+          "speech_text": "A anotação do rato permanece disponível. Um clique esquerdo atribui classe 1 a uma colheita através do mesmo caminho de armazenamento de fundo usado pelos rótulos do teclado."
+        },
+        {
+          "narration": "Um clique direito atribui classe 2. Clicar na mesma classe naquela colheita torna-a limpa, enquanto clicar na outra classe muda-a diretamente.",
+          "visual": "14_mouse_class_two",
+          "focus_key": "crop",
+          "click_key": "crop",
+          "hold_after": 0.45,
+          "speech_text": "Um clique direito atribui classe 2. Clicar na mesma classe naquela colheita torna-a limpa, enquanto clicar na outra classe muda-a diretamente."
+        },
+        {
+          "narration": "As contagens de classes confirmam a população salvada e exibem a cor usada para cada anel de classe. Este tutorial tem dois exemplos na classe 1 e dois na classe 2.",
+          "visual": "15_class_counts",
+          "focus_key": "dialog",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "As contagens de classes confirmam a população salvada e exibem a cor usada para cada anel de classe. Este tutorial tem dois exemplos na classe 1 e dois na classe 2."
+        },
+        {
+          "narration": "A cobertura verifica os rótulos por classe, placa, poço, fonte e rodada de aprendizagem ativa. Estes quatro exemplos provêm de um só poço, que é intencionalmente demasiado concentrado para a formação e demonstra por que a cobertura deve ser verificada.",
+          "visual": "16_coverage",
+          "focus_key": "report",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "A cobertura verifica os rótulos por classe, placa, poço, fonte e rodada de aprendizagem ativa. Estes quatro exemplos provêm de um só poço, que é intencionalmente demasiado concentrado para a formação e demonstra por que a cobertura deve ser verificada."
+        },
+        {
+          "narration": "O Next salva o trabalho pendente e carrega a página completa seguinte. Enter executa a mesma ação de salvamento e avanço sem sair da grade.",
+          "visual": "17_next_page",
+          "focus_key": "grid",
+          "click_key": "next",
+          "hold_after": 0.45,
+          "speech_text": "O Next salva o trabalho pendente e carrega a página completa seguinte. Enter executa a mesma ação de salvamento e avanço sem sair da grade."
+        },
+        {
+          "narration": "O Back retorna uma página enquanto preserva todas as anotações comprometidas. Page Up e Alt Left fornecem alternativas ao teclado.",
+          "visual": "18_previous_page",
+          "focus_key": "grid",
+          "click_key": "back",
+          "hold_after": 0.45,
+          "speech_text": "O Back retorna uma página enquanto preserva todas as anotações comprometidas. Page Up e Alt Left fornecem alternativas ao teclado."
+        },
+        {
+          "narration": "Salte para a última anotação salta para a página que contém o último rótulo guardado, tornando fácil retomar uma longa sessão de anotação.",
+          "visual": "19_skip_to_annotations",
+          "focus_key": "grid",
+          "click_key": "skip",
+          "hold_after": 0.45,
+          "speech_text": "Salte para a última anotação salta para a página que contém o último rótulo guardado, tornando fácil retomar uma longa sessão de anotação."
+        },
+        {
+          "narration": "Os rounds mostram a precisão de manuseio após cada reestruturação de aprendizagem ativa e avaliam se a rotulagem recente melhorou o modelo. Nenhuma curva aparece até que suficientes rótulos representativos sustentem uma primeira rodada.",
+          "visual": "20_rounds",
+          "focus_key": "report",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "Os rounds mostram a precisão de manuseio após cada reestruturação de aprendizagem ativa e avaliam se a rotulagem recente melhorou o modelo. Nenhuma curva aparece até que suficientes rótulos representativos sustentem uma primeira rodada."
+        },
+        {
+          "narration": "Retrain se encaixa nos rótulos salvos, marca as colheitas remanescentes e reorganiza a fila de incerteza opcional. A linha de status registra a rodada, o resultado mantido, a classe mais fraca e a orientação de parada.",
+          "visual": "21_active_learning",
+          "focus_key": "active_controls",
+          "hold_after": 0.45,
+          "speech_text": "Retrain se encaixa nos rótulos salvos, marca as colheitas remanescentes e reorganiza a fila de incerteza opcional. A linha de status registra a rodada, o resultado mantido, a classe mais fraca e a orientação de parada."
+        },
+        {
+          "narration": "O currículo do treinamento entrega este projeto e a coluna de anotações ao classificador de imagens. O Train XG entrega os mesmos rótulos ao classificador das características de medição. Ambos abrem um módulo pré-configurado; nenhum começa o treinamento imediatamente.",
+          "visual": "22_training_handoffs",
+          "focus_key": "training",
+          "hold_after": 0.45,
+          "speech_text": "O currículo do treinamento entrega este projeto e a coluna de anotações ao classificador de imagens. O Train XG entrega os mesmos rótulos ao classificador das características de medição. Ambos abrem um módulo pré-configurado; nenhum começa o treinamento imediatamente."
+        },
+        {
+          "narration": "A coluna limpa é guardada intencionalmente porque remove todos os rótulos da coluna selecionada. Confirme o nome exato da coluna antes de prosseguir; este tutorial cancela o aviso e mantém os rótulos.",
+          "visual": "23_clear_warning",
+          "focus_key": "dialog",
+          "click_key": "clear",
+          "hold_after": 0.45,
+          "speech_text": "A coluna limpa é guardada intencionalmente porque remove todos os rótulos da coluna selecionada. Confirme o nome exato da coluna antes de prosseguir; este tutorial cancela o aviso e mantém os rótulos."
+        },
+        {
+          "narration": "Os quatro rótulos de exemplo são agora guardados em measurements.db em spaCR_Tutorial com os seus caminhos de objeto e proveniência intactos. Continue através de poços e pratos antes de usá-los para treinar um modelo.",
+          "visual": "24_saved_result",
+          "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho termina, as anotações são escritas de volta para o banco de dados do projeto com identificadores de objetos intactos."
+          "speech_text": "Os quatro rótulos de exemplo são agora guardados em measurements dot db em espáquer_Tutorial com os seus caminhos de objeto e proveniência intactos. Continue através de poços e pratos antes de usá-los para treinar um modelo."
         }
       ]
     },
