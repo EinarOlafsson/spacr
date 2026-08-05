@@ -2751,48 +2751,169 @@
     {
       "id": "19_train_cellpose",
       "number": 19,
-      "slug": "train_cellpose",
-      "title": "Train Cellpose",
+      "slug": "train-cellpose",
+      "title": "Le train Cellpose",
       "series": 2,
       "app_key": "train_cellpose",
       "section": "Segmentation models",
-      "description": "Exercer un modèle de segmentation personnalisé compatible avec Cellpose ou CPSAM à partir de paires de masques d'image.",
+      "description": "Préparez des images de microscopie correspondantes et des masques d'objets examinés, configurez le réglage fin du CPSAM et sauvegardez un point de contrôle Cellpose reproductible.",
       "objectives": [
-        "Comprenez quand utiliser Train Cellpose.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Préparer des paires de masques d'image TIFF correspondantes dans les dossiers d'entraînement requis.",
+        "Examen du point de départ, du calendrier, de la géométrie, de la dénonciation et des catégories de temps d'exécution.",
+        "Exécutez un ajustement d'étalonnage court et localiser le point de contrôle et les paramètres enregistrés."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Créer des masques d'étiquette d'instance précis, examiner chaque annotation et réserver des champs indépendants à la validation avant la formation de production.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre Train Cellpose.",
-          "visual": "overview",
+          "narration": "Train Cellpose a affiné un modèle de segmentation CPSAM à partir d'images de microscopie couplées et de masques d'étiquette d'instance. La console rapporte les données sélectionnées, les progrès de l'entraînement, le parcours des points de contrôle et le dossier de reproductibilité.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre Train Cellpose."
+          "speech_text": "Train Cellpose a affiné un modèle de segmentation CPSAM à partir d'images de microscopie couplées et de masques d'étiquette d'instance. La console rapporte les données sélectionnées, les progrès de l'entraînement, le parcours des points de contrôle et le dossier de reproductibilité."
         },
         {
-          "narration": "Ouvrez Train Cellpose dans la section Segmentation models. Fournir des images de formation et de validation diverses avec des masques d'étiquette soigneusement corrigés.",
-          "visual": "input",
+          "narration": "Le champ de discussion accepte les questions du flux de travail local. Activer l'IA pour un fournisseur configuré et utiliser la flèche adjacente pour sélectionner un fournisseur ou ouvrir ses contrôles.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Ouvrez Train Cellpose dans la section Segmentation models. Fournir des images de formation et de validation diverses avec des masques d'étiquette soigneusement corrigés."
+          "speech_text": "Le champ de discussion accepte les questions du flux de travail local. Activer l'IA pour un fournisseur configuré et utiliser la flèche adjacente pour sélectionner un fournisseur ou ouvrir ses contrôles."
         },
         {
-          "narration": "Dans la zone de configuration principale, choisissez les canaux, le modèle de base, le diamètre, l'augmentation, le taux d'apprentissage, les époques, la taille du lot et la division de validation.",
-          "visual": "settings",
+          "narration": "Les fournisseurs vérifient les clients de ligne de commande Claude, ChatGPT et Gemini et affichent leurs commandes d'installation et de connexion. L'authentification reste à chaque fournisseur.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, choisissez les canaux, le modèle de base, le diamètre, l'augmentation, le taux d'apprentissage, les époques, la taille du lot et la division de validation."
+          "speech_text": "Les fournisseurs vérifient les clients de ligne de commande Claude, ChatGPT et Gemini et affichent leurs commandes d'installation et de connexion. L'authentification reste à chaque fournisseur."
         },
         {
-          "narration": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible.",
-          "visual": "run",
+          "narration": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et les instructions du système conscient de spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+          "speech_text": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et les instructions du système conscient de spakeur."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, le point de contrôle sélectionné, l'historique de formation, les prédictions de validation et les paramètres sont stockés ensemble.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, le point de contrôle sélectionné, l'historique de formation, les prédictions de validation et les paramètres sont stockés ensemble."
+          "narration": "Jetez la racine de l'ensemble de données contenant des trains, des images et des trains, des masques. Les noms de fichiers TIFF correspondants constituent chaque paire. Cette démonstration dérive de six champs de cellules de cinq cents douze pixels de l'expérience tutorielle réelle; les étiquettes de production doivent être examinées indépendamment.",
+          "visual": "05_inputs",
+          "focus_key": "console",
+          "hold_after": 0.5,
+          "speech_text": "Jetez la racine de l'ensemble de données contenant des trains, des images et des trains, des masques. Les noms de fichiers TIFF correspondants constituent chaque paire. Cette démonstration dérive de six champs de cellules de cinq cents douze pixels de l'expérience tutorielle réelle; les étiquettes de production doivent être examinées indépendamment."
+        },
+        {
+          "narration": "Essentials maintient les poids de départ, le nom du modèle, le nombre d'époques, le taux d'apprentissage, la taille cible de l'image et la sortie verbale visibles pour une première mise à niveau.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials maintient les poids de départ, le nom du modèle, le nombre d'époques, le taux d'apprentissage, la taille cible de l'image et la sortie verbale visibles pour une première mise à niveau."
+        },
+        {
+          "narration": "Modifié limite le panneau à des modifications intentionnelles. Ici, une époque, un taux d'apprentissage de point zéro-un, la taille du lot deux, le redimensionnement, et une cible de deux cent cinquante-six pixels gardent le tutoriel rapide et reproduisable.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modifié limite le panneau à des modifications intentionnelles. Ici, une époque, un taux d'apprentissage de point zéro-un, la taille du lot deux, le redimensionnement, et une cible de deux cent cinquante-six pixels gardent le tutoriel rapide et reproduisable."
+        },
+        {
+          "narration": "Tous les paramètres révèlent cinq catégories: point de départ, horaire de formation, géométrie d'image, arrière-plan et dénonciation, et sortie et temps d'exécution.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Tous les paramètres révèlent cinq catégories: point de départ, horaire de formation, géométrie d'image, arrière-plan et dénonciation, et sortie et temps d'exécution."
+        },
+        {
+          "narration": "Les recettes enregistrent la configuration complète de formation sous un nom, la réappliquent à un autre ensemble de données annoté ou importent et exportent un fichier de paramètres réutilisable.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Les recettes enregistrent la configuration complète de formation sous un nom, la réappliquent à un autre ensemble de données annoté ou importent et exportent un fichier de paramètres réutilisable."
+        },
+        {
+          "narration": "Envoyez des instantanés à distance des paramètres de formation résolus et envoyez l'ajustement à l'espace de travail des emplois distribués, ce qui est utile lorsque la formation CPSAM appartient à un GPU plus grand.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envoyez des instantanés à distance des paramètres de formation résolus et envoyez l'ajustement à l'espace de travail des emplois distribués, ce qui est utile lorsque la formation CPSAM appartient à un GPU plus grand."
+        },
+        {
+          "narration": "Distributed Jobs trace le jeu de données et les chemins de sortie vers une station de travail à distance, un cluster Slurm ou une commande configurée, puis soumet et surveille la même course de formation.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs trace le jeu de données et les chemins de sortie vers une station de travail à distance, un cluster Slurm ou une commande configurée, puis soumet et surveille la même course de formation."
+        },
+        {
+          "narration": "Le point de départ choisit le CPSAM, l'ajustement fin ou l'entraînement à partir de zéro, et le nom du point de contrôle. Les poids pré-entraînés à l'ajustement nécessitent généralement beaucoup moins d'images révisées qu'un démarrage aléatoire.",
+          "visual": "12_category_01_starting_point",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le point de départ choisit le CPSAM, l'ajustement fin ou l'entraînement à partir de zéro, et le nom du point de contrôle. Les poids pré-entraînés à l'ajustement nécessitent généralement beaucoup moins d'images révisées qu'un démarrage aléatoire."
+        },
+        {
+          "narration": "Le calendrier de formation définit des époques, le taux d'apprentissage, la perte de poids, la taille du minibatch et l'augmentation. Augmenter la formation uniquement après que les paires d'introduction et la stratégie d'évaluation prolongée aient été correctes.",
+          "visual": "12_category_02_training_schedule",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le calendrier de formation définit des époques, le taux d'apprentissage, la perte de poids, la taille du minibatch et l'augmentation. Augmenter la formation uniquement après que les paires d'introduction et la stratégie d'évaluation prolongée aient été correctes."
+        },
+        {
+          "narration": "La géométrie d'image enregistre les dimensions de la source, la taille de la cible, le diamètre attendu de l'objet et si les paires sont redimensionnées. Les images et les masques sont transformés ensemble, les identités des étiquettes conservées.",
+          "visual": "12_category_03_image_geometry",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La géométrie d'image enregistre les dimensions de la source, la taille de la cible, le diamètre attendu de l'objet et si les paires sont redimensionnées. Les images et les masques sont transformés ensemble, les identités des étiquettes conservées."
+        },
+        {
+          "narration": "L'élimination optionnelle de l'arrière-plan, le plancher d'intensité et le dépistage signal-bruit sont contrôlés avant que les images n'entrent en formation.",
+          "visual": "12_category_04_background_denoising",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "L'élimination optionnelle de l'arrière-plan, le plancher d'intensité et le dépistage signal-bruit sont contrôlés avant que les images n'entrent en formation."
+        },
+        {
+          "narration": "Les contrôles de sortie et d'exécution sont des rapports d'avancement verbaux. Le point de contrôle du modèle et ses paramètres sont enregistrés sous les modèles, modèle de position cellulaire à l'intérieur de la racine du jeu de données abandonné.",
+          "visual": "12_category_05_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Les contrôles de sortie et d'exécution sont des rapports d'avancement verbaux. Le point de contrôle du modèle et ses paramètres sont enregistrés sous les modèles, modèle de position cellulaire à l'intérieur de la racine du jeu de données abandonné."
+        },
+        {
+          "narration": "Pour cette calibration, une époque et la taille de lot deux traitent tous les six champs annotés sans augmentation. Un véritable ajustement devrait utiliser suffisamment d'époques et de diversité d'image pour converger sans mémoriser l'ensemble de formation.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "Pour cette calibration, une époque et la taille de lot deux traitent tous les six champs annotés sans augmentation. Un véritable ajustement devrait utiliser suffisamment d'époques et de diversité d'image pour converger sans mémoriser l'ensemble de formation."
+        },
+        {
+          "narration": "Run valide les noms de fichiers correspondants, charge chaque image annotée, prévisualise un échantillon délimité et ajuste le modèle. L'arrêt demande une interruption sécurisée pendant que le lot actuel est terminé.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run valide les noms de fichiers correspondants, charge chaque image annotée, prévisualise un échantillon délimité et ajuste le modèle. L'arrêt demande une interruption sécurisée pendant que le lot actuel est terminé."
+        },
+        {
+          "narration": "Au cours du traitement, le panneau de figures prévisualise chaque champ de microscopie au-dessus de son masque d'instance, tandis que la console rapporte six correctifs, six annotations de source, une époque et une taille de minibatch deux.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Au cours du traitement, le panneau de figures prévisualise chaque champ de microscopie au-dessus de son masque d'instance, tandis que la console rapporte six correctifs, six annotations de source, une époque et une taille de minibatch deux."
+        },
+        {
+          "narration": "L'étalonnage a été effectué avec succès. spaCR a enregistré le point de contrôle CPSAM, les paramètres CSV, le manifeste d'exécution et l'enregistrement macro, et l'aperçu des champs parallèles confirme que les fichiers d'image et d'étiquette sont restés alignés.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 0.7,
+          "speech_text": "L'étalonnage a été effectué avec succès. spakeur a enregistré le point de contrôle CPSAM, les paramètres CSV, le manifeste d'exécution et l'enregistrement macro, et l'aperçu des champs parallèles confirme que les fichiers d'image et d'étiquette sont restés alignés."
         }
       ]
     },

@@ -2751,48 +2751,169 @@
     {
       "id": "19_train_cellpose",
       "number": 19,
-      "slug": "train_cellpose",
-      "title": "Train Cellpose",
+      "slug": "train-cellpose",
+      "title": "El tren Cellpose",
       "series": 2,
       "app_key": "train_cellpose",
       "section": "Segmentation models",
-      "description": "Entrenar un modelo de segmentación personalizado de Cellpose o compatible con CPSAM a partir de pares de máscaras de imagen seleccionadas.",
+      "description": "Preparar imágenes de microscopía coincidentes y máscaras de objetos revisados, configurar ajustes finos de CPSAM y guardar un punto de control Cellpose reproducible.",
       "objectives": [
-        "Comprender cuándo utilizar Train Cellpose.",
-        "Configurar las entradas y configuraciones importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus salidas."
+        "Preparar parejas de máscaras de imagen TIFF en las carpetas de entrenamiento requeridas.",
+        "Revisar el punto de partida, el calendario, la geometría, la denotación y las categorías de tiempo de ejecución.",
+        "Realice un ajuste corto de calibración y localice el punto de control y la configuración guardados."
       ],
-      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados en la línea ascendente.",
+      "prerequisite": "Crear máscaras de etiqueta de instancia precisas, revisar cada anotación y reservar campos independientes para la validación antes de la capacitación de producción.",
       "scenes": [
         {
-          "narration": "Este tutorial abarca Train Cellpose. Entrenar un modelo de segmentación personalizado de Cellpose o compatible con CPSAM a partir de pares de máscaras de imágenes seleccionadas.",
-          "visual": "overview",
+          "narration": "Train Cellpose ha perfeccionado un modelo de segmentación CPSAM a partir de imágenes de microscopía emparejadas y máscaras de etiqueta de instancia. La consola informa los datos seleccionados, el progreso del entrenamiento, el camino del punto de control y el registro de reproducibilidad.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Este tutorial abarca Train Cellpose. Entrenar un modelo de segmentación personalizado de Cellpose o compatible con CPSAM a partir de pares de máscaras de imágenes seleccionadas."
+          "speech_text": "Train Cellpose ha perfeccionado un modelo de segmentación CPSAM a partir de imágenes de microscopía emparejadas y máscaras de etiqueta de instancia. La consola informa los datos seleccionados, el progreso del entrenamiento, el camino del punto de control y el registro de reproducibilidad."
         },
         {
-          "narration": "Abra Train Cellpose en la sección Segmentation models. Abre el tren Cellpose desde la sección Modelos de segmentación. Proporcione diversas imágenes de capacitación y validación con máscaras de etiqueta cuidadosamente corregidas.",
-          "visual": "input",
+          "narration": "El campo de chat acepta preguntas de flujo de trabajo locales. Habilitar la IA para un proveedor configurado, y usar la flecha adyacente para seleccionar un proveedor o abrir sus controles.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Abra Train Cellpose en la sección Segmentation models. Abre el tren Cellpose desde la sección Modelos de segmentación. Proporcione diversas imágenes de capacitación y validación con máscaras de etiqueta cuidadosamente corregidas."
+          "speech_text": "El campo de chat acepta preguntas de flujo de trabajo locales. Habilitar la IA para un proveedor configurado, y usar la flecha adyacente para seleccionar un proveedor o abrir sus controles."
         },
         {
-          "narration": "En el área de configuración principal, elija canales, modelo base, diámetro, aumento, tasa de aprendizaje, épocas, tamaño de lote y división de validación.",
-          "visual": "settings",
+          "narration": "Los proveedores comprueban los clientes de línea de comandos Claude, ChatGPT y Gemini y muestran sus comandos de instalación y inicio de sesión. La autenticación permanece en manos de cada proveedor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "En el área de configuración principal, elija canales, modelo base, diámetro, aumento, tasa de aprendizaje, épocas, tamaño de lote y división de validación."
+          "speech_text": "Los proveedores comprueban los clientes de línea de comandos Claude, ChatGPT y Gemini y muestran sus comandos de instalación y inicio de sesión. La autenticación permanece en manos de cada proveedor."
         },
         {
-          "narration": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible.",
-          "visual": "run",
+          "narration": "Configuraciones de IA controla la profundidad de la respuesta, las explicaciones automáticas de errores, el reporte opcional de problemas GitHub, el inicio de sesión y las instrucciones del sistema consciente de spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+          "speech_text": "Configuraciones de IA controla la profundidad de la respuesta, las explicaciones automáticas de errores, el reporte opcional de problemas GitHub, el inicio de sesión y las instrucciones del sistema consciente de espáquer."
         },
         {
-          "narration": "Cuando el flujo de trabajo termina, el punto de control seleccionado, el historial de entrenamiento, las predicciones de validación y las configuraciones se almacenan juntos.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Cuando el flujo de trabajo termina, el punto de control seleccionado, el historial de entrenamiento, las predicciones de validación y las configuraciones se almacenan juntos."
+          "narration": "Deja la raíz del conjunto de datos que contiene tren, imágenes y tren, máscaras. Los nombres de archivos TIFF correspondientes forman cada par. Esta demostración deriva seis campos de células de quinientos doce píxeles del experimento tutorial real; las etiquetas de producción deben ser revisadas de forma independiente.",
+          "visual": "05_inputs",
+          "focus_key": "console",
+          "hold_after": 0.5,
+          "speech_text": "Deja la raíz del conjunto de datos que contiene tren, imágenes y tren, máscaras. Los nombres de archivos TIFF correspondientes forman cada par. Esta demostración deriva seis campos de células de quinientos doce píxeles del experimento tutorial real; las etiquetas de producción deben ser revisadas de forma independiente."
+        },
+        {
+          "narration": "Essentials mantiene los pesos iniciales, el nombre del modelo, el recuento de épocas, la tasa de aprendizaje, el tamaño objetivo de la imagen y la salida verbal visibles para una primera carrera de calibración.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials mantiene los pesos iniciales, el nombre del modelo, el recuento de épocas, la tasa de aprendizaje, el tamaño objetivo de la imagen y la salida verbal visibles para una primera carrera de calibración."
+        },
+        {
+          "narration": "Modificado limita el panel a cambios intencionales. Aquí, una época, una tasa de aprendizaje de punto cero-uno, tamaño de lote dos, redimensionamiento, y un objetivo de doscientos cincuenta y seis píxeles mantienen el tutorial rápido y reproducible.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modificado limita el panel a cambios intencionales. Aquí, una época, una tasa de aprendizaje de punto cero-uno, tamaño de lote dos, redimensionamiento, y un objetivo de doscientos cincuenta y seis píxeles mantienen el tutorial rápido y reproducible."
+        },
+        {
+          "narration": "Todas las configuraciones revelan cinco categorías: punto de inicio, horario de capacitación, geometría de imagen, fondo y negación y salida y tiempo de ejecución.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Todas las configuraciones revelan cinco categorías: punto de inicio, horario de capacitación, geometría de imagen, fondo y negación y salida y tiempo de ejecución."
+        },
+        {
+          "narration": "Recetas guarda la configuración completa de entrenamiento bajo un nombre, la reaplica a otro conjunto de datos anotado o importa y exporta un archivo de configuración reutilizable.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recetas guarda la configuración completa de entrenamiento bajo un nombre, la reaplica a otro conjunto de datos anotado o importa y exporta un archivo de configuración reutilizable."
+        },
+        {
+          "narration": "Envía instantáneas remotas de las configuraciones de capacitación resueltas y envía el ajuste al espacio de trabajo de Trabajos Distribuidos, que es útil cuando la capacitación CPSAM pertenece a una GPU más grande.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envía instantáneas remotas de las configuraciones de capacitación resueltas y envía el ajuste al espacio de trabajo de Trabajos Distribuidos, que es útil cuando la capacitación CPSAM pertenece a una GPU más grande."
+        },
+        {
+          "narration": "Distributed Jobs mapea el conjunto de datos y las vías de salida a una estación de trabajo remota, un grupo Slurm o un comando configurado, luego envía y monitorea la misma ejecución de entrenamiento.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs mapea el conjunto de datos y las vías de salida a una estación de trabajo remota, un grupo Slurm o un comando configurado, luego envía y monitorea la misma ejecución de entrenamiento."
+        },
+        {
+          "narration": "El punto de partida elige CPSAM, ajuste fino o entrenamiento desde cero, y el nombre del punto de control. El ajuste fino de pesas pre-entrenadas por lo general requiere mucho menos imágenes revisadas que un comienzo aleatorio.",
+          "visual": "12_category_01_starting_point",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "El punto de partida elige CPSAM, ajuste fino o entrenamiento desde cero, y el nombre del punto de control. El ajuste fino de pesas pre-entrenadas por lo general requiere mucho menos imágenes revisadas que un comienzo aleatorio."
+        },
+        {
+          "narration": "El programa de entrenamiento establece épocas, tasa de aprendizaje, pérdida de peso, tamaño de minipartida y aumento. Aumentar la formación sólo después de que los pares de entradas y la estrategia de evaluación prolongada sean correctos.",
+          "visual": "12_category_02_training_schedule",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "El programa de entrenamiento establece épocas, tasa de aprendizaje, pérdida de peso, tamaño de minipartida y aumento. Aumentar la formación sólo después de que los pares de entradas y la estrategia de evaluación prolongada sean correctos."
+        },
+        {
+          "narration": "La geometría de imágenes registra las dimensiones de la fuente, el tamaño del objetivo, el diámetro esperado del objeto y si los pares se redimensionan. Las imágenes y las máscaras se transforman juntas, conservando las identidades de las etiquetas.",
+          "visual": "12_category_03_image_geometry",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La geometría de imágenes registra las dimensiones de la fuente, el tamaño del objetivo, el diámetro esperado del objeto y si los pares se redimensionan. Las imágenes y las máscaras se transforman juntas, conservando las identidades de las etiquetas."
+        },
+        {
+          "narration": "Background y Denoising controlan la eliminación opcional de fondo, el piso de intensidad y la detección de señal a ruido aplicada antes de que las imágenes entrenen.",
+          "visual": "12_category_04_background_denoising",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Background y Denoising controlan la eliminación opcional de fondo, el piso de intensidad y la detección de señal a ruido aplicada antes de que las imágenes entrenen."
+        },
+        {
+          "narration": "Los controles de salida y tiempo de funcionamiento son la información de progreso verbal. El punto de control del modelo y sus configuraciones se guardan bajo modelos, modelo de colocación celular dentro de la raíz del conjunto de datos caído.",
+          "visual": "12_category_05_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Los controles de salida y tiempo de funcionamiento son la información de progreso verbal. El punto de control del modelo y sus configuraciones se guardan bajo modelos, modelo de colocación celular dentro de la raíz del conjunto de datos caído."
+        },
+        {
+          "narration": "Para esta calibración, una época y el tamaño de lote dos procesan los seis campos anotados sin aumento. Un ajuste real debe utilizar suficientes épocas y diversidad de imagen para converger sin memorizar el conjunto de entrenamiento.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "Para esta calibración, una época y el tamaño de lote dos procesan los seis campos anotados sin aumento. Un ajuste real debe utilizar suficientes épocas y diversidad de imagen para converger sin memorizar el conjunto de entrenamiento."
+        },
+        {
+          "narration": "Run valida los nombres de archivos correspondientes, carga cada imagen anotada, muestra previamente una muestra limitada y ajusta el modelo. La parada solicita una interrupción segura mientras el lote actual termina.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run valida los nombres de archivos correspondientes, carga cada imagen anotada, muestra previamente una muestra limitada y ajusta el modelo. La parada solicita una interrupción segura mientras el lote actual termina."
+        },
+        {
+          "narration": "Durante el procesamiento, el panel de figuras prevé cada campo de microscopía por encima de su máscara de instancia, mientras que la consola informa de seis parches, seis anotaciones de fuente, una época y un minibatch de tamaño dos.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Durante el procesamiento, el panel de figuras prevé cada campo de microscopía por encima de su máscara de instancia, mientras que la consola informa de seis parches, seis anotaciones de fuente, una época y un minibatch de tamaño dos."
+        },
+        {
+          "narration": "La calibración se completó con éxito. spaCR guardó el punto de control CPSAM, la configuración CSV, el manifiesto de ejecución y el registro macro, y la vista previa de los campos emparejados confirma que los archivos de imagen y etiqueta se mantuvieron alineados.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 0.7,
+          "speech_text": "La calibración se completó con éxito. espáquer guardó el punto de control CPSAM, la configuración CSV, el manifiesto de ejecución y el registro macro, y la vista previa de los campos emparejados confirma que los archivos de imagen y etiqueta se mantuvieron alineados."
         }
       ]
     },
