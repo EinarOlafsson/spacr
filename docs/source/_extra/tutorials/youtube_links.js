@@ -17,7 +17,7 @@
 // /media/carruthers/mnt3/claude/tutorials/youtube_4k.
 window.SPACR_YOUTUBE_LINKS = Object.freeze({
   "01_pypi_github": "Hkmghk8jwkI",                // PyPI, GitHub, and conda-forge
-  "02_conda_install": "",              // Installation with Conda
+  "02_conda_install": "qfs4sm201uo",              // Installation with Conda
   "03_pip_install": "fP_E6ishElw",                // Installation with pip
   "04_platform_installers": "X0CJaYhWg3I",        // Platform installers
   "05_home": "hDCeEPHVA-Y",                       // Home screen and navigation
