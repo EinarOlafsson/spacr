@@ -3277,48 +3277,89 @@
     {
       "id": "23_agreement",
       "number": 23,
-      "slug": "agreement",
-      "title": "Annotator Agreement",
+      "slug": "annotator-agreement",
+      "title": "Acuerdo del anotador",
       "series": 3,
       "app_key": "agreement",
-      "section": "Results and quality control",
-      "description": "Medir el acuerdo entre las columnas de anotación y revisar los objetos responsables del desacuerdo.",
+      "section": "Assay workflows",
+      "description": "Comparar dos o más columnas de anotación categórica, inspeccionar las estadísticas de acuerdo y el balance de clases, y revisar los cultivos exactos donde las etiquetas no estén de acuerdo.",
       "objectives": [
-        "Comprender cuándo utilizar el Acuerdo de Anotador.",
-        "Configurar las entradas y configuraciones importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus salidas."
+        "Cargar etiquetas categóricas de una base de datos de mediciones o ejecutar una carpeta.",
+        "Interpretar las filas completas, las abstenciones, el acuerdo crudo, la kappa de Cohen y la matriz de confusión juntos.",
+        "Abrir cultivos reales de desacuerdo para la adjudicación o la revisión de la calidad de las anotaciones."
       ],
-      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados en la línea ascendente.",
+      "prerequisite": "Preparar una base de datos de mediciones de spaCR que contenga al menos dos columnas de anotación o predicción categórica.",
       "scenes": [
         {
-          "narration": "Este tutorial abarca el Acuerdo de Anotador. Medir el acuerdo entre las columnas de anotación y revisar los objetos responsables del desacuerdo.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial abarca el Acuerdo de Anotador. Medir el acuerdo entre las columnas de anotación y revisar los objetos responsables del desacuerdo."
+          "narration": "El acuerdo de anotador compara dos o más columnas categoricas sin cambiar la base de datos. Utilice para dos revisores, pasajes de anotación repetidos, o una verificación revisor-versus-modelo, luego inspeccione tanto las estadísticas resumidas como los cultivos exactos que no coinciden.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.55,
+          "speech_text": "El acuerdo de anotador compara dos o más columnas categoricas sin cambiar la base de datos. Utilice para dos revisores, pasajes de anotación repetidos, o una verificación revisor-versus-modelo, luego inspeccione tanto las estadísticas resumidas como los cultivos exactos que no coinciden."
         },
         {
-          "narration": "Abra Annotator Agreement en la sección Results and quality control. Abre el Acuerdo de anotador en la sección Resultados y control de calidad. Elige una base de datos de proyectos y dos o más columnas de anotación que cubran los mismos objetos.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Annotator Agreement en la sección Results and quality control. Abre el Acuerdo de anotador en la sección Resultados y control de calidad. Elige una base de datos de proyectos y dos o más columnas de anotación que cubran los mismos objetos."
+          "narration": "Seleccione una base de datos de mediciones, o su carpeta de ejecución. spaCR descubre columnas de anotaciones y predicciones adecuadas de la tabla de lista PNG y deja las etiquetas de origen solo para lectura.",
+          "visual": "02_database",
+          "focus_key": "source_controls",
+          "hold_after": 0.5,
+          "speech_text": "Seleccione una base de datos de mediciones, o su carpeta de ejecución. espáquer descubre columnas de anotaciones y predicciones adecuadas de la tabla de lista PNG y deja las etiquetas de origen solo para lectura."
         },
         {
-          "narration": "En el área de configuración principal, seleccione el manejo de clases, la política de etiquetas faltantes, el agrupamiento, la muestreo y la estadística de acuerdo.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "En el área de configuración principal, seleccione el manejo de clases, la política de etiquetas faltantes, el agrupamiento, la muestreo y la estadística de acuerdo."
+          "narration": "Seleccione al menos dos columnas. Aquí ER_Bulbs se compara con predicciones_1 en los mismos cultivos celulares. Las columnas seleccionadas adicionales permiten todas las comparaciones en pares y un resumen de Fleiss kappa multi-rater.",
+          "visual": "03_columns",
+          "focus_key": "columns",
+          "hold_after": 0.55,
+          "speech_text": "Seleccione al menos dos columnas. Aquí ER_Bulbs se compara con predicciones_1 en los mismos cultivos celulares. Las columnas seleccionadas adicionales permiten todas las comparaciones en pares y un resumen de Fleiss kappa multi-rater."
         },
         {
-          "narration": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. inspeccione Cohen o Fleiss kappa junto con ejemplos de confusión y desacuerdo específicos de la clase.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. inspeccione Cohen o Fleiss kappa junto con ejemplos de confusión y desacuerdo específicos de la clase."
+          "narration": "Haga clic en Acuerdo de computación. Las etiquetas faltantes se tratan como abstenciones, no como desacuerdos; cada par solo se evalúa en filas donde ambas columnas seleccionadas contienen una categoría.",
+          "visual": "04_compute",
+          "focus_key": "compute",
+          "click_key": "compute",
+          "hold_after": 0.5,
+          "speech_text": "Haga clic en Acuerdo de computación. Las etiquetas faltantes se tratan como abstenciones, no como desacuerdos; cada par solo se evalúa en filas donde ambas columnas seleccionadas contienen una categoría."
         },
         {
-          "narration": "Cuando el flujo de trabajo termina, las tablas de acuerdo y una revisión enfocada establecen la compatibilidad de las etiquetas y la mejora del protocolo.",
-          "visual": "output",
+          "narration": "El cálculo alinea las etiquetas por cultivo, cuenta filas completas y abstenidas, construye cada matriz de confusión y encuentra desacuerdos que se pueden rastrear a sus imágenes de origen.",
+          "visual": "05_running",
+          "focus_key": "status",
+          "hold_after": 0.45,
+          "speech_text": "El cálculo alinea las etiquetas por cultivo, cuenta filas completas y abstenidas, construye cada matriz de confusión y encuentra desacuerdos que se pueden rastrear a sus imágenes de origen."
+        },
+        {
+          "narration": "Este par real tiene mil trescientos cincuenta y nueve filas completas, ochenta mil seiscientos diez abstenciones, ocho desacuerdos y noventa y nueve puntos cuatro por ciento de acuerdo crudo. La kappa de Cohen no está definida aquí no cero porque ER_Bulbs utiliza sólo una clase en cada fila completa, haciendo que el denominador de acuerdo de azar degenere.",
+          "visual": "06_pairwise",
+          "focus_key": "pairwise",
+          "hold_after": 0.85,
+          "speech_text": "Este par real tiene mil trescientos cincuenta y nueve filas completas, ochenta mil seiscientos diez abstenciones, ocho desacuerdos y noventa y nueve puntos cuatro por ciento de acuerdo crudo. La kappa de Cohen no está definida aquí no cero porque ER_Bulbs utiliza sólo una clase en cada fila completa, haciendo que el denominador de acuerdo de azar degenere."
+        },
+        {
+          "narration": "La matriz de confusión expone directamente ese desequilibrio de clase: mil trescientos cincuenta y una filas son clase uno en ambas columnas, mientras que ocho filas son clase uno en ER_Bulbs y clase dos en predicciones_1. ER_Bulbs no aporta filas completas de clase dos.",
+          "visual": "07_confusion",
+          "focus_key": "confusion",
+          "hold_after": 0.7,
+          "speech_text": "La matriz de confusión expone directamente ese desequilibrio de clase: mil trescientos cincuenta y una filas son clase uno en ambas columnas, mientras que ocho filas son clase uno en ER_Bulbs y clase dos en predicciones_1. ER_Bulbs no aporta filas completas de clase dos."
+        },
+        {
+          "narration": "La tabla de desacuerdos enumera esos ocho cultivos reales y ambas etiquetas. Cambia el límite de revisión para comparaciones más grandes, seleccione cualquier fila y use la vista previa en lugar de decidir solo a partir de una puntuación agregada.",
+          "visual": "08_disagreements",
+          "focus_key": "review",
+          "hold_after": 0.6,
+          "speech_text": "La tabla de desacuerdos enumera esos ocho cultivos reales y ambas etiquetas. Cambia el límite de revisión para comparaciones más grandes, seleccione cualquier fila y use la vista previa en lugar de decidir solo a partir de una puntuación agregada."
+        },
+        {
+          "narration": "La selección de un desacuerdo resuelve la trayectoria de cultivo almacenada y muestra la imagen microscópica junto a sus dos valores categóricos. Revise la morfología y el contexto de la señal antes de elegir si una etiqueta, umbral o definición de clase necesita corrección.",
+          "visual": "09_crop_one",
+          "focus_key": "crop",
           "hold_after": 0.65,
-          "speech_text": "Cuando el flujo de trabajo termina, las tablas de acuerdo y una revisión enfocada establecen la compatibilidad de las etiquetas y la mejora del protocolo."
+          "speech_text": "La selección de un desacuerdo resuelve la trayectoria de cultivo almacenada y muestra la imagen microscópica junto a sus dos valores categóricos. Revise la morfología y el contexto de la señal antes de elegir si una etiqueta, umbral o definición de clase necesita corrección."
+        },
+        {
+          "narration": "Pasa por las filas de desacuerdos para decidir sistemáticamente. Informar el acuerdo bruto, el equilibrio de clases, las abstenciones, la matriz de confusión y la kappa juntos; aquí la kappa indefinida es una advertencia útil sobre la prevalencia, no un fracaso de la comparación.",
+          "visual": "10_crop_two",
+          "focus_key": "caption",
+          "hold_after": 0.75,
+          "speech_text": "Pasa por las filas de desacuerdos para decidir sistemáticamente. Informar el acuerdo bruto, el equilibrio de clases, las abstenciones, la matriz de confusión y la kappa juntos; aquí la kappa indefinida es una advertencia útil sobre la prevalencia, no un fracaso de la comparación."
         }
       ]
     },

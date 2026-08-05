@@ -1269,19 +1269,34 @@
       "id": "23_agreement",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker Annotator Agreement. Måle enighed mellem annotationskolumner og gennemgå de objekter, der er ansvarlige for uenighed."
+          "narration": "Annotator Agreement sammenligner to eller flere kategoriske kolonner uden at ændre databasen. Brug den til to revisorer, gentagne annotationspass eller en revisor-versus-model-check, og så inspicér både sammenfattende statistik og de nøjagtige afgrøder, der er uenige."
         },
         {
-          "narration": "Åben notatorsaftale fra afsnittet Resultater og kvalitetskontrol. Vælg en projektdatabase og to eller flere annotationskolonne, der dækker de samme objekter."
+          "narration": "Vælg en måledatabase eller en run-mappe, der indeholder den. spaCR opdager passende annotations- og forudsigelseskolumner fra PNG-listetabellen og efterlader kildemærker kun til læsning."
         },
         {
-          "narration": "I hovedkonfigurationsområdet skal du vælge klassehåndtering, politik for manglende mærkning, gruppering, prøveudtagning og aftalestatistik."
+          "narration": "Vælg mindst to kolonner. Her ER_Bulbs sammenlignes med forudsigelser_1 over de samme cellegrøder. Yderligere udvalgte kolonner giver mulighed for alle parlige sammenligninger og en multi-rater Fleiss kappa opsummering."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. inspektere Cohen eller Fleiss kappa sammen med klasse-specifikke eksempler på forvirring og uenighed."
+          "narration": "Klik på beregningsaftale. Fraværende etiketter behandles som afholdelser, ikke uenigheder; hvert par vurderes kun på rader, hvor begge udvalgte kolonner indeholder en kategori."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, fastsættes aftaletabeller og en fokuseret gennemgang for at understøtte etiketforsoning og protokolforbedring."
+          "narration": "Beregningen justerer etiketter efter høst, tæller komplette og afholdte rækker, opbygger hver forvirringsmatrix og finder uenigheder, der kan spores tilbage til deres kildebilleder."
+        },
+        {
+          "narration": "Dette ægte par har et tusind tre hundrede femogtyve ni fulde rækker, otteogtyve tusind seks hundrede ti fravær, otte uenigheder og niogtyve point fire procent rå aftale. Cohen's kappa er udefineret her, ikke nul, fordi ER_Bulbs kun bruger en klasse på hver komplet række, hvilket gør tilfældig-aftale-nævneren degenererende."
+        },
+        {
+          "narration": "Den forvirring matrix afslører, at klasse ubalance direkte: tusind tre hundrede femogtredive ene rækker er klasse en i begge kolonner, mens otte rækker er klasse en i ER_Bulbs og klasse to i forudsigelser_1. ER_Bulbs bidrager ikke med fuld klasse to rækker."
+        },
+        {
+          "narration": "Tabellen med uenigheder viser de otte rigtige afgrøder og begge mærker. Ændre gennemgangsgrænsen for større sammenligninger, vælg en række og brug forhåndsvisning i stedet for at beslutte fra en samlet score alene."
+        },
+        {
+          "narration": "Ved at vælge en uenighed løses den lagrede afgrødevej og vises det mikroskopiske billede ved siden af de to kategoriske værdier. Undersøg morfologi og signal kontekst, før du vælger, om en etikette, tærskel eller klasse definition har brug for korrigering."
+        },
+        {
+          "narration": "Gå gennem de uenige rækker for at afgøre systematisk. Rapportere rå aftale, klassebalance, undtagelser, forvirringsmatrix og kappa sammen; her er den udefinerede kappa en nyttig advarsel om udbredelse, ikke en fiasko i sammenligningen."
         }
       ]
     },

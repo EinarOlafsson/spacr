@@ -4,47 +4,107 @@
   "voice": "zm_yunxia",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 44.075,
+  "total_duration": 126.8,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 5.35,
-      "scene_end": 5.8,
-      "duration": 5.8,
-      "text": "测量注释列之间的协议,并审查导致分歧的对象."
+      "speech_end": 15.8,
+      "scene_end": 16.35,
+      "duration": 16.35,
+      "text": "标记者协议将两个或多个类型列进行比较,而不会改变数据库. 用它对两个评论员,重复注释通过,或者对评论员和模型进行检查,然后检查总结统计数据和不同产品的确切产品.",
+      "speech_text": "标记者协议将两个或多个类型列进行比较,而不会改变数据库. 用它对两个评论员,重复注释通过,或者对评论员和模型进行检查,然后检查总结统计数据和不同产品的确切产品.",
+      "phonemes": "pjau→ ʨi↘ꭧɤ↓ ɕje↗i↘ ʨja→ŋ lja↓ŋkɤ↘ xwo↘ two→kɤ↘ lei↘ɕi↗ŋ lje↘ ʨi↘nɕi↗ŋ pi↓ʨjau↘,ɚ↗ pu↗xwei↘ kai↓pjɛ↘n ʂu↘ʨy↘kʰu↘. jʊ↘ŋ tʰa→ twei↘ lja↓ŋkɤ↘ pʰi↗ŋlwə↘nɥɛ↗n,ꭧʰʊ↗ŋfu↘ ꭧu↘ʂɨ↘ tʰʊ→ŋkwo↘,xwo↘ꭧɤ↓ twei↘ pʰi↗ŋlwə↘nɥɛ↗n xɤ↗ mwo↗ɕi↗ŋ ʨi↘nɕi↗ŋ ʨjɛ↓nꭧʰa↗,ɻa↗nxou↘ ʨjɛ↓nꭧʰa↗ ʦʊ↓ŋʨje↗ tʰʊ↓ŋʨi↘ʂu↘ʨy↘ xɤ↗ pu↘tʰʊ↗ŋ ꭧʰa↓npʰi↓n tɤ ʨʰɥe↘ʨʰje↘ ꭧʰa↓npʰi↓n."
     },
     {
       "scene": 2,
-      "speech_start": 5.8,
-      "speech_end": 15.850000000000001,
-      "scene_end": 16.3,
-      "duration": 10.5,
-      "text": "从 Results and quality control 部分打开 Annotator Agreement。 选择一个项目数据库和两个或多个包含相同对象的注释列."
+      "speech_start": 16.35,
+      "speech_end": 27.8,
+      "scene_end": 28.3,
+      "duration": 11.95,
+      "text": "选择一个测量数据库,或其包含运行文件. 在 PNG 列表中,spaCR 发现了适合的注释和预测列表,并只留下读取的源标签.",
+      "speech_text": "选择一个测量数据库,或其包含运行文件. 在 PNG 列表中,斯佩克尔 发现了适合的注释和预测列表,并只留下读取的源标签.",
+      "phonemes": "ɕɥɛ↓nʦɤ↗ i↗kɤ↘ ʦʰɤ↘lja↗ŋ ʂu↘ʨy↘kʰu↘,xwo↘ ʨʰi↗ pau→xa↗n y↘nɕi↗ŋ wə↗nʨjɛ↘n. ʦai↘ PNG lje↘pjau↓ ꭧʊ→ŋ,sɨ→ pʰei↘kʰɤ↘ ɚ↓ fa→ɕjɛ↘n lɤ ʂɨ↘xɤ↗ tɤ ꭧu↘ʂɨ↘ xɤ↗ y↘ʦʰɤ↘ lje↘pjau↓,pi↘ŋ ꭧɨ↓ ljou↗ɕja↘ tu↗ʨʰy↓ tɤ ɥɛ↗n pjau→ʨʰjɛ→n."
     },
     {
       "scene": 3,
-      "speech_start": 16.3,
-      "speech_end": 23.950000000000003,
-      "scene_end": 24.400000000000002,
-      "duration": 8.100000000000001,
-      "text": "在主要配置区域中,选择类处理,缺标签政策,组分,样本取样和协议统计数据."
+      "speech_start": 28.3,
+      "speech_end": 39.625,
+      "scene_end": 40.175,
+      "duration": 11.874999999999996,
+      "text": "选择至少两个列. 在这里,ER_Bulbs与相同的细胞作物中的预测_1进行了比较. 其他选定的列允许所有对式比较和多级Fleiss kappa总结.",
+      "speech_text": "选择至少两个列. 在这里,ER_Bulbs与相同的细胞作物中的预测_1进行了比较. 其他选定的列允许所有对式比较和多级Fleiss kappa总结.",
+      "phonemes": "ɕɥɛ↓nʦɤ↗ ꭧɨ↘ʂau↓ lja↓ŋkɤ↘ lje↘. ʦai↘ ꭧɤ↘li↓,ER_Bulbsy↓ ɕja→ŋtʰʊ↗ŋ tɤ ɕi↘pau→ ʦwo↘u↘ ꭧʊ→ŋ tɤ y↘ʦʰɤ↘_i→ ʨi↘nɕi↗ŋ lɤ pi↓ʨjau↘. ʨʰi↗tʰa→ ɕɥɛ↓nti↘ŋ tɤ lje↘ y↓nɕy↓ swo↓jou↓ twei↘ʂɨ↘ pi↓ʨjau↘ xɤ↗ two→ʨi↗Fleiss kappaʦʊ↓ŋʨje↗."
     },
     {
       "scene": 4,
-      "speech_start": 24.400000000000002,
-      "speech_end": 35.800000000000004,
-      "scene_end": 36.25000000000001,
-      "duration": 11.850000000000005,
-      "text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 检查Cohen或Fleiss kappa以及类型特定的混和分歧示例."
+      "speech_start": 40.175,
+      "speech_end": 50.05,
+      "scene_end": 50.55,
+      "duration": 10.375,
+      "text": "单击计算协议. 缺失标签被视为弃权,而不是异议;每个对只在两个选定的列中包含类别的行中进行评估.",
+      "speech_text": "单击计算协议. 缺失标签被视为弃权,而不是异议;每个对只在两个选定的列中包含类别的行中进行评估.",
+      "phonemes": "ta→nʨi→ ʨi↘swa↘n ɕje↗i↘. ʨʰɥe→ʂɨ→ pjau→ʨʰjɛ→n pei↘ ʂɨ↘wei↘ ʨʰi↘ʨʰɥɛ↗n,ɚ↗ pu↗ʂɨ↘ i↘i↘;mei↓kɤ↘ twei↘ ꭧɨ↓ ʦai↘ lja↓ŋkɤ↘ ɕɥɛ↓nti↘ŋ tɤ lje↘ꭧʊ→ŋ pau→xa↗n lei↘pje↗ tɤ ɕi↗ŋꭧʊ→ŋ ʨi↘nɕi↗ŋ pʰi↗ŋku→."
     },
     {
       "scene": 5,
-      "speech_start": 36.25000000000001,
-      "speech_end": 43.425000000000004,
-      "scene_end": 44.075,
-      "duration": 7.824999999999996,
-      "text": "工作流程完成后,协议表和集中审查设置支持标签调整和协议改进."
+      "speech_start": 50.55,
+      "speech_end": 60.15,
+      "scene_end": 60.6,
+      "duration": 10.050000000000004,
+      "text": "计算将标签按作物排列,计算完整和弃排行,构建每个混矩阵,并找到可以追溯到原始图像的分歧.",
+      "speech_text": "计算将标签按作物排列,计算完整和弃排行,构建每个混矩阵,并找到可以追溯到原始图像的分歧.",
+      "phonemes": "ʨi↘swa↘n ʨja→ŋ pjau→ʨʰjɛ→n a↘n ʦwo↘u↘ pʰai↗lje↘,ʨi↘swa↘n wa↗nꭧə↓ŋ xɤ↗ ʨʰi↘ pʰai↗xa↗ŋ,kou↘ʨjɛ↘n mei↓kɤ↘ xwə↘n ʨy↓ꭧə↘n,pi↘ŋ ꭧau↓tau↘ kʰɤ↓i↓ ꭧwei→su↘tau↘ ɥɛ↗nʂɨ↓ tʰu↗ɕja↘ŋ tɤ fə→nʨʰi↗."
+    },
+    {
+      "scene": 6,
+      "speech_start": 60.6,
+      "speech_end": 73.9,
+      "scene_end": 74.75,
+      "duration": 14.149999999999999,
+      "text": "这个真正的对有一千三百五十九个完整的行,八十万六百十个弃权,八个分歧, 科恩的卡帕在这里未定义,而不是零,因为ER_Bulbs在每一个完整的行上只使用一个类,",
+      "speech_text": "这个真正的对有一千三百五十九个完整的行,八十万六百十个弃权,八个分歧, 科恩的卡帕在这里未定义,而不是零,因为ER_Bulbs在每一个完整的行上只使用一个类,",
+      "phonemes": "ꭧɤ↘kɤ ꭧə→nꭧə↘ŋ tɤ twei↘ jou↓ i→ʨʰjɛ→nsa→npai↓ u↓ʂɨ↗ʨjou↓ kɤ↘ wa↗nꭧə↓ŋ tɤ ɕi↗ŋ,pa→ʂɨ↗wa↘n ljou↘ pai↓ʂɨ↗kɤ↘ ʨʰi↘ʨʰɥɛ↗n,pa→kɤ↘ fə→nʨʰi↗, kʰɤ→ə→n tɤ kʰa↓pʰa↘ ʦai↘ ꭧɤ↘li↓ wei↘ti↘ŋi↘,ɚ↗ pu↗ʂɨ↘ li↗ŋ,i→nwei↘ER_Bulbsʦai↘ mei↓ i↗kɤ↘ wa↗nꭧə↓ŋ tɤ ɕi↗ŋʂa↘ŋ ꭧɨ↓ ʂɨ↓jʊ↘ŋ i↗kɤ↘ lei↘,"
+    },
+    {
+      "scene": 7,
+      "speech_start": 74.75,
+      "speech_end": 87.3,
+      "scene_end": 88.0,
+      "duration": 13.25,
+      "text": "混矩阵直接揭示了这个类的不平衡:一千三百五十一行是两个列中的一行,而八行是ER_Bulbs中的一行和预测_1中的二行. ER_Bulbs没有提供完整的二类行.",
+      "speech_text": "混矩阵直接揭示了这个类的不平衡:一千三百五十一行是两个列中的一行,而八行是ER_Bulbs中的一行和预测_1中的二行. ER_Bulbs没有提供完整的二类行.",
+      "phonemes": "xwə↘n ʨy↓ꭧə↘n ꭧɨ↗ʨje→ ʨje→ʂɨ↘ lɤ ꭧɤ↘kɤ lei↘ tɤ pu↘ pʰi↗ŋxə↗ŋ:i→ʨʰjɛ→nsa→npai↓ u↓ʂɨ↗ i→ɕi↗ŋ ʂɨ↘ lja↓ŋkɤ↘ lje↘ꭧʊ→ŋ tɤ i→ɕi↗ŋ,ɚ↗ pa→ɕi↗ŋ ʂɨ↘ER_Bulbsꭧʊ→ŋ tɤ i→ɕi↗ŋ xɤ↗ y↘ʦʰɤ↘_i→ꭧʊ→ŋ tɤ ɚ↘ɕi↗ŋ. ER_Bulbsmei↗jou↓ tʰi↗kʊ→ŋ wa↗nꭧə↓ŋ tɤ ɚ↘lei↘ ɕi↗ŋ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 88.0,
+      "speech_end": 99.4,
+      "scene_end": 100.0,
+      "duration": 12.0,
+      "text": "在分歧表中列出了这八种真正的农作物, 改变更大的比较的审查限制,选择任何行,并使用预览,而不是仅仅从总分数决定.",
+      "speech_text": "在分歧表中列出了这八种真正的农作物, 改变更大的比较的审查限制,选择任何行,并使用预览,而不是仅仅从总分数决定.",
+      "phonemes": "ʦai↘ fə→nʨʰi↗ pjau↓ꭧʊ→ŋ lje↘ꭧʰu→ lɤ ꭧɤ↘ pa→ꭧʊ↓ŋ ꭧə→nꭧə↘ŋ tɤ nʊ↗ŋʦwo↘u↘, kai↓pjɛ↘n kə↘ŋta↘ tɤ pi↓ʨjau↘ tɤ ʂə↓nꭧʰa↗ ɕjɛ↘nꭧɨ↘,ɕɥɛ↓nʦɤ↗ ɻə↘nxɤ↗ ɕi↗ŋ,pi↘ŋ ʂɨ↓jʊ↘ŋ y↘la↓n,ɚ↗ pu↗ʂɨ↘ ʨi↓nʨi↓n ʦʰʊ↗ŋ ʦʊ↓ŋ fə→nʂu↘ ʨɥe↗ti↘ŋ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 100.0,
+      "speech_end": 113.8,
+      "scene_end": 114.45,
+      "duration": 14.450000000000003,
+      "text": "选择分歧解决了存储的作物路径,并显示了显微镜图像及其两个分类值旁边. 在选择标签,门或类定义是否需要纠正之前,审查形态学和信号文本.",
+      "speech_text": "选择分歧解决了存储的作物路径,并显示了显微镜图像及其两个分类值旁边. 在选择标签,门或类定义是否需要纠正之前,审查形态学和信号文本.",
+      "phonemes": "ɕɥɛ↓nʦɤ↗ fə→nʨʰi↗ ʨje↓ʨɥe↗ lɤ ʦʰwə↗nꭧʰu↓ tɤ ʦwo↘u↘ lu↘ʨi↘ŋ,pi↘ŋ ɕjɛ↓nʂɨ↘ lɤ ɕjɛ↓nwei→ʨi↘ŋ tʰu↗ɕja↘ŋ ʨi↗ʨʰi↗ lja↓ŋkɤ↘ fə→nlei↘ ꭧɨ↗ pʰa↗ŋpjɛ→n. ʦai↘ ɕɥɛ↓nʦɤ↗ pjau→ʨʰjɛ→n,mə↗n xwo↘ lei↘ ti↘ŋi↘ ʂɨ↘fou↓ ɕy→jau↘ ʨjou→ꭧə↘ŋ ꭧɨ→ʨʰjɛ↗n,ʂə↓nꭧʰa↗ ɕi↗ŋtʰai↘ɕɥe↗ xɤ↗ ɕi↘nxau↘ wə↗npə↓n."
+    },
+    {
+      "scene": 10,
+      "speech_start": 114.45,
+      "speech_end": 126.05,
+      "scene_end": 126.8,
+      "duration": 12.349999999999994,
+      "text": "通过不同意见的行列进行系统的裁决. 报告原始协议,阶级平衡,弃权,混矩阵和卡帕;在这里,未定义的卡帕是一个有用的警告,",
+      "speech_text": "通过不同意见的行列进行系统的裁决. 报告原始协议,阶级平衡,弃权,混矩阵和卡帕;在这里,未定义的卡帕是一个有用的警告,",
+      "phonemes": "tʰʊ→ŋkwo↘ pu↘tʰʊ↗ŋ i↘ʨjɛ↘n tɤ xa↗ŋlje↘ ʨi↘nɕi↗ŋ ɕi↘tʰʊ↓ŋ tɤ ʦʰai↗ʨɥe↗. pau↘kau↘ ɥɛ↗nʂɨ↓ ɕje↗i↘,ʨje→ʨi↗ pʰi↗ŋxə↗ŋ,ʨʰi↘ʨʰɥɛ↗n,xwə↘n ʨy↓ꭧə↘n xɤ↗ kʰa↓pʰa↘;ʦai↘ ꭧɤ↘li↓,wei↘ti↘ŋi↘ tɤ kʰa↓pʰa↘ ʂɨ↘ i↗kɤ↘ jou↓jʊ↘ŋ tɤ ʨi↓ŋkau↘,"
     }
   ]
 }

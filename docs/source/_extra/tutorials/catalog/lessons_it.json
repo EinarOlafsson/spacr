@@ -3277,48 +3277,89 @@
     {
       "id": "23_agreement",
       "number": 23,
-      "slug": "agreement",
-      "title": "Annotator Agreement",
+      "slug": "annotator-agreement",
+      "title": "Accordo con l'annotatore",
       "series": 3,
       "app_key": "agreement",
-      "section": "Results and quality control",
-      "description": "Misurare l'accordo tra le colonne di annotamento e esaminare gli oggetti responsabili del disaccordo.",
+      "section": "Assay workflows",
+      "description": "Confrontare due o più colonne di annotamento categorico, controllare le statistiche degli accordi e l'equilibrio delle classi e rivedere le colture esatte in cui le etichette non sono d'accordo.",
       "objectives": [
-        "Comprendere quando utilizzare l'accordo annotatore.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Caricare le etichette categoriche da un database di misurazioni o eseguire la cartella.",
+        "Interpretare le righe complete, gli astinimenti, l'accordo grezzo, la kappa di Cohen e la matrice di confusione insieme.",
+        "Aprire le colture di contraddizione reali per l'adjudicazione o la revisione della qualità delle annotative."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Preparare un database di misurazioni spaCR contenente almeno due colonne di annotamento o di previsione categorico.",
       "scenes": [
         {
-          "narration": "Questo tutorial riguarda l'accordo con l'annotatore.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Questo tutorial riguarda l'accordo con l'annotatore."
+          "narration": "L'accordo annotatore confronta due o più colonne categoriche senza modificare il database. Usalo per due recensori, passaggi di annotamento ripetuti, o un controllo recensore contro modello, quindi ispezionare sia le statistiche di sommario che le colture esatte che non sono d'accordo.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.55,
+          "speech_text": "L'accordo annotatore confronta due o più colonne categoriche senza modificare il database. Usalo per due recensori, passaggi di annotamento ripetuti, o un controllo recensore contro modello, quindi ispezionare sia le statistiche di sommario che le colture esatte che non sono d'accordo."
         },
         {
-          "narration": "Apri Annotator Agreement dalla sezione Results and quality control. Apri Accordo di annotatore dalla sezione Risultati e controllo qualità. Scegli un database di progetti e due o più colonne di annotamento che coprono gli stessi oggetti.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Apri Annotator Agreement dalla sezione Results and quality control. Apri Accordo di annotatore dalla sezione Risultati e controllo qualità. Scegli un database di progetti e due o più colonne di annotamento che coprono gli stessi oggetti."
+          "narration": "Scegliere un database di misurazioni o la cartella di esecuzione che ne contiene. spaCR scopre colonne di annotamento e di previsione adatte dalla tabella di lista PNG e lascia le etichette sorgenti solo per lettura.",
+          "visual": "02_database",
+          "focus_key": "source_controls",
+          "hold_after": 0.5,
+          "speech_text": "Scegliere un database di misurazioni o la cartella di esecuzione che ne contiene. spàker scopre colonne di annotamento e di previsione adatte dalla tabella di lista PNG e lascia le etichette sorgenti solo per lettura."
         },
         {
-          "narration": "Nella zona di configurazione principale, selezionare la gestione delle classi, la politica di etichetta mancante, il raggruppamento, il campionamento e la statistica dell'accordo.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Nella zona di configurazione principale, selezionare la gestione delle classi, la politica di etichetta mancante, il raggruppamento, il campionamento e la statistica dell'accordo."
+          "narration": "Selezionare almeno due colonne. Qui ER_Bulbs è confrontato con previsioni_1 tra le stesse colture cellulari. Le colonne selezionate aggiuntive consentono tutti i confronti in coppia e un riassunto Fleiss kappa multi-rater.",
+          "visual": "03_columns",
+          "focus_key": "columns",
+          "hold_after": 0.55,
+          "speech_text": "Selezionare almeno due colonne. Qui ER_Bulbs è confrontato con previsioni_1 tra le stesse colture cellulari. Le colonne selezionate aggiuntive consentono tutti i confronti in coppia e un riassunto Fleiss kappa multi-rater."
         },
         {
-          "narration": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di anteprima o di test quando disponibile.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di anteprima o di test quando disponibile."
+          "narration": "Clicca su Accordo di calcolo. Le etichette mancanti sono trattate come astinzioni, non come disaccordi; ogni coppia viene valutata solo su righe in cui entrambe le colonne selezionate contengono una categoria.",
+          "visual": "04_compute",
+          "focus_key": "compute",
+          "click_key": "compute",
+          "hold_after": 0.5,
+          "speech_text": "Clicca su Accordo di calcolo. Le etichette mancanti sono trattate come astinzioni, non come disaccordi; ogni coppia viene valutata solo su righe in cui entrambe le colonne selezionate contengono una categoria."
         },
         {
-          "narration": "Quando il flusso di lavoro è terminato, le tabelle di accordo e una revisione focalizzata definiscono il sostegno alla riconciliazione delle etichette e al miglioramento del protocollo.",
-          "visual": "output",
+          "narration": "Il calcolo allinea le etichette per coltura, conta le righe complete ed astenute, costruisce ogni matrice di confusione e trova disaccordi che possono essere rintracciati alle loro immagini sorgenti.",
+          "visual": "05_running",
+          "focus_key": "status",
+          "hold_after": 0.45,
+          "speech_text": "Il calcolo allinea le etichette per coltura, conta le righe complete ed astenute, costruisce ogni matrice di confusione e trova disaccordi che possono essere rintracciati alle loro immagini sorgenti."
+        },
+        {
+          "narration": "Questa coppia reale ha mille trecento cinquanta nove righe complete, ottanta mila seicento dieci astinzioni, otto disaccordi e novanta nove punti quattro per cento accordo grezzo. La kappa di Cohen è indefinita qui non lo zero perché ER_Bulbs utilizza solo una classe su ogni riga completa, rendendo degenerato il denominatore di accordo casuale.",
+          "visual": "06_pairwise",
+          "focus_key": "pairwise",
+          "hold_after": 0.85,
+          "speech_text": "Questa coppia reale ha mille trecento cinquanta nove righe complete, ottanta mila seicento dieci astinzioni, otto disaccordi e novanta nove punti quattro per cento accordo grezzo. La kappa di Cohen è indefinita qui non lo zero perché ER_Bulbs utilizza solo una classe su ogni riga completa, rendendo degenerato il denominatore di accordo casuale."
+        },
+        {
+          "narration": "La matrice di confusione espone direttamente questo squilibrio di classe: mille trecentocinquanta una righe sono di classe uno in entrambe le colonne, mentre otto righe sono di classe uno in ER_Bulbs e classe due in predictions_1. ER_Bulbs non contribuisce a file completi di classe due.",
+          "visual": "07_confusion",
+          "focus_key": "confusion",
+          "hold_after": 0.7,
+          "speech_text": "La matrice di confusione espone direttamente questo squilibrio di classe: mille trecentocinquanta una righe sono di classe uno in entrambe le colonne, mentre otto righe sono di classe uno in ER_Bulbs e classe due in predictions_1. ER_Bulbs non contribuisce a file completi di classe due."
+        },
+        {
+          "narration": "La tabella dei disaccordi elenca le otto colture reali e entrambe le etichette. Cambiare il limite di revisione per i confronti più grandi, selezionare qualsiasi riga e utilizzare l'anteprima invece di decidere solo da un punteggio aggregato.",
+          "visual": "08_disagreements",
+          "focus_key": "review",
+          "hold_after": 0.6,
+          "speech_text": "La tabella dei disaccordi elenca le otto colture reali e entrambe le etichette. Cambiare il limite di revisione per i confronti più grandi, selezionare qualsiasi riga e utilizzare l'anteprima invece di decidere solo da un punteggio aggregato."
+        },
+        {
+          "narration": "Selezionare un disaccordo risolve il percorso di raccolta memorizzato e visualizza l'immagine microscopica accanto ai suoi due valori categorici. Rivedi la morfologia e il contesto del segnale prima di scegliere se un'etichetta, una definizione di soglia o di classe richiedono correzione.",
+          "visual": "09_crop_one",
+          "focus_key": "crop",
           "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è terminato, le tabelle di accordo e una revisione focalizzata definiscono il sostegno alla riconciliazione delle etichette e al miglioramento del protocollo."
+          "speech_text": "Selezionare un disaccordo risolve il percorso di raccolta memorizzato e visualizza l'immagine microscopica accanto ai suoi due valori categorici. Rivedi la morfologia e il contesto del segnale prima di scegliere se un'etichetta, una definizione di soglia o di classe richiedono correzione."
+        },
+        {
+          "narration": "Passare attraverso le file di disaccordo per giudicare sistematicamente. Relata l'accordo grezzo, l'equilibrio di classe, gli astinimenti, la matrice di confusione e la kappa insieme; qui la kappa indefinita è un utile avvertimento sulla prevalenza, non un fallimento del confronto.",
+          "visual": "10_crop_two",
+          "focus_key": "caption",
+          "hold_after": 0.75,
+          "speech_text": "Passare attraverso le file di disaccordo per giudicare sistematicamente. Relata l'accordo grezzo, l'equilibrio di classe, gli astinimenti, la matrice di confusione e la kappa insieme; qui la kappa indefinita è un utile avvertimento sulla prevalenza, non un fallimento del confronto."
         }
       ]
     },

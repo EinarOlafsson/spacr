@@ -1269,19 +1269,34 @@
       "id": "23_agreement",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Annotator Agreement. Messung der Übereinstimmung zwischen den Annotationsspalten und Überprüfung der Gegenstände, die für die Meinungsverschiedenheit verantwortlich sind."
+          "narration": "Annotator Agreement vergleicht zwei oder mehr kategorische Spalten, ohne die Datenbank zu ändern. Verwenden Sie es für zwei Prüfer, wiederholte Anmerkungen oder eine Prüfer-versus-Modell-Kontrolle, und überprüfen Sie dann sowohl die zusammenfassenden Statistiken als auch die genauen Ernten, die nicht übereinstimmen."
         },
         {
-          "narration": "Eröffneter Annotator-Abkommen aus dem Abschnitt \"Ergebnisse und Qualitätskontrolle\". Wählen Sie eine Projektdatenbank und zwei oder mehr Annotationsspalten, die dieselben Objekte abdecken."
+          "narration": "Wählen Sie eine Messdatenbank oder den Ordner aus, in dem sie ausgeführt wird. spaCR entdeckt geeignete Annotations- und Vorhersage-Säulen aus der PNG-Liste-Tabelle und lässt die Quelletiketten nur zum Lesen stehen."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich die Klassenverarbeitung, die fehlende Kennzeichnung, die Gruppierung, die Probenahme und die Vereinbarungsstatistik aus."
+          "narration": "Wählen Sie mindestens zwei Spalten aus. Hier wird ER_Bulbs mit Vorhersagen_1 über die gleichen Zellpflanzen verglichen. Zusätzliche ausgewählte Spalten ermöglichen alle Paarevergleiche und eine Multi-Rater Fleiss kappa Zusammenfassung."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Untersuchen Sie Cohen oder Fleiss kappa zusammen mit klassenspezifischen Verwirrung und Meinungsverschiedenheiten."
+          "narration": "Klicken Sie auf Berechnungsvereinbarung. Fehlende Etiketten werden als Abweichungen behandelt, nicht als Meinungsverschiedenheiten; jedes Paar wird nur in Zeilen bewertet, in denen beide ausgewählten Spalten eine Kategorie enthalten."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden Vereinbarungstabellen und eine zielgerichtete Überprüfung die Vermittlung von Etiketten und die Verbesserung des Protokolls unterstützen."
+          "narration": "Die Berechnungen richten die Etiketten nach Ernte aus, zählen vollständige und abgehaltenen Zeilen, bauen jede Verwirrungsträhne auf und finden Meinungsverschiedenheiten, die auf ihre Ursprungsbilder zurückverfolgt werden können."
+        },
+        {
+          "narration": "Dieses echte Paar hat eintausend dreihundertfünfzig neun vollständige Zeilen, achtzigtausend sechshundert zehn Abstinenzen, acht Meinungsverschiedenheiten und neunundneunzig Prozent Rohvereinbarung. Cohen's Kappa ist hier undefined, nicht Null, weil ER_Bulbs nur eine Klasse auf jeder vollständigen Zeile verwendet, so dass der Zufalls-Agreement-Nenner degeneriert."
+        },
+        {
+          "narration": "Die Verwirrungsmatrix enthüllt dieses Klassenungleichgewicht direkt: tausend dreihundertfünfzig und eine Reihen sind Klasse eins in beiden Spalten, während acht Reihen Klasse eins in ER_Bulbs und Klasse zwei in Vorhersagen_1 sind. ER_Bulbs trägt keine vollständigen Zeilen der Klasse zwei bei."
+        },
+        {
+          "narration": "Die Tabelle der Meinungsverschiedenheiten listet diese acht echten Pflanzen und beide Etiketten auf. Ändern Sie die Überprüfungsgrenze für größere Vergleiche, wählen Sie eine beliebige Zeile aus und verwenden Sie die Vorschau, anstatt sich nur aus einer aggregierten Punktzahl zu entscheiden."
+        },
+        {
+          "narration": "Die Auswahl eines Widerspruchs löst den gespeicherten Pflanzenweg und zeigt das mikroskopische Bild neben seinen beiden kategorischen Werten an. Überprüfen Sie die Morphologie und den Signalkontext, bevor Sie entscheiden, ob ein Etikett, eine Schwelle oder eine Klassendefinition korrigiert werden müssen."
+        },
+        {
+          "narration": "Bewegen Sie sich durch die Streitzeilen, um systematisch zu entscheiden. Berichten Sie über Rohvereinbarung, Klassenbilanz, Abweichungen, die Verwirrungsmatrix und Kappa zusammen; hier ist der undefinierte Kappa eine nützliche Warnung über die Prävalenz, nicht ein Versagen des Vergleichs."
         }
       ]
     },
