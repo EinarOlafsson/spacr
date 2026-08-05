@@ -1511,19 +1511,70 @@
       "id": "27_replication",
       "scenes": [
         {
-          "narration": "Denna handledning täcker replikationsanalys. Kolla parasiter per vakuol och sammanfattar intracellulär replikation per tillstånd."
+          "narration": "Replikationsanalys räknar parasiter i varje vakuol och sammanfattar en, två, fyra, åtta divisioner. Konsolen registrerar lösta inställningar, tilldelas QC, statistik, utgångar, varningar och fel. Chatlådan kan diskutera den kontexten när AI är aktiverad."
         },
         {
-          "narration": "Öppen replikationsanalys från sektionen Toxoplasma-analyser. Välj värdcell, vakuol och parasit mätningar tillsammans med tillstånd metadata."
+          "narration": "AI-vägarna kan bara chatta om man ber om det. Dess närliggande meny väljer en konfigurerad leverantör och öppnar leverantörsinställningar; replikationsanalysen själv förblir lokal och kräver inte AI."
         },
         {
-          "narration": "I det huvudsakliga konfigurationsområdet konfigurera spatial assignment, objektfilter, parasit-count-bins, kontroller och statistiska jämförelser."
+          "narration": "Provider-installationen separerar lokala och värdassistenter. Konfigurera endast de tjänster du avser att använda och granska integritetsuppgifterna innan du delar konsol- eller analyskontext med en fjärrleverantör."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. inspektera vakuoler över hela räkningsområdet och kontrollera att sammanslagna eller fragmenterade masker är uteslutna."
+          "narration": "AI-inställningar kontrollerar assistentkontext, legitimation och valfri felrapportering. Dessa preferenser förändrar inte vakuoltilldelning, parasitantal, filter eller statistik."
         },
         {
-          "narration": "När arbetsflödet är klart sparas parasitfördelningen per vakuol, replikationsfrekvensen, statistiken och siffrorna."
+          "narration": "Välj eller släppa experimentroten som innehåller mätningar slash mätningar dot DB. Det överförda experimentet saknar självständigt validerade vakuolidentiteter, så den här handledningen använder tydligt en syntetisk mätdatabas med explicita vakuol-IDs medan den riktiga spaCR backend körs."
+        },
+        {
+          "narration": "Essentials avslöjar analyskällan, vakuoltilldelningen, konditionskartan, objektfiltrerna, replikationspoängen, utgången och körtidskontrollen som behövs för en första analys."
+        },
+        {
+          "narration": "Modifierad filtrerar formuläret för avsiktliga avvikelser från standard. Använd den för att granska databasen, vakuulnyckeln, räkna kolumnen, områdegränser, plattekort, tillståndsgruppering och spara innan en körning."
+        },
+        {
+          "narration": "Alla inställningar visar alla tillgängliga kontroller för reproduktion och felsökning. Återgå till Essentials när avancerade kontroller är onödiga för att minska oavsiktliga parameterförändringar."
+        },
+        {
+          "narration": "Recepten behåller en validerad testkonfiguration för återanvändning eller delning. Spara en först efter att vakuoltilldelningar och representativa räkningsfördelningar har kontrollerats mot bilder."
+        },
+        {
+          "narration": "Lägg in fjärröverförs de lösade inställningarna till Distribuerade jobb. Kontrollera att mätdatabasen är tillgänglig via den fjärrbaserade vägkarten innan du lämnar in ett litet valideringsarbete."
+        },
+        {
+          "narration": "Den fjärrbildskärmen får ett jobbutkast. Kontrollera synkronisering, miljöaktivering, resurser och det genererade kommandot, validera sedan en platt innan du skaffar analysen."
+        },
+        {
+          "narration": "Assay Inputs identifierar experimentets rot, en rad per parasitbord och patogenutrymme. Replikation skördar befintliga parasitmätningar; den segmenterar inte mikroskopiska bilder igen."
+        },
+        {
+          "narration": "Vacuole Assignment använder först en explizit vakuolnyckel när den är närvarande, annars kan den länka parasitcentroider rymligt, och bara då faller tillbaka till värdcellgrupp. En värdcell kan innehålla flera vakuoler, så att fallback kan slå samman biologiskt distinkta enheter."
+        },
+        {
+          "narration": "Bestämmelse Metadata kartlägger plattbrunnar till biologiska grupper och väljer jämförelse kolumnen. Denna syntetiska plattan innehåller sex fordonsbrunnar i kolumn ett och sex hämmarebrunnar i kolumn två, alla med HeLa värdceller."
+        },
+        {
+          "narration": "Object Filtering avvisar patogenmätningar utanför accepterat område innan vakuoler räknas. Dessa gränser måste valideras mot segmenterade parasiter, eftersom skräp och sammansatta föremål förvränger replikationsstegen i motsatt riktning."
+        },
+        {
+          "narration": "Replikationsscoring definierar den största namngivna räkningskålen och varningsgränsen för icke-kraftsfulla två-summa. Talande ett, två, fyra, åtta och sexton följer idealdubbling; talande som tre behålls som en QC-kategori snarare än tyst rundade."
+        },
+        {
+          "narration": "Assay Output kontrollerar färgkarta och sparande. Analysen skriver per-well och per-condition distributioner, vakuol räkningar, parvis statistik och siffror i replikationsresultat mapp."
+        },
+        {
+          "narration": "Runttid och tillförlitlighet kontrollerar logging detaljer. Håll verbose-utgången aktiverad när du upprättar en analys så att grupperingskällan, uteslutningarna, icke-kraften av två fraktioner, statistiska tester och utgångsvägarna förblir kontrollerbara."
+        },
+        {
+          "narration": "Denna uppdragsdetail använder den uttryckliga vakuole_id-kolumnen och kräver en värdcell. De syntetiska uppgifterna ger avsiktligt vissa efterföljande vakuoler samma cell-ID, vilket bekräftar att den valda vakuolnyckeln inte värdcellen är den enhet som räknas."
+        },
+        {
+          "narration": "Klicka på Kör efter att ha kontrollerat ingångar, uppdrag, statusmetadata, filter och poäng. Baksidan grupperar parasiter i vakuoler, etiketter räknar hinkar, sammanfattar brunnar och förhållanden, utför parvis tester och renderar distributionerna."
+        },
+        {
+          "narration": "Under utförandet avslöjar konsolen de valda tabellerna och jämförelsesättet. Kontrollera vakuoler i låga och höga tal i deras källbilder innan du behandlar ett distributionsskift som biologi snarare än segmentering eller tilldelas fel."
+        },
+        {
+          "narration": "Den riktiga backend scorerar två hundra fyrtio vakuoler i varje tillstånd. Fordonet har en median på fyra parasiter och två dubblingar per vakuol; inhibitorn har en median på två parasiter och en dubbling. Båda grupperna innehåller fem procent icke-kraft-av-två vakuoler och förblir under 20 procent varning. Med sex brunnar per grupp är MannWhitney-jämförelsen starkt separat, men biologiska slutsatser kräver fortfarande oberoende experiment."
         }
       ]
     },
