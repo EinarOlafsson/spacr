@@ -74,10 +74,75 @@ QUIET_LOGGERS: tuple[str, ...] = (
     "h5py",
 )
 
+#: The five levels the user can switch on and off, lowest first.
+LEVELS: tuple[int, ...] = (
+    logging.DEBUG, logging.INFO, logging.WARNING,
+    logging.ERROR, logging.CRITICAL,
+)
+
+#: Per-level file names, alongside the master :data:`DEFAULT_LOG_FILENAME`.
+LEVEL_LOG_FILENAMES: dict = {
+    logging.DEBUG: "spacr-debug.log",
+    logging.INFO: "spacr-info.log",
+    logging.WARNING: "spacr-warning.log",
+    logging.ERROR: "spacr-error.log",
+    logging.CRITICAL: "spacr-critical.log",
+}
+
+#: What a fresh install writes and shows. The file keeps everything from INFO
+#: up, so a bug report is useful without being asked for; the console shows
+#: only what went wrong, because it is a panel the user is reading while
+#: working rather than a transcript.
+DEFAULT_FILE_LEVELS: frozenset = frozenset(
+    {logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL})
+DEFAULT_CONSOLE_LEVELS: frozenset = frozenset(
+    {logging.WARNING, logging.ERROR, logging.CRITICAL})
+
+
+class LevelSetFilter(logging.Filter):
+    """Pass only records whose level is in an explicitly enabled set.
+
+    ``setLevel`` is a *threshold*: enabling DEBUG necessarily enables
+    everything above it. The preference this serves is a set of independent
+    switches, where DEBUG on with INFO off is a legitimate choice, so the
+    gate has to be membership rather than comparison.
+
+    The set is mutable in place so a live handler can be re-gated from the
+    Preferences dialog without being torn down and rebuilt, which would race
+    against any thread logging at that moment.
+    """
+
+    def __init__(self, levels: Iterable[int] = ()) -> None:
+        super().__init__()
+        self.levels = set(levels)
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        return record.levelno in self.levels
+
+
+def normalise_levels(levels: Iterable[int]) -> frozenset:
+    """Keep only the five switchable levels, discarding anything else."""
+    return frozenset(int(level) for level in levels if int(level) in LEVELS)
+
+
+def clamp_console_to_file(console: Iterable[int],
+                          file_levels: Iterable[int]) -> frozenset:
+    """Console levels are a subset of what the file records.
+
+    A level the log file discards cannot reach the console, because the
+    console is fed from the same records. Showing a user a line they will
+    not find in the log file they are about to attach to a bug report is
+    worse than not showing it.
+    """
+    return normalise_levels(console) & normalise_levels(file_levels)
+
+
 # Module-level bookkeeping — set once by setup_logging().
 _INITIALISED: bool = False
 _SESSION_LEVEL: int = logging.INFO
 _LOG_PATH: Optional[Path] = None
+_FILE_FILTER: Optional[LevelSetFilter] = None
+_LEVEL_HANDLERS: dict = {}
 
 # Function-level DEBUG tracing is opt-in.  A profile hook is used instead of
 # decorating thousands of functions: it also covers private helpers, class
@@ -213,9 +278,14 @@ def setup_logging(level: Optional[int] = None,
         file_h = None
         stream = True
     if file_h is not None:
-        file_h.setLevel(level)
+        # The handler passes everything and the filter decides, so the set of
+        # enabled levels can be changed at runtime without rebuilding the
+        # handler underneath whatever thread is logging.
+        file_h.setLevel(logging.DEBUG)
+        file_h.addFilter(_file_filter(_levels_at_or_above(level)))
         file_h.setFormatter(logging.Formatter(FILE_FORMAT))
         root.addHandler(file_h)
+        _install_level_handlers(resolved_path, _levels_at_or_above(level))
 
     if stream:
         stream_h = logging.StreamHandler()
@@ -229,6 +299,88 @@ def setup_logging(level: Optional[int] = None,
     _INITIALISED = True
     get_logger("spacr").info("logging initialised → %s", resolved_path)
     return resolved_path
+
+
+def _levels_at_or_above(level: int) -> frozenset:
+    """The switch set equivalent to a classic threshold, for first setup."""
+    return frozenset(item for item in LEVELS if item >= level)
+
+
+def _file_filter(levels: Iterable[int]) -> LevelSetFilter:
+    """The one filter shared by the master log file, created on first use."""
+    global _FILE_FILTER
+    if _FILE_FILTER is None:
+        _FILE_FILTER = LevelSetFilter(levels)
+    else:
+        _FILE_FILTER.levels = set(normalise_levels(levels))
+    return _FILE_FILTER
+
+
+def _install_level_handlers(master_path: Path, levels: Iterable[int]) -> None:
+    """Give every level its own file beside the master log.
+
+    One file per level answers "show me only the errors" without grep, and
+    the master keeps the interleaved order that makes a sequence of events
+    readable. Each is rotated on the same terms as the master.
+
+    A level that is switched off keeps its handler, filtered to nothing,
+    rather than being detached: attaching and detaching handlers on a live
+    root logger races with any thread that is logging, and an idle handler
+    costs one open file.
+    """
+    enabled = normalise_levels(levels)
+    root = logging.getLogger()
+    for level in LEVELS:
+        handler = _LEVEL_HANDLERS.get(level)
+        if handler is None:
+            path = master_path.parent / LEVEL_LOG_FILENAMES[level]
+            try:
+                handler = logging.handlers.RotatingFileHandler(
+                    path, maxBytes=MAX_BYTES, backupCount=BACKUP_COUNT,
+                    encoding="utf-8")
+            except OSError as exc:
+                sys.stderr.write(
+                    f"spaCR could not open {path}: {exc}\n")
+                continue
+            handler.setLevel(logging.DEBUG)
+            handler.setFormatter(logging.Formatter(FILE_FORMAT))
+            handler.addFilter(LevelSetFilter())
+            root.addHandler(handler)
+            _LEVEL_HANDLERS[level] = handler
+        for existing in handler.filters:
+            if isinstance(existing, LevelSetFilter):
+                existing.levels = {level} if level in enabled else set()
+
+
+def apply_level_policy(file_levels: Iterable[int],
+                       console_levels: Iterable[int] = ()) -> tuple:
+    """Re-gate the live handlers from the Preferences switches.
+
+    :param file_levels: levels written to the log files.
+    :param console_levels: levels echoed to the in-app console; silently
+        clamped to a subset of ``file_levels``.
+    :returns: ``(file_levels, console_levels)`` as actually applied.
+    """
+    files = normalise_levels(file_levels)
+    console = clamp_console_to_file(console_levels, files)
+
+    _file_filter(files)
+    if _LOG_PATH is not None:
+        _install_level_handlers(_LOG_PATH, files)
+
+    # spacr.* carries its own threshold, which would veto the switches before
+    # any handler filter ran. Open it to the lowest level asked for.
+    lowest = min(files) if files else logging.CRITICAL
+    logging.getLogger("spacr").setLevel(lowest)
+    logging.getLogger().setLevel(logging.DEBUG)
+
+    try:
+        from .qt.verbose_logger import apply_console_levels
+    except Exception:      # Qt is optional; the CLI has no console panel.
+        pass
+    else:
+        apply_console_levels(console)
+    return files, console
 
 
 def _env_level() -> int:
