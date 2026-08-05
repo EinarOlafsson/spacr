@@ -3366,48 +3366,177 @@
     {
       "id": "24_plaque",
       "number": 24,
-      "slug": "plaque",
-      "title": "Plaque assay",
+      "slug": "plaque-assay",
+      "title": "Plaque Assay",
       "series": 3,
       "app_key": "analyze_plaques",
       "section": "Toxoplasma assays",
-      "description": "Misurare la formazione della placca e i cambiamenti dipendenti dalla condizione dalle immagini della placca.",
+      "description": "Segmentare o riutilizzare le maschere di placche, quantificare il numero di placche e l'area per immagine e scrivere riassunto, statistiche e tabelle di dettaglio degli oggetti in un database di risultati.",
       "objectives": [
-        "Comprendere quando usare la prova della targa.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Scegli tra segmentare i campi di placca e riutilizzare le maschere etichettate esistenti.",
+        "Esaminare le sei categorie di impostazioni senza confondere le soglie del modello con la misurazione a valle.",
+        "Eseguire la quantificazione delle placche e verificare le tabelle SQLite risultanti e il conteggio per immagine."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Preparare le immagini di prova della targa TIFF; per il riutilizzo della maschera, inserire le maschere TIFF etichettate identicamente nella sottovoce delle maschere.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre l'analisi della placche. Misurare la formazione della placche e le variazioni dipendenti dalla condizione dalle immagini della placche.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre l'analisi della placche. Misurare la formazione della placche e le variazioni dipendenti dalla condizione dalle immagini della placche."
-        },
-        {
-          "narration": "Apri Plaque assay dalla sezione Toxoplasma assays. Apri la piastra di test dalla sezione Assess Toxoplasma. Fornisci immagini della piastra, layout della piastra, calibrazione dei pixel, condizioni e controlli.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Apri Plaque assay dalla sezione Toxoplasma assays. Apri la piastra di test dalla sezione Assess Toxoplasma. Fornisci immagini della piastra, layout della piastra, calibrazione dei pixel, condizioni e controlli."
-        },
-        {
-          "narration": "Nella zona di configurazione principale, configurare la correzione di sfondo, la soglia, la pulizia degli oggetti, i filtri di dimensioni della targa e il raggruppamento dei pozzi.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Nella zona di configurazione principale, configurare la correzione di sfondo, la soglia, la pulizia degli oggetti, i filtri di dimensioni della targa e il raggruppamento dei pozzi."
-        },
-        {
-          "narration": "Prima di eseguire l'intero ciclo, controllare le impostazioni visibili e utilizzare una modalità di preview o di prova quando disponibile. verificare le sovrapposizioni di segmentazione tra i pozzi di controllo e di trattamento prima dell'analisi di lotto.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Prima di eseguire l'intero ciclo, controllare le impostazioni visibili e utilizzare una modalità di preview o di prova quando disponibile. verificare le sovrapposizioni di segmentazione tra i pozzi di controllo e di trattamento prima dell'analisi di lotto."
-        },
-        {
-          "narration": "Quando il flusso di lavoro è terminato, spaCR segnala i numeri di placche, le aree, le riassume, le statistiche e i dati del controllo della qualità.",
-          "visual": "output",
+          "narration": "Plaque Assay rileva e quantifica le regioni delle cellule ospitanti liberate. Le impostazioni sono a sinistra; la console registra le impostazioni risolte, il progresso, i percorsi di uscita, gli avvertimenti e gli errori. La casella di chat sotto la console può discutere quel contesto quando l'IA è abilitata, ma non cambia le impostazioni a meno che non si applichi una modifica suggerita.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è terminato, spàker segnala i numeri di placche, le aree, le riassume, le statistiche e i dati del controllo della qualità."
+          "speech_text": "Plaque Assay rileva e quantifica le regioni delle cellule ospitanti liberate. Le impostazioni sono a sinistra; la console registra le impostazioni risolte, il progresso, i percorsi di uscita, gli avvertimenti e gli errori. La casella di chat sotto la console può discutere quel contesto quando l'IA è abilitata, ma non cambia le impostazioni a meno che non si applichi una modifica suggerita."
+        },
+        {
+          "narration": "Il pulsante AI toglie l'invio di chat. Il suo menu adiacente sceglie un provider configurato e apre le impostazioni del provider. Tieni fuori quando non è necessario alcun assistente; la pipeline di analisi stessa è locale e non richiede l'IA.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.55,
+          "speech_text": "Il pulsante AI toglie l'invio di chat. Il suo menu adiacente sceglie un provider configurato e apre le impostazioni del provider. Tieni fuori quando non è necessario alcun assistente; la pipeline di analisi stessa è locale e non richiede l'IA."
+        },
+        {
+          "narration": "La configurazione del provider separa gli assistenti locali e ospitati. Configura solo i servizi che intendi utilizzare e consulta l'informativa sulla privacy prima di inviare il contesto della console o dell'immagine a un fornitore remoto.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.55,
+          "speech_text": "La configurazione del provider separa gli assistenti locali e ospitati. Configura solo i servizi che intendi utilizzare e consulta l'informativa sulla privacy prima di inviare il contesto della console o dell'immagine a un fornitore remoto."
+        },
+        {
+          "narration": "Le impostazioni AI controllano il comportamento come la condivisione di contesti, la segnalazione di errori e le credenziali specifiche del fornitore. Queste preferenze influenzano l'assistente di chat, non la segmentazione delle placche o la quantificazione.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.5,
+          "speech_text": "Le impostazioni AI controllano il comportamento come la condivisione di contesti, la segnalazione di errori e le credenziali specifiche del fornitore. Queste preferenze influenzano l'assistente di chat, non la segmentazione delle placche o la quantificazione."
+        },
+        {
+          "narration": "Selezionare o eliminare la cartella contenente campi di placca TIFF. Questo tutorial utilizza quattro pozzi sintetici esplicitamente e spegne le maschere per riutilizzare le loro maschere precomputate etichettate. Con le maschere accese, spaCR invece segmenta le immagini sorgenti con il modello di placca bundled prima di misurarle.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.75,
+          "speech_text": "Selezionare o eliminare la cartella contenente campi di placca TIFF. Questo tutorial utilizza quattro pozzi sintetici esplicitamente e spegne le maschere per riutilizzare le loro maschere precomputate etichettate. Con le maschere accese, spàker invece segmenta le immagini sorgenti con il modello di placca bundled prima di misurarle."
+        },
+        {
+          "narration": "Gli elementi essenziali mostrano il piccolo set normalmente necessario per una prima corsa. Inizia qui per verificare la fonte, il comportamento della maschera, il diametro previsto, le soglie e la scelta di uscita senza scansionare ogni controllo avanzato.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.5,
+          "speech_text": "Gli elementi essenziali mostrano il piccolo set normalmente necessario per una prima corsa. Inizia qui per verificare la fonte, il comportamento della maschera, il diametro previsto, le soglie e la scelta di uscita senza scansionare ogni controllo avanzato."
+        },
+        {
+          "narration": "Modificato filtra il pannello a valori che differiscono dalle impostazioni predefinite. Si tratta di un audit compatto prima della presentazione: qui la fonte, il riutilizzo della maschera, il diametro della placca, la dimensione del lotto e il comportamento di fondo sono cambiamenti intenzionali.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.55,
+          "speech_text": "Modificato filtra il pannello a valori che differiscono dalle impostazioni predefinite. Si tratta di un audit compatto prima della presentazione: qui la fonte, il riutilizzo della maschera, il diametro della placca, la dimensione del lotto e il comportamento di fondo sono cambiamenti intenzionali."
+        },
+        {
+          "narration": "Tutte le impostazioni rivelano ogni controllo disponibile. Utilizzare quando si risolve i problemi o si riproduce un esecuzione precedente; altrimenti la visualizzazione Essentials riduce le modifiche accidentali ai parametri che hanno già le impostazioni predefinite appropriate.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "Tutte le impostazioni rivelano ogni controllo disponibile. Utilizzare quando si risolve i problemi o si riproduce un esecuzione precedente; altrimenti la visualizzazione Essentials riduce le modifiche accidentali ai parametri che hanno già le impostazioni predefinite appropriate."
+        },
+        {
+          "narration": "Le ricette salvano le impostazioni del modulo corrente con un nome riutilizzabile. Una configurazione di piastra convalidata può essere salvata, importata, condivisa e applicata successivamente invece di essere ricostruita a mano.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.55,
+          "speech_text": "Le ricette salvano le impostazioni del modulo corrente con un nome riutilizzabile. Una configurazione di piastra convalidata può essere salvata, importata, condivisa e applicata successivamente invece di essere ricostruita a mano."
+        },
+        {
+          "narration": "Invio remoto passa le impostazioni risolute a lavori distribuiti piuttosto che iniziare localmente. Utilizzare quando la cartella sorgente e il modello richiesto sono accessibili da una stazione di lavoro o da un cluster SSH.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.5,
+          "speech_text": "Invio remoto passa le impostazioni risolute a lavori distribuiti piuttosto che iniziare localmente. Utilizzare quando la cartella sorgente e il modello richiesto sono accessibili da una stazione di lavoro o da un cluster SSH."
+        },
+        {
+          "narration": "Lo schermo remoto riceve questo modulo e le sue impostazioni come progetto di lavoro. Confirmare la mappatura del percorso, le risorse di calcolo, l'attivazione dell'ambiente, la sincronizzazione e il comando generato prima di inviare un piccolo lavoro di convalida.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.65,
+          "speech_text": "Lo schermo remoto riceve questo modulo e le sue impostazioni come progetto di lavoro. Confirmare la mappatura del percorso, le risorse di calcolo, l'attivazione dell'ambiente, la sincronizzazione e il comando generato prima di inviare un piccolo lavoro di convalida."
+        },
+        {
+          "narration": "Input and Channels contiene la cartella sorgente e la scelta delle maschere. Accendere le maschere per segmentare i campi originali o disattivare solo quando la sottovoce delle maschere contiene già immagini etichettate correttamente.",
+          "visual": "12_category_01_input_channels",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.52,
+          "speech_text": "Input and Channels contiene la cartella sorgente e la scelta delle maschere. Accendere le maschere per segmentare i campi originali o disattivare solo quando la sottovoce delle maschere contiene già immagini etichettate correttamente."
+        },
+        {
+          "narration": "Il modello contiene il diametro previsto della placca. Compare questa scala con le placche rappresentative e la geometria di formazione del modello; un valore di dimensione cellulare è generalmente inappropriato per i campi di placche.",
+          "visual": "12_category_02_model",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.52,
+          "speech_text": "Il modello contiene il diametro previsto della placca. Compare questa scala con le placche rappresentative e la geometria di formazione del modello; un valore di dimensione cellulare è generalmente inappropriato per i campi di placche."
+        },
+        {
+          "narration": "Le soglie di rilevamento raggruppano probabilità candidata, coerenza di flusso, ridimensionamento, campionamento e riempimento di buchi. Queste impostazioni influenzano la nuova segmentazione; non alterano le maschere precomputate riutilizzate in questa dimostrazione.",
+          "visual": "12_category_03_detection_thresholds",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Le soglie di rilevamento raggruppano probabilità candidata, coerenza di flusso, ridimensionamento, campionamento e riempimento di buchi. Queste impostazioni influenzano la nuova segmentazione; non alterano le maschere precomputate riutilizzate in questa dimostrazione."
+        },
+        {
+          "narration": "I controlli di geometria delle immagini si ridimensionano alle dimensioni attese dal modello di placca bundled. La maschera viene ridimensionata al campo originale prima che l'area sia segnalata, in modo che la misura rimanga in pixel originali.",
+          "visual": "12_category_04_image_geometry",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "I controlli di geometria delle immagini si ridimensionano alle dimensioni attese dal modello di placca bundled. La maschera viene ridimensionata al campo originale prima che l'area sia segnalata, in modo che la misura rimanga in pixel originali."
+        },
+        {
+          "narration": "Il background e Denoising controllano la rimozione di sfondo e l'ancorazione segnale-ruido utilizzata durante la normalizzazione. Aggiungerlo su pozzi di controllo e trattamento rappresentativi prima di un'intera esecuzione di segmentazione.",
+          "visual": "12_category_05_background_denoising",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.55,
+          "speech_text": "Il background e Denoising controllano la rimozione di sfondo e l'ancorazione segnale-ruido utilizzata durante la normalizzazione. Aggiungerlo su pozzi di controllo e trattamento rappresentativi prima di un'intera esecuzione di segmentazione."
+        },
+        {
+          "narration": "Controlli di output e runtime risparmio, GPU batch size e verbosity. Ridurre le dimensioni del lotto se la segmentazione supera la memoria disponibile; mantenere il registro verbo per la prima targa in modo da registrare percorsi e comportamenti risolti.",
+          "visual": "12_category_06_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.55,
+          "speech_text": "Controlli di output e runtime risparmio, GPU batch size e verbosity. Ridurre le dimensioni del lotto se la segmentazione supera la memoria disponibile; mantenere il registro verbo per la prima targa in modo da registrare percorsi e comportamenti risolti."
+        },
+        {
+          "narration": "Durante la segmentazione, la probabilità controlla il pavimento candidato, la soglia di flusso controlla la coerenza della forma e il riempimento chiude i fori interni. Ispezionare più pozzi perché un valore che pulita una targa può fondersi o cancellare un'altra.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.58,
+          "speech_text": "Durante la segmentazione, la probabilità controlla il pavimento candidato, la soglia di flusso controlla la coerenza della forma e il riempimento chiude i fori interni. Ispezionare più pozzi perché un valore che pulita una targa può fondersi o cancellare un'altra."
+        },
+        {
+          "narration": "Fai clic su eseguire dopo aver rivisto le impostazioni modificate. Questa dimostrazione misura quattro maschere sintetiche etichettate attraverso il backend reale di analisi delle placche; non presenta i campi sintetici come validazione biologica del modello di segmentazione.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.6,
+          "speech_text": "Fai clic su eseguire dopo aver rivisto le impostazioni modificate. Questa dimostrazione misura quattro maschere sintetiche etichettate attraverso il backend reale di analisi delle placche; non presenta i campi sintetici come validazione biologica del modello di segmentazione."
+        },
+        {
+          "narration": "Durante l'esecuzione la console stampa il record di riproducibilità, la sorgente e la destinazione risolte e ogni maschera che viene analizzata. Fermare le richieste di cancellazione; aspettare Finito prima di aprire le uscite.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.55,
+          "speech_text": "Durante l'esecuzione la console stampa il record di riproducibilità, la sorgente e la destinazione risolte e ogni maschera che viene analizzata. Fermare le richieste di cancellazione; aspettare Finito prima di aprire le uscite."
+        },
+        {
+          "narration": "La corsa scrive plaques_analysis.db nella cartella maschere con riassunto, statistiche e tabelle di dettagli. Questi quattro campi contengono rispettivamente quattro, tre, due e una placche; utilizzare i numeri per immagine e le aree con i metadati della placca per le statistiche a livello di condizione a valle e il controllo della qualità.",
+          "visual": "23_output",
+          "focus_key": "console",
+          "hold_after": 0.8,
+          "speech_text": "La corsa scrive plaques_analysis.db nella cartella maschere con riassunto, statistiche e tabelle di dettagli. Questi quattro campi contengono rispettivamente quattro, tre, due e una placche; utilizzare i numeri per immagine e le aree con i metadati della placca per le statistiche a livello di condizione a valle e il controllo della qualità."
         }
       ]
     },
