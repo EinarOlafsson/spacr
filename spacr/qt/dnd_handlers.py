@@ -557,7 +557,21 @@ def _render_mask_report(path: Path, screen, scan: Dict[str, Any]) -> None:
     else:
         _log(screen, "✓ All required fields captured "
                      "(wellID / fieldID, chanID).\n")
-        _push_regex_to_screen(pattern, screen)
+        # Confirm even when nothing looks wrong. A regex that captures every
+        # required field can still be capturing the WRONG field -- a well ID
+        # read as a field ID validates perfectly and silently mislabels the
+        # whole plate. The check that catches that is a person reading the
+        # parsed columns, which only happens if they are shown.
+        #
+        # Previously this branch pushed the pattern with no prompt, so the
+        # editor appeared only when validation failed. That made the common
+        # case (a naming dialect that fits) the one case nobody ever
+        # verified, and made the prompt read as an error rather than a step.
+        _log(screen, "→ Confirm the parsed columns above match your naming "
+                     "before running. Edit the pattern if a column is "
+                     "holding the wrong value.\n")
+        _open_regex_editor(filenames, pattern or "", screen,
+                           confirming=True, fallback=pattern)
 
 
 def _set_screen_setting(screen, key: str, value) -> bool:
@@ -687,10 +701,23 @@ def _open_metadata_table(rows, dst, screen) -> None:
         pass
 
 
-def _open_regex_editor(filenames: list, initial: str, screen) -> None:
+def _open_regex_editor(filenames: list, initial: str, screen,
+                       confirming: bool = False,
+                       fallback: Optional[str] = None) -> None:
+    """Show the regex editor, either to fix a bad match or to confirm a good one.
+
+    :param confirming: the pattern already validated; this is a review step,
+        so dismissing the dialog keeps ``fallback`` rather than leaving the
+        screen with no regex at all.
+    :param fallback: pattern to keep when a confirmation is dismissed.
+    """
     try:
         from .regex_editor import RegexEditorDialog
     except Exception:
+        # No editor available. A validated pattern is still better than none,
+        # so a confirmation that cannot be shown must not lose it.
+        if confirming and fallback:
+            _push_regex_to_screen(fallback, screen)
         return
     try:
         dlg = RegexEditorDialog(filenames, initial_regex=initial,
@@ -698,8 +725,13 @@ def _open_regex_editor(filenames: list, initial: str, screen) -> None:
         if dlg.exec() == dlg.Accepted and dlg.regex:
             _push_regex_to_screen(dlg.regex, screen)
             _log(screen, f"[drop] saved custom regex: {dlg.regex}\n")
+        elif confirming and fallback:
+            _push_regex_to_screen(fallback, screen)
+            _log(screen, f"[drop] kept the detected regex: {fallback}\n")
     except Exception as e:
         _log(screen, f"[drop] regex editor failed: {e}\n")
+        if confirming and fallback:
+            _push_regex_to_screen(fallback, screen)
 
 
 def _push_regex_to_screen(pattern: Optional[str], screen) -> None:
