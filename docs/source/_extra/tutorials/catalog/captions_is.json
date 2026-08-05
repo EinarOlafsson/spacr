@@ -705,19 +705,52 @@
       "id": "14_make_masks",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Make Masks. Skipuleggja, leiðrétta og skipuleggja deildatökumerki fyrir Cellpose þjálfunarupplýsingar með gagnvirkum hætti."
+          "narration": "Make Masks er gagnvirkur ritstjóri spaCR til að leiðrétta skiptaskil og búa til Cellpose þjálfunarpar. Opnaðu möppu af sýnishornmyndum; samhæfandi merkingar eru lesnar úr undir möskunni."
         },
         {
-          "narration": "Opnaðu Make Masks í flokknum fyrir fyrirmyndir. Opið fyrirmyndandi mikroskópismyndir og allar núverandi grímur sem ætti að endurbæta."
+          "narration": "Þessi einangruð kennslukoppi inniheldur þrjú alvöru bráðamóttöku völd. Fyrstu tvö hleða ER-frambúð frumur merkingar sem litríkar yfirlagningar; þriðja hefur meðvitað engin til staðar grímur."
         },
         {
-          "narration": "Í helstu skipulagssvæðinu veldu leiðir, normalisering, bursta eða töfrandi verkfæri, hlutastarfsemi og merkingar-spara hegðun."
+          "narration": "Tools-kortin hertast í sex breytingarleiðir. Brush bætir við forsíðu, Erase fjarlægir pikslar, Erase hlut eyðir eitt merki, tveir stangarnir fylgja myndartengd, og Zoom velur ítarlega svæði."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. til að leiðrétta mörk og saknar hlutir í fjölbreyttri þjálfunarsamningi en ekki aðeins auðveldum sviðum."
+          "narration": "Veldu Brush og stilltu geislun í pixlum á skjánum. Með því að smella á málningunni er staðið á staðnum og með því að draga það smátt og smátt tengist það við að breyta mörkum. B lykillinn velur sama verkfæri."
         },
         {
-          "narration": "Þegar vinnubreytingin er lokið eru parið myndir og valið merkimaskur tilbúnir til sérsniðinnar Cellpose þjálfunar."
+          "narration": "Til að fjarlægja aðeins málaðan hluta merkisins er notað sama stillanlegt radius. Þetta er gagnlegt til að skilja falskt brú og varðveita restinn af hverri frumur."
+        },
+        {
+          "narration": "Skildu hlutinn fjarlægir heildarmerkt hlutinn með einum smelli. Notaðu það fyrir ákveðið rangt jákvætt; Undo er enn í boði ef valinn hlutinn var gildur."
+        },
+        {
+          "narration": "Wand plus bætir við hefðbundnum svæðum. Tollerans stjórnar því hversu mikill orkanir geta verið frábrugðin ER-piksli sem smellt er á, en Max-pikslar koma í veg fyrir tilviljunarflæði yfir völlinn."
+        },
+        {
+          "narration": "Wand mínus fylgir sömu styrktarreglu en tekur niður tengd svæði. Breyttu þolinu með einbeitandi hætti og skoðaðu niðurstöðurnar áður en þú færð aðra mynd."
+        },
+        {
+          "narration": "Zoom teiknar rétthundna svæði og stækkar það í listanum og gerir frumurnar auðvelt að dæma á 4K. Settu á ný styttingu eða þrýstu Escape til að koma aftur í fullt velli."
+        },
+        {
+          "narration": "Að jafna breytingar eru aðeins á sýndu andstæðum. Þetta ER-svæði notar seinni og níutíu níunda punktar-fimm prósentílar svo djúp mörk verða sýnileg án þess að breyta myndatöku eða merki geometri."
+        },
+        {
+          "narration": "Undo og Redo fara í gegnum breytingar á grímunni óháð stækkun og kontrast. Stöðugastöðum þeirra eru Control Z og Control Y, með Control Shift Z einnig í boði til endurskoðunar."
+        },
+        {
+          "narration": "Aðgerðir fyrirbæra geta fyllt innri holum, ummerkt tengt forspiður, snúið forspiði og bakgrunni, eða hreinsað grímuna. Clear spyr eftir staðfestingu því hún fjarlægir öll núverandi merkingar."
+        },
+        {
+          "narration": "Aðgerðin með lágmarksvæði fjarlægir tengd fyrirbæri sem eru minni en valið pikslatal. Hér er 10 þúsund að gera síaverkan augljós; veldu lífrænt viðeigandi þröskul fyrir framleiðslumerki."
+        },
+        {
+          "narration": "Save mask endurmerkir tengd hluti og skrifar uint16 TIFF til maski undir uppruna myndarstöngunni. Þessi námskeið breytir einangruð eintak og yfirgefur upphaflega tilraunina óbreytt."
+        },
+        {
+          "narration": "Fyrri mynd og Næsta mynd flytja í gegnum mappan í skránafn röð. Staða línan sýnir alltaf núverandi skrá og stöðu, þannig að hvert þjálfunarsvæði er hægt að endurskoða skipulaglega."
+        },
+        {
+          "narration": "Mynd án fylgdarmaskar opnast með núllmerki. Byrjaðu á Brush eða Wand plus, skoðaðu og hreinsaðu hvert hlut og geymdu síðan nýja parinn til sérsniðinnar Cellpose þjálfunar."
         }
       ]
     },
