@@ -2551,47 +2551,200 @@
       "id": "18_motility",
       "number": 18,
       "slug": "motility",
-      "title": "Motility assay",
+      "title": "动力测试",
       "series": 2,
       "app_key": "motility",
       "section": "Core",
-      "description": "从时间解析图像中量化速度,移动,持久性和感染质量控制的指标.",
+      "description": "测量被追踪的运动,应用物理校准和质量过器,并根据感染状态进行轨迹比较.",
       "objectives": [
-        "了解什么时候使用动性测试.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "连接跟踪的合并阵列并验证对象和道映射.",
+        "检查校准,运动过器,感染分类,图片和运行时间类别.",
+        "创建框架级测量,跟踪总结,相关性和动力数据."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "首先运行 Timelapse,以便源包含相结合的阵列,",
       "scenes": [
         {
-          "narration": "这本教程涵盖了动力测试. 从时间解析图像中量化速度,移动,持久性和感染质量控制的指标.",
-          "visual": "overview",
+          "narration": "动力测试从跟踪的合并阵列中重建测量,计算移动,速度,路径长度和直径,并根据感染状态比较轨迹. 控制台记录了每一个衍生的表格和数字.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了动力测试. 从时间解析图像中量化速度,移动,持久性和感染质量控制的指标."
+          "speech_text": "动力测试从跟踪的合并阵列中重建测量,计算移动,速度,路径长度和直径,并根据感染状态比较轨迹. 控制台记录了每一个衍生的表格和数字."
         },
         {
-          "narration": "从 Core 部分打开 Motility assay。 开放可靠的时间间隔和空间校准的追踪时间延误数据.",
-          "visual": "input",
+          "narration": "聊天场接受本地命令或工作流问题. 启用配置供应商的AI,并使用相邻的箭头来选择供应商或打开其控制.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "从 Core 部分打开 Motility assay。 开放可靠的时间间隔和空间校准的追踪时间延误数据."
+          "speech_text": "聊天场接受本地命令或工作流问题. 启用配置供应商的AI,并使用相邻的箭头来选择供应商或打开其控制."
         },
         {
-          "narration": "在主要配置区域中,选择轨道过器,最低持续时间,滑滑,动力指标,感染定义和井层组.",
-          "visual": "settings",
+          "narration": "提供商检查了Claude,ChatGPT和Gemini命令行客户端,并显示了他们的安装和登录命令,同时每个供应商仍然拥有身份验证.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在主要配置区域中,选择轨道过器,最低持续时间,滑滑,动力指标,感染定义和井层组."
+          "speech_text": "提供商检查了Claude,ChatGPT和Gemini命令行客户端,并显示了他们的安装和登录命令,同时每个供应商仍然拥有身份验证."
         },
         {
-          "narration": "在完整运行之前,检查可见的设置,并在可用时使用预览或测试模式.检查轨迹预览,排除破损,静止的文物或不可思议的轨道.",
-          "visual": "run",
+          "narration": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和spaCR知情系统说明.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在完整运行之前,检查可见的设置,并在可用时使用预览或测试模式.检查轨迹预览,排除破损,静止的文物或不可思议的轨道."
+          "speech_text": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和斯佩克尔知情系统说明."
         },
         {
-          "narration": "当工作流程完成时, spaCR 写出每条轨道和每条条件的动力表,质量指标和数字.",
-          "visual": "output",
+          "narration": "这种合成源包含八个跟踪框架, 中核在零频道,细胞在一频道和病原体在二频道. 每个框架的16个细胞轨迹和20个病原体面具提供了一个完整的测试例子.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "这种合成源包含八个跟踪框架, 中核在零频道,细胞在一频道和病原体在二频道. 每个框架的16个细胞轨迹和20个病原体面具提供了一个完整的测试例子."
+        },
+        {
+          "narration": "基本数据显示了被追踪的对象,道映射,每框的秒钟,每微米的像素,移动过器,感染策略,图片限制,数据库表和第一个分析所需的员工数量.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "基本数据显示了被追踪的对象,道映射,每框的秒钟,每微米的像素,移动过器,感染策略,图片限制,数据库表和第一个分析所需的员工数量."
+        },
+        {
+          "narration": "修改的面板限制了故意的变化,包括三通道布局,一秒的框架,每微米的一个像素,基于面具的感染标签,对称地图的限制和一个工人.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "修改的面板限制了故意的变化,包括三通道布局,一秒的框架,每微米的一个像素,基于面具的感染标签,对称地图的限制和一个工人."
+        },
+        {
+          "narration": "所有设置都显示了九个类别:对象和道,校准,运动过,感染分类,XGBoost,集群,嵌入搜索,图片和质量控制以及运行时间.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "所有设置都显示了九个类别:对象和道,校准,运动过,感染分类,XGBoost,集群,嵌入搜索,图片和质量控制以及运行时间."
+        },
+        {
+          "narration": "配方将在一个名称下保存完整的 Motility Assay 配置,重新应用到另一个实验中,或者进口和出口可重复使用的设置文件.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "配方将在一个名称下保存完整的 Motility Assay 配置,重新应用到另一个实验中,或者进口和出口可重复使用的设置文件."
+        },
+        {
+          "narration": "提交已解决的设置的远程快照,并将测量和轨迹工作发送到分布式工作工作空间.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "提交已解决的设置的远程快照,并将测量和轨迹工作发送到分布式工作工作空间."
+        },
+        {
+          "narration": "分布式工作将追踪的源和输出路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的测试.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "分布式工作将追踪的源和输出路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的测试."
+        },
+        {
+          "narration": "物体和通道选择被追踪的来源,测量运动的物体以及携带细胞,核和病原体信号的收购通道. 错误的映射使感染的强度和结果无效.",
+          "visual": "12_category_01_objects_channels",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "物体和通道选择被追踪的来源,测量运动的物体以及携带细胞,核和病原体信号的收购通道. 错误的映射使感染的强度和结果无效."
+        },
+        {
+          "narration": "空间和时间校准为每一个框架提供秒钟,每一个微米提供像素. 这两个值将像素移动转化为物理速度,所以一个恒定的错误在这里衡量了每一个报告的速度.",
+          "visual": "12_category_02_spatial_temporal_calibration",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "空间和时间校准为每一个框架提供秒钟,每一个微米提供像素. 这两个值将像素移动转化为物理速度,所以一个恒定的错误在这里衡量了每一个报告的速度."
+        },
+        {
+          "narration": "运动过不包括不可思议的框架到框架跳跃,可选的高度直观的文物以及通过z分数门识别的特征或速度异差.",
+          "visual": "12_category_03_motion_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "运动过不包括不可思议的框架到框架跳跃,可选的高度直观的文物以及通过z分数门识别的特征或速度异差."
+        },
+        {
+          "narration": "感染分类从病原体-面具重叠开始,可选择使用基于强度的质量控制重新标记或删除痕迹. 在教程中保留了直接面具标签.",
+          "visual": "12_category_04_infection_classification",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "感染分类从病原体-面具重叠开始,可选择使用基于强度的质量控制重新标记或删除痕迹. 在教程中保留了直接面具标签."
+        },
+        {
+          "narration": "XGBoost感染模型设置监督强度分类器,树深度和学习率,概率门值,模糊性带,类型大小要求和特征重要性报告.",
+          "visual": "12_category_05_xgboost_infection_model",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "XGBoost感染模型设置监督强度分类器,树深度和学习率,概率门值,模糊性带,类型大小要求和特征重要性报告."
+        },
+        {
+          "narration": "感染集群控制未经监督的强度分离,病原体-道权重,集群数量,随机种子,样品盖,以及最小的轮和基础真相分离检查.",
+          "visual": "12_category_06_infection_clustering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "感染集群控制未经监督的强度分离,病原体-道权重,集群数量,随机种子,样品盖,以及最小的轮和基础真相分离检查."
+        },
+        {
+          "narration": "在低维嵌入中分离感染强度时,嵌入搜索调整了UMAP或t-SNE邻居,距离,困惑和学习率的网格.",
+          "visual": "12_category_07_embedding_search",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "在低维嵌入中分离感染强度时,嵌入搜索调整了UMAP或t-SNE邻居,距离,困惑和学习率的网格."
+        },
+        {
+          "narration": "动力图和QC设定了轨道轴界限,并允许组合强度,位置,速度和感染诊断面板,而不会改变底层测量.",
+          "visual": "12_category_08_motility_plots_qc",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "动力图和QC设定了轨道轴界限,并允许组合强度,位置,速度和感染诊断面板,而不会改变底层测量."
+        },
+        {
+          "narration": "运行时间和可靠性控制平行工人. 使用一个工人进行一个小的验证源,然后仅在确认道映射,校准和轨道质量后进行扩展.",
+          "visual": "12_category_09_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "运行时间和可靠性控制平行工人. 使用一个工人进行一个小的验证源,然后仅在确认道映射,校准和轨道质量后进行扩展."
+        },
+        {
+          "narration": "该示范使用每一个图片的秒钟和每一个微米的像素. 两个值均等于一个, 每个每框测量的像素在报告表达每分钟速度之前直接转换.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "该示范使用每一个图片的秒钟和每一个微米的像素. 两个值均等于一个, 每个每框测量的像素在报告表达每分钟速度之前直接转换."
+        },
+        {
+          "narration": "运行读取每个合并的框架,测量细胞,核,细胞细胞,病原体和通道强度,平滑轨迹,分配感染状态,计算速度总结和相关性,并保存数据库表和数字. 停止请求安全的中断.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "运行读取每个合并的框架,测量细胞,核,细胞细胞,病原体和通道强度,平滑轨迹,分配感染状态,计算速度总结和相关性,并保存数据库表和数字. 停止请求安全的中断."
+        },
+        {
+          "narration": "在处理过程中,控制台报告合并阵列形状,测量的对象和框架,平滑结果,感染和未感染的轨道数量,速度单位和每个输出路径.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "在处理过程中,控制台报告合并阵列形状,测量的对象和框架,平滑结果,感染和未感染的轨道数量,速度单位和每个输出路径."
+        },
+        {
+          "narration": "完成的测试从16个轨道中产生了128个框架级观测,将12个轨道归类为感染和4个轨道归类为无感染,计算速度在每分钟微米,并保存了测量表,相关性和每井动性板.",
+          "visual": "23_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "当工作流程完成时, 斯佩克尔 写出每条轨道和每条条件的动力表,质量指标和数字."
+          "speech_text": "完成的测试从16个轨道中产生了128个框架级观测,将12个轨道归类为感染和4个轨道归类为无感染,计算速度在每分钟微米,并保存了测量表,相关性和每井动性板."
         }
       ]
     },

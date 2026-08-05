@@ -989,19 +989,76 @@
       "id": "18_motility",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker Motility Assay. Kvantificere hastigheds-, forflytelses-, vedholdelses- og infektionskvalitetskontrolmetrikker fra tidsløse billeder."
+          "narration": "Motility Assay genopbygger målinger fra sporede fusionerede arrays, beregner forflytning, hastighed, sti længde og rettighed og sammenligner trajektorer efter infektionstilstand. Konsolen registrerer alle afledte tabeller og figurer."
         },
         {
-          "narration": "Open Motility test fra Core sektionen. Åben sporede tidslapse-data med pålidelige tidsintervaller og rumlig kalibrering."
+          "narration": "Chat-feltet accepterer lokale kommandoer eller workflow-spørgsmål. Aktiver AI for en konfigureret udbyder, og brug den tilstødende pil til at vælge en udbyder eller åbne dens kontroller."
         },
         {
-          "narration": "I hovedkonfigurationsområdet skal du vælge sporfiltre, minimum varighed, glatning, motilitetsmetrikker, infektionsdefinitioner og grupper på godt niveau."
+          "narration": "Udbydere kontrollerer Claude, ChatGPT og Gemini kommando-linjeklienter og viser deres installations- og login-kommandoer, mens autentisering forbliver hos hver leverandør."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. inspektion af baneforsyninger og udelukkelse af brudt, stilstandende kunstværk eller usandsynlige spor."
+          "narration": "AI-indstillinger styrer responsdybden, automatiske fejlforklaringer, valgfri GitHub-problemrapportering, login og spaCR-bevidste systeminstruktioner."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, skriver spaCR pr. spor og pr. betingelse motilitetstabeller, kvalitetsmetrikker og tal."
+          "narration": "Denne syntetiske kilde indeholder otte sporede rammer med kerner i kanal nul, celler i kanal en og patogener i kanal to. 16 celle spor og 20 patogenmasker pr. ramme giver et fuldstændigt testeksempel."
+        },
+        {
+          "narration": "Essentials viser det sporede objekt, kanalkartering, sekunder pr. ramme, pixeler pr. mikrometer, forflytelsesfilter, infektionsstrategi, plotgrænser, databasetabelle og antal medarbejdere, der er nødvendige for en første analyse."
+        },
+        {
+          "narration": "Ændrede begrænsninger af panelen til forsætlige ændringer, herunder tre-kanal layout, en sekund rammer, en pixel pr. mikrometer, mask-baserede infektionsetiketter, symmetriske plots grænser og en arbejder."
+        },
+        {
+          "narration": "Alle indstillinger afslører ni kategorier: objekter og kanaler, kalibrering, bevægelsesfiltrering, infektionsklassificering, XGBoost, clustering, indlejring af søgning, plots og kvalitetskontrol og køretid."
+        },
+        {
+          "narration": "Recipes gemmer den fulde Motility Assay-konfiguration under et navn, anvender den på ny til et andet eksperiment eller importerer og eksporterer en genbrugbar indstillingerfil."
+        },
+        {
+          "narration": "Indsend fjernbilleder af de afviklede indstillinger og sender måling- og trajektorjobbene til Distribuerede Jobs arbejdsområde."
+        },
+        {
+          "narration": "Distributed Jobs kortlægger de sporede kilde- og udgangsveje til en fjerntliggende arbejdsstation, Slurm-cluster eller konfigureret kommando, og sender derefter og overvåger den samme analyse."
+        },
+        {
+          "narration": "Objekter og kanaler udvælger den sporede kilde, det objekt, hvis bevægelse måles, og de erhvervskanale, der bærer celle-, kjerne- og patogensignal. Forkert kartlægning gør både intensitet og infektionsresultater ugyldige."
+        },
+        {
+          "narration": "Rumlig og tidlig kalibrering giver sekunder pr. ramme og pixel pr. mikrometer. Disse to værdier konverterer pixelforflytning til fysisk hastighed, så en konstant fejl her skalerer hver rapporteret hastighed."
+        },
+        {
+          "narration": "Motion Filtering udelukker usandsynlige ramme-til-ramme-springer, valgfrie meget lige artefakter og funktion- eller hastighedsforskelle, der er identificeret ved en z-score- tærskel."
+        },
+        {
+          "narration": "Infektionsklassificering starter fra patogen-maskoverlapning og kan alternativt ommærkes eller fjernes spor ved hjælp af intensitetsbaseret kvalitetskontrol. Tutorialen bevarer de direkte masker etiketter."
+        },
+        {
+          "narration": "XGBoost Infection Model konfigurerer en overvåget intensitetsklassifikator, dens træ dybde og læringsfrekvens, sandsynlighedsgrænse, tvetydighedsbånd, krav om klasse størrelse og rapport om funktionens betydning."
+        },
+        {
+          "narration": "Infektion Clustering kontrollerer uovervejet intensitet adskillelse, patogen-kanal vægtning, cluster antal, tilfældige frø, prøve kappe og minimal silhuette og grund sandhed adskillelse kontroller."
+        },
+        {
+          "narration": "Embedding Search tunes UMAP eller t-SNE nabolag, afstand, forvirring og læringsrate net, når infektionsintensiteten er adskilt i en lavere-dimensionel indlejring."
+        },
+        {
+          "narration": "Motility Plots og QC sætter trajektorie-akselgrænser og gør det muligt at kombinere intensitet, position, hastighed og infektion diagnostiske paneler uden at ændre de underliggende målinger."
+        },
+        {
+          "narration": "Løbtid og pålidelighed kontrollerer parallelt arbejde. Brug en arbejder til en lille valideringskilde, så skalere først efter at have bekræftet kanalkartlægning, kalibrering og sporkvalitet."
+        },
+        {
+          "narration": "Demonstrationen bruger et sekund pr. ramme og et pixel pr. mikrometer. Med begge værdier lig med en konverterer hver målt pixel pr. ramme direkte, før rapporten udtrykker hastighed pr. minut."
+        },
+        {
+          "narration": "Run læser hver sammensat ramme, måler celle, kerne, cytoplasma, patogen og kanalintensitet, glatter spor, tildeler infektionsstatus, beregner hastighedsopfattelser og korrelationer og gemmer databasetabeller og tal. Stop anmoder om en sikker afbrydelse."
+        },
+        {
+          "narration": "I forbindelse med behandlingen rapporterer konsolen fusionsarray-former, målte objekter og rammer, glatningsresultater, inficerede og ikke-inficerede spor, hastighedsenheder og hver udgangsvej."
+        },
+        {
+          "narration": "Den afsluttede analyse producerede 128 ramme-niveau observationer fra 16 spor, klassificerede 12 spor som inficerede og fire som uinficerede, beregnede hastigheder i mikrometer pr. minut, og gemte måltabeller, korrelationer og et mobilitetspanel pr. brønd."
         }
       ]
     },

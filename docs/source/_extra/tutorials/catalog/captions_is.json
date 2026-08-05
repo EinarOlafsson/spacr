@@ -989,19 +989,76 @@
       "id": "18_motility",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Motility test. Tilgreina hraða, flutning, áhaldið og sýkingar gæðaeftirlit mælikvarða úr tíma leysa myndum."
+          "narration": "Motility Assay byggir upp mælingar úr rekjaðum sameinuðum röðum, reiknar flutning, hraða, brautlengd og beintni og samanber braut eftir sýkingarstöðu. Konsóllinn skráir hverja afleiða borð og tölur."
         },
         {
-          "narration": "Opið hreyfingarpróf frá kjarnaskiptinu. Opnuð eftirfylgjandi tímabilsgögn með áreiðanlegum tímabilum og rými."
+          "narration": "Spjall sviðið samþykkir staðbundnar skipanir eða vinnuflómsspurnir. Gæta AI fyrir stillta þjónustuaðila og nota nágrenna piltinn til að velja þjónustuaðila eða opna stjórnina."
         },
         {
-          "narration": "Í aðalmyndatölu svæðinu skaltu velja sporfiltrar, lágmarksvaran, sléttingu, hreyfishæfni mælikvarða, sýkingarskilgreiningar og hópur á velri hæð."
+          "narration": "Greiðsluaðila kanna Claude, ChatGPT og Gemini skipunarlínu viðskiptavinir og sýnir uppsetningu þeirra og innritun skipunir meðan staðfesting stendur hjá hverjum birgjum."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. skoðaðu brautfyrirlit og útilokaði brotnar, stöðugar verkfæri eða ólíklegar spor."
+          "narration": "AI stillingar stjórnar svörun dýpt, sjálfvirkar villur útskýringar, valfrjálsan GitHub vandamál skýrslu, innritun og spaCR-vitandi kerfis leiðbeiningar."
         },
         {
-          "narration": "Þegar vinnuflæði er lokið skrifar spaCR hreyfanleika töflur fyrir hverja braut og fyrir hverja skilyrði, gæðametris og tölur."
+          "narration": "Þessi synthétíska uppspretta inniheldur átta sporbundnar ramma með kjarnum í nulli kanáli, frumur í einu kanáli og sjúkdómsfrumur í öðru kanáli. 16 frumur og 20 sjúkdómslyfjum fyrir hvern ramma veita fullkomið próf dæmi."
+        },
+        {
+          "narration": "Essentials sýnir eftirfylgjandi hlut, kanal kortlagningu, sekúndur á ramma, pixlar á mikrómétri, flutningsfiltur, sýkingarstefna, lóðarmörk, gagnagrunnaborð og starfsmanna tal sem þarf til fyrstu greiningu."
+        },
+        {
+          "narration": "Breyttar takmarkanir á pönnunni til áætlunarbreytinga, þar á meðal þriggja kanala skipulag, einn sekúndar ramma, einn piksill á mikrómétri, sýkingarmerki sem byggjast á grímum, takmörk fyrir samræmi og einn starfsmaður."
+        },
+        {
+          "narration": "Öll stillingar sýna níu flokka: hlutir og leiðir, mælingar, hreyfingafiltrun, smit flokkun, XGBoost, hópun, innbygging leitar, plots og gæðastjórn og rekstrartíma."
+        },
+        {
+          "narration": "Recipes geymir alla mótility Assay stillingu undir nafni, beitir henni aftur í aðra tilraun, eða innflutningur og útflutningur endurteknar stillingar skrá."
+        },
+        {
+          "narration": "Sendaðu fjarlæg snjallsmyndir af losnum stillingum og sendir mælingar- og brautstarfið í vinnusvæðið Dreifð störf."
+        },
+        {
+          "narration": "Distributed Jobs kortar eftirfylgjandi uppspretta- og útgáfuleiðir til fjarstæðrar vinnustaðar, Slurm hóp, eða stillta skipan, og sendir síðan inn og fylgir sömu prófunni."
+        },
+        {
+          "narration": "Hlutirnir og kanallar velur eftirfylgjandi uppspretta, hlutinn sem hreyfingin er mælt og aflaferðirnar sem bera frumur, kjarn og sýkingarsignal. Rænt kortlagning gerir bæði mikinn og smit niðurstöður ógildar."
+        },
+        {
+          "narration": "Rúmlega og tímabundið klúðun veitir sekúndur á ramma og pikslar á mikrómétri. Þessir tveir gildi breyta pixlaþrengingu í líkamlega hraða, svo stöðugt mistök hér mælir hvern tilkynnt hraða."
+        },
+        {
+          "narration": "Motion Filtering útilokar ólíklega skokka frá rammi til ramma, valfrjálst mjög beint verk og einkenni eða hraðabreytingar sem eru skilgreindar með z-skora þröskul."
+        },
+        {
+          "narration": "Sjúkdómsflokkunin hefst frá því að sjúkdómsfrumur og grímur yfirlagast og getur valmögulega breytt merkingu eða fjarlægð spor með því að nota gæðaeftirlit sem byggist á mikilli styrkingu. Í kennslunni eru bein merkingar á grímunni."
+        },
+        {
+          "narration": "XGBoost sýkingarmyndin skipuleggur eftirlitsþættingu, dýpdina á tré og kennsluhraða, líkindastig, tvískiljanleikaband, flokksstærð kröfu og einkenni mikilvægi skýrslu."
+        },
+        {
+          "narration": "Sjúkdómsflokkunar stjórnar óeftirlitlaðri greiningu á áhrifum, þyngd á sjúkdómsmeðferðinni, fjöldi flokkanna, tilviljunarfræ, sýnishápi og lágmarksgreiningu á svipinu og staðreyndum."
+        },
+        {
+          "narration": "Innbygging Leitarleikur UMAP eða t-SNE hverfi, fjarlægð, rugl, og námshlutfall grilla þegar sýkingartengd er skilin í lægri vídd innbyggingu."
+        },
+        {
+          "narration": "Motility Plots og QC setja braut-axla takmörk og gerir mögulegt að sameina hávegisleika, stöðu, hraða og sýkingargreiningarborð án þess að breyta undirliggjandi mælingum."
+        },
+        {
+          "narration": "Greiðslustund og áreiðanleiki stjórna samhliða starfsmönnum. Notaðu einn starfsmann fyrir litla staðfestingarskilinn, svo skalla aðeins eftir að hafa staðfest kanal kortun, útfærslu og spor gæði."
+        },
+        {
+          "narration": "Í sýningunni er notað eitt sekúndur á ramma og einn piksill á mikrometer. Með báðum gildum sem eru jöfn við eitt breytist hver mæltur piksill á ramma beint áður en skýrslan lýsir hraða á mínútu."
+        },
+        {
+          "narration": "Run lesur hverja sameinaða ramma, mælir frumur, kjarna, sítoplasma, sjúkdómsfrumur og kanalþyngd, sléttar spor, tilskilar sýkingarstöðu, reiknar hraða samantekningar og tengsl og geymir gagnagrunna töflur og tölur. Hættu fyrirspurnum um öruggan truflun."
+        },
+        {
+          "narration": "Við vinnslu skilar konsólinn tilkynningar um sameinuð röð, hlutir og ramma mældir, slétta niðurstöður, sýktar og ósjúktar brauttal, hraðaeiningar og hverja útgáfubraut."
+        },
+        {
+          "narration": "Fullkominn próf leiddi til 128 fylgiskjöl á sviði úr 16 brautum, flokkaði 12 brautum sem sýktar og fjórar sem ó sýktar, reiknaði hraða í mikrometrum á mínútu og geymdi mælingarborð, tengsl og hreyfishorn fyrir braut."
         }
       ]
     },
