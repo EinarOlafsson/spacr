@@ -4622,47 +4622,91 @@
       "id": "32_align_stitch",
       "number": 32,
       "slug": "align_stitch",
-      "title": "Align and Stitch",
+      "title": "L'alignement et la couture",
       "series": 4,
       "app_key": "align",
       "section": "Data and batch runs",
-      "description": "Enregistrez les carreaux d'image et construisez une mosaïque cousue progressivement sans garder toute la toile en mémoire.",
+      "description": "Planifier et inspecter un enregistrement en carreaux avant d'écrire progressivement sa base de données de coordonnées.",
       "objectives": [
-        "Comprendre quand utiliser Align et Stitch.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Charger une acquisition en carreaux et décrire sa grille, son chevauchement, son ordre et son canal de référence partagé.",
+        "Exécutez le plan en lecture seule et inspectez la fiabilité de l'enregistrement, les retards, les résidus, la taille de la toile et l'estimation de la mémoire.",
+        "Écrivez la mosaïque dans des bandes de mémoire limitée et gardez les coordonnées des tuiles résolues pour la traçabilité en aval."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Un dossier de carreaux NPY ou TIFF bidimensionnels dont les noms de fichiers conservent l'identité de la plaque, du puits et du champ.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre Align et Stitch. Regroupez les carreaux d'image et construisez une mosaïque cousue progressivement sans garder toute la toile en mémoire.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre Align et Stitch. Regroupez les carreaux d'image et construisez une mosaïque cousue progressivement sans garder toute la toile en mémoire."
+          "narration": "Align et Stitch enregistrent les carreaux microscopiques dans une toile sans d'abord allouer la mosaïque entière. Ouvrez-le à partir de Data et de batches. La première mise en page du plan est délibérée: la fiabilité de l'enregistrement, le placement en arrière-plan, la taille de la sortie et l'utilisation de la mémoire sont visibles avant que spaCR n'écrive quoi que ce soit.",
+          "visual": "01_overview",
+          "focus_key": "nav",
+          "click_key": "nav",
+          "hold_after": 0.72,
+          "speech_text": "Align et Stitch enregistrent les carreaux microscopiques dans une toile sans d'abord allouer la mosaïque entière. Ouvrez-le à partir de Data et de batches. La première mise en page du plan est délibérée: la fiabilité de l'enregistrement, le placement en arrière-plan, la taille de la sortie et l'utilisation de la mémoire sont visibles avant que spakeur n'écrive quoi que ce soit."
         },
         {
-          "narration": "Ouvrez Align and Stitch dans la section Data and batch runs. Ouvrez l'alignement et la couture dans la section Données et exécution de lot.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez Align and Stitch dans la section Data and batch runs. Ouvrez l'alignement et la couture dans la section Données et exécution de lot."
+          "narration": "Jetez un dossier de carreaux NPY ou TIFF, ou choisissez ici. Cette leçon exporte un vrai champ de microscopie à quatre canaux sous forme de neuf tuiles qui se chevauchent uniquement pour imiter une acquisition 3 par 3. Les pixels de source restent réels, tandis que le chevauchement connu nous donne un exemple d'enregistrement reproductible.",
+          "visual": "02_source",
+          "focus_key": "source_row",
+          "hold_after": 0.72,
+          "speech_text": "Jetez un dossier de carreaux NPY ou TIFF, ou choisissez ici. Cette leçon exporte un vrai champ de microscopie à quatre canaux sous forme de neuf tuiles qui se chevauchent uniquement pour imiter une acquisition 3 par 3. Les pixels de source restent réels, tandis que le chevauchement connu nous donne un exemple d'enregistrement reproductible."
         },
         {
-          "narration": "Dans la zone de configuration principale, configurer la méthode d'enregistrement, le canal de référence, le chevauchement, le mélange, la correction, la taille des pièces et le format de sortie.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, configurer la méthode d'enregistrement, le canal de référence, le chevauchement, le mélange, la correction, la taille des pièces et le format de sortie."
+          "narration": "Décrivez la disposition de l'acquisition. La grille est de 3 par 3 avec un chevauchement nominal de 25% dans l'ordre de la ligne majeure. Le canal de référence 1 est le canal endoplasmique-réticulum; spaCR résout l'enregistrement une fois sur ce plan et applique la même transformation aux quatre canaux, empêchant ainsi la découpe du canal au canal.",
+          "visual": "03_layout_settings",
+          "focus_key": "layout_settings",
+          "hold_after": 0.72,
+          "speech_text": "Décrivez la disposition de l'acquisition. La grille est de 3 par 3 avec un chevauchement nominal de 25% dans l'ordre de la ligne majeure. Le canal de référence 1 est le canal endoplasmique-réticulum; spakeur résout l'enregistrement une fois sur ce plan et applique la même transformation aux quatre canaux, empêchant ainsi la découpe du canal au canal."
         },
         {
-          "narration": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+          "narration": "Les contrôles de qualité décident quelles correspondances par paires entrent dans la solution globale. La confiance minimale rejette une faible corrélation croisée, le rayon voisin ajoute des comparaisons proches redondantes, Feather mélange des coutures qui se chevauchent, et le budget de 64 mégaoctets de RAM limite chaque bande de sortie plutôt que la taille de la toile finie.",
+          "visual": "04_quality_settings",
+          "focus_key": "quality",
+          "hold_after": 0.7,
+          "speech_text": "Les contrôles de qualité décident quelles correspondances par paires entrent dans la solution globale. La confiance minimale rejette une faible corrélation croisée, le rayon voisin ajoute des comparaisons proches redondantes, Feather mélange des coutures qui se chevauchent, et le budget de 64 mégaoctets de RAM limite chaque bande de sortie plutôt que la taille de la toile finie."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, les carreaux enregistrés, les images cousues, les transformations et les métadonnées de cartographie sont enregistrés.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, les carreaux enregistrés, les images cousues, les transformations et les métadonnées de cartographie sont enregistrés."
+          "narration": "Cliquez sur Plan avant d'écrire. La planification lit les en-têtes des tuiles et les bandes qui se chevauchent, estime les compensations des voisins et résout toutes les contraintes acceptées ensemble. Il ne crée ni toile ni fichiers de sortie, donc c'est le point sûr pour attraper une grille incorrecte, ordre, chevauchement ou canal de référence.",
+          "visual": "05_plan_run",
+          "focus_key": "quality",
+          "click_key": "plan",
+          "hold_after": 0.68,
+          "speech_text": "Cliquez sur Plan avant d'écrire. La planification lit les en-têtes des tuiles et les bandes qui se chevauchent, estime les compensations des voisins et résout toutes les contraintes acceptées ensemble. Il ne crée ni toile ni fichiers de sortie, donc c'est le point sûr pour attraper une grille incorrecte, ordre, chevauchement ou canal de référence."
+        },
+        {
+          "narration": "Le vrai plan enregistre les neuf carreaux. Les couleurs de la mise en page enregistrent les champs par confiance, tandis que tout retrait de la position de scène serait orange et éclore. Le rapport répertorie les paires acceptées et refusées, les pires résidus, les dimensions finales de la toile, la taille du disque et l'estimation de l'écriture en mémoire limitée.",
+          "visual": "06_plan_result",
+          "focus_key": "plan_result",
+          "hold_after": 0.78,
+          "speech_text": "Le vrai plan enregistre les neuf carreaux. Les couleurs de la mise en page enregistrent les champs par confiance, tandis que tout retrait de la position de scène serait orange et éclore. Le rapport répertorie les paires acceptées et refusées, les pires résidus, les dimensions finales de la toile, la taille du disque et l'estimation de l'écriture en mémoire limitée."
+        },
+        {
+          "narration": "Cliquez sur une carreaux individuelle pour vérifier sa position Y et X résolue, la méthode, la confiance, le résidu et le nombre de paires de soutien. Ce champ a été placé par enregistrement, pas seulement par sa position nominale de la grille; utilisez la même inspection pour enquêter sur les carreaux faibles ou isolés avant d'engager une grande mosaïque.",
+          "visual": "07_tile_detail",
+          "focus_key": "inspection",
+          "click_key": "tile_click",
+          "hold_after": 0.72,
+          "speech_text": "Cliquez sur une carreaux individuelle pour vérifier sa position Y et X résolue, la méthode, la confiance, le résidu et le nombre de paires de soutien. Ce champ a été placé par enregistrement, pas seulement par sa position nominale de la grille; utilisez la même inspection pour enquêter sur les carreaux faibles ou isolés avant d'engager une grande mosaïque."
+        },
+        {
+          "narration": "Choisissez une nouvelle destination pour la pile NPY cousue. La base de données de mesures facultatives enregistre les coordonnées des tuiles résolues et le chemin de sortie. Gardez la suppression de l'écriture lors de la première course afin qu'une mosaïque existante soit rejetée au lieu d'être remplacée silencieusement.",
+          "visual": "08_output_settings",
+          "focus_key": "output",
+          "hold_after": 0.64,
+          "speech_text": "Choisissez une nouvelle destination pour la pile NPY cousue. La base de données de mesures facultatives enregistre les coordonnées des tuiles résolues et le chemin de sortie. Gardez la suppression de l'écriture lors de la première course afin qu'une mosaïque existante soit rejetée au lieu d'être remplacée silencieusement."
+        },
+        {
+          "narration": "Cliquez sur Écrire pile seulement après que le plan soit acceptable. spaCR compose les tuiles une bande horizontale à la fois, applique des plumes mélangées en superpositions et écrit des coordonnées après le succès de l'image. La sortie peut donc dépasser la RAM disponible tant que la mémoire reste dans le budget déclaré.",
+          "visual": "09_write_run",
+          "focus_key": "output",
+          "click_key": "write",
+          "hold_after": 0.7,
+          "speech_text": "Cliquez sur Écrire pile seulement après que le plan soit acceptable. spakeur compose les tuiles une bande horizontale à la fois, applique des plumes mélangées en superpositions et écrit des coordonnées après le succès de l'image. La sortie peut donc dépasser la RAM disponible tant que la mémoire reste dans le budget déclaré."
+        },
+        {
+          "narration": "L'exécution vérifiée écrit les neuf tuiles sans aucune sauter, produit une pile cousue à quatre canaux correspondant au champ source et ajoute neuf lignes à la table des coordonnées d'alignement. Le rapport préserve à la fois les preuves d'enregistrement et le résumé de l'écriture en mémoire limitée, rendant la mosaïque auditable avant l'analyse en aval.",
+          "visual": "10_finished",
+          "focus_key": "report",
+          "hold_after": 0.86,
+          "speech_text": "L'exécution vérifiée écrit les neuf tuiles sans aucune sauter, produit une pile cousue à quatre canaux correspondant au champ source et ajoute neuf lignes à la table des coordonnées d'alignement. Le rapport préserve à la fois les preuves d'enregistrement et le résumé de l'écriture en mémoire limitée, rendant la mosaïque auditable avant l'analyse en aval."
         }
       ]
     },
