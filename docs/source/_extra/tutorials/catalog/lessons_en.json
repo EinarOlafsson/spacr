@@ -4248,43 +4248,110 @@
       "series": 4,
       "app_key": "report",
       "section": "Results and quality control",
-      "description": "Create a shareable HTML or PDF summary containing quality control, figures, statistics, settings, and versions.",
+      "description": "Audit a completed run, preview available and missing evidence, and generate one shareable HTML or PDF containing status, provenance, QC, results, settings, and an appendix.",
       "objectives": [
-        "Understand when to use Report.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Scan a run folder before generation and distinguish complete, partial, unknown, and missing evidence.",
+        "Choose output format, figure cap, and a destination outside the immutable run folder.",
+        "Verify that the generated document reports provenance, statistics, settings, omitted figures, and unavailable sections honestly."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "A spaCR run or plate folder containing any available measurements, run stamps, QC artifacts, results, settings, or figures.",
       "scenes": [
         {
-          "narration": "This tutorial covers Report. Create a shareable HTML or PDF summary containing quality control, figures, statistics, settings, and versions.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers Report. Create a shareable HTML or PDF summary containing quality control, figures, statistics, settings, and versions."
+          "narration": "Report is a read-only document builder. It turns the evidence already present in a run folder into a shareable HTML, PDF, or both; it does not recompute results or write into the source folder.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.6,
+          "speech_text": "Report is a read only document builder. It turns the evidence already present in a run folder into a shareable H T M L, P D F, or both; it does not recompute results or write into the source folder."
         },
         {
-          "narration": "Open Report from the Results and quality control section. Choose a completed spaCR project and the runs, tables, figures, and sections to include.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Open Report from the Results and quality control section. Choose a completed spacer project and the runs, tables, figures, and sections to include."
+          "narration": "Choose or drop the plate or run folder that holds measurements, quality-control artifacts, results, and settings, then click Scan. This tutorial uses the transferred real experiment's completed test run.",
+          "visual": "02_source",
+          "focus_key": "source",
+          "click_key": "scan",
+          "hold_after": 0.62,
+          "speech_text": "Choose or drop the plate or run folder that holds measurements, quality control artifacts, results, and settings, then click Scan. This tutorial uses the transferred real experiment's completed test run."
         },
         {
-          "narration": "In the main configuration area, configure title, authorship, condition labels, quality thresholds, output format, and privacy-sensitive fields.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, configure title, authorship, condition labels, quality thresholds, output format, and privacy-sensitive fields."
+          "narration": "The green verdict comes from an actual run-status stamp: all five attempted measurement items succeeded. Six report sections are available and two are not; seventeen figures were found, but none is an embeddable raster image.",
+          "visual": "03_verdict",
+          "focus_key": "scan_result",
+          "hold_after": 0.72,
+          "speech_text": "The green verdict comes from an actual run status stamp: all five attempted measurement items succeeded. Six report sections are available and two are not; seventeen figures were found, but none is an embeddable raster image."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview the report and resolve missing files or failed quality checks before export.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview the report and resolve missing files or failed quality checks before export."
+          "narration": "The section preflight shows exactly what a collaborator will receive. This run includes status, provenance, key-figure inventory, statistics, settings, and appendix data; segmentation QC and plate QC remain visibly marked not available instead of disappearing.",
+          "visual": "04_sections",
+          "focus_key": "sections",
+          "hold_after": 0.72,
+          "speech_text": "The section preflight shows exactly what a collaborator will receive. This run includes status, provenance, key figure inventory, statistics, settings, and appendix data; segmentation quality control and plate quality control remain visibly marked not available instead of disappearing."
         },
         {
-          "narration": "When the workflow finishes, a portable report records conclusions together with the settings and software versions needed to reproduce them.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, a portable report records conclusions together with the settings and software versions needed to reproduce them."
+          "narration": "Format offers one self-contained HTML file, a PDF transcription, or both. Embed at most limits raster figures so a report cannot grow without bound; zero embeds no images, while the upper limit is two hundred.",
+          "visual": "05_options",
+          "focus_key": "options",
+          "hold_after": 0.66,
+          "speech_text": "Format offers one self contained H T M L file, a P D F transcription, or both. Embed at most limits raster figures so a report cannot grow without bound; zero embeds no images, while the upper limit is two hundred."
+        },
+        {
+          "narration": "Choose the destination explicitly. The suggested path is outside the run folder so generating a report cannot quietly modify an experiment that should remain immutable; here the HTML is written into the tutorial workspace.",
+          "visual": "06_output",
+          "focus_key": "output",
+          "hold_after": 0.64,
+          "speech_text": "Choose the destination explicitly. The suggested path is outside the run folder so generating a report cannot quietly modify an experiment that should remain immutable; here the H T M L is written into the tutorial workspace."
+        },
+        {
+          "narration": "Click Generate report. spaCR scans the folder again so the document reflects its current state, embeds eligible raster figures up to the cap, and writes a standalone file with no network dependencies.",
+          "visual": "07_generate",
+          "focus_key": "output",
+          "click_key": "generate",
+          "hold_after": 0.64,
+          "speech_text": "Click Generate report. spacer scans the folder again so the document reflects its current state, embeds eligible raster figures up to the cap, and writes a standalone file with no network dependencies."
+        },
+        {
+          "narration": "The inline result names the file and destination, and Open becomes available only after a successful write. Failures are reported here rather than hidden behind a modal dialog.",
+          "visual": "08_generated",
+          "focus_key": "result",
+          "hold_after": 0.58,
+          "speech_text": "The inline result names the file and destination, and Open becomes available only after a successful write. Failures are reported here rather than hidden behind a modal dialog."
+        },
+        {
+          "narration": "Click Open to hand the newest generated document to the system browser or PDF viewer.",
+          "visual": "09_open",
+          "focus_key": "output",
+          "click_key": "open",
+          "hold_after": 0.48,
+          "speech_text": "Click Open to hand the newest generated document to the system browser or P D F viewer."
+        },
+        {
+          "narration": "The status confirms which output was opened. The next views show the real HTML generated by this run rather than a mock report.",
+          "visual": "10_opened",
+          "focus_key": "status",
+          "hold_after": 0.52,
+          "speech_text": "The status confirms which output was opened. The next views show the real H T M L generated by this run rather than a mock report."
+        },
+        {
+          "narration": "The document opens with the complete verdict, an honest summary of missing QC and unembedded figures, and a linked contents list. Run status records five of five successful measurement items, while provenance preserves the source, spaCR version, Git revision, Python environment, and package versions.",
+          "visual": "11_report_top",
+          "hold_after": 0.82,
+          "speech_text": "The document opens with the complete verdict, an honest summary of missing quality control and unembedded figures, and a linked contents list. Run status records five of five successful measurement items, while provenance preserves the source, spacer version, Git revision, Python environment, and package versions."
+        },
+        {
+          "narration": "Key Figures names all seventeen omitted plots and explains why each is absent. They are vector PDFs, and spaCR deliberately has no PDF rasterizer dependency; raising the raster-figure cap would not convert them or pretend they were embedded.",
+          "visual": "12_report_figures",
+          "hold_after": 0.72,
+          "speech_text": "Key Figures names all seventeen omitted plots and explains why each is absent. They are vector P D F's, and spacer deliberately has no P D F rasterizer dependency; raising the raster figure cap would not convert them or pretend they were embedded."
+        },
+        {
+          "narration": "Statistics reproduces recorded database table sizes and saved result-table rows. The report states that nothing on this page was recomputed, aggregated, or retested, preserving the difference between documenting evidence and reanalyzing it.",
+          "visual": "13_report_statistics",
+          "hold_after": 0.68,
+          "speech_text": "Statistics reproduces recorded database table sizes and saved result table rows. The report states that nothing on this page was recomputed, aggregated, or retested, preserving the difference between documenting evidence and reanalyzing it."
+        },
+        {
+          "narration": "Settings preserves both the saved CSV files and the run-journal snapshot, including channels, clustering, batch controls, plotting, and runtime values. Together with the appendix's measured-feature dictionary and file inventory, this makes the report useful for review while keeping every missing section explicit.",
+          "visual": "14_report_settings",
+          "hold_after": 0.88,
+          "speech_text": "Settings preserves both the saved C S V files and the run journal snapshot, including channels, clustering, batch controls, plotting, and runtime values. Together with the appendix's measured feature dictionary and file inventory, this makes the report useful for review while keeping every missing section explicit."
         }
       ]
     },
