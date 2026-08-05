@@ -4,47 +4,317 @@
   "voice": "jf_gongitsune",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 73.55,
+  "total_duration": 412.475,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 13.325,
-      "scene_end": 13.774999999999999,
-      "duration": 13.774999999999999,
-      "text": "このチュートリアルではマスクをカバーします. 提供された4チャンネル顕微鏡実験を核,細胞,脂質滴,寄生虫マスクに分割します."
+      "speech_end": 15.6,
+      "scene_end": 16.05,
+      "duration": 16.05,
+      "text": "マスクは左側の設定パネルと右側の実行コンソールで開きます. コンソールはフォルダスキャン,検証,進歩,警告,パイプライン出力などを報告します.",
+      "speech_text": "マスクは左側の設定パネルと右側の実行コンソールで開きます. コンソールはフォルダスキャン,検証,進歩,警告,パイプライン出力などを報告します.",
+      "phonemes": "masɨkɯ βa çidaɾʲiɡaβa no seʔteː paneɾɯ to mʲiɡʲiɡaβa no ʥiʔkoː koɴsoːɾɯ de çiɾakʲimasɨ. koɴsoːɾɯ βa ɸoɾɯda sɨkʲaɴ, keɴɕoː, ɕimpo, keːkokɯ, paipɯɾaiɴ ɕɨʦɨɾʲokɯ nado o hoːkokɯ ɕi masɨ."
     },
     {
       "scene": 2,
-      "speech_start": 13.774999999999999,
-      "speech_end": 25.349999999999998,
-      "scene_end": 25.799999999999997,
-      "duration": 12.024999999999999,
-      "text": "Core セクションから Mask を開きます。 チャネル0は核,チャネル1は小胞体,チャネル2は脂質滴,チャネル3は寄生虫です."
+      "speech_start": 16.05,
+      "speech_end": 35.8,
+      "scene_end": 36.25,
+      "duration": 20.2,
+      "text": "コンソールの下のフィールドは,現地質問やコマンドを受け入れます. AI スイッチは選択されたサブスクリプションサポートされたプロバイダーを通じてメッセージを送信し,隣接する矢印はプロバイダーメニューを開きます.",
+      "speech_text": "コンソールの下のフィールドは,現地質問やコマンドを受け入れます. AI スイッチは選択されたサブスクリプションサポートされたプロバイダーを通じてメッセージを送信し,隣接する矢印はプロバイダーメニューを開きます.",
+      "phonemes": "koɴsoːɾɯ no ɕita no ɸʲiːɾɯdo βa, ɡeɲʨi ɕiʦɨmoɴ ja komando o ɯkeiɾemasɨ. AI sɨiʔʨi βa sentakɯ saɾeta sabɯsɨkɯɾʲipɯɕoɴ sapoːto saɾeta pɯɾobaidaː o ʦɨːʥite meʔseːʥi o soːɕiɴ ɕi, ɾʲiɴseʦɨ sɨɾɯ jaʥiɾɯɕi βa pɯɾobaidaː meɲɨː o çiɾakʲimasɨ."
     },
     {
       "scene": 3,
-      "speech_start": 25.799999999999997,
-      "speech_end": 42.25,
-      "scene_end": 42.7,
-      "duration": 16.900000000000006,
-      "text": "主な構成領域では,チャンネル0から核,エンドプラズマ・レチキュラムチャンネルからの細胞,臓器のスポットワークフローを持つ脂質滴,およびチャンネル3からの寄生虫を検出します."
+      "speech_start": 36.25,
+      "speech_end": 53.175,
+      "scene_end": 53.625,
+      "duration": 17.375,
+      "text": "提供者タブは,Claude, ChatGPT, Gemini コマンドラインクライアントがインストールされているか,インストールおよびログインのコマンドがインストールされているかを示します. 認証は売り手に留まってる",
+      "speech_text": "提供者タブは,Claude, ChatGPT, Gemini コマンドラインクライアントがインストールされているか,インストールおよびログインのコマンドがインストールされているかを示します. 認証は売り手に留まってる",
+      "phonemes": "teːkʲoː ɕa tabɯ βa, Claude, Chat GPT, Gemini komando ɾaiɴ kɯɾaianto ɡa iɴsɨtoːɾɯ saɾete iɾɯka, iɴsɨtoːɾɯ ojobʲi ɾoɡɯiɴ no komando ɡa iɴsɨtoːɾɯ saɾete iɾɯka o ɕimeɕimasɨ. ɲiɴɕoː βa ɯɾʲite ɲi tomaʔteɾɯ"
     },
     {
       "scene": 4,
-      "speech_start": 42.7,
-      "speech_end": 60.475,
-      "scene_end": 60.925000000000004,
-      "duration": 18.225,
-      "text": "実行完了前に,可視設定をレビューし,利用可能な場合,前見またはテストモードを使用します. 代表的なフィールドをチェックし,データセット全体で4つのセグメントパスを実行します."
+      "speech_start": 53.625,
+      "speech_end": 67.1,
+      "scene_end": 67.55,
+      "duration": 13.924999999999997,
+      "text": "設定タブは応答深さ,AI支援エラー説明,オプションのGitHub問題報告,サインイン,およびspaCR認識システムプロンプトを制御します.",
+      "speech_text": "設定タブは応答深さ,AI支援エラー説明,オプションのGitHub問題報告,サインイン,およびスペーカー認識システムプロンプトを制御します.",
+      "phonemes": "seʔteː tabɯ βa oːtoː ɸɯka sa, AI ɕieɴ eɾaː seʦɨmeː, opɯɕoɴ no GitHub mondai hoːkokɯ, saiɴ iɴ, ojobʲi sɨpeːkaː ɲiɴɕikʲi ɕisɨtemɯ pɯɾompɯto o seːɡʲo ɕi masɨ."
     },
     {
       "scene": 5,
-      "speech_start": 60.925000000000004,
-      "speech_end": 72.9,
-      "scene_end": 73.55000000000001,
-      "duration": 12.625000000000007,
-      "text": "作業流が完了すると,マスクフォルダには,並列されたオブジェクトラベルと,測定準備ができている画像+マスクマレイが統合されます."
+      "speech_start": 67.55,
+      "speech_end": 85.275,
+      "scene_end": 85.72500000000001,
+      "duration": 18.17500000000001,
+      "text": "オリジングフォルダをマスクに引っ張ってください. spaCR は CQ1 のファイル名パターンを検知し,元画像,フィールド,時間,深さ,チャンネルメタデータ,プレート ID がプレート1 にデフォルトで表示されます.",
+      "speech_text": "オリジングフォルダをマスクに引っ張ってください. スペーカー は C Q 1 のファイル名パターンを検知し,元画像,フィールド,時間,深さ,チャンネルメタデータ,プレート ID がプレート1 にデフォルトで表示されます.",
+      "phonemes": "oɾʲiʥiŋɡɯɸoɾɯda o masɨkɯ ɲi çiʔpaʔte kɯdasai. sɨpe kaː βa C Q iʨi no ɸaiɾɯ meː pataːɴ o keɲʨi ɕi, moto ɡaʣoː, ɸʲiːɾɯdo, ʥikaɴ, ɸɯka sa, ʨanneɾɯ meta deːta, pɯɾeːto ID ɡa pɯɾeːto iʨi ɲi deɸoɾɯto de çoːʥi saɾemasɨ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 85.72500000000001,
+      "speech_end": 100.87500000000001,
+      "scene_end": 101.32500000000002,
+      "duration": 15.600000000000009,
+      "text": "Essentials は Mask を実行するために必要な小さな設定を表示します. 制御の下にあるカウントは,現在の完全な設定のいくつが見られるかを報告します.",
+      "speech_text": "Essentials は Mask を実行するために必要な小さな設定を表示します. 制御の下にあるカウントは,現在の完全な設定のいくつが見られるかを報告します.",
+      "phonemes": "Essentials βa Mask o ʥiʔkoː sɨɾɯ tame ɲi çiʦɨjoː na ʨiːsana seʔteː o çoːʥi ɕi masɨ. seːɡʲo no ɕita ɲi aɾɯ kaɯnto βa, ɡeɴʣai no kaɴʣeɴ na seʔteː no ikɯʦɨ ɡa mʲiɾaɾeɾɯ ka o hoːkokɯ ɕi masɨ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 101.32500000000002,
+      "speech_end": 113.40000000000002,
+      "scene_end": 113.85000000000002,
+      "duration": 12.525000000000006,
+      "text": "変更された形式は,マスクのデフォルトから異なる値に制限され,輸入または編集された設定を簡単にレビューできます.",
+      "speech_text": "変更された形式は,マスクのデフォルトから異なる値に制限され,輸入または編集された設定を簡単にレビューできます.",
+      "phonemes": "heŋkoː saɾeta keːɕikʲi βa, masɨkɯ no deɸoɾɯto kaɾa kotonaɾɯ atai ɲi seːɡeɴ saɾe, jɯɲɨː mata βa heɴɕɨː saɾeta seʔteː o kantaɴ ɲi ɾebʲɨː dekʲimasɨ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 113.85000000000002,
+      "speech_end": 127.55000000000003,
+      "scene_end": 128.00000000000003,
+      "duration": 14.150000000000006,
+      "text": "値を失うことなく,Essentials と All の設定を切り替える. すべての設定は,高度なおよびベータ制御を含むすべてのカテゴリーを暴露します.",
+      "speech_text": "値を失うことなく,Essentials と All の設定を切り替える. すべての設定は,高度なおよびベータ制御を含むすべてのカテゴリーを暴露します.",
+      "phonemes": "atai o ɯɕinaɯ koto nakɯ, Essentials to All no seʔteː o kʲiɾʲikaeɾɯ. sɨbete no seʔteː βa, koːdo na ojobʲi beːta seːɡʲo o ɸɯkɯmɯ sɨbete no kateɡoɾʲiː o bakɯɾo ɕi masɨ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 128.00000000000003,
+      "speech_end": 140.22500000000002,
+      "scene_end": 140.675,
+      "duration": 12.674999999999983,
+      "text": "レシピは現在の設定を名前で保存し,保存した設定を再適用するか,再利用可能な設定ファイルを輸入・輸出する.",
+      "speech_text": "レシピは現在の設定を名前で保存し,保存した設定を再適用するか,再利用可能な設定ファイルを輸入・輸出する.",
+      "phonemes": "ɾeɕipʲi βa ɡeɴʣai no seʔteː o namae de hoʣoɴ ɕi, hoʣoɴ ɕita seʔteː o sai tekʲijoː sɨɾɯ ka, sai ɾʲijoː kanoː na seʔteː ɸaiɾɯ o jɯɲɨː jɯɕɨʦɨ sɨɾɯ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 140.675,
+      "speech_end": 150.75,
+      "scene_end": 151.2,
+      "duration": 10.524999999999977,
+      "text": "解決したマスク設定のリモートスナップショットを送信し,分散した仕事作業スペースに送信します.",
+      "speech_text": "解決したマスク設定のリモートスナップショットを送信し,分散した仕事作業スペースに送信します.",
+      "phonemes": "kaikeʦɨ ɕita masɨkɯ seʔteː no ɾʲimoːto sɨnaʔpɯɕoʔto o soːɕiɴ ɕi, bɯɴsaɴ ɕita ɕiɡoto saɡʲoː sɨpeːsɨ ɲi soːɕiɴ ɕi masɨ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 151.2,
+      "speech_end": 166.04999999999998,
+      "scene_end": 166.49999999999997,
+      "duration": 15.299999999999983,
+      "text": "Distributed Jobs は,リモートワークステーション,Slurmクラスター,または設定されたコマンドへのローカルパスをマッピングし,同じマスク実行を送信してモニターします.",
+      "speech_text": "Distributed Jobs は,リモートワークステーション,Slurmクラスター,または設定されたコマンドへのローカルパスをマッピングし,同じマスク実行を送信してモニターします.",
+      "phonemes": "Distributed Jobs βa, ɾʲimoːto βaːkɯsɨteːɕoɴ, Slurm kɯɾasɨtaː, mata βa seʔteː saɾeta komando e no ɾoːkaɾɯ pasɨ o maʔpʲiŋɡɯ ɕi, onaʥi masɨkɯ ʥiʔkoː o soːɕiɴ ɕite moɲitaː ɕi masɨ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 166.49999999999997,
+      "speech_end": 178.84999999999997,
+      "scene_end": 179.29999999999995,
+      "duration": 12.799999999999983,
+      "text": "インプットおよびメタデータはソースフォルダー,チャンネル割り当て,拡大,メタデータタイプ,および任意のカスタムファイル名regexを定義します.",
+      "speech_text": "インプットおよびメタデータはソースフォルダー,チャンネル割り当て,拡大,メタデータタイプ,および任意のカスタムファイル名regexを定義します.",
+      "phonemes": "impɯʔto ojobʲi meta deːta βa soːsɨ ɸoɾɯdaː, ʨanneɾɯ βaɾʲiate, kakɯdai, meta deːta taipɯ, ojobʲi ɲiɴi no kasɨtamɯ ɸaiɾɯ meː regex o teːɡʲi ɕi masɨ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 179.29999999999995,
+      "speech_end": 190.57499999999996,
+      "scene_end": 191.02499999999995,
+      "duration": 11.724999999999994,
+      "text": "ワークフローとテストランは,前処理,マスク生成,ドライラン,リニューア行動,および小さなテストモードサンプルを制御します.",
+      "speech_text": "ワークフローとテストランは,前処理,マスク生成,ドライラン,リニューア行動,および小さなテストモードサンプルを制御します.",
+      "phonemes": "βaːkɯ ɸɯɾoː to tesɨto ɾaɴ βa, mae ɕoɾʲi, masɨkɯ seːseː, doɾai ɾaɴ, ɾʲiɲɨːa koːdoː, ojobʲi ʨiːsana tesɨto moːdo sampɯɾɯ o seːɡʲo ɕi masɨ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 191.02499999999995,
+      "speech_end": 203.29999999999995,
+      "scene_end": 203.74999999999994,
+      "duration": 12.724999999999994,
+      "text": "画像前処理グループは,セグメント化前に適用された標準化,投影,アップスケーリング,統合,およびデノイジング選択です.",
+      "speech_text": "画像前処理グループは,セグメント化前に適用された標準化,投影,アップスケーリング,統合,およびデノイジング選択です.",
+      "phonemes": "ɡaʣoː ʣeɴ ɕoɾʲi ɡɯɾɯːpɯ βa, seɡɯmento ka mae ɲi tekʲijoː saɾeta çoːʥɨɴ ka, toːeː, aʔpɯ sɨkeːɾʲiŋɡɯ, toːɡoː, ojobʲi denoiʥiŋɡɯ sentakɯ desɨ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 203.74999999999994,
+      "speech_end": 214.57499999999993,
+      "scene_end": 215.02499999999992,
+      "duration": 11.274999999999977,
+      "text": "細胞セグメントには,細胞モデル,直径,しきい値,背景処理,および細胞オブジェクトフィルターが含まれます.",
+      "speech_text": "細胞セグメントには,細胞モデル,直径,しきい値,背景処理,および細胞オブジェクトフィルターが含まれます.",
+      "phonemes": "saiboː seɡɯmento ɲi βa, saiboː modeɾɯ, ʨoʔkeː, ɕikʲii ʨi, haikeː ɕoɾʲi, ojobʲi saiboː obɯʥekɯto ɸʲiɾɯtaː ɡa ɸɯkɯma ɾe masɨ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 215.02499999999992,
+      "speech_end": 224.39999999999992,
+      "scene_end": 224.8499999999999,
+      "duration": 9.824999999999989,
+      "text": "核分断は,核のための相応のモデル,しきい値,背景修正,オブジェクトフィルタを提供します.",
+      "speech_text": "核分断は,核のための相応のモデル,しきい値,背景修正,オブジェクトフィルタを提供します.",
+      "phonemes": "kakɯ bɯndaɴ βa, kakɯ no tame no soːoː no modeɾɯ, ɕikʲii ʨi, haikeː ɕɨːseː, obɯʥekɯto ɸʲiɾɯta o teːkʲoː ɕi masɨ."
+    },
+    {
+      "scene": 17,
+      "speech_start": 224.8499999999999,
+      "speech_end": 236.1749999999999,
+      "scene_end": 236.6249999999999,
+      "duration": 11.774999999999977,
+      "text": "パトゲンセグメントは,寄生虫物体を検出し,フィルタリングするために使用されるモデルと清掃規則をグループ化します.",
+      "speech_text": "パトゲンセグメントは,寄生虫物体を検出し,フィルタリングするために使用されるモデルと清掃規則をグループ化します.",
+      "phonemes": "patoɡeɴseɡɯmento βa, kʲiseːmɯɕi bɯʔtai o keɴɕɨʦɨ ɕi, ɸʲiɾɯtaɾʲiŋɡɯ sɨɾɯ tame ɲi ɕijoː saɾeɾɯ modeɾɯ to seːsoː kʲisokɯ o ɡɯɾɯːpɯ ka ɕi masɨ."
+    },
+    {
+      "scene": 18,
+      "speech_start": 236.6249999999999,
+      "speech_end": 249.72499999999988,
+      "scene_end": 250.17499999999987,
+      "duration": 13.549999999999983,
+      "text": "Organelle Segmentation は,臓器形態学と検出器,画像清掃,方法特有の制御,オブジェクトフィルター,親区の要約を選択します.",
+      "speech_text": "Organelle Segmentation は,臓器形態学と検出器,画像清掃,方法特有の制御,オブジェクトフィルター,親区の要約を選択します.",
+      "phonemes": "Organelle Segmentation βa, ʣoːkʲi keːtai ɡakɯ to keɴɕɨʦɨ kʲi, ɡaʣoː seːsoː, hoːhoː tokɯjɯː no seːɡʲo, obɯʥekɯto ɸʲiɾɯtaː, oja kɯ no joːjakɯ o sentakɯ ɕi masɨ."
+    },
+    {
+      "scene": 19,
+      "speech_start": 250.17499999999987,
+      "speech_end": 263.47499999999985,
+      "scene_end": 263.92499999999984,
+      "duration": 13.749999999999972,
+      "text": "品質管理は,オブジェクト数量,サイズ比,境界,前景カバー,分割行動,および受け入れられるフィールド故障の自動チェックを設定します.",
+      "speech_text": "品質管理は,オブジェクト数量,サイズ比,境界,前景カバー,分割行動,および受け入れられるフィールド故障の自動チェックを設定します.",
+      "phonemes": "çiɴɕiʦɨ kanɾʲi βa, obɯʥekɯto sɨːɾʲoː, saizɨ çi, kʲoːkai, ʣeŋkeː kabaː, bɯŋkaʦɨ koːdoː, ojobʲi ɯkeiɾeɾaɾeɾɯ ɸʲiːɾɯdo koɕoː no ʥidoː ʨeʔkɯ o seʔteː ɕi masɨ."
+    },
+    {
+      "scene": 20,
+      "speech_start": 263.92499999999984,
+      "speech_end": 275.02499999999986,
+      "scene_end": 275.47499999999985,
+      "duration": 11.550000000000011,
+      "text": "Volumetric Processing では z stacks, प्रोजेक्शन, anisotropy, voxel カリブレーション,および 3D 縫合のベータ制御が含まれています.",
+      "speech_text": "Volumetric Processing では z stacks, प्रोजेक्शन, anisotropy, voxel カリブレーション,および 3D 縫合のベータ制御が含まれています.",
+      "phonemes": "Volumetric Processing de βa z stacks, , anisotropy, voxel kaɾʲibɯɾeːɕoɴ, ojobʲi saɴ D hoːɡoː no beːta seːɡʲo ɡa ɸɯkɯma ɾe te imasɨ."
+    },
+    {
+      "scene": 21,
+      "speech_start": 275.47499999999985,
+      "speech_end": 286.84999999999985,
+      "scene_end": 287.29999999999984,
+      "duration": 11.824999999999989,
+      "text": "Time Axes and Tracking には,四次元データ,フレーム間隔,追跡バックエンド,移動制限のベータ制御が含まれています.",
+      "speech_text": "Time Axes and Tracking には,四次元データ,フレーム間隔,追跡バックエンド,移動制限のベータ制御が含まれています.",
+      "phonemes": "Time Axes and Tracking ɲi βa, joɲʥiɡeɴ deːta, ɸɯɾeːmɯ kaŋkakɯ, ʦɨisekʲi baʔkɯ endo, idoː seːɡeɴ no beːta seːɡʲo ɡa ɸɯkɯma ɾe te imasɨ."
+    },
+    {
+      "scene": 22,
+      "speech_start": 287.29999999999984,
+      "speech_end": 298.02499999999986,
+      "scene_end": 298.47499999999985,
+      "duration": 11.175000000000011,
+      "text": "ビジュアライゼーションと診断は,プレビューグラフ,カラーマップ,フィギュアサイズ,グラフ正常化,例のフィールドを制御します.",
+      "speech_text": "ビジュアライゼーションと診断は,プレビューグラフ,カラーマップ,フィギュアサイズ,グラフ正常化,例のフィールドを制御します.",
+      "phonemes": "bʲiʥɨaɾaiʣeːɕoɴ to ɕindaɴ βa, pɯɾebʲɨː ɡɯɾaɸɯ, kaɾaː maʔpɯ, ɸʲiɡʲɨa saizɨ, ɡɯɾaɸɯ seːʥoːka, ɾeː no ɸʲiːɾɯdo o seːɡʲo ɕi masɨ."
+    },
+    {
+      "scene": 23,
+      "speech_start": 298.47499999999985,
+      "speech_end": 309.29999999999984,
+      "scene_end": 309.74999999999983,
+      "duration": 11.274999999999977,
+      "text": "アウトプットとストレージは,どの画像,マスク,中間配列,および圧縮された結果が保存されるかを決定します.",
+      "speech_text": "アウトプットとストレージは,どの画像,マスク,中間配列,および圧縮された結果が保存されるかを決定します.",
+      "phonemes": "aɯtopɯʔto to sɨtoɾeːʥi βa, dono ɡaʣoː, masɨkɯ, ʨɨːkaɴ haiɾeʦɨ, ojobʲi aʔɕɨkɯ saɾeta keʔka ɡa hoʣoɴ saɾeɾɯ ka o keʔteː ɕi masɨ."
+    },
+    {
+      "scene": 24,
+      "speech_start": 309.74999999999983,
+      "speech_end": 323.04999999999984,
+      "scene_end": 323.49999999999983,
+      "duration": 13.75,
+      "text": "実行時間と信頼性には,故障処理,再現可能性,ログリング,労働者の数値,バッチ,パイプライン実行オプションが含まれています.",
+      "speech_text": "実行時間と信頼性には,故障処理,再現可能性,ログリング,労働者の数値,バッチ,パイプライン実行オプションが含まれています.",
+      "phonemes": "ʥiʔkoː ʥikaɴ to ɕinɾai seː ɲi βa, koɕoː ɕoɾʲi, saiɡeɴ kanoːseː, ɾoɡɯ ɾʲiŋɡɯ, ɾoːdoːɕa no sɨːʨi, baʔʨi, paipɯɾaiɴ ʥiʔkoː opɯɕoɴ ɡa ɸɯkɯma ɾe te imasɨ."
+    },
+    {
+      "scene": 25,
+      "speech_start": 323.49999999999983,
+      "speech_end": 336.0249999999998,
+      "scene_end": 336.4749999999998,
+      "duration": 12.974999999999966,
+      "text": "ライブプレビューを有効にして チャンネル2の緊急画像をアップロードする このフィールドは,セグメント例で使用されたセル信号のみを含みます.",
+      "speech_text": "ライブプレビューを有効にして チャンネル2の緊急画像をアップロードする このフィールドは,セグメント例で使用されたセル信号のみを含みます.",
+      "phonemes": "ɾaibɯ pɯɾebʲɨː o jɯːkoː ɲi ɕite ʨanneɾɯ ɲi no kʲiŋkʲɨː ɡaʣoː o aʔpɯɾoːdo sɨɾɯ kono ɸʲiːɾɯdo βa, seɡɯmento ɾeː de ɕijoː saɾeta seɾɯ ɕiŋɡoː nomʲi o ɸɯkɯmʲimasɨ."
+    },
+    {
+      "scene": 26,
+      "speech_start": 336.4749999999998,
+      "speech_end": 347.9999999999998,
+      "scene_end": 348.44999999999976,
+      "duration": 11.974999999999966,
+      "text": "ライブ設定では,セルを選択し,正常化を有効にし,下半分の2と上半分の99.5を設定します.",
+      "speech_text": "ライブ設定では,セルを選択し,正常化を有効にし,下半分の2と上半分の99.5を設定します.",
+      "phonemes": "ɾaibɯ seʔteː de βa, seɾɯ o sentakɯ ɕi, seːʥoːka o jɯːkoː ɲi ɕi, ka hambɯɴ no ɲi to ɯe hambɯɴ no kʲɨːʥɨː kʲɨː. ɡo o seʔteː ɕi masɨ."
+    },
+    {
+      "scene": 27,
+      "speech_start": 348.44999999999976,
+      "speech_end": 361.2999999999998,
+      "scene_end": 361.7499999999998,
+      "duration": 13.300000000000011,
+      "text": "プレビューを実行し,同期したソースと結果パネルに拡大します. オーバーレイラインは, ERで定義された細胞境界線に従うべきである.",
+      "speech_text": "プレビューを実行し,同期したソースと結果パネルに拡大します. オーバーレイラインは, ERで定義された細胞境界線に従うべきである.",
+      "phonemes": "pɯɾebʲɨː o ʥiʔkoː ɕi, doːkʲi ɕita soːsɨ to keʔka paneɾɯ ɲi kakɯdai ɕi masɨ. oːbaːɾeː ɾaiɴ βa, ER de teːɡʲi saɾeta saiboː kʲoːkai seɴ ɲi ɕitaɡaɯ bekʲi de aɾɯ."
+    },
+    {
+      "scene": 28,
+      "speech_start": 361.7499999999998,
+      "speech_end": 368.9249999999998,
+      "scene_end": 369.3749999999998,
+      "duration": 7.625,
+      "text": "Cellpose の流れフィールドを検査するために,結果パネルをフローに切り替える.",
+      "speech_text": "Cellpose の流れフィールドを検査するために,結果パネルをフローに切り替える.",
+      "phonemes": "Cellpose no naɡaɾe ɸʲiːɾɯdo o keɴsa sɨɾɯ tame ɲi, keʔka paneɾɯ o ɸɯɾoː ɲi kʲiɾʲikaeɾɯ."
+    },
+    {
+      "scene": 29,
+      "speech_start": 369.3749999999998,
+      "speech_end": 381.3749999999998,
+      "scene_end": 381.82499999999976,
+      "duration": 12.449999999999989,
+      "text": "マスクに切り替えて 整数細胞オブジェクトを直接表示します それぞれの色は1つの物体で 黒は 0の背景ラベルです",
+      "speech_text": "マスクに切り替えて 整数細胞オブジェクトを直接表示します それぞれの色は1つの物体で 黒は 0の背景ラベルです",
+      "phonemes": "masɨkɯ ɲi kʲiɾʲikaete seːsɨː saiboː obɯʥekɯto o ʨokɯseʦɨ çoːʥi ɕi masɨ soɾeʣoɾe no iɾo βai ʨiʦɨ no bɯʔtai de kɯɾo βa ʣeɾo no haikeː ɾabeɾɯ desɨ"
+    },
+    {
+      "scene": 30,
+      "speech_start": 381.82499999999976,
+      "speech_end": 396.22499999999974,
+      "scene_end": 396.6749999999997,
+      "duration": 14.849999999999966,
+      "text": "ライブ設定に戻り,セル最小面積を 10000 ピクセルに設定します. キャッシュされた原始マスクは,Cellposeを再起動せずにすぐにフィルタリングされます.",
+      "speech_text": "ライブ設定に戻り,セル最小面積を 10000 ピクセルに設定します. キャッシュされた原始マスクは,Cellposeを再起動せずにすぐにフィルタリングされます.",
+      "phonemes": "ɾaibɯ seʔteː ɲi modoɾʲi, seɾɯ saiɕoː meɴsekʲi o iʨi maɴ pʲikɯseɾɯ ɲi seʔteː ɕi masɨ. kʲaʔɕɨ saɾeta ɡeɴɕi masɨkɯ βa, Cellpose o saikʲidoː sezɨ ɲi sɨɡɯɲi ɸʲiɾɯtaɾʲiŋɡɯ saɾemasɨ."
+    },
+    {
+      "scene": 31,
+      "speech_start": 396.6749999999997,
+      "speech_end": 411.8249999999997,
+      "scene_end": 412.4749999999997,
+      "duration": 15.799999999999955,
+      "text": "サイズフィルターの後,小さな細胞オブジェクトは概要を失い,少なくとも10000ピクセルのオブジェクトだけが残ります. フィルタなしのオーバーレイと比べてみてください",
+      "speech_text": "サイズフィルターの後,小さな細胞オブジェクトは概要を失い,少なくとも10000ピクセルのオブジェクトだけが残ります. フィルタなしのオーバーレイと比べてみてください",
+      "phonemes": "saizɨ ɸʲiɾɯtaː no ato, ʨiːsana saiboː obɯʥekɯto βa ɡaijoː o ɯɕinai, sɨkɯnakɯtomo iʨi maɴ pʲikɯseɾɯ no obɯʥekɯto dake ɡa nokoɾʲimasɨ. ɸʲiɾɯta naɕi no oːbaːɾeː to kɯɾabete mʲite kɯdasai"
     }
   ]
 }
