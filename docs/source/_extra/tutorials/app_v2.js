@@ -73,6 +73,7 @@ const elements = {
   next: $("#next-button"), previousTitle: $("#previous-title"),
   nextTitle: $("#next-title"), complete: $("#complete-button"),
   completeLabel: $("#complete-label"), copyLink: $("#copy-link-button"),
+  youtubeLink: $("#youtube-link"),
   continue: $("#continue-button"), progressLabel: $("#progress-label"),
   progressBar: $("#progress-bar"), availableCount: $("#available-count"),
   totalCount: $("#total-count"), sidebar: $("#sidebar"),
@@ -695,7 +696,26 @@ function updateLessonHeader() {
   elements.status.className = "status-pill ready";
   elements.title.textContent = lesson.title;
   elements.description.textContent = lesson.description;
+  updateYoutubeLink();
   document.title = `${lesson.title} · spaCR Learning Path`;
+}
+
+// The player streams a 1440p copy to stay inside the published-media budget;
+// YouTube carries the 4K cut. Lessons without an id in youtube_links.js show
+// no link at all, so the catalogue can be filled in a few lessons at a time.
+function updateYoutubeLink() {
+  if (!elements.youtubeLink) return;
+  const links = window.SPACR_YOUTUBE_LINKS || {};
+  const id = activeLesson && typeof links[activeLesson.id] === "string"
+    ? links[activeLesson.id].trim() : "";
+  if (!id) {
+    elements.youtubeLink.hidden = true;
+    elements.youtubeLink.removeAttribute("href");
+    return;
+  }
+  elements.youtubeLink.href = `https://www.youtube.com/watch?v=${encodeURIComponent(id)}`;
+  elements.youtubeLink.title = `Watch "${localizedLesson(activeLesson.id).title}" in 4K on YouTube`;
+  elements.youtubeLink.hidden = false;
 }
 
 function updateGuide() {
