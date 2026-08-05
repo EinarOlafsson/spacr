@@ -145,3 +145,45 @@ def test_cpu_derived_worker_defaults_are_always_usable(monkeypatch, reported_cor
     )
     for factory in factories:
         assert factory({})["n_jobs"] >= 1
+
+
+def test_a_measure_run_asks_for_its_organelle_summary():
+    """Measure must decide what to do with the organelle labels it is given.
+
+    `spacr.measure` gates all four organelle writes on
+    `settings.get('summarize_organelles_by') is not None`. The key was only
+    ever defaulted in `set_default_settings_preprocess_generate_masks` -- the
+    MASK pipeline -- which never reaches the measure settings, so
+    `get_measure_crop_settings` returned a dict without it, the gate never
+    fired, and a measure run wrote no organelle table at all. Every merged
+    stack carries real organelle labels in `organelle_mask_dim` (the bundled
+    demo ships 64 per field), so this was a whole output silently absent
+    rather than a feature nobody had asked for -- and nothing downstream
+    could tell "the user wants no organelle summary" from "nobody asked".
+    """
+    from spacr.settings import get_measure_crop_settings
+
+    settings = get_measure_crop_settings(settings={})
+    value = settings.get('summarize_organelles_by')
+    assert value is not None, (
+        "get_measure_crop_settings omits 'summarize_organelles_by', so "
+        "measure.py's `is not None` gate never fires and no organelle table "
+        "is written")
+    # 'cell' writes cell_organelle_summary; the expensive raw per-organelle
+    # table needs the literal 'organelle' in the value, and "organelle" is not
+    # a substring of "cell", so it stays opt-in.
+    assert 'cell' in value
+    assert 'organelle' not in value, (
+        "the raw per-organelle table must stay opt-in, not become the default")
+
+
+def test_an_explicit_organelle_choice_is_not_overwritten():
+    """A user who asked for nothing keeps nothing."""
+    from spacr.settings import get_measure_crop_settings
+
+    assert get_measure_crop_settings(
+        settings={'summarize_organelles_by': None}
+    )['summarize_organelles_by'] is None
+    assert get_measure_crop_settings(
+        settings={'summarize_organelles_by': 'nucleus'}
+    )['summarize_organelles_by'] == 'nucleus'

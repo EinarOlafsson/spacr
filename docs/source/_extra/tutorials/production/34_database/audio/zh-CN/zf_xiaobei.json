@@ -4,47 +4,137 @@
   "voice": "zf_xiaobei",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 44.675,
+  "total_duration": 224.985,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.95,
-      "scene_end": 9.399999999999999,
-      "duration": 9.399999999999999,
-      "text": "这本教程涵盖数据库浏览器. 浏览,过,查询和出口测量点db而不使用sqlite命令行."
+      "speech_end": 18.35,
+      "scene_end": 19.07,
+      "duration": 19.07,
+      "text": "数据库浏览器检查大型spaCR结果数据库,没有命令行. 在\"结果与质量控制\"中打开. 它在两个层上开始仅读:接口不提供细胞编辑器,SQLite使用仅读和仅查询模式,除非其他地方故意启用编辑.",
+      "speech_text": "数据库浏览器检查大型斯佩克尔结果数据库,没有命令行. 在\"结果与质量控制\"中打开. 它在两个层上开始仅读:接口不提供细胞编辑器,SQLite使用仅读和仅查询模式,除非其他地方故意启用编辑.",
+      "phonemes": "ʂu↘ʨy↘kʰu↘ ljou↗la↓nʨʰi↘ ʨjɛ↓nꭧʰa↗ ta↘ɕi↗ŋ sɨ→ pʰei↘kʰɤ↘ ɚ↓ ʨje↗kwo↓ ʂu↘ʨy↘kʰu↘,mei↗jou↓ mi↘ŋli↘ŋɕi↗ŋ. ʦai↘\"ʨje↗kwo↓ y↓ ꭧɨ↘lja↘ŋ kʰʊ↘ŋꭧɨ↘\"ꭧʊ→ŋ ta↓kʰai→. tʰa→ ʦai↘ lja↓ŋkɤ↘ ʦʰə↗ŋʂa↘ŋ kʰai→ʂɨ↓ ʨi↓ntu↗:ʨje→kʰou↓ pu↘ tʰi↗kʊ→ŋ ɕi↘pau→ pjɛ→nʨi↗ʨʰi↘,SQLiteʂɨ↓jʊ↘ŋ ʨi↓ntu↗ xɤ↗ ʨi↓n ꭧʰa↗ɕy↗n mwo↗ʂɨ↘,ꭧʰu↗fei→ ʨʰi↗tʰa→ ti↘fa→ŋ ku↘i↘ ʨʰi↓jʊ↘ŋ pjɛ→nʨi↗."
     },
     {
       "scene": 2,
-      "speech_start": 9.399999999999999,
-      "speech_end": 18.75,
-      "scene_end": 19.2,
-      "duration": 9.8,
-      "text": "从 Data and batch runs 部分打开 Database Browser。 打开 spaCR SQLite 数据库,选择表或保存查询."
+      "speech_start": 19.07,
+      "speech_end": 34.394999999999996,
+      "scene_end": 35.035,
+      "duration": 15.964999999999996,
+      "text": "输入测量.db路径,然后单击开放. 您可以选择数据库,选择其运行文件,或在此屏幕上任何地方放下. 在这里,我们打开了转移教程实验的真实测量数据库.",
+      "speech_text": "输入测量.db路径,然后单击开放. 您可以选择数据库,选择其运行文件,或在此屏幕上任何地方放下. 在这里,我们打开了转移教程实验的真实测量数据库.",
+      "phonemes": "ʂu→ɻu↘ ʦʰɤ↘lja↗ŋ.dblu↘ʨi↘ŋ,ɻa↗nxou↘ ta→nʨi→ kʰai→fa↘ŋ. ni↗n kʰɤ↓i↓ ɕɥɛ↓nʦɤ↗ ʂu↘ʨy↘kʰu↘,ɕɥɛ↓nʦɤ↗ ʨʰi↗ y↘nɕi↗ŋ wə↗nʨjɛ↘n,xwo↘ ʦai↘ ʦʰɨ↓ pʰi↗ŋmu↘ ʂa↘ŋ ɻə↘nxɤ↗ ti↘fa→ŋ fa↘ŋɕja↘. ʦai↘ ꭧɤ↘li↓,wo↓mən ta↓kʰai→ lɤ ꭧwa↓ni↗ ʨjau↘ꭧʰə↗ŋ ʂɨ↗jɛ↘n tɤ ꭧə→nʂɨ↗ ʦʰɤ↘lja↗ŋ ʂu↘ʨy↘kʰu↘."
     },
     {
       "scene": 3,
-      "speech_start": 19.2,
-      "speech_end": 26.9,
-      "scene_end": 27.349999999999998,
-      "duration": 8.149999999999999,
-      "text": "在主配置区域,配置列,过器,排序,行限,连接,安全的仅读或编辑行为."
+      "speech_start": 35.035,
+      "speech_end": 52.834999999999994,
+      "scene_end": 53.55499999999999,
+      "duration": 18.519999999999996,
+      "text": "\"spaCR\"解决了这个路径,打开了只读的路径,并列出了十个表格. 这些包括对象测量,图像记录,设置,计数和注释历史. 编辑模式仍然是关闭的;这个教程从来没有启用它,也从来没有写到源头.",
+      "speech_text": "\"斯佩克尔\"解决了这个路径,打开了只读的路径,并列出了十个表格. 这些包括对象测量,图像记录,设置,计数和注释历史. 编辑模式仍然是关闭的;这个教程从来没有启用它,也从来没有写到源头.",
+      "phonemes": "\"sɨ→ pʰei↘kʰɤ↘ ɚ↓\"ʨje↓ʨɥe↗ lɤ ꭧɤ↘kɤ lu↘ʨi↘ŋ,ta↓kʰai→ lɤ ꭧɨ↓tu↗ tɤ lu↘ʨi↘ŋ,pi↘ŋlje↘ ꭧʰu→ lɤ ʂɨ↗kɤ↘ pjau↓kɤ↗. ꭧɤ↘ɕje→ pau→kʰwo↘ twei↘ɕja↘ŋ ʦʰɤ↘lja↗ŋ,tʰu↗ɕja↘ŋ ʨi↘lu↘,ʂɤ↘ꭧɨ↘,ʨi↘ʂu↘ xɤ↗ ꭧu↘ʂɨ↘ li↘ʂɨ↓. pjɛ→nʨi↗ mwo↗ʂɨ↘ ɻə↗ŋɻa↗n ʂɨ↘ kwa→npi↘ tɤ;ꭧɤ↘kɤ ʨjau↘ꭧʰə↗ŋ ʦʰʊ↗ŋlai↗ mei↗jou↓ ʨʰi↓jʊ↘ŋ tʰa→,je↓ ʦʰʊ↗ŋlai↗ mei↗jou↓ ɕje↓ tau↘ ɥɛ↗ntʰou↗."
     },
     {
       "scene": 4,
-      "speech_start": 27.349999999999998,
-      "speech_end": 35.724999999999994,
-      "scene_end": 36.175,
-      "duration": 8.825,
-      "text": "在完整运行之前,检查可见设置,并在可用的情况下使用预览或测试模式."
+      "speech_start": 53.55499999999999,
+      "speech_end": 70.005,
+      "scene_end": 70.785,
+      "duration": 17.230000000000004,
+      "text": "单击细胞表. 它包含81,969个测量细胞和218个标识符,形态,强度,纹理,距离和定位列. 预览只获取其第一个有界限的部分,而完整的行数量则单独报告.",
+      "speech_text": "单击细胞表. 它包含81,969个测量细胞和218个标识符,形态,强度,纹理,距离和定位列. 预览只获取其第一个有界限的部分,而完整的行数量则单独报告.",
+      "phonemes": "ta→nʨi→ ɕi↘pau→ pjau↓. tʰa→ pau→xa↗n pa→ʂɨ↗i→,ʨjou↓pai↓ ljou↘ʂɨ↗ʨjou↓ kɤ↘ ʦʰɤ↘lja↗ŋ ɕi↘pau→ xɤ↗ ɚ↘pai↓i→ʂɨ↗ pa→kɤ↘ pjau→ʂɨ↗fu↗,ɕi↗ŋtʰai↘,ʨʰja↗ŋtu↘,wə↗nli↓,ʨy↘li↗ xɤ↗ ti↘ŋwei↘ lje↘. y↘la↓n ꭧɨ↓ xwo↘ʨʰy↓ ʨʰi↗ ti↘i↗kɤ↘ jou↓ ʨje↘ɕjɛ↘n tɤ pu↘fə↘n,ɚ↗ wa↗nꭧə↓ŋ tɤ ɕi↗ŋ ʂu↘lja↘ŋ ʦɤ↗ ta→ntu↗ pau↘kau↘."
     },
     {
       "scene": 5,
-      "speech_start": 36.175,
-      "speech_end": 44.025,
-      "scene_end": 44.675,
-      "duration": 8.5,
-      "text": "当工作流程完成时,可以复制或出口过表,而原始数据库仍然可追踪."
+      "speech_start": 70.785,
+      "speech_end": 87.88499999999999,
+      "scene_end": 88.585,
+      "duration": 17.799999999999997,
+      "text": "搜索列以使一个广泛的特征表可读. 查询cell_channel_1_mean即将显示的218列缩小到单个频道-1的平均强度功能. 这只会改变视图;它不会重新运行数据库查询或删除行.",
+      "speech_text": "搜索列以使一个广泛的特征表可读. 查询cell_channel_1_mean即将显示的218列缩小到单个频道-1的平均强度功能. 这只会改变视图;它不会重新运行数据库查询或删除行.",
+      "phonemes": "sou→swo↓ lje↘i↓ ʂɨ↓ i↗kɤ↘ kwa↓ŋfa↘n tɤ tʰɤ↘ꭧə→ŋ pjau↓kʰɤ↓tu↗. ꭧʰa↗ɕy↗ncell_channel_i→_meanʨi↗ʨja→ŋ ɕjɛ↓nʂɨ↘ tɤ ɚ↘pai↓i→ʂɨ↗ pa→lje↘ swo→ɕjau↓ tau↘ ta→nkɤ↘ pʰi↗ntau↘ fu↘i→ tɤ pʰi↗ŋʨy→n ʨʰja↗ŋtu↘ kʊ→ŋnə↗ŋ. ꭧɤ↘ ꭧɨ↓xwei↘ kai↓pjɛ↘n ʂɨ↘tʰu↗;tʰa→ pu↗xwei↘ ꭧʰʊ↗ŋɕi→n y↘nɕi↗ŋ ʂu↘ʨy↘kʰu↘ ꭧʰa↗ɕy↗n xwo↘ ʂa→nꭧʰu↗ ɕi↗ŋ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 88.585,
+      "speech_end": 108.10999999999999,
+      "scene_end": 108.84999999999998,
+      "duration": 20.264999999999986,
+      "text": "清除列搜索,并设置每次列为250. 预览使用键盘设置页面,而不是深度偏移,因此随着表的增长,每个请求都会受到限制. 单击\"加载更多\"来添加下一个部分,而不需要将所有81,969行加载到内存中.",
+      "speech_text": "清除列搜索,并设置每次列为250. 预览使用键盘设置页面,而不是深度偏移,因此随着表的增长,每个请求都会受到限制. 单击\"加载更多\"来添加下一个部分,而不需要将所有81,969行加载到内存中.",
+      "phonemes": "ʨʰi→ŋꭧʰu↗ lje↘ sou→swo↓,pi↘ŋ ʂɤ↘ꭧɨ↘ mei↓ʦʰɨ↘ lje↘wei↘ ɚ↘pai↓u↓ʂɨ↗. y↘la↓n ʂɨ↓jʊ↘ŋ ʨjɛ↘npʰa↗n ʂɤ↘ꭧɨ↘ je↘mjɛ↘n,ɚ↗ pu↗ʂɨ↘ ʂə→ntu↘ pʰjɛ→ni↗,i→nʦʰɨ↓ swei↗ꭧɤ pjau↓ tɤ ʦə→ŋꭧa↓ŋ,mei↓kɤ↘ ʨʰi↓ŋʨʰjou↗ tou→ xwei↘ ʂou↘tau↘ɕjɛ↘nꭧɨ↘. ta→nʨi→\"ʨja→ʦai↘ kə↘ŋ two→\"lai↗ tʰjɛ→nʨja→ ɕja↘ i↗kɤ↘ pu↘fə↘n,ɚ↗ pu↘ ɕy→jau↘ ʨja→ŋ swo↓jou↓ pa→ʂɨ↗i→,ʨjou↓pai↓ ljou↘ʂɨ↗ʨjou↓ ɕi↗ŋ ʨja→ʦai↘ tau↘ nei↘ʦʰwə↗n ꭧʊ→ŋ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 108.84999999999998,
+      "speech_end": 125.77499999999998,
+      "scene_end": 126.47499999999998,
+      "duration": 17.625,
+      "text": "预览现在显示了81,969行中的500行. 只有部分表被加载时,排序将停下来,因为部分页面的排序将错误地呈现整个数据集. 然而,数据库过器总是与完整的表进行.",
+      "speech_text": "预览现在显示了81,969行中的500行. 只有部分表被加载时,排序将停下来,因为部分页面的排序将错误地呈现整个数据集. 然而,数据库过器总是与完整的表进行.",
+      "phonemes": "y↘la↓n ɕjɛ↘nʦai↘ ɕjɛ↓nʂɨ↘ lɤ pa→ʂɨ↗i→,ʨjou↓pai↓ ljou↘ʂɨ↗ʨjou↓ ɕi↗ŋꭧʊ→ŋ tɤ u↓pai↓ ɕi↗ŋ. ꭧɨ↓jou↓ pu↘fə↘n pjau↓ pei↘ ʨja→ʦai↘ ʂɨ↗,pʰai↗ɕy↘ ʨja→ŋ tʰi↗ŋɕja↘lai↗,i→nwei↘ pu↘fə↘n je↘mjɛ↘n tɤ pʰai↗ɕy↘ ʨja→ŋ ʦʰwo↘u↘ ti↘ ꭧʰə↗ŋɕjɛ↘n ꭧə↓ŋkɤ↘ ʂu↘ʨy↘ ʨi↗. ɻa↗nɚ↗,ʂu↘ʨy↘kʰu↘ kwo↘ʨʰi↘ ʦʊ↓ŋʂɨ↘ y↓ wa↗nꭧə↓ŋ tɤ pjau↓ ʨi↘nɕi↗ŋ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 126.47499999999998,
+      "speech_end": 143.24999999999997,
+      "scene_end": 143.96999999999997,
+      "duration": 17.49499999999999,
+      "text": "通过选择 cell_area,大于或等于,和 10,000 构建结构过器,然后单击应用过器. spaCR验证了列和运算符,并将值绑定为参数. 对于先进的预言来说,Raw SQL可用,但在这里是不必要的.",
+      "speech_text": "通过选择 cell_area,大于或等于,和 10,000 构建结构过器,然后单击应用过器. 斯佩克尔验证了列和运算符,并将值绑定为参数. 对于先进的预言来说,Raw SQL可用,但在这里是不必要的.",
+      "phonemes": "tʰʊ→ŋkwo↘ ɕɥɛ↓nʦɤ↗ cell_area,ta↘y↗ xwo↘ tə↓ŋy↗,xɤ↗ ʂɨ↗,li↗ŋ kou↘ʨjɛ↘n ʨje↗kou↘ kwo↘ʨʰi↘,ɻa↗nxou↘ ta→nʨi→ i↘ŋjʊ↘ŋ kwo↘ʨʰi↘. sɨ→ pʰei↘kʰɤ↘ ɚ↓ jɛ↘nꭧə↘ŋ lɤ lje↘ xɤ↗ y↘nswa↘nfu↗,pi↘ŋ ʨja→ŋ ꭧɨ↗ pa↓ŋti↘ŋ wei↘ ʦʰa→nʂu↘. twei↘y↗ ɕjɛ→nʨi↘n tɤ y↘jɛ↗n lai↗ʂwo→,Raw SQLkʰɤ↓jʊ↘ŋ,ta↘n ʦai↘ ꭧɤ↘li↓ ʂɨ↘ pu↘pi↘jau↘ tɤ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 143.96999999999997,
+      "speech_end": 158.94499999999996,
+      "scene_end": 159.66499999999996,
+      "duration": 15.694999999999993,
+      "text": "整个过器含有12907个细胞. 只有第一百五十个被绘制,但精确的过数量和活跃的预兆仍然可见. 这种区别防止预览页面大小被误认为是人口大小.",
+      "speech_text": "整个过器含有12907个细胞. 只有第一百五十个被绘制,但精确的过数量和活跃的预兆仍然可见. 这种区别防止预览页面大小被误认为是人口大小.",
+      "phonemes": "ꭧə↓ŋkɤ↘ kwo↘ʨʰi↘ xa↗njou↓ i→wa↘nɚ↘ʨʰjɛ→n ʨjou↓pai↓ li↗ŋʨʰi→kɤ↘ ɕi↘pau→. ꭧɨ↓jou↓ ti↘i↘pai↓u↓ʂɨ↗ kɤ↘ pei↘ xwei↘ꭧɨ↘,ta↘n ʨi→ŋʨʰɥe↘ tɤ kwo↘ ʂu↘lja↘ŋ xɤ↗ xwo↗ɥe↘ tɤ y↘ꭧau↘ ɻə↗ŋɻa↗n kʰɤ↓ʨjɛ↘n. ꭧɤ↘ꭧʊ↓ŋ ʨʰy→pje↗ fa↗ŋꭧɨ↓ y↘la↓n je↘mjɛ↘n ta↘ɕjau↓ pei↘ u↘ɻə↘nwei↘ ʂɨ↘ ɻə↗nkʰou↓ ta↘ɕjau↓."
+    },
+    {
+      "scene": 10,
+      "speech_start": 159.66499999999996,
+      "speech_end": 175.48999999999995,
+      "scene_end": 176.18999999999994,
+      "duration": 16.524999999999977,
+      "text": "单击 输出过的CSV. 导出流整个当前表格和过器,而不是仅仅加载的预览,并且尊重可见列搜索,如果一个是活跃的. 由于搜索已被清除,这份出口保留了所有218个列.",
+      "speech_text": "单击 输出过的CSV. 导出流整个当前表格和过器,而不是仅仅加载的预览,并且尊重可见列搜索,如果一个是活跃的. 由于搜索已被清除,这份出口保留了所有218个列.",
+      "phonemes": "ta→nʨi→ ʂu→ꭧʰu→ kwo↘ tɤCSV. tau↓ꭧʰu→ ljou↗ ꭧə↓ŋkɤ↘ ta→ŋʨʰjɛ↗n pjau↓kɤ↗ xɤ↗ kwo↘ʨʰi↘,ɚ↗ pu↗ʂɨ↘ ʨi↓nʨi↓n ʨja→ʦai↘ tɤ y↘la↓n,pi↘ŋʨʰje↓ ʦwə→nꭧʊ↘ŋ kʰɤ↓ʨjɛ↘n lje↘ sou→swo↓,ɻu↗kwo↓ i↗kɤ↘ ʂɨ↘ xwo↗ɥe↘ tɤ. jou↗y↗ sou→swo↓ i↓ pei↘ ʨʰi→ŋꭧʰu↗,ꭧɤ↘fə↘n ꭧʰu→kʰou↓ pau↓ljou↗ lɤ swo↓jou↓ ɚ↘pai↓i→ʂɨ↗ pa→kɤ↘ lje↘."
+    },
+    {
+      "scene": 11,
+      "speech_start": 176.18999999999994,
+      "speech_end": 194.43999999999994,
+      "scene_end": 195.25999999999993,
+      "duration": 19.069999999999993,
+      "text": "这项资格证实出口了12907行218列. 导出的CSV是唯一创建的新文件. 在SHA-256之前和之后的检查证实 measurements.db是字节相同的,并没有出现任何日志或写前日志文件.",
+      "speech_text": "这项资格证实出口了12907行218列. 导出的CSV是唯一创建的新文件. 在SHA-256之前和之后的检查证实 measurements dot db是字节相同的,并没有出现任何日志或写前日志文件.",
+      "phonemes": "ꭧɤ↘ɕja↘ŋ ʦɨ→kɤ↗ ꭧə↘ŋʂɨ↗ ꭧʰu→kʰou↓ lɤ i→wa↘nɚ↘ʨʰjɛ→n ʨjou↓pai↓ li↗ŋʨʰi→ ɕi↗ŋ ɚ↘pai↓i→ʂɨ↗ pa→lje↘. tau↓ꭧʰu→ tɤCSVʂɨ↘ wei↗i→ ꭧʰwa↘ŋʨjɛ↘n tɤ ɕi→n wə↗nʨjɛ↘n. ʦai↘SHAfu↘ ɚ↘pai↓u↓ʂɨ↗ ljou↘ ꭧɨ→ʨʰjɛ↗n xɤ↗ ꭧɨ→xou↘ tɤ ʨjɛ↓nꭧʰa↗ ꭧə↘ŋʂɨ↗ measurements dot dbʂɨ↘ ʦɨ↘ʨje↗ ɕja→ŋtʰʊ↗ŋ tɤ,pi↘ŋ mei↗jou↓ ꭧʰu→ɕjɛ↘n ɻə↘nxɤ↗ ɻɨ↘ꭧɨ↘ xwo↘ ɕje↓ ʨʰjɛ↗n ɻɨ↘ꭧɨ↘ wə↗nʨjɛ↘n."
+    },
+    {
+      "scene": 12,
+      "speech_start": 195.25999999999993,
+      "speech_end": 209.35999999999993,
+      "scene_end": 209.97999999999993,
+      "duration": 14.719999999999999,
+      "text": "单击清除,以删除预言,然后重新加载第一个边界的部分. 过器是可逆的视图状态:清除一个不会改变数据库或以前出口的文件中的行列.",
+      "speech_text": "单击清除,以删除预言,然后重新加载第一个边界的部分. 过器是可逆的视图状态:清除一个不会改变数据库或以前出口的文件中的行列.",
+      "phonemes": "ta→nʨi→ ʨʰi→ŋꭧʰu↗,i↓ ʂa→nꭧʰu↗ y↘jɛ↗n,ɻa↗nxou↘ ꭧʰʊ↗ŋɕi→n ʨja→ʦai↘ ti↘i↗kɤ↘ pjɛ→nʨje↘ tɤ pu↘fə↘n. kwo↘ʨʰi↘ ʂɨ↘ kʰɤ↓ni↘ tɤ ʂɨ↘tʰu↗ ꭧwa↘ŋtʰai↘:ʨʰi→ŋꭧʰu↗ i↗kɤ↘ pu↗xwei↘ kai↓pjɛ↘n ʂu↘ʨy↘kʰu↘ xwo↘ i↓ʨʰjɛ↗n ꭧʰu→kʰou↓ tɤ wə↗nʨjɛ↘n ꭧʊ→ŋ tɤ xa↗ŋlje↘."
+    },
+    {
+      "scene": 13,
+      "speech_start": 209.97999999999993,
+      "speech_end": 224.20499999999993,
+      "scene_end": 224.98499999999993,
+      "duration": 15.004999999999995,
+      "text": "所有的81,969个细胞再次可见于浏览器, 这完成了可追踪的仅读工作流程,用于探索大型spaCR测量表,并出口精确定义的子组.",
+      "speech_text": "所有的81,969个细胞再次可见于浏览器, 这完成了可追踪的仅读工作流程,用于探索大型斯佩克尔测量表,并出口精确定义的子组.",
+      "phonemes": "swo↓jou↓ tɤ pa→ʂɨ↗i→,ʨjou↓pai↓ ljou↘ʂɨ↗ʨjou↓ kɤ↘ ɕi↘pau→ ʦai↘ʦʰɨ↘ kʰɤ↓ʨjɛ↘n y↗ ljou↗la↓nʨʰi↘, ꭧɤ↘ wa↗nꭧʰə↗ŋ lɤ kʰɤ↓ꭧwei→ʦʊ→ŋ tɤ ʨi↓n tu↗ kʊ→ŋʦwo↘ ljou↗ꭧʰə↗ŋ,jʊ↘ŋy↗ tʰa↘nswo↓ ta↘ɕi↗ŋ sɨ→ pʰei↘kʰɤ↘ ɚ↓ ʦʰɤ↘lja↗ŋ pjau↓,pi↘ŋ ꭧʰu→kʰou↓ ʨi→ŋʨʰɥe↘ ti↘ŋi↘ tɤ ʦɨʦu↓."
     }
   ]
 }

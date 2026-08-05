@@ -4,47 +4,127 @@
   "voice": "jf_nezumi",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 66.625,
+  "total_duration": 340.405,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 12.25,
-      "scene_end": 12.7,
-      "duration": 12.7,
-      "text": "このチュートリアルでは 輸入プロジェクトをカバーします 別の研究所の画像やマスク,測定表を spaCRプロジェクトに組み込む"
+      "speech_end": 29.4,
+      "scene_end": 30.22,
+      "duration": 30.22,
+      "text": "spaCR プロジェクトに 別の研究所の画像,ラベルマスク,測定を 導き出したマッピングを真実として扱わずに 持ち込む. データから開いて バッチを運ぶ 上部コントロールは入力を記述し,中部は編集可能なレビューであり,下部コントロールはその決定を保存するか,別々の輸入を開始します.",
+      "speech_text": "スペーカー プロジェクトに 別の研究所の画像,ラベルマスク,測定を 導き出したマッピングを真実として扱わずに 持ち込む. データから開いて バッチを運ぶ 上部コントロールは入力を記述し,中部は編集可能なレビューであり,下部コントロールはその決定を保存するか,別々の輸入を開始します.",
+      "phonemes": "sɨpeːkaː pɯɾoʥekɯto ɲi beʦɨ no keŋkʲɨːɕo no ɡaʣoː, ɾabeɾɯ masɨkɯ, sokɯteː o mʲiʨibʲikʲidaɕi ta maʔpʲiŋɡɯ o ɕiɲʥiʦɨ toɕi te aʦɨkaβazɨ ɲi moʨikomɯ. deːta kaɾa çiɾaite baʔʨi o hakobɯ ʥoːbɯ kontoɾoːɾɯ βa ɲɨːɾʲokɯ o kʲiʥɨʦɨ ɕi, ʨɨːbɯ βa heɴɕɨː kanoː na ɾebʲɨː de aɾʲi, kabɯ kontoɾoːɾɯ βa sono keʔteː o hoʣoɴ sɨɾɯ ka, beʦɨbeʦɨ no jɯɲɨː o kaiɕi ɕi masɨ."
     },
     {
       "scene": 2,
-      "speech_start": 12.7,
-      "speech_end": 25.95,
-      "scene_end": 26.4,
-      "duration": 13.7,
-      "text": "Data and batch runs セクションから Import Project を開きます。 画像,オプションマスク,測定表,安定した外部識別子を提供します."
+      "speech_start": 30.22,
+      "speech_end": 57.22,
+      "scene_end": 58.019999999999996,
+      "duration": 27.799999999999997,
+      "text": "外部画像フォルダを選択し,新しい目的地を選択します. このレッスンでは,2000×2000の2つの実際のフィールドを使用し それぞれ4つの光チャネルがあります ソース spaCR アレイは,クロスツールのインポートデモのためにのみ中立TIFF入力に解読され,合成ピクセルが作成されなかった.",
+      "speech_text": "外部画像フォルダを選択し,新しい目的地を選択します. このレッスンでは,2000×2000の2つの実際のフィールドを使用し それぞれ4つの光チャネルがあります ソース スペーカー アレイは,クロスツールのインポートデモのためにのみ中立TIFF入力に解読され,合成ピクセルが作成されなかった.",
+      "phonemes": "ɡaibɯ ɡaʣoː ɸoɾɯda o sentakɯ ɕi, ataɾaɕiː mokɯtekʲiʨi o sentakɯ ɕi masɨ. kono ɾeʔsɨɴ de βa, ɲi seɴ ɲi seɴ no ɲiʦɨ no ʥiʔsai no ɸʲiːɾɯdo o ɕijoː ɕi soɾeʣoɾe joɴ ʦɨ no çikaɾʲi ʨaneɾɯ ɡa aɾʲimasɨ soːsɨ sɨpe kaː aɾeː βa, kɯɾosɨ ʦɨːɾɯ no impoːto demo no tame ɲi nomʲi ʨɨːɾʲiʦɨ TIFF ɲɨːɾʲokɯ ɲi kaidokɯ saɾe, ɡoːseː pʲikɯseɾɯ ɡa sakɯseː saɾe nakaʔta."
     },
     {
       "scene": 3,
-      "speech_start": 26.4,
-      "speech_end": 40.25,
-      "scene_end": 40.7,
-      "duration": 14.300000000000004,
-      "text": "主な構成領域では, spaCR識別子,チャンネル,オブジェクトタイプ,プレートメタデータ,および出産フィールドに外国列をマップします."
+      "speech_start": 58.019999999999996,
+      "speech_end": 87.57,
+      "scene_end": 88.30999999999999,
+      "duration": 30.289999999999992,
+      "text": "合併したspaCRフィールドは,各オブジェクトクラスに対して1つのラベル平面を運ぶことができる. クラスを選択し,そのフォルダを選択し,追加をクリックします. 細胞,核,病原体,臓器マスクを繰り返す. 各フィールドにはすべての宣言されたクラスがあり,匹敵しない画像またはマスクファイルは推測ではなくリストされています.",
+      "speech_text": "合併したスペーカーフィールドは,各オブジェクトクラスに対して1つのラベル平面を運ぶことができる. クラスを選択し,そのフォルダを選択し,追加をクリックします. 細胞,核,病原体,臓器マスクを繰り返す. 各フィールドにはすべての宣言されたクラスがあり,匹敵しない画像またはマスクファイルは推測ではなくリストされています.",
+      "phonemes": "ɡaʔpeː ɕita sɨpeːkaːɸʲiːɾɯdo βa, kakɯ obɯʥekɯto kɯɾasɨ ɲi taiɕite i ʨiʦɨ no ɾabeɾɯ heːmeɴ o hakobɯ koto ɡa dekʲiɾɯ. kɯɾasɨ o sentakɯ ɕi, sono ɸoɾɯda o sentakɯ ɕi, ʦɨika o kɯɾʲiʔkɯ ɕi masɨ. saiboː, kakɯ, bʲoːɡentai, ʣoːkʲi masɨkɯ o kɯɾʲikaesɨ. kakɯ ɸʲiːɾɯdo ɲi βa sɨbete no seŋɡeɴ saɾeta kɯɾasɨ ɡa aɾʲi, çiʔtekʲi ɕinai ɡaʣoː mata βa masɨkɯ ɸaiɾɯ βa sɨisokɯ de βa nakɯ ɾʲisɨto saɾete imasɨ."
     },
     {
       "scene": 4,
-      "speech_start": 40.7,
-      "speech_end": 57.6,
-      "scene_end": 58.050000000000004,
-      "duration": 17.35,
-      "text": "実行完了前に,可視設定をチェックし,プリビューまたはテストモードを使用します. 輸入前に結合,欠落値,画像マスクの調整,重複識別子を検証します."
+      "speech_start": 88.30999999999999,
+      "speech_end": 119.33499999999998,
+      "scene_end": 120.19499999999998,
+      "duration": 31.88499999999999,
+      "text": "実際の測定 CSV を追加して,ピクセルあたり0.65 マイクロメートルを宣言して,平方マイクロメートル面積を正しく変換できます. この表には意図的に cell_area という列が含まれています. spaCR 機能を黙って置き換えることなく,外部の値を外付けする. オリジナルファイルは読み込みのみであり,出力は新しい目的地に移動します.",
+      "speech_text": "実際の測定 CSV を追加して,ピクセルあたり0.65 マイクロメートルを宣言して,平方マイクロメートル面積を正しく変換できます. この表には意図的に cell_area という列が含まれています. スペーカー 機能を黙って置き換えることなく,外部の値を外付けする. オリジナルファイルは読み込みのみであり,出力は新しい目的地に移動します.",
+      "phonemes": "ʥiʔsai no sokɯteː CSV o ʦɨika ɕite, pʲikɯseɾɯ ataɾʲi ʣeɾo. ɾokɯʥɨː ɡo maikɯɾomeːtoɾɯ o seŋɡeɴ ɕite, heːhoː maikɯɾomeːtoɾɯ meɴsekʲi o tadaɕikɯ heŋkaɴ dekʲimasɨ. kono çoː ɲi βa itotekʲi ɲi cell _ area to jɯː ɾeʦɨ ɡa ɸɯkɯma ɾe te imasɨ. sɨpeːkaː kʲinoː o damaʔte okʲikaeɾɯ koto nakɯ, ɡaibɯ no atai o sotozɨke sɨɾɯ. oɾʲiʥinaɾɯ ɸaiɾɯ βa jomʲikomʲi nomʲi de aɾʲi, ɕɨʦɨɾʲokɯ βa ataɾaɕiː mokɯtekʲiʨi ɲi idoː ɕi masɨ."
     },
     {
       "scene": 5,
-      "speech_start": 58.050000000000004,
-      "speech_end": 65.97500000000001,
-      "scene_end": 66.62500000000001,
-      "duration": 8.57500000000001,
-      "text": "標準化されたプロジェクトは,すべての元のファイルと識別子へのリンクを保存します."
+      "speech_start": 120.19499999999998,
+      "speech_end": 142.11999999999998,
+      "scene_end": 142.79999999999998,
+      "duration": 22.605000000000004,
+      "text": "輸入する前にPreview をクリックします. プレビューは画像ヘッダをスキャンし,各マスクをフィールドごとにペアし,測定表を読み,オブジェクトラベルをチェックし,コラムマッピングを提案し,単位と名前衝突を解決し,何も書かない.",
+      "speech_text": "輸入する前にPreview をクリックします. プレビューは画像ヘッダをスキャンし,各マスクをフィールドごとにペアし,測定表を読み,オブジェクトラベルをチェックし,コラムマッピングを提案し,単位と名前衝突を解決し,何も書かない.",
+      "phonemes": "jɯɲɨː sɨɾɯ mae ɲi Preview o kɯɾʲiʔkɯ ɕi masɨ. pɯɾebʲɨː βa ɡaʣoː heʔda o sɨkʲaɴ ɕi, kakɯ masɨkɯ o ɸʲiːɾɯdo ɡoto ɲi pea ɕi, sokɯteː çoː o jomʲi, obɯʥekɯto ɾabeɾɯ o ʨeʔkɯ ɕi, koɾamɯ maʔpʲiŋɡɯ o teːaɴ ɕi, taɴi to namae ɕoːtoʦɨ o kaikeʦɨ ɕi, naɴ mo kakanai."
+    },
+    {
+      "scene": 6,
+      "speech_start": 142.79999999999998,
+      "speech_end": 175.72499999999997,
+      "scene_end": 176.60499999999996,
+      "duration": 33.80499999999998,
+      "text": "2つのフィールドは準備ができている. 編集可能な表は,各外部列,提案されたspaCR目標,変換,入力および出力単位,およびレビューメモを示します. 報告書は,207の測定行のうち206が実際の細胞ラベルと一致していることを確認している. テーブル列のない1つのラベルと1,198のマスクオブジェクトが公開され,決して黙って捨てられず,発明されることはありません.",
+      "speech_text": "2つのフィールドは準備ができている. 編集可能な表は,各外部列,提案されたスペーカー目標,変換,入力および出力単位,およびレビューメモを示します. 報告書は,207の測定行のうち206が実際の細胞ラベルと一致していることを確認している. テーブル列のない1つのラベルと1,198のマスクオブジェクトが公開され,決して黙って捨てられず,発明されることはありません.",
+      "phonemes": "ɲiʔno ɸʲiːɾɯdo βa ʥɨmbʲi ɡa dekʲite iɾɯ. heɴɕɨː kanoː na çoː βa, kakɯ ɡaibɯ ɾeʦɨ, teːaɴ saɾeta sɨpeːkaː mokɯçoː, heŋkaɴ, ɲɨːɾʲokɯ ojobʲi ɕɨʦɨɾʲokɯ taɴi, ojobʲi ɾebʲɨː memo o ɕimeɕimasɨ. hoːkokɯɕo βa, ɲiçakɯ nana no sokɯteː ɡʲoː no ɯʨi ɲi çakɯ ɾokɯ ɡa ʥiʔsai no saiboː ɾabeɾɯ to iʔʨi ɕite iɾɯ koto o kakɯɲiɴ ɕite iɾɯ. teːbɯɾɯ ɾeʦɨ no nai i ʨiʦɨ no ɾabeɾɯ to iʨi, çakɯ kʲɨːʥɨː haʨi no masɨkɯ obɯʥekɯto ɡa koːkai saɾe, keʔɕite damaʔte sɨte ɾaɾezɨ, haʦɨmeː saɾeɾɯ koto βa aɾʲimaseɴ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 176.60499999999996,
+      "speech_end": 203.07999999999996,
+      "scene_end": 203.81999999999996,
+      "duration": 27.215000000000003,
+      "text": "提案は意図的に編集可能である. AreaShape_Area_um2 の spaCR 列のセルを選択し,対象をレビューされた,意味のある名前に置き換えます. トランスフォームとユニットコラムもここで修正できます. すべての編集は,フォルダーを再スキャンせずに,すぐに衝突と校准チェックを再実行します.",
+      "speech_text": "提案は意図的に編集可能である. AreaShape_Area_um2 の スペーカー 列のセルを選択し,対象をレビューされた,意味のある名前に置き換えます. トランスフォームとユニットコラムもここで修正できます. すべての編集は,フォルダーを再スキャンせずに,すぐに衝突と校准チェックを再実行します.",
+      "phonemes": "teːaɴ βa itotekʲi ɲi heɴɕɨː kanoː de aɾɯ. AreaShape _ Area _ um ɲi no sɨpeːkaː ɾeʦɨ no seɾɯ o sentakɯ ɕi, taiɕoː o ɾebʲɨː saɾeta, imʲi no aɾɯ namae ɲi okʲikae masɨ. toɾaɴsɨɸoːmɯ to jɯɲiʔto koɾamɯ mo koko de ɕɨːseː dekʲimasɨ. sɨbete no heɴɕɨː βa, ɸoɾɯdaː o sai sɨkʲaɴ sezɨ ɲi, sɨɡɯɲi ɕoːtoʦɨ to koː ʥɨɴ ʨeʔkɯ o sai ʥiʔkoː ɕi masɨ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 203.81999999999996,
+      "speech_end": 227.56999999999996,
+      "scene_end": 228.30999999999997,
+      "duration": 24.49000000000001,
+      "text": "対象領域は現在 foreign_reviewed_cell_areaです. その面積変換は,平方ミクロメートルから平方ピクセルに校正され,対立する外部cell_areaは,別々に外属プレフィックスで改名されます. ステータスはまだ何も書かれていないと書いてある",
+      "speech_text": "対象領域は現在 foreign_reviewed_cell_areaです. その面積変換は,平方ミクロメートルから平方ピクセルに校正され,対立する外部cell_areaは,別々に外属プレフィックスで改名されます. ステータスはまだ何も書かれていないと書いてある",
+      "phonemes": "taiɕoː ɾʲoːikʲi βa ɡeɴʣai foreign _ reviewed _ cell _ area desɨ. sono meɴsekʲi heŋkaɴ βa, heːhoː mʲikɯɾo meːtoɾɯ kaɾa heːhoː pʲikɯseɾɯ ɲi koːseː saɾe, taiɾʲiʦɨ sɨɾɯ ɡaibɯ cell _ area βa, beʦɨbeʦɨ ɲi soto ʣokɯ pɯɾeɸʲiʔkɯsɨ de kaimeː saɾemasɨ. sɨteːtasɨ βa mada naɴ mo kaka ɾe te inai to kaite aɾɯ"
+    },
+    {
+      "scene": 9,
+      "speech_start": 228.30999999999997,
+      "speech_end": 251.53499999999997,
+      "scene_end": 252.23499999999996,
+      "duration": 23.924999999999983,
+      "text": "完全なレビューを CSV として書くために,マッピング保存をクリックします. ファイルは検査され,バージョン化され, 協力者と共有され, アプリケーションの外で編集され, また読み込みできます. 輸入は画面に表示されたマッピングを正確に適用します.",
+      "speech_text": "完全なレビューを CSV として書くために,マッピング保存をクリックします. ファイルは検査され,バージョン化され, 協力者と共有され, アプリケーションの外で編集され, また読み込みできます. 輸入は画面に表示されたマッピングを正確に適用します.",
+      "phonemes": "kaɴʣeɴ na ɾebʲɨː o CSV toɕi te kakɯ tame ɲi, maʔpʲiŋɡɯ hoʣoɴ o kɯɾʲiʔkɯ ɕi masɨ. ɸaiɾɯ βa keɴsa saɾe, baːʥoɴ ka saɾe, kʲoːɾʲokɯ ɕa to kʲoːjɯː saɾe, apɯɾʲikeːɕoɴ no soto de heɴɕɨː saɾe, mata jomʲikomʲi dekʲimasɨ. jɯɲɨː βa ɡameɴ ɲi çoːʥi saɾeta maʔpʲiŋɡɯ o seːkakɯ ɲi tekʲijoː ɕi masɨ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 252.23499999999996,
+      "speech_end": 279.65999999999997,
+      "scene_end": 280.4,
+      "duration": 28.16500000000002,
+      "text": "閲覧されたマッピングは,孤立したチュートリアル輸出の隣に保存されます. 負荷マッピングは後に同じ決定を 再現します 目的地は新しいものまたは同じ実験に属している必要があります. 輸入プロジェクトは,ファイルを書く前に,異なるフィールドから測定を含む目的地を拒否します.",
+      "speech_text": "閲覧されたマッピングは,孤立したチュートリアル輸出の隣に保存されます. 負荷マッピングは後に同じ決定を 再現します 目的地は新しいものまたは同じ実験に属している必要があります. 輸入プロジェクトは,ファイルを書く前に,異なるフィールドから測定を含む目的地を拒否します.",
+      "phonemes": "eʦɨɾaɴ saɾeta maʔpʲiŋɡɯ βa, koɾʲiʦɨ ɕita ʨɨːtoɾʲiaɾɯ jɯɕɨʦɨ no tonaɾʲi ɲi hoʣoɴ saɾemasɨ. ɸɯka maʔpʲiŋɡɯ βa ato ɲi onaʥi keʔteː o saiɡeɴ ɕi masɨ mokɯtekʲiʨi βa ataɾaɕiː mono mata βa onaʥi ʥiʔkeɴ ɲi ʣokɯɕite iɾɯ çiʦɨjoː ɡa aɾʲimasɨ. jɯɲɨː pɯɾoʥekɯto βa, ɸaiɾɯ o kakɯ mae ɲi, kotonaɾɯ ɸʲiːɾɯdo kaɾa sokɯteː o ɸɯkɯmɯ mokɯtekʲiʨi o kʲoçi ɕi masɨ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 280.4,
+      "speech_end": 306.15,
+      "scene_end": 306.92999999999995,
+      "duration": 26.529999999999973,
+      "text": "画像を閲覧した後,4つのマスククラス 報告 ユニット 紛争 目的地 輸入をクリックします. この別々のアクションは画像名を変換し,強度とマスクスタックを書き込み,spaCRのネイティブ平面順序で合併したマレイを構築し,データベースと起源記録を作成します.",
+      "speech_text": "画像を閲覧した後,4つのマスククラス 報告 ユニット 紛争 目的地 輸入をクリックします. この別々のアクションは画像名を変換し,強度とマスクスタックを書き込み,スペーカーのネイティブ平面順序で合併したマレイを構築し,データベースと起源記録を作成します.",
+      "phonemes": "ɡaʣoː o eʦɨɾaɴ ɕita ato, joɴ ʦɨ no masɨkɯ kɯɾasɨ hoːkokɯ jɯɲiʔto ɸɯɴsoː mokɯtekʲiʨi jɯɲɨː o kɯɾʲiʔkɯ ɕi masɨ. kono beʦɨbeʦɨ no akɯɕoɴ βa ɡaʣoː meː o heŋkaɴ ɕi, kʲoːdo to masɨkɯ sɨtaʔkɯ o kakʲikomʲi, sɨpeːkaː no neːtʲibɯ heːmeɴ ʥɨɲʥo de ɡaʔpeː ɕita maɾeː o koːʨikɯ ɕi, deːtabeːsɨ to kʲiɡeɴ kʲiɾokɯ o sakɯseː ɕi masɨ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 306.92999999999995,
+      "speech_end": 339.50499999999994,
+      "scene_end": 340.4049999999999,
+      "duration": 33.474999999999966,
+      "text": "輸入は2つのフィールド,8つの変換されたチャネルTIFF,8つのマスク配列,および4つの強度平面を含む2つの合併配列で完了し,細胞,核,病原体,臓器のラベルが続きます. すべての207 つの外部行は foreign_cell で保存され,標準的な便利なコピーが保存され, while measurements.db と spaCR の外部からの列が適用されたマッピング記録が保存されます.",
+      "speech_text": "輸入は2つのフィールド,8つの変換されたチャネルTIFF,8つのマスク配列,および4つの強度平面を含む2つの合併配列で完了し,細胞,核,病原体,臓器のラベルが続きます. すべての207 つの外部行は foreign_cell で保存され,標準的な便利なコピーが保存され, while measurements dot db と スペーカー の外部からの列が適用されたマッピング記録が保存されます.",
+      "phonemes": "jɯɲɨː βa ɲiʔno ɸʲiːɾɯdo, haʨi ʦɨ no heŋkaɴ saɾeta ʨaneɾɯ TIFF, haʨi ʦɨ no masɨkɯ haiɾeʦɨ, ojobʲi joɴ ʦɨ no kʲoːdo heːmeɴ o ɸɯkɯmɯ ɲiʦɨ no ɡaʔpeː haiɾeʦɨ de kanɾʲoː ɕi, saiboː, kakɯ, bʲoːɡentai, ʣoːkʲi no ɾabeɾɯ ɡa ʦɨzɨkʲimasɨ. sɨbete no ɲiçakɯ nanaʦɨ no ɡaibɯ ɡʲoː βa foreign _ cell de hoʣoɴ saɾe, çoːʥɨɴ tekʲi na benɾʲi na kopʲiː ɡa hoʣoɴ saɾe, while measurements dot db to sɨpeːkaː no ɡaibɯ kaɾa no ɾeʦɨ ɡa tekʲijoː saɾeta maʔpʲiŋɡɯ kʲiɾokɯ ɡa hoʣoɴ saɾemasɨ."
     }
   ]
 }

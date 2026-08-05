@@ -20,6 +20,14 @@ import pytest
 import tifffile
 
 from spacr.spacrops import _DiskFeatureStore, spacrStitcher
+from tests.cellpose_api_contract import (
+    MISSING_CHANNEL_AXIS,
+    configured_eval_arguments,
+    emulate_pretrained_model,
+    eval_arguments,
+    init_arguments,
+)
+from tests.conftest import check_cellpose_eval_call
 from tests.spacrops_synth import blob_canvas, crop, write_cyx
 
 
@@ -351,12 +359,37 @@ def _install_fake_cellpose(monkeypatch, mask, n_returns=3):
     seen = {}
 
     class CellposeModel:
-        def __init__(self, **kwargs):
-            seen["init_kwargs"] = kwargs
+        """The installed cellpose 4.0.7 signatures, spelled out verbatim.
 
-        def eval(self, x, **kw):
+        No ``**kwargs`` on either method, so an argument cellpose 4 removed
+        raises ``TypeError`` at the ``spacrops._cellpose_labels`` call site
+        rather than vanishing -- the same class of mistake as the
+        ``models.Cellpose`` the docstring above describes, caught one layer
+        earlier.
+        """
+
+        def __init__(self, gpu=False, pretrained_model="cpsam",
+                     model_type=None, diam_mean=None, device=None, nchan=None,
+                     use_bfloat16=True):
+            seen["init_kwargs"] = init_arguments(locals())
+            seen["loaded_model"] = emulate_pretrained_model(pretrained_model,
+                                                            model_type)
+
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            # spacrops hands over a plain 2-D plane and lets cellpose detect
+            # the axis, so the value is checked but not required to be named.
+            check_cellpose_eval_call(x, channel_axis,
+                                     require_channel_axis=False)
+            seen["kw"] = eval_arguments(locals())
+            seen["configured"] = configured_eval_arguments(locals())
             seen["x_max"] = float(np.max(x))
-            seen["kw"] = kw
             if n_returns == 4:
                 return mask, None, None, 30.0
             return mask, None, None
@@ -381,9 +414,14 @@ def test_foreground_mask_cellpose_uses_the_model_labels(tmp_path, monkeypatch):
     # cpsam, not 'nuclei': Cellpose 4 ships one model, and model_type= is
     # accepted-and-ignored, so passing it named weights that never loaded.
     assert seen["init_kwargs"]["pretrained_model"] == "cpsam"
-    assert "model_type" not in seen["init_kwargs"]
+    # model_type= is still IN cellpose 4's signature -- it is accepted, warned
+    # about and dropped -- so "not passed" is now "left at the default", and
+    # what the model actually loads is what matters.
+    assert seen["init_kwargs"]["model_type"] is None
+    assert seen["loaded_model"] == "cpsam"
     # eval(channels=) was dropped in v4.0.1+; diameter still does something.
-    assert "channels" not in seen["kw"]
+    assert "channels" not in seen["configured"]
+    assert seen["kw"]["channels"] is None
     assert seen["kw"]["diameter"] is None
     assert seen["x_max"] == pytest.approx(1.0)     # scaled to 0..1 before eval
 

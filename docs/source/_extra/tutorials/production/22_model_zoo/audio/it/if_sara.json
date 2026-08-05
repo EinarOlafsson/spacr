@@ -4,47 +4,117 @@
   "voice": "if_sara",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 41.525,
+  "total_duration": 178.3,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 2.95,
-      "scene_end": 3.4000000000000004,
-      "duration": 3.4000000000000004,
-      "text": "Questo tutorial copre il Zoo Modello."
+      "speech_end": 17.675,
+      "scene_end": 18.175,
+      "duration": 18.175,
+      "text": "I modelli degli inventari zoologici Cellpose e i checkpoint di classificazione che questa macchina può raggiungere. Registra la fonte, la versione, la dimensione, lo stato della somma di controllo, la provenienza della formazione e il comportamento su un piccolo set di campi prima che un modello entri in un flusso di lavoro più grande.",
+      "speech_text": "I modelli degli inventari zoologici Cellpose e i checkpoint di classificazione che questa macchina può raggiungere. Registra la fonte, la versione, la dimensione, lo stato della somma di controllo, la provenienza della formazione e il comportamento su un piccolo set di campi prima che un modello entri in un flusso di lavoro più grande.",
+      "phonemes": "i modˈɛllɪ dˌeʎɪ inventˈarɪ ʣoolˈɔʤiʧɪ ʧelpˈoze e i kekːpˈɔint dɪ klaSifikaʦiˈone ke kwˌesta mˈakːina pʊˈɔ raʤːˈunʤere. reʤˈistra la fˈonte, la versjˈone, la dimensjˈone, lo stˈato dˌella sˈomma dɪ kontrˈɔllo, la provenjˈɛnʦa dˌella formaʦiˈone e il komportamˈento sʊ ʊn pˈikːolo sˈɛt dɪ kˈampɪ prˈima ke ʊn modˈɛllo ˈentrɪ in ʊn flˈuSo dɪ lavˈɔro pjʊ ɡrˈande."
     },
     {
       "scene": 2,
-      "speech_start": 3.4000000000000004,
-      "speech_end": 12.675,
-      "scene_end": 13.125,
-      "duration": 9.725,
-      "text": "Apri Model Zoo dalla sezione Segmentation models. Apri il catalogo e seleziona i modelli compatibili con l'attuale attività e i canali di input."
+      "speech_start": 18.175,
+      "speech_end": 31.225,
+      "scene_end": 31.725,
+      "duration": 13.55,
+      "text": "Scegliere o lasciare cadere una cartella di checkpoint e fare clic su Scansione. L'elenco combina le voci del catalogo bundled e dichiarate con i file del modello CP locali, evitando al contempo percorsi duplicati.",
+      "speech_text": "Scegliere o lasciare cadere una cartella di checkpoint e fare clic su Scansione. L'elenco combina le voci del catalogo bundled e dichiarate con i file del modello CP locali, evitando al contempo percorsi duplicati.",
+      "phonemes": "ʃˈeʎere o laʃˈare kadˈere ˌʊna kartˈɛlla dɪ kekːpˈɔint e fˈare klˈik sʊ skansjˈone. lelˈɛnko kombˈina le vˈoʧɪ del katˈaloɡo bˈundled e dikjaɾˈate kon i fˈile del modˈɛllo ʧˌipˈi lokˈalɪ, evitˈando al kontˈɛmpo perkˈorsɪ dʊplikˈatɪ."
     },
     {
       "scene": 3,
-      "speech_start": 13.125,
-      "speech_end": 22.9,
-      "scene_end": 23.349999999999998,
-      "duration": 10.224999999999998,
-      "text": "Nell'area di configurazione principale, verifica provenienza, licenza, somma di controllo, pre-elaborazione prevista, tipo di attività e disponibilità locale."
+      "speech_start": 31.725,
+      "speech_end": 47.425,
+      "scene_end": 47.925,
+      "duration": 16.199999999999996,
+      "text": "Selezionare una riga per ispezionare il suo percorso esatto, dimensione, hash pubblicato, dati di formazione, geometria del raccolto, diametro dell'oggetto, conteggio di epoche e autore. La provenienza sconosciuta è un avvertimento, non un'affermazione di compatibilità universale.",
+      "speech_text": "Selezionare una riga per ispezionare il suo percorso esatto, dimensione, hash pubblicato, dati di formazione, geometria del raccolto, diametro dell'oggetto, conteggio di epoche e autore. La provenienza sconosciuta è un avvertimento, non un'affermazione di compatibilità universale.",
+      "phonemes": "seleʦjonˈare ˌʊna rˈiɡa per ispeʦjonˈare il sˌʊo perkˈorso ezˈatːo, dimensjˈone, hˈaʃ pʊbːlikˈato, dˈatɪ dɪ formaʦiˈone, ʤeometrˈia del rakːˈɔlto, djˈametro delloʤːˈɛtːo, kontˈeʤːo dɪ ˈepoke e aʊtˈore. la provenjˈɛnʦa skonoʃˈuta e ʊn avvertimˈento, non ʊnaffermaʦiˈone dɪ kompatibilitˈa ʊniversˈale."
     },
     {
       "scene": 4,
-      "speech_start": 23.349999999999998,
-      "speech_end": 32.224999999999994,
-      "scene_end": 32.675,
-      "duration": 9.325,
-      "text": "Prima della completa esecuzione, rivedere le impostazioni visibili e utilizzare una modalità di anteprima o di test quando una è disponibile."
+      "speech_start": 47.925,
+      "speech_end": 65.225,
+      "scene_end": 65.725,
+      "duration": 17.799999999999997,
+      "text": "Le voci del catalogo a distanza possono essere scaricate in una cartella del modello scelto. I download verificati richiedono una somma di controllo pubblicata; accettare un modello non verificato è un opt-in esplicito perché un checkpoint sbagliato può comunque caricare e produrre maschere plausibili.",
+      "speech_text": "Le voci del catalogo a distanza possono essere scaricate in una cartella del modello scelto. I download verificati richiedono una somma di controllo pubblicata; accettare un modello non verificato è un opt-in esplicito perché un checkpoint sbagliato può comunque caricare e produrre maschere plausibili.",
+      "phonemes": "le vˈoʧɪ del katˈaloɡo a distˈanʦa pˈɔSono ˈɛSere skarikˈate in ˌʊna kartˈɛlla del modˈɛllo ʃˈelto. i dˈaːwnlˌoːd verifikˈatɪ rikjˈedono ˌʊna sˈomma dɪ kontrˈɔllo pʊbːlikˈata; aʧːetːˈare ʊn modˈɛllo non verifikˈato e ʊn ˈɔptin esplˈiʧito perkˌe ʊn kekːpˈɔint zbaʎˈato pʊˈɔ komˈunkwe karikˈare e prodˈurɾe mˈaːskˌɛre plaʊzˈibilɪ."
     },
     {
       "scene": 5,
-      "speech_start": 32.675,
-      "speech_end": 40.875,
-      "scene_end": 41.525,
-      "duration": 8.850000000000001,
-      "text": "Quando il flusso di lavoro è terminato, i file di modello verificati e i risultati dei benchmark rimangono associati ai loro metadati."
+      "speech_start": 65.725,
+      "speech_end": 83.85,
+      "scene_end": 84.35,
+      "duration": 18.625,
+      "text": "Il test sui campi carica un set di valori di riferimento limitati. Questo tutorial utilizza tre vere colture di cellule ER-channel, quindi la velocità del modello, il conteggio degli oggetti, le bandiere di controllo della qualità e le anteprima si riferiscono alle stesse immagini rappresentative utilizzate in Model Compare.",
+      "speech_text": "Il test sui campi carica un set di valori di riferimento limitati. Questo tutorial utilizza tre vere colture di cellule ER-channel, quindi la velocità del modello, il conteggio degli oggetti, le bandiere di controllo della qualità e le anteprima si riferiscono alle stesse immagini rappresentative utilizzate in Model Compare.",
+      "phonemes": "il tˈɛst sˌʊi kˈampɪ kˈarika ʊn sˈɛt dɪ valˈorɪ dɪ riferimˈento limitˈatɪ. kwˌesto tʊtˈɔrial ʊtilˈiʣːa trˈe vˈere koltˈure dɪ ʧˈɛllʊle ˌeːˈɛrɾeʧˈanel, kwˈindɪ la veloʧitˈa del modˈɛllo, il kontˈeʤːo dˌeʎɪ oʤːˈɛtːɪ, le bandiˈɛre dɪ kontrˈɔllo dˌella kwalitˈa e le anteprˈima sɪ riferˈiskono ˌalle stˈeSe immˈaʤinɪ rapːrezentatˈive ʊtiliʣːˈate in mˈodel kompˈare."
+    },
+    {
+      "scene": 6,
+      "speech_start": 84.35,
+      "speech_end": 98.3,
+      "scene_end": 98.8,
+      "duration": 14.450000000000003,
+      "text": "Con esattamente un modello locale selezionato, fare clic su Test su tre campi. L'indice di riferimento segmenta ogni immagine e applica il controllo di qualità di segmentazione senza pretendere di avere etichette di precisione di base.",
+      "speech_text": "Con esattamente un modello locale selezionato, fare clic su Test su tre campi. L'indice di riferimento segmenta ogni immagine e applica il controllo di qualità di segmentazione senza pretendere di avere etichette di precisione di base.",
+      "phonemes": "kon ezatːamˈente ʊn modˈɛllo lokˈale seleʦjonˈato, fˈare klˈik sʊ tˈɛst sʊ trˈe kˈampɪ. lˈindiʧe dɪ riferimˈento seɡmˈenta ˌoɲɲɪ immˈaʤine e ˈapːlika il kontrˈɔllo dɪ kwalitˈa dɪ seɡmentaʦiˈone sˌɛnʦa pretˈɛndere dɪ avˈere etikˈetːe dɪ preʧiziˈone dɪ bˈaze."
+    },
+    {
+      "scene": 7,
+      "speech_start": 98.8,
+      "speech_end": 113.05,
+      "scene_end": 113.5,
+      "duration": 14.700000000000003,
+      "text": "Durante l'elaborazione, la riga di stato identifica il punto di controllo selezionato e il numero di campi. Il lavoro di Benchmark viene eseguito fuori dal thread dell'interfaccia in modo che la selezione e il progresso rimangano responsive.",
+      "speech_text": "Durante l'elaborazione, la riga di stato identifica il punto di controllo selezionato e il numero di campi. Il lavoro di Benchmark viene eseguito fuori dal thread dell'interfaccia in modo che la selezione e il progresso rimangano responsive.",
+      "phonemes": "dʊrˈante lelaboraʦiˈone, la rˈiɡa dɪ stˈato identˈifika il pˈunto dɪ kontrˈɔllo seleʦjonˈato e il nˈumero dɪ kˈampɪ. il lavˈɔro dɪ bˈenkmark vjˈɛne ezeɡwˈito fʊˈorɪ dal trˈɛad dellinterfˈaʧːa in mˈɔdo ke la seleʦiˈone e il proɡrˈɛSo rimˈaŋɡano responsˈive."
+    },
+    {
+      "scene": 8,
+      "speech_start": 113.5,
+      "speech_end": 129.625,
+      "scene_end": 130.225,
+      "duration": 16.724999999999994,
+      "text": "Il checkpoint personalizzato ha prodotto centocinquanta una cellule su tre campi in sei punti cinque secondi. Due campi hanno superato la segmentazione QC; la prima coltura scarsa è stata contrassegnata per un basso numero di oggetti e per una alta frazione di confine.",
+      "speech_text": "Il checkpoint personalizzato ha prodotto centocinquanta una cellule su tre campi in sei punti cinque secondi. Due campi hanno superato la segmentazione QC; la prima coltura scarsa è stata contrassegnata per un basso numero di oggetti e per una alta frazione di confine.",
+      "phonemes": "il kekːpˈɔint personaliʣːˈato a prodˈotːo ʧentoʧinkwˈanta ˌʊna ʧˈɛllʊle sʊ trˈe kˈampɪ in sˌɛi pˈuntɪ ʧˈinkwe sekˈondɪ. dˈue kˈampɪ ˌanno sʊperˈato la seɡmentaʦiˈone kˌʊʧˈi; la prˈima koltˈura skˈarsa e stˈata kontraSeɲˈata per ʊn bˈaSo nˈumero dɪ oʤːˈɛtːɪ e per ˌʊna ˈalta fraʦiˈone dɪ konfˈine."
+    },
+    {
+      "scene": 9,
+      "speech_start": 130.225,
+      "speech_end": 147.42499999999998,
+      "scene_end": 147.975,
+      "duration": 17.75,
+      "text": "Selezionare una riga di riferimento aggiorna la sovrapposizione della maschera. Utilizzare insieme la tabella e l'immagine: una bandiera di qualità identifica un modello intrinseco di maschera, mentre l'anteprima mostra se quel modello riflette la biologia, il raccolto o un fallimento di segmentazione.",
+      "speech_text": "Selezionare una riga di riferimento aggiorna la sovrapposizione della maschera. Utilizzare insieme la tabella e l'immagine: una bandiera di qualità identifica un modello intrinseco di maschera, mentre l'anteprima mostra se quel modello riflette la biologia, il raccolto o un fallimento di segmentazione.",
+      "phonemes": "seleʦjonˈare ˌʊna rˈiɡa dɪ riferimˈento aʤːˈɔrna la sovrapːoziʦiˈone dˌella mˈaːskˌɛra. ʊtiliʣːˈare insɪˈɛme la tabˈɛlla e limmˈaʤine: ˌʊna bandiˈɛra dɪ kwalitˈa identˈifika ʊn modˈɛllo intrˈinseko dɪ mˈaːskˌɛra, mˌentre lanteprˈima mˈostra se kwel modˈɛllo riflˈetːe la bjoloʤˈia, il rakːˈɔlto o ʊn fallimˈento dɪ seɡmentaʦiˈone."
+    },
+    {
+      "scene": 10,
+      "speech_start": 147.975,
+      "speech_end": 162.375,
+      "scene_end": 162.875,
+      "duration": 14.900000000000006,
+      "text": "Selezionare esattamente due modelli installati e fare clic su Confronta i due selezionati. Il modello Zoo consegna entrambi i percorsi dei checkpoint, la stessa cartella di campi e il numero di campi nello schermo di confronto dedicato A-B.",
+      "speech_text": "Selezionare esattamente due modelli installati e fare clic su Confronta i due selezionati. Il modello Zoo consegna entrambi i percorsi dei checkpoint, la stessa cartella di campi e il numero di campi nello schermo di confronto dedicato A-B.",
+      "phonemes": "seleʦjonˈare ezatːamˈente dˈue modˈɛllɪ installˈatɪ e fˈare klˈik sʊ konfrˈonta i dˈue seleʦionˈatɪ. il modˈɛllo ʣˈɔo konsˈeɲɲa entrˈambɪ i perkˈorsɪ dˌA kekːpˈɔint, la stˈeSa kartˈɛlla dɪ kˈampɪ e il nˈumero dɪ kˈampɪ nˈello skˈermo dɪ konfrˈonto dedikˈato abˈi."
+    },
+    {
+      "scene": 11,
+      "speech_start": 162.875,
+      "speech_end": 177.6,
+      "scene_end": 178.29999999999998,
+      "duration": 15.424999999999983,
+      "text": "La consegna apre il modello di confronto con entrambi i checkpoint locali e tutti e tre i campi precaricati. Da qui, eseguire il confronto in coppia per misurare accordo di primo piano, differenze di oggetti direzionali, divisioni, fusioni e QC per modello.",
+      "speech_text": "La consegna apre il modello di confronto con entrambi i checkpoint locali e tutti e tre i campi precaricati. Da qui, eseguire il confronto in coppia per misurare accordo di primo piano, differenze di oggetti direzionali, divisioni, fusioni e QC per modello.",
+      "phonemes": "la konsˈeɲɲa ˈapre il modˈɛllo dɪ konfrˈonto kon entrˈambɪ i kekːpˈɔint lokˈalɪ e tˈutːɪ e trˈe i kˈampɪ prekarikˈatɪ. da kwˈi, ezeɡwˈire il konfrˈonto in kˈɔpːia per mizʊrˈare akːˈɔrdo dɪ prˈimo pjˈano, differˈɛnʦe dɪ oʤːˈɛtːɪ direʦionˈalɪ, diviziˈonɪ, fʊziˈonɪ e kˌʊʧˈi per modˈɛllo."
     }
   ]
 }

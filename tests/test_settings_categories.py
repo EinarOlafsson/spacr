@@ -163,12 +163,29 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: module but had no category, so they rendered ungrouped. Extending this set
 #: is fine; it exists so that "the union grew" is always a deliberate act.
 KEYS_ADDED_BY_REGROUP = frozenset({
-    # Replication Assay: the six keys set_analyze_endodyogeny_defaults returns
-    # that no category listed, so they landed in "Other" until the assay got a
-    # category of its own. The backend has existed since #21; only the app
-    # entry and this category were missing.
+    "balance_to_smallest",
+    "cross_validation_enabled",
+    "generate_full_dataset",
+    "early_stopping_patience",
+    "focal_alpha",
+    "focal_gamma",
+    "label_smoothing",
+    "logit_adjust_tau",
+    "n_top_examples",
+    "random_seed",
+    "tar_path",
+    "write_random_annotation_column",
+    "leakage_audit_train_test",
+    "leakage_hash_content",
+    "leakage_require_identity",
+    # The legacy size-proxy settings remain grouped explicitly even though the
+    # visible Replication module now runs the parasites-per-vacuole assay.
     "class_column", "group_by_class", "um_per_px",
     "min_area_bin", "max_area", "max_bins",
+    # Count-based replication assay.
+    "vacuole_key", "vacuole_link_distance", "vacuole_link_factor",
+    "parasite_count_column", "max_parasites_per_vacuole",
+    "require_host_cell", "non_power_of_two_warn",
     "batch_fields", "fill_na", "keep_npz", "pipeline_style", "plateID",
     "save_original_images",
     # Landed alongside the regroup: the fail-loud policy (spacr.errors) and
@@ -224,6 +241,50 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Static and interactive Image UMAP presentation controls.
     "point_color", "point_alpha", "outline_width",
     "umap_canvas_width", "umap_sidebar_width",
+    # Classify out-of-fold evaluation, nested validation and calibration.
+    "classifier_evaluation", "nested_cv_inner_folds",
+    "evaluation_calibration", "evaluation_bins",
+    "evaluation_fail_on_leakage",
+    # Shared correction before UMAP, ML screen analysis, and regression.
+    "batch_correction", "batch_column", "batch_control_column",
+    "batch_control_values", "batch_min_samples", "batch_missing_control",
+    # and the two ComBat added afterwards: the covariate whose biology the
+    # empirical-Bayes fit must protect, and the mean-only variant.
+    "batch_covariate_column", "batch_combat_mean_only",
+    # Four keys perform_regression indexes directly that had no default, no
+    # expected_types entry and no category, so no panel could offer them and
+    # get_perform_regression_default_settings could not produce a dict the
+    # function would run on -- regression died on KeyError from Tk, Qt and the
+    # CLI alike. (`verbose` and `control_wells`, the other two it was missing,
+    # were already categorised under Advanced and Invasion Assay.)
+    "score_column", "tolerance", "invert_dependent_variable", "y_lims",
+    # -- keys a module merged in through `spacr.settings.register_defaults`
+    #
+    # These do not come from the regroup at all. `register_defaults(...,
+    # categories=...)` folds a module's own categories into the shared map at
+    # the moment that module is imported, which is the seam a new module is
+    # supposed to use instead of editing the table. They therefore arrive
+    # whenever something imports the module, and the count above cannot
+    # predict them -- but listing them keeps the "growth is deliberate"
+    # contract, because a key here still had to be declared somewhere.
+    #
+    # Power / Design (`spacr/qt/screens/power.py`), one heading of its own:
+    "power_n_genes", "power_n_grnas_per_gene", "power_score_per",
+    "power_cells_per_well", "power_wells_per_plate", "power_n_plates",
+    "power_constructs_per_well", "power_background_positive_rate",
+    "power_effect_fold", "power_hit_rate", "power_reads_per_well",
+    "power_n_replicates", "power_detection_auroc", "power_seed",
+    "power_backend",
+    # AnnData Export (`spacr/anndata_export/__init__.py`):
+    "anndata_out", "anndata_single_table", "anndata_nan_policy",
+    "anndata_tables", "anndata_dtype", "anndata_row_limit",
+    "anndata_compute_umap", "anndata_compression",
+    "anndata_register_artifact",
+    # The robust and regularised regression fits: knobs that belong to one
+    # estimator rather than to all of them.
+    "l1_ratio", "quantile", "huber_t",
+    "hinge_threshold", "hinge_n_boot",
+    "lasso_n_boot", "lasso_selection_threshold",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
@@ -333,11 +394,26 @@ def test_no_previously_categorised_key_is_lost():
 
 
 def test_every_added_key_is_declared():
-    """Growth of the map is deliberate, not accidental."""
+    """Growth of the map is deliberate, not accidental.
+
+    Containment, not equality. ``register_defaults(..., categories=...)``
+    folds a module's own categories into the shared map at the moment that
+    module is imported — that is the seam a new module is meant to use
+    instead of editing the table — so which of them are present depends on
+    what the process has imported by now. Under equality the test failed in
+    both directions at once: unimported modules' keys were "listed but
+    absent" and imported ones were "present but unlisted", and which it
+    reported depended on test ordering.
+
+    The direction worth keeping is the one the failure message describes: a
+    key may not appear in the map without being declared here. A listed key
+    that this process has not imported costs nothing.
+    """
     added = set(_all_categorised_keys()) - KEYS_BEFORE_REGROUP
-    assert added == set(KEYS_ADDED_BY_REGROUP), (
+    undeclared = sorted(added - set(KEYS_ADDED_BY_REGROUP))
+    assert not undeclared, (
         "categories gained keys that KEYS_ADDED_BY_REGROUP does not list: "
-        f"{sorted(added - set(KEYS_ADDED_BY_REGROUP))}"
+        f"{undeclared}"
     )
 
 
@@ -605,8 +681,22 @@ def test_every_qt_section_hint_names_a_real_category():
     known = {c.upper().strip() for c in S.categories}
     # Qt may make app-scoped relocations without changing the category map
     # shared with the legacy UI (Measure's Filter settings is one).
+    # Classify is the reason this list has to be exhaustive rather than
+    # representative: nine of its ten categories exist only in
+    # `_APP_CATEGORY_SPECS`-style Qt regroups and appear nowhere in
+    # `S.categories`, so leaving it out reported all nine as dead.
     from spacr.qt.screens.settings_model import categories_for_app
-    for app_key in ("measure", "map_barcodes", "umap"):
+    for app_key in (
+        "measure", "external_masks", "map_barcodes", "umap", "ml_analyze", "mask",
+        "timelapse", "motility", "regression", "activation", "replication",
+        "classify", "train_cellpose", "cellpose_masks", "cellpose_all",
+        "analyze_plaques", "recruitment", "invasion",
+        # Curated layouts of their own whose headings exist nowhere else.
+        # Barcode QC and Illumination register settings that are in no
+        # shared category at all, and Power draws its own screen; leaving
+        # any of the four out reports all of their blurbs as dead.
+        "barcode_qc", "illumination", "anndata_export", "power",
+    ):
         known.update(
             c.upper().strip()
             for c in categories_for_app(app_key, S.categories)
@@ -633,12 +723,13 @@ def _rendered_sections(app_key):
     would bucket them -- including the trailing "Other"."""
     pytest.importorskip("PySide6")
     from spacr.qt.screens.settings_model import (
-        _APP_HIDDEN_CATEGORIES, resolve_default_settings,
+        _APP_HIDDEN_CATEGORIES, categories_for_app,
+        resolve_default_settings,
     )
     defaults = resolve_default_settings(app_key)
     hidden = _APP_HIDDEN_CATEGORIES.get(app_key, set())
     used, sections = set(), []
-    for name, keys in S.categories.items():
+    for name, keys in categories_for_app(app_key, S.categories).items():
         if name in hidden:
             continue
         rows = [k for k in keys if k in defaults and k not in used]
@@ -649,6 +740,77 @@ def _rendered_sections(app_key):
     if leftover:
         sections.append(("Other", leftover))
     return sections
+
+
+@pytest.mark.parametrize(
+    ("app_key", "expected"),
+    [
+        ("ml_analyze", [
+            "Data & Controls", "Feature Preparation",
+            "Plate & Batch Correction",
+            "Classifier & Validation", "Feature Selection & Importance",
+            "Output & Database", "Plots & Heatmaps",
+            "Runtime & Reliability",
+        ]),
+        ("mask", [
+            "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
+            "Cell Segmentation", "Nucleus Segmentation",
+            "Pathogen Segmentation", "Organelle Segmentation",
+            "Quality Control", "Volumetric Processing (Beta)",
+            "Time Axes & Tracking (Beta)", "Visualization & Diagnostics",
+            "Output & Storage", "Runtime & Reliability",
+        ]),
+        ("measure", [
+            "Input & Experiment", "Mask & Channel Mapping",
+            "Measurement Features", "Object Filtering", "Crop Output",
+            "Preview & Diagnostics", "3D Calibration (Beta)",
+            "Runtime & Reliability",
+        ]),
+        ("timelapse", [
+            "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
+            "Cell Segmentation", "Nucleus Segmentation",
+            "Pathogen Segmentation", "Organelle Segmentation",
+            "Quality Control", "Tracking Setup", "Tracking Backends",
+            "Visualization & Diagnostics", "Output & Storage",
+            "Runtime & Reliability",
+        ]),
+        ("motility", [
+            "Objects & Channels", "Spatial & Temporal Calibration",
+            "Motion Filtering", "Infection Classification",
+            "XGBoost Infection Model", "Infection Clustering",
+            "Embedding Search", "Motility Plots & QC",
+            "Runtime & Reliability",
+        ]),
+        ("regression", [
+            "Input Tables", "Controls & Plate Design",
+            "Plate & Batch Correction", "Model & Covariates",
+            # Added when the robust and regularised fits brought knobs that
+            # belong to one estimator rather than to all of them. Until they
+            # were named, they landed in "Additional Settings" — the bucket
+            # this whole test exists to keep empty.
+            "Estimator Tuning",
+            "Hit Calling & Outliers", "Regression Plots",
+            "Runtime & Reliability",
+        ]),
+        ("activation", [
+            "Model & Data", "Attribution Method", "Attribution Validation",
+            "Map Display", "Map Quantification", "Output & Runtime",
+        ]),
+        ("replication", [
+            "Assay Inputs", "Vacuole Assignment", "Condition Metadata",
+            "Object Filtering", "Replication Scoring", "Assay Output",
+            "Runtime & Reliability",
+        ]),
+    ],
+)
+def test_requested_modules_use_workflow_ordered_categories(app_key, expected):
+    """Every module-specific map is ordered and accounts for each key once."""
+    sections = _rendered_sections(app_key)
+    assert [name for name, _keys in sections] == expected
+    rendered_keys = [key for _name, keys in sections for key in keys]
+    from spacr.qt.screens.settings_model import resolve_default_settings
+    assert rendered_keys == list(dict.fromkeys(rendered_keys))
+    assert set(rendered_keys) == set(resolve_default_settings(app_key))
 
 
 @pytest.mark.parametrize("app_key", sorted(GUI_MODULE_DEFAULTS))

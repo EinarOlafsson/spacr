@@ -1,13 +1,18 @@
+"""Classical machine-learning and regression analysis pipelines."""
+
+import logging
 import os, sys, re
 import pandas as pd
 import numpy as np
-from scipy import stats, test
+from scipy import stats
 from scipy.stats import shapiro
 from math import pi
 
-from sklearn.linear_model import Lasso, Ridge, LassoCV, RidgeCV
+from sklearn.linear_model import (Lasso, Ridge, LassoCV, RidgeCV,
+                                  ElasticNet, ElasticNetCV)
+from sklearn.svm import LinearSVC
+from sklearn.base import clone
 from sklearn.metrics import mean_squared_error
-import numpy as np
 
 import matplotlib.pyplot as plt
 try:
@@ -27,12 +32,9 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.genmod.families import Binomial
 from statsmodels.genmod.families.links import Logit
 from statsmodels.othermod.betareg import BetaModel
-from scipy.special import gammaln, psi, expit
-from sklearn.linear_model import Lasso, Ridge
 from sklearn.preprocessing import FunctionTransformer
 from patsy import dmatrices
 
-from sklearn.metrics import classification_report
 from sklearn.model_selection import StratifiedKFold
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.model_selection import train_test_split
@@ -46,10 +48,11 @@ from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, mi
 from xgboost import XGBClassifier
 
 from . import schema
+from .plot import save_figure  # every kept figure goes through the format/DPI preference
 
-import numpy as np
+LOG = logging.getLogger("spacr.ml")
+
 from scipy.stats import kstest, normaltest
-import statsmodels.api as sm
 
 import matplotlib
 
@@ -61,6 +64,23 @@ if not (sys.platform.startswith(('win', 'darwin')) or os.environ.get('DISPLAY'))
     matplotlib.use('Agg')
 
 import warnings
+
+
+def _run_random_state(default=None):
+    """Return the active run's seed, for an estimator's ``random_state=``.
+
+    Imported inside the call rather than at module scope: :mod:`spacr.runctx`
+    reaches :mod:`spacr.settings`, which reaches back here, and a top-level
+    import would be a cycle. Outside a run this is whatever ``default`` was,
+    which is the literal these call sites used to hard-code.
+
+    :param default: the value to use when no run is open.
+    :returns: the run seed, or ``default``.
+    """
+    from .runctx import random_state
+    return random_state(default)
+
+
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
 
@@ -128,6 +148,23 @@ class QuasiBinomial(Binomial):
 def calculate_p_values(X, y, model):
     """Return OLS-style p-values for a fitted model's coefficients.
 
+    **These are not valid frequentist p-values for a penalised fit**, and the
+    two callers that reach them know it in different ways. The standard error
+    is the unpenalised ``rse * sqrt(diag((X'X)^-1))`` while the coefficient it
+    is divided into has been shrunk, so the test is mis-specified. The
+    direction of the error is the one that matters here and it is the safe one:
+    the penalty shrinks the numerator and inflates the residual in the
+    denominator, so the statistic is too SMALL and the p-value too large. A
+    penalised fit under-detects here; it does not manufacture hits.
+
+    ``lasso`` and ``elasticnet`` do not rely on this at all —
+    :data:`NO_P_VALUE_TYPES` routes them to a bootstrap selection frequency
+    instead. ``ridge`` does, because it never sets a coefficient to exactly
+    zero and so has no selection frequency to report (every feature would score
+    1.0), and a conservative test is a better answer than no test.
+    ``tests/test_regression_orientation.py`` pins the null case, which is where
+    an anticonservative version of this would show.
+
     :param X: Design matrix (``n x p``).
     :param y: Observed responses.
     :param model: Fitted estimator exposing ``predict`` and ``coef_``.
@@ -164,36 +201,93 @@ def calculate_p_values(X, y, model):
     p_values = 2 * (1 - st.norm.cdf(np.abs(t_stats)))
     return p_values
 
-def perform_mixed_model(y, X, groups, alpha=1.0):
-    """Fit a mixed-effects linear model, falling back to Ridge-adjusted fixed effects on high VIF.
+def perform_mixed_model(y, X, groups, alpha=None):
+    """Fit a mixed-effects linear model with ``groups`` as the random intercept.
+
+    Collinearity is REPORTED, never silently corrected. The previous revision
+    reacted to any VIF above 10 by fitting
+
+    .. code-block:: python
+
+        ridge = Ridge(alpha=alpha).fit(X, y)
+        X_ridge = ridge.coef_ * X          # "Adjust X with Ridge coefficients"
+        MixedLM(y, X_ridge, groups=groups)
+
+    which is not ridge regression and not a mixed model of anything. It
+    multiplies every column by that column's ridge coefficient, so
+
+    * a column whose ridge coefficient is 0 - which is most of them on a
+      screen-scale one-hot design - becomes a column of zeros, and the design
+      is singular. That is the ``numpy.linalg.LinAlgError: Singular matrix``
+      that ``regression_type='mixed'`` died with on real data, thrown from
+      inside statsmodels with nothing naming the cause;
+    * where it did fit, every fixed effect came back multiplied by an
+      arbitrary per-column constant, so the coefficients written to
+      ``results.csv`` and ranked on the volcano plot were not effects on the
+      response at all. That is the worse of the two outcomes, because it
+      completes.
+
+    A one-hot design against an intercept ALWAYS trips VIF > 10, so this path
+    was the normal one, not the exception.
 
     :param y: Response vector.
     :param X: Fixed-effects design matrix (DataFrame).
-    :param groups: Cluster identifiers for random effects.
-    :param alpha: Ridge penalty applied when any VIF exceeds 10.
-        Default ``1.0``.
+    :param groups: Cluster identifiers for the random intercept - one entry
+        per row of ``X``.
+    :param alpha: Must be None. Accepted only so an old call site fails with
+        an explanation instead of a TypeError.
     :returns: Fitted ``statsmodels`` ``MixedLMResults``.
-    :raises ValueError: if ``groups`` is None.
+    :raises ValueError: if ``groups`` is None, if ``alpha`` is given, if
+        ``groups`` does not align with ``X``, or if the fixed-effects design is
+        rank-deficient (which MixedLM would otherwise report as a bare
+        LinAlgError from three frames deep).
     """
     # Ensure groups are defined correctly and check for multicollinearity
     if groups is None:
         raise ValueError("Groups must be defined for mixed model regression")
 
-    # Check for multicollinearity by calculating the VIF for each feature
-    X_np = X.values
-    vif = [variance_inflation_factor(X_np, i) for i in range(X_np.shape[1])]
+    if alpha is not None:
+        raise ValueError(
+            "perform_mixed_model takes no penalty: MixedLM has none, and the "
+            f"alpha={alpha!r} this used to accept rescaled the design by its "
+            "ridge coefficients, which changes what every fixed effect means. "
+            "Drop alpha, or fit 'ridge' if you want a penalised model.")
+
+    n_groups = len(np.asarray(groups).reshape(-1))
+    if n_groups != X.shape[0]:
+        # Silent misalignment here would assign each row to the wrong cluster,
+        # which changes every standard error and nothing would look wrong.
+        raise ValueError(
+            f"groups has {n_groups} entries but the design has {X.shape[0]} "
+            f"rows; each row must carry its own cluster id.")
+
+    # Check for multicollinearity by calculating the VIF for each feature.
+    # variance_inflation_factor divides by (1 - R^2) and returns inf for a
+    # perfectly aliased column, so this doubles as the rank check below.
+    X_np = np.asarray(X, dtype=float)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        vif = [variance_inflation_factor(X_np, i) for i in range(X_np.shape[1])]
     print(f"VIF: {vif}")
     if any(v > 10 for v in vif):
-        print(f"Multicollinearity detected with VIF: {vif}. Applying Ridge regression to the fixed effects.")
-        ridge = Ridge(alpha=alpha)
-        ridge.fit(X, y)
-        X_ridge = ridge.coef_ * X  # Adjust X with Ridge coefficients
-        model = MixedLM(y, X_ridge, groups=groups)
-    else:
-        model = MixedLM(y, X, groups=groups)
+        high = [str(c) for c, v in zip(X.columns, vif) if v > 10]
+        print(f"Multicollinearity detected with VIF > 10 for: {high}. The "
+              f"mixed model is fitted on the design as given - the estimates "
+              f"for those terms are unstable, not wrong. Drop or merge the "
+              f"aliased terms, or fit 'ridge', if that matters for the "
+              f"comparison you are making.")
 
-    result = model.fit()
-    return result
+    rank = np.linalg.matrix_rank(X_np)
+    if rank < X_np.shape[1]:
+        raise ValueError(
+            f"the fixed-effects design is rank {rank} with {X_np.shape[1]} "
+            f"columns, so its coefficients are not identified and MixedLM "
+            f"cannot solve for them. Some terms are exact linear combinations "
+            f"of others - typically a row/column dummy that is constant within "
+            f"every group, or a gRNA present in exactly one well. Drop the "
+            f"aliased terms, or use random_row_column_effects=True to move "
+            f"the plate geometry out of the fixed effects.")
+
+    return MixedLM(y, X, groups=groups).fit()
 
 def create_volcano_filename(csv_path, regression_type, alpha, dst):
     """Create and return the volcano plot filename based on regression type and alpha."""
@@ -205,13 +299,36 @@ def create_volcano_filename(csv_path, regression_type, alpha, dst):
     return os.path.join(os.path.dirname(csv_path), volcano_filename)
 
 def scale_variables(X, y):
-    """Scale independent (X) and dependent (y) variables using MinMaxScaler."""
+    """Min-max scale the independent (X) and dependent (y) variables to [0, 1].
+
+    Constant columns are passed through UNCHANGED. ``MinMaxScaler`` maps a
+    column with zero range to all-zeros, and patsy's intercept is exactly such
+    a column, so scaling a design matrix used to silently delete its
+    intercept: statsmodels then fitted a model through the origin and still
+    printed an ``Intercept`` row, of 0.000, in the summary. Every coefficient
+    in that fit absorbs the mean it can no longer estimate.
+
+    :param X: Design matrix (DataFrame).
+    :param y: Response, as a 2-D array or single-column frame.
+    :returns: ``(X_scaled, y_scaled)`` - a DataFrame with ``X``'s columns and
+        a 2-D ``numpy`` array.
+
+    Example:
+        .. code-block:: python
+
+            X = pd.DataFrame({'Intercept': 1.0, 'a': [1.0, 2.0, 3.0]})
+            scale_variables(X, np.array([[0.0], [1.0], [2.0]]))[0]['Intercept']
+            # -> 1.0, 1.0, 1.0   (not 0.0, 0.0, 0.0)
+    """
     scaler_X = MinMaxScaler()
     scaler_y = MinMaxScaler()
-    
+
     X_scaled = pd.DataFrame(scaler_X.fit_transform(X), columns=X.columns)
+    constant = X.nunique(dropna=False) <= 1
+    for column in X.columns[constant.values]:
+        X_scaled[column] = np.asarray(X[column], dtype=float)
     y_scaled = scaler_y.fit_transform(y)
-    
+
     return X_scaled, y_scaled
 
 def select_glm_family(y):
@@ -365,9 +482,37 @@ def check_and_clean_data(df, dependent_variable):
     if 'cell_count' in df.columns:
         df_cleaned['cell_count'] = df['cell_count']
 
-    # Create a new column 'gene_fraction' that sums the fractions by gene within the same well
-    df_cleaned['gene_fraction'] = df_cleaned.groupby(
-        ['prc', 'gene'], observed=False)['fraction'].transform('sum')
+    # 'gene_fraction' is the share of the well's library that belongs to the
+    # gene: the sum of its gRNAs' fractions IN THAT WELL, counted once each.
+    #
+    # The obvious spelling - groupby(['prc', 'gene'])['fraction'].sum() over
+    # the frame - is right only while the frame has exactly one row per
+    # (well, gRNA). With agg_type=None (which quantile regression forces, see
+    # get_perform_regression_default_settings) perform_regression deliberately
+    # joins the well's gRNAs against the well's CELLS, so every (well, gRNA)
+    # row appears once per cell and the sum came out multiplied by the well's
+    # cell count. Two consequences, both silent: every gene coefficient was
+    # divided by roughly that factor, and - because wells do not all hold the
+    # same number of cells - the inflation differed per well, so gene_fraction
+    # was no longer comparable across the plate.
+    grna_key = ['prc', 'gene', 'grna']
+    per_grna = df_cleaned[grna_key + ['fraction']].drop_duplicates()
+    clash = per_grna.duplicated(subset=grna_key, keep=False)
+    if clash.any():
+        # One gRNA cannot hold two different shares of the same well's
+        # library. Deduplicating past this would pick whichever row sorted
+        # first and every gene coefficient downstream would rest on that
+        # coin flip.
+        offenders = per_grna.loc[clash, grna_key].drop_duplicates()
+        raise ValueError(
+            f"{len(offenders)} (well, gRNA) pair(s) carry more than one "
+            f"'fraction', so the gene's share of the well is ambiguous - e.g. "
+            f"{offenders.iloc[0].to_dict()}. This means the count table was "
+            f"joined twice, or two count files describe the same plate. "
+            f"Aggregate the counts per (prc, grna) before regressing.")
+    gene_totals = per_grna.groupby(['prc', 'gene'], observed=False)['fraction'].sum()
+    df_cleaned['gene_fraction'] = pd.MultiIndex.from_arrays(
+        [df_cleaned['prc'], df_cleaned['gene']]).map(gene_totals)
 
     print("Data is ready for model fitting.")
     return df_cleaned
@@ -499,14 +644,174 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
         fig_path = os.path.join(dst, 'results')
         os.makedirs(fig_path, exist_ok=True)
         fig_file_path = os.path.join(fig_path, 'cell_min_threshold.pdf')
-        fig.savefig(fig_file_path, format='pdf', dpi=600, bbox_inches='tight')
+        fig_file_path = save_figure(fig, fig_file_path,
+                                    bbox_inches='tight')
         print(f"Saved {fig_file_path}")
 
     plt.show()
     return elbow_point['sample_size']
 
-def process_model_coefficients(model, regression_type, X, y, nc, pc, controls):
-    """Return DataFrame of model coefficients, standard errors, and p-values."""
+def _statsmodels_p_values(model, coefs):
+    """Return per-coefficient p-values from a statsmodels-shaped results object.
+
+    Every statsmodels results class spaCR fits exposes ``pvalues``. The
+    fallback exists for :mod:`spacr.power_model`, whose Laplace approximation
+    reports standard errors rather than a test: a two-sided normal p-value
+    from ``coef / bse`` is exactly what a Wald test on that approximation is,
+    and computing it here keeps the horseshoe fit in the same table as the
+    rest instead of giving it a private code path.
+
+    :param model: Fitted results object.
+    :param coefs: Its ``params``, already extracted.
+    :returns: 1-D float array aligned with ``coefs``.
+    :raises ValueError: when the object carries neither ``pvalues`` nor
+        ``bse``, so no inference is possible.
+    """
+    pvalues = getattr(model, 'pvalues', None)
+    if pvalues is not None:
+        return np.asarray(pvalues, dtype=float).reshape(-1)
+
+    bse = getattr(model, 'bse', None)
+    if bse is None:
+        raise ValueError(
+            f"{type(model).__name__} exposes neither .pvalues nor .bse, so "
+            f"spaCR cannot attach a p-value to its coefficients. A results "
+            f"object handed to process_model_coefficients must carry one or "
+            f"the other.")
+    std_err = np.asarray(bse, dtype=float).reshape(-1)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        z = np.where(std_err > 0,
+                     np.asarray(coefs, dtype=float).reshape(-1) / std_err,
+                     0.0)
+    return 2.0 * (1.0 - st.norm.cdf(np.abs(z)))
+
+
+def _bootstrap_wald_p_values(model, X, y, n_boot=200, random_state=0):
+    """Return bootstrap Wald p-values for an estimator with no inference.
+
+    Refits ``model``'s estimator on ``n_boot`` nonparametric resamples of the
+    rows, takes the empirical standard deviation of each coefficient across
+    the resamples and reports ``2 * (1 - Phi(|coef| / sd))``.
+
+    This is the honest minimum for the hinge backend: an SVM has no
+    likelihood, so there is no Wald or likelihood-ratio test to run, and the
+    alternative - leaving ``p_value`` NaN - would make
+    :func:`perform_regression` select ``p_value <= 0.05`` on an all-NaN column
+    and report "0 significant gRNAs" for every hinge run, which reads exactly
+    like a screen with no hits.
+
+    A resample that loses a class entirely is skipped rather than fitted; a
+    coefficient whose bootstrap standard deviation is zero (never selected, or
+    identical in every resample) gets ``p = 1``, never a division by zero.
+
+    :param model: A fitted scikit-learn estimator; cloned, never refitted in
+        place, so the caller's model object is untouched.
+    :param X: Design matrix.
+    :param y: Response the model was fitted on - for hinge, the BINARISED one.
+    :param n_boot: Number of resamples. Default 200.
+    :param random_state: Seed, so a hit list is reproducible from the settings.
+    :returns: 1-D float array of length ``X.shape[1]``.
+    :raises RuntimeError: when no resample could be fitted at all.
+    """
+    rng = np.random.default_rng(random_state)
+    X_values = np.asarray(X, dtype=float)
+    y_values = np.asarray(y, dtype=float).reshape(-1)
+    n = X_values.shape[0]
+
+    draws = []
+    one_class = 0
+    unfittable = 0
+    last_failure = None
+    for _ in range(int(n_boot)):
+        idx = rng.integers(0, n, size=n)
+        y_boot = y_values[idx]
+        if np.unique(y_boot).size < 2:
+            # One-class resample: the estimator has no boundary to fit. Common
+            # on a screen with few positive wells, and not an error.
+            one_class += 1
+            continue
+        try:
+            fitted = clone(model).fit(X_values[idx], y_boot)
+        except Exception as exc:
+            unfittable += 1
+            last_failure = exc
+            continue
+        draws.append(np.asarray(fitted.coef_, dtype=float).ravel())
+
+    if not draws:
+        raise RuntimeError(
+            f"none of the {n_boot} bootstrap resamples could be fitted, so no "
+            f"standard error is available for the hinge coefficients. This "
+            f"usually means one class holds only a handful of wells; check "
+            f"hinge_threshold.")
+
+    # Only "none of them" used to be reported, and that is the case where the
+    # numbers are least dangerous, because it raises. 199 of 200 failing gave
+    # a standard deviation taken over one draw — zero by construction — which
+    # makes every p-value exactly 1.0: a hit list that reads like a clean
+    # screen with no significant gRNAs in it, with nothing anywhere saying the
+    # inference did not happen. So say how many draws the p-values rest on
+    # whenever it is not all of them.
+    dropped = int(n_boot) - len(draws)
+    if dropped:
+        LOG.warning(
+            "hinge bootstrap: %d of %d resamples produced no coefficients "
+            "(%d were one-class, %d would not fit%s). The p-values below are "
+            "computed from the remaining %d.",
+            dropped, int(n_boot), one_class, unfittable,
+            f"; last error: {last_failure}" if last_failure is not None else "",
+            len(draws))
+    if len(draws) < 2:
+        LOG.warning(
+            "hinge bootstrap: only %d resample(s) survived, so the coefficient "
+            "standard deviation is zero and EVERY p-value below is exactly "
+            "1.0. That is an absence of evidence, not evidence of absence — "
+            "do not read it as 'no significant gRNAs'.", len(draws))
+
+    coefs = np.asarray(model.coef_, dtype=float).ravel()
+    sd = np.std(np.vstack(draws), axis=0, ddof=1) if len(draws) > 1 else \
+        np.zeros_like(coefs)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        z = np.where(sd > 0, coefs / sd, 0.0)
+    return 2.0 * (1.0 - st.norm.cdf(np.abs(z)))
+
+
+#: Backends whose fitted results object carries ``params`` and ``pvalues``
+#: directly (statsmodels). ``mixed`` is here too, and its variance components
+#: are dropped below - they are not effects on the response.
+_STATSMODELS_COEF_TYPES = (
+    'ols', 'wls', 'rlm', 'huber', 'glm', 'poisson', 'logit', 'probit',
+    'quasi_binomial', 'quantile', 'mixed', 'horseshoe',
+)
+
+#: Backends that expose ``coef_`` (scikit-learn) and no inference of their own.
+_SKLEARN_COEF_TYPES = ('ridge', 'lasso', 'elasticnet')
+
+
+def process_model_coefficients(model, regression_type, X, y, nc, pc, controls,
+                               hinge_threshold=None, hinge_n_boot=200):
+    """Return a DataFrame of model coefficients and p-values, one row per term.
+
+    Every name in :data:`REGRESSION_TYPES` has a branch here. It is the same
+    table for all of them - ``feature``, ``coefficient``, ``p_value``,
+    ``-log10(p_value)``, ``grna``, ``condition`` - because everything
+    downstream (the volcano plot, the hit table, the metadata merge) reads
+    those columns and nothing else.
+
+    :param model: The fitted object from :func:`regression_model`.
+    :param regression_type: Which backend produced it.
+    :param X: Design matrix, used for the sklearn feature names and for the
+        p-value approximations that need the data back.
+    :param y: Response, likewise.
+    :param nc: Negative-control identifier, matched against the feature name.
+    :param pc: Positive-control identifier.
+    :param controls: Explicit list of control gRNA identifiers.
+    :param hinge_threshold: The binarisation cut used by the hinge fit; the
+        bootstrap below must reproduce the SAME two classes the fit saw.
+    :param hinge_n_boot: Bootstrap resamples used for the hinge p-values.
+    :returns: Coefficient DataFrame with the row/column nuisance terms removed.
+    :raises ValueError: on an unsupported ``regression_type``.
+    """
 
     if regression_type == 'beta':
         coefs = model.params
@@ -522,20 +827,46 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls):
             'p_value': p_values,
         })
 
-    elif regression_type in [
-            'ols', 'glm', 'poisson', 'logit', 'probit', 'quasi_binomial']:
+    elif regression_type in _STATSMODELS_COEF_TYPES:
         coefs = model.params
-        p_values = model.pvalues
+        p_values = _statsmodels_p_values(model, coefs)
 
         coef_df = pd.DataFrame({
             'feature': coefs.index,
             'coefficient': coefs.values,
-            'p_value': p_values.values,
+            'p_value': np.asarray(p_values, dtype=float),
         })
+        if regression_type == 'mixed':
+            # MixedLMResults.params appends the random-effect variance
+            # components ('Group Var', 'Group x ... Cov'). They are variances,
+            # not effects on the response, and their p-value is NaN - leaving
+            # them in put a row on the volcano plot that no gene owns.
+            coef_df = coef_df[coef_df['feature'].isin(
+                [str(c) for c in X.columns])].reset_index(drop=True)
 
-    elif regression_type in ['ridge', 'lasso']:
+    elif regression_type in _SKLEARN_COEF_TYPES:
         coefs = np.asarray(model.coef_).ravel()
         p_values = calculate_p_values(X, y, model)
+
+        coef_df = pd.DataFrame({
+            'feature': X.columns,
+            'coefficient': coefs,
+            'p_value': p_values,
+        })
+
+    elif regression_type == 'hinge':
+        # LinearSVC has no likelihood, so there is no Wald test to run and
+        # calculate_p_values is meaningless here (its residual is the 0/1
+        # misclassification, not a Gaussian error). The p-value reported is a
+        # BOOTSTRAP Wald: refit the same estimator on hinge_n_boot resamples of
+        # the wells, take the empirical standard deviation of each coefficient
+        # and compare the point estimate to it. It is a stability statistic,
+        # not a likelihood-ratio test, and the tooltip for hinge_n_boot says so.
+        coefs = np.asarray(model.coef_).ravel()
+        p_values = _bootstrap_wald_p_values(
+            model, X, binarise_response(y, hinge_threshold,
+                                        name='dependent variable'),
+            n_boot=hinge_n_boot)
 
         coef_df = pd.DataFrame({
             'feature': X.columns,
@@ -672,7 +1003,16 @@ def _validate_poisson_response(y, X=None, minimum_samples=MIN_POISSON_SAMPLES):
 
 
 def pick_glm_family_and_link(y):
-    """Select the appropriate GLM family and link function based on data."""
+    """Select the GLM family and link that suit the response.
+
+    Used by ``regression_type='glm'`` to choose a family from the data rather
+    than from the user.
+
+    :param y: Response vector.
+    :returns: A ``statsmodels`` family instance with its link set.
+    :raises ValueError: only through :func:`_validate_poisson_response`, when
+        the response looks like counts but cannot be one.
+    """
     values = np.asarray(y, dtype=float).reshape(-1)
 
     if np.all((values == 0) | (values == 1)):
@@ -680,8 +1020,20 @@ def pick_glm_family_and_link(y):
         return sm.families.Binomial(link=sm.families.links.Logit())
 
     elif (values > 0).all() and (values < 1).all():
-        print("Data strictly between 0 and 1. Beta regression recommended.")
-        raise ValueError("Use BetaModel for this data; GLM is not applicable.")
+        # A proportion strictly inside (0, 1) is a binomial mean, and a
+        # binomial GLM with a logit link is the standard model for it. This
+        # branch used to raise "Use BetaModel for this data; GLM is not
+        # applicable", which was not a principled refusal: the very next
+        # branch fits exactly this family as soon as a single well sits at 0.0
+        # or 1.0, so one boundary well flipped the same screen from "not
+        # applicable" to "fine". Beta regression IS usually the better model
+        # here - hence the recommendation - but it is a recommendation, and
+        # regression_type='beta' is how you take it.
+        print("Data strictly between 0 and 1. Using Binomial family with "
+              "Logit link; consider regression_type='beta', which models the "
+              "variance of a bounded response directly, or 'quasi_binomial' "
+              "if the wells are overdispersed.")
+        return sm.families.Binomial(link=sm.families.links.Logit())
 
     elif (values >= 0).all() and (values <= 1).all():
         print("Data between 0 and 1 (including boundaries). Using Quasi-Binomial.")
@@ -712,83 +1064,621 @@ def pick_glm_family_and_link(y):
     print("Using default Gaussian family with Identity link.")
     return sm.families.Gaussian(link=sm.families.links.Identity())
 
+#: Every regression backend :func:`regression_model` can fit, in the order the
+#: settings panels list them.
+#:
+#: This tuple is the SINGLE source of truth for "which model may I ask for".
+#: :func:`perform_regression` used to carry its own hand-written whitelist, and
+#: the two drifted in both directions at once, silently:
+#:
+#: * ``'beta'`` and ``'quasi_binomial'`` were fittable by
+#:   :func:`regression_model` and returned by :func:`check_distribution` (so
+#:   ``regression_type=None`` auto-selected them), yet the entry point refused
+#:   them outright — a user could never choose the model spaCR itself picked;
+#: * ``'quantile'`` was accepted by the entry point, given its own
+#:   ``agg_type`` handling in :func:`spacr.settings.get_perform_regression_default_settings`
+#:   and its own volcano-filename rule, and then died at the very last step
+#:   with "Unsupported regression type quantile" — after both input CSVs had
+#:   been read, the QC plots drawn and ``regression_data.csv`` written;
+#: * ``'gls'``, ``'wls'`` and ``'rlm'`` were advertised by the entry point and
+#:   by the Tk combo box and had no backend at all.
+#:
+#: Anything added here must be fittable by :func:`regression_model` AND have a
+#: coefficient branch in :func:`process_model_coefficients`; the round trip is
+#: pinned by ``tests/test_regression_types.py``.
+REGRESSION_TYPES = (
+    'ols',
+    'wls',
+    'rlm',
+    'huber',
+    'glm',
+    'poisson',
+    'quasi_binomial',
+    'beta',
+    'logit',
+    'probit',
+    'quantile',
+    'mixed',
+    'lasso',
+    'ridge',
+    'elasticnet',
+    'hinge',
+    'horseshoe',
+)
+
+#: Names spaCR advertised but has never been able to fit, mapped to the
+#: sentence that says what to use instead. Kept by name rather than deleted so
+#: an old settings CSV is answered with a migration instruction instead of a
+#: bare "unsupported".
+UNSUPPORTED_REGRESSION_TYPES = {
+    'gls': (
+        "GLS needs an error covariance structure spaCR does not estimate; "
+        "with the default sigma it is arithmetically identical to 'ols', so "
+        "offering it only invited a user to believe they had corrected for "
+        "something. Use 'ols' with cov_type='HC3' for heteroscedasticity-"
+        "robust standard errors, 'wls' to weight wells by cell count, or "
+        "'mixed' for plate/row/column random effects."
+    ),
+}
+
+#: Which optional model setting each regression type actually READS.
+#:
+#: A key absent from a type's tuple is not applied by that backend, and
+#: :func:`regression_model` refuses it rather than ignoring it: a silently
+#: ignored setting is this pipeline's most expensive failure mode, because the
+#: run completes and the number looks right. ``cov_type='HC3'`` with
+#: ``'lasso'`` is the archetype — sklearn has no covariance estimator at all,
+#: so the run would report ordinary p-values under a robust-sounding label.
+#:
+#: ``alpha`` is only listed for the backends that penalise; ``groups``,
+#: ``weights`` and ``exposure`` are supplied by :func:`regression` from the
+#: data, not by the user, so they are not policed here.
+#:
+#: ``random_row_column_effects`` is not in this table because it is not a knob
+#: on a backend: it REPLACES the backend with a mixed model. That collision is
+#: settled by :func:`_reconcile_random_row_column_effects` before any fitting
+#: starts, which then uses this same table to police the knobs the mixed fit
+#: cannot read.
+#:
+#: What each type reads that is NOT a policed setting, so this table is not
+#: mistaken for the whole story:
+#:
+#: * ``wls`` and the three binomial links (``logit``, ``probit``,
+#:   ``quasi_binomial``) read the per-well ``weights`` — the cell count. For
+#:   the binomial links it is ``var_weights``, which is what tells the variance
+#:   function that a fraction measured from 400 cells is firmer evidence than
+#:   one from 30. ``glm`` reads it too when it auto-selects a binomial family.
+#: * ``poisson``, ``horseshoe``, and ``glm`` when it picks Poisson, read
+#:   ``exposure`` as ``offset(log(cell_count))`` — which is what makes their
+#:   coefficients effects on a per-cell RATE instead of on the well's headcount.
+#: * ``mixed`` reads ``groups``, the plate. :func:`_mixed_model_groups` says
+#:   why it is the plate and not the well.
+#: * ``hinge`` reads no kernel setting and is not going to get one: a
+#:   non-linear kernel has no ``coef_``, so there would be no per-gRNA
+#:   coefficient for :func:`process_model_coefficients` to table, no volcano
+#:   plot and no hit list. Everything downstream of the fit is built on one
+#:   linear coefficient per feature.
+REGRESSION_SETTINGS_USED = {
+    'ols': ('cov_type',),
+    'wls': ('cov_type',),
+    'rlm': ('huber_t',),
+    'huber': ('huber_t',),
+    'glm': ('cov_type',),
+    'poisson': ('cov_type',),
+    'quasi_binomial': ('cov_type',),
+    'beta': (),
+    'logit': ('cov_type',),
+    'probit': ('cov_type',),
+    'quantile': ('quantile',),
+    'mixed': (),
+    'lasso': ('alpha', 'lasso_n_boot', 'lasso_selection_threshold'),
+    'ridge': ('alpha',),
+    'elasticnet': ('alpha', 'l1_ratio', 'lasso_n_boot',
+                   'lasso_selection_threshold'),
+    'hinge': ('alpha', 'hinge_threshold', 'hinge_n_boot'),
+    'horseshoe': (),
+}
+
+#: The subset of :data:`REGRESSION_SETTINGS_USED` that :func:`regression_model`
+#: never sees, because they configure what :func:`perform_regression` does with
+#: the coefficients AFTER the fit rather than the fit itself. They are policed
+#: at the entry point instead, by :func:`_reject_unused_run_settings`, so a
+#: number set on the panel and read by nothing still fails loudly.
+RUN_LEVEL_SETTINGS = ('lasso_n_boot', 'lasso_selection_threshold',
+                      'hinge_n_boot')
+
+#: Backends that report a coefficient but no frequentist p-value, so
+#: ``p_value <= 0.05`` is not a hit rule for them. :func:`perform_regression`
+#: ranks these by bootstrap selection frequency instead.
+NO_P_VALUE_TYPES = ('lasso', 'elasticnet')
+
+
+def binarise_response(y, threshold=None, name='response'):
+    """Return ``y`` as a 0/1 vector for a classifier backend, refusing to guess.
+
+    The hinge backend fits a decision boundary, so it needs two classes. There
+    are exactly two ways to get them and this function will not invent a
+    third:
+
+    * ``y`` already holds exactly two distinct finite values (the usual case:
+      a per-object class call aggregated to a well, or a 0/1 score). The lower
+      value becomes 0 and the higher becomes 1, so the sign of every
+      coefficient answers "does this gRNA push wells towards the HIGHER
+      class", which is the same direction the continuous models report.
+    * ``threshold`` is given explicitly, and ``y > threshold`` becomes 1.
+
+    A continuous response with no threshold is REFUSED. Picking a cut for the
+    user — the mean, the median, 0.5 — would silently redefine the hypothesis
+    being tested: on a screen whose well scores run 0.2-0.8 a median split
+    calls half the plate positive by construction, and the resulting hit list
+    is a plausible, unfalsifiable artefact of the split.
+
+    :param y: Response vector (array, Series or single-column frame).
+    :param threshold: Explicit cut; values strictly greater become 1.
+    :param name: Name used in error messages, for a legible failure.
+    :returns: ``numpy`` float array of 0.0/1.0, same length as ``y``.
+    :raises ValueError: if ``y`` is continuous and no ``threshold`` is given,
+        if a given ``threshold`` puts every observation in one class, or if
+        ``y`` holds fewer than two distinct values.
+
+    Example:
+        .. code-block:: python
+
+            binarise_response([0, 1, 1, 0])            # -> [0., 1., 1., 0.]
+            binarise_response([2, 5, 5], )             # -> [0., 1., 1.]
+            binarise_response([0.2, 0.6], threshold=0.4)   # -> [0., 1.]
+    """
+    values = np.asarray(y, dtype=float).reshape(-1)
+    if not np.isfinite(values).all():
+        raise ValueError(
+            f"hinge regression requires a finite {name}; remove or impute the "
+            f"NaN/infinite values before fitting.")
+
+    if threshold is not None:
+        cut = float(threshold)
+        binary = (values > cut).astype(float)
+        n_positive = int(binary.sum())
+        if n_positive == 0 or n_positive == binary.size:
+            raise ValueError(
+                f"hinge_threshold={cut!r} puts all {binary.size} observations "
+                f"in one class ({name} range "
+                f"{values.min():.6g}-{values.max():.6g}); a one-class response "
+                f"has no decision boundary to fit.")
+        return binary
+
+    unique = np.unique(values)
+    if unique.size == 2:
+        return (values == unique[1]).astype(float)
+    if unique.size < 2:
+        raise ValueError(
+            f"hinge regression needs two classes but {name} holds the single "
+            f"value {unique[0]!r}.")
+    raise ValueError(
+        f"hinge regression needs a binary {name}, but it holds "
+        f"{unique.size} distinct values in "
+        f"{values.min():.6g}-{values.max():.6g}. Set hinge_threshold to the "
+        f"cut you mean (values strictly above it are the positive class), or "
+        f"choose a model for a continuous response ('ols', 'beta', "
+        f"'quantile'). spaCR will not pick the cut for you: a split chosen by "
+        f"the software decides the hypothesis, not the biology.")
+
+
+def _reject_unused_settings(regression_type, supplied):
+    """Raise when a setting the chosen backend cannot read was set anyway.
+
+    ``supplied`` maps a setting name to ``(value, default)``. A value equal to
+    its default is "not asked for" and passes; anything else must appear in
+    :data:`REGRESSION_SETTINGS_USED` for this type.
+
+    Comparing against the default is what makes this usable from a GUI, which
+    posts every widget on the panel whether or not the user touched it.
+
+    :param regression_type: The backend about to be fitted.
+    :param supplied: ``{name: (value, default)}`` for the policed settings.
+    :raises ValueError: naming the setting, the type and the alternative.
+    """
+    used = REGRESSION_SETTINGS_USED.get(regression_type, ())
+    for name, (value, default) in supplied.items():
+        if name in used or value == default:
+            continue
+        raise ValueError(
+            f"regression_type={regression_type!r} does not read {name}="
+            f"{value!r}: {_SETTING_NOT_APPLICABLE[name]} Leave {name} at its "
+            f"default ({default!r}), or choose a regression type that uses it "
+            f"({', '.join(t for t in REGRESSION_TYPES if name in REGRESSION_SETTINGS_USED[t]) or 'none'}).")
+
+
+#: Why each policed setting does nothing for the types that do not list it.
+#: Split out of :func:`_reject_unused_settings` so the message names the
+#: actual reason instead of "not supported".
+_SETTING_NOT_APPLICABLE = {
+    'alpha': "it is the penalty weight of a penalised fit, and this model is "
+             "unpenalised, so the number would change nothing.",
+    'l1_ratio': "it splits a penalty between L1 and L2, and only 'elasticnet' "
+                "has both.",
+    'cov_type': "it selects a sandwich covariance estimator on a likelihood "
+                "fit; sklearn's penalised estimators and the robust/quantile "
+                "fits do not expose one, so the standard errors would come "
+                "from somewhere other than the label suggests.",
+    'quantile': "it is the quantile of the conditional distribution being "
+                "fitted, which only 'quantile' regression has; every other "
+                "model fits the mean (or the median, for 'rlm').",
+    'hinge_threshold': "it is the cut that turns a continuous response into "
+                       "the two classes a hinge loss separates; no other "
+                       "model classifies.",
+    'huber_t': "it is the residual, in units of the estimated scale, at which "
+               "Huber's loss switches from squared to linear; only the robust "
+               "fits have that switch.",
+    'lasso_n_boot': "it sizes the bootstrap that ranks features by SELECTION "
+                    "frequency, and only a penalty that sets coefficients to "
+                    "exactly zero selects anything - ridge keeps every "
+                    "feature, so its selection frequency is 1.0 by "
+                    "construction, and the likelihood fits are ranked by their "
+                    "own p-values.",
+    'lasso_selection_threshold': "it is the cut on that same selection "
+                                 "frequency, which only the sparse penalties "
+                                 "produce.",
+    'hinge_n_boot': "it sizes the bootstrap that stands in for the standard "
+                    "errors an SVM does not have; every other model reports "
+                    "its own inference.",
+}
+
+
 def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
-                     cov_type=None, weights=None):
+                     cov_type=None, weights=None, l1_ratio=0.5, quantile=0.5,
+                     hinge_threshold=None, huber_t=1.345, exposure=None):
     """Dispatch to the requested regression backend and return the fitted model.
 
-    Supports OLS, GLM (auto-family), explicit Poisson, beta, GLM-binomial
-    with logit/probit link (weighted by ``weights``), Lasso, Ridge and
-    mixed-effects.
-    Alpha is cross-validated when ``'auto'`` or ``None`` is supplied.
+    Every name in :data:`REGRESSION_TYPES` is fittable here, and every one of
+    them has a matching branch in :func:`process_model_coefficients`, so a
+    model that fits can always be turned into a coefficient table.
 
-    :param X: Design matrix.
+    The backends, and what each is for:
+
+    ================  ==========================================================
+    ``ols``           Ordinary least squares on a continuous well response.
+    ``wls``           Weighted least squares; ``weights`` is the well's cell
+                      count, so a well of 400 cells outweighs one of 30.
+    ``rlm``/``huber`` Robust M-estimation (Huber loss). For outlier-heavy
+                      wells: a handful of runaway wells no longer drag the fit.
+    ``glm``           GLM with the family auto-selected from the response by
+                      :func:`pick_glm_family_and_link`.
+    ``poisson``       Poisson GLM with a log link and ``offset(log(exposure))``,
+                      for per-well counts - so the coefficients are effects on
+                      the per-cell RATE, not on the well's headcount.
+    ``quasi_binomial`` Binomial GLM whose dispersion is estimated from the
+                      Pearson chi-square, for overdispersed fractions.
+    ``beta``          Beta regression, for a fraction strictly inside (0, 1).
+    ``logit``/``probit`` GLM-binomial on a fraction, weighted by cell count.
+    ``quantile``      Quantile regression at ``quantile``; fits the tail of the
+                      response rather than its mean.
+    ``mixed``         Mixed-effects linear model with ``groups`` as the random
+                      intercept.
+    ``lasso``/``ridge``/``elasticnet`` Penalised least squares.
+    ``hinge``         Linear SVM (hinge loss) on a binarised response.
+    ``horseshoe``     Sparse Poisson GLM with a horseshoe prior (spaCRPower's
+                      power-analysis model), via :mod:`spacr.power_model`.
+    ================  ==========================================================
+
+    Settings a backend cannot read are REFUSED, not ignored — see
+    :data:`REGRESSION_SETTINGS_USED`.
+
+    :param X: Design matrix (DataFrame; column names become feature names).
     :param y: Response variable.
-    :param regression_type: One of ``'ols'``, ``'glm'``, ``'beta'``,
-        ``'poisson'``, ``'logit'``, ``'probit'``, ``'lasso'``, ``'ridge'``,
-        ``'mixed'``.
+    :param regression_type: One of :data:`REGRESSION_TYPES`.
     :param groups: Cluster identifiers for the mixed model.
-    :param alpha: Regularisation strength; ``'auto'`` / ``None`` triggers
-        internal CV.
-    :param cov_type: Optional covariance type for OLS.
-    :param weights: Optional per-observation weights (used by
-        ``logit``/``probit`` via ``var_weights``).
+    :param alpha: Penalty weight for ``lasso``/``ridge``/``elasticnet`` and
+        the inverse SVM margin for ``hinge``; ``'auto'`` / ``None`` picks it by
+        5-fold cross-validation for all four (mean squared error for the
+        penalised least-squares three, balanced accuracy for ``hinge``).
+    :param cov_type: Covariance estimator for the likelihood fits
+        (``'HC0'``..``'HC3'``); ``None`` for classical standard errors.
+    :param weights: Per-observation weights - the well's cell count. Used as
+        ``var_weights`` by ``logit``/``probit``/``quasi_binomial`` and as the
+        WLS weights by ``wls``.
+    :param l1_ratio: ``elasticnet`` mix; 1.0 is lasso, 0.0 is ridge.
+    :param quantile: Quantile fitted by ``quantile`` regression, in (0, 1).
+    :param hinge_threshold: Cut used to binarise a continuous response for
+        ``hinge``; see :func:`binarise_response`.
+    :param huber_t: Huber tuning constant for ``rlm``/``huber``, in units of
+        the estimated residual scale. 1.345 gives 95% efficiency under
+        normality.
+    :param exposure: Per-observation exposure (the well's cell count) used as
+        ``offset(log(exposure))`` by ``horseshoe`` and by ``poisson`` (and by
+        ``glm`` when it auto-selects a Poisson family).
     :returns: Fitted statsmodels / sklearn estimator.
-    :raises ValueError: on unsupported ``regression_type``.
+    :raises ValueError: on an unsupported ``regression_type``, or when a
+        setting the chosen backend cannot read was set to a non-default value.
+
+    Example:
+        .. code-block:: python
+
+            import pandas as pd
+            X = pd.DataFrame({'Intercept': 1.0, 'fraction': [0.1, 0.5, 0.9]})
+            model = regression_model(X, pd.Series([0.2, 0.4, 0.7]), 'ols')
+            model.params['fraction']   # the recovered slope
     """
+    if regression_type in UNSUPPORTED_REGRESSION_TYPES:
+        raise ValueError(
+            f"Unsupported regression type {regression_type}: "
+            f"{UNSUPPORTED_REGRESSION_TYPES[regression_type]}")
+    if regression_type not in REGRESSION_TYPES:
+        raise ValueError(
+            f"Unsupported regression type {regression_type}. "
+            f"Supported types: {list(REGRESSION_TYPES)}")
+
+    y_flat = np.asarray(y, dtype=float).reshape(-1)
+    use_auto_alpha = alpha is None or (isinstance(alpha, str) and alpha == 'auto')
+
+    _reject_unused_settings(regression_type, {
+        # 'auto' and None mean "no penalty chosen, cross-validate it", which
+        # is not a value an unpenalised model is being asked to honour, so
+        # they count as the default here rather than as a request.
+        'alpha': (1.0 if use_auto_alpha else alpha, 1.0),
+        'l1_ratio': (l1_ratio, 0.5),
+        'cov_type': (cov_type, None),
+        'quantile': (quantile, 0.5),
+        'hinge_threshold': (hinge_threshold, None),
+        'huber_t': (huber_t, 1.345),
+    })
 
     def _find_best_alpha(model_cls):
         alphas = np.logspace(-5, 5, 100)
         if model_cls == 'lasso':
-            cv = LassoCV(alphas=alphas, cv=5, max_iter=10000).fit(X, np.asarray(y).ravel())
+            cv = LassoCV(alphas=alphas, cv=5, max_iter=10000).fit(X, y_flat)
         elif model_cls == 'ridge':
-            cv = RidgeCV(alphas=alphas, cv=5).fit(X, y)
+            cv = RidgeCV(alphas=alphas, cv=5).fit(X, y_flat)
+        elif model_cls == 'elasticnet':
+            cv = ElasticNetCV(alphas=alphas, l1_ratio=l1_ratio, cv=5,
+                              max_iter=10000).fit(X, y_flat)
         else:
             raise ValueError(f"_find_best_alpha called with unknown model_cls={model_cls!r}")
         print(f"Optimal alpha for {model_cls}: {cv.alpha_:.4g} "
-              f"(MSE: {mean_squared_error(y, cv.predict(X)):.4f})")
+              f"(MSE: {mean_squared_error(y_flat, cv.predict(X)):.4f})")
         return cv
 
-    def _glm_binomial(link=None):
+    def _glm_binomial(link=None, scale=None):
         family = sm.families.Binomial(link=link) if link else sm.families.Binomial()
         kwargs = {'family': family}
         if weights is not None:
             kwargs['var_weights'] = np.asarray(weights).ravel()
-        return sm.GLM(y, X, **kwargs).fit()
+        fit_kwargs = {}
+        if scale is not None:
+            fit_kwargs['scale'] = scale
+        if cov_type is not None:
+            fit_kwargs['cov_type'] = cov_type
+        return sm.GLM(y, X, **kwargs).fit(**fit_kwargs)
+
+    def _poisson_offset():
+        """``log(exposure)``, or None with a warning when there is no exposure.
+
+        A per-well POSITIVE COUNT is not comparable between wells of different
+        size: ``process_scores`` sums the response for the count models, so a
+        well of 2000 cells contributes roughly four times the count of a well
+        of 500 at the identical underlying rate. Modelling that count without
+        ``offset(log(Ntotal))`` asks the covariates to explain well size, and
+        any covariate correlated with it comes back as a hit. Measured on a
+        400-well simulation with a nuisance covariate that drives well size and
+        nothing else, and a true rate coefficient of +1.5: without the offset
+        the nuisance term came back at +1.88 with p = 0, ahead of the real
+        effect; with it, +0.002 with p = 0.90.
+
+        :returns: ``log(exposure)`` aligned with ``y``, or None.
+        :raises ValueError: when the exposure is not positive and finite —
+            ``log`` of it would be NaN/-inf and every downstream number would
+            silently follow.
+        """
+        if exposure is None:
+            print("Warning: no per-well cell count reached the Poisson fit, so "
+                  "it models the raw count with no offset(log(cell_count)). "
+                  "Wells of different size are then not comparable and any "
+                  "covariate correlated with well size will look like a hit. "
+                  "Run the scores through process_scores so each well carries "
+                  "its cell count.")
+            return None
+        n_total = np.asarray(exposure, dtype=float).ravel()
+        if n_total.size != np.asarray(y, dtype=float).reshape(-1).size:
+            raise ValueError(
+                f"the Poisson exposure has {n_total.size} entries but the "
+                f"response has {np.asarray(y).reshape(-1).size}; each well "
+                f"must carry its own cell count.")
+        if not np.isfinite(n_total).all() or np.any(n_total <= 0):
+            raise ValueError(
+                "the Poisson exposure is the well's cell count, so it must be "
+                f"finite and strictly positive; got "
+                f"{np.nanmin(n_total)}-{np.nanmax(n_total)}. A well with no "
+                f"cells has no rate to estimate and must be filtered out "
+                f"(min_cell_count) rather than offset by log(0).")
+        return np.log(n_total)
 
     def _glm_auto():
         family = pick_glm_family_and_link(y)
         if isinstance(family, sm.families.Poisson):
             _validate_poisson_response(y, X)
-        return sm.GLM(y, X, family=family).fit()
+            # Same exposure the explicit 'poisson' branch uses. A family chosen
+            # BY the data must be fitted the same way as one chosen by name, or
+            # 'glm' and 'poisson' silently disagree on the same response.
+            return sm.GLM(y, X, family=family, offset=_poisson_offset()).fit(
+                **({'cov_type': cov_type} if cov_type else {}))
+        kwargs = {'family': family}
+        if weights is not None and isinstance(family, sm.families.Binomial):
+            # A per-well fraction estimated from 30 cells and one estimated
+            # from 400 carry very different amounts of information, and the
+            # binomial variance function only knows that if it is told. Weight
+            # them exactly as the explicit 'logit'/'probit' branches do, and
+            # ONLY for the binomial families: var_weights on the Poisson or
+            # Gaussian branch would be re-weighting a response that already
+            # has the right variance.
+            kwargs['var_weights'] = np.asarray(weights).ravel()
+        return sm.GLM(y, X, **kwargs).fit(
+            **({'cov_type': cov_type} if cov_type else {}))
 
     def _glm_poisson():
         _validate_poisson_response(y, X)
         family = sm.families.Poisson(link=sm.families.links.Log())
-        return sm.GLM(y, X, family=family).fit()
+        # offset(log(cell_count)) turns the fit from "how many positive objects
+        # are in this well" into "what fraction of this well's cells are
+        # positive", which is the quantity the screen is about. See
+        # _poisson_offset for the measurement that made this non-optional.
+        return sm.GLM(y, X, family=family, offset=_poisson_offset()).fit(
+            **({'cov_type': cov_type} if cov_type else {}))
 
-    use_auto_alpha = alpha is None or (isinstance(alpha, str) and alpha == 'auto')
+    def _wls():
+        # WLS with unit weights IS OLS. Saying so is the point: a user who
+        # picks 'wls' on a table with no cell_count column would otherwise get
+        # an OLS fit labelled 'wls' in the results folder name, the volcano
+        # filename and the settings CSV, and nothing anywhere would disagree.
+        if weights is None:
+            raise ValueError(
+                "regression_type='wls' needs per-well weights, and no "
+                "'cell_count' column reached the model. Weighted least "
+                "squares with unit weights is exactly OLS, so spaCR will not "
+                "fit it under the 'wls' label. Use 'ols', or run the scores "
+                "through process_scores so each well carries its cell count.")
+        w = np.asarray(weights, dtype=float).ravel()
+        if not np.isfinite(w).all() or np.any(w <= 0):
+            raise ValueError(
+                "WLS weights must be finite and positive (they are per-well "
+                f"cell counts); got {np.nanmin(w)}-{np.nanmax(w)}.")
+        return sm.WLS(y, X, weights=w).fit(
+            **({'cov_type': cov_type} if cov_type else {}))
+
+    def _rlm():
+        # HuberT's t is in units of the ESTIMATED residual scale (MAD), not of
+        # y, so the same t means the same thing whatever the response units.
+        return sm.RLM(y, X, M=sm.robust.norms.HuberT(t=huber_t)).fit()
+
+    def _quantile():
+        if not 0.0 < float(quantile) < 1.0:
+            raise ValueError(
+                f"quantile must lie strictly inside (0, 1); got {quantile!r}. "
+                f"0.5 is the median fit.")
+        return sm.QuantReg(y, X).fit(q=float(quantile))
+
+    def _hinge():
+        y_binary = binarise_response(y, hinge_threshold,
+                                     name='dependent variable')
+        # LinearSVC minimises C * sum(hinge) + 0.5 * ||w||^2, so its C is the
+        # INVERSE of a regularisation strength. Mapping alpha -> 1/alpha keeps
+        # "larger alpha shrinks harder" true across every penalised backend;
+        # without it, alpha would mean the opposite here than it does for
+        # lasso and ridge, on the same settings key.
+        if use_auto_alpha:
+            # alpha='auto' means "choose the penalty by cross-validation" for
+            # lasso, ridge and elasticnet, and it has to mean the same thing
+            # here. It used to mean C = 1: 'auto' and alpha=1.0 produced
+            # byte-identical coefficients, so a user who asked for a
+            # cross-validated margin got an arbitrary fixed one under a label
+            # that says otherwise.
+            return _find_best_hinge_alpha(y_binary)
+        strength = float(alpha)
+        if strength <= 0:
+            raise ValueError(
+                f"alpha must be positive for hinge regression; got {alpha!r}.")
+        model = _hinge_estimator(strength)
+        model.fit(X, y_binary)
+        return model
+
+    def _hinge_estimator(strength):
+        """A LinearSVC at regularisation ``strength`` (``C = 1 / strength``).
+
+        ``class_weight='balanced'`` because a screen's positive class is
+        routinely a small minority of wells: an unweighted hinge on a 95/5
+        split minimises its loss by calling every well negative, which returns
+        a coefficient vector of ~0 for every gRNA and reads downstream as "no
+        hits". Balancing reweights each class by its inverse frequency, so the
+        decision boundary is fitted to separate the classes rather than to
+        count them.
+        """
+        return LinearSVC(C=1.0 / strength, loss='hinge', dual=True,
+                         max_iter=20000, random_state=0,
+                         class_weight='balanced')
+
+    def _find_best_hinge_alpha(y_binary):
+        """Pick the hinge penalty by stratified CV on balanced accuracy.
+
+        The same 5-fold shape ``_find_best_alpha`` uses for the penalised
+        least-squares backends. Balanced accuracy rather than accuracy: on an
+        imbalanced screen plain accuracy is maximised by the degenerate
+        all-negative fit, so scoring on it would cross-validate its way to the
+        very failure ``class_weight='balanced'`` exists to prevent.
+
+        Falls back to the unpenalised-scale default ``C = 1`` when the response
+        has too few wells in a class to split five ways — a two-fold CV on
+        three positive wells is noise, and choosing a penalty from noise is
+        worse than not choosing one.
+        """
+        from sklearn.model_selection import cross_val_score
+
+        strengths = np.logspace(-3, 3, 13)
+        minority = int(min(np.sum(y_binary == 0), np.sum(y_binary == 1)))
+        n_splits = min(5, minority)
+        if n_splits < 2:
+            print(f"hinge: alpha='auto' needs at least two wells in each "
+                  f"class to cross-validate and the smaller class has "
+                  f"{minority}; falling back to alpha=1.")
+            model = _hinge_estimator(1.0)
+            model.fit(X, y_binary)
+            return model
+
+        folds = StratifiedKFold(n_splits=n_splits, shuffle=True,
+                                random_state=0)
+        scores = []
+        for strength in strengths:
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore')
+                fold_scores = cross_val_score(
+                    _hinge_estimator(strength), X, y_binary, cv=folds,
+                    scoring='balanced_accuracy')
+            scores.append(float(np.mean(fold_scores)))
+        # Ties go to the STRONGER penalty (the larger alpha): among margins
+        # that separate the held-out wells equally well, the one that shrinks
+        # hardest is the one that generalises, and argmax on a raw list would
+        # instead take the weakest.
+        best = float(strengths[len(strengths) - 1
+                               - int(np.argmax(scores[::-1]))])
+        print(f"Optimal alpha for hinge: {best:.4g} "
+              f"(balanced accuracy {max(scores):.4f}, {n_splits}-fold)")
+        model = _hinge_estimator(best)
+        model.fit(X, y_binary)
+        return model
+
+    def _horseshoe():
+        return _fit_horseshoe_poisson(X, y, exposure)
 
     model_map = {
         'ols':    lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
+        'wls':    _wls,
+        'rlm':    _rlm,
+        'huber':  _rlm,
         'glm':    _glm_auto,
         'poisson': _glm_poisson,
+        # Quasi-binomial is a binomial mean with a free dispersion. statsmodels
+        # spells that as scale='X2' (dispersion from the Pearson chi-square) on
+        # a Binomial family, which is what widens the standard errors; the
+        # QuasiBinomial family above takes a dispersion the caller already
+        # knows and is not what an overdispersed screen needs.
+        'quasi_binomial': lambda: _glm_binomial(link=sm.families.links.Logit(),
+                                                scale='X2'),
         'beta':   lambda: BetaModel(endog=y, exog=X).fit(),
         # logit and probit on a CONTINUOUS fraction y are routed through GLM-Binomial
         # with var_weights = cell_count. sm.Logit / sm.Probit require binary y.
         'logit':  lambda: _glm_binomial(link=sm.families.links.Logit()),
         'probit': lambda: _glm_binomial(link=sm.families.links.probit()),
+        'quantile': _quantile,
+        'mixed':  lambda: perform_mixed_model(y, X, groups),
         'lasso':  lambda: _find_best_alpha('lasso') if use_auto_alpha
-                          else Lasso(alpha=alpha, max_iter=10000).fit(X, np.asarray(y).ravel()),
+                          else Lasso(alpha=alpha, max_iter=10000).fit(X, y_flat),
         'ridge':  lambda: _find_best_alpha('ridge') if use_auto_alpha
-                          else Ridge(alpha=alpha).fit(X, y),
+                          else Ridge(alpha=alpha).fit(X, y_flat),
+        'elasticnet': lambda: _find_best_alpha('elasticnet') if use_auto_alpha
+                          else ElasticNet(alpha=alpha, l1_ratio=l1_ratio,
+                                          max_iter=10000).fit(X, y_flat),
+        'hinge':  _hinge,
+        'horseshoe': _horseshoe,
     }
 
-    if regression_type in model_map:
-        model = model_map[regression_type]()
-    elif regression_type == 'mixed':
-        model = perform_mixed_model(y, X, groups, alpha=alpha)
-    else:
-        raise ValueError(f"Unsupported regression type {regression_type}")
+    model = model_map[regression_type]()
 
     if regression_type in ['glm', 'poisson']:
         llf_model = model.llf
@@ -796,17 +1686,366 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         print(f"McFadden's R²: {1 - (llf_model / llf_null):.4f}")
         print(model.summary())
 
-    if regression_type in ['lasso', 'ridge']:
-        mse = mean_squared_error(y, model.predict(X))
-        n_nonzero = int(np.sum(np.asarray(model.coef_).ravel() != 0))
+    if regression_type in ['lasso', 'ridge', 'elasticnet']:
+        mse = mean_squared_error(y_flat, model.predict(X))
+        coefs = np.asarray(model.coef_).ravel()
+        n_nonzero = int(np.sum(coefs != 0))
         print(f"{regression_type.capitalize()} regression MSE: {mse:.4f}, "
               f"non-zero coefficients: {n_nonzero} of {X.shape[1]}")
+        if n_nonzero == 0:
+            # Every coefficient shrunk to exactly zero is not a finding, it is
+            # a penalty set too high for the scale of this design - and it
+            # reaches the user as "0 significant gRNAs", which is
+            # indistinguishable from a screen with no hits. The default
+            # alpha=1 does this to a fraction-scale design every time.
+            if use_auto_alpha:
+                # The penalty was not mis-set, it was CHOSEN: cross-validation
+                # preferred the empty model to every non-empty one it tried, so
+                # no gRNA predicted the held-out wells better than the mean did.
+                # Telling this user to "set alpha to 'auto'" - which the old
+                # message did, unconditionally - is telling them to do the
+                # thing they just did.
+                raise ValueError(
+                    f"{regression_type} with alpha='auto' cross-validated its "
+                    f"way to the empty model: every one of the "
+                    f"{X.shape[1]} coefficients is exactly zero, because no "
+                    f"gRNA predicted the held-out wells better than their mean "
+                    f"did. That is a null screen, not a misconfiguration - the "
+                    f"fit is refused rather than written out as '0 significant "
+                    f"gRNAs', which is what it would look like. Check the "
+                    f"dependent variable and the aggregation, or fit an "
+                    f"unpenalised model ('ols') to see the effect sizes the "
+                    f"penalty is shrinking away.")
+            raise ValueError(
+                f"{regression_type} shrank all {X.shape[1]} coefficients to "
+                f"exactly zero at alpha={alpha!r}: the penalty is far larger "
+                f"than the scale of this design, so the fit carries no "
+                f"information about any gRNA. Lower alpha, or set it to "
+                f"'auto' to choose it by cross-validation.")
 
     return model
 
+
+def _fit_horseshoe_poisson(X, y, exposure):
+    """Fit spaCRPower's sparse Poisson model through :mod:`spacr.power_model`.
+
+    The model is the one ``spaCRPower/R/fit_model.R`` fits::
+
+        Npositive_w ~ Poisson(Ntotal_w * exp(b0 + sum_g b_g * log10expression_wg))
+        b_g ~ horseshoe(df = 10)
+
+    i.e. a Poisson GLM with a log link, an ``offset(log(Ntotal))`` exposure and
+    a horseshoe sparsity prior doing the variable selection. In spaCR's terms
+    ``y`` is the per-well positive-object count (``process_scores`` sums the
+    response for this type, as it does for ``'poisson'``), ``exposure`` is the
+    well's cell count and ``X`` is the ordinary spaCR design.
+
+    The import is deliberately lazy and inside the branch: the horseshoe
+    fitter is a separate module, and neither the ordinary regressions nor
+    anything else that imports :mod:`spacr.ml` should pay for it or fail
+    without it.
+
+    :param X: Design matrix.
+    :param y: Per-well positive counts.
+    :param exposure: Per-well total cell counts (the Poisson exposure).
+    :returns: The fitted object returned by
+        ``spacr.power_model.fit_horseshoe_poisson``, which must expose
+        ``params`` and either ``pvalues`` or ``bse`` indexed like
+        ``X.columns``.
+    :raises ImportError: when :mod:`spacr.power_model` is not installed yet,
+        naming the entry point this branch calls.
+    :raises ValueError: when no exposure is available, or the returned object
+        does not carry the coefficients this pipeline needs.
+    """
+    if exposure is None:
+        raise ValueError(
+            "regression_type='horseshoe' fits Npositive ~ ... + "
+            "offset(log(Ntotal)), so it needs the per-well cell count as the "
+            "exposure, and no 'cell_count' column reached the model. Without "
+            "it the counts of a 400-cell well and a 30-cell well would be "
+            "compared as if the wells were the same size.")
+    try:
+        from .power_model import ModelData, fit_model, gather_model_estimate
+    except ImportError as exc:
+        raise ImportError(
+            "regression_type='horseshoe' needs spacr.power_model, which is "
+            "not present in this install. The branch calls "
+            "spacr.power_model.prepare/ModelData + fit_model + "
+            "gather_model_estimate; install or restore that module to use it."
+        ) from exc
+
+    counts = _validate_poisson_response(y, X)
+    n_total = np.asarray(exposure, dtype=float).ravel()
+    if n_total.size != counts.size:
+        raise ValueError(
+            f"horseshoe exposure has {n_total.size} entries but the response "
+            f"has {counts.size}; they are the same wells and must align.")
+    if not np.isfinite(n_total).all() or np.any(n_total <= 0):
+        raise ValueError(
+            "horseshoe exposure (the well cell count) must be finite and "
+            f"positive; got {np.nanmin(n_total)}-{np.nanmax(n_total)}. "
+            "log(Ntotal) is undefined otherwise.")
+    if np.any(counts > n_total):
+        raise ValueError(
+            "horseshoe needs Npositive <= Ntotal per well: the response is a "
+            "count of positive objects and the exposure is how many objects "
+            "were imaged, so a well cannot have more positives than cells. "
+            f"{int(np.sum(counts > n_total))} well(s) break that.")
+
+    design = np.asarray(X, dtype=float)
+    columns = [str(c) for c in X.columns]
+    # A constant column - patsy's Intercept - is confounded with the model's
+    # own intercept term, which power_model fits separately. Naming it here is
+    # what makes power_model return NaN for it rather than a shrunk-to-zero
+    # coefficient that reads as "this term was tested and found null".
+    constant = [name for name, column in zip(columns, design.T)
+                if np.ptp(column) == 0]
+
+    model_data = ModelData(
+        wells=np.asarray(X.index),
+        genes=np.asarray(columns, dtype=object),
+        Npositive=counts,
+        Ntotal=n_total,
+        log10expression=design,
+        unidentified_genes=tuple(constant),
+    )
+    # standardize=True, unlike power_model's own default. The horseshoe's
+    # global scale is calibrated for spaCRPower's log10 read fraction, which
+    # has a spread of about 1; spaCR's design is gRNA FRACTIONS, whose columns
+    # have standard deviations around 0.05, and on that scale the prior
+    # shrinks every coefficient to ~1e-4 and separates nothing. Scaling each
+    # column to unit SD is what makes the shrinkage comparable across terms -
+    # which is the entire point of the model - at the cost that beta is then
+    # "per standard deviation of that gRNA's fraction", not per unit.
+    fit = fit_model(model_data, seed=0, standardize=True)
+    return _HorseshoeResults(fit, gather_model_estimate(fit))
+
+
+class _HorseshoeResults:
+    """Adapt a :class:`spacr.power_model.PowerFit` to the results API spaCR reads.
+
+    :func:`process_model_coefficients` wants ``params`` and ``pvalues``
+    indexed by design column; the horseshoe model reports posterior draws.
+    The translation is stated rather than implied:
+
+    * ``params`` is the posterior MEAN of each coefficient - a point estimate
+      under shrinkage, not a maximum-likelihood one, so it is already pulled
+      towards zero for terms the prior judges null. That is the whole purpose
+      of the model and the reason its coefficients are not comparable in
+      magnitude with the OLS ones.
+    * ``pvalues`` is the two-sided posterior TAIL MASS,
+      ``2 * min(P(beta > 0), P(beta < 0))``. It is not a frequentist p-value
+      and no null hypothesis was tested to get it; it is reported under that
+      name because every consumer downstream - the volcano plot, the hit
+      table, ``-log10(p_value)`` - reads that column and would otherwise be
+      given nothing. A term whose posterior sits entirely on one side of zero
+      gets 0.
+    * Unidentified terms (a constant column, or a gRNA present in every well
+      at the same fraction) are DROPPED rather than reported as zero: the
+      model could not estimate them, and a zero with a p-value would read as
+      a tested null.
+
+    :param fit: the ``PowerFit`` returned by ``power_model.fit_model``.
+    :param estimates: the frame ``power_model.gather_model_estimate`` builds.
+    """
+
+    def __init__(self, fit, estimates):
+        required = ('gene', 'mean', 'sd', 'prob_positive', 'identified')
+        missing = [c for c in required if c not in estimates.columns]
+        if missing:
+            # power_model is a separate module with its own release cadence;
+            # a renamed column must stop the run here, where it can be named,
+            # rather than surface as a KeyError from inside pandas.
+            raise ValueError(
+                f"spacr.power_model.gather_model_estimate returned columns "
+                f"{list(estimates.columns)}; spaCR's coefficient table needs "
+                f"{list(required)} and {missing} are absent.")
+        self.fit = fit
+        self.estimates = estimates
+        identified = estimates[estimates['identified'].astype(bool)]
+        index = pd.Index(identified['gene'].astype(str), name=None)
+        self.params = pd.Series(identified['mean'].to_numpy(), index=index)
+        self.bse = pd.Series(identified['sd'].to_numpy(), index=index)
+        prob_positive = identified['prob_positive'].to_numpy(dtype=float)
+        tail = 2.0 * np.minimum(prob_positive, 1.0 - prob_positive)
+        self.pvalues = pd.Series(np.clip(tail, 0.0, 1.0), index=index)
+        self.converged = bool(getattr(fit, 'converged', True))
+        if not self.converged:
+            print("Warning: the horseshoe fit did not meet its own "
+                  "convergence criterion; treat the coefficients as "
+                  "provisional and re-run with more steps or a NUTS backend.")
+
+    def summary(self):
+        """Return the per-term posterior summary, for save_summary_to_file."""
+        return self.estimates
+
+#: Regression types ``random_row_column_effects=True`` may be combined with.
+#: ``'ols'`` is here because it is the DEFAULT value of ``regression_type``, so
+#: it cannot be told apart from "the user never touched the model dropdown";
+#: ``None`` means "choose from the response", which the mixed branch answers.
+#: Every other name is a deliberate choice that the mixed override would throw
+#: away.
+_RANDOM_EFFECTS_COMPATIBLE = (None, 'ols', 'mixed')
+
+
+#: Defaults for the run-level settings, matched to
+#: ``get_perform_regression_default_settings``. A value equal to its default is
+#: "the panel posted it", not "the user asked for it" — the same rule
+#: :func:`_reject_unused_settings` uses for the model knobs.
+_RUN_LEVEL_DEFAULTS = {
+    'lasso_n_boot': 200,
+    'lasso_selection_threshold': 0.6,
+    'hinge_n_boot': 200,
+}
+
+
+def _reject_unused_run_settings(settings):
+    """Refuse a post-fit setting the chosen model will never read.
+
+    :func:`regression_model` polices the six knobs that reach the estimator,
+    and raises before a wrong number can become a result. These three do not
+    reach the estimator at all — they configure how :func:`perform_regression`
+    turns coefficients into a hit list — so nothing was checking them, and
+    ``lasso_selection_threshold=0.9`` on an OLS run passed through fifteen of
+    the seventeen types in silence.
+
+    ``regression_type=None`` is policed as strictly as a named one:
+    :func:`check_distribution` only ever auto-selects ``logit``, ``beta``,
+    ``quasi_binomial``, ``ols`` or ``glm``, none of which reads any of these,
+    so "it might pick lasso" is not a reason to let them through.
+
+    :param settings: The finished settings dict.
+    :raises ValueError: naming the setting, the type and the alternative.
+    """
+    reg_type = settings.get('regression_type', 'ols')
+    _reject_unused_settings(reg_type, {
+        name: (settings.get(name, default), default)
+        for name, default in _RUN_LEVEL_DEFAULTS.items()})
+    return settings
+
+
+def _reconcile_random_row_column_effects(settings):
+    """Make ``random_row_column_effects=True`` and ``regression_type`` agree.
+
+    :func:`regression` reacts to the flag by fitting a MixedLM with row and
+    column variance components, whatever ``regression_type`` says — and
+    ``_perform_regression_set_paths`` had already named the results folder
+    after ``settings['regression_type']``. A run configured as ``'lasso'`` with
+    the flag on therefore fitted a mixed model and wrote it to
+    ``results/<screen>/lasso/``, where nothing in the folder, the volcano
+    filename or the settings CSV disagreed. Every penalty setting that run
+    carried was ignored too, silently, because the mixed branch never reaches
+    :func:`regression_model` and so never reaches
+    :func:`_reject_unused_settings`.
+
+    Two things happen here, both before any file is written:
+
+    * an incompatible model choice is REFUSED, naming both settings;
+    * a compatible one is rewritten to ``'mixed'`` in ``settings``, so the
+      folder, the volcano filename and the saved settings all name the model
+      that was actually fitted.
+
+    :param settings: The finished settings dict; mutated in place.
+    :raises ValueError: when the flag is combined with a named model that is
+        not a mixed model, or with a setting the mixed model cannot read.
+    """
+    if not settings.get('random_row_column_effects', False):
+        return settings
+
+    reg_type = settings.get('regression_type', 'ols')
+    if reg_type not in _RANDOM_EFFECTS_COMPATIBLE:
+        raise ValueError(
+            f"random_row_column_effects=True fits a mixed model with row and "
+            f"column variance components, so it cannot also fit "
+            f"regression_type={reg_type!r}: one of the two has to go. It used "
+            f"to win silently, and the {reg_type!r} settings went with it — "
+            f"the run wrote a MixedLM fit into results/<screen>/{reg_type}/ "
+            f"and said nothing. Set random_row_column_effects=False to fit "
+            f"{reg_type!r}, or regression_type='mixed' to fit the mixed model.")
+
+    # The mixed branch reads none of the per-model knobs, so any of them set
+    # away from its default is a request nothing will honour. Same seam, same
+    # message shape, as the fixed-effects path.
+    _reject_unused_settings('mixed', {
+        'alpha': (1.0 if settings.get('alpha') in (None, 'auto')
+                  else settings.get('alpha', 1.0), 1.0),
+        'l1_ratio': (settings.get('l1_ratio', 0.5), 0.5),
+        'cov_type': (settings.get('cov_type'), None),
+        'quantile': (settings.get('quantile', 0.5), 0.5),
+        'hinge_threshold': (settings.get('hinge_threshold'), None),
+        'huber_t': (settings.get('huber_t', 1.345), 1.345),
+    })
+
+    if reg_type != 'mixed':
+        print(f"random_row_column_effects=True: fitting 'mixed' rather than "
+              f"{reg_type!r}, and naming the results folder for it.")
+    settings['regression_type'] = 'mixed'
+    return settings
+
+
+def _mixed_model_groups(df, dependent_variable, model_index):
+    """Return the random-intercept grouping for ``regression_type='mixed'``.
+
+    The cluster is the PLATE, always. A random intercept has to sit at a level
+    ABOVE the unit the covariates vary at, and in this design the covariates
+    (``fraction``, ``gene_fraction``) are properties of the WELL. Grouping on
+    the well therefore asks the model to explain a well-level covariate with a
+    well-level random intercept, and the answer it gives is zero - which is
+    what ``groups = df['prc']`` did, silently, on every mixed run:
+
+    * with an aggregated response there is one value per well, so the random
+      intercept is exactly confounded with the residual and every fixed effect
+      came back at ~1e-11 with p ~ 1;
+    * with ``agg_type=None`` the frame is the CROSS PRODUCT of the well's
+      gRNAs with the well's cells, so a well does have several response
+      values - but its within-well variation in ``fraction:grna`` is an
+      artefact of that cross product and carries no signal about the
+      response. A well-level random intercept makes GLS weight exactly that
+      artefact (1/sigma_e^2) far above the between-well contrasts that hold
+      the biology (1/(sigma_u^2 + sigma_e^2/n)), and the fixed effects are
+      dragged to zero again. Measured on a 96-well synthetic screen with a
+      planted +0.45 gene effect: OLS recovered 0.31, the well-grouped mixed
+      model returned 0.003 with p = 0.79.
+
+    Both failures WROTE results.csv and neither said anything.
+
+    A single plate leaves one cluster, which is not a random effect at all, so
+    that case is refused rather than fitted.
+
+    :param df: The cleaned long-format frame.
+    :param dependent_variable: Response column name, named in the refusal so
+        the message points at the run the user actually configured.
+    :param model_index: Row index patsy kept, so the returned vector aligns
+        with the design matrix row for row.
+    :returns: Series of plate ids, one per design row.
+    :raises ValueError: when the screen has a single plate, naming the three
+        ways out.
+    """
+    plates = df.loc[model_index, 'plateID']
+    n_plates = plates.nunique()
+    if n_plates > 1:
+        print(f"Mixed model: grouping on plateID ({n_plates} plates). Wells "
+              f"are the unit the gRNA fractions vary at, so the plate is the "
+              f"level a random intercept can describe.")
+        return plates
+
+    raise ValueError(
+        f"a mixed model needs at least two clusters and this screen has one "
+        f"plate. The random intercept has to sit above the well - the well is "
+        f"where 'fraction' and 'gene_fraction' vary - so with a single plate "
+        f"there is nothing left for it to describe, and it would return a "
+        f"coefficient of zero for every gRNA against "
+        f"{dependent_variable!r}. Either set random_row_column_effects=True, "
+        f"which fits row and column variance components and is the mixed "
+        f"model a one-plate screen supports; or pass every plate of the "
+        f"experiment in score_data/count_data so the plate effect has "
+        f"something to vary against; or use 'ols' with cov_type='HC3'.")
+
+
 def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0,
                random_row_column_effects=False, nc='233460', pc='220950', controls=None,
-               dst=None, cov_type=None, plot=False):
+               dst=None, cov_type=None, plot=False, l1_ratio=0.5, quantile=0.5,
+               hinge_threshold=None, hinge_n_boot=200, huber_t=1.345):
     """Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.
 
     :param df: Long-format DataFrame with gRNA/gene fractions and the
@@ -823,8 +2062,13 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     :param pc: Positive-control gene identifier. Default ``'220950'``.
     :param controls: Explicit list of control identifiers.
     :param dst: Output directory for plots and summaries.
-    :param cov_type: Optional OLS covariance type.
+    :param cov_type: Optional covariance estimator for the likelihood fits.
     :param plot: If True, render the volcano plot after fitting.
+    :param l1_ratio: ``elasticnet`` L1/L2 mix.
+    :param quantile: Quantile fitted by ``quantile`` regression.
+    :param hinge_threshold: Response cut used to binarise for ``hinge``.
+    :param hinge_n_boot: Bootstrap resamples behind the hinge p-values.
+    :param huber_t: Huber tuning constant for ``rlm``/``huber``.
     :returns: ``(model, coef_df, regression_type)``.
     """
 
@@ -832,7 +2076,13 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         controls = ['']
     from .plot import volcano_plot, plot_histogram
 
-    volcano_path = create_volcano_filename(csv_path, regression_type, alpha, dst)
+    # create_volcano_filename names a quantile run by the quantile it fitted
+    # rather than by the model name, because two quantiles of the same screen
+    # are two different results that must not overwrite each other. That used
+    # to be alpha, which is no longer the quantile.
+    volcano_path = create_volcano_filename(
+        csv_path, regression_type,
+        quantile if regression_type == 'quantile' else alpha, dst)
 
     if regression_type is None:
         regression_type = check_distribution(df[dependent_variable])
@@ -849,27 +2099,38 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     else:
         formula = prepare_formula(dependent_variable, random_row_column_effects=False)
         y, X = dmatrices(formula, data=df, return_type='dataframe')
-        # Rows patsy actually kept, captured before any scaling: scale_variables
-        # returns a RangeIndex-ed X and a bare ndarray y, so y.index no longer
-        # exists by the time the weights below are built.
+        # Rows patsy actually kept. Every per-row vector handed to the model
+        # below - weights, groups, exposure - is taken through this index, so
+        # a row patsy dropped (a NaN predictor) cannot shift the rest by one.
         model_index = y.index
 
         plot_histogram(y, dependent_variable, dst=dst)
         plot_histogram(df, 'fraction', dst=dst)
 
-        # Skip MinMax scaling for any model whose interpretation depends on the
-        # original scale (bounded responses, GLM links) or whose design matrix is
-        # already 0/1 from one-hot categorical predictors (lasso, ridge).
-        if regression_type in ['beta', 'quasi_binomial', 'logit', 'probit',
-                               'poisson', 'lasso', 'ridge']:
-            print('Data will not be scaled')
-        else:
-            X, y = scale_variables(X, y)
+        # No scaling, for any type. The design this pipeline builds is
+        # `fraction:grna + gene_fraction:gene + rowID + columnID`: dummies and
+        # fractions, already on one common [0, 1] scale, so there is nothing
+        # for a scaler to put on a common footing. What MinMax scaling DID do
+        # was divide each gRNA's column by that gRNA's own maximum fraction,
+        # which rescales its coefficient by a different constant per feature -
+        # and the volcano plot then ranks gRNAs against each other on those
+        # coefficients. It also zeroed the intercept column outright (see
+        # scale_variables), fitting every unscaled-exempt model through the
+        # origin. The exemption list this replaces named lasso and ridge as
+        # "already 0/1 from one-hot categorical predictors", which is the
+        # right reason - it is just as true of every other type here.
+        #
+        # scale_variables stays public and correct for callers that scale
+        # their own designs; this pipeline no longer needs it.
+        print('Data will not be scaled: the design is fractions and dummies '
+              'on one common scale, and scaling it per column would rescale '
+              'each gRNA coefficient by a different constant.')
 
-        # Cell count weights for GLM-Binomial (logit, probit). For other models
-        # this is ignored.
+        # Per-well cell counts: var_weights for the binomial links, the WLS
+        # weights, and the Poisson exposure for the horseshoe model.
         weights = df['cell_count'].loc[model_index] if 'cell_count' in df.columns else None
-        groups = df['prc'] if regression_type == 'mixed' else None
+        groups = (_mixed_model_groups(df, dependent_variable, model_index)
+                  if regression_type == 'mixed' else None)
 
         print(f'Performing {regression_type} regression')
         model = regression_model(
@@ -879,9 +2140,16 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             alpha=alpha,
             cov_type=cov_type,
             weights=weights,
+            l1_ratio=l1_ratio,
+            quantile=quantile,
+            hinge_threshold=hinge_threshold,
+            huber_t=huber_t,
+            exposure=weights,
         )
 
-        coef_df = process_model_coefficients(model, regression_type, X, y, nc, pc, controls)
+        coef_df = process_model_coefficients(
+            model, regression_type, X, y, nc, pc, controls,
+            hinge_threshold=hinge_threshold, hinge_n_boot=hinge_n_boot)
         display(coef_df)
 
     if plot:
@@ -915,6 +2183,175 @@ def save_summary_to_file(model, file_path='summary.csv'):
     with open(file_path, 'w') as f:
         f.write(summary_str)
 
+
+def _split_prc(text):
+    """Return ``(plateID, rowID, columnID)`` for one ``prc`` well key.
+
+    Parsed **right to left**, for exactly the reason
+    :func:`spacr.schema.parse_prcf` is: the plate id is the only component
+    that may itself contain the key separator, and it is the leftmost one.
+
+    Three sites in this module used to spell this as
+
+    .. code-block:: python
+
+        df[['plateID', 'rowID', 'columnID']] = df['prc'].str.split('_', expand=True)
+
+    which has two failure modes on a plate called ``'exp1_plate1'``, and the
+    second one is silent:
+
+    * when every row carries the extra underscore the split returns four
+      columns against three keys and pandas raises ``ValueError: Columns must
+      be same length as key`` — in :func:`perform_regression` that lands
+      inside the ``try`` that writes the QC CSVs, so ``grna_well.csv`` and
+      ``well_grna.csv`` were simply never written and the only trace was a
+      bare ``print(e)``;
+    * when only *some* plates carry it the split still returns four columns,
+      so ``columnID`` is filled with the **row** token for every well of every
+      other plate and the per-well QC counts are grouped on nonsense.
+
+    Tokens are returned exactly as they appear — nothing is canonicalised,
+    because the caller rebuilds ``prc`` from these columns and a rewritten
+    token would change the identity rows are joined on.
+
+    **Four components are not automatically an underscored plate.** A key with
+    more than three components is one of two things, and they mean opposite
+    things:
+
+    * ``'exp1_plate1_r2_c12'`` — a plate id that contains the separator. The
+      right-to-left rule handles it, and that is the case this function
+      exists for.
+    * ``'plate1_r1_c1_f1'`` — a ``prcf`` (or ``prcfo``) handed to the
+      function that takes a ``prc``. That is a *caller* bug, and the old
+      positional ``str.split`` at least failed loudly on it (``ValueError:
+      Columns must be same length as key``). Absorbing it right to left would
+      return ``('plate1_r1', 'c1', 'f1')`` — a field id in the ``columnID``
+      slot and half the well in the plate — and every per-well count grouped
+      on that is a plausible wrong number with nothing anywhere saying so.
+
+    The two are told apart by the trailing pair: a ``prc``'s last two tokens
+    are a row and a column, and the tokens spaCR writes for those are
+    ``r<N>``/row letters and ``c<N>``/digits (or the equal-valued positional
+    passthrough :func:`spacr.schema.is_positional_pair` describes). A
+    ``prcf``'s trailing pair is ``(column, field)`` and a ``prcfo``'s is
+    ``(field, object)``; neither can pass that test, because a ``columnID``
+    is never ``'f1'`` and a ``rowID`` is never ``'c1'``. Anything else with
+    more than three components is refused rather than guessed at — the
+    ambiguous case fails loudly, exactly as it did before.
+
+    A three-component key is accepted whatever its tokens look like, which is
+    what the ``str.split`` this replaces did, so no key that used to parse
+    stops parsing.
+
+    :param text: a ``prc`` key, e.g. ``'plate1_r1_c1'``.
+    :returns: ``(plateID, rowID, columnID)``.
+    :raises spacr.schema.KeyParseError: when ``text`` has fewer than three
+        components, i.e. it is not a well key at all, or when it has more
+        than three and the trailing pair is not a row and a column.
+    """
+    key = str(text).strip()
+    parts = key.split(schema.KEY_SEPARATOR)
+    if len(parts) < 3:
+        raise schema.KeyParseError(
+            f'{text!r} is not a prc: expected plate_row_column, got '
+            f'{len(parts)} component(s).')
+    plate = schema.KEY_SEPARATOR.join(parts[:-2])
+    row, column = parts[-2], parts[-1]
+    if not plate.strip():
+        raise schema.KeyParseError(
+            f'{text!r} is not a prc: it has no plate.')
+    if not row.strip() or not column.strip():
+        # An empty row or column is not a missing token, it is a key every
+        # well of the plate shares: group on it and the wells merge.
+        raise schema.KeyParseError(
+            f'{text!r} is not a prc: its row is {row!r} and its column is '
+            f'{column!r}, and an empty one identifies no well — every well of '
+            f'{plate!r} would be grouped together.')
+    if len(parts) > 3 and not _is_row_column_pair(row, column):
+        raise schema.KeyParseError(
+            f'{text!r} is not a prc: it has {len(parts)} components and its '
+            f'last two, {row!r} and {column!r}, are not a row and a column. '
+            f'{_name_deeper_key(parts)}'
+            f'If this really is a plate id containing '
+            f'{schema.KEY_SEPARATOR!r}, its row and column must be written '
+            f'the way spaCR writes them (r<N>/letters and c<N>/digits) for '
+            f'the plate to be separable from them.')
+    return plate, row, column
+
+
+def _is_row_column_pair(row, column):
+    """True when ``(row, column)`` is recognisably a well's row and column.
+
+    Deliberately narrow: it is the guard that stops :func:`_split_prc` from
+    absorbing a ``prcf`` into an underscored plate id, so it must reject a
+    ``(columnID, fieldID)`` pair and a ``(fieldID, objectID)`` pair.
+
+    :param row: candidate ``rowID`` token.
+    :param column: candidate ``columnID`` token.
+    :returns: whether the pair can be a row and a column.
+    """
+    row_text, column_text = str(row).strip(), str(column).strip()
+    if not row_text or not column_text:
+        return False
+    if schema.is_positional_pair(row_text, column_text):
+        # parse_well puts an unrecognisable well into both slots verbatim, so
+        # an equal unprefixed pair is that passthrough and not a prcf tail
+        # (a field never equals the column it sits in).
+        return True
+    if row_text[:1].lower() == schema.KEY_PREFIXES[schema.ROW_KEY]:
+        row_ok = schema.row_index(row_text) is not None
+    else:
+        row_ok = schema.row_index_from_letters(row_text) is not None
+    if not row_ok:
+        return False
+    if column_text[:1].lower() == schema.KEY_PREFIXES[schema.COLUMN_KEY]:
+        return schema.column_index(column_text) is not None
+    return column_text.isdigit()
+
+
+def _name_deeper_key(parts):
+    """Return a sentence naming the deeper key ``parts`` looks like, or ''.
+
+    Split out of :func:`_split_prc` only so the error it raises can say
+    *which* mistake was made instead of describing the shape and leaving the
+    caller to work it out.
+
+    :param parts: the separator-split components of the rejected key.
+    :returns: a sentence ending in a space, or ``''`` when the key does not
+        look like a ``prcf`` / ``prcfo`` / timepoint key.
+    """
+    tail = parts[-1]
+    if schema.object_index(tail) is not None and len(parts) >= 5:
+        return ('That is a prcfo (plate_row_column_field_object); '
+                '_split_prc takes a prc. Use schema.parse_prcfo. ')
+    if schema.field_index(tail) is not None:
+        return ('That is a prcf (plate_row_column_field); _split_prc takes a '
+                'prc. Use schema.parse_prcf, or drop the field first. ')
+    if schema.time_index(tail) is not None:
+        return ('That ends in a timepoint; a prc has none. Aggregate the '
+                'timepoints away before keying on the well. ')
+    return ''
+
+
+def _assign_prc_parts(df, column=schema.PRC_KEY,
+                      columns=schema.WELL_KEY_COLUMNS):
+    """Split ``df[column]`` into plate / row / column and assign them onto ``df``.
+
+    The frame-level counterpart of :func:`_split_prc`, and the ``prc`` sibling
+    of :func:`_assign_prcfo_parts`.
+
+    :param df: frame carrying ``column``.
+    :param column: name of the ``prc`` column. Default ``'prc'``.
+    :param columns: names to assign, in plate / row / column order.
+    :returns: ``df``, mutated in place and returned for chaining.
+    :raises spacr.schema.KeyParseError: when any value is not a ``prc``.
+    """
+    parsed = [_split_prc(value) for value in df[column]]
+    for position, name in enumerate(columns):
+        df[name] = [part[position] for part in parsed]
+    return df
+
+
 def perform_regression(settings):
     """Regress per-well phenotype scores against gRNA / gene counts to identify hits from a pooled CRISPR screen.
 
@@ -934,14 +2371,21 @@ def perform_regression(settings):
         - ``dependent_variable`` — column of ``score_data`` to regress
           (e.g. ``'pred'``, ``'recruitment'``,
           ``'pathogen_nucleus_shortest_distance'``).
-        - ``regression_type`` — one of ``'ols'``, ``'gls'``, ``'wls'``,
-          ``'rlm'``, ``'glm'``, ``'mixed'``, ``'quantile'``,
-          ``'logit'``, ``'probit'``, ``'poisson'``, ``'lasso'``,
-          ``'ridge'`` or ``None`` (auto).
+        - ``regression_type`` — any name in :data:`REGRESSION_TYPES`, or
+          ``None`` to choose one from the response distribution. See
+          :func:`regression_model` for what each backend is for.
+        - the per-model settings each backend reads — ``alpha``,
+          ``l1_ratio``, ``cov_type``, ``quantile``, ``hinge_threshold``,
+          ``hinge_n_boot``, ``huber_t``, ``random_row_column_effects``.
+          A setting the chosen type cannot read is refused rather than
+          ignored; see :data:`REGRESSION_SETTINGS_USED`.
         - ``plates_score`` / ``plates_count`` — optional explicit plate
           IDs aligned by file position.
         - ``plate_from_order`` — auto-assign ``plate{i+1}`` from file
           order.
+        - ``batch_correction`` — optional ``combat``, ``center``, ``zscore``,
+          ``robust_zscore`` or reference-control ``control_center``
+          normalization of the dependent variable before well aggregation.
         - ``fraction_threshold``, ``min_n``, ``metadata_files``,
           ``volcano``, ``heatmap_feature``.
 
@@ -972,9 +2416,9 @@ def perform_regression(settings):
         ``count_data`` input.
     """
     from .plot import plot_plates, plot_data_from_csv
-    from .utils import merge_regression_res_with_metadata, save_settings, calculate_shortest_distance, correct_metadata
+    from .utils import merge_regression_res_with_metadata, save_settings, correct_metadata
     from .settings import get_perform_regression_default_settings
-    from .toxo import go_term_enrichment_by_column, custom_volcano_plot, plot_gene_phenotypes, plot_gene_heatmaps
+    from .toxo import custom_volcano_plot, plot_gene_phenotypes, plot_gene_heatmaps
     from .sequencing import graph_sequencing_stats
 
     def _perform_regression_read_data(settings):
@@ -1053,11 +2497,28 @@ def perform_regression(settings):
                         f"Dependent variable {settings['dependent_variable']} not found in the DataFrame"
                     )
 
-            reg_types = ['ols', 'gls', 'wls', 'rlm', 'glm', 'mixed', 'quantile',
-                        'logit', 'probit', 'poisson', 'lasso', 'ridge', None]
-            if settings['regression_type'] not in reg_types:
-                print(f'Possible regression types: {reg_types}')
-                raise ValueError(f"Unsupported regression type {settings['regression_type']}")
+            # The whitelist is REGRESSION_TYPES itself, not a copy of it. The
+            # copy that used to live here disagreed with the dispatcher in
+            # both directions: it refused 'beta' and 'quasi_binomial', which
+            # regression_model fits and check_distribution auto-selects, and
+            # it accepted 'gls', 'wls', 'rlm' and 'quantile', which had no
+            # backend - 'quantile' failing only at the last statement, after
+            # every CSV and QC plot had been written.
+            reg_type = settings['regression_type']
+            if reg_type is not None and reg_type not in REGRESSION_TYPES:
+                if reg_type in UNSUPPORTED_REGRESSION_TYPES:
+                    raise ValueError(
+                        f"Unsupported regression type {reg_type}: "
+                        f"{UNSUPPORTED_REGRESSION_TYPES[reg_type]}")
+                print(f'Possible regression types: '
+                      f'{list(REGRESSION_TYPES) + [None]}')
+                raise ValueError(f"Unsupported regression type {reg_type}")
+
+            # Order matters: the reconcile can rewrite regression_type to
+            # 'mixed', and the run-level knobs have to be policed against the
+            # model that will actually be fitted.
+            _reconcile_random_row_column_effects(settings)
+            _reject_unused_run_settings(settings)
 
             return count_data_df, score_data_df
     
@@ -1136,7 +2597,7 @@ def perform_regression(settings):
         :returns: ``(final_grna_df, prc_gene_count_df)`` — per-gRNA
             well counts and per-well distinct-gene counts.
         """
-        df[['plateID', 'rowID', 'columnID']] = df['prc'].str.split('_', expand=True)
+        _assign_prc_parts(df)
 
         # --- 2) Compute GRNA-level Well Counts ---
         # For each (grna, plate), count the number of unique prc (wells)
@@ -1151,11 +2612,25 @@ def perform_regression(settings):
         # First, create a unique (grna, gene, plate) reference from the original df
         unique_triplets = df[['grna', 'gene', 'plateID']].drop_duplicates()
 
-        # Merge the grna_well_count
-        merged_df = pd.merge(unique_triplets, grna_well_counts, on=['grna', 'plateID'], how='left')
+        # Merge the grna_well_count.
+        #
+        # Both count frames come straight off a groupby on their own join key,
+        # so each holds exactly one row per key: the joins are many-to-one and
+        # must not change the row count of unique_triplets. Stating that is not
+        # decoration — a gRNA mapped to two genes puts the same (grna, plateID)
+        # on the left twice, and if the right side ever gained a duplicate too
+        # (two count CSVs for one plate concatenated, say) the result would
+        # quietly gain rows and every well count written to grna_well.csv would
+        # be counted more than once, with no error anywhere.
+        merged_df = pd.merge(unique_triplets, grna_well_counts,
+                             on=['grna', 'plateID'], how='left',
+                             validate='many_to_one')
 
-        # Merge the gene_well_count
-        merged_df = pd.merge(merged_df, gene_well_counts, on=['gene', 'plateID'], how='left')
+        # Merge the gene_well_count. Many gRNAs share a gene, so the left side
+        # is legitimately many; gene_well_counts is one row per (gene, plate).
+        merged_df = pd.merge(merged_df, gene_well_counts,
+                             on=['gene', 'plateID'], how='left',
+                             validate='many_to_one')
 
         # Keep only the columns needed (if you want to keep 'gene', remove the drop below)
         final_grna_df = merged_df[['grna', 'plateID', 'grna_well_count', 'gene_well_count']]
@@ -1163,8 +2638,8 @@ def perform_regression(settings):
         # --- 5) Compute gene_count per prc ---
         # For each prc (well), how many distinct genes are there?
         prc_gene_count_df = (df.groupby('prc')['gene'].nunique().reset_index(name='gene_count'))
-        prc_gene_count_df[['plateID', 'rowID', 'columnID']] = prc_gene_count_df['prc'].str.split('_', expand=True)
-        
+        _assign_prc_parts(prc_gene_count_df)
+
         return final_grna_df, prc_gene_count_df
     
     def get_outlier_reference_values(df, outlier_col, return_col):
@@ -1193,8 +2668,10 @@ def perform_regression(settings):
         
         return outliers_ls
     
-    def bootstrap_selection_frequencies(X, y, formula, alpha='auto', n_boot=200, random_state=None):
-        """Return per-feature Lasso selection frequencies from a nonparametric bootstrap.
+    def bootstrap_selection_frequencies(X, y, formula, alpha='auto', n_boot=200,
+                                        random_state=None,
+                                        regression_type='lasso', l1_ratio=0.5):
+        """Return per-feature selection frequencies from a nonparametric bootstrap.
 
         Output ranks features by how often their coefficient is non-zero
         across resamples; this is a stability score, not a hypothesis test.
@@ -1203,10 +2680,15 @@ def perform_regression(settings):
             from ``formula`` for stable factor levels.
         :param y: Response array aligned with ``X`` by index.
         :param formula: Patsy formula for ``dmatrices``.
-        :param alpha: Regularisation strength; ``'auto'``/``None`` runs
-            LassoCV per resample.
+        :param alpha: Regularisation strength; ``'auto'``/``None`` runs the
+            cross-validated estimator per resample.
         :param n_boot: Number of bootstrap resamples. Default ``200``.
         :param random_state: Seed for the resampling RNG.
+        :param regression_type: ``'lasso'`` or ``'elasticnet'`` - the same
+            penalty the reported coefficients were fitted with, or the
+            frequencies would describe a different model from the one in
+            ``results.csv``.
+        :param l1_ratio: ``elasticnet`` mix; ignored for ``'lasso'``.
         :returns: DataFrame with columns ``feature``,
             ``selection_frequency`` and ``mean_coefficient``.
         :raises RuntimeError: if every resample fails to fit.
@@ -1215,6 +2697,14 @@ def perform_regression(settings):
         n = len(X)
         use_cv = alpha is None or (isinstance(alpha, str) and alpha == 'auto')
 
+        def _estimator():
+            if regression_type == 'elasticnet':
+                return (ElasticNetCV(l1_ratio=l1_ratio, cv=5, max_iter=10000)
+                        if use_cv else
+                        ElasticNet(alpha=alpha, l1_ratio=l1_ratio, max_iter=10000))
+            return (LassoCV(cv=5, max_iter=10000) if use_cv
+                    else Lasso(alpha=alpha, max_iter=10000))
+
         # Build the reference design once so the feature index is stable.
         _, X0 = dmatrices(formula, data=X, return_type='dataframe')
         feature_index = pd.Index(X0.columns)
@@ -1222,20 +2712,21 @@ def perform_regression(settings):
         coef_sums = pd.Series(0.0, index=feature_index)
 
         successful = 0
+        dropped = 0
+        last_failure = None
         for _ in range(n_boot):
             idx = rng.integers(0, n, size=n)
             boot = X.iloc[idx].reset_index(drop=True)
             try:
                 yb, Xb = dmatrices(formula, data=boot, return_type='dataframe')
-            except Exception:
+            except Exception as exc:
                 # A resample can occasionally drop a factor level entirely.
+                dropped += 1
+                last_failure = exc
                 continue
             Xb = Xb.reindex(columns=feature_index, fill_value=0.0)
             yb = np.asarray(yb).ravel()
-            if use_cv:
-                m = LassoCV(cv=5, max_iter=10000).fit(Xb, yb)
-            else:
-                m = Lasso(alpha=alpha, max_iter=10000).fit(Xb, yb)
+            m = _estimator().fit(Xb, yb)
             coefs = pd.Series(np.asarray(m.coef_).ravel(), index=feature_index)
             nonzero_counts += (coefs != 0).astype(float)
             coef_sums += coefs
@@ -1244,6 +2735,19 @@ def perform_regression(settings):
         if successful == 0:
             raise RuntimeError("All bootstrap resamples failed to fit. "
                             "Check the formula and ensure factor levels are not too sparse.")
+
+        # Same trap as _bootstrap_wald_p_values: only "none of them" raised,
+        # and that is the harmless case. `selection_frequency` is divided by
+        # `successful`, so 199 of 200 resamples dropping gives a stability
+        # frequency computed from a single draw — every selected feature at
+        # 1.00 and every other at 0.00 — reported in the same column, with the
+        # same name, as a frequency over 200.
+        if dropped:
+            LOG.warning(
+                "stability selection: %d of %d resamples produced no design "
+                "matrix (last error: %s). selection_frequency and "
+                "mean_coefficient below are over the remaining %d, not over "
+                "%d.", dropped, n_boot, last_failure, successful, n_boot)
 
         return pd.DataFrame({
             'feature': feature_index,
@@ -1255,11 +2759,25 @@ def perform_regression(settings):
     count_data_df, score_data_df = _perform_regression_read_data(settings)
     
     if "rowID" in count_data_df.columns:
-        num_parts = len(count_data_df['rowID'].iloc[0].split('_'))
-        if num_parts == 2:
-            split = count_data_df['rowID'].str.split('_', expand=True)
-            count_data_df['rowID'] = split[1]
-    
+        # A count CSV can carry rowID as the composite '<plate>_<row>' that
+        # 'plate_row' columns are written with (process_reads splits the same
+        # shape). Reduce it to the row by taking the token after the LAST
+        # separator, per row: the plate is the component that may itself
+        # contain one, the row never is.
+        #
+        # This used to read count_data_df['rowID'].iloc[0] alone, count its
+        # parts, and apply split[1] to the whole frame, which is wrong in
+        # three ways that all end in a silently mis-keyed regression:
+        #   * 'exp1_plate1_r2' has three parts, not two, so it was left
+        #     untouched and prc became 'plate1_exp1_plate1_r2_c1';
+        #   * on a frame where only some rows carry the plate prefix, split[1]
+        #     is NaN for every row that does not, so their rowID was erased;
+        #   * an empty count table raised IndexError on the .iloc[0].
+        count_data_df['rowID'] = (
+            count_data_df['rowID'].astype(str)
+            .str.rsplit(schema.KEY_SEPARATOR, n=1).str[-1]
+        )
+
     #if "prc" in score_data_df.columns:
     #    num_parts = len(score_data_df['prc'].iloc[0].split('_'))
     #    if num_parts == 3:
@@ -1281,6 +2799,33 @@ def perform_regression(settings):
             # row past P, a 1536 row ('AA14') and any plate called anything
             # else all failed to match and silently kept whatever rowID and
             # columnID they already had.
+            #
+            # THIS POSITIONAL READ IS NOT THE ONE _split_prc REPLACED. A prc is
+            # a KEY, which has a fixed number of components and is therefore
+            # parseable right to left; this is a crop FILE NAME, whose grammar
+            # is <plate>_<well>_<field>[_<time>]_<object> — a variable-length
+            # tail with no right anchor, so the well can only be found by
+            # counting from the left. That is exactly how the package's own
+            # file-name parsers do it (schema.parse_field_stem and
+            # schema.parse_object_stem both take parts[0] as the plate and
+            # parts[1] as the well), so counting from the left here is the
+            # documented grammar rather than a second guess at it. What the
+            # token MEANS is still schema's decision: parse_well with
+            # strict=True, so a token that is not <letters><digits> is refused
+            # instead of being passed through into both slots.
+            #
+            # Residual limitation, stated rather than papered over: a plate id
+            # that itself contains '_' shifts every position, and the crop-name
+            # grammar carries nothing that can undo that. 'exp1_plate1_A14_...'
+            # is caught — 'plate1' is not a well, so the row is counted in the
+            # warning below and its rowID is left alone — but 'exp1_pl1_A14_...'
+            # is not, because 'pl1' parses as a well. That hole is in the
+            # grammar, not in this call site, and it is identical in
+            # schema.parse_object_stem; the fix belongs there (make the crop
+            # writer escape the separator, or record the plate id length), so
+            # ml.py does not grow a private crop-name parser that disagrees
+            # with the one the crop writer uses. NEEDS FOLLOW-UP IN
+            # spacr/schema.py.
             def _row_column(path):
                 stem = os.path.splitext(os.path.basename(str(path)))[0]
                 parts = stem.split(schema.KEY_SEPARATOR)
@@ -1298,7 +2843,10 @@ def perform_regression(settings):
             if missing:
                 print(f"Warning: {missing} of {len(score_data_df)} rows did not match "
                       f"the expected PLATEn_<letter><digits>_ pattern in 'path'; "
-                      f"their rowID and columnID will be left unchanged.")
+                      f"their rowID and columnID will be left unchanged. If the "
+                      f"plate id contains '_', every token is shifted and the well "
+                      f"cannot be located there - rename the plate or set "
+                      f"plate_from_order=False.")
 
             row_ids = well['row_id']
             col_ids = well['column_id']
@@ -1352,6 +2900,51 @@ def perform_regression(settings):
         print(count_data_df['plateID'].value_counts())
         
     results_path, results_path_gene, results_path_grna, hits_path, res_folder, csv_path = _perform_regression_set_paths(settings)
+
+    batch_method = str(
+        settings.get('batch_correction', 'none') or 'none'
+    ).strip().lower()
+    if batch_method not in {'none', 'off', 'false'}:
+        dependent_variable = settings['dependent_variable']
+        if dependent_variable not in score_data_df.columns:
+            raise ValueError(
+                f"Batch correction cannot run because dependent_variable="
+                f"{dependent_variable!r} is not present in the score table. "
+                "Choose an existing score column or set batch_correction=none."
+            )
+        from .batch_correction import (
+            correct_from_metadata,
+            correction_kwargs,
+            write_report,
+        )
+        # Beside `correction_kwargs`, not inside it: that helper's output
+        # is `**`-splatted into several different signatures, and adding a
+        # key to it turns every caller that has not grown the parameter
+        # into a TypeError. combat's two keys are named here instead.
+        corrected, correction_report = correct_from_metadata(
+            score_data_df[[dependent_variable]],
+            score_data_df,
+            batch_covariate_column=settings.get('batch_covariate_column'),
+            batch_combat_mean_only=bool(
+                settings.get('batch_combat_mean_only', False)),
+            **correction_kwargs(settings),
+        )
+        score_data_df.loc[:, dependent_variable] = corrected[
+            dependent_variable
+        ]
+        report_path = write_report(
+            correction_report,
+            os.path.join(res_folder, 'batch_correction.json'),
+        )
+        print(
+            f"Batch correction {correction_report.method}: "
+            f"{correction_report.centroid_spread_before} -> "
+            f"{correction_report.centroid_spread_after} centroid spread. "
+            f"Report: {report_path}"
+        )
+        for note in correction_report.warnings:
+            print(f"Warning: batch correction: {note}")
+
     save_settings(settings, name='regression', show=True)
 
     count_source = os.path.dirname(settings['count_data'][0])
@@ -1406,15 +2999,34 @@ def perform_regression(settings):
     if settings['verbose']:
         print(f"Independent variable after process_reads: {len(independent_df)}")
     
-    merged_df = pd.merge(independent_df, dependent_df, on='prc')
-    
+    # The regression's own join, and the one whose cardinality decides every
+    # number this function goes on to report. independent_df is one row per
+    # (well, gRNA); what dependent_df is depends on agg_type:
+    #
+    #   agg_type in {'mean', 'median', 'quantile'} or poisson
+    #       process_scores groups on prc, so it is exactly one row per well
+    #       and this is many-to-one. A duplicated prc on that side would
+    #       multiply every gRNA row of that well, inflating cell_count, the
+    #       per-well gRNA counts and the regression's effective n, with no
+    #       error and no visible symptom.
+    #   agg_type is None (forced for quantile regression, see settings.py)
+    #       process_scores returns one row per OBJECT, so the join is a
+    #       deliberate cross product of the well's gRNAs with the well's
+    #       cells. That is many-to-many and saying so explicitly is what
+    #       stops a blanket 'many_to_one' here from crashing quantile
+    #       regression on perfectly good data.
+    merge_validate = (
+        'many_to_many' if settings['agg_type'] is None else 'many_to_one')
+    merged_df = pd.merge(independent_df, dependent_df, on='prc',
+                         validate=merge_validate)
+
     if settings['verbose']:
         display(independent_df)
         display(dependent_df)
         display(merged_df)
-    
-    merged_df[['plateID', 'rowID', 'columnID']] = merged_df['prc'].str.split('_', expand=True)
-        
+
+    _assign_prc_parts(merged_df)
+
     try:
         os.makedirs(res_folder, exist_ok=True)
         data_path = os.path.join(res_folder, 'regression_data.csv')
@@ -1497,13 +3109,32 @@ def perform_regression(settings):
         
     _ = plot_plates(merged_df, variable=orig_dv, grouping='mean', min_max='allq', cmap='viridis', min_count=None, dst=res_folder)                
 
-    model, coef_df, regression_type = regression(merged_df, csv_path, dependent_variable, settings['regression_type'], settings['alpha'], settings['random_row_column_effects'], nc=settings['negative_control'], pc=settings['positive_control'], controls=settings['controls'], dst=res_folder, cov_type=settings['cov_type'])
+    model, coef_df, regression_type = regression(
+        merged_df, csv_path, dependent_variable, settings['regression_type'],
+        settings['alpha'], settings['random_row_column_effects'],
+        nc=settings['negative_control'], pc=settings['positive_control'],
+        controls=settings['controls'], dst=res_folder,
+        cov_type=settings['cov_type'],
+        l1_ratio=settings['l1_ratio'],
+        quantile=settings['quantile'],
+        hinge_threshold=settings['hinge_threshold'],
+        hinge_n_boot=settings['hinge_n_boot'],
+        huber_t=settings['huber_t'],
+    )
     
     coef_df['grna'] = coef_df['feature'].apply(lambda x: re.search(r'grna\[(.*?)\]', x).group(1) if 'grna' in x else None)
     coef_df['gene'] = coef_df['feature'].apply(lambda x: re.search(r'gene\[(.*?)\]', x).group(1) if 'gene' in x else None)
     
-    coef_df = coef_df.merge(n_grna, how='left', on='grna')
-    coef_df = coef_df.merge(n_gene, how='left', on='gene')
+    # n_grna / n_gene are value_counts frames, so one row per gRNA and one per
+    # gene. coef_df is many rows against either of them — every gene[...] term
+    # carries grna=None and vice versa — so many-to-one is the contract, and it
+    # is the right side (the counts) that must stay unique: a duplicate there
+    # would fan the coefficient table out and every hit would be written to
+    # results_significant.csv more than once.
+    coef_df = coef_df.merge(n_grna, how='left', on='grna',
+                            validate='many_to_one')
+    coef_df = coef_df.merge(n_gene, how='left', on='gene',
+                            validate='many_to_one')
 
     gene_coef_df = coef_df[coef_df['n_gene'] != None]
     grna_coef_df = coef_df[coef_df['n_grna'] != None]
@@ -1552,10 +3183,11 @@ def perform_regression(settings):
     #    significant = significant[~significant['feature'].str.contains('row|column')]
     
     #v3
-    if regression_type == 'lasso':
-        # Lasso has no valid frequentist p-values. Use bootstrap selection
-        # frequency as the feature-importance ranking. Treat as a selection
-        # method, not a hypothesis test.
+    if regression_type in NO_P_VALUE_TYPES:
+        # Lasso and elastic net have no valid frequentist p-values (the ones
+        # process_model_coefficients attaches are OLS-style and ignore the
+        # penalty). Use bootstrap selection frequency as the feature-importance
+        # ranking. Treat as a selection method, not a hypothesis test.
         n_boot = settings.get('lasso_n_boot', 200)
         sel_threshold = settings.get('lasso_selection_threshold', 0.6)
         formula = prepare_formula(dependent_variable, random_row_column_effects=False)
@@ -1569,8 +3201,19 @@ def perform_regression(settings):
             alpha=settings.get('alpha', 'auto'),
             n_boot=n_boot,
             random_state=0,
+            regression_type=regression_type,
+            l1_ratio=settings['l1_ratio'],
         )
-        coef_df = coef_df.merge(sel_df, on='feature', how='left')
+        # One row per model term on both sides: coef_df['feature'] is the
+        # design-matrix column index (X.columns for lasso), sel_df['feature']
+        # is the same index taken off the reference design built once at the
+        # top of bootstrap_selection_frequencies. Both are pandas Index
+        # objects from patsy, so the join is one-to-one by construction, and a
+        # duplicate on either side means the two designs have gone out of step
+        # — which is exactly when a selection frequency must not be silently
+        # attached to the wrong coefficient.
+        coef_df = coef_df.merge(sel_df, on='feature', how='left',
+                                validate='one_to_one')
 
         significant = coef_df[
             (coef_df['coefficient'] != 0)
@@ -1827,7 +3470,26 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
     if 'grna_name' in csv_df.columns:
         csv_df = csv_df.rename(columns={'grna_name': 'grna'})
     if 'plate_row' in csv_df.columns:
-        csv_df[['plateID', 'rowID']] = csv_df['plate_row'].str.split('_', expand=True)
+        # 'plate_row' is '<plate>_<row>'. Split on the LAST separator rather
+        # than on every one: the plate is the component that may itself
+        # contain a separator ('exp1_plate1_r2'), the row is not, so counting
+        # from the right is the only reading that survives it. The two-column
+        # positional split this replaces raised the opaque "Columns must be
+        # same length as key" on such a plate.
+        pieces = csv_df['plate_row'].astype(str).str.rsplit(
+            schema.KEY_SEPARATOR, n=1)
+        malformed = pieces.map(len) < 2
+        if malformed.any():
+            example = csv_df.loc[malformed, 'plate_row'].iloc[0]
+            raise ValueError(
+                f"'plate_row' must be '<plate>{schema.KEY_SEPARATOR}<row>', "
+                f"but {int(malformed.sum())} of {len(csv_df)} value(s) hold no "
+                f"{schema.KEY_SEPARATOR!r}, e.g. {example!r}. Supply separate "
+                f"'plateID' and 'rowID' columns instead, or repair the count "
+                f"table — guessing which half is the plate would key the whole "
+                f"screen on the wrong well.")
+        csv_df['plateID'] = pieces.str[0]
+        csv_df['rowID'] = pieces.str[-1]
 
     if not 'plateID' in csv_df.columns:
         if not plate is None:
@@ -1861,7 +3523,12 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
     # Group by prc and calculate the sum of counts
     grouped_df = csv_df.groupby('prc')['count'].sum().reset_index()
     grouped_df = grouped_df.rename(columns={'count': 'total_counts'})
-    merged_df = pd.merge(csv_df, grouped_df, on='prc')
+    # grouped_df is one row per well by construction (groupby('prc')), csv_df is
+    # one row per (well, gRNA): many-to-one. The contract matters because the
+    # very next line divides by total_counts — a duplicated well total would
+    # duplicate every gRNA row of that well and the fractions would still sum to
+    # 1 per copy, so the corruption would be invisible in every downstream QC.
+    merged_df = pd.merge(csv_df, grouped_df, on='prc', validate='many_to_one')
     merged_df['fraction'] = merged_df['count'] / merged_df['total_counts']
 
     # Filter rows with fraction under the threshold
@@ -1906,12 +3573,38 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
     merged_df = merged_df[['prc', 'grna', 'fraction']]
 
     if not all(col in merged_df.columns for col in ['grna', 'gene']):
-        try:
-            merged_df[['org', 'gene', 'grna']] = merged_df['grna'].str.split('_', expand=True)
-            merged_df = merged_df.drop(columns=['org'])
-            merged_df['grna'] = merged_df['gene'] + '_' + merged_df['grna']
-        except Exception:
-            print('Error splitting grna into org, gene, grna.')
+        # This split IS positional, legitimately: the pooled-library naming
+        # convention is '<org>_<gene>_<guide>' ('TGGT1_GENEA_g1') and there is
+        # nothing in the name itself that says which token is which. So the
+        # assumption is stated and checked rather than removed.
+        #
+        # What is removed is the bare `except Exception`. It made two very
+        # different inputs look identical from the outside:
+        #   * every name a single token ('g0', 'g1') — a library that simply
+        #     has no org/gene structure. Three keys against one split column
+        #     raised, and skipping is the right answer.
+        #   * names of mixed width ('TGGT1_GENEA_g1' next to 'GENEA_g1').
+        #     str.split(expand=True) pads with None instead of raising, so a
+        #     short name got its GUIDE token as its gene and then grna=None
+        #     out of the gene + '_' + guide concatenation — its reads were
+        #     silently deleted from the screen while every long name sailed
+        #     through.
+        # Requiring every name to have the same three components refuses the
+        # second case outright instead of half-applying to it.
+        tokens = merged_df['grna'].astype(str).str.split(schema.KEY_SEPARATOR)
+        widths = sorted(set(tokens.map(len).tolist()))
+        if widths == [3]:
+            merged_df['gene'] = tokens.str[1]
+            merged_df['grna'] = (tokens.str[1] + schema.KEY_SEPARATOR
+                                 + tokens.str[2])
+        else:
+            example = merged_df['grna'].iloc[0] if len(merged_df) else None
+            print(f"Not splitting 'grna' into org/gene/grna: that split is "
+                  f"positional and needs every name to be "
+                  f"'<org>{schema.KEY_SEPARATOR}<gene>{schema.KEY_SEPARATOR}"
+                  f"<guide>' (3 components), but this table holds names with "
+                  f"{widths} component(s), e.g. {example!r}. No 'gene' column "
+                  f"is produced; a step that needs one will name it.")
 
     return merged_df
 
@@ -1987,7 +3680,8 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
     :param agg_type: ``'mean'``, ``'median'``, ``'quantile'`` or None.
     :param transform: Optional post-aggregation transform name
         (see :func:`apply_transformation`).
-    :param regression_type: If ``'poisson'``, aggregation uses ``sum``.
+    :param regression_type: If ``'poisson'`` or ``'horseshoe'``, aggregation
+        uses ``sum`` - both model a per-well count, not a per-well average.
     :param invert_dependent_variable: ``False``/``0`` = no inversion;
         ``True``/``1`` = ``1 - x``; ``-1`` = ``1 / x``.
     :returns: ``(dependent_df, dependent_variable)`` — the per-well
@@ -1995,7 +3689,7 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
     :raises ValueError: on missing identifiers, unsupported ``agg_type``
         or unrecognised ``invert_dependent_variable``.
     """
-    from .utils import calculate_shortest_distance, correct_metadata
+    from .utils import correct_metadata
     df = df.reset_index(drop=True)
     if 'prcfo' in df.columns:
         df = df.loc[:, ~df.columns.duplicated()].copy()
@@ -2066,7 +3760,15 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
     # Group by prc and calculate the mean and count of the dependent_variable
     grouped = df.groupby('prc')[dependent_variable]
 
-    if regression_type != 'poisson':
+    # Both count models take the well's SUM. 'horseshoe' is spaCRPower's
+    # Npositive ~ ... + offset(log(Ntotal)): its response is the number of
+    # positive objects in the well, not their mean, and the exposure it is
+    # offset by is the cell_count computed just below. Aggregating it like a
+    # continuous score would hand a Poisson model a fraction, which
+    # _validate_poisson_response refuses - loudly, but at the very end.
+    count_models = ('poisson', 'horseshoe')
+
+    if regression_type not in count_models:
 
         print(f'Using agg_type: {agg_type}')
 
@@ -2083,16 +3785,21 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
         else:
             raise ValueError(f"Unsupported aggregation type {agg_type}")
 
-    if regression_type == 'poisson':
+    if regression_type in count_models:
         agg_type = 'count'
-        print(f'Using agg_type: {agg_type} for poisson regression')
+        print(f'Using agg_type: {agg_type} for {regression_type} regression')
         dependent_df = grouped.sum().reset_index()
 
     # Calculate cell_count for all cases
     cell_count = grouped.size().reset_index(name='cell_count')
 
     if agg_type is None:
-        dependent_df = pd.merge(dependent_df, cell_count, on='prc')
+        # No aggregation, so dependent_df is still one row per object and
+        # cell_count is one row per well: many-to-one. Stating it pins the
+        # thing that makes the unaggregated path safe — the well's cell count
+        # is broadcast onto its objects, never the other way round.
+        dependent_df = pd.merge(dependent_df, cell_count, on='prc',
+                                validate='many_to_one')
     else:
         dependent_df['cell_count'] = cell_count['cell_count']
 
@@ -2229,7 +3936,16 @@ def generate_ml_scores(settings):
         if not {'prcfo', settings['annotation_column']}.issubset(png_list_df.columns):
             raise ValueError("The 'png_list_df' DataFrame must contain 'prcfo' and 'test' columns.")
         annotated_df = png_list_df[['prcfo', settings['annotation_column']]].set_index('prcfo')
-        df = annotated_df.merge(df, left_index=True, right_index=True)
+        # png_list can legitimately hold more than one crop per object — a
+        # database measured twice (cell crops, then pathogen crops) appends to
+        # the same table — so the annotation side is 'many'. The measurement
+        # side must not be: _read_and_merge_data groups on prcfo, so a repeat
+        # there means two source directories were concatenated under the same
+        # plate id and the same object identity now describes two different
+        # objects. That has to stop here rather than double every measurement
+        # row and quietly double the training set.
+        df = annotated_df.merge(df, left_index=True, right_index=True,
+                                validate='many_to_one')
         unique_values = df[settings['annotation_column']].dropna().unique()
         print(f"Unique values in annotation column: {unique_values}")
         
@@ -2269,6 +3985,19 @@ def generate_ml_scores(settings):
         if pathogen_col in df.columns and cytoplasm_col in df.columns:
             df['recruitment'] = df[pathogen_col]/df[cytoplasm_col]
     
+    from .batch_correction import correction_kwargs
+    batch_kwargs = correction_kwargs(
+        settings,
+        default_control_column=settings.get('location_column'),
+        default_control_values=settings.get('negative_control'),
+    )
+    # Added here rather than in `correction_kwargs` — see the note at its
+    # other call site. `ml_analysis` grew both parameters; the helper's
+    # other consumers did not.
+    batch_kwargs['batch_covariate_column'] = settings.get(
+        'batch_covariate_column')
+    batch_kwargs['batch_combat_mean_only'] = bool(
+        settings.get('batch_combat_mean_only', False))
     output, figs = ml_analysis(df,
                                settings['channel_of_interest'],
                                settings['location_column'],
@@ -2288,7 +4017,8 @@ def generate_ml_scores(settings):
                                settings['remove_highly_correlated_features'],
                                settings['prune_features'],
                                settings['cross_validation'],
-                               settings['verbose'])
+                               settings['verbose'],
+                               **batch_kwargs)
     
     shap_fig = shap_analysis(output[3], output[4], output[5])
 
@@ -2316,10 +4046,11 @@ def generate_ml_scores(settings):
     train_features_df.to_csv(ml_features, mode='w', encoding='utf-8')
     metrics_df.to_csv(model_metricks_path, mode='w', encoding='utf-8')
 
-    plate_heatmap.savefig(plate_heatmap_path, format='pdf')
-    figs[0].savefig(permutation_fig_path, format='pdf')
-    figs[1].savefig(feature_importance_fig_path, format='pdf')
-    shap_fig.savefig(shap_fig_path, format='pdf')
+    plate_heatmap_path = save_figure(plate_heatmap, plate_heatmap_path)
+    permutation_fig_path = save_figure(figs[0], permutation_fig_path)
+    feature_importance_fig_path = save_figure(
+        figs[1], feature_importance_fig_path)
+    shap_fig_path = save_figure(shap_fig, shap_fig_path)
 
     # The model scored every object in every source database, so the scores
     # belong back on every one of those databases -- not only in a CSV, and not
@@ -2349,7 +4080,37 @@ def generate_ml_scores(settings):
 
     return [output, plate_heatmap]
 
-def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, reg_alpha=0.1, reg_lambda=1.0, learning_rate=0.00001, n_estimators=1000, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, prune_features=False, cross_validation=False, verbose=False):
+def ml_analysis(
+    df,
+    channel_of_interest=3,
+    location_column='columnID',
+    positive_control='c2',
+    negative_control='c1',
+    exclude=None,
+    n_repeats=10,
+    top_features=30,
+    reg_alpha=0.1,
+    reg_lambda=1.0,
+    learning_rate=0.00001,
+    n_estimators=1000,
+    test_size=0.2,
+    model_type='xgboost',
+    n_jobs=-1,
+    remove_low_variance_features=True,
+    remove_highly_correlated_features=True,
+    prune_features=False,
+    cross_validation=False,
+    verbose=False,
+    *,
+    batch_correction='none',
+    batch_column='plateID',
+    batch_control_column=None,
+    batch_control_values=None,
+    batch_covariate_column=None,
+    batch_combat_mean_only=False,
+    batch_min_samples=3,
+    batch_missing_control='error',
+):
     """Train a per-object classifier on positive/negative control wells and score every row of the input DataFrame.
 
     Called directly for one-off ML work, and internally by
@@ -2385,6 +4146,14 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
     :param prune_features: If True, apply ``SelectKBest`` before training.
     :param cross_validation: If True, run 5-fold stratified CV.
     :param verbose: Log progress details.
+    :param batch_correction: plate correction method from
+        :mod:`spacr.batch_correction`.
+    :param batch_column: metadata column identifying plates/batches.
+    :param batch_control_column: metadata column holding reference-control
+        labels for ``control_center``.
+    :param batch_control_values: negative/reference control value(s).
+    :param batch_min_samples: minimum rows or controls per plate.
+    :param batch_missing_control: ``error`` or ``skip`` for missing controls.
     :returns: Tuple ``(output, figs)`` where ``output`` is a positional
         tuple of ``(scored_df, permutation_df, feature_importance_df,
         model, X_train, X_test, y_train, y_test, metrics_df,
@@ -2460,15 +4229,45 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
     from .utils import filter_dataframe_features
     from .plot import plot_permutation, plot_feature_importance
 
-    random_state = 42
-    
+    # The run's seed, not a literal. Every estimator below takes this as
+    # random_state, and an estimator given an explicit random_state ignores
+    # the NumPy global stream -- so hard-coding 42 here silently overrode
+    # whatever the user set as random_seed. Falls back to 42 outside a run,
+    # which is what it always was.
+    random_state = _run_random_state(42)
+
     if 'cells_per_well' in df.columns:
         df = df.drop(columns=['cells_per_well'])
 
+    correction_metadata = df.copy()
     df_metadata = df[[location_column]].copy()
 
     df, features = filter_dataframe_features(df, channel_of_interest, exclude, remove_low_variance_features, remove_highly_correlated_features, verbose)
     print('After filtration:', len(df))
+
+    if str(batch_correction or 'none').strip().lower() not in {
+        'none', 'off', 'false',
+    }:
+        from .batch_correction import correct_from_metadata
+        corrected, correction_report = correct_from_metadata(
+            df[features],
+            correction_metadata.loc[df.index],
+            batch_correction=batch_correction,
+            batch_column=batch_column,
+            batch_control_column=batch_control_column,
+            batch_control_values=batch_control_values,
+            batch_covariate_column=batch_covariate_column,
+            batch_combat_mean_only=batch_combat_mean_only,
+            batch_min_samples=batch_min_samples,
+            batch_missing_control=batch_missing_control,
+        )
+        df.loc[:, features] = corrected
+        print(
+            f"Batch correction {correction_report.method}: "
+            f"{correction_report.centroid_spread_before} -> "
+            f"{correction_report.centroid_spread_after} centroid spread.")
+        for note in correction_report.warnings:
+            print(f"Warning: batch correction: {note}")
     
     if verbose:
         print(f'Found {len(features)} numerical features in the dataframe')
@@ -2925,7 +4724,8 @@ def interpret_vision_model(settings=None):
     # raised TypeError on every save=True run. The importance tables get their
     # own writer, _save_importance_csv, which follows the same <src>/results
     # convention.
-    from .io import _read_and_merge_data, _report_fan_out, TimelapseKeyMismatch
+    from .io import (_read_and_merge_data, _report_fan_out, JoinFanOut,
+                     TimelapseKeyMismatch)
     from .predictions import crop_name_metadata
     from .settings import set_interpret_vision_model_defaults
     from .utils import save_settings, _time_column
@@ -3060,11 +4860,46 @@ def interpret_vision_model(settings=None):
         # Select only the necessary columns from scores_df for merging
         scores_df = scores_df[join_cols + [settings['score_column']]]
 
-        # Now merge DataFrames
-        merged_df = pd.merge(df, scores_df, on=join_cols, how='inner')
-        # The scores are per object, so the join can only ever shrink df (an
-        # object with no score drops out). Growing means the key does not
-        # identify an object and every feature in the result is duplicated.
+        # Now merge DataFrames.
+        #
+        # The key contract is many-to-one — one score per object — and it is
+        # spelled out, because _report_fan_out does NOT enforce it here. That
+        # was the claim this comment used to make and it is false: the check
+        # is `len(merged) <= len(left)`, which is only equivalent to the
+        # cardinality contract for a LEFT join. This join is INNER, so scored
+        # objects fanning out and unscored objects dropping out cancel in the
+        # row count. Four objects, a scores file holding o1 twice and o2 once:
+        # the merge returns three rows, three <= four, nothing is raised, and
+        # o1's measurements are in the training set twice — the exact silent
+        # duplication the check was added to stop.
+        #
+        # pandas is the thing that can actually see the duplicate key, so it
+        # does the checking; the message is translated back into the one
+        # _report_fan_out would have given, which names the cause (a scores
+        # file written twice) and the fix (de-duplicate it) instead of saying
+        # only "Merge keys are not unique in right dataset".
+        try:
+            merged_df = pd.merge(df, scores_df, on=join_cols, how='inner',
+                                 validate='many_to_one')
+        except pd.errors.MergeError as error:
+            duplicated = scores_df[scores_df.duplicated(subset=join_cols,
+                                                        keep=False)]
+            examples = (duplicated[join_cols].drop_duplicates()
+                        .head(3).to_dict('records'))
+            raise JoinFanOut(
+                f"{settings['scores']} holds more than one score for the same "
+                f"object: {list(join_cols)} repeats "
+                f"{len(duplicated[join_cols].drop_duplicates())} time(s), e.g. "
+                f"{examples}. Joining it to the measurements would put those "
+                f"objects into the training set once per duplicate row, so "
+                f"every measurement in the result is duplicated. This usually "
+                f"means the scoring step ran twice and appended a second set "
+                f"of rows; de-duplicate the scores file before reading it."
+            ) from error
+        # Belt and braces on the row count as well: many_to_one covers a
+        # duplicated scores key, this covers anything that would grow df for
+        # some other reason. The scores are per object, so the join can only
+        # ever shrink df (an object with no score drops out).
         _report_fan_out(df, merged_df, join_cols,
                         left_name='object', right_name='scores')
 
@@ -3090,7 +4925,7 @@ def interpret_vision_model(settings=None):
     # toggles. The forest and the importance frame are shared by all three;
     # only the reporting and the CSV write belong to feature_importance itself.
     if settings['feature_importance'] or settings['permutation_importance'] or settings['shap']:
-        model = RandomForestClassifier(random_state=42, n_jobs=settings['n_jobs'])
+        model = RandomForestClassifier(random_state=_run_random_state(42), n_jobs=settings['n_jobs'])
         model.fit(X, y)
 
         feature_importances = model.feature_importances_
@@ -3115,7 +4950,7 @@ def interpret_vision_model(settings=None):
     # Step 2: Permutation Importance
     if settings['permutation_importance']:
         print(f"Permutation Importance ...")
-        perm_importance = permutation_importance(model, X, y, n_repeats=10, random_state=42, n_jobs=settings['n_jobs'])
+        perm_importance = permutation_importance(model, X, y, n_repeats=10, random_state=_run_random_state(42), n_jobs=settings['n_jobs'])
         perm_importance_df = pd.DataFrame({'feature': X.columns, 'importance': perm_importance.importances_mean})
         perm_importance_df = perm_importance_df.sort_values(by='importance', ascending=False)
         top_perm_importance_df = perm_importance_df.head(settings['top_features'])
@@ -3142,7 +4977,7 @@ def interpret_vision_model(settings=None):
         X_top = X[top_features]
 
         # Refit the model on this subset of features
-        model = RandomForestClassifier(random_state=42, n_jobs=settings['n_jobs'])
+        model = RandomForestClassifier(random_state=_run_random_state(42), n_jobs=settings['n_jobs'])
         model.fit(X_top, y)
 
         # Sample a smaller subset of rows to speed up SHAP
@@ -3152,7 +4987,7 @@ def interpret_vision_model(settings=None):
             # empty matrix to explain -> IndexError. Clamp to at least one
             # row; for >=100 objects the clamp is a no-op.
             sample = max(1, min(int(len(X_top) / 100), len(X_top)))
-            X_sample = X_top.sample(sample, random_state=42)
+            X_sample = X_top.sample(sample, random_state=_run_random_state(42))
         else:
             X_sample = X_top
 

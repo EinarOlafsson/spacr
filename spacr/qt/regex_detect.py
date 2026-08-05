@@ -28,7 +28,6 @@ from __future__ import annotations
 import random
 import re
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 # ---------------------------------------------------------------------------
@@ -290,7 +289,6 @@ def _synthesise_regex(filenames: Sequence[str]) -> Optional[str]:
         "A": "AID",
     }
     parts: List[str] = []
-    i = 0
     used_groups: Set[str] = set()
     stem, dot, suffix = template.rpartition(".")
     if not dot:

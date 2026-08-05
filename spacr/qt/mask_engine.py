@@ -38,30 +38,82 @@ def load_image_and_mask(folder: str, filename: str) -> Tuple[np.ndarray, np.ndar
 
     - Multi-channel images are collapsed to grayscale via BT.601 weights.
     - Missing masks are created as zeros of the image shape.
-    - Both are returned as uint16 / uint8 arrays (image / mask).
+    - Images are returned as uint16; masks preserve uint8/uint16 label IDs.
+    - A mask saved by :func:`save_mask` is found even when the source image
+      had a non-TIFF extension.
+
+    :raises ValueError: for unsupported dimensions or an image/mask shape
+        mismatch.
     """
     image_path = os.path.join(folder, filename)
     image = imageio.imread(image_path)
     if image.ndim == 3:
-        if image.shape[2] == 4:
+        if image.shape[2] == 1:
+            image = np.squeeze(image, axis=-1)
+        elif image.shape[2] == 4:
             image = image[..., :3]
-        image = np.dot(image[..., :3], [0.2989, 0.5870, 0.1140]).astype(np.uint8)
-    if image.ndim == 3 and image.shape[2] == 1:
-        image = np.squeeze(image, axis=-1)
+            image = np.dot(
+                image, [0.2989, 0.5870, 0.1140]
+            )
+        elif image.shape[2] == 3:
+            image = np.dot(
+                image, [0.2989, 0.5870, 0.1140]
+            )
+        else:
+            raise ValueError(
+                f"Unsupported channel count {image.shape[2]} in {image_path}; "
+                "expected grayscale, RGB, or RGBA."
+            )
+    if image.ndim != 2:
+        raise ValueError(
+            f"Unsupported image shape {image.shape} in {image_path}; "
+            "Make Masks expects one 2-D field."
+        )
+    if not np.all(np.isfinite(image)):
+        raise ValueError(f"Image contains non-finite values: {image_path}")
+    if image.size and float(image.min()) < 0:
+        raise ValueError(f"Image contains negative intensities: {image_path}")
     if image.dtype != np.uint16:
         max_val = float(image.max()) if image.size else 1.0
         if max_val <= 0:
             max_val = 1.0
         image = (image / max_val * 65535.0).astype(np.uint16)
 
-    mask_path = os.path.join(folder, "masks", filename)
-    if os.path.isfile(mask_path):
+    mask_dir = os.path.join(folder, "masks")
+    stem = os.path.splitext(filename)[0]
+    candidates = [
+        os.path.join(mask_dir, filename),
+        os.path.join(mask_dir, stem + ".tif"),
+        os.path.join(mask_dir, stem + ".tiff"),
+    ]
+    mask_path = next((path for path in candidates if os.path.isfile(path)), "")
+    if mask_path:
         mask = imageio.imread(mask_path)
-        if mask.dtype != np.uint8:
-            m = float(mask.max()) if mask.size else 1.0
-            if m <= 0:
-                m = 1.0
-            mask = (mask / m * 255.0).astype(np.uint8)
+        if mask.ndim == 3 and mask.shape[-1] == 1:
+            mask = np.squeeze(mask, axis=-1)
+        if mask.ndim != 2:
+            raise ValueError(
+                f"Unsupported mask shape {mask.shape} in {mask_path}; "
+                "expected a 2-D label image."
+            )
+        if mask.shape != image.shape:
+            raise ValueError(
+                f"Mask shape {mask.shape} does not match image shape "
+                f"{image.shape} for {filename}."
+            )
+        if not np.issubdtype(mask.dtype, np.integer):
+            if not np.all(np.isfinite(mask)):
+                raise ValueError(f"Mask contains non-finite values: {mask_path}")
+            if np.any(mask < 0) or np.any(mask != np.floor(mask)):
+                raise ValueError(
+                    f"Mask must contain non-negative integer labels: {mask_path}"
+                )
+        maximum = int(mask.max()) if mask.size else 0
+        if maximum > np.iinfo(np.uint16).max:
+            raise ValueError(
+                f"Mask label {maximum} exceeds uint16 capacity: {mask_path}"
+            )
+        mask = mask.astype(np.uint8 if maximum <= 255 else np.uint16)
     else:
         mask = np.zeros(image.shape[:2], dtype=np.uint8)
     return image, mask

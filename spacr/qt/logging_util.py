@@ -78,7 +78,30 @@ class QtLogHandler(QObject, logging.Handler):
         ))
 
     def emit(self, record: logging.LogRecord) -> None:   # noqa: D401
-        """Format and re-emit ``record`` over :attr:`record_ready`."""
+        """Format and re-emit ``record`` over :attr:`record_ready`.
+
+        Records produced *while* a console panel is mid-write are dropped.
+        Every ``ConsolePanel`` in the process subscribes to
+        :attr:`record_ready`, so without this a record logged from inside
+        ``append_stdout`` — which the function-trace profile hook emits on
+        entry to every spaCR function — comes straight back into the same
+        widget. ``_StdoutBlock.append`` answers it with a nested
+        ``setPlainText``, and the inner call destroys the QTextDocument's
+        frames while the outer one is still inside
+        ``QTextDocumentPrivate::clear()``: a segfault, gdb'd to
+        ``QTextFrame::~QTextFrame``.
+
+        The latch lives in :mod:`spacr.qt.verbose_logger` because that
+        module owns the console-target contract; this is the second sink
+        that has to honour it. Measured: a 30-file shard still dumped core
+        in the same place when only the first sink was guarded.
+        """
+        try:
+            from .verbose_logger import console_write_in_progress
+            if console_write_in_progress():
+                return
+        except Exception:
+            pass
         try:
             text = self.format(record)
             self.record_ready.emit(text + "\n", record.levelno)

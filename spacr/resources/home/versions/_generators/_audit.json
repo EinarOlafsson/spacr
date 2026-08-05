@@ -180,62 +180,29 @@
   "scrollbars": []
  },
  "1|dark": {
-  "clipped": [
-   "'spaCR' needs 101x61, has 220x24",
-   "'Core pipeline' needs 123x31, has 220x23",
-   "'Data & batch runs' needs 160x31, has 220x23",
-   "'Segmentation models' needs 184x31, has 220x24",
-   "'Results & QC' needs 118x31, has 220x23",
-   "'Toxoplasma assays' needs 164x31, has 220x24"
-  ],
+  "clipped": [],
   "elided": [],
-  "overflow": [
-   "layout needs 1406 px of height, canvas is 900"
-  ],
+  "overflow": [],
   "scrollbars": [
-   "Horizontal in QWidget",
-   "Horizontal in QWidget",
-   "Horizontal in QWidget",
+   "Vertical in QWidget",
    "Vertical in QWidget"
   ]
  },
  "1|light": {
-  "clipped": [
-   "'spaCR' needs 101x61, has 220x24",
-   "'Core pipeline' needs 123x31, has 220x23",
-   "'Data & batch runs' needs 160x31, has 220x23",
-   "'Segmentation models' needs 184x31, has 220x24",
-   "'Results & QC' needs 118x31, has 220x23",
-   "'Toxoplasma assays' needs 164x31, has 220x24"
-  ],
+  "clipped": [],
   "elided": [],
-  "overflow": [
-   "layout needs 1406 px of height, canvas is 900"
-  ],
+  "overflow": [],
   "scrollbars": [
-   "Horizontal in QWidget",
-   "Horizontal in QWidget",
-   "Horizontal in QWidget",
+   "Vertical in QWidget",
    "Vertical in QWidget"
   ]
  },
  "1|space": {
-  "clipped": [
-   "'spaCR' needs 101x61, has 220x24",
-   "'Core pipeline' needs 123x31, has 220x23",
-   "'Data & batch runs' needs 160x31, has 220x23",
-   "'Segmentation models' needs 184x31, has 220x24",
-   "'Results & QC' needs 118x31, has 220x23",
-   "'Toxoplasma assays' needs 164x31, has 220x24"
-  ],
+  "clipped": [],
   "elided": [],
-  "overflow": [
-   "layout needs 1406 px of height, canvas is 900"
-  ],
+  "overflow": [],
   "scrollbars": [
-   "Horizontal in QWidget",
-   "Horizontal in QWidget",
-   "Horizontal in QWidget",
+   "Vertical in QWidget",
    "Vertical in QWidget"
   ]
  },
@@ -330,49 +297,28 @@
   "scrollbars": []
  },
  "25|dark": {
-  "clipped": [
-   "'spaCR' needs 101x61, has 220x24",
-   "'Core pipeline' needs 123x31, has 220x23",
-   "'Data & batch runs' needs 160x31, has 220x23",
-   "'Segmentation models' needs 184x31, has 220x24",
-   "'Results & QC' needs 118x31, has 220x23",
-   "'Toxoplasma assays' needs 164x31, has 220x24"
-  ],
+  "clipped": [],
   "elided": [],
-  "overflow": [
-   "layout needs 1406 px of height, canvas is 900"
-  ],
-  "scrollbars": []
+  "overflow": [],
+  "scrollbars": [
+   "Vertical in QWidget"
+  ]
  },
  "25|light": {
-  "clipped": [
-   "'spaCR' needs 101x61, has 220x24",
-   "'Core pipeline' needs 123x31, has 220x23",
-   "'Data & batch runs' needs 160x31, has 220x23",
-   "'Segmentation models' needs 184x31, has 220x24",
-   "'Results & QC' needs 118x31, has 220x23",
-   "'Toxoplasma assays' needs 164x31, has 220x24"
-  ],
+  "clipped": [],
   "elided": [],
-  "overflow": [
-   "layout needs 1406 px of height, canvas is 900"
-  ],
-  "scrollbars": []
+  "overflow": [],
+  "scrollbars": [
+   "Vertical in QWidget"
+  ]
  },
  "25|space": {
-  "clipped": [
-   "'spaCR' needs 101x61, has 220x24",
-   "'Core pipeline' needs 123x31, has 220x23",
-   "'Data & batch runs' needs 160x31, has 220x23",
-   "'Segmentation models' needs 184x31, has 220x24",
-   "'Results & QC' needs 118x31, has 220x23",
-   "'Toxoplasma assays' needs 164x31, has 220x24"
-  ],
+  "clipped": [],
   "elided": [],
-  "overflow": [
-   "layout needs 1406 px of height, canvas is 900"
-  ],
-  "scrollbars": []
+  "overflow": [],
+  "scrollbars": [
+   "Vertical in QWidget"
+  ]
  },
  "26|dark": {
   "clipped": [],

@@ -97,9 +97,11 @@ def test_pick_glm_binary():
     assert "Binomial" in type(fam).__name__
 
 
-def test_pick_glm_strict_0_1_raises():
-    with pytest.raises(ValueError):
-        ML.pick_glm_family_and_link(np.array([0.2, 0.5, 0.8]))
+def test_pick_glm_strict_0_1_is_binomial_not_a_refusal():
+    # Was "raises ValueError: Use BetaModel"; a proportion is a binomial mean
+    # and the neighbouring branch already fitted it as one.
+    fam = ML.pick_glm_family_and_link(np.array([0.2, 0.5, 0.8]))
+    assert "Binomial" in type(fam).__name__
 
 
 def test_pick_glm_count_poisson():

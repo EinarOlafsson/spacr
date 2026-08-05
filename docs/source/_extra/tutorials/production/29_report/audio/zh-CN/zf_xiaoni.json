@@ -4,47 +4,147 @@
   "voice": "zf_xiaoni",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 40.15,
+  "total_duration": 171.68,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 6.75,
-      "scene_end": 7.2,
-      "duration": 7.2,
-      "text": "创建一个可共享的HTML或PDF总结,包含质量控制,数字,统计,设置和版本."
+      "speech_end": 11.55,
+      "scene_end": 12.15,
+      "duration": 12.15,
+      "text": "报告是只能阅读的文件构建器. 它将已经在运行文件中存在的证据转化为可共享的HTML,PDF或两者;它不会重新计算结果或写入源文件.",
+      "speech_text": "报告是只能阅读的文件构建器. 它将已经在运行文件中存在的证据转化为可共享的HTML,PDF或两者;它不会重新计算结果或写入源文件.",
+      "phonemes": "pau↘kau↘ ʂɨ↘ ꭧɨ↓nə↗ŋ ɥe↘tu↗ tɤ wə↗nʨjɛ↘n kou↘ʨjɛ↘n ʨʰi↘. tʰa→ ʨja→ŋ i↓ʨi→ŋ ʦai↘ y↘nɕi↗ŋ wə↗nʨjɛ↘n ꭧʊ→ŋ ʦʰwə↗nʦai↘ tɤ ꭧə↘ŋʨy↘ ꭧwa↓nxwa↘ wei↘ kʰɤ↓ kʊ↘ŋɕja↓ŋ tɤHTML,PDFxwo↘ lja↓ŋꭧɤ↓;tʰa→ pu↗xwei↘ ꭧʰʊ↗ŋɕi→n ʨi↘swa↘nʨje↗kwo↓ xwo↘ ɕje↓ɻu↘ ɥɛ↗nwə↗nʨjɛ↘n."
     },
     {
       "scene": 2,
-      "speech_start": 7.2,
-      "speech_end": 16.025,
-      "scene_end": 16.474999999999998,
-      "duration": 9.274999999999999,
-      "text": "从 Results and quality control 部分打开 Report。 选择完成的 spaCR 项目,以及包括的运行,表格,数字和部分."
+      "speech_start": 12.15,
+      "speech_end": 23.825000000000003,
+      "scene_end": 24.445000000000004,
+      "duration": 12.295000000000003,
+      "text": "选择或放下包含测量,质量控制文物,结果和设置的平板或运行文件,然后单击扫描. 这本教程使用转移实验的完成测试运行.",
+      "speech_text": "选择或放下包含测量,质量控制文物,结果和设置的平板或运行文件,然后单击扫描. 这本教程使用转移实验的完成测试运行.",
+      "phonemes": "ɕɥɛ↓nʦɤ↗ xwo↘ fa↘ŋɕja↘ pau→xa↗n ʦʰɤ↘lja↗ŋ,ꭧɨ↘lja↘ŋ kʰʊ↘ŋꭧɨ↘ wə↗nu↘,ʨje↗kwo↓ xɤ↗ ʂɤ↘ꭧɨ↘ tɤ pʰi↗ŋpa↓n xwo↘ y↘nɕi↗ŋ wə↗nʨjɛ↘n,ɻa↗nxou↘ ta→nʨi→ sau↓mjau↗. ꭧɤ↘pə↓n ʨjau↘ꭧʰə↗ŋ ʂɨ↓jʊ↘ŋ ꭧwa↓ni↗ ʂɨ↗jɛ↘n tɤ wa↗nꭧʰə↗ŋ ʦʰɤ↘ʂɨ↘y↘nɕi↗ŋ."
     },
     {
       "scene": 3,
-      "speech_start": 16.474999999999998,
-      "speech_end": 24.4,
-      "scene_end": 24.849999999999998,
-      "duration": 8.375,
-      "text": "在主要配置区域中,配置标题,作者,条件标签,质量门,输出格式和隐私敏感的字段."
+      "speech_start": 24.445000000000004,
+      "speech_end": 36.895,
+      "scene_end": 37.615,
+      "duration": 13.169999999999998,
+      "text": "绿色判决来自实际运行状态的邮票:所有五项测量试验都成功. 有六个报告部分,有两个没有;发现了十七个数字,但没有一个可以嵌入的拉斯特图像.",
+      "speech_text": "绿色判决来自实际运行状态的邮票:所有五项测量试验都成功. 有六个报告部分,有两个没有;发现了十七个数字,但没有一个可以嵌入的拉斯特图像.",
+      "phonemes": "ly↘sɤ↘ pʰa↘nʨɥe↗ lai↗ʦɨ↘ ʂɨ↗ʨi↘ y↘nɕi↗ŋ ꭧwa↘ŋtʰai↘ tɤ jou↗pʰjau↘:swo↓jou↓ u↓ɕja↘ŋ ʦʰɤ↘lja↗ŋ ʂɨ↘jɛ↘n tou→ ꭧʰə↗ŋkʊ→ŋ. jou↓ ljou↘kɤ↘ pau↘kau↘ pu↘fə↘n,jou↓ lja↓ŋkɤ↘ mei↗jou↓;fa→ɕjɛ↘n lɤ ʂɨ↗ʨʰi→kɤ↘ ʂu↘ʦɨ↘,ta↘n mei↗jou↓ i↗kɤ↘ kʰɤ↓i↓ ʨʰjɛ↘nɻu↘ tɤ la→sɨ→tʰɤ↘ tʰu↗ɕja↘ŋ."
     },
     {
       "scene": 4,
-      "speech_start": 24.849999999999998,
-      "speech_end": 31.924999999999997,
-      "scene_end": 32.375,
-      "duration": 7.525000000000002,
-      "text": "在完整运行之前,请检查可见设置,并在可用的前景或测试模式使用."
+      "speech_start": 37.615,
+      "speech_end": 49.965,
+      "scene_end": 50.685,
+      "duration": 13.07,
+      "text": "一个合作者将收到什么? 这一运行包括状态,来源,关键数字库存,统计数据,设置和附件数据;QC细分和QC板仍然显著标记不存在,而不是消失.",
+      "speech_text": "一个合作者将收到什么? 这一运行包括状态,来源,关键数字库存,统计数据,设置和附件数据;QC细分和QC板仍然显著标记不存在,而不是消失.",
+      "phonemes": "i↗kɤ↘ xɤ↗ʦwo↘ꭧɤ↓ ʨja→ŋ ʂou→tau↘ ʂə↗nmɤ? ꭧɤ↘i→ y↘nɕi↗ŋ pau→kʰwo↘ ꭧwa↘ŋtʰai↘,lai↗ɥɛ↗n,kwa→nʨjɛ↘n ʂu↘ʦɨ↘ kʰu↘ʦʰwə↗n,tʰʊ↓ŋʨi↘ʂu↘ʨy↘,ʂɤ↘ꭧɨ↘ xɤ↗ fu↘ʨjɛ↘n ʂu↘ʨy↘;QCɕi↘fə→n xɤ↗QCpa↓n ɻə↗ŋɻa↗n ɕjɛ↓nꭧu↘ pjau→ʨi↘ pu↘ ʦʰwə↗nʦai↘,ɚ↗ pu↗ʂɨ↘ ɕjau→ʂɨ→."
     },
     {
       "scene": 5,
-      "speech_start": 32.375,
-      "speech_end": 39.5,
-      "scene_end": 40.15,
-      "duration": 7.774999999999999,
-      "text": "工作流程完成后,便携式报告记录结论,以及需要复制的设置和软件版本."
+      "speech_start": 50.685,
+      "speech_end": 62.31,
+      "scene_end": 62.97,
+      "duration": 12.284999999999997,
+      "text": "格式提供一个独立的HTML文件,PDF转录或两者. 嵌入到最多的边界, 拉斯特数字, 因此报告不能长得无边界; 零没有嵌入图像, 而上限是二百.",
+      "speech_text": "格式提供一个独立的HTML文件,PDF转录或两者. 嵌入到最多的边界, 拉斯特数字, 因此报告不能长得无边界; 零没有嵌入图像, 而上限是二百.",
+      "phonemes": "kɤ↗ʂɨ↘ tʰi↗kʊ→ŋ i↗kɤ↘ tu↗li↘ tɤHTMLwə↗nʨjɛ↘n,PDFꭧwa↓nlu↘ xwo↘ lja↓ŋꭧɤ↓. ʨʰjɛ↘nɻu↘ tau↘ ʦwei↘ two→ tɤ pjɛ→nʨje↘, la→sɨ→tʰɤ↘ ʂu↘ʦɨ↘, i→nʦʰɨ↓ pau↘kau↘ pu↘nə↗ŋ ꭧa↓ŋtɤ↗ u↗ pjɛ→nʨje↘; li↗ŋ mei↗jou↓ ʨʰjɛ↘nɻu↘ tʰu↗ɕja↘ŋ, ɚ↗ ʂa↘ŋɕjɛ↘n ʂɨ↘ ɚ↘pai↓."
+    },
+    {
+      "scene": 6,
+      "speech_start": 62.97,
+      "speech_end": 73.92,
+      "scene_end": 74.56,
+      "duration": 11.590000000000003,
+      "text": "具体选择目的地. 建议的路径在运行文件之外,因此生成报告不能轻松修改一个不变的实验;在这里,HTML被写入教程工作空间.",
+      "speech_text": "具体选择目的地. 建议的路径在运行文件之外,因此生成报告不能轻松修改一个不变的实验;在这里,HTML被写入教程工作空间.",
+      "phonemes": "ʨy↘tʰi↓ ɕɥɛ↓nʦɤ↗ mu↘ti↘ti↘. ʨjɛ↘ni↘ tɤ lu↘ʨi↘ŋ ʦai↘ y↘nɕi↗ŋ wə↗nʨjɛ↘n ꭧɨ→wai↘,i→nʦʰɨ↓ ʂə→ŋꭧʰə↗ŋ pau↘kau↘ pu↘nə↗ŋ ʨʰi→ŋsʊ→ŋ ɕjou→kai↓ i↗kɤ↘ pu↘pjɛ↘n tɤ ʂɨ↗jɛ↘n;ʦai↘ ꭧɤ↘li↓,HTMLpei↘ ɕje↓ɻu↘ ʨjau↘ꭧʰə↗ŋ kʊ→ŋʦwo↘ kʰʊ→ŋʨjɛ→n."
+    },
+    {
+      "scene": 7,
+      "speech_start": 74.56,
+      "speech_end": 87.135,
+      "scene_end": 87.775,
+      "duration": 13.215000000000003,
+      "text": "单击生成报告. spaCR再次扫描文件,以便文件反映其当前状态,将符合条件的拉斯特数字嵌入到盖顶,并编写一个独立的文件,没有网络依赖性.",
+      "speech_text": "单击生成报告. 斯佩克尔再次扫描文件,以便文件反映其当前状态,将符合条件的拉斯特数字嵌入到盖顶,并编写一个独立的文件,没有网络依赖性.",
+      "phonemes": "ta→nʨi→ ʂə→ŋꭧʰə↗ŋ pau↘kau↘. sɨ→ pʰei↘kʰɤ↘ ɚ↓ ʦai↘ʦʰɨ↘ sau↓mjau↗ wə↗nʨjɛ↘n,i↓pjɛ↘n wə↗nʨjɛ↘n fa↓ni↘ŋ ʨʰi↗ ta→ŋʨʰjɛ↗n ꭧwa↘ŋtʰai↘,ʨja→ŋ fu↗xɤ↗tʰjau↗ʨjɛ↘n tɤ la→sɨ→tʰɤ↘ ʂu↘ʦɨ↘ ʨʰjɛ↘nɻu↘ tau↘ kai↘ ti↓ŋ,pi↘ŋ pjɛ→nɕje↓ i↗kɤ↘ tu↗li↘ tɤ wə↗nʨjɛ↘n,mei↗jou↓ wa↓ŋlwo↘ i→lai↘ɕi↘ŋ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 87.775,
+      "speech_end": 97.525,
+      "scene_end": 98.105,
+      "duration": 10.329999999999998,
+      "text": "输入结果将文件和目的地命名, 打开仅在成功编写后可用. 在此报告失败,而不是隐藏在模态对话后面.",
+      "speech_text": "输入结果将文件和目的地命名, 打开仅在成功编写后可用. 在此报告失败,而不是隐藏在模态对话后面.",
+      "phonemes": "ʂu→ɻu↘ ʨje↗kwo↓ ʨja→ŋ wə↗nʨjɛ↘n xɤ↗ mu↘ti↘ti↘ mi↘ŋmi↗ŋ, ta↓kʰai→ ʨi↓n ʦai↘ ꭧʰə↗ŋkʊ→ŋ pjɛ→nɕje↓ xou↘ kʰɤ↓jʊ↘ŋ. ʦai↘ ʦʰɨ↓ pau↘kau↘ ʂɨ→pai↘,ɚ↗ pu↗ʂɨ↘ i↓nʦʰa↗ŋ ʦai↘ mwo↗tʰai↘ twei↘xwa↘ xou↘mjɛ↘n."
+    },
+    {
+      "scene": 9,
+      "speech_start": 98.105,
+      "speech_end": 104.18,
+      "scene_end": 104.66000000000001,
+      "duration": 6.555000000000007,
+      "text": "点击开放,将最新生成的文档交给系统浏览器或PDF浏览器.",
+      "speech_text": "点击开放,将最新生成的文档交给系统浏览器或PDF浏览器.",
+      "phonemes": "tjɛ↓nʨi→ kʰai→fa↘ŋ,ʨja→ŋ ʦwei↘ɕi→n ʂə→ŋꭧʰə↗ŋ tɤ wə↗nta↘ŋ ʨjau→kei↓ ɕi↘tʰʊ↓ŋ ljou↗la↓nʨʰi↘ xwo↘PDFljou↗la↓nʨʰi↘."
+    },
+    {
+      "scene": 10,
+      "speech_start": 104.66000000000001,
+      "speech_end": 112.53500000000001,
+      "scene_end": 113.055,
+      "duration": 8.394999999999996,
+      "text": "状态证实哪个输出已打开. 下面的视图显示了本次运行生成的真实HTML,而不是假报告.",
+      "speech_text": "状态证实哪个输出已打开. 下面的视图显示了本次运行生成的真实HTML,而不是假报告.",
+      "phonemes": "ꭧwa↘ŋtʰai↘ ꭧə↘ŋʂɨ↗ na↓kɤ ʂu→ꭧʰu→ i↓ ta↓kʰai→. ɕja↘mjɛ↘n tɤ ʂɨ↘tʰu↗ ɕjɛ↓nʂɨ↘ lɤ pə↓nʦʰɨ↘ y↘nɕi↗ŋ ʂə→ŋꭧʰə↗ŋ tɤ ꭧə→nʂɨ↗HTML,ɚ↗ pu↗ʂɨ↘ ʨja↓ pau↘kau↘."
+    },
+    {
+      "scene": 11,
+      "speech_start": 113.055,
+      "speech_end": 127.70500000000001,
+      "scene_end": 128.525,
+      "duration": 15.469999999999999,
+      "text": "文件以完整的判决,缺乏QC和未嵌入的数据的诚实摘要以及链接的内容列表开幕. 运行状态记录了五个成功测量项中的五个,而来源保留了源,spaCR版本,Git修改,Python环境和包版本.",
+      "speech_text": "文件以完整的判决,缺乏QC和未嵌入的数据的诚实摘要以及链接的内容列表开幕. 运行状态记录了五个成功测量项中的五个,而来源保留了源,斯佩克尔版本,Git修改,Python环境和包版本.",
+      "phonemes": "wə↗nʨjɛ↘n i↓ wa↗nꭧə↓ŋ tɤ pʰa↘nʨɥe↗,ʨʰɥe→fa↗QCxɤ↗ wei↘ ʨʰjɛ↘nɻu↘ tɤ ʂu↘ʨy↘ tɤ ꭧʰə↗ŋʂɨ↗ ꭧai→jau↘ i↓ʨi↗ ljɛ↘nʨje→ tɤ nei↘ɻʊ↗ŋ lje↘pjau↓ kʰai→mu↘. y↘nɕi↗ŋ ꭧwa↘ŋtʰai↘ ʨi↘lu↘ lɤ u↓kɤ↘ ꭧʰə↗ŋkʊ→ŋ ʦʰɤ↘lja↗ŋ ɕja↘ŋꭧʊ→ŋ tɤ u↓kɤ↘,ɚ↗ lai↗ɥɛ↗n pau↓ljou↗ lɤ ɥɛ↗n,sɨ→ pʰei↘kʰɤ↘ ɚ↓ pa↓npə↓n,Gitɕjou→kai↓,Pythonxwa↗nʨi↘ŋ xɤ↗ pau→ pa↓npə↓n."
+    },
+    {
+      "scene": 12,
+      "speech_start": 128.525,
+      "speech_end": 142.57500000000002,
+      "scene_end": 143.29500000000002,
+      "duration": 14.77000000000001,
+      "text": "\"关键图\"列出了所有遗漏的十七个剧情,并解释了为什么每个剧情都不存在. 它们是矢量PDF文件,spaCR故意没有PDF rasterizer依赖;提高 raster-figure cap不会将它们转换或假装它们嵌入.",
+      "speech_text": "\"关键图\"列出了所有遗漏的十七个剧情,并解释了为什么每个剧情都不存在. 它们是矢量PDF文件,斯佩克尔故意没有PDF rasterizer依赖;提高 raster-figure cap不会将它们转换或假装它们嵌入.",
+      "phonemes": "\"kwa→nʨjɛ↘n tʰu↗\"lje↘ꭧʰu→ lɤ swo↓jou↓ i↗lou↘ tɤ ʂɨ↗ʨʰi→kɤ↘ ʨy↘ʨʰi↗ŋ,pi↘ŋ ʨje↓ʂɨ↘ lɤ wei↘ʂə↗nmɤ mei↓kɤ↘ ʨy↘ʨʰi↗ŋ tou→ pu↘ ʦʰwə↗nʦai↘. tʰa→mən ʂɨ↘ ʂɨ↓lja↘ŋPDFwə↗nʨjɛ↘n,sɨ→ pʰei↘kʰɤ↘ ɚ↓ ku↘i↘ mei↗jou↓PDF rasterizeri→lai↘;tʰi↗kau→ raster-figure cappu↗xwei↘ ʨja→ŋ tʰa→mən ꭧwa↓nxwa↘n xwo↘ ʨja↓ꭧwa→ŋ tʰa→mən ʨʰjɛ↘nɻu↘."
+    },
+    {
+      "scene": 13,
+      "speech_start": 143.29500000000002,
+      "speech_end": 154.32000000000002,
+      "scene_end": 155.00000000000003,
+      "duration": 11.705000000000013,
+      "text": "统计数据将记录的数据库表大小和保存的结果表行复制. 报告指出,本页面上没有任何东西被重新计算,汇总或重新测试,",
+      "speech_text": "统计数据将记录的数据库表大小和保存的结果表行复制. 报告指出,本页面上没有任何东西被重新计算,汇总或重新测试,",
+      "phonemes": "tʰʊ↓ŋʨi↘ʂu↘ʨy↘ ʨja→ŋ ʨi↘lu↘ tɤ ʂu↘ʨy↘kʰu↘ pjau↓ ta↘ɕjau↓ xɤ↗ pau↓ʦʰwə↗n tɤ ʨje↗kwo↓ pjau↓ɕi↗ŋ fu↘ꭧɨ↘. pau↘kau↘ ꭧɨ↓ꭧʰu→,pə↓n je↘mjɛ↘n ʂa↘ŋ mei↗jou↓ ɻə↘nxɤ↗ tʊ→ŋɕi→ pei↘ ꭧʰʊ↗ŋɕi→n ʨi↘swa↘n,xwei↘ʦʊ↓ŋ xwo↘ ꭧʰʊ↗ŋɕi→n ʦʰɤ↘ʂɨ↘,"
+    },
+    {
+      "scene": 14,
+      "speech_start": 155.00000000000003,
+      "speech_end": 170.80000000000004,
+      "scene_end": 171.68000000000004,
+      "duration": 16.680000000000007,
+      "text": "设置保存保存的 CSV 文件和运行日志快照,包括道,集群,批量控制,绘图和运行时间值. 与附件的测量功能词典和文件库存相结合,这使得报告可用于审查,同时保持每一个缺失的部分都明确.",
+      "speech_text": "设置保存保存的 CSV 文件和运行日志快照,包括道,集群,批量控制,绘图和运行时间值. 与附件的测量功能词典和文件库存相结合,这使得报告可用于审查,同时保持每一个缺失的部分都明确.",
+      "phonemes": "ʂɤ↘ꭧɨ↘ pau↓ʦʰwə↗n pau↓ʦʰwə↗n tɤ CSV wə↗nʨjɛ↘n xɤ↗ y↘nɕi↗ŋɻɨ↘ꭧɨ↘ kʰwai↘ꭧau↘,pau→kʰwo↘ tau↘,ʨi↗ʨʰy↗n,pʰi→lja↘ŋ kʰʊ↘ŋꭧɨ↘,xwei↘tʰu↗ xɤ↗ y↘nɕi↗ŋ ʂɨ↗ʨjɛ→n ꭧɨ↗. y↓ fu↘ʨjɛ↘n tɤ ʦʰɤ↘lja↗ŋ kʊ→ŋnə↗ŋ ʦʰɨ↗tjɛ↓n xɤ↗ wə↗nʨjɛ↘n kʰu↘ʦʰwə↗n ɕja→ŋʨje↗xɤ↗,ꭧɤ↘ ʂɨ↓tɤ pau↘kau↘ kʰɤ↓ jʊ↘ŋy↗ ʂə↓nꭧʰa↗,tʰʊ↗ŋʂɨ↗ pau↓ꭧʰɨ↗ mei↓ i↗kɤ↘ ʨʰɥe→ʂɨ→ tɤ pu↘fə↘n tou→ mi↗ŋʨʰɥe↘."
     }
   ]
 }

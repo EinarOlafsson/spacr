@@ -4,47 +4,137 @@
   "voice": "pm_alex",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 43.75,
+  "total_duration": 237.66,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 3.05,
-      "scene_end": 3.5,
-      "duration": 3.5,
-      "text": "Este tutorial abrange o Database Browser."
+      "speech_end": 21.2,
+      "scene_end": 21.919999999999998,
+      "duration": 21.919999999999998,
+      "text": "O Database Browser inspeciona grandes bancos de dados de resultados spaCR sem uma linha de comando. Abre-o em Resultados e Controle de Qualidade. Ele começa apenas para leitura em ambas as camadas: a interface não oferece editores de células, e o SQLite usa modos apenas para leitura e apenas para consulta, a menos que a edição seja ativada deliberadamente em outros lugares.",
+      "speech_text": "O Database Browser inspeciona grandes bancos de dados de resultados espáquer sem uma linha de comando. Abre-o em Resultados e Controle de Qualidade. Ele começa apenas para leitura em ambas as camadas: a interface não oferece editores de células, e o SQLite usa modos apenas para leitura e apenas para consulta, a menos que a edição seja ativada deliberadamente em outros lugares.",
+      "phonemes": "ʊ dˌatabˈazy browsˈɛɾ ˌiŋspesiˈonæ ɡrˈɐ̃ŋʤyz bˈɐ̃ŋkʊz ʤy dˈadʊz ʤy xˌezuwtˈadʊz ˌespˈakɛr sˈAŋ ˌumæ lˈiɲæ ʤy kˌomˈɐ̃ŋdʊ. ˈabriu Aŋ xˌezuwtˈadʊz i kˌoŋtrˈɔly ʤy kwˌalidˈaʤy. ˌely kˌomˈɛsæ ˌapˈenæs pˌaɾæ lˌAtˈuɾæ ˈAŋ ˈɐ̃mbæz as kˌæmˈadæs: a ˌiŋteɾəfˈasy nˌɐ̃ʊ̃ ˌofeɾˈɛsj ˌeʤitˈoɾyz ʤy sˈɛlulæs, i ʊ ˌɛsykˈe lˈiʧj ˈuzæ mˈɔdʊz ˌapˈenæs pˌaɾæ lˌAtˈuɾæ i ˌapˈenæs pˌaɾæ kˌoŋsˈuwtæ, a mˈenʊs ky a ˌeʤisˈɐ̃ʊ̃ sˈeʒæ ˌaʧivˈadæ dˌelibˌeɾadæmˈAŋʧj ˈAŋ ˈowtrʊz lˌuɡˈaɾys."
     },
     {
       "scene": 2,
-      "speech_start": 3.5,
-      "speech_end": 15.55,
-      "scene_end": 16.0,
-      "duration": 12.5,
-      "text": "Abra Database Browser na seção Data and batch runs. Abra o navegador de banco de dados na seção Dados e batches. Abra um banco de dados SQLite spaCR e selecione uma tabela ou consulta salva."
+      "speech_start": 21.919999999999998,
+      "speech_end": 37.019999999999996,
+      "scene_end": 37.66,
+      "duration": 15.739999999999998,
+      "text": "Digite um caminho measurements.db e clique em Abrir. Em vez disso, você pode escolher o banco de dados, escolher sua pasta de execução, ou soltar qualquer lugar nesta tela. Aqui abrimos o banco de dados de medições reais do experimento do tutorial transferido.",
+      "speech_text": "Digite um caminho measurements dot db e clique em Abrir. Em vez disso, você pode escolher o banco de dados, escolher sua pasta de execução, ou soltar qualquer lugar nesta tela. Aqui abrimos o banco de dados de medições reais do experimento do tutorial transferido.",
+      "phonemes": "ʤˌiʒˈiʧj ũŋ kˌæmˈiɲʊ mˌeazˌuɾemˈAŋtz dˈoʧ dˌebˈe i klˈikj ˈAŋ abrˈir. ˈAŋ vˈez ʤˈisʊ, vosˌe pˌɔʤj ˌeskoljˈeɾ ʊ bˈɐ̃ŋkʊ ʤy dˈadʊs, ˌeskoljˈer sˌuæ pˈastæ ʤj ˌezekusˈɐ̃ʊ̃, ow sowtˈar kwWkˌɛr luɡˈar nˌɛstæ tˈɛlæ. akˈi ˌabrˈimʊz ʊ bˈɐ̃ŋkʊ ʤy dˈadʊz ʤy mˌeʤisˈõjz xeˈIz dʊ ˌespeɾimˈAŋtʊ dʊ tˌutoɾiˈW trˌɐ̃ŋsfeɾˈidʊ."
     },
     {
       "scene": 3,
-      "speech_start": 16.0,
-      "speech_end": 25.05,
-      "scene_end": 25.5,
-      "duration": 9.5,
-      "text": "Na área de configuração principal, configure colunas, filtros, classificação, limites de filas, conjuntos e comportamento seguro de leitura ou edição."
+      "speech_start": 37.66,
+      "speech_end": 54.184999999999995,
+      "scene_end": 54.904999999999994,
+      "duration": 17.244999999999997,
+      "text": "O spaCR resolve o caminho, abre-o apenas para leitura e lista dez tabelas. Estes incluem medições de objetos, registros de imagem, configurações, contagens e histórico de anotações. O modo de edição permanece desligado; este tutorial nunca o possibilita e nunca escreve para a fonte.",
+      "speech_text": "O espáquer resolve o caminho, abre-o apenas para leitura e lista dez tabelas. Estes incluem medições de objetos, registros de imagem, configurações, contagens e histórico de anotações. O modo de edição permanece desligado; este tutorial nunca o possibilita e nunca escreve para a fonte.",
+      "phonemes": "u ˌespˈakɛr xˌezˈɔlvj ʊ kˌæmˈiɲʊ, ˈabriu ˌapˈenæs pˌaɾæ lˌAtˈuɾæ i lˈistæ dˈɛs tˌabˈɛlæs. ˌesʧyz ˌiŋklˈuAŋ mˌeʤisˈõjz ʤj ˌobʒˈɛtʊs, xˌeʒˈistrʊz ʤj ˌimˈaʒAŋ, kˌoŋfiɡˌuɾasˈõjs, kˌoŋtˈaʒAŋz i ˌistˈɔɾikʊ ʤj ˌænotasˈõjs. ʊ mˈɔdʊ ʤj ˌeʤisˈɐ̃ʊ̃ pˌeɾəmænˈɛsy dˌezliɡˈadʊ; ˌesʧy tˌutoɾiˈW nˌũŋkæ ʊ pˌosibilˈitæ i nˌũŋkæ ˌeskrˈɛvy pˌaɾæ a fˈoŋʧy."
     },
     {
       "scene": 4,
-      "speech_start": 25.5,
-      "speech_end": 33.2,
-      "scene_end": 33.650000000000006,
-      "duration": 8.150000000000006,
-      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+      "speech_start": 54.904999999999994,
+      "speech_end": 73.92999999999999,
+      "scene_end": 74.71,
+      "duration": 19.805,
+      "text": "Clique na tabela de Células. Contém 81.969 células medidas e 218 colunas de identificador, morfologia, intensidade, textura, distância e colocalização. A pré-visualização traz apenas o seu primeiro pedaço limitado, enquanto a contagem completa das linhas é relatada separadamente.",
+      "speech_text": "Clique na tabela de Células. Contém 81.969 células medidas e 218 colunas de identificador, morfologia, intensidade, textura, distância e colocalização. A pré-visualização traz apenas o seu primeiro pedaço limitado, enquanto a contagem completa das linhas é relatada separadamente.",
+      "phonemes": "klˈiky na tˌabˈɛlæ ʤy sˈɛlulæs. koŋtˈAŋ ˌoɪtˈAŋtæiˈũŋ.nˈɔvysˈAŋtʊzˌi sesˈAŋtæinˈɔvy sˈɛlulæz mˌeʤˈidæz i dˌuzˈAŋtʊzˌi dezˈoɪtʊ kˌolˈunæz ʤj ˌidAŋʧˌifikadˈor, mˌoɾəfoloʒˈiæ, ˌiŋtAŋsidˈaʤy, tˌestˈuɾæ, ʤˌistˈɐ̃ŋsjæ i kˌolokˌalizasˈɐ̃ʊ̃. a prˈɛvˌizuˌalizasˈɐ̃ʊ̃ trˈaz ˌapˈenæz ʊ seʊ prˌimˈAɾʊ pˌedˈasʊ lˌimitˈadʊ, ˌAŋkwˈɐ̃ŋtw a kˌoŋtˈaʒAŋ kˌomplˈɛtæ daz lˈiɲæz ɛ xˌelatˈadæ sˌepaɾˌadæmˈAŋʧy."
     },
     {
       "scene": 5,
-      "speech_start": 33.650000000000006,
-      "speech_end": 43.10000000000001,
-      "scene_end": 43.75000000000001,
-      "duration": 10.100000000000001,
-      "text": "Quando o fluxo de trabalho estiver concluído, as tabelas filtradas podem ser copiadas ou exportadas enquanto o banco de dados original permanece rastreável."
+      "speech_start": 74.71,
+      "speech_end": 91.785,
+      "scene_end": 92.485,
+      "duration": 17.775000000000006,
+      "text": "Pesquisar colunas para tornar uma grande tabela de características legível. A query cell_channel_1_mean restringe instantaneamente 218 colunas exibidas para a função de intensidade média de um único canal-1. Isso altera apenas a visão; não reinicia a consulta do banco de dados ou remove linhas.",
+      "speech_text": "Pesquisar colunas para tornar uma grande tabela de características legível. A query cell_channel_1_mean restringe instantaneamente 218 colunas exibidas para a função de intensidade média de um único canal-1. Isso altera apenas a visão; não reinicia a consulta do banco de dados ou remove linhas.",
+      "phonemes": "pˌeskizˈar kˌolˈunæs pˌaɾæ toɾənˈaɾ ˌumæ ɡrˈɐ̃ŋʤy tˌabˈɛlæ ʤy kˌaɾakteɾˈisʧikæz lˌeʒˈiveʊ. a kˈeɾi sˈɛl ʃɐ̃ŋnˈɛʊ ˈũŋ meˈɐ̃ŋ xˌestrˈiŋʒj ˌiŋstɐ̃ŋtˌæneæmˈAŋʧy dˌuzˈAŋtʊzˌi dezˈoɪtʊ kˌolˈunæz ˌezibˈidæs pˌaɾæ a fũŋsˈɐ̃ʊ̃ ʤj ˌiŋtAŋsidˈaʤy mˈɛʤjæ ʤj ũŋ ˈunikʊ kɐ̃nˈW ˈũŋ. ˈisw ˌWtˈɛɾæ ˌapˈenæz a vizˈɐ̃ʊ̃; nˌɐ̃ʊ̃ xˌAnisˈiæ a kˌoŋsˈuwtæ dʊ bˈɐ̃ŋkʊ ʤy dˈadʊz ow xˌemˈɔvy lˈiɲæs."
+    },
+    {
+      "scene": 6,
+      "speech_start": 92.485,
+      "speech_end": 113.785,
+      "scene_end": 114.52499999999999,
+      "duration": 22.039999999999992,
+      "text": "Limpar a pesquisa de coluna e definir as filas por trazer para 250. A pré-visualização usa o pagamento do conjunto de teclas em vez de um offset profundo, de modo que cada solicitação permanece limitada à medida que a tabela cresce. Clique em Carregar mais para adicionar o próximo pedaço sem carregar todas as 81.969 linhas na memória.",
+      "speech_text": "Limpar a pesquisa de coluna e definir as filas por trazer para 250. A pré-visualização usa o pagamento do conjunto de teclas em vez de um offset profundo, de modo que cada solicitação permanece limitada à medida que a tabela cresce. Clique em Carregar mais para adicionar o próximo pedaço sem carregar todas as 81.969 linhas na memória.",
+      "phonemes": "limpˈaɾ a pˌeskˈizæ ʤy kˌolˈunæ i dˌefinˈiɾ as fˈilæs por trazˈer pˌaɾæ dˌuzˈAŋtʊzˌi siŋkwˈAŋtæ. a prˈɛvˌizuˌalizasˈɐ̃ʊ̃ ˈuzæ ʊ pˌaɡæmˈAŋtʊ dʊ kˌoŋʒˈũŋtʊ ʤy tˈɛklæz ˈAŋ vˈez ʤj ũŋ ofsˈɛʧ prˌofˈũŋdʊ, ʤy mˈɔdʊ ky kˈadæ sˌolisˌitasˈɐ̃ʊ̃ pˌeɾəmænˈɛsy lˌimitˈad ˌaː mˌeʤˈidæ ky a tˌabˈɛlæ krˈɛsy. klˈikj ˈAŋ kˌaxeɡˈar mˈIs pˌaɾæ ˌaʤisˌionˈaɾ ʊ prˈɔsimʊ pˌedˈasʊ sˈAŋ kˌaxeɡˈar tˈodæz as ˌoɪtˈAŋtæiˈũŋ.nˈɔvysˈAŋtʊzˌi sesˈAŋtæinˈɔvy lˈiɲæz na mˌemˈɔɾjæ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 114.52499999999999,
+      "speech_end": 133.17499999999998,
+      "scene_end": 133.87499999999997,
+      "duration": 19.34999999999998,
+      "text": "A prévia agora mostra 500 de 81.969 linhas. A classificação permanece desligada enquanto apenas parte da tabela está carregada, porque a classificação de uma página parcial distorceria o conjunto de dados completo. Os filtros de base de dados, no entanto, sempre correm contra a tabela completa.",
+      "speech_text": "A prévia agora mostra 500 de 81.969 linhas. A classificação permanece desligada enquanto apenas parte da tabela está carregada, porque a classificação de uma página parcial distorceria o conjunto de dados completo. Os filtros de base de dados, no entanto, sempre correm contra a tabela completa.",
+      "phonemes": "a prˈɛvjæ ˌaɡˈɔɾæ mˈɔstræ kˌiɲˈAŋtʊz ʤy ˌoɪtˈAŋtæiˈũŋ.nˈɔvysˈAŋtʊzˌi sesˈAŋtæinˈɔvy lˈiɲæs. a klˌasifˌikasˈɐ̃ʊ̃ pˌeɾəmænˈɛsy dˌezliɡˈadæ ˌAŋkwˈɐ̃ŋtw ˌapˈenæs pˈaɾəʧy da tˌabˈɛlæ estˌa kˌaxeɡˈadæ, pˈoɾəkj a klˌasifˌikasˈɐ̃ʊ̃ ʤj ˌumæ pˈaʒinæ pˌaɾəsiˈW ʤˌistoɾəseɾˈiæ ʊ kˌoŋʒˈũŋtʊ ʤy dˈadʊs kˌomplˈɛtʊ. ʊs fˈiʊtrʊz ʤy bˈazy ʤy dˈadʊs, nʊ ˌAŋtˈɐ̃ŋtʊ, sˌAmpry kˈɔxAŋ kˈoŋtræ a tˌabˈɛlæ kˌomplˈɛtæ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 133.87499999999997,
+      "speech_end": 149.04999999999998,
+      "scene_end": 149.76999999999998,
+      "duration": 15.89500000000001,
+      "text": "Crie um filtro estruturado escolhendo cell_area, maior ou igual a, e 10.000, e clique em Aplicar filtro. spaCR valida a coluna e o operador e liga o valor como parâmetro. O SQL Raw está disponível para predicados avançados, mas é desnecessário aqui.",
+      "speech_text": "Crie um filtro estruturado escolhendo cell_area, maior ou igual a, e 10.000, e clique em Aplicar filtro. espáquer valida a coluna e o operador e liga o valor como parâmetro. O SQL Raw está disponível para predicados avançados, mas é desnecessário aqui.",
+      "phonemes": "krˈij ũŋ fˈiʊtrw ˌestrutuɾˈadw ˌeskoljˈAŋdʊ sˈɛl ˌaɾˈeæ, mIˈɔɾ ow iɡwˈW ˈa, i dˈɛs.zˈɛɾʊzˈɛɾʊ zˈɛɾʊ, i klˈikj ˈAŋ ˌaplikˈar fˈiʊtrʊ. ˌespˈakɛr vˌalˈidæ a kˌolˈunæ i u ˌopeɾadˈoɾ i lˈiɡæ ʊ valˈor kˌomʊ pˌaɾˈɐ̃metrʊ. ʊ ˌɛsykˌeˈɛly xˈaw estˌa ʤˌisponˈiveʊ pˌaɾæ prˌeʤikˈadʊz ˌavɐ̃ŋsˈadʊs, maz ɛ dˌeznesesˈaɾjw akˈi."
+    },
+    {
+      "scene": 9,
+      "speech_start": 149.76999999999998,
+      "speech_end": 166.86999999999998,
+      "scene_end": 167.58999999999997,
+      "duration": 17.819999999999993,
+      "text": "O filtro completo contém 12.907 células. Apenas os primeiros 250 são pintados, mas a contagem exata filtrada e o predicado ativo permanecem visíveis. Esta distinção impede que um tamanho de página de visualização seja confundido com o tamanho da população.",
+      "speech_text": "O filtro completo contém 12.907 células. Apenas os primeiros 250 são pintados, mas a contagem exata filtrada e o predicado ativo permanecem visíveis. Esta distinção impede que um tamanho de página de visualização seja confundido com o tamanho da população.",
+      "phonemes": "ʊ fˈiʊtrʊ kˌomplˈɛtʊ koŋtˈAŋ dˈozy.nˈɔvysˈAŋtʊzi sˈɛʧy sˈɛlulæs. ˌapˈenæz ʊs prˌimˈAɾʊs dˌuzˈAŋtʊzˌi siŋkwˈAŋtæ sɐ̃ʊ̃ pˌiŋtˈadʊs, maz a kˌoŋtˈaʒAŋ ˌezˈatæ fˌiʊtrˈadæ i ʊ prˌeʤikˈadw ˌaʧˈivʊ pˌeɾəmænˈɛsAŋ vˌizˈivAs. ˌɛstæ ʤˌisʧiŋsˈɐ̃ʊ̃ ˌimpˈɛʤy ky ũŋ tˌæmˈɐ̃ɲʊ ʤy pˈaʒinæ ʤy vˌizuˌalizasˈɐ̃ʊ̃ sˈeʒæ kˌoŋfũŋʤˈidʊ koŋ ʊ tˌæmˈɐ̃ɲʊ da pˌopulasˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 10,
+      "speech_start": 167.58999999999997,
+      "speech_end": 183.71499999999997,
+      "scene_end": 184.41499999999996,
+      "duration": 16.82499999999999,
+      "text": "Clique em Exportar CSV filtrado. As exportações transmitem toda a tabela e o filtro atuais em vez de apenas a pré-visualização carregada, e honram a pesquisa de coluna visível se estiver ativa. Com a busca autorizada, esta exportação retém todas as 218 colunas.",
+      "speech_text": "Clique em Exportar CSV filtrado. As exportações transmitem toda a tabela e o filtro atuais em vez de apenas a pré-visualização carregada, e honram a pesquisa de coluna visível se estiver ativa. Com a busca autorizada, esta exportação retém todas as 218 colunas.",
+      "phonemes": "klˈikj ˈAŋ ˌespoɾətˈar sˌeˌɛsyvˈe fˌiʊtrˈadʊ. az ˌespoɾətasˈõjs trˌɐ̃ŋzmˈitAŋ tˈodæ a tˌabˈɛlæ i ʊ fˈiʊtrw ˌatuˈIz ˈAŋ vˈez ʤj ˌapˈenæz a prˈɛvˌizuˌalizasˈɐ̃ʊ̃ kˌaxeɡˈadæ, i ˈoŋxɐ̃ʊ̃ a pˌeskˈizæ ʤy kˌolˈunæ vˌizˈiveʊ sj ˌesʧivˌɛɾ ˌaʧˈivæ. koŋ a bˈuskæ ˌWtoɾizˈadæ, ˌɛstæ ˌespoɾətasˈɐ̃ʊ̃ xetˈAŋ tˈodæz as dˌuzˈAŋtʊzˌi dezˈoɪtʊ kˌolˈunæs."
+    },
+    {
+      "scene": 11,
+      "speech_start": 184.41499999999996,
+      "speech_end": 203.51499999999996,
+      "scene_end": 204.33499999999995,
+      "duration": 19.919999999999987,
+      "text": "O estatuto confirma uma exportação de 12.907 linhas por 218 colunas. O CSV derivado é o único novo arquivo criado. Uma verificação antes e depois do SHA-256 confirma que measurements.db é o mesmo em byte, e nenhum diário ou arquivo de registro de escrita apareceu ao lado dele.",
+      "speech_text": "O estatuto confirma uma exportação de 12.907 linhas por 218 colunas. O CSV derivado é o único novo arquivo criado. Uma verificação antes e depois do SHA-256 confirma que measurements dot db é o mesmo em byte, e nenhum diário ou arquivo de registro de escrita apareceu ao lado dele.",
+      "phonemes": "u ˌestatˈutʊ kˌoŋfˈiɾəmæ ˌumæ ˌespoɾətasˈɐ̃ʊ̃ ʤy dˈozy.nˈɔvysˈAŋtʊzi sˈɛʧy lˈiɲæs por dˌuzˈAŋtʊzˌi dezˈoɪtʊ kˌolˈunæs. ʊ sˌeˌɛsyvˈe dˌeɾivˈadw ɛ u ˈunikʊ nˈovw ˌaɾəkˈivʊ krˌiˈadʊ. ˌumæ vˌeɾifˌikasˈɐ̃ʊ̃ ˈɐ̃ŋʧyz i depˈoɪz dʊ ˌɛsyaɡˌaˈa dˌuzˈAŋtʊzˌi siŋkwˈAŋtæisˈAs kˌoŋfˈiɾəmæ ky mˌeazˌuɾemˈAŋtz dˈoʧ dˌebˈe ɛ ʊ mˈezmw ˈAŋ bˈiʧy, i neɲˈũŋ ʤˌiˈaɾjw ow ˌaɾəkˈivʊ ʤy xˌeʒˈistrʊ ʤj ˌeskrˈitæ ˌapaɾesˈeʊ W lˈadʊ dˈely."
+    },
+    {
+      "scene": 12,
+      "speech_start": 204.33499999999995,
+      "speech_end": 217.75999999999996,
+      "scene_end": 218.37999999999997,
+      "duration": 14.045000000000016,
+      "text": "Clique em Deslizar para remover o predicado e recargar o primeiro pedaço limitado. Os filtros são um estado de visualização reversível: a eliminação de um não altera as linhas na base de dados ou no arquivo exportado anteriormente.",
+      "speech_text": "Clique em Deslizar para remover o predicado e recargar o primeiro pedaço limitado. Os filtros são um estado de visualização reversível: a eliminação de um não altera as linhas na base de dados ou no arquivo exportado anteriormente.",
+      "phonemes": "klˈikj ˈAŋ dˌezlizˈar pˌaɾæ xˌemovˈeɾ ʊ prˌeʤikˈadw i xˌekaɾəɡˈaɾ ʊ prˌimˈAɾʊ pˌedˈasʊ lˌimitˈadʊ. ʊs fˈiʊtrʊs sɐ̃ʊ̃ ũŋ ˌestˈadʊ ʤy vˌizuˌalizasˈɐ̃ʊ̃ xˌeveɾəsˈiveʊ: a ˌelimˌinasˈɐ̃ʊ̃ ʤj ũŋ nˌɐ̃ʊ̃ ˌWtˈɛɾæ az lˈiɲæz na bˈazy ʤy dˈadʊz ow nʊ ˌaɾəkˈivw ˌespoɾətˈadw ˌɐ̃ŋteɾˌioɾəmˈAŋʧy."
+    },
+    {
+      "scene": 13,
+      "speech_start": 218.37999999999997,
+      "speech_end": 236.87999999999997,
+      "scene_end": 237.65999999999997,
+      "duration": 19.28,
+      "text": "Todas as 81.969 células são visíveis ao navegador novamente, com apenas as primeiras 250 carregadas. Isto completa um fluxo de trabalho rastreável de somente leitura para explorar grandes tabelas de medição spaCR e exportar subconjuntos precisamente definidos.",
+      "speech_text": "Todas as 81.969 células são visíveis ao navegador novamente, com apenas as primeiras 250 carregadas. Isto completa um fluxo de trabalho rastreável de somente leitura para explorar grandes tabelas de medição espáquer e exportar subconjuntos precisamente definidos.",
+      "phonemes": "tˈodæz as ˌoɪtˈAŋtæiˈũŋ.nˈɔvysˈAŋtʊzˌi sesˈAŋtæinˈɔvy sˈɛlulæs sɐ̃ʊ̃ vˌizˈivAz W nˌaveɡadˈor nˌovæmˈAŋʧy, koŋ ˌapˈenæz as prˌimˈAɾæs dˌuzˈAŋtʊzˌi siŋkwˈAŋtæ kˌaxeɡˈadæs. ˈistʊ kˌomplˈɛtæ ũŋ flˈuksʊ ʤy trˌabˈaljʊ xˌastreˈaveʊ ʤy sˌomˈAŋʧy lˌAtˈuɾæ pˌaɾæ ˌesploɾˈar ɡrˈɐ̃ŋʤys tˌabˈɛlæz ʤy mˌeʤisˈɐ̃ʊ̃ ˌespˈakɛɾ i ˌespoɾətˈar sˌubkoŋʒˈũŋtʊs prˌesizæmˈAŋʧy dˌefinˈidʊs."
     }
   ]
 }

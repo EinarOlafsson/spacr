@@ -4,47 +4,147 @@
   "voice": "ff_siwis",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 50.4,
+  "total_duration": 214.855,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 10.65,
-      "scene_end": 11.1,
-      "duration": 11.1,
-      "text": "Ce tutoriel couvre Rapport. Créez un résumé HTML ou PDF partageable contenant des contrôles de qualité, des chiffres, des statistiques, des paramètres et des versions."
+      "speech_end": 13.825,
+      "scene_end": 14.424999999999999,
+      "duration": 14.424999999999999,
+      "text": "Rapport est un constructeur de documents à lire uniquement. Il transforme les preuves déjà présentes dans un dossier d'exécution en un HTML partageable, PDF, ou les deux; il ne recompte pas les résultats ni ne l'écrit dans le dossier source.",
+      "speech_text": "Rapport est un constructeur de documents à lire uniquement. Il transforme les preuves déjà présentes dans un dossier d'exécution en un HTML partageable, PDF, ou les deux; il ne recompte pas les résultats ni ne l'écrit dans le dossier source.",
+      "phonemes": "ʁapˈɔʁ ɛt œ̃ kɔ̃stʁyktˈœʁ də dokymˈɑ̃z a lˈiʁ ynikmˈɑ̃. il tʁɑ̃sfˈɔʁm le pʁˈøv deʒˈa pʁezˈɑ̃t dɑ̃z œ̃ dɔsjˈe dɛɡzekysjˈɔ̃ ɑ̃n œ̃n ˌaʃtˌeˌɛmˈɛl paʁtaʒˈabl, pˌedˌeˈɛf, u le dˈø; il nə ʁəkˈɔ̃t pa le ʁezyltˈa ni nə lekʁˈi dɑ̃ lə dɔsjˈe sˈuʁs."
     },
     {
       "scene": 2,
-      "speech_start": 11.1,
-      "speech_end": 19.174999999999997,
-      "scene_end": 19.624999999999996,
-      "duration": 8.524999999999997,
-      "text": "Ouvrez Report dans la section Results and quality control. Ouvrez le rapport dans la section Résultats et contrôle de la qualité."
+      "speech_start": 14.424999999999999,
+      "speech_end": 28.975,
+      "scene_end": 29.595000000000002,
+      "duration": 15.170000000000003,
+      "text": "Choisissez ou laissez tomber la plaque ou le dossier d'exécution qui contient des mesures, des objets de contrôle de la qualité, des résultats et des paramètres, puis cliquez sur Scan. Ce tutoriel utilise le test complet de l'expérience réelle transférée.",
+      "speech_text": "Choisissez ou laissez tomber la plaque ou le dossier d'exécution qui contient des mesures, des objets de contrôle de la qualité, des résultats et des paramètres, puis cliquez sur Scan. Ce tutoriel utilise le test complet de l'expérience réelle transférée.",
+      "phonemes": "ʃwazisˈe u lɛsˈe tɔ̃bˈe la plˈak u lə dɔsjˈe dɛɡzekysjˈɔ̃ ki kɔ̃tjˈɛ̃ de məzˈyʁ, dez ɔbʒˈɛ də kɔ̃tʁˈoːl də la kalitˈe, de ʁezyltˈaz e de paʁamˈɛtʁ, pyˈi klikˈe syʁ skˈan. sə tytoʁjˈɛl ytilˈiz lə tˈɛst kɔ̃plˈɛ də lɛkspeʁjˈɑ̃s ʁeˈɛl tʁɑ̃sfeʁˈe."
     },
     {
       "scene": 3,
-      "speech_start": 19.624999999999996,
-      "speech_end": 30.599999999999994,
-      "scene_end": 31.049999999999994,
-      "duration": 11.424999999999997,
-      "text": "Dans la zone de configuration principale, configurez le titre, l'auteur, les étiquettes de condition, les seuils de qualité, le format de sortie et les champs sensibles à la vie privée."
+      "speech_start": 29.595000000000002,
+      "speech_end": 44.845,
+      "scene_end": 45.565,
+      "duration": 15.969999999999995,
+      "text": "Le verdict vert provient d'un timbre d'état d'exécution réel: les cinq tentatives de mesure ont été couronnées de succès. Six sections de rapport sont disponibles et deux ne le sont pas; dix-sept chiffres ont été trouvés, mais aucune n'est une image raster incrustable.",
+      "speech_text": "Le verdict vert provient d'un timbre d'état d'exécution réel: les cinq tentatives de mesure ont été couronnées de succès. Six sections de rapport sont disponibles et deux ne le sont pas; dix-sept chiffres ont été trouvés, mais aucune n'est une image raster incrustable.",
+      "phonemes": "lə vɛʁdˈikt vˈɛʁ pʁovjˈɛ̃ dœ̃ tˈɛ̃bʁ detˈa dɛɡzekysjˈɔ̃ ʁeˈɛl: le sˈɛ̃k tɑ̃tatˈiv də məzˈyʁ ˈɔ̃t etˈe kuʁɔnˈe də syksˈɛ. sˈi sɛksjˈɔ̃ də ʁapˈɔʁ sˈɔ̃ disponˈiblz e dˈø nə lə sɔ̃ pˈa; dˈisˈɛt ʃˈifʁz ˈɔ̃t etˈe tʁuvˈe, mɛz okˈyn nɛt yn imˈaʒ ʁastˈe ɛ̃kʁystˈabl."
     },
     {
       "scene": 4,
-      "speech_start": 31.049999999999994,
-      "speech_end": 39.14999999999999,
-      "scene_end": 39.599999999999994,
-      "duration": 8.55,
-      "text": "Avant la mise en marche complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+      "speech_start": 45.565,
+      "speech_end": 63.714999999999996,
+      "scene_end": 64.435,
+      "duration": 18.870000000000005,
+      "text": "Le pré-vol de la section montre exactement ce qu'un collaborateur recevra. Cette série comprend le statut, la provenance, l'inventaire des chiffres clés, les statistiques, les paramètres et les données de l'appendice; la segmentation QC et la plaque QC restent visiblement marquées non disponibles au lieu de disparaître.",
+      "speech_text": "Le pré-vol de la section montre exactement ce qu'un collaborateur recevra. Cette série comprend le statut, la provenance, l'inventaire des chiffres clés, les statistiques, les paramètres et les données de l'appendice; la segmentation QC et la plaque QC restent visiblement marquées non disponibles au lieu de disparaître.",
+      "phonemes": "lə pʁˈevˈɔl də la sɛksjˈɔ̃ mˈɔ̃tʁ ɛɡzaktəmˈɑ̃ sə kœ̃ kɔlaboʁatˈœʁ ʁəsəvʁˈa. sɛt seʁˈi kɔ̃pʁˈɑ̃ lə statˈy, la pʁovnˈɑ̃s, lɛ̃vɑ̃tˈɛʁ de ʃˈifʁ klˈe, le statistˈik, le paʁamˈɛtʁz e le dɔnˈe də lapɛ̃dˈis; la sɛɡmɑ̃tasjˈɔ̃ kˌysˈe e la plˈak kˌysˈe ʁˈɛst vizibləmˈɑ̃ maʁkˈe nɔ̃ disponˈiblz o ljˈø də dispaʁˈɛtʁ."
     },
     {
       "scene": 5,
-      "speech_start": 39.599999999999994,
-      "speech_end": 49.74999999999999,
-      "scene_end": 50.39999999999999,
-      "duration": 10.799999999999997,
-      "text": "Lorsque le flux de travail est terminé, un rapport portable enregistre les conclusions ainsi que les paramètres et les versions logicielles nécessaires pour les reproduire."
+      "speech_start": 64.435,
+      "speech_end": 79.71000000000001,
+      "scene_end": 80.37,
+      "duration": 15.935000000000002,
+      "text": "Le format offre un fichier HTML autonome, une transcription PDF ou les deux. Embed à la plupart des limites des chiffres raster de sorte qu'un rapport ne peut pas croître sans limite; zéro n'embed aucune image, tandis que la limite supérieure est deux cents.",
+      "speech_text": "Le format offre un fichier HTML autonome, une transcription PDF ou les deux. Embed à la plupart des limites des chiffres raster de sorte qu'un rapport ne peut pas croître sans limite; zéro n'embed aucune image, tandis que la limite supérieure est deux cents.",
+      "phonemes": "lə fɔʁmˈa ˈɔfʁ œ̃ fiʃjˈe ˌaʃtˌeˌɛmˈɛl otonˈɔm, yn tʁɑ̃skʁipsjˈɔ̃ pˌedˌeˈɛf u le dˈø. ɛmbˈɛd a la plypˌaʁ de limˈit de ʃˈifʁ ʁastˈe də sˈɔʁt kœ̃ ʁapˈɔʁ nə pˈø pa kʁwˈatʁ sɑ̃ limˈit; zeʁˈo ˈɛnˈɛmd okˈyn imˈaʒ, tɑ̃dˌi kə la limˈit sypeʁjˈœʁ ɛ dˈø sˈɑ̃."
+    },
+    {
+      "scene": 6,
+      "speech_start": 80.37,
+      "speech_end": 96.845,
+      "scene_end": 97.485,
+      "duration": 17.114999999999995,
+      "text": "Choisissez explicitement la destination. Le chemin suggéré est en dehors du dossier d'exécution de sorte que la génération d'un rapport ne peut pas modifier silencieusement une expérience qui devrait rester immuable; ici le HTML est écrit dans l'espace de travail du tutoriel.",
+      "speech_text": "Choisissez explicitement la destination. Le chemin suggéré est en dehors du dossier d'exécution de sorte que la génération d'un rapport ne peut pas modifier silencieusement une expérience qui devrait rester immuable; ici le HTML est écrit dans l'espace de travail du tutoriel.",
+      "phonemes": "ʃwazisˈez ɛksplisitmˈɑ̃ la dɛstinasjˈɔ̃. lə ʃəmˈɛ̃ syɡʒeʁˈe ɛt ɑ̃ dəˈɔʁ dy dɔsjˈe dɛɡzekysjˈɔ̃ də sˈɔʁt kə la ʒeneʁasjˈɔ̃ dœ̃ ʁapˈɔʁ nə pˈø pa modifjˈe silɑ̃sjøzmˈɑ̃ yn ɛkspeʁjˈɑ̃s ki dəvʁˈɛ ʁɛstˈe imyˈabl; isˈi lə ˌaʃtˌeˌɛmˈɛl ɛt ekʁˈi dɑ̃ lɛspˈas də tʁavˈaj dy tytoʁjˈɛl."
+    },
+    {
+      "scene": 7,
+      "speech_start": 97.485,
+      "speech_end": 110.885,
+      "scene_end": 111.525,
+      "duration": 14.040000000000006,
+      "text": "Cliquez sur Générer un rapport. spaCR scanne à nouveau le dossier afin que le document reflète son état actuel, intègre des chiffres raster admissibles jusqu'au capot et écrit un fichier indépendant sans dépendances réseau.",
+      "speech_text": "Cliquez sur Générer un rapport. spakeur scanne à nouveau le dossier afin que le document reflète son état actuel, intègre des chiffres raster admissibles jusqu'au capot et écrit un fichier indépendant sans dépendances réseau.",
+      "phonemes": "klikˈe syʁ ʒeneʁˈe œ̃ ʁapˈɔʁ. spakˈœʁ skˈan a nuvˈo lə dɔsjˈe afˌɛ̃ kə lə dokymˈɑ̃ ʁəflˈɛt sɔ̃n etˈa aktyˈɛl, ɛ̃tˈɛɡʁ de ʃˈifʁ ʁastˈe admisˈibl ʒysko kapˈo e ekʁˈi œ̃ fiʃjˈe ɛ̃depɑ̃dˈɑ̃ sɑ̃ depɑ̃dˈɑ̃s ʁezˈo."
+    },
+    {
+      "scene": 8,
+      "speech_start": 111.525,
+      "speech_end": 123.35000000000001,
+      "scene_end": 123.93,
+      "duration": 12.405000000000001,
+      "text": "Le résultat en ligne nomme le fichier et la destination, et Open ne devient disponible qu'après une rédaction réussie. Les échecs sont rapportés ici plutôt que cachés derrière un dialogue modal.",
+      "speech_text": "Le résultat en ligne nomme le fichier et la destination, et Open ne devient disponible qu'après une rédaction réussie. Les échecs sont rapportés ici plutôt que cachés derrière un dialogue modal.",
+      "phonemes": "lə ʁezyltˈa ɑ̃ lˈiɲ nˈɔm lə fiʃjˈe e la dɛstinasjˈɔ̃, e ˈQpən nə dəvjˈɛ̃ disponˈibl kapʁˌɛz yn ʁedaksjˈɔ̃ ʁeysˈi. lez eʃˈɛk sˈɔ̃ ʁapɔʁtˈez isˈi plytˈoː kə kaʃˈe dɛʁjˈɛʁ œ̃ djalˈoɡ modˈal."
+    },
+    {
+      "scene": 9,
+      "speech_start": 123.93,
+      "speech_end": 130.905,
+      "scene_end": 131.385,
+      "duration": 7.454999999999984,
+      "text": "Cliquez sur Ouvrez pour remettre le dernier document généré au navigateur système ou à l'affichage PDF.",
+      "speech_text": "Cliquez sur Ouvrez pour remettre le dernier document généré au navigateur système ou à l'affichage PDF.",
+      "phonemes": "klikˈe syʁ uvʁˈe puʁ ʁəmˈɛtʁ lə dɛʁnjˈe dokymˈɑ̃ ʒeneʁˈe o naviɡatˈœʁ sistˈɛm u a lafiʃˈaʒ pˌedˌeˈɛf."
+    },
+    {
+      "scene": 10,
+      "speech_start": 131.385,
+      "speech_end": 140.10999999999999,
+      "scene_end": 140.63,
+      "duration": 9.245000000000005,
+      "text": "Le statut confirme quelle sortie a été ouverte. Les vues suivantes montrent le vrai HTML généré par cette course plutôt qu'un faux rapport.",
+      "speech_text": "Le statut confirme quelle sortie a été ouverte. Les vues suivantes montrent le vrai HTML généré par cette course plutôt qu'un faux rapport.",
+      "phonemes": "lə statˈy kɔ̃fˈiʁm kɛl sɔʁtˈi a etˈe uvˈɛʁt. le vˈy syivˈɑ̃t mˈɔ̃tʁ lə vʁˈɛ ˌaʃtˌeˌɛmˈɛl ʒeneʁˈe paʁ sɛt kˈuʁs plytˈoː kœ̃ fˈo ʁapˈɔʁ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 140.63,
+      "speech_end": 158.43,
+      "scene_end": 159.25,
+      "duration": 18.620000000000005,
+      "text": "Le document ouvre avec le verdict complet, un résumé honnête des chiffres manquants et non intégrés, et une liste de contenu liée. L'état d'exécution enregistre cinq des cinq éléments de mesure réussis, tandis que la provenance préserve la source, la version spaCR, la révision Git, l'environnement Python et les versions de paquets.",
+      "speech_text": "Le document ouvre avec le verdict complet, un résumé honnête des chiffres manquants et non intégrés, et une liste de contenu liée. L'état d'exécution enregistre cinq des cinq éléments de mesure réussis, tandis que la provenance préserve la source, la version spakeur, la révision Git, l'environnement Python et les versions de paquets.",
+      "phonemes": "lə dokymˈɑ̃ ˈuvʁ avˌɛk lə vɛʁdˈikt kɔ̃plˈɛ, œ̃ ʁezymˈe ɔnˈɛt de ʃˈifʁ mɑ̃kˈɑ̃z e nɔ̃ ɛ̃teɡʁˈe, e yn lˈist də kɔ̃tnˈy ljˈe. letˈa dɛɡzekysjˈɔ̃ ɑ̃ʁʒˈistʁ sˈɛ̃k de sˈɛ̃k elemˈɑ̃ də məzˈyʁ ʁeysˈi, tɑ̃dˌi kə la pʁovnˈɑ̃s pʁezˈɛʁv la sˈuʁs, la vɛʁsjˈɔ̃ spakˈœʁ, la ʁevizjˈɔ̃ ʒˈi, lɑ̃viʁɔnmˈɑ̃ pitˈɔ̃ e le vɛʁsjˈɔ̃ də pakˈɛ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 159.25,
+      "speech_end": 176.6,
+      "scene_end": 177.32,
+      "duration": 18.069999999999993,
+      "text": "Figures clés nomme les dix-sept intrigues omises et explique pourquoi chacune est absente. Ce sont des PDF vectoriels, et spaCR n'a délibérément aucune dépendance au rasterizer PDF; le fait d'élever le plafond de la figure raster ne les convertirait pas ou ne ferait pas semblant qu'ils soient intégrés.",
+      "speech_text": "Figures clés nomme les dix-sept intrigues omises et explique pourquoi chacune est absente. Ce sont des PDF vectoriels, et spakeur n'a délibérément aucune dépendance au rasterizer PDF; le fait d'élever le plafond de la figure raster ne les convertirait pas ou ne ferait pas semblant qu'ils soient intégrés.",
+      "phonemes": "fiɡˈyʁ klˈe nˈɔm le dˈisˈɛt ɛ̃tʁˈiɡz omˈizz e ɛksplˈik puʁkwˌa ʃakˈyn ɛt absˈɑ̃t. sə sˈɔ̃ de pˌedˌeˈɛf vɛktoʁjˈɛl, e spakˈœʁ na delibeʁemˈɑ̃ okˈyn depɑ̃dˈɑ̃s o ɹˈastəɹˌIzə pˌedˌeˈɛf; lə fˈɛ delvˈe lə plafˈɔ̃ də la fiɡˈyʁ ʁastˈe nə le kɔ̃vɛʁtiʁˈɛ pa u nə fəʁˈɛ pa sɑ̃blˈɑ̃ kil swˈat ɛ̃teɡʁˈe."
+    },
+    {
+      "scene": 13,
+      "speech_start": 177.32,
+      "speech_end": 193.595,
+      "scene_end": 194.275,
+      "duration": 16.955000000000013,
+      "text": "Les statistiques reproduisent les tailles de table de base de données enregistrées et les lignes de table de résultats enregistrées. Le rapport indique que rien sur cette page n'a été recalculé, agrégé ou testé, préservant la différence entre documenter les preuves et les réanalyser.",
+      "speech_text": "Les statistiques reproduisent les tailles de table de base de données enregistrées et les lignes de table de résultats enregistrées. Le rapport indique que rien sur cette page n'a été recalculé, agrégé ou testé, préservant la différence entre documenter les preuves et les réanalyser.",
+      "phonemes": "le statistˈik ʁəpʁodyˈiz le tˈaj də tˈabl də bˈaz də dɔnˈez ɑ̃ʁʒistʁˈez e le lˈinj də tˈabl də ʁezyltˈaz ɑ̃ʁʒistʁˈe. lə ʁapˈɔʁ ɛ̃dˈik kə ʁjˌɛ̃ syʁ sɛt pˈaʒ na etˈe ʁəkalkylˈe, aɡʁeʒˈe u tɛstˈe, pʁezɛʁvˈɑ̃ la difeʁˈɑ̃s ɑ̃tʁ dokymɑ̃tˈe le pʁˈøvz e le ʁeanalizˈe."
+    },
+    {
+      "scene": 14,
+      "speech_start": 194.275,
+      "speech_end": 213.975,
+      "scene_end": 214.855,
+      "duration": 20.579999999999984,
+      "text": "Les paramètres préservent à la fois les fichiers CSV enregistrés et l'instantané du journal d'exécution, y compris les canaux, le regroupement, les commandes de lot, le traçage et les valeurs de temps d'exécution. Avec le dictionnaire des caractéristiques mesurées et l'inventaire des fichiers de l'appendice, ce rapport est utile à l'examen tout en gardant chaque section manquante explicite.",
+      "speech_text": "Les paramètres préservent à la fois les fichiers CSV enregistrés et l'instantané du journal d'exécution, y compris les canaux, le regroupement, les commandes de lot, le traçage et les valeurs de temps d'exécution. Avec le dictionnaire des caractéristiques mesurées et l'inventaire des fichiers de l'appendice, ce rapport est utile à l'examen tout en gardant chaque section manquante explicite.",
+      "phonemes": "le paʁamˈɛtʁ pʁezˈɛʁvt a la fwˈa le fiʃjˈe sˌeˌɛsvˈe ɑ̃ʁʒistʁˈez e lɛ̃stɑ̃tanˈe dy ʒuʁnˈal dɛɡzekysjˈɔ̃, i kɔ̃pʁˈi le kanˈo, lə ʁəɡʁupmˈɑ̃, le kɔmˈɑ̃d də lˈo, lə tʁasˈaʒ e le valˈœʁ də tˈɑ̃ dɛɡzekysjˈɔ̃. avˌɛk lə diksjɔnˈɛʁ de kaʁakteʁistˈik məzyʁˈez e lɛ̃vɑ̃tˈɛʁ de fiʃjˈe də lapɛ̃dˈis, sə ʁapˈɔʁ ɛt ytˈil a lɛɡzamˈɛ̃ tut ɑ̃ ɡaʁdˈɑ̃ ʃak sɛksjˈɔ̃ mɑ̃kˈɑ̃t ɛksplisˈit."
     }
   ]
 }

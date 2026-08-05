@@ -1,3 +1,5 @@
+"""Legacy launcher that opens the barcode-sequencing module."""
+
 from .gui import MainApp
 
 def start_seq_app():

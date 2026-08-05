@@ -102,8 +102,8 @@ def variant(slug: str, title: str, *, changes: str, adds: str,
 
 def _shortcuts() -> Dict[str, str]:
     """Ctrl+1..9 as the app actually assigns them (the nine core apps)."""
-    core = [k for k, _n, _d, s in common.apps() if s == "Core pipeline"]
-    return {k: f"Ctrl+{i + 1}" for i, k in enumerate(core[:9])}
+    return {k: f"Ctrl+{i + 1}"
+            for i, k in enumerate(common.core_keys()[:9])}
 
 
 # ---------------------------------------------------------------------------
@@ -113,57 +113,88 @@ def _shortcuts() -> Dict[str, str]:
 def _patch_startup_determinism() -> None:
     """Freeze the live values the shipped Home screen reads.
 
-    The real :class:`StartupPage` polls the GPU, the disk and the run
-    journal. A screenshot of that is different on every machine and
-    every hour, and a screen that renders differently every run cannot
-    be reviewed. Patched in this process only — no product file is
-    touched.
+    The shipped :class:`spacr.qt.widgets.home.HomePage` polls the GPU,
+    the disk, the run journal and the plate queue. A screenshot of that
+    differs on every machine and every hour, and a screen that renders
+    differently every run cannot be reviewed. Patched in this process
+    only — no product file is touched.
+
+    **Only the run journal is optional.** An earlier draft of this
+    docstring claimed "every patch target is looked up defensively";
+    that was not true and is not wanted. ``spacr.qt.widgets.home`` and
+    its two panel classes are the very things variant 01 renders — v01
+    goes on to call ``spacr.qt.app.make_home_page()``, which imports the
+    same module — so a rename there cannot be survived by this function
+    anyway, and pretending otherwise would only move the traceback
+    somewhere less informative. They are imported and assigned
+    unguarded, and the generator is meant to die loudly if they move.
+
+    The journal is different: it is a separate module, an installation
+    may legitimately not have one, and a baseline that draws "no runs
+    yet" is still a fair comparison. Its ``import`` alone sits in the
+    ``try`` — the assignments after it are module attribute writes that
+    cannot fail, and leaving them inside would let a future edit throw
+    into a bare ``except`` and freeze nothing without saying so.
     """
-    from spacr.qt.screens import startup as S
-    S.StartupPage._gpu_util_pct = lambda self: "41%"
-    S.StartupPage._gpu_vram_used = lambda self: "14.9 / 24 GB"
-    S.StartupPage._disk_used_pct = lambda self: "68%"
+    from spacr.qt.widgets import home as H
+    # Staticmethods: assign plain functions, not lambdas taking self.
+    H.SystemPanel.gpu_util = staticmethod(lambda: "41%")
+    H.SystemPanel.gpu_vram = staticmethod(lambda: "14.9 / 24 GB")
+    H.SystemPanel.disk_used = staticmethod(lambda: "68%")
+    # An empty queue is what a fresh install shows, and it is the only
+    # queue state that does not depend on the reviewer's ~/.spacr.
+    H.QueuedPanel.queue_items = lambda self: []
     try:
         import spacr.run_journal as J
-        J.recent_runs = lambda limit=10: [
-            {"app_key": k, "status": "success" if ok else "error",
-             "elapsed_s": 1324 if ok else 207,
-             "start_utc": "2026-07-25T14:22:10Z", "dir": "/tmp"}
-            for k, _p, _w, ok, _e in MOCK["recent"][:limit]
-        ]
-        J.journal_totals = lambda: {
-            "total_runs": 148, "mask_runs": 52, "measure_runs": 47,
-            "classify_runs": 23, "models_recorded": 12,
-        }
     except Exception:
-        pass
+        return
+    J.recent_runs = lambda limit=10: [
+        {"app_key": k, "status": "success" if ok else "error",
+         "elapsed_s": 1324 if ok else 207,
+         "start_utc": "2026-07-25T14:22:10Z", "dir": "/tmp"}
+        for k, _p, _w, ok, _e in MOCK["recent"][:limit]
+    ]
+    J.journal_totals = lambda: {
+        "total_runs": 148, "mask_runs": 52, "measure_runs": 47,
+        "classify_runs": 23, "models_recorded": 12,
+    }
 
 
 @variant(
     "baseline-today", "Baseline — the Home screen as it ships today",
     changes="Nothing. This is the shipped screen, rendered with the same "
-            "harness as the other twenty-nine so the comparison is fair: "
-            "the real Sidebar plus the real StartupPage, five sections in "
-            "horizontal tile scrollers, the insights dashboard and the "
-            "reserved 'featured' surface.",
+            "harness as every other variant so the comparison is fair: "
+            "the real Sidebar plus the real HomePage, built through "
+            "`spacr.qt.app.make_home_page()` — the same call MainWindow "
+            "makes — so the bands, stages, notes and icon provider are "
+            "the shipped ones rather than a re-assembly.",
     adds="Nothing.",
     removes="Nothing.",
+    # Do not re-add "the last apps are cut off with no way to scroll to
+    # them". That was true of the pre-QScrollArea Sidebar and is now
+    # contradicted by finding 1 in VARIANTS.md, three paragraphs above
+    # where this text lands — one artefact cannot say both.
     argument="It is the thing every other variant has to beat, and it "
-            "shows two problems at 1440x900 without anyone having to "
-            "argue for them: the sidebar's 29 items + 5 headings ask "
-            "for 1356 px of height and get 850, so the last three apps "
-            "are cut off with no way to scroll to them; and the page "
-            "itself needs a vertical scrollbar plus a horizontal one "
-            "per section, so only two of the five sections are fully "
-            "visible at once.",
-    notes="Live GPU/disk/journal readings are frozen to fixed values for "
-          "the render; everything else is the shipped widget.")
+            "shows its problem at 1440x900 without anyone having to "
+            f"argue for it: the sidebar's {common.n_apps()} items + 5 "
+            "headings ask for far more height than a laptop gives, so "
+            "the navigation is a scrolling column rather than a list you "
+            "can see, and the page beside it needs a vertical scrollbar "
+            "of its own before the last band is on screen. Both "
+            "scrollbars in this render are real; neither is a defect "
+            "any more.",
+    notes="Live GPU/disk/journal/queue readings are frozen to fixed values "
+          "for the render; everything else is the shipped widget.")
 def v01(ctx: Ctx) -> QWidget:
     _patch_startup_determinism()
-    from spacr.qt.screens.startup import StartupPage
+    # make_home_page() rather than HomePage(...): the grouping, the
+    # stages, the notes and the icon provider are four arguments that
+    # have to agree, and a baseline that assembles its own HomePage is a
+    # render of a page that does not ship.
+    from spacr.qt.app import make_home_page
     page = Page(ctx, margins=(0, 0, 0, 0), spacing=0)
     page.add_rail(real_sidebar(ctx))
-    page.body.addWidget(StartupPage(common.apps(), ctx.icon))
+    page.body.addWidget(make_home_page())
     return page.finish(status="Ready")
 
 
@@ -180,17 +211,54 @@ def v01(ctx: Ctx) -> QWidget:
     adds="Nothing.",
     removes="The insights dashboard and the empty 'Reserved for featured "
             "content' box. The hint bar stays.",
-    argument="Same five-row shape people already know, but the names "
+    argument="Same five-band shape people already know, but the names "
             "answer 'where am I in my run?' instead of 'what kind of "
-            "code is this?', and all 29 apps are visible at once with "
-            "200 px of vertical slack left over.")
+            f"code is this?', and all {common.n_apps()} apps are on one "
+            "surface with nothing hidden off the right edge.")
 def v02(ctx: Ctx) -> QWidget:
     page = Page(ctx, margins=MARGINS)
     page.body.addWidget(hero(ctx, compact=True))
+    # Seven columns. Six was too few — the seven-app bands each wrapped
+    # onto a second row and the page asked for 905 px, which Qt resolved
+    # by silently squashing something. Eight is too many: 1384 px of
+    # content over eight columns is a 166 px tile, and at that width
+    # thirty-four of the thirty-eight names elide however small the font
+    # is set (measured; nine px still elides six of them). Seven is the
+    # widest grid whose tile can hold a name.
+    #
+    # So this no longer fits five rows: the registry outgrew five bands
+    # of seven when Illumination, Barcode QC, Layer Viewer and Graph
+    # Builder arrived, and thirty-eight apps cannot go into thirty-five
+    # slots. The three bands that hold eight take a second row. That is
+    # the trade this variant now records — a taller page against an
+    # unreadable one — and it is why the argument above no longer claims
+    # vertical slack.
+    #
+    # THIS VARIANT IS KNOWN RED, and the next person to look at it should
+    # not have to spend the afternoon that produced these numbers. It has
+    # TWO defects and they have different causes:
+    #
+    #   * 905 px asked of a 900 px canvas. Easy: spacing 16 -> 13 and
+    #     height 64 -> 60 brings it to 875.
+    #   * fourteen names elide, and that is NOT a consequence of the
+    #     overflow. Measured: with the overflow gone and the icon left at
+    #     40 px, all fourteen still elide. The cause is the 190 px tile,
+    #     and 190 is already the widest a seven-column grid allows
+    #     (1384 px of content, six 8 px gaps). Six columns would give a
+    #     224 px tile and a tenth row, on a page with no room for a
+    #     ninth. Shrinking the icon to 26 px clears all but the three
+    #     longest names, at which point the tile is a caption with a
+    #     bullet beside it.
+    #
+    # So a person has to decide whether this surface shows fewer apps,
+    # gets a taller canvas, or accepts elision with tooltips. It is a
+    # design decision rather than a defect to tune away, and it predates
+    # the apps switched on around it — at thirty-nine apps this variant
+    # asked for the same 905 px and elided the same fourteen names.
     for title, keys in CATS_STAGE5:
         page.body.addWidget(cat_header(ctx, title, note=f"{len(keys)} apps"))
-        page.body.addWidget(htile_grid(ctx, keys, cols=6, width=224,
-                                       icon_px=40, name_px=13, height=64))
+        page.body.addWidget(htile_grid(ctx, keys, cols=7, width=190,
+                                       icon_px=40, name_px=11, height=64))
     page.body.addStretch(1)
     return page.finish(footer=hint_bar(ctx))
 
@@ -242,7 +310,7 @@ def v03(ctx: Ctx) -> QWidget:
 def v04(ctx: Ctx) -> QWidget:
     page = Page(ctx, margins=MARGINS, spacing=12)
     page.body.addWidget(parts.top_bar(
-        ctx, subtitle="Eight categories · 29 apps",
+        ctx, subtitle=f"Eight categories · {common.n_apps()} apps",
         actions=(("Search…", False), ("Preferences", False))))
     board = QWidget()
     board.setObjectName("Transparent")
@@ -271,14 +339,16 @@ def v04(ctx: Ctx) -> QWidget:
 
 @variant(
     "flat-search", "No categories at all — flat searchable grid",
-    changes="There are no sections. All 29 apps sit in one alphabetical "
+    changes=f"There are no sections. All {common.n_apps()} apps sit in one "
+            "alphabetical "
             "grid under a search field, with filter chips as the only "
             "grouping and no default filter applied.",
     adds="A search field and a row of filter chips.",
     removes="Every category heading, the dashboard, the reserved "
             "surface, the hint bar.",
     argument="Nobody agrees on the categories, and a flat grid is the "
-            "only arrangement that cannot be wrong. 29 items is small "
+            f"only arrangement that cannot be wrong. {common.n_apps()} items is "
+            "small "
             "enough to scan, and the search field is faster than any "
             "hierarchy once you know the name.")
 def v05(ctx: Ctx) -> QWidget:
@@ -286,11 +356,12 @@ def v05(ctx: Ctx) -> QWidget:
     top, row = transparent(horizontal=True, spacing=14)
     row.addWidget(text_label(ctx, "spaCR", size=26, weight=300,
                              color=ctx.P["accent"], tracking="-0.6px"))
-    box = search_box(ctx, "Search 29 apps —  mask, barcode, plate, κ …")
+    box = search_box(ctx, f"Search {common.n_apps()} apps —  mask, barcode, "
+                          "plate, κ …")
     box.setFixedWidth(560)
     row.addWidget(box)
     row.addStretch(1)
-    row.addWidget(text_label(ctx, "29 apps", size=12,
+    row.addWidget(text_label(ctx, f"{common.n_apps()} apps", size=12,
                              color=ctx.P["fg_dim"]))
     page.body.addWidget(top)
 
@@ -318,8 +389,9 @@ def v05(ctx: Ctx) -> QWidget:
             "The app grid does not exist until you type; before that you "
             "get eight most-used apps as a 'jump to' row.",
     adds="A large centred search field and a keyboard hint.",
-    removes="All 29 tiles, all categories, the hero, the dashboard, the "
-            "reserved surface, the hint bar. 21 of the 29 apps have no "
+    removes=f"All {common.n_apps()} tiles, all categories, the hero, the "
+            "dashboard, the reserved surface, the hint bar. "
+            f"{common.n_apps() - 8} of the {common.n_apps()} apps have no "
             "presence on the screen at all until you search.",
     argument="The most honest reading of 'too much on the home page' is "
             "to put nothing on it. Every app is one keystroke away and "
@@ -392,7 +464,7 @@ def v07(ctx: Ctx) -> QWidget:
                            counts=counts, width=236))
     keys = CATS_STAGE5[1][1]
     page.body.addWidget(plain_header(
-        ctx, "Segment", "turn images into objects · 7 apps"))
+        ctx, "Segment", f"turn images into objects · {len(keys)} apps"))
     page.body.addWidget(big_tile_grid(ctx, keys, cols=4, width=272,
                                       height=172, icon_px=54,
                                       blurb_lines=3))
@@ -461,7 +533,7 @@ def v09(ctx: Ctx) -> QWidget:
     row.addWidget(recent_runs_list(ctx, count=4, width=326))
     page.body.addWidget(top)
 
-    page.body.addWidget(cat_header(ctx, "All apps", note="29"))
+    page.body.addWidget(cat_header(ctx, "All apps", note=str(common.n_apps())))
     cols = QWidget()
     cols.setObjectName("Transparent")
     crow = QHBoxLayout(cols)
@@ -507,7 +579,7 @@ def v10(ctx: Ctx) -> QWidget:
     page.body.addWidget(resume_banner(ctx))
     page.body.addWidget(cat_header(ctx, "Recent"))
     page.body.addWidget(recent_runs_strip(ctx, count=3, card_width=336))
-    page.body.addWidget(cat_header(ctx, "All apps", note="29"))
+    page.body.addWidget(cat_header(ctx, "All apps", note=str(common.n_apps())))
     cols = QWidget()
     cols.setObjectName("Transparent")
     crow = QHBoxLayout(cols)
@@ -542,7 +614,8 @@ def v10(ctx: Ctx) -> QWidget:
             "(Choose folder / Run Mask → Measure / Open Annotate).",
     removes="The hero, the dashboard, the reserved surface. Tiles become "
             "one-line rows.",
-    argument="A new user faced with 29 tiles has no idea which three "
+    argument=f"A new user faced with {common.n_apps()} tiles has no idea "
+            "which three "
             "matter. This tells them, and it is dismissible — after the "
             "first successful run the strip can collapse to a single "
             "line.")
@@ -553,7 +626,7 @@ def v11(ctx: Ctx) -> QWidget:
         actions=(("Skip the tour", False),)))
     page.body.addWidget(quick_start(ctx))
     page.body.addWidget(cat_header(ctx, "Or open an app directly",
-                                   note="29 apps"))
+                                   note=f"{common.n_apps()} apps"))
     cols = QWidget()
     cols.setObjectName("Transparent")
     grid = QGridLayout(cols)
@@ -597,7 +670,9 @@ def v12(ctx: Ctx) -> QWidget:
         actions=(("Edit pins", False), ("Search…", False))))
     page.body.addWidget(cat_header(ctx, "Pinned", note="drag to reorder"))
     page.body.addWidget(pinned_row(ctx, PINNED, tile_w=168, tile_h=116))
-    page.body.addWidget(cat_header(ctx, "Everything else", note="23 apps"))
+    page.body.addWidget(cat_header(
+        ctx, "Everything else",
+        note=f"{common.n_apps() - len(PINNED)} apps"))
     cols = QWidget()
     cols.setObjectName("Transparent")
     crow = QHBoxLayout(cols)
@@ -630,13 +705,13 @@ def v12(ctx: Ctx) -> QWidget:
     adds="Descriptions are permanently visible.",
     removes="Tiles, the hero, the dashboard, the reserved surface, the "
             "hint bar.",
-    argument="It is the densest honest layout: all 29 apps *and* all 29 "
-            "descriptions above the fold at 1440x900, with roughly 200 "
-            "px still free. Nothing is hidden, nothing needs a hover.")
+    argument=f"It is the densest honest layout: all {common.n_apps()} apps "
+            f"*and* all {common.n_apps()} descriptions above the fold at "
+            "1440x900. Nothing is hidden, nothing needs a hover.")
 def v13(ctx: Ctx) -> QWidget:
     page = Page(ctx, margins=MARGINS, spacing=12)
     page.body.addWidget(parts.top_bar(
-        ctx, subtitle="29 apps · everything on one screen",
+        ctx, subtitle=f"{common.n_apps()} apps · everything on one screen",
         actions=(("Search…", False),)))
     cols = QWidget()
     cols.setObjectName("Transparent")
@@ -852,23 +927,28 @@ def v17(ctx: Ctx) -> QWidget:
 # 18
 # ---------------------------------------------------------------------------
 
+#: Every app that is not on the core pipeline — the ones variant 18
+#: puts behind its one door. Derived, because the list used to be
+#: twenty names typed into the prose and it named neither Distributed
+#: Jobs, Classifier Evaluation, Run History nor Replication Assay.
+_BEHIND_THE_DOOR = [k for k in common.all_keys() if k not in common.core_keys()]
+
+
 @variant(
-    "core-nine-only", "Nine apps, and a door to the other twenty",
+    "core-nine-only",
+    f"Nine apps, and a door to the other {len(_BEHIND_THE_DOOR)}",
     changes="The home screen shows only the nine Core-pipeline apps, as "
             "large illustrated tiles with their descriptions. Everything "
             "else lives behind one button.",
     adds="A 'More tools' door with a count.",
-    removes="Twenty apps: Align & Stitch, Format Converter, Import "
-            "Project, Plate Queue, Batch Runner, Database Browser, Make "
-            "Masks, Train Cellpose, Cellpose Masks, Model Compare, Model "
-            "Zoo, Plate Viewer, Annotator Agreement, Image UMAP, "
-            "Activation, Training Runs, Report, Plaque Assay, "
-            "Recruitment, Invasion Assay. Also the dashboard, the "
-            "reserved surface and the hint bar.",
+    removes=f"{len(_BEHIND_THE_DOOR)} apps: "
+            + ", ".join(common.name_of(k) for k in _BEHIND_THE_DOOR)
+            + ". Also the dashboard, the reserved surface and the hint "
+              "bar.",
     argument="This is what 'too much on the home page' looks like taken "
             "seriously. Nine tiles, each big enough to read, each one a "
-            "thing you would actually do today — and the other twenty "
-            "are one click away, not gone.")
+            "thing you would actually do today — and the other "
+            f"{len(_BEHIND_THE_DOOR)} are one click away, not gone.")
 def v18(ctx: Ctx) -> QWidget:
     page = Page(ctx, margins=(28, 20, 28, 16), spacing=16)
     head, hrow = transparent(horizontal=True, spacing=14)
@@ -877,13 +957,13 @@ def v18(ctx: Ctx) -> QWidget:
     hrow.addWidget(text_label(ctx, "the nine steps of a screen", size=13,
                               weight=300, color=ctx.P["fg_muted"]))
     hrow.addStretch(1)
-    more = QPushButton("More tools  (20)")
+    more = QPushButton(f"More tools  ({len(_BEHIND_THE_DOOR)})")
     more.setCursor(Qt.PointingHandCursor)
     hrow.addWidget(more)
     search = QPushButton("Search…")
     hrow.addWidget(search)
     page.body.addWidget(head)
-    core = [k for k, _n, _d, s in common.apps() if s == "Core pipeline"]
+    core = common.core_keys()
     page.body.addWidget(big_tile_grid(ctx, core, cols=3, width=440,
                                       height=210, icon_px=62,
                                       blurb_lines=2,
@@ -951,9 +1031,28 @@ def v19(ctx: Ctx) -> QWidget:
             "screen is the only page every user sees every session, and "
             "four bullets is a cheap rent to charge it.")
 def v20(ctx: Ctx) -> QWidget:
-    page = Page(ctx, margins=MARGINS, spacing=13)
+    # The rent went up. This variant spends its vertical budget on the
+    # release panel and pays for it with `cats_current()` — one caption
+    # plus one grid per LIVE section — so a section costs a caption AND a
+    # full tile row even when it holds one app. Design arrived holding
+    # exactly one, and seven sections of forty-two apps asked for 958 px
+    # of a 900 px canvas.
+    #
+    # Paid out of tile height and inter-block spacing rather than by
+    # dropping the panel, which is the only thing this variant is for, or
+    # by cutting the captions, which is how it replaces the tabs. Widening
+    # the grid was measured and refused: at nine columns the row count
+    # does fall by one, but the tile falls to 146 px with it, and v02's
+    # note already records that a name elides below 166.
+    #
+    # Measured, not guessed: 958 -> 893 px, and one FEWER elided name than
+    # before, because the smaller icon gives the label back the width.
+    # Seven px of slack is thin, but the next app is free — every section
+    # has room left on its last row of six, and only an EIGHTH section
+    # costs another caption-plus-row.
+    page = Page(ctx, margins=MARGINS, spacing=9)
     top, row = transparent(horizontal=True, spacing=16)
-    frame, col = panel(ctx, margins=(18, 14, 18, 14), spacing=8)
+    frame, col = panel(ctx, margins=(18, 11, 18, 11), spacing=6)
     col.addWidget(text_label(ctx, f"New in spaCR {MOCK['version']}", size=17,
                              weight=600))
     bullets, brow = transparent(horizontal=True, spacing=22)
@@ -981,8 +1080,8 @@ def v20(ctx: Ctx) -> QWidget:
                                        color=ctx.P["fg_dim"],
                                        tracking="1.6px", upper=True))
         page.body.addWidget(htile_grid(ctx, keys, cols=6, width=222,
-                                       icon_px=36, name_px=12, height=58,
-                                       vspace=6))
+                                       icon_px=34, name_px=12, height=52,
+                                       vspace=5))
     page.body.addStretch(1)
     return page.finish()
 
@@ -1016,7 +1115,7 @@ def v21(ctx: Ctx) -> QWidget:
     row.addWidget(whats_new_panel(ctx, width=CONTENT_W - 300 - 380 - 340 - 36,
                                   items=3))
     page.body.addWidget(row_w)
-    page.body.addWidget(cat_header(ctx, "Apps", note="29"))
+    page.body.addWidget(cat_header(ctx, "Apps", note=str(common.n_apps())))
     cols = QWidget()
     cols.setObjectName("Transparent")
     crow = QHBoxLayout(cols)
@@ -1055,7 +1154,7 @@ def v21(ctx: Ctx) -> QWidget:
 def v22(ctx: Ctx) -> QWidget:
     page = Page(ctx, margins=MARGINS, spacing=12)
     page.body.addWidget(parts.top_bar(
-        ctx, subtitle="all 29 apps, A to Z",
+        ctx, subtitle=f"all {common.n_apps()} apps, A to Z",
         actions=(("Search…", False),)))
     keys = alphabetical()
     thirds = [keys[0:10], keys[10:20], keys[20:]]
@@ -1159,7 +1258,7 @@ def v24(ctx: Ctx) -> QWidget:
                                   shortcuts=sc, spacing=1), 0)
     page.body.addWidget(cols)
     page.body.addStretch(1)
-    return page.finish(status="29 commands")
+    return page.finish(status=f"{common.n_apps()} commands")
 
 
 # ---------------------------------------------------------------------------
@@ -1176,8 +1275,10 @@ def v24(ctx: Ctx) -> QWidget:
             "queue panel, a recent-runs list, a system panel, a "
             "what's-new panel.",
     removes="Every app tile and every category from the home surface — "
-            "all 29 apps are reachable only from the sidebar or Ctrl+K.",
-    argument="Two navigation surfaces listing the same 29 apps is one "
+            f"all {common.n_apps()} apps are reachable only from the "
+            "sidebar or Ctrl+K.",
+    argument=f"Two navigation surfaces listing the same {common.n_apps()} "
+            "apps is one "
             "too many, and the sidebar is the one that is available from "
             "every screen. Deleting the duplicate is the largest "
             "simplification available.",
@@ -1208,8 +1309,8 @@ def v25(ctx: Ctx) -> QWidget:
 @variant(
     "pins-recent-accordion", "Pins, recents, and everything else collapsed",
     changes="Two strips the user cares about sit open — pinned apps and "
-            "recent runs — and the whole 29-app taxonomy collapses into "
-            "five closed accordion rows underneath.",
+            f"recent runs — and the whole {common.n_apps()}-app taxonomy "
+            "collapses into five closed accordion rows underneath.",
     adds="A pinned strip and a recent-runs strip; the categories become "
             "the real collapsible Section widget from the settings "
             "screens.",
@@ -1255,7 +1356,7 @@ def v26(ctx: Ctx) -> QWidget:
     adds="Per-category counts, and the memory of which section you last "
             "had open.",
     removes="Tiles, the hero, the dashboard, the reserved surface, the "
-            "hint bar. Twenty-six of the 29 apps are one click away "
+            f"hint bar. All but the open group's apps are one click away "
             "rather than on screen.",
     argument="The whole taxonomy fits in about 300 px, so the home "
             "screen can be small *and* complete. It also scales: a "
@@ -1264,7 +1365,9 @@ def v27(ctx: Ctx) -> QWidget:
     from spacr.qt.widgets.section import Section
     page = Page(ctx, margins=(160, 24, 160, 16), spacing=10)
     inner = 1440 - 320
-    page.body.addWidget(parts.top_bar(ctx, subtitle="29 apps in eight groups"))
+    page.body.addWidget(parts.top_bar(
+        ctx, subtitle=f"{common.n_apps()} apps in "
+                      f"{len(CATS_NARROW8)} groups"))
     for i, (title, keys) in enumerate(CATS_NARROW8):
         sec = Section(f"{title.replace('&', '&&')}  ({len(keys)})")
         sec.add_widget(dense_list(ctx, keys, width=inner - 60,
@@ -1289,7 +1392,8 @@ def v27(ctx: Ctx) -> QWidget:
             "surface, the hint bar, and every heading rule.",
     argument="Measured against the complaint that started this — too "
             "much on the home page — this is the answer with the least "
-            "on it that still shows all 29 apps. Everything on screen is "
+            f"on it that still shows all {common.n_apps()} apps. "
+            "Everything on screen is "
             "clickable.")
 def v28(ctx: Ctx) -> QWidget:
     page = Page(ctx, chrome=True, margins=(30, 22, 30, 18), spacing=10)
@@ -1349,7 +1453,8 @@ def v29(ctx: Ctx) -> QWidget:
     brow.addWidget(left, 0)
 
     right, rcol = transparent(spacing=10)
-    rcol.addWidget(plain_header(ctx, "Measure objects", "7 apps"))
+    rcol.addWidget(plain_header(ctx, CATS_INTENT4[1][0],
+                                f"{len(CATS_INTENT4[1][1])} apps"))
     rcol.addWidget(big_tile_grid(ctx, CATS_INTENT4[1][1], cols=3, width=310,
                                  height=176, icon_px=52, blurb_lines=3))
     rcol.addStretch(1)

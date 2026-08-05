@@ -9,9 +9,7 @@ function through at least one full call.
 """
 from __future__ import annotations
 
-import os
 import sqlite3
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -23,6 +21,17 @@ import spacr.submodules as SUB
 # ===========================================================================
 # CellposeLazyDataset — pure logic + PIL/skimage-driven __getitem__
 # ===========================================================================
+
+
+def test_cellpose_gpu_probe_falls_back_to_cpu(monkeypatch, capsys):
+    """A broken CUDA driver must not prevent CPU Cellpose execution."""
+    def _driver_failure():
+        raise RuntimeError("driver mismatch")
+
+    monkeypatch.setattr(SUB.torch.cuda, "is_available", _driver_failure)
+    assert SUB._cellpose_use_gpu() is False
+    assert "Cellpose will use CPU" in capsys.readouterr().out
+
 
 @pytest.fixture
 def cellpose_pair_files(tmp_path, rng):
@@ -162,8 +171,6 @@ def test_lazy_dataset_normalize_disabled_leaves_intensity(cellpose_pair_files):
 # ===========================================================================
 
 def test_count_phenotypes_produces_csv(tmp_path, capsys):
-    from IPython.display import display  # noqa: F401 imported to satisfy submodules
-
     (tmp_path / "measurements").mkdir()
     db = tmp_path / "measurements" / "measurements.db"
     df = pd.DataFrame({
@@ -181,10 +188,11 @@ def test_count_phenotypes_produces_csv(tmp_path, capsys):
         "src": str(tmp_path),
         "annotation_column": "annotate",
     }
-    try:
-        SUB.count_phenotypes(settings)
-    except Exception as e:  # pragma: no cover
-        pytest.skip(f"count_phenotypes needs interactive display: {e}")
+    # Unguarded: count_phenotypes reads a sqlite table and writes a CSV, so
+    # "needs interactive display" was never true of the code path this test
+    # drives -- it was a blanket excuse standing in front of the assertions
+    # below, which are the whole test.
+    SUB.count_phenotypes(settings)
 
     # phenotype_counts.csv should be written in the same dir as the db.
     out_csv = tmp_path / "measurements" / "phenotype_counts.csv"

@@ -2,6 +2,44 @@
 from __future__ import annotations
 
 
+def test_every_app_api_link_targets_an_existing_module():
+    """Tooltip links must follow the current app registry, not legacy launchers."""
+    import importlib.util
+
+    from spacr.qt.app import APPS
+    from spacr.qt.screens.settings_model import _APP_API_MODULE
+
+    missing = []
+    for app_key, _name, _description, _section in APPS:
+        target = _APP_API_MODULE.get(app_key)
+        if not target:
+            missing.append(f"{app_key}: no API mapping")
+            continue
+        module_name = "spacr." + target.replace("/", ".")
+        if importlib.util.find_spec(module_name) is None:
+            missing.append(f"{app_key}: {module_name} does not exist")
+    assert not missing, "\n".join(missing)
+
+
+def test_pipeline_app_api_links_follow_the_actual_backend():
+    from spacr.cli import INTERACTIVE_ONLY
+    from spacr.qt.app import APPS
+    from spacr.qt.bridge import resolve_pipeline_entry
+    from spacr.qt.screens.settings_model import _APP_API_MODULE
+
+    mismatches = []
+    for app_key, _name, _description, _section in APPS:
+        if app_key in INTERACTIVE_ONLY:
+            continue
+        entry = resolve_pipeline_entry(app_key)
+        real = getattr(entry, "__wrapped__", entry)
+        expected = getattr(real, "__module__", "").removeprefix("spacr.")
+        linked = _APP_API_MODULE[app_key].replace("/", ".")
+        if linked != expected:
+            mismatches.append(f"{app_key}: links {linked}, runs {expected}")
+    assert not mismatches, "\n".join(mismatches)
+
+
 def test_type_hint_from_expected_types():
     from spacr.qt.screens.settings_model import _type_hint
     assert _type_hint("cell_min_area") == "integer"
@@ -19,8 +57,8 @@ def test_format_tooltip_shows_name_type_and_strips_old_prefix():
     assert "(integer)" in tip
     assert "Expected cell diameter." in tip
     assert "(int) -" not in tip           # old inline type prefix removed
-    assert "href=" not in tip             # the adjacent teal dot is the link
-    assert "ⓘ" not in tip
+    assert 'href="https://einarolafsson.github.io/spacr/api/' in tip
+    assert "Open spaCR API documentation" in tip
 
 
 def test_undescribed_setting_still_typed():
@@ -34,6 +72,7 @@ def test_plain_tooltip_typed():
     p = plain_tooltip("Whether to plot.", "mask", "plot")
     assert p.startswith("Plot (boolean)")
     assert "Whether to plot." in p
+    assert "API: https://einarolafsson.github.io/spacr/api/" in p
 
 
 def test_every_typed_setting_has_a_written_description():
@@ -61,6 +100,7 @@ def test_every_shown_setting_has_a_typed_tooltip(qtbot, qt_theme_applied):
     for key, w in m._widgets.items():
         tip = w.toolTip()
         assert tip, f"{key} has no tooltip"
+        assert "href=" in tip, f"{key} has no API documentation link"
         if "<i>(" in tip:
             typed += 1
     # The large majority of mask settings are in expected_types → typed.

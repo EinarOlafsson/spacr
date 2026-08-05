@@ -251,17 +251,22 @@ class TestSolvedScrims:
 
     def test_a_scrim_that_cannot_do_both_is_reported_not_hidden(self):
         """Raise the bar past what any panel can transmit and the
-        failure must be a sentence naming both bounds, not silence."""
+        failure must be a sentence naming both bounds, not silence.
+
+        Measured on Cell rather than Space: Space was retired, and this test
+        needs any theme with a wallpaper behind its panels — which is what
+        makes the two bounds pull against each other in the first place.
+        """
         original = theme.MIN_PICTURE_CONTRAST
         try:
             theme.MIN_PICTURE_CONTRAST = 20.0
-            failures = theme.scrim_failures("space")
+            failures = theme.scrim_failures("cell")
             assert len(failures) == len(theme.SCRIM_ROLES)
             assert all("shows the picture at" in line for line in failures)
             assert all("legibility floor" in line for line in failures)
         finally:
             theme.MIN_PICTURE_CONTRAST = original
-        assert theme.scrim_failures("space") == []
+        assert theme.scrim_failures("cell") == []
 
 
 # ---------------------------------------------------------------------------
@@ -362,12 +367,69 @@ class TestAppScreenPageSurfaces:
         for section in sections:
             assert not section.property(theme.TRANSPARENT_PROPERTY)
 
-    def test_a_screen_without_a_rain_is_untouched(self, qtbot,
-                                                  qt_theme_applied):
+    def test_a_screen_with_no_backdrop_still_clears_its_containers(
+            self, qtbot, qt_theme_applied, monkeypatch):
+        """With no animation the containers are cleared anyway — and must be.
+
+        This assertion has now been inverted twice, and the second time is
+        the interesting one.
+
+        It started as "``AppScreen('measure')``'s surfaces are opaque", on the
+        premise that only ``map_barcodes`` had an animation behind it. That
+        premise went when every non-sequencing screen gained the ambient
+        backdrop. It was then rewritten to pin what looked like the rule
+        underneath — *clearing a page surface is only correct when there IS a
+        backdrop, because a transparent container over a plain themed page
+        paints nothing and the form loses its background* — and asserted the
+        containers stayed opaque with the preference off.
+
+        That rule was the bug. Nothing was lost by clearing them; what was
+        lost was the page, because the only thing behind them was the blanket
+        ``QWidget {{ background-color: bg }}`` and on the dark theme that is
+        ``#000000``. Users reported it three times as a black box behind the
+        settings categories. The page has a colour of its own now — see the
+        ``page`` block in :mod:`spacr.qt.theme` and
+        :meth:`spacr.qt.screens.app_screen.AppScreen.page_fill` — so
+        "transparent container over a plain themed page" is exactly right,
+        and is what the sweep is for.
+
+        So the rule pinned here is the corrected one: the sweep is
+        unconditional, and the page under it is never the window colour.
+        ``tests/qt/test_page_is_never_black.py`` measures the pixels.
+        """
+        from spacr.qt import preferences as prefs
+        monkeypatch.setattr(prefs, "get_ambient_enabled", lambda: False)
+
         screen = AppScreen("measure")
         qtbot.addWidget(screen)
-        assert not screen._header.property(theme.TRANSPARENT_PROPERTY)
-        assert not screen._body_splitter.property(theme.TRANSPARENT_PROPERTY)
+        assert getattr(screen, "_ambient", None) is None, \
+            "the preference is off, so no backdrop should have been installed"
+        assert screen._header.property(theme.TRANSPARENT_PROPERTY) is True
+        assert screen._body_splitter.property(
+            theme.TRANSPARENT_PROPERTY) is True
+        # And what they now show is a colour, not the window fill.
+        fill = screen.page_fill()
+        assert fill is not None and fill.getRgb()[:3] != (0, 0, 0), (
+            "the containers were cleared and the page behind them is pure "
+            "black, which is the defect this pair of assertions exists for")
+
+    def test_a_screen_with_the_ambient_backdrop_clears_its_surfaces(
+            self, qtbot, qt_theme_applied, monkeypatch):
+        """The mirror of the rain case, for every other module.
+
+        Without this the backdrop runs, costs its frames, and reaches the eye
+        only through the few pixels of layout spacing between widgets — the
+        exact failure the DNA rain hit first and left a comment about.
+        """
+        from spacr.qt import preferences as prefs
+        monkeypatch.setattr(prefs, "get_ambient_enabled", lambda: True)
+
+        screen = AppScreen("measure")
+        qtbot.addWidget(screen)
+        assert getattr(screen, "_ambient", None) is not None
+        assert screen._header.property(theme.TRANSPARENT_PROPERTY) is True
+        assert screen._body_splitter.property(
+            theme.TRANSPARENT_PROPERTY) is True
 
 
 class TestThemeWallpaper:

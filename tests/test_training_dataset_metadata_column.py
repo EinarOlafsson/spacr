@@ -91,6 +91,14 @@ def _settings(src, **over):
         'tables': ['cell'],
         'size': 16,
         'test_split': 0.2,
+        # 'none', not the shipped 'well' default. Every class in this fixture
+        # IS a single well (columnID c1 is A1 and nothing else), so a
+        # well-grouped holdout has to put each class entirely on one side and
+        # `generate_training_dataset` refuses with "Leakage-safe well-grouped
+        # split leaves class 'c1' empty in train". That refusal is correct
+        # product behaviour; it is just not what this file is about, which is
+        # WHICH COLUMN selects the classes. Four tests here were red on it.
+        'cv_group_by': 'none',
     }
     settings.update(over)
     return settings

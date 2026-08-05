@@ -5,8 +5,8 @@ Candidates for review. **Nothing here is installed** — no file under
 
 Every screen below is built out of the **real Qt widgets** (`HTile`,
 `Card`, `Section`, `Divider`, `UsageBar`, `ElidingLabel`, and the real
-`Sidebar`/`StartupPage` in variant 01) and the **real app registry**
-(`spacr.qt.app.APPS`, all 29 apps, unmodified names and blurbs), then
+`Sidebar`/`HomePage` in variant 01) and the **real app registry**
+(`spacr.qt.app.APPS`, all 34 apps, unmodified names and blurbs), then
 grabbed with `QWidget.grab()` under `QT_QPA_PLATFORM=offscreen`. Where a
 variant needs something spaCR does not have yet — a recent-runs strip, a
 resume banner, a guided quick-start, a project status bar, a what's-new
@@ -46,29 +46,31 @@ widgets they are assembled from live in `_generators/parts.py`.
 
 ## Findings that apply to every variant
 
-1. **The sidebar does not fit at 1440x900.** `Sidebar` stacks 29 app
-   rows plus five headings plus the title in a plain `QVBoxLayout` with
-   no scroll area; it asks for roughly 1356 px of height and gets
-   850. Variants 01 and 25 render it, and the last few apps
-   are simply unreachable on a laptop. A fix is proposed at the bottom
-   of this file.
+1. **The sidebar still does not fit at 1440x900 — but it scrolls now.**
+   Its 34 app rows plus five headings ask for roughly 1485 px
+   against the 850 a laptop gives. The `QScrollArea` described
+   at the bottom of this file **has since landed** in `spacr/qt/app.py`,
+   so the rows scroll and nothing is unreachable; the vertical scrollbar
+   variants 01 and 25 show is that fix working, not the old defect.
 2. **The shipped home page needs a vertical scrollbar** before the
-   third section is fully on screen, plus a horizontal scrollbar inside
-   each section row (variant 01). Twenty-eight of the thirty variants
-   below fit 1440x900 with no scrollbar at all — the two that do not are
-   the shipped baseline (01) and the deliberately maximal control (30) —
-   so scrolling the Home screen is a choice, not a constraint.
+   last band is fully on screen (variant 01).
+   27 of the 30 variants below fit 1440x900 with no scrollbar at all — the
+   3 that do not are 01 (Baseline — the Home screen as it ships today),
+   25 (Home is the project, navigation is the sidebar), 30 (Everything
+   at once (the reference for 'too much')) — so scrolling the Home
+   screen is a choice, not a constraint.
 3. **The hint bar exists because descriptions are hidden.** Any variant
    that shows the one-line description on the row itself (04, 07, 08,
    09, 10, 13, 19, 22, 24, 29) does not need it.
 4. **`HTile` cannot do more than five columns on this screen.** Its name
-   is drawn at the 17 px "subtitle" size, so the longest app name
-   ("Annotator Agreement") needs 255 px of tile — 5 x 265 px fits 1440,
-   6 does not, and at six columns the name silently elides. Variants
-   02, 05, 17, 20 and 30 restyle that one label to 12-13 px to get six
-   columns; 03, 07, 08, 23 and 28 keep the shipped size and use five or
+   is drawn at the 17 px "subtitle" size, so the longest app name needs
+   about 255 px of tile — 5 x 265 px fits 1440, 6 does not, and at six
+   columns the name silently elides. Variants 05, 17, 20 and 30 restyle
+   that one label to 12-13 px to get six columns and 02 goes to 11 px to
+   get seven; 03, 07, 08, 23 and 28 keep the shipped size and use five or
    fewer. Both are legitimate, but it is a real constraint on any
-   tile-grid answer.
+   tile-grid answer — and it tightens every time a longer app name is
+   registered, which "Classifier Evaluation" duly did.
 
 ---
 
@@ -81,17 +83,17 @@ widgets they are assembled from live in `_generators/parts.py`.
 
 ![Baseline — the Home screen as it ships today](v01_baseline-today/dark.png)
 
-**Changes.** Nothing. This is the shipped screen, rendered with the same harness as the other twenty-nine so the comparison is fair: the real Sidebar plus the real StartupPage, five sections in horizontal tile scrollers, the insights dashboard and the reserved 'featured' surface.
+**Changes.** Nothing. This is the shipped screen, rendered with the same harness as every other variant so the comparison is fair: the real Sidebar plus the real HomePage, built through `spacr.qt.app.make_home_page()` — the same call MainWindow makes — so the bands, stages, notes and icon provider are the shipped ones rather than a re-assembly.
 
 **Adds.** Nothing.
 
 **Removes.** Nothing.
 
-**The argument for it.** It is the thing every other variant has to beat, and it shows two problems at 1440x900 without anyone having to argue for them: the sidebar's 29 items + 5 headings ask for 1356 px of height and get 850, so the last three apps are cut off with no way to scroll to them; and the page itself needs a vertical scrollbar plus a horizontal one per section, so only two of the five sections are fully visible at once.
+**The argument for it.** It is the thing every other variant has to beat, and it shows its problem at 1440x900 without anyone having to argue for it: the sidebar's 34 items + 5 headings ask for far more height than a laptop gives, so the navigation is a scrolling column rather than a list you can see, and the page beside it needs a vertical scrollbar of its own before the last band is on screen. Both scrollbars in this render are real; neither is a defect any more.
 
-*Note.* Live GPU/disk/journal readings are frozen to fixed values for the render; everything else is the shipped widget.
+*Note.* Live GPU/disk/journal/queue readings are frozen to fixed values for the render; everything else is the shipped widget.
 
-*Layout audit: every theme — clipped (6), overflow (1), scrollbars (4)*
+*Layout audit: every theme — scrollbars (2)*
 
 
 ### 02 · Workflow stages, wrapping tile grid
@@ -108,7 +110,7 @@ widgets they are assembled from live in `_generators/parts.py`.
 
 **Removes.** The insights dashboard and the empty 'Reserved for featured content' box. The hint bar stays.
 
-**The argument for it.** Same five-row shape people already know, but the names answer 'where am I in my run?' instead of 'what kind of code is this?', and all 29 apps are visible at once with 200 px of vertical slack left over.
+**The argument for it.** Same five-row shape people already know, but the names answer 'where am I in my run?' instead of 'what kind of code is this?', and all 34 apps are visible at once with vertical slack left over.
 
 *Layout audit: clean — no elided or clipped text, no scrollbar, fits 1440x900.*
 
@@ -159,13 +161,13 @@ widgets they are assembled from live in `_generators/parts.py`.
 
 ![No categories at all — flat searchable grid](v05_flat-search/dark.png)
 
-**Changes.** There are no sections. All 29 apps sit in one alphabetical grid under a search field, with filter chips as the only grouping and no default filter applied.
+**Changes.** There are no sections. All 34 apps sit in one alphabetical grid under a search field, with filter chips as the only grouping and no default filter applied.
 
 **Adds.** A search field and a row of filter chips.
 
 **Removes.** Every category heading, the dashboard, the reserved surface, the hint bar.
 
-**The argument for it.** Nobody agrees on the categories, and a flat grid is the only arrangement that cannot be wrong. 29 items is small enough to scan, and the search field is faster than any hierarchy once you know the name.
+**The argument for it.** Nobody agrees on the categories, and a flat grid is the only arrangement that cannot be wrong. 34 items is small enough to scan, and the search field is faster than any hierarchy once you know the name.
 
 *Layout audit: clean — no elided or clipped text, no scrollbar, fits 1440x900.*
 
@@ -182,7 +184,7 @@ widgets they are assembled from live in `_generators/parts.py`.
 
 **Adds.** A large centred search field and a keyboard hint.
 
-**Removes.** All 29 tiles, all categories, the hero, the dashboard, the reserved surface, the hint bar. 21 of the 29 apps have no presence on the screen at all until you search.
+**Removes.** All 34 tiles, all categories, the hero, the dashboard, the reserved surface, the hint bar. 26 of the 34 apps have no presence on the screen at all until you search.
 
 **The argument for it.** The most honest reading of 'too much on the home page' is to put nothing on it. Every app is one keystroke away and the eight that matter are already there.
 
@@ -279,7 +281,7 @@ widgets they are assembled from live in `_generators/parts.py`.
 
 **Removes.** The hero, the dashboard, the reserved surface. Tiles become one-line rows.
 
-**The argument for it.** A new user faced with 29 tiles has no idea which three matter. This tells them, and it is dismissible — after the first successful run the strip can collapse to a single line.
+**The argument for it.** A new user faced with 34 tiles has no idea which three matter. This tells them, and it is dismissible — after the first successful run the strip can collapse to a single line.
 
 *Layout audit: clean — no elided or clipped text, no scrollbar, fits 1440x900.*
 
@@ -317,7 +319,7 @@ widgets they are assembled from live in `_generators/parts.py`.
 
 **Removes.** Tiles, the hero, the dashboard, the reserved surface, the hint bar.
 
-**The argument for it.** It is the densest honest layout: all 29 apps *and* all 29 descriptions above the fold at 1440x900, with roughly 200 px still free. Nothing is hidden, nothing needs a hover.
+**The argument for it.** It is the densest honest layout: all 34 apps *and* all 34 descriptions above the fold at 1440x900. Nothing is hidden, nothing needs a hover.
 
 *Layout audit: clean — no elided or clipped text, no scrollbar, fits 1440x900.*
 
@@ -400,21 +402,21 @@ widgets they are assembled from live in `_generators/parts.py`.
 *Layout audit: clean — no elided or clipped text, no scrollbar, fits 1440x900.*
 
 
-### 18 · Nine apps, and a door to the other twenty
+### 18 · Nine apps, and a door to the other 25
 
 `v18_core-nine-only/`
 
 [dark](v18_core-nine-only/dark.png) [light](v18_core-nine-only/light.png) [space](v18_core-nine-only/space.png)
 
-![Nine apps, and a door to the other twenty](v18_core-nine-only/dark.png)
+![Nine apps, and a door to the other 25](v18_core-nine-only/dark.png)
 
 **Changes.** The home screen shows only the nine Core-pipeline apps, as large illustrated tiles with their descriptions. Everything else lives behind one button.
 
 **Adds.** A 'More tools' door with a count.
 
-**Removes.** Twenty apps: Align & Stitch, Format Converter, Import Project, Plate Queue, Batch Runner, Database Browser, Make Masks, Train Cellpose, Cellpose Masks, Model Compare, Model Zoo, Plate Viewer, Annotator Agreement, Image UMAP, Activation, Training Runs, Report, Plaque Assay, Recruitment, Invasion Assay. Also the dashboard, the reserved surface and the hint bar.
+**Removes.** 25 apps: Align & Stitch, Format Converter, Import Project, External Masks, Plate Queue, Batch Runner, Distributed Jobs, Database Browser, Make Masks, Train Cellpose, Cellpose Masks, Model Compare, Model Zoo, Plate Viewer, Annotator Agreement, Image UMAP, Activation, Training Runs, Classifier Evaluation, Run History, Report, Plaque Assay, Recruitment, Invasion Assay, Replication Assay. Also the dashboard, the reserved surface and the hint bar.
 
-**The argument for it.** This is what 'too much on the home page' looks like taken seriously. Nine tiles, each big enough to read, each one a thing you would actually do today — and the other twenty are one click away, not gone.
+**The argument for it.** This is what 'too much on the home page' looks like taken seriously. Nine tiles, each big enough to read, each one a thing you would actually do today — and the other 25 are one click away, not gone.
 
 *Layout audit: clean — no elided or clipped text, no scrollbar, fits 1440x900.*
 
@@ -545,13 +547,13 @@ widgets they are assembled from live in `_generators/parts.py`.
 
 **Adds.** A project header with the dataset's size and database, a queue panel, a recent-runs list, a system panel, a what's-new panel.
 
-**Removes.** Every app tile and every category from the home surface — all 29 apps are reachable only from the sidebar or Ctrl+K.
+**Removes.** Every app tile and every category from the home surface — all 34 apps are reachable only from the sidebar or Ctrl+K.
 
-**The argument for it.** Two navigation surfaces listing the same 29 apps is one too many, and the sidebar is the one that is available from every screen. Deleting the duplicate is the largest simplification available.
+**The argument for it.** Two navigation surfaces listing the same 34 apps is one too many, and the sidebar is the one that is available from every screen. Deleting the duplicate is the largest simplification available.
 
 *Note.* Shows the real Sidebar, and therefore shows that it does not fit in 900 px — it needs a scroll area before this variant is viable.
 
-*Layout audit: every theme — clipped (6), overflow (1)*
+*Layout audit: every theme — scrollbars (1)*
 
 
 ### 26 · Pins, recents, and everything else collapsed
@@ -562,7 +564,7 @@ widgets they are assembled from live in `_generators/parts.py`.
 
 ![Pins, recents, and everything else collapsed](v26_pins-recent-accordion/dark.png)
 
-**Changes.** Two strips the user cares about sit open — pinned apps and recent runs — and the whole 29-app taxonomy collapses into five closed accordion rows underneath.
+**Changes.** Two strips the user cares about sit open — pinned apps and recent runs — and the whole 34-app taxonomy collapses into five closed accordion rows underneath.
 
 **Adds.** A pinned strip and a recent-runs strip; the categories become the real collapsible Section widget from the settings screens.
 
@@ -585,7 +587,7 @@ widgets they are assembled from live in `_generators/parts.py`.
 
 **Adds.** Per-category counts, and the memory of which section you last had open.
 
-**Removes.** Tiles, the hero, the dashboard, the reserved surface, the hint bar. Twenty-six of the 29 apps are one click away rather than on screen.
+**Removes.** Tiles, the hero, the dashboard, the reserved surface, the hint bar. All but the open group's apps are one click away rather than on screen.
 
 **The argument for it.** The whole taxonomy fits in about 300 px, so the home screen can be small *and* complete. It also scales: a ninth category costs 34 px, not a whole row.
 
@@ -606,7 +608,7 @@ widgets they are assembled from live in `_generators/parts.py`.
 
 **Removes.** The hero and wordmark, the insights dashboard, the reserved surface, the hint bar, and every heading rule.
 
-**The argument for it.** Measured against the complaint that started this — too much on the home page — this is the answer with the least on it that still shows all 29 apps. Everything on screen is clickable.
+**The argument for it.** Measured against the complaint that started this — too much on the home page — this is the answer with the least on it that still shows all 34 apps. Everything on screen is clickable.
 
 *Layout audit: clean — no elided or clipped text, no scrollbar, fits 1440x900.*
 
@@ -670,46 +672,21 @@ window, with these exceptions:
 * **30 kitchen-sink** does not fit at any realistic size — that is its
   point.
 
-## The product change these renders argue for
+## The product change these renders argued for — and it landed
 
-`spacr/qt/app.py` belongs to another effort right now, so this is
-written down rather than applied. It is independent of which variant
-wins — variants 01 and 25 both show the symptom, and any future variant
-that keeps the sidebar inherits it.
+This section used to carry a proposed diff, because `spacr/qt/app.py`
+belonged to another effort at the time. That effort has since made the
+change: `Sidebar` now puts its rows in a `QScrollArea` with the title
+pinned above it. The measurement is re-taken on every render, and it
+still says the same thing about *why* the scroll area has to be there —
+the 34 app rows plus five headings ask for ~1485 px against
+the ~850 a 1440x900 laptop gives, so without it the last
+three apps (Recruitment, Invasion Assay, Replication Assay) could not be reached at all.
 
-```diff
---- a/spacr/qt/app.py
-+++ b/spacr/qt/app.py
-@@
--from PySide6.QtWidgets import (
--    QApplication,
--    QLabel,
-+from PySide6.QtWidgets import (
-+    QApplication,
-+    QLabel,
-+    QScrollArea,
-@@ class Sidebar(QWidget):
--        layout = QVBoxLayout(self)
--        layout.setContentsMargins(0, 0, 0, 0)
--        layout.setSpacing(0)
-+        # 29 app rows + 5 headings + the title ask for ~1356 px. On a
-+        # 1440x900 laptop the column gets ~850, and because a plain
-+        # QVBoxLayout does not scroll the last three apps (Plaque
-+        # Assay, Recruitment, Invasion Assay) cannot be reached at all.
-+        outer = QVBoxLayout(self)
-+        outer.setContentsMargins(0, 0, 0, 0)
-+        outer.setSpacing(0)
-+        scroll = QScrollArea()
-+        scroll.setWidgetResizable(True)
-+        scroll.setFrameShape(QScrollArea.NoFrame)
-+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-+        inner = QWidget()
-+        layout = QVBoxLayout(inner)
-+        layout.setContentsMargins(0, 0, 0, 0)
-+        layout.setSpacing(0)
-+        scroll.setWidget(inner)
-+        outer.addWidget(scroll, 1)
-```
+What that means for these renders: the vertical scrollbar variants 01
+and 25 report in their layout audit is the **fix working**. It is not
+the defect this file was raised to record, and any future variant that
+keeps the sidebar inherits the scroll area rather than the problem.
 
 ## One trap for whoever implements the winner
 

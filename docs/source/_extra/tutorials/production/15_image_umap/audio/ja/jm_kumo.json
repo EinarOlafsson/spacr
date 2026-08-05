@@ -4,47 +4,237 @@
   "voice": "jm_kumo",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 67.75,
+  "total_duration": 383.725,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 14.1,
-      "scene_end": 14.549999999999999,
-      "duration": 14.549999999999999,
-      "text": "このチュートリアルでは,画像UMAPをカバーしています.測定されたオブジェクトを埋め込み,画像作物をグリフとして表示することによって,フェノタイプ近隣を探求します."
+      "speech_end": 18.85,
+      "scene_end": 19.3,
+      "duration": 19.3,
+      "text": "UMAP画像は,物体ごとに高次元測定を2つの座標に縮小し,地図に実際の顕微鏡作物を配置します. コンソールはデータ結合,事前処理,進捗を埋め込み,クラスタリング,プロット,および出力経路を記録します.",
+      "speech_text": "UMAP画像は,物体ごとに高次元測定を2つの座標に縮小し,地図に実際の顕微鏡作物を配置します. コンソールはデータ結合,事前処理,進捗を埋め込み,クラスタリング,プロット,および出力経路を記録します.",
+      "phonemes": "UMAP ɡaʣoː βa, bɯʔtai ɡoto ɲi koː ʥiɡeɴ sokɯteː o ɲiʔno ʣaçoː ɲi ɕɨkɯɕoː ɕi, ʨizɨ ɲi ʥiʔsai no kembʲikʲoː sakɯmoʦɨ o haiʨi ɕi masɨ. koɴsoːɾɯ βa deːta keʦɨɡoː, ʥiʣeɴ ɕoɾʲi, ɕiɲʨokɯ o ɯmekomʲi, kɯɾasɨtaɾʲiŋɡɯ, pɯɾoʔto, ojobʲi ɕɨʦɨɾʲokɯ keːɾo o kʲiɾokɯ ɕi masɨ."
     },
     {
       "scene": 2,
-      "speech_start": 14.549999999999999,
-      "speech_end": 26.375,
-      "scene_end": 26.825,
-      "duration": 12.275,
-      "text": "Results and quality control セクションから Image UMAP を開きます。 測定データベース,画像作物,機能セット,およびメタデータをグループ化します."
+      "speech_start": 19.3,
+      "speech_end": 35.625,
+      "scene_end": 36.075,
+      "duration": 16.775000000000002,
+      "text": "チャットフィールドは,ローカルコマンドとワークフローの質問を受け入れます. 配置されたプロバイダーを通過するAIを有効にし,その隣の矢印を使用してプロバイダーを選択するか,制御を開く.",
+      "speech_text": "チャットフィールドは,ローカルコマンドとワークフローの質問を受け入れます. 配置されたプロバイダーを通過するAIを有効にし,その隣の矢印を使用してプロバイダーを選択するか,制御を開く.",
+      "phonemes": "ʨaʔto ɸʲiːɾɯdo βa, ɾoːkaɾɯ komando to βaːkɯ ɸɯɾoː no ɕiʦɨmoɴ o ɯkeiɾemasɨ. haiʨi saɾeta pɯɾobaidaː o ʦɨːka sɨɾɯ AI o jɯːkoː ɲi ɕi, sono tonaɾʲi no jaʥiɾɯɕi o ɕijoː ɕite pɯɾobaidaː o sentakɯ sɨɾɯ ka, seːɡʲo o çiɾakɯ."
     },
     {
       "scene": 3,
-      "speech_start": 26.825,
-      "speech_end": 37.725,
-      "scene_end": 38.175000000000004,
-      "duration": 11.350000000000005,
-      "text": "主な構成領域では,フィルタリング,スケーリング,隣接,最小距離,クラスター,サンプリング,画像表示チャネルを設定します."
+      "speech_start": 36.075,
+      "speech_end": 49.025000000000006,
+      "scene_end": 49.47500000000001,
+      "duration": 13.400000000000006,
+      "text": "プロバイダーは Claude, ChatGPT, Gemini コマンドラインクライアントをチェックし,インストールとログインのコマンドを表示します. 認証は各プロバイダーに任せられます",
+      "speech_text": "プロバイダーは Claude, ChatGPT, Gemini コマンドラインクライアントをチェックし,インストールとログインのコマンドを表示します. 認証は各プロバイダーに任せられます",
+      "phonemes": "pɯɾobaidaː βa Claude, Chat GPT, Gemini komando ɾaiɴ kɯɾaianto o ʨeʔkɯ ɕi, iɴsɨtoːɾɯ to ɾoɡɯiɴ no komando o çoːʥi ɕi masɨ. ɲiɴɕoː βa kakɯ pɯɾobaidaː ɲi makase ɾaɾemasɨ"
     },
     {
       "scene": 4,
-      "speech_start": 38.175000000000004,
-      "speech_end": 57.175000000000004,
-      "scene_end": 57.62500000000001,
-      "duration": 19.450000000000003,
-      "text": "実行完了前に,可視設定をチェックし,利用可能な場合,前見またはテストモードを使用します.複数の再生可能な埋め込みを比較し,クラスターがプレートまたは画像処理アーテファクトによって動いていないことを確認します."
+      "speech_start": 49.47500000000001,
+      "speech_end": 60.80000000000001,
+      "scene_end": 61.250000000000014,
+      "duration": 11.775000000000006,
+      "text": "AI 設定は応答深さ,自動エラー説明,オプションのGitHub 問題報告,サインイン,およびspaCR 認識システム指示を制御します.",
+      "speech_text": "AI 設定は応答深さ,自動エラー説明,オプションのGitHub 問題報告,サインイン,およびスペーカー 認識システム指示を制御します.",
+      "phonemes": "AI seʔteː βa oːtoː ɸɯka sa, ʥidoː eɾaː seʦɨmeː, opɯɕoɴ no GitHub mondai hoːkokɯ, saiɴ iɴ, ojobʲi sɨpeːkaː ɲiɴɕikʲi ɕisɨtemɯ ɕiʥi o seːɡʲo ɕi masɨ."
     },
     {
       "scene": 5,
-      "speech_start": 57.62500000000001,
-      "speech_end": 67.10000000000001,
-      "scene_end": 67.75000000000001,
-      "duration": 10.125000000000007,
-      "text": "作業流が完了すると spaCR は坐標,クラスターラベル,画像地図,出版準備のインベディングフィギュアを保存します."
+      "speech_start": 61.250000000000014,
+      "speech_end": 80.025,
+      "scene_end": 80.47500000000001,
+      "duration": 19.224999999999994,
+      "text": "ソースはデータベースにリンクされた 455個の細胞作物を含む測定したチュートリアルプロジェクトです このランは250個の物体をサンプルし 細胞,細胞質,核,病原体の特徴表に結合します",
+      "speech_text": "ソースはデータベースにリンクされた 455個の細胞作物を含む測定したチュートリアルプロジェクトです このランは250個の物体をサンプルし 細胞,細胞質,核,病原体の特徴表に結合します",
+      "phonemes": "soːsɨ βa deːtabeːsɨ ɲi ɾʲiŋkɯ saɾeta joɴçakɯ ɡoʥɨː ɡo ko no saiboː sakɯmoʦɨ o ɸɯkɯmɯ sokɯteː ɕita ʨɨːtoɾʲiaɾɯ pɯɾoʥekɯto desɨ kono ɾaɴ βa ɲiçakɯ ɡoʥɨː ko no bɯʔtai o sampɯɾɯ ɕi saiboː, saiboː ɕiʦɨ, kakɯ, bʲoːɡentai no tokɯʨoː çoː ɲi keʦɨɡoː ɕi masɨ"
+    },
+    {
+      "scene": 6,
+      "speech_start": 80.47500000000001,
+      "speech_end": 90.575,
+      "scene_end": 91.025,
+      "duration": 10.549999999999997,
+      "text": "エッセンシャルは,最初の地図に必要なソース,測定表,削減方法,行蓋,および主要な色の選択を示します.",
+      "speech_text": "エッセンシャルは,最初の地図に必要なソース,測定表,削減方法,行蓋,および主要な色の選択を示します.",
+      "phonemes": "eʔseɴɕaɾɯ βa, saiɕo no ʨizɨ ɲi çiʦɨjoː na soːsɨ, sokɯteː çoː, sakɯɡeɴ hoːhoː, ɡʲoː ɡai, ojobʲi ɕɨjoː na iɾo no sentakɯ o ɕimeɕimasɨ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 91.025,
+      "speech_end": 105.75,
+      "scene_end": 106.2,
+      "duration": 15.174999999999997,
+      "text": "修正されたフィルターはパネルをデフォルトから意図的に離れるようにします 例えば小さな近所,実用的な行蓋,グリフ数,ディスプレイの不透明性,保存された数字など.",
+      "speech_text": "修正されたフィルターはパネルをデフォルトから意図的に離れるようにします 例えば小さな近所,実用的な行蓋,グリフ数,ディスプレイの不透明性,保存された数字など.",
+      "phonemes": "ɕɨːseː saɾeta ɸʲiɾɯtaː βa paneɾɯ o deɸoɾɯto kaɾa itotekʲi ɲi hanaɾeɾɯ joː ɲi ɕi masɨ tatoeba ʨiːsana kʲiɲʥo, ʥiʦɨjoːtekʲi naɡʲoː ɡai, ɡɯɾʲiɸɯ sɨː, dʲisɨpɯɾeː no ɸɯ toːmeːseː, hoʣoɴ saɾeta sɨːʥi nado."
+    },
+    {
+      "scene": 8,
+      "speech_start": 106.2,
+      "speech_end": 119.8,
+      "scene_end": 120.25,
+      "duration": 14.049999999999997,
+      "text": "すべての設定は,値変更なしに8つのカテゴリを明らかにします. 経路,測定,プレート除外,埋め込み,グラフ選択,実行時間,バッチ修正,UMAP表示.",
+      "speech_text": "すべての設定は,値変更なしに8つのカテゴリを明らかにします. 経路,測定,プレート除外,埋め込み,グラフ選択,実行時間,バッチ修正,UMAP表示.",
+      "phonemes": "sɨbete no seʔteː βa, atai heŋkoː naɕi ɲi βa ʨiʦɨ no kateɡoɾʲi o akʲiɾaka ɲi ɕi masɨ. keːɾo, sokɯteː, pɯɾeːto ʥoɡai, ɯmekomʲi, ɡɯɾaɸɯ sentakɯ, ʥiʔkoː ʥikaɴ, baʔʨi ɕɨːseː, UMAP çoːʥi."
+    },
+    {
+      "scene": 9,
+      "speech_start": 120.25,
+      "speech_end": 130.725,
+      "scene_end": 131.17499999999998,
+      "duration": 10.924999999999983,
+      "text": "Recipes は,画像 UMAP コンフィギュレーションを名前で保存し,別のプロジェクトに再適用するか,設定ファイルを輸入・輸出する.",
+      "speech_text": "Recipes は,画像 UMAP コンフィギュレーションを名前で保存し,別のプロジェクトに再適用するか,設定ファイルを輸入・輸出する.",
+      "phonemes": "Recipes βa, ɡaʣoː UMAP koɴɸʲiɡʲɨɾeːɕoɴ o namae de hoʣoɴ ɕi, beʦɨ no pɯɾoʥekɯto ɲi sai tekʲijoː sɨɾɯ ka, seʔteː ɸaiɾɯ o jɯɲɨː jɯɕɨʦɨ sɨɾɯ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 131.17499999999998,
+      "speech_end": 141.475,
+      "scene_end": 141.92499999999998,
+      "duration": 10.75,
+      "text": "削除された設定のリモートスナップショットを送信し,Image UMAPの作業を分散した仕事作業スペースに転送します.",
+      "speech_text": "削除された設定のリモートスナップショットを送信し,Image UMAPの作業を分散した仕事作業スペースに転送します.",
+      "phonemes": "sakɯʥo saɾeta seʔteː no ɾʲimoːto sɨnaʔpɯɕoʔto o soːɕiɴ ɕi, Image UMAP no saɡʲoː o bɯɴsaɴ ɕita ɕiɡoto saɡʲoː sɨpeːsɨ ɲi teɴsoː ɕi masɨ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 141.92499999999998,
+      "speech_end": 157.825,
+      "scene_end": 158.27499999999998,
+      "duration": 16.349999999999994,
+      "text": "Distributed Jobsは,リモートワークステーション,Slurmクラスター,または設定されたコマンドへのプロジェクト経路と計算リソースをマッピングし,同じ埋め込み実行を送信してモニタリングします.",
+      "speech_text": "Distributed Jobsは,リモートワークステーション,Slurmクラスター,または設定されたコマンドへのプロジェクト経路と計算リソースをマッピングし,同じ埋め込み実行を送信してモニタリングします.",
+      "phonemes": "Distributed Jobs βa, ɾʲimoːto βaːkɯsɨteːɕoɴ, Slurm kɯɾasɨtaː, mata βa seʔteː saɾeta komando e no pɯɾoʥekɯto keːɾo to keːsaɴ ɾʲisoːsɨ o maʔpʲiŋɡɯ ɕi, onaʥi ɯmekomʲi ʥiʔkoː o soːɕiɴ ɕite moɲitaɾʲiŋɡɯ ɕi masɨ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 158.27499999999998,
+      "speech_end": 172.42499999999998,
+      "scene_end": 172.87499999999997,
+      "duration": 14.599999999999994,
+      "text": "パースは測定されたプロジェクトを選択します. UMAP画像は,その源の下にあるmeasurements.dbと既存の作物画像または合併したマレイを位置付けます.",
+      "speech_text": "パースは測定されたプロジェクトを選択します. UMAP画像は,その源の下にあるmeasurements dot dbと既存の作物画像または合併したマレイを位置付けます.",
+      "phonemes": "paːsɨ βa sokɯteː saɾeta pɯɾoʥekɯto o sentakɯ ɕi masɨ. UMAP ɡaʣoː βa, sono mʲinamoto no ɕita ɲi aɾɯ measurements dot db to kʲisoɴ no sakɯmoʦɨ ɡaʣoː mata βa ɡaʔpeː ɕita maɾeː o iʨi zɨkemasɨ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 172.87499999999997,
+      "speech_end": 189.42499999999998,
+      "scene_end": 189.87499999999997,
+      "duration": 17.0,
+      "text": "測定は結合されたオブジェクト表,チャンネルベースの機能フィルター,明示的な除外,および関連機能の削除を選択します. これらの選択によって地図が表現する幾何学が決定されます.",
+      "speech_text": "測定は結合されたオブジェクト表,チャンネルベースの機能フィルター,明示的な除外,および関連機能の削除を選択します. これらの選択によって地図が表現する幾何学が決定されます.",
+      "phonemes": "sokɯteː βa keʦɨɡoː saɾeta obɯʥekɯto çoː, ʨanneɾɯ beːsɨ no kʲinoː ɸʲiɾɯtaː, meːʥi tekʲi na ʥoɡai, ojobʲi kanɾeɴ kʲinoː no sakɯʥo o sentakɯ ɕi masɨ. koɾe ɾa no sentakɯ ɲi joʔte ʨizɨ ɡa çoːɡeɴ sɨɾɯ kʲikaɡakɯ ɡa keʔteː saɾemasɨ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 189.87499999999997,
+      "speech_end": 202.12499999999997,
+      "scene_end": 202.57499999999996,
+      "duration": 12.699999999999989,
+      "text": "プレートレイアウトと制御は,この埋め込みに入らない故障した井戸,不要な制御,または他のメタデータ値に対する行排除規則を提供します.",
+      "speech_text": "プレートレイアウトと制御は,この埋め込みに入らない故障した井戸,不要な制御,または他のメタデータ値に対する行排除規則を提供します.",
+      "phonemes": "pɯɾeːto ɾeːaɯto to seːɡʲo βa, kono ɯmekomʲi ɲi haiɾanai koɕoː ɕita ido, ɸɯjoː na seːɡʲo, mata βa ta no meta deːta ʨi ɲi taisɨɾɯ ɡʲoː haiʥo kʲisokɯ o teːkʲoː ɕi masɨ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 202.57499999999996,
+      "speech_end": 216.67499999999995,
+      "scene_end": 217.12499999999994,
+      "duration": 14.549999999999983,
+      "text": "埋め込みとクラスタリングは,UMAPまたはt-SNE,近隣および距離行動,オプションログ変換,表示コンパートメント,クラスタリング方法,ノイズ処理,クラスタ分析を選択します.",
+      "speech_text": "埋め込みとクラスタリングは,UMAPまたはt-SNE,近隣および距離行動,オプションログ変換,表示コンパートメント,クラスタリング方法,ノイズ処理,クラスタ分析を選択します.",
+      "phonemes": "ɯmekomʲi to kɯɾasɨtaɾʲiŋɡɯ βa, UMAP mata βa t - SNE, kʲinɾʲiɴ ojobʲi kʲoɾʲi koːdoː, opɯɕoɴ ɾoɡɯ heŋkaɴ, çoːʥi kompaːtomento, kɯɾasɨtaɾʲiŋɡɯ hoːhoː, noizɨ ɕoɾʲi, kɯɾasɨta bɯɴsekʲi o sentakɯ ɕi masɨ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 217.12499999999994,
+      "speech_end": 231.04999999999995,
+      "scene_end": 231.49999999999994,
+      "duration": 14.375,
+      "text": "グラフは最大サンプル列と,色点に使用されるオプションメタデータ列を設定します. 列制限はキャップであるため,より小さなデータセットは有効である.",
+      "speech_text": "グラフは最大サンプル列と,色点に使用されるオプションメタデータ列を設定します. 列制限はキャップであるため,より小さなデータセットは有効である.",
+      "phonemes": "ɡɯɾaɸɯ βa saidai sampɯɾɯ ɾeʦɨ to, iɾo teɴ ɲi ɕijoː saɾeɾɯ opɯɕommetadeːta ɾeʦɨ o seʔteː ɕi masɨ. ɾeʦɨ seːɡeɴ βa kʲaʔpɯ de aɾɯ tame, joɾʲi ʨiːsana deːta seʔto βa jɯːkoː de aɾɯ."
+    },
+    {
+      "scene": 17,
+      "speech_start": 231.49999999999994,
+      "speech_end": 248.27499999999995,
+      "scene_end": 248.72499999999994,
+      "duration": 17.224999999999994,
+      "text": "アドバンスは,合併した配列からPNG作物またはオンデマンド作物,加えて労働者数値と語文報告を選択します. Autoはほとんどのプロジェクトに利用可能な作物源を選択します.",
+      "speech_text": "アドバンスは,合併した配列からPNG作物またはオンデマンド作物,加えて労働者数値と語文報告を選択します. Autoはほとんどのプロジェクトに利用可能な作物源を選択します.",
+      "phonemes": "adobaɴsɨ βa, ɡaʔpeː ɕita haiɾeʦɨ kaɾa PNG sakɯmoʦɨ mata βa oɴ demando sakɯmoʦɨ, kɯβaete ɾoːdoːɕa sɨːʨi to ɡo bɯɴ hoːkokɯ o sentakɯ ɕi masɨ. Auto βa hotondo no pɯɾoʥekɯto ɲi ɾʲijoː kanoː na sakɯmoʦɨ ɡeɴ o sentakɯ ɕi masɨ."
+    },
+    {
+      "scene": 18,
+      "speech_start": 248.72499999999994,
+      "speech_end": 267.8499999999999,
+      "scene_end": 268.2999999999999,
+      "duration": 19.57499999999996,
+      "text": "Plate and Batch Correctionは,プレート効果を中心またはスケールしたり,参照制御を使用したり,生物学的コバリアートが定義されたときに ComBat を適用することができます. この1枚のチュートリアルでは 修正を省きます",
+      "speech_text": "Plate and Batch Correctionは,プレート効果を中心またはスケールしたり,参照制御を使用したり,生物学的コバリアートが定義されたときに ComBat を適用することができます. この1枚のチュートリアルでは 修正を省きます",
+      "phonemes": "Plate and Batch Correction βa, pɯɾeːto koːka o ʨɨːɕiɴ mata βa sɨkeːɾɯ ɕitaɾʲi, saɴɕoː seːɡʲo o ɕijoː ɕitaɾʲi, seːbɯʦɨɡakɯ tekʲi kobaɾʲiaːto ɡa teːɡʲi saɾeta tokʲi ɲi ComBat o tekʲijoː sɨɾɯ koto ɡa dekʲimasɨ. kono iʨi mai no ʨɨːtoɾʲiaɾɯ de βa ɕɨːseː o habɯkʲimasɨ"
+    },
+    {
+      "scene": 19,
+      "speech_start": 268.2999999999999,
+      "speech_end": 282.5249999999999,
+      "scene_end": 282.9749999999999,
+      "duration": 14.675000000000011,
+      "text": "UMAP ディスプレイは,調整された座標を変更せずに点とスケジュールスタイリング,キャンバス比例,作物の拡大,グリフ数,クラスターグリッド,背景,フィギュア保存を制御します.",
+      "speech_text": "UMAP ディスプレイは,調整された座標を変更せずに点とスケジュールスタイリング,キャンバス比例,作物の拡大,グリフ数,クラスターグリッド,背景,フィギュア保存を制御します.",
+      "phonemes": "UMAP dʲisɨpɯɾeː βa, ʨoːseː saɾeta ʣaçoː o heŋkoː sezɨ ɲi teɴ to sɨkeʥɨːɾɯ sɨtaiɾʲiŋɡɯ, kʲambasɨ çiɾeː, sakɯmoʦɨ no kakɯdai, ɡɯɾʲiɸɯ sɨː, kɯɾasɨtaː ɡɯɾʲiʔdo, haikeː, ɸʲiɡʲɨa hoʣoɴ o seːɡʲo ɕi masɨ."
+    },
+    {
+      "scene": 20,
+      "speech_start": 282.9749999999999,
+      "speech_end": 324.9749999999999,
+      "scene_end": 325.4249999999999,
+      "duration": 42.44999999999999,
+      "text": "この例では,最小距離0.1,ユークリッド距離,およびepsilon0.85と最小サンプル5のDBSCANを用いています. 小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小",
+      "speech_text": "この例では,最小距離0.1,ユークリッド距離,およびepsilon0.85と最小サンプル5のDBSCANを用いています. 小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小小",
+      "phonemes": "kono ɾeː de βa, saiɕoː kʲoɾʲi ʣeɾo. iʨi, jɯːkɯɾʲiʔdo kʲoɾʲi, ojobʲi epsilon ʣeɾo. haʨiʥɨː ɡoto saiɕoː sampɯɾɯ ɡo no DBSCAN o moʨiite imasɨ. ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː ɕoːɕoː"
+    },
+    {
+      "scene": 21,
+      "speech_start": 325.4249999999999,
+      "speech_end": 345.7999999999999,
+      "scene_end": 346.2499999999999,
+      "duration": 20.82499999999999,
+      "text": "実行はプロジェクトデータベースと作物を検証し,測定表に加わり,数値特性をフィルターし,サンプル行をフィルターし,減算数とクラスタを合わせ,数字をレンダリングし,並行した結果記録を書きます. 停止要求は安全な中断です",
+      "speech_text": "実行はプロジェクトデータベースと作物を検証し,測定表に加わり,数値特性をフィルターし,サンプル行をフィルターし,減算数とクラスタを合わせ,数字をレンダリングし,並行した結果記録を書きます. 停止要求は安全な中断です",
+      "phonemes": "ʥiʔkoː βa pɯɾoʥekɯto deːtabeːsɨ to sakɯmoʦɨ o keɴɕoː ɕi, sokɯteː çoː ɲi kɯβaβaɾʲi, sɨːʨi tokɯseː o ɸʲiɾɯtaː ɕi, sampɯɾɯ ɡʲoː o ɸʲiɾɯtaː ɕi, ɡeɴʣaɴ sɨː to kɯɾasɨta o aβase, sɨːʥi o ɾendaɾʲiŋɡɯ ɕi, heːkoː ɕita keʔka kʲiɾokɯ o kakʲimasɨ. teːɕi joːkʲɨː βa aɴʣeɴ na ʨɨːdaɴ desɨ"
+    },
+    {
+      "scene": 22,
+      "speech_start": 346.2499999999999,
+      "speech_end": 362.6249999999999,
+      "scene_end": 363.0749999999999,
+      "duration": 16.82499999999999,
+      "text": "組み立ての際にコンソールは作物源の選択,使用できない列を取り除き,近隣の建設, 500 回の最適化期,そして最終的な 250 × 2 の組み込み形状を報告します.",
+      "speech_text": "組み立ての際にコンソールは作物源の選択,使用できない列を取り除き,近隣の建設, 500 回の最適化期,そして最終的な 250 × 2 の組み込み形状を報告します.",
+      "phonemes": "kɯmʲitate no sai ɲi koɴsoːɾɯ βa sakɯmoʦɨ ɡeɴ no sentakɯ, ɕijoː dekʲinai ɾeʦɨ o toɾʲinoʣokʲi, kʲinɾʲiɴ no keɴseʦɨ, ɡoçakɯ kai no saitekʲika kʲi, soɕite saiɕɨː tekʲi na ɲiçakɯ ɡoʥɨː ɲi no kɯmʲikomʲi keːʥoː o hoːkokɯ ɕi masɨ."
+    },
+    {
+      "scene": 23,
+      "speech_start": 363.0749999999999,
+      "speech_end": 383.0749999999999,
+      "scene_end": 383.72499999999985,
+      "duration": 20.649999999999977,
+      "text": "完成したギャラリーには顕微鏡グラフマップとクラスター作物グリッドが表示されます. プロジェクトはまた,embedding_results.csv,embeddingとグリッドPDF,保存された設定,再生可能なマニフェスト,および再起動可能なマクロを受け取ります.",
+      "speech_text": "完成したギャラリーには顕微鏡グラフマップとクラスター作物グリッドが表示されます. プロジェクトはまた,embedding_results.csv,embeddingとグリッドPDF,保存された設定,再生可能なマニフェスト,および再起動可能なマクロを受け取ります.",
+      "phonemes": "kaɴseː ɕita ɡʲaɾaɾʲiː ɲi βa kembʲikʲoː ɡɯɾaɸɯ maʔpɯ to kɯɾasɨtaː sakɯmoʦɨ ɡɯɾʲiʔdo ɡa çoːʥi saɾemasɨ. pɯɾoʥekɯto βa mata, embedding _ results. csv, embedding to ɡɯɾʲiʔdo PDF, hoʣoɴ saɾeta seʔteː, saiseː kanoː na maɲiɸesɨto, ojobʲi saikʲidoː kanoː na makɯɾo o ɯketoɾʲimasɨ."
     }
   ]
 }

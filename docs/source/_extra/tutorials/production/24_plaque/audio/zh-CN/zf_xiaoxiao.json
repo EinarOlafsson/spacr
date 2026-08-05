@@ -4,47 +4,217 @@
   "voice": "zf_xiaoxiao",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 42.15,
+  "total_duration": 256.255,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 7.6,
-      "scene_end": 8.049999999999999,
-      "duration": 8.049999999999999,
-      "text": "这本教程涵盖了板块测试. 从板块图像中测量板块形成和依赖条件的变化."
+      "speech_end": 13.1,
+      "scene_end": 13.75,
+      "duration": 13.75,
+      "text": "片检测检测和量化清除的宿主细胞区域. 控制台记录已解决的设置,进展,输出路径,警告和错误. 在控制台下面的聊天框可以讨论人工智能启用时的环境,",
+      "speech_text": "片检测检测和量化清除的宿主细胞区域. 控制台记录已解决的设置,进展,输出路径,警告和错误. 在控制台下面的聊天框可以讨论人工智能启用时的环境,",
+      "phonemes": "pʰjɛ↘n ʨjɛ↓nʦʰɤ↘ ʨjɛ↓nʦʰɤ↘ xɤ↗ lja↘ŋxwa↘ ʨʰi→ŋꭧʰu↗ tɤ su↘ꭧu↓ ɕi↘pau→ ʨʰy→y↘. kʰʊ↘ŋꭧɨ↘tʰai↗ ʨi↘lu↘ i↓ ʨje↓ʨɥe↗ tɤ ʂɤ↘ꭧɨ↘,ʨi↘nꭧa↓n,ʂu→ꭧʰu→ lu↘ʨi↘ŋ,ʨi↓ŋkau↘ xɤ↗ ʦʰwo↘u↘. ʦai↘ kʰʊ↘ŋꭧɨ↘tʰai↗ ɕja↘mjɛ↘n tɤ ljau↗tʰjɛ→n kʰwa→ŋ kʰɤ↓i↓ tʰau↓lwə↘n ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ ʨʰi↓jʊ↘ŋ ʂɨ↗ tɤ xwa↗nʨi↘ŋ,"
     },
     {
       "scene": 2,
-      "speech_start": 8.049999999999999,
-      "speech_end": 15.5,
-      "scene_end": 15.95,
-      "duration": 7.9,
-      "text": "从 Toxoplasma assays 部分打开 Plaque assay。 提供片图像,片布局,像素校准,条件和控制."
+      "speech_start": 13.75,
+      "speech_end": 26.5,
+      "scene_end": 27.05,
+      "duration": 13.3,
+      "text": "人工智能按切换了聊天路由. 它的旁边菜单选择配置的提供商,并打开提供商设置. 如果不需要任何助理,请关闭它;分析管道本身是本地的,不需要人工智能.",
+      "speech_text": "人工智能按切换了聊天路由. 它的旁边菜单选择配置的提供商,并打开提供商设置. 如果不需要任何助理,请关闭它;分析管道本身是本地的,不需要人工智能.",
+      "phonemes": "ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ a↘n ʨʰje↘xwa↘n lɤ ljau↗tʰjɛ→n lu↘jou↗. tʰa→ tɤ pʰa↗ŋpjɛ→n ʦʰai↘ta→n ɕɥɛ↓nʦɤ↗ pʰei↘ꭧɨ↘ tɤ tʰi↗kʊ→ŋʂa→ŋ,pi↘ŋ ta↓kʰai→ tʰi↗kʊ→ŋʂa→ŋ ʂɤ↘ꭧɨ↘. ɻu↗kwo↓ pu↘ ɕy→jau↘ ɻə↘nxɤ↗ ꭧu↘li↓,ʨʰi↓ŋ kwa→npi↘ tʰa→;fə→nɕi→ kwa↓ntau↘ pə↓nʂə→n ʂɨ↘ pə↓nti↘ tɤ,pu↘ ɕy→jau↘ ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ."
     },
     {
       "scene": 3,
-      "speech_start": 15.95,
-      "speech_end": 22.575,
-      "scene_end": 23.025,
-      "duration": 7.074999999999999,
-      "text": "在主配置区域,配置背景纠正,门,对象清洁,板块尺寸过器和井组."
+      "speech_start": 27.05,
+      "speech_end": 38.6,
+      "scene_end": 39.15,
+      "duration": 12.099999999999998,
+      "text": "提供商设置将本地和托管的助理分开. 在向远程提供商发送控制台或图像文本之前,只设置您打算使用的服务,并查看隐私通知.",
+      "speech_text": "提供商设置将本地和托管的助理分开. 在向远程提供商发送控制台或图像文本之前,只设置您打算使用的服务,并查看隐私通知.",
+      "phonemes": "tʰi↗kʊ→ŋʂa→ŋ ʂɤ↘ꭧɨ↘ ʨja→ŋ pə↓nti↘ xɤ↗ tʰwo→kwa↓n tɤ ꭧu↘li↓ fə→nkʰai→. ʦai↘ ɕja↘ŋ ɥɛ↓nꭧʰə↗ŋ tʰi↗kʊ→ŋʂa→ŋ fa→sʊ↘ŋ kʰʊ↘ŋꭧɨ↘tʰai↗ xwo↘ tʰu↗ɕja↘ŋ wə↗npə↓n ꭧɨ→ʨʰjɛ↗n,ꭧɨ↓ ʂɤ↘ꭧɨ↘ ni↗n ta↓swa↘n ʂɨ↓jʊ↘ŋ tɤ fu↗u↘,pi↘ŋ ꭧʰa↗kʰa↘n i↓nsɨ→ tʰʊ→ŋꭧɨ→."
     },
     {
       "scene": 4,
-      "speech_start": 23.025,
-      "speech_end": 33.875,
-      "scene_end": 34.325,
-      "duration": 11.300000000000004,
-      "text": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式. 在批量分析之前,检查控制和处理井间的细分覆盖."
+      "speech_start": 39.15,
+      "speech_end": 49.925,
+      "scene_end": 50.425,
+      "duration": 11.274999999999999,
+      "text": "人工智能设置控制了环境共享,错误报告和供应商特定凭证等行为. 这些偏好影响了聊天助理,而不是板块细分或量化.",
+      "speech_text": "人工智能设置控制了环境共享,错误报告和供应商特定凭证等行为. 这些偏好影响了聊天助理,而不是板块细分或量化.",
+      "phonemes": "ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ ʂɤ↘ꭧɨ↘ kʰʊ↘ŋꭧɨ↘ lɤ xwa↗nʨi↘ŋ kʊ↘ŋɕja↓ŋ,ʦʰwo↘u↘pau↘kau↘ xɤ↗ kʊ→ŋi↘ŋʂa→ŋ tʰɤ↘ti↘ŋ pʰi↗ŋꭧə↘ŋ tə↓ŋ ɕi↗ŋwei↗. ꭧɤ↘ɕje→ pʰjɛ→nxau↓ i↓ŋɕja↓ŋ lɤ ljau↗tʰjɛ→n ꭧu↘li↓,ɚ↗ pu↗ʂɨ↘ pa↓nkʰwai↘ ɕi↘fə→n xwo↘ lja↘ŋxwa↘."
     },
     {
       "scene": 5,
-      "speech_start": 34.325,
-      "speech_end": 41.5,
-      "scene_end": 42.15,
-      "duration": 7.824999999999996,
-      "text": "在工作流程完成后, spaCR 报告了牌数量,面积,总结,统计和质量控制数据."
+      "speech_start": 50.425,
+      "speech_end": 62.849999999999994,
+      "scene_end": 63.599999999999994,
+      "duration": 13.174999999999997,
+      "text": "选择或放下包含TIFF板块字段的文件. 这本教程使用了四个明确的合成井, 通过面具,spaCR在测量之前将源图像与捆绑的板块模型进行分割.",
+      "speech_text": "选择或放下包含TIFF板块字段的文件. 这本教程使用了四个明确的合成井, 通过面具,斯佩克尔在测量之前将源图像与捆绑的板块模型进行分割.",
+      "phonemes": "ɕɥɛ↓nʦɤ↗ xwo↘ fa↘ŋɕja↘ pau→xa↗nTIFFpa↓nkʰwai↘ ʦɨ↘twa↘n tɤ wə↗nʨjɛ↘n. ꭧɤ↘pə↓n ʨjau↘ꭧʰə↗ŋ ʂɨ↓jʊ↘ŋ lɤ sɨ↘kɤ↘ mi↗ŋʨʰɥe↘ tɤ xɤ↗ꭧʰə↗ŋ ʨi↓ŋ, tʰʊ→ŋkwo↘ mjɛ↘nʨy↘,sɨ→ pʰei↘kʰɤ↘ ɚ↓ ʦai↘ ʦʰɤ↘lja↗ŋ ꭧɨ→ʨʰjɛ↗n ʨja→ŋɥɛ↗n tʰu↗ɕja↘ŋ y↓ kʰwə↓npa↓ŋ tɤ pa↓nkʰwai↘ mwo↗ɕi↗ŋ ʨi↘nɕi↗ŋ fə→nkɤ→."
+    },
+    {
+      "scene": 6,
+      "speech_start": 63.599999999999994,
+      "speech_end": 73.44999999999999,
+      "scene_end": 73.94999999999999,
+      "duration": 10.349999999999994,
+      "text": "基本数据显示,通常用于第一次运行所需的小组. 在这里开始验证来源,面具行为,预期直径,门和输出选择,",
+      "speech_text": "基本数据显示,通常用于第一次运行所需的小组. 在这里开始验证来源,面具行为,预期直径,门和输出选择,",
+      "phonemes": "ʨi→pə↓n ʂu↘ʨy↘ ɕjɛ↓nʂɨ↘,tʰʊ→ŋꭧʰa↗ŋ jʊ↘ŋy↗ ti↘i→ʦʰɨ↘ y↘nɕi↗ŋ swo↓ ɕy→ tɤ ɕjau↓ʦu↓. ʦai↘ ꭧɤ↘li↓ kʰai→ʂɨ↓ jɛ↘nꭧə↘ŋ lai↗ɥɛ↗n,mjɛ↘nʨy↘ ɕi↗ŋwei↗,y↘ʨʰi→ ꭧɨ↗ʨi↘ŋ,mə↗n xɤ↗ ʂu→ꭧʰu→ ɕɥɛ↓nʦɤ↗,"
+    },
+    {
+      "scene": 7,
+      "speech_start": 73.94999999999999,
+      "speech_end": 86.04999999999998,
+      "scene_end": 86.59999999999998,
+      "duration": 12.649999999999991,
+      "text": "修改过器将面板过到不同于默认的值. 在提交之前,这是一个紧密的审计:这里来源,面具重复使用,板块直径,批量大小和背景行为是故意的变化.",
+      "speech_text": "修改过器将面板过到不同于默认的值. 在提交之前,这是一个紧密的审计:这里来源,面具重复使用,板块直径,批量大小和背景行为是故意的变化.",
+      "phonemes": "ɕjou→kai↓ kwo↘ʨʰi↘ ʨja→ŋ mjɛ↘npa↓n kwo↘ tau↘ pu↘tʰʊ↗ŋy↗ mwo↘ɻə↘n tɤ ꭧɨ↗. ʦai↘ tʰi↗ʨjau→ ꭧɨ→ʨʰjɛ↗n,ꭧɤ↘ʂɨ↘ i↗kɤ↘ ʨi↓nmi↘ tɤ ʂə↓nʨi↘:ꭧɤ↘li↓ lai↗ɥɛ↗n,mjɛ↘nʨy↘ ꭧʰʊ↗ŋfu↘ʂɨ↓jʊ↘ŋ,pa↓nkʰwai↘ ꭧɨ↗ʨi↘ŋ,pʰi→lja↘ŋ ta↘ɕjau↓ xɤ↗ pei↘ʨi↓ŋ ɕi↗ŋwei↗ ʂɨ↘ ku↘i↘ tɤ pjɛ↘nxwa↘."
+    },
+    {
+      "scene": 8,
+      "speech_start": 86.59999999999998,
+      "speech_end": 98.12499999999999,
+      "scene_end": 98.62499999999999,
+      "duration": 12.025000000000006,
+      "text": "所有设置都显示了所有可用的控制. 使用它在解决故障或复制旧运行时;否则,Essentials视图将减少已经有合适默认的参数的意外变化.",
+      "speech_text": "所有设置都显示了所有可用的控制. 使用它在解决故障或复制旧运行时;否则,Essentials视图将减少已经有合适默认的参数的意外变化.",
+      "phonemes": "swo↓jou↓ ʂɤ↘ꭧɨ↘ tou→ ɕjɛ↓nʂɨ↘ lɤ swo↓jou↓ kʰɤ↓jʊ↘ŋ tɤ kʰʊ↘ŋꭧɨ↘. ʂɨ↓jʊ↘ŋ tʰa→ ʦai↘ ʨje↓ʨɥe↗ ku↘ꭧa↘ŋ xwo↘ fu↘ꭧɨ↘ ʨjou↘ y↘nɕi↗ŋ ʂɨ↗;fou↓ʦɤ↗,Essentialsʂɨ↘tʰu↗ ʨja→ŋ ʨjɛ↓nʂau↓ i↓ʨi→ŋ jou↓ xɤ↗ʂɨ↘ mwo↘ɻə↘n tɤ ʦʰa→nʂu↘ tɤ i↘wai↘ pjɛ↘nxwa↘."
+    },
+    {
+      "scene": 9,
+      "speech_start": 98.62499999999999,
+      "speech_end": 109.17499999999998,
+      "scene_end": 109.72499999999998,
+      "duration": 11.099999999999994,
+      "text": "配方将当前模块设置存储在可重复使用的名称下. 验证的板块配置可以保存,进口,共享并后期应用,而不是手动重建.",
+      "speech_text": "配方将当前模块设置存储在可重复使用的名称下. 验证的板块配置可以保存,进口,共享并后期应用,而不是手动重建.",
+      "phonemes": "pʰei↘fa→ŋ ʨja→ŋ ta→ŋʨʰjɛ↗n mwo↗kʰwai↘ ʂɤ↘ꭧɨ↘ ʦʰwə↗nꭧʰu↓ ʦai↘ kʰɤ↓ ꭧʰʊ↗ŋfu↘ʂɨ↓jʊ↘ŋ tɤ mi↗ŋꭧʰə→ŋ ɕja↘. jɛ↘nꭧə↘ŋ tɤ pa↓nkʰwai↘ pʰei↘ꭧɨ↘ kʰɤ↓i↓ pau↓ʦʰwə↗n,ʨi↘nkʰou↓,kʊ↘ŋɕja↓ŋ pi↘ŋ xou↘ʨʰi→ i↘ŋjʊ↘ŋ,ɚ↗ pu↗ʂɨ↘ ʂou↓tʊ↘ŋ ꭧʰʊ↗ŋʨjɛ↘n."
+    },
+    {
+      "scene": 10,
+      "speech_start": 109.72499999999998,
+      "speech_end": 120.42499999999998,
+      "scene_end": 120.92499999999998,
+      "duration": 11.200000000000003,
+      "text": "提交远程将解决设置传递到分布式工作,而不是在本地启动. 在 SSH 工作站或集群中可访问源文件和所需模型时使用.",
+      "speech_text": "提交远程将解决设置传递到分布式工作,而不是在本地启动. 在 SSH 工作站或集群中可访问源文件和所需模型时使用.",
+      "phonemes": "tʰi↗ʨjau→ ɥɛ↓nꭧʰə↗ŋ ʨja→ŋ ʨje↓ʨɥe↗ ʂɤ↘ꭧɨ↘ ꭧʰwa↗nti↘ tau↘ fə→npu↘ʂɨ↘ kʊ→ŋʦwo↘,ɚ↗ pu↗ʂɨ↘ ʦai↘ pə↓nti↘ ʨʰi↓tʊ↘ŋ. ʦai↘ SSH kʊ→ŋʦwo↘ꭧa↘n xwo↘ ʨi↗ʨʰy↗n ꭧʊ→ŋ kʰɤ↓ fa↓ŋwə↘n ɥɛ↗nwə↗nʨjɛ↘n xɤ↗ swo↓ ɕy→ mwo↗ɕi↗ŋ ʂɨ↗ ʂɨ↓jʊ↘ŋ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 120.92499999999998,
+      "speech_end": 132.225,
+      "scene_end": 132.875,
+      "duration": 11.950000000000017,
+      "text": "远程屏幕接收该模块及其设置作为工作草案. 在提交小型验证工作之前,确认路径映射,计算资源,环境激活,同步和生成命令.",
+      "speech_text": "远程屏幕接收该模块及其设置作为工作草案. 在提交小型验证工作之前,确认路径映射,计算资源,环境激活,同步和生成命令.",
+      "phonemes": "ɥɛ↓nꭧʰə↗ŋ pʰi↗ŋmu↘ ʨje→ʂou→ kai→ mwo↗kʰwai↘ ʨi↗ʨʰi↗ ʂɤ↘ꭧɨ↘ ʦwo↘wei↗ kʊ→ŋʦwo↘ ʦʰau↓a↘n. ʦai↘ tʰi↗ʨjau→ ɕjau↓ɕi↗ŋ jɛ↘nꭧə↘ŋ kʊ→ŋʦwo↘ ꭧɨ→ʨʰjɛ↗n,ʨʰɥe↘ɻə↘n lu↘ʨi↘ŋ i↘ŋʂɤ↘,ʨi↘swa↘nʦɨ→ɥɛ↗n,xwa↗nʨi↘ŋ ʨi→xwo↗,tʰʊ↗ŋpu↘ xɤ↗ ʂə→ŋꭧʰə↗ŋ mi↘ŋli↘ŋ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 132.875,
+      "speech_end": 143.65,
+      "scene_end": 144.17000000000002,
+      "duration": 11.295000000000016,
+      "text": "输入和道包含源文件和面具选项. 启动面具以分割原始字段,或仅在面具子文件已经包含正确命名的标记图像时关闭.",
+      "speech_text": "输入和道包含源文件和面具选项. 启动面具以分割原始字段,或仅在面具子文件已经包含正确命名的标记图像时关闭.",
+      "phonemes": "ʂu→ɻu↘ xɤ↗ tau↘ pau→xa↗n ɥɛ↗nwə↗nʨjɛ↘n xɤ↗ mjɛ↘nʨy↘ ɕɥɛ↓nɕja↘ŋ. ʨʰi↓tʊ↘ŋ mjɛ↘nʨy↘ i↓ fə→nkɤ→ ɥɛ↗nʂɨ↓ ʦɨ↘ twa↘n,xwo↘ʨi↓n ʦai↘ mjɛ↘nʨy↘ ʦɨ wə↗nʨjɛ↘n i↓ʨi→ŋ pau→xa↗n ꭧə↘ŋʨʰɥe↘ mi↘ŋmi↗ŋ tɤ pjau→ʨi↘ tʰu↗ɕja↘ŋ ʂɨ↗ kwa→npi↘."
+    },
+    {
+      "scene": 13,
+      "speech_start": 144.17000000000002,
+      "speech_end": 154.47000000000003,
+      "scene_end": 154.99000000000004,
+      "duration": 10.820000000000022,
+      "text": "模型包含预期的板块直径. 匹配这个尺度与代表性板块和模型的训练几何;一个细胞尺寸值通常不适合板块领域.",
+      "speech_text": "模型包含预期的板块直径. 匹配这个尺度与代表性板块和模型的训练几何;一个细胞尺寸值通常不适合板块领域.",
+      "phonemes": "mwo↗ɕi↗ŋ pau→xa↗n y↘ʨʰi→ tɤ pa↓nkʰwai↘ ꭧɨ↗ʨi↘ŋ. pʰi↓pʰei↘ ꭧɤ↘kɤ ꭧʰɨ↓tu↘ y↓ tai↘pjau↓ɕi↘ŋ pa↓nkʰwai↘ xɤ↗ mwo↗ɕi↗ŋ tɤ ɕy↘nljɛ↘n ʨi↓xɤ↗;i↗kɤ↘ ɕi↘pau→ ꭧʰɨ↓ʦʰwə↘n ꭧɨ↗ tʰʊ→ŋꭧʰa↗ŋ pu↘ ʂɨ↘xɤ↗ pa↓nkʰwai↘ li↓ŋy↘."
+    },
+    {
+      "scene": 14,
+      "speech_start": 154.99000000000004,
+      "speech_end": 167.64000000000004,
+      "scene_end": 168.22000000000006,
+      "duration": 13.230000000000018,
+      "text": "检测门组分为候选概率,流量一致性,重新扩展,重新采样和填孔. 这些设置影响了新的细分;它们不会改变在本演示中重复使用的预先计算面具.",
+      "speech_text": "检测门组分为候选概率,流量一致性,重新扩展,重新采样和填孔. 这些设置影响了新的细分;它们不会改变在本演示中重复使用的预先计算面具.",
+      "phonemes": "ʨjɛ↓nʦʰɤ↘ mə↗n ʦu↓fə↘n wei↘ xou↘ɕɥɛ↓n kai↘ly↘,ljou↗lja↘ŋ i↗ꭧɨ↘ɕi↘ŋ,ꭧʰʊ↗ŋɕi→n kʰwo↘ꭧa↓n,ꭧʰʊ↗ŋɕi→n ʦʰai↓ja↘ŋ xɤ↗ tʰjɛ↗nkʰʊ↓ŋ. ꭧɤ↘ɕje→ ʂɤ↘ꭧɨ↘ i↓ŋɕja↓ŋ lɤ ɕi→n tɤ ɕi↘fə→n;tʰa→mən pu↗xwei↘ kai↓pjɛ↘n ʦai↘ pə↓n jɛ↓nʂɨ↘ ꭧʊ→ŋ ꭧʰʊ↗ŋfu↘ʂɨ↓jʊ↘ŋ tɤ y↘ɕjɛ→n ʨi↘swa↘n mjɛ↘nʨy↘."
+    },
+    {
+      "scene": 15,
+      "speech_start": 168.22000000000006,
+      "speech_end": 179.97000000000006,
+      "scene_end": 180.55000000000007,
+      "duration": 12.330000000000013,
+      "text": "图像几何控制,将其尺寸调整到捆绑板模型预期的尺寸. 在报告区域之前,面具将重新扩展到原始领域,因此测量将保持在原始像素中.",
+      "speech_text": "图像几何控制,将其尺寸调整到捆绑板模型预期的尺寸. 在报告区域之前,面具将重新扩展到原始领域,因此测量将保持在原始像素中.",
+      "phonemes": "tʰu↗ɕja↘ŋ ʨi↓xɤ↗ kʰʊ↘ŋꭧɨ↘,ʨja→ŋ ʨʰi↗ ꭧʰɨ↓ʦʰwə↘n tʰjau↗ꭧə↓ŋ tau↘ kʰwə↓npa↓ŋ pa↓n mwo↗ɕi↗ŋ y↘ʨʰi→ tɤ ꭧʰɨ↓ʦʰwə↘n. ʦai↘ pau↘kau↘ ʨʰy→y↘ ꭧɨ→ʨʰjɛ↗n,mjɛ↘nʨy↘ ʨja→ŋ ꭧʰʊ↗ŋɕi→n kʰwo↘ꭧa↓n tau↘ ɥɛ↗nʂɨ↓ li↓ŋy↘,i→nʦʰɨ↓ ʦʰɤ↘lja↗ŋ ʨja→ŋ pau↓ꭧʰɨ↗ ʦai↘ ɥɛ↗nʂɨ↓ ɕja↘ŋsu↘ ꭧʊ→ŋ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 180.55000000000007,
+      "speech_end": 190.90000000000006,
+      "scene_end": 191.45000000000007,
+      "duration": 10.900000000000006,
+      "text": "在正常化过程中使用的背景和声杆控制了背景移除. 在完整的细分运行之前,将其调整到代表控制和处理井上.",
+      "speech_text": "在正常化过程中使用的背景和声杆控制了背景移除. 在完整的细分运行之前,将其调整到代表控制和处理井上.",
+      "phonemes": "ʦai↘ ꭧə↘ŋꭧʰa↗ŋxwa↘ kwo↘ꭧʰə↗ŋ ꭧʊ→ŋ ʂɨ↓jʊ↘ŋ tɤ pei↘ʨi↓ŋ xɤ↗ ʂə→ŋka→n kʰʊ↘ŋꭧɨ↘ lɤ pei↘ʨi↓ŋ i↗ꭧʰu↗. ʦai↘ wa↗nꭧə↓ŋ tɤ ɕi↘fə→n y↘nɕi↗ŋ ꭧɨ→ʨʰjɛ↗n,ʨja→ŋ ʨʰi↗ tʰjau↗ꭧə↓ŋ tau↘ tai↘pjau↓ kʰʊ↘ŋꭧɨ↘ xɤ↗ ꭧʰu↓li↓ ʨi↓ŋʂa↘ŋ."
+    },
+    {
+      "scene": 17,
+      "speech_start": 191.45000000000007,
+      "speech_end": 204.05000000000007,
+      "scene_end": 204.60000000000008,
+      "duration": 13.150000000000006,
+      "text": "输出和运行时间控制储存,GPU批量大小和语音. 如果细分超过可用内存,则减少批量大小;保持对第一盘的语音记录,以便记录已解决的路径和行为.",
+      "speech_text": "输出和运行时间控制储存,GPU批量大小和语音. 如果细分超过可用内存,则减少批量大小;保持对第一盘的语音记录,以便记录已解决的路径和行为.",
+      "phonemes": "ʂu→ꭧʰu→ xɤ↗ y↘nɕi↗ŋ ʂɨ↗ʨjɛ→n kʰʊ↘ŋꭧɨ↘ ꭧʰu↓ʦʰwə↗n,GPUpʰi→lja↘ŋ ta↘ɕjau↓ xɤ↗ y↓i→n. ɻu↗kwo↓ ɕi↘fə→n ꭧʰau→kwo↘ kʰɤ↓jʊ↘ŋnei↘ʦʰwə↗n,ʦɤ↗ ʨjɛ↓nʂau↓ pʰi→lja↘ŋ ta↘ɕjau↓;pau↓ꭧʰɨ↗ twei↘ ti↘i→pʰa↗n tɤ y↓i→n ʨi↘lu↘,i↓pjɛ↘n ʨi↘lu↘ i↓ ʨje↓ʨɥe↗ tɤ lu↘ʨi↘ŋ xɤ↗ ɕi↗ŋwei↗."
+    },
+    {
+      "scene": 18,
+      "speech_start": 204.60000000000008,
+      "speech_end": 215.10000000000008,
+      "scene_end": 215.6800000000001,
+      "duration": 11.080000000000013,
+      "text": "在细分时,概率控制候选地板,流量门控制形状一致性, 检查多个井,因为清洁一个板块的值可以合并或抹去另一个板块.",
+      "speech_text": "在细分时,概率控制候选地板,流量门控制形状一致性, 检查多个井,因为清洁一个板块的值可以合并或抹去另一个板块.",
+      "phonemes": "ʦai↘ ɕi↘fə→n ʂɨ↗,kai↘ly↘ kʰʊ↘ŋꭧɨ↘ xou↘ɕɥɛ↓n ti↘pa↓n,ljou↗lja↘ŋ mə↗n kʰʊ↘ŋꭧɨ↘ ɕi↗ŋꭧwa↘ŋ i↗ꭧɨ↘ɕi↘ŋ, ʨjɛ↓nꭧʰa↗ two→kɤ↘ ʨi↓ŋ,i→nwei↘ ʨʰi→ŋʨje↗ i↗kɤ↘ pa↓nkʰwai↘ tɤ ꭧɨ↗ kʰɤ↓i↓ xɤ↗pi↘ŋ xwo↘ mwo↓ ʨʰy↘ li↘ŋ i↗kɤ↘ pa↓nkʰwai↘."
+    },
+    {
+      "scene": 19,
+      "speech_start": 215.6800000000001,
+      "speech_end": 227.5300000000001,
+      "scene_end": 228.13000000000008,
+      "duration": 12.449999999999989,
+      "text": "在检查修改设置后,单击运行. 这项示范通过真实板块分析后端测量了四种合成标记面具;它没有将合成场作为细分模型的生物验证.",
+      "speech_text": "在检查修改设置后,单击运行. 这项示范通过真实板块分析后端测量了四种合成标记面具;它没有将合成场作为细分模型的生物验证.",
+      "phonemes": "ʦai↘ ʨjɛ↓nꭧʰa↗ ɕjou→kai↓ ʂɤ↘ꭧɨ↘ xou↘,ta→nʨi→ y↘nɕi↗ŋ. ꭧɤ↘ɕja↘ŋ ʂɨ↘fa↘n tʰʊ→ŋkwo↘ ꭧə→nʂɨ↗ pa↓nkʰwai↘ fə→nɕi→ xou↘ twa→n ʦʰɤ↘lja↗ŋ lɤ sɨ↘ꭧʊ↓ŋ xɤ↗ꭧʰə↗ŋ pjau→ʨi↘ mjɛ↘nʨy↘;tʰa→ mei↗jou↓ ʨja→ŋ xɤ↗ꭧʰə↗ŋ ꭧʰa↓ŋ ʦwo↘wei↗ ɕi↘fə→n mwo↗ɕi↗ŋ tɤ ʂə→ŋu↘ jɛ↘nꭧə↘ŋ."
+    },
+    {
+      "scene": 20,
+      "speech_start": 228.13000000000008,
+      "speech_end": 238.9050000000001,
+      "scene_end": 239.4550000000001,
+      "duration": 11.325000000000017,
+      "text": "在执行过程中,控制台会打印可再生性记录,解决源和目的地,并分析每个面具. 停止取消请求;等待完成之前打开输出.",
+      "speech_text": "在执行过程中,控制台会打印可再生性记录,解决源和目的地,并分析每个面具. 停止取消请求;等待完成之前打开输出.",
+      "phonemes": "ʦai↘ ꭧɨ↗ɕi↗ŋ kwo↘ꭧʰə↗ŋ ꭧʊ→ŋ,kʰʊ↘ŋꭧɨ↘tʰai↗ xwei↘ ta↓i↘n kʰɤ↓ʦai↘ʂə→ŋɕi↘ŋ ʨi↘lu↘,ʨje↓ʨɥe↗ ɥɛ↗n xɤ↗ mu↘ti↘ti↘,pi↘ŋ fə→nɕi→ mei↓kɤ↘ mjɛ↘nʨy↘. tʰi↗ŋꭧɨ↓ ʨʰy↓ɕjau→ ʨʰi↓ŋʨʰjou↗;tə↓ŋtai↘ wa↗nꭧʰə↗ŋ ꭧɨ→ʨʰjɛ↗n ta↓kʰai→ ʂu→ꭧʰu→."
+    },
+    {
+      "scene": 21,
+      "speech_start": 239.4550000000001,
+      "speech_end": 255.4550000000001,
+      "scene_end": 256.2550000000001,
+      "duration": 16.80000000000001,
+      "text": "运行将在面具文件中写 plaques_analysis.db,包含总结,统计和详细表. 这些四个字段分别包含四个,三个,两个和一个牌子;使用每张图像的数量和带有牌子的元数据的区域进行下游状态水平统计和质量控制.",
+      "speech_text": "运行将在面具文件中写 plaques_analysis.db,包含总结,统计和详细表. 这些四个字段分别包含四个,三个,两个和一个牌子;使用每张图像的数量和带有牌子的元数据的区域进行下游状态水平统计和质量控制.",
+      "phonemes": "y↘nɕi↗ŋ ʨja→ŋ ʦai↘ mjɛ↘nʨy↘ wə↗nʨjɛ↘n ꭧʊ→ŋɕje↓ plaques_analysis.db,pau→xa↗n ʦʊ↓ŋʨje↗,tʰʊ↓ŋʨi↘ xɤ↗ ɕja↗ŋɕi↘ pjau↓. ꭧɤ↘ɕje→ sɨ↘kɤ↘ ʦɨ↘ twa↘n fə→npje↗ pau→xa↗n sɨ↘kɤ↘,sa→nkɤ↘,lja↓ŋkɤ↘ xɤ↗ i↗kɤ↘ pʰai↗ʦɨ;ʂɨ↓jʊ↘ŋ mei↓ꭧa→ŋ tʰu↗ɕja↘ŋ tɤ ʂu↘lja↘ŋ xɤ↗ tai↘jou↓ pʰai↗ʦɨ tɤ ɥɛ↗n ʂu↘ʨy↘ tɤ ʨʰy→y↘ ʨi↘nɕi↗ŋ ɕja↘jou↗ ꭧwa↘ŋtʰai↘ ʂwei↓pʰi↗ŋ tʰʊ↓ŋʨi↘ xɤ↗ ꭧɨ↘lja↘ŋ kʰʊ↘ŋꭧɨ↘."
     }
   ]
 }

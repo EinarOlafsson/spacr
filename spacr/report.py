@@ -81,12 +81,15 @@ import csv
 import html as _html
 import io
 import json
+import logging
 import os
 import textwrap
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+
+LOG = logging.getLogger(__name__)
 
 __all__ = [
     "Figure",
@@ -1748,6 +1751,75 @@ def collect_report(src: Any,
         _collect_settings(src_path, artifacts, runs, include_plan=include_plan),
         _collect_appendix(src_path, artifacts),
     ]
+
+    # Third-party report chapters are inserted relative to stable core keys.
+    # A failing builder becomes a visible problem chapter rather than silently
+    # disappearing from the report.
+    try:
+        from .plugins import (
+            ReportContext, load_object, record_diagnostic, report_sections,
+        )
+        context = ReportContext(
+            src=src_path,
+            artifacts=artifacts,
+            runs=tuple(runs),
+            options={
+                "max_figures": max_figures,
+                "max_figure_px": max_figure_px,
+                "max_table_rows": max_table_rows,
+                "include_plan": include_plan,
+            },
+        )
+        existing_keys = {section.key for section in sections}
+        for plugin_name, contribution in report_sections():
+            try:
+                if contribution.key in existing_keys:
+                    raise ValueError(
+                        f"report section key {contribution.key!r} already exists"
+                    )
+                builder = load_object(contribution.builder)
+                if not callable(builder):
+                    raise TypeError(f"{contribution.builder!r} is not callable")
+                plugin_section = builder(context)
+                if not isinstance(plugin_section, Section):
+                    raise TypeError(
+                        f"{contribution.builder!r} returned "
+                        f"{type(plugin_section).__name__}, expected Section"
+                    )
+                if plugin_section.key not in ("", contribution.key):
+                    raise ValueError(
+                        f"builder returned key {plugin_section.key!r}; "
+                        f"expected {contribution.key!r}"
+                    )
+                plugin_section.key = contribution.key
+                plugin_section.title = plugin_section.title or contribution.title
+            except Exception as exc:
+                record_diagnostic(
+                    plugin_name,
+                    f"Report section {contribution.key!r} failed",
+                    exc,
+                )
+                plugin_section = Section(
+                    key=contribution.key,
+                    title=contribution.title,
+                    status=STATUS_PROBLEM,
+                    body_html=(
+                        "<p>This plugin report section could not be generated. "
+                        f"<code>{_esc(exc)}</code></p>"
+                    ),
+                    text_lines=[
+                        f"Plugin report section failed: {type(exc).__name__}: {exc}"
+                    ],
+                )
+            insert_at = next(
+                (index + 1 for index, section in enumerate(sections)
+                 if section.key == contribution.after),
+                len(sections),
+            )
+            sections.insert(insert_at, plugin_section)
+            existing_keys.add(contribution.key)
+    except Exception:
+        LOG.exception("Could not initialise plugin report sections")
 
     if artifacts.get("truncated"):
         sections[0].notes.append(

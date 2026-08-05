@@ -23,6 +23,13 @@ Cellpose, scikit-image, and scipy.
 
       Install spaCR from PyPI and launch the Qt GUI in two commands.
 
+   .. grid-item-card:: 🎓 Interactive tutorials
+      :link: tutorials/
+      :link-type: url
+
+      The lesson library — 40 narrated, step-by-step lessons covering the
+      whole pipeline.
+
    .. grid-item-card:: 📖 API reference
       :link: api/index
       :link-type: doc
@@ -49,8 +56,10 @@ Pipeline overview
    :alt: spaCR workflow
    :align: center
 
-spaCR is organised around five pipeline apps, each with its own
-:doc:`API reference <api/index>` module:
+The GUI ships 62 apps, grouped into seven categories — *Core*, *Data*,
+*Segmentation models*, *Results & QC*, *Explore*, *Toxoplasma*, and *Design*.
+The nine Core apps form the main pipeline; these five are the path most
+screens take, each with its own :doc:`API reference <api/index>` module:
 
 +---------------------+-----------------------------------------------------+
 | **Mask**            | Cellpose segmentation of cells, nuclei, pathogens.  |
@@ -98,10 +107,29 @@ Key modules by category
 Installation
 ------------
 
+The GUI lives behind the ``qt`` extra, so the desktop install must ask for
+it — plain ``pip install spacr`` gives you the pipelines but no PySide6, and
+``spacr`` will tell you so rather than launch.
+
 .. code-block:: bash
 
-   pip install spacr
+   python -m pip install "spacr[qt]"
    spacr                    # launch the Qt GUI
+
+Headless (cluster, server, CI) — no Qt, no display:
+
+.. code-block:: bash
+
+   python -m pip install spacr
+   spacr-run --list         # list the headless pipeline modules
+
+
+Learn spaCR
+-----------
+
+The `interactive tutorial library <tutorials/>`_ walks through every module
+with narrated, step-by-step lessons. It is also reachable from the GUI:
+**Help → Tutorial (web)**, or the spaCR logo on the classic Tk start screen.
 
 
 Contents
@@ -110,4 +138,18 @@ Contents
 .. toctree::
    :maxdepth: 2
 
+   module_audit
+   localization
+   setting_animations
+   checkpoint_resume
+   reproducibility_manifests
+   run_history
+   batch_correction
+   classifier_evaluation
+   umap_multiobjective
+   distributed_execution
+   plugin_sdk
+   leakage_audit
+   threading_cancellation_audit
+   database_concurrency_audit
    api/index

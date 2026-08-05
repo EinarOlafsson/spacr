@@ -95,8 +95,8 @@ def ds_stubs(monkeypatch):
         s.apply_tar.append(dict(settings))
         return s.apply_ret
 
-    def fake_save_top(df, tar_path, dst, n=20):
-        s.top.append((df, tar_path, dst, n))
+    def fake_save_top(df, tar_path, dst, n=20, classes=None):
+        s.top.append((df, tar_path, dst, n, classes))
 
     def fake_merge(df, db_path):
         s.merge.append((df, db_path))
@@ -184,11 +184,12 @@ def test_deep_spacr_full_pipeline_wires_every_stage(tmp_path, ds_stubs):
     assert apply_settings["model_path"] == str(model)
 
     # Top examples land next to the tar; n_top_examples is passed through.
-    (top_df, top_tar, top_dst, top_n), = ds_stubs.top
+    (top_df, top_tar, top_dst, top_n, top_classes), = ds_stubs.top
     assert top_df is df
     assert top_tar == str(tar)
     assert top_dst == os.path.join(str(tar.parent), "top_examples")
     assert top_n == 3
+    assert top_classes == ["nc", "pc"]
 
     # Predictions merged into the measurements DB of the single src.
     (merge_df, merge_db), = ds_stubs.merge
@@ -261,6 +262,32 @@ def test_deep_spacr_relative_tar_regenerated_and_missing_model_skips(tmp_path,
     assert ds_stubs.merge == []
     out = capsys.readouterr().out
     assert "not found; skipping model application" in out
+
+
+def test_full_dataset_can_be_generated_without_applying_a_model(
+        tmp_path, ds_stubs):
+    """The full inference set is an independent, reusable pipeline artifact."""
+    from spacr.deep_spacr import deep_spacr
+
+    tar = tmp_path / "datasets" / "full.tar"
+    tar.parent.mkdir()
+    tar.write_bytes(b"tar")
+    ds_stubs.gen_ds_ret = str(tar)
+    settings = {
+        "src": str(tmp_path),
+        "train": False,
+        "test": False,
+        "generate_training_dataset": False,
+        "generate_full_dataset": True,
+        "apply_model_to_dataset": False,
+        "tar_path": "",
+    }
+
+    deep_spacr(settings)
+
+    assert len(ds_stubs.gen_ds) == 1
+    assert settings["tar_path"] == str(tar)
+    assert ds_stubs.apply_tar == []
 
 
 # ---------------------------------------------------------------------------

@@ -75,7 +75,7 @@ import os
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QFrame,
     QGridLayout,
@@ -91,9 +91,16 @@ from PySide6.QtWidgets import (
 )
 
 from ..theme import (
-    SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, palette_for,
+    SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, font_px, palette_for,
 )
 from .divider import Divider
+
+#: Hero brand sizes. The mark and wordmark are the first thing on the first
+#: screen, so they are sized to read as a masthead rather than as a row of
+#: labels. Kept as named constants because the logo's pixmap scale and the
+#: label's font size have to move together to stay optically balanced.
+HERO_LOGO_PX = 72
+HERO_TITLE_PX = 52
 
 
 def active_palette() -> dict:
@@ -293,7 +300,7 @@ class AppTile(QPushButton):
         #   by its longest name.
         name.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
         name.setStyleSheet(
-            f"color: {P['fg']}; font-size: 14px; font-weight: 500;"
+            f"color: {P['fg']}; font-size: {font_px(14)}px; font-weight: 500;"
             "background: transparent;")
         col.addWidget(name)
         self._name_lbl = name
@@ -360,7 +367,8 @@ class Panel(QWidget):
         self.header.setObjectName("HomePanelHeader")
         self.header.setStyleSheet(
             "font-family: 'Open Sans', sans-serif; font-weight: 600;"
-            "font-size: 10px; letter-spacing: 2px; background: transparent;"
+            f"font-size: {font_px(10)}px; letter-spacing: 2px;"
+            "background: transparent;"
             f"color: {P['fg_muted']};")
         if self.is_beta:
             self.header.setToolTip(BETA_PANEL_TOOLTIP)
@@ -368,9 +376,16 @@ class Panel(QWidget):
 
         box = QFrame()
         box.setObjectName("HomePanelBox")
+        # The rounded box KEEPS its dark-grey fill — at the page opacity.
+        # `active_palette()` returns raw hex, which is why the preference never
+        # reached these panels; `pane_surface` reads it. Making the box itself
+        # transparent (tried, reverted) left nothing but a floating outline:
+        # the fill is what makes it read as a panel. What has to go is the
+        # CONTAINER behind it, which is handled in `_clear_page_surfaces`.
+        from ..theme import pane_surface
         box.setStyleSheet(
             "QFrame#HomePanelBox {"
-            f"background: {P['surface_alt']};"
+            f"background: {pane_surface('surface_alt')};"
             f"border: 1px solid {P['border_soft']};"
             "border-radius: 8px; }")
         self.body_layout = QVBoxLayout(box)
@@ -379,6 +394,13 @@ class Panel(QWidget):
         self.body_layout.setSpacing(SPACING["xs"])
         col.addWidget(box)
         self._box = box
+        # The Panel wrapper positions a header and the box; it paints nothing.
+        # Untagged it takes the blanket `QWidget { background-color: bg }`
+        # rule, and six of these stacked down the aside read as one large
+        # black column behind every panel — which is exactly what they looked
+        # like.
+        from ..theme import make_transparent
+        make_transparent(self)
 
     def add(self, widget: QWidget) -> QWidget:
         widget.setStyleSheet("background: transparent;")
@@ -395,13 +417,13 @@ def _row(label: str, value: str, value_colour: Optional[str] = None,
     lay.setContentsMargins(0, 0, 0, 0)
     lay.setSpacing(SPACING["sm"])
     left = QLabel(label)
-    left.setStyleSheet(f"color: {P['fg_muted']}; font-size: 11px;"
+    left.setStyleSheet(f"color: {P['fg_muted']}; font-size: {font_px(11)}px;"
                        "font-weight: 500; background: transparent;")
     left.setMinimumWidth(48)
     right = QLabel(value)
     right.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
     right.setStyleSheet(
-        f"color: {value_colour or P['fg']}; font-size: 12px;"
+        f"color: {value_colour or P['fg']}; font-size: {font_px(12)}px;"
         "font-weight: 500; background: transparent;"
         + ("font-family: 'JetBrains Mono', monospace;" if mono else ""))
     lay.addWidget(left)
@@ -461,12 +483,12 @@ class RunningBanner(QFrame):
         text_col.setSpacing(1)
         self._title = QLabel("")
         self._title.setStyleSheet(
-            f"color: {P['fg']}; font-size: 14px; font-weight: 600;"
+            f"color: {P['fg']}; font-size: {font_px(14)}px; font-weight: 600;"
             "background: transparent;")
         self._sub = QLabel("")
         self._sub.setObjectName("HomeRunningSub")
         self._sub.setStyleSheet(
-            f"color: {P['fg_muted']}; font-size: 11px;"
+            f"color: {P['fg_muted']}; font-size: {font_px(11)}px;"
             "background: transparent;")
         text_col.addWidget(self._title)
         text_col.addWidget(self._sub)
@@ -626,43 +648,60 @@ class QueuedPanel(Panel):
                           else P["fg_muted"]))
         if len(pending) > self.MAX_ROWS:
             more = QLabel(f"+{len(pending) - self.MAX_ROWS} more")
-            more.setStyleSheet(f"color: {P['fg_dim']}; font-size: 11px;"
-                               "background: transparent;")
+            more.setStyleSheet(
+                f"color: {P['fg_dim']}; font-size: {font_px(11)}px;"
+                "background: transparent;")
             self.add(more)
         self.show()
 
 
 class RecentRunsPanel(Panel):
-    """Last few runs from the run journal; each row navigates.
-
-    Marked ``(beta)``: the journal is written by whichever screens
-    remembered to write to it, so "the last four runs" is the last four
-    *recorded* runs, which is not always the same thing.
-    """
+    """Last few automatically journalled runs; each row navigates."""
 
     run_clicked = Signal(str)
 
     def __init__(self, limit: int = 4, parent=None):
-        super().__init__("Recent runs", parent, beta=True)
+        super().__init__("Recent runs", parent)
         self._limit = limit
         self.refresh()
 
-    def refresh(self) -> None:
+    def read(self) -> list:
+        """The journal entries this panel would show. **Worker-thread safe.**
+
+        Split out of :meth:`refresh` so :class:`HomePage` can call it off the
+        GUI thread: it touches no widget, only the run journal.
+        ``recent_runs`` opens and JSON-parses *every* manifest under the runs
+        root before it sorts and truncates — 4 865 of them on this developer's
+        machine, measured at 540 ms — so it is not something the GUI thread
+        should be doing on the way back to Home.
+        """
+        try:
+            from spacr.run_journal import recent_runs
+            return recent_runs(limit=self._limit)
+        except Exception:
+            return []
+
+    def refresh(self, runs: Optional[list] = None) -> None:
+        """Redraw the panel.
+
+        :param runs: entries a worker has already read. ``None`` reads them
+            here, on the calling thread — which is what a standalone panel
+            and the tests do, and what :class:`HomePage` deliberately does
+            not.
+        """
         P = active_palette()
         while self.body_layout.count():
             item = self.body_layout.takeAt(0)
             widget = item.widget()
             if widget is not None:
                 widget.deleteLater()
-        try:
-            from spacr.run_journal import recent_runs
-            runs = recent_runs(limit=self._limit)
-        except Exception:
-            runs = []
+        if runs is None:
+            runs = self.read()
         if not runs:
             hint = QLabel("No runs yet.")
-            hint.setStyleSheet(f"color: {P['fg_dim']}; font-size: 11px;"
-                               "font-style: italic; background: transparent;")
+            hint.setStyleSheet(
+                f"color: {P['fg_dim']}; font-size: {font_px(11)}px;"
+                "font-style: italic; background: transparent;")
             hint.setWordWrap(True)
             self.add(hint)
             return
@@ -688,12 +727,12 @@ class RecentRunsPanel(Panel):
         dot.setFixedWidth(12)
         dot.setStyleSheet(
             f"color: {P['success'] if ok else P['error']};"
-            "font-size: 11px; background: transparent;")
+            f"font-size: {font_px(11)}px; background: transparent;")
         name = QLabel(key)
-        name.setStyleSheet(f"color: {P['fg']}; font-size: 12px;"
+        name.setStyleSheet(f"color: {P['fg']}; font-size: {font_px(12)}px;"
                            "background: transparent;")
         when = QLabel(_fmt_elapsed(elapsed))
-        when.setStyleSheet(f"color: {P['fg_dim']}; font-size: 11px;"
+        when.setStyleSheet(f"color: {P['fg_dim']}; font-size: {font_px(11)}px;"
                            "background: transparent;")
         lay.addWidget(dot)
         lay.addWidget(name, 1)
@@ -765,28 +804,36 @@ class SystemPanel(Panel):
 
 
 class TotalsPanel(Panel):
-    """Aggregate journal counts.
-
-    Marked ``(beta)`` for the same reason as :class:`RecentRunsPanel`:
-    it sums the same journal, so it inherits the same gaps.
-    """
+    """Aggregate counts from the automatically complete run journal."""
 
     def __init__(self, parent=None):
-        super().__init__("Totals", parent, beta=True)
+        super().__init__("Totals", parent)
         self.refresh()
 
-    def refresh(self) -> None:
+    def read(self) -> dict:
+        """The journal totals. **Worker-thread safe** — see
+        :meth:`RecentRunsPanel.read`; ``journal_totals`` walks the same
+        thousands of manifests, measured at 247 ms."""
+        try:
+            from spacr.run_journal import journal_totals
+            return journal_totals()
+        except Exception:
+            return {"total_runs": 0, "mask_runs": 0, "measure_runs": 0,
+                    "models_recorded": 0}
+
+    def refresh(self, totals: Optional[dict] = None) -> None:
+        """Redraw the panel.
+
+        :param totals: counts a worker has already read; ``None`` reads them
+            on the calling thread.
+        """
         while self.body_layout.count():
             item = self.body_layout.takeAt(0)
             widget = item.widget()
             if widget is not None:
                 widget.deleteLater()
-        try:
-            from spacr.run_journal import journal_totals
-            totals = journal_totals()
-        except Exception:
-            totals = {"total_runs": 0, "mask_runs": 0, "measure_runs": 0,
-                      "models_recorded": 0}
+        if totals is None:
+            totals = self.read()
         self.add(_row("Runs", str(totals.get("total_runs", 0))))
         self.add(_row("Mask", str(totals.get("mask_runs", 0))))
         self.add(_row("Meas.", str(totals.get("measure_runs", 0))))
@@ -854,7 +901,7 @@ class StageLegend(Panel):
             f"QLabel#{name_id} {{ background: {colour};"
             f" border: 1px solid {P['border']}; border-radius: 3px; }}")
         name = QLabel(label)
-        name.setStyleSheet(f"color: {P['fg']}; font-size: 12px;"
+        name.setStyleSheet(f"color: {P['fg']}; font-size: {font_px(12)}px;"
                            "font-weight: 500; background: transparent;")
         lay.addWidget(chip)
         lay.addWidget(name, 1)
@@ -899,7 +946,7 @@ class NewsPanel(Panel):
             "Reserved for featured content — news and what's new land here.")
         self._placeholder.setWordWrap(True)
         self._placeholder.setStyleSheet(
-            f"color: {P['fg_dim']}; font-size: 11px;"
+            f"color: {P['fg_dim']}; font-size: {font_px(11)}px;"
             "font-style: italic; background: transparent;")
         self.add(self._placeholder)
 
@@ -955,6 +1002,12 @@ class HomePage(QWidget):
     #: Emitted when the page wants the window to run its update check.
     update_check_requested = Signal()
 
+    #: Declared on the class so a paint that arrives mid-construction —
+    #: a nested layout activation delivers one on some styles — finds an
+    #: answer instead of an ``AttributeError``. ``AppScreen`` learned the
+    #: same lesson; see its backdrop-state block.
+    _ambient = None
+
     #: The tile, at 100 % font scale. One size for every tab, and read
     #: from :mod:`spacr.qt.theme` rather than written here, because the
     #: stylesheet needs the same numbers — see
@@ -988,6 +1041,11 @@ class HomePage(QWidget):
     ):
         super().__init__(parent)
         self._P = active_palette()
+        # The run-journal walk behind Recent runs and Totals goes through
+        # here, so returning to Home never blocks on it. journal=False:
+        # reading the journal is not itself a run.
+        from ..job_runner import JobRunner
+        self._journal_jobs = JobRunner(self, app_key="home journal")
         self._apps = list(apps)
         self._icon_provider = icon_provider
         self._section_notes = dict(section_notes or {})
@@ -1036,7 +1094,13 @@ class HomePage(QWidget):
         self._hint_bar = QLabel(_DEFAULT_HINT)
         self._hint_bar.setObjectName("HintBar")
         self._hint_bar.setAlignment(Qt.AlignHCenter)
-        self._hint_bar.setMinimumHeight(32)
+        # Derived from the font rather than pinned at 32. A hard number is a
+        # promise about text metrics that no longer holds the moment the font
+        # scale, the theme's font stack or a label's size role changes — the
+        # hint text needed 35 px against a 32 px floor and clipped. Asking the
+        # label for its own sizeHint keeps the bar correct across all of them.
+        self._hint_bar.setMinimumHeight(
+            max(32, self._hint_bar.sizeHint().height() + SPACING["xs"]))
         outer.addWidget(self._hint_bar)
 
         # Live job state. The registry is process-wide and outlives this
@@ -1052,6 +1116,219 @@ class HomePage(QWidget):
         self._ticker.timeout.connect(self._refresh_run_banners)
 
         self._on_runs_changed()
+
+        #: The drifting backdrop, or ``None``. Home takes the same animation
+        #: the module screens do, so the page the user lands on is not the
+        #: one page in the app that is flat.
+        self._ambient = None
+        self._install_ambient()
+
+        # And unconditionally, whatever happened above — the same
+        # correction the module screens already carry. This used to run
+        # only inside the successful-install arm, on the reasoning that a
+        # page with nothing behind it should stay opaque; that reasoning
+        # is what left Home a solid `bg` slab for anyone with the ambient
+        # preference off or the Animation preference set to `none`. There
+        # is never nothing behind it: `paintEvent` paints the page, which
+        # is what these containers are supposed to be showing.
+        # `clear_container_surfaces` is idempotent, so the call inside
+        # `_install_ambient` stays where it is for its own ordering
+        # reasons and this one costs a second pass over the tree.
+        self._clear_page_surfaces()
+
+    # -- the page itself -----------------------------------------------
+    def page_fill(self):
+        """The flat colour Home paints itself, or ``None``.
+
+        The same rule, and the same reasoning, as
+        :meth:`spacr.qt.screens.app_screen.AppScreen.page_fill`: with an
+        animation installed the animation is the page, with an image
+        theme the window's wallpaper is, and otherwise it is this — a
+        real colour rather than the ``bg`` slab that no page-opacity
+        setting can reach.
+
+        Never raises.
+        """
+        if self._ambient is not None:
+            return None
+        try:
+            from ..preferences import resolve_effective_theme
+            from ..theme import IMAGE_THEMES, page_colour
+            theme = resolve_effective_theme()
+            if theme in IMAGE_THEMES:
+                return None
+            return QColor(page_colour(theme))
+        except Exception:
+            return None
+
+    def paintEvent(self, event) -> None:
+        """Paint the page under everything Home lays out.
+
+        Does not chain to ``super()`` when it fills: the base
+        implementation is what draws the stylesheet background, and that
+        background is the slab being replaced.
+        """
+        colour = self.page_fill()
+        if colour is None:
+            super().paintEvent(event)
+            return
+        painter = QPainter(self)
+        try:
+            painter.fillRect(self.rect(), colour)
+        finally:
+            painter.end()
+
+    # -- ambient backdrop ----------------------------------------------
+    def _install_ambient(self) -> None:
+        """Put the ambient animation behind Home. Never raises.
+
+        Home needs none of :class:`spacr.qt.screens.app_screen.AppScreen`'s
+        ``_ambient_applied`` bookkeeping and no ``changeEvent`` handling:
+        this page is rebuilt from scratch on every theme change (see the
+        registry comment in ``__init__``), so a stale flat fill cannot
+        survive one, and there is no second attempt to guard against.
+
+        Ordered exactly as the module screens are, for the same two reasons:
+        the preference is read *before* anything is constructed, because not
+        building it is the cost the toggle exists to avoid; and the page
+        surfaces are cleared only *after* a successful install, so a failed
+        one leaves Home opaque and normal rather than transparent with
+        nothing behind it.
+        """
+        widget = None
+        try:
+            from ..preferences import (get_ambient_enabled,
+                                       get_ambient_palette,
+                                       get_ambient_theme)
+            if not get_ambient_enabled():
+                return
+            from .ambient import install_ambient
+            widget = install_ambient(
+                self, None,
+                theme=get_ambient_theme(),
+                palette=get_ambient_palette(),
+                backdrop=self._ambient_backdrop())
+            self._clear_page_surfaces()
+            self._ambient = widget
+        except Exception:
+            self._ambient = None
+            self._discard_ambient(widget)
+
+    @staticmethod
+    def _ambient_backdrop():
+        """The wallpaper the animation composites over, or ``None``.
+
+        Only the image themes have one; every other theme paints over its
+        own flat window colour.
+        """
+        try:
+            from ..preferences import (resolve_effective_theme,
+                                       theme_background_path)
+            return theme_background_path(resolve_effective_theme())
+        except Exception:
+            return None
+
+    def _discard_ambient(self, widget=None) -> None:
+        """Unparent an ambient widget an aborted install left behind.
+
+        ``install_ambient`` parents the widget before it finishes wiring it
+        up, so an installer that raises part way through hands nothing back
+        to unparent — and an invisible leftover is still a child with a live
+        timer.
+        """
+        try:
+            from .ambient import AmbientWidget
+        except Exception:
+            # If the import is what failed, nothing was constructed.
+            return
+        seen = []
+        if widget is not None:
+            seen.append(widget)
+        seen += [c for c in list(self.children())
+                 if isinstance(c, AmbientWidget)]
+        for child in seen:
+            try:
+                child.set_animating(False)
+            except Exception:
+                pass
+            try:
+                child.setParent(None)
+                child.deleteLater()
+            except Exception:
+                pass
+
+    def _clear_page_surfaces(self) -> None:
+        """Stop Home's layout containers painting over the backdrop.
+
+        The same layering rule the module screens use: containers that only
+        *position* things go transparent, while the cards that carry text —
+        the hero, the aside panels, the tile pane — keep painting a surface.
+        Without this the animation runs, costs its frames, and reaches the
+        eye through nothing but the gaps between widgets.
+
+        Everything that only POSITIONS things is tagged. That is most of the
+        page: every plain ``QWidget`` container inherits the blanket
+        ``QWidget {{ background-color: bg }}`` rule, so an untagged one paints
+        an opaque slab whatever the opacity preference says — it is the window
+        colour, not a surface, which is why no amount of dialling reached it.
+
+        Not tagged, on purpose: the rounded panel boxes and the tiles. Those
+        are the things the user is meant to SEE, and they carry the page
+        opacity themselves.
+        """
+        from ..theme import clear_container_surfaces, make_transparent
+        from PySide6.QtWidgets import (QLabel, QScrollArea, QStackedWidget,
+                                       QTabBar, QTabWidget)
+
+        # The generic sweep FIRST. Home used to hand-list five widgets it
+        # guessed were responsible, which is why measuring found three that
+        # were not on it: the hero's own QLabels, Qt's internal
+        # `qt_tabwidget_tabbar`, and the anonymous row hosts the tiles sit in.
+        # Naming widgets one at a time cannot keep up with a layout; sweeping
+        # by rule can.
+        clear_container_surfaces(self)
+
+        # Qt builds the tab bar itself, so it is neither anonymous nor ours to
+        # name at construction — it has to be reached through the tab widget.
+        for bar in self.findChildren(QTabBar):
+            make_transparent(bar)
+
+        # The hero's labels: the mark, the wordmark and the subtitle. They are
+        # type on the page, and a QLabel with no rule of its own takes the
+        # blanket window fill — which is what left a black band across the
+        # masthead after the Hero FRAME was already transparent.
+        hero = self.findChild(QWidget, "Hero")
+        if hero is not None:
+            make_transparent(*hero.findChildren(QLabel))
+
+        make_transparent(*(w for w in (
+            getattr(self, "_running_host", None),
+            getattr(self, "_hint_bar", None),
+            getattr(self, "_tabs", None),
+        ) if w is not None))
+
+        # Every scroll area, its viewport, and the stacked pages the tabs keep
+        # their tab bodies in. These are the containers behind the tile rows
+        # and their headings.
+        tabs = getattr(self, "_tabs", None)
+        if tabs is not None:
+            for area in tabs.findChildren(QScrollArea):
+                make_transparent(area, area.viewport())
+            make_transparent(*tabs.findChildren(QStackedWidget))
+            # The direct page widgets of each tab: one per category, each the
+            # host for that category's rows and headings.
+            for i in range(tabs.count()):
+                page = tabs.widget(i)
+                if page is not None:
+                    make_transparent(page)
+        # The body wrapper is the first child of `outer` and has no object
+        # name of its own, so it is reached through the layout.
+        layout = self.layout()
+        if layout is not None and layout.count():
+            item = layout.itemAt(0)
+            body = item.widget() if item is not None else None
+            if body is not None:
+                make_transparent(body)
 
     # -- pieces --------------------------------------------------------
     def _new_running_banner(self) -> RunningBanner:
@@ -1100,19 +1377,25 @@ class HomePage(QWidget):
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["md"])
 
+        # The mark and the wordmark move together, so both take the Zoom
+        # multiplier: scaling only the text leaves a 52 px logo beside
+        # 78 px lettering, which is the one thing the two constants exist
+        # to prevent.
+        logo_px = font_px(HERO_LOGO_PX)
         logo = _find_logo_pixmap()
         if logo is not None:
             label = QLabel()
-            label.setPixmap(logo.scaled(44, 44, Qt.KeepAspectRatio,
+            label.setPixmap(logo.scaled(logo_px, logo_px,
+                                        Qt.KeepAspectRatio,
                                         Qt.SmoothTransformation))
-            label.setFixedSize(44, 44)
+            label.setFixedSize(logo_px, logo_px)
             label.setStyleSheet("background: transparent;")
             row.addWidget(label)
 
         title = QLabel("spaCR")
         title.setStyleSheet(
             "font-family: 'Open Sans', sans-serif; font-weight: 300;"
-            f"font-size: 34px; color: {P['accent']};"
+            f"font-size: {font_px(HERO_TITLE_PX)}px; color: {P['accent']};"
             "letter-spacing: -0.6px; background: transparent;")
         row.addWidget(title)
 
@@ -1223,10 +1506,11 @@ class HomePage(QWidget):
         label = QLabel(title.upper())
         label.setStyleSheet(
             "font-family: 'Open Sans', sans-serif; font-weight: 600;"
-            "font-size: 11px; letter-spacing: 2px; background: transparent;"
+            f"font-size: {font_px(11)}px; letter-spacing: 2px;"
+            "background: transparent;"
             f"color: {P['fg_muted']};")
         note = QLabel(str(count))
-        note.setStyleSheet(f"color: {P['fg_dim']}; font-size: 11px;"
+        note.setStyleSheet(f"color: {P['fg_dim']}; font-size: {font_px(11)}px;"
                            "background: transparent;")
         row.addWidget(label)
         row.addWidget(note)
@@ -1262,7 +1546,8 @@ class HomePage(QWidget):
         heading = QLabel(section.upper())
         heading.setStyleSheet(
             "font-family: 'Open Sans', sans-serif; font-weight: 600;"
-            "font-size: 11px; letter-spacing: 2px; background: transparent;"
+            f"font-size: {font_px(11)}px; letter-spacing: 2px;"
+            "background: transparent;"
             f"color: {P['fg_muted']};")
         head_col.addWidget(heading)
 
@@ -1272,7 +1557,7 @@ class HomePage(QWidget):
             caption.setObjectName("HomeSectionNote")
             caption.setWordWrap(True)
             caption.setStyleSheet(
-                f"color: {P['fg_dim']}; font-size: 12px;"
+                f"color: {P['fg_dim']}; font-size: {font_px(12)}px;"
                 "background: transparent;")
             head_col.addWidget(caption)
         col.addWidget(head)
@@ -1313,7 +1598,13 @@ class HomePage(QWidget):
 
     # -- shared ---------------------------------------------------------
     def _wire_tile(self, tile, key: str, desc: str):
-        self._tile_hints[tile] = desc
+        self._tile_hints[tile] = (key, desc)
+        from ..theme import STAGE_LABEL
+        tile.setProperty("moduleAppKey", key)
+        tile.setProperty("moduleNameSource", tile.text_label)
+        tile.setProperty("moduleSummarySource", desc)
+        tile.setProperty("moduleTooltipStyle", "tile")
+        tile.setProperty("moduleStageSource", STAGE_LABEL.get(tile.stage, ""))
         tile.installEventFilter(self)
         tile.clicked.connect(lambda _=False, k=key: self.tile_clicked.emit(k))
         return tile
@@ -1416,7 +1707,13 @@ class HomePage(QWidget):
 
     def _build_aside(self) -> QWidget:
         from ..preferences import scaled_px
+        from ..theme import make_transparent
         aside = QWidget()
+        # The column itself paints nothing. Untagged it runs the full height of
+        # the window as one black slab behind every panel in it — the "one
+        # large black box spanning all right side elements and going down to
+        # the bottom".
+        make_transparent(aside)
         aside.setFixedWidth(scaled_px(self.ASIDE_W))
         col = QVBoxLayout(aside)
         col.setContentsMargins(0, 0, 0, 0)
@@ -1456,7 +1753,12 @@ class HomePage(QWidget):
     # -- live state ----------------------------------------------------
     def _on_runs_changed(self) -> None:
         """Show every active job across the top, oldest first."""
-        active = [h for h in self._registry.active() if h.app_key]
+        # `user_visible` is False for housekeeping the user did not start --
+        # the two-second usage poll above all. Without this filter Home
+        # flashed a blue "<module> usage - running" banner on and off
+        # continuously while any module screen was open.
+        active = [h for h in self._registry.active()
+                  if h.app_key and getattr(h, "user_visible", True)]
         while len(self._banners) < len(active):
             self._new_running_banner()
         for index, banner in enumerate(self._banners):
@@ -1467,12 +1769,44 @@ class HomePage(QWidget):
             self._ticker.start()
 
     def refresh(self) -> None:
-        """Re-read everything that can change while Home is off screen."""
+        """Re-read everything that can change while Home is off screen.
+
+        The two run-journal panels are read on a worker thread. Together
+        ``recent_runs`` + ``journal_totals`` walk every manifest under the
+        runs root twice — 774 ms on a machine with 4 865 journalled runs,
+        measured, and it grows with the journal — and this used to run inline
+        on every single return to Home, which is the most-travelled
+        navigation in the application.
+
+        The panels keep whatever they are already showing until the worker
+        delivers; a stale count for half a second beats a frozen window, and
+        on the first ever call they are showing their empty state anyway.
+        Everything else here is cheap (a JSON read and three stat calls) and
+        stays inline.
+        """
         self._queued.refresh()
-        self._recent.refresh()
         self._system.refresh()
-        self._totals.refresh()
         self._on_runs_changed()
+        recent, totals = self._recent, self._totals
+        self._journal_jobs.cancel()
+        self._journal_jobs.submit(
+            lambda r=recent, t=totals: (r.read(), t.read()),
+            self._apply_journal)
+
+    def _apply_journal(self, payload) -> None:
+        """Paint the worker's journal read. GUI thread only."""
+        runs, totals = payload
+        self._recent.refresh(runs)
+        self._totals.refresh(totals)
+
+    def active_jobs(self) -> int:
+        """How many journal-reading threads are still winding down."""
+        return self._journal_jobs.active_jobs()
+
+    def closeEvent(self, event):        # noqa: N802 - Qt override
+        """Do not let a journal walk outlive the page that asked for it."""
+        self._journal_jobs.shutdown()
+        super().closeEvent(event)
 
     # -- API kept from the page this replaces --------------------------
     def set_reserved_content(self, widget: QWidget) -> None:
@@ -1495,9 +1829,12 @@ class HomePage(QWidget):
         if event.type() == QEvent.Enter:
             hint = self._tile_hints.get(obj)
             if hint:
-                self._hint_bar.setText(hint)
+                from ..i18n_module_summaries import module_summary
+                key, source = hint
+                self._hint_bar.setText(module_summary(key, source))
         elif event.type() == QEvent.Leave:
-            self._hint_bar.setText(_DEFAULT_HINT)
+            from ..i18n import tr
+            self._hint_bar.setText(tr(_DEFAULT_HINT))
         return super().eventFilter(obj, event)
 
     def closeEvent(self, event):                # noqa: N802
@@ -1513,31 +1850,40 @@ def _tab_qss(P: dict, pane_alpha: float = 1.0,
              glass: bool = False) -> str:
     """QSS for the Home tab widget.
 
-    :param pane_alpha: opacity of the rounded box behind the tiles. This
-        is the user's ``pane_opacity`` preference *after*
-        :func:`spacr.qt.theme.pane_alpha` has clamped it up to the
-        theme's legibility floor, so it is safe to paint as given.
+    :param pane_alpha: accepted so the call sites and their tests keep one
+        signature; the pane itself paints nothing.
 
-    The pane is a *surface*, not the page background. It used to be
-    ``bg`` on the reasoning that the tiles were drawn on ``surface`` and
-    a surface pane would erase the only separation they had. The tiles
-    now carry their own rim, so the separation no longer comes from the
-    fill — and a pane painted in ``bg`` is a box the same colour as the
-    window, i.e. a preference for its opacity that could never show a
-    difference on the two opaque themes.
+    The box behind the tiles is GONE, not dialled. This went back and forth:
+    it was a surface at the effective alpha, then transparent, then briefly
+    painted at the preference again on the reading that opacity should "apply
+    to the containers the tiles are in". The final instruction is the clearest
+    of the three — remove the black boxes behind the tiles and make the TILES
+    subject to opacity instead — so the container is transparent and the
+    dialling moved to the tile fill, where it is actually visible.
+
+    The 1px outline stays: it is what the selected tab joins onto, and without
+    it the tab strip floats with nothing under it.
     """
-    from ..theme import css_color, glass_material
-    pane_fill = (glass_material(P["surface"], pane_alpha)
-                 if glass else css_color(P["surface"], pane_alpha))
+    from ..theme import css_color
     pane_border = (css_color("#ffffff", 0.27)
                    if glass else P["border_soft"])
     radius = 14 if glass else 8
+    selected_fill = ("transparent" if pane_alpha <= 0.0
+                     else css_color(P["surface"], pane_alpha))
     return f"""
 QTabWidget#HomeTabs::pane {{
     border: 1px solid {pane_border};
     border-radius: {radius}px;
-    background: {pane_fill};
+    background: transparent;
     top: -1px;
+}}
+/* The BAR, not the tabs on it. Qt builds `qt_tabwidget_tabbar` itself, and
+   with no rule of its own it takes the blanket window fill — measured as the
+   last opaque strip on the page after everything else was cleared. Tagging
+   the widget is not enough: the stylesheet wins over the property for this
+   one, so it needs saying here. */
+QTabWidget#HomeTabs > QTabBar {{
+    background: transparent;
 }}
 QTabWidget#HomeTabs > QTabBar::tab {{
     background: transparent;
@@ -1547,16 +1893,20 @@ QTabWidget#HomeTabs > QTabBar::tab {{
     border-top-right-radius: 6px;
     padding: 7px 14px;
     margin-right: 2px;
-    font-size: 13px;
+    font-size: {font_px(13)}px;
 }}
 QTabWidget#HomeTabs > QTabBar::tab:hover {{
     color: {P['fg']};
     background: {P['surface_alt']};
 }}
+/* The selected tab takes the page opacity like everything else. It paints
+   `surface` so it joins onto the pane's edge — but with the pane transparent
+   that made it the last solid black rectangle on the page, which is exactly
+   what "the tabs still have black backgrounds" was pointing at. */
 QTabWidget#HomeTabs > QTabBar::tab:selected {{
     color: {P['accent']};
-    background: {P['surface']};
+    background: {selected_fill};
     border: 1px solid {P['border_soft']};
-    border-bottom-color: {P['surface']};
+    border-bottom-color: {selected_fill};
 }}
 """

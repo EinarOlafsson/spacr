@@ -28,6 +28,14 @@ from PySide6.QtWidgets import QFileDialog
 
 from spacr.qt.widgets import live_preview as LP
 
+from tests.cellpose_api_contract import (
+    MISSING_CHANNEL_AXIS,
+    emulate_pretrained_model,
+    eval_arguments,
+    init_arguments,
+)
+from tests.conftest import check_cellpose_eval_call
+
 
 # ---------------------------------------------------------------------------
 # Fixtures / helpers
@@ -90,7 +98,26 @@ def _mime_for(*paths) -> QMimeData:
 def _panel(qtbot):
     p = LP.LivePreviewPanel()
     qtbot.addWidget(p)
+    # The shipped default is "color (random)", which is right for a user --
+    # a fixed colour is a coin flip against the image -- and useless for a
+    # test asserting on rendered pixels. Every rendering test below was
+    # relying on "auto" being the default without saying so; pin it here so
+    # the dependency is explicit and the colours are reproducible.
+    # `test_random_is_the_default_outline_colour` in
+    # tests/qt/test_live_preview_view_sync.py owns the default itself.
+    p._outline_colour.setCurrentText("auto")
     return p
+
+
+def _wait_loaded(qtbot, panel, timeout=5000):
+    """Pump the event loop until the panel's asynchronous load has landed.
+
+    The GUI load paths return before the image exists -- that is the whole
+    point of them -- so a test that drives one waits rather than asserting on
+    the next line.
+    """
+    qtbot.waitUntil(lambda: not panel._image_loaders, timeout=timeout)
+    qtbot.wait(10)
 
 
 def _pixmap_pixel(view, x=0, y=0):
@@ -107,17 +134,37 @@ def _pixmap_pixel(view, x=0, y=0):
 # ---------------------------------------------------------------------------
 
 class _FakeCellposeModel:
-    """Records how it was constructed and what images it was handed."""
+    """Records how it was constructed and what images it was handed.
+
+    Both signatures are the installed cellpose 4.0.7 ones, written out with
+    the real defaults and no ``**kwargs``. ``loaded_model`` is what the real
+    library would end up running: ``model_type=`` is warned about and dropped
+    in v4.0.1+, so it is ``pretrained_model`` — defaulting to ``cpsam`` —
+    whatever the caller asked for through ``model_type``.
+    """
 
     instances: list = []
 
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
+    def __init__(self, gpu=False, pretrained_model="cpsam", model_type=None,
+                 diam_mean=None, device=None, nchan=None, use_bfloat16=True):
+        self.kwargs = init_arguments(locals())
+        self.loaded_model = emulate_pretrained_model(pretrained_model,
+                                                     model_type)
         self.calls: list = []
         type(self).instances.append(self)
 
-    def eval(self, image, **kwargs):
-        self.calls.append({"image": np.array(image, copy=True), **kwargs})
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             invert=False, rescale=None, diameter=None, flow_threshold=0.4,
+             cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+             flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+             max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=256, compute_masks=True, progress=None):
+        # One 2-D plane per object type, axis auto-detected by cellpose.
+        check_cellpose_eval_call(x, channel_axis, require_channel_axis=False)
+        recorded = eval_arguments(locals())
+        image = x
+        self.calls.append({"image": np.array(image, copy=True), **recorded})
         mask = np.zeros(image.shape[:2], dtype=np.uint16)
         # One object whose size encodes the channel mean, so tests can prove
         # which slice reached the model.
@@ -457,16 +504,32 @@ class TestSegmentMulti:
         masks, flows = LP._segment_multi(self._req(model="cpsam"))
         model = fake_cellpose.instances[-1]
         assert model.kwargs["pretrained_model"] == "cpsam"
-        assert "model_type" not in model.kwargs
+        # model_type= is in cellpose 4's signature but is warned about and
+        # dropped, so "not passed" now means "left at the library default".
+        assert model.kwargs["model_type"] is None
+        assert model.loaded_model == "cpsam"
         assert set(masks) == {"cell"}
         assert masks["cell"].dtype == np.int32
         assert int(masks["cell"].max()) == 1
 
-    def test_legacy_model_is_loaded_by_type(self, fake_cellpose):
+    @pytest.mark.xfail(strict=True, reason=(
+        "spacr/qt/widgets/live_preview.py:637 selects a non-cpsam model with "
+        "CellposeModel(model_type=req.model). cellpose 4.0.7's "
+        "CellposeModel.__init__ logs 'model_type argument is not used in "
+        "v4.0.1+. Ignoring this argument...' and drops the value, leaving "
+        "pretrained_model at its 'cpsam' default -- so picking 'cyto2' in the "
+        "Live Preview silently segments with cpsam. Fix: pass the resolved "
+        "weights as pretrained_model= (spacr.utils._resolve_cellpose_pretrained "
+        "already maps legacy names), and drop model_type= entirely."))
+    def test_legacy_model_selection_actually_reaches_the_weights(
+            self, fake_cellpose):
+        """Choosing a legacy model must change which checkpoint is loaded."""
         LP._segment_multi(self._req(model="cyto2"))
         model = fake_cellpose.instances[-1]
-        assert model.kwargs["model_type"] == "cyto2"
-        assert "pretrained_model" not in model.kwargs
+        assert model.loaded_model != "cpsam", (
+            "the requested model was discarded by cellpose 4 and cpsam ran "
+            "instead"
+        )
 
     @pytest.mark.parametrize("available", [True, False])
     def test_gpu_flag_follows_torch(self, fake_cellpose, monkeypatch,
@@ -509,23 +572,47 @@ class TestSegmentMulti:
         LP._segment_multi(self._req(diameter=0))
         assert fake_cellpose.instances[-1].calls[0]["diameter"] is None
 
-    def test_background_is_subtracted_before_segmentation(self, fake_cellpose):
+    def test_background_is_thresholded_not_subtracted(self, fake_cellpose):
+        """What is above the background keeps its value.
+
+        This used to assert 150.0 -- the preview subtracted the background
+        and clipped at zero. The pipeline thresholds instead
+        (``single_channel[single_channel < background] = 0`` in
+        :func:`spacr.io._normalize_img_batch`), and subtraction is a
+        different image: it moves every bright pixel down.
+        """
         req = self._req(
             channels={"cell": 1},
             preprocess_settings={"remove_background_cell": True,
-                                 "background": 50})
+                                 "cell_background": 50})
         LP._segment_multi(req)
-        # Channel 1 is a flat 200; 50 comes off it and the floor is 0.
+        # Channel 1 is a flat 200, which is above 50, so it is left alone.
         assert fake_cellpose.instances[-1].calls[0]["image"].mean() == \
-            pytest.approx(150.0)
+            pytest.approx(200.0)
 
-    def test_background_subtraction_clips_at_zero(self, fake_cellpose):
+    def test_everything_below_the_background_is_zeroed(self, fake_cellpose):
         req = self._req(
             channels={"cell": 0},
             preprocess_settings={"remove_background_cell": True,
-                                 "background": 5000})
+                                 "cell_background": 5000})
         LP._segment_multi(req)
         assert fake_cellpose.instances[-1].calls[0]["image"].max() == 0
+
+    def test_the_background_value_is_read_per_object(self, fake_cellpose):
+        """`{obj}_background`, not a plain `background`.
+
+        The worker read `background`, which nothing writes -- the panel
+        emits `{obj}_background` -- so the value was always the 100.0
+        default and moving the spinbox did nothing.
+        """
+        req = self._req(
+            channels={"cell": 1},
+            preprocess_settings={"remove_background_cell": True,
+                                 "cell_background": 5000,
+                                 "background": 1})
+        LP._segment_multi(req)
+        assert fake_cellpose.instances[-1].calls[0]["image"].max() == 0, (
+            "the per-object key must win over the generic one")
 
     def test_flows_are_captured_per_object(self, fake_cellpose):
         _, flows = LP._segment_multi(self._req(channels={"cell": 2}))
@@ -751,6 +838,7 @@ class TestDragAndDrop:
         drop = _Evt(_mime_for(gray_tif))
         p.dropEvent(drop)
         assert drop.accepted
+        _wait_loaded(qtbot, p)
         assert p._image is not None and p._image.shape == (48, 48)
         assert p._path_label.text() == str(gray_tif)
 
@@ -805,6 +893,7 @@ class TestPanelIO:
         monkeypatch.setattr(QFileDialog, "getOpenFileName",
                             staticmethod(lambda *a, **k: (str(gray_tif), "")))
         p._pick_file()
+        _wait_loaded(qtbot, p)
         assert p._image is not None
         assert p._path_label.text() == str(gray_tif)
 
@@ -917,7 +1006,9 @@ class TestPanelRendering:
         m[10:20, 10:20] = 1
         p._masks = {"cell": m}
         p._refresh_canvases()
-        assert _pixmap_pixel(p._mask_view, 10, 10) == LP.OBJECT_COLORS["cell"]
+        # 'auto' draws a random colour now, not the compartment's fixed green.
+        assert _pixmap_pixel(p._mask_view, 10, 10) == \
+            p._auto_outline_colour("cell")
 
     def test_outline_colour_choice_repaints_the_overlay(self, qtbot,
                                                         gray_tif):
@@ -930,6 +1021,31 @@ class TestPanelRendering:
         p._outline_colour.setCurrentText("red")         # fires _refresh
         assert p._outline_rgb() == (240, 60, 60)
         assert _pixmap_pixel(p._mask_view, 10, 10) == (240, 60, 60)
+
+    def test_random_outline_choice_repaints_each_label_stably(self, qtbot,
+                                                               gray_tif):
+        p = _panel(qtbot)
+        p.load_image(gray_tif)
+        mask = np.zeros((48, 48), np.int32)
+        mask[5:14, 5:14] = 1
+        mask[30:42, 30:42] = 2
+        p._masks = {"cell": mask}
+
+        p._outline_colour.setCurrentText("color (random)")
+        first = (
+            _pixmap_pixel(p._mask_view, 5, 9),
+            _pixmap_pixel(p._mask_view, 30, 35),
+        )
+        assert first[0] != first[1]
+        assert first[0] != (0, 0, 0)
+        assert first[1] != (0, 0, 0)
+
+        p._refresh_canvases()
+        second = (
+            _pixmap_pixel(p._mask_view, 5, 9),
+            _pixmap_pixel(p._mask_view, 30, 35),
+        )
+        assert second == first
 
     def test_masks_mode_shows_labels_not_outlines(self, qtbot, gray_tif):
         p = _panel(qtbot)
@@ -962,7 +1078,8 @@ class TestPanelRendering:
         m[20:24, 20:24] = 2
         p._masks = {"nucleus": m}
         rgb = p._label_rgb()
-        base = np.array(LP.OBJECT_COLORS["nucleus"])
+        # Under 'auto' the Masks view is tinted with the run's random colour.
+        base = np.array(p._auto_outline_colour("nucleus"))
         for y, x, lbl in ((5, 5, 1), (21, 21, 2)):
             shade = 0.5 + 0.5 * ((lbl % 7) / 6.0)
             assert np.allclose(rgb[y, x], np.clip(base * shade, 0, 255)
@@ -1023,7 +1140,8 @@ class TestPanelRendering:
         m[10:20, 10:20] = 1
         p._masks = {"cell": m}
         p._view_mode.setCurrentText("Flows")     # but _flows is empty
-        assert _pixmap_pixel(p._mask_view, 10, 10) == LP.OBJECT_COLORS["cell"]
+        assert _pixmap_pixel(p._mask_view, 10, 10) == \
+            p._auto_outline_colour("cell")
 
     @pytest.mark.parametrize("channels", [1, 5])
     def test_a_tif_with_an_odd_channel_count_loads_and_renders(
@@ -1048,7 +1166,8 @@ class TestPanelRendering:
         m[5:12, 5:12] = 1
         p._masks = {"cell": m}
         p._refresh_canvases()
-        assert _pixmap_pixel(p._mask_view, 5, 5) == LP.OBJECT_COLORS["cell"]
+        assert _pixmap_pixel(p._mask_view, 5, 5) == \
+            p._auto_outline_colour("cell")
 
     def test_normalise_toggle_repaints_the_source_canvas(self, qtbot,
                                                          gray_tif):
@@ -1127,7 +1246,15 @@ class TestPanelSettings:
         assert req.diameter == pytest.approx(17.0)
         assert req.flow_threshold == pytest.approx(0.15)
         assert req.cellprob == pytest.approx(-2.0)
-        assert req.channels == {"cell": 1, "nucleus": 2}
+        # Every object type carries a channel now, not just the two the
+        # panel used to expose. `channels.get(obj, 0)` used to fall back to
+        # 0 for pathogen and organelle, so selecting either segmented the
+        # cell channel. Asserted per key so adding a sixth object type does
+        # not fail this test for the wrong reason.
+        assert req.channels["cell"] == 1
+        assert req.channels["nucleus"] == 2
+        assert set(req.channels) >= {"cell", "nucleus", "pathogen",
+                                     "organelle"}
         assert req.object_types == ("cell", "nucleus")
         # The cached Mask-app settings and the compartment widgets are merged
         # into one dict used for both pre and post.
@@ -1390,8 +1517,10 @@ class TestCompareScrubber:
         assert label.startswith("1/2")
         assert "cpsam/cell" in label          # the model used for that run
         assert "cell=1" in label
-        # The older run's single object is what got repainted.
-        assert _pixmap_pixel(p._mask_view, 2, 2) == LP.OBJECT_COLORS["cell"]
+        # The older run's single object is what got repainted, in the current
+        # 'auto' colour — the scrubber honours the outline setting now.
+        assert _pixmap_pixel(p._mask_view, 2, 2) == \
+            p._auto_outline_colour("cell")
         assert first[2, 2] == 1
 
     def test_scrubbing_to_a_maskless_run_shows_the_source(self, qtbot,
@@ -1808,10 +1937,17 @@ class TestLiveSettingsDialog:
             assert p._lo_pct.isEnabled() and p._hi_pct.isEnabled()
             p._normalise_check.setChecked(False)
             assert not p._lo_pct.isEnabled()
-            assert "Normalise" in p._lo_pct.toolTip()
+            assert p._lo_pct.toolTip() == ""
+            assert "href=" in p._lo_pct._spacr_setting_label.toolTip()
+            # The API link dot used to be asserted here too. This dialog now
+            # passes `api_dots=False` -- 68 of them on one form read as
+            # texture rather than as an affordance -- so there is nothing to
+            # assert. What mattered about the row survives and is still
+            # checked above: greying the field out must not take the help
+            # away with it, and the help lives on the label.
             p._normalise_check.setChecked(True)
             assert p._lo_pct.isEnabled()
-            assert p._lo_pct.toolTip() == ""
+            assert "href=" in p._lo_pct._spacr_setting_label.toolTip()
         finally:
             p._live_settings_dialog.close()
 

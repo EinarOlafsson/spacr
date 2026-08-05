@@ -4,47 +4,287 @@
   "voice": "pm_santa",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 51.325,
+  "total_duration": 370.75,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 7.125,
-      "scene_end": 7.575,
-      "duration": 7.575,
-      "text": "Este tutorial abrange o Timelapse. Segmentar, ligar e medir células ou patógenos em quadros de uma série de tempos."
+      "speech_end": 14.1,
+      "scene_end": 14.549999999999999,
+      "duration": 14.549999999999999,
+      "text": "O Timelapse segmenta cada quadro e liga os objetos selecionados em trilhas estáveis. O console registra pré-processamento, máscaras, tentativas de rastreamento, controle de qualidade, filmes, matrizes fundidas e arquivos de reprodução.",
+      "speech_text": "O Timelapse segmenta cada quadro e liga os objetos selecionados em trilhas estáveis. O console registra pré-processamento, máscaras, tentativas de rastreamento, controle de qualidade, filmes, matrizes fundidas e arquivos de reprodução.",
+      "phonemes": "ʊ ʧˌimelˈapsy sˌeɡmˈAŋtæ kˈadæ kwˈadrw i lˈiɡæ ʊz ˌobʒˈɛtʊs sˌelesˌionˈadʊz ˈAŋ trˈiljæz ˌestˈavAs. ʊ kˌoŋsˈoly xˌeʒˈistræ prˈɛprˌosesæmˈAŋtʊ, mˈaskæɾæs, tˌAŋtaʧˈivæz ʤy xˌastreæmˈAŋtʊ, kˌoŋtrˈɔly ʤy kwˌalidˈaʤy, fˈiʊmys, mˌatrˈizys fˌũŋʤˈidæz i ˌaɾəkˈivʊz ʤy xˌeprodusˈɐ̃ʊ̃."
     },
     {
       "scene": 2,
-      "speech_start": 7.575,
-      "speech_end": 19.425,
-      "scene_end": 19.875,
-      "duration": 12.3,
-      "text": "Abra Timelapse na seção Core. Abra o Timelapse na seção Core. Selecione um conjunto de imagens resolvido em tempo cujos nomes de arquivos preservam índices de campo, tempo, profundidade e canal."
+      "speech_start": 14.549999999999999,
+      "speech_end": 26.275,
+      "scene_end": 26.724999999999998,
+      "duration": 12.174999999999999,
+      "text": "O campo de bate-papo aceita comandos locais ou perguntas de fluxo de trabalho. Habilitar a IA para um provedor configurado e usar a seta adjacente para escolher um provedor ou abrir seus controles.",
+      "speech_text": "O campo de bate-papo aceita comandos locais ou perguntas de fluxo de trabalho. Habilitar a IA para um provedor configurado e usar a seta adjacente para escolher um provedor ou abrir seus controles.",
+      "phonemes": "ʊ kˈɐ̃mpʊ ʤy bˈaʧypˈapw ˌasˈAtæ kˌomˈɐ̃ŋdʊz lokˈIz ow pˌeɾəɡˈũŋtæz ʤy flˈuksʊ ʤy trˌabˈaljʊ. ˌabilitˈaɾ a ˌiˈa pˌaɾæ ũŋ prˌovedˈor kˌoŋfiɡuɾˈadw i uzˈaɾ a sˈɛtæ ˌadʒasˈAŋʧy pˌaɾæ ˌeskoljˈeɾ ũŋ prˌovedˈoɾ ow abrˈir seʊs kˌoŋtrˈolys."
     },
     {
       "scene": 3,
-      "speech_start": 19.875,
-      "speech_end": 31.05,
-      "scene_end": 31.5,
-      "duration": 11.625,
-      "text": "Na área de configuração principal, configure a segmentação, os tipos de objetos rastreados, o modo de ligação, o deslocamento máximo, o manuseio de lacunas e os quadros de visualização."
+      "speech_start": 26.724999999999998,
+      "speech_end": 37.65,
+      "scene_end": 38.1,
+      "duration": 11.375000000000004,
+      "text": "Os provedores verificam os clientes de linha de comando Claude, ChatGPT e Gemini e mostram os comandos de instalação e login enquanto a autenticação permanece com cada fornecedor.",
+      "speech_text": "Os provedores verificam os clientes de linha de comando Claude, ChatGPT e Gemini e mostram os comandos de instalação e login enquanto a autenticação permanece com cada fornecedor.",
+      "phonemes": "ʊs prˌovedˈoɾyz vˌeɾifˈikɐ̃ʊ̃ ʊs klˌiˈAŋʧyz ʤy lˈiɲæ ʤy kˌomˈɐ̃ŋdʊ klˈWʤy, ʃˈaʧ ʒˌepˌetˈe i ʒˌeminˈi i mˈɔstrɐ̃ʊ̃ ʊs kˌomˈɐ̃ŋdʊz ʤj ˌiŋstalasˈɐ̃ʊ̃ i loɡˈiŋ ˌAŋkwˈɐ̃ŋtw a ˌWtAŋʧˌikasˈɐ̃ʊ̃ pˌeɾəmænˈɛsy koŋ kˈadæ fˌoɾənesedˈor."
     },
     {
       "scene": 4,
-      "speech_start": 31.5,
-      "speech_end": 39.25,
-      "scene_end": 39.7,
-      "duration": 8.200000000000003,
-      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+      "speech_start": 38.1,
+      "speech_end": 49.3,
+      "scene_end": 49.75,
+      "duration": 11.649999999999999,
+      "text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e instruções do sistema consciente do spaCR.",
+      "speech_text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e instruções do sistema consciente do espáquer.",
+      "phonemes": "kˌoŋfiɡˌuɾasˈõjz ʤj ˌiˈa kˌoŋtrˈɔlɐ̃ʊ̃ a prˌofũŋʤidˈaʤy da xˌespˈɔstæ, ˌesplikasˈõjz ˌWtomˈaʧikæz ʤj ˈexʊs, xˌelatˈɔɾjʊz ˌopsionˈIz ʤy prˌoblˈemæz ʒˈiʧ ˈub, loɡˈiŋ i ˌiŋstrusˈõjz dʊ sˌistˈemæ kˌoŋsiˈAŋʧy dʊ ˌespˈakɛr."
     },
     {
       "scene": 5,
-      "speech_start": 39.7,
-      "speech_end": 50.675000000000004,
-      "scene_end": 51.325,
-      "duration": 11.625,
-      "text": "Quando o fluxo de trabalho termina, as máscaras, as pistas, as medições e os resumos de trajetória indexados no tempo são armazenados com identidades estáveis de objetos."
+      "speech_start": 49.75,
+      "speech_end": 65.5,
+      "scene_end": 65.95,
+      "duration": 16.200000000000003,
+      "text": "Esta fonte sintética determinista contém um campo em oito pontos de tempo. O canal zero contém núcleos, o canal um contém célula e sinal de emergência, e os nomes de arquivos no estilo CellVoyager preservam a placa, o poço, o tempo, o campo, a profundidade e os índices do canal.",
+      "speech_text": "Esta fonte sintética determinista contém um campo em oito pontos de tempo. O canal zero contém núcleos, o canal um contém célula e sinal de emergência, e os nomes de arquivos no estilo CellVoyager preservam a placa, o poço, o tempo, o campo, a profundidade e os índices do canal.",
+      "phonemes": "ˌɛstæ fˈoŋʧy sˌiŋtˈɛʧikæ dˌeteɾəminˈistæ koŋtˈAŋ ũŋ kˈɐ̃mpw ˈAŋ ˈoɪtʊ pˈoŋtʊz ʤy tˈAmpʊ. ʊ kɐ̃nˈW zˈɛɾʊ koŋtˈAŋ nˈukleʊs, ʊ kɐ̃nˈW ũŋ koŋtˈAŋ sˈɛlulæ i sinˈW ʤj ˌemeɾəʒˈAŋsjæ, i ʊz nˈomyz ʤj ˌaɾəkˈivʊz nʊ ˌesʧˈilʊ sˈɛl vˌYaʒˈer prˌezˈɛɾəvɐ̃ʊ̃ a plˈakæ, ʊ pˈosʊ, ʊ tˈAmpʊ, ʊ kˈɐ̃mpʊ, a prˌofũŋʤidˈaʤj i ʊz ˈiŋʤisyz dʊ kɐ̃nˈW."
+    },
+    {
+      "scene": 6,
+      "speech_start": 65.95,
+      "speech_end": 80.35000000000001,
+      "scene_end": 80.80000000000001,
+      "duration": 14.850000000000009,
+      "text": "Os essenciais mostram a fonte, os papéis do canal, a convenção de nomeação, a normalização, os modelos de segmentação, os objetos a rastrear, a faixa de quadros, o rastreador, as gráficas e as opções de saída necessárias para uma primeira execução.",
+      "speech_text": "Os essenciais mostram a fonte, os papéis do canal, a convenção de nomeação, a normalização, os modelos de segmentação, os objetos a rastrear, a faixa de quadros, o rastreador, as gráficas e as opções de saída necessárias para uma primeira execução.",
+      "phonemes": "ʊz ˌesAŋsiˈIz mˈɔstrɐ̃ʊ̃ a fˈoŋʧy, ʊs papˈɛɪz dʊ kɐ̃nˈW, a kˌoŋvAŋsˈɐ̃ʊ̃ ʤy nˌomeasˈɐ̃ʊ̃, a nˌoɾəmalˌizasˈɐ̃ʊ̃, ʊz mˌodˈelʊz ʤy sˌeɡmAŋtasˈɐ̃ʊ̃, ʊz ˌobʒˈɛtʊz a xˌastreˈar, a fˈIʃæ ʤy kwˈadrʊs, ʊ xˌastreadˈor, az ɡrˈafikæz i az opsˈõjz ʤy sˌaˈidæ nˌesesˈaɾjæs pˌaɾæ ˌumæ prˌimˈAɾæ ˌezekusˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 7,
+      "speech_start": 80.80000000000001,
+      "speech_end": 95.97500000000001,
+      "scene_end": 96.42500000000001,
+      "duration": 15.625,
+      "text": "O painel modificado limita as alterações intencionais, incluindo os canais zero e um, o intervalo de oito quadros, o rastreamento de células, o linker integrado de intersecção sobre união, um quadro por segundo e opções conservadoras de tempo de execução.",
+      "speech_text": "O painel modificado limita as alterações intencionais, incluindo os canais zero e um, o intervalo de oito quadros, o rastreamento de células, o linker integrado de intersecção sobre união, um quadro por segundo e opções conservadoras de tempo de execução.",
+      "phonemes": "ʊ pInˈɛʊ mˌoʤifikˈadʊ lˌimˈitæ az ˌWteɾasˈõjz ˌiŋtAŋsˌionˈIs, ˌiŋkluˈiŋdw ʊs kænˈIz zˈɛɾw i ũŋ, u ˌiŋteɾəvˈalʊ ʤj ˈoɪtʊ kwˈadrʊs, ʊ xˌastreæmˈAŋtʊ ʤy sˈɛlulæs, ʊ liŋkˈeɾ ˌiŋteɡrˈadʊ ʤj ˌiŋteɾəseksˈɐ̃ʊ̃ sˈobri ˌuniˈɐ̃ʊ̃, ũŋ kwˈadrʊ por sˌeɡˈũŋdw i opsˈõjs kˌoŋseɾəvadˈoɾæz ʤy tˈAmpʊ ʤj ˌezekusˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 8,
+      "speech_start": 96.42500000000001,
+      "speech_end": 111.15,
+      "scene_end": 111.60000000000001,
+      "duration": 15.174999999999997,
+      "text": "Todas as configurações revelam treze categorias sem mudanças de valores: entradas, eixos de aquisição, pré-processamento, quatro grupos de segmentação, controle de qualidade, configuração de rastreamento e backends, diagnóstico, saída e tempo de execução.",
+      "speech_text": "Todas as configurações revelam treze categorias sem mudanças de valores: entradas, eixos de aquisição, pré-processamento, quatro grupos de segmentação, controle de qualidade, configuração de rastreamento e backends, diagnóstico, saída e tempo de execução.",
+      "phonemes": "tˈodæz as kˌoŋfiɡˌuɾasˈõjz xˌevˈɛlɐ̃ʊ̃ trˈezy kˌateɡoɾˈiæs sˈAŋ mˌudˈɐ̃ŋsæz ʤy vˌalˈoɾys: ˌAŋtrˈadæs, ˈAʃʊz ʤj ˌakizisˈɐ̃ʊ̃, prˈɛprˌosesæmˈAŋtʊ, kwˈatrʊ ɡrˈupʊz ʤy sˌeɡmAŋtasˈɐ̃ʊ̃, kˌoŋtrˈɔly ʤy kwˌalidˈaʤy, kˌoŋfiɡˌuɾasˈɐ̃ʊ̃ ʤy xˌastreæmˈAŋtw i bakˈAŋds, ʤˌiaɡnˈɔsʧikʊ, sˌaˈidæ i tˈAmpʊ ʤj ˌezekusˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 9,
+      "speech_start": 111.60000000000001,
+      "speech_end": 121.775,
+      "scene_end": 122.22500000000001,
+      "duration": 10.625,
+      "text": "As receitas guardam a configuração completa do Timelapse sob um nome, reaplicam-na em outro experimento ou importam e exportam um arquivo de configurações reutilizável.",
+      "speech_text": "As receitas guardam a configuração completa do Timelapse sob um nome, reaplicam-na em outro experimento ou importam e exportam um arquivo de configurações reutilizável.",
+      "phonemes": "az xˌesˈAtæz ɡwˈaɾədɐ̃ʊ̃ a kˌoŋfiɡˌuɾasˈɐ̃ʊ̃ kˌomplˈɛtæ dʊ ʧˌimelˈapsy sˈob ũŋ nˈomy, xˌeaplˈikɐ̃ʊ̃na Aŋ ˈowtrw ˌespeɾimˈAŋtw ow ˌimpˈɔɾətɐ̃ʊ̃ i ˌespˈɔɾətɐ̃ʊ̃ ũŋ ˌaɾəkˈivʊ ʤy kˌoŋfiɡˌuɾasˈõjz xˌeʊʧilizˈaveʊ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 122.22500000000001,
+      "speech_end": 131.82500000000002,
+      "scene_end": 132.275,
+      "duration": 10.049999999999997,
+      "text": "Envie instantâneos remotos das configurações resolvidas e envia o trabalho de segmentação e rastreamento para o espaço de trabalho de Trabalhos Distribuídos.",
+      "speech_text": "Envie instantâneos remotos das configurações resolvidas e envia o trabalho de segmentação e rastreamento para o espaço de trabalho de Trabalhos Distribuídos.",
+      "phonemes": "ˌAŋvˈij ˌiŋstɐ̃ŋtˈɐ̃neʊz xˌemˈɔtʊz das kˌoŋfiɡˌuɾasˈõjz xˌezowvˈidæz i ˌAŋvˈiæ ʊ trˌabˈaljʊ ʤy sˌeɡmAŋtasˈɐ̃ʊ̃ i xˌastreæmˈAŋtʊ pˌaɾæ u ˌespˈasʊ ʤy trˌabˈaljʊ ʤy trˌabˈaljʊz ʤˌistribuˈidʊs."
+    },
+    {
+      "scene": 11,
+      "speech_start": 132.275,
+      "speech_end": 144.0,
+      "scene_end": 144.45,
+      "duration": 12.174999999999983,
+      "text": "O Jobs Distribuído mapeia os caminhos de origem e saída para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução do Timelapse.",
+      "speech_text": "O Jobs Distribuído mapeia os caminhos de origem e saída para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução do Timelapse.",
+      "phonemes": "ʊ ʒˈobz ʤˌistribuˈidʊ mˌapˈAæ ʊs kˌæmˈiɲʊz ʤj ˌoɾˈiʒAŋ i sˌaˈidæ pˌaɾæ ˌumæ ˌestasˈɐ̃ʊ̃ ʤy trˌabˈaljʊ xˌemˈɔtæ, ũŋ klustˈer zlˈuɾəm ow ũŋ kˌomˈɐ̃ŋdʊ kˌoŋfiɡuɾˈadʊ, ˈAŋ sˌeɡˈidæ, ˌAŋvˈiæ i mˌonitˈoɾæ a mˈezmæ ˌezekusˈɐ̃ʊ̃ dʊ ʧˌimelˈapsy."
+    },
+    {
+      "scene": 12,
+      "speech_start": 144.45,
+      "speech_end": 156.2,
+      "scene_end": 156.64999999999998,
+      "duration": 12.199999999999989,
+      "text": "Input and Metadata seleciona a pasta de imagem, atribui cada canal adquirido a um tipo de objeto e define como o spaCR analisa identificadores experimentais a partir de nomes de arquivos.",
+      "speech_text": "Input and Metadata seleciona a pasta de imagem, atribui cada canal adquirido a um tipo de objeto e define como o espáquer analisa identificadores experimentais a partir de nomes de arquivos.",
+      "phonemes": "iŋpˈuʧ ˈɐ̃ŋd mˌetadˈatæ sˌelesiˈonæ a pˈastæ ʤj ˌimˈaʒAŋ, ˌatribˈuɪ kˈadæ kɐ̃nˈW ˌadkiɾˈidw a ũŋ ʧˈipʊ ʤj ˌobʒˈɛtw i dˌefˈiny kˌomʊ u ˌespˈakɛɾ ˌænalˈizæ ˌidAŋʧˌifikadˈoɾyz ˌespeɾˌimAŋtˈIz a paɾəʧˈir ʤy nˈomyz ʤj ˌaɾəkˈivʊs."
+    },
+    {
+      "scene": 13,
+      "speech_start": 156.64999999999998,
+      "speech_end": 169.075,
+      "scene_end": 169.52499999999998,
+      "duration": 12.875,
+      "text": "Aquisição e eixos descreve a ampliação e as configurações opcionais do eixo volumétrico ou do eixo temporal. Os arquivos de imagem comuns por quadro mantêm os controles avançados de pilha desativados.",
+      "speech_text": "Aquisição e eixos descreve a ampliação e as configurações opcionais do eixo volumétrico ou do eixo temporal. Os arquivos de imagem comuns por quadro mantêm os controles avançados de pilha desativados.",
+      "phonemes": "ˌakizisˈɐ̃ʊ̃ i ˈAʃʊz dˌeskrˈɛvj a ˌɐ̃mpliasˈɐ̃ʊ̃ i as kˌoŋfiɡˌuɾasˈõjz ˌopsionˈIz dʊ ˈAʃʊ vˌolumˈɛtrikw ow dʊ ˈAʃʊ tˌAmpoɾˈW. ʊz ˌaɾəkˈivʊz ʤj ˌimˈaʒAŋ komˈũŋs por kwˈadrʊ mɐ̃ŋtˈAŋ ʊs kˌoŋtrˈolyz ˌavɐ̃ŋsˈadʊz ʤy pˈiljæ dˌezaʧivˈadʊs."
+    },
+    {
+      "scene": 14,
+      "speech_start": 169.52499999999998,
+      "speech_end": 184.47499999999997,
+      "scene_end": 184.92499999999995,
+      "duration": 15.399999999999977,
+      "text": "O Pré-processamento de imagem controla a normalização percentil, a manipulação de fundo, denociamento, redimensionamento e matrizes intermediárias. Aplicar uma transformação consistente em cada quadro para evitar mudanças temporais artificiais.",
+      "speech_text": "O Pré-processamento de imagem controla a normalização percentil, a manipulação de fundo, denociamento, redimensionamento e matrizes intermediárias. Aplicar uma transformação consistente em cada quadro para evitar mudanças temporais artificiais.",
+      "phonemes": "ʊ prˈɛprˌosesæmˈAŋtʊ ʤj ˌimˈaʒAŋ kˌoŋtrˈɔlæ a nˌoɾəmalˌizasˈɐ̃ʊ̃ pˌeɾəsAŋʧˈiʊ, a mˌænipˌulasˈɐ̃ʊ̃ ʤy fˈũŋdʊ, dˌenosˌiæmˈAŋtʊ, xˌeʤimˌAŋsiˌonæmˈAŋtw i mˌatrˈizyz ˌiŋteɾəmˌeʤiˈaɾjæs. ˌaplikˈaɾ ˌumæ trˌɐ̃ŋsfoɾəmasˈɐ̃ʊ̃ kˌoŋsistˈAŋʧj ˈAŋ kˈadæ kwˈadrʊ pˌaɾæ ˌevitˈar mˌudˈɐ̃ŋsæs tˌAmpoɾˈIz ˌaɾəʧifˌisiˈIs."
+    },
+    {
+      "scene": 15,
+      "speech_start": 184.92499999999995,
+      "speech_end": 195.82499999999996,
+      "scene_end": 196.27499999999995,
+      "duration": 11.349999999999994,
+      "text": "A Segmentação de Células seleciona o modelo de célula, o diâmetro esperado, os limiares de probabilidade e fluxo, e os filtros opcionais de tamanho, intensidade, limite, fusão e divisão.",
+      "speech_text": "A Segmentação de Células seleciona o modelo de célula, o diâmetro esperado, os limiares de probabilidade e fluxo, e os filtros opcionais de tamanho, intensidade, limite, fusão e divisão.",
+      "phonemes": "a sˌeɡmAŋtasˈɐ̃ʊ̃ ʤy sˈɛlulæs sˌelesiˈonæ ʊ mˌodˈelʊ ʤy sˈɛlulæ, ʊ ʤjˈɐ̃metrw ˌespeɾˈadʊ, ʊz lˌimiˈaɾyz ʤy prˌobabˌilidˈaʤj i flˈuksʊ, i ʊs fˈiʊtrʊz ˌopsionˈIz ʤy tˌæmˈɐ̃ɲʊ, ˌiŋtAŋsidˈaʤy, lˌimˈiʧy, fuzˈɐ̃ʊ̃ i ʤˌivizˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 16,
+      "speech_start": 196.27499999999995,
+      "speech_end": 207.64999999999995,
+      "scene_end": 208.09999999999994,
+      "duration": 11.824999999999989,
+      "text": "A segmentação do núcleo fornece os controles equivalentes para o canal zero. As máscaras nucleares podem ser exportadas mesmo quando apenas as células estão ligadas através dos quadros.",
+      "speech_text": "A segmentação do núcleo fornece os controles equivalentes para o canal zero. As máscaras nucleares podem ser exportadas mesmo quando apenas as células estão ligadas através dos quadros.",
+      "phonemes": "a sˌeɡmAŋtasˈɐ̃ʊ̃ dʊ nˈukleʊ fˌoɾənˈɛsj ʊs kˌoŋtrˈolyz ˌekivalˈAŋʧys pˌaɾæ ʊ kɐ̃nˈW zˈɛɾʊ. az mˈaskæɾæz nˌukleˈaɾys pˌɔdAŋ seɾ ˌespoɾətˈadæz mˈezmʊ kwˈɐ̃ŋdw ˌapˈenæz as sˈɛlulæz estˌɐ̃ʊ̃ lˌiɡˈadæz ˌatravˈɛz dʊs kwˈadrʊs."
+    },
+    {
+      "scene": 17,
+      "speech_start": 208.09999999999994,
+      "speech_end": 220.82499999999993,
+      "scene_end": 221.27499999999992,
+      "duration": 13.174999999999983,
+      "text": "A Segmentação de Patógenos está disponível quando um canal de patógenos é atribuído. Esta demonstração de dois canais deixa sem configuração, por isso não são solicitadas máscaras ou pistas de patógenos.",
+      "speech_text": "A Segmentação de Patógenos está disponível quando um canal de patógenos é atribuído. Esta demonstração de dois canais deixa sem configuração, por isso não são solicitadas máscaras ou pistas de patógenos.",
+      "phonemes": "a sˌeɡmAŋtasˈɐ̃ʊ̃ ʤy pˌatˈɔʒenʊz estˌa ʤˌisponˈiveʊ kwˈɐ̃ŋdw ũŋ kɐ̃nˈW ʤy pˌatˈɔʒenʊz ɛ ˌatribuˈidʊ. ˌɛstæ dˌemoŋstrasˈɐ̃ʊ̃ ʤy dˈoɪs kænˈIz dˈAʃæ sˈAŋ kˌoŋfiɡˌuɾasˈɐ̃ʊ̃, poɾ ˈisʊ nˌɐ̃ʊ̃ sɐ̃ʊ̃ sˌolisitˈadæz mˈaskæɾæz ow pˈistæz ʤy pˌatˈɔʒenʊs."
+    },
+    {
+      "scene": 18,
+      "speech_start": 221.27499999999992,
+      "speech_end": 231.32499999999993,
+      "scene_end": 231.77499999999992,
+      "duration": 10.5,
+      "text": "A Segmentação de Organelle suporta fluxos de trabalho spot, rede, anel, irregular, Cellpose e U-Net quando um canal de organelle é atribuído. É inactivo para este exemplo.",
+      "speech_text": "A Segmentação de Organelle suporta fluxos de trabalho spot, rede, anel, irregular, Cellpose e U-Net quando um canal de organelle é atribuído. É inactivo para este exemplo.",
+      "phonemes": "a sˌeɡmAŋtasˈɐ̃ʊ̃ ʤj ˌoɾəɡænˈɛly sˌupˈɔɾətæ flˈuksʊz ʤy trˌabˈaljʊ spˈoʧ, xˈeʤy, ɐ̃nˈɛʊ, ˌixeɡulˈar, sˌɛlpˈɔzj i ˈunˈɛʧ kwˈɐ̃ŋdw ũŋ kɐ̃nˈW ʤj ˌoɾəɡænˈɛli ɛ ˌatribuˈidʊ. ɛ ˌinakʧˈivʊ pˌaɾæ ˌesʧy ˌezˈAmplʊ."
+    },
+    {
+      "scene": 19,
+      "speech_start": 231.77499999999992,
+      "speech_end": 246.69999999999993,
+      "scene_end": 247.14999999999992,
+      "duration": 15.375,
+      "text": "O Controle de Qualidade compara a contagem de objetos, tamanho, contato de fronteira, cobertura em primeiro plano, comportamento dividido e taxas de falha em nível de placa. O modo de relatório registra os avisos sem descartar silenciosamente a série horária.",
+      "speech_text": "O Controle de Qualidade compara a contagem de objetos, tamanho, contato de fronteira, cobertura em primeiro plano, comportamento dividido e taxas de falha em nível de placa. O modo de relatório registra os avisos sem descartar silenciosamente a série horária.",
+      "phonemes": "ʊ kˌoŋtrˈoly ʤy kwˌalidˈaʤy kˌompˈaɾæ a kˌoŋtˈaʒAŋ ʤj ˌobʒˈɛtʊs, tˌæmˈɐ̃ɲʊ, kˌoŋtˈatʊ ʤy frˌoŋtˈAɾæ, kˌobeɾətˈuɾæ ˈAŋ prˌimˈAɾʊ plˈɐ̃nʊ, kˌompoɾətæmˈAŋtʊ ʤˌiviʤˈidw i tˈaʃæz ʤy fˈaljæ ˈAŋ nˈiveʊ ʤy plˈakæ. ʊ mˈɔdʊ ʤy xˌelatˈɔɾjʊ xˌeʒˈistræ ʊz ˌavˈizʊs sˈAŋ dˌeskaɾətˈar sˌilAŋsˌiozæmˈAŋʧj a sˈɛɾjy ˌoɾˈaɾjæ."
+    },
+    {
+      "scene": 20,
+      "speech_start": 247.14999999999992,
+      "speech_end": 258.9249999999999,
+      "scene_end": 259.3749999999999,
+      "duration": 12.224999999999966,
+      "text": "A configuração de rastreamento escolhe quais objetos segmentados estão ligados, a fatia do quadro, se as faixas de curta duração são removidas e a taxa de reprodução dos filmes exportados.",
+      "speech_text": "A configuração de rastreamento escolhe quais objetos segmentados estão ligados, a fatia do quadro, se as faixas de curta duração são removidas e a taxa de reprodução dos filmes exportados.",
+      "phonemes": "a kˌoŋfiɡˌuɾasˈɐ̃ʊ̃ ʤy xˌastreæmˈAŋtw ˌeskˈɔljy kwˈIz ˌobʒˈɛtʊs sˌeɡmAŋtˈadʊz estˌɐ̃ʊ̃ lˌiɡˈadʊs, a fˌaʧˈiæ dʊ kwˈadrʊ, sj as fˈIʃæz ʤy kˈuɾətæ dˌuɾasˈɐ̃ʊ̃ sɐ̃ʊ̃ xˌemovˈidæz i a tˈaʃæ ʤy xˌeprodusˈɐ̃ʊ̃ dʊs fˈiʊmyz ˌespoɾətˈadʊs."
+    },
+    {
+      "scene": 21,
+      "speech_start": 259.3749999999999,
+      "speech_end": 272.5999999999999,
+      "scene_end": 273.0499999999999,
+      "duration": 13.675000000000011,
+      "text": "Tracking Backends oferece Trackastra, Ultrack, Trackpy, interseção sobre união e btrack com link específico de backend, deslocamento, memória, divisão e controles de trabalhadores. Esta demonstração usa intersecção sobre união.",
+      "speech_text": "Tracking Backends oferece Trackastra, Ultrack, Trackpy, interseção sobre união e btrack com link específico de backend, deslocamento, memória, divisão e controles de trabalhadores. Esta demonstração usa intersecção sobre união.",
+      "phonemes": "trakˈiŋɡ bakˈAŋdz ˌofeɾˈɛsy trˌakˈastræ, uwtrˈak, trˈakpi, ˌiŋteɾəsesˈɐ̃ʊ̃ sˈobri ˌuniˈɐ̃ʊ̃ i btrˈak koŋ lˈiŋk ˌespesˈifikʊ ʤy bakˈAŋd, dˌezlokæmˈAŋtʊ, mˌemˈɔɾjæ, ʤˌivizˈɐ̃ʊ̃ i kˌoŋtrˈolyz ʤy trˌabaljadˈoɾys. ˌɛstæ dˌemoŋstrasˈɐ̃ʊ̃ ˈuzæ ˌiŋteɾəseksˈɐ̃ʊ̃ sˈobri ˌuniˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 22,
+      "speech_start": 273.0499999999999,
+      "speech_end": 284.4749999999999,
+      "scene_end": 284.9249999999999,
+      "duration": 11.875,
+      "text": "Visualização e Diagnóstico controla mapas de cores, gráficos de exemplo, normalização de gráfico e tela de figura usada para inspecionar a segmentação e o comportamento de rastreamento.",
+      "speech_text": "Visualização e Diagnóstico controla mapas de cores, gráficos de exemplo, normalização de gráfico e tela de figura usada para inspecionar a segmentação e o comportamento de rastreamento.",
+      "phonemes": "vˌizuˌalizasˈɐ̃ʊ̃ i ʤˌiaɡnˈɔsʧikʊ kˌoŋtrˈɔlæ mˈapæz ʤy kˈoɾys, ɡrˈafikʊz ʤj ˌezˈAmplʊ, nˌoɾəmalˌizasˈɐ̃ʊ̃ ʤy ɡrˈafikw i tˈɛlæ ʤy fˌiɡˈuɾæ ˌuzˈadæ pˌaɾæ ˌiŋspesˌionˈaɾ a sˌeɡmAŋtasˈɐ̃ʊ̃ i ʊ kˌompoɾətæmˈAŋtʊ ʤy xˌastreæmˈAŋtʊ."
+    },
+    {
+      "scene": 23,
+      "speech_start": 284.9249999999999,
+      "speech_end": 296.0249999999999,
+      "scene_end": 296.4749999999999,
+      "duration": 11.550000000000011,
+      "text": "Os controles de saída e armazenamento combinam matrizes, máscaras, filmes por canal, animações de máscaras rastreadas, compressão e retenção de arquivos intermediários ou originais.",
+      "speech_text": "Os controles de saída e armazenamento combinam matrizes, máscaras, filmes por canal, animações de máscaras rastreadas, compressão e retenção de arquivos intermediários ou originais.",
+      "phonemes": "ʊs kˌoŋtrˈolyz ʤy sˌaˈidæ i ˌaɾəmazˌenæmˈAŋtʊ kˌombˈinɐ̃ʊ̃ mˌatrˈizys, mˈaskæɾæs, fˈiʊmys por kɐ̃nˈW, ˌænimasˈõjz ʤy mˈaskæɾæz xˌastreˈadæs, kˌompresˈɐ̃ʊ̃ i xˌetAŋsˈɐ̃ʊ̃ ʤj ˌaɾəkˈivʊz ˌiŋteɾəmˌeʤiˈaɾjʊz ow ˌoɾiʒinˈIs."
+    },
+    {
+      "scene": 24,
+      "speech_start": 296.4749999999999,
+      "speech_end": 310.4749999999999,
+      "scene_end": 310.9249999999999,
+      "duration": 14.449999999999989,
+      "text": "O tempo de execução e a confiabilidade controlam o modo de ensaio, o loteamento, os trabalhadores, a ordem reprodutível, a retomada, as corridas secas, a verbosidade e a política de falha. Comece com um campo representativo antes de aumentar.",
+      "speech_text": "O tempo de execução e a confiabilidade controlam o modo de ensaio, o loteamento, os trabalhadores, a ordem reprodutível, a retomada, as corridas secas, a verbosidade e a política de falha. Comece com um campo representativo antes de aumentar.",
+      "phonemes": "ʊ tˈAmpʊ ʤj ˌezekusˈɐ̃ʊ̃ i a kˌoŋfiˌabilidˈaʤy kˌoŋtrˈɔlɐ̃ʊ̃ ʊ mˈɔdʊ ʤj ˌAŋsˈIʊ, ʊ lˌoteæmˈAŋtʊ, ʊs trˌabaljadˈoɾys, a ˈɔɾədAŋ xˌeproduʧˈiveʊ, a xˌetomˈadæ, as kˌoxˈidæs sˈekæs, a vˌeɾəbozidˈaʤj i a pˌolˈiʧikæ ʤy fˈaljæ. kˌomˈɛsy koŋ ũŋ kˈɐ̃mpʊ xˌeprezˌAŋtaʧˈivw ˈɐ̃ŋʧyz ʤj ˌWmAŋtˈar."
+    },
+    {
+      "scene": 25,
+      "speech_start": 310.9249999999999,
+      "speech_end": 322.6999999999999,
+      "scene_end": 323.14999999999986,
+      "duration": 12.224999999999966,
+      "text": "Este exemplo rastreia células sobre índices de quadros de zero a sete, mantém pistas transitórias para inspeção, exporta filmes a um quadro por segundo e deixa as máscaras do núcleo desligadas.",
+      "speech_text": "Este exemplo rastreia células sobre índices de quadros de zero a sete, mantém pistas transitórias para inspeção, exporta filmes a um quadro por segundo e deixa as máscaras do núcleo desligadas.",
+      "phonemes": "ˌesʧy ˌezˈAmplʊ xˌastrˈAæ sˈɛlulæs sˈobri ˈiŋʤisyz ʤy kwˈadrʊz ʤy zˈɛɾw a sˈɛʧy, mɐ̃ŋtˈAŋ pˈistæs trˌɐ̃ŋzitˈɔɾjæs pˌaɾæ ˌiŋspesˈɐ̃ʊ̃, ˌespˈɔɾətæ fˈiʊmyz a ũŋ kwˈadrʊ por sˌeɡˈũŋdw i dˈAʃæ az mˈaskæɾæz dʊ nˈukleʊ dˌezliɡˈadæs."
+    },
+    {
+      "scene": 26,
+      "speech_start": 323.14999999999986,
+      "speech_end": 339.27499999999986,
+      "scene_end": 339.72499999999985,
+      "duration": 16.57499999999999,
+      "text": "Run valida nomes de arquivos e canais, agrupa quadros, normaliza a sequência, segmenta cada objeto solicitado, liga máscaras de célula, calcula o controle de qualidade, escreve filmes e matrizes combinadas e registra reprodução. Petições de parada para uma interrupção segura.",
+      "speech_text": "Run valida nomes de arquivos e canais, agrupa quadros, normaliza a sequência, segmenta cada objeto solicitado, liga máscaras de célula, calcula o controle de qualidade, escreve filmes e matrizes combinadas e registra reprodução. Petições de parada para uma interrupção segura.",
+      "phonemes": "xˈũŋ vˌalˈidæ nˈomyz ʤj ˌaɾəkˈivʊz i kænˈIs, ˌaɡrˈupæ kwˈadrʊs, nˌoɾəmalˈizæ a sˌekwˈAŋsjæ, sˌeɡmˈAŋtæ kˈadæ ˌobʒˈɛtʊ sˌolisitˈadʊ, lˈiɡæ mˈaskæɾæz ʤy sˈɛlulæ, kˌWkˈulæ ʊ kˌoŋtrˈoly ʤy kwˌalidˈaʤy, ˌeskrˈɛvy fˈiʊmyz i mˌatrˈizys kˌombinˈadæz i xˌeʒˈistræ xˌeprodusˈɐ̃ʊ̃. pˌeʧisˈõjz ʤy pˌaɾˈadæ pˌaɾæ ˌumæ ˌiŋtexupsˈɐ̃ʊ̃ sˌeɡˈuɾæ."
+    },
+    {
+      "scene": 27,
+      "speech_start": 339.72499999999985,
+      "speech_end": 351.9499999999999,
+      "scene_end": 352.39999999999986,
+      "duration": 12.675000000000011,
+      "text": "Durante o processamento, o console relata o início do Cellpose, configurações resolvidas, progresso por quadro, rastreamento do comportamento de pesquisa, filtros de objetos, tempo restante e caminhos de saída.",
+      "speech_text": "Durante o processamento, o console relata o início do Cellpose, configurações resolvidas, progresso por quadro, rastreamento do comportamento de pesquisa, filtros de objetos, tempo restante e caminhos de saída.",
+      "phonemes": "dˌuɾˈɐ̃ŋʧj ʊ prˌosesæmˈAŋtʊ, ʊ kˌoŋsˈoly xˌelˈatæ u ˌinˈisjʊ dʊ sˌɛlpˈɔzy, kˌoŋfiɡˌuɾasˈõjz xˌezowvˈidæs, prˌoɡrˈɛsʊ por kwˈadrʊ, xˌastreæmˈAŋtʊ dʊ kˌompoɾətæmˈAŋtʊ ʤy pˌeskˈizæ, fˈiʊtrʊz ʤj ˌobʒˈɛtʊs, tˈAmpʊ xˌestˈɐ̃ŋʧj i kˌæmˈiɲʊz ʤy sˌaˈidæ."
+    },
+    {
+      "scene": 28,
+      "speech_start": 352.39999999999986,
+      "speech_end": 370.09999999999985,
+      "scene_end": 370.74999999999983,
+      "duration": 18.349999999999966,
+      "text": "A corrida concluída ligou 16 células em todos os oito quadros, removiu nenhum objeto transitório, passou pelo controle de qualidade de células e núcleos sem alertas ou falhas, escreveu filmes rastreados e oito matrizes fundidas, e salvou um recorde de corrida de 26 segundos de sucesso.",
+      "speech_text": "A corrida concluída ligou 16 células em todos os oito quadros, removiu nenhum objeto transitório, passou pelo controle de qualidade de células e núcleos sem alertas ou falhas, escreveu filmes rastreados e oito matrizes fundidas, e salvou um recorde de corrida de 26 segundos de sucesso.",
+      "phonemes": "a kˌoxˈidæ kˌoŋkluˈidæ liɡˈow dˌezesˈAs sˈɛlulæz ˈAŋ tˈodʊz ʊz ˈoɪtʊ kwˈadrʊs, xˌemovˈiʊ neɲˈũŋ ˌobʒˈɛtʊ trˌɐ̃ŋzitˈɔɾjʊ, pasˈow pˈelʊ kˌoŋtrˈɔly ʤy kwˌalidˈaʤy ʤy sˈɛlulæz i nˈukleʊs sˈAŋ ˌalˈɛɾətæz ow fˈaljæs, ˌeskrevˈeʊ fˈiʊmyz xˌastreˈadʊz i ˈoɪtʊ mˌatrˈizys fˌũŋʤˈidæs, i sWvˈow ũŋ xˌekˈɔɾəʤy ʤy kˌoxˈidæ ʤy vˈiŋʧyisˈAs sˌeɡˈũŋdʊz ʤy sˌusˈɛsʊ."
     }
   ]
 }

@@ -825,6 +825,146 @@ def test_parse_prcf_keeps_an_underscored_plate_together():
 
 
 # ===========================================================================
+# the object TYPE lives in the object key
+# ===========================================================================
+#
+# The measured failure: a nucleus labelled 1 and a pathogen labelled 1 in one
+# field carried the identical key, and a cell's own children are exactly the
+# objects most likely to collide. Four objects opened as three crops, and
+# which one you got depended on the row order of ``png_list``.
+
+
+def test_the_key_vocabulary_is_exactly_the_object_tables():
+    """A new object table cannot gain a table without gaining a prefix.
+
+    ``OBJECT_TYPES`` is declared above ``object_id`` because the composer
+    needs it, and ``OBJECT_TABLES`` far below. Two lists in one module is how
+    they drift; this is the pin that says they may not.
+    """
+    assert set(S.OBJECT_TYPES) == set(S.OBJECT_TABLES)
+
+
+def test_a_nucleus_and_a_pathogen_with_one_label_are_two_keys():
+    """The defect, as a law, at the ``prcfo`` level."""
+    nucleus = S.compose_prcfo('p1', 1, 1, 1, 1, object_type='nucleus')
+    pathogen = S.compose_prcfo('p1', 1, 1, 1, 1, object_type='pathogen')
+    assert nucleus != pathogen
+    assert S.parse_prcfo(nucleus).objectType == 'nucleus'
+    assert S.parse_prcfo(pathogen).objectType == 'pathogen'
+    assert S.parse_prcfo(nucleus).objectLabel == '1'
+
+
+def test_the_untyped_object_key_is_byte_for_byte_what_it_always_was():
+    """Every ``prcfo`` on disk is untyped; none of them may move.
+
+    The type is a *refinement* of the key, not a new spelling of it. If the
+    untyped form changed, every key in every exported file and every stored
+    selection would have to be migrated — and the ones that were missed would
+    silently match nothing.
+    """
+    assert S.compose_prcfo('p1', 1, 1, 1, 7) == 'p1_r1_c1_f1_o7'
+    assert S.compose_prcfo('p1', 1, 1, 1, 7, time=3) == 'p1_r1_c1_f1_t3_o7'
+    assert S.object_id(7) == 'o7'
+    assert S.parse_prcfo('p1_r1_c1_f1_o7').prcfo == 'p1_r1_c1_f1_o7'
+
+
+def test_an_untyped_key_is_not_stated_rather_than_a_cell():
+    """``None`` is a fact about what we were told, not a default guess.
+
+    Defaulting an untyped key to ``'cell'`` would take every legacy key --
+    which is all of them -- and assert a type nobody recorded, which is worse
+    than the collision it would be papering over.
+    """
+    assert S.parse_prcfo('p1_r1_c1_f1_o7').objectType is None
+    assert S.split_object_id('o7') == (None, '7')
+
+
+@pytest.mark.parametrize('object_type', list(S.OBJECT_TYPES))
+def test_every_declared_object_type_round_trips(object_type):
+    key = S.compose_prcfo('PLATE-4', 'A', 2, 3, 41, object_type=object_type)
+    parsed = S.parse_prcfo(key)
+    assert parsed.prcfo == key
+    assert parsed.objectType == object_type
+    assert parsed.objectLabel == '41'
+    assert S.object_index(parsed.objectID) == 41
+
+
+def test_organelle_is_not_read_as_an_untyped_object_labelled_rganelle():
+    """Longest-prefix-first, because ``'organelle'`` starts with ``'o'``."""
+    assert S.split_object_id('organelle7') == ('organelle', '7')
+    assert S.object_id(7, object_type='organelle') == 'organelle7'
+
+
+def test_a_label_that_would_read_back_as_a_type_is_refused():
+    """The one composition the closed vocabulary cannot make injective.
+
+    An untyped object whose preserved (non-numeric) label happens to be
+    ``'rganelle7'`` composes to ``'organelle7'``, which reads back as an
+    organelle. Two identities, one key — refused rather than written.
+    """
+    with pytest.raises(KeyParseError, match='would read back'):
+        S.object_id('rganelle7')
+
+
+def test_object_id_is_idempotent_with_and_without_a_type():
+    for token in ('o7', 'nucleus7', 'omulti', 'onone', 'oxy'):
+        assert S.object_id(S.object_id(token)) == token
+
+
+def test_a_type_on_the_label_that_disagrees_with_the_argument_is_refused():
+    """Guessing which of the two is right is how a nucleus becomes a pathogen."""
+    with pytest.raises(KeyParseError, match='already says it is'):
+        S.object_id('nucleus7', object_type='pathogen')
+    # An *untyped* id may still be given a type: that is stating something
+    # unstated, not overwriting something stated.
+    assert S.object_id('o7', object_type='pathogen') == 'pathogen7'
+
+
+@pytest.mark.parametrize('bad', ['x', 'foo', 'my_type', 'cell1', ''])
+def test_an_undeclared_object_type_is_refused(bad):
+    """The vocabulary is closed so a malformed key stays an error.
+
+    With an open vocabulary ``'plate1_r1_c1_f2_x7'`` would parse as object 7
+    of type ``'x'`` — a plausible wrong answer where there used to be a
+    refusal.
+    """
+    with pytest.raises(KeyParseError):
+        S.object_type_prefix(bad)
+    assert not S.is_object_type(bad)
+
+
+def test_is_object_type_lets_a_reader_ask_before_it_stamps():
+    assert S.is_object_type('nucleus')
+    assert S.is_object_type('NUCLEUS')
+    assert not S.is_object_type('png_list')
+    assert not S.is_object_type(None)
+
+
+def test_a_typed_prcfo_is_still_refused_by_the_prcf_parser():
+    """One level too deep stays loud, for every type."""
+    for object_type in S.OBJECT_TYPES:
+        key = S.compose_prcfo('p1', 1, 1, 2, 7, object_type=object_type)
+        with pytest.raises(KeyParseError):
+            S.parse_prcf(key)
+
+
+def test_a_typed_object_reports_its_type_in_to_dict():
+    typed = S.parse_prcfo('p1_r1_c1_f1_nucleus7').to_dict()
+    assert typed[S.OBJECT_TYPE_KEY] == 'nucleus'
+    # An untyped one emits exactly the dict it always did: a reader that
+    # never learned about types sees no new column on data with no type.
+    assert S.OBJECT_TYPE_KEY not in S.parse_prcfo('p1_r1_c1_f1_o7').to_dict()
+
+
+def test_split_object_id_reads_the_bare_label_only_when_asked():
+    """``'7'`` is the selection key's object component, not a ``prcfo``'s."""
+    assert S.split_object_id('7') == (None, '')
+    assert S.split_object_id('7', require_prefix=False) == (None, '7')
+    # An unrecognised token is not a bare label either way round.
+    assert S.split_object_id('x7', require_prefix=False) == (None, '')
+
+
+# ===========================================================================
 # filename parsing
 # ===========================================================================
 
@@ -936,12 +1076,109 @@ def test_ids_are_hashable_and_comparable():
 # column names
 # ===========================================================================
 
-def test_every_db_column_rename_utils_knows_is_here_too():
-    """schema is a superset of the migration list already in utils."""
-    from spacr.utils import DB_COLUMN_RENAMES
+def test_there_is_exactly_one_canonical_column_name():
+    """Every import path must reach the *same function object*.
 
-    for old, new in DB_COLUMN_RENAMES.items():
-        assert S.canonical_column_name(old) == new, old
+    This test used to assert that ``schema`` was a **superset** of the
+    rename map in ``utils`` -- i.e. it pinned the gap open. There really were
+    two implementations in scope at once: ``schema.canonical_column_name``
+    (22 aliases, case-insensitive) and a second one in ``database_schema``
+    (11 aliases, case-sensitive) that ``spacr.utils`` re-exported. Measured
+    before the repair, in an interpreter that had imported both::
+
+        spacr.utils.canonical_column_name is database_schema...  -> True
+        spacr.utils.canonical_column_name is schema...           -> False
+
+    So whether a database column named ``Row`` got canonicalised depended on
+    which module the calling file happened to import, and a database
+    canonicalised by one path and read through the other joins on keys that
+    do not match. Equality of behaviour is not enough to pin that -- two
+    functions can be made equal today and drift again tomorrow -- so identity
+    is what is asserted.
+    """
+    from spacr import database_schema as D
+    from spacr import utils as U
+
+    assert U.canonical_column_name is S.canonical_column_name
+    assert D.canonical_column_name is S.canonical_column_name
+    # The constants too: a rename *map* that disagrees with the rename
+    # *function* is the same bug one level down.
+    assert D.DB_COLUMN_RENAMES is S.LEGACY_COLUMN_NAMES
+    assert U.DB_COLUMN_RENAMES is S.LEGACY_COLUMN_NAMES
+    assert D.DB_COLUMN_RENAME_PATTERNS is S.LEGACY_COLUMN_PATTERNS
+
+
+@pytest.mark.parametrize('name,canonical', [
+    # The eleven aliases the database implementation did not know. Each one
+    # returned itself unchanged before the two were collapsed into one.
+    ('plate_id', 'plateID'),
+    ('row_id', 'rowID'),
+    ('rowid', 'rowID'),
+    ('column_id', 'columnID'),
+    ('col_name', 'columnID'),
+    ('field_id', 'fieldID'),
+    ('time', 'timeID'),
+    ('timepoint', 'timeID'),
+    ('channel_name', 'chanID'),
+    ('chan_id', 'chanID'),
+    ('slice_id', 'sliceID'),
+    # ...and the case sensitivity it did not have.
+    ('Row', 'rowID'),
+    ('COLUMN', 'columnID'),
+    ('Plate_Name', 'plateID'),
+    ('RowID', 'rowID'),
+    ('TIMEID', 'timeID'),
+])
+def test_the_aliases_the_database_path_used_to_miss(name, canonical):
+    """Pinned through every entry point, because the bug *was* the entry point."""
+    from spacr import database_schema as D
+    from spacr import utils as U
+
+    for fn in (S.canonical_column_name, D.canonical_column_name,
+               U.canonical_column_name):
+        assert fn(name) == canonical, (fn.__module__, name)
+
+
+@pytest.mark.parametrize('name,canonical', [
+    ('cell_channel_0_periphery_25_percentile',
+     'cell_channel_0_periphery_percentile_25'),
+    ('pathogen_channel_1_outside_95_percentile',
+     'pathogen_channel_1_outside_percentile_95'),
+    ('organelle_summary_organelle_ch0_mean_intensity_per_cell',
+     'organelle_summary_organelle_channel_0_mean_intensity_per_cell'),
+])
+def test_the_feature_rewrites_survived_the_collapse(name, canonical):
+    """The half of the rename map only the database path used to know.
+
+    ``schema.canonical_column_name`` handled metadata aliases and nothing
+    else, so collapsing onto it would have silently dropped the two feature
+    families -- several hundred columns on a four-channel run -- from every
+    database migration. They moved into
+    :data:`spacr.schema.LEGACY_COLUMN_PATTERNS` instead.
+    """
+    from spacr import database_schema as D
+    from spacr import utils as U
+
+    for fn in (S.canonical_column_name, D.canonical_column_name,
+               U.canonical_column_name):
+        assert fn(name) == canonical, (fn.__module__, name)
+        assert fn(canonical) == canonical, (fn.__module__, canonical)
+
+
+@pytest.mark.parametrize('name', [
+    'cell_area',
+    'cell_channel_0_percentile_75',
+    'nucleus_channel_0_periphery_mean',
+    'my_custom_ch0_score',
+    'organelle_summary_organelle_mean_area',
+    # a head containing 'outside' must not capture the ring rewrite
+    'outside_thing_periphery_25_percentile_extra',
+    # case-sensitive on purpose: a user column is not spaCR's to rewrite
+    'Outside_25_Percentile',
+    '',
+])
+def test_canonical_column_name_still_leaves_data_columns_alone(name):
+    assert S.canonical_column_name(name) == name
 
 
 def test_canonical_column_name_is_case_insensitive_and_leaves_data_alone():
@@ -978,6 +1215,41 @@ def test_canonicalise_columns_repairs_a_legacy_frame(tmp_path):
     fixed = S.canonicalise_columns(legacy)
     assert 'timeID' in fixed.columns and 'time_id' not in fixed.columns
     assert fixed['timeID'].tolist() == legacy['time_id'].tolist() == ['t3']
+
+
+def test_the_two_frame_canonicalisers_produce_the_same_columns():
+    """``schema.canonicalise_columns`` and ``utils.canonicalize_measurement_columns``.
+
+    Two functions with the same job, reached from different modules, that
+    used to give different answers on the same frame: the schema one knew the
+    metadata aliases and not the feature spellings, the utils one knew the
+    feature spellings and eleven fewer aliases. Whichever a caller imported
+    decided what its columns were called.
+    """
+    from spacr.utils import canonicalize_measurement_columns
+
+    columns = {
+        'plate_id': ['plate1'],
+        'Row': ['r1'],
+        'col_name': ['c1'],
+        'time': ['t3'],
+        'cell_channel_0_periphery_25_percentile': [1.0],
+        'organelle_summary_organelle_ch1_mean_intensity': [2.0],
+        'cell_area': [3.0],
+    }
+    schema_out = S.canonicalise_columns(pd.DataFrame(columns))
+    utils_out = canonicalize_measurement_columns(pd.DataFrame(columns))
+
+    assert list(schema_out.columns) == list(utils_out.columns)
+    assert list(schema_out.columns) == [
+        'plateID', 'rowID', 'columnID', 'timeID',
+        'cell_channel_0_periphery_percentile_25',
+        'organelle_summary_organelle_channel_1_mean_intensity',
+        'cell_area',
+    ]
+    # The values ride along with their column; nothing is reordered or lost.
+    assert schema_out['rowID'].tolist() == ['r1']
+    assert schema_out['cell_area'].tolist() == [3.0]
 
 
 def test_canonicalise_columns_returns_a_copy():

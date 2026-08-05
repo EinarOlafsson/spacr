@@ -6,14 +6,20 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
-    """Point QSettings at an isolated .ini file so tests don't leak
-    into the developer's real preferences."""
+    """Point QSettings at an isolated store so tests don't leak
+    into the developer's real preferences.
+
+    NativeFormat has to be redirected too: ``QSettings("spacr", "qt")``
+    ignores ``setDefaultFormat``/``setPath(IniFormat, ...)``, so the Ini-only
+    redirect this used to do left the ``.clear()`` below aimed at the real
+    ``~/.config/spacr/qt.conf``.
+    """
     from PySide6.QtCore import QCoreApplication, QSettings
     QCoreApplication.setOrganizationName("spacr-test")
     QCoreApplication.setApplicationName("qt-ai-settings-test")
     QSettings.setDefaultFormat(QSettings.IniFormat)
-    QSettings.setPath(QSettings.IniFormat, QSettings.UserScope,
-                        str(tmp_path))
+    for fmt in (QSettings.NativeFormat, QSettings.IniFormat):
+        QSettings.setPath(fmt, QSettings.UserScope, str(tmp_path))
     # Reset any prior state per test
     from spacr.qt.ai import settings as s
     QSettings("spacr", "qt").clear()
@@ -116,3 +122,14 @@ def test_providers_dialog_has_settings_tab(qtbot, qt_theme_applied):
     labels = [tabwidget.tabText(i) for i in range(tabwidget.count())]
     assert "Providers" in labels
     assert "Settings" in labels
+    for widget in (
+            dlg._speed_combo, dlg._auto_issue_chk, dlg._route_errors_chk,
+            dlg._gh_token, dlg._prompt_edit):
+        label = getattr(widget, "_spacr_setting_label", None)
+        if label is not None:
+            assert widget.toolTip() == ""
+            assert "href=" in label.toolTip()
+            assert getattr(label, "_spacr_api_dot", None) is not None
+        else:
+            assert "href=" in widget.toolTip()
+            assert getattr(widget, "_spacr_api_dot", None) is not None

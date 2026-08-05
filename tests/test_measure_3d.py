@@ -17,6 +17,7 @@ Everything here is synthetic, CPU-only, offline and fast.
 
 from __future__ import annotations
 
+import importlib.util
 import os
 import sqlite3
 import warnings
@@ -108,8 +109,10 @@ def test_2d_morphology_frame_is_unchanged_column_for_column():
     assert list(cell_df.columns)[:len(expected_props)] == \
         ['label'] + [f'cell_{p}' for p in expected_props[1:]]
 
-    # Zernike columns still present, and no volume columns leaked in.
-    assert any(c.startswith('cell_zernike_') for c in cell_df.columns)
+    # Zernike columns are present when the optional backend is installed; the
+    # automatic path intentionally omits them when it is unavailable.
+    has_zernike = any(c.startswith('cell_zernike_') for c in cell_df.columns)
+    assert has_zernike is (importlib.util.find_spec("mahotas") is not None)
     assert not [c for c in cell_df.columns if 'volume' in c]
 
     # Value-for-value against an unspaced regionprops_table.
@@ -242,6 +245,10 @@ def test_3d_regionprops_2d_only_properties_would_have_crashed():
 
 def test_3d_zernike_is_skipped_rather_than_crashing():
     """mahotas' zernike_moments unpacks a 2-D shape; a 3-D region raises."""
+    pytest.importorskip(
+        "mahotas",
+        reason="numerical Zernike descriptors require the optional spacr[zernike] extra",
+    )
     from mahotas.features import zernike_moments
 
     cell, _n, _z = _masks_3d()

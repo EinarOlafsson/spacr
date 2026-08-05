@@ -343,6 +343,12 @@ def test_worker_reports_an_empty_manifest_as_a_failure(qapp, tmp_path,
 
 
 def test_worker_surfaces_a_no_network_failure(qapp, tmp_path, monkeypatch):
+    """A DNS failure comes out as a sentence, not as the urllib3 text.
+
+    The exception string used to be forwarded verbatim; it now goes through
+    ``explain_download_failure`` — see the offline-degradation block at the
+    bottom of this module for what each failure class is turned into.
+    """
     def offline(repo, sub):
         raise ConnectionError(
             "HTTPSConnectionPool(host='huggingface.co', port=443): "
@@ -352,7 +358,8 @@ def test_worker_surfaces_a_no_network_failure(qapp, tmp_path, monkeypatch):
     ok, ds, st, err = h.run()
     assert ok is False
     assert (ds, st) == ("", "")
-    assert "Name or service not known" in err
+    assert "Could not reach huggingface.co" in err
+    assert "internet connection" in err
 
 
 def test_worker_surfaces_a_mid_download_failure(qapp, tmp_path, monkeypatch):
@@ -543,7 +550,10 @@ def test_demo_download_reports_a_network_failure_through_the_callback(
 
     result, err = s["outcome"][0]
     assert result is None
-    assert "Max retries exceeded" in err
+    # `err` is what `_on_e2e_demo` puts in a QMessageBox, so it is the
+    # explained text rather than the transport's own words.
+    assert "Could not reach huggingface.co" in err
+    assert "Max retries exceeded" not in err
     assert s["worker_threads"] == []
     assert not isValid(s["dlg"]), "the progress dialog outlived the failure"
 
@@ -635,3 +645,113 @@ def test_finish_handler_still_calls_back_when_the_dialog_is_already_gone(
     assert result.dataset_path == Path("/tmp/plate1")
     assert result.settings_path == Path("/tmp/settings")
     assert DeadDialog.closed is True
+
+
+# ---------------------------------------------------------------------------
+# Offline degradation — the one demo in the Demos menu that needs the network
+# ---------------------------------------------------------------------------
+#
+# The other six entries under Demos are synthetic and run with no network at
+# all. This one downloads a real plate, so it is the only one that can fail for
+# a reason outside spaCR, and the only one whose failure message the user has
+# to be able to act on. What it used to hand the dialog was ``str(exc)``: for
+# the ordinary offline case, 300 characters of nested urllib3 that never say
+# "you are offline" and never say what to do instead.
+
+
+def test_offline_failure_names_the_network_and_points_at_the_synthetic_demos():
+    """A ConnectionError must not reach the user as a urllib3 dump."""
+    import requests
+
+    exc = requests.exceptions.ConnectionError(
+        "HTTPSConnectionPool(host='huggingface.co', port=443): Max retries "
+        "exceeded with url: /api/datasets/x (Caused by NewConnectionError("
+        "'<urllib3.connection.HTTPSConnection object at 0x7f00>: Failed to "
+        "establish a new connection: [Errno 101] Network is unreachable'))")
+    message = hf.explain_download_failure(exc)
+
+    assert "huggingface.co" in message
+    assert "internet connection" in message
+    assert "synthetic" in message and "no network" in message
+    assert "urllib3" not in message and "MaxRetryError" not in message
+
+
+def test_missing_huggingface_hub_says_which_package_and_how_to_install_it():
+    message = hf.explain_download_failure(
+        ImportError("huggingface_hub is not installed: No module named "
+                    "'huggingface_hub'"))
+    assert "pip install huggingface_hub" in message
+    assert "synthetic" in message
+
+
+def test_a_truncated_transfer_says_nothing_partial_was_kept():
+    message = hf.explain_download_failure(IOError(
+        "Truncated download for plate1/a.tif: wrote 10 bytes but the server "
+        "declared 4096."))
+    assert "Truncated download" in message
+    assert "re-running" in message
+
+
+def test_explain_survives_an_environment_without_requests(monkeypatch):
+    """The requests import is local; a broken env must still get a message.
+
+    Not hypothetical: ``requests`` is a dependency *of* huggingface_hub, so an
+    environment that cannot import one frequently cannot import the other —
+    which is exactly the environment this function has to describe.
+    """
+    import builtins
+
+    real_import = builtins.__import__
+
+    def _no_requests(name, *args, **kwargs):
+        if name == "requests":
+            raise ImportError("No module named 'requests'")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", _no_requests)
+    message = hf.explain_download_failure(RuntimeError("some transport failure"))
+    assert "some transport failure" in message
+    assert "synthetic" in message
+
+
+def test_list_files_names_the_missing_package(monkeypatch):
+    """``_list_files`` must not let a bare ModuleNotFoundError stand.
+
+    ``explain_download_failure`` keys the install instructions off ImportError,
+    and the raised text is what gets embedded in the dialog.
+    """
+    import builtins
+
+    real_import = builtins.__import__
+
+    def _no_hub(name, *args, **kwargs):
+        if name == "huggingface_hub":
+            raise ImportError("No module named 'huggingface_hub'")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", _no_hub)
+    with pytest.raises(ImportError, match="huggingface_hub is not installed"):
+        hf._list_files("someone/dataset", "plate1")
+
+
+def test_the_download_worker_emits_the_friendly_text(monkeypatch, tmp_path):
+    """End of the wire: what ``_on_download_done`` is handed when offline."""
+    import requests
+
+    def _boom(*_a, **_k):
+        raise requests.exceptions.ConnectionError(
+            "HTTPSConnectionPool(host='huggingface.co', port=443): "
+            "MaxRetryError: Network is unreachable")
+
+    monkeypatch.setattr(hf, "_list_files", _boom)
+
+    worker = hf._HFDownloadWorker(tmp_path)
+    seen = []
+    worker.finished.connect(lambda ok, ds, st, err: seen.append((ok, err)))
+    worker.run()
+
+    assert len(seen) == 1, seen
+    ok, err = seen[0]
+    assert ok is False
+    assert "Could not reach huggingface.co" in err
+    assert "MaxRetryError" not in err

@@ -154,19 +154,97 @@
       "id": "07_mask",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Mask. Segmentieren Sie das zur Verfügung gestellte Vier-Kanal-Mikroskopie-Experiment in Kerne, Zellen, Lipidtropfen und Parasitenmasken."
+          "narration": "Die Maske öffnet sich mit dem Einstellungspaneel links und der Laufzeitkonsole rechts. Die Konsole berichtet über Ordner-Scans, Validierung, Fortschritt, Warnungen und Pipeline-Ausgabe."
         },
         {
-          "narration": "Öffnen Sie die Maske vom Kernbereich. Verwenden Sie den angebotenen Datensatz mit 13 Feldern. Kanal Null ist Kern, Kanal eins ist endoplasmisches Netzhaut, Kanal zwei ist Lipidtropfen und Kanal drei ist Parasiten."
+          "narration": "Das Feld unterhalb der Konsole akzeptiert lokale Fragen oder Befehle. Der KI-Schalter führt eine Nachricht über einen ausgewählten abonnementgestützten Anbieter, und der angrenzende Pfeil öffnet das Anbietermenü."
         },
         {
-          "narration": "Im Hauptkonfigurationsgebiet werden Kerne aus dem Kanal Null, Zellen aus dem Endoplasma-Retikulum-Kanal, Lipidtropfen mit Organelle-Workflow und Parasiten aus dem Kanal drei erkannt."
+          "narration": "Die Registerkarte Anbieter zeigt an, ob die Claude-, ChatGPT- und Gemini-Befehlszeilklienten installiert sind, sowie ihre Installations- und Login-Befehlszeilen. Die Anmeldeinformationen bleiben beim Verkäufer."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Überprüfen Sie ein repräsentatives Feld und führen Sie dann die vier Segmentierungspassagen über den Datensatz aus."
+          "narration": "Die Registerkarte Einstellungen steuert die Reaktionstiefe, KI-gestützte Fehlererklärungen, optionale GitHub-Erzeugungsberichterstattung, Anmeldung und den spaCR-bewussten Systemanruf."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, enthält der Maskenordner ausgerichtete Objektetiketten und zusammengefasste Bild-plus-Masken-Arrays, die zur Messung bereit sind."
+          "narration": "Ziehen Sie den Orig-Ordner in Mask. spaCR erkennt das CQ1-Dateiennamenmuster, präsentiert sich gut, Feld, Zeit, Tiefe und Kanalmetadaten, stellt fest, dass die Platten-ID standardmäßig auf Platte1 eingestellt wird, speichert dann die Regex."
+        },
+        {
+          "narration": "Das Essentials zeigt die kleinen Einstellungen an, die erforderlich sind, um Mask auszuführen. Die Anzahl unterhalb der Kontrollen berichtet, wie viele der vollständigen Einstellungen derzeit sichtbar sind."
+        },
+        {
+          "narration": "Modifizierte Begrenzungen beschränken das Formular auf Werte, die sich von Mask-Vorgaben unterscheiden, wodurch importierte oder bearbeitete Einstellungen leicht zu überprüfen sind."
+        },
+        {
+          "narration": "Wechseln Sie zwischen Essentials und All-Einstellungen, ohne Werte zu verlieren. Alle Einstellungen stellen jede Kategorie dar, einschließlich der fortgeschrittenen und der Beta-Steuerung."
+        },
+        {
+          "narration": "Rezepte speichern die aktuellen Einstellungen unter einem Namen, wenden eine gespeicherte Konfiguration neu an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Mask-Einstellungen und senden Sie sie in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartografiert die lokalen Pfade zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Mask-Run."
+        },
+        {
+          "narration": "Eingabe und Metadaten definieren den Quellordner, Kanalzuweisungen, Vergrößerung, Metadatentyp und alle benutzerdefinierten Dateinamen Regex."
+        },
+        {
+          "narration": "Workflow und Test Run steuern die Vorverarbeitung, Maskengenerierung, Trockenläufe, Wiederholungsverhalten und kleine Testmodusproben."
+        },
+        {
+          "narration": "Bildvorverarbeitung Gruppen Normalisierung, Projektion, Upscaling, Konsolidierung und Verweigerung der vor der Segmentierung angewandten Entscheidungen."
+        },
+        {
+          "narration": "Die Zellsegmentierung enthält das Zellmodell, den Durchmesser, die Schwellenwerte, die Hintergrundbehandlung und die Zellobjektfilter."
+        },
+        {
+          "narration": "Kernsegmentierung bietet das entsprechende Modell, Schwellenwerte, Hintergrundkorrektur und Objektfilter für Kerne."
+        },
+        {
+          "narration": "Pathogen Segmentation gruppiert das Modell und die Reinigungsregeln, die verwendet werden, um Parasitenobjekte zu erkennen und zu filtern."
+        },
+        {
+          "narration": "Organelle Segmentation wählt die Organellenmorphologie und Detektor, Bildreinigung, methodenspezifische Kontrollen, Objektfilter und parent-compartment Zusammenfassung aus."
+        },
+        {
+          "narration": "Qualitätskontrolle setzt automatische Kontrollen für Objektzahlen, Größenverhältnisse, Grenzen, Vordergrundbedeckung, Split-Verhalten und akzeptable Feldfehler ein."
+        },
+        {
+          "narration": "Volumetric Processing enthält Beta-Steuerungen für Z-Stacks, Projektion, Anisotropie, Voxelkalibrierung und dreidimensionale Nähte."
+        },
+        {
+          "narration": "Time Axes and Tracking enthält Beta-Steuerungen für vierdimensionelle Daten, Rahmenintervalle, Tracking-Backends und Verschiebungsgrenzen."
+        },
+        {
+          "narration": "Visualisierung und Diagnostik steuert Vorschauplätze, Farbkarten, Bildgröße, Plannormalisierung und Beispielfelder."
+        },
+        {
+          "narration": "Ausgabe und Speicherung entscheidet, welche Bilder, Masken, Zwischenarrays und komprimierten Ergebnisse aufbewahrt werden."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeit beinhalten Fehlerbewältigung, Reproduzierbarkeit, Logging, Arbeiterzahl, Chargen und Pipeline-Exekutionsmöglichkeiten."
+        },
+        {
+          "narration": "Aktivieren Sie die Live-Vorsicht und laden Sie das Kanal-Zwei-ER-Bild. Dieses Feld enthält nur das für das Segmentierungsbeispiel verwendete Zellsignal."
+        },
+        {
+          "narration": "Wählen Sie in Live-Einstellungen die Zelle aus, aktivieren Sie die Normalisierung und setzen Sie den unteren Perzentil auf 2 und den oberen Perzentil auf 99,5."
+        },
+        {
+          "narration": "Führen Sie die Vorschau aus und vergrößern Sie in die synchronisierten Quellen- und Ergebnisfelder. Die Überlagerungsschnitte sollten den im ER definierten Zellgrenzen folgen."
+        },
+        {
+          "narration": "Schalten Sie das Ergebnisfenster auf Flüsse um das Cellpose Flussfeld zu überprüfen, das zur Bildung von Objekten verwendet wird."
+        },
+        {
+          "narration": "Wechseln Sie zu Masken, um die ganzen Zellobjekte direkt anzusehen. Jede Farbe ist ein Objekt und schwarz bleibt Hintergrundlabel Null."
+        },
+        {
+          "narration": "Kehren Sie zu Live-Einstellungen zurück und setzen Sie nur die Mindestfläche der Zelle auf 10000 Pixel. Die gespeicherten Rohmasken werden sofort gefiltert, ohne Cellpose erneut auszuführen."
+        },
+        {
+          "narration": "Nach dem Größenfilter verlieren kleine Zellobjekte ihre Umrisse und bleiben nur Objekte mit mindestens 10000 Pixel. Vergleichen Sie das mit der unfilterten Überlagerung."
         }
       ]
     },
@@ -174,19 +252,79 @@
       "id": "08_measure",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Measure. Extrahieren Sie die Intensität, die Morphologie, die Textur, die Colocalization und die räumlichen Merkmale pro Objekt aus segmentierten Bildern."
+          "narration": "Die Messung öffnet sich mit den Einstellungen links und der Laufzeitkonsole rechts. Die Konsole berichtet über die Resolution der Quelle, Validierung, Fortschritt, Warnungen und Messleistung."
         },
         {
-          "narration": "Öffnen Sie die Maßnahme vom Kernbereich. Wählen Sie das Projekt aus, das Bildstapels und Masken enthält, die von Mask produziert wurden."
+          "narration": "Das Feld unterhalb der Konsole akzeptiert lokale Fragen oder Befehle. Ermöglichen Sie KI, eine Frage durch den ausgewählten Anbieter zu lenken, und verwenden Sie den angrenzenden Pfeil, um das Anbietermenü zu öffnen."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich verwenden Sie Kanal eins, das endoplasmische Retikulum, als Kanal des Interesses und wählen Sie die zu messen Objekttypen und Merkmalfamilien aus."
+          "narration": "Anbieter melden, ob die Claude-, ChatGPT- und Gemini-Command-Line-Clients installiert sind und zeigen ihre Installations- und Login-Kommandos an. Die Anbieterinformationen bleiben beim Verkäufer."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. wenn nötig, die Pflanzen vorab sehen und dann jedes ausgewählte Feld und den Objekttyp verarbeiten."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und den spaCR-bewussten System-Anruf."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, speichert Messpunkte db nachvollziehbare Einzel-Objektreihen und optionale Bildpflanzen zur Anmerkung oder Klassifizierung."
+          "narration": "Ziehen Sie den von Mask erzeugten Fusionenordner in Measure. Diese Arrays tragen bereits spaCR-Projektmetadaten, so dass Measure die Quelle direkt löst und nicht mehr den Roh-Bild-Dateinamen regex benötigt."
+        },
+        {
+          "narration": "Essentials zeigt den kompakten Satz von Mess-Einstellungen an, die für einen Lauf benötigt werden, während die Zählung berichtet, wie viele Einstellungen derzeit sichtbar sind."
+        },
+        {
+          "narration": "Modifizierte Grenzwerte begrenzen das Panel auf Werte, die sich von Measure-Standards unterscheiden, wodurch importierte Einstellungen und absichtliche Änderungen leicht zu überprüfen sind."
+        },
+        {
+          "narration": "Alle Einstellungen decken alle Maßnahmenkategorien, einschließlich der fortgeschrittenen Zuverlässigkeits- und Beta-Kalibrierungskontrollen, ohne die aktuellen Werte zu ändern."
+        },
+        {
+          "narration": "Rezepte speichern die aktuelle Messkonfiguration unter einem Namen, wenden sie später neu an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Messungseinstellungen und senden Sie sie an Distribute Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartografiert lokale Pfade zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Measure-Run."
+        },
+        {
+          "narration": "Input and Experiment identifiziert das Quellprojekt und den Experimentnamen, der in seine Ausgänge geschrieben ist."
+        },
+        {
+          "narration": "Mask and Channel Mapping zugeordnet Bildkanäle, Zelle, Kern, Krankheitserreger und Organellen-Labelplanen, abgeleitetes Zytoplasma und alle Zeitreihenobjekte."
+        },
+        {
+          "narration": "Messfunktionen wählen gespeicherte Messungen, Korrelations- und Mander-Zusammenfassungen, Homogenitätsentfernungen, Radialverteilungen und Organell-Zusammenfassungen aus."
+        },
+        {
+          "narration": "Object Filtering legt die Mindestgröße für jedes Kompartiment fest, ob uninfizierte Zellen aufbewahrt werden und wie mit krankheitserregern überschreitenden Zellen behandelt wird."
+        },
+        {
+          "narration": "Die Crop Output-Steuerungen speichern PNGs und Arrays, Cropobjekt und Größe, Kanäle, Erweiterung, Grenzflächen und Normalisierung."
+        },
+        {
+          "narration": "Preview and Diagnostics kontrolliert die Abbildungen und die kleine Testmodusprobe, die vor der Durchführung eines vollständigen Experiments verwendet wird."
+        },
+        {
+          "narration": "3D-Kalibrierung enthält Beta-Anisotropie und voxelgroße Steuerungen, die volumetrische Pixelmessungen in physikalische Dimensionen umwandeln."
+        },
+        {
+          "narration": "Die Gruppen Runtime und Reliability wiederholen das Verhalten, strenge Fehler, Ausfallpolitik, Reproduzierbarkeit, Trockenläufe, Logging und Mitarbeiterzählung."
+        },
+        {
+          "narration": "Aktivieren Sie die Live-Vorsicht und laden Sie eine vollständige zusammengestellte Array. Die Galerie gruppiert 40 echte Zellpflanzen nach Kern und Krankheitserregergehalt im fünffelderigen Testlauf."
+        },
+        {
+          "narration": "General bestätigt die Experimentidentität, gemessene Kanäle von Null bis drei, Zellmaske Ebene vier, Nukleus Ebene fünf, Pathogen Ebene sechs, abgeleitete Zytoplasma und Testmodus."
+        },
+        {
+          "narration": "Object Crops schreibt 224 x 224 Pixel-Zell-PNGs unter Verwendung von Kanälen Null, eins und zwei. Die gespeicherte Normalisierung bleibt abgeschaltet; allein die Live-Galerie nutzt eine vorübergehende 1- bis 99-Prozentile-Anzeige."
+        },
+        {
+          "narration": "Filter benötigen Zellen von mindestens 3500 Pixel, Kernen von mindestens 1000 und Krankheitserregern von mindestens 250. Uninfizierte Zellen bleiben abgeschaltet und überschreitende Krankheitserreger werden verschmolzen."
+        },
+        {
+          "narration": "Wählen Sie Kanal 1 aus, um das ER-Signal zu überprüfen, das als nachgelagerter Kanal von Interesse verwendet wird. Dies ändert nur die Galerie; Measure extrahiert immer noch Funktionen aus allen vier konfigurierten Kanälen."
+        },
+        {
+          "narration": "Das ausgefüllte Prüfbuch berichtet von 5 von 5 erfolgreichen Feldern. measurements.db enthält 455 Zellen und Zytoplasmen, 605 Kerne, 1031 Krankheitserreger und 455 Zellpflanzen, die für Annotation und Klassifizierung bereit sind."
         }
       ]
     },
@@ -194,19 +332,76 @@
       "id": "09_annotate",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Annotation. Überprüfen Sie einzelne Pflanzen auf einem Raster und geben Sie zuverlässige Etiketten für Modellschulungen oder Qualitätskontrolle an."
+          "narration": "Annotation beginnt mit der Priorisierung der Ernte. Öffnen Sie die Console, wenn Sie Datenbanknachrichten benötigen, den Status, Warnungen oder das Chatfeld speichern; der gleiche Schaltfläche versteckt es erneut, um den Platz in Bilder zurückzugeben."
         },
         {
-          "narration": "Öffnen Sie die Anmerkung aus dem Kernbereich. Öffnen Sie ein Projekt mit Objektpflanzen und wählen Sie die Datenbanktabelle und die Anmerkungenspalte aus."
+          "narration": "Der KI-Schalter sendet eine Frage über den ausgewählten Anbieter. Verwenden Sie den angrenzenden Pfeil, um einen konfigurierten Anbieter oder das Open-Anbieter-Management zu wählen."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich Klassen, Anzeigekanäle, Sortierung, Probenahme und Filter aus, die den Überprüfungssatz definieren."
+          "narration": "Anbieter melden, ob die Claude-, ChatGPT- und Gemini-Befehlszeilklienten installiert sind, und geben ihre Installations- und Login-Befehlen an. Die Anmeldeinformationen bleiben bei jedem Verkäufer."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vertretende Objekte zu markieren, häufig zu speichern und unsichere oder widersprüchliche Beispiele zu überprüfen."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und den spaCR-bewussten System-Anruf."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden Anmerkungen in die Projektdatenbank mit intakten Objektidentifikatoren zurückgeschrieben."
+          "narration": "Ziehen Sie den gemessenen Experimentordner in Annotation. spaCR löst measurements.db, verankert seine gespeicherten Erntewege an diesen Computer, erstellt die Spalte spaCR_Tutorial und lädt die echten Zellbilder."
+        },
+        {
+          "narration": "Einstellungen benennen die Quell- und Annotationsspalte, steuern die Erntegröße, den Bildtyp, sichtbare und normalisierte Kanäle, Perzentile, optional gestellte Umrisse, Objekt- oder Messfilter und eine Unsicherheitsschlange mit Vielfaltschutz."
+        },
+        {
+          "narration": "Auf dem Seitezähler sind 128 von 81.969 sichtbaren Pflanzen angezeigt. Ein weißer Ring markiert die fokussierte Ernte, während Klassenfarben-Ringe die in spaCR_Tutorial bereits zugewiesenen Etiketten zeigen."
+        },
+        {
+          "narration": "Öffnen Sie die Tastatur jederzeit. Die Zahlen 1 bis 9 markieren und vorantreiben, Null löscht eine Ernte, Pfeile oder HJ K L bewegen, Space skips, Backspace zurückkehrt, U annulliert und Enter speichert und vorantreibt."
+        },
+        {
+          "narration": "Drücken Sie auf 1 um die Klasse 1 für die fokussierte Ernte zu vergeben. Der Ring ändert sich in die Klassenfarbe und der Fokus geht auf das nächste nicht gekennzeichnete Bild voran."
+        },
+        {
+          "narration": "Drücken Sie 2 um Klasse 2 zu bestimmen. Die Klassen sind numerisch und experimentell definiert, also erfassen Sie, was jede Zahl bedeutet, bevor ein Team mit der Kennzeichnung beginnt."
+        },
+        {
+          "narration": "Die Pfeiltasten bewegen den Fokus, ohne ein Etikett zu ändern. Der Raum geht vorwärts und der Backspace zurück, was eine schnelle Überprüfung ermöglicht, ohne die Maus zu erreichen."
+        },
+        {
+          "narration": "Drücken Sie U, um das neueste Keyboard-Label zu löschen. Die Ernte kehrt zu ihrem vorherigen Zustand zurück, der Fokus bewegt sich zurück zu ihm, und der Statusstreifen bestätigt die Aufhebung."
+        },
+        {
+          "narration": "Die Maus-Anmerkung bleibt verfügbar. Mit einem linken Klick wird eine Klasse 1 einer Ernte durch den gleichen Hintergrund-Speicherweg zugeordnet, der von Tastaturetiketten verwendet wird."
+        },
+        {
+          "narration": "Mit einem rechten Klick wird Klasse 2 zugeordnet. Der Klick auf die gleiche Klasse auf dieser Pflanze macht sie wieder frei, während der Klick auf die andere Klasse sie direkt ändert."
+        },
+        {
+          "narration": "Die Klassenzählung bestätigt die gespeicherte Population und zeigt die für jeden Klassenring verwendete Farbe an. Dieses Tutorial enthält zwei Beispiele in Klasse 1 und zwei in Klasse 2."
+        },
+        {
+          "narration": "Die Abdeckung prüft die Etiketten nach Klasse, Platte, Quelle und Aktiv-Lernrunde. Diese vier Beispiele stammen aus einem Brunnen, der absichtlich zu konzentriert für die Ausbildung ist und zeigt, warum die Abdeckung überprüft werden muss."
+        },
+        {
+          "narration": "Next speichert noch ausstehende Arbeiten und lädt die nächste vollständige Seite. Enter führt die gleiche Rettungs- und Voraus-Aktion durch, ohne das Netz zu verlassen."
+        },
+        {
+          "narration": "Zurück gibt eine Seite zurück und bewahrt jede verpflichte Anmerkung. Page Up und Alt Left bieten Alternativen zur Tastatur."
+        },
+        {
+          "narration": "Überspringen Sie zu letzter Anmerkung auf die Seite, die das letzte gespeicherte Etikett enthält, sodass es einfach ist, eine lange Anmerkungssitzung wieder aufzunehmen."
+        },
+        {
+          "narration": "Runds zeigt nach jedem Aktiven-Learning-Retrain die ausgedehnte Genauigkeit an und bewertet, ob die jüngste Kennzeichnung das Modell verbessert hat. Keine Kurve erscheint, bis genügend repräsentative Etiketten eine erste Runde unterstützen."
+        },
+        {
+          "narration": "Retrain passt zu den gespeicherten Etiketten, erzielt die verbleibenden Ernten und ordnet die optionelle Unsicherheitsreihen neu an. Die Statuslinie erfasst die Runde, das ausgehaltenes Ergebnis, die schwächste Klasse und die Haltrichtlinie."
+        },
+        {
+          "narration": "Das Train CV überträgt dieses Projekt und die Anmerkungspalte an den Bildklassifikator. Zug XG überträgt die gleichen Etiketten an den Messmerkmalklassifizierer. Beide öffnen ein vorkonfiguriertes Modul; keiner beginnt sofort mit dem Training."
+        },
+        {
+          "narration": "Die klare Spalte wird absichtlich bewacht, da sie jedes Etikett in der gewählten Spalte entfernt. Bestätigen Sie den genauen Spaltenamen, bevor Sie weitermachen; in diesem Tutorial wird die Warnung aufgehoben und die Etiketten behalten."
+        },
+        {
+          "narration": "Die vier Beispieletiketten werden nun unter spaCR_Tutorial in measurements.db gespeichert, wobei ihre Objektwege und Herkunft intakt sind. Folgen Sie weiter über Brunnen und Platten, bevor Sie sie benutzen, um ein Modell zu trainieren."
         }
       ]
     },
@@ -214,19 +409,76 @@
       "id": "10_classify_cv",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Classify, Computer Vision. Ein Bild-basiertes neuronales Netzwerk auf annotate Einobjektpflanzen auszubilden und anzuwenden."
+          "narration": "Klassifizieren Sie Lebenslaufzüge Torch-Bildmodelle auf Einfachkulturen. Die Konsole berichtet über Datensatzwahl, Leakage-Checks, Trainingszeiten, ausgehaltenen Metriken, Abschlussfortschritt, Warnungen und Ausgangswege."
         },
         {
-          "narration": "Öffnen Sie die Klassifizierung, Computersicht aus dem Kernbereich. Wählen Sie annotate Feldmappen oder eine Projektdatenbank mit zuverlässigen Klassenetiketten aus."
+          "narration": "Das Chatfeld akzeptiert Fragen zum aktuellen Workflow. Aktivieren Sie die KI, einen ausgewählten Provider zu durchlaufen, und verwenden Sie den angrenzenden Pfeil, um das Providermenü zu öffnen."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich die Bildkanäle, Architektur, Split-Strategie, Augmentation, Batchgröße und Trainingssteuerungen aus."
+          "narration": "Anbieter melden, ob die Claude-, ChatGPT- und Gemini-Befehlszeilklienten installiert sind, und geben ihre Installations- und Login-Befehlen an. Die Anmeldeinformationen bleiben bei jedem Verkäufer."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. die Ausbildung über die Schulungsspaltung, das Validierungsverhalten zu überwachen und die ausgehaltenen Daten einmalig zu bewerten."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und den spaCR-bewussten System-Anruf."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, speichert spaCR das Modell, Metriken, Vorhersagen, Klassenbeispiele und laufen Metadaten für spätere Anwendung."
+          "narration": "Ziehen Sie das gemessene Tutorialprojekt in Classify. Es löst 81.969 echte Zellpflanzen und ihre png_list Metadaten; 6.598 Pflanzen sind in Spalte c1 und 6.487 sind in Spalte c2."
+        },
+        {
+          "narration": "Essentials zeigt die Quelle, Workflow-Switches, Klassendefinition, Architektur und Kanäle an, die für einen ersten Bildklassifizierungslauf erforderlich sind."
+        },
+        {
+          "narration": "Modifizierte Grenzwerte begrenzen das Panel auf Werte, die sich von Classify-Standards unterscheiden, wodurch die Kontrollkartierung und die bewussten Trainingsoptionen leicht zu überprüfen sind."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen jede Kategorie ohne Veränderung der Werte, einschließlich der gruppierten Validierung, Leakage-Checks, Kalibrierung, Schlussfolgerung und Laufzeitkontrollen."
+        },
+        {
+          "narration": "Rezepte speichern diese komplette Klassifikationskonfiguration unter einem Namen, wenden sie später neu an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Senden Sie Remote-Snapshots in die gelöschten Einstellungen Classify und senden Sie den Job in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartiert Projektwege und berechnet Ressourcen auf eine Remote-Arbeitsstation, einen Slurm-Cluster oder einen konfigurierten Befehl und überträgt und überwacht dann den gleichen Lauf."
+        },
+        {
+          "narration": "Plate Sources and Workflow wählt ein oder mehrere gemessene Projekte aus und entscheidet sich, ob eine Schulungsspaltung generiert, ein Modell ausgebildet und auf ausgehaltenen Daten getestet wird."
+        },
+        {
+          "narration": "Etiketten und Klassen definieren, ob die Grundwahrheit aus Plattenmetadaten, Annotationsspalten oder Messungen und Karten ausgewählter Werte zu Klassennamen stammt."
+        },
+        {
+          "narration": "Crops and Dataset Split wählt den Objekt-Crop-Typ, die Pixelquelle, die Bildgröße, die Testfraktion, die Klassenbilanz und die optional reproduzierbare Zufallsvergleichsgruppe aus."
+        },
+        {
+          "narration": "Modellarchitektur wählt ein eingebautes oder benutzerdefiniertes Netzwerk, sichtbare Kanäle, Eingabegröße, Normalisierung, Ausfall, vorgeübte Gewichte und Checkpoint-Verhalten aus."
+        },
+        {
+          "narration": "Optimierung und Verlust gruppieren den Optimierer, die Lernrate, den Zeitplan, die Regulierung, die Klassenbilanz, die Erhöhungen, die Epochen, die Chargen, die Anhäufung und das frühe Stoppen."
+        },
+        {
+          "narration": "Die Validierung steuert die Validierungsfraktion, die gruppierten Quervalidierungsfalten, die Gruppierungseinheit und die Wahrscheinlichkeitsschwelle, die für die letzten Hard Calls verwendet wird."
+        },
+        {
+          "narration": "Evaluation Workbench ermöglicht vernetzte Evaluation, Wahrscheinlichkeitskalibrierung, Zuverlässigkeitsbehälter sowie strenge Identitäts- und Inhaltsleckage-Audits für Zugprüfungen."
+        },
+        {
+          "narration": "Full Dataset und Inference erstellen oder wiederverwenden einen gepackten Pflanzendataset, wenden den ausgewählten Checkpoint an, schreiben Wahrscheinlichkeiten und Anrufe und speichern Top-Confidence-Beispiele."
+        },
+        {
+          "narration": "Monitoring und Runtime kontrolliert Plots, TensorBoard, Zwischenkontrollstellen, zufällige Samen, Arbeiter, Logging, strenge Fehler und die maximal tolerierte Ausfallrate."
+        },
+        {
+          "narration": "Für dieses Tutorial benennt der Metadatenmodus c1 als negative Steuerung und c2 als positive Steuerung, indem das Feld columnID abgestimmt wird. Überprüfen Sie diese biologische Zuordnung für jedes Experiment, anstatt nur die Position zu vertrauen."
+        },
+        {
+          "narration": "Hyperparameter-Suche bewertet Kandidatenarchitekturen und Ausbildungsmöglichkeiten mit gut gruppierten Falten. Die abgeschlossenen Tests erscheinen in der Tabelle mit Punktzahl, Faltenvariation, Parametern und Status, bevor eine Wahl verbreitet wird."
+        },
+        {
+          "narration": "Sucheinstellungen definieren die Kandidatenwerte, das Rankingkriterium, das Raster oder die reproduzierbare zufällige Suche, die Versuchszahl, die fünf gruppierten Falten, die Samen, die Grafiksteuerung und die einmalige Vermehrung zurück zum Modul."
+        },
+        {
+          "narration": "Run First baut ausgewogene C1- und C2-Zug-Testsplits auf, prüft Leckage, Züge für die konfigurierten Epochen, bewertet ausgehaltenen Brunnen, kalibriert Wahrscheinlichkeiten, wendet den gewählten Checkpoint an und notiert Vorhersagen im Projekt. Dieses Tutorial beginnt nicht mit dem teuren Schulungslauf."
         }
       ]
     },
@@ -234,19 +486,73 @@
       "id": "11_classify_ml",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Classify, maschinelles Lernen. Zugfunktionsbasierte Klassifikatoren wie XGBoost oder zufällige Wälder aus gemessenen Einzelobjektdaten."
+          "narration": "Classify ML bildet ein klassisches Modell des maschinellen Lernens auf Messungen pro Objekt aus. Die Konsole berichtet über Datenbankladen, Filterung, Plattenkorrektur, Modellbefestigung, Validierungsmetriken, Funktionswichtigkeit, gespeicherte Vorhersagen und Fehler."
         },
         {
-          "narration": "Open Classify, maschinelles Lernen aus dem Kernbereich. Wählen Sie eine Messdatenbank, Etikettenkolumnen, Feature-Familien und Experimentelle Gruppierungskolumnen aus."
+          "narration": "Das Chatfeld akzeptiert Fragen zu diesem Workflow. Ermöglichen Sie KI, eine Frage durch den ausgewählten Anbieter zu lenken, und verwenden Sie den angrenzenden Pfeil, um das Anbietermenü zu öffnen."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie Filterung, Skalierung, Funktionswahl, Klassenbalancing, Modellfamilie und Leakage-sichere Splits."
+          "narration": "Anbieter melden, ob die Claude-, ChatGPT- und Gemini-Befehlszeilklienten installiert sind, und geben ihre Installations- und Login-Befehlen an. Die Anmeldeinformationen bleiben bei jedem Verkäufer."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Modellentscheidungen mit Quervalidierung und wenn möglich ein ausgehaltenes Evaluierungssystem reservieren."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und den spaCR-bewussten System-Anruf."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, erhält das Projekt Vorhersagen, Merkmale, Leistungstabellen und serialisierte Modelle."
+          "narration": "Ziehen Sie das gemessene Tutorialprojekt in Classify ML. Der Drop-Handler löst Messungen/Measurements.db, der 81.969 echte Zellkulturen beschreibt; 6.598 sind in Spalte c1 und 6.487 sind in Spalte c2."
+        },
+        {
+          "narration": "Essentials zeigt die Datenbank, die Kontrollkarte, den ER-Kanal und die Modellfamilie an, die für einen ersten Feature-basierten Klassifizierungslauf benötigt werden."
+        },
+        {
+          "narration": "Modifizierte Grenzwerte begrenzen das Panel auf Werte, die sich von den Standardwerte von spaCR unterscheiden, wodurch bewusste Entscheidungen wie Steuerungszentrierung, Feature-Puning und Datenbank-Ausgabe leicht zu überprüfen sind."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen jede Kategorie ohne Veränderung der Werte. Die Kategorien organisieren die Kontrollen nach ihrer Rolle in der Analyse."
+        },
+        {
+          "narration": "Rezepte speichern diese komplette Konfiguration unter einem Namen, wenden sie später neu an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelöschten Classify ML-Einstellungen und senden Sie den Job in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartiert Projektwege und berechnet Ressourcen auf eine Remote-Arbeitsstation, einen Slurm-Cluster oder einen konfigurierten Befehl und überträgt und überwacht dann den gleichen Lauf."
+        },
+        {
+          "narration": "Daten und Kontrollen wählt das Messprojekt aus und identifiziert die Metadatenkolonne und -werte, die positive und negative Beispiele definieren. Überprüfen Sie diese Etiketten, bevor Sie irgendetwas anpassen."
+        },
+        {
+          "narration": "Feature Die Vorbereitung wählt den Ansprechkanal aus und entfernt vor dem Training ausgeschlossen, mit geringer Variation, stark korrelierte, mit geringer Anzahl oder biologisch ungültige Messungen."
+        },
+        {
+          "narration": "Platten- und Batchkorrektursteuerungen normalisieren sich pro Platte. Hier ist jede Platte auf ihren c1-Negativkontrollzellen konzentriert, wobei der biologische Kontrast zu c2 behoben wird."
+        },
+        {
+          "narration": "Classifier und Validation wählt XGBoost oder einen anderen Schätzer aus, seine Komplexität und Regulierung, die ausgehaltenen Fraktionen und das Verhalten der Quervalidierung."
+        },
+        {
+          "narration": "Merkmale Auswahl und Wichtigkeit steuert die endgültige Beschneiden, die Anzahl der behaltenen Merkmale und wiederholte Permutationsprüfungen, die zeigen, welche Messungen den Klassifikator unterstützen."
+        },
+        {
+          "narration": "Ausgabe und Datenbank bestimmt, ob Vorhersagen und Modellwerte für spätere spaCR-Module in die Messdatenbank zurückgeschrieben werden."
+        },
+        {
+          "narration": "Plots and Heatmaps wählt die zusammengefasste Funktion, die Gruppierungsregel, die Farbkarte und den Wertbereich aus, der zur Visualisierung von Platten-Niveau-Ergebnissen verwendet wird. Diese Steuerungen ändern das montierte Modell nicht."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeit kontrollieren die Logging und die Anzahl der Arbeiter. Verwenden Sie weniger Arbeitskräfte, wenn Sie eine Arbeitsstation teilen, und halten Sie verbose Ausgabe bei der Validierung eines neuen Workflows."
+        },
+        {
+          "narration": "Für dieses Tutorial ist columnID die Etikettenquelle: c1 ist die negative Kontrolle und c2 ist die positive Kontrolle. Die Kartierung verwendet die ersten beiden Plattenkolonnen genau wie gefordert."
+        },
+        {
+          "narration": "Hyperparameter Search vergleicht die Lernraten der Kandidaten, die Schätzerzahl und die Regulierungswerte mit einer fünffachen Validierung. In der Ergebnistabelle werden die abgeschlossenen Prüfungen nach dem gewählten Kriterium angeordnet."
+        },
+        {
+          "narration": "Suchinstellungen definieren den genauen Kandidatenraum, den Suchmodus, die Anzahl der Tests, Falten, zufällige Samen und das Optimierungskriterium. Schließen Sie es, nachdem Sie die Grenzen überprüft haben."
+        },
+        {
+          "narration": "Run validiert das Projekt und steuert die Kartierung, bereitet Funktionen vor, wendet Plattenkorrektur an, bewertet den Klassifikator, berechnet Wichtigkeit, zieht Zusammenfassungen und schreibt aktivierte Ausgänge. Stop-Anfragen für eine sichere Unterbrechung."
         }
       ]
     },
@@ -254,19 +560,70 @@
       "id": "12_map_barcodes",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Karten-Barcodes. Verknüpfen Sie Sequenzierungs-Barcodes und führen Sie die Identitäten an die in mikroskopischen Bildern gemessenen Phänotypen an."
+          "narration": "Karte Barcodes dekodieren Sequenzierung Lesen in Plattenpositionen und Führung Identitäten. Die Konsole berichtet über Probenentdeckung, Parser-Einstellungen, Lesezahlen, Batchfortschritt, Ausgangswege und Ausfälle."
         },
         {
-          "narration": "Öffnen Sie die Barcodes der Karte im Kernbereich. Bereitstellung von FASTQ-Dateien, Barcode-Definitionen, Plattenmetadaten und dem entsprechenden Mikroskopieprojekt."
+          "narration": "Die DNA-Taste öffnet die Live-Sequenzierung-Hintergrundsteuerung. Für dieses Tutorial ist die Sichtbarkeit auf 10 Prozent gesetzt, so dass die beweglichen Basen sichtbar bleiben, ohne mit Einstellungen oder Konsolentext zu konkurrieren."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich definieren Sie Zeilen-, Spalten- und Barcode-Layouts zusammen mit Qualitätsschwellen und Mischungsregeln."
+          "narration": "Das Chatfeld akzeptiert Fragen zum aktuellen Workflow. Aktivieren Sie die KI, einen ausgewählten Provider zu durchlaufen, und verwenden Sie den angrenzenden Pfeil, um das Providermenü zu öffnen."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. die Qualität der Sequenzierung und die Kartierungsraten vor der Annahme der fusionierten Aufgaben zu überprüfen."
+          "narration": "Anbieter melden, ob die Claude-, ChatGPT- und Gemini-Befehlszeilklienten installiert sind, und geben ihre Installations- und Login-Befehlszeilen an. Die Anmeldeinformationen bleiben bei jedem Verkäufer."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden die Guide-Identitäten mit Brunnen und Einobjekt-Phänotypen in nachverfolgbaren Tabellen verknüpft."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und den spaCR-bewussten System-Anruf."
+        },
+        {
+          "narration": "Ziehen Sie den Ordner der synthetischen Sequenzierung in die Karten-Barcodes. spaCR findet die kombinierten Demo-Dateien R1 und R2 FASTQ auf der oberen Ebene und setzt den Quellordner automatisch ein."
+        },
+        {
+          "narration": "Essentials zeigt die Quelle, den Paarungs- oder Einlesungsmodus, Barcode-Referenzen, das Parsierungsmuster und die Stücksteuerungen an, die für einen ersten Kartenlauf benötigt werden."
+        },
+        {
+          "narration": "Modifizierte Grenzwerte des Panels auf Werte, die sich von den Standardwerte unterscheiden, was bei der Prüfung eines für eine Bibliothek spezifischen Leselayouts oder einer Rechenwahl nützlich ist."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen jede Kategorie ohne Veränderung der Werte. Die fünf Kategorien trennen Inputs, Referenzen, Parsing, Ausgänge und Laufzeitzuverlässigkeit ab."
+        },
+        {
+          "narration": "Rezepte speichern die komplette Sequenzierungskonfiguration unter einem Namen, wenden sie später neu an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots mit den gelösten Map Barcodes-Einstellungen und senden Sie den Job in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartiert die Sequenzierung von Pfaden und Berechnungsressourcen zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Ausgang."
+        },
+        {
+          "narration": "Sequencing Input wählt den FASTQ-Ordner aus und bestimmt, ob R1 und R2 als Paar kombiniert werden oder ob eine Leserichtung alleine verarbeitet wird."
+        },
+        {
+          "narration": "Barcode References verweist auf drei CSV-Suchtabellen: eine für gRNA-Barcodes, eine für Plattenreihen und eine für Plattenkolumnen. Jede Tabelle benötigt Namen- und Sequenzspalten."
+        },
+        {
+          "narration": "Lesen Sie Parsing-Anker auf einer bekannten Zielsequenz, extrahieren Sie ein festes Fenster und wenden Sie einen regulären Ausdruck mit benannten ColumnID-, gRNA- und rowID-Gruppen an."
+        },
+        {
+          "narration": "Ausgang und Speicher steuert optionale HDF5-Lese-Speicher, Kompression und ob unvergleichliche Barcode-Namen als fehlende Werte aufbewahrt werden. Die zusammengefassten CSV-Ausgänge werden immer geschrieben."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeitssätze werden pro Stück gelesen, die Anzahl der Arbeiter und der Testmodus. Kleinere Stücke verwenden weniger Speicher; der Testmodus validiert das erste Stück vor einem großen Sequenzierungslauf."
+        },
+        {
+          "narration": "Diese synthetische Bibliothek verwendet ein 26-Basen-Ziel, startet acht Basen vor diesem Anker und extrahiert 89 Basen. Der Regex benennt dann die erfassten Spalte, Führer und Zeilensequenzen."
+        },
+        {
+          "narration": "Der Tutorial-Ordner enthält 4.800 Paarlesungen, die über 24 synthetische Brunnen und 12 Barcodes verteilt sind. Der Paired-Modus vergleicht R1 mit dem umgekehrten R2-Konsens."
+        },
+        {
+          "narration": "Run validiert Wege und Referenzen, entdeckt gepaarte Proben, zählt Lesungen und startet die Kartierung von Strichcodes. Stop-Anfragen um eine ordentliche Unterbrechung."
+        },
+        {
+          "narration": "Der Fortschrittsindikator und die Konsole zeigen die aktive Probe und die Anzahl der Chargen an. Diese Demonstration verarbeitet fünf Batches von 1.000 Lesungen oder weniger."
+        },
+        {
+          "narration": "Der erfolgreiche Run schreibt unique_combinations.csv mit Zeile, Spalte, Guide und Count, plus qc.csv mit Kartenqualitätsstatistiken. Es speichert auch reproduzierbare Einstellungen, ein Manifest und ein erneut laufbares Makro."
         }
       ]
     },
@@ -274,19 +631,73 @@
       "id": "13_regression",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Regression. Schätzung der Störungseffekte und Identifizierung von Merkmalen, die mit Fenotypen auf Leit- oder Zustandsebene verbunden sind."
+          "narration": "Regression verknüpft die Phänotypen pro Objekt mit der Fülle von pooled-screen-Guides. Die Konsole berichtet von Tabellenausrichtung, Filterung, Modeldiagnostik, Koeffizientenanpassung, Ergebnisbahnen, Plots und Reproduzierbarkeitsunterlagen."
         },
         {
-          "narration": "Offene Regression aus dem Kernbereich. Wählen Sie kartografierte Messungen, Reaktionsvariablen, Kontrollen, Gruppierungspalten und Kandidatenprädiktoren aus."
+          "narration": "Das Chatfeld akzeptiert Fragen zum aktuellen Workflow. Aktivieren Sie die KI, einen ausgewählten Provider zu durchlaufen, und verwenden Sie den angrenzenden Pfeil, um das Providermenü zu öffnen."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich Transformationen, Covariate, Modellfamilie, zufällige Effekte, Mehrfachtestkorrektur und Qualitätsfilter aus."
+          "narration": "Anbieter melden, ob die Claude-, ChatGPT- und Gemini-Befehlszeilklienten installiert sind, und geben ihre Installations- und Login-Befehlszeilen an. Die Anmeldeinformationen bleiben bei jedem Verkäufer."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. die Modeldiagnostik und das Kontrollverhalten vor der Interpretation von Koeffizienten überprüfen."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und den spaCR-bewussten System-Anruf."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, schreibt spaCR Effektgrößen, Unsicherheit, angepasste Bedeutung, Diagnose und Zahlen."
+          "narration": "Das synthetische Experiment liefert 384 Zell-Score-Zeilen und 384 Guide-Zähl-Zeilen aus 32 Brunnen, 12 Guides und vier Gene. Die entsprechenden Kennzeichen für Platten, Zeilen und Spalten werden den Tabellen angeschlossen."
+        },
+        {
+          "narration": "Essentials zeigt die Eingabetabellen, Plattensteuerungen, Regressionsfamilie, Reaktionsvariable, Mindestbeweise und Plot-Auswahl, die für einen ersten Lauf erforderlich sind."
+        },
+        {
+          "narration": "Modifizierte Grenzwerte beschränken das Panel auf Werte, die sich von den Standardwerten unterscheiden, wodurch Kontrollidentitäten, feste Schwellenwerte und absichtliche Modellwahlen leicht zu überprüfen sind."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen jede Kategorie ohne Veränderung der Werte. Die acht Kategorien trennen Eingabe, Design, Korrektur, Modellierung, Hit Calling, Plots und Runtime-Verhalten."
+        },
+        {
+          "narration": "Rezepte speichern die komplette Regressionskonfiguration unter einem Namen, wenden sie später neu an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Regression-Einstellungen und senden Sie den Job in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartiert die Eingabewege und Berechnungsressourcen zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Modelllauf."
+        },
+        {
+          "narration": "Input Tables wählt optionale Gen-Metadaten, pro Objekt oder pro Well-Fenotyp-Score und Sequenzierung von Zähltabellen aus. Mehrere Platten müssen nach Listeposition oder ausdrücklichen Plattenidentifikatoren ausgerichtet bleiben."
+        },
+        {
+          "narration": "Controls and Plate Design definiert die Platte, positive und negative Gene, neutrale Führungskontrollen, Steuerungsbrunnen und alle vor dem Anlegen ausgeschlossenen Reihen."
+        },
+        {
+          "narration": "Platten- und Batchkorrektur kann Platten-Offset mit Zentrierung, robuster Skalierung, Referenzsteuerung oder ComBat entfernen. Dieses Ein-Table-Tutorial lässt Korrektur aus."
+        },
+        {
+          "narration": "Modell und Covariates wählt die Regressionsfamilie, Reaktionsspalte, Aggregation und Transformation, Regularisierung, Kovariansschätzung und optionale Zeilen- oder Spalteffekte aus."
+        },
+        {
+          "narration": "Estimator Tuning enthält Parameter, die von elastischen Netz-, Quantile-, Huber-, Scharnier- und Bootstrap-Selektionsmodellen verwendet werden. Nur Kontrollen, die der ausgewählten Familie angehören, beeinflussen einen Lauf."
+        },
+        {
+          "narration": "Hit Calling and Outliers setzt die Mindestzell- und Brunnennachweise, das Guide-Fraktionsfiltern, die optionale Entfernung von Outlier und die von der Steuerung abgeleitete Schwelle des Koeffizienten fest."
+        },
+        {
+          "narration": "Regression Plots steuert das Vulkanziel, logarithmische Achsen und optionale Achsengrenzen. Diese Anzeigenauswahl ändert die angepassten Koeffizienten nicht."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeit kontrollieren strenge Fehler, tolerierte Ausfallraten, erneute Versuche, zufällige Samen und verbose Berichterstattung. Ein fester Samen unterstützt die Reproduzierbarkeit."
+        },
+        {
+          "narration": "In diesem Design ist das Gen 239740 die positive Kontrolle, 233460 die negative Kontrolle und drei 000000 Leitlinien definieren neutrales Verhalten. Die Spalten c1 bis c3 sind aus dem montierten Behandlungssatz ausgeschlossen."
+        },
+        {
+          "narration": "Run validiert Tabellschemata und Brunnenschlüssel, entfernt ausgeschlossenen Kontrollen, aggregiert Zellwerte, konvertiert Leitfaden zu Fraktionen, passt zu OLS-Koeffizienten, bewertet Beweise und schreibt Ergebnisse. Stop-Anfragen für eine sichere Unterbrechung."
+        },
+        {
+          "narration": "Während des Laufs berichtet die Konsole über 384 Punktzeilen, 384 Zählzeilen, Plattenausrichtung, behaltenen Beobachtungen und Modellfortschritt, während die Zahlen in der Galerie erscheinen."
+        },
+        {
+          "narration": "Der ausgefüllte Ablauf liefert Plattenumfassungen, Score- und Guide-Fraktions-Histogramme, diagnostische Abbildungen, Regression_data, Koeffiziententabellen nach Guide und Gen, Signifikanztabellen, gespeicherte Einstellungen, ein Manifest und ein erneut ausführbares Makro."
         }
       ]
     },
@@ -294,19 +705,52 @@
       "id": "14_make_masks",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Make Masks. Interaktiv konstruieren, korrigieren und kuratieren Sie Segmentierungsetiketten für Cellpose-Ausbildungsdaten."
+          "narration": "Make Masks ist der interaktive Editor von spaCR für die Korrektur von Segmentierungsetiketten und die Erstellung von Cellpose-Trainingpaaren. Öffnen Sie einen Ordner mit mikroskopischen Bildern; aus dem Unterordner Masken werden entsprechende Etiketten gelesen."
         },
         {
-          "narration": "Öffnen Sie Masken aus dem Modellbereich Segmentierung. Offene repräsentative Mikroskopiebilder und bestehende Masken, die verfeinert werden sollten."
+          "narration": "Diese isolierte Tutorialkopie enthält drei echte Notfallfelder. Die ersten beiden Lade ER-abgeleiteten Zelletiketten als farbige Überlagerungen; die dritte hat absichtlich keine vorhandene Maske."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich wählen Sie Kanäle, Normalisierung, Pinsel- oder Magiewandwerkzeuge, Objektoperationen und Etiketten-Sparverhalten aus."
+          "narration": "Die Tools-Karte gruppiert sechs Bearbeitungsmodi. Pinsel fügt den Vordergrund hinzu, Löschen entfernt Pixel, Löschen Objekt löscht ein Etikett, die beiden Wangen folgen der Bildintensität, und Zoom wählt eine detaillierte Region aus."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Korrigieren Sie Grenzen und fehlende Objekte über einen vielfältigen Trainingsuntersatz und nicht nur einfache Felder."
+          "narration": "Wählen Sie Brush aus und setzen Sie den Radius in Bildschirmpixeln ein. Ein Klick malt einen Fleck und eine schrittweise Ziehung verbindet eine Grenzkorrektur; der Schlüssel B wählt das gleiche Werkzeug aus."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, sind Paarbilder und kuratierte Etikettenmasken bereit für maßgeschneiderte Cellpose-Ausbildung."
+          "narration": "Das Löschen verwendet denselben verstellbaren Radius, um nur den gemalten Teil eines Etiketts zu entfernen. Dies ist nützlich, um eine falsche Brücke zu trennen und den Rest jeder Zelle zu erhalten."
+        },
+        {
+          "narration": "Löschen Objekt entfernt das vollständige gekennzeichnete Objekt mit einem Klick. Verwenden Sie es für einen eindeutigen falschen Positiv; Undo bleibt verfügbar, wenn das ausgewählte Objekt gültig war."
+        },
+        {
+          "narration": "Wand plus ergänzt eine intensitätsverknüpfte Region. Die Toleranz kontrolliert, inwieweit sich die Intensität vom geklickten ER-Pixel unterscheiden kann, während Max-Pixel eine zufällige Überschwemmung über das Feld verhindern."
+        },
+        {
+          "narration": "Wand minus folgt der gleichen Intensitätsregel, subtrahiert aber die verbundene Region. Passen Sie die Toleranz konservativ an und überprüfen Sie das Ergebnis, bevor Sie zu einem anderen Bild wechseln."
+        },
+        {
+          "narration": "Zoom zeichnet eine rechteckige Region und erweitert sie auf die Leinwand, wodurch die Zellgrenzen bei 4K leicht zu beurteilen sind. Zurücksetzen Sie Zoom oder drücken Sie Escape, um auf das volle Feld zurückzukehren."
+        },
+        {
+          "narration": "Normalisieren Sie nur den angezeigten Kontrast. Dieses ER-Feld verwendet die zweiten und neunundneunzigsten Punkte-Fünf-Perzentile, so dass schwache Grenzen sichtbar bleiben, ohne Bilddaten oder Etikettgeometrie zu ändern."
+        },
+        {
+          "narration": "Undo und Redo gehen unabhängig von Zoom und Kontrast durch Maskenbearbeitungen. Ihre Standard-Abkürzungen sind Control Z und Control Y, wobei Control Shift Z auch zur Wiederherstellung zur Verfügung steht."
+        },
+        {
+          "narration": "Objektoperationen können interne Löcher füllen, das angeschlossene Vordergrund neu kennzeichnen, Vordergrund und Hintergrund umkehren oder die Maske löschen. Clear bittet um Bestätigung, weil es jedes aktuelle Etikett entfernt."
+        },
+        {
+          "narration": "Die Mindestflächenoperation entfernt verbundene Objekte, die kleiner sind als die gewählte Pixelzahl. Hier macht zehntausend die Filterwirkung offensichtlich; wählen Sie eine biologisch angemessene Schwelle für Produktionsetiketten."
+        },
+        {
+          "narration": "Speichermaske umschriftet verknüpfte Komponenten und schreibt unter dem Quellbildstamm eine Uint16 TIFF zu Masken. Dieses Tutorial bearbeitet eine einzelne Kopie und lässt das ursprüngliche Experiment unverändert."
+        },
+        {
+          "narration": "Das vorherige Bild und das nächste Bild bewegen sich durch den Ordner in Dateinamenfolge. Die Statuszeile zeigt immer die aktuelle Datei und Position an, sodass jedes Trainingsfeld systematisch überprüft werden kann."
+        },
+        {
+          "narration": "Ein Bild ohne Begleitermaske öffnet sich mit null Etiketten. Beginnen Sie mit Brush oder Wand plus, überprüfen und reinigen Sie jedes Objekt und speichern Sie das neue Paar für benutzerdefiniertes Cellpose-Training."
         }
       ]
     },
@@ -314,19 +758,73 @@
       "id": "15_image_umap",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Image UMAP. Entdecken Sie Phänotypviertel, indem Sie gemessene Objekte einbinden und ihre Bildpflanzen als Glyphen anzeigen."
+          "narration": "Bild UMAP reduziert hochdimensionale Messungen pro Objekt auf zwei Koordinaten und stellt echte Mikroskopiepflanzen auf der Karte. Die Konsole erfasst Datenverbindungen, Vorverarbeitung, Einbettung von Fortschritten, Clustering, Plots und Ausgangswege."
         },
         {
-          "narration": "Öffnen Sie das Bild UMAP im Abschnitt Ergebnisse und Qualitätskontrolle. Wählen Sie eine Messdatenbank, Bildpflanzen, Feature-Set und Gruppenmetadaten aus."
+          "narration": "Das Chatfeld akzeptiert lokale Befehle und Workflow-Fragen. Ermöglichen Sie KI, sich durch einen konfigurierten Anbieter zu lenken, und verwenden Sie den Pfeil neben ihm, um den Anbieter zu wählen oder seine Kontrollen zu öffnen."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie Filter-, Skalierung-, Nachbar-, Mindeststrecke-, Cluster-, Probenahme- und Bildanzeigenkanäle."
+          "narration": "Anbieter überprüfen die Claude-, ChatGPT- und Gemini-Befehlszeilen und zeigen ihre Installations- und Login-Befehlszeiten an. Die Authentifizierung bleibt bei jedem Anbieter."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vergleichen Sie mehrere reproduzierbare Embeddings und überprüfen Sie, ob Cluster nicht durch Platten- oder Bildverarbeitungsgegenstände angetrieben werden."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und die spaCR-bewussten Systemanweisungen."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, speichert spaCR Koordinaten, Clusteretiketten, Bildkarten und veröffentlichungsbereite Embedding-Figuren."
+          "narration": "Die Quelle ist ein gemessenes Tutorialprojekt mit 455 Datenbankverknüpften Zellpflanzen. Dieser Probe nimmt 250 Objekte und verbindet Zell-, Zytoplasma-, Nukleus- und Krankheitserreger-Funktionstabellen."
+        },
+        {
+          "narration": "Die wesentlichen Angaben zeigen die Quelle, die Messtabellen, die Reduktionsmethode, die Zeilenkappe und die primäre Farbwahl, die für eine erste Karte erforderlich ist."
+        },
+        {
+          "narration": "Modifizierte Filter lassen das Panel auf absichtliche Abweichungen von Standardfunktionen zurückgreifen, wie zum Beispiel die kleinere Nachbarschaft, die praktische Zeilenkappe, die Glyphenzahl, die Opakzität des Displays und die gespeicherten Zahlen."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen acht Kategorien ohne Veränderung der Werte auf: Pfade, Messungen, Platten-Exklusionen, Einbettung, Planwahl, Laufzeit, Batchkorrektur und UMAP-Display."
+        },
+        {
+          "narration": "Recipes speichert die komplette Image UMAP-Konfiguration unter einem Namen, wendet sie auf ein anderes Projekt an oder importiert und exportiert eine Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Einstellungen und übertragen Sie den Image UMAP-Job in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartiert Projektwege und berechnet Ressourcen auf eine Remote-Arbeitsstation, einen Slurm-Cluster oder einen konfigurierten Befehl und übermittelt und überwacht dann den gleichen Embedding-Run."
+        },
+        {
+          "narration": "Paths wählt das gemessene Projekt aus. Image UMAP lokalisiert measurements.db und entweder bestehende Erntebilder oder fusionierte Arrays unter dieser Quelle."
+        },
+        {
+          "narration": "Messungen wählen verbundene Objekttabellen, einen kanalbasierten Feature-Filter, explizite Ausschlüsse und die Entfernung korrelierter Features. Diese Entscheidungen bestimmen die von der Karte dargestellte Geometrie."
+        },
+        {
+          "narration": "Platten-Layout und -Steuerungen bieten Regelungen zur Zeilen-Ausschluss bei fehlgeschlagenen Bohrungen, unerwünschten Steuerungen oder anderen Metadatenwerten, die nicht in diese Einbettung eingegeben werden sollten."
+        },
+        {
+          "narration": "Einbettung und Clustering wählt UMAP oder t-SNE, Nachbarschafts- und Entfernungsverhalten, optionale Log-Transformation, angezeigte Abteilung, Clustering-Methode, Lärmverarbeitung und Clusteranalyse aus."
+        },
+        {
+          "narration": "Die Graphie setzt die maximalen entnommenen Zeilen und eine optionale Metadatenkolonne fest, die für die Farbpunkte verwendet wird. Eine Zeilengrenze ist eine Obergrenze, so dass kleinere Datensätze gültig bleiben."
+        },
+        {
+          "narration": "Advanced wählt PNG- oder On-Demand-Nutzpflanzen aus verschmelzten Arrays aus, sowie die Anzahl der Arbeiter und die verbose Berichterstattung. Auto wählt eine verfügbare Erntequelle für die meisten Projekte aus."
+        },
+        {
+          "narration": "Platten- und Batchkorrektur kann Platten-Effekte zentrieren oder skalieren, Referenzsteuerungen verwenden oder ComBat anwenden, wenn seine biologische Covariate definiert ist. Dieses Ein-Table-Tutorial lässt Korrektur aus."
+        },
+        {
+          "narration": "UMAP Display steuert Punkt- und Umriss-Styling, Leinwandverhältnisse, Ernte-Zoom, Glyphenzahl, Cluster-Gitter, Hintergrund und Figur-Speicher ohne die angepassten Koordinaten zu ändern."
+        },
+        {
+          "narration": "Dieses Beispiel verwendet UMAP mit 15 Nachbarn, minimale Entfernung 0,1, euklidische Entfernung und DBSCAN mit Epsilon 0,85 und fünf minimale Proben. Clusterstatistiken bleiben ausgeschlossen, weil die kleine Untermenge eine Gruppe bildet."
+        },
+        {
+          "narration": "Run validiert die Projektdatenbank und die Ernte, verbindet Messtabellen, filtert numerische Merkmale, Probenreihen, passt den Reduktor und Cluster, liefert Zahlen und schreibt ausgerichtete Ergebnisregister. Stop-Anfragen für eine sichere Unterbrechung."
+        },
+        {
+          "narration": "Während der Montage berichtet die Konsole über die Auswahl der Erntequelle, die Entfernung unbrauchbarer Spalten, den Bau der nächstgelegenen Nachbarschaft, 500 Optimierungsphasen und die endgültige 250x2-Embedding-Form."
+        },
+        {
+          "narration": "Die vollendete Galerie zeigt die mikroskopische Glyphkarte und das Clusterpflanzgitter. Das Projekt erhält auch embedding_results.csv, Embedding- und Grid-PDF-Dateien, gespeicherte Einstellungen, ein Reproduzierbarkeitsmanifest und ein erneut laufbares Makro."
         }
       ]
     },
@@ -334,19 +832,67 @@
       "id": "16_activation",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Aktivierungskarten. Überprüfen Sie die Bildregionen, die einen ausgebildeten Computer-Vision-Klassifikator am meisten beeinflussen."
+          "narration": "Aktivationskarten fragen, welche Bildregionen die Vorhersage eines ausgebildeten Sehmodells beeinflussen. Die Konsole erfasst das Laden von Artefakten, Attributionspartien, Kartengitter, Fortschritt, Ausgangswege und Wiedergabearten."
         },
         {
-          "narration": "Öffnen Sie Aktivierungskarten aus dem Abschnitt Ergebnisse und Qualitätskontrolle. Wählen Sie ein ausgebildetes Vision-Modell und repräsentative Objektpflanzen aus Interessenklassen aus."
+          "narration": "Das Chatfeld akzeptiert lokale Befehle oder Workflow-Fragen. Aktivieren Sie KI für einen konfigurierten Anbieter und verwenden Sie den angrenzenden Pfeil, um einen Anbieter zu wählen oder seine Kontrollen zu öffnen."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich die Attributionsmethode, die Ziel-Schicht, die Zielklasse, die Kanäle, die Normalisierung und die Probenahme aus."
+          "narration": "Anbieter überprüfen die Claude-, ChatGPT- und Gemini-Befehlszeilklienten und zeigen Installations- und Login-Befehlen an, während die Authentifizierung bei jedem Anbieter aufrechterhalten wird."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vergleichen Sie Karten mit richtigen, falschen, hoch vertrauenswürdigen und niedrig vertrauenswürdigen Beispielen."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und die spaCR-bewussten Systemanweisungen."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, helfen Aktivierungsüberlagerungen und Attributionsmessungen zu beurteilen, ob das Modell biologisch plausible Hinweise gelernt hat."
+          "narration": "Dieses Tutorial führt acht echte Zellpflanzen durch ein deterministisches, aber ungeschultes Demonstrationsartefakt von ResNet. Es beweist nur die Schnittstelle und den Dateifluss; seine Karten dürfen nicht als gelernte Biologie interpretiert werden."
+        },
+        {
+          "narration": "Essentials zeigt das Pflanzenarchiv, Modellartefakt, Architektur, Eingabegröße, Attributionsmethode, Zielschicht, Überlagerung und Speicheroptionen an, die für einen Lauf erforderlich sind."
+        },
+        {
+          "narration": "Modified begrenzt das Panel auf absichtliche Änderungen wie ResNet achtzehn, Bild-Ausstrahlung, eine Vier-Bild-Batch, deterministische Reihenfolge, Planung und deaktivierte Datenbank schreibt."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen sechs Kategorien: Modell und Daten, Attributionsmethode, Validierung, Anzeige, Quantifizierung und Ausgangslaufzeit."
+        },
+        {
+          "narration": "Rezepte speichern die komplette Aktivierungskartenkonfiguration, wenden sie später neu an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Einstellungen und senden Sie den Attributionsjob in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartiert Modell, Datensatz und Ausgangswege zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Ausgang."
+        },
+        {
+          "narration": "Modell und Daten wählen das TAR-Archiv der Ernte, geschultes Modellartefakt, passende Architektur, Eingabegröße, Objekttyp und Kanalordnung aus. Ein Missverhältnis hier macht jede Karte ungültig."
+        },
+        {
+          "narration": "Die Attributionsmethode wählt Grad-CAM, Ausstrahlung, integrierte Gradienten, Occlusion oder eine andere registrierte Methode sowie die Ziel-Schicht und die methodenspezifischen Probenahmeparameter aus."
+        },
+        {
+          "narration": "Attribution Validation steuert Lösch- und Einfügungsschritte, Basiskonstruktion und Modell-Randomisierungsgesundheitskontrollen. Eine Karte, die randomisierte Gewichte überlebt, kann nur ein Randdetektor sein."
+        },
+        {
+          "narration": "Map Display steuert Perzentile-Kontrast, Training-matched-Input-Normalisierung, Quelle-Bild-Overlays und Batch-Grid-Plots. Änderungen an der Anzeige geben keinen Beweis für die Gültigkeit des Modells."
+        },
+        {
+          "narration": "Die Kartenquantifizierung kann jeden Eingangskanal mit der Attributionskarte mithilfe von Pearson- und Manders-Statistiken korrelieren. Ermöglicht die Speicherung, wenn diese Werte in die Projektdatenbank geschrieben werden sollten."
+        },
+        {
+          "narration": "Output und Runtime steuern die Kartenspeicherung, die deterministische oder gemischte Reihenfolge, die Batchgröße und die Laderarbeiter. Verringern Sie die Batchgröße, wenn der Beschleunigungsspeicher begrenzt ist."
+        },
+        {
+          "narration": "Diese Schnittstellen-Demonstration wählt die Bild-Ausstrahlung aus, die keine Zielschicht benötigt. Grad-CAM-Methoden erfordern eine kompatible Konvolutionsschicht; integrierte Gradienten und Okklusion verwenden ihre eigenen Schritt-, Basis-, Fenster- und Schrittsteuerungen."
+        },
+        {
+          "narration": "Run validiert den Datensatz und das Modell-Artefact, erstellt eine training-kompatible Vorverarbeitung, berechnet Vorhersagen und Attributionskarten in Chargen, rendert die angeforderten Grids und registriert den Lauf. Stop-Anfragen für eine sichere Unterbrechung."
+        },
+        {
+          "narration": "Während der Verarbeitung berichtet die Konsole von Batch-Grid-Pfaden, abgeschlossenen Bildern, Zeit pro Batch, Zeit pro Bild und geschätzte Restzeit."
+        },
+        {
+          "narration": "Die abgeschlossene Demonstration erzeugte zwei wirkliche PDF-PDF-Dateien mit Schwerpunktüberlagerung und eine erfolgreiche Reproduzierbarkeit. Ersetzen Sie das nicht ausgebildete Artefakt durch einen validierten Klassifikator, bevor Sie aus diesen Ergebnissen biologische Schlussfolgerungen ziehen."
         }
       ]
     },
@@ -354,19 +900,88 @@
       "id": "17_timelapse",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Timelapse. Segmentieren, verknüpfen und messen Sie Zellen oder Krankheitserreger über die Rahmen einer Zeitserie."
+          "narration": "Timelapse segmentiert jeden Rahmen und verbindet die ausgewählten Objekte in stabile Strecken. Die Konsole erfasst die Vorverarbeitung, Masken, Trackingversuche, Qualitätskontrolle, Filme, zusammengesetzte Arrays und Reproduzierbarkeitsdateien."
         },
         {
-          "narration": "Öffnen Sie Timelapse aus dem Kernbereich. Wählen Sie einen zeitlich aufgelösten Bildsatz aus, dessen Dateinamen die Feld-, Zeit-, Tiefe- und Kanalindex erhalten."
+          "narration": "Das Chatfeld akzeptiert lokale Befehle oder Workflow-Fragen. Aktivieren Sie KI für einen konfigurierten Anbieter und verwenden Sie den angrenzenden Pfeil, um einen Anbieter zu wählen oder seine Kontrollen zu öffnen."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie Segmentierung, verfolgte Objekttypen, Verknüpfungsmodus, maximale Verschiebung, Lückenbehandlung und Vorschaurahmen."
+          "narration": "Anbieter überprüfen die Claude-, ChatGPT- und Gemini-Befehlszeilklienten und zeigen Installations- und Login-Befehlen an, während die Authentifizierung bei jedem Anbieter bleibt."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Bevor die gesamte Zeitserie verarbeitet wird, validieren sie Spuren auf repräsentativer Bewegung."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und die spaCR-bewussten Systemanweisungen."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden zeitlich indexierte Masken, Spuren, Messungen und Flugbahnüberschriften mit stabilen Objektidentitäten gespeichert."
+          "narration": "Diese deterministische synthetische Quelle enthält ein Feld über acht Zeitpunkte. Kanal Null enthält Kerne, Kanal eins enthält Zell- und ER-Signal, und CellVoyager-Stil-Dateinamen bewahren die Platte, die Zeit, das Feld, die Tiefe und die Kanalindizes."
+        },
+        {
+          "narration": "Essentials zeigt die Quelle, Kanalrollen, Namenskonvention, Normalisierung, Segmentierungsmodelle, zu verfolgen Objekte, Rahmenbereich, Tracker, Plots und Ausgabeoptionen an, die für einen ersten Lauf benötigt werden."
+        },
+        {
+          "narration": "Modifizierte Beschränkungen des Panels auf vorsätzliche Änderungen, einschließlich der Kanäle Null und Eins, der Acht-Frame-Bereich, der Zellverfolgung, dem eingebauten Kreuzungs-über-Vereinigungs-Linker, einem Frame pro Sekunde und konservativen Laufzeit-Optionen."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen dreizehn Kategorien ohne veränderte Werte: Eingaben, Akquisitionssachsen, Vorverarbeitung, vier Segmentierungsgruppen, Qualitätskontrolle, Tracking-Setup und Backends, Diagnostik, Ausgabe und Laufzeit."
+        },
+        {
+          "narration": "Rezepte speichern die komplette Timelapse-Konfiguration unter einem Namen, wenden sie an ein anderes Experiment oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Einstellungen und senden Sie den Segmentierungs- und Tracking-Job in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartografiert die Quell- und Ausgangswege zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Timelapse-Run."
+        },
+        {
+          "narration": "Input and Metadata wählt den Bildordner aus, stellt jedem erworbenen Kanal einen Objekttyp zu und definiert, wie spaCR experimentelle Identifikatoren aus Dateinamen analysiert."
+        },
+        {
+          "narration": "Erwerb und Achsen beschreibt Vergrößerung und optionale volumetrische oder zeitlich-achsige Layouts. Normaler Bilddateien pro Rahmen halten die fortschrittlichen Stack-Steuerungen deaktiviert."
+        },
+        {
+          "narration": "Bildvorbearbeitung steuert die Perzentilennormalisierung, Hintergrundbehandlung, Verkürzung, Umgrößerung und Zwischenarrays. Verwenden Sie eine konsequente Transformation über jeden Rahmen, um künstliche zeitliche Veränderungen zu vermeiden."
+        },
+        {
+          "narration": "Die Zellsegmentierung wählt das Zellmodell, den erwarteten Durchmesser, die Wahrscheinlichkeits- und Durchflussschwellen sowie die optionale Größe, Intensität, Grenze, Verschmelzung und Split-Filter aus."
+        },
+        {
+          "narration": "Kernsegmentierung bietet die gleichwertigen Kontrollen für Kanal Null. Kernmasken können auch dann exportiert werden, wenn nur Zellen über die Rahmen verknüpft sind."
+        },
+        {
+          "narration": "Pathogen Segmentation ist verfügbar, wenn ein Pathogenkanal zugewiesen wird. Diese zwei-Kanal-Demonstration lässt sie unbestimmt, so dass keine Krankheitserregermasken oder Spuren angefordert werden."
+        },
+        {
+          "narration": "Organelle Segmentation unterstützt Spot-, Netz-, Ring-, Irregulär-, Cellpose- und U-Net-Workflows, wenn ein Organelle-Kanal zugewiesen wird. Es ist für dieses Beispiel nicht aktiv."
+        },
+        {
+          "narration": "Die Qualitätskontrolle vergleicht die Anzahl der Objekte, die Größe, den Grenzkontakt, die Vordergrunddeckung, das Split-Verhalten und die Fehlerraten auf Plattenebene. Der Berichtsmodus erfasst Warnungen, ohne die Zeitreihen schweigend abzulehnen."
+        },
+        {
+          "narration": "Tracking Setup wählt aus, welche segmentierten Objekte miteinander verknüpft sind, den Rahmen, ob kurzlebige Spuren entfernt werden und die Wiedergaberate der exportierten Filme."
+        },
+        {
+          "narration": "Tracking Backends bietet Trackastra, Ultrack, Trackpy, Cross-over-Union und btrack mit backend-spezifischen Link-, Verlagerungs-, Speicher-, Division- und Arbeitersteuerungen. Diese Demonstration verwendet Kreuzung über Vereinigung."
+        },
+        {
+          "narration": "Visualisierung und Diagnostik steuert Farbkarten, Beispielpläne, Plot-Normalisierung und das für die Inspektion von Segmentierung und Tracking-Verhalten verwendete Bildkanvas."
+        },
+        {
+          "narration": "Ausgabe- und Speichersteuerung kombinierte Arrays, Masken, pro Kanal Filme, Tracked-Mask-Animationen, Kompression und Aufbewahrung von Zwischen- oder Originaldateien."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeit steuern Testmodus, Batching, Arbeiter, reproduzierbare Reihenfolge, Wiederaufnahme, Trockenläufe, Verbosität und Ausfallpolitik. Beginnen Sie mit einem repräsentativen Feld, bevor Sie sich ausbauen."
+        },
+        {
+          "narration": "Dieses Beispiel verfolgt Zellen über Rahmenindizes von Null bis sieben, hält Übergangsspuren für die Inspektion, exportiert Filme mit einem Rahmen pro Sekunde und lässt die Kernmasken unverknüpft."
+        },
+        {
+          "narration": "Run validiert Dateinamen und Kanäle, gruppiert Frames, normalisiert die Sequenz, segmentiert jedes angeforderte Objekt, verknüpft Zellmasken, berechnet Qualitätskontrolle, schreibt Filme und fusionierte Arrays und registriert Reproduzierbarkeit. Stop-Anfragen für eine sichere Unterbrechung."
+        },
+        {
+          "narration": "Während der Verarbeitung meldet die Konsole Cellpose-Start, gelöste Einstellungen, Fortschritt pro Frame, Verfolgung des Suchverhaltens, Objektfilter, verbleibende Zeit und Ausgangswege."
+        },
+        {
+          "narration": "Der vollendete Lauf verknüpfte 16 Zellen über alle acht Bilder, entfernte keine Übergangsobjekte, übernahm die Zell- und Kernqualitätskontrolle ohne Warnungen oder Ausfälle, schrieb verfolgte Filme und acht fusionierte Arrays und speicherte einen erfolgreichen 26-Sekunden-Laufrekord."
         }
       ]
     },
@@ -374,19 +989,76 @@
       "id": "18_motility",
       "scenes": [
         {
-          "narration": "Dieses Tutorial deckt den Motility-Assay ab. Quantifizieren Sie Geschwindigkeit, Verschiebung, Persistenz und Infektionsqualitätskontrollemetriken aus zeitlich gelösten Bildern."
+          "narration": "Motility Assay baut Messungen aus verfolgten fusionierten Arrays wieder auf, berechnet Verschiebung, Geschwindigkeit, Pfadlänge und Geradenheit und vergleicht Flugbahnen nach Infektionszustand. Die Konsole erfasst jede abgeleitete Tabelle und jede Abbildung."
         },
         {
-          "narration": "Öffnen Sie die Motilität im Kernbereich. Öffnen von verfolgten Timelapse-Daten mit zuverlässigen Zeitintervallen und räumlicher Kalibrierung."
+          "narration": "Das Chatfeld akzeptiert lokale Befehle oder Workflow-Fragen. Aktivieren Sie KI für einen konfigurierten Anbieter und verwenden Sie den angrenzenden Pfeil, um einen Anbieter zu wählen oder seine Kontrollen zu öffnen."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich Spurfilter, Mindestdauer, Ausgleiten, Bewegungsmethriken, Infektionsdefinitionen und Gruppen auf gutem Niveau aus."
+          "narration": "Anbieter überprüfen die Claude-, ChatGPT- und Gemini-Befehlszeilklienten und zeigen ihre Installations- und Login-Befehlszeilen an, während die Authentifizierung bei jedem Anbieter bleibt."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Überprüfungsvorführungen der Strecke und ausschließt gebrochene, stationäre oder unwahrscheinliche Spuren."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und die spaCR-bewussten Systemanweisungen."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, schreibt spaCR pro Strecke und pro Bedingung Mobilitätstabellen, Qualitätsmetriken und Zahlen."
+          "narration": "Diese synthetische Quelle enthält acht verfolgte Rahmen mit Kernen im Kanal Null, Zellen im Kanal eins und Krankheitserregern im Kanal zwei. Sechzehn Zellspuren und zwanzig Krankheitserregermasken pro Rahmen stellen ein vollständiges Testbeispiel dar."
+        },
+        {
+          "narration": "Essentials zeigt das verfolgte Objekt, die Kanalkarte, Sekunden pro Bild, Pixel pro Mikrometer, Verschiebungsfilter, Infektionsstrategie, Plotlimits, Datenbanktabelle und die Anzahl der Arbeiter, die für eine erste Analyse erforderlich sind."
+        },
+        {
+          "narration": "Die Modifizierung beschränkt das Panel auf vorsätzliche Änderungen, darunter das Drei-Kanal-Layout, ein Sekunden-Frame, ein Pixel pro Mikrometer, maskenbasierte Infektionsetiketten, symmetrische Plot-Limits und ein Arbeiter."
+        },
+        {
+          "narration": "Alle Einstellungen decken neun Kategorien auf: Objekte und Kanäle, Kalibrierung, Bewegungsgefilterung, Infektionsklassifizierung, XGBoost, Clustering, Embedding-Suche, Plots und Qualitätskontrolle und Laufzeit."
+        },
+        {
+          "narration": "Rezepte speichern die komplette Motility Assay-Konfiguration unter einem Namen, wenden sie an ein anderes Experiment oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Einstellungen und senden Sie die Mess- und Trajektorie-Aufgabe in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartografiert die verfolgten Quell- und Ausgangswege zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann denselben Assay."
+        },
+        {
+          "narration": "Objekte und Kanäle wählen die verfolgte Quelle, das Objekt, dessen Bewegung gemessen wird, und die Übernahmekanäle, die das Zell-, Kern- und Krankheitserreger-Signal tragen. Eine falsche Kartierung macht sowohl die Intensität als auch die Infektionsergebnisse ungültig."
+        },
+        {
+          "narration": "Die räumliche und zeitliche Kalibrierung liefert Sekunden pro Bild und Pixel pro Mikrometer. Diese beiden Werte konvertieren die Pixelverschiebung in physische Geschwindigkeit, so dass ein konstantes Fehler hier jede gemeldete Geschwindigkeit skaliert."
+        },
+        {
+          "narration": "Motion Filtering schließt unwahrscheinliche Frame-to-Frame-Sprungen, optionale hoch gerade Artefakte und durch eine Z-Score-Schwelle identifizierte Merkmal- oder Geschwindigkeitsunterschiede aus."
+        },
+        {
+          "narration": "Die Infektionsklassifizierung beginnt mit einer Überlagerung von Krankheitserregern und Masken und kann Optional Spuren mit einer auf Intensität basierenden Qualitätskontrolle neu kennzeichnen oder entfernen. Das Tutorial behält die direkten Maskenetiketten."
+        },
+        {
+          "narration": "Das XGBoost-Infektionsmodell konfiguriert einen überwachten Intensitätsklassifikator, seine Baumtiefe und Lernrate, die Wahrscheinlichkeitsschwelle, das Zweideutigkeitsband, die Klassengröße-Anforderung und den Merkmalwichtigkeitsbericht."
+        },
+        {
+          "narration": "Infektionsclustering kontrolliert die unüberwachte Intensitätstrennung, die Gewichtung des Krankheitserreger-Kanals, die Clusterzahl, die zufällige Samenzahl, die Probenkappe und die Mindestsilhouette- und Grundwahrheitstrennung."
+        },
+        {
+          "narration": "Einbettung von Such-Tunes UMAP oder t-SNE Nachbarschaft, Entfernung, Verwirrung und Lernrate-Gitter, wenn Infektionsintensität in einer niedrigeren Einbettung getrennt ist."
+        },
+        {
+          "narration": "Motility Plots und QC setzen Flugbahn-Achse-Grenzen und ermöglichen kombinierte Intensität, Position, Geschwindigkeit und Infektionsdiagnose-Panels, ohne die zugrunde liegenden Messungen zu ändern."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeit steuern parallele Arbeiter. Verwenden Sie einen Arbeiter für eine kleine Validierungsquelle, dann skalieren Sie erst nach Bestätigung der Kanalkartierung, Kalibrierung und Spurqualität."
+        },
+        {
+          "narration": "Die Demonstration verwendet eine Sekunde pro Rahmen und ein Pixel pro Mikrometer. Wenn beide Werte gleich einer sind, wird jedes gemessene Pixel pro Bild direkt konvertiert, bevor der Bericht die Geschwindigkeit pro Minute ausdrückt."
+        },
+        {
+          "narration": "Run liest jeden zusammengesetzten Rahmen, misst Zelle, Kern, Zytoplasma, Krankheitserreger und Kanalintensität, schlichtet Spuren, zugeordnet Infektionsstatus, berechnet Geschwindigkeitssummen und Korrelationen und speichert Datenbanktabellen und -zahlen. Stop-Anfragen für eine sichere Unterbrechung."
+        },
+        {
+          "narration": "Während der Verarbeitung berichtet die Konsole über fusionierte Array-Formen, gemessene Objekte und Rahmen, Glatterungsergebnisse, infizierte und uninfizierte Spurenzahlungen, Geschwindigkeits-Einheiten und jeden Ausgangsweg."
+        },
+        {
+          "narration": "Die abgeschlossenen Tests lieferten 128 Rahmen-Einschätzungen aus 16 Strecken, klassifizierten 12 Strecken als infiziert und vier als nicht infiziert, berechneten Geschwindigkeiten in Mikrometern pro Minute und speicherten Messtabellen, Korrelationen und ein Bewegungspanel pro Brunnen."
         }
       ]
     },
@@ -394,19 +1066,64 @@
       "id": "19_train_cellpose",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Train Cellpose. Trainieren Sie ein maßgeschneidertes Cellpose- oder CPSAM-kompatibles Segmentierungsmodell aus kuratierten Bildmaskenpaaren."
+          "narration": "Train Cellpose passt ein CPSAM-Segmentierungsmodell aus gekoppelten Mikroskopiebildern und Instanz-Label-Masken auf. Die Konsole berichtet über die ausgewählten Daten, den Trainingsfortschritt, den Checkpoint-Pfad und die Reproduzierbarkeit."
         },
         {
-          "narration": "Öffnen Sie Cellpose aus dem Abschnitt Modellsegmentierung. Bereitstellung vielfältiger Trainings- und Validierungsbilder mit sorgfältig korrigierten Etikettenmasken."
+          "narration": "Das Chatfeld akzeptiert lokale Workflow-Fragen. Aktivieren Sie KI für einen konfigurierten Anbieter und verwenden Sie den angrenzenden Pfeil, um einen Anbieter auszuwählen oder seine Kontrollen zu öffnen."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich Kanäle, Basismodell, Durchmesser, Vergrößerung, Lernrate, Epochen, Batchgröße und Validierungsspaltung aus."
+          "narration": "Anbieter überprüfen die Claude-, ChatGPT- und Gemini-Befehlszeilen und zeigen ihre Installations- und Login-Befehlszeiten an. Die Authentifizierung bleibt bei jedem Anbieter."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Überwachung von Ausbildungs- und Validierungsverlusten sowie Prüfkontrollpunkte auf Feldern, die nicht für die Ausbildung verwendet wurden."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und die spaCR-bewussten Systemanweisungen."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden der ausgewählte Checkpoint, die Trainingsgeschichte, die Validierungsvorhersagen und die Einstellungen zusammen gespeichert."
+          "narration": "Lassen Sie die Datensatzwurzel fallen, die Zug, Bilder und Zug, Masken enthält. Jede Paare besteht aus entsprechenden TIFF-Dateinamen. Diese Demonstration bezieht sechs fünfhundert zwölf Pixel-Zellfelder aus dem echten Tutorial-Experiment ab; Produktionsetiketten müssen unabhängig überprüft werden."
+        },
+        {
+          "narration": "Essentials hält die Startgewichte, den Modellnamen, die Epochenzahl, die Lernrate, die Bildzielgröße und die Verbose-Ausgabe für einen ersten Kalibrierungslauf sichtbar."
+        },
+        {
+          "narration": "Die Änderung beschränkt das Panel auf absichtliche Änderungen. Hier, eine Epoche, eine Punkt-Null-One-Lernrate, Batch-Größe zwei, Umgrößerung und ein zweihundertfünfzig-sechs-Pixel-Ziel halten das Tutorial schnell und reproduzierbar."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen fünf Kategorien an: Startpunkt, Trainingsplan, Bildgeometrie, Hintergrund und Verweigerung und Ausgabe und Laufzeit."
+        },
+        {
+          "narration": "Rezepte speichern die komplette Trainingskonfiguration unter einem Namen, wenden sie auf einen anderen annoterten Datensatz an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Trainingsinstellungen und senden Sie die Passform in den Distributed Jobs-Arbeitsraum, was nützlich ist, wenn CPSAM-Training auf einer größeren GPU gehört."
+        },
+        {
+          "narration": "Distributed Jobs kartografiert den Datensatz und die Ausgangswege zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Trainingslauf."
+        },
+        {
+          "narration": "Startpunkt wählt CPSAM, Fein-Tuning oder Training von Grund auf und den Checkpoint-Namen. Vorgeübte Gewichte benötigen in der Regel viel weniger überprüfte Bilder als ein zufälliger Start."
+        },
+        {
+          "narration": "Das Trainingsprogramm setzt Epochen, Lernrate, Gewichtsverlust, Minibatchgröße und Augmentation fest. Erweitern Sie die Ausbildung erst, wenn die Eingabepaare und die ausgehaltenen Evaluierungsstrategien korrekt sind."
+        },
+        {
+          "narration": "Die Bildgeometrie erfasst die Quelldimensionen, die Zielgröße, den erwarteten Objektdurchmesser und ob Paare vergrößert werden. Bilder und Masken werden zusammen verwandelt, wobei die Kennzeichen erhalten bleiben."
+        },
+        {
+          "narration": "Hintergrund und Verweigerung kontrollieren die optionelle Hintergrundentfernung, den Intensitätsboden und das Signal-to-Noise-Screening, das vor dem Training der Bilder angewendet wird."
+        },
+        {
+          "narration": "Output- und Runtime-Kontrollen sind Verbot der Fortschrittsberichterstattung. Der Modell-Checkpoint und seine Einstellungen werden unter Modellen gespeichert, Cellpose-Modell innerhalb der gestürzten Datensatzwurzel."
+        },
+        {
+          "narration": "Für diese Kalibrierung verarbeiten eine Epoche und Batchgröße zwei alle sechs annoterten Felder ohne Erhöhung. Eine echte Anpassung sollte ausreichend Epochen und Bildvielfalt nutzen, um sich zu konvergieren, ohne das Trainingsprogramm auswendig zu lernen."
+        },
+        {
+          "narration": "Run validiert entsprechende Dateinamen, lädt jedes annoterte Bild auf, präsentiert eine begrenzte Stichprobe und feintunioniert das Modell. Stop verlangt eine sichere Unterbrechung, während die aktuelle Batch abgeschlossen ist."
+        },
+        {
+          "narration": "Während der Verarbeitung präsentiert das Figurenpaneel jedes Mikroskopiefeld über seiner Instanzmaske, während die Konsole sechs Patches, sechs Quellenanmerkungen, eine Epoche und Minibatch-Größe zwei berichtet."
+        },
+        {
+          "narration": "Die Kalibrierung ist erfolgreich abgeschlossen. spaCR hat den CPSAM-Checkpoint, die Einstellungen CSV, das Run-Manifest und den Makro-Register gespeichert, und die Paarungs-Feld-Vorsicht bestätigt, dass Bild- und Etikettdateien ausgerichtet blieben."
         }
       ]
     },
@@ -414,19 +1131,67 @@
       "id": "20_cellpose_masks",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Cellpose Masken. Generieren und überprüfen Sie Cellpose-Masken mit einem fokussierten Modell-Anwendungs-Workflow."
+          "narration": "Cellpose Masks wendet ein Bestands-CPSAM-Modell oder einen benutzerdefinierten Kontrollpunkt auf mikroskopische Bilder an und schreibt pro Feld eine Instanz-Labelmaske. Die Konsole erfasst die Modelllösung, Normalisierung, Fortschritt und Ausgangswege."
         },
         {
-          "narration": "Öffnen Sie Cellpose Masken aus dem Abschnitt Segmentierungsmodelle. Wählen Sie Mikroskopiebilder, Kanäle und ein eingebautes oder benutzerdefiniertes Cellpose-Modell aus."
+          "narration": "Das Chatfeld akzeptiert lokale Workflow-Fragen. Aktivieren Sie KI für einen konfigurierten Anbieter und verwenden Sie den angrenzenden Pfeil, um einen Anbieter auszuwählen oder seine Kontrollen zu öffnen."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie Durchmesser, Durchfluss- und Zellwahrscheinlichkeitsschwellen, Normalisierung, Fliesen und Hardwareverwendung."
+          "narration": "Anbieter überprüfen die Claude-, ChatGPT- und Gemini-Befehlszeilklienten und zeigen ihre Installations- und Login-Befehlszeilen an, während die Authentifizierung bei jedem Anbieter bleibt."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Viele repräsentative Felder sind vor der Anwendung des Modells auf die vollständige Quelle vorzulesen."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und die spaCR-bewussten Systemanweisungen."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden Etikettenmasken und visuelle Qualitätskontrollebilder neben den geplanten Eingaben geschrieben."
+          "narration": "Lassen Sie den Ordner mit TIFF-Feldern fallen. Diese Quelle enthält sechs echte ER-Kanal-Zellpflanzen, normalisiert zwischen Perzentilen zwei und neunundneunzig Punkt fünf. Kanal Null wählt die einzelne Ebene in jedem TIFF aus."
+        },
+        {
+          "narration": "Essentials hält die Quelle, Kanäle, Normalisierung, Modell, benutzerdefinierte Checkpoint, Durchmesser, Wahrscheinlichkeit und Fluss Schwellenwerte, Speicher Schalter, Batchgröße und verbose Vorschau sichtbar."
+        },
+        {
+          "narration": "Modified isoliert den benutzerdefinierten Checkpoint dieses Laufs, die Perzentilennormalisierung, die Batchgröße zwei, die Speicherung und die verbose Figur-Ausgabe von unveränderten Standardfunktionen."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen sechs Kategorien: Eingabe und Kanäle, Modell, Erkennungsschwellen, Bildgeometrie, Hintergrund und Verweigerung und Ausgabe und Laufzeit."
+        },
+        {
+          "narration": "Rezepte speichern die komplette Schlussfolgerungskonfiguration, wenden sie in einen anderen Bildordner an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots des gelösten Modells, der Quelle und der Schwellenwerte und senden Sie den Segmentierungsjob in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartografiert das Bild, das Modell und die Ausgangswege zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Ausgang."
+        },
+        {
+          "narration": "Input and Channels wählt den Bildordner, die Flächen, den Griff mit der Grauzkala, die Inversion, die Normalisierung und die Perzentile aus. Ein falscher Kanalindex lässt ein gültiges Modell scheinen, nichts zu erkennen."
+        },
+        {
+          "narration": "Das Modell wählt verpackte CPSAM-Gewichte oder einen benutzerdefinierten Kontrollpunkt aus und liefert den erwarteten Objektdurchmesser. Der benutzerdefinierte Checkpoint aus dem vorherigen Tutorial hat hier Priorität."
+        },
+        {
+          "narration": "Die Detektionsschwellen steuern den Zellwahrscheinlichkeitsgrund, die Strömungsvereinbarung, die Umskalierung, die Umprobung und die Löcherfüllung. Passen Sie diese nur nach Überprüfung des richtigen Bildes und Modells an."
+        },
+        {
+          "narration": "Die Bildgeometrie vergrößert die Felder vor der Schlussfolgerung optional und stellt die Masken in die ursprünglichen Abmessungen zurück. Halten Sie das Bildverhältnis und die Pixel-Skala im Einklang mit dem Training."
+        },
+        {
+          "narration": "Hintergrund und Verweigerung gelten vor der Segmentierung optionale Hintergrundentfernung, ein Intensitätsboden und ein Signal-to-Noise-Bildschirm."
+        },
+        {
+          "narration": "Output und Runtime steuern die Masken-Sparung, die Ableitung von Batchgrößen und verborgene Zahlen. Reduzieren Sie die Batchgröße, wenn die Modell-Inferenz den GPU-Speicher erschöpft."
+        },
+        {
+          "narration": "Dieser Lauf behält eine Wahrscheinlichkeitsschwelle von Null, die Flussschwelle Null Punkt vier, kein Umschalten oder Umproben und füllt innere Löcher in jedem akzeptierten Objekt."
+        },
+        {
+          "narration": "Run lädt den Checkpoint, normalisiert jede Charge, prognostiziert Masken und Flüsse, füllt Löcher, speichert jede Maske und zeigt Diagnostik an. Stop-Anfragen für eine sichere Unterbrechung."
+        },
+        {
+          "narration": "Während der Verarbeitung berichtet die Konsole über den gelösten benutzerdefinierten Checkpoint und den Fortschritt der Charge, während das Bildpaneel Originalbilder, rote Maskenüberlagerungen und Flussfelder hinzufügt."
+        },
+        {
+          "narration": "Der Lauf beendete sechs von sechs Feldern und rettete sechs Masken. Das endgültige Panel zeigt das ursprüngliche ER-Bild, die Zellumrisse und die Cellpose-Flüsse, so dass die Segmentierungskvalität vor der nachgelagerten Messung sichtbar ist."
         }
       ]
     },
@@ -434,19 +1199,31 @@
       "id": "21_model_compare",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Modellvergleich. Führen Sie zwei Cellpose-Modelle auf den gleichen Feldern aus und vergleichen Sie Masken, Zahlen und Übereinstimmungsmetriken."
+          "narration": "Modell Vergleichen läuft zwei Cellpose-Konfigurationen auf demselben kleinen Feldsatz. Es berichtet, was sich verändert hat, ohne eines der Modelle als Grundwahrheit zu behandeln, indem es Objektszahlen, Vordergrundvereinbarung, Übereinstimmung, Fragmentierung und visuelle Überlagerungen kombiniert."
         },
         {
-          "narration": "Öffnen Sie das Modell Vergleichen aus dem Abschnitt Segmentierung Modelle. Wählen Sie zwei Kandidatenmodelle und eine repräsentative Reihe von Mikroskopiefeldern aus."
+          "narration": "Lassen Sie einen Ordner mit TIFF-, PNG-, NPY- oder NPZ-Feldern fallen oder wählen Sie ihn mit den Quellsteuerungen aus. Der Fields-Wert beschränkt einen interaktiven Vergleich; in diesem Tutorial werden drei echte ER-Kanal-Zellpflanzen geladen."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich passen die Kanäle und die Vorverarbeitung zusammen, dann konfigurieren Sie die Schwellenwerte und die Kriterien für die Übereinstimmung von Objekten."
+          "narration": "Das Modell A verwendet den Bestand CPSAM. Modell B verwendet den maßgeschneiderten Kalibrierungskontrollpunkt von Train Cellpose. Beide behalten einen Durchmesser von dreißig, eine Durchflussschwelle von null Punkt vier, eine Wahrscheinlichkeit von null, eine Mindestgröße von fünfzehn, eine Normalisierung und eine Dynamik mit voller Auflösung."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Überprüfung von Seite-zu-Seite-Überlagerungen zusammen mit Gegenstandszahl-, Überlagerungs- und angepassten Rand-Indexunterschieden."
+          "narration": "Vergleichen Sie Segmente jedes geladenen Feldes mit beiden Konfigurationen. Die zusätzliche Linie akzeptiert fortgeschrittene Schlüsselwertargumente, und der Bericht markiert Parameter, die Cellpose 4 ignoriert, anstatt schweigend darauf hinzuweisen, dass sie das Modell geändert haben."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, zeigt der Vergleichsbericht an, wo jedes Modell Objekte gewinnt, verliert, spaltet oder verschmelzt."
+          "narration": "Während der Verarbeitung wird der Inline-Status sowohl die Bewerber als auch die Anzahl der Felder identifizieren. Modellvergleich konzentriert sich auf eine begrenzte interaktive Probe, anstatt eine volle Platte zweimal zu laufen."
+        },
+        {
+          "narration": "Parameter, die jedes Modell erreichten, trennen ehrwürdige Werte von veralteten oder ignorierten Argumenten. Dies verhindert Vergleiche, die in Form unterschiedlich aussehen, aber sich auf das gleiche Cellpose-Verhalten beziehen."
+        },
+        {
+          "narration": "Die pro Feld-Tabelle berichtet von Objektzahlen, Richtdelta, Rand-Index aus dem Hintergrund ausgeschlossen, abgestimmter Bruchteil, Durchschnittskreuzung über die Union, Splits, Fusionen, unvergleichliche Objekte und unabhängige Maskenqualitätsprüfungen."
+        },
+        {
+          "narration": "Die Auswahl einer Zeile aktualisiert beide Vorschau. Vergleichbare Objekte werden konsequent gezeigt, während unvergleichliche Regionen neue Erkenntnisse, Verfehlungen, Splits oder Zusammenschlüsse aufdecken, die eine einzelne Aggregatscore verbergen kann."
+        },
+        {
+          "narration": "In diesen drei Feldern produzierten beide Kandidaten hundertfünfzig und eins Objekte, eine ARI im Vordergrund und hundertprozentige Übereinstimmung. Das bedeutet, daß sich der einjährige Kalibrierungskontrollpunkt hier wie sein Ausgangsmodell verhält; es ist ein gültiges Ergebnis, kein Hinweis auf Verbesserungen."
         }
       ]
     },
@@ -454,19 +1231,37 @@
       "id": "22_model_zoo",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt den Model Zoo. Durchsuchen, überprüfen, herunterladen und Benchmarken wiederverwendbarer Segmentierungs- und Klassifizierungsmodelle."
+          "narration": "Modell-Zoo-Inventare Cellpose und Klassifikator Checkpoints, die diese Maschine erreichen kann. Es erfasst Quelle, Version, Größe, Checksum-Zustand, Ausbildungsergebnis und Verhalten auf einem kleinen Feld, bevor ein Modell in einen größeren Workflow eintritt."
         },
         {
-          "narration": "Öffnen Sie den Zoo-Modell aus dem Abschnitt Segmentierung von Modellen. Öffnen Sie den Katalog und wählen Sie Modelle aus, die mit der aktuellen Aufgabe und den Eingabe-Kanälen kompatibel sind."
+          "narration": "Wählen Sie einen Checkpoint-Ordner aus oder lassen Sie ihn fallen und klicken Sie auf Scan. Die Auflistung kombiniert gebündelte und deklarierte Katalogbeiträge mit lokalen CP-Modelldateien und vermeidet gleichzeitig duplizierte Pfade."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich überprüfen Sie Herkunft, Lizenz, Prüfsumme, erwartete Vorverarbeitung, Aufgabenart und lokale Verfügbarkeit."
+          "narration": "Wählen Sie eine Zeile aus, um den genauen Weg, die Größe, das veröffentlichte Hash, die Trainingsdaten, die Geometrie der Ernte, den Objektdiameter, die Epochenzahl und den Autor zu überprüfen. Unbekannte Herkunft ist eine Warnung, nicht ein allgemeiner Kompatibilitätsanspruch."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vergleichsmodelle für vielversprechende Modelle in einigen repräsentativen Bereichen vor der Einführung eines vollständigen Experiments."
+          "narration": "Entfernte Katalog-Einträge können in einen gewählten Modellordner heruntergeladen werden. Überprüfte Downloads erfordern eine veröffentlichte Checksumme; die Annahme eines unüberprüften Modells ist eine explizite Opt-in, da ein falscher Checkpoint immer noch plausible Masken laden und produzieren kann."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, bleiben die verifizierten Modelldateien und Benchmark-Ergebnisse mit ihren Metadaten verbunden."
+          "narration": "Test auf Feldern lädt einen begrenzten Benchmark-Set auf. Dieses Tutorial verwendet drei echte ER-Kanal-Zellpflanzen, so dass Modellgeschwindigkeit, Objektzählung, Qualitätskontrollflaggen und Vorschau auf die gleichen repräsentativen Bilder beziehen, die in Modellvergleichen verwendet werden."
+        },
+        {
+          "narration": "Wenn genau ein lokales Modell ausgewählt wurde, klicken Sie auf Test auf drei Feldern. Der Benchmark segmentiert jedes Bild und führt eine Segmentierungskvalitätskontrolle durch, ohne vorzugeben, dass es eine Genauigkeitskennzeichnung aufweist."
+        },
+        {
+          "narration": "Während der Verarbeitung wird in der Statuszeile der ausgewählte Kontrollpunkt und die Feldzahl identifiziert. Benchmark-Arbeit läuft aus dem Schnittstellen-Thread, so dass Auswahl und Fortschritt weiterhin reaktionsfähig bleiben."
+        },
+        {
+          "narration": "Der benutzerdefinierte Checkpoint produzierte in sechs Punkten fünf Sekunden einhundertfünfzig Zellen über drei Felder. Zwei Felder passierten die Segmentierung QC; die spärliche erste Ernte wurde für eine niedrige Objektzahl und eine hohe Grenzfraktion markiert."
+        },
+        {
+          "narration": "Die Auswahl einer Benchmark-Zeile aktualisiert die Maskenüberlagerung. Verwenden Sie die Tabelle und das Bild zusammen: Eine Qualitätsflagge identifiziert ein intrinsisches Maskenmuster, während die Vorschau zeigt, ob dieses Muster die Biologie, die Ernte oder ein Segmentierungsfehler widerspiegelt."
+        },
+        {
+          "narration": "Wählen Sie genau zwei installierte Modelle aus und klicken Sie auf Vergleichen der beiden ausgewählten Modelle. Das Modell Zoo gibt beide Checkpoint-Wege, den gleichen Feldordner und die Feldzählung in den speziellen A-B-Vergleichsschirm."
+        },
+        {
+          "narration": "Die Übergabe öffnet Modellvergleiche mit beiden lokalen Checkpoints und allen drei vorgeladenen Feldern. Von hier aus führen Sie den Paarvergleich aus, um die Vordergrundvereinbarung, die Richtungsunterschiede, Splits, Fusionen und die QC pro Modell zu messen."
         }
       ]
     },
@@ -474,19 +1269,34 @@
       "id": "23_agreement",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Annotator Agreement. Messung der Übereinstimmung zwischen den Annotationsspalten und Überprüfung der Gegenstände, die für die Meinungsverschiedenheit verantwortlich sind."
+          "narration": "Annotator Agreement vergleicht zwei oder mehr kategorische Spalten, ohne die Datenbank zu ändern. Verwenden Sie es für zwei Prüfer, wiederholte Anmerkungen oder eine Prüfer-versus-Modell-Kontrolle, und überprüfen Sie dann sowohl die zusammenfassenden Statistiken als auch die genauen Ernten, die nicht übereinstimmen."
         },
         {
-          "narration": "Eröffneter Annotator-Abkommen aus dem Abschnitt \"Ergebnisse und Qualitätskontrolle\". Wählen Sie eine Projektdatenbank und zwei oder mehr Annotationsspalten, die dieselben Objekte abdecken."
+          "narration": "Wählen Sie eine Messdatenbank oder den Ordner aus, in dem sie ausgeführt wird. spaCR entdeckt geeignete Annotations- und Vorhersage-Säulen aus der PNG-Liste-Tabelle und lässt die Quelletiketten nur zum Lesen stehen."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich die Klassenverarbeitung, die fehlende Kennzeichnung, die Gruppierung, die Probenahme und die Vereinbarungsstatistik aus."
+          "narration": "Wählen Sie mindestens zwei Spalten aus. Hier wird ER_Bulbs mit Vorhersagen_1 über die gleichen Zellpflanzen verglichen. Zusätzliche ausgewählte Spalten ermöglichen alle Paarevergleiche und eine Multi-Rater Fleiss kappa Zusammenfassung."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Untersuchen Sie Cohen oder Fleiss kappa zusammen mit klassenspezifischen Verwirrung und Meinungsverschiedenheiten."
+          "narration": "Klicken Sie auf Berechnungsvereinbarung. Fehlende Etiketten werden als Abweichungen behandelt, nicht als Meinungsverschiedenheiten; jedes Paar wird nur in Zeilen bewertet, in denen beide ausgewählten Spalten eine Kategorie enthalten."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden Vereinbarungstabellen und eine zielgerichtete Überprüfung die Vermittlung von Etiketten und die Verbesserung des Protokolls unterstützen."
+          "narration": "Die Berechnungen richten die Etiketten nach Ernte aus, zählen vollständige und abgehaltenen Zeilen, bauen jede Verwirrungsträhne auf und finden Meinungsverschiedenheiten, die auf ihre Ursprungsbilder zurückverfolgt werden können."
+        },
+        {
+          "narration": "Dieses echte Paar hat eintausend dreihundertfünfzig neun vollständige Zeilen, achtzigtausend sechshundert zehn Abstinenzen, acht Meinungsverschiedenheiten und neunundneunzig Prozent Rohvereinbarung. Cohen's Kappa ist hier undefined, nicht Null, weil ER_Bulbs nur eine Klasse auf jeder vollständigen Zeile verwendet, so dass der Zufalls-Agreement-Nenner degeneriert."
+        },
+        {
+          "narration": "Die Verwirrungsmatrix enthüllt dieses Klassenungleichgewicht direkt: tausend dreihundertfünfzig und eine Reihen sind Klasse eins in beiden Spalten, während acht Reihen Klasse eins in ER_Bulbs und Klasse zwei in Vorhersagen_1 sind. ER_Bulbs trägt keine vollständigen Zeilen der Klasse zwei bei."
+        },
+        {
+          "narration": "Die Tabelle der Meinungsverschiedenheiten listet diese acht echten Pflanzen und beide Etiketten auf. Ändern Sie die Überprüfungsgrenze für größere Vergleiche, wählen Sie eine beliebige Zeile aus und verwenden Sie die Vorschau, anstatt sich nur aus einer aggregierten Punktzahl zu entscheiden."
+        },
+        {
+          "narration": "Die Auswahl eines Widerspruchs löst den gespeicherten Pflanzenweg und zeigt das mikroskopische Bild neben seinen beiden kategorischen Werten an. Überprüfen Sie die Morphologie und den Signalkontext, bevor Sie entscheiden, ob ein Etikett, eine Schwelle oder eine Klassendefinition korrigiert werden müssen."
+        },
+        {
+          "narration": "Bewegen Sie sich durch die Streitzeilen, um systematisch zu entscheiden. Berichten Sie über Rohvereinbarung, Klassenbilanz, Abweichungen, die Verwirrungsmatrix und Kappa zusammen; hier ist der undefinierte Kappa eine nützliche Warnung über die Prävalenz, nicht ein Versagen des Vergleichs."
         }
       ]
     },
@@ -494,19 +1304,67 @@
       "id": "24_plaque",
       "scenes": [
         {
-          "narration": "Dieses Tutorial deckt Plaque-Assay ab. Messung der Plattenbildung und bedingungsabhängigen Veränderungen aus Plattenbildern."
+          "narration": "Plaque Assay erkennt und quantifiziert abgeräumte Gastzellregionen. Die Einstellungen befinden sich links; die Konsole erfasst gelöste Einstellungen, Fortschritte, Ausgangswege, Warnungen und Fehler. Das Chatbox unter der Konsole kann diesen Kontext diskutieren, wenn KI aktiviert ist, aber es ändert keine Einstellungen, es sei denn, Sie wenden eine vorgeschlagene Änderung an."
         },
         {
-          "narration": "Offene Plaque-Analyse aus dem Abschnitt Toxoplasma-Analysen. Bereitstellung von Bildplatten, Plattenlayout, Pixelkalibrierung, Bedingungen und Steuerungen."
+          "narration": "Die KI-Taste schaltet die Chat-Routing aus. Sein angrenzendes Menü wählt einen konfigurierten Provider aus und öffnet die Provider-Einstellungen. Halten Sie es aus, wenn kein Assistent benötigt wird; die Analyse-Pipeline selbst ist lokal und erfordert keine KI."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie Hintergrundkorrektur, Schwellenwerte, Objektreinigung, Plattengrößenfilter und Brunnengruppen."
+          "narration": "Die Provider-Einstellung trennt lokale und gehostete Assistenten. Konfigurieren Sie nur die Dienste, die Sie verwenden möchten, und überprüfen Sie die Datenschutzerklärung, bevor Sie den Konzoll- oder Bildkontext an einen Remote-Anbieter senden."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. die Überlagerung von Segmentierungen über Kontroll- und Behandlungsbrunnen vor der Chargenanalyse zu überprüfen."
+          "narration": "AI-Einstellungen steuern Verhalten wie Kontextteilung, Fehlerberichterstattung und anbieterspezifische Anmeldeinformationen. Diese Präferenzen beeinflussen den Chat-Assistenten, nicht die Plattensegmentierung oder Quantifizierung."
         },
         {
-          "narration": "Nach Abschluss des Workflows meldet spaCR Plackzahlen, Flächen, Zusammenfassungen, Statistiken und Qualitätskontrollen."
+          "narration": "Wählen Sie den Ordner mit TIFF-Plattfeldern aus oder lassen Sie ihn fallen. Dieses Tutorial verwendet vier explizit synthetische Brunnen und schaltet Masken aus, um ihre vorbereiteten, gekennzeichneten Masken wiederzuverwenden. Mit Masken an, segmentiert spaCR stattdessen die Quellbilder mit dem gebündelten Plackmodell, bevor sie gemessen werden."
+        },
+        {
+          "narration": "Wesentliche zeigen den kleinen Satz, der normalerweise für einen ersten Lauf benötigt wird. Beginnen Sie hier, um die Quelle, das Maskenverhalten, den erwarteten Durchmesser, die Schwellenwerte und die Ausgangswahl zu überprüfen, ohne jede fortschrittliche Steuerung zu scannen."
+        },
+        {
+          "narration": "Modifizierte Filter des Panels auf Werte, die sich von den Standardwerten unterscheiden. Es handelt sich um einen kompakten Audit vor der Einreichung: Hier sind die Quelle, die Wiederverwendung der Maske, der Plattendiameter, die Batchgröße und das Hintergrundverhalten vorsätzliche Änderungen."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen jede verfügbare Steuerung. Verwenden Sie es bei der Fehlerbehebung oder Wiedergabe eines älteren Laufs; ansonsten reduziert die Essentials-Ansicht zufällige Änderungen an Parametern, die bereits geeignete Standardfunktionen haben."
+        },
+        {
+          "narration": "Rezepte speichern die aktuellen Modul-Einstellungen unter einem wiederverwendbaren Namen. Eine validierte Plattenkonfiguration kann gespeichert, importiert, geteilt und später angewendet werden, anstatt manuell rekonstruiert zu werden."
+        },
+        {
+          "narration": "Führen Sie die gelösten Einstellungen aus der Ferne an Distribute Jobs weiter, anstatt lokal zu starten. Verwenden Sie sie, wenn der Quellordner und das erforderliche Modell von einer SSH-Arbeitsstation oder einem SSH-Cluster aus erreichbar sind."
+        },
+        {
+          "narration": "Der Fernbildschirm empfängt dieses Modul und seine Einstellungen als Jobentwurf. Bestätigen Sie die Pfadkartierung, Rechenressourcen, Umgebungsaktivierung, Synchronisierung und den erzeugten Befehl, bevor Sie einen kleinen Validierungsjob einreichen."
+        },
+        {
+          "narration": "Die Eingabe und Kanäle enthalten den Quellordner und die Wahl der Masken. Schalten Sie Masken ein, um ursprüngliche Felder zu segmentieren, oder ausschalten Sie sie nur, wenn der Masken-Unterordner bereits korrekt benannte gekennzeichnete Bilder enthält."
+        },
+        {
+          "narration": "Das Modell enthält den erwarteten Plattendiameter. Diese Skala wird mit repräsentativen Platten und der Trainingsgeometrie des Modells verglichen; ein Zellgrößenwert ist für Plattenfelder im Allgemeinen ungeeignet."
+        },
+        {
+          "narration": "Die Nachweisschwellen gruppieren Kandidatenwahrscheinlichkeit, Flusskonsistenz, Umskalierung, Umprobung und Löcherfüllung. Diese Einstellungen beeinflussen die neue Segmentierung; sie verändern die im Vorfeld berechneten Masken nicht, die in dieser Demonstration wiederverwendet werden."
+        },
+        {
+          "narration": "Bildgeometrie-Steuerungen, die auf die durch das gebündelte Plackmodell erwarteten Abmessungen umgestaltet werden. Die Maske wird vor der Berichterstattung über die Fläche auf das ursprüngliche Feld zurückgeschossen, sodass die Messung in ursprünglichen Pixeln verbleibt."
+        },
+        {
+          "narration": "Hintergrund und Verweigerung steuern die Hintergrundentfernung und den während der Normalisierung verwendeten Signal-to-Noise-Anker. Sie werden vor einem vollständigen Segmentierungslauf auf repräsentative Kontroll- und Behandlungsbrunnen abgestimmt."
+        },
+        {
+          "narration": "Output und Runtime steuern Einsparungen, GPU-Batchgröße und Verbosität. Reduzieren Sie die Batchgröße, wenn die Segmentierung das verfügbare Speicher übersteigt; halten Sie die verbose Logging für die erste Platte so, dass gelöste Wege und Verhaltensweisen aufgezeichnet werden."
+        },
+        {
+          "narration": "Bei der Segmentierung steuert die Wahrscheinlichkeit den Kandidatenboden, die Durchflussschwelle die Formkonsistenz und die Füllung schließt innere Löcher. Überprüfen Sie mehrere Brunnen, weil ein Wert, der eine Platte reinigt, eine andere Platte verschmelzen oder löschen kann."
+        },
+        {
+          "narration": "Klicken Sie auf Laufen, nachdem Sie die veränderten Einstellungen überprüft haben. Diese Demonstration misst vier synthetische gekennzeichnete Masken durch das reale Plaque-Analyse-Backend; sie präsentiert die synthetischen Felder nicht als biologische Validierung des Segmentierungsmodells."
+        },
+        {
+          "narration": "Während der Ausführung druckt die Konsole die Reproduzierbarkeitsakte, die gelöste Quelle und Bestimmung und jede Maske, die analysiert wird. Haltet die Stornierungsanfragen ein; wartet auf Fertigstellung, bevor die Ausgänge eröffnet werden."
+        },
+        {
+          "narration": "Der Run schreibt Plaques_analysis.db in den Maskenordner mit Zusammenfassung, Statistik und Detailstabellen. Diese vier Felder enthalten jeweils vier, drei, zwei und eine Plaque; verwenden Sie die Bereiche pro Bild und die Bereiche mit Ihren Plattenmetadaten für nachgelagerte Zustandsniveau-Statistiken und Qualitätskontrolle."
         }
       ]
     },
@@ -514,19 +1372,64 @@
       "id": "25_recruitment",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt die Rekrutierung. Quantifizieren Sie die Rekrutierung eines Interessensignals für Parasiten oder mit Krankheitserregern verbundene Regionen."
+          "narration": "Die Rekrutierung misst die Anreicherung eines Marker in parasit-assoziierten Regionen im Verhältnis zum umliegenden Gastzellzytoplasma. Die Konsole erfasst gelöste Einstellungen, Filterzahlen, Ausgabewege, Zahlen, Warnungen und Fehler; die Chatbox kann diesen Kontext diskutieren, wenn KI aktiviert ist."
         },
         {
-          "narration": "Eröffnete Rekrutierung im Bereich Toxoplasma-Analysen. Verwenden Sie gemessene Zell-, Parasiten- und Organelmasken mit Kanal eins, endoplasmischem Retikum, als Kanal des Interesses."
+          "narration": "Verwenden Sie die KI nur, wenn Sie Chat-Hilfe wollen. Das angrenzende Menü wählt einen konfigurierten Anbieter aus und öffnet die Provider-Einstellungen; die Rekrutierung selbst läuft lokal und hängt nicht von einem KI-Service ab."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich definieren Sie die Rekrutierungsregion, Hintergrundreferenz, Objektfilter, Gruppierung und Normalisierungsstrategie."
+          "narration": "Die Provider-Einstellung unterscheidet lokale von gehosteten Assistenten. Konfigurieren Sie nur die Dienste, die Sie verwenden möchten, und überprüfen Sie die Datenschutzerklärung, bevor Sie den Konzoll- oder Bildkontext an einen Remote-Anbieter senden."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Überlagerungen auf Objektebene zu überprüfen und Verteilungen zu kontrollieren, bevor Bedingungen verglichen werden."
+          "narration": "AI-Einstellungen steuern den Assistenten-Kontext, die Anmeldeinformationen und die optionale Fehlermeldung. Diese Präferenzen ändern die Einstellungsformel, Objektfilter oder Plattenanmerkungen nicht."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden die Einstellungswerte und Konditionsüberschriften pro Objekt mit Quell-Identifikatoren gespeichert."
+          "narration": "Wählen Sie die Experimentwurzel mit Messungen/Messungen.db und dem verschmelzten Ordner aus oder lassen Sie sie fallen. Dieses Tutorial verwendet das übertragene HeLa siRNA-Experiment, nicht synthetische Daten, wobei Kanal 1 das ER-Signal als Kanal des Interesses verwendet wird."
+        },
+        {
+          "narration": "Essentials präsentiert die Quelle, die Kanalkarte, die Filter, das Plattenlayout und die diagnostischen Entscheidungen, die für einen ersten Lauf benötigt werden. Bestätigen Sie die Karte, bevor Sie Schwellenwerte anpassen, denn ein gültiger, aber falscher Kanalindex kann plausible, falsche Verhältnisse erzeugen."
+        },
+        {
+          "narration": "Modifizierte Anzeigen zeigen nur absichtliche Abweichungen von Standardfunktionen. Verwenden Sie es als kompaktes Audit des echten Experimentes, des ER-Kanals eins, der drei Maskenplanen, Flächenfilter, Kontrollspalten und diagnostischen Entscheidungen."
+        },
+        {
+          "narration": "Alle Einstellungen decken jede Steuerung bei der Wiedergabe oder Fehlerbehebung eines Laufs aus. Zurück zu Essentials, wenn die zusätzlichen Kontrollen nicht benötigt werden, so dass die fortgeschrittenen Werte nicht versehentlich geändert werden."
+        },
+        {
+          "narration": "Rezepte bewahren eine validierte Rekrutierungskonfiguration für Wiederverwendung oder Weitergabe. Erhalten Sie eine nur, nachdem die Kanalkartierung, Steuerungsbrunnen und Filter gegen repräsentative Bilder und Verteilungen geprüft wurden."
+        },
+        {
+          "narration": "Submit Remote sendet die gelösten Einstellungen an Distributed Jobs anstatt lokal zu starten. Verwenden Sie es nur für eine große Datenbank, nachdem das Remote-System sowohl measurements.db als auch die fusionierten Arrays unter korrekt kartierten Pfaden zugreifen kann."
+        },
+        {
+          "narration": "Der Fernbildschirm erhält einen Jobentwurf. Überprüfen Sie die Aktivierung der Umgebung, die Synchronisierung, die Ressourcen und den generierten Befehl und stellen Sie dann einen kleinen Validierungsjob vor, bevor Sie auf eine vollständige Platte skalieren."
+        },
+        {
+          "narration": "Die Datenquelle enthält die experimentelle Wurzel. Die Rekrutierung liest vorhandene Messungen von Zellen, Kern, Parasiten und Zytoplasma; sie segmentiert oder misst keine Bilder neu."
+        },
+        {
+          "narration": "Maske und Kanalkarte identifizieren jede Intensität und Maske. Hier benutzen Zellen ER-Kanal eins und Maske vier, Nukleen benutzen Kanal Null und Maske fünf, Parasiten benutzen Kanal drei und Maske sechs, während die Rekrutierung auf ER-Kanal eins berechnet wird."
+        },
+        {
+          "narration": "Objekt Filtern von Zellen, Kernen und Parasiten nach Fläche und Intensität, begrenzen Objekte pro Zelle und benötigen ausreichend Zellen pro Brunnen. Dieser Ablauf hält Zellen über 3500 Pixel, Kerne von 700 bis 4000 und Parasiten von 100 bis 1000."
+        },
+        {
+          "narration": "Platten-Layout und -Steuerungen verzeichnen biologische Etiketten für Zeilen- oder Spaltenidentifikatoren. Spalte 1 ist die positive Steuerung, Spalte 2 ist die negative Steuerung, und Spalten 3 bis 14 sind Bildschirmbrunnen; alle Zeilen sind HeLa Zellen."
+        },
+        {
+          "narration": "Plots and Diagnostics steuert Segmentierungsüberlagerungen, Kontrollintensitätspaneele, Bildgröße und die Anzahl der zusammengesetzten Felder. Überprüfen Sie die Überlagerungen, bevor Sie einem Verhältnis vertrauen, und vergleichen Sie die Steuerungen, bevor Sie Bildschirmbrunnen interpretieren."
+        },
+        {
+          "narration": "Die gesamte Kanalkarte ist hier sichtbar. Für die Diagnose stehen die Kanaldimensionen von Null bis drei zur Verfügung, aber die primäre Rekrutierungsscore ist der Pathogenkanal - eine durchschnittliche Intensität geteilt durch den Zytoplasma-Kanal - eine durchschnittliche Intensität innerhalb der passenden Gastzelle."
+        },
+        {
+          "narration": "Klicken Sie auf Laufen, nachdem Sie die Quelle, Karte, Filter und Steuerungen überprüft haben. Das Backend schließt sich den vier Messtabellen an, annotert die Bedingungen, wendet jedes Objektportal an, berechnet Rekrutierung, gruppiert Brunnen und stellt Diagnosezahlen in Schlange."
+        },
+        {
+          "narration": "Während der Ausführung zeigen die Filterzahlen in der Konsole genau, wo Objekte entfernt werden. Eine große Reduzierung darf nicht automatisch als gut oder schlecht betrachtet werden, sondern mit den beabsichtigten Flächengrenzen, Kontrollverteilungen und Probenüberlagerungen vereinbart werden."
+        },
+        {
+          "narration": "Die eigentliche Laufzeit behielt 399 37 PV-Niveaus auf allen 96 Brunnen und produzierte fünf Ziffern plus cells.csv und wells.csv. Die durchschnittliche ER-Anwerbung auf gutem Niveau beträgt einen Punkt drei fünf vier in der positiven Kontrolle, einen Punkt zwei acht eins in der negativen Kontrolle und einen Punkt drei ein acht in Bildschirmbrunnene bescheidene Trennung, die durch Variabilität und Bild-QC beurteilt werden sollte, nicht allein durch das bedeutet."
         }
       ]
     },
@@ -534,19 +1437,73 @@
       "id": "26_invasion",
       "scenes": [
         {
-          "narration": "Dieses Tutorial deckt Invasion-Assay ab. Verwenden Sie eine zweifarbige Farbe von außen gegen innen, um festgelegte von eingedrungenen Parasiten zu unterscheiden."
+          "narration": "Invasion Assay bewertet jeden Parasiten als befestigt oder eingedrungen aus einem zweifarbigen Fleck. Die Konsole erfasst gelöste Einstellungen, Schwellenwerte, QC, Ausgänge, Warnungen und Fehler; die Chatbox kann diesen Kontext diskutieren, wenn KI aktiviert ist."
         },
         {
-          "narration": "Offene Invasion-Analyse aus dem Abschnitt Toxoplasma-Analysen. Verschaffen Sie Parasiten- und Gastzellmasken, Fleckenkanäle in und außerhalb, Plattenmetadaten und Kontrollen."
+          "narration": "Die KI wechselt nur auf Wunsch. Sein angrenzendes Menü wählt einen konfigurierten Anbieter aus und öffnet die Anbieter-Einstellungen; die Invasionsanalyse selbst bleibt lokal und erfordert keine KI."
         },
         {
-          "narration": "In dem Hauptkonfigurationsbereich werden Intensitätsschwellen, Objektspassung, Zweideutigkeitsbearbeitung und gut-Ebene-Gruppierung konfiguriert."
+          "narration": "Die Provider-Einstellung trennt lokale und gehostete Assistenten. Konfigurieren Sie nur die Dienste, die Sie verwenden möchten, und überprüfen Sie die Datenschutzinformationen, bevor Sie den Konsolen- oder Testkontext mit einem Remote-Anbieter teilen."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Bevor die Klassifizierungsregel akzeptiert wird, werden beigefügte, eingeschlagene und unsichere Beispiele überprüft."
+          "narration": "AI-Einstellungen steuern den Assistenten-Kontext, die Anmeldeinformationen und die optionale Fehlermeldung. Diese Präferenzen ändern keine Fleckenkanäle, Schwellenwerte, Klassifizierung oder Statistiken."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, berichtet spaCR mit Qualitätskontrollbildern über die Zählung und Invasionseffizienz pro Brunnen und Zustand."
+          "narration": "Wählen Sie die Experimentwurzel mit Messungen/Messungen.db aus oder lassen Sie sie fallen. Das übertragene Mikroskopie-Experiment fehlt den erforderlichen Invasionsflecken, so dass dieses Tutorial eindeutig eine synthetische zweifarbige Messdatenbank verwendet, während das echte spaCR-Assay-Backend ausgeführt wird."
+        },
+        {
+          "narration": "Essentials stellt die Eingaben, Kanäle, Schwellenwerte, Kontrollen, Filter, Zustandsmetadaten und Ausgänge dar, die für eine erste Analyse erforderlich sind. Überprüfen Sie die Reihenfolge der Flecken, bevor Sie ein Ergebnis interpretieren."
+        },
+        {
+          "narration": "Modifizierte Filter des Formulars zur absichtlichen Abweichung von Standardfunktionen. Verwenden Sie es, um die Quelle, die Fleckenkanäle, das Intensitätsport, die Steuerungen, die Flächengrenzwerte, die Plattenkartierung und die Verbose-Ausgabe vor dem Laufen zu überprüfen."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen alle verfügbaren Kontrollen für die Wiedergabe und Fehlerbehebung. Zurück zu Essentials, wenn diese fortschrittlichen Kontrollen nicht benötigt werden, um versehentliche Parameteränderungen zu reduzieren."
+        },
+        {
+          "narration": "Rezepte bewahren eine validierte Testkonfiguration für Wiederverwendung oder Weitergabe. Einer ist nur zu speichern, nachdem die Fleckenkartierung und die von der Steuerung abgeleitete Schwelle gegen repräsentative Bilder und Verteilungen überprüft wurden."
+        },
+        {
+          "narration": "Führen Sie die gelösten Einstellungen fern an verteilte Jobs. Bestätigen Sie, dass die Messdatenbank über die Remote-Pfadkarte zugänglich ist, bevor Sie einen kleinen Validierungsbeschluss einreichen."
+        },
+        {
+          "narration": "Der Fernbildschirm erhält einen Jobentwurf. Überprüfen Sie die Synchronisierung, die Aktivierung der Umgebung, die Ressourcen und den erzeugten Befehl und testen Sie dann eine Platte, bevor Sie den Test skalieren."
+        },
+        {
+          "narration": "Assay Inputs identifiziert die experimentelle Wurzel, eine Reihe pro Parasiten-Tabelle und das Abteilungspräfix. Die Invasion scores bestehende Krankheitserregermessungen; sie segmentiert keine Bilder wieder."
+        },
+        {
+          "narration": "Kanäle und Intensitätskarten führen Kanal 1 zur Vordurchlässigkeit außerhalb des Flecks und Kanal 0 zum Gesamtfleck nach der Durchdurchlässigkeit. Beigefügte Parasiten behalten das Signal von außen zurück; eingedrungenen Parasiten fehlt es. Das Austausch dieser Kanäle ändert die biologische Interpretation, ohne einen Softwarefehler zu verursachen."
+        },
+        {
+          "narration": "Die Schwelle wählt den automatischen Rückfall, die optionale feste Schnittleistung, die Bimodalität QC, die Vereinbarungstoleranz und die Empfindlichkeitsspanne aus. Eine feste Schwelle sollte erst nach unabhängiger Kalibrierung verwendet werden."
+        },
+        {
+          "narration": "Kontrollen und Mindestzahlen benennen die Farbkontrollen und definieren das Quantile, die Mindestkontrollobjekte, die Mindestfeld- und Brunnenbenennungswerte sowie die Warnung vor der Schwelle inflation. Hier wird in Spalte 1 die ehrliche Verteilung der negativen Außenflecken angegeben, die von den Prüfbedingungen ausgeschlossen ist."
+        },
+        {
+          "narration": "Object Filtering entfernt Parasitenmessungen außerhalb des zulässigen Flächenbereichs. Das Gesamtfleckminimum schließt zusätzlich Gegenstände aus, die vor Beginn der Einstufung von Außenflecken gar nicht Parasiten sein können."
+        },
+        {
+          "narration": "Zustand Metadaten kartografieren Brunnen nach biologischen Gruppen und wählen die Gruppierungspalte aus. Die synthetische Platte verwendet sechs Fahrzeugbrunnen in Spalte zwei und sechs Hemmbrunnen in Spalte drei, alle mit HeLa-Gastzellen."
+        },
+        {
+          "narration": "Assay Output steuert die Farbkarte, die Anzahl der Schwellenwerte-QC-Panels, die Aussaat im leeren Brunnen und die Speicherung. Bei dem Saatgut werden Brunnen mit gemessenen Gastzellen bewahrt, aber keine Parasiten, anstatt sie schweigend zu fallen."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeit kontrollieren die Logging-Details. Halten Sie die Verbose-Ausgabe bei der Erstellung eines Tests so aktiviert, dass die Intensitätsspalte, Schwellenwerte, Quellen, QC pro Feld und gekennzeichnete Brunnen in der Konsole sichtbar sind."
+        },
+        {
+          "narration": "Dieser Kanal-Detail verwendet eine mittlere äußere Intensität ohne Rückzug des Hintergrunds, erfordert eine Gesamt-Kanal-Intensität von mindestens hundert und hält Kanal eins und Null in ihrer biologischen Reihenfolge. Überprüfen Sie diese Werte mit dem Messschema vor dem Ausführen."
+        },
+        {
+          "narration": "Klicken Sie auf Laufen, nachdem Sie Eingaben, Fleckenkarten, Steuerungen, Schwellenwerte, Filter und Zustandsmetadaten überprüft haben. Das Backend schließt Kontrollbrunnen aus, ermittelt Kontrollschwellen pro Platte, klassifiziert jeden Parasiten, fasst Felder und Brunnen zusammen und führt gutgestützte Statistiken durch."
+        },
+        {
+          "narration": "Während der Ausführung meldet die Konsole die Schwellenquelle und die QC, anstatt nur einen endgültigen Prozentsatz anzuzeigen. Das Innere wird durch das Fehlen eines äußeren Signals definiert, so dass das Fehlen von Färbung nur die Invasion aufblasen kann; Empfindlichkeitsgrenzen machen diese Fehlerrichtung sichtbar."
+        },
+        {
+          "narration": "Der eigentliche Backend benutzte 360 Kontrollparasiten, um eine Schwelle von 22 Punkten 8 zu setzen, und erzielte dann ein Tausend vierhundert vierzig Experimentalparasiten über zwölf Brunnen und vierundzwanzig Felder. Fahrzeugbrunnen durchschnittlich 39 Punkte sieben Prozent Invasion und Hemmbrunnen 68 Punkte neun Prozent; alle Brunnen bestehen QC. Der MannWhitney-Test verwendet sechs Brunnen pro Gruppe und gibt Holm-bereinigte p Nullpunkt Null Null vier Null sechs, während der viel kleinere pooled-Parasiten-p-Wert nur gezeigt wird, um die Pseudoreplikationsinflation zu enthüllen."
         }
       ]
     },
@@ -554,19 +1511,70 @@
       "id": "27_replication",
       "scenes": [
         {
-          "narration": "Dieses Tutorial deckt den Replikations-Assay ab. Bezeichnen Sie Parasiten pro Vakuol und fassen Sie die intrazelluläre Replikation nach Bedingung zusammen."
+          "narration": "Replikations-Assay zählt Parasiten in jeder Vakuole und fasst die Eins-, Zwei-, Vier- und Achtteilungsleiter zusammen. Die Konsole erfasst gelöste Einstellungen, Zuweisung QC, Statistiken, Ausgänge, Warnungen und Fehler; die Chatbox kann diesen Kontext diskutieren, wenn KI aktiviert ist."
         },
         {
-          "narration": "Öffnete Replikationsuntersuchung aus dem Abschnitt Toxoplasmauntersuchungen. Wählen Sie die Messungen von Gastzellen, Vakuolen und Parasiten zusammen mit Metadaten des Zustands aus."
+          "narration": "Die KI wechselt nur auf Wunsch. Sein angrenzendes Menü wählt einen konfigurierten Anbieter aus und öffnet die Anbieter-Einstellungen; die Replikationsanalyse selbst bleibt lokal und erfordert keine KI."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie die räumliche Zuordnung, Objektfilter, Parasitenzählbehälter, Kontrollen und statistische Vergleiche."
+          "narration": "Die Provider-Einstellung trennt lokale und gehostete Assistenten. Konfigurieren Sie nur die Dienste, die Sie verwenden möchten, und überprüfen Sie die Datenschutzinformationen, bevor Sie den Konsolen- oder Testkontext mit einem Remote-Anbieter teilen."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Inspektieren Sie die Vakuolen im gesamten Zählbereich und überprüfen, ob verschmelzte oder fragmentierte Masken ausgeschlossen sind."
+          "narration": "AI-Einstellungen steuern den Assistenten-Kontext, die Anmeldeinformationen und die optionale Fehlermeldung. Diese Präferenzen ändern nicht die Assignation von Vakuolen, die Parasitenzahl, die Filter oder die Statistiken."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden die Verteilung der Parasiten pro Vakuol, die Replikationsraten, die Statistiken und die Zahlen gespeichert."
+          "narration": "Wählen Sie die Experimentwurzel mit Messungen aus oder lassen Sie sie fallen. Das übertragene Experiment fehlt unabhängig validierten Vakuolen-Identitäten, so dass dieses Tutorial eindeutig eine synthetische Messdatenbank mit expliziten Vakuolen-IDs verwendet, während das echte spaCR Backend ausgeführt wird."
+        },
+        {
+          "narration": "Essentials zeigt die Testquelle, die Vakuolenzuweisung, die Zustandskarte, die Objektfilter, die Replikationsbewertung, die Ausgabe und die für eine erste Analyse notwendigen Laufzeitsteuerungen."
+        },
+        {
+          "narration": "Modifizierte Filter des Formulars zur absichtlichen Abweichung von Standardfunktionen. Verwenden Sie es, um die Datenbank, den Vakuumschlüssel, die Zählspalte, die Flächengrenzen, die Plattenkarte, die Zustandsgruppe und die Speicherung vor einem Lauf zu überprüfen."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen alle verfügbaren Kontrollen für die Wiedergabe und Fehlerbehebung. Zurück zu Essentials, wenn fortschrittliche Kontrollen nicht notwendig sind, um zufällige Parameteränderungen zu reduzieren."
+        },
+        {
+          "narration": "Rezepte bewahren eine validierte Testkonfiguration für Wiederverwendung oder Weitergabe. Eine Speicherung erfolgt erst, wenn die Vacuole-Zugebenungen und die repräsentative Zählverteilung gegen Bilder überprüft wurden."
+        },
+        {
+          "narration": "Führen Sie die gelösten Einstellungen fern an verteilte Jobs. Bestätigen Sie, dass die Messdatenbank über die Remote-Pfadkarte zugänglich ist, bevor Sie einen kleinen Validierungsbeschluss einreichen."
+        },
+        {
+          "narration": "Der Fernbildschirm erhält einen Jobentwurf. Überprüfen Sie die Synchronisierung, die Umgebungsaktivierung, die Ressourcen und den erzeugten Befehl und validieren Sie dann eine Platte, bevor Sie den Test skalieren."
+        },
+        {
+          "narration": "Assay Inputs identifiziert die experimentelle Wurzel, eine Reihe pro Parasiten-Tabelle und das Pathogen-Abteil. Die Replikation scores bestehende Parasitenmessungen; sie segmentiert keine Mikroskopiebilder mehr."
+        },
+        {
+          "narration": "Vacuole Assignment verwendet zunächst einen expliziten Vacuole-Schlüssel, wenn es vorhanden ist, sonst kann es Parasiten-Centroide räumlich verknüpfen, und erst dann zurück zur Gruppe der Gastzellen fallen. Eine Gastzelle kann mehrere Vakuole enthalten, so dass Fallback biologisch unterschiedliche Einheiten verschmelzen kann."
+        },
+        {
+          "narration": "Zustand Metadaten kartografieren Plattenbrunnen nach biologischen Gruppen und wählen die Vergleichspalte aus. Diese synthetische Platte enthält sechs Fahrzeugbrunnen in Spalte eins und sechs Hemmbrunnen in Spalte zwei, alle mit HeLa-Gastzellen."
+        },
+        {
+          "narration": "Object Filtering lehnt Krankheitserregermessungen außerhalb des akzeptierten Flächenbereichs ab, bevor Vakuolen gezählt werden. Diese Grenzen müssen gegen segmentierte Parasiten validiert werden, da Trümmer und verschmelzte Objekte die Replikationsleiter in entgegengesetzte Richtungen verzerren."
+        },
+        {
+          "narration": "Das Replikationsscoring definiert das größte benannte Count-Bucket und die Warnschwelle für nicht-Power-of-Two-Vakuoles. Die Zahlen eins, zwei, vier, acht und sechzehn folgen einer idealen Verdoppelung; Zahlen wie drei werden als QC-Kategorie aufbewahrt, anstatt schweigend abgerundet zu werden."
+        },
+        {
+          "narration": "Assay Output steuert die Farbkarte und die Speicherung. Die Analyse schreibt Pro-well- und Pro-condition-Verteilungen, Vakuole-Zählungen, Paare-Statistiken und Zahlen in den Replikationsergebnisse-Ordner."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeit kontrollieren die Logging-Details. Bei der Erstellung eines Tests halten Sie verbose Ausgabe ein, so dass die Gruppenquelle, Ausschlüsse, Nicht-Power-of-Two-Fraktion, statistische Tests und Ausgabewege auditierbar bleiben."
+        },
+        {
+          "narration": "Diese Zuweisungsdetail verwendet die explizite vacuole_id Spalte und erfordert eine Hostzelle. Die synthetischen Daten geben einigen aufeinanderfolgenden Vakuolen absichtlich die gleiche Zell-ID, was bestätigt, dass der gewählte Vakuol-Schlüsselnicht die Gastzelledie gezählte Einheit ist."
+        },
+        {
+          "narration": "Klicken Sie auf Laufen, nachdem Sie Eingabe, Zuordnung, Zustandsmetadaten, Filter und Scoring überprüft haben. Das Backend gruppiert Parasiten in Vakuolen, Etiketten zählen Eimer, fassen Brunnen und Bedingungen zusammen, führen Paare-Tests durch und vermitteln die Verteilungen."
+        },
+        {
+          "narration": "Während der Ausführung zeigt die Konsole die ausgewählten Tabellen und die Vergleichsmethode auf. Prüfen Sie Vakuole bei niedrigen und hohen Zählen in ihren Quellbildern, bevor Sie eine Verteilungsschicht als Biologie anstelle von Segmentierungs- oder Zuweisungsfehlern betrachten."
+        },
+        {
+          "narration": "Das echte Backend erzielt in jedem Zustand zweihundertvierzig Vakuolen. Das Fahrzeug hat eine Mediane von vier Parasiten und zwei Doppelungen pro Vakuol; ein Inhibitor hat eine Mediane von zwei Parasiten und eine Verdoppelung. Beide Gruppen enthalten fünf Prozent Nicht-Power-of-Two-Vakuoles und bleiben unter der zwanzigprozentigen Warnung. Mit sechs Brunnen pro Gruppe ist der angezeigte MannWhitney-Vergleich stark getrennt, aber biologische Schlussfolgerungen erfordern immer noch unabhängige Experimente."
         }
       ]
     },
@@ -574,19 +1582,52 @@
       "id": "28_training_runs",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Trainingsrunden. Vergleichen Sie mehrere Modell-Training-Rennen durch Überlagerung von Kurven und Differenzierung ihrer Einstellungen."
+          "narration": "Training Runs ist ein Lese-Nur-Qualitätskontroll-Bildschirm. Es überlagert die gespeicherten Zug- und Validierungskurven und stellt die Einstellungen Differ neben ihnen; es schlägt nie ein Modell um oder ändert einen Lauf auf der Festplatte."
         },
         {
-          "narration": "Offene Schulungen aus dem Abschnitt Ergebnisse und Qualitätskontrolle. Wählen Sie ausgeführte Ordner oder registrierte Schulungsunterlagen aus, die verglichen werden sollten."
+          "narration": "Wählen Sie den Ordner aus, der Modellbäume enthält, oder einen Elternteil über mehreren Projekten, und klicken Sie dann auf Scan. Die übertragenen Mikroskopie-Daten haben keine gespeicherten Trainingskurven, so dass dieses Tutorial eindeutig synthetische spaCR-Format-Logs verwendet, während der Ausübung des echten Parser und der Schnittstelle."
         },
         {
-          "narration": "Wählen Sie in dem Hauptkonfigurationsbereich Metriken, Ausgleiten, Gruppieren, Checkpoint-Kriterien und die anzuzeigenden Einstellungsfelder aus."
+          "narration": "Der Scan findet eine 20-jährige Basislinie, eine 25-jährige abgestimmte Laufbahn, einen dreimal verifizierten Kreuzlauf und einen absichtlich unvollständigen Checkpoint. Fehlende Einstellungen und Kurven werden in Amber gemeldet, anstatt stillschweigend weggeworfen zu werden, während gültige Strecken nutzbar bleiben."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vergleichen Sie Konvergenz, Überpassung, Stabilität und ausgehaltenen Leistungen, anstatt sich nur durch den Trainingsausfall auszuwählen."
+          "narration": "Tick die 20-Jahres-Basislinie. Jede Zeile benennt ihr Modell, Kanäle, Epochenzählung, Falten und wichtige wiederhergestellte Einstellungen, so dass die Auswahl nachvollziehbar bleibt."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden die Vergleichszahlen und Einstellungsdifferenztabellen den stärksten reproduzierbaren Run identifizieren."
+          "narration": "Tick die fünfundzwanziger Epoche tuned Run als zweite Vergleiche. Rennen unterschiedlicher Länge sind nicht gekrümmt oder gepolstert; jede Kurve behält ihre wahre Epochenas."
+        },
+        {
+          "narration": "Metrik wählt eine aufgezeichnete Spalte wie Genauigkeit, Verlust, Genauigkeit-Wiederrufbereich oder Klassengenauigkeit aus. Folds steuert, ob die Kreuzvalidierung pro Fold als Mittel plus oder minus eine Standardabweichung oder beides angezeigt wird."
+        },
+        {
+          "narration": "Klicken Sie auf Overlay ausgewählt. Die aufgegebenen Linien sind Trainingssplitts und die festen Linien sind Validierungssplitts; eine steigende Bahnkurve über einer abnehmenden Validierungskurve deutet auf Überpassungen hin, nicht auf ein besseres Modell."
+        },
+        {
+          "narration": "Die abgestimmte Validierungskurve erreicht etwa Nullpunkt acht fünf fünf, bevor sie in der Nähe von Nullpunkt acht vier fünf endet; die Baseline erreicht einen Gipfel in der Nähe von Nullpunkt sieben acht sechs und endet in der Nähe von Nullpunkt sieben fünf. Die Tabelle verknüpft diese Differenz mit Batchgröße, Epochen, Lernrate und Quelle, während die Zahl der Arbeiter im Umfeld getrennt wird."
+        },
+        {
+          "narration": "Klicken Sie auf eine Kurve, um ihre Länge und Spaltung zu erkennen, anstatt sich nur auf Farbe zu verlassen. Die ausgewählte Reihe wird auf ihren Ordner und die Messungen pro Epoche zurückgegriffen."
+        },
+        {
+          "narration": "Die Detaillinie zeigt die Basis-Validationsreihe, ihren Epochenbereich, die letzte Genauigkeit Nullpunkt sieben vier neun sechs in Epoche zwanzig und die beste Genauigkeit Nullpunkt sieben acht sechs in Epoche fünfzehn. Der beste Wert wird als optimistisch bezeichnet, weil die gleiche Kurve diese Epoche ausgewählt hat."
+        },
+        {
+          "narration": "Öffnen Sie Metric und wählen Sie Verlust. Der Vergleich mehrerer Metriken verhindert eine Auswahl auf der Grundlage eines schmeichelhaften Endpunkts."
+        },
+        {
+          "narration": "Verlust verwendet die gleichen Strecken und unterschiedliche Einstellungen. Hier geht der Ausbildungsverlust nach unten weiter, während der Validierungsverlust nach oben umkehrt, so dass die späte Überpassung von einer zweiten Messung anstatt von der Genauigkeit allein sichtbar ist."
+        },
+        {
+          "narration": "Vergleichen Sie nun den abgestimmten Lauf mit dem Dreifachlauf und wählen Sie die mittlere Plus- oder Minus-Standard-Abweichung. Dies fasst die Kreuzvalidation zusammen, ohne zu behaupten, dass der Mittelwert ein einziger beobachteter Lauf ist."
+        },
+        {
+          "narration": "Das blaue Band ist ein Plus- oder Minus-Standard-Abweichung über drei Falten. Die durchschnittliche Validierungskurve endet in der Nähe von Nullpunkt acht drei, während das Band die Fold-to-Fold-Unsicherheit aufdeckt, die eine einzelne Linie verbergen würde."
+        },
+        {
+          "narration": "Wählen Sie pro Fold, wenn das individuelle Foldverhalten wichtig ist. Dies ist besonders nützlich, wenn eine instabile Spaltung oder ein Schwanz nach einem frühen Stoppen durch weniger Falten unterstützt wird."
+        },
+        {
+          "narration": "Der Per-Fold-Modus zieht jede Zug- und Validierungsreihe mit Lauf, Spaltung und Falten in der Legende. Verwenden Sie Validierungsverhalten, Faltstabilität, ausgehaltene Bewertung und die Einstellungsprüfung zusammen; Training Runs vergleicht Beweise, erklärt jedoch nicht selbst einen wissenschaftlich reproduzierbaren Gewinner."
         }
       ]
     },
@@ -594,19 +1635,46 @@
       "id": "29_report",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst den Bericht. Erstellen Sie eine teilspezifische HTML- oder PDF-Übersicht mit Qualitätskontrolle, Zahlen, Statistiken, Einstellungen und Versionen."
+          "narration": "Report ist ein buchstäblicher Dokumentbau. Es verwandelt die Beweise, die bereits in einem ausgeführten Ordner vorhanden sind, in eine teilspezifische HTML, PDF oder beides; es berechnet die Ergebnisse nicht neu oder schreibt in den Quellordner."
         },
         {
-          "narration": "Offener Bericht aus dem Abschnitt Ergebnisse und Qualitätskontrolle. Wählen Sie ein abgeschlossenes spaCR-Projekt und die zu enthaltenden Linien, Tabellen, Zahlen und Abschnitte aus."
+          "narration": "Wählen Sie oder lassen Sie die Platte oder den Ordner ausführen, in dem Messungen, Qualitätskontrolleartefakte, Ergebnisse und Einstellungen enthalten sind, und klicken Sie dann auf Scan. Dieses Tutorial verwendet den vollendeten Testlauf des real übertragenen Experiments."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie Titel, Urheberrecht, Konditionsetiketten, Qualitätsschwellen, Ausgangsformat und Datenschutzempfindliche Felder."
+          "narration": "Das grüne Urteil stammt von einem tatsächlichen Stempel: Alle fünf versuchten Messungen waren erfolgreich. Sechs Berichtsbereiche sind verfügbar und zwei sind nicht verfügbar; siebzehn Zahlen wurden gefunden, aber keines ist ein eingebettetes Rasterbild."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vorsicht des Berichts und Lösung fehlender Dateien oder fehlender Qualitätskontrollen vor der Ausfuhr."
+          "narration": "Die Abschnittsvorflug zeigt genau, was ein Mitarbeiter erhalten wird. Dieser Ablauf umfasst Status, Herkunft, Inventar von Schlüsselfiguren, Statistiken, Einstellungen und Anhangsdaten; Segmentierung QC und Platten QC bleiben sichtbar nicht verfügbar, anstatt zu verschwinden."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, wird in einem tragbaren Bericht die Schlussfolgerungen zusammen mit den Einstellungen und Softwareversionen, die zur Wiedergabe erforderlich sind, aufgezeichnet."
+          "narration": "Das Format bietet eine eigenständige HTML-Datei, eine PDF-Transkription oder beides. In die meisten Grenzen eingebettet werden Raster-Figuren, so dass ein Bericht nicht ohne Grenzen wachsen kann; Null enthält keine Bilder, während die obere Grenze zweihundert ist."
+        },
+        {
+          "narration": "Wählen Sie den Bestimmungsort ausdrücklich aus. Der vorgeschlagene Pfad befindet sich außerhalb des Lauforders, sodass die Erstellung eines Berichts ein Experiment nicht leise modifizieren kann, das unveränderlich bleiben sollte; hier wird die HTML in den Tutorial-Arbeitsraum geschrieben."
+        },
+        {
+          "narration": "Klicken Sie auf Bericht erstellen. spaCR scannt den Ordner erneut, so dass das Dokument seinen aktuellen Zustand widerspiegelt, berechtigte Raster-Figuren bis zur Kappe eingebettet und eine eigenständige Datei ohne Netzwerkabhängigkeit schreibt."
+        },
+        {
+          "narration": "Das Inline-Ergebnis benennt die Datei und das Ziel, und Open wird erst nach erfolgreichem Schreiben verfügbar. Hier werden Fehler gemeldet, anstatt hinter einem modalen Dialog zu verstecken."
+        },
+        {
+          "narration": "Klicken Sie auf Öffnen, um das neueste erzeugte Dokument an den Systembrowser oder den PDF-Besucher zu übergeben."
+        },
+        {
+          "narration": "Der Status bestätigt, welche Ausgabe geöffnet wurde. Die folgenden Ansichten zeigen den echten HTML, der durch diesen Lauf erzeugt wurde, anstatt einen gefälschten Bericht."
+        },
+        {
+          "narration": "Das Dokument beginnt mit dem vollständigen Urteil, einer ehrlichen Zusammenfassung der fehlenden QC- und nicht eingebetteten Zahlen und einer verknüpften Inhaltsliste. Der Status der Ausführung erfasst fünf von fünf erfolgreichen Messpunkten, während die Herkunft die Quelle, die spaCR-Version, die Git-Revision, die Python-Umgebung und die Paketversionen bewahrt."
+        },
+        {
+          "narration": "Key Figures nennt alle siebzehn ausgelassenen Plots und erklärt, warum jede fehlt. Es sind Vektor-PDF-Dateien, und spaCR hat absichtlich keine PDF-Rasterizer-Abhängigkeit; die Erhöhung der Raster-Figur-Kappe würde sie nicht konvertieren oder so tun, als wären sie eingebettet."
+        },
+        {
+          "narration": "Die Statistik reproduziert die aufgezeichneten Größen der Datenbanktabellen und die gespeicherten Zeilen der Ergebnistabellen. Der Bericht besagt, dass nichts auf dieser Seite neu gezählt, zusammengefasst oder neu getestet wurde, was den Unterschied zwischen der Dokumentation von Beweisen und der Neuanalyse bewahrt hat."
+        },
+        {
+          "narration": "Einstellungen bewahren sowohl die gespeicherten CSV-Dateien als auch den Run-Journal-Snapshot, einschließlich Kanäle, Clustering, Batch-Steuerung, Plotting und Runtime-Werte. Zusammen mit dem im Anhang enthaltenen Wörterbuch mit gemessenen Merkmalen und dem Datei-Inventar ist der Bericht dabei zur Überprüfung nützlich, wobei jeder fehlende Abschnitt explizit behandelt wird."
         }
       ]
     },
@@ -614,19 +1682,46 @@
       "id": "30_plate_queue",
       "scenes": [
         {
-          "narration": "Dieses Tutorial deckt Plate Queue ab. Kette mehrere Platten durch die gleiche validierte Pipeline."
+          "narration": "Plate Queue beginnt mit einem konfigurierten Modul. Hier weist Mask auf das übertragene reale Experiment hin, verwendet seine gespeicherten Segmentierungseinstellungen und beschränkt diesen Snapshot auf fünf Testbilder. Die Warteschlange kopiert diese aktuellen Werte; spätere Bearbeitungen in Mask ändern den Warteschlange nicht leise."
         },
         {
-          "narration": "Öffnen Sie die Plattenschlange im Abschnitt Daten und Batchläufe. Fügen Sie Plattenquellen hinzu und wählen Sie die gemeinsame Modulsequenz und Einstellungen vordefiniert."
+          "narration": "Öffnen Sie die Plattenschlange von Data und laufen die Chargen. Das leere Dashboard enthält Steuerungen für die aktuelle Platte, kommaspezifische Plattenlisten, Reinigung, sequentielle Ausführung und einen sicheren Stopp zwischen den Aufgaben."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich überprüfen Sie die Reihenfolge der Platten, die Überschreitung pro Platte, die Grenzen für Arbeiter, die Fehlerrichtlinie, das Wiederholungsverhalten und die Ausgangswurzeln."
+          "narration": "Klicken Sie auf Hinzufügen der aktuellen Platte. Da Mask das jüngst besuchte laufbare Modul war, schnappt spaCR seinen Modulschlüssel, den echten Quellweg und das vollständige Einstellungswörterbuch auf."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Beginnen Sie mit einer kleinen Platte oder einem Prüffeld, lassen Sie die Schlange dann die Platten sequentiell mit sichtbarem Status verarbeiten."
+          "narration": "Die neue Zeile erhält einen kurzen, anhaltenden Identifikator. Die App-Aufzeichnungen, welche Pipeline ausgeführt wird, Label bewahrt die Quelle, Status beginnt als Warteschlange, Elapsed bleibt bis zur Ausführung leer und Remove ist verfügbar, wenn die Zeile nicht ausgeführt wird."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, erhält jede Platte ein einzelnes Projekt und liefert eine Aufzeichnung, während die Warteschlange den Gesamtfortschritt bewahrt."
+          "narration": "Sie können auch einen Datensatzordner mit Snapshots von spaCR-Einstellungen auf diesen Bildschirm ziehen. Der eigentliche Tutorial-Ordner trägt seine gespeicherten Mask und Measure-Snapshots bei, und der Dateiname identifiziert das laufbare Modul. Eine CSV mit einer src-Spalte ist die Alternative zu vielen separaten Platten."
+        },
+        {
+          "narration": "Jede Mutation wird sofort in die lokale Reihenakte geschrieben. Das Schließen von spaCR entfernt den Plan nicht: Die Wiedereröffnung von Plate Queue stellt die Reihenfolge, kopierte Einstellungen, Status, Timing und alle aufgezeichneten Fehler wieder her. Überprüfen Sie die Zeilen und entfernen Sie unerwünschte Schnappschüsse, bevor Sie laufen."
+        },
+        {
+          "narration": "Klicken Sie auf Laufen Warteschlange, um die erste Warteschlange zu verarbeiten. Der Produktionsläufer löst jeden App-Wert in seine normale spaCR-Pipeline und führt einen Job nach dem anderen durch, wodurch zwei Platten nicht um dieselbe GPU oder Ausgangsressourcen konkurrieren."
+        },
+        {
+          "narration": "Der Status ändert sich von der Warteschlange zum laufenden und Elapsed wird jede Sekunde aktualisiert. Diese Tutorial-Aufnahme verwendet die Quellvalidierung anstelle der teuren Analyse-Pipelines, so dass es den echten Schlange-Thread und Zustand-Übergangs ohne Schreiben in das abgeschlossenes Experiment zeigt."
+        },
+        {
+          "narration": "Klicken Sie auf Stoppen, wenn eine Zeile ausgeführt wird, wenn Sie nicht möchten, dass eine andere Platte beginnt. Die Haltestelle ist kooperativ: Die derzeitige Pipeline ist abgeschlossen, während spätere Reihen in der Schlange bleiben und ihre Einstellungen behalten."
+        },
+        {
+          "narration": "Nach Abschluss des aktuellen Artikels ist sein Status erfolgreich und seine vergangene Zeit erhalten. Die übrigen Zeilen sind noch in der Schlange, also ist dies eine sichere Grenze für das Schließen der Anwendung, das Ändern der Ressourcenverfügbarkeit oder die Überprüfung der Ausgänge."
+        },
+        {
+          "narration": "Klicken Sie erneut auf Laufen der Warteschlange, um zu fortsetzen. Fertige Zeilen werden übersprungen und die Ausführung wird ab dem ersten verbleibenden in der Warteschlange verfolgt; eine fehlende Zeile wird als fehlgeschlagen aufgezeichnet, während spätere Zeilen weitergeführt werden können."
+        },
+        {
+          "narration": "Die ausgefüllte Tabelle behält einen Terminalsatz und die vergangene Zeit pro Artikel bei. In einem Produktionslauf hat sich jede Zeile auf die ausgewählte Maske- oder Messpipeline mit ihrer eigenen kopierten Quelle und Einstellungen berufen, als wäre sie aus diesem Modul eingereicht worden."
+        },
+        {
+          "narration": "Klicken Sie auf Schließen abgeschlossen, nachdem Sie die Ergebnisse überprüft haben. Es entfernt erfolgreiche, fehlgeschlagenen und übersprungenen Zeilen aus der Warteschlange, löscht aber niemals Plattendaten oder Pipeline-Ausgänge."
+        },
+        {
+          "narration": "Das Dashboard ist bereit für die nächste Charge. Konfigurieren und validieren Sie zunächst jedes Modul, behalten Sie platzspezifische Werte in seinem Snapshot oder CSV-Reihe, lassen Sie dann Plate Queue eine reproduzierbare sequentielle Ausführung und einen sicheren Neustartvorgang liefern."
         }
       ]
     },
@@ -634,19 +1729,58 @@
       "id": "31_external_masks",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Externe Masken. Verwandeln Sie Etikettenmasken und Quellbilder von Drittanbietern in ein messbares, nachverfolgbares spaCR-Projekt."
+          "narration": "External Masks verwandelt die außerhalb von spaCR produzierte Segmentierung in den gleichen gemessenen Projektvertrag, der von Measure und Annotate verwendet wird. Öffnen Sie es von Data und Batch-Runs; Preview ist nur zu lesen, während Run kanonische Bilder, Stapel, Masken, verschmolzenen Arrays, Messungen und Objektpflanzen erstellen kann."
         },
         {
-          "narration": "Öffnen Sie externe Masken aus dem Abschnitt Daten und Batchläufe. Angeben Sie Quellebilder, externe Masken, Namensregeln, Objekttypen und optionale Messtabellen."
+          "narration": "Werfen Sie Bilder und Masken-Dateien oder einen Ordner mit. Diese Lektion verwendet drei wirkliche 768-Pixel-Kulturen aus dem übertragenen Experiment: zwölf TIFF-Intensität und drei Masken für jeden von vier Objekttypen, die aus bestehenden spaCR-Arrays exportiert werden, nur um eine externe Übergabe zu emulieren."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich werden Bilder auf Masken abgelegt, Form- und Kennzeichnungskonventionen validiert, die Umkennung ausgewählt und Messmöglichkeiten definiert."
+          "narration": "Die Aufgabentabelle gruppiert die Dateien nach Beweisen. Intensitätsbilder werden von ihren Pixel erkannt, während Masken- und Objektwörter die Zell-, Kern-, Krankheitserreger- und Organelletiketten identifizieren. Verwenden Sie als und Mask-Typ bleiben bearbeitbare Vorschläge; überprüfen Sie jede Zeile und ignorieren Sie alles, was nicht in das Projekt eintreten sollte."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vorsichtsausrichtung und Objektzählung auf mehreren Feldern, bevor der vollständige Datensatz importiert wird."
+          "narration": "Input Mapping enthält die überprüfte Zuweisungstabelle, ein neues Ziel, rekursive Entdeckung, Dateinamen-Layout, Z-Handling, Plattenbenennung, Überschreibschutz und nur Vorschau. Diese Steuerelemente entscheiden, welche Dateien ein Paar sind, bevor etwas geschrieben wird."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, speichert spaCR normalisierte Masken, kartografierte Bilder, Messungen und Herkunft bereit für Anmerkungen."
+          "narration": "General definiert die eingeführte Intensitäts-Kanalliste, den Experimentnamen, die Normalisierungspolitik und ob ein Zytoplasma-Abteil abgeleitet wird. Hier passen die Kanäle von Null bis drei zu den vier echten Bild-Ebenen."
+        },
+        {
+          "narration": "Organelle kontrolliert, wie eingeführte Organelle-Etiketten gegen ihre Muttergegenstände zusammengefasst werden. Sie segmentiert die TIFF nicht erneut, sondern definiert nur nachgelagerte Messbeziehungen."
+        },
+        {
+          "narration": "Timelapse enthält Tracking-Optionen für extern bereitgestellte Zeitreihen. Lassen Sie es für dieses Einzeitpunktbeispiel deaktiviert; aktivieren Sie es nur, wenn die Feldnamen und Rahmen eine echte zeitliche Sequenz darstellen."
+        },
+        {
+          "narration": "Die Messungen wählen die von den importierten Etiketten berechneten Merkmalfamilien aus, einschließlich Intensität, Korrelation, Textur, Radialverteilung und Colocalization. Beginnen Sie mit den Funktionen, die Ihre Analyse benötigt, weil die reicheren Familien mehr Zeit und Speicher kosten."
+        },
+        {
+          "narration": "Filter-Einstellungen gelten für die Mindestgröße und die Infektionsgate nach der Einfuhr. Externe Masken bewahren die gelieferte Etikettgeometrie; diese Filter entscheiden, welche gekennzeichneten Objekte in Messungen eingehen, anstatt eine schlechte Segmentierung zu reparieren."
+        },
+        {
+          "narration": "Object Crops wählt aus, welche Abteilungen einzelne PNG-Datensätze, ihre Kanäle, Größe, Normalisierung und Grenzpolitik werden. Dieses Beispiel speichert Zellpflanzen, so dass das fertige Projekt direkt in Annotate geöffnet werden kann."
+        },
+        {
+          "narration": "Advanced enthält Lebenslauf, Trockenlauf, Ausfall, Arbeiter und Logging-Kontrollen. Stärke Fehler und ein Mitarbeiter machen diesen kleinen ersten Import leicht zu prüfen; größere überprüfte Projekte können später mehr Mitarbeiter benötigen."
+        },
+        {
+          "narration": "3D-Einstellungen sind eine Alpha-Phase-Kategorie für volumetrische Messungen und Projektionen. Die gegenwärtigen Eingabe sind zweidimensionale Kennzeichnungspläne, so dass diese Steuerelemente abgeschaltet bleiben und die Z-Handhabung bei maximaler Projektion für jede Multiframe-Intensitätsquelle bleibt."
+        },
+        {
+          "narration": "Bevor Sie importieren, halten Sie nur Vorschau aktiviert und bestätigen Sie, dass das Ziel ein neuer Projektordner ist. Das Überschreiben bleibt ausgeschlossen, so dass eine bestehende Messdatenbank ein Blockierungsproblem ist, anstatt still zu ersetzt zu werden."
+        },
+        {
+          "narration": "Klicken Sie auf Laufen für den Vorflug, der nur zu lesen ist. Es scannt tatsächliche Bildmetadaten, paart Masken mit normalisierten Feldidentitäten, überprüft Duplikate und fehlende Masken, zugeordnet Maskenplanen nach den Intensitätskanälen und schreibt keine Experimentleistung."
+        },
+        {
+          "narration": "Die echte Vorschau berichtet von zwölf Intensitätskarten, drei kompletten Feldern, vier Intensitätskanälen und Zell-, Kern-, Krankheitserreger- und Organellenmasken für jedes Feld. Die Maskenflugzeuge werden vier, fünf, sechs und sieben sein, ohne Warnungen oder Blockfehler."
+        },
+        {
+          "narration": "Deaktivieren Sie nur Vorschau und klicken Sie auf Laufen erneut, um zu importieren. External Masks verwendet nun den überarbeiteten Plan, um kanonische Bilder und Arrays zu schreiben, und überträgt dann die verschmelzten Felder der normalen Measure Pipeline mit den abgeleiteten Maskendimensionen."
+        },
+        {
+          "narration": "Während der Umwandlung gelingen zwölf von zwölf Intensitätspunkten, bevor die Messung beginnt. Die Konsole wiederholt die validierte Pairing und registriert ein Reproduzierbarkeitsmanifest und führt ein Tagebuch aus; Stop bleibt bei den angegebenen sicheren Grenzen verfügbar."
+        },
+        {
+          "narration": "Die eigentliche Importe beendet sich mit drei acht-Platten-fusierten Arrays und einer Messdatenbank mit Zelle, Zytoplasma, Kern, Krankheitserreger, Organelle, PNG-Liste, Einstellungen, Einstellungen-Geschichte und Run-Status-Tabellen. Die Zellpflanzen sind unter Daten, also ist dieses neue Projekt nachvollziehbar und bereit für Annotation ohne Wiederholung der Segmentierung."
         }
       ]
     },
@@ -654,19 +1788,34 @@
       "id": "32_align_stitch",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Align und Stitch. Registrieren Sie Bildfliesen und bauen Sie ein gestricktes Mosaik schrittweise auf, ohne die gesamte Leinwand im Gedächtnis zu behalten."
+          "narration": "Align und Stitch registrieren Mikroskopiefliesen auf einer Leinwand, ohne zuerst das gesamte Mosaik zuzuordnen. Öffnen Sie es von Data und Batchläufen. Das Plan-First-Layout ist bewusst: Registrierungssicherheit, Rückschlagplatzierung, Ausgangsgröße und Speicherverwendung sind sichtbar, bevor spaCR etwas schreibt."
         },
         {
-          "narration": "Öffnen Sie Align und Stitch aus dem Abschnitt Daten und Batchläufe. Wählen Sie flischierte Akquisitionen, Stufenkoordinaten oder überlappende Metadaten, Kanäle und ein Ziel."
+          "narration": "Lassen Sie einen Ordner mit NPY- oder TIFF-Fliesen fallen oder wählen Sie ihn hier aus. Diese Lektion exportiert ein echtes Vier-Kanal-Mikroskopiefeld als neun überlappende Fliesen, um nur eine 3 durch 3 Akquisition nachzuahmen. Die Quellpixel bleiben real, während die bekannte Überschneidung uns ein reproduzierbares Registrierungsbeispiel gibt."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie die Registrierungsmethode, den Referenzkanal, die Überlagerung, das Mischen, die Korrektur, die Stückgröße und das Ausgangsformat."
+          "narration": "Beschreiben Sie das Layout der Akquisition. Das Raster ist 3 x 3 mit einer nominellen Überschneidung von 25 Prozent in Reihenfolge von großen Zeilen. Referenzkanal 1 ist der endoplasmisch-reticulum-Kanal; spaCR löst die Registrierung einmal auf dieser Ebene und wendet die gleiche Transformation auf alle vier Kanäle an, um Kanal-zu-Kanal-Schnitt zu verhindern."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Bevor das gesamte Mosaik gebaut wird, prüfen Sie die Ausrichtung und die Nähe."
+          "narration": "Die Qualitätskontrolle entscheidet, welche Paare in die globale Lösung eingehen. Das Mindestvertrauen lehnt eine schwache Kreuzkorrelation ab, der Nachbarradius fügt redundante nahegelegene Vergleiche hinzu, Feather-Mixes überlappende Nähte und das 64-Megabyte-RAM-Budget begrenzt jedes Ausgangsband und nicht die Größe der fertigen Leinwand."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden registrierte Fliesen, gestrickte Bilder, Transformationen und Kartenmetadaten gespeichert."
+          "narration": "Klicken Sie auf Plan, bevor Sie schreiben. Die Planung liest Fliesenheader und Überlappungsstreifen, schätzt Nachbarkompensationen und löst alle akzeptierten Einschränkungen zusammen. Es erzeugt weder eine Leinwand noch Ausgangsdateien, also ist dies der sichere Punkt, um ein falsches Raster, eine ordnung, eine Überschneidung oder einen Referenzkanal zu fangen."
+        },
+        {
+          "narration": "Der eigentliche Plan registriert alle neun Fliesen. Die Layoutfarben registrierten die Felder vertrauensvoll, während jeder Fallback in der Bühnenposition orange und geschlüpft wäre. Der Bericht enthält die akzeptierten und abgelehnten Paare, die schlimmsten Restwerte, die endgültigen Leinwanddimensionen, die Größe der Festplatte und die Schätzung des Schreibens mit begrenztem Speicher."
+        },
+        {
+          "narration": "Klicken Sie auf eine einzelne Fliese, um ihre gelöste Y- und X-Position, Methode, Zuverlässigkeit, Rest und Anzahl der unterstützenden Paare zu überprüfen. Dieses Feld wurde durch die Registrierung und nicht nur durch seine nominelle Gitterposition platziert; verwenden Sie die gleiche Inspektion, um schwache oder isolierte Fliesen zu untersuchen, bevor Sie ein großes Mosaik machen."
+        },
+        {
+          "narration": "Wählen Sie ein neues Ziel für den gesähteten NPY-Stack. Die Datenbank der optionalen Messungen erfasst die gelösten Fliesenkoordinaten und den Ausgangspfad. Halten Sie die Überschrift beim ersten Lauf aus, so dass ein bestehendes Mosaik abgelehnt wird, anstatt schweigend ersetzt zu werden."
+        },
+        {
+          "narration": "Klicken Sie nur auf Schreiben Stapel, nachdem der Plan akzeptabel ist. spaCR komponiert die Fliesen jeweils in einem horizontalen Band, setzt Federvermischung in Überlappungen ein und schreibt Koordinaten, nachdem das Bild erfolgreich ist. Die Ausgabe kann daher die verfügbare RAM übersteigen, während das Speicher innerhalb des angegebenen Budgets bleibt."
+        },
+        {
+          "narration": "Der verifizierte Lauf schreibt alle neun Fliesen ohne zu überspringen, erzeugt einen vierkanalen, gestrickten Stapel, der dem Quellfeld entspricht, und fügt neun Zeilen in die Ausrichtungskordinatentabelle hinzu. Der Bericht bewahrt sowohl die Registrierungsnachweise als auch die Schreibsumme mit begrenztem Speicher, so dass das Mosaik vor der nachgelagerten Analyse überprüfbar ist."
         }
       ]
     },
@@ -674,19 +1823,46 @@
       "id": "33_plate_viewer",
       "scenes": [
         {
-          "narration": "Dieses Tutorial deckt Plate Viewer ab. Erforschen Sie alle Messungen als Plattenwärmeplan und identifizieren Sie räumliche Artefakte oder Randeffekte."
+          "narration": "Plate Viewer verwandelt jede Objektsmessung in eine Well-Heatmap und stellt die Rand-Effekt-Diagnostik neben sich. Öffnen Sie es von Resultaten und Qualitätskontrolle. Der Workflow ist strukturell nur zu lesen: spaCR öffnet die Messdatenbank nur im Abfragenmodus und schreibt nur eine optional ausgeführte CSV."
         },
         {
-          "narration": "Öffnen Sie den Plattenschauer aus dem Abschnitt Ergebnisse und Qualitätskontrolle. Öffnen Sie eine Messdatenbank mit Kennzeichen für Platten, Brunnen und Zustände."
+          "narration": "Lassen Sie eine Messdatenbank oder ihren Ausführungsordner fallen oder wählen Sie hier entweder. Dies ist die echte Datenbank des übertragenen Experiments, die 81.969 gemessene Zellen über 196 Brunnen enthält. Der Plate Viewer liest die Namen der Tabellen und nur die für die ausgewählte Ansicht benötigten Identifikator- und Messspalten."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich die Messung, Aggregation, Normalisierung, Farbskala, Steuerungen und Plattenlayout aus."
+          "narration": "Wählen Sie die Zelltabelle und ein numerisches Merkmal aus. Hier wählen wir die mittlere Intensität des Kanals 1, des Endoplasma-Retikulum-Kanals aus. Nach dem ersten Render wird der Plate-Selektor aus den Daten ausgefüllt; diese Datenbank enthält Plate 1."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vergleichen Sie Roh- und Normalansichtungen und überprüfen Sie verdächtige Brunnen oder systematische Randmuster."
+          "narration": "Per Brunnen steuert, wie Objekte zu einem Wert zusammenbrechen. Durchschnitt und Median fassen das gewählte Merkmal zusammen, während Count die Objektnummer festlegt. Die robuste Farbskala von 2 bis 98 Prozent verhindert, dass ein extremer Brunnen den Rest flach macht, und Mindestobjekte pro Brunnen markieren unterleistete Brunnen als leer und nicht als Null."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, können Heatmaps, ausgewählte Welltabellen und Rand-Effekt-Diagnostik exportiert werden."
+          "narration": "Klicken Sie auf Render mit Mittel, der robusten Skala und mindestens 100 Zellen. Die Datenbankfrage wird cached, so dass spätere Änderungen der Aggregation, der Farbskala, der Platte oder der Mindestzahl die Ansicht neu berechnen, ohne die vollständige Feature-Tabelle erneut zu lesen."
+        },
+        {
+          "narration": "Alle 196 gemessenen Brunnen überleben. Die mittlere ER-Intensität hat keinen kategorischen Außenring-Effekt, aber der reale Bericht erkennt einen monotonen Zeilengrad mit Spearman rho 0,454. Das Ringprofil und die Zeilen- und Spaltendiagnostik halten diesen Raumtrend neben der Hitzekarte sichtbar, anstatt ihn als Biologie zu maskieren."
+        },
+        {
+          "narration": "Klicken Sie auf einen beliebigen Brunnen, um den genauen Identifikator, die Anzahl der Objekte, den Gesamtwert und die Position des Rings zu erfahren. G07 ist ein Innenbrunnen hier. Diese direkte Kartierung ist nützlich, um zu bestimmen, ob ein offensichtlicher Treffer zu einem räumlichen Muster gehört, bevor er seine Felder oder Pflanzen anderswo öffnet."
+        },
+        {
+          "narration": "Wechseln Sie Per well auf Count. Count ignoriert den ausgewählten Intensitätswert und die Farben jeweils gut durch die Anzahl der gehaltenen Zellen, was häufig die schnellste Qualitätskontrolle-Ansicht für Toxizität, Segmentierungsverlust, ungleichmäßige Aussaat oder Rand-abhängiges Wachstum ist."
+        },
+        {
+          "narration": "Die reale Count-Ansicht zeigt einen äußeren Ring-Effekt: Randbrunnen enthalten 14,3 Prozent mehr Zellen als das Innere, wobei Cliffs Delta 0,571 ist und p 0,0003817 entspricht. Der Bericht gibt die Effektrichtung und -größe anstatt Sie zu bitten, sie nur aus der Farbe zu schließen."
+        },
+        {
+          "narration": "Erhöhen Mindestobjekte pro Brunnen auf 350, wenn diese Zahl der Mindestbeweise für den Vergleich ist. Der Filter ist eine Qualitätsschwelle, nicht eine Imputationsregel: Brunnen unter ihm verlassen die numerische Analyse und werden zu kreuzigen Leerstellen."
+        },
+        {
+          "narration": "Achtundzwanzig von den 196 gemessenen Brunnen sind jetzt abgeworfen, 168 bleiben für den Randtest. Der äußere Ring-Effekt bleibt bei plus 10,5 Prozent nachweisbar. Nach der Filterung fehlen kreuzige Zellen auf der Wärmemappe; sie werden nie gefärbt, als wäre ihr Wert null."
+        },
+        {
+          "narration": "Klicken Sie auf einen überschrittenen Brunnen, um zu bestätigen, warum er leer ist. C14 enthält 233 gemessene Zellen, weniger als die erforderlichen 350, so dass die Leseinformationen leer sind und die Schwelle benannt wird. Dies macht eine niedrige Unterstützung von einer tatsächlichen Nullzahl zu unterscheiden."
+        },
+        {
+          "narration": "Klicken Sie auf Export Well Grid CSV, um die aktuelle ordentliche Ansicht zu speichern. Jede Zeile behält die Identität, die Anzahl der Objekte, den angezeigten Wert, den Ringindex und die Randflagge bei, sodass das Ergebnis auf Plattenebene außerhalb von spaCR überprüft oder neu abgebildet werden kann, ohne die Merkmaltabelle auf Objektebene zu exportieren."
+        },
+        {
+          "narration": "Die geprüfte Ausfuhr enthält 168 Brunnen, die genau mit der gefilterten Wärmeplanung übereinstimmen. Eine Prüfung vor und nach SHA-256 bestätigt, dass die Datenbank der Quellmessungen byte-identisch ist und einen Lese-Nur-Platten-Qualitätskontrollpass mit einer nachvollziehbaren abgeleiteten Tabelle ergänzt."
         }
       ]
     },
@@ -694,19 +1870,43 @@
       "id": "34_database",
       "scenes": [
         {
-          "narration": "Dieses Tutorial deckt den Datenbankbrowser ab. Durchsuchen, filtern, abfragen und exportieren Sie Messungen dot db, ohne die Befehlszeile sqlite zu verwenden."
+          "narration": "Der Datenbankbrowser überprüft große spaCR-Ergebnisdatenbanken ohne Befehlszeile. Öffnen Sie es von Resultaten und Qualitätskontrolle. Es beginnt auf beiden Ebenen nur zu lesen: Die Schnittstelle bietet keine Zell-Editoren an, und SQLite verwendet nur zu lesen und nur zu befragen Modi, es sei denn, die Bearbeitung ist absichtlich an anderer Stelle aktiviert."
         },
         {
-          "narration": "Öffnen Sie den Datenbankbrowser aus dem Abschnitt Daten und Batchläufen. Öffnen Sie eine spaCR SQLite-Datenbank und wählen Sie eine Tabelle oder gespeicherte Abfrage aus."
+          "narration": "Geben Sie einen Messungen.db-Pfad ein und klicken Sie auf Öffnen. Sie können stattdessen die Datenbank auswählen, den ausgeführten Ordner auswählen oder entweder überall auf diesem Bildschirm ablassen. Hier öffnen wir die echte Messdatenbank des übertragenen Tutorial-Experiments."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie Spalten, Filter, Sortieren, Zeilenlimits, Verbindungen und sicheres nur zu lesen oder bearbeitbares Verhalten."
+          "narration": "spaCR löst den Weg, öffnet ihn nur zu lesen und listet zehn Tabellen auf. Dazu gehören Objektmessungen, Bilderregister, Einstellungen, Zählungen und Anmerkungsgeschichte. Der Bearbeitungsmodus bleibt ausgeschaltet; dieses Tutorial aktiviert ihn nie und schreibt nie an die Quelle."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Anfragen zu sehen und Objekt-Identifikatoren bei Export oder Genehmigungsbearbeitung zu speichern."
+          "narration": "Klicken Sie auf die Zelltabelle. Es enthält 81.969 gemessene Zellen und 218 Identifikator-, Morphologie-, Intensitäts-, Textur-, Entfernung- und Colocalizationsspalten. Die Vorschau holt nur den ersten begrenzten Teil ab, während die vollständige Zeilenzahl separat gemeldet wird."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, können gefilterte Tabellen kopiert oder exportiert werden, während die ursprüngliche Datenbank nachvollziehbar bleibt."
+          "narration": "Suche nach Spalten, um eine breite Feature-Tabelle lesbar zu machen. Die query cell_channel_1_mean schränkt sofort 218 angezeigte Spalten auf die Single-Channel-1-Mittelintensitätsfunktion ein. Dies ändert nur die Ansicht; es führt die Datenbankfrage nicht erneut aus oder entfernt Zeilen."
+        },
+        {
+          "narration": "Löschen Sie die Spalte-Suche und setzen Sie Reihen pro Abholung auf 250. Die Vorschau verwendet das Schlüsselset-Paging statt eines tiefen Offsets, so dass jede Anfrage im Zuge des Wachstums der Tabelle begrenzt bleibt. Klicken Sie auf Lade mehr, um das nächste Stück hinzuzufügen, ohne alle 81.969 Zeilen im Speicher zu laden."
+        },
+        {
+          "narration": "Die Vorschau zeigt nun 500 von 81.969 Zeilen. Das Sortieren bleibt abgeladen, wenn nur ein Teil der Tabelle geladen ist, da das Sortieren einer teilweisen Seite den gesamten Datensatz falsch darstellt. Datenbankfilter laufen jedoch immer gegen die komplette Tabelle."
+        },
+        {
+          "narration": "Erstellen Sie einen strukturierten Filter durch die Auswahl von cell_area, größer als oder gleich 10.000, und klicken Sie dann auf Filter anwenden. spaCR validiert die Spalte und den Betreiber und bindet den Wert als Parameter. Raw SQL ist für fortgeschrittene Prädikate verfügbar, ist aber hier unnötig."
+        },
+        {
+          "narration": "Der komplette Filter enthält 12.907 Zellen. Nur die ersten 250 sind gemalt, doch die genaue Filterzahl und das aktive Prädikat bleiben sichtbar. Diese Unterscheidung verhindert, dass eine Vorschau-Seite mit der Bevölkerungsgröße verwechselt wird."
+        },
+        {
+          "narration": "Klicken Sie auf Export gefilterterter CSV. Exporte streamen die gesamte aktuelle Tabelle und Filter anstatt nur die geladene Vorschau, und sie ehren die sichtbare Spalte Suche, wenn man aktiv ist. Diese Ausfuhr behält alle 218 Spalten bei, wenn die Suche abgeschafft ist."
+        },
+        {
+          "narration": "Der Status bestätigt eine Ausfuhr von 12.907 Zeilen mit 218 Spalten. Der abgeleitete CSV ist die einzige neue Datei, die erstellt wurde. Eine Überprüfung vor und nach SHA-256 bestätigt, dass measurements.db mit dem Byte identisch ist und neben ihm kein Tagebuch oder ein \"write-ahead-log\"-Datei erschien."
+        },
+        {
+          "narration": "Klicken Sie auf Clear, um das Prädikat zu entfernen und das erste begrenzte Stück neu zu laden. Filter sind reversibel Sichtzustand: Clearing one ändert keine Zeilen in der Datenbank oder der zuvor ausgeführten Datei."
+        },
+        {
+          "narration": "Alle 81.969 Zellen sind dem Browser wieder sichtbar, wobei nur die ersten 250 geladen sind. Dies ergänzt einen nachvollziehbaren, nur lesbaren Workflow zur Erforschung großer spaCR Messtabellen und zum Export präzise definierter Untersätze."
         }
       ]
     },
@@ -714,19 +1914,34 @@
       "id": "35_converter",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Format Converter. Konvertieren Sie ND2, CZI, LIF, OME-TIFF und verwandte Mikroskopieformate in gemapste TIFF-Dateien im Yokogawa-Stil."
+          "narration": "Format Converter verwandelt Verkäufer- oder allgemeine Mikroskopiebilder in die TIFF-Namen im Yokogawa-Stil, die direkt von spaCR Mask und Measure gelesen werden. Öffnen Sie es von Data und Batchläufen. Die zentrale Sicherheitsregel ist Vorschau zuerst und Konvertierung zu zweit."
         },
         {
-          "narration": "Öffnen Sie den Formatkonverter aus dem Abschnitt Daten und Batchläufen. Wählen Sie Quelldateien, Serien oder Szenen, Kanalnamen, Zeit- und Tiefenverarbeitung und einen Ausgabeordner aus."
+          "narration": "Lassen Sie einen Quellordner fallen oder wählen Sie ihn hier aus, dann wählen Sie ein neues Ziel. Diese Demonstration verwendet zwei wirkliche Vierkanalfelder aus dem übertragenen Experiment. Ihre Pixel wurden byte-für-byte kopiert; nur die Tutorial-Ordnerstruktur und die Quelldateinamen wurden für dieses Konversionsbeispiel vorbereitet."
         },
         {
-          "narration": "In der Hauptkonfigurationsfläche sehen Sie vorab, wie die Quelldimensionen auf Plate, Brunnen, Feld, Zeit, Tiefe und Kanalindizes abgebildet werden."
+          "narration": "Das Layout beschreibt, ob die Bilder direkt in der Quelle, unter den Brunnenordnern oder unter den Platten- und Brunnenordnern liegen; die automatische Erkennung ist normalerweise angemessen. Jede Z-Fläche zu behalten, ist der Verlustlose Standard. Max-Projektion und First-Plane-Modus entfernen explizit Flugzeuge. Plattennamen können aufeinanderfolgende oder reservierende Quellenordner sein, und Resume validiert Feldkontrollpunkte, bevor sie übersprungen werden."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Validieren Sie die Kartierung auf einer kleinen Stichprobe, bevor Sie jede Datei konvertieren."
+          "narration": "Mit automatischer Layout-Detection, lossless Z-Handling, sequentiellen Platennamen und dem ausgewählten neuen Ziel klicken Sie auf Vorschau. Die Vorschau scannt Header und erstellt die Kartierung, erstellt jedoch nicht das Ziel oder schreibt ein Bild."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, schreibt spaCR standardisierte TIFFs und eine Karte zurück zu den ursprünglichen Dateien und Metadaten."
+          "narration": "Der vollständige 8-Datei-Plan erscheint vor der Umwandlung. Jede Zeile stellt ihre erkennbare Quelle neben dem genauen Ziel, der Platte, dem Brunnen, dem Feld, dem Kanal, dem Z, der Zeit, den ursprünglichen Identifikatoren und dem Status. Die erste Ausgabe ist Platte1, A01, Feld 1, Kanal 1; die letzte ist Feld 2, Kanal 4. Der Status bestätigt, dass nichts geschrieben wurde."
+        },
+        {
+          "narration": "Überprüfen Sie die Zusammenfassung und klicken Sie nur dann auf Konvertieren, wenn die Kartierung korrekt ist. Eine Kollision deaktiviert diesen Knopf, anstatt ein Ziel zu überschreiben. Die gültigen Dateien werden atomarisch an das getrennte Ziel geschrieben, sodass die ursprünglichen Mikroskopiebilder nie umbenannt oder ersetzt werden."
+        },
+        {
+          "narration": "Alle acht TIFF wurden erfolgreich geschrieben. conversion_map.csv erfasst jedes Ziel neben seinem ursprünglichen absoluten und relativen Pfad, Quellidentifikatoren, spaCR join Identifikatoren, Dimensionen, Z-Politik und Metadaten. Die vorbereiteten TIFF-Hashes bleiben nach der Umwandlung byteidentisch."
+        },
+        {
+          "narration": "Aktivieren Sie Resume für eine unterbrochene oder wiederholte Konvertierung. Resume vertraut nicht nur den Dateinamen: Er konsultiert einen Kontrollpunkt des Atomfeldes und validiert alle TIFF, die zu einem abgeschlossenen Feld gehören, bevor er entscheidet, dass das Feld übersprungen werden kann."
+        },
+        {
+          "narration": "Klicken Sie erneut auf Konvertieren, wobei der gleiche verifizierte Plan und die Weiterführung aktiviert sind. Wenn eine Datei fehlt oder beschädigt ist, wird das gesamte Feld wieder aufgebaut; komplette Felder können sicher wiederverwendet werden."
+        },
+        {
+          "narration": "Beide vierkanalen Felder passieren die Validierung, so dass Resume Null-Dateien schreibt und zwei resumierte Felder meldet. Die achtreifige Herkunftskarte und acht umgewandelte TIFFs bleiben vollständig, wodurch eine umkehrbare, verlustfreie und wiederstartsichere Einfuhr in die spaCR-Namenung abgeschlossen wird."
         }
       ]
     },
@@ -734,19 +1949,40 @@
       "id": "36_import",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Import-Projekt. Bringen Sie Bilder, Masken und Messtabellen eines anderen Laboratoriums in ein spaCR-Projekt."
+          "narration": "Import Project bringt die Bilder eines anderen Labors, Etikettenmasken und Messungen in ein spaCR-Projekt, ohne eine abgeleitete Kartierung als Wahrheit zu behandeln. Öffnen Sie es von Data und Batchläufen. Die oberen Kontrollen beschreiben ihre Eingabe, die mittlere ist eine bearbeitbare Überprüfung und die unteren Kontrollen speichern diese Entscheidung oder starten die getrennte Einfuhr."
         },
         {
-          "narration": "Öffnen Sie Importprojekte aus dem Abschnitt Daten und Batchläufe. Angabe von Bildern, optionalen Masken, einer Messtabelle und stabilen externen Identifikatoren."
+          "narration": "Wählen Sie den externen Bildordner aus oder lassen Sie ihn fallen und wählen Sie ein neues Ziel aus. In dieser Lektion werden zwei wirkliche 2000 bis 2000 Felder verwendet, jedes mit vier Fluoreszenzkanälen. Die Quell-spaCR-Arrays wurden ausschließlich für die Demonstration des Querschnitt-Imports in neutrale TIFF-Eingaben entschlüsselt; keine synthetischen Pixel wurden erstellt."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich werden ausländische Spalten auf spaCR-Identifikatoren, Kanäle, Objekttypen, Plattenmetadaten und Herkunftsfelder abgegrenzt."
+          "narration": "Ein zusammengesetztes spaCR-Feld kann für jede Objektklasse eine Kennzeichnungsebene tragen. Wählen Sie eine Klasse aus, wählen Sie den Ordner aus und klicken Sie auf Hinzufügen. Wiederholen Sie für Zell-, Kern-, Krankheitserreger- und Organellenmasken. Jedes Feld muss jede angegebene Klasse haben; unvergleichliche Bild- oder Maskendateien werden aufgelistet, anstatt zu erraten."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Validieren Sie Verbindungen, fehlende Werte, Bildmasken-Ausrichtung und duplizierte Identifikatoren vor der Einfuhr."
+          "narration": "Fügen Sie den realen Mess-CSV hinzu und erklären Sie 0,65 Mikrometer pro Pixel, damit Quadratmikrometerflächen korrekt umgewandelt werden können. Die Tabelle enthält absichtlich eine Spalte namens cell_area. Umbenannt auf das Fremdprefix bewahrt diesen externen Wert, ohne ein spaCR-Feature schweigend zu ersetzen. Die ursprünglichen Dateien bleiben nur zu lesen, und die Ausgabe geht an das neue Ziel."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, bewahrt das standardisierte Projekt Links zurück zu jeder ursprünglichen Datei und Identifikator."
+          "narration": "Klicken Sie auf Vorschau, bevor Sie importieren. Die Vorschau scannt die Bildüberschriften, paart jede Maske nach Feld, liest die Messtabelle, überprüft Objektetiketten, schlägt Spaltenkartierungen vor, löst Einheiten- und Namenskonflikte und schreibt nichts."
+        },
+        {
+          "narration": "Die beiden Felder sind bereit. Die bearbeitbare Tabelle zeigt jede externe Spalte, das vorgeschlagene spaCR-Ziel, die Transform-, Eingabe- und Ausgangseinheiten sowie eine Überprüfungsanmerkung an. Der Bericht bestätigt, dass 206 von 207 Messreihen mit echten Zelletiketten übereinstimmen. Ein fehlendes Etikett und 1.198 Maskenobjekte ohne Tischreihen werden enthüllt, niemals schweigend entsorgt oder erfunden."
+        },
+        {
+          "narration": "Der Vorschlag ist absichtlich bearbeitbar. Wählen Sie die spaCR-Säulenzelle für AreaShape_Area_um2 aus und ersetzen Sie das Ziel durch einen überarbeiteten, aussagekräftigen Namen. Hier können auch Transform- und Einheitsspalten korrigiert werden; jede Bearbeitung führt sofort Kollisions- und Kalibrierungskontrollen wieder aus, ohne die Ordner neu zu scannen."
+        },
+        {
+          "narration": "Das Zielgebiet ist jetzt foreign_reviewed_cell_area. Seine Flächenumwandlung bleibt von Quadratmikrometern bis zu Quadratpixeln kalibriert, während der widersprüchliche externe Cell_area separat mit dem Fremdpräfix umbenannt wird. Der Status sagt immer noch, dass nichts geschrieben wurde."
+        },
+        {
+          "narration": "Klicken Sie auf Speichern von Karten, um die komplette Überprüfung als CSV zu schreiben. Die Datei kann überprüft, verarbeitet, mit einem Mitarbeiter geteilt, außerhalb der Anwendung bearbeitet und erneut geladen werden. Import wird genau die auf dem Bildschirm gezeigte Kartierung anwenden."
+        },
+        {
+          "narration": "Die überprüfte Kartierung wird neben der isolierten Tutorial-Ausgabe gespeichert. Die Lade-Mapping stellt die gleichen Entscheidungen später wieder her. Die Bestimmung muss neu sein oder zu demselben Experiment gehören; das Import Project weigert sich, eine Bestimmung mit Messungen aus verschiedenen Feldern vor dem Schreiben einer Datei zu verwenden."
+        },
+        {
+          "narration": "Nach der Überprüfung der Bilder, vier Maskenklassen, verbinden Bericht, Einheiten, Konflikte und Ziel, klicken Sie auf Import. Diese getrennte Aktion konvertiert Bildernamen, schreibt Intensitäts- und Maskenstapels, baut zusammengesetzte Arrays mit spaCR's native Ebene-Reihenfolge und erstellt die Datenbank und Herkunftsregister."
+        },
+        {
+          "narration": "Die Einfuhr endet mit zwei Feldern, acht umgewandelten Kanal-TIFFs, acht Masken-Arrays und zwei fusionierten Arrays, die vier Intensitätsplanen enthalten, gefolgt von Zell-, Kern-, Krankheitserreger- und Organelletiketten. Alle 207 externen Zeilen sind in foreign_cell und einer kanonischen Convenience-Kopie gespeichert, während measurements.db und die angewandte Kartierungsaufzeichnung, welche Spalten von außerhalb von spaCR stammen."
         }
       ]
     },

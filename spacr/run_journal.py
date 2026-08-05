@@ -45,22 +45,55 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import importlib.metadata
 import json
 import logging
 import os
 import platform
+import random
+import re
 import shutil
 import subprocess
 import sys
+import tempfile
+import threading
 import time
 import uuid
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple
+
+# The macro recorder. Imported at the top rather than inside `open_run`
+# because it costs nothing to: `spacr.macro` imports only the standard
+# library, and reaches for spacr.ports / spacr.artifacts / spacr.settings
+# lazily, inside the functions that need them. Both calls swallow every
+# exception on purpose — the emitted script is a record of the run, never
+# a condition of it.
+from .macro import begin_recording, finish_recording
 
 LOG = logging.getLogger("spacr.run_journal")
+
+MANIFEST_SCHEMA_VERSION = 2
+"""Current on-disk reproducibility-manifest schema."""
+
+_HASH_ALGORITHM = "sha256"
+_SEED_KEY_PARTS = ("seed", "random_state", "random_seed")
+_OUTPUT_KEY_PARTS = (
+    "dst", "dest", "output", "export", "save_path", "report_path",
+    "checkpoint_path", "tar_path",
+)
+_PATH_KEY_PARTS = (
+    "src", "path", "file", "folder", "dir", "model", "database", "db",
+    "csv", "json", "plate", "project", "checkpoint", "weights", "tar",
+    *_OUTPUT_KEY_PARTS,
+)
+_IGNORED_TREE_NAMES = frozenset({
+    ".git", ".hg", ".svn", "__pycache__", ".pytest_cache", ".mypy_cache",
+    ".ruff_cache", ".spacr", ".ipynb_checkpoints",
+})
 
 
 # ---------------------------------------------------------------------------
@@ -78,7 +111,10 @@ def _new_run_dir(app_key: str) -> Path:
     """Return a fresh ``<UTC-timestamp>_<short-uuid>__<app>`` folder."""
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H%M%S")
     tag = uuid.uuid4().hex[:8]
-    d = runs_root() / f"{ts}_{tag}__{app_key or 'unknown'}"
+    safe_app = re.sub(r"[^A-Za-z0-9_.-]+", "_", app_key or "unknown").strip(
+        "._"
+    ) or "unknown"
+    d = runs_root() / f"{ts}_{tag}__{safe_app}"
     d.mkdir(parents=True, exist_ok=True)
     (d / "outputs").mkdir(exist_ok=True)
     return d
@@ -120,8 +156,29 @@ def _git_hash() -> Optional[str]:
         return None
 
 
+@lru_cache(maxsize=1)
+def _installed_packages() -> Dict[str, str]:
+    """Return all installed Python distributions as ``{name: version}``.
+
+    Distribution metadata is read without importing packages, so recording a
+    run does not initialize CUDA, Qt, or another expensive optional runtime.
+    Duplicate normalized names are collapsed deterministically.
+    """
+    packages: Dict[str, str] = {}
+    try:
+        for dist in importlib.metadata.distributions():
+            name = str(dist.metadata.get("Name") or "").strip()
+            if name:
+                packages[name.lower().replace("_", "-")] = str(
+                    dist.version or "unknown"
+                )
+    except Exception as exc:
+        LOG.warning("Could not enumerate installed packages: %s", exc)
+    return dict(sorted(packages.items()))
+
+
 def _env_snapshot() -> Dict[str, Any]:
-    """Capture host + package versions worth reproducing against."""
+    """Capture host and complete package versions for reproduction."""
     return {
         "spacr":         _pkg_version("spacr"),
         "spacr_git":     _git_hash(),
@@ -136,22 +193,264 @@ def _env_snapshot() -> Dict[str, Any]:
         "pandas":        _pkg_version("pandas"),
         "scikit_image":  _pkg_version("scikit-image"),
         "scikit_learn":  _pkg_version("scikit-learn"),
+        "packages":       _installed_packages(),
     }
 
 
-def hash_file(path: Path, chunk_size: int = 1 << 20) -> Optional[str]:
-    """Return the sha256 (first 16 hex chars) of a file, or None on error.
+def hash_file(
+    path: Path,
+    chunk_size: int = 1 << 20,
+    *,
+    full: bool = False,
+) -> Optional[str]:
+    """Return a SHA-256 digest of a file, or ``None`` on error.
 
-    Used to fingerprint model checkpoints so a mask can be traced
-    back to the exact weights that produced it.
+    :param path: regular file to hash.
+    :param chunk_size: bytes read per iteration.
+    :param full: return all 64 hexadecimal characters. The default preserves
+        the historic 16-character public result; reproducibility manifests use
+        the full digest.
     """
     try:
         h = hashlib.sha256()
         with open(path, "rb") as f:
             for chunk in iter(lambda: f.read(chunk_size), b""):
                 h.update(chunk)
-        return h.hexdigest()[:16]
+        digest = h.hexdigest()
+        return digest if full else digest[:16]
+    except Exception as exc:
+        LOG.warning("Could not hash %s: %s", path, exc)
+        return None
+
+
+def _json_digest(value: Any) -> str:
+    """Return a full SHA-256 of a JSON-compatible value."""
+    payload = json.dumps(
+        value, sort_keys=True, separators=(",", ":"), default=str,
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _atomic_write_text(path: Path, text: str) -> None:
+    """Atomically replace ``path`` with UTF-8 ``text``."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_name = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=str(path.parent),
+    )
+    tmp_path = Path(tmp_name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(text)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp_path, path)
+    finally:
+        try:
+            tmp_path.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
+def _is_output_key(key: str) -> bool:
+    """Return whether a setting key conventionally denotes an output path."""
+    lowered = str(key).lower()
+    tokens = set(filter(None, re.split(r"[^a-z0-9]+", lowered)))
+    return (
+        bool(tokens.intersection({"dst", "dest", "output", "export"}))
+        or any(
+            lowered == part
+            or lowered.endswith(f"_{part}")
+            or lowered.startswith(f"{part}_")
+            for part in _OUTPUT_KEY_PARTS
+        )
+    )
+
+
+def _is_path_key(key: str) -> bool:
+    """Return whether a setting key conventionally contains filesystem data."""
+    lowered = str(key).lower()
+    tokens = set(filter(None, re.split(r"[^a-z0-9]+", lowered)))
+    return (
+        bool(tokens.intersection(_PATH_KEY_PARTS))
+        or any(
+            lowered == part
+            or lowered.endswith(f"_{part}")
+            or lowered.startswith(f"{part}_")
+            for part in _PATH_KEY_PARTS
+        )
+    )
+
+
+def _walk_setting_values(
+    value: Any,
+    key: str = "",
+    *,
+    _seen: Optional[Set[int]] = None,
+) -> Iterator[Tuple[str, Any]]:
+    """Yield scalar setting values with their dotted/list-qualified key."""
+    if _seen is None:
+        _seen = set()
+    if isinstance(value, dict):
+        marker = id(value)
+        if marker in _seen:
+            return
+        _seen.add(marker)
+        for child_key, child in value.items():
+            name = f"{key}.{child_key}" if key else str(child_key)
+            yield from _walk_setting_values(child, name, _seen=_seen)
+        return
+    if isinstance(value, (list, tuple, set, frozenset)):
+        marker = id(value)
+        if marker in _seen:
+            return
+        _seen.add(marker)
+        for index, child in enumerate(value):
+            yield from _walk_setting_values(
+                child, f"{key}[{index}]", _seen=_seen,
+            )
+        return
+    yield key, value
+
+
+def extract_seeds(settings: Dict[str, Any]) -> Dict[str, Any]:
+    """Capture declared seeds plus already-loaded RNG state fingerprints.
+
+    The state fingerprints do not import NumPy or Torch. When those libraries
+    are already loaded, their state is captured; otherwise the manifest says
+    so explicitly instead of changing application startup behavior.
+    """
+    declared: Dict[str, Any] = {}
+    for key, value in _walk_setting_values(settings):
+        lowered = key.lower()
+        if any(part in lowered for part in _SEED_KEY_PARTS):
+            declared[key] = value
+
+    result: Dict[str, Any] = {
+        "declared": declared,
+        "python_hash_seed": os.environ.get("PYTHONHASHSEED"),
+        "python_random_state_sha256": hashlib.sha256(
+            repr(random.getstate()).encode("utf-8")
+        ).hexdigest(),
+    }
+    numpy = sys.modules.get("numpy")
+    try:
+        if numpy is not None:
+            result["numpy_random_state_sha256"] = hashlib.sha256(
+                repr(numpy.random.get_state()).encode("utf-8")
+            ).hexdigest()
+        else:
+            result["numpy_random_state_sha256"] = None
+    except Exception as exc:
+        result["numpy_random_state_error"] = str(exc)
+    torch = sys.modules.get("torch")
+    try:
+        result["torch_initial_seed"] = (
+            int(torch.initial_seed()) if torch is not None else None
+        )
+    except Exception as exc:
+        result["torch_seed_error"] = str(exc)
+    return result
+
+
+def _setting_path_candidates(
+    settings: Dict[str, Any],
+) -> List[Tuple[str, Path, bool]]:
+    """Return unique plausible paths found recursively in ``settings``.
+
+    Existing strings are paths regardless of their setting name. Non-existing
+    strings are retained only for output-looking keys, allowing a new output
+    file or directory to be discovered when the run closes.
+    """
+    candidates: List[Tuple[str, Path, bool]] = []
+    seen: Set[Tuple[str, str]] = set()
+    for key, value in _walk_setting_values(settings):
+        if not isinstance(value, (str, os.PathLike)):
+            continue
+        raw = os.fspath(value).strip()
+        if not raw or "\x00" in raw or "\n" in raw:
+            continue
+        try:
+            path = Path(raw).expanduser()
+            if not path.is_absolute():
+                path = Path.cwd() / path
+            path = path.resolve(strict=False)
+        except (OSError, RuntimeError, ValueError):
+            continue
+        output_only = _is_output_key(key)
+        if not _is_path_key(key) and not output_only:
+            continue
+        if not path.exists() and not output_only:
+            continue
+        token = (key, str(path))
+        if token not in seen:
+            seen.add(token)
+            candidates.append((key, path, output_only))
+    return candidates
+
+
+def _iter_files(path: Path, excluded_roots: Iterable[Path]) -> Iterator[Path]:
+    """Yield regular files below ``path`` in deterministic order."""
+    try:
+        resolved_excludes = tuple(
+            root.resolve(strict=False) for root in excluded_roots
+        )
     except Exception:
+        resolved_excludes = tuple(excluded_roots)
+
+    def excluded(candidate: Path) -> bool:
+        try:
+            resolved = candidate.resolve(strict=False)
+            return any(
+                resolved == root or root in resolved.parents
+                for root in resolved_excludes
+            )
+        except Exception:
+            return False
+
+    if excluded(path):
+        return
+    if path.is_file() and not path.is_symlink():
+        yield path
+        return
+    if not path.is_dir():
+        return
+    for root, dirnames, filenames in os.walk(path, followlinks=False):
+        root_path = Path(root)
+        dirnames[:] = sorted(
+            name for name in dirnames
+            if name not in _IGNORED_TREE_NAMES
+            and not (root_path / name).is_symlink()
+            and not excluded(root_path / name)
+        )
+        for name in sorted(filenames):
+            candidate = root_path / name
+            if not candidate.is_symlink() and not excluded(candidate):
+                yield candidate
+
+
+def _file_record(path: Path) -> Optional[Dict[str, Any]]:
+    """Return a complete immutable provenance record for one file."""
+    try:
+        stat = path.stat()
+        digest = hash_file(path, full=True)
+        if digest is None:
+            return None
+        return {
+            "sha256": digest,
+            "size_bytes": stat.st_size,
+            "mtime_ns": stat.st_mtime_ns,
+        }
+    except OSError as exc:
+        LOG.warning("Could not inspect %s: %s", path, exc)
+        return None
+
+
+def _inventory_signature(path: Path) -> Optional[Tuple[int, int]]:
+    """Return ``(size, mtime_ns)`` for output-change detection."""
+    try:
+        stat = path.stat()
+        return stat.st_size, stat.st_mtime_ns
+    except OSError:
         return None
 
 
@@ -175,6 +474,14 @@ class Run:
     :ivar status: ``"running"`` / ``"success"`` / ``"failed"``.
     :ivar model_hashes: dict of ``{human-name → sha256-16}``. Populated
         by callers via :meth:`record_model`.
+    :ivar model_files: full SHA-256, size, and path records for models.
+    :ivar input_hashes: per-file full SHA-256 input provenance.
+    :ivar output_hashes: per-file full SHA-256 output provenance.
+    :ivar seeds: declared seeds and runtime RNG-state identifiers.
+    :ivar provenance_warnings: non-fatal path/hash failures retained in the
+        manifest instead of being silently discarded.
+    :ivar run_warnings: distinct warning lines emitted by the pipeline.
+    :ivar environment: host, spaCR, Git, and installed-package versions.
     """
     app_key: str
     settings: Dict[str, Any]
@@ -183,8 +490,22 @@ class Run:
     end_ts: Optional[float] = None
     status: str = "running"
     model_hashes: Dict[str, str] = field(default_factory=dict)
+    model_files: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    input_hashes: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    output_hashes: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    seeds: Dict[str, Any] = field(default_factory=dict)
+    provenance_warnings: List[str] = field(default_factory=list)
+    run_warnings: List[str] = field(default_factory=list)
+    environment: Dict[str, Any] = field(default_factory=dict)
     stdout_path: Optional[Path] = None
     error_traceback: str = ""
+    _path_candidates: List[Tuple[str, Path, bool]] = field(
+        default_factory=list, repr=False,
+    )
+    _baseline: Dict[str, Tuple[int, int]] = field(
+        default_factory=dict, repr=False,
+    )
+    _start_cpu_s: float = field(default_factory=time.process_time, repr=False)
 
     # -- external mutations ------------------------------------------------
     def record_model(self, name: str, checkpoint_path: Any) -> None:
@@ -198,8 +519,33 @@ class Run:
             digest = hash_file(p)
             if digest:
                 self.model_hashes[name] = f"{p.name}:{digest}"
-        except Exception:
-            pass
+            record = _file_record(p)
+            if record:
+                record["path"] = str(p.resolve(strict=False))
+                self.model_files[name] = record
+        except Exception as exc:
+            warning = f"model {name!r} could not be recorded: {exc}"
+            self.provenance_warnings.append(warning)
+            LOG.warning(warning)
+
+    def record_input(self, path: Any, *, setting_key: str = "") -> None:
+        """Hash a file or directory as an explicit run input.
+
+        Directories are recorded as one full SHA-256 record per regular file.
+        Unreadable files are reported in ``provenance_warnings`` and logs.
+
+        :param path: input file or directory.
+        :param setting_key: optional setting that referred to ``path``.
+        """
+        self._record_tree(
+            Path(path), self.input_hashes, setting_key=setting_key,
+        )
+
+    def record_output(self, path: Any, *, setting_key: str = "") -> None:
+        """Hash a file or directory as an explicit run output."""
+        self._record_tree(
+            Path(path), self.output_hashes, setting_key=setting_key,
+        )
 
     def attach_output(self, src_path: Any) -> Optional[Path]:
         """Copy ``src_path`` into the run's ``outputs/`` folder.
@@ -216,20 +562,141 @@ class Run:
                 shutil.copytree(src, dst, dirs_exist_ok=True)
             else:
                 shutil.copy2(src, dst)
+            self.record_output(src, setting_key="attach_output")
             return dst
-        except Exception:
+        except Exception as exc:
+            warning = f"output {src_path!r} could not be attached: {exc}"
+            self.provenance_warnings.append(warning)
+            LOG.warning(warning)
             return None
 
     def set_status(self, status: str) -> None:
         """Explicitly stamp ``status`` (``success`` / ``failed`` / …)."""
         self.status = status
 
+    def record_warning(self, message: Any) -> None:
+        """Retain a distinct warning for the run-history dashboard.
+
+        :param message: warning text captured from pipeline stdout/stderr or
+            supplied directly by pipeline code.
+        """
+        text = str(message or "").strip()
+        if text and text not in self.run_warnings:
+            # Bound the manifest if a library repeats the same warning with
+            # field-specific text thousands of times.
+            if len(self.run_warnings) < 500:
+                self.run_warnings.append(text)
+
     # -- private -----------------------------------------------------------
+    def _record_tree(
+        self,
+        path: Path,
+        destination: Dict[str, Dict[str, Any]],
+        *,
+        setting_key: str = "",
+    ) -> None:
+        """Hash ``path`` into ``destination`` without raising."""
+        try:
+            path = path.expanduser().resolve(strict=False)
+            found = False
+            for file_path in _iter_files(path, (self.dir, runs_root())):
+                found = True
+                record = _file_record(file_path)
+                if record is None:
+                    warning = f"could not hash provenance file {file_path}"
+                    self.provenance_warnings.append(warning)
+                    continue
+                if setting_key:
+                    prior = destination.get(str(file_path), {})
+                    keys = set(prior.get("setting_keys") or [])
+                    keys.add(setting_key)
+                    record["setting_keys"] = sorted(keys)
+                destination[str(file_path)] = record
+            if not found and path.exists():
+                warning = f"no regular provenance files found in {path}"
+                self.provenance_warnings.append(warning)
+                LOG.warning(warning)
+        except Exception as exc:
+            warning = f"could not record provenance path {path}: {exc}"
+            self.provenance_warnings.append(warning)
+            LOG.warning(warning)
+
+    def _capture_initial_provenance(self) -> None:
+        """Discover path-valued inputs and retain a before-run inventory."""
+        self.seeds = extract_seeds(self.settings)
+        self._path_candidates = _setting_path_candidates(self.settings)
+        seen_files: Set[str] = set()
+        for key, path, output_only in self._path_candidates:
+            if path.exists() and not output_only:
+                self.record_input(path, setting_key=key)
+            root = path if path.is_dir() else path.parent
+            if not root.exists():
+                continue
+            for file_path in _iter_files(root, (self.dir, runs_root())):
+                file_key = str(file_path)
+                if file_key in seen_files:
+                    continue
+                seen_files.add(file_key)
+                signature = _inventory_signature(file_path)
+                if signature is not None:
+                    self._baseline[file_key] = signature
+
+    def _capture_final_provenance(self) -> None:
+        """Hash files created or modified under setting-derived roots."""
+        seen_files: Set[str] = set()
+        for key, path, _output_only in self._path_candidates:
+            root = path if path.is_dir() else path.parent
+            if not root.exists():
+                continue
+            for file_path in _iter_files(root, (self.dir, runs_root())):
+                file_key = str(file_path)
+                if file_key in seen_files:
+                    continue
+                seen_files.add(file_key)
+                signature = _inventory_signature(file_path)
+                if (
+                    signature is not None
+                    and self._baseline.get(file_key) != signature
+                ):
+                    record = _file_record(file_path)
+                    if record is None:
+                        warning = (
+                            f"could not hash changed output file {file_path}"
+                        )
+                        self.provenance_warnings.append(warning)
+                        continue
+                    record["setting_keys"] = [key]
+                    self.output_hashes[file_key] = record
+
     def _write_manifest(self) -> None:
+        """Atomically write the current versioned ``manifest.json``."""
         elapsed = None
         if self.end_ts is not None:
             elapsed = round(self.end_ts - self.start_ts, 3)
+        settings_sha256 = (
+            hash_file(self.dir / "settings.json", full=True)
+            or _json_digest(self.settings)
+        )
+        wall_s = elapsed
+        performance = {
+            "wall_s": wall_s,
+            "process_cpu_s": round(
+                max(0.0, time.process_time() - self._start_cpu_s), 3,
+            ),
+            "input_files": len(self.input_hashes),
+            "input_bytes": sum(
+                int(record.get("size_bytes", 0) or 0)
+                for record in self.input_hashes.values()
+            ),
+            "output_files": len(self.output_hashes),
+            "output_bytes": sum(
+                int(record.get("size_bytes", 0) or 0)
+                for record in self.output_hashes.values()
+            ),
+        }
         manifest = {
+            "schema_version": MANIFEST_SCHEMA_VERSION,
+            "hash_algorithm": _HASH_ALGORITHM,
             "app_key":       self.app_key,
             "start_utc":     datetime.fromtimestamp(
                 self.start_ts, tz=timezone.utc).isoformat(),
@@ -238,19 +705,33 @@ class Run:
                 if self.end_ts else None),
             "elapsed_s":     elapsed,
             "status":        self.status,
-            "env":           _env_snapshot(),
+            "env":           self.environment,
             "model_hashes":  self.model_hashes,
+            "model_files":   self.model_files,
+            "settings_file": "settings.json",
+            "settings_sha256": settings_sha256,
+            "seeds":         self.seeds,
+            "input_hashes":  self.input_hashes,
+            "input_tree_sha256": _json_digest(self.input_hashes),
+            "output_hashes": self.output_hashes,
+            "output_tree_sha256": _json_digest(self.output_hashes),
+            "provenance_warnings": self.provenance_warnings,
+            "warnings":       self.run_warnings,
+            "performance":    performance,
             "n_settings":    len(self.settings),
             "traceback":     self.error_traceback or None,
         }
-        (self.dir / "manifest.json").write_text(
-            json.dumps(manifest, indent=2, default=str)
+        _atomic_write_text(
+            self.dir / "manifest.json",
+            json.dumps(manifest, indent=2, default=str, sort_keys=True),
         )
 
     def _write_settings(self) -> None:
+        """Write exact machine- and human-readable settings snapshots."""
         # Machine-friendly JSON (source of truth)
-        (self.dir / "settings.json").write_text(
-            json.dumps(self.settings, indent=2, default=str)
+        _atomic_write_text(
+            self.dir / "settings.json",
+            json.dumps(self.settings, indent=2, default=str, sort_keys=True),
         )
         # Human-friendly CSV (Key,Value — spacr.utils.load_settings compatible)
         with open(self.dir / "settings.csv", "w", newline="") as f:
@@ -260,6 +741,7 @@ class Run:
                 w.writerow([k, "" if v is None else str(v)])
 
     def _snapshot_log_tail(self, n: int = 200) -> None:
+        """Copy the last ``n`` application-log lines into this run folder."""
         try:
             from .logging_util import log_path
             src = log_path()
@@ -268,15 +750,20 @@ class Run:
             with open(src, encoding="utf-8", errors="replace") as f:
                 lines = f.readlines()
             (self.dir / "log.txt").write_text("".join(lines[-n:]))
-        except Exception:
-            pass
+        except Exception as exc:
+            # This is the run's own record of what it printed, and it is the
+            # first thing anyone opens when a run went wrong. A folder with no
+            # log.txt reads as "nothing was logged" rather than "the copy
+            # failed", so say which it was — but do not fail the run over it.
+            LOG.warning("could not copy the last %d log lines into %s (%s)",
+                        n, self.dir, exc)
 
 
 # ---------------------------------------------------------------------------
 # Context manager
 # ---------------------------------------------------------------------------
 
-_ACTIVE_RUN: Optional["Run"] = None
+_RUN_LOCAL = threading.local()
 
 
 def current_run() -> Optional["Run"]:
@@ -286,10 +773,10 @@ def current_run() -> Optional["Run"]:
     want to record a model checkpoint hash without every caller
     needing to plumb the :class:`Run` object through.
 
-    Not thread-local — spaCR pipelines run one at a time; if that
-    changes we'll switch to :mod:`threading.local`.
+    State is thread-local because the batch runner and database browser can
+    execute independent workers concurrently.
     """
-    return _ACTIVE_RUN
+    return getattr(_RUN_LOCAL, "active", None)
 
 
 @contextmanager
@@ -310,13 +797,20 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
         the run folder as both JSON and CSV.
     :yields: the :class:`Run` object.
     """
-    global _ACTIVE_RUN
     run = Run(app_key=app_key, settings=dict(settings or {}),
                 dir=_new_run_dir(app_key))
+    run.environment = _env_snapshot()
     run._write_settings()
+    run._capture_initial_provenance()
+    # A running manifest makes an interrupted process visible and auditable.
+    run._write_manifest()
     LOG.info("run opened → %s", run.dir)
-    prev_active = _ACTIVE_RUN
-    _ACTIVE_RUN = run
+    # Macro recorder, half one: start watching for the run id the pipeline
+    # is about to mint. See spacr/macro.py — the script lands next to this
+    # manifest when the run closes.
+    macro = begin_recording(app_key, run.settings, run_dir=run.dir)
+    prev_active = current_run()
+    _RUN_LOCAL.active = run
     try:
         yield run
         if run.status == "running":
@@ -329,10 +823,24 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
         )
         raise
     finally:
-        _ACTIVE_RUN = prev_active
+        _RUN_LOCAL.active = prev_active
         run.end_ts = time.time()
-        run._snapshot_log_tail()
-        run._write_manifest()
+        try:
+            run._capture_final_provenance()
+        except Exception as exc:
+            warning = f"final output provenance failed: {exc}"
+            run.provenance_warnings.append(warning)
+            LOG.exception(warning)
+        try:
+            run._snapshot_log_tail()
+            run._write_manifest()
+        except Exception:
+            # A manifest failure is never silent, but it also must not mask the
+            # original pipeline exception during context-manager unwinding.
+            LOG.exception("Could not finalize run manifest in %s", run.dir)
+        # Macro recorder, half two: write the Python script that repeats
+        # this run — and, when it continues one, the whole chain before it.
+        finish_recording(macro, status=run.status, settings=run.settings)
         LOG.info("run closed [%s] in %.1fs → %s",
                   run.status, run.end_ts - run.start_ts, run.dir)
 
@@ -364,7 +872,13 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
             continue
         try:
             m = json.loads(manifest_path.read_text())
-        except Exception:
+        except Exception as exc:
+            # Not fatal — one unreadable folder must not empty Run History —
+            # but not silent either. This dropped the run from the list with
+            # no trace anywhere, so a run the user can see on disk simply was
+            # not there in the app, and nothing said why.
+            LOG.warning("skipping run folder %s: its manifest.json could not "
+                        "be read (%s)", d.name, exc)
             continue
         all_entries.append({
             "dir":       d,
@@ -385,6 +899,168 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
                      e["dir"].stat().st_mtime)
     all_entries.sort(key=_sort_key, reverse=True)
     return all_entries[:limit]
+
+
+def search_runs(
+    query: str = "",
+    *,
+    app_key: str = "",
+    status: str = "",
+    limit: Optional[int] = None,
+) -> List[Dict[str, Any]]:
+    """Return searchable, dashboard-ready records for all journalled runs.
+
+    Search covers the run id, module, status, settings keys and values, input
+    and output paths, warnings, failure traceback, and environment versions.
+    Corrupt or interrupted run folders remain visible with an explicit
+    ``"corrupt"``/``"running"`` status and diagnostic warnings.
+
+    :param query: whitespace-separated case-insensitive terms; every term must
+        occur somewhere in the record.
+    :param app_key: optional exact module filter.
+    :param status: optional exact status filter.
+    :param limit: maximum returned records after newest-first sorting.
+    :returns: JSON-friendly record dictionaries. ``dir`` remains a
+        :class:`~pathlib.Path` for convenient GUI use.
+    """
+    records: List[Dict[str, Any]] = []
+    root = runs_root()
+    try:
+        directories = [path for path in root.iterdir() if path.is_dir()]
+    except OSError as exc:
+        LOG.warning("Could not enumerate run history at %s: %s", root, exc)
+        return []
+
+    wanted_app = str(app_key or "").strip().lower()
+    wanted_status = str(status or "").strip().lower()
+    terms = [term.casefold() for term in str(query or "").split() if term]
+
+    for directory in directories:
+        rec = _read_run_record(directory)
+        manifest = rec["manifest"] or {}
+        settings = rec["settings"] or {}
+        current_app = str(manifest.get("app_key") or "unknown")
+        current_status = str(manifest.get("status") or "").lower()
+        if not current_status:
+            current_status = (
+                "running"
+                if "no manifest.json (run may still be in flight)" in rec["errors"]
+                else "corrupt"
+            )
+        if wanted_app and current_app.lower() != wanted_app:
+            continue
+        if wanted_status and current_status != wanted_status:
+            continue
+
+        warnings_list: List[str] = []
+        for key in ("warnings", "provenance_warnings"):
+            values = manifest.get(key) or []
+            if isinstance(values, (list, tuple)):
+                warnings_list.extend(str(value) for value in values if value)
+            elif values:
+                warnings_list.append(str(values))
+        warnings_list.extend(str(error) for error in rec["errors"])
+
+        # Legacy manifests did not structure warnings. Their bounded log tail
+        # is still useful, so surface warning-looking lines without failing a
+        # history scan on encoding or permissions.
+        if "warnings" not in manifest:
+            log_path = directory / "log.txt"
+            try:
+                if log_path.exists():
+                    for line in log_path.read_text(
+                        encoding="utf-8", errors="replace",
+                    ).splitlines():
+                        if re.search(
+                            r"\b(?:warning|warn)\b", line, re.IGNORECASE,
+                        ):
+                            warnings_list.append(line.strip())
+            except OSError as exc:
+                warnings_list.append(
+                    f"log.txt unreadable ({type(exc).__name__})"
+                )
+        warnings_list = list(dict.fromkeys(warnings_list))
+
+        inputs = manifest.get("input_hashes")
+        outputs = manifest.get("output_hashes")
+        inputs = inputs if isinstance(inputs, dict) else {}
+        outputs = outputs if isinstance(outputs, dict) else {}
+        performance = manifest.get("performance")
+        if not isinstance(performance, dict):
+            performance = {
+                "wall_s": manifest.get("elapsed_s"),
+                "process_cpu_s": None,
+                "input_files": len(inputs),
+                "input_bytes": sum(
+                    int(value.get("size_bytes", 0) or 0)
+                    for value in inputs.values() if isinstance(value, dict)
+                ),
+                "output_files": len(outputs),
+                "output_bytes": sum(
+                    int(value.get("size_bytes", 0) or 0)
+                    for value in outputs.values() if isinstance(value, dict)
+                ),
+            }
+        failure = str(manifest.get("traceback") or "")
+        record: Dict[str, Any] = {
+            "dir": directory,
+            "run_id": directory.name,
+            "app_key": current_app,
+            "status": current_status,
+            "start_utc": str(manifest.get("start_utc") or ""),
+            "end_utc": str(manifest.get("end_utc") or ""),
+            "elapsed_s": manifest.get("elapsed_s"),
+            "performance": performance,
+            "settings": settings,
+            "inputs": inputs,
+            "outputs": outputs,
+            "models": manifest.get("model_files")
+                      or manifest.get("model_hashes") or {},
+            "warnings": warnings_list,
+            "failure": failure,
+            "environment": (
+                manifest.get("env")
+                if isinstance(manifest.get("env"), dict) else {}
+            ),
+            "manifest": manifest,
+        }
+        if terms:
+            haystack = json.dumps(
+                {
+                    "run_id": record["run_id"],
+                    "app_key": current_app,
+                    "status": current_status,
+                    "settings": settings,
+                    "inputs": list(inputs),
+                    "outputs": list(outputs),
+                    "warnings": warnings_list,
+                    "failure": failure,
+                    "environment": record["environment"],
+                },
+                default=str,
+                sort_keys=True,
+            ).casefold()
+            if not all(term in haystack for term in terms):
+                continue
+        records.append(record)
+
+    def _history_sort_key(record: Dict[str, Any]) -> Tuple[datetime, float]:
+        try:
+            started = datetime.fromisoformat(record["start_utc"])
+            if started.tzinfo is None:
+                started = started.replace(tzinfo=timezone.utc)
+        except (TypeError, ValueError):
+            started = datetime.fromtimestamp(0, tz=timezone.utc)
+        try:
+            mtime = record["dir"].stat().st_mtime
+        except OSError:
+            mtime = 0.0
+        return started, mtime
+
+    records.sort(key=_history_sort_key, reverse=True)
+    if limit is not None:
+        return records[:max(0, int(limit))]
+    return records
 
 
 def journal_totals() -> Dict[str, int]:
@@ -413,7 +1089,13 @@ def journal_totals() -> Dict[str, int]:
             continue
         try:
             m = json.loads(manifest_path.read_text())
-        except Exception:
+        except Exception as exc:
+            # The Home dashboard's run count is this number. Skipping a folder
+            # in silence made it quietly short — "you have run 12 masks" when
+            # the answer is 13 and one manifest is damaged — and a total that
+            # is wrong by an unknown amount is worse than one that says so.
+            LOG.warning("run folder %s is not counted: its manifest.json "
+                        "could not be read (%s)", d.name, exc)
             continue
         totals["total_runs"] += 1
         app_key = m.get("app_key", "")

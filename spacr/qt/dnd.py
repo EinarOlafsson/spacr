@@ -33,10 +33,10 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Sequence
+from typing import List, Optional, Sequence
 
-from PySide6.QtCore import QEvent, QMimeData, QObject, QUrl, Qt
-from PySide6.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
+from PySide6.QtCore import QEvent, QMimeData, QObject, Qt
+from PySide6.QtGui import QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import (
     QDialog, QDialogButtonBox, QLabel, QListWidget, QListWidgetItem,
     QMessageBox, QVBoxLayout, QWidget,
@@ -118,16 +118,63 @@ def install_dropzone(target: QWidget, handler: DropHandler,
     target.installEventFilter(f)
 
 
+def install_for(target: QWidget, app_key: str, screen: QWidget = None) -> bool:
+    """Attach ``app_key``'s drop policy to ``target``. Never raises.
+
+    The one line a screen adds to accept drops. Which policy that is comes
+    from :func:`spacr.qt.dnd_handlers.get_handler`, so a screen never names a
+    handler class and a screen with no declared policy still gets the
+    source-folder fallback.
+
+    Failure is a missing convenience, not a broken screen — a Qt build with no
+    drag-and-drop, or a handler whose import fails, must not stop the screen
+    being constructed. It is logged and the screen goes up without a dropzone.
+
+    :param target: the widget that receives the drag/drop events.
+    :param app_key: the registered app key, e.g. ``"graph_builder"``.
+    :param screen: the object handed to ``handler.apply``; ``target`` when
+        omitted.
+    :returns: whether the dropzone was installed.
+    """
+    try:
+        from .dnd_handlers import get_handler
+        install_dropzone(target, get_handler(app_key), screen or target)
+        return True
+    except Exception:
+        LOG.debug("no dropzone installed for %s", app_key, exc_info=True)
+        return False
+
+
 class _DropzoneFilter(QObject):
     """Event filter that routes drag/drop events on ``target`` into
     the :class:`DropHandler` attached to it."""
 
     def __init__(self, target: QWidget):
-        super().__init__(target)   # parent → auto-cleanup
+        # QObject parenting can synchronously deliver a ChildAdded event to
+        # the target.  Set this first so eventFilter is fully initialized even
+        # during super().__init__ (standalone tool screens exposed this race).
         self._target = target
+        super().__init__(target)   # parent → auto-cleanup
 
     def eventFilter(self, obj, event):    # noqa: N802  (Qt naming)
-        if obj is not self._target:
+        # `getattr`, not `self._target`, and the reason is not defensiveness
+        # for its own sake. Qt goes on delivering events to a filter after the
+        # target's C++ half is gone, and PySide6 clears the Python wrapper's
+        # __dict__ when that happens -- so `self._target` raises AttributeError
+        # from INSIDE the Qt event loop, which prints
+        #
+        #     Error calling Python override of QObject::eventFilter()
+        #     AttributeError: '_DropzoneFilter' object has no attribute '_target'
+        #
+        # once per delivered event, and cannot be caught by any caller because
+        # there is no Python caller. A filter whose target is gone has nothing
+        # to filter, so declining the event is both correct and quiet.
+        #
+        # The same shape as `RunHandle.is_running` swallowing "Internal C++
+        # object already deleted": the destroyed wrapper IS the answer, not an
+        # error condition.
+        target = getattr(self, "_target", None)
+        if target is None or obj is not target:
             return False
         et = event.type()
         if et == QEvent.DragEnter:
@@ -161,8 +208,13 @@ class _DropzoneFilter(QObject):
 
         # Split: CSV → settings import (universal); anything else →
         # per-module handler.
+        # A CSV is a universal settings import only on screens that actually
+        # expose the settings importer.  Special-purpose screens (Plate Queue,
+        # Batch Runner, Import Project) give CSVs their own meaning and must
+        # receive them through their handler instead of losing them to a no-op.
         csvs = [p for p in paths
-                if p.suffix.lower() == ".csv" and p.is_file()]
+                if p.suffix.lower() == ".csv" and p.is_file()
+                and hasattr(screen, "apply_settings_dict")]
         others = [p for p in paths if p not in csvs]
 
         for p in csvs:
@@ -179,9 +231,24 @@ class _DropzoneFilter(QObject):
                 try:
                     handler.apply(p, screen)
                 except Exception as e:
-                    QMessageBox.warning(screen, "Drop failed", str(e))
+                    _report_drop_problem(
+                        screen, p, f"The drop handler failed: {e}",
+                        "Check that the path is readable and that its contents "
+                        "match this module, then try again.",
+                    )
             else:
                 alternatives = handler.suggest_alternatives(p)
+                suggestion = (
+                    "Choose one of the compatible nearby paths shown in the "
+                    "dialog."
+                    if alternatives else
+                    "Open this module's source setting and choose a file or "
+                    "folder matching the required layout."
+                )
+                _report_drop_problem(
+                    screen, p, handler.error_message(p), suggestion,
+                    alternatives=alternatives,
+                )
                 if alternatives:
                     pick = suggest_alternatives_dialog(
                         screen, p, alternatives,
@@ -191,13 +258,106 @@ class _DropzoneFilter(QObject):
                         try:
                             handler.apply(pick, screen)
                         except Exception as e:
-                            QMessageBox.warning(screen, "Drop failed",
-                                                 str(e))
+                            _report_drop_problem(
+                                screen, pick, f"The drop handler failed: {e}",
+                                "Check that the path is readable and try again.",
+                            )
                 else:
                     QMessageBox.information(
                         screen, "Nothing to drop into",
-                        handler.error_message(p),
+                        f"{handler.error_message(p)}\n\nSuggestion: {suggestion}",
                     )
+
+
+def _find_console(screen):
+    """Return the nearest spaCR console, including the host app's console."""
+    console = getattr(screen, "_console", None)
+    if console is not None:
+        return console
+    try:
+        window = screen.window()
+    except Exception:
+        return None
+    console = getattr(window, "_console", None)
+    if console is not None:
+        return console
+    # Standalone tool screens are hosted alongside AppScreens. Prefer the
+    # most recently visited screen so rejected drops never disappear merely
+    # because the tool itself has no embedded console.
+    screens = getattr(window, "_screens", {}) or {}
+    visit_order = list(getattr(window, "_visit_order", []) or [])
+    for key in reversed(visit_order + list(screens)):
+        candidate = screens.get(key)
+        console = getattr(candidate, "_console", None)
+        if console is not None:
+            return console
+    try:
+        from spacr.qt.widgets.console_panel import ConsolePanel
+        consoles = window.findChildren(ConsolePanel)
+        if consoles:
+            return consoles[-1]
+    except Exception:
+        pass
+    return None
+
+
+def _report_drop_problem(screen, path: Path, reason: str, suggestion: str,
+                         alternatives: Sequence[Path] = ()) -> str:
+    """Print an actionable rejected-drop report and optionally ask the AI."""
+    lines = [
+        f"[drop rejected] {path}",
+        f"Reason: {reason}",
+        f"Suggestion: {suggestion}",
+    ]
+    if alternatives:
+        lines.append(
+            "Compatible nearby paths: " +
+            ", ".join(str(item) for item in alternatives)
+        )
+    message = "\n".join(lines) + "\n"
+    LOG.warning(message.rstrip())
+    console = _find_console(screen)
+    displayed_inline = False
+    if console is not None:
+        append = getattr(console, "append_error", None) or getattr(
+            console, "append_stdout", None)
+        if append is not None:
+            append(message)
+            displayed_inline = True
+        try:
+            from spacr.qt.ai.settings import get_route_errors_through_ai
+            provider = console._current_provider()
+            ai_active = getattr(console, "_ai_active", False)
+            if callable(ai_active):
+                ai_active = ai_active()
+            if (get_route_errors_through_ai()
+                    and bool(ai_active)
+                    and provider is not None):
+                console.open_error_flow(
+                    message,
+                    active_app=getattr(screen, "app_key", None),
+                    show_raw=False,
+                )
+        except Exception:
+            LOG.debug("Could not route rejected drop through AI",
+                      exc_info=True)
+    # Standalone tools use a read-only summary/log pane instead of an
+    # AppScreen ConsolePanel. Put the same actionable text there as well.
+    if not displayed_inline:
+        for attr in ("_summary", "_log", "_console_text"):
+            widget = getattr(screen, attr, None)
+            append = getattr(widget, "appendPlainText", None)
+            if callable(append):
+                append(message.rstrip())
+                displayed_inline = True
+                break
+    status = getattr(screen, "_set_status", None)
+    if callable(status):
+        try:
+            status(f"Drop rejected: {reason} Suggestion: {suggestion}")
+        except Exception:
+            pass
+    return message
 
 
 # ---------------------------------------------------------------------------
@@ -250,6 +410,11 @@ def _apply_settings_csv(path: Path, screen) -> None:
                     f"[drop] imported {n} settings from {path.name}\n"
                 )
     except Exception as e:
+        _report_drop_problem(
+            screen, path, f"Settings CSV import failed: {e}",
+            "Export a settings CSV from spaCR, or verify that the file has "
+            "Key/Value or setting_key/setting_value columns.",
+        )
         QMessageBox.warning(screen, "CSV import failed", str(e))
 
 
@@ -298,6 +463,50 @@ def suggest_alternatives_dialog(
     if row < 0:
         return None
     return alternatives[row]
+
+
+def choose_one_dialog(parent, headline: str, question: str,
+                      options: Sequence[str]) -> Optional[str]:
+    """Ask which of ``options`` was meant. ``None`` when nobody answered.
+
+    Distinct from :func:`suggest_alternatives_dialog`, which says the drop
+    *cannot be used*. This one is asked when the drop resolved perfectly and
+    landed on more than one right answer — two tables in the database, two
+    masks in ``masks/`` — where "did you mean…" would be telling the user
+    they made a mistake they did not make.
+
+    :param parent: the widget to centre the dialog on.
+    :param headline: what was found, e.g. "plate1.db holds 4 tables."
+    :param question: what is being asked, e.g. "Which one should be loaded?"
+    :param options: the candidates, in the order to offer them.
+    :returns: the chosen option, or None when cancelled.
+    """
+    dlg = QDialog(parent)
+    dlg.setWindowTitle("Which one?")
+    dlg.setMinimumWidth(520)
+    layout = QVBoxLayout(dlg)
+
+    header = QLabel(f"<b>{headline}</b><br>{question}")
+    header.setTextFormat(Qt.RichText)
+    header.setWordWrap(True)
+    layout.addWidget(header)
+
+    listing = QListWidget()
+    for option in options:
+        listing.addItem(QListWidgetItem(str(option)))
+    listing.setCurrentRow(0)
+    listing.itemDoubleClicked.connect(lambda *_: dlg.accept())
+    layout.addWidget(listing, 1)
+
+    buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+    buttons.accepted.connect(dlg.accept)
+    buttons.rejected.connect(dlg.reject)
+    layout.addWidget(buttons)
+
+    if dlg.exec() != QDialog.Accepted:
+        return None
+    row = listing.currentRow()
+    return None if row < 0 else str(options[row])
 
 
 # ---------------------------------------------------------------------------

@@ -122,7 +122,6 @@ def test_a_flat_list_setting_gets_one_strip(qapp):
     ("cellpose_masks", "channels", [0, 0]),
     ("cellpose_all", "channels", [0, 0]),
     ("recruitment", "channel_dims", [0, 1, 2, 3]),
-    ("classify", "train_channels", ["r", "g", "b"]),
 ])
 def test_channel_lists_use_the_manders_style_editor(
         qapp, app_key, key, expected):
@@ -133,15 +132,40 @@ def test_channel_lists_use_the_manders_style_editor(
     assert model.collect()[key] == expected
 
 
+def test_train_channels_gets_the_alphabet_control_instead(qapp):
+    """It used to be here, with the other channel lists, and it was the one
+    that did not belong: ``train_channels`` is not an open list of channel
+    indices, it is a choice among exactly ``r``, ``g`` and ``b``. The chip
+    strip accepted ``x``, ``red`` and ``4``, and the pipeline drops an
+    unrecognised letter in silence — so the run trains on fewer planes than
+    the user asked for and nothing says so.
+    """
+    from spacr.qt.screens.settings_model import _AlphabetSelect
+    model = _model(qapp, "classify")
+    widget = model._widgets["train_channels"]
+    assert isinstance(widget, _AlphabetSelect)
+    assert not isinstance(widget, _ListEditor)
+    assert widget.choices() == ("r", "g", "b")
+    assert widget.get_value() == ["r", "g", "b"]
+    assert model.collect()["train_channels"] == ["r", "g", "b"]
+
+
 def test_src_keeps_its_line_edit(qapp):
-    """``src`` is declared ``(str, list)`` but is a path. It has to stay a
-    QLineEdit: drag-and-drop, the empty-state banner and the column picker's
-    ``_settings_src_path`` all test for one."""
+    """Single-plate modules keep the compact path editor."""
     from PySide6.QtWidgets import QLineEdit
-    for app_key in ("mask", "measure", "classify"):
+    for app_key in ("mask", "measure"):
         widget = _model(qapp, app_key)._widgets["src"]
         assert isinstance(widget, QLineEdit), app_key
         assert not isinstance(widget, _ListEditor), app_key
+
+
+def test_classify_src_accepts_an_arbitrary_number_of_plates(qapp):
+    """Classify supports typing or dropping several plate paths."""
+    widget = _model(qapp, "classify")._widgets["src"]
+    assert isinstance(widget, _ListEditor)
+    widget.set_value(["/data/plate-a", "/data/plate-b", "/data/plate-c"])
+    assert widget.get_value() == [
+        "/data/plate-a", "/data/plate-b", "/data/plate-c"]
 
 
 def test_a_list_declared_key_with_a_placeholder_string_default_is_left_alone(qapp):

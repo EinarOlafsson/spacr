@@ -4,47 +4,187 @@
   "voice": "am_puck",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 51.8,
+  "total_duration": 287.2,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.375,
-      "scene_end": 9.825,
-      "duration": 9.825,
-      "text": "This tutorial covers External Masks. Turn third-party label masks and source images into a measured, traceable spaCR project."
+      "speech_end": 17.6,
+      "scene_end": 18.32,
+      "duration": 18.32,
+      "text": "External Masks turns segmentation produced outside spaCR into the same measured project contract used by Measure and Annotate. Open it from Data and batch runs; Preview is read-only, while Run can build canonical images, stacks, masks, merged arrays, measurements, and object crops.",
+      "speech_text": "External Masks turns segmentation produced outside spacer into the same measured project contract used by Measure and Annotate. Open it from Data and batch runs; Preview is read-only, while Run can build canonical images, stacks, masks, merged arrays, measurements, and object crops.",
+      "phonemes": "ɪkstˈɜɹnᵊl mˈæsks tˈɜɹnz sˌɛɡməntˈAʃən pɹədˈust ˌWtsˈId spˈAsəɹ ˈɪntu ðə sˈAm mˈɛʒəɹd pɹˈɑʤˌɛkt kˈɑntɹˌækt jˈuzd bI mˈɛʒəɹ ænd ˈænətˌAt. ˈOpᵊn ɪt fɹʌm dˈATə ænd bˈæʧ ɹˈʌnz; pɹˈivjˌu ɪz ɹˈidˌOnli, wˌIl ɹˈʌn kæn bˈɪld kənˈɑnəkᵊl ˈɪmɪʤᵻz, stˈæks, mˈæsks, mˈɜɹʤd əɹˈAz, mˈɛʒəɹmᵊnts, ænd əbʤˈɛkt kɹˈɑps."
     },
     {
       "scene": 2,
-      "speech_start": 9.825,
-      "speech_end": 20.45,
-      "scene_end": 20.9,
-      "duration": 11.075,
-      "text": "Open External Masks from the Data and batch runs section. Provide source images, external masks, naming rules, object types, and optional measurement tables."
+      "speech_start": 18.32,
+      "speech_end": 35.894999999999996,
+      "scene_end": 36.675,
+      "duration": 18.354999999999997,
+      "text": "Drop image and mask files or one containing folder. This lesson uses three real 768-pixel crops from the transferred experiment: twelve intensity TIFFs and three masks for each of four object types, exported from existing spaCR arrays solely to emulate an external handoff.",
+      "speech_text": "Drop image and mask files or one containing folder. This lesson uses three real 768-pixel crops from the transferred experiment: twelve intensity TIFFs and three masks for each of four object types, exported from existing spacer arrays solely to emulate an external handoff.",
+      "phonemes": "dɹˈɑp ˈɪmɪʤ ænd mˈæsk fˈIlz ɔɹ wˈʌn kəntˈAnɪŋ fˈOldəɹ. ðˌɪs lˈɛsən jˈuzᵻz θɹˈi ɹˈiᵊl sˈɛvən hˈʌndɹəd sˈɪksti ˈAt pˈɪksᵊl kɹˈɑps fɹʌm ðə tɹˈænsfəɹd ɪkspˈɛɹəmənt: twˈɛlv ɪntˈɛnsəTi tˈɪfs ænd θɹˈi mˈæsks fɔɹ ˈiʧ ʌv fˈɔɹ ˈɑbʤəkt tˈIps, ˈɛkspˌɔɹTᵻd fɹʌm ɪɡzˈɪstɪŋ spˈAsəɹ əɹˈAz sˈOlli tʊ ˈɛmjəlˌAt ɐn ɪkstˈɜɹnᵊl hˈændɔf."
     },
     {
       "scene": 3,
-      "speech_start": 20.9,
-      "speech_end": 30.025,
-      "scene_end": 30.474999999999998,
-      "duration": 9.575,
-      "text": "In the main configuration area, map images to masks, validate shape and label conventions, choose relabeling, and define measurement options."
+      "speech_start": 36.675,
+      "speech_end": 55.3,
+      "scene_end": 56.04,
+      "duration": 19.365000000000002,
+      "text": "The assignment table groups files by evidence. Intensity images are detected from their pixels, while mask and object words identify cell, nucleus, pathogen, and organelle labels. Use as and Mask type remain editable proposals; review every row and ignore anything that should not enter the project.",
+      "speech_text": "The assignment table groups files by evidence. Intensity images are detected from their pixels, while mask and object words identify cell, nucleus, pathogen, and organelle labels. Use as and Mask type remain editable proposals; review every row and ignore anything that should not enter the project.",
+      "phonemes": "ði əsˈInmənt tˈAbᵊl ɡɹˈups fˈIlz bI ˈɛvədᵊns. ɪntˈɛnsəTi ˈɪmɪʤᵻz ɑɹ dətˈɛktᵻd fɹʌm ðɛɹ pˈɪksᵊlz, wˌIl mˈæsk ænd ˈɑbʤəkt wˈɜɹdz IdˈɛntəfˌI sˈɛl, nˈukliəs, pˈæθəʤˌɛn, ænd ˌɔɹɡənˈɛl lˈAbəlz. jˈuz æz ænd mˈæsk tˈIp ɹəmˈAn ˈɛdəTəbᵊl pɹəpˈOzᵊlz; ɹəvjˈu ˈɛvəɹi ɹˈO ænd ɪɡnˈɔɹ ˈɛniθˌɪŋ ðæt ʃˌʊd nˌɑt ˈɛntəɹ ðə pɹˈɑʤˌɛkt."
     },
     {
       "scene": 4,
-      "speech_start": 30.474999999999998,
-      "speech_end": 42.724999999999994,
-      "scene_end": 43.175,
-      "duration": 12.7,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview alignment and object counts on several fields before importing the complete dataset."
+      "speech_start": 56.04,
+      "speech_end": 71.53999999999999,
+      "scene_end": 72.17999999999999,
+      "duration": 16.139999999999993,
+      "text": "Input Mapping contains the reviewed assignment table, a new destination, recursive discovery, filename layout, Z handling, plate naming, overwrite protection, and Preview only. These controls decide which files pair before anything is written.",
+      "speech_text": "Input Mapping contains the reviewed assignment table, a new destination, recursive discovery, filename layout, Z handling, plate naming, overwrite protection, and Preview only. These controls decide which files pair before anything is written.",
+      "phonemes": "ˈɪnpˌʊt mˈæpɪŋ kəntˈAnz ðə ɹəvjˈud əsˈInmənt tˈAbᵊl, ɐ nˈu dˌɛstənˈAʃən, ɹəkˈɜɹsɪv dəskˈʌvəɹi, fˈIlnˌAm lˈAˌWt, zˈi hˈændᵊlɪŋ, plˈAt nˈAmɪŋ, ˌOvəɹɹˈIt pɹətˈɛkʃən, ænd pɹˈivjˌu ˈOnli. ðˌiz kəntɹˈOlz dəsˈId wˌɪʧ fˈIlz pˈɛɹ bəfˈɔɹ ˈɛniθˌɪŋ ɪz ɹˈɪtn."
     },
     {
       "scene": 5,
-      "speech_start": 43.175,
-      "speech_end": 51.15,
-      "scene_end": 51.8,
-      "duration": 8.625,
-      "text": "When the workflow finishes, spaCR stores normalized masks, mapped images, measurements, and provenance ready for annotation."
+      "speech_start": 72.17999999999999,
+      "speech_end": 85.72999999999999,
+      "scene_end": 86.30999999999999,
+      "duration": 14.129999999999995,
+      "text": "General defines the imported intensity-channel list, experiment name, normalization policy, and whether a cytoplasm compartment is derived. Here channels zero through three match the four real image planes.",
+      "speech_text": "General defines the imported intensity-channel list, experiment name, normalization policy, and whether a cytoplasm compartment is derived. Here channels zero through three match the four real image planes.",
+      "phonemes": "ʤˈɛnəɹəl dəfˈInz ði ɪmpˈɔɹTᵻd ɪntˈɛnsəTiʧˌænᵊl lˈɪst, ɪkspˈɛɹəmənt nˈAm, nˌɔɹmələzˈAʃən pˈɑləsi, ænd wˈɛðəɹ ɐ sˈITəplˌæzəm kəmpˈɑɹtmənt ɪz dəɹˈIvd. hˈɪɹ ʧˈænᵊlz zˈɪɹO θɹu θɹˈi mˈæʧ ðə fˈɔɹ ɹˈiᵊl ˈɪmɪʤ plˈAnz."
+    },
+    {
+      "scene": 6,
+      "speech_start": 86.30999999999999,
+      "speech_end": 97.85999999999999,
+      "scene_end": 98.41999999999999,
+      "duration": 12.11,
+      "text": "Organelle controls how imported organelle labels are summarized against their parent objects. It does not segment the TIFFs again; it only defines downstream measurement relationships.",
+      "speech_text": "Organelle controls how imported organelle labels are summarized against their parent objects. It does not segment the TIFFs again; it only defines downstream measurement relationships.",
+      "phonemes": "ˌɔɹɡənˈɛl kəntɹˈOlz hˌW ɪmpˈɔɹTᵻd ˌɔɹɡənˈɛl lˈAbəlz ɑɹ sˈʌməɹˌIzd əɡˈɛnst ðɛɹ pˈɛɹᵊnt ˈɑbʤəkts. ˌɪt dˈʌz nˌɑt sˈɛɡmˌɛnt ðə tˈɪfs əɡˈɛn; ɪt ˈOnli dəfˈInz dˌWnstɹˈim mˈɛʒəɹmᵊnt ɹəlˈAʃənʃˌɪps."
+    },
+    {
+      "scene": 7,
+      "speech_start": 98.41999999999999,
+      "speech_end": 111.96999999999998,
+      "scene_end": 112.54999999999998,
+      "duration": 14.129999999999995,
+      "text": "Timelapse contains tracking choices for externally supplied time series. Leave it disabled for this single-time-point example; enable it only when the field names and frames represent a real temporal sequence.",
+      "speech_text": "Timelapse contains tracking choices for externally supplied time series. Leave it disabled for this single-time-point example; enable it only when the field names and frames represent a real temporal sequence.",
+      "phonemes": "tˈImlæps kəntˈAnz tɹˈækɪŋ ʧˈYsᵻz fɔɹ ˌɛkstˈɜɹnəli səplˈId tˈIm sˈɪɹiz. lˈiv ɪt dəsˈAbəld fɔɹ ðɪs sˈɪŋɡᵊltˌImpˈYnt ɪɡzˈæmpəl; ɪnˈAbᵊl ɪt ˈOnli wˌɛn ðə fˈild nˈAmz ænd fɹˈAmz ɹˌɛpɹəzˈɛnt ɐ ɹˈiᵊl tˈɛmpəɹəl sˈikwəns."
+    },
+    {
+      "scene": 8,
+      "speech_start": 112.54999999999998,
+      "speech_end": 128.49999999999997,
+      "scene_end": 129.11999999999998,
+      "duration": 16.569999999999993,
+      "text": "Measurements chooses the feature families computed from the imported labels, including intensity, correlation, texture, radial distribution, and colocalization. Start with the features your analysis needs because the richer families cost more time and storage.",
+      "speech_text": "Measurements chooses the feature families computed from the imported labels, including intensity, correlation, texture, radial distribution, and colocalization. Start with the features your analysis needs because the richer families cost more time and storage.",
+      "phonemes": "mˈɛʒəɹmᵊnts ʧˈuzᵻz ðə fˈiʧəɹ fˈæmᵊliz kəmpjˈuTᵻd fɹʌm ði ɪmpˈɔɹTᵻd lˈAbəlz, ɪnklˈudɪŋ ɪntˈɛnsəTi, kˌɔɹəlˈAʃən, tˈɛksʧəɹ, ɹˈAdiəl dˌɪstɹəbjˈuʃən, ænd kˌOləkəlᵻzˈAʃən. stˈɑɹt wɪð ðə fˈiʧəɹz jʊɹ ənˈæləsɪs nˈidz bəkˈʌz ðə ɹˈɪʧəɹ fˈæmᵊliz kˈɔst mˈɔɹ tˈIm ænd stˈɔɹɪʤ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 129.11999999999998,
+      "speech_end": 143.74499999999998,
+      "scene_end": 144.325,
+      "duration": 15.205000000000013,
+      "text": "Filter Settings applies minimum-size and infection gates after import. External Masks preserves the supplied label geometry; these filters decide which labeled objects enter measurements rather than repairing a poor segmentation.",
+      "speech_text": "Filter Settings applies minimum-size and infection gates after import. External Masks preserves the supplied label geometry; these filters decide which labeled objects enter measurements rather than repairing a poor segmentation.",
+      "phonemes": "fˈɪltəɹ sˈɛTɪŋz əplˈIz mˈɪnəməmsˌIz ænd ɪnfˈɛkʃən ɡˈAts ˈæftəɹ ˈɪmpˌɔɹt. ɪkstˈɜɹnᵊl mˈæsks pɹəzˈɜɹvz ðə səplˈId lˈAbəl ʤiˈɑmətɹi; ðiz fˈɪltəɹz dəsˈId wˌɪʧ lˈAbəld ˈɑbʤəkts ˈɛntəɹ mˈɛʒəɹmᵊnts ɹˈæðəɹ ðən ɹᵻpˈɛɹɪŋ ɐ pˈʊɹ sˌɛɡməntˈAʃən."
+    },
+    {
+      "scene": 10,
+      "speech_start": 144.325,
+      "speech_end": 158.6,
+      "scene_end": 159.2,
+      "duration": 14.875,
+      "text": "Object Crops selects which compartments become single-object PNG datasets, their channels, size, normalization, and border policy. This example saves cell crops so the finished project can open directly in Annotate.",
+      "speech_text": "Object Crops selects which compartments become single-object PNG datasets, their channels, size, normalization, and border policy. This example saves cell crops so the finished project can open directly in Annotate.",
+      "phonemes": "əbʤˈɛkt kɹˈɑps səlˈɛkts wˌɪʧ kəmpˈɑɹtmənts bəkˈʌm sˌɪŋɡᵊlˈɑbʤəkt pˌiˌɛnʤˈi dˈATəsˌɛts, ðɛɹ ʧˈænᵊlz, sˈIz, nˌɔɹmələzˈAʃən, ænd bˈɔɹdəɹ pˈɑləsi. ðˌɪs ɪɡzˈæmpəl sˈAvz sˈɛl kɹˈɑps sˌO ðə fˈɪnəʃt pɹˈɑʤˌɛkt kæn ˈOpᵊn dəɹˈɛktli ɪn ˈænətˌAt."
+    },
+    {
+      "scene": 11,
+      "speech_start": 159.2,
+      "speech_end": 172.45,
+      "scene_end": 173.03,
+      "duration": 13.830000000000013,
+      "text": "Advanced contains resume, dry-run, failure, worker, and logging controls. Strict errors and one worker make this small first import easy to audit; larger reviewed projects can use more workers later.",
+      "speech_text": "Advanced contains resume, dry-run, failure, worker, and logging controls. Strict errors and one worker make this small first import easy to audit; larger reviewed projects can use more workers later.",
+      "phonemes": "ədvˈænst kəntˈAnz ɹəzˈum, dɹˈIɹˌʌn, fˈAljəɹ, wˈɜɹkəɹ, ænd lˈɔɡɪŋ kəntɹˈOlz. stɹˈɪkt ˈɛɹəɹz ænd wˈʌn wˈɜɹkəɹ mˌAk ðɪs smˈɔl fˈɜɹst ˈɪmpˌɔɹt ˈizi tʊ ˈɔdət; lˈɑɹʤəɹ ɹəvjˈud pɹˈɑʤˌɛkts kæn jˈuz mˈɔɹ wˈɜɹkəɹz lˈATəɹ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 173.03,
+      "speech_end": 188.88,
+      "scene_end": 189.5,
+      "duration": 16.47,
+      "text": "3D Settings is an alpha-stage category for volumetric measurements and projections. The present inputs are two-dimensional label planes, so these controls remain off and Z handling stays at maximum projection for any multiframe intensity source.",
+      "speech_text": "3D Settings is an alpha-stage category for volumetric measurements and projections. The present inputs are two-dimensional label planes, so these controls remain off and Z handling stays at maximum projection for any multiframe intensity source.",
+      "phonemes": "θɹˈi dˈi sˈɛTɪŋz ɪz ɐn ˌælfəstˈAʤ kˈæTəɡˌɔɹi fɔɹ vˌɑljəmˈɛtɹɪk mˈɛʒəɹmᵊnts ænd pɹəʤˈɛkʃənz. ðə pɹˈɛzᵊnt ˈɪnpˌʊts ɑɹ tˌudəmˈɛnʃᵊnəl lˈAbəl plˈAnz, sˌO ðiz kəntɹˈOlz ɹəmˈAn ˈɔf ænd zˈi hˈændᵊlɪŋ stˈAz æt mˈæksəməm pɹəʤˈɛkʃən fɔɹ ˈɛni mˌʌltɪfɹˈAm ɪntˈɛnsəTi sˈɔɹs."
+    },
+    {
+      "scene": 13,
+      "speech_start": 189.5,
+      "speech_end": 203.025,
+      "scene_end": 203.645,
+      "duration": 14.14500000000001,
+      "text": "Before importing, keep Preview only enabled and confirm the destination is a new project folder. Overwrite remains off, so an existing measurements database is a blocking problem instead of being silently replaced.",
+      "speech_text": "Before importing, keep Preview only enabled and confirm the destination is a new project folder. Overwrite remains off, so an existing measurements database is a blocking problem instead of being silently replaced.",
+      "phonemes": "bəfˈɔɹ ɪmpˈɔɹTɪŋ, kˈip pɹˈivjˌu ˈOnli ɪnˈAbᵊld ænd kənfˈɜɹm ðə dˌɛstənˈAʃən ɪz ɐ nˈu pɹˈɑʤˌɛkt fˈOldəɹ. ˌOvəɹɹˈIt ɹəmˈAnz ˈɔf, sˌO ɐn ɪɡzˈɪstɪŋ mˈɛʒəɹmᵊnts dˈæTəbˌAs ɪz ɐ blˈɑkɪŋ pɹˈɑbləm ɪnstˈɛd ʌv bˈiɪŋ sˈIləntli ɹəplˈAst."
+    },
+    {
+      "scene": 14,
+      "speech_start": 203.645,
+      "speech_end": 218.57000000000002,
+      "scene_end": 219.21,
+      "duration": 15.564999999999998,
+      "text": "Click Run for the read-only preflight. It scans actual image metadata, pairs masks to normalized field identities, checks duplicates and missing masks, assigns mask planes after the intensity channels, and writes no experiment output.",
+      "speech_text": "Click Run for the read-only preflight. It scans actual image metadata, pairs masks to normalized field identities, checks duplicates and missing masks, assigns mask planes after the intensity channels, and writes no experiment output.",
+      "phonemes": "klˈɪk ɹˈʌn fɔɹ ðə ɹˈidˌOnli pɹˌiflˈIt. ˌɪt skˈænz ˈækʧəwəl ˈɪmɪʤ mˈɛTədˌATə, pˈɛɹz mˈæsks tə nˈɔɹməlˌIzd fˈild IdˈɛntəTiz, ʧˈɛks dˈupləkəts ænd mˈɪsɪŋ mˈæsks, əsˈInz mˈæsk plˈAnz ˈæftəɹ ði ɪntˈɛnsəTi ʧˈænᵊlz, ænd ɹˈIts nˈO ɪkspˈɛɹəmənt ˈWtpˌʊt."
+    },
+    {
+      "scene": 15,
+      "speech_start": 219.21,
+      "speech_end": 235.31,
+      "scene_end": 236.07,
+      "duration": 16.859999999999985,
+      "text": "The real preview reports twelve intensity mappings, three complete fields, four intensity channels, and cell, nucleus, pathogen, and organelle masks paired for every field. The mask planes will be four, five, six, and seven, with no warnings or blocking errors.",
+      "speech_text": "The real preview reports twelve intensity mappings, three complete fields, four intensity channels, and cell, nucleus, pathogen, and organelle masks paired for every field. The mask planes will be four, five, six, and seven, with no warnings or blocking errors.",
+      "phonemes": "ðə ɹˈiᵊl pɹˈivjˌu ɹəpˈɔɹts twˈɛlv ɪntˈɛnsəTi mˈæpɪŋz, θɹˈi kəmplˈit fˈildz, fˈɔɹ ɪntˈɛnsəTi ʧˈænᵊlz, ænd sˈɛl, nˈukliəs, pˈæθəʤˌɛn, ænd ˌɔɹɡənˈɛl mˈæsks pˈɛɹd fɔɹ ˈɛvəɹi fˈild. ðə mˈæsk plˈAnz wɪl bi fˈɔɹ, fˈIv, sˈɪks, ænd sˈɛvən, wɪð nˈO wˈɔɹnɪŋz ɔɹ blˈɑkɪŋ ˈɛɹəɹz."
+    },
+    {
+      "scene": 16,
+      "speech_start": 236.07,
+      "speech_end": 250.72,
+      "scene_end": 251.34,
+      "duration": 15.27000000000001,
+      "text": "Disable Preview only and click Run again to import. External Masks now uses the reviewed plan to write canonical images and arrays, then hands the merged fields to the normal Measure pipeline with the derived mask dimensions.",
+      "speech_text": "Disable Preview only and click Run again to import. External Masks now uses the reviewed plan to write canonical images and arrays, then hands the merged fields to the normal Measure pipeline with the derived mask dimensions.",
+      "phonemes": "dəsˈAbᵊl pɹˈivjˌu ˈOnli ænd klˈɪk ɹˈʌn əɡˈɛn tʊ ɪmpˈɔɹt. ɪkstˈɜɹnᵊl mˈæsks nˈW jˈuzᵻz ðə ɹəvjˈud plˈæn tə ɹˈIt kənˈɑnəkᵊl ˈɪmɪʤᵻz ænd əɹˈAz, ðˈɛn hˈændz ðə mˈɜɹʤd fˈildz tə ðə nˈɔɹmᵊl mˈɛʒəɹ pˈIplˌIn wɪð ðə dəɹˈIvd mˈæsk dəmˈɛnʃənz."
+    },
+    {
+      "scene": 17,
+      "speech_start": 251.34,
+      "speech_end": 266.39,
+      "scene_end": 267.07,
+      "duration": 15.72999999999999,
+      "text": "During conversion, twelve of twelve intensity items succeed before measurement begins. The console repeats the validated pairing and records a reproducibility manifest and run journal; Stop remains available at declared safe boundaries.",
+      "speech_text": "During conversion, twelve of twelve intensity items succeed before measurement begins. The console repeats the validated pairing and records a reproducibility manifest and run journal; Stop remains available at declared safe boundaries.",
+      "phonemes": "dˈʊɹɪŋ kənvˈɜɹʒən, twˈɛlv ʌv twˈɛlv ɪntˈɛnsəTi ˈITəmz səksˈid bəfˈɔɹ mˈɛʒəɹmᵊnt bəɡˈɪnz. ðə kˈɑnsˌOl ɹəpˈits ðə vˈælɪdˌATᵻd pˈɛɹɪŋ ænd ɹəkˈɔɹdz ɐ ɹˌipɹədˌusəbˈɪləTi mˈænəfˌɛst ænd ɹˈʌn ʤˈɜɹnᵊl; stˈɑp ɹəmˈAnz əvˈAləbᵊl æt dəklˈɛɹd sˈAf bˈWndəɹiz."
+    },
+    {
+      "scene": 18,
+      "speech_start": 267.07,
+      "speech_end": 286.32,
+      "scene_end": 287.2,
+      "duration": 20.129999999999995,
+      "text": "The real import finishes with three eight-plane merged arrays and a measurements database containing cell, cytoplasm, nucleus, pathogen, organelle, PNG-list, settings, settings-history, and run-status tables. Cell crops are under data, so this new project is traceable and ready for Annotate without rerunning segmentation.",
+      "speech_text": "The real import finishes with three eight-plane merged arrays and a measurements database containing cell, cytoplasm, nucleus, pathogen, organelle, PNG-list, settings, settings-history, and run-status tables. Cell crops are under data, so this new project is traceable and ready for Annotate without rerunning segmentation.",
+      "phonemes": "ðə ɹˈiᵊl ˈɪmpˌɔɹt fˈɪnəʃᵻz wɪð θɹˈi ˌAtplˈAn mˈɜɹʤd əɹˈAz ænd ɐ mˈɛʒəɹmᵊnts dˈæTəbˌAs kəntˈAnɪŋ sˈɛl, sˈITəplˌæzəm, nˈukliəs, pˈæθəʤˌɛn, ˌɔɹɡənˈɛl, pˌiˌɛnʤˈilˌɪst, sˈɛTɪŋz, sˌɛTɪŋzhˈɪstəɹi, ænd ɹˌʌnstˈATəs tˈAbᵊlz. sˈɛl kɹˈɑps ɑɹ ˈʌndəɹ dˈATə, sˌO ðɪs nˈu pɹˈɑʤˌɛkt ɪz tɹˈAsəbᵊl ænd ɹˈɛdi fɔɹ ˈænətˌAt wɪðˈWt ɹiɹˈʌnɪŋ sˌɛɡməntˈAʃən."
     }
   ]
 }

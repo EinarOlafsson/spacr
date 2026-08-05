@@ -18,31 +18,26 @@ import os
 from typing import List, Optional
 
 import numpy as np
-from PySide6.QtCore import QPoint, QPointF, QRect, QRectF, Qt, Signal
+from PySide6.QtCore import QPoint, QRect, QThread, Qt, Signal
 from PySide6.QtGui import (
-    QAction,
     QColor,
-    QCursor,
     QImage,
     QKeySequence,
     QPainter,
     QPen,
     QPixmap,
     QShortcut,
-    QWheelEvent,
 )
 from PySide6.QtWidgets import (
     QApplication,
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
-    QFrame,
     QHBoxLayout,
     QLabel,
     QMessageBox,
     QPushButton,
     QScrollArea,
-    QSizePolicy,
     QSlider,
     QSpinBox,
     QSplitter,
@@ -55,7 +50,7 @@ from .. import iconset
 from .. import mask_engine as engine
 from .. import prefs
 from ..theme import SPACING, active_palette
-from ..widgets import Card, Divider, EmptyState, Section
+from ..widgets import Card, Divider, EmptyState
 
 LOG = logging.getLogger("spacr.qt.make_masks")
 
@@ -101,6 +96,32 @@ MODE_ERASE_OBJECT = "erase_object"
 MODE_WAND_ADD = "wand_add"
 MODE_WAND_ERASE = "wand_erase"
 MODE_ZOOM = "zoom"
+
+
+class _MaskLoadWorker(QThread):
+    """Decode one image/mask pair without blocking Qt's main thread."""
+
+    def __init__(self, folder: str, filename: str, token: int, parent=None):
+        super().__init__(parent)
+        self.folder = folder
+        self.filename = filename
+        self.token = token
+        self.result = None
+        self.error: Optional[Exception] = None
+
+    def run(self) -> None:
+        """Load the pair, retaining either the result or original exception."""
+        try:
+            self.result = engine.load_image_and_mask(
+                self.folder, self.filename
+            )
+        except Exception as exc:
+            self.error = exc
+            LOG.exception(
+                "Failed to load mask source %s from %s",
+                self.filename,
+                self.folder,
+            )
 
 
 class _MaskCanvas(QLabel):
@@ -387,6 +408,10 @@ class MakeMasksScreen(QWidget):
         self._image_files: List[str] = []
         self._current_index: int = 0
         self._history = engine.MaskHistory(capacity=25)
+        self._load_token = 0
+        self._load_worker: Optional[_MaskLoadWorker] = None
+        self._pending_load = None
+        self._loading = False
         self._build_ui()
         self._install_shortcuts()
         self._sync_button_states()
@@ -765,23 +790,131 @@ class MakeMasksScreen(QWidget):
     def _load_current(self):
         if not self._image_files:
             return
+        self._load_token += 1
+        token = self._load_token
+        filename = self._image_files[self._current_index]
+        image_path = os.path.join(self._folder, filename)
+        if self._should_background_load(image_path):
+            request = (self._folder, filename, token)
+            if self._load_worker is not None:
+                self._pending_load = request
+                self._status_label.setText(f"Waiting to load {filename}…")
+                return
+            self._start_background_load(*request)
+            return
+        self._load_pair(self._folder, filename, token)
+
+    @staticmethod
+    def _should_background_load(path: str) -> bool:
+        """Return True when decoding ``path`` is large enough to stall Qt.
+
+        File size catches ordinary uncompressed microscopy TIFFs. A quick PIL
+        header read also catches highly compressed large images without
+        decoding their pixels.
+        """
+        threshold = 8 * 1024 * 1024
         try:
-            image, mask = engine.load_image_and_mask(
-                self._folder, self._image_files[self._current_index]
-            )
-        except Exception as e:
-            # Drop whatever is still on the canvas. Leaving the *previous*
-            # field's image/mask up while _current_index already points at
-            # the file that failed would let Save write the old mask out
-            # under the new filename.
-            self._canvas.image = None
-            self._canvas.mask = None
-            self._canvas.reset_zoom(silent=True)
-            self._canvas.clear()
-            self._history.clear()
-            self._refresh_history_buttons()
-            self._btn_reset_zoom.setEnabled(False)
-            self._warn("Load failed", str(e))
+            if os.path.getsize(path) >= threshold:
+                return True
+            from PIL import Image
+            with Image.open(path) as probe:
+                bands = max(1, len(probe.getbands()))
+                bytes_per_sample = 2 if "16" in probe.mode else 1
+                return (
+                    probe.width * probe.height * bands * bytes_per_sample
+                    >= threshold
+                )
+        except (OSError, ValueError):
+            # Let the real loader report corrupt/unreadable inputs.
+            return False
+
+    def _start_background_load(
+        self, folder: str, filename: str, token: int
+    ) -> None:
+        """Start one retained image loader and disable edit controls."""
+        self._loading = True
+        self._status_label.setText(f"Loading {filename}…")
+        self._sync_button_states()
+        worker = _MaskLoadWorker(folder, filename, token, self)
+        self._load_worker = worker
+        worker.finished.connect(self._on_background_load_finished)
+        worker.start()
+
+    def _on_background_load_finished(self) -> None:
+        """Apply the newest background result and start any pending request."""
+        worker = self._load_worker
+        if worker is None:
+            return
+        self._load_worker = None
+        self._loading = False
+        if worker.token == self._load_token:
+            if worker.error is not None:
+                self._handle_load_failure(worker.error)
+            elif worker.result is not None:
+                self._apply_loaded_pair(
+                    worker.filename, worker.token, *worker.result
+                )
+        worker.deleteLater()
+        pending, self._pending_load = self._pending_load, None
+        if pending is not None:
+            self._start_background_load(*pending)
+        else:
+            self._sync_button_states()
+
+    def closeEvent(self, event):
+        """Drain the background image loader before Qt destroys this screen.
+
+        ``_MaskLoadWorker`` is parented to this widget, so without this the
+        screen's destructor deletes a QThread that is still decoding a large
+        TIFF, and Qt answers that with ``qFatal("QThread: Destroyed while
+        thread is still running")`` — a core dump, not an exception. The
+        window is exactly as wide as one image decode, which is why it shows
+        up in a loaded test shard and almost never by hand.
+        """
+        from ..bridge import drain_thread
+
+        self._pending_load = None
+        worker, self._load_worker = self._load_worker, None
+        if worker is not None:
+            try:
+                worker.requestInterruption()
+            except (AttributeError, RuntimeError):
+                pass
+            drain_thread(worker, timeout_ms=5000)
+        self._loading = False
+        super().closeEvent(event)
+
+    def _load_pair(self, folder: str, filename: str, token: int) -> None:
+        """Decode and apply a small pair synchronously."""
+        try:
+            image, mask = engine.load_image_and_mask(folder, filename)
+        except Exception as exc:
+            self._handle_load_failure(exc)
+            return
+        self._apply_loaded_pair(filename, token, image, mask)
+
+    def _handle_load_failure(self, error: Exception) -> None:
+        """Clear stale canvas state and visibly report an image-load error."""
+        # Leaving the previous field visible while _current_index names the
+        # failed file would let Save write the old mask under a new filename.
+        self._canvas.image = None
+        self._canvas.mask = None
+        self._canvas.reset_zoom(silent=True)
+        self._canvas.clear()
+        self._history.clear()
+        self._refresh_history_buttons()
+        self._btn_reset_zoom.setEnabled(False)
+        self._warn("Load failed", str(error))
+
+    def _apply_loaded_pair(
+        self,
+        filename: str,
+        token: int,
+        image: np.ndarray,
+        mask: np.ndarray,
+    ) -> None:
+        """Install a decoded pair if it still represents the selected field."""
+        if token != self._load_token:
             return
         self._canvas.set_image_and_mask(image, mask)
         # Reset undo history for the new image and seed with the loaded mask
@@ -790,7 +923,7 @@ class MakeMasksScreen(QWidget):
         self._refresh_history_buttons()
         self._btn_reset_zoom.setEnabled(False)
         self._status_label.setText(
-            f"{self._image_files[self._current_index]}  "
+            f"{filename}  "
             f"({self._current_index + 1}/{len(self._image_files)})"
         )
 
@@ -871,7 +1004,8 @@ class MakeMasksScreen(QWidget):
     # ------------------------------------------------------------------
     def _sync_button_states(self):
         has_files = bool(self._image_files)
+        editable = has_files and not self._loading
         for b in (self._btn_prev, self._btn_next, self._btn_save,
                    self._btn_brush, self._btn_erase, self._btn_del_obj,
                    self._btn_wand_add, self._btn_wand_erase, self._btn_zoom):
-            b.setEnabled(has_files)
+            b.setEnabled(editable)

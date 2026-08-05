@@ -4,47 +4,247 @@
   "voice": "em_santa",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 55.875,
+  "total_duration": 303.7,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 10.325,
-      "scene_end": 10.774999999999999,
-      "duration": 10.774999999999999,
-      "text": "Este tutorial abarca Annotate. Revise los cultivos de un solo objeto en una cuadrícula y asigna etiquetas confiables para el entrenamiento de modelos o control de calidad."
+      "speech_end": 14.425,
+      "scene_end": 14.875,
+      "duration": 14.875,
+      "text": "La anotación comienza con la cuadrícula de cultivos priorizada. Abra la consola cuando necesite mensajes de base de datos, guarde el estado, las advertencias o el campo de chat; el mismo botón lo oculta de nuevo para devolver el espacio a las imágenes.",
+      "speech_text": "La anotación comienza con la cuadrícula de cultivos priorizada. Abra la consola cuando necesite mensajes de base de datos, guarde el estado, las advertencias o el campo de chat; el mismo botón lo oculta de nuevo para devolver el espacio a las imágenes.",
+      "phonemes": "la ˌanotaθjˈon komjˈɛnθa kon la kwaðɾˈikula ðe kultˈiβos pɾiˌoɾiθˈaða. ˈaβɾa la konsˈola kwˌando nˌeθesˈite mensˈaxes ðe βˈase ðe ðˈatos, ɡwˈaɾðe el estˈaðo, las ˌaðβeɾtˈɛnθjas o el kˈampo ðe ʧˈat; el mˈismo βotˈon lo okˈulta ðe nwˈeβo pˌaɾa ðˌeβolβˈeɾ el espˈaθjo a las imˈaxenes."
     },
     {
       "scene": 2,
-      "speech_start": 10.774999999999999,
-      "speech_end": 21.325,
-      "scene_end": 21.775,
-      "duration": 11.0,
-      "text": "Abra Annotate en la sección Core. Abre Anotado en la sección Núcleo. Abre un proyecto con cultivos de objetos y seleccione la tabla de base de datos y la columna de anotaciones."
+      "speech_start": 14.875,
+      "speech_end": 25.8,
+      "scene_end": 26.25,
+      "duration": 11.375,
+      "text": "El interruptor de IA envía una pregunta a través del proveedor seleccionado. Utilice la flecha adyacente para elegir un proveedor configurado o la administración de proveedor abierto.",
+      "speech_text": "El interruptor de IA envía una pregunta a través del proveedor seleccionado. Utilice la flecha adyacente para elegir un proveedor configurado o la administración de proveedor abierto.",
+      "phonemes": "el ˌinterupːtˈoɾ ðe ˌiˈa embˈia ˈuna pɾeɣˈunta a tɾaβˈes ðel pɾˌoβeeðˈoɾ sˌelekθjonˈaðo. ˌutilˈiθe la flˈeʧa ˌaðʝaθˈɛnte pˌaɾa ˌelexˈiɾ ˈum pɾˌoβeeðˈoɾ kˌonfiɣuɾˈaðo o la ˌadminˌistɾaθjˈon de pɾˌoβeeðˈoɾ aβjˈeɾto."
     },
     {
       "scene": 3,
-      "speech_start": 21.775,
-      "speech_end": 31.025,
-      "scene_end": 31.474999999999998,
-      "duration": 9.7,
-      "text": "En el área de configuración principal, elija clases, canales de visualización, clasificación, muestreo y cualquier filtro que defina el conjunto de revisión."
+      "speech_start": 26.25,
+      "speech_end": 38.65,
+      "scene_end": 39.1,
+      "duration": 12.850000000000001,
+      "text": "Los proveedores informan si los clientes de línea de comandos Claude, ChatGPT y Gemini están instalados y dan sus comandos de instalación y inicio de sesión. Las credenciales se quedan con cada vendedor.",
+      "speech_text": "Los proveedores informan si los clientes de línea de comandos Claude, ChatGPT y Gemini están instalados y dan sus comandos de instalación y inicio de sesión. Las credenciales se quedan con cada vendedor.",
+      "phonemes": "los pɾˌoβeeðˈoɾes infˈoɾman si los kliˈɛntes ðe lˈinea ðe komˈandos klˈWðe, ʧˈat xˌepˌetˈe i xemˈini estˈan ˌinstalˈaðos i ðˈan sus komˈandos ðe ˌinstalaθjˈon i inˈiθjo ðe sesjˈon. las kɾˌeðenθjˈales se kˈeðan kon kˈaða βˌendeðˈoɾ."
     },
     {
       "scene": 4,
-      "speech_start": 31.474999999999998,
-      "speech_end": 46.349999999999994,
-      "scene_end": 46.8,
-      "duration": 15.325,
-      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. etiquete objetos representativos, guarde con frecuencia y vuelva a revisar ejemplos inciertos o contradictorios."
+      "speech_start": 39.1,
+      "speech_end": 51.175,
+      "scene_end": 51.625,
+      "duration": 12.524999999999999,
+      "text": "Configuraciones de IA controla la profundidad de respuesta, explicaciones automáticas de errores, informes opcionales de problemas de GitHub, inicio de sesión y el aviso del sistema consciente de spaCR.",
+      "speech_text": "Configuraciones de IA controla la profundidad de respuesta, explicaciones automáticas de errores, informes opcionales de problemas de GitHub, inicio de sesión y el aviso del sistema consciente de espáquer.",
+      "phonemes": "kˌonfiɣˌuɾaθjˈones ðe ˌiˈa kontɾˈola la pɾˌofundiðˈad ðe respwˈesta, ˌeksplikaθjˈones ˌWtomˈatikas ðe erˈoɾes, infˈoɾmes ˌopθjonˈales ðe pɾoβlˈemas ðe xˈit ˈub, inˈiθjo ðe sesjˈon i el aβˈiso ðel sistˈema konsθjˈɛnte ðe espˈakeɾ."
     },
     {
       "scene": 5,
-      "speech_start": 46.8,
-      "speech_end": 55.224999999999994,
-      "scene_end": 55.87499999999999,
-      "duration": 9.074999999999996,
-      "text": "Cuando el flujo de trabajo termina, las anotaciones se escriben de nuevo a la base de datos del proyecto con identificadores de objetos intactos."
+      "speech_start": 51.625,
+      "speech_end": 65.025,
+      "scene_end": 65.47500000000001,
+      "duration": 13.850000000000009,
+      "text": "Arrastre la carpeta del experimento medido a Anotate. spaCR resuelve measurements.db, ancla sus vías de cultivo almacenadas a este ordenador, crea la columna spaCR_Tutorial y carga las imágenes reales de la célula.",
+      "speech_text": "Arrastre la carpeta del experimento medido a Anotate. espáquer resuelve measurements dot db, ancla sus vías de cultivo almacenadas a este ordenador, crea la columna espáquer_Tutorial y carga las imágenes reales de la célula.",
+      "phonemes": "arˈastɾe la kaɾpˈeta ðel ˌekspeɾimˈɛnto meðˈiðo a ˌanotˈate. espˈakeɾ reswˈelβe mˌeasˌuɾemˈɛnts ðˈot ðˌeβˈe, ˈankla sus βˈias ðe kultˈiβo ˌalmaθenˈaðas a ˈeste ˌoɾðenaðˈoɾ, kɾˈea la kolˈumna espˈakeɾ tˌutoɾjˈal i kˈaɾɣa las imˈaxenes reˈales ðe la θˈelula."
+    },
+    {
+      "scene": 6,
+      "speech_start": 65.47500000000001,
+      "speech_end": 81.9,
+      "scene_end": 82.35000000000001,
+      "duration": 16.875,
+      "text": "Las configuraciones nombran la columna de fuente y anotación, controlan el tamaño del cultivo, el tipo de imagen, los canales visibles y normalizados, los percentiles, los contornos opcionales, los filtros de objeto o medición y una cola de incertidumbre con protección de diversidad.",
+      "speech_text": "Las configuraciones nombran la columna de fuente y anotación, controlan el tamaño del cultivo, el tipo de imagen, los canales visibles y normalizados, los percentiles, los contornos opcionales, los filtros de objeto o medición y una cola de incertidumbre con protección de diversidad.",
+      "phonemes": "las kˌonfiɣˌuɾaθjˈones nˈombɾan la kolˈumna ðe fwˈɛnte i ˌanotaθjˈon, kontɾˈolan el tamˈaɲo ðel kultˈiβo, el tˈipo ðe imˈaxen, los kanˈales βisˈiβles i nˌoɾmaliθˈaðos, los pˌeɾθentˈiles, los kontˈoɾnos ˌopθjonˈales, los fˈiltɾos ðe oβxˈeto o mˌeðiθjˈon i ˈuna kˈola ðe ˌinθeɾtiðˈumbɾe kom pɾˌotekθjˈon de ðˌiβeɾsiðˈad."
+    },
+    {
+      "scene": 7,
+      "speech_start": 82.35000000000001,
+      "speech_end": 97.22500000000001,
+      "scene_end": 97.67500000000001,
+      "duration": 15.325000000000003,
+      "text": "El contador de páginas muestra 128 cultivos visibles de 81.969. Un anillo blanco marca el cultivo enfocado, mientras que los anillos de color de clase muestran las etiquetas ya asignadas en spaCR_Tutorial.",
+      "speech_text": "El contador de páginas muestra 128 cultivos visibles de 81.969. Un anillo blanco marca el cultivo enfocado, mientras que los anillos de color de clase muestran las etiquetas ya asignadas en espáquer_Tutorial.",
+      "phonemes": "el kˌontaðˈoɾ ðe pˈaxinas mwˈestɾa θjˈento βˌAntiˈoʧo kultˈiβos βisˈiβles ðe oʧˌɛntaiˈuno.nˌoβeθjˈɛntos sɛsˌɛntainwˈeβe. ˈun anˈiʎo βlˈanko mˈaɾka el kultˈiβo ˌenfokˈaðo, mjˌentɾas ke los anˈiʎos ðe kolˈoɾ ðe klˈase mwˈestɾan las ˌetikˈetas ʝˈa ˌasiɡnˈaðas en espˈakeɾ tˌutoɾjˈal."
+    },
+    {
+      "scene": 8,
+      "speech_start": 97.67500000000001,
+      "speech_end": 111.15,
+      "scene_end": 111.60000000000001,
+      "duration": 13.924999999999997,
+      "text": "Abrir la referencia del teclado en cualquier momento. Los números 1 a 9 etiquetan y avanzan, cero elimina una cosecha, flechas o HJ K L se mueven, el espacio salta, Backspace regresa, U deshace y Enter salva y avanza.",
+      "speech_text": "Abrir la referencia del teclado en cualquier momento. Los números 1 a 9 etiquetan y avanzan, cero elimina una cosecha, flechas o HJ K L se mueven, el espacio salta, Backspace regresa, U deshace y Enter salva y avanza.",
+      "phonemes": "aβɾˈiɾ la rˌefeɾˈɛnθja ðel teklˈaðo en kwalkjˈeɾ momˈɛnto. los nˈumeɾos ˈuno a nwˈeβe ˌetikˈetan i aβˈanθan, θˈeɾo ˌelimˈina ˈuna kosˈeʧa, flˈeʧas o ˌaʧexˈota kˈa ˈɛle se mwˈeβen, el espˈaθjo sˈalta, bakspˈaθe reɣɾˈesa, u ðesˈaθe i entˈeɾ sˈalβa i aβˈanθa."
+    },
+    {
+      "scene": 9,
+      "speech_start": 111.60000000000001,
+      "speech_end": 120.525,
+      "scene_end": 120.97500000000001,
+      "duration": 9.375,
+      "text": "Presione 1 para asignar clase 1 al cultivo enfocado. Su anillo cambia al color de la clase, y el enfoque avanza a la siguiente imagen sin etiqueta.",
+      "speech_text": "Presione 1 para asignar clase 1 al cultivo enfocado. Su anillo cambia al color de la clase, y el enfoque avanza a la siguiente imagen sin etiqueta.",
+      "phonemes": "pɾesjˈone ˈuno pˌaɾa ˌasiɡnˈaɾ klˈase ˈuno al kultˈiβo ˌenfokˈaðo. su anˈiʎo kˈambja al kolˈoɾ ðe la klˈase, i el enfˈoke aβˈanθa a la siɣjˈɛnte imˈaxen sin ˌetikˈeta."
+    },
+    {
+      "scene": 10,
+      "speech_start": 120.97500000000001,
+      "speech_end": 131.85000000000002,
+      "scene_end": 132.3,
+      "duration": 11.325000000000003,
+      "text": "Presione 2 para asignar clase 2. Las clases son numéricas y definidas por experimento, así que registra lo que significa cada número antes de que un equipo comience a etiquetar.",
+      "speech_text": "Presione 2 para asignar clase 2. Las clases son numéricas y definidas por experimento, así que registra lo que significa cada número antes de que un equipo comience a etiquetar.",
+      "phonemes": "pɾesjˈone ðˈos pˌaɾa ˌasiɡnˈaɾ klˈase ðˈos. las klˈases sˈon numˈeɾikas i ðˌefinˈiðas poɾ ˌekspeɾimˈɛnto, asˈi ke rexˈistɾa lo ke sˌiɡnifˈika kˈaða nˈumeɾo ˈantes ðe ke ˈun ekˈipo komjˈɛnθe a ˌetiketˈaɾ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 132.3,
+      "speech_end": 142.07500000000002,
+      "scene_end": 142.525,
+      "duration": 10.224999999999994,
+      "text": "Las teclas de flecha mueven el foco sin cambiar la etiqueta. El espacio avanza y el Backspace retrocede, lo que hace posible una revisión rápida sin llegar al ratón.",
+      "speech_text": "Las teclas de flecha mueven el foco sin cambiar la etiqueta. El espacio avanza y el Backspace retrocede, lo que hace posible una revisión rápida sin llegar al ratón.",
+      "phonemes": "las tˈeklas ðe flˈeʧa mwˈeβen el fˈoko sin kambjˈaɾ la ˌetikˈeta. el espˈaθjo aβˈanθa i el βakspˈaθe rˌetɾoθˈeðe, lo ke ˈaθe posˈiβle ˈuna rˌeβisjˈon rˈapiða sin ʎeɣˈaɾ al ratˈon."
+    },
+    {
+      "scene": 12,
+      "speech_start": 142.525,
+      "speech_end": 152.875,
+      "scene_end": 153.325,
+      "duration": 10.799999999999983,
+      "text": "Presione U para deshacer la etiqueta de teclado más reciente. El cultivo vuelve a su estado anterior, el enfoque se mueve de nuevo a él, y la banda de estado confirma la revocación.",
+      "speech_text": "Presione U para deshacer la etiqueta de teclado más reciente. El cultivo vuelve a su estado anterior, el enfoque se mueve de nuevo a él, y la banda de estado confirma la revocación.",
+      "phonemes": "pɾesjˈone u pˌaɾa ðˌesaθˈeɾ la ˌetikˈeta ðe teklˈaðo mˈas reθjˈɛnte. el kultˈiβo βwˈelβe a su estˈaðo ˌanteɾjˈoɾ, el enfˈoke se mwˈeβe ðe nwˈeβo a ˈel, i la βˈanda ðe estˈaðo konfˈiɾma la rˌeβokaθjˈon."
+    },
+    {
+      "scene": 13,
+      "speech_start": 153.325,
+      "speech_end": 164.17499999999998,
+      "scene_end": 164.62499999999997,
+      "duration": 11.299999999999983,
+      "text": "La anotación del ratón sigue disponible. Un clic izquierdo asigna la clase 1 a un cultivo a través del mismo camino de almacenamiento de fondo utilizado por las etiquetas de teclado.",
+      "speech_text": "La anotación del ratón sigue disponible. Un clic izquierdo asigna la clase 1 a un cultivo a través del mismo camino de almacenamiento de fondo utilizado por las etiquetas de teclado.",
+      "phonemes": "la ˌanotaθjˈon del ratˈon sˈiɣe ðˌisponˈiβle. ˈun klˈik iθkjˈeɾðo asˈiɡna la klˈase ˈuno a ˈun kultˈiβo a tɾaβˈes ðel mˈismo kamˈino ðe ˌalmaθˌenamjˈɛnto ðe fˈondo ˌutiliθˈaðo poɾ las ˌetikˈetas ðe teklˈaðo."
+    },
+    {
+      "scene": 14,
+      "speech_start": 164.62499999999997,
+      "speech_end": 174.34999999999997,
+      "scene_end": 174.79999999999995,
+      "duration": 10.174999999999983,
+      "text": "Un clic derecho asigna la clase 2. Hacer clic en la misma clase en ese cultivo lo limpia de nuevo, mientras que hacer clic en la otra clase lo cambia directamente.",
+      "speech_text": "Un clic derecho asigna la clase 2. Hacer clic en la misma clase en ese cultivo lo limpia de nuevo, mientras que hacer clic en la otra clase lo cambia directamente.",
+      "phonemes": "ˈun klˈik ðeɾˈeʧo asˈiɡna la klˈase ðˈos. aθˈeɾ klˈik en la mˈisma klˈase en ˈese kultˈiβo lo lˈimpja ðe nwˈeβo, mjˌentɾas ke aθˈeɾ klˈik en la ˈotɾa klˈase lo kˈambja ðiɾˈektamˈente."
+    },
+    {
+      "scene": 15,
+      "speech_start": 174.79999999999995,
+      "speech_end": 185.52499999999995,
+      "scene_end": 185.97499999999994,
+      "duration": 11.174999999999983,
+      "text": "El recuento de clases confirma la población guardada y muestra el color utilizado para cada anillo de clase. Este tutorial tiene dos ejemplos en la clase 1 y dos en la clase 2.",
+      "speech_text": "El recuento de clases confirma la población guardada y muestra el color utilizado para cada anillo de clase. Este tutorial tiene dos ejemplos en la clase 1 y dos en la clase 2.",
+      "phonemes": "el rekwˈɛnto ðe klˈases konfˈiɾma la pˌoβlaθjˈoŋ ɡwaɾðˈaða i mwˈestɾa el kolˈoɾ ˌutiliθˈaðo pˌaɾa kˈaða anˈiʎo ðe klˈase. ˈeste tˌutoɾjˈal tjˈene ðˈos exˈemplos en la klˈase ˈuno i ðˈos en la klˈase ðˈos."
+    },
+    {
+      "scene": 16,
+      "speech_start": 185.97499999999994,
+      "speech_end": 201.29999999999993,
+      "scene_end": 201.74999999999991,
+      "duration": 15.774999999999977,
+      "text": "La cobertura audita las etiquetas por clase, placa, pozo, fuente y ronda de aprendizaje activo. Estos cuatro ejemplos provienen de un solo pozo, que es intencionalmente demasiado concentrado para la formación y demuestra por qué se debe comprobar la cobertura.",
+      "speech_text": "La cobertura audita las etiquetas por clase, placa, pozo, fuente y ronda de aprendizaje activo. Estos cuatro ejemplos provienen de un solo pozo, que es intencionalmente demasiado concentrado para la formación y demuestra por qué se debe comprobar la cobertura.",
+      "phonemes": "la kˌoβeɾtˈuɾa Wðˈita las ˌetikˈetas poɾ klˈase, plˈaka, pˈoθo, fwˈɛnte i rˈonda ðe ˌapɾendiθˈaxe aktˈiβo. ˈestos kwˈatɾo exˈemplos pɾoβjˈenen de ˈun sˈolo pˈoθo, ke ˈes ˌintenθjonˈalmˈente ðˌemasjˈaðo kˌonθentɾˈaðo pˌaɾa la fˌoɾmaθjˈon i ðemwˈestɾa poɾ kˈe se ðˈeβe kˌompɾoβˈaɾ la kˌoβeɾtˈuɾa."
+    },
+    {
+      "scene": 17,
+      "speech_start": 201.74999999999991,
+      "speech_end": 210.92499999999993,
+      "scene_end": 211.37499999999991,
+      "duration": 9.625,
+      "text": "Next guarda el trabajo pendiente y carga la siguiente página completa. Enter realiza la misma acción de ahorro y adelanto sin salir de la cuadrícula.",
+      "speech_text": "Next guarda el trabajo pendiente y carga la siguiente página completa. Enter realiza la misma acción de ahorro y adelanto sin salir de la cuadrícula.",
+      "phonemes": "nˈekst ɣwˈaɾða el tɾaβˈaxo pendjˈɛnte i kˈaɾɣa la siɣjˈɛnte pˈaxina komplˈeta. entˈeɾ rˌealˈiθa la mˈisma akθjˈon de aˈoro i ˌaðelˈanto sin salˈiɾ ðe la kwaðɾˈikula."
+    },
+    {
+      "scene": 18,
+      "speech_start": 211.37499999999991,
+      "speech_end": 219.7249999999999,
+      "scene_end": 220.1749999999999,
+      "duration": 8.799999999999983,
+      "text": "De vuelta devuelve una página mientras se conserva cada anotación comprometida. Page Up y Alt Left proporcionan alternativas de teclado.",
+      "speech_text": "De vuelta devuelve una página mientras se conserva cada anotación comprometida. Page Up y Alt Left proporcionan alternativas de teclado.",
+      "phonemes": "de βwˈelta ðeβwˈelβe ˈuna pˈaxina mjˌentɾas se konsˈeɾβa kˈaða ˌanotaθjˈon kˌompɾometˈiða. pˈaxe ˈap i ˈalt lˈeft pɾˌopoɾθjˈonan ˌalteɾnatˈiβas ðe teklˈaðo."
+    },
+    {
+      "scene": 19,
+      "speech_start": 220.1749999999999,
+      "speech_end": 230.1749999999999,
+      "scene_end": 230.6249999999999,
+      "duration": 10.449999999999989,
+      "text": "Salta a la última sesión de anotaciones y pasa a la página que contiene la etiqueta guardada final, lo que facilita la reanudación de una larga sesión de anotaciones.",
+      "speech_text": "Salta a la última sesión de anotaciones y pasa a la página que contiene la etiqueta guardada final, lo que facilita la reanudación de una larga sesión de anotaciones.",
+      "phonemes": "sˈalta a la ˈultima sesjˈon de ˌanotaθjˈones i pˈasa a la pˈaxina ke kontjˈene la ˌetikˈeta ɣwaɾðˈaða finˈal, lo ke fˌaθilˈita la rˌeanˌuðaθjˈon de ˈuna lˈaɾɣa sesjˈon de ˌanotaθjˈones."
+    },
+    {
+      "scene": 20,
+      "speech_start": 230.6249999999999,
+      "speech_end": 245.4249999999999,
+      "scene_end": 245.8749999999999,
+      "duration": 15.25,
+      "text": "Las rondas muestran la precisión de mantenimiento después de cada reentrenamiento de aprendizaje activo y evalúan si el etiquetado reciente mejoró el modelo. Ninguna curva aparece hasta que suficientes etiquetas representativas apoyen una primera ronda.",
+      "speech_text": "Las rondas muestran la precisión de mantenimiento después de cada reentrenamiento de aprendizaje activo y evalúan si el etiquetado reciente mejoró el modelo. Ninguna curva aparece hasta que suficientes etiquetas representativas apoyen una primera ronda.",
+      "phonemes": "las rˈondas mwˈestɾan la pɾˌeθisjˈon de mˌantenimjˈɛnto ðespwˈes ðe kˈaða rˌeentɾˌenamjˈɛnto ðe ˌapɾendiθˈaxe aktˈiβo i ˌeβalˈuan si el ˌetiketˈaðo reθjˈɛnte mˌexoɾˈo el moðˈelo. niŋɡˈuna kˈuɾβa ˌapaɾˈeθe ˌasta ke sˌufiθjˈɛntes ˌetikˈetas rˌepɾesˌentatˈiβas apˈoʝen ˈuna pɾimˈeɾa rˈonda."
+    },
+    {
+      "scene": 21,
+      "speech_start": 245.8749999999999,
+      "speech_end": 259.0999999999999,
+      "scene_end": 259.5499999999999,
+      "duration": 13.675000000000011,
+      "text": "Retrain se ajusta a las etiquetas guardadas, marca los cultivos restantes y reorganiza la cola de incertidumbre opcional. La línea de estado registra la ronda, el resultado retenido, la clase más débil y la guía de parada.",
+      "speech_text": "Retrain se ajusta a las etiquetas guardadas, marca los cultivos restantes y reorganiza la cola de incertidumbre opcional. La línea de estado registra la ronda, el resultado retenido, la clase más débil y la guía de parada.",
+      "phonemes": "rˈetɾIn se axˈusta a las ˌetikˈetas ɣwaɾðˈaðas, mˈaɾka los kultˈiβos restˈantes i rˌeoɾɣanˈiθa la kˈola ðe ˌinθeɾtiðˈumbɾe ˌopθjonˈal. la lˈinea ðe estˈaðo rexˈistɾa la rˈonda, el rˌesultˈaðo rˌetenˈiðo, la klˈase mˈas ðˈeβil i la ɣˈia ðe paɾˈaða."
+    },
+    {
+      "scene": 22,
+      "speech_start": 259.5499999999999,
+      "speech_end": 275.7499999999999,
+      "scene_end": 276.1999999999999,
+      "duration": 16.649999999999977,
+      "text": "El CV del tren entrega este proyecto y la columna de anotaciones al clasificador de imágenes. El tren XG entrega las mismas etiquetas al clasificador de características de medición. Ambos abren un módulo preconfigurado; ninguno comienza el entrenamiento inmediatamente.",
+      "speech_text": "El CV del tren entrega este proyecto y la columna de anotaciones al clasificador de imágenes. El tren XG entrega las mismas etiquetas al clasificador de características de medición. Ambos abren un módulo preconfigurado; ninguno comienza el entrenamiento inmediatamente.",
+      "phonemes": "el θˌeˈuβe ðel tɾˈen entɾˈeɣa ˈeste pɾoʝˈekto i la kolˈumna ðe ˌanotaθjˈones al klˌasifˌikaðˈoɾ ðe imˈaxenes. el tɾˈen ˌekisxˈe entɾˈeɣa las mˈismas ˌetikˈetas al klˌasifˌikaðˈoɾ ðe kˌaɾakteɾˈistikas ðe mˌeðiθjˈon. ˈambos ˈaβɾen ˈun mˈoðulo pɾˌekonfˌiɣuɾˈaðo; niŋɡˈuno komjˈɛnθa el ˌentɾenamjˈɛnto ˌinmeðjˈatamˈente."
+    },
+    {
+      "scene": 23,
+      "speech_start": 276.1999999999999,
+      "speech_end": 289.64999999999986,
+      "scene_end": 290.09999999999985,
+      "duration": 13.899999999999977,
+      "text": "La columna limpia se guarda intencionalmente porque elimina todas las etiquetas de la columna seleccionada. Confirme el nombre exacto de la columna antes de continuar; este tutorial anula la advertencia y conserva sus etiquetas.",
+      "speech_text": "La columna limpia se guarda intencionalmente porque elimina todas las etiquetas de la columna seleccionada. Confirme el nombre exacto de la columna antes de continuar; este tutorial anula la advertencia y conserva sus etiquetas.",
+      "phonemes": "la kolˈumna lˈimpja se ɣwˈaɾða ˌintenθjonˈalmˈente pˌoɾke ˌelimˈina tˈoðas las ˌetikˈetas ðe la kolˈumna sˌelekθjonˈaða. konfˈiɾme el nˈombɾe eksˈakto ðe la kolˈumna ˈantes ðe kˌontinwˈaɾ; ˈeste tˌutoɾjˈal anˈula la ˌaðβeɾtˈɛnθja i konsˈeɾβa sus ˌetikˈetas."
+    },
+    {
+      "scene": 24,
+      "speech_start": 290.09999999999985,
+      "speech_end": 303.04999999999984,
+      "scene_end": 303.6999999999998,
+      "duration": 13.599999999999966,
+      "text": "Las cuatro etiquetas de ejemplo ahora se guardan en measurements.db bajo spaCR_Tutorial con sus senderos de objetos y procedencia intactos. Continúa a través de pozos y platos antes de usarlos para entrenar a un modelo.",
+      "speech_text": "Las cuatro etiquetas de ejemplo ahora se guardan en measurements dot db bajo espáquer_Tutorial con sus senderos de objetos y procedencia intactos. Continúa a través de pozos y platos antes de usarlos para entrenar a un modelo.",
+      "phonemes": "las kwˈatɾo ˌetikˈetas ðe exˈemplo aˈoɾa se ɣwˈaɾðan en mˌeasˌuɾemˈɛnts ðˈot ðˌeβˈe βˌaxo espˈakeɾ tˌutoɾjˈal kon sus sendˈeɾos ðe oβxˈetos i pɾˌoθeðˈɛnθja intˈaktos. kˌontinˈua a tɾaβˈes ðe pˈoθos i plˈatos ˈantes ðe usˈaɾlos pˌaɾa ˌentɾenˈaɾ a ˈun moðˈelo."
     }
   ]
 }

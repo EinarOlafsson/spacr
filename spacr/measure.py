@@ -1,4 +1,6 @@
-import os, cv2, time, sqlite3, traceback, shutil
+"""Per-object morphology and intensity measurement pipeline."""
+
+import os, cv2, time, sqlite3, threading, traceback, shutil
 import numpy as np
 import pandas as pd
 from collections import defaultdict
@@ -11,24 +13,51 @@ from skimage.segmentation import find_boundaries
 from skimage.feature import graycomatrix, graycoprops
 from skimage import morphology, measure, filters
 from skimage.util import img_as_bool
-from skimage.filters import gaussian, threshold_otsu
-from skimage.measure import label as sk_label, regionprops_table
 import matplotlib.pyplot as plt
 from math import ceil, sqrt
 
-from . import settings
 # The crop PNG format lives in spacr.crops: the writer's channel order
 # (to_cv2_bgr), the folder marker (stamp_crop_folder) and the reader that
 # undoes the legacy order all have to agree, so they live in one place.
 # spacr.crops imports nothing from spacr and nothing heavy, so this costs the
 # measure path nothing.
-from .crops import stamp_crop_folder, to_cv2_bgr
+from .crops import stamp_crop_folder, to_cv2_bgr, narrow_to_uint8
+# Backward-compatible public module binding used by downstream extensions.
+from . import settings as _settings_module
+settings = _settings_module
+# Public compatibility alias: measurement writers and downstream feature
+# dictionaries historically import this constant from ``spacr.measure``.
+from . import measurement_schema as _measurement_schema
+MEASUREMENT_STAMP_COLUMNS = _measurement_schema.MEASUREMENT_STAMP_COLUMNS
 # Fail-loud accounting: a field that fails to measure is recorded, summarised
 # at the end of the run, and stamped into measurements.db so a downstream
 # regression cannot silently analyse 344 of 384 wells.
 from .errors import RunLedger, ConfigurationError, raise_if_strict
-from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
+# One run id on every log line and every artifact, one seed reaching every
+# RNG, one on_error policy at each batch boundary. See spacr.runctx.
+from .runctx import run_context
 from .resume import plan_measure_resume
+# Opt-in extension points, so illumination correction and a user-drawn ROI can
+# change what is measured without editing this module. Both registries are
+# empty by default and both entry points return their input object unchanged
+# when they are, so an ordinary run is byte-identical to one from before they
+# existed. spacr.measure_hooks imports numpy, the stdlib and spacr.errors only
+# -- registering a hook must not drag in matplotlib/skimage/cv2. Re-exported
+# here so `from spacr.measure import register_preprocessing_hook` also works.
+from .measure_hooks import (
+    MeasurementHookError,
+    PreprocessingContext,
+    RegionContext,
+    apply_preprocessing_hooks,
+    apply_region_filter_hooks,
+    preprocessing_hooks,
+    region_filter_hooks,
+    register_preprocessing_hook,
+    register_region_filter_hook,
+    unregister_preprocessing_hook,
+    unregister_region_filter_hook,
+    warn_if_hooks_will_not_reach_workers,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -133,6 +162,141 @@ def _pool_context():
               f"multiprocessing start method on this platform; using the "
               f"default ({mp.get_start_method()}).")
         return mp
+
+
+class ManagerStartError(ConfigurationError):
+    """:func:`measure_crop` could not start its :class:`multiprocessing.Manager`.
+
+    A :class:`~spacr.errors.ConfigurationError` because it is not a per-field
+    failure: the Manager owns the shared timing list every worker writes to, so
+    if it will not start then no field can be measured and continuing past it
+    produces nothing. The remedy is a configuration change
+    (:data:`START_METHOD_ENV_VAR`), which is what this class exists to say.
+
+    What it replaces is the point. ``ctx.Manager()`` fails as a bare
+    ``EOFError`` raised four frames down in ``multiprocessing/connection.py``
+    -- no message, no mention of spaCR, no mention of the start method, and no
+    hint that the process that called Measure is the thing at fault. This was
+    reproduced deterministically 33 times across 7 test modules; see
+    :func:`_manager_start_diagnosis` for the mechanism.
+    """
+
+
+def _thread_census():
+    """Return ``(count, description)`` of the live threads in this process.
+
+    The thread count is the whole diagnosis for a ``fork`` Manager failure, so
+    it is measured at the moment of failure rather than described in prose.
+    Names are truncated because a Qt process can carry dozens and the message
+    has to stay readable.
+    """
+    threads = list(threading.enumerate())
+    names = [t.name for t in threads]
+    shown = ', '.join(names[:8])
+    if len(names) > 8:
+        shown += f", ... (+{len(names) - 8} more)"
+    return len(threads), shown
+
+
+def _manager_start_diagnosis(start_method, exc):
+    """Build the message :class:`ManagerStartError` carries.
+
+    Split out from :func:`_start_manager` so the wording is testable without
+    breaking a Manager, and because the two cases genuinely differ:
+
+    ``fork`` -- the case that actually bites. ``os.fork()`` duplicates only the
+    calling thread but duplicates *all* of the process's memory, including
+    every mutex the other threads were holding at the instant of the fork.
+    Those mutexes arrive in the child already locked, owned by threads that do
+    not exist there, so nothing can ever release them. The Manager's server
+    process then deadlocks (or dies) before it writes its socket address back
+    down the bootstrap pipe, and the parent's read of that address hits EOF --
+    which is the naked ``EOFError`` from ``connection.py`` a user sees. A
+    long-lived Qt or Jupyter process is exactly the thread-rich parent this
+    needs; ``python -c`` forks with one thread and never reproduces it.
+
+    Anything else (``spawn``, ``forkserver``) -- the child is a fresh
+    interpreter that inherits no locks, so the thread census is reported but
+    not blamed. What is left is what the Manager's server needs from the
+    environment: a writable temp directory for its socket, and permission to
+    start a process at all. Containers and HPC job sandboxes remove both.
+
+    :param start_method: the start method the failed Manager was using.
+    :param exc: the exception ``Manager()`` raised.
+    :returns: a multi-line diagnostic string.
+    """
+    n_threads, thread_names = _thread_census()
+    remedy = (
+        f"    export {START_METHOD_ENV_VAR}=spawn\n"
+        f"or, in Python, before calling measure_crop:\n"
+        f"    os.environ['{START_METHOD_ENV_VAR}'] = 'spawn'"
+    )
+    head = (
+        f"Could not start the multiprocessing Manager that measure_crop uses "
+        f"to share per-field timings with its worker pool. Nothing was "
+        f"measured.\n"
+        f"  start method:    {start_method!r}\n"
+        f"  underlying error: {type(exc).__name__}: {exc}\n"
+        f"  live threads in this process: {n_threads} ({thread_names})\n"
+    )
+
+    if start_method == 'fork':
+        return (
+            head +
+            f"\nMost likely cause: this process is forking with "
+            f"{n_threads} live threads. os.fork() copies one thread but all of "
+            f"the memory, so every lock the other {max(n_threads - 1, 0)} "
+            f"thread(s) held arrives in the child already locked and owned by "
+            f"nobody. The Manager's server then hangs or dies before writing "
+            f"its address back to the parent, and the parent's read of that "
+            f"address is the EOFError above. A long-lived Qt or Jupyter "
+            f"session is exactly this kind of parent.\n"
+            f"\nRemedy: run the measure pool under 'spawn', which starts each "
+            f"child from a fresh interpreter and inherits no locks:\n"
+            f"{remedy}\n"
+            f"spaCR does not switch for you, because a spawn worker re-imports "
+            f"the measure chain from cold (seconds and hundreds of MB each); "
+            f"the worker count is capped at the number of fields under spawn, "
+            f"so that cost is bounded but not free."
+        )
+
+    return (
+        head +
+        f"\nUnder {start_method!r} the child inherits no locks from the "
+        f"parent, so the {n_threads} live thread(s) above are reported for "
+        f"completeness rather than blamed. What a Manager still needs is a "
+        f"writable temporary directory for its server's socket (TMPDIR, or "
+        f"XDG_RUNTIME_DIR) and permission to start a process at all -- "
+        f"containers and HPC job sandboxes commonly withhold both.\n"
+        f"\nIf this machine's default is workable, unset "
+        f"{START_METHOD_ENV_VAR}; otherwise select a start method explicitly:\n"
+        f"{remedy}"
+    )
+
+
+def _start_manager(ctx):
+    """Return a started :class:`multiprocessing.Manager` from ``ctx``.
+
+    :param ctx: the object :func:`_pool_context` returned.
+    :returns: a started manager, ready to use as a context manager.
+    :raises ManagerStartError: ``Manager()`` failed, for any reason.
+
+    ``BaseException`` is deliberately not caught: a Ctrl-C landing inside the
+    Manager handshake is a cancellation, not a misconfiguration, and dressing
+    it up as one would be a lie in the traceback.
+    """
+    try:
+        return ctx.Manager()
+    except Exception as exc:
+        # get_start_method() is read here rather than passed in so the message
+        # reports what the *failed* Manager was actually using, even if the
+        # caller resolved a different name earlier.
+        try:
+            start_method = ctx.get_start_method()
+        except Exception:
+            start_method = mp.get_start_method()
+        raise ManagerStartError(
+            _manager_start_diagnosis(start_method, exc)) from exc
 
 
 def resolve_pool_size(n_jobs, n_files, start_method=None):
@@ -592,6 +756,80 @@ def _safe_morphology_table(mask, properties, spacing=None):
     return frame[[prop for prop in requested if prop in frame.columns]]
 
 
+def _join_child_to_parent_cell(child_props, cell_to_child, child_name, remedy):
+    """Attach each child object's parent ``cell_id`` to its morphology row.
+
+    ``one_to_one``, and deliberately so. A child object belongs to exactly one
+    cell in this data model, everywhere downstream:
+    :meth:`spacr.schema.ObjectTableSchema.row_key_columns` keys the ``nucleus``
+    and ``pathogen`` tables on one row per ``object_label`` per field, the
+    tables carry a single scalar ``cell_id``, and
+    :func:`spacr.utils._merge_and_save_to_database` joins morphology to
+    intensity on ``object_label`` with ``validate='one_to_one'``. A frame with
+    the same label twice is therefore not a shape measurements.db can hold, so
+    the only question is *where* it stops.
+
+    It has to stop here. ``_measure_crop_core`` writes the object tables one
+    call at a time -- cell, then nucleus, then pathogen -- so a fan-out that
+    survives this merge is not caught until the write for its own table, by
+    which point the earlier tables for this field are already committed. That
+    leaves the field half in the database: a cell row with no matching pathogen
+    row, which reads downstream as an uninfected cell rather than as a failure.
+    Raising before any write keeps a field all-in or all-out.
+
+    ``get_components`` fans out when a child label overlaps two cell labels.
+    On the pipeline path that is normally already impossible:
+    ``_measure_crop_core`` runs :func:`spacr.utils._merge_overlapping_objects`
+    on (nucleus, cell) unconditionally, and on (pathogen, cell) when
+    ``merge_edge_pathogen_cells`` is set, and that resolves every straddling
+    child to a single cell -- either by trimming the child back to the cell it
+    overlaps most, or by merging the two cells into one. Which of those two
+    repairs is available differs per object type, so the caller supplies the
+    ``remedy`` sentence rather than this function guessing.
+
+    :param child_props: ``regionprops_table`` output for the child mask; one
+        row per label.
+    :param cell_to_child: ``get_components``' exploded ``(cell_id, child)``
+        pairs.
+    :param child_name: ``'nucleus'`` or ``'pathogen'`` -- the column
+        ``get_components`` keyed the child by.
+    :param remedy: what the reader should change, appended to the message.
+    :returns: ``child_props`` with ``cell_id`` (and the child key column)
+        joined on.
+    :raises pandas.errors.MergeError: either side repeats a label.
+    """
+    try:
+        return pd.merge(
+            child_props,
+            cell_to_child,
+            left_on='label',
+            right_on=child_name,
+            how='left',
+            validate='one_to_one',
+        )
+    except pd.errors.MergeError as exc:
+        shared = cell_to_child[cell_to_child[child_name].duplicated(keep=False)]
+        if shared.empty:
+            # The duplicate is on the props side, which means regionprops_table
+            # emitted a label twice -- a different fault with a different fix,
+            # and one this message would misdescribe. Say nothing about cells.
+            raise
+        examples = [
+            (int(lab), sorted(int(c) for c in grp['cell_id']))
+            for lab, grp in shared.groupby(child_name)
+        ][:5]
+        raise pd.errors.MergeError(
+            f"{len(shared[child_name].unique())} {child_name} label(s) overlap "
+            f"more than one cell, so this field has no single parent cell for "
+            f"them (e.g. {child_name}/cell_ids {examples}). The {child_name} "
+            f"table holds one row per object with one cell_id, so measuring "
+            f"this field would either double-count those objects or write only "
+            f"part of the field to measurements.db. Nothing was written for "
+            f"this field.\n"
+            f"Fix the masks rather than the join: {remedy} (pandas: {exc})"
+        ) from exc
+
+
 def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, settings, zernike=None, degree=8):
     """Return morphology + Zernike DataFrames for cells, nuclei, pathogens, organelles, cytoplasm.
 
@@ -664,14 +902,24 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
             nucleus_props = _calculate_zernike(
                 nucleus_mask, nucleus_props, degree=degree)
         if settings['cell_mask_dim'] is not None:
-            nucleus_props = pd.merge(
-                nucleus_props,
-                cell_to_nucleus,
-                left_on='label',
-                right_on='nucleus',
-                how='left',
-                validate='one_to_one',
-            )
+            # one_to_one; see _join_child_to_parent_cell for why, and for what
+            # was tried instead. Briefly: this was relaxed to one_to_many on
+            # the theory that a nucleus straddling two touching cells is a
+            # legitimate shape. It is not one measurements.db can store -- the
+            # nucleus table is keyed one row per object_label per field -- and
+            # relaxing it here only moved the same MergeError downstream into
+            # _merge_and_save_to_database, after the cell table for this field
+            # had already been committed. Backed out: fail before the first
+            # write, with a message that names the offending labels.
+            nucleus_props = _join_child_to_parent_cell(
+                nucleus_props, cell_to_nucleus, 'nucleus',
+                remedy=(
+                    "measure_crop already runs _merge_overlapping_objects on "
+                    "the nucleus and cell masks before measuring, so reaching "
+                    "this means that repair could not resolve the overlap -- "
+                    "most often a single nucleus label made of two "
+                    "disconnected components. Re-segment the nuclei, or drop "
+                    "the split label."))
         prop_ls.append(nucleus_props)
         ls.append('nucleus')
     else:
@@ -684,14 +932,21 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
             pathogen_props = _calculate_zernike(
                 pathogen_mask, pathogen_props, degree=degree)
         if settings['cell_mask_dim'] is not None:
-            pathogen_props = pd.merge(
-                pathogen_props,
-                cell_to_pathogen,
-                left_on='label',
-                right_on='pathogen',
-                how='left',
-                validate='one_to_one',
-            )
+            # one_to_one, for the same reasons as the nucleus join above. This
+            # is the join the fan-out actually reaches, because the mask repair
+            # that prevents it is optional here: with
+            # merge_edge_pathogen_cells=False, a vacuole on the border between
+            # two host cells is listed under both cell_ids. That still cannot
+            # be stored -- the pathogen table is one row per object_label with
+            # one cell_id -- so it stops here, before the cell and nucleus
+            # tables for this field are written, rather than after.
+            pathogen_props = _join_child_to_parent_cell(
+                pathogen_props, cell_to_pathogen, 'pathogen',
+                remedy=(
+                    "set merge_edge_pathogen_cells=True so spaCR resolves a "
+                    "vacuole straddling two host cells to one cell before "
+                    "measuring, or re-segment so the pathogen and cell masks "
+                    "nest."))
         prop_ls.append(pathogen_props)
         ls.append('pathogen')
     else:
@@ -706,6 +961,12 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
             # Map each organelle to its parent cell
             if settings['cell_mask_dim'] is not None:
                 organelle_to_cell = _map_child_to_parent(organelle_mask, cell_mask, child_name='organelle', parent_name='cell')
+                # one_to_one here, unlike the nucleus/pathogen joins above, and
+                # the difference is in the mapper rather than the biology:
+                # _map_child_to_parent resolves each organelle to its single
+                # maximum-overlap parent, so it emits exactly one row per
+                # organelle label. Both sides are therefore keyed uniquely and
+                # a duplicate on either would mean the mapper itself is broken.
                 organelle_props = pd.merge(
                     organelle_props,
                     organelle_to_cell,
@@ -796,6 +1057,11 @@ def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays
                                                 parent_name=parent_name)
     
     if len(organelle_df) > 0 and len(organelle_to_parent) > 0:
+        # one_to_one: both frames are derived from the same organelle_mask and
+        # both carry one row per label -- regionprops_table on the left,
+        # _map_child_to_parent's single argmax-overlap parent on the right. A
+        # duplicate on either side means one of those two invariants broke, and
+        # the per-parent sums computed below would then double-count organelles.
         organelle_df = pd.merge(
             organelle_df,
             organelle_to_parent,
@@ -1602,7 +1868,12 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
                                          f'cell_channel_{ch}_distance_to_pathogen'])
         dfs.append(df)
 
-    # Merge all channel dataframes on label
+    # Merge all channel dataframes on label. one_to_one: every frame in `dfs`
+    # was built by walking the same `cell_labels` (np.unique of the cell mask)
+    # once, so each holds one row per cell and the same set of cells. This is a
+    # widening of one table across channels, not a relationship between two
+    # different object types -- if a label repeated, a channel's distances
+    # would be silently averaged over duplicate rows downstream.
     merged_df = dfs[0]
     for df in dfs[1:]:
         merged_df = merged_df.merge(
@@ -1665,14 +1936,7 @@ def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
         if png_channels.dtype == np.uint16:
             png_channels = (png_channels / 256).astype(np.uint8)
         
-        # Get the filename without the extension
-        filename = os.path.splitext(os.path.basename(img_path))[0]
-        
-        # Add the label to the image
-        #labeled_image = cv2.putText(png_channels.copy(), filename, (10, 30), 
-        #                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-        
-        # Add the labeled image to the grid
+        # Add the image to the diagnostic grid.
         grid.append(png_channels)
     
     return grid
@@ -1786,6 +2050,83 @@ def _per_crop_mode(value, n_modes, name):
     return values[:n_modes]
 
 
+#: ``settings`` keys naming a label plane of the merged array. A plane named
+#: by one of these holds object IDENTITIES; every other plane holds intensity.
+MASK_DIM_KEYS = ('cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim',
+                 'organelle_mask_dim')
+
+
+def _merged_mask_planes(data, settings):
+    """Return the set of plane indices of ``data`` that hold labels, not signal."""
+    n_planes = int(data.shape[-1])
+    planes = set()
+    for key in MASK_DIM_KEYS:
+        dim = settings.get(key)
+        if dim is None:
+            continue
+        try:
+            dim = int(dim)
+        except (TypeError, ValueError):
+            continue
+        if 0 <= dim < n_planes:
+            planes.add(dim)
+    return planes
+
+
+def _promote_merged_to_uint16(data, settings):
+    """Bring a merged array that is neither ``uint8`` nor ``uint16`` into the
+    measure pipeline's working dtype, **without flattening it**.
+
+    ``data.astype(np.uint16)`` -- what this used to be -- is a truncation.
+    ``spacr.io._normalize_img_batch`` writes normalised stacks as ``float32``
+    on ``[0, 1]``, and every one of those pixels truncates to 0: a whole field
+    measured as black, with an "Converted data from float32 to uint16" line as
+    the only trace. Measured on a float32 field whose intensities span
+    0.002-0.798, ``astype`` left 0 of 64 intensity pixels non-zero.
+
+    The two kinds of plane are converted differently, because they mean
+    different things:
+
+    * **label planes** (:func:`_merged_mask_planes`) are rounded, never
+      rescaled -- a label is an identity, and object 1 must stay object 1.
+    * **intensity planes** are rescaled by ONE factor shared across all of
+      them, so the ratio between channels is untouched: ``x65535`` when they
+      live on ``[0, 1]``, ``x(65535/max)`` when they run past the 16-bit
+      ceiling (where ``astype`` wrapped), and ``x1`` otherwise -- which is the
+      ordinary ``int32``-from-a-concatenated-label-plane case, so that path
+      keeps behaving exactly as it did.
+
+    :param data: the merged array, ``(Y, X, C)`` or ``(Z, Y, X, C)``.
+    :param settings: the measure settings, read for the ``*_mask_dim`` keys.
+    :returns: ``(uint16 array, factor applied to the intensity planes)``.
+    """
+    arr = np.asarray(data)
+    mask_planes = _merged_mask_planes(arr, settings)
+    intensity = [p for p in range(int(arr.shape[-1])) if p not in mask_planes]
+
+    factor = 1.0
+    if intensity:
+        signal = arr[..., intensity]
+        top = float(np.nanmax(signal)) if signal.size else 0.0
+        if not np.isfinite(top):
+            top = float(np.nanmax(signal[np.isfinite(signal)])) \
+                if np.isfinite(signal).any() else 0.0
+        if top > 0:
+            if np.issubdtype(arr.dtype, np.floating) and top <= 1.0:
+                factor = 65535.0
+            elif top > 65535.0:
+                factor = 65535.0 / top
+
+    out = np.zeros(arr.shape, dtype=np.uint16)
+    for plane in range(int(arr.shape[-1])):
+        values = np.nan_to_num(arr[..., plane].astype(np.float64),
+                               nan=0.0, posinf=65535.0, neginf=0.0)
+        if plane in intensity:
+            values = values * factor
+        out[..., plane] = np.rint(np.clip(values, 0, 65535)).astype(np.uint16)
+    return out, factor
+
+
 #@log_function_call
 def _measure_crop_core(index, time_ls, file, settings):
 
@@ -1826,10 +2167,11 @@ def _measure_crop_core(index, time_ls, file, settings):
         data_type = data.dtype
         if data_type not in ['uint8','uint16']:
             data_type_before = data_type
-            data = data.astype(np.uint16)
+            data, factor = _promote_merged_to_uint16(data, settings)
             data_type = data.dtype
             if settings['verbose']:
-                print(f'Converted data from {data_type_before} to {data_type}')
+                scale = '' if factor == 1.0 else f' (intensity x{factor:g})'
+                print(f'Converted data from {data_type_before} to {data_type}{scale}')
 
         # A merged 2-D field is (Y, X, C); a merged z-stack is (Z, Y, X, C).
         # Every slice below therefore indexes the LAST axis -- `data[..., k]` --
@@ -1867,6 +2209,29 @@ def _measure_crop_core(index, time_ls, file, settings):
             figs[f'{file_name}__before_filtration'] = fig
 
         channel_arrays = data[..., settings['channels']].astype(data_type)
+
+        # PREPROCESSING EXTENSION POINT. Registered hooks see exactly the
+        # array the intensity measurements see: the channels named by
+        # settings['channels'], already selected out of the merged stack, and
+        # not one feature computed yet. This is where a flat-field /
+        # illumination correction belongs. The PNG crops below are cut from
+        # `data` and are deliberately NOT rewritten, so the thumbnails stay a
+        # faithful record of what the microscope wrote while the numbers in
+        # measurements.db carry the correction.
+        #
+        # The `if` is not just a micro-optimisation: with an empty registry
+        # nothing is allocated and channel_arrays is the identical object, so
+        # the default path cannot differ from the pre-hook one.
+        if preprocessing_hooks():
+            channel_arrays = apply_preprocessing_hooks(
+                channel_arrays,
+                PreprocessingContext(
+                    file_name=file_name,
+                    channels=settings['channels'],
+                    settings=settings,
+                    volumetric=volumetric,
+                    spacing=spacing))
+
         if settings['cell_mask_dim'] is not None:
             cell_mask = data[..., settings['cell_mask_dim']].astype(data_type)
 
@@ -1942,6 +2307,53 @@ def _measure_crop_core(index, time_ls, file, settings):
         if settings.get('organelle_min_size') and settings['organelle_min_size'] != 0:
             organelle_mask = _filter_object(organelle_mask, settings['organelle_min_size'])
 
+        # REGION-FILTER EXTENSION POINT. Registered filters are handed the
+        # label ids of each object type (and, only if they ask, the centroids)
+        # and return a keep/drop boolean per object; a dropped label is zeroed
+        # out of its mask right here. This is where a user-drawn ROI belongs:
+        # "only measure inside this polygon".
+        #
+        # The position is load-bearing in two directions.
+        #
+        # Downstream: every size filter has already run, so a filter sees the
+        # objects that would actually have been measured -- and nothing has
+        # been measured yet, so keeping 5 of 500 objects costs 5 objects' worth
+        # of morphology, intensity, texture, radial-distribution and Zernike
+        # work rather than 500 followed by a DataFrame subset.
+        #
+        # Upstream of _exclude_objects: culling a cell there propagates to its
+        # nucleus/pathogen/cytoplasm (they are multiplied by the surviving cell
+        # mask), which is what keeps the validate='one_to_one' parent joins in
+        # _morphological_measurements satisfiable. Filtering after it would let
+        # an ROI keep a nucleus whose cell it had just deleted.
+        #
+        # It is also upstream of the `data[..., <mask>_dim] = ...` write-backs,
+        # so the PNG crops and region arrays cover the same objects the
+        # database does -- an object outside the ROI is not measured AND not
+        # cropped, rather than appearing in one output and not the other.
+        if region_filter_hooks():
+            _region_masks = {
+                'cell': cell_mask, 'nucleus': nucleus_mask,
+                'pathogen': pathogen_mask, 'organelle': organelle_mask,
+                'cytoplasm': cytoplasm_mask,
+            }
+            for _object_type in list(_region_masks):
+                _before = _region_masks[_object_type]
+                _kept, _dropped = apply_region_filter_hooks(
+                    _before, object_type=_object_type,
+                    file_name=file_name, settings=settings, spacing=spacing)
+                _region_masks[_object_type] = _kept
+                if _dropped and settings['verbose']:
+                    _total = int(np.count_nonzero(np.unique(_before)))
+                    print(f"{file_name}: region filter dropped "
+                          f"{len(_dropped)} of {_total} "
+                          f"{_object_type} object(s).")
+            cell_mask = _region_masks['cell']
+            nucleus_mask = _region_masks['nucleus']
+            pathogen_mask = _region_masks['pathogen']
+            organelle_mask = _region_masks['organelle']
+            cytoplasm_mask = _region_masks['cytoplasm']
+
         if settings['cell_mask_dim'] is not None and settings['nucleus_mask_dim'] is not None and settings['pathogen_mask_dim'] is not None:
             cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask = _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uninfected=settings['uninfected'])
             data[..., settings['cell_mask_dim']] = cell_mask.astype(data_type)
@@ -1978,7 +2390,7 @@ def _measure_crop_core(index, time_ls, file, settings):
                         _ = _merge_and_save_to_database(organelle_df, organelle_intensity_df, 'organelle', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
 
             if settings['cytoplasm']:
-                cytoplasm_merged_df = _merge_and_save_to_database(cytoplasm_df, cytoplasm_intensity_df, 'cytoplasm', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
+                _merge_and_save_to_database(cytoplasm_df, cytoplasm_intensity_df, 'cytoplasm', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
 
             if settings.get('summarize_organelles_by') is not None:
                 if "cell" in settings['summarize_organelles_by']:
@@ -2276,8 +2688,12 @@ def measure_crop(settings):
         return run_preflight(settings, 'measure')
 
     from .io import _save_settings_to_db
+    from .cancellation import (
+        PipelineCancelled,
+        checkpoint as cancellation_checkpoint,
+    )
     from .timelapse import _timelapse_masks_to_gif
-    from .utils import measure_test_mode, print_progress, delete_intermedeate_files, save_settings, format_path_for_system, normalize_src_path
+    from .utils import measure_test_mode, print_progress, save_settings, format_path_for_system, normalize_src_path
     from .settings import get_measure_crop_settings
     
     
@@ -2286,8 +2702,7 @@ def measure_crop(settings):
         settings['save_png'] = False
 
     if not isinstance(settings['src'], (str, list)):
-        ValueError(f'src must be a string or a list of strings')
-        return
+        raise ValueError('src must be a string or a list of strings')
     
     settings['src'] = normalize_src_path(settings['src'])
     
@@ -2297,200 +2712,292 @@ def measure_crop(settings):
     if isinstance(settings['src'], list):
         source_folders = settings['src']
         
-        for source_folder in source_folders:
-            print(f'Processing folder: {source_folder}')
+        # One run for the whole invocation: one id on every log line and
+        # every artifact it registers, one seed reaching numpy / random /
+        # torch, and one on_error policy honoured at the per-field
+        # boundary inside the pool loop. See spacr.runctx.
+        with run_context('measure', settings) as run:
+            for source_folder in source_folders:
+                cancellation_checkpoint()
+                print(f'Processing folder: {source_folder}')
             
-            source_folder = format_path_for_system(source_folder)
-            settings['src'] = source_folder
-            src = source_folder
+                source_folder = format_path_for_system(source_folder)
+                settings['src'] = source_folder
 
-            settings = get_measure_crop_settings(settings)
-            settings = measure_test_mode(settings)
+                settings = get_measure_crop_settings(settings)
+                settings = measure_test_mode(settings)
 
-            src_fldr = settings['src']
+                src_fldr = settings['src']
             
-            if not os.path.basename(src_fldr).endswith('merged'):
-                print(f"WARNING: Source folder, settings: src: {src_fldr} should end with '/merged'")
-                src_fldr = os.path.join(src_fldr, 'merged')
-                settings['src'] = src_fldr
-                print(f"Changed source folder to: {src_fldr}")
-            
-            if settings['cell_mask_dim'] is None:
-                settings['uninfected'] = True
-            if settings['pathogen_mask_dim'] is None:
-                settings['uninfected'] = True
-            if settings['cell_mask_dim'] is not None and settings['pathogen_min_size'] is not None:
-                settings['cytoplasm'] = True
-            elif settings['cell_mask_dim'] is not None and settings['nucleus_min_size'] is not None:
-                settings['cytoplasm'] = True
-            else:
-                settings['cytoplasm'] = False
+                if not os.path.basename(src_fldr).endswith('merged'):
+                    print(f"WARNING: Source folder, settings: src: {src_fldr} should end with '/merged'")
+                    src_fldr = os.path.join(src_fldr, 'merged')
+                    settings['src'] = src_fldr
+                    print(f"Changed source folder to: {src_fldr}")
+
+                # Illumination / flat-field correction, if the settings ask
+                # for it. Here, and not earlier: it estimates from the merged
+                # fields this loop is about to measure, so it needs `src`
+                # after the /merged normalisation above, and it is per source
+                # folder because illumination differs between acquisition
+                # sessions. It installs a preprocessing hook (and the env
+                # vars that carry it into every spawned worker), so it has to
+                # run before the pool below is built rather than beside it.
+                #
+                # Off unless `illumination_correction` is True, in which case
+                # this call is the whole feature: without it the setting is a
+                # switch that does nothing and every intensity feature keeps
+                # its position-dependent bias. See spacr.illumination.
+                from .illumination import prepare_illumination_correction
+                prepare_illumination_correction(settings)
+
+                if settings['cell_mask_dim'] is None:
+                    settings['uninfected'] = True
+                if settings['pathogen_mask_dim'] is None:
+                    settings['uninfected'] = True
+                if settings['cell_mask_dim'] is not None and settings['pathogen_min_size'] is not None:
+                    settings['cytoplasm'] = True
+                elif settings['cell_mask_dim'] is not None and settings['nucleus_min_size'] is not None:
+                    settings['cytoplasm'] = True
+                else:
+                    settings['cytoplasm'] = False
                 
-            settings['n_jobs'] = resolve_n_jobs(settings['n_jobs'])
+                settings['n_jobs'] = resolve_n_jobs(settings['n_jobs'])
 
-            settings_save = settings.copy()
-            settings_save['src'] = os.path.dirname(settings['src'])
-            save_settings(settings_save, name='measure_crop_settings', show=True)
+                settings_save = settings.copy()
+                settings_save['src'] = os.path.dirname(settings['src'])
+                save_settings(settings_save, name='measure_crop_settings', show=True)
 
-            if settings['timelapse_objects'] == 'nucleus':
-                if not settings['cell_mask_dim'] is None:
-                    tlo = settings['timelapse_objects']
-                    print(f'timelapse object:{tlo}, cells will be relabeled to nucleus labels to track cells.')
+                if settings['timelapse_objects'] == 'nucleus':
+                    if not settings['cell_mask_dim'] is None:
+                        tlo = settings['timelapse_objects']
+                        print(f'timelapse object:{tlo}, cells will be relabeled to nucleus labels to track cells.')
 
-            int_setting_keys = [
-                'cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim',
-                'organelle_mask_dim', 'cell_min_size', 'nucleus_min_size',
-                'pathogen_min_size', 'organelle_min_size',
-                'cytoplasm_min_size',
-            ]
+                int_setting_keys = [
+                    'cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim',
+                    'organelle_mask_dim', 'cell_min_size', 'nucleus_min_size',
+                    'pathogen_min_size', 'organelle_min_size',
+                    'cytoplasm_min_size',
+                ]
             
-            # Category B, every one of these: the settings are wrong, so no
-            # field can be measured. Each historically printed a WARNING and
-            # returned None, which the caller cannot distinguish from a
-            # completed run that wrote no rows. SPACR_STRICT_ERRORS turns
-            # them into a ConfigurationError; the default stays as-is.
-            if isinstance(settings['normalize'], bool) and settings['normalize']:
-                print(f'WARNING: to notmalize single object pngs set normalize to a list of 2 integers, e.g. [1,99] (lower and upper percentiles)')
-                raise_if_strict(
-                    "settings['normalize'] must be a list of two percentiles, "
-                    "e.g. [1, 99] — not a bool. Nothing was measured.",
-                    settings=settings)
-                return
-
-            if isinstance(settings['normalize'], list) or isinstance(settings['normalize'], bool) and settings['normalize']:
-                if settings['normalize_by'] not in ['png', 'fov']:
-                    print("Warning: normalize_by should be either 'png' to notmalize each png to its own percentiles or 'fov' to normalize each png to the fov percentiles ")
+                # Category B, every one of these: the settings are wrong, so no
+                # field can be measured. Each historically printed a WARNING and
+                # returned None, which the caller cannot distinguish from a
+                # completed run that wrote no rows. SPACR_STRICT_ERRORS turns
+                # them into a ConfigurationError; the default stays as-is.
+                if isinstance(settings['normalize'], bool) and settings['normalize']:
+                    print(f'WARNING: to notmalize single object pngs set normalize to a list of 2 integers, e.g. [1,99] (lower and upper percentiles)')
                     raise_if_strict(
-                        "settings['normalize_by'] must be 'png' or 'fov', got "
-                        f"{settings['normalize_by']!r}. Nothing was measured.",
+                        "settings['normalize'] must be a list of two percentiles, "
+                        "e.g. [1, 99] — not a bool. Nothing was measured.",
                         settings=settings)
                     return
 
-            if not all(isinstance(settings[key], int) or settings[key] is None for key in int_setting_keys):
-                print(f"WARNING: {int_setting_keys} must all be integers")
-                raise_if_strict(
-                    f"{int_setting_keys} must all be int or None. "
-                    "Nothing was measured.", settings=settings)
-                return
+                if isinstance(settings['normalize'], list) or isinstance(settings['normalize'], bool) and settings['normalize']:
+                    if settings['normalize_by'] not in ['png', 'fov']:
+                        print("Warning: normalize_by should be either 'png' to notmalize each png to its own percentiles or 'fov' to normalize each png to the fov percentiles ")
+                        raise_if_strict(
+                            "settings['normalize_by'] must be 'png' or 'fov', got "
+                            f"{settings['normalize_by']!r}. Nothing was measured.",
+                            settings=settings)
+                        return
 
-            if not isinstance(settings['channels'], list):
-                print(f"WARNING: channels should be a list of integers representing channels e.g. [0,1,2,3]")
-                raise_if_strict(
-                    "settings['channels'] must be a list of channel indices, "
-                    f"got {type(settings['channels']).__name__}. "
-                    "Nothing was measured.", settings=settings)
-                return
+                if not all(isinstance(settings[key], int) or settings[key] is None for key in int_setting_keys):
+                    print(f"WARNING: {int_setting_keys} must all be integers")
+                    raise_if_strict(
+                        f"{int_setting_keys} must all be int or None. "
+                        "Nothing was measured.", settings=settings)
+                    return
 
-            if not isinstance(settings['crop_mode'], list):
-                print(f"WARNING: crop_mode should be a list with at least one element e.g. ['cell'] or ['cell','nucleus'] or [None] got: {settings['crop_mode']}")
-                settings['crop_mode'] = [settings['crop_mode']]
-                settings['crop_mode'] = [str(crop_mode) for crop_mode in settings['crop_mode']]
-                print(f"Converted crop_mode to list: {settings['crop_mode']}")
+                if not isinstance(settings['channels'], list):
+                    print(f"WARNING: channels should be a list of integers representing channels e.g. [0,1,2,3]")
+                    raise_if_strict(
+                        "settings['channels'] must be a list of channel indices, "
+                        f"got {type(settings['channels']).__name__}. "
+                        "Nothing was measured.", settings=settings)
+                    return
+
+                if not isinstance(settings['crop_mode'], list):
+                    print(f"WARNING: crop_mode should be a list with at least one element e.g. ['cell'] or ['cell','nucleus'] or [None] got: {settings['crop_mode']}")
+                    settings['crop_mode'] = [settings['crop_mode']]
+                    settings['crop_mode'] = [str(crop_mode) for crop_mode in settings['crop_mode']]
+                    print(f"Converted crop_mode to list: {settings['crop_mode']}")
             
-            # MUST come before _save_settings_to_db: that writes the settings
-            # table with if_exists='replace', destroying the record of the run
-            # being resumed — which is what the settings comparison reads.
-            resume_plan = plan_measure_resume(settings)
+                # MUST come before _save_settings_to_db: that writes the settings
+                # table with if_exists='replace', destroying the record of the run
+                # being resumed — which is what the settings comparison reads.
+                resume_plan = plan_measure_resume(settings)
 
-            _save_settings_to_db(settings)
+                _save_settings_to_db(settings)
 
-            files = [f for f in os.listdir(settings['src']) if f.endswith('.npy')]
-            if resume_plan is not None:
-                files = resume_plan.filter_files(files)
-            n_jobs = settings['n_jobs']
-            print(f'using {n_jobs} cpu cores')
-            print_progress(files_processed=0, files_to_process=len(files), n_jobs=n_jobs, time_ls=[], operation_type='Measure and Crop')
+                files = [f for f in os.listdir(settings['src']) if f.endswith('.npy')]
+                if resume_plan is not None:
+                    files = resume_plan.filter_files(files)
+                n_jobs = settings['n_jobs']
+                print(f'using {n_jobs} cpu cores')
+                print_progress(files_processed=0, files_to_process=len(files), n_jobs=n_jobs, time_ls=[], operation_type='Measure and Crop')
 
-            # One ledger per source folder. Both failure routes are covered:
-            # a worker that returned the cells==0 sentinel (it caught its own
-            # exception), and a worker that died outright — the latter used to
-            # be completely invisible, because apply_async stores the exception
-            # on an AsyncResult nobody ever read.
-            ledger = RunLedger('measure_crop')
-            index_to_file = dict(enumerate(files))
-            reported_files = set()
+                # One ledger per source folder. Both failure routes are covered:
+                # a worker that returned the cells==0 sentinel (it caught its own
+                # exception), and a worker that died outright — the latter used to
+                # be completely invisible, because apply_async stores the exception
+                # on an AsyncResult nobody ever read.
+                ledger = RunLedger('measure_crop')
+                # This folder's ledger joins the run: the ledger's run_id, every
+                # log line below and every artifact this run registers all carry
+                # one id, so the log of the run that produced a measurements.db
+                # can be pulled back with spacr.runctx.read_run_log().
+                run.adopt(ledger)
+                policy = run.policy.bind(ledger=ledger, record=False)
+                index_to_file = dict(enumerate(files))
+                reported_files = set()
 
-            def job_callback(result):
-                """Pool callback: record completion, save partial output, and stop when done."""
-                completed_jobs.add(result[0])
-                item = index_to_file.get(result[0], result[0])
-                reported_files.add(item)
-                # cells is np.unique(cell_mask) on success and the int 0 when
-                # _measure_crop_core swallowed an exception for this field.
-                if isinstance(result[2], int) and result[2] == 0:
-                    ledger.record_failure(
-                        item, stage='measure',
-                        exc='field failed inside _measure_crop_core '
-                            '(worker traceback in ~/.spacr/logs/spacr.log)')
-                else:
-                    ledger.record_success(item, stage='measure')
-                process_meassure_crop_results([result], settings)
-                files_processed = len(completed_jobs)
-                files_to_process = len(files)
-                print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
-                if files_processed >= files_to_process:
-                    pool.terminate()
+                def job_callback(result):
+                    """Record one completed field and save its optional figures."""
+                    completed_jobs.add(result[0])
+                    item = index_to_file.get(result[0], result[0])
+                    reported_files.add(item)
+                    # cells is np.unique(cell_mask) on success and the int 0 when
+                    # _measure_crop_core swallowed an exception for this field.
+                    if isinstance(result[2], int) and result[2] == 0:
+                        ledger.record_failure(
+                            item, stage='measure',
+                            exc='field failed inside _measure_crop_core '
+                                '(worker traceback in ~/.spacr/logs/spacr.log)')
+                    else:
+                        ledger.record_success(item, stage='measure')
+                    process_meassure_crop_results([result], settings)
+                    files_processed = len(completed_jobs)
+                    files_to_process = len(files)
+                    print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
 
-            def make_error_callback(job_file):
-                """Bind the filename into the pool's error callback.
+                def make_error_callback(job_file):
+                    """Bind the filename into the pool's error callback.
 
-                ``apply_async`` hands the error callback only the exception,
-                so the file has to be closed over. Without this hook a worker
-                that died outright vanished entirely: the exception sat on an
-                AsyncResult nobody read, and the run still printed
-                "Successfully completed run".
-                """
-                def _on_error(exc):
-                    reported_files.add(job_file)
-                    ledger.record_failure(job_file, stage='measure_worker', exc=exc)
-                return _on_error
+                    ``apply_async`` hands the error callback only the exception,
+                    so the file has to be closed over. Without this hook a worker
+                    that died outright vanished entirely: the exception sat on an
+                    AsyncResult nobody read, and the run still printed
+                    "Successfully completed run".
+                    """
+                    def _on_error(exc):
+                        reported_files.add(job_file)
+                        ledger.record_failure(job_file, stage='measure_worker', exc=exc)
+                    return _on_error
 
-            # One explicit context for both the Manager and the Pool. Mixing
-            # them -- a fork Manager serving a spawn Pool, say -- is how the
-            # shared time_ls proxy ends up unreachable from a worker.
-            ctx = _pool_context()
-            start_method = ctx.get_start_method()
-            pool_jobs = resolve_pool_size(n_jobs, len(files),
-                                          start_method=start_method)
+                # One explicit context for both the Manager and the Pool. Mixing
+                # them -- a fork Manager serving a spawn Pool, say -- is how the
+                # shared time_ls proxy ends up unreachable from a worker.
+                ctx = _pool_context()
+                start_method = ctx.get_start_method()
+                # A spawn/forkserver worker is a fresh interpreter with empty hook
+                # registries, so a hook registered in *this* process would apply to
+                # nothing at all and the run would look completely normal. Say so
+                # before the pool starts rather than let it be invisible.
+                warn_if_hooks_will_not_reach_workers(start_method)
+                pool_jobs = resolve_pool_size(n_jobs, len(files),
+                                              start_method=start_method)
 
-            with ctx.Manager() as manager:
-                time_ls = manager.list()
-                completed_jobs = set()  # Set to keep track of completed jobs
+                # _start_manager, not ctx.Manager(), because the bare call fails as
+                # an EOFError from deep inside multiprocessing with no message at
+                # all. See ManagerStartError.
+                # try/finally, because on_error='stop' aborts here and an
+                # aborted run's evidence is exactly what a reader needs:
+                # without this the fields nobody heard from go uncounted
+                # and measurements.db is never stamped, so a half-written
+                # database reads as one nobody ever measured into.
+                try:
+                    with _start_manager(ctx) as manager:
+                        time_ls = manager.list()
+                        completed_jobs = set()  # Set to keep track of completed jobs
 
-                with ctx.Pool(pool_jobs) as pool:
-                    for index, file in enumerate(files):
-                        pool.apply_async(_measure_crop_core, args=(index, time_ls, file, settings),
-                                         callback=job_callback,
-                                         error_callback=make_error_callback(file))
+                        with ctx.Pool(pool_jobs) as pool:
+                            # Bound outstanding work to one pool-width batch. Stop is
+                            # checked only after all fields in that batch have
+                            # completed their writes.
+                            for offset in range(0, len(files), pool_jobs):
+                                cancellation_checkpoint()
+                                pending = []
+                                for index in range(
+                                        offset, min(offset + pool_jobs, len(files))):
+                                    file = files[index]
+                                    result = pool.apply_async(
+                                        _measure_crop_core,
+                                        args=(index, time_ls, file, settings),
+                                    )
+                                    pending.append((file, index, result))
+                                for file, index, async_result in pending:
+                                    # on_error, at the per-field boundary. The
+                                    # ledger entry is written either way by
+                                    # job_callback / make_error_callback, which is
+                                    # why the policy is bound with record=False;
+                                    # what on_error decides is whether the run
+                                    # survives the field. retry re-submits the
+                                    # field rather than re-reading the
+                                    # AsyncResult, which can only be got once.
+                                    for attempt in policy.attempts_for(
+                                            file, stage='measure'):
+                                        with attempt:
+                                            try:
+                                                if attempt.number == 1:
+                                                    job_callback(async_result.get())
+                                                else:
+                                                    job_callback(pool.apply_async(
+                                                        _measure_crop_core,
+                                                        args=(index, time_ls, file,
+                                                              settings)).get())
+                                            except PipelineCancelled:
+                                                raise
+                                            except Exception as exc:
+                                                # Only on the last attempt: the
+                                                # ledger counts fields, not tries,
+                                                # so a field that failed twice and
+                                                # then worked is one success.
+                                                if attempt.last:
+                                                    make_error_callback(file)(exc)
+                                                raise
+                                cancellation_checkpoint()
 
-                    pool.close()
-                    pool.join()
+                            pool.close()
+                            pool.join()
+                finally:
+                    # Fields the pool never reported on at all (killed worker,
+                    # pool terminated before the task ran, or on_error='stop'
+                    # ending the run at the first bad field). Counting them
+                    # keeps n_attempted equal to the number of fields on disk.
+                    for job_file in files:
+                        if job_file not in reported_files:
+                            ledger.record_failure(job_file, stage='measure',
+                                                  exc='field produced no result')
 
-            # Fields the pool never reported on at all (killed worker, pool
-            # terminated before the task ran). Counting them keeps
-            # n_attempted equal to the number of fields on disk.
-            for job_file in files:
-                if job_file not in reported_files:
-                    ledger.record_failure(job_file, stage='measure',
-                                          exc='field produced no result')
+                    # Stamp measurements.db with the verdict, then print it
+                    # last. This is the bit that turns "we printed a warning"
+                    # into "the artifact knows it is suspect":
+                    # spacr.errors.read_run_status() on this db tells a
+                    # downstream reader how many fields are missing. In the
+                    # finally, because an aborted run is exactly the one whose
+                    # half-written database must not read as untouched.
+                    db_path = os.path.join(os.path.dirname(settings['src']),
+                                           'measurements', 'measurements.db')
+                    ledger.finalize(
+                        artifact=db_path if os.path.isfile(db_path) else None)
 
-            if settings['timelapse']:
-                if settings['timelapse_objects'] == 'nucleus':
-                    folder_path = settings['src']
-                    mask_channels = [settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], settings['cell_mask_dim']]
-                    object_types = ['nucleus', 'pathogen', 'cell']
-                    _timelapse_masks_to_gif(folder_path, mask_channels, object_types)
+                if settings['timelapse']:
+                    if settings['timelapse_objects'] == 'nucleus':
+                        folder_path = settings['src']
+                        mask_channels = [settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], settings['cell_mask_dim']]
+                        object_types = ['nucleus', 'pathogen', 'cell']
+                        _timelapse_masks_to_gif(folder_path, mask_channels, object_types)
 
-            # Stamp measurements.db with the verdict, then print it last.
-            # This is the bit that turns "we printed a warning" into "the
-            # artifact knows it is suspect": spacr.errors.read_run_status()
-            # on this db tells a downstream reader how many fields are missing.
-            db_path = os.path.join(os.path.dirname(settings['src']),
-                                   'measurements', 'measurements.db')
-            ledger.finalize(artifact=db_path if os.path.isfile(db_path) else None)
+                if ledger.is_complete:
+                    print("Successfully completed run")
 
-            if ledger.is_complete:
-                print("Successfully completed run")
+            # Record what this run produced, stamped with the run id every
+            # log line above carries, so an artifact and its log can be
+            # joined: spacr.runctx.read_run_log(artifact.run_id). The
+            # canonicalized settings, not the ones handed in, so the hash
+            # recorded against each artifact covers the values actually used.
+            run.register_outputs(settings=settings, roots=source_folders)
 
 def process_meassure_crop_results(partial_results, settings):
     """
@@ -2511,7 +3018,12 @@ def process_meassure_crop_results(partial_results, settings):
                 save_dir = os.path.join(os.path.dirname(settings['src']), 'results', f"{part_1}")
                 os.makedirs(save_dir, exist_ok=True)
                 fig_path = os.path.join(save_dir, f"{part_2}.pdf")
-                fig.savefig(fig_path)
+                # Imported here, not at module scope: `spacr.plot` pulls in
+                # torch, cv2, seaborn, statsmodels and pingouin, and this
+                # module is on the cold measure-worker spawn path. See
+                # tests/test_measure_spawn.py.
+                from .plot import save_figure
+                fig_path = save_figure(fig, fig_path)
                 plt.figure(fig.number)
                 plt.show()
                 plt.close(fig)
@@ -2593,6 +3105,152 @@ def get_object_counts(src):
     return grouped_df
 
 
+
+
+# ---------------------------------------------------------------------------
+# Object crops: the working dtype, and the one place it is left behind
+# ---------------------------------------------------------------------------
+#
+# A merged array is 16-bit (``uint16``, or ``int32`` once a cellpose label
+# plane has been concatenated onto it). The crop path keeps that dtype from
+# the ``.npy`` all the way to the writer, exactly as ``_measure_crop_core``
+# does: nothing in the middle of the pipeline is allowed to change it.
+#
+# 8-bit is genuinely required at exactly two places -- a PNG assembled by PIL
+# (:func:`_save_object_crop`) and an RGB image handed to a GUI
+# (``crop_objects_from_array(to_rgb=True)``). Both go through
+# :func:`_crop_to_uint8`, which *rescales*. They used to go through
+# ``np.clip(crop, 0, 255).astype(np.uint8)``, which does not: on a raw 16-bit
+# crop every pixel above 255 -- i.e. every pixel of the object -- came out at
+# exactly 255. Unnormalised 16-bit data shown as 8-bit has to look DARK; a
+# clip is what turned it white, and those white crops were written to disk and
+# trained on.
+
+
+def _crop_full_scale(dtype):
+    """Return the value that means "full brightness" for ``dtype``.
+
+    An integer dtype has one: ``iinfo(dtype).max`` -- the same range
+    :func:`spacr.utils.normalize_to_dtype` stretches the pipeline's own crops
+    into, so a normalised crop from here and one from ``measure_crop`` are on
+    the same scale. A float array is taken on the ``[0, 1]`` image convention
+    (what ``spacr.io._normalize_img_batch`` writes).
+    """
+    dtype = np.dtype(dtype)
+    if np.issubdtype(dtype, np.integer):
+        return float(np.iinfo(dtype).max)
+    return 1.0
+
+
+def _normalize_crop(crop, percentiles, mask_background):
+    """Per-channel percentile stretch that KEEPS ``crop``'s dtype.
+
+    The stretch targets the dtype's full range (:func:`_crop_full_scale`), not
+    a hard-coded 0-255: normalising a ``uint16`` crop into 0-255 and storing it
+    back as ``uint16`` throws away 8 of the 16 bits before anything has asked
+    for an 8-bit image.
+
+    :param crop: ``(H, W, C)`` array in the working dtype.
+    :param percentiles: ``(low, high)`` percentiles, per channel.
+    :param mask_background: when True the background is already zeroed, so the
+        percentiles are taken over the object's pixels only.
+    :returns: array of the same shape and dtype.
+    """
+    arr = np.asarray(crop)
+    top = _crop_full_scale(arr.dtype)
+    out = np.zeros(arr.shape, dtype=np.float64)
+    for c in range(arr.shape[2]):
+        sl = arr[:, :, c].astype(np.float64)
+        nz = sl[sl > 0] if mask_background else sl
+        if nz.size:
+            lo, hi = np.percentile(nz, percentiles)
+            if hi > lo:
+                out[:, :, c] = np.clip((sl - lo) / (hi - lo), 0, 1) * top
+                continue
+        mx = sl.max()
+        out[:, :, c] = (sl / mx * top) if mx > 0 else sl
+    if np.issubdtype(arr.dtype, np.integer):
+        return np.rint(out).astype(arr.dtype)
+    return out.astype(arr.dtype)
+
+
+def _crop_to_uint8(crop):
+    """The declared 8-bit boundary for an object crop. Rescales, never truncates.
+
+    One rule per dtype, and every one of them is linear and maps 0 to 0, so
+    background stays background and relative intensity survives:
+
+    * ``uint8`` -- already 8-bit, returned unchanged.
+    * any wider integer -- :func:`spacr.crops.narrow_to_uint8`, i.e. the HIGH
+      BYTE of the 16-bit range. This is the narrowing rule the rest of spaCR
+      uses for crop PNGs, so a crop from here and one read back by
+      ``spacr.crops.read_crop_png`` agree. Raw 16-bit data comes out dark,
+      which is what raw 16-bit data looks like at 8 bits.
+    * float (and anything else) -- a float array carries no dtype range, so the
+      scale comes from the crop itself: ``0 .. max`` maps to ``0 .. 255``. A
+      normalised crop is already on ``[0, 1]`` (:func:`_crop_full_scale`) and
+      therefore simply multiplied by 255.
+
+    :param crop: ``(H, W, C)`` (or 2-D) array in the working dtype.
+    :returns: ``uint8`` array of the same shape.
+    """
+    arr = np.asarray(crop)
+    if arr.dtype == np.dtype(np.uint8):
+        return arr
+    if np.issubdtype(arr.dtype, np.integer):
+        return narrow_to_uint8(arr)
+    if arr.size == 0:
+        return arr.astype(np.uint8)
+    mx = float(np.nanmax(arr))
+    if not np.isfinite(mx) or mx <= 0:
+        return np.zeros(arr.shape, dtype=np.uint8)
+    scaled = np.clip(np.nan_to_num(arr, nan=0.0), 0, None) / mx * 255.0
+    return np.rint(scaled).astype(np.uint8)
+
+
+def _resolve_merged_path(path_name, merged_dir):
+    """Return the merged ``.npy`` a measurement row names, or ``None``.
+
+    ``spacr.utils._merge_and_save_to_database`` records ``path_name`` as
+    ``os.path.join(source_folder, file_name + '.npy')``, and ``source_folder``
+    in :func:`_measure_crop_core` is ``os.path.dirname(settings['src'])`` --
+    the *parent* of ``merged/``. So on every database spaCR has written, the
+    recorded path is ``<root>/<field>.npy`` while the array is at
+    ``<root>/merged/<field>.npy``: ``os.path.isfile(path_name)`` is False for
+    every row, and :func:`generate_object_dataset` skipped every object of
+    every real run while the hand-built databases in the tests (which record
+    the path the file is actually at) all passed.
+
+    Resolving on read rather than changing the writer is deliberate: it also
+    covers a database moved between machines, and it is the exact fallback
+    :meth:`spacr.crops.MergedCropSource._merged_path_for` already uses --
+    trust the recorded path when it exists, otherwise look for its basename in
+    this experiment's ``merged/`` folder.
+
+    :param path_name: the ``path_name`` column of a measurement row.
+    :param merged_dir: this experiment's ``merged/`` folder.
+    :returns: an existing path, or ``None`` when neither candidate exists.
+    """
+    if not path_name:
+        return None
+    path_name = str(path_name)
+    if os.path.isfile(path_name):
+        return path_name
+    candidate = os.path.join(merged_dir, os.path.basename(path_name))
+    return candidate if os.path.isfile(candidate) else None
+
+
+def _crop_channels(data, y0, y1, x0, x1, channels, region=None):
+    """Cut ``channels`` out of ``data[y0:y1, x0:x1]`` **without changing dtype**.
+
+    ``region`` (a boolean object mask over the same window) zeroes the
+    background. The old code cast to ``float32`` here and never came back,
+    which is what made the 8-bit clip downstream invisible.
+    """
+    crop = np.asarray(data)[y0:y1, x0:x1, :][:, :, list(channels)]
+    if region is None:
+        return np.ascontiguousarray(crop)
+    return np.where(region[:, :, None], crop, 0).astype(crop.dtype, copy=False)
 
 
 def generate_object_dataset(
@@ -2682,6 +3340,22 @@ def generate_object_dataset(
     :returns: a manifest ``list[dict]``; each entry has ``object_label``,
         ``path_name``, ``plateID``/``rowID``/``columnID``/``fieldID``,
         ``png_path`` (if saved) and ``array`` (if ``return_arrays``).
+
+    .. note::
+
+       **The crop keeps the merged array's dtype.** A ``uint16`` field gives
+       ``uint16`` crops, in the manifest and in the ``.npy`` written for more
+       than three channels; ``normalize`` stretches into that dtype's full
+       range, not into 0-255. The single narrowing to 8 bit happens in
+       :func:`_save_object_crop`, where PIL needs it, and it *rescales*
+       (:func:`_crop_to_uint8`).
+
+       It used to cast to ``float32``, normalise into 0-255 and then
+       ``np.clip(crop, 0, 255).astype(np.uint8)``. With ``normalize=False``
+       that clip hit every 16-bit pixel brighter than 255 -- i.e. the whole
+       object -- so the PNG written to disk was a solid white silhouette. The
+       datasets built from it were trained on saturated images and nothing
+       said so.
     """
     import os
     import sqlite3
@@ -2764,16 +3438,18 @@ def generate_object_dataset(
     manifest = []
     _array_cache = {}
     saved = 0
+    merged_dir = os.path.join(root, 'merged')
     for row in selected:
         path_name = row["path_name"]
         label = int(row["object_label"])
         if path_name not in _array_cache:
-            if not os.path.isfile(path_name):
+            resolved = _resolve_merged_path(path_name, merged_dir)
+            if resolved is None:
                 if verbose:
                     print(f"  missing array, skipping: {path_name}")
                 _array_cache[path_name] = None
             else:
-                _array_cache[path_name] = np.load(path_name)
+                _array_cache[path_name] = np.load(resolved)
         data = _array_cache[path_name]
         if data is None:
             continue
@@ -2797,23 +3473,10 @@ def generate_object_dataset(
         y0 = max(0, ys.min() - buffer); y1 = min(mask.shape[0], ys.max() + 1 + buffer)
         x0 = max(0, xs.min() - buffer); x1 = min(mask.shape[1], xs.max() + 1 + buffer)
 
-        crop = data[y0:y1, x0:x1, :][:, :, channels].astype(np.float32)
-        if mask_background:
-            region = (mask[y0:y1, x0:x1] == label)
-            crop = crop * region[:, :, None]
-
+        region = (mask[y0:y1, x0:x1] == label) if mask_background else None
+        crop = _crop_channels(data, y0, y1, x0, x1, channels, region)
         if normalize:
-            for c in range(crop.shape[2]):
-                sl = crop[:, :, c]
-                nz = sl[sl > 0] if mask_background else sl
-                if nz.size:
-                    lo, hi = np.percentile(nz, percentiles)
-                    if hi > lo:
-                        crop[:, :, c] = np.clip((sl - lo) / (hi - lo), 0, 1) * 255.0
-                        continue
-                mx = sl.max()
-                crop[:, :, c] = (sl / mx * 255.0) if mx > 0 else sl
-        crop = np.clip(crop, 0, 255).astype(np.uint8)
+            crop = _normalize_crop(crop, percentiles, mask_background)
 
         entry = {k: row[k] for k in
                  ("object_label", "path_name", "plateID", "rowID",
@@ -2844,6 +3507,12 @@ def _save_object_crop(crop, channels, png_path, png_size):
     3 channels → RGB PNG; 1 → greyscale; 2 → padded to RGB; >3 → the raw array
     is saved as ``.npy`` and the first three channels as a PNG preview. Returns
     the path actually written.
+
+    **This is a declared 8-bit boundary.** PIL writes 8-bit PNGs here, so the
+    crop is narrowed by :func:`_crop_to_uint8` -- a linear rescale off the
+    dtype's range, not a clip at 255. The ``.npy`` written for a >3-channel
+    crop is *not* narrowed: it keeps the full working dtype, because it is
+    data, not a picture.
     """
     import os
     import numpy as np
@@ -2853,17 +3522,18 @@ def _save_object_crop(crop, channels, png_path, png_size):
     if n > 3:
         npy_path = os.path.splitext(png_path)[0] + ".npy"
         np.save(npy_path, crop)
-        preview = crop[:, :, :3]
+        preview = _crop_to_uint8(crop[:, :, :3])
         Image.fromarray(preview).resize(tuple(png_size)).save(png_path)
         return npy_path
+    eight = _crop_to_uint8(crop)
     if n == 1:
-        img = Image.fromarray(crop[:, :, 0], mode="L")
+        img = Image.fromarray(eight[:, :, 0], mode="L")
     elif n == 2:
-        rgb = np.zeros((*crop.shape[:2], 3), dtype=np.uint8)
-        rgb[:, :, :2] = crop
+        rgb = np.zeros((*eight.shape[:2], 3), dtype=np.uint8)
+        rgb[:, :, :2] = eight
         img = Image.fromarray(rgb)
     else:
-        img = Image.fromarray(crop)
+        img = Image.fromarray(eight)
     img.resize(tuple(png_size)).save(png_path)
     return png_path
 
@@ -2889,10 +3559,20 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
     :param percentiles: ``(low, high)`` for normalisation.
     :param buffer: padding (px) around each object's bounding box.
     :param to_rgb: assemble the chosen channels into an HxWx3 uint8 image
-        (1→grey→RGB, 2→padded, 3→RGB, >3→first three); else keep N channels.
+        (1→grey→RGB, 2→padded, 3→RGB, >3→first three); else keep N channels
+        **in the merged array's own dtype**.
     :param limit: cap the number of objects returned.
     :returns: list of ``{'label', 'area', 'bbox', 'crop'}`` dicts, largest
         objects first.
+
+    .. note::
+
+       ``to_rgb=True`` is the one place this function leaves the working
+       dtype, because a GUI image is 8-bit. It narrows with
+       :func:`_crop_to_uint8` (a rescale off the dtype range), not with a clip
+       at 255 -- a clip made every pixel of an unnormalised 16-bit object come
+       back as pure white, so the preview showed a white blob and the run it
+       was previewing did not.
     """
     import numpy as np
 
@@ -2917,30 +3597,25 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
 
     out = []
     for area, lbl in scored:
+        # No "label vanished" guard here, unlike generate_object_dataset:
+        # `scored` was built from np.unique of THIS plane a few lines up, so
+        # every label in it is in it. (In generate_object_dataset the label
+        # comes from the database and the plane from disk, which is a real
+        # chance to disagree, and that guard is exercised.)
         ys, xs = np.where(mask == lbl)
-        if ys.size == 0:
-            continue
         y0 = max(0, ys.min() - buffer); y1 = min(mask.shape[0], ys.max() + 1 + buffer)
         x0 = max(0, xs.min() - buffer); x1 = min(mask.shape[1], xs.max() + 1 + buffer)
 
-        crop = data[y0:y1, x0:x1, :][:, :, channels].astype(np.float32)
-        if mask_background:
-            region = (mask[y0:y1, x0:x1] == lbl)
-            crop = crop * region[:, :, None]
+        region = (mask[y0:y1, x0:x1] == lbl) if mask_background else None
+        crop = _crop_channels(data, y0, y1, x0, x1, channels, region)
         if normalize:
-            for c in range(crop.shape[2]):
-                sl = crop[:, :, c]
-                nz = sl[sl > 0] if mask_background else sl
-                if nz.size:
-                    lo, hi = np.percentile(nz, percentiles)
-                    if hi > lo:
-                        crop[:, :, c] = np.clip((sl - lo) / (hi - lo), 0, 1) * 255.0
-                        continue
-                mx = sl.max()
-                crop[:, :, c] = (sl / mx * 255.0) if mx > 0 else sl
-        crop = np.clip(crop, 0, 255).astype(np.uint8)
+            crop = _normalize_crop(crop, percentiles, mask_background)
 
         if to_rgb:
+            # Declared 8-bit boundary: a QImage/RGB888 wants uint8. Narrow by
+            # rescaling (_crop_to_uint8), then assemble -- so a raw 16-bit
+            # field previews dark rather than solid white.
+            crop = _crop_to_uint8(crop)
             n = crop.shape[2]
             if n == 1:
                 crop = np.repeat(crop, 3, axis=2)
@@ -2949,7 +3624,7 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
                 rgb[:, :, :2] = crop
                 crop = rgb
             elif n > 3:
-                crop = crop[:, :, :3]
+                crop = np.ascontiguousarray(crop[:, :, :3])
 
         out.append({"label": lbl, "area": area,
                     "bbox": (int(y0), int(y1), int(x0), int(x1)), "crop": crop})

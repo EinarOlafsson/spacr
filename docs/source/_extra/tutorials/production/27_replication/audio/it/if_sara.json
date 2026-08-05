@@ -4,47 +4,227 @@
   "voice": "if_sara",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 53.275,
+  "total_duration": 360.745,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.425,
-      "scene_end": 8.875,
-      "duration": 8.875,
-      "text": "Questo tutorial copre il test di replicazione. Score i parassiti per vacuolo e riassume la replicazione intracellulare per condizione."
+      "speech_end": 16.875,
+      "scene_end": 17.495,
+      "duration": 17.495,
+      "text": "Replicazione Assay conta i parassiti in ogni vacuolo e riassume la scala di divisione uno, due, quattro, otto. La console registra le impostazioni risolte, l'assegnazione QC, le statistiche, le uscite, gli avvertimenti e gli errori; la casella di chat può discutere di quel contesto quando l'IA è abilitata.",
+      "speech_text": "Replicazione Assay conta i parassiti in ogni vacuolo e riassume la scala di divisione uno, due, quattro, otto. La console registra le impostazioni risolte, l'assegnazione QC, le statistiche, le uscite, gli avvertimenti e gli errori; la casella di chat può discutere di quel contesto quando l'IA è abilitata.",
+      "phonemes": "replikaʦiˈone aSˈai kˈonta i paɾaSˈitɪ in ˌoɲɲɪ vakʊˈɔlo e riaSˈume la skˈala dɪ diviziˈone ˈuno, dˈue, kwˈatːro, ˈɔtːo. la kˈɔnsole reʤˈistra le impostaʦiˈonɪ rizˈɔlte, laSeɲaʦiˈone kˌʊʧˈi, le statˈistike, le ʊʃˈite, ʎɪ avvertimˈentɪ e ʎɪ erɾˈorɪ; la kazˈɛlla dɪ ʧˈat pʊˈɔ diskˈutere dɪ kwel kontˈɛsto kwˈando lˈia e abilitˈata."
     },
     {
       "scene": 2,
-      "speech_start": 8.875,
-      "speech_end": 23.075,
-      "scene_end": 23.525,
-      "duration": 14.649999999999999,
-      "text": "Apri Replication assay dalla sezione Toxoplasma assays. Apri test di replicazione dalla sezione Assess Toxoplasma Selezionare le misurazioni della cellula ospite, del vacuolo e del parassita insieme ai metadati della condizione."
+      "speech_start": 17.495,
+      "speech_end": 31.270000000000003,
+      "scene_end": 31.770000000000003,
+      "duration": 14.275000000000002,
+      "text": "L'intelligenza artificiale toggle le rotte di chat solo quando richiesto. Il suo menu adiacente seleziona un provider configurato e apre le impostazioni del provider; l'analisi di replicazione stessa rimane locale e non richiede l'IA.",
+      "speech_text": "L'intelligenza artificiale toggle le rotte di chat solo quando richiesto. Il suo menu adiacente seleziona un provider configurato e apre le impostazioni del provider; l'analisi di replicazione stessa rimane locale e non richiede l'IA.",
+      "phonemes": "lintelliʤˈɛnʦa artifiʧˈale tˈoɡːle le rˈotːe dɪ ʧˈat sˈolo kwˈando rikjˈɛsto. il sˌʊo menˈu adjaʧˈɛnte seleʦiˈona ʊn provˈaider konfiɡʊrˈato e ˈapre le impostaʦiˈonɪ del provˈaider; lanˈalizɪ dɪ replikaʦiˈone stˈeSa rimˈane lokˈale e non rikjˈede lˈia."
     },
     {
       "scene": 3,
-      "speech_start": 23.525,
-      "speech_end": 34.349999999999994,
-      "scene_end": 34.8,
-      "duration": 11.274999999999999,
-      "text": "Nell'area di configurazione principale, configurare l'assegnazione spaziale, i filtri di oggetti, i contenitori per il conteggio dei parassiti, i controlli e i confronti statistici."
+      "speech_start": 31.770000000000003,
+      "speech_end": 46.370000000000005,
+      "scene_end": 46.870000000000005,
+      "duration": 15.100000000000001,
+      "text": "La configurazione del provider separa gli assistenti locali e ospitati. Configura solo i servizi che intendi utilizzare e consulta le informazioni sulla privacy prima di condividere il contesto della console o del test con un fornitore remoto.",
+      "speech_text": "La configurazione del provider separa gli assistenti locali e ospitati. Configura solo i servizi che intendi utilizzare e consulta le informazioni sulla privacy prima di condividere il contesto della console o del test con un fornitore remoto.",
+      "phonemes": "la konfiɡʊraʦiˈone del provˈaider sepˈaɾa ʎɪ aSistˈɛntɪ lokˈalɪ e ospitˈatɪ. konfiɡˈura sˈolo i servˈiʦɪ ke intˈɛndɪ ʊtiliʣːˈare e konsˈulta le informaʦiˈonɪ sˌʊlla prˈaivazɪ prˈima dɪ kondivˈidere il kontˈɛsto dˌella kˈɔnsole o del tˈɛst kon ʊn fornitˈore remˈɔto."
     },
     {
       "scene": 4,
-      "speech_start": 34.8,
-      "speech_end": 43.425,
-      "scene_end": 43.875,
-      "duration": 9.075000000000003,
-      "text": "Prima di eseguire l'intero ciclo, controllare le impostazioni visibili e utilizzare una modalità di anteprima o di prova quando disponibile."
+      "speech_start": 46.870000000000005,
+      "speech_end": 59.82000000000001,
+      "scene_end": 60.300000000000004,
+      "duration": 13.43,
+      "text": "Le impostazioni AI controllano il contesto assistente, le credenziali e la segnalazione di errori opzionali. Queste preferenze non modificano l'assegnazione del vuoto, il conteggio dei parassiti, i filtri o le statistiche.",
+      "speech_text": "Le impostazioni AI controllano il contesto assistente, le credenziali e la segnalazione di errori opzionali. Queste preferenze non modificano l'assegnazione del vuoto, il conteggio dei parassiti, i filtri o le statistiche.",
+      "phonemes": "le impostaʦiˈonɪ ˌaːˈiː kontrˈɔllano il kontˈɛsto aSistˈɛnte, le kredenʦjˈalɪ e la seɲalaʦiˈone dɪ erɾˈorɪ opʦionˈalɪ. kwˌeste preferˈɛnʦe non modˈifikano laSeɲaʦiˈone del vʊˈɔto, il kontˈeʤːo dˌA paɾaSˈitɪ, i fˈiltrɪ o le statˈistike."
     },
     {
       "scene": 5,
-      "speech_start": 43.875,
-      "speech_end": 52.625,
-      "scene_end": 53.275,
-      "duration": 9.399999999999999,
-      "text": "Quando il flusso di lavoro è finito, vengono salvate le distribuzioni dei parassiti per vacuolo, i tassi di replicazione, le statistiche e le cifre."
+      "speech_start": 60.300000000000004,
+      "speech_end": 79.2,
+      "scene_end": 79.92,
+      "duration": 19.619999999999997,
+      "text": "Scegliere o abbandonare la radice dell'esperimento contenente le misurazioni slash misurazioni dot DB. L'esperimento trasferito non ha identità di vacuole validate in modo indipendente, quindi questo tutorial utilizza chiaramente un database di misurazione sintetica con ID di vacuole espliciti mentre esegue il backend spaCR reale.",
+      "speech_text": "Scegliere o abbandonare la radice dell'esperimento contenente le misurazioni slash misurazioni dot DB. L'esperimento trasferito non ha identità di vacuole validate in modo indipendente, quindi questo tutorial utilizza chiaramente un database di misurazione sintetica con ID di vacuole espliciti mentre esegue il backend spàker reale.",
+      "phonemes": "ʃˈeʎere o abːandonˈare la radˈiʧe dellesperimˈento kontenˈɛnte le mizʊraʦiˈonɪ zlˈaʃ mizʊraʦiˈonɪ dˈot d̪ˌiːbˈi. lesperimˈento trasferˈito non a identitˈa dɪ vakʊˈɔle validˈate in mˈɔdo indipendˈɛnte, kwˈindɪ kwˌesto tʊtˈɔrial ʊtilˈiʣːa kjaɾamˈente ʊn databˈɛiz dɪ mizʊraʦiˈone sintˈɛtika kon iː dˈi dɪ vakʊˈɔle esplˈiʧitɪ mˌentre ezˈeɡwe il bˈakːend spˈaker reˈale."
+    },
+    {
+      "scene": 6,
+      "speech_start": 79.92,
+      "speech_end": 92.82000000000001,
+      "scene_end": 93.36000000000001,
+      "duration": 13.440000000000012,
+      "text": "Essentials espone la fonte di prova, l'assegnazione di vuotole, la mappa delle condizioni, i filtri degli oggetti, il punteggio di replicazione, l'uscita e i controlli del tempo di esecuzione necessari per una prima analisi.",
+      "speech_text": "Essentials espone la fonte di prova, l'assegnazione di vuotole, la mappa delle condizioni, i filtri degli oggetti, il punteggio di replicazione, l'uscita e i controlli del tempo di esecuzione necessari per una prima analisi.",
+      "phonemes": "eSˈentjals espˈone la fˈonte dɪ prˈɔva, laSeɲaʦiˈone dɪ vʊotˈɔle, la mˈapːa dˌelle kondiʦiˈonɪ, i fˈiltrɪ dˌeʎɪ oʤːˈɛtːɪ, il pʊntˈeʤːo dɪ replikaʦiˈone, lʊʃˈita e i kontrˈɔllɪ del tˈɛmpo dɪ ezekʊʦiˈone neʧeSˈarɪ per ˌʊna prˈima anˈalizɪ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 93.36000000000001,
+      "speech_end": 108.86000000000001,
+      "scene_end": 109.40000000000002,
+      "duration": 16.040000000000006,
+      "text": "Modificato filtro il modulo per le deviazioni deliberate dalle impostazioni predefinite. Usalo per controllare il database, la chiave di vuoto, la colonna di conteggio, i limiti di area, la mappa della targa, il raggruppamento delle condizioni e il salvataggio prima di eseguire.",
+      "speech_text": "Modificato filtro il modulo per le deviazioni deliberate dalle impostazioni predefinite. Usalo per controllare il database, la chiave di vuoto, la colonna di conteggio, i limiti di area, la mappa della targa, il raggruppamento delle condizioni e il salvataggio prima di eseguire.",
+      "phonemes": "modifikˈato fˈiltro il mˈɔdʊlo per le devjaʦiˈonɪ deliberˈate dˌalle impostaʦiˈonɪ predefinˈite. ˈuːzalo per kontrollˈare il databˈɛiz, la kjˈave dɪ vʊˈɔto, la kolˈonna dɪ kontˈeʤːo, i lˈimitɪ dɪ ˈarea, la mˈapːa dˌella tˈarɡa, il raɡːrʊpːamˈento dˌelle kondiʦiˈonɪ e il salvatˈaʤːo prˈima dɪ ezeɡwˈire."
+    },
+    {
+      "scene": 8,
+      "speech_start": 109.40000000000002,
+      "speech_end": 123.67500000000003,
+      "scene_end": 124.17500000000003,
+      "duration": 14.775000000000006,
+      "text": "Tutte le impostazioni rivelano ogni controllo disponibile per la riproduzione e la risoluzione dei problemi. Ritorno agli elementi essenziali quando i controlli avanzati non sono necessari per ridurre i cambiamenti accidentali dei parametri.",
+      "speech_text": "Tutte le impostazioni rivelano ogni controllo disponibile per la riproduzione e la risoluzione dei problemi. Ritorno agli elementi essenziali quando i controlli avanzati non sono necessari per ridurre i cambiamenti accidentali dei parametri.",
+      "phonemes": "tˈutːe le impostaʦiˈonɪ rivˈelano ˌoɲɲɪ kontrˈɔllo disponˈibile per la riprodʊʦiˈone e la rizolʊʦiˈone dˌA problˈɛmɪ. ritˈorno ˌaʎɪ elemˈentɪ eSenʦjˈalɪ kwˈando i kontrˈɔllɪ avanʦˈatɪ non sˌono neʧeSˈarɪ per ridˈurɾe i kambjamˈentɪ aʧːidentˈalɪ dˌA paɾˈametrɪ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 124.17500000000003,
+      "speech_end": 137.87500000000003,
+      "scene_end": 138.41500000000002,
+      "duration": 14.239999999999995,
+      "text": "Le ricette conservano una configurazione di test convalidata per il riutilizzo o la condivisione. Salvare uno solo dopo che le assegnazioni di vuoto e le distribuzioni rappresentative sono state contrassegnate alle immagini.",
+      "speech_text": "Le ricette conservano una configurazione di test convalidata per il riutilizzo o la condivisione. Salvare uno solo dopo che le assegnazioni di vuoto e le distribuzioni rappresentative sono state contrassegnate alle immagini.",
+      "phonemes": "le riʧˈɛtːe konsˈɛrvˌano ˌʊna konfiɡʊraʦiˈone dɪ tˈɛst konvalidˈata per il riʊtilˈiʣːo o la kondiviziˈone. salvˈare ˈuno sˈolo dˈopo ke le aSeɲaʦiˈonɪ dɪ vʊˈɔto e le distribʊʦiˈonɪ rapːrezentatˈive sˌono stˈate kontraSeɲˈate ˌalle immˈaʤinɪ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 138.41500000000002,
+      "speech_end": 151.19000000000003,
+      "scene_end": 151.71000000000004,
+      "duration": 13.295000000000016,
+      "text": "Invio remoto passa le impostazioni risolute a lavori distribuiti. Confirmare che il database di misurazione sia accessibile tramite la mappa di percorso remota prima di presentare un piccolo lavoro di convalida.",
+      "speech_text": "Invio remoto passa le impostazioni risolute a lavori distribuiti. Confirmare che il database di misurazione sia accessibile tramite la mappa di percorso remota prima di presentare un piccolo lavoro di convalida.",
+      "phonemes": "invˈio remˈɔto pˈaSa le impostaʦiˈonɪ rizolˈute a lavˈorɪ distribʊˈitɪ. konfirmˈare ke il databˈɛiz dɪ mizʊraʦiˈone sˌia aʧːeSˈibile trˈamite la mˈapːa dɪ perkˈorso remˈɔta prˈima dɪ prezentˈare ʊn pˈikːolo lavˈɔro dɪ konvˈalida."
+    },
+    {
+      "scene": 11,
+      "speech_start": 151.71000000000004,
+      "speech_end": 163.81000000000003,
+      "scene_end": 164.37000000000003,
+      "duration": 12.659999999999997,
+      "text": "Lo schermo remoto riceve un progetto di lavoro. Controllare la sincronizzazione, l'attivazione dell'ambiente, le risorse e il comando generato, quindi convalidare una piastra prima di scalare l'assay.",
+      "speech_text": "Lo schermo remoto riceve un progetto di lavoro. Controllare la sincronizzazione, l'attivazione dell'ambiente, le risorse e il comando generato, quindi convalidare una piastra prima di scalare l'assay.",
+      "phonemes": "lo skˈermo remˈɔto riʧˈɛve ʊn proʤˈɛtːo dɪ lavˈɔro. kontrollˈare la sinkroniʣːaʦiˈone, latːivaʦiˈone dellambiˈɛnte, le rizˈorse e il komˈando ʤenerˈato, kwˈindɪ konvalidˈare ˌʊna pjˈastra prˈima dɪ skalˈare laSˈai."
+    },
+    {
+      "scene": 12,
+      "speech_start": 164.37000000000003,
+      "speech_end": 179.04500000000004,
+      "scene_end": 179.56500000000005,
+      "duration": 15.195000000000022,
+      "text": "Assay Inputs identifica la radice dell'esperimento, la tabella di una fila per parassita e il compartimento di agenti patogeni. La replicazione segnala le misurazioni dei parassiti esistenti; non segmenta di nuovo le immagini microscopiche.",
+      "speech_text": "Assay Inputs identifica la radice dell'esperimento, la tabella di una fila per parassita e il compartimento di agenti patogeni. La replicazione segnala le misurazioni dei parassiti esistenti; non segmenta di nuovo le immagini microscopiche.",
+      "phonemes": "aSˈai ˈinpʊts identˈifika la radˈiʧe dellesperimˈento, la tabˈɛlla dɪ ˌʊna fˈila per paɾaSˈita e il kompartimˈento dɪ aʤˈɛntɪ patˈɔʤenɪ. la replikaʦiˈone seɲˈala le mizʊraʦiˈonɪ dˌA paɾaSˈitɪ ezistˈɛntɪ; non seɡmˈenta dɪ nʊˈɔvo le immˈaʤinɪ mikroskˈopike."
+    },
+    {
+      "scene": 13,
+      "speech_start": 179.56500000000005,
+      "speech_end": 197.39000000000004,
+      "scene_end": 198.11000000000004,
+      "duration": 18.544999999999987,
+      "text": "Vacuole Assignment utilizza prima una chiave di vacuole esplicita quando presente, altrimenti può collegare i centriodi parassitici spazialmente, e solo allora ritorna al gruppo cellulare ospite. Una cellula ospitante può contenere più vacuoli, in modo che il fallback possa fondere unità biologicamente distinte.",
+      "speech_text": "Vacuole Assignment utilizza prima una chiave di vacuole esplicita quando presente, altrimenti può collegare i centriodi parassitici spazialmente, e solo allora ritorna al gruppo cellulare ospite. Una cellula ospitante può contenere più vacuoli, in modo che il fallback possa fondere unità biologicamente distinte.",
+      "phonemes": "vakʊˈɔle aSˈiɲment ʊtilˈiʣːa prˈima ˌʊna kjˈave dɪ vakʊˈɔle esplˈiʧita kwˈando prezˈɛnte, altrimˈentɪ pʊˈɔ kolleɡˈare i ʧˈentriodɪ paɾaSˈitiʧɪ spaʦjalmˈente, e sˈolo allˈora ritˈorna al ɡrˈupːo ʧellʊlˈare ˈɔspite. ˌʊna ʧˈɛllʊla ospitˈante pʊˈɔ kontenˈere pjʊ vakʊˈɔlɪ, in mˈɔdo ke il fˈalbakː pˈɔSa fˈondere ʊnitˈa bjoloʤikamˈente distˈinte."
+    },
+    {
+      "scene": 14,
+      "speech_start": 198.11000000000004,
+      "speech_end": 212.93500000000003,
+      "scene_end": 213.51500000000004,
+      "duration": 15.405000000000001,
+      "text": "Condizione I metadati mappano i pozzi della piastra ai gruppi biologici e scelgono la colonna di confronto. Questa piastra sintetica contiene sei pozzi di veicolo nella colonna uno e sei pozzi di inibitore nella colonna due, tutti con cellule ospite HeLa.",
+      "speech_text": "Condizione I metadati mappano i pozzi della piastra ai gruppi biologici e scelgono la colonna di confronto. Questa piastra sintetica contiene sei pozzi di veicolo nella colonna uno e sei pozzi di inibitore nella colonna due, tutti con cellule ospite HeLa.",
+      "phonemes": "kondiʦiˈone i metadˈatɪ mapːˈano i pˈoʦːɪ dˌella pjˈastra aj ɡrˈupːɪ bjolˈɔʤiʧɪ e ʃˈɛlɡono la kolˈonna dɪ konfrˈonto. kwˌesta pjˈastra sintˈɛtika kontjˈɛne sˌɛi pˈoʦːɪ dɪ veˈikolo nˈella kolˈonna ˈuno e sˌɛi pˈoʦːɪ dɪ inibitˈore nˈella kolˈonna dˈue, tˈutːɪ kon ʧˈɛllʊle ˈɔspite ˈe lˈa."
+    },
+    {
+      "scene": 15,
+      "speech_start": 213.51500000000004,
+      "speech_end": 230.46500000000003,
+      "scene_end": 231.06500000000003,
+      "duration": 17.549999999999983,
+      "text": "Object Filtering rifiuta le misurazioni degli agenti patogeni al di fuori della gamma di superficie accettata prima del conteggio dei vacuoli. Questi limiti devono essere convalidati contro i parassiti segmentati, perché detriti e oggetti fusi distorcono la scala di replicazione in direzioni opposte.",
+      "speech_text": "Object Filtering rifiuta le misurazioni degli agenti patogeni al di fuori della gamma di superficie accettata prima del conteggio dei vacuoli. Questi limiti devono essere convalidati contro i parassiti segmentati, perché detriti e oggetti fusi distorcono la scala di replicazione in direzioni opposte.",
+      "phonemes": "ˈobʤekt filtˈɛriŋɡ rifjˈuta le mizʊraʦiˈonɪ dˌeʎɪ aʤˈɛntɪ patˈɔʤenɪ al dɪ fʊˈorɪ dˌella ɡˈamma dɪ sʊperfˈiʧe aʧːetːˈata prˈima del kontˈeʤːo dˌA vakʊˈɔlɪ. kwˌestɪ lˈimitɪ dˈevono ˈɛSere konvalidˈatɪ kˌontro i paɾaSˈitɪ seɡmentˈatɪ, perkˌe detrˈitɪ e oʤːˈɛtːɪ fˈuzɪ distˈɔrkono la skˈala dɪ replikaʦiˈone in direʦiˈonɪ opːˈoste."
+    },
+    {
+      "scene": 16,
+      "speech_start": 231.06500000000003,
+      "speech_end": 248.76500000000001,
+      "scene_end": 249.425,
+      "duration": 18.359999999999985,
+      "text": "Il punteggio di replicazione definisce il più grande bucket di conteggio denominato e la soglia di avvertimento per i vacuoli non a potenza di due. I numeri uno, due, quattro, otto e sedici seguono il raddoppio ideale; i numeri come tre vengono conservati come categoria QC piuttosto che arrotondati silenziosamente.",
+      "speech_text": "Il punteggio di replicazione definisce il più grande bucket di conteggio denominato e la soglia di avvertimento per i vacuoli non a potenza di due. I numeri uno, due, quattro, otto e sedici seguono il raddoppio ideale; i numeri come tre vengono conservati come categoria QC piuttosto che arrotondati silenziosamente.",
+      "phonemes": "il pʊntˈeʤːo dɪ replikaʦiˈone definˈiʃe il pjʊ ɡrˈande bˈukːet dɪ kontˈeʤːo denominˈato e la sˈɔʎa dɪ avvertimˈento per i vakʊˈɔlɪ non a potˈɛnʦa dɪ dˈue. i nˈumerɪ ˈuno, dˈue, kwˈatːro, ˈɔtːo e sˈediʧɪ sˈeɡwono il radːˈopːio ideˈale; i nˈumerɪ kˌome trˈe vˈeŋɡono konservˈatɪ kˌome kateɡorˈia kˌʊʧˈi pjʊtːˈɔsto ke arɾotondˈatɪ silenʦjozamˈente."
+    },
+    {
+      "scene": 17,
+      "speech_start": 249.425,
+      "speech_end": 262.825,
+      "scene_end": 263.385,
+      "duration": 13.95999999999998,
+      "text": "Assay Output controlla la mappa dei colori e il salvataggio. L'analisi scrive le distribuzioni per pozzo e per condizione, i conteggi di vuotole, le statistiche in coppia e le cifre nella cartella dei risultati di replicazione.",
+      "speech_text": "Assay Output controlla la mappa dei colori e il salvataggio. L'analisi scrive le distribuzioni per pozzo e per condizione, i conteggi di vuotole, le statistiche in coppia e le cifre nella cartella dei risultati di replicazione.",
+      "phonemes": "aSˈai oˈutpʊt kontrˈɔlla la mˈapːa dˌA kolˈorɪ e il salvatˈaʤːo. lanˈalizɪ skrˈive le distribʊʦiˈonɪ per pˈoʦːo e per kondiʦiˈone, i kontˈɛʤːɪ dɪ vʊotˈɔle, le statˈistike in kˈɔpːia e le ʧˈifre nˈella kartˈɛlla dˌA rizʊltˈatɪ dɪ replikaʦiˈone."
+    },
+    {
+      "scene": 18,
+      "speech_start": 263.385,
+      "speech_end": 280.11,
+      "scene_end": 280.67,
+      "duration": 17.285000000000025,
+      "text": "Il tempo di esecuzione e l'affidabilità controllano i dettagli di registrazione. Mantenere l'uscita verbale attiva durante l'elaborazione di un assay in modo che la fonte di raggruppamento, le esclusioni, la frazione non potenza a due, i test statistici e i percorsi di uscita rimangano verificabili.",
+      "speech_text": "Il tempo di esecuzione e l'affidabilità controllano i dettagli di registrazione. Mantenere l'uscita verbale attiva durante l'elaborazione di un assay in modo che la fonte di raggruppamento, le esclusioni, la frazione non potenza a due, i test statistici e i percorsi di uscita rimangano verificabili.",
+      "phonemes": "il tˈɛmpo dɪ ezekʊʦiˈone e laffidabilitˈa kontrˈɔllano i detːˈaʎɪ dɪ reʤistraʦiˈone. mantenˈɛre lʊʃˈita verbˈale atːˈiva dʊrˈante lelaboraʦiˈone dɪ ʊn aSˈai in mˈɔdo ke la fˈonte dɪ raɡːrʊpːamˈento, le esklʊziˈonɪ, la fraʦiˈone non potˈɛnʦa a dˈue, i tˈɛst statˈistiʧɪ e i perkˈorsɪ dɪ ʊʃˈita rimˈaŋɡano verifikˈabilɪ."
+    },
+    {
+      "scene": 19,
+      "speech_start": 280.67,
+      "speech_end": 297.745,
+      "scene_end": 298.385,
+      "duration": 17.714999999999975,
+      "text": "Questo dettaglio di assegnazione utilizza la colonna vacuole_id esplicita e richiede una cella ospitante. I dati sintetici danno intenzionalmente a alcuni vacuoli consecutivi lo stesso ID della cellula, confermando che la chiave di vacuolo scelta non è la cellula ospitante, ma l'unità che viene contata.",
+      "speech_text": "Questo dettaglio di assegnazione utilizza la colonna vacuole_id esplicita e richiede una cella ospitante. I dati sintetici danno intenzionalmente a alcuni vacuoli consecutivi lo stesso ID della cellula, confermando che la chiave di vacuolo scelta non è la cellula ospitante, ma l'unità che viene contata.",
+      "phonemes": "kwˌesto detːˈaʎo dɪ aSeɲaʦiˈone ʊtilˈiʣːa la kolˈonna vakʊˈɔle iː dˈi esplˈiʧita e rikjˈede ˌʊna ʧˈɛlla ospitˈante. i dˈatɪ sintˈɛtiʧɪ dˈanno intenʦjonalmˈente a alkˌʊnɪ vakʊˈɔlɪ konsekʊtˈivɪ lo stˈeSo iː dˈi dˌella ʧˈɛllʊla, konfermˈando ke la kjˈave dɪ vakʊˈɔlo ʃˈelta non e la ʧˈɛllʊla ospitˈante, ma lʊnitˈa ke vjˈɛne kontˈata."
+    },
+    {
+      "scene": 20,
+      "speech_start": 298.385,
+      "speech_end": 313.36,
+      "scene_end": 313.98,
+      "duration": 15.595000000000027,
+      "text": "Fare clic su eseguire dopo aver controllato le entrate, l'assegnazione, i metadati di condizione, i filtri e il punteggio. Il backend raggruppa i parassiti in vacuoli, le etichette contano i secchi, riassume pozzi e condizioni, esegue test in coppia e rende le distribuzioni.",
+      "speech_text": "Fare clic su eseguire dopo aver controllato le entrate, l'assegnazione, i metadati di condizione, i filtri e il punteggio. Il backend raggruppa i parassiti in vacuoli, le etichette contano i secchi, riassume pozzi e condizioni, esegue test in coppia e rende le distribuzioni.",
+      "phonemes": "fˈare klˈik sʊ ezeɡwˈire dˈopo avˈɛr kontrollˈato le entrˈate, laSeɲaʦiˈone, i metadˈatɪ dɪ kondiʦiˈone, i fˈiltrɪ e il pʊntˈeʤːo. il bˈakːend raɡːrˈupːa i paɾaSˈitɪ in vakʊˈɔlɪ, le etikˈetːe kˈɔntano i sˈekːɪ, riaSˈume pˈoʦːɪ e kondiʦiˈonɪ, ezˈeɡwe tˈɛst in kˈɔpːia e rˈɛnde le distribʊʦiˈonɪ."
+    },
+    {
+      "scene": 21,
+      "speech_start": 313.98,
+      "speech_end": 330.45500000000004,
+      "scene_end": 331.095,
+      "duration": 17.11500000000001,
+      "text": "Durante l'esecuzione, la console espone le tabelle selezionate e il metodo di confronto. Ispezionare i vacuoli a basso e alto conteggio nelle loro immagini sorgenti prima di trattare un cambiamento di distribuzione come biologia piuttosto che segmentazione o errore di assegnazione.",
+      "speech_text": "Durante l'esecuzione, la console espone le tabelle selezionate e il metodo di confronto. Ispezionare i vacuoli a basso e alto conteggio nelle loro immagini sorgenti prima di trattare un cambiamento di distribuzione come biologia piuttosto che segmentazione o errore di assegnazione.",
+      "phonemes": "dʊrˈante lezekʊʦiˈone, la kˈɔnsole espˈone le tabˈɛlle seleʦjonˈate e il mˈɛtodo dɪ konfrˈonto. ispeʦjonˈare i vakʊˈɔlɪ a bˈaSo e ˈalto kontˈeʤːo nˈelle lˌɔro immˈaʤinɪ sorʤˈɛntɪ prˈima dɪ tratːˈare ʊn kambjamˈento dɪ distribʊʦiˈone kˌome bjoloʤˈia pjʊtːˈɔsto ke seɡmentaʦiˈone o erɾˈore dɪ aSeɲaʦiˈone."
+    },
+    {
+      "scene": 22,
+      "speech_start": 331.095,
+      "speech_end": 359.745,
+      "scene_end": 360.745,
+      "duration": 29.649999999999977,
+      "text": "Il vero backend ottiene 240 vacuoli in ogni condizione. Il veicolo ha una media di quattro parassiti e due doppi per ogni aspirapolvere; l'inibitore ha una media di due parassiti e un doppiamento. Entrambi i gruppi contengono il 5 per cento di vacuoli non a potenza di due e restano al di sotto del 20 per cento di avvertimento. Con sei pozzi per gruppo, il confronto MannWhitney mostrato è fortemente separato, ma le conclusioni biologiche richiedono ancora esperimenti indipendenti.",
+      "speech_text": "Il vero backend ottiene 240 vacuoli in ogni condizione. Il veicolo ha una media di quattro parassiti e due doppi per ogni aspirapolvere; l'inibitore ha una media di due parassiti e un doppiamento. Entrambi i gruppi contengono il 5 per cento di vacuoli non a potenza di due e restano al di sotto del 20 per cento di avvertimento. Con sei pozzi per gruppo, il confronto MannWhitney mostrato è fortemente separato, ma le conclusioni biologiche richiedono ancora esperimenti indipendenti.",
+      "phonemes": "il vˈero bˈakːend otːjˈɛne dʊeʧˈɛnto kʊaɾˈaːnta vakʊˈɔlɪ in ˌoɲɲɪ kondiʦiˈone. il veˈikolo a ˌʊna mˈɛdia dɪ kwˈatːro paɾaSˈitɪ e dˈue dˈɔpːɪ per ˌoɲɲɪ aspirapˈolvere; linibitˈore a ˌʊna mˈɛdia dɪ dˈue paɾaSˈitɪ e ʊn dopːjamˈento. entrˈambɪ i ɡrˈupːɪ kontˈeŋɡono il ʧˈinkwe per ʧˈɛnto dɪ vakʊˈɔlɪ non a potˈɛnʦa dɪ dˈue e rˈɛstano al dɪ sˈotːo del vˈentɪ per ʧˈɛnto dɪ avvertimˈento. kon sˌɛi pˈoʦːɪ per ɡrˈupːo, il konfrˈonto mˈann wˈitnA mostrˈato e fortemˈente sepaɾˈato, ma le konklʊziˈonɪ bjolˈoʤike rikjˈedono ankˈora esperimˈentɪ indipendˈɛntɪ."
     }
   ]
 }
