@@ -1729,19 +1729,58 @@
       "id": "31_external_masks",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker eksterne masker. Omdanne tredjepartsmærkningsmasker og kildebilleder til et målret og sporbart spaCR-projekt."
+          "narration": "External Masks omdanner segmentering, der er produceret uden for spaCR, til den samme målte projektkontrakt, som anvendes af Measure og Annotate. Åbn den fra Data og batch kører; Forhåndsvisning er kun læsning, mens Run kan opbygge kanoniske billeder, stacks, masker, fusionerede arrays, målinger og objekt afgrøder."
         },
         {
-          "narration": "Åbn eksterne masker fra data- og batchrun- sektionen. Angiv kildebilleder, eksterne masker, navngivningsregler, objekttyper og valgfrie måletabler."
+          "narration": "Drop billed og maske filer eller en mappe indeholdende. I denne lektion anvendes tre reelle 768-pixel afgrøder fra det overførte eksperiment: tolv intensitets-TIFF'er og tre masker for hver af de fire objekttyper, der eksporteres fra eksisterende spaCR-arrayer udelukkende til at efterligne en ekstern overførsel."
         },
         {
-          "narration": "I hovedkonfigurationsområdet skal billeder kortlægges til masker, form- og etiketterkonventionerne valideres, ommærkning vælges og målemålsmuligheder defineres."
+          "narration": "Tildelingstabellet grupperer filer efter beviser. Intensitetsbilleder opdages fra deres pixels, mens mask og objektord identificerer celle-, kjerne-, patogen- og organeletiketter. Brug som og Mask type forbliver redigerbare forslag; gennemgå hver række og ignorere alt, hvad der ikke bør komme ind i projektet."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. Forhåndsjustering og objekttælling på flere felter før import af det fulde datasæt."
+          "narration": "Input Mapping indeholder den reviderede tildelingstabel, en ny destination, rekursiv opdagelse, filenavn layout, Z-håndtering, platenavn, overskrivningsbeskyttelse og kun forhåndsvisning. Disse kontroller bestemmer hvilke filer, der parres, før noget skrives."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, gemmer spaCR normaliserede masker, kortlagte billeder, målinger og oprindelse klar til annotering."
+          "narration": "Generel definerer den importerede intensitet-kanal liste, forsøgsnavn, normaliseringspolitik, og om en cytoplasma kompartiment er afledt. Kanaler fra nul til tre matcher de fire virkelige billedplaner."
+        },
+        {
+          "narration": "Organelle kontrollerer, hvordan importerede organelletiketter sammenfattes i forhold til deres moders objekter. Den segmenterer ikke TIFF'erne igen; den definerer kun nedstrømsmålingsforhold."
+        },
+        {
+          "narration": "Timelapse indeholder sporingsmuligheder for eksternt leverede tidsserier. Lad det være deaktiveret for dette eksempel med et enkelt tidspunkt; aktiver det kun, når feltnavnene og rammerne repræsenterer en reel tidssekvens."
+        },
+        {
+          "narration": "Målingerne vælger de funktioner, der beregnes fra de importerede etiketter, herunder intensitet, korrelation, tekstur, radialfordeling og colocalization. Begynd med de funktioner, som din analyse har brug for, fordi de rigere familier koster mere tid og opbevaring."
+        },
+        {
+          "narration": "Filterindstillinger gælder minimumsstørrelse og infektionsgate efter import. External Masks bevarer den leverede etiketgeometri; disse filtre bestemmer, hvilke mærkede genstande der indgår i målinger i stedet for at reparere en dårlig segmentering."
+        },
+        {
+          "narration": "Object Crops udvælger hvilke dele der bliver enkeltobjekt PNG datasæt, deres kanaler, størrelse, normalisering og grænsepolitik. Dette eksempel sparer cellulære afgrøder, så det færdige projekt kan åbnes direkte i Annotate."
+        },
+        {
+          "narration": "Advanced indeholder CV, tør-run, fejl, arbejder og logging kontroller. Stærke fejl og én arbejdstager gør denne lille første import nem at revidere; større gennemgåede projekter kan bruge flere arbejdstagere senere."
+        },
+        {
+          "narration": "3D Settings er en alfa-fase kategori for volumetriske målinger og projektioner. De nuværende indgange er to-dimensionelle mærkningsplaner, så disse kontroller forbliver slukket, og Z-håndtering forbliver på maksimal projektion for enhver multiframe intensitetskilde."
+        },
+        {
+          "narration": "Inden du importerer, skal du kun holde Preview aktiveret og bekræfte, at destinationen er en ny projektmappe. Overskrivning forbliver ude, så en eksisterende måledatabase er et blokeringsproblem i stedet for at blive stille erstattet."
+        },
+        {
+          "narration": "Klik på \"Run\" for den kun-læse forudflyvning. Det scanner faktiske billedmetadata, parer masker til normaliserede feltidentiteter, tjekker duplikater og manglende masker, tildeler maskelflaner efter intensitetskanalerne og skriver ingen eksperimenter."
+        },
+        {
+          "narration": "Den virkelige forhåndsvisning rapporterer tolv intensitet kortlægninger, tre komplette felter, fire intensitet kanaler, og celle, kjerne, patogen og organel masker parret for hvert felt. Maskeflyene vil være fire, fem, seks og syv, uden advarsler eller blokeringsfejl."
+        },
+        {
+          "narration": "Deaktiver kun forhåndsvisning og klik på Løb igen for at importere. External Masks bruger nu den reviderede plan til at skrive kanoniske billeder og matriser, og overdrager derefter de fusionerede felter til den normale måling pipeline med de afledte maskedimensioner."
+        },
+        {
+          "narration": "Under omdannelsen lykkes tolv af tolv intensitetselementer, før målingen begynder. Konsolen gentager den validerede paring og registrerer en reproducerbarhed manifest og kører journal; Stop forbliver tilgængelig ved erklærede sikre grænser."
+        },
+        {
+          "narration": "Den reelle import afsluttes med tre otte-plan fusionerede arrays og en målebase indeholdende celle, cytoplasma, kernen, patogen, organelle, PNG-liste, indstillinger, indstillinger-historie og køre-status tabeller. Celleopdræt er under data, så dette nye projekt er sporbart og klar til Annotate uden genoprettede segmentering."
         }
       ]
     },

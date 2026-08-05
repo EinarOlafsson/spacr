@@ -4,47 +4,187 @@
   "voice": "zf_xiaoxiao",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 41.55,
+  "total_duration": 240.525,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 6.8,
-      "scene_end": 7.25,
-      "duration": 7.25,
-      "text": "转换第三方标签掩膜和源图像成一个可测量,可追踪的 spaCR 项目."
+      "speech_end": 16.4,
+      "scene_end": 17.119999999999997,
+      "duration": 17.119999999999997,
+      "text": "外部面具将在spaCR以外生产的细分化转化为Measure和Annotate使用的相同的测量项目合同. 在数据和批量运行中打开它;预览仅可读,而运行可以构建正规图像,堆,面具,合并阵列,测量和对象作物.",
+      "speech_text": "外部面具将在斯佩克尔以外生产的细分化转化为Measure和Annotate使用的相同的测量项目合同. 在数据和批量运行中打开它;预览仅可读,而运行可以构建正规图像,堆,面具,合并阵列,测量和对象作物.",
+      "phonemes": "wai↘pu↘ mjɛ↘nʨy↘ ʨja→ŋ ʦai↘ sɨ→ pʰei↘kʰɤ↘ ɚ↓ i↓wai↘ ʂə→ŋꭧʰa↓n tɤ ɕi↘fə→nxwa↘ ꭧwa↓nxwa↘ wei↘Measurexɤ↗Annotateʂɨ↓jʊ↘ŋ tɤ ɕja→ŋtʰʊ↗ŋ tɤ ʦʰɤ↘lja↗ŋ ɕja↘ŋmu↘ xɤ↗tʰʊ↗ŋ. ʦai↘ ʂu↘ʨy↘ xɤ↗ pʰi→lja↘ŋ y↘nɕi↗ŋ ꭧʊ→ŋ ta↓kʰai→ tʰa→;y↘la↓n ʨi↓n kʰɤ↓tu↗,ɚ↗ y↘nɕi↗ŋ kʰɤ↓i↓ kou↘ʨjɛ↘n ꭧə↘ŋkwei→ tʰu↗ɕja↘ŋ,twei→,mjɛ↘nʨy↘,xɤ↗pi↘ŋ ꭧə↘nlje↘,ʦʰɤ↘lja↗ŋ xɤ↗ twei↘ɕja↘ŋ ʦwo↘u↘."
     },
     {
       "scene": 2,
-      "speech_start": 7.25,
-      "speech_end": 15.925,
-      "scene_end": 16.375,
-      "duration": 9.125,
-      "text": "从 Data and batch runs 部分打开 External Masks。 提供源图像,外部掩膜,命名规则,对象类型和可选测量表."
+      "speech_start": 17.119999999999997,
+      "speech_end": 29.944999999999997,
+      "scene_end": 30.724999999999998,
+      "duration": 13.605,
+      "text": "放下图像和面具文件或包含文件的文件. 本课程使用了转移实验中的3个真实768像素的作物:为每个四种物体类型的12个强度TIFF和3个面具,",
+      "speech_text": "放下图像和面具文件或包含文件的文件. 本课程使用了转移实验中的3个真实768像素的作物:为每个四种物体类型的12个强度TIFF和3个面具,",
+      "phonemes": "fa↘ŋɕja↘ tʰu↗ɕja↘ŋ xɤ↗ mjɛ↘nʨy↘ wə↗nʨjɛ↘n xwo↘ pau→xa↗n wə↗nʨjɛ↘n tɤ wə↗nʨjɛ↘n. pə↓n kʰɤ↘ꭧʰə↗ŋ ʂɨ↓jʊ↘ŋ lɤ ꭧwa↓ni↗ ʂɨ↗jɛ↘n ꭧʊ→ŋ tɤ sa→nkɤ↘ ꭧə→nʂɨ↗ ʨʰi→pai↓ ljou↘ʂɨ↗pa→ ɕja↘ŋsu↘ tɤ ʦwo↘u↘:wei↘ mei↓kɤ↘ sɨ↘ꭧʊ↓ŋ u↘tʰi↓ lei↘ɕi↗ŋ tɤ ʂɨ↗ɚ↘kɤ↘ ʨʰja↗ŋtu↘TIFFxɤ↗ sa→nkɤ↘ mjɛ↘nʨy↘,"
     },
     {
       "scene": 3,
-      "speech_start": 16.375,
-      "speech_end": 24.95,
-      "scene_end": 25.4,
-      "duration": 9.024999999999999,
-      "text": "在主要配置区域,将图像映射到掩膜,验证形状和标签约,选择重新标签,并定义测量选项."
+      "speech_start": 30.724999999999998,
+      "speech_end": 46.525,
+      "scene_end": 47.265,
+      "duration": 16.540000000000003,
+      "text": "任务表根据证据组分文件. 通过它们的像素检测到强度图像,而面具和对象词识别细胞,核,病原体和器官标签. 使用 as 和 Mask 类型仍然是可编辑的建议; 审查每一行, 忽略任何不应该进入项目的内容.",
+      "speech_text": "任务表根据证据组分文件. 通过它们的像素检测到强度图像,而面具和对象词识别细胞,核,病原体和器官标签. 使用 as 和 Mask 类型仍然是可编辑的建议; 审查每一行, 忽略任何不应该进入项目的内容.",
+      "phonemes": "ɻə↘nu↘ pjau↓ kə→nʨy↘ ꭧə↘ŋʨy↘ ʦu↓fə↘n wə↗nʨjɛ↘n. tʰʊ→ŋkwo↘ tʰa→mən tɤ ɕja↘ŋsu↘ ʨjɛ↓nʦʰɤ↘ tau↘ ʨʰja↗ŋtu↘ tʰu↗ɕja↘ŋ,ɚ↗ mjɛ↘nʨy↘ xɤ↗ twei↘ɕja↘ŋ ʦʰɨ↗ ʂɨ↗pje↗ ɕi↘pau→,xɤ↗,pi↘ŋɥɛ↗ntʰi↓ xɤ↗ ʨʰi↘kwa→n pjau→ʨʰjɛ→n. ʂɨ↓jʊ↘ŋ as xɤ↗ Mask lei↘ɕi↗ŋ ɻə↗ŋɻa↗n ʂɨ↘ kʰɤ↓ pjɛ→nʨi↗ tɤ ʨjɛ↘ni↘; ʂə↓nꭧʰa↗ mei↓ i→ɕi↗ŋ, xu→lɥe↘ ɻə↘nxɤ↗ pu↘ i→ŋkai→ ʨi↘nɻu↘ ɕja↘ŋmu↘ tɤ nei↘ɻʊ↗ŋ."
     },
     {
       "scene": 4,
-      "speech_start": 25.4,
-      "speech_end": 32.275,
-      "scene_end": 32.725,
-      "duration": 7.325000000000003,
-      "text": "在完整运行之前,请检查可见设置,并在可用的时使用预览或测试模式."
+      "speech_start": 47.265,
+      "speech_end": 60.515,
+      "scene_end": 61.155,
+      "duration": 13.89,
+      "text": "输入地图包含经过审查的分配表,一个新的目的地,递归发现,文件名布局,Z处理,板名,重写保护和仅预览. 在任何东西被编写之前,这些控制决定哪些文件结合.",
+      "speech_text": "输入地图包含经过审查的分配表,一个新的目的地,递归发现,文件名布局,Z处理,板名,重写保护和仅预览. 在任何东西被编写之前,这些控制决定哪些文件结合.",
+      "phonemes": "ʂu→ɻu↘ ti↘tʰu↗ pau→xa↗n ʨi→ŋkwo↘ ʂə↓nꭧʰa↗ tɤ fə→npʰei↘ pjau↓,i↗kɤ↘ ɕi→n tɤ mu↘ti↘ti↘,ti↘kwei→ fa→ɕjɛ↘n,wə↗nʨjɛ↘nmi↗ŋ pu↘ʨy↗,Zꭧʰu↓li↓,pa↓nmi↗ŋ,ꭧʊ↘ŋɕje↓ pau↓xu↘ xɤ↗ ʨi↓n y↘la↓n. ʦai↘ ɻə↘nxɤ↗ tʊ→ŋɕi→ pei↘ pjɛ→nɕje↓ ꭧɨ→ʨʰjɛ↗n,ꭧɤ↘ɕje→ kʰʊ↘ŋꭧɨ↘ ʨɥe↗ti↘ŋ na↓ɕje→ wə↗nʨjɛ↘n ʨje↗xɤ↗."
     },
     {
       "scene": 5,
-      "speech_start": 32.725,
-      "speech_end": 40.900000000000006,
-      "scene_end": 41.550000000000004,
-      "duration": 8.825000000000003,
-      "text": "当工作流程完成时, spaCR 存储正常化掩膜,映射的图像,测量和来源准备进行注释."
+      "speech_start": 61.155,
+      "speech_end": 73.03,
+      "scene_end": 73.61,
+      "duration": 12.454999999999998,
+      "text": "一般定义了进口的强度道列表,实验名称,正常化政策,以及是否取出了细胞质分区. 在这里,从零到三的频道与四个真实图像平面相匹配.",
+      "speech_text": "一般定义了进口的强度道列表,实验名称,正常化政策,以及是否取出了细胞质分区. 在这里,从零到三的频道与四个真实图像平面相匹配.",
+      "phonemes": "i↘pa→n ti↘ŋi↘ lɤ ʨi↘nkʰou↓ tɤ ʨʰja↗ŋtu↘ tau↘ lje↘pjau↓,ʂɨ↗jɛ↘n mi↗ŋꭧʰə→ŋ,ꭧə↘ŋꭧʰa↗ŋxwa↘ ꭧə↘ŋʦʰɤ↘,i↓ʨi↗ ʂɨ↘fou↓ ʨʰy↓ꭧʰu→ lɤ ɕi↘pau→ꭧɨ↘ fə→nʨʰy→. ʦai↘ ꭧɤ↘li↓,ʦʰʊ↗ŋ li↗ŋtau↘ sa→n tɤ pʰi↗ntau↘ y↓ sɨ↘kɤ↘ ꭧə→nʂɨ↗ tʰu↗ɕja↘ŋ pʰi↗ŋmjɛ↘n ɕja→ŋpʰi↓pʰei↘."
+    },
+    {
+      "scene": 6,
+      "speech_start": 73.61,
+      "speech_end": 82.46,
+      "scene_end": 83.02,
+      "duration": 9.409999999999997,
+      "text": "机器控制如何将进口机器标签与其母体进行总结. 它不会再次划分TIFF;它只定义下游测量关系.",
+      "speech_text": "机器控制如何将进口机器标签与其母体进行总结. 它不会再次划分TIFF;它只定义下游测量关系.",
+      "phonemes": "ʨi→ʨʰi↘ kʰʊ↘ŋꭧɨ↘ ɻu↗xɤ↗ ʨja→ŋ ʨi↘nkʰou↓ ʨi→ʨʰi↘ pjau→ʨʰjɛ→n y↓ʨʰi↗ mu↓tʰi↓ ʨi↘nɕi↗ŋ ʦʊ↓ŋʨje↗. tʰa→ pu↗xwei↘ ʦai↘ʦʰɨ↘ xwa↘fə→nTIFF;tʰa→ ꭧɨ↓ ti↘ŋi↘ ɕja↘jou↗ ʦʰɤ↘lja↗ŋ kwa→nɕi↘."
+    },
+    {
+      "scene": 7,
+      "speech_start": 83.02,
+      "speech_end": 93.52,
+      "scene_end": 94.1,
+      "duration": 11.079999999999998,
+      "text": "时间周期包含对外部供应的时间序列的跟踪选择. 仅在字段名称和框架代表一个真正的时间序列时,才能启用它.",
+      "speech_text": "时间周期包含对外部供应的时间序列的跟踪选择. 仅在字段名称和框架代表一个真正的时间序列时,才能启用它.",
+      "phonemes": "ʂɨ↗ʨjɛ→n ꭧou→ʨʰi→ pau→xa↗n twei↘wai↘pu↘ kʊ→ŋi↘ŋ tɤ ʂɨ↗ʨjɛ→n ɕy↘lje↘ tɤ kə→nʦʊ→ŋ ɕɥɛ↓nʦɤ↗. ʨi↓n ʦai↘ ʦɨ↘twa↘nmi↗ŋ ꭧʰə→ŋ xɤ↗ kʰwa→ŋʨja↘ tai↘pjau↓ i↗kɤ↘ ꭧə→nꭧə↘ŋ tɤ ʂɨ↗ʨjɛ→n ɕy↘lje↘ ʂɨ↗,ʦʰai↗nə↗ŋ ʨʰi↓jʊ↘ŋ tʰa→."
+    },
+    {
+      "scene": 8,
+      "speech_start": 94.1,
+      "speech_end": 106.8,
+      "scene_end": 107.42,
+      "duration": 13.320000000000007,
+      "text": "测量选择从进口标签计算的特征家族,包括强度,相关性,纹理,辐射分布和定位化. 首先,你需要分析的功能,因为富裕家庭需要更多的时间和储存.",
+      "speech_text": "测量选择从进口标签计算的特征家族,包括强度,相关性,纹理,辐射分布和定位化. 首先,你需要分析的功能,因为富裕家庭需要更多的时间和储存.",
+      "phonemes": "ʦʰɤ↘lja↗ŋ ɕɥɛ↓nʦɤ↗ ʦʰʊ↗ŋ ʨi↘nkʰou↓ pjau→ʨʰjɛ→n ʨi↘swa↘n tɤ tʰɤ↘ꭧə→ŋ ʨja→ʦu↗,pau→kʰwo↘ ʨʰja↗ŋtu↘,ɕja→ŋkwa→nɕi↘ŋ,wə↗nli↓,fu↗ʂɤ↘ fə→npu↘ xɤ↗ ti↘ŋwei↘ xwa↘. ʂou↓ɕjɛ→n,ni↓ ɕy→jau↘ fə→nɕi→ tɤ kʊ→ŋnə↗ŋ,i→nwei↘ fu↘y↘ ʨja→tʰi↗ŋ ɕy→jau↘ kə↘ŋ two→ tɤ ʂɨ↗ʨjɛ→n xɤ↗ ꭧʰu↓ʦʰwə↗n."
+    },
+    {
+      "scene": 9,
+      "speech_start": 107.42,
+      "speech_end": 119.495,
+      "scene_end": 120.075,
+      "duration": 12.655000000000001,
+      "text": "在进口后,适用于最小尺寸和感染门的过设置. 外部面具保留提供标签几何学;这些过器决定哪些标签对象进入测量,而不是修复差的细分.",
+      "speech_text": "在进口后,适用于最小尺寸和感染门的过设置. 外部面具保留提供标签几何学;这些过器决定哪些标签对象进入测量,而不是修复差的细分.",
+      "phonemes": "ʦai↘ ʨi↘nkʰou↓ xou↘,ʂɨ↘jʊ↘ŋ y↗ ʦwei↘ɕjau↓ ꭧʰɨ↓ʦʰwə↘n xɤ↗ ka↓nɻa↓n mə↗n tɤ kwo↘ ʂɤ↘ꭧɨ↘. wai↘pu↘ mjɛ↘nʨy↘ pau↓ljou↗ tʰi↗kʊ→ŋ pjau→ʨʰjɛ→n ʨi↓xɤ↗ɕɥe↗;ꭧɤ↘ɕje→ kwo↘ʨʰi↘ ʨɥe↗ti↘ŋ na↓ɕje→ pjau→ʨʰjɛ→n twei↘ɕja↘ŋ ʨi↘nɻu↘ ʦʰɤ↘lja↗ŋ,ɚ↗ pu↗ʂɨ↘ ɕjou→fu↘ ꭧʰa↘ tɤ ɕi↘fə→n."
+    },
+    {
+      "scene": 10,
+      "speech_start": 120.075,
+      "speech_end": 132.95,
+      "scene_end": 133.54999999999998,
+      "duration": 13.47499999999998,
+      "text": "对象作物选择哪些区块成为单个对象的PNG数据集,它们的道,大小,正常化和边境政策. 这个例子可以保存细胞作物,以便完成的项目可以直接在Annotate中打开.",
+      "speech_text": "对象作物选择哪些区块成为单个对象的PNG数据集,它们的道,大小,正常化和边境政策. 这个例子可以保存细胞作物,以便完成的项目可以直接在Annotate中打开.",
+      "phonemes": "twei↘ɕja↘ŋ ʦwo↘u↘ ɕɥɛ↓nʦɤ↗ na↓ɕje→ ʨʰy→kʰwai↘ ꭧʰə↗ŋwei↗ ta→nkɤ↘ twei↘ɕja↘ŋ tɤPNGʂu↘ʨy↘ ʨi↗,tʰa→mən tɤ tau↘,ta↘ɕjau↓,ꭧə↘ŋꭧʰa↗ŋxwa↘ xɤ↗ pjɛ→nʨi↘ŋ ꭧə↘ŋʦʰɤ↘. ꭧɤ↘kɤ li↘ʦɨ kʰɤ↓i↓ pau↓ʦʰwə↗n ɕi↘pau→ ʦwo↘u↘,i↓pjɛ↘n wa↗nꭧʰə↗ŋ tɤ ɕja↘ŋmu↘ kʰɤ↓i↓ ꭧɨ↗ʨje→ ʦai↘Annotateꭧʊ→ŋ ta↓kʰai→."
+    },
+    {
+      "scene": 11,
+      "speech_start": 133.54999999999998,
+      "speech_end": 146.325,
+      "scene_end": 146.905,
+      "duration": 13.355000000000018,
+      "text": "高级包含简历,干运行,失败,工人和伐木控制. 严格的错误和一个工人使得这种小型的第一次进口容易进行审计;较大的审查项目可以以后使用更多的工人.",
+      "speech_text": "高级包含简历,干运行,失败,工人和伐木控制. 严格的错误和一个工人使得这种小型的第一次进口容易进行审计;较大的审查项目可以以后使用更多的工人.",
+      "phonemes": "kau→ʨi↗ pau→xa↗n ʨjɛ↓nli↘,ka↘n y↘nɕi↗ŋ,ʂɨ→pai↘,kʊ→ŋɻə↗n xɤ↗ fa↗mu↘ kʰʊ↘ŋꭧɨ↘. jɛ↗nkɤ↗ tɤ ʦʰwo↘u↘ xɤ↗ i↗kɤ↘ kʊ→ŋɻə↗n ʂɨ↓tɤ ꭧɤ↘ꭧʊ↓ŋ ɕjau↓ɕi↗ŋ tɤ ti↘i→ʦʰɨ↘ ʨi↘nkʰou↓ ɻʊ↗ŋi↘ ʨi↘nɕi↗ŋ ʂə↓nʨi↘;ʨjau↘ta↘ tɤ ʂə↓nꭧʰa↗ ɕja↘ŋmu↘ kʰɤ↓i↓ i↓xou↘ ʂɨ↓jʊ↘ŋ kə↘ŋ two→ tɤ kʊ→ŋɻə↗n."
+    },
+    {
+      "scene": 12,
+      "speech_start": 146.905,
+      "speech_end": 159.305,
+      "scene_end": 159.925,
+      "duration": 13.02000000000001,
+      "text": "3D设置是对体积测量和投影的阿尔法阶段类别. 目前的输入是二维标签平面,因此这些控制保持关闭,而Z处理保持在任何多强度源的最大投影.",
+      "speech_text": "3D设置是对体积测量和投影的阿尔法阶段类别. 目前的输入是二维标签平面,因此这些控制保持关闭,而Z处理保持在任何多强度源的最大投影.",
+      "phonemes": "sa→nDʂɤ↘ꭧɨ↘ ʂɨ↘ twei↘ tʰi↓ʨi→ ʦʰɤ↘lja↗ŋ xɤ↗ tʰou↗i↓ŋ tɤ a→ɚ↓fa↓ ʨje→twa↘n lei↘pje↗. mu↘ʨʰjɛ↗n tɤ ʂu→ɻu↘ ʂɨ↘ ɚ↘wei↗ pjau→ʨʰjɛ→n pʰi↗ŋmjɛ↘n,i→nʦʰɨ↓ ꭧɤ↘ɕje→ kʰʊ↘ŋꭧɨ↘ pau↓ꭧʰɨ↗ kwa→npi↘,ɚ↗Zꭧʰu↓li↓ pau↓ꭧʰɨ↗ ʦai↘ ɻə↘nxɤ↗ two→ ʨʰja↗ŋtu↘ ɥɛ↗n tɤ ʦwei↘ta↘ tʰou↗i↓ŋ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 159.925,
+      "speech_end": 170.525,
+      "scene_end": 171.145,
+      "duration": 11.219999999999999,
+      "text": "在进口之前,只启用预览,并确认目的地是新的项目文件. 所以一个现有的测量数据库是一个阻塞问题,而不是被默默地取代.",
+      "speech_text": "在进口之前,只启用预览,并确认目的地是新的项目文件. 所以一个现有的测量数据库是一个阻塞问题,而不是被默默地取代.",
+      "phonemes": "ʦai↘ ʨi↘nkʰou↓ ꭧɨ→ʨʰjɛ↗n,ꭧɨ↓ ʨʰi↓jʊ↘ŋ y↘la↓n,pi↘ŋ ʨʰɥe↘ɻə↘n mu↘ti↘ti↘ ʂɨ↘ ɕi→n tɤ ɕja↘ŋmu↘ wə↗nʨjɛ↘n. swo↓i↓ i↗kɤ↘ ɕjɛ↘njou↓ tɤ ʦʰɤ↘lja↗ŋ ʂu↘ʨy↘kʰu↘ ʂɨ↘ i↗kɤ↘ ʦu↓sɤ↘ wə↘ntʰi↗,ɚ↗ pu↗ʂɨ↘ pei↘ mwo↘mwo↘ti↘ ʨʰy↓tai↘."
+    },
+    {
+      "scene": 14,
+      "speech_start": 171.145,
+      "speech_end": 185.095,
+      "scene_end": 185.73499999999999,
+      "duration": 14.589999999999975,
+      "text": "单击\"运行\",只需阅读的预航. 它扫描实际的图像元数据,将面具与正常化领域身份进行对接,检查重复和缺失面具,在强度道之后分配面具平面,并没有写出实验输出.",
+      "speech_text": "单击\"运行\",只需阅读的预航. 它扫描实际的图像元数据,将面具与正常化领域身份进行对接,检查重复和缺失面具,在强度道之后分配面具平面,并没有写出实验输出.",
+      "phonemes": "ta→nʨi→\"y↘nɕi↗ŋ\",ꭧɨ↓ ɕy→ ɥe↘tu↗ tɤ y↘xa↗ŋ. tʰa→ sau↓mjau↗ ʂɨ↗ʨi↘ tɤ tʰu↗ɕja↘ŋ ɥɛ↗n ʂu↘ʨy↘,ʨja→ŋ mjɛ↘nʨy↘ y↓ ꭧə↘ŋꭧʰa↗ŋxwa↘ li↓ŋy↘ ʂə→nfə↘n ʨi↘nɕi↗ŋ twei↘ʨje→,ʨjɛ↓nꭧʰa↗ ꭧʰʊ↗ŋfu↘ xɤ↗ ʨʰɥe→ʂɨ→ mjɛ↘nʨy↘,ʦai↘ ʨʰja↗ŋtu↘ tau↘ ꭧɨ→xou↘ fə→npʰei↘ mjɛ↘nʨy↘ pʰi↗ŋmjɛ↘n,pi↘ŋ mei↗jou↓ ɕje↓ꭧʰu→ ʂɨ↗jɛ↘n ʂu→ꭧʰu→."
+    },
+    {
+      "scene": 15,
+      "speech_start": 185.73499999999999,
+      "speech_end": 195.66,
+      "scene_end": 196.42,
+      "duration": 10.685000000000002,
+      "text": "实际预览报告了十二个强度映射,三个完整的场地,四个强度道, 面具飞机将是四,五,六,七,没有警告或阻止错误.",
+      "speech_text": "实际预览报告了十二个强度映射,三个完整的场地,四个强度道, 面具飞机将是四,五,六,七,没有警告或阻止错误.",
+      "phonemes": "ʂɨ↗ʨi↘ y↘la↓n pau↘kau↘ lɤ ʂɨ↗ɚ↘kɤ↘ ʨʰja↗ŋtu↘ i↘ŋʂɤ↘,sa→nkɤ↘ wa↗nꭧə↓ŋ tɤ ꭧʰa↓ŋti↘,sɨ↘kɤ↘ ʨʰja↗ŋtu↘ tau↘, mjɛ↘nʨy↘ fei→ʨi→ ʨja→ŋ ʂɨ↘ sɨ↘,u↓,ljou↘,ʨʰi→,mei↗jou↓ ʨi↓ŋkau↘ xwo↘ ʦu↓ꭧɨ↓ ʦʰwo↘u↘."
+    },
+    {
+      "scene": 16,
+      "speech_start": 196.42,
+      "speech_end": 209.67,
+      "scene_end": 210.29,
+      "duration": 13.870000000000005,
+      "text": "禁用只预览,然后单击再运行才能导入. 外部面具现在使用复制的计划来编写可信的图像和阵列,然后将合并的字段交给正常的测量管道与衍生的面具尺寸.",
+      "speech_text": "禁用只预览,然后单击再运行才能导入. 外部面具现在使用复制的计划来编写可信的图像和阵列,然后将合并的字段交给正常的测量管道与衍生的面具尺寸.",
+      "phonemes": "ʨi↘njʊ↘ŋ ꭧɨ↓ y↘la↓n,ɻa↗nxou↘ ta→nʨi→ ʦai↘ y↘nɕi↗ŋ ʦʰai↗nə↗ŋ tau↓ɻu↘. wai↘pu↘ mjɛ↘nʨy↘ ɕjɛ↘nʦai↘ ʂɨ↓jʊ↘ŋ fu↘ꭧɨ↘ tɤ ʨi↘xwa↘ lai↗ pjɛ→nɕje↓ kʰɤ↓ɕi↘n tɤ tʰu↗ɕja↘ŋ xɤ↗ ꭧə↘nlje↘,ɻa↗nxou↘ ʨja→ŋ xɤ↗pi↘ŋ tɤ ʦɨ↘ twa↘n ʨjau→kei↓ ꭧə↘ŋꭧʰa↗ŋ tɤ ʦʰɤ↘lja↗ŋ kwa↓ntau↘ y↓ jɛ↓nʂə→ŋ tɤ mjɛ↘nʨy↘ ꭧʰɨ↓ʦʰwə↘n."
+    },
+    {
+      "scene": 17,
+      "speech_start": 210.29,
+      "speech_end": 223.69,
+      "scene_end": 224.37,
+      "duration": 14.080000000000013,
+      "text": "在转换过程中,在测量开始之前,12个强度项目中,有12个成功. 控制台重复验证的配对,记录可复制性表格,并运行日志;在声明的安全边界,停止仍然可用.",
+      "speech_text": "在转换过程中,在测量开始之前,12个强度项目中,有12个成功. 控制台重复验证的配对,记录可复制性表格,并运行日志;在声明的安全边界,停止仍然可用.",
+      "phonemes": "ʦai↘ ꭧwa↓nxwa↘n kwo↘ꭧʰə↗ŋ ꭧʊ→ŋ,ʦai↘ ʦʰɤ↘lja↗ŋ kʰai→ʂɨ↓ ꭧɨ→ʨʰjɛ↗n,ʂɨ↗ɚ↘kɤ↘ ʨʰja↗ŋtu↘ ɕja↘ŋmu↘ ꭧʊ→ŋ,jou↓ ʂɨ↗ɚ↘kɤ↘ ꭧʰə↗ŋkʊ→ŋ. kʰʊ↘ŋꭧɨ↘tʰai↗ ꭧʰʊ↗ŋfu↘ jɛ↘nꭧə↘ŋ tɤ pʰei↘twei↘,ʨi↘lu↘ kʰɤ↓ fu↘ꭧɨ↘ ɕi↘ŋ pjau↓kɤ↗,pi↘ŋ y↘nɕi↗ŋɻɨ↘ꭧɨ↘;ʦai↘ ʂə→ŋmi↗ŋ tɤ a→nʨʰɥɛ↗n pjɛ→nʨje↘,tʰi↗ŋꭧɨ↓ ɻə↗ŋɻa↗n kʰɤ↓jʊ↘ŋ."
+    },
+    {
+      "scene": 18,
+      "speech_start": 224.37,
+      "speech_end": 239.645,
+      "scene_end": 240.525,
+      "duration": 16.155,
+      "text": "实际进口完成了三个八平面的合并阵列和含有细胞,细胞质,核,病原体,机器人,PNG列表,设置,设置-历史和运行状态表的测量数据库. 这项新项目可以追踪并准备好进行注释,而不需要重复分类.",
+      "speech_text": "实际进口完成了三个八平面的合并阵列和含有细胞,细胞质,核,病原体,机器人,PNG列表,设置,设置-历史和运行状态表的测量数据库. 这项新项目可以追踪并准备好进行注释,而不需要重复分类.",
+      "phonemes": "ʂɨ↗ʨi↘ ʨi↘nkʰou↓ wa↗nꭧʰə↗ŋ lɤ sa→nkɤ↘ pa→ pʰi↗ŋmjɛ↘n tɤ xɤ↗pi↘ŋ ꭧə↘nlje↘ xɤ↗ xa↗njou↓ ɕi↘pau→,ɕi↘pau→ꭧɨ↘,xɤ↗,pi↘ŋɥɛ↗ntʰi↓,ʨi→ʨʰi↘ɻə↗n,PNGlje↘pjau↓,ʂɤ↘ꭧɨ↘,ʂɤ↘ꭧɨ↘-li↘ʂɨ↓ xɤ↗ y↘nɕi↗ŋ ꭧwa↘ŋtʰai↘pjau↓ tɤ ʦʰɤ↘lja↗ŋ ʂu↘ʨy↘kʰu↘. ꭧɤ↘ɕja↘ŋ ɕi→n ɕja↘ŋmu↘ kʰɤ↓i↓ ꭧwei→ʦʊ→ŋ pi↘ŋ ꭧwə↓npei↘ xau↓ ʨi↘nɕi↗ŋ ꭧu↘ʂɨ↘,ɚ↗ pu↘ ɕy→jau↘ ꭧʰʊ↗ŋfu↘ fə→nlei↘."
     }
   ]
 }
