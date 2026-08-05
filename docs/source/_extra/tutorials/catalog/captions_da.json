@@ -154,19 +154,97 @@
       "id": "07_mask",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker Mask. Segmenter det leverede 4-kanal mikroskopiske eksperiment i kerner, celler, lipiddråber og parasitmasker."
+          "narration": "Masken åbnes med indstillingspaneleet til venstre og køre-konsollen til højre. Konsolen rapporterer mappeskanning, validering, fremskridt, advarsler og udgang af rørledningen."
         },
         {
-          "narration": "Åben Maske fra Core sektionen. Brug den leverede dataset med 13 felter. Kanal nul er kerner, kanal én er endoplasmatisk retikulum, kanal to er lipiddråber, og kanal tre er parasitter."
+          "narration": "Feltet under konsolen accepterer lokale spørgsmål eller kommandoer. AI-skiftet sender en besked gennem en udvalgt abonnement-støttet udbyder, og den tilstødende pil åbner udbydermenuen."
         },
         {
-          "narration": "I hovedkonfigurationsområdet opdage kerner fra kanal nul, celler fra kanal endoplasma-reticulum, lipiddråber med organellepletter og parasitter fra kanal tre."
+          "narration": "På fanen Udbydere vises, om Claude-, ChatGPT- og Gemini-kommandelinjeklienterne er installeret, plus deres installations- og login-kommandoer. Oplysningerne forbliver hos sælgeren."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. Tjek et repræsentativt felt, og kør derefter de fire segmentationspass over datasetet."
+          "narration": "I flikken Indstillinger kontrolleres responsdybden, AI-assisterede fejlforklaringer, valgfri GitHub-problemrapportering, logging-in og spaCR-bevidste systemprompten."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, indeholder maskers mappe justerede objektetiketter og fusionerede image-plus-mask-arrayer, der er klar til måling."
+          "narration": "Træk orig- mappen ind i Mask. spaCR opdager CQ1 filenavn mønsteret, forudser godt, felt, tid, dybde og kanal metadata, bemærker, at plate ID vil være standard til plate1, derefter gemmer regex."
+        },
+        {
+          "narration": "Essentials viser det lille sæt indstillinger, der kræves for at køre Mask. Tællingen under kontrollerne rapporterer, hvor mange af de komplette indstillinger der er i øjeblikket synlige."
+        },
+        {
+          "narration": "Ændret begrænser formulæret til værdier, der adskiller sig fra maskers standardindstillinger, hvilket gør importerede eller redigerede indstillinger nemme at gennemgå."
+        },
+        {
+          "narration": "Skift mellem Essentials og Alle indstillinger uden at miste værdier. Alle indstillinger afslører alle kategorier, herunder avancerede og beta kontroller."
+        },
+        {
+          "narration": "Recipes gemmer de aktuelle indstillinger under et navn, anvender en gemt konfiguration igen eller importerer og eksporterer en genbrugbar indstillingerfil."
+        },
+        {
+          "narration": "Indsend fjernbilleder af de afviklede Mask-indstillinger og send dem til Distribuerede Jobs-arbejdsområdet."
+        },
+        {
+          "narration": "Distributed Jobs kortlægger lokale stier til en fjerntliggende arbejdsstation, Slurm-cluster eller konfigureret kommando, og sender derefter og overvåger samme Mask-udførelse."
+        },
+        {
+          "narration": "Input and Metadata definerer kildenavnmappen, kanaltildelinger, forstørrelse, metadata-type og ethvert brugerdefineret filnavn regex."
+        },
+        {
+          "narration": "Workflow og Test Run kontrollerer forudbearbejdning, maskgenerering, tørre løb, genoptagelsesadfærd og små testmodusprøver."
+        },
+        {
+          "narration": "Billedforarbejdning grupper normalisering, projektion, upscaling, konsolidering og afvisning af valg, der anvendes før segmentering."
+        },
+        {
+          "narration": "Cell Segmentation indeholder cellemodellen, diameter, tærskler, baggrundshåndtering og cellobjektfiltre."
+        },
+        {
+          "narration": "Nucleus Segmentation giver den tilsvarende model, tærskler, baggrundskorrigering og objektfilter til kerner."
+        },
+        {
+          "narration": "Patogensegmentering grupperer den model og rengøringsregler, der anvendes til at opdage og filtrere parasitobjekter."
+        },
+        {
+          "narration": "Organelle Segmentation udvælger organelle morfologi og detektor, billedrengøring, metode-specifikke kontroller, objektfiltre og parent-compartment resumé."
+        },
+        {
+          "narration": "Kvalitetsstyring sætter automatisk kontrol for objekttællinger, størrelsesforhold, grænser, foregående dækning, splittet adfærd og acceptable felter."
+        },
+        {
+          "narration": "Volumetric Processing indeholder beta-kontroller for z-stacks, projektion, anisotropy, voxel kalibrering og tredimensionel sutning."
+        },
+        {
+          "narration": "Time Axes og Tracking indeholder beta-kontroller for firdimensionelle data, rammeintervaller, tracking backends og forflytningsgrænser."
+        },
+        {
+          "narration": "Visualization and Diagnostics kontrollerer forhåndsbilleder, farvebilleder, figurstørrelse, billednormalisering og eksempelfelter."
+        },
+        {
+          "narration": "Output and Storage bestemmer, hvilke billeder, masker, mellemarrayer og komprimerede resultater der opbevares."
+        },
+        {
+          "narration": "Runtime and Reliability indeholder fejlhåndtering, reproducerbarhed, logging, antal arbejdere, partier og udførelse af rørledningsmuligheder."
+        },
+        {
+          "narration": "Aktiver Live Preview og lad kanal-to ER-billedet. Dette felt indeholder kun det cellesignal, der anvendes til segmenteringseksemplet."
+        },
+        {
+          "narration": "I Live-indstillinger skal du vælge celle, aktivere normalisering og indstille den nederste procentdel til 2 og den øverste procentdel til 99,5."
+        },
+        {
+          "narration": "Udfør forhåndsvisning og zoom ind i de synkroniserede kilde- og resultatpaneler. Overlagningslinjerne skal følge de cellegrænser, der er defineret i ER."
+        },
+        {
+          "narration": "Skift resultatpanelet til Flow for at undersøge det Cellpose- flowfelt, der anvendes til at danne objekter."
+        },
+        {
+          "narration": "Skift til Masker for at se helecelleobjekterne direkte. Hver farve er et objekt, og sort forbliver baggrundsmærke nul."
+        },
+        {
+          "narration": "Vend tilbage til Live-indstillinger og indsæt kun celleminimumområdet til 10000 pixels. De lagrede råmasker filtreres øjeblikkeligt uden at Cellpose genoprettes."
+        },
+        {
+          "narration": "Efter størrelsesfilteret mister småcelleobjekter deres konturer, og kun objekter med mindst 10000 pixels er tilbage. Sammenlign det med den ufiltrerede overlapning."
         }
       ]
     },
@@ -174,19 +252,79 @@
       "id": "08_measure",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker Måling. Extraher per objekt intensitet, morfologi, tekstur, colocalization og rumlige funktioner fra segmenterede billeder."
+          "narration": "Målingen åbner med indstillingerne til venstre og køre-konsoliden til højre. Konsolen rapporterer kildeopløsning, validering, fremskridt, advarsler og måleudgang."
         },
         {
-          "narration": "Åben måling fra kernen. Vælg det projekt, der indeholder billeder og masker produceret af Mask."
+          "narration": "Feltet under konsolen accepterer lokale spørgsmål eller kommandoer. Lad AI styre et spørgsmål gennem den valgte udbyder, og brug den tilstødende pil til at åbne udbydermenuen."
         },
         {
-          "narration": "I hovedkonfigurationsområdet skal du bruge kanal én, endoplasmatisk retikulum, som interessekanal og vælge objekttyperne og karakterfamilierne, som skal måles."
+          "narration": "Udbydere rapporterer, om Claude-, ChatGPT- og Gemini-kommandolinjeklienter er installeret, og viser deres installations- og login-kommandoer. Udbyderoplysninger forbliver hos sælgeren."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. forudse afgrøder, når det er nødvendigt, og behandle derefter hvert valgt felt og objekttype."
+          "narration": "AI-indstillinger styrer responsdybden, automatiske fejlforklaringer, valgfri GitHub-problemrapportering, logging-in og spaCR-bevidste systemprompten."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, gemmer målinger dot db sporbare enkeltobjektrækker og valgfrie billedopdræt til annotering eller klassificering."
+          "narration": "Træk den sammensatte mappe, der er produceret af Mask, ind i Måling. Disse array'er bærer allerede spaCR projektmetadata, så Measure løser kilden direkte og behøver ikke at bruge filenavnet raw-image igen."
+        },
+        {
+          "narration": "Essentials viser det kompakt sæt af måleindstillinger, der er nødvendige for et løb, mens tælleren rapporterer, hvor mange indstillinger der i øjeblikket er synlige."
+        },
+        {
+          "narration": "Ændret begrænser panelen til værdier, der adskiller sig fra standardindstillinger for målinger, hvilket gør importerede indstillinger og forsætlige ændringer nemme at revidere."
+        },
+        {
+          "narration": "Alle indstillinger afslører alle målkategorier, herunder avancerede pålidelighedskontroller og beta kalibreringskontrol, uden at de aktuelle værdier ændres."
+        },
+        {
+          "narration": "Recipes gemmer den nuværende konfiguration af foranstaltningen under et navn, anvender den senere eller importerer og eksporterer en genbrugbar indstillingerfil."
+        },
+        {
+          "narration": "Indsend fjernbilleder af de afhjælpte måleindstillinger og send dem til Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kortlægger lokale stier til en fjerntliggende arbejdsstation, Slurm-cluster eller konfigureret kommando, og indsender og overvåger derefter det samme mål."
+        },
+        {
+          "narration": "Input and Experiment identificerer kildeprojektet og navnet på eksperimentet, der er skrevet i dets udgang."
+        },
+        {
+          "narration": "Mask and Channel Mapping tildeler billedkanaler, celle, kerne, patogen og organelle mærkningsplaner, afledt cytoplasma og alle tidsserier objekter."
+        },
+        {
+          "narration": "Målingsfunktioner vælger gemte målinger, korrelations- og Manders-resuméer, homogenitetsafstande, radialfordelinger og organelresuméer."
+        },
+        {
+          "narration": "Object Filtering fastsætter den mindste størrelse for hvert rum, hvorvidt uinficerede celler bevares, og hvordan de patogene celler, der krydser kanten, håndteres."
+        },
+        {
+          "narration": "Crop Output-kontroller gemmer PNG'er og array'er, crop-objekt og størrelse, kanaler, dilatation, grænseposter og normalisering."
+        },
+        {
+          "narration": "Preview and Diagnostics kontrollerer plots og den lille prøvningsmodusprøve, der anvendes, før man forpligter sig til et komplet eksperiment."
+        },
+        {
+          "narration": "3D kalibrering indeholder beta anisotropy og voxel-størrelseskontroller, der konverterer volumetriske pixelmålinger til fysiske dimensioner."
+        },
+        {
+          "narration": "Løbtid og pålidelighed grupper genoptage adfærd, strenge fejl, fejlpolitik, reproduktibilitet, tør løb, logging og arbejdstager tæller."
+        },
+        {
+          "narration": "Aktiver Live Preview og last en færdig sammensat matrix. Galleriet grupperer 40 reelle cellegrøder efter kernen og patogeninholdet på tværs af de fem felt testløb."
+        },
+        {
+          "narration": "General bekræfter forsøgsidentiteten, målede kanaler nul til tre, cellemaskeplan fire, nukleusplan fem, patogenplan seks, afledt cytoplasma og testmodus."
+        },
+        {
+          "narration": "Object Crops skriver 224 x 224 pikselcelle PNG'er ved hjælp af kanaler nul, en og to. Normaliseringen forbliver nede; kun live-galleriet bruger en midlertidig 1-til-99-percentile-visningsstrækning."
+        },
+        {
+          "narration": "Filtre kræver celler med mindst 3500 pixels, kerner med mindst 1000 og patogener med mindst 250. Uinficerede celler forbliver ude og tværgående patogenceller fusioneres."
+        },
+        {
+          "narration": "Vælg kanal 1 for at inspicere ER-signalet, der anvendes som den interesserede nedstrømskanal. Dette ændrer kun galleriet; Måling udtrækker stadig funktioner fra alle fire konfigurerede kanaler."
+        },
+        {
+          "narration": "Den udfyldte testregister rapporterer, at 5 af 5 felter har været vellykkede. measurements.db indeholder 455 celler og cytoplasmer, 605 kerner, 1031 patogener og 455 celler, der er klar til annotering og klassificering."
         }
       ]
     },
@@ -194,19 +332,76 @@
       "id": "09_annotate",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker Annotate. Gennemgå enkeltobjekt afgrøder på et net og tildele pålidelige mærker til modeluddannelse eller kvalitetskontrol."
+          "narration": "Annotering begynder med at prioritere afgrødegraden. Åbn Console, når du har brug for databasebeskeder, gem status, advarsler eller chatfeltet; den samme knap gemmer den igen for at returnere rummet til billeder."
         },
         {
-          "narration": "Åbn Annotat fra Core-delen. Åbn et projekt med objekt afgrøder og vælg databasetabellen og annotationskolumnen."
+          "narration": "AI-switchen sender et spørgsmål gennem den valgte udbyder. Brug den tilstødende pil til at vælge en konfigureret leverandør eller en åben leverandøradministration."
         },
         {
-          "narration": "I hovedkonfigurationsområdet skal du vælge klasser, visningskanaler, sortering, prøveudtagning og eventuelle filtre, der definerer gennemgangssættet."
+          "narration": "Udbydere rapporterer om Claude-, ChatGPT- og Gemini-kommandolinjeklienter er installeret og giver deres installations- og login-kommandoer. Oplysninger forbliver hos hver sælger."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. mærkes repræsentative genstande, gemmes hyppigt og genbesøges usikre eller modstridende eksempler."
+          "narration": "AI-indstillinger styrer responsdybden, automatiske fejlforklaringer, valgfri GitHub-problemrapportering, logging-in og spaCR-bevidste systemprompten."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, skrives annotationer tilbage til projektdatabasen med objektidentifikatorer intakte."
+          "narration": "Træk den målte forsøgsmappe ind i Annotat. spaCR løser measurements.db, forankrer sine lagrede afgrødebaner til denne computer, opretter kolumnen spaCR_Tutorial og laster de virkelige cellebilleder."
+        },
+        {
+          "narration": "Indstillinger benævner kilde- og annotationskolumnen, styrer afgrødestørrelse, billedtype, synlige og normaliserede kanaler, percentiler, valgfrie konturer, objekt- eller målefiltre og en usikkerhedslinje med mangfoldighedskontrol."
+        },
+        {
+          "narration": "Sidekontoren viser 128 synlige afgrøder ud af 81.969. En hvid ring markerer den fokuserede afgrøde, mens klassefarvede ringe viser etiketter, der allerede er tildelt i spaCR_Tutorial."
+        },
+        {
+          "narration": "Åbn tastaturreferencen når som helst. Nummerer 1 til 9 mærkes og avancerer, nul rydder en afgrøde, piller eller HJ K L bevæger sig, Space skipper, Backspace returnerer, U annullerer og Enter sparer og avancerer."
+        },
+        {
+          "narration": "Tryk på 1 for at tildele klasse 1 til den fokuserede afgrøde. Ringen ændrer sig til klassefarven, og fokuset går videre til det næste ikke-mærkede billede."
+        },
+        {
+          "narration": "Tryk på 2 for at tildele klasse 2. Klasserne er numeriske og eksperimentelt definerede, så registrer, hvad hvert tal betyder, før et hold begynder at mærke."
+        },
+        {
+          "narration": "Arrow keys bevæger fokuset uden at ændre et mærke. Space træder fremad og Backspace træder tilbage, hvilket gør hurtig gennemgang mulig uden at røre efter musen."
+        },
+        {
+          "narration": "Tryk på U for at fjerne det nyeste tastaturetikett. Afgrøderne vender tilbage til deres tidligere tilstand, fokus bevæger sig tilbage til det, og statusstripen bekræfter at de ikke er til stede."
+        },
+        {
+          "narration": "Muss annotation er stadig tilgængelig. Et venstre klik tildeler klasse 1 til en afgrøde gennem den samme baggrundsopsparingsvej, som bruges af tastaturetiketter."
+        },
+        {
+          "narration": "Med højre klik tildeles klasse 2. Når man klikker på den samme klasse på den pågældende afgrøde, rydes den igen, mens man klikker på den anden klasse, ændres den direkte."
+        },
+        {
+          "narration": "Klassen tæller bekræfter den gemte befolkning og viser den farve, der anvendes til hver klasse ring. Denne vejledning indeholder to eksempler i klasse 1 og to i klasse 2."
+        },
+        {
+          "narration": "Dækningsrevisioner etiketter efter klasse, plade, godt, kilde og aktiv læring runde. Disse fire eksempler kommer fra en kilde, som med vilje er for koncentreret til uddannelse og viser, hvorfor dækning skal kontrolleres."
+        },
+        {
+          "narration": "Next gemmer ventende arbejde og laster den næste fulde side. Enter udfører den samme opsparings- og avanceringsaktivitet uden at forlade nettet."
+        },
+        {
+          "narration": "Tilbage returnerer en side, samtidig med at man bevarer hver forpligtet annotation. Page Up og Alt Left giver alternativer til tastatur."
+        },
+        {
+          "narration": "Skip til sidste annoteret hopper til siden, der indeholder den sidste gemte etikette, hvilket gør det nemt at genoptage en lang annotering session."
+        },
+        {
+          "narration": "Runds viser, hvor nøjagtig det er, efter hver ny træning i aktiv læring, og vurderer, om den seneste mærkning har forbedret modellen. Ingen kurve vises, før der er tilstrækkelige repræsentative mærker til at understøtte en første runde."
+        },
+        {
+          "narration": "Retrain passer fra de gemte etiketter, scorer de resterende afgrøder og rerankerer den valgfrie usikkerhedskæde. Statuslinjen registrerer runde, hold-out resultat, svageste klasse og stop vejledning."
+        },
+        {
+          "narration": "Træns CV overdrager dette projekt og annotationskolumnen til billedklassifikatoren. Train XG overdrager de samme mærker til målemærkningsklassifikatoren. Begge åbner en forudkonfigureret modul; ingen af dem begynder at træne med det samme."
+        },
+        {
+          "narration": "En klar kolonne er bevidst bevaret, fordi den fjerner alle etiketter i den valgte kolonne. Bevis det nøjagtige kolumnenavn før du fortsætter; denne vejledning annullerer advarslen og beholder etiketterne."
+        },
+        {
+          "narration": "De fire eksempeletiketter er nu gemt i measurements.db under spaCR_Tutorial med deres objektveje og oprindelse intakt. Fortsæt gennem brønde og tallerkener, før du bruger dem til at træne en model."
         }
       ]
     },

@@ -389,43 +389,253 @@
       "series": 1,
       "app_key": "mask",
       "section": "Core",
-      "description": "Segment the supplied four-channel microscopy experiment into nuclei, cells, lipid droplets, and parasite masks.",
+      "description": "Configure Mask, inspect every settings category, and validate cell segmentation on the supplied microscopy experiment.",
       "objectives": [
-        "Map all four acquisition channels correctly.",
-        "Configure cell, nucleus, organelle, and parasite segmentation.",
-        "Run Mask and inspect its mask outputs."
+        "Use the console, chat controls, recipes, and remote submission workflow.",
+        "Import the CQ1 image folder and verify its automatically detected metadata regex.",
+        "Inspect cell outlines, Cellpose flows, objects, and a live minimum-area filter."
       ],
-      "prerequisite": "Use the supplied four-channel tutorial dataset.",
+      "prerequisite": "Use the spaCR tutorial experiment and its supplied Mask settings.",
       "scenes": [
         {
-          "narration": "This tutorial covers Mask. Segment the supplied four-channel microscopy experiment into nuclei, cells, lipid droplets, and parasite masks.",
-          "visual": "overview",
+          "narration": "Mask opens with the settings panel on the left and the runtime console on the right. The console reports folder scans, validation, progress, warnings, and pipeline output.",
+          "visual": "01_console",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Mask. Segment the supplied four-channel microscopy experiment into nuclei, cells, lipid droplets, and parasite masks."
+          "speech_text": "Mask opens with the settings panel on the left and the runtime console on the right. The console reports folder scans, validation, progress, warnings, and pipeline output."
         },
         {
-          "narration": "Open Mask from the Core section. Use the supplied thirteen-field dataset. Channel zero is nuclei, channel one is endoplasmic reticulum, channel two is lipid droplets, and channel three is parasites.",
-          "visual": "input",
+          "narration": "The field below the console accepts local questions or commands. The AI switch routes a message through a selected subscription-backed provider, and the adjacent arrow opens the provider menu.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Open Mask from the Core section. Use the supplied thirteen-field dataset. Channel zero is nuclei, channel one is endoplasmic reticulum, channel two is lipid droplets, and channel three is parasites."
+          "speech_text": "The field below the console accepts local questions or commands. The A I switch routes a message through a selected subscription-backed provider, and the adjacent arrow opens the provider menu."
         },
         {
-          "narration": "In the main configuration area, detect nuclei from channel zero, cells from the endoplasmic-reticulum channel, lipid droplets with the organelle spots workflow, and parasites from channel three.",
-          "visual": "settings",
+          "narration": "The Providers tab shows whether the Claude, ChatGPT, and Gemini command-line clients are installed, plus their install and login commands. Credentials remain with the vendor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, detect nuclei from channel zero, cells from the endoplasmic-reticulum channel, lipid droplets with the organelle spots workflow, and parasites from channel three."
+          "speech_text": "The Providers tab shows whether the Claude, Chat G P T, and Gemini command-line clients are installed, plus their install and login commands. Credentials remain with the vendor."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. Check a representative field, then run the four segmentation passes across the dataset.",
-          "visual": "run",
+          "narration": "The Settings tab controls response depth, AI-assisted error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Check a representative field, then run the four segmentation passes across the dataset."
+          "speech_text": "The Settings tab controls response depth, A I assisted error explanations, optional Git Hub issue reporting, sign-in, and the spacer-aware system prompt."
         },
         {
-          "narration": "When the workflow finishes, the masks folder contains aligned object labels and merged image-plus-mask arrays ready for measurement.",
-          "visual": "output",
+          "narration": "Drag the orig folder into Mask. spaCR detects the CQ1 filename pattern, previews well, field, time, depth, and channel metadata, notes that plate ID will default to plate1, then saves the regex.",
+          "visual": "05_metadata",
+          "focus_key": "metadata_dialog",
+          "click_key": "save",
+          "hold_after": 0.45,
+          "speech_text": "Drag the orig folder into Mask. spacer detects the C Q one filename pattern, previews well, field, time, depth, and channel metadata, notes that plate I D will default to plate one, then saves the regular expression."
+        },
+        {
+          "narration": "Essentials shows the small set of settings required to run Mask. The count below the controls reports how many of the complete settings are currently visible.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials shows the small set of settings required to run Mask. The count below the controls reports how many of the complete settings are currently visible."
+        },
+        {
+          "narration": "Modified limits the form to values that differ from Mask defaults, making imported or edited settings easy to review.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modified limits the form to values that differ from Mask defaults, making imported or edited settings easy to review."
+        },
+        {
+          "narration": "Switch between Essentials and All settings without losing values. All settings exposes every category, including advanced and beta controls.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Switch between Essentials and All settings without losing values. All settings exposes every category, including advanced and beta controls."
+        },
+        {
+          "narration": "Recipes saves the current settings under a name, reapplies a saved configuration, or imports and exports a reusable settings file.",
+          "visual": "09_recipes",
+          "focus_key": "recipes_dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes saves the current settings under a name, reapplies a saved configuration, or imports and exports a reusable settings file."
+        },
+        {
+          "narration": "Submit remote snapshots the resolved Mask settings and sends them to the Distributed Jobs workspace.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Submit remote snapshots the resolved Mask settings and sends them to the Distributed Jobs workspace."
+        },
+        {
+          "narration": "Distributed Jobs maps local paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Mask run.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs maps local paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Mask run."
+        },
+        {
+          "narration": "Input and Metadata defines the source folder, channel assignments, magnification, metadata type, and any custom filename regex.",
+          "visual": "12_category_01_input_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Input and Metadata defines the source folder, channel assignments, magnification, metadata type, and any custom filename regular expression."
+        },
+        {
+          "narration": "Workflow and Test Run controls preprocessing, mask generation, dry runs, resume behavior, and small test-mode samples.",
+          "visual": "12_category_02_workflow_test_run",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Workflow and Test Run controls preprocessing, mask generation, dry runs, resume behavior, and small test-mode samples."
+        },
+        {
+          "narration": "Image Preprocessing groups normalization, projection, upscaling, consolidation, and denoising choices applied before segmentation.",
+          "visual": "12_category_03_image_preprocessing",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Image Preprocessing groups normalization, projection, upscaling, consolidation, and denoising choices applied before segmentation."
+        },
+        {
+          "narration": "Cell Segmentation contains the cell model, diameter, thresholds, background handling, and cell-object filters.",
+          "visual": "12_category_04_cell_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Cell Segmentation contains the cell model, diameter, thresholds, background handling, and cell-object filters."
+        },
+        {
+          "narration": "Nucleus Segmentation provides the corresponding model, thresholds, background correction, and object filters for nuclei.",
+          "visual": "12_category_05_nucleus_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Nucleus Segmentation provides the corresponding model, thresholds, background correction, and object filters for nuclei."
+        },
+        {
+          "narration": "Pathogen Segmentation groups the model and cleanup rules used to detect and filter parasite objects.",
+          "visual": "12_category_06_pathogen_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Pathogen Segmentation groups the model and cleanup rules used to detect and filter parasite objects."
+        },
+        {
+          "narration": "Organelle Segmentation selects the organelle morphology and detector, image cleanup, method-specific controls, object filters, and parent-compartment summary.",
+          "visual": "12_category_07_organelle_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Organelle Segmentation selects the organelle morphology and detector, image cleanup, method-specific controls, object filters, and parent-compartment summary."
+        },
+        {
+          "narration": "Quality Control sets automatic checks for object counts, size ratios, borders, foreground coverage, split behavior, and acceptable field failures.",
+          "visual": "12_category_08_quality_control",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Quality Control sets automatic checks for object counts, size ratios, borders, foreground coverage, split behavior, and acceptable field failures."
+        },
+        {
+          "narration": "Volumetric Processing contains beta controls for z stacks, projection, anisotropy, voxel calibration, and three-dimensional stitching.",
+          "visual": "12_category_09_volumetric_processing_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Volumetric Processing contains beta controls for z stacks, projection, anisotropy, voxel calibration, and three-dimensional stitching."
+        },
+        {
+          "narration": "Time Axes and Tracking contains beta controls for four-dimensional data, frame intervals, tracking backends, and displacement limits.",
+          "visual": "12_category_10_time_axes_tracking_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Time Axes and Tracking contains beta controls for four-dimensional data, frame intervals, tracking backends, and displacement limits."
+        },
+        {
+          "narration": "Visualization and Diagnostics controls preview plots, color maps, figure size, plot normalization, and example fields.",
+          "visual": "12_category_11_visualization_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Visualization and Diagnostics controls preview plots, color maps, figure size, plot normalization, and example fields."
+        },
+        {
+          "narration": "Output and Storage decides which images, masks, intermediate arrays, and compressed results are retained.",
+          "visual": "12_category_12_output_storage",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Output and Storage decides which images, masks, intermediate arrays, and compressed results are retained."
+        },
+        {
+          "narration": "Runtime and Reliability contains failure handling, reproducibility, logging, worker counts, batches, and pipeline execution choices.",
+          "visual": "12_category_13_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Runtime and Reliability contains failure handling, reproducibility, logging, worker counts, batches, and pipeline execution choices."
+        },
+        {
+          "narration": "Enable Live Preview and load the channel-two ER image. This field contains only the cell signal used for the segmentation example.",
+          "visual": "25_cell_ready",
+          "focus_key": "canvases",
+          "click_key": "live",
+          "hold_after": 0.45,
+          "speech_text": "Enable Live Preview and load the channel-two E R image. This field contains only the cell signal used for the segmentation example."
+        },
+        {
+          "narration": "In Live Settings, select cell, enable normalization, and set the lower percentile to 2 and the upper percentile to 99.5.",
+          "visual": "26_live_normalization",
+          "focus_key": "normalization",
+          "hold_after": 0.45,
+          "speech_text": "In Live Settings, select cell, enable normalization, and set the lower percentile to two and the upper percentile to ninety-nine point five."
+        },
+        {
+          "narration": "Run the preview and zoom into the synchronized source and result panes. Overlay outlines should follow ER-defined cell boundaries.",
+          "visual": "27_cell_outlines",
+          "focus_key": "action_and_canvases",
+          "click_key": "run_preview",
+          "hold_after": 0.45,
+          "speech_text": "Run the preview and zoom into the synchronized source and result panes. Overlay outlines should follow E R defined cell boundaries."
+        },
+        {
+          "narration": "Switch the result pane to Flows to inspect the Cellpose flow field used to form objects.",
+          "visual": "28_cell_flows",
+          "focus_key": "action_and_canvases",
+          "click_key": "view_mode",
+          "hold_after": 0.45,
+          "speech_text": "Switch the result pane to Flows to inspect the Cellpose flow field used to form objects."
+        },
+        {
+          "narration": "Switch to Masks to view the integer cell objects directly. Each color is one object and black remains background label zero.",
+          "visual": "29_cell_objects",
+          "focus_key": "action_and_canvases",
+          "click_key": "view_mode",
+          "hold_after": 0.45,
+          "speech_text": "Switch to Masks to view the integer cell objects directly. Each color is one object and black remains background label zero."
+        },
+        {
+          "narration": "Return to Live Settings and set only the cell minimum area to 10000 pixels. The cached raw masks are filtered immediately without rerunning Cellpose.",
+          "visual": "30_cell_size_filter",
+          "focus_key": "cell_filters",
+          "click_key": "min_area",
+          "hold_after": 0.45,
+          "speech_text": "Return to Live Settings and set only the cell minimum area to ten thousand pixels. The cached raw masks are filtered immediately without rerunning Cellpose."
+        },
+        {
+          "narration": "After the size filter, small cell objects lose their outlines and only objects at least 10000 pixels remain. Compare this with the unfiltered overlay.",
+          "visual": "31_cell_filtered",
+          "focus_key": "canvases",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, the masks folder contains aligned object labels and merged image-plus-mask arrays ready for measurement."
+          "speech_text": "After the size filter, small cell objects lose their outlines and only objects at least ten thousand pixels remain. Compare this with the unfiltered overlay."
         }
       ]
     },
@@ -437,43 +647,203 @@
       "series": 1,
       "app_key": "measure",
       "section": "Core",
-      "description": "Extract per-object intensity, morphology, texture, colocalization, and spatial features from segmented images.",
+      "description": "Configure Measure, inspect its settings categories, and preview real single-cell crops from completed Mask arrays.",
       "objectives": [
-        "Understand when to use Measure.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Import merged arrays and use the console, AI, recipes, and remote workflow.",
+        "Review all Measure settings categories without reciting every parameter.",
+        "Inspect real cell crops, the ER channel, filters, and completed test outputs."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Complete Mask first so the project contains merged image and label arrays.",
       "scenes": [
         {
-          "narration": "This tutorial covers Measure. Extract per-object intensity, morphology, texture, colocalization, and spatial features from segmented images.",
-          "visual": "overview",
+          "narration": "Measure opens with its settings on the left and the runtime console on the right. The console reports source resolution, validation, progress, warnings, and measurement output.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Measure. Extract per-object intensity, morphology, texture, colocalization, and spatial features from segmented images."
+          "speech_text": "Measure opens with its settings on the left and the runtime console on the right. The console reports source resolution, validation, progress, warnings, and measurement output."
         },
         {
-          "narration": "Open Measure from the Core section. Select the project containing image stacks and masks produced by Mask.",
-          "visual": "input",
+          "narration": "The field below the console accepts local questions or commands. Enable AI to route a question through the selected provider, and use the adjacent arrow to open the provider menu.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Open Measure from the Core section. Select the project containing image stacks and masks produced by Mask."
+          "speech_text": "The field below the console accepts local questions or commands. Enable A I to route a question through the selected provider, and use the adjacent arrow to open the provider menu."
         },
         {
-          "narration": "In the main configuration area, use channel one, endoplasmic reticulum, as the channel of interest and choose the object types and feature families to measure.",
-          "visual": "settings",
+          "narration": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and shows their install and login commands. Provider credentials remain with the vendor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, use channel one, endoplasmic reticulum, as the channel of interest and choose the object types and feature families to measure."
+          "speech_text": "Providers reports whether the Claude, Chat G P T, and Gemini command-line clients are installed and shows their install and login commands. Provider credentials remain with the vendor."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview crops when needed, then process every selected field and object type.",
-          "visual": "run",
+          "narration": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview crops when needed, then process every selected field and object type."
+          "speech_text": "A I Settings controls response depth, automatic error explanations, optional Git Hub issue reporting, sign-in, and the spacer-aware system prompt."
         },
         {
-          "narration": "When the workflow finishes, measurements dot db stores traceable single-object rows and optional image crops for annotation or classification.",
-          "visual": "output",
+          "narration": "Drag the merged folder produced by Mask into Measure. These arrays already carry spaCR project metadata, so Measure resolves the source directly and does not need the raw-image filename regex again.",
+          "visual": "05_folder",
+          "focus_key": "src",
+          "hold_after": 0.45,
+          "speech_text": "Drag the merged folder produced by Mask into Measure. These arrays already carry spacer project metadata, so Measure resolves the source directly and does not need the raw-image filename regular expression again."
+        },
+        {
+          "narration": "Essentials shows the compact set of Measure settings needed for a run, while the count reports how many settings are currently visible.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials shows the compact set of Measure settings needed for a run, while the count reports how many settings are currently visible."
+        },
+        {
+          "narration": "Modified limits the panel to values that differ from Measure defaults, making imported settings and deliberate changes easy to audit.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modified limits the panel to values that differ from Measure defaults, making imported settings and deliberate changes easy to audit."
+        },
+        {
+          "narration": "All settings exposes every Measure category, including advanced reliability and beta calibration controls, without changing the current values.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "All settings exposes every Measure category, including advanced reliability and beta calibration controls, without changing the current values."
+        },
+        {
+          "narration": "Recipes saves the current Measure configuration under a name, reapplies it later, or imports and exports a reusable settings file.",
+          "visual": "09_recipes",
+          "focus_key": "recipes_dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes saves the current Measure configuration under a name, reapplies it later, or imports and exports a reusable settings file."
+        },
+        {
+          "narration": "Submit remote snapshots the resolved Measure settings and sends them to Distributed Jobs.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Submit remote snapshots the resolved Measure settings and sends them to Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs maps local paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Measure run.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs maps local paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Measure run."
+        },
+        {
+          "narration": "Input and Experiment identifies the source project and the experiment name written into its outputs.",
+          "visual": "12_category_01_input_experiment",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Input and Experiment identifies the source project and the experiment name written into its outputs."
+        },
+        {
+          "narration": "Mask and Channel Mapping assigns image channels, cell, nucleus, pathogen, and organelle label planes, derived cytoplasm, and any time-series objects.",
+          "visual": "12_category_02_mask_channel_mapping",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Mask and Channel Mapping assigns image channels, cell, nucleus, pathogen, and organelle label planes, derived cytoplasm, and any time-series objects."
+        },
+        {
+          "narration": "Measurement Features chooses saved measurements, correlation and Manders summaries, homogeneity distances, radial distributions, and organelle summaries.",
+          "visual": "12_category_03_measurement_features",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Measurement Features chooses saved measurements, correlation and Manders summaries, homogeneity distances, radial distributions, and organelle summaries."
+        },
+        {
+          "narration": "Object Filtering sets the minimum size for each compartment, whether uninfected cells are retained, and how edge-crossing pathogen cells are handled.",
+          "visual": "12_category_04_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Object Filtering sets the minimum size for each compartment, whether uninfected cells are retained, and how edge-crossing pathogen cells are handled."
+        },
+        {
+          "narration": "Crop Output controls saved PNGs and arrays, crop object and size, channels, dilation, bounding boxes, and normalization.",
+          "visual": "12_category_05_crop_output",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Crop Output controls saved P N G images and arrays, crop object and size, channels, dilation, bounding boxes, and normalization."
+        },
+        {
+          "narration": "Preview and Diagnostics controls plots and the small test-mode sample used before committing to a complete experiment.",
+          "visual": "12_category_06_preview_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Preview and Diagnostics controls plots and the small test-mode sample used before committing to a complete experiment."
+        },
+        {
+          "narration": "3D Calibration contains beta anisotropy and voxel-size controls that convert volumetric pixel measurements into physical dimensions.",
+          "visual": "12_category_07_3d_calibration_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Three D Calibration contains beta anisotropy and voxel-size controls that convert volumetric pixel measurements into physical dimensions."
+        },
+        {
+          "narration": "Runtime and Reliability groups resume behavior, strict errors, failure policy, reproducibility, dry runs, logging, and worker counts.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Runtime and Reliability groups resume behavior, strict errors, failure policy, reproducibility, dry runs, logging, and worker counts."
+        },
+        {
+          "narration": "Enable Live Preview and load one completed merged array. The gallery groups 40 real cell crops by nucleus and pathogen content across the five-field test run.",
+          "visual": "20_cell_crops",
+          "focus_key": "live_and_grid",
+          "click_key": "live",
+          "hold_after": 0.45,
+          "speech_text": "Enable Live Preview and load one completed merged array. The gallery groups forty real cell crops by nucleus and pathogen content across the five-field test run."
+        },
+        {
+          "narration": "General confirms experiment identity, measured channels zero through three, cell mask plane four, nucleus plane five, pathogen plane six, derived cytoplasm, and test mode.",
+          "visual": "21_general",
+          "focus_key": "tab",
+          "hold_after": 0.45,
+          "speech_text": "General confirms experiment identity, measured channels zero through three, cell mask plane four, nucleus plane five, pathogen plane six, derived cytoplasm, and test mode."
+        },
+        {
+          "narration": "Object Crops writes 224 by 224 pixel cell PNGs using channels zero, one, and two. Saved normalization remains off; the live gallery alone uses a temporary 1-to-99 percentile display stretch.",
+          "visual": "22_object_crops",
+          "focus_key": "tab",
+          "hold_after": 0.45,
+          "speech_text": "Object Crops writes two hundred twenty-four by two hundred twenty-four pixel cell P N G images using channels zero, one, and two. Saved normalization remains off; the live gallery alone uses a temporary one-to-ninety-nine percentile display stretch."
+        },
+        {
+          "narration": "Filters require cells of at least 3500 pixels, nuclei of at least 1000, and pathogens of at least 250. Uninfected cells remain off and edge-crossing pathogen cells are merged.",
+          "visual": "23_filters",
+          "focus_key": "tab",
+          "hold_after": 0.45,
+          "speech_text": "Filters require cells of at least three thousand five hundred pixels, nuclei of at least one thousand, and pathogens of at least two hundred fifty. Uninfected cells remain off and edge-crossing pathogen cells are merged."
+        },
+        {
+          "narration": "Select channel 1 to inspect the ER signal used as the downstream channel of interest. This changes only the gallery; Measure still extracts features from all four configured channels.",
+          "visual": "24_er_channel",
+          "focus_key": "grid",
+          "click_key": "channel",
+          "hold_after": 0.45,
+          "speech_text": "Select channel one to inspect the E R signal used as the downstream channel of interest. This changes only the gallery; Measure still extracts features from all four configured channels."
+        },
+        {
+          "narration": "The completed test ledger reports 5 of 5 fields successful. measurements.db contains 455 cells and cytoplasms, 605 nuclei, 1031 pathogens, and 455 cell crops ready for annotation and classification.",
+          "visual": "25_outputs",
+          "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, measurements dot db stores traceable single-object rows and optional image crops for annotation or classification."
+          "speech_text": "The completed test ledger reports five of five fields successful. measurements dot db contains four hundred fifty-five cells and cytoplasms, six hundred five nuclei, one thousand thirty-one pathogens, and four hundred fifty-five cell crops ready for annotation and classification."
         }
       ]
     },
@@ -485,43 +855,194 @@
       "series": 1,
       "app_key": "annotate",
       "section": "Core",
-      "description": "Review single-object crops on a grid and assign reliable labels for model training or quality control.",
+      "description": "Label real single-cell crops in a dedicated database column, audit coverage, and hand annotations to image or measurement classifiers.",
       "objectives": [
-        "Understand when to use Annotate.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Create and configure the spaCR_Tutorial annotation column on a real measured experiment.",
+        "Use mouse and keyboard annotation, navigation, undo, counts, coverage, and active-learning controls.",
+        "Save labels safely and understand the Classify CV and Classify ML handoffs."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Complete Measure first so the project contains measurements/measurements.db and cell PNG crops.",
       "scenes": [
         {
-          "narration": "This tutorial covers Annotate. Review single-object crops on a grid and assign reliable labels for model training or quality control.",
-          "visual": "overview",
+          "narration": "Annotate starts with the crop grid prioritized. Open Console when you need database messages, save status, warnings, or the chat field; the same button hides it again to return the space to images.",
+          "visual": "01_console",
+          "focus_key": "console_and_chat",
+          "click_key": "console_toggle",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Annotate. Review single-object crops on a grid and assign reliable labels for model training or quality control."
+          "speech_text": "Annotate starts with the crop grid prioritized. Open Console when you need database messages, save status, warnings, or the chat field; the same button hides it again to return the space to images."
         },
         {
-          "narration": "Open Annotate from the Core section. Open a project with object crops and select the database table and annotation column.",
-          "visual": "input",
+          "narration": "The AI switch sends a question through the selected provider. Use the adjacent arrow to choose a configured provider or open provider management.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Open Annotate from the Core section. Open a project with object crops and select the database table and annotation column."
+          "speech_text": "The A I switch sends a question through the selected provider. Use the adjacent arrow to choose a configured provider or open provider management."
         },
         {
-          "narration": "In the main configuration area, choose classes, display channels, sorting, sampling, and any filters that define the review set.",
-          "visual": "settings",
+          "narration": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and gives their install and login commands. Credentials stay with each vendor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, choose classes, display channels, sorting, sampling, and any filters that define the review set."
+          "speech_text": "Providers reports whether the Claude, Chat G P T, and Gemini command-line clients are installed and gives their install and login commands. Credentials stay with each vendor."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. label representative objects, save frequently, and revisit uncertain or conflicting examples.",
-          "visual": "run",
+          "narration": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. label representative objects, save frequently, and revisit uncertain or conflicting examples."
+          "speech_text": "A I Settings controls response depth, automatic error explanations, optional Git Hub issue reporting, sign-in, and the spacer-aware system prompt."
         },
         {
-          "narration": "When the workflow finishes, annotations are written back to the project database with object identifiers intact.",
-          "visual": "output",
+          "narration": "Drag the measured experiment folder into Annotate. spaCR resolves measurements.db, reanchors its stored crop paths to this computer, creates the spaCR_Tutorial column, and loads the real cell images.",
+          "visual": "05_folder",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Drag the measured experiment folder into Annotate. spacer resolves measurements dot db, reanchors its stored crop paths to this computer, creates the spacer tutorial column, and loads the real cell images."
+        },
+        {
+          "narration": "Settings names the source and annotation column, controls crop size, image type, visible and normalized channels, percentiles, optional outlines, object or measurement filters, and an uncertainty queue with diversity protection.",
+          "visual": "06_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "Settings names the source and annotation column, controls crop size, image type, visible and normalized channels, percentiles, optional outlines, object or measurement filters, and an uncertainty queue with diversity protection."
+        },
+        {
+          "narration": "The page counter shows 128 visible crops out of 81,969. A white ring marks the focused crop, while class-colored rings show labels already assigned in spaCR_Tutorial.",
+          "visual": "07_grid",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "The page counter shows one hundred twenty-eight visible crops out of eighty-one thousand nine hundred sixty-nine. A white ring marks the focused crop, while class-colored rings show labels already assigned in spacer tutorial."
+        },
+        {
+          "narration": "Open the keyboard reference at any time. Numbers 1 through 9 label and advance, zero clears one crop, arrows or H J K L move, Space skips, Backspace returns, U undoes, and Enter saves and advances.",
+          "visual": "08_keyboard_reference",
+          "focus_key": "legend",
+          "click_key": "legend_button",
+          "hold_after": 0.45,
+          "speech_text": "Open the keyboard reference at any time. Numbers one through nine label and advance, zero clears one crop, arrows or H J K L move, Space skips, Backspace returns, U undoes, and Enter saves and advances."
+        },
+        {
+          "narration": "Press 1 to assign class 1 to the focused crop. Its ring changes to the class color, and focus advances to the next unlabeled image.",
+          "visual": "09_keyboard_class_one",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Press one to assign class one to the focused crop. Its ring changes to the class color, and focus advances to the next unlabeled image."
+        },
+        {
+          "narration": "Press 2 to assign class 2. Classes are numeric and experiment-defined, so record what each number means before a team begins labeling.",
+          "visual": "10_keyboard_class_two",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Press two to assign class two. Classes are numeric and experiment-defined, so record what each number means before a team begins labeling."
+        },
+        {
+          "narration": "Arrow keys move the focus without changing a label. Space steps forward and Backspace steps back, which makes rapid review possible without reaching for the mouse.",
+          "visual": "11_navigation",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Arrow keys move the focus without changing a label. Space steps forward and Backspace steps back, which makes rapid review possible without reaching for the mouse."
+        },
+        {
+          "narration": "Press U to undo the latest keyboard label. The crop returns to its previous state, the focus moves back to it, and the status strip confirms the undo.",
+          "visual": "12_undo",
+          "focus_key": "legend",
+          "hold_after": 0.45,
+          "speech_text": "Press U to undo the latest keyboard label. The crop returns to its previous state, the focus moves back to it, and the status strip confirms the undo."
+        },
+        {
+          "narration": "Mouse annotation remains available. A left click assigns class 1 to a crop through the same background-save path used by keyboard labels.",
+          "visual": "13_mouse_class_one",
+          "focus_key": "crop",
+          "click_key": "crop",
+          "hold_after": 0.45,
+          "speech_text": "Mouse annotation remains available. A left click assigns class one to a crop through the same background-save path used by keyboard labels."
+        },
+        {
+          "narration": "A right click assigns class 2. Clicking the same class on that crop again clears it, while clicking the other class changes it directly.",
+          "visual": "14_mouse_class_two",
+          "focus_key": "crop",
+          "click_key": "crop",
+          "hold_after": 0.45,
+          "speech_text": "A right click assigns class two. Clicking the same class on that crop again clears it, while clicking the other class changes it directly."
+        },
+        {
+          "narration": "Class counts confirms the saved population and displays the color used for each class ring. This tutorial has two examples in class 1 and two in class 2.",
+          "visual": "15_class_counts",
+          "focus_key": "dialog",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "Class counts confirms the saved population and displays the color used for each class ring. This tutorial has two examples in class one and two in class two."
+        },
+        {
+          "narration": "Coverage audits labels by class, plate, well, source, and active-learning round. These four examples come from one well, which is intentionally too concentrated for training and demonstrates why coverage must be checked.",
+          "visual": "16_coverage",
+          "focus_key": "report",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "Coverage audits labels by class, plate, well, source, and active learning round. These four examples come from one well, which is intentionally too concentrated for training and demonstrates why coverage must be checked."
+        },
+        {
+          "narration": "Next saves pending work and loads the next full page. Enter performs the same save-and-advance action without leaving the grid.",
+          "visual": "17_next_page",
+          "focus_key": "grid",
+          "click_key": "next",
+          "hold_after": 0.45,
+          "speech_text": "Next saves pending work and loads the next full page. Enter performs the same save and advance action without leaving the grid."
+        },
+        {
+          "narration": "Back returns one page while preserving every committed annotation. Page Up and Alt Left provide keyboard alternatives.",
+          "visual": "18_previous_page",
+          "focus_key": "grid",
+          "click_key": "back",
+          "hold_after": 0.45,
+          "speech_text": "Back returns one page while preserving every committed annotation. Page Up and Alt Left provide keyboard alternatives."
+        },
+        {
+          "narration": "Skip to last annotated jumps to the page containing the final saved label, making it easy to resume a long annotation session.",
+          "visual": "19_skip_to_annotations",
+          "focus_key": "grid",
+          "click_key": "skip",
+          "hold_after": 0.45,
+          "speech_text": "Skip to last annotated jumps to the page containing the final saved label, making it easy to resume a long annotation session."
+        },
+        {
+          "narration": "Rounds displays held-out accuracy after each active-learning retrain and evaluates whether recent labeling improved the model. No curve appears until enough representative labels support a first round.",
+          "visual": "20_rounds",
+          "focus_key": "report",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "Rounds displays held out accuracy after each active learning retrain and evaluates whether recent labeling improved the model. No curve appears until enough representative labels support a first round."
+        },
+        {
+          "narration": "Retrain fits from the saved labels, scores the remaining crops, and reranks the optional uncertainty queue. The status line records the round, held-out result, weakest class, and stopping guidance.",
+          "visual": "21_active_learning",
+          "focus_key": "active_controls",
+          "hold_after": 0.45,
+          "speech_text": "Retrain fits from the saved labels, scores the remaining crops, and reranks the optional uncertainty queue. The status line records the round, held out result, weakest class, and stopping guidance."
+        },
+        {
+          "narration": "Train CV hands this project and annotation column to the image classifier. Train XG hands the same labels to the measurement-feature classifier. Both open a preconfigured module; neither starts training immediately.",
+          "visual": "22_training_handoffs",
+          "focus_key": "training",
+          "hold_after": 0.45,
+          "speech_text": "Train C V hands this project and annotation column to the image classifier. Train X G hands the same labels to the measurement feature classifier. Both open a preconfigured module; neither starts training immediately."
+        },
+        {
+          "narration": "Clear column is intentionally guarded because it removes every label in the selected column. Confirm the exact column name before proceeding; this tutorial cancels the warning and keeps its labels.",
+          "visual": "23_clear_warning",
+          "focus_key": "dialog",
+          "click_key": "clear",
+          "hold_after": 0.45,
+          "speech_text": "Clear column is intentionally guarded because it removes every label in the selected column. Confirm the exact column name before proceeding; this tutorial cancels the warning and keeps its labels."
+        },
+        {
+          "narration": "The four example labels are now saved in measurements.db under spaCR_Tutorial with their object paths and provenance intact. Continue across wells and plates before using them to train a model.",
+          "visual": "24_saved_result",
+          "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, annotations are written back to the project database with object identifiers intact."
+          "speech_text": "The four example labels are now saved in measurements dot db under spacer tutorial with their object paths and provenance intact. Continue across wells and plates before using them to train a model."
         }
       ]
     },
