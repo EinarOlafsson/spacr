@@ -1511,19 +1511,70 @@
       "id": "27_replication",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um afritunarpróf. Skoraðu parazitum fyrir hverja prófun og samantektðu innrafrænni umbreytingu eftir skilyrði."
+          "narration": "Repsíkunarpróf telur parazitum í hverri tómstöng og samantektar eitt, tvö, fjögur, átta skiptingar stiga. Konsólinn skráir lausnar stillingar, verkefni QC, tölfræði, útgöngur, viðvörun og mistök; spjallboxin getur rætt um það samhengi þegar AI er virkt."
         },
         {
-          "narration": "Opið replikationspróf frá Toxoplasma próf kafla. Veldu hópfrumur, vacuole og parazit mælingar ásamt ástandi metadata."
+          "narration": "Vísindaheimildin breytir leiðunum aðeins þegar beðið er um það. Hliðstæðisskrá hennar velur útbúnaðaraðila sem hefur verið skipulögð og opnar stillingar útbúnaðaraðila; endurskýringargreiningin sjálfa heldur áfram að vera staðbundin og krefst ekki AI."
         },
         {
-          "narration": "Í aðalmyndatölu svæðinu er hægt að skipuleggja rúmlega skiptingu, fyrirbærafiltrar, parazit-tölur, stjórnun og tölfræðilegar samanburðir."
+          "narration": "Tækiveitanda uppsetning skilur á milli staðbundinna og gestgjafa aðstoðarmanna. Sniðgefðu aðeins þjónustu sem þú ætlar að nota og skoðaðu persónuverndarupplýsingar áður en þú deilir konsólum eða próf samhengi við fjarskiptaveitanda."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. skoðaðu prófunar á öllu fjölda og staðfesta að blönduð eða flokkað grímur séu útilokað."
+          "narration": "AI Settings stjórnar aðstoðarheitanum, trúnaðarupplýsingum og valfrjálsu rangfærslu. Þessi valkostur breytir ekki úthlutun vakuólum, teljum parazitum, sía eða tölum."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið, eru parazitaskiptingar á hvern prófun, endurbreytingarhraða, tölfræði og tölur geymdar."
+          "narration": "Veldu eða slepptu prófunarrótin sem inniheldur mælingar slash mælingar punktur DB. Flutningur tilraunanna saknar sjálfstætt staðfestra vakuol-eignir, svo þetta námskeið notar greinilega synthetic mælingar gagnagrunn með augljósum vakuol-eignir á meðan að rekja raunverulega spaCR backend."
+        },
+        {
+          "narration": "Essentials útskýrir prófunarskilinn, prófunaruppgreiðslu, ástandskortið, hlutfiltrar, endurtekningarmerki, útgáfu og rekstrartímarstjórnir sem nauðsynlegar eru fyrir fyrstu greiningu."
+        },
+        {
+          "narration": "Breyttar sía eyðublaðið til að koma til skoðunar afvikum frá sjálfgefnum. Notaðu það til að endurskoða gagnagrunninn, vacuole lykil, telja dálki, svæði mörk, plötu kort, skilyrði hópa, og spara fyrir hlaup."
+        },
+        {
+          "narration": "Öll stillingar sýnir allar tiltækar stjórnir til að endurskapa og aflyktun. Endur á nauðsynlegt þegar framfarin stjórnun er óþarfi til að draga úr tilviljunarlegum breytingum á parametrum."
+        },
+        {
+          "narration": "Uppskriftir geyma staðfestan prófssetningu til endurtekningar eða sameiningar. Sparaðu einn aðeins eftir að prófunaruppgreiðslur og umboðslega talsbreytingar hafa verið skoðaðar gegn myndum."
+        },
+        {
+          "narration": "Senda fjarlægð sendir losnar stillingar til dreifð störf. Staðfest að mælingaragrunnin sé aðgengileg í gegnum fjarlægjan leiðarkort áður en þú sendir inn smá staðfestingarstarf."
+        },
+        {
+          "narration": "Útvarpsskjáninn fær verkefni. Skoðaðu samræmingu, umhverfisvirkni, auðlindum og gerðu skipanina og staðfesta síðan eitt plötu áður en þú skalur prófið."
+        },
+        {
+          "narration": "Assay Inputs skilgreinir tilraunarrótinn, eitt röð fyrir parazit og sjúkdómslyf. Repsíkan skorar núverandi mælingar á parazitum; hún skipar ekki myndum í mikroskópu aftur."
+        },
+        {
+          "narration": "Vacuole Assignment notar fyrst augljós vacuole lykil þegar til staðar, annars getur það tengt parazit centroid rúmlega, og aðeins svo falla aftur til hýsingarfrumur hósta. Gestgjafafrumur getur innihaldið margar vacuoles, þannig að fallback getur sameinað líffræðilega einingar."
+        },
+        {
+          "narration": "Staða Metatölur kortleggja plötubrunnar í líffræðilega hópa og velur samanburðarstöðuna. Þessi synthétisplötu inniheldur sex ökutól í kolunni einn og sex hæmdarhlutir í kolunni tvö, öll með HeLa gestgjafafrumum."
+        },
+        {
+          "narration": "Efnisfiltrun hafnar sýkingarmælingum utan viðkomandi svæðisbrautar áður en prófunar eru taldar. Þessar takmörk verða að staðfestast gegn skiptum parazitum, vegna þess að rusli og sameinaðir hlutir snertir afleiðingarsteypið í gagnstæðar áttir."
+        },
+        {
+          "narration": "Afsnúningarskorgunin skilgreinir stærsta nöfnunaraðila og viðvörunarmarki fyrir ekki-magn af tveimur vacuoles. Tölur eins, tveggja, fjögur, átta og sextán fylgja tilvalið tvöföldun; teljum eins og þremur er haldið sem QC flokkur frekar en þögugt rundað."
+        },
+        {
+          "narration": "Assay Output stjórnar litakortinu og sparnað. Greiningin skrifar útbreiðslur á hvern vel og hvern skilyrði, töflur, tölur í par og tölur í plötuna um endurtekningarniðurstöður."
+        },
+        {
+          "narration": "Útgreiðslutíminn og áreiðanleika stjórnar skráningarþætti. Haldið útgáfu orðanna á meðan þú stofnar próf þannig að hópkunarskilinn, útilokaðir, ekki-kraf-tví-hlutfall, tölfræðilegar prófanir og útgáfuleiðir verða eftirlitlegir."
+        },
+        {
+          "narration": "Þessi úthlutun smáatriði notar augljós vacuole_id stöng og krefst gestgjafarcell. Sniðbundin gögn gefa tilvitað nokkrum röðbundnum prófunum sama frumurinn, sem staðfestir að valið prófun lykillekki gestgjafafrumurer eininginn sem er talinn."
+        },
+        {
+          "narration": "Smelltu á hlaupa eftir að hafa skoðað innfærslur, verkefni, ástand metadata, sía og einkunn. Bakhliðið flýkur parazitum í vacuoles, merkingar telja köflur, samantektar brunnur og skilyrði, gerir parið prófanir og renders dreifingar."
+        },
+        {
+          "narration": "Við framkvæmd sýnir konsonan valdu töflurnar og samanburðarháttinn. Skoðaðu vakuólur í lágum og háum tölum í upprunamyndum þeirra áður en þú meðhöndlar dreifingarbreytingu sem líffræði en ekki skiptingu eða tilskipunarbrot."
+        },
+        {
+          "narration": "Rétt bakið skorar tvö hundruð og fjörutíu vacuoles í hverju skilyrði. Ökutæki hefur miðlungs fjögur parazitum og tvö tvöföldun á hvern vakuól; hæmjandi hefur miðlungs tvo parazitum og einn tvöföldun. Bæði hóparnir innihalda fimm prósent af ekki-magn af tveimur vacuolar og halda undir tuttugu prósent viðvörun. Með sex brunnum fyrir hverja hóp er MannWhitney samanburðurinn sem sýndur er mjög aðskilinn en líffræðilegar niðurstöður krefjast enn sjálfstæðra tilrauna."
         }
       ]
     },

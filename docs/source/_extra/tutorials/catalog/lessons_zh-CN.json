@@ -3906,47 +3906,184 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication assay",
+      "title": "复制测试",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "按真空点评寄生虫,并根据条件概括细胞内部复制.",
+      "description": "将寄生虫分配给真空体,检查一个,两个,四,八的复制梯度,并将真空体和良好QC水平的细胞内复制情况进行比较.",
       "objectives": [
-        "了解何时使用复制测试.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "选择可辩护的真空分配方法,避免将宿主细胞身份视为真空身份.",
+        "检查寄生虫和真空过器,复制桶,状态元数据,",
+        "解释寄生虫/真空分布和条件比较,而不用伪复制."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "测量每个细分寄生虫的一行,使用板块,井,场,宿主细胞和理想独立验证的真空标识符.",
       "scenes": [
         {
-          "narration": "这本教程涵盖复制测试. 每个真空体分数寄生虫,并根据条件总结细胞内复制.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "这本教程涵盖复制测试. 每个真空体分数寄生虫,并根据条件总结细胞内复制."
+          "narration": "复制测试计算每个真空中的寄生虫,并总结一个,两个,四,八分阶梯. 控制台记录已解决的设置,分配QC,统计,输出,警告和错误;当人工智能启用时,聊天框可以讨论该背景.",
+          "visual": "01_console",
+          "focus_key": "console",
+          "hold_after": 0.62,
+          "speech_text": "复制测试计算每个真空中的寄生虫,并总结一个,两个,四,八分阶梯. 控制台记录已解决的设置,分配QC,统计,输出,警告和错误;当人工智能启用时,聊天框可以讨论该背景."
         },
         {
-          "narration": "从 Toxoplasma assays 部分打开 Replication assay。 选择宿主细胞,真空体和寄生虫测量以及状态元数据.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "从 Toxoplasma assays 部分打开 Replication assay。 选择宿主细胞,真空体和寄生虫测量以及状态元数据."
+          "narration": "人工智能只在要求时交谈. 它的邻近菜单选择了一个配置的提供商,并打开提供商设置;复制分析本身仍然是本地的,不需要人工智能.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.5,
+          "speech_text": "人工智能只在要求时交谈. 它的邻近菜单选择了一个配置的提供商,并打开提供商设置;复制分析本身仍然是本地的,不需要人工智能."
         },
         {
-          "narration": "在主要配置区域,配置空间分配,对象过器,寄生虫计数容器,控制和统计比较.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "在主要配置区域,配置空间分配,对象过器,寄生虫计数容器,控制和统计比较."
+          "narration": "提供商设置将本地和托管的助理分开. 在与远程提供商共享控制台或测试文本之前,只配置您打算使用的服务并查看隐私信息.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.5,
+          "speech_text": "提供商设置将本地和托管的助理分开. 在与远程提供商共享控制台或测试文本之前,只配置您打算使用的服务并查看隐私信息."
         },
         {
-          "narration": "在完整运行之前,检查可见的设置,并在可用时使用预览或测试模式.检查整个计数范围内的真空器,并检查是否排除合并或碎片化掩膜.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "在完整运行之前,检查可见的设置,并在可用时使用预览或测试模式.检查整个计数范围内的真空器,并检查是否排除合并或碎片化掩膜."
+          "narration": "人工智能设置控制助理文本,凭证和可选错误报告. 这些偏好不会改变真空分类,寄生虫数量,过器或统计数据.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.48,
+          "speech_text": "人工智能设置控制助理文本,凭证和可选错误报告. 这些偏好不会改变真空分类,寄生虫数量,过器或统计数据."
         },
         {
-          "narration": "工作流程完成后,每真空细菌分布,复制率,统计和数字都会保存.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "工作流程完成后,每真空细菌分布,复制率,统计和数字都会保存."
+          "narration": "选择或放弃包含测量的实验根. 转移的实验缺乏独立验证的真空标识,所以本教程显然使用了具有明确的真空标识的合成测量数据库,同时运行真正的spaCR后端.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.72,
+          "speech_text": "选择或放弃包含测量的实验根. 转移的实验缺乏独立验证的真空标识,所以本教程显然使用了具有明确的真空标识的合成测量数据库,同时运行真正的斯佩克尔后端."
+        },
+        {
+          "narration": "基本信息揭示了测试源,真空分配,条件地图,对象过器,复制分数,输出和运行时间控制,需要进行第一次分析.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.54,
+          "speech_text": "基本信息揭示了测试源,真空分配,条件地图,对象过器,复制分数,输出和运行时间控制,需要进行第一次分析."
+        },
+        {
+          "narration": "修改过表格,以故意偏离默认. 使用它来审核数据库,空气键,计数列,区域限制,盘卡,条件组合,并在运行前保存.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.54,
+          "speech_text": "修改过表格,以故意偏离默认. 使用它来审核数据库,空气键,计数列,区域限制,盘卡,条件组合,并在运行前保存."
+        },
+        {
+          "narration": "所有设置都显示了所有可用于复制和故障解决的控制. 恢复至关重要,如果先进控制不必要,以减少意外参数变化.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "所有设置都显示了所有可用于复制和故障解决的控制. 恢复至关重要,如果先进控制不必要,以减少意外参数变化."
+        },
+        {
+          "narration": "配方保留验证的测试配置,以便重复使用或共享. 保存一个只有在真空分配和代表数分布已与图像进行检查后.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.54,
+          "speech_text": "配方保留验证的测试配置,以便重复使用或共享. 保存一个只有在真空分配和代表数分布已与图像进行检查后."
+        },
+        {
+          "narration": "提交远程将解决设置传递到分布式工作. 在提交小型验证工作之前,确认测量数据库通过远程路径地图可访问.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.52,
+          "speech_text": "提交远程将解决设置传递到分布式工作. 在提交小型验证工作之前,确认测量数据库通过远程路径地图可访问."
+        },
+        {
+          "narration": "远程屏幕收到一份工作稿. 检查同步,环境激活,资源和生成的命令,然后在扩展测试之前验证一个板块.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.56,
+          "speech_text": "远程屏幕收到一份工作稿. 检查同步,环境激活,资源和生成的命令,然后在扩展测试之前验证一个板块."
+        },
+        {
+          "narration": "测试输入识别了实验根,每寄生虫的排列表, 复制标记了现有的寄生虫测量;它不会再分割显微镜图像.",
+          "visual": "12_category_01_assay_inputs",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.52,
+          "speech_text": "测试输入识别了实验根,每寄生虫的排列表, 复制标记了现有的寄生虫测量;它不会再分割显微镜图像."
+        },
+        {
+          "narration": "如果存在,它首先使用一个明确的真空键,否则它可以在空间上将寄生虫中心体联系起来,然后才回归宿主细胞组合. 宿主细胞可能含有多个真空,所以反弹可以合并不同的生物单元.",
+          "visual": "12_category_02_vacuole_assignment",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.72,
+          "speech_text": "如果存在,它首先使用一个明确的真空键,否则它可以在空间上将寄生虫中心体联系起来,然后才回归宿主细胞组合. 宿主细胞可能含有多个真空,所以反弹可以合并不同的生物单元."
+        },
+        {
+          "narration": "条件 基数据将板井分为生物组,并选择比较列. 该合成板包含第一个列的六个车辆井和第二列的六个抑制器井,所有这些都含有HeLa宿主细胞.",
+          "visual": "12_category_03_condition_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "条件 基数据将板井分为生物组,并选择比较列. 该合成板包含第一个列的六个车辆井和第二列的六个抑制器井,所有这些都含有HeLa宿主细胞."
+        },
+        {
+          "narration": "对象过拒绝除了接受区域范围之外的病原体测量, 这些限制必须对细分寄生虫进行验证,因为碎片和合并的物体扭曲了反向的复制梯度.",
+          "visual": "12_category_04_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.6,
+          "speech_text": "对象过拒绝除了接受区域范围之外的病原体测量, 这些限制必须对细分寄生虫进行验证,因为碎片和合并的物体扭曲了反向的复制梯度."
+        },
+        {
+          "narration": "复制分数定义了最大的命名计数桶和无功率两次真空器的警告门. 一,二,四,八和十六的数量遵循理想的翻倍;像三这样的数量被保留为QC类别而不是默默圆.",
+          "visual": "12_category_05_replication_scoring",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.66,
+          "speech_text": "复制分数定义了最大的命名计数桶和无功率两次真空器的警告门. 一,二,四,八和十六的数量遵循理想的翻倍;像三这样的数量被保留为QC类别而不是默默圆."
+        },
+        {
+          "narration": "测试输出控制了颜色地图和存储. 分析将每井和每条件分布,真空数,对数统计和数字写入复制结果文件中.",
+          "visual": "12_category_06_assay_output",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "测试输出控制了颜色地图和存储. 分析将每井和每条件分布,真空数,对数统计和数字写入复制结果文件中."
+        },
+        {
+          "narration": "运行时间和可靠性控制记录细节. 在建立测试时保持语音输出,以便组分源,排斥,非二分数,统计测试和输出路径仍然可审计.",
+          "visual": "12_category_07_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "运行时间和可靠性控制记录细节. 在建立测试时保持语音输出,以便组分源,排斥,非二分数,统计测试和输出路径仍然可审计."
+        },
+        {
+          "narration": "这个分配细节使用了明确的 vacuole_id 列,需要一个主机细胞. 合成数据故意给出一些连续的真空分子相同的细胞ID,确认所选的真空键不是宿主细胞是被计数的单元.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.64,
+          "speech_text": "这个分配细节使用了明确的 vacuole_id 列,需要一个主机细胞. 合成数据故意给出一些连续的真空分子相同的细胞ID,确认所选的真空键不是宿主细胞是被计数的单元."
+        },
+        {
+          "narration": "在检查输入,分配,状态元数据,过器和分数后点击运行. 后端将寄生虫分为真空器,标签计算桶子,总结井和条件,进行双对测试,",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "在检查输入,分配,状态元数据,过器和分数后点击运行. 后端将寄生虫分为真空器,标签计算桶子,总结井和条件,进行双对测试,"
+        },
+        {
+          "narration": "在执行过程中,控制台将选定的表格和比较方法暴露出来. 在将分布转移视为生物学而不是细分或分配错误之前,检查它们的源图像中低和高数量的真空体.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.64,
+          "speech_text": "在执行过程中,控制台将选定的表格和比较方法暴露出来. 在将分布转移视为生物学而不是细分或分配错误之前,检查它们的源图像中低和高数量的真空体."
+        },
+        {
+          "narration": "实际的后端在每个条件中得分240个真空. 车辆中位数为4个寄生虫,每吸尘器有2个双倍;抑制剂中位数为2个寄生虫,每次双倍. 两组都含有5%的非两功率真空器, 每组有六个井,显示的MannWhitney比较是强有力的分离,但生物结论仍然需要独立的实验.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 1.0,
+          "speech_text": "实际的后端在每个条件中得分240个真空. 车辆中位数为4个寄生虫,每吸尘器有2个双倍;抑制剂中位数为2个寄生虫,每次双倍. 两组都含有5%的非两功率真空器, 每组有六个井,显示的MannWhitney比较是强有力的分离,但生物结论仍然需要独立的实验."
         }
       ]
     },

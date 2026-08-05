@@ -3906,47 +3906,184 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication assay",
+      "title": "Résumé de la réplique",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Résumez les parasites par vacuole et résumez la réplication intracellulaire par condition.",
+      "description": "Assignez les parasites à des vacuoles, inspectez l'échelle de réplication 1, 2, 4, 8 et comparez la réplication intracellulaire entre les conditions avec un QC à niveau de vacuoles et bien.",
       "objectives": [
-        "Comprendre quand utiliser l'analyse de réplication.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Choisissez une méthode d'attribution de vacuole défendable et évitez de traiter l'identité de la cellule hôte comme une identité de vacuole.",
+        "Audit des filtres de parasites et de vacuols, des seins de réplication, des métadonnées d'état et du QC sans puissance à deux.",
+        "Interpréter les répartitions des parasites par vacuole et comparer les conditions sans pseudo-réplique."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Mesurer une rangée par parasite segmenté avec des identifiants de plaque, puits, champs, cellules hôtes et idéalement validés indépendamment.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre l'essai de réplication.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre l'essai de réplication."
+          "narration": "L'analyse de réplication compte les parasites dans chaque vacuole et résume l'échelle de division 1, 2, 4, 8. La console enregistre les paramètres résolus, l'affectation QC, les statistiques, les sorties, les avertissements et les erreurs; la boîte de discussion peut discuter de ce contexte lorsque l'IA est activée.",
+          "visual": "01_console",
+          "focus_key": "console",
+          "hold_after": 0.62,
+          "speech_text": "L'analyse de réplication compte les parasites dans chaque vacuole et résume l'échelle de division 1, 2, 4, 8. La console enregistre les paramètres résolus, l'affectation QC, les statistiques, les sorties, les avertissements et les erreurs; la boîte de discussion peut discuter de ce contexte lorsque l'IA est activée."
         },
         {
-          "narration": "Ouvrez Replication assay dans la section Toxoplasma assays. Sélectionnez les mesures de cellules hôtes, de vacuole et de parasites avec les métadonnées de l'état.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez Replication assay dans la section Toxoplasma assays. Sélectionnez les mesures de cellules hôtes, de vacuole et de parasites avec les métadonnées de l'état."
+          "narration": "Les routes de commutation de l'IA ne discutent que sur demande. Son menu adjacent sélectionne un fournisseur configuré et ouvre les paramètres du fournisseur; l'analyse de réplication elle-même reste locale et ne nécessite pas d'IA.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.5,
+          "speech_text": "Les routes de commutation de l'IA ne discutent que sur demande. Son menu adjacent sélectionne un fournisseur configuré et ouvre les paramètres du fournisseur; l'analyse de réplication elle-même reste locale et ne nécessite pas d'IA."
         },
         {
-          "narration": "Dans la zone de configuration principale, configurer l'affectation spatiale, les filtres d'objets, les poubelles de comptage des parasites, les contrôles et les comparaisons statistiques.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, configurer l'affectation spatiale, les filtres d'objets, les poubelles de comptage des parasites, les contrôles et les comparaisons statistiques."
+          "narration": "La configuration du fournisseur sépare les assistants locaux et les assistants hébergés. Configurez uniquement les services que vous avez l'intention d'utiliser et vérifiez les informations sur la vie privée avant de partager le contexte de la console ou de l'analyse avec un fournisseur distant.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.5,
+          "speech_text": "La configuration du fournisseur sépare les assistants locaux et les assistants hébergés. Configurez uniquement les services que vous avez l'intention d'utiliser et vérifiez les informations sur la vie privée avant de partager le contexte de la console ou de l'analyse avec un fournisseur distant."
         },
         {
-          "narration": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+          "narration": "Les paramètres d'IA contrôlent le contexte de l'assistant, les informations d'identification et le signalement d'erreur optionnel. Ces préférences ne modifient pas l'affectation des vacuols, le nombre de parasites, les filtres ou les statistiques.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.48,
+          "speech_text": "Les paramètres d'IA contrôlent le contexte de l'assistant, les informations d'identification et le signalement d'erreur optionnel. Ces préférences ne modifient pas l'affectation des vacuols, le nombre de parasites, les filtres ou les statistiques."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, les distributions par parasites par vacuole, les taux de réplication, les statistiques et les chiffres sont enregistrés.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, les distributions par parasites par vacuole, les taux de réplication, les statistiques et les chiffres sont enregistrés."
+          "narration": "Choisissez ou laissez tomber la racine de l'expérience contenant des mesures. L'expérience transférée manque d'identités de vacuole validées indépendamment, donc ce tutoriel utilise clairement une base de données de mesure synthétique avec des identifiants de vacuole explicites tout en exécutant le véritable backend spaCR.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.72,
+          "speech_text": "Choisissez ou laissez tomber la racine de l'expérience contenant des mesures. L'expérience transférée manque d'identités de vacuole validées indépendamment, donc ce tutoriel utilise clairement une base de données de mesure synthétique avec des identifiants de vacuole explicites tout en exécutant le véritable backend spakeur."
+        },
+        {
+          "narration": "Essentials expose la source d'essai, l'attribution de vacuole, la carte des conditions, les filtres d'objets, le score de réplication, la sortie et les contrôles de temps d'exécution nécessaires à une première analyse.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.54,
+          "speech_text": "Essentials expose la source d'essai, l'attribution de vacuole, la carte des conditions, les filtres d'objets, le score de réplication, la sortie et les contrôles de temps d'exécution nécessaires à une première analyse."
+        },
+        {
+          "narration": "Filtre modifié le formulaire pour dévier délibérément des défauts. Utilisez-le pour vérifier la base de données, la clé de vide, la colonne de comptage, les limites de surface, la carte des plaques, le regroupement des conditions et l'enregistrement avant une exécution.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.54,
+          "speech_text": "Filtre modifié le formulaire pour dévier délibérément des défauts. Utilisez-le pour vérifier la base de données, la clé de vide, la colonne de comptage, les limites de surface, la carte des plaques, le regroupement des conditions et l'enregistrement avant une exécution."
+        },
+        {
+          "narration": "Tous les paramètres révèlent tous les contrôles disponibles pour la reproduction et le dépannage. Retour aux éléments essentiels lorsque des contrôles avancés ne sont pas nécessaires pour réduire les changements accidentels de paramètres.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "Tous les paramètres révèlent tous les contrôles disponibles pour la reproduction et le dépannage. Retour aux éléments essentiels lorsque des contrôles avancés ne sont pas nécessaires pour réduire les changements accidentels de paramètres."
+        },
+        {
+          "narration": "Les recettes conservent une configuration d'essai validée pour la réutilisation ou le partage. Sauvegarder un seulement après que les assignations de vacuole et les distributions de compte représentatives ont été vérifiées par rapport aux images.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.54,
+          "speech_text": "Les recettes conservent une configuration d'essai validée pour la réutilisation ou le partage. Sauvegarder un seulement après que les assignations de vacuole et les distributions de compte représentatives ont été vérifiées par rapport aux images."
+        },
+        {
+          "narration": "Envoyer à distance passe les paramètres résolus aux emplois distribués. Confirmer que la base de données de mesure est accessible via la carte de parcours à distance avant de soumettre un petit travail de validation.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.52,
+          "speech_text": "Envoyer à distance passe les paramètres résolus aux emplois distribués. Confirmer que la base de données de mesure est accessible via la carte de parcours à distance avant de soumettre un petit travail de validation."
+        },
+        {
+          "narration": "L'écran à distance reçoit un projet d'emploi. Vérifiez la synchronisation, l'activation de l'environnement, les ressources et la commande générée, puis validez une plaque avant de faire l'essai.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.56,
+          "speech_text": "L'écran à distance reçoit un projet d'emploi. Vérifiez la synchronisation, l'activation de l'environnement, les ressources et la commande générée, puis validez une plaque avant de faire l'essai."
+        },
+        {
+          "narration": "Assay Inputs identifie la racine de l'expérience, la table d'une rangée par parasite et le compartiment des agents pathogènes. La réplication marque les mesures existantes des parasites; elle ne segmente pas de nouveau les images microscopiques.",
+          "visual": "12_category_01_assay_inputs",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.52,
+          "speech_text": "Assay Inputs identifie la racine de l'expérience, la table d'une rangée par parasite et le compartiment des agents pathogènes. La réplication marque les mesures existantes des parasites; elle ne segmente pas de nouveau les images microscopiques."
+        },
+        {
+          "narration": "Vacuole Assignment utilise d'abord une clé de vacuole explicite lorsqu'elle est présente, sinon elle peut relier les centroïdes parasites spatialement, et seulement ensuite revenir au regroupement des cellules hôtes. Une cellule hôte peut contenir plusieurs vacuoles, de sorte que le fallback peut fusionner des unités biologiquement distinctes.",
+          "visual": "12_category_02_vacuole_assignment",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.72,
+          "speech_text": "Vacuole Assignment utilise d'abord une clé de vacuole explicite lorsqu'elle est présente, sinon elle peut relier les centroïdes parasites spatialement, et seulement ensuite revenir au regroupement des cellules hôtes. Une cellule hôte peut contenir plusieurs vacuoles, de sorte que le fallback peut fusionner des unités biologiquement distinctes."
+        },
+        {
+          "narration": "Condition Les métadonnées cartographient les puits de plaque en groupes biologiques et choisissent la colonne de comparaison. Cette plaque synthétique contient six puits de véhicule dans la colonne 1 et six puits d'inhibiteur dans la colonne 2, tous avec des cellules hôtes HeLa.",
+          "visual": "12_category_03_condition_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Condition Les métadonnées cartographient les puits de plaque en groupes biologiques et choisissent la colonne de comparaison. Cette plaque synthétique contient six puits de véhicule dans la colonne 1 et six puits d'inhibiteur dans la colonne 2, tous avec des cellules hôtes HeLa."
+        },
+        {
+          "narration": "Object Filtering rejette les mesures des agents pathogènes en dehors de la plage de surface acceptée avant le comptage des vacuoles. Ces limites doivent être validées contre les parasites segmentés, car les débris et les objets fusionnés déforment l'échelle de réplication dans des directions opposées.",
+          "visual": "12_category_04_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.6,
+          "speech_text": "Object Filtering rejette les mesures des agents pathogènes en dehors de la plage de surface acceptée avant le comptage des vacuoles. Ces limites doivent être validées contre les parasites segmentés, car les débris et les objets fusionnés déforment l'échelle de réplication dans des directions opposées."
+        },
+        {
+          "narration": "Le scoring de réplication définit le plus grand seau de comptage nommé et le seuil d'avertissement pour les vacuoles sans puissance de deux. Les nombres un, deux, quatre, huit et seize suivent le doublement idéal; les nombres tels que trois sont conservés comme une catégorie de QC plutôt que d'être arrondis silencieusement.",
+          "visual": "12_category_05_replication_scoring",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.66,
+          "speech_text": "Le scoring de réplication définit le plus grand seau de comptage nommé et le seuil d'avertissement pour les vacuoles sans puissance de deux. Les nombres un, deux, quatre, huit et seize suivent le doublement idéal; les nombres tels que trois sont conservés comme une catégorie de QC plutôt que d'être arrondis silencieusement."
+        },
+        {
+          "narration": "Assay Output contrôle la carte des couleurs et le stockage. L'analyse écrit des distributions par puits et par conditions, des nombres de vacuols, des statistiques par paires et des chiffres dans le dossier de résultats de réplication.",
+          "visual": "12_category_06_assay_output",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "Assay Output contrôle la carte des couleurs et le stockage. L'analyse écrit des distributions par puits et par conditions, des nombres de vacuols, des statistiques par paires et des chiffres dans le dossier de résultats de réplication."
+        },
+        {
+          "narration": "Le temps d'exécution et la fiabilité contrôlent les détails d'enregistrement. Gardez la sortie verbale activée lors de l'établissement d'un essai afin que la source de regroupement, les exclusions, les fractions non à puissance de deux, les tests statistiques et les chemins de sortie restent auditables.",
+          "visual": "12_category_07_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "Le temps d'exécution et la fiabilité contrôlent les détails d'enregistrement. Gardez la sortie verbale activée lors de l'établissement d'un essai afin que la source de regroupement, les exclusions, les fractions non à puissance de deux, les tests statistiques et les chemins de sortie restent auditables."
+        },
+        {
+          "narration": "Ce détail d'affectation utilise la colonne explicite vacuole_id et nécessite une cellule hôte. Les données synthétiques donnent intentionnellement à certaines vacuoles consécutives le même identifiant cellulaire, ce qui confirme que la clé de vacuole choisieet non la cellule hôteest l'unité qui est comptée.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.64,
+          "speech_text": "Ce détail d'affectation utilise la colonne explicite vacuole_id et nécessite une cellule hôte. Les données synthétiques donnent intentionnellement à certaines vacuoles consécutives le même identifiant cellulaire, ce qui confirme que la clé de vacuole choisieet non la cellule hôteest l'unité qui est comptée."
+        },
+        {
+          "narration": "Cliquez sur Exécuter après avoir vérifié les entrées, l'affectation, les métadonnées d'état, les filtres et le score. Le backend regroupe les parasites en vacuoles, les étiquettes comptent les seaux, résume les puits et les conditions, effectue des tests par paires et rend les distributions.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "Cliquez sur Exécuter après avoir vérifié les entrées, l'affectation, les métadonnées d'état, les filtres et le score. Le backend regroupe les parasites en vacuoles, les étiquettes comptent les seaux, résume les puits et les conditions, effectue des tests par paires et rend les distributions."
+        },
+        {
+          "narration": "Lors de l'exécution, la console expose les tables sélectionnées et la méthode de comparaison. Inspectez les vacuoles à faible et élevé nombre dans leurs images de source avant de traiter un changement de distribution comme biologie plutôt que segmentation ou erreur d'attribution.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.64,
+          "speech_text": "Lors de l'exécution, la console expose les tables sélectionnées et la méthode de comparaison. Inspectez les vacuoles à faible et élevé nombre dans leurs images de source avant de traiter un changement de distribution comme biologie plutôt que segmentation ou erreur d'attribution."
+        },
+        {
+          "narration": "Le vrai backend marque deux cent quarante vacuoles dans chaque condition. Le véhicule a une médiane de quatre parasites et deux doublons par vacuole; l'inhibiteur a une médiane de deux parasites et un doublon. Les deux groupes contiennent cinq pour cent de vacuoles sans puissance de deux et restent inférieurs à l'avertissement de vingt pour cent. Avec six puits par groupe, la comparaison MannWhitney affichée est fortement séparée, mais les conclusions biologiques nécessitent toujours des expériences indépendantes.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 1.0,
+          "speech_text": "Le vrai backend marque deux cent quarante vacuoles dans chaque condition. Le véhicule a une médiane de quatre parasites et deux doublons par vacuole; l'inhibiteur a une médiane de deux parasites et un doublon. Les deux groupes contiennent cinq pour cent de vacuoles sans puissance de deux et restent inférieurs à l'avertissement de vingt pour cent. Avec six puits par groupe, la comparaison MannWhitney affichée est fortement séparée, mais les conclusions biologiques nécessitent toujours des expériences indépendantes."
         }
       ]
     },

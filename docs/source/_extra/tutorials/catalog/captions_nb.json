@@ -1511,19 +1511,70 @@
       "id": "27_replication",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker Replikasjon test. Skore parasitter per vakuol og oppsummere intracellulær replikasjon etter tilstand."
+          "narration": "Replikasjonsanalyse tæller parasitter i hver vakuol og oppsummerer en, to, fire, åtte divisjonstrinn. Konsolen registrerer løste innstillinger, tildeling QC, statistikk, utgang, advarsler og feil; chatboksen kan diskutere den sammenhengen når AI er aktivert."
         },
         {
-          "narration": "Åpen replikasjonsanalyse fra Toxoplasma-undersøkelsen. Velg værtcell, vakuol og parasitt målinger sammen med tilstand metadata."
+          "narration": "Den AI togle ruter chatter bare når forespurt. Dess tilstøtende meny velger en konfigurert leverandør og åpner leverandørinnstillinger; replikasjonsanalysen selv forblir lokal og krever ikke AI."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet, konfigurere rumslig tildeling, objektfilter, parasitttallbehold, kontroller og statistiske sammenligninger."
+          "narration": "Leverandør konfigurasjon skiller lokale og vert assistenter. Konfigurere bare tjenester du har til hensikt å bruke og gjennomgå personvernerklæringer før du deler konsol- eller analysekontekst med en fjernleverandør."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. inspisere vakuoler over hele tallområdet og verifisere at kombinerte eller fragmenterte masker er ekskludert."
+          "narration": "AI-innstillinger kontrollerer assisterende kontekst, legitimasjoner og valgfri feilrapportering. Disse preferansene endrer ikke vakuoltildeling, parasitttelling, filtre eller statistikk."
         },
         {
-          "narration": "Når arbeidsflyten er ferdig, spares parasittdistribusjoner per vakuol, replikasjonsrater, statistikk og tall."
+          "narration": "Velg eller droppe eksperimentroten som inneholder målinger slash målinger punkt DB. Det overførte eksperimentet mangler uavhengig validerte vakuolidentiteter, så denne opplæringen bruker tydelig en syntetisk måledatabase med eksplisitte vakuol-IDer mens den kjører den virkelige spaCR backend."
+        },
+        {
+          "narration": "Essentials avslører testkilden, vakuoltildeling, tilstandskort, objektfilter, replikasjonspoeng, utgang og kjøretidskontroller som trengs for en første analyse."
+        },
+        {
+          "narration": "Modifisert filtrerer skjemaet for bevisst avvik fra standard. Bruk den til å kontrollere databasen, vakuulnøkkel, tallkolonne, arealgrenser, plate kart, tilstand gruppering, og lagre før et løp."
+        },
+        {
+          "narration": "Alle innstillinger avslører alle tilgjengelige kontroller for reproduksjon og feilsøking. Tilbake til Essentials når avanserte kontroller er unødvendige for å redusere tilfeldige parameterendringer."
+        },
+        {
+          "narration": "Oppskrifter beholder en validert testkonfigurasjon for gjenbruk eller deling. Spare en bare etter at vakuul tildeling og representative tall fordelinger har blitt sjekket mot bilder."
+        },
+        {
+          "narration": "Send fjernpass de løste innstillingene til Distributed Jobs. Vurder at måledatabasen er tilgjengelig via det fjerntliggende banekartet før du sender inn en liten valideringsoppgave."
+        },
+        {
+          "narration": "Fjernskjermen mottar en jobbutkast. Sjekk synkronisering, miljøaktivering, ressurser og den genererte kommandoen, deretter validere en plate før du skalerer testen."
+        },
+        {
+          "narration": "Assay Inputs identifiserer eksperiment røtt, en rekke-per-parasitt tabell, og patogen rom. Replikasjon scorer eksisterende parasittmålinger; den segmenterer ikke mikroskopibilder igjen."
+        },
+        {
+          "narration": "Vacuole Assignment bruker først en eksplisitt vakuolnøkkel når det er til stede, ellers kan det knytte parasittcentroider plassalt, og bare deretter faller tilbake til vert-celle gruppering. En vertsel kan inneholde flere vakuoler, slik at fallback kan slå sammen biologisk forskjellige enheter."
+        },
+        {
+          "narration": "Condition Metadata kartlegger platebrønner til biologiske grupper og velger sammenligningskolonnen. Denne syntetiske platen inneholder seks kjøretøybrønner i kolonne én og seks inhibitorbrønner i kolonne to, alle med HeLa-hostceller."
+        },
+        {
+          "narration": "Object Filtering avviser patogenmålinger utenfor den aksepterte arealområdet før vakuoler blir tellet. Disse grensene må valideres mot segmenterte parasitter, fordi skrudd og sammensatte gjenstander forvrengner replikasjonslederen i motsatte retninger."
+        },
+        {
+          "narration": "Replikasjonspoengivelse definerer den største navngitte tallen og advarselsgrensen for ikke-kraft av to vakuoler. Tallene en, to, fire, åtte og seksten følger ideell dobling; tall som tre bevares som en QC-kategori snarere enn stille rundet."
+        },
+        {
+          "narration": "Assay Output kontrollerer farge kart og lagring. Analysen skriver per-vel og per-betingelse distribusjoner, vakuol tall, parvis statistikk, og tall i replikasjonsresultater mappe."
+        },
+        {
+          "narration": "Løpetid og pålitelighet kontrollerer logging detaljer. Hold verbose output på mens du oppretter en test slik at grupperingskilden, eksklusjoner, ikke-power-of-two-fraksjon, statistiske tester og utgangsveier forblir kontrollerbare."
+        },
+        {
+          "narration": "Denne tildeling detalj bruker eksplisitt vacuole_id kolonne og krever en vært celle. De syntetiske dataene gir noen påfølgende vakuoler bevisst den samme celle-ID, noe som bekrefter at den valgte vakuolnøkkelenikke værtscellener den enhet som blir tellet."
+        },
+        {
+          "narration": "Klikk på Løp etter å ha sjekket innganger, tildeling, tilstand metadata, filtre og poengføring. Baksiden grupperer parasitter i vakuoler, etiketter telle hink, oppsummerer brønner og forhold, utfører parvis tester, og renderer distribusjonene."
+        },
+        {
+          "narration": "Under utførelsen avslører konsollen de valgte tabellene og sammenligningsmetoden. Undersøk vakuoler med lavt og høyt antall i deres kildebilder før du behandler en distribusjonsskift som biologi i stedet for segmentering eller tildeling feil."
+        },
+        {
+          "narration": "Den virkelige backend scorer to hundre og førti vacuoles i hver tilstand. Køretøy har median fire parasitter og to doblinger per vakuol; inhibitor har median to parasitter og en dobling. Begge gruppene inneholder fem prosent ikke-power-of-to-vacuoles og forblir under 20 prosent advarsel. Med seks brønner per gruppe er MannWhitney- sammenligningen sterkt adskilt, men biologiske konklusjoner krever fortsatt uavhengige eksperimenter."
         }
       ]
     },

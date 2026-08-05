@@ -3906,47 +3906,184 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication assay",
+      "title": "Prueba de replicación",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Ponga en cuenta los parásitos por vacío y resume la replicación intracelular por condición.",
+      "description": "Asignar a los parásitos a las vacunas, inspeccionar la escalera de replicación de uno, dos, cuatro, ocho, y comparar la replicación intracelular entre las condiciones con vacunas y QC de buen nivel.",
       "objectives": [
-        "Comprender cuándo usar el ensayo de replicación.",
-        "Configurar las entradas y configuraciones importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus salidas."
+        "Elija un método de asignación de vacío defendible y evite tratar la identidad de la célula anfitriona como identidad de vacío.",
+        "Auditar parásitos y filtros de vacío, cubos de replicación, metadatos de condición y QC sin potencia de dos.",
+        "Interpretar las distribuciones de parásitos por vacío y las comparaciones de condiciones sin pseudo replicación."
       ],
-      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados en la línea ascendente.",
+      "prerequisite": "Medir una fila por parásito segmentado con identificadores de placa, pozo, campo, célula anfitriona y, idealmente, válidos de forma independiente.",
       "scenes": [
         {
-          "narration": "Este tutorial abarca el ensayo de replicación.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial abarca el ensayo de replicación."
+          "narration": "Replicación Assay cuenta parásitos en cada vacío y resume la escalera de división uno, dos, cuatro, ocho. La consola registra las configuraciones resueltas, la asignación de QC, las estadísticas, las salidas, las advertencias y los errores; la caja de chat puede discutir ese contexto cuando la IA está habilitada.",
+          "visual": "01_console",
+          "focus_key": "console",
+          "hold_after": 0.62,
+          "speech_text": "Replicación Assay cuenta parásitos en cada vacío y resume la escalera de división uno, dos, cuatro, ocho. La consola registra las configuraciones resueltas, la asignación de QC, las estadísticas, las salidas, las advertencias y los errores; la caja de chat puede discutir ese contexto cuando la IA está habilitada."
         },
         {
-          "narration": "Abra Replication assay en la sección Toxoplasma assays. Prueba de replicación abierta de la sección de análisis de Toxoplasma Seleccione las mediciones de células anfitrionas, vacuole y parásitos junto con metadatos de condición.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Replication assay en la sección Toxoplasma assays. Prueba de replicación abierta de la sección de análisis de Toxoplasma Seleccione las mediciones de células anfitrionas, vacuole y parásitos junto con metadatos de condición."
+          "narration": "Las rutas de intercambio de IA sólo hablan cuando se solicita. Su menú adyacente selecciona un proveedor configurado y abre las configuraciones del proveedor; el análisis de replicación en sí permanece local y no requiere IA.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.5,
+          "speech_text": "Las rutas de intercambio de IA sólo hablan cuando se solicita. Su menú adyacente selecciona un proveedor configurado y abre las configuraciones del proveedor; el análisis de replicación en sí permanece local y no requiere IA."
         },
         {
-          "narration": "En el área de configuración principal, configure asignación espacial, filtros de objetos, contenedores para contar parásitos, controles y comparaciones estadísticas.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "En el área de configuración principal, configure asignación espacial, filtros de objetos, contenedores para contar parásitos, controles y comparaciones estadísticas."
+          "narration": "La configuración del proveedor separa a los asistentes locales y alojados. Configure únicamente los servicios que tenga la intención de utilizar y revise la información de privacidad antes de compartir el contexto de consola o análisis con un proveedor remoto.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.5,
+          "speech_text": "La configuración del proveedor separa a los asistentes locales y alojados. Configure únicamente los servicios que tenga la intención de utilizar y revise la información de privacidad antes de compartir el contexto de consola o análisis con un proveedor remoto."
         },
         {
-          "narration": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+          "narration": "Configuraciones de IA controla el contexto del asistente, las credenciales y el reporte de errores opcionales. Estas preferencias no cambian la asignación de vacíos, recuentos de parásitos, filtros o estadísticas.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.48,
+          "speech_text": "Configuraciones de IA controla el contexto del asistente, las credenciales y el reporte de errores opcionales. Estas preferencias no cambian la asignación de vacíos, recuentos de parásitos, filtros o estadísticas."
         },
         {
-          "narration": "Cuando el flujo de trabajo termina, se guardan las distribuciones de parásitos por vacío, las tasas de replicación, las estadísticas y las cifras.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Cuando el flujo de trabajo termina, se guardan las distribuciones de parásitos por vacío, las tasas de replicación, las estadísticas y las cifras."
+          "narration": "Elige o deja caer la raíz del experimento que contiene mediciones. El experimento transferido carece de identidades de vacío validadas de forma independiente, por lo que este tutorial claramente utiliza una base de datos de medición sintética con IDs de vacío explícitos mientras ejecuta el backend real de spaCR.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.72,
+          "speech_text": "Elige o deja caer la raíz del experimento que contiene mediciones. El experimento transferido carece de identidades de vacío validadas de forma independiente, por lo que este tutorial claramente utiliza una base de datos de medición sintética con IDs de vacío explícitos mientras ejecuta el backend real de espáquer."
+        },
+        {
+          "narration": "Essentials expone la fuente de ensayo, la asignación de vacíos, el mapa de condiciones, los filtros de objetos, la puntuación de replicación, la salida y los controles de tiempo de ejecución necesarios para un primer análisis.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.54,
+          "speech_text": "Essentials expone la fuente de ensayo, la asignación de vacíos, el mapa de condiciones, los filtros de objetos, la puntuación de replicación, la salida y los controles de tiempo de ejecución necesarios para un primer análisis."
+        },
+        {
+          "narration": "Filtros modificados del formulario para desviaciones deliberadas de los valores predeterminados. Utilice para auditar la base de datos, la clave de vacío, la columna de conteo, los límites de área, el mapa de placas, el agrupamiento de condiciones y guardar antes de una ejecución.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.54,
+          "speech_text": "Filtros modificados del formulario para desviaciones deliberadas de los valores predeterminados. Utilice para auditar la base de datos, la clave de vacío, la columna de conteo, los límites de área, el mapa de placas, el agrupamiento de condiciones y guardar antes de una ejecución."
+        },
+        {
+          "narration": "Todas las configuraciones revelan todos los controles disponibles para reproducción y resolución de problemas. Regresar a Elementos esenciales cuando los controles avanzados no son necesarios para reducir los cambios accidentales de parámetros.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "Todas las configuraciones revelan todos los controles disponibles para reproducción y resolución de problemas. Regresar a Elementos esenciales cuando los controles avanzados no son necesarios para reducir los cambios accidentales de parámetros."
+        },
+        {
+          "narration": "Las recetas conservan una configuración de ensayo validada para su reutilización o uso compartido. Salva uno sólo después de que las asignaciones de vacío y las distribuciones representativas de recuento se han comprobado con las imágenes.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.54,
+          "speech_text": "Las recetas conservan una configuración de ensayo validada para su reutilización o uso compartido. Salva uno sólo después de que las asignaciones de vacío y las distribuciones representativas de recuento se han comprobado con las imágenes."
+        },
+        {
+          "narration": "Enviar remoto pasa las configuraciones resueltas a Trabajos Distribuidos. Confirmar que la base de datos de medición es accesible a través del mapa de ruta remoto antes de enviar un pequeño trabajo de validación.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.52,
+          "speech_text": "Enviar remoto pasa las configuraciones resueltas a Trabajos Distribuidos. Confirmar que la base de datos de medición es accesible a través del mapa de ruta remoto antes de enviar un pequeño trabajo de validación."
+        },
+        {
+          "narration": "La pantalla remota recibe un borrador de trabajo. Compruebe la sincronización, la activación del entorno, los recursos y el comando generado, luego valida una placa antes de escalar el ensayo.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.56,
+          "speech_text": "La pantalla remota recibe un borrador de trabajo. Compruebe la sincronización, la activación del entorno, los recursos y el comando generado, luego valida una placa antes de escalar el ensayo."
+        },
+        {
+          "narration": "Assay Inputs identifica la raíz del experimento, la tabla de una fila por parásito y el compartimiento de patógenos. La replicación califica las mediciones de parásitos existentes; no segmenta las imágenes de microscopía de nuevo.",
+          "visual": "12_category_01_assay_inputs",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.52,
+          "speech_text": "Assay Inputs identifica la raíz del experimento, la tabla de una fila por parásito y el compartimiento de patógenos. La replicación califica las mediciones de parásitos existentes; no segmenta las imágenes de microscopía de nuevo."
+        },
+        {
+          "narration": "La asignación de vacío utiliza primero una clave de vacío explícita cuando está presente, de lo contrario puede vincular los centroides parásitos espacialmente, y sólo después regresa al grupo de células huéspedes. Una célula anfitriona puede contener múltiples vacíos, por lo que el fallback puede fusionar unidades biológicamente distintas.",
+          "visual": "12_category_02_vacuole_assignment",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.72,
+          "speech_text": "La asignación de vacío utiliza primero una clave de vacío explícita cuando está presente, de lo contrario puede vincular los centroides parásitos espacialmente, y sólo después regresa al grupo de células huéspedes. Una célula anfitriona puede contener múltiples vacíos, por lo que el fallback puede fusionar unidades biológicamente distintas."
+        },
+        {
+          "narration": "Condición Los metadatos mapean los pozos de placa a grupos biológicos y eligen la columna de comparación. Esta placa sintética contiene seis pozos de vehículo en la columna uno y seis pozos inhibidores en la columna dos, todos con células huéspedes de HeLa.",
+          "visual": "12_category_03_condition_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Condición Los metadatos mapean los pozos de placa a grupos biológicos y eligen la columna de comparación. Esta placa sintética contiene seis pozos de vehículo en la columna uno y seis pozos inhibidores en la columna dos, todos con células huéspedes de HeLa."
+        },
+        {
+          "narration": "Object Filtering rechaza las mediciones de patógenos fuera del rango de área aceptado antes de contar los vacíos. Estos límites deben validarse contra los parásitos segmentados, ya que los desechos y los objetos fusionados distorsionan la escalera de replicación en direcciones opuestas.",
+          "visual": "12_category_04_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.6,
+          "speech_text": "Object Filtering rechaza las mediciones de patógenos fuera del rango de área aceptado antes de contar los vacíos. Estos límites deben validarse contra los parásitos segmentados, ya que los desechos y los objetos fusionados distorsionan la escalera de replicación en direcciones opuestas."
+        },
+        {
+          "narration": "La puntuación de replicación define el cubo de recuento más grande y el umbral de advertencia para los vacuoles sin potencia de dos. Los números uno, dos, cuatro, ocho y dieciséis siguen el doble ideal; los números como tres se mantienen como una categoría de QC en lugar de redondearse silenciosamente.",
+          "visual": "12_category_05_replication_scoring",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.66,
+          "speech_text": "La puntuación de replicación define el cubo de recuento más grande y el umbral de advertencia para los vacuoles sin potencia de dos. Los números uno, dos, cuatro, ocho y dieciséis siguen el doble ideal; los números como tres se mantienen como una categoría de QC en lugar de redondearse silenciosamente."
+        },
+        {
+          "narration": "Assay Output controla el mapa de color y el almacenamiento. El análisis escribe distribuciones por pozo y por condición, recuentos de vacíos, estadísticas pareadas y cifras en la carpeta de resultados de replicación.",
+          "visual": "12_category_06_assay_output",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "Assay Output controla el mapa de color y el almacenamiento. El análisis escribe distribuciones por pozo y por condición, recuentos de vacíos, estadísticas pareadas y cifras en la carpeta de resultados de replicación."
+        },
+        {
+          "narration": "El tiempo de ejecución y la fiabilidad controlan los detalles de registro. Mantenga activa la salida verbal mientras se establece un ensayo para que la fuente de agrupación, las exclusiones, las fracciones de no potencia de dos, las pruebas estadísticas y los caminos de salida permanezcan auditables.",
+          "visual": "12_category_07_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "El tiempo de ejecución y la fiabilidad controlan los detalles de registro. Mantenga activa la salida verbal mientras se establece un ensayo para que la fuente de agrupación, las exclusiones, las fracciones de no potencia de dos, las pruebas estadísticas y los caminos de salida permanezcan auditables."
+        },
+        {
+          "narration": "Este detalle de asignación utiliza la columna vacuole_id explícita y requiere una célula host. Los datos sintéticos dan intencionalmente a algunos vacuoles consecutivos la misma identificación celular, lo que confirma que la clave de vacuoles elegidano la célula anfitrionaes la unidad que se cuenta.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.64,
+          "speech_text": "Este detalle de asignación utiliza la columna vacuole_id explícita y requiere una célula host. Los datos sintéticos dan intencionalmente a algunos vacuoles consecutivos la misma identificación celular, lo que confirma que la clave de vacuoles elegidano la célula anfitrionaes la unidad que se cuenta."
+        },
+        {
+          "narration": "Haga clic en Ejecutar después de comprobar las entradas, asignación, metadatos de condición, filtros y puntuación. El backend agrupa a los parásitos en vacíos, las etiquetas cuentan cubos, resumen pozos y condiciones, realiza pruebas en pares y reproduce las distribuciones.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "Haga clic en Ejecutar después de comprobar las entradas, asignación, metadatos de condición, filtros y puntuación. El backend agrupa a los parásitos en vacíos, las etiquetas cuentan cubos, resumen pozos y condiciones, realiza pruebas en pares y reproduce las distribuciones."
+        },
+        {
+          "narration": "Durante la ejecución, la consola expone las tablas seleccionadas y el método de comparación. Inspeccione los vacíos en recuentos bajos y altos en sus imágenes de origen antes de tratar un cambio de distribución como biología en lugar de error de segmentación o asignación.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.64,
+          "speech_text": "Durante la ejecución, la consola expone las tablas seleccionadas y el método de comparación. Inspeccione los vacíos en recuentos bajos y altos en sus imágenes de origen antes de tratar un cambio de distribución como biología en lugar de error de segmentación o asignación."
+        },
+        {
+          "narration": "El verdadero backend obtiene 240 vacuoles en cada condición. El vehículo tiene una media de cuatro parásitos y dos duplicados por vacío; el inhibidor tiene una media de dos parásitos y un duplicado. Ambos grupos contienen cinco por ciento de vacuoles sin potencia de dos y permanecen por debajo de la advertencia del veinte por ciento. Con seis pozos por grupo, la comparación de MannWhitney se muestra fuertemente separada, pero las conclusiones biológicas aún requieren experimentos independientes.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 1.0,
+          "speech_text": "El verdadero backend obtiene 240 vacuoles en cada condición. El vehículo tiene una media de cuatro parásitos y dos duplicados por vacío; el inhibidor tiene una media de dos parásitos y un duplicado. Ambos grupos contienen cinco por ciento de vacuoles sin potencia de dos y permanecen por debajo de la advertencia del veinte por ciento. Con seis pozos por grupo, la comparación de MannWhitney se muestra fuertemente separada, pero las conclusiones biológicas aún requieren experimentos independientes."
         }
       ]
     },
