@@ -4344,47 +4344,121 @@
       "id": "30_plate_queue",
       "number": 30,
       "slug": "plate_queue",
-      "title": "Plate Queue",
+      "title": "Cuadra de placas",
       "series": 4,
       "app_key": "queue",
       "section": "Data and batch runs",
-      "description": "Enlace varias placas a través de la misma tubería validada.",
+      "description": "Imágenes de configuraciones reales de módulos, procesar placas en cola secuencialmente, detenerse de forma segura entre los trabajos, reanudar el trabajo persistente y despejar las filas completadas.",
       "objectives": [
-        "Comprender cuándo usar Plate Queue.",
-        "Configurar las entradas y configuraciones importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus salidas."
+        "Añadir la fuente actual y las configuraciones del módulo activo como un elemento de cola inmutable.",
+        "Importa carpetas de placas con configuraciones y entiende la tabla de cola y el estado persistente.",
+        "Ejecutar secuencialmente, detener después del elemento actual, reanudar el trabajo restante, y limpiar las filas terminales."
       ],
-      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados en la línea ascendente.",
+      "prerequisite": "Configurar una fuente y configuraciones en un módulo spaCR ejecutable, como Mask o Measure.",
       "scenes": [
         {
-          "narration": "Este tutorial cubre Plate Queue. Enlace múltiples placas a través de la misma tubería validada.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial cubre Plate Queue. Enlace múltiples placas a través de la misma tubería validada."
+          "narration": "Plate Queue comienza con un módulo configurado. Aquí Mask apunta al experimento real transferido, utiliza sus configuraciones de segmentación guardadas y limita esta instantánea a cinco imágenes de prueba. Las colas copian estos valores actuales; las ediciones posteriores en Mask no cambian silenciosamente el trabajo de la cola.",
+          "visual": "01_prepared_mask",
+          "focus_key": "mask_screen",
+          "hold_after": 0.72,
+          "speech_text": "Plate Queue comienza con un módulo configurado. Aquí Mask apunta al experimento real transferido, utiliza sus configuraciones de segmentación guardadas y limita esta instantánea a cinco imágenes de prueba. Las colas copian estos valores actuales; las ediciones posteriores en Mask no cambian silenciosamente el trabajo de la cola."
         },
         {
-          "narration": "Abra Plate Queue en la sección Data and batch runs. Abre la cola de placa en la sección Datos y partidas de ejecución. Agregue fuentes de placa y seleccione la secuencia de módulos compartidos y la configuración preset.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Plate Queue en la sección Data and batch runs. Abre la cola de placa en la sección Datos y partidas de ejecución. Agregue fuentes de placa y seleccione la secuencia de módulos compartidos y la configuración preset."
+          "narration": "Abre la cola de placas de Data y ejecuta los lotes. El tablero vacío contiene controles para la placa actual, listas de placas separadas por vírgenes, limpieza, ejecución secuencial y una parada segura entre trabajos.",
+          "visual": "02_open_queue",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.62,
+          "speech_text": "Abre la cola de placas de Data y ejecuta los lotes. El tablero vacío contiene controles para la placa actual, listas de placas separadas por vírgenes, limpieza, ejecución secuencial y una parada segura entre trabajos."
         },
         {
-          "narration": "En el área de configuración principal, revise el orden de las placas, los sobrecargos por placa, los límites de los trabajadores, la política de falla, el comportamiento de continuación y las raíces de salida.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "En el área de configuración principal, revise el orden de las placas, los sobrecargos por placa, los límites de los trabajadores, la política de falla, el comportamiento de continuación y las raíces de salida."
+          "narration": "Haga clic en Agregar placa corriente. Debido a que Mask fue el módulo ejecutable más recientemente visitado, spaCR toma instantáneas de su clave de módulo, ruta de origen real y diccionario completo de configuraciones.",
+          "visual": "03_add_current",
+          "focus_key": "toolbar",
+          "click_key": "add",
+          "hold_after": 0.58,
+          "speech_text": "Haga clic en Agregar placa corriente. Debido a que Mask fue el módulo ejecutable más recientemente visitado, espáquer toma instantáneas de su clave de módulo, ruta de origen real y diccionario completo de configuraciones."
         },
         {
-          "narration": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. Comience con una placa pequeña o un campo de prueba, luego deje que la cola procese las placas secuencialmente con el estado visible.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. Comience con una placa pequeña o un campo de prueba, luego deje que la cola procese las placas secuencialmente con el estado visible."
+          "narration": "La nueva fila recibe un identificador persistente corto. Los registros de aplicaciones en los que se ejecutará la tubería, etiqueta preserva la fuente, estado comienza como cola, Elapsed permanece en blanco hasta la ejecución, y Remove está disponible cada vez que la fila no se ejecuta.",
+          "visual": "04_mask_queued",
+          "focus_key": "table",
+          "hold_after": 0.66,
+          "speech_text": "La nueva fila recibe un identificador persistente corto. Los registros de aplicaciones en los que se ejecutará la tubería, etiqueta preserva la fuente, estado comienza como cola, Elapsed permanece en blanco hasta la ejecución, y Remove está disponible cada vez que la fila no se ejecuta."
         },
         {
-          "narration": "Cuando el flujo de trabajo termina, cada placa recibe un proyecto aislado y ejecuta un registro mientras que la cola conserva el progreso general.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Cuando el flujo de trabajo termina, cada placa recibe un proyecto aislado y ejecuta un registro mientras que la cola conserva el progreso general."
+          "narration": "También puede arrastrar una carpeta de placa que contiene instantáneas de configuración de spaCR a esta pantalla. La carpeta de tutoriales real contribuye a sus instantáneas de Máscara y Medida guardadas, y el nombre de archivo identifica el módulo ejecutable. Un CSV de lista de placas con una columna src es la alternativa para muchas placas separadas.",
+          "visual": "05_folder_drop",
+          "focus_key": "table",
+          "hold_after": 0.78,
+          "speech_text": "También puede arrastrar una carpeta de placa que contiene instantáneas de configuración de espáquer a esta pantalla. La carpeta de tutoriales real contribuye a sus instantáneas de Máscara y Medida guardadas, y el nombre de archivo identifica el módulo ejecutable. Un CSV de lista de placas con una columna src es la alternativa para muchas placas separadas."
+        },
+        {
+          "narration": "Cada mutación se escribe inmediatamente en el archivo local. Cerrar spaCR no descarta el plan: reabrir Plate Queue restaura el orden, las configuraciones copiadas, los estados, el tiempo y cualquier error registrado. Revise las filas y elimine las instantáneas no deseadas antes de ejecutar.",
+          "visual": "06_persistence",
+          "focus_key": "table",
+          "hold_after": 0.72,
+          "speech_text": "Cada mutación se escribe inmediatamente en el archivo local. Cerrar espáquer no descarta el plan: reabrir Plate Queue restaura el orden, las configuraciones copiadas, los estados, el tiempo y cualquier error registrado. Revise las filas y elimine las instantáneas no deseadas antes de ejecutar."
+        },
+        {
+          "narration": "Haga clic en Ejecutar cola para procesar la primera fila de cola. El ejecutor de producción resuelve cada valor de App a su pipeline normal de spaCR y ejecuta un trabajo a la vez, lo que evita que dos placas compitan por la misma GPU o recursos de salida.",
+          "visual": "07_run",
+          "focus_key": "table",
+          "click_key": "run",
+          "hold_after": 0.64,
+          "speech_text": "Haga clic en Ejecutar cola para procesar la primera fila de cola. El ejecutor de producción resuelve cada valor de App a su pipeline normal de espáquer y ejecuta un trabajo a la vez, lo que evita que dos placas compitan por la misma GPU o recursos de salida."
+        },
+        {
+          "narration": "El estado cambia de cola a ejecución y Elapsed se actualiza cada segundo. Esta captura de tutoriales utiliza la validación de la fuente en lugar de las costosas tuberías de análisis, por lo que demuestra el hilo real de cola y las transiciones de estado sin escribir en el experimento completado.",
+          "visual": "08_running",
+          "focus_key": "status",
+          "hold_after": 0.78,
+          "speech_text": "El estado cambia de cola a ejecución y Elapsed se actualiza cada segundo. Esta captura de tutoriales utiliza la validación de la fuente en lugar de las costosas tuberías de análisis, por lo que demuestra el hilo real de cola y las transiciones de estado sin escribir en el experimento completado."
+        },
+        {
+          "narration": "Haga clic en Detener mientras se ejecuta una fila cuando no desea que comience otra placa. La parada es cooperativa: la tubería actual llega a su finalización, mientras que las filas posteriores permanecen en fila y mantienen sus configuraciones.",
+          "visual": "09_stop",
+          "focus_key": "table",
+          "click_key": "stop",
+          "hold_after": 0.62,
+          "speech_text": "Haga clic en Detener mientras se ejecuta una fila cuando no desea que comience otra placa. La parada es cooperativa: la tubería actual llega a su finalización, mientras que las filas posteriores permanecen en fila y mantienen sus configuraciones."
+        },
+        {
+          "narration": "Una vez finalizado el artículo actual, su estado es un éxito y su tiempo transcurrido se conserva. Las filas restantes todavía están en cola, por lo que este es un límite seguro para cerrar la aplicación, cambiar la disponibilidad de recursos o comprobar las salidas.",
+          "visual": "10_stopped",
+          "focus_key": "table",
+          "hold_after": 0.66,
+          "speech_text": "Una vez finalizado el artículo actual, su estado es un éxito y su tiempo transcurrido se conserva. Las filas restantes todavía están en cola, por lo que este es un límite seguro para cerrar la aplicación, cambiar la disponibilidad de recursos o comprobar las salidas."
+        },
+        {
+          "narration": "Haga clic en Ejecutar la cola de nuevo para continuar. Las filas terminadas se saltan y la ejecución continúa desde el primer elemento restante en la cola; una fila fallida se registra como fallida mientras que las filas posteriores pueden continuar.",
+          "visual": "11_resume",
+          "focus_key": "table",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "Haga clic en Ejecutar la cola de nuevo para continuar. Las filas terminadas se saltan y la ejecución continúa desde el primer elemento restante en la cola; una fila fallida se registra como fallida mientras que las filas posteriores pueden continuar."
+        },
+        {
+          "narration": "La tabla completada conserva un estado terminal y el tiempo transcurrido por elemento. En una serie de producción, cada fila ha invocado la línea de mascaras o medidas seleccionada con su propia fuente y configuración copiadas, como si se hubiera presentado desde ese módulo.",
+          "visual": "12_finished",
+          "focus_key": "table",
+          "hold_after": 0.7,
+          "speech_text": "La tabla completada conserva un estado terminal y el tiempo transcurrido por elemento. En una serie de producción, cada fila ha invocado la línea de mascaras o medidas seleccionada con su propia fuente y configuración copiadas, como si se hubiera presentado desde ese módulo."
+        },
+        {
+          "narration": "Haga clic en Despejar terminado después de revisar los resultados. Elimina las filas exitosas, fallidas y omitidas del archivo de cola, pero nunca elimina los datos de placa o las salidas de la tubería.",
+          "visual": "13_clear",
+          "focus_key": "table",
+          "click_key": "clear",
+          "hold_after": 0.56,
+          "speech_text": "Haga clic en Despejar terminado después de revisar los resultados. Elimina las filas exitosas, fallidas y omitidas del archivo de cola, pero nunca elimina los datos de placa o las salidas de la tubería."
+        },
+        {
+          "narration": "El tablero está listo para el próximo lote. Configurar y validar primero cada módulo, mantener los valores específicos de la placa en su instantánea o en la fila CSV, luego dejar que Plate Queue proporcione una ejecución secuencial reproducible y un progreso seguro de reinicio.",
+          "visual": "14_empty",
+          "focus_key": "screen",
+          "hold_after": 0.82,
+          "speech_text": "El tablero está listo para el próximo lote. Configurar y validar primero cada módulo, mantener los valores específicos de la placa en su instantánea o en la fila CSV, luego dejar que Plate Queue proporcione una ejecución secuencial reproducible y un progreso seguro de reinicio."
         }
       ]
     },

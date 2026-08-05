@@ -4344,47 +4344,121 @@
       "id": "30_plate_queue",
       "number": 30,
       "slug": "plate_queue",
-      "title": "Plate Queue",
+      "title": "Coda dei piatti",
       "series": 4,
       "app_key": "queue",
       "section": "Data and batch runs",
-      "description": "Catenare più piastre attraverso lo stesso gasdotto convalidato.",
+      "description": "Impressione delle impostazioni dei moduli reali, elaborazione sequenziale delle piastre in coda, fermo sicuro tra i lavori, ripristino del lavoro persistente e cancellazione delle righe completate.",
       "objectives": [
-        "Capire quando usare Plate Queue.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Aggiungere la fonte corrente e le impostazioni del modulo attivo come un elemento di coda immutabile.",
+        "Importare le cartelle di piastre con impostazioni e comprendere la tabella di coda e lo stato persistente.",
+        "Eseguire in sequenza, fermarsi dopo l'elemento corrente, riprendere il lavoro rimanente e eliminare le righe terminali."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Configurare una fonte e le impostazioni in un modulo spaCR eseguibile come Mask o Measure.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre la fila delle piastre.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre la fila delle piastre."
+          "narration": "Plate Queue inizia con un modulo configurato. Qui Mask indica l'esperimento reale trasferito, utilizza le impostazioni di segmentazione salvate e limita questo istantaneo a cinque immagini di prova. La coda copia questi valori attuali; modifiche successive in Mask non modificano silenziosamente il lavoro in coda.",
+          "visual": "01_prepared_mask",
+          "focus_key": "mask_screen",
+          "hold_after": 0.72,
+          "speech_text": "Plate Queue inizia con un modulo configurato. Qui Mask indica l'esperimento reale trasferito, utilizza le impostazioni di segmentazione salvate e limita questo istantaneo a cinque immagini di prova. La coda copia questi valori attuali; modifiche successive in Mask non modificano silenziosamente il lavoro in coda."
         },
         {
-          "narration": "Apri Plate Queue dalla sezione Data and batch runs. Apri la coda della scheda dalla sezione \"Dati e batch runs\". Aggiungi le fonti della scheda e scegli la sequenza del modulo condiviso e le impostazioni preset.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Apri Plate Queue dalla sezione Data and batch runs. Apri la coda della scheda dalla sezione \"Dati e batch runs\". Aggiungi le fonti della scheda e scegli la sequenza del modulo condiviso e le impostazioni preset."
+          "narration": "Apri la coda dei dischi da Data e esegui lotti. La tabella di controllo vuota contiene controlli per la targa corrente, liste di targhe separate da virgola, pulizia, esecuzione sequenziale e fermata sicura tra i lavori.",
+          "visual": "02_open_queue",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.62,
+          "speech_text": "Apri la coda dei dischi da Data e esegui lotti. La tabella di controllo vuota contiene controlli per la targa corrente, liste di targhe separate da virgola, pulizia, esecuzione sequenziale e fermata sicura tra i lavori."
         },
         {
-          "narration": "Nell'area di configurazione principale, rivedere l'ordine della scheda, le sovrapposizioni per scheda, i limiti dei lavoratori, la politica di fallimento, il comportamento di ripristino e le radici di uscita.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Nell'area di configurazione principale, rivedere l'ordine della scheda, le sovrapposizioni per scheda, i limiti dei lavoratori, la politica di fallimento, il comportamento di ripristino e le radici di uscita."
+          "narration": "Fare clic su Aggiungere la targa corrente. Poiché Mask è stato il modulo eseguibile più visitato di recente, spaCR riprende la chiave del modulo, il percorso sorgente reale e il dizionario completo delle impostazioni.",
+          "visual": "03_add_current",
+          "focus_key": "toolbar",
+          "click_key": "add",
+          "hold_after": 0.58,
+          "speech_text": "Fare clic su Aggiungere la targa corrente. Poiché Mask è stato il modulo eseguibile più visitato di recente, spàker riprende la chiave del modulo, il percorso sorgente reale e il dizionario completo delle impostazioni."
         },
         {
-          "narration": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. Inizia con una piccola piastra o un campo di prova, quindi lascia che la fila di processo delle piastre sequenzialmente con lo stato visibile.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. Inizia con una piccola piastra o un campo di prova, quindi lascia che la fila di processo delle piastre sequenzialmente con lo stato visibile."
+          "narration": "La nuova riga riceve un breve identificatore persistente. Le app registrano quale pipeline verrà eseguita, Label conserva la fonte, Status inizia come fila, Elapsed rimane vuoto fino all'esecuzione e Remove è disponibile ogni volta che la riga non viene eseguita.",
+          "visual": "04_mask_queued",
+          "focus_key": "table",
+          "hold_after": 0.66,
+          "speech_text": "La nuova riga riceve un breve identificatore persistente. Le app registrano quale pipeline verrà eseguita, Label conserva la fonte, Status inizia come fila, Elapsed rimane vuoto fino all'esecuzione e Remove è disponibile ogni volta che la riga non viene eseguita."
         },
         {
-          "narration": "Quando il flusso di lavoro è terminato, ogni piastra riceve un progetto isolato e esegue un record mentre la coda conserva il progresso complessivo.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è terminato, ogni piastra riceve un progetto isolato e esegue un record mentre la coda conserva il progresso complessivo."
+          "narration": "Puoi anche trascinare una cartella di schede contenente le istantanee delle impostazioni spaCR su questo schermo. La cartella tutoriale reale contribuisce ai suoi snapshot salvati di Mask e Measure, e il nome del file identifica il modulo eseguibile. Un CSV di lista delle piastre con colonna src è l'alternativa per molte piastre separate.",
+          "visual": "05_folder_drop",
+          "focus_key": "table",
+          "hold_after": 0.78,
+          "speech_text": "Puoi anche trascinare una cartella di schede contenente le istantanee delle impostazioni spàker su questo schermo. La cartella tutoriale reale contribuisce ai suoi snapshot salvati di Mask e Measure, e il nome del file identifica il modulo eseguibile. Un CSV di lista delle piastre con colonna src è l'alternativa per molte piastre separate."
+        },
+        {
+          "narration": "Ogni mutazione viene scritta immediatamente al file della coda locale. Chiudere spaCR non scarta il piano: riaprire Plate Queue riprende l'ordine, le impostazioni copiate, lo stato, il tempo e qualsiasi errore registrato. Rivedi le righe e rimuovi le istantanee indesiderate prima di eseguire.",
+          "visual": "06_persistence",
+          "focus_key": "table",
+          "hold_after": 0.72,
+          "speech_text": "Ogni mutazione viene scritta immediatamente al file della coda locale. Chiudere spàker non scarta il piano: riaprire Plate Queue riprende l'ordine, le impostazioni copiate, lo stato, il tempo e qualsiasi errore registrato. Rivedi le righe e rimuovi le istantanee indesiderate prima di eseguire."
+        },
+        {
+          "narration": "Fare clic su Run queue per elaborare la prima riga in coda. L'operatore di produzione risolve ogni valore App al suo normale pipeline spaCR ed esegue un lavoro alla volta, evitando che due schede concorrano per la stessa GPU o le stesse risorse di uscita.",
+          "visual": "07_run",
+          "focus_key": "table",
+          "click_key": "run",
+          "hold_after": 0.64,
+          "speech_text": "Fare clic su Run queue per elaborare la prima riga in coda. L'operatore di produzione risolve ogni valore App al suo normale pipeline spàker ed esegue un lavoro alla volta, evitando che due schede concorrano per la stessa GPU o le stesse risorse di uscita."
+        },
+        {
+          "narration": "Lo stato cambia dalla coda all'esecuzione e Elapsed viene aggiornato ogni secondo. Questo tutorial utilizza la convalida della fonte al posto dei costosi pipeline di analisi, quindi dimostra il filo reale della coda e le transizioni di stato senza scrivere nell'esperimento completato.",
+          "visual": "08_running",
+          "focus_key": "status",
+          "hold_after": 0.78,
+          "speech_text": "Lo stato cambia dalla coda all'esecuzione e Elapsed viene aggiornato ogni secondo. Questo tutorial utilizza la convalida della fonte al posto dei costosi pipeline di analisi, quindi dimostra il filo reale della coda e le transizioni di stato senza scrivere nell'esperimento completato."
+        },
+        {
+          "narration": "Fare clic su Ferma mentre si esegue una riga quando non si desidera iniziare un'altra piastra. La fermata è cooperativa: l'attuale oleodotto raggiunge il termine, mentre le file successive rimangono in coda e conservano le loro impostazioni.",
+          "visual": "09_stop",
+          "focus_key": "table",
+          "click_key": "stop",
+          "hold_after": 0.62,
+          "speech_text": "Fare clic su Ferma mentre si esegue una riga quando non si desidera iniziare un'altra piastra. La fermata è cooperativa: l'attuale oleodotto raggiunge il termine, mentre le file successive rimangono in coda e conservano le loro impostazioni."
+        },
+        {
+          "narration": "Dopo la fine dell'articolo corrente, il suo stato di successo e il suo tempo trascorso sono conservati. Le altre righe sono ancora in coda, quindi questo è un confine sicuro per chiudere l'applicazione, modificare la disponibilità delle risorse o controllare le uscite.",
+          "visual": "10_stopped",
+          "focus_key": "table",
+          "hold_after": 0.66,
+          "speech_text": "Dopo la fine dell'articolo corrente, il suo stato di successo e il suo tempo trascorso sono conservati. Le altre righe sono ancora in coda, quindi questo è un confine sicuro per chiudere l'applicazione, modificare la disponibilità delle risorse o controllare le uscite."
+        },
+        {
+          "narration": "Fare clic su eseguire la coda di nuovo per riprendere. Le righe finite vengono saltate e l'esecuzione continua dal primo elemento rimanente in coda; una riga fallita viene registrata come fallita mentre le righe successive possono continuare.",
+          "visual": "11_resume",
+          "focus_key": "table",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "Fare clic su eseguire la coda di nuovo per riprendere. Le righe finite vengono saltate e l'esecuzione continua dal primo elemento rimanente in coda; una riga fallita viene registrata come fallita mentre le righe successive possono continuare."
+        },
+        {
+          "narration": "La tabella completata conserva uno stato terminale e il tempo trascorso per ogni elemento. In una fase di produzione, ciascuna riga ha invocato il gasdotto Mask o Measure selezionato con la propria fonte e le proprie impostazioni copiate, come se fosse stato inviato da tale modulo.",
+          "visual": "12_finished",
+          "focus_key": "table",
+          "hold_after": 0.7,
+          "speech_text": "La tabella completata conserva uno stato terminale e il tempo trascorso per ogni elemento. In una fase di produzione, ciascuna riga ha invocato il gasdotto Mask o Measure selezionato con la propria fonte e le proprie impostazioni copiate, come se fosse stato inviato da tale modulo."
+        },
+        {
+          "narration": "Fai clic su Clear finished dopo aver esaminato i risultati. Rimuove le righe di successo, fallite e saltate dal file di coda ma non cancella mai i dati della targa o le uscite della pipeline.",
+          "visual": "13_clear",
+          "focus_key": "table",
+          "click_key": "clear",
+          "hold_after": 0.56,
+          "speech_text": "Fai clic su Clear finished dopo aver esaminato i risultati. Rimuove le righe di successo, fallite e saltate dal file di coda ma non cancella mai i dati della targa o le uscite della pipeline."
+        },
+        {
+          "narration": "Il cruscotto è pronto per il prossimo lotto. Configurare e convalidare prima ogni modulo, mantenere i valori specifici della scheda nella sua immagine o riga CSV, quindi lasciare che Plate Queue fornisca un'esecuzione sequenziale riproducibile e un progresso sicuro per il riavvio.",
+          "visual": "14_empty",
+          "focus_key": "screen",
+          "hold_after": 0.82,
+          "speech_text": "Il cruscotto è pronto per il prossimo lotto. Configurare e convalidare prima ogni modulo, mantenere i valori specifici della scheda nella sua immagine o riga CSV, quindi lasciare che Plate Queue fornisca un'esecuzione sequenziale riproducibile e un progresso sicuro per il riavvio."
         }
       ]
     },

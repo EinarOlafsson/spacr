@@ -4344,47 +4344,121 @@
       "id": "30_plate_queue",
       "number": 30,
       "slug": "plate_queue",
-      "title": "Plate Queue",
+      "title": "Cotação de placas",
       "series": 4,
       "app_key": "queue",
       "section": "Data and batch runs",
-      "description": "Encaixar várias placas através do mesmo gasoduto validado.",
+      "description": "Impressão de configurações reais do módulo, processar placas em filas sequencialmente, parar de forma segura entre trabalhos, retomar o trabalho persistente e limpar as fileiras concluídas.",
       "objectives": [
-        "Entender quando usar a fila de placas.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Adicionar a fonte e as configurações atuais do módulo ativo como um item de fila imutável.",
+        "Importar pastas de placas com configurações e entender a tabela de fila e o estado persistente.",
+        "Execute sequencialmente, pare após o item atual, retoma o trabalho remanescente e limpe as linhas terminais."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Configurar uma fonte e configurações em um módulo spaCR executável, como Mask ou Measure.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange a fila de placas. Encaine várias placas através do mesmo pipeline validado.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange a fila de placas. Encaine várias placas através do mesmo pipeline validado."
+          "narration": "Plate Queue começa com um módulo configurado. Aqui, Mask aponta para o experimento real transferido, usa suas configurações de segmentação salvas e limita este instantâneo a cinco imagens de teste. As fileiras copiam esses valores atuais; edições posteriores em Mask não mudam silenciosamente o trabalho na fileira.",
+          "visual": "01_prepared_mask",
+          "focus_key": "mask_screen",
+          "hold_after": 0.72,
+          "speech_text": "Plate Queue começa com um módulo configurado. Aqui, Mask aponta para o experimento real transferido, usa suas configurações de segmentação salvas e limita este instantâneo a cinco imagens de teste. As fileiras copiam esses valores atuais; edições posteriores em Mask não mudam silenciosamente o trabalho na fileira."
         },
         {
-          "narration": "Abra Plate Queue na seção Data and batch runs. Abra a fila de placa na seção Dados e batches. Adicione fontes de placa e escolha a sequência de módulos compartilhados e configurações pré-definidas.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Plate Queue na seção Data and batch runs. Abra a fila de placa na seção Dados e batches. Adicione fontes de placa e escolha a sequência de módulos compartilhados e configurações pré-definidas."
+          "narration": "Abre a fila de placas dos dados e corre o lote. O painel vazio contém controles para a placa atual, listas de placas separadas por vírgula, limpeza, execução sequencial e uma parada segura entre trabalhos.",
+          "visual": "02_open_queue",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.62,
+          "speech_text": "Abre a fila de placas dos dados e corre o lote. O painel vazio contém controles para a placa atual, listas de placas separadas por vírgula, limpeza, execução sequencial e uma parada segura entre trabalhos."
         },
         {
-          "narration": "Na área de configuração principal, revisar a ordem da placa, as redireções por placa, os limites dos trabalhadores, a política de falha, o comportamento de retomada e as raízes de saída.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, revisar a ordem da placa, as redireções por placa, os limites dos trabalhadores, a política de falha, o comportamento de retomada e as raízes de saída."
+          "narration": "Clique em Adicionar placa corrente. Como o Mask foi o módulo executável mais visitado recentemente, o spaCR captura instantaneamente a chave do módulo, o caminho da fonte real e o dicionário completo de configurações.",
+          "visual": "03_add_current",
+          "focus_key": "toolbar",
+          "click_key": "add",
+          "hold_after": 0.58,
+          "speech_text": "Clique em Adicionar placa corrente. Como o Mask foi o módulo executável mais visitado recentemente, o espáquer captura instantaneamente a chave do módulo, o caminho da fonte real e o dicionário completo de configurações."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Comece com uma placa pequena ou um campo de teste, depois deixe a fila processar as placas sequencialmente com o status visível.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Comece com uma placa pequena ou um campo de teste, depois deixe a fila processar as placas sequencialmente com o status visível."
+          "narration": "A nova linha recebe um identificador persistente curto. Registros do aplicativo em que o pipeline será executado, Label preserva a fonte, Status começa como fila, Elapsed permanece em branco até a execução e Remove está disponível sempre que a linha não está sendo executada.",
+          "visual": "04_mask_queued",
+          "focus_key": "table",
+          "hold_after": 0.66,
+          "speech_text": "A nova linha recebe um identificador persistente curto. Registros do aplicativo em que o pipeline será executado, Label preserva a fonte, Status começa como fila, Elapsed permanece em branco até a execução e Remove está disponível sempre que a linha não está sendo executada."
         },
         {
-          "narration": "Quando o fluxo de trabalho termina, cada placa recebe um projeto isolado e executa um registro enquanto a fila preserva o progresso geral.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho termina, cada placa recebe um projeto isolado e executa um registro enquanto a fila preserva o progresso geral."
+          "narration": "Você também pode arrastar uma pasta de placa contendo snapshots de configurações spaCR para esta tela. A pasta de tutoriais real contribui com os snapshots de Mascara e Medida salvos, e o nome do arquivo identifica o módulo executável. Uma CSV de lista de placas com coluna src é a alternativa para muitas placas separadas.",
+          "visual": "05_folder_drop",
+          "focus_key": "table",
+          "hold_after": 0.78,
+          "speech_text": "Você também pode arrastar uma pasta de placa contendo snapshots de configurações espáquer para esta tela. A pasta de tutoriais real contribui com os snapshots de Mascara e Medida salvos, e o nome do arquivo identifica o módulo executável. Uma CSV de lista de placas com coluna src é a alternativa para muitas placas separadas."
+        },
+        {
+          "narration": "Cada mutação é gravada imediatamente para o arquivo de fila local. Fechar o spaCR não descartará o plano: reabrir Plate Queue restaurará a ordem, configurações copiadas, status, cronometragem e qualquer erro registrado. Revisar as fileiras e remover instantâneos indesejados antes de executar.",
+          "visual": "06_persistence",
+          "focus_key": "table",
+          "hold_after": 0.72,
+          "speech_text": "Cada mutação é gravada imediatamente para o arquivo de fila local. Fechar o espáquer não descartará o plano: reabrir Plate Queue restaurará a ordem, configurações copiadas, status, cronometragem e qualquer erro registrado. Revisar as fileiras e remover instantâneos indesejados antes de executar."
+        },
+        {
+          "narration": "Clique em Executa fila para processar a primeira fila na fila. O executor de produção resolve cada valor do App para o seu pipeline normal spaCR e executa um trabalho de cada vez, o que evita que duas placas concorram pelo mesmo GPU ou recursos de saída.",
+          "visual": "07_run",
+          "focus_key": "table",
+          "click_key": "run",
+          "hold_after": 0.64,
+          "speech_text": "Clique em Executa fila para processar a primeira fila na fila. O executor de produção resolve cada valor do App para o seu pipeline normal espáquer e executa um trabalho de cada vez, o que evita que duas placas concorram pelo mesmo GPU ou recursos de saída."
+        },
+        {
+          "narration": "Mudanças de status de fila para execução e Elapsed atualizações a cada segundo. Esta captura do tutorial usa a validação da fonte em vez dos caros canais de análise, de modo que demonstra o fio real da fila e as transições de estado sem escrever no experimento concluído.",
+          "visual": "08_running",
+          "focus_key": "status",
+          "hold_after": 0.78,
+          "speech_text": "Mudanças de status de fila para execução e Elapsed atualizações a cada segundo. Esta captura do tutorial usa a validação da fonte em vez dos caros canais de análise, de modo que demonstra o fio real da fila e as transições de estado sem escrever no experimento concluído."
+        },
+        {
+          "narration": "Clique em Parar enquanto uma fila está em execução quando não quiser que outra placa comece. A parada é cooperativa: o oleoduto atual chega à conclusão, enquanto as filas posteriores permanecem na fila e mantêm as suas configurações.",
+          "visual": "09_stop",
+          "focus_key": "table",
+          "click_key": "stop",
+          "hold_after": 0.62,
+          "speech_text": "Clique em Parar enquanto uma fila está em execução quando não quiser que outra placa comece. A parada é cooperativa: o oleoduto atual chega à conclusão, enquanto as filas posteriores permanecem na fila e mantêm as suas configurações."
+        },
+        {
+          "narration": "Após a conclusão do item em curso, o seu estatuto é de sucesso e o seu tempo passado é preservado. As fileiras restantes ainda estão na fila, por isso é um limite seguro para fechar o aplicativo, alterar a disponibilidade de recursos ou verificar as saídas.",
+          "visual": "10_stopped",
+          "focus_key": "table",
+          "hold_after": 0.66,
+          "speech_text": "Após a conclusão do item em curso, o seu estatuto é de sucesso e o seu tempo passado é preservado. As fileiras restantes ainda estão na fila, por isso é um limite seguro para fechar o aplicativo, alterar a disponibilidade de recursos ou verificar as saídas."
+        },
+        {
+          "narration": "Clique novamente em Correr a fila para retomar. As fileiras terminadas são ignoradas e a execução continua a partir do primeiro item restante na fila; uma fileira falhada é registrada como falhada enquanto as fileiras posteriores podem continuar.",
+          "visual": "11_resume",
+          "focus_key": "table",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "Clique novamente em Correr a fila para retomar. As fileiras terminadas são ignoradas e a execução continua a partir do primeiro item restante na fila; uma fileira falhada é registrada como falhada enquanto as fileiras posteriores podem continuar."
+        },
+        {
+          "narration": "A tabela preenchida preserva um status terminal e o tempo passado por item. Em uma rodada de produção, cada linha invocou o gasoduto Masca ou Medida selecionado com a sua própria fonte e configurações copiadas, assim como se tivesse sido enviado a partir desse módulo.",
+          "visual": "12_finished",
+          "focus_key": "table",
+          "hold_after": 0.7,
+          "speech_text": "A tabela preenchida preserva um status terminal e o tempo passado por item. Em uma rodada de produção, cada linha invocou o gasoduto Masca ou Medida selecionado com a sua própria fonte e configurações copiadas, assim como se tivesse sido enviado a partir desse módulo."
+        },
+        {
+          "narration": "Clique em Eliminar concluído após analisar os resultados. Elimina filas de sucesso, falhas e saltos do arquivo de fila, mas nunca elimina dados de placa ou saídas de pipeline.",
+          "visual": "13_clear",
+          "focus_key": "table",
+          "click_key": "clear",
+          "hold_after": 0.56,
+          "speech_text": "Clique em Eliminar concluído após analisar os resultados. Elimina filas de sucesso, falhas e saltos do arquivo de fila, mas nunca elimina dados de placa ou saídas de pipeline."
+        },
+        {
+          "narration": "O painel está pronto para o próximo lote. Configurar e validar primeiro cada módulo, manter os valores específicos da placa em sua imagem instantânea ou linha CSV, em seguida, deixar que Plate Queue forneça execução sequencial reprodutível e progressos seguros de reinicialização.",
+          "visual": "14_empty",
+          "focus_key": "screen",
+          "hold_after": 0.82,
+          "speech_text": "O painel está pronto para o próximo lote. Configurar e validar primeiro cada módulo, manter os valores específicos da placa em sua imagem instantânea ou linha CSV, em seguida, deixar que Plate Queue forneça execução sequencial reprodutível e progressos seguros de reinicialização."
         }
       ]
     },

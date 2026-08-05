@@ -1682,19 +1682,46 @@
       "id": "30_plate_queue",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Plate Queue. Kæða fleiri plötur í gegnum sama staðfestan rörleið."
+          "narration": "Plate queue hefst með uppfærðum modúli. Hér vísar Mask á flutninginn raunverulegur tilraun, notar sparað skipta stillingar, og takmarkar þessa snjallsmynd til fimm próf myndir. Leiðbeiningar afrita þessar núverandi gildi; seinni breytingar í Mask breytast ekki þögglega leiðbeiningunni."
         },
         {
-          "narration": "Opnaðu línuna á plötunni í deildinni Upplýsingar og flokka. Bæta upp úr plötum og veldu sameiginlega modulsöð og stillingar sem settar eru fyrirfram."
+          "narration": "Opna flöturinn frá gögnum og flöturnar. Töldu stjórnborðið inniheldur stjórn á núverandi plötu, lista yfir plötu sem eru skilin frá komma, hreinsun, raðfylgjandi framkvæmd og öruggur stöðvun á milli verkefna."
         },
         {
-          "narration": "Í aðalmyndunarsvæðinu, endurskoða plötu röð, per-plötu yfirlýsingar, starfsmann takmörk, mistök stefna, endurskoða hegðun og útgáfu rætur."
+          "narration": "Smelltu á Að bæta við núverandi plötu. Vegna þess að Mask var nýlegasta heimsótt hlaupið, spaCR snapshots modul lykillinn, raunverulegur kjarnbraut, og fullur stillingar orðabók."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. Byrjaðu á litlum plötu eða prófvöllum og láttu síðan röðina vinna plötu í röð með sýnilegum stöðu."
+          "narration": "Nýja röðin fær stutta stöðugt skilgreiningu. App skráir hvaða línu skal keyra, Merkið geymir uppspretta, Staða byrjar sem röð, Elapsed verður tóm þar til framkvæmd, og fjarlægja er í boði hvenær röðin er ekki að keyra."
         },
         {
-          "narration": "Þegar vinnufljósið er lokið fær hvert plötu einangrað verkefni og rekstur á meðan röðin varðveitir heildarframfarir."
+          "narration": "Þú getur líka slegið plötu möppuna sem inniheldur spaCR stillingar snapshots á þennan skjá. Alvöru námsskránni mappan stuðlar að sparaðu Mask og mæla snjallsmyndum, og skránafn skilgreinir hlaupandi modul. CSV á plötulista með src-sálum er valkostur fyrir margar einstakar plötur."
+        },
+        {
+          "narration": "Hverji breyting er skrifuð strax í staðbundna bílagögnum. Að loka spaCR fellur ekki áætluninni: að opna aftur Plate Queue endurheimtir röð, afritað stillingar, stöðu, tímasetningu og allar skráðar mistök. Skoðaðu línurnar og fjarlægðu óæskilegar snjallsmyndir áður en hlaupið er."
+        },
+        {
+          "narration": "Smelltu á Run queue til að vinna úr fyrstu röðinni í röðinni. Framleiðsla hlaupið leysir hvert App gildi í venjulega spaCR línu og framkvæmir eitt verkefni í einu, sem forvarnar tveimur plötum sem keppa um sömu GPU eða útgáfu auðlindir."
+        },
+        {
+          "narration": "Staða breytir frá köru til að hlaupa og Elapsed uppfærslur á hverju sekúndu. Þessi námsskránni tekur stað stað stað staðfestingu heimildar í stað dýrra greiningar línu, þannig að það sýnir raunverulega röð þræði og ríkisskipti án þess að skrifa í lokið tilraun."
+        },
+        {
+          "narration": "Smelltu á Stop þegar röð er í gangi þegar þú vilt ekki að önnur plötu hefjist. Stofnun er samvinna: núverandi línu er lokið en seinni röður eru í röð og halda stillingum sínum."
+        },
+        {
+          "narration": "Eftir að núverandi hlutinn er lokið er stöðu hans árangursríkur og tíma hans er varðveittur. Eftirfarandi röður eru enn í röð, svo þetta er öruggur mörk til að loka forritinu, breyta auðlindum tilgengilegan eða athuga útgáfur."
+        },
+        {
+          "narration": "Smelltu á Rennast í röðinni aftur til að endurreisa. Lögnuð röð eru sleppt og framkvæmd heldur áfram frá fyrstu eftirfarandi röð atriði; mislögð röð er skráð sem mislögð en seinna röð geta haldið áfram."
+        },
+        {
+          "narration": "Í lokið töflu er varðveitt einn stöðugleiki og tímaframfarinn fyrir hvert atriði. Í framleiðslustöðinni hefur hverja röð kallað á valinn Mask eða Measure pipeline með sínum eigin afritaðum uppruna og stillingum, eins og hún hefði verið send frá þessum módeli."
+        },
+        {
+          "narration": "Smelltu á Skildu lokið eftir að hafa skoðað niðurstöðurnar. Það fjarlægir árangur, mislögð, og hoppaðir línur úr köfn skrá en aldrei eyða plötu gögn eða útgáfur pípulags."
+        },
+        {
+          "narration": "Lögborðið er tilbúið fyrir næsta flokk. Sniðgefið og staðfestu fyrst hvert modul, geymdu plötu-sérhæf gildi í snjallsmyndinni eða CSV röðinni og láttu síðan Plate Queue veita endurtekjanlegan raðfylgjandi framkvæmd og endurbyrjunar öruggan framgang."
         }
       ]
     },
