@@ -1,11 +1,12 @@
 """What the published documentation site is allowed to weigh.
 
 ``docs/source/conf.py`` sets ``html_extra_path`` so that sphinx copies the
-tutorial library into every build. That library is 712 MiB, of which 659 MiB
-(93%) is pre-rendered narration: one ``.m4a`` per lesson x language x **voice**,
-40 x 54 = 2,160 files. The built site is therefore ~876 MB against a GitHub
-Pages limit of **1 GB** -- 88% of the ceiling, with a lesson batch and a ninth
-language both queued behind it.
+tutorial library into every build. That library is 2,879 MiB, most of it
+pre-rendered narration: one ``.m4a`` per lesson x language x **voice**,
+40 x 54 = 2,160 files. Copying it whole would put the built site far past the
+GitHub Pages limit of **1 GB**, and Pages does not fail loudly when that
+happens -- it refuses the deployment and keeps serving the last build that
+fitted, which reads exactly like a site that did not rebuild.
 
 This module stages a *filtered* copy of ``_extra`` for the build, so the site
 ships one voice per language instead of all 54. Nothing is deleted: the full
@@ -34,9 +35,9 @@ Why staging rather than pruning the output
 ------------------------------------------
 
 Sphinx has no exclude mechanism for ``html_extra_path``, so the alternative is
-to let it copy 712 MiB and delete most of it on ``build-finished``. Staging
-hardlinks instead: the tree costs nothing to build, and sphinx copies ~90 MiB
-rather than 712.
+to let it copy 2,879 MiB and delete most of it on ``build-finished``. Staging
+hardlinks instead: the tree costs nothing to build, and sphinx copies ~603 MiB
+rather than 2,879.
 
 Run it directly for the measurement::
 
@@ -60,10 +61,22 @@ VOICES_PER_LANGUAGE = 1
 
 #: Ceiling on the staged tutorial payload, in bytes. Not the Pages limit --
 #: this is the tutorial library alone, and the rest of the site (autoapi HTML,
-#: ``_modules``, ``_static``, ``resources``) is ~52 MiB on top. Sized to leave
-#: the whole site under a quarter of the 1 GB Pages limit so that the next
-#: lesson batch does not need a conversation about it.
-PUBLISHED_MEDIA_CEILING = 160 * 1024 * 1024
+#: ``_modules``, ``_static``, ``resources``) is ~52 MiB on top.
+#:
+#: Raised from 160 MiB when all 40 lessons were re-recorded. The rebuilt
+#: lessons are longer, so their narration is roughly 4x the old library's:
+#: audio alone is 413 MiB and no longer fits under the old number however the
+#: video is encoded. The videos were re-encoded from the 4K masters to 1440p
+#: to compensate (681 MiB -> 166 MiB, 4.1x); the 4K originals are kept outside
+#: the repo and published to YouTube, which each lesson links to.
+#:
+#: Today that totals 603 MiB, so the site is ~655 MiB -- 69% of the 1 GB
+#: limit, with room for roughly 20 more lessons at the current 15 MiB each.
+#: The headroom is thinner than the 160 MiB era and that is deliberate: the
+#: alternative was dropping languages. This still catches what the ceiling
+#: exists to catch -- ``VOICES_PER_LANGUAGE`` going to 2 would put audio at
+#: ~825 MiB and trip this immediately.
+PUBLISHED_MEDIA_CEILING = 700 * 1024 * 1024
 
 #: Set to ``1`` to publish the entire library, ceiling and all.
 FULL_AUDIO_ENV = "SPACR_DOCS_FULL_AUDIO"
