@@ -53,30 +53,45 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Sequence, Tuple
 
+#: Where the player fetches narration. Empty means "from the site itself",
+#: and the per-language rationing below applies. Set, it means the audio and
+#: its timing sidecars are served from this host instead, so none of them are
+#: published and the voice catalog is left listing every voice.
+#:
+#: This is the same string as ``data-audio-root`` on ``index.html``; the page
+#: is what actually points the player at it, and this constant is what stops
+#: the build shipping a second copy nothing would request.
+NARRATION_HOST = (
+    "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/main")
+
+#: :data:`VOICES_PER_LANGUAGE` sentinel: publish no narration at all.
+NARRATION_EXTERNAL = -1
+
 #: Voices published per language, in catalog order. 1 keeps the default voice
-#: -- what a visitor hears without touching the picker. Raising it multiplies
-#: the site by roughly this number; :data:`PUBLISHED_MEDIA_CEILING` and
-#: ``tests/test_docs_media_budget.py`` are what stop that happening by accident.
-VOICES_PER_LANGUAGE = 1
+#: -- what a visitor hears without touching the picker; 0 keeps all of them;
+#: :data:`NARRATION_EXTERNAL` keeps none.
+#:
+#: It was 1 while narration had to fit on Pages, and that was the whole
+#: problem: all 54 voices are 2,662 MiB against a 1 GB site limit, so 27 of
+#: the 28 English voices could never be offered. Moving the audio to
+#: :data:`NARRATION_HOST` removes the constraint instead of rationing it --
+#: every voice is now reachable, and the site stops carrying any of them.
+VOICES_PER_LANGUAGE = NARRATION_EXTERNAL
 
 #: Ceiling on the staged tutorial payload, in bytes. Not the Pages limit --
 #: this is the tutorial library alone, and the rest of the site (autoapi HTML,
 #: ``_modules``, ``_static``, ``resources``) is ~52 MiB on top.
 #:
-#: Raised from 160 MiB when all 40 lessons were re-recorded. The rebuilt
-#: lessons are longer, so their narration is roughly 4x the old library's:
-#: audio alone is 413 MiB and no longer fits under the old number however the
-#: video is encoded. The videos were re-encoded from the 4K masters to 1440p
-#: to compensate (681 MiB -> 166 MiB, 4.1x); the 4K originals are kept outside
-#: the repo and published to YouTube, which each lesson links to.
+#: It was 160 MiB while the site carried one voice per language, went to
+#: 700 MiB when re-recording all 40 lessons quadrupled the narration, and came
+#: back down once the audio moved to :data:`NARRATION_HOST`. What is left is
+#: video and posters: 185 MiB, for a ~237 MiB site, a quarter of the limit.
 #:
-#: Today that totals 603 MiB, so the site is ~655 MiB -- 69% of the 1 GB
-#: limit, with room for roughly 20 more lessons at the current 15 MiB each.
-#: The headroom is thinner than the 160 MiB era and that is deliberate: the
-#: alternative was dropping languages. This still catches what the ceiling
-#: exists to catch -- ``VOICES_PER_LANGUAGE`` going to 2 would put audio at
-#: ~825 MiB and trip this immediately.
-PUBLISHED_MEDIA_CEILING = 700 * 1024 * 1024
+#: 300 MiB rather than something looser because a ceiling far above the real
+#: number stops being a guard. This one still trips on the things worth
+#: catching: narration coming back onto the site, or the video being committed
+#: at 4K again (681 MiB) instead of the published 1440p.
+PUBLISHED_MEDIA_CEILING = 300 * 1024 * 1024
 
 #: Set to ``1`` to publish the entire library, ceiling and all.
 FULL_AUDIO_ENV = "SPACR_DOCS_FULL_AUDIO"
@@ -135,10 +150,14 @@ def published_voices(catalog: Dict[str, List[str]],
                      ) -> Dict[str, List[str]]:
     """The voices that go on the site, per language.
 
-    ``per_language <= 0`` means all of them, which is what
-    :data:`FULL_AUDIO_ENV` selects.
+    ``per_language == 0`` means all of them, which is what
+    :data:`FULL_AUDIO_ENV` selects. :data:`NARRATION_EXTERNAL` means none:
+    narration is served from :data:`NARRATION_HOST`, so publishing a copy
+    to Pages would cost the budget without anything ever requesting it.
     """
-    if per_language <= 0:
+    if per_language < 0:
+        return {lang: [] for lang in catalog}
+    if per_language == 0:
         return {lang: list(voices) for lang, voices in catalog.items()}
     return {lang: list(voices)[:per_language]
             for lang, voices in catalog.items()}
@@ -251,7 +270,11 @@ def stage(dest: Path, extra: Path | None = None,
     for path in published:
         target = dest / path.relative_to(extra)
         target.parent.mkdir(parents=True, exist_ok=True)
-        if path == catalog_source:
+        # The catalog is trimmed to what was staged only when the site is the
+        # thing serving narration. With the audio on NARRATION_HOST every
+        # voice is reachable, so trimming would hide 40 working voices behind
+        # a filter that exists to prevent 404s that can no longer happen.
+        if path == catalog_source and per_language >= 0:
             target.write_text(filter_voice_catalog(path.read_text(), keep))
             continue
         try:
@@ -268,7 +291,12 @@ def _total(paths: Sequence[Path]) -> int:
 
 
 def per_language_setting() -> int:
-    """The policy in force, honouring :data:`FULL_AUDIO_ENV`."""
+    """The policy in force, honouring :data:`FULL_AUDIO_ENV`.
+
+    The environment variable still means "publish everything", which is now
+    also the way to build a site that works with no access to
+    :data:`NARRATION_HOST` -- an offline or air-gapped copy of the docs.
+    """
     if os.environ.get(FULL_AUDIO_ENV, "").strip() in ("1", "true", "yes"):
         return 0
     return VOICES_PER_LANGUAGE
@@ -289,10 +317,14 @@ def report(extra: Path | None = None,
         f"dropped:          {(before - after) / mib:.1f} MiB in {len(dropped)} files",
         f"ceiling:          {PUBLISHED_MEDIA_CEILING / mib:.0f} MiB"
         f"  ({'ok' if after <= PUBLISHED_MEDIA_CEILING else 'OVER'})",
-        "voices published:",
     ]
-    for language, voices in keep.items():
-        lines.append(f"  {language:<6} {', '.join(voices) or '(none)'}")
+    if per_language < 0:
+        lines.append(f"narration:        served from {NARRATION_HOST}")
+        lines.append("                  every voice offered, none published")
+    else:
+        lines.append("voices published:")
+        for language, voices in keep.items():
+            lines.append(f"  {language:<6} {', '.join(voices) or '(none)'}")
     return "\n".join(lines)
 
 
