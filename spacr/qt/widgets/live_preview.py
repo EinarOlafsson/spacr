@@ -1522,10 +1522,26 @@ class LivePreviewPanel(QWidget):
         self._sample_note = apply_sample_to_combo(
             self._fov_box, self._max_sets_box, self._sampler,
             self._image_path, tooltip="Field of view")
+        # Channel count from the array when the file holds a channel axis,
+        # and from the enumeration when it does not. One .tif per channel is
+        # the normal cellvoyager layout, and those arrays are 2-D — reading
+        # the count off shape[2] alone meant the dropdown offered nothing but
+        # "All channels" for exactly the folders that have the most channels.
         channels = (int(self._image.shape[2])
                     if self._image is not None and self._image.ndim == 3
                     else 0)
+        if channels <= 1:
+            try:
+                channels = max(channels, len(self._sampler.channels or ()))
+            except Exception:
+                pass
         populate_channel_combo(self._channel_box, channels)
+        # Both of these describe the enumeration that just ran, so they belong
+        # here rather than at the call sites: this is the one function every
+        # load path goes through, which is why hanging them off a caller left
+        # the table empty and the MIP switch dead on a real folder drop.
+        self._populate_set_table()
+        self._refresh_mip_toggle()
 
     def sample_note(self) -> str:
         """The sentence stating this preview is a sample of N of M sets."""
@@ -1677,8 +1693,6 @@ class LivePreviewPanel(QWidget):
         if not self._sampler.set_max(int(value)):
             return
         self._refresh_source_selectors()
-        self._populate_set_table()
-        self._refresh_mip_toggle()
         self._announce_sample()
 
     def _announce_sample(self) -> None:
