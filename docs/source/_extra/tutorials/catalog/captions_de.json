@@ -1682,19 +1682,46 @@
       "id": "30_plate_queue",
       "scenes": [
         {
-          "narration": "Dieses Tutorial deckt Plate Queue ab. Kette mehrere Platten durch die gleiche validierte Pipeline."
+          "narration": "Plate Queue beginnt mit einem konfigurierten Modul. Hier weist Mask auf das übertragene reale Experiment hin, verwendet seine gespeicherten Segmentierungseinstellungen und beschränkt diesen Snapshot auf fünf Testbilder. Die Warteschlange kopiert diese aktuellen Werte; spätere Bearbeitungen in Mask ändern den Warteschlange nicht leise."
         },
         {
-          "narration": "Öffnen Sie die Plattenschlange im Abschnitt Daten und Batchläufe. Fügen Sie Plattenquellen hinzu und wählen Sie die gemeinsame Modulsequenz und Einstellungen vordefiniert."
+          "narration": "Öffnen Sie die Plattenschlange von Data und laufen die Chargen. Das leere Dashboard enthält Steuerungen für die aktuelle Platte, kommaspezifische Plattenlisten, Reinigung, sequentielle Ausführung und einen sicheren Stopp zwischen den Aufgaben."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich überprüfen Sie die Reihenfolge der Platten, die Überschreitung pro Platte, die Grenzen für Arbeiter, die Fehlerrichtlinie, das Wiederholungsverhalten und die Ausgangswurzeln."
+          "narration": "Klicken Sie auf Hinzufügen der aktuellen Platte. Da Mask das jüngst besuchte laufbare Modul war, schnappt spaCR seinen Modulschlüssel, den echten Quellweg und das vollständige Einstellungswörterbuch auf."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Beginnen Sie mit einer kleinen Platte oder einem Prüffeld, lassen Sie die Schlange dann die Platten sequentiell mit sichtbarem Status verarbeiten."
+          "narration": "Die neue Zeile erhält einen kurzen, anhaltenden Identifikator. Die App-Aufzeichnungen, welche Pipeline ausgeführt wird, Label bewahrt die Quelle, Status beginnt als Warteschlange, Elapsed bleibt bis zur Ausführung leer und Remove ist verfügbar, wenn die Zeile nicht ausgeführt wird."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, erhält jede Platte ein einzelnes Projekt und liefert eine Aufzeichnung, während die Warteschlange den Gesamtfortschritt bewahrt."
+          "narration": "Sie können auch einen Datensatzordner mit Snapshots von spaCR-Einstellungen auf diesen Bildschirm ziehen. Der eigentliche Tutorial-Ordner trägt seine gespeicherten Mask und Measure-Snapshots bei, und der Dateiname identifiziert das laufbare Modul. Eine CSV mit einer src-Spalte ist die Alternative zu vielen separaten Platten."
+        },
+        {
+          "narration": "Jede Mutation wird sofort in die lokale Reihenakte geschrieben. Das Schließen von spaCR entfernt den Plan nicht: Die Wiedereröffnung von Plate Queue stellt die Reihenfolge, kopierte Einstellungen, Status, Timing und alle aufgezeichneten Fehler wieder her. Überprüfen Sie die Zeilen und entfernen Sie unerwünschte Schnappschüsse, bevor Sie laufen."
+        },
+        {
+          "narration": "Klicken Sie auf Laufen Warteschlange, um die erste Warteschlange zu verarbeiten. Der Produktionsläufer löst jeden App-Wert in seine normale spaCR-Pipeline und führt einen Job nach dem anderen durch, wodurch zwei Platten nicht um dieselbe GPU oder Ausgangsressourcen konkurrieren."
+        },
+        {
+          "narration": "Der Status ändert sich von der Warteschlange zum laufenden und Elapsed wird jede Sekunde aktualisiert. Diese Tutorial-Aufnahme verwendet die Quellvalidierung anstelle der teuren Analyse-Pipelines, so dass es den echten Schlange-Thread und Zustand-Übergangs ohne Schreiben in das abgeschlossenes Experiment zeigt."
+        },
+        {
+          "narration": "Klicken Sie auf Stoppen, wenn eine Zeile ausgeführt wird, wenn Sie nicht möchten, dass eine andere Platte beginnt. Die Haltestelle ist kooperativ: Die derzeitige Pipeline ist abgeschlossen, während spätere Reihen in der Schlange bleiben und ihre Einstellungen behalten."
+        },
+        {
+          "narration": "Nach Abschluss des aktuellen Artikels ist sein Status erfolgreich und seine vergangene Zeit erhalten. Die übrigen Zeilen sind noch in der Schlange, also ist dies eine sichere Grenze für das Schließen der Anwendung, das Ändern der Ressourcenverfügbarkeit oder die Überprüfung der Ausgänge."
+        },
+        {
+          "narration": "Klicken Sie erneut auf Laufen der Warteschlange, um zu fortsetzen. Fertige Zeilen werden übersprungen und die Ausführung wird ab dem ersten verbleibenden in der Warteschlange verfolgt; eine fehlende Zeile wird als fehlgeschlagen aufgezeichnet, während spätere Zeilen weitergeführt werden können."
+        },
+        {
+          "narration": "Die ausgefüllte Tabelle behält einen Terminalsatz und die vergangene Zeit pro Artikel bei. In einem Produktionslauf hat sich jede Zeile auf die ausgewählte Maske- oder Messpipeline mit ihrer eigenen kopierten Quelle und Einstellungen berufen, als wäre sie aus diesem Modul eingereicht worden."
+        },
+        {
+          "narration": "Klicken Sie auf Schließen abgeschlossen, nachdem Sie die Ergebnisse überprüft haben. Es entfernt erfolgreiche, fehlgeschlagenen und übersprungenen Zeilen aus der Warteschlange, löscht aber niemals Plattendaten oder Pipeline-Ausgänge."
+        },
+        {
+          "narration": "Das Dashboard ist bereit für die nächste Charge. Konfigurieren und validieren Sie zunächst jedes Modul, behalten Sie platzspezifische Werte in seinem Snapshot oder CSV-Reihe, lassen Sie dann Plate Queue eine reproduzierbare sequentielle Ausführung und einen sicheren Neustartvorgang liefern."
         }
       ]
     },

@@ -4344,47 +4344,121 @@
       "id": "30_plate_queue",
       "number": 30,
       "slug": "plate_queue",
-      "title": "Plate Queue",
+      "title": "La file d'attente des plaques",
       "series": 4,
       "app_key": "queue",
       "section": "Data and batch runs",
-      "description": "Chaîne de plaques multiples à travers le même pipeline validé.",
+      "description": "Immédiatement des paramètres réels du module, traiter les plaques en file d'attente de manière séquentielle, s'arrêter en toute sécurité entre les tâches, reprendre le travail persistant et effacer les lignes terminées.",
       "objectives": [
-        "Comprendre quand utiliser la file d'attente de plaque.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Ajoutez la source et les paramètres actuels du module actif comme un élément de file d'attente immuable.",
+        "Importer des dossiers de plaques contenant des paramètres et comprendre la table de file d'attente et l'état persistant.",
+        "Exécutez séquentiellement, arrêtez après l'élément en cours, reprenez le travail restant et nettoyez les lignes terminales."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Configurer une source et des paramètres dans un module spaCR exécutable tel que Mask ou Measure.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre Plate Queue. Chaîne plusieurs plaques à travers le même pipeline validé.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre Plate Queue. Chaîne plusieurs plaques à travers le même pipeline validé."
+          "narration": "Plate queue commence par un module configuré. Ici, Mask pointe vers l'expérience réelle transférée, utilise ses paramètres de segmentation enregistrés et limite cet instantané à cinq images de test. La file d'attente copie ces valeurs actuelles; les modifications ultérieures dans Mask ne changent pas silencieusement le travail de file d'attente.",
+          "visual": "01_prepared_mask",
+          "focus_key": "mask_screen",
+          "hold_after": 0.72,
+          "speech_text": "Plate queue commence par un module configuré. Ici, Mask pointe vers l'expérience réelle transférée, utilise ses paramètres de segmentation enregistrés et limite cet instantané à cinq images de test. La file d'attente copie ces valeurs actuelles; les modifications ultérieures dans Mask ne changent pas silencieusement le travail de file d'attente."
         },
         {
-          "narration": "Ouvrez Plate Queue dans la section Data and batch runs. Ajoutez des sources de plaques et choisissez la séquence de module partagé et les paramètres prédéfinis.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez Plate Queue dans la section Data and batch runs. Ajoutez des sources de plaques et choisissez la séquence de module partagé et les paramètres prédéfinis."
+          "narration": "Ouvrez la file d'attente de la plaque de données et de l'exécution des lots. Le tableau de bord vide contient des commandes pour la plaque actuelle, des listes de plaques séparées par des virgules, le nettoyage, l'exécution séquentielle et un arrêt sûr entre les tâches.",
+          "visual": "02_open_queue",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.62,
+          "speech_text": "Ouvrez la file d'attente de la plaque de données et de l'exécution des lots. Le tableau de bord vide contient des commandes pour la plaque actuelle, des listes de plaques séparées par des virgules, le nettoyage, l'exécution séquentielle et un arrêt sûr entre les tâches."
         },
         {
-          "narration": "Dans la zone de configuration principale, consultez l'ordre de la plaque, les dépassages par plaque, les limites des travailleurs, la politique de défaillance, le comportement de reprendre et les racines de sortie.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, consultez l'ordre de la plaque, les dépassages par plaque, les limites des travailleurs, la politique de défaillance, le comportement de reprendre et les racines de sortie."
+          "narration": "Cliquez sur Ajouter la plaque courante. Parce que Mask était le module exécutable le plus récemment visité, spaCR capture instantanément sa clé de module, son chemin de source réel et son dictionnaire de paramètres complet.",
+          "visual": "03_add_current",
+          "focus_key": "toolbar",
+          "click_key": "add",
+          "hold_after": 0.58,
+          "speech_text": "Cliquez sur Ajouter la plaque courante. Parce que Mask était le module exécutable le plus récemment visité, spakeur capture instantanément sa clé de module, son chemin de source réel et son dictionnaire de paramètres complet."
         },
         {
-          "narration": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il y en a un. Commencez par une petite plaque ou un champ d'essai, puis laissez la file d'attente traiter les plaques séquentiellement avec l'état visible.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il y en a un. Commencez par une petite plaque ou un champ d'essai, puis laissez la file d'attente traiter les plaques séquentiellement avec l'état visible."
+          "narration": "La nouvelle rangée reçoit un identifiant court et persistant. L'application enregistre le pipeline qui sera exécuté, l'étiquette conserve la source, le statut commence comme file d'attente, Elapsed reste vide jusqu'à l'exécution, et Remove est disponible chaque fois que la rangée n'est pas exécutée.",
+          "visual": "04_mask_queued",
+          "focus_key": "table",
+          "hold_after": 0.66,
+          "speech_text": "La nouvelle rangée reçoit un identifiant court et persistant. L'application enregistre le pipeline qui sera exécuté, l'étiquette conserve la source, le statut commence comme file d'attente, Elapsed reste vide jusqu'à l'exécution, et Remove est disponible chaque fois que la rangée n'est pas exécutée."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, chaque plaque reçoit un projet isolé et une fiche d'exécution, tandis que la file d'attente préserve les progrès globaux.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, chaque plaque reçoit un projet isolé et une fiche d'exécution, tandis que la file d'attente préserve les progrès globaux."
+          "narration": "Vous pouvez également glisser un dossier de plaque contenant des instantanés des paramètres spaCR sur cet écran. Le vrai dossier de tutoriel contribue à ses instantanés de masque et de mesure enregistrés, et le nom du fichier identifie le module exécutable. Un CSV de liste de plaques avec une colonne src est l'alternative pour de nombreuses plaques séparées.",
+          "visual": "05_folder_drop",
+          "focus_key": "table",
+          "hold_after": 0.78,
+          "speech_text": "Vous pouvez également glisser un dossier de plaque contenant des instantanés des paramètres spakeur sur cet écran. Le vrai dossier de tutoriel contribue à ses instantanés de masque et de mesure enregistrés, et le nom du fichier identifie le module exécutable. Un CSV de liste de plaques avec une colonne src est l'alternative pour de nombreuses plaques séparées."
+        },
+        {
+          "narration": "Chaque mutation est écrite immédiatement dans le fichier de la file d'attente locale. La fermeture de spaCR n'abandonne pas le plan: la réouverture de Plate Queue rétablit l'ordre, les paramètres copiés, les statuts, le timing et toute erreur enregistrée. Examinez les lignes et supprimez les instantanés indésirables avant d'exécuter.",
+          "visual": "06_persistence",
+          "focus_key": "table",
+          "hold_after": 0.72,
+          "speech_text": "Chaque mutation est écrite immédiatement dans le fichier de la file d'attente locale. La fermeture de spakeur n'abandonne pas le plan: la réouverture de Plate Queue rétablit l'ordre, les paramètres copiés, les statuts, le timing et toute erreur enregistrée. Examinez les lignes et supprimez les instantanés indésirables avant d'exécuter."
+        },
+        {
+          "narration": "Cliquez sur Exécuter la file d'attente pour traiter la première rangée de file d'attente. L'exécuteur de production résolve chaque valeur App à son pipeline spaCR normal et exécute une tâche à la fois, ce qui évite que deux plaques rivalisent pour le même GPU ou les mêmes ressources de sortie.",
+          "visual": "07_run",
+          "focus_key": "table",
+          "click_key": "run",
+          "hold_after": 0.64,
+          "speech_text": "Cliquez sur Exécuter la file d'attente pour traiter la première rangée de file d'attente. L'exécuteur de production résolve chaque valeur App à son pipeline spakeur normal et exécute une tâche à la fois, ce qui évite que deux plaques rivalisent pour le même GPU ou les mêmes ressources de sortie."
+        },
+        {
+          "narration": "L'état change de la file d'attente à l'exécution et Elapsed est mis à jour toutes les secondes. Ce didacticiel de capture utilise la validation de source à la place des pipelines d'analyse coûteuses, de sorte qu'il démontre le fil réel de file d'attente et les transitions d'état sans écrire dans l'expérience complète.",
+          "visual": "08_running",
+          "focus_key": "status",
+          "hold_after": 0.78,
+          "speech_text": "L'état change de la file d'attente à l'exécution et Elapsed est mis à jour toutes les secondes. Ce didacticiel de capture utilise la validation de source à la place des pipelines d'analyse coûteuses, de sorte qu'il démontre le fil réel de file d'attente et les transitions d'état sans écrire dans l'expérience complète."
+        },
+        {
+          "narration": "Cliquez sur Arrêter pendant qu'une rangée est en cours d'exécution lorsque vous ne voulez pas qu'une autre plaque commence. L'arrêt est coopératif: le pipeline actuel est achevé, tandis que les lignes ultérieures restent en file d'attente et conservent leurs paramètres.",
+          "visual": "09_stop",
+          "focus_key": "table",
+          "click_key": "stop",
+          "hold_after": 0.62,
+          "speech_text": "Cliquez sur Arrêter pendant qu'une rangée est en cours d'exécution lorsque vous ne voulez pas qu'une autre plaque commence. L'arrêt est coopératif: le pipeline actuel est achevé, tandis que les lignes ultérieures restent en file d'attente et conservent leurs paramètres."
+        },
+        {
+          "narration": "Après la fin de l'article actuel, son statut est de succès et son temps écoulé est préservé. Les lignes restantes sont toujours en file d'attente, donc c'est une limite sûre pour fermer l'application, changer la disponibilité des ressources ou vérifier les sorties.",
+          "visual": "10_stopped",
+          "focus_key": "table",
+          "hold_after": 0.66,
+          "speech_text": "Après la fin de l'article actuel, son statut est de succès et son temps écoulé est préservé. Les lignes restantes sont toujours en file d'attente, donc c'est une limite sûre pour fermer l'application, changer la disponibilité des ressources ou vérifier les sorties."
+        },
+        {
+          "narration": "Cliquez à nouveau sur Exécuter la file d'attente pour reprendre. Les lignes terminées sont saisies et l'exécution se poursuit à partir du premier élément restant dans la file d'attente; une ligne ratée est enregistrée comme ratée tandis que les lignes ultérieures peuvent se poursuivre.",
+          "visual": "11_resume",
+          "focus_key": "table",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "Cliquez à nouveau sur Exécuter la file d'attente pour reprendre. Les lignes terminées sont saisies et l'exécution se poursuit à partir du premier élément restant dans la file d'attente; une ligne ratée est enregistrée comme ratée tandis que les lignes ultérieures peuvent se poursuivre."
+        },
+        {
+          "narration": "Le tableau complété conserve un statut terminal et le temps écoulé par élément. Lors d'une série de production, chaque ligne a invoqué le pipeline de masque ou de mesure sélectionné avec sa source et ses paramètres copiés, comme s'il avait été soumis à partir de ce module.",
+          "visual": "12_finished",
+          "focus_key": "table",
+          "hold_after": 0.7,
+          "speech_text": "Le tableau complété conserve un statut terminal et le temps écoulé par élément. Lors d'une série de production, chaque ligne a invoqué le pipeline de masque ou de mesure sélectionné avec sa source et ses paramètres copiés, comme s'il avait été soumis à partir de ce module."
+        },
+        {
+          "narration": "Cliquez sur Éliminer terminé après avoir examiné les résultats. Il supprime les lignes de réussite, d'échec et de saut dans le fichier de file d'attente, mais ne supprime jamais les données de plaque ou les sorties de pipeline.",
+          "visual": "13_clear",
+          "focus_key": "table",
+          "click_key": "clear",
+          "hold_after": 0.56,
+          "speech_text": "Cliquez sur Éliminer terminé après avoir examiné les résultats. Il supprime les lignes de réussite, d'échec et de saut dans le fichier de file d'attente, mais ne supprime jamais les données de plaque ou les sorties de pipeline."
+        },
+        {
+          "narration": "Le tableau de bord est prêt pour le prochain lot. Configurer et valider tout d'abord chaque module, conserver les valeurs spécifiques à la plaque dans son instantané ou sa rangée CSV, puis laisser Plate Queue fournir une exécution séquentielle reproductible et une avancée sécurisée de redémarrage.",
+          "visual": "14_empty",
+          "focus_key": "screen",
+          "hold_after": 0.82,
+          "speech_text": "Le tableau de bord est prêt pour le prochain lot. Configurer et valider tout d'abord chaque module, conserver les valeurs spécifiques à la plaque dans son instantané ou sa rangée CSV, puis laisser Plate Queue fournir une exécution séquentielle reproductible et une avancée sécurisée de redémarrage."
         }
       ]
     },
