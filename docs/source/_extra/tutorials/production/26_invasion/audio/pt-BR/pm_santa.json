@@ -4,47 +4,237 @@
   "voice": "pm_santa",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 50.75,
+  "total_duration": 364.235,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.575,
-      "scene_end": 9.024999999999999,
-      "duration": 9.024999999999999,
-      "text": "Este tutorial abrange o teste de invasão. Use uma coloração de duas cores exterior contra interior para distinguir os parásitos invadidos."
+      "speech_end": 15.4,
+      "scene_end": 16.0,
+      "duration": 16.0,
+      "text": "O Assay da Invasão marca cada parasita como ligado ou invadido a partir de uma mancha de duas cores. O console registra configurações resolvidas, limiares, QC, saídas, avisos e erros; a caixa de bate-papo pode discutir esse contexto quando a IA é habilitada.",
+      "speech_text": "O Assay da Invasão marca cada parasita como ligado ou invadido a partir de uma mancha de duas cores. O console registra configurações resolvidas, limiares, QC, saídas, avisos e erros; a caixa de bate-papo pode discutir esse contexto quando a IA é habilitada.",
+      "phonemes": "u asˈI da ˌiŋvazˈɐ̃ʊ̃ mˈaɾəkæ kˈadæ pˌaɾazˈitæ kˌomʊ lˌiɡˈadw ow ˌiŋvaʤˈidw a paɾəʧˈir ʤj ˌumæ mˈɐ̃ŋʃæ ʤy dˈuæs kˈoɾys. ʊ kˌoŋsˈoly xˌeʒˈistræ kˌoŋfiɡˌuɾasˈõjz xˌezowvˈidæs, lˌimiˈaɾys, kˌesˈe, sˌaˈidæs, ˌavˈizʊz i ˈexʊs; a kˈIʃæ ʤy bˈaʧypˈapʊ pˌɔʤy ʤˌiskuʧˈiɾ ˌesi kˌoŋtˈestʊ kwˈɐ̃ŋdw a ˌiˈa ɛ ˌabilitˈadæ."
     },
     {
       "scene": 2,
-      "speech_start": 9.024999999999999,
-      "speech_end": 16.325,
-      "scene_end": 16.775,
-      "duration": 7.75,
-      "text": "Abra Invasion assay na seção Toxoplasma assays. Avaliação de Invasão Aberta da secção de Análise de Toxoplasma."
+      "speech_start": 16.0,
+      "speech_end": 28.4,
+      "scene_end": 28.9,
+      "duration": 12.899999999999999,
+      "text": "As rotas de troca da IA só conversam quando solicitadas. Seu menu adjacente seleciona um provedor configurado e abre as configurações do provedor; a análise de invasão permanece local e não requer IA.",
+      "speech_text": "As rotas de troca da IA só conversam quando solicitadas. Seu menu adjacente seleciona um provedor configurado e abre as configurações do provedor; a análise de invasão permanece local e não requer IA.",
+      "phonemes": "az xˈɔtæz ʤy trˈɔkæ da ˌiˈa sˈɔ kˌoŋvˈɛɾəsɐ̃ʊ̃ kwˈɐ̃ŋdʊ sˌolisitˈadæs. seʊ menˈu ˌadʒasˈAŋʧy sˌelesiˈonæ ũŋ prˌovedˈor kˌoŋfiɡuɾˈadw i ˈabri as kˌoŋfiɡˌuɾasˈõjz dʊ prˌovedˈor; a ˌænˈalizy ʤj ˌiŋvazˈɐ̃ʊ̃ pˌeɾəmænˈɛsy lokˈW i nˌɐ̃ʊ̃ xekˈɛɾ ˌiˈa."
     },
     {
       "scene": 3,
-      "speech_start": 16.775,
-      "speech_end": 26.174999999999997,
-      "scene_end": 26.624999999999996,
-      "duration": 9.849999999999998,
-      "text": "Na área de configuração principal, configurar limites de intensidade, correspondência de objetos, manipulação de ambigüidade e agrupamento de nível bem."
+      "speech_start": 28.9,
+      "speech_end": 43.05,
+      "scene_end": 43.55,
+      "duration": 14.649999999999999,
+      "text": "A configuração do provedor separa os assistentes locais e hospedados. Configure apenas os serviços que pretende usar e revise as informações de privacidade antes de compartilhar o contexto de console ou teste com um provedor remoto.",
+      "speech_text": "A configuração do provedor separa os assistentes locais e hospedados. Configure apenas os serviços que pretende usar e revise as informações de privacidade antes de compartilhar o contexto de console ou teste com um provedor remoto.",
+      "phonemes": "a kˌoŋfiɡˌuɾasˈɐ̃ʊ̃ dʊ prˌovedˈor sˌepˈaɾæ ʊz ˌasistˈAŋʧyz lokˈIz i ˌospedˈadʊs. kˌoŋfiɡˈuɾi ˌapˈenæz ʊs sˌeɾəvˈisʊs ky prˌetˈAŋʤj uzˈaɾ i xˌevˈizj az ˌiŋfoɾəmasˈõjz ʤy prˌivasidˈaʤj ˈɐ̃ŋʧyz ʤy kˌompaɾəʧiljˈaɾ ʊ kˌoŋtˈestʊ ʤy kˌoŋsˈoli ow tˈɛsʧy koŋ ũŋ prˌovedˈor xˌemˈɔtʊ."
     },
     {
       "scene": 4,
-      "speech_start": 26.624999999999996,
-      "speech_end": 39.824999999999996,
-      "scene_end": 40.275,
-      "duration": 13.650000000000002,
-      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. revise os exemplos anexados, invadidos e incertos antes de aceitar a regra de classificação."
+      "speech_start": 43.55,
+      "speech_end": 55.775,
+      "scene_end": 56.254999999999995,
+      "duration": 12.704999999999998,
+      "text": "As configurações de IA controlam o contexto do assistente, credenciais e relatórios de erros opcionais. Estas preferências não alteram os canais de manchas, os limiares, a classificação ou as estatísticas.",
+      "speech_text": "As configurações de IA controlam o contexto do assistente, credenciais e relatórios de erros opcionais. Estas preferências não alteram os canais de manchas, os limiares, a classificação ou as estatísticas.",
+      "phonemes": "as kˌoŋfiɡˌuɾasˈõjz ʤj ˌiˈa kˌoŋtrˈɔlɐ̃ʊ̃ ʊ kˌoŋtˈestʊ dʊ ˌasistˈAŋʧy, krˌedAŋsiˈIz i xˌelatˈɔɾjʊz ʤj ˈexʊz ˌopsionˈIs. ˌɛstæs prˌefeɾˈAŋsjæz nˌɐ̃ʊ̃ ˌWtˈɛɾɐ̃ʊ̃ ʊs kænˈIz ʤy mˈɐ̃ŋʃæs, ʊz lˌimiˈaɾys, a klˌasifˌikasˈɐ̃ʊ̃ ow az ˌestaʧˈisʧikæs."
     },
     {
       "scene": 5,
-      "speech_start": 40.275,
-      "speech_end": 50.099999999999994,
-      "scene_end": 50.74999999999999,
-      "duration": 10.474999999999994,
-      "text": "Quando o fluxo de trabalho estiver concluído, os relatórios spaCR contam e informam a eficiência de invasão por poço e condição com imagens de controlo de qualidade."
+      "speech_start": 56.254999999999995,
+      "speech_end": 73.72999999999999,
+      "scene_end": 74.42999999999999,
+      "duration": 18.174999999999997,
+      "text": "Escolher ou soltar a raiz do experimento contendo medidas/medidas.db. O experimento de microscopia transferida não tem as manchas de invasão necessárias, por isso este tutorial usa claramente um banco de dados de medição sintético de duas cores enquanto executa o verdadeiro backend de teste spaCR.",
+      "speech_text": "Escolher ou soltar a raiz do experimento contendo medidas/medidas.db. O experimento de microscopia transferida não tem as manchas de invasão necessárias, por isso este tutorial usa claramente um banco de dados de medição sintético de duas cores enquanto executa o verdadeiro backend de teste espáquer.",
+      "phonemes": "ˌeskoljˈeɾ ow sowtˈaɾ a xaˈiz dʊ ˌespeɾimˈAŋtʊ kˌoŋtˈAŋdʊ mˌeʤˈidæs mˌeʤˈidæs.dˌebˈe. u ˌespeɾimˈAŋtʊ ʤy mˌikroskopˈiæ trˌɐ̃ŋsfeɾˈidæ nˌɐ̃ʊ̃ tAŋ az mˈɐ̃ŋʃæz ʤj ˌiŋvazˈɐ̃ʊ̃ nˌesesˈaɾjæs, poɾ ˈisw ˌesʧy tˌutoɾiˈW ˈuzæ klˌaɾæmˈAŋʧj ũŋ bˈɐ̃ŋkʊ ʤy dˈadʊz ʤy mˌeʤisˈɐ̃ʊ̃ sˌiŋtˈɛʧikʊ ʤy dˈuæs kˈoɾyz ˌAŋkwˈɐ̃ŋtw ˌezekˈutæ ʊ vˌeɾədadˈAɾʊ bakˈAŋd ʤy tˈɛsʧj ˌespˈakɛr."
+    },
+    {
+      "scene": 6,
+      "speech_start": 74.42999999999999,
+      "speech_end": 86.97999999999999,
+      "scene_end": 87.52,
+      "duration": 13.090000000000003,
+      "text": "Essentials expõe as entradas, canais, limiares, controles, filtros, metadados de condição e saídas necessárias para uma primeira análise. Verifique a ordem das manchas antes de interpretar qualquer resultado.",
+      "speech_text": "Essentials expõe as entradas, canais, limiares, controles, filtros, metadados de condição e saídas necessárias para uma primeira análise. Verifique a ordem das manchas antes de interpretar qualquer resultado.",
+      "phonemes": "ˌesAŋʧiˈWz espˈõj az ˌAŋtrˈadæs, kænˈIs, lˌimiˈaɾys, kˌoŋtrˈolys, fˈiʊtrʊs, mˌetadˈadʊz ʤy kˌoŋʤisˈɐ̃ʊ̃ i sˌaˈidæz nˌesesˈaɾjæs pˌaɾæ ˌumæ prˌimˈAɾæ ˌænˈalizy. vˌeɾifˈikj a ˈɔɾədAŋ daz mˈɐ̃ŋʃæz ˈɐ̃ŋʧyz ʤj ˌiŋteɾəpretˈar kwWkˌɛr xˌezuwtˈadʊ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 87.52,
+      "speech_end": 101.42,
+      "scene_end": 101.96000000000001,
+      "duration": 14.440000000000012,
+      "text": "Filtro modificado do formulário para desvios deliberados dos padrões. Usá-lo para auditar a fonte, os canais de manchas, a porta de intensidade, os controles, os limites de área, o mapeamento de placas e a saída verbal antes da execução.",
+      "speech_text": "Filtro modificado do formulário para desvios deliberados dos padrões. Usá-lo para auditar a fonte, os canais de manchas, a porta de intensidade, os controles, os limites de área, o mapeamento de placas e a saída verbal antes da execução.",
+      "phonemes": "fˈiʊtrʊ mˌoʤifikˈadʊ dʊ fˌoɾəmulˈaɾjʊ pˌaɾæ dezvˈiʊz dˌelibeɾˈadʊz dʊs padrˈõjs. uzˈalʊ pˌaɾæ ˌWʤitˈaɾ a fˈoŋʧy, ʊs kænˈIz ʤy mˈɐ̃ŋʃæs, a pˈɔɾətæ ʤj ˌiŋtAŋsidˈaʤy, ʊs kˌoŋtrˈolys, ʊz lˌimˈiʧyz ʤj ˈaɾeæ, ʊ mˌapeæmˈAŋtʊ ʤy plˈakæz i a sˌaˈidæ veɾəbˈW ˈɐ̃ŋʧyz da ˌezekusˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 8,
+      "speech_start": 101.96000000000001,
+      "speech_end": 116.635,
+      "scene_end": 117.135,
+      "duration": 15.174999999999997,
+      "text": "Todas as configurações revelam todos os controles disponíveis para reprodução e resolução de problemas. Regressar aos elementos essenciais quando esses controles avançados não são necessários para reduzir as alterações acidentais de parâmetros.",
+      "speech_text": "Todas as configurações revelam todos os controles disponíveis para reprodução e resolução de problemas. Regressar aos elementos essenciais quando esses controles avançados não são necessários para reduzir as alterações acidentais de parâmetros.",
+      "phonemes": "tˈodæz as kˌoŋfiɡˌuɾasˈõjz xˌevˈɛlɐ̃ʊ̃ tˈodʊz ʊs kˌoŋtrˈolyz ʤˌisponˈivAs pˌaɾæ xˌeprodusˈɐ̃ʊ̃ i xˌezolusˈɐ̃ʊ̃ ʤy prˌoblˈemæs. xˌeɡresˈaɾ Wz ˌelemˈAŋtʊz ˌesAŋsiˈIs kwˈɐ̃ŋdw ˌesis kˌoŋtrˈolyz ˌavɐ̃ŋsˈadʊz nˌɐ̃ʊ̃ sɐ̃ʊ̃ nˌesesˈaɾjʊs pˌaɾæ xˌeduzˈiɾ az ˌWteɾasˈõjz ˌasidAŋtˈIz ʤy pˌaɾˈɐ̃metrʊs."
+    },
+    {
+      "scene": 9,
+      "speech_start": 117.135,
+      "speech_end": 131.935,
+      "scene_end": 132.475,
+      "duration": 15.33999999999999,
+      "text": "As receitas conservam uma configuração de ensaio validada para reutilização ou partilha. Salvar um somente após o mapeamento de manchas e o limiar derivado do controlo terem sido verificados em relação a imagens e distribuições representativas.",
+      "speech_text": "As receitas conservam uma configuração de ensaio validada para reutilização ou partilha. Salvar um somente após o mapeamento de manchas e o limiar derivado do controlo terem sido verificados em relação a imagens e distribuições representativas.",
+      "phonemes": "az xˌesˈAtæs kˌoŋsˈɛɾəvɐ̃ʊ̃ ˌumæ kˌoŋfiɡˌuɾasˈɐ̃ʊ̃ ʤj ˌAŋsˈIʊ vˌalidˈadæ pˌaɾæ xˌeʊʧilˌizasˈɐ̃ʊ̃ ow pˌaɾəʧˈiljæ. sWvˈaɾ ũŋ sˌomˈAŋʧj apˈɔz ʊ mˌapeæmˈAŋtʊ ʤy mˈɐ̃ŋʃæz i ʊ lˌimiˈar dˌeɾivˈadʊ dʊ kˌoŋtrˈolʊ tˈeɾAŋ sˈidʊ vˌeɾifikˈadʊz ˈAŋ xˌelasˈɐ̃ʊ̃ a ˌimˈaʒAŋz i ʤˌistribuɪsˈõjz xˌeprezˌAŋtaʧˈivæs."
+    },
+    {
+      "scene": 10,
+      "speech_start": 132.475,
+      "speech_end": 145.35,
+      "scene_end": 145.87,
+      "duration": 13.39500000000001,
+      "text": "Submit remoto passa as configurações resolvidas para Funções Distribuídas. Confirmar que o banco de dados de medição é acessível através do mapa de caminho remoto antes de enviar um pequeno trabalho de validação.",
+      "speech_text": "Submit remoto passa as configurações resolvidas para Funções Distribuídas. Confirmar que o banco de dados de medição é acessível através do mapa de caminho remoto antes de enviar um pequeno trabalho de validação.",
+      "phonemes": "submˈiʧ xˌemˈɔtʊ pˈasæ as kˌoŋfiɡˌuɾasˈõjz xˌezowvˈidæs pˌaɾæ fũŋsˈõjz ʤˌistribuˈidæs. kˌoŋfiɾəmˈar ky ʊ bˈɐ̃ŋkʊ ʤy dˈadʊz ʤy mˌeʤisˈɐ̃ʊ̃ ɛ ˌasesˈiveʊ ˌatravˈɛz dʊ mˈapæ ʤy kˌæmˈiɲʊ xˌemˈɔtw ˈɐ̃ŋʧyz ʤj ˌAŋviˈaɾ ũŋ pˌekˈenʊ trˌabˈaljʊ ʤy vˌalidasˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 11,
+      "speech_start": 145.87,
+      "speech_end": 156.495,
+      "scene_end": 157.055,
+      "duration": 11.185000000000002,
+      "text": "A tela remota recebe um esboço de trabalho. Verifique a sincronização, a ativação do ambiente, os recursos e o comando gerado, depois teste uma placa antes de escalar o ensaio.",
+      "speech_text": "A tela remota recebe um esboço de trabalho. Verifique a sincronização, a ativação do ambiente, os recursos e o comando gerado, depois teste uma placa antes de escalar o ensaio.",
+      "phonemes": "a tˈɛlæ xˌemˈɔtæ xˌesˈɛbj ũŋ ˌezbˈosʊ ʤy trˌabˈaljʊ. vˌeɾifˈikj a sˌiŋkronˌizasˈɐ̃ʊ̃, a ˌaʧivasˈɐ̃ʊ̃ dʊ ˌɐ̃mbiˈAŋʧy, ʊz xˌekˈuɾəsʊz i ʊ kˌomˈɐ̃ŋdʊ ʒˌeɾˈadʊ, depˈoɪs tˈɛsʧj ˌumæ plˈakæ ˈɐ̃ŋʧyz ʤj ˌeskalˈaɾ u ˌAŋsˈIʊ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 157.055,
+      "speech_end": 169.03,
+      "scene_end": 169.53,
+      "duration": 12.474999999999994,
+      "text": "Assay Inputs identifica a raiz do experimento, a tabela de uma fila por parasita e o prefixo do compartimento. A invasão marca as medições de patógenos existentes; não segmenta imagens novamente.",
+      "speech_text": "Assay Inputs identifica a raiz do experimento, a tabela de uma fila por parasita e o prefixo do compartimento. A invasão marca as medições de patógenos existentes; não segmenta imagens novamente.",
+      "phonemes": "asˈI iŋpˈutz ˌidAŋʧifˈikæ a xaˈiz dʊ ˌespeɾimˈAŋtʊ, a tˌabˈɛlæ ʤj ˌumæ fˈilæ por pˌaɾazˈitæ i ʊ prˌefˈiksʊ dʊ kˌompaɾəʧimˈAŋtʊ. a ˌiŋvazˈɐ̃ʊ̃ mˈaɾəkæ az mˌeʤisˈõjz ʤy pˌatˈɔʒenʊz ˌezistˈAŋʧys; nˌɐ̃ʊ̃ sˌeɡmˈAŋtæ ˌimˈaʒAŋz nˌovæmˈAŋʧy."
+    },
+    {
+      "scene": 13,
+      "speech_start": 169.53,
+      "speech_end": 187.23,
+      "scene_end": 187.95,
+      "duration": 18.419999999999987,
+      "text": "Canais e mapas de intensidade canais um para a pre-permeabilização fora da mancha e canal zero para a mancha total pós-permeabilização. Os parasitas ligados retêm o sinal externo; os parasitas invadidos não o têm. A troca desses canais inverte a interpretação biológica sem causar um erro de software.",
+      "speech_text": "Canais e mapas de intensidade canais um para a pre-permeabilização fora da mancha e canal zero para a mancha total pós-permeabilização. Os parasitas ligados retêm o sinal externo; os parasitas invadidos não o têm. A troca desses canais inverte a interpretação biológica sem causar um erro de software.",
+      "phonemes": "kænˈIz i mˈapæz ʤj ˌiŋtAŋsidˈaʤy kænˈIz ũŋ pˌaɾæ a prˈypˌeɾəmeˌabilˌizasˈɐ̃ʊ̃ fˈɔɾæ da mˈɐ̃ŋʃæ i kɐ̃nˈW zˈɛɾʊ pˌaɾæ a mˈɐ̃ŋʃæ totˈW pˈɔspˌeɾəmeˌabilˌizasˈɐ̃ʊ̃. ʊs pˌaɾazˈitæz lˌiɡˈadʊz xetˈAŋ ʊ sinˈW ˌestˈɛɾənʊ; ʊs pˌaɾazˈitæz ˌiŋvaʤˈidʊz nˌɐ̃ʊ̃ ʊ tAŋ. a trˈɔkæ dˈesys kænˈIz ˌiŋvˈɛɾəʧj a ˌiŋteɾəprˌetasˈɐ̃ʊ̃ bˌiolˈɔʒikæ sˈAŋ kWzˈaɾ ũŋ ˈexʊ ʤy sˈɔftweə."
+    },
+    {
+      "scene": 14,
+      "speech_start": 187.95,
+      "speech_end": 201.25,
+      "scene_end": 201.81,
+      "duration": 13.860000000000014,
+      "text": "O limiar escolhe o retrocesso automático, o corte fixo opcional, o CQ de bimodalidade, a tolerância ao acordo e o intervalo de sensibilidade. Um limiar fixo deve ser utilizado somente após calibração independente.",
+      "speech_text": "O limiar escolhe o retrocesso automático, o corte fixo opcional, o CQ de bimodalidade, a tolerância ao acordo e o intervalo de sensibilidade. Um limiar fixo deve ser utilizado somente após calibração independente.",
+      "phonemes": "ʊ lˌimiˈaɾ ˌeskˈɔljj ʊ xˌetrosˈɛsw ˌWtomˈaʧikʊ, ʊ kˈɔɾəʧy fˈiksw ˌopsionˈW, ʊ sˌekˈe ʤy bˌimodˌalidˈaʤy, a tˌoleɾˈɐ̃ŋsjæ W ˌakˈoɾədw i u ˌiŋteɾəvˈalʊ ʤy sˌAŋsibˌilidˈaʤy. ũŋ lˌimiˈar fˈiksʊ dˈɛvy seɾ ˌuʧilizˈadʊ sˌomˈAŋʧj apˈɔs kˌalibrasˈɐ̃ʊ̃ ˌiŋdepAŋdˈAŋʧy."
+    },
+    {
+      "scene": 15,
+      "speech_start": 201.81,
+      "speech_end": 219.085,
+      "scene_end": 219.76500000000001,
+      "duration": 17.955000000000013,
+      "text": "Controlos e Contos Mínimos nomeam os controlos de coloração e definem o quantilo, os objetos mínimos de controlo, os denominadores mínimos de campo e poço e o alerta de inflação de limiar. Aqui, a coluna um fornece a distribuição honesta externa-mancha-negativa e está excluída das condições de ensaio.",
+      "speech_text": "Controlos e Contos Mínimos nomeam os controlos de coloração e definem o quantilo, os objetos mínimos de controlo, os denominadores mínimos de campo e poço e o alerta de inflação de limiar. Aqui, a coluna um fornece a distribuição honesta externa-mancha-negativa e está excluída das condições de ensaio.",
+      "phonemes": "kˌoŋtrˈɔlʊz i kˈoŋtʊz mˈinimʊz nˌomˈeɐ̃ʊ̃ ʊs kˌoŋtrˈolʊz ʤy kˌoloɾasˈɐ̃ʊ̃ i dˌefˈinAŋ ʊ kwˌɐ̃ŋʧˈilʊ, ʊz ˌobʒˈɛtʊz mˈinimʊz ʤy kˌoŋtrˈolʊ, ʊz dˌenomˌinadˈoɾyz mˈinimʊz ʤy kˈɐ̃mpw i pˈosw i u ˌalˈɛɾətæ ʤj ˌiŋflasˈɐ̃ʊ̃ ʤy lˌimiˈar. akˈi, a kˌolˈunæ ũŋ fˌoɾənˈɛsj a ʤˌistribuɪsˈɐ̃ʊ̃ ˌonˈɛstæ ˌestˈɛɾənæmˈɐ̃ŋʃænˌeɡaʧˈivæ i estˌa ˌeskluˈidæ das kˌoŋʤisˈõjz ʤj ˌAŋsˈIʊ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 219.76500000000001,
+      "speech_end": 233.39000000000001,
+      "scene_end": 233.93,
+      "duration": 14.164999999999992,
+      "text": "A filtragem de objetos elimina as medições de parasitas fora do intervalo de área aceitável. O mínimo de manchas totais exclui igualmente os objetos que podem não ser parasitas antes do início da classificação de manchas externas.",
+      "speech_text": "A filtragem de objetos elimina as medições de parasitas fora do intervalo de área aceitável. O mínimo de manchas totais exclui igualmente os objetos que podem não ser parasitas antes do início da classificação de manchas externas.",
+      "phonemes": "a fˌiʊtrˈaʒAŋ ʤj ˌobʒˈɛtʊz ˌelimˈinæ az mˌeʤisˈõjz ʤy pˌaɾazˈitæs fˈɔɾæ dʊ ˌiŋteɾəvˈalʊ ʤj ˈaɾeæ ˌasAtˈaveʊ. ʊ mˈinimʊ ʤy mˈɐ̃ŋʃæs totˈIz esklˈuɪ ˌiɡwWmˈAŋʧj ʊz ˌobʒˈɛtʊs ky pˌɔdAŋ nˌɐ̃ʊ̃ ser pˌaɾazˈitæz ˈɐ̃ŋʧyz dʊ ˌinˈisjʊ da klˌasifˌikasˈɐ̃ʊ̃ ʤy mˈɐ̃ŋʃæz ˌestˈɛɾənæs."
+    },
+    {
+      "scene": 17,
+      "speech_start": 233.93,
+      "speech_end": 248.28,
+      "scene_end": 248.84,
+      "duration": 14.909999999999997,
+      "text": "Condição Metadados mapeia poços para grupos biológicos e seleciona a coluna de agrupamento. A placa sintética utiliza seis poços de veículo na coluna dois e seis poços de inibidor na coluna três, todos com células hospedeiras HeLa.",
+      "speech_text": "Condição Metadados mapeia poços para grupos biológicos e seleciona a coluna de agrupamento. A placa sintética utiliza seis poços de veículo na coluna dois e seis poços de inibidor na coluna três, todos com células hospedeiras HeLa.",
+      "phonemes": "kˌoŋʤisˈɐ̃ʊ̃ mˌetadˈadʊz mˌapˈAæ pˈɔsʊs pˌaɾæ ɡrˈupʊz bˌiolˈɔʒikʊz i sˌelesiˈonæ a kˌolˈunæ ʤj ˌaɡrupæmˈAŋtʊ. a plˈakæ sˌiŋtˈɛʧikæ ˌuʧilˈizæ sˈAs pˈɔsʊz ʤy vˌeˈikulʊ na kˌolˈunæ dˈoɪz i sˈAs pˈɔsʊz ʤj ˌinibidˈor na kˌolˈunæ trˈes, tˈodʊs koŋ sˈɛlulæs ˌospedˈAɾæs ˈy læ."
+    },
+    {
+      "scene": 18,
+      "speech_start": 248.84,
+      "speech_end": 262.415,
+      "scene_end": 262.995,
+      "duration": 14.155000000000001,
+      "text": "Assay Output controla o mapa de cores, número de painéis de limiar-QC, semente de poço vazio e poupança. A semente preserva poços com células anfitriãs medidas, mas sem parasitas marcados, em vez de caí-los silenciosamente.",
+      "speech_text": "Assay Output controla o mapa de cores, número de painéis de limiar-QC, semente de poço vazio e poupança. A semente preserva poços com células anfitriãs medidas, mas sem parasitas marcados, em vez de caí-los silenciosamente.",
+      "phonemes": "asˈI owtpˈuʧ kˌoŋtrˈɔlæ ʊ mˈapæ ʤy kˈoɾys, nˈũmeɾʊ ʤy pInˈɛɪz ʤy lˌimiˈarkˌesˈe, sˌemˈAŋʧy ʤy pˈosʊ vazˈiʊ i pˌowpˈɐ̃ŋsæ. a sˌemˈAŋʧy prˌezˈɛɾəvæ pˈɔsʊs koŋ sˈɛlulæz ˌɐ̃ŋfitriˈɐ̃z mˌeʤˈidæs, mas sˈAŋ pˌaɾazˈitæz mˌaɾəkˈadʊs, ˈAŋ vˈez ʤy kaˈilʊs sˌilAŋsˌiozæmˈAŋʧy."
+    },
+    {
+      "scene": 19,
+      "speech_start": 262.995,
+      "speech_end": 277.52,
+      "scene_end": 278.07,
+      "duration": 15.074999999999989,
+      "text": "Controle de tempo de execução e fiabilidade detalhes de registro. Mantenha a saída verbal ativada ao estabelecer um ensaio para que a coluna de intensidade, os limiares, as fontes, o QC por campo e os poços marcados sejam visíveis no console.",
+      "speech_text": "Controle de tempo de execução e fiabilidade detalhes de registro. Mantenha a saída verbal ativada ao estabelecer um ensaio para que a coluna de intensidade, os limiares, as fontes, o QC por campo e os poços marcados sejam visíveis no console.",
+      "phonemes": "kˌoŋtrˈɔly ʤy tˈAmpʊ ʤj ˌezekusˈɐ̃ʊ̃ i fˌiabˌilidˈaʤy dˌetˈaljyz ʤy xˌeʒˈistrʊ. mˌɐ̃ŋtˈeɲæ a sˌaˈidæ veɾəbˈW ˌaʧivˈadæ W ˌestabˌelesˈeɾ ũŋ ˌAŋsˈIʊ pˌaɾækj a kˌolˈunæ ʤj ˌiŋtAŋsidˈaʤy, ʊz lˌimiˈaɾys, as fˈoŋʧys, ʊ kˌesˈe por kˈɐ̃mpw i ʊs pˈɔsʊz mˌaɾəkˈadʊs sˈeʒɐ̃ʊ̃ vˌizˈivAz nʊ kˌoŋsˈoly."
+    },
+    {
+      "scene": 20,
+      "speech_start": 278.07,
+      "speech_end": 293.21999999999997,
+      "scene_end": 293.82,
+      "duration": 15.75,
+      "text": "Este detalhe do canal utiliza a intensidade externa média sem subtração de fundo, requer a intensidade total do canal de pelo menos cem, e mantém o canal um e zero em sua ordem biológica. Revisar estes valores em relação ao esquema de medição antes da execução.",
+      "speech_text": "Este detalhe do canal utiliza a intensidade externa média sem subtração de fundo, requer a intensidade total do canal de pelo menos cem, e mantém o canal um e zero em sua ordem biológica. Revisar estes valores em relação ao esquema de medição antes da execução.",
+      "phonemes": "ˌesʧy dˌetˈaljy dʊ kɐ̃nˈW ˌuʧilˈizæ a ˌiŋtAŋsidˈaʤj ˌestˈɛɾənæ mˈɛʤjæ sˈAŋ sˌubtrasˈɐ̃ʊ̃ ʤy fˈũŋdʊ, xekˈɛɾ a ˌiŋtAŋsidˈaʤy totˈW dʊ kɐ̃nˈW ʤy pˈelʊ mˈenʊs sˈAŋ, i mɐ̃ŋtˈAŋ ʊ kɐ̃nˈW ũŋ i zˈɛɾw ˈAŋ sˌuæ ˈɔɾədAŋ bˌiolˈɔʒikæ. xˌevizˈaɾ ˌesʧyz vˌalˈoɾyz ˈAŋ xˌelasˈɐ̃ʊ̃ W ˌeskˈemæ ʤy mˌeʤisˈɐ̃ʊ̃ ˈɐ̃ŋʧyz da ˌezekusˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 21,
+      "speech_start": 293.82,
+      "speech_end": 310.37,
+      "scene_end": 310.99,
+      "duration": 17.170000000000016,
+      "text": "Clique em Executa depois de verificar entradas, mapeamento de manchas, controles, limiares, filtros e metadados de condição. O backend exclui poços de controle, deriva limiares de controle por placa, classifica cada parasita, resume campos e poços e realiza estatísticas de nível bem.",
+      "speech_text": "Clique em Executa depois de verificar entradas, mapeamento de manchas, controles, limiares, filtros e metadados de condição. O backend exclui poços de controle, deriva limiares de controle por placa, classifica cada parasita, resume campos e poços e realiza estatísticas de nível bem.",
+      "phonemes": "klˈikj ˈAŋ ˌezekˈutæ depˈoɪz ʤy vˌeɾifikˈaɾ ˌAŋtrˈadæs, mˌapeæmˈAŋtʊ ʤy mˈɐ̃ŋʃæs, kˌoŋtrˈolys, lˌimiˈaɾys, fˈiʊtrʊz i mˌetadˈadʊz ʤy kˌoŋʤisˈɐ̃ʊ̃. ʊ bakˈAŋd esklˈuɪ pˈɔsʊz ʤy kˌoŋtrˈoly, dˌeɾˈivæ lˌimiˈaɾyz ʤy kˌoŋtrˈoly por plˈakæ, klˌasifˈikæ kˈadæ pˌaɾazˈitæ, xˌezˈumy kˈɐ̃mpʊz i pˈɔsʊz i xˌealˈizæ ˌestaʧˈisʧikæz ʤy nˈiveʊ bˈAŋ."
+    },
+    {
+      "scene": 22,
+      "speech_start": 310.99,
+      "speech_end": 327.59000000000003,
+      "scene_end": 328.21000000000004,
+      "duration": 17.220000000000027,
+      "text": "Durante a execução, o console informa a fonte de limiar e o QC, em vez de mostrar apenas uma percentagem final. O interior é definido pela ausência de sinal externo, de modo que a falha de coloração só pode inflar a invasão; os limites de sensibilidade tornam visível essa direção de erro.",
+      "speech_text": "Durante a execução, o console informa a fonte de limiar e o QC, em vez de mostrar apenas uma percentagem final. O interior é definido pela ausência de sinal externo, de modo que a falha de coloração só pode inflar a invasão; os limites de sensibilidade tornam visível essa direção de erro.",
+      "phonemes": "dˌuɾˈɐ̃ŋʧj a ˌezekusˈɐ̃ʊ̃, ʊ kˌoŋsˈoli ˌiŋfˈɔɾəmæ a fˈoŋʧy ʤy lˌimiˈaɾ i ʊ kˌesˈe, ˈAŋ vˈez ʤy mostrˈaɾ ˌapˈenæz ˌumæ pˌeɾəsAŋtˈaʒAŋ finˈW. u ˌiŋteɾiˈoɾ ɛ dˌefinˈidʊ pˈelæ ˌWzˈAŋsjæ ʤy sinˈW ˌestˈɛɾənʊ, ʤy mˈɔdʊ ky a fˈaljæ ʤy kˌoloɾasˈɐ̃ʊ̃ sˈɔ pˌɔʤj iŋflˈaɾ a ˌiŋvazˈɐ̃ʊ̃; ʊz lˌimˈiʧyz ʤy sˌAŋsibˌilidˈaʤy tˈɔɾənɐ̃ʊ̃ vˌizˈiveʊ ˈɛsæ ʤˌiɾesˈɐ̃ʊ̃ ʤj ˈexʊ."
+    },
+    {
+      "scene": 23,
+      "speech_start": 328.21000000000004,
+      "speech_end": 363.235,
+      "scene_end": 364.235,
+      "duration": 36.02499999999998,
+      "text": "O verdadeiro backend usou 360 parasitas de controle para estabelecer um limiar de 22 pontos 8, depois marcou mil 400 40 parasitas experimentais em 12 poços e 24 campos. Os poços de veículos têm uma média de trinta e nove pontos sete por cento de invasão e os poços de inibidores sessenta e oito pontos nove por cento; todos os poços passam QC. O teste de MannWhitney usa seis poços por grupo e dá o p ajustado por Holm ponto zero zero zero quatro zero seis, enquanto o p-valor de parasita agrupado muito menor é mostrado apenas para expor a inflação de pseudo-replicação.",
+      "speech_text": "O verdadeiro backend usou 360 parasitas de controle para estabelecer um limiar de 22 pontos 8, depois marcou mil 400 40 parasitas experimentais em 12 poços e 24 campos. Os poços de veículos têm uma média de trinta e nove pontos sete por cento de invasão e os poços de inibidores sessenta e oito pontos nove por cento; todos os poços passam QC. O teste de MannWhitney usa seis poços por grupo e dá o p ajustado por Holm ponto zero zero zero quatro zero seis, enquanto o p-valor de parasita agrupado muito menor é mostrado apenas para expor a inflação de pseudo-replicação.",
+      "phonemes": "ʊ vˌeɾədadˈAɾʊ bakˈAŋd uzˈow trˌezˈAŋtʊzˌi sesˈAŋtæ pˌaɾazˈitæz ʤy kˌoŋtrˈoly pˌaɾæ ˌestabˌelesˈeɾ ũŋ lˌimiˈar ʤy vˈiŋʧyidˈoɪs pˈoŋtʊs ˈoɪtʊ, depˈoɪz maɾəkˈow mˈiʊ kwˈatrʊsˈAŋtʊz kwˌaɾˈAŋtæ pˌaɾazˈitæz ˌespeɾˌimAŋtˈIz ˈAŋ dˈozy pˈɔsʊz i vˈiŋʧyikwˈatrʊ kˈɐ̃mpʊs. ʊs pˈɔsʊz ʤy vˌeˈikulʊs tAŋ ˌumæ mˈɛʤjæ ʤy trˈiŋtæ i nˈɔvy pˈoŋtʊs sˈɛʧy por sˈAŋtʊ ʤj ˌiŋvazˈɐ̃ʊ̃ i ʊs pˈɔsʊz ʤj ˌinibidˈoɾys sˌesˈAŋtæ i ˈoɪtʊ pˈoŋtʊz nˈɔvy por sˈAŋtʊ; tˈodʊz ʊs pˈɔsʊs pˈasɐ̃ʊ̃ kˌesˈe. ʊ tˈɛsʧy ʤy mˈɐ̃ŋn witnˈA ˈuzæ sˈAs pˈɔsʊs por ɡrˈupw i dˈa ʊ pˈe ˌaʒustˈadʊ poɾ ˈowm pˈoŋtʊ zˈɛɾʊ zˈɛɾʊ zˈɛɾʊ kwˈatrʊ zˈɛɾʊ sˈAs, ˌAŋkwˈɐ̃ŋtw ʊ pˈevalˈor ʤy pˌaɾazˈitæ ˌaɡrupˈadʊ mwˈiŋtʊ menˈɔɾ ɛ mˌostrˈadw ˌapˈenæs pˌaɾæ espˈoɾ a ˌiŋflasˈɐ̃ʊ̃ ʤy psˈeʊdʊxˌeplikasˈɐ̃ʊ̃."
     }
   ]
 }
