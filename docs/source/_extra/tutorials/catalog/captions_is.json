@@ -1372,19 +1372,64 @@
       "id": "25_recruitment",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um ráðningar. Tilgreina mælikvarða tilboðs á áhugasamband til paraþíða eða sjúkdómsframleiðenda tengda svæðum."
+          "narration": "Aðgerðir til að ráðstafa auðga markara í parazitasambandi svæðum í tengslum við umgjörandi hostafrumur sitoplasma. Konsóllinn skráir lausnar stillingar, sía tölur, útgáfu leiðir, tölur, viðvörun og mistök; spjallboxin getur rætt um það samhengi þegar AI er virkt."
         },
         {
-          "narration": "Opinn ráðningur frá Toxoplasma prófunar deild. Notaðu mældra frumur, parazitum og líffæra grímur með 1. kanali, endoplasma reticulum, sem áhugaveginn kanali."
+          "narration": "Notaðu AI toggle aðeins þegar þú vilt spjalla aðstoð. Í viðstæðinni matseðil velur útbúnaður sem er stilinn upp og opnar stillingar útbúnaðarins; ráðningurinn sjálfur rekur staðbundinn og er ekki treystur á AI-þjónustu."
         },
         {
-          "narration": "Í aðalmyndatölu svæðinu skilgreinaðu ráðningarsvæðið, bakgrunnsviðmiðun, hlutfiltrar, hópun og eðlilegingarstefnu."
+          "narration": "Greiðslustöð skilur staðbundinna aðstoðarmenn frá gestgjafa aðstoðarmönnum. Sniðgefðu aðeins þjónustu sem þú ætlar að nota og skoðaðu persónuverndarupplýsingarnar áður en þú sendir konsólum eða myndatöku samhengi til fjarskiptaveitanda."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. athuga yfirlag á hlutastöðum og stjórna dreifingum áður en aðstæður eru samanburðar."
+          "narration": "AI Settings stjórnar aðstoðarheitanum, trúnaðarupplýsingum og valfrjálsu rangfærslu. Þessar forystu breytast ekki ráðningarformúlu, hlutfiltrum eða merkjum á plötum."
         },
         {
-          "narration": "Þegar vinnufljósið er lokið eru rekstrarmarki fyrir hlut og samantekt á skilyrðum geymd með kjarnorðkenningum."
+          "narration": "Veldu eða slepptu prófunarrótin sem inniheldur mælingar/measurements.db og sameinaðan mappa. Í þessari leiðbeiningu er notuð flutningsreynsla HeLa siRNA, en ekki smíðaupplýsingar, með kanalnum 1 ER signal sem áhugaverða kanalinn."
+        },
+        {
+          "narration": "Essentials sýnir uppspretta, kanal kortlagningu, sía, plötu skipulag, og greiningarval sem þarf til fyrstu hlaup. Staðfestu kortið áður en þú stillir þröskulær vegna þess að gildur en rangur kanalvísitölur getur gefið trúverðug og rangt hlutfall."
+        },
+        {
+          "narration": "Breyttar sýnir aðeins tilvitað brot frá sjálfgefnum. Notađu hana sem þéttar eftirlit af raunverulegu tilraunarstiginu, ER-skipulaginu eitt, þremur grímuflaugum, svæðisfiltrum, stjórnsýslustöðvum og greiningarvalum."
+        },
+        {
+          "narration": "Öll stillingar afhjúpa hverja stjórn við endursköpun eða vanrækslu á hlaupi. Endur á Essentials þegar ekki er nauðsynlegt að hafa viðbótarstjórn, svo að framfarin gildi breytist ekki tilviljunarlega."
+        },
+        {
+          "narration": "Uppskriftir varðveita staðfestar ráðningarmyndun til endurtekningar eða sameiningar. Sparaðu einn aðeins eftir að kanalmyndun, stjórnsýslustöðvar og sía hafa verið skoðuð gegn fulltrúlegum myndum og dreifingum."
+        },
+        {
+          "narration": "Senda fjarlægð sendir losnar stillingar til dreifð störf í staðinn að byrja á staðnum. Notaðu það í stórum gagnagrunni aðeins eftir að fjarskipta kerfið getur fengið aðgang að bæði measurements.db og sameinuðu röðunum undir réttu kortlagðum leiðum."
+        },
+        {
+          "narration": "Útvarpsskjáninn fær verkefni. Gakktu úr skugga um virkni umhverfisins, samræmingu, auðlindum og framleittri boði og sendu síðan smá staðfestingarstarf áður en þú færð fullt plötu."
+        },
+        {
+          "narration": "Upplýsingarútgangur inniheldur tilraunarrótinn. Við ráðninguna er lesið fyrir núverandi frumur, kjarna, parazitum og cytoplasma mælingar; það skipta ekki myndum eða mælir þær á ný."
+        },
+        {
+          "narration": "Mask and Channel Mapping skilgreinir hverja mikilli flötu og maskflötu. Hér nota frumur ER kanal einn og grípa fjórum, kjarnorn nota kanal núllum og grípa fimm, parazitur nota kanal þrjú og grípa sex, en ráðning er reiknað út á ER kanal einn."
+        },
+        {
+          "narration": "Efni Filtering gates frumur, kjarna og parazitum eftir svæði og þyngd, takmarkar fyrirbæri fyrir frumur, og krefst nóg frumur fyrir brunn. Þessi hlaup heldur frumum yfir þremur þúsund fimm hundruð pikslar, kjarnum frá sjö hundruð til fjögur þúsund og parazitum frá hundruð til þúsund."
+        },
+        {
+          "narration": "Skipulag og stjórn á plötum kortar lífrænar merkingar til röð eða stöng auðkenningar. Kolmunur einn er jákvæð stjórnun, kolumn tvö er neikvæð stjórnun og kolumnar þrjár til fjórtán eru skjáverur; allar röður eru HeLa frumur."
+        },
+        {
+          "narration": "Skipulag og greiningar stjórna skiptingu yfirborð, stjórnartengd pönn, stærð myndar og hversu mörg sameinuð sviði eru sýnt. Skoðaðu yfirlagnir áður en þú treystir hlutfalli og samanberðu stjórnir áður en þú túlkar skjáverur."
+        },
+        {
+          "narration": "Heildarmappinn er sjáanlegur hér. Kanalstærðir frá núll til þriggja eru í boði til greiningar, en fyrst og fremst er rekstrarmarkinn sjúklingastofnunar - ein miðlungsþyngd skipt með sítoplasmaþyngd - ein miðlungsþyngd innan samsvarandi gestgjafafrumur."
+        },
+        {
+          "narration": "Smelltu á Að hlaupa eftir að hafa skoðað uppspretta, kort, sía og stjórnsýslur. Hinn bakhliður tengist fjórum mælingarborðum, annoterar skilyrði, beitir hverri hlutastöð, reiknar út ráðningar, hópar kjarna og fylgir greiningartölur."
+        },
+        {
+          "narration": "Á framkvæmd sýnir sífræningartölur í spilavélinu nákvæmlega hvar hlutirnir eru fjarlægðir. Ekki líta á mikla niðurskurð sem sjálfkrafa góð eða slæm; samræma henni við ætlaða svæðismörk, stjórnsýslustöður og sýnatöflur."
+        },
+        {
+          "narration": "Veruleikinn varðveitti þrjátíu níu þúsund níu hundruð þrjátíu og sjö röður á PV-hæð á öllum hundruð níuðíu og sex brunnum og framleiddi fimm tölur auk cella.csv og brunnum.csv. Meðaltal ER ráðningar á góðu stigi er eitt stig þrjú fimm fjórir í jákvæðum stjórn, eitt stig tvö átta einn í neikvæðum stjórn, og eitt stig þrjú einn átta í skjárbrúnumeðni aðskilningur sem ætti að dæma með breytileika og mynd QC, ekki þýðir ein."
         }
       ]
     },
