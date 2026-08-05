@@ -385,11 +385,22 @@ def _declared_category_names():
 # ---------------------------------------------------------------------------
 
 def test_no_previously_categorised_key_is_lost():
-    """A key dropping out of the map silently ungroups it in both GUIs."""
-    lost = sorted(KEYS_BEFORE_REGROUP - set(_all_categorised_keys()))
+    """A key dropping out of the map silently ungroups it in both GUIs.
+
+    Retiring a setting is the one legitimate way out. A key in
+    :data:`spacr.settings.DEAD_SETTINGS` is meant to disappear from the
+    panel — it stays declared only so an old CSV can be told what to use
+    instead — so requiring it to keep a category would force retired
+    settings to go on being offered.
+    """
+    lost = sorted(KEYS_BEFORE_REGROUP
+                  - set(_all_categorised_keys())
+                  - set(S.DEAD_SETTINGS))
     assert not lost, (
         f"{len(lost)} setting(s) fell out of spacr.settings.categories and are "
-        f"no longer grouped in the settings panel: {lost}"
+        f"no longer grouped in the settings panel: {lost}. If a key was "
+        f"retired on purpose, add it to DEAD_SETTINGS so an old settings CSV "
+        f"is told what replaced it."
     )
 
 

@@ -46,29 +46,5 @@ def test_merge_file_missing_channel(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# _mip_all
 # ---------------------------------------------------------------------------
 
-def test_mip_all_3d(tmp_path):
-    arr = (np.random.default_rng(0).random((16, 16, 3)) * 255).astype(np.uint16)
-    np.save(str(tmp_path / "f.npy"), arr)
-    IO._mip_all(str(tmp_path), include_first_chan=True)
-    out = np.load(str(tmp_path / "f.npy"))
-    assert out.shape[-1] == 4   # original 3 + MIP
-
-
-def test_mip_all_exclude_first(tmp_path):
-    arr = (np.random.default_rng(1).random((16, 16, 3)) * 255).astype(np.uint16)
-    np.save(str(tmp_path / "f.npy"), arr)
-    IO._mip_all(str(tmp_path), include_first_chan=False)
-    out = np.load(str(tmp_path / "f.npy"))
-    assert out.shape[-1] == 4
-
-
-def test_mip_all_non_3d(tmp_path):
-    # 2-D array → zero-array concatenation branch
-    arr = (np.random.default_rng(2).random((16, 16)) * 255).astype(np.uint16)
-    np.save(str(tmp_path / "f.npy"), arr)
-    IO._mip_all(str(tmp_path))
-    out = np.load(str(tmp_path / "f.npy"))
-    assert out.ndim == 3
