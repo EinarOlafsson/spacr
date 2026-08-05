@@ -4,47 +4,237 @@
   "voice": "am_echo",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 49.825,
+  "total_duration": 265.95,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.85,
-      "scene_end": 9.299999999999999,
-      "duration": 9.299999999999999,
-      "text": "This tutorial covers Image UMAP. Explore phenotype neighborhoods by embedding measured objects and displaying their image crops as glyphs."
+      "speech_end": 14.0,
+      "scene_end": 14.45,
+      "duration": 14.45,
+      "text": "Image UMAP reduces high-dimensional per-object measurements to two coordinates and places real microscopy crops on the map. The console records data joins, preprocessing, embedding progress, clustering, plots, and output paths.",
+      "speech_text": "Image UMAP reduces high-dimensional per-object measurements to two coordinates and places real microscopy crops on the map. The console records data joins, preprocessing, embedding progress, clustering, plots, and output paths.",
+      "phonemes": "ˈɪmɪʤ jˌuˌɛmˌApˈi ɹədˈusᵻz hˌIdəmˈɛnʃᵊnəl pɜɹˈɑbʤəkt mˈɛʒəɹmᵊnts tə tˈu kOˈɔɹdənəts ænd plˈAsᵻz ɹˈiᵊl mIkɹˈɑskəpi kɹˈɑps ˌɔn ðə mˈæp. ðə kˈɑnsˌOl ɹəkˈɔɹdz dˈATə ʤˈYnz, pɹɪpɹˈɑsɛsɪŋ, əmbˈɛdɪŋ pɹˈɑɡɹəs, klˈʌstəɹɪŋ, plˈɑts, ænd ˈWtpˌʊt pˈæðz."
     },
     {
       "scene": 2,
-      "speech_start": 9.299999999999999,
-      "speech_end": 18.525,
-      "scene_end": 18.974999999999998,
-      "duration": 9.674999999999999,
-      "text": "Open Image UMAP from the Results and quality control section. Choose a measurements database, image crops, feature set, and grouping metadata."
+      "speech_start": 14.45,
+      "speech_end": 25.25,
+      "scene_end": 25.7,
+      "duration": 11.25,
+      "text": "The chat field accepts local commands and workflow questions. Enable AI to route through a configured provider, and use the arrow beside it to choose the provider or open its controls.",
+      "speech_text": "The chat field accepts local commands and workflow questions. Enable AI to route through a configured provider, and use the arrow beside it to choose the provider or open its controls.",
+      "phonemes": "ðə ʧˈæt fˈild əksˈɛpts lˈOkəl kəmˈændz ænd wˈɜɹkflˌO kwˈɛsʧᵊnz. ɪnˈAbᵊl ˈAˌI tə ɹˈut θɹu ɐ kənfˈɪɡjəɹd pɹəvˈIdəɹ, ænd jˈuz ði ˈɛɹO bəsˈId ɪt tə ʧˈuz ðə pɹəvˈIdəɹ ɔɹ ˈOpᵊn ɪts kəntɹˈOlz."
     },
     {
       "scene": 3,
-      "speech_start": 18.974999999999998,
-      "speech_end": 27.824999999999996,
-      "scene_end": 28.274999999999995,
-      "duration": 9.299999999999997,
-      "text": "In the main configuration area, configure filtering, scaling, neighbors, minimum distance, clustering, sampling, and image display channels."
+      "speech_start": 25.7,
+      "speech_end": 35.925,
+      "scene_end": 36.375,
+      "duration": 10.675,
+      "text": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and shows their install and login commands. Authentication remains with each provider.",
+      "speech_text": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and shows their install and login commands. Authentication remains with each provider.",
+      "phonemes": "pɹəvˈIdəɹz ʧˈɛks ðə klˈɔd, ʧˌætʤˌipˌitˈi, ænd ʤˈɛmənˌI kəmˈændlˌIn klˈIənts ænd ʃˈOz ðɛɹ ɪnstˈɔl ænd lˈɔɡˌɪn kəmˈændz. əθˌɛntəkˈAʃən ɹəmˈAnz wɪð ˈiʧ pɹəvˈIdəɹ."
     },
     {
       "scene": 4,
-      "speech_start": 28.274999999999995,
-      "speech_end": 41.12499999999999,
-      "scene_end": 41.574999999999996,
-      "duration": 13.3,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. compare several reproducible embeddings and verify that clusters are not driven by plate or imaging artifacts."
+      "speech_start": 36.375,
+      "speech_end": 45.95,
+      "scene_end": 46.400000000000006,
+      "duration": 10.025000000000006,
+      "text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system instructions.",
+      "speech_text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spacer-aware system instructions.",
+      "phonemes": "ˈAˌI sˈɛTɪŋz kəntɹˈOlz ɹəspˈɑns dˈɛpθ, ˌɔTəmˈæTɪk ˈɛɹəɹ ˌɛksplənˈAʃənz, ˈɑpʃənᵊl ɡˌɪthˈʌb ˈɪʃu ɹᵻpˈɔɹTɪŋ, sˈInˌɪn, ænd ðə spˈAsəɹəwˌɛɹ sˈɪstəm ɪnstɹˈʌkʃənz."
     },
     {
       "scene": 5,
-      "speech_start": 41.574999999999996,
-      "speech_end": 49.175,
-      "scene_end": 49.824999999999996,
-      "duration": 8.25,
-      "text": "When the workflow finishes, spaCR saves coordinates, cluster labels, image maps, and publication-ready embedding figures."
+      "speech_start": 46.400000000000006,
+      "speech_end": 59.325,
+      "scene_end": 59.775000000000006,
+      "duration": 13.375,
+      "text": "The source is a measured tutorial project containing 455 database-linked cell crops. This run samples 250 objects and joins cell, cytoplasm, nucleus, and pathogen feature tables.",
+      "speech_text": "The source is a measured tutorial project containing 455 database-linked cell crops. This run samples 250 objects and joins cell, cytoplasm, nucleus, and pathogen feature tables.",
+      "phonemes": "ðə sˈɔɹs ɪz ɐ mˈɛʒəɹd tutˈɔɹiəl pɹˈɑʤˌɛkt kəntˈAnɪŋ fˈɔɹ hˈʌndɹəd fˈɪfti fˈIv dˈæTəbˌAslˌɪŋkt sˈɛl kɹˈɑps. ðˌɪs ɹˈʌn sˈæmpᵊlz tˈu hˈʌndɹəd fˈɪfti ˈɑbʤəkts ænd ʤˈYnz sˈɛl, sˈITəplˌæzəm, nˈukliəs, ænd pˈæθəʤˌɛn fˈiʧəɹ tˈAbᵊlz."
+    },
+    {
+      "scene": 6,
+      "speech_start": 59.775000000000006,
+      "speech_end": 67.625,
+      "scene_end": 68.075,
+      "duration": 8.299999999999997,
+      "text": "Essentials shows the source, measurement tables, reduction method, row cap, and primary coloring choice needed for a first map.",
+      "speech_text": "Essentials shows the source, measurement tables, reduction method, row cap, and primary coloring choice needed for a first map.",
+      "phonemes": "əsˈɛnʧᵊlz ʃˈOz ðə sˈɔɹs, mˈɛʒəɹmᵊnt tˈAbᵊlz, ɹədˈʌkʃən mˈɛθəd, ɹˈO kˈæp, ænd pɹˈImˌɛɹi kˈʌləɹɪŋ ʧˈYs nˈidᵻd fɔɹ ɐ fˈɜɹst mˈæp."
+    },
+    {
+      "scene": 7,
+      "speech_start": 68.075,
+      "speech_end": 78.425,
+      "scene_end": 78.875,
+      "duration": 10.799999999999997,
+      "text": "Modified filters the panel to intentional departures from defaults, such as the smaller neighborhood, practical row cap, glyph count, display opacity, and saved figures.",
+      "speech_text": "Modified filters the panel to intentional departures from defaults, such as the smaller neighborhood, practical row cap, glyph count, display opacity, and saved figures.",
+      "phonemes": "mˈɑdəfˌId fˈɪltəɹz ðə pˈænᵊl tʊ ɪntˈɛnʧᵊnəl dəpˈɑɹʧəɹz fɹʌm dəfˈɔlts, sˈʌʧ æz ðə smˈɔləɹ nˈAbəɹhˌʊd, pɹˈæktəkᵊl ɹˈO kˈæp, ɡlˈɪf kˈWnt, dəsplˈA OpˈæsəTi, ænd sˈAvd fˈɪɡjəɹz."
+    },
+    {
+      "scene": 8,
+      "speech_start": 78.875,
+      "speech_end": 89.75,
+      "scene_end": 90.2,
+      "duration": 11.325000000000003,
+      "text": "All settings reveals eight categories without changing values: paths, measurements, plate exclusions, embedding, plot selection, runtime, batch correction, and UMAP display.",
+      "speech_text": "All settings reveals eight categories without changing values: paths, measurements, plate exclusions, embedding, plot selection, runtime, batch correction, and UMAP display.",
+      "phonemes": "ˈɔl sˈɛTɪŋz ɹəvˈilz ˈAt kˈæTəɡˌɔɹiz wɪðˈWt ʧˈAnʤɪŋ vˈæljuz: pˈæðz, mˈɛʒəɹmᵊnts, plˈAt ɪksklˈuʒᵊnz, əmbˈɛdɪŋ, plˈɑt səlˈɛkʃən, ɹˈʌntIm, bˈæʧ kəɹˈɛkʃən, ænd jˌuˌɛmˌApˈi dəsplˈA."
+    },
+    {
+      "scene": 9,
+      "speech_start": 90.2,
+      "speech_end": 99.55,
+      "scene_end": 100.0,
+      "duration": 9.799999999999997,
+      "text": "Recipes saves the complete Image UMAP configuration under a name, reapplies it to another project, or imports and exports a settings file.",
+      "speech_text": "Recipes saves the complete Image UMAP configuration under a name, reapplies it to another project, or imports and exports a settings file.",
+      "phonemes": "ɹˈɛsəpˌiz sˈAvz ðə kəmplˈit ˈɪmɪʤ jˌuˌɛmˌApˈi kənfˌɪɡjəɹˈAʃən ˈʌndəɹ ɐ nˈAm, ɹˌiəplˈIz ɪt tʊ ənˈʌðəɹ pɹˈɑʤˌɛkt, ɔɹ ˈɪmpˌɔɹts ænd ˈɛkspˌɔɹts ɐ sˈɛTɪŋz fˈIl."
+    },
+    {
+      "scene": 10,
+      "speech_start": 100.0,
+      "speech_end": 107.95,
+      "scene_end": 108.4,
+      "duration": 8.400000000000006,
+      "text": "Submit remote snapshots the resolved settings and transfers the Image UMAP job to the Distributed Jobs workspace.",
+      "speech_text": "Submit remote snapshots the resolved settings and transfers the Image UMAP job to the Distributed Jobs workspace.",
+      "phonemes": "səbmˈɪt ɹəmˈOt snˈæpʃˌɑts ðə ɹəzˈɔlvd sˈɛTɪŋz ænd tɹˈænsfəɹz ði ˈɪmɪʤ jˌuˌɛmˌApˈi ʤˈɑb tə ðə dəstɹˈɪbjuTᵻd ʤˈɑbz wˈɜɹkspˌAs."
+    },
+    {
+      "scene": 11,
+      "speech_start": 108.4,
+      "speech_end": 119.35000000000001,
+      "scene_end": 119.80000000000001,
+      "duration": 11.400000000000006,
+      "text": "Distributed Jobs maps project paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same embedding run.",
+      "speech_text": "Distributed Jobs maps project paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same embedding run.",
+      "phonemes": "dəstɹˈɪbjuTᵻd ʤˈɑbz mˈæps pɹˈɑʤˌɛkt pˈæðz ænd kəmpjˈut ɹˈisˌɔɹsᵻz tə ɐ ɹəmˈOt wˈɜɹkstˌAʃən, slˈɜɹm klˈʌstəɹ, ɔɹ kənfˈɪɡjəɹd kəmˈænd, ðˈɛn səbmˈɪts ænd mˈɑnəTəɹz ðə sˈAm əmbˈɛdɪŋ ɹˈʌn."
+    },
+    {
+      "scene": 12,
+      "speech_start": 119.80000000000001,
+      "speech_end": 129.32500000000002,
+      "scene_end": 129.775,
+      "duration": 9.974999999999994,
+      "text": "Paths selects the measured project. Image UMAP locates measurements.db and either existing crop images or merged arrays beneath that source.",
+      "speech_text": "Paths selects the measured project. Image UMAP locates measurements dot db and either existing crop images or merged arrays beneath that source.",
+      "phonemes": "pˈæðz səlˈɛkts ðə mˈɛʒəɹd pɹˈɑʤˌɛkt. ˈɪmɪʤ jˌuˌɛmˌApˈi lˈOkˌAts mˈɛʒəɹmᵊnts dˈɑt dˌibˈi ænd ˈiðəɹ ɪɡzˈɪstɪŋ kɹˈɑp ˈɪmɪʤᵻz ɔɹ mˈɜɹʤd əɹˈAz bənˈiθ ðˈæt sˈɔɹs."
+    },
+    {
+      "scene": 13,
+      "speech_start": 129.775,
+      "speech_end": 141.15,
+      "scene_end": 141.6,
+      "duration": 11.824999999999989,
+      "text": "Measurements chooses joined object tables, a channel-based feature filter, explicit exclusions, and correlated-feature removal. These choices determine the geometry represented by the map.",
+      "speech_text": "Measurements chooses joined object tables, a channel-based feature filter, explicit exclusions, and correlated-feature removal. These choices determine the geometry represented by the map.",
+      "phonemes": "mˈɛʒəɹmᵊnts ʧˈuzᵻz ʤˈYnd ˈɑbʤəkt tˈAbᵊlz, ɐ ʧˈænᵊlbˌAst fˈiʧəɹ fˈɪltəɹ, ɪksplˈɪsət ɪksklˈuʒᵊnz, ænd kˈɔɹəlˌATᵻdfˌiʧəɹ ɹəmˈuvᵊl. ðˌiz ʧˈYsᵻz dətˈɜɹmən ðə ʤiˈɑmətɹi ɹˌɛpɹəzˈɛntᵻd bI ðə mˈæp."
+    },
+    {
+      "scene": 14,
+      "speech_start": 141.6,
+      "speech_end": 151.2,
+      "scene_end": 151.64999999999998,
+      "duration": 10.049999999999983,
+      "text": "Plate Layout and Controls provides row-exclusion rules for failed wells, unwanted controls, or other metadata values that should not enter this embedding.",
+      "speech_text": "Plate Layout and Controls provides row-exclusion rules for failed wells, unwanted controls, or other metadata values that should not enter this embedding.",
+      "phonemes": "plˈAt lˈAˌWt ænd kəntɹˈOlz pɹəvˈIdz ɹˌOɪksklˈuʒᵊn ɹˈulz fɔɹ fˈAld wˈɛlz, ˌʌnwˈɑntᵻd kəntɹˈOlz, ɔɹ ˈʌðəɹ mˈɛTədˌATə vˈæljuz ðæt ʃˌʊd nˌɑt ˈɛntəɹ ðɪs əmbˈɛdɪŋ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 151.64999999999998,
+      "speech_end": 163.74999999999997,
+      "scene_end": 164.19999999999996,
+      "duration": 12.549999999999983,
+      "text": "Embedding and Clustering selects UMAP or t-SNE, neighborhood and distance behavior, optional log transformation, displayed compartment, clustering method, noise handling, and cluster analysis.",
+      "speech_text": "Embedding and Clustering selects UMAP or t-SNE, neighborhood and distance behavior, optional log transformation, displayed compartment, clustering method, noise handling, and cluster analysis.",
+      "phonemes": "əmbˈɛdɪŋ ænd klˈʌstəɹɪŋ səlˈɛkts jˌuˌɛmˌApˈi ɔɹ tˈiɛsɛnˌi, nˈAbəɹhˌʊd ænd dˈɪstᵊns bəhˈAvjəɹ, ˈɑpʃənᵊl lˈɔɡ tɹˌænsfəɹmˈAʃən, dəsplˈAd kəmpˈɑɹtmənt, klˈʌstəɹɪŋ mˈɛθəd, nˈYz hˈændᵊlɪŋ, ænd klˈʌstəɹ ənˈæləsɪs."
+    },
+    {
+      "scene": 16,
+      "speech_start": 164.19999999999996,
+      "speech_end": 173.92499999999995,
+      "scene_end": 174.37499999999994,
+      "duration": 10.174999999999983,
+      "text": "Plot sets the maximum sampled rows and an optional metadata column used to color points. A row limit is a cap, so smaller datasets remain valid.",
+      "speech_text": "Plot sets the maximum sampled rows and an optional metadata column used to color points. A row limit is a cap, so smaller datasets remain valid.",
+      "phonemes": "plˈɑt sˈɛts ðə mˈæksəməm sˈæmpᵊld ɹˈOz ænd ɐn ˈɑpʃənᵊl mˈɛTədˌATə kˈɑləm jˈuzd tə kˈʌləɹ pˈYnts. ɐ ɹˈO lˈɪmət ɪz ɐ kˈæp, sˌO smˈɔləɹ dˈATəsˌɛts ɹəmˈAn vˈælɪd."
+    },
+    {
+      "scene": 17,
+      "speech_start": 174.37499999999994,
+      "speech_end": 184.79999999999995,
+      "scene_end": 185.24999999999994,
+      "duration": 10.875,
+      "text": "Advanced chooses PNG crops or on-demand crops from merged arrays, plus worker count and verbose reporting. Auto selects an available crop source for most projects.",
+      "speech_text": "Advanced chooses PNG crops or on-demand crops from merged arrays, plus worker count and verbose reporting. Auto selects an available crop source for most projects.",
+      "phonemes": "ədvˈænst ʧˈuzᵻz pˌiˌɛnʤˈi kɹˈɑps ɔɹ ˌɔndəmˈænd kɹˈɑps fɹʌm mˈɜɹʤd əɹˈAz, plˈʌs wˈɜɹkəɹ kˈWnt ænd vəɹbˈOs ɹᵻpˈɔɹTɪŋ. ˈɔTO səlˈɛkts ɐn əvˈAləbᵊl kɹˈɑp sˈɔɹs fɔɹ mˈOst pɹˈɑʤˌɛkts."
+    },
+    {
+      "scene": 18,
+      "speech_start": 185.24999999999994,
+      "speech_end": 196.67499999999995,
+      "scene_end": 197.12499999999994,
+      "duration": 11.875,
+      "text": "Plate and Batch Correction can center or scale plate effects, use reference controls, or apply ComBat when its biological covariate is defined. This one-plate tutorial leaves correction off.",
+      "speech_text": "Plate and Batch Correction can center or scale plate effects, use reference controls, or apply ComBat when its biological covariate is defined. This one-plate tutorial leaves correction off.",
+      "phonemes": "plˈAt ænd bˈæʧ kəɹˈɛkʃən kæn sˈɛntəɹ ɔɹ skˈAl plˈAt əfˈɛkts, jˈuz ɹˈɛfəɹəns kəntɹˈOlz, ɔɹ əplˈI kˌɑmbˈæt wˌɛn ɪts bˌIəlˈɑʤəkᵊl kˌOvˈɛɹiət ɪz dəfˈInd. ðˌɪs wˌʌnplˈAt tutˈɔɹiəl lˈivz kəɹˈɛkʃən ˈɔf."
+    },
+    {
+      "scene": 19,
+      "speech_start": 197.12499999999994,
+      "speech_end": 208.19999999999993,
+      "scene_end": 208.64999999999992,
+      "duration": 11.524999999999977,
+      "text": "UMAP Display controls point and outline styling, canvas proportions, crop zoom, glyph count, cluster grids, background, and figure saving without changing the fitted coordinates.",
+      "speech_text": "UMAP Display controls point and outline styling, canvas proportions, crop zoom, glyph count, cluster grids, background, and figure saving without changing the fitted coordinates.",
+      "phonemes": "jˌuˌɛmˌApˈi dəsplˈA kəntɹˈOlz pˈYnt ænd ˈWtlˌIn stˈIlɪŋ, kˈænvəs pɹəpˈɔɹʃənz, kɹˈɑp zˈum, ɡlˈɪf kˈWnt, klˈʌstəɹ ɡɹˈɪdz, bˈækɡɹˌWnd, ænd fˈɪɡjəɹ sˈAvɪŋ wɪðˈWt ʧˈAnʤɪŋ ðə fˈɪTᵻd kOˈɔɹdənəts."
+    },
+    {
+      "scene": 20,
+      "speech_start": 208.64999999999992,
+      "speech_end": 223.82499999999993,
+      "scene_end": 224.27499999999992,
+      "duration": 15.625,
+      "text": "This example uses UMAP with 15 neighbors, minimum distance 0.1, Euclidean distance, and DBSCAN with epsilon 0.85 and five minimum samples. Cluster statistics stay off because the small subset forms one group.",
+      "speech_text": "This example uses UMAP with 15 neighbors, minimum distance 0.1, Euclidean distance, and DBSCAN with epsilon 0.85 and five minimum samples. Cluster statistics stay off because the small subset forms one group.",
+      "phonemes": "ðˌɪs ɪɡzˈæmpəl jˈuzᵻz jˌuˌɛmˌApˈi wɪð fˌɪftˈin nˈAbəɹz, mˈɪnəməm dˈɪstᵊns zˈɪɹO pYnt wˈʌn, juklˈɪdiən dˈɪstᵊns, ænd dˌibˌiˌɛssˌiˌAˈɛn wɪð ˈɛpsɪlˌɑn zˈɪɹO pYnt ˈAt fˈIv ænd fˈIv mˈɪnəməm sˈæmpᵊlz. klˈʌstəɹ stətˈɪstɪks stˈA ˈɔf bəkˈʌz ðə smˈɔl sˈʌbsˌɛt fˈɔɹmz wˈʌn ɡɹˈup."
+    },
+    {
+      "scene": 21,
+      "speech_start": 224.27499999999992,
+      "speech_end": 238.29999999999993,
+      "scene_end": 238.74999999999991,
+      "duration": 14.474999999999994,
+      "text": "Run validates the project database and crops, joins measurement tables, filters numeric features, samples rows, fits the reducer and clusters, renders figures, and writes aligned result records. Stop requests a safe interruption.",
+      "speech_text": "Run validates the project database and crops, joins measurement tables, filters numeric features, samples rows, fits the reducer and clusters, renders figures, and writes aligned result records. Stop requests a safe interruption.",
+      "phonemes": "ɹˈʌn vˈælɪdˌAts ðə pɹˈɑʤˌɛkt dˈæTəbˌAs ænd kɹˈɑps, ʤˈYnz mˈɛʒəɹmᵊnt tˈAbᵊlz, fˈɪltəɹz numˈɛɹɪk fˈiʧəɹz, sˈæmpᵊlz ɹˈOz, fˈɪts ðə ɹədˈusəɹ ænd klˈʌstəɹz, ɹˈɛndəɹz fˈɪɡjəɹz, ænd ɹˈIts əlˈInd ɹəzˈʌlt ɹˈɛkəɹdz. stˈɑp ɹəkwˈɛsts ɐ sˈAf ˌɪntəɹˈʌpʃən."
+    },
+    {
+      "scene": 22,
+      "speech_start": 238.74999999999991,
+      "speech_end": 250.9499999999999,
+      "scene_end": 251.3999999999999,
+      "duration": 12.649999999999977,
+      "text": "During fitting, the console reports crop-source selection, removed unusable columns, nearest-neighbor construction, 500 optimization epochs, and the final 250-by-two embedding shape.",
+      "speech_text": "During fitting, the console reports crop-source selection, removed unusable columns, nearest-neighbor construction, 500 optimization epochs, and the final 250-by-two embedding shape.",
+      "phonemes": "dˈʊɹɪŋ fˈɪTɪŋ, ðə kˈɑnsˌOl ɹəpˈɔɹts kɹˌɑpsˈɔɹs səlˈɛkʃən, ɹəmˈuvd ˌʌnjˈuzəbᵊl kˈɑləmz, nˌɪɹᵻstnˈAbəɹ kənstɹˈʌkʃən, fˈIv hˈʌndɹəd ˌɑptəməzˈAʃən ˈɛpəks, ænd ðə fˈInᵊl tˈu hˈʌndɹəd fˈɪfti bI tˈu əmbˈɛdɪŋ ʃˈAp."
+    },
+    {
+      "scene": 23,
+      "speech_start": 251.3999999999999,
+      "speech_end": 265.2999999999999,
+      "scene_end": 265.9499999999999,
+      "duration": 14.549999999999983,
+      "text": "The completed gallery shows the microscopy glyph map and cluster crop grid. The project also receives embedding_results.csv, embedding and grid PDFs, saved settings, a reproducibility manifest, and a rerunnable macro.",
+      "speech_text": "The completed gallery shows the microscopy glyph map and cluster crop grid. The project also receives embedding_results.csv, embedding and grid PDFs, saved settings, a reproducibility manifest, and a rerunnable macro.",
+      "phonemes": "ðə kəmplˈiTᵻd ɡˈæləɹi ʃˈOz ðə mIkɹˈɑskəpi ɡlˈɪf mˈæp ænd klˈʌstəɹ kɹˈɑp ɡɹˈɪd. ðə pɹˈɑʤˌɛkt ˈɔlsO ɹəsˈivz ɛmbˈɛdɪŋ ɹɪzˈʌlts.sˌiˌɛsvˈi, əmbˈɛdɪŋ ænd ɡɹˈɪd pˌidˌiˈɛfs, sˈAvd sˈɛTɪŋz, ɐ ɹˌipɹədˌusəbˈɪləTi mˈænəfˌɛst, ænd ɐ ɹᵻɹˈʌnəbᵊl mˈækɹO."
     }
   ]
 }
