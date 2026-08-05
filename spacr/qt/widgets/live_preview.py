@@ -180,6 +180,41 @@ def load_preview_image(path: Path) -> np.ndarray:
         return np.asarray(im)
 
 
+def load_preview_mip(paths) -> np.ndarray:
+    """Max-project a field's planes, the way the ingest already does.
+
+    ``io._rename_and_organize_image_files`` reduces every z-stack to
+    ``np.max`` over its planes, per field and per channel, before anything
+    reaches ``stack/``. This is the preview's copy of that, so what the user
+    is looking at is what masking will actually run on.
+
+    Planes are folded one at a time rather than stacked: a 60-plane field at
+    2048x2048 uint16 is 500 MB as one array and 8 MB folded, and the preview
+    is on the GUI thread.
+
+    :param paths: plane paths in acquisition order; one path is returned
+        unchanged, so a flat 2-D field costs nothing.
+    :raises FileNotFoundError: if no path can be read.
+    """
+    projected = None
+    for path in paths:
+        plane = load_preview_image(path)
+        if projected is None:
+            projected = plane
+            continue
+        if plane.shape != projected.shape:
+            # A field whose planes disagree is not a stack. Showing the first
+            # plane is wrong quietly; refusing is wrong loudly, which is the
+            # one the user can act on.
+            raise ValueError(
+                f"plane {Path(path).name} is {plane.shape}, expected "
+                f"{projected.shape} — these files are not one z-stack")
+        projected = np.maximum(projected, plane)
+    if projected is None:
+        raise FileNotFoundError("no readable planes")
+    return projected
+
+
 def _full_range_max(img: np.ndarray) -> float:
     """Return the value that maps to white for a *raw* (un-normalised) view.
 
@@ -969,6 +1004,8 @@ class LivePreviewPanel(QWidget):
         # hands out a bounded, reproducible random sample of them. Caches the
         # enumeration per folder, so stepping through fields costs nothing.
         self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
+        # Off until the user asks; only meaningful where z_count > 1.
+        self._mip_enabled = False
         self._build_ui()
         self._build_compartment_widgets()
         # Accept image files dropped anywhere on the panel. QGraphicsView
@@ -1178,6 +1215,16 @@ class LivePreviewPanel(QWidget):
             self)
         self._path_label.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
+        # Same widget as the AI and Live switches, so the row of toggles
+        # reads as one row. Disabled until a folder is found to hold stacks:
+        # an enabled control that cannot do anything is worse than an absent
+        # one, and the tooltip says which case this folder is.
+        from .ai_toggle_label import AiToggleLabel
+        self._mip_toggle = AiToggleLabel(
+            self, text="MIP",
+            tooltip="Load a folder to find out whether it has z-stacks.")
+        self._mip_toggle.setEnabled(False)
+        self._mip_toggle.toggled.connect(self._on_mip_toggled)
         self._max_sets_box = FlatSpinBox(self, value=DEFAULT_MAX_SETS,
                                          tooltip=MAX_SETS_TOOLTIP)
         self._max_sets_box.valueChanged.connect(self._on_max_sets_changed)
@@ -1198,6 +1245,7 @@ class LivePreviewPanel(QWidget):
         self._pick_btn = FlatButton("Choose image…", self)
         self._pick_btn.clicked.connect(self._pick_file)
         pick_row.addWidget(self._path_label, 1)
+        pick_row.addWidget(self._mip_toggle)
         pick_row.addWidget(self._max_sets_box)
         pick_row.addWidget(self._fov_box)
         pick_row.addWidget(self._channel_box)
@@ -1288,12 +1336,42 @@ class LivePreviewPanel(QWidget):
         claimed was not happening.
         """
         try:
-            arr = load_preview_image(Path(path))
+            arr = self._load_for_display(Path(path))
         except Exception as e:
             self._status.setText(f"Load failed: {e}")
             return False
         self._install_loaded_image(Path(path), arr)
         return True
+
+    def _load_for_display(self, path: Path) -> "np.ndarray":
+        """Read one plane, or project the field's stack when MIP is on.
+
+        Falls back to the single file whenever the MIP switch is off, the
+        folder has no stacks, or the path is not part of a known set — so
+        this is the plain reader in every case the projection does not apply
+        to.
+        """
+        if not getattr(self, "_mip_enabled", False):
+            return load_preview_image(path)
+        picked = None
+        try:
+            picked = self._sampler.set_for_path(path)
+        except Exception:
+            picked = None
+        if picked is None or picked.z_count <= 1:
+            return load_preview_image(path)
+        # Project the channel this file belongs to, not the whole set: the
+        # view is showing one channel and the ingest projects per channel.
+        channel = None
+        for chan, name in picked.channels.items():
+            if name == path.name:
+                channel = chan
+                break
+        for chan, names in picked.planes.items():
+            if path.name in names:
+                channel = chan
+                break
+        return load_preview_mip(picked.plane_paths(channel))
 
     @property
     def _image_loaders(self) -> List[int]:
@@ -1415,11 +1493,63 @@ class LivePreviewPanel(QWidget):
         """The sentence stating this preview is a sample of N of M sets."""
         return getattr(self, "_sample_note", "")
 
+    def _refresh_mip_toggle(self) -> None:
+        """Enable the MIP switch only where there is a stack to project.
+
+        Says what it found rather than leaving the user to guess: how many
+        planes a field has, and — when a time axis is present too — that only
+        z is being projected. The 4-D axis order is never inferred here; that
+        is ``t_axis_order``'s job in the pipeline, and it deliberately has no
+        default because (T,Z,Y,X) and (Z,T,Y,X) cannot be told apart.
+        """
+        toggle = getattr(self, "_mip_toggle", None)
+        if toggle is None:
+            return
+        sets = list(getattr(self._sampler, "sets", None) or ())
+        planes = max((s.z_count for s in sets), default=1)
+        timed = any(len(s.key) > 2 and s.key[2] for s in sets) and planes > 1
+        if planes > 1:
+            toggle.setEnabled(True)
+            note = (f"Max-intensity projection over {planes} z-planes per "
+                    f"field and channel — the same projection the ingest "
+                    f"applies before masking.")
+            if timed:
+                note += (" Projects within a timepoint only; the time axis is "
+                         "left alone.")
+            toggle.setToolTip(note)
+        else:
+            if toggle.isChecked():
+                toggle.setChecked(False)
+            toggle.setEnabled(False)
+            toggle.setToolTip(
+                "No z-stacks here — every field has one plane per channel, "
+                "so there is nothing to project.")
+
+    def _on_mip_toggled(self, on: bool) -> None:
+        """Redraw the current field projected, or as a single plane."""
+        self._mip_enabled = bool(on)
+        try:
+            self._reload_for_mip()
+        except Exception:
+            # Redrawing is best-effort; the next selection change picks the
+            # new mode up regardless.
+            pass
+        self._announce_sample()
+
+    def _reload_for_mip(self) -> None:
+        """Re-read the file on screen under the new projection setting."""
+        path = getattr(self, "_image_path", None)
+        if not path:
+            return
+        arr = self._load_for_display(Path(path))
+        self._install_loaded_image(Path(path), arr)
+
     def _on_max_sets_changed(self, value: int) -> None:
         """Draw a new sample at the user's new cap — without re-enumerating."""
         if not self._sampler.set_max(int(value)):
             return
         self._refresh_source_selectors()
+        self._refresh_mip_toggle()
         self._announce_sample()
 
     def _announce_sample(self) -> None:
