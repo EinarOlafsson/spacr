@@ -39,9 +39,10 @@ Useful flags:
     --youtube-masters DIR         also build narrated 4K files to upload
 
 Re-running is cheap and safe. Encoding is skipped when a master's size and
-mtime are unchanged (tracked in docs/source/_extra/tutorials/production/
-.encode-manifest.json), and the Hugging Face upload hashes before it
-transfers. A no-op run takes seconds.
+mtime are unchanged (tracked in tools/tutorial-encode-manifest.json in the
+repo -- deliberately outside _extra, since everything under there is copied
+to the live site), and the Hugging Face upload hashes before it transfers.
+A no-op run takes seconds.
 
 --------------------------------------------------------------------------------
 2. THE ONE RULE THAT WILL BITE YOU
@@ -73,7 +74,8 @@ so it can be previewed in place; the published copy uses "production".
 Three homes, because one has a hard cap.
 
   docs/source/_extra  (GitHub Pages -- 1 GB HARD LIMIT)
-      player, posters, 1440p video.  ~185 MiB.  committed to git.
+      player, posters, 1440p video, and ONE narration voice per language as
+      an offline fallback.  ~603 MiB.  committed to git.
 
   Hugging Face dataset
       all 54 narration voices + timing sidecars, and the 4K masters.  ~3.5 GB.
@@ -83,10 +85,20 @@ Three homes, because one has a hard cap.
       one narrated 4K cut per lesson, linked from each lesson page.
       Uploaded by hand.  Ids live in web/youtube_links.js.
 
-Why narration is not on Pages: all 54 voices are 2,662 MiB. While the site
-carried the audio it could only publish ONE voice per language, so 27 of the
-28 English voices were listed nowhere and reachable never. Moving the audio
-to the host removed the constraint instead of rationing it.
+Why the voices are on the host: all 54 are 2,662 MiB. While the site carried
+them it could publish only one per language, so 27 of the 28 English voices
+were listed nowhere and reachable never.
+
+Why one voice is STILL on the site: so a host outage degrades the tutorials
+instead of breaking them. If narration fails to load, app_v2.js switches to
+that language's fallback voice served from the site, shows a toast, and
+carries on -- audio and captions intact, at one voice and 1440p rather than
+54 voices and 4K. The 4K quality option falls back the same way.
+
+That fallback costs 413 MiB of the ~950 MiB Pages budget, spent knowingly.
+Do NOT raise VOICES_PER_LANGUAGE to 2: that is another 413 MiB for a second
+fallback nobody would hear, and it puts the site over the limit it fails at
+silently.
 
 Pages is the dangerous one. It does not fail loudly when a site exceeds 1 GB
 -- it refuses the deployment and keeps serving the last build that fitted,
@@ -145,8 +157,15 @@ The picker is built from web/voice_catalog.js. Every voice listed there must
 exist on the media host, or the picker offers a voice whose audio 404s.
 After adding voices: update voice_catalog.js, then publish.
 
-There is no per-language limit any more -- the host has room. Currently:
+There is no per-language limit on the host -- it has room. Currently:
     en 28,  zh-CN 8,  ja 5,  hi 4,  es 3,  pt-BR 3,  it 2,  fr 1   = 54
+
+The FIRST voice listed for each language is special: it is the one staged to
+the site as the offline fallback, and the one the player drops to when the
+host is unreachable. Reordering a language's voices changes which voice is
+published. tests/test_docs_media_budget.py asserts the staged voice is
+exactly voices[0], so a reorder without a re-publish fails CI rather than
+shipping a fallback the player never asks for.
 
 --------------------------------------------------------------------------------
 6. HOW IT DEPLOYS
