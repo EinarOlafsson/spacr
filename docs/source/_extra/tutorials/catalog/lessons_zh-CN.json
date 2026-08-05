@@ -1614,47 +1614,192 @@
       "id": "13_regression",
       "number": 13,
       "slug": "regression",
-      "title": "Regression",
+      "title": "逆转",
       "series": 1,
       "app_key": "regression",
       "section": "Core",
-      "description": "估计扰动效应,并确定与指导或条件级 fenotype相关的特征.",
+      "description": "与指导和基因丰富度相反,具有明确的控制和实际的结果数据.",
       "objectives": [
-        "了解什么时候使用回归.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "连接每个对象的分数数据与每个井的指导计数数据.",
+        "检查控制,纠正,模型,估计器,击中呼叫,图片和可靠性类别.",
+        "运行OLS模型并找到其诊断和系数输出."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "准备和计算与匹配的plateID,rowID和columnID值的CSV文件,并确定生物正,负和中性控制.",
       "scenes": [
         {
-          "narration": "预测扰动效应,并确定与指导或条件级 fenootypes相关的特征.",
-          "visual": "overview",
+          "narration": "逆转将每个物体的现象类型链接到集成屏幕指导丰富度. 控制台报告表格对齐,过,模型诊断,系数调整,结果路径,图表和可复制性记录.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "预测扰动效应,并确定与指导或条件级 fenootypes相关的特征."
+          "speech_text": "逆转将每个物体的现象类型链接到集成屏幕指导丰富度. 控制台报告表格对齐,过,模型诊断,系数调整,结果路径,图表和可复制性记录."
         },
         {
-          "narration": "从 Core 部分打开 Regression。 选择映射的测量,响应变量,控制,组列和候选预测器.",
-          "visual": "input",
+          "narration": "聊天场接受有关当前工作流程的问题. 让人工智能通过选择的提供商进行路由,并使用相邻的箭头打开提供商菜单.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "从 Core 部分打开 Regression。 选择映射的测量,响应变量,控制,组列和候选预测器."
+          "speech_text": "聊天场接受有关当前工作流程的问题. 让人工智能通过选择的提供商进行路由,并使用相邻的箭头打开提供商菜单."
         },
         {
-          "narration": "在主要配置区域中,选择变化,变量,模型家族,随机效应,多次测试校正和质量过器.",
-          "visual": "settings",
+          "narration": "提供商报告是否安装了Claude,ChatGPT和Gemini命令行客户端,并提供其安装和登录命令. 证书留在每个供应商身上.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在主要配置区域中,选择变化,变量,模型家族,随机效应,多次测试校正和质量过器."
+          "speech_text": "提供商报告是否安装了Claude,ChatGPT和Gemini命令行客户端,并提供其安装和登录命令. 证书留在每个供应商身上."
         },
         {
-          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.",
-          "visual": "run",
+          "narration": "人工智能设置控制响应深度,自动解释错误,可选的GitHub问题报告,登录和spaCR知情系统提示.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+          "speech_text": "人工智能设置控制响应深度,自动解释错误,可选的GitHub问题报告,登录和斯佩克尔知情系统提示."
         },
         {
-          "narration": "当工作流程完成时, spaCR 写出效果尺寸,不确定性,调整的意义,诊断和数字.",
-          "visual": "output",
+          "narration": "合成实验提供了32个井,12个指南和4个基因的384个细胞分数行和384个指导数量行. 匹配的表格,行和列标识符加入表格.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "合成实验提供了32个井,12个指南和4个基因的384个细胞分数行和384个指导数量行. 匹配的表格,行和列标识符加入表格."
+        },
+        {
+          "narration": "基本数据显示输入表,板块控制,回归家族,响应变量,最低证据和首次运行所需的图片选择.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "基本数据显示输入表,板块控制,回归家族,响应变量,最低证据和首次运行所需的图片选择."
+        },
+        {
+          "narration": "修改限制面板的值与默认值不同,使控制身份,固定门和故意模型选择容易进行审计.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "修改限制面板的值与默认值不同,使控制身份,固定门和故意模型选择容易进行审计."
+        },
+        {
+          "narration": "所有设置都显示每个类别,没有改变值. 八个类别分开输入,设计,纠正,建模,打电话,插图和运行时间行为.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "所有设置都显示每个类别,没有改变值. 八个类别分开输入,设计,纠正,建模,打电话,插图和运行时间行为."
+        },
+        {
+          "narration": "配方在名称下保存完整的回归配置,以后重新应用它,或者进口和出口可重复使用的设置文件.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "配方在名称下保存完整的回归配置,以后重新应用它,或者进口和出口可重复使用的设置文件."
+        },
+        {
+          "narration": "提交已解决的回归设置的远程快照,并将工作发送到分布式工作工作工作空间.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "提交已解决的回归设置的远程快照,并将工作发送到分布式工作工作工作空间."
+        },
+        {
+          "narration": "分布式工作将输入路径和计算资源映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的模型运行.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "分布式工作将输入路径和计算资源映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的模型运行."
+        },
+        {
+          "narration": "输入表选择了可选的基因元数据,对物体或对井体型分数,以及测序计数表. 多个牌子必须按列表位置或明确的牌子标识符保持一致.",
+          "visual": "12_category_01_input_tables",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "输入表选择了可选的基因元数据,对物体或对井体型分数,以及测序计数表. 多个牌子必须按列表位置或明确的牌子标识符保持一致."
+        },
+        {
+          "narration": "控制和板块设计定义了板块,正和负基因,中性指导控制,控制井以及在安装之前排除的任何行列.",
+          "visual": "12_category_02_controls_plate_design",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "控制和板块设计定义了板块,正和负基因,中性指导控制,控制井以及在安装之前排除的任何行列."
+        },
+        {
+          "narration": "板块和批量纠正可以通过中心化,强大的扩展,参考控制或ComBat去除板块偏移. 这个单盘教程没有纠正.",
+          "visual": "12_category_03_plate_batch_correction",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "板块和批量纠正可以通过中心化,强大的扩展,参考控制或ComBat去除板块偏移. 这个单盘教程没有纠正."
+        },
+        {
+          "narration": "模型和共变选择回归家族,响应列,聚合和转换,规律化,共变估计以及可选的行或列效应.",
+          "visual": "12_category_04_model_covariates",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "模型和共变选择回归家族,响应列,聚合和转换,规律化,共变估计以及可选的行或列效应."
+        },
+        {
+          "narration": "估计器调节包含了弹性网,量子力,休伯,杆和启动选项模型所使用的参数. 只有属于选择家庭的控制才能影响运行.",
+          "visual": "12_category_05_estimator_tuning",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "估计器调节包含了弹性网,量子力,休伯,杆和启动选项模型所使用的参数. 只有属于选择家庭的控制才能影响运行."
+        },
+        {
+          "narration": "击中调用和异常值设定最小细胞和井证据,指导分数过,可选的异常值删除,以及控制衍生的系数门.",
+          "visual": "12_category_06_hit_calling_outliers",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "击中调用和异常值设定最小细胞和井证据,指导分数过,可选的异常值删除,以及控制衍生的系数门."
+        },
+        {
+          "narration": "后退图控制了火山目标,逻辑轴和可选轴界限. 这些显示选项不会改变安装的系数.",
+          "visual": "12_category_07_regression_plots",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "后退图控制了火山目标,逻辑轴和可选轴界限. 这些显示选项不会改变安装的系数."
+        },
+        {
+          "narration": "运行时间和可靠性控制严格的错误,被容忍的故障率,重试政策,随机种子和口头报告. 一个固定的种子支持可复制性.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "运行时间和可靠性控制严格的错误,被容忍的故障率,重试政策,随机种子和口头报告. 一个固定的种子支持可复制性."
+        },
+        {
+          "narration": "在这个设计中,基因239740是正面控制,233460是负面控制,三个000000指南定义了中性行为. 列c1到c3不属于安装的处理组.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "在这个设计中,基因239740是正面控制,233460是负面控制,三个000000指南定义了中性行为. 列c1到c3不属于安装的处理组."
+        },
+        {
+          "narration": "运行验证表格方案和井钥匙,删除排除控制,汇总细胞分数,将指导数数转换为分数,匹配OLS系数,评估证据,并编写结果. 停止请求安全的中断.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "运行验证表格方案和井钥匙,删除排除控制,汇总细胞分数,将指导数数转换为分数,匹配OLS系数,评估证据,并编写结果. 停止请求安全的中断."
+        },
+        {
+          "narration": "在运行期间,控制台报告了384个得分行,384个计数行,板块排列,保留的观察和模型进展.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "在运行期间,控制台报告了384个得分行,384个计数行,板块排列,保留的观察和模型进展."
+        },
+        {
+          "narration": "完成的运行提供平板总结,分数和指导分数 histograms,诊断图,回归_数据,指导和基因的系数表,意义表,保存的设置,表格和可重启的宏.",
+          "visual": "23_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "当工作流程完成时, 斯佩克尔 写出效果尺寸,不确定性,调整的意义,诊断和数字."
+          "speech_text": "完成的运行提供平板总结,分数和指导分数 histograms,诊断图,回归_数据,指导和基因的系数表,意义表,保存的设置,表格和可重启的宏."
         }
       ]
     },
