@@ -4466,47 +4466,155 @@
       "id": "31_external_masks",
       "number": 31,
       "slug": "external_masks",
-      "title": "External Masks",
+      "title": "Máscaras exteriores",
       "series": 4,
       "app_key": "external_masks",
       "section": "Data and batch runs",
-      "description": "Convertir las máscaras de etiquetas de terceros y las imágenes de origen en un proyecto spaCR medible y rastreable.",
+      "description": "Revise las asignaciones de imágenes y etiquetas generadas externamente, vea de antemano el emparejamiento sin escribir, y luego cree un proyecto spaCR medido listo para la anotación.",
       "objectives": [
-        "Comprender cuándo usar máscaras externas.",
-        "Configurar las entradas y configuraciones importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus salidas."
+        "Detecta imágenes de intensidad y máscaras de células, núcleos, patógenos y órganos, manteniendo asignaciones de roles editables.",
+        "Revise todas las categorías de configuración y use Preview sólo para validar el emparejamiento de canal, campo y plano de máscara.",
+        "Importar los campos revisados a través de la línea de conversión real y de medición y verificar sus resultados de base de datos y anotaciones."
       ],
-      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados en la línea ascendente.",
+      "prerequisite": "Las imágenes de intensidad y las máscaras de etiquetas de números enteros con nombres de campos correspondientes; cada clase de objeto debe distinguirse por su carpeta o nombre de archivo.",
       "scenes": [
         {
-          "narration": "Este tutorial cubre las máscaras externas. Convertir las máscaras de etiquetas de terceros y las imágenes de origen en un proyecto spaCR medido y rastreable.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial cubre las máscaras externas. Convertir las máscaras de etiquetas de terceros y las imágenes de origen en un proyecto espáquer medido y rastreable."
+          "narration": "Las máscaras externas convierten la segmentación producida fuera de spaCR en el mismo contrato de proyecto medido utilizado por Measure y Annotate. Abre desde Datos y ejecuciones de lotes; Preview es solo para lectura, mientras que Run puede construir imágenes canónicas, pilas, máscaras, matrices fusionadas, mediciones y cultivos de objetos.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.72,
+          "speech_text": "Las máscaras externas convierten la segmentación producida fuera de espáquer en el mismo contrato de proyecto medido utilizado por Measure y Annotate. Abre desde Datos y ejecuciones de lotes; Preview es solo para lectura, mientras que Run puede construir imágenes canónicas, pilas, máscaras, matrices fusionadas, mediciones y cultivos de objetos."
         },
         {
-          "narration": "Abra External Masks en la sección Data and batch runs. Abrir máscaras externas en la sección Datos y ejecuciones de lote. Proporcione imágenes de origen, máscaras externas, reglas de nombramiento, tipos de objetos y tablas de medición opcionales.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra External Masks en la sección Data and batch runs. Abrir máscaras externas en la sección Datos y ejecuciones de lote. Proporcione imágenes de origen, máscaras externas, reglas de nombramiento, tipos de objetos y tablas de medición opcionales."
+          "narration": "Deja caer archivos de imágenes y máscaras o una carpeta que contenga. Esta lección utiliza tres cultivos reales de 768 píxeles del experimento transferido: doce TIFF de intensidad y tres máscaras para cada uno de los cuatro tipos de objetos, exportados desde matrices existentes de spaCR únicamente para emular una transmisión externa.",
+          "visual": "02_detected",
+          "focus_key": "inputs",
+          "hold_after": 0.78,
+          "speech_text": "Deja caer archivos de imágenes y máscaras o una carpeta que contenga. Esta lección utiliza tres cultivos reales de 768 píxeles del experimento transferido: doce TIFF de intensidad y tres máscaras para cada uno de los cuatro tipos de objetos, exportados desde matrices existentes de espáquer únicamente para emular una transmisión externa."
         },
         {
-          "narration": "En el área de configuración principal, mapear las imágenes a las máscaras, validar las convenciones de forma y etiquetado, elegir el reetiquetado y definir las opciones de medición.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "En el área de configuración principal, mapear las imágenes a las máscaras, validar las convenciones de forma y etiquetado, elegir el reetiquetado y definir las opciones de medición."
+          "narration": "La tabla de asignación agrupa archivos por evidencia. Las imágenes de intensidad se detectan a partir de sus píxeles, mientras que las palabras de máscara y objeto identifican las etiquetas de células, núcleos, patógenos y órganos. El uso como y el tipo de máscara siguen siendo propuestas editables; revise cada fila e ignore cualquier cosa que no deba entrar en el proyecto.",
+          "visual": "03_assignment",
+          "focus_key": "input_table",
+          "hold_after": 0.74,
+          "speech_text": "La tabla de asignación agrupa archivos por evidencia. Las imágenes de intensidad se detectan a partir de sus píxeles, mientras que las palabras de máscara y objeto identifican las etiquetas de células, núcleos, patógenos y órganos. El uso como y el tipo de máscara siguen siendo propuestas editables; revise cada fila e ignore cualquier cosa que no deba entrar en el proyecto."
         },
         {
-          "narration": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. La alineación de vista previa y el recuento de objetos en varios campos antes de importar el conjunto completo de datos.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. La alineación de vista previa y el recuento de objetos en varios campos antes de importar el conjunto completo de datos."
+          "narration": "Mapeo de entrada contiene la tabla de asignación revisada, un nuevo destino, descubrimiento recursivo, diseño de nombre de archivo, manejo de Z, nombre de placa, protección de sobrescrición y solo vista previa. Estos controles deciden qué archivos se emparejan antes de que se escriba algo.",
+          "visual": "04_category_input_mapping",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.64,
+          "speech_text": "Mapeo de entrada contiene la tabla de asignación revisada, un nuevo destino, descubrimiento recursivo, diseño de nombre de archivo, manejo de Z, nombre de placa, protección de sobrescrición y solo vista previa. Estos controles deciden qué archivos se emparejan antes de que se escriba algo."
         },
         {
-          "narration": "Cuando el flujo de trabajo termina, spaCR almacena máscaras normalizadas, imágenes mapeadas, mediciones y procedencia listas para la anotación.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Cuando el flujo de trabajo termina, espáquer almacena máscaras normalizadas, imágenes mapeadas, mediciones y procedencia listas para la anotación."
+          "narration": "General define la lista de canales de intensidad importados, el nombre del experimento, la política de normalización y si se deriva un compartimiento de citoplasma. Aquí los canales de cero a tres coinciden con los cuatro planos de imagen reales.",
+          "visual": "05_category_general",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "General define la lista de canales de intensidad importados, el nombre del experimento, la política de normalización y si se deriva un compartimiento de citoplasma. Aquí los canales de cero a tres coinciden con los cuatro planos de imagen reales."
+        },
+        {
+          "narration": "Organelle controla la forma en que se resumen las etiquetas de organeles importadas en relación con sus objetos progenitores. No segmenta de nuevo los TIFF, sino que solo define las relaciones de medición posteriores.",
+          "visual": "06_category_organelle",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "Organelle controla la forma en que se resumen las etiquetas de organeles importadas en relación con sus objetos progenitores. No segmenta de nuevo los TIFF, sino que solo define las relaciones de medición posteriores."
+        },
+        {
+          "narration": "Timelapse contiene opciones de seguimiento para series temporales suministradas externamente. Deja desactivado para este ejemplo de un solo punto de tiempo; hable sólo cuando los nombres de campo y los marcos representan una secuencia temporal real.",
+          "visual": "07_category_timelapse",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Timelapse contiene opciones de seguimiento para series temporales suministradas externamente. Deja desactivado para este ejemplo de un solo punto de tiempo; hable sólo cuando los nombres de campo y los marcos representan una secuencia temporal real."
+        },
+        {
+          "narration": "Las mediciones eligen las familias de características calculadas a partir de las etiquetas importadas, incluida la intensidad, correlación, textura, distribución radial y colocalización. Comience con las características que necesita su análisis porque las familias más ricas cuestan más tiempo y almacenamiento.",
+          "visual": "08_category_measurements",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.62,
+          "speech_text": "Las mediciones eligen las familias de características calculadas a partir de las etiquetas importadas, incluida la intensidad, correlación, textura, distribución radial y colocalización. Comience con las características que necesita su análisis porque las familias más ricas cuestan más tiempo y almacenamiento."
+        },
+        {
+          "narration": "Configuración del filtro se aplica a las puertas de tamaño mínimo y de infección después de la importación. Las máscaras externas conservan la geometría de las etiquetas suministradas; estos filtros deciden qué objetos etiquetados ingresan a las mediciones en lugar de reparar una segmentación pobre.",
+          "visual": "09_category_filter_settings",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Configuración del filtro se aplica a las puertas de tamaño mínimo y de infección después de la importación. Las máscaras externas conservan la geometría de las etiquetas suministradas; estos filtros deciden qué objetos etiquetados ingresan a las mediciones en lugar de reparar una segmentación pobre."
+        },
+        {
+          "narration": "Object Crops selecciona qué compartimentos se convierten en conjuntos de datos PNG de un solo objeto, sus canales, tamaño, normalización y política de fronteras. Este ejemplo guarda los cultivos celulares para que el proyecto terminado pueda abrirse directamente en Anotate.",
+          "visual": "10_category_object_crops",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.6,
+          "speech_text": "Object Crops selecciona qué compartimentos se convierten en conjuntos de datos PNG de un solo objeto, sus canales, tamaño, normalización y política de fronteras. Este ejemplo guarda los cultivos celulares para que el proyecto terminado pueda abrirse directamente en Anotate."
+        },
+        {
+          "narration": "Avanzado contiene currículum, funcionamiento seco, fallas, trabajador y controles de registro. Los errores estrictos y un trabajador hacen que esta pequeña primera importación sea fácil de auditar; los proyectos más grandes revisados pueden utilizar más trabajadores más tarde.",
+          "visual": "11_category_advanced",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Avanzado contiene currículum, funcionamiento seco, fallas, trabajador y controles de registro. Los errores estrictos y un trabajador hacen que esta pequeña primera importación sea fácil de auditar; los proyectos más grandes revisados pueden utilizar más trabajadores más tarde."
+        },
+        {
+          "narration": "3D Settings es una categoría de fase alfa para mediciones y proyecciones volumétricas. Las entradas actuales son planos de etiqueta bidimensionales, por lo que estos controles permanecen apagados y el manejo de Z permanece en la proyección máxima para cualquier fuente de intensidad multiframe.",
+          "visual": "12_category_3d_settings_(beta)",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.62,
+          "speech_text": "3D Settings es una categoría de fase alfa para mediciones y proyecciones volumétricas. Las entradas actuales son planos de etiqueta bidimensionales, por lo que estos controles permanecen apagados y el manejo de Z permanece en la proyección máxima para cualquier fuente de intensidad multiframe."
+        },
+        {
+          "narration": "Antes de importar, mantenga sólo habilitado la vista previa y confirme que el destino es una nueva carpeta de proyecto. La sobrescrición permanece apagada, por lo que una base de datos de mediciones existente es un problema de bloqueo en lugar de ser silenciosamente reemplazada.",
+          "visual": "13_preview_settings",
+          "focus_key": "category",
+          "hold_after": 0.62,
+          "speech_text": "Antes de importar, mantenga sólo habilitado la vista previa y confirme que el destino es una nueva carpeta de proyecto. La sobrescrición permanece apagada, por lo que una base de datos de mediciones existente es un problema de bloqueo en lugar de ser silenciosamente reemplazada."
+        },
+        {
+          "narration": "Haga clic en Ejecutar para el prevuelo solo para lectura. Escanea los metadatos de imagen reales, empareja las máscaras con identidades de campo normalizadas, revisa los duplicados y las máscaras faltantes, asigna planos de máscaras después de los canales de intensidad y no escribe ninguna salida de experimento.",
+          "visual": "14_preview_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.64,
+          "speech_text": "Haga clic en Ejecutar para el prevuelo solo para lectura. Escanea los metadatos de imagen reales, empareja las máscaras con identidades de campo normalizadas, revisa los duplicados y las máscaras faltantes, asigna planos de máscaras después de los canales de intensidad y no escribe ninguna salida de experimento."
+        },
+        {
+          "narration": "La vista previa real informa de doce mapas de intensidad, tres campos completos, cuatro canales de intensidad, y máscaras de células, núcleos, patógenos y orgánulos emparejadas para cada campo. Los aviones de máscaras serán cuatro, cinco, seis y siete, sin advertencias ni errores de bloqueo.",
+          "visual": "15_preview_result",
+          "focus_key": "console",
+          "hold_after": 0.76,
+          "speech_text": "La vista previa real informa de doce mapas de intensidad, tres campos completos, cuatro canales de intensidad, y máscaras de células, núcleos, patógenos y orgánulos emparejadas para cada campo. Los aviones de máscaras serán cuatro, cinco, seis y siete, sin advertencias ni errores de bloqueo."
+        },
+        {
+          "narration": "Deshabilitar sólo la vista previa y hacer clic en Ejecutar de nuevo para importar. External Masks ahora utiliza el plan revisado para escribir imágenes canónicas y matrices, luego entrega los campos fusionados a la normalidad de la tubería de Medidas con las dimensiones de la máscara derivadas.",
+          "visual": "16_import_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "Deshabilitar sólo la vista previa y hacer clic en Ejecutar de nuevo para importar. External Masks ahora utiliza el plan revisado para escribir imágenes canónicas y matrices, luego entrega los campos fusionados a la normalidad de la tubería de Medidas con las dimensiones de la máscara derivadas."
+        },
+        {
+          "narration": "Durante la conversión, doce de los doce elementos de intensidad tienen éxito antes de que comience la medición. La consola repite el emparejamiento validado y registra un manifiesto de reproducibilidad y ejecuta un diario; el stop permanece disponible en los límites seguros declarados.",
+          "visual": "17_importing",
+          "focus_key": "console",
+          "hold_after": 0.68,
+          "speech_text": "Durante la conversión, doce de los doce elementos de intensidad tienen éxito antes de que comience la medición. La consola repite el emparejamiento validado y registra un manifiesto de reproducibilidad y ejecuta un diario; el stop permanece disponible en los límites seguros declarados."
+        },
+        {
+          "narration": "La importación real termina con tres matrices fusionadas de ocho planos y una base de datos de mediciones que contiene células, citoplasma, núcleo, patógeno, organella, lista PNG, configuración, configuración-historia y tablas de estado de ejecución. Los cultivos celulares están bajo datos, por lo que este nuevo proyecto es rastreable y listo para Anotado sin segmentación de repetición.",
+          "visual": "18_finished",
+          "focus_key": "console",
+          "hold_after": 0.88,
+          "speech_text": "La importación real termina con tres matrices fusionadas de ocho planos y una base de datos de mediciones que contiene células, citoplasma, núcleo, patógeno, organella, lista PNG, configuración, configuración-historia y tablas de estado de ejecución. Los cultivos celulares están bajo datos, por lo que este nuevo proyecto es rastreable y listo para Anotado sin segmentación de repetición."
         }
       ]
     },
