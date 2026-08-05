@@ -36,7 +36,7 @@ import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QHBoxLayout, QHeaderView, QLabel, QSpinBox,
+    QComboBox, QHBoxLayout, QHeaderView, QLabel, QSpinBox,
     QSplitter, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
@@ -46,6 +46,7 @@ from .feature_rank import (
     ExplorerError, ExplorerResult, ExplorerSpec, candidate_labels,
     distributions, rank_features,
 )
+from .toggle import Toggle
 from .graph_builder import (_canvas_class, _page_surface_axes,
                             categorical_colours)
 
@@ -113,7 +114,7 @@ class FeatureExplorerPanel(QWidget):
         self._top.valueChanged.connect(self._schedule)
         controls.addWidget(self._top)
 
-        self._null = QCheckBox("Shuffle test", self)
+        self._null = Toggle("Shuffle test", self)
         self._null.setToolTip(
             "Permute the class labels and re-rank, 50 times, keeping the best "
             "score each time. The 95th percentile is the separation the best "

@@ -52,7 +52,7 @@ from typing import List, Optional
 import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QAbstractItemView, QCheckBox, QComboBox, QDoubleSpinBox, QFileDialog,
+    QAbstractItemView, QComboBox, QDoubleSpinBox, QFileDialog,
     QFormLayout, QHBoxLayout, QHeaderView, QLabel, QPlainTextEdit,
     QPushButton, QSpinBox, QSplitter, QTabWidget, QTableWidget,
     QTableWidgetItem, QVBoxLayout, QWidget,
@@ -116,6 +116,7 @@ _METHOD_LABELS = (
     (METHOD_IQR, "IQR — Tukey's fence on the quartiles"),
     (METHOD_MAHALANOBIS, "Mahalanobis — robust multivariate (MCD)"),
 )
+from ..widgets.toggle import Toggle
 
 #: What the one threshold spinbox means under each method: label, tooltip,
 #: range, step, decimals and default.
@@ -292,7 +293,7 @@ class OutliersScreen(QWidget):
             "values rather than inventing a pseudocount.")
         form.addRow("Transform", self.transform)
 
-        self.per_well = QCheckBox("Score wells too", panel)
+        self.per_well = Toggle("Score wells too", panel)
         self.per_well.setObjectName("OutlierPerWell")
         self.per_well.setChecked(True)
         self.per_well.setToolTip(

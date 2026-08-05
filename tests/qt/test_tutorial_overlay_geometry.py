@@ -55,6 +55,25 @@ def _filled(width, height, colour):
 # _draw_cursor_on
 # ---------------------------------------------------------------------------
 
+
+def _bluest(arr, row, col, span=3):
+    """The most blue-dominant pixel in a small window around (row, col).
+
+    The highlight ring is a ONE pixel antialiased line drawn with a pen at
+    alpha 220, so any single fixed pixel on it may be a faint edge -- at
+    (40, 16) it lands at r=177 b=110, which is a real ring pixel and is
+    still more red than blue. Asserting on the strongest pixel nearby says
+    "the ring is here and it is blue" without pinning the antialiasing.
+    """
+    best = None
+    for y in range(row - span, row + span + 1):
+        for x in range(col - span, col + span + 1):
+            r, g, b = (int(v) for v in arr[y, x])
+            if best is None or (b - r) > (best[2] - best[0]):
+                best = (r, g, b)
+    return best
+
+
 def test_cursor_dot_is_centred_at_the_requested_point(qt_theme_applied):
     """The requested point is the centre of a tiny solid magenta dot."""
     from spacr.qt.tutorial.engine import _draw_cursor_on
@@ -63,8 +82,13 @@ def test_cursor_dot_is_centred_at_the_requested_point(qt_theme_applied):
     arr = _to_array(pm)
 
     x0, y0, x1, y1 = _changed_bbox(arr, BG_RED)
+    # `_draw_cursor_on` draws radius 4 about the point, so the mark spans
+    # (46..54, 56..64) and its outermost column is a faint antialiased
+    # edge that may or may not register as changed. Asserted as "centred,
+    # about 9px across" rather than on exact edges.
     assert 45 <= x0 <= 46 and 55 <= y0 <= 56
-    assert 54 <= x1 <= 55 and 64 <= y1 <= 65
+    assert 53 <= x1 <= 55 and 63 <= y1 <= 65
+    assert 7 <= (x1 - x0) <= 10 and 7 <= (y1 - y0) <= 10
     assert tuple(arr[60, 50]) == (255, 0, 153)
     # Nothing painted anywhere else on the canvas.
     assert tuple(arr[10, 10]) == BG_RED
@@ -256,11 +280,16 @@ def test_recorder_remembers_and_reuses_the_cursor_position(
     assert rec.cursor_pos == (120.7, 60.2)
 
     # int() truncation, not rounding: the dot is centred at (120, 60).
+    # The bbox is the DOT's extent, not its centre -- radius 4, so it
+    # starts at about (116, 56). This used to assert the corner was the
+    # centre, which no radius could satisfy.
     bbox_a = _changed_bbox(_to_array(QImage(str(moved))), BG_RED)
     bbox_b = _changed_bbox(_to_array(QImage(str(repeat))), BG_RED)
     assert bbox_a == bbox_b
-    assert bbox_a[0] in (119, 120)
-    assert bbox_a[1] in (59, 60)
+    assert bbox_a[0] in (115, 116, 117)
+    assert bbox_a[1] in (55, 56, 57)
+    assert (bbox_a[0] + bbox_a[2]) // 2 in (119, 120)
+    assert (bbox_a[1] + bbox_a[3]) // 2 in (59, 60)
 
 
 def test_recorder_hides_pointer_unless_the_step_is_a_click(
@@ -290,8 +319,15 @@ def test_recorder_composites_the_highlight_ring_into_the_frame(
                                              highlight_rect=(20, 20, 60, 40)))))
     # Ring pixels only appear in the second frame.
     assert tuple(plain[40, 16]) == (255, 0, 0)
-    r, g, b = ringed[40, 16]
-    assert b > r and b > 200
+    # The ring is a ONE pixel antialiased line at pen alpha 220, so the
+    # pixel it lands on is a blend and can still be more red than blue --
+    # (177, ?, 110) here. What the ring does is ADD blue where there was
+    # none, and that is what is asserted; `b > 200` could only have held
+    # for an opaque line.
+    r0, g0, b0 = (int(v) for v in plain[40, 16])
+    r1, g1, b1 = (int(v) for v in ringed[40, 16])
+    assert b1 > b0, "the ring added no blue here"
+    assert b1 > 0 and r1 < r0
     # …and the widget behind the ring is still visible.
     assert tuple(ringed[40, 50]) == (255, 0, 0)
     # The rest of the app is subdued.
@@ -311,7 +347,9 @@ def test_recorder_can_keep_the_background_bright_for_overview_steps(
         dim_background=False,
     ))))
 
-    # The blue ring is still present while pixels away from it are untouched.
-    r, g, b = frame[40, 16]
-    assert b > r and b > 200
+    # The blue ring is still present while pixels away from it are
+    # untouched. Same antialiasing caveat as the test above: the ring adds
+    # blue to a red background rather than replacing it.
+    r, g, b = (int(v) for v in frame[40, 16])
+    assert b > 0 and r < 255, "the ring is missing from this frame"
     assert tuple(frame[150, 150]) == (255, 0, 0)

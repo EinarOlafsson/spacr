@@ -44,7 +44,7 @@ import pandas as pd
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QBrush, QColor, QFont
 from PySide6.QtWidgets import (
-    QAbstractItemView, QCheckBox, QDoubleSpinBox, QFileDialog, QGridLayout,
+    QAbstractItemView, QDoubleSpinBox, QFileDialog, QGridLayout,
     QHBoxLayout, QHeaderView, QLabel, QListWidget, QListWidgetItem,
     QPushButton, QSplitter, QTableWidget, QTableWidgetItem, QVBoxLayout,
     QWidget,
@@ -57,6 +57,7 @@ from .pivot_spec import (
     AGGREGATION_LABELS, AGGREGATIONS, COUNT_ONLY, LOW_N, MEAN, N, SD,
     WELL_HIERARCHY, PivotError, PivotResult, PivotSpec, format_value, pivot,
 )
+from .toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.pivot")
 
@@ -418,9 +419,9 @@ class PivotPanel(QWidget):
         aggs = QGridLayout()
         aggs.setContentsMargins(0, 0, 0, 0)
         aggs.setSpacing(SPACING["xs"])
-        self._agg_boxes: Dict[str, QCheckBox] = {}
+        self._agg_boxes: Dict[str] = {}
         for i, agg in enumerate(AGGREGATIONS):
-            box = QCheckBox(agg, shelf)
+            box = Toggle(agg, shelf)
             box.setToolTip(AGGREGATION_LABELS[agg])
             box.setChecked(agg in (N, MEAN, SD))
             if agg == N:
