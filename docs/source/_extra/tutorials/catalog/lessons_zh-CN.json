@@ -4229,47 +4229,114 @@
       "id": "29_report",
       "number": 29,
       "slug": "report",
-      "title": "Report",
+      "title": "报告",
       "series": 4,
       "app_key": "report",
       "section": "Results and quality control",
-      "description": "创建一个可以共享的HTML或PDF总结,包含质量控制,数字,统计数据,设置和版本.",
+      "description": "审计完成的运行,预览可用和缺失的证据,并生成一个可共享的HTML或PDF,包含状态,来源,QC,结果,设置和附件.",
       "objectives": [
-        "了解什么时候使用报告.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "在生成前扫描运行文件并区分完整,部分,未知和缺失的证据.",
+        "选择输出格式,图表盖和不可改变的运行文件之外的目的地.",
+        "检查生成的文件是否诚实地报告来源,统计数据,设置,遗漏数字和不可用部分."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "包含任何可用的测量,运行邮票,QC文物,结果,设置或数字的spaCR运行或板块文件.",
       "scenes": [
         {
-          "narration": "创建一个可共享的HTML或PDF总结,包含质量控制,数字,统计,设置和版本.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "创建一个可共享的HTML或PDF总结,包含质量控制,数字,统计,设置和版本."
+          "narration": "报告是只能阅读的文件构建器. 它将已经在运行文件中存在的证据转化为可共享的HTML,PDF或两者;它不会重新计算结果或写入源文件.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.6,
+          "speech_text": "报告是只能阅读的文件构建器. 它将已经在运行文件中存在的证据转化为可共享的HTML,PDF或两者;它不会重新计算结果或写入源文件."
         },
         {
-          "narration": "从 Results and quality control 部分打开 Report。 选择完成的 spaCR 项目,以及包括的运行,表格,数字和部分.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "从 Results and quality control 部分打开 Report。 选择完成的 斯佩克尔 项目,以及包括的运行,表格,数字和部分."
+          "narration": "选择或放下包含测量,质量控制文物,结果和设置的平板或运行文件,然后单击扫描. 这本教程使用转移实验的完成测试运行.",
+          "visual": "02_source",
+          "focus_key": "source",
+          "click_key": "scan",
+          "hold_after": 0.62,
+          "speech_text": "选择或放下包含测量,质量控制文物,结果和设置的平板或运行文件,然后单击扫描. 这本教程使用转移实验的完成测试运行."
         },
         {
-          "narration": "在主要配置区域中,配置标题,作者,条件标签,质量门,输出格式和隐私敏感的字段.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "在主要配置区域中,配置标题,作者,条件标签,质量门,输出格式和隐私敏感的字段."
+          "narration": "绿色判决来自实际运行状态的邮票:所有五项测量试验都成功. 有六个报告部分,有两个没有;发现了十七个数字,但没有一个可以嵌入的拉斯特图像.",
+          "visual": "03_verdict",
+          "focus_key": "scan_result",
+          "hold_after": 0.72,
+          "speech_text": "绿色判决来自实际运行状态的邮票:所有五项测量试验都成功. 有六个报告部分,有两个没有;发现了十七个数字,但没有一个可以嵌入的拉斯特图像."
         },
         {
-          "narration": "在完整运行之前,请检查可见设置,并在可用的前景或测试模式使用.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见设置,并在可用的前景或测试模式使用."
+          "narration": "一个合作者将收到什么? 这一运行包括状态,来源,关键数字库存,统计数据,设置和附件数据;QC细分和QC板仍然显著标记不存在,而不是消失.",
+          "visual": "04_sections",
+          "focus_key": "sections",
+          "hold_after": 0.72,
+          "speech_text": "一个合作者将收到什么? 这一运行包括状态,来源,关键数字库存,统计数据,设置和附件数据;QC细分和QC板仍然显著标记不存在,而不是消失."
         },
         {
-          "narration": "工作流程完成后,便携式报告记录结论,以及需要复制的设置和软件版本.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "工作流程完成后,便携式报告记录结论,以及需要复制的设置和软件版本."
+          "narration": "格式提供一个独立的HTML文件,PDF转录或两者. 嵌入到最多的边界, 拉斯特数字, 因此报告不能长得无边界; 零没有嵌入图像, 而上限是二百.",
+          "visual": "05_options",
+          "focus_key": "options",
+          "hold_after": 0.66,
+          "speech_text": "格式提供一个独立的HTML文件,PDF转录或两者. 嵌入到最多的边界, 拉斯特数字, 因此报告不能长得无边界; 零没有嵌入图像, 而上限是二百."
+        },
+        {
+          "narration": "具体选择目的地. 建议的路径在运行文件之外,因此生成报告不能轻松修改一个不变的实验;在这里,HTML被写入教程工作空间.",
+          "visual": "06_output",
+          "focus_key": "output",
+          "hold_after": 0.64,
+          "speech_text": "具体选择目的地. 建议的路径在运行文件之外,因此生成报告不能轻松修改一个不变的实验;在这里,HTML被写入教程工作空间."
+        },
+        {
+          "narration": "单击生成报告. spaCR再次扫描文件,以便文件反映其当前状态,将符合条件的拉斯特数字嵌入到盖顶,并编写一个独立的文件,没有网络依赖性.",
+          "visual": "07_generate",
+          "focus_key": "output",
+          "click_key": "generate",
+          "hold_after": 0.64,
+          "speech_text": "单击生成报告. 斯佩克尔再次扫描文件,以便文件反映其当前状态,将符合条件的拉斯特数字嵌入到盖顶,并编写一个独立的文件,没有网络依赖性."
+        },
+        {
+          "narration": "输入结果将文件和目的地命名, 打开仅在成功编写后可用. 在此报告失败,而不是隐藏在模态对话后面.",
+          "visual": "08_generated",
+          "focus_key": "result",
+          "hold_after": 0.58,
+          "speech_text": "输入结果将文件和目的地命名, 打开仅在成功编写后可用. 在此报告失败,而不是隐藏在模态对话后面."
+        },
+        {
+          "narration": "点击开放,将最新生成的文档交给系统浏览器或PDF浏览器.",
+          "visual": "09_open",
+          "focus_key": "output",
+          "click_key": "open",
+          "hold_after": 0.48,
+          "speech_text": "点击开放,将最新生成的文档交给系统浏览器或PDF浏览器."
+        },
+        {
+          "narration": "状态证实哪个输出已打开. 下面的视图显示了本次运行生成的真实HTML,而不是假报告.",
+          "visual": "10_opened",
+          "focus_key": "status",
+          "hold_after": 0.52,
+          "speech_text": "状态证实哪个输出已打开. 下面的视图显示了本次运行生成的真实HTML,而不是假报告."
+        },
+        {
+          "narration": "文件以完整的判决,缺乏QC和未嵌入的数据的诚实摘要以及链接的内容列表开幕. 运行状态记录了五个成功测量项中的五个,而来源保留了源,spaCR版本,Git修改,Python环境和包版本.",
+          "visual": "11_report_top",
+          "hold_after": 0.82,
+          "speech_text": "文件以完整的判决,缺乏QC和未嵌入的数据的诚实摘要以及链接的内容列表开幕. 运行状态记录了五个成功测量项中的五个,而来源保留了源,斯佩克尔版本,Git修改,Python环境和包版本."
+        },
+        {
+          "narration": "\"关键图\"列出了所有遗漏的十七个剧情,并解释了为什么每个剧情都不存在. 它们是矢量PDF文件,spaCR故意没有PDF rasterizer依赖;提高 raster-figure cap不会将它们转换或假装它们嵌入.",
+          "visual": "12_report_figures",
+          "hold_after": 0.72,
+          "speech_text": "\"关键图\"列出了所有遗漏的十七个剧情,并解释了为什么每个剧情都不存在. 它们是矢量PDF文件,斯佩克尔故意没有PDF rasterizer依赖;提高 raster-figure cap不会将它们转换或假装它们嵌入."
+        },
+        {
+          "narration": "统计数据将记录的数据库表大小和保存的结果表行复制. 报告指出,本页面上没有任何东西被重新计算,汇总或重新测试,",
+          "visual": "13_report_statistics",
+          "hold_after": 0.68,
+          "speech_text": "统计数据将记录的数据库表大小和保存的结果表行复制. 报告指出,本页面上没有任何东西被重新计算,汇总或重新测试,"
+        },
+        {
+          "narration": "设置保存保存的 CSV 文件和运行日志快照,包括道,集群,批量控制,绘图和运行时间值. 与附件的测量功能词典和文件库存相结合,这使得报告可用于审查,同时保持每一个缺失的部分都明确.",
+          "visual": "14_report_settings",
+          "hold_after": 0.88,
+          "speech_text": "设置保存保存的 CSV 文件和运行日志快照,包括道,集群,批量控制,绘图和运行时间值. 与附件的测量功能词典和文件库存相结合,这使得报告可用于审查,同时保持每一个缺失的部分都明确."
         }
       ]
     },
