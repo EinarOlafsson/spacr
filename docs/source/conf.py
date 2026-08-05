@@ -99,15 +99,20 @@ html_css_files  = ['custom.css']
 # `_extra` is 2,879 MiB, 93% of it one narration .m4a per lesson x language x
 # voice. Copying it whole would put the built site multiples over the GitHub
 # Pages 1 GB limit. tools/docs_media_budget.py stages a hardlinked subset --
-# every lesson, every video, every caption, and the default voice in each of
-# the eight narrated languages -- and rewrites voice_catalog.js to offer
-# exactly what was published. That subset is 603 MiB, so the site lands at
-# ~655 MiB. Nothing is deleted; SPACR_DOCS_FULL_AUDIO=1 ships the lot. There
-# is deliberately no fallback to the unfiltered tree: a staging failure that
+# every lesson, every video, every poster, every caption, and no narration at
+# all. That subset is 185 MiB, so the site lands at ~237 MiB.
+#
+# The narration is not dropped, it moved: all 54 voices are served from
+# NARRATION_HOST, which is what lets voice_catalog.js keep offering every one
+# of them. While the site carried the audio it could only afford one voice per
+# language, so 27 of the 28 English voices were unreachable.
+# SPACR_DOCS_FULL_AUDIO=1 still publishes the lot, which is how to build a
+# copy of the docs that works with no access to the host. There is
+# deliberately no fallback to the unfiltered tree: a staging failure that
 # quietly republished 2,879 MiB is the thing this replaces.
 #
-# The site plays 1440p video; the 4K masters are kept outside the repo and
-# published to YouTube, which each lesson links to via youtube_links.js.
+# The site plays 1440p video, with the 4K masters offered as a quality option
+# from the same host and linked per lesson on YouTube via youtube_links.js.
 import importlib.util as _importlib_util
 import pathlib as _pathlib
 
