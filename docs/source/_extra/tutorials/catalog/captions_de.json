@@ -1437,19 +1437,73 @@
       "id": "26_invasion",
       "scenes": [
         {
-          "narration": "Dieses Tutorial deckt Invasion-Assay ab. Verwenden Sie eine zweifarbige Farbe von außen gegen innen, um festgelegte von eingedrungenen Parasiten zu unterscheiden."
+          "narration": "Invasion Assay bewertet jeden Parasiten als befestigt oder eingedrungen aus einem zweifarbigen Fleck. Die Konsole erfasst gelöste Einstellungen, Schwellenwerte, QC, Ausgänge, Warnungen und Fehler; die Chatbox kann diesen Kontext diskutieren, wenn KI aktiviert ist."
         },
         {
-          "narration": "Offene Invasion-Analyse aus dem Abschnitt Toxoplasma-Analysen. Verschaffen Sie Parasiten- und Gastzellmasken, Fleckenkanäle in und außerhalb, Plattenmetadaten und Kontrollen."
+          "narration": "Die KI wechselt nur auf Wunsch. Sein angrenzendes Menü wählt einen konfigurierten Anbieter aus und öffnet die Anbieter-Einstellungen; die Invasionsanalyse selbst bleibt lokal und erfordert keine KI."
         },
         {
-          "narration": "In dem Hauptkonfigurationsbereich werden Intensitätsschwellen, Objektspassung, Zweideutigkeitsbearbeitung und gut-Ebene-Gruppierung konfiguriert."
+          "narration": "Die Provider-Einstellung trennt lokale und gehostete Assistenten. Konfigurieren Sie nur die Dienste, die Sie verwenden möchten, und überprüfen Sie die Datenschutzinformationen, bevor Sie den Konsolen- oder Testkontext mit einem Remote-Anbieter teilen."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Bevor die Klassifizierungsregel akzeptiert wird, werden beigefügte, eingeschlagene und unsichere Beispiele überprüft."
+          "narration": "AI-Einstellungen steuern den Assistenten-Kontext, die Anmeldeinformationen und die optionale Fehlermeldung. Diese Präferenzen ändern keine Fleckenkanäle, Schwellenwerte, Klassifizierung oder Statistiken."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, berichtet spaCR mit Qualitätskontrollbildern über die Zählung und Invasionseffizienz pro Brunnen und Zustand."
+          "narration": "Wählen Sie die Experimentwurzel mit Messungen/Messungen.db aus oder lassen Sie sie fallen. Das übertragene Mikroskopie-Experiment fehlt den erforderlichen Invasionsflecken, so dass dieses Tutorial eindeutig eine synthetische zweifarbige Messdatenbank verwendet, während das echte spaCR-Assay-Backend ausgeführt wird."
+        },
+        {
+          "narration": "Essentials stellt die Eingaben, Kanäle, Schwellenwerte, Kontrollen, Filter, Zustandsmetadaten und Ausgänge dar, die für eine erste Analyse erforderlich sind. Überprüfen Sie die Reihenfolge der Flecken, bevor Sie ein Ergebnis interpretieren."
+        },
+        {
+          "narration": "Modifizierte Filter des Formulars zur absichtlichen Abweichung von Standardfunktionen. Verwenden Sie es, um die Quelle, die Fleckenkanäle, das Intensitätsport, die Steuerungen, die Flächengrenzwerte, die Plattenkartierung und die Verbose-Ausgabe vor dem Laufen zu überprüfen."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen alle verfügbaren Kontrollen für die Wiedergabe und Fehlerbehebung. Zurück zu Essentials, wenn diese fortschrittlichen Kontrollen nicht benötigt werden, um versehentliche Parameteränderungen zu reduzieren."
+        },
+        {
+          "narration": "Rezepte bewahren eine validierte Testkonfiguration für Wiederverwendung oder Weitergabe. Einer ist nur zu speichern, nachdem die Fleckenkartierung und die von der Steuerung abgeleitete Schwelle gegen repräsentative Bilder und Verteilungen überprüft wurden."
+        },
+        {
+          "narration": "Führen Sie die gelösten Einstellungen fern an verteilte Jobs. Bestätigen Sie, dass die Messdatenbank über die Remote-Pfadkarte zugänglich ist, bevor Sie einen kleinen Validierungsbeschluss einreichen."
+        },
+        {
+          "narration": "Der Fernbildschirm erhält einen Jobentwurf. Überprüfen Sie die Synchronisierung, die Aktivierung der Umgebung, die Ressourcen und den erzeugten Befehl und testen Sie dann eine Platte, bevor Sie den Test skalieren."
+        },
+        {
+          "narration": "Assay Inputs identifiziert die experimentelle Wurzel, eine Reihe pro Parasiten-Tabelle und das Abteilungspräfix. Die Invasion scores bestehende Krankheitserregermessungen; sie segmentiert keine Bilder wieder."
+        },
+        {
+          "narration": "Kanäle und Intensitätskarten führen Kanal 1 zur Vordurchlässigkeit außerhalb des Flecks und Kanal 0 zum Gesamtfleck nach der Durchdurchlässigkeit. Beigefügte Parasiten behalten das Signal von außen zurück; eingedrungenen Parasiten fehlt es. Das Austausch dieser Kanäle ändert die biologische Interpretation, ohne einen Softwarefehler zu verursachen."
+        },
+        {
+          "narration": "Die Schwelle wählt den automatischen Rückfall, die optionale feste Schnittleistung, die Bimodalität QC, die Vereinbarungstoleranz und die Empfindlichkeitsspanne aus. Eine feste Schwelle sollte erst nach unabhängiger Kalibrierung verwendet werden."
+        },
+        {
+          "narration": "Kontrollen und Mindestzahlen benennen die Farbkontrollen und definieren das Quantile, die Mindestkontrollobjekte, die Mindestfeld- und Brunnenbenennungswerte sowie die Warnung vor der Schwelle inflation. Hier wird in Spalte 1 die ehrliche Verteilung der negativen Außenflecken angegeben, die von den Prüfbedingungen ausgeschlossen ist."
+        },
+        {
+          "narration": "Object Filtering entfernt Parasitenmessungen außerhalb des zulässigen Flächenbereichs. Das Gesamtfleckminimum schließt zusätzlich Gegenstände aus, die vor Beginn der Einstufung von Außenflecken gar nicht Parasiten sein können."
+        },
+        {
+          "narration": "Zustand Metadaten kartografieren Brunnen nach biologischen Gruppen und wählen die Gruppierungspalte aus. Die synthetische Platte verwendet sechs Fahrzeugbrunnen in Spalte zwei und sechs Hemmbrunnen in Spalte drei, alle mit HeLa-Gastzellen."
+        },
+        {
+          "narration": "Assay Output steuert die Farbkarte, die Anzahl der Schwellenwerte-QC-Panels, die Aussaat im leeren Brunnen und die Speicherung. Bei dem Saatgut werden Brunnen mit gemessenen Gastzellen bewahrt, aber keine Parasiten, anstatt sie schweigend zu fallen."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeit kontrollieren die Logging-Details. Halten Sie die Verbose-Ausgabe bei der Erstellung eines Tests so aktiviert, dass die Intensitätsspalte, Schwellenwerte, Quellen, QC pro Feld und gekennzeichnete Brunnen in der Konsole sichtbar sind."
+        },
+        {
+          "narration": "Dieser Kanal-Detail verwendet eine mittlere äußere Intensität ohne Rückzug des Hintergrunds, erfordert eine Gesamt-Kanal-Intensität von mindestens hundert und hält Kanal eins und Null in ihrer biologischen Reihenfolge. Überprüfen Sie diese Werte mit dem Messschema vor dem Ausführen."
+        },
+        {
+          "narration": "Klicken Sie auf Laufen, nachdem Sie Eingaben, Fleckenkarten, Steuerungen, Schwellenwerte, Filter und Zustandsmetadaten überprüft haben. Das Backend schließt Kontrollbrunnen aus, ermittelt Kontrollschwellen pro Platte, klassifiziert jeden Parasiten, fasst Felder und Brunnen zusammen und führt gutgestützte Statistiken durch."
+        },
+        {
+          "narration": "Während der Ausführung meldet die Konsole die Schwellenquelle und die QC, anstatt nur einen endgültigen Prozentsatz anzuzeigen. Das Innere wird durch das Fehlen eines äußeren Signals definiert, so dass das Fehlen von Färbung nur die Invasion aufblasen kann; Empfindlichkeitsgrenzen machen diese Fehlerrichtung sichtbar."
+        },
+        {
+          "narration": "Der eigentliche Backend benutzte 360 Kontrollparasiten, um eine Schwelle von 22 Punkten 8 zu setzen, und erzielte dann ein Tausend vierhundert vierzig Experimentalparasiten über zwölf Brunnen und vierundzwanzig Felder. Fahrzeugbrunnen durchschnittlich 39 Punkte sieben Prozent Invasion und Hemmbrunnen 68 Punkte neun Prozent; alle Brunnen bestehen QC. Der MannWhitney-Test verwendet sechs Brunnen pro Gruppe und gibt Holm-bereinigte p Nullpunkt Null Null vier Null sechs, während der viel kleinere pooled-Parasiten-p-Wert nur gezeigt wird, um die Pseudoreplikationsinflation zu enthüllen."
         }
       ]
     },
