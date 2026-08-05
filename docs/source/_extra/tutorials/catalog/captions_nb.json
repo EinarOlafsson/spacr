@@ -1788,19 +1788,34 @@
       "id": "32_align_stitch",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker Align og Stitch. Registrer billedblisser og bygg et syet mosaikk gradvis uten å holde hele lærredet i hukommelse."
+          "narration": "Align og Stitch registrerer mikroskopiske fliser i ett lærred uten først å tildele hele mosaikken. Åpne den fra Data og batch runs. Planens første layout er bevisst: registreringstillit, fallback plassering, utgangsstørrelse og minnebruk er synlige før spaCR skriver noe."
         },
         {
-          "narration": "Åpne Align og Stitch fra avsnittet Data og batch runs. Velg fliserte oppkjøp, etappkoordinater eller overlappende metadata, kanaler og destinasjon."
+          "narration": "Slip en mappe med NPY eller TIFF fliser, eller velg den her. Denne leksjonen eksporterer et ekte fire-kanal mikroskop felt som ni overlappende fliser bare for å etterligne en 3 by 3 oppkjøp. Kildepixelene forblir reelle, mens den kjente overlapperingen gir oss et reproducerbart registreringseksempel."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet konfigurere registreringsmetode, referanse kanal, overlapning, blanding, korrigering, delstørrelse og utgangsformat."
+          "narration": "Beskriv anskaffelsesplanen. Rettet er 3 x 3 med 25 prosent nominell overlap i rad-stor rekkefølge. Referanse kanalen 1 er endoplasmatisk-reticulumkanalen; spaCR løser registreringen én gang på det nivået og anvender samme transformasjon på alle fire kanaler, noe som forhindrer kanal-til-kanal skjerning."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. sjekke parlig justering og sømprevisjoner før du bygger hele mosaikken."
+          "narration": "Kvalitetskontrollen bestemmer hvilke parrett matcher som kommer inn i den globale løsningen. Minimum tillit avviser svak korrelation, nabo radius legger til redundant nærliggende sammenligninger, Feather blander overlapper søm, og 64-megabyte RAM budsjettet begrenser hvert utgangsbånd i stedet for størrelsen på det ferdige lærredet."
         },
         {
-          "narration": "Når arbeidsflyten er fullført, blir registrerte fliser, staket bilder, transformer og kartlegging metadata lagret."
+          "narration": "Klikk Plan før du skriver. Planleggingen leser fliser overskrifter og overlapper striper, vurderer nabo kompensasjoner, og løser alle aksepterte begrensninger sammen. Det skaper hverken en kanvas eller utgang filer, så dette er det sikre punktet for å fange en feil rulle, rekkefølge, overlapning, eller referanse kanal."
+        },
+        {
+          "narration": "Den virkelige planen registrerer alle ni fliser. Arrangementets farger registrerte feltet etter sikkerhet, mens ethvert fallback i etappposisjon ville være oransje og hlekket. Rapporten lister aksepterte og avviste par, de verste restene, de endelige kanvasdimensjonene, størrelsen på disken, og den begrensede minne skriving estimate."
+        },
+        {
+          "narration": "Klikk på en enkelt flis for å kontrollere dens løste Y og X posisjon, metode, tillit, rest og antall støttepar. Dette feltet ble plassert ved registrering, ikke bare ved sin nominelle gridsposisjon; bruk samme inspeksjon for å undersøke svake eller isolerte fliser før du gjør et stort mosaikk."
+        },
+        {
+          "narration": "Velg en ny destinasjon for den syte NPY-stappen. Den valgfrie måledatabasen registrerer de løste fliser koordinatene og utgangsveien. Hold Overwriting off på første run slik at et eksisterende mosaikk blir avslått i stedet for stille erstattet."
+        },
+        {
+          "narration": "Klikk Skriv stapel først etter at planen er akseptabelt. spaCR sammensetter fliser en horisontal bånd på en gang, bruker fjer blanding i overlapper, og skriver koordinater etter bildet lykkes. Utgangen kan derfor overstige tilgjengelig RAM mens minnet forblir innenfor det deklarerte budsjettet."
+        },
+        {
+          "narration": "Den verifiserte run skriver alle ni fliser uten at noen hopper over, produserer en fire-kanal søt stack som matcher kildens felt, og legger ni rader til linjen-koordinater tabellen. Rapporten bevarer både registreringsbeviset og begrenset minne oppsummering, slik at mosaikken kan revideres før nedstrømsanalyse."
         }
       ]
     },
