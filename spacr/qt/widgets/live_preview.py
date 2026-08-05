@@ -53,7 +53,8 @@ from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsPixmapItem,
     QGraphicsScene, QGraphicsView, QHBoxLayout, QLabel, QPushButton,
-    QSizePolicy, QSpinBox, QVBoxLayout, QWidget,
+    QSizePolicy, QSpinBox, QTableWidget, QTableWidgetItem,
+    QVBoxLayout, QWidget,
 )
 from .preview_controls import (
     DEFAULT_MAX_SETS, MAX_SETS_TOOLTIP, FlatButton, FlatComboBox, FlatSpinBox,
@@ -1244,6 +1245,26 @@ class LivePreviewPanel(QWidget):
         populate_channel_combo(self._channel_box, 0)
         self._pick_btn = FlatButton("Choose image…", self)
         self._pick_btn.clicked.connect(self._pick_file)
+        # The set table is what the count field counts. The dropdown stays,
+        # hidden, because it is still the thing apply_sample_to_combo fills
+        # and the thing the saved view state names a field of view by --
+        # driving it from the table keeps both without showing two controls
+        # that pick the same thing.
+        self._fov_box.setVisible(False)
+        self._set_table = QTableWidget(0, 0, self)
+        self._set_table.setObjectName("PreviewSetTable")
+        self._set_table.setSelectionBehavior(QTableWidget.SelectItems)
+        self._set_table.setSelectionMode(QTableWidget.SingleSelection)
+        self._set_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self._set_table.verticalHeader().setVisible(True)
+        self._set_table.setAlternatingRowColors(True)
+        self._set_table.setMaximumHeight(190)
+        self._set_table.setToolTip(
+            "One row per image set, one column per channel. Click a cell to "
+            "show that channel of that field. The number on the left is how "
+            "many sets are sampled.")
+        self._set_table.cellClicked.connect(self._on_set_cell_clicked)
+
         pick_row.addWidget(self._path_label, 1)
         pick_row.addWidget(self._mip_toggle)
         pick_row.addWidget(self._max_sets_box)
@@ -1251,6 +1272,7 @@ class LivePreviewPanel(QWidget):
         pick_row.addWidget(self._channel_box)
         pick_row.addWidget(self._pick_btn)
         root.addLayout(pick_row)
+        root.addWidget(self._set_table)
 
         # Action row — Run + Live settings + status
         act = QHBoxLayout()
@@ -1493,6 +1515,65 @@ class LivePreviewPanel(QWidget):
         """The sentence stating this preview is a sample of N of M sets."""
         return getattr(self, "_sample_note", "")
 
+    def _populate_set_table(self) -> None:
+        """Fill the table with the sampled sets: a row each, a column per channel.
+
+        Built from the same sample the count field sizes, so the table is a
+        readable form of what the dropdown listed rather than a second,
+        differently-populated view of the folder.
+        """
+        table = getattr(self, "_set_table", None)
+        if table is None:
+            return
+        try:
+            sets = list(self._sampler.sample())
+        except Exception:
+            sets = []
+        channels = sorted({c for s in sets for c in s.channels})
+        table.blockSignals(True)
+        try:
+            table.clear()
+            table.setRowCount(len(sets))
+            table.setColumnCount(len(channels) or 1)
+            table.setHorizontalHeaderLabels(
+                [f"ch {c}" for c in channels] or ["image"])
+            table.setVerticalHeaderLabels([s.label for s in sets])
+            for row, image_set in enumerate(sets):
+                for col, chan in enumerate(channels or [None]):
+                    name = (image_set.channels.get(chan) if chan is not None
+                            else next(iter(image_set.channels.values()), ""))
+                    if not name:
+                        continue
+                    planes = len(image_set.planes.get(chan) or ()) or 1
+                    # Say the depth in the cell rather than hiding it: a field
+                    # with 21 planes and one with 1 looked identical before,
+                    # and only one of them is affected by the MIP switch.
+                    text = name if planes <= 1 else f"{name}  ({planes}z)"
+                    item = QTableWidgetItem(text)
+                    item.setToolTip(str(image_set.path(chan)))
+                    item.setData(Qt.UserRole, str(image_set.path(chan)))
+                    table.setItem(row, col, item)
+            table.resizeColumnsToContents()
+        finally:
+            table.blockSignals(False)
+
+    def _on_set_cell_clicked(self, row: int, column: int) -> None:
+        """Show the field and channel the user clicked."""
+        table = self._set_table
+        item = table.item(row, column)
+        if item is None:
+            return
+        path = item.data(Qt.UserRole)
+        if not path:
+            return
+        # Go through the dropdown so one code path loads a field, and so the
+        # saved view state keeps naming whatever is on screen.
+        index = self._fov_box.findData(path)
+        if index >= 0:
+            self._fov_box.setCurrentIndex(index)
+        else:
+            self.load_source_async(Path(path))
+
     def _refresh_mip_toggle(self) -> None:
         """Enable the MIP switch only where there is a stack to project.
 
@@ -1549,6 +1630,7 @@ class LivePreviewPanel(QWidget):
         if not self._sampler.set_max(int(value)):
             return
         self._refresh_source_selectors()
+        self._populate_set_table()
         self._refresh_mip_toggle()
         self._announce_sample()
 
