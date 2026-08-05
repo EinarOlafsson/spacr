@@ -631,19 +631,73 @@
       "id": "13_regression",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker regresjon. Skønne forstyrrelseseffekter og identifisere egenskaper knyttet til guide- eller tilstandsnivåfenotyper."
+          "narration": "Regresjon kobler per objekt fenotiper til pooled-skjerm guide overflod. Konsolen rapporterer tabelljustering, filtrering, modelldiagnostikk, koefficientfitting, resultatveier, plots og reproduserbarhetsregister."
         },
         {
-          "narration": "Åpne regresjon fra kjernen. Velg kartlagte målinger, responsvariabler, kontroller, grupperingskolonne og kandidatprediktorer."
+          "narration": "Chatfeltet aksepterer spørsmål om dagens arbeidsflyt. Aktiver AI til å rute gjennom en valgt leverandør, og bruk den tilstøtende pilen for å åpne leverandørmenyen."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet velger du transformasjoner, covariater, modellfamilie, tilfeldige effekter, korrigering med flere tester og kvalitetsfiltre."
+          "narration": "Leverandører rapporterer om Claude, ChatGPT og Gemini kommando-linje-klienter er installert og gir deres installasjons- og logg-kommandoer. Opplysningene holder hos hver leverandør."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. sjekke modelldiagnostikk og kontroll oppførsel før du tolker koefficienter."
+          "narration": "AI-innstillinger styrer responsdyp, automatisk feilforklaring, valgfri GitHub-problemrapportering, logging inn og spaCR-bevisst systemprosjekt."
         },
         {
-          "narration": "Når arbeidsflyten er ferdig, skriver spaCR effektstørrelser, usikkerhet, justert betydning, diagnostikk og tall."
+          "narration": "Det syntetiske eksperimentet leverer 384 cell-score-linjer og 384 guide-telling-linjer fra 32 brønner, 12 guider og fire gener. Matching plate, rad og kolonne-identifikatorer forene seg med tabeller."
+        },
+        {
+          "narration": "Essentials viser inngangstabellene, plate kontroller, regresjonsfamilie, responsvariabel, minimum bevis, og plottvalg som kreves for en første run."
+        },
+        {
+          "narration": "Modifisert begrenser panelen til verdier som skiller seg fra standarden, noe som gjør kontrollidentiteter, faste tærskler og hensiktsmessige modellvalg lett å revidere."
+        },
+        {
+          "narration": "Alle innstillinger avslører hver kategori uten å endre verdier. De åtte kategoriene skiller innføring, design, korrigering, modellering, treffing, plots og runtime atferd."
+        },
+        {
+          "narration": "Recipes lagrer den komplette regresjonskonfigurasjonen under et navn, bruker den senere, eller importerer og eksporterer en gjenbrukbar innstillingsfil."
+        },
+        {
+          "narration": "Sende fjernbilder av de løste Regression-innstillingene og sender jobben til distribuert jobb-arbeidsrommet."
+        },
+        {
+          "narration": "Distributed Jobs kartlegger inngangsveier og beregningsressurser til en fjernarbeidsstasjon, Slurm-kluster eller konfigurert kommando, og sender og overvåker deretter samme modellløp."
+        },
+        {
+          "narration": "Input Tables velger valgfrie genetiske metadata, per objekt eller per bunn fenotypscore, og sekvensering av talltabeller. Flere platter må forbli justert etter listeposisjon eller eksplisitte plateidentifikatorer."
+        },
+        {
+          "narration": "Kontroller og plate design definerer platen, positive og negative gener, nøytrale guide kontroller, kontrollbrønner og alle rader som er ekskludert før montering."
+        },
+        {
+          "narration": "Plate and Batch Correction kan fjerne plate offsets med sentrering, robust skalering, referanse kontroller, eller ComBat. Denne en-plate opplæringen forlater korrigering."
+        },
+        {
+          "narration": "Modell og covariates velger regresjonsfamilien, responskolonne, aggregering og transformasjon, regulering, kovariansskatting og valgfrie rad- eller kolonneeffekter."
+        },
+        {
+          "narration": "Estimator Tuning inneholder parametre som brukes av elastiske nett, quantile, Huber, hinge og bootstrap-selektionsmodeller. Bare kontroller som tilhører den valgte familien påvirker en løp."
+        },
+        {
+          "narration": "Hit Calling and Outliers setter minimumscell og brønn bevis, guide-fraksjonsfiltrering, valgfri fjernelse av outlier, og kontroll avledet koefficiens tærskel."
+        },
+        {
+          "narration": "Regresjon Plots kontrollerer vulkanmålet, logaritmiske aksene og valgfrie aksestemmene. Disse skjermvalgene endrer ikke monterte koefficienter."
+        },
+        {
+          "narration": "Løpetid og pålitelighet kontrollerer strenge feil, tolerert feilrate, gjenprøvningspolitikk, tilfeldig frø og verbal rapportering. En fast frø støtter reproduserbarhet."
+        },
+        {
+          "narration": "I dette designet er gen 239740 den positive kontrollen, 233460 den negative kontrollen, og tre 000000 guider definerer nøytral atferd. Kolonne c1 til c3 er ekskludert fra den monterte behandlingssettet."
+        },
+        {
+          "narration": "Run validerer tabellskemaer og brønn nøkkel, fjerner ekskluderte kontroller, aggregerer cellepoeng, konverterer guiden tall til fraksjoner, passer OLS koefficienter, evaluerer bevis og skriver resultater. Stopp anmoder om en sikker avbrudd."
+        },
+        {
+          "narration": "I løpet av løpet rapporterer konsollen 384 poengrunder, 384 tallrunder, platealyning, bevarte observasjoner og modellutvikling mens tall vises i galleriet."
+        },
+        {
+          "narration": "Den fullførte kjøreturen gir plate oppsummeringer, score og guide-fraksjon histogrammer, diagnostiske diagrammer, regression_data, koefficienttabeller etter guide og gen, betydningstabeller, lagre innstillinger, et manifest og en gjenkjørbar makro."
         }
       ]
     },

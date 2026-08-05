@@ -1614,47 +1614,192 @@
       "id": "13_regression",
       "number": 13,
       "slug": "regression",
-      "title": "Regression",
+      "title": "Regresión",
       "series": 1,
       "app_key": "regression",
       "section": "Core",
-      "description": "Estimar los efectos de perturbación e identificar características asociadas con fenotipos de nivel guía o de condición.",
+      "description": "Regresa los fenotipos de pantalla conjunta sintética contra la abundancia de guías y genes, con controles explícitos y cifras reales de resultados.",
       "objectives": [
-        "Comprender cuándo usar la Regresión.",
-        "Configurar las entradas y configuraciones importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus salidas."
+        "Conecte los datos de puntuación por objeto con los datos de cuenta de guías por pozo.",
+        "Las categorías de control, corrección, modelo, estimador, llamadas de impacto, gráfico y fiabilidad.",
+        "Ejecutar un modelo OLS y localizar sus resultados de diagnóstico y coeficiente."
       ],
-      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados en la línea ascendente.",
+      "prerequisite": "Preparar y contar los archivos CSV con los valores de plateID, rowID y columnID correspondientes, e identificar los controles biológicos positivos, negativos y neutros.",
       "scenes": [
         {
-          "narration": "Este tutorial abarca la Regresión. Estima los efectos de la perturbación e identifica las características asociadas con los fenotipos de nivel guía o de condición.",
-          "visual": "overview",
+          "narration": "La regresión vincula los fenotipos por objeto a la abundancia de guías de pantalla combinada. La consola informa de alineación de tablas, filtración, diagnóstico de modelos, ajuste de coeficientes, trayectorias de resultados, gráficos y registros de reproducibilidad.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Este tutorial abarca la Regresión. Estima los efectos de la perturbación e identifica las características asociadas con los fenotipos de nivel guía o de condición."
+          "speech_text": "La regresión vincula los fenotipos por objeto a la abundancia de guías de pantalla combinada. La consola informa de alineación de tablas, filtración, diagnóstico de modelos, ajuste de coeficientes, trayectorias de resultados, gráficos y registros de reproducibilidad."
         },
         {
-          "narration": "Abra Regression en la sección Core. Abre Regresión desde la sección Core. Seleccione las mediciones mapeadas, las variables de respuesta, los controles, las columnas de agrupación y los predictores candidatos.",
-          "visual": "input",
+          "narration": "El campo de chat acepta preguntas sobre el flujo de trabajo actual. Habilitar a la IA para encaminar a través de un proveedor seleccionado, y usar la flecha adyacente para abrir el menú del proveedor.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Abra Regression en la sección Core. Abre Regresión desde la sección Core. Seleccione las mediciones mapeadas, las variables de respuesta, los controles, las columnas de agrupación y los predictores candidatos."
+          "speech_text": "El campo de chat acepta preguntas sobre el flujo de trabajo actual. Habilitar a la IA para encaminar a través de un proveedor seleccionado, y usar la flecha adyacente para abrir el menú del proveedor."
         },
         {
-          "narration": "En el área de configuración principal, elija transformaciones, covariados, familia de modelos, efectos aleatorios, corrección de pruebas múltiples y filtros de calidad.",
-          "visual": "settings",
+          "narration": "Los proveedores informan si los clientes de línea de comandos Claude, ChatGPT y Gemini están instalados y proporcionan sus comandos de instalación y inicio de sesión. Las credenciales se quedan con cada vendedor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "En el área de configuración principal, elija transformaciones, covariados, familia de modelos, efectos aleatorios, corrección de pruebas múltiples y filtros de calidad."
+          "speech_text": "Los proveedores informan si los clientes de línea de comandos Claude, ChatGPT y Gemini están instalados y proporcionan sus comandos de instalación y inicio de sesión. Las credenciales se quedan con cada vendedor."
         },
         {
-          "narration": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible.",
-          "visual": "run",
+          "narration": "Configuraciones de IA controla la profundidad de respuesta, explicaciones automáticas de errores, informes opcionales de problemas de GitHub, inicio de sesión y el aviso del sistema consciente de spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+          "speech_text": "Configuraciones de IA controla la profundidad de respuesta, explicaciones automáticas de errores, informes opcionales de problemas de GitHub, inicio de sesión y el aviso del sistema consciente de espáquer."
         },
         {
-          "narration": "Cuando el flujo de trabajo termina, spaCR escribe los tamaños de efectos, la incertidumbre, la importancia ajustada, los diagnósticos y las cifras.",
-          "visual": "output",
+          "narration": "El experimento sintético proporciona 384 filas de puntuación celular y 384 filas de conteo de guías de 32 pozos, 12 guías y cuatro genes. Los identificadores de placas, filas y columnas correspondientes se unen a las tablas.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "El experimento sintético proporciona 384 filas de puntuación celular y 384 filas de conteo de guías de 32 pozos, 12 guías y cuatro genes. Los identificadores de placas, filas y columnas correspondientes se unen a las tablas."
+        },
+        {
+          "narration": "Los elementos esenciales muestran las tablas de entrada, los controles de placa, la familia de regresión, la variable de respuesta, la evidencia mínima y las opciones de gráfico necesarias para una primera ejecución.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Los elementos esenciales muestran las tablas de entrada, los controles de placa, la familia de regresión, la variable de respuesta, la evidencia mínima y las opciones de gráfico necesarias para una primera ejecución."
+        },
+        {
+          "narration": "Modificado limita el panel a valores que difieren de los valores predeterminados, haciendo que las identidades de control, los umbrales fijos y las opciones de modelo intencionales sean fáciles de auditar.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modificado limita el panel a valores que difieren de los valores predeterminados, haciendo que las identidades de control, los umbrales fijos y las opciones de modelo intencionales sean fáciles de auditar."
+        },
+        {
+          "narration": "Todas las configuraciones revelan cada categoría sin cambios de valores. Las ocho categorías separan la entrada, el diseño, la corrección, el modelado, las llamadas de impacto, las gráficas y el comportamiento en el tiempo de ejecución.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Todas las configuraciones revelan cada categoría sin cambios de valores. Las ocho categorías separan la entrada, el diseño, la corrección, el modelado, las llamadas de impacto, las gráficas y el comportamiento en el tiempo de ejecución."
+        },
+        {
+          "narration": "Recetas guarda la configuración completa de regresión bajo un nombre, la reaplica más tarde, o importa y exporta un archivo de configuración reutilizable.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recetas guarda la configuración completa de regresión bajo un nombre, la reaplica más tarde, o importa y exporta un archivo de configuración reutilizable."
+        },
+        {
+          "narration": "Envía instantáneas remotas de las configuraciones de Regresión resueltas y envía el trabajo al espacio de trabajo de Trabajos Distribuidos.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envía instantáneas remotas de las configuraciones de Regresión resueltas y envía el trabajo al espacio de trabajo de Trabajos Distribuidos."
+        },
+        {
+          "narration": "Distributed Jobs mapea los caminos de entrada y los recursos computacionales a una estación de trabajo remota, a un grupo Slurm o a un comando configurado, y luego envía y monitorea la misma ejecución del modelo.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs mapea los caminos de entrada y los recursos computacionales a una estación de trabajo remota, a un grupo Slurm o a un comando configurado, y luego envía y monitorea la misma ejecución del modelo."
+        },
+        {
+          "narration": "Las tablas de entrada seleccionan metadatos genéticos opcionales, puntajes de fenotipo por objeto o por pozo, y tablas de recuento de secuenciación. Las placas múltiples deberán mantenerse alineadas según la posición de la lista o los identificadores explícitos de las placas.",
+          "visual": "12_category_01_input_tables",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Las tablas de entrada seleccionan metadatos genéticos opcionales, puntajes de fenotipo por objeto o por pozo, y tablas de recuento de secuenciación. Las placas múltiples deberán mantenerse alineadas según la posición de la lista o los identificadores explícitos de las placas."
+        },
+        {
+          "narration": "Controls and Plate Design define la placa, los genes positivos y negativos, los controles guía neutrales, los pozos de control y cualquier fila excluida antes de la instalación.",
+          "visual": "12_category_02_controls_plate_design",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Controls and Plate Design define la placa, los genes positivos y negativos, los controles guía neutrales, los pozos de control y cualquier fila excluida antes de la instalación."
+        },
+        {
+          "narration": "La corrección de placas y lotes puede eliminar los desplazamientos de placas con centrar, escalar robusto, controles de referencia o ComBat. Este tutorial de una sola placa deja la corrección fuera.",
+          "visual": "12_category_03_plate_batch_correction",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La corrección de placas y lotes puede eliminar los desplazamientos de placas con centrar, escalar robusto, controles de referencia o ComBat. Este tutorial de una sola placa deja la corrección fuera."
+        },
+        {
+          "narration": "Modelo y Covariates selecciona la familia de regresión, la columna de respuesta, la agregación y transformación, la regularización, la estimación de covarianza y los efectos opcionales de fila o columna.",
+          "visual": "12_category_04_model_covariates",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Modelo y Covariates selecciona la familia de regresión, la columna de respuesta, la agregación y transformación, la regularización, la estimación de covarianza y los efectos opcionales de fila o columna."
+        },
+        {
+          "narration": "El estimador de sintonía contiene parámetros utilizados por modelos de red elástica, cuántil, Huber, bisagra y selección de arranque. Sólo los controles pertenecientes a la familia elegida afectan a una carrera.",
+          "visual": "12_category_05_estimator_tuning",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "El estimador de sintonía contiene parámetros utilizados por modelos de red elástica, cuántil, Huber, bisagra y selección de arranque. Sólo los controles pertenecientes a la familia elegida afectan a una carrera."
+        },
+        {
+          "narration": "El número de llamadas y valores fuera de juego establece la evidencia mínima de células y pozos, el filtrado de fracciones de guía, la eliminación opcional de valores fuera de juego y el umbral del coeficiente derivado del control.",
+          "visual": "12_category_06_hit_calling_outliers",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "El número de llamadas y valores fuera de juego establece la evidencia mínima de células y pozos, el filtrado de fracciones de guía, la eliminación opcional de valores fuera de juego y el umbral del coeficiente derivado del control."
+        },
+        {
+          "narration": "Plots de Regresión controla el objetivo del volcán, los ejes logarítmicos y los límites opcionales de los ejes. Estas opciones de visualización no cambian los coeficientes instalados.",
+          "visual": "12_category_07_regression_plots",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Plots de Regresión controla el objetivo del volcán, los ejes logarítmicos y los límites opcionales de los ejes. Estas opciones de visualización no cambian los coeficientes instalados."
+        },
+        {
+          "narration": "El tiempo de ejecución y la fiabilidad controlan los errores estrictos, la tasa de fallas tolerada, la política de retoma, la semilla aleatoria y los informes verbales. Una semilla fija apoya la reproducibilidad.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "El tiempo de ejecución y la fiabilidad controlan los errores estrictos, la tasa de fallas tolerada, la política de retoma, la semilla aleatoria y los informes verbales. Una semilla fija apoya la reproducibilidad."
+        },
+        {
+          "narration": "En este diseño, el gen 239740 es el control positivo, 233460 es el control negativo, y tres guías 000000 definen el comportamiento neutral. Las columnas c1 a c3 están excluidas del conjunto de tratamiento instalado.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "En este diseño, el gen 239740 es el control positivo, 233460 es el control negativo, y tres guías 000000 definen el comportamiento neutral. Las columnas c1 a c3 están excluidas del conjunto de tratamiento instalado."
+        },
+        {
+          "narration": "Run valida esquemas de tablas y claves de pozo, elimina controles excluidos, agrega las puntuaciones de las celdas, convierte los recuentos de guías en fracciones, se ajusta a los coeficientes OLS, evalúa la evidencia y escribe resultados. Pide una interrupción segura.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run valida esquemas de tablas y claves de pozo, elimina controles excluidos, agrega las puntuaciones de las celdas, convierte los recuentos de guías en fracciones, se ajusta a los coeficientes OLS, evalúa la evidencia y escribe resultados. Pide una interrupción segura."
+        },
+        {
+          "narration": "Durante la carrera, la consola informa de 384 filas de puntuación, 384 filas de conteo, alineación de placas, observaciones retenidas y progreso del modelo mientras aparecen las figuras en la galería.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Durante la carrera, la consola informa de 384 filas de puntuación, 384 filas de conteo, alineación de placas, observaciones retenidas y progreso del modelo mientras aparecen las figuras en la galería."
+        },
+        {
+          "narration": "La ejecución completada proporciona resúmenes de placas, puntuaciones y histogramas de fracción guía, gráficos de diagnóstico, datos de regresión, tablas de coeficientes por guía y gen, tablas de significancia, configuraciones guardadas, un manifiesto y una macro reiniciable.",
+          "visual": "23_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "Cuando el flujo de trabajo termina, espáquer escribe los tamaños de efectos, la incertidumbre, la importancia ajustada, los diagnósticos y las cifras."
+          "speech_text": "La ejecución completada proporciona resúmenes de placas, puntuaciones y histogramas de fracción guía, gráficos de diagnóstico, datos de regresión, tablas de coeficientes por guía y gen, tablas de significancia, configuraciones guardadas, un manifiesto y una macro reiniciable."
         }
       ]
     },

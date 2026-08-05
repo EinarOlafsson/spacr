@@ -1633,43 +1633,188 @@
       "series": 1,
       "app_key": "regression",
       "section": "Core",
-      "description": "Estimate perturbation effects and identify features associated with guide or condition-level phenotypes.",
+      "description": "Regress synthetic pooled-screen phenotypes against guide and gene abundance, with explicit controls and real result figures.",
       "objectives": [
-        "Understand when to use Regression.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Connect per-object score data with per-well guide-count data.",
+        "Review controls, correction, model, estimator, hit-calling, plot, and reliability categories.",
+        "Run an OLS model and locate its diagnostics and coefficient outputs."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Prepare score and count CSV files with matching plateID, rowID, and columnID values, and identify biological positive, negative, and neutral controls.",
       "scenes": [
         {
-          "narration": "This tutorial covers Regression. Estimate perturbation effects and identify features associated with guide or condition-level phenotypes.",
-          "visual": "overview",
+          "narration": "Regression links per-object phenotypes to pooled-screen guide abundance. The console reports table alignment, filtering, model diagnostics, coefficient fitting, result paths, plots, and reproducibility records.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Regression. Estimate perturbation effects and identify features associated with guide or condition-level phenotypes."
+          "speech_text": "Regression links per object phenotypes to pooled screen guide abundance. The console reports table alignment, filtering, model diagnostics, coefficient fitting, result paths, plots, and reproducibility records."
         },
         {
-          "narration": "Open Regression from the Core section. Select mapped measurements, response variables, controls, grouping columns, and candidate predictors.",
-          "visual": "input",
+          "narration": "The chat field accepts questions about the current workflow. Enable AI to route through a selected provider, and use the adjacent arrow to open the provider menu.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Open Regression from the Core section. Select mapped measurements, response variables, controls, grouping columns, and candidate predictors."
+          "speech_text": "The chat field accepts questions about the current workflow. Enable A I to route through a selected provider, and use the adjacent arrow to open the provider menu."
         },
         {
-          "narration": "In the main configuration area, choose transformations, covariates, model family, random effects, multiple-testing correction, and quality filters.",
-          "visual": "settings",
+          "narration": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and provides their install and login commands. Credentials stay with each vendor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, choose transformations, covariates, model family, random effects, multiple-testing correction, and quality filters."
+          "speech_text": "Providers reports whether the Claude, Chat G P T, and Gemini command line clients are installed and provides their install and login commands. Credentials stay with each vendor."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect model diagnostics and control behavior before interpreting coefficients.",
-          "visual": "run",
+          "narration": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect model diagnostics and control behavior before interpreting coefficients."
+          "speech_text": "A I Settings controls response depth, automatic error explanations, optional Git Hub issue reporting, sign in, and the spacer aware system prompt."
         },
         {
-          "narration": "When the workflow finishes, spaCR writes effect sizes, uncertainty, adjusted significance, diagnostics, and figures.",
-          "visual": "output",
+          "narration": "The synthetic experiment supplies 384 cell-score rows and 384 guide-count rows from 32 wells, 12 guides, and four genes. Matching plate, row, and column identifiers join the tables.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "The synthetic experiment supplies three hundred eighty four cell score rows and three hundred eighty four guide count rows from thirty two wells, twelve guides, and four genes. Matching plate, row, and column identifiers join the tables."
+        },
+        {
+          "narration": "Essentials shows the input tables, plate controls, regression family, response variable, minimum evidence, and plot choices required for a first run.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials shows the input tables, plate controls, regression family, response variable, minimum evidence, and plot choices required for a first run."
+        },
+        {
+          "narration": "Modified limits the panel to values that differ from the defaults, making control identities, fixed thresholds, and intentional model choices easy to audit.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modified limits the panel to values that differ from the defaults, making control identities, fixed thresholds, and intentional model choices easy to audit."
+        },
+        {
+          "narration": "All settings reveals every category without changing values. The eight categories separate input, design, correction, modeling, hit calling, plots, and runtime behavior.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "All settings reveals every category without changing values. The eight categories separate input, design, correction, modeling, hit calling, plots, and runtime behavior."
+        },
+        {
+          "narration": "Recipes saves the complete regression configuration under a name, reapplies it later, or imports and exports a reusable settings file.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes saves the complete regression configuration under a name, reapplies it later, or imports and exports a reusable settings file."
+        },
+        {
+          "narration": "Submit remote snapshots the resolved Regression settings and sends the job to the Distributed Jobs workspace.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Submit remote snapshots the resolved Regression settings and sends the job to the Distributed Jobs workspace."
+        },
+        {
+          "narration": "Distributed Jobs maps input paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same model run.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs maps input paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same model run."
+        },
+        {
+          "narration": "Input Tables selects optional gene metadata, per-object or per-well phenotype scores, and sequencing count tables. Multiple plates must remain aligned by list position or explicit plate identifiers.",
+          "visual": "12_category_01_input_tables",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Input Tables selects optional gene metadata, per object or per well phenotype scores, and sequencing count tables. Multiple plates must remain aligned by list position or explicit plate identifiers."
+        },
+        {
+          "narration": "Controls and Plate Design defines the plate, positive and negative genes, neutral guide controls, control wells, and any rows excluded before fitting.",
+          "visual": "12_category_02_controls_plate_design",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Controls and Plate Design defines the plate, positive and negative genes, neutral guide controls, control wells, and any rows excluded before fitting."
+        },
+        {
+          "narration": "Plate and Batch Correction can remove plate offsets with centering, robust scaling, reference controls, or ComBat. This one-plate tutorial leaves correction off.",
+          "visual": "12_category_03_plate_batch_correction",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Plate and Batch Correction can remove plate offsets with centering, robust scaling, reference controls, or Com Bat. This one plate tutorial leaves correction off."
+        },
+        {
+          "narration": "Model and Covariates selects the regression family, response column, aggregation and transform, regularization, covariance estimate, and optional row or column effects.",
+          "visual": "12_category_04_model_covariates",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Model and Covariates selects the regression family, response column, aggregation and transform, regularization, covariance estimate, and optional row or column effects."
+        },
+        {
+          "narration": "Estimator Tuning holds parameters used by elastic net, quantile, Huber, hinge, and bootstrap-selection models. Only controls belonging to the chosen family affect a run.",
+          "visual": "12_category_05_estimator_tuning",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Estimator Tuning holds parameters used by elastic net, quantile, Huber, hinge, and bootstrap selection models. Only controls belonging to the chosen family affect a run."
+        },
+        {
+          "narration": "Hit Calling and Outliers sets minimum cell and well evidence, guide-fraction filtering, optional outlier removal, and the control-derived coefficient threshold.",
+          "visual": "12_category_06_hit_calling_outliers",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Hit Calling and Outliers sets minimum cell and well evidence, guide fraction filtering, optional outlier removal, and the control derived coefficient threshold."
+        },
+        {
+          "narration": "Regression Plots controls the volcano target, logarithmic axes, and optional axis limits. These display choices do not change fitted coefficients.",
+          "visual": "12_category_07_regression_plots",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Regression Plots controls the volcano target, logarithmic axes, and optional axis limits. These display choices do not change fitted coefficients."
+        },
+        {
+          "narration": "Runtime and Reliability controls strict errors, tolerated failure rate, retry policy, random seed, and verbose reporting. A fixed seed supports reproducibility.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Runtime and Reliability controls strict errors, tolerated failure rate, retry policy, random seed, and verbose reporting. A fixed seed supports reproducibility."
+        },
+        {
+          "narration": "In this design, gene 239740 is the positive control, 233460 is the negative control, and three 000000 guides define neutral behavior. Columns c1 through c3 are excluded from the fitted treatment set.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "In this design, gene two three nine seven four zero is the positive control, two three three four six zero is the negative control, and three zero zero zero zero zero zero guides define neutral behavior. Columns C one through C three are excluded from the fitted treatment set."
+        },
+        {
+          "narration": "Run validates table schemas and well keys, removes excluded controls, aggregates cell scores, converts guide counts to fractions, fits OLS coefficients, evaluates evidence, and writes results. Stop requests a safe interruption.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run validates table schemas and well keys, removes excluded controls, aggregates cell scores, converts guide counts to fractions, fits O L S coefficients, evaluates evidence, and writes results. Stop requests a safe interruption."
+        },
+        {
+          "narration": "During the run, the console reports 384 score rows, 384 count rows, plate alignment, retained observations, and model progress while figures appear in the gallery.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "During the run, the console reports three hundred eighty four score rows, three hundred eighty four count rows, plate alignment, retained observations, and model progress while figures appear in the gallery."
+        },
+        {
+          "narration": "The completed run provides plate summaries, score and guide-fraction histograms, diagnostic plots, regression_data, coefficient tables by guide and gene, significance tables, saved settings, a manifest, and a rerunnable macro.",
+          "visual": "23_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spacer writes effect sizes, uncertainty, adjusted significance, diagnostics, and figures."
+          "speech_text": "The completed run provides plate summaries, score and guide fraction histograms, diagnostic plots, regression data, coefficient tables by guide and gene, significance tables, saved settings, a manifest, and a rerunnable macro."
         }
       ]
     },
