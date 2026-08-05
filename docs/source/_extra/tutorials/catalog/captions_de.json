@@ -486,19 +486,73 @@
       "id": "11_classify_ml",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Classify, maschinelles Lernen. Zugfunktionsbasierte Klassifikatoren wie XGBoost oder zufällige Wälder aus gemessenen Einzelobjektdaten."
+          "narration": "Classify ML bildet ein klassisches Modell des maschinellen Lernens auf Messungen pro Objekt aus. Die Konsole berichtet über Datenbankladen, Filterung, Plattenkorrektur, Modellbefestigung, Validierungsmetriken, Funktionswichtigkeit, gespeicherte Vorhersagen und Fehler."
         },
         {
-          "narration": "Open Classify, maschinelles Lernen aus dem Kernbereich. Wählen Sie eine Messdatenbank, Etikettenkolumnen, Feature-Familien und Experimentelle Gruppierungskolumnen aus."
+          "narration": "Das Chatfeld akzeptiert Fragen zu diesem Workflow. Ermöglichen Sie KI, eine Frage durch den ausgewählten Anbieter zu lenken, und verwenden Sie den angrenzenden Pfeil, um das Anbietermenü zu öffnen."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie Filterung, Skalierung, Funktionswahl, Klassenbalancing, Modellfamilie und Leakage-sichere Splits."
+          "narration": "Anbieter melden, ob die Claude-, ChatGPT- und Gemini-Befehlszeilklienten installiert sind, und geben ihre Installations- und Login-Befehlen an. Die Anmeldeinformationen bleiben bei jedem Verkäufer."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Modellentscheidungen mit Quervalidierung und wenn möglich ein ausgehaltenes Evaluierungssystem reservieren."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und den spaCR-bewussten System-Anruf."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, erhält das Projekt Vorhersagen, Merkmale, Leistungstabellen und serialisierte Modelle."
+          "narration": "Ziehen Sie das gemessene Tutorialprojekt in Classify ML. Der Drop-Handler löst Messungen/Measurements.db, der 81.969 echte Zellkulturen beschreibt; 6.598 sind in Spalte c1 und 6.487 sind in Spalte c2."
+        },
+        {
+          "narration": "Essentials zeigt die Datenbank, die Kontrollkarte, den ER-Kanal und die Modellfamilie an, die für einen ersten Feature-basierten Klassifizierungslauf benötigt werden."
+        },
+        {
+          "narration": "Modifizierte Grenzwerte begrenzen das Panel auf Werte, die sich von den Standardwerte von spaCR unterscheiden, wodurch bewusste Entscheidungen wie Steuerungszentrierung, Feature-Puning und Datenbank-Ausgabe leicht zu überprüfen sind."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen jede Kategorie ohne Veränderung der Werte. Die Kategorien organisieren die Kontrollen nach ihrer Rolle in der Analyse."
+        },
+        {
+          "narration": "Rezepte speichern diese komplette Konfiguration unter einem Namen, wenden sie später neu an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelöschten Classify ML-Einstellungen und senden Sie den Job in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartiert Projektwege und berechnet Ressourcen auf eine Remote-Arbeitsstation, einen Slurm-Cluster oder einen konfigurierten Befehl und überträgt und überwacht dann den gleichen Lauf."
+        },
+        {
+          "narration": "Daten und Kontrollen wählt das Messprojekt aus und identifiziert die Metadatenkolonne und -werte, die positive und negative Beispiele definieren. Überprüfen Sie diese Etiketten, bevor Sie irgendetwas anpassen."
+        },
+        {
+          "narration": "Feature Die Vorbereitung wählt den Ansprechkanal aus und entfernt vor dem Training ausgeschlossen, mit geringer Variation, stark korrelierte, mit geringer Anzahl oder biologisch ungültige Messungen."
+        },
+        {
+          "narration": "Platten- und Batchkorrektursteuerungen normalisieren sich pro Platte. Hier ist jede Platte auf ihren c1-Negativkontrollzellen konzentriert, wobei der biologische Kontrast zu c2 behoben wird."
+        },
+        {
+          "narration": "Classifier und Validation wählt XGBoost oder einen anderen Schätzer aus, seine Komplexität und Regulierung, die ausgehaltenen Fraktionen und das Verhalten der Quervalidierung."
+        },
+        {
+          "narration": "Merkmale Auswahl und Wichtigkeit steuert die endgültige Beschneiden, die Anzahl der behaltenen Merkmale und wiederholte Permutationsprüfungen, die zeigen, welche Messungen den Klassifikator unterstützen."
+        },
+        {
+          "narration": "Ausgabe und Datenbank bestimmt, ob Vorhersagen und Modellwerte für spätere spaCR-Module in die Messdatenbank zurückgeschrieben werden."
+        },
+        {
+          "narration": "Plots and Heatmaps wählt die zusammengefasste Funktion, die Gruppierungsregel, die Farbkarte und den Wertbereich aus, der zur Visualisierung von Platten-Niveau-Ergebnissen verwendet wird. Diese Steuerungen ändern das montierte Modell nicht."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeit kontrollieren die Logging und die Anzahl der Arbeiter. Verwenden Sie weniger Arbeitskräfte, wenn Sie eine Arbeitsstation teilen, und halten Sie verbose Ausgabe bei der Validierung eines neuen Workflows."
+        },
+        {
+          "narration": "Für dieses Tutorial ist columnID die Etikettenquelle: c1 ist die negative Kontrolle und c2 ist die positive Kontrolle. Die Kartierung verwendet die ersten beiden Plattenkolonnen genau wie gefordert."
+        },
+        {
+          "narration": "Hyperparameter Search vergleicht die Lernraten der Kandidaten, die Schätzerzahl und die Regulierungswerte mit einer fünffachen Validierung. In der Ergebnistabelle werden die abgeschlossenen Prüfungen nach dem gewählten Kriterium angeordnet."
+        },
+        {
+          "narration": "Suchinstellungen definieren den genauen Kandidatenraum, den Suchmodus, die Anzahl der Tests, Falten, zufällige Samen und das Optimierungskriterium. Schließen Sie es, nachdem Sie die Grenzen überprüft haben."
+        },
+        {
+          "narration": "Run validiert das Projekt und steuert die Kartierung, bereitet Funktionen vor, wendet Plattenkorrektur an, bewertet den Klassifikator, berechnet Wichtigkeit, zieht Zusammenfassungen und schreibt aktivierte Ausgänge. Stop-Anfragen für eine sichere Unterbrechung."
         }
       ]
     },

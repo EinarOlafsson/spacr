@@ -4,47 +4,237 @@
   "voice": "if_sara",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 48.225,
+  "total_duration": 301.1,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 3.4,
-      "scene_end": 3.85,
-      "duration": 3.85,
-      "text": "Questo tutorial copre Classify, machine learning."
+      "speech_end": 17.0,
+      "scene_end": 17.45,
+      "duration": 17.45,
+      "text": "Classify ML forma un classico modello di apprendimento automatico sulle misurazioni per oggetto. La console segnala il caricamento del database, il filtraggio, la correzione della targa, il montaggio del modello, le metriche di convalida, l'importanza delle funzionalità, le previsioni salvate e gli errori.",
+      "speech_text": "Classify ML forma un classico modello di apprendimento automatico sulle misurazioni per oggetto. La console segnala il caricamento del database, il filtraggio, la correzione della targa, il montaggio del modello, le metriche di convalida, l'importanza delle funzionalità, le previsioni salvate e gli errori.",
+      "phonemes": "klaSˈifɪ ˌɛmmeˈɛlle fˈorma ʊn klˈaSiko modˈɛllo dɪ apːrendimˈento aʊtomˈatiko sˌʊlle mizʊraʦiˈonɪ per oʤːˈɛtːo. la kˈɔnsole seɲˈala il karikamˈento del databˈɛiz, il filtrˈaʤːo, la korɾeʦiˈone dˌella tˈarɡa, il montˈaʤːo del modˈɛllo, le mˈɛtrike dɪ konvˈalida, limportˈanʦa dˌelle fʊnʦjonalitˈa, le previziˈonɪ salvˈate e ʎɪ erɾˈorɪ."
     },
     {
       "scene": 2,
-      "speech_start": 3.85,
-      "speech_end": 17.650000000000002,
-      "scene_end": 18.1,
-      "duration": 14.250000000000002,
-      "text": "Apri Classify, machine learning dalla sezione Core. Apri Classifica, apprendimento automatico dalla sezione Core. Scegli un database di misurazioni, colonna di etichette, famiglie di caratteristiche e colonne di raggruppamento sperimentale."
+      "speech_start": 17.45,
+      "speech_end": 29.7,
+      "scene_end": 30.15,
+      "duration": 12.7,
+      "text": "Il campo di chat accetta domande su questo flusso di lavoro. Abilitare l'IA a indirizzare una domanda attraverso il provider selezionato e utilizzare la freccia adiacente per aprire il menu del provider.",
+      "speech_text": "Il campo di chat accetta domande su questo flusso di lavoro. Abilitare l'IA a indirizzare una domanda attraverso il provider selezionato e utilizzare la freccia adiacente per aprire il menu del provider.",
+      "phonemes": "il kˈampo dɪ ʧˈat aʧːˈetːa domˈande sʊ kwˌesto flˈuSo dɪ lavˈɔro. abilitˈare lˈia a indirɪʦˈare ˌʊna domˈanda atːravˈɛrso il provˈaider seleʦjonˈato e ʊtiliʣːˈare la frˈeʧːa adjaʧˈɛnte per aprˈire il menˈu del provˈaider."
     },
     {
       "scene": 3,
-      "speech_start": 18.1,
-      "speech_end": 29.0,
-      "scene_end": 29.45,
-      "duration": 11.349999999999998,
-      "text": "Nell'area di configurazione principale, configurare filtraggio, scalazione, selezione delle caratteristiche, bilanciamento delle classi, famiglia di modelli e scarti a sicurezza dalle perdite."
+      "speech_start": 30.15,
+      "speech_end": 42.175,
+      "scene_end": 42.625,
+      "duration": 12.475000000000001,
+      "text": "I fornitori segnalano se i client di linea di comando Claude, ChatGPT e Gemini sono installati e forniscono i loro comandi di installazione e login. Le credenziali restano con ogni venditore.",
+      "speech_text": "I fornitori segnalano se i client di linea di comando Claude, ChatGPT e Gemini sono installati e forniscono i loro comandi di installazione e login. Le credenziali restano con ogni venditore.",
+      "phonemes": "i fornitˈorɪ seɲˈalano se i kliˈent dɪ lˈinea dɪ komˈando klˈaʊde, ʧˈat ʤˌipˌitˈɪ e ʤˈɛminɪ sˌono installˈatɪ e fornˈiskono i lˌɔro komˈandɪ dɪ installaʦiˈone e lˈɔɡ in. le kredenʦjˈalɪ rˈɛstano kon ˌoɲɲɪ venditˈore."
     },
     {
       "scene": 4,
-      "speech_start": 29.45,
-      "speech_end": 38.175,
-      "scene_end": 38.625,
-      "duration": 9.175,
-      "text": "Prima di eseguire l'intero ciclo, controllare le impostazioni visibili e utilizzare una modalità di anteprima o di test quando è disponibile."
+      "speech_start": 42.625,
+      "speech_end": 55.225,
+      "scene_end": 55.675000000000004,
+      "duration": 13.050000000000004,
+      "text": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spaCR.",
+      "speech_text": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spàker.",
+      "phonemes": "le impostaʦiˈonɪ ˌaːˈiː kontrˈɔllano la profonditˈa dˌella rispˈosta, le spjeɡaʦiˈonɪ aʊtomˈatike dˌeʎɪ erɾˈorɪ, la seɲalaʦiˈone opʦionˈale dˌA problˈɛmɪ ʤˈit ˈub, il lˈɔɡ in e il prˈompt del sistˈɛma konsapˈevole dɪ spˈaker."
     },
     {
       "scene": 5,
-      "speech_start": 38.625,
-      "speech_end": 47.575,
-      "scene_end": 48.225,
-      "duration": 9.600000000000001,
-      "text": "Quando il flusso di lavoro è finito, il progetto riceve previsioni, importanza delle caratteristiche, tabelle di prestazioni e modelli serializzati."
+      "speech_start": 55.675000000000004,
+      "speech_end": 73.60000000000001,
+      "scene_end": 74.05000000000001,
+      "duration": 18.375000000000007,
+      "text": "Trascinare il progetto di tutorial misurato in Classify ML. Il gestore delle gocce risolve le misure/measurements.db, che descrive 81.969 colture di cellule reali; 6.598 sono nella colonna c1 e 6.487 sono nella colonna c2.",
+      "speech_text": "Trascinare il progetto di tutorial misurato in Classify ML. Il gestore delle gocce risolve le misure/measurements dot db, che descrive 81.969 colture di cellule reali; 6.598 sono nella colonna c1 e 6.487 sono nella colonna c2.",
+      "phonemes": "traʃinˈare il proʤˈɛtːo dɪ tʊtˈɔrial mizʊrˈato in klaSˈifɪ ˌɛmmeˈɛlle. il ʤestˈore dˌelle ɡˈɔʧːe rizˈolve le mizˈure bˈarɾa meazʊrˈɛments dˈot d̪ˌiːbˈi, ke deskrˈive otːˈantˈuno.noveʧˈɛnto seSˈantanˈɔve koltˈure dɪ ʧˈɛllʊle reˈalɪ; sˈɛj.ʧɪnkʊeʧˈɛnto novˈantˈɔtːo sˌono nˈella kolˈonna ʧˈi ˈuno e sˈɛj.kʊatːroʧˈɛnto otːˈantasˈɛtːe sˌono nˈella kolˈonna ʧˈi dˈue."
+    },
+    {
+      "scene": 6,
+      "speech_start": 74.05000000000001,
+      "speech_end": 85.35000000000001,
+      "scene_end": 85.80000000000001,
+      "duration": 11.75,
+      "text": "Essentials mostra il database, la mappatura di controllo, il canale ER e la famiglia di modelli necessari per una prima esecuzione di classificazione basata sulle caratteristiche.",
+      "speech_text": "Essentials mostra il database, la mappatura di controllo, il canale ER e la famiglia di modelli necessari per una prima esecuzione di classificazione basata sulle caratteristiche.",
+      "phonemes": "eSˈentjals mˈostra il databˈɛiz, la mapːatˈura dɪ kontrˈɔllo, il kanˈale ˌeːˈɛrɾe e la famˈiʎa dɪ modˈɛllɪ neʧeSˈarɪ per ˌʊna prˈima ezekʊʦiˈone dɪ klaSifikaʦiˈone bazˈata sˌʊlle kaɾatːerˈistike."
+    },
+    {
+      "scene": 7,
+      "speech_start": 85.80000000000001,
+      "speech_end": 99.82500000000002,
+      "scene_end": 100.27500000000002,
+      "duration": 14.475000000000009,
+      "text": "Modificato limita il pannello a valori che differiscono dalle impostazioni predefinite di spaCR, rendendo le scelte deliberate come il controllo-centramento, la potatura delle funzionalità e l'uscita del database facili da controllare.",
+      "speech_text": "Modificato limita il pannello a valori che differiscono dalle impostazioni predefinite di spàker, rendendo le scelte deliberate come il controllo-centramento, la potatura delle funzionalità e l'uscita del database facili da controllare.",
+      "phonemes": "modifikˈato lˈimita il pannˈɛllo a valˈorɪ ke differˈiskono dˌalle impostaʦiˈonɪ predefinˈite dɪ spˈaker, rendˈɛndo le ʃˈelte deliberˈate kˌome il kontrˈɔlloʧentramˈento, la potatˈura dˌelle fʊnʦjonalitˈa e lʊʃˈita del databˈɛiz fˈaʧilɪ da kontrollˈare."
+    },
+    {
+      "scene": 8,
+      "speech_start": 100.27500000000002,
+      "speech_end": 109.40000000000002,
+      "scene_end": 109.85000000000002,
+      "duration": 9.575000000000003,
+      "text": "Tutte le impostazioni rivelano ogni categoria senza modificare i valori. Le categorie organizzano i controlli secondo il loro ruolo nell'analisi.",
+      "speech_text": "Tutte le impostazioni rivelano ogni categoria senza modificare i valori. Le categorie organizzano i controlli secondo il loro ruolo nell'analisi.",
+      "phonemes": "tˈutːe le impostaʦiˈonɪ rivˈelano ˌoɲɲɪ kateɡorˈia sˌɛnʦa modifikˈare i valˈorɪ. le kateɡorˈie orɡanˈiʣːano i kontrˈɔllɪ sekˈondo il lˌɔro rʊˈɔlo nellanˈalizɪ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 109.85000000000002,
+      "speech_end": 119.55000000000003,
+      "scene_end": 120.00000000000003,
+      "duration": 10.150000000000006,
+      "text": "Le ricette salvano questa configurazione completa sotto un nome, la riapplicano in seguito o importano ed esportano un file di impostazioni riutilizzabile.",
+      "speech_text": "Le ricette salvano questa configurazione completa sotto un nome, la riapplicano in seguito o importano ed esportano un file di impostazioni riutilizzabile.",
+      "phonemes": "le riʧˈɛtːe sˈalvano kwˌesta konfiɡʊraʦiˈone komplˈɛta sˈotːo ʊn nˈome, la riˈapːlikano in sˈeːɡwito o impˈɔrtano ed espˈɔrtano ʊn fˈile dɪ impostaʦiˈonɪ riʊtiliʣːˈabile."
+    },
+    {
+      "scene": 10,
+      "speech_start": 120.00000000000003,
+      "speech_end": 128.07500000000002,
+      "scene_end": 128.525,
+      "duration": 8.524999999999977,
+      "text": "Invia istantanee remote delle impostazioni Classify ML risolte e invia il lavoro nello spazio di lavoro Jobs Distribuiti.",
+      "speech_text": "Invia istantanee remote delle impostazioni Classify ML risolte e invia il lavoro nello spazio di lavoro Jobs Distribuiti.",
+      "phonemes": "ɪnvˈɪa istantˈanee remˈɔte dˌelle impostaʦiˈonɪ klaSˈifɪ ˌɛmmeˈɛlle rizˈɔlte e ɪnvˈɪa il lavˈɔro nˈello spˈaʦio dɪ lavˈɔro ʤˈobs distribʊˈitɪ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 128.525,
+      "speech_end": 140.25,
+      "scene_end": 140.7,
+      "duration": 12.174999999999983,
+      "text": "Distributed Jobs mappa i percorsi del progetto e le risorse di calcolo a una workstation remota, a un cluster Slurm o a un comando configurato, quindi inviano e monitorano la stessa esecuzione.",
+      "speech_text": "Distributed Jobs mappa i percorsi del progetto e le risorse di calcolo a una workstation remota, a un cluster Slurm o a un comando configurato, quindi inviano e monitorano la stessa esecuzione.",
+      "phonemes": "distribˈuted ʤˈobs mˈapːa i perkˈorsɪ del proʤˈɛtːo e le rizˈorse dɪ kˈalkolo a ˌʊna workstˈatjon remˈɔta, a ʊn klʊstˈɛr zlˈurm o a ʊn komˈando konfiɡʊrˈato, kwˈindɪ invˈiano e mˈɔnitorano la stˈeSa ezekʊʦiˈone."
+    },
+    {
+      "scene": 12,
+      "speech_start": 140.7,
+      "speech_end": 153.04999999999998,
+      "scene_end": 153.49999999999997,
+      "duration": 12.799999999999983,
+      "text": "Data and Controls seleziona il progetto di misurazione e identifica la colonna dei metadati e i valori che definiscono esempi positivi e negativi. Verifica queste etichette prima di montare qualcosa.",
+      "speech_text": "Data and Controls seleziona il progetto di misurazione e identifica la colonna dei metadati e i valori che definiscono esempi positivi e negativi. Verifica queste etichette prima di montare qualcosa.",
+      "phonemes": "dˈata ˈand kˈontrols seleʦiˈona il proʤˈɛtːo dɪ mizʊraʦiˈone e identˈifika la kolˈonna dˌA metadˈatɪ e i valˈorɪ ke definˈiskono ezˈɛmpɪ pozitˈivɪ e neɡatˈivɪ. verˈifika kwˌeste etikˈetːe prˈima dɪ montˈare kwalkˈɔza."
+    },
+    {
+      "scene": 13,
+      "speech_start": 153.49999999999997,
+      "speech_end": 165.69999999999996,
+      "scene_end": 166.14999999999995,
+      "duration": 12.649999999999977,
+      "text": "Caratteristica La preparazione sceglie il canale di interesse e rimuove le misurazioni escluse, a bassa variazione, altamente correlate, a basso numero o biologicamente non valide prima dell'addestramento.",
+      "speech_text": "Caratteristica La preparazione sceglie il canale di interesse e rimuove le misurazioni escluse, a bassa variazione, altamente correlate, a basso numero o biologicamente non valide prima dell'addestramento.",
+      "phonemes": "kaɾatːerˈistika la prepaɾaʦiˈone ʃˈeʎe il kanˈale dɪ interˈɛSe e rimʊˈove le mizʊraʦiˈonɪ esklˈuze, a bˈaSa variaʦiˈone, altamˈente korɾelˈate, a bˈaSo nˈumero o bjoloʤikamˈente non vˈalide prˈima delladːestramˈento."
+    },
+    {
+      "scene": 14,
+      "speech_start": 166.14999999999995,
+      "speech_end": 178.87499999999994,
+      "scene_end": 179.32499999999993,
+      "duration": 13.174999999999983,
+      "text": "Controlli di correzione delle piastrelle e dei lotti per normalizzazione per piastrella. Qui ogni piastra è centrata sulle sue cellule di controllo negativo c1 mantenendo il contrasto biologico con c2.",
+      "speech_text": "Controlli di correzione delle piastrelle e dei lotti per normalizzazione per piastrella. Qui ogni piastra è centrata sulle sue cellule di controllo negativo c1 mantenendo il contrasto biologico con c2.",
+      "phonemes": "kontrˈɔllɪ dɪ korɾeʦiˈone dˌelle pjastrˈɛlle e dˌA lˈɔtːɪ per normaliʣːaʦiˈone per pjastrˈɛlla. kwˈi ˌoɲɲɪ pjˈastra e ʧentrˈata sˌʊlle sˌʊe ʧˈɛllʊle dɪ kontrˈɔllo neɡatˈivo ʧˈi ˈuno mantenˈɛndo il kontrˈasto bjolˈɔʤiko kon ʧˈi dˈue."
+    },
+    {
+      "scene": 15,
+      "speech_start": 179.32499999999993,
+      "speech_end": 190.52499999999992,
+      "scene_end": 190.9749999999999,
+      "duration": 11.649999999999977,
+      "text": "Classificatore e Validazione seleziona XGBoost o un altro stimatore, la sua complessità e regolamentazione, la frazione trattenuta e il comportamento di validazione incrociata.",
+      "speech_text": "Classificatore e Validazione seleziona XGBoost o un altro stimatore, la sua complessità e regolamentazione, la frazione trattenuta e il comportamento di validazione incrociata.",
+      "phonemes": "klaSifikatˈore e validaʦiˈone seleʦiˈona ˌiksʤˈi bˈɔost o ʊn ˈaltro stimatˈore, la sˌʊa kompleSitˈa e reɡolamentaʦiˈone, la fraʦiˈone tratːenˈuta e il komportamˈento dɪ validaʦiˈone inkroʧˈata."
+    },
+    {
+      "scene": 16,
+      "speech_start": 190.9749999999999,
+      "speech_end": 204.14999999999992,
+      "scene_end": 204.5999999999999,
+      "duration": 13.625,
+      "text": "La selezione delle caratteristiche e l'importanza controllano la potatura finale, il numero di caratteristiche conservate e le ripetute prove di permutazione che rivelano quali misurazioni supportano il classificatore.",
+      "speech_text": "La selezione delle caratteristiche e l'importanza controllano la potatura finale, il numero di caratteristiche conservate e le ripetute prove di permutazione che rivelano quali misurazioni supportano il classificatore.",
+      "phonemes": "la seleʦiˈone dˌelle kaɾatːerˈistike e limportˈanʦa kontrˈɔllano la potatˈura finˈale, il nˈumero dɪ kaɾatːerˈistike konservˈate e le ripetˈute prˈɔve dɪ permʊtaʦiˈone ke rivˈelano kwˈalɪ mizʊraʦiˈonɪ sʊpːˈɔrtano il klaSifikatˈore."
+    },
+    {
+      "scene": 17,
+      "speech_start": 204.5999999999999,
+      "speech_end": 214.1749999999999,
+      "scene_end": 214.6249999999999,
+      "duration": 10.024999999999977,
+      "text": "L'output e il database determinano se le previsioni e i punteggi del modello vengono riportati nel database di misura per i moduli successivi di spaCR.",
+      "speech_text": "L'output e il database determinano se le previsioni e i punteggi del modello vengono riportati nel database di misura per i moduli successivi di spàker.",
+      "phonemes": "loˈutpʊt e il databˈɛiz detˈɛrminano se le previziˈonɪ e i pʊntˈɛʤːɪ del modˈɛllo vˈeŋɡono riportˈatɪ nel databˈɛiz dɪ mizˈura per i mˈɔdʊlɪ sʊʧːeSˈivɪ dɪ spˈaker."
+    },
+    {
+      "scene": 18,
+      "speech_start": 214.6249999999999,
+      "speech_end": 228.44999999999987,
+      "scene_end": 228.89999999999986,
+      "duration": 14.274999999999977,
+      "text": "Plots and Heatmaps sceglie la funzione riassunta, la regola di raggruppamento, la mappa dei colori e l'intervallo di valori utilizzati per visualizzare i risultati a livello di piastra. Questi controlli non modificano il modello montato.",
+      "speech_text": "Plots and Heatmaps sceglie la funzione riassunta, la regola di raggruppamento, la mappa dei colori e l'intervallo di valori utilizzati per visualizzare i risultati a livello di piastra. Questi controlli non modificano il modello montato.",
+      "phonemes": "plˈots ˈand eˈatmaps ʃˈeʎe la fʊnʦiˈone riaSˈunta, la rˈɛɡola dɪ raɡːrʊpːamˈento, la mˈapːa dˌA kolˈorɪ e lintervˈallo dɪ valˈorɪ ʊtiliʣːˈatɪ per vizʊaliʣːˈare i rizʊltˈatɪ a livˈɛllo dɪ pjˈastra. kwˌestɪ kontrˈɔllɪ non modˈifikano il modˈɛllo montˈato."
+    },
+    {
+      "scene": 19,
+      "speech_start": 228.89999999999986,
+      "speech_end": 243.09999999999985,
+      "scene_end": 243.54999999999984,
+      "duration": 14.649999999999977,
+      "text": "Il tempo di esecuzione e l'affidabilità controllano l'arricchimento e il numero di lavoratori. Utilizzare meno lavoratori quando si condivide una stazione di lavoro, e mantenere l'uscita verbale durante la convalida di un nuovo flusso di lavoro.",
+      "speech_text": "Il tempo di esecuzione e l'affidabilità controllano l'arricchimento e il numero di lavoratori. Utilizzare meno lavoratori quando si condivide una stazione di lavoro, e mantenere l'uscita verbale durante la convalida di un nuovo flusso di lavoro.",
+      "phonemes": "il tˈɛmpo dɪ ezekʊʦiˈone e laffidabilitˈa kontrˈɔllano larɾikːimˈento e il nˈumero dɪ lavoratˈorɪ. ʊtiliʣːˈare mˈeno lavoratˈorɪ kwˈando sɪ kondivˈide ˌʊna staʦiˈone dɪ lavˈɔro, e mantenˈɛre lʊʃˈita verbˈale dʊrˈante la konvˈalida dɪ ʊn nʊˈɔvo flˈuSo dɪ lavˈɔro."
+    },
+    {
+      "scene": 20,
+      "speech_start": 243.54999999999984,
+      "speech_end": 256.14999999999986,
+      "scene_end": 256.59999999999985,
+      "duration": 13.050000000000011,
+      "text": "Per questo tutorial, columnID è la fonte dell'etichetta: c1 è il controllo negativo e c2 è il controllo positivo. La mappatura utilizza le prime due colonne della targa esattamente come richiesto.",
+      "speech_text": "Per questo tutorial, columnID è la fonte dell'etichetta: c1 è il controllo negativo e c2 è il controllo positivo. La mappatura utilizza le prime due colonne della targa esattamente come richiesto.",
+      "phonemes": "per kwˌesto tʊtˈɔrial, kˈolʊmn iː dˈi e la fˈonte delletikˈetːa: ʧˈi ˈuno e il kontrˈɔllo neɡatˈivo e ʧˈi dˈue e il kontrˈɔllo pozitˈivo. la mapːatˈura ʊtilˈiʣːa le prˈime dˈue kolˈonne dˌella tˈarɡa ezatːamˈente kˌome rikjˈɛsto."
+    },
+    {
+      "scene": 21,
+      "speech_start": 256.59999999999985,
+      "speech_end": 272.27499999999986,
+      "scene_end": 272.72499999999985,
+      "duration": 16.125,
+      "text": "Hyperparameter Search confronta i tassi di apprendimento dei candidati, i numeri degli stimatori e i valori di regolarizzazione con una validazione cinque volte superiore. La tabella dei risultati classifica le prove completate utilizzando il criterio selezionato.",
+      "speech_text": "Hyperparameter Search confronta i tassi di apprendimento dei candidati, i numeri degli stimatori e i valori di regolarizzazione con una validazione cinque volte superiore. La tabella dei risultati classifica le prove completate utilizzando il criterio selezionato.",
+      "phonemes": "iperpaɾametˈɛr sˈɛarʧ konfrˈonta i tˈaSɪ dɪ apːrendimˈento dˌA kandidˈatɪ, i nˈumerɪ dˌeʎɪ stimatˈorɪ e i valˈorɪ dɪ reɡolariʣːaʦiˈone kon ˌʊna validaʦiˈone ʧˈinkwe vˈɔlte sʊperiˈore. la tabˈɛlla dˌA rizʊltˈatɪ klaSˈifika le prˈɔve kompletˈate ʊtiliʣːˈando il kritˈɛrio seleʦjonˈato."
+    },
+    {
+      "scene": 22,
+      "speech_start": 272.72499999999985,
+      "speech_end": 285.3249999999999,
+      "scene_end": 285.77499999999986,
+      "duration": 13.050000000000011,
+      "text": "Le impostazioni di ricerca definiscono lo spazio esatto del candidato, la modalità di ricerca, il numero di prove, le pieghe, i semi casuali e il criterio di ottimizzazione. Chiudi dopo aver esaminato i limiti.",
+      "speech_text": "Le impostazioni di ricerca definiscono lo spazio esatto del candidato, la modalità di ricerca, il numero di prove, le pieghe, i semi casuali e il criterio di ottimizzazione. Chiudi dopo aver esaminato i limiti.",
+      "phonemes": "le impostaʦiˈonɪ dɪ riʧˈerka definˈiskono lo spˈaʦio ezˈatːo del kandidˈato, la modalitˈa dɪ riʧˈerka, il nˈumero dɪ prˈɔve, le pjˈeɡe, i sˈemɪ kazʊˈalɪ e il kritˈɛrio dɪ otːimiʣːaʦiˈone. kjˈudɪ dˈopo avˈɛr ezaminˈato i lˈimitɪ."
+    },
+    {
+      "scene": 23,
+      "speech_start": 285.77499999999986,
+      "speech_end": 300.4499999999999,
+      "scene_end": 301.09999999999985,
+      "duration": 15.324999999999989,
+      "text": "Run convalida il progetto e controlla la mappatura, prepara le caratteristiche, applica la correzione della targa, valuta il classificatore, calcola l'importanza, disegna riassunti e scrive le uscite abilitate. STOP richiede un'interruzione sicura.",
+      "speech_text": "Run convalida il progetto e controlla la mappatura, prepara le caratteristiche, applica la correzione della targa, valuta il classificatore, calcola l'importanza, disegna riassunti e scrive le uscite abilitate. STOP richiede un'interruzione sicura.",
+      "phonemes": "rˈun konvˈalida il proʤˈɛtːo e kontrˈɔlla la mapːatˈura, prepˈaɾa le kaɾatːerˈistike, ˈapːlika la korɾeʦiˈone dˌella tˈarɡa, vˈalʊta il klaSifikatˈore, kˈalkola limportˈanʦa, dizˈeɲɲa riaSˈuntɪ e skrˈive le ʊʃˈite abilitˈate. stˈɔp rikjˈede ʊninterɾʊʦiˈone sikˈura."
     }
   ]
 }
