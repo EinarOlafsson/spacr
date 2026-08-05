@@ -989,19 +989,76 @@
       "id": "18_motility",
       "scenes": [
         {
-          "narration": "Dieses Tutorial deckt den Motility-Assay ab. Quantifizieren Sie Geschwindigkeit, Verschiebung, Persistenz und Infektionsqualitätskontrollemetriken aus zeitlich gelösten Bildern."
+          "narration": "Motility Assay baut Messungen aus verfolgten fusionierten Arrays wieder auf, berechnet Verschiebung, Geschwindigkeit, Pfadlänge und Geradenheit und vergleicht Flugbahnen nach Infektionszustand. Die Konsole erfasst jede abgeleitete Tabelle und jede Abbildung."
         },
         {
-          "narration": "Öffnen Sie die Motilität im Kernbereich. Öffnen von verfolgten Timelapse-Daten mit zuverlässigen Zeitintervallen und räumlicher Kalibrierung."
+          "narration": "Das Chatfeld akzeptiert lokale Befehle oder Workflow-Fragen. Aktivieren Sie KI für einen konfigurierten Anbieter und verwenden Sie den angrenzenden Pfeil, um einen Anbieter zu wählen oder seine Kontrollen zu öffnen."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich Spurfilter, Mindestdauer, Ausgleiten, Bewegungsmethriken, Infektionsdefinitionen und Gruppen auf gutem Niveau aus."
+          "narration": "Anbieter überprüfen die Claude-, ChatGPT- und Gemini-Befehlszeilklienten und zeigen ihre Installations- und Login-Befehlszeilen an, während die Authentifizierung bei jedem Anbieter bleibt."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Überprüfungsvorführungen der Strecke und ausschließt gebrochene, stationäre oder unwahrscheinliche Spuren."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und die spaCR-bewussten Systemanweisungen."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, schreibt spaCR pro Strecke und pro Bedingung Mobilitätstabellen, Qualitätsmetriken und Zahlen."
+          "narration": "Diese synthetische Quelle enthält acht verfolgte Rahmen mit Kernen im Kanal Null, Zellen im Kanal eins und Krankheitserregern im Kanal zwei. Sechzehn Zellspuren und zwanzig Krankheitserregermasken pro Rahmen stellen ein vollständiges Testbeispiel dar."
+        },
+        {
+          "narration": "Essentials zeigt das verfolgte Objekt, die Kanalkarte, Sekunden pro Bild, Pixel pro Mikrometer, Verschiebungsfilter, Infektionsstrategie, Plotlimits, Datenbanktabelle und die Anzahl der Arbeiter, die für eine erste Analyse erforderlich sind."
+        },
+        {
+          "narration": "Die Modifizierung beschränkt das Panel auf vorsätzliche Änderungen, darunter das Drei-Kanal-Layout, ein Sekunden-Frame, ein Pixel pro Mikrometer, maskenbasierte Infektionsetiketten, symmetrische Plot-Limits und ein Arbeiter."
+        },
+        {
+          "narration": "Alle Einstellungen decken neun Kategorien auf: Objekte und Kanäle, Kalibrierung, Bewegungsgefilterung, Infektionsklassifizierung, XGBoost, Clustering, Embedding-Suche, Plots und Qualitätskontrolle und Laufzeit."
+        },
+        {
+          "narration": "Rezepte speichern die komplette Motility Assay-Konfiguration unter einem Namen, wenden sie an ein anderes Experiment oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Einstellungen und senden Sie die Mess- und Trajektorie-Aufgabe in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartografiert die verfolgten Quell- und Ausgangswege zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann denselben Assay."
+        },
+        {
+          "narration": "Objekte und Kanäle wählen die verfolgte Quelle, das Objekt, dessen Bewegung gemessen wird, und die Übernahmekanäle, die das Zell-, Kern- und Krankheitserreger-Signal tragen. Eine falsche Kartierung macht sowohl die Intensität als auch die Infektionsergebnisse ungültig."
+        },
+        {
+          "narration": "Die räumliche und zeitliche Kalibrierung liefert Sekunden pro Bild und Pixel pro Mikrometer. Diese beiden Werte konvertieren die Pixelverschiebung in physische Geschwindigkeit, so dass ein konstantes Fehler hier jede gemeldete Geschwindigkeit skaliert."
+        },
+        {
+          "narration": "Motion Filtering schließt unwahrscheinliche Frame-to-Frame-Sprungen, optionale hoch gerade Artefakte und durch eine Z-Score-Schwelle identifizierte Merkmal- oder Geschwindigkeitsunterschiede aus."
+        },
+        {
+          "narration": "Die Infektionsklassifizierung beginnt mit einer Überlagerung von Krankheitserregern und Masken und kann Optional Spuren mit einer auf Intensität basierenden Qualitätskontrolle neu kennzeichnen oder entfernen. Das Tutorial behält die direkten Maskenetiketten."
+        },
+        {
+          "narration": "Das XGBoost-Infektionsmodell konfiguriert einen überwachten Intensitätsklassifikator, seine Baumtiefe und Lernrate, die Wahrscheinlichkeitsschwelle, das Zweideutigkeitsband, die Klassengröße-Anforderung und den Merkmalwichtigkeitsbericht."
+        },
+        {
+          "narration": "Infektionsclustering kontrolliert die unüberwachte Intensitätstrennung, die Gewichtung des Krankheitserreger-Kanals, die Clusterzahl, die zufällige Samenzahl, die Probenkappe und die Mindestsilhouette- und Grundwahrheitstrennung."
+        },
+        {
+          "narration": "Einbettung von Such-Tunes UMAP oder t-SNE Nachbarschaft, Entfernung, Verwirrung und Lernrate-Gitter, wenn Infektionsintensität in einer niedrigeren Einbettung getrennt ist."
+        },
+        {
+          "narration": "Motility Plots und QC setzen Flugbahn-Achse-Grenzen und ermöglichen kombinierte Intensität, Position, Geschwindigkeit und Infektionsdiagnose-Panels, ohne die zugrunde liegenden Messungen zu ändern."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeit steuern parallele Arbeiter. Verwenden Sie einen Arbeiter für eine kleine Validierungsquelle, dann skalieren Sie erst nach Bestätigung der Kanalkartierung, Kalibrierung und Spurqualität."
+        },
+        {
+          "narration": "Die Demonstration verwendet eine Sekunde pro Rahmen und ein Pixel pro Mikrometer. Wenn beide Werte gleich einer sind, wird jedes gemessene Pixel pro Bild direkt konvertiert, bevor der Bericht die Geschwindigkeit pro Minute ausdrückt."
+        },
+        {
+          "narration": "Run liest jeden zusammengesetzten Rahmen, misst Zelle, Kern, Zytoplasma, Krankheitserreger und Kanalintensität, schlichtet Spuren, zugeordnet Infektionsstatus, berechnet Geschwindigkeitssummen und Korrelationen und speichert Datenbanktabellen und -zahlen. Stop-Anfragen für eine sichere Unterbrechung."
+        },
+        {
+          "narration": "Während der Verarbeitung berichtet die Konsole über fusionierte Array-Formen, gemessene Objekte und Rahmen, Glatterungsergebnisse, infizierte und uninfizierte Spurenzahlungen, Geschwindigkeits-Einheiten und jeden Ausgangsweg."
+        },
+        {
+          "narration": "Die abgeschlossenen Tests lieferten 128 Rahmen-Einschätzungen aus 16 Strecken, klassifizierten 12 Strecken als infiziert und vier als nicht infiziert, berechneten Geschwindigkeiten in Mikrometern pro Minute und speicherten Messtabellen, Korrelationen und ein Bewegungspanel pro Brunnen."
         }
       ]
     },
