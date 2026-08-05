@@ -517,9 +517,14 @@ CATS_STAGE5 = _with_late_registrations([
     # relationship is the band that reads it. The fallback would have put
     # it under Report, which is only where an uncategorised key lands —
     # not an argument that a containment tree is a deliverable.
+    # Tabulate is here on the band's own argument, one more turn: a pivot
+    # of the measurement table with the n behind each cell is a question
+    # asked OF the measurements, which is what this band is. It had been
+    # landing in Report, and Report is only where an uncategorised key
+    # falls -- not an argument that a contingency table is a deliverable.
     ("Measure", ["measure", "annotate", "agreement", "motility",
                  "image_scatter", "lineage", "analyze_plaques",
-                 "recruitment", "invasion", "replication"]),
+                 "recruitment", "invasion", "replication", "tabulate"]),
     # Barcode QC sits beside Map Barcodes and Regression because the
     # number it derives — the abundance threshold — is what the
     # regression consumes as fraction_threshold. It is part of analysing
@@ -533,9 +538,13 @@ CATS_STAGE5 = _with_late_registrations([
     # input of the fitted model to see where the prediction goes is asking
     # the model a question, which is analysis — the reporting apps below
     # judge whether to believe a result, and this one produces results.
+    # PCA joins on the same grounds as Image UMAP, which is already here:
+    # both reduce the measurement table to a couple of components to see
+    # what separates, and neither is something you hand to anybody. It was
+    # falling through to Report for want of a line here.
     ("Analyse", ["classify", "ml_analyze", "map_barcodes", "barcode_qc",
                  "regression", "umap", "activation", "graph_builder",
-                 "anndata_export", "profiler"]),
+                 "anndata_export", "profiler", "pca"]),
     # Report is "decide whether to believe it, then hand it on", which is
     # where the two model/provenance QC apps belong: Classifier Evaluation
     # judges the classifier the Analyse stage trained, Run History says what
