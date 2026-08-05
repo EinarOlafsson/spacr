@@ -560,19 +560,70 @@
       "id": "12_map_barcodes",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker kort barkoder. Forbind sekvenseringsstangkoder og guideidentiteter til de fenotiper, der måles i mikroskopiske billeder."
+          "narration": "Kartekoderne dekoder sekvensering læses i pladepositioner og guide-identiteter. Konsolen rapporterer prøveopdagelse, parserindstillinger, læsesalger, batchprogress, udgangsbaner og fejl."
         },
         {
-          "narration": "Åbn kartekoderne fra Core-delen. Giv FASTQ-filer, stregkodedefinitioner, plade metadata og det tilsvarende mikroskopiske projekt."
+          "narration": "DNA-knappen åbner baggrundskontrolen. For denne tutorial er synlighed indstillet til 10 procent så de bevægelige baser forbliver synlige uden at konkurrere med indstillinger eller konsoltekst."
         },
         {
-          "narration": "I hovedkonfigurationsområdet skal der defineres række-, kolonne- og vejledningsbarcode-layouter sammen med kvalitetsgrænser og mismatch-regler."
+          "narration": "Chatfeltet accepterer spørgsmål om den aktuelle arbejdsproces. Tillad AI at ruter gennem en valgt udbyder, og brug den tilstødende pil til at åbne udbydermenuen."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. inspektere sekvenseringskvalitet og kartlægningshastigheder, inden de fusionerede opgaver accepteres."
+          "narration": "Udbydere rapporterer om Claude-, ChatGPT- og Gemini-kommandolinjeklienter er installeret og giver deres installations- og login-kommandoer. Oplysninger forbliver hos hver sælger."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, er guide-identiteterne knyttet til brønde og enkeltobjektfenotyper i sporbare tabeller."
+          "narration": "AI-indstillinger styrer responsdybden, automatiske fejlforklaringer, valgfri GitHub-problemrapportering, logging-in og spaCR-bevidste systemprompten."
+        },
+        {
+          "narration": "Træk den syntetiske sekvenseringsmappe ind i kortbarkoder. spaCR finder de parrede demo-filer R1 og R2 FASTQ på det øverste niveau og indstiller kildemappen automatisk."
+        },
+        {
+          "narration": "Essentials viser kildekoden, parret eller enkeltlæste modus, stregkoder, parseringsmønster og delkontroller, der er nødvendige for en første kortlægning."
+        },
+        {
+          "narration": "Ændret begrænser panelen til værdier, der adskiller sig fra standardværdierne, hvilket er nyttigt ved revision af et biblioteksspecifikt læsesæt eller beregningsvalg."
+        },
+        {
+          "narration": "Alle indstillinger afslører hver kategori uden at ændre værdier. De fem kategorier adskiller indgang, referencer, analysering, udgang og driftstid pålidelighed."
+        },
+        {
+          "narration": "Recipes gemmer den fulde sekvenseringskonfiguration under et navn, anvender den senere eller importerer og eksporterer en genanvendelig indstillingerfil."
+        },
+        {
+          "narration": "Indsend fjernbilleder af de afviklede Map Barcodes indstillinger og sender opgaven til Distribueret Jobs arbejdsområde."
+        },
+        {
+          "narration": "Distributed Jobs kortlægger sekvensering af stier og beregningsressourcer til en fjerntliggende arbejdsstation, Slurm-cluster eller konfigureret kommando, og sender derefter og overvåger samme køre."
+        },
+        {
+          "narration": "Sequencing Input udvælger FASTQ-mappen og bestemmer, om R1 og R2 kombineres som et par, eller om en læsevej behandles alene."
+        },
+        {
+          "narration": "Barcode References peger på tre CSV-opdagelsestabeller: en for gRNA-barkoder, en for plade-rækker og en for plade-kolumner. Hver tabel har brug for navne- og sekvenskolonne."
+        },
+        {
+          "narration": "Læs Parsing anker på en kendt målsekvens, udtrækker et fast vindue og anvender et regelmæssigt udtryk med navngivne columnID, gRNA og rowID grupper."
+        },
+        {
+          "narration": "Output and Storage kontrollerer valgfri HDF5-læselagring, komprimering og om uoverensstemmende stregkodenavne bevares som manglende værdier. De opsummerede CSV-udgange er altid skrevet."
+        },
+        {
+          "narration": "Løbetid og pålidelighedsæt læses per del, antal arbejdere og testmodus. Mindre stykker bruger mindre hukommelse; testmodus validerer det første stykke før en stor sekvensering."
+        },
+        {
+          "narration": "Dette syntetiske bibliotek bruger et mål på 26 baser, starter otte baser før ankeret og udtrækker 89 baser. Regex benævner derefter den fanget kolonne, guide og række sekvenser."
+        },
+        {
+          "narration": "Tutorial-mappen indeholder 4.800 parede læsninger spredt over 24 syntetiske brønde og 12 guide-barcodes. Paired mode sammenligner R1 med den omvendt komplementerede R2-konsensus."
+        },
+        {
+          "narration": "Run validerer stier og referencer, opdager parede prøver, tæller læser og starter stykker af stregkodekort. Stop anmoder om en ordentlig afbrydelse."
+        },
+        {
+          "narration": "Progressindikatoren og konsolen viser den aktive prøve og antal partier. Denne demonstration behandler fem partier af 1.000 læsninger eller mindre."
+        },
+        {
+          "narration": "Den vellykkede run skriver unique_combinations.csv med række, kolonne, guide og tælle, plus qc.csv med kortlægningskvalitetsstatistik. Det gemmer også reproducerbare indstillinger, et manifest og en genoprettbar makro."
         }
       ]
     },

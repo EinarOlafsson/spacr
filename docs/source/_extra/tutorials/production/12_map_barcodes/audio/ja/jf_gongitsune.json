@@ -4,47 +4,227 @@
   "voice": "jf_gongitsune",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 68.15,
+  "total_duration": 351.9,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 14.125,
-      "scene_end": 14.575,
-      "duration": 14.575,
-      "text": "このチュートリアルではマップバーコードをカバーします. シーケンシングバーコードとガイドアイデンティティを顕微鏡画像で測定したフェノタイプに接続します."
+      "speech_end": 17.25,
+      "scene_end": 17.7,
+      "duration": 17.7,
+      "text": "マップ バーコード 配列解読はプレート位置とガイド アイデンティティに表示されます. コンソールはサンプル発見,解析器設定,読み込み数,バッチ進捗,出力経路,故障を報告します.",
+      "speech_text": "マップ バーコード 配列解読はプレート位置とガイド アイデンティティに表示されます. コンソールはサンプル発見,解析器設定,読み込み数,バッチ進捗,出力経路,故障を報告します.",
+      "phonemes": "maʔpɯ baː koːdo haiɾeʦɨ kaidokɯ βa pɯɾeːto iʨi to ɡaido aidentʲitʲi ɲi çoːʥi saɾemasɨ. koɴsoːɾɯ βa sampɯɾɯ haʔkeɴ, kaisekʲi kʲi seʔteː, jomʲikomʲi sɨː, baʔʨi ɕiɲʨokɯ, ɕɨʦɨɾʲokɯ keːɾo, koɕoː o hoːkokɯ ɕi masɨ."
     },
     {
       "scene": 2,
-      "speech_start": 14.575,
-      "speech_end": 27.4,
-      "scene_end": 27.849999999999998,
-      "duration": 13.274999999999999,
-      "text": "Core セクションから Map Barcodes を開きます。 FASTQファイル,バーコード定義,プレートメタデータ,および対応する顕微鏡プロジェクトを提供します."
+      "speech_start": 17.7,
+      "speech_end": 35.425,
+      "scene_end": 35.875,
+      "duration": 18.175,
+      "text": "DNA ボタンは ライブシーケンシングの背景制御を開きます このチュートリアルでは,可視性は10%に設定されているので,設定やコンソールテキストと競合することなく 移動するベースが可視のままです.",
+      "speech_text": "DNA ボタンは ライブシーケンシングの背景制御を開きます このチュートリアルでは,可視性は10%に設定されているので,設定やコンソールテキストと競合することなく 移動するベースが可視のままです.",
+      "phonemes": "DNA botaɴ βa ɾaibɯɕiːkeɴɕiŋɡɯ no haikeː seːɡʲo o çiɾakʲimasɨ kono ʨɨːtoɾʲiaɾɯ de βa, kaɕi seː βa ʥɨː % ɲi seʔteː saɾete iɾɯ no de, seʔteː ja koɴsoːɾɯ tekʲisɨto to kʲoːɡoː sɨɾɯ koto nakɯ idoː sɨɾɯ beːsɨ ɡa kaɕi no mama desɨ."
     },
     {
       "scene": 3,
-      "speech_start": 27.849999999999998,
-      "speech_end": 38.599999999999994,
-      "scene_end": 39.05,
-      "duration": 11.2,
-      "text": "主な構成領域では,質の限界値と不一致規則とともに行,列,ガイドバーコードのレイアウトを定義します."
+      "speech_start": 35.875,
+      "speech_end": 52.55,
+      "scene_end": 53.0,
+      "duration": 17.125,
+      "text": "チャットフィールドは,現在のワークフローに関する質問を受け入れます. 選択されたプロバイダーを通過するAIを有効にし,隣接する矢印を使用してプロバイダーメニューを開きます.",
+      "speech_text": "チャットフィールドは,現在のワークフローに関する質問を受け入れます. 選択されたプロバイダーを通過するAIを有効にし,隣接する矢印を使用してプロバイダーメニューを開きます.",
+      "phonemes": "ʨaʔto ɸʲiːɾɯdo βa, ɡeɴʣai no βaːkɯ ɸɯɾoː ɲi kaɴsɨɾɯ ɕiʦɨmoɴ o ɯkeiɾemasɨ. sentakɯ saɾeta pɯɾobaidaː o ʦɨːka sɨɾɯ AI o jɯːkoː ɲi ɕi, ɾʲiɴseʦɨ sɨɾɯ jaʥiɾɯɕi o ɕijoː ɕite pɯɾobaidaː meɲɨː o çiɾakʲimasɨ."
     },
     {
       "scene": 4,
-      "speech_start": 39.05,
-      "speech_end": 56.75,
-      "scene_end": 57.2,
-      "duration": 18.150000000000006,
-      "text": "実行完了前に,可視設定をレビューし,利用可能な場合,前見またはテストモードを使用します. 合併された割り当てを受け入れする前に,シーケンシング品質とマッピング率を検査します."
+      "speech_start": 53.0,
+      "speech_end": 70.65,
+      "scene_end": 71.10000000000001,
+      "duration": 18.10000000000001,
+      "text": "提供者は,Claude,ChatGPT,および Gemini コマンドラインクライアントがインストールされているかどうかを報告し,インストールおよびログインのコマンドを提供します. 認証は各業者に留まります",
+      "speech_text": "提供者は,Claude,ChatGPT,および Gemini コマンドラインクライアントがインストールされているかどうかを報告し,インストールおよびログインのコマンドを提供します. 認証は各業者に留まります",
+      "phonemes": "teːkʲoː ɕa βa, Claude, Chat GPT, ojobʲi Gemini komando ɾaiɴ kɯɾaianto ɡa iɴsɨtoːɾɯ saɾete iɾɯka doː ka o hoːkokɯ ɕi, iɴsɨtoːɾɯ ojobʲi ɾoɡɯiɴ no komando o teːkʲoː ɕi masɨ. ɲiɴɕoː βa kakɯ ɡʲoːɕa ɲi tomaɾʲimasɨ"
     },
     {
       "scene": 5,
-      "speech_start": 57.2,
-      "speech_end": 67.5,
-      "scene_end": 68.15,
-      "duration": 10.950000000000003,
-      "text": "作業流が完了すると,ガイドアイデンティティは追跡可能な表の井戸と単体フェノタイプにリンクされます."
+      "speech_start": 71.10000000000001,
+      "speech_end": 84.15,
+      "scene_end": 84.60000000000001,
+      "duration": 13.5,
+      "text": "AI 設定は応答深さ,自動エラー説明,オプションのGitHub 問題報告,サインイン,およびspaCR 認識システムプロンプトを制御します.",
+      "speech_text": "AI 設定は応答深さ,自動エラー説明,オプションのGitHub 問題報告,サインイン,およびスペーカー 認識システムプロンプトを制御します.",
+      "phonemes": "AI seʔteː βa oːtoː ɸɯka sa, ʥidoː eɾaː seʦɨmeː, opɯɕoɴ no GitHub mondai hoːkokɯ, saiɴ iɴ, ojobʲi sɨpeːkaː ɲiɴɕikʲi ɕisɨtemɯ pɯɾompɯto o seːɡʲo ɕi masɨ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 84.60000000000001,
+      "speech_end": 100.875,
+      "scene_end": 101.325,
+      "duration": 16.724999999999994,
+      "text": "合成シーケンシングフォルダをマップバーコードにドラッグします. spaCR は,R1 とR2 FASTQ のペア化されたデモファイルをトップレベルで見つけ,ソースフォルダを自動的に設定します.",
+      "speech_text": "合成シーケンシングフォルダをマップバーコードにドラッグします. スペーカー は,R1 とR2 FASTQ のペア化されたデモファイルをトップレベルで見つけ,ソースフォルダを自動的に設定します.",
+      "phonemes": "ɡoːseː ɕiːkeɴɕiŋɡɯɸoɾɯda o maʔpɯ baː koːdo ɲi doɾaʔɡɯ ɕi masɨ. sɨpe kaː βa, R iʨi to R ɲi FASTQ no pea ka saɾeta demo ɸaiɾɯ o toʔpɯ ɾebeɾɯ de mʲiʦɨke, soːsɨ ɸoɾɯda o ʥidoːtekʲi ɲi seʔteː ɕi masɨ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 101.325,
+      "speech_end": 114.775,
+      "scene_end": 115.22500000000001,
+      "duration": 13.900000000000006,
+      "text": "エッセンシャルは,最初のマッピング実行に必要なソース,ペアまたはシングル読みモード,バーコード参照,解析パターン,ブロック制御を示します.",
+      "speech_text": "エッセンシャルは,最初のマッピング実行に必要なソース,ペアまたはシングル読みモード,バーコード参照,解析パターン,ブロック制御を示します.",
+      "phonemes": "eʔseɴɕaɾɯ βa, saiɕo no maʔpʲiŋɡɯ ʥiʔkoː ɲi çiʦɨjoː na soːsɨ, pea mata βa ɕiŋɡɯɾɯ jomʲi moːdo, baː koːdo saɴɕoː, kaisekʲi pataːɴ, bɯɾoʔkɯ seːɡʲo o ɕimeɕimasɨ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 115.22500000000001,
+      "speech_end": 129.275,
+      "scene_end": 129.725,
+      "duration": 14.499999999999986,
+      "text": "変更されたパネルは,デフォルトから異なる値に制限されます. これは,図書館の特定読み取りレイアウトまたは計算選択の監査時に有用です.",
+      "speech_text": "変更されたパネルは,デフォルトから異なる値に制限されます. これは,図書館の特定読み取りレイアウトまたは計算選択の監査時に有用です.",
+      "phonemes": "heŋkoː saɾeta paneɾɯ βa, deɸoɾɯto kaɾa kotonaɾɯ atai ɲi seːɡeɴ saɾemasɨ. koɾe βa, toɕokaɴ no tokɯteː jomʲitoɾʲi ɾeːaɯto mata βa keːsaɴ sentakɯ no kaɴsa ʥi ɲi jɯːjoː desɨ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 129.725,
+      "speech_end": 145.04999999999998,
+      "scene_end": 145.49999999999997,
+      "duration": 15.774999999999977,
+      "text": "すべての設定は,すべてのカテゴリを値変更なしに表示します. 5つのカテゴリーは入力,参照,解析,出力,実行時間の信頼性を分離します.",
+      "speech_text": "すべての設定は,すべてのカテゴリを値変更なしに表示します. 5つのカテゴリーは入力,参照,解析,出力,実行時間の信頼性を分離します.",
+      "phonemes": "sɨbete no seʔteː βa, sɨbete no kateɡoɾʲi o atai heŋkoː naɕi ɲi çoːʥi ɕi masɨ. ɡoʦɨ no kateɡoɾʲiː βa ɲɨːɾʲokɯ, saɴɕoː, kaisekʲi, ɕɨʦɨɾʲokɯ, ʥiʔkoː ʥikaɴ no ɕinɾai seː o bɯnɾʲi ɕi masɨ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 145.49999999999997,
+      "speech_end": 157.67499999999998,
+      "scene_end": 158.12499999999997,
+      "duration": 12.625,
+      "text": "レシピは,完全なシーケンシング設定を名前で保存し,後で再適用するか,再利用可能な設定ファイルを輸入・輸出する.",
+      "speech_text": "レシピは,完全なシーケンシング設定を名前で保存し,後で再適用するか,再利用可能な設定ファイルを輸入・輸出する.",
+      "phonemes": "ɾeɕipʲi βa, kaɴʣeɴ na ɕiːkeɴɕiŋɡɯ seʔteː o namae de hoʣoɴ ɕi, ato de sai tekʲijoː sɨɾɯ ka, sai ɾʲijoː kanoː na seʔteː ɸaiɾɯ o jɯɲɨː jɯɕɨʦɨ sɨɾɯ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 158.12499999999997,
+      "speech_end": 169.67499999999998,
+      "scene_end": 170.12499999999997,
+      "duration": 12.0,
+      "text": "削除されたマップバーコード設定のリモートスナップショットを送信し,作業を分散した仕事作業スペースに送信します.",
+      "speech_text": "削除されたマップバーコード設定のリモートスナップショットを送信し,作業を分散した仕事作業スペースに送信します.",
+      "phonemes": "sakɯʥo saɾeta maʔpɯ baː koːdo seʔteː no ɾʲimoːto sɨnaʔpɯɕoʔto o soːɕiɴ ɕi, saɡʲoː o bɯɴsaɴ ɕita ɕiɡoto saɡʲoː sɨpeːsɨ ɲi soːɕiɴ ɕi masɨ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 170.12499999999997,
+      "speech_end": 186.44999999999996,
+      "scene_end": 186.89999999999995,
+      "duration": 16.774999999999977,
+      "text": "Distributed Jobsは,リモートワークステーション,Slurmクラスター,または設定されたコマンドへの経路のシーケンシングと計算リソースをマップし,同じ実行を送信してモニターします.",
+      "speech_text": "Distributed Jobsは,リモートワークステーション,Slurmクラスター,または設定されたコマンドへの経路のシーケンシングと計算リソースをマップし,同じ実行を送信してモニターします.",
+      "phonemes": "Distributed Jobs βa, ɾʲimoːto βaːkɯsɨteːɕoɴ, Slurm kɯɾasɨtaː, mata βa seʔteː saɾeta komando e no keːɾo no ɕiːkeɴɕiŋɡɯ to keːsaɴ ɾʲisoːsɨ o maʔpɯ ɕi, onaʥi ʥiʔkoː o soːɕiɴ ɕite moɲitaː ɕi masɨ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 186.89999999999995,
+      "speech_end": 201.59999999999994,
+      "scene_end": 202.04999999999993,
+      "duration": 15.149999999999977,
+      "text": "シーケンシングインプットは,FASTQフォルダを選択し,R1とR2がペアとして結合するか,または1つの読み方方向が単独で処理されているかどうかを決定します.",
+      "speech_text": "シーケンシングインプットは,FASTQフォルダを選択し,R1とR2がペアとして結合するか,または1つの読み方方向が単独で処理されているかどうかを決定します.",
+      "phonemes": "ɕiːkeɴɕiŋɡɯimpɯʔto βa, FASTQ ɸoɾɯda o sentakɯ ɕi, R iʨi to R ɲi ɡa pea toɕi te keʦɨɡoː sɨɾɯ ka, mata βai ʨiʦɨ no jomʲikata hoːkoː ɡa tandokɯ de ɕoɾʲi saɾete iɾɯka doː ka o keʔteː ɕi masɨ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 202.04999999999993,
+      "speech_end": 217.72499999999994,
+      "scene_end": 218.17499999999993,
+      "duration": 16.125,
+      "text": "バーコード参照は3つの CSV検索テーブルを指します.gRNAバーコードの1つ,プレート列の1つ,プレート列の1つ. 各テーブルには名前と順序列が必要です.",
+      "speech_text": "バーコード参照は3つの CSV検索テーブルを指します.gRNAバーコードの1つ,プレート列の1つ,プレート列の1つ. 各テーブルには名前と順序列が必要です.",
+      "phonemes": "baː koːdo saɴɕoː βa saɴ ʦɨ no CSV keɴsakɯ teːbɯɾɯ o saɕimasɨ. gRNA baː koːdo no i ʨiʦɨ, pɯɾeːto ɾeʦɨ no i ʨiʦɨ, pɯɾeːto ɾeʦɨ no i ʨiʦɨ. kakɯ teːbɯɾɯ ɲi βa namae to ʥɨɴ ʥoɾeʦɨ ɡa çiʦɨjoː desɨ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 218.17499999999993,
+      "speech_end": 231.99999999999991,
+      "scene_end": 232.4499999999999,
+      "duration": 14.274999999999977,
+      "text": "既知のターゲットシーケンス上の解析アンカーを読み,固定したウィンドウを抽出し, columnID, gRNA, rowID グループを指定した定期表現を適用します.",
+      "speech_text": "既知のターゲットシーケンス上の解析アンカーを読み,固定したウィンドウを抽出し, columnID, gRNA, rowID グループを指定した定期表現を適用します.",
+      "phonemes": "kʲiʨi no taːɡeʔto ɕiːkeɴsɨ ʥoː no kaisekʲi aŋkaː o jomʲi, koteː ɕita βindoː o ʨɨːɕɨʦɨ ɕi, column ID, gRNA, rowID ɡɯɾɯːpɯ o ɕiteː ɕita teːkʲi çoːɡeɴ o tekʲijoː ɕi masɨ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 232.4499999999999,
+      "speech_end": 249.6999999999999,
+      "scene_end": 250.1499999999999,
+      "duration": 17.69999999999999,
+      "text": "アウトプットとストレージは,オプションの HDF5 読み込みストレージ,圧縮,並べないバーコード名が欠けている値として保持されているかどうかを制御します. CSV 輸出の概要は常に書かれています.",
+      "speech_text": "アウトプットとストレージは,オプションの HDF5 読み込みストレージ,圧縮,並べないバーコード名が欠けている値として保持されているかどうかを制御します. CSV 輸出の概要は常に書かれています.",
+      "phonemes": "aɯtopɯʔto to sɨtoɾeːʥi βa, opɯɕoɴ no HDF ɡo jomʲikomʲi sɨtoɾeːʥi, aʔɕɨkɯ, naɾabenai baː koːdo meː ɡa kakete iɾɯ atai toɕi te hoʥi saɾete iɾɯka doː ka o seːɡʲo ɕi masɨ. CSV jɯɕɨʦɨ no ɡaijoː βa ʦɨne ɲi kaka ɾe te imasɨ."
+    },
+    {
+      "scene": 17,
+      "speech_start": 250.1499999999999,
+      "speech_end": 268.4249999999999,
+      "scene_end": 268.8749999999999,
+      "duration": 18.724999999999994,
+      "text": "実行時間と信頼性セットは 作業員数とテストモードによって読み取れます 小さいブロックはメモリが少ないので,テストモードは大きなシーケンシングを実行する前に最初のブロックを検証します.",
+      "speech_text": "実行時間と信頼性セットは 作業員数とテストモードによって読み取れます 小さいブロックはメモリが少ないので,テストモードは大きなシーケンシングを実行する前に最初のブロックを検証します.",
+      "phonemes": "ʥiʔkoː ʥikaɴ to ɕinɾai seː seʔto βa saɡʲoː iɴ sɨː to tesɨto moːdo ɲi joʔte jomʲitoɾe masɨ ʨiːsai bɯɾoʔkɯ βa memoɾʲi ɡa sɨkɯnai no de, tesɨto moːdo βa oːkʲina ɕiːkeɴɕiŋɡɯ o ʥiʔkoː sɨɾɯ mae ɲi saiɕo no bɯɾoʔkɯ o keɴɕoː ɕi masɨ."
+    },
+    {
+      "scene": 18,
+      "speech_start": 268.8749999999999,
+      "speech_end": 285.3499999999999,
+      "scene_end": 285.7999999999999,
+      "duration": 16.92500000000001,
+      "text": "この合成ライブラリは 26基の標的を 使い そのアンカーの前に 8基を起動し 89基を抽出します Regex は,捕獲された列,ガイド,行列の順序を指定します.",
+      "speech_text": "この合成ライブラリは 26基の標的を 使い そのアンカーの前に 8基を起動し 89基を抽出します Regex は,捕獲された列,ガイド,行列の順序を指定します.",
+      "phonemes": "kono ɡoːseː ɾaibɯɾaɾʲi βa ɲiʥɨːɾokɯ kʲi no çoːtekʲi o ʦɨkai sono aŋkaː no mae ɲi haʨi kʲi o kʲidoː ɕi haʨiʥɨː kʲɨː kʲi o ʨɨːɕɨʦɨ ɕi masɨ Regex βa, hokakɯ saɾeta ɾeʦɨ, ɡaido, ɡʲoːɾeʦɨ no ʥɨɲʥo o ɕiteː ɕi masɨ."
+    },
+    {
+      "scene": 19,
+      "speech_start": 285.7999999999999,
+      "speech_end": 303.7749999999999,
+      "scene_end": 304.2249999999999,
+      "duration": 18.42500000000001,
+      "text": "チュートリアルフォルダには 24 つの合成井戸と 12 つのガイドバーコードに広がった 4,800 のペア読みが含まれています. 組み合わせたモードは,R1と逆補完されたR2のコンセンサスを比較する.",
+      "speech_text": "チュートリアルフォルダには 24 つの合成井戸と 12 つのガイドバーコードに広がった 4,800 のペア読みが含まれています. 組み合わせたモードは,R1と逆補完されたR2のコンセンサスを比較する.",
+      "phonemes": "ʨɨːtoɾʲiaɾɯ ɸoɾɯda ɲi βa ɲiʥɨːjoɴ ʦɨ no ɡoːseː ido to ʥɨːɲi ʦɨ no ɡaido baː koːdo ɲi çiɾoɡaʔta joɴ, haʔpʲakɯ no pea jomʲi ɡa ɸɯkɯma ɾe te imasɨ. kɯmʲiaβaseta moːdo βa, R i ʨito ɡʲakɯ hokaɴ saɾeta R ɲi no koɴseɴsasɨ o çikakɯ sɨɾɯ."
+    },
+    {
+      "scene": 20,
+      "speech_start": 304.2249999999999,
+      "speech_end": 319.0249999999999,
+      "scene_end": 319.4749999999999,
+      "duration": 15.25,
+      "text": "実行はパスと参照を検証し,ペアされたサンプルを発見し,カウントが読み込まれ,バーコードのマッピングを開始します. 停止要求は 秩序ある中断です",
+      "speech_text": "実行はパスと参照を検証し,ペアされたサンプルを発見し,カウントが読み込まれ,バーコードのマッピングを開始します. 停止要求は 秩序ある中断です",
+      "phonemes": "ʥiʔkoː βa pasɨ to saɴɕoː o keɴɕoː ɕi, pea saɾeta sampɯɾɯ o haʔkeɴ ɕi, kaɯnto ɡa jomʲikoma ɾe, baː koːdo no maʔpʲiŋɡɯ o kaiɕi ɕi masɨ. teːɕi joːkʲɨː βa ʨiʦɨʥo aɾɯ ʨɨːdaɴ desɨ"
+    },
+    {
+      "scene": 21,
+      "speech_start": 319.4749999999999,
+      "speech_end": 331.44999999999993,
+      "scene_end": 331.8999999999999,
+      "duration": 12.425000000000011,
+      "text": "進捗指標とコンソールは,活性サンプルとバッチ数を示します. このデモでは 1,000本以上の5つのパッチを処理します",
+      "speech_text": "進捗指標とコンソールは,活性サンプルとバッチ数を示します. このデモでは 1,000本以上の5つのパッチを処理します",
+      "phonemes": "ɕiɲʨokɯ ɕiçoː to koɴsoːɾɯ βa, kaʔseː sampɯɾɯ to baʔʨi sɨː o ɕimeɕimasɨ. kono demo de βa iʨi, ʣeɾo poɴ iʥoː no ɡoʦɨ no paʔʨi o ɕoɾʲi ɕi masɨ"
+    },
+    {
+      "scene": 22,
+      "speech_start": 331.8999999999999,
+      "speech_end": 351.24999999999994,
+      "scene_end": 351.8999999999999,
+      "duration": 20.0,
+      "text": "成功した実行は, row, column, guide, and count, plus qc.csv をマッピング品質統計で unique_combinations.csv と書く. また,再現可能な設定,マニフェスト,再起動可能なマクロを保存します.",
+      "speech_text": "成功した実行は, row, column, guide, and count, plus qc.csv をマッピング品質統計で unique_combinations.csv と書く. また,再現可能な設定,マニフェスト,再起動可能なマクロを保存します.",
+      "phonemes": "seːkoː ɕita ʥiʔkoː βa, row, column, guide, and count, plus qc. csv o maʔpʲiŋɡɯ çiɴɕiʦɨ toːkeː de unique _ combinations. csv to kakɯ. mata, saiɡeɴ kanoː na seʔteː, maɲiɸesɨto, saikʲidoː kanoː na makɯɾo o hoʣoɴ ɕi masɨ."
     }
   ]
 }
