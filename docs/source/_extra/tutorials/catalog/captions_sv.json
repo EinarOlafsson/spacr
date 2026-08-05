@@ -631,19 +631,73 @@
       "id": "13_regression",
       "scenes": [
         {
-          "narration": "Denna handledning täcker regression. Beräkna störningseffekter och identifiera egenskaper som är associerade med lednings- eller tillståndsnivåfenotyper."
+          "narration": "Regression länkar per objekt fenotyper till pooled-skärm guide överflöd. Konsolen rapporterar tabelljustering, filtrering, modelldiagnostik, koefficientpassning, resultatvägar, plåtar och reproduktionsrekorder."
         },
         {
-          "narration": "Öppen regression från kärndelen. Välj kartlagda mätningar, responsvariabler, kontroller, grupperingskolumner och kandidatpredictorer."
+          "narration": "Chatfältet tar emot frågor om det aktuella arbetsflödet. Aktivera AI för att rutta genom en utvald leverantör och använd den angränsande pilen för att öppna leverantörsmenyn."
         },
         {
-          "narration": "I huvudkonfigurationsområdet väljer du transformationer, covariater, modellfamilj, slumpmässiga effekter, korrigering med flera tester och kvalitetsfilter."
+          "narration": "Leverantörer rapporterar om Claude-, ChatGPT- och Gemini-kommandolinja-klienter är installerade och ger sina installations- och inloggningskommandon. Uppgifterna stannar hos varje leverantör."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. inspektera modelldiagnostik och kontrollbeteende innan man tolkar koefficienter."
+          "narration": "AI-inställningar kontrollerar responsdjup, automatiska felförklaringar, valfri GitHub-problemrapportering, inloggning och spaCR-medveten systemprompt."
         },
         {
-          "narration": "När arbetsflödet är klart skriver spaCR effektstorlekar, osäkerhet, justerad betydelse, diagnostik och siffror."
+          "narration": "Det syntetiska experimentet levererar 384 cell-score-linjer och 384 guide-count-linjer från 32 brunnar, 12 guider och fyra gener. Mätande tallrik, rad och kolumn identifierare ansluter till tabellerna."
+        },
+        {
+          "narration": "Essentials visar inmatningstabellerna, plättkontrollen, regressionsfamiljen, responsvariabeln, minimala bevis och plottval som krävs för en första körning."
+        },
+        {
+          "narration": "Ändrade begränsningar av panelen till värden som skiljer sig från standard, vilket gör kontrollidentiteter, fasta tröskelvärden och avsiktliga modellval lätt att granska."
+        },
+        {
+          "narration": "Alla inställningar visar varje kategori utan att ändra värden. De åtta kategorierna skiljer inmatning, design, korrigering, modellering, trycksamtal, plots och körtid beteende."
+        },
+        {
+          "narration": "Recipes sparar den fullständiga regressionskonfigurationen under ett namn, tillämpar den senare eller importerar och exporterar en återanvändbar inställningsfil."
+        },
+        {
+          "narration": "Skicka fjärrbilder av de lösta Regressionsinställningarna och skicka jobbet till arbetsplatsen Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartlägger inmatningsvägar och beräkningsresurser till en fjärrarbetsstation, Slurm-cluster eller konfigurerat kommando, skickar sedan in och övervakar samma modell."
+        },
+        {
+          "narration": "Inmatningstabeller väljer valbara genmetadata, per objekt eller per brack fenotyppoäng och sekvensering av räkningstabeller. Många plåtar ska förbli anpassade enligt förteckningsposition eller uttryckliga plåttidentifierare."
+        },
+        {
+          "narration": "Controls and Plate Design definierar plattan, positiva och negativa gener, neutrala vägledningskontroller, kontrollbrunnar och alla rader som är uteslutna innan montering."
+        },
+        {
+          "narration": "Platt- och batchkorrigering kan ta bort platt-offsets med centering, robust skalning, referenskontroller eller ComBat. Den här handledningen lämnar inte korrigering."
+        },
+        {
+          "narration": "Modell och covariates väljer regressionsfamiljen, responskolumnen, aggregering och transformation, regulering, uppskattning av covarians och valfria rad- eller kolumneffekter."
+        },
+        {
+          "narration": "Stimator Tuning innehåller parametrar som används av elastic net, quantile, Huber, hinge och bootstrap-selection-modeller. Endast kontroller som tillhör den utvalda familjen påverkar en löpning."
+        },
+        {
+          "narration": "Hit Calling and Outliers fastställer minsta cell- och brunnbevis, guide-fraktionsfiltrering, valfri avlägsnande av outlier och kontrollderiverad tröskelvärde."
+        },
+        {
+          "narration": "Regression Plots kontrollerar vulkanens mål, logaritmiska axlar och valbara axelgränser. Dessa visningsalternativ ändrar inte anpassade koefficienter."
+        },
+        {
+          "narration": "Runttid och tillförlitlighet kontrollerar stränga fel, tolererad misslyckningsgrad, återprovningspolicy, slumpmässig säd och verbal rapportering. En fast frö stöder reproduktibilitet."
+        },
+        {
+          "narration": "I denna design är gen 239740 den positiva kontrollen, 233460 den negativa kontrollen och tre 000000 guider definierar neutralt beteende. Kolumnerna c1 till c3 är uteslutna från det monterade bearbetningsprogrammet."
+        },
+        {
+          "narration": "Run validerar tabellskema och brunnnycklar, tar bort uteslutna kontroller, aggregerar cellpoäng, konverterar ledningsantal till fraktioner, passar OLS-koefficienter, utvärderar bevis och skriver resultat. Sluta begär en säker avbrott."
+        },
+        {
+          "narration": "Under loppet rapporterar konsolen 384 poängräkningar, 384 räkningsräkningar, plattans anpassning, behållna observationer och modellprogress medan siffrorna visas i galleriet."
+        },
+        {
+          "narration": "Den slutförda körningen tillhandahåller plätt sammanfattningar, poäng och guide-fraktionshistogram, diagnostiska plott, regression_data, koefficienttabeller efter guide och gen, signifikanstabeller, sparas inställningar, ett manifest och en omrundbar makro."
         }
       ]
     },

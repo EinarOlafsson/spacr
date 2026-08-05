@@ -631,19 +631,73 @@
       "id": "13_regression",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker regression. Skønne forstyrrelseseffekter og identificere egenskaber forbundet med guide- eller tilstandsniveaufenotyper."
+          "narration": "Regressionsforbindelsen forbinder fenotiper pr. objekt til overflod af fælles-skærm guider. Konsolen rapporterer tabellineering, filtrering, modeldiagnostik, koefficientfitting, resultatbaner, plots og reproducerbarhedsoptegnelser."
         },
         {
-          "narration": "Åben Regression fra Kerne sektionen. Vælg kortlagte målinger, responsvariabler, kontroller, grupperingskolonne og kandidatpredictorer."
+          "narration": "Chatfeltet accepterer spørgsmål om den aktuelle arbejdsproces. Tillad AI at ruter gennem en valgt udbyder, og brug den tilstødende pil til at åbne udbydermenuen."
         },
         {
-          "narration": "I hovedkonfigurationsområdet skal du vælge transformationer, covariater, modelfamilie, tilfældige effekter, korrigering med flere tests og kvalitetsfiltre."
+          "narration": "Udbydere rapporterer om Claude-, ChatGPT- og Gemini-kommandolinjeklienter er installeret og giver deres installations- og login-kommandoer. Oplysninger forbliver hos hver sælger."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. Undersøg modeldiagnostik og kontrol adfærd, før du fortolker koefficienter."
+          "narration": "AI-indstillinger styrer responsdybden, automatiske fejlforklaringer, valgfri GitHub-problemrapportering, logging-in og spaCR-bevidste systemprompten."
         },
         {
-          "narration": "Når arbejdsprocessen er færdig, skriver spaCR effektstørrelser, usikkerhed, justeret betydning, diagnostik og tal."
+          "narration": "Det syntetiske eksperiment leverer 384 celle-score-rækker og 384 guide-tæller-rækker fra 32 brønde, 12 guider og fire gener. Matching plade, række og kolonne identifikatorer tilslutte sig tabellerne."
+        },
+        {
+          "narration": "Essentials viser de indgangstabeller, pladekontroller, regressionsfamilie, responsvariabel, minimum beviser og plotsvalg, der kræves for en første run."
+        },
+        {
+          "narration": "Ændret begrænser panelen til værdier, der adskiller sig fra standarden, hvilket gør kontrolidentiteter, faste tærskler og tilsigtede modelvalg nemme at revidere."
+        },
+        {
+          "narration": "Alle indstillinger afslører hver kategori uden at ændre værdier. De otte kategorier adskiller indgang, design, korrigering, modellering, hit calling, plots og runtime adfærd."
+        },
+        {
+          "narration": "Recipes gemmer den fuldstændige regressionskonfiguration under et navn, anvender den senere, eller importerer og eksporterer en genbrugbar indstillingerfil."
+        },
+        {
+          "narration": "Indsend fjernbilleder af de afhjælpte Regressionsindstillinger og sender opgaven til Distribueret Jobs arbejdsområde."
+        },
+        {
+          "narration": "Distributed Jobs kortlægger indgangsveje og beregningsressourcer til en fjerntliggende arbejdsstation, Slurm-cluster eller konfigureret kommando, og indsender og overvåger derefter samme model."
+        },
+        {
+          "narration": "Input Tables udvælger valgfrie genmetadata, pr. objekt eller pr. brønd fenotype score og sekvensering tælletabler. Flere plader skal forblive i overensstemmelse med listeposition eller eksplicit pladeidentifikatorer."
+        },
+        {
+          "narration": "Controls and Plate Design definerer pladen, positive og negative gener, neutrale vejledningskontroller, kontrolbrønner og alle rækker, der er udelukket før montering."
+        },
+        {
+          "narration": "Plade og Batch Correction kan fjerne pladeoffsets med centrering, robust skalering, referencekontrol eller ComBat. Denne en-plade tutorial efterlader korrigering."
+        },
+        {
+          "narration": "Model og Covariates udvælger regressionsfamilien, responskolonne, aggregering og transformation, regulering, estimation af covariance og valgfrie række- eller kolonneeffekter."
+        },
+        {
+          "narration": "Estimator Tuning indeholder parametre, der anvendes af elastic net, quantile, Huber, hinge og bootstrap-selektionsmodeller. Kun kontroller, der tilhører den valgte familie, påvirker et løb."
+        },
+        {
+          "narration": "Hit Calling and Outliers fastsætter minimumscelle- og brønnebevis, guidefraktionsfiltrering, valgfri fjernelse af outlier og den kontrolindledte tærskel for koefficienten."
+        },
+        {
+          "narration": "Regression Plots kontrollerer vulkanens mål, logaritmiske akser og valgfrie aksegrænser. Disse displayvalg ændrer ikke de indstillede koefficienter."
+        },
+        {
+          "narration": "Løbtid og pålidelighed kontrollerer strenge fejl, tolereret fejlfrekvens, genprøvepolitik, tilfældigt frø og verbal rapportering. Et fast frø understøtter reproduktibilitet."
+        },
+        {
+          "narration": "I dette design er gen 239740 den positive kontrol, 233460 den negative kontrol, og tre 000000 guider definerer neutral adfærd. Kolonne c1 til c3 er udelukket fra det monterede behandlingssæt."
+        },
+        {
+          "narration": "Run validerer tabelskemaer og brønne nøgler, fjerner udelukkede kontroller, aggregerer cellepointer, konverterer vejledningsantallet til fraktioner, matcher OLS-koefficienter, evaluerer beviser og skriver resultater. Stop anmoder om en sikker afbrydelse."
+        },
+        {
+          "narration": "I løbet af løbet rapporterer konsolen 384 scorelinjer, 384 tællelinjer, pladejustering, bevarede observationer og modelprogress, mens figurerne vises i galleriet."
+        },
+        {
+          "narration": "Den afsluttede run giver plate summaries, score og guide-fraktion histogrammer, diagnostiske diagrammer, regression_data, koefficient tabeller efter guide og gen, betydningstabeller, gemte indstillinger, et manifest og en omløbbar makro."
         }
       ]
     },

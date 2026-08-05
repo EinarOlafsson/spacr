@@ -4,47 +4,237 @@
   "voice": "jm_kumo",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 60.05,
+  "total_duration": 350.925,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 12.125,
-      "scene_end": 12.575,
-      "duration": 12.575,
-      "text": "このチュートリアルでは 逆転について説明します 乱射効果を推定し ガイドや状態レベルフェノタイプに関連した特徴を特定します"
+      "speech_end": 16.7,
+      "scene_end": 17.15,
+      "duration": 17.15,
+      "text": "逆転は物体ごとにフェノタイプを 集まったスクリーンガイドの豊富さに結びつけます コンソールは表の配列,フィルタリング,モデル診断,系数フィッティング,結果経路,グラフ,再現性記録を報告します.",
+      "speech_text": "逆転は物体ごとにフェノタイプを 集まったスクリーンガイドの豊富さに結びつけます コンソールは表の配列,フィルタリング,モデル診断,系数フィッティング,結果経路,グラフ,再現性記録を報告します.",
+      "phonemes": "ɡʲakɯteɴ βa bɯʔtai ɡoto ɲi ɸenotaipɯ o aʦɨmaʔta sɨkɯɾʲiːɴ ɡaido no hoːɸɯ sa ɲi mɯsɨbʲiʦɨke masɨ koɴsoːɾɯ βa çoː no haiɾeʦɨ, ɸʲiɾɯtaɾʲiŋɡɯ, modeɾɯ ɕindaɴ, keː sɨː ɸʲiʔtʲiŋɡɯ, keʔka keːɾo, ɡɯɾaɸɯ, saiɡeɴ seː kʲiɾokɯ o hoːkokɯ ɕi masɨ."
     },
     {
       "scene": 2,
-      "speech_start": 12.575,
-      "speech_end": 23.6,
-      "scene_end": 24.05,
-      "duration": 11.475000000000001,
-      "text": "Core セクションから Regression を開きます。 マッピングされた測定値,応答変数,制御,グループ列,候補予測値を選択します."
+      "speech_start": 17.15,
+      "speech_end": 32.599999999999994,
+      "scene_end": 33.05,
+      "duration": 15.899999999999999,
+      "text": "チャットフィールドは,現在のワークフローに関する質問を受け入れます. 選択されたプロバイダーを通過するAIを有効にし,隣接する矢印を使用してプロバイダーメニューを開きます.",
+      "speech_text": "チャットフィールドは,現在のワークフローに関する質問を受け入れます. 選択されたプロバイダーを通過するAIを有効にし,隣接する矢印を使用してプロバイダーメニューを開きます.",
+      "phonemes": "ʨaʔto ɸʲiːɾɯdo βa, ɡeɴʣai no βaːkɯ ɸɯɾoː ɲi kaɴsɨɾɯ ɕiʦɨmoɴ o ɯkeiɾemasɨ. sentakɯ saɾeta pɯɾobaidaː o ʦɨːka sɨɾɯ AI o jɯːkoː ɲi ɕi, ɾʲiɴseʦɨ sɨɾɯ jaʥiɾɯɕi o ɕijoː ɕite pɯɾobaidaː meɲɨː o çiɾakʲimasɨ."
     },
     {
       "scene": 3,
-      "speech_start": 24.05,
-      "speech_end": 34.525,
-      "scene_end": 34.975,
-      "duration": 10.925,
-      "text": "主な構成領域では,変換,コバリアート,モデルファミリー,ランダム効果,多重テスト修正,品質フィルターを選択します."
+      "speech_start": 33.05,
+      "speech_end": 48.849999999999994,
+      "scene_end": 49.3,
+      "duration": 16.25,
+      "text": "提供者は,Claude,ChatGPT,および Gemini コマンドラインクライアントがインストールされているかどうかを報告し,インストールおよびログインのコマンドを提供します. 認証は各業者に留まります",
+      "speech_text": "提供者は,Claude,ChatGPT,および Gemini コマンドラインクライアントがインストールされているかどうかを報告し,インストールおよびログインのコマンドを提供します. 認証は各業者に留まります",
+      "phonemes": "teːkʲoː ɕa βa, Claude, Chat GPT, ojobʲi Gemini komando ɾaiɴ kɯɾaianto ɡa iɴsɨtoːɾɯ saɾete iɾɯka doː ka o hoːkokɯ ɕi, iɴsɨtoːɾɯ ojobʲi ɾoɡɯiɴ no komando o teːkʲoː ɕi masɨ. ɲiɴɕoː βa kakɯ ɡʲoːɕa ɲi tomaɾʲimasɨ"
     },
     {
       "scene": 4,
-      "speech_start": 34.975,
-      "speech_end": 49.775000000000006,
-      "scene_end": 50.22500000000001,
-      "duration": 15.250000000000007,
-      "text": "実行完了前に,可視設定をレビューし,可用である場合の先見またはテストモードを使用します.  koeficientを解釈する前にモデル診断と制御行動を検査します."
+      "speech_start": 49.3,
+      "speech_end": 61.074999999999996,
+      "scene_end": 61.525,
+      "duration": 12.225000000000001,
+      "text": "AI 設定は応答深さ,自動エラー説明,オプションのGitHub 問題報告,サインイン,およびspaCR 認識システムプロンプトを制御します.",
+      "speech_text": "AI 設定は応答深さ,自動エラー説明,オプションのGitHub 問題報告,サインイン,およびスペーカー 認識システムプロンプトを制御します.",
+      "phonemes": "AI seʔteː βa oːtoː ɸɯka sa, ʥidoː eɾaː seʦɨmeː, opɯɕoɴ no GitHub mondai hoːkokɯ, saiɴ iɴ, ojobʲi sɨpeːkaː ɲiɴɕikʲi ɕisɨtemɯ pɯɾompɯto o seːɡʲo ɕi masɨ."
     },
     {
       "scene": 5,
-      "speech_start": 50.22500000000001,
-      "speech_end": 59.400000000000006,
-      "scene_end": 60.050000000000004,
-      "duration": 9.824999999999996,
-      "text": "作業が完了すると spaCR は効果サイズ,不確実性,調整された意味,診断,および数字を書き出す."
+      "speech_start": 61.525,
+      "speech_end": 81.525,
+      "scene_end": 81.97500000000001,
+      "duration": 20.45000000000001,
+      "text": "合成実験では 32つの井戸,12つのガイドと4つの遺伝子から 384つの細胞スコア行と 384つのガイドカウント行が提供されています 匹敵するプレート,行,列の識別子は,テーブルに加わります.",
+      "speech_text": "合成実験では 32つの井戸,12つのガイドと4つの遺伝子から 384つの細胞スコア行と 384つのガイドカウント行が提供されています 匹敵するプレート,行,列の識別子は,テーブルに加わります.",
+      "phonemes": "ɡoːseː ʥiʔkeɴ de βa saɲʥɨːɲi ʦɨ no ido, ʥɨː ɲiʔno ɡaido to joɴ ʦɨ no ideɴɕi kaɾa sambʲakɯ haʨiʥɨː joɴ ʦɨ no saiboː sɨkoa ɡʲoː to sambʲakɯ haʨiʥɨː joɴ ʦɨ no ɡaido kaɯnto ɡʲoː ɡa teːkʲoː saɾete imasɨ çiʔtekʲi sɨɾɯ pɯɾeːto, ɡʲoː, ɾeʦɨ no ɕikʲibeʦɨ ɕi βa, teːbɯɾɯ ɲi kɯβaβaɾʲimasɨ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 81.97500000000001,
+      "speech_end": 93.775,
+      "scene_end": 94.22500000000001,
+      "duration": 12.25,
+      "text": "エッセンシャルは,入力表,プレート制御,レグレーションファミリー,応答変数,最小証拠,最初の実行に必要なグラフ選択を示します.",
+      "speech_text": "エッセンシャルは,入力表,プレート制御,レグレーションファミリー,応答変数,最小証拠,最初の実行に必要なグラフ選択を示します.",
+      "phonemes": "eʔseɴɕaɾɯ βa, ɲɨːɾʲokɯ çoː, pɯɾeːto seːɡʲo, ɾeɡɯɾeːɕoɴɸamʲiɾʲiː, oːtoː heɴsɨː, saiɕoː ɕoːko, saiɕo no ʥiʔkoː ɲi çiʦɨjoː na ɡɯɾaɸɯ sentakɯ o ɕimeɕimasɨ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 94.22500000000001,
+      "speech_end": 107.25000000000001,
+      "scene_end": 107.70000000000002,
+      "duration": 13.475000000000009,
+      "text": "変更されたパネルはデフォルトから異なる値に制限され,制御アイデンティティ,固定しきい値,意図的なモデル選択を監査することが容易になります.",
+      "speech_text": "変更されたパネルはデフォルトから異なる値に制限され,制御アイデンティティ,固定しきい値,意図的なモデル選択を監査することが容易になります.",
+      "phonemes": "heŋkoː saɾeta paneɾɯ βa deɸoɾɯto kaɾa kotonaɾɯ atai ɲi seːɡeɴ saɾe, seːɡʲo aidentʲitʲi, koteː ɕikʲii ʨi, itotekʲi na modeɾɯ sentakɯ o kaɴsa sɨɾɯ koto ɡa joːi ɲi naɾʲimasɨ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 107.70000000000002,
+      "speech_end": 122.30000000000001,
+      "scene_end": 122.75000000000001,
+      "duration": 15.049999999999997,
+      "text": "すべての設定は,すべてのカテゴリを値変更なしに表示します. 8つのカテゴリーは入力,デザイン,修正,モデリング,ヒットコール,プロット,ランタイム行動を分離します.",
+      "speech_text": "すべての設定は,すべてのカテゴリを値変更なしに表示します. 8つのカテゴリーは入力,デザイン,修正,モデリング,ヒットコール,プロット,ランタイム行動を分離します.",
+      "phonemes": "sɨbete no seʔteː βa, sɨbete no kateɡoɾʲi o atai heŋkoː naɕi ɲi çoːʥi ɕi masɨ. βa ʨiʦɨ no kateɡoɾʲiː βa ɲɨːɾʲokɯ, deʣaiɴ, ɕɨːseː, modeɾʲiŋɡɯ, çiʔto koːɾɯ, pɯɾoʔto, ɾantaimɯ koːdoː o bɯnɾʲi ɕi masɨ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 122.75000000000001,
+      "speech_end": 133.35000000000002,
+      "scene_end": 133.8,
+      "duration": 11.049999999999997,
+      "text": "レシピは,完全な回帰設定を名前で保存し,後で再適用するか,再利用可能な設定ファイルを輸入・輸出する.",
+      "speech_text": "レシピは,完全な回帰設定を名前で保存し,後で再適用するか,再利用可能な設定ファイルを輸入・輸出する.",
+      "phonemes": "ɾeɕipʲi βa, kaɴʣeɴ na kaikʲi seʔteː o namae de hoʣoɴ ɕi, ato de sai tekʲijoː sɨɾɯ ka, sai ɾʲijoː kanoː na seʔteː ɸaiɾɯ o jɯɲɨː jɯɕɨʦɨ sɨɾɯ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 133.8,
+      "speech_end": 143.8,
+      "scene_end": 144.25,
+      "duration": 10.449999999999989,
+      "text": "リモート・スナップショットを送信して 復元設定を解決して 作業を分散した仕事作業スペースに送信します.",
+      "speech_text": "リモート・スナップショットを送信して 復元設定を解決して 作業を分散した仕事作業スペースに送信します.",
+      "phonemes": "ɾʲimoːto sɨnaʔpɯɕoʔto o soːɕiɴ ɕite ɸɯkɯɡeɴ seʔteː o kaikeʦɨ ɕite saɡʲoː o bɯɴsaɴ ɕita ɕiɡoto saɡʲoː sɨpeːsɨ ɲi soːɕiɴ ɕi masɨ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 144.25,
+      "speech_end": 159.5,
+      "scene_end": 159.95,
+      "duration": 15.699999999999989,
+      "text": "Distributed Jobs は,リモートワークステーション,Slurmクラスター,または設定されたコマンドへの入力経路と計算リソースをマップし,同じモデル実行を送信し,モニタリングします.",
+      "speech_text": "Distributed Jobs は,リモートワークステーション,Slurmクラスター,または設定されたコマンドへの入力経路と計算リソースをマップし,同じモデル実行を送信し,モニタリングします.",
+      "phonemes": "Distributed Jobs βa, ɾʲimoːto βaːkɯsɨteːɕoɴ, Slurm kɯɾasɨtaː, mata βa seʔteː saɾeta komando e no ɲɨːɾʲokɯ keːɾo to keːsaɴ ɾʲisoːsɨ o maʔpɯ ɕi, onaʥi modeɾɯ ʥiʔkoː o soːɕiɴ ɕi, moɲitaɾʲiŋɡɯ ɕi masɨ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 159.95,
+      "speech_end": 179.02499999999998,
+      "scene_end": 179.47499999999997,
+      "duration": 19.524999999999977,
+      "text": "入力表はオプションの遺伝子メタデータ,オブジェクトごとにまたは井戸ごとにフェノタイプスコア,並行数表を選択します. 複数のプレートはリストの位置または明示的なプレート識別子によって並べておく必要があります.",
+      "speech_text": "入力表はオプションの遺伝子メタデータ,オブジェクトごとにまたは井戸ごとにフェノタイプスコア,並行数表を選択します. 複数のプレートはリストの位置または明示的なプレート識別子によって並べておく必要があります.",
+      "phonemes": "ɲɨːɾʲokɯ çoː βa opɯɕoɴ no ideɴɕi meta deːta, obɯʥekɯto ɡoto ɲi mata βa ido ɡoto ɲi ɸenotaipɯ sɨkoa, heːkoː sɨːçoː o sentakɯ ɕi masɨ. ɸɯkɯsɨː no pɯɾeːto βa ɾʲisɨto no iʨi mata βa meːʥi tekʲi na pɯɾeːto ɕikʲibeʦɨ ɕi ɲi joʔte naɾabete okɯ çiʦɨjoː ɡa aɾʲimasɨ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 179.47499999999997,
+      "speech_end": 192.37499999999997,
+      "scene_end": 192.82499999999996,
+      "duration": 13.349999999999994,
+      "text": "コントロールとプレートデザインはプレート,ポジティブとネガティブ遺伝子,中立ガイドコントロール,制御井戸,およびフィッティング前に排除された列を定義します.",
+      "speech_text": "コントロールとプレートデザインはプレート,ポジティブとネガティブ遺伝子,中立ガイドコントロール,制御井戸,およびフィッティング前に排除された列を定義します.",
+      "phonemes": "kontoɾoːɾɯ to pɯɾeːto deʣaiɴ βa pɯɾeːto, poʥitʲibɯ to neɡatʲibɯ ideɴɕi, ʨɨːɾʲiʦɨ ɡaido kontoɾoːɾɯ, seːɡʲo ido, ojobʲi ɸʲiʔtʲiŋɡɯ mae ɲi haiʥo saɾeta ɾeʦɨ o teːɡʲi ɕi masɨ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 192.82499999999996,
+      "speech_end": 207.42499999999995,
+      "scene_end": 207.87499999999994,
+      "duration": 15.049999999999983,
+      "text": "プレート・アンド・バッチ・コレクションは,センター,強度のスケーリング,参照制御,またはComBatでプレートオフセットを削除できます. この1枚のチュートリアルでは 修正を省きます",
+      "speech_text": "プレート・アンド・バッチ・コレクションは,センター,強度のスケーリング,参照制御,またはComBatでプレートオフセットを削除できます. この1枚のチュートリアルでは 修正を省きます",
+      "phonemes": "pɯɾeːto ando baʔʨi koɾekɯɕoɴ βa, sentaː, kʲoːdo no sɨkeːɾʲiŋɡɯ, saɴɕoː seːɡʲo, mata βa ComBat de pɯɾeːto oɸɯseʔto o sakɯʥo dekʲimasɨ. kono iʨi mai no ʨɨːtoɾʲiaɾɯ de βa ɕɨːseː o habɯkʲimasɨ"
+    },
+    {
+      "scene": 15,
+      "speech_start": 207.87499999999994,
+      "speech_end": 220.29999999999995,
+      "scene_end": 220.74999999999994,
+      "duration": 12.875,
+      "text": "Model and Covariates は,回帰ファミリー,応答列,集積と変換,規則化,コバリアンス推定,およびオプションの行または列効果を選択します.",
+      "speech_text": "Model and Covariates は,回帰ファミリー,応答列,集積と変換,規則化,コバリアンス推定,およびオプションの行または列効果を選択します.",
+      "phonemes": "Model and Covariates βa, kaikʲi ɸamʲiɾʲiː, oːtoː ɾeʦɨ, ɕɨːsekʲi to heŋkaɴ, kʲisokɯ ka, kobaɾʲiaɴsɨ sɨiteː, ojobʲi opɯɕoɴ no ɡʲoː mata βa ɾeʦɨ koːka o sentakɯ ɕi masɨ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 220.74999999999994,
+      "speech_end": 236.02499999999995,
+      "scene_end": 236.47499999999994,
+      "duration": 15.724999999999994,
+      "text": "エラスティックネット,クォンティル,ヒューバー,ヒンジ,ブートストラップ選択モデルで使用されるパラメータを保持する. 実行に影響を与えるのは 選択された家族に属する制御のみです",
+      "speech_text": "エラスティックネット,クォンティル,ヒューバー,ヒンジ,ブートストラップ選択モデルで使用されるパラメータを保持する. 実行に影響を与えるのは 選択された家族に属する制御のみです",
+      "phonemes": "eɾasɨtʲiʔkɯ neʔto, kᵝontʲiɾɯ, çɨː baː, çiɲʥi, bɯːto sɨtoɾaʔpɯ sentakɯ modeɾɯ de ɕijoː saɾeɾɯ paɾameːta o hoʥi sɨɾɯ. ʥiʔkoː ɲi eːkʲoː o ataeɾɯ no βa sentakɯ saɾeta kaʣokɯ ɲi ʣokɯsɨɾɯ seːɡʲo nomʲi desɨ"
+    },
+    {
+      "scene": 17,
+      "speech_start": 236.47499999999994,
+      "speech_end": 250.74999999999994,
+      "scene_end": 251.19999999999993,
+      "duration": 14.724999999999994,
+      "text": "呼び出しとアウトリアルの最小値は,セルと井戸の証拠,ガイド・フラクションのフィルタリング,オプションのアウトリアルの除去,および制御から派生した系数値を設定する.",
+      "speech_text": "呼び出しとアウトリアルの最小値は,セルと井戸の証拠,ガイド・フラクションのフィルタリング,オプションのアウトリアルの除去,および制御から派生した系数値を設定する.",
+      "phonemes": "jobʲidaɕi to aɯto ɾʲiaɾɯ no saiɕoː ʨi βa, seɾɯ to ido no ɕoːko, ɡaido ɸɯɾakɯɕoɴ no ɸʲiɾɯtaɾʲiŋɡɯ, opɯɕoɴ no aɯto ɾʲiaɾɯ no ʥokʲo, ojobʲi seːɡʲo kaɾa haseː ɕita keː sɨːʨi o seʔteː sɨɾɯ."
+    },
+    {
+      "scene": 18,
+      "speech_start": 251.19999999999993,
+      "speech_end": 263.0249999999999,
+      "scene_end": 263.4749999999999,
+      "duration": 12.274999999999977,
+      "text": "逆転図は火山目標,ロガリズム軸,オプション軸制限を制御する. これらのディスプレイ選択は,設置された系数を変更しない.",
+      "speech_text": "逆転図は火山目標,ロガリズム軸,オプション軸制限を制御する. これらのディスプレイ選択は,設置された系数を変更しない.",
+      "phonemes": "ɡʲakɯteɴ zɨ βa kaʣaɴ mokɯçoː, ɾoɡaɾʲizɨmɯ ʥikɯ, opɯɕoɴ ʥikɯ seːɡeɴ o seːɡʲo sɨɾɯ. koɾe ɾa no dʲisɨpɯɾeː sentakɯ βa, seʔʨi saɾeta keː sɨː o heŋkoː ɕinai."
+    },
+    {
+      "scene": 19,
+      "speech_start": 263.4749999999999,
+      "speech_end": 277.9749999999999,
+      "scene_end": 278.4249999999999,
+      "duration": 14.949999999999989,
+      "text": "実行時間と信頼性は厳格なエラー,許容された故障率,再試政策,ランダムシード,および口頭的な報告を制御します. 固定種子は再生性を支える.",
+      "speech_text": "実行時間と信頼性は厳格なエラー,許容された故障率,再試政策,ランダムシード,および口頭的な報告を制御します. 固定種子は再生性を支える.",
+      "phonemes": "ʥiʔkoː ʥikaɴ to ɕinɾai seː βa ɡeŋkakɯ na eɾaː, kʲojoː saɾeta koɕoː ɾʲiʦɨ, saiɕi seːsakɯ, ɾandamɯ ɕiːdo, ojobʲi koːtoː tekʲi na hoːkokɯ o seːɡʲo ɕi masɨ. koteː ɕɨɕi βa saiseː seː o sasaeɾɯ."
+    },
+    {
+      "scene": 20,
+      "speech_start": 278.4249999999999,
+      "speech_end": 299.0249999999999,
+      "scene_end": 299.4749999999999,
+      "duration": 21.05000000000001,
+      "text": "この設計では,遺伝子239740は正統制御であり,233460は負の制御であり,3000000ガイドは中立行動を定義する. c1からc3までの列は,設置された処理セットから除外されます.",
+      "speech_text": "この設計では,遺伝子239740は正統制御であり,233460は負の制御であり,3000000ガイドは中立行動を定義する. c1からc3までの列は,設置された処理セットから除外されます.",
+      "phonemes": "kono seʔkeː de βa, ideŋko ɲiʥi ɯsammaŋkʲɨɯsennanaçakɯjoɲʥɨɯha seːtoː seːɡʲo de aɾʲi, ɲiʥi ɯsammaɴsaɴʣeɴjoɴçakɯɾokɯʥɨɯha ɸɯ no seːɡʲo de aɾʲi, sambʲakɯ ma ɴ ɡaido βa ʨɨːɾʲiʦɨ koːdoː o teːɡʲi sɨɾɯ. c iʨi kaɾa c saɴ made no ɾeʦɨ βa, seʔʨi saɾeta ɕoɾʲi seʔto kaɾa ʥoɡai saɾemasɨ."
+    },
+    {
+      "scene": 21,
+      "speech_start": 299.4749999999999,
+      "speech_end": 317.8999999999999,
+      "scene_end": 318.3499999999999,
+      "duration": 18.875,
+      "text": "実行は表のスケーマと井戸キーを検証し,排除されたコントロールを削除し,セルスコアを合計し,ガイドカウントを分数に変換し,OLS系数に一致し,証拠を評価し,結果を書き込む. 停止要求は安全な中断です",
+      "speech_text": "実行は表のスケーマと井戸キーを検証し,排除されたコントロールを削除し,セルスコアを合計し,ガイドカウントを分数に変換し,OLS系数に一致し,証拠を評価し,結果を書き込む. 停止要求は安全な中断です",
+      "phonemes": "ʥiʔkoː βa çoː no sɨkeːma to ido kʲiː o keɴɕoː ɕi, haiʥo saɾeta kontoɾoːɾɯ o sakɯʥo ɕi, seɾɯ sɨkoa o ɡoːkeː ɕi, ɡaido kaɯnto o bɯɴsɨː ɲi heŋkaɴ ɕi, OLS keː sɨː ɲi iʔʨi ɕi, ɕoːko o çoːka ɕi, keʔka o kakʲikomɯ. teːɕi joːkʲɨː βa aɴʣeɴ na ʨɨːdaɴ desɨ"
+    },
+    {
+      "scene": 22,
+      "speech_start": 318.3499999999999,
+      "speech_end": 331.1499999999999,
+      "scene_end": 331.5999999999999,
+      "duration": 13.25,
+      "text": "走行中に,コンソールは 384 のスコア行, 384 のカウント行,プレート・アライナメント,保持された観測,モデル進歩を報告する.",
+      "speech_text": "走行中に,コンソールは 384 のスコア行, 384 のカウント行,プレート・アライナメント,保持された観測,モデル進歩を報告する.",
+      "phonemes": "soːkoː ʨɨː ɲi, koɴsoːɾɯ βa sambʲakɯ haʨiʥɨː joɴ no sɨkoa ɡʲoː, sambʲakɯ haʨiʥɨː joɴ no kaɯnto ɡʲoː, pɯɾeːto aɾainamento, hoʥi saɾeta kaɴsokɯ, modeɾɯ ɕimpo o hoːkokɯ sɨɾɯ."
+    },
+    {
+      "scene": 23,
+      "speech_start": 331.5999999999999,
+      "speech_end": 350.2749999999999,
+      "scene_end": 350.9249999999999,
+      "duration": 19.32499999999999,
+      "text": "完了した実行は,プレート概要,スコアおよびガイド・フラクションヒストグラム,診断グラフ,レグレーション_データ,ガイドおよび遺伝子による系数表,意味表,保存された設定,マニフェスト,および再実行可能なマクロを提供します.",
+      "speech_text": "完了した実行は,プレート概要,スコアおよびガイド・フラクションヒストグラム,診断グラフ,レグレーション_データ,ガイドおよび遺伝子による系数表,意味表,保存された設定,マニフェスト,および再実行可能なマクロを提供します.",
+      "phonemes": "kanɾʲoː ɕita ʥiʔkoː βa, pɯɾeːto ɡaijoː, sɨkoa ojobʲi ɡaido ɸɯɾakɯɕoɴ çisɨtoɡɯɾamɯ, ɕindaɴ ɡɯɾaɸɯ, ɾeɡɯɾeːɕoɴ _ deːta, ɡaido ojobʲi ideɴɕi ɲi joɾɯ keː sɨːçoː, imʲi çoː, hoʣoɴ saɾeta seʔteː, maɲiɸesɨto, ojobʲi sai ʥiʔkoː kanoː na makɯɾo o teːkʲoː ɕi masɨ."
     }
   ]
 }

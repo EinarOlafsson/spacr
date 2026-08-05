@@ -631,19 +631,73 @@
       "id": "13_regression",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Regression. Schätzung der Störungseffekte und Identifizierung von Merkmalen, die mit Fenotypen auf Leit- oder Zustandsebene verbunden sind."
+          "narration": "Regression verknüpft die Phänotypen pro Objekt mit der Fülle von pooled-screen-Guides. Die Konsole berichtet von Tabellenausrichtung, Filterung, Modeldiagnostik, Koeffizientenanpassung, Ergebnisbahnen, Plots und Reproduzierbarkeitsunterlagen."
         },
         {
-          "narration": "Offene Regression aus dem Kernbereich. Wählen Sie kartografierte Messungen, Reaktionsvariablen, Kontrollen, Gruppierungspalten und Kandidatenprädiktoren aus."
+          "narration": "Das Chatfeld akzeptiert Fragen zum aktuellen Workflow. Aktivieren Sie die KI, einen ausgewählten Provider zu durchlaufen, und verwenden Sie den angrenzenden Pfeil, um das Providermenü zu öffnen."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich Transformationen, Covariate, Modellfamilie, zufällige Effekte, Mehrfachtestkorrektur und Qualitätsfilter aus."
+          "narration": "Anbieter melden, ob die Claude-, ChatGPT- und Gemini-Befehlszeilklienten installiert sind, und geben ihre Installations- und Login-Befehlszeilen an. Die Anmeldeinformationen bleiben bei jedem Verkäufer."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. die Modeldiagnostik und das Kontrollverhalten vor der Interpretation von Koeffizienten überprüfen."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und den spaCR-bewussten System-Anruf."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, schreibt spaCR Effektgrößen, Unsicherheit, angepasste Bedeutung, Diagnose und Zahlen."
+          "narration": "Das synthetische Experiment liefert 384 Zell-Score-Zeilen und 384 Guide-Zähl-Zeilen aus 32 Brunnen, 12 Guides und vier Gene. Die entsprechenden Kennzeichen für Platten, Zeilen und Spalten werden den Tabellen angeschlossen."
+        },
+        {
+          "narration": "Essentials zeigt die Eingabetabellen, Plattensteuerungen, Regressionsfamilie, Reaktionsvariable, Mindestbeweise und Plot-Auswahl, die für einen ersten Lauf erforderlich sind."
+        },
+        {
+          "narration": "Modifizierte Grenzwerte beschränken das Panel auf Werte, die sich von den Standardwerten unterscheiden, wodurch Kontrollidentitäten, feste Schwellenwerte und absichtliche Modellwahlen leicht zu überprüfen sind."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen jede Kategorie ohne Veränderung der Werte. Die acht Kategorien trennen Eingabe, Design, Korrektur, Modellierung, Hit Calling, Plots und Runtime-Verhalten."
+        },
+        {
+          "narration": "Rezepte speichern die komplette Regressionskonfiguration unter einem Namen, wenden sie später neu an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Regression-Einstellungen und senden Sie den Job in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartiert die Eingabewege und Berechnungsressourcen zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Modelllauf."
+        },
+        {
+          "narration": "Input Tables wählt optionale Gen-Metadaten, pro Objekt oder pro Well-Fenotyp-Score und Sequenzierung von Zähltabellen aus. Mehrere Platten müssen nach Listeposition oder ausdrücklichen Plattenidentifikatoren ausgerichtet bleiben."
+        },
+        {
+          "narration": "Controls and Plate Design definiert die Platte, positive und negative Gene, neutrale Führungskontrollen, Steuerungsbrunnen und alle vor dem Anlegen ausgeschlossenen Reihen."
+        },
+        {
+          "narration": "Platten- und Batchkorrektur kann Platten-Offset mit Zentrierung, robuster Skalierung, Referenzsteuerung oder ComBat entfernen. Dieses Ein-Table-Tutorial lässt Korrektur aus."
+        },
+        {
+          "narration": "Modell und Covariates wählt die Regressionsfamilie, Reaktionsspalte, Aggregation und Transformation, Regularisierung, Kovariansschätzung und optionale Zeilen- oder Spalteffekte aus."
+        },
+        {
+          "narration": "Estimator Tuning enthält Parameter, die von elastischen Netz-, Quantile-, Huber-, Scharnier- und Bootstrap-Selektionsmodellen verwendet werden. Nur Kontrollen, die der ausgewählten Familie angehören, beeinflussen einen Lauf."
+        },
+        {
+          "narration": "Hit Calling and Outliers setzt die Mindestzell- und Brunnennachweise, das Guide-Fraktionsfiltern, die optionale Entfernung von Outlier und die von der Steuerung abgeleitete Schwelle des Koeffizienten fest."
+        },
+        {
+          "narration": "Regression Plots steuert das Vulkanziel, logarithmische Achsen und optionale Achsengrenzen. Diese Anzeigenauswahl ändert die angepassten Koeffizienten nicht."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeit kontrollieren strenge Fehler, tolerierte Ausfallraten, erneute Versuche, zufällige Samen und verbose Berichterstattung. Ein fester Samen unterstützt die Reproduzierbarkeit."
+        },
+        {
+          "narration": "In diesem Design ist das Gen 239740 die positive Kontrolle, 233460 die negative Kontrolle und drei 000000 Leitlinien definieren neutrales Verhalten. Die Spalten c1 bis c3 sind aus dem montierten Behandlungssatz ausgeschlossen."
+        },
+        {
+          "narration": "Run validiert Tabellschemata und Brunnenschlüssel, entfernt ausgeschlossenen Kontrollen, aggregiert Zellwerte, konvertiert Leitfaden zu Fraktionen, passt zu OLS-Koeffizienten, bewertet Beweise und schreibt Ergebnisse. Stop-Anfragen für eine sichere Unterbrechung."
+        },
+        {
+          "narration": "Während des Laufs berichtet die Konsole über 384 Punktzeilen, 384 Zählzeilen, Plattenausrichtung, behaltenen Beobachtungen und Modellfortschritt, während die Zahlen in der Galerie erscheinen."
+        },
+        {
+          "narration": "Der ausgefüllte Ablauf liefert Plattenumfassungen, Score- und Guide-Fraktions-Histogramme, diagnostische Abbildungen, Regression_data, Koeffiziententabellen nach Guide und Gen, Signifikanztabellen, gespeicherte Einstellungen, ein Manifest und ein erneut ausführbares Makro."
         }
       ]
     },

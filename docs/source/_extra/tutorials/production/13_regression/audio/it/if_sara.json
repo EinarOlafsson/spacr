@@ -4,47 +4,237 @@
   "voice": "if_sara",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 51.375,
+  "total_duration": 308.025,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 10.15,
-      "scene_end": 10.6,
-      "duration": 10.6,
-      "text": "Questo tutorial riguarda la Regressione. Estimare gli effetti di perturbazione e identificare le caratteristiche associate ai fenotipi di livello guida o condizione."
+      "speech_end": 16.1,
+      "scene_end": 16.55,
+      "duration": 16.55,
+      "text": "La regressione collega i fenotipi per oggetto all'abbondanza di guida dello schermo combinato. La console riporta l'allineamento della tabella, il filtraggio, la diagnosi del modello, il montaggio dei coefficienti, i percorsi dei risultati, i grafici e i record di riproducibilità.",
+      "speech_text": "La regressione collega i fenotipi per oggetto all'abbondanza di guida dello schermo combinato. La console riporta l'allineamento della tabella, il filtraggio, la diagnosi del modello, il montaggio dei coefficienti, i percorsi dei risultati, i grafici e i record di riproducibilità.",
+      "phonemes": "la reɡreSjˈone kollˈɛɡa i fenotˈipɪ per oʤːˈɛtːo allabːondˈanʦa dɪ ɡwˈida dˌello skˈermo kombinˈato. la kˈɔnsole ripˈɔrta lallineamˈento dˌella tabˈɛlla, il filtrˈaʤːo, la djˈaɲozɪ del modˈɛllo, il montˈaʤːo dˌA koeffiʧˈɛntɪ, i perkˈorsɪ dˌA rizʊltˈatɪ, i ɡrˈafiʧɪ e i rˈɛkord dɪ riprodʊʧibilitˈa."
     },
     {
       "scene": 2,
-      "speech_start": 10.6,
-      "speech_end": 22.275,
-      "scene_end": 22.724999999999998,
-      "duration": 12.124999999999998,
-      "text": "Apri Regression dalla sezione Core. Apri Regressione dalla sezione Core. Selezionare le misure mappate, le variabili di risposta, i controlli, le colonne di raggruppamento e i predictor candidati."
+      "speech_start": 16.55,
+      "speech_end": 28.3,
+      "scene_end": 28.75,
+      "duration": 12.2,
+      "text": "Il campo di chat accetta domande sul flusso di lavoro attuale. Abilitare l'IA a percorrersi attraverso un provider selezionato e utilizzare la freccia adiacente per aprire il menu del provider.",
+      "speech_text": "Il campo di chat accetta domande sul flusso di lavoro attuale. Abilitare l'IA a percorrersi attraverso un provider selezionato e utilizzare la freccia adiacente per aprire il menu del provider.",
+      "phonemes": "il kˈampo dɪ ʧˈat aʧːˈetːa domˈande sʊl flˈuSo dɪ lavˈɔro atːʊˈale. abilitˈare lˈia a perkˈoːrɾersɪ atːravˈɛrso ʊn provˈaider seleʦjonˈato e ʊtiliʣːˈare la frˈeʧːa adjaʧˈɛnte per aprˈire il menˈu del provˈaider."
     },
     {
       "scene": 3,
-      "speech_start": 22.724999999999998,
-      "speech_end": 32.55,
-      "scene_end": 33.0,
-      "duration": 10.275000000000002,
-      "text": "Nella zona di configurazione principale, scegliete trasformazioni, covariate, famiglia di modelli, effetti casuali, correzione a test multipli e filtri di qualità."
+      "speech_start": 28.75,
+      "speech_end": 40.775,
+      "scene_end": 41.225,
+      "duration": 12.475000000000001,
+      "text": "I fornitori segnalano se i client di linea di comando Claude, ChatGPT e Gemini sono installati e forniscono i loro comandi di installazione e login. Le credenziali restano con ogni venditore.",
+      "speech_text": "I fornitori segnalano se i client di linea di comando Claude, ChatGPT e Gemini sono installati e forniscono i loro comandi di installazione e login. Le credenziali restano con ogni venditore.",
+      "phonemes": "i fornitˈorɪ seɲˈalano se i kliˈent dɪ lˈinea dɪ komˈando klˈaʊde, ʧˈat ʤˌipˌitˈɪ e ʤˈɛminɪ sˌono installˈatɪ e fornˈiskono i lˌɔro komˈandɪ dɪ installaʦiˈone e lˈɔɡ in. le kredenʦjˈalɪ rˈɛstano kon ˌoɲɲɪ venditˈore."
     },
     {
       "scene": 4,
-      "speech_start": 33.0,
-      "speech_end": 41.775,
-      "scene_end": 42.225,
-      "duration": 9.225000000000001,
-      "text": "Prima di eseguire l'intero esercizio, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile."
+      "speech_start": 41.225,
+      "speech_end": 53.825,
+      "scene_end": 54.275000000000006,
+      "duration": 13.050000000000004,
+      "text": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spaCR.",
+      "speech_text": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spàker.",
+      "phonemes": "le impostaʦiˈonɪ ˌaːˈiː kontrˈɔllano la profonditˈa dˌella rispˈosta, le spjeɡaʦiˈonɪ aʊtomˈatike dˌeʎɪ erɾˈorɪ, la seɲalaʦiˈone opʦionˈale dˌA problˈɛmɪ ʤˈit ˈub, il lˈɔɡ in e il prˈompt del sistˈɛma konsapˈevole dɪ spˈaker."
     },
     {
       "scene": 5,
-      "speech_start": 42.225,
-      "speech_end": 50.725,
-      "scene_end": 51.375,
-      "duration": 9.149999999999999,
-      "text": "Quando il flusso di lavoro è finito, spaCR scrive le dimensioni degli effetti, l'incertezza, la significanza regolata, le diagnosi e le cifre."
+      "speech_start": 54.275000000000006,
+      "speech_end": 70.15,
+      "scene_end": 70.60000000000001,
+      "duration": 16.325000000000003,
+      "text": "L'esperimento sintetico fornisce 384 righe di punteggio cellulare e 384 righe di conteggio guida da 32 pozzi, 12 guide e quattro geni. Gli identificatori di piastra, riga e colonna corrispondenti si uniscono alle tabelle.",
+      "speech_text": "L'esperimento sintetico fornisce 384 righe di punteggio cellulare e 384 righe di conteggio guida da 32 pozzi, 12 guide e quattro geni. Gli identificatori di piastra, riga e colonna corrispondenti si uniscono alle tabelle.",
+      "phonemes": "lesperimˈento sintˈɛtiko fornˈiʃe treʧˈɛnto otːˈantakwˈatːro rˈiɡe dɪ pʊntˈeʤːo ʧellʊlˈare e treʧˈɛnto otːˈantakwˈatːro rˈiɡe dɪ kontˈeʤːo ɡwˈida da trˈeːntadˈue pˈoʦːɪ, dˈodiʧɪ ɡwˈide e kwˈatːro ʤˈɛnɪ. ʎɪ identifikatˈorɪ dɪ pjˈastra, rˈiɡa e kolˈonna korɾispondˈɛntɪ sɪ ʊnˈiskono ˌalle tabˈɛlle."
+    },
+    {
+      "scene": 6,
+      "speech_start": 70.60000000000001,
+      "speech_end": 82.00000000000001,
+      "scene_end": 82.45000000000002,
+      "duration": 11.850000000000009,
+      "text": "Essentials mostra le tabelle di input, i controlli della targa, la famiglia di regressione, la variabile di risposta, le prove minime e le scelte del plot richieste per una prima esecuzione.",
+      "speech_text": "Essentials mostra le tabelle di input, i controlli della targa, la famiglia di regressione, la variabile di risposta, le prove minime e le scelte del plot richieste per una prima esecuzione.",
+      "phonemes": "eSˈentjals mˈostra le tabˈɛlle dɪ ˈinpʊt, i kontrˈɔllɪ dˌella tˈarɡa, la famˈiʎa dɪ reɡreSjˈone, la variˈabile dɪ rispˈosta, le prˈɔve mˈinime e le ʃˈelte del plˈot rikjˈɛste per ˌʊna prˈima ezekʊʦiˈone."
+    },
+    {
+      "scene": 7,
+      "speech_start": 82.45000000000002,
+      "speech_end": 94.32500000000002,
+      "scene_end": 94.77500000000002,
+      "duration": 12.325000000000003,
+      "text": "Modificato limita il pannello a valori che differiscono dalle impostazioni predefinite, rendendo le identità di controllo, le soglie fisse e le scelte di modello intenzionali facili da controllare.",
+      "speech_text": "Modificato limita il pannello a valori che differiscono dalle impostazioni predefinite, rendendo le identità di controllo, le soglie fisse e le scelte di modello intenzionali facili da controllare.",
+      "phonemes": "modifikˈato lˈimita il pannˈɛllo a valˈorɪ ke differˈiskono dˌalle impostaʦiˈonɪ predefinˈite, rendˈɛndo le identitˈa dɪ kontrˈɔllo, le sˈoʎe fˈiSe e le ʃˈelte dɪ modˈɛllo intenʦionˈalɪ fˈaʧilɪ da kontrollˈare."
+    },
+    {
+      "scene": 8,
+      "speech_start": 94.77500000000002,
+      "speech_end": 107.15000000000002,
+      "scene_end": 107.60000000000002,
+      "duration": 12.825000000000003,
+      "text": "Tutte le impostazioni rivelano ogni categoria senza modificare i valori. Le otto categorie separano l'input, la progettazione, la correzione, la modellazione, le chiamate, i plot e il comportamento runtime.",
+      "speech_text": "Tutte le impostazioni rivelano ogni categoria senza modificare i valori. Le otto categorie separano l'input, la progettazione, la correzione, la modellazione, le chiamate, i plot e il comportamento runtime.",
+      "phonemes": "tˈutːe le impostaʦiˈonɪ rivˈelano ˌoɲɲɪ kateɡorˈia sˌɛnʦa modifikˈare i valˈorɪ. le ˈɔtːo kateɡorˈie sepˈaɾano lˈinpʊt, la proʤetːaʦiˈone, la korɾeʦiˈone, la modellaʦiˈone, le kjamˈate, i plˈot e il komportamˈento rˈuntime."
+    },
+    {
+      "scene": 9,
+      "speech_start": 107.60000000000002,
+      "speech_end": 117.67500000000003,
+      "scene_end": 118.12500000000003,
+      "duration": 10.525000000000006,
+      "text": "Le ricette salvano la configurazione completa di regressione sotto un nome, la riapplicano in seguito o importano ed esportano un file di impostazioni riutilizzabile.",
+      "speech_text": "Le ricette salvano la configurazione completa di regressione sotto un nome, la riapplicano in seguito o importano ed esportano un file di impostazioni riutilizzabile.",
+      "phonemes": "le riʧˈɛtːe sˈalvano la konfiɡʊraʦiˈone komplˈɛta dɪ reɡreSjˈone sˈotːo ʊn nˈome, la riˈapːlikano in sˈeːɡwito o impˈɔrtano ed espˈɔrtano ʊn fˈile dɪ impostaʦiˈonɪ riʊtiliʣːˈabile."
+    },
+    {
+      "scene": 10,
+      "speech_start": 118.12500000000003,
+      "speech_end": 126.10000000000002,
+      "scene_end": 126.55000000000003,
+      "duration": 8.424999999999997,
+      "text": "Invia istantanee remote delle impostazioni di Regressione risolte e invia il lavoro nello spazio di lavoro Jobs Distribuiti.",
+      "speech_text": "Invia istantanee remote delle impostazioni di Regressione risolte e invia il lavoro nello spazio di lavoro Jobs Distribuiti.",
+      "phonemes": "ɪnvˈɪa istantˈanee remˈɔte dˌelle impostaʦiˈonɪ dɪ reɡreSjˈone rizˈɔlte e ɪnvˈɪa il lavˈɔro nˈello spˈaʦio dɪ lavˈɔro ʤˈobs distribʊˈitɪ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 126.55000000000003,
+      "speech_end": 138.62500000000003,
+      "scene_end": 139.07500000000002,
+      "duration": 12.524999999999991,
+      "text": "Distributed Jobs mappa i percorsi di input e le risorse di calcolo a una workstation remota, a un cluster Slurm o a un comando configurato, quindi inviano e monitorano la stessa esecuzione del modello.",
+      "speech_text": "Distributed Jobs mappa i percorsi di input e le risorse di calcolo a una workstation remota, a un cluster Slurm o a un comando configurato, quindi inviano e monitorano la stessa esecuzione del modello.",
+      "phonemes": "distribˈuted ʤˈobs mˈapːa i perkˈorsɪ dɪ ˈinpʊt e le rizˈorse dɪ kˈalkolo a ˌʊna workstˈatjon remˈɔta, a ʊn klʊstˈɛr zlˈurm o a ʊn komˈando konfiɡʊrˈato, kwˈindɪ invˈiano e mˈɔnitorano la stˈeSa ezekʊʦiˈone del modˈɛllo."
+    },
+    {
+      "scene": 12,
+      "speech_start": 139.07500000000002,
+      "speech_end": 155.10000000000002,
+      "scene_end": 155.55,
+      "duration": 16.474999999999994,
+      "text": "Le tabelle di input selezionano i metadati genetici opzionali, i punteggi di fenotipo per oggetto o per pozzo e le tabelle di conteggio di sequenza. Le piastrelle multiple devono rimanere allineate per posizioni nell'elenco o identificatori espliciti delle piastrelle.",
+      "speech_text": "Le tabelle di input selezionano i metadati genetici opzionali, i punteggi di fenotipo per oggetto o per pozzo e le tabelle di conteggio di sequenza. Le piastrelle multiple devono rimanere allineate per posizioni nell'elenco o identificatori espliciti delle piastrelle.",
+      "phonemes": "le tabˈɛlle dɪ ˈinpʊt seleʦjˈɔnano i metadˈatɪ ʤenˈɛtiʧɪ opʦionˈalɪ, i pʊntˈɛʤːɪ dɪ fenotˈipo per oʤːˈɛtːo o per pˈoʦːo e le tabˈɛlle dɪ kontˈeʤːo dɪ sekwˈɛnʦa. le pjastrˈɛlle mˈultiple dˈevono rimanˈɛre allineˈate per poziʦiˈonɪ nellelˈɛnko o identifikatˈorɪ esplˈiʧitɪ dˌelle pjastrˈɛlle."
+    },
+    {
+      "scene": 13,
+      "speech_start": 155.55,
+      "speech_end": 166.925,
+      "scene_end": 167.375,
+      "duration": 11.824999999999989,
+      "text": "Controlli e Disegno della piastra definiscono la piastra, i geni positivi e negativi, i controlli di guida neutrali, i pozzi di controllo e tutte le righe escluse prima dell'inserimento.",
+      "speech_text": "Controlli e Disegno della piastra definiscono la piastra, i geni positivi e negativi, i controlli di guida neutrali, i pozzi di controllo e tutte le righe escluse prima dell'inserimento.",
+      "phonemes": "kontrˈɔllɪ e dizˈeɲɲo dˌella pjˈastra definˈiskono la pjˈastra, i ʤˈɛnɪ pozitˈivɪ e neɡatˈivɪ, i kontrˈɔllɪ dɪ ɡwˈida neʊtrˈalɪ, i pˈoʦːɪ dɪ kontrˈɔllo e tˈutːe le rˈiɡe esklˈuze prˈima dellinserimˈento."
+    },
+    {
+      "scene": 14,
+      "speech_start": 167.375,
+      "speech_end": 179.375,
+      "scene_end": 179.825,
+      "duration": 12.449999999999989,
+      "text": "Plate and Batch Correction può rimuovere gli offset della piastra con centralizzazione, scalabilità robusta, controlli di riferimento o ComBat. Questo tutorial di una piastra lascia fuori la correzione.",
+      "speech_text": "Plate and Batch Correction può rimuovere gli offset della piastra con centralizzazione, scalabilità robusta, controlli di riferimento o ComBat. Questo tutorial di una piastra lascia fuori la correzione.",
+      "phonemes": "plˈate ˈand bˈatʧ korɾˈektjon pʊˈɔ rimʊˈɔvere ʎɪ ˈoffset dˌella pjˈastra kon ʧentraliʣːaʦiˈone, skalabilitˈa robˈusta, kontrˈɔllɪ dɪ riferimˈento o kˈom bˈat. kwˌesto tʊtˈɔrial dɪ ˌʊna pjˈastra lˈaʃa fʊˈorɪ la korɾeʦiˈone."
+    },
+    {
+      "scene": 15,
+      "speech_start": 179.825,
+      "speech_end": 191.625,
+      "scene_end": 192.075,
+      "duration": 12.25,
+      "text": "Model and Covariates seleziona la famiglia di regressione, la colonna di risposta, l'aggregazione e la trasformazione, la regolarizzazione, la stima della covarianza e gli effetti di riga o colonna opzionali.",
+      "speech_text": "Model and Covariates seleziona la famiglia di regressione, la colonna di risposta, l'aggregazione e la trasformazione, la regolarizzazione, la stima della covarianza e gli effetti di riga o colonna opzionali.",
+      "phonemes": "mˈodel ˈand kovariˈates seleʦiˈona la famˈiʎa dɪ reɡreSjˈone, la kolˈonna dɪ rispˈosta, laɡːreɡaʦiˈone e la trasformaʦiˈone, la reɡolariʣːaʦiˈone, la stˈima dˌella kovariˈanʦa e ʎɪ effˈɛtːɪ dɪ rˈiɡa o kolˈonna opʦionˈalɪ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 192.075,
+      "speech_end": 205.14999999999998,
+      "scene_end": 205.59999999999997,
+      "duration": 13.524999999999977,
+      "text": "La sintonia dell'estimatore contiene i parametri utilizzati dai modelli di selezione della rete elastica, quantile, Huber, cerniera e bootstrap. Solo i controlli appartenenti alla famiglia scelta influenzano una corsa.",
+      "speech_text": "La sintonia dell'estimatore contiene i parametri utilizzati dai modelli di selezione della rete elastica, quantile, Huber, cerniera e bootstrap. Solo i controlli appartenenti alla famiglia scelta influenzano una corsa.",
+      "phonemes": "la sintonˈia dellestimatˈore kontjˈɛne i paɾˈametrɪ ʊtiliʣːˈatɪ daj modˈɛllɪ dɪ seleʦiˈone dˌella rˈete elˈastika, kwˈantile, ʊbˈɛr, ʧerniˈɛra e boˈotstrap. sˈolo i kontrˈɔllɪ apːartenˈɛntɪ ˌalla famˈiʎa ʃˈelta inflʊˈɛnʦano ˌʊna kˈorsa."
+    },
+    {
+      "scene": 17,
+      "speech_start": 205.59999999999997,
+      "speech_end": 217.77499999999998,
+      "scene_end": 218.22499999999997,
+      "duration": 12.625,
+      "text": "L'impulso di Calling and Outliers impone la prova minima della cellula e del pozzo, il filtro della frazione guida, la rimozione opzionale dell'outlier e la soglia dei coefficienti derivati dal controllo.",
+      "speech_text": "L'impulso di Calling and Outliers impone la prova minima della cellula e del pozzo, il filtro della frazione guida, la rimozione opzionale dell'outlier e la soglia dei coefficienti derivati dal controllo.",
+      "phonemes": "limpˈulso dɪ kˈalliŋɡ ˈand oʊtliˈɛrs impˈone la prˈɔva mˈinima dˌella ʧˈɛllʊla e del pˈoʦːo, il fˈiltro dˌella fraʦiˈone ɡwˈida, la rimoʦiˈone opʦionˈale delloʊtliˈɛr e la sˈɔʎa dˌA koeffiʧˈɛntɪ derivˈatɪ dal kontrˈɔllo."
+    },
+    {
+      "scene": 18,
+      "speech_start": 218.22499999999997,
+      "speech_end": 229.09999999999997,
+      "scene_end": 229.54999999999995,
+      "duration": 11.324999999999989,
+      "text": "Regression Plots controlla l'obiettivo del vulcano, gli assi logaritmici e i limiti di asse opzionali. Queste opzioni di visualizzazione non modificano i coefficienti installati.",
+      "speech_text": "Regression Plots controlla l'obiettivo del vulcano, gli assi logaritmici e i limiti di asse opzionali. Queste opzioni di visualizzazione non modificano i coefficienti installati.",
+      "phonemes": "reɡrˈeSjon plˈots kontrˈɔlla lobjetːˈivo del vʊlkˈano, ʎɪ ˈaSɪ loɡarˈitmiʧɪ e i lˈimitɪ dɪ ˈaSe opʦionˈalɪ. kwˌeste opʦiˈonɪ dɪ vizwaliʣːaʦiˈone non modˈifikano i koeffiʧˈɛntɪ installˈatɪ."
+    },
+    {
+      "scene": 19,
+      "speech_start": 229.54999999999995,
+      "speech_end": 242.49999999999994,
+      "scene_end": 242.94999999999993,
+      "duration": 13.399999999999977,
+      "text": "Il tempo di esecuzione e l'affidabilità controllano gli errori rigorosi, il tasso di fallimento tollerato, la politica di riprova, il seme casuale e la segnalazione verbale. Un seme fisso sostiene la riproducibilità.",
+      "speech_text": "Il tempo di esecuzione e l'affidabilità controllano gli errori rigorosi, il tasso di fallimento tollerato, la politica di riprova, il seme casuale e la segnalazione verbale. Un seme fisso sostiene la riproducibilità.",
+      "phonemes": "il tˈɛmpo dɪ ezekʊʦiˈone e laffidabilitˈa kontrˈɔllano ʎɪ erɾˈorɪ riɡorˈɔzɪ, il tˈaSo dɪ fallimˈento tollerˈato, la polˈitika dɪ riprˈɔva, il sˈeme kazʊˈale e la seɲalaʦiˈone verbˈale. ʊn sˈeme fˈiSo sostjˈɛne la riprodʊʧibilitˈa."
+    },
+    {
+      "scene": 20,
+      "speech_start": 242.94999999999993,
+      "speech_end": 261.19999999999993,
+      "scene_end": 261.6499999999999,
+      "duration": 18.69999999999999,
+      "text": "In questo progetto, il gene 239740 è il controllo positivo, 233460 è il controllo negativo e tre guide 000000 definiscono il comportamento neutro. Le colonne da c1 a c3 sono escluse dal set di trattamento montato.",
+      "speech_text": "In questo progetto, il gene 239740 è il controllo positivo, 233460 è il controllo negativo e tre guide 000000 definiscono il comportamento neutro. Le colonne da c1 a c3 sono escluse dal set di trattamento montato.",
+      "phonemes": "in kwˌesto proʤˈɛtːo, il ʤˈɛne dʊeʧˈɛnto trˈeːntanˈɔve mˈiːla setːeʧˈɛnto kʊaɾˈaːnta e il kontrˈɔllo pozitˈivo, dʊeʧˈɛnto trˈeːntatrˈe mˈiːla kʊatːroʧˈɛnto seSˈanta e il kontrˈɔllo neɡatˈivo e trˈe ɡwˈide ʣˈɛɾoʣˈɛɾoʣˈɛɾo ʣˈɛɾoʣˈɛɾoʣˈɛɾo definˈiskono il komportamˈento nˈɛʊtro. le kolˈonne da ʧˈi ˈuno a ʧˈi trˈe sˌono esklˈuze dal sˈɛt dɪ tratːamˈento montˈato."
+    },
+    {
+      "scene": 21,
+      "speech_start": 261.6499999999999,
+      "speech_end": 276.87499999999994,
+      "scene_end": 277.32499999999993,
+      "duration": 15.675000000000011,
+      "text": "Run convalida schemi di tabella e chiavi di pozzo, rimuove i controlli esclusi, aggrega i punteggi delle celle, converte i numeri di guida in frazioni, adatta i coefficienti OLS, valuta le prove e scrive i risultati. STOP richiede un'interruzione sicura.",
+      "speech_text": "Run convalida schemi di tabella e chiavi di pozzo, rimuove i controlli esclusi, aggrega i punteggi delle celle, converte i numeri di guida in frazioni, adatta i coefficienti OLS, valuta le prove e scrive i risultati. STOP richiede un'interruzione sicura.",
+      "phonemes": "rˈun konvˈalida skˈɛmɪ dɪ tabˈɛlla e kjˈavɪ dɪ pˈoʦːo, rimʊˈove i kontrˈɔllɪ esklˈuzɪ, aɡːrˈeɡa i pʊntˈɛʤːɪ dˌelle ʧˈɛlle, konvˈɛrte i nˈumerɪ dɪ ɡwˈida in fraʦiˈonɪ, adˈatːa i koeffiʧˈɛntɪ ˌɔːˌɛlleˈɛSe, vˈalʊta le prˈɔve e skrˈive i rizʊltˈatɪ. stˈɔp rikjˈede ʊninterɾʊʦiˈone sikˈura."
+    },
+    {
+      "scene": 22,
+      "speech_start": 277.32499999999993,
+      "speech_end": 291.49999999999994,
+      "scene_end": 291.94999999999993,
+      "duration": 14.625,
+      "text": "Durante la corsa, la console riporta 384 righe di punteggio, 384 righe di conteggio, allineamento delle piastre, osservazioni conservate e progresso del modello mentre le cifre appaiono nella galleria.",
+      "speech_text": "Durante la corsa, la console riporta 384 righe di punteggio, 384 righe di conteggio, allineamento delle piastre, osservazioni conservate e progresso del modello mentre le cifre appaiono nella galleria.",
+      "phonemes": "dʊrˈante la kˈorsa, la kˈɔnsole ripˈɔrta treʧˈɛnto otːˈantakwˈatːro rˈiɡe dɪ pʊntˈeʤːo, treʧˈɛnto otːˈantakwˈatːro rˈiɡe dɪ kontˈeʤːo, allineamˈento dˌelle pjˈastre, oServaʦiˈonɪ konservˈate e proɡrˈɛSo del modˈɛllo mˌentre le ʧˈifre apːˈaiono nˈella ɡallerˈia."
+    },
+    {
+      "scene": 23,
+      "speech_start": 291.94999999999993,
+      "speech_end": 307.37499999999994,
+      "scene_end": 308.0249999999999,
+      "duration": 16.07499999999999,
+      "text": "La corsa completata fornisce riassunti delle piastre, punteggi e istogrammi di frazione guida, grafici diagnostici, dati di regressione, tabelle di coefficienti per guida e gene, tabelle di significato, impostazioni salvate, un manifesto e una macro riattivabile.",
+      "speech_text": "La corsa completata fornisce riassunti delle piastre, punteggi e istogrammi di frazione guida, grafici diagnostici, dati di regressione, tabelle di coefficienti per guida e gene, tabelle di significato, impostazioni salvate, un manifesto e una macro riattivabile.",
+      "phonemes": "la kˈorsa kompletˈata fornˈiʃe riaSˈuntɪ dˌelle pjˈastre, pʊntˈɛʤːɪ e istoɡrˈammɪ dɪ fraʦiˈone ɡwˈida, ɡrˈafiʧɪ djaɲˈɔstiʧɪ, dˈatɪ dɪ reɡreSjˈone, tabˈɛlle dɪ koeffiʧˈɛntɪ per ɡwˈida e ʤˈɛne, tabˈɛlle dɪ siɲifikˈato, impostaʦiˈonɪ salvˈate, ʊn manifˈɛsto e ˌʊna mˈakro riatːivˈabile."
     }
   ]
 }
