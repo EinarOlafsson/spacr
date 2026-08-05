@@ -831,12 +831,19 @@ class ConsolePanel(QWidget):
         self._split = QSplitter(Qt.Vertical)
         self._split.setObjectName("ConsoleSplit")
         self._split.setChildrenCollapsible(False)
-        # The handle IS the gap that used to be `outer.setSpacing(SPACING.sm)`
-        # between the console box and the chat row. Matching it keeps the
-        # panel pixel-identical to the pre-splitter layout — Qt's 4px default
-        # would have quietly given the console 4 extra pixels — and 8px is a
-        # far easier target for the pointer than 4.
-        self._split.setHandleWidth(SPACING["sm"])
+        # A hairline, matching every other splitter in the app — the theme
+        # styles `QSplitter::handle` at 1px and this was the one place that
+        # overrode it, so the divider under the console read as a thick bar
+        # while the identical gesture beside the settings column read as a
+        # line.
+        #
+        # This handle used to be 8px because it was standing in for the
+        # `outer.setSpacing(SPACING.sm)` gap the layout had before the
+        # splitter existed. That made the divider its own spacing, which is
+        # what made it heavy. The gap is now the handle's real width, so the
+        # console and chat sit closer together; the grab area is Qt's, not
+        # the painted width, so it stays draggable.
+        self._split.setHandleWidth(1)
         # The splitter is scaffolding, not a surface. AppScreen's
         # `_clear_page_surfaces` sweep tags every QSplitter by type, but a
         # ConsolePanel used on its own (or in a test) never gets that sweep,
