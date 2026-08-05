@@ -4951,47 +4951,92 @@
       "id": "35_converter",
       "number": 35,
       "slug": "converter",
-      "title": "Format Converter",
+      "title": "格式转换器",
       "series": 4,
       "app_key": "convert",
       "section": "Data and batch runs",
-      "description": "将 ND2, CZI, LIF, OME-TIFF 和相关的显微镜格式转换为映射的横川式TIFF文件.",
+      "description": "预览并将真正的显微镜文件转换为可逆来源地图的spaCR兼容的Yokogawa TIFF名称.",
       "objectives": [
-        "了解使用什么时候使用格式转换器.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "选择一个显微镜图像源树,目的地,布局,Z处理和板名方案.",
+        "在写出任何输出之前,检查完整的源到目标映射.",
+        "原子转换,检查来源地图,然后在没有重写完成的字段的情况下恢复."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "包含 ND2, CZI, LIF, OME-TIFF, TIFF, PNG, JPEG或 BMP显微镜图像的文件.",
       "scenes": [
         {
-          "narration": "本教程涵盖格式转换器. 将 ND2, CZI, LIF, OME-TIFF 和相关显微镜格式转换为映射的横川式TIFF文件.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "本教程涵盖格式转换器. 将 ND2, CZI, LIF, OME-TIFF 和相关显微镜格式转换为映射的横川式TIFF文件."
+          "narration": "格式转换器将供应商或一般显微镜图像转化为Yokogawa风格的TIFF名称,spaCR Mask和Measure直接读取. 打开它,从数据和批量运行. 基本的安全规则是先查看,然后再转换.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.7,
+          "speech_text": "格式转换器将供应商或一般显微镜图像转化为Yokogawa风格的TIFF名称,斯佩克尔 Mask和Measure直接读取. 打开它,从数据和批量运行. 基本的安全规则是先查看,然后再转换."
         },
         {
-          "narration": "从 Data and batch runs 部分打开 Format Converter。 选择源文件,系列或场景,频道名称,时间和深度处理以及输出文件.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "从 Data and batch runs 部分打开 Format Converter。 选择源文件,系列或场景,频道名称,时间和深度处理以及输出文件."
+          "narration": "放下一个源文件或选择这里,然后选择一个新的目的地. 这项演示使用了转移实验的两个真正的四通道场. 它们的像素是字节对字节复制的;只有教程文件结构和源文件名为此转换例子准备.",
+          "visual": "02_source",
+          "focus_key": "source",
+          "hold_after": 0.76,
+          "speech_text": "放下一个源文件或选择这里,然后选择一个新的目的地. 这项演示使用了转移实验的两个真正的四通道场. 它们的像素是字节对字节复制的;只有教程文件结构和源文件名为此转换例子准备."
         },
         {
-          "narration": "在主要配置区域中,先查看源尺寸如何映射到板块,井,场,时间,深度和道指数.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "在主要配置区域中,先查看源尺寸如何映射到板块,井,场,时间,深度和道指数."
+          "narration": "布局描述图像是否直接位于源头,井文件以下,或板块和井文件以下;自动检测通常是合适的. 保持每一个Z平面是没有损失的默认. 极速投射和第一平面模式显而易见地抛弃飞机. 磁盘名称可能是连续的或保存源文件,并且Resume在跳过之前验证现场检查点.",
+          "visual": "03_options",
+          "focus_key": "options",
+          "hold_after": 0.82,
+          "speech_text": "布局描述图像是否直接位于源头,井文件以下,或板块和井文件以下;自动检测通常是合适的. 保持每一个Z平面是没有损失的默认. 极速投射和第一平面模式显而易见地抛弃飞机. 磁盘名称可能是连续的或保存源文件,并且Resume在跳过之前验证现场检查点."
         },
         {
-          "narration": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 在转换每个文件之前,验证在小样本上映射.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 在转换每个文件之前,验证在小样本上映射."
+          "narration": "随着自动的布局检测,无损的Z处理,连续的板名和选择的新目的地,点击预览. 预览扫描标题并构建地图,但不会创建目的地或写成图像.",
+          "visual": "04_preview",
+          "focus_key": "configuration",
+          "click_key": "preview",
+          "hold_after": 0.68,
+          "speech_text": "随着自动的布局检测,无损的Z处理,连续的板名和选择的新目的地,点击预览. 预览扫描标题并构建地图,但不会创建目的地或写成图像."
         },
         {
-          "narration": "当工作流程完成时, spaCR 将标准化的TIFF和地图写回原始文件和元数据.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "当工作流程完成时, 斯佩克尔 将标准化的TIFF和地图写回原始文件和元数据."
+          "narration": "在转换之前显示完整的八档计划. 每一行都将其可识别的来源放在确切目标,盘子,井,场地,频道,Z,时间,原始标识符和状态旁边. 第一个输出是板1,A01,场1,频道 1;最后一个是场2,频道4. 状态证实没有写任何东西.",
+          "visual": "05_plan",
+          "focus_key": "mapping",
+          "hold_after": 0.84,
+          "speech_text": "在转换之前显示完整的八档计划. 每一行都将其可识别的来源放在确切目标,盘子,井,场地,频道,Z,时间,原始标识符和状态旁边. 第一个输出是板1,A01,场1,频道 1;最后一个是场2,频道4. 状态证实没有写任何东西."
+        },
+        {
+          "narration": "查看总结,然后单击转换,只有当映射正确时. 碰撞使这个按失效,而不是覆盖目标. 正确的文件是原子写到不同的目的地,所以原始的显微镜图像从来没有被更名或取代.",
+          "visual": "06_convert",
+          "focus_key": "destination",
+          "click_key": "convert",
+          "hold_after": 0.72,
+          "speech_text": "查看总结,然后单击转换,只有当映射正确时. 碰撞使这个按失效,而不是覆盖目标. 正确的文件是原子写到不同的目的地,所以原始的显微镜图像从来没有被更名或取代."
+        },
+        {
+          "narration": "所有八个TIFF都成功编写. conversion_map.csv记录了其原始绝对和相对路径,源标识符,spaCR连接标识符,维度,Z政策和元数据之外的每个目标. 在转换后,准备的源TIFF哈希仍然是字节相同的.",
+          "visual": "07_result",
+          "focus_key": "summary",
+          "hold_after": 0.8,
+          "speech_text": "所有八个TIFF都成功编写. conversion_map.csv记录了其原始绝对和相对路径,源标识符,斯佩克尔连接标识符,维度,Z政策和元数据之外的每个目标. 在转换后,准备的源TIFF哈希仍然是字节相同的."
+        },
+        {
+          "narration": "启用恢复,以进行中断或重复转换. 简历不仅仅靠文件名:它会查询原子场检查点,并在决定可以跳过该场之前验证所有属于已完成的字段的TIFF.",
+          "visual": "08_resume",
+          "focus_key": "options",
+          "click_key": "resume",
+          "hold_after": 0.7,
+          "speech_text": "启用恢复,以进行中断或重复转换. 简历不仅仅靠文件名:它会查询原子场检查点,并在决定可以跳过该场之前验证所有属于已完成的字段的TIFF."
+        },
+        {
+          "narration": "再次点击转换,使用相同的验证计划和恢复启用. 如果一个文件缺失或腐败,则将其整个字段重建;",
+          "visual": "09_resume_convert",
+          "focus_key": "destination",
+          "click_key": "convert",
+          "hold_after": 0.64,
+          "speech_text": "再次点击转换,使用相同的验证计划和恢复启用. 如果一个文件缺失或腐败,则将其整个字段重建;"
+        },
+        {
+          "narration": "两个四通道字段都通过验证,所以恢复写出零文件,并报告两个恢复字段. 八行原产地图和八条转换的TIFF仍然完整,完成了可逆,无损,安全的进口到spaCR命名中.",
+          "visual": "10_resumed",
+          "focus_key": "summary",
+          "hold_after": 0.82,
+          "speech_text": "两个四通道字段都通过验证,所以恢复写出零文件,并报告两个恢复字段. 八行原产地图和八条转换的TIFF仍然完整,完成了可逆,无损,安全的进口到斯佩克尔命名中."
         }
       ]
     },

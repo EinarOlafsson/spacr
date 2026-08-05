@@ -1914,19 +1914,34 @@
       "id": "35_converter",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker Format Converter. Konvertere ND2, CZI, LIF, OME-TIFF og relaterte mikroskopisk formater til kartlagte Yokogawa-stil TIFF-filer."
+          "narration": "Format Converter forvandler leverandør eller generelle mikroskopiske bilder til Yokogawa-stil TIFF-navnene som spaCR Mask and Measure leser direkte. Åpne den fra Data og batch runs. Den sentrale sikkerhetsregelen er forhåndsvisning først og konvertere andre."
         },
         {
-          "narration": "Åpne Format Converter fra avsnittet Data og batch runs. Velg kildefiler, serier eller scener, kanalnavn, tid og dybde håndtering, og en utgangsmappe."
+          "narration": "Slip en kilde mappe eller velg den her, og velg deretter et nytt destinasjon. Denne demonstrasjonen bruker to reelle fire-kanalfelt fra det overførte eksperimentet. Deres pixeler ble kopiert byte-for-byte; bare instruksjonsmappestrukturen og kildenavnene ble forberedt for dette konverteringseksemplet."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet, forhåndsvisning hvordan kilde dimensjoner kart til plate, brønn, felt, tid, dybde og kanal indeks."
+          "narration": "Layout beskriver om bilder sitter direkte i kilden, under brunnmapper, eller under plate og brunnmapper; automatisk oppdagelse er normalt hensiktsmessig. Hold alle Z-planer er den tapløse standarden. Max-projektion og førsteplan-modus eksplisitt kasserer fly. Plattenavn kan være sekvensjonelle eller beholde kildenavn, og Resume validerer feltkontrollpunkter før du hopper over dem."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. validere kartleggingen på en liten prøve før du konverterer hver fil."
+          "narration": "Med automatisk layout deteksjon, tapfri Z håndtering, sekvensjonelle plate navn, og den nye destinasjonen valgt, klikk på forhåndsvisning. Preview skanner overskrifter og bygger kartleggingen, men skaper ikke destinasjonen eller skriver et bilde."
         },
         {
-          "narration": "Når arbeidsflyten er ferdig, skriver spaCR standardiserte TIFF og et kart tilbake til de opprinnelige filene og metadata."
+          "narration": "Den komplette åtte-fil-plan vises før konvertering. Hver rad plasserer sin gjenkjennelige kilde ved siden av det nøyaktige målet, plate, brønd, felt, kanal, Z, tid, opprinnelige identifikatorer og status. Den første utgangen er plate1, A01, felt 1, kanal 1; den siste er felt 2, kanal 4. Statusen bekrefter at ingenting er skrevet."
+        },
+        {
+          "narration": "Se over oppsummeringen og klikk bare konvertere når kartleggingen er riktig. En kollisjon deaktiverer denne knappen i stedet for å overskrive et mål. Gode filer skrives atomisk til den separate destinasjonen, slik at de opprinnelige mikroskopiske bildene aldri blir omdøpt eller erstattet."
+        },
+        {
+          "narration": "Alle åtte TIFF ble skrevet med suksess. conversion_map.csv registrerer hvert mål ved siden av sin opprinnelige absolute og relative vei, kildeidentifikatorer, spaCR bindeidentifikatorer, dimensjoner, Z-politikk og metadata. De forberedte TIFF-hashene forblir byte-identike etter konvertering."
+        },
+        {
+          "narration": "Aktiver Resume for en avbrutt eller gjentatte konvertering. Resume stoler ikke bare på filnavn: den konsulterer et atomfeltkontrollpunkt og validerer alle TIFF som tilhører et ferdig felt før den bestemmer at feltet kan hoppes over."
+        },
+        {
+          "narration": "Klikk konvertere igjen med samme bekreftet plan og gjenoppstart aktiveret. Hvis en fil manglet eller var korrupt, ville hele feltet bli gjenoppbygget; komplette felt kan gjenbrukes trygt."
+        },
+        {
+          "narration": "Begge fire-kanalfeltene passerer validering, så Resume skriver null filer og rapporterer to resumed felt. Åtte raders opprinnelseskart og åtte konverterte TIFF er fortsatt fullført, og avslutter en reversibel, tapfri og startfri import til spaCR-navnet."
         }
       ]
     },
