@@ -1823,19 +1823,46 @@
       "id": "33_plate_viewer",
       "scenes": [
         {
-          "narration": "Dieses Tutorial deckt Plate Viewer ab. Erforschen Sie alle Messungen als Plattenwärmeplan und identifizieren Sie räumliche Artefakte oder Randeffekte."
+          "narration": "Plate Viewer verwandelt jede Objektsmessung in eine Well-Heatmap und stellt die Rand-Effekt-Diagnostik neben sich. Öffnen Sie es von Resultaten und Qualitätskontrolle. Der Workflow ist strukturell nur zu lesen: spaCR öffnet die Messdatenbank nur im Abfragenmodus und schreibt nur eine optional ausgeführte CSV."
         },
         {
-          "narration": "Öffnen Sie den Plattenschauer aus dem Abschnitt Ergebnisse und Qualitätskontrolle. Öffnen Sie eine Messdatenbank mit Kennzeichen für Platten, Brunnen und Zustände."
+          "narration": "Lassen Sie eine Messdatenbank oder ihren Ausführungsordner fallen oder wählen Sie hier entweder. Dies ist die echte Datenbank des übertragenen Experiments, die 81.969 gemessene Zellen über 196 Brunnen enthält. Der Plate Viewer liest die Namen der Tabellen und nur die für die ausgewählte Ansicht benötigten Identifikator- und Messspalten."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich die Messung, Aggregation, Normalisierung, Farbskala, Steuerungen und Plattenlayout aus."
+          "narration": "Wählen Sie die Zelltabelle und ein numerisches Merkmal aus. Hier wählen wir die mittlere Intensität des Kanals 1, des Endoplasma-Retikulum-Kanals aus. Nach dem ersten Render wird der Plate-Selektor aus den Daten ausgefüllt; diese Datenbank enthält Plate 1."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vergleichen Sie Roh- und Normalansichtungen und überprüfen Sie verdächtige Brunnen oder systematische Randmuster."
+          "narration": "Per Brunnen steuert, wie Objekte zu einem Wert zusammenbrechen. Durchschnitt und Median fassen das gewählte Merkmal zusammen, während Count die Objektnummer festlegt. Die robuste Farbskala von 2 bis 98 Prozent verhindert, dass ein extremer Brunnen den Rest flach macht, und Mindestobjekte pro Brunnen markieren unterleistete Brunnen als leer und nicht als Null."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, können Heatmaps, ausgewählte Welltabellen und Rand-Effekt-Diagnostik exportiert werden."
+          "narration": "Klicken Sie auf Render mit Mittel, der robusten Skala und mindestens 100 Zellen. Die Datenbankfrage wird cached, so dass spätere Änderungen der Aggregation, der Farbskala, der Platte oder der Mindestzahl die Ansicht neu berechnen, ohne die vollständige Feature-Tabelle erneut zu lesen."
+        },
+        {
+          "narration": "Alle 196 gemessenen Brunnen überleben. Die mittlere ER-Intensität hat keinen kategorischen Außenring-Effekt, aber der reale Bericht erkennt einen monotonen Zeilengrad mit Spearman rho 0,454. Das Ringprofil und die Zeilen- und Spaltendiagnostik halten diesen Raumtrend neben der Hitzekarte sichtbar, anstatt ihn als Biologie zu maskieren."
+        },
+        {
+          "narration": "Klicken Sie auf einen beliebigen Brunnen, um den genauen Identifikator, die Anzahl der Objekte, den Gesamtwert und die Position des Rings zu erfahren. G07 ist ein Innenbrunnen hier. Diese direkte Kartierung ist nützlich, um zu bestimmen, ob ein offensichtlicher Treffer zu einem räumlichen Muster gehört, bevor er seine Felder oder Pflanzen anderswo öffnet."
+        },
+        {
+          "narration": "Wechseln Sie Per well auf Count. Count ignoriert den ausgewählten Intensitätswert und die Farben jeweils gut durch die Anzahl der gehaltenen Zellen, was häufig die schnellste Qualitätskontrolle-Ansicht für Toxizität, Segmentierungsverlust, ungleichmäßige Aussaat oder Rand-abhängiges Wachstum ist."
+        },
+        {
+          "narration": "Die reale Count-Ansicht zeigt einen äußeren Ring-Effekt: Randbrunnen enthalten 14,3 Prozent mehr Zellen als das Innere, wobei Cliffs Delta 0,571 ist und p 0,0003817 entspricht. Der Bericht gibt die Effektrichtung und -größe anstatt Sie zu bitten, sie nur aus der Farbe zu schließen."
+        },
+        {
+          "narration": "Erhöhen Mindestobjekte pro Brunnen auf 350, wenn diese Zahl der Mindestbeweise für den Vergleich ist. Der Filter ist eine Qualitätsschwelle, nicht eine Imputationsregel: Brunnen unter ihm verlassen die numerische Analyse und werden zu kreuzigen Leerstellen."
+        },
+        {
+          "narration": "Achtundzwanzig von den 196 gemessenen Brunnen sind jetzt abgeworfen, 168 bleiben für den Randtest. Der äußere Ring-Effekt bleibt bei plus 10,5 Prozent nachweisbar. Nach der Filterung fehlen kreuzige Zellen auf der Wärmemappe; sie werden nie gefärbt, als wäre ihr Wert null."
+        },
+        {
+          "narration": "Klicken Sie auf einen überschrittenen Brunnen, um zu bestätigen, warum er leer ist. C14 enthält 233 gemessene Zellen, weniger als die erforderlichen 350, so dass die Leseinformationen leer sind und die Schwelle benannt wird. Dies macht eine niedrige Unterstützung von einer tatsächlichen Nullzahl zu unterscheiden."
+        },
+        {
+          "narration": "Klicken Sie auf Export Well Grid CSV, um die aktuelle ordentliche Ansicht zu speichern. Jede Zeile behält die Identität, die Anzahl der Objekte, den angezeigten Wert, den Ringindex und die Randflagge bei, sodass das Ergebnis auf Plattenebene außerhalb von spaCR überprüft oder neu abgebildet werden kann, ohne die Merkmaltabelle auf Objektebene zu exportieren."
+        },
+        {
+          "narration": "Die geprüfte Ausfuhr enthält 168 Brunnen, die genau mit der gefilterten Wärmeplanung übereinstimmen. Eine Prüfung vor und nach SHA-256 bestätigt, dass die Datenbank der Quellmessungen byte-identisch ist und einen Lese-Nur-Platten-Qualitätskontrollpass mit einer nachvollziehbaren abgeleiteten Tabelle ergänzt."
         }
       ]
     },

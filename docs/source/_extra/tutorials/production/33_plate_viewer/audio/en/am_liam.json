@@ -4,47 +4,147 @@
   "voice": "am_liam",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 42.5,
+  "total_duration": 231.68,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 7.325,
-      "scene_end": 7.775,
-      "duration": 7.775,
-      "text": "This tutorial covers Plate Viewer. Explore any measurement as a plate heatmap and identify spatial artifacts or edge effects."
+      "speech_end": 16.7,
+      "scene_end": 17.419999999999998,
+      "duration": 17.419999999999998,
+      "text": "Plate Viewer turns any object measurement into a well heatmap and places edge-effect diagnostics beside it. Open it from Results and quality control. The workflow is structurally read-only: spaCR opens the measurements database in query-only mode and writes only an optional exported CSV.",
+      "speech_text": "Plate Viewer turns any object measurement into a well heatmap and places edge-effect diagnostics beside it. Open it from Results and quality control. The workflow is structurally read-only: spacer opens the measurements database in query-only mode and writes only an optional exported CSV.",
+      "phonemes": "plˈAt vjˈuəɹ tˈɜɹnz ˈɛni ˈɑbʤəkt mˈɛʒəɹmᵊnt ˈɪntu ɐ wˈɛl hˈitmæp ænd plˈAsᵻz ˌɛʤəfˈɛkt dˌIəɡnˈɑstɪks bəsˈId ɪt. ˈOpᵊn ɪt fɹʌm ɹəzˈʌlts ænd kwˈɑləTi kəntɹˈOl. ðə wˈɜɹkflˌO ɪz stɹˈʌkʧəɹəli ɹˈidˌOnli: spˈAsəɹ ˈOpᵊnz ðə mˈɛʒəɹmᵊnts dˈæTəbˌAs ɪn kwˌɪɹiˈOnli mˈOd ænd ɹˈIts ˈOnli ɐn ˈɑpʃənᵊl ˈɛkspˌɔɹTᵻd sˌiˌɛsvˈi."
     },
     {
       "scene": 2,
-      "speech_start": 7.775,
-      "speech_end": 15.950000000000001,
-      "scene_end": 16.400000000000002,
-      "duration": 8.625000000000002,
-      "text": "Open Plate Viewer from the Results and quality control section. Open a measurements database with plate, well, and condition identifiers."
+      "speech_start": 17.419999999999998,
+      "speech_end": 34.94499999999999,
+      "scene_end": 35.684999999999995,
+      "duration": 18.264999999999997,
+      "text": "Drop a measurements database or its run folder, or choose either here. This is the transferred experiment's real database, containing 81,969 measured cells across 196 wells. Plate Viewer reads table names and only the identifier and measurement columns needed for the selected view.",
+      "speech_text": "Drop a measurements database or its run folder, or choose either here. This is the transferred experiment's real database, containing 81,969 measured cells across 196 wells. Plate Viewer reads table names and only the identifier and measurement columns needed for the selected view.",
+      "phonemes": "dɹˈɑp ɐ mˈɛʒəɹmᵊnts dˈæTəbˌAs ɔɹ ɪts ɹˈʌn fˈOldəɹ, ɔɹ ʧˈuz ˈiðəɹ hˈɪɹ. ðˌɪs ɪz ðə tɹˈænsfəɹd ɪkspˈɛɹəmənts ɹˈiᵊl dˈæTəbˌAs, kəntˈAnɪŋ ˈATi wˈʌn θˈWzᵊnd nˈIn hˈʌndɹəd sˈɪksti nˈIn mˈɛʒəɹd sˈɛlz əkɹˈɔs wˈʌn hˈʌndɹəd nˈIndi sˈɪks wˈɛlz. plˈAt vjˈuəɹ ɹˈidz tˈAbᵊl nˈAmz ænd ˈOnli ði IdˈɛntəfˌIəɹ ænd mˈɛʒəɹmᵊnt kˈɑləmz nˈidᵻd fɔɹ ðə səlˈɛktᵻd vjˈu."
     },
     {
       "scene": 3,
-      "speech_start": 16.400000000000002,
-      "speech_end": 23.6,
-      "scene_end": 24.05,
-      "duration": 7.649999999999999,
-      "text": "In the main configuration area, choose the measurement, aggregation, normalization, color scale, controls, and plate layout."
+      "speech_start": 35.684999999999995,
+      "speech_end": 49.084999999999994,
+      "scene_end": 49.74499999999999,
+      "duration": 14.059999999999995,
+      "text": "Choose the Cell table and a numeric feature. Here we select the mean intensity of channel 1, the endoplasmic-reticulum channel. After the first render, the Plate selector is populated from the data; this database contains plate 1.",
+      "speech_text": "Choose the Cell table and a numeric feature. Here we select the mean intensity of channel 1, the endoplasmic-reticulum channel. After the first render, the Plate selector is populated from the data; this database contains plate 1.",
+      "phonemes": "ʧˈuz ðə sˈɛl tˈAbᵊl ænd ɐ numˈɛɹɪk fˈiʧəɹ. hˈɪɹ wi səlˈɛkt ðə mˈin ɪntˈɛnsəTi ʌv ʧˈænᵊl wˈʌn, ði ˌɛndOplˈæzmɪkɹətˌɪkjələm ʧˈænᵊl. ˈæftəɹ ðə fˈɜɹst ɹˈɛndəɹ, ðə plˈAt səlˈɛktəɹ ɪz pˈɑpjəlˌATᵻd fɹʌm ðə dˈATə; ðɪs dˈæTəbˌAs kəntˈAnz plˈAt wˈʌn."
     },
     {
       "scene": 4,
-      "speech_start": 24.05,
-      "speech_end": 35.25,
-      "scene_end": 35.7,
-      "duration": 11.650000000000002,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. compare raw and normalized views and inspect suspicious wells or systematic edge patterns."
+      "speech_start": 49.74499999999999,
+      "speech_end": 66.82,
+      "scene_end": 67.55999999999999,
+      "duration": 17.814999999999998,
+      "text": "Per well controls how objects collapse to one value. Mean and median summarize the chosen feature, while Count plots object number. The robust 2-to-98-percent colour scale prevents one extreme well from flattening the rest, and Minimum objects per well marks underpowered wells as blank rather than zero.",
+      "speech_text": "Per well controls how objects collapse to one value. Mean and median summarize the chosen feature, while Count plots object number. The robust 2-to-98-percent colour scale prevents one extreme well from flattening the rest, and Minimum objects per well marks underpowered wells as blank rather than zero.",
+      "phonemes": "pˌɜɹ wˈɛl kəntɹˈOlz hˌW əbʤˈɛkts kəlˈæps tə wˈʌn vˈælju. mˈin ænd mˈidiən sˈʌməɹˌIz ðə ʧˈOzᵊn fˈiʧəɹ, wˌIl kˈWnt plˈɑts ˈɑbʤəkt nˈʌmbəɹ. ðə ɹObˈʌst tˈu tə nˈIndi ˈAt pəɹsˈɛnt kˈʌləɹ skˈAl pɹivˈɛnts wˈʌn ɪkstɹˈim wˈɛl fɹʌm flˈætnɪŋ ðə ɹˈɛst, ænd mˈɪnəməm ˈɑbʤəkts pɜɹ wˈɛl mˈɑɹks ˌʌndəɹpˈWəɹd wˈɛlz æz blˈæŋk ɹˈæðəɹ ðən zˈɪɹO."
     },
     {
       "scene": 5,
-      "speech_start": 35.7,
-      "speech_end": 41.85,
-      "scene_end": 42.5,
-      "duration": 6.799999999999997,
-      "text": "When the workflow finishes, heatmaps, selected-well tables, and edge-effect diagnostics can be exported."
+      "speech_start": 67.55999999999999,
+      "speech_end": 80.53499999999998,
+      "scene_end": 81.19499999999998,
+      "duration": 13.634999999999991,
+      "text": "Click Render with Mean, the robust scale, and a minimum of 100 cells. The database query is cached, so later changes to aggregation, colour scale, plate, or minimum count recompute the view without rereading the full feature table.",
+      "speech_text": "Click Render with Mean, the robust scale, and a minimum of 100 cells. The database query is cached, so later changes to aggregation, colour scale, plate, or minimum count recompute the view without rereading the full feature table.",
+      "phonemes": "klˈɪk ɹˈɛndəɹ wɪð mˈin, ðə ɹObˈʌst skˈAl, ænd ɐ mˈɪnəməm ʌv wˈʌn hˈʌndɹəd sˈɛlz. ðə dˈæTəbˌAs kwˈɪɹi ɪz kˈæʃt, sˌO lˈATəɹ ʧˈAnʤᵻz tʊ ˌæɡɹəɡˈAʃən, kˈʌləɹ skˈAl, plˈAt, ɔɹ mˈɪnəməm kˈWnt ɹˌikəmpjˈut ðə vjˈu wɪðˈWt ɹˌiɹˈidɪŋ ðə fˈʊl fˈiʧəɹ tˈAbᵊl."
+    },
+    {
+      "scene": 6,
+      "speech_start": 81.19499999999998,
+      "speech_end": 100.39499999999998,
+      "scene_end": 101.19499999999998,
+      "duration": 20.0,
+      "text": "All 196 measured wells survive. Mean ER intensity has no categorical outer-ring effect, but the real report detects a monotonic row gradient with Spearman rho 0.454. The ring profile and row and column diagnostics keep this spatial trend visible beside the heatmap instead of letting it masquerade as biology.",
+      "speech_text": "All 196 measured wells survive. Mean ER intensity has no categorical outer-ring effect, but the real report detects a monotonic row gradient with Spearman rho 0.454. The ring profile and row and column diagnostics keep this spatial trend visible beside the heatmap instead of letting it masquerade as biology.",
+      "phonemes": "ˈɔl wˈʌn hˈʌndɹəd nˈIndi sˈɪks mˈɛʒəɹd wˈɛlz səɹvˈIv. mˈin ˌiˈɑɹ ɪntˈɛnsəTi hæz nˈO kˌæTəɡˈɔɹəkᵊl ˈWTəɹɹˌɪŋ əfˈɛkt, bˌʌt ðə ɹˈiᵊl ɹəpˈɔɹt dətˈɛkts ɐ mˌɑnətˈɑnɪk ɹˈO ɡɹˈAdiənt wɪð spˈɪɹmən ɹˈO zˈɪɹO pYnt fˈɔɹ fˈIv fˈɔɹ. ðə ɹˈɪŋ pɹˈOfˌIl ænd ɹˈO ænd kˈɑləm dˌIəɡnˈɑstɪks kˈip ðɪs spˈAʃᵊl tɹˈɛnd vˈɪzəbᵊl bəsˈId ðə hˈitmæp ɪnstˈɛd ʌv lˈɛTɪŋ ɪt mˌæskəɹˈAd æz bIˈɑləʤi."
+    },
+    {
+      "scene": 7,
+      "speech_start": 101.19499999999998,
+      "speech_end": 116.74499999999998,
+      "scene_end": 117.42499999999998,
+      "duration": 16.230000000000004,
+      "text": "Click any well for its exact identifier, object count, aggregated value, and ring position. G07 is an interior well here. This direct mapping is useful for deciding whether an apparent hit belongs to a spatial pattern before opening its fields or crops elsewhere.",
+      "speech_text": "Click any well for its exact identifier, object count, aggregated value, and ring position. G07 is an interior well here. This direct mapping is useful for deciding whether an apparent hit belongs to a spatial pattern before opening its fields or crops elsewhere.",
+      "phonemes": "klˈɪk ˈɛni wˈɛl fɔɹ ɪts ɪɡzˈækt IdˈɛntəfˌIəɹ, ˈɑbʤəkt kˈWnt, ˈæɡɹəɡˌATᵻd vˈælju, ænd ɹˈɪŋ pəzˈɪʃən. ʤˈi zˈɪɹO sˈɛvən ɪz ɐn ɪntˈɪɹiəɹ wˈɛl hˈɪɹ. ðˌɪs dəɹˈɛkt mˈæpɪŋ ɪz jˈusfᵊl fɔɹ dəsˈIdɪŋ wˈɛðəɹ ɐn əpˈɛɹənt hˈɪt bəlˈɔŋz tə ɐ spˈAʃᵊl pˈæTəɹn bəfˈɔɹ ˈOpᵊnɪŋ ɪts fˈildz ɔɹ kɹˈɑps ˈɛlshwˌɛɹ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 117.42499999999998,
+      "speech_end": 131.27499999999998,
+      "scene_end": 131.91499999999996,
+      "duration": 14.48999999999998,
+      "text": "Switch Per well to Count. Count ignores the selected intensity value and colors each well by the number of retained cells, which is often the quickest quality-control view for toxicity, segmentation loss, uneven seeding, or edge-dependent growth.",
+      "speech_text": "Switch Per well to Count. Count ignores the selected intensity value and colors each well by the number of retained cells, which is often the quickest quality-control view for toxicity, segmentation loss, uneven seeding, or edge-dependent growth.",
+      "phonemes": "swˈɪʧ pˌɜɹ wˈɛl tə kˈWnt. kˈWnt ɪɡnˈɔɹz ðə səlˈɛktᵻd ɪntˈɛnsəTi vˈælju ænd kˈʌləɹz ˈiʧ wˈɛl bI ðə nˈʌmbəɹ ʌv ɹətˈAnd sˈɛlz, wˌɪʧ ɪz ˈɔfᵊn ðə kwˈɪkɪst kwˌɑləTikəntɹˈOl vjˈu fɔɹ tɑksˈɪsəTi, sˌɛɡməntˈAʃən lˈɔs, ˌʌnˈivən sˈidɪŋ, ɔɹ ˌɛʤdəpˈɛndᵊnt ɡɹˈOθ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 131.91499999999996,
+      "speech_end": 150.33999999999997,
+      "scene_end": 151.15999999999997,
+      "duration": 19.245000000000005,
+      "text": "The real count view exposes an outer-ring effect: edge wells contain 14.3 percent more cells than the interior, with Cliff's delta 0.571 and p equal to 0.0003817. The report states the effect direction and magnitude instead of asking you to infer it from colour alone.",
+      "speech_text": "The real count view exposes an outer-ring effect: edge wells contain 14.3 percent more cells than the interior, with Cliff's delta 0.571 and p equal to 0.0003817. The report states the effect direction and magnitude instead of asking you to infer it from colour alone.",
+      "phonemes": "ðə ɹˈiᵊl kˈWnt vjˈu ɪkspˈOzᵻz ɐn ˈWTəɹɹˌɪŋ əfˈɛkt: ˈɛʤ wˈɛlz kəntˈAn fˌɔɹtˈin pYnt θɹˈi pəɹsˈɛnt mˈɔɹ sˈɛlz ðən ði ɪntˈɪɹiəɹ, wɪð klˈɪfs dˈɛltə zˈɪɹO pYnt fˈIv sˈɛvən wˈʌn ænd pˈi ˈikwᵊl tə zˈɪɹO pYnt zˈɪɹO zˈɪɹO zˈɪɹO θɹˈi ˈAt wˈʌn sˈɛvən. ðə ɹəpˈɔɹt stˈAts ði əfˈɛkt dəɹˈɛkʃən ænd mˈæɡnətˌud ɪnstˈɛd ʌv ˈæskɪŋ ju tʊ ɪnfˈɜɹ ɪt fɹʌm kˈʌləɹ əlˈOn."
+    },
+    {
+      "scene": 10,
+      "speech_start": 151.15999999999997,
+      "speech_end": 165.23499999999996,
+      "scene_end": 165.85499999999996,
+      "duration": 14.694999999999993,
+      "text": "Raise Minimum objects per well to 350 when that count is the minimum evidence required for comparison. The filter is a quality threshold, not an imputation rule: wells below it leave the numeric analysis and become crossed blanks.",
+      "speech_text": "Raise Minimum objects per well to 350 when that count is the minimum evidence required for comparison. The filter is a quality threshold, not an imputation rule: wells below it leave the numeric analysis and become crossed blanks.",
+      "phonemes": "ɹˈAz mˈɪnəməm ˈɑbʤəkts pɜɹ wˈɛl tə θɹˈi hˈʌndɹəd fˈɪfti wˌɛn ðˈæt kˈWnt ɪz ðə mˈɪnəməm ˈɛvədᵊns ɹəkwˈIəɹd fɔɹ kəmpˈɛɹəsᵊn. ðə fˈɪltəɹ ɪz ɐ kwˈɑləTi θɹˈɛʃhˌOld, nˌɑt ɐn ˌɪmpjətˈAʃən ɹˈul: wˈɛlz bəlˈO ɪt lˈiv ðə numˈɛɹɪk ənˈæləsɪs ænd bəkˈʌm kɹˈɔst blˈæŋks."
+    },
+    {
+      "scene": 11,
+      "speech_start": 165.85499999999996,
+      "speech_end": 181.50499999999997,
+      "scene_end": 182.28499999999997,
+      "duration": 16.430000000000007,
+      "text": "Twenty-eight of the 196 measured wells are now dropped, leaving 168 for the edge test. The outer-ring effect remains detectable at plus 10.5 percent. Crossed cells on the heatmap are missing after filtering; they are never colored as if their value were zero.",
+      "speech_text": "Twenty-eight of the 196 measured wells are now dropped, leaving 168 for the edge test. The outer-ring effect remains detectable at plus 10.5 percent. Crossed cells on the heatmap are missing after filtering; they are never colored as if their value were zero.",
+      "phonemes": "twˌɛntiˈAt ʌv ðə wˈʌn hˈʌndɹəd nˈIndi sˈɪks mˈɛʒəɹd wˈɛlz ɑɹ nˈW dɹˈɑpt, lˈivɪŋ wˈʌn hˈʌndɹəd sˈɪksti ˈAt fɔɹ ði ˈɛʤ tˈɛst. ði ˈWTəɹɹˌɪŋ əfˈɛkt ɹəmˈAnz dətˈɛktəbᵊl æt plˈʌs tˈɛn pYnt fˈIv pəɹsˈɛnt. kɹˈɔst sˈɛlz ˌɔn ðə hˈitmæp ɑɹ mˈɪsɪŋ ˈæftəɹ fˈɪltəɹɪŋ; ðA ɑɹ nˈɛvəɹ kˈʌləɹd æz ɪf ðɛɹ vˈælju wɜɹ zˈɪɹO."
+    },
+    {
+      "scene": 12,
+      "speech_start": 182.28499999999997,
+      "speech_end": 197.18499999999997,
+      "scene_end": 197.86499999999998,
+      "duration": 15.580000000000013,
+      "text": "Click a crossed well to confirm why it is blank. C14 contains 233 measured cells, fewer than the required 350, so the readout reports blank and names the threshold. This makes low support distinguishable from an actual zero count.",
+      "speech_text": "Click a crossed well to confirm why it is blank. C14 contains 233 measured cells, fewer than the required 350, so the readout reports blank and names the threshold. This makes low support distinguishable from an actual zero count.",
+      "phonemes": "klˈɪk ɐ kɹˈɔst wˈɛl tə kənfˈɜɹm wˌI ɪt ɪz blˈæŋk. sˈi fˌɔɹtˈin kəntˈAnz tˈu hˈʌndɹəd θˈɜɹTi θɹˈi mˈɛʒəɹd sˈɛlz, fjˈuəɹ ðən ðə ɹəkwˈIəɹd θɹˈi hˈʌndɹəd fˈɪfti, sˌO ðə ɹˈidˌWt ɹəpˈɔɹts blˈæŋk ænd nˈAmz ðə θɹˈɛʃhˌOld. ðˌɪs mˌAks lˈO səpˈɔɹt dəstˈɪŋɡwɪʃəbᵊl fɹʌm ɐn ˈækʧəwəl zˈɪɹO kˈWnt."
+    },
+    {
+      "scene": 13,
+      "speech_start": 197.86499999999998,
+      "speech_end": 213.54,
+      "scene_end": 214.22,
+      "duration": 16.355000000000018,
+      "text": "Click Export well grid CSV to save the current tidy view. Each row retains well identity, object count, displayed value, ring index, and edge flag, so the plate-level result can be audited or replotted outside spaCR without exporting the object-level feature table.",
+      "speech_text": "Click Export well grid CSV to save the current tidy view. Each row retains well identity, object count, displayed value, ring index, and edge flag, so the plate-level result can be audited or replotted outside spacer without exporting the object-level feature table.",
+      "phonemes": "klˈɪk ˈɛkspˌɔɹt wˈɛl ɡɹˈɪd sˌiˌɛsvˈi tə sˈAv ðə kˈɜɹənt tˈIdi vjˈu. ˈiʧ ɹˈO ɹətˈAnz wˈɛl IdˈɛntəTi, ˈɑbʤəkt kˈWnt, dəsplˈAd vˈælju, ɹˈɪŋ ˈɪndˌɛks, ænd ˈɛʤ flˈæɡ, sˌO ðə plˌAtlˈɛvᵊl ɹəzˈʌlt kæn bi ˈɔdəTᵻd ɔɹ ɹᵻplˈɑTᵻd ˌWtsˈId spˈAsəɹ wɪðˈWt ɛkspˈɔɹTɪŋ ði ˈɑbʤəktlˌɛvᵊl fˈiʧəɹ tˈAbᵊl."
+    },
+    {
+      "scene": 14,
+      "speech_start": 214.22,
+      "speech_end": 230.82,
+      "scene_end": 231.68,
+      "duration": 17.460000000000008,
+      "text": "The verified export contains 168 wells, exactly matching the filtered heatmap. A before-and-after SHA-256 check confirms that the source measurements database is byte-identical, completing a read-only plate quality-control pass with a traceable derived table.",
+      "speech_text": "The verified export contains 168 wells, exactly matching the filtered heatmap. A before-and-after S H A two fifty six check confirms that the source measurements database is byte-identical, completing a read-only plate quality-control pass with a traceable derived table.",
+      "phonemes": "ðə vˈɛɹᵻfˌId ˈɛkspˌɔɹt kəntˈAnz wˈʌn hˈʌndɹəd sˈɪksti ˈAt wˈɛlz, ɪɡzˈæktli mˈæʧɪŋ ðə fˈɪltəɹd hˈitmæp. ɐ bəfˈɔɹændˈæftəɹ ˈɛs ˈAʧ ɐ tˈu fˈɪfti sˈɪks ʧˈɛk kənfˈɜɹmz ðæt ðə sˈɔɹs mˈɛʒəɹmᵊnts dˈæTəbˌAs ɪz bˌItIdˈɛntəkᵊl, kəmplˈiTɪŋ ɐ ɹˈidˌOnli plˈAt kwˌɑləTikəntɹˈOl pˈæs wɪð ɐ tɹˈAsəbᵊl dəɹˈIvd tˈAbᵊl."
     }
   ]
 }

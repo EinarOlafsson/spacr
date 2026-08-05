@@ -4,47 +4,147 @@
   "voice": "em_santa",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 54.4,
+  "total_duration": 274.105,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.975,
-      "scene_end": 9.424999999999999,
-      "duration": 9.424999999999999,
-      "text": "Este tutorial cubre Plate Viewer. Explore cualquier medida como una mapa de calor de placa e identifique artefactos espaciales o efectos de borde."
+      "speech_end": 19.775,
+      "scene_end": 20.494999999999997,
+      "duration": 20.494999999999997,
+      "text": "Plate Viewer convierte cualquier medida de objeto en un mapa de calor del pozo y coloca el diagnóstico de efectos de borde a su lado. Abre desde resultados y control de calidad. El flujo de trabajo es estructuralmente de lectura única: spaCR abre la base de datos de mediciones en modo de consulta única y escribe solo un CSV exportado opcional.",
+      "speech_text": "Plate Viewer convierte cualquier medida de objeto en un mapa de calor del pozo y coloca el diagnóstico de efectos de borde a su lado. Abre desde resultados y control de calidad. El flujo de trabajo es estructuralmente de lectura única: espáquer abre la base de datos de mediciones en modo de consulta única y escribe solo un CSV exportado opcional.",
+      "phonemes": "plˈate βjewˈeɾ kombjˈeɾte kwalkjˈeɾ meðˈiða ðe oβxˈeto en ˈun mˈapa ðe kalˈoɾ ðel pˈoθo i kolˈoka el ðjaɡnˈostiko ðe efˈektos ðe βˈoɾðe a su lˈaðo. ˈaβɾe ðˌesðe rˌesultˈaðos i kontɾˈol ðe kˌaliðˈad. el flˈuxo ðe tɾaβˈaxo ˈes ˌestɾuktuɾˈalmˈente ðe lektˈuɾa ˈunika: espˈakeɾ ˈaβɾe la βˈase ðe ðˈatos ðe mˌeðiθjˈones en mˈoðo ðe konsˈulta ˈunika i eskɾˈiβe sˈolo ˈun θˌeˌeseˈuβe ˌekspoɾtˈaðo ˌopθjonˈal."
     },
     {
       "scene": 2,
-      "speech_start": 9.424999999999999,
-      "speech_end": 21.775,
-      "scene_end": 22.224999999999998,
-      "duration": 12.799999999999999,
-      "text": "Abra Plate Viewer en la sección Results and quality control. Abre el visor de placa en la sección Resultados y control de calidad. Abre una base de datos de mediciones con identificadores de placa, pozo y condición."
+      "speech_start": 20.494999999999997,
+      "speech_end": 41.72,
+      "scene_end": 42.46,
+      "duration": 21.965000000000003,
+      "text": "Baje una base de datos de mediciones o su carpeta de ejecución, o elija cualquiera de ellos aquí. Esta es la base de datos real del experimento transferido, que contiene 81.969 células medidas en 196 pozos. Plate Viewer lee los nombres de tablas y sólo los identificadores y las columnas de medición necesarias para la vista seleccionada.",
+      "speech_text": "Baje una base de datos de mediciones o su carpeta de ejecución, o elija cualquiera de ellos aquí. Esta es la base de datos real del experimento transferido, que contiene 81.969 células medidas en 196 pozos. Plate Viewer lee los nombres de tablas y sólo los identificadores y las columnas de medición necesarias para la vista seleccionada.",
+      "phonemes": "bˈaxe ˈuna βˈase ðe ðˈatos ðe mˌeðiθjˈones o su kaɾpˈeta ðe ˌexekuθjˈon, o elˈixa kwalkjˈeɾa ðe ˈeʎos akˈi. ˈesta ˈes la βˈase ðe ðˈatos reˈal ðel ˌekspeɾimˈɛnto tɾˌansfeɾˈiðo, ke kontjˈene oʧˌɛntaiˈuno.nˌoβeθjˈɛntos sɛsˌɛntainwˈeβe θˈelulas meðˈiðas en θjˈento noβˌɛntaisˈAs pˈoθos. plˈate βjewˈeɾ lˈee los nˈombɾes ðe tˈaβlas i sˈolo los ˌiðentˌifikaðˈoɾes i las kolˈumnas ðe mˌeðiθjˈon nˌeθesˈaɾjas pˌaɾa la βˈista sˌelekθjonˈaða."
     },
     {
       "scene": 3,
-      "speech_start": 22.224999999999998,
-      "speech_end": 29.974999999999998,
-      "scene_end": 30.424999999999997,
-      "duration": 8.2,
-      "text": "En el área de configuración principal, elija la medición, agregación, normalización, escala de color, controles y diseño de placa."
+      "speech_start": 42.46,
+      "speech_end": 58.260000000000005,
+      "scene_end": 58.92,
+      "duration": 16.46,
+      "text": "Seleccione la tabla de células y una característica numérica. Aquí seleccionamos la intensidad media del canal 1, el canal endoplasmico-retículo. Después del primer renderizado, el selector Plate se rellena a partir de los datos; esta base de datos contiene la placa 1.",
+      "speech_text": "Seleccione la tabla de células y una característica numérica. Aquí seleccionamos la intensidad media del canal 1, el canal endoplasmico-retículo. Después del primer renderizado, el selector Plate se rellena a partir de los datos; esta base de datos contiene la placa 1.",
+      "phonemes": "sˌelekθjˈone la tˈaβla ðe θˈelulas i ˈuna kˌaɾakteɾˈistika numˈeɾika. akˈi sˌelekθjonˈamos la ˌintensiðˈad mˈeðja ðel kanˈal ˈuno, el kanˈal ˌendoplasmˈikoretˈikulo. despwˈes ðel pɾimˈeɾ rˌendeɾiθˈaðo, el sˌelektˈoɾ plˈate se reʎˈena a paɾtˈiɾ ðe los ðˈatos; ˈesta βˈase ðe ðˈatos kontjˈene la plˈaka ˈuno."
     },
     {
       "scene": 4,
-      "speech_start": 30.424999999999997,
-      "speech_end": 45.099999999999994,
-      "scene_end": 45.55,
-      "duration": 15.125,
-      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. Compara las vistas crudas y normalizadas e inspeccione los pozos sospechosos o los patrones de borde sistemáticos."
+      "speech_start": 58.92,
+      "speech_end": 79.22,
+      "scene_end": 79.96,
+      "duration": 21.039999999999992,
+      "text": "Por pozo controla cómo los objetos colapsan a un valor. El medio y el mediano resumen la característica elegida, mientras que el conteo traza el número de objeto. La sólida escala de color del 2 al 98 por ciento evita que un pozo extremo aplanen el resto, y los objetos mínimos por pozo marcan los pozos con poca potencia como en blanco en lugar de cero.",
+      "speech_text": "Por pozo controla cómo los objetos colapsan a un valor. El medio y el mediano resumen la característica elegida, mientras que el conteo traza el número de objeto. La sólida escala de color del 2 al 98 por ciento evita que un pozo extremo aplanen el resto, y los objetos mínimos por pozo marcan los pozos con poca potencia como en blanco en lugar de cero.",
+      "phonemes": "poɾ pˈoθo kontɾˈola kˈomo los oβxˈetos kolˈapsan a ˈum balˈoɾ. el mˈeðjo i el meðjˈano resˈumen la kˌaɾakteɾˈistika ˌelexˈiða, mjˌentɾas ke el kontˈeo tɾˈaθa el nˈumeɾo ðe oβxˈeto. la sˈoliða eskˈala ðe kolˈoɾ ðel ðˈos al noβˌɛntaiˈoʧo poɾ θjˈɛnto eβˈita ke ˈum pˈoθo ekstɾˈemo aplˈanen el rˈesto, i los oβxˈetos mˈinimos poɾ pˈoθo mˈaɾkan los pˈoθos kom pˈoka potˈɛnθja kˌomo em blˈanko en luɣˈaɾ ðe θˈeɾo."
     },
     {
       "scene": 5,
-      "speech_start": 45.55,
-      "speech_end": 53.75,
-      "scene_end": 54.4,
-      "duration": 8.850000000000001,
-      "text": "Cuando el flujo de trabajo esté terminado, se pueden exportar mapas de calor, tablas de pozos seleccionados y diagnósticos de efectos de borde."
+      "speech_start": 79.96,
+      "speech_end": 96.96,
+      "scene_end": 97.61999999999999,
+      "duration": 17.659999999999997,
+      "text": "Haga clic en Render con medio, la escala robusta y un mínimo de 100 celdas. La consulta de la base de datos se almacena en caché, por lo que los cambios posteriores en la agregación, escala de colores, placa o recuento mínimo recomputan la vista sin volver a leer la tabla completa de características.",
+      "speech_text": "Haga clic en Render con medio, la escala robusta y un mínimo de 100 celdas. La consulta de la base de datos se almacena en caché, por lo que los cambios posteriores en la agregación, escala de colores, placa o recuento mínimo recomputan la vista sin volver a leer la tabla completa de características.",
+      "phonemes": "ˈaɣa klˈik en rendˈeɾ kon mˈeðjo, la eskˈala roβˈusta i ˈun mˈinimo ðe θjˈen θˈelðas. la konsˈulta ðe la βˈase ðe ðˈatos se ˌalmaθˈena en kaʧˈe, poɾ lo ke los kˈambjos pˌosteɾjˈoɾes en la ˌaɣɾeɣaθjˈon, eskˈala ðe kolˈoɾes, plˈaka o rekwˈɛnto mˈinimo rˌekompˈutan la βˈista sim bolβˈeɾ a leˈeɾ la tˈaβla komplˈeta ðe kˌaɾakteɾˈistikas."
+    },
+    {
+      "scene": 6,
+      "speech_start": 97.61999999999999,
+      "speech_end": 120.695,
+      "scene_end": 121.49499999999999,
+      "duration": 23.875,
+      "text": "Todos los 196 pozos medidos sobreviven. La intensidad media de ER no tiene ningún efecto categórico en el anillo exterior, pero el informe real detecta un gradiente de fila monótono con rho de Spearman 0,454. El perfil de anillo y el diagnóstico de filas y columnas mantienen esta tendencia espacial visible junto a la mapa térmica en lugar de dejar que se disfrace de biología.",
+      "speech_text": "Todos los 196 pozos medidos sobreviven. La intensidad media de ER no tiene ningún efecto categórico en el anillo exterior, pero el informe real detecta un gradiente de fila monótono con rho de Spearman 0,454. El perfil de anillo y el diagnóstico de filas y columnas mantienen esta tendencia espacial visible junto a la mapa térmica en lugar de dejar que se disfrace de biología.",
+      "phonemes": "tˈoðos los θjˈento noβˌɛntaisˈAs pˈoθos meðˈiðos sˌoβɾeβˈiβen. la ˌintensiðˈad mˈeðja ðe ˌeˈɛre nˈo tjˈene niŋɡˈun efˈekto kˌateɣˈoɾiko en el anˈiʎo ˌeksteɾjˈoɾ, pˌeɾo el infˈoɾme reˈal ðetˈekta ˈuŋ ɡɾaðjˈɛnte ðe fˈila monˈotono kon ˌereˌaʧeˈo ðe speˈaɾman θˈeɾo,kwˌatɾoθjˈentos θinkwˌɛntaikwˈatɾo. el peɾfˈil ðe anˈiʎo i el ðjaɡnˈostiko ðe fˈilas i kolˈumnas mantjˈenen ˈesta tendˈɛnθja ˌespaθjˈal βisˈiβle xˈunto a la mˈapa tˈeɾmika en luɣˈaɾ ðe ðexˈaɾ ke se ðisfɾˈaθe ðe βjˌoloxˈia."
+    },
+    {
+      "scene": 7,
+      "speech_start": 121.49499999999999,
+      "speech_end": 139.39499999999998,
+      "scene_end": 140.075,
+      "duration": 18.58,
+      "text": "Haga clic en cualquier pozo para obtener su identificador exacto, el número de objetos, el valor agregado y la posición del anillo. G07 es un pozo interior aquí. Este mapeo directo es útil para decidir si un golpe aparente pertenece a un patrón espacial antes de abrir sus campos o cultivos en otro lugar.",
+      "speech_text": "Haga clic en cualquier pozo para obtener su identificador exacto, el número de objetos, el valor agregado y la posición del anillo. G07 es un pozo interior aquí. Este mapeo directo es útil para decidir si un golpe aparente pertenece a un patrón espacial antes de abrir sus campos o cultivos en otro lugar.",
+      "phonemes": "ˈaɣa klˈik en kwalkjˈeɾ pˈoθo pˌaɾa ˌobtenˈeɾ su ˌiðentˌifikaðˈoɾ eksˈakto, el nˈumeɾo ðe oβxˈetos, el βalˈoɾ ˌaɣɾeɣˈaðo i la pˌosiθjˈon del anˈiʎo. xˈe θˈeɾo sjˈete ˈes ˈum pˈoθo ˌinteɾjˈoɾ akˈi. ˈeste mapˈeo ðiɾˈekto ˈes ˈutil pˌaɾa ðˌeθiðˈiɾ si ˈuŋ ɡˈolpe ˌapaɾˈɛnte pˌeɾtenˈeθe a ˈum patɾˈon ˌespaθjˈal ˈantes ðe aβɾˈiɾ sus kˈampos o kultˈiβos en ˈotɾo luɣˈaɾ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 140.075,
+      "speech_end": 156.375,
+      "scene_end": 157.015,
+      "duration": 16.939999999999998,
+      "text": "Cambiar por bien a contar. El conteo ignora el valor de intensidad seleccionado y los colores por el número de células retenidas, que a menudo es la vista de control de calidad más rápida para la toxicidad, pérdida de segmentación, siembra desigual o crecimiento dependiente del borde.",
+      "speech_text": "Cambiar por bien a contar. El conteo ignora el valor de intensidad seleccionado y los colores por el número de células retenidas, que a menudo es la vista de control de calidad más rápida para la toxicidad, pérdida de segmentación, siembra desigual o crecimiento dependiente del borde.",
+      "phonemes": "kambjˈaɾ poɾ βjˈen a kontˈaɾ. el kontˈeo iɡnˈoɾa el βalˈoɾ ðe ˌintensiðˈad sˌelekθjonˈaðo i los kolˈoɾes poɾ el nˈumeɾo ðe θˈelulas rˌetenˈiðas, ke a menˈuðo ˈes la βˈista ðe kontɾˈol ðe kˌaliðˈad mˈas rˈapiða pˌaɾa la tˌoksiθiðˈad, pˈeɾðiða ðe sˌeɡmentaθjˈon, sjˈembɾa ðˌesiɣwˈal o kɾˌeθimjˈɛnto ðˌependjˈɛnte ðel βˈoɾðe."
+    },
+    {
+      "scene": 9,
+      "speech_start": 157.015,
+      "speech_end": 176.815,
+      "scene_end": 177.635,
+      "duration": 20.620000000000005,
+      "text": "La vista de recuento real expone un efecto de anillo externo: los pozos de borde contienen 14.3% más células que el interior, con el delta de Cliff 0.571 y p igual a 0.0003817. El informe indica la dirección y la magnitud del efecto en lugar de pedirle que lo deduzca solo por el color.",
+      "speech_text": "La vista de recuento real expone un efecto de anillo externo: los pozos de borde contienen 14.3% más células que el interior, con el delta de Cliff 0.571 y p igual a 0.0003817. El informe indica la dirección y la magnitud del efecto en lugar de pedirle que lo deduzca solo por el color.",
+      "phonemes": "la βˈista ðe rekwˈɛnto reˈal ekspˈone ˈun efˈekto ðe anˈiʎo ekstˈeɾno: los pˈoθos ðe βˈoɾðe kontjˈenen katˈoɾθe.tɾˈes poɾθjˈɛnto mˈas θˈelulas ke el ˌinteɾjˈoɾ, kon el ðˈelta ðe klˈiff θˈeɾo.kinjˈɛntos sɛtˌɛntaiˈuno i pˈe iɣwˈal a θˈeɾo.θˈeɾopˌunto θˈeɾoθˈeɾotɾˈespunto ˈoʧoˈunosjˈete. el infˈoɾme indˈika la ðˌiɾekθjˈon i la mˌaɡnitˈud ðel efˈekto en luɣˈaɾ ðe peðˈiɾle ke lo ðeðˈuθka sˈolo poɾ el kolˈoɾ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 177.635,
+      "speech_end": 194.91,
+      "scene_end": 195.53,
+      "duration": 17.89500000000001,
+      "text": "Elevar los objetos mínimos por pozo a 350 cuando ese recuento es la evidencia mínima requerida para la comparación. El filtro es un umbral de calidad, no una regla de imputación: los pozos por debajo de él abandonan el análisis numérico y se convierten en espacios en blanco cruzados.",
+      "speech_text": "Elevar los objetos mínimos por pozo a 350 cuando ese recuento es la evidencia mínima requerida para la comparación. El filtro es un umbral de calidad, no una regla de imputación: los pozos por debajo de él abandonan el análisis numérico y se convierten en espacios en blanco cruzados.",
+      "phonemes": "ˌeleβˈaɾ los oβxˈetos mˈinimos poɾ pˈoθo a tɾesθjˈentos θinkwˈɛnta kwˌando ˈese rekwˈɛnto ˈes la ˌeβiðˈɛnθja mˈinima rˌekeɾˈiða pˌaɾa la kˌompaɾaθjˈon. el fˈiltɾo ˈes ˈun umbɾˈal ðe kˌaliðˈad, nˈo ˈuna rˈeɣla ðe ˌimputaθjˈon: los pˈoθos poɾ ðeβˈaxo ðe ˈel ˌaβandˈonan el anˈalisis numˈeɾiko i se kombjˈeɾten en espˈaθjos em blˈanko kɾuθˈaðos."
+    },
+    {
+      "scene": 11,
+      "speech_start": 195.53,
+      "speech_end": 213.88,
+      "scene_end": 214.66,
+      "duration": 19.129999999999995,
+      "text": "Veintiocho de los 196 pozos medidos ahora están caídos, dejando 168 para la prueba de borde. El efecto del anillo exterior sigue siendo detectable en más del 10,5%. Las células cruzadas en la mapa de calor faltan después de filtrarse; nunca se colorean como si su valor fuera cero.",
+      "speech_text": "Veintiocho de los 196 pozos medidos ahora están caídos, dejando 168 para la prueba de borde. El efecto del anillo exterior sigue siendo detectable en más del 10,5%. Las células cruzadas en la mapa de calor faltan después de filtrarse; nunca se colorean como si su valor fuera cero.",
+      "phonemes": "bAntjˈoʧo ðe los θjˈento noβˌɛntaisˈAs pˈoθos meðˈiðos aˈoɾa estˈan kaˈiðos, dexˈando θjˈento sɛsˌɛntaiˈoʧo pˌaɾa la pɾuˈeβa ðe βˈoɾðe. el efˈekto ðel anˈiʎo ˌeksteɾjˈoɾ sˈiɣe sjˈɛndo ðˌetektˈaβle en mˈas ðel ðjˈɛθ,θˈinko poɾθjˈɛnto. las θˈelulas kɾuθˈaðas en la mˈapa ðe kalˈoɾ fˈaltan despwˈes ðe filtɾˈaɾse; nˈunka se kˌoloɾˈean kˌomo si su βalˈoɾ fwˈeɾa θˈeɾo."
+    },
+    {
+      "scene": 12,
+      "speech_start": 214.66,
+      "speech_end": 231.98499999999999,
+      "scene_end": 232.665,
+      "duration": 18.004999999999995,
+      "text": "Haga clic en un pozo cruzado para confirmar por qué está en blanco. El C14 contiene 233 células medidas, menos de las 350 requeridas, por lo que la lectura informa en blanco y nombra el umbral. Esto hace que el bajo soporte sea distinguible de un recuento real de cero.",
+      "speech_text": "Haga clic en un pozo cruzado para confirmar por qué está en blanco. El C14 contiene 233 células medidas, menos de las 350 requeridas, por lo que la lectura informa en blanco y nombra el umbral. Esto hace que el bajo soporte sea distinguible de un recuento real de cero.",
+      "phonemes": "ˈaɣa klˈik en ˈum pˈoθo kɾuθˈaðo pˌaɾa kˌonfiɾmˈaɾ poɾ kˈe estˈa em blˈanko. el θˈe katˈoɾθe kontjˈene ðosθjˈentos tɾˌAntaitɾˈes θˈelulas meðˈiðas, mˈenos ðe las tɾesθjˈentos θinkwˈɛnta rˌekeɾˈiðas, poɾ lo ke la lektˈuɾa infˈoɾma em blˈanko i nˈombɾa el umbɾˈal. ˈesto ˈaθe ke el βˌaxo sopˈoɾte sˈea ðˌistiŋɡˈiβle ðe ˈun rekwˈɛnto reˈal ðe θˈeɾo."
+    },
+    {
+      "scene": 13,
+      "speech_start": 232.665,
+      "speech_end": 251.89,
+      "scene_end": 252.57,
+      "duration": 19.905,
+      "text": "Haga clic en Export well grid CSV para guardar la vista ordenada actual. Cada fila conserva la identidad del pozo, el número de objetos, el valor mostrado, el índice de anillos y la bandera de borde, por lo que el resultado a nivel de placa se puede auditar o replantear fuera de spaCR sin exportar la tabla de características a nivel de objetos.",
+      "speech_text": "Haga clic en Export well grid CSV para guardar la vista ordenada actual. Cada fila conserva la identidad del pozo, el número de objetos, el valor mostrado, el índice de anillos y la bandera de borde, por lo que el resultado a nivel de placa se puede auditar o replantear fuera de espáquer sin exportar la tabla de características a nivel de objetos.",
+      "phonemes": "ˈaɣa klˈik en ekspˈoɾt wˈeʎ ɣɾˈid θˌeˌeseˈuβe pˌaɾa ɣwaɾðˈaɾ la βˈista ˌoɾðenˈaða aktwˈal. kˈaða fˈila konsˈeɾβa la ˌiðentiðˈad ðel pˈoθo, el nˈumeɾo ðe oβxˈetos, el βalˈoɾ mostɾˈaðo, el ˈindiθe ðe anˈiʎos i la βandˈeɾa ðe βˈoɾðe, poɾ lo ke el rˌesultˈaðo a niβˈel ðe plˈaka se pwˈeðe ˌWðitˈaɾ o rˌeplanteˈaɾ fwˈeɾa ðe espˈakeɾ sin ˌekspoɾtˈaɾ la tˈaβla ðe kˌaɾakteɾˈistikas a niβˈel ðe oβxˈetos."
+    },
+    {
+      "scene": 14,
+      "speech_start": 252.57,
+      "speech_end": 273.245,
+      "scene_end": 274.105,
+      "duration": 21.535000000000025,
+      "text": "La exportación verificada contiene 168 pozos, que coinciden exactamente con el mapa de calor filtrado. Una verificación antes y después de SHA-256 confirma que la base de datos de mediciones de origen es idéntica en byte, completando un pase de control de calidad de placas de lectura única con una tabla derivada rastreable.",
+      "speech_text": "La exportación verificada contiene 168 pozos, que coinciden exactamente con el mapa de calor filtrado. Una verificación antes y después de SHA-256 confirma que la base de datos de mediciones de origen es idéntica en byte, completando un pase de control de calidad de placas de lectura única con una tabla derivada rastreable.",
+      "phonemes": "la ˌekspoɾtaθjˈom bˌeɾifikˈaða kontjˈene θjˈento sɛsˌɛntaiˈoʧo pˈoθos, ke koɪnθˈiðen eksˈaktamˈente kon el mˈapa ðe kalˈoɾ filtɾˈaðo. ˈuna βˌeɾifˌikaθjˈon ˈantes i ðespwˈes ðe ˌeseˌaʧeˈa dosθjˈentos θinkwˌɛntaisˈAs konfˈiɾma ke la βˈase ðe ðˈatos ðe mˌeðiθjˈones ðe oɾˈixen ˈes iðˈentika em βˈite, kˌompletˈando ˈum pˈase ðe kontɾˈol ðe kˌaliðˈad ðe plˈakas ðe lektˈuɾa ˈunika kon ˈuna tˈaβla ðˌeɾiβˈaða rˌastɾeˈaβle."
     }
   ]
 }
