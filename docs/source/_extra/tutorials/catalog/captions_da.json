@@ -486,19 +486,73 @@
       "id": "11_classify_ml",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker Classify, machine learning. Trænsfunktionsbaserede klassifikatorer som XGBoost eller tilfældig skov fra målede enkeltobjektdata."
+          "narration": "Classify ML træner en klassisk maskinlæringsmodel på målinger pr. objekt. Konsolen rapporterer databaselydning, filtrering, platkorrigering, modelfitting, valideringsmetrikker, funktionens betydning, gemte forudsigelser og fejl."
         },
         {
-          "narration": "Open Classify, maskinlæring fra Core sektionen. Vælg en måledatabase, etikettekolonne, funktionsfamilier og eksperimentelle grupperingskolonne."
+          "narration": "Chatfeltet accepterer spørgsmål om denne arbejdsproces. Lad AI styre et spørgsmål gennem den valgte udbyder, og brug den tilstødende pil til at åbne udbydermenuen."
         },
         {
-          "narration": "I hovedkonfigurationsområdet konfigurere filtrering, skalering, valg af funktioner, klassebalancering, modelfamilie og lækage-sikre splits."
+          "narration": "Udbydere rapporterer om Claude-, ChatGPT- og Gemini-kommandolinjeklienter er installeret, og giver deres installations- og login-kommandoer. Oplysninger forbliver hos hver sælger."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. krydsvaliderede modelvalg og reservere et holdt evalueringssæt, når det er muligt."
+          "narration": "AI-indstillinger styrer responsdybden, automatiske fejlforklaringer, valgfri GitHub-problemrapportering, logging-in og spaCR-bevidste systemprompten."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, modtager projektet forudsigelser, funktionens betydning, præstationstabeller og serialiserede modeller."
+          "narration": "Træk det målte tutorialprojekt ind i Classify ML. Drophandleren løser measurements/measurements.db, som beskriver 81.969 reelle cellulære afgrøder; 6.598 er i kolonne c1 og 6.487 er i kolonne c2."
+        },
+        {
+          "narration": "Essentials viser databasen, kontrolkartografi, ER-kanal og modelfamilie, der er nødvendige for en første funktionbaseret klassificering."
+        },
+        {
+          "narration": "Ændret begrænser panelen til værdier, der adskiller sig fra spaCR standarder, hvilket gør bevidst valg som kontrolcentring, skæring af funktioner og databaseudgang let at kontrollere."
+        },
+        {
+          "narration": "Alle indstillinger afslører hver kategori uden at ændre værdier. Kategorierne organiserer kontroller efter deres rolle i analysen."
+        },
+        {
+          "narration": "Recipes gemmer denne komplette konfiguration under et navn, anvender den senere, eller importerer og eksporterer en genbrugbar indstillingerfil."
+        },
+        {
+          "narration": "Indsend fjernbilleder af de afviklede Classify ML-indstillinger og sender opgaven til distribueret job-arbejdsområde."
+        },
+        {
+          "narration": "Distributed Jobs kortlægger projektveje og beregningsressourcer til en fjerntliggende arbejdsstation, Slurm-cluster eller konfigureret kommando, og sender derefter og overvåger samme køre."
+        },
+        {
+          "narration": "Data and Controls udvælger måleprojektet og identificerer metadata kolonne og værdier, der definerer positive og negative eksempler. Tjek etiketterne, før du monterer noget."
+        },
+        {
+          "narration": "Funktion Forberedelse vælger interessekanalen og fjerner ekskluderede, lavvarianter, meget korrelerede, lavt antal eller biologisk ugyldige målinger før træningen."
+        },
+        {
+          "narration": "Plade- og batchkorrigering kontrollerer normalisering pr. plade. Her er hver plade centreret på sine c1-negative kontrolceller samtidig med at den biologiske kontrast med c2 bevares."
+        },
+        {
+          "narration": "Klassifikator og validering udvælger XGBoost eller en anden estimator, dens kompleksitet og regulering, hold-out fraktion og krydsvalidering adfærd."
+        },
+        {
+          "narration": "Feature Selection og Importance kontrollerer den endelige beskæring, antallet af bevarede funktioner og gentagne permutationsprøver, der afslører, hvilke målinger der understøtter klassifikatoren."
+        },
+        {
+          "narration": "Output og Database bestemmer, om forudsigelser og modellens score skrives tilbage til målebaseen for senere spaCR-moduler."
+        },
+        {
+          "narration": "Plots and Heatmaps vælger den opsummerede funktion, grupperingsreglen, farvekortet og værdiområdet, der bruges til at visualisere plate-niveau resultater. Disse kontroller ændrer ikke den monterede model."
+        },
+        {
+          "narration": "Arbejdstid og pålidelighed kontrollerer logging og antal arbejdere. Brug færre arbejdere, når du deler en arbejdsstation, og hold verbose output, mens du validerer en ny arbejdsproces."
+        },
+        {
+          "narration": "For denne vejledning er columnID kildekoden: c1 er den negative kontrol og c2 er den positive kontrol. Kartlægningen bruger de to første platekolumner nøjagtigt som anmodet."
+        },
+        {
+          "narration": "Hyperparameter Search sammenligner kandidatens indlæringshastigheder, estimatorantaller og reguleringsværdier med fem gange validering. Resultattabellen viser de afsluttetes forsøg ved hjælp af det valgte kriterium."
+        },
+        {
+          "narration": "Søgeindstillinger definerer det nøjagtige kandidatrum, søgemodus, antal forsøg, fold, tilfældig frø og optimeringskriterium. Luk den, når du har gennemgået grænserne."
+        },
+        {
+          "narration": "Run validerer projektet og styrer kartlægningen, forbereder funktioner, anvender platkorrigering, evaluerer klassifikatoren, beregner betydning, tegner sammenfatninger og skriver aktiverede udgange. Stop anmoder om en sikker afbrydelse."
         }
       ]
     },
