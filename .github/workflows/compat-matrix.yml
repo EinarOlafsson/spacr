@@ -43,6 +43,15 @@ on:
     - cron: "0 5 * * 1"
   workflow_dispatch:
 
+# One run per ref, newest wins. The grid is wide and slow, so a run of pushes
+# to the same branch is the most expensive thing that can happen to the
+# runner pool: on 5 August it queued a full grid per commit, starved every
+# runner for hours, and held the docs deploy behind it. Only the newest
+# commit on a branch is worth the grid.
+concurrency:
+  group: compat-matrix-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # -------------------------------------------------------------------------
   # 1. Packaging metadata. Cheap, fast, blocking. No scientific stack.
