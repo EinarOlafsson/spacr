@@ -2579,7 +2579,87 @@ class PreferencesDialog:
             save_button.setText(tr("Save"))
         if cancel_button is not None:
             cancel_button.setText(tr("Cancel"))
+        # `ResetRole` is what puts it on the LEFT, away from Save and
+        # Cancel: every Qt style groups the destructive-ish button apart
+        # from the two that close the dialog, which is what stops it being
+        # clicked by muscle memory aimed at Cancel.
+        reset_button = buttons.addButton(
+            tr("Reset to defaults"), QDialogButtonBox.ResetRole)
+        reset_button.setObjectName("PreferencesReset")
+        reset_button.setToolTip(tr(
+            "Put every preference back to the value a fresh install has. "
+            "Nothing is written until you press Save, so Cancel still "
+            "undoes it."))
         outer.addWidget(buttons)
+
+        def _select(combo, value) -> None:
+            """Point ``combo`` at the entry whose data is ``value``."""
+            if value is None:
+                return
+            index = combo.findData(value)
+            if index >= 0:
+                combo.setCurrentIndex(index)
+
+        def _reset_to_defaults() -> None:
+            """Put every control back to what a fresh install would show.
+
+            Read through the real getters against an EMPTY store rather
+            than from a second copy of the default values. A hand-written
+            table here would be a second place to update every time a
+            preference gains a default, and the failure mode of getting it
+            wrong is silent: a Reset that quietly sets something to a value
+            no code path ever chose.
+
+            Only the controls change. Nothing is persisted until Save, so
+            Cancel still walks away from a reset the user did not mean --
+            which is why this does not write the empty store back.
+            """
+            import os
+            import tempfile
+
+            from PySide6.QtCore import QSettings
+
+            global _settings
+            original = _settings
+            empty = os.path.join(
+                tempfile.mkdtemp(prefix="spacr-defaults-"), "defaults.ini")
+            _settings = lambda: QSettings(empty, QSettings.IniFormat)
+            try:
+                _select(language_combo, get_language())
+                _select(theme_combo, get_theme_choice())
+                _select(ambient_theme_combo, get_ambient_animation())
+                _select(ambient_palette_combo, get_ambient_palette())
+                _select(ambient_dir_combo, get_ambient_drift_direction())
+                _select(dock_combo, get_dock_mode())
+                _select(cb_combo, get_color_blind_mode())
+                _select(fig_format_combo, get_figure_format())
+                _select(png_dpi_combo, get_figure_png_dpi())
+                _select(mode_combo, get_spacr_mode())
+
+                resolution_slider.setValue(
+                    int(round(get_ambient_resolution() * 100)))
+                blur_slider.setValue(int(round(get_ambient_blur() * 100)))
+                speed_slider.setValue(int(round(get_ambient_speed() * 100)))
+                size_slider.setValue(int(round(get_ambient_size() * 100)))
+                density_slider.setValue(
+                    int(round(get_ambient_density() * 100)))
+                spinner_slider.setValue(
+                    int(round(get_spinner_delay() * 10)))
+                scale_slider.setValue(int(round(get_font_scale() * 100)))
+                opacity_slider.setValue(
+                    int(round(get_pane_opacity() * 100)))
+
+                setting_anim_check.setChecked(
+                    get_setting_animations_enabled())
+                field_fade_check.setChecked(get_field_fade_enabled())
+                verbose_check.setChecked(get_verbose_logging())
+                db_edit_check.setChecked(get_db_browser_editable())
+                alpha_check.setChecked(get_show_alpha())
+                beta_check.setChecked(get_show_beta())
+            finally:
+                _settings = original
+
+        reset_button.clicked.connect(_reset_to_defaults)
 
         def _save():
             set_language(language_combo.currentData())
