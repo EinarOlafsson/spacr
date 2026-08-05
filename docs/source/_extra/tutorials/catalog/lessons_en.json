@@ -4853,44 +4853,112 @@
       "title": "Database Browser",
       "series": 4,
       "app_key": "db_browser",
-      "section": "Data and batch runs",
-      "description": "Browse, filter, query, and export measurements dot db without using the sqlite command line.",
+      "section": "Results and quality control",
+      "description": "Inspect, search, filter, page, and export real spaCR measurements while the source database remains read-only.",
       "objectives": [
-        "Understand when to use Database Browser.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Open a measurements database or run folder in spaCR's read-only Database Browser.",
+        "Choose a table, search hundreds of feature columns, and understand chunked preview paging.",
+        "Apply a complete structured SQL filter and export its result without modifying the source database."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "A spaCR measurements database, or a run folder containing measurements/measurements.db.",
       "scenes": [
         {
-          "narration": "This tutorial covers Database Browser. Browse, filter, query, and export measurements dot db without using the sqlite command line.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers Database Browser. Browse, filter, query, and export measurements dot db without using the sqlite command line."
+          "narration": "Database Browser inspects large spaCR result databases without a command line. Open it from Results and quality control. It starts read-only at both layers: the interface does not offer cell editors, and SQLite uses read-only and query-only modes unless editing is deliberately enabled elsewhere.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.72,
+          "speech_text": "Database Browser inspects large spacer result databases without a command line. Open it from Results and quality control. It starts read only at both layers: the interface does not offer cell editors, and S Q Lite uses read only and query only modes unless editing is deliberately enabled elsewhere."
         },
         {
-          "narration": "Open Database Browser from the Data and batch runs section. Open a spaCR SQLite database and select a table or saved query.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Open Database Browser from the Data and batch runs section. Open a spacer SQLite database and select a table or saved query."
+          "narration": "Enter a measurements.db path and click Open. You may instead choose the database, choose its run folder, or drop either anywhere on this screen. Here we open the transferred tutorial experiment's real measurements database.",
+          "visual": "02_open",
+          "focus_key": "source",
+          "click_key": "open",
+          "hold_after": 0.64,
+          "speech_text": "Enter a measurements dot D B path and click Open. You may instead choose the database, choose its run folder, or drop either anywhere on this screen. Here we open the transferred tutorial experiment's real measurements database."
         },
         {
-          "narration": "In the main configuration area, configure columns, filters, sorting, row limits, joins, and safe read-only or editable behavior.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, configure columns, filters, sorting, row limits, joins, and safe read-only or editable behavior."
+          "narration": "spaCR resolves the path, opens it read-only, and lists ten tables. These include object measurements, image records, settings, counts, and annotation history. Edit mode remains off; this tutorial never enables it and never writes to the source.",
+          "visual": "03_tables",
+          "focus_key": "database",
+          "hold_after": 0.72,
+          "speech_text": "Spacer resolves the path, opens it read only, and lists ten tables. These include object measurements, image records, settings, counts, and annotation history. Edit mode remains off; this tutorial never enables it and never writes to the source."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview queries and preserve object identifiers when exporting or making authorized edits.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview queries and preserve object identifiers when exporting or making authorized edits."
+          "narration": "Click the Cell table. It contains 81,969 measured cells and 218 identifier, morphology, intensity, texture, distance, and colocalization columns. The preview fetches only its first bounded chunk, while the complete row count is reported separately.",
+          "visual": "04_cell_table",
+          "focus_key": "preview",
+          "click_key": "cell_click",
+          "hold_after": 0.78,
+          "speech_text": "Click the Cell table. It contains eighty one thousand nine hundred sixty nine measured cells and two hundred eighteen identifier, morphology, intensity, texture, distance, and colocalization columns. The preview fetches only its first bounded chunk, while the complete row count is reported separately."
         },
         {
-          "narration": "When the workflow finishes, filtered tables can be copied or exported while the original database remains traceable.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, filtered tables can be copied or exported while the original database remains traceable."
+          "narration": "Search columns to make a wide feature table readable. The query cell_channel_1_mean instantly narrows 218 displayed columns to the single channel-1 mean-intensity feature. This changes only the view; it does not rerun the database query or remove rows.",
+          "visual": "05_column_search",
+          "focus_key": "column_search",
+          "hold_after": 0.7,
+          "speech_text": "Search columns to make a wide feature table readable. The query cell channel one mean instantly narrows two hundred eighteen displayed columns to the single channel one mean intensity feature. This changes only the view; it does not rerun the database query or remove rows."
+        },
+        {
+          "narration": "Clear the column search and set Rows per fetch to 250. The preview uses keyset paging rather than a deep offset, so each request remains bounded as the table grows. Click Load more to append the next chunk without loading all 81,969 rows into memory.",
+          "visual": "06_paging",
+          "focus_key": "paging",
+          "click_key": "load_more",
+          "hold_after": 0.74,
+          "speech_text": "Clear the column search and set Rows per fetch to two hundred fifty. The preview uses key set paging rather than a deep offset, so each request remains bounded as the table grows. Click Load more to append the next chunk without loading all eighty one thousand nine hundred sixty nine rows into memory."
+        },
+        {
+          "narration": "The preview now shows 500 of 81,969 rows. Sorting stays off while only part of the table is loaded, because sorting a partial page would misrepresent the full dataset. Database filters, however, always run against the complete table.",
+          "visual": "07_more_rows",
+          "focus_key": "preview",
+          "hold_after": 0.7,
+          "speech_text": "The preview now shows five hundred of eighty one thousand nine hundred sixty nine rows. Sorting stays off while only part of the table is loaded, because sorting a partial page would misrepresent the full data set. Database filters, however, always run against the complete table."
+        },
+        {
+          "narration": "Build a structured filter by choosing cell_area, greater than or equal to, and 10,000, then click Apply filter. spaCR validates the column and operator and binds the value as a parameter. Raw SQL is available for advanced predicates, but is unnecessary here.",
+          "visual": "08_filter",
+          "focus_key": "filter",
+          "click_key": "apply",
+          "hold_after": 0.72,
+          "speech_text": "Build a structured filter by choosing cell area, greater than or equal to, and ten thousand, then click Apply filter. Spacer validates the column and operator and binds the value as a parameter. Raw S Q L is available for advanced predicates, but is unnecessary here."
+        },
+        {
+          "narration": "The complete filter contains 12,907 cells. Only the first 250 are painted, yet the exact filtered count and the active predicate remain visible. This distinction prevents a preview-page size from being mistaken for the population size.",
+          "visual": "09_filtered",
+          "focus_key": "preview",
+          "hold_after": 0.72,
+          "speech_text": "The complete filter contains twelve thousand nine hundred seven cells. Only the first two hundred fifty are painted, yet the exact filtered count and the active predicate remain visible. This distinction prevents a preview page size from being mistaken for the population size."
+        },
+        {
+          "narration": "Click Export filtered CSV. Exports stream the entire current table and filter rather than only the loaded preview, and they honor the visible-column search if one is active. With the search cleared, this export retains all 218 columns.",
+          "visual": "10_export",
+          "focus_key": "filter_export",
+          "click_key": "export",
+          "hold_after": 0.7,
+          "speech_text": "Click Export filtered C S V. Exports stream the entire current table and filter rather than only the loaded preview, and they honor the visible column search if one is active. With the search cleared, this export retains all two hundred eighteen columns."
+        },
+        {
+          "narration": "The status confirms an export of 12,907 rows by 218 columns. The derived CSV is the only new file created. A before-and-after SHA-256 check confirms that measurements.db is byte-identical, and no journal or write-ahead-log file appeared beside it.",
+          "visual": "11_exported",
+          "focus_key": "status",
+          "hold_after": 0.82,
+          "speech_text": "The status confirms an export of twelve thousand nine hundred seven rows by two hundred eighteen columns. The derived C S V is the only new file created. A before and after S H A two fifty six check confirms that measurements dot D B is byte identical, and no journal or write ahead log file appeared beside it."
+        },
+        {
+          "narration": "Click Clear to remove the predicate and reload the first bounded chunk. Filters are reversible view state: clearing one does not alter rows in the database or the previously exported file.",
+          "visual": "12_clear",
+          "focus_key": "filter",
+          "click_key": "clear",
+          "hold_after": 0.62,
+          "speech_text": "Click Clear to remove the predicate and reload the first bounded chunk. Filters are reversible view state: clearing one does not alter rows in the database or the previously exported file."
+        },
+        {
+          "narration": "All 81,969 cells are visible to the browser again, with only the first 250 loaded. This completes a traceable read-only workflow for exploring large spaCR measurement tables and exporting precisely defined subsets.",
+          "visual": "13_restored",
+          "focus_key": "preview",
+          "hold_after": 0.78,
+          "speech_text": "All eighty one thousand nine hundred sixty nine cells are visible to the browser again, with only the first two hundred fifty loaded. This completes a traceable read only workflow for exploring large spacer measurement tables and exporting precisely defined subsets."
         }
       ]
     },
