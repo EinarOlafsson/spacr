@@ -1372,19 +1372,64 @@
       "id": "25_recruitment",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt die Rekrutierung. Quantifizieren Sie die Rekrutierung eines Interessensignals für Parasiten oder mit Krankheitserregern verbundene Regionen."
+          "narration": "Die Rekrutierung misst die Anreicherung eines Marker in parasit-assoziierten Regionen im Verhältnis zum umliegenden Gastzellzytoplasma. Die Konsole erfasst gelöste Einstellungen, Filterzahlen, Ausgabewege, Zahlen, Warnungen und Fehler; die Chatbox kann diesen Kontext diskutieren, wenn KI aktiviert ist."
         },
         {
-          "narration": "Eröffnete Rekrutierung im Bereich Toxoplasma-Analysen. Verwenden Sie gemessene Zell-, Parasiten- und Organelmasken mit Kanal eins, endoplasmischem Retikum, als Kanal des Interesses."
+          "narration": "Verwenden Sie die KI nur, wenn Sie Chat-Hilfe wollen. Das angrenzende Menü wählt einen konfigurierten Anbieter aus und öffnet die Provider-Einstellungen; die Rekrutierung selbst läuft lokal und hängt nicht von einem KI-Service ab."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich definieren Sie die Rekrutierungsregion, Hintergrundreferenz, Objektfilter, Gruppierung und Normalisierungsstrategie."
+          "narration": "Die Provider-Einstellung unterscheidet lokale von gehosteten Assistenten. Konfigurieren Sie nur die Dienste, die Sie verwenden möchten, und überprüfen Sie die Datenschutzerklärung, bevor Sie den Konzoll- oder Bildkontext an einen Remote-Anbieter senden."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Überlagerungen auf Objektebene zu überprüfen und Verteilungen zu kontrollieren, bevor Bedingungen verglichen werden."
+          "narration": "AI-Einstellungen steuern den Assistenten-Kontext, die Anmeldeinformationen und die optionale Fehlermeldung. Diese Präferenzen ändern die Einstellungsformel, Objektfilter oder Plattenanmerkungen nicht."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden die Einstellungswerte und Konditionsüberschriften pro Objekt mit Quell-Identifikatoren gespeichert."
+          "narration": "Wählen Sie die Experimentwurzel mit Messungen/Messungen.db und dem verschmelzten Ordner aus oder lassen Sie sie fallen. Dieses Tutorial verwendet das übertragene HeLa siRNA-Experiment, nicht synthetische Daten, wobei Kanal 1 das ER-Signal als Kanal des Interesses verwendet wird."
+        },
+        {
+          "narration": "Essentials präsentiert die Quelle, die Kanalkarte, die Filter, das Plattenlayout und die diagnostischen Entscheidungen, die für einen ersten Lauf benötigt werden. Bestätigen Sie die Karte, bevor Sie Schwellenwerte anpassen, denn ein gültiger, aber falscher Kanalindex kann plausible, falsche Verhältnisse erzeugen."
+        },
+        {
+          "narration": "Modifizierte Anzeigen zeigen nur absichtliche Abweichungen von Standardfunktionen. Verwenden Sie es als kompaktes Audit des echten Experimentes, des ER-Kanals eins, der drei Maskenplanen, Flächenfilter, Kontrollspalten und diagnostischen Entscheidungen."
+        },
+        {
+          "narration": "Alle Einstellungen decken jede Steuerung bei der Wiedergabe oder Fehlerbehebung eines Laufs aus. Zurück zu Essentials, wenn die zusätzlichen Kontrollen nicht benötigt werden, so dass die fortgeschrittenen Werte nicht versehentlich geändert werden."
+        },
+        {
+          "narration": "Rezepte bewahren eine validierte Rekrutierungskonfiguration für Wiederverwendung oder Weitergabe. Erhalten Sie eine nur, nachdem die Kanalkartierung, Steuerungsbrunnen und Filter gegen repräsentative Bilder und Verteilungen geprüft wurden."
+        },
+        {
+          "narration": "Submit Remote sendet die gelösten Einstellungen an Distributed Jobs anstatt lokal zu starten. Verwenden Sie es nur für eine große Datenbank, nachdem das Remote-System sowohl measurements.db als auch die fusionierten Arrays unter korrekt kartierten Pfaden zugreifen kann."
+        },
+        {
+          "narration": "Der Fernbildschirm erhält einen Jobentwurf. Überprüfen Sie die Aktivierung der Umgebung, die Synchronisierung, die Ressourcen und den generierten Befehl und stellen Sie dann einen kleinen Validierungsjob vor, bevor Sie auf eine vollständige Platte skalieren."
+        },
+        {
+          "narration": "Die Datenquelle enthält die experimentelle Wurzel. Die Rekrutierung liest vorhandene Messungen von Zellen, Kern, Parasiten und Zytoplasma; sie segmentiert oder misst keine Bilder neu."
+        },
+        {
+          "narration": "Maske und Kanalkarte identifizieren jede Intensität und Maske. Hier benutzen Zellen ER-Kanal eins und Maske vier, Nukleen benutzen Kanal Null und Maske fünf, Parasiten benutzen Kanal drei und Maske sechs, während die Rekrutierung auf ER-Kanal eins berechnet wird."
+        },
+        {
+          "narration": "Objekt Filtern von Zellen, Kernen und Parasiten nach Fläche und Intensität, begrenzen Objekte pro Zelle und benötigen ausreichend Zellen pro Brunnen. Dieser Ablauf hält Zellen über 3500 Pixel, Kerne von 700 bis 4000 und Parasiten von 100 bis 1000."
+        },
+        {
+          "narration": "Platten-Layout und -Steuerungen verzeichnen biologische Etiketten für Zeilen- oder Spaltenidentifikatoren. Spalte 1 ist die positive Steuerung, Spalte 2 ist die negative Steuerung, und Spalten 3 bis 14 sind Bildschirmbrunnen; alle Zeilen sind HeLa Zellen."
+        },
+        {
+          "narration": "Plots and Diagnostics steuert Segmentierungsüberlagerungen, Kontrollintensitätspaneele, Bildgröße und die Anzahl der zusammengesetzten Felder. Überprüfen Sie die Überlagerungen, bevor Sie einem Verhältnis vertrauen, und vergleichen Sie die Steuerungen, bevor Sie Bildschirmbrunnen interpretieren."
+        },
+        {
+          "narration": "Die gesamte Kanalkarte ist hier sichtbar. Für die Diagnose stehen die Kanaldimensionen von Null bis drei zur Verfügung, aber die primäre Rekrutierungsscore ist der Pathogenkanal - eine durchschnittliche Intensität geteilt durch den Zytoplasma-Kanal - eine durchschnittliche Intensität innerhalb der passenden Gastzelle."
+        },
+        {
+          "narration": "Klicken Sie auf Laufen, nachdem Sie die Quelle, Karte, Filter und Steuerungen überprüft haben. Das Backend schließt sich den vier Messtabellen an, annotert die Bedingungen, wendet jedes Objektportal an, berechnet Rekrutierung, gruppiert Brunnen und stellt Diagnosezahlen in Schlange."
+        },
+        {
+          "narration": "Während der Ausführung zeigen die Filterzahlen in der Konsole genau, wo Objekte entfernt werden. Eine große Reduzierung darf nicht automatisch als gut oder schlecht betrachtet werden, sondern mit den beabsichtigten Flächengrenzen, Kontrollverteilungen und Probenüberlagerungen vereinbart werden."
+        },
+        {
+          "narration": "Die eigentliche Laufzeit behielt 399 37 PV-Niveaus auf allen 96 Brunnen und produzierte fünf Ziffern plus cells.csv und wells.csv. Die durchschnittliche ER-Anwerbung auf gutem Niveau beträgt einen Punkt drei fünf vier in der positiven Kontrolle, einen Punkt zwei acht eins in der negativen Kontrolle und einen Punkt drei ein acht in Bildschirmbrunnene bescheidene Trennung, die durch Variabilität und Bild-QC beurteilt werden sollte, nicht allein durch das bedeutet."
         }
       ]
     },
