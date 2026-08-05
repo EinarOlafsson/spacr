@@ -1635,19 +1635,46 @@
       "id": "29_report",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um skýrslu. Búðu til að deila HTML eða PDF samantekt sem inniheldur gæðaeftirlit, tölur, tölur, stillingar og útgáfur."
+          "narration": "Skýrsla er einungis lesandi skjalagerð. Það breytir sönnunargögnum sem þegar eru til staðar í hlaðföldu í deilbar HTML, PDF, eða bæði; það endurreiknar ekki niðurstöður eða skrifa í uppruna mappanum."
         },
         {
-          "narration": "Opið skýrsla frá niðurstöðum og gæðaeftirlitum. Veldu lokið verkefni spaCR og hlaupa, töflur, tölur og deildir til að innihalda."
+          "narration": "Veldu eða slepptu plötu eða keyri möppu sem inniheldur mælingar, gæðaeftirlit, niðurstöður og stillingar og smelltu síðan á Skanna. Þessi námskeiður notar lokið prófferð af flutning raunverulegur tilraun."
         },
         {
-          "narration": "Í aðalmyndunar svæðinu er hægt að setja upp titil, höfundur, skilyrði merkingar, gæðamörk, útgáfuformat og friðhelgi einkalífsins viðkvæma sviði."
+          "narration": "Græna dómurinn kemur frá raunverulegu staðsetningu: allir fimm tilraunir til að mæla náðu árangri. Sex skýrsludeildir eru til staðar og tvær ekki; 17 tölur voru funnar en engin er innbyggjanleg rastermynd."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. sjá fyrirlit á skýrslunni og leysa saknar skrár eða misteknar gæðakönnun áður en útflutningur fer fram."
+          "narration": "Flugið fyrir flugi sýnir nákvæmlega hvað samstarfsaðili fær. Þessi rekstur inniheldur stöðu, uppruna, lykilmyndatölur, tölur, stillingar og viðaukaupplýsingar; QC-flokka og QC-plötur eru enn sýnilega merktar ekki til staðar í stað þess að hverfa."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið skráir flytjanlegur skýrsla niðurstöður ásamt stillingum og hugbúnaðarútgáfum sem nauðsynlegar eru til að endurrita þær."
+          "narration": "Format býður upp á einn sjálfstætt HTML skrá, PDF afrit, eða bæði. Innbyggð í flestum mörkum raster tölur þannig að skýrsla getur ekki vaxið án mörk; núll innbyggir engin myndir, en efri mörk er tvö hundruð."
+        },
+        {
+          "narration": "Veldu áfangastaðinn skýrt. Lögð fram leið er fyrir utan hlaup möppuna svo að búa til skýrslu getur ekki þögugt breytt tilraun sem ætti að vera óbreytt. Hér er HTML skrifað í kennslu vinnusvæðið."
+        },
+        {
+          "narration": "Smelltu á Gerðu skýrslu. spaCR skannar möppuna aftur þannig að skjalið endurspeglar núverandi stöðu þess, innborgar hæfileg raster tölur upp að loftið og skrifar sjálfstætt skrá án netþýðinga."
+        },
+        {
+          "narration": "Niðurstaðan í línunni nafnar skráinni og áfangastaðnum og Open verður aðeins aðgengileg eftir að búið er að skrifa vel. Hér er greint frá mistökum frekar en falinn fyrir bak við módalaga."
+        },
+        {
+          "narration": "Smelltu á Opna til að skila nýjustu gerðu skjalinu til kerfislesara eða PDF-sjáara."
+        },
+        {
+          "narration": "Staðan staðfestir hvaða útgáfa var opnuð. Næstu skoðanir sýna raunverulega HTML gerð af þessu hlaupi frekar en falskt skýrslu."
+        },
+        {
+          "narration": "Skjalið opnar með fullum dómi, heiðarlegum samantektum á saknaðum QC og ekki innbyggðum tölum og tengdum innihaldslista. Kynningarstig skráir fimm af fimm árangursríkum mælingar atriði, en uppruna varðveitir uppruna, spaCR útgáfa, Git endurskoðun, Python umhverfi og pakka útgáfur."
+        },
+        {
+          "narration": "Lykilmyndin nefna allar 17 gleymdar plötur og útskýrir hvers vegna hver er fjarverandi. Þeir eru vektor PDFs, og spaCR hefur meðvitað engin PDF rasterizer treystir; að hækka raster-figure cap myndi ekki umbreyta þeim eða þykjast þeir voru innbyggð."
+        },
+        {
+          "narration": "Stafræðin endurgefur skráðar stærðir töflna í gagnagrunnunum og sparaðar röður í niðurstöðubúðum. Í skýrslunni segir að ekkert á þessari síðu hafi verið endurreiknað, samsett eða prófað, sem varðveitir muninn á því að skrá gögn og endurskoða þær."
+        },
+        {
+          "narration": "Stillingar geymir bæði sparaðar CSV skrár og hlaupblaðsmynd, þar með talið kanallar, hópun, flokkaeftirlit, plotting og runtime gildi. Í tengslum við orðabók með mæluðum eiginleikum í viðauka og skráarsöfnun gerir þetta skýrsluna gagnleg til skoðunar og heldur á við að hvern saknaður kafla sé greinilegur."
         }
       ]
     },

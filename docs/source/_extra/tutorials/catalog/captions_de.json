@@ -1635,19 +1635,46 @@
       "id": "29_report",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst den Bericht. Erstellen Sie eine teilspezifische HTML- oder PDF-Übersicht mit Qualitätskontrolle, Zahlen, Statistiken, Einstellungen und Versionen."
+          "narration": "Report ist ein buchstäblicher Dokumentbau. Es verwandelt die Beweise, die bereits in einem ausgeführten Ordner vorhanden sind, in eine teilspezifische HTML, PDF oder beides; es berechnet die Ergebnisse nicht neu oder schreibt in den Quellordner."
         },
         {
-          "narration": "Offener Bericht aus dem Abschnitt Ergebnisse und Qualitätskontrolle. Wählen Sie ein abgeschlossenes spaCR-Projekt und die zu enthaltenden Linien, Tabellen, Zahlen und Abschnitte aus."
+          "narration": "Wählen Sie oder lassen Sie die Platte oder den Ordner ausführen, in dem Messungen, Qualitätskontrolleartefakte, Ergebnisse und Einstellungen enthalten sind, und klicken Sie dann auf Scan. Dieses Tutorial verwendet den vollendeten Testlauf des real übertragenen Experiments."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie Titel, Urheberrecht, Konditionsetiketten, Qualitätsschwellen, Ausgangsformat und Datenschutzempfindliche Felder."
+          "narration": "Das grüne Urteil stammt von einem tatsächlichen Stempel: Alle fünf versuchten Messungen waren erfolgreich. Sechs Berichtsbereiche sind verfügbar und zwei sind nicht verfügbar; siebzehn Zahlen wurden gefunden, aber keines ist ein eingebettetes Rasterbild."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vorsicht des Berichts und Lösung fehlender Dateien oder fehlender Qualitätskontrollen vor der Ausfuhr."
+          "narration": "Die Abschnittsvorflug zeigt genau, was ein Mitarbeiter erhalten wird. Dieser Ablauf umfasst Status, Herkunft, Inventar von Schlüsselfiguren, Statistiken, Einstellungen und Anhangsdaten; Segmentierung QC und Platten QC bleiben sichtbar nicht verfügbar, anstatt zu verschwinden."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, wird in einem tragbaren Bericht die Schlussfolgerungen zusammen mit den Einstellungen und Softwareversionen, die zur Wiedergabe erforderlich sind, aufgezeichnet."
+          "narration": "Das Format bietet eine eigenständige HTML-Datei, eine PDF-Transkription oder beides. In die meisten Grenzen eingebettet werden Raster-Figuren, so dass ein Bericht nicht ohne Grenzen wachsen kann; Null enthält keine Bilder, während die obere Grenze zweihundert ist."
+        },
+        {
+          "narration": "Wählen Sie den Bestimmungsort ausdrücklich aus. Der vorgeschlagene Pfad befindet sich außerhalb des Lauforders, sodass die Erstellung eines Berichts ein Experiment nicht leise modifizieren kann, das unveränderlich bleiben sollte; hier wird die HTML in den Tutorial-Arbeitsraum geschrieben."
+        },
+        {
+          "narration": "Klicken Sie auf Bericht erstellen. spaCR scannt den Ordner erneut, so dass das Dokument seinen aktuellen Zustand widerspiegelt, berechtigte Raster-Figuren bis zur Kappe eingebettet und eine eigenständige Datei ohne Netzwerkabhängigkeit schreibt."
+        },
+        {
+          "narration": "Das Inline-Ergebnis benennt die Datei und das Ziel, und Open wird erst nach erfolgreichem Schreiben verfügbar. Hier werden Fehler gemeldet, anstatt hinter einem modalen Dialog zu verstecken."
+        },
+        {
+          "narration": "Klicken Sie auf Öffnen, um das neueste erzeugte Dokument an den Systembrowser oder den PDF-Besucher zu übergeben."
+        },
+        {
+          "narration": "Der Status bestätigt, welche Ausgabe geöffnet wurde. Die folgenden Ansichten zeigen den echten HTML, der durch diesen Lauf erzeugt wurde, anstatt einen gefälschten Bericht."
+        },
+        {
+          "narration": "Das Dokument beginnt mit dem vollständigen Urteil, einer ehrlichen Zusammenfassung der fehlenden QC- und nicht eingebetteten Zahlen und einer verknüpften Inhaltsliste. Der Status der Ausführung erfasst fünf von fünf erfolgreichen Messpunkten, während die Herkunft die Quelle, die spaCR-Version, die Git-Revision, die Python-Umgebung und die Paketversionen bewahrt."
+        },
+        {
+          "narration": "Key Figures nennt alle siebzehn ausgelassenen Plots und erklärt, warum jede fehlt. Es sind Vektor-PDF-Dateien, und spaCR hat absichtlich keine PDF-Rasterizer-Abhängigkeit; die Erhöhung der Raster-Figur-Kappe würde sie nicht konvertieren oder so tun, als wären sie eingebettet."
+        },
+        {
+          "narration": "Die Statistik reproduziert die aufgezeichneten Größen der Datenbanktabellen und die gespeicherten Zeilen der Ergebnistabellen. Der Bericht besagt, dass nichts auf dieser Seite neu gezählt, zusammengefasst oder neu getestet wurde, was den Unterschied zwischen der Dokumentation von Beweisen und der Neuanalyse bewahrt hat."
+        },
+        {
+          "narration": "Einstellungen bewahren sowohl die gespeicherten CSV-Dateien als auch den Run-Journal-Snapshot, einschließlich Kanäle, Clustering, Batch-Steuerung, Plotting und Runtime-Werte. Zusammen mit dem im Anhang enthaltenen Wörterbuch mit gemessenen Merkmalen und dem Datei-Inventar ist der Bericht dabei zur Überprüfung nützlich, wobei jeder fehlende Abschnitt explizit behandelt wird."
         }
       ]
     },

@@ -4229,47 +4229,114 @@
       "id": "29_report",
       "number": 29,
       "slug": "report",
-      "title": "Report",
+      "title": "Relazione",
       "series": 4,
       "app_key": "report",
       "section": "Results and quality control",
-      "description": "Crea un riassunto HTML o PDF condivisibile contenente controllo di qualità, cifre, statistiche, impostazioni e versioni.",
+      "description": "Controllare una esecuzione completata, prevedere le prove disponibili e mancanti, e generare un HTML o PDF condivisibile contenente stato, provenienza, QC, risultati, impostazioni e un allegato.",
       "objectives": [
-        "Comprendere quando utilizzare Report.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Scansione una cartella eseguita prima della generazione e distinguere prove complete, parziali, sconosciute e mancanti.",
+        "Scegli il formato di uscita, il cappello e la destinazione al di fuori della cartella di esecuzione immutabile.",
+        "Verificare che il documento generato segnala onestamente la provenienza, le statistiche, le impostazioni, le cifre omesse e le sezioni non disponibili."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Una cartella spaCR contenente eventuali misure disponibili, francobolli, artefatti QC, risultati, impostazioni o cifre.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre Report. Crea un riassunto HTML o PDF condivisibile contenente controllo di qualità, figure, statistiche, impostazioni e versioni.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre Report. Crea un riassunto HTML o PDF condivisibile contenente controllo di qualità, figure, statistiche, impostazioni e versioni."
+          "narration": "Report è un costruttore di documenti solo per lettura. Trasforma le prove già presenti in una cartella eseguita in un HTML condivisibile, PDF, o entrambi; non ricomputa i risultati o scrive nella cartella sorgente.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.6,
+          "speech_text": "Report è un costruttore di documenti solo per lettura. Trasforma le prove già presenti in una cartella eseguita in un HTML condivisibile, PDF, o entrambi; non ricomputa i risultati o scrive nella cartella sorgente."
         },
         {
-          "narration": "Apri Report dalla sezione Results and quality control. Apri Report dalla sezione Risultati e controllo qualità. Scegli un progetto spaCR completato e le corse, tabelle, figure e sezioni da includere.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Apri Report dalla sezione Results and quality control. Apri Report dalla sezione Risultati e controllo qualità. Scegli un progetto spàker completato e le corse, tabelle, figure e sezioni da includere."
+          "narration": "Scegliere o lasciare cadere la targa o eseguire la cartella che contiene le misure, gli artefatti di controllo della qualità, i risultati e le impostazioni, quindi fare clic su Scansione. Questo tutorial utilizza il test completato dell'esperimento reale trasferito.",
+          "visual": "02_source",
+          "focus_key": "source",
+          "click_key": "scan",
+          "hold_after": 0.62,
+          "speech_text": "Scegliere o lasciare cadere la targa o eseguire la cartella che contiene le misure, gli artefatti di controllo della qualità, i risultati e le impostazioni, quindi fare clic su Scansione. Questo tutorial utilizza il test completato dell'esperimento reale trasferito."
         },
         {
-          "narration": "Nell'area di configurazione principale, configurare titolo, autorizzazione, etichette di condizione, soglie di qualità, formato di uscita e campi sensibili alla privacy.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Nell'area di configurazione principale, configurare titolo, autorizzazione, etichette di condizione, soglie di qualità, formato di uscita e campi sensibili alla privacy."
+          "narration": "Il verdetto verde proviene da un vero e proprio marchio di stato di esecuzione: tutti e cinque i tentativi di misura sono riusciti. Sono disponibili sei sezioni di rapporto e due non sono disponibili; sono state trovate diciassette figure, ma nessuna è un'immagine raster incorporata.",
+          "visual": "03_verdict",
+          "focus_key": "scan_result",
+          "hold_after": 0.72,
+          "speech_text": "Il verdetto verde proviene da un vero e proprio marchio di stato di esecuzione: tutti e cinque i tentativi di misura sono riusciti. Sono disponibili sei sezioni di rapporto e due non sono disponibili; sono state trovate diciassette figure, ma nessuna è un'immagine raster incorporata."
         },
         {
-          "narration": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. prevedere il report e risolvere i file mancanti o i controlli di qualità falliti prima dell'esportazione.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. prevedere il report e risolvere i file mancanti o i controlli di qualità falliti prima dell'esportazione."
+          "narration": "La sezione previazione mostra esattamente cosa riceverà un collaboratore. Questa corsa comprende lo stato, la provenienza, l'inventario delle cifre chiave, le statistiche, le impostazioni e i dati dell'appendice; la segmentazione QC e la piastra QC rimangono visibilmente segnate come non disponibili invece di scomparire.",
+          "visual": "04_sections",
+          "focus_key": "sections",
+          "hold_after": 0.72,
+          "speech_text": "La sezione previazione mostra esattamente cosa riceverà un collaboratore. Questa corsa comprende lo stato, la provenienza, l'inventario delle cifre chiave, le statistiche, le impostazioni e i dati dell'appendice; la segmentazione QC e la piastra QC rimangono visibilmente segnate come non disponibili invece di scomparire."
         },
         {
-          "narration": "Quando il flusso di lavoro è terminato, un rapporto portatile registra le conclusioni insieme alle impostazioni e alle versioni del software necessarie per riprodurle.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è terminato, un rapporto portatile registra le conclusioni insieme alle impostazioni e alle versioni del software necessarie per riprodurle."
+          "narration": "Il formato offre un file HTML autonomo, una trascrizione PDF o entrambi. Embedded at most limits raster figure in modo che un rapporto non può crescere senza limite; zero non incorpora immagini, mentre il limite superiore è di duecento.",
+          "visual": "05_options",
+          "focus_key": "options",
+          "hold_after": 0.66,
+          "speech_text": "Il formato offre un file HTML autonomo, una trascrizione PDF o entrambi. Embedded at most limits raster figure in modo che un rapporto non può crescere senza limite; zero non incorpora immagini, mentre il limite superiore è di duecento."
+        },
+        {
+          "narration": "Scegli la destinazione esplicitamente. Il percorso suggerito è al di fuori della cartella di esecuzione, quindi generare un rapporto non può modificare silenziosamente un esperimento che dovrebbe rimanere immutabile; qui l'HTML è scritto nello spazio di lavoro tutorial.",
+          "visual": "06_output",
+          "focus_key": "output",
+          "hold_after": 0.64,
+          "speech_text": "Scegli la destinazione esplicitamente. Il percorso suggerito è al di fuori della cartella di esecuzione, quindi generare un rapporto non può modificare silenziosamente un esperimento che dovrebbe rimanere immutabile; qui l'HTML è scritto nello spazio di lavoro tutorial."
+        },
+        {
+          "narration": "Clicca su Generare rapporto. spaCR scansiona di nuovo la cartella in modo che il documento rifletta il suo stato attuale, inserisce le cifre di raster ammissibili fino al tappo e scrive un file autonomo senza dipendenze dalla rete.",
+          "visual": "07_generate",
+          "focus_key": "output",
+          "click_key": "generate",
+          "hold_after": 0.64,
+          "speech_text": "Clicca su Generare rapporto. spàker scansiona di nuovo la cartella in modo che il documento rifletta il suo stato attuale, inserisce le cifre di raster ammissibili fino al tappo e scrive un file autonomo senza dipendenze dalla rete."
+        },
+        {
+          "narration": "Il risultato in linea indica il file e la destinazione, e Open diventa disponibile solo dopo una successiva scrittura. Qui vengono segnalati i fallimenti piuttosto che nascosti dietro un dialogo modale.",
+          "visual": "08_generated",
+          "focus_key": "result",
+          "hold_after": 0.58,
+          "speech_text": "Il risultato in linea indica il file e la destinazione, e Open diventa disponibile solo dopo una successiva scrittura. Qui vengono segnalati i fallimenti piuttosto che nascosti dietro un dialogo modale."
+        },
+        {
+          "narration": "Fare clic su Apri per consegnare il documento più recente generato al browser del sistema o al visualizzatore PDF.",
+          "visual": "09_open",
+          "focus_key": "output",
+          "click_key": "open",
+          "hold_after": 0.48,
+          "speech_text": "Fare clic su Apri per consegnare il documento più recente generato al browser del sistema o al visualizzatore PDF."
+        },
+        {
+          "narration": "Lo stato conferma quale uscita è stata aperta. Le visualizzazioni successive mostrano il vero HTML generato da questa corsa piuttosto che un falso rapporto.",
+          "visual": "10_opened",
+          "focus_key": "status",
+          "hold_after": 0.52,
+          "speech_text": "Lo stato conferma quale uscita è stata aperta. Le visualizzazioni successive mostrano il vero HTML generato da questa corsa piuttosto che un falso rapporto."
+        },
+        {
+          "narration": "Il documento inizia con il verdetto completo, un sincero riassunto dei dati mancanti e delle cifre non inserite e un elenco di contenuti collegato. Lo stato di esecuzione registra cinque dei cinque elementi di misura di successo, mentre la provenienza conserva la fonte, la versione spaCR, la revisione di Git, l'ambiente Python e le versioni del pacchetto.",
+          "visual": "11_report_top",
+          "hold_after": 0.82,
+          "speech_text": "Il documento inizia con il verdetto completo, un sincero riassunto dei dati mancanti e delle cifre non inserite e un elenco di contenuti collegato. Lo stato di esecuzione registra cinque dei cinque elementi di misura di successo, mentre la provenienza conserva la fonte, la versione spàker, la revisione di Git, l'ambiente Python e le versioni del pacchetto."
+        },
+        {
+          "narration": "Le Figure chiave nominano tutte le diciassette trame omesse e spiegano perché ciascuna è assente. Sono PDF vettoriali, e spaCR deliberatamente non ha alcuna dipendenza dal rasterizer PDF; alzare il cappello della figura raster non li convertirebbe o fingerebbe che fossero incorporati.",
+          "visual": "12_report_figures",
+          "hold_after": 0.72,
+          "speech_text": "Le Figure chiave nominano tutte le diciassette trame omesse e spiegano perché ciascuna è assente. Sono PDF vettoriali, e spàker deliberatamente non ha alcuna dipendenza dal rasterizer PDF; alzare il cappello della figura raster non li convertirebbe o fingerebbe che fossero incorporati."
+        },
+        {
+          "narration": "Le statistiche riproducono le dimensioni delle tabelle di database registrate e le righe della tabella dei risultati salvate. Il rapporto afferma che nulla su questa pagina è stato ricomputo, aggregato o riprovato, preservando la differenza tra la documentazione delle prove e la rianalisi.",
+          "visual": "13_report_statistics",
+          "hold_after": 0.68,
+          "speech_text": "Le statistiche riproducono le dimensioni delle tabelle di database registrate e le righe della tabella dei risultati salvate. Il rapporto afferma che nulla su questa pagina è stato ricomputo, aggregato o riprovato, preservando la differenza tra la documentazione delle prove e la rianalisi."
+        },
+        {
+          "narration": "Le impostazioni conservano sia i file CSV salvati che lo snapshot di run-journal, inclusi canali, clustering, controlli di lotto, tracciamento e valori di runtime. Insieme al dizionario delle caratteristiche misurate dell'appendice e all'inventario dei file, questo rende utile la revisione della relazione mantenendo esplicita ogni sezione mancante.",
+          "visual": "14_report_settings",
+          "hold_after": 0.88,
+          "speech_text": "Le impostazioni conservano sia i file CSV salvati che lo snapshot di run-journal, inclusi canali, clustering, controlli di lotto, tracciamento e valori di runtime. Insieme al dizionario delle caratteristiche misurate dell'appendice e all'inventario dei file, questo rende utile la revisione della relazione mantenendo esplicita ogni sezione mancante."
         }
       ]
     },

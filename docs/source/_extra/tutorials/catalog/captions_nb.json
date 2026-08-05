@@ -1635,19 +1635,46 @@
       "id": "29_report",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker Rapporten. Lag en delbar HTML eller PDF oppsummering som inneholder kvalitetskontroll, tall, statistikk, innstillinger og versjoner."
+          "narration": "Rapport er en bare-les-dokument-bygger. Den forvandler bevisene som allerede er til stede i en run-mappe til en delbar HTML, PDF, eller begge deler; den rekomputerer ikke resultatene eller skriver inn i kildemappen."
         },
         {
-          "narration": "Åpen rapport fra avsnittet Resultater og kvalitetskontroll. Velg et fullført spaCR-prosjekt og de løp, tabeller, tall og seksjoner du vil inkludere."
+          "narration": "Velg eller slippe plåten eller kjøre mappe som inneholder målinger, kvalitetskontroll artefakter, resultater og innstillinger, og klikk deretter Scan. Denne opplæringen bruker overført ekte eksperimentets fullført testløp."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet skal du konfigurere tittelen, opphavsretten, tilstandsetiketter, kvalitetsgrenser, utgangsformat og felt som er følsomme for personvern."
+          "narration": "Den grønne dommen kommer fra et faktisk run-statusstempel: alle fem forsøk på målingstykker lyktes. Seks avdelinger av rapportene er tilgjengelige og to er ikke; det ble funnet 17 tall, men ingen er et innlemmes rasterbilde."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. forutse rapporten og løse manglende filer eller mislykkede kvalitetskontroller før eksport."
+          "narration": "Forflyvningen viser nøyaktig hva en samarbeidspartner vil motta. Denne runnen inkluderer status, opprinnelse, nøkkelfigurinventar, statistikk, innstillinger og vedleggsdata; segmentering QC og plate QC forblir synlig merket ikke tilgjengelig i stedet for å forsvinne."
         },
         {
-          "narration": "Når arbeidsflyten er ferdig, registrerer en bærbar rapport konklusjoner sammen med innstillingene og programvareversjonene som trengs for å gjenskape dem."
+          "narration": "Formatet tilbyr en selvstendig HTML-fil, en PDF-transkripsjon, eller begge deler. Innlemmet i de fleste grenser raster figurer slik at en rapport ikke kan vokse uten grenser; null innlemmer ingen bilder, mens den øvre grensen er to hundre."
+        },
+        {
+          "narration": "Velg destinasjonen eksplisitt. Den foreslåtte stien er utenfor rullemappen, slik at generering av en rapport ikke kan stille endre et eksperiment som bør forbli uforanderlig; her er HTML skrevet inn i læringsarbeidsrommet."
+        },
+        {
+          "narration": "Klikk på Generere rapport. spaCR skanner mappen igjen slik at dokumentet gjenspeiler den nåværende tilstanden, integrerer kvalifiserte rasterfigurer opp til toppen, og skriver en standalone fil uten nettverksavhengighet."
+        },
+        {
+          "narration": "Inline-resultatet benytter navn på filen og destinasjonen, og Open blir bare tilgjengelig etter en vellykket skriving. Feil er rapportert her i stedet for skjult bak en modal dialog."
+        },
+        {
+          "narration": "Klikk Åpne for å overføre det nyeste genererte dokumentet til systembrowseren eller PDF-viseren."
+        },
+        {
+          "narration": "Statuset bekrefter hvilken utgang som ble åpnet. De neste visningene viser det virkelige HTML som er generert av dette løpet i stedet for en falsk rapport."
+        },
+        {
+          "narration": "Dokumentet åpner med den fullstendige dommen, en ærlig oppsummering av manglende QC og ikke innlemmet tall, og en koblet innholdsliste. Kjør status registrerer fem av fem vellykkede måleelementer, mens opprinnelse bevarer kilden, spaCR versjon, Git revision, Python miljø og pakkeversjoner."
+        },
+        {
+          "narration": "Key Figures nevner alle de 17 utelatte plottene og forklarer hvorfor hver er fraværende. De er vektor PDF, og spaCR har bevisst ingen PDF rasterizer avhengighet; å løfte raster-figur kap ville ikke konvertere dem eller late som de var innebygd."
+        },
+        {
+          "narration": "Statistikk gjenspeiler registrerte databasetabellstørrelser og lagrede resultattabelllinjer. Rapporten sier at ingenting på denne siden ble rekompulert, samlet eller testet på nytt, og det bevarer forskjellen mellom å dokumentere bevis og å gjenanalysere dem."
+        },
+        {
+          "narration": "Innstillinger bevarer både de lagre CSV-filene og kjøretidsbildet, inkludert kanaler, klynger, partikontroll, plotting og kjøretidsverdier. Sammen med appendices ordbok med målte funksjoner og filinventar gjør dette rapporten nyttig for gjennomgang samtidig som hvert manglende avsnitt holdes eksplisitt."
         }
       ]
     },

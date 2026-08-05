@@ -1635,19 +1635,46 @@
       "id": "29_report",
       "scenes": [
         {
-          "narration": "Denna handledning omfattar Rapport. Skapa en delbar HTML- eller PDF- sammanfattning som innehåller kvalitetskontroll, siffror, statistik, inställningar och versioner."
+          "narration": "Rapport är en endast läsbar dokumentbyggare. Den omvandlar bevisen som redan finns i en rullad mapp till en delbar HTML, PDF eller båda; den räknar inte om resultaten eller skriver in i källmappen."
         },
         {
-          "narration": "Öppen rapport från avsnittet Resultater och kvalitetskontroll. Välj ett färdigt spaCR-projekt och de löper, tabeller, siffror och sektioner du vill inkludera."
+          "narration": "Välj eller släppa plåten eller kör mappen som innehåller mätningar, kvalitetskontroll artefakter, resultat och inställningar, klicka sedan på Skanning. I den här handledningen används det överförda verkliga experimentets färdiga testkörning."
         },
         {
-          "narration": "I det huvudsakliga konfigurationsområdet konfigurera titel, upphovsrätt, tillståndsetiketter, kvalitetströskelvärden, utgångsformat och integritetskänsliga fält."
+          "narration": "Den gröna domen kommer från en faktisk löpstatusstempel: alla fem försök till mätinstrument lyckades. Sex rapporter finns tillgängliga och två inte finns tillgängliga; sjutton siffror hittades, men ingen är en inbäddningsbar rasterbild."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. förhandsgranskning av rapporten och lösning av saknade filer eller misslyckade kvalitetskontroller före export."
+          "narration": "I avsnittet förflyttning visas exakt vad en samarbetspartner kommer att få. Denna löpning omfattar status, ursprung, inventering av nyckelsiffror, statistik, inställningar och data i tillägget; segmentering QC och platt QC förblir synligt markerade som inte är tillgängliga istället för att försvinna."
         },
         {
-          "narration": "När arbetsflödet är färdigt registreras slutsatserna i en bärbar rapport tillsammans med de inställningar och programvaruversioner som behövs för att reproducera dem."
+          "narration": "Formatet erbjuder en självständig HTML-fil, en PDF-transkription eller båda. Inbyggda i de flesta gränser raster siffror så att en rapport inte kan växa utan gränser; noll inbyggs inga bilder, medan den övre gränsen är tvåhundra."
+        },
+        {
+          "narration": "Välj bestämmelseorten uttryckligen. Den föreslagna vägen är utanför körmappen så att generera en rapport kan inte tyst modifiera ett experiment som bör förbli oföränderligt; här skrivs HTML i tutorialspelet."
+        },
+        {
+          "narration": "Klicka på Generera rapport. spaCR skannar mappen igen så att dokumentet återspeglar dess nuvarande tillstånd, integrerar godkända rastersiffror upp till toppen och skriver en fristående fil utan nätverksberoende."
+        },
+        {
+          "narration": "Resultatet i linjen anger filen och destinationen, och Open blir tillgänglig först efter en framgångsrik skrivning. Misslyckanden rapporteras här istället för att döljas bakom en modell dialog."
+        },
+        {
+          "narration": "Klicka på Öppna för att överlämna det senaste genererade dokumentet till systemens webbläsare eller PDF-visare."
+        },
+        {
+          "narration": "Status bekräftar vilken output som öppnades. Följande visningar visar den verkliga HTML som genereras av denna körning snarare än en falsk rapport."
+        },
+        {
+          "narration": "Dokumentet inleds med fullständiga domar, en ärlig sammanfattning av saknade QC och inte inbyggda siffror och en länkad innehållslista. Körstatus registrerar fem av fem framgångsrika mätelement, medan ursprunget bevarar källan, spaCR-versionen, Git-revisionen, Python-miljön och paketversionerna."
+        },
+        {
+          "narration": "Nyckelfigurerna listar alla sjutton bortglömda plots och förklarar varför var och en av dem saknas. De är vektor PDF-filer, och spaCR har avsiktligt inget PDF rasterizer beroende; höja raster-figur cap skulle inte konvertera dem eller låtsas att de var inbäddade."
+        },
+        {
+          "narration": "Statistiken reproducerar registrerade databastabellstorlekar och sparas rader i resultattabellen. Rapporten säger att inget på den här sidan återberetts, sammanställdes eller testades, vilket bevarar skillnaden mellan att dokumentera bevis och att återanalysera dem."
+        },
+        {
+          "narration": "Inställningar bevarar både de sparas CSV-filerna och körjournalen snapshot, inklusive kanaler, clustering, batch kontroller, plotting och körtid värden. Tillsammans med appendixens ordbok med mätbara funktioner och filinventering gör detta rapporten användbar för översyn samtidigt som varje saknad avsnitt hålls uttryckligt."
         }
       ]
     },

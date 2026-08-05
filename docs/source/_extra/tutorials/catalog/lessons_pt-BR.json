@@ -4229,47 +4229,114 @@
       "id": "29_report",
       "number": 29,
       "slug": "report",
-      "title": "Report",
+      "title": "Relatório",
       "series": 4,
       "app_key": "report",
       "section": "Results and quality control",
-      "description": "Crie um resumo HTML ou PDF compartilhável contendo controle de qualidade, números, estatísticas, configurações e versões.",
+      "description": "Auditar uma execução concluída, visualizar evidências disponíveis e faltantes e gerar um HTML ou PDF compartilhável contendo status, proveniência, QC, resultados, configurações e um apêndice.",
       "objectives": [
-        "Entenda quando utilizar o Report.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Escanar uma pasta de execução antes da geração e distinguir provas completas, parciais, desconhecidas e faltantes.",
+        "Escolha o formato de saída, a tampa da figura e um destino fora da pasta de execução imutável.",
+        "Verifique se o documento gerado relata a proveniência, estatísticas, configurações, números omitidos e seções indisponíveis honestamente."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Uma pasta spaCR contendo todas as medições disponíveis, selos de execução, artefatos QC, resultados, configurações ou figuras.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange Relatório. Crie um resumo HTML ou PDF compartilhável contendo controle de qualidade, números, estatísticas, configurações e versões.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange Relatório. Crie um resumo HTML ou PDF compartilhável contendo controle de qualidade, números, estatísticas, configurações e versões."
+          "narration": "Relatório é um criador de documentos só para leitura. Ele transforma a evidência já presente em uma pasta de execução em um HTML compartilhável, PDF, ou ambos; não recompõe os resultados ou escreve na pasta de origem.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.6,
+          "speech_text": "Relatório é um criador de documentos só para leitura. Ele transforma a evidência já presente em uma pasta de execução em um HTML compartilhável, PDF, ou ambos; não recompõe os resultados ou escreve na pasta de origem."
         },
         {
-          "narration": "Abra Report na seção Results and quality control. Abra Relatório na seção Resultados e controle de qualidade. Escolha um projeto spaCR concluído e as corridas, tabelas, figuras e seções a incluir.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Report na seção Results and quality control. Abra Relatório na seção Resultados e controle de qualidade. Escolha um projeto espáquer concluído e as corridas, tabelas, figuras e seções a incluir."
+          "narration": "Escolha ou deixe cair a placa ou a pasta de execução que contém medições, artefatos de controle de qualidade, resultados e configurações, e clique em Escanar. Este tutorial usa o teste completo do experimento real transferido.",
+          "visual": "02_source",
+          "focus_key": "source",
+          "click_key": "scan",
+          "hold_after": 0.62,
+          "speech_text": "Escolha ou deixe cair a placa ou a pasta de execução que contém medições, artefatos de controle de qualidade, resultados e configurações, e clique em Escanar. Este tutorial usa o teste completo do experimento real transferido."
         },
         {
-          "narration": "Na área de configuração principal, configure título, autor, rótulos de condição, limiares de qualidade, formato de saída e campos sensíveis à privacidade.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, configure título, autor, rótulos de condição, limiares de qualidade, formato de saída e campos sensíveis à privacidade."
+          "narration": "O veredicto verde vem de um selo de estado de execução real: todas as cinco tentativas de medição tiveram sucesso. Seis seções de relatório estão disponíveis e duas não; foram encontradas dezessete figuras, mas nenhuma é uma imagem raster incrustável.",
+          "visual": "03_verdict",
+          "focus_key": "scan_result",
+          "hold_after": 0.72,
+          "speech_text": "O veredicto verde vem de um selo de estado de execução real: todas as cinco tentativas de medição tiveram sucesso. Seis seções de relatório estão disponíveis e duas não; foram encontradas dezessete figuras, mas nenhuma é uma imagem raster incrustável."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível."
+          "narration": "A secção pré-voio mostra exatamente o que um colaborador receberá. Esta corrida inclui status, proveniência, inventário de figuras-chave, estatísticas, configurações e dados do apêndice; segmentação QC e placa QC permanecem visiblemente marcados não disponíveis em vez de desaparecer.",
+          "visual": "04_sections",
+          "focus_key": "sections",
+          "hold_after": 0.72,
+          "speech_text": "A secção pré-voio mostra exatamente o que um colaborador receberá. Esta corrida inclui status, proveniência, inventário de figuras-chave, estatísticas, configurações e dados do apêndice; segmentação QC e placa QC permanecem visiblemente marcados não disponíveis em vez de desaparecer."
         },
         {
-          "narration": "Quando o fluxo de trabalho termina, um relatório portátil registra as conclusões, juntamente com as configurações e as versões de software necessárias para as reproduzir.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho termina, um relatório portátil registra as conclusões, juntamente com as configurações e as versões de software necessárias para as reproduzir."
+          "narration": "O formato oferece um arquivo HTML autônomo, uma transcrição PDF, ou ambos. Embed no máximo limites figuras raster para que um relatório não pode crescer sem limites; zero não incorpora imagens, enquanto o limite superior é de duzentos.",
+          "visual": "05_options",
+          "focus_key": "options",
+          "hold_after": 0.66,
+          "speech_text": "O formato oferece um arquivo HTML autônomo, uma transcrição PDF, ou ambos. Embed no máximo limites figuras raster para que um relatório não pode crescer sem limites; zero não incorpora imagens, enquanto o limite superior é de duzentos."
+        },
+        {
+          "narration": "Escolha explicitamente o destino. O caminho sugerido está fora da pasta de execução, então gerar um relatório não pode silenciosamente modificar um experimento que deve permanecer imutável; aqui o HTML é escrito no espaço de trabalho do tutorial.",
+          "visual": "06_output",
+          "focus_key": "output",
+          "hold_after": 0.64,
+          "speech_text": "Escolha explicitamente o destino. O caminho sugerido está fora da pasta de execução, então gerar um relatório não pode silenciosamente modificar um experimento que deve permanecer imutável; aqui o HTML é escrito no espaço de trabalho do tutorial."
+        },
+        {
+          "narration": "Clique em Gerar relatório. O spaCR escaneia novamente a pasta para que o documento reflita seu estado atual, incorpora figuras de raster elegíveis até o limite e escreve um arquivo independente sem dependências de rede.",
+          "visual": "07_generate",
+          "focus_key": "output",
+          "click_key": "generate",
+          "hold_after": 0.64,
+          "speech_text": "Clique em Gerar relatório. O espáquer escaneia novamente a pasta para que o documento reflita seu estado atual, incorpora figuras de raster elegíveis até o limite e escreve um arquivo independente sem dependências de rede."
+        },
+        {
+          "narration": "O resultado inline nomeia o arquivo e o destino, e o Open só fica disponível após uma escrita bem-sucedida. As falhas são relatadas aqui em vez de ocultas por trás de um diálogo modal.",
+          "visual": "08_generated",
+          "focus_key": "result",
+          "hold_after": 0.58,
+          "speech_text": "O resultado inline nomeia o arquivo e o destino, e o Open só fica disponível após uma escrita bem-sucedida. As falhas são relatadas aqui em vez de ocultas por trás de um diálogo modal."
+        },
+        {
+          "narration": "Clique em Abrir para entregar o documento mais recente gerado ao navegador do sistema ou ao visualizador de PDF.",
+          "visual": "09_open",
+          "focus_key": "output",
+          "click_key": "open",
+          "hold_after": 0.48,
+          "speech_text": "Clique em Abrir para entregar o documento mais recente gerado ao navegador do sistema ou ao visualizador de PDF."
+        },
+        {
+          "narration": "O status confirma qual saída foi aberta. As seguintes visualizações mostram o HTML real gerado por esta execução em vez de um relatório falso.",
+          "visual": "10_opened",
+          "focus_key": "status",
+          "hold_after": 0.52,
+          "speech_text": "O status confirma qual saída foi aberta. As seguintes visualizações mostram o HTML real gerado por esta execução em vez de um relatório falso."
+        },
+        {
+          "narration": "O documento começa com o veredicto completo, um resumo honesto de QC faltantes e figuras não incorporadas, e uma lista de conteúdos vinculados. O status de execução registra cinco dos cinco itens de medição bem-sucedidos, enquanto a proveniência preserva a fonte, a versão spaCR, a revisão Git, o ambiente Python e as versões do pacote.",
+          "visual": "11_report_top",
+          "hold_after": 0.82,
+          "speech_text": "O documento começa com o veredicto completo, um resumo honesto de QC faltantes e figuras não incorporadas, e uma lista de conteúdos vinculados. O status de execução registra cinco dos cinco itens de medição bem-sucedidos, enquanto a proveniência preserva a fonte, a versão espáquer, a revisão Git, o ambiente Python e as versões do pacote."
+        },
+        {
+          "narration": "Figuras-chave nomea todas as dezessete parcelas omitidas e explica por que cada uma está ausente. São PDFs vetoriais, e o spaCR deliberadamente não tem dependência do rasterizador PDF; elevar a tampa da figura raster não os converteria ou fingiria que fossem incorporados.",
+          "visual": "12_report_figures",
+          "hold_after": 0.72,
+          "speech_text": "Figuras-chave nomea todas as dezessete parcelas omitidas e explica por que cada uma está ausente. São PDFs vetoriais, e o espáquer deliberadamente não tem dependência do rasterizador PDF; elevar a tampa da figura raster não os converteria ou fingiria que fossem incorporados."
+        },
+        {
+          "narration": "As estatísticas reproduzem os tamanhos das tabelas de banco de dados registados e as linhas salvas das tabelas de resultados. O relatório afirma que nada nesta página foi recalculado, agregado ou re-testado, preservando a diferença entre documentar evidências e reanalisar-as.",
+          "visual": "13_report_statistics",
+          "hold_after": 0.68,
+          "speech_text": "As estatísticas reproduzem os tamanhos das tabelas de banco de dados registados e as linhas salvas das tabelas de resultados. O relatório afirma que nada nesta página foi recalculado, agregado ou re-testado, preservando a diferença entre documentar evidências e reanalisar-as."
+        },
+        {
+          "narration": "As configurações preservam os arquivos CSV salvos e o snapshot do cronograma de execução, incluindo canais, agrupamento, controles de lote, gráficos e valores de tempo de execução. Juntamente com o dicionário de características medidas do apêndice e o inventário de arquivos, isso torna o relatório útil para revisão mantendo cada seção que falta explícita.",
+          "visual": "14_report_settings",
+          "hold_after": 0.88,
+          "speech_text": "As configurações preservam os arquivos CSV salvos e o snapshot do cronograma de execução, incluindo canais, agrupamento, controles de lote, gráficos e valores de tempo de execução. Juntamente com o dicionário de características medidas do apêndice e o inventário de arquivos, isso torna o relatório útil para revisão mantendo cada seção que falta explícita."
         }
       ]
     },
