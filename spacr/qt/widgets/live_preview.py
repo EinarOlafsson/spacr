@@ -1485,7 +1485,23 @@ class LivePreviewPanel(QWidget):
         super().closeEvent(event)
 
     def _install_loaded_image(self, path: Path, arr: np.ndarray) -> None:
-        """Replace preview state with an already-decoded image."""
+        """Replace preview state with an already-decoded image.
+
+        MIP is re-applied here rather than only where the switch is clicked.
+        This is the one funnel every image arrives through, and the array a
+        background load hands over was decoded by a worker that reads a single
+        file and knows nothing about the switch — so with MIP on, changing
+        field or channel used to drop silently back to one plane until the
+        switch was toggled off and on again.
+        """
+        if getattr(self, "_mip_enabled", False):
+            try:
+                projected = self._load_for_display(Path(path))
+            except Exception:
+                # A field that cannot be projected still has an image to show.
+                projected = None
+            if projected is not None:
+                arr = projected
         # A new image invalidates everything derived from the old one,
         # including the run in flight. The raw masks and the flow images used
         # to survive this, so the next filter change — or an in-flight preview
