@@ -70,6 +70,10 @@ LOG = logging.getLogger("spacr.qt.live_preview")
 
 SUPPORTED_SUFFIXES = (".tif", ".tiff", ".png", ".jpg", ".jpeg")
 
+#: Images drawn at once before the selection is truncated. One keeps the
+#: panel behaving as it always did until the user asks for more.
+DEFAULT_MAX_IMAGES = 1
+
 #: Tooltip for the diameter spinner, in every model.
 #:
 #: The panel used to disable this control for ``cpsam`` and label it
@@ -1028,6 +1032,12 @@ class LivePreviewPanel(QWidget):
         # channel instead of resetting to the first of either.
         self._table_row = 0
         self._table_col = 0
+        #: (row, col) cells the user has shift-selected, in click order.
+        #: The last entry is the ACTIVE one — the image live settings apply
+        #: to — so a plain click leaves a one-entry selection and the
+        #: single-image behaviour is the same code path as the many-image
+        #: one rather than a special case beside it.
+        self._selected_cells = [(0, 0)]
         self._build_ui()
         self._build_compartment_widgets()
         # Accept image files dropped anywhere on the panel. QGraphicsView
@@ -1247,6 +1257,19 @@ class LivePreviewPanel(QWidget):
             tooltip="Load a folder to find out whether it has z-stacks.")
         self._mip_toggle.setEnabled(False)
         self._mip_toggle.toggled.connect(self._on_mip_toggled)
+        # How many images may be on screen at once. Separate from the set
+        # count: that one bounds what is *listed*, this one bounds what is
+        # *drawn*, and drawing is what costs memory and redraw time.
+        self._max_images_box = FlatSpinBox(
+            self, value=DEFAULT_MAX_IMAGES,
+            tooltip=("Maximum images shown at once.\n\n"
+                     "Shift-click cells to show several together; "
+                     "shift-clicking a row header takes every channel of "
+                     "that field, a column header every field of that "
+                     "channel. Whatever the selection, this many are "
+                     "drawn."))
+        self._max_images_box.setMinimum(1)
+        self._max_images_box.valueChanged.connect(self._on_max_images_changed)
         self._max_sets_box = FlatSpinBox(self, value=DEFAULT_MAX_SETS,
                                          tooltip=MAX_SETS_TOOLTIP)
         self._max_sets_box.valueChanged.connect(self._on_max_sets_changed)
@@ -1294,6 +1317,7 @@ class LivePreviewPanel(QWidget):
         pick_row.addWidget(self._path_label, 1)
         # MIP sits with the set controls it applies to.
         pick_row.addWidget(self._mip_toggle)
+        pick_row.addWidget(self._max_images_box)
         pick_row.addWidget(self._max_sets_box)
         pick_row.addWidget(self._pick_btn)
         # The field and channel dropdowns are NOT added. The table
@@ -1679,8 +1703,93 @@ class LivePreviewPanel(QWidget):
         finally:
             table.blockSignals(False)
 
+    def max_images(self) -> int:
+        """How many images may be drawn at once."""
+        try:
+            return max(1, int(self._max_images_box.value()))
+        except Exception:
+            return DEFAULT_MAX_IMAGES
+
+    def _shift_held(self) -> bool:
+        """Whether shift is down right now.
+
+        ``cellClicked`` and ``sectionClicked`` carry no modifier, so the
+        keyboard is asked directly rather than the table being subclassed to
+        intercept the mouse event.
+        """
+        try:
+            from PySide6.QtWidgets import QApplication
+            return bool(QApplication.keyboardModifiers() & Qt.ShiftModifier)
+        except Exception:
+            return False
+
+    def _cells_with_images(self, cells) -> list:
+        """Drop cells with no file behind them, keep order, drop duplicates."""
+        table, seen, kept = self._set_table, set(), []
+        for row, col in cells:
+            if (row, col) in seen:
+                continue
+            item = table.item(row, col)
+            if item is None or not item.data(Qt.UserRole):
+                continue
+            seen.add((row, col))
+            kept.append((row, col))
+        return kept
+
+    def _set_selection(self, cells, extend: bool) -> None:
+        """Replace or extend the shown selection, honouring the image cap.
+
+        Truncation keeps the MOST RECENT cells: a user shift-clicking a fifth
+        image with a cap of four means the fifth, not "nothing happened".
+        """
+        cells = self._cells_with_images(cells)
+        if not cells:
+            return
+        if extend:
+            combined = [c for c in self._selected_cells if c not in cells]
+            combined.extend(cells)
+        else:
+            combined = cells
+        cap = self.max_images()
+        if len(combined) > cap:
+            combined = combined[-cap:]
+        self._selected_cells = combined
+        active_row, active_col = combined[-1]
+        self._table_row, self._table_col = active_row, active_col
+        self._sync_table_selection()
+        item = self._set_table.item(active_row, active_col)
+        path = item.data(Qt.UserRole) if item is not None else None
+        if path:
+            self.load_image(Path(path))
+
+    def _sync_table_selection(self) -> None:
+        """Show the selection in the table, active cell current."""
+        table = self._set_table
+        table.blockSignals(True)
+        try:
+            table.clearSelection()
+            for row, col in self._selected_cells:
+                item = table.item(row, col)
+                if item is not None:
+                    item.setSelected(True)
+            table.setCurrentCell(self._table_row, self._table_col)
+        finally:
+            table.blockSignals(False)
+
+    def _on_max_images_changed(self, _value: int) -> None:
+        """Re-apply the cap to what is already selected."""
+        self._set_selection(list(self._selected_cells), extend=False)
+
     def _on_channel_header_clicked(self, column: int) -> None:
-        """Same field, different channel — the column is the channel."""
+        """Same field, different channel — the column is the channel.
+
+        With shift, take this channel across every field instead: the column
+        IS that channel, so shift-clicking it means "all of these".
+        """
+        if self._shift_held():
+            rows = range(self._set_table.rowCount())
+            self._set_selection([(r, column) for r in rows], extend=False)
+            return
         self._on_set_cell_clicked(self._table_row, column)
 
     def _on_set_header_clicked(self, row: int) -> None:
@@ -1688,7 +1797,14 @@ class LivePreviewPanel(QWidget):
 
         Keeping the column is the point: a user comparing channel 2 across
         fields should not be dropped back to channel 1 by moving down a row.
+
+        With shift, take every channel of this field instead — the row IS
+        that field, so shift-clicking it means "all of these".
         """
+        if self._shift_held():
+            cols = range(self._set_table.columnCount())
+            self._set_selection([(row, c) for c in cols], extend=False)
+            return
         self._on_set_cell_clicked(row, self._table_col)
 
     def _on_set_cell_clicked(self, row: int, column: int) -> None:
@@ -1700,6 +1816,10 @@ class LivePreviewPanel(QWidget):
         path = item.data(Qt.UserRole)
         if not path:
             return
+        if self._shift_held():
+            self._set_selection([(row, column)], extend=True)
+            return
+        self._selected_cells = [(row, column)]
         self._table_row, self._table_col = row, column
         table.setCurrentCell(row, column)
         # Load the file the cell names, rather than routing through the field
