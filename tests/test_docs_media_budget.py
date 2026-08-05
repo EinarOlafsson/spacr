@@ -1,16 +1,18 @@
 """What the published documentation site is allowed to weigh.
 
-The tutorial library under ``docs/source/_extra`` is 712 MiB, 93% of it one
+The tutorial library under ``docs/source/_extra`` is 2,879 MiB, most of it one
 narration ``.m4a`` per lesson x language x voice. ``html_extra_path`` copied
-all of it into every build, which put the site at ~88% of the GitHub Pages
+all of it into every build, which would put the site far past the GitHub Pages
 **1 GB** limit — a wall that gets hit mid-lesson-batch, from a build that has
 never once warned about it.
 
-``tools/docs_media_budget.py`` publishes one voice per language instead of
-all 54. This file is the guard on that: it asserts the payload stays under
-budget, that the reduction takes only redundant voices (never a lesson, a
-video, a caption or a language), and that the picker the site ships offers
-exactly the voices the site ships.
+``tools/docs_media_budget.py`` now publishes no narration at all: the audio and
+its timing sidecars are served from ``NARRATION_HOST`` instead, which is what
+lets the picker offer all 54 voices rather than the one per language the site
+could afford to carry. This file is the guard on that: it asserts the payload
+stays under budget, that the reduction takes only narration (never a lesson, a
+video, a caption or a language), and that the catalog the site ships still
+offers every voice the host serves.
 
 Read-only and fast: the whole-library assertions ``stat`` files and never
 copy one. Staging is exercised against a miniature library built in
@@ -157,48 +159,74 @@ def test_every_lesson_keeps_its_video_and_its_poster(real_plan):
 
 
 @requires_library
-def test_every_narrated_language_keeps_the_voice_the_player_defaults_to(
-        real_plan):
-    """``app_v2.js`` falls back to ``language.voices[0]``.
+def test_the_site_publishes_no_narration_at_all(real_plan):
+    """Narration lives on ``NARRATION_HOST``, so none of it belongs here.
 
-    Publishing any other subset would mean a first visit in that language
-    silently gets no narration — the player's "narration is unavailable"
-    toast — which is a content regression dressed up as a size fix.
+    This replaces an older assertion that every language had to keep the
+    voice ``app_v2.js`` falls back to. That rule existed because the site
+    served the audio and a missing default meant silence on a first visit.
+    The audio is now fetched from the host, so the failure it guarded
+    against cannot happen — and a copy published here would be a second
+    2,662 MiB of budget nothing ever requests.
+    """
+    published, _dropped, _keep = real_plan
+    strays = [str(p.relative_to(_LIBRARY)) for p in published
+              if "audio" in p.relative_to(_LIBRARY).parts
+              and p.suffix.lower() in budget.VOICE_ASSET_SUFFIXES]
+    assert not strays, (
+        f"{len(strays)} narration file(s) published to a site that does not "
+        f"serve narration: {strays[:5]}")
+
+
+@requires_library
+def test_the_catalog_still_offers_every_voice(real_plan):
+    """``app_v2.js`` reads this catalog to build the picker.
+
+    While narration was rationed the catalog had to be trimmed to match, or
+    the picker offered voices whose audio 404'd. With the audio hosted, every
+    voice in the catalog is reachable, so trimming it would hide working
+    voices instead of preventing broken ones — the point of moving the audio
+    was to make all 54 offerable.
     """
     _published, _dropped, keep = real_plan
     catalog = budget.parse_voice_catalog(
         budget.voice_catalog_path(_LIBRARY).read_text())
 
     assert set(keep) == set(catalog)
-    for language, voices in catalog.items():
-        assert keep[language], f"{language}: no voice published at all"
-        assert keep[language][0] == voices[0], (
-            f"{language}: publishes {keep[language][0]!r} but the player "
-            f"defaults to {voices[0]!r}")
+    assert not any(keep.values()), (
+        "narration is external, so no voice should be marked for publishing")
+    assert budget.NARRATION_HOST, (
+        "VOICES_PER_LANGUAGE is NARRATION_EXTERNAL but no host is configured, "
+        "so the player has nowhere to fetch narration from")
+    assert sum(len(v) for v in catalog.values()) > 8, (
+        "the catalog should list far more than one voice per language now "
+        "that the site is not the thing carrying them")
 
 
-@requires_library
-def test_a_dropped_voice_takes_its_timing_track_with_it(real_plan):
-    """Audio and its scene timings are published or dropped together.
+def test_audio_and_its_timing_track_travel_together(tiny_library, tmp_path):
+    """The pairing rule still governs the offline build.
 
-    A ``.json`` left behind for a voice with no ``.m4a`` gives the player
-    scene timings for narration it cannot load; an ``.m4a`` with no ``.json``
-    plays with no scene highlighting. Either mismatch is a broken lesson.
+    ``SPACR_DOCS_FULL_AUDIO=1`` publishes the whole library, which is how a
+    site is built with no access to the narration host. A ``.json`` left
+    behind for a voice with no ``.m4a`` gives the player scene timings for
+    narration it cannot load; an ``.m4a`` with no ``.json`` plays with no
+    scene highlighting. Either mismatch is a broken lesson.
     """
-    published, _dropped, _keep = real_plan
-    audio, timings = set(), set()
-    for path in published:
-        parts = path.relative_to(_LIBRARY).parts
-        if "audio" not in parts:
-            continue
-        if path.suffix == ".m4a":
-            audio.add(path.with_suffix(""))
-        elif path.suffix == ".json":
-            timings.add(path.with_suffix(""))
-    assert audio, "no narration published at all"
-    assert audio == timings, (
-        f"{len(audio ^ timings)} voice(s) published without their pair: "
-        f"{sorted(str(p.name) for p in list(audio ^ timings))[:5]}")
+    for per_language in (0, 1):
+        published, _dropped, _keep = budget.plan(tiny_library, per_language)
+        audio, timings = set(), set()
+        for path in published:
+            if "audio" not in path.relative_to(tiny_library).parts:
+                continue
+            if path.suffix == ".m4a":
+                audio.add(path.with_suffix(""))
+            elif path.suffix == ".json":
+                timings.add(path.with_suffix(""))
+        assert audio, f"per_language={per_language}: no narration published"
+        assert audio == timings, (
+            f"per_language={per_language}: "
+            f"{len(audio ^ timings)} voice(s) published without their pair: "
+            f"{sorted(p.name for p in (audio ^ timings))[:5]}")
 
 
 # ---------------------------------------------------------------------------
