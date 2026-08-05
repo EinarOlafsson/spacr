@@ -53,7 +53,8 @@ from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsPixmapItem,
     QGraphicsScene, QGraphicsView, QHBoxLayout, QLabel, QPushButton,
-    QSizePolicy, QSpinBox, QTableWidget, QTableWidgetItem,
+    QHeaderView, QSizePolicy, QSpinBox, QSplitter, QTableWidget,
+    QTableWidgetItem,
     QVBoxLayout, QWidget,
 )
 from .preview_controls import (
@@ -1022,6 +1023,11 @@ class LivePreviewPanel(QWidget):
         self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
         # Off until the user asks; only meaningful where z_count > 1.
         self._mip_enabled = False
+        # Which cell the table is showing, so clicking a channel
+        # header keeps the field and clicking a field keeps the
+        # channel instead of resetting to the first of either.
+        self._table_row = 0
+        self._table_col = 0
         self._build_ui()
         self._build_compartment_widgets()
         # Accept image files dropped anywhere on the panel. QGraphicsView
@@ -1272,21 +1278,32 @@ class LivePreviewPanel(QWidget):
         self._set_table.setEditTriggers(QTableWidget.NoEditTriggers)
         self._set_table.verticalHeader().setVisible(True)
         self._set_table.setAlternatingRowColors(True)
-        self._set_table.setMaximumHeight(190)
+        self._set_table.horizontalHeader().setStretchLastSection(True)
+        self._set_table.setSizePolicy(QSizePolicy.Expanding,
+                                      QSizePolicy.Expanding)
         self._set_table.setToolTip(
             "One row per image set, one column per channel. Click a cell to "
             "show that channel of that field. The number on the left is how "
             "many sets are sampled.")
         self._set_table.cellClicked.connect(self._on_set_cell_clicked)
+        self._set_table.horizontalHeader().sectionClicked.connect(
+            self._on_channel_header_clicked)
+        self._set_table.verticalHeader().sectionClicked.connect(
+            self._on_set_header_clicked)
 
         pick_row.addWidget(self._path_label, 1)
+        # MIP sits with the set controls it applies to.
         pick_row.addWidget(self._mip_toggle)
         pick_row.addWidget(self._max_sets_box)
-        pick_row.addWidget(self._fov_box)
-        pick_row.addWidget(self._channel_box)
         pick_row.addWidget(self._pick_btn)
+        # The field and channel dropdowns are NOT added. The table
+        # picks both, and two controls for one choice can disagree.
+        # They stay constructed because apply_sample_to_combo fills
+        # one, the saved view state names a field through it, and
+        # selected_channel() reads the other.
+        self._fov_box.setVisible(False)
+        self._channel_box.setVisible(False)
         root.addLayout(pick_row)
-        root.addWidget(self._set_table)
 
         # Action row — Run + Live settings + status
         act = QHBoxLayout()
@@ -1324,7 +1341,18 @@ class LivePreviewPanel(QWidget):
         self._mask_view.hover_pixel.connect(self._on_hover)
         canvas.addWidget(self._src_view, 1)
         canvas.addWidget(self._mask_view, 1)
-        root.addLayout(canvas, 1)
+        canvas_host = QWidget(self)
+        canvas_host.setLayout(canvas)
+        self._table_split = QSplitter(Qt.Vertical, self)
+        self._table_split.setObjectName('PreviewTableSplit')
+        self._table_split.setChildrenCollapsible(False)
+        self._table_split.setHandleWidth(1)
+        self._table_split.addWidget(self._set_table)
+        self._table_split.addWidget(canvas_host)
+        self._table_split.setStretchFactor(0, 0)
+        self._table_split.setStretchFactor(1, 1)
+        self._table_split.setSizes([170, 600])
+        root.addWidget(self._table_split, 1)
 
         # Pinned hover info line
         self._hover_label = QLabel("Hover over the image to inspect pixels.",
@@ -1608,6 +1636,17 @@ class LivePreviewPanel(QWidget):
             sets = list(self._sampler.sample())
         except Exception:
             sets = []
+        # A set chosen through "Choose image" joins the table even when the
+        # random sample did not draw it — otherwise picking a specific field
+        # showed it once and then lost it, with no row to click back to.
+        pinned = getattr(self, "_pin_path", None)
+        if pinned is not None:
+            try:
+                chosen = self._sampler.set_for_path(pinned)
+            except Exception:
+                chosen = None
+            if chosen is not None and chosen not in sets:
+                sets = sorted(sets + [chosen], key=lambda s: s.key)
         channels = sorted({c for s in sets for c in s.channels})
         table.blockSignals(True)
         try:
@@ -1633,8 +1672,24 @@ class LivePreviewPanel(QWidget):
                     item.setData(Qt.UserRole, str(image_set.path(chan)))
                     table.setItem(row, col, item)
             table.resizeColumnsToContents()
+            # Fill the width: content-width columns left the table
+            # ending mid-panel with dead space beside it.
+            header = table.horizontalHeader()
+            header.setSectionResizeMode(QHeaderView.Stretch)
         finally:
             table.blockSignals(False)
+
+    def _on_channel_header_clicked(self, column: int) -> None:
+        """Same field, different channel — the column is the channel."""
+        self._on_set_cell_clicked(self._table_row, column)
+
+    def _on_set_header_clicked(self, row: int) -> None:
+        """Same channel, different field — the row is the field.
+
+        Keeping the column is the point: a user comparing channel 2 across
+        fields should not be dropped back to channel 1 by moving down a row.
+        """
+        self._on_set_cell_clicked(row, self._table_col)
 
     def _on_set_cell_clicked(self, row: int, column: int) -> None:
         """Show the field and channel the user clicked."""
@@ -1645,13 +1700,23 @@ class LivePreviewPanel(QWidget):
         path = item.data(Qt.UserRole)
         if not path:
             return
-        # Go through the dropdown so one code path loads a field, and so the
-        # saved view state keeps naming whatever is on screen.
-        index = self._fov_box.findData(path)
-        if index >= 0:
-            self._fov_box.setCurrentIndex(index)
-        else:
-            self.load_source_async(Path(path))
+        self._table_row, self._table_col = row, column
+        table.setCurrentCell(row, column)
+        # Load the file the cell names, rather than routing through the field
+        # dropdown. That dropdown is keyed by SET — one entry per field, at
+        # its representative channel — so asking it for channel 2 of a field
+        # it lists under channel 1 found nothing and fell through to an async
+        # reload, which is why clicking a channel header changed nothing.
+        # The cell already knows the exact file; a cell click is not a field
+        # change, it is a field-and-channel change.
+        self._fov_box.blockSignals(True)
+        try:
+            index = self._fov_box.findData(path)
+            if index >= 0:
+                self._fov_box.setCurrentIndex(index)   # keeps saved state honest
+        finally:
+            self._fov_box.blockSignals(False)
+        self.load_image(Path(path))
 
     def _refresh_mip_toggle(self) -> None:
         """Enable the MIP switch only where there is a stack to project.
@@ -2349,6 +2414,7 @@ class LivePreviewPanel(QWidget):
         if path:
             # The chosen file may live in a folder the sampler has never seen,
             # so this one does enumerate — off the GUI thread.
+            self._pin_path = Path(path)
             self.load_source_async(path)
 
     def _on_hover(self, x: int, y: int):
