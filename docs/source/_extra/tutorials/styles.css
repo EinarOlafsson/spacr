@@ -816,6 +816,11 @@ kbd {
   min-width: 220px;
 }
 
+/* Two short values, so it does not need the width the name pickers use. */
+.quality-control {
+  min-width: 96px;
+}
+
 .select-control span {
   color: var(--dim);
   font-size: 8px;
