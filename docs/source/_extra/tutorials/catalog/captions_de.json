@@ -900,19 +900,88 @@
       "id": "17_timelapse",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Timelapse. Segmentieren, verknüpfen und messen Sie Zellen oder Krankheitserreger über die Rahmen einer Zeitserie."
+          "narration": "Timelapse segmentiert jeden Rahmen und verbindet die ausgewählten Objekte in stabile Strecken. Die Konsole erfasst die Vorverarbeitung, Masken, Trackingversuche, Qualitätskontrolle, Filme, zusammengesetzte Arrays und Reproduzierbarkeitsdateien."
         },
         {
-          "narration": "Öffnen Sie Timelapse aus dem Kernbereich. Wählen Sie einen zeitlich aufgelösten Bildsatz aus, dessen Dateinamen die Feld-, Zeit-, Tiefe- und Kanalindex erhalten."
+          "narration": "Das Chatfeld akzeptiert lokale Befehle oder Workflow-Fragen. Aktivieren Sie KI für einen konfigurierten Anbieter und verwenden Sie den angrenzenden Pfeil, um einen Anbieter zu wählen oder seine Kontrollen zu öffnen."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie Segmentierung, verfolgte Objekttypen, Verknüpfungsmodus, maximale Verschiebung, Lückenbehandlung und Vorschaurahmen."
+          "narration": "Anbieter überprüfen die Claude-, ChatGPT- und Gemini-Befehlszeilklienten und zeigen Installations- und Login-Befehlen an, während die Authentifizierung bei jedem Anbieter bleibt."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Bevor die gesamte Zeitserie verarbeitet wird, validieren sie Spuren auf repräsentativer Bewegung."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und die spaCR-bewussten Systemanweisungen."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden zeitlich indexierte Masken, Spuren, Messungen und Flugbahnüberschriften mit stabilen Objektidentitäten gespeichert."
+          "narration": "Diese deterministische synthetische Quelle enthält ein Feld über acht Zeitpunkte. Kanal Null enthält Kerne, Kanal eins enthält Zell- und ER-Signal, und CellVoyager-Stil-Dateinamen bewahren die Platte, die Zeit, das Feld, die Tiefe und die Kanalindizes."
+        },
+        {
+          "narration": "Essentials zeigt die Quelle, Kanalrollen, Namenskonvention, Normalisierung, Segmentierungsmodelle, zu verfolgen Objekte, Rahmenbereich, Tracker, Plots und Ausgabeoptionen an, die für einen ersten Lauf benötigt werden."
+        },
+        {
+          "narration": "Modifizierte Beschränkungen des Panels auf vorsätzliche Änderungen, einschließlich der Kanäle Null und Eins, der Acht-Frame-Bereich, der Zellverfolgung, dem eingebauten Kreuzungs-über-Vereinigungs-Linker, einem Frame pro Sekunde und konservativen Laufzeit-Optionen."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen dreizehn Kategorien ohne veränderte Werte: Eingaben, Akquisitionssachsen, Vorverarbeitung, vier Segmentierungsgruppen, Qualitätskontrolle, Tracking-Setup und Backends, Diagnostik, Ausgabe und Laufzeit."
+        },
+        {
+          "narration": "Rezepte speichern die komplette Timelapse-Konfiguration unter einem Namen, wenden sie an ein anderes Experiment oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Einstellungen und senden Sie den Segmentierungs- und Tracking-Job in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartografiert die Quell- und Ausgangswege zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Timelapse-Run."
+        },
+        {
+          "narration": "Input and Metadata wählt den Bildordner aus, stellt jedem erworbenen Kanal einen Objekttyp zu und definiert, wie spaCR experimentelle Identifikatoren aus Dateinamen analysiert."
+        },
+        {
+          "narration": "Erwerb und Achsen beschreibt Vergrößerung und optionale volumetrische oder zeitlich-achsige Layouts. Normaler Bilddateien pro Rahmen halten die fortschrittlichen Stack-Steuerungen deaktiviert."
+        },
+        {
+          "narration": "Bildvorbearbeitung steuert die Perzentilennormalisierung, Hintergrundbehandlung, Verkürzung, Umgrößerung und Zwischenarrays. Verwenden Sie eine konsequente Transformation über jeden Rahmen, um künstliche zeitliche Veränderungen zu vermeiden."
+        },
+        {
+          "narration": "Die Zellsegmentierung wählt das Zellmodell, den erwarteten Durchmesser, die Wahrscheinlichkeits- und Durchflussschwellen sowie die optionale Größe, Intensität, Grenze, Verschmelzung und Split-Filter aus."
+        },
+        {
+          "narration": "Kernsegmentierung bietet die gleichwertigen Kontrollen für Kanal Null. Kernmasken können auch dann exportiert werden, wenn nur Zellen über die Rahmen verknüpft sind."
+        },
+        {
+          "narration": "Pathogen Segmentation ist verfügbar, wenn ein Pathogenkanal zugewiesen wird. Diese zwei-Kanal-Demonstration lässt sie unbestimmt, so dass keine Krankheitserregermasken oder Spuren angefordert werden."
+        },
+        {
+          "narration": "Organelle Segmentation unterstützt Spot-, Netz-, Ring-, Irregulär-, Cellpose- und U-Net-Workflows, wenn ein Organelle-Kanal zugewiesen wird. Es ist für dieses Beispiel nicht aktiv."
+        },
+        {
+          "narration": "Die Qualitätskontrolle vergleicht die Anzahl der Objekte, die Größe, den Grenzkontakt, die Vordergrunddeckung, das Split-Verhalten und die Fehlerraten auf Plattenebene. Der Berichtsmodus erfasst Warnungen, ohne die Zeitreihen schweigend abzulehnen."
+        },
+        {
+          "narration": "Tracking Setup wählt aus, welche segmentierten Objekte miteinander verknüpft sind, den Rahmen, ob kurzlebige Spuren entfernt werden und die Wiedergaberate der exportierten Filme."
+        },
+        {
+          "narration": "Tracking Backends bietet Trackastra, Ultrack, Trackpy, Cross-over-Union und btrack mit backend-spezifischen Link-, Verlagerungs-, Speicher-, Division- und Arbeitersteuerungen. Diese Demonstration verwendet Kreuzung über Vereinigung."
+        },
+        {
+          "narration": "Visualisierung und Diagnostik steuert Farbkarten, Beispielpläne, Plot-Normalisierung und das für die Inspektion von Segmentierung und Tracking-Verhalten verwendete Bildkanvas."
+        },
+        {
+          "narration": "Ausgabe- und Speichersteuerung kombinierte Arrays, Masken, pro Kanal Filme, Tracked-Mask-Animationen, Kompression und Aufbewahrung von Zwischen- oder Originaldateien."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeit steuern Testmodus, Batching, Arbeiter, reproduzierbare Reihenfolge, Wiederaufnahme, Trockenläufe, Verbosität und Ausfallpolitik. Beginnen Sie mit einem repräsentativen Feld, bevor Sie sich ausbauen."
+        },
+        {
+          "narration": "Dieses Beispiel verfolgt Zellen über Rahmenindizes von Null bis sieben, hält Übergangsspuren für die Inspektion, exportiert Filme mit einem Rahmen pro Sekunde und lässt die Kernmasken unverknüpft."
+        },
+        {
+          "narration": "Run validiert Dateinamen und Kanäle, gruppiert Frames, normalisiert die Sequenz, segmentiert jedes angeforderte Objekt, verknüpft Zellmasken, berechnet Qualitätskontrolle, schreibt Filme und fusionierte Arrays und registriert Reproduzierbarkeit. Stop-Anfragen für eine sichere Unterbrechung."
+        },
+        {
+          "narration": "Während der Verarbeitung meldet die Konsole Cellpose-Start, gelöste Einstellungen, Fortschritt pro Frame, Verfolgung des Suchverhaltens, Objektfilter, verbleibende Zeit und Ausgangswege."
+        },
+        {
+          "narration": "Der vollendete Lauf verknüpfte 16 Zellen über alle acht Bilder, entfernte keine Übergangsobjekte, übernahm die Zell- und Kernqualitätskontrolle ohne Warnungen oder Ausfälle, schrieb verfolgte Filme und acht fusionierte Arrays und speicherte einen erfolgreichen 26-Sekunden-Laufrekord."
         }
       ]
     },
