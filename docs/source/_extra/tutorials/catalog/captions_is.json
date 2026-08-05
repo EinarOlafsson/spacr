@@ -409,19 +409,76 @@
       "id": "10_classify_cv",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um skilgreiningu, tölvuþjónustu. Þjálfa og beita myndalögðu taugasambandið á merktar einstaka hlutföllargróður."
+          "narration": "Skipaðu inn CV-þjálfunar Torkmyndamyndar á einn-efnis ræktun. Konsóllin skýrir úrvali gagnasetts, lækkunarpróf, þjálfunartímabil, haldnar mælikvarða, framfarir á niðurstöðum, viðvörun og útgáfuleiðir."
         },
         {
-          "narration": "Opið skilgreiningu, tölvuþjónusta frá kjarnaöflunni. Veldu athugasemdir afgróður möppur eða verkefni gagnagrunn með traustum flokksmerki."
+          "narration": "Spjallsvæðið tekur við spurningum um núverandi vinnuflæði. Leyfa AI að leiða í gegnum valinn þjónustuaðila og nota nágrenna piltinn til að opna þjónustuaðilinn."
         },
         {
-          "narration": "Í meginmyndasvæðinu skaltu velja myndasmiðjur, arkitektúr, skiptasmíð, aukning, flokksstærð og þjálfunarstjórn."
+          "narration": "Greiðsluaðila tilkynna hvort Claude, ChatGPT og Gemini skipunarlínu viðskiptavinir eru settir upp og gefur þeim uppsetningar og innritunarskipanir. Skilríki eru hjá hverjum söluaðila."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. þjálfa á þjálfunarskiptinu, fylgjast með staðfestingarhegðun og meta einu sinni á geymdum gögnum."
+          "narration": "AI stillingar stjórnar viðbrögð dýpt, sjálfvirkar villur útskýringar, valfrjálsan GitHub vandamál skýrslu, innritun, og spaCR-vitandi kerfisspurn."
         },
         {
-          "narration": "Þegar vinnuflæði er lokið, spaCR geymir fyrirmyndina, mælikvarða, spár, klassa dæmi og keyrir metadata til síðar notkunar."
+          "narration": "Drag mæluð námskeið verkefni í flokkun. Það leysir 81,969 raunverulegur frumur frumur og png_list metadata þeirra; 6,598 frumur eru í stólunni c1 og 6,487 eru í stólunni c2."
+        },
+        {
+          "narration": "Essentials sýnir uppspretta, vinnuflómsbreytingar, flokksskilgreiningu, arkitektúr og leiðir sem nauðsynlegar eru fyrir fyrstu myndatökuflokkun."
+        },
+        {
+          "narration": "Breyttar takmörkunar á pallinn til gildi sem eru öðruvísi en klassaðu sjálfgefið, sem gerir stjórn kortlagningu og tilvitað þjálfun val auðvelt að endurskoða."
+        },
+        {
+          "narration": "Öll stillingar sýna hverja flokk án þess að gildi breytist, þ.m.t. flokkuð staðfesting, lekkaeftirlit, mælingar, niðurstöður og rekstrartímarstjórn."
+        },
+        {
+          "narration": "Recipes geymir þessa heildar flokkunarsetningu undir nafni, beitir henni aftur síðar eða flytur inn og sendir út endurtekjanlegt stillingarskjala."
+        },
+        {
+          "narration": "Sendaðu fjarlæg snjallsmyndum úr úrlausnum Einstellingum flokkunar og sendu verkefnið í vinnusvæðið Dreifð störf."
+        },
+        {
+          "narration": "Distributed Jobs kortar verkefnisbraut og reiknar auðlindir til fjarstæðrar vinnustaðar, Slurm-hópa eða skipulögð skipan, sendir síðan inn og fylgist með sama rekstri."
+        },
+        {
+          "narration": "Plate Sources and Workflow velur eitt eða fleiri mæluð verkefni og velur hvort að búa til þjálfunarskiptingu, þjálfa líkan og prófa hana á geymdum gögnum."
+        },
+        {
+          "narration": "Merkingar og flokkar skilgreina hvort staðreyndin komi frá plötum metadata, athugasemdum eða mælingum, og kort valda gildi til flokka nöfn."
+        },
+        {
+          "narration": "Crops and Dataset Split velur hlutinn afgróður tegund, piksla heimild, mynd stærð, próf brot, flokka jafnvægi og valfrjáls endurskapað tilviljunar samræmishópur."
+        },
+        {
+          "narration": "Model Architecture velur innbyggð eða sérsniðna net, sýnilegar leiðir, inngangstærð, normalisering, dropout, fyrirþjálfað þyngd og skoðunarstað hegðun."
+        },
+        {
+          "narration": "Optimization og Loss hópar upp úr hagræðslunni, námsfrekðunni, dagskrá, reglulegri, flokks jafnvægi, aukningar, tímabilum, flokkum, uppsöfnun og snemma stöðvun."
+        },
+        {
+          "narration": "Greiðslur stjórnar staðfestingarhlutfalli, hópnum á milli staðfestingarflokka, hópunareiningu og líkindastiginu sem notuð er í lokatímum."
+        },
+        {
+          "narration": "Ritskoðun Vinnubækur gerir kleift að gera hnísað mat, líkurás, áreiðanleganleikaborði og ströngar staðfestingar og endurskoðunarpróf í lestinni."
+        },
+        {
+          "narration": "Full Dataset og Inference byggir eða nýtir aftur pakkað uppskera gögnasafn, beitir valinn eftirlitsstað, skrifar líkindum og símtöl og geymir hámarkslega öryggis dæmi."
+        },
+        {
+          "narration": "Eftirlit og rekstrartímar stjórnar lóðum, TensorBoard, millivarnarstöðvum, tilviljunarfræðum, starfsmönnum, logging, ströngum mistökum og hámarksþolandi mistök."
+        },
+        {
+          "narration": "Í þessari leiðbeiningu eru metadata aðstæður sem nefna c1 sem neikvæð stjórn og c2 sem jákvæð stjórn með því að passa columnID sviði. Gakktu úr skugga um lífræn verkefni fyrir hverja tilraun en treysti ekki aðeins stöðu."
+        },
+        {
+          "narration": "Híperparameter leit gerir mat á umsækjandi arkitektúrum og þjálfunarvalum með vel flokkaðum falum. Lögnuð próf birtast í töflu með stig, flokkabreytingu, mælikvarða og stöðu áður en val er fjölgað."
+        },
+        {
+          "narration": "Leitar stillingar skilgreinir umsækjendur gildi, raðfestingaratriði, gír eða endurnýjanlegur tilviljun leitar, prófunartali, fimm hópað falda, fræ, graf stjórn, og einu sinni fjölgun aftur til móðulsins."
+        },
+        {
+          "narration": "Run fyrst byggir jafnvægi c1 og c2 lest-próf splits, endurskoðunar lækkun, lestir fyrir stillaðar tímabil, metur framhaldið brunnar, mælir líkur, applies valinn eftirlitsstað og skrá spá í verkefninu. Þessi námskeið felur ekki í gang dýran þjálfun."
         }
       ]
     },

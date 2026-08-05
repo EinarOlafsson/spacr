@@ -409,19 +409,76 @@
       "id": "10_classify_cv",
       "scenes": [
         {
-          "narration": "Den här handledningen omfattar Classify, datorvision. Utbilda och tillämpa ett bildbaserat neuralnätverk på annoterade enobjektgrödor."
+          "narration": "Klassifiera CV-tränar Torchbildmodeller på enskilda grödor. Konsolen rapporterar dataset urval, läckage kontroller, träningsperioder, höll ut metriker, slutsatsutveckling, varningar och outputvägar."
         },
         {
-          "narration": "Öppna klasseringen, datorvisjon från kärndelen. Välj annoterade skärmmappar eller en projektdatabas med tillförlitliga klassetiketter."
+          "narration": "Chatfältet tar emot frågor om det aktuella arbetsflödet. Aktivera AI för att rutta genom en utvald leverantör och använd den angränsande pilen för att öppna leverantörsmenyn."
         },
         {
-          "narration": "I huvudkonfigurationsområdet väljer du bildkanalerna, arkitekturen, splittrategin, förstärkning, batchstorlek och träningskontroller."
+          "narration": "Leverantörerna rapporterar om Claude, ChatGPT och Gemini-kommandolinja-klienter är installerade och ger deras installations- och inloggningskommandon. Uppgifterna stannar hos varje leverantör."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. Träna på träningsdelningen, övervaka valideringsbeteendet och utvärdera en gång på uttagna data."
+          "narration": "AI-inställningar kontrollerar responsdjup, automatiska felförklaringar, valfri GitHub-problemrapportering, inloggning och spaCR-medveten systemprompt."
         },
         {
-          "narration": "När arbetsflödet är färdigt sparar spaCR modellen, metriker, förutsägelser, klassexempel och kör metadata för senare användning."
+          "narration": "Dra det mättade handledningsprojektet in i Klassificera. Det löser 81.969 riktiga cellkroppar och deras png_list metadata; 6.598 grödor är i kolumn c1 och 6.487 är i kolumn c2."
+        },
+        {
+          "narration": "Essentials visar källan, workflow-switch, klassdefinition, arkitektur och kanaler som krävs för en första bildklassificering."
+        },
+        {
+          "narration": "Ändrade begränsningar av panelen till värden som skiljer sig från klassificera standard, vilket gör kontrollkartläggning och avsiktliga utbildningsval lätt att granska."
+        },
+        {
+          "narration": "Alla inställningar avslöjar varje kategori utan att ändra värden, inklusive grupperad validering, läckage kontroller, kalibrering, inferens och körtidskontroll."
+        },
+        {
+          "narration": "Recipes sparar denna kompletta klassificeringskonfiguration under ett namn, tillämpar den senare eller importerar och exporterar en återanvändbar inställningsfil."
+        },
+        {
+          "narration": "Skicka fjärrbilder till de lösade inställningarna för att klassificera och skicka jobbet till arbetsplatsen för distribuerade jobb."
+        },
+        {
+          "narration": "Distributed Jobs kartlägger projektvägar och beräkningsresurser till en fjärrarbetsstation, Slurm-cluster eller konfigurerat kommando, skickar sedan in och övervakar samma körning."
+        },
+        {
+          "narration": "Plattens källor och arbetsflöde väljer ett eller flera mätade projekt och väljer om man ska generera en utbildningsplats, utbilda en modell och testa den på uttagna data."
+        },
+        {
+          "narration": "Etiketter och klasser definierar om grundens sanning kommer från plattmetadata, anteckningskolumner eller mätningar, och kartor av valda värden till klassnamn."
+        },
+        {
+          "narration": "Crops and Dataset Split väljer objektets gröda typ, pixelkälla, bildstorlek, testfraktion, klassbalansering och valfri reproducerbar slumpmässig jämförelsegrupp."
+        },
+        {
+          "narration": "Modellarkitektur väljer ett inbyggd eller anpassat nätverk, synliga kanaler, inmatningsstorlek, normalisering, drop-out, förtränade vikter och kontrollpunkt beteende."
+        },
+        {
+          "narration": "Optimering och förlust grupperar optimeringen, inlärningsfrekvensen, schema, regulering, klassbalans, förstärkningar, epoker, batcher, ackumulation och tidigt stopp."
+        },
+        {
+          "narration": "Validering kontrollerar valideringsfraktionen, grupperade korsavalideringsfolds, grupperingsenhet och sannolikhetsgränsen som används för slutliga hårda samtal."
+        },
+        {
+          "narration": "Evaluation Workbench möjliggör inbäddad utvärdering, sannolikhetskalibrering, tillförlitlighetsbäckar och stränga identitets- och innehållsprovningsrevisioner."
+        },
+        {
+          "narration": "Full Dataset and Inference bygger eller återanvänder en packad grödsdataset, tillämpar den valda kontrollpunkten, skriver sannolikheter och samtal och sparar exempel på toppförtroende."
+        },
+        {
+          "narration": "Monitoring och Runtime kontrollerar plots, TensorBoard, mellankontroller, slumpmässiga utsäde, arbetare, logging, strikta fel och den maximala tolererade felfrekvensen."
+        },
+        {
+          "narration": "För denna handledning anger metadata-läget c1 som negativ kontroll och c2 som positiv kontroll genom att matcha kolumnID-fältet. Kontrollera den biologiska uppgiften för varje experiment istället för att lita på positionen ensam."
+        },
+        {
+          "narration": "Hyperparametersökning utvärderar kandidatarkitekturer och utbildningsval med välgrupperade vikter. Slutade prov visas i tabellen med poäng, foldvariation, parametrar och status innan något val sprids."
+        },
+        {
+          "narration": "Sök inställningar definierar kandidatvärdena, rankningskriterium, gricka eller reproducerbar slumpmässig sökning, försöksantal, fem grupperade vikter, frö, grafkontroll och en gångsförökning tillbaka till modulen."
+        },
+        {
+          "narration": "Run first bygger balanserade c1 och c2 tåg-testsplits, auditerar läckage, tåg för de konfigurerade epokerna, utvärderar höjda brunnar, kalibrerar sannolikheterna, tillämpar den valda kontrollpunkten och registrerar förutsägelser i projektet. Den här handledningen startar inte den kostsamma träningen."
         }
       ]
     },

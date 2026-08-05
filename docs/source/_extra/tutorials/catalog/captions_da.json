@@ -409,19 +409,76 @@
       "id": "10_classify_cv",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker Classify, computer vision. Træne og anvende et billedbaseret neuralnet til annoterede enkeltobjekt afgrøder."
+          "narration": "Klassificere CV-togs Torkbilledmodeller på enkeltobjekt afgrøder. Konsolen rapporterer datamassevalg, lækagekontrol, træningsperioder, udholdte metrikker, indledningsprogress, advarsler og outputbaner."
         },
         {
-          "narration": "Open Classify, computer vision fra Core sektionen. Vælg annoterede afgrødemapper eller en projektdatabase med pålidelige klasseetiketter."
+          "narration": "Chatfeltet accepterer spørgsmål om den aktuelle arbejdsproces. Tillad AI at ruter gennem en valgt udbyder, og brug den tilstødende pil til at åbne udbydermenuen."
         },
         {
-          "narration": "I det primære konfigurationsområde skal du vælge billedkanaler, arkitektur, split-strategi, forstærkning, partistørrelse og træningskontrol."
+          "narration": "Udbydere rapporterer om Claude-, ChatGPT- og Gemini-kommandolinjeklienter er installeret og giver deres installations- og login-kommandoer. Oplysninger forbliver hos hver sælger."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. at træne på træningsspliten, overvåge valideringsadfærd og evaluere én gang på holdte data."
+          "narration": "AI-indstillinger styrer responsdybden, automatiske fejlforklaringer, valgfri GitHub-problemrapportering, logging-in og spaCR-bevidste systemprompten."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, gemmer spaCR modellen, metrikkerne, forudsigelserne, klasseeksemplerne og kører metadata til senere anvendelse."
+          "narration": "Træk det målte tutorialprojekt ind i Classify. Det løser 81.969 reelle celler og deres png_list metadata; 6.598 afgrøder er i kolonne c1 og 6.487 er i kolonne c2."
+        },
+        {
+          "narration": "Essentials viser kilden, workflow-switches, klassedefinition, arkitektur og kanaler, der kræves for en første billedklassificering."
+        },
+        {
+          "narration": "Ændret begrænser panelen til værdier, der adskiller sig fra Classify standarder, hvilket gør kontrolkartlægning og bevidst træningsvalg nemme at revidere."
+        },
+        {
+          "narration": "Alle indstillinger afslører hver kategori uden at ændre værdier, herunder grupperet validering, lækage kontroller, kalibrering, konklusion og køretidskontroller."
+        },
+        {
+          "narration": "Recipes gemmer denne komplette klassifiseringskonfiguration under et navn, anvender den senere eller importerer og eksporterer en genbrugbar indstillingerfil."
+        },
+        {
+          "narration": "Indsende fjernbilleder af de afviklede indstillinger af klassificere og sender opgaven til distribueret arbejdsplads."
+        },
+        {
+          "narration": "Distributed Jobs kortlægger projektveje og beregningsressourcer til en fjerntliggende arbejdsstation, Slurm-cluster eller konfigureret kommando, og sender derefter og overvåger samme køre."
+        },
+        {
+          "narration": "Plate Sources and Workflow udvælger et eller flere målte projekter og vælger, om der skal genereres en træningssplit, trænes en model og testes den på tilbageholdte data."
+        },
+        {
+          "narration": "Etiketter og klasser definerer, om grund sandhed kommer fra plade metadata, annotationskolonne eller målinger, og kort udvalgte værdier til klasse navne."
+        },
+        {
+          "narration": "Crops and Dataset Split vælger objektets afgrødetype, pixelkilde, billedstørrelse, testfraktion, klassebalancering og valgfri reproducerbar tilfældig sammenligningsgruppe."
+        },
+        {
+          "narration": "Model Architecture vælger et indbygget eller tilpassede netværk, synlige kanaler, indgangsstørrelse, normalisering, drop-out, forududdannede vægte og checkpoint adfærd."
+        },
+        {
+          "narration": "Optimering og tab grupperer optimeringen, læringsraten, tidsplan, regulering, klassebalance, forstærkninger, epoker, partier, akkumulering og tidlig stoppelse."
+        },
+        {
+          "narration": "Validering kontrollerer valideringsfraktionen, grupperede tværgående valideringsfolds, grupperingsenhed og den sandsynlighedsmæssige tærskel, der anvendes til endelige hårde opkald."
+        },
+        {
+          "narration": "Evaluation Workbench muliggør indlejret evaluering, sandsynlighedskalibrering, pålidelighedsbeholdere og strenge identitets- og indholds-lekage-auditer ved togprøvning."
+        },
+        {
+          "narration": "Full Dataset og Inference bygger eller genbruger et pakket afgrøde dataset, anvender det valgte kontrolpunkt, skriver sandsynligheder og opkald og gemmer top-tillid eksempler."
+        },
+        {
+          "narration": "Monitoring og Runtime kontrollerer plots, TensorBoard, mellemliggende kontrolpunkter, tilfældige frø, arbejdere, logging, strenge fejl og den maksimale tolererede fejlrate."
+        },
+        {
+          "narration": "For denne vejledning benævner metadata-tilstanden c1 som negativ kontrol og c2 som positiv kontrol ved at matche kolonneID-feltet. Tjek den biologiske opgave for hvert forsøg i stedet for at stole på positionen alene."
+        },
+        {
+          "narration": "Hyperparametersøgning evaluerer kandidatarkitekturer og træningsvalg med velgrupperede fold. Fuldførte forsøg vises i tabellen med score, foldingsvariation, parametre og status, før valget spredes."
+        },
+        {
+          "narration": "Search Settings definerer kandidatværdier, rangeringskriterium, grid eller reproducerbar tilfældig søgning, prøveantal, fem grupperede fold, frø, grafkontrol og en ganglig spredning tilbage til modulen."
+        },
+        {
+          "narration": "Run First bygger afbalancerede c1 og c2 tog-test-splits, revisioner lækage, tog for de konfigurerede epoker, evaluerer udholdt brønde, kalibrerer sandsynligheder, anvender det valgte kontrolpunkt og registrerer forudsigelser i projektet. Denne vejledning starter ikke den dyre træningsrun."
         }
       ]
     },

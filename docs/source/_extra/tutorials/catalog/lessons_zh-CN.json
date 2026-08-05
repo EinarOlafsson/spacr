@@ -1035,47 +1035,200 @@
       "id": "10_classify_cv",
       "number": 10,
       "slug": "classify_cv",
-      "title": "Classify, computer vision",
+      "title": "分类 (CV)",
       "series": 1,
       "app_key": "classify",
       "section": "Core",
-      "description": "训练和应用基于图像的神经网络到注释的单个对象作物.",
+      "description": "建立一个由真实c1负控制和c2正控制细胞作物组成的集成,泄漏审核的图像分类器.",
       "objectives": [
-        "了解什么时候使用Classify,计算机视觉.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "将前两个板列映射到负和正的图像类.",
+        "审查数据集,架构,优化,验证,评估,推断和运行时间设置.",
+        "了解集成交叉验证,超参数搜索,培训,测试和完整数据集推断."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "完成测量,以便项目包含细胞作物和测量.db;在训练前定义具有生物效力的控制井.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了分类,计算机视觉. 训练和应用基于图像的神经网络给注释的单个对象作物.",
-          "visual": "overview",
+          "narration": "分类简历列车单物种的火图像模型. 控制台报告数据集选择,泄漏检查,训练时代,持久的指标,推断进展,警告和输出路径.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了分类,计算机视觉. 训练和应用基于图像的神经网络给注释的单个对象作物."
+          "speech_text": "分类简历列车单物种的火图像模型. 控制台报告数据集选择,泄漏检查,训练时代,持久的指标,推断进展,警告和输出路径."
         },
         {
-          "narration": "从 Core 部分打开 Classify, computer vision。 选择注释式产品文件或可靠类标签的项目数据库.",
-          "visual": "input",
+          "narration": "聊天场接受有关当前工作流程的问题. 让人工智能通过选择的提供商进行路由,并使用相邻的箭头打开提供商菜单.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "从 Core 部分打开 Classify, computer vision。 选择注释式产品文件或可靠类标签的项目数据库."
+          "speech_text": "聊天场接受有关当前工作流程的问题. 让人工智能通过选择的提供商进行路由,并使用相邻的箭头打开提供商菜单."
         },
         {
-          "narration": "在主要配置区域中,选择图像道,架构,分类策略,增强,批量大小和训练控制.",
-          "visual": "settings",
+          "narration": "提供商报告Claude,ChatGPT和Gemini命令行客户端是否安装,并提供其安装和登录命令. 证书留在每个供应商身上.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在主要配置区域中,选择图像道,架构,分类策略,增强,批量大小和训练控制."
+          "speech_text": "提供商报告Claude,ChatGPT和Gemini命令行客户端是否安装,并提供其安装和登录命令. 证书留在每个供应商身上."
         },
         {
-          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.",
-          "visual": "run",
+          "narration": "人工智能设置控制响应深度,自动解释错误,可选的GitHub问题报告,登录和spaCR知情系统提示.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+          "speech_text": "人工智能设置控制响应深度,自动解释错误,可选的GitHub问题报告,登录和斯佩克尔知情系统提示."
         },
         {
-          "narration": "当工作流程完成时, spaCR 将模型,指标,预测,类型示例保存,并运行元数据以后应用.",
-          "visual": "output",
+          "narration": "拖动测量教程项目进入分类. 它解决了81,969个真实细胞作物及其png_list元数据;6,598个作物在c1列和6,487个作物在c2列中.",
+          "visual": "05_folder",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "拖动测量教程项目进入分类. 它解决了81,969个真实细胞作物及其png_list元数据;6,598个作物在c1列和6,487个作物在c2列中."
+        },
+        {
+          "narration": "基本文件显示源源,工作流开关,类定义,架构和首次图像分类运行所需的道.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "基本文件显示源源,工作流开关,类定义,架构和首次图像分类运行所需的道."
+        },
+        {
+          "narration": "修改限制面板的值不同于Classify默认值,使控制映射和故意培训选择容易进行审计.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "修改限制面板的值不同于Classify默认值,使控制映射和故意培训选择容易进行审计."
+        },
+        {
+          "narration": "所有设置都显示每个类别,不变值,包括集团验证,泄漏检查,校准,推断和运行时间控制.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "所有设置都显示每个类别,不变值,包括集团验证,泄漏检查,校准,推断和运行时间控制."
+        },
+        {
+          "narration": "配方将这个完整的分类器配置存储在一个名称下,以后重新应用,或者进口和出口可重复使用的设置文件.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "配方将这个完整的分类器配置存储在一个名称下,以后重新应用,或者进口和出口可重复使用的设置文件."
+        },
+        {
+          "narration": "提交已解决的分类设置的远程快照,并将工作发送到分布式工作工作工作空间.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "提交已解决的分类设置的远程快照,并将工作发送到分布式工作工作工作空间."
+        },
+        {
+          "narration": "分布式工作将项目路径和计算资源映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的运行.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "分布式工作将项目路径和计算资源映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的运行."
+        },
+        {
+          "narration": "板源和工作流量选择一个或多个测量项目,并选择是否生成培训分区,培训模型,并在保留的数据上测试它.",
+          "visual": "12_category_01_plate_sources_workflow",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "板源和工作流量选择一个或多个测量项目,并选择是否生成培训分区,培训模型,并在保留的数据上测试它."
+        },
+        {
+          "narration": "标签和类定义了底部真相是否来自板块元数据,注释列或测量,以及对类名称的选定的值的地图.",
+          "visual": "12_category_02_labels_classes",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "标签和类定义了底部真相是否来自板块元数据,注释列或测量,以及对类名称的选定的值的地图."
+        },
+        {
+          "narration": "Crops and Dataset Split选择对象作物类型,像素源,图像大小,测试分数,类平衡和可重复的随机比较组.",
+          "visual": "12_category_03_crops_dataset_split",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Crops and Dataset Split选择对象作物类型,像素源,图像大小,测试分数,类平衡和可重复的随机比较组."
+        },
+        {
+          "narration": "模型架构选择内置或定制网络,可见的道,输入大小,正常化,放弃,预训练的权重和检查点行为.",
+          "visual": "12_category_04_model_architecture",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "模型架构选择内置或定制网络,可见的道,输入大小,正常化,放弃,预训练的权重和检查点行为."
+        },
+        {
+          "narration": "优化和损失组合优化器,学习率,时间表,规律化,类平衡,增长,时代,批量,积累和早期停止.",
+          "visual": "12_category_05_optimization_loss",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "优化和损失组合优化器,学习率,时间表,规律化,类平衡,增长,时代,批量,积累和早期停止."
+        },
+        {
+          "narration": "验证控制验证分数,集成的交叉验证折叠,集成单元,以及用于最后的硬通话的概率门.",
+          "visual": "12_category_06_validation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "验证控制验证分数,集成的交叉验证折叠,集成单元,以及用于最后的硬通话的概率门."
+        },
+        {
+          "narration": "评估工作台可实现嵌入式评估,概率校准,可靠性容器以及严格的火车测试身份和内容泄漏审计.",
+          "visual": "12_category_07_evaluation_workbench",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "评估工作台可实现嵌入式评估,概率校准,可靠性容器以及严格的火车测试身份和内容泄漏审计."
+        },
+        {
+          "narration": "完整数据集和推理构建或重复使用包装的作物数据集,应用选定的检查点,编写概率和呼叫,并保存最值得信赖的例子.",
+          "visual": "12_category_08_full_dataset_inference",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "完整数据集和推理构建或重复使用包装的作物数据集,应用选定的检查点,编写概率和呼叫,并保存最值得信赖的例子."
+        },
+        {
+          "narration": "监测和运行时间控制地图, TensorBoard,中间检查站,随机种子,工人,记录,严格的错误,以及最大的受容的故障率.",
+          "visual": "12_category_09_monitoring_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "监测和运行时间控制地图, TensorBoard,中间检查站,随机种子,工人,记录,严格的错误,以及最大的受容的故障率."
+        },
+        {
+          "narration": "在本教程中,重数据模式将c1命名为负控制和c2命名为正控制,通过匹配列ID字段. 在每次实验中检查生物任务,而不是仅仅依靠位置.",
+          "visual": "22_control_mapping",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "在本教程中,重数据模式将c1命名为负控制和c2命名为正控制,通过匹配列ID字段. 在每次实验中检查生物任务,而不是仅仅依靠位置."
+        },
+        {
+          "narration": "超参数搜索评估候选架构和训练选择, 在任何选择传播之前,完成的试验显示在分数,折叠变化,参数和状态表中.",
+          "visual": "23_hyperparameter_search",
+          "focus_key": "results",
+          "hold_after": 0.45,
+          "speech_text": "超参数搜索评估候选架构和训练选择, 在任何选择传播之前,完成的试验显示在分数,折叠变化,参数和状态表中."
+        },
+        {
+          "narration": "搜索设置定义了候选值,排名标准,网格或可复制的随机搜索,试验数,五组折叠,种子,图表控制和一次性回归模块.",
+          "visual": "24_search_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "搜索设置定义了候选值,排名标准,网格或可复制的随机搜索,试验数,五组折叠,种子,图表控制和一次性回归模块."
+        },
+        {
+          "narration": "运行先构建平衡的c1和c2火车测试分区,审计泄漏,为配置的时代的火车,评估井,校准概率,应用所选择的检查点,并在项目中记录预测. 这本教程没有启动昂贵的培训.",
+          "visual": "25_run_pipeline",
+          "focus_key": "actions",
           "hold_after": 0.65,
-          "speech_text": "当工作流程完成时, 斯佩克尔 将模型,指标,预测,类型示例保存,并运行元数据以后应用."
+          "speech_text": "运行先构建平衡的c1和c2火车测试分区,审计泄漏,为配置的时代的火车,评估井,校准概率,应用所选择的检查点,并在项目中记录预测. 这本教程没有启动昂贵的培训."
         }
       ]
     },
