@@ -1035,47 +1035,200 @@
       "id": "10_classify_cv",
       "number": 10,
       "slug": "classify_cv",
-      "title": "Classify, computer vision",
+      "title": "Classification (CV)",
       "series": 1,
       "app_key": "classify",
       "section": "Core",
-      "description": "Former et appliquer un réseau neuronal basé sur l'image aux cultures à objet unique annotées.",
+      "description": "Construire un classificateur d'images regroupé, vérifié par fuite, à partir de réelles cultures de cellules de contrôle négatif c1 et de contrôle positif c2.",
       "objectives": [
-        "Comprendre quand utiliser le Classify, la vision par ordinateur.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Mettez les deux premières colonnes de plaque dans les classes d'images négatives et positives.",
+        "Examen de l'ensemble de données, de l'architecture, de l'optimisation, de la validation, de l'évaluation, de l'inférence et des paramètres de temps d'exécution.",
+        "Comprendre la validation croisée groupée, la recherche des hyperparamètres, la formation, les tests et l'inférence de l'ensemble complet de données."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Mesure complète afin que le projet contient des cultures cellulaires et des mesures.db; définir des puits de contrôle biologiquement valides avant la formation.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre Classifier, vision par ordinateur.",
-          "visual": "overview",
+          "narration": "Classifier les trains CV Modèles d'images Torch sur les cultures à objet unique. La console rapporte la sélection des ensembles de données, les vérifications de fuite, les périodes de formation, les métriques conservées, les progrès de l'inférence, les avertissements et les pistes de sortie.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre Classifier, vision par ordinateur."
+          "speech_text": "Classifier les trains CV Modèles d'images Torch sur les cultures à objet unique. La console rapporte la sélection des ensembles de données, les vérifications de fuite, les périodes de formation, les métriques conservées, les progrès de l'inférence, les avertissements et les pistes de sortie."
         },
         {
-          "narration": "Ouvrez Classify, computer vision dans la section Core. Sélectionnez des dossiers de cultures annotés ou une base de données de projet avec des étiquettes de classe fiables.",
-          "visual": "input",
+          "narration": "Le champ de discussion accepte des questions sur le flux de travail actuel. Permettez à l'IA de parcourir un fournisseur sélectionné et utilisez la flèche adjacente pour ouvrir le menu du fournisseur.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Ouvrez Classify, computer vision dans la section Core. Sélectionnez des dossiers de cultures annotés ou une base de données de projet avec des étiquettes de classe fiables."
+          "speech_text": "Le champ de discussion accepte des questions sur le flux de travail actuel. Permettez à l'IA de parcourir un fournisseur sélectionné et utilisez la flèche adjacente pour ouvrir le menu du fournisseur."
         },
         {
-          "narration": "Dans la zone de configuration principale, choisissez les canaux d'image, l'architecture, la stratégie de fractionnement, l'augmentation, la taille du lot et les commandes d'entraînement.",
-          "visual": "settings",
+          "narration": "Les fournisseurs signalent si les clients de ligne de commande Claude, ChatGPT et Gemini sont installés et donnent leurs commandes d'installation et de connexion. Les accréditations restent à chaque fournisseur.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, choisissez les canaux d'image, l'architecture, la stratégie de fractionnement, l'augmentation, la taille du lot et les commandes d'entraînement."
+          "speech_text": "Les fournisseurs signalent si les clients de ligne de commande Claude, ChatGPT et Gemini sont installés et donnent leurs commandes d'installation et de connexion. Les accréditations restent à chaque fournisseur."
         },
         {
-          "narration": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible.",
-          "visual": "run",
+          "narration": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et le prompt système conscient de spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+          "speech_text": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et le prompt système conscient de spakeur."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, spaCR enregistre le modèle, les mesures, les prédictions, les exemples de classes et exécute les métadonnées pour une application ultérieure.",
-          "visual": "output",
+          "narration": "Tirez le projet de tutoriel mesuré dans Classify. Il résout 81.969 réelles cultures cellulaires et leurs métadonnées png_list; 6.598 cultures sont dans la colonne c1 et 6.487 sont dans la colonne c2.",
+          "visual": "05_folder",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Tirez le projet de tutoriel mesuré dans Classify. Il résout 81.969 réelles cultures cellulaires et leurs métadonnées png_list; 6.598 cultures sont dans la colonne c1 et 6.487 sont dans la colonne c2."
+        },
+        {
+          "narration": "Essentials montre la source, les commutateurs de flux de travail, la définition de classe, l'architecture et les canaux nécessaires à une première exécution de classification d'image.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials montre la source, les commutateurs de flux de travail, la définition de classe, l'architecture et les canaux nécessaires à une première exécution de classification d'image."
+        },
+        {
+          "narration": "La modification limite le panneau à des valeurs qui diffèrent des défauts de Classifier, ce qui facilite l'audit de la cartographie de contrôle et des choix de formation délibérés.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "La modification limite le panneau à des valeurs qui diffèrent des défauts de Classifier, ce qui facilite l'audit de la cartographie de contrôle et des choix de formation délibérés."
+        },
+        {
+          "narration": "Tous les paramètres révèlent chaque catégorie sans changement de valeurs, y compris la validation regroupée, les contrôles de fuite, l'étalonnage, l'inférence et les contrôles de temps d'exécution.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Tous les paramètres révèlent chaque catégorie sans changement de valeurs, y compris la validation regroupée, les contrôles de fuite, l'étalonnage, l'inférence et les contrôles de temps d'exécution."
+        },
+        {
+          "narration": "Les recettes enregistrent cette configuration complète du classifiateur sous un nom, la réappliquent plus tard ou importent et exportent un fichier de paramètres réutilisable.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Les recettes enregistrent cette configuration complète du classifiateur sous un nom, la réappliquent plus tard ou importent et exportent un fichier de paramètres réutilisable."
+        },
+        {
+          "narration": "Envoyer des instantanés à distance des paramètres de Classification résolus et envoyer le travail à l'espace de travail des emplois distribués.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envoyer des instantanés à distance des paramètres de Classification résolus et envoyer le travail à l'espace de travail des emplois distribués."
+        },
+        {
+          "narration": "Les emplois distribués cartographient les chemins du projet et les ressources de calcul vers une station de travail distante, un cluster Slurm ou une commande configurée, puis soumettent et surveillent la même exécution.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Les emplois distribués cartographient les chemins du projet et les ressources de calcul vers une station de travail distante, un cluster Slurm ou une commande configurée, puis soumettent et surveillent la même exécution."
+        },
+        {
+          "narration": "Plate Sources and Workflow sélectionne un ou plusieurs projets mesurés et choisit de générer une fraction de formation, de former un modèle et de le tester sur des données conservées.",
+          "visual": "12_category_01_plate_sources_workflow",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Plate Sources and Workflow sélectionne un ou plusieurs projets mesurés et choisit de générer une fraction de formation, de former un modèle et de le tester sur des données conservées."
+        },
+        {
+          "narration": "Les étiquettes et les classes définissent si la vérité de base provient des métadonnées de plaque, des colonnes d'annotation ou des mesures, et des cartes des valeurs sélectionnées aux noms de classes.",
+          "visual": "12_category_02_labels_classes",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Les étiquettes et les classes définissent si la vérité de base provient des métadonnées de plaque, des colonnes d'annotation ou des mesures, et des cartes des valeurs sélectionnées aux noms de classes."
+        },
+        {
+          "narration": "Crops and Dataset Split choisit le type de culture de l'objet, la source de pixel, la taille de l'image, la fraction de test, l'équilibrage des classes et le groupe de comparaison aléatoire reproductible optionnel.",
+          "visual": "12_category_03_crops_dataset_split",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Crops and Dataset Split choisit le type de culture de l'objet, la source de pixel, la taille de l'image, la fraction de test, l'équilibrage des classes et le groupe de comparaison aléatoire reproductible optionnel."
+        },
+        {
+          "narration": "L'architecture modèle sélectionne un réseau intégré ou personnalisé, des canaux visibles, la taille de l'entrée, la normalisation, le décrochage, les poids prétraînés et le comportement des points de contrôle.",
+          "visual": "12_category_04_model_architecture",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "L'architecture modèle sélectionne un réseau intégré ou personnalisé, des canaux visibles, la taille de l'entrée, la normalisation, le décrochage, les poids prétraînés et le comportement des points de contrôle."
+        },
+        {
+          "narration": "L'optimisation et la perte regroupent l'optimisateur, le taux d'apprentissage, le calendrier, la régularisation, l'équilibre des classes, les augmentations, les époques, les lots, l'accumulation et l'arrêt précoce.",
+          "visual": "12_category_05_optimization_loss",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "L'optimisation et la perte regroupent l'optimisateur, le taux d'apprentissage, le calendrier, la régularisation, l'équilibre des classes, les augmentations, les époques, les lots, l'accumulation et l'arrêt précoce."
+        },
+        {
+          "narration": "La validation contrôle la fraction de validation, les plis de validation croisée regroupés, l'unité de regroupement et le seuil de probabilité utilisé pour les appels d'urgence finaux.",
+          "visual": "12_category_06_validation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La validation contrôle la fraction de validation, les plis de validation croisée regroupés, l'unité de regroupement et le seuil de probabilité utilisé pour les appels d'urgence finaux."
+        },
+        {
+          "narration": "Le tableau de travail d'évaluation permet une évaluation ancrée, une calibration des probabilités, des poubelles de fiabilité et des vérifications strictes de l'identité des essais de train et des fuites de contenu.",
+          "visual": "12_category_07_evaluation_workbench",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le tableau de travail d'évaluation permet une évaluation ancrée, une calibration des probabilités, des poubelles de fiabilité et des vérifications strictes de l'identité des essais de train et des fuites de contenu."
+        },
+        {
+          "narration": "Full Dataset et Inference construit ou réutilise un ensemble de données de cultures emballées, applique le point de contrôle sélectionné, écrit les probabilités et les appels et enregistre des exemples de confiance.",
+          "visual": "12_category_08_full_dataset_inference",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Full Dataset et Inference construit ou réutilise un ensemble de données de cultures emballées, applique le point de contrôle sélectionné, écrit les probabilités et les appels et enregistre des exemples de confiance."
+        },
+        {
+          "narration": "Surveillance et contrôle du temps d'exécution des parcelles, TensorBoard, points de contrôle intermédiaires, semences aléatoires, travailleurs, enregistrement, erreurs strictes, et le taux de défaillance maximal toléré.",
+          "visual": "12_category_09_monitoring_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Surveillance et contrôle du temps d'exécution des parcelles, TensorBoard, points de contrôle intermédiaires, semences aléatoires, travailleurs, enregistrement, erreurs strictes, et le taux de défaillance maximal toléré."
+        },
+        {
+          "narration": "Pour ce tutoriel, le mode métadonnées nomme c1 comme contrôle négatif et c2 comme contrôle positif en correspondant au champ columnID. Vérifiez cette assignation biologique pour chaque expérience plutôt que de faire confiance à la position seule.",
+          "visual": "22_control_mapping",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "Pour ce tutoriel, le mode métadonnées nomme c1 comme contrôle négatif et c2 comme contrôle positif en correspondant au champ columnID. Vérifiez cette assignation biologique pour chaque expérience plutôt que de faire confiance à la position seule."
+        },
+        {
+          "narration": "La recherche par hyperparamètre évalue les architectures candidates et les choix de formation avec des plis bien regroupés. Les essais terminés apparaissent dans le tableau avec le score, la variation du pli, les paramètres et l'état avant la propagation de tout choix.",
+          "visual": "23_hyperparameter_search",
+          "focus_key": "results",
+          "hold_after": 0.45,
+          "speech_text": "La recherche par hyperparamètre évalue les architectures candidates et les choix de formation avec des plis bien regroupés. Les essais terminés apparaissent dans le tableau avec le score, la variation du pli, les paramètres et l'état avant la propagation de tout choix."
+        },
+        {
+          "narration": "Les paramètres de recherche définissent les valeurs candidates, le critère de classement, la grille ou la recherche aléatoire reproductible, le nombre d'essais, les cinq plis regroupés, la semence, les contrôles graphiques et la propagation unique vers le module.",
+          "visual": "24_search_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "Les paramètres de recherche définissent les valeurs candidates, le critère de classement, la grille ou la recherche aléatoire reproductible, le nombre d'essais, les cinq plis regroupés, la semence, les contrôles graphiques et la propagation unique vers le module."
+        },
+        {
+          "narration": "Run First construit des divisions équilibrées des essais de train c1 et c2, des audits de fuite, des trains pour les époques configurées, évalue les puits retenus, calibre les probabilités, applique le point de contrôle choisi et enregistre les prédictions dans le projet. Ce tutoriel ne lance pas la coûteuse formation.",
+          "visual": "25_run_pipeline",
+          "focus_key": "actions",
           "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, spakeur enregistre le modèle, les mesures, les prédictions, les exemples de classes et exécute les métadonnées pour une application ultérieure."
+          "speech_text": "Run First construit des divisions équilibrées des essais de train c1 et c2, des audits de fuite, des trains pour les époques configurées, évalue les puits retenus, calibre les probabilités, applique le point de contrôle choisi et enregistre les prédictions dans le projet. Ce tutoriel ne lance pas la coûteuse formation."
         }
       ]
     },

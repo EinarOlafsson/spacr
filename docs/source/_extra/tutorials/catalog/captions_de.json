@@ -409,19 +409,76 @@
       "id": "10_classify_cv",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Classify, Computer Vision. Ein Bild-basiertes neuronales Netzwerk auf annotate Einobjektpflanzen auszubilden und anzuwenden."
+          "narration": "Klassifizieren Sie Lebenslaufzüge Torch-Bildmodelle auf Einfachkulturen. Die Konsole berichtet über Datensatzwahl, Leakage-Checks, Trainingszeiten, ausgehaltenen Metriken, Abschlussfortschritt, Warnungen und Ausgangswege."
         },
         {
-          "narration": "Öffnen Sie die Klassifizierung, Computersicht aus dem Kernbereich. Wählen Sie annotate Feldmappen oder eine Projektdatenbank mit zuverlässigen Klassenetiketten aus."
+          "narration": "Das Chatfeld akzeptiert Fragen zum aktuellen Workflow. Aktivieren Sie die KI, einen ausgewählten Provider zu durchlaufen, und verwenden Sie den angrenzenden Pfeil, um das Providermenü zu öffnen."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich die Bildkanäle, Architektur, Split-Strategie, Augmentation, Batchgröße und Trainingssteuerungen aus."
+          "narration": "Anbieter melden, ob die Claude-, ChatGPT- und Gemini-Befehlszeilklienten installiert sind, und geben ihre Installations- und Login-Befehlen an. Die Anmeldeinformationen bleiben bei jedem Verkäufer."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. die Ausbildung über die Schulungsspaltung, das Validierungsverhalten zu überwachen und die ausgehaltenen Daten einmalig zu bewerten."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und den spaCR-bewussten System-Anruf."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, speichert spaCR das Modell, Metriken, Vorhersagen, Klassenbeispiele und laufen Metadaten für spätere Anwendung."
+          "narration": "Ziehen Sie das gemessene Tutorialprojekt in Classify. Es löst 81.969 echte Zellpflanzen und ihre png_list Metadaten; 6.598 Pflanzen sind in Spalte c1 und 6.487 sind in Spalte c2."
+        },
+        {
+          "narration": "Essentials zeigt die Quelle, Workflow-Switches, Klassendefinition, Architektur und Kanäle an, die für einen ersten Bildklassifizierungslauf erforderlich sind."
+        },
+        {
+          "narration": "Modifizierte Grenzwerte begrenzen das Panel auf Werte, die sich von Classify-Standards unterscheiden, wodurch die Kontrollkartierung und die bewussten Trainingsoptionen leicht zu überprüfen sind."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen jede Kategorie ohne Veränderung der Werte, einschließlich der gruppierten Validierung, Leakage-Checks, Kalibrierung, Schlussfolgerung und Laufzeitkontrollen."
+        },
+        {
+          "narration": "Rezepte speichern diese komplette Klassifikationskonfiguration unter einem Namen, wenden sie später neu an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Senden Sie Remote-Snapshots in die gelöschten Einstellungen Classify und senden Sie den Job in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartiert Projektwege und berechnet Ressourcen auf eine Remote-Arbeitsstation, einen Slurm-Cluster oder einen konfigurierten Befehl und überträgt und überwacht dann den gleichen Lauf."
+        },
+        {
+          "narration": "Plate Sources and Workflow wählt ein oder mehrere gemessene Projekte aus und entscheidet sich, ob eine Schulungsspaltung generiert, ein Modell ausgebildet und auf ausgehaltenen Daten getestet wird."
+        },
+        {
+          "narration": "Etiketten und Klassen definieren, ob die Grundwahrheit aus Plattenmetadaten, Annotationsspalten oder Messungen und Karten ausgewählter Werte zu Klassennamen stammt."
+        },
+        {
+          "narration": "Crops and Dataset Split wählt den Objekt-Crop-Typ, die Pixelquelle, die Bildgröße, die Testfraktion, die Klassenbilanz und die optional reproduzierbare Zufallsvergleichsgruppe aus."
+        },
+        {
+          "narration": "Modellarchitektur wählt ein eingebautes oder benutzerdefiniertes Netzwerk, sichtbare Kanäle, Eingabegröße, Normalisierung, Ausfall, vorgeübte Gewichte und Checkpoint-Verhalten aus."
+        },
+        {
+          "narration": "Optimierung und Verlust gruppieren den Optimierer, die Lernrate, den Zeitplan, die Regulierung, die Klassenbilanz, die Erhöhungen, die Epochen, die Chargen, die Anhäufung und das frühe Stoppen."
+        },
+        {
+          "narration": "Die Validierung steuert die Validierungsfraktion, die gruppierten Quervalidierungsfalten, die Gruppierungseinheit und die Wahrscheinlichkeitsschwelle, die für die letzten Hard Calls verwendet wird."
+        },
+        {
+          "narration": "Evaluation Workbench ermöglicht vernetzte Evaluation, Wahrscheinlichkeitskalibrierung, Zuverlässigkeitsbehälter sowie strenge Identitäts- und Inhaltsleckage-Audits für Zugprüfungen."
+        },
+        {
+          "narration": "Full Dataset und Inference erstellen oder wiederverwenden einen gepackten Pflanzendataset, wenden den ausgewählten Checkpoint an, schreiben Wahrscheinlichkeiten und Anrufe und speichern Top-Confidence-Beispiele."
+        },
+        {
+          "narration": "Monitoring und Runtime kontrolliert Plots, TensorBoard, Zwischenkontrollstellen, zufällige Samen, Arbeiter, Logging, strenge Fehler und die maximal tolerierte Ausfallrate."
+        },
+        {
+          "narration": "Für dieses Tutorial benennt der Metadatenmodus c1 als negative Steuerung und c2 als positive Steuerung, indem das Feld columnID abgestimmt wird. Überprüfen Sie diese biologische Zuordnung für jedes Experiment, anstatt nur die Position zu vertrauen."
+        },
+        {
+          "narration": "Hyperparameter-Suche bewertet Kandidatenarchitekturen und Ausbildungsmöglichkeiten mit gut gruppierten Falten. Die abgeschlossenen Tests erscheinen in der Tabelle mit Punktzahl, Faltenvariation, Parametern und Status, bevor eine Wahl verbreitet wird."
+        },
+        {
+          "narration": "Sucheinstellungen definieren die Kandidatenwerte, das Rankingkriterium, das Raster oder die reproduzierbare zufällige Suche, die Versuchszahl, die fünf gruppierten Falten, die Samen, die Grafiksteuerung und die einmalige Vermehrung zurück zum Modul."
+        },
+        {
+          "narration": "Run First baut ausgewogene C1- und C2-Zug-Testsplits auf, prüft Leckage, Züge für die konfigurierten Epochen, bewertet ausgehaltenen Brunnen, kalibriert Wahrscheinlichkeiten, wendet den gewählten Checkpoint an und notiert Vorhersagen im Projekt. Dieses Tutorial beginnt nicht mit dem teuren Schulungslauf."
         }
       ]
     },

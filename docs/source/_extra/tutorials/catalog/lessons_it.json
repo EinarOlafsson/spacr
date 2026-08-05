@@ -1035,47 +1035,200 @@
       "id": "10_classify_cv",
       "number": 10,
       "slug": "classify_cv",
-      "title": "Classify, computer vision",
+      "title": "Classifica (CV)",
       "series": 1,
       "app_key": "classify",
       "section": "Core",
-      "description": "Fornire e applicare una rete neurale basata su immagini alle colture singole con annotati.",
+      "description": "Costruire un classificatore di immagini raggruppato, auditato per perdite, da colture di cellule reali a controllo negativo c1 e a controllo positivo c2.",
       "objectives": [
-        "Capire quando usare Classify, visione computerizzata.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Mappa le prime due colonne di piastra a classi di immagini negative e positive.",
+        "Revisione del set di dati, dell'architettura, dell'ottimizzazione, della convalidazione, della valutazione, delle inferenze e delle impostazioni del runtime.",
+        "Comprendere la convalida incrociata raggruppata, la ricerca degli iperparametri, la formazione, i test e l'inferenza del set di dati completo."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Completare la misura in modo che il progetto contenga colture cellulari e misure.db; definire pozzi di controllo biologicamente validi prima della formazione.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre Classify, computer vision.",
-          "visual": "overview",
+          "narration": "Classificare i treni CV Modelli di immagine Torch su colture a singolo oggetto. La console riporta la selezione dei set di dati, i controlli delle perdite, le epoche di formazione, le metriche ritenute, il progresso delle inferenze, gli avvertimenti e i percorsi di uscita.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre Classify, computer vision."
+          "speech_text": "Classificare i treni CV Modelli di immagine Torch su colture a singolo oggetto. La console riporta la selezione dei set di dati, i controlli delle perdite, le epoche di formazione, le metriche ritenute, il progresso delle inferenze, gli avvertimenti e i percorsi di uscita."
         },
         {
-          "narration": "Apri Classify, computer vision dalla sezione Core. Apri Classifica, visione informatica dalla sezione Core. Selezionare cartelle di raccolti annotate o un database di progetti con etichette di classe affidabili.",
-          "visual": "input",
+          "narration": "Il campo di chat accetta domande sul flusso di lavoro attuale. Abilitare l'IA a percorrersi attraverso un provider selezionato e utilizzare la freccia adiacente per aprire il menu del provider.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Apri Classify, computer vision dalla sezione Core. Apri Classifica, visione informatica dalla sezione Core. Selezionare cartelle di raccolti annotate o un database di progetti con etichette di classe affidabili."
+          "speech_text": "Il campo di chat accetta domande sul flusso di lavoro attuale. Abilitare l'IA a percorrersi attraverso un provider selezionato e utilizzare la freccia adiacente per aprire il menu del provider."
         },
         {
-          "narration": "Nella zona di configurazione principale, scegli i canali di immagine, l'architettura, la strategia di spartizione, l'aumento, la dimensione del lotto e i controlli di allenamento.",
-          "visual": "settings",
+          "narration": "I fornitori segnalano se i client di linea di comando Claude, ChatGPT e Gemini sono installati e forniscono i loro comandi di installazione e login. Le credenziali restano con ogni venditore.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Nella zona di configurazione principale, scegli i canali di immagine, l'architettura, la strategia di spartizione, l'aumento, la dimensione del lotto e i controlli di allenamento."
+          "speech_text": "I fornitori segnalano se i client di linea di comando Claude, ChatGPT e Gemini sono installati e forniscono i loro comandi di installazione e login. Le credenziali restano con ogni venditore."
         },
         {
-          "narration": "Prima della corsa completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile. allenarsi sulla divisione di allenamento, monitorare il comportamento di convalida e valutare una volta sui dati trattenuti.",
-          "visual": "run",
+          "narration": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Prima della corsa completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile. allenarsi sulla divisione di allenamento, monitorare il comportamento di convalida e valutare una volta sui dati trattenuti."
+          "speech_text": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spàker."
         },
         {
-          "narration": "Quando il flusso di lavoro è finito, spaCR salva il modello, le metriche, le previsioni, gli esempi di classe e esegue metadati per applicazioni successive.",
-          "visual": "output",
+          "narration": "Trascinare il progetto di tutorial misurato in Classify. Risolve 81.969 colture di cellule reali e i loro metadati png_list; 6.598 colture sono nella colonna c1 e 6.487 sono nella colonna c2.",
+          "visual": "05_folder",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Trascinare il progetto di tutorial misurato in Classify. Risolve 81.969 colture di cellule reali e i loro metadati png_list; 6.598 colture sono nella colonna c1 e 6.487 sono nella colonna c2."
+        },
+        {
+          "narration": "Essentials mostra la fonte, i commutatori di flusso di lavoro, la definizione di classe, l'architettura e i canali necessari per una prima esecuzione di classificazione delle immagini.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials mostra la fonte, i commutatori di flusso di lavoro, la definizione di classe, l'architettura e i canali necessari per una prima esecuzione di classificazione delle immagini."
+        },
+        {
+          "narration": "Modificato limita il pannello a valori che differiscono dalle impostazioni predefinite di Classify, rendendo facile da auditare la mappatura di controllo e le scelte di formazione deliberate.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modificato limita il pannello a valori che differiscono dalle impostazioni predefinite di Classify, rendendo facile da auditare la mappatura di controllo e le scelte di formazione deliberate."
+        },
+        {
+          "narration": "Tutte le impostazioni rivelano ogni categoria senza variare i valori, compresa la convalida raggruppata, i controlli di perdita, la calibrazione, l'indeferenza e i controlli del tempo di esecuzione.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Tutte le impostazioni rivelano ogni categoria senza variare i valori, compresa la convalida raggruppata, i controlli di perdita, la calibrazione, l'indeferenza e i controlli del tempo di esecuzione."
+        },
+        {
+          "narration": "Le ricette salvano questa configurazione completa del classificatore sotto un nome, la riapplicano in seguito o importano ed esportano un file di impostazioni riutilizzabile.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Le ricette salvano questa configurazione completa del classificatore sotto un nome, la riapplicano in seguito o importano ed esportano un file di impostazioni riutilizzabile."
+        },
+        {
+          "narration": "Invia istantanee remote alle impostazioni Classificare risolte e invia il lavoro nello spazio di lavoro Jobs Distribuiti.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Invia istantanee remote alle impostazioni Classificare risolte e invia il lavoro nello spazio di lavoro Jobs Distribuiti."
+        },
+        {
+          "narration": "Distributed Jobs mappa i percorsi del progetto e le risorse di calcolo a una workstation remota, a un cluster Slurm o a un comando configurato, quindi inviano e monitorano la stessa esecuzione.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs mappa i percorsi del progetto e le risorse di calcolo a una workstation remota, a un cluster Slurm o a un comando configurato, quindi inviano e monitorano la stessa esecuzione."
+        },
+        {
+          "narration": "Plate Sources and Workflow seleziona uno o più progetti misurati e sceglie se generare una divisione di formazione, formare un modello e testarlo su dati conservati.",
+          "visual": "12_category_01_plate_sources_workflow",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Plate Sources and Workflow seleziona uno o più progetti misurati e sceglie se generare una divisione di formazione, formare un modello e testarlo su dati conservati."
+        },
+        {
+          "narration": "Le etichette e le classi definiscono se la verità di base proviene dai metadati della piastra, dalle colonne di annotamento o dalle misurazioni e dalle mappe dei valori selezionati per i nomi delle classi.",
+          "visual": "12_category_02_labels_classes",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le etichette e le classi definiscono se la verità di base proviene dai metadati della piastra, dalle colonne di annotamento o dalle misurazioni e dalle mappe dei valori selezionati per i nomi delle classi."
+        },
+        {
+          "narration": "Crops and Dataset Split sceglie il tipo di raccolto dell'oggetto, la fonte di pixel, la dimensione dell'immagine, la frazione di prova, l'equilibrio delle classi e il gruppo di confronto casuale riproducibile opzionale.",
+          "visual": "12_category_03_crops_dataset_split",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Crops and Dataset Split sceglie il tipo di raccolto dell'oggetto, la fonte di pixel, la dimensione dell'immagine, la frazione di prova, l'equilibrio delle classi e il gruppo di confronto casuale riproducibile opzionale."
+        },
+        {
+          "narration": "Model Architecture seleziona una rete integrata o personalizzata, canali visibili, dimensioni di input, normalizzazione, abbandono, pesi pre-addestrati e comportamento dei checkpoint.",
+          "visual": "12_category_04_model_architecture",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Model Architecture seleziona una rete integrata o personalizzata, canali visibili, dimensioni di input, normalizzazione, abbandono, pesi pre-addestrati e comportamento dei checkpoint."
+        },
+        {
+          "narration": "L'ottimizzazione e la perdita raggruppano l'ottimizzatore, il tasso di apprendimento, il calendario, la regolarizzazione, l'equilibrio di classe, gli aumentamenti, le epoche, i lotti, l'accumulo e l'interruzione precoce.",
+          "visual": "12_category_05_optimization_loss",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "L'ottimizzazione e la perdita raggruppano l'ottimizzatore, il tasso di apprendimento, il calendario, la regolarizzazione, l'equilibrio di classe, gli aumentamenti, le epoche, i lotti, l'accumulo e l'interruzione precoce."
+        },
+        {
+          "narration": "La convalida controlla la frazione di convalidazione, le pieghe di convalida incrociata raggruppate, l'unità di raggruppamento e la soglia di probabilità utilizzata per le chiamate dure finali.",
+          "visual": "12_category_06_validation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La convalida controlla la frazione di convalidazione, le pieghe di convalida incrociata raggruppate, l'unità di raggruppamento e la soglia di probabilità utilizzata per le chiamate dure finali."
+        },
+        {
+          "narration": "La banca di lavoro di valutazione consente di effettuare valutazioni annidate, calibrazioni di probabilità, contenitori di affidabilità e verifiche rigorose dell'identità dei treni e delle perdite di contenuto.",
+          "visual": "12_category_07_evaluation_workbench",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La banca di lavoro di valutazione consente di effettuare valutazioni annidate, calibrazioni di probabilità, contenitori di affidabilità e verifiche rigorose dell'identità dei treni e delle perdite di contenuto."
+        },
+        {
+          "narration": "Full Dataset e Inference costruisce o riutilizza un set di dati raccolti confezionati, applica il checkpoint selezionato, scrive probabilità e chiamate e salva esempi di massima fiducia.",
+          "visual": "12_category_08_full_dataset_inference",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Full Dataset e Inference costruisce o riutilizza un set di dati raccolti confezionati, applica il checkpoint selezionato, scrive probabilità e chiamate e salva esempi di massima fiducia."
+        },
+        {
+          "narration": "Monitoring e Runtime controlla plot, TensorBoard, punti di controllo intermedi, semi casuali, lavoratori, registrazione, errori rigorosi, e il tasso di guasto massimo tollerato.",
+          "visual": "12_category_09_monitoring_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Monitoring e Runtime controlla plot, TensorBoard, punti di controllo intermedi, semi casuali, lavoratori, registrazione, errori rigorosi, e il tasso di guasto massimo tollerato."
+        },
+        {
+          "narration": "Per questo tutorial, la modalità metadati nomina c1 come controllo negativo e c2 come controllo positivo, abbinando il campo columnID. Verificare l'assegnazione biologica per ogni esperimento piuttosto che affidarsi solo alla posizione.",
+          "visual": "22_control_mapping",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "Per questo tutorial, la modalità metadati nomina c1 come controllo negativo e c2 come controllo positivo, abbinando il campo columnID. Verificare l'assegnazione biologica per ogni esperimento piuttosto che affidarsi solo alla posizione."
+        },
+        {
+          "narration": "La ricerca degli iperparametri valuta le architetture candidate e le scelte di formazione con pieghe ben raggruppate. Le prove completate vengono visualizzate nella tabella con punteggio, variazione di moltiplicazione, parametri e stato prima di propagare qualsiasi scelta.",
+          "visual": "23_hyperparameter_search",
+          "focus_key": "results",
+          "hold_after": 0.45,
+          "speech_text": "La ricerca degli iperparametri valuta le architetture candidate e le scelte di formazione con pieghe ben raggruppate. Le prove completate vengono visualizzate nella tabella con punteggio, variazione di moltiplicazione, parametri e stato prima di propagare qualsiasi scelta."
+        },
+        {
+          "narration": "Le impostazioni di ricerca definiscono i valori dei candidati, il criterio di classificazione, la ricerca casuale a griglia o riproducibile, il numero di prove, le cinque pieghe raggruppate, i semi, i controlli grafici e la propagazione una volta al modulo.",
+          "visual": "24_search_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "Le impostazioni di ricerca definiscono i valori dei candidati, il criterio di classificazione, la ricerca casuale a griglia o riproducibile, il numero di prove, le cinque pieghe raggruppate, i semi, i controlli grafici e la propagazione una volta al modulo."
+        },
+        {
+          "narration": "Run First costruisce divisioni di test di treni c1 e c2 equilibrate, verifica le perdite, treni per le epoche configurate, valuta i pozzi trattenuti, calibra le probabilità, applica il checkpoint scelto e registra le previsioni nel progetto. Questo tutorial non lancia la costosa formazione.",
+          "visual": "25_run_pipeline",
+          "focus_key": "actions",
           "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è finito, spàker salva il modello, le metriche, le previsioni, gli esempi di classe e esegue metadati per applicazioni successive."
+          "speech_text": "Run First costruisce divisioni di test di treni c1 e c2 equilibrate, verifica le perdite, treni per le epoche configurate, valuta i pozzi trattenuti, calibra le probabilità, applica il checkpoint scelto e registra le previsioni nel progetto. Questo tutorial non lancia la costosa formazione."
         }
       ]
     },

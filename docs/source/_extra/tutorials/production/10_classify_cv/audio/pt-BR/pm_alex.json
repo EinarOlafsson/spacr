@@ -4,47 +4,247 @@
   "voice": "pm_alex",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 56.325,
+  "total_duration": 303.375,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.075,
-      "scene_end": 9.524999999999999,
-      "duration": 9.524999999999999,
-      "text": "Este tutorial abrange Classify, visão por computador. Treinar e aplicar uma rede neural baseada em imagem para culturas com um único objeto anotado."
+      "speech_end": 15.425,
+      "scene_end": 15.875,
+      "duration": 15.875,
+      "text": "Classificar trens de CV Modelos de imagem de tocha em culturas de um único objeto. O console relata a seleção de conjuntos de dados, verificações de vazamento, épocas de treinamento, métricas mantidas, progresso de inferência, avisos e caminhos de saída.",
+      "speech_text": "Classificar trens de CV Modelos de imagem de tocha em culturas de um único objeto. O console relata a seleção de conjuntos de dados, verificações de vazamento, épocas de treinamento, métricas mantidas, progresso de inferência, avisos e caminhos de saída.",
+      "phonemes": "klˌasifikˈar trˈAŋz ʤy sˈAŋtui sˈiŋkʊ mˌodˈelʊz ʤj ˌimˈaʒAŋ ʤy tˈɔʃæ ˈAŋ kˌuwtˈuɾæz ʤj ũŋ ˈunikw ˌobʒˈɛtʊ. ʊ kˌoŋsˈoly xˌelˈatæ a sˌelesˈɐ̃ʊ̃ ʤy kˌoŋʒˈũŋtʊz ʤy dˈadʊs, vˌeɾifˌikasˈõjz ʤy vˌazæmˈAŋtʊ, ˈɛpokæz ʤy trˌAnæmˈAŋtʊ, mˈɛtrikæz mˌɐ̃ŋʧˈidæs, prˌoɡrˈɛsʊ ʤj ˌiŋfeɾˈAŋsjæ, ˌavˈizʊz i kˌæmˈiɲʊz ʤy sˌaˈidæ."
     },
     {
       "scene": 2,
-      "speech_start": 9.524999999999999,
-      "speech_end": 22.625,
-      "scene_end": 23.075,
-      "duration": 13.55,
-      "text": "Abra Classify, computer vision na seção Core. Abra Classificar, visão por computador da seção Core. Selecione pastas de culturas com anotações ou um banco de dados de projetos com rótulos de classes confiáveis."
+      "speech_start": 15.875,
+      "speech_end": 26.875,
+      "scene_end": 27.325,
+      "duration": 11.45,
+      "text": "O campo de bate-papo aceita perguntas sobre o fluxo de trabalho atual. Permitir que a IA encaminhe através de um provedor selecionado e use a seta adjacente para abrir o menu do provedor.",
+      "speech_text": "O campo de bate-papo aceita perguntas sobre o fluxo de trabalho atual. Permitir que a IA encaminhe através de um provedor selecionado e use a seta adjacente para abrir o menu do provedor.",
+      "phonemes": "ʊ kˈɐ̃mpʊ ʤy bˈaʧypˈapw ˌasˈAtæ pˌeɾəɡˈũŋtæs sˈobri ʊ flˈuksʊ ʤy trˌabˈaljw ˌatuˈW. pˌeɾəmiʧˈir ky a ˌiˈa ˌAŋkæmˈiɲj ˌatravˈɛz ʤj ũŋ prˌovedˈor sˌelesˌionˈadw i ˈuzj a sˈɛtæ ˌadʒasˈAŋʧy pˌaɾæ abrˈiɾ ʊ menˈu dʊ prˌovedˈor."
     },
     {
       "scene": 3,
-      "speech_start": 23.075,
-      "speech_end": 31.725,
-      "scene_end": 32.175000000000004,
-      "duration": 9.100000000000005,
-      "text": "Na área de configuração principal, escolha os canais de imagem, arquitetura, estratégia de divisão, aumento, tamanho de lote e controles de treinamento."
+      "speech_start": 27.325,
+      "speech_end": 38.875,
+      "scene_end": 39.325,
+      "duration": 12.000000000000004,
+      "text": "Os provedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e fornecem os comandos de instalação e login. As credenciais ficam com cada vendedor.",
+      "speech_text": "Os provedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e fornecem os comandos de instalação e login. As credenciais ficam com cada vendedor.",
+      "phonemes": "ʊs prˌovedˈoɾyz xˌelˈatɐ̃ʊ̃ sj ʊs klˌiˈAŋʧyz ʤy lˈiɲæ ʤy kˌomˈɐ̃ŋdʊ klˈWʤy, ʃˈaʧ ʒˌepˌetˈe i ʒˌeminˈi estˌɐ̃ʊ̃ ˌiŋstalˈadʊz i fˌoɾənˈɛsAŋ ʊs kˌomˈɐ̃ŋdʊz ʤj ˌiŋstalasˈɐ̃ʊ̃ i loɡˈiŋ. as krˌedAŋsiˈIs fˈikɐ̃ʊ̃ koŋ kˈadæ vˌAŋdedˈor."
     },
     {
       "scene": 4,
-      "speech_start": 32.175000000000004,
-      "speech_end": 46.300000000000004,
-      "scene_end": 46.75000000000001,
-      "duration": 14.575000000000003,
-      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. treine sobre a divisão de treinamento, monitore o comportamento de validação e avalia uma vez os dados mantidos."
+      "speech_start": 39.325,
+      "speech_end": 50.2,
+      "scene_end": 50.650000000000006,
+      "duration": 11.325000000000003,
+      "text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do spaCR.",
+      "speech_text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do espáquer.",
+      "phonemes": "kˌoŋfiɡˌuɾasˈõjz ʤj ˌiˈa kˌoŋtrˈɔlɐ̃ʊ̃ a prˌofũŋʤidˈaʤy da xˌespˈɔstæ, ˌesplikasˈõjz ˌWtomˈaʧikæz ʤj ˈexʊs, xˌelatˈɔɾjʊz ˌopsionˈIz ʤy prˌoblˈemæz ʒˈiʧ ˈub, loɡˈiŋ i ʊ prˈompʧ dʊ sˌistˈemæ kˌoŋsiˈAŋʧy dʊ ˌespˈakɛr."
     },
     {
       "scene": 5,
-      "speech_start": 46.75000000000001,
-      "speech_end": 55.67500000000001,
-      "scene_end": 56.32500000000001,
-      "duration": 9.575000000000003,
-      "text": "Quando o fluxo de trabalho termina, o spaCR salva o modelo, métricas, previsões, exemplos de classes e executa metadados para aplicação posterior."
+      "speech_start": 50.650000000000006,
+      "speech_end": 66.85000000000001,
+      "scene_end": 67.30000000000001,
+      "duration": 16.650000000000006,
+      "text": "Arraste o projeto do tutorial medido para Classify. Resolve 81.969 culturas de células reais e seus metadados png_list; 6.598 culturas estão na coluna c1 e 6.487 estão na coluna c2.",
+      "speech_text": "Arraste o projeto do tutorial medido para Classify. Resolve 81.969 culturas de células reais e seus metadados png_list; 6.598 culturas estão na coluna c1 e 6.487 estão na coluna c2.",
+      "phonemes": "ˌaxˈasʧj ʊ prˌoʒˈɛtʊ dʊ tˌutoɾiˈW mˌeʤˈidʊ pˌaɾæ klˌasˈifi. xˌezˈɔlvy ˌoɪtˈAŋtæiˈũŋ.nˈɔvysˈAŋtʊzˌi sesˈAŋtæinˈɔvy kˌuwtˈuɾæz ʤy sˈɛlulæz xeˈIz i seʊz mˌetadˈadʊs pˌeˌeneʒˈe lˈisʧ; sˈAs.kˌiɲˈAŋtʊzˌi novˈAŋtæiˈoɪtʊ kˌuwtˈuɾæz estˌɐ̃ʊ̃ na kˌolˈunæ sˈe ˈũŋ i sˈAs.kwˈatrʊsˈAŋtʊzˌi oɪtˈAŋtæisˈɛʧy estˌɐ̃ʊ̃ na kˌolˈunæ sˈe dˈoɪs."
+    },
+    {
+      "scene": 6,
+      "speech_start": 67.30000000000001,
+      "speech_end": 77.72500000000001,
+      "scene_end": 78.17500000000001,
+      "duration": 10.875,
+      "text": "Os essenciais mostram a fonte, os switches de fluxo de trabalho, a definição de classe, a arquitetura e os canais necessários para uma primeira execução de classificação de imagem.",
+      "speech_text": "Os essenciais mostram a fonte, os switches de fluxo de trabalho, a definição de classe, a arquitetura e os canais necessários para uma primeira execução de classificação de imagem.",
+      "phonemes": "ʊz ˌesAŋsiˈIz mˈɔstrɐ̃ʊ̃ a fˈoŋʧy, ʊs swˈitʃyz ʤy flˈuksʊ ʤy trˌabˈaljʊ, a dˌefinisˈɐ̃ʊ̃ ʤy klˈasy, a ˌaɾəkitetˈuɾæ i ʊs kænˈIz nˌesesˈaɾjʊs pˌaɾæ ˌumæ prˌimˈAɾæ ˌezekusˈɐ̃ʊ̃ ʤy klˌasifˌikasˈɐ̃ʊ̃ ʤj ˌimˈaʒAŋ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 78.17500000000001,
+      "speech_end": 89.20000000000002,
+      "scene_end": 89.65000000000002,
+      "duration": 11.475000000000009,
+      "text": "Os limites modificados limitam o painel a valores que diferem dos padrões de Classificação, tornando o mapeamento de controle e as escolhas de treinamento deliberadas fáceis de auditar.",
+      "speech_text": "Os limites modificados limitam o painel a valores que diferem dos padrões de Classificação, tornando o mapeamento de controle e as escolhas de treinamento deliberadas fáceis de auditar.",
+      "phonemes": "ʊz lˌimˈiʧyz mˌoʤifikˈadʊz lˌimˈitɐ̃ʊ̃ ʊ pInˈɛʊ a vˌalˈoɾys ky ʤˌifˈɛɾAŋ dʊs padrˈõjz ʤy klˌasifˌikasˈɐ̃ʊ̃, tˌoɾənˈɐ̃ŋdw ʊ mˌapeæmˈAŋtʊ ʤy kˌoŋtrˈoli i az ˌeskˈoljæz ʤy trˌAnæmˈAŋtʊ dˌelibeɾˈadæs fˈasAz ʤj ˌWʤitˈar."
+    },
+    {
+      "scene": 8,
+      "speech_start": 89.65000000000002,
+      "speech_end": 101.15000000000002,
+      "scene_end": 101.60000000000002,
+      "duration": 11.950000000000003,
+      "text": "Todas as configurações revelam cada categoria sem mudanças de valores, incluindo validação agrupada, verificações de vazamento, calibração, inferência e controles de tempo de execução.",
+      "speech_text": "Todas as configurações revelam cada categoria sem mudanças de valores, incluindo validação agrupada, verificações de vazamento, calibração, inferência e controles de tempo de execução.",
+      "phonemes": "tˈodæz as kˌoŋfiɡˌuɾasˈõjz xˌevˈɛlɐ̃ʊ̃ kˈadæ kˌateɡoɾˈiæ sˈAŋ mˌudˈɐ̃ŋsæz ʤy vˌalˈoɾys, ˌiŋkluˈiŋdʊ vˌalidasˈɐ̃ʊ̃ ˌaɡrupˈadæ, vˌeɾifˌikasˈõjz ʤy vˌazæmˈAŋtʊ, kˌalibrasˈɐ̃ʊ̃, ˌiŋfeɾˈAŋsjæ i kˌoŋtrˈolyz ʤy tˈAmpʊ ʤj ˌezekusˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 9,
+      "speech_start": 101.60000000000002,
+      "speech_end": 111.57500000000002,
+      "scene_end": 112.02500000000002,
+      "duration": 10.424999999999997,
+      "text": "As receitas guardam esta configuração completa do classificador sob um nome, reaplicam-na mais tarde ou importam e exportam um arquivo de configurações reutilizável.",
+      "speech_text": "As receitas guardam esta configuração completa do classificador sob um nome, reaplicam-na mais tarde ou importam e exportam um arquivo de configurações reutilizável.",
+      "phonemes": "az xˌesˈAtæz ɡwˈaɾədɐ̃ʊ̃ ˌɛstæ kˌoŋfiɡˌuɾasˈɐ̃ʊ̃ kˌomplˈɛtæ dʊ klˌasifˌikadˈor sˈob ũŋ nˈomy, xˌeaplˈikɐ̃ʊ̃na mˈIs tˈaɾəʤj ow ˌimpˈɔɾətɐ̃ʊ̃ i ˌespˈɔɾətɐ̃ʊ̃ ũŋ ˌaɾəkˈivʊ ʤy kˌoŋfiɡˌuɾasˈõjz xˌeʊʧilizˈaveʊ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 112.02500000000002,
+      "speech_end": 120.80000000000003,
+      "scene_end": 121.25000000000003,
+      "duration": 9.225000000000009,
+      "text": "Envie instantâneos remotos das configurações de Classificação resolvidas e envia o trabalho para o espaço de trabalho de Trabalhos Distribuídos.",
+      "speech_text": "Envie instantâneos remotos das configurações de Classificação resolvidas e envia o trabalho para o espaço de trabalho de Trabalhos Distribuídos.",
+      "phonemes": "ˌAŋvˈij ˌiŋstɐ̃ŋtˈɐ̃neʊz xˌemˈɔtʊz das kˌoŋfiɡˌuɾasˈõjz ʤy klˌasifˌikasˈɐ̃ʊ̃ xˌezowvˈidæz i ˌAŋvˈiæ ʊ trˌabˈaljʊ pˌaɾæ u ˌespˈasʊ ʤy trˌabˈaljʊ ʤy trˌabˈaljʊz ʤˌistribuˈidʊs."
+    },
+    {
+      "scene": 11,
+      "speech_start": 121.25000000000003,
+      "speech_end": 133.22500000000002,
+      "scene_end": 133.675,
+      "duration": 12.424999999999983,
+      "text": "O Jobs Distribuído mapeia os caminhos do projeto e os recursos de computação para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução.",
+      "speech_text": "O Jobs Distribuído mapeia os caminhos do projeto e os recursos de computação para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução.",
+      "phonemes": "ʊ ʒˈobz ʤˌistribuˈidʊ mˌapˈAæ ʊs kˌæmˈiɲʊz dʊ prˌoʒˈɛtw i ʊz xˌekˈuɾəsʊz ʤy kˌomputasˈɐ̃ʊ̃ pˌaɾæ ˌumæ ˌestasˈɐ̃ʊ̃ ʤy trˌabˈaljʊ xˌemˈɔtæ, ũŋ klustˈer zlˈuɾəm ow ũŋ kˌomˈɐ̃ŋdʊ kˌoŋfiɡuɾˈadʊ, ˈAŋ sˌeɡˈidæ, ˌAŋvˈiæ i mˌonitˈoɾæ a mˈezmæ ˌezekusˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 12,
+      "speech_start": 133.675,
+      "speech_end": 144.025,
+      "scene_end": 144.475,
+      "duration": 10.799999999999983,
+      "text": "As fontes de placa e o fluxo de trabalho selecionam um ou mais projetos medidos e escolhem se gerar uma divisão de formação, treinar um modelo e testá-lo em dados mantidos.",
+      "speech_text": "As fontes de placa e o fluxo de trabalho selecionam um ou mais projetos medidos e escolhem se gerar uma divisão de formação, treinar um modelo e testá-lo em dados mantidos.",
+      "phonemes": "as fˈoŋʧyz ʤy plˈakæ i ʊ flˈuksʊ ʤy trˌabˈaljʊ sˌelesiˈonɐ̃ʊ̃ ũŋ ow mˈIs prˌoʒˈɛtʊz mˌeʤˈidʊz i ˌeskˈɔljAŋ sy ʒeɾˈaɾ ˌumæ ʤˌivizˈɐ̃ʊ̃ ʤy fˌoɾəmasˈɐ̃ʊ̃, trAnˈaɾ ũŋ mˌodˈelw i testˈalw ˈAŋ dˈadʊz mˌɐ̃ŋʧˈidʊs."
+    },
+    {
+      "scene": 13,
+      "speech_start": 144.475,
+      "speech_end": 154.54999999999998,
+      "scene_end": 154.99999999999997,
+      "duration": 10.524999999999977,
+      "text": "Etiquetas e classes define se a verdade de base vem de metadados de placas, colunas de anotações ou medições, e mapas de valores selecionados para nomes de classes.",
+      "speech_text": "Etiquetas e classes define se a verdade de base vem de metadados de placas, colunas de anotações ou medições, e mapas de valores selecionados para nomes de classes.",
+      "phonemes": "ˌeʧikˈetæz i klˈasyz dˌefˈiny sj a vˌeɾədˈaʤy ʤy bˈazy vˈAŋ ʤy mˌetadˈadʊz ʤy plˈakæs, kˌolˈunæz ʤj ˌænotasˈõjz ow mˌeʤisˈõjs, i mˈapæz ʤy vˌalˈoɾys sˌelesˌionˈadʊs pˌaɾæ nˈomyz ʤy klˈasys."
+    },
+    {
+      "scene": 14,
+      "speech_start": 154.99999999999997,
+      "speech_end": 166.64999999999998,
+      "scene_end": 167.09999999999997,
+      "duration": 12.099999999999994,
+      "text": "Crops and Dataset Split escolhe o tipo de colheita do objeto, a fonte de pixels, o tamanho da imagem, a fração de teste, o equilíbrio de classes e o grupo de comparação aleatória reprodutível opcional.",
+      "speech_text": "Crops and Dataset Split escolhe o tipo de colheita do objeto, a fonte de pixels, o tamanho da imagem, a fração de teste, o equilíbrio de classes e o grupo de comparação aleatória reprodutível opcional.",
+      "phonemes": "krˈopz ˈɐ̃ŋd dˌatazˈɛʧ splˈiʧ ˌeskˈɔljj ʊ ʧˈipʊ ʤy kˌoljˈAtæ dʊ ˌobʒˈɛtʊ, a fˈoŋʧy ʤy piʃˈɛʊs, ʊ tˌæmˈɐ̃ɲʊ da ˌimˈaʒAŋ, a frasˈɐ̃ʊ̃ ʤy tˈɛsʧy, u ˌekilˈibrjʊ ʤy klˈasyz i ʊ ɡrˈupʊ ʤy kˌompaɾasˈɐ̃ʊ̃ ˌaleatˈɔɾjæ xˌeproduʧˈiveʊ ˌopsionˈW."
+    },
+    {
+      "scene": 15,
+      "speech_start": 167.09999999999997,
+      "speech_end": 177.74999999999997,
+      "scene_end": 178.19999999999996,
+      "duration": 11.099999999999994,
+      "text": "A Arquitetura Modelo seleciona uma rede integrada ou personalizada, canais visíveis, tamanho de entrada, normalização, abandono, pesos pré-treinados e comportamento de checkpoint.",
+      "speech_text": "A Arquitetura Modelo seleciona uma rede integrada ou personalizada, canais visíveis, tamanho de entrada, normalização, abandono, pesos pré-treinados e comportamento de checkpoint.",
+      "phonemes": "a ˌaɾəkitetˈuɾæ mˌodˈelʊ sˌelesiˈonæ ˌumæ xˈeʤj ˌiŋteɡrˈadæ ow pˌeɾəsonˌalizˈadæ, kænˈIz vˌizˈivAs, tˌæmˈɐ̃ɲʊ ʤj ˌAŋtrˈadæ, nˌoɾəmalˌizasˈɐ̃ʊ̃, ˌabɐ̃ŋdˈonʊ, pˈezʊs prˈɛtrˌAnˈadʊz i kˌompoɾətæmˈAŋtʊ ʤy ʃˌekpoˈiŋʧ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 178.19999999999996,
+      "speech_end": 189.64999999999995,
+      "scene_end": 190.09999999999994,
+      "duration": 11.899999999999977,
+      "text": "A otimização e a perda agrupam o optimizador, a taxa de aprendizagem, o cronograma, a regularização, o equilíbrio de classes, os aumentos, as épocas, os lotes, a acumulação e a paragem precoce.",
+      "speech_text": "A otimização e a perda agrupam o optimizador, a taxa de aprendizagem, o cronograma, a regularização, o equilíbrio de classes, os aumentos, as épocas, os lotes, a acumulação e a paragem precoce.",
+      "phonemes": "a ˌoʧimˌizasˈɐ̃ʊ̃ i a pˈeɾədæ ˌaɡrˈupɐ̃ʊ̃ u ˌopʧimˌizadˈor, a tˈaʃæ ʤj ˌaprAŋʤizˈaʒAŋ, ʊ krˌonoɡrˈɐ̃mæ, a xˌeɡulˌaɾizasˈɐ̃ʊ̃, u ˌekilˈibrjʊ ʤy klˈasys, ʊz ˌWmˈAŋtʊs, az ˈɛpokæs, ʊz lˈɔʧys, a ˌakumˌulasˈɐ̃ʊ̃ i a pˌaɾˈaʒAŋ prˌekˈɔsy."
+    },
+    {
+      "scene": 17,
+      "speech_start": 190.09999999999994,
+      "speech_end": 200.97499999999994,
+      "scene_end": 201.42499999999993,
+      "duration": 11.324999999999989,
+      "text": "A validação controla a fração de validação, as dobras de validação cruzada agrupadas, a unidade de agrupamento e o limiar de probabilidade utilizado para as chamadas duras finais.",
+      "speech_text": "A validação controla a fração de validação, as dobras de validação cruzada agrupadas, a unidade de agrupamento e o limiar de probabilidade utilizado para as chamadas duras finais.",
+      "phonemes": "a vˌalidasˈɐ̃ʊ̃ kˌoŋtrˈɔlæ a frasˈɐ̃ʊ̃ ʤy vˌalidasˈɐ̃ʊ̃, az dˈɔbræz ʤy vˌalidasˈɐ̃ʊ̃ krˌuzˈadæ ˌaɡrupˈadæs, a ˌunidˈaʤy ʤj ˌaɡrupæmˈAŋtw i ʊ lˌimiˈar ʤy prˌobabˌilidˈaʤj ˌuʧilizˈadʊ pˌaɾæ as ʃˌæmˈadæz dˈuɾæs finˈIs."
+    },
+    {
+      "scene": 18,
+      "speech_start": 201.42499999999993,
+      "speech_end": 214.09999999999994,
+      "scene_end": 214.54999999999993,
+      "duration": 13.125,
+      "text": "O banco de trabalho de avaliação permite a avaliação aninhada, a calibração de probabilidade, os canos de confiabilidade e as auditorias estritas de identidade e de vazamento de conteúdo nos testes de trem.",
+      "speech_text": "O banco de trabalho de avaliação permite a avaliação aninhada, a calibração de probabilidade, os canos de confiabilidade e as auditorias estritas de identidade e de vazamento de conteúdo nos testes de trem.",
+      "phonemes": "ʊ bˈɐ̃ŋkʊ ʤy trˌabˈaljʊ ʤj ˌavalˌiasˈɐ̃ʊ̃ pˌeɾəmˈiʧj a ˌavalˌiasˈɐ̃ʊ̃ ˌæniɲˈadæ, a kˌalibrasˈɐ̃ʊ̃ ʤy prˌobabˌilidˈaʤy, ʊs kˈɐ̃nʊz ʤy kˌoŋfiˌabilidˈaʤj i az ˌWʤitoɾˈiæz ˌestrˈitæz ʤj ˌidAŋʧidˈaʤj i ʤy vˌazæmˈAŋtʊ ʤy kˌoŋteˈudʊ nʊs tˈɛsʧyz ʤy trˈAŋ."
+    },
+    {
+      "scene": 19,
+      "speech_start": 214.54999999999993,
+      "speech_end": 228.29999999999993,
+      "scene_end": 228.74999999999991,
+      "duration": 14.199999999999989,
+      "text": "O conjunto de dados completo e a inferência criam ou reutilizam um conjunto de dados de culturas embalado, aplicam o ponto de verificação selecionado, escrevem probabilidades e chamadas e guardam exemplos de confiança máxima.",
+      "speech_text": "O conjunto de dados completo e a inferência criam ou reutilizam um conjunto de dados de culturas embalado, aplicam o ponto de verificação selecionado, escrevem probabilidades e chamadas e guardam exemplos de confiança máxima.",
+      "phonemes": "ʊ kˌoŋʒˈũŋtʊ ʤy dˈadʊs kˌomplˈɛtw i a ˌiŋfeɾˈAŋsjæ krˈiɐ̃ʊ̃ ow xˌeʊʧilˈizɐ̃ʊ̃ ũŋ kˌoŋʒˈũŋtʊ ʤy dˈadʊz ʤy kˌuwtˈuɾæz ˌAmbalˈadʊ, ˌaplˈikɐ̃ʊ̃ ʊ pˈoŋtʊ ʤy vˌeɾifˌikasˈɐ̃ʊ̃ sˌelesˌionˈadʊ, ˌeskrˈɛvAŋ prˌobabˌilidˈaʤyz i ʃˌæmˈadæz i ɡwˈaɾədɐ̃ʊ̃ ˌezˈAmplʊz ʤy kˌoŋfiˈɐ̃ŋsæ mˈasimæ."
+    },
+    {
+      "scene": 20,
+      "speech_start": 228.74999999999991,
+      "speech_end": 241.2249999999999,
+      "scene_end": 241.6749999999999,
+      "duration": 12.924999999999983,
+      "text": "Monitoramento e controle de tempo de execução de parcelas, TensorBoard, pontos de controle intermediários, sementes aleatórias, trabalhadores, registro, erros rigorosos e a taxa máxima tolerada de falhas.",
+      "speech_text": "Monitoramento e controle de tempo de execução de parcelas, TensorBoard, pontos de controle intermediários, sementes aleatórias, trabalhadores, registro, erros rigorosos e a taxa máxima tolerada de falhas.",
+      "phonemes": "mˌonitˌoɾæmˈAŋtw i kˌoŋtrˈɔly ʤy tˈAmpʊ ʤj ˌezekusˈɐ̃ʊ̃ ʤy pˌaɾəsˈɛlæs, tAŋsˈor boˈaɾəd, pˈoŋtʊz ʤy kˌoŋtrˈoli ˌiŋteɾəmˌeʤiˈaɾjʊs, sˌemˈAŋʧyz ˌaleatˈɔɾjæs, trˌabaljadˈoɾys, xˌeʒˈistrʊ, ˈexʊz xˌiɡoɾˈɔzʊz i a tˈaʃæ mˈasimæ tˌoleɾˈadæ ʤy fˈaljæs."
+    },
+    {
+      "scene": 21,
+      "speech_start": 241.6749999999999,
+      "speech_end": 255.6749999999999,
+      "scene_end": 256.1249999999999,
+      "duration": 14.449999999999989,
+      "text": "Para este tutorial, o modo de metadados nomeia c1 como controle negativo e c2 como controle positivo, combinando o campo columnID. Verifique essa atribuição biológica para cada experimento, em vez de confiar apenas na posição.",
+      "speech_text": "Para este tutorial, o modo de metadados nomeia c1 como controle negativo e c2 como controle positivo, combinando o campo columnID. Verifique essa atribuição biológica para cada experimento, em vez de confiar apenas na posição.",
+      "phonemes": "pˌaɾæ ˌesʧy tˌutoɾiˈW, ʊ mˈɔdʊ ʤy mˌetadˈadʊz nˌomˈAæ sˈe ˈũŋ kˌomʊ kˌoŋtrˈɔly nˌeɡaʧˈivw i sˈe dˈoɪs kˌomʊ kˌoŋtrˈɔly pˌoziʧˈivʊ, kˌombinˈɐ̃ŋdw ʊ kˈɐ̃mpʊ kolˈũmn ˌidˈe. vˌeɾifˈikj ˈɛsæ ˌatribuɪsˈɐ̃ʊ̃ bˌiolˈɔʒikæ pˌaɾæ kˈadæ ˌespeɾimˈAŋtʊ, ˈAŋ vˈez ʤy kˌoŋfiˈaɾ ˌapˈenæz na pˌozisˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 22,
+      "speech_start": 256.1249999999999,
+      "speech_end": 271.2999999999999,
+      "scene_end": 271.7499999999999,
+      "duration": 15.625,
+      "text": "A pesquisa de hiperparâmetros avalia as arquiteturas candidatas e as opções de treinamento com dobras bem agrupadas. Os ensaios concluídos aparecem na tabela com pontuação, variação de dobra, parâmetros e status antes de qualquer escolha ser propagada.",
+      "speech_text": "A pesquisa de hiperparâmetros avalia as arquiteturas candidatas e as opções de treinamento com dobras bem agrupadas. Os ensaios concluídos aparecem na tabela com pontuação, variação de dobra, parâmetros e status antes de qualquer escolha ser propagada.",
+      "phonemes": "a pˌeskˈizæ ʤy ˌipeɾəpaɾˈɐ̃metrʊz ˌavalˈiæ az ˌaɾəkitetˈuɾæs kˌɐ̃ŋʤidˈatæz i az opsˈõjz ʤy trˌAnæmˈAŋtʊ koŋ dˈɔbræz bˈAŋ ˌaɡrupˈadæs. ʊz ˌAŋsˈIʊs kˌoŋkluˈidʊz ˌapaɾˈɛsAŋ na tˌabˈɛlæ koŋ pˌoŋtuasˈɐ̃ʊ̃, vˌaɾiasˈɐ̃ʊ̃ ʤy dˈɔbræ, pˌaɾˈɐ̃metrʊz i stˈatʊz ˈɐ̃ŋʧyz ʤy kwWkˌɛɾ ˌeskˈoljæ ser prˌopaɡˈadæ."
+    },
+    {
+      "scene": 23,
+      "speech_start": 271.7499999999999,
+      "speech_end": 285.5749999999999,
+      "scene_end": 286.02499999999986,
+      "duration": 14.274999999999977,
+      "text": "Configurações de pesquisa define os valores candidatos, critério de classificação, grelha ou pesquisa aleatória reprodutível, contagem de teste, cinco dobras agrupadas, semente, controles gráficos e propagação única de volta ao módulo.",
+      "speech_text": "Configurações de pesquisa define os valores candidatos, critério de classificação, grelha ou pesquisa aleatória reprodutível, contagem de teste, cinco dobras agrupadas, semente, controles gráficos e propagação única de volta ao módulo.",
+      "phonemes": "kˌoŋfiɡˌuɾasˈõjz ʤy pˌeskˈizæ dˌefˈinj ʊz vˌalˈoɾys kˌɐ̃ŋʤidˈatʊs, krˌitˈɛɾjʊ ʤy klˌasifˌikasˈɐ̃ʊ̃, ɡrˈɛljæ ow pˌeskˈizæ ˌaleatˈɔɾjæ xˌeproduʧˈiveʊ, kˌoŋtˈaʒAŋ ʤy tˈɛsʧy, sˈiŋkʊ dˈɔbræz ˌaɡrupˈadæs, sˌemˈAŋʧy, kˌoŋtrˈolyz ɡrˈafikʊz i prˌopaɡasˈɐ̃ʊ̃ ˈunikæ ʤy vˈɔltæ W mˈɔdulʊ."
+    },
+    {
+      "scene": 24,
+      "speech_start": 286.02499999999986,
+      "speech_end": 302.72499999999985,
+      "scene_end": 303.37499999999983,
+      "duration": 17.349999999999966,
+      "text": "Run first cria divisões equilibradas de testes de trens c1 e c2, verifica vazamentos, trens para as épocas configuradas, avalia poços de retenção, calibra probabilidades, aplica o checkpoint escolhido e registra previsões no projeto. Este tutorial não lança a costosa formação.",
+      "speech_text": "Run first cria divisões equilibradas de testes de trens c1 e c2, verifica vazamentos, trens para as épocas configuradas, avalia poços de retenção, calibra probabilidades, aplica o checkpoint escolhido e registra previsões no projeto. Este tutorial não lança a costosa formação.",
+      "phonemes": "xˈũŋ fˈiɾəsʧ krˈiæ ʤˌivizˈõjz ˌekilibrˈadæz ʤy tˈɛsʧyz ʤy trˈAŋs sˈe ˈũŋ i sˈe dˈoɪs, vˌeɾifˈikæ vˌazæmˈAŋtʊs, trˈAŋs pˌaɾæ az ˈɛpokæs kˌoŋfiɡuɾˈadæs, ˌavalˈiæ pˈɔsʊz ʤy xˌetAŋsˈɐ̃ʊ̃, kˌalˈibræ prˌobabˌilidˈaʤys, ˌaplˈikæ ʊ ʃˌekpoˈiŋʧ ˌeskoljˈidw i xˌeʒˈistræ prˌevizˈõjz nʊ prˌoʒˈɛtʊ. ˌesʧy tˌutoɾiˈW nˌɐ̃ʊ̃ lˈɐ̃ŋsæ a kˌostˈɔzæ fˌoɾəmasˈɐ̃ʊ̃."
     }
   ]
 }

@@ -4,47 +4,247 @@
   "voice": "am_santa",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 51.4,
+  "total_duration": 284.7,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.15,
-      "scene_end": 9.6,
-      "duration": 9.6,
-      "text": "This tutorial covers Classify, computer vision. Train and apply an image-based neural network to annotated single-object crops."
+      "speech_end": 13.325,
+      "scene_end": 13.774999999999999,
+      "duration": 13.774999999999999,
+      "text": "Classify CV trains Torch image models on single-object crops. The console reports dataset selection, leakage checks, training epochs, held-out metrics, inference progress, warnings, and output paths.",
+      "speech_text": "Classify CV trains Torch image models on single-object crops. The console reports dataset selection, leakage checks, training epochs, held-out metrics, inference progress, warnings, and output paths.",
+      "phonemes": "klˈæsəfˌI sˌivˈi tɹˈAnz tˈɔɹʧ ˈɪmɪʤ mˈɑdᵊlz ˌɔn sˌɪŋɡᵊlˈɑbʤəkt kɹˈɑps. ðə kˈɑnsˌOl ɹəpˈɔɹts dˈATəsˌɛt səlˈɛkʃən, lˈikɪʤ ʧˈɛks, tɹˈAnɪŋ ˈɛpəks, hˈɛldˌWt mˈɛtɹɪks, ˈɪnfəɹəns pɹˈɑɡɹəs, wˈɔɹnɪŋz, ænd ˈWtpˌʊt pˈæðz."
     },
     {
       "scene": 2,
-      "speech_start": 9.6,
-      "speech_end": 19.0,
-      "scene_end": 19.45,
-      "duration": 9.85,
-      "text": "Open Classify, computer vision from the Core section. Select annotated crop folders or a project database with reliable class labels."
+      "speech_start": 13.774999999999999,
+      "speech_end": 24.424999999999997,
+      "scene_end": 24.874999999999996,
+      "duration": 11.099999999999998,
+      "text": "The chat field accepts questions about the current workflow. Enable AI to route through a selected provider, and use the adjacent arrow to open the provider menu.",
+      "speech_text": "The chat field accepts questions about the current workflow. Enable AI to route through a selected provider, and use the adjacent arrow to open the provider menu.",
+      "phonemes": "ðə ʧˈæt fˈild əksˈɛpts kwˈɛsʧᵊnz əbˈWt ðə kˈɜɹənt wˈɜɹkflˌO. ɪnˈAbᵊl ˈAˌI tə ɹˈut θɹu ɐ səlˈɛktᵻd pɹəvˈIdəɹ, ænd jˈuz ði əʤˈAsᵊnt ˈɛɹO tʊ ˈOpᵊn ðə pɹəvˈIdəɹ mˈɛnju."
     },
     {
       "scene": 3,
-      "speech_start": 19.45,
-      "speech_end": 28.325,
-      "scene_end": 28.775,
-      "duration": 9.325,
-      "text": "In the main configuration area, choose the image channels, architecture, split strategy, augmentation, batch size, and training controls."
+      "speech_start": 24.874999999999996,
+      "speech_end": 36.349999999999994,
+      "scene_end": 36.8,
+      "duration": 11.925,
+      "text": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and gives their install and login commands. Credentials stay with each vendor.",
+      "speech_text": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and gives their install and login commands. Credentials stay with each vendor.",
+      "phonemes": "pɹəvˈIdəɹz ɹəpˈɔɹts wˈɛðəɹ ðə klˈɔd, ʧˌætʤˌipˌitˈi, ænd ʤˈɛmənˌI kəmˈændlˌIn klˈIənts ɑɹ ɪnstˈɔld ænd ɡˈɪvz ðɛɹ ɪnstˈɔl ænd lˈɔɡˌɪn kəmˈændz. kɹədˈɛnʧᵊlz stˈA wɪð ˈiʧ vˈɛndəɹ."
     },
     {
       "scene": 4,
-      "speech_start": 28.775,
-      "speech_end": 41.55,
-      "scene_end": 42.0,
-      "duration": 13.225000000000001,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. train on the training split, monitor validation behavior, and evaluate once on held-out data."
+      "speech_start": 36.8,
+      "speech_end": 46.775,
+      "scene_end": 47.225,
+      "duration": 10.425000000000004,
+      "text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+      "speech_text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spacer-aware system prompt.",
+      "phonemes": "ˈAˌI sˈɛTɪŋz kəntɹˈOlz ɹəspˈɑns dˈɛpθ, ˌɔTəmˈæTɪk ˈɛɹəɹ ˌɛksplənˈAʃənz, ˈɑpʃənᵊl ɡˌɪthˈʌb ˈɪʃu ɹᵻpˈɔɹTɪŋ, sˈInˌɪn, ænd ðə spˈAsəɹəwˌɛɹ sˈɪstəm pɹˈɑmpt."
     },
     {
       "scene": 5,
-      "speech_start": 42.0,
-      "speech_end": 50.75,
-      "scene_end": 51.4,
-      "duration": 9.399999999999999,
-      "text": "When the workflow finishes, spaCR saves the model, metrics, predictions, class examples, and run metadata for later application."
+      "speech_start": 47.225,
+      "speech_end": 64.875,
+      "scene_end": 65.325,
+      "duration": 18.1,
+      "text": "Drag the measured tutorial project into Classify. It resolves 81,969 real cell crops and their png_list metadata; 6,598 crops are in column c1 and 6,487 are in column c2.",
+      "speech_text": "Drag the measured tutorial project into Classify. It resolves 81,969 real cell crops and their png_list metadata; 6,598 crops are in column c1 and 6,487 are in column c2.",
+      "phonemes": "dɹˈæɡ ðə mˈɛʒəɹd tutˈɔɹiəl pɹˈɑʤˌɛkt ˈɪntu klˈæsəfˌI. ˌɪt ɹəzˈɔlvz ˈATi wˈʌn θˈWzᵊnd nˈIn hˈʌndɹəd sˈɪksti nˈIn ɹˈiᵊl sˈɛl kɹˈɑps ænd ðɛɹ pˌiˌɛnʤˈi lˈɪst mˈɛTədˌATə; sˈɪks θˈWzᵊnd fˈIv hˈʌndɹəd nˈIndi ˈAt kɹˈɑps ɑɹ ɪn kˈɑləm sˈi wˈʌn ænd sˈɪks θˈWzᵊnd fˈɔɹ hˈʌndɹəd ˈATi sˈɛvən ɑɹ ɪn kˈɑləm sˈi tˈu."
+    },
+    {
+      "scene": 6,
+      "speech_start": 65.325,
+      "speech_end": 74.675,
+      "scene_end": 75.125,
+      "duration": 9.799999999999997,
+      "text": "Essentials shows the source, workflow switches, class definition, architecture, and channels required for a first image-classification run.",
+      "speech_text": "Essentials shows the source, workflow switches, class definition, architecture, and channels required for a first image-classification run.",
+      "phonemes": "əsˈɛnʧᵊlz ʃˈOz ðə sˈɔɹs, wˈɜɹkflˌO swˈɪʧᵻz, klˈæs dˌɛfənˈɪʃən, ˈɑɹkətˌɛkʧəɹ, ænd ʧˈænᵊlz ɹəkwˈIəɹd fɔɹ ɐ fˈɜɹst ˌɪmɪʤklˌæsəfəkˈAʃən ɹˈʌn."
+    },
+    {
+      "scene": 7,
+      "speech_start": 75.125,
+      "speech_end": 84.6,
+      "scene_end": 85.05,
+      "duration": 9.924999999999997,
+      "text": "Modified limits the panel to values that differ from Classify defaults, making the control mapping and deliberate training choices easy to audit.",
+      "speech_text": "Modified limits the panel to values that differ from Classify defaults, making the control mapping and deliberate training choices easy to audit.",
+      "phonemes": "mˈɑdəfˌId lˈɪməts ðə pˈænᵊl tə vˈæljuz ðæt dˈɪfəɹ fɹʌm klˈæsəfˌI dəfˈɔlts, mˈAkɪŋ ðə kəntɹˈOl mˈæpɪŋ ænd dəlˈɪbəɹˌAt tɹˈAnɪŋ ʧˈYsᵻz ˈizi tʊ ˈɔdət."
+    },
+    {
+      "scene": 8,
+      "speech_start": 85.05,
+      "speech_end": 95.02499999999999,
+      "scene_end": 95.475,
+      "duration": 10.424999999999997,
+      "text": "All settings reveals every category without changing values, including grouped validation, leakage checks, calibration, inference, and runtime controls.",
+      "speech_text": "All settings reveals every category without changing values, including grouped validation, leakage checks, calibration, inference, and runtime controls.",
+      "phonemes": "ˈɔl sˈɛTɪŋz ɹəvˈilz ˈɛvəɹi kˈæTəɡˌɔɹi wɪðˈWt ʧˈAnʤɪŋ vˈæljuz, ɪnklˈudɪŋ ɡɹˈupt vˌælɪdˈAʃən, lˈikɪʤ ʧˈɛks, kˌæləbɹˈAʃən, ˈɪnfəɹəns, ænd ɹˈʌntIm kəntɹˈOlz."
+    },
+    {
+      "scene": 9,
+      "speech_start": 95.475,
+      "speech_end": 105.05,
+      "scene_end": 105.5,
+      "duration": 10.025000000000006,
+      "text": "Recipes saves this complete classifier configuration under a name, reapplies it later, or imports and exports a reusable settings file.",
+      "speech_text": "Recipes saves this complete classifier configuration under a name, reapplies it later, or imports and exports a reusable settings file.",
+      "phonemes": "ɹˈɛsəpˌiz sˈAvz ðɪs kəmplˈit klˈæsəfˌIəɹ kənfˌɪɡjəɹˈAʃən ˈʌndəɹ ɐ nˈAm, ɹˌiəplˈIz ɪt lˈATəɹ, ɔɹ ˈɪmpˌɔɹts ænd ˈɛkspˌɔɹts ɐ ɹijˈuzəbᵊl sˈɛTɪŋz fˈIl."
+    },
+    {
+      "scene": 10,
+      "speech_start": 105.5,
+      "speech_end": 112.475,
+      "scene_end": 112.925,
+      "duration": 7.424999999999997,
+      "text": "Submit remote snapshots the resolved Classify settings and sends the job to the Distributed Jobs workspace.",
+      "speech_text": "Submit remote snapshots the resolved Classify settings and sends the job to the Distributed Jobs workspace.",
+      "phonemes": "səbmˈɪt ɹəmˈOt snˈæpʃˌɑts ðə ɹəzˈɔlvd klˈæsəfˌI sˈɛTɪŋz ænd sˈɛndz ðə ʤˈɑb tə ðə dəstɹˈɪbjuTᵻd ʤˈɑbz wˈɜɹkspˌAs."
+    },
+    {
+      "scene": 11,
+      "speech_start": 112.925,
+      "speech_end": 124.0,
+      "scene_end": 124.45,
+      "duration": 11.525000000000006,
+      "text": "Distributed Jobs maps project paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run.",
+      "speech_text": "Distributed Jobs maps project paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run.",
+      "phonemes": "dəstɹˈɪbjuTᵻd ʤˈɑbz mˈæps pɹˈɑʤˌɛkt pˈæðz ænd kəmpjˈut ɹˈisˌɔɹsᵻz tə ɐ ɹəmˈOt wˈɜɹkstˌAʃən, slˈɜɹm klˈʌstəɹ, ɔɹ kənfˈɪɡjəɹd kəmˈænd, ðˈɛn səbmˈɪts ænd mˈɑnəTəɹz ðə sˈAm ɹˈʌn."
+    },
+    {
+      "scene": 12,
+      "speech_start": 124.45,
+      "speech_end": 134.275,
+      "scene_end": 134.725,
+      "duration": 10.274999999999991,
+      "text": "Plate Sources and Workflow selects one or more measured projects and chooses whether to generate a training split, train a model, and test it on held-out data.",
+      "speech_text": "Plate Sources and Workflow selects one or more measured projects and chooses whether to generate a training split, train a model, and test it on held-out data.",
+      "phonemes": "plˈAt sˈɔɹsᵻz ænd wˈɜɹkflˌO səlˈɛkts wˈʌn ɔɹ mˈɔɹ mˈɛʒəɹd pɹˈɑʤˌɛkts ænd ʧˈuzᵻz wˈɛðəɹ tə ʤˈɛnəɹˌAt ɐ tɹˈAnɪŋ splˈɪt, tɹˈAn ɐ mˈɑdᵊl, ænd tˈɛst ɪt ˌɔn hˈɛldˌWt dˈATə."
+    },
+    {
+      "scene": 13,
+      "speech_start": 134.725,
+      "speech_end": 144.92499999999998,
+      "scene_end": 145.37499999999997,
+      "duration": 10.649999999999977,
+      "text": "Labels and Classes defines whether ground truth comes from plate metadata, annotation columns, or measurements, and maps selected values to class names.",
+      "speech_text": "Labels and Classes defines whether ground truth comes from plate metadata, annotation columns, or measurements, and maps selected values to class names.",
+      "phonemes": "lˈAbəlz ænd klˈæsᵻz dəfˈInz wˈɛðəɹ ɡɹˈWnd tɹˈuθ kˈʌmz fɹʌm plˈAt mˈɛTədˌATə, ˌænətˈAʃən kˈɑləmz, ɔɹ mˈɛʒəɹmᵊnts, ænd mˈæps səlˈɛktᵻd vˈæljuz tə klˈæs nˈAmz."
+    },
+    {
+      "scene": 14,
+      "speech_start": 145.37499999999997,
+      "speech_end": 156.37499999999997,
+      "scene_end": 156.82499999999996,
+      "duration": 11.449999999999989,
+      "text": "Crops and Dataset Split chooses the object crop type, pixel source, image size, test fraction, class balancing, and optional reproducible random comparison group.",
+      "speech_text": "Crops and Dataset Split chooses the object crop type, pixel source, image size, test fraction, class balancing, and optional reproducible random comparison group.",
+      "phonemes": "kɹˈɑps ænd dˈATəsˌɛt splˈɪt ʧˈuzᵻz ði ˈɑbʤəkt kɹˈɑp tˈIp, pˈɪksᵊl sˈɔɹs, ˈɪmɪʤ sˈIz, tˈɛst fɹˈækʃən, klˈæs bˈælənsɪŋ, ænd ˈɑpʃənᵊl ɹˌipɹədˈusəbᵊl ɹˈændəm kəmpˈɛɹəsᵊn ɡɹˈup."
+    },
+    {
+      "scene": 15,
+      "speech_start": 156.82499999999996,
+      "speech_end": 166.99999999999997,
+      "scene_end": 167.44999999999996,
+      "duration": 10.625,
+      "text": "Model Architecture selects a built-in or custom network, visible channels, input size, normalization, dropout, pretrained weights, and checkpoint behavior.",
+      "speech_text": "Model Architecture selects a built-in or custom network, visible channels, input size, normalization, dropout, pretrained weights, and checkpoint behavior.",
+      "phonemes": "mˈɑdᵊl ˈɑɹkətˌɛkʧəɹ səlˈɛkts ɐ bˌɪltˈɪn ɔɹ kˈʌstəm nˈɛtwˌɜɹk, vˈɪzəbᵊl ʧˈænᵊlz, ˈɪnpˌʊt sˈIz, nˌɔɹmələzˈAʃən, dɹˈɑpˌWt, pɹɪtɹˈAnd wˈAts, ænd ʧˈɛkpˌYnt bəhˈAvjəɹ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 167.44999999999996,
+      "speech_end": 178.14999999999995,
+      "scene_end": 178.59999999999994,
+      "duration": 11.149999999999977,
+      "text": "Optimization and Loss groups the optimizer, learning rate, schedule, regularization, class balance, augmentations, epochs, batches, accumulation, and early stopping.",
+      "speech_text": "Optimization and Loss groups the optimizer, learning rate, schedule, regularization, class balance, augmentations, epochs, batches, accumulation, and early stopping.",
+      "phonemes": "ˌɑptəməzˈAʃən ænd lˈɔs ɡɹˈups ði ˈɑptɪmˌIzəɹ, lˈɜɹnɪŋ ɹˈAt, skˈɛʤˌul, ɹˌɛɡjələɹəzˈAʃən, klˈæs bˈæləns, ˌɔɡmˌɛntˈAʃənz, ˈɛpəks, bˈæʧᵻz, əkjˌumjəlˈAʃən, ænd ˈɜɹli stˈɑpɪŋ."
+    },
+    {
+      "scene": 17,
+      "speech_start": 178.59999999999994,
+      "speech_end": 188.52499999999995,
+      "scene_end": 188.97499999999994,
+      "duration": 10.375,
+      "text": "Validation controls the validation fraction, grouped cross-validation folds, grouping unit, and the probability threshold used for final hard calls.",
+      "speech_text": "Validation controls the validation fraction, grouped cross-validation folds, grouping unit, and the probability threshold used for final hard calls.",
+      "phonemes": "vˌælɪdˈAʃən kəntɹˈOlz ðə vˌælɪdˈAʃən fɹˈækʃən, ɡɹˈupt kɹˌɔsvˌælɪdˈAʃən fˈOldz, ɡɹˈupɪŋ jˈunət, ænd ðə pɹˌɑbəbˈɪləTi θɹˈɛʃhˌOld jˈuzd fɔɹ fˈInᵊl hˈɑɹd kˈɔlz."
+    },
+    {
+      "scene": 18,
+      "speech_start": 188.97499999999994,
+      "speech_end": 199.17499999999993,
+      "scene_end": 199.62499999999991,
+      "duration": 10.649999999999977,
+      "text": "Evaluation Workbench enables nested evaluation, probability calibration, reliability bins, and strict train-test identity and content-leakage audits.",
+      "speech_text": "Evaluation Workbench enables nested evaluation, probability calibration, reliability bins, and strict train-test identity and content-leakage audits.",
+      "phonemes": "əvˌæljʊˈAʃən wˈɜɹkbˌɛnʧ ɪnˈAbᵊlz nˈɛstᵻd əvˌæljʊˈAʃən, pɹˌɑbəbˈɪləTi kˌæləbɹˈAʃən, ɹəlˌIəbˈɪləTi bˈɪnz, ænd stɹˈɪkt tɹˈAntˌɛst IdˈɛntəTi ænd kˈɑntɛntlˌikɪʤ ˈɔdəts."
+    },
+    {
+      "scene": 19,
+      "speech_start": 199.62499999999991,
+      "speech_end": 210.4499999999999,
+      "scene_end": 210.8999999999999,
+      "duration": 11.274999999999977,
+      "text": "Full Dataset and Inference builds or reuses a packed crop dataset, applies the selected checkpoint, writes probabilities and calls, and saves top-confidence examples.",
+      "speech_text": "Full Dataset and Inference builds or reuses a packed crop dataset, applies the selected checkpoint, writes probabilities and calls, and saves top-confidence examples.",
+      "phonemes": "fˈʊl dˈATəsˌɛt ænd ˈɪnfəɹəns bˈɪldz ɔɹ ɹijˈuzᵻz ɐ pˈækt kɹˈɑp dˈATəsˌɛt, əplˈIz ðə səlˈɛktᵻd ʧˈɛkpˌYnt, ɹˈIts pɹˌɑbəbˈɪləTiz ænd kˈɔlz, ænd sˈAvz tˌɑpkˈɑnfədᵊns ɪɡzˈæmpəlz."
+    },
+    {
+      "scene": 20,
+      "speech_start": 210.8999999999999,
+      "speech_end": 221.7499999999999,
+      "scene_end": 222.19999999999987,
+      "duration": 11.299999999999983,
+      "text": "Monitoring and Runtime controls plots, TensorBoard, intermediate checkpoints, random seed, workers, logging, strict errors, and the maximum tolerated failure rate.",
+      "speech_text": "Monitoring and Runtime controls plots, TensorBoard, intermediate checkpoints, random seed, workers, logging, strict errors, and the maximum tolerated failure rate.",
+      "phonemes": "mˈɑnɪTəɹɪŋ ænd ɹˈʌntIm kəntɹˈOlz plˈɑts, tˈɛnsəɹbˌɔɹd, ˌɪntəɹmˈidiət ʧˈɛkpˌYnts, ɹˈændəm sˈid, wˈɜɹkəɹz, lˈɔɡɪŋ, stɹˈɪkt ˈɛɹəɹz, ænd ðə mˈæksəməm tˈɑləɹˌATᵻd fˈAljəɹ ɹˈAt."
+    },
+    {
+      "scene": 21,
+      "speech_start": 222.19999999999987,
+      "speech_end": 237.29999999999987,
+      "scene_end": 237.74999999999986,
+      "duration": 15.549999999999983,
+      "text": "For this tutorial, metadata mode names c1 as negative control and c2 as positive control by matching the columnID field. Verify that biological assignment for every experiment rather than trusting position alone.",
+      "speech_text": "For this tutorial, metadata mode names c1 as negative control and c2 as positive control by matching the columnID field. Verify that biological assignment for every experiment rather than trusting position alone.",
+      "phonemes": "fˌɔɹ ðɪs tutˈɔɹiəl, mˈɛTədˌATə mˈOd nˈAmz sˈi wˈʌn æz nˈɛɡəTɪv kəntɹˈOl ænd sˈi tˈu æz pˈɑzəTɪv kəntɹˈOl bI mˈæʧɪŋ ðə kˌɑləmˌIdˈi fˈild. vˈɛɹəfˌI ðˈæt bˌIəlˈɑʤəkᵊl əsˈInmənt fɔɹ ˈɛvəɹi ɪkspˈɛɹəmənt ɹˈæðəɹ ðən tɹˈʌstɪŋ pəzˈɪʃən əlˈOn."
+    },
+    {
+      "scene": 22,
+      "speech_start": 237.74999999999986,
+      "speech_end": 252.17499999999987,
+      "scene_end": 252.62499999999986,
+      "duration": 14.875,
+      "text": "Hyperparameter search evaluates candidate architectures and training choices with well-grouped folds. Completed trials appear in the table with score, fold variation, parameters, and status before any choice is propagated.",
+      "speech_text": "Hyperparameter search evaluates candidate architectures and training choices with well-grouped folds. Completed trials appear in the table with score, fold variation, parameters, and status before any choice is propagated.",
+      "phonemes": "hˌIpəɹpəɹɹˈæmɪTəɹ sˈɜɹʧ əvˈæljʊˌAts kˈændədˌAt ˈɑɹkətˌɛkʧəɹz ænd tɹˈAnɪŋ ʧˈYsᵻz wɪð wˌɛlɡɹˈupt fˈOldz. kəmplˈiTᵻd tɹˈIᵊlz əpˈɪɹ ɪn ðə tˈAbᵊl wɪð skˈɔɹ, fˈOld vˌɛɹiˈAʃən, pəɹˈæməTəɹz, ænd stˈATəs bəfˈɔɹ ˈɛni ʧˈYs ɪz pɹˈɑpəɡˌATᵻd."
+    },
+    {
+      "scene": 23,
+      "speech_start": 252.62499999999986,
+      "speech_end": 265.6999999999999,
+      "scene_end": 266.14999999999986,
+      "duration": 13.525000000000006,
+      "text": "Search Settings defines the candidate values, ranking criterion, grid or reproducible random search, trial count, five grouped folds, seed, graph controls, and one-time propagation back to the module.",
+      "speech_text": "Search Settings defines the candidate values, ranking criterion, grid or reproducible random search, trial count, five grouped folds, seed, graph controls, and one-time propagation back to the module.",
+      "phonemes": "sˈɜɹʧ sˈɛTɪŋz dəfˈInz ðə kˈændədˌAt vˈæljuz, ɹˈæŋkɪŋ kɹItˈɪɹiən, ɡɹˈɪd ɔɹ ɹˌipɹədˈusəbᵊl ɹˈændəm sˈɜɹʧ, tɹˈIᵊl kˈWnt, fˈIv ɡɹˈupt fˈOldz, sˈid, ɡɹˈæf kəntɹˈOlz, ænd wˌʌntˈIm pɹˌɑpəɡˈAʃən bˈæk tə ðə mˈɑʤul."
+    },
+    {
+      "scene": 24,
+      "speech_start": 266.14999999999986,
+      "speech_end": 284.04999999999984,
+      "scene_end": 284.6999999999998,
+      "duration": 18.549999999999955,
+      "text": "Run first builds balanced c1 and c2 train-test splits, audits leakage, trains for the configured epochs, evaluates held-out wells, calibrates probabilities, applies the chosen checkpoint, and records predictions in the project. This tutorial does not launch the costly training run.",
+      "speech_text": "Run first builds balanced c1 and c2 train-test splits, audits leakage, trains for the configured epochs, evaluates held-out wells, calibrates probabilities, applies the chosen checkpoint, and records predictions in the project. This tutorial does not launch the costly training run.",
+      "phonemes": "ɹˈʌn fˈɜɹst bˈɪldz bˈælənst sˈi wˈʌn ænd sˈi tˈu tɹˈAntˌɛst splˈɪts, ˈɔdəts lˈikɪʤ, tɹˈAnz fɔɹ ðə kənfˈɪɡjəɹd ˈɛpəks, əvˈæljʊˌAts hˈɛldˌWt wˈɛlz, kˈæləbɹˌAts pɹˌɑbəbˈɪləTiz, əplˈIz ðə ʧˈOzᵊn ʧˈɛkpˌYnt, ænd ɹəkˈɔɹdz pɹidˈɪkʃənz ɪn ðə pɹˈɑʤˌɛkt. ðˌɪs tutˈɔɹiəl dˈʌz nˌɑt lˈɔnʧ ðə kˈɔstli tɹˈAnɪŋ ɹˈʌn."
     }
   ]
 }
