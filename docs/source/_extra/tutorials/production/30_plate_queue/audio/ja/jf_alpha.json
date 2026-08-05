@@ -4,47 +4,147 @@
   "voice": "jf_alpha",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 57.075,
+  "total_duration": 270.905,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 6.7,
-      "scene_end": 7.15,
-      "duration": 7.15,
-      "text": "このチュートリアルでは,同じ検証されたパイプラインで複数のプレートを鎖する."
+      "speech_end": 23.4,
+      "scene_end": 24.119999999999997,
+      "duration": 24.119999999999997,
+      "text": "プレートキューは設定されたモジュールから始まります. ここでマスクは,転送された実際の実験を指し,保存されたセグメント設定を使用し,このスナップショットを5つのテスト画像に制限します. 排列はこれらの現在の値をコピーする. Mask の後の編集は,排列の作業を黙って変更しない.",
+      "speech_text": "プレートキューは設定されたモジュールから始まります. ここでマスクは,転送された実際の実験を指し,保存されたセグメント設定を使用し,このスナップショットを5つのテスト画像に制限します. 排列はこれらの現在の値をコピーする. Mask の後の編集は,排列の作業を黙って変更しない.",
+      "phonemes": "pɯɾeːto kʲɨː βa seʔteː saɾeta moʥɨːɾɯ kaɾa haʥimaɾʲimasɨ. koko de masɨkɯ βa, teɴsoː saɾeta ʥiʔsai no ʥiʔkeɴ o saɕi, hoʣoɴ saɾeta seɡɯmento seʔteː o ɕijoː ɕi, kono sɨnaʔpɯɕoʔto o ɡoʦɨ no tesɨto ɡaʣoː ɲi seːɡeɴ ɕi masɨ. haiɾeʦɨ βa koɾe ɾa no ɡeɴʣai no atai o kopʲiː sɨɾɯ. Mask no ato no heɴɕɨː βa, haiɾeʦɨ no saɡʲoː o damaʔte heŋkoː ɕinai."
     },
     {
       "scene": 2,
-      "speech_start": 7.15,
-      "speech_end": 17.65,
-      "scene_end": 18.099999999999998,
-      "duration": 10.949999999999998,
-      "text": "Data and batch runs セクションから Plate Queue を開きます。 プレートソースを追加して,共有モジュール配列と設定をプリセットを選択します."
+      "speech_start": 24.119999999999997,
+      "speech_end": 40.295,
+      "scene_end": 40.915,
+      "duration": 16.795,
+      "text": "データからプレートキューを開いて バッチを走らせてください 空のダッシュボードには 現在のプレート, kommaと分離されたプレートリスト, クリーンアップ,連続実行,および仕事間の安全なストップが含まれています.",
+      "speech_text": "データからプレートキューを開いて バッチを走らせてください 空のダッシュボードには 現在のプレート, kommaと分離されたプレートリスト, クリーンアップ,連続実行,および仕事間の安全なストップが含まれています.",
+      "phonemes": "deːta kaɾa pɯɾeːto kʲɨː o çiɾaite baʔʨi o haɕiɾa sete kɯdasai soɾa no daʔɕɨboːdo ɲi βa ɡeɴʣai no pɯɾeːto, komma to bɯnɾʲi saɾeta pɯɾeːto ɾʲisɨto, kɯɾʲiːɴ aʔpɯ, ɾeɴʣokɯ ʥiʔkoː, ojobʲi ɕiɡoto ma no aɴʣeɴ na sɨtoʔpɯ ɡa ɸɯkɯma ɾe te imasɨ."
     },
     {
       "scene": 3,
-      "speech_start": 18.099999999999998,
-      "speech_end": 29.699999999999996,
-      "scene_end": 30.149999999999995,
-      "duration": 12.049999999999997,
-      "text": "主な構成領域では,プレート順序,プレートごとにオーバーリード,ワーカー制限,失敗ポリシー,リニューア行動,アウトプットルーツをチェックします."
+      "speech_start": 40.915,
+      "speech_end": 56.239999999999995,
+      "scene_end": 56.81999999999999,
+      "duration": 15.904999999999994,
+      "text": "現在のプレートを追加する をクリックします. マスクが最近最も訪問された実行可能なモジュールであったため,spaCRはモジュールキー,実際のソースパス,完全な設定辞書をスナップショットします.",
+      "speech_text": "現在のプレートを追加する をクリックします. マスクが最近最も訪問された実行可能なモジュールであったため,スペーカーはモジュールキー,実際のソースパス,完全な設定辞書をスナップショットします.",
+      "phonemes": "ɡeɴʣai no pɯɾeːto o ʦɨika sɨɾɯ o kɯɾʲiʔkɯ ɕi masɨ. masɨkɯ ɡa saikʲiɴ moʔtomo hoːmoɴ saɾeta ʥiʔkoː kanoː na moʥɨːɾɯ deaʔta tame, sɨpe kaː βa moʥɨːɾɯ kʲiː, ʥiʔsai no soːsɨ pasɨ, kaɴʣeɴ na seʔteː ʥiɕo o sɨnaʔpɯɕoʔto ɕi masɨ."
     },
     {
       "scene": 4,
-      "speech_start": 30.149999999999995,
-      "speech_end": 47.074999999999996,
-      "scene_end": 47.525,
-      "duration": 17.375000000000004,
-      "text": "実行完了前に,可視設定をチェックし,可視モードがある場合,前見またはテストモードを使用します. 小型のプレートまたはテストフィールドから始め,並列を可視状態でプレートを順序的に処理させてください."
+      "speech_start": 56.81999999999999,
+      "speech_end": 75.595,
+      "scene_end": 76.255,
+      "duration": 19.435000000000002,
+      "text": "新しい行は,短い持続的な識別子を受信します. Pipeline が実行されるアプリの記録, Label はソースを保存し, Status はキューとして開始し, Elapsed は実行するまで空きままに, Row が実行されないたびに Remove が利用可能である.",
+      "speech_text": "新しい行は,短い持続的な識別子を受信します. Pipeline が実行されるアプリの記録, Label はソースを保存し, Status はキューとして開始し, Elapsed は実行するまで空きままに, Row が実行されないたびに Remove が利用可能である.",
+      "phonemes": "ataɾaɕiː ɡʲoː βa, mʲiʥikai ʥiʣokɯ tekʲi na ɕikʲibeʦɨ ɕi o ʥɨɕiɴ ɕi masɨ. Pipeline ɡa ʥiʔkoː saɾeɾɯ apɯɾʲi no kʲiɾokɯ, Label βa soːsɨ o hoʣoɴ ɕi, Status βa kʲɨː toɕi te kaiɕi ɕi, Elapsed βa ʥiʔkoː sɨɾɯ made akʲi mama ɲi, Row ɡa ʥiʔkoː saɾenai tabʲi ɲi Remove ɡa ɾʲijoː kanoː de aɾɯ."
     },
     {
       "scene": 5,
-      "speech_start": 47.525,
-      "speech_end": 56.425,
-      "scene_end": 57.074999999999996,
-      "duration": 9.549999999999997,
-      "text": "作業流が完了すると,各プレートは個別のプロジェクトを受け取り,並びは全体的な進歩を保持する."
+      "speech_start": 76.255,
+      "speech_end": 98.10499999999999,
+      "scene_end": 98.88499999999999,
+      "duration": 22.629999999999995,
+      "text": "spaCR設定のスナップショットを含むプレートフォルダをこの画面にドラッグすることもできます. 本物のチュートリアルフォルダは保存されたマスクとメーザースナップショットを追加し,ファイル名は実行可能なモジュールを識別します. プレートリストの CSV と src 列は,多くの別々のプレートに代替である.",
+      "speech_text": "スペーカー設定のスナップショットを含むプレートフォルダをこの画面にドラッグすることもできます. 本物のチュートリアルフォルダは保存されたマスクとメーザースナップショットを追加し,ファイル名は実行可能なモジュールを識別します. プレートリストの CSV と src 列は,多くの別々のプレートに代替である.",
+      "phonemes": "sɨpeːkaː seʔteː no sɨnaʔpɯɕoʔto o ɸɯkɯmɯ pɯɾeːto ɸoɾɯda o kono ɡameɴ ɲi doɾaʔɡɯ sɨɾɯ koto mo dekʲimasɨ. hommono no ʨɨːtoɾʲiaɾɯ ɸoɾɯda βa hoʣoɴ saɾeta masɨkɯ to meːʣaː sɨnaʔpɯɕoʔto o ʦɨika ɕi, ɸaiɾɯ meː βa ʥiʔkoː kanoː na moʥɨːɾɯ o ɕikʲibeʦɨ ɕi masɨ. pɯɾeːto ɾʲisɨto no CSV to src ɾeʦɨ βa, oːkɯ no beʦɨbeʦɨ no pɯɾeːto ɲi daitai de aɾɯ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 98.88499999999999,
+      "speech_end": 121.035,
+      "scene_end": 121.755,
+      "duration": 22.870000000000005,
+      "text": "すべての変異はすぐに ローカルキューファイルに書き込まれます spaCR を閉じる場合,プランを排除することはありません. Plate Queue を再開すると,順序,コピーされた設定,状態,タイミング,および記録されたエラーが復元されます. 実行する前に行をチェックし,不要なスナップショットを削除します.",
+      "speech_text": "すべての変異はすぐに ローカルキューファイルに書き込まれます スペーカー を閉じる場合,プランを排除することはありません. Plate Queue を再開すると,順序,コピーされた設定,状態,タイミング,および記録されたエラーが復元されます. 実行する前に行をチェックし,不要なスナップショットを削除します.",
+      "phonemes": "sɨbete no heɴi βa sɨɡɯɲi ɾoːkaɾɯ kʲɨː ɸaiɾɯ ɲi kakʲikoma ɾe masɨ sɨpeːkaː o toʥiɾɯ baai, pɯɾaɴ o haiʥo sɨɾɯ koto βa aɾʲimaseɴ. Plate Queue o saikai sɨɾɯ to, ʥɨɲʥo, kopʲiː saɾeta seʔteː, ʥoːtai, taimʲiŋɡɯ, ojobʲi kʲiɾokɯ saɾeta eɾaː ɡa ɸɯkɯɡeɴ saɾemasɨ. ʥiʔkoː sɨɾɯ mae ɲi ɡʲoː o ʨeʔkɯ ɕi, ɸɯjoː na sɨnaʔpɯɕoʔto o sakɯʥo ɕi masɨ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 121.755,
+      "speech_end": 141.605,
+      "scene_end": 142.24499999999998,
+      "duration": 20.48999999999998,
+      "text": "列の最初の行を処理するには,行列を実行をクリックします. プロダクションランナーは,それぞれのApp値を通常のspaCRパイプラインに解決し,一度に1つの作業を実行し,同じGPUまたは出力リソースのために2つのプレートが競合することを避けます.",
+      "speech_text": "列の最初の行を処理するには,行列を実行をクリックします. プロダクションランナーは,それぞれのApp値を通常のスペーカーパイプラインに解決し,一度に1つの作業を実行し,同じGPUまたは出力リソースのために2つのプレートが競合することを避けます.",
+      "phonemes": "ɾeʦɨ no saiɕo no ɡʲoː o ɕoɾʲi sɨɾɯ ɲi βa, ɡʲoːɾeʦɨ o ʥiʔkoː o kɯɾʲiʔkɯ ɕi masɨ. pɯɾodakɯɕoɴ ɾannaː βa, soɾeʣoɾe no App ʨi o ʦɨːʥoː no sɨpe kaː paipɯɾaiɴ ɲi kaikeʦɨ ɕi, iʨido ɲi i ʨiʦɨ no saɡʲoː o ʥiʔkoː ɕi, onaʥi GPU mata βa ɕɨʦɨɾʲokɯ ɾʲisoːsɨ no tame ɲi ɲiʔno pɯɾeːto ɡa kʲoːɡoː sɨɾɯ koto o sakemasɨ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 142.24499999999998,
+      "speech_end": 160.89499999999998,
+      "scene_end": 161.67499999999998,
+      "duration": 19.430000000000007,
+      "text": "順番から実行状態に変更され, Elapsedは毎秒更新されます. このチュートリアルキャプチャは高価な分析パイプラインの代わりにソース検証を使用し,完了した実験に書き込まないまま,実際のキュー糸と状態移行を示します.",
+      "speech_text": "順番から実行状態に変更され, Elapsedは毎秒更新されます. このチュートリアルキャプチャは高価な分析パイプラインの代わりにソース検証を使用し,完了した実験に書き込まないまま,実際のキュー糸と状態移行を示します.",
+      "phonemes": "ʥɨmbaɴ kaɾa ʥiʔkoː ʥoːtai ɲi heŋkoː saɾe, Elapsed βa maibʲoː koːɕiɴ saɾemasɨ. kono ʨɨːtoɾʲiaɾɯ kʲapɯʨa βa koːka na bɯɴsekʲi paipɯɾaiɴ no kaβaɾʲi ɲi soːsɨ keɴɕoː o ɕijoː ɕi, kanɾʲoː ɕita ʥiʔkeɴ ɲi kakʲikomanai mama, ʥiʔsai no kʲɨː ito to ʥoːtai ikoː o ɕimeɕimasɨ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 161.67499999999998,
+      "speech_end": 177.92499999999998,
+      "scene_end": 178.545,
+      "duration": 16.870000000000005,
+      "text": "列が実行されている間に停止をクリックすると,別のプレートが開始されることを望まない. 停止は協力的なもので,現在のパイプラインが完成し,後の行列は順番に並び,設定を保持する.",
+      "speech_text": "列が実行されている間に停止をクリックすると,別のプレートが開始されることを望まない. 停止は協力的なもので,現在のパイプラインが完成し,後の行列は順番に並び,設定を保持する.",
+      "phonemes": "ɾeʦɨ ɡa ʥiʔkoː saɾete iɾɯ aida ɲi teːɕi o kɯɾʲiʔkɯ sɨɾɯ to, beʦɨ no pɯɾeːto ɡa kaiɕi saɾeɾɯ koto o noʣoma nai. teːɕi βa kʲoːɾʲokɯ tekʲi na mono de, ɡeɴʣai no paipɯɾaiɴ ɡa kaɴseː ɕi, ato no ɡʲoːɾeʦɨ βa ʥɨmbaɴ ɲi naɾabʲi, seʔteː o hoʥi sɨɾɯ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 178.545,
+      "speech_end": 198.51999999999998,
+      "scene_end": 199.17999999999998,
+      "duration": 20.63499999999999,
+      "text": "現在の項目は終了後,その状態は成功であり,経過した時間は保存されます. 残りの行列は列に並べられているので,アプリケーションを閉じたり,リソースの利用可能性を変更したり,出力をチェックしたりするための安全な境界線です.",
+      "speech_text": "現在の項目は終了後,その状態は成功であり,経過した時間は保存されます. 残りの行列は列に並べられているので,アプリケーションを閉じたり,リソースの利用可能性を変更したり,出力をチェックしたりするための安全な境界線です.",
+      "phonemes": "ɡeɴʣai no koːmokɯ βa ɕɨːɾʲoː ɡo, sono ʥoːtai βa seːkoː de aɾʲi, keːka ɕita ʥikaɴ βa hoʣoɴ saɾemasɨ. nokoɾʲi no ɡʲoːɾeʦɨ βa ɾeʦɨ ɲi naɾabe ɾaɾete iɾɯ no de, apɯɾʲikeːɕoɴ o toʥi taɾʲi, ɾʲisoːsɨ no ɾʲijoː kanoːseː o heŋkoː ɕitaɾʲi, ɕɨʦɨɾʲokɯ o ʨeʔkɯ ɕitaɾʲi sɨɾɯ tame no aɴʣeɴ na kʲoːkai seɴ desɨ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 199.17999999999998,
+      "speech_end": 214.67999999999998,
+      "scene_end": 215.29999999999998,
+      "duration": 16.120000000000005,
+      "text": "再開するには再起動列を実行してください. 完成した行はスキップされ,実行は最初の残ったキューアイテムから続きます.失敗した行は失敗として記録され,後の行は継続できます.",
+      "speech_text": "再開するには再起動列を実行してください. 完成した行はスキップされ,実行は最初の残ったキューアイテムから続きます.失敗した行は失敗として記録され,後の行は継続できます.",
+      "phonemes": "saikai sɨɾɯ ɲi βa saikʲidoː ɾeʦɨ o ʥiʔkoː ɕite kɯdasai. kaɴseː ɕita ɡʲoː βa sɨkʲiʔpɯ saɾe, ʥiʔkoː βa saiɕo no nokoʔta kʲɨː aitemɯ kaɾa ʦɨzɨkʲimasɨ. ɕiʔpai ɕita ɡʲoː βa ɕiʔpai toɕi te kʲiɾokɯ saɾe, ato no ɡʲoː βa keːʣokɯ dekʲimasɨ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 215.29999999999998,
+      "speech_end": 234.64999999999998,
+      "scene_end": 235.34999999999997,
+      "duration": 20.049999999999983,
+      "text": "完了した表では,各項目の端末状態と経過時間が1つ保存されます. 生産ランでは,各行が選択されたマスクまたはメーチャーパイプラインを,その模組から提出されたかのように,独自のコピーされたソースと設定で呼び出す.",
+      "speech_text": "完了した表では,各項目の端末状態と経過時間が1つ保存されます. 生産ランでは,各行が選択されたマスクまたはメーチャーパイプラインを,その模組から提出されたかのように,独自のコピーされたソースと設定で呼び出す.",
+      "phonemes": "kanɾʲoː ɕita çoː de βa, kakɯ koːmokɯ no tammaʦɨ ʥoːtai to keːka ʥikaɴ ɡa i ʨiʦɨ hoʣoɴ saɾemasɨ. seːsaɴ ɾaɴ de βa, kakɯɡʲoː ɡa sentakɯ saɾeta masɨkɯ mata βa meː ʨaː paipɯɾaiɴ o, sono kataɡʲi kɯmʲi kaɾa teːɕɨʦɨ saɾeta kano joː ɲi, dokɯʥi no kopʲiː saɾeta soːsɨ to seʔteː de jobʲidasɨ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 235.34999999999997,
+      "speech_end": 249.49999999999997,
+      "scene_end": 250.05999999999997,
+      "duration": 14.710000000000008,
+      "text": "結果をレビューした後,終了をクリアする をクリックします. 順番ファイルから成功,失敗,スキップされた行を取り除きますが,プレートデータやパイプライン出力を削除しません.",
+      "speech_text": "結果をレビューした後,終了をクリアする をクリックします. 順番ファイルから成功,失敗,スキップされた行を取り除きますが,プレートデータやパイプライン出力を削除しません.",
+      "phonemes": "keʔka o ɾebʲɨː ɕita ato, ɕɨːɾʲoː o kɯɾʲia sɨɾɯ o kɯɾʲiʔkɯ ɕi masɨ. ʥɨmbaɴ ɸaiɾɯ kaɾa seːkoː, ɕiʔpai, sɨkʲiʔpɯ saɾeta ɡʲoː o toɾʲinoʣokʲimasɨ ɡa, pɯɾeːto deːta ja paipɯɾaiɴ ɕɨʦɨɾʲokɯ o sakɯʥo ɕi maseɴ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 250.05999999999997,
+      "speech_end": 270.085,
+      "scene_end": 270.905,
+      "duration": 20.845,
+      "text": "ダッシュボードは次のパッチの準備ができている. まず各モジュールを構成して検証し,プレート特定の値をそのインスタントショットまたはCSV行に保存し,その後プレートキューが再現可能な連続実行と再起動安全な進行を提供できるようにします.",
+      "speech_text": "ダッシュボードは次のパッチの準備ができている. まず各モジュールを構成して検証し,プレート特定の値をそのインスタントショットまたはCSV行に保存し,その後プレートキューが再現可能な連続実行と再起動安全な進行を提供できるようにします.",
+      "phonemes": "daʔɕɨboːdo βa ʦɨɡʲi no paʔʨi no ʥɨmbʲi ɡa dekʲite iɾɯ. mazɨ kakɯ moʥɨːɾɯ o koːseː ɕite keɴɕoː ɕi, pɯɾeːto tokɯteː no atai o sono iɴsɨtanto ɕoʔto mata βa CSV ɡʲoː ɲi hoʣoɴ ɕi, sonoɡo pɯɾeːto kʲɨː ɡa saiɡeɴ kanoː na ɾeɴʣokɯ ʥiʔkoː to saikʲidoː aɴʣeɴ na ɕiŋkoː o teːkʲoː dekʲiɾɯ joː ɲi ɕi masɨ."
     }
   ]
 }

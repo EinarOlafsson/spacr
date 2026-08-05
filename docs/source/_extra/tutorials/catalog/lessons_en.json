@@ -4363,43 +4363,117 @@
       "series": 4,
       "app_key": "queue",
       "section": "Data and batch runs",
-      "description": "Chain multiple plates through the same validated pipeline.",
+      "description": "Snapshot real module settings, process queued plates sequentially, stop safely between jobs, resume persisted work, and clear completed rows.",
       "objectives": [
-        "Understand when to use Plate Queue.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Add the active module's current source and settings as one immutable queue item.",
+        "Import settings-bearing plate folders and understand the queue table and persistent state.",
+        "Run sequentially, stop after the current item, resume remaining work, and clear terminal rows."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Configure a source and settings in a runnable spaCR module such as Mask or Measure.",
       "scenes": [
         {
-          "narration": "This tutorial covers Plate Queue. Chain multiple plates through the same validated pipeline.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers Plate Queue. Chain multiple plates through the same validated pipeline."
+          "narration": "Plate Queue starts with a configured module. Here Mask points to the transferred real experiment, uses its saved segmentation settings, and limits this snapshot to five test images. Queueing copies these current values; later edits in Mask do not silently change the queued job.",
+          "visual": "01_prepared_mask",
+          "focus_key": "mask_screen",
+          "hold_after": 0.72,
+          "speech_text": "Plate Queue starts with a configured module. Here Mask points to the transferred real experiment, uses its saved segmentation settings, and limits this snapshot to five test images. Queueing copies these current values; later edits in Mask do not silently change the queued job."
         },
         {
-          "narration": "Open Plate Queue from the Data and batch runs section. Add plate sources and choose the shared module sequence and settings preset.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Open Plate Queue from the Data and batch runs section. Add plate sources and choose the shared module sequence and settings preset."
+          "narration": "Open Plate Queue from Data and batch runs. The empty dashboard contains controls for the current plate, comma-separated plate lists, cleanup, sequential execution, and a safe stop between jobs.",
+          "visual": "02_open_queue",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.62,
+          "speech_text": "Open Plate Queue from Data and batch runs. The empty dashboard contains controls for the current plate, comma separated plate lists, cleanup, sequential execution, and a safe stop between jobs."
         },
         {
-          "narration": "In the main configuration area, review plate order, per-plate overrides, worker limits, failure policy, resume behavior, and output roots.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, review plate order, per-plate overrides, worker limits, failure policy, resume behavior, and output roots."
+          "narration": "Click Add current plate. Because Mask was the most recently visited runnable module, spaCR snapshots its module key, real source path, and complete settings dictionary.",
+          "visual": "03_add_current",
+          "focus_key": "toolbar",
+          "click_key": "add",
+          "hold_after": 0.58,
+          "speech_text": "Click Add current plate. Because Mask was the most recently visited runnable module, spacer snapshots its module key, real source path, and complete settings dictionary."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. start with a small plate or test field, then let the queue process plates sequentially with visible status.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. start with a small plate or test field, then let the queue process plates sequentially with visible status."
+          "narration": "The new row receives a short persistent identifier. App records which pipeline will run, Label preserves the source, Status begins as queued, Elapsed stays blank until execution, and Remove is available whenever the row is not running.",
+          "visual": "04_mask_queued",
+          "focus_key": "table",
+          "hold_after": 0.66,
+          "speech_text": "The new row receives a short persistent identifier. App records which pipeline will run, Label preserves the source, Status begins as queued, Elapsed stays blank until execution, and Remove is available whenever the row is not running."
         },
         {
-          "narration": "When the workflow finishes, each plate receives an isolated project and run record while the queue preserves overall progress.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, each plate receives an isolated project and run record while the queue preserves overall progress."
+          "narration": "You can also drag a plate folder containing spaCR settings snapshots onto this screen. The real tutorial folder contributes its saved Mask and Measure snapshots, and the filename identifies the runnable module. A plate-list CSV with an src column is the alternative for many separate plates.",
+          "visual": "05_folder_drop",
+          "focus_key": "table",
+          "hold_after": 0.78,
+          "speech_text": "You can also drag a plate folder containing spacer settings snapshots onto this screen. The real tutorial folder contributes its saved Mask and Measure snapshots, and the filename identifies the runnable module. A plate list C S V with an source column is the alternative for many separate plates."
+        },
+        {
+          "narration": "Every mutation is written immediately to the local queue file. Closing spaCR does not discard the plan: reopening Plate Queue restores the order, copied settings, statuses, timing, and any recorded error. Review the rows and remove unwanted snapshots before running.",
+          "visual": "06_persistence",
+          "focus_key": "table",
+          "hold_after": 0.72,
+          "speech_text": "Every mutation is written immediately to the local queue file. Closing spacer does not discard the plan: reopening Plate Queue restores the order, copied settings, statuses, timing, and any recorded error. Review the rows and remove unwanted snapshots before running."
+        },
+        {
+          "narration": "Click Run queue to process the first queued row. The production runner resolves each App value to its normal spaCR pipeline and executes one job at a time, which avoids two plates competing for the same GPU or output resources.",
+          "visual": "07_run",
+          "focus_key": "table",
+          "click_key": "run",
+          "hold_after": 0.64,
+          "speech_text": "Click Run queue to process the first queued row. The production runner resolves each App value to its normal spacer pipeline and executes one job at a time, which avoids two plates competing for the same G P U or output resources."
+        },
+        {
+          "narration": "Status changes from queued to running and Elapsed updates every second. This tutorial capture uses source validation in place of the expensive analysis pipelines, so it demonstrates the real queue thread and state transitions without writing into the completed experiment.",
+          "visual": "08_running",
+          "focus_key": "status",
+          "hold_after": 0.78,
+          "speech_text": "Status changes from queued to running and Elapsed updates every second. This tutorial capture uses source validation in place of the expensive analysis pipelines, so it demonstrates the real queue thread and state transitions without writing into the completed experiment."
+        },
+        {
+          "narration": "Click Stop while a row is running when you do not want another plate to begin. Stop is cooperative: the current pipeline reaches completion, while later rows remain queued and retain their settings.",
+          "visual": "09_stop",
+          "focus_key": "table",
+          "click_key": "stop",
+          "hold_after": 0.62,
+          "speech_text": "Click Stop while a row is running when you do not want another plate to begin. Stop is cooperative: the current pipeline reaches completion, while later rows remain queued and retain their settings."
+        },
+        {
+          "narration": "After the current item finishes, its status is success and its elapsed time is preserved. The remaining rows are still queued, so this is a safe boundary for closing the application, changing resource availability, or checking outputs.",
+          "visual": "10_stopped",
+          "focus_key": "table",
+          "hold_after": 0.66,
+          "speech_text": "After the current item finishes, its status is success and its elapsed time is preserved. The remaining rows are still queued, so this is a safe boundary for closing the application, changing resource availability, or checking outputs."
+        },
+        {
+          "narration": "Click Run queue again to resume. Finished rows are skipped and execution continues from the first remaining queued item; a failed row is recorded as failed while later rows can continue.",
+          "visual": "11_resume",
+          "focus_key": "table",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "Click Run queue again to resume. Finished rows are skipped and execution continues from the first remaining queued item; a failed row is recorded as failed while later rows can continue."
+        },
+        {
+          "narration": "The completed table preserves one terminal status and elapsed time per item. In a production run, each row has invoked the selected Mask or Measure pipeline with its own copied source and settings, just as if it had been submitted from that module.",
+          "visual": "12_finished",
+          "focus_key": "table",
+          "hold_after": 0.7,
+          "speech_text": "The completed table preserves one terminal status and elapsed time per item. In a production run, each row has invoked the selected Mask or Measure pipeline with its own copied source and settings, just as if it had been submitted from that module."
+        },
+        {
+          "narration": "Click Clear finished after reviewing the results. It removes success, failed, and skipped rows from the queue file but never deletes plate data or pipeline outputs.",
+          "visual": "13_clear",
+          "focus_key": "table",
+          "click_key": "clear",
+          "hold_after": 0.56,
+          "speech_text": "Click Clear finished after reviewing the results. It removes success, failed, and skipped rows from the queue file but never deletes plate data or pipeline outputs."
+        },
+        {
+          "narration": "The dashboard is ready for the next batch. Configure and validate each module first, keep plate-specific values in its snapshot or CSV row, then let Plate Queue provide reproducible sequential execution and restart-safe progress.",
+          "visual": "14_empty",
+          "focus_key": "screen",
+          "hold_after": 0.82,
+          "speech_text": "The dashboard is ready for the next batch. Configure and validate each module first, keep plate specific values in its snapshot or C S V row, then let Plate Queue provide reproducible sequential execution and restart safe progress."
         }
       ]
     },
