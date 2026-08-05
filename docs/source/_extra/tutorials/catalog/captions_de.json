@@ -758,19 +758,73 @@
       "id": "15_image_umap",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Image UMAP. Entdecken Sie Phänotypviertel, indem Sie gemessene Objekte einbinden und ihre Bildpflanzen als Glyphen anzeigen."
+          "narration": "Bild UMAP reduziert hochdimensionale Messungen pro Objekt auf zwei Koordinaten und stellt echte Mikroskopiepflanzen auf der Karte. Die Konsole erfasst Datenverbindungen, Vorverarbeitung, Einbettung von Fortschritten, Clustering, Plots und Ausgangswege."
         },
         {
-          "narration": "Öffnen Sie das Bild UMAP im Abschnitt Ergebnisse und Qualitätskontrolle. Wählen Sie eine Messdatenbank, Bildpflanzen, Feature-Set und Gruppenmetadaten aus."
+          "narration": "Das Chatfeld akzeptiert lokale Befehle und Workflow-Fragen. Ermöglichen Sie KI, sich durch einen konfigurierten Anbieter zu lenken, und verwenden Sie den Pfeil neben ihm, um den Anbieter zu wählen oder seine Kontrollen zu öffnen."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie Filter-, Skalierung-, Nachbar-, Mindeststrecke-, Cluster-, Probenahme- und Bildanzeigenkanäle."
+          "narration": "Anbieter überprüfen die Claude-, ChatGPT- und Gemini-Befehlszeilen und zeigen ihre Installations- und Login-Befehlszeiten an. Die Authentifizierung bleibt bei jedem Anbieter."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vergleichen Sie mehrere reproduzierbare Embeddings und überprüfen Sie, ob Cluster nicht durch Platten- oder Bildverarbeitungsgegenstände angetrieben werden."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und die spaCR-bewussten Systemanweisungen."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, speichert spaCR Koordinaten, Clusteretiketten, Bildkarten und veröffentlichungsbereite Embedding-Figuren."
+          "narration": "Die Quelle ist ein gemessenes Tutorialprojekt mit 455 Datenbankverknüpften Zellpflanzen. Dieser Probe nimmt 250 Objekte und verbindet Zell-, Zytoplasma-, Nukleus- und Krankheitserreger-Funktionstabellen."
+        },
+        {
+          "narration": "Die wesentlichen Angaben zeigen die Quelle, die Messtabellen, die Reduktionsmethode, die Zeilenkappe und die primäre Farbwahl, die für eine erste Karte erforderlich ist."
+        },
+        {
+          "narration": "Modifizierte Filter lassen das Panel auf absichtliche Abweichungen von Standardfunktionen zurückgreifen, wie zum Beispiel die kleinere Nachbarschaft, die praktische Zeilenkappe, die Glyphenzahl, die Opakzität des Displays und die gespeicherten Zahlen."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen acht Kategorien ohne Veränderung der Werte auf: Pfade, Messungen, Platten-Exklusionen, Einbettung, Planwahl, Laufzeit, Batchkorrektur und UMAP-Display."
+        },
+        {
+          "narration": "Recipes speichert die komplette Image UMAP-Konfiguration unter einem Namen, wendet sie auf ein anderes Projekt an oder importiert und exportiert eine Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Einstellungen und übertragen Sie den Image UMAP-Job in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartiert Projektwege und berechnet Ressourcen auf eine Remote-Arbeitsstation, einen Slurm-Cluster oder einen konfigurierten Befehl und übermittelt und überwacht dann den gleichen Embedding-Run."
+        },
+        {
+          "narration": "Paths wählt das gemessene Projekt aus. Image UMAP lokalisiert measurements.db und entweder bestehende Erntebilder oder fusionierte Arrays unter dieser Quelle."
+        },
+        {
+          "narration": "Messungen wählen verbundene Objekttabellen, einen kanalbasierten Feature-Filter, explizite Ausschlüsse und die Entfernung korrelierter Features. Diese Entscheidungen bestimmen die von der Karte dargestellte Geometrie."
+        },
+        {
+          "narration": "Platten-Layout und -Steuerungen bieten Regelungen zur Zeilen-Ausschluss bei fehlgeschlagenen Bohrungen, unerwünschten Steuerungen oder anderen Metadatenwerten, die nicht in diese Einbettung eingegeben werden sollten."
+        },
+        {
+          "narration": "Einbettung und Clustering wählt UMAP oder t-SNE, Nachbarschafts- und Entfernungsverhalten, optionale Log-Transformation, angezeigte Abteilung, Clustering-Methode, Lärmverarbeitung und Clusteranalyse aus."
+        },
+        {
+          "narration": "Die Graphie setzt die maximalen entnommenen Zeilen und eine optionale Metadatenkolonne fest, die für die Farbpunkte verwendet wird. Eine Zeilengrenze ist eine Obergrenze, so dass kleinere Datensätze gültig bleiben."
+        },
+        {
+          "narration": "Advanced wählt PNG- oder On-Demand-Nutzpflanzen aus verschmelzten Arrays aus, sowie die Anzahl der Arbeiter und die verbose Berichterstattung. Auto wählt eine verfügbare Erntequelle für die meisten Projekte aus."
+        },
+        {
+          "narration": "Platten- und Batchkorrektur kann Platten-Effekte zentrieren oder skalieren, Referenzsteuerungen verwenden oder ComBat anwenden, wenn seine biologische Covariate definiert ist. Dieses Ein-Table-Tutorial lässt Korrektur aus."
+        },
+        {
+          "narration": "UMAP Display steuert Punkt- und Umriss-Styling, Leinwandverhältnisse, Ernte-Zoom, Glyphenzahl, Cluster-Gitter, Hintergrund und Figur-Speicher ohne die angepassten Koordinaten zu ändern."
+        },
+        {
+          "narration": "Dieses Beispiel verwendet UMAP mit 15 Nachbarn, minimale Entfernung 0,1, euklidische Entfernung und DBSCAN mit Epsilon 0,85 und fünf minimale Proben. Clusterstatistiken bleiben ausgeschlossen, weil die kleine Untermenge eine Gruppe bildet."
+        },
+        {
+          "narration": "Run validiert die Projektdatenbank und die Ernte, verbindet Messtabellen, filtert numerische Merkmale, Probenreihen, passt den Reduktor und Cluster, liefert Zahlen und schreibt ausgerichtete Ergebnisregister. Stop-Anfragen für eine sichere Unterbrechung."
+        },
+        {
+          "narration": "Während der Montage berichtet die Konsole über die Auswahl der Erntequelle, die Entfernung unbrauchbarer Spalten, den Bau der nächstgelegenen Nachbarschaft, 500 Optimierungsphasen und die endgültige 250x2-Embedding-Form."
+        },
+        {
+          "narration": "Die vollendete Galerie zeigt die mikroskopische Glyphkarte und das Clusterpflanzgitter. Das Projekt erhält auch embedding_results.csv, Embedding- und Grid-PDF-Dateien, gespeicherte Einstellungen, ein Reproduzierbarkeitsmanifest und ein erneut laufbares Makro."
         }
       ]
     },

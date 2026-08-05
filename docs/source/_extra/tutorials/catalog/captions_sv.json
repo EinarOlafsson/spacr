@@ -758,19 +758,73 @@
       "id": "15_image_umap",
       "scenes": [
         {
-          "narration": "Denna handledning täcker Image UMAP. Utforska fenotyperna i grannskap genom att införa mätade objekt och visa deras bildskulturer som glyfer."
+          "narration": "Bild UMAP minskar högdimensionella mätningar per objekt till två koordinater och placerar verkliga mikroskopiska grödor på kartan. Konsolen registrerar dataföreningar, förbehandling, integrering av framsteg, clustering, plots och outputvägar."
         },
         {
-          "narration": "Öppna UMAP-bilden från avsnittet Resultater och kvalitetskontroll. Välj en mätdatabas, bildskulturer, funktionssätt och gruppering av metadata."
+          "narration": "Chatfältet accepterar lokala kommandon och arbetsflödesfrågor. Möjliggöra AI att rutta genom en konfigurerad leverantör och använda pilen bredvid den för att välja leverantören eller öppna dess kontroller."
         },
         {
-          "narration": "I huvudkonfigurationsområdet konfigurera filtrering, skalning, grannskap, minsta avstånd, kluster, provtagning och bildvisningskanaler."
+          "narration": "Leverantörerna kontrollerar Claude, ChatGPT och Gemini-kommandolinja-klienter och visar deras installations- och inloggningskommandon. Authentifiering är kvar hos varje leverantör."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. jämföra flera reproducerbara inbäddningar och kontrollera att kluster inte drivs av plattor eller bildföremål."
+          "narration": "AI-inställningar styr responsdjup, automatiska felförklaringar, valfri GitHub-problemrapportering, inloggning och spaCR-medvetna systeminstruktioner."
         },
         {
-          "narration": "När arbetsflödet är färdigt sparar spaCR koordinater, clusteretiketter, bildkartor och publikationsberedda inbäddade siffror."
+          "narration": "Källan är ett mätt tutorialprojekt som innehåller 455 databaslänkade cellkulturer. Denna kör prov 250 objekt och ansluter cell, cytoplasma, kärna och patogen funktioner tabeller."
+        },
+        {
+          "narration": "Essentials visar källan, mättabellerna, minskningsmetoden, radkappen och det primära färgval som behövs för en första karta."
+        },
+        {
+          "narration": "Modifierad filtrerar panelen till avsiktliga avvikelser från standard, såsom det mindre grannskapet, praktiska radkappen, glyfantal, visningsblindhet och sparade siffror."
+        },
+        {
+          "narration": "Alla inställningar avslöjar åtta kategorier utan att ändra värden: spår, mätningar, platteksklusioner, inbäddning, plotselektion, körtid, batchkorrigering och UMAP-display."
+        },
+        {
+          "narration": "Recipes sparar hela Image UMAP-konfigurationen under ett namn, tillämpar den på ett annat projekt eller importerar och exporterar en inställningsfil."
+        },
+        {
+          "narration": "Skicka fjärrbilder av de lösade inställningarna och överföra Image UMAP-jobb till arbetsplatsen Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartlägger projektvägar och beräkningsresurser till en fjärrarbetsstation, Slurm-cluster eller konfigurerat kommando, skickar sedan in och övervakar samma inbäddningskörning."
+        },
+        {
+          "narration": "Paths väljer det mätade projektet. Image UMAP lokaliserar measurements.db och antingen befintliga grödabilder eller sammansatta matriser under den källan."
+        },
+        {
+          "narration": "Mätningar väljer anslutna objekttabeller, ett kanalbaserat funktionfilter, uttryckliga uteslutanden och borttagning av korrelerade funktioner. Dessa val bestämmer den geometri som representeras av kartan."
+        },
+        {
+          "narration": "Plattens layout och kontroller innehåller regler för radexklusion för misslyckade brunnar, oönskade kontroller eller andra metadatavärden som inte bör ingå i denna inbäddning."
+        },
+        {
+          "narration": "Embedding and Clustering väljer UMAP eller t-SNE, grannskaps- och distansbeteende, valfri loggtransformation, visad utrymme, clusteringmetod, bullerhantering och clusteranalys."
+        },
+        {
+          "narration": "Plot anger de maximala provtagna raderna och en valfri metadata-kolumn som används för färgpunkter. En radgräns är en täckning, så mindre datasätt förblir giltiga."
+        },
+        {
+          "narration": "Advanced väljer PNG- grödor eller efterfrågade grödor från sammansatta matriser, plus arbetstagarantal och verbal rapportering. Auto väljer en tillgänglig odlingskälla för de flesta projekt."
+        },
+        {
+          "narration": "Plats- och batchkorrigering kan centrera eller skalaplateffekter, använda referenskontroller eller tillämpa ComBat när dess biologiska covariate definieras. Den här handledningen lämnar inte korrigering."
+        },
+        {
+          "narration": "UMAP Display kontrollerar punkt- och skärmstilen, kanvasförhållanden, gröda zoom, glyfantal, klusternät, bakgrunds- och figursparande utan att ändra de inställda koordinaterna."
+        },
+        {
+          "narration": "I det här exemplet används UMAP med 15 grannar, minsta avstånd 0,1, euklidisk avstånd och DBSCAN med epsilon 0,85 och fem minsta prover. Clusterstatistiken stannar utanför eftersom den lilla delgruppen utgör en grupp."
+        },
+        {
+          "narration": "Run validerar projektdatabasen och grödor, ansluter mättabeller, filtrerar numeriska funktioner, provräkningar, passar reducenten och kluster, renderar siffror och skriver justerade resultatregister. Sluta begär en säker avbrott."
+        },
+        {
+          "narration": "Under montering rapporterar konsolen om urval av grödor, borttagna oanvändbara kolumner, närmaste grannbyggnad, 500 optimeringsperioder och den slutliga 250x2 inbäddningsformen."
+        },
+        {
+          "narration": "Det färdigställda galleriet visar den mikroskopiska glyfkarten och klustergraden. Projektet tar också emot embedding_results.csv, inbäddning och grids PDF-filer, sparas inställningar, en reproducerbarhet manifest och en omkörbar makro."
         }
       ]
     },
