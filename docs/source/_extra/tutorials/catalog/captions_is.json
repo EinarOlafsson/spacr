@@ -332,19 +332,76 @@
       "id": "09_annotate",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Annotate. Skoðaðu einstaka gróður á netinu og veitið áreiðanlegar merkingar til módelþjálfunar eða gæðaeftirlits."
+          "narration": "Annotate hefst með því að framleiðslutengingin sé forgangsröðun. Opnaðu Console þegar þú þarft gagnagrunn skilaboð, vista stöðu, viðvörun, eða spjall sviði; sama hnappinn leynir það aftur til að skila rými í myndir."
         },
         {
-          "narration": "Opnaðu athugasemdir úr kjarnaöflunni. Opnaðu verkefni með hlutföllum og veldu gagnagrunnaborðið og athugasemda."
+          "narration": "Vísindaskipinn sendir fyrirspurn í gegnum valinn þjónustuaðila. Notaðu viðkomandi pilt til að velja uppstilla þjónustuaðila eða opna þjónustuaðila stjórnun."
         },
         {
-          "narration": "Í helstu skipulagssvæðinu skaltu velja flokkar, sýningarsvæði, flokkun, sýnatöku og allar sía sem skilgreina yfirlit."
+          "narration": "Greiðsluaðila tilkynna hvort Claude, ChatGPT og Gemini skipunarlínu viðskiptavinir eru settir upp og gefur þeim uppsetningar og innritunarskipanir. Skilríki eru hjá hverjum söluaðila."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. merkja fyrirmyndandi hlutir, geyma oft og skoða aftur óvissa eða ágreinandi dæmi."
+          "narration": "AI stillingar stjórnar viðbrögð dýpt, sjálfvirkar villur útskýringar, valfrjálsan GitHub vandamál skýrslu, innritun, og spaCR-vitandi kerfisspurn."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið, eru athugasemdir skrifaðar aftur í verkefnis gagnagrunn með fyrirbæra auðkenningar heilbrigð."
+          "narration": "Drag mæluð tilraun mappið í Annotate. spaCR leysir upp measurements.db, tengir aftur geymd ræktunarbraut til þessa tölvu, skapar spaCR_Tutorial stóluna og hlaðar upp raunverulegar myndafrumur."
+        },
+        {
+          "narration": "Settings nafna uppspretta og athugasemda stólinn, stjórnar gróðurstærð, myndartípu, sýnilegum og eðlilegum leiðum, prósentílum, valfrjálsu útfærslum, hlut eða mælingarfiltrum og óvissa röð með fjölbreytni vernd."
+        },
+        {
+          "narration": "Síða teljanda sýnir 128 sýnilegar rætur af 81.969. Hvítur hringur merkir áhersluðu uppskeru, en flokkslitir hringir sýna merkingar sem þegar hafa verið skipuð í spaCR_Tutorial."
+        },
+        {
+          "narration": "Opnaðu lyklaborðið hvenær sem er. Tölur 1 til 9 merkja og framfara, núll hreinsar eitt uppskeru, piltur eða HJK L hreyfing, Space skipar, Backspace skilar, U fellur niður og Enter sparar og framfarir."
+        },
+        {
+          "narration": "Þrýstið á 1 til að skipta 1. flokki að áhersluðum uppskeru. Hringurinn breytist í flokkalit og fókusinn færst í næsta ómerkt mynd."
+        },
+        {
+          "narration": "Smelltu á 2 til að skipta 2. flokki. Flokkar eru tölfræðilegar og tilraunarskilgreindar, svo skráðu hvað hvert númer þýðir áður en liðið byrjar að merkja."
+        },
+        {
+          "narration": "Pistur lyklar færa áhersluna án þess að breyta merkinu. Space stígur fram og Backspace stígur aftur, sem gerir fljótan endurskoðun möguleg án þess að ná til mús."
+        },
+        {
+          "narration": "Smelltu á U til að afnema nýjustu lyklaborðið. Gróðurinn kemur aftur í fyrri stöðu, áherslan færist aftur til þess og stöðubandurinn staðfestir að það er ekki gert."
+        },
+        {
+          "narration": "Hægt er að nota músinn. Með vinstri smelli er flokk 1 tilgreindur ávöxtun í gegnum sömu bakgrunn-spara leið sem notaður er af lyklaborð merkingar."
+        },
+        {
+          "narration": "Með hægri smelli er flokkur 2 tilgreindur. Að smella á sama flokk á þeirri uppskeru aftur hreinsa það, en að smella á hinn flokk breytir það beint."
+        },
+        {
+          "narration": "Flokkartal staðfestir sparaða mannfjölda og sýnir litinn sem notað er fyrir hverja flokka hring. Þessi námskeið hefur tvö dæmi í 1. flokki og tvö í 2. flokki."
+        },
+        {
+          "narration": "Umfjöllun endurskoðunar merkingar eftir flokki, plötu, brunn, uppspretta, og virk að læra umferð. Þessir fjórir dæmi koma frá einum brunn, sem er tilvitað of þéttt fyrir þjálfun og sýnir hvers vegna það er nauðsynlegt að athuga umfjöllunina."
+        },
+        {
+          "narration": "Næsta sparar eftirfarandi vinnu og hlaða næsta fullu síðu. Enter framkvæmir sömu save-and-advance aðgerð án þess að yfirgefa gildið."
+        },
+        {
+          "narration": "Til baka skilar einni síðu en varðveitir hverja viðkomandi athugasemdir. Síða upp og Alt vinstri veita lyklaborð valkostir."
+        },
+        {
+          "narration": "Skip til síðari athugasemdir hoppar á síðuna sem inniheldur síðasta sparað merki, sem gerir það auðvelt að endurreisa langa athugasemdir."
+        },
+        {
+          "narration": "Runds sýnir framhaldandi nákvæmni eftir hvern endurmenntun í virkum nám og metir hvort nýleg merkingu hafi bætt líkan. Ekkert curve birtist fyrr en nægileg fulltrúar merkingar styðja fyrsta umferð."
+        },
+        {
+          "narration": "Retrain passar út úr geymdum merkingum, markar eftirfarandi ræktun og skipar aftur valfrjálsan óvissu röð. Staða línan skráir hringinn, haldin niðurstaða, veikasti flokkur, og stöðvunar leiðbeiningar."
+        },
+        {
+          "narration": "Þjálfunarfræði færir þetta verkefni og athugasemdir til myndatöflunarinnar. Train XG veitir sömu merkingarmerki fyrir mælikvarðaflokkarann. Báðir opna fyrirfram skipulögð stýrikerfi, hvorugur byrjar að æfa sig strax."
+        },
+        {
+          "narration": "Fjarlægur dálkur er markvisst geymdur vegna þess að hann fjarlægir öll merkingar í valinni dálki. Vinsamlegast staðfesta nákvæma nafn spjaldsins áður en þú heldur áfram; þetta námskeið aflýsir viðvöruna og heldur merkingunum."
+        },
+        {
+          "narration": "Fjórar dæmi merkingar eru nú vistað í measurements.db undir spaCR_Tutorial með fyrirbærabraut þeirra og uppruna heilbrigð. Haltu áfram yfir brunn og plötur áður en þú notar þær til að þjálfa módel."
         }
       ]
     },
