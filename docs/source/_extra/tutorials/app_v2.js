@@ -5,12 +5,30 @@ const BASE_CATALOG = window.SPACR_LESSON_CATALOG;
 const DEFAULT_LANGUAGE = "en";
 const DEFAULT_VOICE = "af_heart";
 const PRODUCTION_ROOT = document.documentElement.dataset.productionRoot || "../production";
+// Narration is served separately from the video. All 54 voices are 2,662 MiB,
+// which no GitHub Pages site can carry -- publishing one voice per language
+// was the only way to fit, and it left 27 of the 28 English voices unusable.
+// Pointing narration at external storage removes that constraint entirely:
+// the audio, its timing sidecars, and nothing else resolve against this root.
+// Video, posters and captions stay on Pages, so a lesson still plays if the
+// audio host is unreachable -- it degrades to silent, not to broken.
+// Defaults to PRODUCTION_ROOT, which is the all-local behaviour.
+const AUDIO_ROOT = document.documentElement.dataset.audioRoot || PRODUCTION_ROOT;
+// The 4K silent masters, when they are hosted somewhere with room for them.
+// Same silent cut as the 1440p copy at the same timings, so narration syncs
+// against either without recomputation -- a plain <video src>, which is why
+// this can carry the voice picker where a YouTube embed could not: the player
+// drives the element at an arbitrary playback rate to match the selected
+// narration, and the IFrame API only accepts a fixed set of rates.
+// Empty means no 4K is available and the quality control stays hidden.
+const VIDEO_4K_ROOT = document.documentElement.dataset.video4kRoot || "";
 const STORAGE_KEY = "spacr-tutorial-progress-v2";
 const WATCH_KEY = "spacr-tutorial-watch-v2";
 const LANGUAGE_KEY = "spacr-tutorial-language-v2";
 const VOICE_KEY = "spacr-tutorial-voice-v2";
 const THEME_KEY = "spacr-tutorial-theme-v1";
 const CAPTION_SETTINGS_KEY = "spacr-tutorial-captions-v1";
+const QUALITY_KEY = "spacr-tutorial-quality-v1";
 
 const CAPTION_LANGUAGES = [
   { id: "auto", label: "Same as narration", shortLabel: "Same as narration" },
@@ -74,6 +92,7 @@ const elements = {
   nextTitle: $("#next-title"), complete: $("#complete-button"),
   completeLabel: $("#complete-label"), copyLink: $("#copy-link-button"),
   youtubeLink: $("#youtube-link"),
+  quality: $("#quality-select"), qualityControl: $("#quality-control"),
   continue: $("#continue-button"), progressLabel: $("#progress-label"),
   progressBar: $("#progress-bar"), availableCount: $("#available-count"),
   totalCount: $("#total-count"), sidebar: $("#sidebar"),
@@ -530,20 +549,88 @@ function voiceById(language, id) {
   return language?.voices.find(voice => voice.id === id);
 }
 
+function fourKAvailable() {
+  return Boolean(VIDEO_4K_ROOT);
+}
+
+// The 4K cut is the same silent master at a higher resolution, published
+// under the same per-lesson path, so only the root changes.
+function videoSource(lesson = activeLesson) {
+  if (!lesson) return "";
+  if (fourKAvailable() && elements.quality?.value === "4k") {
+    return `${VIDEO_4K_ROOT}/${lesson.silent}`;
+  }
+  return `${PRODUCTION_ROOT}/${lesson.silent}`;
+}
+
+// Swapping src resets the element, so the position, the rate mapping and the
+// play state all have to be put back by hand. Narration is untouched: both
+// cuts share one timeline, so the audio element keeps playing underneath and
+// only needs re-syncing to the new video clock.
+async function applyQualityChange() {
+  if (!activeLesson) return;
+  try { localStorage.setItem(QUALITY_KEY, elements.quality.value); }
+  catch (error) { /* Storage may be disabled. */ }
+
+  const resumeAt = elements.video.currentTime || 0;
+  const wasPlaying = !elements.video.paused;
+  elements.video.pause();
+  elements.loading.classList.remove("hidden");
+
+  const lessonId = activeLesson.id;
+  elements.video.src = videoSource();
+  elements.video.load();
+  try {
+    await mediaReady(elements.video);
+  } catch (error) {
+    // The 4K host is unreachable or the file is missing. Fall back rather
+    // than leaving the lesson dead, and say so -- a silent downgrade would
+    // look like the quality control simply does nothing.
+    if (elements.quality.value === "4k") {
+      elements.quality.value = "1440p";
+      elements.video.src = videoSource();
+      elements.video.load();
+      try { await mediaReady(elements.video); } catch (again) { return; }
+      showToast("4K is unavailable right now — playing 1440p");
+    } else {
+      return;
+    }
+  }
+  if (activeLesson?.id !== lessonId) return;
+
+  if (resumeAt > 0 && resumeAt < elements.video.duration - 0.25) {
+    elements.video.currentTime = resumeAt;
+  }
+  configureMediaSync();
+  elements.loading.classList.add("hidden");
+  if (wasPlaying) elements.video.play().catch(() => { /* Autoplay may be refused. */ });
+}
+
+function setupQualityControl() {
+  if (!elements.quality || !elements.qualityControl) return;
+  elements.qualityControl.hidden = !fourKAvailable();
+  if (!fourKAvailable()) return;
+  let saved = "";
+  try { saved = localStorage.getItem(QUALITY_KEY) || ""; }
+  catch (error) { /* Storage may be disabled. */ }
+  if (saved === "4k" || saved === "1440p") elements.quality.value = saved;
+  elements.quality.addEventListener("change", applyQualityChange);
+}
+
 function audioSource(lesson = activeLesson) {
   if (!lesson || elements.voice.value === "silent") return "";
-  return `${PRODUCTION_ROOT}/${lesson.id}/audio/${elements.language.value}/${elements.voice.value}.m4a`;
+  return `${AUDIO_ROOT}/${lesson.id}/audio/${elements.language.value}/${elements.voice.value}.m4a`;
 }
 
 function timingSource(lesson = activeLesson) {
   if (elements.voice.value === "silent") {
     return defaultTimingSource(lesson);
   }
-  return `${PRODUCTION_ROOT}/${lesson.id}/audio/${elements.language.value}/${elements.voice.value}.json`;
+  return `${AUDIO_ROOT}/${lesson.id}/audio/${elements.language.value}/${elements.voice.value}.json`;
 }
 
 function defaultTimingSource(lesson = activeLesson) {
-  return `${PRODUCTION_ROOT}/${lesson.id}/audio/${DEFAULT_LANGUAGE}/${DEFAULT_VOICE}.json`;
+  return `${AUDIO_ROOT}/${lesson.id}/audio/${DEFAULT_LANGUAGE}/${DEFAULT_VOICE}.json`;
 }
 
 function populateVoiceSelector(preferredVoice = "") {
@@ -744,7 +831,7 @@ async function loadReadyLesson() {
   const lessonId = activeLesson.id;
   elements.loading.classList.remove("hidden");
   elements.video.poster = `${PRODUCTION_ROOT}/${activeLesson.poster}`;
-  elements.video.src = `${PRODUCTION_ROOT}/${activeLesson.silent}`;
+  elements.video.src = videoSource();
   elements.video.load();
   const saved = watchProgress[activeLesson.id] || 0;
   const expectedNarrationRequest = narrationRequest + 1;
@@ -1364,6 +1451,7 @@ enhanceSelect(elements.language); enhanceSelect(elements.voice); enhanceSelect(e
 setupDetailTabs(); updateCourseProgress(); renderCurriculum();
 
 async function initializeApp() {
+  setupQualityControl();
   const requestedLanguage = elements.language.value;
   const requestedCaptionLanguage = effectiveCaptionLanguage();
   const captionTask = (async () => {
