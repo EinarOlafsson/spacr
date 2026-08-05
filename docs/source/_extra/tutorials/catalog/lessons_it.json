@@ -1948,47 +1948,192 @@
       "id": "15_image_umap",
       "number": 15,
       "slug": "image_umap",
-      "title": "Image UMAP",
+      "title": "Immagine UMAP",
       "series": 1,
       "app_key": "umap",
-      "section": "Results and quality control",
-      "description": "Esplora i quartieri fenotipici inserendo oggetti misurati e mostrando le loro colture di immagine come glifi.",
+      "section": "Results and QC",
+      "description": "Incorporare le caratteristiche di una singola cellula misurate e visualizzare le colture di microscopia reali come glifi su una mappa bidimensionale.",
       "objectives": [
-        "Comprendere quando utilizzare Image UMAP.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Connettere un progetto spaCR misurato a Image UMAP.",
+        "Revista delle caratteristiche, inserimento, raggruppamento, correzione e visualizzazione delle categorie.",
+        "Generare e interpretare una vera incrustazione di grafico di coltivazione e i suoi risultati salvati."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Eseguire Measure con output di database e colture di cellule, o conservare array fusi che Image UMAP può raccogliere su richiesta.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre l'Image UMAP. Esplora i quartieri fenotipici inserendo oggetti misurati e visualizzando le loro colture di immagine come glifi.",
-          "visual": "overview",
+          "narration": "Immagine UMAP riduce le misure ad alta dimensione per oggetto a due coordinate e colloca reali colture microscopiche sulla mappa. La console registra le combinazioni di dati, il preprocessamento, l'incorporazione del progresso, il clustering, i plot e i percorsi di uscita.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre l'Image UMAP. Esplora i quartieri fenotipici inserendo oggetti misurati e visualizzando le loro colture di immagine come glifi."
+          "speech_text": "Immagine UMAP riduce le misure ad alta dimensione per oggetto a due coordinate e colloca reali colture microscopiche sulla mappa. La console registra le combinazioni di dati, il preprocessamento, l'incorporazione del progresso, il clustering, i plot e i percorsi di uscita."
         },
         {
-          "narration": "Apri Image UMAP dalla sezione Results and quality control. Apri UMAP immagine dalla sezione Risultati e controllo qualità. Scegli un database di misurazioni, colture di immagine, set di funzionalità e metadati di raggruppamento.",
-          "visual": "input",
+          "narration": "Il campo di chat accetta comandi locali e domande di flusso di lavoro. Abilitare l'IA a percorrersi attraverso un provider configurato e utilizzare la freccia accanto a essa per scegliere il provider o aprire i suoi controlli.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Apri Image UMAP dalla sezione Results and quality control. Apri UMAP immagine dalla sezione Risultati e controllo qualità. Scegli un database di misurazioni, colture di immagine, set di funzionalità e metadati di raggruppamento."
+          "speech_text": "Il campo di chat accetta comandi locali e domande di flusso di lavoro. Abilitare l'IA a percorrersi attraverso un provider configurato e utilizzare la freccia accanto a essa per scegliere il provider o aprire i suoi controlli."
         },
         {
-          "narration": "Nell'area di configurazione principale, configurare filtraggio, scalazione, vicini, distanza minima, raggruppamento, campionamento e canali di visualizzazione delle immagini.",
-          "visual": "settings",
+          "narration": "I fornitori verificano i client di linea di comando Claude, ChatGPT e Gemini e mostrano i loro comandi di installazione e login. L'autenticazione resta a ciascun fornitore.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Nell'area di configurazione principale, configurare filtraggio, scalazione, vicini, distanza minima, raggruppamento, campionamento e canali di visualizzazione delle immagini."
+          "speech_text": "I fornitori verificano i client di linea di comando Claude, ChatGPT e Gemini e mostrano i loro comandi di installazione e login. L'autenticazione resta a ciascun fornitore."
         },
         {
-          "narration": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile. confrontare diverse inserzioni riproducibili e verificare che i cluster non siano guidati da piastre o da artefatti di immagini.",
-          "visual": "run",
+          "narration": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e le istruzioni del sistema consapevole di spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile. confrontare diverse inserzioni riproducibili e verificare che i cluster non siano guidati da piastre o da artefatti di immagini."
+          "speech_text": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e le istruzioni del sistema consapevole di spàker."
         },
         {
-          "narration": "Quando il flusso di lavoro è terminato, spaCR salva coordinate, etichette di cluster, mappe di immagini e figure di inserimento pronte per la pubblicazione.",
-          "visual": "output",
+          "narration": "La fonte è un progetto di tutorial misurato contenente 455 colture cellulari collegate al database. Questa corsa mostra 250 oggetti e si unisce alle tabelle di caratteristiche cellulare, citoplasma, nucleo e patogeno.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "La fonte è un progetto di tutorial misurato contenente 455 colture cellulari collegate al database. Questa corsa mostra 250 oggetti e si unisce alle tabelle di caratteristiche cellulare, citoplasma, nucleo e patogeno."
+        },
+        {
+          "narration": "Gli elementi essenziali mostrano la fonte, le tabelle di misura, il metodo di riduzione, la copertura della riga e la scelta del colore primario necessario per una prima mappa.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Gli elementi essenziali mostrano la fonte, le tabelle di misura, il metodo di riduzione, la copertura della riga e la scelta del colore primario necessario per una prima mappa."
+        },
+        {
+          "narration": "Modificato filtra il pannello per le deviazioni intenzionali dai default, come il quartiere più piccolo, la copertura pratica delle righe, il conteggio dei glifi, l'opacità dello schermo e le cifre salvate.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modificato filtra il pannello per le deviazioni intenzionali dai default, come il quartiere più piccolo, la copertura pratica delle righe, il conteggio dei glifi, l'opacità dello schermo e le cifre salvate."
+        },
+        {
+          "narration": "Tutte le impostazioni rivelano otto categorie senza variare i valori: percorsi, misurazioni, esclusioni di piastre, inserimento, selezione del plot, runtime, correzione di lotto e visualizzazione UMAP.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Tutte le impostazioni rivelano otto categorie senza variare i valori: percorsi, misurazioni, esclusioni di piastre, inserimento, selezione del plot, runtime, correzione di lotto e visualizzazione UMAP."
+        },
+        {
+          "narration": "Recipes salva l'intera configurazione Image UMAP sotto un nome, la riaplica ad un altro progetto o importa ed esporta un file di impostazioni.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes salva l'intera configurazione Image UMAP sotto un nome, la riaplica ad un altro progetto o importa ed esporta un file di impostazioni."
+        },
+        {
+          "narration": "Inviare istantanee remote delle impostazioni risolte e trasferire l'attività Image UMAP allo spazio di lavoro Jobs Distribuiti.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Inviare istantanee remote delle impostazioni risolte e trasferire l'attività Image UMAP allo spazio di lavoro Jobs Distribuiti."
+        },
+        {
+          "narration": "Distributed Jobs mappa i percorsi del progetto e le risorse di calcolo verso una workstation remota, un cluster Slurm o un comando configurato, quindi inviano e monitorano la stessa esecuzione di inserimento.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs mappa i percorsi del progetto e le risorse di calcolo verso una workstation remota, un cluster Slurm o un comando configurato, quindi inviano e monitorano la stessa esecuzione di inserimento."
+        },
+        {
+          "narration": "Paths seleziona il progetto misurato. Immagine UMAP trova measurements.db e immagini di raccolto esistenti o array fusi sotto quella fonte.",
+          "visual": "12_category_01_paths",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Paths seleziona il progetto misurato. Immagine UMAP trova measurements dot db e immagini di raccolto esistenti o array fusi sotto quella fonte."
+        },
+        {
+          "narration": "Le misurazioni scelgono tabelle di oggetti collegate, un filtro di caratteristiche basato sul canale, esclusioni esplicite e rimozione delle caratteristiche correlate. Queste scelte determinano la geometria rappresentata dalla mappa.",
+          "visual": "12_category_02_measurements",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le misurazioni scelgono tabelle di oggetti collegate, un filtro di caratteristiche basato sul canale, esclusioni esplicite e rimozione delle caratteristiche correlate. Queste scelte determinano la geometria rappresentata dalla mappa."
+        },
+        {
+          "narration": "Layout e Controlli della scheda fornisce regole di esclusione delle righe per pozzi falliti, controlli indesiderati o altri valori di metadati che non dovrebbero essere inseriti in questa inserzione.",
+          "visual": "12_category_03_plate_layout_controls",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Layout e Controlli della scheda fornisce regole di esclusione delle righe per pozzi falliti, controlli indesiderati o altri valori di metadati che non dovrebbero essere inseriti in questa inserzione."
+        },
+        {
+          "narration": "Embedding and Clustering seleziona UMAP o t-SNE, comportamento di quartiere e distanza, trasformazione opzionale del registro, compartimento visualizzato, metodo di clustering, gestione del rumore e analisi del cluster.",
+          "visual": "12_category_04_embedding_clustering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Embedding and Clustering seleziona UMAP o t-SNE, comportamento di quartiere e distanza, trasformazione opzionale del registro, compartimento visualizzato, metodo di clustering, gestione del rumore e analisi del cluster."
+        },
+        {
+          "narration": "Il plot fissa le righe massime campionate e una colonna di metadati opzionale utilizzata per colorare i punti. Un limite di riga è un limite, quindi i set di dati più piccoli rimangono validi.",
+          "visual": "12_category_05_plot",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Il plot fissa le righe massime campionate e una colonna di metadati opzionale utilizzata per colorare i punti. Un limite di riga è un limite, quindi i set di dati più piccoli rimangono validi."
+        },
+        {
+          "narration": "Advanced sceglie le colture PNG o le colture su richiesta da array fuse, oltre al numero di lavoratori e alla segnalazione verbo. Auto seleziona una fonte di raccolto disponibile per la maggior parte dei progetti.",
+          "visual": "12_category_06_advanced",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Advanced sceglie le colture PNG o le colture su richiesta da array fuse, oltre al numero di lavoratori e alla segnalazione verbo. Auto seleziona una fonte di raccolto disponibile per la maggior parte dei progetti."
+        },
+        {
+          "narration": "Plate and Batch Correction può centrare o scalare gli effetti della piastra, utilizzare controlli di riferimento o applicare ComBat quando è definita la sua covariate biologica. Questo tutorial di una piastra lascia fuori la correzione.",
+          "visual": "12_category_07_plate_batch_correction",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Plate and Batch Correction può centrare o scalare gli effetti della piastra, utilizzare controlli di riferimento o applicare ComBat quando è definita la sua covariate biologica. Questo tutorial di una piastra lascia fuori la correzione."
+        },
+        {
+          "narration": "UMAP Display controlla lo stile di punto e di contorno, le proporzioni della tela, lo zoom dei raccolti, il conteggio dei glifi, le griglie di cluster, lo sfondo e il risparmio di figure senza modificare le coordinate inserite.",
+          "visual": "12_category_08_umap_display",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "UMAP Display controlla lo stile di punto e di contorno, le proporzioni della tela, lo zoom dei raccolti, il conteggio dei glifi, le griglie di cluster, lo sfondo e il risparmio di figure senza modificare le coordinate inserite."
+        },
+        {
+          "narration": "Questo esempio utilizza UMAP con 15 vicini, distanza minima 0.1, distanza euclidiana, e DBSCAN con epsilon 0.85 e cinque campioni minimi. Le statistiche di cluster restano fuori perché il piccolo sottogruppo forma un gruppo.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "Questo esempio utilizza UMAP con 15 vicini, distanza minima 0.1, distanza euclidiana, e DBSCAN con epsilon 0.85 e cinque campioni minimi. Le statistiche di cluster restano fuori perché il piccolo sottogruppo forma un gruppo."
+        },
+        {
+          "narration": "Run convalida il database del progetto e le colture, unisce le tabelle di misura, filtra le caratteristiche numeriche, campiona le righe, si adatta al riduttore e ai cluster, rende le cifre e scrive i record dei risultati allineati. STOP richiede un'interruzione sicura.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run convalida il database del progetto e le colture, unisce le tabelle di misura, filtra le caratteristiche numeriche, campiona le righe, si adatta al riduttore e ai cluster, rende le cifre e scrive i record dei risultati allineati. STOP richiede un'interruzione sicura."
+        },
+        {
+          "narration": "Durante l'installazione, la console segnala la selezione della fonte di raccolta, la rimozione di colonne inutilizzabili, la costruzione del vicino più vicino, 500 epoche di ottimizzazione e la forma finale di inserimento 250x2.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Durante l'installazione, la console segnala la selezione della fonte di raccolta, la rimozione di colonne inutilizzabili, la costruzione del vicino più vicino, 500 epoche di ottimizzazione e la forma finale di inserimento 250x2."
+        },
+        {
+          "narration": "La galleria completata mostra la mappa glyph microscopica e la griglia delle colture cluster. Il progetto riceve anche embedding_results.csv, embedding e file PDF di griglia, impostazioni salvate, un manifesto di riproducibilità e una macro riavviabile.",
+          "visual": "23_output",
+          "focus_key": "figures",
           "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è terminato, spàker salva coordinate, etichette di cluster, mappe di immagini e figure di inserimento pronte per la pubblicazione."
+          "speech_text": "La galleria completata mostra la mappa glyph microscopica e la griglia delle colture cluster. Il progetto riceve anche embedding_results.csv, embedding e file PDF di griglia, impostazioni salvate, un manifesto di riproducibilità e una macro riavviabile."
         }
       ]
     },

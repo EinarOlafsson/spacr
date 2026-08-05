@@ -758,19 +758,73 @@
       "id": "15_image_umap",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Image UMAP. Rannsókna kynslóðahverfi með því að setja inn mæld hlutir og sýna mynd afgróður þeirra sem glyphs."
+          "narration": "Mynd UMAP minnkar hávíddar mælingar á hlut til tveggja samræminga og setur raunverulegar mikroskópgróður á kortið. Konsóllinn skráir gagnasamsetningar, fyrirvinnslu, innbyggingu framfarir, hópun, plots og útgáfu leiðir."
         },
         {
-          "narration": "Opnaðu UMAP myndina í kaflanum Niðurstöður og gæðaeftirlit. Veldu mælingar gagnagrunn, mynd afurðir, eiginleika sett og hópun metadata."
+          "narration": "Spjall sviðið samþykkir staðbundnar skipanir og vinnuflóðspurnir. Leyfa AI að leiða í gegnum konfigureraðan þjónustuaðila og nota piltinn við hliðina til að velja þjónustuaðila eða opna stjórnina."
         },
         {
-          "narration": "Í aðalmyndasvæðinu skaltu stillta sía, skala, nágranna, lágmarksfjarlægð, klústrun, sýnatöku og myndefnasýning."
+          "narration": "Greiðsluaðila kanna Claude, ChatGPT og Gemini skipunarlínu viðskiptavinir og sýnir uppsetningu þeirra og innritun skipanir. Staðfesting er eftir hjá hverjum veitanda."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. samanburður nokkurra endurnýjanlegra innbygginga og staðfesting þess að hópur séu ekki rekin af plötum eða myndatökugerðum."
+          "narration": "AI stillingar stjórnar svörun dýpt, sjálfvirkar villur útskýringar, valfrjálsan GitHub vandamál skýrslu, innritun og spaCR-vitandi kerfis leiðbeiningar."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið, geymir spaCR samhæfingar, klústermerki, myndamerti og innbyggingar tölur tilbúnar til birtingar."
+          "narration": "Heimildin er mælt kennsluverkefni sem inniheldur 455 gagnagrunn tengd frumur. Þessi run sýnir 250 hlutir og sameinar frumur, sítoplasma, kjarn og sjúkdómsfrumur."
+        },
+        {
+          "narration": "Alþýðilegur sýnir uppspretta, mælingarborgina, niðurskurðarhátt, röðakapp og fyrstu litun val sem þarf til fyrsta kortsins."
+        },
+        {
+          "narration": "Breyttar sniðgefningar greinarnar til ásettu fjarlægð frá sjálfgefnum, svo sem minni nágrenni, raunhæf röðskapur, glyph tal, sýning óþéttni og sparað tölur."
+        },
+        {
+          "narration": "Öll stillingar sýna átta flokka án þess að gildi breytist: leiðir, mælingar, plötu útiloka, innbygging, plott val, hlauptími, flokka leiðrétting og UMAP sýning."
+        },
+        {
+          "narration": "Recipes geymir alla mynd UMAP stillingu undir nafni, beitir henni aftur í annað verkefni, eða innflutningur og útflutningur stillingar skrá."
+        },
+        {
+          "narration": "Sendaðu fjarlæg myndir af losnum stillingum og færðu Image UMAP-starfið í vinnusvæðið Dreifð störf."
+        },
+        {
+          "narration": "Distributed Jobs kortar verkefnisbraut og reikna auðlindir til fjarstæðrar vinnustaðar, Slurm-hópa eða skipulagsskrá, sendir síðan inn og fylgist með sama innbyggingu."
+        },
+        {
+          "narration": "Paths velur mæld verkefni. Mynd UMAP leitar measurements.db og annaðhvort til staðar ágróður myndir eða sameinuð röð undir þeim heimild."
+        },
+        {
+          "narration": "Mælingar velur tengd hlutborðsborði, kanal-based feature filter, augljósir útiloka og tengd eiginleika fjarlægingu. Þessar valkostir ákvarða geometríuna sem kortinu stendur fyrir."
+        },
+        {
+          "narration": "Plate Layout and Controls veitir reglur um útskráning á röðum fyrir misheppnuð brunn, óæskilegar stjórnir eða önnur metadataverðmæti sem ekki eiga að koma inn í þetta innbyggingu."
+        },
+        {
+          "narration": "Embedding and Clustering velur UMAP eða t-SNE, hverfi og fjarlægð hegðun, valfrjáls log umbreyting, sýnt þver, hópun aðferð, hljóð meðferð og hóp greiningu."
+        },
+        {
+          "narration": "Fylgi setur hámarkssöfn sem teknar eru í sýningu og valfrjálsan metadata dálk sem notuð er til að lita punktin. Lími í röð er takmörk, þannig að minni gagnasettir eru gildandi."
+        },
+        {
+          "narration": "Advanced velur PNG rætur eða á eftirspurn rætur úr sameinuðum röðum, auk starfsmanna tal og verbose skýrslur. Auto velur fyrir flest verkefni aðgengilegan afgróður."
+        },
+        {
+          "narration": "Plate and Batch Correction getur miðað eða skalað plötuáhrif, notað viðmiðunarstjórn eða beitt ComBat þegar líffræðilegur sambreytni þess er skilgreind. Þessi einn-tölva námskeið skilur úr leiðréttingu."
+        },
+        {
+          "narration": "UMAP-skjástjórn stjórnar stili á sviði og útliti, hlutföllum linsinsins, stækkunarstækkun, glíftal, klústergrid, bakgrunn og tölusparnað án þess að breyta settum samræmdum."
+        },
+        {
+          "narration": "Í þessu dæmi er notað UMAP með 15 nágrannar, lágmarks fjarlægð 0,1, Euclidean fjarlægð og DBSCAN með epsilon 0,85 og fimm lágmarks sýnum. Stafræðin í hópnum eru ekki til staðar vegna þess að litli undirhópinn myndar eina hóp."
+        },
+        {
+          "narration": "Rennur staðfestir verkefnis gagnagrunn og uppskeru, tekur við mælingarborðum, filtrar tölulínur, sýnishraunir, passar niðurstöður og klúster, sýnir tölur og skrifar samræmdar niðurstöður. Hættu fyrirspurnum um öruggan truflun."
+        },
+        {
+          "narration": "Á meðan á mótun stendur skýrir konsólinn um úrval úrræða, fjarlægð ónýjanlegra stólna, byggingu í næsta nágrenni, 500 hagræðingu tímabil og síðustu 250-by-two innbyggingarformi."
+        },
+        {
+          "narration": "Í fullbúðu galleríunni er sýnt sýnishornmyndin og grillinn. Verkefnið fær einnig embedding_results.csv, embedding og grid PDFs, sparað stillingar, endurnýjanlegt manifest og endurtekjanlegt makró."
         }
       ]
     },

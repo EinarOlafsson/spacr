@@ -1966,44 +1966,189 @@
       "title": "Image UMAP",
       "series": 1,
       "app_key": "umap",
-      "section": "Results and quality control",
-      "description": "Explore phenotype neighborhoods by embedding measured objects and displaying their image crops as glyphs.",
+      "section": "Results and QC",
+      "description": "Embed measured single-cell features and display real microscopy crops as glyphs on a two-dimensional map.",
       "objectives": [
-        "Understand when to use Image UMAP.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Connect a measured spaCR project to Image UMAP.",
+        "Review feature, embedding, clustering, correction, and display categories.",
+        "Generate and interpret a real crop-glyph embedding and its saved results."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Run Measure with database output and cell crops, or retain merged arrays that Image UMAP can crop on demand.",
       "scenes": [
         {
-          "narration": "This tutorial covers Image UMAP. Explore phenotype neighborhoods by embedding measured objects and displaying their image crops as glyphs.",
-          "visual": "overview",
+          "narration": "Image UMAP reduces high-dimensional per-object measurements to two coordinates and places real microscopy crops on the map. The console records data joins, preprocessing, embedding progress, clustering, plots, and output paths.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Image UMAP. Explore phenotype neighborhoods by embedding measured objects and displaying their image crops as glyphs."
+          "speech_text": "Image U Map reduces high dimensional per object measurements to two coordinates and places real microscopy crops on the map. The console records data joins, preprocessing, embedding progress, clustering, plots, and output paths."
         },
         {
-          "narration": "Open Image UMAP from the Results and quality control section. Choose a measurements database, image crops, feature set, and grouping metadata.",
-          "visual": "input",
+          "narration": "The chat field accepts local commands and workflow questions. Enable AI to route through a configured provider, and use the arrow beside it to choose the provider or open its controls.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Open Image UMAP from the Results and quality control section. Choose a measurements database, image crops, feature set, and grouping metadata."
+          "speech_text": "The chat field accepts local commands and workflow questions. Enable A I to route through a configured provider, and use the arrow beside it to choose the provider or open its controls."
         },
         {
-          "narration": "In the main configuration area, configure filtering, scaling, neighbors, minimum distance, clustering, sampling, and image display channels.",
-          "visual": "settings",
+          "narration": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and shows their install and login commands. Authentication remains with each provider.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, configure filtering, scaling, neighbors, minimum distance, clustering, sampling, and image display channels."
+          "speech_text": "Providers checks the Claude, Chat G P T, and Gemini command line clients and shows their install and login commands. Authentication remains with each provider."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. compare several reproducible embeddings and verify that clusters are not driven by plate or imaging artifacts.",
-          "visual": "run",
+          "narration": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system instructions.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. compare several reproducible embeddings and verify that clusters are not driven by plate or imaging artifacts."
+          "speech_text": "A I Settings controls response depth, automatic error explanations, optional Git Hub issue reporting, sign in, and the spacer aware system instructions."
         },
         {
-          "narration": "When the workflow finishes, spaCR saves coordinates, cluster labels, image maps, and publication-ready embedding figures.",
-          "visual": "output",
+          "narration": "The source is a measured tutorial project containing 455 database-linked cell crops. This run samples 250 objects and joins cell, cytoplasm, nucleus, and pathogen feature tables.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "The source is a measured tutorial project containing four hundred fifty five database linked cell crops. This run samples two hundred fifty objects and joins cell, cytoplasm, nucleus, and pathogen feature tables."
+        },
+        {
+          "narration": "Essentials shows the source, measurement tables, reduction method, row cap, and primary coloring choice needed for a first map.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials shows the source, measurement tables, reduction method, row cap, and primary coloring choice needed for a first map."
+        },
+        {
+          "narration": "Modified filters the panel to intentional departures from defaults, such as the smaller neighborhood, practical row cap, glyph count, display opacity, and saved figures.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modified filters the panel to intentional departures from defaults, such as the smaller neighborhood, practical row cap, glyph count, display opacity, and saved figures."
+        },
+        {
+          "narration": "All settings reveals eight categories without changing values: paths, measurements, plate exclusions, embedding, plot selection, runtime, batch correction, and UMAP display.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "All settings reveals eight categories without changing values: paths, measurements, plate exclusions, embedding, plot selection, runtime, batch correction, and U Map display."
+        },
+        {
+          "narration": "Recipes saves the complete Image UMAP configuration under a name, reapplies it to another project, or imports and exports a settings file.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes saves the complete Image U Map configuration under a name, reapplies it to another project, or imports and exports a settings file."
+        },
+        {
+          "narration": "Submit remote snapshots the resolved settings and transfers the Image UMAP job to the Distributed Jobs workspace.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Submit remote snapshots the resolved settings and transfers the Image U Map job to the Distributed Jobs workspace."
+        },
+        {
+          "narration": "Distributed Jobs maps project paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same embedding run.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs maps project paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same embedding run."
+        },
+        {
+          "narration": "Paths selects the measured project. Image UMAP locates measurements.db and either existing crop images or merged arrays beneath that source.",
+          "visual": "12_category_01_paths",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Paths selects the measured project. Image U Map locates measurements D B and either existing crop images or merged arrays beneath that source."
+        },
+        {
+          "narration": "Measurements chooses joined object tables, a channel-based feature filter, explicit exclusions, and correlated-feature removal. These choices determine the geometry represented by the map.",
+          "visual": "12_category_02_measurements",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Measurements chooses joined object tables, a channel based feature filter, explicit exclusions, and correlated feature removal. These choices determine the geometry represented by the map."
+        },
+        {
+          "narration": "Plate Layout and Controls provides row-exclusion rules for failed wells, unwanted controls, or other metadata values that should not enter this embedding.",
+          "visual": "12_category_03_plate_layout_controls",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Plate Layout and Controls provides row exclusion rules for failed wells, unwanted controls, or other metadata values that should not enter this embedding."
+        },
+        {
+          "narration": "Embedding and Clustering selects UMAP or t-SNE, neighborhood and distance behavior, optional log transformation, displayed compartment, clustering method, noise handling, and cluster analysis.",
+          "visual": "12_category_04_embedding_clustering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Embedding and Clustering selects U Map or T S N E, neighborhood and distance behavior, optional log transformation, displayed compartment, clustering method, noise handling, and cluster analysis."
+        },
+        {
+          "narration": "Plot sets the maximum sampled rows and an optional metadata column used to color points. A row limit is a cap, so smaller datasets remain valid.",
+          "visual": "12_category_05_plot",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Plot sets the maximum sampled rows and an optional metadata column used to color points. A row limit is a cap, so smaller datasets remain valid."
+        },
+        {
+          "narration": "Advanced chooses PNG crops or on-demand crops from merged arrays, plus worker count and verbose reporting. Auto selects an available crop source for most projects.",
+          "visual": "12_category_06_advanced",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Advanced chooses P N G crops or on demand crops from merged arrays, plus worker count and verbose reporting. Auto selects an available crop source for most projects."
+        },
+        {
+          "narration": "Plate and Batch Correction can center or scale plate effects, use reference controls, or apply ComBat when its biological covariate is defined. This one-plate tutorial leaves correction off.",
+          "visual": "12_category_07_plate_batch_correction",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Plate and Batch Correction can center or scale plate effects, use reference controls, or apply Com Bat when its biological covariate is defined. This one plate tutorial leaves correction off."
+        },
+        {
+          "narration": "UMAP Display controls point and outline styling, canvas proportions, crop zoom, glyph count, cluster grids, background, and figure saving without changing the fitted coordinates.",
+          "visual": "12_category_08_umap_display",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "U Map Display controls point and outline styling, canvas proportions, crop zoom, glyph count, cluster grids, background, and figure saving without changing the fitted coordinates."
+        },
+        {
+          "narration": "This example uses UMAP with 15 neighbors, minimum distance 0.1, Euclidean distance, and DBSCAN with epsilon 0.85 and five minimum samples. Cluster statistics stay off because the small subset forms one group.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "This example uses U Map with fifteen neighbors, minimum distance zero point one, Euclidean distance, and D B Scan with epsilon zero point eight five and five minimum samples. Cluster statistics stay off because the small subset forms one group."
+        },
+        {
+          "narration": "Run validates the project database and crops, joins measurement tables, filters numeric features, samples rows, fits the reducer and clusters, renders figures, and writes aligned result records. Stop requests a safe interruption.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run validates the project database and crops, joins measurement tables, filters numeric features, samples rows, fits the reducer and clusters, renders figures, and writes aligned result records. Stop requests a safe interruption."
+        },
+        {
+          "narration": "During fitting, the console reports crop-source selection, removed unusable columns, nearest-neighbor construction, 500 optimization epochs, and the final 250-by-two embedding shape.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "During fitting, the console reports crop source selection, removed unusable columns, nearest neighbor construction, five hundred optimization epochs, and the final two hundred fifty by two embedding shape."
+        },
+        {
+          "narration": "The completed gallery shows the microscopy glyph map and cluster crop grid. The project also receives embedding_results.csv, embedding and grid PDFs, saved settings, a reproducibility manifest, and a rerunnable macro.",
+          "visual": "23_output",
+          "focus_key": "figures",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spacer saves coordinates, cluster labels, image maps, and publication-ready embedding figures."
+          "speech_text": "The completed gallery shows the microscopy glyph map and cluster crop grid. The project also receives embedding results C S V, embedding and grid P D F files, saved settings, a reproducibility manifest, and a rerunnable macro."
         }
       ]
     },

@@ -1948,47 +1948,192 @@
       "id": "15_image_umap",
       "number": 15,
       "slug": "image_umap",
-      "title": "Image UMAP",
+      "title": "图片 UMAP",
       "series": 1,
       "app_key": "umap",
-      "section": "Results and quality control",
-      "description": "通过嵌入测量物体并显示它们的图像作物作为字体来探索现象型社区.",
+      "section": "Results and QC",
+      "description": "嵌入测量单细胞特征,并在二维地图上显示真正的显微镜作物.",
       "objectives": [
-        "了解使用 Image UMAP 的时间.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "将测量的spaCR项目连接到图像UMAP.",
+        "检查功能,嵌入,集群,纠正和显示类别.",
+        "创建和解释一个真正的作物格利法嵌入及其保存的结果."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "运行数据库输出和细胞作物的测量,或者保留图像UMAP可以根据需求进行结合的数组.",
       "scenes": [
         {
-          "narration": "通过嵌入测量物体并显示它们的图像作物作为字体,探索现象型社区.",
-          "visual": "overview",
+          "narration": "图像UMAP将每个对象的高维度测量降至两个坐标,并将真正的显微镜作物放在地图上. 控制台记录数据合并,预处理,嵌入进步,集群,图片和输出路径.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "通过嵌入测量物体并显示它们的图像作物作为字体,探索现象型社区."
+          "speech_text": "图像UMAP将每个对象的高维度测量降至两个坐标,并将真正的显微镜作物放在地图上. 控制台记录数据合并,预处理,嵌入进步,集群,图片和输出路径."
         },
         {
-          "narration": "从 Results and quality control 部分打开 Image UMAP。 选择测量数据库,图像作物,功能集和组合元数据.",
-          "visual": "input",
+          "narration": "聊天场接受本地命令和工作流问题. 让人工智能通过配置的供应商进行路由,并使用其旁边的箭头来选择供应商或打开其控制.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "从 Results and quality control 部分打开 Image UMAP。 选择测量数据库,图像作物,功能集和组合元数据."
+          "speech_text": "聊天场接受本地命令和工作流问题. 让人工智能通过配置的供应商进行路由,并使用其旁边的箭头来选择供应商或打开其控制."
         },
         {
-          "narration": "在主配置区域,配置过,扩展,邻居,最小距离,集群,样本取和图像显示道.",
-          "visual": "settings",
+          "narration": "提供商检查了Claude,ChatGPT和Gemini命令行客户端,并显示了他们的安装和登录命令. 每个提供商都必须进行验证.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在主配置区域,配置过,扩展,邻居,最小距离,集群,样本取和图像显示道."
+          "speech_text": "提供商检查了Claude,ChatGPT和Gemini命令行客户端,并显示了他们的安装和登录命令. 每个提供商都必须进行验证."
         },
         {
-          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.比较几个可复制的嵌入式,并检查集群不是由板块或成像器件驱动的.",
-          "visual": "run",
+          "narration": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和spaCR知情系统说明.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.比较几个可复制的嵌入式,并检查集群不是由板块或成像器件驱动的."
+          "speech_text": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和斯佩克尔知情系统说明."
         },
         {
-          "narration": "当工作流程完成时, spaCR 保存坐标,集群标签,图像地图和准备发布的嵌入图像.",
-          "visual": "output",
+          "narration": "来源是一个包含455种数据库链接的细胞作物的测量教程项目. 这种运行采用250个物体的样本,并将细胞,细胞瘤,核和病原体特征表相结合.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "来源是一个包含455种数据库链接的细胞作物的测量教程项目. 这种运行采用250个物体的样本,并将细胞,细胞瘤,核和病原体特征表相结合."
+        },
+        {
+          "narration": "基本数据显示了为第一张地图所需的来源,测量表,减少方法,行盖和主要颜色选择.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "基本数据显示了为第一张地图所需的来源,测量表,减少方法,行盖和主要颜色选择."
+        },
+        {
+          "narration": "修改过器将面板故意偏离默认,例如较小的社区,实际的行盖,字体数量,显示模糊性和保存的数字.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "修改过器将面板故意偏离默认,例如较小的社区,实际的行盖,字体数量,显示模糊性和保存的数字."
+        },
+        {
+          "narration": "所有设置都显示了8个类别,没有变化的值:路径,测量,板块排斥,嵌入,图片选择,运行时间,批量纠正和UMAP显示.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "所有设置都显示了8个类别,没有变化的值:路径,测量,板块排斥,嵌入,图片选择,运行时间,批量纠正和UMAP显示."
+        },
+        {
+          "narration": "配方将完全的图像UMAP配置存储在一个名称下,重新应用到另一个项目中,或者进口和出口设置文件.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "配方将完全的图像UMAP配置存储在一个名称下,重新应用到另一个项目中,或者进口和出口设置文件."
+        },
+        {
+          "narration": "将解决设置的远程快照提交,并将图像UMAP工作转移到分布式工作工作空间.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "将解决设置的远程快照提交,并将图像UMAP工作转移到分布式工作工作空间."
+        },
+        {
+          "narration": "分布式工作将项目路径和计算资源映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的嵌入运行.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "分布式工作将项目路径和计算资源映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的嵌入运行."
+        },
+        {
+          "narration": "路径选择测量项目. 图像UMAP在此源下找到measurements.db和现有作物图像或合并的阵列.",
+          "visual": "12_category_01_paths",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "路径选择测量项目. 图像UMAP在此源下找到measurements dot db和现有作物图像或合并的阵列."
+        },
+        {
+          "narration": "测量选择连接的对象表,基于道的特征过器,明确排除和相关特征的删除. 这些选择决定了地图所代表的几何.",
+          "visual": "12_category_02_measurements",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "测量选择连接的对象表,基于道的特征过器,明确排除和相关特征的删除. 这些选择决定了地图所代表的几何."
+        },
+        {
+          "narration": "板布局和控制规则提供了不合格的井,不必要的控制或其他不应进入该嵌入的元数据值的排列排除规则.",
+          "visual": "12_category_03_plate_layout_controls",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "板布局和控制规则提供了不合格的井,不必要的控制或其他不应进入该嵌入的元数据值的排列排除规则."
+        },
+        {
+          "narration": "嵌入和集群选择UMAP或t-SNE,邻居和距离行为,可选的日志转换,显示区间,集群方法,噪音处理和集群分析.",
+          "visual": "12_category_04_embedding_clustering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "嵌入和集群选择UMAP或t-SNE,邻居和距离行为,可选的日志转换,显示区间,集群方法,噪音处理和集群分析."
+        },
+        {
+          "narration": "图表设置了最大的采样行列和可选的元数据列,用于彩色点. 一个行限量是一个限量,因此较小的数据集仍然有效.",
+          "visual": "12_category_05_plot",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "图表设置了最大的采样行列和可选的元数据列,用于彩色点. 一个行限量是一个限量,因此较小的数据集仍然有效."
+        },
+        {
+          "narration": "高级选用 PNG 作物或按需作物从合并的阵列中,加上员工数量和语文报告. 机器人为大多数项目选择可用的作物来源.",
+          "visual": "12_category_06_advanced",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "高级选用 PNG 作物或按需作物从合并的阵列中,加上员工数量和语文报告. 机器人为大多数项目选择可用的作物来源."
+        },
+        {
+          "narration": "片和批量纠正可以集中或扩展片效应,使用参考控制,或在其生物变量定义时应用ComBat. 这个单盘教程没有纠正.",
+          "visual": "12_category_07_plate_batch_correction",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "片和批量纠正可以集中或扩展片效应,使用参考控制,或在其生物变量定义时应用ComBat. 这个单盘教程没有纠正."
+        },
+        {
+          "narration": "UMAP显示器控制点和轮造型,帆布比例,作物放大,图形数量,集群网格,背景和数字节省,而不改变安装坐标.",
+          "visual": "12_category_08_umap_display",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "UMAP显示器控制点和轮造型,帆布比例,作物放大,图形数量,集群网格,背景和数字节省,而不改变安装坐标."
+        },
+        {
+          "narration": "这个例子使用UMAP与15个邻居,最小距离为0.1,Euclidean距离,以及DBSCAN与epsilon0.85和五个最小样本. 集群统计不存在,因为小子集组成一个集群.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "这个例子使用UMAP与15个邻居,最小距离为0.1,Euclidean距离,以及DBSCAN与epsilon0.85和五个最小样本. 集群统计不存在,因为小子集组成一个集群."
+        },
+        {
+          "narration": "运行验证了项目数据库和作物,加入了测量表,过了数值特征,样本行,适应了减小器和集群,呈现了数字,并编写了一致的结果记录. 停止请求安全的中断.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "运行验证了项目数据库和作物,加入了测量表,过了数值特征,样本行,适应了减小器和集群,呈现了数字,并编写了一致的结果记录. 停止请求安全的中断."
+        },
+        {
+          "narration": "在安装过程中,控制台报告了作物来源的选择,删除了无法使用的列,最近的邻居建筑,500个优化时代,最后的250x2嵌入形状.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "在安装过程中,控制台报告了作物来源的选择,删除了无法使用的列,最近的邻居建筑,500个优化时代,最后的250x2嵌入形状."
+        },
+        {
+          "narration": "完成的画廊显示了显微图和集群作物网格. 该项目还收到embedding_results.csv,嵌入和格式PDF文件,保存的设置,可复制性宣言和可重启的宏.",
+          "visual": "23_output",
+          "focus_key": "figures",
           "hold_after": 0.65,
-          "speech_text": "当工作流程完成时, 斯佩克尔 保存坐标,集群标签,图像地图和准备发布的嵌入图像."
+          "speech_text": "完成的画廊显示了显微图和集群作物网格. 该项目还收到embedding_results.csv,嵌入和格式PDF文件,保存的设置,可复制性宣言和可重启的宏."
         }
       ]
     },
