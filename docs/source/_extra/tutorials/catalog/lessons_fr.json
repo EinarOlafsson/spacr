@@ -3366,48 +3366,177 @@
     {
       "id": "24_plaque",
       "number": 24,
-      "slug": "plaque",
-      "title": "Plaque assay",
+      "slug": "plaque-assay",
+      "title": "Plaque Assay",
       "series": 3,
       "app_key": "analyze_plaques",
       "section": "Toxoplasma assays",
-      "description": "Mesurer la formation de plaque et les changements dépendants de l'état à partir d'images de plaque.",
+      "description": "Segmenter ou réutiliser des masques de plaque, quantifier le nombre de plaques et la superficie par image, et écrire des tableaux de résumé, de statistiques et de détails d'objets dans une base de données de résultats.",
       "objectives": [
-        "Comprendre quand utiliser l'analyse de plaque.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Choisissez entre segmenter les champs de plaque et réutiliser les masques étiquetés existants.",
+        "Examiner les six catégories de paramètres sans confondre les seuils du modèle avec la mesure en aval.",
+        "Exécutez la quantification de la plaque et vérifiez les tables SQLite et le nombre par image qui en résultent."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Préparez des images d'essai de plaque TIFF; pour la réutilisation du masque, placez des masques TIFF étiquetés avec le même nom dans le sous-dossier des masques.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre l'analyse des plaques. Mesurer la formation des plaques et les changements dépendants de la condition à partir des images de plaques.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre l'analyse des plaques. Mesurer la formation des plaques et les changements dépendants de la condition à partir des images de plaques."
-        },
-        {
-          "narration": "Ouvrez Plaque assay dans la section Toxoplasma assays. Ouvrez l'analyse de plaque dans la section des tests Toxoplasma.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez Plaque assay dans la section Toxoplasma assays. Ouvrez l'analyse de plaque dans la section des tests Toxoplasma."
-        },
-        {
-          "narration": "Dans la zone de configuration principale, configurer la correction de fond, le seuil, le nettoyage des objets, les filtres de taille de plaque et le regroupement des puits.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, configurer la correction de fond, le seuil, le nettoyage des objets, les filtres de taille de plaque et le regroupement des puits."
-        },
-        {
-          "narration": "Avant la pleine opération, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Avant la pleine opération, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
-        },
-        {
-          "narration": "Lorsque le flux de travail est terminé, spaCR rapporte le nombre de plaques, les zones, les résumés, les statistiques et les chiffres du contrôle de la qualité.",
-          "visual": "output",
+          "narration": "Plaque Assay détecte et quantifie les régions de cellules hôtes dégagées. Les paramètres sont à gauche; la console enregistre les paramètres résolus, les progrès, les pistes de sortie, les avertissements et les erreurs. La boîte de discussion en dessous de la console peut discuter de ce contexte lorsque l'IA est activée, mais elle ne modifie pas les paramètres à moins d'appliquer un changement suggéré.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, spakeur rapporte le nombre de plaques, les zones, les résumés, les statistiques et les chiffres du contrôle de la qualité."
+          "speech_text": "Plaque Assay détecte et quantifie les régions de cellules hôtes dégagées. Les paramètres sont à gauche; la console enregistre les paramètres résolus, les progrès, les pistes de sortie, les avertissements et les erreurs. La boîte de discussion en dessous de la console peut discuter de ce contexte lorsque l'IA est activée, mais elle ne modifie pas les paramètres à moins d'appliquer un changement suggéré."
+        },
+        {
+          "narration": "Le bouton d'IA commute le routage de chat. Son menu adjacent choisit un fournisseur configuré et ouvre les paramètres du fournisseur. Gardez-le quand aucun assistant n'est nécessaire; le pipeline d'analyse lui-même est local et ne nécessite pas d'IA.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.55,
+          "speech_text": "Le bouton d'IA commute le routage de chat. Son menu adjacent choisit un fournisseur configuré et ouvre les paramètres du fournisseur. Gardez-le quand aucun assistant n'est nécessaire; le pipeline d'analyse lui-même est local et ne nécessite pas d'IA."
+        },
+        {
+          "narration": "La configuration du fournisseur sépare les assistants locaux et les assistants hébergés. Configurez uniquement les services que vous avez l'intention d'utiliser et consultez l'avis de confidentialité avant d'envoyer le contexte de la console ou de l'image à un fournisseur distant.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.55,
+          "speech_text": "La configuration du fournisseur sépare les assistants locaux et les assistants hébergés. Configurez uniquement les services que vous avez l'intention d'utiliser et consultez l'avis de confidentialité avant d'envoyer le contexte de la console ou de l'image à un fournisseur distant."
+        },
+        {
+          "narration": "Les paramètres d'IA contrôlent les comportements tels que le partage de contextes, les rapports d'erreurs et les identifiants spécifiques au fournisseur. Ces préférences affectent l'assistant de chat, pas la segmentation ou la quantification de la plaque.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.5,
+          "speech_text": "Les paramètres d'IA contrôlent les comportements tels que le partage de contextes, les rapports d'erreurs et les identifiants spécifiques au fournisseur. Ces préférences affectent l'assistant de chat, pas la segmentation ou la quantification de la plaque."
+        },
+        {
+          "narration": "Choisissez ou laissez tomber le dossier contenant des champs de plaque TIFF. Ce tutoriel utilise quatre puits synthétiques explicitement et désactive les masques pour réutiliser leurs masques étiquetés précomputés. Avec les masques en marche, spaCR segmente les images d'origine avec le modèle de plaque regroupée avant de les mesurer.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.75,
+          "speech_text": "Choisissez ou laissez tomber le dossier contenant des champs de plaque TIFF. Ce tutoriel utilise quatre puits synthétiques explicitement et désactive les masques pour réutiliser leurs masques étiquetés précomputés. Avec les masques en marche, spakeur segmente les images d'origine avec le modèle de plaque regroupée avant de les mesurer."
+        },
+        {
+          "narration": "Les éléments essentiels montrent le petit ensemble habituellement nécessaire pour une première course. Commencez ici pour vérifier la source, le comportement du masque, le diamètre attendu, les seuils et le choix de sortie sans analyser chaque contrôle avancé.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.5,
+          "speech_text": "Les éléments essentiels montrent le petit ensemble habituellement nécessaire pour une première course. Commencez ici pour vérifier la source, le comportement du masque, le diamètre attendu, les seuils et le choix de sortie sans analyser chaque contrôle avancé."
+        },
+        {
+          "narration": "Modifié filtre le panneau à des valeurs qui diffèrent des valeurs par défaut. Il s'agit d'un audit compact avant la soumission: ici, la source, la réutilisation du masque, le diamètre de la plaque, la taille du lot et le comportement de fond sont des changements intentionnels.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.55,
+          "speech_text": "Modifié filtre le panneau à des valeurs qui diffèrent des valeurs par défaut. Il s'agit d'un audit compact avant la soumission: ici, la source, la réutilisation du masque, le diamètre de la plaque, la taille du lot et le comportement de fond sont des changements intentionnels."
+        },
+        {
+          "narration": "Tous les paramètres révèlent tous les contrôles disponibles. Utilisez-le lors de la résolution de problèmes ou de la reproduction d'une exécution plus ancienne; autrement, la vue Essentials réduit les changements accidentels aux paramètres qui ont déjà des défauts appropriés.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "Tous les paramètres révèlent tous les contrôles disponibles. Utilisez-le lors de la résolution de problèmes ou de la reproduction d'une exécution plus ancienne; autrement, la vue Essentials réduit les changements accidentels aux paramètres qui ont déjà des défauts appropriés."
+        },
+        {
+          "narration": "Les recettes enregistrent les paramètres actuels du module sous un nom réutilisable. Une configuration de plaque validée peut être enregistrée, importée, partagée et appliquée plus tard au lieu d'être reconstruite à la main.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.55,
+          "speech_text": "Les recettes enregistrent les paramètres actuels du module sous un nom réutilisable. Une configuration de plaque validée peut être enregistrée, importée, partagée et appliquée plus tard au lieu d'être reconstruite à la main."
+        },
+        {
+          "narration": "Envoyer à distance passe les paramètres résolus aux emplois distribués plutôt que de démarrer localement. Utilisez-le lorsque le dossier source et le modèle requis sont accessibles à partir d'un poste de travail ou d'un cluster SSH.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.5,
+          "speech_text": "Envoyer à distance passe les paramètres résolus aux emplois distribués plutôt que de démarrer localement. Utilisez-le lorsque le dossier source et le modèle requis sont accessibles à partir d'un poste de travail ou d'un cluster SSH."
+        },
+        {
+          "narration": "L'écran à distance reçoit ce module et ses paramètres comme un projet d'emploi. Confirmez la cartographie du chemin, les ressources informatiques, l'activation de l'environnement, la synchronisation et la commande générée avant de soumettre un petit travail de validation.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.65,
+          "speech_text": "L'écran à distance reçoit ce module et ses paramètres comme un projet d'emploi. Confirmez la cartographie du chemin, les ressources informatiques, l'activation de l'environnement, la synchronisation et la commande générée avant de soumettre un petit travail de validation."
+        },
+        {
+          "narration": "L'entrée et les canaux contiennent le dossier source et le choix des masques. Allumez Masques pour segmenter les champs originaux, ou désactivez seulement lorsque le sous-dossier de masques contient déjà des images étiquetées correctement.",
+          "visual": "12_category_01_input_channels",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.52,
+          "speech_text": "L'entrée et les canaux contiennent le dossier source et le choix des masques. Allumez Masques pour segmenter les champs originaux, ou désactivez seulement lorsque le sous-dossier de masques contient déjà des images étiquetées correctement."
+        },
+        {
+          "narration": "Le modèle contient le diamètre de plaque attendu. Comparez cette échelle aux plaques représentatives et à la géométrie d'entraînement du modèle; une valeur de taille cellulaire est généralement inappropriée pour les champs de plaque.",
+          "visual": "12_category_02_model",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.52,
+          "speech_text": "Le modèle contient le diamètre de plaque attendu. Comparez cette échelle aux plaques représentatives et à la géométrie d'entraînement du modèle; une valeur de taille cellulaire est généralement inappropriée pour les champs de plaque."
+        },
+        {
+          "narration": "Les seuils de détection regroupent la probabilité de candidature, la cohérence du débit, le rééchantillonnage, le reéchantillonnage et le remplissage des trous. Ces paramètres affectent la nouvelle segmentation; ils ne modifient pas les masques précomputés réutilisés dans cette démonstration.",
+          "visual": "12_category_03_detection_thresholds",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Les seuils de détection regroupent la probabilité de candidature, la cohérence du débit, le rééchantillonnage, le reéchantillonnage et le remplissage des trous. Ces paramètres affectent la nouvelle segmentation; ils ne modifient pas les masques précomputés réutilisés dans cette démonstration."
+        },
+        {
+          "narration": "Les contrôles de géométrie d'image se redimensionnent aux dimensions attendues par le modèle de plaque regroupée. Le masque est redimensionné vers le champ d'origine avant que la surface ne soit signalée, de sorte que la mesure reste en pixels d'origine.",
+          "visual": "12_category_04_image_geometry",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Les contrôles de géométrie d'image se redimensionnent aux dimensions attendues par le modèle de plaque regroupée. Le masque est redimensionné vers le champ d'origine avant que la surface ne soit signalée, de sorte que la mesure reste en pixels d'origine."
+        },
+        {
+          "narration": "Background et Denoising contrôlent la suppression de fond et l'ancrage signal-bruit utilisé lors de la normalisation. Mettez-le sur des puits de contrôle et de traitement représentatifs avant une segmentation complète.",
+          "visual": "12_category_05_background_denoising",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.55,
+          "speech_text": "Background et Denoising contrôlent la suppression de fond et l'ancrage signal-bruit utilisé lors de la normalisation. Mettez-le sur des puits de contrôle et de traitement représentatifs avant une segmentation complète."
+        },
+        {
+          "narration": "La sortie et le temps d'exécution contrôlent l'épargne, la taille du lot de la GPU et la verbosité. Réduire la taille du lot si la segmentation dépasse la mémoire disponible; maintenir un enregistrement verbale pour la première plaque afin que les chemins et le comportement résolus soient enregistrés.",
+          "visual": "12_category_06_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.55,
+          "speech_text": "La sortie et le temps d'exécution contrôlent l'épargne, la taille du lot de la GPU et la verbosité. Réduire la taille du lot si la segmentation dépasse la mémoire disponible; maintenir un enregistrement verbale pour la première plaque afin que les chemins et le comportement résolus soient enregistrés."
+        },
+        {
+          "narration": "Lors de la segmentation, la probabilité contrôle le sol candidat, le seuil de débit contrôle la cohérence de la forme et le remplissage ferme les trous intérieurs. Inspectez plusieurs puits car une valeur qui nettoie une plaque peut fusionner ou effacer une autre.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.58,
+          "speech_text": "Lors de la segmentation, la probabilité contrôle le sol candidat, le seuil de débit contrôle la cohérence de la forme et le remplissage ferme les trous intérieurs. Inspectez plusieurs puits car une valeur qui nettoie une plaque peut fusionner ou effacer une autre."
+        },
+        {
+          "narration": "Cliquez sur Exécuter après avoir examiné les paramètres modifiés. Cette démonstration mesure quatre masques synthétiques étiquetés à travers le fond réel de l'analyse de plaque; elle ne présente pas les champs synthétiques comme validation biologique du modèle de segmentation.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.6,
+          "speech_text": "Cliquez sur Exécuter après avoir examiné les paramètres modifiés. Cette démonstration mesure quatre masques synthétiques étiquetés à travers le fond réel de l'analyse de plaque; elle ne présente pas les champs synthétiques comme validation biologique du modèle de segmentation."
+        },
+        {
+          "narration": "Lors de l'exécution, la console imprime l'enregistrement de reproductibilité, la source résolue et la destination, et chaque masque est analysé. Arrêtez les demandes d'annulation; attendez Finished avant d'ouvrir les sorties.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.55,
+          "speech_text": "Lors de l'exécution, la console imprime l'enregistrement de reproductibilité, la source résolue et la destination, et chaque masque est analysé. Arrêtez les demandes d'annulation; attendez Finished avant d'ouvrir les sorties."
+        },
+        {
+          "narration": "L'exécution écrit plaques_analysis.db dans le dossier masques avec des tableaux de résumé, de statistiques et de détails. Ces quatre champs contiennent respectivement quatre, trois, deux et une plaques; utilisez les numéros par image et les zones avec vos métadonnées de plaque pour les statistiques de niveau de condition en aval et le contrôle de la qualité.",
+          "visual": "23_output",
+          "focus_key": "console",
+          "hold_after": 0.8,
+          "speech_text": "L'exécution écrit plaques_analysis.db dans le dossier masques avec des tableaux de résumé, de statistiques et de détails. Ces quatre champs contiennent respectivement quatre, trois, deux et une plaques; utilisez les numéros par image et les zones avec vos métadonnées de plaque pour les statistiques de niveau de condition en aval et le contrôle de la qualité."
         }
       ]
     },

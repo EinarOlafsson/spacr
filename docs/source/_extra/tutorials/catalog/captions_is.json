@@ -1304,19 +1304,67 @@
       "id": "24_plaque",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um próf á plötu. Mæra uppbyggingu plötu og breytingar á aðstæðum frá plötumyndum."
+          "narration": "Plaque Assay uppgötvar og kvantifiserar hreinsaðar hostafrumur svæði. Stillingarnar eru til vinstri; konsonan skráir lausnar stillingar, framfarir, útgáfu leiðir, viðvörun og mistök. Spjallborðið fyrir neðan konsólunnar getur rætt um það samhengi þegar AI er virkt, en það breytir ekki stillingum nema þú beitir tillögulegri breytingu."
         },
         {
-          "narration": "Opið plötupróf frá Toxoplasma próf kafla. Færðu fram myndir af plötu, skipulag plötu, pikslaviðræðingu, aðstæður og stjórn."
+          "narration": "A.I. hnappinn breytir spjall leiðbeiningu. Hliðstætt matseðill velur útbúnaðaraðila sem settur er upp og opnar útbúnaðarstillingar. Hafðu það slökkt þegar enginn aðstoðarmaður er þörf; greiningarstöðin sjálf er staðbundin og krefst ekki AI."
         },
         {
-          "narration": "Í aðalmyndatölu skaltu stillta bakgrunnsréttu, þröskulíf, hreinsun fyrirbæra, plötu stærðarfiltrar og brunnarsamtöku."
+          "narration": "Tækiveitanda uppsetning skilur á milli staðbundinna og gestgjafa aðstoðarmanna. Settu aðeins upp þjónustu sem þú ætlar að nota og skoðaðu persónuverndarupplýsingarnar áður en þú sendir konsólum eða myndar samhengi til fjarskiptaveitanda."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. staðfesta skiptingar á skiptingu á yfirborðum í stjórn- og meðferðarbrúnum áður en gerð er að greiningu."
+          "narration": "AI Settings stjórnar hegðun eins og samhengi skipting, rangt skýrslur og veitara-sérhæf kröfur. Þessar forystu hafa áhrif á spjall aðstoðarmanninn, ekki skiptingu á plötu eða töluatriði."
         },
         {
-          "narration": "Þegar vinnufljósið er lokið skilar spaCR skýrslum um töflur, svæði, samantekningar, tölur og gögn um gæðastjórnun."
+          "narration": "Veldu eða slepptu mappunni sem inniheldur TIFF-plötur. Þessi námskeið notar fjögur greinilega synthétískar brunnar og slökkur á grímum til að endurnýta fyrirfram tölvuð merkjuð grímur. Með Mask á, spaCR skipta í staðinn uppruna myndir með bundlaðum plakk fyrir að mæla þá."
+        },
+        {
+          "narration": "Aðalagrein sýnir lítinn sett sem oftast er nauðsynlegt í fyrstu hlaupi. Byrjaðu hér til að staðfesta uppspretta, áferð maski, væntanleg þvermál, þröskulendur og útgáfu val án þess að skanna hvern flókn stjórn."
+        },
+        {
+          "narration": "Breyttar sniðgefnar greinargreinar fyrir gildi sem eru öðruvísi en sjálfgefin. Það er þétt skoðun fyrir sendingu: hér eru uppspretta, endurnýtingu grímunnar, þvermál plötu, stærð flokksins og bakgrunnshætti áætlaðar breytingar."
+        },
+        {
+          "narration": "Öll stillingar sýna öll tiltæka stjórn. Notaðu það þegar þú leitar úr vandamálum eða endurgefur eldri hlaup; annars minnkar Essentials sýningin tilviljunarbreytingar á mælikvarða sem þegar hafa viðeigandi sjálfstætt."
+        },
+        {
+          "narration": "Uppskriftir geyma núverandi stillingar móðulsins undir endurteknu nafni. Verið plötuskipulag er hægt að vista, flytja inn, deila og beita síðar í stað þess að það verði endurreist með hendi."
+        },
+        {
+          "narration": "Senda fjarlægð sendir losnar stillingar til dreifð störf í staðinn að byrja á staðnum. Notaðu það þegar heimildaskrá og krafist módel eru aðgengileg frá vinnustað eða kluster SSH."
+        },
+        {
+          "narration": "Afmarkaður skjárinn fær þetta modul og stillingar þess sem verkefni. Staðfestir leiðarmyndun, reikningarefni, virkjun umhverfis, samræmingu og framleitt skipun áður en þú sendir inn smá staðfestingarstarf."
+        },
+        {
+          "narration": "Input og Channels inniheldur kjarapallinn og valmyndin Mask. Kveiktu á Mask til að skipta upphaflegum sviðum, eða slökktu aðeins þegar maskuna undirglugga þegar inniheldur rétt nöfnir merktar myndir."
+        },
+        {
+          "narration": "Módelið inniheldur væntanlega plötubreytni. Hægt er að samræma þennan skalan við fulltrúarplötur og þjálfunargeometri líksins; hlutfall á stærð frumur er almennt óviðeigandi fyrir plöturplötur."
+        },
+        {
+          "narration": "Greiningarhrögglar hópa líkindaskilyrði, flæðsluþéttni, endurskoðun, endurmyndun og lyfjafyllingu. Þessar stillingar hafa áhrif á nýja skiptingu; þær breyta ekki fyrirfram tölduðum grímum sem eru endurnotaðar í þessari sýningu."
+        },
+        {
+          "narration": "Myndgeometri stjórnar að breyta stærð að þeim stærðum sem búist er við samsettum plötu fyrirmynd. Maskinn er minnkaður aftur til upprunalegu sviðsins áður en svæði er tilkynnt, þannig að mælingin er áfram í upprunalegu pixlum."
+        },
+        {
+          "narration": "Bakgrun og Denoising stjórnar bakgrunning og merki til hávaða-ankur sem notuð er við eðlilegingu. Settu hann á fulltrúarstjórn og meðferðarsprengjur áður en fullur skiptingarstarf er gerður."
+        },
+        {
+          "narration": "Útgangur og Runtime stjórnar sparnað, GPU flokka stærð, og verbosity. Færðu úr flokksstærð ef skipting er meiri en í boði er minni. Haltu loggingum fyrir fyrsta plötu þannig að lausnir leiðir og hegðun eru skráðar."
+        },
+        {
+          "narration": "Við skiptingu stjórnar líkindisvæði viðkomandi gólfi, flæðiþröskulíkur stjórnar mynd samræmi og fylla inn loka innri holum. Skoðaðu fleiri brunnur vegna þess að gildi sem hreinsar eina plötu getur sameinað eða eytt annarri."
+        },
+        {
+          "narration": "Smelltu á hlaða eftir að hafa skoðað breyttar stillingar. Þessi sýning mælir fjórar synthétismerktar grímur í gegnum raunverulegan plakka-greiningarbakend; hún sýnir ekki synthétisvið sem líffræðilega staðfestingu á skiptingarmyndinni."
+        },
+        {
+          "narration": "Á framkvæmdinu prentir konsonan endurskráningarskrá, úrgangur og áfangastaður og hvern grímur sem greint er. Stoppaðu fyrirspurnir um aflýsingu; bíddu eftir að lokið sé áður en útgöngur eru opnuð."
+        },
+        {
+          "narration": "Leikurinn skrifar plaques_analysis.db í möppunni maskur með samantekt, tölfræði og upplýsingar töflur. Þessar fjórar sviðir innihalda fjórar, þrjár, tvær og eina plötur á eftirfarandi hátt. Notaðu tölurnar á mynd og svæðin með plötuflutningsgögnum þínum til að gera tölfræði á stöðunni og gæðaeftirlit."
         }
       ]
     },
