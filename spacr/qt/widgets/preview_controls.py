@@ -693,8 +693,14 @@ class ImageSetSampler:
                   metadata_type: str = DEFAULT_METADATA_TYPE,
                   custom_regex: Optional[str] = None,
                   force: bool = False) -> List[ImageSet]:
-        """Enumerate ``directory`` unless it is already the cached one."""
-        key = str(directory)
+        """Enumerate ``directory`` unless it is already the cached one.
+
+        The cache key includes the naming dialect: keying on the folder alone
+        meant that confirming a different regex re-used the grouping built
+        with the old one, so the fix appeared to do nothing until the user
+        opened a different folder.
+        """
+        key = f"{directory}|{metadata_type}|{custom_regex or ''}"
         if not force and key == self._directory:
             return self._sets
         self._sets, self._channels = enumerate_image_sets(
