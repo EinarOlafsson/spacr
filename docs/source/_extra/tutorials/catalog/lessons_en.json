@@ -4485,43 +4485,151 @@
       "series": 4,
       "app_key": "external_masks",
       "section": "Data and batch runs",
-      "description": "Turn third-party label masks and source images into a measured, traceable spaCR project.",
+      "description": "Review externally generated image and label assignments, preview pairing without writes, then create a measured spaCR project ready for annotation.",
       "objectives": [
-        "Understand when to use External Masks.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Detect intensity images and cell, nucleus, pathogen, and organelle masks while retaining editable role assignments.",
+        "Review every settings category and use Preview only to validate channel, field, and mask-plane pairing.",
+        "Import the reviewed fields through the real conversion and Measure pipeline and verify its database and annotation outputs."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Intensity images and integer label masks with matching field names; each object class should be distinguishable by its folder or filename.",
       "scenes": [
         {
-          "narration": "This tutorial covers External Masks. Turn third-party label masks and source images into a measured, traceable spaCR project.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers External Masks. Turn third-party label masks and source images into a measured, traceable spacer project."
+          "narration": "External Masks turns segmentation produced outside spaCR into the same measured project contract used by Measure and Annotate. Open it from Data and batch runs; Preview is read-only, while Run can build canonical images, stacks, masks, merged arrays, measurements, and object crops.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.72,
+          "speech_text": "External Masks turns segmentation produced outside spacer into the same measured project contract used by Measure and Annotate. Open it from Data and batch runs; Preview is read only, while Run can build canonical images, stacks, masks, merged arrays, measurements, and object crops."
         },
         {
-          "narration": "Open External Masks from the Data and batch runs section. Provide source images, external masks, naming rules, object types, and optional measurement tables.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Open External Masks from the Data and batch runs section. Provide source images, external masks, naming rules, object types, and optional measurement tables."
+          "narration": "Drop image and mask files or one containing folder. This lesson uses three real 768-pixel crops from the transferred experiment: twelve intensity TIFFs and three masks for each of four object types, exported from existing spaCR arrays solely to emulate an external handoff.",
+          "visual": "02_detected",
+          "focus_key": "inputs",
+          "hold_after": 0.78,
+          "speech_text": "Drop image and mask files or one containing folder. This lesson uses three real seven hundred sixty eight pixel crops from the transferred experiment: twelve intensity T I F F files and three masks for each of four object types, exported from existing spacer arrays solely to emulate an external handoff."
         },
         {
-          "narration": "In the main configuration area, map images to masks, validate shape and label conventions, choose relabeling, and define measurement options.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, map images to masks, validate shape and label conventions, choose relabeling, and define measurement options."
+          "narration": "The assignment table groups files by evidence. Intensity images are detected from their pixels, while mask and object words identify cell, nucleus, pathogen, and organelle labels. Use as and Mask type remain editable proposals; review every row and ignore anything that should not enter the project.",
+          "visual": "03_assignment",
+          "focus_key": "input_table",
+          "hold_after": 0.74,
+          "speech_text": "The assignment table groups files by evidence. Intensity images are detected from their pixels, while mask and object words identify cell, nucleus, pathogen, and organelle labels. Use as and Mask type remain editable proposals; review every row and ignore anything that should not enter the project."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview alignment and object counts on several fields before importing the complete dataset.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview alignment and object counts on several fields before importing the complete dataset."
+          "narration": "Input Mapping contains the reviewed assignment table, a new destination, recursive discovery, filename layout, Z handling, plate naming, overwrite protection, and Preview only. These controls decide which files pair before anything is written.",
+          "visual": "04_category_input_mapping",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.64,
+          "speech_text": "Input Mapping contains the reviewed assignment table, a new destination, recursive discovery, filename layout, Z handling, plate naming, overwrite protection, and Preview only. These controls decide which files pair before anything is written."
         },
         {
-          "narration": "When the workflow finishes, spaCR stores normalized masks, mapped images, measurements, and provenance ready for annotation.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spacer stores normalized masks, mapped images, measurements, and provenance ready for annotation."
+          "narration": "General defines the imported intensity-channel list, experiment name, normalization policy, and whether a cytoplasm compartment is derived. Here channels zero through three match the four real image planes.",
+          "visual": "05_category_general",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "General defines the imported intensity channel list, experiment name, normalization policy, and whether a cytoplasm compartment is derived. Here channels zero through three match the four real image planes."
+        },
+        {
+          "narration": "Organelle controls how imported organelle labels are summarized against their parent objects. It does not segment the TIFFs again; it only defines downstream measurement relationships.",
+          "visual": "06_category_organelle",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "Organelle controls how imported organelle labels are summarized against their parent objects. It does not segment the T I F F files again; it only defines downstream measurement relationships."
+        },
+        {
+          "narration": "Timelapse contains tracking choices for externally supplied time series. Leave it disabled for this single-time-point example; enable it only when the field names and frames represent a real temporal sequence.",
+          "visual": "07_category_timelapse",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Timelapse contains tracking choices for externally supplied time series. Leave it disabled for this single time point example; enable it only when the field names and frames represent a real temporal sequence."
+        },
+        {
+          "narration": "Measurements chooses the feature families computed from the imported labels, including intensity, correlation, texture, radial distribution, and colocalization. Start with the features your analysis needs because the richer families cost more time and storage.",
+          "visual": "08_category_measurements",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.62,
+          "speech_text": "Measurements chooses the feature families computed from the imported labels, including intensity, correlation, texture, radial distribution, and colocalization. Start with the features your analysis needs because the richer families cost more time and storage."
+        },
+        {
+          "narration": "Filter Settings applies minimum-size and infection gates after import. External Masks preserves the supplied label geometry; these filters decide which labeled objects enter measurements rather than repairing a poor segmentation.",
+          "visual": "09_category_filter_settings",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Filter Settings applies minimum size and infection gates after import. External Masks preserves the supplied label geometry; these filters decide which labeled objects enter measurements rather than repairing a poor segmentation."
+        },
+        {
+          "narration": "Object Crops selects which compartments become single-object PNG datasets, their channels, size, normalization, and border policy. This example saves cell crops so the finished project can open directly in Annotate.",
+          "visual": "10_category_object_crops",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.6,
+          "speech_text": "Object Crops selects which compartments become single object P N G datasets, their channels, size, normalization, and border policy. This example saves cell crops so the finished project can open directly in Annotate."
+        },
+        {
+          "narration": "Advanced contains resume, dry-run, failure, worker, and logging controls. Strict errors and one worker make this small first import easy to audit; larger reviewed projects can use more workers later.",
+          "visual": "11_category_advanced",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Advanced contains resume, dry run, failure, worker, and logging controls. Strict errors and one worker make this small first import easy to audit; larger reviewed projects can use more workers later."
+        },
+        {
+          "narration": "3D Settings is an alpha-stage category for volumetric measurements and projections. The present inputs are two-dimensional label planes, so these controls remain off and Z handling stays at maximum projection for any multiframe intensity source.",
+          "visual": "12_category_3d_settings_(beta)",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.62,
+          "speech_text": "Three D Settings is an alpha stage category for volumetric measurements and projections. The present inputs are two dimensional label planes, so these controls remain off and Z handling stays at maximum projection for any multiframe intensity source."
+        },
+        {
+          "narration": "Before importing, keep Preview only enabled and confirm the destination is a new project folder. Overwrite remains off, so an existing measurements database is a blocking problem instead of being silently replaced.",
+          "visual": "13_preview_settings",
+          "focus_key": "category",
+          "hold_after": 0.62,
+          "speech_text": "Before importing, keep Preview only enabled and confirm the destination is a new project folder. Overwrite remains off, so an existing measurements database is a blocking problem instead of being silently replaced."
+        },
+        {
+          "narration": "Click Run for the read-only preflight. It scans actual image metadata, pairs masks to normalized field identities, checks duplicates and missing masks, assigns mask planes after the intensity channels, and writes no experiment output.",
+          "visual": "14_preview_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.64,
+          "speech_text": "Click Run for the read only preflight. It scans actual image metadata, pairs masks to normalized field identities, checks duplicates and missing masks, assigns mask planes after the intensity channels, and writes no experiment output."
+        },
+        {
+          "narration": "The real preview reports twelve intensity mappings, three complete fields, four intensity channels, and cell, nucleus, pathogen, and organelle masks paired for every field. The mask planes will be four, five, six, and seven, with no warnings or blocking errors.",
+          "visual": "15_preview_result",
+          "focus_key": "console",
+          "hold_after": 0.76,
+          "speech_text": "The real preview reports twelve intensity mappings, three complete fields, four intensity channels, and cell, nucleus, pathogen, and organelle masks paired for every field. The mask planes will be four, five, six, and seven, with no warnings or blocking errors."
+        },
+        {
+          "narration": "Disable Preview only and click Run again to import. External Masks now uses the reviewed plan to write canonical images and arrays, then hands the merged fields to the normal Measure pipeline with the derived mask dimensions.",
+          "visual": "16_import_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "Disable Preview only and click Run again to import. External Masks now uses the reviewed plan to write canonical images and arrays, then hands the merged fields to the normal Measure pipeline with the derived mask dimensions."
+        },
+        {
+          "narration": "During conversion, twelve of twelve intensity items succeed before measurement begins. The console repeats the validated pairing and records a reproducibility manifest and run journal; Stop remains available at declared safe boundaries.",
+          "visual": "17_importing",
+          "focus_key": "console",
+          "hold_after": 0.68,
+          "speech_text": "During conversion, twelve of twelve intensity items succeed before measurement begins. The console repeats the validated pairing and records a reproducibility manifest and run journal; Stop remains available at declared safe boundaries."
+        },
+        {
+          "narration": "The real import finishes with three eight-plane merged arrays and a measurements database containing cell, cytoplasm, nucleus, pathogen, organelle, PNG-list, settings, settings-history, and run-status tables. Cell crops are under data, so this new project is traceable and ready for Annotate without rerunning segmentation.",
+          "visual": "18_finished",
+          "focus_key": "console",
+          "hold_after": 0.88,
+          "speech_text": "The real import finishes with three eight plane merged arrays and a measurements database containing cell, cytoplasm, nucleus, pathogen, organelle, P N G list, settings, settings history, and run status tables. Cell crops are under data, so this new project is traceable and ready for Annotate without rerunning segmentation."
         }
       ]
     },
