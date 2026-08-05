@@ -1437,19 +1437,73 @@
       "id": "26_invasion",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker Invasion assay. Bruk to farger utenfra-mot-innvendig farging for å skille vedligeholdte fra invaderte parasitter."
+          "narration": "Invasion Assay scorer hver parasitt som festet eller invadert fra en tofarget flekk. Konsolen registrerer løste innstillinger, tærskler, QC, utgang, advarsler og feil; chat-boksen kan diskutere den sammenhengen når AI er aktivert."
         },
         {
-          "narration": "Open Invasion test fra Toxoplasma test seksjon. Gi parasitt- og vertselmasker, innsiden og utsiden av flekkkanaler, plate metadata og kontroller."
+          "narration": "Den AI togle ruter chatter bare når forespurt. Dess tilstøtende meny velger en konfigurert leverandør og åpner leverandørinnstillinger; invasjonsanalysen selv forblir lokal og krever ikke AI."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet konfigurere intensitetsgrenser, objektmatching, tvetydighetshåndtering og velnivågruppering."
+          "narration": "Leverandør konfigurasjon skiller lokale og vert assistenter. Konfigurere bare tjenester du har til hensikt å bruke og gjennomgå personvernerklæringer før du deler konsol- eller analysekontekst med en fjernleverandør."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. gjennomgå vedlagte, invaderte og usikre eksempler før klassifikasjonsregelen aksepteres."
+          "narration": "AI-innstillinger kontrollerer assisterende kontekst, legitimasjoner og valgfri feilrapportering. Disse preferansene endrer ikke flekkkanaler, tærskler, klassifisering eller statistikk."
         },
         {
-          "narration": "Når arbeidsflyten er fullført, rapporterer spaCR tall og inntrengningseffektivitet per brønn og tilstand med kvalitetskontrollbilder."
+          "narration": "Velg eller droppe eksperimentroten som inneholder målinger/målinger.db. Det overførte mikroskopeksperimentet mangler de nødvendige invasjonsflekkene, så denne opplæringen bruker tydeligvis en syntetisk to-farger måledatabase mens du kjører den virkelige spaCR test backend."
+        },
+        {
+          "narration": "Essentials avslører inngangene, kanalene, tærskelen, kontrollene, filtrene, tilstand metadata og utgangene som trengs for en første analyse. Kontroller flekkordenen før du tolker et resultat."
+        },
+        {
+          "narration": "Modifisert filtrerer skjemaet for bevisst avvik fra standard. Bruk den til å kontrollere kilden, flekkkanaler, intensitetsgate, kontroller, arealgrenser, plate mapping og verbose output før du kjører."
+        },
+        {
+          "narration": "Alle innstillinger avslører alle tilgjengelige kontroller for reproduksjon og feilsøking. Tilbake til Essentials når disse avanserte kontrollene ikke er nødvendige for å redusere tilfeldige parameterendringer."
+        },
+        {
+          "narration": "Oppskrifter beholder en validert testkonfigurasjon for gjenbruk eller deling. Skip en bare etter at flekkkartlegging og kontrollderivert tærskel har blitt sjekket mot representative bilder og distribusjoner."
+        },
+        {
+          "narration": "Send fjernpass de løste innstillingene til Distributed Jobs. Vurder at måledatabasen er tilgjengelig via det fjerntliggende banekartet før du sender inn en liten valideringsoppgave."
+        },
+        {
+          "narration": "Fjernskjermen mottar en jobbutkast. Sjekk synkronisering, miljøaktivering, ressurser og den genererte kommandoen, og test deretter en plate før du skalerer testen."
+        },
+        {
+          "narration": "Assay Inputs identifiserer eksperiment røtt, en rad per parasitt tabell, og compartment prefix. Invasjon scorer eksisterende patogen målinger; den segmenterer ikke bilder igjen."
+        },
+        {
+          "narration": "Kanaler og Intensitetskort kanaler en til pre-permeabilization utenfor flekken og kanal null til post-permeabilization total flekk. Leggende parasitter beholder signalt utenfor; invaderte parasitter mangler det. Veksling av disse kanalene gjenspeiler den biologiske tolkningen uten å forårsake en programvarefeil."
+        },
+        {
+          "narration": "Trøskelv velger automatisk fallback, valgfritt fast kutt, bimodalitet QC, avtale toleranse og følsomhet span. En fast tærskel bør kun brukes etter uavhengig kalibrering."
+        },
+        {
+          "narration": "Kontroller og Minimum Counts benytter navn på fargekontrollene og definerer quantile, minimumskontrollobjekter, minimumsfelt- og brønnennemerker og trekkinflasjonsvarsel. Her kolonne én gir den ærlige ytre flekke-negative fordelingen og er ekskludert fra testforhold."
+        },
+        {
+          "narration": "Object Filtering fjerner parasittmålinger utenfor den akseptabelle områdets rekkevidde. Det totale minimum for flekker utelukker også gjenstander som ikke kan være parasitter i det hele tatt før klassifisering av eksterne flekker begynner."
+        },
+        {
+          "narration": "Condition Metadata kartlegger brønner til biologiske grupper og velger grupperingskolonnen. Den syntetiske platen bruker seks kjøretøybrønner i kolonne to og seks inhibitorbrønner i kolonne tre, alle med HeLa-hostceller."
+        },
+        {
+          "narration": "Assay Output kontrollerer fargemappen, antall terskel-QC-paneler, tomt-brønn såing, og sparing. Sæd bevarer brønner med målte vertsceller, men ingen scorerede parasitter i stedet for stille å slippe dem."
+        },
+        {
+          "narration": "Løpetid og pålitelighet kontrollerer logging detaljer. Hold verbose utgang på mens du oppretter en test slik at intensitetskolonne, tærskler, kilder, per felt QC og markerte brønner er synlige i konsollen."
+        },
+        {
+          "narration": "Denne kanal detaljen bruker gjennomsnittlig ekstern intensitet uten bakgrunn subtraksjon, krever total-kanal intensitet på minst hundre, og holder kanal én og null i sin biologiske rekkefølge. Undersøk disse verdiene i forhold til måleschemaet før du kjører."
+        },
+        {
+          "narration": "Klikk på Klikk etter å ha sjekket innganger, flekk kartlegging, kontroller, tærskler, filtre og tilstand metadata. Backend ekskluderer kontrollbrønner, drar ut per plate kontrollgrenser, klassifiserer hver parasitt, oppsummerer felt og brønner, og utfører velnivå statistikk."
+        },
+        {
+          "narration": "Under utførelsen rapporterer konsolen trekkkilden kilde og QC i stedet for å vise bare en endelig prosentandel. Innen er definert av fravær av ekstern signal, så fargefeil kan bare oppblåse invasjon; følsomhetsgrenser gjør at feilretningen synlig."
+        },
+        {
+          "narration": "Den virkelige baksiden brukte tre hundre og seksti kontrollparasitter for å sette en tærskel på tjue to point åtte, deretter scoret tusen fire hundre og fyrre eksperimentelle parasitter over tolv brønner og tjue fire felt. Køretøy brønner gjennomsnittlig tretti ni point syv prosent invasjon og inhiber brønner seks og åtte point ni prosent; alle brønner passerer QC. MannWhitney-testen bruker seks brønner per gruppe og gir Holm-justert p nullpunkt null null fire null seks, mens den mye mindre pooled-parasitt p-verdien bare vises for å avsløre pseudoreplikasjon inflasjon."
         }
       ]
     },
