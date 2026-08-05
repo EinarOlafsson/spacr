@@ -1199,19 +1199,31 @@
       "id": "21_model_compare",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker Model Compare. Kjør to Cellpose-modeller på de samme feltene og sammenlign masker, tall og avtalen."
+          "narration": "Model Compare kjører to Cellpose-konfigurasjoner på samme lille feltsett. Den rapporterer hva som har endret seg uten å behandle noen av modellene som grunnleggende sannhet, kombinerer objekttall, foregående enighet, matching, fragmentering og visuelle overlapping."
         },
         {
-          "narration": "Åpne modell Sammenlign fra segmentering av modeller. Velg to kandidatmodeller og et representativt sett med mikroskopiske felt."
+          "narration": "Droppe en mappe med TIFF, PNG, NPY eller NPZ felt, eller velg den med kildekontroller. Fields-verdien begrenser en interaktiv sammenligning; denne opplæringen laster tre ekte ER-kanal cellekulturer."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet, matche kanaler og forhåndsbehandling, deretter konfigurere tærskler og objektmatching-kriterier."
+          "narration": "Modell A bruker CPSAM. Modell B bruker det tilpassede kalibreringskontrollpunktet fra Train Cellpose. Begge beholder diameter tretti, strømningsgrensen null punkt fire, sannsynlighet null, minimum størrelse femten, normalisering og full oppløsning dynamikk."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. gjennomgå side-by-side-overlappninger sammen med objektantallet, overlappningene og justerte Rand-indeksforskjellene."
+          "narration": "Sammenlign segmenter hvert lastet felt med begge konfigurasjoner. Den ekstra linjen aksepterer avanserte nøkkelverdi argumenter, og rapporten markerer parametre Cellpose 4 ignorerer i stedet for stille antyder at de endret modellen."
         },
         {
-          "narration": "Når arbeidsflyten er ferdig, identifiserer sammenligningsrapporten hvor hver modell vinner, mister, deler eller fusjonerer objekter."
+          "narration": "Under behandling identifiserer statusen i linjen både kandidatene og antall felt. Modell sammenligne forblir fokusert på en begrenset interaktiv prøve i stedet for å kjøre en full plate to ganger."
+        },
+        {
+          "narration": "Parametre som nådde hver modell skiller ærede verdier fra fordreide eller ignorerte argumenter. Dette forhindrer sammenligninger som ser forskjellig ut i form, men løser til samme Cellpose oppførsel."
+        },
+        {
+          "narration": "Tabellen per felt rapporterer objekttall, retningsdelta, bakgrunn ekskludert justert Rand-indeks, matchet fraksjon, gjennomsnittlig kryssetning over union, splittinger, fusjoner, uoverensstemmende objekter og uavhengige maskekvalitetskontroller."
+        },
+        {
+          "narration": "Å velge en rad oppdaterer begge forhåndsvisninger. Matched objekter vises konsekvent, mens umatched regioner avsløre nye oppdagelser, misses, splits eller fusjoner som en enkelt aggregat score kan skjule."
+        },
+        {
+          "narration": "I disse tre feltene, begge kandidatene produserte hundre og femti og ett objekter, foregående ARI en, og hundre prosent matching. Det betyr at kalibreringskontrollpunktet i en epoke oppfører seg som sin utgangsmodell her; det er et gyldig resultat, ikke bevis på forbedring."
         }
       ]
     },
