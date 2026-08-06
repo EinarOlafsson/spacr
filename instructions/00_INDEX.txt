@@ -1,0 +1,62 @@
+================================================================================
+WHAT IS LEFT — INDEX
+================================================================================
+
+Written 2026-08-05. Every file here is one piece of unfinished work, with
+enough context to pick it up cold.
+
+Each file says the same four things: what the state is, why it matters,
+what to do, and how to know it worked. Where something is NOT worth doing,
+that is said too, with the reason -- a decision not to act is also a
+result, and re-deriving it later costs the same as deriving it once.
+
+--------------------------------------------------------------------------------
+IN ROUGH ORDER OF WHAT IT COSTS A USER
+--------------------------------------------------------------------------------
+
+01_pip_upgrade_is_broken_for_installed_builds.txt
+        SHIP THIS FIRST. Every desktop install at or below 1.5.0.1 cannot
+        update itself, and the fix can only reach them through the update.
+        Includes the one-line manual escape.
+
+02_multi_fov_loader_for_the_timelapse_movie.txt
+        The movie panel takes a list of fields and caps how many. Nothing
+        loads more than one yet. Half a feature that was asked for whole.
+
+03_five_order_dependent_qt_failures.txt
+        Each passes on its own file and fails in the suite. Not diagnosed.
+        Two isolation leaks of the same family are already closed and named
+        here, which is where to start.
+
+04_font_scale_default_disagrees_with_the_tests.txt
+        DEFAULT_FONT_SCALE is 1.5; the test fixtures pin 1.0. The suite is
+        measuring a configuration no user has.
+
+05_version_bump_and_github_actions.txt
+        Deferred on request. What to run and what to expect.
+
+06_module_overlap_and_merge_candidates.txt
+        Analysis, measured, no code written. 62 modules, 8-12 mergeable.
+        Explicitly NOT actioned -- it is a product decision.
+
+07_known_bugs_not_fixed.txt
+        Found, confirmed, deliberately left. With the reason for each.
+
+08_flowview_pipeline_visualisation.txt
+        A specification, not a defect: an optional live node-graph view of
+        a run, with SVG/HTML/JSON export. Written by the maintainer and
+        reproduced in full. Not started. Read the two questions at the top
+        before writing code -- it overlaps `run_journal` and the existing
+        Pipeline Graph screen, and that has to be settled first.
+
+--------------------------------------------------------------------------------
+A NOTE ON THE TESTS IN HERE
+--------------------------------------------------------------------------------
+
+Several of these were found because a test was wrong rather than the code.
+That happened often enough this week to be worth stating as a habit: when a
+test and the product disagree, find out which one is describing reality
+before changing either. Four separate "fixes" to the black box behind the
+settings column were aimed at the wrong layer because an offscreen render
+kept reporting a clean page for a screen that was black on the user's
+display -- see 03 for why that measurement lies.
