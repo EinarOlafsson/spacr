@@ -1,0 +1,46 @@
+================================================================================
+A PREFERENCES GEAR BESIDE COPY CONSOLE ON THE MODULE SCREENS
+================================================================================
+
+Status:    not started
+Requested: 2026-08-06 - "add a preferences button in the mask, measure, classify moduals to the right of copy console (att it as a clickable gear icon)"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not started. The module screens are built by AppScreen
+(spacr/qt/screens/app_screen.py); "Copy console" lives on the console panel
+(spacr/qt/widgets/console_panel.py). Find which of the two owns the row
+before adding to it.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Preferences is currently reachable only from the menu bar, which on macOS is
+the menu that is currently broken (instruction 23). A control on the screen
+the user is already looking at does not depend on that being fixed.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Add a QToolButton with the gear icon from the existing iconset - do not
+   introduce a new glyph - immediately right of Copy console.
+2. Open the SAME dialog the menu opens: `PreferencesDialog(self).exec()`,
+   via spacr.qt.dialogs.detach_from_window_manager (already applied inside
+   PreferencesDialog, so just calling it is enough).
+3. Put it on the shared console/toolbar row rather than in three screens, if
+   that row is shared - mask, measure and classify were named, but a control
+   that exists on three of sixteen module screens and not the rest is its
+   own kind of confusing. Check what the row is before deciding.
+4. Tooltip, and an accessible name. It is an icon-only button.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The button appears on the named screens, and clicking it opens the same
+dialog as the menu item. A test that finds it by objectName and asserts the
+dialog type it opens.

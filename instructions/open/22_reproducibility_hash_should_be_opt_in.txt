@@ -1,0 +1,53 @@
+================================================================================
+THE REPRODUCIBILITY HASH SHOULD BE OPT-IN
+================================================================================
+
+Status:    not started
+Requested: 2026-08-06 - "there is a reproducibility hash that sometimes takes a very long time. i would like this to be opt in, with a setting in preferences to activate this feature."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not investigated yet. spacr/run_journal.py writes a per-run manifest -
+version, git hash, settings, INPUT HASHES, timings - and the input hashes
+are the suspect: hashing every input file of a plate is O(bytes on disk),
+which on a real screen is tens of GB.
+
+Find the actual call site before changing anything. Candidates:
+run_journal.py, spacr/repro.py / cli_repro.py, and anything calling a
+hashing helper over `src`.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A user waiting minutes on a hash they did not ask for, at the START of a run
+they wanted to watch. Worse, it is invisible: the run looks hung.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Find where the hash is computed and how long it actually takes - MEASURE
+   it on a real plate rather than assuming, so the default can be argued
+   from a number.
+2. Add a preference (spacr/qt/preferences.py has the store AND the dialog;
+   see get_*/set_* pairs there for the pattern) defaulting to OFF.
+3. The pipeline must not import Qt (ARCHITECTURE: a `from PySide6 import` in
+   a pipeline module makes the package unimportable on a cluster). So the
+   preference is read in the GUI and passed down as a setting, or the
+   pipeline reads a plain config value - NOT the QSettings store.
+4. When off, the manifest must still be written, and must SAY that hashing
+   was skipped rather than omitting the field silently. A manifest that
+   quietly lacks hashes is indistinguishable from one whose hashes matched.
+5. The CLI needs the same switch, or a headless run cannot reproduce a GUI
+   run.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+With the preference off, a run's manifest appears promptly and records that
+hashing was skipped. With it on, the hashes are present and identical to
+what is written today. Timed on the same plate both ways.
