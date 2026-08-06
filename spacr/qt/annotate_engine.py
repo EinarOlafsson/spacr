@@ -20,7 +20,8 @@ import sqlite3
 import threading
 import time
 from dataclasses import dataclass, field
-from typing import Any, Iterable, List, Optional, Tuple
+from typing import (Any, Dict, Iterable, List, Mapping, Optional,
+                    Sequence, Tuple)
 
 import numpy as np
 from PIL import Image
@@ -511,6 +512,183 @@ def fetch_filtered_paths(
     if annotation_column not in df.columns:
         return []
     return df[["png_path", annotation_column]].values.tolist()
+
+
+
+# ---------------------------------------------------------------------------
+# Auto-annotation
+#
+# Four ways to pick a population, ONE way to write it. The write path is
+# `SaveWorker` -- the annotator's existing batched writer -- because a second
+# sqlite writer on measurements.db is a known hazard (spacr.database_
+# concurrency), and because going through it means bulk annotations land in
+# the same place, in the same order, as the ones made by hand.
+#
+# Two of the four sources are not implemented here on purpose. The Gate
+# Editor and the Image UMAP already select populations and already write
+# annotations; duplicating either would mean two implementations of the same
+# gate maths drifting apart. What was missing was the ROUTE from them into an
+# annotation column, and that is what `gate_paths` and the UMAP hand-off
+# provide.
+# ---------------------------------------------------------------------------
+
+#: png_list columns that describe where an object came from, offered as the
+#: metadata source. `label` is deliberately absent: it is the object's id
+#: within its field, not a property anyone annotates by.
+METADATA_COLUMNS: Tuple[str, ...] = (
+    "plateID", "wellID", "rowID", "columnID", "fieldID", "timeID",
+)
+
+
+def metadata_values(db_path: str, column: str) -> List[str]:
+    """The distinct values of one png_list metadata column, sorted.
+
+    Read from the database rather than guessed from a naming convention:
+    plates are named by whoever ran them, and a picker offering rows A-H to
+    someone whose plate is numbered is a picker they cannot use.
+
+    :param db_path: the measurements database.
+    :param column: one of :data:`METADATA_COLUMNS`.
+    :returns: the distinct values, as strings, sorted; empty when the column
+        or the database is missing.
+    :raises ValueError: a column outside METADATA_COLUMNS, which would
+        otherwise interpolate an arbitrary name into SQL.
+    """
+    if column not in METADATA_COLUMNS:
+        raise ValueError(
+            f"{column!r} is not a metadata column; expected one of "
+            f"{list(METADATA_COLUMNS)}")
+    if not os.path.isfile(db_path):
+        return []
+    with contextlib.closing(
+        connect_database(db_path, readonly=True, timeout=30)
+    ) as conn:
+        cur = conn.cursor()
+        cur.execute('PRAGMA table_info("png_list")')
+        if column not in {row[1] for row in cur.fetchall()}:
+            return []
+        cur.execute(
+            f'SELECT DISTINCT "{column}" FROM "png_list" '
+            f'WHERE "{column}" IS NOT NULL')
+        return sorted(str(row[0]) for row in cur.fetchall())
+
+
+def paths_by_metadata(db_path: str, column: str,
+                      values: Sequence[str]) -> List[str]:
+    """png_paths whose ``column`` is one of ``values``.
+
+    :param db_path: the measurements database.
+    :param column: one of :data:`METADATA_COLUMNS`.
+    :param values: the values to select.
+    :returns: matching png_path strings.
+    :raises ValueError: a column outside METADATA_COLUMNS.
+    """
+    if column not in METADATA_COLUMNS:
+        raise ValueError(
+            f"{column!r} is not a metadata column; expected one of "
+            f"{list(METADATA_COLUMNS)}")
+    if not os.path.isfile(db_path) or not values:
+        return []
+    wanted = [str(v) for v in values]
+    placeholders = ",".join("?" for _ in wanted)
+    with contextlib.closing(
+        connect_database(db_path, readonly=True, timeout=30)
+    ) as conn:
+        cur = conn.cursor()
+        cur.execute('PRAGMA table_info("png_list")')
+        if column not in {row[1] for row in cur.fetchall()}:
+            return []
+        # CAST so a numeric columnID matches the strings the picker offers.
+        cur.execute(
+            f'SELECT png_path FROM "png_list" '
+            f'WHERE CAST("{column}" AS TEXT) IN ({placeholders})', wanted)
+        return [row[0] for row in cur.fetchall()]
+
+
+def paths_by_measurements(db_path: str, annotation_column: str,
+                          rules: Sequence[Mapping[str, Any]]) -> List[str]:
+    """png_paths satisfying EVERY ``{column, threshold, direction}`` rule.
+
+    Several measurements at once is the point: one threshold is a gate, not a
+    population. The rules are ANDed, which is what
+    :func:`fetch_filtered_paths` already does for the settings-panel filter --
+    reused here rather than re-derived, so the auto-annotator and the filter
+    can never disagree about what a threshold means.
+
+    :param db_path: the measurements database.
+    :param annotation_column: the column being written (needed by the join).
+    :param rules: mappings with ``column``, ``threshold`` and ``direction``
+        (``'higher'`` or ``'lower'``).
+    :returns: matching png_path strings.
+    :raises ValueError: a rule missing a field, or an unknown direction.
+    """
+    if not rules:
+        return []
+    columns, thresholds, directions = [], [], []
+    for rule in rules:
+        column = rule.get("column")
+        threshold = rule.get("threshold")
+        direction = str(rule.get("direction", "higher")).lower()
+        if not column or threshold is None:
+            raise ValueError(
+                f"every measurement rule needs a column and a threshold: "
+                f"{dict(rule)!r}")
+        if direction not in ("higher", "lower"):
+            raise ValueError(
+                f"direction must be 'higher' or 'lower', got {direction!r}")
+        columns.append(str(column))
+        thresholds.append(float(threshold))
+        directions.append(direction)
+    rows = fetch_filtered_paths(
+        db_path, annotation_column, columns, thresholds, directions)
+    return [path for path, _ in rows]
+
+
+def gate_paths(db_path: str, gates: Sequence[Any]) -> List[str]:
+    """png_paths surviving a chain of :class:`spacr.qt.widgets.gate_spec.Gate`.
+
+    The route the Gate Editor was missing. The gate maths is NOT reproduced
+    here -- ``GateClause`` evaluates the chain, exactly as it does when the
+    same gates filter a plot, so a population gated on screen and a
+    population annotated from it are the same population by construction.
+
+    :param db_path: the measurements database.
+    :param gates: the gate chain, outermost first.
+    :returns: matching png_path strings.
+    """
+    if not gates:
+        return []
+    from spacr.io import _read_and_join_tables, _read_db
+    from .widgets.gate_spec import GateClause
+
+    frame = _read_and_join_tables(db_path)
+    if "png_path" not in frame.columns:
+        png_df = _read_db(db_path, tables=["png_list"])[0]
+        if "prcfo" not in frame.columns and frame.index.name == "prcfo":
+            frame = frame.reset_index()
+        if "prcfo" not in png_df.columns and png_df.index.name == "prcfo":
+            png_df = png_df.reset_index()
+        if "prcfo" in frame.columns and "prcfo" in png_df.columns:
+            frame = frame.merge(png_df[["prcfo", "png_path"]], on="prcfo",
+                                how="left", validate="one_to_one")
+    if "png_path" not in frame.columns:
+        return []
+    keep = GateClause(tuple(gates)).mask(frame)
+    return frame.loc[keep, "png_path"].dropna().astype(str).tolist()
+
+
+def annotation_batch(paths: Iterable[str],
+                     value: Optional[int]) -> Dict[str, Optional[int]]:
+    """Turn a path list into the batch :meth:`SaveWorker.submit` takes.
+
+    Trivial, and it exists so every auto-annotation source ends at the same
+    call. ``None`` clears, exactly as it does for a keystroke.
+
+    :param paths: png_paths to label.
+    :param value: the class number, or None to clear.
+    :returns: ``{png_path: value}``.
+    """
+    return {str(path): value for path in paths}
 
 
 def class_counts(db_path: str, annotation_column: str) -> List[Tuple[int, int]]:
