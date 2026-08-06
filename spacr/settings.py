@@ -1081,6 +1081,27 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('summarize_organelles_by', 'cell')
     return settings
 
+def set_default_classify(settings):
+    """Populate defaults for the merged Classify module.
+
+    The union of Classify (CV) and Classify (ML), plus ``classifier_family``
+    to say which of the two a run uses. Built by CALLING both factories
+    rather than by copying their keys: a list here would go stale the first
+    time either module gained a setting, and the symptom would be a control
+    missing from the merged screen only.
+
+    CV is applied second and wins on the six keys the two share, because the
+    merged module's default family is CV.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
+    settings.setdefault('classifier_family', 'cv')
+    set_default_analyze_screen(settings)
+    deep_spacr_defaults(settings)
+    return settings
+
+
 def set_default_analyze_screen(settings):
     """Populate default settings for screen analysis (ML-based scoring).
 
@@ -1214,7 +1235,6 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('tables', ['cell', 'nucleus', 'pathogen', 'cytoplasm'])
     settings.setdefault('dataset_mode','metadata')
     settings.setdefault('annotation_column','test')
-    settings.setdefault('annotated_classes',[1,2])
     # class_metadata holds VALUES OF metadata_type_by ('columnID'), so the
     # entries have to be well ids. It was set twice, and the first call won:
     # ['nc','pc'] -- the CLASS NAMES from deep_spacr_defaults' 'classes' key,
@@ -1232,7 +1252,6 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('class_metadata',[['c1'],['c2']])
     settings.setdefault('metadata_type_by','columnID')
     settings.setdefault('channel_of_interest',3)
-    settings.setdefault('custom_measurement',None)
     settings.setdefault('nuclei_limit',True)
     settings.setdefault('pathogen_limit',True)
     settings.setdefault('png_type','cell_png')
@@ -1254,14 +1273,12 @@ def deep_spacr_defaults(settings):
     settings.setdefault('src','path')
     settings.setdefault('dataset_mode','metadata')
     settings.setdefault('annotation_column','test')
-    settings.setdefault('annotated_classes',[1,2])
     settings.setdefault('classes',['nc','pc'])
     settings.setdefault('size',224)
     settings.setdefault('test_split',0.1)
     settings.setdefault('class_metadata',[['c1'],['c2']])
     settings.setdefault('metadata_type_by','columnID')
     settings.setdefault('channel_of_interest',3)
-    settings.setdefault('custom_measurement',None)
     settings.setdefault('tables',None)
     settings.setdefault('png_type','cell_png')
     settings.setdefault('custom_model',False)
@@ -1827,6 +1844,7 @@ expected_types = {
     "png_size": list,  # This can be a list of lists 
     "png_dims": list,
     "png_channel_mapping": dict,
+    "classifier_family": str,
     "measurement_rules": (list, type(None)),
     "measurement_class_column": (str, type(None)),
     "normalize_by": str,
@@ -2472,6 +2490,18 @@ expected_types = {
 #: They stay declared rather than being deleted so that an old settings CSV
 #: still loads far enough to be told, by name, what to use instead.
 DEAD_SETTINGS = {
+    # INERT for as long as it existed: the Tk 'Generate Dataset' form
+    # collected it and no pipeline code ever read
+    # settings['custom_measurement']. A control that changes nothing is
+    # worse than a missing one, because the user reasonably assumes it did
+    # something. The live dataset builder selects classes from dataset_mode,
+    # so this points at the setting that actually does the job.
+    #
+    # `annotated_classes` was dropped alongside it but is deliberately NOT
+    # here: it survives as a PARAMETER of io.training_dataset_from_annotation
+    # and io.training_dataset_from_annotation_metadata, so it is not dead --
+    # it is simply no longer a settings key.
+    'custom_measurement': 'measurement_rules',
     # NOT png_dims. It is deprecated in favour of png_channel_mapping, but
     # it still HAS a reader -- crops.resolve_png_channel_mapping translates
     # it, deliberately, so every settings CSV in the wild keeps working. This
@@ -2834,10 +2864,11 @@ tooltips = {
     "balance_to_smallest": "(bool) - Downsample every generated training class to the size of the smallest class before writing train/test folders. This removes the dataset prior but discards majority examples; disable it and use class_balance during training to retain all images. Default True.",
     "write_random_annotation_column": "(bool) - In annotation mode, persist an automatically selected unannotated comparison group into png_list as <column>_random. This makes an automatically generated control class reproducible and auditable. Default False.",
     "train_channels": "(list) - Which colour planes of each object crop the classifier sees, chosen from 'r', 'g' and 'b'. Fewer channels means a smaller input tensor and a model that cannot use the dropped stain, so drop a channel only when it carries no signal for your phenotype. The joined letters also become part of the saved model's filename. Default ['r', 'g', 'b'].",
+    "classifier_family": "(str) - Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops (the Classify (CV) pipeline), 'ml' fits a gradient-boosted model on measured features (the Classify (ML) pipeline). The settings the other family uses are greyed out, not hidden - they keep their values. Both original modules remain available on their own. Default 'cv'.",
     "measurement_rules": "(list of dict) - Class definitions by threshold on measured features, shared by Classify (CV) and Classify (ML). Each entry is {'name': <class>, 'where': [{'column': <feature>, 'op': '>'|'>='|'<'|'<='|'=='|'!=', 'value': <number>}, ...]} and the clauses within one rule are ANDed - use more than one, since a single threshold is a gate rather than a class definition. Rows matching no rule stay unlabelled and are dropped, never assigned to a class. Used when dataset_mode is 'measurement'. Default None.",
     "measurement_class_column": "(str) - Name of the column the measurement rules write their class labels into before training. Only needs setting if the default collides with a real measurement column. Default '_spacr_measurement_class'.",
     "dataset_mode": "(str) - How training classes are defined: 'metadata' splits crops by well metadata (class_metadata or metadata_rules), 'annotation' by the values in one or more annotation columns of png_list, 'measurement' by threshold rules on measured features (measurement_rules). Any other value aborts and returns no dataset. Default 'metadata'.",
-    "annotated_classes": "(list) - Currently inert: the Tk 'Generate Dataset' form collects it and the defaults set [1,2], but no code reads settings['annotated_classes']. The two io.py helpers with a same-named parameter (training_dataset_from_annotation and training_dataset_from_annotation_metadata, default (1,2)) have no callers anywhere in the package. The live dataset builder selects classes from dataset_mode instead - annotation_columns/annotation_values under 'annotation', class_metadata or the rule lists under 'metadata'/'measurement'. Default [1,2], with no effect.",
+    "annotated_classes": "(list) - No longer a spaCR setting; nothing in spacr reads settings['annotated_classes'] and the Generate Dataset form no longer collects it. It survives only as a PARAMETER of io.training_dataset_from_annotation and io.training_dataset_from_annotation_metadata, where you pass it directly. Select classes with dataset_mode instead - annotation_columns/annotation_values under 'annotation', class_metadata or the rule lists under 'metadata'/'measurement'. Previously: (list) - Currently inert: the Tk 'Generate Dataset' form collects it and the defaults set [1,2], but no code reads settings['annotated_classes']. The two io.py helpers with a same-named parameter (training_dataset_from_annotation and training_dataset_from_annotation_metadata, default (1,2)) have no callers anywhere in the package. The live dataset builder selects classes from dataset_mode instead - annotation_columns/annotation_values under 'annotation', class_metadata or the rule lists under 'metadata'/'measurement'. Default [1,2], with no effect.",
     "um_per_pixel": "(float) - Physical size of one image pixel in micrometres, taken from your objective and camera. It is used only to convert scale_bar_length_um into pixels when a scale bar is drawn on representative-image grids, so a wrong value gives a wrong-length bar; it never rescales or resamples the images. The plotting helpers default to 0.1.",
     "pathogen_model": "(str or None) - Path to a custom Cellpose checkpoint used to detect pathogen objects, overriding pathogen_model_name when set. It must be a CPSAM-architecture checkpoint (one your own Train Cellpose run produced); a Cellpose-3 CPnet file cannot load into Cellpose 4. A path that does not exist stops the run rather than falling back to the stock weights silently. Default None.",
     "timelapse_displacement": "(int or None) - Maximum distance in pixels an object may travel between consecutive frames when linking: trackpy's search_range, or btrack's max search radius. Too small fragments tracks, too large causes identity swaps and SubnetOversize failures. None auto-searches downward from 500 for trackpy and falls back to 100 for btrack. Default None.",
@@ -3112,7 +3143,7 @@ tooltips = {
     'leakage_audit_train_test': "(bool) - Audit the permanent train/ and test/ boundary before any classifier fit. Checks plate/well/field/object lineage, exported augmentation families and (when enabled) byte-identical renamed copies. Default True. API: spacr.classifier_evaluation.audit_dataset_splits.",
     'leakage_hash_content': "(bool) - SHA-256 hash classifier images during leakage audits so an identical crop copied or renamed across train/test or CV boundaries is still detected. Reads files in 1 MiB chunks and never decodes pixels. Default True. API: spacr.classifier_evaluation.audit_cv_folds.",
     'leakage_require_identity': "(bool) - Treat filenames that do not encode the protected cv_group_by identity, and files that cannot be hashed, as a failed audit rather than an advisory warning. Default True because independence cannot be claimed when lineage is unknown. API: spacr.classifier_evaluation.audit_split_leakage.",
-    'custom_measurement': "(str) - Optional measurement-column name intended for class assignment; the Tk dataset dialog collects it but no pipeline code reads the key, so it currently has no effect. To select classes by a measured feature use dataset_mode 'measurement' with measurement_rules instead. Default None.",
+    'custom_measurement': "(str) - RETIRED, and nothing in spacr reads it. It was collected by the Tk dataset dialog and never had any effect at all. To select classes by a measured feature use dataset_mode 'measurement' with measurement_rules instead. Default None.",
     'denoise': "(bool) - Legacy denoising toggle for the mask pipeline: no code reads this key, so it has no effect. To actually denoise, set the per-object restore settings (cell_restore_type / nucleus_restore_type / pathogen_restore_type) to 'denoise', which routes segmentation through Cellpose's CellposeDenoiseModel. Default False.",
     'early_stopping_patience': "(int) - Stop training after this many consecutive epochs in which validation accuracy fails to beat the best value so far; the best checkpoint is still kept. 0 (default) disables it and always runs the full 'epochs' budget. Set 10-20 on long runs to cut wasted epochs once the model plateaus.",
     'tensorboard': "(bool) - Write live PyTorch loss, accuracy, macro-F1 and learning-rate events to dst/tensorboard while the vision model trains. Open that folder with tensorboard --logdir PATH for an interactive dashboard that can compare runs. The in-app zoomable loss/accuracy monitor is controlled separately by plot. Default True.",
