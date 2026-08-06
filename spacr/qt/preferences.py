@@ -2671,6 +2671,51 @@ class PreferencesDialog:
         mode_combo.currentIndexChanged.connect(_sync_mode_note)
         _sync_mode_note()
 
+        def _quit_spacr(parent) -> None:
+            """Ask how, then either stop cooperatively or leave outright.
+
+            The graceful path is the same one `closeEvent` takes --
+            `cancel_all` with a short budget -- and then closes the window,
+            so a normal quit still runs every shutdown hook. What this adds
+            is the five-minute re-prompt, for the case `closeEvent` cannot
+            handle: a worker wedged in a C extension that will never see
+            the cancel flag, which leaves the window refusing to close with
+            no way out from inside the application.
+            """
+            from .shutdown import (CANCEL, FORCE, GracefulQuitWatcher,
+                                   ask_how_to_quit, describe_active,
+                                   force_quit_now)
+
+            window = parent.window() if parent is not None else None
+            registry = getattr(window, "_runs", None)
+            active = list(registry.active()) if registry is not None else []
+
+            choice = ask_how_to_quit(parent, what="spaCR",
+                                     detail=describe_active(active))
+            if choice == CANCEL:
+                return
+            if choice == FORCE:
+                force_quit_now()
+                return
+
+            if registry is not None:
+                registry.cancel_all(reason="quit from Preferences")
+            watcher = GracefulQuitWatcher(
+                window,
+                lambda: bool(registry is not None and registry.active()),
+                what="spaCR",
+                describe=lambda: describe_active(
+                    list(registry.active()) if registry is not None else []),
+            )
+            # Parented to the window, not to the dialog: the dialog is
+            # about to close and a timer that dies with it would ask
+            # nothing.
+            watcher.start()
+            if parent is not None:
+                parent.accept()
+            if window is not None:
+                window.close()
+
         # The four buttons. Each one is confirmed by a dialog that NAMES
         # what will happen — "are you sure?" is not something a user can
         # consent to — and each reports what was actually freed, measured
@@ -2691,6 +2736,26 @@ class PreferencesDialog:
         _resource_button("vram", "Clear VRAM", "GPU memory")
         _resource_button("cpu", "Clear CPU", "Threads")
         _resource_button("disk", "Check disk space", "Disk")
+
+        # Quitting belongs on this tab and not with Save/Cancel: it is the
+        # last of the "this machine is not behaving" tools, next to the
+        # four that free what a wedged run is holding. It is the one to
+        # reach for when freeing memory was not enough.
+        #
+        # Deliberately NOT wired to `dlg.accept()` first. A user reaching
+        # for this has a window that will not close; making them save
+        # preferences on the way out would be one more thing between them
+        # and leaving.
+        quit_button = QPushButton(tr("Quit spaCR…"))
+        quit_button.setObjectName("QuitSpacrButton")
+        quit_button.setToolTip(tr(
+            "Stop spaCR. You are asked whether to let running work finish "
+            "the step it is on, or to stop immediately. Immediately leaves "
+            "anything being written half-written."))
+        from .shutdown import style_as_danger
+        style_as_danger(quit_button)
+        quit_button.clicked.connect(lambda: _quit_spacr(dlg))
+        performance.addRow(tr("Application"), quit_button)
 
         outer.addWidget(tabs)
 
