@@ -202,7 +202,11 @@ def _check_settings_never_written_by_tests():
 _TASK_SECTIONS = (
     ("WHAT THE STATE IS",),
     ("WHY IT MATTERS",),
-    ("WHAT TO DO", "WHAT WAS DONE"),
+    # "THE ANSWER" is for a task whose deliverable is a written finding
+    # rather than a change -- a review, an investigation, a recommendation.
+    # Forcing one of those into "WHAT WAS DONE" would make the heading lie
+    # about what the reader is about to get.
+    ("WHAT TO DO", "WHAT WAS DONE", "THE ANSWER"),
     ("HOW TO KNOW IT WORKED", "VERIFIED"),
 )
 
