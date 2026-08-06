@@ -209,8 +209,15 @@ def test_png_source_and_merged_source_agree_on_the_same_object(tmp_path):
     png_dir = tmp_path / "data" / "plate1_A01" / "cell_png"
     png_dir.mkdir(parents=True)
     png_file = png_dir / "plate1_A01_1_2.png"
-    cv2.imwrite(str(png_file), _reference_png_crop(data, "cell", 2, width=48,
-                                                   height=48))
+    # Written the way the current writer writes: the crop is already in
+    # colour order, `to_cv2_bgr` reverses it once for cv2's BGR reading, and
+    # the folder is stamped so the reader does not have to guess. Writing it
+    # with a bare cv2.imwrite would produce a legacy-layout file inside an
+    # unmarked folder, which is a state spaCR no longer creates.
+    crops.stamp_crop_folder(str(png_dir))
+    cv2.imwrite(str(png_file),
+                crops.to_cv2_bgr(_reference_png_crop(data, "cell", 2,
+                                                     width=48, height=48)))
 
     png_src = PngCropSource()
     merged_src = MergedCropSource(
@@ -847,7 +854,9 @@ def test_resolve_recovers_crop_settings_from_the_database(tmp_path):
     assert src.kind == "merged"
     assert "measurements.db" in src.reason
     spec = src.spec
-    assert spec.channels == (1, 2, 3)
+    # COLOUR order, so png_dims=[1,2,3] -- entry 0 is blue -- becomes
+    # (red, green, blue) = (3, 2, 1). See crops.channels_from_settings.
+    assert spec.channels == (3, 2, 1)
     assert spec.size == (64, 64)
     assert spec.normalize == [2, 98]
     assert spec.normalize_by == "fov"

@@ -184,3 +184,49 @@ def test_crop_objects_area_filter_and_limit():
     # largest-first ordering
     areas = [o["area"] for o in out]
     assert areas == sorted(areas, reverse=True)
+
+
+# ---------------------------------------------------------------------------
+# Crop format marker
+# ---------------------------------------------------------------------------
+
+def test_the_output_folder_is_marked_so_readers_do_not_reverse_it(tmp_path):
+    """The object-dataset folder must carry the crop-format sidecar.
+
+    What this defends: `_save_object_crop` writes through PIL, which is
+    already RGB, so the bytes it puts on disk are correct and there is
+    nothing to reverse. But an *unmarked* folder means LEGACY to every
+    spaCR reader (crops.read_crop_png's documented precedence), so
+    read_crop_png reversed a correct file on load. The annotator, the crop
+    grid and the training loaders showed channel 0 as blue and channel 2 as
+    red while an external image viewer showed them the right way round --
+    the two disagreeing about the same file is the symptom.
+
+    Asserted end to end rather than on the sidecar alone, because the claim
+    that matters is "PIL and read_crop_png agree", not "a JSON file exists".
+    """
+    from spacr.crops import CROP_FORMAT_SIDECAR, read_crop_png
+    from spacr.measure import generate_object_dataset
+
+    root = _build_dataset(str(tmp_path))
+    man = generate_object_dataset(
+        root, object_type="cell", channels=(0, 1, 2), min_area=100,
+        mask_dims={"cell": 3}, normalize=False, mask_background=False,
+        verbose=False)
+    assert man, "fixture produced no crops"
+
+    out_dir = os.path.dirname(man[0]["png_path"])
+    assert os.path.isfile(os.path.join(out_dir, CROP_FORMAT_SIDECAR)), (
+        "the object-dataset folder is unmarked, so every reader will treat "
+        "these format-2 crops as legacy and reverse them")
+
+    for entry in man:
+        path = entry["png_path"]
+        direct = np.array(Image.open(path).convert("RGB"))
+        through = read_crop_png(path)
+        assert np.array_equal(direct, through), (
+            "read_crop_png disagrees with a plain PIL read of the same file")
+        # ch0 (10.0) < ch1 (20.0) < ch2 (30.0) in the fixture: the ordering
+        # survives, so the array was not reversed on the way out either.
+        means = [float(direct[..., i].mean()) for i in range(3)]
+        assert means[0] < means[1] < means[2], means

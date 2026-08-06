@@ -145,10 +145,17 @@ def _check_settings_never_written_by_tests():
     return True, "QSettings sandbox present"
 
 
-#: The headings every task file carries. They are the four questions a
-#: reader picking the task up cold has to have answered.
-_TASK_SECTIONS = ("WHAT THE STATE IS", "WHY IT MATTERS",
-                  "WHAT TO DO", "HOW TO KNOW IT WORKED")
+#: The headings every task file carries. They are the questions a reader
+#: picking the task up cold has to have answered. Each entry is a tuple of
+#: acceptable spellings: a finished task says what WAS done, not what to do,
+#: and demanding the open-task wording of a done file would push the next
+#: person into writing a heading that lies about the tense.
+_TASK_SECTIONS = (
+    ("WHAT THE STATE IS",),
+    ("WHY IT MATTERS",),
+    ("WHAT TO DO", "WHAT WAS DONE"),
+    ("HOW TO KNOW IT WORKED", "VERIFIED"),
+)
 
 
 def _check_task_ledger():
@@ -184,7 +191,8 @@ def _check_task_ledger():
             with open(os.path.join(folder, name), encoding="utf-8",
                       errors="replace") as handle:
                 body = handle.read()
-            missing = [s for s in _TASK_SECTIONS if s not in body]
+            missing = [alts[0] for alts in _TASK_SECTIONS
+                       if not any(a in body for a in alts)]
             if missing:
                 problems.append(f"{name} is missing {missing}")
             elif "Status:" not in body:

@@ -515,7 +515,12 @@ def test_normalise_without_masking_uses_every_pixel():
     # Masked: the range is 1000-4000, so the dim pixels go to black.
     assert masked[1, 0, 0] == 0
     # Unmasked: the range is 0-4000, so they keep their quarter of it.
-    assert unmasked[1, 0, 0] == pytest.approx(65535 // 4, abs=2)
+    # int(), and it is not cosmetic: pytest.approx computes
+    # `abs(expected - actual)`, and with a uint16 actual that subtraction
+    # wraps. 16384 vs 16383 came out as 65535 and the test failed on a
+    # one-count difference it was explicitly tolerating. Red on the clean
+    # tree since it was written.
+    assert int(unmasked[1, 0, 0]) == pytest.approx(65535 // 4, abs=2)
 
 
 def test_normalise_of_a_float_crop_targets_one():

@@ -206,7 +206,7 @@ def test_the_fixture_is_a_real_spacr_project(project):
     assert len(_crop_pngs(project)) == n_png
     # measure stamps the folder it writes, so the crops are format 2.
     assert crops.crop_folder_format(
-        os.path.dirname(_crop_pngs(project)[0])) == crops.CROP_FORMAT_RGB
+        os.path.dirname(_crop_pngs(project)[0])) == crops.CROP_FORMAT_DECLARED_RGB
 
 
 # ---------------------------------------------------------------------------
@@ -369,11 +369,11 @@ def test_tar_from_merged_carries_the_crop_format_marker(project):
         assert crops.CROP_FORMAT_SIDECAR in names
         payload = json.loads(
             archive.extractfile(crops.CROP_FORMAT_SIDECAR).read().decode())
-    assert payload["spacr_crop_format"] == crops.CROP_FORMAT_RGB
+    assert payload["spacr_crop_format"] == crops.CROP_FORMAT_DECLARED_RGB
 
     dataset = TarImageDataset(tar)
     # The marker is not an image: it must not become a sample.
-    assert dataset.crop_format == crops.CROP_FORMAT_RGB
+    assert dataset.crop_format == crops.CROP_FORMAT_DECLARED_RGB
     assert len(dataset) == N_CELLS * len(FIELDS)
     assert all(m.name.endswith(".png") for m in dataset.members)
     img, name = dataset[0]
@@ -580,7 +580,7 @@ def test_the_training_tree_records_its_crop_format(project):
     root = os.path.dirname(train)
     marker = crops.read_crop_folder_marker(root)
     assert marker is not None
-    assert marker["spacr_crop_format"] == crops.CROP_FORMAT_RGB
+    assert marker["spacr_crop_format"] == crops.CROP_FORMAT_DECLARED_RGB
     # The class folders stay clean: they are enumerated both as "the classes"
     # and as "the samples", so a sidecar inside one would be counted as each.
     for cls in os.listdir(train):
@@ -688,7 +688,7 @@ def test_hidden_files_are_not_training_samples(tmp_path):
     cls.mkdir(parents=True)
     for i in range(3):
         Image.new("RGB", (8, 8)).save(cls / f"c{i}.png")
-    crops.write_crop_folder_marker(str(cls), fmt=crops.CROP_FORMAT_RGB)
+    crops.write_crop_folder_marker(str(cls), fmt=crops.CROP_FORMAT_DECLARED_RGB)
     (cls / ".DS_Store").write_bytes(b"junk")
 
     assert len(spacrDataset(str(root), ["a"], shuffle=False)) == 3
@@ -979,10 +979,10 @@ def test_mark_crop_output_folder_inherits_from_the_source(tmp_path):
     assert crops.read_crop_folder_marker(str(dst))["spacr_crop_format"] == \
         crops.CROP_FORMAT_LEGACY_BGR
 
-    crops.write_crop_folder_marker(str(src), fmt=crops.CROP_FORMAT_RGB)
+    crops.write_crop_folder_marker(str(src), fmt=crops.CROP_FORMAT_DECLARED_RGB)
     crops.clear_crop_format_cache()
     dst2 = tmp_path / "dst2"
     dst2.mkdir()
     mark_crop_output_folder(str(dst2), source_folder=str(src))
     assert crops.read_crop_folder_marker(str(dst2))["spacr_crop_format"] == \
-        crops.CROP_FORMAT_RGB
+        crops.CROP_FORMAT_DECLARED_RGB

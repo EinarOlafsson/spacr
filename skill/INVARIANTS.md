@@ -187,3 +187,45 @@ pip. `spacr/updater.py :: find_uv()` finds the bootstrapped tool at
 `<install root>/bootstrap/uv`. Anything that shells out to
 `sys.executable -m pip` in an installed build will fail. See
 `instructions/01`.
+
+## 13. Channel order is declared, never inferred from list position
+
+A setting that names channels in a list carries an unstated convention about
+which colour each position means, and **the convention will be read
+backwards**. It was, for eleven days.
+
+`png_dims=[0,1,2]` meant "0 is blue" for the whole life of the project —
+not because anything said so, but because `cv2.imwrite` interprets a
+3-channel array as BGR and the writer handed it the array unchanged. Commit
+`341f4462` (2026-07-26) read the list the other way, reversed the writer so
+`png_dims[0]` landed in red, versioned the format, and migrated existing
+folders into the new order. Every crop written or migrated in that window
+has its 405/DAPI plane in the red channel; nuclei render red and the 555
+plane renders blue.
+
+Nothing was wrong with the code. The list was ambiguous and two readings of
+it were each defensible.
+
+**The rule:** where a channel setting decides a *colour*, it is a mapping —
+`png_channel_mapping = {'r': 2, 'g': 1, 'b': 0}` — and every part of the
+crop path speaks that order. `CropSpec.channels`, `extract_crop`,
+`png_view` and `read_crop_png` are all `(red, green, blue)`.
+`crops.channels_from_settings` is the single translation from the legacy
+list, at the edge.
+
+Where a channel setting decides which channels are *processed* (`channels`
+for cellpose and measure) it is a set and stays a list. Forcing r/g/b onto
+it would invent a meaning that is not there.
+
+Corollaries worth knowing before touching `crops.py`:
+
+* Formats 1 and 3 hold **identical bytes** for the same mapping. Reversal on
+  read is decided by `_FORMAT_IS_DECLARED_ORDER`, not by `fmt != as_format`
+  — that comparison reverses between two formats that agree.
+* Format 2 is the only one whose pixels are out of step, so it is the only
+  input `migrate_crop_folder` has work to do on. Pointing the migrator at a
+  legacy folder is correctly a no-op.
+* A folder finished with `on_error='skip'` is marked with the **target**
+  format and an `unconverted` list. A retry keyed on the *source* format
+  silently returns `already` and leaves those files unconverted for ever.
+  Measured: the retry converted all three crops instead of the one.
