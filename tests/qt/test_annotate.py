@@ -921,3 +921,146 @@ def test_setters_report_whether_a_repaint_was_needed(qtbot, qt_theme_applied):
     assert tile.set_current(True) is False
     assert tile.set_occupied(True) is True
     assert tile.set_occupied(True) is False
+
+
+# ---------------------------------------------------------------------------
+# Bulk annotation: page buttons, rubber-band selection, database link
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def loaded_screen(qtbot, qt_theme_applied, synth_annotate_source: Path):
+    """An Annotate screen with a 2x2 page of real crops loaded."""
+    from spacr.qt.screens.annotate import AnnotateScreen
+    screen = AnnotateScreen()
+    qtbot.addWidget(screen)
+    screen._settings.grid_rows = 2
+    screen._settings.grid_cols = 2
+    screen._rebuild_grid()
+    screen._open_source(str(synth_annotate_source))
+    qtbot.waitUntil(lambda: len(screen._page_paths) == 4, timeout=5000)
+    # Offscreen, nothing lays the grid out on its own and every tile keeps
+    # geometry (0, 0, w, h) -- so a rubber band over one tile would appear to
+    # hit all four and the selection tests would pass on a fiction.
+    screen._grid_holder.resize(500, 500)
+    screen._grid_layout.activate()
+    yield screen
+    if screen._worker:
+        screen._worker.stop(wait=True)
+
+
+def test_annotate_page_labels_every_slot_and_is_undoable(loaded_screen,
+                                                         monkeypatch):
+    """One click labels the page; Ctrl+Z walks it back one slot at a time.
+
+    The undo half is the point. A bulk action that cannot be undone is worse
+    than no bulk action -- a mis-aimed click would otherwise cost the user
+    the whole page with no way back.
+    """
+    screen = loaded_screen
+    monkeypatch.setattr(screen, "_ask_class", lambda count, what: 3)
+
+    screen._on_annotate_page()
+    assert [v for _, v in screen._page_paths] == [3, 3, 3, 3]
+
+    screen._kbd_undo()
+    assert [v for _, v in screen._page_paths].count(3) == 3
+
+
+def test_annotate_page_writes_nothing_when_the_prompt_is_cancelled(
+        loaded_screen, monkeypatch):
+    """Cancel must leave the page exactly as it was, not partly labelled."""
+    screen = loaded_screen
+    monkeypatch.setattr(screen, "_ask_class", lambda count, what: None)
+    before = [v for _, v in screen._page_paths]
+    screen._on_annotate_page()
+    assert [v for _, v in screen._page_paths] == before
+
+
+def test_clear_page_only_touches_this_page(loaded_screen, monkeypatch):
+    """Clear page is bounded to what the user can see, unlike Clear column."""
+    screen = loaded_screen
+    monkeypatch.setattr(screen, "_ask_class", lambda count, what: 2)
+    screen._on_annotate_page()
+    assert all(v == 2 for _, v in screen._page_paths)
+
+    screen._on_clear_page()
+    assert all(v is None for _, v in screen._page_paths)
+    # Cleared through the same path a keystroke uses, so it is undoable.
+    screen._kbd_undo()
+    assert [v for _, v in screen._page_paths].count(2) == 1
+
+
+def test_a_band_over_the_whole_grid_selects_every_occupied_slot(loaded_screen):
+    """Intersection, not containment.
+
+    A band dragged across a row is meant to take the tiles it crosses;
+    requiring a tile to be wholly inside makes the gesture miss the ones at
+    either end, which reads as the selection silently dropping images.
+    """
+    from PySide6.QtCore import QRect
+
+    screen = loaded_screen
+    # Sanity-check the fixture actually laid the grid out: four tiles at four
+    # distinct positions. Without this the assertion below means nothing.
+    corners = {t.geometry().topLeft().toTuple() for t in screen._thumbs}
+    assert len(corners) == 4, corners
+
+    whole = QRect(0, 0, 500, 500)
+    assert sorted(screen._slots_in_rect(whole)) == [0, 1, 2, 3]
+
+    # A band far outside every tile selects nothing.
+    assert screen._slots_in_rect(QRect(-500, -500, 10, 10)) == []
+
+
+def test_a_band_labels_only_what_it_touched(loaded_screen, monkeypatch):
+    from PySide6.QtCore import QRect
+
+    screen = loaded_screen
+    monkeypatch.setattr(screen, "_ask_class", lambda count, what: 7)
+    first = screen._thumbs[0].geometry()
+    screen._apply_band(QRect(first.left(), first.top(),
+                             max(8, first.width() // 2),
+                             max(8, first.height() // 2)))
+    values = [v for _, v in screen._page_paths]
+    assert values[0] == 7
+    assert values[1:] == [None, None, None]
+
+
+def test_a_click_on_the_background_is_not_a_selection(loaded_screen,
+                                                      monkeypatch):
+    """Qt sends press+release for a plain click, and a zero-size band would
+    otherwise prompt for a selection of nothing."""
+    from PySide6.QtCore import QRect
+
+    screen = loaded_screen
+    asked = []
+    monkeypatch.setattr(screen, "_ask_class",
+                        lambda count, what: asked.append(count))
+    screen._apply_band(QRect(10, 10, 1, 1))
+    assert asked == []
+
+
+def test_view_in_database_asks_for_png_list_and_flushes_first(loaded_screen,
+                                                              monkeypatch):
+    """Unwritten labels must reach the database before the user looks at it.
+
+    Otherwise the table disagrees with the grid they just left, and the
+    obvious conclusion -- "my annotations are not being saved" -- is wrong
+    and alarming.
+    """
+    screen = loaded_screen
+    flushed = []
+    monkeypatch.setattr(screen, "_flush_pending",
+                        lambda: flushed.append(True))
+    seen = []
+    screen.train_requested.connect(lambda key, seed: seen.append((key, seed)))
+
+    screen._on_browse_db()
+
+    assert flushed == [True]
+    assert len(seen) == 1
+    key, seed = seen[0]
+    assert key == "db_browser"
+    assert seed["table"] == "png_list"
+    assert seed["db_path"] == screen._settings.db_path
+    assert seed["column"] == screen._settings.annotation_column

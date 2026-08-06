@@ -39,14 +39,16 @@ import os
 from copy import deepcopy
 from collections import deque
 from functools import partial
-from typing import Deque, Dict, List, Optional, Tuple
+from typing import Deque, Dict, List, Optional, Sequence, Tuple
 
 from PIL import Image
 from PIL.ImageQt import ImageQt
 from PySide6.QtCore import (
     Qt,
     QEvent,
+    QRect,
     QRectF,
+    QSize,
     QThread,
     QTimer,
     Signal,
@@ -63,12 +65,14 @@ from PySide6.QtWidgets import (
     QFormLayout,
     QGridLayout,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
     QMenu,
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
+    QRubberBand,
     QScrollArea,
     QSizePolicy,
     QSpinBox,
@@ -1088,6 +1092,10 @@ class AnnotateScreen(QWidget):
         # (slot, png_path, previous_value) for `u`. Bounded — a long session
         # must not grow this without limit. Cleared on every page load since
         # slot indices change meaning.
+        #: Rubber-band selection. `_band_origin` is None whenever no drag is
+        #: in progress, and is what every band handler gates on.
+        self._band = None
+        self._band_origin = None
         self._undo_stack: Deque[Tuple[int, str, Optional[int]]] = deque(
             maxlen=UNDO_LIMIT)
         self._legend_expanded = False
@@ -1252,6 +1260,34 @@ class AnnotateScreen(QWidget):
         )
         self._btn_train_xg.clicked.connect(self._on_train_xg)
         row.addWidget(self._btn_train_xg)
+
+        self._btn_browse_db = QPushButton("View in database")
+        self._btn_browse_db.setCursor(Qt.PointingHandCursor)
+        self._btn_browse_db.setToolTip(
+            "Open png_list in the Database Browser to see the annotation "
+            "column as it is stored.")
+        self._btn_browse_db.clicked.connect(self._on_browse_db)
+        row.addWidget(self._btn_browse_db)
+
+        # Page-scoped, and next to Clear column on purpose: the three differ
+        # only in how much they touch, so they belong where they can be
+        # compared. Both of these go through the same _set_annotation /
+        # _push_undo path a keystroke does, so Ctrl+Z walks back a whole page
+        # one slot at a time -- a bulk action that cannot be undone is worse
+        # than no bulk action.
+        self._btn_annotate_page = QPushButton("Annotate page")
+        self._btn_annotate_page.setCursor(Qt.PointingHandCursor)
+        self._btn_annotate_page.setToolTip(
+            "Give every image on this page the same class. Asks which.")
+        self._btn_annotate_page.clicked.connect(self._on_annotate_page)
+        row.addWidget(self._btn_annotate_page)
+
+        self._btn_clear_page = QPushButton("Clear page")
+        self._btn_clear_page.setCursor(Qt.PointingHandCursor)
+        self._btn_clear_page.setToolTip(
+            "Remove the annotations on this page only. Undoable.")
+        self._btn_clear_page.clicked.connect(self._on_clear_page)
+        row.addWidget(self._btn_clear_page)
 
         self._btn_clear = QPushButton("Clear column")
         self._btn_clear.setObjectName("DangerButton")
@@ -2054,6 +2090,101 @@ class AnnotateScreen(QWidget):
         clear_column(self._settings.db_path, col)
         self._refresh_total(then=self._load_page)
 
+    def _on_browse_db(self):
+        """Show png_list in the Database Browser.
+
+        Pending annotations are flushed first. Sending the user to look at
+        the table while this screen is still holding unwritten labels would
+        show them a table that disagrees with the grid they just left, and
+        the obvious conclusion -- "the annotations are not being saved" -- is
+        wrong and alarming.
+        """
+        if not self._settings.db_path:
+            QMessageBox.information(
+                self, "Open a source first",
+                "Open an experiment source before browsing its database.")
+            return
+        self._flush_pending()
+        self.train_requested.emit("db_browser", {
+            "db_path": self._settings.db_path,
+            "table": "png_list",
+            "column": self._settings.annotation_column,
+        })
+
+    def _ask_class(self, count: int, what: str) -> Optional[int]:
+        """Prompt for the class number to give ``count`` images.
+
+        ``None`` when the user cancels, and cancelling must leave nothing
+        changed -- so every caller asks BEFORE it writes anything.
+
+        :param count: how many images will be labelled, named in the prompt
+            because "annotate 240 images" and "annotate 2" are different
+            decisions and the button looks the same for both.
+        :param what: the selection being labelled, for the prompt text.
+        :returns: the class number, or None.
+        """
+        value, ok = QInputDialog.getInt(
+            self, "Annotate", f"Class number for {count} image(s) on {what}:",
+            1, 0, 999, 1)
+        return int(value) if ok else None
+
+    def _slots_on_page(self) -> List[int]:
+        """Every slot on this page that actually holds a crop.
+
+        Not ``range(self._slot_count())``: the last page is usually short and
+        the trailing slots are empty. Labelling those would write annotations
+        against whatever path was last in them.
+        """
+        return [slot for slot in range(self._slot_count())
+                if self._slot_is_valid(slot)]
+
+    def _apply_to_slots(self, slots: Sequence[int],
+                        value: Optional[int]) -> int:
+        """Set ``value`` on ``slots``, undoably. Returns how many changed.
+
+        The single write path for every bulk action -- the page buttons and
+        the rubber-band selection both come here -- so they cannot drift
+        apart in what they record for undo or in what they leave in
+        ``_pending_updates`` for the save worker.
+
+        A slot already holding ``value`` is skipped rather than rewritten,
+        so undo does not fill up with entries that change nothing.
+        """
+        changed = 0
+        for slot in slots:
+            if not self._slot_is_valid(slot):
+                continue
+            previous = self._current_value(slot)
+            if previous == value:
+                continue
+            path, _ = self._page_paths[slot]
+            self._push_undo(slot, path, previous)
+            if self._set_annotation(slot, value):
+                changed += 1
+        return changed
+
+    def _on_annotate_page(self):
+        """Give every crop on this page the same class."""
+        slots = self._slots_on_page()
+        if not slots:
+            self._set_kbd_hint("Nothing on this page to annotate.")
+            return
+        value = self._ask_class(len(slots), "this page")
+        if value is None:
+            return
+        changed = self._apply_to_slots(slots, value)
+        self._set_kbd_hint(f"Annotated {changed} image(s) as {value}.")
+
+    def _on_clear_page(self):
+        """Remove the annotations on this page only.
+
+        No confirmation, unlike Clear column: this is undoable and bounded to
+        what the user can see. Clear column is neither.
+        """
+        slots = self._slots_on_page()
+        changed = self._apply_to_slots(slots, None)
+        self._set_kbd_hint(f"Cleared {changed} image(s) on this page.")
+
     def _on_thumb_left(self, slot: int):
         self._toggle_annotation(slot, 1)
 
@@ -2673,7 +2804,78 @@ class AnnotateScreen(QWidget):
             return True
         if etype == QEvent.Leave:
             self._set_hover_slot(None)
+        if obj is self._grid_holder and self._band_event(etype, event):
+            return True
         return super().eventFilter(obj, event)
+
+    # ------------------------------------------------------------------
+    # Rubber-band selection
+    #
+    # A press that lands on a _Thumbnail never reaches here: the tile accepts
+    # it in its own mousePressEvent. So "press on the grid" already means
+    # "press in the space between the images", which is exactly the gesture
+    # asked for -- there is no hit-test to get wrong and no way to start a
+    # band by mis-clicking a crop.
+    # ------------------------------------------------------------------
+
+    def _band_event(self, etype, event) -> bool:
+        """Drive the selection band. True when the event was consumed."""
+        if etype == QEvent.MouseButtonPress:
+            if event.button() != Qt.LeftButton:
+                return False
+            self._band_origin = event.position().toPoint()
+            if self._band is None:
+                self._band = QRubberBand(QRubberBand.Rectangle,
+                                         self._grid_holder)
+            self._band.setGeometry(QRect(self._band_origin, QSize()))
+            self._band.show()
+            return True
+        if etype == QEvent.MouseMove and self._band_origin is not None:
+            rect = QRect(self._band_origin,
+                         event.position().toPoint()).normalized()
+            self._band.setGeometry(rect)
+            return True
+        if etype == QEvent.MouseButtonRelease and self._band_origin is not None:
+            rect = QRect(self._band_origin,
+                         event.position().toPoint()).normalized()
+            self._band_origin = None
+            if self._band is not None:
+                self._band.hide()
+            self._apply_band(rect)
+            return True
+        return False
+
+    def _slots_in_rect(self, rect) -> List[int]:
+        """Slots whose tile intersects ``rect``, in reading order.
+
+        Intersection, not containment: a band dragged across a row is meant
+        to take the tiles it crosses, and requiring a tile to be wholly
+        inside would make the gesture miss the ones at either end -- which
+        reads as the selection silently dropping images.
+        """
+        hits = []
+        for slot, thumb in enumerate(self._thumbs):
+            if not self._slot_is_valid(slot):
+                continue
+            if rect.intersects(thumb.geometry()):
+                hits.append(slot)
+        return hits
+
+    def _apply_band(self, rect) -> None:
+        """Label everything the band touched, after asking what to call it."""
+        # A click, not a drag. Qt sends press+release for a plain click on the
+        # background and a zero-size band would otherwise prompt for nothing.
+        if rect.width() < 4 and rect.height() < 4:
+            return
+        slots = self._slots_in_rect(rect)
+        if not slots:
+            self._set_kbd_hint("Selection was empty.")
+            return
+        value = self._ask_class(len(slots), "the selection")
+        if value is None:
+            return
+        changed = self._apply_to_slots(slots, value)
+        self._set_kbd_hint(f"Annotated {changed} selected image(s) as {value}.")
 
     # ------------------------------------------------------------------
     def _flush_pending(self):
