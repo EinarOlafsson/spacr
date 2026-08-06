@@ -2,7 +2,7 @@
 CLASSIFY: MERGE THE CV AND ML MODULES INTO ONE
 ================================================================================
 
-Status:    in progress - inventory done, no code written
+Status:    in progress - vocabulary + all three bases DONE; the app merge itself is not
 Requested: 2026-08-06 - "the Classify CV and ML modules should be standardized ... shared settings should be called the same things ... shared categories the same thing ... for both there should be the option to train classifiers based on annotation, metadata, and measurements ... the user can choose multiple measurements at once ... gray out metadata-based settings when annotation-based training is chosen, and vice versa ... Best would be if we could have one module called Classify"
 
 --------------------------------------------------------------------------------
@@ -93,3 +93,60 @@ Both old settings CSVs load into the merged module and produce the same run
 they did before. Switching training_basis greys the right categories and
 leaves the underlying settings dict complete. The merged app appears in Home
 with an icon and is reachable from a cold start.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-06 (commit: classify: one vocabulary...)
+--------------------------------------------------------------------------------
+
+  * spacr/training_basis.py - TRAINING_BASES, SETTING_ALIASES,
+    BASIS_SETTINGS, resolve_basis, normalize_settings,
+    inapplicable_settings, describe_basis.
+  * dataset_mode is the SHARED training basis. No new setting was invented:
+    Classify (CV) already had all three, and adopting its name was the
+    smaller and better-defined change.
+  * Classify (ML)'s basis is now EXPLICIT. It used to ask whether
+    annotation_column was None, so filling one in silently stopped the
+    module training on plate controls. resolve_basis keeps that rule as the
+    fallback for a CSV with no dataset_mode, so existing projects are
+    unchanged.
+  * ML gained the MEASUREMENT basis (ml._labels_from_measurements), taking
+    the same rule shape spacr.io accepts. Clauses within a rule are ANDed --
+    several measurements at once, as asked.
+  * The panel greys what the chosen basis does not read. Greyed, not
+    removed (INVARIANTS 6). The list lives in training_basis.py so the
+    panel and the pipeline cannot disagree.
+  * ml_analyze's first category renamed "Data & Controls" -> "Labels &
+    Classes" to match Classify (CV).
+
+Verified: 24 new tests, plus the settings and Qt suites. Measured -
+dataset_mode offers all three bases in BOTH modules and greys 2-4 controls
+per basis.
+
+--------------------------------------------------------------------------------
+STILL TO DO - THE APP MERGE ITSELF
+--------------------------------------------------------------------------------
+
+One "Classify" app instead of two. This is the registry work and it has
+five seams, each a place a module can be half-registered and end up built,
+tested and unreachable:
+
+  1. APPS in spacr/qt/app.py (currently two rows: "classify" -> Classify
+     (CV), "ml_analyze" -> Classify (ML)).
+  2. theme.WIDGET_QSS_MODULES if the merged screen registers QSS
+     (INVARIANTS 1).
+  3. _APP_CATEGORY_SPECS - the two layouts become one.
+  4. A Home band (CATS_STAGE5) rather than the fallback.
+  5. An icon.
+
+Plus: keep BOTH old app keys resolving to the merged screen, or saved
+settings and any CLI invocation break.
+
+WHY THE VOCABULARY HAD TO COME FIRST: merging two modules that disagree
+about what their settings are called would have carried the disagreement
+into the merged one, and the greying would have had nothing consistent to
+key off.
+
+STILL UNANSWERED (asked, not yet decided): `annotated_classes` and
+`custom_measurement` are documented as INERT - the form collects them and
+nothing reads them (settings.py). Either wire them up or drop them as part
+of the merge; do not carry dead keys into a new module.
