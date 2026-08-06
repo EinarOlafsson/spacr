@@ -165,3 +165,49 @@ def test_no_curve_colour_is_pure_white_or_pure_black():
     is behind it, so a curve at either extreme vanishes on one of them."""
     for colour in _CLASS_CURVE_COLORS:
         assert colour.lower() not in ("#ffffff", "#000000", "#fff", "#000")
+
+
+# ---------------------------------------------------------------------------
+# The display half
+# ---------------------------------------------------------------------------
+
+def test_the_gallery_keeps_one_slot_for_the_whole_run(tmp_path,
+                                                      monkeypatch):
+    """Re-emitting the live figure must REPLACE its gallery entry.
+
+    This is the other half of "one new datapoint per epoch, not a completely
+    new graph". The pipeline reusing the figure is not enough on its own: if
+    the gallery appended a slot per emission the user would still scroll
+    through twenty pictures.
+
+    Both halves are now pinned, and BOTH pass. Measured across five epochs:
+    one matplotlib figure, one gallery entry, always slot 0. So if new graphs
+    per epoch are still seen in the real app, the extra figures are NOT the
+    training curves being duplicated -- something else is emitting figures
+    during training, and `bridge._capture_show` emits EVERY open figure on
+    each `plt.show()`, so an unrelated plot left open by another part of the
+    training loop would stream out once per epoch. Look there next.
+    """
+    pytest.importorskip("PySide6")
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+
+    from PySide6.QtWidgets import QApplication
+
+    from spacr.qt.widgets.figure_queue import FigureQueue, render_figure_to_png
+
+    app = QApplication.instance() or QApplication([])
+    assert app is not None
+
+    queue = FigureQueue()
+    figure = None
+    slots = []
+    for epoch in range(1, 6):
+        figure = _plot_training_curves(*_history(epoch), 10, figure)
+        png = str(tmp_path / f"epoch_{epoch}.png")
+        render_figure_to_png(figure, png)
+        slots.append(queue.add_figure(figure, prerendered_png=png))
+
+    assert slots == [0, 0, 0, 0, 0], slots
+    assert queue._count == 1, (
+        f"the gallery grew to {queue._count} entries; a live figure must "
+        f"replace its slot, not append")

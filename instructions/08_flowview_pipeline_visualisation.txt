@@ -2,10 +2,47 @@
 FLOWVIEW — OPTIONAL PIPELINE VISUALISATION PANEL
 ================================================================================
 
-Status:   specified, not started. No code exists.
+Status:   specified, not started. REQUESTED AGAIN 2026-08-06 with
+          a placement decision -- see the note directly below.
 Source:   written by the maintainer; reproduced here in full and unedited
           below the line, because it is an implementation specification and
           summarising it would lose the parts that are load-bearing.
+
+--------------------------------------------------------------------------------
+REQUESTED AGAIN 2026-08-06, WITH PLACEMENT
+--------------------------------------------------------------------------------
+
+  "We also discussed visualizing the data flow with VVVV like pyqt6
+   libraries. Implement this, in classify first so the user sees an
+   informative set of graphs as well as a beautiful rendering of the
+   dataflow. This could be e.g. in the background replacing the theme (but
+   kept in the color of the theme chosen for seamless integration) and an
+   other option would be to have it in a box e.g under the settings in the
+   left panel."
+
+Two things this adds to the spec below:
+
+  * CLASSIFY FIRST, rather than a generic panel for every module. That is a
+    good constraint: one module's dataflow is concrete enough to get the
+    node kinds right, which is exactly what section 2 asks for.
+  * PLACEMENT is now a choice between (a) a backdrop behind the page, in
+    the active theme's colours, and (b) a boxed panel under the settings
+    column. Recommend (b) FIRST and (a) second, for three reasons:
+      - a backdrop is decoration and INVARIANTS 10 says decoration must
+        never be load-bearing; a dataflow the user is reading to understand
+        their run is not decoration, and burying it behind the page makes it
+        unreadable exactly when it matters;
+      - the ambient backdrop already exists and a second one competing with
+        it is the black-box class of bug waiting to happen (INVARIANTS 1-3);
+      - a boxed panel can be built, judged and moved. A backdrop that
+        replaces the theme cannot be judged until it is finished.
+    Build (b), then offer (a) as a preference if it still looks worth it.
+
+SECTION 2 IS STILL NOT OPTIONAL. It requires a mapping from REAL spaCR
+functions to node kinds, CONFIRMED with the maintainer. "Classify first"
+narrows that to one module's stages, which makes it a short conversation
+rather than a long one -- but it is still the conversation that has to
+happen before code.
 
 --------------------------------------------------------------------------------
 BEFORE WRITING ANY CODE
