@@ -1,0 +1,90 @@
+================================================================================
+ANNOTATE: AUTO-ANNOTATE BY METADATA, MEASUREMENT, GATE OR UMAP CLUSTER
+================================================================================
+
+Status:    done - 2026-08-06
+Requested: 2026-08-06 — "i want an auto annotate button where the user can generate an annotation column in the database png_list table and annotate entries by metadata (like row and column) or by measurement ... simple thresholding on one or several measurements ... the Gate Editor should be wired into this ... the image UMAP application ... cluster labels to the database png_list table as annotations, so this could also be wired into this"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Nothing written. The pieces that already exist and should be called rather
+than reimplemented:
+  * spacr/qt/annotate_engine.py — ensure_annotation_column(db_path, column),
+    fetch_filtered_paths(db_path, col, measurements, thresholds, directions,
+    image_type) already applies (column, threshold, direction) triples via
+    spacr.io._read_and_join_tables. SaveWorker writes annotations in batches.
+  * spacr/qt/screens/gate_editor.py + spacr/qt/widgets/gate_editor.py,
+    spacr/qt/widgets/gate_spec.py — the flow-cytometry style gate drawing.
+  * spacr/qt/widgets/umap_explorer.py — UMAP + clustering, already able to
+    send cluster labels to png_list.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Annotating a large screen by hand is the slowest step in the pipeline. Every
+one of the four selection mechanisms already exists somewhere in spaCR; only
+the route from them into png_list.<column> is missing.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+An "Auto-annotate…" button on the Annotate toolbar. Four sources, ONE write
+path.
+
+THE WRITE PATH is the SaveWorker the screen already owns. A second sqlite
+writer on measurements.db is a known hazard, and routing bulk writes through
+the existing one means they land in the same place, in the same order, as
+annotations made by hand. The column is created first, with the same
+ensure_annotation_column the screen calls when it opens a source.
+
+TWO SOURCES IMPLEMENTED, in spacr/qt/annotate_engine.py:
+  * metadata_values / paths_by_metadata - plate, well, row, column, field,
+    time. Values are READ FROM THE DATABASE, not inferred from a naming
+    convention: a picker offering rows A-H to someone whose plate is
+    numbered is a picker they cannot use. The column name is checked against
+    METADATA_COLUMNS before it reaches SQL.
+  * paths_by_measurements - several thresholds, ANDed. It reuses
+    fetch_filtered_paths, the same code the settings-panel filter uses, so
+    the two cannot disagree about what a threshold means.
+
+TWO SOURCES ARE HAND-OFFS, deliberately. The Gate Editor and the Image UMAP
+already select populations AND already write annotations. Reimplementing
+either would put a second copy of the gate maths, or of the clustering, on a
+path free to drift from the one the user sees. What was missing was the
+ROUTE, so those buttons open the real thing. `gate_paths` exists for the
+case where gates are already in hand: it evaluates them through GateClause
+rather than reproducing the maths.
+
+NOTHING IS WRITTEN UNTIL A COUNT HAS BEEN SHOWN. A bulk annotation is not
+undoable through the grid - the undo stack only holds the current page - so
+the preview is the safety. Apply stays disabled until one is taken, and
+changing the selection invalidates it.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Open Annotate on a project with measurements, auto-annotate by
+cell_area > 500 AND nucleus_area > 100, and confirm
+`SELECT <col>, COUNT(*) FROM png_list GROUP BY <col>` matches the previewed
+count. Then the same via a gate and via a UMAP cluster.
+
+--------------------------------------------------------------------------------
+VERIFIED
+--------------------------------------------------------------------------------
+
+QT_QPA_PLATFORM=offscreen python -m pytest tests/qt/test_auto_annotate.py \
+      tests/qt/test_annotate.py -q -p no:randomly
+
+75 passed. The load-bearing test asserts that adding a second measurement
+rule NARROWS the population rather than merely changing it - an OR would
+look almost right.
+
+The fixture is a real spaCR project and took three goes: png_list needs
+cell_id for spacr.io's join to anchor on, and must NOT carry timeID when the
+object tables have none, or the join refuses rather than matching every
+frame's crop to every frame's object. Both refusals are good ones.

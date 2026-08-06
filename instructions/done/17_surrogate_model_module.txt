@@ -1,0 +1,104 @@
+================================================================================
+SURROGATE MODEL: EXPLAIN A CV CLASSIFIER WITH A FEATURE MODEL
+================================================================================
+
+Status:    done - 2026-08-06
+Requested: 2026-08-06 — "a module that can take a CV module, apply it to a dataset, merge the feature dataset with the CV class predictions then train a ML model that can give feature importance, also do permutation importance and shap feature importance ... an alternative surrogate model strategy to understanding what the model is looking at in addition to the activation map module"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Nothing written. Existing pieces: spacr/deep_spacr.py (CV inference),
+spacr/ml.py (classical ML), spacr/attribution.py + the Activation Maps
+module, spacr/measure.py for the feature table.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Activation maps say WHERE the model looked. A surrogate model on measured
+features says WHAT it responded to, in the units a biologist already
+interprets (area, intensity, texture). The two answer different questions and
+neither replaces the other.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+spacr/surrogate.py. build_surrogate_frame joins CV predictions to the
+measured feature table; fit_surrogate fits and ranks; explain_classifier is
+the one call that does both.
+
+FIDELITY FIRST, and it is not a formality. A surrogate that cannot reproduce
+the CV model has explained nothing, and its ranking is a ranking of how the
+features predict each other. SurrogateResult puts fidelity before the
+importances, `is_faithful` compares it to the majority-class baseline (0.9
+is excellent on balanced classes and worthless when 90% of objects are one
+class), and summary() prints "Do not report it" ABOVE the table when the
+surrogate fails - a warning under the table is a warning nobody reads.
+
+THREE IMPORTANCES, because they disagree and the disagreement is the
+finding:
+  * gain - free with the fit, biased to high-cardinality features.
+  * permutation - on the HELD-OUT split. On the training rows it rewards
+    memorisation and every feature looks important; a test asserts the split
+    it uses.
+  * SHAP - the only one giving direction per object, and the one that lines
+    up with instruction 18 if spacr.attribution gains the SHAP family.
+    Optional: a missing dependency costs the column, not the analysis.
+
+LEAKAGE is the way to make a surrogate look brilliant and mean nothing.
+Columns whose names look like a model's own output are dropped and the drop
+is reported; identifier columns never become features, because a plate id
+predicts anything that varies by plate.
+
+THE JOIN goes through png_list - the only table holding both the crop a CV
+model keys on and the object the features key on - and matches on BASENAME
+as well as full path, because a model scored on one machine and a database
+written on another agree about the file name and not the mount point.
+Validated one-to-one: a repeated key would multiply rows and silently
+reweight the surrogate.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+On a dataset with a known driver, the surrogate reproduces the CV model above
+chance and ranks the known driver highly under all three methods.
+
+--------------------------------------------------------------------------------
+VERIFIED
+--------------------------------------------------------------------------------
+
+python -m pytest tests/test_surrogate.py -q -p no:randomly
+
+16 passed. End-to-end on a synthetic screen with TWO known drivers and a
+planted leaked column:
+
+    baseline (majority): 0.560
+    surrogate fidelity : 0.889
+    dropped 1 column(s) that would leak the answer: ['cell_prediction_score']
+
+    cell_area                      gain 0.430  perm 0.274  shap 0.238
+    cell_channel_1_mean_intensity  gain 0.347  perm 0.167  shap 0.191
+    texture_b                      gain 0.072  perm 0.010  shap 0.015
+    nucleus_area                   gain 0.071  perm 0.004  shap 0.013
+    texture_a                      gain 0.079  perm 0.003  shap 0.026
+
+Both true drivers first and second under all three measures, the three noise
+features an order of magnitude below, and the leak removed.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+A GUI screen. The module is a library call, and wiring it as a spaCR module
+means the five registration seams plus deciding where its report is
+rendered. Worth doing once someone has used it from a notebook and knows
+what the report should look like - building the screen first would fix a
+layout around a report nobody has read yet.
+
+Calling the CV model to PRODUCE the predictions. It takes a predictions
+frame, as apply_model_to_tar returns, so scoring stays where scoring already
+lives and the surrogate cannot drift from it.
