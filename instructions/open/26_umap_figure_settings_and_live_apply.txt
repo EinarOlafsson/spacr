@@ -2,7 +2,7 @@
 IMAGE UMAP: FIGURE SETTINGS SHOULD CARRY THE UMAP DISPLAY SETTINGS
 ================================================================================
 
-Status:    investigated - the two 'Figure settings' are different things
+Status:    ready to build - ambiguity settled 2026-08-06
 Requested: 2026-08-06 - "in Image UMAP, in figure settings, i should also see all the relevant Image UMAP display settings and be able to propagate them to UMAP display. these settings should also live apply to the current image UMAP figure."
 
 --------------------------------------------------------------------------------
@@ -88,3 +88,24 @@ points move, and the user loses the arrangement they were reading. Restyle
 the artists in place (dot size, colour, alpha are all settable on existing
 collections) and redraw the canvas; only a change that genuinely alters the
 embedding should re-embed, and that one should say so.
+
+--------------------------------------------------------------------------------
+SETTLED 2026-08-06 BY THE USER
+--------------------------------------------------------------------------------
+
+  "I get that live is only applicable to the second, but the other settings
+   can also be in the same settings window even though they cannot be live
+   applied."
+
+So: ONE settings window holding ALL the relevant display settings. Some
+apply live to the current figure; the rest are saved and take effect on the
+next run. The window must SAY which is which -- a control that looks like
+the live ones but silently waits for a re-run is worse than one that is
+obviously deferred.
+
+Suggested treatment: group them, "Applies now" and "Applies on next run",
+or mark the deferred ones. Do not mix them silently in one list.
+
+Everything else in this file stands, including the live-apply trap: restyle
+the artists in place, never re-embed, or the points move and the user loses
+the arrangement they were reading.
