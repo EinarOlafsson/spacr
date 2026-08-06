@@ -93,8 +93,11 @@ git worktree add --detach /tmp/spacr-verify HEAD
 
 ## Leaving work unfinished
 
-A file in `instructions/`, not a TODO comment. Say what the state is, why
-it matters, what to do, and how to know it worked.
+A file in `instructions/open/`, not a TODO comment — and it should already
+be there, because the task got a file when it was *given*, not when it was
+abandoned. See "Write the task down before you start it" in `SKILL.md`.
+Say what the state is, why it matters, what to do, and how to know it
+worked.
 
 Include the things you decided **not** to do, with the reason. A decision
 not to act is a result; without the reason the next person either

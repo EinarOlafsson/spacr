@@ -35,6 +35,37 @@ Then read, in this order:
 | `skill/ARCHITECTURE.md` | Where things live and why they are arranged that way. |
 | `instructions/00_INDEX.txt` | The open work. Read before starting something new — it may already be specified. |
 
+## Write the task down before you start it
+
+**Every task the user gives you gets a file in `instructions/open/` before
+you touch code. Every task you finish moves to `instructions/done/`.**
+
+This is not bookkeeping, it is crash protection. A session that runs out of
+context, or a machine that goes down, loses everything that existed only in
+the conversation. The user asked for this after a session in which ten
+requests arrived across one long turn and the turn ended with most of them
+undone and undescribed anywhere on disk.
+
+The rules:
+
+* **On receiving a task** — write `instructions/open/NN_slug.txt` from
+  `instructions/TEMPLATE.txt`, before starting. Quote the user's own words in
+  the `Requested:` line. Paraphrase loses the constraint you did not realise
+  was load-bearing.
+* **While working** — keep `Status:` and *what the state is* current. A file
+  that says "in progress" and nothing else is worth almost nothing; one that
+  names the function you were half-way through rewriting is worth the session.
+* **On finishing** — move the file to `instructions/done/`, set `Status: done`,
+  and replace *what to do* with what was actually done and how it was
+  verified, including anything deliberately left out.
+* **Several tasks in one message** get several files. They will not be
+  finished at the same time.
+* Files are numbered from 10 upward; 01–08 at the top level are the older
+  flat-numbered work and stay where they are.
+
+`refresh.py` checks that every file in `open/` and `done/` still has its
+required sections, and that nothing is in both.
+
 ## Keep this skill current
 
 This is part of the job, not housekeeping. When you finish a change:

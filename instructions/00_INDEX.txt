@@ -11,6 +11,24 @@ that is said too, with the reason -- a decision not to act is also a
 result, and re-deriving it later costs the same as deriving it once.
 
 --------------------------------------------------------------------------------
+HOW THIS FOLDER WORKS
+--------------------------------------------------------------------------------
+
+    TEMPLATE.txt    the shape every task file takes
+    open/           tasks not finished. One file per task, written BEFORE the
+                    work starts, kept current WHILE it runs.
+    done/           finished tasks, with what was actually done and how it
+                    was verified.
+
+A task the user asks for gets a file in open/ before any code is touched, and
+moves to done/ when it is finished. That is not bookkeeping: a session that
+runs out of context loses everything that existed only in the conversation.
+`python skill/refresh.py` checks that every file in both folders still has its
+sections and that nothing is in both at once.
+
+The numbered files below (01-08) predate this and stay where they are.
+
+--------------------------------------------------------------------------------
 IN ROUGH ORDER OF WHAT IT COSTS A USER
 --------------------------------------------------------------------------------
 

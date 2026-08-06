@@ -1,0 +1,56 @@
+================================================================================
+ANNOTATE: AUTO-ANNOTATE BY METADATA, MEASUREMENT, GATE OR UMAP CLUSTER
+================================================================================
+
+Status:    not started
+Requested: 2026-08-06 — "i want an auto annotate button where the user can generate an annotation column in the database png_list table and annotate entries by metadata (like row and column) or by measurement ... simple thresholding on one or several measurements ... the Gate Editor should be wired into this ... the image UMAP application ... cluster labels to the database png_list table as annotations, so this could also be wired into this"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Nothing written. The pieces that already exist and should be called rather
+than reimplemented:
+  * spacr/qt/annotate_engine.py — ensure_annotation_column(db_path, column),
+    fetch_filtered_paths(db_path, col, measurements, thresholds, directions,
+    image_type) already applies (column, threshold, direction) triples via
+    spacr.io._read_and_join_tables. SaveWorker writes annotations in batches.
+  * spacr/qt/screens/gate_editor.py + spacr/qt/widgets/gate_editor.py,
+    spacr/qt/widgets/gate_spec.py — the flow-cytometry style gate drawing.
+  * spacr/qt/widgets/umap_explorer.py — UMAP + clustering, already able to
+    send cluster labels to png_list.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Annotating a large screen by hand is the slowest step in the pipeline. Every
+one of the four selection mechanisms already exists somewhere in spaCR; only
+the route from them into png_list.<column> is missing.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. One dialog, four sources, one write path. The write path is
+   ensure_annotation_column + the existing SaveWorker — do not open a second
+   sqlite writer, the annotator already has one and concurrent writers on
+   measurements.db are a known hazard (see spacr/database_concurrency.py).
+2. Metadata source: rowID / columnID / plateID / fieldID pickers -> value.
+3. Measurement source: MULTI-select of measurement columns (the user was
+   explicit that single-measurement thresholding is not useful), each with
+   threshold + higher/lower. fetch_filtered_paths already takes lists.
+4. Gate source: open the Gate Editor on the joined measurement table, return
+   the gated png_path set.
+5. UMAP source: open the UMAP explorer, return cluster -> class assignment.
+6. Preview the count before writing. Writing thousands of annotations with
+   no preview is not undoable.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Open Annotate on a project with measurements, auto-annotate by
+cell_area > 500 AND nucleus_area > 100, and confirm
+`SELECT <col>, COUNT(*) FROM png_list GROUP BY <col>` matches the previewed
+count. Then the same via a gate and via a UMAP cluster.
