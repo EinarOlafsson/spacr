@@ -1178,6 +1178,15 @@ def categories_for_app(
                 "max_failure_rate"],
         }
         if app_key == "classify_merged":
+            # The family switch is the TOP-LEVEL choice, not one setting
+            # among ninety, so it gets its own group at the top rather than
+            # sitting inside "Model Architecture". Greying tells the user a
+            # control is inactive; it does not tell them what they are
+            # DOING, and that is what the merged module has to make obvious.
+            ordered["Model Architecture"] = [
+                k for k in ordered["Model Architecture"]
+                if k != "classifier_family"]
+
             # ML expresses the METADATA basis through the control wells;
             # Classify (CV) expresses it through class_metadata. Both are the
             # same basis, so both belong in the group that basis governs --
@@ -1211,6 +1220,46 @@ def categories_for_app(
                 "Plots & Heatmaps": [
                     "cmap", "heatmap_feature", "grouping", "min_max"],
             })
+
+        if app_key == "classify_merged":
+            # Rebuilt in order, because dict order IS the panel order: the
+            # family choice first, then the shared groups, then each
+            # family's own settings under a heading that names the family.
+            #
+            # The shared groups are deliberately NOT prefixed. "Labels &
+            # Classes" applies to both families, and prefixing it would
+            # imply it belonged to one.
+            cv_prefix = "Computer Vision — "
+            ml_prefix = "Machine Learning — "
+            cv_groups = ("Crops & Dataset Split", "Model Architecture",
+                         "Optimization & Loss", "Validation",
+                         "Evaluation Workbench", "Full Dataset & Inference")
+            ml_groups = ("Feature Preparation", "Plate & Batch Correction",
+                         "ML Classifier & Validation",
+                         "Feature Selection & Importance",
+                         "Output & Database", "Plots & Heatmaps")
+            shared_first = ("Plate Sources & Workflow", "Labels & Classes")
+
+            rebuilt = {"Classifier": ["classifier_family"]}
+            for name in shared_first:
+                if name in ordered:
+                    rebuilt[name] = ordered[name]
+            for name in cv_groups:
+                if name in ordered:
+                    rebuilt[cv_prefix + name] = ordered[name]
+            for name in ml_groups:
+                if name in ordered:
+                    label = name
+                    if label.startswith("ML Classifier"):
+                        # Already named for its family; prefixing would read
+                        # "Machine Learning - ML Classifier".
+                        label = "Classifier & Validation"
+                    rebuilt[ml_prefix + label] = ordered[name]
+            for name, keys in ordered.items():
+                if name not in rebuilt and name not in cv_groups \
+                        and name not in ml_groups and name not in shared_first:
+                    rebuilt[name] = keys
+            ordered = rebuilt
 
         moved = {key for keys in ordered.values() for key in keys}
         leftovers = []
