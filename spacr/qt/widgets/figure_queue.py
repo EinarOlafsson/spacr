@@ -212,8 +212,13 @@ def render_figure_to_png(fig, png_path: str) -> bool:
     except Exception:
         display_dpi = min(dpi, 200)
     try:
+        # `transparent=True` when the background is "none": savefig
+        # otherwise falls back to the rcParam and writes an opaque page,
+        # so setting the facecolor alone is not enough.
+        from ..preferences import figure_bg_is_transparent
         fig.savefig(png_path, dpi=display_dpi, bbox_inches="tight",
-                    facecolor=bg)
+                    facecolor=bg,
+                    transparent=figure_bg_is_transparent(bg))
     except Exception as e:
         LOG.info("figure render failed: %s", e)
         return False
