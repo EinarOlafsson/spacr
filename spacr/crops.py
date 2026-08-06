@@ -105,9 +105,15 @@ __all__ = [
     "CROP_FORMAT_SIDECAR",
     "CROP_FORMAT_DB_COLUMN",
     "CropFormatConflict",
+    "CROP_FORMAT_DECLARED_RGB",
     "narrow_to_uint8",
     "to_cv2_bgr",
     "legacy_png_view",
+    "PNG_COLOR_KEYS",
+    "DEFAULT_PNG_CHANNEL_MAPPING",
+    "png_dims_to_channel_mapping",
+    "resolve_png_channel_mapping",
+    "build_png_channels",
     "read_crop_folder_marker",
     "write_crop_folder_marker",
     "stamp_crop_folder",
@@ -859,10 +865,20 @@ def extract_crops(merged_path: str, specs: Iterable[CropSpec],
 def png_view(crop: np.ndarray) -> np.ndarray:
     """Return what a consumer sees after the crop has made the PNG round trip.
 
-    This is the corrected contract, and it is deliberately boring: **channel
-    ``i`` of the crop is channel ``i`` of the result**, narrowed to 8 bit by
-    :func:`narrow_to_uint8`. ``png_dims[0]`` is red, ``[1]`` green, ``[2]``
-    blue -- in the array, in the file, and here.
+    This is the contract, and it is deliberately boring: **channel ``i`` of
+    the crop is channel ``i`` of the result**, narrowed to 8 bit by
+    :func:`narrow_to_uint8`.
+
+    That holds because a crop is cut in COLOUR order -- ``CropSpec.channels``
+    is ``(red_source, green_source, blue_source)``, built by
+    :func:`channels_from_settings` from the declared
+    ``png_channel_mapping``. So channel 0 is the red one here, in the file,
+    and in what :func:`read_crop_png` hands back. There is exactly one order
+    and every part of the crop path speaks it.
+
+    The alternative -- keeping crops in ``png_dims`` list order and
+    translating at the edges -- is what made the on-demand source and the
+    PNG folder return different pixels for the same object.
 
     :func:`read_crop_png` returns exactly this for the same object, for a crop
     written in either format, which is what makes the on-demand source and the
@@ -943,17 +959,36 @@ def legacy_png_view(crop: np.ndarray) -> np.ndarray:
 #   format 1 ("legacy", BGR)
 #       ``cv2.imwrite(path, png_channels)``. cv2 reads a 3-channel array as
 #       BGR, so ``png_dims[0]`` landed in the file's BLUE slot and
-#       ``png_dims[2]`` in its RED one -- the reverse of what the user asked
-#       for, and the reverse of what every consumer (all of which open the
-#       file with PIL) assumes. Every crop written by spaCR before this
-#       change is format 1, and every one of them is unmarked.
+#       ``png_dims[2]`` in its RED one. Every crop written by spaCR before
+#       2026-07-26 is format 1, and every one of them is unmarked.
 #
-#   format 2 ("rgb", current)
-#       ``cv2.imwrite(path, png_channels[..., ::-1])``. The reversal is done
-#       once, in the writer, so cv2's BGR interpretation puts the user's
-#       ``png_dims[0]`` in the file's red slot. ``png_dims`` keeps its plain
-#       reading -- [0] is red, [1] green, [2] blue -- in the settings, in the
-#       array and in the file.
+#       This was read as a bug and it was not one. Microscope channels come
+#       off the scope in wavelength order -- 0 is 405 (blue), 1 is 488
+#       (green), 2 is 555, 3 is 647 -- so a biologist writing
+#       ``png_dims=[0,1,2]`` means "405 blue, 488 green, 555 red", which is
+#       exactly what format 1 produced. The bytes are right; only the
+#       *reasoning* for them was accidental.
+#
+#   format 2 ("rgb")
+#       ``cv2.imwrite(path, png_channels[..., ::-1])``. Written between
+#       2026-07-26 and 2026-08-06 in the belief that ``png_dims[0]`` ought to
+#       be red. It puts the 405/DAPI plane in the red slot, so nuclei come
+#       out red and the 555 plane comes out blue. **This is the format that
+#       is wrong**, and it is the one read_crop_png reverses.
+#
+#       ``migrate_crop_folder`` rewrote format-1 folders into format 2, so a
+#       folder that was migrated in that window holds reversed pixels. It is
+#       marked, so it is read correctly; but an external image viewer shows
+#       it reversed, and re-running the migrator on it now puts it back.
+#
+#   format 3 ("declared_rgb", current)
+#       The user states the mapping outright:
+#       ``png_channel_mapping = {'r': 2, 'g': 1, 'b': 0}`` means source
+#       channel 2 is red, 1 is green, 0 is blue. The writer assembles the
+#       planes in that order and the file's slots hold them. Nothing is
+#       inferred from list position, so there is no convention left to get
+#       backwards. For the default mapping this is byte-identical to
+#       format 1, which is why the two are read the same way.
 #
 # The marker, in precedence order:
 #
@@ -980,14 +1015,43 @@ def legacy_png_view(crop: np.ndarray) -> np.ndarray:
 # is narrowed, and it is narrowed the same way every time.
 # ===========================================================================
 
-#: Format 1: what ``cv2.imwrite(png_channels)`` wrote -- ``png_dims`` reversed.
+#: NOTE ON ORDER: `CropSpec.channels`, `extract_crop`, `png_view` and
+#: `read_crop_png` are all in COLOUR order (red, green, blue). The only
+#: place list order survives is the legacy `png_dims` setting, and
+#: `channels_from_settings` translates it once, at the edge.
+#:
+#: Format 1: what ``cv2.imwrite(png_channels)`` wrote -- ``png_dims[0]`` in
+#: the file's BLUE slot. Named "legacy BGR" for the array-order reversal that
+#: produced it, but see :data:`_FORMAT_IS_DECLARED_ORDER`: the pixels it left
+#: on disk are in the order the user declared, so it is read back as-is.
 CROP_FORMAT_LEGACY_BGR = 1
 
-#: Format 2: ``png_dims[0]`` is the file's red channel.
+#: Format 2: ``png_dims[0]`` is the file's red channel. Written between
+#: 2026-07-26 and 2026-08-06 only. This is the format that is *wrong* --
+#: it puts the first-listed channel, conventionally the 405/DAPI plane, in
+#: red -- so it is the one that gets reversed on read.
 CROP_FORMAT_RGB = 2
 
+#: Format 3: the file's red, green and blue slots hold exactly the source
+#: channels named by ``settings['png_channel_mapping']``. No interpretation,
+#: no list-position convention: the mapping says which array index is red and
+#: the red slot holds it.
+CROP_FORMAT_DECLARED_RGB = 3
+
 #: The format new crops are written in.
-CROP_FORMAT_CURRENT = CROP_FORMAT_RGB
+CROP_FORMAT_CURRENT = CROP_FORMAT_DECLARED_RGB
+
+#: Whether a format's file slots already hold the colours the user declared.
+#:
+#: This, not the format number, is what decides a reversal on read. Formats 1
+#: and 3 agree pixel-for-pixel for the same declared mapping -- they were
+#: produced by different code and arrived at the same bytes -- so reading one
+#: as the other must NOT reverse. Only format 2 is out of step.
+_FORMAT_IS_DECLARED_ORDER = {
+    CROP_FORMAT_LEGACY_BGR: True,
+    CROP_FORMAT_RGB: False,
+    CROP_FORMAT_DECLARED_RGB: True,
+}
 
 #: Sidecar file name, written into each crop folder.
 CROP_FORMAT_SIDECAR = ".spacr_crop_format.json"
@@ -1002,7 +1066,30 @@ CROP_MIGRATION_SUFFIX = ".spacr_v2"
 #: Prefix of the temporary files both the marker and the migrator write.
 _TMP_PREFIX = ".spacr_tmp_"
 
-_CHANNEL_ORDER_NAME = {CROP_FORMAT_LEGACY_BGR: "bgr", CROP_FORMAT_RGB: "rgb"}
+_CHANNEL_ORDER_NAME = {
+    CROP_FORMAT_LEGACY_BGR: "bgr",
+    CROP_FORMAT_RGB: "rgb",
+    CROP_FORMAT_DECLARED_RGB: "declared_rgb",
+}
+
+#: What the sidecar says about each format, in the words of someone reading it
+#: on disk a year from now with no access to this file.
+_FORMAT_NOTE = {
+    CROP_FORMAT_LEGACY_BGR: (
+        "Written before 2026-07-26. The file's blue channel is png_dims[0], "
+        "which for a 405/488/555 stack is the nuclear stain -- so these "
+        "pixels are already in the order the user declared and spaCR reads "
+        "them as they are."),
+    CROP_FORMAT_RGB: (
+        "Written between 2026-07-26 and 2026-08-06, when png_dims[0] was "
+        "wrongly placed in the file's RED channel. Nuclei appear red in an "
+        "external viewer. spacr.crops.read_crop_png reverses it on load; "
+        "spacr.crops.migrate_crop_folder repairs the file itself."),
+    CROP_FORMAT_DECLARED_RGB: (
+        "The red, green and blue channels hold the source channels named by "
+        "settings['png_channel_mapping']. No list-position convention is "
+        "involved, so there is nothing here to read backwards."),
+}
 
 
 class CropFormatConflict(CropError):
@@ -1102,6 +1189,190 @@ def to_cv2_bgr(png_channels: np.ndarray) -> np.ndarray:
             f"cv2 would write channel 4 as an alpha plane and every reader "
             f"would silently drop it. Use at most three entries in png_dims.")
     return arr[:, :, ::-1]
+
+
+# ---------------------------------------------------------------------------
+# The declared channel mapping
+# ---------------------------------------------------------------------------
+
+#: The colour slots a crop PNG has, in file order.
+PNG_COLOR_KEYS = ("r", "g", "b")
+
+#: What ``png_dims=[0, 1, 2]`` has always meant on screen, stated outright.
+#:
+#: Microscope channels arrive in wavelength order -- 0 is 405, 1 is 488, 2 is
+#: 555, 3 is 647 -- so the first channel is the nuclear stain and belongs in
+#: blue. This default reproduces, exactly, what every spaCR crop written
+#: before 2026-07-26 looks like.
+DEFAULT_PNG_CHANNEL_MAPPING = {"r": 2, "g": 1, "b": 0}
+
+
+def png_dims_to_channel_mapping(png_dims) -> Dict[str, Optional[int]]:
+    """Translate a legacy ``png_dims`` list into an explicit ``{r, g, b}`` map.
+
+    ``png_dims`` never said which colour it meant; the answer was buried in
+    cv2's BGR interpretation of the array it was handed, which is how the
+    convention got inverted for eleven days without anyone being able to point
+    at the line that decided it. The list is still accepted -- every settings
+    CSV and every notebook in the wild holds one -- but it is translated here,
+    once, into a mapping that says what it means.
+
+    The translation is the *legacy* reading, because that is the one that was
+    ever on screen: entry 0 is blue, 1 is green, 2 is red.
+
+    * ``[a, b, c]`` -> ``{'r': c, 'g': b, 'b': a}``
+    * ``[a, b]``    -> ``{'r': None, 'g': b, 'b': a}`` (the old zero third plane)
+    * ``[a]``       -> ``{'r': a, 'g': a, 'b': a}`` (greyscale; see
+      :func:`build_png_channels`, which keeps it a one-plane image)
+
+    :param png_dims: the legacy list of source channel indices.
+    :returns: a ``{'r': idx, 'g': idx, 'b': idx}`` dict; ``None`` means an
+        empty plane.
+    :raises CropError: more than three entries, or an empty list.
+    """
+    dims = [int(d) for d in list(png_dims or [])]
+    if not dims:
+        raise CropError("png_dims is empty: a crop needs at least one channel")
+    if len(dims) > 3:
+        raise CropError(
+            f"png_dims selected {len(dims)} channels, but a crop PNG holds at "
+            f"most 3. Use at most three entries, or state the mapping "
+            f"outright with png_channel_mapping={{'r': .., 'g': .., 'b': ..}}.")
+    if len(dims) == 1:
+        return {"r": dims[0], "g": dims[0], "b": dims[0]}
+    if len(dims) == 2:
+        return {"r": None, "g": dims[1], "b": dims[0]}
+    return {"r": dims[2], "g": dims[1], "b": dims[0]}
+
+
+def resolve_png_channel_mapping(settings) -> Dict[str, Optional[int]]:
+    """Return the ``{r, g, b}`` source-channel mapping a run should use.
+
+    Precedence, and the reason for it:
+
+    1. ``settings['png_channel_mapping']`` -- the explicit form. If the user
+       said which channel is red, that is the answer.
+    2. ``settings['png_dims']`` -- the legacy list, translated by
+       :func:`png_dims_to_channel_mapping`. A settings CSV written by any
+       older build lands here and keeps rendering the way it always did.
+    3. :data:`DEFAULT_PNG_CHANNEL_MAPPING`.
+
+    A mapping that names a colour spaCR does not have, or a non-integer index,
+    is an error rather than a silent drop: a mis-keyed mapping would otherwise
+    delete a whole stain from every crop in the run and say nothing.
+
+    :param settings: the run settings dict (or anything with ``.get``).
+    :returns: ``{'r': idx, 'g': idx, 'b': idx}``; ``None`` means an empty plane.
+    :raises CropError: an unknown colour key or a non-integer channel index.
+    """
+    get = getattr(settings, "get", None)
+    raw = get("png_channel_mapping", None) if get else None
+    if raw is None:
+        dims = get("png_dims", None) if get else None
+        if dims is None:
+            return dict(DEFAULT_PNG_CHANNEL_MAPPING)
+        return png_dims_to_channel_mapping(dims)
+
+    if not isinstance(raw, dict):
+        raise CropError(
+            f"png_channel_mapping must be a dict like "
+            f"{{'r': 2, 'g': 1, 'b': 0}}; got {type(raw).__name__}")
+    unknown = {str(k).lower() for k in raw} - set(PNG_COLOR_KEYS)
+    if unknown:
+        raise CropError(
+            f"png_channel_mapping has no colour {sorted(unknown)!r}; the keys "
+            f"are 'r', 'g' and 'b'. A mis-keyed colour would drop that stain "
+            f"from every crop in the run.")
+    out: Dict[str, Optional[int]] = {}
+    for key in PNG_COLOR_KEYS:
+        val = raw.get(key, raw.get(key.upper()))
+        if val is None or (isinstance(val, str) and not val.strip()):
+            out[key] = None
+            continue
+        try:
+            out[key] = int(val)
+        except (TypeError, ValueError):
+            raise CropError(
+                f"png_channel_mapping['{key}'] must be a source channel index "
+                f"or blank; got {val!r}")
+    if all(v is None for v in out.values()):
+        raise CropError(
+            "png_channel_mapping leaves every colour empty, so every crop "
+            "would be a black square")
+    return out
+
+
+def channels_from_settings(settings) -> tuple:
+    """Return the source channels in COLOUR order: ``(red, green, blue)``.
+
+    The one translation from "what the user declared" to "what a crop array
+    holds". Everything downstream -- :class:`CropSpec`, :func:`png_view`,
+    :func:`extract_crop` -- is in this order, so channel 0 of a crop is
+    always the red one and there is no second convention to keep straight.
+
+    A colour left empty has no source channel, so it cannot appear in a tuple
+    of indices; it is filled with the first channel that *is* mapped, and the
+    emptiness is applied later by :func:`build_png_channels`, which is the
+    only place that can write a zero plane. Callers that need the empty plane
+    honoured should use the mapping directly.
+
+    :param settings: the run settings dict.
+    :returns: a 1- or 3-tuple of source channel indices.
+    """
+    mapping = resolve_png_channel_mapping(settings)
+    idxs = [mapping.get(k) for k in PNG_COLOR_KEYS]
+    if idxs[0] is not None and idxs[0] == idxs[1] == idxs[2]:
+        return (int(idxs[0]),)
+    fallback = next(i for i in idxs if i is not None)
+    return tuple(int(fallback if i is None else i) for i in idxs)
+
+
+def build_png_channels(data: np.ndarray, mapping: Dict[str, Optional[int]],
+                       dtype=None) -> np.ndarray:
+    """Assemble the crop planes in **file order** -- red, green, blue.
+
+    The array this returns is in the order the PNG's slots are in, so a reader
+    that opens the file and a caller that keeps the array in memory are
+    looking at the same thing. That is the whole point of the mapping: there
+    is one order, it is stated, and it survives to disk.
+
+    Greyscale is preserved: when all three colours name the same source
+    channel the result is a single plane, so cv2 writes a one-channel PNG
+    exactly as ``png_dims=[a]`` always did, rather than three identical
+    planes at three times the size.
+
+    :param data: the merged ``(H, W, C)`` array.
+    :param mapping: as returned by :func:`resolve_png_channel_mapping`.
+    :param dtype: optional dtype to cast the assembled planes to.
+    :returns: ``(H, W, 1|3)`` array, red plane first.
+    :raises CropError: a mapping index is out of range for ``data``.
+    """
+    arr = np.asarray(data)
+    if arr.ndim != 3:
+        raise CropError(
+            f"build_png_channels needs a (H, W, C) array; got {arr.shape!r}")
+    n_src = arr.shape[2]
+    for key, idx in mapping.items():
+        if idx is not None and not (-n_src <= int(idx) < n_src):
+            raise CropError(
+                f"png_channel_mapping['{key}'] = {idx} is out of range for an "
+                f"array with {n_src} channels")
+
+    idxs = [mapping.get(k) for k in PNG_COLOR_KEYS]
+    if idxs[0] is not None and idxs[0] == idxs[1] == idxs[2]:
+        planes = [arr[:, :, idxs[0]]]
+    else:
+        blank = None
+        planes = []
+        for idx in idxs:
+            if idx is None:
+                if blank is None:
+                    blank = np.zeros(arr.shape[:2], dtype=arr.dtype)
+                planes.append(blank)
+            else:
+                planes.append(arr[:, :, idx])
+    out = np.stack(planes, axis=2)
+    return out.astype(dtype) if dtype is not None else out
 
 
 # ---------------------------------------------------------------------------
@@ -1206,10 +1477,7 @@ def write_crop_folder_marker(folder: str, fmt: int = CROP_FORMAT_CURRENT,
         "channel_order": _CHANNEL_ORDER_NAME[fmt],
         "narrowing": "high-byte",
         "updated_utc": _utc_now(),
-        "note": ("png_dims[0] is this file's red channel."
-                 if fmt == CROP_FORMAT_RGB else
-                 "Written before the BGR fix: the file's red channel is "
-                 "png_dims[-1]. spacr.crops.read_crop_png corrects it on load."),
+        "note": _FORMAT_NOTE[fmt],
     }
     payload.update({k: v for k, v in extra.items() if v is not None})
     fd, tmp = tempfile.mkstemp(prefix=_TMP_PREFIX, suffix=".json", dir=folder)
@@ -1264,7 +1532,11 @@ def stamp_crop_folder(folder: str, fmt: int = CROP_FORMAT_CURRENT) -> Optional[s
         existing = read_crop_folder_marker(key)
         found = _coerce_format(existing.get("spacr_crop_format")) if existing else None
         if found != fmt:
-            if existing is None and fmt == CROP_FORMAT_RGB:
+            # Was `fmt == CROP_FORMAT_RGB`, which silently stopped warning the
+            # moment the current format moved to 3. Ask whether this is the
+            # format new crops are written in, not which number that happens
+            # to be today.
+            if existing is None and fmt == CROP_FORMAT_CURRENT:
                 stale = _crop_pngs_in(key)
                 # Re-read the marker before complaining. The writer stamps
                 # before its first PNG, so if a sibling measure worker got
@@ -1553,9 +1825,12 @@ def read_crop_png(path: str, fmt: Optional[int] = None,
     arr = narrow_to_uint8(arr)
     if arr.ndim == 2:
         arr = np.repeat(arr[:, :, None], 3, axis=2)
-    # There are exactly two orderings, so "the file is not in the ordering the
-    # caller asked for" means one reversal, whichever way round it is.
-    if int(fmt) != int(as_format):
+    # There are still exactly two ORDERINGS, but now three formats, so the
+    # reversal is decided by which ordering each format is in -- not by
+    # `fmt != as_format`, which would reverse between formats 1 and 3 even
+    # though they hold identical bytes.
+    if (_FORMAT_IS_DECLARED_ORDER.get(int(fmt), True)
+            is not _FORMAT_IS_DECLARED_ORDER.get(int(as_format), True)):
         arr = arr[:, :, ::-1]
     return np.ascontiguousarray(arr)
 
@@ -1663,15 +1938,25 @@ def migrate_crop_folder(folder: str, *, mode: str = "rewrite",
                         dry_run: bool = False, on_error: str = "raise",
                         db_path: Optional[str] = None,
                         progress: Optional[Any] = None) -> MigrationResult:
-    """Convert one folder of legacy crops to format 2 and stamp it. Idempotent.
+    """Repair one folder of reversed crops and stamp it. Idempotent.
 
-    ``mode='rewrite'`` (the default) rewrites every 3-channel PNG with its
-    channels in the corrected order and marks the folder format 2.
+    **The direction of this function inverted on 2026-08-06.** It used to
+    convert format-1 folders to format 2, on the belief that ``png_dims[0]``
+    belonged in the red channel. It does not: channel 0 is 405 and belongs in
+    blue, so format-1 folders were right all along and format 2 -- everything
+    written, or migrated, between 2026-07-26 and 2026-08-06 -- is the one
+    holding reversed pixels. This now repairs *those*.
+
+    ``mode='rewrite'`` (the default) rewrites every 3-channel PNG of a
+    **format-2** folder with its channels put back, and marks the folder
+    format 3. A folder that is format 1, format 3 or unmarked is already in
+    declared order, so it is an immediate no-op -- which is the answer for
+    almost every folder that exists.
+
     ``mode='mark'`` touches no pixels and only records that the folder is
     format 1 -- use it when something outside spaCR reads those exact bytes
     and must keep seeing them (a classifier trained on legacy crops, for
-    instance): spaCR's own readers then correct the order on load while the
-    file on disk stays as it was.
+    instance).
 
     Interruption safety, which is the whole design:
 
@@ -1728,6 +2013,17 @@ def migrate_crop_folder(folder: str, *, mode: str = "rewrite",
             raise CropError(
                 f"{folder} is already format {CROP_FORMAT_RGB}; marking it "
                 f"legacy would make every crop in it read back reversed")
+        if current == CROP_FORMAT_DECLARED_RGB and not migration:
+            # Not a corruption -- formats 1 and 3 are both declared order, so
+            # nothing would be reversed. It is a LOSS: the marker is the only
+            # record that this folder was repaired, and overwriting it with
+            # "legacy" makes a repaired folder indistinguishable from one that
+            # never needed repairing. Refuse rather than quietly forget.
+            raise CropError(
+                f"{folder} is format {CROP_FORMAT_DECLARED_RGB}; marking it "
+                f"legacy would discard the record that it was repaired. "
+                f"Delete {CROP_FORMAT_SIDECAR} first if that is really what "
+                f"you want.")
         if not dry_run:
             write_crop_folder_marker(folder, CROP_FORMAT_LEGACY_BGR)
             if db_path:
@@ -1735,15 +2031,27 @@ def migrate_crop_folder(folder: str, *, mode: str = "rewrite",
         return result
 
     retry_only: Optional[set] = None
-    if current == CROP_FORMAT_RGB and not migration:
+    if not migration:
         leftover = set((marker or {}).get("unconverted") or ())
-        if not leftover:
+        if current == CROP_FORMAT_CURRENT and leftover:
+            # A previous run finished with on_error='skip'. The folder is
+            # repaired apart from these, so retry exactly them: every other
+            # crop in here is already back in declared order and reversing it
+            # again would undo the repair.
+            #
+            # This case has to be tested BEFORE the "nothing to do" check
+            # below, because a finished-with-leftovers folder is marked with
+            # the TARGET format. Keying the retry on the source format is
+            # what made the retry silently return `already` and leave the
+            # unconverted files unconverted for ever.
+            retry_only = leftover
+        elif current != CROP_FORMAT_RGB:
+            # Only format 2 has reversed pixels. Format 1, format 3 and
+            # unmarked are all in declared order already, so there is nothing
+            # to rewrite -- and rewriting one WOULD reverse a correct folder,
+            # which is exactly the damage this function exists to undo.
             result.already = True
             return result
-        # The folder is converted apart from these. Retry exactly them: every
-        # other crop in here is already format 2 and reversing it again would
-        # undo the migration.
-        retry_only = leftover
 
     names = _crop_pngs_in(folder)
     done_through = str(migration.get("done_through") or "") if migration else ""
@@ -1782,15 +2090,16 @@ def migrate_crop_folder(folder: str, *, mode: str = "rewrite",
         """
         if retry_only is not None:
             write_crop_folder_marker(
-                folder, CROP_FORMAT_RGB,
-                migrated_from=CROP_FORMAT_LEGACY_BGR,
+                folder, CROP_FORMAT_DECLARED_RGB,
+                migrated_from=CROP_FORMAT_RGB,
                 unconverted=sorted(set(failed_names)) or None)
             return
-        block = {"from": CROP_FORMAT_LEGACY_BGR, "started_utc": started,
+        block = {"from": CROP_FORMAT_RGB, "started_utc": started,
                  "done_through": done}
         if failed_names:
             block["unconverted"] = sorted(set(failed_names))
-        write_crop_folder_marker(folder, CROP_FORMAT_RGB, migration=block)
+        write_crop_folder_marker(
+            folder, CROP_FORMAT_DECLARED_RGB, migration=block)
 
     total = len(names)
     for i, name in enumerate(names):
@@ -1839,14 +2148,14 @@ def migrate_crop_folder(folder: str, *, mode: str = "rewrite",
     extra: Dict[str, Any] = {}
     if failed_names:
         extra["unconverted"] = sorted(set(failed_names))
-    extra["migrated_from"] = CROP_FORMAT_LEGACY_BGR
+    extra["migrated_from"] = CROP_FORMAT_RGB
     extra["migrated_utc"] = _utc_now()
-    write_crop_folder_marker(folder, CROP_FORMAT_RGB, **extra)
+    write_crop_folder_marker(folder, CROP_FORMAT_DECLARED_RGB, **extra)
     if db_path:
         stamp_crop_format_in_db(
             db_path,
             [os.path.join(folder, n) for n in names if n not in failed_names],
-            CROP_FORMAT_RGB)
+            CROP_FORMAT_DECLARED_RGB)
     return result
 
 
@@ -2065,7 +2374,12 @@ def crop_spec_from_settings(settings: Mapping[str, Any], merged_path: str = "",
         merged_path=merged_path,
         object_type=obj,
         label=label,
-        channels=tuple(int(c) for c in settings.get("png_dims", [0, 1, 2])),
+        # In COLOUR order -- red source, green source, blue source -- which
+        # is the order the PNG's slots are in and therefore the order
+        # `png_view` and `read_crop_png` both speak. Taking `png_dims`
+        # verbatim here is what made the on-demand source and the PNG folder
+        # disagree: one was in list order and the other in file order.
+        channels=channels_from_settings(settings),
         size=(width, height),
         mask_dims=mask_dims_from_settings(settings),
         use_bounding_box=bool(settings.get("use_bounding_box", False)),
