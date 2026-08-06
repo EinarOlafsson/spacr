@@ -1,0 +1,69 @@
+================================================================================
+ANCHOR EVERY CHANNEL PROMPT TO COLOUR, NOT LIST POSITION
+================================================================================
+
+Status:    not started - generalises instruction 10
+Requested: 2026-08-06 - "whenever the user is prompted for the channels anchor the prompt to the colors not position. this would be always asking the user for a dict where they specify what is red green and blue. this way it does not matter what order the color channels are in the file (although it would be good keep this constant) because the user will always specify where the colors are."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Instruction 10 did this for ONE setting, png_dims -> png_channel_mapping,
+and built spacr/qt/widgets/channel_mapping.py (three R/G/B fields) for it.
+This task is the general rule: every remaining place that asks for channels
+by list position.
+
+Not yet surveyed. Known position-ordered channel settings include at least
+`channels`, `train_channels`, `channel_of_interest`, `normalize_channels`,
+and the annotator's r/g/b channel filter strings. Some of these are
+genuinely "which channels to process" (a set, no colour involved) and some
+are "which channel is shown as what" (a mapping). Those two are NOT the
+same and only the second should become a dict - decide per setting, and
+write down which is which.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+This is the root cause of the whole crop-colour episode, stated as a rule.
+Position-ordered channel lists carry an unstated convention, and an
+unstated convention gets read backwards - it did, for eleven days, and it
+took a format version, a migrator and a repaired test suite to undo.
+
+A dict cannot be read backwards. That is the entire argument.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. SURVEY FIRST. List every setting that names channels. For each, decide:
+   is it a SET (which channels to use - stays a list) or a MAPPING (which
+   channel is shown as which colour - becomes {'r','g','b'})? Record the
+   decision and the reason; the next person will otherwise convert the
+   wrong ones.
+2. For every mapping, reuse ChannelMappingWidget - do not build a second
+   three-field editor.
+3. Keep the old list key accepted and translated, as
+   crops.png_dims_to_channel_mapping does. Settings CSVs in the wild use
+   the old names; INVARIANTS 6 is the trap (absent is not the same as
+   hidden, and a missing key silently falls back to the pipeline default).
+4. Keep the on-disk channel order constant even though the mapping makes it
+   non-critical - the user said as much, and a stable order is what makes a
+   file readable by anything that is not spaCR.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+No setting anywhere in the GUI asks for a colour by list position. Every
+mapping round-trips: set {'r':2,'g':1,'b':0}, run, and the file's red slot
+holds source channel 2.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Converting `channels` (the cellpose/measure channel selection) to a colour
+dict. It selects which channels are PROCESSED; it has no colour semantics,
+and forcing r/g/b onto it would invent a meaning that is not there.
