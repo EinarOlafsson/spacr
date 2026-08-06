@@ -1,0 +1,79 @@
+================================================================================
+tests/qt/conftest.py IS LOST WHEN QT AND NON-QT FILES ARE INTERLEAVED
+================================================================================
+
+Status:    found, not fixed - 2026-08-06
+Requested: not requested; found while verifying the auto-annotate and
+           surrogate work
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Run a Qt test file, then a NON-Qt file, then another Qt file in one pytest
+invocation, and every test in the third file ERRORS with
+
+    fixture 'qt_theme_applied' not found
+
+The fixtures that survive are the ones from tests/conftest.py and
+pytest-qt (`qtbot`, `qapp`, `_isolated_qsettings_store`); the ones defined
+in tests/qt/conftest.py are gone.
+
+MINIMAL REPRODUCTION, on a clean tree with only pre-existing files:
+
+    QT_QPA_PLATFORM=offscreen python -m pytest \
+      tests/qt/test_annotate.py tests/test_crop_format.py \
+      tests/qt/test_demo_menu.py -p no:randomly
+
+    121 passed, 29 errors
+
+Confirmed PRE-EXISTING by running exactly that on a stashed clean tree. It
+is not caused by any of this session's work.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+It is silent in the shapes people usually run:
+
+  * the whole suite (pytest tests/) - alphabetical order puts tests/qt last,
+    so the interleaving never happens;
+  * one file at a time;
+  * all-Qt or all-non-Qt selections.
+
+It bites exactly when someone runs "the files I touched", which is what
+WORKFLOW.md tells them to do, and which is how it was found. The failure
+mode is an ERROR rather than a FAILURE, so a careless reading of the summary
+line ("121 passed") looks like success.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Reproduce with the command above. It is deterministic.
+2. Find out why the conftest's fixtures are not registered for the third
+   file. `collect_ignore_glob` in tests/qt/conftest.py is computed at import
+   from find_spec("PySide6"/"pytestqt") - check whether that import is
+   happening twice, or whether the module is being evicted from sys.modules
+   between collections. tests/test_dead_settings.py walks the package with
+   ast and tests/test_crop_format.py clears module-level caches, so a
+   sys.modules interaction is the first thing to rule out.
+3. Whatever the cause, the fix should make the failure LOUD if it recurs:
+   an error that reads as a missing fixture teaches nobody that the
+   ordering was the problem.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The reproduction command reports 150 passed, 0 errors.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not diagnosed here. It was found while verifying other work, it is
+pre-existing, and chasing it would have meant leaving the auto-annotate and
+surrogate work unfinished. Recorded rather than absorbed, because the next
+person to run "the files I touched" will hit it and will otherwise spend the
+same time establishing that it is not their fault.
