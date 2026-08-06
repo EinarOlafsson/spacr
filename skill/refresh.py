@@ -1,0 +1,275 @@
+#!/usr/bin/env python3
+"""Regenerate FACTS.md, and check that the invariants are still true.
+
+Run this at the START of every session that loads the spaCR engineer
+skill. It exists because a skill file is a claim about a repository, and a
+repository moves. A skill that is merely *read* decays into a confident
+description of software that no longer exists, which is worse than no
+skill at all -- the reader has no way to tell which half is stale.
+
+Two jobs:
+
+* Write ``FACTS.md``: the numbers that go out of date -- version, app
+  count, module sizes, test counts. Generated, never hand-edited.
+* Check ``INVARIANTS.md``: every rule in there that a machine can verify
+  is verified here. A rule that stops holding is reported loudly, because
+  the whole value of that file is that its contents are true.
+
+Exit status is 0 when every invariant holds and 1 when one does not, so
+this can gate a commit if anyone wants it to.
+
+    python skill/refresh.py            # regenerate + check
+    python skill/refresh.py --check    # check only, write nothing
+"""
+
+from __future__ import annotations
+
+import ast
+import subprocess
+import sys
+from datetime import date
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+SKILL = ROOT / "skill"
+
+
+# ---------------------------------------------------------------------------
+# The invariants a machine can check
+# ---------------------------------------------------------------------------
+# Each entry is (name, callable) returning (ok, detail). Keep the detail
+# short and factual: it is printed on failure and is the first thing the
+# next person reads.
+
+def _text(rel: str) -> str:
+    path = ROOT / rel
+    return path.read_text(encoding="utf-8") if path.exists() else ""
+
+
+def _check_qss_registrars():
+    """Every module registering widget QSS at import must be listed.
+
+    This is the black box. A rule not in the stylesheet when it is built
+    is not in it at all, and its widget falls through to the blanket
+    ``QWidget { background-color: bg }`` -- #000000 on the dark theme.
+    """
+    theme = _text("spacr/qt/theme.py")
+    if "WIDGET_QSS_MODULES" not in theme:
+        return False, "theme.WIDGET_QSS_MODULES is gone"
+    if "load_widget_qss_registrars()" not in theme:
+        return False, "stylesheet() no longer loads the registrars"
+
+    listed = set()
+    for node in ast.walk(ast.parse(theme)):
+        # `AnnAssign` as well as `Assign`: the tuple is annotated
+        # (`WIDGET_QSS_MODULES: Tuple[str, ...] = (...)`), and a checker
+        # that only handles `Assign` reports every module missing --
+        # which is exactly what it did on its first run.
+        if isinstance(node, ast.AnnAssign):
+            targets = [node.target]
+        elif isinstance(node, ast.Assign):
+            targets = node.targets
+        else:
+            continue
+        for target in targets:
+            if getattr(target, "id", "") == "WIDGET_QSS_MODULES":
+                for element in getattr(node.value, "elts", []):
+                    if isinstance(element, ast.Constant):
+                        listed.add(element.value)
+
+    registering = set()
+    qt_root = ROOT / "spacr" / "qt"
+    for path in sorted(qt_root.rglob("*.py")):
+        source = path.read_text(encoding="utf-8")
+        if "register_widget_qss(" not in source:
+            continue
+        try:
+            tree = ast.parse(source)
+        except SyntaxError:
+            continue
+
+        def top_level(body):
+            for node in body:
+                if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
+                    func = node.value.func
+                    if getattr(func, "id", getattr(func, "attr", "")) \
+                            .endswith("register_widget_qss"):
+                        yield True
+                if isinstance(node, ast.Try):
+                    yield from top_level(node.body)
+
+        if any(top_level(tree.body)):
+            rel = path.relative_to(qt_root).with_suffix("")
+            registering.add("spacr.qt." + rel.as_posix().replace("/", "."))
+
+    missing = sorted(registering - listed)
+    if missing:
+        return False, f"not in WIDGET_QSS_MODULES: {missing}"
+    return True, f"{len(listed)} modules listed, {len(registering)} registering"
+
+
+def _check_bg_is_the_window_colour():
+    """`bg` is QPalette.Window, not a surface. On dark it is pure black."""
+    theme = _text("spacr/qt/theme.py")
+    if '"bg":          "#000000"' not in theme:
+        return True, "dark `bg` is no longer #000000 -- re-read INVARIANTS 2"
+    if '"page":' not in theme:
+        return False, "the `page` role is gone; the settings column will be black"
+    return True, "dark bg=#000000, `page` role present"
+
+
+def _check_thread_finished_uses_bound_methods():
+    """A closure on `thread.finished` makes the QThread its own receiver."""
+    bridge = _text("spacr/qt/bridge.py")
+    if "deleteLater" not in bridge:
+        return False, "bridge.make_thread no longer wires finished->deleteLater"
+    return True, "make_thread still owns the finished wiring"
+
+
+def _check_test_isolation_fixtures():
+    """The leaks that made tests fail in the suite and pass alone."""
+    conftest = _text("tests/qt/conftest.py")
+    wanted = ("_restore_app_registry", "_restore_font_scale",
+              "_font_scale_starts_at_one")
+    missing = [name for name in wanted if name not in conftest]
+    if missing:
+        return False, f"tests/qt/conftest.py lost {missing}"
+    return True, "registry + font-scale isolation in place"
+
+
+def _check_settings_never_written_by_tests():
+    """A test that writes real preferences flattens the user's interface."""
+    conftest = _text("tests/conftest.py") + _text("tests/qt/conftest.py")
+    if "QSettings" not in conftest and "_isolated_qsettings" not in conftest:
+        return False, "no QSettings sandbox found in the conftests"
+    return True, "QSettings sandbox present"
+
+
+CHECKS = (
+    ("widget QSS registrars are complete", _check_qss_registrars),
+    ("bg / page roles", _check_bg_is_the_window_colour),
+    ("thread finished wiring", _check_thread_finished_uses_bound_methods),
+    ("test isolation fixtures", _check_test_isolation_fixtures),
+    ("QSettings sandbox", _check_settings_never_written_by_tests),
+)
+
+
+# ---------------------------------------------------------------------------
+# The facts that go stale
+# ---------------------------------------------------------------------------
+
+def _run(*args) -> str:
+    try:
+        return subprocess.run(args, cwd=ROOT, capture_output=True,
+                              text=True, timeout=60).stdout.strip()
+    except Exception:
+        return ""
+
+
+def _version() -> str:
+    text = _text("spacr/version.py")
+    for line in text.splitlines():
+        if line.startswith("__version__"):
+            return line.split("=", 1)[-1].strip().strip('"\'')
+    return "unknown"
+
+
+def _counts() -> dict:
+    qt = ROOT / "spacr" / "qt"
+    tests = ROOT / "tests"
+    app_py = _text("spacr/qt/app.py")
+    return {
+        "version": _version(),
+        "commit": _run("git", "rev-parse", "--short", "HEAD") or "unknown",
+        "branch": _run("git", "rev-parse", "--abbrev-ref", "HEAD") or "unknown",
+        "python_modules": len(list((ROOT / "spacr").rglob("*.py"))),
+        "qt_modules": len(list(qt.rglob("*.py"))),
+        "screens": len(list((qt / "screens").glob("*.py"))),
+        "widgets": len(list((qt / "widgets").glob("*.py"))),
+        "test_files": len(list(tests.rglob("test_*.py"))),
+        "qt_test_files": len(list((tests / "qt").glob("test_*.py"))),
+        "static_apps": app_py.count('("') and app_py.count("SECTION_"),
+    }
+
+
+def _largest(rel: str, count: int = 12) -> list:
+    base = ROOT / rel
+    sized = [(len(p.read_text(encoding="utf-8", errors="ignore").splitlines()), p)
+             for p in base.rglob("*.py")]
+    sized.sort(reverse=True)
+    return [(n, str(p.relative_to(ROOT))) for n, p in sized[:count]]
+
+
+def write_facts() -> str:
+    counts = _counts()
+    lines = [
+        "<!-- GENERATED by skill/refresh.py. Do not hand-edit. -->",
+        f"# Facts as of {date.today().isoformat()}",
+        "",
+        "Regenerate with `python skill/refresh.py`. Everything here goes",
+        "stale; nothing here is a rule. The rules are in INVARIANTS.md.",
+        "",
+        "## This checkout",
+        "",
+        f"- version: **{counts['version']}**",
+        f"- branch: `{counts['branch']}` at `{counts['commit']}`",
+        f"- Python modules under `spacr/`: {counts['python_modules']}",
+        f"- of those under `spacr/qt/`: {counts['qt_modules']} "
+        f"({counts['screens']} screens, {counts['widgets']} widgets)",
+        f"- test files: {counts['test_files']} "
+        f"({counts['qt_test_files']} under `tests/qt/`)",
+        "",
+        "## The biggest modules",
+        "",
+        "Size is not a defect, but it is where the work is. Read the "
+        "docstring before the code in any of these -- they carry their "
+        "own reasoning.",
+        "",
+    ]
+    for count, path in _largest("spacr"):
+        lines.append(f"- `{path}` — {count} lines")
+    lines += ["", "## Invariant checks", ""]
+    ok_all = True
+    for name, check in CHECKS:
+        try:
+            ok, detail = check()
+        except Exception as exc:                       # a broken check is a fail
+            ok, detail = False, f"the check itself raised: {exc!r}"
+        ok_all = ok_all and ok
+        lines.append(f"- {'PASS' if ok else '**FAIL**'} — {name}: {detail}")
+    lines += [
+        "",
+        "A FAIL means INVARIANTS.md is describing software that has moved.",
+        "Fix the code or fix the file, then say which in the commit.",
+        "",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def main(argv: list) -> int:
+    check_only = "--check" in argv
+    text = write_facts()
+    if not check_only:
+        (SKILL / "FACTS.md").write_text(text, encoding="utf-8")
+        print(f"wrote {SKILL / 'FACTS.md'}")
+
+    failed = []
+    for name, check in CHECKS:
+        try:
+            ok, detail = check()
+        except Exception as exc:
+            ok, detail = False, f"the check itself raised: {exc!r}"
+        print(f"  {'PASS' if ok else 'FAIL'}  {name}: {detail}")
+        if not ok:
+            failed.append(name)
+
+    if failed:
+        print(f"\n{len(failed)} invariant(s) no longer hold: {failed}")
+        print("Either the code regressed or INVARIANTS.md is out of date. "
+              "Decide which, fix it, and say which in the commit message.")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
