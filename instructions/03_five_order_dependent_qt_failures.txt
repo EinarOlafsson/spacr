@@ -1,0 +1,107 @@
+================================================================================
+FIVE QT TESTS THAT PASS ALONE AND FAIL IN THE SUITE
+================================================================================
+
+Status:   not diagnosed. Two leaks of the same family ARE closed; start there.
+Severity: test-only. None of these affects the running application.
+
+--------------------------------------------------------------------------------
+THE FIVE
+--------------------------------------------------------------------------------
+
+  test_all_module_smoke.py::test_every_registered_module_constructs_shows_and_renders
+      [activation] [invasion] [replication]      (and sometimes classify,
+                                                  ml_analyze)
+  test_cov_qt_app.py::test_the_sidebar_re_inks_its_icons_when_the_theme_changes
+  test_polish.py::test_toolbar_buttons_have_icons
+
+Each passes when its file is run on its own. Each fails after certain
+other files have run. That is the worst way for a test to fail: the blame
+lands on whichever test drew the short straw rather than on the one that
+leaked.
+
+--------------------------------------------------------------------------------
+WHAT IS ALREADY KNOWN
+--------------------------------------------------------------------------------
+
+Two leaks of this family are closed, and both are worth reading before
+starting, because the third is likely to be the same shape. Both fixes are
+autouse fixtures in tests/qt/conftest.py:
+
+  _restore_app_registry
+      `register_self_registering_modules()` mutates process-global state
+      and ten files call it. Nine apps join the list and nobody put it
+      back.
+
+  _font_scale_starts_at_one / _restore_font_scale
+      The font scale is persisted, so it survives the process.
+      test_preferences sets it ten times and restores none.
+
+A THIRD leak is confirmed and NOT closed: test_photo_themes leaves 46 KB
+of the Cell theme on the session QApplication, via
+`preferences.apply_preferences_to_app(qapp)` in
+`TestDegradesWithoutMasters`. Measured:
+
+    after test_photo_themes:  app.styleSheet() is 47220 chars, has
+                              qlineargradient
+    alone:                    app.styleSheet() is 34242 chars
+
+BUT restoring it does NOT fix the five. That was tried and rejected --
+see below. So the stylesheet leak is real and is not the cause.
+
+--------------------------------------------------------------------------------
+WHAT WAS TRIED AND DID NOT WORK
+--------------------------------------------------------------------------------
+
+1. An autouse stylesheet snapshot/restore in tests/qt/conftest.py.
+   It made things WORSE and was reverted. The session-scoped
+   `qt_theme_applied` fixture applies the sheet once; the first test to
+   request it snapshots an empty sheet BEFORE that fixture runs and puts
+   the empty sheet back afterwards, which unthemes the whole suite.
+   Any fix here has to not fight that fixture.
+
+2. The same restore scoped to test_photo_themes only. Also reverted: a
+   test in that file depends on the sheet a previous test in the same
+   file left, so a per-test restore breaks it.
+
+--------------------------------------------------------------------------------
+THE STRONGEST CLUE
+--------------------------------------------------------------------------------
+
+The icons come back NULL, and it is not the icon loader. Measured in one
+session, after test_photo_themes:
+
+    iconset.contrast_icon("open")        -> not null       (direct call)
+    AnnotateScreen()._btn_open.icon()    -> NULL           (same call,
+                                                            inside __init__)
+
+`iconset.icon()` returns `QIcon()` when `qtawesome` raises or is missing.
+A patched `qta.icon` that logs exceptions caught NOTHING -- so qtawesome
+returned an empty icon without raising. That is the thread to pull:
+something in that session leaves qtawesome able to import and unable to
+render. Look at font state, and at `_try_qta`'s lru_cache.
+
+The smoke failures are a different symptom of presumably the same session
+state: the setting-label background samples come back as surface_alt
+instead of surface, which is a stylesheet question.
+
+--------------------------------------------------------------------------------
+HOW TO REPRODUCE
+--------------------------------------------------------------------------------
+
+    QT_QPA_PLATFORM=offscreen python -m pytest -q -p no:randomly \
+        tests/qt/test_photo_themes.py tests/qt/test_polish.py
+
+Fails. Either file alone passes.
+
+--------------------------------------------------------------------------------
+A WARNING ABOUT MEASURING THIS
+--------------------------------------------------------------------------------
+
+Do not try to reproduce a rendering fault with `QWidget.render()`. It
+forces one full synchronous paint, so it does not reproduce anything that
+depends on Qt's ordinary erase-then-paint cycle. It reported 0.0% black
+for a screen that was solid black on the user's display, four times in a
+row, and three separate wrong fixes were built on those clean numbers.
+Assert on state -- what is in the stylesheet, what the palette says --
+rather than on pixels, unless pixels are genuinely the only evidence.
