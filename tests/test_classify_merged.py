@@ -175,3 +175,71 @@ def test_the_retired_keys_are_gone_from_every_classify_module():
         keys = set(factory(settings={}))
         assert "annotated_classes" not in keys, factory.__name__
         assert "custom_measurement" not in keys, factory.__name__
+
+
+# ---------------------------------------------------------------------------
+# The panel has to say WHICH job you are doing
+# ---------------------------------------------------------------------------
+
+def _sections(app_key):
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt.screens.settings_model import SettingsWidgets
+
+    host = QWidget()
+    widgets = SettingsWidgets(app_key, parent=host)
+    return [name for name, _rows in widgets.build_sections()], host
+
+
+def test_the_merged_panel_names_the_two_families(qtbot):
+    """Greying tells the user a control is inactive. It does not tell them
+    what they are DOING, and that is what the merged module has to make
+    obvious -- otherwise merging two modules just moves "which one do I
+    use?" inside one screen."""
+    names, host = _sections("classify_merged")
+    qtbot.addWidget(host)
+
+    assert any(n.startswith("Computer Vision") for n in names), names
+    assert any(n.startswith("Machine Learning") for n in names), names
+
+
+def test_the_family_switch_comes_first(qtbot):
+    """It is the top-level choice, not one setting among ninety."""
+    names, host = _sections("classify_merged")
+    qtbot.addWidget(host)
+    assert names[0] == "Classifier", names[:3]
+
+
+def test_the_shared_groups_are_not_prefixed(qtbot):
+    """"Labels & Classes" applies to both families. Prefixing it would imply
+    it belonged to one, which is the opposite of the point."""
+    names, host = _sections("classify_merged")
+    qtbot.addWidget(host)
+    for shared in ("Plate Sources & Workflow", "Labels & Classes"):
+        assert shared in names, names
+
+
+def test_nothing_is_prefixed_twice(qtbot):
+    """"Machine Learning — ML Classifier & Validation" reads as a stutter."""
+    names, host = _sections("classify_merged")
+    qtbot.addWidget(host)
+    for name in names:
+        assert "— ML " not in name, name
+        assert name.count("—") <= 1, name
+
+
+def test_the_merged_panel_still_has_no_leftovers(qtbot):
+    """Reordering the groups must not drop a key into "Additional Settings",
+    the bucket these layouts exist to keep empty."""
+    names, host = _sections("classify_merged")
+    qtbot.addWidget(host)
+    assert "Additional Settings" not in names, names
+
+
+@pytest.mark.parametrize("app_key", ["classify", "ml_analyze"])
+def test_the_original_modules_keep_their_headings(qtbot, app_key):
+    """Each is one family, so a prefix there is noise."""
+    names, host = _sections(app_key)
+    qtbot.addWidget(host)
+    assert not any(n.startswith(("Computer Vision", "Machine Learning"))
+                   for n in names), names
