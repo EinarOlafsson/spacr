@@ -522,7 +522,88 @@ class RunningBanner(QFrame):
         self._btn_pause.clicked.connect(self._on_pause)
         row.addWidget(self._btn_pause)
 
+        # Quit, in red, because a run that will not stop is the state this
+        # banner is most often being read in. `Pause` asks the gate and
+        # `Open` navigates; this is the only control here that can end a
+        # job whose worker has stopped checking whether it should.
+        self._btn_quit = QPushButton("Quit")
+        self._btn_quit.setCursor(Qt.PointingHandCursor)
+        self._btn_quit.setToolTip(
+            "Stop this run. You are asked whether to let it finish the "
+            "step it is on, or to stop it immediately.")
+        from ..shutdown import style_as_danger
+        style_as_danger(self._btn_quit, P)
+        self._btn_quit.clicked.connect(self._on_quit)
+        row.addWidget(self._btn_quit)
+
         self.hide()
+
+    def _on_quit(self) -> None:
+        """Stop the run this banner is showing.
+
+        Quits the RUN, not the application: this button is attached to one
+        job, and a user who wants the app gone has the one in Preferences.
+        Force here means `QThread.terminate()`, which `cancel_all` refuses
+        to do on its own and documents why -- mid-write is exactly when it
+        is unsafe. The difference is that here somebody has been told that
+        and asked for it anyway.
+        """
+        from ..shutdown import (CANCEL, FORCE, GracefulQuitWatcher,
+                                ask_how_to_quit, describe_active)
+
+        handle = self._handle
+        if handle is None:
+            return
+        name = self._names.get(handle.app_key, handle.app_key)
+        choice = ask_how_to_quit(self, what=name,
+                                 detail=describe_active([handle]))
+        if choice == CANCEL:
+            return
+
+        if choice == FORCE:
+            self._terminate(handle)
+            return
+
+        handle.request_cancel("quit from the Home screen")
+        # Keep the watcher on the banner rather than on the handle: the
+        # handle is retired the moment the job stops, and a timer parented
+        # to a dead object is a crash rather than a missed prompt.
+        self._quit_watcher = GracefulQuitWatcher(
+            self,
+            lambda h=handle: bool(h.is_running()),
+            what=name,
+            describe=lambda h=handle: describe_active([h]),
+            on_force=lambda h=handle: self._terminate(h),
+        )
+        self._quit_watcher.start()
+
+    @staticmethod
+    def _terminate(handle) -> None:
+        """Stop a job's thread outright.
+
+        Never reached without the user having been shown what it costs.
+        `request_cancel` first regardless, so a worker that IS still
+        checking gets the chance to stop on its own terms in the moment
+        before the thread is taken away from it.
+        """
+        import logging
+
+        logging.getLogger(__name__).warning(
+            "Force-stopping %s at the user's request", handle.app_key)
+        try:
+            handle.request_cancel("force quit from the Home screen")
+        except Exception:
+            pass
+        thread = getattr(handle, "thread", None)
+        if thread is None:
+            return
+        try:
+            thread.terminate()
+            thread.wait(2000)
+        except RuntimeError:
+            # Already gone: the job finished between the prompt and here,
+            # which is the good outcome and not an error.
+            pass
 
     # -- state ---------------------------------------------------------
     def bind(self, handle) -> None:
