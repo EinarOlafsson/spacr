@@ -31,10 +31,9 @@ WHAT TO DO
 2. Open the SAME dialog the menu opens: `PreferencesDialog(self).exec()`,
    via spacr.qt.dialogs.detach_from_window_manager (already applied inside
    PreferencesDialog, so just calling it is enough).
-3. Put it on the shared console/toolbar row rather than in three screens, if
-   that row is shared - mask, measure and classify were named, but a control
-   that exists on three of sixteen module screens and not the rest is its
-   own kind of confusing. Check what the row is before deciding.
+3. DECIDED 2026-08-06 by the user: put it on the SHARED row, so every
+   module screen gets it rather than only mask/measure/classify. A gear on
+   three of sixteen screens is its own kind of confusing.
 4. Tooltip, and an accessible name. It is an icon-only button.
 
 --------------------------------------------------------------------------------
