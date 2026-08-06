@@ -1,0 +1,44 @@
+================================================================================
+ANNOTATE SETTINGS: DROP THE API DOTS
+================================================================================
+
+Status:    done - 2026-08-06, commit 9cebd643
+Requested: 2026-08-06 - "please also remove the API dot to the right of the
+           annotation settings (the API link is now in the tooltips box)"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Done. The Annotate settings dialog passed no `api_dots` argument, so it got
+the default True and drew one teal dot per setting - twenty-six of them.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A dot on nearly every row reads as a column of dots rather than a column of
+settings. The affordance stops being an affordance and becomes texture. The
+Mask live preview already turned them off for exactly this reason (68 on one
+dialog), so the switch existed and this dialog simply had not used it.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+`install_api_tooltips(self, "annotate", {...}, api_dots=False)` in
+screens/annotate.py. Nothing else changed: hover help is installed either
+way, and the API link is in the tooltip, which is where it is now read from.
+
+The docstring of `install_api_tooltips` records this as the second case, so
+the next person deciding whether to pass the flag has two worked examples
+rather than one.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+test_annotate_settings_expose_rgb_as_the_default_stored_order asserted the
+dot was PRESENT; it now asserts it is absent and that "href=" is still in
+the label's tooltip. The docstring says what it used to claim and why that
+stopped being right.
