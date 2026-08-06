@@ -2,7 +2,7 @@
 CLASSIFY (CV): ONE GRAPH THAT GROWS, NOT ONE GRAPH PER EPOCH
 ================================================================================
 
-Status:    not started
+Status:    done - 2026-08-06
 Requested: 2026-08-06 - "the graphs keep updating for each epoch and i get a new graph for each epoch. I want one new datapoint in the graph at each epoch, not a completely new graph. the graphs have a black background when they should be dark gray like the container. best would be if they had a completely transparent background with white lines and white text in dark mode (teal, blue, purple and gray for the lines in the graph.)"
 
 --------------------------------------------------------------------------------
@@ -30,7 +30,12 @@ one curve to read, which is the thing the curve exists for - you cannot see
 whether the loss is still falling if each epoch is a separate picture.
 
 --------------------------------------------------------------------------------
-WHAT TO DO
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+See the commit message for the full
+reasoning; the short version is below.
+
 --------------------------------------------------------------------------------
 
 1. Emit DATA per epoch, not a figure. The panel owns the figure and appends;
@@ -44,6 +49,10 @@ WHAT TO DO
    so the light theme is not left with white-on-white.
 4. Check the light theme explicitly. "White text" is right for dark and
    invisible on light.
+
+--------------------------------------------------------------------------------
+
+(Each numbered step above was carried out.)
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED

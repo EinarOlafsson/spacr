@@ -2,7 +2,7 @@
 STOP DOES NOT STOP: OFFER SOFT AND HARD, LIKE THE QUIT BUTTON
 ================================================================================
 
-Status:    not started
+Status:    done - 2026-08-06
 Requested: 2026-08-06 - "spacr is really bad at stopping things. i have noticed this in many modules. the stop button doesnt seem to do much. when the stop button is pressed the user should be prompted to hard stop or soft stop. similar to the home screen quit button on module tasks"
 
 --------------------------------------------------------------------------------
@@ -30,7 +30,12 @@ A stop button that does not stop is worse than no stop button: the user
 waits, believing the run is ending, while it is not.
 
 --------------------------------------------------------------------------------
-WHAT TO DO
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+See the commit message for the full
+reasoning; the short version is below.
+
 --------------------------------------------------------------------------------
 
 1. Find every Stop/Cancel control and what it calls (bridge.RunHandle.
@@ -45,6 +50,10 @@ WHAT TO DO
    say "still running - the worker has not checked in", not sit silent.
 5. Reuse shutdown.py's dialog if it fits; do not write a second one that
    drifts from it.
+
+--------------------------------------------------------------------------------
+
+(Each numbered step above was carried out.)
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED

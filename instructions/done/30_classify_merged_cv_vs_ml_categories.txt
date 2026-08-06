@@ -2,7 +2,7 @@
 CLASSIFY (MERGED): SAY WHICH SETTINGS ARE COMPUTER VISION
 ================================================================================
 
-Status:    not started
+Status:    done - 2026-08-06
 Requested: 2026-08-06 - "for the new classify module, the settings that are specifically for computer vision need to be under a settings category that states that. this module should make it obvious to the user what they are doing, computer vision or machine learning like XGBoost"
 
 --------------------------------------------------------------------------------
@@ -27,7 +27,12 @@ use?" being a question. A merged screen whose headings do not name the two
 families just moves the question inside.
 
 --------------------------------------------------------------------------------
-WHAT TO DO
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+See the commit message for the full
+reasoning; the short version is below.
+
 --------------------------------------------------------------------------------
 
 1. Rename the CV-only groups so each says so, e.g. "Computer Vision - Model
@@ -41,6 +46,10 @@ WHAT TO DO
    family each and a prefix there is noise.
 4. tests/test_settings_categories.py pins category names; update the
    expectation and say why in the docstring.
+
+--------------------------------------------------------------------------------
+
+(Each numbered step above was carried out.)
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
