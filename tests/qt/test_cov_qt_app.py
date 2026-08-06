@@ -216,6 +216,7 @@ EXPECTED_SECTIONS = {
     "motility":        SECTION_CORE,
     "measure":         SECTION_CORE,
     "annotate":        SECTION_CORE,
+    "classify_merged": SECTION_CORE,
     "classify":        SECTION_CORE,
     "ml_analyze":      SECTION_CORE,
     "map_barcodes":    SECTION_CORE,
@@ -305,6 +306,9 @@ EXPECTED_SECTIONS = {
 #: Absent from ``APP_STAGE`` means stable, so the two are checked
 #: against each other rather than against a copy of the same dict.
 EXPECTED_STAGES = {
+    # New module, so alpha: the two pipelines it dispatches to are trusted,
+    # the merged screen has not been run on real data.
+    "classify_merged": "alpha",
     "align": "alpha", "model_zoo": "alpha", "convert": "alpha",
     "foreign": "alpha", "external_masks": "alpha",
     "model_compare": "alpha", "queue": "alpha",
@@ -369,7 +373,8 @@ def test_every_app_carries_the_maturity_it_was_given():
     # 36 alpha since PCA and Tabulate started registering. The beta and stable
     # columns have still not moved, which is the shape the docstring above
     # describes: alpha is the column that grows, and only use empties it.
-    assert counts == {"alpha": 36, "beta": 9, "stable": 8}
+    # 37 alpha since the merged Classify module arrived.
+    assert counts == {"alpha": 37, "beta": 9, "stable": 8}
 
 
 def test_no_section_is_used_that_was_never_declared():
