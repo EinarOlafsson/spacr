@@ -98,6 +98,31 @@ def _dashboard_qss(palette: dict, opacity: Optional[float] = None) -> str:
     border-radius: 6px;
     padding: {SPACING['sm']}px;
 }}
+/* The screen's own plain labels -- the intro paragraph and the "Folder:"
+   caption. They sit on the page rather than on a panel, and `page` is not
+   `bg` (INVARIANTS 2), so a label painting the window colour shows as a
+   black rectangle there too. */
+#QCDashboardScreen > QLabel {{
+    background: transparent;
+}}
+
+/* Every label on the cards panel, before the colour rules below.
+   A QLabel is a QWidget, so a label with no background of its own is
+   matched by the blanket `QWidget {{ background-color: bg }}` and paints
+   the WINDOW colour -- #000000 on dark -- as a solid rectangle behind its
+   own text, on top of a panel that DOES have a background. That is the
+   black box behind the segmentation-QC text.
+
+   Transparent, not a colour: the panel's background already carries the
+   user's page opacity through `block_surface`, and repeating a colour here
+   would freeze one opacity into the labels while the panel behind them
+   kept following the preference. */
+#{CARDS_OBJECT} QLabel {{
+    background: transparent;
+}}
+#{STATUS_OBJECT} {{
+    background: transparent;
+}}
 #{CARDS_OBJECT} QLabel[spacrQCVerdictLevel="ok"] {{
     color: {palette['success']};
 }}
@@ -218,6 +243,17 @@ class QCDashboardScreen(QWidget):
         # over the animated backdrop. Same call the settings column and the
         # sidebar make.
         scroll.viewport().setAutoFillBackground(False)
+        # ...and tag it, because autoFillBackground(False) does NOT stop a
+        # STYLESHEET background: QSS paints through QStyle regardless of that
+        # flag, so the blanket `QWidget { background-color: bg }` still
+        # reaches the viewport. `make_transparent` tags a scroll area's
+        # viewport along with it, which is the whole reason it takes one.
+        try:
+            from ..theme import make_transparent
+            make_transparent(scroll)
+        except Exception:      # pragma: no cover - decoration is not load-bearing
+            LOG.debug("could not make the QC scroll area transparent",
+                      exc_info=True)
         scroll.setSizePolicy(QSizePolicy.Policy.Expanding,
                              QSizePolicy.Policy.Expanding)
         outer.addWidget(scroll, 1)

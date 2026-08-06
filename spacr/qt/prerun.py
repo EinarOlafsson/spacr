@@ -669,7 +669,11 @@ class SegQCBanner(_JobMixin, QFrame):
         self._findings_box.setVisible(True)
         shown = findings if self._expanded else findings[:_FINDINGS_COLLAPSED]
         for finding in shown:
-            block = QWidget(self._findings_box)
+            # One per finding, and each is its own anonymous QWidget, so
+            # each needs tagging: making only the parent transparent left a
+            # black rectangle behind every finding's text -- which is what
+            # the first attempt at this fixed and what the user still saw.
+            block = _transparent(QWidget(self._findings_box))
             layout = QVBoxLayout(block)
             layout.setContentsMargins(0, 0, 0, 0)
             layout.setSpacing(2)
@@ -954,7 +958,7 @@ class DiameterPanel(_JobMixin, QFrame):
         order += [o for o in self._estimates if o not in order]
         for obj in order:
             est = self._estimates[obj]
-            row = QWidget(self._rows_box)
+            row = _transparent(QWidget(self._rows_box))
             layout = QVBoxLayout(row)
             layout.setContentsMargins(0, 0, 0, 0)
             layout.setSpacing(2)
