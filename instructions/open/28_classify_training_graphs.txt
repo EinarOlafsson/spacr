@@ -1,0 +1,53 @@
+================================================================================
+CLASSIFY (CV): ONE GRAPH THAT GROWS, NOT ONE GRAPH PER EPOCH
+================================================================================
+
+Status:    not started
+Requested: 2026-08-06 - "the graphs keep updating for each epoch and i get a new graph for each epoch. I want one new datapoint in the graph at each epoch, not a completely new graph. the graphs have a black background when they should be dark gray like the container. best would be if they had a completely transparent background with white lines and white text in dark mode (teal, blue, purple and gray for the lines in the graph.)"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not investigated. Two separate defects in one report:
+
+  1. A NEW FIGURE PER EPOCH. Something in the training loop is creating a
+     figure and emitting it rather than appending a point to one that
+     already exists. Find the emit; it is probably in deep_spacr's training
+     callback or in whatever renders to the screen's figure panel.
+  2. A BLACK background. Almost certainly matplotlib's default figure
+     facecolor rather than the theme's - the same class of bug as the
+     segmentation-QC black box (INVARIANTS 3), arrived at through a
+     different library. `bg` is the WINDOW colour, #000000 on dark; the
+     container is a SURFACE.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Twenty epochs currently means twenty figures to scroll through instead of
+one curve to read, which is the thing the curve exists for - you cannot see
+whether the loss is still falling if each epoch is a separate picture.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Emit DATA per epoch, not a figure. The panel owns the figure and appends;
+   the training loop appends a point. That also removes the per-epoch
+   figure-encoding cost from the training thread.
+2. Transparent figure and axes facecolor, so the container shows through and
+   the page opacity applies - do not hard-code a grey, or it freezes one
+   opacity into the plot while everything around it follows the preference.
+3. Text, ticks and spines in the theme's fg; series colours teal, blue,
+   purple, grey as asked. Take them from the palette rather than literals,
+   so the light theme is not left with white-on-white.
+4. Check the light theme explicitly. "White text" is right for dark and
+   invisible on light.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Train for several epochs: ONE figure, gaining a point per epoch, on a
+transparent background, readable in both themes.
