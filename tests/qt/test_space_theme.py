@@ -488,12 +488,25 @@ class TestPreferencesWiring:
 
     def test_space_gets_dark_figure_colours(self, qapp, monkeypatch):
         """Space is a dark theme: a `== "dark"` test would have handed
-        it white figures."""
+        it white figures.
+
+        CHANGED 2026-08-06. The background half used to assert "#000000".
+        That was the black slab behind every plot: `bg` is the WINDOW
+        colour, and a figure sits on a container that is a translucent
+        SURFACE (INVARIANTS 2). "auto" now resolves to TRANSPARENT, so the
+        container shows through and the page-opacity preference reaches the
+        plot.
+
+        What this test was actually defending is untouched and still
+        asserted: Space must be treated as DARK, so its text is white. That
+        is the bug the docstring describes and it is the half that matters.
+        """
         from spacr.qt import preferences
         monkeypatch.setattr(preferences, "resolve_effective_theme",
                             lambda: "space")
         bg, fg = preferences.get_figure_colors()
-        assert bg == "#000000" and fg == "#ffffff"
+        assert fg == "#ffffff", "Space was treated as a light theme"
+        assert preferences.figure_bg_is_transparent(bg), bg
 
     def test_apply_preferences_only_pays_for_space(self, qapp, monkeypatch):
         from spacr.qt import preferences

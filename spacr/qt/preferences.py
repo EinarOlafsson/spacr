@@ -332,6 +332,18 @@ _KEY_FIG_FG = "prefs/figure_fg"
 _KEY_FIG_TEXT_SIZE = "prefs/figure_text_size"
 
 
+#: What "no background at all" is spelled as, in the one place that decides
+#: it. matplotlib understands "none" for a facecolor; savefig needs
+#: `transparent=True` as well, which is why callers test against this
+#: constant rather than comparing strings of their own.
+TRANSPARENT_FIGURE_BG = "none"
+
+
+def figure_bg_is_transparent(bg: str) -> bool:
+    """Whether ``bg`` means "let whatever is behind show through"."""
+    return str(bg).strip().lower() in {"none", "transparent", ""}
+
+
 def get_figure_colors() -> tuple:
     """Return ``(background, text)`` hex colours for rendered figures,
     resolving "auto" against the current theme."""
@@ -341,7 +353,21 @@ def get_figure_colors() -> tuple:
         # Light is the only light theme; Space is a dark one, so a
         # `== "dark"` test here would have handed it white figures.
         dark = resolve_effective_theme() != "light"
-        auto_bg, auto_fg = ("#000000", "#ffffff") if dark else ("#ffffff", "#000000")
+        # TRANSPARENT, not the theme's window colour. "auto" used to resolve
+        # to #000000 on a dark theme, which is where the black slab behind
+        # every plot came from: an opaque black rectangle sitting on a
+        # container that is a translucent SURFACE. `bg` is the window
+        # colour and a figure is not a window (INVARIANTS 2).
+        #
+        # Transparent also means the page-opacity preference reaches the
+        # plot for free, and one value is right for both themes -- baking in
+        # a grey would freeze one opacity into every figure while everything
+        # around it kept following the preference.
+        #
+        # An EXPLICIT colour the user has chosen is still honoured; only the
+        # "auto" resolution changed.
+        auto_bg = TRANSPARENT_FIGURE_BG
+        auto_fg = "#ffffff" if dark else "#000000"
         if bg == "auto":
             bg = auto_bg
         if fg == "auto":
