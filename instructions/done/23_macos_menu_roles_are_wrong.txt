@@ -1,0 +1,111 @@
+================================================================================
+macOS: PREFERENCES AND QUIT VANISH, AND THE PYTHON MENU OPENS RECIPES
+================================================================================
+
+Status:    done - 2026-08-06, needs confirming on a Mac
+Requested: 2026-08-06 - "om OSX the preferences and quit items in the drop down dont show up now. move these to the top of the list." and "on osx there is a apple logo, then python, spaCR, Deoms, Help drop downs ... the python dropdown on osx has a preferences item which spawns as module recipies window. please fix this"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not investigated. The two halves are almost certainly ONE bug.
+
+macOS does not draw an application's menu bar inside its window; Qt moves
+it to the system bar, and it MOVES INDIVIDUAL ACTIONS between menus based on
+QAction::menuRole. Qt sets that role automatically by pattern-matching the
+action's TEXT: text containing "preferences", "config", "options" or "setup"
+becomes PreferencesRole, "quit"/"exit" becomes QuitRole, and an action with
+one of those roles is REMOVED from the menu it was added to and placed in
+the application menu (the one labelled with the executable's name - "python"
+here, because spaCR runs under the interpreter rather than a bundled .app).
+
+That explains both symptoms at once:
+
+  * Preferences and Quit "don't show up" in spaCR's own menu -- they were
+    moved to the "python" menu, which is exactly where the user found a
+    Preferences item.
+  * That Preferences item opens the module-recipes window -- so some OTHER
+    action whose text Qt matched (a "Recipes" entry with wording like
+    "Module recipes and setup") was ALSO given PreferencesRole and won.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+On macOS the two most important items in the menu are missing from where
+they are documented to be, and the one the user does find opens the wrong
+window. Nothing here is cosmetic.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+The diagnosis in WHAT THE STATE IS was right, including the recipes half.
+Confirmed by scanning every QAction text in spacr/qt against Qt's trigger
+words: exactly four hits -- 'Preferences…', 'Quit', 'About spaCR' and
+recipes.MENU_ACTION_TEXT = 'Settings recipes…'.
+
+  * spacr/qt/menus.py - set_menu_role / pin_menu_roles, and the explanation.
+  * MainWindow.pin_all_menu_roles() sweeps every menu-bar action. Called at
+    the end of _build_menu_bar AND again from shortcuts.install, because
+    recipes, walkthrough and feature_dictionary add to Help afterwards.
+    Each of those pins its own too, as defence in depth.
+  * Preferences and Quit moved to the top of the spaCR menu.
+
+Measured: 81 menu-bar actions, all with an explicit role, exactly three
+special.
+
+TWO THINGS LEARNED THE HARD WAY, both now in comments:
+
+  * Collect actions with bar.findChildren(QMenu), never menuBar().actions()
+    plus QAction.menu() -- the rule command_palette.py and recipes.py
+    already follow. The obvious version returned 3 top-level actions
+    immediately after _build_menu_bar and 0 once __init__ had finished.
+  * Skip actions with empty text. menuAction() CREATES one for a menu never
+    attached to a bar, so the audit walk can manufacture the very thing it
+    then reports as unpinned.
+
+SEPARATE REGRESSION FOUND AND FIXED HERE: a settings dict holding `png_dims`
+reached a screen rendering `png_channel_mapping`, found no widget, and was
+dropped silently -- the run then used the module default. app_screen.py now
+translates retired keys at the point a dict meets the widgets, and the demo
+pack writes the current key. Caught by
+test_demo_settings_survive_the_widget_round_trip, which is a good test.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A test asserting every menu-bar action has an explicit menuRole, that the
+preferences action has PreferencesRole, quit has QuitRole, and that no other
+action has anything but NoRole. Then someone opens it on a Mac and checks
+that the python menu's Preferences opens Preferences.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Bundling spaCR as a real .app so the application menu says "spaCR" rather
+than "python". That is a packaging change, it is much larger than this, and
+it does not fix the roles - a bundled app with the same wrong roles would
+still open recipes.
+
+--------------------------------------------------------------------------------
+VERIFIED, AND WHAT IS NOT
+--------------------------------------------------------------------------------
+
+    QT_QPA_PLATFORM=offscreen python -m pytest tests/qt/test_menu_roles.py \
+      tests/qt/test_main_window.py tests/qt/test_demo_menu.py \
+      tests/qt/test_recipes.py tests/qt/test_recipes_dialog.py \
+      tests/qt/test_command_palette_actions.py \
+      tests/qt/test_shortcuts_and_notify.py tests/qt/test_annotate.py \
+      -q -p no:randomly
+
+236 passed. Six tests added, including a control that proves an untouched
+"Settings recipes…" really does sit in TextHeuristicRole -- without it every
+other assertion could pass for the wrong reason.
+
+NOT VERIFIED: where the items actually land. Qt applies menu roles only on
+macOS and this was developed on Linux. Someone has to open it on a Mac and
+check that the python menu's Preferences opens Preferences, not recipes.
