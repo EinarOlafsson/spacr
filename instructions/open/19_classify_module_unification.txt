@@ -2,14 +2,49 @@
 CLASSIFY: MERGE THE CV AND ML MODULES INTO ONE
 ================================================================================
 
-Status:    not started
+Status:    in progress - inventory done, no code written
 Requested: 2026-08-06 - "the Classify CV and ML modules should be standardized ... shared settings should be called the same things ... shared categories the same thing ... for both there should be the option to train classifiers based on annotation, metadata, and measurements ... the user can choose multiple measurements at once ... gray out metadata-based settings when annotation-based training is chosen, and vice versa ... Best would be if we could have one module called Classify"
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
-Not started. Two separate modules today: Classify (CV) and Classify (ML),
+INVENTORY DONE 2026-08-06 (the step this file said to do first). The
+numbers, measured rather than assumed:
+
+  CV (deep_spacr_defaults)        78 keys
+  ML (set_default_analyze_screen) 37 keys
+  shared BY NAME                   6: annotation_column, channel_of_interest,
+                                      learning_rate, n_jobs, src, verbose
+
+  ...and two of those six DISAGREE on their default:
+      annotation_column   CV 'test'   ML None
+      n_jobs              CV 28       ML -1
+
+  Synonym pairs - same thing, different name, the core of the task:
+      model_type            <-> model_type_ml
+      test_split            <-> test_size
+      cross_validation_enabled <-> cross_validation
+
+THE BIG FINDING: CV ALREADY HAS ALL THREE TRAINING BASES. `dataset_mode`
+takes 'metadata' | 'annotation' | 'measurement' (settings.py:2824), driven
+by class_metadata/metadata_rules, annotation_columns/annotation_values, and
+measurement_rules respectively. ML has only metadata (location_column +
+positive_control/negative_control), with annotation_column as an override.
+
+So the work is NOT to invent a training_basis setting - it is to adopt
+`dataset_mode` as the shared one and give ML the two bases it lacks.
+
+Caveat found while inventorying: `annotated_classes` and `custom_measurement`
+are documented as INERT - collected by the form, read by nothing
+(settings.py:2825, :3100). Do not carry dead keys into the merged module;
+either wire them up or drop them, and say which in the commit.
+
+Category layouts today: CV's 10 groups are built inline in
+settings_model.py (~line 1101); ML's 8 are in _APP_CATEGORY_SPECS. Only
+"Runtime & Reliability" is common. Both need to become one spec.
+
+Two separate modules today: Classify (CV) and Classify (ML),
 with app screens under spacr/qt/screens/, settings factories in
 spacr/settings.py, category layouts in _APP_CATEGORY_SPECS
 (spacr/qt/screens/settings_model.py) and entries in the APPS registry in
