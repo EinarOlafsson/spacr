@@ -1,0 +1,78 @@
+================================================================================
+ANNOTATE: RUBBER-BAND MULTI-SELECT, AND ANNOTATE/CLEAR PAGE
+================================================================================
+
+Status:    done - 2026-08-06, commit 69a650e2
+Requested: 2026-08-06 — "if i click outside of an image i should be able to choose many images for annotation at once (when the mouse is released the user should be prompted, which number to annotate the selection)" and "beside clear column there should be a annotate page and clear page"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Nothing written. spacr/qt/screens/annotate.py has _Thumbnail (a QLabel with
+its own paintEvent and mousePressEvent), a grid built by _rebuild_grid, and
+_on_clear_column at line ~2040. There is no drag-select and no page-scoped
+action.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Class-balancing a page at a time is the common motion when annotating; one
+click per image is the current cost.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+"Annotate page" and "Clear page" sit beside "Clear column"; both prompt for
+the class number and name the count, because "annotate 240 images" and
+"annotate 2" are different decisions and the button looks the same for both.
+
+Dragging on the grid background rubber-bands a selection and the release
+asks what to call it. A press on a tile never reaches the handler --
+_Thumbnail accepts it in its own mousePressEvent -- so "press on the grid"
+already means "press between the images". No hit-test to get wrong.
+
+Selection is by INTERSECTION, not containment: a band across a row takes the
+tiles it crosses, and requiring containment would make it miss the ones at
+either end, which reads as images being silently dropped.
+
+Everything goes through one `_apply_to_slots`, which pushes undo per slot
+before writing. Ctrl+Z walks a page back one image at a time. Clear page
+takes no confirmation for the same reason - undoable and bounded to what the
+user can see, which is what Clear column is not.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+tests/qt/test_annotate.py — add cases that drag a band over a known slot
+range and assert the annotations written; and that Clear page leaves other
+pages untouched.
+
+--------------------------------------------------------------------------------
+VERIFIED
+--------------------------------------------------------------------------------
+
+QT_QPA_PLATFORM=offscreen python -m pytest tests/qt/test_annotate.py \
+      tests/qt/test_annotate_keyboard.py tests/qt/test_annotate_console.py \
+      tests/qt/test_annotate_active_learning.py \
+      tests/qt/test_annotate_worker_lifecycle.py tests/qt/test_e2e_annotate.py \
+      -q -p no:randomly
+
+green. Six tests added, covering: the page label and its undo, a cancelled
+prompt writing nothing, clear-page staying on this page, band selection by
+intersection, a band labelling only what it touched, and a plain background
+click not counting as a selection.
+
+--------------------------------------------------------------------------------
+NOTED
+--------------------------------------------------------------------------------
+
+TEST-ONLY TRAP, and it would have made the selection tests meaningless:
+offscreen, nothing lays the grid out and every tile keeps geometry
+(0, 0, w, h), so a band over one tile appears to hit all four. The fixture
+calls `_grid_layout.activate()` after sizing the holder, and the band test
+asserts four DISTINCT tile corners before asserting anything about the
+selection.
