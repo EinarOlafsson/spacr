@@ -40,8 +40,9 @@ import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QComboBox, QHBoxLayout, QHeaderView, QInputDialog, QLabel, QPushButton,
-    QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget,
+    QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
+    QFormLayout, QHBoxLayout, QHeaderView, QInputDialog, QLabel, QPushButton,
+    QSpinBox, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget,
 )
 
 from ...selection import DataFilter
@@ -411,6 +412,67 @@ class GateTree(QWidget):
         self.active_changed.emit(self.active_gate())
 
 
+class _ClusterSettingsDialog(QDialog):
+    """DBSCAN's two parameters, with what they mean in the units they act in.
+
+    `eps` is in SCALED units while scaling is on, which is what makes one
+    default work across measurements whose ranges differ by orders of
+    magnitude -- `cell_area` runs to thousands and `eccentricity` to one, and
+    unscaled DBSCAN on that pair clusters on area alone. The checkbox says so
+    rather than leaving the user to discover it by getting one blob.
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        try:
+            from ..dialogs import detach_from_window_manager
+            detach_from_window_manager(self)
+        except Exception:
+            pass
+        self.setWindowTitle("Cluster settings")
+        form = QFormLayout(self)
+
+        self._eps = QDoubleSpinBox(self)
+        self._eps.setRange(0.01, 100.0)
+        self._eps.setSingleStep(0.05)
+        self._eps.setDecimals(2)
+        self._eps.setValue(0.30)
+        self._eps.setToolTip(
+            "Neighbourhood radius. Larger merges nearby populations into "
+            "one; smaller splits one into several.")
+        form.addRow("eps (radius)", self._eps)
+
+        self._min_samples = QSpinBox(self)
+        self._min_samples.setRange(2, 10000)
+        self._min_samples.setValue(10)
+        self._min_samples.setToolTip(
+            "Objects needed to seed a population. Anything sparser is "
+            "treated as debris and left out of every gate.")
+        form.addRow("min samples", self._min_samples)
+
+        self._scale = QCheckBox("Standardise both axes first", self)
+        self._scale.setChecked(True)
+        self._scale.setToolTip(
+            "On unless you know otherwise. Without it, the axis with the "
+            "larger numeric range decides the clustering on its own.")
+        form.addRow("", self._scale)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok
+                                   | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        form.addRow(buttons)
+
+    def eps(self) -> float:
+        return float(self._eps.value())
+
+    def min_samples(self) -> int:
+        return int(self._min_samples.value())
+
+    def scale(self) -> bool:
+        return bool(self._scale.isChecked())
+
+
 class GateEditorPanel(QWidget):
     """Canvas, tools and hierarchy: the whole gating surface.
 
@@ -449,6 +511,13 @@ class GateEditorPanel(QWidget):
         self._close.setEnabled(False)
         self._close.clicked.connect(self._on_close_polygon)
         tools.addWidget(self._close)
+
+        self._cluster = QPushButton("Cluster…", self)
+        self._cluster.setToolTip(
+            "Find dense populations with DBSCAN and turn each one into a "
+            "gate you can edit, nest and save like any other.")
+        self._cluster.clicked.connect(self._on_cluster)
+        tools.addWidget(self._cluster)
 
         self._apply = QPushButton("Apply as filter", self)
         self._apply.setObjectName("PrimaryButton")
@@ -523,6 +592,59 @@ class GateEditorPanel(QWidget):
         if count:
             self._status.setText(
                 f"{count} vertex(es) — three or more make a region")
+
+    def _on_cluster(self) -> None:
+        """Find dense populations and add one gate per cluster.
+
+        Clusters become REAL gates rather than a separate kind of selection,
+        so each is editable, nestable, serialisable and usable as a filter
+        the moment it appears -- everything a hand-drawn gate can do, because
+        it is one.
+        """
+        from PySide6.QtWidgets import QMessageBox
+
+        frame = self.canvas.population()
+        if frame is None or frame.empty:
+            QMessageBox.information(
+                self, "Nothing to cluster",
+                "Load a table before clustering.")
+            return
+        x_column = getattr(self.canvas, "x_column", None) or ""
+        y_column = getattr(self.canvas, "y_column", None) or ""
+        if not x_column or not y_column:
+            QMessageBox.information(
+                self, "Pick two measurements",
+                "Clustering needs an X and a Y measurement.")
+            return
+
+        dialog = _ClusterSettingsDialog(self)
+        if dialog.exec() != QDialog.Accepted:
+            return
+
+        from .gate_spec import ClusterError, cluster_gates
+        try:
+            found = cluster_gates(
+                frame, x_column, y_column,
+                eps=dialog.eps(), min_samples=dialog.min_samples(),
+                scale=dialog.scale(), parent=self.canvas.active_gate())
+        except ClusterError as exc:
+            # Named, not swallowed: every one of these messages says what to
+            # change, and a silent empty result reads as a broken button.
+            QMessageBox.warning(self, "Could not cluster", str(exc))
+            return
+
+        if not found:
+            QMessageBox.information(
+                self, "No clusters",
+                "DBSCAN found only sparse points at these settings. Raise "
+                "eps to group them more loosely, or lower min_samples.")
+            return
+
+        gates = self.canvas.gates()
+        for gate in found:
+            gates.add(gate)
+        self.canvas.set_gates(gates, active=found[0].name)
+        self.refresh()
 
     def _on_close_polygon(self) -> None:
         self.canvas.close_polygon()

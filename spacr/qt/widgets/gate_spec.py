@@ -440,6 +440,163 @@ _GATE_CLASSES = {THRESHOLD: ThresholdGate, RECTANGLE: RectGate,
                  POLYGON: PolygonGate}
 
 
+
+# ---------------------------------------------------------------------------
+# Density clustering
+#
+# DBSCAN, not k-means: a scatter of cells has dense populations of unequal
+# size sitting in sparse debris, which is exactly the shape DBSCAN was made
+# for and exactly the shape k-means is bad at. It also does not need to be
+# told how many populations there are, which is the number a user opening
+# this dialog does not yet know.
+#
+# Clusters become REAL GATES rather than a separate kind of selection. A
+# cluster is then editable, nestable, serialisable and usable as a
+# DataFilter clause -- everything a hand-drawn gate can do -- because it IS
+# one. A parallel "cluster selection" concept would have needed all of that
+# rebuilt beside it.
+# ---------------------------------------------------------------------------
+
+
+class ClusterError(GateError):
+    """Clustering cannot run, or produced nothing worth gating."""
+
+
+def _convex_hull(points: np.ndarray) -> np.ndarray:
+    """Return the hull vertices of ``points``, counter-clockwise.
+
+    Andrew's monotone chain, written out rather than pulled from scipy: this
+    module's contract is that importing it is cheap and Qt-free, and a
+    scipy.spatial import at gate-drawing time costs more than thirty lines.
+
+    :param points: ``(n, 2)`` array.
+    :returns: ``(m, 2)`` array of hull vertices.
+    """
+    pts = np.unique(points, axis=0)
+    if len(pts) <= 2:
+        return pts
+    order = np.lexsort((pts[:, 1], pts[:, 0]))
+    pts = pts[order]
+
+    def _half(sequence):
+        out: List[np.ndarray] = []
+        for point in sequence:
+            while len(out) >= 2:
+                (x1, y1), (x2, y2) = out[-2], out[-1]
+                # Cross product of the last edge with the candidate edge.
+                cross = ((x2 - x1) * (point[1] - y1)
+                         - (y2 - y1) * (point[0] - x1))
+                if cross > 0:
+                    break
+                out.pop()
+            out.append(point)
+        return out
+
+    lower = _half(pts)
+    upper = _half(pts[::-1])
+    return np.array(lower[:-1] + upper[:-1])
+
+
+def cluster_gates(frame: pd.DataFrame, x_column: str, y_column: str, *,
+                  eps: float = 0.5, min_samples: int = 10,
+                  scale: bool = True, max_clusters: int = 20,
+                  name_prefix: str = "cluster",
+                  parent: Optional[str] = None) -> List["PolygonGate"]:
+    """Find dense populations with DBSCAN and return one gate per cluster.
+
+    :param frame: the measurement table.
+    :param x_column: the scatter's x measurement.
+    :param y_column: the scatter's y measurement.
+    :param eps: DBSCAN neighbourhood radius. In SCALED units when
+        ``scale`` is true, which is what makes one default work across
+        measurements whose ranges differ by orders of magnitude.
+    :param min_samples: points needed to seed a cluster.
+    :param scale: standardise both axes before clustering. On by default
+        because ``cell_area`` runs to thousands and ``eccentricity`` to one,
+        and unscaled DBSCAN on that pair clusters on area alone.
+    :param max_clusters: refuse beyond this many. Two hundred gates is not a
+        result, it is a wrongly-tuned eps, and drawing them all makes the
+        editor unusable while the user works out why.
+    :param name_prefix: gate names are ``<prefix> 1``, ``<prefix> 2``, ...
+    :param parent: parent gate name, so clusters can be found inside a gate.
+    :returns: one :class:`PolygonGate` per cluster, largest first. Empty when
+        DBSCAN finds only noise.
+    :raises ClusterError: a missing column, no usable rows, bad parameters,
+        or more clusters than ``max_clusters``.
+    """
+    try:
+        from sklearn.cluster import DBSCAN
+    except Exception as exc:                       # pragma: no cover
+        raise ClusterError(
+            f"clustering needs scikit-learn ({exc})") from exc
+
+    for column in (x_column, y_column):
+        if column not in frame.columns:
+            raise ClusterError(f"{column!r} is not a column of this table")
+    if x_column == y_column:
+        raise ClusterError("clustering needs two different measurements")
+    if eps <= 0:
+        raise ClusterError(f"eps must be positive, got {eps!r}")
+    if int(min_samples) < 2:
+        raise ClusterError(
+            f"min_samples must be at least 2, got {min_samples!r}")
+
+    data = frame[[x_column, y_column]].apply(pd.to_numeric, errors="coerce")
+    data = data.replace([np.inf, -np.inf], np.nan).dropna()
+    if len(data) < int(min_samples):
+        raise ClusterError(
+            f"only {len(data)} rows have both {x_column!r} and {y_column!r}; "
+            f"fewer than min_samples={min_samples}")
+
+    raw = data.to_numpy(dtype=float)
+    spread = raw.std(axis=0)
+    # A constant axis is refused rather than worked around. Every cluster on
+    # it is a straight line, every hull is collinear and has no area, and the
+    # honest result would be an empty list -- which reads as "clustering is
+    # broken" rather than "this measurement is the same for every object".
+    flat = [column for column, sd in zip((x_column, y_column), spread)
+            if sd == 0]
+    if flat:
+        raise ClusterError(
+            f"{flat[0]!r} is the same value for every object here, so there "
+            f"is nothing to cluster along it. Pick a measurement that varies.")
+    if scale:
+        work = (raw - raw.mean(axis=0)) / spread
+    else:
+        work = raw
+
+    labels = DBSCAN(eps=float(eps),
+                    min_samples=int(min_samples)).fit_predict(work)
+    found = [lab for lab in np.unique(labels) if lab != -1]
+    if not found:
+        return []
+    if len(found) > int(max_clusters):
+        raise ClusterError(
+            f"DBSCAN found {len(found)} clusters, more than max_clusters="
+            f"{max_clusters}. Raise eps to merge them, or raise "
+            f"max_clusters if this is really what you meant.")
+
+    # Largest first, so the populations that matter are drawn and named
+    # before the specks.
+    found.sort(key=lambda lab: int((labels == lab).sum()), reverse=True)
+
+    gates: List[PolygonGate] = []
+    for index, label in enumerate(found, start=1):
+        hull = _convex_hull(raw[labels == label])
+        if len(hull) < 3:
+            # A collinear cluster has no area. Skipped rather than widened
+            # into a fake polygon, which would select rows outside it.
+            continue
+        gates.append(PolygonGate(
+            name=f"{name_prefix} {index}",
+            parent=parent,
+            x_column=x_column,
+            y_column=y_column,
+            vertices=tuple((float(px), float(py)) for px, py in hull),
+        ))
+    return gates
+
+
 def gate_from_dict(payload: Mapping[str, Any]) -> Gate:
     """Rebuild one gate from :meth:`Gate.to_dict`.
 
