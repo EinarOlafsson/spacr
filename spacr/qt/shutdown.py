@@ -47,12 +47,17 @@ CANCEL = "cancel"
 
 
 def ask_how_to_quit(parent: Optional[QWidget], *, what: str,
-                    detail: str = "") -> str:
+                    detail: str = "", verb: str = "Quit") -> str:
     """Ask whether to stop cooperatively or to kill.
 
     :param what: what is being quit, in the user's words -- "spaCR" or the
         name of a module. It is used in the sentence, so it reads as a
         noun: "Quit Mask Generation?".
+    :param verb: the word for what is about to happen. "Quit" for the
+        application and the Home banner, "Stop" for a module's Stop button --
+        a button labelled Stop that opens a dialog headed "Quit" reads as
+        the wrong dialog, and a user who thinks they have mis-clicked
+        cancels out of the thing they wanted.
     :param detail: appended under the question. Callers use it to name what
         is still running, because "something is still running" is not
         enough information to choose with.
@@ -63,8 +68,8 @@ def ask_how_to_quit(parent: Optional[QWidget], *, what: str,
     """
     box = QMessageBox(parent)
     box.setIcon(QMessageBox.Warning)
-    box.setWindowTitle(f"Quit {what}")
-    box.setText(f"Quit {what}?")
+    box.setWindowTitle(f"{verb} {what}")
+    box.setText(f"{verb} {what}?")
     box.setInformativeText(
         (detail + "\n\n" if detail else "")
         + "Finish current work stops when the running steps reach a point "
@@ -74,7 +79,7 @@ def ask_how_to_quit(parent: Optional[QWidget], *, what: str,
           "is left half-written."
     )
     graceful = box.addButton("Finish current work", QMessageBox.AcceptRole)
-    force = box.addButton("Force quit", QMessageBox.DestructiveRole)
+    force = box.addButton(f"Force {verb.lower()}", QMessageBox.DestructiveRole)
     cancel = box.addButton("Cancel", QMessageBox.RejectRole)
     box.setDefaultButton(cancel)
     box.setEscapeButton(cancel)
