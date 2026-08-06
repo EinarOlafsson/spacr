@@ -2513,6 +2513,18 @@ class MainWindow(QMainWindow):
         widget = self._screens.get(target_key)
         if widget is None:
             return
+        # A screen that is not settings-driven says what to do with a seed
+        # itself. The Database Browser has no settings model -- it takes a
+        # database path and a table -- and without this the navigation
+        # happened and the seed was silently dropped.
+        seeder = getattr(widget, "apply_seed", None)
+        if callable(seeder):
+            try:
+                seeder(dict(seed))
+            except Exception:
+                LOG.warning("Could not seed %s with %r", target_key, seed,
+                            exc_info=True)
+            return
         model = getattr(widget, "_settings_model", None)
         if model is None:
             return

@@ -1766,6 +1766,39 @@ class DbBrowserScreen(LinkedView, QWidget):
         """True when every row of the current table + filter is in memory."""
         return self._exhausted
 
+    def apply_seed(self, seed: Dict[str, Any]) -> None:
+        """Open a database (and optionally a table) another screen sent here.
+
+        The generic hand-off seam ``MainWindow._on_train_requested`` looks
+        for. Everything is optional and anything unusable is ignored rather
+        than raised: this is a convenience jump, and a screen that refuses to
+        open because a seed was stale is worse than one that opens on the
+        wrong table.
+
+        :param seed: ``db_path``, and optionally ``table`` and ``column``.
+        """
+        path = seed.get("db_path") or seed.get("path")
+        if path and not self.set_database(str(path)):
+            return
+        table = seed.get("table")
+        if table:
+            try:
+                tables = self._db.tables() if self._db else []
+            except Exception:
+                tables = []
+            if table in tables:
+                self.select_table(table)
+        column = seed.get("column")
+        if column:
+            # Scroll the column into view rather than sorting by it: arriving
+            # on a re-sorted table would hide which rows were just annotated,
+            # which is the thing the user came here to look at.
+            try:
+                section = self.visible_columns().index(str(column))
+            except (ValueError, AttributeError):
+                return
+            self._view.scrollTo(self._model.index(0, section))
+
     def _clear_sort(self) -> None:
         """Forget the sort. Called when the TABLE changes, not on refresh.
 
