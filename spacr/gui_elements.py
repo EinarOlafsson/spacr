@@ -5590,7 +5590,7 @@ class AnnotateApp:
 
         # lists (comma-separated) for known list keys
         listy = {
-            "classes", "annotated_classes", "class_metadata", "train_channels",
+            "classes", "class_metadata", "train_channels",
             "tables", "file_metadata"
         }
         if key in listy or ("," in s):
@@ -5879,18 +5879,9 @@ class AnnotateApp:
         classes_entry.insert(0, str(defaults.get('classes', ['nc','pc'])))
         _row(gen_form, r, "classes (list)", classes_entry); r += 1
 
-        annotated_classes_entry = tk.Entry(gen_form)
-        annotated_classes_entry.insert(0, str(defaults.get('annotated_classes', [1,2])))
-        _row(gen_form, r, "annotated_classes (list)", annotated_classes_entry); r += 1
-
         ch_interest_sp = ttk.Spinbox(gen_form, from_=1, to=5, increment=1)
         ch_interest_sp.set(int(defaults.get('channel_of_interest', 3)))
         _row(gen_form, r, "channel_of_interest", ch_interest_sp); r += 1
-
-        custom_measurement_entry = tk.Entry(gen_form)
-        if defaults.get('custom_measurement'):
-            custom_measurement_entry.insert(0, str(defaults['custom_measurement']))
-        _row(gen_form, r, "custom_measurement (optional)", custom_measurement_entry); r += 1
 
         balance_var = tk.BooleanVar(value=bool(defaults.get('balance_to_smallest', True)))
         balance_chk = tk.Checkbutton(gen_form, text="Balance classes to smallest",
@@ -6190,10 +6181,7 @@ class AnnotateApp:
             settings['metadata_type_by'] = metadata_type_by_cbx.get().strip()
             settings['class_metadata'] = _parse_list_literal(class_metadata_entry.get(), defaults.get('class_metadata'))
             settings['classes'] = _parse_list_literal(classes_entry.get(), defaults.get('classes'))
-            settings['annotated_classes'] = _parse_list_literal(annotated_classes_entry.get(), defaults.get('annotated_classes'))
             settings['channel_of_interest'] = int(float(ch_interest_sp.get()))
-            cm = custom_measurement_entry.get().strip()
-            settings['custom_measurement'] = (cm if cm != "" else None)
             settings['balance_to_smallest'] = bool(balance_var.get())
 
             # MODE-SPECIFIC

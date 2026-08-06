@@ -494,6 +494,10 @@ _NAME_TO_GLYPH = {
     "measure":         "fa5s.ruler",
     "annotate":        "fa5s.tag",
     "make_masks":      "fa5s.paint-brush",
+    # Distinct from every other module's glyph on purpose -- two identical
+    # icons in the sidebar is a worse affordance than a missing one. Checked
+    # by tests/test_classify_merged.py.
+    "classify_merged": "fa5s.sitemap",
     "classify":        "fa5s.layer-group",
     "umap":            "fa5s.project-diagram",
     "ml_analyze":      "fa5s.chart-line",

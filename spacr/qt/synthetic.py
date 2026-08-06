@@ -1055,7 +1055,9 @@ def demo_settings(app_key: str, src: str,
             # declared in spacr.settings, so shipping it makes pre-flight warn
             # "did you mean 'annotation_column'?" on every demo load.
             "annotation_column": "annotate",
-            "annotated_classes": [1, 2],
+            # `annotated_classes` is gone: nothing ever read it, so shipping
+            # it in a demo taught the shape of a setting that did nothing.
+            # The classes come from dataset_mode instead.
             "png_type": "cell_png",
             "file_type": "cell_png",
             "image_size": 64,

@@ -1147,6 +1147,12 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "external_masks":
             from spacr.external_masks import prepare_external_masks
             return _ret(log_call(prepare_external_masks))
+        if app_key == "classify_merged":
+            # One entry point over both families. It calls deep_spacr or
+            # generate_ml_scores unchanged, so a run here and a run through
+            # either original module are the same run.
+            from spacr.classify import classify
+            return _ret(log_call(classify))
         if app_key == "classify":
             # deep_spacr, not train_test_model. The Classify screen builds its
             # panel from deep_spacr_defaults, so it SHOWS generate_training_
