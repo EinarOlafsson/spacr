@@ -7,10 +7,10 @@ stale; nothing here is a rule. The rules are in INVARIANTS.md.
 ## This checkout
 
 - version: **get_version()**
-- branch: `nightly` at `77945893`
-- Python modules under `spacr/`: 293
+- branch: `nightly` at `f8f88f9a`
+- Python modules under `spacr/`: 295
 - of those under `spacr/qt/`: 171 (44 screens, 59 widgets)
-- test files: 642 (220 under `tests/qt/`)
+- test files: 645 (221 under `tests/qt/`)
 
 ## The biggest modules
 
@@ -19,12 +19,12 @@ Size is not a defect, but it is where the work is. Read the docstring before the
 - `spacr/utils.py` — 9553 lines
 - `spacr/timelapse.py` — 8156 lines
 - `spacr/io.py` — 7263 lines
-- `spacr/gui_elements.py` — 6747 lines
+- `spacr/gui_elements.py` — 6735 lines
 - `spacr/plot.py` — 5576 lines
 - `spacr/submodules.py` — 5337 lines
 - `spacr/ml.py` — 5148 lines
-- `spacr/settings.py` — 4313 lines
-- `spacr/qt/screens/settings_model.py` — 4181 lines
+- `spacr/settings.py` — 4344 lines
+- `spacr/qt/screens/settings_model.py` — 4280 lines
 - `spacr/deep_spacr.py` — 3796 lines
 - `spacr/spacrops.py` — 3704 lines
 - `spacr/measure.py` — 3662 lines
@@ -36,7 +36,7 @@ Size is not a defect, but it is where the work is. Read the docstring before the
 - PASS — thread finished wiring: make_thread still owns the finished wiring
 - PASS — test isolation fixtures: registry + font-scale isolation in place
 - PASS — QSettings sandbox: QSettings sandbox present
-- PASS — task ledger: 5 open, 10 done, all with their sections
+- PASS — task ledger: 2 open, 13 done, all with their sections
 
 A FAIL means INVARIANTS.md is describing software that has moved.
 Fix the code or fix the file, then say which in the commit.
