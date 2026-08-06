@@ -189,6 +189,11 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
     if app_key == "external_masks":
         from spacr.external_masks import default_settings
         return default_settings({})
+    if app_key == "classify_merged":
+        from spacr.settings import set_default_classify
+        settings = set_default_classify(settings={})
+        settings["src"] = []
+        return settings
     if app_key == "classify":
         settings = deep_spacr_defaults(settings={})
         settings["src"] = []
@@ -306,6 +311,13 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
     },
     "classify": {
         "evaluation_calibration": ["temperature", "none"],
+    },
+    "classify_merged": {
+        "evaluation_calibration": ["temperature", "none"],
+        # A closed alphabet: there are two families and a typo in a free-text
+        # box would raise ClassifierFamilyError at run time, after the user
+        # had walked away.
+        "classifier_family": ["cv", "ml"],
     },
     "external_masks": {
         "layout": ["auto", "flat", "well", "plate_well"],
@@ -1118,7 +1130,7 @@ def categories_for_app(
         result["UMAP Display"] = list(display)
     if app_key in _APP_CATEGORY_SPECS:
         result = _categories_from_spec(result, _APP_CATEGORY_SPECS[app_key])
-    if app_key == "classify":
+    if app_key in ("classify", "classify_merged"):
         ordered = {
             "Plate Sources & Workflow": [
                 "src", "experiment", "generate_training_dataset", "train",
@@ -1129,15 +1141,16 @@ def categories_for_app(
             # is greyed or not depending on what it says.
             "Labels & Classes": [
                 "dataset_mode", "classes", "annotation_column",
-                "annotated_classes", "class_metadata", "metadata_type_by",
+                "class_metadata", "metadata_type_by",
                 "metadata_item_1_name", "metadata_item_1_value",
                 "metadata_item_2_name", "metadata_item_2_value",
-                "measurement_rules", "custom_measurement"],
+                "measurement_rules"],
             "Crops & Dataset Split": [
                 "tables", "channel_of_interest", "png_type", "file_type",
                 "crop_source", "size", "test_split", "balance_to_smallest",
                 "write_random_annotation_column"],
             "Model Architecture": [
+                "classifier_family",
                 "model_type", "custom_model", "custom_model_path",
                 "resume_checkpoint", "train_channels", "image_size",
                 "normalize", "dropout_rate", "init_weights", "use_checkpoint"],
@@ -1164,6 +1177,41 @@ def categories_for_app(
                 "random_seed", "n_jobs", "verbose", "strict_errors",
                 "max_failure_rate"],
         }
+        if app_key == "classify_merged":
+            # ML expresses the METADATA basis through the control wells;
+            # Classify (CV) expresses it through class_metadata. Both are the
+            # same basis, so both belong in the group that basis governs --
+            # otherwise they fall into "Additional Settings", which is the
+            # bucket these layouts exist to keep empty.
+            ordered["Labels & Classes"] = (
+                ordered["Labels & Classes"]
+                + ["location_column", "positive_control", "negative_control"])
+
+            # The ML-only groups, appended to the CV ordering rather than
+            # duplicated: every CV key is already placed above, so this is
+            # exactly the difference between the two modules. Group names
+            # match Classify (ML)'s own, so a user moving between the three
+            # screens sees the same headings.
+            ordered.update({
+                "Feature Preparation": [
+                    "exclude", "nuclei_limit", "pathogen_limit",
+                    "remove_highly_correlated_features",
+                    "remove_low_variance_features", "minimum_cell_count"],
+                "Plate & Batch Correction": [
+                    "batch_correction", "batch_column",
+                    "batch_control_column", "batch_control_values",
+                    "batch_covariate_column", "batch_combat_mean_only",
+                    "batch_min_samples", "batch_missing_control"],
+                "ML Classifier & Validation": [
+                    "model_type_ml", "n_estimators", "test_size",
+                    "cross_validation", "reg_alpha", "reg_lambda"],
+                "Feature Selection & Importance": [
+                    "prune_features", "top_features", "n_repeats"],
+                "Output & Database": ["save_to_db"],
+                "Plots & Heatmaps": [
+                    "cmap", "heatmap_feature", "grouping", "min_max"],
+            })
+
         moved = {key for keys in ordered.values() for key in keys}
         leftovers = []
         for keys in result.values():
@@ -2094,6 +2142,7 @@ _APP_API_MODULE = {
     "external_masks": "external_masks",
     "annotate": "qt/screens/annotate",
     "classify": "deep_spacr",
+    "classify_merged": "classify",
     "map_barcodes": "sequencing",
     "umap": "core",
     "timelapse": "core",
@@ -3647,6 +3696,15 @@ class SettingsWidgets:
         # to follow it as it is changed rather than only when the screen is
         # built. A bound method, not a lambda: see INVARIANTS 4 for what a
         # closure connected to a Qt signal costs.
+        family_widget = self._widgets.get("classifier_family")
+        if family_widget is not None:
+            for signal_name in ("currentTextChanged", "currentIndexChanged",
+                                "textChanged"):
+                signal = getattr(family_widget, signal_name, None)
+                if signal is not None:
+                    signal.connect(self._on_classifier_family_changed)
+                    break
+
         basis_widget = self._widgets.get("dataset_mode")
         if basis_widget is not None:
             for signal_name in ("currentTextChanged", "currentIndexChanged",
@@ -4072,6 +4130,46 @@ class SettingsWidgets:
             self._refresh_contextual_widgets()
         return True
 
+    def _refresh_classifier_family_enablement(self) -> None:
+        """Grey the settings the OTHER classifier family reads.
+
+        Only the merged Classify module has this control; the two original
+        modules are one family each and have nothing to grey.
+
+        Same rule as the training basis: greyed, never removed
+        (INVARIANTS 6), and the list lives in spacr.classify so the panel and
+        the pipeline cannot drift apart about which settings matter.
+        """
+        widget = self._widgets.get("classifier_family")
+        if widget is None:
+            return
+        try:
+            from spacr.classify import (
+                FAMILY_SETTINGS, inapplicable_settings, resolve_family,
+            )
+            family = resolve_family(
+                {"classifier_family": self._read_widget(widget)})
+            greyed = set(inapplicable_settings(family))
+            owned = {k for keys in FAMILY_SETTINGS.values() for k in keys}
+        except Exception:
+            # An unknown family is the pipeline's error to raise, loudly, at
+            # run time. Greying on a guess would hide the control the user
+            # needs to fix it.
+            return
+
+        for key, control in self._widgets.items():
+            if key in greyed:
+                control.setEnabled(False)
+                control.setToolTip(
+                    f"Not used by the '{family}' classifier. The value is "
+                    f"kept and still saved.")
+            elif key in owned:
+                control.setEnabled(True)
+
+    def _on_classifier_family_changed(self, *_args) -> None:
+        """Re-grey the panel when the classifier family changes."""
+        self._refresh_classifier_family_enablement()
+
     def _on_training_basis_changed(self, *_args) -> None:
         """Re-grey the panel when the training basis changes.
 
@@ -4099,6 +4197,7 @@ class SettingsWidgets:
         :mod:`spacr.training_basis`, not here, so the panel and the pipeline
         cannot drift into disagreeing about which control matters.
         """
+        self._refresh_classifier_family_enablement()
         widget = self._widgets.get("dataset_mode")
         if widget is None:
             return

@@ -260,7 +260,8 @@ SECTION_HINTS = CATEGORY_TOOLTIPS
 COLUMN_TABLES = {
     "annotation_column":  "png_list",
     "annotation_columns": "png_list",
-    "custom_measurement": None,
+    # custom_measurement is gone: it was collected and never read, so a SQL
+    # column picker for it offered to fill in a control that did nothing.
     "measurement":        None,
     "exclude":            None,
     "heatmap_feature":    None,
@@ -298,6 +299,7 @@ APP_TITLES = {
     "timelapse":       "Timelapse",
     "motility":        "Motility Assay",
     "measure":         "Measure",
+    "classify_merged": "Classify",
     "classify":        "Classify (CV)",
     "umap":            "Image UMAP",
     "train_cellpose":  "Train Cellpose",
@@ -339,6 +341,7 @@ APP_INTROS = {
     "motility":        "Rebuild per-frame tracks, score velocity and straightness per object, and split them by infection state.",
     "measure":         "Extract per-object intensity + morphology features from masks and write them to the measurements database.",
     "annotate":        "Review single-object image crops on a grid and label them; annotations save back to the database.",
+    "classify_merged": "Train a classifier on single objects. Pick the training basis - metadata, annotation or measurement - and the classifier family: Torch on object crops, or gradient boosting on measured features. Classify (CV) and Classify (ML) remain available separately.",
     "classify":        "Train and test Torch computer-vision models (CNNs / transformers) to classify single-object images.",
     "ml_analyze":      "Train a classical ML classifier (XGBoost, random forest, …) on per-object features and score every well.",
     "map_barcodes":    "Map sequencing reads to gRNA barcodes and link them to screen wells.",

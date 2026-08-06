@@ -681,6 +681,10 @@ _BUILTIN_APPS = [
     ("motility",       "Motility Assay", "Automated motility assay: track velocity + infection QC",     SECTION_CORE),
     ("measure",        "Measure",        "Measure single-object intensity + morphology features",       SECTION_CORE),
     ("annotate",       "Annotate",       "Annotate single-object images on a grid; save to database",  SECTION_CORE),
+    # The merged module, and both originals. Keeping the originals is
+    # deliberate: a merged screen that replaced them would strand every
+    # saved settings CSV and every notebook importing their entry points.
+    ("classify_merged", "Classify",      "Train a classifier on single objects - Torch on crops, or gradient boosting on measured features", SECTION_CORE),
     ("classify",       "Classify (CV)",  "Train Torch CNNs/Transformers to classify single objects",   SECTION_CORE),
     ("ml_analyze",     "Classify (ML)",  "Classical ML (XGBoost / random forest / …) on screen features", SECTION_CORE),
     ("map_barcodes",   "Map Barcodes",   "Map sequencing barcodes to screen data",                      SECTION_CORE),

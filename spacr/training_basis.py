@@ -61,7 +61,7 @@ BASIS_SETTINGS: Dict[str, Tuple[str, ...]] = {
         "annotation_column", "annotation_columns", "annotation_values",
     ),
     "measurement": (
-        "measurement_rules", "measurement_columns", "custom_measurement",
+        "measurement_rules", "measurement_columns",
     ),
 }
 
