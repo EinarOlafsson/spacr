@@ -122,9 +122,16 @@ def _qss(palette: Dict[str, Any], opacity: Any) -> str:
         page opacity.
     :param opacity: the user's page-opacity preference, passed through.
     """
+    from .theme import pane_surface
+
+    # Through :func:`pane_surface`, not straight off the palette. The palette
+    # hands back raw hex, so reading it directly painted a fully opaque box
+    # that ignored the page-opacity preference — on the dark theme a black
+    # slab behind the verdict while every container around it was translucent.
+    surface = pane_surface("surface_alt", palette.get("theme"), opacity)
     return f"""
     QFrame#{QC_OBJECT_NAME}, QFrame#{DIAMETER_OBJECT_NAME} {{
-        background: {palette['surface_alt']};
+        background: {surface};
         border: 1px solid {palette['border_soft']};
         border-radius: 8px;
         padding: 8px;
