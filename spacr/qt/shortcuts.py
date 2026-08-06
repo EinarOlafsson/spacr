@@ -117,6 +117,18 @@ def _install_window_hooks(window: QMainWindow) -> None:
     except Exception:
         LOG.debug("Could not install the walkthrough hooks", exc_info=True)
 
+    # LAST. Everything above may have added menu-bar actions, and an action
+    # with no explicit macOS menu role is one Qt assigns from its TEXT --
+    # which is how "Settings recipes…" became the Preferences item of the
+    # macOS application menu. Re-sweeping here means a module added later is
+    # covered without its author knowing this problem exists.
+    try:
+        pin = getattr(window, "pin_all_menu_roles", None)
+        if callable(pin):
+            pin()
+    except Exception:
+        LOG.debug("Could not pin the menu roles", exc_info=True)
+
 
 def _bind(window: QMainWindow, keys: str, cb: Callable[[], None]) -> None:
     sc = QShortcut(QKeySequence(keys), window)
