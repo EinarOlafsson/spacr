@@ -2573,14 +2573,66 @@ class AppScreen(QWidget):
         self._worker = None
 
     def _on_stop(self):
+        """Stop the run, asking first whether to wait or to kill.
+
+        It used to request a cooperative cancel, disable itself, and hope.
+        That is why Stop "didn't seem to do much": cooperative cancellation
+        cannot stop a worker wedged in a C extension (INVARIANTS 11) --
+        cellpose, torch and cv2 calls never check the flag -- so the run kept
+        going, and the button had disabled itself so there was no way to ask
+        again. The user waited, believing the run was ending, while it was
+        not.
+
+        Now it offers the same choice the Home banner's quit button offers,
+        through the same `ask_how_to_quit`, and if the cooperative attempt
+        does not land a `GracefulQuitWatcher` comes back and asks again.
+
+        Cooperative stays the DEFAULT and force is never what a stray Return
+        does: a pipeline killed mid-write leaves a half-written .npy, and
+        silent corruption found later is worse than waiting.
+        """
         if self._thread is None:
             return
         from ..button_roles import set_button_busy
+        from ..shutdown import (CANCEL, FORCE, GracefulQuitWatcher,
+                                ask_how_to_quit)
+
+        name = APP_TITLES.get(self.app_key, self.app_key)
+        choice = ask_how_to_quit(
+            self, what=name, verb="Stop",
+            detail="This run is still working. Stopping cooperatively lets "
+                   "it finish the field, trial or job it is on and stop at "
+                   "the next point it can do so safely.")
+        if choice == CANCEL:
+            return
+
+        if choice == FORCE:
+            self._force_stop()
+            return
+
         self._console.append_notice(
             "\nRequesting stop. The current field/trial/job will finish, then "
             "the resumable run will stop at its next safe boundary.\n")
         set_button_busy(self._btn_stop, True)
-        self._btn_stop.setEnabled(False)
+        # NOT disabled. A cooperative stop that never lands used to leave the
+        # user with no way to escalate; the button stays live so pressing it
+        # again reaches the same prompt, and the watcher asks unprompted.
+        self._request_cooperative_stop()
+
+        self._stop_watcher = GracefulQuitWatcher(
+            self,
+            lambda: bool(self._thread is not None
+                         and self._thread.isRunning()),
+            what=name,
+            describe=lambda: "The run has not reached a safe stopping point "
+                             "yet. It may be inside a step that cannot be "
+                             "interrupted.",
+            on_force=self._force_stop,
+        )
+        self._stop_watcher.start()
+
+    def _request_cooperative_stop(self) -> None:
+        """Ask the worker and its thread to retire, without waiting."""
         worker = getattr(self, "_worker", None)
         if worker is not None:
             try:
@@ -2588,9 +2640,35 @@ class AppScreen(QWidget):
             except Exception:
                 pass
         try:
-            self._thread.requestInterruption()
+            if self._thread is not None:
+                self._thread.requestInterruption()
         except Exception:
             pass
+
+    def _force_stop(self) -> None:
+        """Take the thread away from the worker.
+
+        Never reached without the user having been shown what it costs. The
+        cooperative request goes first regardless, so a worker that IS still
+        checking gets the chance to stop on its own terms in the moment
+        before its thread is terminated.
+        """
+        import logging
+
+        logging.getLogger(__name__).warning(
+            "Force-stopping %s at the user's request", self.app_key)
+        self._request_cooperative_stop()
+        self._console.append_notice(
+            "\nForce-stopping. Anything being written right now is left "
+            "half-written.\n")
+        thread = self._thread
+        if thread is None:
+            return
+        try:
+            thread.terminate()
+        except Exception:
+            logging.getLogger(__name__).exception(
+                "could not terminate the %s thread", self.app_key)
 
     def _on_import_settings(self):
         from PySide6.QtWidgets import QFileDialog

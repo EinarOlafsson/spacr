@@ -752,6 +752,11 @@ STAGES = (STAGE_ALPHA, STAGE_BETA, STAGE_STABLE)
 #: app is already filed under what it does.
 APP_STAGE = {
     # -- alpha: built and reachable, not yet trusted end to end (15)
+    # The merged Classify module is new. "stable" is the ABSENCE of a line
+    # here, so leaving it out would have claimed a maturity it has not
+    # earned -- it dispatches to two pipelines that ARE trusted, but the
+    # merged screen itself has not been run on real data yet.
+    "classify_merged": STAGE_ALPHA,
     "align":           STAGE_ALPHA,
     "model_zoo":       STAGE_ALPHA,
     "convert":         STAGE_ALPHA,
