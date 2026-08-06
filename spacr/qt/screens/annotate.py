@@ -949,7 +949,7 @@ class _SettingsDialog(QDialog):
             self._queue_measure: "queue_measure",
             self._queue_diversity: "queue_diversity",
             self._queue_limit: "queue_limit",
-        })
+        }, api_dots=False)
 
     def _picker_db_path(self) -> str:
         """Where the SQL picker looks — the src folder as it reads right now.
