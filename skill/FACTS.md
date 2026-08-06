@@ -7,7 +7,7 @@ stale; nothing here is a rule. The rules are in INVARIANTS.md.
 ## This checkout
 
 - version: **get_version()**
-- branch: `nightly` at `d1e78f31`
+- branch: `nightly` at `2cab81f7`
 - Python modules under `spacr/`: 290
 - of those under `spacr/qt/`: 169 (44 screens, 59 widgets)
 - test files: 636 (217 under `tests/qt/`)
@@ -31,7 +31,7 @@ Size is not a defect, but it is where the work is. Read the docstring before the
 
 ## Invariant checks
 
-- PASS — widget QSS registrars are complete: 31 modules listed, 31 registering
+- PASS — widget QSS registrars are complete: 33 modules listed, 33 registering
 - PASS — bg / page roles: dark bg=#000000, `page` role present
 - PASS — thread finished wiring: make_thread still owns the finished wiring
 - PASS — test isolation fixtures: registry + font-scale isolation in place
