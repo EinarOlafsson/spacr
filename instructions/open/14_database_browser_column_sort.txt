@@ -1,0 +1,37 @@
+================================================================================
+DATABASE BROWSER: SORT BY CLICKING A COLUMN HEADER
+================================================================================
+
+Status:    not started
+Requested: 2026-08-06 — "clicking the column header should give the user the option to sort ascending or descending (obviously always shifting other columns with the clicked column not only the clicked column)"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Nothing written.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A table you cannot sort is a table you cannot check. The parenthetical is a
+warning, not a detail: sorting one column's values independently of its row
+would silently corrupt the user's reading of every other column.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Sort whole rows. If the view is backed by a QSortFilterProxyModel, enable
+setSortingEnabled(True) on the view and let the proxy reorder rows. If it is
+a QTableWidget populated by hand, sort in the SQL query (ORDER BY) and
+re-fetch, so the sort holds across pagination rather than only within the
+loaded page.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Sort by a numeric column, confirm the values are monotonic AND that a
+recognisable row's other cells travelled with it. Then sort descending.
