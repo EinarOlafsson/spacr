@@ -756,7 +756,14 @@ def render_frame(image: np.ndarray, labels: Optional[np.ndarray] = None,
             rgb[edge & (labels == tid)] = np.array(
                 track_colour(int(tid)), dtype=np.uint8)
 
-    if tracks is not None and len(tracks) and {"x", "y"}.issubset(tracks.columns):
+    # Every column the block below actually touches, not just the two it
+    # used to name. `frame` and `track_id` are indexed and grouped by three
+    # lines down, so a tracks frame carrying x/y under a different id
+    # column -- `particle`, which is what trackpy returns before
+    # `_link_trackpy` renames it -- raised a KeyError from inside a
+    # renderer rather than being skipped like any other unusable input.
+    _needed = {"x", "y", "frame", "track_id"}
+    if tracks is not None and len(tracks) and _needed.issubset(tracks.columns):
         lo = max(0, int(frame) - int(tail))
         window = tracks[(tracks["frame"] <= int(frame))
                         & (tracks["frame"] >= lo)]
@@ -1675,9 +1682,51 @@ class TimelapsePreviewPanel(QWidget):
             + "\nFragmentation and swap figures are indicators computed "
               "without ground truth, not measurements.")
         self._refresh_canvases()
+        self._push_to_movie()
         if self._propagate_btn.isChecked():
             self.propagate_settings()
         self.preview_ready.emit(self._stats)
+
+    def _push_to_movie(self) -> None:
+        """Hand the finished pass to the movie panel, if one is attached.
+
+        `self._tracked` and not `self._masks`: the movie's colours are only
+        meaningful once the labels ARE track ids, which is what
+        `relabel_by_track` produced two lines up. Feeding it the raw masks
+        would give every object a colour that changes whenever the
+        segmentation renumbers, which is the opposite of what the movie is
+        being watched for.
+        """
+        movie = getattr(self, "_movie_panel", None)
+        if movie is None:
+            return
+        seq = self._sequence
+        if seq is not None and len(seq):
+            images = np.stack([seq.frame(i) for i in range(len(seq))])
+        elif self._masks is not None:
+            images = self._masks
+        else:
+            movie.set_fields([])
+            return
+        title = getattr(self, "_source_label", None)
+        movie.set_fields([{
+            "title": title.text() if hasattr(title, "text") else "Field",
+            "images": images,
+            "labels": self._tracked,
+            "tracks": self._tracks,
+            "channel": int(self._channel.value())
+            if hasattr(self, "_channel") else 0,
+        }])
+
+    def attach_movie_panel(self, movie) -> None:
+        """Wire a :class:`TimelapseMoviePanel` to this preview.
+
+        Kept as a seam rather than a constructor argument so the movie is
+        optional: the panel is built by two different callers and a screen
+        that only wants the stats view should not pay for the frames.
+        """
+        self._movie_panel = movie
+        self._push_to_movie()
 
     # -- rendering ---------------------------------------------------------
 
@@ -1820,8 +1869,19 @@ def build_timelapse_preview_card(host):
     :returns: ``(panel, card)``.
     """
     from .card import Card
+    from .timelapse_movie import TimelapseMoviePanel
+
     card = Card(title="Track preview")
     panel = TimelapsePreviewPanel(card)
     card.body_layout.addWidget(panel)
+
+    # The movie sits under the tuning controls, not beside them: it is what
+    # you look at after a pass to find out WHY the numbers came out the way
+    # they did, and a track break is found by scrubbing frames rather than
+    # by reading a fragmentation figure.
+    movie = TimelapseMoviePanel(card)
+    card.body_layout.addWidget(movie, 1)
+    panel.attach_movie_panel(movie)
+
     card.setMinimumHeight(320)
     return panel, card

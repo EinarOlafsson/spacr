@@ -1,0 +1,56 @@
+================================================================================
+THE VERSION BUMP AND GETTING ACTIONS GREEN
+================================================================================
+
+Status:   deferred on request, twice. Nothing is blocked on it.
+Current:  spacr/version.py reports 1.5.0.2
+
+--------------------------------------------------------------------------------
+THE BUMP
+--------------------------------------------------------------------------------
+
+    python packaging/release.py bump
+
+Rules that already apply and are easy to get wrong:
+  * bump the PATCH after a batch of work, never per commit;
+  * smallest increment that is honest;
+  * verify from a CLEAN worktree before pushing, not from this one -- this
+    tree has had several agents in it and an uncommitted file would ship.
+
+    git worktree add --detach /tmp/spacr-verify HEAD
+    cd /tmp/spacr-verify && python -m pytest -q -m "not slow and not heavy"
+
+--------------------------------------------------------------------------------
+ACTIONS
+--------------------------------------------------------------------------------
+
+Two workflows:
+
+  tests.yml           Python 3.9 - 3.14 x six marker suites
+  compat-matrix.yml   wheel-only, --noconftest
+
+What is known about the state of them:
+
+  * The fast suite was 120 failures and is 0 locally.
+  * The qt suite used to HANG at about 30%: `test_about_says_unknown_when
+    _the_version_cannot_be_read` opened a real QDialog and called exec()
+    with nothing offscreen to close it, so every file collected after it
+    never ran and the 60-minute cell timed out red with nothing readable.
+    Fixed -- the fixture stubs QDialog.exec as well as QMessageBox.about.
+    If a qt job ever times out again with no output, look for a modal
+    first.
+  * Five order-dependent failures remain. See 03. They will show up in CI
+    and they are NOT new.
+  * 3.9 and 3.14 have never been run here. Every new extra was checked
+    against the PyPI JSON API and resolves at both ends, and an AST scan
+    for 3.10+ syntax in runtime-evaluated positions found nothing. That
+    is reasoning, not evidence -- expect the first run to teach you
+    something.
+
+--------------------------------------------------------------------------------
+ORDER
+--------------------------------------------------------------------------------
+
+Close 03 first if you can. Pushing a bump with five known-red tests makes
+the first CI result unreadable, because you cannot tell the pre-existing
+failures from whatever the bump broke.

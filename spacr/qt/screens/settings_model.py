@@ -166,9 +166,15 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
         s = get_timelapse_settings(settings={})
         # The Timelapse module tracks objects; running the assay is what the
         # Motility Assay module is for, so its inline gate isn't offered here.
-        # `timelapse` itself stays visible (and True) so a mask settings CSV
-        # from before the split still round-trips through this screen.
         s.pop("motility_analysis", None)
+        # `timelapse` stays in the dict and stays True. It is not rendered
+        # as a control -- see the layout -- because this module is the
+        # timelapse one and a user turning it off here would be left with a
+        # screen of controls about a time dimension it was told to ignore.
+        # Forced rather than merely defaulted, so a settings CSV saved by
+        # an older build with `timelapse: False` cannot silently turn this
+        # module into a slower Mask Generation.
+        s["timelapse"] = True
         return s
     if app_key == "motility":
         s = get_automated_motility_assay_default_settings(settings={})
@@ -228,6 +234,25 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
 
 # Per-app category suppression. Keys not in a shown category fall into the
 # trailing "Other" section, so the setting stays reachable — only the tab goes.
+#: Settings a module keeps but never shows.
+#:
+#: Not the same as dropping the key. A dropped key is absent from the run's
+#: settings, which means the pipeline falls back to ITS default and the two
+#: can disagree. These stay in the dict, at the value the module needs, and
+#: are simply not rendered.
+#:
+#: Removing a key from an app's layout is not enough to hide it: anything a
+#: layout does not place lands in "Additional Settings", which is the bucket
+#: the layouts exist to keep empty. This is the mechanism that actually
+#: hides one.
+_APP_HIDDEN_KEYS: Dict[str, set] = {
+    # This module IS the timelapse one. A user who turned this off would be
+    # left looking at a screen whose every remaining control is about a time
+    # dimension it had just been told to ignore -- and Mask Generation is
+    # right there for that. `resolve_default_settings` forces it True.
+    "timelapse": {"timelapse"},
+}
+
 _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
     "classify": {"Cellpose"},
     # Mask no longer owns tracking or the motility assay — those are the
@@ -408,8 +433,15 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "organelle_channel", "channels", "magnification",
             "metadata_type", "custom_regex",
         )),
+        # `timelapse` is not offered here. This module IS the timelapse
+        # one -- turning it off would leave a screen whose every remaining
+        # control is about a time dimension it had just been told to
+        # ignore, and there is no reason a user would want that rather
+        # than opening Mask Generation. It stays in the settings dict at
+        # True (see `_ALWAYS_ON`), so a run gets what it expects and a
+        # mask-settings CSV from before the split still round-trips.
         ("Acquisition & Axes", (
-            "timelapse", "t_stack", "t_axis_order", "t_axis",
+            "t_stack", "t_axis_order", "t_axis",
             "frame_interval_s", "z_stack", "z_segmentation_mode", "z_axis",
             "z_projection", "anisotropy", "voxel_size_z_um",
             "voxel_size_xy_um", "stitch_threshold",
@@ -911,6 +943,29 @@ def _categories_from_spec(
     return ordered
 
 
+def _drop_hidden_keys(app_key: str,
+                      categories: Dict[str, List[str]]) -> Dict[str, List[str]]:
+    """Remove :data:`_APP_HIDDEN_KEYS` from a rendered layout.
+
+    Applied after the layout rather than before, and after the fallback
+    bucket is filled, because the bucket is exactly where a key goes when
+    no layout claims it -- hiding one by leaving it out of the spec moves
+    it to "Additional Settings" instead of hiding it.
+
+    A category emptied by this disappears with it, so a module does not
+    grow a heading with nothing under it.
+    """
+    hidden = _APP_HIDDEN_KEYS.get(app_key)
+    if not hidden:
+        return categories
+    out: Dict[str, List[str]] = {}
+    for title, keys in categories.items():
+        kept = [key for key in keys if key not in hidden]
+        if kept:
+            out[title] = kept
+    return out
+
+
 def get_categories() -> Dict[str, List[str]]:
     """Return the {category_name: [setting keys]} mapping."""
     from spacr.settings import categories
@@ -1107,7 +1162,10 @@ def categories_for_app(
             if name == "Measurements":
                 reordered["Filter settings"] = list(filter_keys)
         result = reordered
-    return result
+    # Last, so it catches a key wherever it ended up -- including the
+    # "Additional Settings" bucket, which is where a key goes precisely
+    # when no layout claimed it.
+    return _drop_hidden_keys(app_key, result)
 
 
 # ---------------------------------------------------------------------------
@@ -3522,7 +3580,15 @@ class SettingsWidgets:
 
         # Materialize a widget per key; attach a rich HTML tooltip that ends
         # with a compact information-icon link to the spaCR documentation.
+        # A hidden key gets no widget at all, which is what actually hides
+        # it: the trailing "Other" section below is built from
+        # `self._widgets`, so a key left out of every category still
+        # renders as long as a widget exists for it. The value stays in
+        # `self._defaults` and reaches the run unchanged.
+        hidden_keys = _APP_HIDDEN_KEYS.get(self.app_key, frozenset())
         for key, meta in variables.items():
+            if key in hidden_keys:
+                continue
             kind, options, default = meta
             widget = self._widget_for(kind, options, default, key)
             if widget is not None:
