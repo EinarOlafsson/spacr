@@ -1,0 +1,109 @@
+================================================================================
+SEGMENTATION QC: TEXT SITS ON AN OPAQUE BLACK BOX
+================================================================================
+
+Status:    done - 2026-08-06, commit 39296763
+Requested: 2026-08-06 — "in the measure module where the segmentation QC is the text should not be on top of a black box, make sure the color behind the text is the same as the container and subject to opacity"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not investigated. Almost certainly INVARIANTS §1/§3: a container or label
+falling through to the blanket `QWidget { background-color: bg }` rule, where
+bg is #000000 on the dark theme.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+It is the visible symptom of the single longest-running class of bug in this
+project, and it makes the QC panel hard to read.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+The cause was INVARIANTS 3, not 1. `_findings_box` (QC banner) and
+`_rows_box` (diameter panel) are plain QWidgets held only to own a layout,
+so they inherited the blanket `QWidget { background-color: bg }` rule and
+painted the WINDOW colour -- #000000 on dark -- inside a panel whose own
+background follows the page opacity. Both are now tagged through
+theme.make_transparent, via a local `_transparent()` wrapper so a theme that
+cannot be imported costs the panels their transparency and nothing else.
+
+FIRST DIAGNOSIS WAS WRONG, recorded because it cost time: prerun registered
+its QSS only from `register()`, which reads as INVARIANTS 1 -- until the
+launch order showed `register_self_registering_modules()` runs BEFORE
+`launch()` applies the sheet. The block was in the sheet all along. It now
+also registers at import and is listed in WIDGET_QSS_MODULES, but that is
+hardening, not the fix.
+
+Making the block reach the sheet the theme tests inspect exposed two real
+defects that were invisible while it was absent from them:
+
+  * `_qss` called pane_surface("surface_alt", palette.get("theme"), opacity).
+    The palette has no "theme" key and `opacity` is None for a registered
+    block, so it fell through to reading the LIVE preference -- forbidden by
+    test_the_sheet_does_not_read_the_live_page_opacity -- and emitted rgba()
+    on the opaque themes, which have no scrim. A registered block is handed
+    surfaces already rendered through the page opacity, so
+    palette["surface_alt"] is both correct and simpler.
+  * spacr.qt.widgets.field_fade registers at import through
+    ensure_field_fade_qss() at module scope and was NOT in
+    WIDGET_QSS_MODULES, so `FieldFade` was genuinely absent from the launch
+    stylesheet. A real latent black box, found by the checker rather than by
+    a bug report.
+
+Both registrar detectors (skill/refresh.py and
+tests/qt/test_widget_qss_is_complete.py) only matched a direct
+register_widget_qss(...) at module level, which is how field_fade hid from
+them. They now follow a module-level call to a same-module helper that
+registers. refresh.py additionally reports a module registering ONLY from
+inside a function that is neither listed nor self-registering, excluding
+spacr.qt.theme (it defines the function) and SELF_REGISTERING_MODULES
+(whose register() runs before the sheet is applied), read from source so it
+cannot drift.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+`'<WidgetName>' in theme.stylesheet()` is True on a fresh interpreter, and
+the container's palette role is the page colour, not bg.
+
+--------------------------------------------------------------------------------
+VERIFIED
+--------------------------------------------------------------------------------
+
+    QT_QPA_PLATFORM=offscreen python -m pytest tests/qt/test_prerun.py \
+      tests/qt/test_widget_qss_is_complete.py tests/qt/test_photo_themes.py \
+      tests/qt/test_theme.py -q -p no:randomly
+
+green (145 tests). `python skill/refresh.py` reports 33 modules listed, 33
+registering, and all six checks PASS.
+
+Measured, on state rather than pixels (INVARIANTS 7):
+
+    SegQCBanner._findings_box   spacrTransparent = True
+    DiameterPanel._rows_box     spacrTransparent = True
+    plain QWidget               spacrTransparent = None
+    sheet carries *[spacrTransparent="true"] { background: transparent; }
+    MeasureQCBanner in launch sheet: True
+    FieldFade       in launch sheet: True
+
+Three regression tests added to tests/qt/test_prerun.py.
+
+--------------------------------------------------------------------------------
+FOUND, NOT FIXED
+--------------------------------------------------------------------------------
+
+prerun.teardown() calls unregister_widget_qss, and module-level registration
+cannot undo that -- import-time code runs once per process, so a test that
+tears the module down leaves every later test in that process without the
+block. An isolation leak of the INVARIANTS 5 family. The new test asserts
+the register/teardown/register CYCLE instead of a bare stylesheet lookup,
+which works, but the leak itself is undiagnosed.
+
+tests/qt/test_widgets.py::test_qt_boolean_controls_do_not_construct_plain_checkboxes
+fails on a clean tree (widgets/timelapse_movie.py). Pre-existing, untouched.

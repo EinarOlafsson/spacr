@@ -1,0 +1,88 @@
+================================================================================
+DATABASE BROWSER: SORT BY CLICKING A COLUMN HEADER
+================================================================================
+
+Status:    done - 2026-08-06, commit 2452d7c2
+Requested: 2026-08-06 — "clicking the column header should give the user the option to sort ascending or descending (obviously always shifting other columns with the clicked column not only the clicked column)"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Nothing written.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A table you cannot sort is a table you cannot check. The parenthetical is a
+warning, not a detail: sorting one column's values independently of its row
+would silently corrupt the user's reading of every other column.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+Click-to-sort already existed but was gated on `_exhausted` (the whole table
+in memory), which on a 400k-row measurement table never happens
+interactively. The gate was correct for Qt's MODEL sort, which only sees
+loaded rows. Replaced with sorting in SQL:
+
+  * ReadOnlyDb.chunk_sql / chunk take order_by=(column, descending).
+  * The ORDER BY covers the whole table, so the first row shown is the first
+    row of the sorted table.
+  * Qt's model sort is off for good; the header click goes to
+    DbBrowserScreen._on_header_clicked.
+  * The header cycles ascending -> descending -> unsorted.
+
+Whole rows move together by construction - the sort is a property of the
+SELECT, so a row's cells cannot come apart.
+
+TWO THINGS THAT ARE NOT OPTIONAL, both recorded in chunk_sql's docstring:
+  * the key column is appended as a TIEBREAK, or rows sharing a value come
+    back in an order free to differ between chunks, and a row can be shown
+    twice while another is never shown;
+  * paging falls back to OFFSET while a sort is active, because keyset
+    paging needs the ordering column to be the compared one. OFFSET makes
+    deep scrolling of a sorted view progressively slower, which is why the
+    third (unsorted) state exists.
+
+The sort column goes through check_columns, the same gate as every other
+column name in that class, because it reaches an ORDER BY. Measured: a
+column of '; DROP TABLE png_list--' is rejected with ValueError before any
+SQL is built.
+
+Switching table clears the sort - a column name from another table would
+make the table fail to LOAD, not merely come back unsorted.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Sort by a numeric column, confirm the values are monotonic AND that a
+recognisable row's other cells travelled with it. Then sort descending.
+
+--------------------------------------------------------------------------------
+VERIFIED
+--------------------------------------------------------------------------------
+
+    QT_QPA_PLATFORM=offscreen python -m pytest tests/qt/test_db_browser.py \
+      -q -p no:randomly
+
+162 passed.
+
+test_sorting_is_off_until_the_whole_table_is_loaded was INVERTED and
+renamed, with the old claim and the reason it stopped being right in its
+docstring. Three tests added. The load-bearing assertion is the DESCENDING
+one: with 100 of 250 rows loaded, ascending looks correct even if only the
+loaded rows were sorted, and descending (250, 249, 248 rather than 100, 99,
+98) is what tells the two apart.
+
+--------------------------------------------------------------------------------
+NOT DONE
+--------------------------------------------------------------------------------
+
+Keyset paging for a sorted view. It would need (value, rowid) > (?, ?) over
+a user-chosen column, including correct handling of NULLs and of SQLite's
+type-affinity ordering. Worth doing if anyone reports that scrolling deep
+into a sorted table is slow; not worth doing before that.

@@ -2,7 +2,7 @@
 ANNOTATE: LINK TO THE DATABASE BROWSER AT png_list
 ================================================================================
 
-Status:    not started
+Status:    done - 2026-08-06, commit 69a650e2
 Requested: 2026-08-06 — "there should also be a link to database browser in the annotation app that takes the user to the png_list table to see their annotations column"
 
 --------------------------------------------------------------------------------
@@ -20,13 +20,23 @@ After auto-annotating, the only way to check what landed in the table is to
 leave the app and open sqlite by hand.
 
 --------------------------------------------------------------------------------
-WHAT TO DO
+WHAT WAS DONE
 --------------------------------------------------------------------------------
 
-Add a button on the Annotate toolbar that opens the Database Browser on the
-current db_path, table png_list, ideally scrolled to the active annotation
-column. Reuse the existing navigation seam in spacr/qt/app.py rather than
-constructing a second browser instance.
+A "View in database" button on the Annotate toolbar opens png_list in the
+Database Browser, flushing pending annotations first - sending the user to a
+table that disagrees with the grid they just left invites the conclusion
+"my annotations are not being saved", which is wrong and alarming.
+
+That needed a seam. MainWindow._on_train_requested navigated and then pushed
+the seed into the target's SETTINGS MODEL; the Database Browser has none, so
+the navigation happened and the seed was silently dropped. A screen can now
+expose `apply_seed(dict)` and handle one itself.
+
+DbBrowserScreen.apply_seed opens the database, selects the table, and
+scrolls the annotation column into view. It deliberately does NOT sort by
+it: arriving on a re-sorted table would hide which rows were just
+annotated, which is the thing the user came to look at.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
@@ -34,3 +44,11 @@ HOW TO KNOW IT WORKED
 
 Click it with a project open; the browser appears showing png_list with the
 annotation column present.
+
+--------------------------------------------------------------------------------
+VERIFIED
+--------------------------------------------------------------------------------
+
+test_view_in_database_asks_for_png_list_and_flushes_first asserts the flush
+happens BEFORE the signal, and that the seed carries db_path, table
+'png_list' and the active annotation column.
