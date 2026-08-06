@@ -1,0 +1,86 @@
+================================================================================
+FOUND, CONFIRMED, DELIBERATELY LEFT
+================================================================================
+
+Each of these was measured rather than suspected. Each has a reason for
+not being fixed, and the reason is the useful part -- otherwise the next
+person rediscovers it and makes the same call from scratch, or worse,
+"fixes" one that was intentional.
+
+--------------------------------------------------------------------------------
+1. barcodes_grna.csv has three duplicated protospacers
+--------------------------------------------------------------------------------
+
+Confirmed by reading the file. NOT a data-loading bug.
+
+Left alone because a duplicated protospacer can be a screen-design
+decision -- the same guide targeting two library positions -- and only the
+person who designed the library knows which it is here. Changing it
+silently would corrupt a mapping that may be correct.
+
+If it IS wrong, the fix is in the library file, not in the code that reads
+it. If it is right, `map_barcodes` should probably say so out loud rather
+than leaving the reader to wonder.
+
+--------------------------------------------------------------------------------
+2. timelapse.py calls the feature selector without coercing
+--------------------------------------------------------------------------------
+
+The same class of fault as the Classify (ML) `ModelFeatureSchemaError`
+that WAS fixed: a column arrives as object dtype and the selector expects
+numeric.
+
+Not fixed because it needs a real timelapse dataset to reproduce, and
+guessing at the coercion is how the first one got written wrong. Reproduce
+it, then apply the same fix Classify (ML) got.
+
+--------------------------------------------------------------------------------
+3. 102 modules under 90% test coverage
+--------------------------------------------------------------------------------
+
+Not a bug; a standing goal. The pinned target is every module above 90%,
+worked in the order measure -> plot -> timelapse -> gui_elements.
+`timelapse` is NOT legacy and should not be skipped as if it were.
+
+Note for whoever runs coverage: `pytest --cov` needs the sitecustomize
+torch pre-import shim or it dies with a `_has_torch_function` crash. That
+is in the coverage runner notes, not here.
+
+--------------------------------------------------------------------------------
+4. The Space theme retirement was left half-finished
+--------------------------------------------------------------------------------
+
+`3e11c796` retired Space as a selectable theme. Still present:
+
+    spacr/resources/themes/deep_field.jpg     1.4 MB, still ships
+    spacr/qt/imagery.py :: SPACE_PHOTO_VARIANTS = ("deep_field",)
+    spacr/qt/space.py                          1277 lines
+
+All THREE are still referenced -- `preferences.py` imports from space.py
+in four places, and `deep_field` survives as a wallpaper VARIANT even
+though "space" is no longer a theme. SPACE_PALETTE is kept deliberately so
+an old settings file naming "space" resolves rather than raising.
+
+So this is not dead code that can simply be deleted. It is a retirement
+that stopped halfway, and finishing it means deciding whether the
+deep_field wallpaper is still offered at all. The tests were updated to
+match the current state; nothing is red.
+
+--------------------------------------------------------------------------------
+5. Diagnostic scripts wrote to the real user preferences
+--------------------------------------------------------------------------------
+
+Recorded because it caused a user-visible fault and will happen again.
+
+Nine scratch scripts called `preferences.set_ambient_enabled(False)` while
+reproducing a bug. Run as plain scripts rather than under pytest, they
+bypassed the test sandbox and wrote to the real ~/.config/spacr/qt.conf.
+The user's next launch had a flat grey interface, an opacity setting with
+nothing to show through, and an animation named in Preferences that was
+switched off by a flag they never touched.
+
+The habit that prevents it: a script that touches preferences points
+`preferences._settings` at a temp QSettings first, exactly as
+`tests/qt/test_preferences_reset.py::private_store` does. There is now a
+Reset to defaults button in Preferences, which is the repair path, but not
+touching them is better than repairing them.

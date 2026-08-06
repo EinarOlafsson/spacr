@@ -1,0 +1,396 @@
+================================================================================
+FLOWVIEW — OPTIONAL PIPELINE VISUALISATION PANEL
+================================================================================
+
+Status:   specified, not started. No code exists.
+Source:   written by the maintainer; reproduced here in full and unedited
+          below the line, because it is an implementation specification and
+          summarising it would lose the parts that are load-bearing.
+
+--------------------------------------------------------------------------------
+BEFORE WRITING ANY CODE
+--------------------------------------------------------------------------------
+
+Section 2 of the spec is not optional and is not a formality. It requires
+an inventory of the real repository -- where stages are defined and
+invoked, how the GUI is structured, how concurrency is handled, how
+settings dicts pass between stages, which optional extras already exist --
+and a mapping from REAL spaCR functions to the node kinds in section 5,
+CONFIRMED with the maintainer before implementation begins.
+
+Do not skip it. The names in the spec are deliberately generic and the
+repository does not match them.
+
+Some of that inventory already exists and will save time:
+
+  spacr/qt/bridge.py        RunHandle, RunRegistry, PipelineWorker,
+                            cancel_all, the pause gate. This is the
+                            concurrency answer for the GUI side.
+  spacr/run_journal.py      open_run() already records stage order,
+                            settings, environment, input hashes and timings
+                            per run. Section 5's RunGraph overlaps this
+                            heavily -- read it before designing the model,
+                            and consider whether FlowView should CONSUME
+                            the journal rather than instrument separately.
+  spacr/qt/screens/pipeline_graph.py
+                            An existing "DAG of what produced what" screen,
+                            registered as an app. Section 17 says FlowView
+                            does not replace napari; it should also be
+                            clear how it relates to THIS, which already
+                            draws a run graph.
+  spacr/qt/theme.py         register_widget_qss + WIDGET_QSS_MODULES. A new
+                            panel with its own QSS MUST be added to that
+                            list or its containers paint the window colour
+                            (#000000) until something rebuilds the
+                            stylesheet. See instructions/03 and the commit
+                            "The black box was a missing stylesheet rule".
+
+--------------------------------------------------------------------------------
+TWO THINGS TO SETTLE WITH THE MAINTAINER FIRST
+--------------------------------------------------------------------------------
+
+1. FlowView versus the existing Pipeline Graph screen. Both draw the DAG of
+   a run. If FlowView supersedes it, say so and retire the other; if not,
+   the difference has to be explainable in one sentence or users will not
+   know which to open.
+
+2. FlowView versus run_journal. The journal already captures most of
+   section 5's RunGraph and is written on every run whether anyone is
+   watching or not. Building a second, parallel record risks the two
+   disagreeing about what a run did, which is worse than having neither.
+
+================================================================================
+THE SPECIFICATION AS WRITTEN
+================================================================================
+
+# Implementation specification, optional pipeline visualisation panel for
+# spaCR
+
+Instructions for Claude Code. Implement an optional module that renders the
+flow of data through a spaCR (spatial phenotype analysis of CRISPR-Cas9
+screens) run as a live, visually refined node graph, covering input
+datasets, processing stages, and outputs. Working name for the module is
+FlowView.
+
+## 1. Purpose and scope
+
+The module provides two things. First, a live panel inside the existing
+graphical user interface (GUI) that shows what the pipeline is doing while
+it runs, with representative image thumbnails and per-stage counts. Second,
+a static export of the same graph (Scalable Vector Graphics, SVG, and
+self-contained HyperText Markup Language, HTML) suitable for supplementary
+figures, documentation, and reproducibility records.
+
+The module must be entirely optional. Core spaCR functionality, headless
+execution, and command-line workflows must behave identically whether or
+not the module is installed or enabled. No core code path may import the
+module at module level.
+
+## 2. Preparatory inspection before writing code
+
+Do not assume module names from this document. Begin by inventorying the
+repository and reporting findings before implementation. Establish where
+pipeline stages are defined and how they are invoked, how the PySide6 GUI
+is structured and where a dockable panel or menu entry can be added, how
+worker concurrency is handled (threads, `multiprocessing`, or both), how
+existing settings dictionaries are passed between stages, and which
+optional dependency groups already exist in the packaging metadata.
+Summarise the result as a short mapping from real spaCR functions to the
+node kinds described in section 5, and confirm the mapping before
+proceeding.
+
+## 3. Packaging and dependency policy
+
+Expose the feature as an optional extra, installed with
+`pip install spacr[flowview]`. The extra should add as few dependencies as
+possible. PySide6 is already required by the GUI, and drawing must be done
+with `QGraphicsScene`, `QGraphicsItem` subclasses, and `QPainter` rather
+than by adding a plotting library. Do not add `networkx`, `pyqtgraph`, or
+`graphviz` unless the repository already depends on them, since the layered
+layout described in section 7 is straightforward to implement directly.
+
+All imports of PySide6 inside the module must be lazy and guarded, so that
+`import spacr.flowview` succeeds in a headless environment and degrades to
+the tracing and export functionality alone.
+
+## 4. Architecture
+
+Three layers, decoupled by an event queue.
+
+Instrumentation lives in the pipeline and emits small, immutable event
+objects describing stage lifecycle and progress. Emission is non-blocking
+and cheap enough to leave in production code.
+
+Collection receives events into a bounded queue and folds them into a run
+graph. The collector owns all mutable state and is the only component that
+both producers and renderers touch.
+
+Rendering subscribes to the graph and draws it, either live in Qt or once
+into a static file. Renderers are read-only with respect to the graph.
+
+This separation is the central design requirement. Instrumentation must
+never import Qt, and the pipeline must never hold a reference to a widget.
+
+## 5. Data model
+
+Implement in `spacr/flowview/model.py` as frozen dataclasses where
+possible.
+
+    class NodeKind(str, Enum):
+        INPUT = "input"      # raw images, sequencing reads, metadata tables
+        PROCESS = "process"  # segmentation, measurement, classification,
+                             # regression
+        OUTPUT = "output"    # tables, models, plots, archives
+
+    class NodeState(str, Enum):
+        PENDING = "pending"
+        RUNNING = "running"
+        DONE = "done"
+        FAILED = "failed"
+        SKIPPED = "skipped"
+
+    @dataclass
+    class Node:
+        id: str
+        label: str
+        kind: NodeKind
+        state: NodeState = NodeState.PENDING
+        started_at: float | None = None
+        ended_at: float | None = None
+        progress: tuple[int, int] | None = None   # (current, total)
+        metrics: dict[str, float | int | str] = field(default_factory=dict)
+        thumbnail: str | None = None              # path into the run cache
+        params: dict[str, Any] = field(default_factory=dict)
+        error: str | None = None
+
+    @dataclass
+    class Edge:
+        src: str
+        dst: str
+        label: str | None = None
+        volume: int | None = None    # objects, files, or rows transferred
+
+    @dataclass
+    class RunGraph:
+        run_id: str
+        started_at: float
+        nodes: dict[str, Node]
+        edges: list[Edge]
+        spacr_version: str
+        settings_digest: str         # hash of the run settings dictionary
+
+Provide `RunGraph.to_json()` and `RunGraph.from_json()`. The serialised
+record is a deliverable in its own right, since it captures stage order,
+parameters, object counts, timings, and version information in
+machine-readable form, which is directly useful for methods reporting and
+for comparing runs.
+
+## 6. Instrumentation application programming interface (API)
+
+Implement in `spacr/flowview/trace.py`. Two entry points, a decorator for
+whole functions and a context manager for finer control inside long loops.
+
+    from spacr import flowview
+
+    @flowview.stage("Cell segmentation", kind="process",
+                    consumes=["Raw images"], produces=["Masks"])
+    def segment_objects(settings): ...
+
+    with flowview.stage("Measure objects", kind="process") as st:
+        for i, well in enumerate(wells):
+            st.progress(i + 1, len(wells))
+            st.metric("objects", running_total)
+            st.thumbnail(overlay_array)   # downsampled and cached, never
+                                          # held in memory
+
+Tracing is disabled by default. Enable it through `flowview.enable()`,
+through the environment variable `SPACR_FLOWVIEW=1`, or automatically when
+the GUI panel is opened. When disabled, the decorator returns the wrapped
+function unchanged and the context manager resolves to a null object, so
+the cost in a production run is one boolean check per stage entry.
+
+Instrumentation must never raise into the caller. Wrap the body of every
+emission in a broad exception handler that logs at debug level and
+continues, because a visualisation fault must not abort a screen analysis
+that has been running for hours.
+
+## 7. Layout
+
+Implement in `spacr/flowview/layout.py`. Compute a layered, left-to-right
+arrangement of the directed acyclic graph. Assign each node a layer from
+its longest path from any source, order nodes within a layer to reduce edge
+crossings using a small number of median-ordering sweeps, then assign
+coordinates with fixed column width and variable row height. Input nodes
+are pinned to the leftmost layer and output nodes to the rightmost, so that
+the diagram always reads as ingestion on the left and results on the right.
+Layout must be deterministic for a given graph, since the same run should
+export to the same figure twice.
+
+## 8. Live panel
+
+Implement in `spacr/flowview/panel.py` as a dockable widget added to the
+existing main window, with a menu entry under the view menu and no
+automatic opening. The panel holds a `QGraphicsView` over a scene of node
+items, supports pan and zoom, and refreshes from the collector on a
+`QTimer` at approximately twenty hertz rather than on every event. Clicking
+a node opens an inspector pane showing full parameters, metrics, timings,
+and the error traceback where present. Provide a button to export the
+current graph through the renderers in section 10.
+
+Repainting must be confined to the dirty region. Under sustained event load
+the panel must not exceed a few percent of one core, verified during review
+with a real run.
+
+## 9. Visual design
+
+The visual language should come from the subject matter, which is
+fluorescence microscopy of infected cells, rather than from generic
+dashboard convention. Restraint is the governing principle, and the diagram
+should look closer to a well-set figure in a journal than to an instrument
+panel.
+
+The canvas is a deep neutral ground, #0E1216, with node cards one step
+lighter at #161C22 and hairline borders at ten percent white. Three accent
+hues are derived from common acquisition channels and desaturated so that
+they read as ink rather than as light, a muted cyan #5FA8C7 for input
+nodes, a muted amber #C79A5F for processing nodes, and a muted green
+#7FB08A for output nodes, with a single alarm red #C2605C reserved
+exclusively for failure. No other hue may enter the palette, and gradients
+are not used anywhere.
+
+Typography uses one neutral grotesque family, resolved from the system with
+a configurable override, at two weights only, with tabular figures for all
+counts and timings so that numbers do not jitter as they update. Stage
+labels are set in sentence case at fourteen pixels, metrics at eleven
+pixels in the secondary text colour, and identifiers are not shown on the
+card face at all, only in the inspector.
+
+The signature element is the thumbnail strip. Every node that can produce
+an image carries a small representative preview, ninety-six pixels square,
+contrast stretched to the second and ninety-eighth percentiles, with
+segmentation shown as one-pixel outlines rather than filled overlays. Read
+left to right, the row of thumbnails forms a visual audit trail from raw
+field of view through masks and crops to the final coefficient plot, which
+is the thing this panel offers that a text log cannot. Everything else on
+the card stays quiet so that the strip carries the design.
+
+Edges are cubic Bezier curves whose stroke width maps to the logarithm of
+transferred object count, so that a screen with a million crops looks
+different from a pilot with a thousand. Motion is used only to encode
+state, as a slow dash offset animation on edges downstream of a currently
+running stage, and it is suspended when the operating system reports a
+reduced motion preference or when the panel is not visible. Progress is
+shown as a thin rule along the lower edge of the card rather than as a
+separate bar element. Corner radius is four pixels throughout, shadows are
+not used, and the only decoration permitted is a single left accent stripe
+indicating node kind.
+
+Contrast for all text must meet a ratio of at least 4.5 against its
+background, and node state must be distinguishable without relying on hue
+alone, achieved through the state chip label so that the diagram survives
+greyscale printing.
+
+## 10. Static renderers
+
+Implement `flowview.export(graph, path, fmt="svg")` in
+`spacr/flowview/export.py`, writing SVG directly as text without a Qt
+dependency so that exports work on a cluster. Provide an HTML variant that
+embeds the same SVG together with base64-encoded thumbnails and an
+inspector table in one self-contained file, and a JSON variant that writes
+the run record from section 5. Exports must use the same palette, layout,
+and typography rules as the live panel, and the SVG must open cleanly in
+Adobe Illustrator and Inkscape with text as text rather than as paths,
+since the intended downstream use is a supplementary figure.
+
+## 11. Concurrency and resource limits
+
+Use a `queue.Queue` with a maximum size of two thousand and a drop-oldest
+policy, never a blocking put. Where spaCR uses `multiprocessing`, add a
+feeder that bridges a `multiprocessing.Queue` into the in-process collector
+on a daemon thread, and pass only small picklable event objects across the
+boundary.
+
+Never place image arrays on the queue. Thumbnails are downsampled to at
+most one hundred and twenty-eight pixels on the long axis, encoded as
+Portable Network Graphics (PNG) bytes, written to a per-run cache directory
+under the existing spaCR working directory, and referenced by path. Cap the
+cache at a configurable size, defaulting to fifty megabytes, and evict
+oldest first. Delete the cache when the run record is discarded, and retain
+it when the run is exported.
+
+## 12. Failure behaviour
+
+Where a stage raises, mark the node failed, store the formatted traceback
+on the node, mark downstream nodes skipped, and leave the exception
+propagating unchanged to the caller. Where the queue is saturated, drop
+events and set a flag that the panel surfaces as a quiet note that the
+display is sampling rather than showing every update. Where the optional
+extra is absent and a user selects the menu entry, show a short message
+naming the exact install command. Interface text should state what happened
+and what to do about it, without apology and without vagueness.
+
+## 13. Testing
+
+Place tests under `tests/flowview/`. Cover the collector by feeding a
+synthetic event stream and asserting the resulting graph, the layout by
+asserting determinism and correct layer assignment on a graph with branches
+and merges, the export by validating that the SVG parses and contains the
+expected node labels, the disabled path by asserting that decorated
+functions are returned unwrapped and that no events are produced, and the
+concurrency path by flooding the queue from several threads and asserting
+that no producer blocks and no exception escapes. Run Qt-dependent tests
+with `QT_QPA_PLATFORM=offscreen` and skip them cleanly where PySide6 is
+unavailable. Add a regression test asserting that importing the core spaCR
+package does not import PySide6.
+
+## 14. File manifest
+
+    spacr/flowview/__init__.py    public API, enable/disable, export
+    spacr/flowview/events.py      event dataclasses
+    spacr/flowview/model.py       Node, Edge, RunGraph, serialisation
+    spacr/flowview/collector.py   queue, folding of events into the graph
+    spacr/flowview/trace.py       decorator and context manager
+    spacr/flowview/thumbs.py      downsampling, contrast stretch, cache
+    spacr/flowview/layout.py      layered DAG layout
+    spacr/flowview/theme.py       palette, type scale, spacing tokens
+    spacr/flowview/items.py       QGraphicsItem subclasses, nodes and edges
+    spacr/flowview/panel.py       dockable widget, timer, inspector
+    spacr/flowview/export.py      SVG, HTML, JSON writers
+    tests/flowview/               as described in section 13
+    docs/flowview.md              usage, screenshots, instrumentation guide
+
+## 15. Order of work
+
+Build the model, events, collector, and trace API first, and validate them
+against a real spaCR run in headless mode with the JSON export as the only
+output. Add layout and the SVG export second, since a correct static figure
+proves the graph before any Qt work begins. Add the live panel third. Add
+the HTML export and the inspector last.
+
+Commit in that order, with the instrumentation of real spaCR stages as a
+separate commit from the module itself, so that the instrumentation diff
+can be reviewed independently.
+
+## 16. Acceptance criteria
+
+1. Core spaCR imports, tests, and headless runs pass with the extra
+   uninstalled.
+2. Wall-clock time of a representative run with tracing disabled is within
+   two percent of the current baseline, measured and reported.
+3. Tracing a real screen produces a graph whose node order, object counts,
+   and timings match the existing log output.
+4. The panel opens from the view menu, updates during a live run, and
+   remains responsive with the full event load of a plate-scale run.
+5. The SVG export opens in Inkscape with editable text and reproduces the
+   live layout exactly.
+6. Deliberate failure of one stage yields a failed node with a traceback,
+   skipped downstream nodes, and an unchanged exception at the call site.
+7. Repeated export of the same run record is byte-identical.
+
+## 17. Non-goals
+
+The module does not embed, wrap, or depend on vvvv or any .NET component,
+does not permit editing or re-execution of the pipeline from the canvas,
+and does not attempt to replace napari for image inspection. Scope is
+confined to representation of a run that spaCR is performing or has
+performed.

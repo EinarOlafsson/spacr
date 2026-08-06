@@ -1,0 +1,76 @@
+================================================================================
+MODULES THAT OVERLAP — ANALYSIS ONLY, NOT ACTIONED
+================================================================================
+
+Status:   measured and delivered. NO CODE WRITTEN, on purpose.
+Why:      which modules exist is a product decision, not a refactor.
+
+--------------------------------------------------------------------------------
+METHOD
+--------------------------------------------------------------------------------
+
+62 apps register at launch (53 static + 9 self-registering). For the 21
+that expose a settings form, pairwise Jaccard overlap of their actual
+setting keys. The viewer-type modules have no settings to compare, so
+those are judged on what they read and draw and are marked weaker below.
+
+--------------------------------------------------------------------------------
+STRONGEST FIRST
+--------------------------------------------------------------------------------
+
+Mask + Timelapse
+    Timelapse contains ALL 190 of Mask's setting keys and adds 14
+    (timelapse_mode, trackastra_*, ultrack_*). Jaccard 0.93, the highest
+    in the app. One module with tracking as a toggle that reveals the 14.
+
+Make Masks + Curate
+    Both are "paint a mask by hand". Make Masks is 1011 lines of brush,
+    flood fill and undo with ONE setting; Curate is the same plus track
+    surgery and an edit journal. Keep Curate.
+
+Batch Runner + Plate Queue
+    "Queue any modules, plates and settings and run them overnight" versus
+    "Chain multiple plates through the same pipeline". One setting each.
+
+Plaque Assay + Cellpose Masks
+    15 of Plaque Assay's 16 keys are Cellpose Masks' keys. Plaque Assay is
+    Cellpose plus a readout; make it a readout.
+
+External Masks + Measure
+    42 shared of 50/47. External Masks adds only ingest keys (dst, inputs,
+    layout, recursive, z_handling).
+
+--------------------------------------------------------------------------------
+WEAKER — REAL OVERLAP, BUT MERGING COSTS CLARITY
+--------------------------------------------------------------------------------
+
+PCA + Image UMAP                    both embed the same table
+Graph Builder + Small Multiples + Control Charts + Image Scatter
+                                    four chart builders over one table
+Classifier Evaluation + Prediction Profiler + Activation
+                                    three ways to interrogate one model
+Database Browser + Tabulate         browse versus pivot
+
+--------------------------------------------------------------------------------
+IF THIS IS EVER DONE
+--------------------------------------------------------------------------------
+
+Roughly 8-12 fewer modules without losing a capability. Two things to
+respect:
+
+  * The Home bands (CATS_STAGE5 in
+    spacr/resources/home/versions/_generators/common.py) are capped at the
+    SMALLEST number that holds the registry across five bands. Removing
+    modules lowers that floor, and test_home_variants asserts the cap is
+    the floor exactly, so it will fail until the cap comes down with it.
+  * Every merged-away app key needs an entry somewhere that redirects, or
+    a saved settings CSV naming it stops resolving.
+
+--------------------------------------------------------------------------------
+ONE THING FIXED IN PASSING
+--------------------------------------------------------------------------------
+
+Make Masks' registry row read "Fine-tune Cellpose models for your dataset"
+-- verbatim the description of Train Cellpose, the app on the next line.
+Anyone hunting for the hand-correction tool would have read that and moved
+on. Corrected.
