@@ -35,6 +35,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..widgets.barcode_regex import BarcodeRegexWidget
+from ..widgets.channel_mapping import ChannelMappingWidget
 from ..widgets.external_mask_inputs import ExternalMaskInputWidget
 from ..widgets.row_exclusion import RowExclusionEditor
 from ..widgets.toggle import Toggle
@@ -3769,6 +3770,13 @@ class SettingsWidgets:
                 value=self._defaults.get(key, default),
                 parent=parent,
             )
+        # Not scoped to one app: every module that crops object PNGs offers
+        # this key, and all of them mean the same thing by it.
+        if key == "png_channel_mapping":
+            return ChannelMappingWidget(
+                value=self._defaults.get(key, default),
+                parent=parent,
+            )
         app_options = _APP_COMBO_OPTIONS.get(self.app_key, {})
         if key in app_options:
             kind = "combo"
@@ -3999,7 +4007,7 @@ class SettingsWidgets:
                 (
                     _AlphabetSelect, _ListEditor, _ListEdit, _ScalarEdit,
                     BarcodeRegexWidget, RowExclusionEditor,
-                    ExternalMaskInputWidget,
+                    ExternalMaskInputWidget, ChannelMappingWidget,
                 ),
             ):
                 w.set_value(value)
@@ -4059,6 +4067,7 @@ class SettingsWidgets:
             (
                 _AlphabetSelect, _ListEditor, _ListEdit, BarcodeRegexWidget,
                 RowExclusionEditor, ExternalMaskInputWidget,
+                ChannelMappingWidget,
             ),
         ):
             return w.get_value()

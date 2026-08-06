@@ -33,6 +33,7 @@ import pytest
 from spacr import crops
 from spacr.crops import (
     CROP_FORMAT_CURRENT,
+    CROP_FORMAT_DECLARED_RGB,
     CROP_FORMAT_LEGACY_BGR,
     CROP_FORMAT_RGB,
     CROP_FORMAT_SIDECAR,
@@ -44,6 +45,7 @@ from spacr.crops import (
     crop_folder_format,
     crop_format_for_png,
     extract_crop,
+    legacy_png_view,
     migrate_crop_folder,
     narrow_to_uint8,
     png_view,
@@ -98,11 +100,64 @@ def _write_legacy(path, arr):
 
 
 def _write_current(path, arr):
-    """Write ``arr`` the way the corrected writer does."""
+    """Write ``arr`` the way the current writer does.
+
+    ``arr`` is in FILE order here -- plane 0 is the red slot -- because that
+    is what `build_png_channels` now hands the writer.
+    """
     os.makedirs(os.path.dirname(path), exist_ok=True)
     stamp_crop_folder(os.path.dirname(str(path)))
     assert cv2.imwrite(str(path), to_cv2_bgr(arr))
     return str(path)
+
+
+def _reversed_folder(tmp_path, n=4, name="cell_png", seed=0):
+    """Build a folder of format-2 crops -- the ones that need repairing.
+
+    Format 2 is what spaCR wrote between 2026-07-26 and 2026-08-06: the
+    first-listed channel in the file's RED slot. It is the only format whose
+    pixels are out of step with the declared mapping, so it is the only input
+    `migrate_crop_folder` has work to do on.
+    """
+    folder = tmp_path / "data" / "plate1_A01" / name
+    arrays = {}
+    for i in range(n):
+        arr = _crop(seed=seed + i)
+        fname = f"plate1_A01_1_{i}.png"
+        os.makedirs(str(folder), exist_ok=True)
+        # Format 2's actual byte layout: png_dims[0] in the file's RED slot.
+        assert cv2.imwrite(str(folder / fname), to_cv2_bgr(arr))
+        arrays[fname] = arr
+    crops.write_crop_folder_marker(str(folder), CROP_FORMAT_RGB)
+    crops.clear_crop_format_cache()
+    return str(folder), arrays
+
+
+def _write_reversed(path, arr):
+    """Write ``arr`` as a format-2 crop and mark its folder as one.
+
+    The migrator's input. Marking here rather than in each test keeps the
+    two halves together: a format-2 byte layout in a folder that does not
+    say it is format 2 is a state spaCR never produces, and a test built on
+    it would be exercising a fiction.
+    """
+    os.makedirs(os.path.dirname(str(path)), exist_ok=True)
+    assert cv2.imwrite(str(path), to_cv2_bgr(arr))
+    _mark_reversed(os.path.dirname(str(path)))
+    return str(path)
+
+
+def _mark_reversed(folder):
+    """Mark ``folder`` format 2, so the migrator has something to repair.
+
+    Needed wherever a test hand-builds a folder for a migrator error path:
+    an unmarked folder is legacy, legacy is already in declared order, and
+    the migrator now returns `already` without opening a single file -- so
+    the bad file the test planted would never be reached.
+    """
+    crops.write_crop_folder_marker(str(folder), CROP_FORMAT_RGB)
+    crops.clear_crop_format_cache()
+    return str(folder)
 
 
 def _legacy_folder(tmp_path, n=4, name="cell_png", seed=0):
@@ -188,30 +243,43 @@ def test_to_cv2_bgr_channel_counts(tmp_path):
 # 2. Marker resolution
 # ===========================================================================
 
-def test_unmarked_folder_is_legacy_and_is_read_correctly(tmp_path):
-    """An unmarked folder is BGR -- the only default that cannot corrupt data."""
+def test_unmarked_folder_is_legacy_and_is_read_as_it_stands(tmp_path):
+    """An unmarked folder is legacy, and legacy pixels are already right.
+
+    Changed on 2026-08-06, and the change is the point of the whole
+    exercise. This used to assert that `read_crop_png` REVERSED a legacy
+    file, on the belief that png_dims[0] belonged in red. It does not:
+    channel 0 is the 405 line, which is blue, and putting it in blue is
+    exactly what the legacy writer did. So the correct behaviour for a
+    legacy file is to hand back what the file holds.
+    """
     folder, arrays = _legacy_folder(tmp_path)
     assert read_crop_folder_marker(folder) is None
     assert crop_folder_format(folder) == CROP_FORMAT_LEGACY_BGR
 
     for name, arr in arrays.items():
         got = read_crop_png(os.path.join(folder, name))
-        assert np.array_equal(got, png_view(arr)), name
-        # i.e. the user's png_dims[0] comes back as red, from a file that
-        # physically holds it in blue.
-        assert np.array_equal(got[:, :, 0], arr[:, :, 0] // 256)
+        with Image.open(os.path.join(folder, name)) as img:
+            assert np.array_equal(got, np.array(img)), name
+        # png_dims[0] -- the 405 plane -- comes back as BLUE.
+        assert np.array_equal(got[:, :, 2], arr[:, :, 0] // 256)
 
 
 def test_marked_folder_is_read_as_is(tmp_path):
-    """A folder stamped format 2 is taken at face value, no reversal applied."""
+    """A folder stamped by the current writer is taken at face value.
+
+    The stamp is format 3 now, not 2: the writer places the source channels
+    named by `png_channel_mapping` in the file's slots, so there is no
+    ordering convention left for a reader to undo.
+    """
     folder = tmp_path / "cell_png"
     arr = _crop(seed=3)
     path = _write_current(folder / "a.png", arr)
 
     marker = read_crop_folder_marker(str(folder))
-    assert marker["spacr_crop_format"] == CROP_FORMAT_RGB
-    assert marker["channel_order"] == "rgb"
-    assert crop_folder_format(str(folder)) == CROP_FORMAT_RGB
+    assert marker["spacr_crop_format"] == CROP_FORMAT_DECLARED_RGB
+    assert marker["channel_order"] == "declared_rgb"
+    assert crop_folder_format(str(folder)) == CROP_FORMAT_DECLARED_RGB
 
     got = read_crop_png(path)
     assert np.array_equal(got, png_view(arr))
@@ -232,7 +300,7 @@ def test_marker_survives_a_folder_copy(tmp_path):
     crops.clear_crop_format_cache()
 
     assert os.path.isfile(dst / CROP_FORMAT_SIDECAR)
-    assert crop_folder_format(str(dst)) == CROP_FORMAT_RGB
+    assert crop_folder_format(str(dst)) == CROP_FORMAT_DECLARED_RGB
     assert np.array_equal(read_crop_png(str(dst / "a.png")), png_view(arr))
 
 
@@ -282,7 +350,7 @@ def test_writing_new_crops_into_an_old_folder_is_called_out(tmp_path, capsys):
     out = capsys.readouterr().out
     assert "already holds 3 unmarked crop PNG(s)" in out
     assert "python -m spacr.crops" in out
-    assert crop_folder_format(folder) == CROP_FORMAT_RGB
+    assert crop_folder_format(folder) == CROP_FORMAT_DECLARED_RGB
 
     # A folder deliberately marked legacy, then written into by a new run.
     other, _ = _legacy_folder(tmp_path / "b", n=1, seed=96)
@@ -291,7 +359,7 @@ def test_writing_new_crops_into_an_old_folder_is_called_out(tmp_path, capsys):
     stamp_crop_folder(other)
     out = capsys.readouterr().out
     assert "is marked crop format 1 (bgr)" in out
-    assert crop_folder_format(other) == CROP_FORMAT_RGB
+    assert crop_folder_format(other) == CROP_FORMAT_DECLARED_RGB
 
     # An empty folder is the normal case and says nothing at all.
     fresh = tmp_path / "fresh_png"
@@ -358,9 +426,14 @@ def test_db_column_is_used_when_there_is_no_sidecar(tmp_path):
     db_path = _png_list_db(tmp_path, [path], fmt=CROP_FORMAT_RGB)
     assert crops.read_db_crop_format(db_path) == CROP_FORMAT_RGB
     assert crop_folder_format(str(folder), db_path) == CROP_FORMAT_RGB
-    assert np.array_equal(read_crop_png(path, db_path=db_path), png_view(arr))
-    # Without the database it falls back to legacy and reads it reversed.
-    assert not np.array_equal(read_crop_png(path), png_view(arr))
+    # The db says format 2, and format 2 is the reversed one, so the reader
+    # puts it back: the file holds png_view(arr) and the reader hands back
+    # its reverse.
+    assert np.array_equal(read_crop_png(path, db_path=db_path),
+                          png_view(arr)[:, :, ::-1])
+    # Without the database it falls back to legacy -- already declared order
+    # -- and hands the file back untouched.
+    assert np.array_equal(read_crop_png(path), png_view(arr))
 
 
 def test_sidecar_wins_over_a_disagreeing_db_column(tmp_path, capsys):
@@ -372,10 +445,10 @@ def test_sidecar_wins_over_a_disagreeing_db_column(tmp_path, capsys):
     """
     folder = tmp_path / "data" / "plate1_A01" / "cell_png"
     arr = _crop(seed=6)
-    path = _write_current(folder / "a.png", arr)          # sidecar says 2
+    path = _write_current(folder / "a.png", arr)          # sidecar says 3
     db_path = _png_list_db(tmp_path, [path], fmt=CROP_FORMAT_LEGACY_BGR)  # db says 1
 
-    assert crop_folder_format(str(folder), db_path) == CROP_FORMAT_RGB
+    assert crop_folder_format(str(folder), db_path) == CROP_FORMAT_DECLARED_RGB
     out = capsys.readouterr().out
     assert "crop format conflict" in out
     assert "Using the sidecar" in out
@@ -458,15 +531,26 @@ def test_png_view_and_the_png_path_agree_under_both_formats(tmp_path, fmt):
         else:
             _write_current(target, crop)
 
-        assert crop_format_for_png(target) == fmt
-        assert np.array_equal(read_crop_png(target), png_view(crop))
+        expected_fmt = (CROP_FORMAT_DECLARED_RGB
+                        if fmt != CROP_FORMAT_LEGACY_BGR else fmt)
+        assert crop_format_for_png(target) == expected_fmt
+        # Both formats are in declared order, so both come back as the file
+        # holds them -- which is the whole claim this test makes.
+        with Image.open(target) as img:
+            assert np.array_equal(read_crop_png(target), np.array(img))
 
         # ...and through the two CropSource implementations, which is how the
         # GUIs and the datasets actually reach a crop.
         png_src = PngCropSource(root=str(tmp_path))
+        # channels is in COLOUR order (red, green, blue). The legacy fixture
+        # wrote png_dims=(0,1,2), which means "0 is blue" -- so the red
+        # source is channel 2. crops.channels_from_settings does this
+        # translation for real callers.
         merged_src = MergedCropSource(
-            spec=CropSpec(merged_path="", channels=(0, 1, 2), size=(32, 32),
-                          mask_dims=MASK_DIMS))
+            spec=CropSpec(merged_path="",
+                          channels=(2, 1, 0) if fmt == CROP_FORMAT_LEGACY_BGR
+                          else (0, 1, 2),
+                          size=(32, 32), mask_dims=MASK_DIMS))
         assert np.array_equal(
             png_src.get({"png_path": target}),
             merged_src.get({"path_name": npy, "object_label": label}))
@@ -527,7 +611,9 @@ def test_read_crop_png_forced_format_and_missing_file(tmp_path):
     path = _write_current(folder / "a.png", arr)
     # "the file is legacy" (it is not) -> read as if it were, i.e. reversed.
     forced = read_crop_png(path, fmt=CROP_FORMAT_LEGACY_BGR)
-    assert np.array_equal(forced, png_view(arr)[:, :, ::-1])
+    # Format 1 and format 3 are both declared order, so claiming a format-3
+    # file is format 1 changes nothing -- there is no reversal between them.
+    assert np.array_equal(forced, png_view(arr))
     # "give me legacy-ordered pixels" out of a format-2 file: same array,
     # asked for the other way round.
     assert np.array_equal(
@@ -563,7 +649,7 @@ def test_read_crop_png_handles_palette_and_grayscale_8bit(tmp_path):
 
 def test_migrator_converts_stamps_and_is_a_no_op_second_time(tmp_path):
     """One shot: convert, stamp, and refuse to do it again."""
-    folder, arrays = _legacy_folder(tmp_path, n=5)
+    folder, arrays = _reversed_folder(tmp_path, n=5)
     before = {n: read_crop_png(os.path.join(folder, n)) for n in arrays}
 
     result = migrate_crop_folder(folder)
@@ -571,22 +657,23 @@ def test_migrator_converts_stamps_and_is_a_no_op_second_time(tmp_path):
     assert result.failed == [] and not result.already
 
     marker = read_crop_folder_marker(folder)
-    assert marker["spacr_crop_format"] == CROP_FORMAT_RGB
-    assert marker["migrated_from"] == CROP_FORMAT_LEGACY_BGR
+    assert marker["spacr_crop_format"] == CROP_FORMAT_DECLARED_RGB
+    assert marker["migrated_from"] == CROP_FORMAT_RGB
     assert "migration" not in marker            # the journal is gone when done
-    assert crop_folder_format(folder) == CROP_FORMAT_RGB
+    assert crop_folder_format(folder) == CROP_FORMAT_DECLARED_RGB
 
     for name, arr in arrays.items():
         path = os.path.join(folder, name)
-        # The file now physically holds png_dims[0] in red...
+        # The file now physically holds png_dims[0] in BLUE -- the 405 plane
+        # where a biologist expects it, which is what the repair is for.
         with Image.open(path) as img:
-            assert np.array_equal(np.array(img)[:, :, 0], arr[:, :, 0] // 256)
+            assert np.array_equal(np.array(img)[:, :, 2], arr[:, :, 0] // 256)
         # ...and full bit depth was preserved, not narrowed on the way through.
         raw = cv2.imread(path, cv2.IMREAD_UNCHANGED)
         assert raw.dtype == np.uint16
         # ...and what a reader gets back is unchanged by the migration.
         assert np.array_equal(read_crop_png(path), before[name])
-        assert np.array_equal(read_crop_png(path), png_view(arr))
+        assert np.array_equal(read_crop_png(path), legacy_png_view(arr))
 
     # Second run: nothing decoded, nothing written.
     again = migrate_crop_folder(folder)
@@ -602,24 +689,27 @@ def test_migrator_converts_stamps_and_is_a_no_op_second_time(tmp_path):
 
 
 def test_migrator_leaves_no_stray_files_and_reports_a_dry_run(tmp_path):
-    folder, arrays = _legacy_folder(tmp_path, n=3)
+    folder, arrays = _reversed_folder(tmp_path, n=3)
     plan = migrate_crop_folder(folder, dry_run=True)
     assert sorted(plan.converted) == sorted(arrays)
     assert plan.dry_run
-    assert read_crop_folder_marker(folder) is None      # nothing written
-    assert sorted(os.listdir(folder)) == sorted(arrays)
+    # The folder came in marked format 2; a dry run must not change that.
+    assert (read_crop_folder_marker(folder)["spacr_crop_format"]
+            == CROP_FORMAT_RGB)
+    assert sorted(os.listdir(folder)) == sorted(
+        list(arrays) + [CROP_FORMAT_SIDECAR])
 
 
 def test_migrator_skips_single_channel_crops_but_still_marks_them(tmp_path):
     """A grayscale crop has no channel order to fix; only the marker changes."""
     folder = tmp_path / "cell_png"
     gray = np.full((4, 5, 1), 40000, np.uint16)
-    _write_legacy(folder / "g.png", gray)
+    _write_reversed(folder / "g.png", gray)
     before = read_crop_png(str(folder / "g.png"))
 
     result = migrate_crop_folder(str(folder))
     assert result.converted == [] and result.skipped == ["g.png"]
-    assert crop_folder_format(str(folder)) == CROP_FORMAT_RGB
+    assert crop_folder_format(str(folder)) == CROP_FORMAT_DECLARED_RGB
     assert np.array_equal(read_crop_png(str(folder / "g.png")), before)
 
 
@@ -636,7 +726,7 @@ def test_mark_mode_records_legacy_without_touching_a_pixel(tmp_path):
     # Marked legacy still reads correctly, because the reader converts.
     for name, arr in arrays.items():
         assert np.array_equal(read_crop_png(os.path.join(folder, name)),
-                              png_view(arr))
+                              legacy_png_view(arr))
 
     assert migrate_crop_folder(folder, mode="mark").already
 
@@ -645,14 +735,18 @@ def test_mark_mode_records_legacy_without_touching_a_pixel(tmp_path):
     assert migrate_crop_folder(fresh, mode="mark", dry_run=True).mode == "mark"
     assert read_crop_folder_marker(fresh) is None
 
-    # Marking a converted folder legacy would reverse every crop in it: refuse.
-    migrate_crop_folder(folder)
-    with pytest.raises(CropError, match="would make every crop"):
-        migrate_crop_folder(folder, mode="mark")
+    # Marking a REPAIRED folder legacy is refused too. Nothing would be
+    # reversed -- formats 1 and 3 are both declared order -- but the marker is
+    # the only record that the folder was repaired, and overwriting it makes a
+    # repaired folder indistinguishable from one that never needed repairing.
+    repaired, _ = _reversed_folder(tmp_path / "c", n=1, seed=92)
+    migrate_crop_folder(repaired)
+    with pytest.raises(CropError, match="would discard the record"):
+        migrate_crop_folder(repaired, mode="mark")
 
 
 def test_migrator_argument_validation(tmp_path):
-    folder, _ = _legacy_folder(tmp_path, n=1)
+    folder, _ = _reversed_folder(tmp_path, n=1)
     with pytest.raises(CropError, match="mode must be"):
         migrate_crop_folder(folder, mode="sideways")
     with pytest.raises(CropError, match="on_error must be"):
@@ -662,7 +756,7 @@ def test_migrator_argument_validation(tmp_path):
 
 
 def test_migrator_reports_progress_and_stamps_the_db(tmp_path):
-    folder, arrays = _legacy_folder(tmp_path, n=3)
+    folder, arrays = _reversed_folder(tmp_path, n=3)
     db_path = _png_list_db(
         tmp_path, [os.path.join(folder, n) for n in sorted(arrays)])
     seen = []
@@ -670,7 +764,7 @@ def test_migrator_reports_progress_and_stamps_the_db(tmp_path):
                                  progress=lambda d, t, n: seen.append((d, t, n)))
     assert len(result.converted) == 3
     assert [d for d, _, _ in seen] == [1, 2, 3]
-    assert crops.read_db_crop_format(db_path) == CROP_FORMAT_RGB
+    assert crops.read_db_crop_format(db_path) == CROP_FORMAT_DECLARED_RGB
 
 
 # ---------------------------------------------------------------------------
@@ -702,7 +796,7 @@ def test_an_interrupted_migration_leaves_no_corrupt_file(tmp_path, monkeypatch,
     ``read_crop_png`` returns the same pixels it did before the migration
     started. Re-running finishes the job, and nothing gets reversed twice.
     """
-    folder, arrays = _legacy_folder(tmp_path, n=4, seed=20)
+    folder, arrays = _reversed_folder(tmp_path, n=4, seed=20)
     before = {n: read_crop_png(os.path.join(folder, n)) for n in arrays}
 
     # Blow up on the (kill_after+1)-th install of a converted file, i.e. the
@@ -720,22 +814,25 @@ def test_an_interrupted_migration_leaves_no_corrupt_file(tmp_path, monkeypatch,
         assert os.path.isfile(path)
         assert cv2.imread(path, cv2.IMREAD_UNCHANGED) is not None, f"{name} unreadable"
         assert np.array_equal(read_crop_png(path), before[name]), name
-        assert np.array_equal(read_crop_png(path), png_view(arr)), name
+        assert np.array_equal(read_crop_png(path), legacy_png_view(arr)), name
 
     # Mixed folder: some files converted, some not, each resolved individually.
     formats = {n: crop_format_for_png(os.path.join(folder, n))
                for n in sorted(arrays)}
     assert sorted(formats.values(), reverse=True)[:kill_after] == \
-        [CROP_FORMAT_RGB] * kill_after
-    assert CROP_FORMAT_LEGACY_BGR in formats.values()
+        [CROP_FORMAT_DECLARED_RGB] * kill_after
+    # The unconverted remainder is format 2 -- the format being repaired --
+    # not format 1, which is what "unconverted" meant when this migration ran
+    # the other way.
+    assert CROP_FORMAT_RGB in formats.values()
 
     # Resume: completes, and no crop was reversed twice.
     result = migrate_crop_folder(folder)
     assert not result.already
-    assert crop_folder_format(folder) == CROP_FORMAT_RGB
+    assert crop_folder_format(folder) == CROP_FORMAT_DECLARED_RGB
     for name, arr in arrays.items():
         assert np.array_equal(read_crop_png(os.path.join(folder, name)),
-                              png_view(arr)), name
+                              legacy_png_view(arr)), name
     assert not [n for n in os.listdir(folder)
                 if n.endswith(crops.CROP_MIGRATION_SUFFIX)]
 
@@ -743,7 +840,7 @@ def test_an_interrupted_migration_leaves_no_corrupt_file(tmp_path, monkeypatch,
 def test_an_interrupted_conversion_leaves_no_partial_staging_file(tmp_path,
                                                                   monkeypatch):
     """A crash mid-encode must not leave a truncated file anywhere."""
-    folder, arrays = _legacy_folder(tmp_path, n=3, seed=30)
+    folder, arrays = _reversed_folder(tmp_path, n=3, seed=30)
     before = {n: read_crop_png(os.path.join(folder, n)) for n in arrays}
 
     real_imwrite = cv2.imwrite
@@ -775,7 +872,7 @@ def test_an_interrupted_conversion_leaves_no_partial_staging_file(tmp_path,
 
 def test_a_leftover_staging_file_is_installed_not_re_converted(tmp_path):
     """"A staging file exists" outranks the watermark, in both directions."""
-    folder, arrays = _legacy_folder(tmp_path, n=2, seed=40)
+    folder, arrays = _reversed_folder(tmp_path, n=2, seed=40)
     name = sorted(arrays)[0]
     path = os.path.join(folder, name)
     before = read_crop_png(path)
@@ -787,13 +884,13 @@ def test_a_leftover_staging_file_is_installed_not_re_converted(tmp_path):
     assert cv2.imwrite(scratch, to_cv2_bgr(cv2.imread(path, cv2.IMREAD_UNCHANGED)))
     os.replace(scratch, staged)
     crops.write_crop_folder_marker(
-        folder, CROP_FORMAT_RGB,
-        migration={"from": CROP_FORMAT_LEGACY_BGR, "done_through": name,
+        folder, CROP_FORMAT_DECLARED_RGB,
+        migration={"from": CROP_FORMAT_RGB, "done_through": name,
                    "started_utc": "now"})
 
     # The watermark says "done", the staging file says "not installed yet" --
     # and the staging file is right.
-    assert crop_format_for_png(path) == CROP_FORMAT_LEGACY_BGR
+    assert crop_format_for_png(path) == CROP_FORMAT_RGB
     assert np.array_equal(read_crop_png(path), before)
 
     migrate_crop_folder(folder)
@@ -805,32 +902,33 @@ def test_a_file_that_cannot_be_converted_is_loud_or_recorded(tmp_path):
     """A 4-channel crop cannot be written safely: raise, or record and move on."""
     folder = tmp_path / "cell_png"
     good = _crop(seed=50)
-    _write_legacy(folder / "a_good.png", good)
+    _write_reversed(folder / "a_good.png", good)
     four = np.full((4, 5, 4), 30000, np.uint16)
-    _write_legacy(folder / "b_bad.png", four)
-    _write_legacy(folder / "c_good.png", _crop(seed=51))
+    _write_legacy(folder / "b_bad.png", four)   # 4 planes: to_cv2_bgr refuses it
+    _mark_reversed(folder)
+    _write_reversed(folder / "c_good.png", _crop(seed=51))
 
     with pytest.raises(CropError, match="could not be converted"):
         migrate_crop_folder(str(folder))
     # The failure stopped everything after it; the folder is still readable.
     crops.clear_crop_format_cache()
     assert np.array_equal(read_crop_png(str(folder / "a_good.png")),
-                          png_view(good))
+                          legacy_png_view(good))
 
     result = migrate_crop_folder(str(folder), on_error="skip")
     assert [n for n, _ in result.failed] == ["b_bad.png"]
     assert "c_good.png" in result.converted
     marker = read_crop_folder_marker(str(folder))
-    assert marker["spacr_crop_format"] == CROP_FORMAT_RGB
+    assert marker["spacr_crop_format"] == CROP_FORMAT_DECLARED_RGB
     assert marker["unconverted"] == ["b_bad.png"]
     assert np.array_equal(read_crop_png(str(folder / "a_good.png")),
-                          png_view(good))
+                          legacy_png_view(good))
 
-    # The one file that could not be rewritten is STILL legacy, inside a
-    # folder the marker calls format 2 -- so it has to be resolved per file,
+    # The one file that could not be rewritten is STILL format 2, inside a
+    # folder the marker calls format 3 -- so it has to be resolved per file,
     # or it would be read reversed from here on.
-    assert crop_format_for_png(str(folder / "b_bad.png")) == CROP_FORMAT_LEGACY_BGR
-    assert crop_format_for_png(str(folder / "a_good.png")) == CROP_FORMAT_RGB
+    assert crop_format_for_png(str(folder / "b_bad.png")) == CROP_FORMAT_RGB
+    assert crop_format_for_png(str(folder / "a_good.png")) == CROP_FORMAT_DECLARED_RGB
 
     # A later run retries only the leftovers, and touches nothing else.
     replay = migrate_crop_folder(str(folder), on_error="skip")
@@ -838,18 +936,21 @@ def test_a_file_that_cannot_be_converted_is_loud_or_recorded(tmp_path):
     assert [n for n, _ in replay.failed] == ["b_bad.png"]
     assert sorted(replay.skipped) == ["a_good.png", "c_good.png"]
     assert np.array_equal(read_crop_png(str(folder / "a_good.png")),
-                          png_view(good))
+                          legacy_png_view(good))
 
-    # Fix the file and the retry finishes the job.
-    _write_legacy(folder / "b_bad.png", _crop(seed=52))
+    # Fix the file and the retry finishes the job. Written WITHOUT
+    # _mark_reversed: re-stamping the folder format 2 would wipe the
+    # `unconverted` record the retry is supposed to read, and the retry would
+    # reverse every already-repaired crop in the folder.
+    assert cv2.imwrite(str(folder / "b_bad.png"), to_cv2_bgr(_crop(seed=52)))
     fixed = _crop(seed=52)
     done = migrate_crop_folder(str(folder))
     assert done.converted == ["b_bad.png"]
     assert "unconverted" not in read_crop_folder_marker(str(folder))
     assert np.array_equal(read_crop_png(str(folder / "b_bad.png")),
-                          png_view(fixed))
+                          legacy_png_view(fixed))
     assert np.array_equal(read_crop_png(str(folder / "a_good.png")),
-                          png_view(good))
+                          legacy_png_view(good))
     assert migrate_crop_folder(str(folder)).already
 
 
@@ -857,6 +958,7 @@ def test_an_undecodable_png_is_reported_by_name(tmp_path):
     folder = tmp_path / "cell_png"
     folder.mkdir()
     (folder / "junk.png").write_bytes(b"not a png at all")
+    _mark_reversed(folder)      # else the migrator has nothing to open
     with pytest.raises(CropError, match="junk.png could not be converted"):
         migrate_crop_folder(str(folder))
 
@@ -872,7 +974,7 @@ def test_find_and_migrate_a_whole_experiment_tree(tmp_path):
         for mode in ("cell_png", "nucleus_png"):
             f = root / "data" / well / mode
             arr = _crop(seed=hash((well, mode)) % 1000)
-            _write_legacy(f / "x.png", arr)
+            _write_reversed(f / "x.png", arr)
             arrays[str(f / "x.png")] = arr
 
     folders = crops.find_crop_folders(str(root))
@@ -883,7 +985,7 @@ def test_find_and_migrate_a_whole_experiment_tree(tmp_path):
     assert len(results) == 4
     assert all("converted 1 crop" in r.describe() for r in results)
     for path, arr in arrays.items():
-        assert np.array_equal(read_crop_png(path), png_view(arr))
+        assert np.array_equal(read_crop_png(path), legacy_png_view(arr))
 
     assert all(r.already for r in crops.migrate_crop_tree(str(root)))
     with pytest.raises(CropError, match="no '\\*_png' crop folders"):
@@ -893,7 +995,7 @@ def test_find_and_migrate_a_whole_experiment_tree(tmp_path):
 def test_find_crop_folders_without_a_data_directory(tmp_path):
     """A folder handed straight to the migrator, with no data/ layer above it."""
     root = tmp_path / "loose"
-    _write_legacy(root / "plate1_A01" / "cell_png" / "a.png", _crop(seed=76))
+    _write_reversed(root / "plate1_A01" / "cell_png" / "a.png", _crop(seed=76))
     assert crops.find_crop_folders(str(root)) == [
         str(root / "plate1_A01" / "cell_png")]
     assert crops.find_crop_folders(str(tmp_path / "absent")) == []
@@ -918,19 +1020,28 @@ def test_migration_result_describe_covers_every_shape(tmp_path):
 # 7. The consumers
 # ===========================================================================
 
-def test_annotate_engine_loader_corrects_a_legacy_crop(tmp_path):
-    """The Qt annotate screen reads through the format-aware loader."""
+def test_annotate_engine_loader_reads_a_legacy_crop_as_it_stands(tmp_path):
+    """The Qt annotate screen reads through the format-aware loader.
+
+    Renamed and inverted on 2026-08-06: there is nothing to correct in a
+    legacy crop. Its blue channel holds png_dims[0], the 405 plane, which is
+    where a biologist expects the nuclear stain -- so the loader must hand
+    back the file, not a reversal of it.
+    """
     from spacr.qt.annotate_engine import load_crop_image
 
     folder, arrays = _legacy_folder(tmp_path, n=1, seed=60)
     name, arr = next(iter(arrays.items()))
     img = load_crop_image(os.path.join(folder, name))
     assert img.mode == "RGB"
-    assert np.array_equal(np.array(img), png_view(arr))
+    assert np.array_equal(np.array(img), legacy_png_view(arr))
 
 
-def test_tk_annotate_app_loader_corrects_a_legacy_crop(tmp_path):
-    """The Tk AnnotateApp reads through the same reader (no Tk needed)."""
+def test_tk_annotate_app_loader_reads_a_legacy_crop_as_it_stands(tmp_path):
+    """The Tk AnnotateApp reads through the same reader (no Tk needed).
+
+    Inverted for the same reason as the Qt loader above.
+    """
     from spacr.gui_elements import AnnotateApp
 
     folder, arrays = _legacy_folder(tmp_path, n=1, seed=61)
@@ -949,7 +1060,8 @@ def test_tk_annotate_app_loader_corrects_a_legacy_crop(tmp_path):
     # Resized for display, so compare against the corrected crop resized the
     # same way -- the point is the channel order, not the interpolation.
     assert np.array_equal(
-        np.array(img), np.array(Image.fromarray(png_view(arr)).resize((32, 32))))
+        np.array(img),
+        np.array(Image.fromarray(legacy_png_view(arr)).resize((32, 32))))
 
     # A missing crop is still a blank tile, not an exception.
     blank, _ = app.load_single_image((os.path.join(folder, "absent.png"), None))
@@ -1053,16 +1165,20 @@ def test_a_folder_mid_migration_reports_legacy_as_a_whole(tmp_path):
 
 
 def test_a_file_the_migration_gave_up_on_is_still_read_as_legacy(tmp_path):
-    folder, arrays = _legacy_folder(tmp_path, n=2, seed=71)
+    # format-2 bytes, so the format the marker claims is the format the file
+    # actually is -- otherwise this tests the resolver against a fiction.
+    folder, arrays = _reversed_folder(tmp_path, n=2, seed=71)
     names = sorted(arrays)
     crops.write_crop_folder_marker(
-        folder, CROP_FORMAT_RGB,
-        migration={"from": CROP_FORMAT_LEGACY_BGR, "done_through": names[-1],
+        folder, CROP_FORMAT_DECLARED_RGB,
+        migration={"from": CROP_FORMAT_RGB, "done_through": names[-1],
                    "started_utc": "now", "unconverted": [names[0]]})
-    assert crop_format_for_png(os.path.join(folder, names[0])) == CROP_FORMAT_LEGACY_BGR
-    assert crop_format_for_png(os.path.join(folder, names[1])) == CROP_FORMAT_RGB
+    assert crop_format_for_png(os.path.join(folder, names[0])) == CROP_FORMAT_RGB
+    assert (crop_format_for_png(os.path.join(folder, names[1]))
+            == CROP_FORMAT_DECLARED_RGB)
+    # Read the same either way: that is the point of resolving per file.
     assert np.array_equal(read_crop_png(os.path.join(folder, names[0])),
-                          png_view(arrays[names[0]]))
+                          legacy_png_view(arrays[names[0]]))
 
 
 def test_an_unlistable_crop_folder_is_reported(tmp_path, monkeypatch):
@@ -1072,6 +1188,7 @@ def test_an_unlistable_crop_folder_is_reported(tmp_path, monkeypatch):
     def _boom(_p):
         raise PermissionError("no")
 
+    _mark_reversed(folder)      # else the migrator returns before listing
     monkeypatch.setattr(crops.os, "listdir", _boom)
     with pytest.raises(CropError, match="cannot list crop folder"):
         migrate_crop_folder(str(folder))
@@ -1079,7 +1196,7 @@ def test_an_unlistable_crop_folder_is_reported(tmp_path, monkeypatch):
 
 def test_an_encoder_that_silently_returns_false_is_an_error(tmp_path, monkeypatch):
     """cv2.imwrite returns False rather than raising when it cannot encode."""
-    folder, _ = _legacy_folder(tmp_path, n=1, seed=72)
+    folder, _ = _reversed_folder(tmp_path, n=1, seed=72)
     monkeypatch.setattr(cv2, "imwrite", lambda *a, **k: False)
     with pytest.raises(CropError, match="could not be converted"):
         migrate_crop_folder(folder)
@@ -1113,7 +1230,7 @@ def test_mark_mode_also_stamps_the_database(tmp_path):
 def test_progress_and_dry_run_over_a_partially_migrated_folder(tmp_path,
                                                                monkeypatch):
     """Resume paths report progress too, and a dry run counts what is left."""
-    folder, arrays = _legacy_folder(tmp_path, n=4, seed=74)
+    folder, arrays = _reversed_folder(tmp_path, n=4, seed=74)
     _kill_after(monkeypatch, "replace", 2, lambda dst: dst.endswith(".png"))
     with pytest.raises(KeyboardInterrupt):
         migrate_crop_folder(folder)
@@ -1133,6 +1250,7 @@ def test_progress_fires_for_a_file_that_could_not_be_converted(tmp_path):
     folder = tmp_path / "cell_png"
     _write_legacy(folder / "a.png", np.full((4, 5, 4), 30000, np.uint16))
     _write_legacy(folder / "b.png", _crop(seed=75))
+    _mark_reversed(folder)      # else there is nothing for the migrator to do
     seen = []
     result = migrate_crop_folder(str(folder), on_error="skip",
                                  progress=lambda d, t, n: seen.append(n))
@@ -1145,16 +1263,20 @@ def test_command_line_migrator(tmp_path, capsys):
     root = tmp_path / "exp"
     folder = root / "data" / "plate1_A01" / "cell_png"
     arr = _crop(seed=90)
-    _write_legacy(folder / "a.png", arr)
+    # Format-2 bytes: the CLI repairs reversed folders, and a legacy folder
+    # is not reversed, so pointing it at one would correctly do nothing.
+    _write_reversed(folder / "a.png", arr)
 
     assert crops.main([str(root), "--dry-run"]) == 0
     assert "would convert 1" in capsys.readouterr().out
-    assert read_crop_folder_marker(str(folder)) is None
+    assert (read_crop_folder_marker(str(folder))["spacr_crop_format"]
+            == CROP_FORMAT_RGB)          # dry run changed nothing
 
     assert crops.main([str(root)]) == 0
     assert "converted 1 crop" in capsys.readouterr().out
-    assert crop_folder_format(str(folder)) == CROP_FORMAT_RGB
-    assert np.array_equal(read_crop_png(str(folder / "a.png")), png_view(arr))
+    assert crop_folder_format(str(folder)) == CROP_FORMAT_DECLARED_RGB
+    assert np.array_equal(read_crop_png(str(folder / "a.png")),
+                          legacy_png_view(arr))
 
     assert crops.main([str(tmp_path / "nothing-here")]) == 1
     assert "no '*_png' crop folders" in capsys.readouterr().err
@@ -1170,6 +1292,7 @@ def test_command_line_migrator_mark_and_failures(tmp_path, capsys):
 
     bad = tmp_path / "exp2" / "data" / "w" / "cell_png"
     _write_legacy(bad / "b.png", np.full((4, 5, 4), 30000, np.uint16))
+    _mark_reversed(bad)     # else there is nothing for the CLI to attempt
     assert crops.main([str(tmp_path / "exp2"), "--skip-errors"]) == 1
     assert "FAILED 1" in capsys.readouterr().out
 
@@ -1200,8 +1323,10 @@ def test_a_legacy_trained_model_can_still_be_fed_legacy_pixels(tmp_path):
     #    raw reader keeps seeing exactly what it trained on...
     migrate_crop_folder(folder, mode="mark")
     assert np.array_equal(np.array(Image.open(path)), raw)
-    # ...while spaCR's own reader still shows it the right way round.
-    assert np.array_equal(read_crop_png(path), png_view(arr))
+    # ...while spaCR's own reader shows it the right way round, which for a
+    # legacy file means AS IT STANDS: png_dims[0] is the 405 plane and the
+    # legacy writer already put it in blue.
+    assert np.array_equal(read_crop_png(path), legacy_png_view(arr))
 
     # 2. Ask any folder, in any format, for legacy-ordered pixels by name.
     assert np.array_equal(
@@ -1233,7 +1358,10 @@ def test_png_crop_source_finds_the_db_next_to_the_root(tmp_path):
 
     src = PngCropSource(root=str(tmp_path))
     assert src.db_path is not None
-    assert np.array_equal(src.get({"png_path": path}), png_view(arr))
+    # The db says format 2, and format 2 is the reversed one, so the reader
+    # puts it back: the file holds png_view(arr) and this hands back its
+    # reverse.
+    assert np.array_equal(src.get({"png_path": path}), legacy_png_view(arr))
 
     # No database in sight -> legacy, which is the safe default.
     assert PngCropSource(root=str(tmp_path / "other")).db_path is None
