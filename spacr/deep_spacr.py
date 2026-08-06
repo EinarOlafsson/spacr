@@ -1578,8 +1578,18 @@ def train_test_model(settings):
 #: Colours the per-class accuracy panel cycles through. Deliberately not the
 #: train/val blue and red used by the two aggregate panels, so a class line is
 #: never mistaken for a split.
-_CLASS_CURVE_COLORS = ('#2ec27e', '#c061cb', '#e5a50a', '#62a0ea', '#ed333b',
-                       '#33d17a', '#dc8add', '#f6d32d', '#99c1f1', '#ff7800')
+#: Curve colours: teal, blue, purple, grey first, as asked for, then a tail
+#: for runs with more classes than that. Chosen to read on BOTH a light and a
+#: dark background, because the figure itself is transparent now and spaCR
+#: does not know which one is behind it -- a palette tuned for dark alone
+#: disappears on the light theme.
+_CLASS_CURVE_COLORS = ('#2aa198', '#4A9EFF', '#9b7fd4', '#8a8f98',
+                       '#2ec27e', '#c061cb', '#e5a50a', '#62a0ea',
+                       '#ed333b', '#ff7800')
+
+#: The two series every training run has. Teal and blue, from the same list.
+_TRAIN_CURVE_COLOR = _CLASS_CURVE_COLORS[1]     # blue
+_VAL_CURVE_COLOR = _CLASS_CURVE_COLORS[0]       # teal
 
 
 def _per_class_series(history, classes=None):
@@ -1652,18 +1662,29 @@ def _plot_training_curves(train_hist, val_hist, total_epochs=None, figure=None,
     if figure is None:
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(16, 4))
         fig._spacr_live_update = True
+        # Transparent from the start, so the container shows through and the
+        # page opacity reaches the plot. The GUI restyles text and spines for
+        # the active theme when it renders (figure_queue._style_figure_colors);
+        # what matters here is that no opaque page is baked in, because a
+        # white or black rectangle cannot be undone by restyling.
+        fig.patch.set_alpha(0.0)
     else:
         fig = figure
         fig.clear()
         ax1, ax2, ax3 = fig.subplots(1, 3)
-    ax1.plot(tr_ep, tr_loss, marker='o', ms=3, color='#4A9EFF', label='train')
-    ax2.plot(tr_ep, tr_acc, marker='o', ms=3, color='#4A9EFF', label='train')
+        fig.patch.set_alpha(0.0)
+    ax1.plot(tr_ep, tr_loss, marker='o', ms=3, color=_TRAIN_CURVE_COLOR,
+             label='train')
+    ax2.plot(tr_ep, tr_acc, marker='o', ms=3, color=_TRAIN_CURVE_COLOR,
+             label='train')
     if val_hist:
         v_ep = [d.get('epoch') for d in val_hist]
         ax1.plot(v_ep, [d.get('loss', float('nan')) for d in val_hist],
-                 marker='s', ms=3, color='#f85149', label='val')
+                 marker='s', ms=3, color=_VAL_CURVE_COLOR, label='val')
         ax2.plot(v_ep, [d.get('accuracy', float('nan')) for d in val_hist],
-                 marker='s', ms=3, color='#f85149', label='val')
+                 marker='s', ms=3, color=_VAL_CURVE_COLOR, label='val')
+    for axis in (ax1, ax2, ax3):
+        axis.patch.set_alpha(0.0)
     ax1.set_title('Loss'); ax1.set_xlabel('epoch'); ax1.legend(loc='best')
     ax2.set_title('Accuracy'); ax2.set_xlabel('epoch')
     ax2.set_ylim(0, 1.02); ax2.legend(loc='best')
