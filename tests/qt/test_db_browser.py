@@ -920,14 +920,88 @@ def test_a_cancelled_load_does_not_leave_the_screen_busy(
 # Sorting — correct, or off and said so
 # ---------------------------------------------------------------------------
 
-def test_sorting_is_off_until_the_whole_table_is_loaded(screen, measdb):
+def test_sorting_is_available_before_the_table_is_loaded(screen, measdb):
+    """CHANGED DELIBERATELY, and the change is the point.
+
+    This used to assert the opposite: that click-to-sort stayed off until
+    ``_exhausted`` -- the whole table in memory. That was right while sorting
+    meant Qt's model sort, because sorting the rows fetched so far and
+    presenting that as the table's order is worse than not sorting at all.
+    But on a 400k-row measurement table that moment never arrives
+    interactively, so the feature was absent from exactly the tables that
+    need it.
+
+    Sorting now runs in SQL over the whole table, so there is nothing to wait
+    for. Qt's model sort stays off (``isSortingEnabled()`` is False forever)
+    because the two would reorder the loaded slice against each other.
+    """
     screen.set_database(measdb.path)
     assert screen._view.isSortingEnabled() is False
-    assert "Sorting is off" in screen._sort_note.text()
-    while screen.fetch_more():
-        pass
-    assert screen._view.isSortingEnabled() is True
-    assert "click a column header to sort" in screen._sort_note.text()
+    assert "Click a column header to sort" in screen._sort_note.text()
+    assert screen._view.horizontalHeader().sectionsClickable() is True
+
+
+def test_a_header_click_sorts_the_whole_table_not_the_loaded_rows(screen,
+                                                                  measdb):
+    """The first row shown must be the first row of the SORTED TABLE.
+
+    The bug this defends against is subtle and was the reason sorting was
+    gated: with 100 of 250 rows loaded, a sort that only sees those 100
+    returns the smallest of the first hundred and calls it the smallest.
+    """
+    screen.set_database(measdb.path)
+    loaded_before = screen.loaded_rows()
+    assert loaded_before < N_ROWS, (
+        "fixture must not fit in one chunk or this proves nothing")
+
+    section = screen.visible_columns().index("cell_area")
+    screen._on_header_clicked(section)
+
+    label = screen.visible_columns().index("object_label")
+    assert [r[label] for r in screen.preview_rows()][:3] == [1, 2, 3]
+
+    screen._on_header_clicked(section)          # -> descending
+    assert [r[label] for r in screen.preview_rows()][:3] == [250, 249, 248]
+
+    screen._on_header_clicked(section)          # -> unsorted
+    assert screen._sort is None
+
+
+def test_a_sorted_row_keeps_its_own_cells(screen, measdb):
+    """Whole rows move, not one column. The user asked for this explicitly.
+
+    A sort that reordered one column's values independently of its row would
+    silently corrupt every reading of the table -- and would look completely
+    normal.
+    """
+    screen.set_database(measdb.path)
+    section = screen.visible_columns().index("cell_area")
+    screen._on_header_clicked(section)
+
+    label = screen.visible_columns().index("object_label")
+    area = screen.visible_columns().index("cell_area")
+    # The fixture builds cell_area = 100.0 + i and object_label = i + 1, so a
+    # row whose two cells disagree has been torn apart by the sort.
+    for row in screen.preview_rows()[:5]:
+        assert row[area] == 100.0 + (row[label] - 1), row
+
+
+def test_switching_table_forgets_the_sort(screen, measdb):
+    """A column name from another table would reach this table's ORDER BY.
+
+    check_columns rejects it, so the table would fail to LOAD rather than
+    merely come back unsorted.
+    """
+    screen.set_database(measdb.path)
+    screen._on_header_clicked(screen.visible_columns().index("cell_area"))
+    assert screen._sort is not None
+
+    others = [t for t in screen._db.tables() if t != screen._table]
+    if not others:
+        pytest.skip("fixture has only one table")
+    screen.select_table(others[0])
+    assert screen._sort is None
+    assert screen._view.horizontalHeader().isSortIndicatorShown() is False
 
 
 def test_sorting_a_fully_loaded_table_sorts_every_row(screen, measdb):
