@@ -1,0 +1,163 @@
+================================================================================
+REVIEW: MODERN ATTRIBUTION METHODS AND MODEL COVERAGE
+================================================================================
+
+Status:    done - 2026-08-06, answered below
+Requested: 2026-08-06 - "look at the activation map module and let me know if there are any more modern ways to look at activation in addition to the strategies i have implemented, and if the models covered by my current implementation could be expanded"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not started. The module is spacr/attribution.py plus the Activation Maps
+screen; settings_model.py around line 1621 mentions Grad-CAM and SmoothGrad.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The user asked a question and expects an answer, not a patch. Answering it
+badly - a list of method names - is worse than not answering.
+
+--------------------------------------------------------------------------------
+THE ANSWER
+--------------------------------------------------------------------------------
+
+WHAT IS ALREADY THERE, and it is more than the settings page suggests.
+spacr/attribution.py is 2020 lines and registers 14 methods in 4 families:
+
+    cam          (6): gradcam, gradcam_pp, scorecam, xgradcam, layercam, eigencam
+    gradient     (5): saliency, integrated_gradients, guided_backprop,
+                      input_x_gradient, deeplift  (+ smoothgrad around any)
+    perturbation (2): occlusion, feature_ablation
+    attention    (1): attention_rollout
+
+...plus the part that actually matters and that most codebases skip:
+deletion_curve, insertion_curve, pointing_game, method_agreement, and
+randomization_sanity_check (Adebayo et al. 2018). The module docstring
+already makes the argument that an attribution map is not an explanation.
+That is the right frame and nothing below changes it.
+
+So the honest answer to "are there more modern ways" is: the coverage is
+good, and the gaps are specific rather than general.
+
+--------------------------------------------------------------------------------
+FINDING 1 - THE DEFAULT METHOD DOES NOT RUN IN THE USER'S OWN ENVIRONMENT
+--------------------------------------------------------------------------------
+
+torchcam is NOT installed in the `spacr` conda env. Measured:
+
+    gradcam              AttributionError: requires the optional torchcam backend
+    gradcam_pp           (same)
+    scorecam             (same)
+    layercam             (same)
+    xgradcam             (same)
+    eigencam             OK   (written in-house, no torchcam)
+    saliency             OK
+    integrated_gradients OK
+    deeplift             OK
+    occlusion            OK
+
+Five of the six CAM methods fail, including `gradcam`, which is the module's
+documented default AND the default of the Activation Maps settings
+(cam_type='gradcam'). The error message is clear and actionable, which is
+why this is a packaging problem rather than a bug - but the headline feature
+of the screen does not work out of the box. Fix that before adding anything.
+
+--------------------------------------------------------------------------------
+FINDING 2 - THE DEFAULT ARCHITECTURE GETS THE WEAKEST EXPLANATION
+--------------------------------------------------------------------------------
+
+The Activation Maps default is model_type='maxvit', and Classify's default
+is 'maxvit_t'. For a transformer the only transformer-aware method here is
+attention_rollout, and rollout is CLASS-AGNOSTIC: it produces the same map
+whatever target you ask for, because it multiplies attention matrices and
+never touches the class score. So on spaCR's own default architecture, the
+question "what made it say POSITIVE rather than NEGATIVE" currently has no
+good answer.
+
+CAM still works on MaxViT because it is a hybrid and recommended_layer()
+returns its last Conv2d - and _check_spatial_activation is careful to refuse
+a layer that cannot carry a CAM's meaning, which is good. But the last conv
+of a hybrid net is not necessarily where the class evidence lives.
+
+Worth adding, in this order:
+  * Chefer et al. transformer attribution (gradient-weighted attention
+    relevance propagation). Class-specific, and the accepted answer for ViT
+    families. This is the single biggest gap.
+  * attention flow, as a cheap companion to rollout.
+
+--------------------------------------------------------------------------------
+FINDING 3 - THE SHAP FAMILY IS ABSENT AND IS THE CHEAPEST REAL WIN
+--------------------------------------------------------------------------------
+
+Missing: GradientSHAP, DeepLiftSHAP, KernelSHAP, Shapley value sampling.
+
+captum 0.9.0 (installed, already a core dependency) implements all four, and
+shap 0.52 is installed too. These are adapter-shaped additions of the same
+kind the module already has for deeplift - not new algorithms to write.
+
+The reason to prioritise them is not coverage, it is instruction 17. The
+surrogate-model module will report SHAP importance over MEASURED FEATURES.
+If the pixel side also speaks SHAP, "what the model looked at" and "what it
+responded to" are reported in the same units and can be compared. That is a
+genuinely better answer than either alone, and it is the whole argument for
+building the surrogate module in the first place.
+
+--------------------------------------------------------------------------------
+FINDING 4 - SMALLER METHOD GAPS, RANKED
+--------------------------------------------------------------------------------
+
+  * HiRes-CAM. Grad-CAM's channel-averaging step provably breaks the
+    faithfulness property on some architectures; HiRes-CAM is the
+    element-wise variant that keeps it. Cheap, and it is exactly the kind of
+    thing randomization_sanity_check exists to expose.
+  * Ablation-CAM. Gradient-free, so it survives saturated gradients that
+    make Grad-CAM go quiet. Score-CAM is already here and covers some of
+    this ground.
+  * FullGrad. Completeness-based, aggregates bias gradients; a good
+    cross-check rather than a daily driver.
+  * Guided Grad-CAM. guided_backprop and gradcam are both present but the
+    product of the two is not registered as its own method.
+  * RISE / LIME. Model-agnostic, so they would explain a non-torch model -
+    which matters if the surrogate module's gradient-boosted model ever
+    wants the same treatment.
+  * LRP. Well-known, but epsilon/gamma rule choice is architecture-specific
+    and it is the most likely of these to give confident nonsense on a
+    hybrid net. Lowest priority.
+
+--------------------------------------------------------------------------------
+RECOMMENDED ORDER
+--------------------------------------------------------------------------------
+
+1. Ship torchcam, or make eigencam the default when it is absent. The
+   current default is broken in the shipped environment.
+2. The captum SHAP adapters (GradientSHAP, DeepLiftSHAP, KernelSHAP) -
+   cheapest, and it unlocks the comparison in instruction 17.
+3. Chefer transformer attribution - the biggest genuine gap, on the default
+   architecture.
+4. HiRes-CAM, then Ablation-CAM.
+5. Everything else only if someone asks.
+
+What NOT to do: add methods without running them through
+randomization_sanity_check and the deletion/insertion curves that are
+already written. The module's own docstring says the sanity check is "the
+single most informative check here and the one most often skipped" - adding
+five more maps without it would make the screen more impressive and less
+trustworthy.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Not applicable - the deliverable is the written answer. Done when the user
+has it and has said which parts they want built.
+
+--------------------------------------------------------------------------------
+HOW THIS WAS ESTABLISHED
+--------------------------------------------------------------------------------
+
+Not from the docstring. methods_by_family() was called for the registry, and
+every method was run against a small conv net to find which actually execute
+in the shipped env - which is how the torchcam gap was found. Backend
+versions were read from the installed packages, not from requirements.
