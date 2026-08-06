@@ -1012,7 +1012,12 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('save_png',True)
     settings.setdefault('use_bounding_box',False)
     settings.setdefault('png_size',[224,224])
-    settings.setdefault('png_dims',[0,1,2])
+    # `png_dims` is left in place, unset, on purpose: an older settings CSV
+    # supplies it and spacr.crops.resolve_png_channel_mapping translates it.
+    # Defaulting it here as well would mean the default mapping and a default
+    # png_dims both existed, and the precedence between them would decide the
+    # colours of every crop without anyone having chosen it.
+    settings.setdefault('png_channel_mapping', {'r': 2, 'g': 1, 'b': 0})
     settings.setdefault('normalize',False)
     settings.setdefault('normalize_by','png')
     settings.setdefault('crop_mode',['cell'])
@@ -1815,6 +1820,7 @@ expected_types = {
     "use_bounding_box": bool,
     "png_size": list,  # This can be a list of lists 
     "png_dims": list,
+    "png_channel_mapping": dict,
     "normalize_by": str,
     "save_measurements": bool,
     "uninfected": bool,
@@ -2736,7 +2742,8 @@ tooltips = {
     "plot_images": "(bool) - Paste the actual object crops onto the embedding scatter instead of showing bare points. Turn it off for a fast, plain scatter on large datasets - doing so also forces black_background to False and skips the cluster grid figure entirely. Default True.",
     "plot_nr": "(int) - How many merged image stacks from the start of the folder are drawn with cell, nucleus and pathogen outlines overlaid before recruitment analysis runs. The check is index <= plot_nr, so plot_nr + 1 images actually appear and 0 still plots one. Raise it to eyeball segmentation on more fields. Default 3.",
     "plot_outlines": "(bool) - Draw a boundary around each cluster in the embedding - a smoothed hull when smooth_lines is True, otherwise the raw convex hull edges. Helps show cluster extent and overlap but clutters dense maps; clusters with fewer than three points are skipped. Forced off when color_by is set. Default True.",
-    "png_dims": "(list of int) - Which channel indices of the stack become the R, G and B planes of each saved PNG, in that order; at most 3, e.g. [0,1,2]. Channels not listed are absent from the crops (measurements are unaffected). With only 2 entries a blank third channel is added to keep the image RGB. Default [0,1,2].",
+    "png_dims": "(list of int) - DEPRECATED, superseded by png_channel_mapping. Kept so older settings files keep working. Read the legacy way, which is the way it always looked on screen: entry 0 becomes BLUE, entry 1 GREEN, entry 2 RED - matching the microscope's wavelength order (0=405, 1=488, 2=555). Ignored when png_channel_mapping is set.",
+    "png_channel_mapping": "(dict) - Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Says outright what png_dims only implied. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
     "png_size": "(list of int) - Output crop size as [width, height] in pixels, centred on the object centroid; larger keeps more surroundings, smaller clips large objects. Should match the classifier input size (default [224,224]). With several crop_mode entries pass a list of lists, one size per mode, or a single size is reused for all.",
     "positive_control": "(str) - Identifier of the positive-control class. In ML screening it is the value in location_column (e.g. 'c2') whose objects are labelled class 1 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '239740') matched against coefficient names to tag them 'pc' in the results and volcano plot. Defaults 'c2' and '239740' respectively.",
     "preprocess": "(bool) - Run the image-preparation stage before segmentation: group raw files into per-field channel stacks, optionally subtract background, and percentile-normalize each channel into float arrays. Leave True on a fresh run; set False only when those normalized arrays already exist, otherwise segmentation has nothing to read. Default True.",
@@ -3260,7 +3267,7 @@ categories = {
     #     made the Replication module render a heading called "Invasion Assay".
     "Measurements": ["save_measurements", "calculate_correlation", "manders_thresholds", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
-    "Object Crops": ["save_png", "crop_mode", "png_size", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays"],
+    "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays"],
 
     # The plate map: which wells hold which condition, which wells are the
     # controls, and how they are labelled. Gathers the per-object condition

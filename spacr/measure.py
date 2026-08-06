@@ -21,7 +21,13 @@ from math import ceil, sqrt
 # undoes the legacy order all have to agree, so they live in one place.
 # spacr.crops imports nothing from spacr and nothing heavy, so this costs the
 # measure path nothing.
-from .crops import stamp_crop_folder, to_cv2_bgr, narrow_to_uint8
+from .crops import (
+    build_png_channels,
+    narrow_to_uint8,
+    resolve_png_channel_mapping,
+    stamp_crop_folder,
+    to_cv2_bgr,
+)
 # Backward-compatible public module binding used by downstream extensions.
 from . import settings as _settings_module
 settings = _settings_module
@@ -2562,7 +2568,14 @@ def _measure_crop_core(index, time_ls, file, settings):
                         img_path = os.path.join(png_folder, img_name)
                         img_paths.append(img_path)
 
-                        png_channels = data[:, :, settings['png_dims']].astype(data_type)
+                        # Assembled in FILE order -- red plane first -- from
+                        # the declared mapping, so what the setting says is
+                        # what the PNG's slots hold. `png_dims` still works
+                        # and is translated to the mapping it always meant
+                        # (entry 0 blue, 1 green, 2 red).
+                        png_channels = build_png_channels(
+                            data, resolve_png_channel_mapping(settings),
+                            dtype=data_type)
 
                         if settings['normalize_by'] == 'fov':
                             if not settings['normalize'] is False:
@@ -2579,12 +2592,13 @@ def _measure_crop_core(index, time_ls, file, settings):
                             png_channels = normalize_to_dtype(png_channels, 0, 100)
                         os.makedirs(png_folder, exist_ok=True)
 
-                        if png_channels.shape[2] == 2:
-                            dummy_channel = np.zeros_like(png_channels[:,:,0])  # Create a 2D zero array with same shape as one channel
-                            png_channels = np.dstack((png_channels, dummy_channel))
-                            grid = save_and_add_image_to_grid(png_channels, img_path, grid, settings['plot'])
-                        else:
-                            grid = save_and_add_image_to_grid(png_channels, img_path, grid, settings['plot'])
+                        # `build_png_channels` returns 1 plane (greyscale) or 3
+                        # (r, g, b) and never 2, so the pad-a-dummy-plane
+                        # branch that used to live here is gone: a two-entry
+                        # mapping already carries its empty plane, in the slot
+                        # the user left blank rather than always the last one.
+                        grid = save_and_add_image_to_grid(
+                            png_channels, img_path, grid, settings['plot'])
 
                         if len(img_paths) == len(objects_in_image):
                             filepaths_to_database(img_paths, settings, source_folder, crop_mode)
@@ -3383,6 +3397,23 @@ def generate_object_dataset(
         output_dir = os.path.join(root, 'object_dataset', object_type)
     if save_png or return_arrays:
         os.makedirs(output_dir, exist_ok=True)
+    if save_png:
+        # Mark the folder BEFORE the first PNG lands, for the same reason
+        # `save_and_add_image_to_grid` does (crops.stamp_crop_folder): an
+        # unmarked folder means LEGACY to every reader, and these crops are
+        # not legacy.
+        #
+        # `_save_object_crop` writes through PIL, which is already RGB -- so
+        # unlike the cv2 writer there is nothing to reverse here, and the
+        # bytes on disk were correct all along. What was missing was the
+        # marker saying so. Without it `crops.read_crop_png` resolved the
+        # folder to format 1 and reversed a correct file on load, so the
+        # annotator, the crop grid and the training loaders all showed
+        # channel 0 as blue and channel 2 as red while an external viewer
+        # showed them the right way round. Measured on a crop written with
+        # channel means (60000, 1200, 12000): PIL read (234, 4, 46) off the
+        # file, `read_crop_png` returned (46, 4, 234).
+        stamp_crop_folder(output_dir)
 
     # -- build the WHERE clause ----------------------------------------------
     clauses, params = [], []
