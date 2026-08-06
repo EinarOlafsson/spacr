@@ -1,0 +1,63 @@
+================================================================================
+STOP DOES NOT STOP: OFFER SOFT AND HARD, LIKE THE QUIT BUTTON
+================================================================================
+
+Status:    not started
+Requested: 2026-08-06 - "spacr is really bad at stopping things. i have noticed this in many modules. the stop button doesnt seem to do much. when the stop button is pressed the user should be prompted to hard stop or soft stop. similar to the home screen quit button on module tasks"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not investigated in the modules, but the mechanism is already documented.
+INVARIANTS 11: `RunRegistry.cancel_all` sets a flag, interrupts the thread
+and waits. Cooperative cancellation cannot stop a worker wedged in a C
+extension - cellpose, torch and cv2 calls do not check the flag - so the
+run keeps going and the button looks broken. That is exactly what is being
+reported.
+
+`spacr/qt/shutdown.py` already solved this for QUITTING: it always asks
+first, and force is os._exit - NOT sys.exit and NOT QApplication.quit,
+because both unwind and can block on the very thread that is already wedged.
+The Stop button needs the same treatment, and the user has explicitly asked
+for it in those terms.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A stop button that does not stop is worse than no stop button: the user
+waits, believing the run is ending, while it is not.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Find every Stop/Cancel control and what it calls (bridge.RunHandle.
+   request_cancel, RunRegistry.cancel_all).
+2. Prompt on press: SOFT (cooperative - finishes the current item, leaves a
+   consistent state, may take a while or never return) or HARD.
+3. HARD needs a definition that is honest for an in-process worker. Killing
+   a QThread mid-write leaves a half-written .npy, which is why cooperative
+   is the default - say so in the prompt rather than pretending the choice
+   is free. Study shutdown.py's force path before inventing one.
+4. Report which one happened. A soft stop that never lands must eventually
+   say "still running - the worker has not checked in", not sit silent.
+5. Reuse shutdown.py's dialog if it fits; do not write a second one that
+   drifts from it.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Press Stop during a real cellpose run: a prompt appears, soft leaves the
+run finishing its current field, hard ends it. Neither leaves the GUI
+frozen, and the button never lies about what happened.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Do not make HARD the default. A pipeline killed mid-write leaves a
+half-written .npy, and the cost of that is silent corruption discovered
+later - which is worse than waiting.

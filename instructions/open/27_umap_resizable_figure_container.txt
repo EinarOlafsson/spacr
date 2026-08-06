@@ -1,0 +1,87 @@
+================================================================================
+IMAGE UMAP: DRAG TO ENLARGE THE PLOT WITHOUT ENLARGING THE IMAGES
+================================================================================
+
+Status:    investigated - the hard half already works; see below
+Requested: 2026-08-06 - "i should also be able to make the figure container larger to enlarge the UMAP plot, this dragging should apply to the plot itself but not the images, that is to say the images should keep their coordinates on the graph but their size should not change, that should be controlled by image zoom i think."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not investigated. The UMAP figure draws image thumbnails AT their embedding
+coordinates. Enlarging the canvas must rescale the COORDINATE SPACE and not
+the thumbnails.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A UMAP of a few thousand crops is unreadable at panel size, and the only way
+to see it now is to make the images smaller, which is the opposite of what
+the user wants.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Find where the thumbnails are drawn and what their size is derived from.
+   If it is a fraction of the axes extent, that is the bug: it couples image
+   size to canvas size and there is no way to separate them.
+2. Make the thumbnail size come from the image-zoom setting ALONE, in
+   points or pixels, not from the axes.
+3. Make the container drag-resizable (a QSplitter handle is the cheapest
+   honest option if the layout already has one).
+4. On resize, redraw with the same embedding: the points must not move.
+   A resize that re-embeds is a resize that loses the user's place.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Drag the container wider: the spread of the points grows, every thumbnail
+stays the same size on screen, and no point changes its neighbours. Then
+change image zoom: the thumbnails change size and nothing else does.
+
+--------------------------------------------------------------------------------
+INVESTIGATED 2026-08-06 - THE HARD HALF IS ALREADY CORRECT
+--------------------------------------------------------------------------------
+
+The worry in WHAT TO DO was that thumbnail size might be derived from the
+axes extent, coupling image size to canvas size. IT IS NOT. Thumbnails go
+through utils.plot_image -> OffsetImage(img, zoom=img_zoom), and
+OffsetImage's `zoom` is in DISPLAY units - a scale factor on the image's own
+pixels - not data units.
+
+MEASURED, on a real figure with a real thumbnail:
+
+    thumbnail size on screen, 4in canvas : (55.6, 55.6)
+    thumbnail size on screen, 10in canvas: (55.6, 55.6)
+    thumbnail size UNCHANGED by resize   : True
+    after img_zoom 1.0 -> 2.0            : (100.0, 100.0)
+    data coordinate of the thumbnail     : (5, 5)
+
+So enlarging the canvas ALREADY spreads the points without growing the
+images, image zoom ALREADY is the only control over their size, and the
+coordinates ALREADY survive. That is the whole of what was asked for, minus
+the way to enlarge.
+
+AND THERE IS ALREADY A HANDLE. umap_explorer._body_splitter is a
+QSplitter(Qt.Horizontal) between the chart and the sidebar, and
+settings.py's own tooltip for `umap_canvas_width` says "The chart/sidebar
+divider can also be dragged while exploring."
+
+WHAT IS LEFT, and it needs the running GUI to judge:
+
+  * Does dragging the existing divider actually enlarge the PLOT, or only
+    the widget around it? If the canvas has a fixed size policy the splitter
+    moves the frame and not the axes.
+  * Is the explorer itself in a fixed-height panel, so the plot can only
+    grow sideways? "Make the figure container larger" may mean vertically,
+    which the horizontal splitter cannot do.
+  * Is the divider DISCOVERABLE? A handle nobody can see is a handle nobody
+    drags, and this may be the whole report.
+
+Start there rather than by changing the drawing code. The drawing code is
+right, and rewriting it would break behaviour that already does exactly what
+was asked.

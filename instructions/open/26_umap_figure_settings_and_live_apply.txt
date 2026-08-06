@@ -1,0 +1,90 @@
+================================================================================
+IMAGE UMAP: FIGURE SETTINGS SHOULD CARRY THE UMAP DISPLAY SETTINGS
+================================================================================
+
+Status:    investigated - the two 'Figure settings' are different things
+Requested: 2026-08-06 - "in Image UMAP, in figure settings, i should also see all the relevant Image UMAP display settings and be able to propagate them to UMAP display. these settings should also live apply to the current image UMAP figure."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not investigated. Three claims to check before writing anything:
+  1. which settings the Figure Settings dialog currently shows;
+  2. which of the UMAP display settings it is missing (settings_model.py has
+     a `display` tuple in the umap regroup - figuresize, dot_size,
+     point_color, point_alpha, outline_width, umap_canvas_width,
+     umap_sidebar_width - which is probably the list);
+  3. whether "propagate" already exists: the Mask live preview has a
+     "Propagate settings" toggle that pushes interactively-tuned values back
+     into the main settings panel through
+     SettingsWidgets.set_value_for_key. That is the seam to reuse, not a
+     second one.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A display setting the user can only reach by re-running the module is a
+setting they tune by re-running the module. Live apply is the difference
+between adjusting a figure and regenerating it.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Survey the two lists and write down the difference before changing
+   anything.
+2. Add the missing display settings to Figure Settings.
+3. LIVE APPLY: the figure has to redraw from the current values without a
+   re-run. Check whether the UMAP canvas can restyle in place or whether it
+   rebuilds - if it rebuilds, the object positions must be preserved, or
+   "live apply" silently re-embeds and the user's UMAP changes under them.
+4. PROPAGATE: reuse the existing set_value_for_key seam so the values land
+   in the settings panel and are saved with the run.
+5. The GUI must never freeze: if a redraw is slow it goes through
+   spacr.qt.bridge, not the GUI thread.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Change dot size in Figure Settings and the current figure changes without a
+re-run and without the points moving. Press propagate and the value is in
+the settings panel, and survives a save/load of the settings CSV.
+
+--------------------------------------------------------------------------------
+INVESTIGATED 2026-08-06
+--------------------------------------------------------------------------------
+
+THE AMBIGUITY THAT HAS TO BE SETTLED FIRST: "Figure settings" names two
+different things, and they are not the same dialog.
+
+  1. figure_queue._FigureSettingsDialog - the "Figure settings…" button on
+     the figure GALLERY. It edits background colour, text colour and text
+     size of a RENDERED matplotlib figure, and is offered only for vector
+     (PDF) figures. It is generic: every module's figures go through it.
+
+  2. The Image UMAP EXPLORER (qt/widgets/umap_explorer.py) is a LIVE
+     FigureCanvasQTAgg, not a gallery figure. Its display settings live in
+     the module's settings panel - settings_model's umap regroup lists
+     them as `display`: figuresize, dot_size, point_color, point_alpha,
+     outline_width, umap_canvas_width, umap_sidebar_width.
+
+So "in figure settings I should also see all the relevant Image UMAP display
+settings" could mean either "add them to the gallery dialog when the figure
+came from UMAP" or "the explorer needs its own settings panel". The second
+is more likely what is wanted - live apply is impossible for a gallery PNG,
+which is already rendered - but it should be confirmed before building.
+
+THE PROPAGATE SEAM ALREADY EXISTS and should be reused rather than
+reinvented: SettingsWidgets.set_value_for_key, which the Mask live preview's
+"Propagate settings" toggle uses to push interactively-tuned values back
+into the main settings panel.
+
+THE LIVE-APPLY TRAP: the explorer draws thumbnails at embedding coordinates.
+A restyle must NOT re-run UMAP - if "live apply" rebuilds the embedding the
+points move, and the user loses the arrangement they were reading. Restyle
+the artists in place (dot size, colour, alpha are all settable on existing
+collections) and redraw the canvas; only a change that genuinely alters the
+embedding should re-embed, and that one should say so.

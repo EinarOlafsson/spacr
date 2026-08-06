@@ -1,0 +1,51 @@
+================================================================================
+CLASSIFY (MERGED): SAY WHICH SETTINGS ARE COMPUTER VISION
+================================================================================
+
+Status:    not started
+Requested: 2026-08-06 - "for the new classify module, the settings that are specifically for computer vision need to be under a settings category that states that. this module should make it obvious to the user what they are doing, computer vision or machine learning like XGBoost"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The merged Classify module exists and greys the settings the unselected
+family does not read (spacr/classify.py FAMILY_SETTINGS). But the CATEGORY
+NAMES do not say which family they belong to: "Model Architecture",
+"Optimization & Loss", "Validation" are all computer-vision groups and none
+of them says so, while "ML Classifier & Validation" does.
+
+Greying tells the user a control is inactive. It does not tell them WHAT
+THEY ARE DOING, which is what was asked for.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The whole point of merging the two modules was to stop "which one do I
+use?" being a question. A merged screen whose headings do not name the two
+families just moves the question inside.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Rename the CV-only groups so each says so, e.g. "Computer Vision - Model
+   Architecture". Same for the ML-only ones. Leave the SHARED groups
+   (Labels & Classes, Plate Sources & Workflow, Runtime) unprefixed -
+   prefixing those would imply they belong to one family.
+2. The family switch should read as the top-level choice it is, not as one
+   setting among ninety. Consider moving `classifier_family` out of "Model
+   Architecture" into its own group at the top.
+3. Only the MERGED module changes. Classify (CV) and Classify (ML) are one
+   family each and a prefix there is noise.
+4. tests/test_settings_categories.py pins category names; update the
+   expectation and say why in the docstring.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Open the merged module: the headings say Computer Vision and Machine
+Learning, the family switch is the first thing in the panel, and the two
+original modules are unchanged.
