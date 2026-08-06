@@ -299,10 +299,17 @@ def test_a_curated_layout_accounts_for_every_setting(app_key):
     A key named in no group falls into the trailing "Other" bucket, which is
     not a heading anyone chose — it is the absence of one.
     """
-    from spacr.qt.screens.settings_model import _APP_HIDDEN_CATEGORIES
+    from spacr.qt.screens.settings_model import (_APP_HIDDEN_CATEGORIES,
+                                                 _APP_HIDDEN_KEYS)
     defaults = resolve_default_settings(app_key)
     hidden = _APP_HIDDEN_CATEGORIES.get(app_key, set())
-    used = set()
+    # A key a module deliberately never shows is not one it "dropped off
+    # the end". Timelapse keeps `timelapse` in its settings, at True, and
+    # renders no control for it -- the module IS the timelapse one. The
+    # distinction this test cares about is between a key nobody placed and
+    # a key somebody decided not to place.
+    never_shown = _APP_HIDDEN_KEYS.get(app_key, set())
+    used = set(never_shown)
     for name, keys in categories_for_app(app_key, S.categories).items():
         if name in hidden:
             continue
