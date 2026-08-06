@@ -2016,6 +2016,12 @@ class PreferencesDialog:
         from .widgets.toggle import Toggle
 
         dlg = QDialog(parent)
+        # Detached from the parent for the window manager's purposes, so the
+        # user can put it where they like. It is still parented, still modal
+        # and still exec()s: only the window TYPE changes. See
+        # spacr.qt.dialogs for what a WM does with an attached modal dialog.
+        from .dialogs import detach_from_window_manager
+        detach_from_window_manager(dlg)
         dlg.setWindowTitle(tr("spaCR — Preferences"))
         dlg.setMinimumWidth(460)
         outer = QVBoxLayout(dlg)
