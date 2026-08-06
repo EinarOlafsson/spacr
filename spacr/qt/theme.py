@@ -2156,8 +2156,19 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.screens.power",
     "spacr.qt.screens.profiler",
     "spacr.qt.screens.qc_dashboard",
+    # Not a screen: the Measure segmentation-QC banner and the Mask diameter
+    # panel. Its block used to be registered only from `prerun.register()`,
+    # which runs after the stylesheet has been built and applied, so the
+    # banner fell through to the blanket QWidget rule and the verdict text
+    # sat on a solid black slab.
+    "spacr.qt.prerun",
     "spacr.qt.screens.run_compare",
     "spacr.qt.screens.run_history",
+    # Registers at import, through `ensure_field_fade_qss()` at module scope,
+    # but nothing imported it while the sheet was being built -- so the block
+    # was absent at launch. Found by the strengthened registrar check, not by
+    # a bug report.
+    "spacr.qt.widgets.field_fade",
     "spacr.qt.widgets.formula_editor",
     "spacr.qt.widgets.graph_builder",
     "spacr.qt.widgets.pca_view",

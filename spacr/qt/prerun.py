@@ -110,6 +110,23 @@ _PLACEHOLDERS = frozenset({"", "path", "/path", "/path/to/src"})
 
 # ---------------------------------------------------------------------------
 # Styling
+#
+# The block is registered at IMPORT time, at the bottom of this section, and
+# `spacr.qt.prerun` is listed in `theme.WIDGET_QSS_MODULES`. Both halves are
+# required and neither is optional -- see INVARIANTS 1.
+#
+# It used to be registered only from `register()`, which runs after app.py
+# has imported. The application stylesheet is built and applied before that,
+# so `QFrame#MeasureQCBanner` was not in the sheet when the sheet was made:
+# the panel fell through to the blanket `QWidget { background-color: bg }`
+# and `bg` is #000000 on the dark theme. The verdict text sat on a solid
+# black slab while every container around it was translucent -- which is
+# exactly the symptom INVARIANTS 1 describes, arrived at by a different
+# route.
+#
+# Measured on a fresh interpreter: 'MeasureQCBanner' in theme.stylesheet()
+# was False at launch and True only after
+# register_self_registering_modules().
 # ---------------------------------------------------------------------------
 
 def _qss(palette: Dict[str, Any], opacity: Any) -> str:
@@ -122,13 +139,29 @@ def _qss(palette: Dict[str, Any], opacity: Any) -> str:
         page opacity.
     :param opacity: the user's page-opacity preference, passed through.
     """
-    from .theme import pane_surface
-
-    # Through :func:`pane_surface`, not straight off the palette. The palette
-    # hands back raw hex, so reading it directly painted a fully opaque box
-    # that ignored the page-opacity preference — on the dark theme a black
-    # slab behind the verdict while every container around it was translucent.
-    surface = pane_surface("surface_alt", palette.get("theme"), opacity)
+    # Straight off the palette, which is what a REGISTERED block is handed:
+    # `register_widget_qss` documents that `surface`, `surface_alt` and
+    # `surface_hi` arrive already rendered through the user's page opacity,
+    # so this is the value the built-in rules interpolate and the panel
+    # matches the app by construction.
+    #
+    # It used to call `pane_surface("surface_alt", palette.get("theme"),
+    # opacity)`. Two things were wrong with that and neither was visible
+    # while this block was missing from the sheet:
+    #
+    #   * the palette carries no "theme" key, so that argument was always
+    #     None, and `opacity` is None for a registered block -- so
+    #     pane_surface fell through to reading the LIVE preference. A
+    #     stylesheet that reads live preferences is the thing
+    #     `test_the_sheet_does_not_read_the_live_page_opacity` exists to
+    #     forbid;
+    #   * it emitted rgba() on the opaque themes, which have no scrim, so
+    #     the panel carried a translucency the theme never authorised
+    #     (`test_opaque_themes_still_emit_plain_hex`).
+    #
+    # Both tests were green only because the block was not reaching the
+    # sheet they inspect.
+    surface = palette["surface_alt"]
     return f"""
     QFrame#{QC_OBJECT_NAME}, QFrame#{DIAMETER_OBJECT_NAME} {{
         background: {surface};
@@ -172,6 +205,15 @@ def _qss(palette: Dict[str, Any], opacity: Any) -> str:
         background: transparent;
     }}
     """
+
+
+try:
+    from .theme import register_widget_qss as _register_widget_qss
+    _register_widget_qss(QSS_NAME, _qss, replace=True)
+except Exception:            # pragma: no cover - decoration is not load-bearing
+    # INVARIANTS 10: a stylesheet that cannot be registered costs this panel
+    # its background, not the Measure module its run.
+    LOG.exception("could not register the pre-run stylesheet at import")
 
 
 # ---------------------------------------------------------------------------
@@ -265,6 +307,24 @@ def _label(text: str, name: str, *, wrap: bool = True) -> QLabel:
         lbl.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
     lbl.setTextInteractionFlags(Qt.TextSelectableByMouse)
     return lbl
+
+
+def _transparent(widget):
+    """Stop ``widget`` painting a background, and return it.
+
+    Wrapped rather than calling ``theme.make_transparent`` at each site so a
+    theme that cannot be imported costs these panels their transparency and
+    nothing else (INVARIANTS 10) -- and so the reason is written down once.
+
+    :param widget: any QWidget used purely as a layout container.
+    :returns: the same widget, for use inline.
+    """
+    try:
+        from .theme import make_transparent
+        make_transparent(widget)
+    except Exception:        # pragma: no cover - decoration is not load-bearing
+        LOG.debug("could not make %r transparent", widget, exc_info=True)
+    return widget
 
 
 def _first_sentence(text: str, limit: int = 170) -> str:
@@ -414,7 +474,17 @@ class SegQCBanner(_JobMixin, QFrame):
         self._sub = _label("", "PrerunSub")
         column.addWidget(self._sub)
 
-        self._findings_box = QWidget(self)
+        # Scaffolding, so it must paint nothing (INVARIANTS 3). A plain
+        # QWidget used as a layout container inherits the blanket
+        # `QWidget { background-color: bg }` rule, and `bg` is the WINDOW
+        # colour -- #000000 on the dark theme. The findings text sat on a
+        # solid black rectangle inside a panel that was otherwise a
+        # translucent surface, which is exactly what it looked like: a black
+        # box behind the text.
+        #
+        # The panel's own background already follows the page opacity
+        # (`pane_surface` in `_qss`); this is what lets it show through.
+        self._findings_box = _transparent(QWidget(self))
         self._findings_layout = QVBoxLayout(self._findings_box)
         self._findings_layout.setContentsMargins(0, 2, 0, 2)
         self._findings_layout.setSpacing(6)
@@ -751,7 +821,8 @@ class DiameterPanel(_JobMixin, QFrame):
             "PrerunSub")
         column.addWidget(self._sub)
 
-        self._rows_box = QWidget(self)
+        # Same as the QC panel's findings box: scaffolding paints nothing.
+        self._rows_box = _transparent(QWidget(self))
         self._rows_layout = QVBoxLayout(self._rows_box)
         self._rows_layout.setContentsMargins(0, 2, 0, 2)
         self._rows_layout.setSpacing(6)
@@ -1144,6 +1215,10 @@ def register() -> bool:
     from .app import APP_FACTORIES
 
     try:
+        # Already registered at import (see the Styling section). Repeated
+        # here because `teardown()` unregisters it, so a register/teardown/
+        # register cycle -- which the tests do -- has to put it back.
+        # `replace=True` makes the ordinary case a no-op.
         from .theme import register_widget_qss
         register_widget_qss(QSS_NAME, _qss, replace=True)
     except Exception:

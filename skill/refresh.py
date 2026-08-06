@@ -25,6 +25,7 @@ this can gate a commit if anyone wants it to.
 from __future__ import annotations
 
 import ast
+import re
 import subprocess
 import sys
 from datetime import date
@@ -78,6 +79,11 @@ def _check_qss_registrars():
                         listed.add(element.value)
 
     registering = set()
+    deferred = set()
+    # Modules whose register() the launch path calls before the stylesheet is
+    # applied. Read from the source so this cannot drift from the real list.
+    init_src = _text("spacr/qt/__init__.py")
+    self_registering = set(re.findall(r'"(spacr\.qt\.[a-z_.]+)"', init_src))
     qt_root = ROOT / "spacr" / "qt"
     for path in sorted(qt_root.rglob("*.py")):
         source = path.read_text(encoding="utf-8")
@@ -88,23 +94,66 @@ def _check_qss_registrars():
         except SyntaxError:
             continue
 
+        # Functions in THIS module that register, so a module-level call to
+        # one of them counts. spacr.qt.widgets.field_fade registers through
+        # `ensure_field_fade_qss()` at module scope, and a walker that only
+        # matched the direct call reported it as deferred when it is not.
+        wrappers = set()
+        for node in tree.body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                for inner in ast.walk(node):
+                    if isinstance(inner, ast.Call):
+                        name = getattr(inner.func, "id",
+                                       getattr(inner.func, "attr", ""))
+                        if name.endswith("register_widget_qss"):
+                            wrappers.add(node.name)
+                            break
+
         def top_level(body):
             for node in body:
                 if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
                     func = node.value.func
-                    if getattr(func, "id", getattr(func, "attr", "")) \
-                            .endswith("register_widget_qss"):
+                    name = getattr(func, "id", getattr(func, "attr", ""))
+                    if name.endswith("register_widget_qss") or name in wrappers:
                         yield True
                 if isinstance(node, ast.Try):
                     yield from top_level(node.body)
 
+        rel = path.relative_to(qt_root).with_suffix("")
+        module = "spacr.qt." + rel.as_posix().replace("/", ".")
         if any(top_level(tree.body)):
-            rel = path.relative_to(qt_root).with_suffix("")
-            registering.add("spacr.qt." + rel.as_posix().replace("/", "."))
+            registering.add(module)
+        elif module not in listed and module not in self_registering \
+                and module != "spacr.qt.theme":
+            # `spacr.qt.theme` DEFINES register_widget_qss, and a module in
+            # SELF_REGISTERING_MODULES has its `register()` called by
+            # `register_self_registering_modules()`, which runs before
+            # `launch()` applies the stylesheet -- so its block is in the
+            # sheet by the time the sheet exists. Neither is the bug this
+            # looks for, and a check that reports them stops being read.
+            # Registers, but only from inside a function -- so the block is
+            # NOT in the stylesheet at the moment the stylesheet is built and
+            # applied, and the widget falls through to the blanket
+            # `QWidget { background-color: bg }`.
+            #
+            # This is how spacr.qt.prerun hid: it registered from
+            # `register()`, which `register_self_registering_modules()` calls
+            # after app.py has imported and after the sheet has been applied,
+            # so the Measure QC banner painted #000000 behind its verdict
+            # text. Measured on a fresh interpreter: 'MeasureQCBanner' in
+            # theme.stylesheet() was False at launch, True only afterwards.
+            #
+            # Being in WIDGET_QSS_MODULES is what clears it, because the
+            # loader imports the module while building the sheet.
+            deferred.add(module)
 
     missing = sorted(registering - listed)
     if missing:
         return False, f"not in WIDGET_QSS_MODULES: {missing}"
+    if deferred:
+        return False, (f"registers QSS only from inside a function and is not "
+                       f"in WIDGET_QSS_MODULES, so its rule is absent from the "
+                       f"stylesheet at launch: {sorted(deferred)}")
     return True, f"{len(listed)} modules listed, {len(registering)} registering"
 
 
