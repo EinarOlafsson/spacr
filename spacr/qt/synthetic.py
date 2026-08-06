@@ -1008,7 +1008,13 @@ def demo_settings(app_key: str, src: str,
             # is a hard pre-flight error ("png_size=64 is a int, but list is
             # expected").
             "png_size": [64, 64],
-            "png_dims": [0, 1, 2],
+            # The declared mapping, not the retired `png_dims` list. This
+            # value is identical to what `png_dims=[0, 1, 2]` always meant on
+            # screen -- the 405 plane in blue -- but it says so, and it is a
+            # key the Measure screen actually renders. Written as the old key
+            # it had no widget, so the demo's own setting was dropped on the
+            # floor when the pack was applied.
+            "png_channel_mapping": {"r": 2, "g": 1, "b": 0},
             # No `normalize` / `normalize_by` here, deliberately. measure_crop
             # reads `normalize` as a [low, high] percentile PAIR, but
             # spacr.settings declares it ``bool`` and the Qt Measure screen

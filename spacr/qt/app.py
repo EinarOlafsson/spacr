@@ -1487,6 +1487,21 @@ class MainWindow(QMainWindow):
         mb = self.menuBar()
 
         app_menu = mb.addMenu("&spaCR")
+
+        # Preferences and Quit FIRST, as asked. On macOS Qt relocates both to
+        # the application menu whatever their position here -- that is the
+        # platform convention and cannot be overridden -- so this ordering is
+        # what Linux and Windows users see, and it costs macOS nothing.
+        act_prefs = QAction("Preferences…", self)
+        act_prefs.setShortcut(QKeySequence("Ctrl+,"))
+        act_prefs.triggered.connect(self._open_preferences)
+        app_menu.addAction(act_prefs)
+        act_quit = QAction("Quit", self)
+        act_quit.setShortcut(QKeySequence.Quit)
+        act_quit.triggered.connect(self.close)
+        app_menu.addAction(act_quit)
+        app_menu.addSeparator()
+
         self._app_actions: dict[str, QAction] = {}
         for key, name, desc, section in APPS:
             act = QAction(name, self)
@@ -1521,16 +1536,6 @@ class MainWindow(QMainWindow):
         #: silently does nothing because the dock is hidden is worse than
         #: a menu entry that says so.
         self._act_all_apps = act_all
-        app_menu.addSeparator()
-        act_prefs = QAction("Preferences…", self)
-        act_prefs.setShortcut(QKeySequence("Ctrl+,"))
-        act_prefs.triggered.connect(self._open_preferences)
-        app_menu.addAction(act_prefs)
-        app_menu.addSeparator()
-        act_quit = QAction("Quit", self)
-        act_quit.setShortcut(QKeySequence.Quit)
-        act_quit.triggered.connect(self.close)
-        app_menu.addAction(act_quit)
 
         demo_menu = mb.addMenu("&Demos")
         self._demo_actions: dict[str, QAction] = {}
@@ -1592,6 +1597,81 @@ class MainWindow(QMainWindow):
             "and pipeline output.")
         act_log.triggered.connect(self._open_log_folder)
         help_menu.addAction(act_log)
+
+        # Every menu action gets an EXPLICIT macOS role, and everything that
+        # is not genuinely Preferences/Quit/About gets NoRole. Left to Qt,
+        # the role is guessed from the action's TEXT, and an action whose
+        # text merely contains "settings" or "options" is silently moved out
+        # of its menu into the application menu -- which is how
+        # `recipes.MENU_ACTION_TEXT` ("Settings recipes…") ended up as the
+        # Preferences item of the macOS "python" menu while the real
+        # Preferences and Quit vanished from this one. See spacr.qt.menus.
+        #
+        # Collected from the menu bar rather than listed by hand, so an
+        # action added later is covered without anyone remembering to.
+        self._act_preferences = act_prefs
+        self._act_quit = act_quit
+        self._act_about = act_about
+        self.pin_all_menu_roles()
+
+    def pin_all_menu_roles(self) -> None:
+        """Give every menu-bar action an explicit macOS role. Idempotent.
+
+        Called at the end of `_build_menu_bar` AND again from
+        `spacr.qt.shortcuts.install`, because `recipes`, `walkthrough` and
+        `feature_dictionary` all add to Help afterwards. Each of those also
+        pins its own -- defence in depth -- but a central re-sweep is what
+        makes a module added later safe without its author knowing this
+        problem exists.
+        """
+        from .menus import pin_menu_roles
+        pin_menu_roles(self._menu_bar_actions(),
+                       preferences=getattr(self, "_act_preferences", None),
+                       quit_action=getattr(self, "_act_quit", None),
+                       about=getattr(self, "_act_about", None))
+
+    def _menu_bar_actions(self):
+        """Every action on the menu bar, including submenu contents.
+
+        Used to pin macOS menu roles. Walks the menus rather than reading a
+        list, because the list is what goes stale -- `recipes.py` and
+        `feature_dictionary.py` both add actions to Help from outside this
+        method, and neither would appear in anything hand-maintained.
+
+        `bar.findChildren(QMenu)`, NOT `menuBar().actions()` + `QAction.menu()`
+        -- the same rule `command_palette.py` and `recipes.py` already follow.
+        On PySide6 6.11 the QMenu wrapper the latter returns is only valid
+        while the QAction wrapper it came off is alive, and walking the bar
+        that way returned an EMPTY list here once construction had finished:
+        3 top-level actions immediately after `_build_menu_bar`, 0 after
+        `__init__`. Measured, not guessed.
+        """
+        from PySide6.QtWidgets import QMenu
+
+        out, seen = [], set()
+        bar = self.menuBar()
+        if bar is None:
+            return out
+        for menu in bar.findChildren(QMenu):
+            # The menu's OWN action too -- the one that opens it from the bar
+            # (or from a parent menu). It is an action like any other and Qt
+            # will happily give "&Options" a role if left to guess.
+            for action in list(menu.actions()) + [menu.menuAction()]:
+                if action is None or action.isSeparator():
+                    continue
+                # Qt's role heuristic matches on TEXT, so an action with no
+                # text has nothing to match and cannot be relocated. They
+                # turn up here because `menuAction()` CREATES one for a menu
+                # that has never been attached to a bar -- i.e. this walk can
+                # manufacture them. Skipping keeps the sweep and the audit
+                # agreeing about what exists.
+                if not action.text():
+                    continue
+                if id(action) in seen:
+                    continue
+                seen.add(id(action))
+                out.append(action)
+        return out
 
     def _open_url(self, url: str):
         """Open ``url`` in the system browser; surface failures in the status bar."""

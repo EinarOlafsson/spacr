@@ -619,6 +619,10 @@ def install_help_action(window: QMainWindow) -> Optional[QAction]:
         if act.text() == HELP_ACTION_TEXT:
             return None
     action = QAction(HELP_ACTION_TEXT, window)
+    # Explicit, so Qt cannot relocate it on macOS by liking its text.
+    # See spacr.qt.menus for what that costs when it happens.
+    from ..menus import set_menu_role
+    set_menu_role(action, "none")
     action.setStatusTip(
         "Look up what any measured feature means — its definition, its unit, "
         "which objects it exists for and which module computes it.")
