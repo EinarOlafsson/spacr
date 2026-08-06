@@ -1652,11 +1652,31 @@ def _plot_images_on_grid(image_files, channel_indices, um_per_pixel, scale_bar_l
         scale_bar_length_um (float, optional): Length of the scale bar in micrometers. Defaults to 5.
         fontsize (int, optional): Font size for the image titles. Defaults to 8.
         show_filename (bool, optional): Whether to show the image file names as titles. Defaults to True.
-        channel_names (list, optional): List of channel names. Defaults to None.
+        channel_names (list, optional): Names for the legend, **in FILE
+            order** — entry 0 is the file's red plane, 1 green, 2 blue.
+            Defaults to None.
         plot (bool, optional): Whether to display the plot. Defaults to False.
 
     Returns:
         matplotlib.figure.Figure: The generated figure object.
+
+    .. note::
+
+       ``channel_names`` is in FILE order, not source-channel order, and the
+       distinction is the one that caused the crop-colour episode
+       (INVARIANTS 13). The legend colours entry *i* with
+       ``['red', 'green', 'blue'][i]``, which is right because the image is
+       read as RGB — but a caller passing names in SOURCE order
+       (``['DAPI', 'GFP', 'RFP']`` for channels 0, 1, 2) would get DAPI
+       labelled red while it is rendered blue, and the figure would look
+       entirely reasonable.
+
+       To go from the source order a user thinks in to the file order this
+       wants, ask ``spacr.crops.resolve_png_channel_mapping(settings)`` and
+       read off ``r``, ``g``, ``b``. No live caller passes this argument
+       today (the one call site passes ``channel_names=None``), so this is a
+       contract being written down before it is relied on rather than a bug
+       being fixed.
     """
     print(f'scale bar represents {scale_bar_length_um} um')
     nr_of_images = len(image_files)

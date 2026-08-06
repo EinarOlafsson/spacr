@@ -2,7 +2,7 @@
 ANCHOR EVERY CHANNEL PROMPT TO COLOUR, NOT LIST POSITION
 ================================================================================
 
-Status:    not started - generalises instruction 10
+Status:    done - 2026-08-06, survey complete; png_dims was the only one
 Requested: 2026-08-06 - "whenever the user is prompted for the channels anchor the prompt to the colors not position. this would be always asking the user for a dict where they specify what is red green and blue. this way it does not matter what order the color channels are in the file (although it would be good keep this constant) because the user will always specify where the colors are."
 
 --------------------------------------------------------------------------------
@@ -34,23 +34,50 @@ took a format version, a migrator and a repaired test suite to undo.
 A dict cannot be read backwards. That is the entire argument.
 
 --------------------------------------------------------------------------------
-WHAT TO DO
+WHAT WAS DONE
 --------------------------------------------------------------------------------
 
-1. SURVEY FIRST. List every setting that names channels. For each, decide:
-   is it a SET (which channels to use - stays a list) or a MAPPING (which
-   channel is shown as which colour - becomes {'r','g','b'})? Record the
-   decision and the reason; the next person will otherwise convert the
-   wrong ones.
-2. For every mapping, reuse ChannelMappingWidget - do not build a second
-   three-field editor.
-3. Keep the old list key accepted and translated, as
-   crops.png_dims_to_channel_mapping does. Settings CSVs in the wild use
-   the old names; INVARIANTS 6 is the trap (absent is not the same as
-   hidden, and a missing key silently falls back to the pipeline default).
-4. Keep the on-disk channel order constant even though the mapping makes it
-   non-critical - the user said as much, and a stable order is what makes a
-   file readable by anything that is not spaCR.
+THE SURVEY, which was the whole of the difficulty. Every channel-related
+setting spaCR has, classified, with the reason:
+
+A SET of source channels - no colour involved, STAYS A LIST:
+    channels        which channels are kept in merged/*.npy and measured
+    channel_dims    recruitment: which channels the merged arrays hold
+
+A NAMED ROLE -> one source channel - already explicit, the NAME decides
+which stain and position decides nothing, STAYS A SCALAR:
+    cell_channel, nucleus_channel, pathogen_channel, organelle_channel
+    outside_channel, total_channel, channel_of_interest
+
+A COLOUR MAPPING - the only kind that can be read backwards:
+    png_channel_mapping   {r,g,b} -> source index. Done in instruction 10.
+    train_channels        already names 'r'/'g'/'b' directly, so it was
+                          never positional and needed no change.
+
+NOT channel settings at all, despite the name: outline_color, point_color,
+color_by are plotting colours.
+
+CONCLUSION: png_dims was the only setting that encoded a colour by list
+position, and it is already fixed. There was no second one. That is a real
+finding and it is why this file closes with almost no code.
+
+WHAT WAS FOUND AND WRITTEN DOWN:
+
+`spacr/plot.py :: _plot_images_on_grid` colours the legend entry `i` with
+['red','green','blue'][i]. That is correct for the FILE order it reads, but
+a caller passing names in SOURCE order (['DAPI','GFP','RFP'] for channels
+0,1,2) would get DAPI labelled red while it renders blue - and the figure
+would look entirely reasonable. No live caller passes the argument (the one
+call site passes channel_names=None), so this is a contract written down
+before it is relied on, not a bug fixed. The docstring now says FILE order
+and points at resolve_png_channel_mapping for the translation.
+
+WHAT WAS ADDED:
+
+tests/test_channel_settings_are_colour_anchored.py - eleven guards so a
+future setting cannot quietly reintroduce the pattern. It carries the
+classification above in CHANNEL_SETS and COLOUR_SETTINGS, so adding a
+channel setting means deciding, in writing, which kind it is.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
@@ -67,3 +94,16 @@ DELIBERATELY NOT DONE
 Converting `channels` (the cellpose/measure channel selection) to a colour
 dict. It selects which channels are PROCESSED; it has no colour semantics,
 and forcing r/g/b onto it would invent a meaning that is not there.
+
+--------------------------------------------------------------------------------
+VERIFIED
+--------------------------------------------------------------------------------
+
+    python -m pytest tests/test_channel_settings_are_colour_anchored.py \
+      -q -p no:randomly
+
+11 passed. They assert the default puts the 405 plane in blue, that a legacy
+png_dims translates the way it always looked on screen, that an explicit
+mapping beats a stale list, that a mis-keyed colour raises instead of
+silently dropping a stain, that the channel SETS are still lists, and that
+channels_from_settings is the single translation point.
