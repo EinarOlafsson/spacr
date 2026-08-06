@@ -2,7 +2,7 @@
 CLASSIFY: MERGE THE CV AND ML MODULES INTO ONE
 ================================================================================
 
-Status:    in progress - vocabulary + all three bases DONE; the app merge itself is not
+Status:    done - 2026-08-06
 Requested: 2026-08-06 - "the Classify CV and ML modules should be standardized ... shared settings should be called the same things ... shared categories the same thing ... for both there should be the option to train classifiers based on annotation, metadata, and measurements ... the user can choose multiple measurements at once ... gray out metadata-based settings when annotation-based training is chosen, and vice versa ... Best would be if we could have one module called Classify"
 
 --------------------------------------------------------------------------------
@@ -150,3 +150,56 @@ STILL UNANSWERED (asked, not yet decided): `annotated_classes` and
 `custom_measurement` are documented as INERT - the form collects them and
 nothing reads them (settings.py). Either wire them up or drop them as part
 of the merge; do not carry dead keys into a new module.
+
+--------------------------------------------------------------------------------
+THE APP MERGE - DONE 2026-08-06
+--------------------------------------------------------------------------------
+
+The user's decision: DROP the dead keys, build a merged Classify module, and
+KEEP Classify (CV) and Classify (ML) as separate modules.
+
+  * spacr/classify.py - CLASSIFIER_FAMILIES, FAMILY_SETTINGS,
+    resolve_family, inapplicable_settings, classify(). It reimplements
+    NOTHING: deep_spacr and generate_ml_scores are called unchanged.
+  * settings.set_default_classify builds the union by CALLING both
+    factories, so the merged screen cannot fall behind either module.
+  * All five seams: APPS row (+ Home section), _NAME_TO_GLYPH icon, the
+    defaults branch, the category layout, the bridge dispatch. Asserted by
+    test_the_merged_module_is_registered_everywhere_it_has_to_be, which also
+    checks the icon does not collide - the first two glyphs picked collided
+    with umap and train_cellpose.
+  * The panel greys by family AND by basis. "Additional Settings" is empty
+    for the merged module; that needed ML's control-well settings placed in
+    "Labels & Classes", because metadata-by-controls and
+    metadata-by-class_metadata are the same basis expressed two ways.
+
+DEAD KEYS: annotated_classes and custom_measurement removed from the
+defaults, the Tk form, the Qt layout and the demo pack. Only
+custom_measurement went into DEAD_SETTINGS - annotated_classes survives as a
+PARAMETER of two io helpers, so it is not dead code, just no longer a
+setting. The repo's own guard caught the difference and was right.
+
+--------------------------------------------------------------------------------
+VERIFIED
+--------------------------------------------------------------------------------
+
+    QT_QPA_PLATFORM=offscreen python -m pytest tests/test_classify_merged.py \
+      tests/test_training_basis.py tests/test_ml_measurement_basis.py \
+      tests/test_dead_settings.py tests/test_settings.py \
+      tests/qt/test_demo_menu.py tests/qt/test_main_window.py \
+      tests/qt/test_menu_roles.py tests/qt/test_annotate.py -q -p no:randomly
+
+all passed. Measured: the merged panel renders 15 sections with an EMPTY
+"Additional Settings"; family cv greys 26 controls, ml greys 33; each basis
+greys 2-4.
+
+--------------------------------------------------------------------------------
+FOUND, NOT FIXED
+--------------------------------------------------------------------------------
+
+tests/test_settings_categories.py has two CROSS-FILE isolation leaks:
+test_no_category_name_is_declared_twice and
+test_category_keys_list_matches_the_map both pass alone and fail when
+tests/qt/test_demo_menu.py runs first. Confirmed pre-existing by running the
+same two files in the same order on a stashed clean tree. A fourth instance
+of the INVARIANTS 5 family, undiagnosed.
