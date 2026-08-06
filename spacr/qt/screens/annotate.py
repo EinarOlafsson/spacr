@@ -719,6 +719,11 @@ class _SettingsDialog(QDialog):
 
     def __init__(self, settings: AnnotateSettings, parent: Optional[QWidget] = None):
         super().__init__(parent)
+        # A modal, transient-for dialog is ATTACHED by GNOME/Mutter: centred
+        # on the parent, undraggable, and pulling at it un-maximises the main
+        # window. See spacr.qt.dialogs.
+        from ..dialogs import detach_from_window_manager
+        detach_from_window_manager(self)
         self.setWindowTitle("Annotate — Settings")
         self.setMinimumWidth(480)
         self._settings = settings
