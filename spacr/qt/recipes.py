@@ -691,6 +691,12 @@ def install_help_action(window: QMainWindow) -> Optional[QAction]:
         if act.text() == MENU_ACTION_TEXT:
             return None
     action = QAction(MENU_ACTION_TEXT, window)
+    # "Settings recipes…" contains the word "settings", which is enough for
+    # Qt to claim it as the macOS Preferences item and move it out of Help
+    # into the application menu -- where it opened instead of Preferences.
+    # NoRole is what stops that. See spacr.qt.menus.
+    from .menus import set_menu_role
+    set_menu_role(action, "none")
     action.setStatusTip(
         "Save the current module's settings under a name, reuse a saved "
         "bundle, or share one as a file.")

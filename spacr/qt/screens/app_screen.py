@@ -484,6 +484,38 @@ def _theme_wallpaper():
         return None
 
 
+#: Settings that were renamed, mapped old -> new. A dict handed to a screen
+#: comes from a CSV, a demo pack or another screen, and any of those may have
+#: been written before the rename -- so the translation belongs here, at the
+#: point a dict meets the widgets, rather than in every producer.
+_RENAMED_SETTING_KEYS = {"png_dims": "png_channel_mapping"}
+
+
+def _translate_legacy_setting_keys(settings: dict) -> dict:
+    """Rename retired setting keys so their values still reach a widget.
+
+    Without this a settings CSV holding `png_dims` loads into a screen that
+    renders `png_channel_mapping`, finds no widget for it, and drops the
+    value on the floor -- the run then uses the module default and the user
+    is never told. Caught by
+    `test_demo_settings_survive_the_widget_round_trip`.
+
+    The new key wins when both are present: someone who has said outright
+    which channel is red must not have it overridden by a stale list.
+    `ChannelMappingWidget.set_value` accepts the list form directly, so no
+    value conversion is needed here -- only the name.
+
+    :param settings: a settings dict, not modified.
+    :returns: a new dict with retired keys renamed.
+    """
+    out = dict(settings)
+    for old, new in _RENAMED_SETTING_KEYS.items():
+        if old in out:
+            value = out.pop(old)
+            out.setdefault(new, value)
+    return out
+
+
 class AppScreen(QWidget):
     """Generic settings + runtime screen used by every non-interactive app.
 
@@ -2653,6 +2685,7 @@ class AppScreen(QWidget):
         widgets this app exposes. Silently skips keys the current app
         does not have — the same dict can safely be applied across
         several apps. Returns the count of keys actually applied."""
+        settings = _translate_legacy_setting_keys(settings)
         applied = 0
         for key, val in settings.items():
             w = self._settings_model._widgets.get(key)

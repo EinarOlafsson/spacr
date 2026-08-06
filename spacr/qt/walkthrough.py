@@ -453,6 +453,15 @@ def install_help_menu(window: QMainWindow) -> Optional[QMenu]:
         help_menu.insertMenu(before, submenu)
     else:
         help_menu.addMenu(submenu)
+    # Every action here, and the submenu's own action, gets an explicit
+    # macOS role. None of these texts happens to contain "settings" or
+    # "options" today -- but leaving the role unset means Qt decides from the
+    # text, so RENAMING a walkthrough could move it into the application
+    # menu on macOS, and nobody makes that connection while renaming a menu
+    # item. See spacr.qt.menus.
+    from .menus import pin_menu_roles
+    pin_menu_roles(list(submenu.actions()) + [submenu.menuAction()])
+
     window._walkthrough_menu = submenu
     return submenu
 
