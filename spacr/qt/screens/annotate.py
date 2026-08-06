@@ -1017,6 +1017,236 @@ class _SettingsDialog(QDialog):
 # AnnotateScreen
 # ---------------------------------------------------------------------------
 
+class _AutoAnnotateDialog(QDialog):
+    """Label a whole population at once, from metadata or measurements.
+
+    Four sources were asked for. Two are here, and two are hand-offs, which
+    is a deliberate split rather than an unfinished one:
+
+    * **metadata** and **measurement** are implemented, because nothing else
+      in spaCR turns "column 2" or "cell_area > 500" into an annotation.
+    * the **Gate Editor** and the **Image UMAP** already select populations
+      and already write annotations. Reimplementing either would put a
+      second copy of the gate maths, or of the clustering, on a divergent
+      path from the one the user sees on screen. What was missing was the
+      route, so those buttons open the real thing.
+
+    **Nothing is written until the count has been shown.** Annotating
+    thousands of rows is not undoable through the grid -- the undo stack only
+    holds the slots on this page -- so the preview is the safety, and the
+    Apply button stays disabled until one has been taken.
+    """
+
+    def __init__(self, settings: AnnotateSettings,
+                 parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        from ..dialogs import detach_from_window_manager
+        detach_from_window_manager(self)
+        self.setWindowTitle("Annotate — auto-annotate")
+        self.setMinimumWidth(520)
+        self._settings = settings
+        self._matched: List[str] = []
+
+        outer = QVBoxLayout(self)
+        form = QFormLayout()
+
+        self._source = QComboBox()
+        self._source.addItem("Metadata (plate, row, column, field)", "metadata")
+        self._source.addItem("Measurement thresholds", "measurement")
+        self._source.currentIndexChanged.connect(self._on_source_changed)
+        form.addRow("Select by", self._source)
+
+        self._column = QComboBox()
+        self._column.currentTextChanged.connect(self._on_metadata_column)
+        form.addRow("Metadata column", self._column)
+
+        self._values = QLineEdit()
+        self._values.setPlaceholderText("e.g. c1,c2  — blank means every value")
+        form.addRow("Values (comma separated)", self._values)
+
+        self._rules = QPlainTextEdit()
+        self._rules.setPlaceholderText(
+            "One rule per line:  cell_area > 500\n"
+            "nucleus_area < 200\n\n"
+            "Rules are ANDed. Use more than one — a single threshold is a "
+            "gate, not a population.")
+        self._rules.setFixedHeight(90)
+        form.addRow("Measurement rules", self._rules)
+
+        self._value = QSpinBox()
+        self._value.setRange(0, 999)
+        self._value.setValue(1)
+        form.addRow("Annotate as class", self._value)
+
+        outer.addLayout(form)
+
+        self._preview_label = QLabel("Preview to see how many objects match.")
+        self._preview_label.setObjectName("SubtitleSmall")
+        self._preview_label.setWordWrap(True)
+        outer.addWidget(self._preview_label)
+
+        row = QHBoxLayout()
+        self._btn_preview = QPushButton("Preview")
+        self._btn_preview.clicked.connect(self._on_preview)
+        row.addWidget(self._btn_preview)
+
+        self._btn_gate = QPushButton("Gate Editor…")
+        self._btn_gate.setToolTip(
+            "Draw gates on a scatter of your measurements, then annotate "
+            "what falls inside. Opens the real Gate Editor.")
+        self._btn_gate.clicked.connect(self._on_open_gate_editor)
+        row.addWidget(self._btn_gate)
+
+        self._btn_umap = QPushButton("Image UMAP…")
+        self._btn_umap.setToolTip(
+            "Cluster the objects in a UMAP and write the cluster labels as "
+            "annotations. Opens the Image UMAP module, which does the write "
+            "itself.")
+        self._btn_umap.clicked.connect(self._on_open_umap)
+        row.addWidget(self._btn_umap)
+        row.addStretch(1)
+        outer.addLayout(row)
+
+        self._buttons = QDialogButtonBox(
+            QDialogButtonBox.Apply | QDialogButtonBox.Close)
+        self._apply = self._buttons.button(QDialogButtonBox.Apply)
+        self._apply.setEnabled(False)
+        self._apply.clicked.connect(self.accept)
+        self._buttons.rejected.connect(self.reject)
+        outer.addWidget(self._buttons)
+
+        self._load_metadata_columns()
+        self._on_source_changed()
+
+    # -- state -------------------------------------------------------------
+
+    def source(self) -> str:
+        return str(self._source.currentData())
+
+    def value(self) -> int:
+        return int(self._value.value())
+
+    def matched_paths(self) -> List[str]:
+        """The population the last preview found. Empty until one is taken."""
+        return list(self._matched)
+
+    def parsed_rules(self) -> List[Dict[str, Any]]:
+        """Parse the rule box into ``{column, threshold, direction}`` dicts.
+
+        :raises ValueError: a line that is not ``<column> <op> <number>``.
+            Refused rather than skipped: a typo that silently dropped a rule
+            would widen the population and label objects the user never
+            asked for.
+        """
+        rules: List[Dict[str, Any]] = []
+        for raw in self._rules.toPlainText().splitlines():
+            line = raw.strip()
+            if not line:
+                continue
+            parts = line.replace(">=", ">").replace("<=", "<").split()
+            if len(parts) != 3 or parts[1] not in (">", "<"):
+                raise ValueError(
+                    f"cannot read rule {line!r}; expected "
+                    f"'<measurement> > <number>' or '< <number>'")
+            try:
+                threshold = float(parts[2])
+            except ValueError:
+                raise ValueError(
+                    f"{parts[2]!r} in rule {line!r} is not a number")
+            rules.append({
+                "column": parts[0],
+                "threshold": threshold,
+                "direction": "higher" if parts[1] == ">" else "lower",
+            })
+        return rules
+
+    # -- ui ----------------------------------------------------------------
+
+    def _load_metadata_columns(self) -> None:
+        from ..annotate_engine import METADATA_COLUMNS
+        self._column.addItems(list(METADATA_COLUMNS))
+
+    def _on_source_changed(self, *_args) -> None:
+        metadata = self.source() == "metadata"
+        for widget in (self._column, self._values):
+            widget.setEnabled(metadata)
+        self._rules.setEnabled(not metadata)
+        self._invalidate_preview()
+
+    def _on_metadata_column(self, *_args) -> None:
+        """Show the values this column actually holds.
+
+        Read from the database rather than guessed: a picker offering rows
+        A-H to someone whose plate is numbered is a picker they cannot use.
+        """
+        self._invalidate_preview()
+        if self.source() != "metadata" or not self._settings.db_path:
+            return
+        try:
+            from ..annotate_engine import metadata_values
+            values = metadata_values(self._settings.db_path,
+                                     self._column.currentText())
+        except Exception:
+            return
+        if values:
+            shown = ", ".join(values[:12])
+            more = "" if len(values) <= 12 else f" (+{len(values) - 12} more)"
+            self._values.setPlaceholderText(f"{shown}{more}")
+
+    def _invalidate_preview(self, *_args) -> None:
+        self._matched = []
+        self._apply.setEnabled(False)
+
+    def _on_preview(self) -> None:
+        from ..annotate_engine import paths_by_measurements, paths_by_metadata
+
+        if not self._settings.db_path:
+            self._preview_label.setText("Open a source first.")
+            return
+        try:
+            if self.source() == "metadata":
+                raw = self._values.text().strip()
+                values = [v.strip() for v in raw.split(",") if v.strip()]
+                if not values:
+                    from ..annotate_engine import metadata_values
+                    values = metadata_values(self._settings.db_path,
+                                             self._column.currentText())
+                paths = paths_by_metadata(
+                    self._settings.db_path, self._column.currentText(), values)
+            else:
+                rules = self.parsed_rules()
+                if not rules:
+                    self._preview_label.setText("Add at least one rule.")
+                    self._invalidate_preview()
+                    return
+                paths = paths_by_measurements(
+                    self._settings.db_path,
+                    self._settings.annotation_column, rules)
+        except Exception as exc:
+            self._preview_label.setText(f"Could not preview: {exc}")
+            self._invalidate_preview()
+            return
+
+        self._matched = list(dict.fromkeys(paths))
+        self._apply.setEnabled(bool(self._matched))
+        self._preview_label.setText(
+            f"{len(self._matched):,} object(s) match. Apply writes class "
+            f"{self.value()} to \"{self._settings.annotation_column}\"."
+            if self._matched else "Nothing matches.")
+
+    def _on_open_gate_editor(self) -> None:
+        self.done(_AUTO_ANNOTATE_OPEN_GATE)
+
+    def _on_open_umap(self) -> None:
+        self.done(_AUTO_ANNOTATE_OPEN_UMAP)
+
+
+#: Dialog result codes for the two hand-offs. Distinct from Accepted and
+#: Rejected so the caller can tell "annotate this" from "take me there".
+_AUTO_ANNOTATE_OPEN_GATE = 100
+_AUTO_ANNOTATE_OPEN_UMAP = 101
+
+
 class AnnotateScreen(QWidget):
     """Main Qt widget for the annotate app."""
 
@@ -1260,6 +1490,14 @@ class AnnotateScreen(QWidget):
         )
         self._btn_train_xg.clicked.connect(self._on_train_xg)
         row.addWidget(self._btn_train_xg)
+
+        self._btn_auto = QPushButton("Auto-annotate…")
+        self._btn_auto.setCursor(Qt.PointingHandCursor)
+        self._btn_auto.setToolTip(
+            "Label a whole population at once — by metadata, by measurement "
+            "thresholds, by a gate, or by UMAP cluster.")
+        self._btn_auto.clicked.connect(self._on_auto_annotate)
+        row.addWidget(self._btn_auto)
 
         self._btn_browse_db = QPushButton("View in database")
         self._btn_browse_db.setCursor(Qt.PointingHandCursor)
@@ -2089,6 +2327,94 @@ class AnnotateScreen(QWidget):
         self._pending_updates.clear()
         clear_column(self._settings.db_path, col)
         self._refresh_total(then=self._load_page)
+
+    def _on_auto_annotate(self):
+        """Label a population chosen by metadata, measurement, gate or UMAP.
+
+        The write goes through `_worker` -- the SaveWorker this screen
+        already owns -- not through a new connection. A second sqlite writer
+        on measurements.db is a known hazard, and routing bulk writes through
+        the existing one means they land in the same place, in the same
+        order, as annotations made by hand.
+        """
+        if not self._settings.db_path:
+            QMessageBox.information(
+                self, "Open a source first",
+                "Open an experiment source before auto-annotating.")
+            return
+
+        dlg = _AutoAnnotateDialog(self._settings, self)
+        result = dlg.exec()
+
+        if result == _AUTO_ANNOTATE_OPEN_GATE:
+            self._flush_pending()
+            self.train_requested.emit("gate_editor", {
+                "src": self._settings.src,
+                "annotation_column": self._settings.annotation_column,
+            })
+            return
+        if result == _AUTO_ANNOTATE_OPEN_UMAP:
+            self._flush_pending()
+            self.train_requested.emit("umap", {
+                "src": self._settings.src,
+                "annotation_column": self._settings.annotation_column,
+            })
+            return
+        if result != QDialog.Accepted:
+            return
+
+        paths = dlg.matched_paths()
+        if not paths:
+            return
+        self._apply_bulk_annotation(paths, dlg.value())
+
+    def _apply_bulk_annotation(self, paths, value) -> int:
+        """Write ``value`` to every path, through the existing save worker.
+
+        The column is created first if it is missing -- the same
+        `ensure_annotation_column` the Annotate screen calls when it opens a
+        source, so an auto-annotation into a fresh column behaves like a
+        hand annotation into one.
+
+        Slots on the current page are updated in place as well, so the grid
+        agrees with the database without a reload. That is not cosmetic: a
+        user who auto-annotates and then labels by hand would otherwise be
+        looking at stale borders while writing on top of them.
+
+        :param paths: png_paths to label.
+        :param value: the class number, or None to clear.
+        :returns: how many rows were submitted.
+        """
+        from ..annotate_engine import annotation_batch, ensure_annotation_column
+
+        column = self._settings.annotation_column
+        try:
+            ensure_annotation_column(self._settings.db_path, column)
+        except Exception as exc:
+            QMessageBox.warning(
+                self, "Could not write",
+                f"The annotation column {column!r} could not be created:\n{exc}")
+            return 0
+
+        batch = annotation_batch(paths, value)
+        if self._worker is not None:
+            self._worker.submit(dict(batch))
+        else:
+            # No worker means no source is open, which _on_auto_annotate
+            # already refuses -- but a bulk write that silently went nowhere
+            # would be the worst possible failure here, so it is not assumed.
+            self._pending_updates.update(batch)
+
+        wanted = set(batch)
+        for slot, (path, _current) in enumerate(self._page_paths):
+            if path in wanted:
+                self._page_paths[slot] = (path, value)
+                self._repaint_slot(slot)
+
+        self._set_kbd_hint(
+            f"Auto-annotated {len(batch):,} object(s) as {value}.")
+        self._refresh_total()
+        return len(batch)
 
     def _on_browse_db(self):
         """Show png_list in the Database Browser.
