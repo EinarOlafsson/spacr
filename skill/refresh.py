@@ -145,12 +145,63 @@ def _check_settings_never_written_by_tests():
     return True, "QSettings sandbox present"
 
 
+#: The headings every task file carries. They are the four questions a
+#: reader picking the task up cold has to have answered.
+_TASK_SECTIONS = ("WHAT THE STATE IS", "WHY IT MATTERS",
+                  "WHAT TO DO", "HOW TO KNOW IT WORKED")
+
+
+def _check_task_ledger():
+    """Every open/done task file is still usable by someone who was not here.
+
+    The ledger exists because a session that runs out of context loses
+    everything that was only ever said in the conversation. A file that has
+    lost its sections has lost the same thing more slowly, so it is checked
+    rather than trusted.
+    """
+    import os
+
+    base = os.path.join(ROOT, "instructions")
+    open_dir = os.path.join(base, "open")
+    done_dir = os.path.join(base, "done")
+    if not os.path.isdir(open_dir) or not os.path.isdir(done_dir):
+        return False, "instructions/open and instructions/done must both exist"
+
+    def _files(path):
+        return sorted(n for n in os.listdir(path)
+                      if n.endswith(".txt") and not n.startswith("."))
+
+    open_files, done_files = _files(open_dir), _files(done_dir)
+
+    both = set(open_files) & set(done_files)
+    if both:
+        return False, (f"{sorted(both)} is in BOTH open/ and done/ -- a task "
+                       f"is finished or it is not")
+
+    problems = []
+    for folder, names in ((open_dir, open_files), (done_dir, done_files)):
+        for name in names:
+            with open(os.path.join(folder, name), encoding="utf-8",
+                      errors="replace") as handle:
+                body = handle.read()
+            missing = [s for s in _TASK_SECTIONS if s not in body]
+            if missing:
+                problems.append(f"{name} is missing {missing}")
+            elif "Status:" not in body:
+                problems.append(f"{name} has no Status: line")
+    if problems:
+        return False, "; ".join(problems[:4])
+    return True, (f"{len(open_files)} open, {len(done_files)} done, "
+                  f"all with their sections")
+
+
 CHECKS = (
     ("widget QSS registrars are complete", _check_qss_registrars),
     ("bg / page roles", _check_bg_is_the_window_colour),
     ("thread finished wiring", _check_thread_finished_uses_bound_methods),
     ("test isolation fixtures", _check_test_isolation_fixtures),
     ("QSettings sandbox", _check_settings_never_written_by_tests),
+    ("task ledger", _check_task_ledger),
 )
 
 

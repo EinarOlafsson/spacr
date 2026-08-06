@@ -1,0 +1,43 @@
+================================================================================
+ANNOTATE: RUBBER-BAND MULTI-SELECT, AND ANNOTATE/CLEAR PAGE
+================================================================================
+
+Status:    not started
+Requested: 2026-08-06 — "if i click outside of an image i should be able to choose many images for annotation at once (when the mouse is released the user should be prompted, which number to annotate the selection)" and "beside clear column there should be a annotate page and clear page"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Nothing written. spacr/qt/screens/annotate.py has _Thumbnail (a QLabel with
+its own paintEvent and mousePressEvent), a grid built by _rebuild_grid, and
+_on_clear_column at line ~2040. There is no drag-select and no page-scoped
+action.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Class-balancing a page at a time is the common motion when annotating; one
+click per image is the current cost.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Rubber band: press on the grid background (not on a _Thumbnail) starts a
+   QRubberBand; on release, hit-test thumbnail geometries against the band,
+   prompt for the class number, and apply through the existing
+   _set_annotation / _push_undo path so undo still works.
+2. "Annotate page" and "Clear page" beside Clear column, both scoped to the
+   slots currently loaded. Same prompt for the class number.
+3. Both must go through _push_undo — a bulk action that cannot be undone is
+   worse than no bulk action.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+tests/qt/test_annotate.py — add cases that drag a band over a known slot
+range and assert the annotations written; and that Clear page leaves other
+pages untouched.

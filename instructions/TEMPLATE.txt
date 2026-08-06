@@ -1,0 +1,43 @@
+================================================================================
+<TITLE IN CAPITALS — what the task is, not what module it touches>
+================================================================================
+
+Status:    not started | in progress | blocked | done
+Requested: <date> — <the user's own words, quoted, not paraphrased>
+Owner:     <session or person, if it matters>
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Where this stands right now. If work has begun, what exists and what does
+not. Name files and functions.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+What it costs the user while it is unfinished. A task with no cost stated
+is a task nobody can prioritise.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Concrete steps, in order, with the file each one lands in. Enough that
+someone picking this up cold does not have to re-derive the design.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The command to run and the output that means success. A measurement, not
+an impression.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Anything considered and rejected, with the reason. A decision not to act
+is a result; without the reason the next person re-derives it or "fixes"
+something that was intentional.

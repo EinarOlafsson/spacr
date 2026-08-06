@@ -1,0 +1,60 @@
+================================================================================
+CLASSIFY: MERGE THE CV AND ML MODULES INTO ONE
+================================================================================
+
+Status:    not started
+Requested: 2026-08-06 - "the Classify CV and ML modules should be standardized ... shared settings should be called the same things ... shared categories the same thing ... for both there should be the option to train classifiers based on annotation, metadata, and measurements ... the user can choose multiple measurements at once ... gray out metadata-based settings when annotation-based training is chosen, and vice versa ... Best would be if we could have one module called Classify"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not started. Two separate modules today: Classify (CV) and Classify (ML),
+with app screens under spacr/qt/screens/, settings factories in
+spacr/settings.py, category layouts in _APP_CATEGORY_SPECS
+(spacr/qt/screens/settings_model.py) and entries in the APPS registry in
+spacr/qt/app.py.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Two modules doing the same job under different setting names is the main
+"which one do I use" confusion, and the divergent names make a settings CSV
+non-portable between them.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. INVENTORY FIRST. Diff the two settings dicts: shared keys, shared-but-
+   differently-named keys, genuinely specific keys. Write the mapping down
+   before renaming anything.
+2. Rename to one vocabulary, keeping the old keys accepted and translated.
+   Settings CSVs in the wild use the old names, and INVARIANTS 6 is the
+   trap: a key ABSENT from the dict falls back to the pipeline's own
+   default, which can silently differ from the GUI's.
+3. One `training_basis` setting: annotation | metadata | measurement.
+4. Measurement basis needs MULTI-select of measurement columns - the user was
+   explicit that single-measurement training is not useful. The chip editor
+   already used for `exclude` (EXCLUDE_LIST_KEYS / _ListEditor in
+   settings_model.py) is the pattern to copy.
+5. Grey out the categories that do not apply to the chosen basis. INVARIANTS
+   6 again: hidden is NOT absent. A greyed-out key must stay in the dict at
+   the value the module needs.
+6. Merge into one "Classify" app. Registration has five seams and each is a
+   place a module can be half-registered: APPS in app.py, WIDGET_QSS_MODULES
+   (INVARIANTS 1), _APP_CATEGORY_SPECS, a Home band in CATS_STAGE5, and an
+   icon. Check all five - four features have spent weeks built, tested and
+   unreachable.
+7. Keep the old app keys resolving to the new screen so saved settings and
+   any CLI invocation still work.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Both old settings CSVs load into the merged module and produce the same run
+they did before. Switching training_basis greys the right categories and
+leaves the underlying settings dict complete. The merged app appears in Home
+with an icon and is reachable from a cold start.

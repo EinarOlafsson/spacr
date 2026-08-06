@@ -51,6 +51,14 @@ The files
 The open work is in ../instructions/, not here. This folder is about how
 to work; that one is about what is left.
 
+    ../instructions/open/    every task not yet finished
+    ../instructions/done/    every task that is
+
+A task gets a file in open/ BEFORE the work starts and moves to done/ when
+it finishes. A session that runs out of context, or a machine that goes
+down, loses everything that was only ever in the conversation -- this is
+what stops that. refresh.py checks the ledger with everything else.
+
 Why it self-checks
 ------------------
 A skill file is a claim about a repository, and a repository moves. A
