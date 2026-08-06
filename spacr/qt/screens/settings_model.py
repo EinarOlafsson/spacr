@@ -2465,8 +2465,12 @@ def install_api_tooltips(
         way -- this only controls the visible dot. Forms with a setting on
         nearly every row read as a column of dots rather than a column of
         settings, which is why the Mask live preview turns them off: 68 of
-        them on one dialog. Anywhere the settings are sparse enough for a dot
-        to look like an affordance rather than texture, leave it on.
+        them on one dialog. The Annotate settings dialog turns them off for
+        the same reason -- twenty-six settings, so twenty-six dots -- and
+        because the API link is in the hover tooltip either way, which is
+        where users were reading it from. Anywhere the settings are sparse
+        enough for a dot to look like an affordance rather than texture,
+        leave it on.
     """
     event_filter = getattr(owner, "_api_tooltip_filter", None)
     if event_filter is None:

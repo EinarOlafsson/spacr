@@ -224,8 +224,15 @@ def test_annotate_settings_expose_rgb_as_the_default_stored_order(
             dialog._queue_limit):
         assert widget.toolTip() == ""
         label = widget._spacr_setting_label
+        # The API link lives in the hover tooltip...
         assert "href=" in label.toolTip()
-        assert getattr(label, "_spacr_api_dot", None) is not None
+        # ...and NOT as a teal dot beside the label. CHANGED 2026-08-06:
+        # this used to assert the dot was present. Twenty-six settings meant
+        # twenty-six dots, which reads as a column of dots rather than a
+        # column of settings -- the same reason the Mask live preview passes
+        # api_dots=False. Nothing is lost: the link is in the tooltip either
+        # way, which is where users were reading it from.
+        assert getattr(label, "_spacr_api_dot", None) is None
     dialog._stored_channel_order.setCurrentIndex(
         dialog._stored_channel_order.findData("legacy_bgr"))
     assert dialog.collect().stored_channel_order == "legacy_bgr"
