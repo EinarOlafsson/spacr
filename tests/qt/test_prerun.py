@@ -586,3 +586,71 @@ def test_a_measurement_with_no_channel_names_the_settings_to_fill(
     text = _texts(panel)
     assert "cell_channel" in text
     assert "0-based" in text
+
+
+# ---------------------------------------------------------------------------
+# Surfaces
+# ---------------------------------------------------------------------------
+
+def test_the_findings_box_paints_nothing_of_its_own(banner, qt_theme_applied):
+    """The container behind the findings text must not paint a black box.
+
+    What this defends: `_findings_box` is a plain QWidget used only to hold a
+    layout, and a plain QWidget inherits the blanket
+    `QWidget { background-color: bg }` rule. `bg` is the WINDOW colour --
+    #000000 on the dark theme -- so the verdict text sat on a solid black
+    rectangle inside a panel whose own background follows the user's page
+    opacity. That is INVARIANTS 3, and the visible symptom was "the text is
+    on top of a black box".
+
+    Asserted on the property and the rule rather than on pixels, because
+    QWidget.render() cannot reproduce paint-ordering bugs (INVARIANTS 7) and
+    reported a clean page four times for a screen that was black on the
+    user's display.
+    """
+    from spacr.qt import theme
+
+    box = banner._findings_box
+    assert box.property(theme.TRANSPARENT_PROPERTY) is True, (
+        "the findings container is not tagged transparent, so it paints the "
+        "window colour over the panel behind it")
+    # The tag is only worth anything if the stylesheet acts on it.
+    sheet = theme.stylesheet()
+    assert f'[{theme.TRANSPARENT_PROPERTY}="true"]' in sheet
+    # ...and a plain QWidget really does lack the tag, so the assertion above
+    # is distinguishing something.
+    from PySide6.QtWidgets import QWidget
+    assert QWidget().property(theme.TRANSPARENT_PROPERTY) is None
+
+
+def test_the_diameter_panel_rows_box_paints_nothing_either(panel,
+                                                           qt_theme_applied):
+    """Same container, same rule, the other panel. Fixing one and leaving the
+    other is how the black box came back the last four times."""
+    from spacr.qt import theme
+
+    assert panel._rows_box.property(theme.TRANSPARENT_PROPERTY) is True
+
+
+def test_the_panel_stylesheet_is_in_the_sheet_at_launch(qt_theme_applied):
+    """The QC panel's own QSS block must be registered at IMPORT time.
+
+    It used to be registered only from `prerun.register()`. That happens to
+    run before the sheet is applied today, so this was not the cause of the
+    black box -- but it made the block's presence depend on a call order
+    nothing states, and INVARIANTS 1 is the record of what that costs. The
+    module now registers at import and is listed in
+    `theme.WIDGET_QSS_MODULES`, so the block is there however the app starts.
+    """
+    from spacr.qt import theme
+
+    assert "spacr.qt.prerun" in theme.WIDGET_QSS_MODULES
+
+    # Not asserted against a bare `theme.stylesheet()`: `prerun.teardown()`
+    # calls `unregister_widget_qss`, and the module-level registration cannot
+    # undo that -- import-time code runs once per process, so a test that has
+    # torn the module down leaves every later test without the block. That is
+    # an isolation leak of the INVARIANTS 5 family and it is why this asserts
+    # the CYCLE instead: register() must put the block back.
+    prerun.register()
+    assert "MeasureQCBanner" in theme.stylesheet()

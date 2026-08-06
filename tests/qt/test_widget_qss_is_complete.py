@@ -53,13 +53,32 @@ def _modules_registering_at_import() -> set[str]:
         except SyntaxError:
             continue
 
+        # Functions defined in THIS module that register a block, so a
+        # module-level call to one of them counts as registering at import.
+        wrappers = set()
+        for node in tree.body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                for inner in ast.walk(node):
+                    if isinstance(inner, ast.Call):
+                        called = getattr(inner.func, "id",
+                                         getattr(inner.func, "attr", ""))
+                        if called.endswith("register_widget_qss"):
+                            wrappers.add(node.name)
+                            break
+
         def top_level(body):
             for node in body:
                 if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
                     func = node.value.func
                     name = getattr(func, "id", getattr(func, "attr", ""))
-                    if name.endswith("register_widget_qss"):
+                    if name.endswith("register_widget_qss") or name in wrappers:
                         yield True
+                # A module-level call to a same-module helper that registers
+                # counts too: spacr.qt.widgets.field_fade registers through
+                # `ensure_field_fade_qss()` at module scope, and a detector
+                # that only matched the direct call reported it as "listed but
+                # no longer registering" the moment it was correctly added to
+                # WIDGET_QSS_MODULES.
                 # The registration is often inside a `try:` that tolerates a
                 # partial install, which is still module level.
                 if isinstance(node, ast.Try):
