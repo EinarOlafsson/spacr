@@ -1,0 +1,66 @@
+================================================================================
+THE TESTS MEASURE A FONT SCALE NO USER HAS
+================================================================================
+
+Status:   decided, not acted on. Deliberately left for a judgement call.
+Severity: the geometry records do not describe what ships
+
+--------------------------------------------------------------------------------
+THE FACT
+--------------------------------------------------------------------------------
+
+    spacr/qt/preferences.py:  DEFAULT_FONT_SCALE = 1.5
+    tests/qt/conftest.py:     the session fixture pins 1.0
+
+So every geometry assertion in the qt suite -- tile widths, elision
+counts, the search strip's y position, KNOWN_LAYOUT_DEFECTS in
+test_home_variants -- is recorded at a scale that a fresh install does not
+use.
+
+--------------------------------------------------------------------------------
+HOW IT GOT THIS WAY
+--------------------------------------------------------------------------------
+
+The scale is persisted, so within a pytest session it was whatever the
+last test that touched it left behind. test_preferences sets it ten times
+and restores none; test_zoom_reaches_text sets it once and never puts it
+back. Different files therefore measured different scales depending on
+collection order, and a dozen failures that read like regressions were
+arithmetic -- `scaled_px(320)` returning 480 is 320 x 1.5.
+
+Pinning 1.0 made the suite deterministic, which was the urgent problem
+and is now fixed. It did not make the suite representative, which is this
+one.
+
+--------------------------------------------------------------------------------
+THE CHOICE
+--------------------------------------------------------------------------------
+
+Option A -- pin the tests at 1.5, the real default.
+    Correct in principle: the records would then describe what users see.
+    Expect a large one-off churn. KNOWN_LAYOUT_DEFECTS will grow, several
+    "does this label elide" tests will flip, and each one needs a decision
+    about whether the layout is actually wrong at 1.5 rather than a
+    re-record. That decision is the point -- if a lot of things clip at
+    the DEFAULT scale, that is a real finding about the shipped UI.
+
+Option B -- leave the tests at 1.0 and say so.
+    Cheap, and defensible if 1.0 is treated as the reference geometry.
+    Then the conftest docstring should say that explicitly, and something
+    should assert 1.5 renders without CLIPPING even if the exact numbers
+    are only recorded at 1.0.
+
+Option C -- change DEFAULT_FONT_SCALE to 1.0.
+    Do NOT do this without asking. 1.5 was presumably chosen for
+    readability on the screens this is used on, and shrinking every
+    user's interface to make a test suite tidier is the wrong trade.
+
+--------------------------------------------------------------------------------
+RECOMMENDATION
+--------------------------------------------------------------------------------
+
+B now, A when there is time to work through the churn honestly. What
+matters most is that whichever is chosen is WRITTEN DOWN in
+tests/qt/conftest.py, because the current state -- a fixture pinning a
+number with no note about why it differs from the product -- is how this
+became invisible in the first place.
