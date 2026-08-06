@@ -622,12 +622,34 @@ class ReadOnlyDb:
 
     def chunk_sql(self, table: str, columns: Sequence[str],
                   key_columns: Sequence[str], where: Optional[str] = None,
-                  after: bool = False, use_offset: bool = False) -> str:
-        """Build the keyset-paged chunk SELECT. Exposed so tests can read it.
+                  after: bool = False, use_offset: bool = False,
+                  order_by: Optional[Tuple[str, bool]] = None) -> str:
+        """Build the paged chunk SELECT. Exposed so tests can read it.
 
         ``after`` says whether a ``key > ?`` clause is wanted (i.e. this
         is not the first chunk). ``use_offset`` is the fallback for
         tables that have no single-column key.
+
+        ``order_by`` is ``(column, descending)`` when the user has clicked a
+        column header. It sorts **in SQL, over the whole table**, which is
+        the only way to sort a table the view has only partly loaded --
+        sorting the rows fetched so far and presenting that as the table's
+        order is the one option worse than not sorting at all.
+
+        Two details that are not optional:
+
+        * the key column is appended as a **tiebreak**. Without it, rows
+          sharing a value come back in whatever order SQLite happens to
+          produce, and that order is free to differ between two chunks of
+          the same scroll -- so a row could be shown twice and another not
+          at all.
+        * paging falls back to ``OFFSET``. Keyset paging needs the ordering
+          column to be the one being compared, and ``(value, rowid) > (?, ?)``
+          over an arbitrary user-chosen column is a different and much more
+          delicate query. OFFSET makes deep scrolling of a sorted view
+          progressively slower, which is a real cost and the reason it is
+          not the default; it is bounded here because a sort is an explicit
+          act on a table the user is looking at.
         """
         col_sql = ", ".join(quote_ident(c)
                             for c in list(key_columns) + list(columns))
@@ -635,14 +657,20 @@ class ReadOnlyDb:
         clauses = []
         if where:
             clauses.append(f"({where})")
-        if after and not use_offset:
+        if after and not use_offset and order_by is None:
             clauses.append(f"{quote_ident(key_columns[0])} > ?")
         if clauses:
             sql += " WHERE " + " AND ".join(clauses)
-        if key_columns and not use_offset:
+        if order_by is not None:
+            column, descending = order_by
+            terms = [f"{quote_ident(column)} {'DESC' if descending else 'ASC'}"]
+            if key_columns:
+                terms.append(f"{quote_ident(key_columns[0])} ASC")
+            sql += " ORDER BY " + ", ".join(terms)
+        elif key_columns and not use_offset:
             sql += f" ORDER BY {quote_ident(key_columns[0])}"
         sql += " LIMIT ?"
-        if use_offset:
+        if use_offset or order_by is not None:
             sql += " OFFSET ?"
         return sql
 
@@ -650,7 +678,9 @@ class ReadOnlyDb:
               where: Optional[str] = None, params: Sequence = (),
               limit: int = DEFAULT_PAGE_SIZE,
               after: Optional[tuple] = None,
-              loaded: int = 0) -> Tuple[List[str], List[tuple], List[Optional[tuple]]]:
+              loaded: int = 0,
+              order_by: Optional[Tuple[str, bool]] = None
+              ) -> Tuple[List[str], List[tuple], List[Optional[tuple]]]:
         """Return ``(columns, rows, keys)`` for the next ``limit`` rows.
 
         ``after`` is the key tuple of the last row already loaded;
@@ -665,13 +695,20 @@ class ReadOnlyDb:
         cols = self.check_columns(table, columns)
         _kind, key_cols = self.row_key(table)
         use_offset = len(key_cols) != 1
+        if order_by is not None:
+            # Validated against the table's real columns, not merely quoted:
+            # this string reaches an ORDER BY clause, and check_columns is
+            # the same gate every other column name in this class goes
+            # through.
+            self.check_columns(table, [order_by[0]])
         sql = self.chunk_sql(table, cols, key_cols, where,
-                             after=after is not None, use_offset=use_offset)
+                             after=after is not None, use_offset=use_offset,
+                             order_by=order_by)
         args: List[Any] = list(params)
-        if after is not None and not use_offset:
+        if after is not None and not use_offset and order_by is None:
             args.append(after[0])
         args.append(int(max(1, limit)))
-        if use_offset:
+        if use_offset or order_by is not None:
             args.append(int(max(0, loaded)))
         with self._con() as con:
             raw = self._execute(con, sql, args).fetchall()
@@ -1199,6 +1236,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         # dropped instead of painted — that race is the reason async
         # loading can otherwise feel *worse* than synchronous loading.
         self._token: int = 0
+        #: ``(column, descending)`` while a header sort is active, else None.
+        #: The sort happens in SQL over the WHOLE table, so it is correct
+        #: however little of the table the view has loaded.
+        self._sort: Optional[Tuple[str, bool]] = None
         self._loaded: int = 0
         self._last_key: Optional[tuple] = None
         self._exhausted: bool = False
@@ -1374,6 +1415,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         # _update_sort_state().
         self._view.setSortingEnabled(False)
         header = self._view.horizontalHeader()
+        # Our own handler, not Qt's model sort: the sort runs in SQL over the
+        # whole table, so it is right however little of the table is loaded.
+        header.setSectionsClickable(True)
+        header.sectionClicked.connect(self._on_header_clicked)
         header.setSectionResizeMode(QHeaderView.Interactive)
         # No stretch-last-section: with feature columns the last one would
         # balloon to fill the window while its neighbours stay clipped.
@@ -1616,6 +1661,10 @@ class DbBrowserScreen(LinkedView, QWidget):
             self._set_status(self._humanise(e, name), error=True)
             return False
         self._table = name
+        # A sort column from the previous table would land in this table's
+        # ORDER BY, where check_columns rejects it -- so the table would fail
+        # to load rather than merely come back unsorted.
+        self._clear_sort()
         self._where, self._params, self._filter_label = None, (), ""
         self._raw_edit.clear()
         self._filter_value.clear()
@@ -1717,6 +1766,18 @@ class DbBrowserScreen(LinkedView, QWidget):
         """True when every row of the current table + filter is in memory."""
         return self._exhausted
 
+    def _clear_sort(self) -> None:
+        """Forget the sort. Called when the TABLE changes, not on refresh.
+
+        A column name is meaningless in a different table, and carrying one
+        across would put an unknown column in an ORDER BY -- rejected by
+        check_columns, so the table would simply fail to load.
+        """
+        self._sort = None
+        header = self._view.horizontalHeader()
+        header.setSortIndicatorShown(False)
+        header.setSortIndicator(-1, Qt.AscendingOrder)
+
     def _reset_load_state(self) -> None:
         self._loaded = 0
         self._last_key = None
@@ -1736,8 +1797,23 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._model.set_more(False)
         self._model.clear()
         self._view.setSortingEnabled(False)
-        self._view.horizontalHeader().setSortIndicator(-1, Qt.AscendingOrder)
+        header = self._view.horizontalHeader()
+        if self._sort is None:
+            header.setSortIndicatorShown(False)
+            header.setSortIndicator(-1, Qt.AscendingOrder)
+        else:
+            # `refresh()` is how a header click re-reads the table, so it must
+            # not wipe the indicator that click just set.
+            try:
+                section = self._model.visible_columns().index(self._sort[0])
+            except ValueError:
+                section = -1
+            header.setSortIndicatorShown(section >= 0)
+            header.setSortIndicator(
+                section,
+                Qt.DescendingOrder if self._sort[1] else Qt.AscendingOrder)
         self._update_rows_label()
+        self._update_sort_state()
         self._fetch_chunk(self._token, first=True)
 
     def fetch_more(self) -> bool:
@@ -1759,6 +1835,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         limit = self.page_size()
         after = None if first else self._last_key
         loaded = 0 if first else self._loaded
+        order_by = self._sort
         # max(rowid) is only an estimate of the *table* size; with a
         # filter in play it says nothing, so we don't pretend it does.
         want_estimate = first and not where
@@ -1766,7 +1843,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         def _job() -> Dict[str, Any]:
             cols, rows, keys = db.chunk(table, where=where, params=params,
                                         limit=limit, after=after,
-                                        loaded=loaded)
+                                        loaded=loaded, order_by=order_by)
             estimate = db.estimate_count(table) if want_estimate else None
             return {"token": token, "first": first, "columns": cols,
                     "rows": rows, "keys": keys, "limit": limit,
@@ -1849,20 +1926,65 @@ class DbBrowserScreen(LinkedView, QWidget):
             f"showing {self._loaded:,} of {self._count_text()}")
 
     def _update_sort_state(self) -> None:
-        """Enable click-to-sort only once the whole table is in memory.
+        """Describe the sort. Click-to-sort is always available.
 
-        Sorting the rows fetched so far and presenting it as the table's
-        order is the one option worse than not sorting at all.
+        It used to be switched on only once ``self._exhausted`` -- the whole
+        table in memory -- because Qt's own ``setSortingEnabled`` sorts the
+        MODEL, and sorting the rows fetched so far and presenting that as the
+        table's order is the one option worse than not sorting at all. On a
+        400 k-row measurement table that moment never arrives interactively,
+        so the feature was effectively absent from the tables that most need
+        it.
+
+        Sorting in SQL removes the trade-off: the ORDER BY runs over the
+        whole table whatever the view has loaded, so the first row shown is
+        the first row of the sorted table and not the smallest of the first
+        hundred. Qt's model sort stays OFF -- the header click is handled by
+        :meth:`_on_header_clicked` instead.
         """
-        ready = self._exhausted and self._loaded > 0
-        self._view.setSortingEnabled(ready)
-        if ready:
+        # Never Qt's own: it would reorder the loaded slice underneath the
+        # SQL order and the two would disagree.
+        self._view.setSortingEnabled(False)
+        if self._sort is None:
             self._sort_note.setText(
-                "All rows loaded — click a column header to sort.")
+                "Click a column header to sort the whole table.")
+            return
+        column, descending = self._sort
+        self._sort_note.setText(
+            f"sorted by {column} {'descending' if descending else 'ascending'}"
+            " — whole table, in SQL. Click again to reverse, a third time to "
+            "clear.")
+
+    def _on_header_clicked(self, section: int) -> None:
+        """Cycle the clicked column: ascending, descending, unsorted.
+
+        A third state matters here. Sorting forces OFFSET paging, which gets
+        slower the further the user scrolls, so there has to be a way back to
+        the table's natural keyset-paged order without reloading the screen.
+        """
+        columns = self._model.visible_columns()
+        if not (0 <= section < len(columns)):
+            return
+        column = columns[section]
+
+        if self._sort is None or self._sort[0] != column:
+            self._sort = (column, False)
+        elif not self._sort[1]:
+            self._sort = (column, True)
         else:
-            self._sort_note.setText(
-                "Sorting is off until the whole table is loaded; filters "
-                "run in SQL and are always complete.")
+            self._sort = None
+
+        header = self._view.horizontalHeader()
+        if self._sort is None:
+            header.setSortIndicatorShown(False)
+        else:
+            header.setSortIndicatorShown(True)
+            header.setSortIndicator(
+                section, Qt.DescendingOrder if self._sort[1] else Qt.AscendingOrder)
+
+        # Reload from the top: rows already loaded are the wrong ones now,
+        # not merely in the wrong order.
+        self.refresh()
 
     def _report_table_status(self) -> None:
         bits = [f"{self._table}: {self._count_text()}",
