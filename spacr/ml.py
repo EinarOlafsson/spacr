@@ -3827,6 +3827,91 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
 
     return dependent_df, dependent_variable
 
+
+def _labels_from_measurements(df, settings):
+    """Write a class column from ``measurement_rules``, and point at it.
+
+    The measurement basis Classify (ML) never had. Each rule is
+    ``{'name': ..., 'where': [{'column':..., 'op':..., 'value':...}, ...]}``
+    -- the same shape :mod:`spacr.io` already accepts for Classify (CV), so
+    one settings CSV describes the same classes to both modules.
+
+    **More than one measurement is the point.** A single threshold is a gate,
+    not a class definition, and it was asked for specifically: a rule may
+    carry several clauses and they are ANDed.
+
+    Rows matching no rule are left unlabelled and are dropped downstream by
+    the same path that drops unannotated rows. They are not quietly assigned
+    to a class, which would invent training data.
+
+    :param df: the merged measurement table. The class column is written into
+        it, because the caller reads labels off this frame.
+    :param settings: run settings; not modified.
+    :returns: a new settings dict whose ``annotation_column`` names the
+        column just written.
+    :raises ValueError: no rules, a rule naming a column the table lacks, an
+        unknown operator, or a rule matching nothing -- each of which would
+        otherwise train a classifier on a class with no members.
+    """
+    import numpy as np
+
+    rules = settings.get('measurement_rules') or []
+    if not rules:
+        raise ValueError(
+            "dataset_mode='measurement' needs measurement_rules, e.g. "
+            "[{'name':'big','where':[{'column':'cell_area','op':'>',"
+            "'value':500}]}]")
+
+    ops = {
+        '>': lambda a, b: a > b,
+        '>=': lambda a, b: a >= b,
+        '<': lambda a, b: a < b,
+        '<=': lambda a, b: a <= b,
+        '==': lambda a, b: a == b,
+        '!=': lambda a, b: a != b,
+    }
+    column = str(settings.get('measurement_class_column')
+                 or '_spacr_measurement_class')
+    labels = pd.Series(np.nan, index=df.index, dtype=object)
+
+    for rule in rules:
+        name = rule.get('name')
+        if not name:
+            raise ValueError(f"every measurement rule needs a name: {rule!r}")
+        clauses = rule.get('where') or []
+        if not clauses:
+            raise ValueError(
+                f"measurement rule {name!r} has no 'where' clauses, so it "
+                f"would select every row")
+        mask = pd.Series(True, index=df.index)
+        for clause in clauses:
+            col = clause.get('column')
+            op = clause.get('op')
+            value = clause.get('value')
+            if col not in df.columns:
+                raise ValueError(
+                    f"measurement rule {name!r} names column {col!r}, which "
+                    f"is not in the measurement table")
+            if op not in ops:
+                raise ValueError(
+                    f"measurement rule {name!r} uses operator {op!r}; "
+                    f"expected one of {sorted(ops)}")
+            mask &= ops[op](df[col], value)
+        if not mask.any():
+            raise ValueError(
+                f"measurement rule {name!r} matches no rows, so its class "
+                f"would have no training data")
+        # Last rule wins on overlap, deliberately and visibly: overlapping
+        # thresholds show up in the class counts, which is where a user can
+        # see and fix them.
+        labels[mask] = str(name)
+
+    out = dict(settings)
+    df[column] = labels
+    out['annotation_column'] = column
+    return out
+
+
 def generate_ml_scores(settings):
     """Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.
 
@@ -3922,7 +4007,25 @@ def generate_ml_scores(settings):
     except Exception as e:
         print(e)
     
-    if settings['annotation_column'] is not None:
+    # The basis is now EXPLICIT. This used to read "if annotation_column is
+    # not None", which meant filling in an annotation column silently stopped
+    # the module training on plate controls, with nothing in the settings
+    # panel saying so. `resolve_basis` keeps that old rule as the fallback
+    # for a settings CSV with no `dataset_mode`, so an existing project runs
+    # exactly as it did -- see spacr.training_basis.
+    from .training_basis import resolve_basis
+    _basis = resolve_basis(settings)
+
+    if _basis == 'measurement':
+        settings = _labels_from_measurements(df, settings)
+        _basis = 'annotation'      # the rules wrote a column; read it back
+
+    if _basis == 'annotation':
+        if not settings.get('annotation_column'):
+            raise ValueError(
+                "dataset_mode='annotation' needs annotation_column set to a "
+                "column of png_list. Nothing else in these settings says "
+                "which labels to train on.")
 
         settings['location_column'] = settings['annotation_column']
 
