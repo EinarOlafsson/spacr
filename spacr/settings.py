@@ -1088,6 +1088,12 @@ def set_default_analyze_screen(settings):
     :returns: the settings dict with defaults applied.
     """
     settings.setdefault('src', 'path')
+    # The shared training basis. 'metadata' is what this module has always
+    # defaulted to; spacr.training_basis.resolve_basis keeps an older
+    # settings CSV -- which selected the basis IMPLICITLY, by whether
+    # annotation_column was set -- behaving exactly as it did.
+    settings.setdefault('dataset_mode', 'metadata')
+    settings.setdefault('measurement_rules', None)
     settings.setdefault('annotation_column', None)
     settings.setdefault('save_to_db', False)
     settings.setdefault('model_type_ml','xgboost')
@@ -1821,6 +1827,8 @@ expected_types = {
     "png_size": list,  # This can be a list of lists 
     "png_dims": list,
     "png_channel_mapping": dict,
+    "measurement_rules": (list, type(None)),
+    "measurement_class_column": (str, type(None)),
     "normalize_by": str,
     "save_measurements": bool,
     "uninfected": bool,
@@ -2464,6 +2472,11 @@ expected_types = {
 #: They stay declared rather than being deleted so that an old settings CSV
 #: still loads far enough to be told, by name, what to use instead.
 DEAD_SETTINGS = {
+    # NOT png_dims. It is deprecated in favour of png_channel_mapping, but
+    # it still HAS a reader -- crops.resolve_png_channel_mapping translates
+    # it, deliberately, so every settings CSV in the wild keeps working. This
+    # registry means "nothing reads this any more", and the guard in
+    # tests/test_dead_settings.py derives it from the source and says so.
     'remove_border_cells': 'cell_remove_border_objects',
     'remove_border_nuclei': 'nucleus_remove_border_objects',
     'remove_border_pathogens': 'pathogen_remove_border_objects',
@@ -2821,6 +2834,8 @@ tooltips = {
     "balance_to_smallest": "(bool) - Downsample every generated training class to the size of the smallest class before writing train/test folders. This removes the dataset prior but discards majority examples; disable it and use class_balance during training to retain all images. Default True.",
     "write_random_annotation_column": "(bool) - In annotation mode, persist an automatically selected unannotated comparison group into png_list as <column>_random. This makes an automatically generated control class reproducible and auditable. Default False.",
     "train_channels": "(list) - Which colour planes of each object crop the classifier sees, chosen from 'r', 'g' and 'b'. Fewer channels means a smaller input tensor and a model that cannot use the dropped stain, so drop a channel only when it carries no signal for your phenotype. The joined letters also become part of the saved model's filename. Default ['r', 'g', 'b'].",
+    "measurement_rules": "(list of dict) - Class definitions by threshold on measured features, shared by Classify (CV) and Classify (ML). Each entry is {'name': <class>, 'where': [{'column': <feature>, 'op': '>'|'>='|'<'|'<='|'=='|'!=', 'value': <number>}, ...]} and the clauses within one rule are ANDed - use more than one, since a single threshold is a gate rather than a class definition. Rows matching no rule stay unlabelled and are dropped, never assigned to a class. Used when dataset_mode is 'measurement'. Default None.",
+    "measurement_class_column": "(str) - Name of the column the measurement rules write their class labels into before training. Only needs setting if the default collides with a real measurement column. Default '_spacr_measurement_class'.",
     "dataset_mode": "(str) - How training classes are defined: 'metadata' splits crops by well metadata (class_metadata or metadata_rules), 'annotation' by the values in one or more annotation columns of png_list, 'measurement' by threshold rules on measured features (measurement_rules). Any other value aborts and returns no dataset. Default 'metadata'.",
     "annotated_classes": "(list) - Currently inert: the Tk 'Generate Dataset' form collects it and the defaults set [1,2], but no code reads settings['annotated_classes']. The two io.py helpers with a same-named parameter (training_dataset_from_annotation and training_dataset_from_annotation_metadata, default (1,2)) have no callers anywhere in the package. The live dataset builder selects classes from dataset_mode instead - annotation_columns/annotation_values under 'annotation', class_metadata or the rule lists under 'metadata'/'measurement'. Default [1,2], with no effect.",
     "um_per_pixel": "(float) - Physical size of one image pixel in micrometres, taken from your objective and camera. It is used only to convert scale_bar_length_um into pixels when a scale bar is drawn on representative-image grids, so a wrong value gives a wrong-length bar; it never rescales or resamples the images. The plotting helpers default to 0.1.",
@@ -3267,7 +3282,12 @@ categories = {
     #     made the Replication module render a heading called "Invasion Assay".
     "Measurements": ["save_measurements", "calculate_correlation", "manders_thresholds", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
-    "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays"],
+    # png_dims stays listed although it is no longer rendered: it has no
+    # default any more, so convert_settings_dict_for_gui never builds a
+    # widget for it, but it is still a key the pipeline reads from an older
+    # CSV and a key that falls out of `categories` altogether is one nothing
+    # can tell a user about.
+    "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays"],
 
     # The plate map: which wells hold which condition, which wells are the
     # controls, and how they are labelled. Gathers the per-object condition
@@ -3285,7 +3305,7 @@ categories = {
     # generate_training_dataset is what consumes it, writing the train/ and
     # test/ folders before any model exists. The four metadata_item_* keys had
     # no category at all and printed under "Other".
-    "Training Dataset": ["dataset_mode", "annotation_column", "annotated_classes", "class_metadata", "metadata_type_by", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "file_metadata", "custom_measurement", "png_type", "file_type", "sample", "size", "test_split", "balance_to_smallest", "write_random_annotation_column"],
+    "Training Dataset": ["dataset_mode", "measurement_rules", "annotation_column", "annotated_classes", "class_metadata", "metadata_type_by", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "file_metadata", "custom_measurement", "png_type", "file_type", "sample", "size", "test_split", "balance_to_smallest", "write_random_annotation_column"],
 
     # Which model, and how it is fitted. 'model_name' and 'custom_model' moved
     # here from "Cellpose" -- they answer the same question 'model_type' does.

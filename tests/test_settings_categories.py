@@ -164,6 +164,10 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: is fine; it exists so that "the union grew" is always a deliberate act.
 KEYS_ADDED_BY_REGROUP = frozenset({
     "balance_to_smallest",
+    # The declared channel mapping that replaced png_dims (INVARIANTS 13).
+    "png_channel_mapping",
+    # The measurement training basis, shared by Classify (CV) and (ML).
+    "measurement_rules",
     "cross_validation_enabled",
     "generate_full_dataset",
     "early_stopping_patience",
@@ -756,8 +760,12 @@ def _rendered_sections(app_key):
 @pytest.mark.parametrize(
     ("app_key", "expected"),
     [
+        # "Labels & Classes", not "Data & Controls": renamed deliberately to
+        # match Classify (CV)'s group of the same purpose. The two modules
+        # did the same job under different words, so a settings CSV was not
+        # portable between them and neither was a user's understanding.
         ("ml_analyze", [
-            "Data & Controls", "Feature Preparation",
+            "Labels & Classes", "Feature Preparation",
             "Plate & Batch Correction",
             "Classifier & Validation", "Feature Selection & Importance",
             "Output & Database", "Plots & Heatmaps",

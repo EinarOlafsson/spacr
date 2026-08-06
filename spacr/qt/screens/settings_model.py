@@ -320,15 +320,34 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
 }
 
 
+#: Every setting owned by SOME training basis. Re-enabling is restricted to
+#: these, so `refresh_training_basis_enablement` cannot switch a control back
+#: on that something else disabled for its own reasons.
+try:
+    from spacr.training_basis import BASIS_SETTINGS as _BASIS_SETTINGS
+    _ALL_BASIS_SETTINGS = {k for keys in _BASIS_SETTINGS.values() for k in keys}
+except Exception:      # pragma: no cover - keeps the GUI importable
+    _ALL_BASIS_SETTINGS = set()
+
+
 # App-specific category layouts. ``@Name`` expands the corresponding legacy
 # category; plain entries are individual setting keys. The backend settings
 # dictionaries remain unchanged — this controls only the order and grouping in
 # Qt, just like the Classify (CV) regroup below.
 _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "ml_analyze": (
-        ("Data & Controls", (
-            "src", "location_column", "positive_control", "negative_control",
+        # Category names shared with Classify (CV) wherever the two do the
+        # same job -- "Labels & Classes", "Classifier & Validation",
+        # "Runtime & Reliability". The CV layout is built inline further
+        # down; the names are what has to match, not the mechanism.
+        ("Labels & Classes", (
+            "src", "dataset_mode",
+            # metadata basis
+            "location_column", "positive_control", "negative_control",
+            # annotation basis
             "annotation_column",
+            # measurement basis
+            "measurement_rules",
         )),
         ("Feature Preparation", (
             "channel_of_interest", "exclude", "nuclei_limit",
@@ -414,7 +433,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "merge_edge_pathogen_cells",
         )),
         ("Crop Output", (
-            "save_png", "save_arrays", "crop_mode", "png_size", "png_dims",
+            "save_png", "save_arrays", "crop_mode", "png_size",
+            "png_channel_mapping",
             "dialate_pngs", "dialate_png_ratios", "use_bounding_box",
             "normalize", "normalize_by",
         )),
@@ -1103,12 +1123,16 @@ def categories_for_app(
             "Plate Sources & Workflow": [
                 "src", "experiment", "generate_training_dataset", "train",
                 "test"],
+            # Same group name as Classify (ML), and the same first key:
+            # `dataset_mode` is the shared training basis and it belongs at
+            # the top of the group it governs, because everything below it
+            # is greyed or not depending on what it says.
             "Labels & Classes": [
                 "dataset_mode", "classes", "annotation_column",
                 "annotated_classes", "class_metadata", "metadata_type_by",
                 "metadata_item_1_name", "metadata_item_1_value",
                 "metadata_item_2_name", "metadata_item_2_value",
-                "custom_measurement"],
+                "measurement_rules", "custom_measurement"],
             "Crops & Dataset Split": [
                 "tables", "channel_of_interest", "png_type", "file_type",
                 "crop_source", "size", "test_split", "balance_to_smallest",
@@ -1552,11 +1576,16 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "and failure strictness. Fix the seed here when a result has to be "
         "reproducible.",
     # -- Classify (ML) -----------------------------------------------------
-    "DATA & CONTROLS":
-        "The measurement database this model is fitted on, the wells that "
-        "define the positive and negative classes, and the column holding "
-        "existing labels. Get these wrong and every number downstream is "
-        "meaningless, so check them first.",
+    # Named to match Classify (CV)'s group of the same purpose. The two
+    # modules did the same job under different words, which is what made a
+    # settings CSV non-portable between them.
+    "LABELS & CLASSES":
+        "What defines a class. Pick the training basis first — metadata "
+        "(the wells named as positive and negative control), annotation (a "
+        "column the Annotate module wrote), or measurement (thresholds on "
+        "measured features). The controls the other two bases use are "
+        "greyed out, not hidden: they keep their values. Get this wrong and "
+        "every number downstream is meaningless, so check it first.",
     "FEATURE PREPARATION":
         "Which measurement columns are allowed into the model, and the "
         "variance, correlation, object-count and compartment filters "
@@ -2804,7 +2833,11 @@ NESTED_CAPABLE_KEYS = frozenset({
 # and ``channel_of_interest`` are intentionally absent.
 CHANNEL_LIST_KEYS = frozenset({
     "channels", "channel_dims", "train_channels", "normalize_channels",
-    "overlay_chans", "png_dims",
+    "overlay_chans",
+    # png_dims is deliberately absent: it is superseded by
+    # png_channel_mapping, which has its own three-field R/G/B editor
+    # (widgets/channel_mapping.py). Leaving it here would have offered a
+    # chip list for a setting nothing renders.
 })
 
 
@@ -3609,6 +3642,20 @@ class SettingsWidgets:
         if isinstance(src_widget, QLineEdit):
             src_widget.editingFinished.connect(
                 self._refresh_contextual_widgets)
+
+        # The training basis changes which controls matter, so the panel has
+        # to follow it as it is changed rather than only when the screen is
+        # built. A bound method, not a lambda: see INVARIANTS 4 for what a
+        # closure connected to a Qt signal costs.
+        basis_widget = self._widgets.get("dataset_mode")
+        if basis_widget is not None:
+            for signal_name in ("currentTextChanged", "currentIndexChanged",
+                                "textChanged"):
+                signal = getattr(basis_widget, signal_name, None)
+                if signal is not None:
+                    signal.connect(self._on_training_basis_changed)
+                    break
+
         self._refresh_contextual_widgets()
 
         # Bucket into sections.
@@ -4025,8 +4072,60 @@ class SettingsWidgets:
             self._refresh_contextual_widgets()
         return True
 
+    def _on_training_basis_changed(self, *_args) -> None:
+        """Re-grey the panel when the training basis changes.
+
+        A named method rather than a lambda: INVARIANTS 4 is about
+        QThread.finished specifically, but the same lifetime reasoning
+        applies to any signal connection that has to outlive the call that
+        made it.
+        """
+        self.refresh_training_basis_enablement()
+
+    def refresh_training_basis_enablement(self) -> None:
+        """Grey out the settings the chosen training basis does not read.
+
+        Seeing metadata controls while training on annotations is exactly the
+        confusion this was asked to remove: three sets of controls, only one
+        of which does anything, and nothing saying which.
+
+        GREYED, never removed. INVARIANTS 6: a key ABSENT from the settings
+        dict makes the pipeline fall back to its own default, which can
+        differ from the value the module needs and says nothing when it does.
+        A disabled widget keeps its value and still collects; it just stops
+        being editable.
+
+        The list of what each basis reads lives in
+        :mod:`spacr.training_basis`, not here, so the panel and the pipeline
+        cannot drift into disagreeing about which control matters.
+        """
+        widget = self._widgets.get("dataset_mode")
+        if widget is None:
+            return
+        try:
+            from spacr.training_basis import (
+                inapplicable_settings, resolve_basis,
+            )
+            basis = resolve_basis({"dataset_mode": self._read_widget(widget)})
+            greyed = set(inapplicable_settings(basis))
+        except Exception:
+            # An unrecognised basis is the pipeline's error to raise, loudly,
+            # at run time. Greying nothing is the safe response here --
+            # disabling controls on a guess would hide the one the user needs.
+            return
+
+        for key, control in self._widgets.items():
+            if key in greyed:
+                control.setEnabled(False)
+                control.setToolTip(
+                    f"Not used when the training basis is '{basis}'. "
+                    f"The value is kept and still saved.")
+            elif key in _ALL_BASIS_SETTINGS:
+                control.setEnabled(True)
+
     def _refresh_contextual_widgets(self) -> None:
         """Refresh widgets whose choices come from the selected data source."""
+        self.refresh_training_basis_enablement()
         editor = self._widgets.get("exclude_rows")
         if not isinstance(editor, RowExclusionEditor):
             return
