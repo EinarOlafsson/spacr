@@ -2,7 +2,7 @@
 SEGMENTATION QC: TEXT SITS ON AN OPAQUE BLACK BOX
 ================================================================================
 
-Status:    done - 2026-08-06, commit 39296763
+Status:    done - 2026-08-06, commits 39296763 and 9cebd643 (the first was aimed one level too high)
 Requested: 2026-08-06 — "in the measure module where the segmentation QC is the text should not be on top of a black box, make sure the color behind the text is the same as the container and subject to opacity"
 
 --------------------------------------------------------------------------------
@@ -107,3 +107,36 @@ which works, but the leak itself is undiagnosed.
 
 tests/qt/test_widgets.py::test_qt_boolean_controls_do_not_construct_plain_checkboxes
 fails on a clean tree (widgets/timelapse_movie.py). Pre-existing, untouched.
+
+--------------------------------------------------------------------------------
+SECOND ROUND - THE FIRST FIX DID NOT WORK
+--------------------------------------------------------------------------------
+
+Reported still black after commit 39296763. The first fix tagged
+`_findings_box` and `_rows_box`, which are the CONTAINERS; the widgets
+inside them were still falling through, and those are the ones behind the
+text.
+
+  * prerun builds one anonymous QWidget PER FINDING (`block`) and per
+    diameter row (`row`). Each one painted #000000 behind that finding.
+  * The QC dashboard's card labels had COLOUR rules but no BACKGROUND rule.
+    A QLabel is a QWidget, so every heading and detail line painted its own
+    black rectangle on a cards panel that does have a background. This is
+    most likely what was actually being looked at.
+  * The dashboard's intro and "Folder:" labels sit on the page, and `page`
+    is not `bg` (INVARIANTS 2), so they showed too.
+  * The cards scroll area's viewport had setAutoFillBackground(False),
+    which does NOT stop a stylesheet background - QSS paints through QStyle
+    regardless of that flag. Now tagged as well.
+
+THE LESSON, and it is why the test is the real deliverable: fixing one
+widget at a time is how this came back twice.
+tests/qt/test_qc_surfaces_have_no_black_boxes.py walks EVERY descendant of
+each QC surface and asserts nothing is left to fall through, with findings
+actually drawn (the per-finding rows do not exist on an empty banner), and
+carries a control that plants an untagged QWidget and an unstyled QLabel to
+prove the detector can fail.
+
+VERIFIED: 206 tests green across test_annotate, test_prerun,
+test_qc_surfaces_have_no_black_boxes, test_widget_qss_is_complete and
+test_photo_themes.
