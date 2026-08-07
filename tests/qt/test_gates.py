@@ -483,24 +483,35 @@ def test_two_clicks_do_not_make_a_polygon(panel):
     assert panel.gates.is_empty
 
 
-def test_the_next_gate_is_drawn_inside_the_selected_one(panel, hand):
+def test_a_drawn_gate_is_top_level_not_nested_in_the_selection(panel, hand):
+    """Drawing a gate no longer parents it to whatever is selected.
+
+    Drawing one SELECTS it, so that rule chained every gate into the last:
+    "in the gate view it looks like the second gate is in the first and the
+    thired gate is in the second". A nested gate is ANDed with its ancestors
+    (`GateSet.mask` walks the path), so those gates were also not the shapes
+    that had been drawn.
+
+    The hierarchy still exists in the model -- it round-trips through
+    save/load and clustering sets parents -- but nesting is asked for, never
+    a side effect of the selection.
+    """
     panel.canvas.set_tool(THRESHOLD)
     panel.set_namer(lambda: "singlets")
     panel.canvas.gate_drawn.emit(
         panel.canvas.gate_from_drag(20.0, 0.0, 40.0, 1.0))
     panel.tree.select("singlets")
     assert panel.canvas.active_gate == "singlets"
-    # The plot still shows the WHOLE table. Selecting a gate used to replot
-    # its population, which is the zoom the user rejected; parentage is all
-    # that survives of it, and parentage is what the rest of this test is
-    # about. The gate's own objects are marked, not isolated.
-    assert len(panel.canvas.population()) == 10
+
     panel.set_namer(lambda: "bright")
     panel.canvas.set_tool(RECTANGLE)
     panel.canvas.gate_drawn.emit(
         panel.canvas.gate_from_drag(-1e9, 30.0, 1e9, 60.0))
-    assert panel.gates.get("bright").parent == "singlets"
-    assert selected(panel.gates.mask(hand, "bright")) == [5, 6, 7]
+
+    assert panel.gates.get("bright").parent is None, "the gate nested itself"
+    # ...and so it means what was drawn: every row in the y band, NOT only
+    # the rows that were also inside `singlets`.
+    assert selected(panel.gates.mask(hand, "bright")) == [4, 5, 6, 7]
 
 
 def test_the_tree_shows_n_and_both_percentages(panel, strategy):
