@@ -513,7 +513,12 @@ def test_the_gate_list_has_its_own_handle(qtbot):
     pairs = {tuple(type(sp.widget(i)).__name__ for i in range(sp.count()))
              for sp in screen.findChildren(QSplitter)}
     assert ("GateCanvas", "GateTree") in pairs, pairs
-    assert ("GateEditorPanel", "QScrollArea") in pairs, pairs
+    # The console joined this splitter, so the body is three panes now. The
+    # assertion is about the plot and the side panel each having a handle, not
+    # about how many panes there happen to be -- pinning the count would fail
+    # every time a pane is added, which is not what this test is for.
+    body = next(p for p in pairs if p[:2] == ("GateEditorPanel", "QScrollArea"))
+    assert body[:2] == ("GateEditorPanel", "QScrollArea"), pairs
 
 
 def test_the_gate_list_width_is_not_capped(qtbot):
