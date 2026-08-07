@@ -34,6 +34,8 @@ FAMILY_APP_KEY: Dict[str, str] = {"cv": "classify", "ml": "ml_analyze"}
 #: that changes nothing is worse than one that is not there.
 FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
     "cv": (
+        "crop_shape", "extract_channels", "object_array", "coordinate_columns",
+        "normalization", "normalization_scope",
         "model_type", "custom_model", "custom_model_path", "image_size",
         "train_channels", "epochs", "optimizer_type", "schedule", "loss_type",
         "dropout_rate", "init_weights", "amsgrad", "weight_decay",
@@ -127,6 +129,14 @@ def classify(settings: Mapping[str, Any]) -> Any:
     # Anything downstream reads the current shape only.
     resolved = dict(normalize_classes(normalize_settings(settings)))
     family = resolve_family(resolved)
+
+    if family == "cv":
+        # Refuse a crop source that cannot produce images BEFORE training
+        # starts. Discovering that extract_channels was never set after an
+        # hour of dataset building is a worse failure than one at the door,
+        # and the message names the setting to change.
+        from .crop_source import validate as validate_crops
+        validate_crops(resolved)
 
     if family == "ml":
         from .ml import generate_ml_scores
