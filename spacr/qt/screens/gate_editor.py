@@ -177,6 +177,7 @@ class GateEditorScreen(QWidget):
         self.gates.axes_requested.connect(self._on_axes_requested)
         self.gates.settings_requested.connect(self.open_settings)
         self.gates.mode_requested.connect(self._on_mode_requested)
+        self.gates.spin_axis_changed.connect(self.gates.canvas.set_spin_axis)
         body.addWidget(self.gates)
 
         # ONE section, not two tabs. Filter and Columns were separate tabs
@@ -337,6 +338,10 @@ class GateEditorScreen(QWidget):
             + (f" · {chosen}" if chosen else "") + "…")
         self._table = chosen
         if chosen and chosen not in self._tables:
+            # A table the working set does not have means a NEW database or a
+            # deliberate switch, so the set restarts. A table it already has
+            # means a reload -- a settings change, say -- and the set has to
+            # survive it, or every sampling change silently unmerges.
             self._tables = [chosen]
             self._rebuild_chips()
         fraction = self._settings.sample_fraction
@@ -407,6 +412,7 @@ class GateEditorScreen(QWidget):
         """
         self.apply_settings(self._settings.replaced(gate_mode=mode))
         self._set_z_visible(mode in ("3D", "xD"))
+        self.gates.set_spin_controls_visible(mode == "3D")
         if mode == "xD":
             self.reduce_to_components()
         self.gates.canvas.set_mode(mode, z_column=self._z.currentText())
@@ -423,7 +429,11 @@ class GateEditorScreen(QWidget):
         previous, self._settings = self._settings, settings
         self.gates.apply_settings(settings)
         if previous.costs_a_reload(settings) and self._path:
-            self.load_path(self._path, self._table)
+            # Through the working set, so a reload keeps every merged table.
+            if len(self._tables) > 1:
+                self._reload_working_set()
+            else:
+                self.load_path(self._path, self._table)
 
     def reduce_to_components(self) -> Optional[str]:
         """Project every measurement onto components, and gate on those.
