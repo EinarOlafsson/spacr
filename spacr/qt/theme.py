@@ -2171,6 +2171,7 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
     # The gate list had no QSS block at all, so its rows fell back to Qt's
     # default black text on the theme's surface -- unreadable on dark.
     "spacr.qt.widgets.gate_editor",
+    "spacr.qt.widgets.table_chip",
     "spacr.qt.widgets.field_fade",
     "spacr.qt.widgets.formula_editor",
     "spacr.qt.widgets.graph_builder",
