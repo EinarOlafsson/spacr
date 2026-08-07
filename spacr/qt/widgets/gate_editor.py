@@ -343,10 +343,14 @@ class GateCanvas(GraphCanvas):
         return ((fx - px) ** 2 + (fy - py) ** 2) ** 0.5 <= self.CLOSE_RADIUS_PX
 
     def close_polygon_now(self) -> None:
-        """Close the pending polygon and emit it, if it has enough vertices."""
-        gate = self.close_polygon()
-        if gate is not None:
-            self.gate_drawn.emit(gate)
+        """Close the pending polygon.
+
+        `close_polygon` ALREADY emits `gate_drawn`. Emitting again here made
+        one drawn polygon prompt for a name twice and create two identical
+        gates -- which is exactly what was reported. This wrapper exists only
+        so the click-the-first-vertex path and the Close button share a name.
+        """
+        self.close_polygon()
 
     def _on_motion(self, event) -> None:
         if getattr(self, "_move_name", None):
