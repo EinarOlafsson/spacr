@@ -117,6 +117,14 @@ class GateEditorScreen(QWidget):
         self._load_gates.clicked.connect(self.choose_load_gates)
         head.addWidget(self._load_gates)
 
+        self._annotate = QPushButton("Annotate…", self)
+        self._annotate.setToolTip(
+            "Turn the SHOWN gates into one annotation column. Binary marks "
+            "objects inside every one of them; multi-class gives each "
+            "combination that actually occurs its own class.")
+        self._annotate.clicked.connect(self.annotate_from_gates)
+        head.addWidget(self._annotate)
+
         self._export = QPushButton("Export gates…", self)
         self._export.setToolTip(
             "Write every gate to the database as a column of the `filters` "
@@ -553,6 +561,70 @@ class GateEditorScreen(QWidget):
                 LOG.info("could not export gate %r", gate.name, exc_info=True)
                 failed.append((gate.name, str(exc)))
         return written, failed
+
+    def annotate_from_gates(self) -> None:
+        """Label every object from the gates currently shown.
+
+        The SHOWN gates, not all of them: ticking a gate on and off is already
+        how the user says which ones count, so asking again in a dialog would
+        be asking a question they have already answered.
+        """
+        from PySide6.QtWidgets import QInputDialog, QMessageBox
+        from ...filters import ANNOTATION_MODES, FilterError, annotate_from_gates
+
+        names = list(self.gates.canvas.enabled_gates)
+        if not names:
+            QMessageBox.information(
+                self, "No gates shown",
+                "Tick the gates to annotate from. An annotation is built from "
+                "the gates on screen.")
+            return
+        frame = self._frame
+        if frame is None or frame.empty:
+            QMessageBox.information(self, "No table", "Load a table first.")
+            return
+
+        mode, ok = QInputDialog.getItem(
+            self, "Annotate from gates",
+            f"Using {len(names)} gate(s): {', '.join(names)}",
+            list(ANNOTATION_MODES), 0, False)
+        if not ok:
+            return
+        column, ok = QInputDialog.getText(
+            self, "Name the annotation",
+            "The column this is written to in the filters table:")
+        if not ok or not column.strip():
+            return
+
+        try:
+            labels = annotate_from_gates(frame, self.gates.gates, names,
+                                         mode=mode)
+        except FilterError as exc:
+            QMessageBox.warning(self, "Could not annotate", str(exc))
+            return
+
+        counts = labels.value_counts()
+        summary = ", ".join(f"{value}: {count:,}"
+                            for value, count in counts.head(6).items())
+        path = self._path or ""
+        if not path or path.lower().endswith((".csv", ".tsv", ".txt")):
+            # Still useful without a database: the counts are the answer, and
+            # refusing outright would hide them.
+            self._source.setText(f"{mode} annotation — {summary} "
+                                 f"(not written: this table came from a file)")
+            return
+
+        self._jobs.submit(
+            lambda p=path, f=frame, l=labels, c=column.strip():
+                self._write_annotation(p, f, l, c),
+            lambda payload: self._source.setText(
+                f"wrote {payload[0]} — {summary}"))
+
+    @staticmethod
+    def _write_annotation(path: str, frame, labels, column: str):
+        from ...filters import export_annotation
+
+        return export_annotation(path, frame, labels, column)
 
     def _on_exported(self, payload) -> None:
         written, failed = payload
