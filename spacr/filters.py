@@ -1,0 +1,616 @@
+"""The ``filters`` table: gates, written back to the database as columns.
+
+A gate drawn in the Gate Editor is a shape on two measurements. What a user
+wants out of it is a LABEL -- this object is in my population, that one is not
+-- attached to the objects themselves, so it can be merged with anything else
+they have measured. That is what this module writes:
+
+    one column per gate, named after the gate, 1 inside and 0 outside.
+
+**Why a separate table.** The columns could be added to ``cell``, but a gate
+is not a measurement: it is an interpretation, it is re-drawn often, and it
+belongs to whichever object the user was looking at. Writing into the
+measurement tables would mix the two, and re-gating would rewrite a table that
+the measure step owns. ``filters`` is written only by this module, so it can
+be deleted and rebuilt at any time without losing a measurement.
+
+**The bootstrap.** The first gate exported has to create the table, and the
+table has to carry enough identity that a filter can be merged back onto ANY
+object table or onto ``png_list``. spaCR joins those on
+``plate / row / column / field`` plus the object label (and the timepoint,
+when the database is a timelapse), so those are exactly the columns
+:func:`build_filters_frame` collects -- from every object table present, not
+just the anchor, because a gate drawn on nucleus measurements has to merge
+onto nuclei.
+
+**A tolerant reader, a strict writer.** Databases in the wild carry both the
+current column names and the ones spaCR wrote years ago, so reading accepts
+either spelling. Everything written out uses the canonical name, so the
+``filters`` table itself never needs the alias machinery.
+"""
+from __future__ import annotations
+
+import logging
+import re
+import sqlite3
+from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+
+import numpy as np
+import pandas as pd
+
+LOG = logging.getLogger("spacr.filters")
+
+#: The table this module owns.
+FILTERS_TABLE = "filters"
+
+#: Object tables, in the order one is chosen as the anchor. Preference, not
+#: requirement: the whole point is that a database with ONLY nuclei, or only
+#: pathogens, or only organelles works exactly as well as the usual one.
+OBJECT_TABLES: Tuple[str, ...] = (
+    "cell", "nucleus", "pathogen", "cytoplasm", "organelle",
+)
+
+#: The crop table, joined on the same keys when it exists.
+PNG_TABLE = "png_list"
+
+#: Canonical identity columns, and the spellings accepted for each. spaCR has
+#: written both over the years and a database can carry either; a filter that
+#: silently failed to merge because a column was called ``row`` instead of
+#: ``rowID`` would look like a gate that selected nothing.
+IDENTITY_ALIASES: Dict[str, Tuple[str, ...]] = {
+    "plateID": ("plateID", "plate", "plate_name", "plateid"),
+    "rowID": ("rowID", "row", "row_name", "rowid_", "rowid"),
+    "columnID": ("columnID", "column", "col", "column_name", "columnid"),
+    "fieldID": ("fieldID", "field", "field_name", "fieldid"),
+}
+
+#: Canonical identity columns in join order.
+IDENTITY_COLUMNS: Tuple[str, ...] = tuple(IDENTITY_ALIASES)
+
+#: The object key. Integer in every object table.
+OBJECT_COLUMN = "object_label"
+
+#: Timepoint spellings. Carried into ``filters`` when the database has one,
+#: because on a timelapse the same object label recurs every frame and a join
+#: without it is many-to-many -- the bug already documented in
+#: :func:`spacr.io._read_and_join_tables`.
+TIME_ALIASES: Tuple[str, ...] = ("timeID", "time_id")
+TIME_COLUMN = "timeID"
+
+#: Where a crop path lives in ``png_list``.
+PNG_PATH_ALIASES: Tuple[str, ...] = ("png_path", "path", "file_path", "filepath")
+
+#: Prefix marking a column as "this object appears in that table". Not a
+#: measurement and not a filter, so it is namespaced away from both.
+PRESENT_PREFIX = "in_"
+
+#: A gate name has to survive becoming a SQL column name.
+_SAFE_NAME = re.compile(r"[^0-9A-Za-z_]+")
+
+
+class FilterError(ValueError):
+    """A filter that cannot be built or written, with the reason."""
+
+
+# ---------------------------------------------------------------------------
+# Reading the database
+# ---------------------------------------------------------------------------
+
+def _connect(db_path: str, *, read_only: bool = True) -> sqlite3.Connection:
+    if read_only:
+        return sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    return sqlite3.connect(db_path)
+
+
+def table_names(db_path: str) -> Tuple[str, ...]:
+    """Every table in the database, in the order SQLite lists them."""
+    with _connect(db_path) as db:
+        rows = db.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+    return tuple(str(r[0]) for r in rows)
+
+
+def column_names(db_path: str, table: str) -> Tuple[str, ...]:
+    with _connect(db_path) as db:
+        rows = db.execute(f'PRAGMA table_info("{table}")').fetchall()
+    return tuple(str(r[1]) for r in rows)
+
+
+def object_tables(db_path: str) -> Tuple[str, ...]:
+    """The object tables this database actually has, in preference order.
+
+    Step 1 of the bootstrap: *check which tables are in the database*. Only
+    tables that exist AND carry an object label count -- a table can be
+    present and empty of the identity a filter needs, and discovering that at
+    merge time rather than here would produce a filter that quietly matches
+    nothing.
+    """
+    present = set(table_names(db_path))
+    out: List[str] = []
+    for name in OBJECT_TABLES:
+        if name not in present:
+            continue
+        if resolve_column(column_names(db_path, name), (OBJECT_COLUMN,)) is None:
+            LOG.info("table %r has no %s; not usable for filters",
+                     name, OBJECT_COLUMN)
+            continue
+        out.append(name)
+    return tuple(out)
+
+
+def choose_anchor(tables: Sequence[str]) -> str:
+    """The table the metadata is taken from.
+
+    "usually be cell, but if cell does not exist then another table should be
+    used". Preference order, so a database of only nuclei anchors on nuclei
+    and a database of only organelles on organelles -- there is no table that
+    has to be present.
+
+    :raises FilterError: nothing to anchor on. Naming the tables that WERE
+        found is the difference between a fixable message and a shrug.
+    """
+    for name in OBJECT_TABLES:
+        if name in tables:
+            return name
+    raise FilterError(
+        "this database has no object table to build filters from; looked for "
+        + ", ".join(OBJECT_TABLES))
+
+
+def resolve_column(columns: Iterable[str],
+                   aliases: Sequence[str]) -> Optional[str]:
+    """The first alias present in ``columns``, matched case-insensitively.
+
+    Returns the name AS SPELLED in the table, which is what has to go in the
+    SQL -- returning the canonical spelling would produce queries for columns
+    that are not there.
+    """
+    lookup = {str(c).lower(): str(c) for c in columns}
+    for alias in aliases:
+        hit = lookup.get(str(alias).lower())
+        if hit is not None:
+            return hit
+    return None
+
+
+def identity_columns_of(db_path: str, table: str) -> Dict[str, str]:
+    """Map canonical identity name -> the spelling ``table`` uses.
+
+    Missing columns are simply absent from the map. A table without a field
+    column still merges on the keys it does have; refusing outright would rule
+    out databases that are perfectly usable.
+    """
+    columns = column_names(db_path, table)
+    found: Dict[str, str] = {}
+    for canonical, aliases in IDENTITY_ALIASES.items():
+        actual = resolve_column(columns, aliases)
+        if actual is not None:
+            found[canonical] = actual
+    time_column = resolve_column(columns, TIME_ALIASES)
+    if time_column is not None:
+        found[TIME_COLUMN] = time_column
+    object_column = resolve_column(columns, (OBJECT_COLUMN,))
+    if object_column is not None:
+        found[OBJECT_COLUMN] = object_column
+    return found
+
+
+def read_identity(db_path: str, table: str) -> pd.DataFrame:
+    """The identity columns of one table, and nothing else.
+
+    Identity only, because this runs over every object table in the database
+    and a measurement table is wide -- hundreds of columns of which four
+    matter. ``SELECT *`` here is the difference between a bootstrap that takes
+    a moment and one that reads the whole database.
+    """
+    mapping = identity_columns_of(db_path, table)
+    if OBJECT_COLUMN not in mapping:
+        raise FilterError(
+            f"table {table!r} has no {OBJECT_COLUMN} column, so its rows "
+            f"cannot be identified")
+    select = ", ".join(f'"{actual}" AS "{canonical}"'
+                       for canonical, actual in mapping.items())
+    with _connect(db_path) as db:
+        frame = pd.read_sql_query(f'SELECT {select} FROM "{table}"', db)
+    return frame
+
+
+# ---------------------------------------------------------------------------
+# Building the table
+# ---------------------------------------------------------------------------
+
+def key_columns(frame: pd.DataFrame) -> List[str]:
+    """The identity columns present, in join order.
+
+    One definition, used by the bootstrap, the merge and the writer, so a
+    filter can never be merged on a different key than it was built with.
+    """
+    keys = [c for c in IDENTITY_COLUMNS if c in frame.columns]
+    if TIME_COLUMN in frame.columns:
+        keys.append(TIME_COLUMN)
+    if OBJECT_COLUMN in frame.columns:
+        keys.append(OBJECT_COLUMN)
+    return keys
+
+
+def _png_paths(db_path: str) -> Optional[pd.DataFrame]:
+    """``png_list``'s identity and crop path, or None if there is no such table.
+
+    ``png_list`` keys its object as TEXT (``'o5'``) while every object table
+    uses an integer, so the two are reconciled through the one function that
+    already knows every way that goes wrong -- ``'omulti'``, ``'onone'``,
+    ``'error'`` and NULL, all of which real writers produce. Reimplementing
+    that translation here would be a second place for it to be wrong.
+    """
+    if PNG_TABLE not in table_names(db_path):
+        return None
+    columns = column_names(db_path, PNG_TABLE)
+    path_column = resolve_column(columns, PNG_PATH_ALIASES)
+    if path_column is None:
+        LOG.info("%s has no path column; filters will carry no crop paths",
+                 PNG_TABLE)
+        return None
+
+    from .utils import PNG_OBJECT_ID_COLUMNS, object_label_from_png_id
+
+    id_column = resolve_column(columns, tuple(PNG_OBJECT_ID_COLUMNS.values()))
+    if id_column is None:
+        LOG.info("%s carries no object id; filters will carry no crop paths",
+                 PNG_TABLE)
+        return None
+
+    mapping = {canonical: actual
+               for canonical, aliases in IDENTITY_ALIASES.items()
+               for actual in [resolve_column(columns, aliases)]
+               if actual is not None}
+    time_column = resolve_column(columns, TIME_ALIASES)
+    if time_column is not None:
+        mapping[TIME_COLUMN] = time_column
+    select = ", ".join(
+        [f'"{actual}" AS "{canonical}"' for canonical, actual in mapping.items()]
+        + [f'"{id_column}" AS "_png_object_id"', f'"{path_column}" AS "png_path"'])
+    with _connect(db_path) as db:
+        frame = pd.read_sql_query(f'SELECT {select} FROM "{PNG_TABLE}"', db)
+
+    labels = object_label_from_png_id(frame["_png_object_id"])
+    frame[OBJECT_COLUMN] = labels
+    dropped = int(frame[OBJECT_COLUMN].isna().sum())
+    if dropped:
+        # Not an error: 'omulti'/'onone'/'error'/NULL are states real crops
+        # are in. The object keeps its measurements and simply has no path.
+        LOG.info("%d %s row(s) have no usable object id; those objects get "
+                 "no crop path", dropped, PNG_TABLE)
+    frame = frame.dropna(subset=[OBJECT_COLUMN]).copy()
+    frame[OBJECT_COLUMN] = frame[OBJECT_COLUMN].astype("int64")
+    return frame.drop(columns=["_png_object_id"])
+
+
+def build_filters_frame(db_path: str) -> pd.DataFrame:
+    """The ``filters`` table's identity, before any gate is written to it.
+
+    The three steps asked for, in order:
+
+    1. which tables are in the database (:func:`object_tables`);
+    2. the object numbers from EVERY object table, plus the metadata --
+       plate, row, column, field, object -- and the crop paths from
+       ``png_list`` when it exists;
+    3. one table carrying enough to merge a filter onto any of them.
+
+    Every object table contributes rows, not just the anchor. A gate drawn on
+    nucleus measurements has to merge onto nuclei, and a filters table built
+    only from ``cell`` could not express that. Each object also carries an
+    ``in_<table>`` flag saying which tables it appears in, which is what makes
+    a merge predictable rather than a thing you discover by counting rows.
+
+    :param db_path: the measurement database.
+    :returns: one row per distinct object key.
+    :raises FilterError: no object table to build from.
+    """
+    tables = object_tables(db_path)
+    anchor = choose_anchor(tables)
+    LOG.info("building %s from %s, anchored on %r",
+             FILTERS_TABLE, ", ".join(tables), anchor)
+
+    frames: Dict[str, pd.DataFrame] = {}
+    for table in tables:
+        try:
+            frames[table] = read_identity(db_path, table)
+        except FilterError as exc:
+            LOG.info("skipping %r: %s", table, exc)
+
+    if not frames:
+        raise FilterError(
+            f"none of {', '.join(tables)} carries the identity columns a "
+            f"filter needs")
+
+    # The anchor decides the key set. A table with fewer identity columns is
+    # merged on what it shares, rather than being dropped for lacking a
+    # column the others happen to have.
+    keys = key_columns(frames[anchor])
+    out = frames[anchor][keys].drop_duplicates().copy()
+    out[f"{PRESENT_PREFIX}{anchor}"] = 1
+
+    for table, frame in frames.items():
+        if table == anchor:
+            continue
+        shared = [k for k in keys if k in frame.columns]
+        if not shared:
+            LOG.info("%r shares no identity with the anchor; not merged", table)
+            continue
+        side = frame[shared].drop_duplicates().copy()
+        side[f"{PRESENT_PREFIX}{table}"] = 1
+        out = out.merge(side, on=shared, how="outer")
+
+    for table in frames:
+        column = f"{PRESENT_PREFIX}{table}"
+        if column in out.columns:
+            out[column] = out[column].fillna(0).astype("int64")
+
+    paths = _png_paths(db_path)
+    if paths is not None:
+        shared = [k for k in keys if k in paths.columns]
+        if shared:
+            paths = paths[shared + ["png_path"]].drop_duplicates(subset=shared)
+            out = out.merge(paths, on=shared, how="left")
+        else:
+            LOG.info("%s shares no identity columns; no crop paths carried",
+                     PNG_TABLE)
+
+    return out.reset_index(drop=True)
+
+
+def ensure_filters_table(db_path: str, *, rebuild: bool = False) -> pd.DataFrame:
+    """Return the ``filters`` table, building it the first time.
+
+    :param rebuild: discard and rebuild. The identity is derived entirely from
+        the object tables, but any gate columns already written are LOST --
+        which is why this is a parameter and not something the export path
+        does on its own.
+    :returns: the table as it now stands on disk.
+    """
+    if not rebuild and FILTERS_TABLE in table_names(db_path):
+        with _connect(db_path) as db:
+            return pd.read_sql_query(f'SELECT * FROM "{FILTERS_TABLE}"', db)
+
+    frame = build_filters_frame(db_path)
+    write_filters_table(db_path, frame)
+    return frame
+
+
+def write_filters_table(db_path: str, frame: pd.DataFrame) -> None:
+    """Replace ``filters`` with ``frame``.
+
+    Whole-table replace rather than ALTER + UPDATE: the table is small (one
+    row per object, a handful of columns), it is owned entirely by this
+    module, and a partial write that left a gate column half-populated would
+    be indistinguishable from a gate that selected those rows.
+    """
+    with _connect(db_path, read_only=False) as db:
+        frame.to_sql(FILTERS_TABLE, db, if_exists="replace", index=False)
+
+
+# ---------------------------------------------------------------------------
+# Writing a gate
+# ---------------------------------------------------------------------------
+
+def column_name_for(gate_name: str) -> str:
+    """The column a gate is written to.
+
+    The gate's own name, with anything that is not a letter, digit or
+    underscore collapsed to an underscore. The name is what the user reads in
+    both places, so it is kept recognisable rather than hashed.
+
+    :raises FilterError: a name with nothing usable left in it, which would
+        otherwise become an anonymous column called ``_``.
+    """
+    cleaned = _SAFE_NAME.sub("_", str(gate_name).strip()).strip("_")
+    if not cleaned:
+        raise FilterError(
+            f"gate name {gate_name!r} has no letters or digits in it, so it "
+            f"cannot become a column name")
+    if cleaned[0].isdigit():
+        # A leading digit is legal in a quoted SQLite column but trips up
+        # every tool that reads the table afterwards, pandas query included.
+        cleaned = f"g_{cleaned}"
+    return cleaned
+
+
+def export_gate(db_path: str, frame: pd.DataFrame, inside: np.ndarray,
+                gate_name: str, *, rebuild: bool = False) -> Tuple[str, int]:
+    """Write one gate to ``filters`` as a 1/0 column.
+
+    :param frame: the objects the gate was evaluated on. Must carry the
+        identity columns; the measurements are not needed and not read.
+    :param inside: boolean mask over ``frame``, True for objects in the gate.
+    :param gate_name: names the column.
+    :param rebuild: rebuild the identity table first, discarding gate columns.
+    :returns: ``(column name, objects marked)``.
+    :raises FilterError: the frame cannot be identified, or the mask does not
+        match it.
+
+    Objects NOT in ``frame`` get 0, not null. A user who gated on a 20% sample
+    and exported it would otherwise get a column that is null for four objects
+    in five, and null is not what "outside the gate" means. The GUI re-reads
+    the full table before calling this precisely so that the 0s are real --
+    see :func:`gate_mask_over_table`.
+    """
+    inside = np.asarray(inside, dtype=bool)
+    if len(inside) != len(frame):
+        raise FilterError(
+            f"the gate mask has {len(inside):,} value(s) but the table has "
+            f"{len(frame):,} row(s)")
+
+    column = column_name_for(gate_name)
+    keys = key_columns(frame)
+    if not keys or OBJECT_COLUMN not in keys:
+        raise FilterError(
+            "this table has no object identity (" + ", ".join(IDENTITY_COLUMNS)
+            + f", {OBJECT_COLUMN}), so a gate on it cannot be written back to "
+            f"the database")
+
+    filters = ensure_filters_table(db_path, rebuild=rebuild)
+    shared = [k for k in keys if k in filters.columns]
+    if OBJECT_COLUMN not in shared:
+        raise FilterError(
+            f"the {FILTERS_TABLE} table and this measurement table share no "
+            f"object key, so the gate cannot be merged onto it")
+
+    marked = frame.loc[inside, shared].drop_duplicates().copy()
+    marked[column] = 1
+
+    if column in filters.columns:
+        # Re-exporting a gate REPLACES it. The alternative -- refusing, or
+        # suffixing -- leaves the user with filters_2, filters_3 and no way to
+        # tell which one is the gate currently on screen.
+        LOG.info("replacing existing filter column %r", column)
+        filters = filters.drop(columns=[column])
+
+    filters = filters.merge(marked, on=shared, how="left")
+    filters[column] = filters[column].fillna(0).astype("int64")
+    write_filters_table(db_path, filters)
+    return column, int(filters[column].sum())
+
+
+def gate_mask_over_table(db_path: str, table: str, gates, gate_name: str,
+                         ) -> Tuple[pd.DataFrame, np.ndarray]:
+    """Apply a gate to EVERY object, reading only the columns it needs.
+
+    The point of the sampling setting is that a user gates on a fraction of a
+    large table; the point of this is that the export does not. The gate's own
+    columns plus the identity columns are read in full -- a handful out of
+    hundreds, so this stays cheap even where reading the whole table is not.
+
+    :param gates: a ``GateSet``.
+    :param gate_name: which gate in it.
+    :returns: ``(identity frame, mask)`` ready for :func:`export_gate`.
+    :raises FilterError: a column the gate needs is not in the table.
+    """
+    needed: List[str] = []
+    for gate in gates.path(gate_name):
+        needed.extend(gate.columns)
+
+    available = column_names(db_path, table)
+    identity = identity_columns_of(db_path, table)
+    missing = [c for c in needed if resolve_column(available, (c,)) is None]
+    if missing:
+        raise FilterError(
+            f"table {table!r} does not have {', '.join(sorted(set(missing)))}, "
+            f"which gate {gate_name!r} is drawn on")
+
+    select = [f'"{actual}" AS "{canonical}"'
+              for canonical, actual in identity.items()]
+    select += [f'"{resolve_column(available, (c,))}" AS "{c}"'
+               for c in dict.fromkeys(needed)]
+    with _connect(db_path) as db:
+        frame = pd.read_sql_query(
+            f'SELECT {", ".join(select)} FROM "{table}"', db)
+
+    mask = gates.mask(frame, gate_name)
+    return frame, np.asarray(mask, dtype=bool)
+
+
+# ---------------------------------------------------------------------------
+# Sampling -- the reason the module is laggy on a real dataset
+# ---------------------------------------------------------------------------
+
+#: SQLite's names for the implicit row id. Any of them can be SHADOWED by a
+#: user column of that name, in which case it refers to the user's column
+#: instead -- so the right one has to be chosen per table rather than assumed.
+ROWID_ALIASES: Tuple[str, ...] = ("_rowid_", "rowid", "oid")
+
+
+def rowid_expression(columns: Iterable[str]) -> Optional[str]:
+    """Which spelling of the implicit row id this table leaves usable.
+
+    **This is not hypothetical.** Every spaCR measurement table has a column
+    called ``rowID`` -- the row of the plate -- and SQLite matches column
+    names case-insensitively, so ``rowid`` in a query means THAT column. It
+    holds 'A'..'P', and ``'A' % 5`` is ``0`` in SQLite, so a sampling clause
+    written the obvious way is true for every row and silently samples
+    nothing. The symptom is a sampling setting that appears to do nothing,
+    which is indistinguishable from the read being slow for another reason.
+
+    :returns: the first alias not shadowed by a real column, or ``None`` for
+        a table that shadows all three (or has no row id at all).
+    """
+    taken = {str(c).lower() for c in columns}
+    for alias in ROWID_ALIASES:
+        if alias not in taken:
+            return alias
+    return None
+
+
+def sampling_clause(fraction: float, rowid: str = "_rowid_") -> str:
+    """A SQL fragment taking roughly ``fraction`` of the rows.
+
+    Systematic on the row id, not ``ORDER BY RANDOM()``: random ordering sorts
+    the whole table before discarding most of it, which costs MORE than
+    reading everything and is the opposite of the point. Modulo on the row id
+    is an index scan and is also reproducible -- the same 20% every time, so a
+    gate drawn on Monday sits on the same cloud on Tuesday.
+
+    The bias this trades for is that row id order is insertion order, i.e.
+    roughly well by well. For drawing a gate on a cloud of a million objects
+    that is not a distinction that matters; for anything where it might, the
+    export applies the gate to every row regardless of what was sampled.
+
+    :param fraction: in (0, 1]. 1 means everything, and returns no clause.
+    :param rowid: which row id spelling to use -- see
+        :func:`rowid_expression`, which is what picks it.
+    :raises FilterError: a fraction outside (0, 1].
+    """
+    value = float(fraction)
+    if not 0 < value <= 1:
+        raise FilterError(
+            f"sample fraction {fraction!r} is not a fraction between 0 and 1")
+    if value >= 1:
+        return ""
+    step = max(2, int(round(1.0 / value)))
+    return f'"{rowid}" % {step} = 0'
+
+
+def read_sampled(db_path: str, table: str, *, fraction: float = 1.0,
+                 limit: Optional[int] = None) -> pd.DataFrame:
+    """Read ``table``, optionally taking only a fraction of its rows.
+
+    Sampling happens in SQL where it can, because the point is to not read
+    the rows. A table that shadows every row id alias is read whole and
+    sampled afterwards -- slower, but correct, and it says so in the log
+    rather than quietly returning everything.
+
+    :param fraction: how much of the table to read, in (0, 1].
+    :param limit: a hard row cap applied after the fraction.
+    """
+    value = float(fraction)
+    if not 0 < value <= 1:
+        raise FilterError(
+            f"sample fraction {fraction!r} is not a fraction between 0 and 1")
+
+    rowid = rowid_expression(column_names(db_path, table))
+    query = f'SELECT * FROM "{table}"'
+    fell_back = False
+    if value < 1:
+        if rowid is not None:
+            query += f" WHERE {sampling_clause(value, rowid)}"
+        else:
+            fell_back = True
+            LOG.info("table %r shadows every row id alias; sampling in pandas "
+                     "after reading it whole", table)
+    if limit and not fell_back:
+        query += f" LIMIT {int(limit)}"
+
+    with _connect(db_path) as db:
+        frame = pd.read_sql_query(query, db)
+
+    if fell_back:
+        step = max(2, int(round(1.0 / value)))
+        frame = frame.iloc[::step].reset_index(drop=True)
+        if limit:
+            frame = frame.iloc[:int(limit)]
+    return frame
+
+
+def row_count(db_path: str, table: str) -> int:
+    """How many objects the table has -- what a sample is a fraction OF."""
+    with _connect(db_path) as db:
+        return int(db.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0])
