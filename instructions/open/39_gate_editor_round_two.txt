@@ -155,3 +155,12 @@ NOTE for anyone adding a control: use `fit_to_text` from
 spacr.qt.widgets.gate_editor rather than setFixedWidth. Fixed sizes are a
 promise about a font the app does not control, and clipping was reported on
 the sides AND from the top and bottom.
+
+--- 2026-08-07, commits f1719e46 + the annotate UI: item 13 DONE ---
+
+Multi-gate annotation: binary (intersection) and multi-class (one class per
+OBSERVED combination, named after the gates it is in). Uses the gates that are
+ticked. Writes through spacr.filters.export_annotation, the same path a single
+gate takes.
+
+STILL OPEN: item 12 only -- the console and the AI chat box.

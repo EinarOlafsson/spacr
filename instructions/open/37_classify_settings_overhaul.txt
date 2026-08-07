@@ -316,3 +316,46 @@ NOTE: tests/test_settings_categories.py has FOUR failures on the clean tree
 (two timelapse, two from cross-file settings-registration leakage,
 INVARIANTS 5). They are not caused by this work; do not read them as
 regressions when doing the category items.
+
+--------------------------------------------------------------------------------
+THE CATEGORY OVERHAUL WAS ATTEMPTED AND REVERTED -- 2026-08-07
+--------------------------------------------------------------------------------
+
+Items 13-23 were attempted in one pass and backed out. Not because the design
+is wrong, but because `categories` is ONE map shared by every module, so
+regrouping Classify moves keys that other panels read, and
+tests/test_settings_categories.py rejected it on nine counts at once. Shipping
+it half-done would have left keys ungrouped ("Other" sections in Qt, pinned to
+the top in Tk) and duplicates silently dropped.
+
+What the next attempt has to handle, all of it found by that test:
+
+  * DUPLICATES. A key may appear in exactly one category. `normalize` is
+    already in "General"; `heatmap_feature` / `grouping` / `min_max` / `cmap`
+    and the feature-selection keys are already in ML/Regression categories.
+    Moving one means REMOVING it from the other in the same edit.
+  * UNDECLARED KEYS. `path_string` and `crop_source` must exist in
+    expected_types and have a default before they can be categorised.
+  * SECTION HINTS. Every category needs an entry in the Qt section-hint map,
+    and every hint must name a real category. Both directions are tested.
+  * MODULE EXPECTATIONS. Two tests name categories by string literal --
+    test_the_model_a_module_runs_is_filed_under_model_training and
+    test_the_cv_dataset_class_keys_are_grouped_with_the_dataset. Renaming
+    "Model Training" or "Training Dataset" means updating those with the
+    reason, not deleting them.
+  * WORKFLOW ORDER. test_requested_modules_use_workflow_ordered_categories
+    pins the ORDER categories appear in per module.
+
+Do it as its own commit, with nothing else in it, and run
+tests/test_settings_categories.py after every individual category rather than
+at the end -- the failures are much easier to read one at a time.
+
+BASELINE: that file has FOUR failures on a clean tree (two timelapse, two from
+cross-file registration leakage). Confirm those four before starting so they
+are not mistaken for damage.
+
+The proposed grouping, which survived review and is worth reusing:
+  Training Classes / Computer Vision Data Source / Computer Vision Model /
+  Computer Vision Training / Computer Vision Optimization and Regularization /
+  Model Evaluation (shared, holds the heatmap and Save Results to DB) /
+  Machine Learning Model and Features (feature prep + importance merged).
