@@ -42,7 +42,8 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
     QFormLayout, QHBoxLayout, QHeaderView, QInputDialog, QLabel, QPushButton,
-    QSpinBox, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget,
+    QSpinBox, QSplitter, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
+    QWidget,
 )
 
 from ...selection import DataFilter
@@ -699,21 +700,35 @@ class GateEditorPanel(QWidget):
         tools.addWidget(self._status, 1)
         outer.addLayout(tools)
 
-        body = QHBoxLayout()
-        body.setContentsMargins(0, 0, 0, 0)
-        body.setSpacing(SPACING["sm"])
+        # A SPLITTER, not a QHBoxLayout. The gate list sits between the
+        # scatter and the filter column, and in a box layout with a hard
+        # 320px cap it could not be resized at all: dragging the outer
+        # splitter moved the filter column and took the canvas AND the gate
+        # list with it as one block. Its own handle makes it independent,
+        # which is what "the gate box should be independent" asks for.
+        self.body = QSplitter(Qt.Horizontal, self)
+        self.body.setChildrenCollapsible(False)
+
         self.canvas = GateCanvas(self, link=link, source=source)
         self.canvas.gate_drawn.connect(self._on_gate_drawn)
         self.canvas.gate_edited.connect(self._on_gate_edited)
         self.canvas.polygon_changed.connect(self._on_polygon_changed)
-        body.addWidget(self.canvas, 1)
+        self.body.addWidget(self.canvas)
 
         self.tree = GateTree(self)
-        self.tree.setMaximumWidth(320)
+        # No maximum. A cap cannot be dragged past, so a gate whose name or
+        # statistics were wider than 320px had nowhere to be read. A minimum
+        # stays, so the handle cannot hide the list entirely.
+        self.tree.setMinimumWidth(220)
         self.tree.active_changed.connect(self._on_active_changed)
         self.tree.gates_changed.connect(self._on_tree_changed)
-        body.addWidget(self.tree)
-        outer.addLayout(body, 1)
+        self.body.addWidget(self.tree)
+
+        # The scatter takes the slack when the panel is resized; the gate
+        # list keeps whatever width the user gave it.
+        self.body.setStretchFactor(0, 1)
+        self.body.setStretchFactor(1, 0)
+        outer.addWidget(self.body, 1)
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
