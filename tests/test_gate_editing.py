@@ -523,3 +523,51 @@ def test_the_gate_list_width_is_not_capped(qtbot):
     assert screen.gates.tree.maximumWidth() == 16777215
     assert screen.gates.tree.minimumWidth() > 0, (
         "without a floor the handle can hide the list entirely")
+
+
+# ---------------------------------------------------------------------------
+# The panel's own handlers
+#
+# These crashed in the real app while every test passed, because the tests
+# exercised the CANVAS and the panel handlers were never called. `gates` is
+# a property on both classes and both handlers called it as a method:
+#
+#     TypeError: 'GateSet' object is not callable
+#
+# on every single drag. So the handlers are called directly here.
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def panel(qtbot, frame, rect):
+    pytest.importorskip("PySide6")
+    from spacr.qt.linked_selection import LinkedSelection
+    from spacr.qt.widgets.gate_editor import GateEditorPanel
+    from spacr.qt.widgets.gate_spec import GateSet
+
+    widget = GateEditorPanel(link=LinkedSelection())
+    qtbot.addWidget(widget)
+    widget.set_frame(frame)
+    gates = GateSet()
+    gates.add(rect)
+    widget.canvas.set_gates(gates)
+    return widget
+
+
+def test_the_panel_can_take_an_edited_gate_without_crashing(panel, rect):
+    """The exact crash: a drag emits gate_edited, the panel handles it."""
+    moved = rect.translated(3.0, 3.0)
+    panel._on_gate_edited(moved)
+
+    stored = panel.gates.get("box")
+    assert (stored.x_low, stored.x_high) == (3.0, 13.0)
+
+
+def test_the_panel_gates_property_is_not_callable(panel):
+    """The shape of the bug, pinned. `gates` is a property on the panel AND
+    on the canvas; anything calling it as a method raises on every use."""
+    from spacr.qt.widgets.gate_spec import GateSet
+
+    assert isinstance(panel.gates, GateSet)
+    assert isinstance(panel.canvas.gates, GateSet)
+    with pytest.raises(TypeError):
+        panel.gates()
