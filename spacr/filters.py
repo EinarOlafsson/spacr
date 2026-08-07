@@ -306,6 +306,17 @@ def build_filters_frame(db_path: str) -> pd.DataFrame:
     :returns: one row per distinct object key.
     :raises FilterError: no object table to build from.
     """
+    try:
+        return build_filters_from_relationships(db_path)
+    except FilterError:
+        raise
+    except Exception:
+        # The relationships route is the intended one; this fallback keeps a
+        # database whose relationships cannot be built (an unreadable table,
+        # a schema nobody anticipated) gateable rather than blocked.
+        LOG.info("could not build %s from %s; falling back to the object "
+                 "tables", FILTERS_TABLE, RELATIONSHIPS_TABLE, exc_info=True)
+
     tables = object_tables(db_path)
     anchor = choose_anchor(tables)
     LOG.info("building %s from %s, anchored on %r",
@@ -359,6 +370,86 @@ def build_filters_frame(db_path: str) -> pd.DataFrame:
     return out.reset_index(drop=True)
 
 
+#: The table holding which object belongs to which. Written after masking,
+#: and the base every filters table is copied from.
+RELATIONSHIPS_TABLE = "relationships"
+
+
+def build_relationships_frame(db_path: str) -> pd.DataFrame:
+    """Every object relationship in the database, as one flat table.
+
+    One row per object of the FINEST kind present, carrying the label of each
+    coarser object it belongs to. Flat rather than a link table per pair
+    because every question asked of it -- "cells with more than three
+    pathogens", "the mean pathogen intensity per cell" -- is a group-by on
+    the parent, and a flat table answers those with no joins at all.
+
+    The parent link is ``cell_id`` on the child, which is what
+    :func:`spacr.io._read_and_join_tables` uses and what the measure step
+    writes. A child measured without a parent mask has no link, and is
+    carried with a null parent rather than dropped: the object exists, and
+    saying it has no parent is different from pretending it is not there.
+
+    :raises FilterError: no object table to build from.
+    """
+    tables = object_tables(db_path)
+    if not tables:
+        raise FilterError(
+            "this database has no object table to build relationships from")
+
+    frames: List[pd.DataFrame] = []
+    for table in tables:
+        columns = column_names(db_path, table)
+        mapping = identity_columns_of(db_path, table)
+        select = [f'"{actual}" AS "{canonical}"'
+                  for canonical, actual in mapping.items()]
+        link = resolve_column(columns, ("cell_id",))
+        if link is not None:
+            select.append(f'"{link}" AS "parent_label"')
+        with _connect(db_path) as db:
+            frame = pd.read_sql_query(
+                f'SELECT {", ".join(select)} FROM "{table}"', db)
+        if "parent_label" not in frame.columns:
+            frame["parent_label"] = pd.NA
+        frame["object_type"] = table
+        frames.append(frame)
+
+    out = pd.concat(frames, ignore_index=True, sort=False)
+    out["parent_label"] = pd.to_numeric(out["parent_label"],
+                                        errors="coerce").astype("Int64")
+    out["parent_type"] = np.where(out["parent_label"].notna(), "cell", None)
+    return out.reset_index(drop=True)
+
+
+def ensure_relationships_table(db_path: str, *,
+                               rebuild: bool = False) -> pd.DataFrame:
+    """The relationships table, built on demand if the mask step never did.
+
+    "if the relationships table does not exist when attempting to make the
+    filters table, then the relationships table gets generated first." A user
+    who gated before ever running the new mask step must not hit an error
+    for it.
+    """
+    if not rebuild and RELATIONSHIPS_TABLE in table_names(db_path):
+        with _connect(db_path) as db:
+            return pd.read_sql_query(
+                f'SELECT * FROM "{RELATIONSHIPS_TABLE}"', db)
+    frame = build_relationships_frame(db_path)
+    with _connect(db_path, read_only=False) as db:
+        frame.to_sql(RELATIONSHIPS_TABLE, db, if_exists="replace", index=False)
+    return frame
+
+
+def write_relationships(db_path: str) -> pd.DataFrame:
+    """Build and store the relationships table. Called after the mask step.
+
+    Separate from :func:`ensure_relationships_table` so the mask step can say
+    "rebuild this, the masks just changed" without a caller having to know
+    the flag.
+    """
+    return ensure_relationships_table(db_path, rebuild=True)
+
+
 def ensure_filters_table(db_path: str, *, rebuild: bool = False) -> pd.DataFrame:
     """Return the ``filters`` table, building it the first time.
 
@@ -374,6 +465,34 @@ def ensure_filters_table(db_path: str, *, rebuild: bool = False) -> pd.DataFrame
 
     frame = build_filters_frame(db_path)
     write_filters_table(db_path, frame)
+    return frame
+
+
+def build_filters_from_relationships(db_path: str) -> pd.DataFrame:
+    """The filters table as a COPY of the relationships table.
+
+    "to make the filters table this the relationships table should be the
+    base (it should be copied) and filters added." A copy rather than a merge
+    onto it: a filter then automatically carries every relationship, and
+    there is one definition of what an object is rather than two that can
+    drift.
+    """
+    frame = ensure_relationships_table(db_path).copy()
+
+    # The `in_<table>` flags say the same thing `object_type` does, and are
+    # kept because a merge asks "is this object a nucleus" as a column test
+    # far more often than as a string comparison. Derived here rather than
+    # stored twice in the relationships table itself.
+    for table in object_tables(db_path):
+        frame[f"{PRESENT_PREFIX}{table}"] = (
+            frame["object_type"] == table).astype("int64")
+
+    paths = _png_paths(db_path)
+    if paths is not None:
+        shared = [k for k in key_columns(frame) if k in paths.columns]
+        if shared:
+            paths = paths[shared + ["png_path"]].drop_duplicates(subset=shared)
+            frame = frame.merge(paths, on=shared, how="left")
     return frame
 
 
@@ -507,6 +626,108 @@ def gate_mask_over_table(db_path: str, table: str, gates, gate_name: str,
 
     mask = gates.mask(frame, gate_name)
     return frame, np.asarray(mask, dtype=bool)
+
+
+# ---------------------------------------------------------------------------
+# Annotating from several gates at once
+# ---------------------------------------------------------------------------
+
+#: How several gates become ONE label.
+ANNOTATION_MODES: Tuple[str, ...] = ("binary", "multiclass")
+
+
+def combination_label(memberships: Sequence[bool], names: Sequence[str]) -> str:
+    """The class name for one combination of gate memberships.
+
+    Named after the gates the object IS in, in gate order, so the label reads
+    as what it means -- ``live+CD8`` rather than ``class_3``. An object in no
+    gate is ``none``, which is a real class: "outside everything" is a
+    finding, not a gap.
+    """
+    inside = [name for name, is_in in zip(names, memberships) if is_in]
+    return "+".join(inside) if inside else "none"
+
+
+def annotate_from_gates(frame: pd.DataFrame, gates, names: Sequence[str], *,
+                        mode: str = "binary") -> pd.Series:
+    """Label every object from SEVERAL gates at once.
+
+    ``binary``
+        1 when the object is inside EVERY chosen gate, 0 otherwise. The
+        intersection, because that is what "annotate based on all the gates"
+        means when the answer has to be one column.
+    ``multiclass``
+        one class per observed combination of memberships. Only combinations
+        that actually occur become classes -- enumerating all 2^n would offer
+        classes with no objects in them, which no classifier can learn and
+        every class-balance report would then have to explain.
+
+    :param gates: a ``GateSet``.
+    :param names: which gates to use, in the order the label reads.
+    :returns: a Series aligned to ``frame`` -- integers for binary, class
+        names for multiclass.
+    :raises FilterError: no gates chosen, or a mode that does not exist.
+    """
+    if mode not in ANNOTATION_MODES:
+        raise FilterError(
+            f"{mode!r} is not one of {list(ANNOTATION_MODES)}")
+    chosen = [n for n in names if n]
+    if not chosen:
+        raise FilterError("choose at least one gate to annotate from")
+
+    masks = []
+    for name in chosen:
+        try:
+            masks.append(np.asarray(gates.mask(frame, name), dtype=bool))
+        except Exception as exc:
+            raise FilterError(
+                f"gate {name!r} cannot be applied to this table: {exc}") from exc
+
+    if mode == "binary":
+        inside = np.ones(len(frame), dtype=bool)
+        for mask in masks:
+            inside &= mask
+        return pd.Series(inside.astype("int64"), index=frame.index)
+
+    stacked = np.column_stack(masks) if masks else np.zeros((len(frame), 0), bool)
+    labels = [combination_label(row, chosen) for row in stacked]
+    return pd.Series(labels, index=frame.index, dtype="object")
+
+
+def export_annotation(db_path: str, frame: pd.DataFrame, labels: pd.Series,
+                      column: str) -> Tuple[str, int]:
+    """Write a gate-derived annotation to ``filters`` as one column.
+
+    Through the same path a single gate takes, so an annotation and a filter
+    are the same kind of thing in the database and merge the same way.
+
+    :returns: ``(column name, objects labelled)``.
+    """
+    name = column_name_for(column)
+    keys = key_columns(frame)
+    if not keys or OBJECT_COLUMN not in keys:
+        raise FilterError(
+            "this table has no object identity, so an annotation on it "
+            "cannot be written back to the database")
+
+    filters = ensure_filters_table(db_path)
+    shared = [k for k in keys if k in filters.columns]
+    if OBJECT_COLUMN not in shared:
+        raise FilterError(
+            f"the {FILTERS_TABLE} table and this measurement table share no "
+            f"object key")
+
+    marked = frame[shared].copy()
+    marked[name] = labels.to_numpy()
+    marked = marked.drop_duplicates(subset=shared)
+
+    if name in filters.columns:
+        filters = filters.drop(columns=[name])
+    filters = filters.merge(marked, on=shared, how="left")
+    # Unlabelled objects are left blank rather than filled: a multiclass
+    # annotation has no zero, and inventing one would create a class.
+    write_filters_table(db_path, filters)
+    return name, int(filters[name].notna().sum())
 
 
 # ---------------------------------------------------------------------------

@@ -61,6 +61,22 @@ from .gate_spec import (
 LOG = logging.getLogger("spacr.qt.gate_editor")
 
 
+def _project(ax, point):
+    """A data point's position in the 3D axes' own 2D coordinates.
+
+    Wrapped because matplotlib has moved this: `proj3d.proj_transform` takes
+    the projection matrix as `ax.M` in some versions and `ax.get_proj()` in
+    others, and the import path has changed too. One place to be wrong.
+    """
+    from mpl_toolkits.mplot3d import proj3d
+
+    matrix = getattr(ax, "M", None)
+    if matrix is None:
+        matrix = ax.get_proj()
+    x, y, _z = proj3d.proj_transform(point[0], point[1], point[2], matrix)
+    return (x, y)
+
+
 def fit_to_text(widget, *, padding: int = 16, lines: int = 1) -> None:
     """Size ``widget`` so its own text cannot be clipped.
 
@@ -246,6 +262,8 @@ class GateCanvas(GraphCanvas):
         #: Which axis the volume spins about: "x", "y", "z" or "" for free.
         self._spin_axis = "z"
         self._spin_from = None
+        #: Where a draw-in-the-volume drag started, or None.
+        self._volume_drag = None
 
     # -- the tool ---------------------------------------------------------
     @property
@@ -600,6 +618,100 @@ class GateCanvas(GraphCanvas):
         self._axes = {(0, 0): ax}
         self._canvas.draw_idle()
         return True
+
+    #: How square-on the view has to be before a drag can be read off it.
+    #: Degrees. Beyond this the depth axis is visibly tilted, and a shape
+    #: dragged on it would be a shape in no particular measurement.
+    SNAP_TOLERANCE_DEG = 8.0
+
+    def volume_axis_map(self):
+        """How screen pixels map to data on the two axes facing the viewer.
+
+        Returns ``(x_column, y_column, invert)`` where ``invert(dx, dy)`` turns
+        a movement in PIXELS into one in data units, or None when the view is
+        not square-on.
+
+        Built by projecting the data's own corners and measuring where they
+        land, rather than by trusting a formula for the projection matrix:
+        matplotlib has changed how `ax.M` is spelled more than once, and a
+        drag that silently lands in the wrong measurement is worse than one
+        that refuses.
+
+        The axis that barely moves on screen is the one pointing at the
+        viewer -- that is what "square-on" means, and it is the axis a drag
+        cannot say anything about.
+        """
+        ax = self.axes_at(0, 0)
+        spec = self._spec
+        if ax is None or not hasattr(ax, "get_zlim"):
+            return None
+        columns = (spec.x, spec.y, self._z_column)
+        if not all(columns):
+            return None
+
+        limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
+        origin = [lo for lo, _hi in limits]
+        spans = [hi - lo for lo, hi in limits]
+        if any(not np.isfinite(s) or s == 0 for s in spans):
+            return None
+
+        def screen(point):
+            try:
+                projected = ax.transData.transform(
+                    ax.get_proj() is not None and _project(ax, point) or (0, 0))
+            except Exception:
+                return None
+            return np.asarray(projected, dtype=float)
+
+        base = screen(origin)
+        if base is None:
+            return None
+        moves = []
+        for axis in range(3):
+            point = list(origin)
+            point[axis] += spans[axis]
+            landed = screen(point)
+            if landed is None:
+                return None
+            moves.append(landed - base)
+
+        # The depth axis is whichever moved least on screen.
+        lengths = [float(np.hypot(*m)) for m in moves]
+        depth = int(np.argmin(lengths))
+        longest = max(lengths)
+        if longest <= 0 or lengths[depth] / longest > np.tan(
+                np.radians(self.SNAP_TOLERANCE_DEG)) + 0.02:
+            return None
+
+        kept = [a for a in range(3) if a != depth]
+        matrix = np.column_stack([moves[a] / spans[a] for a in kept])
+        if abs(float(np.linalg.det(matrix))) < 1e-9:
+            return None
+        inverse = np.linalg.inv(matrix)
+
+        def invert(dx, dy):
+            data = inverse @ np.asarray([dx, dy], dtype=float)
+            return float(data[0]), float(data[1])
+
+        return columns[kept[0]], columns[kept[1]], invert, depth
+
+    def screen_to_volume(self, event):
+        """Data coordinates on the two visible axes for a screen point."""
+        mapping = self.volume_axis_map()
+        ax = self.axes_at(0, 0)
+        if mapping is None or ax is None:
+            return None
+        first, second, invert, depth = mapping
+        limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
+        origin = [lo for lo, _hi in limits]
+        base = np.asarray(ax.transData.transform(_project(ax, origin)),
+                          dtype=float)
+        dx = float(getattr(event, "x", 0) or 0) - base[0]
+        dy = float(getattr(event, "y", 0) or 0) - base[1]
+        first_delta, second_delta = invert(dx, dy)
+        kept = [a for a in range(3) if a != depth]
+        return (first, origin[kept[0]] + first_delta,
+                second, origin[kept[1]] + second_delta)
 
     def box_from_view(self) -> Optional[Gate]:
         """A box gate enclosing the volume's current limits.
@@ -1092,6 +1204,15 @@ class GateCanvas(GraphCanvas):
             return False
         if event.inaxes is None:
             return True
+        # A tool armed AND a square-on view means the user is DRAWING, not
+        # spinning. Both conditions matter: without a tool a drag is
+        # navigation, and off-square the depth axis is tilted so a dragged
+        # shape would be a shape in no particular measurement.
+        if self._tool and self._tool != POLYGON:
+            corner = self.screen_to_volume(event)
+            if corner is not None:
+                self._volume_drag = corner
+                return True
         self._spin_from = (float(getattr(event, "x", 0) or 0),
                            float(getattr(event, "y", 0) or 0))
         return True
@@ -1099,6 +1220,9 @@ class GateCanvas(GraphCanvas):
     def _volume_motion(self, event) -> bool:
         if not self._in_volume():
             return False
+        if self._volume_drag is not None:
+            self._show_volume_drag(event)
+            return True
         if self._spin_from is None or event.inaxes is None:
             return True
         ax = self.axes_at(0, 0)
@@ -1126,6 +1250,15 @@ class GateCanvas(GraphCanvas):
     def _volume_release(self, event) -> bool:
         if not self._in_volume():
             return False
+        if self._volume_drag is not None:
+            gate = self._gate_from_volume_drag(event)
+            self._volume_drag = None
+            self._clear_ghost()
+            if gate is not None:
+                self.gate_drawn.emit(gate)
+            else:
+                self.render_now()
+            return True
         self._spin_from = None
         return True
 
@@ -1143,6 +1276,74 @@ class GateCanvas(GraphCanvas):
         self._apply_volume_zoom(ax)
         self._canvas.draw_idle()
         return True
+
+    def _show_volume_drag(self, event) -> None:
+        """The rectangle being swept, drawn flat on the snapped view."""
+        corner = self.screen_to_volume(event)
+        start = self._volume_drag
+        ax = self.axes_at(0, 0)
+        if corner is None or start is None or ax is None:
+            return
+        self._clear_ghost()
+        first, x0, second, y0 = start
+        _f, x1, _s, y1 = corner
+        limits = {"x": ax.get_xlim3d(), "y": ax.get_ylim3d(),
+                  "z": ax.get_zlim3d()}
+        spec = self._spec
+        depth_column = next(c for c in (spec.x, spec.y, self._z_column)
+                            if c not in (first, second))
+        depth = limits[{spec.x: "x", spec.y: "y",
+                        self._z_column: "z"}[depth_column]]
+        palette = active_palette()
+
+        # Drawn at BOTH ends of the depth axis, which is what the gate is: a
+        # rectangle extended all the way through the volume.
+        order = {spec.x: 0, spec.y: 1, self._z_column: 2}
+        for far in depth:
+            points = []
+            for px, py in ((x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)):
+                point = [None, None, None]
+                point[order[first]] = px
+                point[order[second]] = py
+                point[order[depth_column]] = far
+                points.append(point)
+            xs, ys, zs = zip(*points)
+            self._ghost.extend(ax.plot(xs, ys, zs, color=palette["warning"],
+                                       linewidth=1.2, linestyle="--"))
+        self._canvas.draw_idle()
+
+    def _gate_from_volume_drag(self, event) -> Optional[Gate]:
+        """The box a drag on the snapped view describes.
+
+        Bounded on the two measurements the user could actually see, and
+        UNBOUNDED on the one pointing at them. That is the honest reading of
+        the gesture: they said nothing about depth, so the gate says nothing
+        about depth -- and a box with an unbounded axis is exactly a
+        rectangle extended through the volume.
+        """
+        corner = self.screen_to_volume(event)
+        start = self._volume_drag
+        if corner is None or start is None:
+            return None
+        first, x0, second, y0 = start
+        _f, x1, _s, y1 = corner
+        if x0 == x1 or y0 == y1:
+            return None
+
+        spec = self._spec
+        bounds = {first: (min(x0, x1), max(x0, x1)),
+                  second: (min(y0, y1), max(y0, y1))}
+        def side(column):
+            return bounds.get(column, (None, None))
+        x_low, x_high = side(spec.x)
+        y_low, y_high = side(spec.y)
+        z_low, z_high = side(self._z_column)
+        return BoxGate(name="(unnamed)",
+                       x_column=spec.x, y_column=spec.y,
+                       z_column=self._z_column,
+                       x_low=x_low, x_high=x_high,
+                       y_low=y_low, y_high=y_high,
+                       z_low=z_low, z_high=z_high)
 
     def _apply_volume_zoom(self, ax) -> None:
         """Scale the three axes about the data's centre.
