@@ -359,3 +359,42 @@ The proposed grouping, which survived review and is worth reusing:
   Computer Vision Training / Computer Vision Optimization and Regularization /
   Model Evaluation (shared, holds the heatmap and Save Results to DB) /
   Machine Learning Model and Features (feature prep + importance merged).
+
+--------------------------------------------------------------------------------
+PROGRESS -- 2026-08-07: items 1-11 and 13-23 done
+--------------------------------------------------------------------------------
+
+DONE since the last note (5884e719, 718abf1a, and the model check):
+
+  * The CATEGORY OVERHAUL, properly this time. Training Classes / Computer
+    Vision Data Source / Computer Vision Model / Computer Vision Training /
+    Computer Vision Optimization and Regularization / Model Evaluation
+    (shared, holds Save Results to DB) / Machine Learning Model and Features.
+    All nine of the guard's objections fixed rather than worked around.
+  * png_type, size and write_random_annotation_column are NOT dead settings --
+    each still has a reader, so they are ALIASES. They stop being offered
+    (their defaults are gone) and stay in `categories` so the map stays whole.
+  * spacr/crop_source.py: pre_generated / on_demand / generate, file_type as a
+    real extension filter, on-demand cutting from merged (bounding box or
+    object), coordinates from a database (bounding box only, refused with the
+    reason otherwise). classify() validates before dispatching.
+  * spacr/model_check.py: clicking a model checks it can be loaded, takes this
+    dataset's channels, and produces the right number of classes. A custom
+    path that loads supersedes model_type; no boolean is consulted.
+  * Normalization settings declared: imagenet / dataset / percentile / none /
+    custom, scoped per image / batch / dataset.
+
+STILL OPEN -- two things, both real:
+
+  1. THE ON-DEMAND CROPS ARE NOT YET CUT BY THE DATASET BUILDER. crop_source.py
+     can cut them and is tested doing so; classify() refuses a setup that
+     cannot work. What is missing is the call FROM io.py's dataset builder:
+     today it still reads pre-generated crops whatever crop_source says. Item
+     12's "make sure the crops are actually generated" is therefore NOT met.
+     The wiring point is the dataset-building path in spacr/io.py, and it
+     needs an end-to-end test that asserts crops on disk, not a unit test.
+  2. THE CLASSES DICT HAS NO GUI WIDGET. The model, the translation and the
+     downstream logic are done and tested (spacr/classify_classes.py); what is
+     missing is the panel control that populates keys from the chosen column
+     and lets the user name them. Until then the dict is editable only as
+     text.
