@@ -4562,7 +4562,8 @@ def generate_dataset(settings=None):
         settings['src'] = [settings['src']]
 
     object_type = crop_object_type(
-        settings.get('file_metadata') or settings.get('png_type'))
+        settings.get('file_metadata') or settings.get('path_string')
+        or settings.get('png_type'))
 
     if isinstance(settings['src'], list):
         all_paths = []
@@ -5768,7 +5769,12 @@ def generate_training_dataset(settings):
     # --- defaults & toggles --------------------------------------------------
     settings = set_generate_training_dataset_defaults(settings)
     balance_to_smallest = bool(settings.get('balance_to_smallest', True))
-    png_type = settings.get('png_type', 'cell_png')
+    # `path_string` is the current name -- a substring that has to appear in
+    # the crop's path, which is what this always was. `png_type` is still
+    # accepted because it is in every settings CSV written before the rename,
+    # and because this function is called directly as well as through
+    # classify(), which is where the alias would otherwise be applied.
+    png_type = settings.get('path_string') or settings.get('png_type', 'cell_png')
     tables = settings.get('tables') or ['cell', 'nucleus', 'pathogen', 'cytoplasm']
     write_rand_col = bool(settings.get('write_random_annotation_column', False))
     rng = random.Random(int(settings.get('random_seed', 42)))
