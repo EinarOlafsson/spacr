@@ -1145,15 +1145,23 @@ def categories_for_app(
                 "metadata_item_1_name", "metadata_item_1_value",
                 "metadata_item_2_name", "metadata_item_2_value",
                 "measurement_rules"],
+            # `crop_source` first: it decides which of the rest apply, so it
+            # sits at the top of the group it governs. `png_type` and `size`
+            # are gone -- renamed to `path_string` and `image_size`, still
+            # accepted from an old CSV but no longer offered twice. So is
+            # `write_random_annotation_column`, which the Classes dict
+            # replaced.
             "Crops & Dataset Split": [
-                "tables", "channel_of_interest", "png_type", "file_type",
-                "crop_source", "size", "test_split", "balance_to_smallest",
-                "write_random_annotation_column"],
+                "crop_source", "tables", "channel_of_interest",
+                "path_string", "file_type", "extract_channels",
+                "object_array", "coordinate_columns", "crop_shape",
+                "test_split", "balance_to_smallest"],
             "Model Architecture": [
                 "classifier_family",
                 "model_type", "custom_model", "custom_model_path",
                 "resume_checkpoint", "train_channels", "image_size",
-                "normalize", "dropout_rate", "init_weights", "use_checkpoint"],
+                "normalize", "normalization", "normalization_scope",
+                "dropout_rate", "init_weights", "use_checkpoint"],
             "Optimization & Loss": [
                 "optimizer_type", "learning_rate", "weight_decay", "amsgrad",
                 "schedule", "loss_type", "class_balance", "label_smoothing",
@@ -1380,22 +1388,38 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "treatment, which are the positive and negative controls, and how "
         "wells are grouped for reporting. Filled in once per plate design; "
         "everything downstream labels its results from it.",
-    "TRAINING DATASET":
-        "How the labelled training set is assembled from the database — "
-        "annotation column versus well metadata, which crop type, how many "
-        "objects per class, and how much is held back for testing. Revisit "
-        "it when the classes come out imbalanced or the model sees too few "
-        "examples.",
-    "MODEL TRAINING":
-        "Which model is fitted and how: architecture or starting weights, "
-        "classes, input channels and size, epochs, optimiser, learning-rate "
-        "schedule, loss and augmentation. This is where an underfitting or "
-        "overfitting run gets fixed.",
-    "ML CLASSIFIER":
-        "The classical, non-image classifier fitted on measured features — "
-        "algorithm, tree count, regularisation, feature pruning and "
-        "permutation importance. Use it when the phenotype is already "
-        "captured by the measurement columns and a CNN would be overkill.",
+    "TRAINING CLASSES":
+        "What makes an object a member of a class: the basis (plate metadata, "
+        "an annotation column, or both) and the Classes dict naming which "
+        "value of which column each class is. Open it first — everything "
+        "downstream is a model of whatever this says.",
+    "COMPUTER VISION DATA SOURCE":
+        "Where the training images come from and how they are cut. "
+        "Pre-generated crops are filtered by path and file type; on-demand "
+        "crops are cut from merged as training runs, which needs the "
+        "intensity channels and the object to cut around. The settings that "
+        "do not apply to the chosen source are greyed rather than hidden.",
+    "COMPUTER VISION MODEL":
+        "Which architecture, and how its input is scaled. A custom model path "
+        "that loads supersedes the model type. Normalisation matters more "
+        "than it looks: a pretrained backbone expects the statistics it was "
+        "trained with.",
+    "COMPUTER VISION TRAINING":
+        "How the model is fitted — epochs, learning rate, schedule, and which "
+        "loss. Open it when training is unstable, stalls, or ignores the "
+        "smaller class.",
+    "COMPUTER VISION OPTIMIZATION AND REGULARIZATION":
+        "What keeps the model from memorising the training set: dropout, "
+        "weight decay, gradient checkpointing. Reach for these when training "
+        "accuracy climbs and validation accuracy does not.",
+    "MODEL EVALUATION":
+        "How the fitted model is judged, and where the result is written — "
+        "cross-validation and its grouping, calibration, the leakage audit, "
+        "and Save Results to DB. Shared by both classifier families.",
+    "MACHINE LEARNING MODEL AND FEATURES":
+        "The feature-based classifier: which model, and which measured "
+        "features it is allowed to see. Feature preparation and feature "
+        "importance are one heading because they answer one question.",
     "EMBEDDING & CLUSTERING":
         "How the feature table is reduced to two dimensions and clustered "
         "on top of that — neighbourhood size, distance metric, and the "

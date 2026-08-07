@@ -332,6 +332,7 @@ def test_the_volume_spins_without_a_tool_armed(screen):
     2D press handler was eating the drag, and only the polygon tool, which
     ignores drags, let it through."""
     canvas = _volume(screen)
+    canvas.set_tool("")          # no tool armed: a drag is navigation
     ax = canvas.axes_at(0, 0)
     before = float(ax.azim)
 
@@ -342,8 +343,30 @@ def test_the_volume_spins_without_a_tool_armed(screen):
     assert float(ax.azim) != before, "a drag in the volume did not spin it"
 
 
+def test_a_tool_armed_draws_instead_of_spinning(screen):
+    """"if the gate is on None then spin. if the gate is on any of the gating
+    mechanisms then allow drawing of the gates." The tool decides, and the
+    angle does not -- refusing off-square made drawing feel broken at every
+    angle a volume is actually left at.
+    """
+    from spacr.qt.widgets.gate_spec import RECTANGLE
+
+    canvas = _volume(screen)
+    canvas.set_tool(RECTANGLE)
+    ax = canvas.axes_at(0, 0)
+    azimuth = float(ax.azim)
+
+    canvas._on_press(_Mouse(ax, 100, 100))
+    assert canvas._volume_drag is not None, "an armed tool did not start a gate"
+    canvas._on_motion(_Mouse(ax, 200, 180))
+    assert canvas._ghost, "nothing followed the mouse"
+    assert float(ax.azim) == azimuth, "drawing spun the volume as well"
+    canvas._volume_drag = None   # drop it rather than raising the name prompt
+
+
 def test_spinning_about_z_leaves_the_horizon_level(screen):
     canvas = _volume(screen)
+    canvas.set_tool("")
     ax = canvas.axes_at(0, 0)
     canvas.set_spin_axis("z")
     elevation = float(ax.elev)
@@ -358,6 +381,7 @@ def test_spinning_about_z_leaves_the_horizon_level(screen):
 
 def test_spinning_about_x_leaves_the_azimuth_alone(screen):
     canvas = _volume(screen)
+    canvas.set_tool("")
     ax = canvas.axes_at(0, 0)
     canvas.set_spin_axis("x")
     azimuth = float(ax.azim)
@@ -485,6 +509,7 @@ def test_xd_can_be_spun_like_3d(screen):
     _wide(screen)
     screen.gates.mode_requested.emit("xD")
     canvas = screen.gates.canvas
+    canvas.set_tool("")
     ax = canvas.axes_at(0, 0)
     before = float(ax.azim)
     canvas._on_press(_Mouse(ax, 100, 100))
