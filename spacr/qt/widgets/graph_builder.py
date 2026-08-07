@@ -973,6 +973,23 @@ class GraphCanvas(LinkedView, QWidget):
         update(mask)
         return update
 
+    @staticmethod
+    def _limits_for(scale: str, limits):
+        """Padded limits, made legal for the scale they are being set on.
+
+        The padding is symmetric in data units, so a measurement starting at 1
+        gets a lower limit below zero. matplotlib REFUSES that on a log axis
+        and warns, leaving the axis auto-scaled -- so the padding silently
+        stopped applying on exactly the axes a user had configured.
+        """
+        low, high = limits
+        if scale != "log":
+            return low, high
+        if high <= 0:
+            return limits
+        floor = high / 1e6
+        return (max(low, floor) if low <= 0 else low), high
+
     def _draw_density(self, ax, rows, palette) -> None:
         """A 2-D histogram raster: every row counted, none drawn twice."""
         spec, scales = self._spec, self._scales
@@ -993,7 +1010,8 @@ class GraphCanvas(LinkedView, QWidget):
                 weighted = np.where(counts > 0, total / counts, np.nan)
         image = weighted if weighted is not None else np.where(counts > 0,
                                                                counts, np.nan)
-        ax.imshow(image.T, origin="lower", aspect="auto", cmap=_colormap(),
+        ax.imshow(image.T, origin="lower", aspect="auto",
+                  cmap=self.point_colormap(),
                   extent=(ex[0], ex[-1], ey[0], ey[-1]),
                   interpolation="nearest")
 
@@ -1123,7 +1141,7 @@ class GraphCanvas(LinkedView, QWidget):
             if spec.shared_x:
                 ax.set_xlim(-0.6, len(scales.x_levels) - 0.4)
         elif spec.shared_x and scales.x_limits is not None:
-            ax.set_xlim(*scales.x_limits)
+            ax.set_xlim(*self._limits_for(ax.get_xscale(), scales.x_limits))
         if counts_on_y:
             if spec.shared_y and scales.count_limit:
                 ax.set_ylim(0, scales.count_limit)
@@ -1133,7 +1151,7 @@ class GraphCanvas(LinkedView, QWidget):
             if spec.shared_y:
                 ax.set_ylim(-0.6, len(scales.y_levels) - 0.4)
         elif spec.shared_y and scales.y_limits is not None:
-            ax.set_ylim(*scales.y_limits)
+            ax.set_ylim(*self._limits_for(ax.get_yscale(), scales.y_limits))
 
     def _label_panel(self, ax, panel, grid, nrows, ncols, palette) -> None:
         """Axis names on the outside edges only — the shared-axis convention.
