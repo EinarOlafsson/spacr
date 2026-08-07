@@ -350,3 +350,87 @@ def test_the_side_panel_does_not_paint_the_window_colour(qtbot):
     qtbot.addWidget(screen)
     area = screen.findChildren(QScrollArea)[0]
     assert area.property(theme.TRANSPARENT_PROPERTY) is True
+
+
+# ---------------------------------------------------------------------------
+# Shapes beyond the rectangle
+# ---------------------------------------------------------------------------
+
+def test_an_ellipse_excludes_the_corners_a_rectangle_would_take(frame):
+    """The reason to have one. A cloud of cells is round-ish, and a
+    rectangle around it always takes corner debris with it."""
+    from spacr.qt.widgets.gate_spec import EllipseGate, RectGate
+
+    box = RectGate(name="box", x_column="x_measure", y_column="y_measure",
+                   x_low=0, x_high=10, y_low=0, y_high=10)
+    oval = EllipseGate.from_drag("oval", "x_measure", "y_measure",
+                                 0, 0, 10, 10)
+
+    inside_both = box.mask(frame) & oval.mask(frame)
+    corner_only = box.mask(frame) & ~oval.mask(frame)
+    assert inside_both.any()
+    assert corner_only.any(), "the ellipse took everything the box did"
+    # The (0, 0) corner is in the box and outside the oval.
+    corner = (frame.x_measure == 0) & (frame.y_measure == 0)
+    assert box.mask(frame)[corner].all()
+    assert not oval.mask(frame)[corner].any()
+
+
+def test_the_ellipse_is_inscribed_in_the_dragged_box():
+    """It ends where the pointer did. A user who drags a box expects the
+    shape to touch the corner they released at, not to extend past it."""
+    from spacr.qt.widgets.gate_spec import EllipseGate
+
+    oval = EllipseGate.from_drag("oval", "a", "b", 0, 0, 10, 6)
+    assert oval.centre() == (5.0, 3.0)
+    assert (oval.x_radius, oval.y_radius) == (5.0, 3.0)
+
+
+def test_a_circle_is_just_an_ellipse_with_equal_radii():
+    """No separate kind: a circle that cannot be squashed is a shape the
+    user deletes the moment the axes are not comparable, and on two
+    different measurements they never are."""
+    from spacr.qt.widgets.gate_spec import EllipseGate
+
+    circle = EllipseGate.from_drag("round", "a", "b", 0, 0, 8, 8)
+    assert circle.x_radius == circle.y_radius == 4.0
+
+
+def test_an_ellipse_moves_and_resizes_like_any_other_gate(frame):
+    from spacr.qt.widgets.gate_spec import EllipseGate
+
+    oval = EllipseGate.from_drag("oval", "x_measure", "y_measure",
+                                 0, 0, 10, 10)
+    moved = oval.translated(5.0, 5.0)
+    assert moved.centre() == (10.0, 10.0)
+    assert (moved.x_radius, moved.y_radius) == (oval.x_radius, oval.y_radius)
+
+    grown = oval.scaled(2.0)
+    assert grown.centre() == oval.centre(), "growing must not move it"
+    assert grown.x_radius == oval.x_radius * 2
+
+
+def test_a_zero_radius_ellipse_is_refused():
+    """It would select nothing while looking like a gate."""
+    from spacr.qt.widgets.gate_spec import EllipseGate, GateError
+
+    with pytest.raises(GateError, match="selects nothing"):
+        EllipseGate(name="flat", x_column="a", y_column="b",
+                    x_centre=0, y_centre=0, x_radius=0, y_radius=1)
+
+
+def test_an_ellipse_round_trips(frame):
+    from spacr.qt.widgets.gate_spec import EllipseGate
+
+    oval = EllipseGate.from_drag("oval", "x_measure", "y_measure",
+                                 2, 2, 12, 8)
+    restored = gate_from_dict(oval.to_dict())
+    assert np.array_equal(restored.mask(frame), oval.mask(frame))
+
+
+def test_the_oval_is_offered_as_a_tool():
+    from spacr.qt.widgets.gate_editor import TOOL_LABELS
+    from spacr.qt.widgets.gate_spec import ELLIPSE, GATE_KINDS
+
+    assert ELLIPSE in GATE_KINDS
+    assert ELLIPSE in TOOL_LABELS
