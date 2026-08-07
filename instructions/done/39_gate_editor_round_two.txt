@@ -164,3 +164,9 @@ ticked. Writes through spacr.filters.export_annotation, the same path a single
 gate takes.
 
 STILL OPEN: item 12 only -- the console and the AI chat box.
+
+--- 2026-08-07: COMPLETE (fe32c5f0, 3a2dfae9, 5c15056c, bb5c56be, 1d2f952e,
+    f1719e46, 794439be) ---
+All thirteen items. The last two were the console + AI chat box
+(spacr/qt/widgets/gate_console.py) and multi-gate annotation (binary and
+multi-class, through spacr.filters.export_annotation).
