@@ -58,6 +58,54 @@ from .gate_spec import (
 
 LOG = logging.getLogger("spacr.qt.gate_editor")
 
+#: Key the gate tree's stylesheet is registered under.
+QSS_NAME = "GateHierarchy"
+
+
+def _gate_tree_qss(palette, opacity=None) -> str:
+    """Colours for the gate list.
+
+    It had no block at all, so its rows fell back to Qt's default text
+    colour -- black -- on the theme's surface. On the dark themes that is
+    black on grey and simply cannot be read.
+
+    Transparent backgrounds, theme foreground: the panel behind it already
+    carries the page opacity, and painting a colour here would freeze one
+    opacity into the list while everything around it kept following the
+    preference.
+    """
+    return f"""
+    QTreeWidget#GateHierarchy {{
+        background: transparent;
+        color: {palette['fg']};
+        border: none;
+    }}
+    QTreeWidget#GateHierarchy::item {{
+        color: {palette['fg']};
+        padding: 2px 4px;
+    }}
+    QTreeWidget#GateHierarchy::item:selected {{
+        background: {palette['accent']};
+        color: {palette['bg']};
+    }}
+    QHeaderView::section {{
+        background: transparent;
+        color: {palette['fg_muted']};
+        border: none;
+        padding: 2px 4px;
+    }}
+    QWidget#GateTree {{
+        background: transparent;
+    }}
+    """
+
+
+try:
+    from ..theme import register_widget_qss as _register_widget_qss
+    _register_widget_qss(QSS_NAME, _gate_tree_qss, replace=True)
+except Exception:      # pragma: no cover - decoration is not load-bearing
+    LOG.debug("could not register the gate tree stylesheet", exc_info=True)
+
 __all__ = ["GateCanvas", "GateTree", "GateEditorPanel", "TOOL_LABELS"]
 
 #: The tool a fresh editor starts on. RECTANGLE, not brush: "drag to draw a
@@ -95,6 +143,7 @@ class GateCanvas(GraphCanvas):
     #: A gate was moved or resized in place. Carries the EDITED gate; the
     #: panel replaces the one of the same name.
     gate_edited = Signal(object)
+
     #: A polygon gained or lost a vertex — for a host showing the count.
     polygon_changed = Signal(int)
 
@@ -268,13 +317,23 @@ class GateCanvas(GraphCanvas):
 
         Topmost = last drawn, which is the one the user sees on top and
         therefore the one they mean by clicking there.
+
+        Deliberately does NOT consult `population()`. Hit-testing a gate is
+        pure geometry -- is this coordinate inside this shape -- and needs no
+        rows at all. Asking for the population first meant that whenever it
+        was unavailable, dragging died silently: `population()` returns None
+        when the active gate no longer exists, which is exactly the state
+        left behind by DELETING a gate. The remaining gate then looked
+        "fixed and I cannot move".
+
+        Only gates on the current axes are tested, so a gate belonging to a
+        different pair cannot be grabbed invisibly.
         """
-        frame = self.population()
-        if frame is None:
-            return None
         probe = pd.DataFrame({})
         hit: Optional[str] = None
         for gate in self.gates.gates:
+            if not self._gate_is_on_these_axes(gate):
+                continue
             columns = gate.columns
             if not columns:
                 continue
@@ -672,6 +731,9 @@ class GateEditorPanel(QWidget):
     """
 
     gates_changed = Signal()
+    #: Selecting a gate asks the screen to show the measurements it was drawn
+    #: on. Carries ``(x_column, y_column)``; y is empty for a one-column gate.
+    axes_requested = Signal(str, str)
 
     def __init__(self, parent=None, *, link=None,
                  source: str = "gate_editor"):
@@ -904,6 +966,19 @@ class GateEditorPanel(QWidget):
     def _on_active_changed(self, name: str) -> None:
         self.canvas.set_gates(self._gates, active=name or None)
         self._refresh_status()
+        # Choosing a gate should show you that gate. It is drawn on two named
+        # measurements, so selecting one whose axes are not on screen used to
+        # select something invisible -- and any attempt to drag it did
+        # nothing, because it was not being drawn or hit-tested there.
+        if not name:
+            return
+        try:
+            columns = self._gates.get(name).columns
+        except Exception:
+            return
+        if columns:
+            self.axes_requested.emit(columns[0],
+                                     columns[1] if len(columns) > 1 else "")
 
     def _on_tree_changed(self) -> None:
         self.canvas.set_gates(self._gates,
@@ -943,14 +1018,44 @@ class GateEditorPanel(QWidget):
         if not name:
             self._status.setText("Select a gate in the hierarchy first.")
             return None
+        frame = self._frame
+        if frame is None:
+            self._status.setText("Load a table first.")
+            return None
         try:
-            data_filter = self._gates.filter_for(name, self.canvas.link.filter)
+            inside = self._gates.mask(frame, name)
         except GateError as exc:
             self._status.setText(str(exc))
             return None
-        self.canvas.publish_filter(data_filter)
-        self._status.setText(f"filtering on {data_filter.describe()}")
-        return data_filter
+
+        # A SELECTION, not a filter. Applying a gate highlights the objects
+        # inside it and leaves every other point on screen:
+        #
+        #   "i want it to highlight the datapoints in the gate and show the
+        #    gate but also show the rest of the graph"
+        #
+        # Filtering removed the outside rows, and the axes then rescaled to
+        # what was left -- which is what read as the plot zooming into the
+        # gate, and what moved the ground out from under the gate outline so
+        # it could not be dragged.
+        #
+        # Narrowing the population to a gate is still a real thing to want,
+        # but it is a second, explicit act. It is not what pressing the
+        # primary button should do.
+        try:
+            self.canvas.publish_selection(frame.loc[inside])
+        except Exception as exc:
+            # A highlight needs object keys to name the rows to everyone
+            # else. A table without them cannot be published, and saying so
+            # is better than a traceback -- the gate itself is still drawn
+            # and still usable locally.
+            self._status.setText(
+                f"{int(inside.sum()):,} object(s) in {name}, but they cannot "
+                f"be shared with other views: {exc}")
+            return None
+        self._status.setText(
+            f"{int(inside.sum()):,} object(s) highlighted by {name}")
+        return None
 
     def status(self) -> str:
         return self._status.text()
