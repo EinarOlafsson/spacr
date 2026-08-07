@@ -58,6 +58,12 @@ LOG = logging.getLogger("spacr.qt.gate_editor")
 
 __all__ = ["GateCanvas", "GateTree", "GateEditorPanel", "TOOL_LABELS"]
 
+#: The tool a fresh editor starts on. RECTANGLE, not brush: "drag to draw a
+#: box" is what a user tries first, and starting on the brush meant a drag
+#: highlighted instead of drawing and the editor looked as though it could
+#: not make a gate at all.
+DEFAULT_TOOL = RECTANGLE
+
 #: What each tool is called, and what the gesture is.
 TOOL_LABELS = {
     "": "Brush (no gate) — drag to highlight, as everywhere else",
@@ -85,7 +91,10 @@ class GateCanvas(GraphCanvas):
 
     def __init__(self, parent=None, *, link=None, source: str = "gate_editor"):
         super().__init__(parent, link=link, source=source)
-        self._tool = ""
+        self._tool = DEFAULT_TOOL
+        #: How near the first vertex a click has to land to close a polygon.
+        #: Pixels, because "close enough to click" is a screen property.
+        self.CLOSE_RADIUS_PX = 12.0
         #: Set while a gate is being dragged. `None` whenever it is not,
         #: which is what every handler gates on.
         self._move_name: Optional[str] = None
@@ -250,10 +259,16 @@ class GateCanvas(GraphCanvas):
         return hit
 
     def _on_press(self, event) -> None:
-        # No tool selected means "edit what is already there": a press
-        # inside a gate starts a move. This is checked BEFORE the drawing
-        # tools, because with a tool active the user is drawing, not editing.
-        if self._tool == "" and event.inaxes is not None \
+        # A press inside an existing gate MOVES it, whatever tool is armed.
+        # Checked first because "the closed gate should be draggable" has to
+        # hold without the user first disarming the tool they drew it with --
+        # nobody thinks of that, and the gate then looks stuck.
+        #
+        # The one exception is mid-polygon: there the user is placing
+        # vertices, and a vertex that happens to land inside an older gate
+        # must not drag it.
+        mid_polygon = self._tool == POLYGON and bool(self._pending)
+        if not mid_polygon and event.inaxes is not None \
                 and event.xdata is not None and event.ydata is not None:
             name = self.gate_at(float(event.xdata), float(event.ydata))
             if name:
@@ -265,9 +280,41 @@ class GateCanvas(GraphCanvas):
             return
         if event.inaxes is None or event.xdata is None or event.ydata is None:
             return
-        self._pending.append((float(event.xdata), float(event.ydata)))
+        x, y = float(event.xdata), float(event.ydata)
+        # Clicking the FIRST vertex again closes the shape. That is what
+        # everyone tries, and the "Close polygon" button was the only way to
+        # do it -- so a polygon looked impossible to finish.
+        if len(self._pending) >= 3 and self._near_first_vertex(event, x, y):
+            self.close_polygon_now()
+            return
+        self._pending.append((x, y))
         self.polygon_changed.emit(len(self._pending))
         self._draw_gates()
+
+    def _near_first_vertex(self, event, x: float, y: float) -> bool:
+        """Whether ``(x, y)`` is close enough to the first vertex to close.
+
+        Measured in PIXELS, not data units: "close enough to click" is a
+        property of the screen, and a data-unit tolerance would be
+        unusable on one axis and impossible on the other whenever the two
+        measurements have different ranges -- which is nearly always.
+        """
+        if not self._pending:
+            return False
+        ax = getattr(event, "inaxes", None)
+        first = self._pending[0]
+        try:
+            fx, fy = ax.transData.transform(first)
+            px, py = ax.transData.transform((x, y))
+        except Exception:
+            return False
+        return ((fx - px) ** 2 + (fy - py) ** 2) ** 0.5 <= self.CLOSE_RADIUS_PX
+
+    def close_polygon_now(self) -> None:
+        """Close the pending polygon and emit it, if it has enough vertices."""
+        gate = self.close_polygon()
+        if gate is not None:
+            self.gate_drawn.emit(gate)
 
     def _on_motion(self, event) -> None:
         if getattr(self, "_move_name", None):
@@ -575,6 +622,12 @@ class GateEditorPanel(QWidget):
         for key in ("",) + GATE_KINDS:
             self._tool.addItem(TOOL_LABELS[key].split(" — ")[0], key)
         self._tool.setToolTip("\n".join(TOOL_LABELS.values()))
+        index = self._tool.findData(DEFAULT_TOOL)
+        if index >= 0:
+            self._tool.setCurrentIndex(index)
+        # No `canvas.set_tool` here: the canvas is built further down and
+        # already starts on DEFAULT_TOOL. Calling it at this point read the
+        # attribute before it existed.
         self._tool.currentIndexChanged.connect(self._on_tool_changed)
         tools.addWidget(QLabel("Tool", self))
         tools.addWidget(self._tool)
