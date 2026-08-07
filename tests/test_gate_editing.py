@@ -177,3 +177,96 @@ def test_editing_preserves_name_and_parent(poly):
     for edited in (child.translated(1, 1), child.scaled(2.0)):
         assert edited.name == "child"
         assert edited.parent == "live cells"
+
+
+# ---------------------------------------------------------------------------
+# The canvas half: dragging a gate on screen
+# ---------------------------------------------------------------------------
+
+class _Event:
+    """The parts of a matplotlib mouse event the handlers read."""
+
+    def __init__(self, x, y, inaxes=True):
+        self.xdata = x
+        self.ydata = y
+        self.inaxes = object() if inaxes else None
+
+
+@pytest.fixture
+def canvas(qtbot, frame, rect):
+    pytest.importorskip("PySide6")
+    from spacr.qt.widgets.gate_editor import GateCanvas
+    from spacr.qt.widgets.gate_spec import GateSet
+
+    widget = GateCanvas()
+    qtbot.addWidget(widget)
+    gates = GateSet()
+    gates.add(rect)
+    widget.set_gates(gates)
+    # The canvas hit-tests against the loaded table, which it holds as
+    # `_frame` -- `population()` derives the on-screen rows from it.
+    widget._frame = frame
+    return widget
+
+
+def test_a_press_inside_a_gate_starts_a_move(canvas):
+    canvas.set_tool("")
+    canvas._on_press(_Event(5.0, 5.0))
+    assert canvas._move_name == "box"
+
+
+def test_a_press_outside_every_gate_starts_nothing(canvas):
+    canvas.set_tool("")
+    canvas._on_press(_Event(50.0, 50.0))
+    assert canvas._move_name is None
+
+
+def test_a_press_while_a_drawing_tool_is_active_does_not_move(canvas):
+    """With a tool selected the user is DRAWING, not editing, and a click
+    inside an existing gate must start a new shape."""
+    from spacr.qt.widgets.gate_editor import POLYGON
+
+    canvas.set_tool(POLYGON)
+    canvas._on_press(_Event(5.0, 5.0))
+    assert canvas._move_name is None
+
+
+def test_the_drag_emits_the_moved_gate(canvas, qtbot):
+    canvas.set_tool("")
+    seen = []
+    canvas.gate_edited.connect(seen.append)
+
+    canvas._on_press(_Event(5.0, 5.0))
+    canvas._on_release(_Event(9.0, 7.0))
+
+    assert len(seen) == 1
+    moved = seen[0]
+    assert moved.name == "box"
+    assert (moved.x_low, moved.x_high) == (4.0, 14.0)
+    assert (moved.y_low, moved.y_high) == (2.0, 12.0)
+
+
+def test_a_click_without_movement_selects_instead_of_moving(canvas):
+    """A stray click must not mark the gate set dirty by moving it zero."""
+    canvas.set_tool("")
+    seen = []
+    canvas.gate_edited.connect(seen.append)
+
+    canvas._on_press(_Event(5.0, 5.0))
+    canvas._on_release(_Event(5.0, 5.0))
+
+    assert seen == []
+    assert canvas.active_gate == "box"
+
+
+def test_a_release_outside_the_axes_cancels(canvas):
+    """Dragging off the plot must not teleport the gate to a nan."""
+    canvas.set_tool("")
+    seen = []
+    canvas.gate_edited.connect(seen.append)
+
+    canvas._on_press(_Event(5.0, 5.0))
+    canvas._on_release(_Event(None, None, inaxes=False))
+
+    assert seen == []
+    assert canvas._move_name is None, "the drag state must always be cleared"
