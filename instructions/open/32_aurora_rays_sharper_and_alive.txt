@@ -1,0 +1,41 @@
+================================================================================
+AURORA THEME: SHARPER RAYS THAT BREATHE
+================================================================================
+
+Status:    not started
+Requested: 2026-08-07 - "for the aurora theme the \"rays of light\" should be even sharper and they should be dynamic, meaning each ray should at different speeds be changing length to look more like real aurora."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not investigated. The aurora backdrop is one of the theme animations; find
+it under spacr/qt/ (the ambient backdrop machinery is referenced from
+theme.py and INVARIANTS 1-3).
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Cosmetic, and cosmetic is allowed to matter -- but INVARIANTS 10 applies:
+this is decoration and its failure must cost the backdrop and nothing else.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Sharper: raise the falloff exponent / narrow the gaussian on each ray
+   rather than adding more rays; more rays is a frame-rate cost that reads
+   as blur anyway.
+2. Alive: give each ray its OWN length phase and its own speed, seeded per
+   ray so they never march in step. Real aurora is many independent
+   curtains; a single shared phase reads as a pulsing band.
+3. Keep it cheap. This runs behind everything, and the animation budget is
+   the reason the backdrop is optional at all.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Watch it: rays visibly differ in length from each other and each changes at
+its own rate. Frame cost unchanged or lower.

@@ -1,0 +1,46 @@
+================================================================================
+IMAGE UMAP: SEARCH THE WHOLE HYPERPARAMETER SPACE, AND CALL IT WALK
+================================================================================
+
+Status:    not started
+Requested: 2026-08-07 - "the hyperparameter search should search hyperparameter space, this space should be defined by all hyperparameters not just min dist and neighbours. the adaptive 2x2 should just be adaptive and should search more than just the n_neighbours and min dist... the user should be able to choose the grid the algorithm uses to make directional decisions in hyperparameter space, now that that space will be expanded beyond n_neighbours and min_dist, it is no longer 2X2... this dimensionality of the search should be reflected in the grid that the UMAPs are presented on." Also: "there should be a clustering algorithm option with a hyperparameter search and which should include a hyperparameter walk (that is what the setting should be called, Walk, this name should also apply to the new image UMAP adaptive setting!)"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not investigated. Today's search is over n_neighbors x min_dist only, with
+an "adaptive 2x2" mode. spacr/qt/screens/hyperparam.py is the screen.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+n_neighbors and min_dist are two of the parameters that change a UMAP's
+structure; searching only those means the other axes are never explored and
+the user cannot tell whether the structure they see is real or a default.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. RENAME "adaptive" to WALK, everywhere, including the Gate Editor's
+   clustering search (instruction 31). One name for one idea.
+2. The search space is defined by the USER: a set of parameters to include,
+   defaulting to ALL parameters that influence UMAP structure
+   (n_neighbors, min_dist, n_components, metric, spread, set_op_mix_ratio,
+   local_connectivity, repulsion_strength, negative_sample_rate, init).
+3. The Walk's step grid is now N-dimensional, N = number of searched
+   parameters. Let the user pick the grid resolution per axis. "2x2" is a
+   special case, not the design.
+4. PRESENTATION GRID mirrors the search dimensionality -- see instruction
+   35, which is the rendering half and is shared with the Gate Editor.
+5. `metric` becomes a DROPDOWN of the metrics umap-learn actually accepts,
+   not a free-text string. A typo currently fails deep inside the run.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Run a Walk over three parameters: the figures come back on a grid whose
+axes are those parameters, and the setting is called Walk in both modules.

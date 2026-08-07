@@ -1,0 +1,43 @@
+================================================================================
+IMAGE UMAP: ZOOM EVERY PLOT, CLICK EVERY POINT
+================================================================================
+
+Status:    not started
+Requested: 2026-08-07 - "the live button in Image UMAP does nothing. UMAPs should always be individually zoomable. and i should be able to press every point. when i choose a point it should be shown as an image in a panel to the right of the UMAP(s) and the relevant point information should be presented with the image."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The interactive explorer (qt/widgets/umap_explorer.py) already has a preview
+panel and a point label on the right -- so the pieces exist for the LIVE
+view. What is reported is that the "live" button does nothing, and that the
+static figures are neither zoomable nor clickable.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A UMAP whose points cannot be inspected is a picture. The reason to embed
+images at all is to look at them.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. FIRST find out what the live button is wired to and why it does nothing.
+   It may be the `_interactive_switch` on the app screen not reaching the
+   explorer, or the explorer never receiving a payload. Measure before
+   changing.
+2. Every UMAP gets zoom/pan -- the matplotlib toolbar is already attached to
+   the explorer canvas; the static figures need the same.
+3. Click a point -> its crop in the right-hand panel, with its identifying
+   columns. The explorer's `_build_point_identity` already computes the
+   identity; reuse it rather than writing a second lookup.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Press Live and the interactive view appears. Click any point and its image
+and row appear beside the plot. Zoom works on every UMAP shown.
