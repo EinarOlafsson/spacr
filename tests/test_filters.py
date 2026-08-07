@@ -10,7 +10,7 @@ import pandas as pd
 import pytest
 
 from spacr.filters import (
-    FILTERS_TABLE, FilterError, build_filters_frame, choose_anchor,
+    FILTERS_TABLE, FilterError, ensure_relationships_table, build_filters_frame, choose_anchor,
     column_name_for, ensure_filters_table, export_gate, gate_mask_over_table,
     identity_columns_of, object_tables, read_sampled, sampling_clause,
 )
@@ -363,3 +363,175 @@ def test_the_rowid_alias_is_chosen_per_table():
     assert rowid_expression(["rowID", "area"]) == "_rowid_"
     assert rowid_expression(["_rowid_", "area"]) == "rowid"
     assert rowid_expression(["_rowid_", "rowid", "oid"]) is None
+
+
+# ---------------------------------------------------------------------------
+# The relationships table
+# ---------------------------------------------------------------------------
+
+def _child(parent_ids, table_start=1, n=None):
+    n = n or len(parent_ids)
+    return pd.DataFrame({
+        "plateID": ["p1"] * n, "rowID": ["A"] * n,
+        "columnID": ["1"] * n, "fieldID": ["f1"] * n,
+        "object_label": range(table_start, table_start + n),
+        "cell_id": parent_ids,
+        "area": np.linspace(5.0, 15.0, n),
+    })
+
+
+def test_relationships_records_which_object_belongs_to_which(tmp_path):
+    from spacr.filters import RELATIONSHIPS_TABLE, ensure_relationships_table
+
+    path = _make_db(tmp_path, {"cell": _object_frame(n=3),
+                               "pathogen": _child([1, 1, 3])})
+    frame = ensure_relationships_table(path)
+
+    pathogens = frame[frame["object_type"] == "pathogen"]
+    assert list(pathogens["parent_label"]) == [1, 1, 3]
+    assert set(frame["object_type"]) == {"cell", "pathogen"}
+    assert RELATIONSHIPS_TABLE in _tables(path)
+
+
+def _tables(path):
+    from spacr.filters import table_names
+    return table_names(path)
+
+
+def test_a_child_with_no_parent_mask_keeps_its_row(tmp_path):
+    """The object exists; saying it has no parent is different from
+    pretending it is not there."""
+    orphan = _child([1, 2]).drop(columns=["cell_id"])
+    path = _make_db(tmp_path, {"cell": _object_frame(n=2), "nucleus": orphan})
+    frame = ensure_relationships_table(path)
+    nuclei = frame[frame["object_type"] == "nucleus"]
+    assert len(nuclei) == 2
+    assert nuclei["parent_label"].isna().all()
+
+
+def test_relationships_is_built_on_demand_if_masking_never_wrote_it(tmp_path):
+    """"if the relationships table does not exist when attempting to make the
+    filters table, then the relationships table gets generated first"."""
+    from spacr.filters import RELATIONSHIPS_TABLE
+
+    path = _make_db(tmp_path, {"cell": _object_frame(n=2)})
+    assert RELATIONSHIPS_TABLE not in _tables(path)
+
+    ensure_filters_table(path)
+    assert RELATIONSHIPS_TABLE in _tables(path), (
+        "gating before the mask step ran should build it, not fail")
+
+
+def test_the_filters_table_is_a_copy_of_relationships(tmp_path):
+    """"the relationships table should be the base (it should be copied) and
+    filters added" -- so a filter automatically carries every relationship."""
+    path = _make_db(tmp_path, {"cell": _object_frame(n=3),
+                               "pathogen": _child([1, 1, 3])})
+    filters = ensure_filters_table(path)
+    assert "parent_label" in filters.columns
+    assert "object_type" in filters.columns
+
+
+def test_a_filter_still_lands_on_the_relationship_backed_table(tmp_path):
+    path = _make_db(tmp_path, {"cell": _object_frame(n=3),
+                               "pathogen": _child([1, 1, 3])})
+    frame = pd.read_sql_query("SELECT * FROM cell", sqlite3.connect(path))
+    column, marked = export_gate(path, frame,
+                                 (frame["area"] >= 30.0).to_numpy(), "big")
+    written = pd.read_sql_query(f"SELECT * FROM {FILTERS_TABLE}",
+                                sqlite3.connect(path))
+    assert column in written.columns
+    assert written[column].sum() == marked
+
+
+def test_every_single_object_database_builds_relationships(tmp_path):
+    for only in ("cell", "nucleus", "pathogen", "organelle"):
+        path = _make_db(tmp_path, {only: _object_frame(n=2)},
+                        name=f"rel_{only}.db")
+        frame = ensure_relationships_table(path)
+        assert set(frame["object_type"]) == {only}
+
+
+# ---------------------------------------------------------------------------
+# Annotating from several gates
+# ---------------------------------------------------------------------------
+
+def _two_gates():
+    from spacr.qt.widgets.gate_spec import GateSet, RectGate
+    return (GateSet()
+            .add(RectGate(name="low", x_column="area", y_column="intensity",
+                          x_low=-1e9, x_high=35.0,
+                          y_low=-1e9, y_high=1e9))
+            .add(RectGate(name="bright", x_column="area", y_column="intensity",
+                          x_low=-1e9, x_high=1e9,
+                          y_low=300.0, y_high=1e9)))
+
+
+def test_binary_annotation_is_the_intersection(cell_db):
+    from spacr.filters import annotate_from_gates
+
+    frame = pd.read_sql_query("SELECT * FROM cell", sqlite3.connect(cell_db))
+    labels = annotate_from_gates(frame, _two_gates(), ["low", "bright"],
+                                 mode="binary")
+    expected = ((frame["area"] <= 35.0) & (frame["intensity"] >= 300.0))
+    assert list(labels) == list(expected.astype(int))
+
+
+def test_multiclass_makes_one_class_per_observed_combination(cell_db):
+    from spacr.filters import annotate_from_gates
+
+    frame = pd.read_sql_query("SELECT * FROM cell", sqlite3.connect(cell_db))
+    labels = annotate_from_gates(frame, _two_gates(), ["low", "bright"],
+                                 mode="multiclass")
+    assert set(labels) <= {"low", "bright", "low+bright", "none"}
+    assert len(set(labels)) > 1, "every object landed in one class"
+
+
+def test_a_combination_nothing_is_in_does_not_become_a_class(cell_db):
+    """Enumerating all 2^n would offer classes with no objects in them, which
+    no classifier can learn."""
+    from spacr.filters import annotate_from_gates
+
+    frame = pd.read_sql_query("SELECT * FROM cell", sqlite3.connect(cell_db))
+    labels = annotate_from_gates(frame, _two_gates(), ["low", "bright"],
+                                 mode="multiclass")
+    for name in set(labels):
+        assert (labels == name).sum() > 0
+
+
+def test_the_class_name_says_which_gates_it_is_in():
+    from spacr.filters import combination_label
+
+    assert combination_label([True, False, True], ["a", "b", "c"]) == "a+c"
+    assert combination_label([False, False], ["a", "b"]) == "none"
+
+
+def test_an_annotation_is_written_like_any_other_filter(cell_db):
+    from spacr.filters import annotate_from_gates, export_annotation
+
+    frame = pd.read_sql_query("SELECT * FROM cell", sqlite3.connect(cell_db))
+    labels = annotate_from_gates(frame, _two_gates(), ["low", "bright"],
+                                 mode="multiclass")
+    column, marked = export_annotation(cell_db, frame, labels, "my classes")
+
+    written = pd.read_sql_query(f"SELECT * FROM {FILTERS_TABLE}",
+                                sqlite3.connect(cell_db))
+    assert column == "my_classes"
+    assert marked == len(frame)
+    assert set(written[column].dropna()) == set(labels)
+
+
+def test_annotating_from_no_gates_says_so(cell_db):
+    from spacr.filters import annotate_from_gates
+
+    frame = pd.read_sql_query("SELECT * FROM cell", sqlite3.connect(cell_db))
+    with pytest.raises(FilterError, match="at least one gate"):
+        annotate_from_gates(frame, _two_gates(), [], mode="binary")
+
+
+def test_an_unknown_annotation_mode_is_refused(cell_db):
+    from spacr.filters import annotate_from_gates
+
+    frame = pd.read_sql_query("SELECT * FROM cell", sqlite3.connect(cell_db))
+    with pytest.raises(FilterError, match="not one of"):
+        annotate_from_gates(frame, _two_gates(), ["low"], mode="fuzzy")
