@@ -774,3 +774,161 @@ def test_rebuilding_the_tree_does_not_report_toggles(qtbot, monkeypatch):
                    pd.DataFrame({"a": [0.0], "b": [0.0]}))
     tree.refresh()
     assert seen == [], f"a rebuild reported toggles: {seen}"
+
+
+# --- picking a gate up, and pulling its anchors --------------------------
+#
+# "when the gate is being moved it should be 'picked up' and placed. so a
+# place holder in the shape of the gate should follow the mouse movement then
+# when the mouse is released the gate is moved ... also i should be able to
+# modify the gate by pulling on the corner anchorpoints or sides."
+
+class _MouseEvent:
+    """A matplotlib mouse event, with the pixel coordinates handles need."""
+
+    def __init__(self, ax, x_data, y_data):
+        self.inaxes = ax
+        self.xdata, self.ydata = x_data, y_data
+        self.x, self.y = ax.transData.transform((x_data, y_data))
+        self.button = 1
+
+
+def _rect_canvas(qtbot):
+    from spacr.qt.widgets.gate_editor import GateCanvas
+    from spacr.qt.widgets.gate_spec import GateSet, RectGate
+    from spacr.qt.widgets.graph_builder import GraphSpec
+    import pandas as pd
+
+    canvas = GateCanvas()
+    qtbot.addWidget(canvas)
+    canvas.set_frame(pd.DataFrame({"a": [0.0, 5.0, 10.0], "b": [0.0, 5.0, 10.0]}))
+    canvas.set_spec(GraphSpec(x="a", y="b"))
+    gate = RectGate(name="g", x_column="a", y_column="b",
+                    x_low=2.0, x_high=8.0, y_low=2.0, y_high=8.0)
+    canvas.set_gates(GateSet().add(gate))
+    axes = canvas.panel_axes()
+    return canvas, gate, list(axes.values())[0]
+
+
+def test_a_rectangle_offers_corners_and_sides(qtbot):
+    from spacr.qt.widgets.gate_spec import RectGate
+
+    gate = RectGate(name="g", x_column="a", y_column="b",
+                    x_low=2.0, x_high=8.0, y_low=2.0, y_high=8.0)
+    handles = gate.handles((0.0, 10.0, 0.0, 10.0))
+    corners = {(h.x, h.y) for h in handles if h.corner}
+    assert corners == {(2.0, 2.0), (8.0, 2.0), (2.0, 8.0), (8.0, 8.0)}
+    sides = {(h.x, h.y) for h in handles if not h.corner}
+    assert sides == {(2.0, 5.0), (8.0, 5.0), (5.0, 2.0), (5.0, 8.0)}
+
+
+def test_pulling_a_corner_moves_two_bounds_and_a_side_moves_one(qtbot):
+    from spacr.qt.widgets.gate_spec import RectGate
+
+    gate = RectGate(name="g", x_column="a", y_column="b",
+                    x_low=2.0, x_high=8.0, y_low=2.0, y_high=8.0)
+    pulled = gate.with_handle("x_high,y_high", 9.0, 9.0)
+    assert (pulled.x_high, pulled.y_high) == (9.0, 9.0)
+    assert (pulled.x_low, pulled.y_low) == (2.0, 2.0), "a corner moved the far side"
+
+    pulled = gate.with_handle("x_low", 1.0, 999.0)
+    assert pulled.x_low == 1.0
+    assert (pulled.y_low, pulled.y_high) == (2.0, 8.0), "a side changed y"
+
+
+def test_pulling_a_side_through_the_far_one_keeps_it_a_rectangle(qtbot):
+    from spacr.qt.widgets.gate_spec import RectGate
+
+    gate = RectGate(name="g", x_column="a", y_column="b",
+                    x_low=2.0, x_high=8.0, y_low=2.0, y_high=8.0)
+    pulled = gate.with_handle("x_low", 9.0, 0.0)
+    assert pulled.x_low < pulled.x_high, "the rectangle was left inside out"
+    assert (pulled.x_low, pulled.x_high) == (8.0, 9.0)
+
+
+def test_an_oval_refuses_to_be_pulled_to_nothing(qtbot):
+    from spacr.qt.widgets.gate_spec import EllipseGate
+
+    gate = EllipseGate(name="o", x_column="a", y_column="b",
+                       x_centre=5.0, y_centre=5.0, x_radius=2.0, y_radius=2.0)
+    assert gate.with_handle("x_radius", 5.0, 5.0) is gate, (
+        "a zero radius is not an ellipse, and EllipseGate refuses one")
+    assert gate.with_handle("x_radius", 8.0, 5.0).x_radius == 3.0
+
+
+def test_pressing_an_anchor_starts_a_resize_not_a_move(qtbot):
+    """The anchor has to win. Every anchor sits on or inside its own gate,
+    so testing the shape first would make resizing unreachable."""
+    canvas, gate, ax = _rect_canvas(qtbot)
+    canvas._on_press(_MouseEvent(ax, 8.0, 8.0))
+    assert canvas._resize == ("g", "x_high,y_high")
+    assert canvas._move_name is None, "grabbing a corner picked up the whole gate"
+
+
+def test_pressing_inside_the_gate_still_moves_it(qtbot):
+    canvas, gate, ax = _rect_canvas(qtbot)
+    canvas._on_press(_MouseEvent(ax, 5.0, 5.0))
+    assert canvas._resize is None
+    assert canvas._move_name == "g"
+
+
+def test_a_placeholder_follows_the_mouse_and_the_gate_does_not(qtbot):
+    edits = []
+    canvas, gate, ax = _rect_canvas(qtbot)
+    canvas.gate_edited.connect(edits.append)
+
+    canvas._on_press(_MouseEvent(ax, 5.0, 5.0))
+    canvas._on_motion(_MouseEvent(ax, 6.0, 7.0))
+
+    assert canvas._ghost, "nothing followed the mouse"
+    assert canvas.gates.get("g").x_low == 2.0, (
+        "the gate moved mid-drag; it is placed on RELEASE")
+    assert edits == [], "an edit was committed before the mouse came up"
+
+    canvas._on_release(_MouseEvent(ax, 6.0, 7.0))
+    assert not canvas._ghost, "the placeholder outlived the drag"
+    assert len(edits) == 1
+    assert edits[0].x_low == 3.0 and edits[0].y_low == 4.0
+
+
+def test_the_placeholder_shows_the_resize_that_release_will_commit(qtbot):
+    """The ghost and the commit come from one function, so the dashed shape
+    cannot promise something the release does not do."""
+    edits = []
+    canvas, gate, ax = _rect_canvas(qtbot)
+    canvas.gate_edited.connect(edits.append)
+
+    canvas._on_press(_MouseEvent(ax, 8.0, 8.0))
+    moved = _MouseEvent(ax, 9.5, 9.5)
+    preview = canvas._dragged_to(moved)
+    canvas._on_motion(moved)
+    assert canvas._ghost
+
+    canvas._on_release(_MouseEvent(ax, 9.5, 9.5))
+    assert len(edits) == 1
+    assert (edits[0].x_high, edits[0].y_high) == (preview.x_high, preview.y_high)
+    assert (edits[0].x_high, edits[0].y_high) == (9.5, 9.5)
+
+
+def test_a_hidden_gate_cannot_be_grabbed(qtbot):
+    """An invisible anchor that catches the mouse is indistinguishable from
+    the plot being broken."""
+    canvas, gate, ax = _rect_canvas(qtbot)
+    canvas.set_gate_enabled("g", False)
+    assert canvas.handle_at(_MouseEvent(ax, 8.0, 8.0)) is None
+
+
+def test_an_oval_gate_is_actually_drawn(qtbot):
+    """EllipseGate had no branch in `_outline` at all, so an oval was
+    previewed while dragged and then vanished once it became a gate."""
+    from spacr.qt.widgets.gate_spec import EllipseGate
+
+    canvas, _gate, ax = _rect_canvas(qtbot)
+    oval = EllipseGate(name="o", x_column="a", y_column="b",
+                       x_centre=5.0, y_centre=5.0, x_radius=2.0, y_radius=3.0)
+    points = canvas._gate_points(ax, oval)
+    assert points, "an oval gate is not drawn"
+    xs = [p[0] for p in points]
+    ys = [p[1] for p in points]
+    assert round(max(xs), 6) == 7.0 and round(min(xs), 6) == 3.0
+    assert round(max(ys), 6) == 8.0 and round(min(ys), 6) == 2.0

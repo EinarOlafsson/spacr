@@ -191,6 +191,29 @@ def points_in_polygon(x: np.ndarray, y: np.ndarray,
 # The three shapes
 # ---------------------------------------------------------------------------
 
+#: The visible axis limits: ``(x_low, x_high, y_low, y_high)``. Handles need
+#: them only to place anchors on sides a gate leaves unbounded.
+View = Tuple[float, float, float, float]
+
+
+@dataclass(frozen=True)
+class Handle:
+    """One draggable anchor on a gate.
+
+    ``role`` is what the anchor MEANS, not where it is: "x_low", "vertex:3",
+    "x_low,y_high". Position is derived from the gate and the view and is
+    therefore never stored -- a handle that remembered a coordinate would go
+    stale the moment the gate moved.
+    """
+
+    x: float
+    y: float
+    role: str
+    #: Corner handles change two bounds at once; side handles change one.
+    #: The canvas draws them differently so the user can tell before pulling.
+    corner: bool = False
+
+
 @dataclass(frozen=True)
 class Gate:
     """Base of the three gate shapes. Frozen: a gate is a value.
@@ -292,6 +315,41 @@ class Gate:
         """
         raise NotImplementedError
 
+    # -- anchor points ----------------------------------------------------
+    # Resizing is "pull a corner or a side", so every kind has to be able to
+    # say where its corners and sides ARE, and what it becomes when one is
+    # dragged. Both live here rather than in the canvas because they are
+    # geometry -- no axes, no pixels, no Qt -- and because a canvas that
+    # special-cased four gate kinds inside a mouse handler is how the drag
+    # code became unreadable the first time.
+
+    def handles(self, view: "View") -> Tuple["Handle", ...]:
+        """The draggable anchor points, in data units.
+
+        :param view: the visible axis limits, used ONLY to place handles on
+            sides the gate does not bound. An unbounded side is at infinity
+            and cannot be drawn or grabbed there; putting its handle at the
+            edge of the view lets the user pull a bound onto a gate that
+            never had one.
+        :returns: the anchors. Empty when the gate has nothing to pull.
+        """
+        return ()
+
+    def with_handle(self, role: str, x: float, y: float) -> "Gate":
+        """Return this gate with the ``role`` anchor moved to ``(x, y)``.
+
+        :param role: a role from :meth:`handles`.
+        :param x: the new position along the gate's x measurement.
+        :param y: along its y measurement.
+        :returns: a new gate, or ``self`` when the drag would collapse the
+            shape. Refusing beats raising here: this runs on mouse-release,
+            and a gate that snaps back is a clear "that is too small" while
+            a traceback out of an event handler is not.
+        :raises GateError: a role this gate does not have, which is a bug in
+            the caller rather than something the user did.
+        """
+        raise GateError(f"{type(self).__name__} has no handle {role!r}")
+
 
 @dataclass(frozen=True)
 class ThresholdGate(Gate):
@@ -366,6 +424,38 @@ class ThresholdGate(Gate):
             # somewhere arbitrary.
             return None, None
         return (float(self.low) + float(self.high)) / 2.0, None
+
+    def handles(self, view: "View") -> Tuple["Handle", ...]:
+        """One anchor per bound, at the middle of the view's height.
+
+        An unbounded side gets no handle. A threshold with no upper bound is
+        open to infinity, and an anchor at the edge of the view would look
+        like a bound the gate does not have -- the user would drag it and
+        discover they had just invented one.
+        """
+        _x0, _x1, y0, y1 = view
+        mid = (float(y0) + float(y1)) / 2.0
+        out = []
+        if self.low is not None:
+            out.append(Handle(float(self.low), mid, "low"))
+        if self.high is not None:
+            out.append(Handle(float(self.high), mid, "high"))
+        return tuple(out)
+
+    def with_handle(self, role: str, x: float, y: float) -> "ThresholdGate":
+        if role not in ("low", "high"):
+            raise GateError(f"threshold gate has no handle {role!r}")
+        low, high = self.low, self.high
+        if role == "low":
+            low = float(x)
+        else:
+            high = float(x)
+        if low is not None and high is not None and low > high:
+            # Dragged past the other bound. Swapping beats refusing: the
+            # user's intent is unambiguous and a gate that will not invert
+            # feels stuck at exactly the moment they are trying to fix it.
+            low, high = high, low
+        return replace(self, low=low, high=high)
 
     def scaled(self, factor: float, *,
                about: Optional[Tuple[float, float]] = None) -> "ThresholdGate":
@@ -474,6 +564,54 @@ class RectGate(Gate):
                 return None
             return (float(low) + float(high)) / 2.0
         return middle(self.x_low, self.x_high), middle(self.y_low, self.y_high)
+
+    def bounds_in(self, view: "View") -> Tuple[float, float, float, float]:
+        """The corners as drawn: unbounded sides fall back to the view edge.
+
+        A rectangle open on one side really does extend forever, so it is
+        drawn to the edge of the axes. That edge is where its handle goes,
+        and pulling it there gives the gate a bound it did not have -- which
+        is the only way to close an open side without redrawing the gate.
+        """
+        vx0, vx1, vy0, vy1 = (float(v) for v in view)
+        x0 = vx0 if self.x_low is None else float(self.x_low)
+        x1 = vx1 if self.x_high is None else float(self.x_high)
+        y0 = vy0 if self.y_low is None else float(self.y_low)
+        y1 = vy1 if self.y_high is None else float(self.y_high)
+        return x0, x1, y0, y1
+
+    def handles(self, view: "View") -> Tuple["Handle", ...]:
+        """Four corners and four side midpoints."""
+        x0, x1, y0, y1 = self.bounds_in(view)
+        xm, ym = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+        return (
+            Handle(x0, y0, "x_low,y_low", corner=True),
+            Handle(x1, y0, "x_high,y_low", corner=True),
+            Handle(x0, y1, "x_low,y_high", corner=True),
+            Handle(x1, y1, "x_high,y_high", corner=True),
+            Handle(x0, ym, "x_low"),
+            Handle(x1, ym, "x_high"),
+            Handle(xm, y0, "y_low"),
+            Handle(xm, y1, "y_high"),
+        )
+
+    def with_handle(self, role: str, x: float, y: float) -> "RectGate":
+        parts = [p for p in str(role).split(",") if p]
+        if not parts or any(p not in ("x_low", "x_high", "y_low", "y_high")
+                            for p in parts):
+            raise GateError(f"rectangle gate has no handle {role!r}")
+        values = dict(x_low=self.x_low, x_high=self.x_high,
+                      y_low=self.y_low, y_high=self.y_high)
+        for part in parts:
+            values[part] = float(x) if part.startswith("x_") else float(y)
+        for lo, hi in (("x_low", "x_high"), ("y_low", "y_high")):
+            a, b = values[lo], values[hi]
+            if a is not None and b is not None and a > b:
+                # Pulled through the opposite side. The user has turned the
+                # rectangle inside out, which they clearly meant; keeping it
+                # a rectangle is the only correction needed.
+                values[lo], values[hi] = b, a
+        return replace(self, **values)
 
     def scaled(self, factor: float, *,
                about: Optional[Tuple[float, float]] = None) -> "RectGate":
@@ -592,6 +730,21 @@ class PolygonGate(Gate):
             (ax + (float(x) - ax) * factor, ay + (float(y) - ay) * factor)
             for x, y in self.vertices))
 
+    def handles(self, view: "View") -> Tuple["Handle", ...]:
+        """One anchor per vertex. A polygon has no sides to pull that are not
+        already two vertices, so there are no side handles."""
+        return tuple(Handle(float(vx), float(vy), f"vertex:{i}", corner=True)
+                     for i, (vx, vy) in enumerate(self.vertices))
+
+    def with_handle(self, role: str, x: float, y: float) -> "PolygonGate":
+        if not str(role).startswith("vertex:"):
+            raise GateError(f"polygon gate has no handle {role!r}")
+        try:
+            index = int(str(role).split(":", 1)[1])
+        except ValueError:
+            raise GateError(f"polygon gate has no handle {role!r}") from None
+        return self.with_vertex(index, float(x), float(y))
+
     def with_vertex(self, index: int, x: float, y: float) -> "PolygonGate":
         """Move ONE vertex -- the per-vertex drag handle.
 
@@ -688,6 +841,43 @@ class EllipseGate(Gate):
 
     def centre(self) -> Tuple[Optional[float], Optional[float]]:
         return self.x_centre, self.y_centre
+
+    def handles(self, view: "View") -> Tuple["Handle", ...]:
+        """Four on the axes of the oval, four on its bounding box.
+
+        The axis handles change one radius, the corners change both. Corners
+        are placed on the bounding box rather than on the curve because that
+        is where the user reaches for them -- the curve at 45 degrees is
+        inside the box and feels like a miss.
+        """
+        cx, cy = float(self.x_centre), float(self.y_centre)
+        rx, ry = float(self.x_radius), float(self.y_radius)
+        return (
+            Handle(cx - rx, cy, "x_radius"),
+            Handle(cx + rx, cy, "x_radius"),
+            Handle(cx, cy - ry, "y_radius"),
+            Handle(cx, cy + ry, "y_radius"),
+            Handle(cx - rx, cy - ry, "x_radius,y_radius", corner=True),
+            Handle(cx + rx, cy - ry, "x_radius,y_radius", corner=True),
+            Handle(cx - rx, cy + ry, "x_radius,y_radius", corner=True),
+            Handle(cx + rx, cy + ry, "x_radius,y_radius", corner=True),
+        )
+
+    def with_handle(self, role: str, x: float, y: float) -> "EllipseGate":
+        parts = [p for p in str(role).split(",") if p]
+        if not parts or any(p not in ("x_radius", "y_radius") for p in parts):
+            raise GateError(f"ellipse gate has no handle {role!r}")
+        rx, ry = float(self.x_radius), float(self.y_radius)
+        if "x_radius" in parts:
+            rx = abs(float(x) - float(self.x_centre))
+        if "y_radius" in parts:
+            ry = abs(float(y) - float(self.y_centre))
+        if rx <= 0 or ry <= 0:
+            # A zero radius is not an ellipse and EllipseGate refuses one.
+            # Handing back the gate unchanged makes the handle stop at the
+            # centre instead of the drag raising into a mouse handler.
+            return self
+        return replace(self, x_radius=rx, y_radius=ry)
 
     def scaled(self, factor: float, *,
                about: Optional[Tuple[float, float]] = None) -> "EllipseGate":
