@@ -1,0 +1,139 @@
+================================================================================
+GATE EDITOR: SETTINGS THAT ACTUALLY APPLY, COLOUR-CODED GATES, MODES, CONSOLE
+================================================================================
+
+Status:    not started
+Requested: 2026-08-07
+
+Verbatim:
+
+  "the settings button should say settings and be to the left of close
+  pollygon button
+
+  also remove the close polygon
+
+  when i press cluster i get "Clustering needs an X and a Y measurement." when
+  both are cohosen
+
+  wand works!
+
+  default should be gate line width:0.5
+
+  cmap dosnt seem to be allpied to the data , they are always blue. but
+  viridis is the default.
+
+  while the load and at most settings are applied, none of the other general
+  settings seem to be applied.
+
+  same with the 2D and 3D settings, none of them seem to apply. there should
+  also be a 2D, 3D, and xD button to the right of cluster button.
+
+  there does not need to be a apply filter button, when a filter is generated
+  or loaded it can be high lighted like the gates which activates it
+
+  the gates should be colorcoded
+
+  when the app starts all the columns in the gates section should be visable.
+
+  there should be a console and ai chatbox
+
+  for gate based annotation there should be an option to choose multiple gates
+  and annotate based on all the gates, for this there should be a binary
+  option (a data point is in all gates or not) and a multi class mode where
+  all gate inheretance combinations become their own classes."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Known, and said plainly: commit 1b4019c1 shipped the settings WINDOW with all
+the fields, but the canvas reads only two of them -- `highlight_gated` and
+`gate_line_width`. Colour map, point size, opacity, grid, log axes and the
+data-resolution modes are stored and displayed and read by nothing. Sampling
+and the row cap work because the SCREEN reads those. That is why "load and at
+most" apply and nothing else does. This was flagged at the time; it is now the
+first item.
+
+The cluster failure is a live bug, not a missing feature: `_on_cluster` is
+rejecting axes that ARE set, so it is reading the wrong thing (a stale spec, a
+property vs method mix-up, or the panel's combo rather than the canvas spec).
+Reproduce it before changing anything -- it is a two-line fix once the source
+is found, and a guess would move the check rather than fix it.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A settings window whose settings do nothing is worse than no settings window:
+it tells the user the editor is configured a way it is not. Everything else on
+the list is either that same defect (2D and 3D settings), a control that no
+longer has a job (Close polygon, Apply filter), or the parts of the original
+Gate Editor design that have not been built yet (modes, console, colour
+coding, gate-based annotation).
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+SETTINGS THAT APPLY
+
+ 1. The canvas must READ the general settings: colour map, point size, point
+    opacity, grid, log X, log Y, and the data-resolution modes (points,
+    hexbin, histogram, density) with the bin count. The colour map is the one
+    the user named -- points are always blue today, whatever `viridis` says.
+ 2. The 2D settings must apply likewise, and the 3D ones when the 3D
+    workspace lands (instruction 31).
+ 3. `gate_line_width` default becomes 0.5.
+ 4. The test for each is that the setting reaches the DRAWING, not that the
+    field changed. This whole item exists because the fields were tested and
+    the drawing was not.
+
+CONTROLS
+
+ 5. The settings button says "Settings" and sits to the LEFT of where Close
+    polygon is now.
+ 6. Remove Close polygon. Clicking the first vertex closes a polygon, which
+    is what everyone tries; the button is now a second way to do one thing.
+ 7. Remove Apply filter. A filter that is generated or loaded is HIGHLIGHTED
+    the way a gate is, and the highlight is what activates it -- the same
+    move that took the zoom out of Apply (commit 4b805e15).
+ 8. 2D / 3D / xD buttons to the right of Cluster, driving `gate_mode`.
+ 9. Fix the cluster bug: it refuses X and Y that are both chosen.
+
+APPEARANCE
+
+10. Gates are COLOUR-CODED -- each gate its own colour, in its outline, its
+    highlighted objects and its row in the gate list, so a plot with four
+    gates on it can be read without clicking each one.
+11. On startup every column in the gate section is visible. The gate list
+    currently opens with columns cut off.
+
+NEW SURFACES
+
+12. A console and an AI chat box (from the original instruction 31 spec).
+13. Gate-based annotation over MULTIPLE gates, with two modes:
+      - BINARY: an object is in all the chosen gates, or it is not;
+      - MULTI-CLASS: every combination of gate membership becomes its own
+        class.
+    This is the same mechanism as the filters export (spacr/filters.py), so
+    it should write through that rather than beside it.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * Changing the colour map changes the colour of the POINTS. Changing point
+    size, opacity, grid and log axes each visibly change the plot.
+  * Choosing hexbin, histogram or density draws that, and the bin count
+    changes the binning.
+  * A gate drawn with the default settings has a 0.5 line.
+  * Cluster runs with an X and a Y chosen, on the table that fails today.
+  * There is no Close polygon button and no Apply filter button, and both
+    jobs are still doable: clicking the first vertex closes a polygon,
+    highlighting a filter activates it.
+  * Four gates on one plot are four distinguishable colours, matching their
+    rows in the list.
+  * On startup no column in the gate section is cut off.
+  * Selecting three gates and annotating in binary mode gives one column that
+    is 1 only for objects inside all three; multi-class mode gives one class
+    per observed combination.

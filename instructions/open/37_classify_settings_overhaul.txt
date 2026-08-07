@@ -93,6 +93,21 @@ Verbatim, because most of this is precise and the paraphrase would lose it:
   thing through all of the names for the settings categories in this modul and
   come upo with better and fewer categories."
 
+WHY THE MEASUREMENT BASIS MOVES RATHER THAN DIES (2026-08-07, the user):
+
+  "thats fine to retire the measurements code in classify, im really not
+  removing it conceptually. im moving it to the Gate editor because this
+  module is much better for choosing classes based on measurements as one can
+  use multiple gates (if we just used thresholds like befor the model would
+  just kearn that threshold, gates are morecomplex with moredimentions and i
+  can add multiple gates)"
+
+  Worth keeping in front of whoever does this: a class defined by a single
+  threshold teaches the model that threshold, which is a tautology dressed as
+  a classifier. Gates are multi-dimensional and can be combined, so the class
+  is a region rather than a cut. That is the reason the basis moves, and it is
+  the argument against anyone helpfully restoring a threshold-based mode later.
+
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
 --------------------------------------------------------------------------------
