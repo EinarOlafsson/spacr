@@ -402,6 +402,31 @@ class GateCanvas(GraphCanvas):
         if gate is not None:
             self.gate_drawn.emit(gate)
 
+    def _make_drag_patch(self, x0: float, y0: float):
+        """Preview the shape the armed tool will actually make.
+
+        A rectangular preview for an elliptical gate tells the user the wrong
+        thing about what they are about to draw -- reported as "the oval
+        looks like a square when dragged but does in fact generate an oval
+        gate".
+        """
+        if self._tool == ELLIPSE:
+            from matplotlib.patches import Ellipse
+
+            return Ellipse((x0, y0), 0.0, 0.0, **self._drag_patch_style())
+        return super()._make_drag_patch(x0, y0)
+
+    def _update_drag_patch(self, patch, x0: float, y0: float,
+                           x1: float, y1: float) -> None:
+        if self._tool == ELLIPSE:
+            # Inscribed in the swept box, exactly as EllipseGate.from_drag
+            # builds it -- so the preview and the gate are the same shape.
+            patch.set_center(((x0 + x1) / 2.0, (y0 + y1) / 2.0))
+            patch.set_width(abs(x1 - x0))
+            patch.set_height(abs(y1 - y0))
+            return
+        super()._update_drag_patch(patch, x0, y0, x1, y1)
+
     def gate_from_drag(self, x0: float, y0: float, x1: float, y1: float,
                        *, name: str = "(unnamed)") -> Optional[Gate]:
         """Build the armed tool's gate from a swept rectangle.

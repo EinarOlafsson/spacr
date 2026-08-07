@@ -1219,18 +1219,36 @@ class GraphCanvas(LinkedView, QWidget):
             return
         if event.xdata is None or event.ydata is None:
             return
-        from matplotlib.patches import Rectangle
         ax, x0, y0 = self._drag_origin
         if self._drag_patch is None:
-            palette = active_palette()
-            self._drag_patch = Rectangle(
-                (x0, y0), 0, 0, facecolor=palette["accent"], alpha=0.18,
-                edgecolor=palette["accent"], linewidth=1.0, zorder=6)
+            self._drag_patch = self._make_drag_patch(x0, y0)
             ax.add_patch(self._drag_patch)
-        self._drag_patch.set_bounds(
-            min(x0, event.xdata), min(y0, event.ydata),
-            abs(event.xdata - x0), abs(event.ydata - y0))
+        self._update_drag_patch(self._drag_patch, x0, y0,
+                                float(event.xdata), float(event.ydata))
         self._canvas.draw_idle()
+
+    # The preview shape is a HOOK because the shape being previewed is not
+    # always a rectangle. The Gate Editor draws ovals with the same gesture,
+    # and a rectangular preview for an elliptical gate tells the user the
+    # wrong thing about what they are about to make.
+
+    def _drag_patch_style(self) -> dict:
+        palette = active_palette()
+        return {"facecolor": palette["accent"], "alpha": 0.18,
+                "edgecolor": palette["accent"], "linewidth": 1.0,
+                "zorder": 6}
+
+    def _make_drag_patch(self, x0: float, y0: float):
+        """The patch previewing a sweep. A rectangle unless overridden."""
+        from matplotlib.patches import Rectangle
+
+        return Rectangle((x0, y0), 0, 0, **self._drag_patch_style())
+
+    def _update_drag_patch(self, patch, x0: float, y0: float,
+                           x1: float, y1: float) -> None:
+        """Resize the preview to the sweep so far."""
+        patch.set_bounds(min(x0, x1), min(y0, y1),
+                         abs(x1 - x0), abs(y1 - y0))
 
     def _on_release(self, event) -> None:
         origin, self._drag_origin = self._drag_origin, None
