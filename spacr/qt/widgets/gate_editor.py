@@ -50,6 +50,7 @@ from ..theme import SPACING, active_palette, mark_surface
 from .graph_builder import GraphCanvas
 from .graph_spec import BAR, HISTOGRAM, GraphSpec
 from .gate_spec import (
+    ELLIPSE, EllipseGate,
     GATE_KINDS, POLYGON, RECTANGLE, THRESHOLD, Gate, GateError, GateSet,
     PolygonGate, RectGate, ThresholdGate,
 )
@@ -69,6 +70,7 @@ TOOL_LABELS = {
     "": "Brush (no gate) — drag to highlight, as everywhere else",
     THRESHOLD: "Threshold — drag across a histogram to cut one column",
     RECTANGLE: "Rectangle — drag a box on a two-column plot",
+    ELLIPSE: "Oval — drag a box; the oval is drawn inside it",
     POLYGON: "Polygon — click each vertex, then Close",
 }
 
@@ -393,6 +395,16 @@ class GateCanvas(GraphCanvas):
             return RectGate(name=name, parent=self._active,
                             x_column=spec.x, y_column=spec.y,
                             x_low=x0, x_high=x1, y_low=y0, y_high=y1)
+        if self._tool == ELLIPSE:
+            if not (spec.x and spec.y):
+                return None
+            if x0 == x1 or y0 == y1:
+                # A zero-width drag would be an ellipse with a zero radius,
+                # which EllipseGate refuses. Nothing drawn is the right
+                # answer to nothing dragged.
+                return None
+            return EllipseGate.from_drag(name, spec.x, spec.y,
+                                         x0, y0, x1, y1, parent=self._active)
         return None
 
     def close_polygon(self, *, name: str = "(unnamed)") -> Optional[Gate]:

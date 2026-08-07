@@ -385,8 +385,12 @@ def test_a_strategy_that_does_not_fit_the_table_says_which_column(tmp_path,
 
 
 def test_an_unknown_gate_kind_fails_with_a_sentence():
+    # "ellipse" used to be the example of an unknown kind. It is a real gate
+    # now, so the example has to be a kind spaCR genuinely does not have --
+    # otherwise this test passes for the wrong reason the moment someone
+    # implements whatever it names.
     with pytest.raises(GateError, match="unknown gate kind"):
-        gate_from_dict({"kind": "ellipse", "name": "e"})
+        gate_from_dict({"kind": "hyperboloid", "name": "e"})
     with pytest.raises(GateError, match="does not understand"):
         gate_from_dict({"kind": THRESHOLD, "name": "t", "column": "a",
                         "low": 1.0, "feather": 3})
