@@ -27,12 +27,13 @@ downstream of the plot ever sees the sample.
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Dict, Tuple
+from typing import Dict, Mapping, Tuple
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
-    QFormLayout, QLabel, QSpinBox, QTabWidget, QVBoxLayout, QWidget,
+    QFormLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QVBoxLayout,
+    QWidget,
 )
 
 from ..theme import SPACING
@@ -154,6 +155,17 @@ class GateEditorSettings:
     components: int = 3
     #: What a merge does with a primary object that has no children.
     merge_na: str = "keep"
+    #: Which object everything else is rolled up onto. Decides what a row of
+    #: the merged table MEANS, so it is a choice rather than an assumption.
+    merge_primary: str = "cell"
+    #: column -> aggregation, beating the rules worked out from the column's
+    #: name. A default that is right most of the time is a wrong answer nobody
+    #: can find the rest of the time, so every one of them is overridable.
+    merge_overrides: Mapping[str, str] = None
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "merge_overrides",
+                           dict(self.merge_overrides or {}))
     z_axis: str = ""
     #: Voxels per axis in the 3D workspace.
     voxel_bins: int = 64
@@ -189,6 +201,9 @@ class GateSettingsDialog(QDialog):
 
     #: The settings changed. Carries a whole :class:`GateEditorSettings`.
     settings_changed = Signal(object)
+    #: The per-column aggregation table was asked for. The dialog does not own
+    #: it: only the screen knows which columns are loaded.
+    aggregation_rules_requested = Signal()
 
     def __init__(self, settings: GateEditorSettings, parent=None, *,
                  columns: Tuple[str, ...] = ()):
@@ -477,6 +492,18 @@ class GateSettingsDialog(QDialog):
             lambda v: self._change(components=int(v)))
         form.addRow("Components", self._components)
 
+        self._merge_primary = QComboBox(page)
+        self._merge_primary.addItems(
+            ("cell", "nucleus", "pathogen", "cytoplasm", "organelle"))
+        self._merge_primary.setCurrentText(self._settings.merge_primary)
+        self._merge_primary.setToolTip(
+            "The object everything else is rolled up onto. It decides what a "
+            "row of the merged table means — rolling cells onto pathogens is "
+            "a legitimate thing to want and gives a different table.")
+        self._merge_primary.currentTextChanged.connect(
+            lambda v: self._change(merge_primary=v))
+        form.addRow("Merge: primary object", self._merge_primary)
+
         self._merge_na = QComboBox(page)
         self._merge_na.addItems(("keep", "zero", "drop"))
         self._merge_na.setCurrentText(self._settings.merge_na)
@@ -531,6 +558,16 @@ class GateSettingsDialog(QDialog):
         self._spin.valueChanged.connect(
             lambda v: self._change(spin_speed=float(v)))
         form.addRow("Spin speed", self._spin)
+
+        self._rules_button = QPushButton("Aggregation rules…", page)
+        self._rules_button.setToolTip(
+            "Show the rule chosen for every measurement, and change any of "
+            "them. The rules follow what a column MEASURES — areas and counts "
+            "sum, a minimum takes the minimum — and a silent default that is "
+            "right 95% of the time is a wrong answer nobody can find the "
+            "other 5%.")
+        self._rules_button.clicked.connect(self.aggregation_rules_requested.emit)
+        form.addRow("", self._rules_button)
 
         note = QLabel(
             "The 3D workspace itself is the next piece of work. These "

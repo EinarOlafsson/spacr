@@ -410,6 +410,8 @@ class GateEditorScreen(QWidget):
                 self._settings, self, columns=tuple(self._x.itemText(i)
                                                     for i in range(self._x.count())))
             self._settings_dialog.settings_changed.connect(self.apply_settings)
+            self._settings_dialog.aggregation_rules_requested.connect(
+                self.show_aggregation_rules)
             from ..dialogs import detach_from_window_manager
             detach_from_window_manager(self._settings_dialog)
         self._settings_dialog.show()
@@ -515,6 +517,34 @@ class GateEditorScreen(QWidget):
         parts = [f"{name} {share:.0%}"
                  for name, share in zip(components.columns, variance)]
         return "projected onto " + ", ".join(parts)
+
+    def show_aggregation_rules(self) -> None:
+        """The per-column merge rules, for the columns actually loaded."""
+        from PySide6.QtWidgets import QMessageBox
+        from ..widgets.aggregation_rules import AggregationRulesDialog
+
+        frame = self._frame
+        if frame is None or frame.empty:
+            QMessageBox.information(
+                self, "No table",
+                "Load a table first — the rules are per measurement, so there "
+                "is nothing to show until there are measurements.")
+            return
+        dialog = AggregationRulesDialog(
+            frame, self, overrides=self._settings.merge_overrides)
+        dialog.rules_changed.connect(self._on_aggregation_rules_changed)
+        dialog.show()
+        self._rules_dialog = dialog
+
+    def _on_aggregation_rules_changed(self, overrides: dict) -> None:
+        """Take new rules and re-merge, but only when several tables are up.
+
+        A single table is never aggregated, so re-reading it would be a
+        visible pause in exchange for an identical result.
+        """
+        self._settings = self._settings.replaced(merge_overrides=overrides)
+        if len(self._tables) > 1:
+            self._reload_working_set()
 
     def settings(self) -> GateEditorSettings:
         return self._settings
@@ -714,8 +744,10 @@ class GateEditorScreen(QWidget):
         from ...merge_tables import MergePolicy
 
         primary = self._tables[0] if self._tables else "cell"
-        return MergePolicy(primary=primary,
-                           na=getattr(self._settings, "merge_na", "keep"))
+        return MergePolicy(
+            primary=getattr(self._settings, "merge_primary", None) or primary,
+            na=getattr(self._settings, "merge_na", "keep"),
+            overrides=getattr(self._settings, "merge_overrides", None))
 
     @staticmethod
     def _read_working_set(path: str, tables: List[str], fraction: float,
