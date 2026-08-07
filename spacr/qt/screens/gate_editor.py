@@ -40,6 +40,7 @@ from ..widgets.gate_editor import GateEditorPanel
 from ..widgets.gate_spec import GateError, GateSet
 from ..widgets.gate_settings import GateEditorSettings, GateSettingsDialog
 from ..widgets.graph_spec import GraphSpec, plottable_columns
+from ..widgets.gate_console import GateConsole
 from ..widgets.table_chip import TableChip
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
@@ -188,6 +189,11 @@ class GateEditorScreen(QWidget):
         self.gates.spin_axis_changed.connect(self.gates.canvas.set_spin_axis)
         body.addWidget(self.gates)
 
+        self.console = GateConsole(self)
+        self.console.setToolTip(
+            "Ask a question about the table you are gating without leaving "
+            "the screen.")
+
         # ONE section, not two tabs. Filter and Columns were separate tabs
         # inside a QTabWidget capped at 340px, and a panel whose content
         # needs more than that had nowhere to put it -- which is what read
@@ -234,8 +240,15 @@ class GateEditorScreen(QWidget):
             pass
 
         body.addWidget(side)
+
+        # The console goes in the splitter too, so the user decides how much
+        # room a transcript deserves. Collapsed by default: it is a thing you
+        # reach for, not a thing you look past.
+        body.addWidget(self.console)
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 0)
+        body.setStretchFactor(2, 0)
+        body.setSizes([700, 260, 0])
         outer.addWidget(body, 1)
         # Drop anywhere on this screen: the path is resolved through spaCR's
         # project layout, so the plate folder finds what this screen reads.
@@ -256,6 +269,7 @@ class GateEditorScreen(QWidget):
         if frame is None:
             return
         self.gates.set_frame(frame)
+        self.console.set_frame(frame)
         self.filters.set_frame(frame)
         self._refill_axis_pickers(frame)
 
