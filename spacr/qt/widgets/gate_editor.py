@@ -822,11 +822,11 @@ class GateEditorPanel(QWidget):
                 "eps to group them more loosely, or lower min_samples.")
             return
 
-        gates = self.canvas.gates()
+        gates = self.canvas.gates
         for gate in found:
             gates.add(gate)
         self.canvas.set_gates(gates, active=found[0].name)
-        self.refresh()
+        self._refresh_status()
 
     def _on_close_polygon(self) -> None:
         self.canvas.close_polygon()
@@ -839,10 +839,12 @@ class GateEditorPanel(QWidget):
         is what makes this a one-liner instead of a remove-then-add that
         could lose the gate if the add failed.
         """
-        gates = self.gates()
+        # `gates` is a PROPERTY on both this panel and the canvas. Calling
+        # it raised TypeError on every drag -- which is what the user saw.
+        gates = self.gates
         gates.add(gate)
         self.canvas.set_gates(gates, active=gate.name)
-        self.refresh()
+        self._refresh_status()
 
     def _on_gate_drawn(self, gate: Gate) -> None:
         name = self._ask_name()
@@ -888,6 +890,25 @@ class GateEditorPanel(QWidget):
         than replacing it: a gate and a filter are both ways of narrowing the
         population, and a screen with both must not have one silently undo the
         other.
+
+        NOTE, and the next thing to change here: the user has asked that
+        applying a gate HIGHLIGHT its points and leave the rest of the graph
+        on screen, rather than hide the rows outside it --
+
+            "i dont want it to zoom in the first place. i want it to
+             highlight the datapoints in the gate and show the gate but also
+             show the rest of the graph."
+
+        That is a SELECTION, not a filter, and the distinction already
+        exists: `link.set_selection` rings rows and keeps every one of them
+        on screen, while `link.set_filter` removes them. The Graph Builder's
+        own test states both behaviours side by side. Switching this to a
+        selection is what makes the axes stop moving for the right reason,
+        rather than because rescaling was suppressed.
+
+        Keep the filter available -- narrowing to a gate is a real thing to
+        want -- but it should be the explicit second action, not what the
+        primary button does.
         """
         name = self.tree.active_gate()
         if not name:
