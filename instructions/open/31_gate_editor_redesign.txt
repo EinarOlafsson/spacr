@@ -2,7 +2,9 @@
 GATE EDITOR: A REDESIGN, NOT A CHANGE
 ================================================================================
 
-Status:    not started - SPLIT THIS BEFORE STARTING (see PHASES)
+Status:    IN PROGRESS - DBSCAN + move model + panel merge landed.
+           GATE CREATION IS BROKEN (see 2026-08-07 below), which is
+           why none of the editing behaviour was visible.
 Requested: 2026-08-06, verbatim:
 
   "the user should be able to:
@@ -167,3 +169,101 @@ redesign across three files and roughly ten independent features, and
 starting it with too little room would have produced a half-migrated editor
 that is worse than the current one - the gate maths in gate_spec.py is
 sound, and a partial rewrite is the one way to lose it.
+
+--------------------------------------------------------------------------------
+2026-08-07 - THE FULL SPEC, AND A BLOCKER
+--------------------------------------------------------------------------------
+
+BLOCKER, REPORTED FIRST: "I dont see any of the behaviour I asked for" and
+"because it is impossible to generate a gate i cant test this section".
+
+GATE CREATION IS BROKEN. Everything built so far -- DBSCAN clustering, the
+move model, the canvas drag handler -- operates on gates that exist, so none
+of it is reachable. FIX THIS BEFORE ANYTHING ELSE. Specifically:
+
+  * POLYGON: clicking the FIRST point a second time must close the gate.
+    Today closing is a separate "Close polygon" button, which is not what
+    anyone tries.
+  * DRAG: a click-and-drag must draw a RECTANGLE by default, with no tool
+    selection needed.
+  * Once closed, a gate is draggable. That part is written and tested; it
+    simply has nothing to act on.
+
+SHAPES beyond the rectangle: ovals, circles, and others, chosen by the user.
+
+DATA DISPLAY
+  * cmap choice for the scatter.
+  * RESOLUTION: from every individual point through to binned density, so a
+    million-row table is not a million artists. This is the same idea as the
+    "granularity" already in phase 2 -- one setting, and the gate is ALWAYS
+    evaluated against the full frame however coarsely it is drawn.
+
+CLUSTERING
+  * A clustering algorithm option with a hyperparameter search, including a
+    WALK -- the same directional search described for Image UMAP in
+    instruction 34, and it must carry the SAME NAME in both modules.
+
+LAYOUT, as reported
+  * The middle section (the one with "delete gate" at the bottom) OVERLAPS
+    the filter section. The filter section itself "looks fine, and adding
+    new filters does work live".
+  * Filter sets and values should be SAVEABLE, exactly as gates already are.
+  * The console and the AI chat box belong at the BOTTOM of that section.
+  * Filter and Hyperparameter-search become TABS, the active one blue like
+    the app's buttons, sitting above the console.
+  * Graph, filter and search containers all resizable in width and height.
+
+DIMENSIONALITY - the largest piece
+  * Three exclusive modes, as buttons where the two axis pickers are now:
+      2D  - two axis fields (today's behaviour)
+      3D  - three axis fields, and the gate becomes a 3D voxel gate
+      xD  - two axis fields by default, each fed by a dimensionality
+            reduction over a list of columns
+  * xD reduction methods: PCA, UMAP, t-SNE, and others. Each with its own
+    hyperparameters, and a search/Walk toggle. Irrelevant parameters are
+    GREYED when another method is chosen -- the same rule the merged
+    Classify module already follows (INVARIANTS 6: greyed, not removed).
+
+SETTINGS PANEL - three tabs
+    1. General   - data resolution, cmap, which tables, what to merge on.
+    2. 3D        - greyed unless 3D is active.
+    3. xD        - greyed unless xD is active: how many axes (2 or 3), the
+                   reduction method dropdown, its hyperparameters, and the
+                   search/Walk toggle which reveals the search region.
+
+TABLE MERGING
+  * Combine cell, cytoplasm, nucleus, pathogen, organelle, png_list and any
+    other table the user names.
+  * DEFAULT merge key: the plate/row/column/field/object label (the cell
+    object). That is what nearly every real case wants, so it is the
+    default rather than a choice the user has to make first -- but it stays
+    editable in the settings panel.
+  * spacr.io._read_and_join_tables already does exactly this join and knows
+    the traps (cell_id anchoring, the timelapse key mismatch). CALL IT.
+
+3D WORKSPACE
+  * Click and drag spins the plot on both axes.
+  * The spin SNAPS to axis-aligned views: it rotates along the axes, not
+    between them, and settles with two axes facing the user, one vertical
+    and one horizontal.
+  * With a face toward the user, the gate is edited on that face. A 3D gate
+    therefore starts as a 2D shape and is then extruded along the third
+    axis.
+  * Shapes in 3D: polygons, cylinders, cubes, and so on -- the extrusions of
+    the 2D shapes above.
+
+--------------------------------------------------------------------------------
+REVISED ORDER
+--------------------------------------------------------------------------------
+
+  0. FIX GATE CREATION. Nothing else is reachable until this works.
+  1. Shapes (rect default, oval/circle), then resize handles and highlight
+     mode -- the rest of the original phase 1.
+  2. Layout: the overlap, filter/search tabs, console + AI at the bottom,
+     resizable containers, saveable filter sets.
+  3. Data display: cmap, resolution/binning.
+  4. 2D/3D/xD mode buttons and the three-tab settings panel, with table
+     merging through _read_and_join_tables.
+  5. Clustering search + Walk (shared with instruction 34).
+  6. The 3D workspace, which is the biggest and should be last: it needs
+     everything above to exist first.
