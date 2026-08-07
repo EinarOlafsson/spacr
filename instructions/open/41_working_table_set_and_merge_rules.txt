@@ -1,0 +1,120 @@
+================================================================================
+GATE EDITOR: ADD TABLES TO A WORKING SET, AND MERGE THEM BY WHAT THEY MEASURE
+================================================================================
+
+Status:    not started
+Requested: 2026-08-07
+
+Verbatim:
+
+  "in Gate Editor there is a drop down for the table shown, instead the
+  dropdown should be used to add tables to the working table, automatically
+  load the first table (cell) but if the user clicks the dropdown and and then
+  clicks nuclei dont just switch to nuclei, add nuclei (and for every table
+  that is added including the default loaded first table there should be
+  alittle bue rounded box with an x that can be clicked to remove it, each new
+  table represented and the combination of tables is what is used for the
+  modual.)
+
+  in the settings there should be new merge settings where disisions about how
+  to average values are handled and how to handle N/A values are handled, and
+  which object is the primary object used for averaging. multiple options in
+  dropdowns should be available. also handling of merging values from differnet
+  columns should take into account the nature of the columns (i have logic for
+  this in my olf rad and merge tables functions). for instance if we have one
+  cell object with 4 pathogen objects then pathogen area based measurements
+  should be summed, as well as sum based measurements such as integrated
+  intensity or any counts, while measurements such as pathogen min intensity
+  from several objects should be the min of the objects and for max intensity
+  measurements the max of the objects should be retained and for mean and
+  median the object mean and median. so when merging based on a parent you need
+  to take into account the nature of the object."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The Gate Editor's table dropdown SWITCHES tables: picking nucleus replaces
+cell. Only one table is ever in play, so a gate can never be drawn on a cell
+measurement against a pathogen measurement.
+
+The aggregation logic the user refers to already exists in spaCR -- the old
+read-and-merge-tables functions in spacr/io.py (`_read_and_join_tables` and
+around it) already aggregate child objects onto a parent. Whatever rules are
+in there are the starting point and must not be reinvented: reimplementing
+them slightly differently would give two answers to the same question
+depending on which screen asked.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The aggregation rule has to follow the MEASUREMENT, not the column type. Four
+pathogens in one cell:
+
+  * area, integrated intensity, counts        -> SUM
+  * minimum intensity                         -> MIN of the objects
+  * maximum intensity                         -> MAX of the objects
+  * mean, median                              -> the object mean / median
+
+Averaging all of them, which is what a naive groupby-mean does, silently
+answers a different question for every column: it turns four pathogens' total
+area into an average area, and it turns a minimum into a mean of minima, which
+is not a minimum of anything.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+THE WORKING SET
+
+ 1. The dropdown ADDS a table to the working set instead of switching to it.
+ 2. The first table (cell, or whichever the filters anchor logic picks) loads
+    automatically and is itself a member of the set.
+ 3. Each member shows as a small blue rounded chip with an x to remove it,
+    including the first.
+ 4. The COMBINATION of tables is what the module works on, so the axis
+    pickers offer measurements from all of them.
+
+MERGE SETTINGS
+
+ 5. A merge section in the settings window with, at least:
+      - the PRIMARY object -- what everything else is aggregated onto;
+      - how values are averaged / aggregated;
+      - how N/A is handled.
+    Dropdowns with several options, not booleans.
+ 6. Aggregation is chosen PER COLUMN by what the column measures, defaulting
+    as above. Reuse the existing logic from the old read-and-merge-tables
+    functions rather than writing a second set of rules.
+ 7. The rule applied to each column should be visible to the user and
+    overridable -- a silent default that is right 95% of the time is a wrong
+    answer nobody can find the other 5%.
+
+--------------------------------------------------------------------------------
+NOTES
+--------------------------------------------------------------------------------
+
+This depends on instruction 40: aggregating pathogens onto their cell needs
+to know WHICH cell, which is what the relationships table is for. Do 40 first,
+or this ends up carrying its own private join.
+
+Ask the user where the old read-and-merge logic lives if it is not obvious --
+they said "i have logic for this in my olf rad and merge tables functions",
+and matching it exactly matters more than rederiving it.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * Opening a database loads cell automatically, shown as a removable chip.
+  * Clicking nucleus in the dropdown ADDS it; both chips are present and the
+    axis pickers offer measurements from both.
+  * Removing a chip removes that table's measurements from the pickers, and
+    any gate drawn on them says so rather than vanishing silently.
+  * One cell with four pathogens: pathogen area sums, integrated intensity
+    sums, min intensity is the minimum of the four, max is the maximum, mean
+    is the mean. Verified against a hand-built table where all five answers
+    differ.
+  * The N/A policy and the primary object are settings, and changing them
+    changes the merged table.
+  * The rule chosen per column is visible and can be overridden.
