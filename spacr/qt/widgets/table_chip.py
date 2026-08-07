@@ -23,18 +23,27 @@ def _chip_qss(palette, opacity=None) -> str:
     The accent rather than a literal blue: a hard-coded colour is wrong in
     whichever theme was not being looked at when it was written.
     """
+    # The theme's own text colour: white on the dark themes, as asked, and
+    # dark on the light ones without a second rule. It was the WINDOW colour
+    # before, which is black on dark -- black on a blue chip.
+    #
+    # Contrast maths would pick black here (a mid blue is bright enough that
+    # black scores higher), so it is deliberately not used: the ask was white
+    # on dark, and following the theme's text colour is what keeps that true
+    # in every theme rather than only this one.
+    ink = palette["fg"]
     return f"""
     QWidget#TableChip {{
         background: {palette['accent']};
         border-radius: 9px;
     }}
     QLabel#TableChipName {{
-        color: {palette['bg']};
+        color: {ink};
         background: transparent;
         padding: 1px 2px 1px 8px;
     }}
     QPushButton#TableChipClose {{
-        color: {palette['bg']};
+        color: {ink};
         background: transparent;
         border: none;
         padding: 0px 6px 2px 4px;

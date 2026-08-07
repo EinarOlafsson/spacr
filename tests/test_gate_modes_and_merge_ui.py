@@ -405,3 +405,89 @@ def test_xd_projects_a_table_with_scattered_missing_values(screen):
 
     assert screen.reduce_to_components() is None, "the projection failed"
     assert screen.gates._frame["PC1"].notna().sum() == n
+
+
+# --- gating in the volume, and merging awkward keys ----------------------
+
+def test_a_box_gate_is_made_from_the_view(screen):
+    """"i cannot draw gates in 3D". A rectangle dragged on a rotated
+    projection has no defined extent along the axis pointing at the viewer,
+    so the view itself is the gesture: frame a population, keep it."""
+    from spacr.qt.widgets.gate_spec import BoxGate
+
+    canvas = _volume(screen)
+    screen.gates.set_namer(lambda: "blob")
+    screen.gates.gate_from_view()
+
+    gate = screen.gates.gates.get("blob")
+    assert isinstance(gate, BoxGate)
+    assert gate.columns == ("a", "b", "c"), "the box does not use all three"
+
+
+def test_a_box_gate_narrows_when_the_view_does(screen):
+    canvas = _volume(screen)
+    ax = canvas.axes_at(0, 0)
+    ax.set_xlim3d(-0.5, 0.5)
+    ax.set_ylim3d(-0.5, 0.5)
+    ax.set_zlim3d(-0.5, 0.5)
+
+    screen.gates.set_namer(lambda: "tight")
+    screen.gates.gate_from_view()
+    gate = screen.gates.gates.get("tight")
+    selected = int(gate.mask(screen.gates._frame).sum())
+    assert 0 < selected < len(screen.gates._frame), (
+        f"the box selected {selected} of everything; it did not follow the view")
+
+
+def test_a_box_gate_is_editable_in_2d_as_its_rectangle(screen):
+    """Its outline, handles and drag all work unchanged, and the depth the
+    flat view cannot express is left alone rather than reset."""
+    canvas = _volume(screen)
+    screen.gates.set_namer(lambda: "blob")
+    screen.gates.gate_from_view()
+
+    screen.gates.mode_requested.emit("2D")
+    gate = screen.gates.gates.get("blob")
+    assert canvas._gate_is_on_these_axes(gate)
+    assert canvas._handles_for(canvas.axes_at(0, 0), gate), "no handles in 2D"
+
+
+def test_a_box_gate_survives_a_save_and_load(screen, tmp_path):
+    from spacr.qt.widgets.gate_spec import BoxGate, GateSet
+
+    _volume(screen)
+    screen.gates.set_namer(lambda: "blob")
+    screen.gates.gate_from_view()
+
+    path = screen.save_gates(str(tmp_path / "g.json"))
+    loaded = GateSet.load(path).get("blob")
+    assert isinstance(loaded, BoxGate)
+    assert loaded.z_column == "c"
+
+
+def test_the_box_is_not_offered_as_a_drag_tool(screen):
+    """It would promise a gesture that cannot work on a rotated projection."""
+    tools = [screen.gates._tool.itemData(i)
+             for i in range(screen.gates._tool.count())]
+    assert "box" not in tools
+
+
+def test_xd_shows_three_axes_not_two(screen):
+    """"xD has three axees in the feilds above called PC1, PC2, PC3 but i
+    cannot see the axees on the graph the graph is 2D"."""
+    _wide(screen)
+    screen.gates.mode_requested.emit("xD")
+    ax = screen.gates.canvas.axes_at(0, 0)
+    assert hasattr(ax, "zaxis"), "xD drew a flat scatter of two components"
+
+
+def test_xd_can_be_spun_like_3d(screen):
+    _wide(screen)
+    screen.gates.mode_requested.emit("xD")
+    canvas = screen.gates.canvas
+    ax = canvas.axes_at(0, 0)
+    before = float(ax.azim)
+    canvas._on_press(_Mouse(ax, 100, 100))
+    canvas._on_motion(_Mouse(ax, 160, 100))
+    canvas._on_release(_Mouse(ax, 160, 100))
+    assert float(ax.azim) != before
