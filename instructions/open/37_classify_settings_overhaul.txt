@@ -284,3 +284,35 @@ HOW TO KNOW IT WORKED
     appear anywhere in the UI, and an old CSV containing them still runs.
   * The category list is shorter than it is today, and every name says what is
     in it.
+
+--------------------------------------------------------------------------------
+PROGRESS
+--------------------------------------------------------------------------------
+
+2026-08-07, commit 98ae880c -- item 1-5 (Classes) and part of 6/8 done:
+
+  * spacr/classify_classes.py: Classes as a dict of name -> (column, value),
+    with the random complement replacing write_random_annotation_column and
+    metadata mode offering plate/row/column/field/well. 26 tests, Qt-free.
+  * Old settings translate in normalize_settings; the tests assert the
+    OBJECTS SELECTED rather than the keys, because a key-level test would
+    pass a silently different training set straight through.
+  * Aliases: png_type -> path_string, size -> image_size. io.py reads the new
+    names directly (it is called on its own as well as through classify()).
+  * classify() runs both translations.
+
+STILL TO DO: the GUI dict widget that populates keys from the chosen column;
+file_type as an extension filter (item 7); crop source dropdown and ON-DEMAND
+CROP GENERATION (items 10-12, the only part that writes new pipeline code);
+model compatibility test and the custom-model-supersedes rule (item 15);
+normalization transforms (16); and the whole category overhaul (13-23).
+
+NOTE: png_type/size are ALIASES, not dead settings, so they stay in
+`categories` for now. Moving them into DEAD_SETTINGS is part of the category
+work, and test_dead_settings will refuse any key that still has a reader --
+find the reader rather than the guard.
+
+NOTE: tests/test_settings_categories.py has FOUR failures on the clean tree
+(two timelapse, two from cross-file settings-registration leakage,
+INVARIANTS 5). They are not caused by this work; do not read them as
+regressions when doing the category items.
