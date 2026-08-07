@@ -94,7 +94,7 @@ class GateEditorSettings:
 
     # -- 2D ---------------------------------------------------------------
     default_tool: str = "rectangle"
-    gate_line_width: float = 1.4
+    gate_line_width: float = 0.5
     #: Ring the gated objects, rather than only outlining the gate.
     highlight_gated: bool = True
     #: Keys a filter is merged back onto the object tables with.
@@ -289,7 +289,7 @@ class GateSettingsDialog(QDialog):
         form.addRow("Default tool", self._tool)
 
         self._line_width = QDoubleSpinBox(page)
-        self._line_width.setRange(0.5, 6.0)
+        self._line_width.setRange(0.1, 6.0)
         self._line_width.setSingleStep(0.2)
         self._line_width.setValue(self._settings.gate_line_width)
         self._line_width.valueChanged.connect(
@@ -467,6 +467,22 @@ class GateSettingsDialog(QDialog):
         self._settings = self._settings.replaced(**fields)
         if self._live:
             self.settings_changed.emit(self._settings)
+
+    def set_mode(self, mode: str) -> None:
+        """Show a mode chosen elsewhere, without re-emitting it.
+
+        The 2D/3D/xD buttons and this dropdown are two views of one setting.
+        Echoing the change back would be a loop; showing it is what keeps the
+        window honest about the state the editor is actually in.
+        """
+        if mode not in GATE_MODES:
+            return
+        self._live = False
+        try:
+            self._mode.setCurrentText(mode)
+            self._settings = self._settings.replaced(gate_mode=mode)
+        finally:
+            self._live = True
 
     def settings(self) -> GateEditorSettings:
         return self._settings

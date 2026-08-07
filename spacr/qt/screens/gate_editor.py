@@ -118,12 +118,9 @@ class GateEditorScreen(QWidget):
         self._export.clicked.connect(self.export_gates)
         head.addWidget(self._export)
 
-        self._settings_button = QPushButton("⚙", self)
-        self._settings_button.setObjectName("GateSettingsButton")
-        self._settings_button.setToolTip("Gate editor settings")
-        self._settings_button.setFixedWidth(32)
-        self._settings_button.clicked.connect(self.open_settings)
-        head.addWidget(self._settings_button)
+        # The Settings button lives on the gates panel's tool row, left of
+        # Cluster, where the rest of the gating controls are. Two buttons
+        # opening one window is one too many.
         outer.addLayout(head)
 
         axes = QHBoxLayout()
@@ -150,6 +147,8 @@ class GateEditorScreen(QWidget):
         self.gates = GateEditorPanel(self, link=link)
         self.gates.gates_changed.connect(self._on_gates_changed)
         self.gates.axes_requested.connect(self._on_axes_requested)
+        self.gates.settings_requested.connect(self.open_settings)
+        self.gates.mode_requested.connect(self._on_mode_requested)
         body.addWidget(self.gates)
 
         # ONE section, not two tabs. Filter and Columns were separate tabs
@@ -350,6 +349,17 @@ class GateEditorScreen(QWidget):
             detach_from_window_manager(self._settings_dialog)
         self._settings_dialog.show()
         self._settings_dialog.raise_()
+
+    def _on_mode_requested(self, mode: str) -> None:
+        """2D / 3D / xD, from the buttons beside Cluster.
+
+        Routed through `apply_settings` rather than set directly, so the mode
+        button and the 3D tab's dropdown cannot end up disagreeing about which
+        mode the editor is in.
+        """
+        self.apply_settings(self._settings.replaced(gate_mode=mode))
+        if self._settings_dialog is not None:
+            self._settings_dialog.set_mode(mode)
 
     def apply_settings(self, settings: GateEditorSettings) -> None:
         """Take new settings, re-reading the table only if one of them needs it.

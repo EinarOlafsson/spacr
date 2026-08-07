@@ -39,7 +39,9 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import (
+    QButtonGroup,
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
     QFormLayout, QHBoxLayout, QHeaderView, QInputDialog, QLabel, QPushButton,
     QSpinBox, QSplitter, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
@@ -57,6 +59,23 @@ from .gate_spec import (
 )
 
 LOG = logging.getLogger("spacr.qt.gate_editor")
+
+#: Colours gates are drawn in, cycled by position in the gate set. Chosen to
+#: stay apart from each other AND from a viridis-coloured cloud underneath --
+#: a gate outline in the same green as the density it sits on is invisible
+#: exactly where it matters. Also distinguishable in the common forms of
+#: colour blindness, since the colour is the only thing telling two gates
+#: apart on the plot.
+GATE_COLOURS: Tuple[str, ...] = (
+    "#ff4d6d",   # rose
+    "#4cc9f0",   # cyan
+    "#ffb703",   # amber
+    "#b388ff",   # violet
+    "#06d6a0",   # mint
+    "#ff8fab",   # pink
+    "#8ecae6",   # pale blue
+    "#f4a261",   # sand
+)
 
 #: Key the gate tree's stylesheet is registered under.
 QSS_NAME = "GateHierarchy"
@@ -182,7 +201,13 @@ class GateCanvas(GraphCanvas):
         #: canvas draws the same with or without a settings object.
         self._settings = None
         self._highlight_gated = True
-        self._line_width = 1.4
+        self._line_width = 0.5
+        self._colour_map = "viridis"
+        self._resolution = "points"
+        self._bins = 200
+        self._show_grid = False
+        self._log_x = False
+        self._log_y = False
 
     # -- the tool ---------------------------------------------------------
     @property
@@ -250,6 +275,11 @@ class GateCanvas(GraphCanvas):
     def apply_settings(self, settings) -> None:
         """Take the drawing settings and redraw once.
 
+        Every one of these has to reach the DRAWING. The settings window
+        shipped with fields the canvas never read, so the colour map said
+        viridis while the points stayed blue and nothing but the sampling
+        appeared to do anything.
+
         Guarded with getattr so a partial settings object -- an older saved
         set, a test double -- cannot stop the editor from drawing at all.
         """
@@ -258,8 +288,107 @@ class GateCanvas(GraphCanvas):
         if tool and tool in GATE_KINDS and not self._tool:
             self._tool = tool
         self._highlight_gated = bool(getattr(settings, "highlight_gated", True))
-        self._line_width = float(getattr(settings, "gate_line_width", 1.4))
+        self._line_width = float(getattr(settings, "gate_line_width", 0.5))
+        self.POINT_SIZE_BASE = float(getattr(settings, "point_size", 6.0)) ** 2
+        self.POINT_ALPHA = float(getattr(settings, "point_opacity", 0.6))
+        self._colour_map = str(getattr(settings, "colour_map", "viridis"))
+        self._resolution = str(getattr(settings, "resolution_mode", "points"))
+        self._bins = int(getattr(settings, "bins", 200))
+        self._show_grid = bool(getattr(settings, "show_grid", False))
+        self._log_x = bool(getattr(settings, "log_x", False))
+        self._log_y = bool(getattr(settings, "log_y", False))
         self.render_now()
+
+    # -- the settings, reaching the drawing -------------------------------
+    def point_colormap(self):
+        """The colour map the user chose, by name.
+
+        An unknown name falls back rather than raising: matplotlib's registry
+        changes between versions, and a colour map that no longer exists must
+        not take the whole plot with it (INVARIANTS 10).
+        """
+        from matplotlib import colormaps
+        try:
+            return colormaps[self._colour_map]
+        except (KeyError, TypeError):
+            LOG.info("no colour map called %r; using the theme's",
+                     self._colour_map)
+            return super().point_colormap()
+
+    def decorate_axes(self, ax) -> None:
+        """Grid and log scales.
+
+        Log is applied only where it is legal: a log axis over data that
+        reaches zero or below draws nothing at all, which reads as the plot
+        having broken rather than as the setting being inapplicable.
+        """
+        palette = active_palette()
+        # Line properties only when enabling: matplotlib warns that supplying
+        # them with False turns the grid ON, which is the opposite of asked.
+        if self._show_grid:
+            ax.grid(True, color=palette["fg_muted"], alpha=0.25, linewidth=0.5)
+        else:
+            ax.grid(False)
+        ax.set_axisbelow(True)
+        for wanted, setter, getter in (
+                (self._log_x, ax.set_xscale, ax.get_xlim),
+                (self._log_y, ax.set_yscale, ax.get_ylim)):
+            if not wanted:
+                continue
+            low, high = getter()
+            if low > 0 and high > 0:
+                setter("log")
+            else:
+                LOG.info("log axis skipped: the data reaches %r", low)
+
+    def _draw_plain_points(self, ax, x, y, rows, palette):
+        """Colour the cloud by DENSITY when there is no colour column.
+
+        "cmap dosnt seem to be allpied to the data , they are always blue."
+        A cytometry scatter has no colour axis, so the base canvas drew one
+        flat colour and the chosen map had nothing to colour. Density is what
+        the map should show: on a crowded plot the overlap is the reading, and
+        a single colour hides it entirely.
+
+        The binned resolution modes replace the points outright; this is the
+        `points` mode, which keeps one marker per object.
+        """
+        if self._resolution == "hexbin":
+            return ax.hexbin(x, y, gridsize=max(10, self._bins // 4),
+                             cmap=self.point_colormap(), mincnt=1,
+                             linewidths=0.0)
+        if self._resolution in ("histogram", "density"):
+            counts, xe, ye = np.histogram2d(
+                x[np.isfinite(x) & np.isfinite(y)],
+                y[np.isfinite(x) & np.isfinite(y)],
+                bins=max(10, min(self._bins, 1000)))
+            counts = counts.T
+            if self._resolution == "density" and counts.max() > 0:
+                counts = counts / counts.sum()
+            masked = np.ma.masked_where(counts <= 0, counts)
+            return ax.pcolormesh(xe, ye, masked, cmap=self.point_colormap(),
+                                 shading="auto")
+        return ax.scatter(x, y, s=self._sizes(rows),
+                          c=self._density(x, y), cmap=self.point_colormap(),
+                          linewidths=0.0, alpha=self.POINT_ALPHA)
+
+    def _density(self, x, y):
+        """A per-point density, binned rather than kernel-estimated.
+
+        A Gaussian KDE over a million objects is minutes; a 2D histogram
+        lookup is milliseconds and produces the same reading at the
+        resolution a screen can show.
+        """
+        finite = np.isfinite(x) & np.isfinite(y)
+        out = np.zeros(len(x))
+        if not finite.any():
+            return out
+        bins = max(10, min(self._bins, 512))
+        counts, xe, ye = np.histogram2d(x[finite], y[finite], bins=bins)
+        xi = np.clip(np.digitize(x[finite], xe) - 1, 0, counts.shape[0] - 1)
+        yi = np.clip(np.digitize(y[finite], ye) - 1, 0, counts.shape[1] - 1)
+        out[finite] = counts[xi, yi]
+        return out
 
     # -- which gates are showing -----------------------------------------
     def is_gate_enabled(self, name: str) -> bool:
@@ -347,7 +476,7 @@ class GateCanvas(GraphCanvas):
         marked = frame.loc[inside]
         self._artists.append(
             ax.scatter(marked[spec.x], marked[spec.y], s=14,
-                       facecolor="none", edgecolor=palette["accent"],
+                       facecolor="none", edgecolor=self.gate_colour(gate.name),
                        linewidths=0.7, zorder=6))
 
     def _gate_is_on_these_axes(self, gate: Gate) -> bool:
@@ -371,13 +500,29 @@ class GateCanvas(GraphCanvas):
             return False
         return needed <= showing
 
+    def gate_colour(self, name: str) -> str:
+        """The colour a gate is drawn in, stable for the life of the set.
+
+        By POSITION in the gate set, so a gate keeps its colour while others
+        are added, and so the outline, the ringed objects and the row in the
+        gate list all agree -- which is the point: a plot with four gates on
+        it should be readable without clicking each one.
+
+        Falls back to the accent when a gate is not in the set (a shape being
+        dragged out has no position yet).
+        """
+        names = list(self._gates.names)
+        if name not in names:
+            return active_palette()["accent"]
+        return GATE_COLOURS[names.index(name) % len(GATE_COLOURS)]
+
     def _outline(self, ax, gate: Gate, palette) -> None:
         """Draw ``gate`` if it is a gate on the columns currently plotted.
 
         A gate on other columns is not drawn rather than approximated onto
         these axes: an outline in the wrong units is worse than no outline.
         """
-        accent = palette["accent"]
+        accent = self.gate_colour(gate.name)
         if isinstance(gate, ThresholdGate):
             if gate.column not in (self._spec.x, self._spec.y):
                 return
@@ -446,7 +591,7 @@ class GateCanvas(GraphCanvas):
         handles = self._handles_for(ax, gate)
         if not handles:
             return
-        accent = palette["accent"]
+        accent = self.gate_colour(gate.name)
         for corner, marker in ((True, "s"), (False, "o")):
             picked = [h for h in handles if h.corner is corner]
             if not picked:
@@ -907,6 +1052,7 @@ class GateTree(QWidget):
         self.setObjectName("GateTree")
         self._gates = GateSet()
         self._frame: Optional[pd.DataFrame] = None
+        self._colour_source = None
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -916,7 +1062,16 @@ class GateTree(QWidget):
         self.tree.setObjectName("GateHierarchy")
         self.tree.setColumnCount(4)
         self.tree.setHeaderLabels(["Gate", "n", "% parent", "% all"])
-        self.tree.header().setSectionResizeMode(0, QHeaderView.Stretch)
+        header = self.tree.header()
+        # Every column visible on startup. Stretching column 0 and leaving the
+        # rest at their default width pushed n / % parent / % all off the edge
+        # of a narrow panel, so the counts -- the reason the tree has columns
+        # at all -- could not be seen until the user resized something.
+        header.setSectionResizeMode(0, QHeaderView.Stretch)
+        for column in range(1, 4):
+            header.setSectionResizeMode(column, QHeaderView.ResizeToContents)
+        header.setStretchLastSection(False)
+        header.setMinimumSectionSize(44)
         self.tree.setToolTip(
             "The gates you have drawn. Tick one to show it on the plot and "
             "highlight its objects, untick it to hide it. Selecting a gate "
@@ -983,6 +1138,12 @@ class GateTree(QWidget):
             item.setData(0, Qt.UserRole, gate.name)
             item.setCheckState(0, Qt.Unchecked if gate.name in self._disabled
                                else Qt.Checked)
+            colour = self._colour_for(gate.name)
+            if colour:
+                # The gate's own colour, on its name. This is the half that
+                # makes colour-coding useful: a colour on the plot that is not
+                # also in the list is a colour with nothing to look it up in.
+                item.setForeground(0, QBrush(QColor(colour)))
             item.setToolTip(0, gate.describe())
             parent_item = items.get(gate.parent) if gate.parent else None
             if parent_item is None:
@@ -993,6 +1154,26 @@ class GateTree(QWidget):
         self.tree.expandAll()
         if current in items:
             self.tree.setCurrentItem(items[current])
+
+    def _colour_for(self, name: str) -> str:
+        """The gate's colour, asked of whoever is drawing it.
+
+        The canvas owns the mapping so the two cannot disagree; the tree only
+        displays it. Returns "" when there is no canvas -- the tree is usable
+        on its own, and a missing colour is not worth failing over.
+        """
+        source = getattr(self, "_colour_source", None)
+        if source is None:
+            return ""
+        try:
+            return str(source(name) or "")
+        except Exception:
+            return ""
+
+    def set_colour_source(self, source) -> None:
+        """Tell the tree where gate colours come from -- see `_colour_for`."""
+        self._colour_source = source
+        self.refresh()
 
     def _on_item_changed(self, item: QTreeWidgetItem, column: int) -> None:
         """A tick changed — unless the tree is rebuilding itself."""
@@ -1115,6 +1296,11 @@ class GateEditorPanel(QWidget):
     #: Selecting a gate asks the screen to show the measurements it was drawn
     #: on. Carries ``(x_column, y_column)``; y is empty for a one-column gate.
     axes_requested = Signal(str, str)
+    #: The Settings button was pressed. The panel does not own the settings
+    #: window -- the screen does, because sampling is the screen's job.
+    settings_requested = Signal()
+    #: A gating mode was chosen: "2D", "3D" or "xD".
+    mode_requested = Signal(str)
 
     def __init__(self, parent=None, *, link=None,
                  source: str = "gate_editor"):
@@ -1146,10 +1332,15 @@ class GateEditorPanel(QWidget):
         tools.addWidget(QLabel("Tool", self))
         tools.addWidget(self._tool)
 
-        self._close = QPushButton("Close polygon", self)
-        self._close.setEnabled(False)
-        self._close.clicked.connect(self._on_close_polygon)
-        tools.addWidget(self._close)
+        # No Close polygon button. Clicking the first vertex closes the shape,
+        # which is what everyone tries; once that worked, the button was a
+        # second way to do one thing and the only one that had to be found.
+
+        self._settings_button = QPushButton("Settings", self)
+        self._settings_button.setObjectName("GateSettingsButton")
+        self._settings_button.setToolTip("Gate editor settings")
+        self._settings_button.clicked.connect(self.settings_requested.emit)
+        tools.addWidget(self._settings_button)
 
         self._cluster = QPushButton("Cluster…", self)
         self._cluster.setToolTip(
@@ -1158,13 +1349,26 @@ class GateEditorPanel(QWidget):
         self._cluster.clicked.connect(self._on_cluster)
         tools.addWidget(self._cluster)
 
-        self._apply = QPushButton("Apply as filter", self)
-        self._apply.setObjectName("PrimaryButton")
-        self._apply.setToolTip(
-            "Publish the selected gate as the shared filter, so every open "
-            "view narrows to its population.")
-        self._apply.clicked.connect(self.publish)
-        tools.addWidget(self._apply)
+        # 2D / 3D / xD, right of Cluster. Checkable and exclusive: the mode is
+        # one choice, and three buttons that can all be on describe a state
+        # the editor does not have.
+        self._mode_buttons: Dict[str, QPushButton] = {}
+        group = QButtonGroup(self)
+        group.setExclusive(True)
+        for mode in ("2D", "3D", "xD"):
+            button = QPushButton(mode, self)
+            button.setCheckable(True)
+            button.setChecked(mode == "2D")
+            button.setFixedWidth(38)
+            button.clicked.connect(
+                lambda _checked=False, m=mode: self.mode_requested.emit(m))
+            group.addButton(button)
+            self._mode_buttons[mode] = button
+            tools.addWidget(button)
+
+        # No Apply button. A gate highlights its objects the moment it is
+        # shown (the tick in the gate list), so a button whose job was "now
+        # make it count" describes a step that no longer exists.
 
         self._status = QLabel("no gates", self)
         self._status.setObjectName("GateStatus")
@@ -1196,6 +1400,7 @@ class GateEditorPanel(QWidget):
         self.tree.active_changed.connect(self._on_active_changed)
         self.tree.gates_changed.connect(self._on_tree_changed)
         self.tree.enabled_changed.connect(self.canvas.set_gate_enabled)
+        self.tree.set_colour_source(self.canvas.gate_colour)
         self.body.addWidget(self.tree)
 
         # The scatter takes the slack when the panel is resized; the gate
@@ -1240,11 +1445,9 @@ class GateEditorPanel(QWidget):
     def _on_tool_changed(self, *_args) -> None:
         tool = self._tool.currentData() or ""
         self.canvas.set_tool(tool)
-        self._close.setEnabled(False)
         self._refresh_status()
 
     def _on_polygon_changed(self, count: int) -> None:
-        self._close.setEnabled(count >= 3)
         if count:
             self._status.setText(
                 f"{count} vertex(es) — three or more make a region")
@@ -1265,8 +1468,13 @@ class GateEditorPanel(QWidget):
                 self, "Nothing to cluster",
                 "Load a table before clustering.")
             return
-        x_column = getattr(self.canvas, "x_column", None) or ""
-        y_column = getattr(self.canvas, "y_column", None) or ""
+        # The axes live on the SPEC. `canvas.x_column` has never existed, so
+        # getattr always returned the default and clustering refused two
+        # measurements that were plainly chosen -- "when i press cluster i get
+        # 'Clustering needs an X and a Y measurement.' when both are cohosen".
+        spec = self.canvas.spec
+        x_column = getattr(spec, "x", None) or ""
+        y_column = getattr(spec, "y", None) or ""
         if not x_column or not y_column:
             QMessageBox.information(
                 self, "Pick two measurements",

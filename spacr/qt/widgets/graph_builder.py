@@ -830,9 +830,20 @@ class GraphCanvas(LinkedView, QWidget):
             dtype=object)
         return colours, levels
 
+    def _draw_plain_points(self, ax, x, y, rows, palette):
+        """Points with no colour column: one flat colour.
+
+        Its own method because that is exactly the case the Gate Editor
+        replaces -- a cytometry scatter with no colour axis should still show
+        where the objects are, and a single colour cannot.
+        """
+        return ax.scatter(x, y, s=self._sizes(rows),
+                          color=self._series_colour(0),
+                          linewidths=0.0, alpha=self.POINT_ALPHA)
+
     def _sizes(self, rows: pd.DataFrame) -> np.ndarray:
         spec = self._spec
-        base = np.full(len(rows), 16.0)
+        base = np.full(len(rows), float(self.POINT_SIZE_BASE))
         limits = getattr(self._scales, "size_limits", None)
         if not spec.size or spec.size not in rows.columns or not limits:
             return base
@@ -845,6 +856,19 @@ class GraphCanvas(LinkedView, QWidget):
 
     def _draw_panel(self, ax, rows, mask, kind, data, palette
                     ) -> Optional[Callable]:
+        """Draw one panel, then decorate it.
+
+        `decorate_axes` runs AFTER the data because it reads the limits: a log
+        scale can only be applied where the data is positive, and before
+        anything is plotted the limits are matplotlib's default (0, 1), which
+        makes every axis look inapplicable.
+        """
+        updater = self._draw_panel_marks(ax, rows, mask, kind, data, palette)
+        self.decorate_axes(ax)
+        return updater
+
+    def _draw_panel_marks(self, ax, rows, mask, kind, data, palette
+                          ) -> Optional[Callable]:
         """Draw one panel; return an updater for a cheap highlight repaint.
 
         The updater exists only for point marks, where a selection change is
@@ -887,6 +911,28 @@ class GraphCanvas(LinkedView, QWidget):
             return pd.to_numeric(rows[column], errors="coerce").to_numpy(float)
         return (axis(spec.x, scales.x_levels), axis(spec.y, scales.y_levels))
 
+    #: Marker area for a point with no size column, and the alpha points are
+    #: drawn at. Class attributes rather than literals inside `_draw_points`
+    #: so a subclass whose user can set them -- the Gate Editor -- can, without
+    #: reimplementing the drawing.
+    POINT_SIZE_BASE = 16.0
+    POINT_ALPHA = 0.7
+
+    def point_colormap(self):
+        """The colour map for a continuous colour axis.
+
+        A hook: the Gate Editor lets the user choose one, and the choice has
+        to reach the drawing rather than only the settings dict.
+        """
+        return _colormap()
+
+    def decorate_axes(self, ax) -> None:
+        """Called after each panel is drawn. Nothing by default.
+
+        Where a subclass puts grid lines and log scales -- after the data, so
+        it cannot change what was plotted, only how it is read.
+        """
+
     def _draw_points(self, ax, rows, mask, kind, palette) -> Callable:
         spec = self._spec
         x, y = self._xy(rows)
@@ -898,24 +944,25 @@ class GraphCanvas(LinkedView, QWidget):
         if spec.colour and self._scales.colour_levels:
             colours, _levels = self._level_colours(rows[spec.colour])
             base = ax.scatter(x, y, s=self._sizes(rows), c=list(colours),
-                              linewidths=0.0, alpha=0.75)
+                              linewidths=0.0, alpha=self.POINT_ALPHA)
         elif spec.colour and self._scales.colour_limits:
             values = pd.to_numeric(rows[spec.colour],
                                    errors="coerce").to_numpy(float)
             low, high = self._scales.colour_limits
             base = ax.scatter(x, y, s=self._sizes(rows), c=values,
-                              cmap=_colormap(), vmin=low, vmax=high,
-                              linewidths=0.0, alpha=0.8)
+                              cmap=self.point_colormap(), vmin=low, vmax=high,
+                              linewidths=0.0, alpha=self.POINT_ALPHA)
         else:
-            base = ax.scatter(x, y, s=self._sizes(rows),
-                              color=self._series_colour(0),
-                              linewidths=0.0, alpha=0.7)
+            base = self._draw_plain_points(ax, x, y, rows, palette)
         ring = ax.scatter([], [], s=54, facecolors="none",
                           edgecolors=palette["fg"], linewidths=1.4, zorder=5)
 
         def update(new_mask) -> None:
             if new_mask is None:
-                base.set_alpha(0.7)
+                # The configured opacity, not a literal: this runs on every
+                # selection change, so a hard-coded value here quietly undoes
+                # the user's setting the first time anything is highlighted.
+                base.set_alpha(self.POINT_ALPHA)
                 ring.set_offsets(np.empty((0, 2)))
                 return
             base.set_alpha(DIMMED_ALPHA)
