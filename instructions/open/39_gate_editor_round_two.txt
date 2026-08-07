@@ -137,3 +137,21 @@ HOW TO KNOW IT WORKED
   * Selecting three gates and annotating in binary mode gives one column that
     is 1 only for objects inside all three; multi-class mode gives one class
     per observed combination.
+
+--------------------------------------------------------------------------------
+PROGRESS -- 2026-08-07, commits fe32c5f0, 3a2dfae9, 5c15056c
+--------------------------------------------------------------------------------
+
+DONE: settings reach the drawing (colour map, point size, opacity, grid, axis
+scales, resolution modes, at every table size); colour-by dropdown; wheel zoom
+about the pointer; colour-coded gates; all gate-list columns visible; cluster
+bug; Settings button; Close polygon and Apply filter removed; 2D/3D/xD buttons;
+Z picker; text no longer clipped (fit_to_text, from font metrics).
+
+STILL OPEN from this instruction: item 12, the console and AI chat box; item
+13, multi-gate annotation (binary and multi-class over gate combinations).
+
+NOTE for anyone adding a control: use `fit_to_text` from
+spacr.qt.widgets.gate_editor rather than setFixedWidth. Fixed sizes are a
+promise about a font the app does not control, and clipping was reported on
+the sides AND from the top and bottom.
