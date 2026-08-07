@@ -1,0 +1,239 @@
+================================================================================
+CLASSIFY: CLASSES AS A DICT, HONEST CROP SOURCES, AND FEWER CATEGORIES
+================================================================================
+
+Status:    not started
+Requested: 2026-08-07
+
+Verbatim, because most of this is precise and the paraphrase would lose it:
+
+  "in the Classify module the Classes setting should be a dictionary where the
+  user chooses the class name of the annotations found in the column. so you
+  set the column then the keys of this dict get populated and the user fills
+  in their names.
+
+  in classify, change the settings:
+
+  png_type to path string (this is a string that needs to be in the path of
+  each image)
+
+  file type should be a dropdown of all the possible image filetypes
+
+  file type and png list sem to be the exact same thing. change the logic for
+  file type to be a file extention filter.
+
+  remove the write random annotation column. this should be handled by the
+  classes dikt. if only one lable is present in the annotation column then the
+  other class needs to be a random selection of the non annotated images.
+  annotation column should be able to hold more than one column this means
+  that the classes dict needs to specify value and column the value is from
+  for class naming. make sure that the downstream logic is compatible with
+  hese changes.
+
+  crop source should be a dropdown, with the options pre generated crops and
+  on demand crops, and generate crops.
+
+  if not pregenerated crops then path filtering options and other options
+  related to precut pngs should be grayed out. if on demand crops, then
+  training generates a dataset based on merged, where some arrays hold objects
+  and some hold intensity images. this option should also be able to take
+  coordinates from a databse to generate image crops from, but merged based
+  masks should be the default. channel and mask aray information is necessary
+  here, these channels and coordinate columns need to be specified, so add
+  theses settings and make sure the logic for this works downstream and that
+  the crops are actually generated. (the option to generate bounding box or
+  object crops should be given, only bounding box will be possible with
+  database object generation.)
+
+  size and image size occurs twice, pick image size and discar size.
+
+  the categories for computer vision for this module need to be overhauled and
+  settings need to be organized by wheir category and level. the firs one can
+  be:
+
+  as is but annotation column and location column should be the same and
+  remove the Measurement mode (this is replaced by the gate editor for
+  annotation, which is annotation by measurement). for Metadatamodel the
+  Classes dict just shifts the possible columns to them metadata columns
+  (plate, row, column, field, well) instead of user defined annotation columns
+  and the logic in Classes should remove the need to have location column,
+  positive controll and negative controll settings here.
+
+  the second can be changed to Computer vision data source and its relevant
+  settings: e.g. crop source, size, extract channel (for on demand), object
+  array (for on demand), file type (for pre generated crops), path string (for
+  pregenerated crops)
+
+  for model architecture:
+
+  clicking a model should activate a test if the model is compatible with
+  spacr and the class structure chosen. there should not be a boolean for
+  custom model, if custom model has a path and a model can be loaded from that
+  path, this setting super seeds model type and is the model that is used.
+  Train channels should be in the preveous settings category and so should
+  image size. I dont know what Normalize does here, but we should give several
+  normalization transforms for the images, e.g. the same normalization done by
+  for image net, is the normalization done on the batch or single image level
+  (there should be options for all of these, maybie a dropdown, with a custom
+  option), there should be a settings category called Computer Vision
+  Optimization and Regularization (Use Checkpointing, Dropout, weight decay).
+  all of the settings relevant for training and loss should be moved to a
+  category called Coumputer vision Training, including Epoch, Loss type, etc.
+  augment should be in Dataset. any settings that are not relevant because
+  they are for other settings that are not chosen should be grayed out.
+
+  save to db should be Save Results to DB and should not have its own
+  category.
+
+  for the computer vision add the heatmap from ML and make that category a
+  common category
+
+  Machine Learning Feature Selection and Importance should be in the same
+  category as feature preparation. but the name should be more appropreate.
+  thing through all of the names for the settings categories in this modul and
+  come upo with better and fewer categories."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not investigated in detail. What is already known from the merge work:
+
+  * spacr/classify.py is the merged front end. FAMILY_SETTINGS lists which
+    settings belong to CV and which to ML; that list is what greys the other
+    family out, and it will need editing wherever a setting is renamed here.
+  * spacr/training_basis.py owns dataset_mode -- metadata / annotation /
+    measurement -- and BASIS_SETTINGS drives the same greying for the basis.
+    REMOVING the measurement basis (see item 12) means retiring a value that
+    an existing settings CSV can legitimately contain.
+  * spacr/io.py builds the dataset from class_metadata/metadata_rules,
+    annotation_columns/annotation_values, or measurement_rules.
+  * The channel-mapping work already established the house rule for this kind
+    of setting: a dict with named keys, never a list whose meaning comes from
+    position (INVARIANTS 13). Classes is the same shape of problem.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Two themes run through the whole list.
+
+FIRST, settings that do not say what they mean. `png_type` is a path
+substring. `file_type` and `png_list` appear to be the same thing. `size` and
+`image_size` both exist. `custom_model` is a boolean next to a path that
+already answers the same question. Each one is a place where a user has to
+know a convention rather than read a label, and each is a place where two
+settings can disagree and one silently wins.
+
+SECOND, the class definition is doing too little. A user who has annotated one
+class has to reach for a "write random annotation column" button to get the
+other; a user who annotated across two columns cannot express it at all; and a
+metadata-based model needs location/positive/negative control settings that
+say the same thing the classes already say. A Classes dict that names the
+value AND the column it came from replaces all of that.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+CLASSES
+
+ 1. Classes becomes a DICT, populated from the chosen column(s): set the
+    column, the keys appear, the user names them. Each entry names the VALUE
+    and the COLUMN that value came from, so more than one annotation column
+    can define classes at once.
+ 2. `annotation_column` therefore becomes plural and is the same setting as
+    `location_column` -- one setting, one name.
+ 3. Remove "write random annotation column". When only one label is present,
+    the second class is a random selection of the NON-annotated images, and
+    the Classes dict is what says so.
+ 4. In the metadata basis the same dict offers the metadata columns (plate,
+    row, column, field, well) instead of user-defined annotation columns, and
+    replaces `location_column`, `positive_control` and `negative_control`
+    entirely.
+ 5. Downstream compatibility is the hard half, exactly as it was for the
+    training basis: spacr/io.py reads annotation_columns/annotation_values
+    today. Old settings CSVs must keep working -- translate the old keys into
+    the dict in one place (the normalize_settings pattern), never in each
+    reader.
+
+RENAMES AND DUPLICATES
+
+ 6. `png_type` -> "path string": a substring that must appear in each image's
+    path.
+ 7. `file_type` -> a dropdown of image file types, and its LOGIC becomes a
+    file-extension filter. It and `png_list` currently look identical; decide
+    which survives and retire the other with an alias.
+ 8. `size` and `image_size` are the same thing twice. Keep `image_size`.
+ 9. `save_to_db` -> "Save Results to DB", and it does not get a category of
+    its own.
+
+CROP SOURCE
+
+10. `crop_source` dropdown: PRE-GENERATED CROPS / ON-DEMAND CROPS / GENERATE
+    CROPS.
+11. Anything about pre-cut PNGs -- path filtering, path string, file type --
+    greys out unless pre-generated is chosen (greyed, never removed:
+    INVARIANTS 6).
+12. ON-DEMAND builds the training set from `merged`, where some arrays hold
+    objects and some hold intensity images. It needs new settings, and the
+    downstream logic to match, so that crops are ACTUALLY generated:
+      - which channels are intensity, which array holds the objects;
+      - optionally, coordinates from a database instead of masks -- but
+        merged-based masks are the DEFAULT;
+      - the coordinate columns, when a database is the source;
+      - bounding-box or object crops. Database-sourced objects can only ever
+        be bounding box, so the object option greys out there.
+
+CATEGORIES -- fewer, and named for what they hold
+
+13. First category: as it is, minus the MEASUREMENT basis. Annotation by
+    measurement is what the Gate Editor now does (instruction 31), so the
+    basis retires -- with the alias handling that any retired value needs.
+14. "Computer Vision Data Source": crop source, image size, extract channel
+    (on demand), object array (on demand), file type (pre-generated), path
+    string (pre-generated), train channels.
+15. Model architecture: clicking a model TESTS whether it is compatible with
+    spaCR and with the chosen class structure. No `custom_model` boolean -- a
+    custom model path that loads supersedes `model_type` and is the model
+    used. Train channels and image size move OUT, to item 14.
+16. Normalization: work out what `normalize` currently does, then offer real
+    transforms -- ImageNet's among them -- and let the user say whether
+    normalisation is per batch or per image. A dropdown with a custom option.
+17. New category "Computer Vision Optimization and Regularization": use
+    checkpointing, dropout, weight decay.
+18. New category "Computer Vision Training": epochs, loss type, and
+    everything else about training and loss.
+19. `augment` belongs in Dataset.
+20. Give the CV family the heatmap that ML has, and make that category COMMON
+    to both families.
+21. Merge "Machine Learning Feature Selection and Importance" into the
+    feature-preparation category, under a name that fits the result.
+22. Then go through EVERY category name in the module and reduce them to a
+    smaller, better-named set. This is the item that makes the rest coherent;
+    do it last, when the contents are known.
+23. Throughout: a setting that cannot apply because of another setting's value
+    is GREYED, not hidden and not removed.
+
+--------------------------------------------------------------------------------
+NOTES FOR WHOEVER PICKS THIS UP
+--------------------------------------------------------------------------------
+
+This is large. It splits cleanly into four commits that can each be finished
+and tested on their own:
+
+  A. Classes dict + annotation/location unification + retiring the random
+     annotation column and the measurement basis. (The riskiest: it changes
+     what a run TRAINS ON, so the old-settings translation needs tests that
+     assert an old CSV produces the same dataset as before.)
+  B. Renames and duplicates (items 6-9). Mechanical, but every rename needs an
+     alias and DEAD_SETTINGS has a guard that will refuse a key that still has
+     a reader -- that guard is right; find the reader.
+  C. Crop source and the on-demand generator (items 10-12). The only item here
+     that writes new pipeline code rather than rearranging settings, and the
+     one where "make sure the crops are actually generated" means an
+     end-to-end test, not a unit test.
+  D. Categories (items 13-23).
+
+Do A before D: the categories cannot be finalised until the settings they hold
+have their final names.
