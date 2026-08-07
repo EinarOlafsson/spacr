@@ -434,3 +434,57 @@ def test_the_oval_is_offered_as_a_tool():
 
     assert ELLIPSE in GATE_KINDS
     assert ELLIPSE in TOOL_LABELS
+
+
+# ---------------------------------------------------------------------------
+# Gates belong to the axes they were drawn on
+# ---------------------------------------------------------------------------
+
+def test_a_gate_is_only_drawn_on_its_own_measurements(canvas, rect):
+    """A gate is a statement about two named columns.
+
+    Drawing it on a different pair puts the outline at coordinates that mean
+    something else; not drawing it when the user returns to its own pair is
+    how a gate seems to have vanished. Both directions are asserted.
+    """
+    from spacr.qt.widgets.graph_spec import GraphSpec
+
+    canvas._spec = GraphSpec(x="x_measure", y="y_measure")
+    assert canvas._gate_is_on_these_axes(rect) is True
+
+    canvas._spec = GraphSpec(x="some_other", y="measurement")
+    assert canvas._gate_is_on_these_axes(rect) is False
+
+    # ...and back again: the gate reappears, it was never lost.
+    canvas._spec = GraphSpec(x="x_measure", y="y_measure")
+    assert canvas._gate_is_on_these_axes(rect) is True
+
+
+def test_a_threshold_needs_only_its_own_column_on_screen(canvas):
+    """A histogram puts it on x and a scatter may put it on either."""
+    from spacr.qt.widgets.gate_spec import ThresholdGate
+    from spacr.qt.widgets.graph_spec import GraphSpec
+
+    cut = ThresholdGate(name="cut", column="x_measure", low=1, high=5)
+    canvas._spec = GraphSpec(x="x_measure", y="y_measure")
+    assert canvas._gate_is_on_these_axes(cut) is True
+    canvas._spec = GraphSpec(x="y_measure", y="x_measure")
+    assert canvas._gate_is_on_these_axes(cut) is True
+    canvas._spec = GraphSpec(x="unrelated", y="also_unrelated")
+    assert canvas._gate_is_on_these_axes(cut) is False
+
+
+def test_the_gate_canvas_does_not_rescale_when_a_filter_is_applied():
+    """The reported bug: applying a gate looked like zooming into it.
+
+    Gating is the one place a filter must not move the axes -- rescaling to
+    the rows a gate kept moves the view out from under the gate outline, so
+    the gate appears to jump and becomes impossible to drag.
+    """
+    from spacr.qt.widgets.gate_editor import GateCanvas
+    from spacr.qt.widgets.graph_builder import GraphCanvas
+
+    assert GateCanvas.RESCALE_ON_FILTER is False
+    # ...and an ordinary chart still follows its filter, which is what the
+    # Graph Builder's own test asserts.
+    assert GraphCanvas.RESCALE_ON_FILTER is True
