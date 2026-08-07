@@ -221,14 +221,35 @@ def test_a_press_outside_every_gate_starts_nothing(canvas):
     assert canvas._move_name is None
 
 
-def test_a_press_while_a_drawing_tool_is_active_does_not_move(canvas):
-    """With a tool selected the user is DRAWING, not editing, and a click
-    inside an existing gate must start a new shape."""
+def test_a_press_inside_a_gate_moves_it_whatever_tool_is_armed(canvas):
+    """CHANGED 2026-08-07, and the change is the point.
+
+    This used to assert that an armed tool suppressed the move. But the
+    default tool is now RECTANGLE -- a drag draws a box without arming
+    anything -- so under the old rule a gate could never be dragged unless
+    the user first disarmed the tool they had drawn it with. Nobody thinks
+    of that, and the gate looks stuck.
+    """
+    from spacr.qt.widgets.gate_editor import RECTANGLE
+
+    canvas.set_tool(RECTANGLE)
+    canvas._on_press(_Event(5.0, 5.0))
+    assert canvas._move_name == "box"
+
+
+def test_placing_a_polygon_vertex_does_not_drag_an_older_gate(canvas):
+    """The one exception. Mid-polygon the user is placing vertices, and one
+    that happens to land inside an existing gate must not drag it."""
     from spacr.qt.widgets.gate_editor import POLYGON
 
     canvas.set_tool(POLYGON)
-    canvas._on_press(_Event(5.0, 5.0))
+    # The FIRST press with nothing pending is still allowed to grab a gate --
+    # that is the "drag what is there" gesture. It is once vertices exist
+    # that the user is committed to drawing.
+    canvas._pending = [(2.0, 2.0)]
+    canvas._on_press(_Event(6.0, 2.0))
     assert canvas._move_name is None
+    assert len(canvas.pending_vertices()) >= 2
 
 
 def test_the_drag_emits_the_moved_gate(canvas, qtbot):
