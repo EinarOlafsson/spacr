@@ -76,6 +76,12 @@ TOOL_LABELS = {
 
 
 class GateCanvas(GraphCanvas):
+    #: Gating is the one place a filter must NOT move the axes. A gate is
+    #: drawn in data coordinates on a particular view; rescaling to the rows
+    #: it kept moves that view out from under it, which reads as the plot
+    #: zooming into the gate and makes the gate impossible to drag.
+    RESCALE_ON_FILTER = False
+
     """The plot, with gates drawn on it and a tool that draws more.
 
     Emits :attr:`gate_drawn` with a finished :class:`~spacr.qt.widgets.gate_spec.Gate`
@@ -177,10 +183,33 @@ class GateCanvas(GraphCanvas):
         palette = active_palette()
         for ax in axes.values():
             for gate in self._gates.gates:
+                if not self._gate_is_on_these_axes(gate):
+                    continue
                 self._outline(ax, gate, palette)
             if self._pending:
                 self._outline_pending(ax, palette)
         self._canvas.draw_idle()
+
+    def _gate_is_on_these_axes(self, gate: Gate) -> bool:
+        """Whether ``gate`` belongs to the measurements currently plotted.
+
+        A gate is a statement about two named columns. Drawing one on a
+        different pair is meaningless -- the outline would sit at
+        coordinates that mean something else entirely -- and NOT drawing it
+        when the user comes back to its own pair is how a gate seems to have
+        vanished.
+
+        A one-column gate (a threshold) needs only its column on screen, on
+        either axis: a histogram puts it on x, and a scatter may put it on
+        either.
+        """
+        spec = self._spec
+        showing = {c for c in (getattr(spec, "x", None),
+                               getattr(spec, "y", None)) if c}
+        needed = set(gate.columns)
+        if not needed:
+            return False
+        return needed <= showing
 
     def _outline(self, ax, gate: Gate, palette) -> None:
         """Draw ``gate`` if it is a gate on the columns currently plotted.
