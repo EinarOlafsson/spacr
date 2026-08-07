@@ -93,9 +93,10 @@ class GateError(ValueError):
 THRESHOLD = "threshold"
 RECTANGLE = "rectangle"
 POLYGON = "polygon"
+ELLIPSE = "ellipse"
 
 #: Every shape a gate can be, in the order the tool buttons list them.
-GATE_KINDS: Tuple[str, ...] = (THRESHOLD, RECTANGLE, POLYGON)
+GATE_KINDS: Tuple[str, ...] = (THRESHOLD, RECTANGLE, POLYGON, ELLIPSE)
 
 
 def _clean_name(name: str) -> str:
@@ -606,8 +607,123 @@ class PolygonGate(Gate):
         return replace(self, vertices=tuple(points))
 
 
+@dataclass(frozen=True)
+class EllipseGate(Gate):
+    """An oval region — the shape a real population usually is.
+
+    A cloud of cells is round-ish and a rectangle around it always takes
+    corner debris with it. An ellipse is the cheapest shape that does not,
+    and unlike a polygon it is defined by four numbers, so it can be dragged
+    out in one gesture and resized without touching vertices.
+
+    A circle is an ellipse with equal radii; there is no separate kind,
+    because a "circle" that cannot be squashed is a shape the user has to
+    delete and redraw the moment the axes are not comparable — and on a
+    scatter of two different measurements they never are.
+    """
+
+    x_column: str = ""
+    y_column: str = ""
+    x_centre: float = 0.0
+    y_centre: float = 0.0
+    x_radius: float = 0.0
+    y_radius: float = 0.0
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        for name in ("x_column", "y_column"):
+            if not str(getattr(self, name)).strip():
+                raise GateError(
+                    f"ellipse gate {self.name!r} has no {name}; an ellipse is "
+                    f"drawn on two measurements")
+            object.__setattr__(self, name, str(getattr(self, name)).strip())
+        if self.x_column == self.y_column:
+            raise GateError(
+                f"ellipse gate {self.name!r} is drawn on {self.x_column!r} "
+                f"against itself")
+        for name in ("x_radius", "y_radius"):
+            value = float(getattr(self, name))
+            if value <= 0:
+                raise GateError(
+                    f"ellipse gate {self.name!r} has {name}={value!r}; a "
+                    f"radius of zero or less selects nothing")
+            object.__setattr__(self, name, value)
+        for name in ("x_centre", "y_centre"):
+            object.__setattr__(self, name, float(getattr(self, name)))
+
+    @property
+    def kind(self) -> str:
+        return ELLIPSE
+
+    @property
+    def columns(self) -> Tuple[str, ...]:
+        return (self.x_column, self.y_column)
+
+    def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        x = _numeric(frame, self.x_column, f"ellipse gate {self.name!r}")
+        y = _numeric(frame, self.y_column, f"ellipse gate {self.name!r}")
+        # Normalised radius: <= 1 is inside. Written this way rather than as
+        # a distance so the two axes keep their own scales -- the whole point
+        # of an ellipse over a circle on a two-measurement scatter.
+        dx = (x - self.x_centre) / self.x_radius
+        dy = (y - self.y_centre) / self.y_radius
+        with np.errstate(invalid="ignore"):
+            inside = (dx * dx + dy * dy) <= 1.0
+        return np.nan_to_num(inside, nan=False).astype(bool)
+
+    def describe(self) -> str:
+        return (f"{self.x_column}/{self.y_column} within "
+                f"({self.x_centre:g}±{self.x_radius:g}, "
+                f"{self.y_centre:g}±{self.y_radius:g})")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {"kind": ELLIPSE, "name": self.name, "parent": self.parent,
+                "x_column": self.x_column, "y_column": self.y_column,
+                "x_centre": self.x_centre, "y_centre": self.y_centre,
+                "x_radius": self.x_radius, "y_radius": self.y_radius}
+
+    def translated(self, dx: float, dy: float) -> "EllipseGate":
+        return replace(self, x_centre=self.x_centre + float(dx),
+                       y_centre=self.y_centre + float(dy))
+
+    def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        return self.x_centre, self.y_centre
+
+    def scaled(self, factor: float, *,
+               about: Optional[Tuple[float, float]] = None) -> "EllipseGate":
+        _check_factor(factor)
+        f = float(factor)
+        if about is None:
+            # Grow in place: the centre is fixed and only the radii change.
+            return replace(self, x_radius=self.x_radius * f,
+                           y_radius=self.y_radius * f)
+        ax, ay = float(about[0]), float(about[1])
+        return replace(
+            self,
+            x_centre=ax + (self.x_centre - ax) * f,
+            y_centre=ay + (self.y_centre - ay) * f,
+            x_radius=self.x_radius * f, y_radius=self.y_radius * f)
+
+    @classmethod
+    def from_drag(cls, name: str, x_column: str, y_column: str,
+                  x0: float, y0: float, x1: float, y1: float,
+                  *, parent: Optional[str] = None) -> "EllipseGate":
+        """Build the ellipse INSCRIBED in the dragged box.
+
+        Inscribed rather than circumscribed, so the shape ends where the
+        pointer did. A user who drags a box expects the shape to touch the
+        corner they released at, not to extend past it.
+        """
+        return cls(name=name, parent=parent,
+                   x_column=x_column, y_column=y_column,
+                   x_centre=(float(x0) + float(x1)) / 2.0,
+                   y_centre=(float(y0) + float(y1)) / 2.0,
+                   x_radius=abs(float(x1) - float(x0)) / 2.0 or 1e-12,
+                   y_radius=abs(float(y1) - float(y0)) / 2.0 or 1e-12)
+
+
 _GATE_CLASSES = {THRESHOLD: ThresholdGate, RECTANGLE: RectGate,
-                 POLYGON: PolygonGate}
+                 POLYGON: PolygonGate, ELLIPSE: EllipseGate}
 
 
 
