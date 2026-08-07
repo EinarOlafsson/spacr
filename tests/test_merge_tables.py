@@ -240,15 +240,44 @@ def test_scaling_stops_the_biggest_numbers_winning():
                            unscaled["PC1"].to_numpy())
 
 
-def test_rows_that_cannot_be_projected_keep_their_place():
-    """Otherwise adding components silently drops rows out from under every
-    other column in the table."""
+def test_a_row_missing_one_measurement_is_still_projected():
+    """It used to be dropped, and that is why xD returned nothing on a real
+    table: with hundreds of columns at a few percent missing each, no row
+    survives "drop every row with any NaN".
+
+    The gap is filled with the column median, which moves the object to the
+    middle of an axis it had no value on -- the least it can be moved.
+    Discarding it instead loses every measurement it DID have.
+    """
     frame = _wide(50)
     frame.loc[0, "a"] = np.nan
     out = reduce_dimensions(frame, ["a", "b", "c"])
     assert len(out) == 50
-    assert pd.isna(out.loc[0, "PC1"])
-    assert out["PC1"].notna().sum() == 49
+    assert out["PC1"].notna().sum() == 50
+
+
+def test_a_row_with_no_measurements_at_all_is_not_invented():
+    frame = _wide(50)
+    frame.loc[0, ["a", "b", "c", "d"]] = np.nan
+    out = reduce_dimensions(frame, ["a", "b", "c", "d"])
+    assert len(out) == 50
+    assert pd.isna(out.loc[0, "PC1"]), "an object with no data got a position"
+
+
+def test_a_column_that_is_mostly_empty_is_left_out():
+    frame = _wide(200)
+    frame["sparse"] = np.nan
+    frame.loc[:5, "sparse"] = 1.0
+    out = reduce_dimensions(frame, ["a", "b", "c", "sparse"])
+    assert out["PC1"].notna().sum() == 200
+
+
+def test_too_few_full_columns_says_what_to_change():
+    frame = _wide(50)
+    frame["x"] = np.nan
+    frame["y"] = np.nan
+    with pytest.raises(ReductionError, match="coverage"):
+        reduce_dimensions(frame, ["x", "y"])
 
 
 def test_one_column_is_not_a_projection():
@@ -256,9 +285,9 @@ def test_one_column_is_not_a_projection():
         reduce_dimensions(_wide(), ["a"])
 
 
-def test_too_few_complete_rows_says_so():
+def test_a_table_with_almost_nothing_in_it_says_so():
     frame = pd.DataFrame({"a": [1.0, np.nan], "b": [np.nan, 2.0]})
-    with pytest.raises(ReductionError, match="nothing to project"):
+    with pytest.raises(ReductionError):
         reduce_dimensions(frame, ["a", "b"])
 
 

@@ -41,7 +41,7 @@ import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import (
-    QButtonGroup,
+    QButtonGroup, QLabel,
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
     QFormLayout, QHBoxLayout, QHeaderView, QInputDialog, QLabel, QPushButton,
     QSpinBox, QSplitter, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
@@ -238,6 +238,13 @@ class GateCanvas(GraphCanvas):
         #: "2D", "3D" or "xD" -- see `set_mode`.
         self._mode = "2D"
         self._z_column = ""
+        #: How far the volume is zoomed in. 1.0 is the data's own extent.
+        self._volume_zoom = 1.0
+        #: (elevation, azimuth) once the user has turned it, else None.
+        self._view_angles = None
+        #: Which axis the volume spins about: "x", "y", "z" or "" for free.
+        self._spin_axis = "z"
+        self._spin_from = None
 
     # -- the tool ---------------------------------------------------------
     @property
@@ -575,6 +582,17 @@ class GateCanvas(GraphCanvas):
         self._figure.patch.set_alpha(0.0)
         ax.set_facecolor((0, 0, 0, 0))
 
+        # Matplotlib's own drag-rotation is free rotation, which is what the
+        # axis lock exists to replace. Disabled so the two cannot fight.
+        try:
+            ax.disable_mouse_rotation()
+        except Exception:      # pragma: no cover - older matplotlib
+            LOG.debug("could not take over 3d rotation", exc_info=True)
+        if self._view_angles is not None:
+            ax.view_init(elev=self._view_angles[0], azim=self._view_angles[1])
+        if self._volume_zoom != 1.0:
+            self._apply_volume_zoom(ax)
+
         self._draw_volume_gates(ax, frame, palette)
         # Keyed like every other panel, so `panel_axes()` keeps its contract
         # and nothing downstream has to know this one is three-dimensional.
@@ -624,6 +642,7 @@ class GateCanvas(GraphCanvas):
                       key=lambda a: abs(a - (float(axes.azim) % 360)))
         azimuth = azimuth % 360
         axes.view_init(elev=elevation, azim=azimuth)
+        self._view_angles = (elevation, azimuth)
         self._canvas.draw_idle()
         return (elevation, azimuth)
 
@@ -980,7 +999,111 @@ class GateCanvas(GraphCanvas):
                 continue
         return hit
 
+    def set_spin_axis(self, axis: str) -> None:
+        """Lock the volume's rotation to one axis.
+
+        "i want to be able to spinn allong axees not meev freely ... say click
+        the y axis, then i should be able to spin on the x axis." Free
+        rotation reaches angles from which nothing can be read, and getting
+        back to a square-on view by hand is not realistic. Locked, a drag is
+        one rotation about one axis and every view stays interpretable.
+        """
+        self._spin_axis = axis if axis in ("x", "y", "z", "") else "z"
+
+    def _volume_press(self, event) -> bool:
+        """Start a spin. Returns True when the event belongs to the volume.
+
+        The gate tools must not see it. That is the bug behind "i cant zoom in
+        or spin on any of the axees. if i press pollygon and tried to draw a
+        gate, then i could all of a suded spinn the graph" -- the 2D press
+        handler was consuming the drag, and only the polygon tool, which
+        ignores drags, let it through to matplotlib.
+        """
+        if self._mode != "3D":
+            return False
+        if event.inaxes is None:
+            return True
+        self._spin_from = (float(getattr(event, "x", 0) or 0),
+                           float(getattr(event, "y", 0) or 0))
+        return True
+
+    def _volume_motion(self, event) -> bool:
+        if self._mode != "3D":
+            return False
+        if self._spin_from is None or event.inaxes is None:
+            return True
+        ax = self.axes_at(0, 0)
+        if ax is None or not hasattr(ax, "view_init"):
+            return True
+        x, y = float(getattr(event, "x", 0) or 0), float(getattr(event, "y", 0) or 0)
+        dx, dy = x - self._spin_from[0], y - self._spin_from[1]
+        self._spin_from = (x, y)
+
+        elevation, azimuth = float(ax.elev), float(ax.azim)
+        if self._spin_axis == "z":
+            # Spinning about the vertical axis is a change of azimuth only:
+            # the horizon stays level, which is what makes it readable.
+            azimuth += dx * 0.5
+        elif self._spin_axis in ("x", "y"):
+            elevation = max(-90.0, min(90.0, elevation + dy * 0.5))
+        else:
+            azimuth += dx * 0.5
+            elevation = max(-90.0, min(90.0, elevation + dy * 0.5))
+        ax.view_init(elev=elevation, azim=azimuth)
+        self._view_angles = (elevation, azimuth)
+        self._canvas.draw_idle()
+        return True
+
+    def _volume_release(self, event) -> bool:
+        if self._mode != "3D":
+            return False
+        self._spin_from = None
+        return True
+
+    def _volume_scroll(self, event) -> bool:
+        """Zoom the volume by scaling all three axes about their centres."""
+        if self._mode != "3D":
+            return False
+        ax = self.axes_at(0, 0)
+        if ax is None or not hasattr(ax, "get_zlim"):
+            return True
+        step = getattr(event, "step", 0) or (
+            1 if getattr(event, "button", "") == "up" else -1)
+        self._volume_zoom = max(0.05, min(50.0,
+                                          self._volume_zoom * (1.25 ** step)))
+        self._apply_volume_zoom(ax)
+        self._canvas.draw_idle()
+        return True
+
+    def _apply_volume_zoom(self, ax) -> None:
+        """Scale the three axes about the data's centre.
+
+        The limits, not the camera: a gate is a statement in data units, and a
+        camera trick would leave the outlines somewhere other than the objects
+        they enclose.
+        """
+        spec = self._spec
+        frame = self.population()
+        if frame is None:
+            return
+        factor = 1.0 / float(self._volume_zoom)
+        for column, setter in ((spec.x, ax.set_xlim3d),
+                               (spec.y, ax.set_ylim3d),
+                               (self._z_column, ax.set_zlim3d)):
+            if not column or column not in frame.columns:
+                continue
+            values = pd.to_numeric(frame[column], errors="coerce").to_numpy(float)
+            values = values[np.isfinite(values)]
+            if not len(values):
+                continue
+            centre = float(values.mean())
+            half = max(float(values.std()) * 3.0,
+                       (float(values.max()) - float(values.min())) / 2.0) or 1.0
+            setter(centre - half * factor, centre + half * factor)
+
     def _on_press(self, event) -> None:
+        if self._volume_press(event):
+            return
         # A press inside an existing gate MOVES it, whatever tool is armed.
         # Checked first because "the closed gate should be draggable" has to
         # hold without the user first disarming the tool they drew it with --
@@ -1101,6 +1224,8 @@ class GateCanvas(GraphCanvas):
         Data limits, not a transform, so the gates -- which are drawn in data
         coordinates -- stay exactly where they belong on the measurements.
         """
+        if self._volume_scroll(event):
+            return
         ax = getattr(event, "inaxes", None)
         if ax is None or event.xdata is None or event.ydata is None:
             return
@@ -1119,10 +1244,15 @@ class GateCanvas(GraphCanvas):
                       zoomed(ax.get_ylim(), float(event.ydata)))
         self.render_now()
 
-    def reset_zoom(self) -> None:
-        """Back to the limits the data asks for."""
+    def reset_view(self) -> None:
+        """Back to the limits the data asks for, and the starting angle."""
         self._zoom = None
+        self._volume_zoom = 1.0
+        self._view_angles = None
         self.render_now()
+
+    #: Kept as the old name: `reset_zoom` was the 2D-only version.
+    reset_zoom = reset_view
 
     def _apply_scales(self, ax, kind, scales, panel) -> None:
         """Let a wheel zoom outlive the redraw that follows it.
@@ -1141,6 +1271,8 @@ class GateCanvas(GraphCanvas):
         ax.set_ylim(*y_limits)
 
     def _on_motion(self, event) -> None:
+        if self._volume_motion(event):
+            return
         if self._resize is not None or getattr(self, "_move_name", None):
             # The EDIT is applied on release -- a gate is re-masked against
             # the whole table to redraw, and doing that per mouse move makes
@@ -1153,6 +1285,8 @@ class GateCanvas(GraphCanvas):
         super()._on_motion(event)
 
     def _on_release(self, event) -> None:
+        if self._volume_release(event):
+            return
         if self._resize is not None:
             name, _role = self._resize
             edited = self._dragged_to(event)
@@ -1568,6 +1702,8 @@ class GateEditorPanel(QWidget):
     settings_requested = Signal()
     #: A gating mode was chosen: "2D", "3D" or "xD".
     mode_requested = Signal(str)
+    #: The volume's spin axis changed: "x", "y" or "z".
+    spin_axis_changed = Signal(str)
 
     def __init__(self, parent=None, *, link=None,
                  source: str = "gate_editor"):
@@ -1610,6 +1746,14 @@ class GateEditorPanel(QWidget):
         fit_to_text(self._settings_button)
         tools.addWidget(self._settings_button)
 
+        self._reset_view = QPushButton("Reset view", self)
+        self._reset_view.setToolTip(
+            "Back to the limits the data asks for, after zooming or spinning "
+            "too far. Gates are untouched — this moves the view, never them.")
+        self._reset_view.clicked.connect(self.reset_view)
+        fit_to_text(self._reset_view)
+        tools.addWidget(self._reset_view)
+
         self._cluster = QPushButton("Cluster…", self)
         self._cluster.setToolTip(
             "Find dense populations with DBSCAN and turn each one into a "
@@ -1638,6 +1782,30 @@ class GateEditorPanel(QWidget):
             group.addButton(button)
             self._mode_buttons[mode] = button
             tools.addWidget(button)
+
+        # Which axis the volume spins about. Shown only in 3D, because in 2D
+        # there is nothing to spin and a dead control is worse than no
+        # control.
+        self._spin_label = QLabel("spin", self)
+        tools.addWidget(self._spin_label)
+        self._spin_buttons: Dict[str, QPushButton] = {}
+        spin_group = QButtonGroup(self)
+        spin_group.setExclusive(True)
+        for axis in ("x", "y", "z"):
+            button = QPushButton(axis.upper(), self)
+            button.setCheckable(True)
+            button.setChecked(axis == "z")
+            button.setToolTip(
+                f"Spin about {axis.upper()}. Locked to one axis, a drag is "
+                f"one rotation and every view stays readable; free rotation "
+                f"reaches angles nothing can be read from.")
+            button.clicked.connect(
+                lambda _checked=False, a=axis: self.spin_axis_changed.emit(a))
+            fit_to_text(button, padding=14)
+            spin_group.addButton(button)
+            self._spin_buttons[axis] = button
+            tools.addWidget(button)
+        self.set_spin_controls_visible(False)
 
         # No Apply button. A gate highlights its objects the moment it is
         # shown (the tick in the gate list), so a button whose job was "now
@@ -1923,6 +2091,21 @@ class GateEditorPanel(QWidget):
 
     def status(self) -> str:
         return self._status.text()
+
+    def set_spin_controls_visible(self, visible: bool) -> None:
+        self._spin_label.setVisible(visible)
+        for button in self._spin_buttons.values():
+            button.setVisible(visible)
+
+    def reset_view(self) -> None:
+        """Undo a zoom and a spin in one place.
+
+        One button for both because from the user's side there is one
+        problem -- "the graph is not where it was" -- and having to know
+        whether they zoomed or rotated to get out of it is the kind of
+        distinction only the implementation cares about.
+        """
+        self.canvas.reset_view()
 
     def apply_settings(self, settings) -> None:
         """Take the settings that change how the gates surface draws.
