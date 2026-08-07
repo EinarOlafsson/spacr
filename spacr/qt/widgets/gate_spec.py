@@ -116,6 +116,37 @@ def _ordered(low: Optional[float], high: Optional[float]
     return (lo, hi) if lo <= hi else (hi, lo)
 
 
+def _shift_bound(value: Optional[float], delta: float) -> Optional[float]:
+    """Move one bound, leaving an open end open.
+
+    ``None`` means "unbounded on this side", and adding to it would turn an
+    open gate into a closed one the user never drew.
+    """
+    return None if value is None else float(value) + float(delta)
+
+
+def _scale_bound(value: Optional[float], anchor: Optional[float],
+                 factor: float) -> Optional[float]:
+    """Scale one bound about ``anchor``. An open end stays open."""
+    if value is None or anchor is None:
+        return value
+    return float(anchor) + (float(value) - float(anchor)) * float(factor)
+
+
+def _check_factor(factor: float) -> None:
+    """A resize factor has to be positive.
+
+    Zero collapses the gate to a point and a negative one turns it inside
+    out; both would be accepted silently by the arithmetic and would leave
+    the user with a gate selecting nothing, or the complement of what they
+    drew.
+    """
+    if float(factor) <= 0:
+        raise GateError(
+            f"a resize factor must be positive; got {factor!r}. Zero "
+            f"collapses the gate and a negative value turns it inside out.")
+
+
 def _numeric(frame: pd.DataFrame, column: str, what: str) -> np.ndarray:
     if column not in frame.columns:
         raise GateError(
@@ -213,6 +244,53 @@ class Gate:
     def rename(self, name: str) -> "Gate":
         return replace(self, name=name)
 
+    # -- editing after the fact --------------------------------------------
+    #
+    # A gate you cannot adjust is a gate you redraw from scratch, which is
+    # the single biggest gap in this editor. Both operations return a NEW
+    # gate rather than mutating: these are frozen dataclasses, the GateSet
+    # holds them by name, and an in-place edit would change a gate that
+    # something else is already holding a reference to.
+    #
+    # Both are defined on the base so a caller can move ANY gate without
+    # knowing which kind it has -- which is what the canvas drag handler
+    # needs, since the user just clicks a shape.
+
+    def translated(self, dx: float, dy: float) -> "Gate":
+        """Return this gate moved by ``(dx, dy)`` in DATA units.
+
+        Data units, not pixels: a gate is a statement about measurements,
+        and moving it by pixels would mean it drifted whenever the axes
+        rescaled.
+
+        :param dx: shift along the gate's x measurement.
+        :param dy: shift along its y measurement. Ignored by a one-column
+            gate, which has no y.
+        """
+        raise NotImplementedError
+
+    def scaled(self, factor: float, *,
+               about: Optional[Tuple[float, float]] = None) -> "Gate":
+        """Return this gate grown or shrunk about a fixed point.
+
+        :param factor: >1 grows, <1 shrinks.
+        :param about: the point held fixed; the gate's own centre by
+            default, which is what "pull to expand" means when the user has
+            not grabbed a particular edge.
+        :raises GateError: a non-positive factor, which would invert or
+            collapse the shape rather than resize it.
+        """
+        raise NotImplementedError
+
+    def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        """The gate's middle in data units, for the default resize anchor.
+
+        ``None`` on an axis the gate does not bound -- an open-ended
+        threshold has no centre along its own column, and pretending it does
+        would move it somewhere arbitrary on the first drag.
+        """
+        raise NotImplementedError
+
 
 @dataclass(frozen=True)
 class ThresholdGate(Gate):
@@ -273,6 +351,32 @@ class ThresholdGate(Gate):
     def to_dict(self) -> Dict[str, Any]:
         return {"kind": THRESHOLD, "name": self.name, "parent": self.parent,
                 "column": self.column, "low": self.low, "high": self.high}
+
+    def translated(self, dx: float, dy: float) -> "ThresholdGate":
+        """``dy`` is ignored: a threshold is a cut on ONE column, so it has
+        no second axis to move along."""
+        return replace(self, low=_shift_bound(self.low, dx),
+                       high=_shift_bound(self.high, dx))
+
+    def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        if self.low is None or self.high is None:
+            # Open-ended, so there is no middle. Reported rather than
+            # invented: a made-up centre would send the first resize
+            # somewhere arbitrary.
+            return None, None
+        return (float(self.low) + float(self.high)) / 2.0, None
+
+    def scaled(self, factor: float, *,
+               about: Optional[Tuple[float, float]] = None) -> "ThresholdGate":
+        _check_factor(factor)
+        anchor = about[0] if about is not None else self.centre()[0]
+        if anchor is None:
+            # Nothing to scale about, and nothing sensible to do. Returned
+            # unchanged rather than raising: the user dragged, and a
+            # half-open gate simply has no width to grow.
+            return self
+        return replace(self, low=_scale_bound(self.low, anchor, factor),
+                       high=_scale_bound(self.high, anchor, factor))
 
 
 @dataclass(frozen=True)
@@ -356,6 +460,33 @@ class RectGate(Gate):
                 "x_low": self.x_low, "x_high": self.x_high,
                 "y_low": self.y_low, "y_high": self.y_high}
 
+    def translated(self, dx: float, dy: float) -> "RectGate":
+        return replace(self,
+                       x_low=_shift_bound(self.x_low, dx),
+                       x_high=_shift_bound(self.x_high, dx),
+                       y_low=_shift_bound(self.y_low, dy),
+                       y_high=_shift_bound(self.y_high, dy))
+
+    def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        def middle(low, high):
+            if low is None or high is None:
+                return None
+            return (float(low) + float(high)) / 2.0
+        return middle(self.x_low, self.x_high), middle(self.y_low, self.y_high)
+
+    def scaled(self, factor: float, *,
+               about: Optional[Tuple[float, float]] = None) -> "RectGate":
+        _check_factor(factor)
+        own = self.centre()
+        ax = about[0] if about is not None else own[0]
+        ay = about[1] if about is not None else own[1]
+        return replace(
+            self,
+            x_low=_scale_bound(self.x_low, ax, factor),
+            x_high=_scale_bound(self.x_high, ax, factor),
+            y_low=_scale_bound(self.y_low, ay, factor),
+            y_high=_scale_bound(self.y_high, ay, factor))
+
 
 @dataclass(frozen=True)
 class PolygonGate(Gate):
@@ -434,6 +565,45 @@ class PolygonGate(Gate):
         return {"kind": POLYGON, "name": self.name, "parent": self.parent,
                 "x_column": self.x_column, "y_column": self.y_column,
                 "vertices": [list(v) for v in self.vertices]}
+
+    def translated(self, dx: float, dy: float) -> "PolygonGate":
+        return replace(self, vertices=tuple(
+            (float(x) + dx, float(y) + dy) for x, y in self.vertices))
+
+    def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        """The vertex centroid.
+
+        Not the area centroid: for dragging, the vertex mean is stable,
+        cheap, and is what the user sees as the middle of the shape. The
+        area centroid of a strongly concave polygon can sit outside it,
+        which makes a resize look like it moved.
+        """
+        xs = [float(x) for x, _ in self.vertices]
+        ys = [float(y) for _, y in self.vertices]
+        return sum(xs) / len(xs), sum(ys) / len(ys)
+
+    def scaled(self, factor: float, *,
+               about: Optional[Tuple[float, float]] = None) -> "PolygonGate":
+        _check_factor(factor)
+        anchor = about if about is not None else self.centre()
+        ax, ay = float(anchor[0]), float(anchor[1])
+        return replace(self, vertices=tuple(
+            (ax + (float(x) - ax) * factor, ay + (float(y) - ay) * factor)
+            for x, y in self.vertices))
+
+    def with_vertex(self, index: int, x: float, y: float) -> "PolygonGate":
+        """Move ONE vertex -- the per-vertex drag handle.
+
+        :raises GateError: an index outside the polygon, which would
+            otherwise silently move a different corner than the one grabbed.
+        """
+        if not (-len(self.vertices) <= index < len(self.vertices)):
+            raise GateError(
+                f"polygon {self.name!r} has {len(self.vertices)} vertices; "
+                f"there is no vertex {index}")
+        points = list(self.vertices)
+        points[index] = (float(x), float(y))
+        return replace(self, vertices=tuple(points))
 
 
 _GATE_CLASSES = {THRESHOLD: ThresholdGate, RECTANGLE: RectGate,
