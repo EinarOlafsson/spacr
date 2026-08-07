@@ -508,6 +508,20 @@ def _canvas_class():
 
 
 class GraphCanvas(LinkedView, QWidget):
+    #: Whether the axes follow a filter.
+    #:
+    #: True here, and tested: for an ordinary chart, filtering down to one
+    #: plate SHOULD rescale to that plate, because the point of the filter
+    #: was to look at it.
+    #:
+    #: The Gate Editor sets it False, and the reason is specific to gating: a
+    #: gate applied as a filter would otherwise rescale the axes to the rows
+    #: it kept, which reads as the plot zooming into the gate. Worse, it
+    #: moves the axes out from under the gate outline still drawn on them, so
+    #: the gate appears to jump or to fill the plot -- and dragging it
+    #: becomes impossible because the ground moves with every apply.
+    RESCALE_ON_FILTER = True
+
     """The chart itself: a spec in, a faceted figure out, brushing back.
 
     Linked to the shared selection as ``source`` (``"graph_builder"`` by
@@ -701,7 +715,12 @@ class GraphCanvas(LinkedView, QWidget):
         self._brush_grid = (grid if data.frame is self._visible
                             else facet_grid(self._visible, spec,
                                             levels_source=self._visible))
-        scales = scales_for(data.frame, spec, kinds, grid)
+        # Limits from `data.frame` (post-filter) or from the whole table,
+        # depending on RESCALE_ON_FILTER -- see the class attribute.
+        scale_source = data.frame
+        if not self.RESCALE_ON_FILTER and self._frame is not None:
+            scale_source = self._frame
+        scales = scales_for(scale_source, spec, kinds, grid)
         self._render_data = data
         self._grid = grid
         self._scales = scales

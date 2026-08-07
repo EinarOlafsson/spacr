@@ -267,3 +267,44 @@ REVISED ORDER
   5. Clustering search + Walk (shared with instruction 34).
   6. The 3D workspace, which is the biggest and should be last: it needs
      everything above to exist first.
+
+--------------------------------------------------------------------------------
+2026-08-07 (second report) - GATES ARE PER-AXIS-PAIR AND MUST NOT AUTO-ZOOM
+--------------------------------------------------------------------------------
+
+  "now when i apply the gate it zooms in to the gated region. this is not
+   the behaviour i want. I dont want the auto zoom and i want to be able to
+   drag the gate around. I want to be able to go to a set new axes and make
+   a new gate and choose which gates are active. when i go back to a set of
+   axes where i drew a gate that gate if active should be visible to me."
+
+FOUR THINGS, and the first one explains the second.
+
+1. NO AUTO-ZOOM ON APPLY. Diagnosed: `graph_builder._render` computes the
+   axis limits with `scales_for(data.frame, ...)`, and `data.frame` is the
+   FILTERED frame. Applying a gate as a filter therefore rescales the axes
+   to the rows that survived, which reads as zooming into the gate. The
+   limits must come from the UNFILTERED table so the view does not move
+   when a filter is applied.
+
+2. DRAGGING A GATE. The handler exists and is tested. It was probably
+   unusable because of (1): the gate is redrawn at the same DATA
+   coordinates, but the axes have moved under it, so it appears somewhere
+   else or fills the plot. Fix (1) first, then re-check.
+
+3. GATES ARE PER-AXIS-PAIR. `_draw_gates` currently outlines EVERY gate on
+   whatever axes are showing, which is wrong in both directions: a gate
+   drawn on area/intensity is meaningless on a different pair, and a gate
+   drawn on the current pair must reappear when the user comes back to it.
+   Draw a gate only when its `columns` match the current x/y.
+
+4. ACTIVE/INACTIVE IS A NEW CONCEPT. Today `active` means "the selected
+   gate, i.e. the parent for the next one". What is being asked for is
+   ENABLED: a per-gate toggle deciding whether it is drawn and whether it
+   contributes to the filter. Add it as a field on Gate (defaulting to
+   True, so every saved gate keeps working) with a checkbox in GateTree.
+   Do not overload the existing `active`.
+
+ORDER: (1) is a one-line change with a real blast radius -- graph_builder
+is shared -- so it goes first and alone. Then (3), then (4), then re-check
+(2).
