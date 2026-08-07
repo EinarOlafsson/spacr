@@ -148,6 +148,12 @@ class GateEditorSettings:
 
     # -- 3D ---------------------------------------------------------------
     gate_mode: str = "2D"
+    #: How xD projects. PCA is always available; the others need a package.
+    reduction: str = "pca"
+    #: How many components xD produces. Three, so the 3D view has a Z.
+    components: int = 3
+    #: What a merge does with a primary object that has no children.
+    merge_na: str = "keep"
     z_axis: str = ""
     #: Voxels per axis in the 3D workspace.
     voxel_bins: int = 64
@@ -452,6 +458,36 @@ class GateSettingsDialog(QDialog):
     def _three_d_tab(self, columns: Tuple[str, ...]) -> QWidget:
         page = QWidget(self)
         form = QFormLayout(page)
+
+        self._reduction = QComboBox(page)
+        self._reduction.addItems(("pca", "umap", "tsne"))
+        self._reduction.setCurrentText(self._settings.reduction)
+        self._reduction.setToolTip(
+            "How xD projects many measurements onto few. PCA is always "
+            "available and is the only one whose axes have a stated meaning "
+            "— the share of variance each component explains.")
+        self._reduction.currentTextChanged.connect(
+            lambda v: self._change(reduction=v))
+        form.addRow("xD projection", self._reduction)
+
+        self._components = QSpinBox(page)
+        self._components.setRange(2, 10)
+        self._components.setValue(self._settings.components)
+        self._components.valueChanged.connect(
+            lambda v: self._change(components=int(v)))
+        form.addRow("Components", self._components)
+
+        self._merge_na = QComboBox(page)
+        self._merge_na.addItems(("keep", "zero", "drop"))
+        self._merge_na.setCurrentText(self._settings.merge_na)
+        self._merge_na.setToolTip(
+            "What happens to an object with no children when tables are "
+            "merged. A cell with no pathogens genuinely has a pathogen COUNT "
+            "of zero, and genuinely has no pathogen mean intensity at all — "
+            "so 'keep' leaves that blank rather than inventing a zero.")
+        self._merge_na.currentTextChanged.connect(
+            lambda v: self._change(merge_na=v))
+        form.addRow("Merge: missing children", self._merge_na)
 
         self._mode = QComboBox(page)
         self._mode.addItems(GATE_MODES)

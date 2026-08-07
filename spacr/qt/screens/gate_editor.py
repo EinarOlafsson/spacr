@@ -40,6 +40,7 @@ from ..widgets.gate_editor import GateEditorPanel
 from ..widgets.gate_spec import GateError, GateSet
 from ..widgets.gate_settings import GateEditorSettings, GateSettingsDialog
 from ..widgets.graph_spec import GraphSpec, plottable_columns
+from ..widgets.table_chip import TableChip
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
 
@@ -61,6 +62,8 @@ class GateEditorScreen(QWidget):
         self._frame: Optional[pd.DataFrame] = None
         self._path: Optional[str] = None
         self._table: Optional[str] = None
+        #: The working set: every table whose measurements are on offer.
+        self._tables: List[str] = []
         self._settings = GateEditorSettings()
         self._settings_dialog: Optional[GateSettingsDialog] = None
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
@@ -89,7 +92,12 @@ class GateEditorScreen(QWidget):
 
         self._table_picker = QComboBox(self)
         self._table_picker.setVisible(False)
-        self._table_picker.currentTextChanged.connect(self._on_table_picked)
+        self._table_picker.setToolTip(
+            "Adds a table to the working set. Picking nucleus does not switch "
+            "to nucleus — it merges nucleus measurements alongside the ones "
+            "already loaded, so a gate can put a cell measurement on one axis "
+            "and a nuclear one on another.")
+        self._table_picker.activated.connect(self._on_table_added)
         head.addWidget(self._table_picker)
 
         load = QPushButton("Load table…", self)
@@ -122,6 +130,13 @@ class GateEditorScreen(QWidget):
         # Cluster, where the rest of the gating controls are. Two buttons
         # opening one window is one too many.
         outer.addLayout(head)
+
+        # The working set, one removable chip per table.
+        self._chips = QHBoxLayout()
+        self._chips.setContentsMargins(0, 0, 0, 0)
+        self._chips.setSpacing(SPACING["xs"])
+        self._chips.addStretch(1)
+        outer.addLayout(self._chips)
 
         axes = QHBoxLayout()
         axes.setContentsMargins(0, 0, 0, 0)
@@ -321,6 +336,9 @@ class GateEditorScreen(QWidget):
             f"loading {os.path.basename(path)}"
             + (f" · {chosen}" if chosen else "") + "…")
         self._table = chosen
+        if chosen and chosen not in self._tables:
+            self._tables = [chosen]
+            self._rebuild_chips()
         fraction = self._settings.sample_fraction
         cap = self._settings.max_points or None
         self._jobs.submit(
@@ -376,6 +394,9 @@ class GateEditorScreen(QWidget):
 
     def _on_z_changed(self, column: str) -> None:
         self._settings = self._settings.replaced(z_axis=column or "")
+        if self._settings.gate_mode in ("3D", "xD"):
+            self.gates.canvas.set_mode(self._settings.gate_mode,
+                                       z_column=column or "")
 
     def _on_mode_requested(self, mode: str) -> None:
         """2D / 3D / xD, from the buttons beside Cluster.
@@ -386,6 +407,9 @@ class GateEditorScreen(QWidget):
         """
         self.apply_settings(self._settings.replaced(gate_mode=mode))
         self._set_z_visible(mode in ("3D", "xD"))
+        if mode == "xD":
+            self.reduce_to_components()
+        self.gates.canvas.set_mode(mode, z_column=self._z.currentText())
         if self._settings_dialog is not None:
             self._settings_dialog.set_mode(mode)
 
@@ -400,6 +424,65 @@ class GateEditorScreen(QWidget):
         self.gates.apply_settings(settings)
         if previous.costs_a_reload(settings) and self._path:
             self.load_path(self._path, self._table)
+
+    def reduce_to_components(self) -> Optional[str]:
+        """Project every measurement onto components, and gate on those.
+
+        This is what xD MEANS here. More measurements than can be drawn is not
+        a drawing problem to be solved with another axis -- past three there
+        is no fourth to add -- so the measurements are projected and the
+        projection is gated.
+
+        The components come back as ORDINARY COLUMNS, so every existing tool
+        works on them unchanged: the same rectangle, oval, polygon, wand and
+        cluster, saved and exported the same way. A gate on PC1 vs PC2 is the
+        same kind of object as a gate on area vs intensity.
+
+        :returns: an error to show, or None on success.
+        """
+        from ...merge_tables import ReductionError, reduce_dimensions
+
+        frame = self._frame
+        if frame is None or frame.empty:
+            return "Load a table first."
+        columns = [c for c in plottable_columns(frame)
+                   if not str(c).startswith(("PC", "UMAP", "tSNE"))]
+        method = getattr(self._settings, "reduction", "pca")
+        try:
+            components = reduce_dimensions(
+                frame, columns, method=method,
+                components=int(getattr(self._settings, "components", 3)))
+        except ReductionError as exc:
+            LOG.info("could not reduce: %s", exc)
+            self._source.setText(str(exc))
+            return str(exc)
+
+        variance = components.attrs.get("explained_variance") or []
+        combined = frame.drop(columns=[c for c in components.columns
+                                       if c in frame.columns])
+        self.set_frame(combined.join(components),
+                       label=self._variance_label(components, variance))
+        names = list(components.columns)
+        if len(names) >= 2:
+            self._x.setCurrentText(names[0])
+            self._y.setCurrentText(names[1])
+        if len(names) >= 3:
+            self._z.setCurrentText(names[2])
+        return None
+
+    @staticmethod
+    def _variance_label(components, variance) -> str:
+        """Name each component with how much it explains.
+
+        "PC1" alone says nothing about whether it is the data or the noise,
+        and a projection read without that is the commonest way to see
+        structure that is not there.
+        """
+        if not len(variance):
+            return f"{len(components.columns)} component(s)"
+        parts = [f"{name} {share:.0%}"
+                 for name, share in zip(components.columns, variance)]
+        return "projected onto " + ", ".join(parts)
 
     def settings(self) -> GateEditorSettings:
         return self._settings
@@ -476,9 +559,84 @@ class GateEditorScreen(QWidget):
         self._source.setText(
             f"could not read {os.path.basename(path)}: {message}")
 
-    def _on_table_picked(self, name: str) -> None:
-        if self._path and name:
-            self.load_path(self._path, table=name)
+    def _on_table_added(self, _index: int) -> None:
+        """Picking a table ADDS it to the working set."""
+        name = self._table_picker.currentText()
+        if not name or name in self._tables:
+            return
+        self._tables.append(name)
+        self._rebuild_chips()
+        self._reload_working_set()
+
+    def remove_table(self, name: str) -> None:
+        """Drop a table from the working set.
+
+        The last one cannot be dropped: a gate editor with no table is a
+        screen with nothing on it, and the user's next move would be to load
+        the same table again.
+        """
+        if name not in self._tables or len(self._tables) == 1:
+            return
+        self._tables.remove(name)
+        self._rebuild_chips()
+        self._reload_working_set()
+
+    def _rebuild_chips(self) -> None:
+        while self._chips.count() > 1:
+            item = self._chips.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+        for index, name in enumerate(self._tables):
+            chip = TableChip(name, self, removable=len(self._tables) > 1)
+            chip.removed.connect(self.remove_table)
+            self._chips.insertWidget(index, chip)
+
+    def _reload_working_set(self) -> None:
+        """Re-read the tables in the working set, merged.
+
+        One table is read straight, because merging a table onto itself only
+        renames its columns and would make every saved gate on a single-table
+        session stop matching.
+        """
+        if not self._path or not self._tables:
+            return
+        self._jobs.cancel()
+        self._source.setText(
+            "merging " + ", ".join(self._tables) + "…"
+            if len(self._tables) > 1 else f"loading {self._tables[0]}…")
+        tables = list(self._tables)
+        fraction = self._settings.sample_fraction
+        cap = self._settings.max_points or None
+        policy = self._merge_policy()
+        self._jobs.submit(
+            lambda p=self._path, t=tables, f=fraction, c=cap, m=policy:
+                (t[0], self._read_working_set(p, t, f, c, m)),
+            self._on_frame_loaded)
+
+    def _merge_policy(self):
+        from ...merge_tables import MergePolicy
+
+        primary = self._tables[0] if self._tables else "cell"
+        return MergePolicy(primary=primary,
+                           na=getattr(self._settings, "merge_na", "keep"))
+
+    @staticmethod
+    def _read_working_set(path: str, tables: List[str], fraction: float,
+                          cap: Optional[int], policy):
+        """Read one table, or merge several, off the GUI thread."""
+        from ...merge_tables import merge_tables
+
+        if len(tables) == 1:
+            return GateEditorScreen._read(path, tables[0], fraction, cap)
+        merged = merge_tables(path, tables, policy=policy)
+        if cap and len(merged) > cap:
+            step = max(1, len(merged) // int(cap))
+            merged = merged.iloc[::step].head(int(cap)).reset_index(drop=True)
+        elif fraction < 1:
+            step = max(2, int(round(1.0 / fraction)))
+            merged = merged.iloc[::step].reset_index(drop=True)
+        return merged
 
     def active_jobs(self) -> int:
         return self._jobs.active_jobs()

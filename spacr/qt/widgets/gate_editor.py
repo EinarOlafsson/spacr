@@ -235,6 +235,9 @@ class GateCanvas(GraphCanvas):
         self._colour_by = "density"
         #: Limits set by the wheel, or None to follow the data.
         self._zoom = None
+        #: "2D", "3D" or "xD" -- see `set_mode`.
+        self._mode = "2D"
+        self._z_column = ""
 
     # -- the tool ---------------------------------------------------------
     @property
@@ -521,9 +524,119 @@ class GateCanvas(GraphCanvas):
         return tuple(g.name for g in self._gates.gates
                      if self.is_gate_enabled(g.name))
 
+    # -- 3D ---------------------------------------------------------------
+    def set_mode(self, mode: str, *, z_column: str = "") -> None:
+        """Switch between the 2D scatter and the 3D volume."""
+        self._mode = mode if mode in ("2D", "3D", "xD") else "2D"
+        self._z_column = z_column or self._z_column
+        self.render_now()
+
+    def _render_volume(self) -> bool:
+        """Draw the 3D view. Returns False if it cannot, so 2D takes over.
+
+        A real third axis rather than a projection trick: matplotlib's Axes3D
+        gives depth sorting and, more to the point, DRAG-ROTATION for free.
+        Rotation is the whole reason to be in 3D -- a fixed view of a volume
+        tells you less than two scatters.
+        """
+        spec = self._spec
+        z = self._z_column
+        frame = self.population()
+        if not (spec.x and spec.y and z) or frame is None or frame.empty:
+            return False
+        if any(c not in frame.columns for c in (spec.x, spec.y, z)):
+            return False
+
+        from mpl_toolkits.mplot3d import Axes3D    # noqa: F401 - registers 3d
+
+        palette = active_palette()
+        self._figure.clear()
+        self._axes = {}
+        ax = self._figure.add_subplot(projection="3d")
+
+        x = pd.to_numeric(frame[spec.x], errors="coerce").to_numpy(float)
+        y = pd.to_numeric(frame[spec.y], errors="coerce").to_numpy(float)
+        zs = pd.to_numeric(frame[z], errors="coerce").to_numpy(float)
+        finite = np.isfinite(x) & np.isfinite(y) & np.isfinite(zs)
+
+        ax.scatter(x[finite], y[finite], zs[finite],
+                   s=max(1.0, self.POINT_SIZE_BASE / 4.0),
+                   c=self._density(x, y)[finite], cmap=self.point_colormap(),
+                   depthshade=False, linewidths=0.0, alpha=self.POINT_ALPHA)
+
+        for axis, label in ((ax.xaxis, spec.x), (ax.yaxis, spec.y),
+                            (ax.zaxis, z)):
+            axis.set_pane_color((0, 0, 0, 0))
+            axis.line.set_color(palette["fg_muted"])
+        ax.set_xlabel(spec.x, color=palette["fg"], fontsize=8)
+        ax.set_ylabel(spec.y, color=palette["fg"], fontsize=8)
+        ax.set_zlabel(z, color=palette["fg"], fontsize=8)
+        ax.tick_params(colors=palette["fg_muted"], labelsize=7)
+        self._figure.patch.set_alpha(0.0)
+        ax.set_facecolor((0, 0, 0, 0))
+
+        self._draw_volume_gates(ax, frame, palette)
+        # Keyed like every other panel, so `panel_axes()` keeps its contract
+        # and nothing downstream has to know this one is three-dimensional.
+        self._axes = {(0, 0): ax}
+        self._canvas.draw_idle()
+        return True
+
+    def _draw_volume_gates(self, ax, frame, palette) -> None:
+        """Show each shown gate's objects in the volume.
+
+        A 2D gate is a statement about two of the three measurements, so in a
+        volume it is a COLUMN through the cloud rather than a closed region.
+        Marking its objects says exactly that, and says it without pretending
+        the gate bounds a depth it never mentioned.
+        """
+        spec = self._spec
+        for gate in self._gates.gates:
+            if not self.is_gate_enabled(gate.name):
+                continue
+            try:
+                inside = self._gates.mask(frame, gate.name)
+            except Exception:
+                continue
+            if not bool(np.any(inside)):
+                continue
+            picked = frame.loc[inside]
+            ax.scatter(
+                pd.to_numeric(picked[spec.x], errors="coerce"),
+                pd.to_numeric(picked[spec.y], errors="coerce"),
+                pd.to_numeric(picked[self._z_column], errors="coerce"),
+                s=18, facecolor="none", edgecolor=self.gate_colour(gate.name),
+                linewidths=0.7, depthshade=False)
+
+    def snap_to_nearest_axis(self) -> Tuple[float, float]:
+        """Turn the volume square-on to whichever axis it is nearest.
+
+        A volume stopped at an arbitrary angle cannot be read off at all --
+        the point of snapping is that a 3D gate is always finally judged from
+        a view where one measurement is flat.
+        """
+        axes = self.axes_at(0, 0)
+        if axes is None:
+            return (0.0, 0.0)
+        elevation = min((0.0, 90.0, -90.0),
+                        key=lambda e: abs(e - float(axes.elev)))
+        azimuth = min((0.0, 90.0, 180.0, 270.0, 360.0),
+                      key=lambda a: abs(a - (float(axes.azim) % 360)))
+        azimuth = azimuth % 360
+        axes.view_init(elev=elevation, azim=azimuth)
+        self._canvas.draw_idle()
+        return (elevation, azimuth)
+
     # -- rendering --------------------------------------------------------
     def render_now(self) -> None:
-        """Draw the parent's population, then the gates on top of it."""
+        """Draw the parent's population, then the gates on top of it.
+
+        In 3D the volume replaces all of it: the gate tools are 2D gestures
+        on a flat axes, and running them against a rotated projection would
+        produce gates whose coordinates mean nothing.
+        """
+        if self._mode == "3D" and self._render_volume():
+            return
         frame, self._frame = self._frame, self.population()
         try:
             super().render_now()
