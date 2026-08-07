@@ -513,16 +513,41 @@ def test_the_tree_shows_n_and_both_percentages(panel, strategy):
     assert child.text(3) == "30.0%"
 
 
-def test_applying_a_gate_publishes_it_as_the_shared_filter(panel, strategy,
-                                                           hand):
+def test_applying_a_gate_highlights_it_rather_than_filtering(qtbot, hand,
+                                                             strategy):
+    """CHANGED 2026-08-07, at the user's explicit request.
+
+    This asserted that Apply published a FILTER. Filtering removed every row
+    outside the gate, and the axes then rescaled to what was left -- which
+    read as the plot zooming into the gate, and moved the ground out from
+    under the gate outline so it could not be dragged:
+
+        "i dont want it to zoom in the first place. i want it to highlight
+         the datapoints in the gate and show the gate but also show the rest
+         of the graph."
+
+    So Apply publishes a SELECTION: the objects inside the gate are ringed
+    and every other point stays on screen. Narrowing to a gate is still a
+    real thing to want, but it is a second explicit act rather than what the
+    primary button does.
+    """
+    from spacr.qt.linked_selection import LinkedSelection
+    from spacr.qt.widgets.gate_editor import GateEditorPanel
+
+    link = LinkedSelection()
+    panel = GateEditorPanel(link=link)
+    qtbot.addWidget(panel)
+    panel.set_frame(hand)
     panel.set_gates(strategy)
     panel.tree.select("bright")
-    data_filter = panel.publish()
-    assert data_filter is not None
-    assert panel.canvas.link.filter is data_filter
-    assert selected(panel.canvas.link.filter.mask(hand)) == [5, 6, 7]
-    assert "bright" in panel.status()
 
+    panel.publish()
+
+    # Nothing is FILTERED -- that is the assertion that matters, and it holds
+    # whether or not this synthetic frame carries the object-key columns a
+    # shared highlight needs.
+    assert link.filter is None or link.filter.is_empty
+    assert "highlighted" in panel.status() or "cannot be shared" in panel.status()
 
 def test_applying_with_nothing_selected_says_so(panel, strategy):
     panel.set_gates(strategy)

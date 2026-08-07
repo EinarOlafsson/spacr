@@ -206,6 +206,10 @@ def canvas(qtbot, frame, rect):
     # The canvas hit-tests against the loaded table, which it holds as
     # `_frame` -- `population()` derives the on-screen rows from it.
     widget._frame = frame
+    # Hit-testing only considers gates on the CURRENT axes, so the canvas
+    # has to know which pair it is showing.
+    from spacr.qt.widgets.graph_spec import GraphSpec
+    widget._spec = GraphSpec(x="x_measure", y="y_measure")
     return widget
 
 

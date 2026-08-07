@@ -7,7 +7,7 @@ stale; nothing here is a rule. The rules are in INVARIANTS.md.
 ## This checkout
 
 - version: **get_version()**
-- branch: `nightly` at `f0b2552e`
+- branch: `nightly` at `3dd90c8f`
 - Python modules under `spacr/`: 295
 - of those under `spacr/qt/`: 171 (44 screens, 59 widgets)
 - test files: 649 (222 under `tests/qt/`)
@@ -27,11 +27,11 @@ Size is not a defect, but it is where the work is. Read the docstring before the
 - `spacr/qt/screens/settings_model.py` — 4329 lines
 - `spacr/deep_spacr.py` — 3817 lines
 - `spacr/spacrops.py` — 3704 lines
-- `spacr/measure.py` — 3662 lines
+- `spacr/qt/theme.py` — 3663 lines
 
 ## Invariant checks
 
-- PASS — widget QSS registrars are complete: 33 modules listed, 33 registering
+- PASS — widget QSS registrars are complete: 34 modules listed, 34 registering
 - PASS — bg / page roles: dark bg=#000000, `page` role present
 - PASS — thread finished wiring: make_thread still owns the finished wiring
 - PASS — test isolation fixtures: registry + font-scale isolation in place
