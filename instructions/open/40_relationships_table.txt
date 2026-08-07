@@ -1,0 +1,95 @@
+================================================================================
+A RELATIONSHIPS TABLE, AND FILTERS BUILT ON TOP OF IT
+================================================================================
+
+Status:    not started
+Requested: 2026-08-07
+
+Verbatim:
+
+  "I see that the filter table has only cell and one object lable. if multiple
+  object tables are in the database as they are in this test database, i want
+  all object relationships saved in this filters table. or actually i want
+  another table called relationships, this table shoul be generated after the
+  mask moudle is run and should cover all opject relationships. to make the
+  filters table this the relationships table should be the base (it should be
+  copied) and filters added. if the relationships table does not exist when
+  attempting to make the filters table, then the relationships table gets
+  generated first, then copired to make the filters table."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spacr/filters.py builds the `filters` table by taking the identity columns of
+every object table and merging them on plate/row/column/field/object_label,
+with an `in_<table>` flag per table. That is enough to merge a filter onto any
+single object table, and it is NOT enough to express which nucleus belongs to
+which cell -- the objects line up only where their labels happen to coincide.
+On a database with cell, nucleus and pathogen it produces one object column
+and a set of flags, which is what the user is looking at.
+
+The parent relationships DO exist in the measurement tables -- spaCR's measure
+step records which cell a nucleus belongs to -- so this is about surfacing and
+persisting them, not deriving them from scratch.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Every downstream question is relational. "Cells with more than three
+pathogens", "the mean pathogen intensity per cell", the merge rules in
+instruction 41 -- none of them can be asked of a table that only knows objects
+exist. Building it once, after masking, and keeping it means the answer is the
+same everywhere instead of being recomputed differently by each caller.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+ 1. A new `relationships` table covering ALL object relationships in the
+    database -- for each object, which objects of the other types it belongs
+    to or contains.
+ 2. It is generated after the MASK module runs. That is the point at which
+    the relationships are known and cheap; deriving them later means reading
+    the measurement tables back.
+ 3. `filters` is then the relationships table COPIED, with filter columns
+    added. Not a merge onto it and not a second identity scheme -- a copy, so
+    a filter automatically carries every relationship.
+ 4. If `relationships` does not exist when the filters table is being built,
+    build it first, then copy it. A user who gated before ever running the
+    new mask step must not hit an error.
+ 5. It has to work for every combination of object tables, exactly as the
+    filters bootstrap already does: only cell, only nucleus, only pathogen,
+    only organelle, and any mixture.
+
+--------------------------------------------------------------------------------
+NOTES
+--------------------------------------------------------------------------------
+
+Where the parent link actually lives in each object table needs checking
+before designing the schema -- spacr/io.py's join machinery
+(`_read_and_join_tables`) already reconciles object identity across tables and
+png_list, including the text-vs-integer object id and the timelapse key, and
+whatever it relies on is the honest source for this.
+
+One shape worth considering: one row per FINEST object, carrying the label of
+every coarser object it belongs to (nucleus -> its cell, pathogen -> its
+cell). That is a single flat table, it merges onto anything, and it is what
+the merge rules in instruction 41 need to group by.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * On a database with cell, nucleus and pathogen, `relationships` says which
+    nucleus and which pathogens belong to each cell, and the counts match a
+    hand check on a small database.
+  * `filters` contains those relationship columns, because it is a copy.
+  * Gating before the new mask step has ever run still works: the
+    relationships table is built on demand, not demanded.
+  * Only-cell, only-nucleus, only-pathogen and only-organelle databases each
+    produce a sensible relationships table rather than an error.
+  * A filter exported from a gate drawn on nucleus measurements can be merged
+    onto the cell table through the relationships, without the caller doing
+    its own join.
