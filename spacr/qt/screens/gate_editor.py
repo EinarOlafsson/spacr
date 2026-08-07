@@ -129,6 +129,7 @@ class GateEditorScreen(QWidget):
         body.setChildrenCollapsible(False)
         self.gates = GateEditorPanel(self, link=link)
         self.gates.gates_changed.connect(self._on_gates_changed)
+        self.gates.axes_requested.connect(self._on_axes_requested)
         body.addWidget(self.gates)
 
         # ONE section, not two tabs. Filter and Columns were separate tabs
@@ -222,6 +223,26 @@ class GateEditorScreen(QWidget):
     def _on_axes_changed(self, *_args) -> None:
         self.gates.set_spec(GraphSpec(x=self._x.currentText() or None,
                                       y=self._y.currentText() or None))
+
+    def _on_axes_requested(self, x_column: str, y_column: str) -> None:
+        """Show the measurements a newly selected gate was drawn on.
+
+        Sets the pickers rather than the plot directly, so the change goes
+        through the same path a user choosing the axes by hand would take --
+        one route to the plot means one behaviour, and the pickers do not end
+        up disagreeing with what is drawn.
+
+        A column the current table does not have is ignored: a gate loaded
+        from a saved strategy can name a measurement this project never
+        produced, and silently blanking the axis would be worse than leaving
+        it where it was.
+        """
+        for box, column in ((self._x, x_column), (self._y, y_column)):
+            if not column:
+                continue
+            index = box.findText(column)
+            if index >= 0 and box.currentIndex() != index:
+                box.setCurrentIndex(index)
 
     def _on_gates_changed(self) -> None:
         self._source.setText(self._source.text().split(" · gates")[0]

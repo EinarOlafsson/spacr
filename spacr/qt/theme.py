@@ -2168,6 +2168,9 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
     # but nothing imported it while the sheet was being built -- so the block
     # was absent at launch. Found by the strengthened registrar check, not by
     # a bug report.
+    # The gate list had no QSS block at all, so its rows fell back to Qt's
+    # default black text on the theme's surface -- unreadable on dark.
+    "spacr.qt.widgets.gate_editor",
     "spacr.qt.widgets.field_fade",
     "spacr.qt.widgets.formula_editor",
     "spacr.qt.widgets.graph_builder",
