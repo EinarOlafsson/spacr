@@ -488,3 +488,38 @@ def test_the_gate_canvas_does_not_rescale_when_a_filter_is_applied():
     # ...and an ordinary chart still follows its filter, which is what the
     # Graph Builder's own test asserts.
     assert GraphCanvas.RESCALE_ON_FILTER is True
+
+
+def test_the_gate_list_has_its_own_handle(qtbot):
+    """"the gate box should be independent."
+
+    The gate list sits between the scatter and the filter column. It was in
+    a box layout with a hard 320px cap, so it could not be resized at all:
+    dragging the outer splitter moved the filter column and took the canvas
+    AND the gate list with it as one block.
+    """
+    pytest.importorskip("PySide6")
+    from PySide6.QtWidgets import QSplitter
+
+    from spacr.qt.screens.gate_editor import GateEditorScreen
+
+    screen = GateEditorScreen()
+    qtbot.addWidget(screen)
+
+    pairs = {tuple(type(sp.widget(i)).__name__ for i in range(sp.count()))
+             for sp in screen.findChildren(QSplitter)}
+    assert ("GateCanvas", "GateTree") in pairs, pairs
+    assert ("GateEditorPanel", "QScrollArea") in pairs, pairs
+
+
+def test_the_gate_list_width_is_not_capped(qtbot):
+    """A cap cannot be dragged past, so a gate whose name or statistics were
+    wider than it had nowhere to be read."""
+    pytest.importorskip("PySide6")
+    from spacr.qt.screens.gate_editor import GateEditorScreen
+
+    screen = GateEditorScreen()
+    qtbot.addWidget(screen)
+    assert screen.gates.tree.maximumWidth() == 16777215
+    assert screen.gates.tree.minimumWidth() > 0, (
+        "without a floor the handle can hide the list entirely")
