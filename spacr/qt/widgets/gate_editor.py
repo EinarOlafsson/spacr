@@ -60,6 +60,26 @@ from .gate_spec import (
 
 LOG = logging.getLogger("spacr.qt.gate_editor")
 
+
+def fit_to_text(widget, *, padding: int = 16, lines: int = 1) -> None:
+    """Size ``widget`` so its own text cannot be clipped.
+
+    Measured with the widget's REAL font metrics, so it follows the theme, the
+    platform and the user's DPI rather than a number that was right on one
+    machine. Height is set as well as width: the reports are "cutt of on the
+    sides usually its from the top asn sometimes botom", and a control sized
+    only horizontally clips its ascenders exactly the way described.
+
+    A minimum, never a fixed size -- a layout may still give the widget more,
+    and a widget that cannot grow is the other half of this same bug.
+    """
+    metrics = widget.fontMetrics()
+    text = widget.text() if hasattr(widget, "text") else ""
+    width = metrics.horizontalAdvance(str(text) or "MM") + padding
+    height = metrics.height() * max(1, lines) + max(8, padding // 2)
+    widget.setMinimumSize(max(width, widget.minimumWidth()),
+                          max(height, widget.minimumHeight()))
+
 #: Colours gates are drawn in, cycled by position in the gate set. Chosen to
 #: stay apart from each other AND from a viridis-coloured cloud underneath --
 #: a gate outline in the same green as the density it sits on is invisible
@@ -187,6 +207,10 @@ class GateCanvas(GraphCanvas):
         #: Gates the user has toggled OFF. Names, not gates, so a gate that
         #: is edited in place keeps its toggle.
         self._disabled: set = set()
+        try:
+            self._canvas.mpl_connect("scroll_event", self._on_scroll)
+        except Exception:      # pragma: no cover - no canvas in a bare test
+            LOG.debug("no scroll events available", exc_info=True)
         #: Set while an anchor point is being pulled: (gate name, role).
         self._resize: Optional[Tuple[str, str]] = None
         #: The dashed shape following the mouse mid-drag. Its artists are
@@ -206,8 +230,11 @@ class GateCanvas(GraphCanvas):
         self._resolution = "points"
         self._bins = 200
         self._show_grid = False
-        self._log_x = False
-        self._log_y = False
+        self._x_scale = "linear"
+        self._y_scale = "linear"
+        self._colour_by = "density"
+        #: Limits set by the wheel, or None to follow the data.
+        self._zoom = None
 
     # -- the tool ---------------------------------------------------------
     @property
@@ -295,8 +322,13 @@ class GateCanvas(GraphCanvas):
         self._resolution = str(getattr(settings, "resolution_mode", "points"))
         self._bins = int(getattr(settings, "bins", 200))
         self._show_grid = bool(getattr(settings, "show_grid", False))
-        self._log_x = bool(getattr(settings, "log_x", False))
-        self._log_y = bool(getattr(settings, "log_y", False))
+        scale_for = getattr(settings, "scale_for", None)
+        if callable(scale_for):
+            self._x_scale, self._y_scale = scale_for("x"), scale_for("y")
+        else:
+            self._x_scale = "log" if getattr(settings, "log_x", False) else "linear"
+            self._y_scale = "log" if getattr(settings, "log_y", False) else "linear"
+        self._colour_by = str(getattr(settings, "colour_by", "density"))
         self.render_now()
 
     # -- the settings, reaching the drawing -------------------------------
@@ -330,16 +362,39 @@ class GateCanvas(GraphCanvas):
         else:
             ax.grid(False)
         ax.set_axisbelow(True)
-        for wanted, setter, getter in (
-                (self._log_x, ax.set_xscale, ax.get_xlim),
-                (self._log_y, ax.set_yscale, ax.get_ylim)):
-            if not wanted:
+        # Decided by the DATA, not by the axis limits. The limits are padded
+        # outward, so a measurement whose smallest value is 1 gets a lower
+        # limit near -4 and looked non-positive -- which is why log X never
+        # applied while log Y, on a column with larger numbers and therefore
+        # proportionally smaller padding, sometimes did.
+        spec = self._spec
+        for scale, column, setter in (
+                (self._x_scale, getattr(spec, "x", None), ax.set_xscale),
+                (self._y_scale, getattr(spec, "y", None), ax.set_yscale)):
+            if scale == "linear" or not column:
                 continue
-            low, high = getter()
-            if low > 0 and high > 0:
-                setter("log")
-            else:
-                LOG.info("log axis skipped: the data reaches %r", low)
+            if scale in ("log", "logit") and not self._column_is_positive(column):
+                LOG.info("%s scale skipped: %s reaches zero or below",
+                         scale, column)
+                continue
+            try:
+                setter(scale)
+            except Exception:
+                LOG.info("axis scale %r did not apply", scale, exc_info=True)
+
+    def _column_is_positive(self, column: str) -> bool:
+        """Whether every finite value of ``column`` is above zero.
+
+        A log axis over data that reaches zero draws nothing at all, which
+        reads as the plot having broken rather than as the setting being
+        inapplicable to this measurement.
+        """
+        frame = self._frame
+        if frame is None or column not in frame.columns:
+            return False
+        values = pd.to_numeric(frame[column], errors="coerce").to_numpy(float)
+        values = values[np.isfinite(values)]
+        return bool(len(values)) and float(values.min()) > 0
 
     def _draw_plain_points(self, ax, x, y, rows, palette):
         """Colour the cloud by DENSITY when there is no colour column.
@@ -353,24 +408,74 @@ class GateCanvas(GraphCanvas):
         The binned resolution modes replace the points outright; this is the
         `points` mode, which keeps one marker per object.
         """
+        if self._resolution != "points":
+            finite = np.isfinite(x) & np.isfinite(y)
+            return self._draw_binned(ax, x[finite], y[finite])
+        values = self._colour_values(x, y, rows)
+        if values is None:
+            return ax.scatter(x, y, s=self._sizes(rows),
+                              color=self._series_colour(0),
+                              linewidths=0.0, alpha=self.POINT_ALPHA)
+        return ax.scatter(x, y, s=self._sizes(rows), c=values,
+                          cmap=self.point_colormap(),
+                          linewidths=0.0, alpha=self.POINT_ALPHA)
+
+    def _colour_values(self, x, y, rows):
+        """The per-point value the colour map is applied to, or None for flat.
+
+        A named column wins over density, so "colour by pathogen count" means
+        that and not an approximation of it. A column that is missing or
+        non-numeric falls back to density rather than to an error -- the
+        colour axis is decoration (INVARIANTS 10).
+        """
+        choice = self._colour_by
+        if choice == "flat":
+            return None
+        if choice and choice != "density" and choice in rows.columns:
+            values = pd.to_numeric(rows[choice], errors="coerce").to_numpy(float)
+            if np.isfinite(values).any():
+                return values
+            LOG.info("column %r has no numeric values; colouring by density",
+                     choice)
+        return self._density(x, y)
+
+    def _draw_density(self, ax, rows, palette) -> None:
+        """Large tables take a different path, and it has to obey the settings.
+
+        Past its large-data threshold the base canvas rasterises with imshow
+        and never calls `_draw_points` at all -- which is why "viridis does
+        work but not when there are more than 50000 data points" and why
+        hexbin appeared to do nothing: both live in the points path.
+
+        The chosen resolution mode is honoured here too. `points` on a table
+        this size still means the raster, because one marker per object is
+        what the threshold exists to avoid.
+        """
+        spec = self._spec
+        if self._resolution == "points" or not (spec.x and spec.y):
+            super()._draw_density(ax, rows, palette)
+            return
+        x = pd.to_numeric(rows[spec.x], errors="coerce").to_numpy(float)
+        y = pd.to_numeric(rows[spec.y], errors="coerce").to_numpy(float)
+        finite = np.isfinite(x) & np.isfinite(y)
+        self._draw_binned(ax, x[finite], y[finite])
+
+    def _draw_binned(self, ax, x, y):
+        """hexbin / histogram / density, one implementation for both paths."""
+        if len(x) == 0:
+            return None
         if self._resolution == "hexbin":
-            return ax.hexbin(x, y, gridsize=max(10, self._bins // 4),
+            return ax.hexbin(x, y, gridsize=max(10, min(self._bins // 4, 200)),
                              cmap=self.point_colormap(), mincnt=1,
                              linewidths=0.0)
-        if self._resolution in ("histogram", "density"):
-            counts, xe, ye = np.histogram2d(
-                x[np.isfinite(x) & np.isfinite(y)],
-                y[np.isfinite(x) & np.isfinite(y)],
-                bins=max(10, min(self._bins, 1000)))
-            counts = counts.T
-            if self._resolution == "density" and counts.max() > 0:
-                counts = counts / counts.sum()
-            masked = np.ma.masked_where(counts <= 0, counts)
-            return ax.pcolormesh(xe, ye, masked, cmap=self.point_colormap(),
-                                 shading="auto")
-        return ax.scatter(x, y, s=self._sizes(rows),
-                          c=self._density(x, y), cmap=self.point_colormap(),
-                          linewidths=0.0, alpha=self.POINT_ALPHA)
+        counts, xe, ye = np.histogram2d(
+            x, y, bins=max(10, min(self._bins, 1000)))
+        counts = counts.T
+        if self._resolution == "density" and counts.sum() > 0:
+            counts = counts / counts.sum()
+        masked = np.ma.masked_where(counts <= 0, counts)
+        return ax.pcolormesh(xe, ye, masked, cmap=self.point_colormap(),
+                             shading="auto")
 
     def _density(self, x, y):
         """A per-point density, binned rather than kernel-estimated.
@@ -873,6 +978,55 @@ class GateCanvas(GraphCanvas):
         """
         self.close_polygon()
 
+    def _on_scroll(self, event) -> None:
+        """Zoom about the pointer with the wheel.
+
+        About the POINTER rather than the centre: zooming toward what you are
+        looking at is what every map does, and centre-zoom means chasing a
+        feature back into view after every notch.
+
+        Data limits, not a transform, so the gates -- which are drawn in data
+        coordinates -- stay exactly where they belong on the measurements.
+        """
+        ax = getattr(event, "inaxes", None)
+        if ax is None or event.xdata is None or event.ydata is None:
+            return
+        step = getattr(event, "step", 0) or (
+            1 if getattr(event, "button", "") == "up" else -1)
+        factor = 0.8 ** float(step)
+        def zoomed(limits, anchor):
+            low, high = limits
+            return (anchor + (low - anchor) * factor,
+                    anchor + (high - anchor) * factor)
+
+        # REMEMBERED, not just set. A redraw re-applies the computed scales
+        # after the marks are drawn, so limits set here alone are undone by
+        # the next render -- which is every gate edit.
+        self._zoom = (zoomed(ax.get_xlim(), float(event.xdata)),
+                      zoomed(ax.get_ylim(), float(event.ydata)))
+        self.render_now()
+
+    def reset_zoom(self) -> None:
+        """Back to the limits the data asks for."""
+        self._zoom = None
+        self.render_now()
+
+    def _apply_scales(self, ax, kind, scales, panel) -> None:
+        """Let a wheel zoom outlive the redraw that follows it.
+
+        The computed scales are applied AFTER the marks are drawn, so limits
+        set by the wheel alone are undone by the next render -- and a render
+        happens on every gate edit. Re-applying here is what makes the zoom a
+        state of the view rather than a gesture that survives until the next
+        click.
+        """
+        super()._apply_scales(ax, kind, scales, panel)
+        if self._zoom is None:
+            return
+        (x_limits, y_limits) = self._zoom
+        ax.set_xlim(*x_limits)
+        ax.set_ylim(*y_limits)
+
     def _on_motion(self, event) -> None:
         if self._resize is not None or getattr(self, "_move_name", None):
             # The EDIT is applied on release -- a gate is re-masked against
@@ -1340,6 +1494,7 @@ class GateEditorPanel(QWidget):
         self._settings_button.setObjectName("GateSettingsButton")
         self._settings_button.setToolTip("Gate editor settings")
         self._settings_button.clicked.connect(self.settings_requested.emit)
+        fit_to_text(self._settings_button)
         tools.addWidget(self._settings_button)
 
         self._cluster = QPushButton("Cluster…", self)
@@ -1347,6 +1502,7 @@ class GateEditorPanel(QWidget):
             "Find dense populations with DBSCAN and turn each one into a "
             "gate you can edit, nest and save like any other.")
         self._cluster.clicked.connect(self._on_cluster)
+        fit_to_text(self._cluster)
         tools.addWidget(self._cluster)
 
         # 2D / 3D / xD, right of Cluster. Checkable and exclusive: the mode is
@@ -1359,7 +1515,11 @@ class GateEditorPanel(QWidget):
             button = QPushButton(mode, self)
             button.setCheckable(True)
             button.setChecked(mode == "2D")
-            button.setFixedWidth(38)
+            # Width from the TEXT, not a number. A fixed 38px clipped "2D",
+            # "3D" and "xD" on the sides, and any fixed size is a promise
+            # about a font the app does not control -- the user's theme, DPI
+            # and platform all change it.
+            fit_to_text(button, padding=18)
             button.clicked.connect(
                 lambda _checked=False, m=mode: self.mode_requested.emit(m))
             group.addButton(button)
