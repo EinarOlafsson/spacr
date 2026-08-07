@@ -666,3 +666,111 @@ def test_the_close_button_and_the_first_vertex_agree(canvas):
         canvas.gate_drawn.disconnect(handle)
         counts.append(len(seen))
     assert counts == [1, 1], counts
+
+
+# --- gates are overlays, not a view filter -------------------------------
+#
+# "pick x and y axes / draw a gate on the graph / be prompted to name the
+# gate but never zoom into the gated data / be able now to select this gate
+# in the gate panel section and toggle it on and off."
+#
+# What made it zoom was `GateCanvas.population()`: it returned the ACTIVE
+# gate's population and `render_now` plots whatever it returns. Deleting the
+# gate was the only thing that cleared the active name, which is exactly the
+# symptom reported -- "the only way to get back to the main figure is to
+# delete a gate".
+
+def _canvas_with_gate(qtbot, monkeypatch):
+    from spacr.qt.widgets.gate_editor import GateCanvas
+    from spacr.qt.widgets.gate_spec import GateSet, RectGate
+    from spacr.qt.widgets.graph_builder import GraphSpec
+    import pandas as pd
+
+    frame = pd.DataFrame({"a": [0.0, 1.0, 2.0, 3.0], "b": [0.0, 1.0, 2.0, 3.0]})
+    canvas = GateCanvas()
+    qtbot.addWidget(canvas)
+    canvas.set_frame(frame)
+    canvas.set_spec(GraphSpec(x="a", y="b"))
+    gates = GateSet().add(RectGate(name="g", x_column="a", y_column="b",
+                                   x_low=-0.5, x_high=1.5,
+                                   y_low=-0.5, y_high=1.5))
+    return canvas, frame, gates
+
+
+def test_selecting_a_gate_does_not_shrink_the_plot(qtbot, monkeypatch):
+    """The whole table stays on screen while a gate is active.
+
+    The strongest assertion available: the rows the canvas plots are the
+    rows of the table, gate or no gate. Checking axis limits instead would
+    pass on an empty plot.
+    """
+    canvas, frame, gates = _canvas_with_gate(qtbot, monkeypatch)
+    canvas.set_gates(gates, active="g")
+    on_screen = canvas.population()
+    assert len(on_screen) == len(frame), (
+        "selecting a gate replotted only its population -- that is the zoom")
+
+
+def test_a_gate_can_be_toggled_off_and_back_on(qtbot, monkeypatch):
+    canvas, frame, gates = _canvas_with_gate(qtbot, monkeypatch)
+    canvas.set_gates(gates, active=None)
+    assert canvas.enabled_gates == ("g",), "a new gate starts shown"
+
+    canvas.set_gate_enabled("g", False)
+    assert canvas.enabled_gates == ()
+    assert "g" in canvas.gates, "hiding a gate must not delete it"
+    assert len(canvas.population()) == len(frame), (
+        "hiding a gate must not remove its rows from the plot either")
+
+    canvas.set_gate_enabled("g", True)
+    assert canvas.enabled_gates == ("g",)
+
+
+def test_the_tick_in_the_tree_reaches_the_canvas(qtbot, monkeypatch):
+    """The toggle is wired, not just implemented.
+
+    Checked through the panel because the wiring is what broke before: the
+    canvas grew the ability and nothing called it.
+    """
+    from PySide6.QtCore import Qt
+    from spacr.qt.widgets.gate_editor import GateEditorPanel
+    from spacr.qt.widgets.gate_spec import GateSet, RectGate
+    from spacr.qt.widgets.graph_builder import GraphSpec
+    import pandas as pd
+
+    panel = GateEditorPanel()
+    qtbot.addWidget(panel)
+    panel.set_frame(pd.DataFrame({"a": [0.0, 1.0, 2.0], "b": [0.0, 1.0, 2.0]}))
+    panel.canvas.set_spec(GraphSpec(x="a", y="b"))
+    panel.set_gates(GateSet().add(RectGate(name="g", x_column="a", y_column="b",
+                                           x_low=-1, x_high=1,
+                                           y_low=-1, y_high=1)))
+
+    item = panel.tree.tree.topLevelItem(0)
+    assert item is not None and item.checkState(0) == Qt.Checked
+    item.setCheckState(0, Qt.Unchecked)
+    assert panel.canvas.enabled_gates == (), "unticking did not reach the canvas"
+    item.setCheckState(0, Qt.Checked)
+    assert panel.canvas.enabled_gates == ("g",)
+
+
+def test_rebuilding_the_tree_does_not_report_toggles(qtbot, monkeypatch):
+    """Setting a check state fires itemChanged; a rebuild must stay quiet.
+
+    Otherwise every refresh -- and there is one after every edit -- reports
+    every gate as freshly toggled by the user.
+    """
+    from spacr.qt.widgets.gate_editor import GateTree
+    from spacr.qt.widgets.gate_spec import GateSet, RectGate
+    import pandas as pd
+
+    tree = GateTree()
+    qtbot.addWidget(tree)
+    seen = []
+    tree.enabled_changed.connect(lambda n, on: seen.append((n, on)))
+    tree.set_gates(GateSet().add(RectGate(name="g", x_column="a", y_column="b",
+                                          x_low=-1, x_high=1,
+                                          y_low=-1, y_high=1)),
+                   pd.DataFrame({"a": [0.0], "b": [0.0]}))
+    tree.refresh()
+    assert seen == [], f"a rebuild reported toggles: {seen}"
