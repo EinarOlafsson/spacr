@@ -28,8 +28,8 @@ from typing import List, Optional
 import pandas as pd
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QSplitter,
-    QTabWidget, QVBoxLayout, QWidget,
+    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QScrollArea,
+    QSizePolicy, QSplitter, QVBoxLayout, QWidget,
 )
 
 from ..job_runner import JobRunner
@@ -131,13 +131,51 @@ class GateEditorScreen(QWidget):
         self.gates.gates_changed.connect(self._on_gates_changed)
         body.addWidget(self.gates)
 
-        side = QTabWidget(self)
-        side.setMaximumWidth(340)
+        # ONE section, not two tabs. Filter and Columns were separate tabs
+        # inside a QTabWidget capped at 340px, and a panel whose content
+        # needs more than that had nowhere to put it -- which is what read
+        # as elements overlapping. They are also the same job: both narrow
+        # what the scatter shows, so hiding one behind the other meant
+        # neither could be checked while using the other.
+        #
+        # A scroll area rather than a taller widget: the content is
+        # unbounded (a table can have hundreds of columns) and the panel is
+        # not, so something has to scroll or something has to clip.
+        side_body = QWidget(self)
+        side_column = QVBoxLayout(side_body)
+        side_column.setContentsMargins(0, 0, 0, 0)
+        side_column.setSpacing(SPACING["md"])
+
         self.filters = DataFilterPanel(self, link=link)
-        side.addTab(self.filters, "Filter")
         self.formulas = FormulaPanel(self)
         self.formulas.formulas_changed.connect(self._on_formulas_changed)
-        side.addTab(self.formulas, "Columns")
+        for title, panel in (("Filter", self.filters),
+                             ("Columns", self.formulas)):
+            heading = QLabel(title, side_body)
+            heading.setObjectName("SectionHeading")
+            side_column.addWidget(heading)
+            side_column.addWidget(panel)
+        side_column.addStretch(1)
+
+        side = QScrollArea(self)
+        side.setWidget(side_body)
+        side.setWidgetResizable(True)
+        side.setSizePolicy(QSizePolicy.Policy.Preferred,
+                           QSizePolicy.Policy.Expanding)
+        # The width is the SPLITTER's to decide now. A hard maximum is what
+        # made the cap unescapable: the user could not widen the column even
+        # when the content plainly needed it.
+        side.setMinimumWidth(260)
+        # A QScrollArea's viewport auto-fills with the WINDOW colour, which
+        # is #000000 on dark and would put a black slab beside the plot
+        # (INVARIANTS 2/3).
+        side.viewport().setAutoFillBackground(False)
+        try:
+            from ..theme import make_transparent
+            make_transparent(side)
+        except Exception:
+            pass
+
         body.addWidget(side)
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 0)
