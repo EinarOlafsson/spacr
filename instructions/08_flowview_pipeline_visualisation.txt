@@ -38,6 +38,41 @@ Two things this adds to the spec below:
         replaces the theme cannot be judged until it is finished.
     Build (b), then offer (a) as a preference if it still looks worth it.
 
+NODE BLUEPRINT — APPROVED BY THE MAINTAINER 2026-08-06
+("those are good nodes. start by using that blue print")
+
+    src folder
+      -> png_list / measurement tables
+      -> dataset build (dataset_mode)
+      -> train/val split
+      -> model  (CV: torch  |  ML: xgboost)
+      -> training loop (per-epoch metrics)
+      -> evaluation
+      -> scores written to db
+
+That is section 2's mapping for Classify, settled. It is the blueprint to
+build from.
+
+THREE THINGS STILL UNANSWERED, asked at the same time and not yet answered.
+Reasonable defaults are given so this is not blocked, but check them:
+
+  1. Granularity. Finer nodes (crop loading, augmentation) were offered and
+     not requested. DEFAULT: build the eight above; they map onto stages
+     that actually exist and can be split later without moving the others.
+  2. The two families: one node that switches on `classifier_family`, or two
+     branches that rejoin. DEFAULT: ONE node that names the active family.
+     The merged Classify module already greys the inactive family's settings
+     rather than hiding them, and a graph that draws a branch the run never
+     takes says something the settings panel does not.
+  3. Live per-node state (idle/running/done/failed) or a static diagram.
+     DEFAULT: live, driven from run_journal, which already records stage
+     order and timings per run -- section 5 of the spec says FlowView should
+     CONSUME the journal rather than instrument separately, and this is
+     where that pays.
+
+ORDER: the Gate Editor comes first ("now do the Gate editor then the rest"),
+then this.
+
 SECTION 2 IS STILL NOT OPTIONAL. It requires a mapping from REAL spaCR
 functions to node kinds, CONFIRMED with the maintainer. "Classify first"
 narrows that to one module's stages, which makes it a short conversation
