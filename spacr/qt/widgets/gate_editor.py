@@ -51,7 +51,7 @@ from ..theme import SPACING, active_palette, mark_surface
 from .graph_builder import GraphCanvas
 from .graph_spec import BAR, HISTOGRAM, GraphSpec
 from .gate_spec import (
-    ELLIPSE, EllipseGate, Handle,
+    ELLIPSE, EllipseGate, Handle, WAND,
     GATE_KINDS, POLYGON, RECTANGLE, THRESHOLD, Gate, GateError, GateSet,
     PolygonGate, RectGate, ThresholdGate,
 )
@@ -121,6 +121,7 @@ TOOL_LABELS = {
     RECTANGLE: "Rectangle — drag a box on a two-column plot",
     ELLIPSE: "Oval — drag a box; the oval is drawn inside it",
     POLYGON: "Polygon — click each vertex, then Close",
+    WAND: "Wand — click a population; the gate grows to fit it",
 }
 
 
@@ -146,6 +147,9 @@ class GateCanvas(GraphCanvas):
 
     #: A polygon gained or lost a vertex — for a host showing the count.
     polygon_changed = Signal(int)
+    #: A wand click could not become a gate. Carries the reason, which always
+    #: names the setting or the gesture that would fix it.
+    wand_failed = Signal(str)
 
     def __init__(self, parent=None, *, link=None, source: str = "gate_editor"):
         super().__init__(parent, link=link, source=source)
@@ -174,6 +178,11 @@ class GateCanvas(GraphCanvas):
         #: How near an anchor a press has to land to grab it. Pixels: "close
         #: enough to grab" is a property of the screen, not of the data.
         self.HANDLE_RADIUS_PX = 9.0
+        #: Set by `apply_settings`. Defaults match GateEditorSettings, so the
+        #: canvas draws the same with or without a settings object.
+        self._settings = None
+        self._highlight_gated = True
+        self._line_width = 1.4
 
     # -- the tool ---------------------------------------------------------
     @property
@@ -238,6 +247,20 @@ class GateCanvas(GraphCanvas):
         base, _note = self._apply_filter(self._frame)
         return base
 
+    def apply_settings(self, settings) -> None:
+        """Take the drawing settings and redraw once.
+
+        Guarded with getattr so a partial settings object -- an older saved
+        set, a test double -- cannot stop the editor from drawing at all.
+        """
+        self._settings = settings
+        tool = getattr(settings, "default_tool", None)
+        if tool and tool in GATE_KINDS and not self._tool:
+            self._tool = tool
+        self._highlight_gated = bool(getattr(settings, "highlight_gated", True))
+        self._line_width = float(getattr(settings, "gate_line_width", 1.4))
+        self.render_now()
+
     # -- which gates are showing -----------------------------------------
     def is_gate_enabled(self, name: str) -> bool:
         """Whether ``name`` is drawn. Unknown gates are on: a gate that has
@@ -288,7 +311,8 @@ class GateCanvas(GraphCanvas):
                     continue
                 if not self.is_gate_enabled(gate.name):
                     continue
-                self._highlight(ax, gate, frame, palette)
+                if self._highlight_gated:
+                    self._highlight(ax, gate, frame, palette)
                 self._outline(ax, gate, palette)
                 self._draw_handles(ax, gate, palette)
             if self._pending:
@@ -371,7 +395,7 @@ class GateCanvas(GraphCanvas):
         if not points:
             return
         patch = MplPolygon(points, closed=True, fill=False, edgecolor=accent,
-                           linewidth=1.4, zorder=7)
+                           linewidth=self._line_width, zorder=7)
         ax.add_patch(patch)
         self._artists.append(patch)
         ax.annotate(gate.name, points[0], color=accent, fontsize=7,
@@ -619,6 +643,9 @@ class GateCanvas(GraphCanvas):
                 self._move_name = name
                 self._move_from = (float(event.xdata), float(event.ydata))
                 return
+        if self._tool == WAND:
+            self._wand_at(event)
+            return
         if self._tool != POLYGON:
             super()._on_press(event)
             return
@@ -634,6 +661,43 @@ class GateCanvas(GraphCanvas):
         self._pending.append((x, y))
         self.polygon_changed.emit(len(self._pending))
         self._draw_gates()
+
+    def _wand_at(self, event) -> None:
+        """Grow a gate from a click and offer it like any other drawn gate.
+
+        The wand emits `gate_drawn`, so it lands in the same naming and
+        undo path as a dragged shape -- it is a way of PRODUCING a polygon,
+        not a fourth kind of gate.
+
+        A click that cannot grow one reports why in the status line rather
+        than raising: the two things that make it fail, clicking in empty
+        space and a tolerance too small for this cloud, are both things the
+        user fixes by clicking again.
+        """
+        from .gate_spec import WandError, wand_gate
+
+        spec = self._spec
+        if event.inaxes is None or event.xdata is None or event.ydata is None:
+            return
+        frame = self.population()
+        if frame is None or frame.empty or not (spec.x and spec.y):
+            self.wand_failed.emit(
+                "the wand needs a table and two measurements on screen")
+            return
+        settings = self._settings
+        try:
+            gate = wand_gate(
+                frame, spec.x, spec.y,
+                float(event.xdata), float(event.ydata),
+                tolerance=float(getattr(settings, "wand_tolerance", 0.05)),
+                max_radius=float(getattr(settings, "wand_max_radius", 0.35)))
+        except WandError as exc:
+            self.wand_failed.emit(str(exc))
+            return
+        except GateError as exc:
+            self.wand_failed.emit(str(exc))
+            return
+        self.gate_drawn.emit(gate)
 
     def _near_first_vertex(self, event, x: float, y: float) -> bool:
         """Whether ``(x, y)`` is close enough to the first vertex to close.
@@ -1119,6 +1183,7 @@ class GateEditorPanel(QWidget):
 
         self.canvas = GateCanvas(self, link=link, source=source)
         self.canvas.gate_drawn.connect(self._on_gate_drawn)
+        self.canvas.wand_failed.connect(self._status.setText)
         self.canvas.gate_edited.connect(self._on_gate_edited)
         self.canvas.polygon_changed.connect(self._on_polygon_changed)
         self.body.addWidget(self.canvas)
@@ -1377,6 +1442,17 @@ class GateEditorPanel(QWidget):
 
     def status(self) -> str:
         return self._status.text()
+
+    def apply_settings(self, settings) -> None:
+        """Take the settings that change how the gates surface draws.
+
+        Only the drawing ones are read here. Sampling is the screen's job --
+        it owns the table and the read -- and the 3D ones belong to a
+        workspace that does not exist yet. A setting silently read in two
+        places is how the two get to disagree.
+        """
+        self.canvas.apply_settings(settings)
+        self._refresh_status()
 
     def _refresh_status(self) -> None:
         if self._frame is None:

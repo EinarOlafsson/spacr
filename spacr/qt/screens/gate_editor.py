@@ -38,6 +38,7 @@ from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.formula_editor import FormulaPanel
 from ..widgets.gate_editor import GateEditorPanel
 from ..widgets.gate_spec import GateError, GateSet
+from ..widgets.gate_settings import GateEditorSettings, GateSettingsDialog
 from ..widgets.graph_spec import GraphSpec, plottable_columns
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
@@ -59,6 +60,9 @@ class GateEditorScreen(QWidget):
         self.setObjectName("GateEditorScreen")
         self._frame: Optional[pd.DataFrame] = None
         self._path: Optional[str] = None
+        self._table: Optional[str] = None
+        self._settings = GateEditorSettings()
+        self._settings_dialog: Optional[GateSettingsDialog] = None
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_load_failed)
 
@@ -104,6 +108,22 @@ class GateEditorScreen(QWidget):
         self._load_gates = QPushButton("Load gates…", self)
         self._load_gates.clicked.connect(self.choose_load_gates)
         head.addWidget(self._load_gates)
+
+        self._export = QPushButton("Export gates…", self)
+        self._export.setToolTip(
+            "Write every gate to the database as a column of the `filters` "
+            "table — the gate's name, 1 inside and 0 outside. The gate is "
+            "applied to EVERY object, whatever fraction of the table is "
+            "loaded, so a gate drawn on a sample still labels everything.")
+        self._export.clicked.connect(self.export_gates)
+        head.addWidget(self._export)
+
+        self._settings_button = QPushButton("⚙", self)
+        self._settings_button.setObjectName("GateSettingsButton")
+        self._settings_button.setToolTip("Gate editor settings")
+        self._settings_button.setFixedWidth(32)
+        self._settings_button.clicked.connect(self.open_settings)
+        head.addWidget(self._settings_button)
         outer.addLayout(head)
 
         axes = QHBoxLayout()
@@ -281,9 +301,26 @@ class GateEditorScreen(QWidget):
         self._source.setText(
             f"loading {os.path.basename(path)}"
             + (f" · {chosen}" if chosen else "") + "…")
+        self._table = chosen
+        fraction = self._settings.sample_fraction
+        cap = self._settings.max_points or None
         self._jobs.submit(
-            lambda p=path, t=chosen: (t, read_table(p, t)),
+            lambda p=path, t=chosen, f=fraction, c=cap: (t, self._read(p, t, f, c)),
             self._on_frame_loaded)
+
+    @staticmethod
+    def _read(path: str, table: Optional[str], fraction: float,
+              cap: Optional[int]):
+        """Read the table, taking only ``fraction`` of a database table.
+
+        A CSV is read whole: the sampling is done in SQL, and reading the
+        whole file only to throw four rows in five away would cost more than
+        it saves. The row cap still applies to both.
+        """
+        if str(path).lower().endswith((".csv", ".tsv", ".txt")) or not table:
+            return read_table(path, table, limit=cap)
+        from ...filters import read_sampled
+        return read_sampled(path, table, fraction=fraction, limit=cap)
 
     def _on_frame_loaded(self, payload) -> None:
         chosen, frame = payload
@@ -293,6 +330,107 @@ class GateEditorScreen(QWidget):
             frame,
             label=f"{os.path.basename(path)}{suffix} · {len(frame):,} rows "
                   f"× {len(frame.columns)} columns")
+
+    # -- settings ---------------------------------------------------------
+    def open_settings(self) -> None:
+        """Show the settings window.
+
+        Not modal, and not re-created: a settings window you have to close to
+        see what it did is a settings window you cannot tune anything with.
+        The same dialog is raised again so its tab and scroll position
+        survive, which is the difference between adjusting a value and
+        hunting for it.
+        """
+        if self._settings_dialog is None:
+            self._settings_dialog = GateSettingsDialog(
+                self._settings, self, columns=tuple(self._x.itemText(i)
+                                                    for i in range(self._x.count())))
+            self._settings_dialog.settings_changed.connect(self.apply_settings)
+            from ..dialogs import detach_from_window_manager
+            detach_from_window_manager(self._settings_dialog)
+        self._settings_dialog.show()
+        self._settings_dialog.raise_()
+
+    def apply_settings(self, settings: GateEditorSettings) -> None:
+        """Take new settings, re-reading the table only if one of them needs it.
+
+        Two settings cost a read -- the sample fraction and the row cap. The
+        rest are drawing, and re-reading a large table because the user
+        nudged a colour map is the lag this dialog exists to remove.
+        """
+        previous, self._settings = self._settings, settings
+        self.gates.apply_settings(settings)
+        if previous.costs_a_reload(settings) and self._path:
+            self.load_path(self._path, self._table)
+
+    def settings(self) -> GateEditorSettings:
+        return self._settings
+
+    # -- export -----------------------------------------------------------
+    def export_gates(self) -> None:
+        """Write every gate to the database as a column of ``filters``."""
+        from PySide6.QtWidgets import QMessageBox
+
+        gates = self.gates.gates
+        if gates.is_empty:
+            QMessageBox.information(self, "No gates",
+                                    "Draw a gate before exporting.")
+            return
+        path = self._path or ""
+        if not path or path.lower().endswith((".csv", ".tsv", ".txt")):
+            QMessageBox.information(
+                self, "Not a database",
+                "Filters are written to the `filters` table of a measurement "
+                "database. This table was loaded from a file, which has "
+                "nowhere to put them.")
+            return
+        table = self._table
+        if not table:
+            QMessageBox.information(
+                self, "No table",
+                "Choose which table of the database the gates were drawn on.")
+            return
+
+        self._source.setText(f"exporting {len(gates)} gate(s)…")
+        self._jobs.cancel()
+        self._jobs.submit(
+            lambda p=path, t=table, g=gates: self._write_gates(p, t, g),
+            self._on_exported)
+
+    @staticmethod
+    def _write_gates(path: str, table: str, gates: GateSet):
+        """Apply every gate to the FULL table and write the columns.
+
+        Off the GUI thread, and reading only the columns each gate needs --
+        a handful out of hundreds, which is what keeps this affordable on the
+        table that made the module laggy in the first place.
+
+        A gate that cannot be applied is reported by name rather than sinking
+        the export: gates are drawn on computed columns too, and one gate on a
+        formula the database does not have must not cost the user the other
+        five.
+        """
+        from ...filters import FilterError, export_gate, gate_mask_over_table
+
+        written, failed = [], []
+        for gate in gates.gates:
+            try:
+                frame, mask = gate_mask_over_table(path, table, gates, gate.name)
+                column, marked = export_gate(path, frame, mask, gate.name)
+                written.append((column, marked))
+            except (FilterError, Exception) as exc:
+                LOG.info("could not export gate %r", gate.name, exc_info=True)
+                failed.append((gate.name, str(exc)))
+        return written, failed
+
+    def _on_exported(self, payload) -> None:
+        written, failed = payload
+        parts = [f"{column} ({marked:,} objects)" for column, marked in written]
+        message = ("wrote " + ", ".join(parts)) if parts else "nothing written"
+        if failed:
+            message += " · could not export " + ", ".join(
+                f"{name} ({why})" for name, why in failed)
+        self._source.setText(message)
 
     def _on_load_failed(self, message: str) -> None:
         path = self._path or ""

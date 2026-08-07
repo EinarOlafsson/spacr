@@ -94,9 +94,12 @@ THRESHOLD = "threshold"
 RECTANGLE = "rectangle"
 POLYGON = "polygon"
 ELLIPSE = "ellipse"
+#: Click a point and let the data decide the shape. Not a drag: the user
+#: picks a seed and the gate grows to fit the population around it.
+WAND = "wand"
 
 #: Every shape a gate can be, in the order the tool buttons list them.
-GATE_KINDS: Tuple[str, ...] = (THRESHOLD, RECTANGLE, POLYGON, ELLIPSE)
+GATE_KINDS: Tuple[str, ...] = (THRESHOLD, RECTANGLE, POLYGON, ELLIPSE, WAND)
 
 
 def _clean_name(name: str) -> str:
@@ -971,6 +974,162 @@ def _convex_hull(points: np.ndarray) -> np.ndarray:
     lower = _half(pts)
     upper = _half(pts[::-1])
     return np.array(lower[:-1] + upper[:-1])
+
+
+class WandError(GateError):
+    """A wand click that cannot become a gate, with the reason."""
+
+
+def wand_select(frame: pd.DataFrame, x_column: str, y_column: str,
+                x: float, y: float, *, tolerance: float = 0.05,
+                max_radius: float = 0.35, scale: bool = True) -> np.ndarray:
+    """Grow a selection outward from a clicked point.
+
+    The watershed gesture: click inside a population and the gate finds its
+    edge. Starting from the object nearest the click, the selection repeatedly
+    takes every unselected object within ``tolerance`` of something already
+    selected, and stops when nothing new is close enough. Two limits keep it
+    from swallowing the plot:
+
+    ``tolerance``
+        how far apart two objects can be and still count as neighbours. This
+        is what makes it a WATERSHED rather than a circle -- the selection
+        flows along a dense ridge and stops at a gap, so an elongated or
+        bent population comes out whole and the sparse space around it does
+        not.
+    ``max_radius``
+        how far from the CLICK the selection may reach at all. Without it a
+        single chain of objects bridging two populations merges them, which
+        on a real scatter happens more often than not.
+
+    Both are in SCALED units by default -- each axis mapped onto 0..1 across
+    the data -- so one pair of defaults works on measurements whose ranges
+    differ by orders of magnitude, and so "distance" means the same in x as
+    in y. Without that, a tolerance is a distance in whichever measurement
+    has the larger numbers and the other axis is effectively ignored.
+
+    :param frame: the measurement table.
+    :param x: the clicked x, in DATA units.
+    :param y: the clicked y, in data units.
+    :returns: a boolean mask over ``frame``.
+    :raises WandError: a column that is missing, or a click with no finite
+        object anywhere near it.
+    """
+    what = "wand"
+    xs = np.asarray(_numeric(frame, x_column, what), dtype=float)
+    ys = np.asarray(_numeric(frame, y_column, what), dtype=float)
+    finite = np.isfinite(xs) & np.isfinite(ys)
+    if not finite.any():
+        raise WandError(
+            f"no object has both {x_column} and {y_column}, so there is "
+            f"nothing to grow a gate from")
+
+    if float(tolerance) <= 0:
+        raise WandError("the neighbour tolerance must be greater than zero")
+    if float(max_radius) <= 0:
+        raise WandError("the maximum distance from the click must be "
+                        "greater than zero")
+
+    px, py = float(x), float(y)
+    if scale:
+        # Map each axis onto 0..1 across the DATA, not the view: a gate is a
+        # statement about measurements, and scaling by the visible window
+        # would make the same click give a different gate at a different zoom.
+        sx, sy = _unit_scale(xs[finite]), _unit_scale(ys[finite])
+        ux, uy = sx(xs), sy(ys)
+        upx, upy = float(sx(np.array([px]))[0]), float(sy(np.array([py]))[0])
+    else:
+        ux, uy, upx, upy = xs, ys, px, py
+
+    index = np.flatnonzero(finite)
+    points = np.column_stack([ux[index], uy[index]])
+    from_click = np.hypot(points[:, 0] - upx, points[:, 1] - upy)
+
+    reachable = from_click <= float(max_radius)
+    if not reachable.any():
+        raise WandError(
+            "no object is within the maximum distance of that click; click "
+            "closer to a population, or raise the maximum distance")
+
+    # The seed is the nearest object to the click, NOT the click itself: the
+    # user points at a cloud, and a click landing in a gap between two of its
+    # objects must still start inside the cloud.
+    seed = int(np.argmin(from_click))
+
+    candidates = np.flatnonzero(reachable)
+    local = points[candidates]
+    seed_local = int(np.flatnonzero(candidates == seed)[0])
+
+    selected = np.zeros(len(local), dtype=bool)
+    selected[seed_local] = True
+    frontier = [seed_local]
+    tol = float(tolerance)
+    while frontier:
+        current = local[frontier]
+        frontier = []
+        # Distance from every unselected candidate to the newest selections.
+        remaining = np.flatnonzero(~selected)
+        if remaining.size == 0:
+            break
+        gaps = np.hypot(
+            local[remaining][:, None, 0] - current[None, :, 0],
+            local[remaining][:, None, 1] - current[None, :, 1])
+        grown = remaining[np.any(gaps <= tol, axis=1)]
+        if grown.size:
+            selected[grown] = True
+            frontier = list(grown)
+
+    mask = np.zeros(len(frame), dtype=bool)
+    mask[index[candidates[selected]]] = True
+    return mask
+
+
+def _unit_scale(values: np.ndarray):
+    """A function mapping ``values`` onto 0..1, and anything else with them.
+
+    A degenerate axis -- every object at the same value -- maps to zero
+    rather than dividing by nothing, so a wand click on a constant
+    measurement selects by the other axis instead of raising.
+    """
+    low = float(np.min(values))
+    high = float(np.max(values))
+    span = high - low
+    if not np.isfinite(span) or span <= 0:
+        return lambda v: np.zeros_like(np.asarray(v, dtype=float))
+    return lambda v: (np.asarray(v, dtype=float) - low) / span
+
+
+def wand_gate(frame: pd.DataFrame, x_column: str, y_column: str,
+              x: float, y: float, *, name: str = "(unnamed)",
+              tolerance: float = 0.05, max_radius: float = 0.35,
+              scale: bool = True,
+              parent: Optional[str] = None) -> "PolygonGate":
+    """Grow a selection from a click and fit a polygon around it.
+
+    A POLYGON, not the selection itself, because a gate has to be a shape:
+    re-applied to another table it must select that table's objects, and a
+    list of row numbers cannot. Fitting the hull is what turns "these
+    objects" into "this region", which is the difference between a lasso and
+    a gate.
+
+    :returns: the fitted gate, unnamed unless ``name`` is given.
+    :raises WandError: too few objects to make a polygon out of.
+    """
+    mask = wand_select(frame, x_column, y_column, x, y,
+                       tolerance=tolerance, max_radius=max_radius, scale=scale)
+    chosen = frame.loc[mask, [x_column, y_column]].to_numpy(dtype=float)
+    if len(chosen) < 3:
+        raise WandError(
+            f"only {len(chosen)} object(s) grew from that click, and a "
+            f"polygon needs three; raise the neighbour tolerance")
+    hull = _convex_hull(chosen)
+    if len(hull) < 3:
+        raise WandError(
+            "the objects that grew from that click are in a straight line, "
+            "which has no area to gate")
+    return PolygonGate(name=name, parent=parent,
+                       x_column=x_column, y_column=y_column,
+                       vertices=tuple((float(a), float(b)) for a, b in hull))
 
 
 def cluster_gates(frame: pd.DataFrame, x_column: str, y_column: str, *,
