@@ -1,0 +1,48 @@
+================================================================================
+SHOW SEARCH FIGURES AS THEY ARRIVE, ON A GRID THAT FITS THE CONTAINER
+================================================================================
+
+Status:    not started
+Requested: 2026-08-07 - "when evaluating hyperparameters, show each graph as soon as it is generated on a grid defined by the width and height of the container, which is dynamic. whether to show each as a png (which takes less compute) or as a pdf (editable but takes more compute) is defined by the spacr preference figure format and PNG resolution." Also, for the Gate Editor: "the figures should map onto a grid where each figure is a pdf or png defined by the general settings in preferences, and the grid should map onto the hyperparameter search space."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not started. The pieces exist: FigureQueue already adopts a pre-rendered PNG
+from the worker thread, render_figure_to_png already honours
+get_figure_png_dpi() and get_figure_format(), and figures already stream
+from the bridge as they are produced.
+
+What does not exist is a GRID view -- FigureQueue is a one-at-a-time gallery.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A search that shows nothing until it finishes is a search the user cannot
+steer. Seeing the first few settings land is what tells them the range is
+wrong before the other fifty run.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. A grid view that appends a figure as each arrives, reflowing to the
+   container's width and height. Shared by Image UMAP and the Gate Editor --
+   write it once.
+2. Format and resolution come from the EXISTING preferences
+   (get_figure_format, get_figure_png_dpi). Do not add a second setting.
+3. The grid's axes should map onto the search space (instruction 34), so a
+   cell's position says which parameter values produced it.
+4. Rendering stays on the worker thread (bridge already does this). A grid
+   of fifty PDFs rendered on the GUI thread would freeze it, which is the
+   one thing the GUI must never do.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Start a search: figures appear one by one, the grid reflows when the panel
+is resized, and switching the preference between png and pdf changes what
+is produced without touching the module.

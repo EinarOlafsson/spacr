@@ -1,0 +1,40 @@
+================================================================================
+MENU: DROP 'ALL APPS', ORDER HOME / PREFERENCES / QUIT
+================================================================================
+
+Status:    not started
+Requested: 2026-08-07 - "from the preferences bar you can remove the all apps i dont know what that is for and you can move the home below to the top so the order should be: home, preferences, quit, then all the apps"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spacr/qt/app.py :: _build_menu_bar. Preferences and Quit were moved to the
+top on 2026-08-06 (instruction 23). "All apps" (Ctrl+B) toggles the edge
+drawer -- the keyboard route into the app list that is otherwise only
+reachable by hovering a 6px strip.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A menu item whose purpose is not obvious from its name is a menu item that
+costs attention every time it is read.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Order: Home, Preferences, Quit, separator, then the apps.
+2. Remove "All apps" FROM THE MENU. Keep the Ctrl+B shortcut and the
+   `self.addAction(act_all)` registration -- the drawer is otherwise
+   unreachable for a keyboard user, which is why it was added. Removing the
+   action entirely would take the shortcut with it.
+3. Update tests/qt/test_menu_roles.py, which pins the first two entries.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The spaCR menu reads home / preferences / quit / apps. Ctrl+B still opens
+the drawer.
