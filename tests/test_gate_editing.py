@@ -571,3 +571,49 @@ def test_the_panel_gates_property_is_not_callable(panel):
     assert isinstance(panel.canvas.gates, GateSet)
     with pytest.raises(TypeError):
         panel.gates()
+
+
+def test_the_drag_preview_is_the_shape_the_gate_will_be(qtbot):
+    """"the oval looks like a square when dragged but does in fact generate
+    an oval gate. the drag highlight area needs to correspond to the gate."
+
+    The preview is what the user steers by, so it has to be the same shape
+    AND the same geometry as the gate the release will produce -- a preview
+    that merely looks elliptical but sits somewhere else is the same bug in
+    a different costume. Both are asserted against
+    EllipseGate.from_drag itself.
+    """
+    pytest.importorskip("PySide6")
+    from matplotlib.patches import Ellipse, Rectangle
+
+    from spacr.qt.widgets.gate_editor import GateCanvas
+    from spacr.qt.widgets.gate_spec import ELLIPSE, RECTANGLE, EllipseGate
+
+    canvas = GateCanvas()
+    qtbot.addWidget(canvas)
+
+    canvas.set_tool(ELLIPSE)
+    patch = canvas._make_drag_patch(0.0, 0.0)
+    assert isinstance(patch, Ellipse)
+    canvas._update_drag_patch(patch, 0.0, 0.0, 10.0, 6.0)
+
+    gate = EllipseGate.from_drag("oval", "a", "b", 0.0, 0.0, 10.0, 6.0)
+    assert patch.get_center() == gate.centre()
+    assert patch.get_width() == gate.x_radius * 2
+    assert patch.get_height() == gate.y_radius * 2
+
+    # The rectangle tool is untouched.
+    canvas.set_tool(RECTANGLE)
+    assert isinstance(canvas._make_drag_patch(0.0, 0.0), Rectangle)
+
+
+def test_an_ordinary_chart_still_previews_a_rectangle(qtbot):
+    """The hook lives on GraphCanvas, so a plain chart must be unaffected."""
+    pytest.importorskip("PySide6")
+    from matplotlib.patches import Rectangle
+
+    from spacr.qt.widgets.graph_builder import GraphCanvas
+
+    canvas = GraphCanvas()
+    qtbot.addWidget(canvas)
+    assert isinstance(canvas._make_drag_patch(0.0, 0.0), Rectangle)
