@@ -77,12 +77,19 @@ class GateCanvas(GraphCanvas):
 
     #: A shape was completed. Carries a gate named ``"(unnamed)"``.
     gate_drawn = Signal(object)
+    #: A gate was moved or resized in place. Carries the EDITED gate; the
+    #: panel replaces the one of the same name.
+    gate_edited = Signal(object)
     #: A polygon gained or lost a vertex — for a host showing the count.
     polygon_changed = Signal(int)
 
     def __init__(self, parent=None, *, link=None, source: str = "gate_editor"):
         super().__init__(parent, link=link, source=source)
         self._tool = ""
+        #: Set while a gate is being dragged. `None` whenever it is not,
+        #: which is what every handler gates on.
+        self._move_name: Optional[str] = None
+        self._move_from: Optional[Tuple[float, float]] = None
         self._pending: List[Tuple[float, float]] = []
         self._gates = GateSet()
         self._active: Optional[str] = None
@@ -215,7 +222,44 @@ class GateCanvas(GraphCanvas):
             marker="o", markersize=3, zorder=8)[0])
 
     # -- drawing gates ----------------------------------------------------
+    def gate_at(self, x: float, y: float) -> Optional[str]:
+        """Name of the topmost gate containing ``(x, y)``, or None.
+
+        Topmost = last drawn, which is the one the user sees on top and
+        therefore the one they mean by clicking there.
+        """
+        frame = self.population()
+        if frame is None:
+            return None
+        probe = pd.DataFrame({})
+        hit: Optional[str] = None
+        for gate in self.gates.gates:
+            columns = gate.columns
+            if not columns:
+                continue
+            try:
+                probe = pd.DataFrame({columns[0]: [float(x)]})
+                if len(columns) > 1:
+                    probe[columns[1]] = [float(y)]
+                if bool(gate.mask(probe)[0]):
+                    hit = gate.name
+            except Exception:
+                # A gate on columns this scatter is not showing cannot be
+                # hit-tested here, and must not stop the ones that can.
+                continue
+        return hit
+
     def _on_press(self, event) -> None:
+        # No tool selected means "edit what is already there": a press
+        # inside a gate starts a move. This is checked BEFORE the drawing
+        # tools, because with a tool active the user is drawing, not editing.
+        if self._tool == "" and event.inaxes is not None \
+                and event.xdata is not None and event.ydata is not None:
+            name = self.gate_at(float(event.xdata), float(event.ydata))
+            if name:
+                self._move_name = name
+                self._move_from = (float(event.xdata), float(event.ydata))
+                return
         if self._tool != POLYGON:
             super()._on_press(event)
             return
@@ -226,11 +270,39 @@ class GateCanvas(GraphCanvas):
         self._draw_gates()
 
     def _on_motion(self, event) -> None:
+        if getattr(self, "_move_name", None):
+            # The move is applied on RELEASE, not per motion event: a gate
+            # is re-evaluated against the whole table to redraw, and doing
+            # that on every mouse move makes a large frame unusable.
+            return
         if self._tool == POLYGON:
             return
         super()._on_motion(event)
 
     def _on_release(self, event) -> None:
+        name = getattr(self, "_move_name", None)
+        if name:
+            start = getattr(self, "_move_from", None)
+            self._move_name = None
+            self._move_from = None
+            if (start is None or event.inaxes is None
+                    or event.xdata is None or event.ydata is None):
+                return
+            dx = float(event.xdata) - start[0]
+            dy = float(event.ydata) - start[1]
+            if dx == 0 and dy == 0:
+                # A click, not a drag. Selecting rather than moving by zero
+                # keeps a stray click from marking the gate set dirty.
+                self.set_gates(self.gates, active=name)
+                return
+            try:
+                gate = self.gates.get(name)
+            except Exception:
+                # The gate went away between press and release -- another
+                # view can remove one while a drag is in flight.
+                return
+            self.gate_edited.emit(gate.translated(dx, dy))
+            return
         if self._tool in ("", POLYGON):
             super()._on_release(event)
             return
@@ -538,6 +610,7 @@ class GateEditorPanel(QWidget):
         body.setSpacing(SPACING["sm"])
         self.canvas = GateCanvas(self, link=link, source=source)
         self.canvas.gate_drawn.connect(self._on_gate_drawn)
+        self.canvas.gate_edited.connect(self._on_gate_edited)
         self.canvas.polygon_changed.connect(self._on_polygon_changed)
         body.addWidget(self.canvas, 1)
 
@@ -648,6 +721,19 @@ class GateEditorPanel(QWidget):
 
     def _on_close_polygon(self) -> None:
         self.canvas.close_polygon()
+
+    def _on_gate_edited(self, gate: Gate) -> None:
+        """Replace a gate that was dragged on the canvas.
+
+        By NAME, so the hierarchy is untouched: a moved child stays a child.
+        `GateSet.add` replaces an existing name rather than appending, which
+        is what makes this a one-liner instead of a remove-then-add that
+        could lose the gate if the add failed.
+        """
+        gates = self.gates()
+        gates.add(gate)
+        self.canvas.set_gates(gates, active=gate.name)
+        self.refresh()
 
     def _on_gate_drawn(self, gate: Gate) -> None:
         name = self._ask_name()
