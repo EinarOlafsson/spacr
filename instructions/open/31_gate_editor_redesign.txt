@@ -339,3 +339,28 @@ Still open from the original spec: resize handles on gates; filter/search
 tabs; console + AI chat; saveable filter sets; cmap + data binning; 2D/3D/xD
 modes; table merging on plate/row/column/field/object; clustering Walk; the
 3D voxel workspace.
+
+--- 2026-08-07 (later): move/resize done (commit 6d8b2003) ---
+
+Ghost placeholder follows the mouse; edit commits on release. Anchor points
+(corners + sides) on all four gate kinds, geometry in gate_spec via
+handles()/with_handle() -- pure, no Qt, testable without a canvas.
+
+Two bugs found while doing it:
+  * EllipseGate had NO branch in `_outline`. An oval was previewed during the
+    drag and vanished once created. Outline/ghost/preview now share one
+    geometry function so this cannot recur silently.
+  * Gates nested themselves. A new gate took parent=active, and drawing
+    selects, so gate2 nested in gate1 and gate3 in gate2 -- and since
+    GateSet.mask ANDs the ancestor path, those gates were not the shapes
+    drawn. Drawn gates are top-level now.
+
+NEXT, as directed: the settings panel. "starting with the 2D and general
+section then moove on to the 3D section / 3D gating". The full spec is in the
+original instruction text above -- three tabs, cmap, data resolution/binning,
+2D/3D/xD modes, table merging on plate/row/column/field/object, clustering
+hyperparameter Walk, filter/search tabs, console + AI chat, saveable filter
+sets, and the 3D voxel workspace with axis-snapping spin.
+
+Still open after that: resize handles exist but gates have no rotate; console
++ AI chat; saveable filter sets; table merging; 3D workspace.
