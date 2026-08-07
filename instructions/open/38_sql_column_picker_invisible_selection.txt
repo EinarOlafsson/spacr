@@ -1,0 +1,46 @@
+================================================================================
+DARK MODE: SELECTED COLUMNS IN THE SQL PICKER ARE INVISIBLE
+================================================================================
+
+Status:    not started
+Requested: 2026-08-07 - "in general in dark mode in the sql popup when
+           choosing multiple columns the chosen columns get black text and are
+           therefore effectively invisable, they should become blue instead,
+           the cell itself, to indicate that they are chosen."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not investigated. Symptom: in the SQL popup, multi-selecting columns paints
+the selected rows with Qt's default selection colours -- black text -- which
+on a dark theme is unreadable. The user cannot see which columns they picked.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The selection IS the state of that dialog. When it is invisible the user has
+no way to tell what they are about to query, and the only recovery is to
+start over.
+
+Same root cause as the gate list (commit d23ebe4a): a widget with no QSS block
+of its own falls through to Qt's default palette, which assumes a light
+background. Worth checking whether other views share the defect while fixing
+this one -- any multi-select list or table that has no registered block will
+have it.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Find the SQL popup's column picker and give it a selection style: the CELL
+   becomes blue to show it is chosen, with text that stays legible against it.
+2. Take the colour from the theme (`accent`), never a literal -- a hard-coded
+   blue is wrong in whichever theme was not being looked at when it was
+   written.
+3. INVARIANTS 1: a widget QSS block must be registered AND its module listed
+   in theme.WIDGET_QSS_MODULES. Both halves, or it is absent at launch and
+   the check in skill/refresh.py fails.
+4. Test it in both themes. The failure mode this replaces is exactly a colour
+   that was only ever checked in one of them.
