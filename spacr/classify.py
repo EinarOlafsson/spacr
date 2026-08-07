@@ -42,7 +42,8 @@ FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
         "resume_checkpoint", "tensorboard", "focal_gamma", "focal_alpha",
         "label_smoothing", "logit_adjust_tau", "train", "test",
         "generate_training_dataset", "apply_model_to_dataset",
-        "generate_full_dataset", "tar_path", "n_top_examples", "png_type",
+        "generate_full_dataset", "tar_path", "n_top_examples", "path_string",
+        "file_type", "crop_source",
     ),
     "ml": (
         "model_type_ml", "n_estimators", "reg_alpha", "reg_lambda",
@@ -118,9 +119,13 @@ def classify(settings: Mapping[str, Any]) -> Any:
     :returns: whatever the dispatched pipeline returns.
     :raises ClassifierFamilyError: an unrecognised family.
     """
+    from .classify_classes import normalize_settings as normalize_classes
     from .training_basis import normalize_settings
 
-    resolved = dict(normalize_settings(settings))
+    # Two translations, both idempotent and both in one place: the shared
+    # vocabulary (names) and the class definition (what the names select).
+    # Anything downstream reads the current shape only.
+    resolved = dict(normalize_classes(normalize_settings(settings)))
     family = resolve_family(resolved)
 
     if family == "ml":

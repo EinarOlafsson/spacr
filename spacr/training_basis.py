@@ -46,6 +46,14 @@ SETTING_ALIASES: Dict[str, str] = {
     "model_type_ml": "model_type",
     "test_size": "test_split",
     "cross_validation": "cross_validation_enabled",
+    # `png_type` was never a type. It is a substring that has to appear in a
+    # crop's path, so it is now called that. The old name is accepted because
+    # it is in every settings CSV a user has.
+    "png_type": "path_string",
+    # `size` and `image_size` were the same number under two names, set by
+    # different helpers in the same module. image_size wins: it says what it
+    # measures.
+    "size": "image_size",
 }
 
 #: Which settings each basis actually uses. The GUI greys out the rest, and
