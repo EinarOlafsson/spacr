@@ -118,3 +118,21 @@ HOW TO KNOW IT WORKED
   * The N/A policy and the primary object are settings, and changing them
     changes the merged table.
   * The rule chosen per column is visible and can be overridden.
+
+--------------------------------------------------------------------------------
+PROGRESS -- 2026-08-07, commit 5c15056c: DONE except the persisted table
+--------------------------------------------------------------------------------
+
+spacr/merge_tables.py + the chips in the Gate Editor. The dropdown adds rather
+than switches; columns are prefixed with their object; aggregation follows the
+measurement (sum / min / max / mean / median / first), is inspectable via
+aggregation_plan() and overridable per column; keep/zero/drop for childless
+parents. 32 tests.
+
+NOT done: the merge settings are on the 3D tab (merge_na only). The per-column
+plan is not yet SHOWN in the settings window -- item 7 of this instruction --
+so overrides are reachable from code and not from the GUI.
+
+The parent link used is `cell_id` on the child, matching io._read_and_join_tables.
+That is the same link instruction 40's relationships table should persist; when
+40 lands, merge_tables should read it instead of re-deriving the link.
