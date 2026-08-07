@@ -237,3 +237,35 @@ and tested on their own:
 
 Do A before D: the categories cannot be finalised until the settings they hold
 have their final names.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * A settings CSV written BEFORE this trains on the same objects afterwards.
+    The test asserts the resulting dataset, not that the keys translated --
+    the failure mode is a silently different training set, which a key-level
+    test would pass straight through.
+  * Setting one annotation column populates the Classes dict with that
+    column's values; setting a second adds its values alongside, each
+    remembering which column it came from.
+  * Annotating one class and leaving the rest blank yields a second class of
+    randomly chosen non-annotated images, with no separate button pressed.
+  * Choosing the metadata basis offers plate/row/column/field/well in the same
+    dict, and location column / positive control / negative control are gone
+    rather than ignored.
+  * Choosing ON-DEMAND crops and running training produces actual crops on
+    disk from `merged` -- checked end to end, because "the crops are actually
+    generated" is the requirement and a unit test on the settings cannot see
+    it. Same for the database-coordinate source, where only bounding-box crops
+    are offered.
+  * Selecting pre-generated crops greys the on-demand settings and vice versa;
+    every greyed control keeps its value (INVARIANTS 6).
+  * A custom model path that loads is the model used, with no boolean set, and
+    `model_type` is visibly superseded rather than silently ignored.
+  * Clicking a model reports whether it is compatible with the chosen class
+    structure, including for a class structure the model cannot serve.
+  * `size`, `png_type` and the duplicate of `file_type`/`png_list` no longer
+    appear anywhere in the UI, and an old CSV containing them still runs.
+  * The category list is shorter than it is today, and every name says what is
+    in it.
