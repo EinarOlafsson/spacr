@@ -44,3 +44,15 @@ WHAT TO DO
    the check in skill/refresh.py fails.
 4. Test it in both themes. The failure mode this replaces is exactly a colour
    that was only ever checked in one of them.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * In the dark theme, multi-selecting columns in the SQL popup shows each
+    chosen cell in the theme's accent blue, with legible text.
+  * The same selection is legible in the light theme -- the test asserts a
+    real contrast between the selection's text and its background in BOTH,
+    rather than asserting a colour value, which would pass on white-on-white.
+  * skill/refresh.py reports the widget QSS registrars as complete, i.e. the
+    block is registered AND the module is listed.
