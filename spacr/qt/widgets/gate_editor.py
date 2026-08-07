@@ -51,7 +51,7 @@ from ..theme import SPACING, active_palette, mark_surface
 from .graph_builder import GraphCanvas
 from .graph_spec import BAR, HISTOGRAM, GraphSpec
 from .gate_spec import (
-    ELLIPSE, EllipseGate,
+    ELLIPSE, EllipseGate, Handle,
     GATE_KINDS, POLYGON, RECTANGLE, THRESHOLD, Gate, GateError, GateSet,
     PolygonGate, RectGate, ThresholdGate,
 )
@@ -164,6 +164,16 @@ class GateCanvas(GraphCanvas):
         #: Gates the user has toggled OFF. Names, not gates, so a gate that
         #: is edited in place keeps its toggle.
         self._disabled: set = set()
+        #: Set while an anchor point is being pulled: (gate name, role).
+        self._resize: Optional[Tuple[str, str]] = None
+        #: The dashed shape following the mouse mid-drag. Its artists are
+        #: tracked separately from `_artists` so a motion event can replace
+        #: it without redrawing every gate and every highlight -- which is a
+        #: mask over the whole table per gate, per mouse move.
+        self._ghost: List[object] = []
+        #: How near an anchor a press has to land to grab it. Pixels: "close
+        #: enough to grab" is a property of the screen, not of the data.
+        self.HANDLE_RADIUS_PX = 9.0
 
     # -- the tool ---------------------------------------------------------
     @property
@@ -280,6 +290,7 @@ class GateCanvas(GraphCanvas):
                     continue
                 self._highlight(ax, gate, frame, palette)
                 self._outline(ax, gate, palette)
+                self._draw_handles(ax, gate, palette)
             if self._pending:
                 self._outline_pending(ax, palette)
         self._canvas.draw_idle()
@@ -356,12 +367,8 @@ class GateCanvas(GraphCanvas):
                 and self._spec.y == getattr(gate, "y_column", None)):
             return
         from matplotlib.patches import Polygon as MplPolygon
-        if isinstance(gate, RectGate):
-            x0, x1, y0, y1 = self._rect_bounds(ax, gate)
-            points = [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
-        elif isinstance(gate, PolygonGate):
-            points = list(gate.vertices)
-        else:  # pragma: no cover - three kinds, all handled
+        points = self._gate_points(ax, gate)
+        if not points:
             return
         patch = MplPolygon(points, closed=True, fill=False, edgecolor=accent,
                            linewidth=1.4, zorder=7)
@@ -369,6 +376,168 @@ class GateCanvas(GraphCanvas):
         self._artists.append(patch)
         ax.annotate(gate.name, points[0], color=accent, fontsize=7,
                     xytext=(2, 2), textcoords="offset points", zorder=8)
+
+    def _gate_points(self, ax, gate: Gate) -> List[Tuple[float, float]]:
+        """The outline of ``gate`` as a closed run of points.
+
+        One geometry for the solid outline, the dashed ghost and the drag
+        preview, so a gate cannot be drawn one shape and committed as
+        another -- which is exactly what happened to the oval.
+
+        EllipseGate had NO branch here at all: an oval was previewed while
+        being dragged and then vanished the moment it became a gate. It is
+        approximated as a polygon rather than an `Ellipse` patch so the ghost
+        and the outline share this one path.
+        """
+        if isinstance(gate, RectGate):
+            x0, x1, y0, y1 = self._rect_bounds(ax, gate)
+            return [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
+        if isinstance(gate, PolygonGate):
+            return list(gate.vertices)
+        if isinstance(gate, EllipseGate):
+            angles = np.linspace(0.0, 2.0 * np.pi, 64, endpoint=False)
+            return [(gate.x_centre + gate.x_radius * float(np.cos(a)),
+                     gate.y_centre + gate.y_radius * float(np.sin(a)))
+                    for a in angles]
+        return []
+
+    def _view(self, ax) -> Tuple[float, float, float, float]:
+        """The visible limits, for placing handles on unbounded sides."""
+        x0, x1 = ax.get_xlim()
+        y0, y1 = ax.get_ylim()
+        return float(x0), float(x1), float(y0), float(y1)
+
+    def _handles_for(self, ax, gate: Gate) -> Tuple[Handle, ...]:
+        """``gate``'s anchor points, or none if it is not on these axes."""
+        if not self._gate_is_on_these_axes(gate):
+            return ()
+        try:
+            return gate.handles(self._view(ax))
+        except Exception:
+            LOG.debug("no handles for %s", gate.name, exc_info=True)
+            return ()
+
+    def _draw_handles(self, ax, gate: Gate, palette) -> None:
+        """Draw ``gate``'s anchors: squares for corners, circles for sides."""
+        handles = self._handles_for(ax, gate)
+        if not handles:
+            return
+        accent = palette["accent"]
+        for corner, marker in ((True, "s"), (False, "o")):
+            picked = [h for h in handles if h.corner is corner]
+            if not picked:
+                continue
+            self._artists.append(ax.plot(
+                [h.x for h in picked], [h.y for h in picked],
+                linestyle="none", marker=marker, markersize=5,
+                markerfacecolor=palette["bg"], markeredgecolor=accent,
+                markeredgewidth=1.2, zorder=9)[0])
+
+    def handle_at(self, event) -> Optional[Tuple[str, str]]:
+        """The anchor under the pointer as ``(gate name, role)``, or None.
+
+        Measured in pixels for the same reason polygon-closing is: a tolerance
+        in data units would be unusable on one axis whenever the two
+        measurements have different ranges, which is nearly always.
+
+        Only ENABLED gates are grabbable. A hidden gate is not on screen, and
+        an invisible anchor that catches the mouse is indistinguishable from
+        the plot being broken.
+        """
+        ax = getattr(event, "inaxes", None)
+        # Pixel coordinates, via getattr: a real matplotlib event always
+        # carries them, but a synthetic one raised from code (a test, a
+        # scripted gate) need not, and no anchor is grabbable without them.
+        ex, ey = getattr(event, "x", None), getattr(event, "y", None)
+        if ax is None or ex is None or ey is None:
+            return None
+        best: Optional[Tuple[str, str]] = None
+        best_distance = self.HANDLE_RADIUS_PX
+        for gate in self._gates.gates:
+            if not self.is_gate_enabled(gate.name):
+                continue
+            for handle in self._handles_for(ax, gate):
+                try:
+                    px, py = ax.transData.transform((handle.x, handle.y))
+                except Exception:
+                    continue
+                distance = ((px - ex) ** 2 + (py - ey) ** 2) ** 0.5
+                if distance <= best_distance:
+                    best_distance = distance
+                    best = (gate.name, handle.role)
+        return best
+
+    # -- the shape that follows the mouse ---------------------------------
+    def _clear_ghost(self) -> None:
+        for artist in self._ghost:
+            try:
+                artist.remove()
+            except Exception:
+                pass
+        self._ghost = []
+
+    def _show_ghost(self, gate: Optional[Gate]) -> None:
+        """Draw ``gate`` dashed, as the placeholder following the mouse.
+
+        The gate being dragged is "picked up": its prospective shape is drawn
+        dashed while the mouse moves and only becomes real on release. The
+        committed gate stays drawn underneath, so the user can see where it
+        was as well as where it is going.
+
+        Only the ghost's own artists are touched. Redrawing every gate on
+        every motion event would re-mask the whole table per gate per mouse
+        move, which is what made applying the move on release necessary in
+        the first place.
+        """
+        self._clear_ghost()
+        axes = self.panel_axes()
+        if gate is None or not axes:
+            self._canvas.draw_idle()
+            return
+        from matplotlib.patches import Polygon as MplPolygon
+        palette = active_palette()
+        for ax in axes.values():
+            if isinstance(gate, ThresholdGate):
+                for bound in (gate.low, gate.high):
+                    if bound is not None:
+                        self._ghost.append(ax.axvline(
+                            bound, color=palette["warning"], linewidth=1.4,
+                            linestyle=":", zorder=10))
+                continue
+            points = self._gate_points(ax, gate)
+            if not points:
+                continue
+            patch = MplPolygon(points, closed=True, fill=False,
+                               edgecolor=palette["warning"], linewidth=1.4,
+                               linestyle="--", zorder=10)
+            ax.add_patch(patch)
+            self._ghost.append(patch)
+        self._canvas.draw_idle()
+
+    def _dragged_to(self, event) -> Optional[Gate]:
+        """The gate as it would be if the mouse were released here.
+
+        One function for both gestures and for both the ghost and the commit,
+        so the dashed shape cannot promise something the release does not do.
+        """
+        if event.inaxes is None or event.xdata is None or event.ydata is None:
+            return None
+        x, y = float(event.xdata), float(event.ydata)
+        if self._resize is not None:
+            name, role = self._resize
+            try:
+                return self._gates.get(name).with_handle(role, x, y)
+            except Exception:
+                LOG.debug("cannot resize %s by %s", name, role, exc_info=True)
+                return None
+        name = self._move_name
+        start = self._move_from
+        if not name or start is None:
+            return None
+        try:
+            return self._gates.get(name).translated(x - start[0], y - start[1])
+        except Exception:
+            return None
 
     def _rect_bounds(self, ax, gate: RectGate) -> Tuple[float, float, float, float]:
         """A rectangle's corners, with an unbounded side taken to the axis."""
@@ -434,6 +603,15 @@ class GateCanvas(GraphCanvas):
         # vertices, and a vertex that happens to land inside an older gate
         # must not drag it.
         mid_polygon = self._tool == POLYGON and bool(self._pending)
+        if not mid_polygon:
+            # An anchor point is tested BEFORE the shape, because every anchor
+            # sits on or inside its own gate. Testing the shape first would
+            # mean a press on a corner moved the whole gate and resizing were
+            # unreachable.
+            grabbed = self.handle_at(event)
+            if grabbed is not None:
+                self._resize = grabbed
+                return
         if not mid_polygon and event.inaxes is not None \
                 and event.xdata is not None and event.ydata is not None:
             name = self.gate_at(float(event.xdata), float(event.ydata))
@@ -487,21 +665,37 @@ class GateCanvas(GraphCanvas):
         self.close_polygon()
 
     def _on_motion(self, event) -> None:
-        if getattr(self, "_move_name", None):
-            # The move is applied on RELEASE, not per motion event: a gate
-            # is re-evaluated against the whole table to redraw, and doing
-            # that on every mouse move makes a large frame unusable.
+        if self._resize is not None or getattr(self, "_move_name", None):
+            # The EDIT is applied on release -- a gate is re-masked against
+            # the whole table to redraw, and doing that per mouse move makes
+            # a large frame unusable. What follows the mouse is a dashed
+            # placeholder in the shape of the gate, which costs one polygon.
+            self._show_ghost(self._dragged_to(event))
             return
         if self._tool == POLYGON:
             return
         super()._on_motion(event)
 
     def _on_release(self, event) -> None:
+        if self._resize is not None:
+            name, _role = self._resize
+            edited = self._dragged_to(event)
+            self._resize = None
+            self._clear_ghost()
+            if edited is None:
+                # Released off the axes, or the pull would have collapsed the
+                # shape. The gate is redrawn as it was rather than left with
+                # a ghost hanging over it.
+                self.render_now()
+                return
+            self.gate_edited.emit(edited)
+            return
         name = getattr(self, "_move_name", None)
         if name:
             start = getattr(self, "_move_from", None)
             self._move_name = None
             self._move_from = None
+            self._clear_ghost()
             if (start is None or event.inaxes is None
                     or event.xdata is None or event.ydata is None):
                 return
@@ -565,6 +759,17 @@ class GateCanvas(GraphCanvas):
             return
         super()._update_drag_patch(patch, x0, y0, x1, y1)
 
+    # A drawn gate is TOP-LEVEL. It used to take its parent from the active
+    # gate, and drawing one selects it -- so the second gate nested inside the
+    # first, the third inside the second, and so on without anyone asking:
+    # "in the gate view it looks like the second gate is in the first and the
+    # thired gate is in the second". Worse, a nested gate is ANDed with its
+    # ancestors (`GateSet.mask` walks the path), so those gates were quietly
+    # not the shapes that were drawn.
+    #
+    # The hierarchy itself is kept -- it round-trips through save/load and
+    # clustering still uses it -- but nesting is now something a caller asks
+    # for, never a side effect of what happens to be selected.
     def gate_from_drag(self, x0: float, y0: float, x1: float, y1: float,
                        *, name: str = "(unnamed)") -> Optional[Gate]:
         """Build the armed tool's gate from a swept rectangle.
@@ -580,12 +785,11 @@ class GateCanvas(GraphCanvas):
             # Only the horizontal sweep is read: on a histogram the vertical
             # axis is a count, and gating on a count is not a thing anyone
             # means.
-            return ThresholdGate(name=name, parent=self._active,
-                                 column=column, low=x0, high=x1)
+            return ThresholdGate(name=name, column=column, low=x0, high=x1)
         if self._tool == RECTANGLE:
             if not (spec.x and spec.y):
                 return None
-            return RectGate(name=name, parent=self._active,
+            return RectGate(name=name,
                             x_column=spec.x, y_column=spec.y,
                             x_low=x0, x_high=x1, y_low=y0, y_high=y1)
         if self._tool == ELLIPSE:
@@ -596,8 +800,7 @@ class GateCanvas(GraphCanvas):
                 # which EllipseGate refuses. Nothing drawn is the right
                 # answer to nothing dragged.
                 return None
-            return EllipseGate.from_drag(name, spec.x, spec.y,
-                                         x0, y0, x1, y1, parent=self._active)
+            return EllipseGate.from_drag(name, spec.x, spec.y, x0, y0, x1, y1)
         return None
 
     def close_polygon(self, *, name: str = "(unnamed)") -> Optional[Gate]:
@@ -610,7 +813,7 @@ class GateCanvas(GraphCanvas):
         spec = self._spec
         if len(self._pending) < 3 or not (spec.x and spec.y):
             return None
-        gate = PolygonGate(name=name, parent=self._active,
+        gate = PolygonGate(name=name,
                            x_column=spec.x, y_column=spec.y,
                            vertices=tuple(self._pending))
         self._pending = []
