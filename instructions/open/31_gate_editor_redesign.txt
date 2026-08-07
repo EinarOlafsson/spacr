@@ -364,3 +364,33 @@ sets, and the 3D voxel workspace with axis-snapping spin.
 
 Still open after that: resize handles exist but gates have no rotate; console
 + AI chat; saveable filter sets; table merging; 3D workspace.
+
+--- 2026-08-07 (later still): filters export, settings tabs, wand (1b4019c1) ---
+
+DONE
+  * spacr/filters.py -- the `filters` table. Gate name -> column, 1/0.
+    Bootstrap per spec: tables present -> anchor (cell, else nucleus /
+    pathogen / cytoplasm / organelle) -> object numbers from EVERY object
+    table -> png_list paths. Qt-free, 37 tests.
+  * Export gates button. Applies each gate to the FULL table regardless of
+    sampling, reading only the columns the gate needs.
+  * Settings window, tabs General / 2D / 3D. Live-applied; only
+    sample_fraction and max_points trigger a re-read.
+  * Sampling (the lag fix). Systematic on the row id.
+  * Magic wand tool: click -> region grow (neighbour tolerance + max distance
+    from click) -> convex hull -> PolygonGate.
+
+TRAP, for anyone touching sampling: SQLite resolves `rowid` to a USER column
+called rowID when the table has one -- and every spaCR table does. 'A' % 5 is
+0, so the clause was true for every row and sampling silently did nothing.
+Use filters.rowid_expression() to pick an unshadowed alias. The unit tests
+missed it because the fixture had no rowID column; it has one now.
+
+NEXT: the 3D section / 3D gating. Settings for it already exist in the 3D tab
+(gate_mode, z_axis, voxel_bins, snap_to_axis, spin_speed) and are read by
+nothing yet.
+
+Still open: resolution modes (hexbin/histogram/density) and colour map are
+settings the canvas does not read yet -- the fields and the UI exist, the
+drawing does not. Clustering Walk likewise. Also: filter/search tabs, console
++ AI chat, saveable filter sets, table merging UI, 3D voxel workspace.
