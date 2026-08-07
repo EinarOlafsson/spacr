@@ -270,3 +270,62 @@ def test_a_release_outside_the_axes_cancels(canvas):
 
     assert seen == []
     assert canvas._move_name is None, "the drag state must always be cleared"
+
+
+# ---------------------------------------------------------------------------
+# The left panel
+# ---------------------------------------------------------------------------
+
+def test_filter_and_columns_are_one_section_not_two_tabs(qtbot):
+    """They were separate tabs in a QTabWidget capped at 340px, and a panel
+    needing more than that had nowhere to put it -- which is what read as
+    elements overlapping. They are also the same job: both narrow what the
+    scatter shows, so hiding one behind the other meant neither could be
+    checked while using the other."""
+    pytest.importorskip("PySide6")
+    from PySide6.QtWidgets import QLabel, QScrollArea, QTabWidget
+
+    from spacr.qt.screens.gate_editor import GateEditorScreen
+
+    screen = GateEditorScreen()
+    qtbot.addWidget(screen)
+
+    assert screen.findChildren(QTabWidget) == [], (
+        "the side panel is still tabbed")
+    headings = sorted(label.text() for label in screen.findChildren(QLabel)
+                      if label.objectName() == "SectionHeading")
+    assert headings == ["Columns", "Filter"]
+    assert screen.findChildren(QScrollArea), (
+        "the content is unbounded and the panel is not, so something has to "
+        "scroll or something has to clip")
+
+
+def test_the_side_panel_width_is_the_splitters_to_decide(qtbot):
+    """A hard maximum is what made the cap unescapable: the user could not
+    widen the column even when the content plainly needed it."""
+    pytest.importorskip("PySide6")
+    from PySide6.QtWidgets import QScrollArea
+
+    from spacr.qt.screens.gate_editor import GateEditorScreen
+
+    screen = GateEditorScreen()
+    qtbot.addWidget(screen)
+    area = screen.findChildren(QScrollArea)[0]
+    # Qt's "no maximum" sentinel. Anything smaller is a cap.
+    assert area.maximumWidth() == 16777215
+    assert area.minimumWidth() > 0, "it still needs a floor to be usable"
+
+
+def test_the_side_panel_does_not_paint_the_window_colour(qtbot):
+    """A QScrollArea's viewport auto-fills with `bg`, which is #000000 on
+    dark -- a black slab beside the plot (INVARIANTS 2/3)."""
+    pytest.importorskip("PySide6")
+    from PySide6.QtWidgets import QScrollArea
+
+    from spacr.qt import theme
+    from spacr.qt.screens.gate_editor import GateEditorScreen
+
+    screen = GateEditorScreen()
+    qtbot.addWidget(screen)
+    area = screen.findChildren(QScrollArea)[0]
+    assert area.property(theme.TRANSPARENT_PROPERTY) is True
