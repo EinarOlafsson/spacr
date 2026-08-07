@@ -617,3 +617,48 @@ def test_an_ordinary_chart_still_previews_a_rectangle(qtbot):
     canvas = GraphCanvas()
     qtbot.addWidget(canvas)
     assert isinstance(canvas._make_drag_patch(0.0, 0.0), Rectangle)
+
+
+def test_closing_a_polygon_emits_exactly_one_gate(canvas):
+    """"i get prompted for the name, then it zooms, then i get prompted again
+    and always have to generate 2 identical gates."
+
+    `close_polygon` already emits `gate_drawn`; the click-the-first-vertex
+    wrapper emitted it a second time. One drawn polygon then prompted twice
+    and produced two identical gates -- the second prompt arriving after the
+    first gate had already been added and published, which is the "then it
+    zooms" in between.
+    """
+    from spacr.qt.widgets.gate_editor import POLYGON
+    from spacr.qt.widgets.graph_spec import GraphSpec
+
+    canvas._spec = GraphSpec(x="x_measure", y="y_measure")
+    canvas.set_tool(POLYGON)
+
+    seen = []
+    canvas.gate_drawn.connect(seen.append)
+
+    canvas._pending = [(0.0, 0.0), (5.0, 0.0), (5.0, 5.0)]
+    canvas.close_polygon_now()
+
+    assert len(seen) == 1, f"{len(seen)} gates emitted for one polygon"
+
+
+def test_the_close_button_and_the_first_vertex_agree(canvas):
+    """Two routes to the same act. Either emitting a different number of
+    gates than the other is the bug above wearing the other hat."""
+    from spacr.qt.widgets.gate_editor import POLYGON
+    from spacr.qt.widgets.graph_spec import GraphSpec
+
+    canvas._spec = GraphSpec(x="x_measure", y="y_measure")
+    canvas.set_tool(POLYGON)
+
+    counts = []
+    for close in (canvas.close_polygon, canvas.close_polygon_now):
+        seen = []
+        handle = canvas.gate_drawn.connect(seen.append)
+        canvas._pending = [(0.0, 0.0), (5.0, 0.0), (5.0, 5.0)]
+        close()
+        canvas.gate_drawn.disconnect(handle)
+        counts.append(len(seen))
+    assert counts == [1, 1], counts
