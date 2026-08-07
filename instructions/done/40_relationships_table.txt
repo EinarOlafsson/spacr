@@ -93,3 +93,13 @@ HOW TO KNOW IT WORKED
   * A filter exported from a gate drawn on nucleus measurements can be merged
     onto the cell table through the relationships, without the caller doing
     its own join.
+
+--- 2026-08-07: COMPLETE (f1719e46) ---
+spacr.filters.build_relationships_frame / ensure_relationships_table /
+write_relationships. `filters` is a COPY of it. Built on demand when the mask
+step never wrote it.
+
+NOT DONE, and deliberately out of scope here: calling write_relationships FROM
+the mask module. The entry point exists and is tested; hooking it into the
+mask pipeline is a one-line change in that module, best made by whoever is
+next editing it.

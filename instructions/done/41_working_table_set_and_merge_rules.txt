@@ -136,3 +136,9 @@ so overrides are reachable from code and not from the GUI.
 The parent link used is `cell_id` on the child, matching io._read_and_join_tables.
 That is the same link instruction 40's relationships table should persist; when
 40 lands, merge_tables should read it instead of re-deriving the link.
+
+--- 2026-08-07: COMPLETE ---
+Item 7 landed last: spacr/qt/widgets/aggregation_rules.py shows the rule for
+every measurement and lets any of them be overridden, and the primary object
+is a setting. Only CHANGED rows become overrides, so a later improvement to
+the rules still reaches a user who has opened the window.
