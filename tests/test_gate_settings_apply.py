@@ -203,3 +203,123 @@ def test_clustering_sees_the_axes_that_are_chosen(canvas, qtbot, monkeypatch):
     panel._on_cluster()
     assert not any("needs an X and a Y" in str(m) for m in complained), (
         f"clustering refused axes that are set: {complained}")
+
+
+# --- the follow-up round -------------------------------------------------
+
+def test_the_colour_map_still_applies_past_the_large_data_threshold(qtbot):
+    """"viridis does work but not when there are more than 50000 data points."
+
+    Past its threshold the base canvas rasterises and never calls the points
+    path, where every per-point setting lives.
+    """
+    from spacr.qt.widgets.gate_editor import GateCanvas
+    from spacr.qt.widgets.graph_builder import GraphSpec
+
+    rng = np.random.default_rng(0)
+    widget = GateCanvas()
+    qtbot.addWidget(widget)
+    widget.set_frame(pd.DataFrame({"a": rng.uniform(1, 100, 60_000),
+                                   "b": rng.uniform(1, 100, 60_000)}))
+    widget.set_spec(GraphSpec(x="a", y="b"))
+    widget.apply_settings(GateEditorSettings().replaced(colour_map="magma"))
+
+    ax = list(widget.panel_axes().values())[0]
+    maps = [a.get_cmap().name for a in list(ax.collections) + list(ax.images)
+            if a.get_cmap() is not None]
+    assert "magma" in maps, f"the raster ignored the colour map: {maps}"
+
+
+@pytest.mark.parametrize("mode", ["hexbin", "histogram", "density"])
+def test_the_binned_modes_work_on_a_large_table_too(qtbot, mode):
+    from spacr.qt.widgets.gate_editor import GateCanvas
+    from spacr.qt.widgets.graph_builder import GraphSpec
+
+    rng = np.random.default_rng(1)
+    widget = GateCanvas()
+    qtbot.addWidget(widget)
+    widget.set_frame(pd.DataFrame({"a": rng.uniform(1, 100, 60_000),
+                                   "b": rng.uniform(1, 100, 60_000)}))
+    widget.set_spec(GraphSpec(x="a", y="b"))
+    widget.apply_settings(GateEditorSettings().replaced(resolution_mode=mode))
+    ax = list(widget.panel_axes().values())[0]
+    assert ax.collections or ax.images, f"{mode} drew nothing at 60k rows"
+
+
+def test_log_x_applies_the_same_as_log_y(canvas):
+    """"logy works logx does not."
+
+    The limits are padded outward, so a measurement starting at 1 got a lower
+    limit near -4 and looked non-positive. The decision comes from the DATA.
+    """
+    canvas.apply_settings(GateEditorSettings().replaced(x_scale="log"))
+    assert list(canvas.panel_axes().values())[0].get_xscale() == "log"
+
+    canvas.apply_settings(GateEditorSettings().replaced(y_scale="log"))
+    assert list(canvas.panel_axes().values())[0].get_yscale() == "log"
+
+
+def test_a_saved_settings_set_using_the_old_log_flags_still_applies(canvas):
+    canvas.apply_settings(GateEditorSettings().replaced(log_x=True))
+    assert list(canvas.panel_axes().values())[0].get_xscale() == "log"
+
+
+def test_an_explicit_scale_beats_a_stale_log_flag():
+    """Someone who chose a scale has said what they mean."""
+    settings = GateEditorSettings().replaced(log_x=True, x_scale="symlog")
+    assert settings.scale_for("x") == "symlog"
+
+
+def test_colour_by_a_column_beats_density(canvas):
+    frame = canvas._frame.copy()
+    frame["count"] = np.arange(len(frame), dtype=float)
+    canvas.set_frame(frame)
+    canvas.apply_settings(GateEditorSettings().replaced(colour_by="count"))
+    arrays = [c.get_array() for c in list(canvas.panel_axes().values())[0]
+              .collections if c.get_array() is not None]
+    assert arrays and np.allclose(np.sort(arrays[0]), np.sort(frame["count"]))
+
+
+def test_colour_by_flat_is_one_colour(canvas):
+    canvas.apply_settings(GateEditorSettings().replaced(colour_by="flat"))
+    scatter = list(canvas.panel_axes().values())[0].collections[0]
+    assert scatter.get_array() is None
+
+
+def test_colour_by_a_missing_column_falls_back_rather_than_failing(canvas):
+    canvas.apply_settings(GateEditorSettings().replaced(colour_by="ghost"))
+    assert list(canvas.panel_axes().values())[0].collections
+
+
+def test_the_wheel_zooms_about_the_pointer(canvas):
+    """Toward what you are looking at -- centre-zoom means chasing a feature
+    back into view after every notch."""
+    ax = _axes(canvas)
+    before = ax.get_xlim()
+    anchor = before[0] + (before[1] - before[0]) * 0.25
+
+    class _Scroll:
+        inaxes = ax
+        xdata = anchor
+        ydata = sum(ax.get_ylim()) / 2
+        step = 1
+        button = "up"
+
+    canvas._on_scroll(_Scroll())
+    after = _axes(canvas).get_xlim()
+    assert (after[1] - after[0]) < (before[1] - before[0]), "the wheel did not zoom in"
+    assert abs(after[0] - anchor) < abs(before[0] - anchor), (
+        "it zoomed about the centre, not the pointer")
+
+
+def test_the_mode_buttons_are_wide_enough_for_their_text(qtbot):
+    """"the 2D, 3D and xD text is cutt of on the sides"."""
+    from spacr.qt.widgets.gate_editor import GateEditorPanel
+
+    panel = GateEditorPanel()
+    qtbot.addWidget(panel)
+    for mode, button in panel._mode_buttons.items():
+        needed = button.fontMetrics().horizontalAdvance(mode)
+        assert button.minimumWidth() > needed, (
+            f"{mode} has {button.minimumWidth()}px for {needed}px of text")
+        assert button.minimumHeight() > button.fontMetrics().height()

@@ -171,14 +171,17 @@ def test_only_the_settings_that_cost_a_read_ask_for_one():
     assert not base.costs_a_reload(base.replaced(wand_tolerance=0.2))
 
 
-def test_the_defaults_are_a_full_unsampled_table():
-    """Anything else would mean the module silently showed a fraction of the
-    data to a user who never asked for sampling."""
+def test_the_default_reads_every_row_but_draws_at_most_ten_thousand():
+    """No SAMPLING by default -- a fraction of the data shown to a user who
+    never asked for one is a lie about the plot. A row CAP is different: past
+    ten thousand a scatter draws more markers than the screen has pixels, and
+    the large-data raster takes the per-point settings with it.
+    """
     from spacr.qt.widgets.gate_settings import GateEditorSettings
 
     settings = GateEditorSettings()
     assert settings.sample_fraction == 1.0
-    assert settings.max_points == 0
+    assert settings.max_points == 10_000
 
 
 def test_editing_the_dialog_emits_the_whole_settings_object(qtbot):

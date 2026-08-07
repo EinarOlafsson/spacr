@@ -45,6 +45,14 @@ COLOUR_MAPS: Tuple[str, ...] = (
     "Greys", "Blues", "Reds", "coolwarm", "RdBu_r",
 )
 
+#: Ways to colour the points. A column name may be used instead.
+COLOUR_BY: Tuple[str, ...] = ("density", "flat")
+
+#: Axis scales offered. All are matplotlib SCALES, which change how values are
+#: laid out and never what they are -- so a gate drawn before the change still
+#: selects the same objects after it.
+AXIS_SCALES: Tuple[str, ...] = ("linear", "log", "symlog", "logit")
+
 #: How the cloud is drawn once there are more points than pixels.
 RESOLUTION_MODES: Tuple[str, ...] = ("points", "hexbin", "histogram", "density")
 
@@ -76,9 +84,22 @@ class GateEditorSettings:
     #: Fraction of the table loaded, in (0, 1]. The lag fix: gates are drawn
     #: on this, and applied to everything on export.
     sample_fraction: float = 1.0
-    #: Hard row cap after sampling. 0 means none.
-    max_points: int = 0
+    #: Hard row cap after sampling. 0 means none. Ten thousand by default:
+    #: past that a scatter is drawing more markers than the screen has pixels,
+    #: and the large-data raster kicks in and takes the per-point settings
+    #: with it.
+    max_points: int = 10_000
     colour_map: str = "viridis"
+    #: What the colour map is applied TO. "density" is the default because a
+    #: cytometry scatter has no colour axis and the overlap is the reading.
+    #: Any column name is also valid.
+    colour_by: str = "density"
+    #: Axis scales. These are DISPLAY transforms -- matplotlib scales -- so a
+    #: gate's coordinates keep meaning the measurement they were drawn on. A
+    #: transform that rewrote the values would silently invalidate every gate
+    #: already drawn, which is why z-score and min-max are not offered here.
+    x_scale: str = "linear"
+    y_scale: str = "linear"
     point_size: float = 6.0
     point_opacity: float = 0.6
     #: How the cloud is rendered. "points" is one marker per object; the rest
@@ -89,8 +110,18 @@ class GateEditorSettings:
     #: what makes the same setting mean the same thing at any zoom.
     bins: int = 200
     show_grid: bool = False
+    #: Kept so a saved settings set from before x_scale/y_scale still asks
+    #: for a log axis. `x_scale` wins when both are set: someone who chose a
+    #: scale has said what they mean.
     log_x: bool = False
     log_y: bool = False
+
+    def scale_for(self, axis: str) -> str:
+        """The scale for "x" or "y", honouring the retired log flags."""
+        chosen = getattr(self, f"{axis}_scale", "linear")
+        if chosen != "linear":
+            return chosen
+        return "log" if getattr(self, f"log_{axis}", False) else "linear"
 
     # -- 2D ---------------------------------------------------------------
     default_tool: str = "rectangle"
@@ -257,20 +288,41 @@ class GateSettingsDialog(QDialog):
             lambda v: self._change(point_opacity=float(v)))
         form.addRow("Point opacity", self._opacity)
 
+        self._colour_by = QComboBox(page)
+        self._colour_by.setEditable(True)
+        self._colour_by.addItems(COLOUR_BY)
+        self._colour_by.setCurrentText(self._settings.colour_by)
+        self._colour_by.setToolTip(
+            "What the colour map is applied to. 'density' colours each point "
+            "by how crowded it is, which is the reading a scatter of a "
+            "million objects actually carries; 'flat' is one colour. Any "
+            "column name also works.")
+        self._colour_by.currentTextChanged.connect(
+            lambda v: self._change(colour_by=v))
+        form.addRow("Colour by", self._colour_by)
+
+        for label, field, current in (("X scale", "x_scale",
+                                       self._settings.x_scale),
+                                      ("Y scale", "y_scale",
+                                       self._settings.y_scale)):
+            box = QComboBox(page)
+            box.addItems(AXIS_SCALES)
+            box.setCurrentText(current)
+            box.setToolTip(
+                "How the axis is laid out. These change the spacing, never "
+                "the values, so a gate drawn before the change still selects "
+                "the same objects. 'log' is skipped on a measurement that "
+                "reaches zero, where it would draw nothing at all.")
+            box.currentTextChanged.connect(
+                lambda v, f=field: self._change(**{f: v}))
+            setattr(self, f"_{field}", box)
+            form.addRow(label, box)
+
         self._grid = QCheckBox("Show grid", page)
         self._grid.setChecked(self._settings.show_grid)
         self._grid.toggled.connect(lambda v: self._change(show_grid=bool(v)))
         form.addRow("", self._grid)
 
-        self._log_x = QCheckBox("Log X", page)
-        self._log_x.setChecked(self._settings.log_x)
-        self._log_x.toggled.connect(lambda v: self._change(log_x=bool(v)))
-        form.addRow("", self._log_x)
-
-        self._log_y = QCheckBox("Log Y", page)
-        self._log_y.setChecked(self._settings.log_y)
-        self._log_y.toggled.connect(lambda v: self._change(log_y=bool(v)))
-        form.addRow("", self._log_y)
         return page
 
     def _two_d_tab(self) -> QWidget:

@@ -139,6 +139,19 @@ class GateEditorScreen(QWidget):
             "threshold gate is drawn on.")
         self._y.currentTextChanged.connect(self._on_axes_changed)
         axes.addWidget(self._y, 1)
+        # Z, shown only in 3D/xD. Hidden rather than absent in 2D: the third
+        # measurement is remembered while the user works in 2D, so switching
+        # back does not lose it.
+        self._z_label = QLabel("Z", self)
+        axes.addWidget(self._z_label)
+        self._z = QComboBox(self)
+        self._z.setObjectName("GateZPicker")
+        self._z.setToolTip(
+            "The third measurement. Gates in 3D are drawn against it; in 2D "
+            "it is remembered but not used.")
+        self._z.currentTextChanged.connect(self._on_z_changed)
+        axes.addWidget(self._z, 1)
+        self._set_z_visible(False)
         axes.addStretch(2)
         outer.addLayout(axes)
 
@@ -224,6 +237,13 @@ class GateEditorScreen(QWidget):
 
     def _refill_axis_pickers(self, frame: pd.DataFrame) -> None:
         columns = list(plottable_columns(frame))
+        current_z = self._z.currentText()
+        self._z.blockSignals(True)
+        self._z.clear()
+        self._z.addItems([""] + columns)
+        if current_z in columns:
+            self._z.setCurrentText(current_z)
+        self._z.blockSignals(False)
         for box, allow_blank in ((self._x, False), (self._y, True)):
             previous = box.currentText()
             box.blockSignals(True)
@@ -350,6 +370,13 @@ class GateEditorScreen(QWidget):
         self._settings_dialog.show()
         self._settings_dialog.raise_()
 
+    def _set_z_visible(self, visible: bool) -> None:
+        self._z_label.setVisible(visible)
+        self._z.setVisible(visible)
+
+    def _on_z_changed(self, column: str) -> None:
+        self._settings = self._settings.replaced(z_axis=column or "")
+
     def _on_mode_requested(self, mode: str) -> None:
         """2D / 3D / xD, from the buttons beside Cluster.
 
@@ -358,6 +385,7 @@ class GateEditorScreen(QWidget):
         mode the editor is in.
         """
         self.apply_settings(self._settings.replaced(gate_mode=mode))
+        self._set_z_visible(mode in ("3D", "xD"))
         if self._settings_dialog is not None:
             self._settings_dialog.set_mode(mode)
 
