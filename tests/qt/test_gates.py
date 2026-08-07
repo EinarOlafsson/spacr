@@ -490,8 +490,11 @@ def test_the_next_gate_is_drawn_inside_the_selected_one(panel, hand):
         panel.canvas.gate_from_drag(20.0, 0.0, 40.0, 1.0))
     panel.tree.select("singlets")
     assert panel.canvas.active_gate == "singlets"
-    # The plot now shows the parent's population, not the whole table.
-    assert len(panel.canvas.population()) == 7
+    # The plot still shows the WHOLE table. Selecting a gate used to replot
+    # its population, which is the zoom the user rejected; parentage is all
+    # that survives of it, and parentage is what the rest of this test is
+    # about. The gate's own objects are marked, not isolated.
+    assert len(panel.canvas.population()) == 10
     panel.set_namer(lambda: "bright")
     panel.canvas.set_tool(RECTANGLE)
     panel.canvas.gate_drawn.emit(
@@ -563,11 +566,31 @@ def test_deleting_from_the_tree_removes_the_children_too(panel, strategy):
     assert panel.gates.is_empty
 
 
-def test_the_status_says_which_population_is_on_screen(panel, strategy):
+def test_the_status_says_what_is_on_screen_and_what_is_shown(panel, strategy):
+    """The whole table, always, plus how many gates are drawn on it.
+
+    This used to assert "inside singlets · 7 objects", which was true back
+    when selecting a gate replotted only that gate's population. That is the
+    zoom the user rejected -- "never zoom into the gated data" -- so the
+    status has to stop claiming it. Selecting a gate now says only what it
+    still does: parent the next gate drawn.
+    """
     panel.set_gates(strategy)
-    assert "the whole table · 10 objects" in panel.status()
+    assert "10 objects" in panel.status()
+    assert "2 of 2 gate(s) shown" in panel.status()
+
     panel.tree.select("singlets")
-    assert "inside singlets · 7 objects" in panel.status()
+    assert "10 objects" in panel.status(), "selecting a gate shrank the plot"
+    assert "next gate inside singlets" in panel.status()
+
+
+def test_hiding_a_gate_is_counted_and_is_not_a_delete(panel, strategy):
+    panel.set_gates(strategy)
+    panel.canvas.set_gate_enabled("bright", False)
+    panel._refresh_status()
+    assert "1 of 2 gate(s) shown" in panel.status()
+    assert "bright" in panel.gates, "hiding a gate deleted it"
+    assert "10 objects" in panel.status(), "hiding a gate removed its rows"
 
 
 def test_an_unknown_tool_is_refused(panel):

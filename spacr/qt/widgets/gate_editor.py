@@ -161,6 +161,9 @@ class GateCanvas(GraphCanvas):
         self._gates = GateSet()
         self._active: Optional[str] = None
         self._artists: List[object] = []
+        #: Gates the user has toggled OFF. Names, not gates, so a gate that
+        #: is edited in place keeps its toggle.
+        self._disabled: set = set()
 
     # -- the tool ---------------------------------------------------------
     @property
@@ -202,17 +205,54 @@ class GateCanvas(GraphCanvas):
         return self._active
 
     def population(self) -> Optional[pd.DataFrame]:
-        """The rows on screen: the active gate's population, or the table."""
+        """The rows on screen -- the whole table.
+
+        This used to return the ACTIVE GATE'S population, and `render_now`
+        plots whatever this returns, so selecting or drawing a gate replotted
+        only the objects inside it. That is textbook hierarchical gating, and
+        it is not what was asked for: "draw a gate on the graph ... but never
+        zoom into the gated data ... be able to select this gate in the gate
+        panel and toggle it on and off."
+
+        It is also the whole of the stuck state -- "the only way to get back
+        to the main figure is to delete a gate" -- because clearing the active
+        name was the only thing that ever restored the full view, and deleting
+        was the only thing that cleared it.
+
+        Gates are overlays now: outlined on the full plot, highlighting their
+        own objects. `_active` survives only as the PARENT of the next gate
+        drawn, which is a statement about the hierarchy, not about the view.
+        """
         if self._frame is None:
             return None
         base, _note = self._apply_filter(self._frame)
-        if not self._active:
-            return base
-        try:
-            return self._gates.population(base, self._active)
-        except GateError as exc:
-            LOG.info("the active gate does not apply here: %s", exc)
-            return base
+        return base
+
+    # -- which gates are showing -----------------------------------------
+    def is_gate_enabled(self, name: str) -> bool:
+        """Whether ``name`` is drawn. Unknown gates are on: a gate that has
+        never been toggled has never been turned off."""
+        return name not in self._disabled
+
+    def set_gate_enabled(self, name: str, on: bool) -> None:
+        """Turn a gate's outline and highlight on or off.
+
+        Off means NOT DRAWN, never deleted and never removed from the set:
+        the gate keeps its shape, its parent and its children, and comes back
+        exactly as it was. Its rows stay on the plot either way -- toggling
+        changes what is marked, not what exists.
+        """
+        if on:
+            self._disabled.discard(name)
+        else:
+            self._disabled.add(name)
+        self.render_now()
+
+    @property
+    def enabled_gates(self) -> Tuple[str, ...]:
+        """The names currently drawn, in definition order."""
+        return tuple(g.name for g in self._gates.gates
+                     if self.is_gate_enabled(g.name))
 
     # -- rendering --------------------------------------------------------
     def render_now(self) -> None:
@@ -231,14 +271,49 @@ class GateCanvas(GraphCanvas):
         if not axes:
             return
         palette = active_palette()
+        frame = self.population()
         for ax in axes.values():
             for gate in self._gates.gates:
                 if not self._gate_is_on_these_axes(gate):
                     continue
+                if not self.is_gate_enabled(gate.name):
+                    continue
+                self._highlight(ax, gate, frame, palette)
                 self._outline(ax, gate, palette)
             if self._pending:
                 self._outline_pending(ax, palette)
         self._canvas.draw_idle()
+
+    def _highlight(self, ax, gate: Gate, frame, palette) -> None:
+        """Mark the objects inside ``gate``, leaving every other point alone.
+
+        This is what replaced replotting the gate's population: "i want it to
+        highlight the datapoints in the gate and show the gate but also show
+        the rest of the graph." The mask comes from the GateSet, so a child
+        gate marks its own population and not its parent's.
+
+        Failure here is silent and total -- a gate whose columns are missing
+        from this table simply is not highlighted. The outline still draws, so
+        the user sees the gate; a traceback out of a paint path would take the
+        whole plot with it, and the highlight is decoration (INVARIANTS 10).
+        """
+        spec = self._spec
+        if frame is None or frame.empty or not (spec.x and spec.y):
+            return
+        if spec.x not in frame.columns or spec.y not in frame.columns:
+            return
+        try:
+            inside = self._gates.mask(frame, gate.name)
+        except Exception:
+            LOG.debug("cannot highlight %s here", gate.name, exc_info=True)
+            return
+        if inside is None or not bool(inside.any()):
+            return
+        marked = frame.loc[inside]
+        self._artists.append(
+            ax.scatter(marked[spec.x], marked[spec.y], s=14,
+                       facecolor="none", edgecolor=palette["accent"],
+                       linewidths=0.7, zorder=6))
 
     def _gate_is_on_these_axes(self, gate: Gate) -> bool:
         """Whether ``gate`` belongs to the measurements currently plotted.
@@ -557,6 +632,8 @@ class GateTree(QWidget):
     active_changed = Signal(str)
     #: A gate was deleted.
     gates_changed = Signal()
+    #: A gate was ticked or unticked — carries the name and whether it is on.
+    enabled_changed = Signal(str, bool)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -574,9 +651,19 @@ class GateTree(QWidget):
         self.tree.setHeaderLabels(["Gate", "n", "% parent", "% all"])
         self.tree.header().setSectionResizeMode(0, QHeaderView.Stretch)
         self.tree.setToolTip(
-            "The gating hierarchy. Select a gate to draw the next one inside "
-            "it; the plot then shows that gate's population.")
+            "The gates you have drawn. Tick one to show it on the plot and "
+            "highlight its objects, untick it to hide it. Selecting a gate "
+            "sets the axes to its measurements and makes the next gate you "
+            "draw a child of it — it never changes what the plot shows.")
         self.tree.currentItemChanged.connect(self._on_selection)
+        self.tree.itemChanged.connect(self._on_item_changed)
+        #: Gates the user has unticked. The tree owns this because the tick
+        #: is in the tree; the canvas is told, and does not have to be asked.
+        self._disabled: set = set()
+        #: Set while `refresh` is rebuilding, because setting a check state
+        #: fires `itemChanged` and a rebuild would otherwise report every
+        #: gate as freshly toggled by the user.
+        self._rebuilding = False
         # `GateEditorPanel` is transparent scaffolding by design (see
         # the GraphBuilder block), so the hierarchy has nothing behind
         # it and is the page itself.
@@ -602,6 +689,13 @@ class GateTree(QWidget):
     def refresh(self) -> None:
         """Rebuild the tree and recompute every count."""
         current = self.active_gate()
+        self._rebuilding = True
+        try:
+            self._rebuild(current)
+        finally:
+            self._rebuilding = False
+
+    def _rebuild(self, current: str) -> None:
         self.tree.clear()
         if self._frame is None:
             return
@@ -620,6 +714,8 @@ class GateTree(QWidget):
                           f"{100.0 * stat.of_total:.1f}%"]
             item = QTreeWidgetItem(labels)
             item.setData(0, Qt.UserRole, gate.name)
+            item.setCheckState(0, Qt.Unchecked if gate.name in self._disabled
+                               else Qt.Checked)
             item.setToolTip(0, gate.describe())
             parent_item = items.get(gate.parent) if gate.parent else None
             if parent_item is None:
@@ -630,6 +726,24 @@ class GateTree(QWidget):
         self.tree.expandAll()
         if current in items:
             self.tree.setCurrentItem(items[current])
+
+    def _on_item_changed(self, item: QTreeWidgetItem, column: int) -> None:
+        """A tick changed — unless the tree is rebuilding itself."""
+        if self._rebuilding or column != 0 or item is None:
+            return
+        name = item.data(0, Qt.UserRole)
+        if not name:
+            return
+        on = item.checkState(0) == Qt.Checked
+        if on:
+            self._disabled.discard(name)
+        else:
+            self._disabled.add(name)
+        self.enabled_changed.emit(name, on)
+
+    def is_enabled(self, name: str) -> bool:
+        """Whether ``name`` is ticked. Unknown gates are on."""
+        return name not in self._disabled
 
     def active_gate(self) -> str:
         item = self.tree.currentItem()
@@ -813,6 +927,7 @@ class GateEditorPanel(QWidget):
         self.tree.setMinimumWidth(220)
         self.tree.active_changed.connect(self._on_active_changed)
         self.tree.gates_changed.connect(self._on_tree_changed)
+        self.tree.enabled_changed.connect(self.canvas.set_gate_enabled)
         self.body.addWidget(self.tree)
 
         # The scatter takes the slack when the panel is resized; the gate
@@ -1064,13 +1179,20 @@ class GateEditorPanel(QWidget):
         if self._frame is None:
             self._status.setText("no table loaded")
             return
+        # It used to say "drawing on inside <gate>", which was true when
+        # selecting a gate replotted its population. The plot always shows
+        # the whole table now, so saying otherwise would be a lie about the
+        # thing the user is looking at.
         active = self.tree.active_gate()
         population = self.canvas.population()
         n = 0 if population is None else len(population)
-        where = f"inside {active}" if active else "the whole table"
-        self._status.setText(
-            f"drawing on {where} · {n:,} objects"
-            + (f" · {len(self._gates)} gate(s)" if len(self._gates) else ""))
+        parts = [f"{n:,} objects"]
+        if len(self._gates):
+            showing = len(self.canvas.enabled_gates)
+            parts.append(f"{showing} of {len(self._gates)} gate(s) shown")
+        if active:
+            parts.append(f"next gate inside {active}")
+        self._status.setText(" · ".join(parts))
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
         self.canvas.close()
