@@ -322,7 +322,7 @@ class ReductionError(ValueError):
 
 def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
                       method: str = "pca", components: int = 2,
-                      scale: bool = True,
+                      scale: bool = True, min_coverage: float = 0.5,
                       seed: int = 0) -> pd.DataFrame:
     """Reduce many measurements to a few, for gating in xD.
 
@@ -336,6 +336,10 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
     :param method: ``pca`` always available; umap and t-SNE if installed.
     :param scale: standardise first. Without it a measurement whose numbers
         are larger dominates every component regardless of what it means.
+    :param min_coverage: a column with fewer than this fraction of real values
+        is left out. What remains is median-filled rather than row-dropped --
+        see the comment in the body, which is the difference between xD
+        working on a real table and returning nothing at all.
     :returns: a frame of components, indexed like ``frame``.
     :raises ReductionError: too few columns, too few rows, nothing numeric, or
         a method whose package is not installed.
@@ -349,11 +353,42 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
             "reducing needs at least two measurements; pick more columns")
 
     data = frame[chosen].apply(pd.to_numeric, errors="coerce")
-    usable = data.dropna()
+
+    # DROPPING every row with any missing value does not work on a real
+    # measurement table. With 60 columns at 2% missing each, two rows in three
+    # are lost; with the several hundred columns spaCR actually writes, none
+    # survive -- which is why xD looked like it had never been implemented.
+    #
+    # So: drop the columns that are mostly empty, then fill what is left with
+    # the column median. A median fill moves an object to the middle of an
+    # axis it had no value on, which is the least it can be moved; discarding
+    # the object instead loses every measurement it DID have.
+    coverage = data.notna().mean()
+    keep = [c for c in chosen if coverage.get(c, 0.0) >= min_coverage]
+    dropped = [c for c in chosen if c not in keep]
+    if dropped:
+        LOG.info("%d column(s) are under %.0f%% complete and were left out of "
+                 "the projection: %s", len(dropped), min_coverage * 100,
+                 ", ".join(dropped[:6]) + ("…" if len(dropped) > 6 else ""))
+    if len(keep) < 2:
+        raise ReductionError(
+            f"only {len(keep)} of {len(chosen)} measurement(s) are at least "
+            f"{min_coverage:.0%} complete, and a projection needs two; lower "
+            f"the coverage requirement or pick fuller columns")
+
+    data = data[keep]
+    usable = data.fillna(data.median(numeric_only=True))
+    # A column that is entirely NaN has no median; it cannot contribute.
+    usable = usable.dropna(axis=1, how="any")
+    if usable.shape[1] < 2:
+        raise ReductionError(
+            "no two measurements have enough values in common to project")
+    usable = usable.loc[data.notna().any(axis=1)]
     if len(usable) < 3:
         raise ReductionError(
-            f"only {len(usable)} object(s) have all of {', '.join(chosen)}; "
+            f"only {len(usable)} object(s) have any of these measurements; "
             f"there is nothing to project")
+    chosen = list(usable.columns)
 
     components = max(2, min(int(components), len(chosen), len(usable)))
     values = usable.to_numpy(dtype=float)

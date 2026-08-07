@@ -260,3 +260,148 @@ def test_xd_with_nothing_to_project_says_so(screen):
     screen.set_frame(pd.DataFrame({"a": [1.0, 2.0, 3.0]}))
     message = screen.reduce_to_components()
     assert message and "two" in message
+
+
+# --- the follow-up round -------------------------------------------------
+
+def test_a_settings_reload_keeps_the_merged_tables(screen, db):
+    """Sampling re-reads the table. Before this it re-read only the FIRST
+    one, so every settings change silently unmerged the working set."""
+    screen.load_path(db, "cell")
+    screen._table_picker.setCurrentText("pathogen")
+    screen._on_table_added(0)
+
+    screen.apply_settings(screen.settings().replaced(sample_fraction=0.5))
+
+    assert screen._tables == ["cell", "pathogen"]
+    assert "pathogen_area" in screen.gates._frame.columns
+
+
+def test_reset_view_undoes_a_zoom(screen):
+    _three_columns(screen)
+    canvas = screen.gates.canvas
+    ax = canvas.axes_at(0, 0)
+    before = ax.get_xlim()
+
+    class _Scroll:
+        inaxes = ax
+        xdata = sum(before) / 2
+        ydata = sum(ax.get_ylim()) / 2
+        step = 3
+        button = "up"
+
+    canvas._on_scroll(_Scroll())
+    assert canvas.axes_at(0, 0).get_xlim() != before
+
+    screen.gates.reset_view()
+    assert canvas.axes_at(0, 0).get_xlim() == pytest.approx(before)
+
+
+def test_reset_view_undoes_a_spin(screen):
+    _three_columns(screen)
+    screen.gates.mode_requested.emit("3D")
+    screen._z.setCurrentText("c")
+    canvas = screen.gates.canvas
+    before = (canvas.axes_at(0, 0).elev, canvas.axes_at(0, 0).azim)
+
+    canvas.axes_at(0, 0).view_init(elev=70.0, azim=15.0)
+    canvas._view_angles = (70.0, 15.0)
+    screen.gates.reset_view()
+
+    after = (canvas.axes_at(0, 0).elev, canvas.axes_at(0, 0).azim)
+    assert after == pytest.approx(before)
+
+
+class _Mouse:
+    def __init__(self, ax, x, y, step=0):
+        self.inaxes, self.x, self.y, self.step = ax, x, y, step
+        self.xdata = self.ydata = 0.0
+        self.button = 1
+
+
+def _volume(screen):
+    _three_columns(screen)
+    screen.gates.mode_requested.emit("3D")
+    screen._z.setCurrentText("c")
+    return screen.gates.canvas
+
+
+def test_the_volume_spins_without_a_tool_armed(screen):
+    """"i cant zoom in or spin on any of the axees. if i press pollygon and
+    tried to draw a gate, then i could all of a suded spinn the graph" -- the
+    2D press handler was eating the drag, and only the polygon tool, which
+    ignores drags, let it through."""
+    canvas = _volume(screen)
+    ax = canvas.axes_at(0, 0)
+    before = float(ax.azim)
+
+    canvas._on_press(_Mouse(ax, 100, 100))
+    canvas._on_motion(_Mouse(ax, 160, 100))
+    canvas._on_release(_Mouse(ax, 160, 100))
+
+    assert float(ax.azim) != before, "a drag in the volume did not spin it"
+
+
+def test_spinning_about_z_leaves_the_horizon_level(screen):
+    canvas = _volume(screen)
+    ax = canvas.axes_at(0, 0)
+    canvas.set_spin_axis("z")
+    elevation = float(ax.elev)
+
+    canvas._on_press(_Mouse(ax, 100, 100))
+    canvas._on_motion(_Mouse(ax, 160, 140))
+    canvas._on_release(_Mouse(ax, 160, 140))
+
+    assert float(ax.elev) == pytest.approx(elevation), (
+        "a z-locked spin changed the elevation, so it is not locked")
+
+
+def test_spinning_about_x_leaves_the_azimuth_alone(screen):
+    canvas = _volume(screen)
+    ax = canvas.axes_at(0, 0)
+    canvas.set_spin_axis("x")
+    azimuth = float(ax.azim)
+
+    canvas._on_press(_Mouse(ax, 100, 100))
+    canvas._on_motion(_Mouse(ax, 160, 140))
+    canvas._on_release(_Mouse(ax, 160, 140))
+
+    assert float(ax.azim) == pytest.approx(azimuth)
+
+
+def test_the_wheel_zooms_the_volume(screen):
+    canvas = _volume(screen)
+    ax = canvas.axes_at(0, 0)
+    before = ax.get_zlim()
+    canvas._on_scroll(_Mouse(ax, 100, 100, step=1))
+    assert ax.get_zlim() != before, "the wheel did nothing in 3D"
+
+
+def test_the_spin_axis_buttons_only_appear_in_3d(screen):
+    """A dead control is worse than no control."""
+    _three_columns(screen)
+    assert not screen.gates._spin_buttons["x"].isVisibleTo(screen.gates)
+    screen.gates.mode_requested.emit("3D")
+    assert screen.gates._spin_buttons["x"].isVisibleTo(screen.gates)
+    screen.gates.mode_requested.emit("2D")
+    assert not screen.gates._spin_buttons["x"].isVisibleTo(screen.gates)
+
+
+def test_a_spin_button_reaches_the_canvas(screen):
+    _volume(screen)
+    screen.gates.spin_axis_changed.emit("y")
+    assert screen.gates.canvas._spin_axis == "y"
+
+
+def test_xd_projects_a_table_with_scattered_missing_values(screen):
+    """The reason xD looked unimplemented: dropping every row with any NaN
+    leaves nothing on a table with hundreds of columns."""
+    rng = np.random.default_rng(0)
+    n = 300
+    frame = pd.DataFrame({f"m{i}": rng.normal(0, 1, n) for i in range(40)})
+    for i in range(40):
+        frame.loc[rng.choice(n, 10, replace=False), f"m{i}"] = np.nan
+    screen.set_frame(frame)
+
+    assert screen.reduce_to_components() is None, "the projection failed"
+    assert screen.gates._frame["PC1"].notna().sum() == n
