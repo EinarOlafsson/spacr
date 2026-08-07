@@ -294,3 +294,76 @@ def test_a_table_with_almost_nothing_in_it_says_so():
 def test_an_unknown_method_is_refused():
     with pytest.raises(ReductionError, match="not one of"):
         reduce_dimensions(_wide(), ["a", "b"], method="magic")
+
+
+# --- keys that do not agree on a type ------------------------------------
+
+def _three_cells():
+    """Three cells, because the png fixture names three crops."""
+    return pd.DataFrame({
+        "plateID": ["p1"] * 3, "rowID": ["A"] * 3,
+        "columnID": ["1"] * 3, "fieldID": ["f1"] * 3,
+        "object_label": [1, 2, 3],
+        "area": [100.0, 200.0, 300.0],
+        "mean_intensity": [10.0, 20.0, 30.0],
+    })
+
+
+def _png():
+    return pd.DataFrame({
+        "plateID": ["p1"] * 3, "rowID": ["A"] * 3,
+        "columnID": ["1"] * 3, "fieldID": ["f1"] * 3,
+        "cell_id": ["o1", "o2", "omulti"],
+        "png_path": ["/a.png", "/b.png", "/c.png"],
+    })
+
+
+def test_a_text_object_key_merges_with_an_integer_one(tmp_path):
+    """The reported failure: "you are trying to merge on int64 and object
+    columns for key object_label". It named the dtypes and not the tables, and
+    stopped the whole merge."""
+    text_keyed = _pathogens().assign(cell_id=["1", "1", "1", "1", "2"])
+    path = _db(tmp_path, {"cell": _cells(), "pathogen": text_keyed})
+    merged = merge_tables(path, ["cell", "pathogen"]).set_index("object_label")
+    # The same four pathogens as the aggregation test, reached through a TEXT
+    # key: 10 + 20 + 30 + 40.
+    assert merged.loc[1, "pathogen_area"] == 100.0
+    assert merged.loc[1, "pathogen_count"] == 4
+
+
+def test_png_list_contributes_crop_paths(tmp_path):
+    path = _db(tmp_path, {"cell": _three_cells()})
+    with sqlite3.connect(path) as db:
+        _png().to_sql("png_list", db, index=False)
+    merged = merge_tables(path, ["cell", "png_list"]).set_index("object_label")
+    assert merged.loc[1, "png_list_path"] == "/a.png"
+
+
+def test_an_unparseable_crop_id_does_not_stop_the_merge(tmp_path):
+    """'omulti' is a state real crops are in."""
+    path = _db(tmp_path, {"cell": _three_cells()})
+    with sqlite3.connect(path) as db:
+        _png().to_sql("png_list", db, index=False)
+    merged = merge_tables(path, ["cell", "png_list"]).set_index("object_label")
+    assert pd.isna(merged.loc[3, "png_list_path"])
+
+
+def test_everything_merges_at_once(tmp_path):
+    """cell + nucleus + pathogen + png_list, which is what was tried."""
+    nucleus = _pathogens().assign(cell_id=[1, 1, 1, 2, 3])
+    path = _db(tmp_path, {"cell": _three_cells(), "nucleus": nucleus,
+                          "pathogen": _pathogens()})
+    with sqlite3.connect(path) as db:
+        _png().to_sql("png_list", db, index=False)
+    merged = merge_tables(path, ["cell", "nucleus", "pathogen", "png_list"])
+    assert len(merged) == 3
+    for column in ("cell_area", "nucleus_area", "pathogen_area",
+                   "png_list_path"):
+        assert column in merged.columns
+
+
+def test_png_list_is_offered_alongside_the_object_tables(tmp_path):
+    path = _db(tmp_path, {"cell": _three_cells()})
+    with sqlite3.connect(path) as db:
+        _png().to_sql("png_list", db, index=False)
+    assert mergeable_tables(path) == ("cell", "png_list")

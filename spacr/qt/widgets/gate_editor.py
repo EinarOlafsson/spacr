@@ -53,7 +53,7 @@ from ..theme import SPACING, active_palette, mark_surface
 from .graph_builder import GraphCanvas
 from .graph_spec import BAR, HISTOGRAM, GraphSpec
 from .gate_spec import (
-    ELLIPSE, EllipseGate, Handle, WAND,
+    BOX, BoxGate, ELLIPSE, EllipseGate, Handle, WAND,
     GATE_KINDS, POLYGON, RECTANGLE, THRESHOLD, Gate, GateError, GateSet,
     PolygonGate, RectGate, ThresholdGate,
 )
@@ -161,6 +161,7 @@ TOOL_LABELS = {
     ELLIPSE: "Oval — drag a box; the oval is drawn inside it",
     POLYGON: "Polygon — click each vertex, then Close",
     WAND: "Wand — click a population; the gate grows to fit it",
+    BOX: "Box — three measurements at once, made from the 3D view",
 }
 
 
@@ -600,6 +601,50 @@ class GateCanvas(GraphCanvas):
         self._canvas.draw_idle()
         return True
 
+    def box_from_view(self) -> Optional[Gate]:
+        """A box gate enclosing the volume's current limits.
+
+        The view is the gesture. Spinning and zooming until a population
+        fills the box is already the act of choosing it, and a rectangle
+        dragged on a rotated projection has no defined extent along the axis
+        pointing at the viewer -- reading one off would invent a number.
+        """
+        ax = self.axes_at(0, 0)
+        spec = self._spec
+        if ax is None or not hasattr(ax, "get_zlim"):
+            return None
+        if not (spec.x and spec.y and self._z_column):
+            return None
+        return BoxGate.from_limits(
+            "(unnamed)", (spec.x, spec.y, self._z_column),
+            (ax.get_xlim(), ax.get_ylim(), ax.get_zlim()))
+
+    def _draw_box(self, ax, gate, colour) -> None:
+        """The twelve edges of a box, drawn in the volume."""
+        frame = self.population()
+        def bound(low, high, column):
+            if low is not None and high is not None:
+                return float(low), float(high)
+            values = pd.to_numeric(frame[column], errors="coerce") \
+                if frame is not None and column in frame.columns else None
+            lo = float(low) if low is not None else (
+                float(np.nanmin(values)) if values is not None else 0.0)
+            hi = float(high) if high is not None else (
+                float(np.nanmax(values)) if values is not None else 1.0)
+            return lo, hi
+
+        x0, x1 = bound(gate.x_low, gate.x_high, gate.x_column)
+        y0, y1 = bound(gate.y_low, gate.y_high, gate.y_column)
+        z0, z1 = bound(gate.z_low, gate.z_high, gate.z_column)
+        corners = [(x, y, z) for x in (x0, x1) for y in (y0, y1)
+                   for z in (z0, z1)]
+        edges = [(a, b) for i, a in enumerate(corners)
+                 for b in corners[i + 1:]
+                 if sum(p != q for p, q in zip(a, b)) == 1]
+        for a, b in edges:
+            ax.plot([a[0], b[0]], [a[1], b[1]], [a[2], b[2]],
+                    color=colour, linewidth=self._line_width + 0.4, alpha=0.9)
+
     def _draw_volume_gates(self, ax, frame, palette) -> None:
         """Show each shown gate's objects in the volume.
 
@@ -618,12 +663,15 @@ class GateCanvas(GraphCanvas):
                 continue
             if not bool(np.any(inside)):
                 continue
+            colour = self.gate_colour(gate.name)
+            if isinstance(gate, BoxGate) and gate.z_column == self._z_column:
+                self._draw_box(ax, gate, colour)
             picked = frame.loc[inside]
             ax.scatter(
                 pd.to_numeric(picked[spec.x], errors="coerce"),
                 pd.to_numeric(picked[spec.y], errors="coerce"),
                 pd.to_numeric(picked[self._z_column], errors="coerce"),
-                s=18, facecolor="none", edgecolor=self.gate_colour(gate.name),
+                s=18, facecolor="none", edgecolor=colour,
                 linewidths=0.7, depthshade=False)
 
     def snap_to_nearest_axis(self) -> Tuple[float, float]:
@@ -654,7 +702,10 @@ class GateCanvas(GraphCanvas):
         on a flat axes, and running them against a rotated projection would
         produce gates whose coordinates mean nothing.
         """
-        if self._mode == "3D" and self._render_volume():
+        # xD renders as a volume as well when it has a third component: the
+        # user picked PC1, PC2 and PC3 and got a 2D scatter, which reads as
+        # the third component having been ignored.
+        if self._mode in ("3D", "xD") and self._render_volume():
             return
         frame, self._frame = self._frame, self.population()
         try:
@@ -716,6 +767,16 @@ class GateCanvas(GraphCanvas):
                        facecolor="none", edgecolor=self.gate_colour(gate.name),
                        linewidths=0.7, zorder=6))
 
+    def _as_flat(self, gate: Gate) -> Gate:
+        """A box seen from the front, so the 2D tools can draw and edit it.
+
+        Its outline, handles and drag then all work unchanged, and the depth
+        the flat view cannot express is left alone rather than silently reset.
+        """
+        if isinstance(gate, BoxGate):
+            return gate.to_rect()
+        return gate
+
     def _gate_is_on_these_axes(self, gate: Gate) -> bool:
         """Whether ``gate`` belongs to the measurements currently plotted.
 
@@ -732,6 +793,9 @@ class GateCanvas(GraphCanvas):
         spec = self._spec
         showing = {c for c in (getattr(spec, "x", None),
                                getattr(spec, "y", None)) if c}
+        if isinstance(gate, BoxGate):
+            # A box is drawn flat as its rectangle when its x and y are up.
+            return {gate.x_column, gate.y_column} <= showing
         needed = set(gate.columns)
         if not needed:
             return False
@@ -773,7 +837,7 @@ class GateCanvas(GraphCanvas):
                 and self._spec.y == getattr(gate, "y_column", None)):
             return
         from matplotlib.patches import Polygon as MplPolygon
-        points = self._gate_points(ax, gate)
+        points = self._gate_points(ax, self._as_flat(gate))
         if not points:
             return
         patch = MplPolygon(points, closed=True, fill=False, edgecolor=accent,
@@ -818,7 +882,7 @@ class GateCanvas(GraphCanvas):
         if not self._gate_is_on_these_axes(gate):
             return ()
         try:
-            return gate.handles(self._view(ax))
+            return self._as_flat(gate).handles(self._view(ax))
         except Exception:
             LOG.debug("no handles for %s", gate.name, exc_info=True)
             return ()
@@ -1010,6 +1074,11 @@ class GateCanvas(GraphCanvas):
         """
         self._spin_axis = axis if axis in ("x", "y", "z", "") else "z"
 
+    def _in_volume(self) -> bool:
+        """Whether the volume is what is currently drawn."""
+        return (self._mode in ("3D", "xD")
+                and hasattr(self.axes_at(0, 0), "get_zlim"))
+
     def _volume_press(self, event) -> bool:
         """Start a spin. Returns True when the event belongs to the volume.
 
@@ -1019,7 +1088,7 @@ class GateCanvas(GraphCanvas):
         handler was consuming the drag, and only the polygon tool, which
         ignores drags, let it through to matplotlib.
         """
-        if self._mode != "3D":
+        if not self._in_volume():
             return False
         if event.inaxes is None:
             return True
@@ -1028,7 +1097,7 @@ class GateCanvas(GraphCanvas):
         return True
 
     def _volume_motion(self, event) -> bool:
-        if self._mode != "3D":
+        if not self._in_volume():
             return False
         if self._spin_from is None or event.inaxes is None:
             return True
@@ -1055,14 +1124,14 @@ class GateCanvas(GraphCanvas):
         return True
 
     def _volume_release(self, event) -> bool:
-        if self._mode != "3D":
+        if not self._in_volume():
             return False
         self._spin_from = None
         return True
 
     def _volume_scroll(self, event) -> bool:
         """Zoom the volume by scaling all three axes about their centres."""
-        if self._mode != "3D":
+        if not self._in_volume():
             return False
         ax = self.axes_at(0, 0)
         if ax is None or not hasattr(ax, "get_zlim"):
@@ -1723,6 +1792,12 @@ class GateEditorPanel(QWidget):
         self._tool = QComboBox(self)
         self._tool.setObjectName("GateToolPicker")
         for key in ("",) + GATE_KINDS:
+            if key == BOX:
+                # Not a drag tool. A box comes from the 3D view (Box gate),
+                # because a rectangle dragged on a rotated projection has no
+                # defined depth -- offering it here would promise a gesture
+                # that cannot work.
+                continue
             self._tool.addItem(TOOL_LABELS[key].split(" — ")[0], key)
         self._tool.setToolTip("\n".join(TOOL_LABELS.values()))
         index = self._tool.findData(DEFAULT_TOOL)
@@ -1786,6 +1861,16 @@ class GateEditorPanel(QWidget):
         # Which axis the volume spins about. Shown only in 3D, because in 2D
         # there is nothing to spin and a dead control is worse than no
         # control.
+        self._box_gate = QPushButton("Box gate", self)
+        self._box_gate.setToolTip(
+            "Turn what is currently in view into a gate on all three "
+            "measurements. Spin and zoom until a population fills the box, "
+            "then keep it — on a rotated projection the view IS the gesture, "
+            "and a shape dragged on it would have no defined depth.")
+        self._box_gate.clicked.connect(self.gate_from_view)
+        fit_to_text(self._box_gate)
+        tools.addWidget(self._box_gate)
+
         self._spin_label = QLabel("spin", self)
         tools.addWidget(self._spin_label)
         self._spin_buttons: Dict[str, QPushButton] = {}
@@ -2093,9 +2178,19 @@ class GateEditorPanel(QWidget):
         return self._status.text()
 
     def set_spin_controls_visible(self, visible: bool) -> None:
+        self._box_gate.setVisible(visible)
         self._spin_label.setVisible(visible)
         for button in self._spin_buttons.values():
             button.setVisible(visible)
+
+    def gate_from_view(self) -> None:
+        """Make a box gate out of what the volume currently shows."""
+        gate = self.canvas.box_from_view()
+        if gate is None:
+            self._status.setText(
+                "a box gate needs three measurements on screen; choose a Z")
+            return
+        self._on_gate_drawn(gate)
 
     def reset_view(self) -> None:
         """Undo a zoom and a spin in one place.

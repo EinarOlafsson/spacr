@@ -89,6 +89,7 @@ NA_POLICIES: Tuple[str, ...] = ("keep", "zero", "drop")
 #: Identity columns a merge joins on, and the child's link to its parent.
 IDENTITY = ("plateID", "rowID", "columnID", "fieldID")
 PARENT_LINK = "cell_id"
+PNG_TABLE = "png_list"
 OBJECT_COLUMN = "object_label"
 
 #: The tables that can be merged, and the default primary.
@@ -184,7 +185,8 @@ def table_names(db_path: str) -> Tuple[str, ...]:
 def mergeable_tables(db_path: str) -> Tuple[str, ...]:
     """The object tables in this database, in preference order."""
     present = set(table_names(db_path))
-    return tuple(t for t in OBJECT_TABLES if t in present)
+    return tuple([t for t in OBJECT_TABLES if t in present]
+                 + ([PNG_TABLE] if PNG_TABLE in present else []))
 
 
 def _read(db_path: str, table: str) -> pd.DataFrame:
@@ -194,6 +196,52 @@ def _read(db_path: str, table: str) -> pd.DataFrame:
 
 def _keys_in(frame: pd.DataFrame) -> List[str]:
     return [c for c in IDENTITY if c in frame.columns]
+
+
+def object_keys(values: pd.Series) -> pd.Series:
+    """Object identifiers as integers, whatever spelling they arrived in.
+
+    The object key is an integer in every object table and TEXT in
+    ``png_list`` -- ``'o5'`` -- so merging the two raised
+
+        you are trying to merge on int64 and object columns for key
+        object_label
+
+    which names the dtypes and not the tables, and stopped the whole merge.
+    The ``'o5'`` form is translated by the one function that already knows
+    every way it goes wrong (``'omulti'``, ``'onone'``, ``'error'``, NULL);
+    plain numeric text is converted directly. Anything left becomes NA, so
+    those rows simply do not match rather than taking the merge down.
+    """
+    if pd.api.types.is_numeric_dtype(values):
+        return pd.to_numeric(values, errors="coerce").astype("Int64")
+    text = values.astype("string")
+    if text.str.match(r"^[a-zA-Z]", na=False).any():
+        from .utils import object_label_from_png_id
+        return pd.Series(object_label_from_png_id(values),
+                         index=values.index).astype("Int64")
+    return pd.to_numeric(text, errors="coerce").astype("Int64")
+
+
+def _align_keys(left: pd.DataFrame, right: pd.DataFrame,
+                keys: Sequence[str]) -> None:
+    """Make both sides of a merge agree on the TYPE of every key.
+
+    In place, on copies the caller owns. Identity columns are compared as
+    text because a plate called ``1`` is read as an integer from one table and
+    a string from another depending on what else is in the column -- the same
+    class of failure as the object key, and just as fatal to a merge.
+    """
+    for key in keys:
+        if key not in left.columns or key not in right.columns:
+            continue
+        if key == OBJECT_COLUMN:
+            left[key] = object_keys(left[key])
+            right[key] = object_keys(right[key])
+        elif not (pd.api.types.is_numeric_dtype(left[key])
+                  and pd.api.types.is_numeric_dtype(right[key])):
+            left[key] = left[key].astype("string")
+            right[key] = right[key].astype("string")
 
 
 def roll_up(child: pd.DataFrame, keys: Sequence[str], *,
@@ -249,6 +297,11 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
 
     wanted = [t for t in dict.fromkeys([policy.primary, *tables])
               if t in available]
+    # png_list holds one row per CROP, not per object, and its object key is
+    # text. It is merged like any child -- the keys are reconciled below --
+    # but it has no measurements to aggregate, so it contributes its paths.
+    if PNG_TABLE in tables and PNG_TABLE not in wanted and PNG_TABLE in available:
+        wanted.append(PNG_TABLE)
 
     base = _read(db_path, policy.primary)
     keys = _keys_in(base)
@@ -265,6 +318,9 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
         if table == policy.primary:
             continue
         child = _read(db_path, table)
+        if table == PNG_TABLE:
+            merged = _merge_crops(merged, child, keys)
+            continue
         if PARENT_LINK not in child.columns:
             # Measured without a parent mask: the roll-up is not empty, it is
             # UNDEFINED. Named and skipped, exactly as io.py does -- one
@@ -280,9 +336,43 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
             LOG.info("%s cannot be joined to %s on an object key", table,
                      policy.primary)
             continue
+        _align_keys(merged, rolled, on)
         merged = merged.merge(rolled, on=on, how="left")
 
     return _apply_na_policy(merged, policy)
+
+
+def _merge_crops(merged: pd.DataFrame, png: pd.DataFrame,
+                 keys: Sequence[str]) -> pd.DataFrame:
+    """Attach crop paths from ``png_list``.
+
+    Not aggregated: a crop is not a measurement, and png_list is one row per
+    crop rather than per object. Its object id may be under any of the
+    crop-mode columns, so the first one present is used -- a database measured
+    in more than one crop mode has several, and the others belong to different
+    objects entirely.
+    """
+    from .utils import PNG_OBJECT_ID_COLUMNS
+
+    id_column = next((c for c in PNG_OBJECT_ID_COLUMNS.values()
+                      if c in png.columns), None)
+    if id_column is None:
+        LOG.info("%s carries no object id column; no crop paths merged",
+                 PNG_TABLE)
+        return merged
+
+    path_column = next((c for c in ("png_path", "path", "file_path")
+                        if c in png.columns), None)
+    side = png[[c for c in keys if c in png.columns]].copy()
+    side[OBJECT_COLUMN] = object_keys(png[id_column])
+    if path_column:
+        side[f"{PNG_TABLE}_path"] = png[path_column]
+    side = side.dropna(subset=[OBJECT_COLUMN])
+
+    on = [c for c in list(keys) + [OBJECT_COLUMN] if c in side.columns]
+    side = side.drop_duplicates(subset=on)
+    _align_keys(merged, side, on)
+    return merged.merge(side, on=on, how="left")
 
 
 def _apply_na_policy(frame: pd.DataFrame, policy: MergePolicy) -> pd.DataFrame:
