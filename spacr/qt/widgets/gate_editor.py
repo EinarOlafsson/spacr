@@ -619,11 +619,6 @@ class GateCanvas(GraphCanvas):
         self._canvas.draw_idle()
         return True
 
-    #: How square-on the view has to be before a drag can be read off it.
-    #: Degrees. Beyond this the depth axis is visibly tilted, and a shape
-    #: dragged on it would be a shape in no particular measurement.
-    SNAP_TOLERANCE_DEG = 8.0
-
     def volume_axis_map(self):
         """How screen pixels map to data on the two axes facing the viewer.
 
@@ -675,12 +670,24 @@ class GateCanvas(GraphCanvas):
                 return None
             moves.append(landed - base)
 
-        # The depth axis is whichever moved least on screen.
+        # The depth axis is whichever moved least on screen -- the one
+        # pointing most nearly at the viewer.
+        #
+        # NO square-on requirement. It used to refuse anything more than a few
+        # degrees off, which made drawing feel broken at every angle a user
+        # actually leaves the volume at: "the mouse needs to be decoupled from
+        # spinning. if the gate is on None then spin. if the gate is on any of
+        # the gating mechanisms then allow drawing." The tool decides, and
+        # nothing else does.
+        #
+        # Off-square the mapping is read in the plane through the middle of
+        # the depth axis, so a drag is exact there and increasingly
+        # approximate towards the front and back faces. That is a real limit
+        # and it is the reason the gate leaves the depth axis UNBOUNDED --
+        # it is honest about the one measurement the gesture cannot pin down.
         lengths = [float(np.hypot(*m)) for m in moves]
         depth = int(np.argmin(lengths))
-        longest = max(lengths)
-        if longest <= 0 or lengths[depth] / longest > np.tan(
-                np.radians(self.SNAP_TOLERANCE_DEG)) + 0.02:
+        if max(lengths) <= 0:
             return None
 
         kept = [a for a in range(3) if a != depth]
@@ -704,7 +711,12 @@ class GateCanvas(GraphCanvas):
         first, second, invert, depth = mapping
         limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
         origin = [lo for lo, _hi in limits]
-        base = np.asarray(ax.transData.transform(_project(ax, origin)),
+        # Read at the MIDDLE of the depth axis rather than its near face, so
+        # the error from a tilted view is centred instead of accumulating in
+        # one direction.
+        anchor = list(origin)
+        anchor[depth] = (limits[depth][0] + limits[depth][1]) / 2.0
+        base = np.asarray(ax.transData.transform(_project(ax, anchor)),
                           dtype=float)
         dx = float(getattr(event, "x", 0) or 0) - base[0]
         dy = float(getattr(event, "y", 0) or 0) - base[1]
@@ -1208,7 +1220,7 @@ class GateCanvas(GraphCanvas):
         # spinning. Both conditions matter: without a tool a drag is
         # navigation, and off-square the depth axis is tilted so a dragged
         # shape would be a shape in no particular measurement.
-        if self._tool and self._tool != POLYGON:
+        if self._tool:
             corner = self.screen_to_volume(event)
             if corner is not None:
                 self._volume_drag = corner

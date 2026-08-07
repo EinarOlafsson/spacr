@@ -163,6 +163,12 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: module but had no category, so they rendered ungrouped. Extending this set
 #: is fine; it exists so that "the union grew" is always a deliberate act.
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # The Classify overhaul: a crop source that says where images come from,
+    # the on-demand settings it reveals, the path filter that replaced
+    # png_type, and real normalisation choices.
+    "crop_source", "path_string", "extract_channels", "object_array",
+    "coordinate_columns", "crop_shape", "normalization",
+    "normalization_scope",
     "balance_to_smallest",
     # The declared channel mapping that replaced png_dims (INVARIANTS 13).
     "png_channel_mapping",
@@ -237,7 +243,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # returns. They name the classes and the wells behind them for the CV
     # dataset builder and had no category at all, so the Classify (CV) dataset
     # settings printed them under "Other" -- four keys away from the
-    # class_metadata they belong beside. Filed with "Training Dataset".
+    # class_metadata they belong beside. Filed with "Training Classes".
     "metadata_item_1_name", "metadata_item_1_value",
     "metadata_item_2_name", "metadata_item_2_value",
     # Live PyTorch training telemetry and the Cellpose training resize.
@@ -845,8 +851,8 @@ def test_the_model_a_module_runs_is_filed_under_model_training():
     """`custom_model` and `model_name` answer the same question `model_type`
     does. Under "Cellpose" they were invisible to Classify, which hides that
     category, and mis-titled for Train Cellpose, which does not."""
-    assert "custom_model" in S.categories["Model Training"]
-    assert "model_name" in S.categories["Model Training"]
+    assert "custom_model" in S.categories["Computer Vision Model"]
+    assert "model_name" in S.categories["Computer Vision Model"]
     assert "custom_model" not in S.categories["Cellpose"]
     assert "model_name" not in S.categories["Cellpose"]
 
@@ -854,7 +860,7 @@ def test_the_model_a_module_runs_is_filed_under_model_training():
 def test_the_cv_dataset_class_keys_are_grouped_with_the_dataset():
     """The four metadata_item_* keys name the classes and the wells behind
     them; they printed under "Other", away from class_metadata."""
-    training = S.categories["Training Dataset"]
+    training = S.categories["Training Classes"]
     for key in ("metadata_item_1_name", "metadata_item_1_value",
                 "metadata_item_2_name", "metadata_item_2_value"):
         assert key in training, key

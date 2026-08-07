@@ -1246,7 +1246,6 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('metadata_item_1_value',None) # e.g. [['c19','c2'],['c3','c4']]
     settings.setdefault('metadata_item_2_name',None) # e.g. ['sample1','sample2']
     settings.setdefault('metadata_item_2_value',None) #e.g. [['r1','r2'],['r3','r4']]
-    settings.setdefault('size',224)
     settings.setdefault('test_split',0.1)
     settings.setdefault('cv_group_by','well')
     settings.setdefault('class_metadata',[['c1'],['c2']])
@@ -1254,7 +1253,6 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('channel_of_interest',3)
     settings.setdefault('nuclei_limit',True)
     settings.setdefault('pathogen_limit',True)
-    settings.setdefault('png_type','cell_png')
     settings.setdefault('random_seed',42)
     
     return settings
@@ -1274,13 +1272,11 @@ def deep_spacr_defaults(settings):
     settings.setdefault('dataset_mode','metadata')
     settings.setdefault('annotation_column','test')
     settings.setdefault('classes',['nc','pc'])
-    settings.setdefault('size',224)
     settings.setdefault('test_split',0.1)
     settings.setdefault('class_metadata',[['c1'],['c2']])
     settings.setdefault('metadata_type_by','columnID')
     settings.setdefault('channel_of_interest',3)
     settings.setdefault('tables',None)
-    settings.setdefault('png_type','cell_png')
     settings.setdefault('custom_model',False)
     settings.setdefault('custom_model_path','')
     settings.setdefault('train',True)
@@ -1326,12 +1322,18 @@ def deep_spacr_defaults(settings):
     settings.setdefault('file_type','cell_png')
     settings.setdefault('generate_training_dataset', True)
     settings.setdefault('balance_to_smallest', True)
-    settings.setdefault('write_random_annotation_column', False)
     settings.setdefault('generate_full_dataset', False)
     settings.setdefault('tar_path','')
     settings.setdefault('n_top_examples',20)
     settings.setdefault('random_seed',42)
-    settings.setdefault('crop_source','auto')
+    settings.setdefault('crop_source','pre_generated')
+    settings.setdefault('path_string', settings.get('png_type') or 'cell_png')
+    settings.setdefault('extract_channels', [0, 1, 2])
+    settings.setdefault('object_array', 'cell')
+    settings.setdefault('coordinate_columns', None)
+    settings.setdefault('crop_shape', 'bounding_box')
+    settings.setdefault('normalization', 'imagenet')
+    settings.setdefault('normalization_scope', 'image')
     settings.setdefault('strict_errors',None)
     settings.setdefault('max_failure_rate',None)
     settings.setdefault('class_balance','none')
@@ -2107,6 +2109,14 @@ expected_types = {
     "custom_measurement":str,
     "custom_model":bool,
     "png_type":str,
+    "path_string":str,
+    "crop_source":str,
+    "extract_channels":list,
+    "object_array":str,
+    "coordinate_columns":list,
+    "crop_shape":str,
+    "normalization":str,
+    "normalization_scope":str,
     "custom_model_path":str,
     "resume_checkpoint":str,
     "generate_training_dataset":bool,
@@ -2489,6 +2499,13 @@ expected_types = {
 #:
 #: They stay declared rather than being deleted so that an old settings CSV
 #: still loads far enough to be told, by name, what to use instead.
+# NOT here, deliberately: `png_type`, `size` and
+# `write_random_annotation_column`. They were renamed rather than retired, and
+# each still HAS A READER -- the alias translation in spacr.training_basis and
+# spacr.classify_classes, plus io.py's direct fallback for png_type. A setting
+# with a reader is an alias, not a dead setting, and the registry guard is
+# right to refuse it. They stop being OFFERED (their defaults are gone, so no
+# control is built) while an old settings CSV still runs unchanged.
 DEAD_SETTINGS = {
     # INERT for as long as it existed: the Tk 'Generate Dataset' form
     # collected it and no pipeline code ever read
@@ -3179,6 +3196,14 @@ tooltips = {
     'pathogen_loc': "(list of lists) - Well locations of each pathogen condition, one inner list per name in pathogens, read by annotate_filter_vision when labelling vision-model score CSVs. Every entry must be a row or column ID string such as 'c1' or 'r3'; ranges are not expanded and unmatched entries leave those wells NaN. Set it alongside pathogens, or leave both None.",
     'pathogens': "(list) - Names of the pathogen conditions scored by annotate_filter_vision, e.g. ['wt','mutant']. Element i is written into the pathogen column for every well in pathogen_loc[i] and folded into the combined condition label. Must match pathogen_loc element for element; if pathogen_loc is None, only the first name is applied to every row.",
     'pick_slice': "(bool) - Intended to keep one z-slice instead of a maximum-intensity projection, but nothing in spaCR reads settings['pick_slice'] and no defaults function sets it, so turning it on changes nothing and the stack is projected anyway. The z controls that do work are z_stack, z_segmentation_mode and z_projection, whose 'best_focus' value is the one that picks a single plane. Rejected by the pre-flight check and by spacr-run --set.",
+    'path_string': "(str) - A substring that must appear in a crop's path for it to join the dataset, e.g. 'cell_png' or 'nucleus_png'. It was called png_type, which named a type it never was: this is a path filter and nothing more. The old name still works. Default 'cell_png'.",
+    'crop_source': "(str) - Where the training images come from. 'pre_generated' uses crops already on disk, filtered by path_string and file_type. 'on_demand' cuts them from merged/*.npy as training runs, using extract_channels and object_array (or coordinate_columns when the objects come from a database). 'generate' writes a full crop set first, then trains on it. The settings that do not apply to the chosen source are greyed. Default 'pre_generated'.",
+    'extract_channels': "(list) - On-demand crops: which planes of merged/*.npy are INTENSITY channels, in the order they become image channels. Default [0, 1, 2].",
+    'object_array': "(str) - On-demand crops: which object the crops are cut around - 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. Its mask plane in merged/*.npy is what defines each object's extent. Default 'cell'.",
+    'coordinate_columns': "(list) - On-demand crops from a DATABASE instead of masks: the columns holding each object's position, e.g. ['centroid_x', 'centroid_y']. Only bounding-box crops are possible this way, because a coordinate has no outline. None uses the merged masks, which is the default and the better source. Default None.",
+    'crop_shape': "(str) - 'bounding_box' cuts the smallest rectangle containing the object; 'object' masks everything outside it away. Database-sourced crops can only be bounding boxes. Default 'bounding_box'.",
+    'normalization': "(str) - Which normalisation the images get: 'imagenet' (the mean and standard deviation the pretrained backbones were trained with), 'dataset' (this dataset's own statistics), 'percentile' (per-image contrast stretch), 'none', or 'custom'. Default 'imagenet'.",
+    'normalization_scope': "(str) - Whether normalisation statistics are computed per 'image', per 'batch', or once over the whole 'dataset'. Per-image is the safest default: batch statistics leak information between the objects in a batch, and dataset statistics have to be recomputed whenever the dataset changes. Default 'image'.",
     'png_type': "(str) - Which object crop type is pulled from the png_list table when building the training dataset - a row is kept only if its PNG path contains this substring. Use 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' or 'organelle_png' to train on whole cells, nuclei, parasites, cytoplasm or organelles. It must match a crop_mode that measure_crop actually saved. Default 'cell_png'.",
     'prune_features': "(bool) - Before training, keep only the top_features columns with the highest ANOVA F-score against the control labels (sklearn SelectKBest with f_classif). Speeds up fitting and can curb overfitting on small control sets, but discards features the model might have used and scores each feature in isolation, ignoring interactions. Default False.",
     "redunction_method": "(str) - Misspelled duplicate of reduction_method ('redunction'), and nothing reads it. Set reduction_method instead, which reduction_and_clustering actually consumes and which accepts 'umap' or 'tsne' (not 'pca', despite this legacy text). Kept only so old settings CSVs still load.",
@@ -3336,16 +3361,50 @@ categories = {
     # generate_training_dataset is what consumes it, writing the train/ and
     # test/ folders before any model exists. The four metadata_item_* keys had
     # no category at all and printed under "Other".
-    "Training Dataset": ["dataset_mode", "measurement_rules", "annotation_column", "annotated_classes", "class_metadata", "metadata_type_by", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "file_metadata", "custom_measurement", "png_type", "file_type", "sample", "size", "test_split", "balance_to_smallest", "write_random_annotation_column"],
 
     # Which model, and how it is fitted. 'model_name' and 'custom_model' moved
     # here from "Cellpose" -- they answer the same question 'model_type' does.
-    "Model Training": ["model_type", "model_name", "custom_model", "classes", "train_channels", "image_size", "init_weights", "train", "test", "val_split", "epochs", "optimizer_type", "learning_rate", "schedule", "weight_decay", "dropout_rate", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "augment", "amsgrad", "use_checkpoint", "gradient_accumulation", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "cross_validation_enabled", "cross_validation_folds", "cv_group_by", "classifier_evaluation", "nested_cv_inner_folds", "evaluation_calibration", "evaluation_bins", "evaluation_fail_on_leakage", "leakage_audit_train_test", "leakage_hash_content", "leakage_require_identity", "score_threshold", "n_top_examples", "random_seed", "intermedeate_save", "tensorboard"],
 
     # The classical (non-image) screen classifier fitted on measured features -
     # spacr's "Classify (ML)" module. These knobs used to be split three ways
     # between General, Advanced and the regression heading.
-    "ML Classifier": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "prune_features", "top_features", "n_repeats", "reg_lambda", "reg_alpha", "minimum_cell_count", "save_to_db"],
+    # WHAT DEFINES A CLASS -- and nothing about where the pixels come from.
+    # `png_type`, `size` and `write_random_annotation_column` are gone from
+    # here because they are in DEAD_SETTINGS: renamed, duplicated, or replaced
+    # by the Classes dict. An old CSV still runs; the panel stops offering two
+    # controls for one thing.
+    # `write_random_annotation_column` is kept in the map although nothing
+    # offers it any more: it is an ALIAS, not a dead setting (the Classes
+    # translation still reads it), and a key that falls out of `categories`
+    # altogether is one nothing can ever group again.
+    "Training Classes": ["dataset_mode", "classes", "class_metadata", "metadata_type_by", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "annotation_column", "annotated_classes", "measurement_rules", "custom_measurement", "write_random_annotation_column"],
+
+    # WHERE THE PIXELS COME FROM, whichever way they are obtained: crops
+    # already on disk, cut on demand from merged, or generated first.
+    # `crop_source` decides which of these apply and greys the rest.
+    "Computer Vision Data Source": ["crop_source", "path_string", "png_type", "file_type", "file_metadata", "image_size", "size", "train_channels", "extract_channels", "object_array", "coordinate_columns", "crop_shape", "sample", "test_split", "val_split", "balance_to_smallest", "augment"],
+
+    # WHICH MODEL, and how its input is scaled. A custom model path that loads
+    # supersedes model_type, so no boolean is needed to say which to believe.
+    "Computer Vision Model": ["model_type", "model_name", "custom_model", "init_weights", "normalization", "normalization_scope"],
+
+    # HOW IT IS FITTED: the optimisation and the loss.
+    "Computer Vision Training": ["train", "test", "epochs", "learning_rate", "optimizer_type", "schedule", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "amsgrad", "gradient_accumulation", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "intermedeate_save", "tensorboard", "random_seed"],
+
+    # WHAT KEEPS IT FROM OVERFITTING. Its own heading because these are the
+    # knobs reached for when a model has learned the training set and nothing
+    # else, which is a different question from how fast it learns.
+    "Computer Vision Optimization and Regularization": ["use_checkpoint", "dropout_rate", "weight_decay"],
+
+    # HOW IT IS JUDGED. Shared by both families: an evaluation is an
+    # evaluation, and `save_to_db` is where the result goes rather than a
+    # category of its own.
+    "Model Evaluation": ["cross_validation_enabled", "cross_validation_folds", "cv_group_by", "nested_cv_inner_folds", "classifier_evaluation", "evaluation_calibration", "evaluation_bins", "evaluation_fail_on_leakage", "leakage_audit_train_test", "leakage_hash_content", "leakage_require_identity", "score_threshold", "n_top_examples", "save_to_db"],
+
+    # THE FEATURE-BASED CLASSIFIER: which model, and which features it may
+    # see. Feature preparation and feature importance were two headings asking
+    # one question -- which features the model uses -- so they are one.
+    "Machine Learning Model and Features": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "reg_lambda", "reg_alpha", "prune_features", "top_features", "n_repeats", "minimum_cell_count"],
 
     "Embedding & Clustering": ["reduction_method", "n_neighbors", "min_dist", "metric", "log_data", "embedding_by_controls", "col_to_compare", "resnet_features", "visualize", "clustering", "eps", "min_samples", "remove_cluster_noise", "analyze_clusters"],
 
@@ -3391,7 +3450,7 @@ categories = {
     # nuclei_limit / pathogen_limit for "Measurements": all three change what
     # the run produces rather than how it is tuned, and hiding them here is
     # what put them at the bottom of the Classify (CV) dataset settings.
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "crop_source", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "upscale", "upscale_factor", "consolidate", "use_sam_pathogen", "use_sam_nucleus", "use_sam_cell", "denoise"],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "upscale", "upscale_factor", "consolidate", "use_sam_pathogen", "use_sam_nucleus", "use_sam_cell", "denoise"],
 
     # Experimental volumetric controls are deliberately split by dimensional
     # contract. `z_axis` lives with 3D because 4D builds on the same z plan;
