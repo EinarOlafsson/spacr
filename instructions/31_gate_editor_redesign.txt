@@ -1,0 +1,26 @@
+
+--- 2026-08-07: the core loop is done (commits d23ebe4a, 4b805e15) ---
+
+User narrowed the target: "pick x and y axes / draw a gate on the graph / be
+prompted to name the gate but never zoom into the gated data / be able now to
+select this gate in the gate panel section and toggle it on and off. this is
+all we are trying to acieve now."
+
+All four now hold, with tests.
+
+The zoom had TWO causes and fixing the first did not fix the symptom:
+  1. Apply published a FILTER (removes rows) -> fixed, publishes a SELECTION.
+  2. `GateCanvas.population()` returned the ACTIVE gate's population, and
+     `render_now` plots what it returns. This was the real one. Selecting or
+     drawing a gate replotted only its objects; deleting was the only thing
+     that cleared the active name, hence "the only way to get back to the
+     main figure is to delete a gate".
+Anyone reverting either half brings the zoom back on its own.
+
+`_active` now means ONLY "parent of the next gate drawn". It must never again
+be allowed to decide what is plotted.
+
+Still open from the original spec: resize handles on gates; filter/search
+tabs; console + AI chat; saveable filter sets; cmap + data binning; 2D/3D/xD
+modes; table merging on plate/row/column/field/object; clustering Walk; the
+3D voxel workspace.
