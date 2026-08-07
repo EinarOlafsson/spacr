@@ -97,9 +97,12 @@ ELLIPSE = "ellipse"
 #: Click a point and let the data decide the shape. Not a drag: the user
 #: picks a seed and the gate grows to fit the population around it.
 WAND = "wand"
+#: A box in three measurements -- what a gate is in the volume.
+BOX = "box"
 
 #: Every shape a gate can be, in the order the tool buttons list them.
-GATE_KINDS: Tuple[str, ...] = (THRESHOLD, RECTANGLE, POLYGON, ELLIPSE, WAND)
+GATE_KINDS: Tuple[str, ...] = (THRESHOLD, RECTANGLE, POLYGON, ELLIPSE,
+                              WAND, BOX)
 
 
 def _clean_name(name: str) -> str:
@@ -974,6 +977,160 @@ def _convex_hull(points: np.ndarray) -> np.ndarray:
     lower = _half(pts)
     upper = _half(pts[::-1])
     return np.array(lower[:-1] + upper[:-1])
+
+
+@dataclass(frozen=True)
+class BoxGate(Gate):
+    """A rectangular region in THREE measurements.
+
+    What a gate is in the volume. It is not a polygon with depth bolted on:
+    a shape dragged on a rotated projection has no well-defined extent along
+    the axis pointing at the viewer, so any attempt to read one off invents a
+    number. Three ranges say exactly what is meant and read the same from
+    every angle.
+
+    A box whose z range is unbounded is a RECTANGLE extended through the
+    volume, which is what a 2D gate already is when seen in 3D -- so the two
+    agree rather than being different answers to the same question.
+    """
+
+    x_column: str = ""
+    y_column: str = ""
+    z_column: str = ""
+    x_low: Optional[float] = None
+    x_high: Optional[float] = None
+    y_low: Optional[float] = None
+    y_high: Optional[float] = None
+    z_low: Optional[float] = None
+    z_high: Optional[float] = None
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        for name in ("x_column", "y_column", "z_column"):
+            if not str(getattr(self, name)).strip():
+                raise GateError(
+                    f"box gate {self.name!r} has no {name}; a box is drawn on "
+                    f"three measurements")
+            object.__setattr__(self, name, str(getattr(self, name)).strip())
+        for low, high in (("x_low", "x_high"), ("y_low", "y_high"),
+                          ("z_low", "z_high")):
+            a, b = getattr(self, low), getattr(self, high)
+            if a is not None and b is not None and a > b:
+                object.__setattr__(self, low, b)
+                object.__setattr__(self, high, a)
+
+    @property
+    def columns(self) -> Tuple[str, ...]:
+        return (self.x_column, self.y_column, self.z_column)
+
+    def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        what = f"gate {self.name!r}"
+        keep = np.ones(len(frame), dtype=bool)
+        for column, low, high in (
+                (self.x_column, self.x_low, self.x_high),
+                (self.y_column, self.y_low, self.y_high),
+                (self.z_column, self.z_low, self.z_high)):
+            values = _numeric(frame, column, what)
+            keep &= np.isfinite(values)
+            if low is not None:
+                keep &= values >= low
+            if high is not None:
+                keep &= values <= high
+        return keep
+
+    def range_filters(self) -> Tuple[RangeFilter, ...]:
+        out = []
+        for column, low, high in (
+                (self.x_column, self.x_low, self.x_high),
+                (self.y_column, self.y_low, self.y_high),
+                (self.z_column, self.z_low, self.z_high)):
+            if low is not None or high is not None:
+                out.append(RangeFilter(column=column, low=low, high=high))
+        return tuple(out)
+
+    def describe(self) -> str:
+        def side(column, low, high):
+            if low is None and high is None:
+                return f"any {column}"
+            if low is None:
+                return f"{column} ≤ {high:g}"
+            if high is None:
+                return f"{column} ≥ {low:g}"
+            return f"{low:g} ≤ {column} ≤ {high:g}"
+        return " and ".join(
+            side(c, lo, hi) for c, lo, hi in (
+                (self.x_column, self.x_low, self.x_high),
+                (self.y_column, self.y_low, self.y_high),
+                (self.z_column, self.z_low, self.z_high)))
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {"kind": BOX, "name": self.name, "parent": self.parent,
+                "x_column": self.x_column, "y_column": self.y_column,
+                "z_column": self.z_column,
+                "x_low": self.x_low, "x_high": self.x_high,
+                "y_low": self.y_low, "y_high": self.y_high,
+                "z_low": self.z_low, "z_high": self.z_high}
+
+    def translated(self, dx: float, dy: float) -> "BoxGate":
+        return replace(self,
+                       x_low=_shift_bound(self.x_low, dx),
+                       x_high=_shift_bound(self.x_high, dx),
+                       y_low=_shift_bound(self.y_low, dy),
+                       y_high=_shift_bound(self.y_high, dy))
+
+    def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        return (_midpoint(self.x_low, self.x_high),
+                _midpoint(self.y_low, self.y_high))
+
+    def scaled(self, factor: float, *,
+               about: Optional[Tuple[float, float]] = None) -> "BoxGate":
+        _check_factor(factor)
+        cx, cy = about if about is not None else self.centre()
+        return replace(self,
+                       x_low=_scale_bound(self.x_low, factor, cx),
+                       x_high=_scale_bound(self.x_high, factor, cx),
+                       y_low=_scale_bound(self.y_low, factor, cy),
+                       y_high=_scale_bound(self.y_high, factor, cy))
+
+    def to_rect(self) -> "RectGate":
+        """The box seen from the front: its x and y, ignoring depth.
+
+        What the 2D editor shows and edits. Its handles, its drag and its
+        outline then all work unchanged, and the depth the 2D view cannot
+        express is simply left alone rather than silently reset.
+        """
+        return RectGate(name=self.name, parent=self.parent,
+                        x_column=self.x_column, y_column=self.y_column,
+                        x_low=self.x_low, x_high=self.x_high,
+                        y_low=self.y_low, y_high=self.y_high)
+
+    @classmethod
+    def from_limits(cls, name: str, columns: Sequence[str],
+                    limits: Sequence[Tuple[float, float]], *,
+                    parent: Optional[str] = None) -> "BoxGate":
+        """A box enclosing what is currently in view.
+
+        How a gate is made in the volume: frame a population by spinning and
+        zooming, then keep what you framed. The view is already the gesture --
+        asking the user to also drag a shape on a rotated projection would be
+        asking them to aim at something that is not flat.
+        """
+        if len(columns) < 3 or len(limits) < 3:
+            raise GateError(
+                "a box gate needs three measurements and three ranges")
+        (x0, x1), (y0, y1), (z0, z1) = limits[:3]
+        return cls(name=name, parent=parent,
+                   x_column=columns[0], y_column=columns[1],
+                   z_column=columns[2],
+                   x_low=float(x0), x_high=float(x1),
+                   y_low=float(y0), y_high=float(y1),
+                   z_low=float(z0), z_high=float(z1))
+
+
+# Registered after the class rather than in the literal above: BoxGate is
+# defined further down the file, beside the volume it belongs to, and a
+# forward reference in the dict would be a NameError at import.
+_GATE_CLASSES[BOX] = BoxGate
 
 
 class WandError(GateError):

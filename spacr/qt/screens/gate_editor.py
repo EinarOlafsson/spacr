@@ -412,7 +412,7 @@ class GateEditorScreen(QWidget):
         """
         self.apply_settings(self._settings.replaced(gate_mode=mode))
         self._set_z_visible(mode in ("3D", "xD"))
-        self.gates.set_spin_controls_visible(mode == "3D")
+        self.gates.set_spin_controls_visible(mode in ("3D", "xD"))
         if mode == "xD":
             self.reduce_to_components()
         self.gates.canvas.set_mode(mode, z_column=self._z.currentText())
