@@ -2,7 +2,7 @@
 THE REPRODUCIBILITY HASH SHOULD BE OPT-IN
 ================================================================================
 
-Status:    not started
+Status:    done 2026-08-08 - off by default, toggle on the Performance tab, `input_hashing` stated in the manifest, --hash-inputs/--no-hash-inputs on the CLI. Measured ~0.55 s/GB warm.
 Requested: 2026-08-06 - "there is a reproducibility hash that sometimes takes a very long time. i would like this to be opt in, with a setting in preferences to activate this feature."
 
 --------------------------------------------------------------------------------
