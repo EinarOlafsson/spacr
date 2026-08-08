@@ -2,9 +2,7 @@
 THE CONSOLE AND THE AI CHAT BOX ARE TOO SHORT
 ================================================================================
 
-Status:    investigated 2026-08-08, not changed. The widgets are found
-           and one of them is not what 'taller' implies -- see below.
-           One question to answer before touching it.
+Status:    done 2026-08-08.
 Requested: 2026-08-08 — "also the console and the AI chatbox should be taller ."
 
 --------------------------------------------------------------------------------
@@ -95,3 +93,38 @@ does not fit either widget as found. Either
 Ask before changing, rather than pick one and ship a UI the maintainer did
 not describe. The measurement above is what makes the question answerable
 in one sentence.
+
+--------------------------------------------------------------------------------
+2026-08-08 - DONE. THE QUESTION ABOVE WAS DECIDED RATHER THAN ASKED.
+--------------------------------------------------------------------------------
+
+THE CHAT BOX is now multi-line. It was a QLineEdit, which cannot be made
+taller -- one line is what a QLineEdit is -- so "taller" necessarily meant
+changing the widget. It is a `_ChatInput`, a QPlainTextEdit three lines
+tall, and it went from one line to 63px.
+
+ENTER STILL SENDS. That was the open question and it is decided: the habit
+is already built, and taking Enter away to gain a newline is a bad trade.
+The newline is on Shift+Enter, where a chat box usually keeps it, and the
+placeholder says so -- "ask in words - Shift+Enter for a new line" --
+because an invisible keybinding is one nobody uses.
+
+THE HEIGHT IS IN LINES, NOT PIXELS. `CHAT_VISIBLE_LINES = 3`, multiplied by
+the font metrics at construction. A pixel height picked at one zoom level
+is the wrong height at every other one, and this project's default font
+scale is 1.5 while its tests pin 1.0 (INVARIANTS 9), so a literal would
+have been wrong somewhere immediately.
+
+THE TRANSCRIPT gets `CONSOLE_MIN_HEIGHT = 180` -- about ten lines, enough
+to read a traceback without scrolling, which is the moment scrolling is
+least welcome. It already stretched, but nothing stopped the entry rows
+below squeezing it.
+
+NOT CHANGED, deliberately: the console panel still starts collapsed in the
+body splitter. That collapse is documented as a decision -- "it is a thing
+you reach for, not a thing you look past" -- and it is a WIDTH in a
+horizontal splitter, so it was never what "taller" referred to. The
+expression input is also still a QLineEdit, because an expression is one
+line.
+
+11 tests. 66 pass across the console and gates suites.

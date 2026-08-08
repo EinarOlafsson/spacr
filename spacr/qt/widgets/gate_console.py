@@ -28,11 +28,52 @@ from typing import Any, Callable, Optional
 import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QHBoxLayout, QLabel, QLineEdit, QPushButton, QTextEdit, QVBoxLayout,
-    QWidget,
+    QHBoxLayout, QLabel, QLineEdit, QPlainTextEdit, QPushButton, QTextEdit,
+    QVBoxLayout, QWidget,
 )
 
 from ..theme import SPACING, register_widget_qss
+
+#: Floor for the console transcript. Roughly ten lines at the default font,
+#: which is enough to read a traceback without scrolling -- the case where
+#: scrolling is most unwelcome.
+CONSOLE_MIN_HEIGHT = 180
+
+#: Visible lines in the chat box before it scrolls. Three is enough for a
+#: sentence that wraps without stealing the transcript's room.
+CHAT_VISIBLE_LINES = 3
+
+
+class _ChatInput(QPlainTextEdit):
+    """A chat box that is several lines tall and still sends on Enter.
+
+    :ivar submitted: emitted when the user presses Enter without Shift.
+    """
+
+    submitted = Signal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setTabChangesFocus(True)
+        metrics = self.fontMetrics()
+        # Sized in LINES rather than pixels so it follows the font scale.
+        # A pixel height picked at one zoom level is the wrong height at
+        # every other one.
+        self.setFixedHeight(
+            metrics.lineSpacing() * CHAT_VISIBLE_LINES
+            + self.frameWidth() * 2 + 10)
+
+    def setPlaceholderText(self, text):     # noqa: N802 (Qt naming)
+        """QPlainTextEdit spells this the same; kept for clarity."""
+        super().setPlaceholderText(text)
+
+    def keyPressEvent(self, event):         # noqa: N802 (Qt naming)
+        """Enter sends; Shift+Enter inserts a newline."""
+        if (event.key() in (Qt.Key_Return, Qt.Key_Enter)
+                and not (event.modifiers() & Qt.ShiftModifier)):
+            self.submitted.emit()
+            return
+        super().keyPressEvent(event)
 
 LOG = logging.getLogger("spacr.qt.gate_console")
 
@@ -53,7 +94,7 @@ def _console_qss(palette, opacity=None) -> str:
         border: none;
         font-family: monospace;
     }}
-    QLineEdit#GateConsoleInput, QLineEdit#GateChatInput {{
+    QLineEdit#GateConsoleInput, QPlainTextEdit#GateChatInput {{
         background: {palette['surface_alt']};
         color: {palette['fg']};
         border: 1px solid {palette['border']};
@@ -151,6 +192,11 @@ class GateConsole(QWidget):
         self.log = QTextEdit(self)
         self.log.setObjectName("GateConsoleLog")
         self.log.setReadOnly(True)
+        # A transcript worth reading. It already stretched, but with nothing
+        # holding a floor the entry rows below could squeeze it to a couple
+        # of lines -- and a console you have to scroll to read one answer in
+        # is the moment you least want to be scrolling.
+        self.log.setMinimumHeight(CONSOLE_MIN_HEIGHT)
         outer.addWidget(self.log, 1)
 
         hint = QLabel("Ask with an expression — area.mean(), (area > 500).sum()",
@@ -173,10 +219,16 @@ class GateConsole(QWidget):
 
         chat_row = QHBoxLayout()
         chat_row.setContentsMargins(0, 0, 0, 0)
-        self.chat = QLineEdit(self)
+        # Multi-line, because a question in words is often a paragraph and
+        # a QLineEdit is one line by construction -- it cannot be made
+        # taller, only wider. Enter still SENDS: that habit is already
+        # built, and taking it away to gain a newline is a bad trade. The
+        # newline lives on Shift+Enter, which is where a chat box usually
+        # keeps it.
+        self.chat = _ChatInput(self)
         self.chat.setObjectName("GateChatInput")
-        self.chat.setPlaceholderText("ask in words")
-        self.chat.returnPressed.connect(self.send_chat)
+        self.chat.setPlaceholderText("ask in words — Shift+Enter for a new line")
+        self.chat.submitted.connect(self.send_chat)
         chat_row.addWidget(self.chat, 1)
         send = QPushButton("Ask", self)
         send.clicked.connect(self.send_chat)
@@ -237,7 +289,7 @@ class GateConsole(QWidget):
         return answer
 
     def send_chat(self) -> None:
-        if self.ask(self.chat.text()):
+        if self.ask(self.chat.toPlainText()):
             self.chat.clear()
 
     def reply(self, answer: str) -> None:
