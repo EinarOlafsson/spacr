@@ -1,0 +1,62 @@
+================================================================================
+THE FULL tests/qt RUN HANGS PART-WAY THROUGH
+================================================================================
+
+Status:    observed, NOT isolated. I killed the process before capturing a
+           stack, which lost the evidence (2026-08-08).
+Severity:  test-only, but it makes the qt suite unrunnable as a whole,
+           which is how the order-dependent failures in 03 and 46 stay
+           invisible.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+    QT_QPA_PLATFORM=offscreen pytest tests/qt -q -p no:randomly
+
+reaches roughly 25% and stops. The pytest process stays alive and the log
+file stops being written to -- 24 minutes with no output and no exit. Not
+slowness: nothing progresses.
+
+Individual files complete. test_all_module_smoke.py alone finishes in 144s
+(with the four failures of instruction 46). So it is either a later file or
+an interaction between files.
+
+Not caused by the Walk work or the figure grid: figure_grid.py is imported
+by nothing but its own test file, and the hang is at 25%, before it.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A suite that cannot finish is a suite nobody runs whole, and the failures
+it would have caught are exactly the order-dependent ones this project
+already has trouble with: instruction 03's five, and instruction 46's four.
+Those only show up in a full run, so the hang hides the class of bug it is
+most important to see.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Reproduce with `-v` so the last STARTED test is named. The compact `-q`
+   output only shows completed ones, which is why the culprit is still
+   unknown. Note that `-v` did not expand output in one attempt here --
+   check pytest.ini for an addopts that overrides it.
+2. Get a stack rather than a guess: `pip install py-spy` (not currently in
+   the env) and `py-spy dump --pid <pid>` while it is wedged. Do NOT do
+   what I did and `kill -ABRT` it -- with faulthandler not enabled that
+   produced no traceback and destroyed the only live copy of the state.
+   `pip install pytest-timeout` and `--timeout=120 --timeout-method=thread`
+   would also name it, and is cheaper.
+3. The likely families, given this codebase: a QThread that is waited on
+   and never finishes (INVARIANTS 4 -- a closure connected to
+   QThread.finished is discarded, so the job never retires), or a modal
+   dialog opened in a test with no one to close it. `exec()` on any dialog
+   in a headless run blocks for ever.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The full `pytest tests/qt` run reaches its summary line unattended.
