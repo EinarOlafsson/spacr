@@ -2,8 +2,7 @@
 THE AUTO-ISSUE BUTTON LEADS TO "PAGE NOT FOUND"
 ================================================================================
 
-Status:    the 404 is FIXED and the preference exists (2026-08-08).
-           Wiring the preference into the prompt path is what is left.
+Status:    done 2026-08-08.
 Requested: 2026-08-08 — "make the github issue generation work, now the user gets prompted with a page not found when this is triggered. the user should be able to not get prompted at all or get prompted (add another setting)."
 
 --------------------------------------------------------------------------------
@@ -130,3 +129,39 @@ goes to the PUBLIC repository along with whatever the user's log contains.
 16 tests. The URL-shape ones parse the URL and assert on netloc, path and
 the parsed query rather than matching a substring -- a substring check does
 not catch a wrong owner, which was the first thing suspected here.
+
+--------------------------------------------------------------------------------
+2026-08-08 - DONE. THE PROMPT IS WIRED, AND IT NEARLY REPEATED A KNOWN BUG.
+--------------------------------------------------------------------------------
+
+`_on_file_issue` consults `get_issue_prompt_mode()` now:
+
+    never   says so in the console and files nothing. Silence would read
+            as the button being broken.
+    always  files without asking.
+    ask     a Yes/No dialog naming what the report contains -- traceback,
+            module, settings -- and saying it opens a PUBLIC issue you can
+            read before posting, plus where to turn it off. Default No.
+
+WORTH RECORDING BECAUSE IT ALMOST COST THE SUITE AGAIN: adding that dialog
+put a modal into a path two existing tests call, which is exactly the shape
+of the hang in instruction 47 -- a QMessageBox in a headless run with
+nobody to answer it. It showed up as the verification wedging at 42%,
+minutes after I had finished writing up the same failure mode.
+
+So the qt conftest now sets the mode to `always` for every test, autouse,
+restoring whatever was there afterwards. The reporter cannot open a dialog
+in a test unless a test asks for one, and the tests that exercise FILING
+get to exercise it. That is a trap closed rather than avoided: the next
+person to touch this path does not have to know about it.
+
+The "is the default `ask`?" test reads from a cleared key rather than the
+ambient store, since the fixture would otherwise be what it measured.
+
+VERIFIED: 168 tests across test_cov_app_screen.py and
+test_issue_report_url.py, all passing, no hang.
+
+STILL UNANSWERED, and shared with instruction 45: whether an auto-filed
+issue should carry a user's log into a PUBLIC repository. The dialog now
+says that it is public, which is honest, but it is not the same as deciding
+the policy. Answer it once, in both places.
