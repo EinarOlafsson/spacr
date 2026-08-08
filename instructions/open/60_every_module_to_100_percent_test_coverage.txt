@@ -1,0 +1,82 @@
+================================================================================
+EVERY MODULE AT 100% TEST COVERAGE
+================================================================================
+
+Status:    not started as a sweep. Two modules are close; the repository is
+           not. Long-standing goal, now written down.
+Requested: 2026-08-08 — "have the full repository tested, that is to say that all modules should have 100% test coverage."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Partial, and unevenly. From the coverage push already done:
+
+    spacr/utils.py     ~99%
+    spacr/measure.py   ~95%
+    repository          ~55%
+
+So roughly half the codebase is unmeasured by tests, and the modules that
+ARE covered got there by a deliberate push rather than by accident.
+
+A practical note that will otherwise cost an hour: `pytest --cov` needs a
+`sitecustomize` torch pre-import in this environment, or the run dies with
+a `_has_torch_function` crash. That is a known workaround, not a mystery.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The coverage push that produced the two numbers above also produced 29 real
+bug fixes. That is the argument: writing a test for an uncovered branch is
+how the bugs in it get found, and at 55% the majority of this codebase has
+never had that done to it.
+
+It matters more here than in most projects because the failure mode is
+quiet. A segmentation pipeline that takes a wrong branch does not crash --
+it writes plausible-looking masks, and the error is discovered, if ever,
+in the analysis of a screen that took a week to run.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Get the real per-module numbers first and record them here, so progress
+   is measurable rather than felt:
+       pytest --cov=spacr --cov-report=term-missing
+   (with the sitecustomize workaround above).
+2. Work module by module, worst-first among the modules that RUN things --
+   a pipeline module at 30% is a worse risk than a plotting helper at 30%.
+3. TEST THE DEFENSIVE BRANCHES FOR REAL. No `# pragma: no cover` to reach
+   the number. The except-branch that has never run is exactly where the
+   bugs are, and covering it by exclusion is covering it by pretending.
+4. When a test and the code disagree, find out which one is describing
+   reality before changing either. Several tests in this repository have
+   been wrong since the commit that introduced them; several others were
+   right and the code had regressed. Both happened again today.
+5. Fix what the new tests find, rather than writing a test that documents
+   a bug. A test that asserts current-wrong-behaviour makes the bug
+   permanent.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+`pytest --cov=spacr` reports 100% for every module in `spacr/`, with no
+`pragma: no cover` added to get there, and the suite still finishes
+unattended.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started as a sweep. Two things to know before starting:
+
+  * This is the largest task in the folder by a wide margin -- 45% of a
+    codebase this size is months, not days. Treat it as a standing
+    background task to advance whenever there is room, and record the
+    per-module numbers as they move, rather than as something to finish
+    in one run.
+  * It is blocked in practice by instruction 47 until the qt suite can
+    finish unattended: a coverage run over a suite that hangs or segfaults
+    produces no report at all.
