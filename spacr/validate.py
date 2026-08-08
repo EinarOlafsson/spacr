@@ -99,6 +99,10 @@ APP_FUNCTIONS: Dict[str, str] = {
     "motility": "spacr.timelapse.automated_motility_assay",
     "measure": "spacr.measure.measure_crop",
     "classify": "spacr.deep_spacr.deep_spacr",
+    # One entry point over both classifier families. It calls deep_spacr or
+    # generate_ml_scores unchanged, so this validates the same settings the
+    # two original modules validate.
+    "classify_merged": "spacr.classify.classify",
     "activation": "spacr.deep_spacr.generate_activation_map",
     "foreign": "spacr.foreign.import_project",
     "external_masks": "spacr.external_masks.prepare_external_masks",

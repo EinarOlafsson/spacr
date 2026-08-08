@@ -182,6 +182,13 @@ TOOL_LABELS = {
 
 
 class GateCanvas(GraphCanvas):
+    """A :class:`GraphCanvas` you can draw gates on.
+
+    Adds interactive gate drawing, dragging and hit-testing to the shared
+    canvas, and pins the axes while a gate exists -- see
+    :data:`RESCALE_ON_FILTER` for why that is not optional here.
+    """
+
     #: Gating is the one place a filter must NOT move the axes. A gate is
     #: drawn in data coordinates on a particular view; rescaling to the rows
     #: it kept moves that view out from under it, which reads as the plot
