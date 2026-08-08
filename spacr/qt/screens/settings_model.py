@@ -36,6 +36,7 @@ from PySide6.QtWidgets import (
 
 from ..widgets.barcode_regex import BarcodeRegexWidget
 from ..widgets.channel_mapping import ChannelMappingWidget
+from ..widgets.class_editor import ClassEditorWidget
 from ..widgets.external_mask_inputs import ExternalMaskInputWidget
 from ..widgets.row_exclusion import RowExclusionEditor
 from ..widgets.toggle import Toggle
@@ -1131,56 +1132,61 @@ def categories_for_app(
     if app_key in _APP_CATEGORY_SPECS:
         result = _categories_from_spec(result, _APP_CATEGORY_SPECS[app_key])
     if app_key in ("classify", "classify_merged"):
+        # NINE groups became SIX, named for what they hold rather than for
+        # the stage of a workflow. "Validation", "Evaluation Workbench" and
+        # "Monitoring & Runtime" were three headings for one question -- how
+        # do I know whether this worked -- and nobody looking for a
+        # cross-validation setting knew which of the three to open.
         ordered = {
             "Plate Sources & Workflow": [
                 "src", "experiment", "generate_training_dataset", "train",
-                "test"],
-            # Same group name as Classify (ML), and the same first key:
-            # `dataset_mode` is the shared training basis and it belongs at
-            # the top of the group it governs, because everything below it
-            # is greyed or not depending on what it says.
+                "test", "generate_full_dataset", "apply_model_to_dataset",
+                "dataset", "model_path", "tar_path"],
+
+            # `classes` is the heart of this module: it is the only setting
+            # that says which objects the model is being taught to tell
+            # apart. `dataset_mode` sits above it because it decides which
+            # columns the Classes editor offers.
+            #
+            # `location_column`, `positive_control` and `negative_control` are
+            # NOT here: a control well is a class defined by a metadata
+            # column, which is exactly a row of the Classes dict, so three
+            # settings saying it a second way were three ways to disagree.
             "Labels & Classes": [
                 "dataset_mode", "classes", "annotation_column",
                 "class_metadata", "metadata_type_by",
                 "metadata_item_1_name", "metadata_item_1_value",
                 "metadata_item_2_name", "metadata_item_2_value",
-                "measurement_rules"],
-            # `crop_source` first: it decides which of the rest apply, so it
-            # sits at the top of the group it governs. `png_type` and `size`
-            # are gone -- renamed to `path_string` and `image_size`, still
-            # accepted from an old CSV but no longer offered twice. So is
-            # `write_random_annotation_column`, which the Classes dict
-            # replaced.
-            "Crops & Dataset Split": [
+                "measurement_rules", "balance_to_smallest", "test_split",
+                "val_split", "sample"],
+
+            "Images & Cropping": [
                 "crop_source", "tables", "channel_of_interest",
-                "path_string", "file_type", "extract_channels",
-                "object_array", "coordinate_columns", "crop_shape",
-                "test_split", "balance_to_smallest"],
-            "Model Architecture": [
+                "path_string", "file_type", "file_metadata",
+                "extract_channels", "object_array", "coordinate_columns",
+                "crop_shape", "train_channels", "image_size", "augment"],
+
+            "Model & Regularization": [
                 "classifier_family",
                 "model_type", "custom_model", "custom_model_path",
-                "resume_checkpoint", "train_channels", "image_size",
+                "resume_checkpoint", "init_weights",
                 "normalize", "normalization", "normalization_scope",
-                "dropout_rate", "init_weights", "use_checkpoint"],
-            "Optimization & Loss": [
-                "optimizer_type", "learning_rate", "weight_decay", "amsgrad",
-                "schedule", "loss_type", "class_balance", "label_smoothing",
-                "focal_gamma", "focal_alpha", "logit_adjust_tau", "epochs",
-                "batch_size", "augment", "gradient_accumulation",
+                "dropout_rate", "weight_decay", "use_checkpoint"],
+
+            "Training & Loss": [
+                "epochs", "optimizer_type", "learning_rate", "schedule",
+                "amsgrad", "loss_type", "class_balance", "label_smoothing",
+                "focal_gamma", "focal_alpha", "logit_adjust_tau",
+                "batch_size", "gradient_accumulation",
                 "gradient_accumulation_steps", "early_stopping_patience"],
-            "Validation": [
-                "val_split", "cross_validation_enabled",
-                "cross_validation_folds", "cv_group_by", "score_threshold"],
-            "Evaluation Workbench": [
-                "classifier_evaluation", "nested_cv_inner_folds",
-                "evaluation_calibration", "evaluation_bins",
-                "evaluation_fail_on_leakage", "leakage_audit_train_test",
-                "leakage_hash_content", "leakage_require_identity"],
-            "Full Dataset & Inference": [
-                "generate_full_dataset", "apply_model_to_dataset",
-                "tar_path", "dataset", "file_metadata", "sample",
-                "model_path", "n_top_examples"],
-            "Monitoring & Runtime": [
+
+            "Evaluation & Results": [
+                "cross_validation_enabled", "cross_validation_folds",
+                "cv_group_by", "nested_cv_inner_folds", "score_threshold",
+                "classifier_evaluation", "evaluation_calibration",
+                "evaluation_bins", "evaluation_fail_on_leakage",
+                "leakage_audit_train_test", "leakage_hash_content",
+                "leakage_require_identity", "n_top_examples", "save_to_db",
                 "plot", "tensorboard", "intermedeate_save", "pin_memory",
                 "random_seed", "n_jobs", "verbose", "strict_errors",
                 "max_failure_rate"],
@@ -1191,18 +1197,16 @@ def categories_for_app(
             # sitting inside "Model Architecture". Greying tells the user a
             # control is inactive; it does not tell them what they are
             # DOING, and that is what the merged module has to make obvious.
-            ordered["Model Architecture"] = [
-                k for k in ordered["Model Architecture"]
+            ordered["Model & Regularization"] = [
+                k for k in ordered["Model & Regularization"]
                 if k != "classifier_family"]
 
-            # ML expresses the METADATA basis through the control wells;
-            # Classify (CV) expresses it through class_metadata. Both are the
-            # same basis, so both belong in the group that basis governs --
-            # otherwise they fall into "Additional Settings", which is the
-            # bucket these layouts exist to keep empty.
-            ordered["Labels & Classes"] = (
-                ordered["Labels & Classes"]
-                + ["location_column", "positive_control", "negative_control"])
+            # The control wells are NOT added back. ML used to express the
+            # metadata basis through location_column plus two control values,
+            # and Classify (CV) through class_metadata; the Classes dict now
+            # says both, as rows naming a value of a metadata column. Three
+            # settings restating one thing were three ways for it to disagree
+            # with itself.
 
             # The ML-only groups, appended to the CV ordering rather than
             # duplicated: every CV key is already placed above, so this is
@@ -1210,24 +1214,30 @@ def categories_for_app(
             # match Classify (ML)'s own, so a user moving between the three
             # screens sees the same headings.
             ordered.update({
-                "Feature Preparation": [
-                    "exclude", "nuclei_limit", "pathogen_limit",
-                    "remove_highly_correlated_features",
-                    "remove_low_variance_features", "minimum_cell_count"],
+
                 "Plate & Batch Correction": [
                     "batch_correction", "batch_column",
                     "batch_control_column", "batch_control_values",
                     "batch_covariate_column", "batch_combat_mean_only",
                     "batch_min_samples", "batch_missing_control"],
-                "ML Classifier & Validation": [
+                # Preparing features, choosing a model and ranking features
+                # were three headings asking one question: which features the
+                # model uses. One heading, read top to bottom.
+                "Model & Features": [
                     "model_type_ml", "n_estimators", "test_size",
-                    "cross_validation", "reg_alpha", "reg_lambda"],
-                "Feature Selection & Importance": [
+                    "cross_validation", "reg_alpha", "reg_lambda",
+                    "exclude", "nuclei_limit", "pathogen_limit",
+                    "remove_highly_correlated_features",
+                    "remove_low_variance_features", "minimum_cell_count",
                     "prune_features", "top_features", "n_repeats"],
-                "Output & Database": ["save_to_db"],
-                "Plots & Heatmaps": [
-                    "cmap", "heatmap_feature", "grouping", "min_max"],
             })
+            # The heatmap is not a machine-learning setting: it is how a
+            # result is shown, and the CV family wants it just as much. So it
+            # joins the shared evaluation group rather than being prefixed
+            # onto one family.
+            ordered["Evaluation & Results"] = (
+                ordered["Evaluation & Results"]
+                + ["cmap", "heatmap_feature", "grouping", "min_max"])
 
         if app_key == "classify_merged":
             # Rebuilt in order, because dict order IS the panel order: the
@@ -1239,14 +1249,14 @@ def categories_for_app(
             # imply it belonged to one.
             cv_prefix = "Computer Vision — "
             ml_prefix = "Machine Learning — "
-            cv_groups = ("Crops & Dataset Split", "Model Architecture",
-                         "Optimization & Loss", "Validation",
-                         "Evaluation Workbench", "Full Dataset & Inference")
-            ml_groups = ("Feature Preparation", "Plate & Batch Correction",
-                         "ML Classifier & Validation",
-                         "Feature Selection & Importance",
-                         "Output & Database", "Plots & Heatmaps")
+            cv_groups = ("Images & Cropping", "Model & Regularization",
+                         "Training & Loss")
+            # Feature preparation and feature importance were two headings
+            # asking one question -- which features the model uses -- and
+            # "Output & Database" was one setting under a heading of its own.
+            ml_groups = ("Model & Features", "Plate & Batch Correction")
             shared_first = ("Plate Sources & Workflow", "Labels & Classes")
+            shared_last = ("Evaluation & Results",)
 
             rebuilt = {"Classifier": ["classifier_family"]}
             for name in shared_first:
@@ -1263,9 +1273,17 @@ def categories_for_app(
                         # "Machine Learning - ML Classifier".
                         label = "Classifier & Validation"
                     rebuilt[ml_prefix + label] = ordered[name]
+            # Shared groups that come LAST -- evaluation applies to both
+            # families, so prefixing it onto one would be a lie about who it
+            # belongs to, and putting it first would bury the settings that
+            # decide what is being trained.
+            for name in shared_last:
+                if name in ordered:
+                    rebuilt[name] = ordered[name]
             for name, keys in ordered.items():
                 if name not in rebuilt and name not in cv_groups \
-                        and name not in ml_groups and name not in shared_first:
+                        and name not in ml_groups and name not in shared_first \
+                        and name not in shared_last:
                     rebuilt[name] = keys
             ordered = rebuilt
 
@@ -1420,6 +1438,22 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "The feature-based classifier: which model, and which measured "
         "features it is allowed to see. Feature preparation and feature "
         "importance are one heading because they answer one question.",
+    "IMAGES & CROPPING":
+        "Where the training images come from and how they are cut — the crop "
+        "source, the path and format filters for crops already on disk, and "
+        "the channels and object to cut around for crops made on demand.",
+    "MODEL & REGULARIZATION":
+        "Which architecture, how its input is normalised, and what keeps it "
+        "from memorising the training set. A custom model path that loads "
+        "supersedes the model type.",
+    "TRAINING & LOSS":
+        "How the model is fitted: epochs, learning rate, schedule, and which "
+        "loss. Open it when training is unstable, stalls, or ignores the "
+        "smaller class.",
+    "EVALUATION & RESULTS":
+        "How the fitted model is judged and how the result is shown — "
+        "cross-validation, calibration, the leakage audit, the heatmap, and "
+        "where the scores are written. Shared by both classifier families.",
     "EMBEDDING & CLUSTERING":
         "How the feature table is reduced to two dimensions and clustered "
         "on top of that — neighbourhood size, distance metric, and the "
@@ -1661,41 +1695,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "column or well metadata, the class names, and the measurement that "
         "defines them. Everything the model learns rests on this being the "
         "label you think it is.",
-    "CROPS & DATASET SPLIT":
-        "Which crops feed the model, from which tables and channels, at "
-        "what size, and how they are divided into train and test — "
-        "including whether classes are balanced down to the smallest one. "
-        "Decide the split before training, not after.",
-    "MODEL ARCHITECTURE":
-        "The network being trained: backbone or custom weights, whether a "
-        "checkpoint is resumed, input channels and image size, dropout and "
-        "initialisation. Change the backbone when the model is too small "
-        "for the phenotype, or too large for the data you have.",
-    "OPTIMIZATION & LOSS":
-        "How the network is fitted — optimiser, learning rate and decay, "
-        "schedule, loss function and class balancing, epochs, batch size, "
-        "augmentation and early stopping. This is where a diverging or "
-        "underfitting run gets fixed.",
-    "VALIDATION":
-        "The held-out fraction, whether cross-validation runs and over how "
-        "many folds, what the folds are grouped by, and the score cutoff "
-        "used to call a class. Group folds by plate or well when the score "
-        "has to survive contact with a new plate.",
-    "EVALUATION WORKBENCH":
-        "The deeper evaluation pass — nested cross-validation, probability "
-        "calibration, and the leakage audit that checks the same object did "
-        "not appear in both train and test. Run it before believing a "
-        "headline accuracy.",
-    "FULL DATASET & INFERENCE":
-        "Applying a trained model to everything: which archive or dataset "
-        "is scored, which model file is loaded, how much is sampled, and "
-        "how many top examples are kept. Separate from training, so a "
-        "finished model can be re-applied without refitting.",
-    "MONITORING & RUNTIME":
-        "What the run reports while it happens and how hard it works — "
-        "plots, TensorBoard, intermediate saves, the random seed, workers "
-        "and failure strictness. Fix the seed here when a result has to be "
-        "reproducible.",
     # -- Classify (ML) -----------------------------------------------------
     # Named to match Classify (CV)'s group of the same purpose. The two
     # modules did the same job under different words, which is what made a
@@ -3954,6 +3953,18 @@ class SettingsWidgets:
             )
         # Not scoped to one app: every module that crops object PNGs offers
         # this key, and all of them mean the same thing by it.
+        # `classes` is a dict of name -> {column, value}, so it gets the
+        # editor that can populate it from a column rather than a text box the
+        # user has to type JSON into.
+        if key == "classes":
+            widget = ClassEditorWidget(
+                value=self._defaults.get(key, default),
+                parent=parent,
+            )
+            frame = getattr(self, "_preview_frame", None)
+            if frame is not None:
+                widget.set_frame(frame)
+            return widget
         if key == "png_channel_mapping":
             return ChannelMappingWidget(
                 value=self._defaults.get(key, default),
@@ -4190,6 +4201,7 @@ class SettingsWidgets:
                     _AlphabetSelect, _ListEditor, _ListEdit, _ScalarEdit,
                     BarcodeRegexWidget, RowExclusionEditor,
                     ExternalMaskInputWidget, ChannelMappingWidget,
+                    ClassEditorWidget,
                 ),
             ):
                 w.set_value(value)
@@ -4342,7 +4354,7 @@ class SettingsWidgets:
             (
                 _AlphabetSelect, _ListEditor, _ListEdit, BarcodeRegexWidget,
                 RowExclusionEditor, ExternalMaskInputWidget,
-                ChannelMappingWidget,
+                ChannelMappingWidget, ClassEditorWidget,
             ),
         ):
             return w.get_value()

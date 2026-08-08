@@ -157,8 +157,17 @@ def test_the_merged_defaults_are_the_union_of_both():
     merged = set_default_classify(settings={})
     cv = set(deep_spacr_defaults(settings={}))
     ml = set(set_default_analyze_screen(settings={}))
-    assert cv <= set(merged), sorted(cv - set(merged))
-    assert ml <= set(merged), sorted(ml - set(merged))
+
+    # The union MINUS the three settings the Classes dict replaced. A control
+    # well is a class defined by a metadata column, which is exactly a row of
+    # that dict; keeping location_column and the two control values alongside
+    # it would be one thing said twice, with nothing to say which won.
+    replaced_by_classes = {"location_column", "positive_control",
+                           "negative_control"}
+    assert cv - replaced_by_classes <= set(merged), sorted(cv - set(merged))
+    assert ml - replaced_by_classes <= set(merged), sorted(ml - set(merged))
+    assert not (replaced_by_classes & set(merged)), (
+        "the merged module still offers a setting the Classes dict replaced")
     assert merged["classifier_family"] == "cv"
 
 
