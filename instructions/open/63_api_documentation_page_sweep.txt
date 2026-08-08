@@ -1,0 +1,84 @@
+================================================================================
+MAKE THE API PAGE LOOK PROFESSIONAL, CLEAN AND USEFUL
+================================================================================
+
+Status:    not started
+Requested: 2026-08-08 — "do a sweep of the API page and make sure everything looks as professions and clean and informative and usefull as you can make it"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The API documentation is the target of every tooltip's link: a tooltip
+built by `format_tooltip` ends in a link to `/spacr/<module>/index.html`
+with an anchor for the setting. So the page is not a separate artefact from
+the product -- it is where the in-app help sends people.
+
+What is known about its quality:
+
+  * A contract test (`tests/test_api_documentation_contract.py`) requires
+    every public function and class to have a docstring. It was FAILING
+    until today, with four public symbols undocumented, which means the
+    generated pages had four empty entries.
+  * The `docs` workflow is green.
+  * Nobody has read the rendered pages end to end and asked whether they
+    are good, as opposed to present.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+This is the page a new user lands on from a tooltip, and the page a
+prospective adopter reads before deciding whether the tool is maintained.
+For an academic tool both audiences matter and both judge quickly: an API
+page with empty entries, inconsistent formatting or a wall of undifferentiated
+functions reads as unmaintained regardless of how good the code is.
+
+It is also the destination of instruction 61's link checking. Fixing a
+tooltip's link is pointless if it resolves to a page that does not answer
+the question.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. BUILD AND READ IT. Render the docs and go through the pages as a user
+   would, from the landing page inward. Note what is confusing, empty or
+   ugly before changing anything -- a sweep driven by a list of observed
+   problems beats one driven by taste.
+2. Landing page first: it should say what spaCR is, who it is for, and
+   where to start, above the fold. That page is disproportionately what
+   people judge.
+3. Consistent docstring shape across the public API -- summary line,
+   params, returns, raises. The repository already writes good ones in
+   places; make the rest match rather than inventing a new format.
+4. Separate the public surface from the internals. A page listing every
+   private helper beside the three functions a user actually calls is
+   noise, and it is the most common reason generated API docs feel
+   unusable.
+5. Every module page should say what the module is FOR in a sentence
+   before it lists what is in it.
+6. Check the rendering itself: broken cross-references, unrendered
+   reStructuredText, code blocks that lost their highlighting, tables that
+   overflow. These are what "unprofessional" usually means concretely.
+7. Coordinate with instruction 61. Its link-resolution test is the thing
+   that keeps this page and the tooltips honest with each other, and it
+   should be written once, not twice.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The built docs have no empty entries, no broken cross-references and no
+unrendered markup; every module page opens with a sentence saying what it
+is for; and following an API link from a tooltip in the running app lands
+on a page that answers the question the tooltip raised.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. A caution worth stating: a tutorials effort is running in
+parallel (instruction 48, a concurrent Codex session) and touches the same
+docs tree. Check what that session has changed before editing docs, or the
+two sweeps will conflict.
