@@ -117,3 +117,49 @@ NOT YET LOOKED AT AT ALL: the `tests` workflow (six marker suites x 3.9-3.14)
 and `docs`. Only `compat-matrix` has been read. The five order-dependent qt
 failures in instruction 03 are expected to appear in `tests` and will make
 it unreadable until they are closed.
+
+--------------------------------------------------------------------------------
+2026-08-08 - RESTATED, AND THE REAL COST NAMED
+--------------------------------------------------------------------------------
+
+"make sure that github tests and actions all work and none fail, now i
+continuously get emails saying that the test fail."
+
+Merged here rather than filed separately: this is the same task, and the
+new part is the COST -- a maintainer being emailed about a failure on every
+push. That is worse than a red badge, because a notification that is always
+wrong teaches you to ignore notifications, and the one real failure arrives
+looking exactly like the forty that did not matter.
+
+SCOPE IS ALL WORKFLOWS, not just compat-matrix, which is the only one I had
+looked at before today:
+
+    compat-matrix   9 of 10 green as of this session. macOS was still
+                    running; the QSettings sandbox fix took Windows and all
+                    five Linux jobs from red to green.
+    tests           89 failing tests when last read in full. Four fixed so
+                    far, all of them real product bugs rather than CI drift.
+    docs            green.
+
+WHAT WAS FIXED FROM THAT 89 SO FAR
+
+    classify_merged had no cli.MODULES or validate.APP_FUNCTIONS entry, so
+        `spacr-run classify_merged` answered "unknown module".
+    an old settings CSV silently trained on the wrong labels --
+        `setdefault('dataset_mode', 'metadata')` ran before `resolve_basis`,
+        so the implicit annotation_column rule could never fire.
+    both preview panels discarded the user's chosen model, including a
+        checkpoint from spaCR's own Train Cellpose module.
+    mpl_toolkits was demanded as a PyPI distribution; it ships inside
+        matplotlib.
+    four public symbols had no docstring.
+
+WHAT IS KNOWN AND STILL OPEN
+
+    ~22 cellpose contract failures, which are the MINIMUM-dependencies job
+        on cellpose 4.0.1 versus the recorded 4.0.7 signature. That is a
+        dependency-floor question and belongs to instruction 54, not here.
+    the rest of the 89, not yet triaged one by one.
+
+Until the count reaches zero the emails do not stop, so treat "no failing
+job on any workflow" as the finish line rather than "the badge is green".

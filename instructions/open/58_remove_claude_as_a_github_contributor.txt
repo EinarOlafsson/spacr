@@ -1,0 +1,91 @@
+================================================================================
+CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
+================================================================================
+
+Status:    not started. NEEDS AN EXPLICIT DECISION -- the only complete fix
+           rewrites published history.
+Requested: 2026-08-08 — "remove claude as a contributoa on the spacr github page"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Measured on `nightly`, last 400 commits:
+
+    author  = olafsson / Einar work / Einar Olafsson    (all Einar)
+    author  = github-actions[bot]                       (1)
+    NO commit is authored or committed by Claude.
+
+    38 commits carry a `Co-Authored-By: Claude ...` TRAILER.
+
+That trailer is the whole cause. GitHub reads `Co-Authored-By` and credits
+the named account in the contributors list and in per-commit attribution,
+exactly as if it were a second author.
+
+Going forward this is already prevented: the standing rule for this repo is
+that no commit carries a Co-Authored-By trailer and the maintainer is sole
+author. The 38 are historical, from before that rule.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The contributors list is what a visitor reads as "who wrote this". For an
+academic tool, authorship is not decoration -- it is the thing citation and
+credit attach to, and a tool that appears to have a corporate co-author
+invites questions the maintainer should not have to answer.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+There is no way to remove a contributor through the GitHub UI. Attribution
+is computed from commits, so it changes only when the commits do.
+
+OPTION A -- rewrite history. The only fix that removes the existing 38.
+
+    git filter-repo --message-callback \\
+        'return re.sub(rb"\\n*Co-[Aa]uthored-[Bb]y: Claude[^\\n]*", b"", message)'
+
+    then force-push every affected branch, and re-push tags.
+
+    THIS IS DESTRUCTIVE AND PUBLIC. Every commit hash after the earliest
+    rewritten commit changes, which means:
+      * open pull requests against the old hashes break;
+      * anyone with a clone or fork must re-clone or hard-reset;
+      * a Codex session is working in this repo concurrently and would be
+        rebasing onto history that no longer exists.
+    DO NOT RUN IT without the maintainer saying so, and coordinate the
+    timing with whoever else has the repo checked out.
+
+OPTION B -- leave history, stop the bleeding. Already true: no new commit
+    adds the trailer. The 38 stay, and Claude stays in the list.
+
+RECOMMENDED SEQUENCE
+    1. Confirm the count against the DEFAULT branch too, not just nightly --
+       `git log --grep='Co-Authored-By: Claude' -i --oneline | wc -l` on
+       `main`/`master`. Contributor lists are computed from the default
+       branch, so the number that matters may differ from 38.
+    2. Get an explicit yes for the rewrite, and a time when no one else is
+       working in the repo.
+    3. Take a full backup clone first (`git clone --mirror`).
+    4. Rewrite, force-push, then confirm the contributors page updated --
+       GitHub can take a while and sometimes needs a support request for a
+       cached contributor entry.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+`git log --grep='Co-Authored-By: Claude' -i --oneline | wc -l` returns 0 on
+the default branch, and the repository's contributors page lists only the
+maintainer once GitHub recomputes.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started, and not to be started unprompted. Rewriting published history
+is not reversible for anyone who has already cloned, and this session has a
+concurrent Codex session in the same repository. The measurement above is
+free and was done; the rewrite is a decision, not a task.

@@ -174,3 +174,53 @@ def _skip_first_launch_tour():
         # the tour set force=True (see test_onboarding).
     except Exception:
         yield
+
+
+@pytest.fixture(autouse=True)
+def _drain_job_runners():
+    """Stop every background JobRunner before its owner is destroyed.
+
+    A screen polls resource usage on a 2-second QTimer and samples it on a
+    JobRunner thread. `AppScreen.closeEvent` stops the timer and drains the
+    runners -- but only if the screen is CLOSED, and a test that builds a
+    screen and lets it fall out of scope never closes anything. So the
+    sampler was still inside `psutil.virtual_memory()` on a worker thread
+    while Qt was deleting the widget that owned it, and the process died:
+
+        Fatal Python error: Segmentation fault
+          app_screen.py:2987 in _sample_usage
+          job_runner.py:60 in _capture
+          bridge.py:1018 in run
+
+    at 28% of the qt suite, which is why the run never reached its summary.
+    `JobRunner` takes a parent but does not tie its threads to that parent's
+    destruction, so nothing else was going to stop them.
+
+    Draining here rather than in JobRunner itself is deliberate: the
+    production path already stops cleanly on close, and reaching for
+    `QObject.destroyed` would run Python during C++ teardown, which is how
+    this codebase earned its other threading crash (INVARIANTS 4).
+    """
+    yield
+    try:
+        from PySide6.QtWidgets import QApplication
+
+        from spacr.qt.job_runner import JobRunner
+    except Exception:
+        return
+    app = QApplication.instance()
+    if app is None:
+        return
+    seen = set()
+    for widget in list(app.allWidgets()):
+        for runner in widget.findChildren(JobRunner):
+            if id(runner) in seen:
+                continue
+            seen.add(id(runner))
+            try:
+                runner.shutdown()
+            except Exception:
+                # Teardown is best-effort: a runner already gone is the
+                # outcome we wanted, and raising here would fail a test
+                # that had already passed.
+                pass
