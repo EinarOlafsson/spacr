@@ -268,3 +268,42 @@ def _issue_prompt_does_not_block():
             preferences.set_issue_prompt_mode(original)
         except Exception:
             pass
+
+
+@pytest.fixture(autouse=True)
+def _no_unguarded_modals(monkeypatch):
+    """Turn any unguarded modal dialog into a fast failure, not a hang.
+
+    THREE separate hangs in this suite have been the same thing: a
+    `.exec()` on a dialog in a headless run, with nobody to click it, and
+    the whole suite sitting there until someone kills it.
+
+        _on_stop        -> shutdown.ask_how_to_quit   (QMessageBox)
+        _on_file_issue  -> the report prompt          (QMessageBox)
+        drag-and-drop   -> dnd_handlers:730           (QDialog)
+
+    Each was found by a different multi-hour run, and each was fixed by
+    adding a guard to ONE test file. That does not scale -- the next
+    `.exec()` anyone adds hangs the suite again, and the cost of finding it
+    is another wasted run.
+
+    So the default is now global: exec() raises. A test that genuinely
+    wants to drive a dialog patches it itself, and because monkeypatch in
+    the test body runs AFTER this fixture, that patch wins.
+
+    The message names the fix, because the failure it produces is otherwise
+    mystifying to whoever meets it first.
+    """
+    from PySide6.QtWidgets import QDialog, QMessageBox
+
+    def _refuse(self, *args, **kwargs):
+        raise AssertionError(
+            f"{type(self).__name__}.exec() was called in a headless test. "
+            "A modal has nobody to answer it here and hangs the run. Stub "
+            "the call that opens it -- e.g. monkeypatch "
+            "spacr.qt.shutdown.ask_how_to_quit -- or patch this dialog's "
+            "exec in the test that wants it.")
+
+    for cls in (QDialog, QMessageBox):
+        for name in ("exec", "exec_"):
+            monkeypatch.setattr(cls, name, _refuse, raising=False)
