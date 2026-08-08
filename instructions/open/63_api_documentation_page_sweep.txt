@@ -135,3 +135,38 @@ ORDER TO FIX IN:
 
 Keep the build log. The line numbers are the work list, and regenerating
 it is eight minutes.
+
+--------------------------------------------------------------------------------
+2026-08-08 - HOW TO GET THE EXACT LIST (I tried the shortcut; it does not work)
+--------------------------------------------------------------------------------
+
+The build names each fault as `api/spacr/<module>/index.rst:<line>`, and
+autoapi DELETES those generated .rst files when it finishes -- the workflow
+even does `rm -rf docs/source/api` first. So by the time you read the log,
+the line numbers point at files that no longer exist.
+
+The shortcut I tried: scan the source for a rule line (`---`) shorter than
+the text line above it, since that is what "Title underline too short"
+means. It reports 5102 hits against 17 real warnings. Almost all are prose
+separators inside ordinary comments that never reach a rendered docstring,
+and a handful are inside module docstrings docutils never parses as
+titles. Useless as a work list, and fixing from it would be editing
+hundreds of files on a guess.
+
+DO THIS INSTEAD -- keep the generated rst:
+
+    python -m sphinx -E -b html --keep-going docs/source /tmp/docsbuild
+    # do NOT clean docs/source/api afterwards
+    grep -E "Title underline|Unexpected indentation|Malformed table" \
+        /tmp/sphinx.log
+
+then open each `docs/source/api/<...>/index.rst` at the reported line. The
+generated rst quotes the docstring verbatim, so the offending text is right
+there and maps back to its module by path.
+
+The modules with the most faults, from this build, as a starting order:
+
+    anndata_export (4), runctx (3), ome_zarr (3), qt/synthetic (2),
+    qt/bridge (2), model_zoo (2), model_compare (2), foreign (2)
+
+That is ~20 of the ~49 in eight files.
