@@ -2,7 +2,8 @@
 THE AUTO-ISSUE BUTTON LEADS TO "PAGE NOT FOUND"
 ================================================================================
 
-Status:    not started
+Status:    the 404 is FIXED and the preference exists (2026-08-08).
+           Wiring the preference into the prompt path is what is left.
 Requested: 2026-08-08 — "make the github issue generation work, now the user gets prompted with a page not found when this is triggered. the user should be able to not get prompted at all or get prompted (add another setting)."
 
 --------------------------------------------------------------------------------
@@ -70,3 +71,62 @@ go to the public spaCR repository, where it is world-readable along with
 whatever the user's log contains? Automatic reporting and private data are
 in tension, and instruction 45's log-sharing opt-in is the same question
 asked twice. Answer it once, in both places.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE 404 IS FOUND AND FIXED
+--------------------------------------------------------------------------------
+
+Not the repository, and not the label -- both were checked first and both
+were fine:
+
+    REPO = "EinarOlafsson/spacr"   matches the git remote, public,
+                                   issues enabled
+    ISSUE_LABEL = "auto-filed"     exists in the repository's label list
+
+It was URL LENGTH. `issue_url` compared the QUOTED body against the budget
+and then sliced the RAW body:
+
+    if scaffold_len + len(quote(body)) > MAX_URL_LEN:
+        head_len = MAX_URL_LEN - scaffold_len - 80
+        body = body[:head_len]          # <- raw characters
+
+Those are different units. Quoting expands, and a traceback is mostly
+newlines at three characters each (`%0A`), so a body trimmed to fit in raw
+characters is two to three times over budget once encoded. GitHub answers
+an over-long `issues/new` with a page reading "page not found", which is
+exactly the report.
+
+MEASURED, on a realistic crash report, BEFORE the fix:
+
+    body                22,800 raw characters
+    final URL           11,924 characters
+    MAX_URL_LEN          7,500
+    over budget by       4,424      -- after "truncation"
+
+AFTER, across four encodings that expand at different rates:
+
+    newline-dense traceback   6,339    fits
+    plain ascii               6,528    fits
+    unicode                   6,072    fits
+    short                       105    fits
+
+The trim now shrinks until the QUOTED body fits, by repeated halving rather
+than a computed guess -- the expansion ratio is 1x for plain ASCII and 3x
+for newline-dense text, and one constant cannot serve both.
+
+THE PREFERENCE EXISTS, with the three states the instruction asked for:
+`ISSUE_PROMPT_ASK` / `NEVER` / `ALWAYS` in `spacr/qt/preferences.py`,
+defaulting to ask. An unrecognised stored value reads back as `ask`, so a
+preferences file written by a newer build cannot silence the reporter on an
+older one. An unknown mode passed to the setter raises rather than being
+stored, because storing it would read back as `ask` and look like the
+setting was ignored.
+
+STILL OPEN, and small: the prompt path does not consult
+`get_issue_prompt_mode()` yet, and Preferences has no control for it. Also
+unanswered, and shared with instruction 45: whether an auto-filed issue
+goes to the PUBLIC repository along with whatever the user's log contains.
+
+16 tests. The URL-shape ones parse the URL and assert on netloc, path and
+the parsed query rather than matching a substring -- a substring check does
+not catch a wrong owner, which was the first thing suspected here.

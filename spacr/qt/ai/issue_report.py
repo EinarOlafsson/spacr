@@ -332,12 +332,28 @@ def issue_url(title: str, body: str, label: str = ISSUE_LABEL,
     if scaffold_len + len(urllib.parse.quote(body)) > MAX_URL_LEN:
         # Trim body — keep the traceback (most valuable), drop
         # subsequent details blocks.
-        head_len = MAX_URL_LEN - scaffold_len - 80
-        body = body[:head_len].rstrip()
-        body += (
+        #
+        # Measured against the ENCODED length, not the raw one. This used to
+        # slice `body[:head_len]` with head_len computed from the URL budget
+        # in raw characters, which is a different unit: quoting expands, and
+        # a traceback is mostly newlines at three characters each (`%0A`).
+        # A realistic crash report came out at 11,924 characters against a
+        # 7,500 limit AFTER "truncation", and GitHub answers an over-long
+        # issues/new with a page that reads "page not found" -- which is the
+        # 404 users were getting.
+        note = (
             "\n\n_[report truncated to fit GitHub URL limit — "
             "the full log lives at ~/.spacr/logs/spacr.log]_"
         )
+        budget = MAX_URL_LEN - scaffold_len - len(urllib.parse.quote(note))
+        # Shrink until the QUOTED body fits. Halving converges in a few
+        # passes for any expansion ratio, where a fixed guess cannot: the
+        # ratio is 1x for plain ASCII and 3x for newline-dense text, and the
+        # body that matters most here is the newline-dense one.
+        head = body
+        while head and len(urllib.parse.quote(head)) > budget:
+            head = head[:max(1, int(len(head) * 0.8))]
+        body = head.rstrip() + note
     q = urllib.parse.urlencode({
         "labels": label,
         "title":  title,

@@ -1465,6 +1465,46 @@ def set_font_scale(scale: float) -> None:
     scale = max(FONT_SCALE_MIN, min(FONT_SCALE_MAX, scale))
     _settings().setValue(_KEY_FONT_SCALE, scale)
 
+#: How the auto-issue reporter behaves when something goes wrong.
+#:
+#: Three states, not two. "prompt me" and "never prompt me" leave out the
+#: user who wants a report filed and does not want to be asked, and the
+#: moment someone wants this off is the moment it has just interrupted them.
+ISSUE_PROMPT_ASK = "ask"
+ISSUE_PROMPT_NEVER = "never"
+ISSUE_PROMPT_ALWAYS = "always"
+ISSUE_PROMPT_MODES = (ISSUE_PROMPT_ASK, ISSUE_PROMPT_NEVER,
+                      ISSUE_PROMPT_ALWAYS)
+_KEY_ISSUE_PROMPT = "ai/issue_prompt"
+
+
+def get_issue_prompt_mode() -> str:
+    """How to behave when a report could be filed.
+
+    :returns: one of :data:`ISSUE_PROMPT_MODES`; ``'ask'`` by default, and
+        for any stored value that is not recognised -- a preference file
+        written by a newer build must not silence the reporter on an older
+        one.
+    """
+    value = str(_settings().value(_KEY_ISSUE_PROMPT, ISSUE_PROMPT_ASK) or "")
+    return value if value in ISSUE_PROMPT_MODES else ISSUE_PROMPT_ASK
+
+
+def set_issue_prompt_mode(mode: str) -> None:
+    """Persist the auto-issue behaviour.
+
+    :param mode: one of :data:`ISSUE_PROMPT_MODES`.
+    :raises ValueError: for anything else. Silently storing an unknown mode
+        would read back as 'ask' and look like the setting was ignored.
+    """
+    mode = str(mode)
+    if mode not in ISSUE_PROMPT_MODES:
+        raise ValueError(
+            f"issue prompt mode {mode!r} is not one of "
+            f"{list(ISSUE_PROMPT_MODES)}.")
+    _settings().setValue(_KEY_ISSUE_PROMPT, mode)
+
+
 
 def scaled_px(base_px: int) -> int:
     """Return ``base_px`` scaled by the current user font scale.
