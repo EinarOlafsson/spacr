@@ -133,7 +133,17 @@ import hashlib as _hashlib
 import shutil as _shutil
 
 #: Throwaway root that stands in for the user's config directory.
-_QSETTINGS_SANDBOX = Path(tempfile.mkdtemp(prefix="spacr-qsettings-"))
+# RESOLVED, and that is the whole fix for macOS and Windows.
+# `_inside_allowed_root` resolves the path it is checking, so the roots it
+# checks against have to be resolved too or they can never match. On macOS
+# `tempfile.mkdtemp()` returns `/var/folders/...` and `/var` is a symlink to
+# `/private/var`, so the probe resolved to `/private/var/...` and compared
+# against `/var/...`; on Windows the same thing happens with 8.3 short names
+# (`RUNNER~1`). Both platforms reported "QSettings escaped the test sandbox"
+# for settings that were sitting inside it. Linux never saw it because
+# nothing there is a symlink.
+_QSETTINGS_SANDBOX = Path(
+    tempfile.mkdtemp(prefix="spacr-qsettings-")).resolve()
 _atexit.register(_shutil.rmtree, str(_QSETTINGS_SANDBOX), True)
 
 #: `(exists, size, mtime_ns)` for the real files a leak would damage, taken
