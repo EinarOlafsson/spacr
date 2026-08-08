@@ -1,0 +1,84 @@
+================================================================================
+IMAGE UMAP: DROP THE API DOTS, AND SHOW SEARCH FIGURES AS THEY ARRIVE
+================================================================================
+
+Status:    not started
+Requested: 2026-08-08 — "remove the API link dots from Image UMAP settings and make the graphs generated pop up when generated on a grid in hyperparamiter search not just at the end in one grid."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+TWO SEPARATE ASKS, and the second is already half-built.
+
+API DOTS. The same request was made and done once before for the Live
+Preview panel -- "in live preview the API link dots can be removed from
+after the setting and after the field for each setting" -- so the pattern
+exists; this is applying it to the Image UMAP settings. The dots come from
+`spacr/qt/screens/settings_model.py`, which attaches an InfoLink/api_dot
+per setting. Note the smoke test
+(`tests/qt/test_all_module_smoke.py :: _setting_row_contract`) asserts every
+setting LABEL carries linked help containing `href=`, so the help itself
+must survive; it is the visible dot that goes, not the documentation.
+
+LIVE FIGURE GRID. `spacr/qt/widgets/figure_grid.py` was written this
+session and is tested (22 tests): `reflow_shape` decides the grid for the
+container, `axis_layout` places a figure by the parameter values that
+produced it, and `SearchFigureGrid.add_figure` appends one at a time.
+
+It is NOT WIRED. The panel still draws one matplotlib figure containing all
+the small multiples (`build_panel_figure`) once the search finishes, which
+is exactly the "one grid at the end" this request is about. Instruction 35
+holds the wiring plan, and instruction 34 part 4 is the same grid seen from
+the search side.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A search that shows nothing until it finishes cannot be steered. Seeing the
+first few embeddings land is what tells the user the range is wrong before
+the other fifty configurations run -- and a UMAP sweep is minutes to hours,
+so that is the difference between one wasted afternoon and none.
+
+The dots are smaller but the same argument as the Live Preview: a dot after
+every setting AND after every field doubles the visual noise of a form the
+user is trying to read as a list of choices.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Remove the API dots from the Image UMAP settings, the way it was done
+   for Live Preview -- find that change and follow it rather than
+   inventing a second mechanism. Keep the linked help on the label; only
+   the dot goes. The smoke test will catch it if the help is lost.
+2. Wire `SearchFigureGrid` into the Image UMAP hyperparameter panel, per
+   instruction 35's plan. The essential part, restated because it is the
+   part that can go wrong invisibly: the per-trial figure must be rendered
+   ON THE WORKER THREAD. `_SearchWorker.run` already sees each trial as it
+   completes; render there and widen `trial_ready` to carry the PNG path.
+   Rendering in the panel's `trial_ready` handler runs on the GUI thread,
+   and fifty embeddings drawn there is a fifty-second freeze.
+3. `set_parameters(result.space.params)` when the search starts, so the
+   grid's axes are right from the first figure rather than rearranging as
+   figures land.
+4. `build_panel_figure` stays for the finished-sweep summary and for
+   export. The grid replaces the live view, not the deliverable.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Start a Walk over three parameters: figures appear one at a time as each
+trial finishes, on a grid whose position reflects the parameter values, and
+the window stays responsive throughout -- draggable, scrollable, cancellable
+while figures are still arriving. No API dots in the settings column, and
+the smoke test still passes, which proves the help survived.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. The two halves are independent and should be separate commits;
+the dots are a small edit and the streaming grid is a threading change.

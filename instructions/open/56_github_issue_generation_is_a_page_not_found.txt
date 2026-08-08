@@ -1,0 +1,72 @@
+================================================================================
+THE AUTO-ISSUE BUTTON LEADS TO "PAGE NOT FOUND"
+================================================================================
+
+Status:    not started
+Requested: 2026-08-08 — "make the github issue generation work, now the user gets prompted with a page not found when this is triggered. the user should be able to not get prompted at all or get prompted (add another setting)."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Broken in the user's hands: triggering the GitHub issue flow opens a page
+that does not exist. Not diagnosed. The most likely causes, in the order
+worth checking, are a wrong repository owner/name in the URL, a URL built
+against a private or renamed repo, or query parameters that are not escaped
+so GitHub rejects the whole request.
+
+Related and not yet built: instruction 45 adds a GitHub sign-in and an
+issue-feature toggle to the installer. Whatever this task settles about
+where the issue goes, 45's installer question has to agree with it.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+This feature fires at the worst possible moment -- something has just gone
+wrong -- and a 404 turns a recoverable bad impression into the software
+being unable to report its own failure. It also silently costs the project
+every bug report the user was willing to file.
+
+The prompt itself is the second half. A dialog that appears uninvited after
+a crash, offering to file a report, is intrusive to someone who has decided
+they do not want it, and there is currently no way to say no permanently.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Find where the issue URL is built and print the exact URL rather than
+   inferring it. Open that URL by hand; the 404 will name itself.
+2. Fix it, and add a test that asserts the URL's SHAPE -- owner, repo, the
+   `/issues/new` path, escaped parameters. A test that only checks a
+   substring will not catch the next wrong owner.
+3. Add the setting the request asks for, with three states rather than two,
+   because "prompt me" and "never prompt me" do not cover the useful third:
+       ask     - prompt when something goes wrong (today's behaviour)
+       never   - never prompt, and no issue is filed
+       always  - file without prompting, for a user who wants that
+   If `always` is not wanted, say so here with the reason rather than
+   quietly shipping two states.
+4. Make the default `ask`, and make the setting reachable from Preferences
+   as well as from the prompt itself -- the moment a user wants to turn
+   this off is the moment it has just appeared.
+5. Honour the installer answer from instruction 45 as the initial value.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Triggering the flow opens a real, pre-filled GitHub issue form for the
+right repository. Setting the preference to `never` means it never appears
+again, across restarts.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. One question to settle before writing the URL: does an issue
+go to the public spaCR repository, where it is world-readable along with
+whatever the user's log contains? Automatic reporting and private data are
+in tension, and instruction 45's log-sharing opt-in is the same question
+asked twice. Answer it once, in both places.
