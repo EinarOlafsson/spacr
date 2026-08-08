@@ -118,6 +118,22 @@ class GateEditorScreen(QWidget):
         self._load_gates.clicked.connect(self.choose_load_gates)
         head.addWidget(self._load_gates)
 
+        # Beside the gate buttons, because a filter set is the same kind of
+        # decision: which rows this analysis is about.
+        self._save_filters = QPushButton("Save filters…", self)
+        self._save_filters.setToolTip(
+            "Write the current filter set to a file, so the same rows can "
+            "be selected again on another plate.")
+        self._save_filters.clicked.connect(self.choose_save_filters)
+        head.addWidget(self._save_filters)
+
+        self._load_filters = QPushButton("Load filters…", self)
+        self._load_filters.setToolTip(
+            "Apply a saved filter set. Columns this table does not have are "
+            "reported rather than skipped silently.")
+        self._load_filters.clicked.connect(self.choose_load_filters)
+        head.addWidget(self._load_filters)
+
         self._annotate = QPushButton("Annotate…", self)
         self._annotate.setToolTip(
             "Turn the SHOWN gates into one annotation column. Binary marks "
@@ -773,6 +789,51 @@ class GateEditorScreen(QWidget):
         return self._jobs.is_busy()
 
     # -- the strategy -----------------------------------------------------
+    # -- filter sets, saved the way gates already are -------------------
+
+    def choose_save_filters(self) -> None:
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Save the filter set", "filters.json",
+            "Filter sets (*.json);;All files (*)")
+        if path:
+            self.save_filters(path)
+
+    def save_filters(self, path: str) -> str:
+        """Write the current filter set to ``path``."""
+        self.filters.save(path)
+        self._source.setText(f"filters saved to {os.path.basename(path)}")
+        return path
+
+    def choose_load_filters(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Load a filter set", "",
+            "Filter sets (*.json);;All files (*)")
+        if path:
+            self.load_filters(path)
+
+    def load_filters(self, path: str) -> List[str]:
+        """Apply a saved filter set. Reports columns this table does not have.
+
+        Saying so matters more here than it looks. A filter set saved against
+        one plate and loaded against another is an ordinary thing to do, and
+        a set that half-applies selects the wrong rows while looking like it
+        worked.
+        """
+        try:
+            missing = self.filters.load(path)
+        except Exception as exc:
+            LOG.exception("could not load the filter set %s", path)
+            self._source.setText(f"could not load that filter set: {exc}")
+            return []
+        name = os.path.basename(path)
+        if missing:
+            self._source.setText(
+                f"{name} loaded; this table has no "
+                f"{', '.join(sorted(missing))}")
+        else:
+            self._source.setText(f"filters loaded from {name}")
+        return missing
+
     def choose_save_gates(self) -> None:
         path, _ = QFileDialog.getSaveFileName(
             self, "Save the gating strategy", "gates.json",
