@@ -1,0 +1,73 @@
+================================================================================
+GET THE GITHUB ACTIONS RUNS GREEN
+================================================================================
+
+Status:    not started
+Requested: 2026-08-08 - "fix the failing GitHub tests."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Two workflows:
+
+    .github/workflows/tests.yml          Python 3.9-3.14 x six marker suites
+    .github/workflows/compat-matrix.yml  wheel-only, --noconftest
+
+Nobody has looked at an actual RUN. Everything known is inferred from local
+runs, and the inference has been wrong before -- see instruction 04, where
+the local suite was measuring a font scale CI never sees.
+
+Known locally, and expected to appear in CI:
+
+  * Five order-dependent qt failures. Each passes on its own file and fails
+    in the suite. Two leaks of the same family are closed; a third -- the
+    app stylesheet, left by test_photo_themes -- is confirmed and open. See
+    instruction 03, which also records the two fixes that did NOT work and
+    why, so they are not tried again.
+  * 3.9 and 3.14 have never been run here. Every new extra was checked
+    against the PyPI JSON API and resolves at both ends, and an AST scan for
+    3.10+ syntax in runtime-evaluated positions found nothing. That is
+    reasoning, not evidence.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A red CI is a CI nobody reads, and a CI nobody reads is one that stops
+catching the thing it was built for. It also blocks the release path: a
+version bump pushed onto known-red runs produces a first result you cannot
+interpret, because the pre-existing failures cannot be told from whatever
+the bump broke.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. LOOK AT A REAL RUN FIRST. `gh run list --limit 10` and `gh run view
+   <id> --log-failed`. Do not start from the local failures; the point of
+   this task is that CI and local disagree.
+2. Triage into three piles and say which is which: fails locally too
+   (fix the code or the test), fails only in CI (an environment
+   difference -- headless, no CUDA, no NAS, a different package
+   resolution), and flaky.
+3. Close instruction 03 first if the five order-dependent failures show
+   up. They will make everything else unreadable.
+4. Fix, one pile at a time, smallest blast radius first.
+5. Whatever the cause, leave the failure LOUD if it recurs. A cell that
+   times out with no output -- which is what the About-dialog modal did --
+   teaches nobody what went wrong.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+`gh run list --limit 5` shows green for both workflows on `nightly`, on a
+run triggered after the fix rather than a re-run of an older commit.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet. Note that instruction 05 (the version bump) is deliberately
+sequenced AFTER this one for the reason in WHY IT MATTERS.
