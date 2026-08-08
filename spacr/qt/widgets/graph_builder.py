@@ -626,6 +626,15 @@ class GraphCanvas(LinkedView, QWidget):
             self._spec = spec
         self.render_now()
 
+    def figure(self):
+        """The matplotlib Figure this canvas draws on.
+
+        Public so a caller can EXPORT the graph without reaching into a
+        private attribute. Do not draw on it from outside -- `set_spec` and
+        the redraw path own its contents.
+        """
+        return self._figure
+
     @property
     def spec(self) -> GraphSpec:
         return self._spec

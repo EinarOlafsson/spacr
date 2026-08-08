@@ -2,7 +2,7 @@
 SAVE THE GATE EDITOR'S GRAPH AS PDF OR PNG
 ================================================================================
 
-Status:    not started
+Status:    done 2026-08-08
 Requested: 2026-08-08 — "for the gate editor. the user should be able to save the graph as a pdf or png."
 
 --------------------------------------------------------------------------------
@@ -55,3 +55,39 @@ DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
 Nothing yet -- not started.
+
+--------------------------------------------------------------------------------
+2026-08-08 - DONE
+--------------------------------------------------------------------------------
+
+A "Save graph..." button beside "Export gates...", and `save_graph()` on
+the screen.
+
+NO SECOND SETTING, which the instruction was explicit about. The default
+format is `get_figure_format()` from Preferences and the resolution is
+`get_figure_png_dpi()`; the file dialog offers the other format first in
+its filter list so a single save can differ, because "save as" is when a
+user thinks about format.
+
+It goes through `render_figure_to_png` rather than `savefig`. That helper
+restyles the figure for print before writing, and in PDF mode writes a
+genuine vector PDF beside the PNG via `_export_vector_pdf`. Calling
+matplotlib directly would export the dark theme's colours -- white text on
+black -- which is unusable on paper, and that restyle is the entire reason
+the helper exists.
+
+MEASURED on a scatter of 60 points:
+
+    graph.png   44,460 bytes
+    graph.pdf   10,039 bytes
+
+The PDF being four times SMALLER is the evidence it is vector rather than a
+raster in a wrapper; a wrapped raster comes out at least as large as the
+PNG. The test asserts that relationship rather than a byte count.
+
+An empty canvas writes NOTHING and says so in the console, rather than
+producing a blank file that looks like a result.
+
+`GraphCanvas.figure()` is new -- a public accessor, so the screen does not
+reach into `_figure`. 6 tests; 72 pass across the gates, console and export
+suites.
