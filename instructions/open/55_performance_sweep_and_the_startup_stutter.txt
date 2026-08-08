@@ -176,3 +176,46 @@ than any individual deferral.
 STILL UNTOUCHED: the event-loop tick monitor. Import time remains a proxy;
 the reported symptom is a stutter, and no measurement here has yet observed
 the event loop failing to turn.
+
+--------------------------------------------------------------------------------
+2026-08-08, LATER STILL - THE REMAINING 200 ms IS STRUCTURAL, NOT CARELESS
+--------------------------------------------------------------------------------
+
+Enumerated the importers in one pass, as the section above says to. The
+chain that remains is:
+
+    spacr.qt.app
+      -> spacr.qt.linked_selection      204 ms
+        -> spacr.selection
+          -> pandas                     198 ms
+
+`linked_selection.py` itself is INNOCENT. It has
+`from __future__ import annotations`, and its only three uses of pandas are
+`pd.DataFrame` in signatures -- which are strings at runtime, so its
+`import pandas as pd` could move under TYPE_CHECKING and nothing would
+change. I did not make that edit: it is correct in principle but saves
+nothing here, and an unverifiable no-op change is not worth the risk.
+
+The real source is `spacr/selection.py`, which uses pandas THIRTY times and
+genuinely needs it. It is not a stray import that can be deferred; the
+module is built on DataFrames.
+
+SO THE HONEST CONCLUSION, and it changes what this half of the instruction
+is: pandas cannot be lifted off the Qt startup path by moving imports
+around. Removing the last ~200 ms means one of
+
+  (a) splitting `spacr.selection` so the parts the Qt path needs at import
+      time -- `DataFilter`, `ObjectRequest`, `Selection`, `as_key_index`,
+      `OBJECT_KEY_COLUMNS` -- live in a module that does not import pandas,
+      with the DataFrame functions in a sibling that does; or
+  (b) deciding 200 ms of pandas at startup is acceptable and stopping,
+      which is defensible: it is ~1/3 of a 600 ms import, once, at launch.
+
+(a) is a real refactor with real regression risk across everything that
+imports `spacr.selection`. (b) is free. This is a judgement about how much
+the startup stutter actually costs the user, and the tick monitor -- still
+unbuilt -- is what should decide it. If the loop never stalls more than
+50 ms, the imports were never the problem and (b) is obviously right.
+
+DO NOT keep deferring imports one at a time before that measurement. Two
+were worth doing and are done; the third would be guessing.
