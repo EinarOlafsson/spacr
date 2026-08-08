@@ -31,8 +31,9 @@ from PIL.ImageQt import ImageQt
 from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
-    QComboBox, QFormLayout, QLabel, QLineEdit, QPushButton,
-    QSpinBox, QSplitter, QVBoxLayout, QWidget,
+    QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox, QFormLayout,
+    QLabel, QLineEdit, QPushButton, QSpinBox, QSplitter, QVBoxLayout,
+    QWidget,
 )
 
 from ... import schema
@@ -119,6 +120,99 @@ class _AnnotationWorker(QThread):
         except Exception as exc:
             LOG.info("UMAP annotation write failed", exc_info=True)
             self.finished_result.emit(0, len(self._records), str(exc))
+
+
+class UmapDisplaySettings(QDialog):
+    """One window holding every Image UMAP display setting.
+
+    Some apply to the figure on screen and some cannot, and the window says
+    which rather than leaving the user to discover it. Asked for exactly
+    that way: "the other settings can also be in the same settings window
+    even though they cannot be live applied."
+
+    The ones that cannot are not disabled -- they are editable, saved, and
+    take effect on the next run. A greyed control that holds a value the
+    user wants to change is worse than a live one with a note beside it.
+    """
+
+    #: ``key -> (label, kind, low, high, live)``. ``live`` decides which
+    #: half of the form the row lands in, and nothing else.
+    FIELDS = (
+        ("point_size",     "Dot size",        "int",   1, 400,  True),
+        ("point_alpha",    "Dot opacity",     "float", 0.0, 1.0, True),
+        ("outline_width",  "Outline width",   "float", 0.0, 10.0, True),
+        ("point_color",    "Dot colour",      "text",  0, 0,    True),
+        ("canvas_width",   "Canvas width",    "int",   200, 4000, True),
+        ("sidebar_width",  "Sidebar width",   "int",   120, 2000, True),
+        ("figuresize",     "Figure size",     "float", 1.0, 60.0, False),
+        ("image_nr",       "Images shown",    "int",   0, 100000, False),
+        ("img_zoom",       "Image zoom",      "float", 0.001, 5.0, False),
+    )
+
+    def __init__(self, values: Dict, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Image UMAP display settings")
+        self._editors: Dict[str, QWidget] = {}
+
+        outer = QVBoxLayout(self)
+        live_form = QFormLayout()
+        later_form = QFormLayout()
+
+        for key, label, kind, low, high, live in self.FIELDS:
+            editor = self._editor(kind, low, high, values.get(key))
+            self._editors[key] = editor
+            (live_form if live else later_form).addRow(label, editor)
+
+        outer.addWidget(QLabel("<b>Applies now</b>"))
+        outer.addLayout(live_form)
+        note = QLabel("<b>Applies on the next run</b><br>"
+                      "<span style='color:gray;'>These decide what gets "
+                      "drawn, so they need the run that draws it.</span>")
+        note.setWordWrap(True)
+        outer.addWidget(note)
+        outer.addLayout(later_form)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok
+                                   | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        outer.addWidget(buttons)
+
+    @staticmethod
+    def _editor(kind: str, low, high, value):
+        if kind == "int":
+            box = QSpinBox()
+            box.setRange(int(low), int(high))
+            if value is not None:
+                box.setValue(int(float(value)))
+            return box
+        if kind == "float":
+            box = QDoubleSpinBox()
+            box.setDecimals(3)
+            box.setRange(float(low), float(high))
+            if value is not None:
+                box.setValue(float(value))
+            return box
+        edit = QLineEdit()
+        if value is not None:
+            edit.setText(str(value))
+        return edit
+
+    def values(self) -> Dict:
+        """What the user set, keyed as the settings dict keys."""
+        out: Dict = {}
+        for key, editor in self._editors.items():
+            if isinstance(editor, QLineEdit):
+                out[key] = editor.text().strip()
+            else:
+                out[key] = editor.value()
+        return out
+
+    def live_values(self) -> Dict:
+        """Only the half that can reach the figure already on screen."""
+        live = {key for key, _l, _k, _lo, _hi, is_live in self.FIELDS
+                if is_live}
+        return {k: v for k, v in self.values().items() if k in live}
 
 
 class ImageUmapExplorer(LinkedView, QWidget):
@@ -261,6 +355,18 @@ class ImageUmapExplorer(LinkedView, QWidget):
             "Write the current DBSCAN/KMeans cluster number for every point.")
         self._apply_clusters.clicked.connect(self._write_clusters)
         side.addWidget(self._apply_clusters)
+        # Every display setting in one window, live and not-live together,
+        # as asked. The propagate callback is the same seam the Mask live
+        # preview uses, so a value tuned here lands in the settings panel
+        # and is saved with the run rather than living only in this widget.
+        self._display_btn = QPushButton("Display settings…", self)
+        self._display_btn.setToolTip(
+            "Dot size, colour and opacity apply to this figure straight "
+            "away. Figure size, image count and image zoom are saved and "
+            "take effect on the next run.")
+        self._display_btn.clicked.connect(self.open_display_settings)
+        side.addWidget(self._display_btn)
+
         self._status = QLabel("Waiting for an embedding.", self)
         self._status.setWordWrap(True)
         side.addWidget(self._status)
@@ -284,6 +390,91 @@ class ImageUmapExplorer(LinkedView, QWidget):
             int(self._display["canvas_width"]),
             int(self._display["sidebar_width"]),
         ])
+
+    #: Which display settings can be applied to the CURRENT figure, and
+    #: which only take effect on the next run.
+    #:
+    #: The split is not a policy, it is a fact about the artists: point
+    #: size, colour and alpha are settable on a `PathCollection` that
+    #: already exists, and the splitter widths are Qt. Everything else --
+    #: `figuresize`, `image_nr`, `img_zoom` -- decides what gets DRAWN, and
+    #: redrawing it from the same embedding is fine, but a setting that
+    #: changes the embedding itself must not be in here at all: a "live
+    #: apply" that re-embeds moves every point and the user loses the
+    #: arrangement they were reading.
+    LIVE_DISPLAY_KEYS = ("point_size", "point_color", "point_alpha",
+                         "outline_width", "canvas_width", "sidebar_width")
+
+    def set_propagate_callback(self, callback) -> None:
+        """Register ``callback(dict)`` to push values into the settings panel.
+
+        Optional: the explorer is usable without one, and a widget built in
+        a test has none.
+        """
+        self._propagate_cb = callback
+
+    def open_display_settings(self) -> None:
+        """Open the one window, apply what can apply, propagate all of it."""
+        values = dict(self._display)
+        # The not-live half is not held by this widget -- it belongs to the
+        # run -- so seed it from the settings panel when there is one, or
+        # the dialog opens showing zeros for settings that have values.
+        getter = getattr(self, "_settings_getter", None)
+        if callable(getter):
+            try:
+                values.update(getter() or {})
+            except Exception:
+                LOG.debug("could not read the current run settings",
+                          exc_info=True)
+
+        dialog = UmapDisplaySettings(values, self)
+        if not dialog.exec():
+            return
+        applied = self.apply_display(dialog.live_values())
+        callback = getattr(self, "_propagate_cb", None)
+        if callable(callback):
+            try:
+                callback(dialog.values())
+            except Exception:
+                LOG.debug("could not propagate the display settings",
+                          exc_info=True)
+        self._status.setText(
+            "Display updated." if applied
+            else "Saved. The changed settings take effect on the next run.")
+
+    def display_settings(self) -> Dict:
+        """The current display values, as plain data."""
+        return dict(self._display)
+
+    def apply_display(self, values: Dict) -> bool:
+        """Apply display settings to the figure that is already on screen.
+
+        :returns: True when something changed and the canvas was redrawn.
+
+        The EMBEDDING is never touched. Only the keys in
+        :data:`LIVE_DISPLAY_KEYS` are honoured; anything else is stored for
+        the next run and reported by the caller, because silently ignoring
+        a setting the user just changed is worse than saying it needs a
+        re-run.
+        """
+        changed = False
+        for key, value in (values or {}).items():
+            if key not in self._display or value is None:
+                continue
+            if self._display[key] == value:
+                continue
+            self._display[key] = value
+            changed = changed or key in self.LIVE_DISPLAY_KEYS
+        if not changed:
+            return False
+        self._body_splitter.setSizes([
+            int(self._display["canvas_width"]),
+            int(self._display["sidebar_width"]),
+        ])
+        # Redrawn from `self._embedding`, which nothing above touched, so
+        # every point keeps its coordinates and its neighbours.
+        self._draw_embedding()
+        return True
 
     def set_payload(self, payload: Dict) -> None:
         """Load the arrays/records attached by ``generate_image_umap``.
