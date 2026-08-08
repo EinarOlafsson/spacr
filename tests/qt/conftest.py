@@ -211,9 +211,24 @@ def _drain_job_runners():
     app = QApplication.instance()
     if app is None:
         return
+    # `allWidgets()` hands back widgets whose C++ side may already be gone --
+    # Qt is mid-teardown when this fixture runs. Calling findChildren() on a
+    # dead one SEGFAULTS rather than raising, so no try/except can save it:
+    # this fixture crashed the suite at 35% doing exactly that, which is the
+    # same class of bug it was written to fix.
+    try:
+        from shiboken6 import isValid
+    except Exception:
+        def isValid(_obj):      # pragma: no cover - shiboken is always there
+            return True
+
     seen = set()
     for widget in list(app.allWidgets()):
+        if not isValid(widget):
+            continue
         for runner in widget.findChildren(JobRunner):
+            if not isValid(runner):
+                continue
             if id(runner) in seen:
                 continue
             seen.add(id(runner))
