@@ -258,6 +258,16 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     # dimension it had just been told to ignore -- and Mask Generation is
     # right there for that. `resolve_default_settings` forces it True.
     "timelapse": {"timelapse"},
+    # `png_type` was one of two names for a path filter, and the one that
+    # pretended to name a file type. The Classify overhaul replaced it with
+    # `path_string` (the substring) and `file_type` (an actual extension).
+    #
+    # It stays in the settings dict because `spacr.crop_source` still reads
+    # it as a fallback, so a settings CSV written before the split keeps
+    # working. It is not OFFERED, because offering both halves of a
+    # superseded pair is how a user sets one and wonders why the other
+    # wins.
+    "classify": {"png_type"},
 }
 
 _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
