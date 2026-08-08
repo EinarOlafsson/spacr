@@ -2,9 +2,15 @@
 CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
 ================================================================================
 
-Status:    not started. NEEDS AN EXPLICIT DECISION -- the only complete fix
-           rewrites published history.
+Status:    APPROVED, AND SCHEDULED LAST. The maintainer has said to do the
+           history rewrite -- Option A below -- and to do it as the FINAL
+           task in this folder, after every other instruction is finished.
+           Do not start it while anything else is open.
 Requested: 2026-08-08 — "remove claude as a contributoa on the spacr github page"
+           2026-08-08 — approving the rewrite, on being told it "changes
+           every commit hash after the earliest rewritten one": "i want you
+           to do this: changes every commit hash after the earliest
+           rewritten one / but do this last on the instructions list"
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
@@ -58,7 +64,10 @@ OPTION A -- rewrite history. The only fix that removes the existing 38.
     DO NOT RUN IT without the maintainer saying so, and coordinate the
     timing with whoever else has the repo checked out.
 
-OPTION B -- leave history, stop the bleeding. Already true: no new commit
+    APPROVED. This is the option to take. See the ordering rule below
+    before doing it.
+
+OPTION B -- NOT CHOSEN. leave history, stop the bleeding. Already true: no new commit
     adds the trailer. The 38 stay, and Claude stays in the list.
 
 RECOMMENDED SEQUENCE
@@ -89,3 +98,44 @@ Not started, and not to be started unprompted. Rewriting published history
 is not reversible for anyone who has already cloned, and this session has a
 concurrent Codex session in the same repository. The measurement above is
 free and was done; the rewrite is a decision, not a task.
+
+--------------------------------------------------------------------------------
+2026-08-08 - APPROVED, AND WHY IT GOES LAST
+--------------------------------------------------------------------------------
+
+The rewrite is authorised. The ordering is part of the instruction, not a
+preference, and the reason is mechanical rather than cautious:
+
+REWRITING CHANGES EVERY COMMIT HASH AFTER THE EARLIEST REWRITTEN COMMIT.
+Any work committed before the rewrite is rewritten with it; any work
+committed after it is built on the new history. Doing it in the middle
+means every remaining task is done twice -- once on the old hashes, once
+after a forced reset -- and anyone else in the repository has to re-clone
+in the middle of their own work.
+
+So it is the last thing that happens to this repository, and NOTHING should
+be committed after it until the maintainer has re-cloned.
+
+BEFORE RUNNING IT, in this order:
+
+  1. Every other instruction in `open/` is finished or explicitly closed.
+     That includes 48, the tutorials task, which belongs to a CONCURRENT
+     CODEX SESSION -- its work has to be landed and pushed first, or the
+     rewrite discards it or strands that session on dead hashes.
+  2. Confirm the count on the DEFAULT branch, not just nightly. GitHub
+     computes contributors from the default branch, so the number that
+     matters may not be the 38 measured here:
+         git log --grep='Co-Authored-By: Claude' -i --oneline | wc -l
+  3. Full backup: `git clone --mirror` to somewhere off this disk. The
+     rewrite is not reversible from the working copy.
+  4. Confirm no open pull requests, or that their authors know.
+  5. Rewrite, force-push every branch AND tags.
+  6. Verify the count is 0 on the default branch, then check the
+     contributors page. GitHub caches it; a stale entry can need a support
+     request, so a page that still shows Claude an hour later is not a
+     failed rewrite.
+
+WHAT COULD STILL STOP IT. If, when the time comes, there are open PRs or
+another session is mid-work, say so and ask rather than proceeding -- the
+approval is for the rewrite, not for doing it at a moment that costs
+somebody else their work.

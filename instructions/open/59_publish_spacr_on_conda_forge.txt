@@ -1,0 +1,90 @@
+================================================================================
+PUBLISH spaCR ON CONDA-FORGE
+================================================================================
+
+Status:    not started
+Requested: 2026-08-08 — "get spacr published on conda-forge"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spaCR ships as a PyPI package (`pip install spacr`) and as desktop
+installers built with PyInstaller. There is no conda package.
+
+Two things already in this folder decide whether a conda-forge recipe can
+even be written, so read them first:
+
+  instruction 54  the Python range and the dependency floors. A conda-forge
+                  recipe pins `python_requires` and every run dependency
+                  explicitly, so a floor that is a guess becomes a floor
+                  that is published. The cellpose 4.0.1-vs-4.0.7 signature
+                  disagreement is exactly the kind of thing a recipe forces
+                  an answer to.
+  instruction 44  CPU versus GPU. conda-forge has strong opinions here --
+                  the pytorch CPU/GPU split is handled with variants and
+                  `__cuda` virtual packages, not with a user prompt -- so
+                  the answer for conda may differ from the installer's.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+conda is how most of this tool's actual audience installs scientific
+software: a biologist on a shared cluster or an institutional workstation
+usually has conda and often cannot pip-install into a managed environment.
+Being absent from conda-forge means those users either do not install
+spaCR or fight their environment to do it.
+
+It is also the distribution channel that carries binary dependencies
+properly. spaCR pulls torch, cellpose, opencv and scikit-image; conda-forge
+resolves those as compiled packages with consistent ABIs, which is precisely
+the class of problem that produces "it installed but segfaults" bug reports.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Confirm every dependency EXISTS on conda-forge, before writing anything.
+   This is the step that decides feasibility. Check the awkward ones by
+   name: cellpose, umap-learn, btrack, opencv, PySide6, and anything the
+   sequencing path pulls. A dependency that is PyPI-only either needs a
+   conda-forge recipe of its own first or has to become optional.
+2. Write `meta.yaml`. Source from the PyPI sdist with its sha256, not from
+   git. Split `host` / `run` requirements properly, and pin the floors that
+   instruction 54 settles rather than copying `setup.py`'s current guesses.
+3. Decide noarch. spaCR is pure Python, so `noarch: python` is right for
+   the package itself even though its dependencies are compiled -- that
+   keeps one build serving every platform and Python version.
+4. The `test:` section must do more than `import spacr`. Import a
+   submodule that pulls the heavy stack, and run `spacr-run --list`, so a
+   broken dependency graph fails the recipe rather than the user.
+5. Submit as a PR to `conda-forge/staged-recipes`. Expect review comments;
+   they are usually about pinning and licence metadata.
+6. After it merges, a feedstock repo appears and updates become PRs from
+   the autotick bot. Say in the README that conda-forge is a supported
+   install path, and add whoever maintains it to `recipe-maintainers`.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    conda create -n spacr-test -c conda-forge spacr
+    conda activate spacr-test
+    spacr-run --list
+
+on a clean machine, installing without pip and without a compiler, and
+`spacr-qt` launches.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. Note this task has an EXTERNAL dependency on reviewers: the
+staged-recipes PR is merged by conda-forge volunteers on their own
+schedule, so "submitted" and "published" can be weeks apart. Getting the PR
+open is the part that is in our control; treat that as the deliverable and
+record the PR link here.
+
+Also note it cannot be finished before instruction 54. Publishing a recipe
+with a wrong floor pins the wrong floor for everyone who installs it.
