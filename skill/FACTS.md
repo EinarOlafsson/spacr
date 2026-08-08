@@ -7,10 +7,10 @@ stale; nothing here is a rule. The rules are in INVARIANTS.md.
 ## This checkout
 
 - version: **get_version()**
-- branch: `nightly` at `2196d5d6`
-- Python modules under `spacr/`: 297
-- of those under `spacr/qt/`: 172 (44 screens, 60 widgets)
-- test files: 651 (222 under `tests/qt/`)
+- branch: `nightly` at `30500970`
+- Python modules under `spacr/`: 305
+- of those under `spacr/qt/`: 176 (44 screens, 64 widgets)
+- test files: 660 (222 under `tests/qt/`)
 
 ## The biggest modules
 
@@ -18,25 +18,25 @@ Size is not a defect, but it is where the work is. Read the docstring before the
 
 - `spacr/utils.py` — 9553 lines
 - `spacr/timelapse.py` — 8156 lines
-- `spacr/io.py` — 7263 lines
+- `spacr/io.py` — 7269 lines
 - `spacr/gui_elements.py` — 6735 lines
 - `spacr/plot.py` — 5576 lines
 - `spacr/submodules.py` — 5337 lines
 - `spacr/ml.py` — 5148 lines
-- `spacr/settings.py` — 4344 lines
-- `spacr/qt/screens/settings_model.py` — 4329 lines
+- `spacr/settings.py` — 4416 lines
+- `spacr/qt/screens/settings_model.py` — 4365 lines
 - `spacr/deep_spacr.py` — 3817 lines
 - `spacr/spacrops.py` — 3704 lines
-- `spacr/qt/theme.py` — 3663 lines
+- `spacr/qt/theme.py` — 3666 lines
 
 ## Invariant checks
 
-- PASS — widget QSS registrars are complete: 34 modules listed, 34 registering
+- PASS — widget QSS registrars are complete: 37 modules listed, 37 registering
 - PASS — bg / page roles: dark bg=#000000, `page` role present
 - PASS — thread finished wiring: make_thread still owns the finished wiring
 - PASS — test isolation fixtures: registry + font-scale isolation in place
 - PASS — QSettings sandbox: QSettings sandbox present
-- PASS — task ledger: 16 open, 16 done, all with their sections
+- PASS — task ledger: 14 open, 19 done, all with their sections
 
 A FAIL means INVARIANTS.md is describing software that has moved.
 Fix the code or fix the file, then say which in the commit.
