@@ -234,3 +234,37 @@ def _drain_job_runners():
                 # outcome we wanted, and raising here would fail a test
                 # that had already passed.
                 pass
+
+
+@pytest.fixture(autouse=True)
+def _issue_prompt_does_not_block():
+    """File issues without a prompt, unless a test says otherwise.
+
+    `_on_file_issue` asks before filing, and a QMessageBox in a headless run
+    has nobody to answer it -- which is the hang that cost this suite its
+    entire run once already (instruction 47). Rather than leave that trap
+    for the next test that touches the reporter, the default here is
+    `always`: the prompt is skipped, and the tests that exercise the FILING
+    path get to exercise it.
+
+    A test about the prompt itself sets the mode it wants; this restores
+    whatever was there afterwards, so it cannot leak either way.
+    """
+    try:
+        from spacr.qt import preferences
+    except Exception:
+        yield
+        return
+    try:
+        original = preferences.get_issue_prompt_mode()
+        preferences.set_issue_prompt_mode(preferences.ISSUE_PROMPT_ALWAYS)
+    except Exception:
+        yield
+        return
+    try:
+        yield
+    finally:
+        try:
+            preferences.set_issue_prompt_mode(original)
+        except Exception:
+            pass

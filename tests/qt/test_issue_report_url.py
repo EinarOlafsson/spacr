@@ -70,9 +70,23 @@ class TestTheUrlShape:
 
 class TestThePromptPreference:
 
-    def test_the_default_is_to_ask(self, private_store=None):
-        from spacr.qt.preferences import ISSUE_PROMPT_ASK, get_issue_prompt_mode
-        assert get_issue_prompt_mode() == ISSUE_PROMPT_ASK
+    def test_the_default_is_to_ask(self):
+        """On a store that has never been written, the answer is `ask`.
+
+        Read from a fresh QSettings rather than the ambient one: the qt
+        conftest sets `always` for every test so the reporter cannot open a
+        modal, and that fixture would otherwise be what this measures.
+        """
+        from spacr.qt import preferences as P
+        assert P.get_issue_prompt_mode.__doc__  # the default is documented
+        settings = P._settings()
+        saved = settings.value("ai/issue_prompt", None)
+        settings.remove("ai/issue_prompt")
+        try:
+            assert P.get_issue_prompt_mode() == P.ISSUE_PROMPT_ASK
+        finally:
+            if saved is not None:
+                settings.setValue("ai/issue_prompt", saved)
 
     def test_all_three_modes_round_trip(self):
         from spacr.qt import preferences as P
@@ -99,3 +113,61 @@ class TestThePromptPreference:
         P._settings().setValue("ai/issue_prompt", "a-future-mode")
         assert P.get_issue_prompt_mode() == "ask"
         P.set_issue_prompt_mode(P.ISSUE_PROMPT_ASK)
+
+
+class TestThePromptPathHonoursThePreference:
+    """`never` must actually prevent it, not merely change a dialog."""
+
+    @pytest.fixture
+    def screen(self, qt_theme_applied, qtbot):
+        from spacr.qt.screens.app_screen import AppScreen
+        widget = AppScreen("mask")
+        qtbot.addWidget(widget)
+        widget._last_error_text = "Traceback: boom"
+        return widget
+
+    def _no_dialogs(self, monkeypatch):
+        from PySide6.QtWidgets import QMessageBox
+        opened = []
+
+        def _boom(*a, **k):
+            opened.append(1)
+            raise AssertionError("a modal was opened")
+
+        for name in ("exec", "exec_"):
+            monkeypatch.setattr(QMessageBox, name, _boom, raising=False)
+        return opened
+
+    def test_never_files_nothing_and_opens_nothing(self, screen, monkeypatch):
+        from spacr.qt import preferences as P
+        filed = []
+        monkeypatch.setattr("spacr.qt.ai.issue_report.file_issue",
+                            lambda *a, **k: filed.append(1) or "url")
+        self._no_dialogs(monkeypatch)
+        P.set_issue_prompt_mode(P.ISSUE_PROMPT_NEVER)
+        try:
+            screen._on_file_issue()          # must not raise, must not ask
+        finally:
+            P.set_issue_prompt_mode(P.ISSUE_PROMPT_ASK)
+        assert filed == []
+
+    def test_never_says_why_rather_than_doing_nothing_silently(
+            self, screen, monkeypatch):
+        """Silence would read as the button being broken."""
+        from spacr.qt import preferences as P
+        said = []
+        monkeypatch.setattr(screen._console, "append_notice",
+                            lambda text: said.append(text))
+        self._no_dialogs(monkeypatch)
+        P.set_issue_prompt_mode(P.ISSUE_PROMPT_NEVER)
+        try:
+            screen._on_file_issue()
+        finally:
+            P.set_issue_prompt_mode(P.ISSUE_PROMPT_ASK)
+        assert any("never" in t for t in said)
+
+    def test_with_no_error_captured_nothing_happens_at_all(self, screen,
+                                                           monkeypatch):
+        self._no_dialogs(monkeypatch)
+        screen._last_error_text = ""
+        screen._on_file_issue()

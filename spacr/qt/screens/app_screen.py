@@ -2388,6 +2388,36 @@ class AppScreen(QWidget):
         """
         if not self._last_error_text:
             return
+
+        # The preference decides whether this happens at all, and whether
+        # the user is asked first. Three states, because "ask me" and "never
+        # ask me" leave out the person who wants a report filed and does not
+        # want to be interrupted -- and the moment someone wants this off is
+        # the moment it has just interrupted them.
+        from ..preferences import (ISSUE_PROMPT_ALWAYS, ISSUE_PROMPT_NEVER,
+                                   get_issue_prompt_mode)
+        mode = get_issue_prompt_mode()
+        if mode == ISSUE_PROMPT_NEVER:
+            self._console.append_notice(
+                "\nNot filing a report: issue reporting is set to 'never' in "
+                "Preferences.\n")
+            return
+        if mode != ISSUE_PROMPT_ALWAYS:
+            from PySide6.QtWidgets import QMessageBox
+            box = QMessageBox(self)
+            box.setIcon(QMessageBox.Question)
+            box.setWindowTitle("Report this to the developers?")
+            box.setText("File a GitHub issue for this error?")
+            box.setInformativeText(
+                "The report includes the traceback, the module you were "
+                "running and its settings. It opens a pre-filled issue on "
+                "the public spaCR repository so you can read it before "
+                "posting.\n\nYou can turn this off in Preferences.")
+            box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            box.setDefaultButton(QMessageBox.No)
+            if box.exec() != QMessageBox.Yes:
+                return
+
         # Best-effort settings snapshot from the current settings model
         # so the issue includes what the user was trying to run.
         settings_snapshot: dict = {}
