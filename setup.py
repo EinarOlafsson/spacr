@@ -144,7 +144,18 @@ dependencies = [
     # spacr/sim.py:655 passes.
     'pandas>=2.2.1,<3.0',
     'scipy>=1.12.0,<2.0',
-    'cellpose>=4.0,<5.0',
+    # 4.0.7, not 4.0: the floor has to be a version the test suite actually
+    # passes on. `CellposeModel.__init__` gained `use_bfloat16` and
+    # `eval`'s `resample` default changed between 4.0.1 and 4.0.7, and
+    # tests/test_cellpose_api_contract.py records the installed signature
+    # and asserts it matches -- so the minimum-dependencies CI job, which
+    # resolves the floor literally, failed ~22 tests against an API this
+    # project has never been developed on.
+    #
+    # Declaring a floor nothing verifies is how "it installed and then
+    # crashed" reports are made: pip resolves to it happily, the install
+    # succeeds, and the failure lands somewhere else entirely.
+    'cellpose>=4.0.7,<5.0',
     # `segment-anything` removed: PyPI's `segment-anything` has exactly one
     # release (1.0, 2023-04-06) with empty author, homepage and summary —
     # Meta never published SAM to PyPI. spaCR imports it in zero files, and
