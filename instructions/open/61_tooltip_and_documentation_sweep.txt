@@ -2,7 +2,8 @@
 A TOOLTIP AND DOCUMENTATION SWEEP: SHORT, INFORMATIVE, CORRECTLY REFERENCED
 ================================================================================
 
-Status:    not started
+Status:    the link-resolution TEST exists (2026-08-08), opt-in until
+           the docs are built. The text sweep is open.
 Requested: 2026-08-08 — "do a full documentation and tooltips sweep to make the tool tips short and informative (not to short) with the correct api reference."
 
 --------------------------------------------------------------------------------
@@ -78,3 +79,39 @@ tooltip ANIMATIONS (instruction 62) are a different artefact with a
 different failure mode, and the API documentation PAGE (instruction 63) is
 the target of the links rather than the links themselves. Fixing a link
 that points at a bad page is instruction 63's job.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE LINK TEST IS WRITTEN, AND IT CANNOT RUN BY DEFAULT
+--------------------------------------------------------------------------------
+
+`tests/test_tooltip_api_links_resolve.py`. It walks every setting of every
+module, extracts every href from `format_tooltip`, and checks them. Two
+kinds of check, deliberately separated:
+
+  ALWAYS   the link is on the documentation domain, and every setting gets
+           SOME link -- including a key with no entry in the descriptions
+           table, which is the case that would otherwise leave a settings
+           row with no route to the docs at all.
+
+  OPT-IN   the link resolves to a page that EXISTS. Gated behind
+           SPACR_DOCS_BUILT=1.
+
+WHY THE SECOND ONE IS GATED, because it looked like a major finding for
+about a minute and was not. Running it against the working tree reported
+dozens of dead links -- `core`, `sequencing`, `submodules`, `timelapse`
+and more. Then:
+
+    git ls-files docs/api/spacr | wc -l   ->   0
+
+`docs/api/` is GENERATED and untracked. What is on disk is whoever last
+built it locally; mine had 4 module pages for 124 modules. So the failure
+said nothing about the published site, and a test that fails on every
+checkout is a test that gets deleted rather than read.
+
+Build the docs first, then run with SPACR_DOCS_BUILT=1. That is also the
+right moment to do instruction 63's read-through, since it needs a build
+for the same reason.
+
+WHAT IS STILL OPEN HERE: the text sweep itself -- the shape, the length,
+the units and defaults. The test covers the links; it says nothing about
+whether a tooltip is any good.
