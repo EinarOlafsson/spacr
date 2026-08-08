@@ -60,6 +60,11 @@ The rules:
   verified, including anything deliberately left out.
 * **Several tasks in one message** get several files. They will not be
   finished at the same time.
+* **A new request does not jump the queue.** Write it down, then go back
+  to what the list says is next. The maintainer asked for this directly:
+  "add them to instructions first then continue on the instructions, not
+  necessarily with what i asked for most recently first." A backlog
+  reordered around whatever was said last stops being a ranking.
 * Files are numbered from 10 upward; 01–08 at the top level are the older
   flat-numbered work and stay where they are.
 

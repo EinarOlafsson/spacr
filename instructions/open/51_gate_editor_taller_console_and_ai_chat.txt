@@ -1,0 +1,51 @@
+================================================================================
+THE CONSOLE AND THE AI CHAT BOX ARE TOO SHORT
+================================================================================
+
+Status:    not started
+Requested: 2026-08-08 — "also the console and the AI chatbox should be taller ."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not started. Said of the gate editor, in the same message as instruction
+49; check whether the console and chat box are the shared ones every
+screen has or gate-editor-specific instances, because that decides whether
+this is one change or a global one.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A console showing three lines is a console the user has to scroll to read
+a traceback in, which is exactly when they least want to. Same for a chat
+reply longer than its box.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Find who sets the heights -- a splitter size, a minimumHeight, or a
+   stretch factor.
+2. Give both more room. If it is a splitter, this is an initial-sizes
+   change and the user can still drag it; that is the better fix than a
+   larger fixed minimum, which takes the choice away.
+3. Beware the neighbouring failure mode just fixed in instruction 46: a
+   minimum height that cannot be shrunk starves whatever shares the axis
+   with it. Prefer stretch and initial sizes over hard minimums.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Open the gate editor at an ordinary window size: the console shows
+appreciably more lines than now without the graph losing usable area, and
+both panes can still be dragged.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet -- not started. "Taller" is not a number; if the obvious
+change looks wrong on screen, ask rather than guess a pixel count.
