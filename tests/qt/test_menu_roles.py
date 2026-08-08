@@ -105,7 +105,7 @@ def test_the_heuristic_this_defends_against_is_real(qtbot):
     assert naive.menuRole() == QAction.MenuRole.NoRole
 
 
-def test_preferences_and_quit_come_first(window):
+def test_home_preferences_and_quit_come_first(window):
     """Asked for explicitly. On macOS both are relocated to the application
     menu whatever their position, so this is what Linux and Windows show."""
     from PySide6.QtWidgets import QMenu
@@ -114,7 +114,15 @@ def test_preferences_and_quit_come_first(window):
     spacr_menu = next(m for m in bar.findChildren(QMenu)
                       if m.title().replace("&", "") == "spaCR")
     texts = [a.text() for a in spacr_menu.actions() if not a.isSeparator()]
-    assert texts[:2] == ["Preferences…", "Quit"], texts[:5]
+    # Home first, then the two Qt relocates on macOS. Asked for in that
+    # order: the thing you reach for most often should not sit below
+    # thirty app names. "All apps" was removed from the menu at the same
+    # time -- its Ctrl+B shortcut is still registered on the window, and
+    # `test_ctrl_b_survives_leaving_the_menu` covers that.
+    assert texts[:3] == ["Home", "Preferences…", "Quit"], texts[:5]
+    assert "All apps" not in texts, (
+        "the drawer toggle is back in the menu; it was removed because the "
+        "name does not say what it does")
 
 
 def test_an_unknown_role_name_is_refused():
@@ -124,3 +132,24 @@ def test_an_unknown_role_name_is_refused():
     host = QAction("x")
     with pytest.raises(ValueError, match="unknown menu role"):
         set_menu_role(host, "preference")      # missing the s
+
+
+def test_ctrl_b_survives_leaving_the_menu(qtbot):
+    """"All apps" left the menu; Ctrl+B must not have left with it.
+
+    The edge drawer is otherwise reachable only by hovering a 6 px strip,
+    which is not a route a keyboard user has. Deleting the QAction would
+    have been the obvious way to remove the menu entry and would have taken
+    the shortcut too.
+    """
+    from PySide6.QtGui import QKeySequence
+
+    from spacr.qt.app import MainWindow
+
+    window = MainWindow()
+    qtbot.addWidget(window)
+
+    bound = [a for a in window.actions()
+             if a.shortcut() == QKeySequence("Ctrl+B")]
+    assert bound, "Ctrl+B is no longer registered on the window"
+    assert bound[0].text() == "All apps"
