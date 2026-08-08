@@ -462,27 +462,53 @@ def contract_cellpose(monkeypatch):
     return _ContractModel
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/qt/widgets/timelapse_preview.py:336 selects a non-cpsam model with "
-    "CellposeModel(model_type=model_name). cellpose 4.0.7 logs 'model_type "
-    "argument is not used in v4.0.1+. Ignoring this argument...' and drops it, "
-    "leaving pretrained_model at its 'cpsam' default, so the Timelapse "
-    "preview silently segments with cpsam whatever the user picked. This is "
-    "the exact twin of spacr/qt/widgets/live_preview.py:637. Fix: resolve the "
-    "name through spacr.utils._resolve_cellpose_pretrained and pass it as "
-    "pretrained_model=, dropping model_type= entirely."))
-def test_timelapse_preview_model_selection_reaches_the_weights(
-        contract_cellpose, monkeypatch):
-    """Picking a model in the Timelapse preview must change the checkpoint."""
+def test_a_trained_checkpoint_reaches_the_weights_in_both_previews(
+        contract_cellpose, tmp_path):
+    """A model the user trained must be the model the preview runs.
+
+    This used to be pinned as "picking cyto2 must not load cpsam", which
+    cellpose 4 cannot satisfy and should not: cyto2 does not exist there,
+    and `_resolve_cellpose_pretrained` maps every legacy pre-SAM name to
+    cpsam deliberately, saying so once, rather than pretending to load a
+    model that is gone. Asserting otherwise demanded a bug.
+
+    The real defect the xfail was reaching for is this one: both previews
+    passed the chosen name as `model_type=`, which cellpose 4 accepts and
+    IGNORES, so a checkpoint from spaCR's own Train Cellpose module was
+    silently discarded and the stock weights used instead.
+    """
+    from spacr.qt.widgets import timelapse_preview as TP
+    from spacr.qt.widgets import live_preview as LP
+
+    checkpoint = tmp_path / "my_finetuned_model"
+    checkpoint.write_bytes(b"not really weights, but it exists")
+
+    TP.segment_frame(np.zeros((16, 16), np.float32),
+                     {"model": str(checkpoint), "channel": 0,
+                      "normalise": False})
+    assert contract_cellpose.last.loaded_model == str(checkpoint), (
+        "the Timelapse preview discarded the trained checkpoint")
+
+    request = LP.PreviewRequest(
+        image=np.zeros((16, 16), np.float32), model=str(checkpoint),
+        channels={"cell": 0}, object_types=("cell",))
+    LP._segment_multi(request)
+    assert contract_cellpose.last.loaded_model == str(checkpoint), (
+        "the Live preview discarded the trained checkpoint")
+
+
+def test_a_legacy_model_name_resolves_to_cpsam_rather_than_pretending(
+        contract_cellpose):
+    """The other half: cyto2 SHOULD become cpsam, because it is gone.
+
+    Pinned so the fix above is not "corrected" back into passing legacy
+    names straight through, which cellpose 4 would ignore in silence.
+    """
     from spacr.qt.widgets import timelapse_preview as TP
 
     TP.segment_frame(np.zeros((16, 16), np.float32),
                      {"model": "cyto2", "channel": 0, "normalise": False})
-
-    model = contract_cellpose.last
-    assert model.loaded_model != "cpsam", (
-        "cellpose 4 discarded the requested model and ran cpsam instead"
-    )
+    assert contract_cellpose.last.loaded_model == "cpsam"
 
 
 def test_the_preview_panels_do_pass_the_arguments_cellpose_still_reads():

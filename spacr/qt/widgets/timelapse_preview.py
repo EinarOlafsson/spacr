@@ -330,12 +330,18 @@ def segment_frame(image: np.ndarray, params: Dict[str, Any]) -> np.ndarray:
         gpu = False
 
     model_name = str(params.get("model", "cpsam"))
-    if model_name == "cpsam":
-        model = cp_models.CellposeModel(
-            gpu=gpu, pretrained_model="cpsam", device=None)
-    else:
-        model = cp_models.CellposeModel(
-            gpu=gpu, model_type=model_name, device=None)
+    # `model_type=` is accepted-and-IGNORED by Cellpose 4 -- it logs "not
+    # used in v4.0.1+" and drops it, leaving pretrained_model at its 'cpsam'
+    # default. So picking any other model here silently segmented with cpsam,
+    # including a checkpoint the user had just trained in spaCR's own Train
+    # Cellpose module. `_resolve_cellpose_pretrained` is what the pipeline
+    # uses: it maps the legacy pre-SAM names to cpsam and says so once, and
+    # returns a path unchanged when the name is a fine-tuned checkpoint.
+    from spacr.utils import _resolve_cellpose_pretrained
+    model = cp_models.CellposeModel(
+        gpu=gpu,
+        pretrained_model=_resolve_cellpose_pretrained(model_name),
+        device=None)
 
     plane = frame_channel(image, int(params.get("channel", 0)))
     if params.get("normalise", True):

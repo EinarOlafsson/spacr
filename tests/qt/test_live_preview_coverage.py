@@ -512,24 +512,30 @@ class TestSegmentMulti:
         assert masks["cell"].dtype == np.int32
         assert int(masks["cell"].max()) == 1
 
-    @pytest.mark.xfail(strict=True, reason=(
-        "spacr/qt/widgets/live_preview.py:637 selects a non-cpsam model with "
-        "CellposeModel(model_type=req.model). cellpose 4.0.7's "
-        "CellposeModel.__init__ logs 'model_type argument is not used in "
-        "v4.0.1+. Ignoring this argument...' and drops the value, leaving "
-        "pretrained_model at its 'cpsam' default -- so picking 'cyto2' in the "
-        "Live Preview silently segments with cpsam. Fix: pass the resolved "
-        "weights as pretrained_model= (spacr.utils._resolve_cellpose_pretrained "
-        "already maps legacy names), and drop model_type= entirely."))
-    def test_legacy_model_selection_actually_reaches_the_weights(
+    def test_a_trained_checkpoint_reaches_the_weights(self, fake_cellpose,
+                                                      tmp_path):
+        """A model the user trained must be the model the preview runs.
+
+        This was pinned as "choosing cyto2 must load something other than
+        cpsam", which cellpose 4 cannot satisfy: cyto2 is gone, and
+        `_resolve_cellpose_pretrained` maps the legacy names onto cpsam on
+        purpose instead of pretending. The demand was for a bug.
+
+        What genuinely was broken is here: the panel passed the name as
+        `model_type=`, which cellpose 4 accepts and ignores, so a
+        checkpoint trained in spaCR's own Train Cellpose module was
+        discarded and the stock weights ran instead.
+        """
+        checkpoint = tmp_path / "my_finetuned_model"
+        checkpoint.write_bytes(b"not really weights, but it exists")
+        LP._segment_multi(self._req(model=str(checkpoint)))
+        assert fake_cellpose.instances[-1].loaded_model == str(checkpoint)
+
+    def test_a_legacy_name_resolves_to_cpsam_rather_than_pretending(
             self, fake_cellpose):
-        """Choosing a legacy model must change which checkpoint is loaded."""
+        """The other half, so the fix is not undone by passing names through."""
         LP._segment_multi(self._req(model="cyto2"))
-        model = fake_cellpose.instances[-1]
-        assert model.loaded_model != "cpsam", (
-            "the requested model was discarded by cellpose 4 and cpsam ran "
-            "instead"
-        )
+        assert fake_cellpose.instances[-1].loaded_model == "cpsam"
 
     @pytest.mark.parametrize("available", [True, False])
     def test_gpu_flag_follows_torch(self, fake_cellpose, monkeypatch,
