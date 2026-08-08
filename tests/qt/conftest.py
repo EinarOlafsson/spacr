@@ -218,6 +218,16 @@ def _drain_job_runners():
                 continue
             seen.add(id(runner))
             try:
+                # A SHORT budget, deliberately. `shutdown` defaults to
+                # 3000ms, and paid per runner per test that is minutes
+                # across the suite -- the first version of this fixture took
+                # the run from "segfaults at 28%" to "still at 35% after 80
+                # minutes", which is not an improvement anyone asked for.
+                # An idle runner returns immediately; a busy one is a test
+                # that left work running, and parking it is what `shutdown`
+                # already does when its budget runs out.
+                runner.shutdown(timeout_ms=50)
+            except TypeError:
                 runner.shutdown()
             except Exception:
                 # Teardown is best-effort: a runner already gone is the
