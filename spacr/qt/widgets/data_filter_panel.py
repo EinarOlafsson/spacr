@@ -213,6 +213,28 @@ class _RangeRow(_ClauseRow):
         row.addWidget(self._high, 1)
         self._outer.addLayout(row)
 
+    def state(self) -> dict:
+        """Enough to rebuild this row. Column included so a saved set can
+        say which column it was for -- the panel is rebuilt from the frame,
+        and a column that has gone away has to be reported, not guessed."""
+        return {"kind": "range", "column": self.column,
+                "low": float(self._low.value()),
+                "high": float(self._high.value())}
+
+    def restore(self, state: dict) -> None:
+        """Put the saved bounds back, clamped to what the CURRENT data allows.
+
+        Clamped rather than trusted: a filter set saved against one plate and
+        loaded against another would otherwise silently select nothing, and
+        an empty selection looks identical to a filter that did not load.
+        """
+        self._low.setValue(max(self._low.minimum(),
+                               min(float(state.get("low", self._low.value())),
+                                   self._low.maximum())))
+        self._high.setValue(max(self._high.minimum(),
+                                min(float(state.get("high", self._high.value())),
+                                    self._high.maximum())))
+
     def clause(self) -> RangeFilter:
         return RangeFilter(self.column,
                            low=self._low.value(), high=self._high.value())
@@ -246,6 +268,21 @@ class _CategoryRow(_ClauseRow):
             self._outer.addWidget(scroll)
         else:
             self._outer.addWidget(holder)
+
+    def state(self) -> dict:
+        return {"kind": "category", "column": self.column,
+                "chosen": [b.text() for b in self._boxes if b.isChecked()]}
+
+    def restore(self, state: dict) -> None:
+        """Tick the saved values that still exist in this frame.
+
+        A value that has gone is skipped rather than recreated: the box list
+        comes from the data, and a checkbox for a category with no rows is a
+        control that can only ever select nothing.
+        """
+        chosen = set(state.get("chosen", ()))
+        for box in self._boxes:
+            box.setChecked(box.text() in chosen)
 
     def clause(self) -> CategoryFilter:
         return CategoryFilter(
@@ -377,6 +414,69 @@ class DataFilterPanel(QWidget):
     # -- publishing ----------------------------------------------------
     def _schedule(self) -> None:
         self._debounce.start()
+
+    # -- saving a filter set -------------------------------------------
+    # Gates have had Save/Load since the beginning and filters had not, so a
+    # filter set -- which is as much of an analysis decision as a gate -- had
+    # to be rebuilt by hand every session.
+
+    def state(self) -> dict:
+        """The whole panel, as plain data.
+
+        Versioned because the row kinds will grow. A reader that meets a
+        version it does not know refuses rather than guessing, since a
+        half-applied filter set silently selects the wrong rows.
+        """
+        # `_rows` is a dict and dicts keep insertion order, which IS the
+        # order the user added the filters in and the order they read on
+        # screen. Restoring in the same order matters for a category filter
+        # whose box list is built from what earlier filters left.
+        rows = [row.state() for row in self._rows.values()
+                if hasattr(row, "state")]
+        return {"version": 1, "filters": rows}
+
+    def restore(self, state: dict) -> List[str]:
+        """Apply a saved set to the CURRENT frame.
+
+        :returns: the columns that could not be restored, so the caller can
+            say so. A filter set saved against one table and loaded against
+            another is a normal thing to do -- what must not happen is it
+            appearing to work while quietly filtering on nothing.
+        """
+        if int(state.get("version", 0)) != 1:
+            raise ValueError(
+                f"unknown filter-set version {state.get('version')!r}; "
+                f"this build understands version 1")
+
+        self.clear()
+        missing = []
+        available = set(self.available_columns())
+        for entry in state.get("filters", ()):
+            column = str(entry.get("column", ""))
+            if column not in available:
+                missing.append(column)
+                continue
+            self.add_column(column)
+            row = self._rows.get(column)
+            if row is not None and hasattr(row, "restore"):
+                row.restore(entry)
+        self._publish()
+        return missing
+
+    def save(self, path: str) -> str:
+        """Write the filter set to ``path`` as JSON."""
+        import json
+
+        with open(path, "w", encoding="utf-8") as handle:
+            json.dump(self.state(), handle, indent=2)
+        return path
+
+    def load(self, path: str) -> List[str]:
+        """Read a filter set from ``path``. Returns the missing columns."""
+        import json
+
+        with open(path, encoding="utf-8") as handle:
+            return self.restore(json.load(handle))
 
     def current_filter(self) -> DataFilter:
         """The filter the controls currently describe."""
