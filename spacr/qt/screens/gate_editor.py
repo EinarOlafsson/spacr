@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import logging
 import os
+from pathlib import Path
 from typing import List, Optional
 
 import pandas as pd
@@ -150,6 +151,16 @@ class GateEditorScreen(QWidget):
             "loaded, so a gate drawn on a sample still labels everything.")
         self._export.clicked.connect(self.export_gates)
         head.addWidget(self._export)
+
+        self._save_graph = QPushButton("Save graph\u2026", self)
+        self._save_graph.setToolTip(
+            "Write the graph as it appears, including the gates drawn on "
+            "it. The format follows the figure format in Preferences \u2014 "
+            "PNG at the resolution set there, or a real vector PDF whose "
+            "text stays selectable and editable \u2014 and you can override "
+            "it for one save in the file dialog.")
+        self._save_graph.clicked.connect(self.save_graph)
+        head.addWidget(self._save_graph)
 
         # The Settings button lives on the gates panel's tool row, left of
         # Cluster, where the rest of the gating controls are. Two buttons
@@ -566,6 +577,68 @@ class GateEditorScreen(QWidget):
         return self._settings
 
     # -- export -----------------------------------------------------------
+
+    def save_graph(self, path: str = "") -> str:
+        """Write the current graph to a PNG or PDF.
+
+        The format comes from the figure-format PREFERENCE rather than from
+        a setting of this screen's own; instruction 50 is explicit that a
+        second place to answer "am I making PDFs" is one too many. The file
+        dialog still lets a single save differ, because "save as" is when a
+        user thinks about format.
+
+        Rendering goes through `render_figure_to_png`, the same helper the
+        figure queue uses, rather than `savefig` -- it restyles the figure
+        for print first. A plot exported with the dark theme's colours is
+        white text on black, which is unusable on paper, and that restyle
+        is the whole reason not to call matplotlib directly.
+
+        :param path: destination. Empty opens a file dialog.
+        :returns: the path written, or "" when cancelled or nothing is
+            drawn.
+        """
+        canvas = getattr(self.gates, "canvas", None)
+        figure = canvas.figure() if canvas is not None else None
+        if figure is None or not figure.get_axes():
+            self.console.write("No graph to save yet.")
+            return ""
+
+        from ..preferences import get_figure_format
+        prefer_pdf = str(get_figure_format() or "png").lower() == "pdf"
+        default_ext = ".pdf" if prefer_pdf else ".png"
+
+        if not path:
+            filters = ("PDF (*.pdf);;PNG (*.png)" if prefer_pdf
+                       else "PNG (*.png);;PDF (*.pdf)")
+            path, _chosen = QFileDialog.getSaveFileName(
+                self, "Save graph", f"gate_graph{default_ext}", filters)
+            if not path:
+                return ""
+
+        target = Path(path)
+        if not target.suffix:
+            target = target.with_suffix(default_ext)
+
+        # `render_figure_to_png` writes the PNG and, in PDF mode, a vector
+        # PDF beside it. Asking it for a .png next to the chosen .pdf is how
+        # the vector file gets made, so point it at the sibling and hand
+        # back whichever one the user asked for.
+        from ..widgets.figure_queue import render_figure_to_png
+        png_path = target.with_suffix(".png")
+        try:
+            ok = render_figure_to_png(figure, str(png_path))
+        except Exception as exc:                      # pragma: no cover
+            LOG.info("saving the gate graph failed: %s", exc, exc_info=True)
+            self.console.write(f"Could not save the graph: {exc}")
+            return ""
+        if not ok:
+            self.console.write("Could not save the graph.")
+            return ""
+
+        written = target if target.exists() else png_path
+        self.console.write(f"Saved the graph to {written}")
+        return str(written)
+
     def export_gates(self) -> None:
         """Write every gate to the database as a column of ``filters``."""
         from PySide6.QtWidgets import QMessageBox
