@@ -296,6 +296,26 @@ def rim_colour(theme: str = "dark") -> str:
     return palette_for(theme)["fg"]
 
 
+def selection_ink(theme: str = "dark") -> str:
+    """Text colour for a row selected with the accent behind it.
+
+    Derived, not chosen. `accent` is a mid blue on both themes, and the ink
+    that reads on it flips: measured, black is 7.63:1 on the dark accent and
+    white is 5.84:1 on the light one, while `button_accent_ink` -- the
+    obvious-looking role -- is 6.96:1 on dark and **3.28:1** on light, which
+    is below the 4.5 minimum and was shipped by picking a role instead of
+    measuring.
+
+    So it picks whichever of the theme's own two extremes contrasts better,
+    which keeps the colour inside the palette rather than reaching for a raw
+    #ffffff that belongs to no theme.
+    """
+    palette = palette_for(theme)
+    accent = palette["accent"]
+    return max((palette["fg"], palette["bg"]),
+               key=lambda ink: contrast_ratio(ink, accent))
+
+
 def dock_colour(theme: str = "dark") -> str:
     """The left dock's background. **Never translucent, in any theme.**
 
@@ -2532,6 +2552,7 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     # stage colour at a low alpha so the tile lights UP rather than being
     # replaced by a block of magenta.
     RIM = rim_colour(theme)
+    SELECTION_INK = selection_ink(theme)
     STAGE_RULES = "\n".join(
         f"""QPushButton#AppTile[stage="{stage}"]:hover {{
     background-color: {css_color(hue, 0.22)};
@@ -3490,6 +3511,30 @@ QTableView::item:hover, QTableWidget::item:hover,
 QTreeView::item:hover, QTreeWidget::item:hover {{
     background-color: {P["accent"]};
     color: {P["bg"]};
+}}
+/* SELECTION. There was a `:hover` rule and no `:selected` one, so every
+   multi-select view in the app fell through to Qt's own selection colours
+   -- which assume a light background and paint BLACK text. On the dark
+   theme the chosen rows were the only unreadable thing on screen, and in
+   the SQL column picker the selection IS the state of the dialog: invisible
+   selection means no way to tell what you are about to query.
+   `QListWidget` is named explicitly because it is not a `QTableView` and
+   nothing above covers it. */
+QListView::item:selected, QListWidget::item:selected,
+QTableView::item:selected, QTableWidget::item:selected,
+QTreeView::item:selected, QTreeWidget::item:selected {{
+    background-color: {P["accent"]};
+    color: {SELECTION_INK};
+}}
+/* Kept readable when the view loses focus. Qt dims the selection to a grey
+   that is close enough to the surface on the dark themes to read as
+   unselected, which is how a picked column disappears the moment the user
+   clicks the OK button. */
+QListView::item:selected:!active, QListWidget::item:selected:!active,
+QTableView::item:selected:!active, QTableWidget::item:selected:!active,
+QTreeView::item:selected:!active, QTreeWidget::item:selected:!active {{
+    background-color: {P["accent"]};
+    color: {SELECTION_INK};
 }}
 /* The empty square where the two headers meet. Left unstyled it is the
    one opaque corner in an otherwise translucent table. */
