@@ -2,7 +2,8 @@
 A PERFORMANCE SWEEP: NOTHING THAT LOADS BELONGS ON THE GUI THREAD
 ================================================================================
 
-Status:    not started
+Status:    measured, and the first cause is fixed (2026-08-08).
+           670 ms -> 592 ms. A third pandas path remains.
 Requested: 2026-08-08 — "do a performance optemization sweep, where loading of data for example is allways kept of the main app thred, and that background loading is generally kept on the background threads so the main application remains smooth. i noticed that there is a stutter at the beggining of starting the application."
 
 --------------------------------------------------------------------------------
@@ -81,3 +82,55 @@ DELIBERATELY NOT DONE
 Not started. Resist making this a general refactor. The user reported ONE
 symptom; find its cause, fix it, and let the sweep be informed by what that
 turns up rather than by a list of everything that could theoretically block.
+
+--------------------------------------------------------------------------------
+2026-08-08 - MEASURED FIRST, AS THE NOTE SAID. HERE IS WHAT IT SAID.
+--------------------------------------------------------------------------------
+
+    python -X importtime -c "import spacr.qt.app"
+
+    670 ms  spacr.qt.app
+    396 ms    spacr.qt.widgets.eliding      <- a 40-line label module
+    396 ms      spacr.qt.widgets            <- ...importing the PACKAGE
+    333 ms        spacr.qt.widgets.data_filter_panel
+    238 ms          pandas
+
+`spacr/qt/widgets/__init__.py` imported all 19 widget modules eagerly, so
+importing ANY widget cost every widget -- and one of them imports pandas.
+A 40-line eliding label was pulling in a dataframe library, before the
+first window was drawn.
+
+FIXED: the eight names that cost real time are deferred through PEP 562
+`__getattr__` -- DataFilterPanel, FigureQueue, ColumnWell, DropZone,
+GraphBuilderPanel, GraphCanvas, ImageUmapExplorer, LivePreviewPanel. They
+resolve identically and are cached after the first access; `dir()` still
+lists them.
+
+Only the expensive ones. Deferring the cheap modules too would trade no
+measurable time for a worse class of bug -- an ImportError that stops
+happening at import time and starts happening when a user clicks
+something.
+
+    670 ms -> 592 ms, and the widgets package no longer pulls pandas.
+
+STILL TO DO, and this is the next measurement rather than a guess: pandas
+is STILL imported at startup, by a third path.
+
+    592 ms  spacr.qt.app
+    210 ms    spacr.layers
+    205 ms      spacr.selection
+    200 ms        pandas
+
+So `spacr.qt.app` reaches `spacr.layers`, which reaches `spacr.selection`,
+which imports pandas at module scope. Find who imports `spacr.layers` from
+the Qt startup path and give it the same treatment. That should take
+another ~200 ms off, and would leave startup free of pandas entirely.
+
+AND NOTE WHAT THIS DOES NOT PROVE. Import time is a proxy. The symptom
+reported was a STUTTER -- the event loop not turning -- and the note above
+still stands: put a QTimer on the GUI thread that logs any tick over ~50 ms
+and read what it says. Import cost is one contributor and the easiest to
+find; it may not be the whole of what the maintainer saw.
+
+147 tests pass across the gates, figure-grid, hyperparameter and API
+contract suites.
