@@ -146,6 +146,14 @@ def no_modals(monkeypatch):
     for name in ("getOpenFileName", "getSaveFileName", "getExistingDirectory"):
         monkeypatch.setattr(QFileDialog, name, staticmethod(_boom))
     monkeypatch.setattr(QDialog, "exec", _boom, raising=False)
+    # QMessageBox OVERRIDES exec, so patching QDialog.exec does not reach it
+    # and an instance-level `box.exec()` sailed straight through this guard
+    # into a real modal loop. That is what wedged the whole qt suite: one
+    # test reached `shutdown.ask_how_to_quit`, which builds a QMessageBox and
+    # calls exec() on it, and the run sat there for 24 minutes with no output
+    # until it was killed. `exec_` too, for the Qt5-style spelling.
+    for name in ("exec", "exec_"):
+        monkeypatch.setattr(QMessageBox, name, _boom, raising=False)
     return True
 
 
@@ -349,8 +357,15 @@ class TestCategoryGrouping:
         trailing bucket ``build_sections`` emits for keys in no category at
         all. Classify rendered one holding exactly ``custom_model``, because
         that key was filed under "Cellpose" and Classify hides Cellpose. The
-        key now lives in "Model Architecture" beside ``model_type``, which is
-        the question it answers, so there is nothing left to bucket.
+        key now lives beside ``model_type``, which is the question it
+        answers, so there is nothing left to bucket.
+
+        The two section names are read off the module's own ordering rather
+        than spelled here: the Classify overhaul renamed "Model
+        Architecture" to "Model & Regularization" and "Optimization & Loss"
+        to "Training & Loss" (commit 30500970), and hard-coded titles made
+        that deliberate rename look like a regression. What this test is
+        actually defending is the absence of CELLPOSE and OTHER.
 
         The escape hatch itself still works and is covered by
         ``test_uncategorised_keys_still_land_in_other`` below.
@@ -360,8 +375,18 @@ class TestCategoryGrouping:
         assert "CELLPOSE" not in titles
         assert "OTHER" not in titles
         assert "custom_model" in scr._settings_model._widgets
-        assert "MODEL ARCHITECTURE" in titles
-        assert "OPTIMIZATION & LOSS" in titles
+        # custom_model is rendered under some heading, and that heading is
+        # the model one -- asserted by where the key landed, not by its name.
+        model_section = next(
+            (name for name, rows in scr._settings_model.build_sections()
+             if any(label_or_key == "custom_model"
+                    or getattr(widget, "property", lambda _p: None)(
+                        "settingKey") == "custom_model"
+                    for label_or_key, widget in rows)),
+            None)
+        assert model_section is not None, (
+            "custom_model is not rendered in any section")
+        assert "MODEL" in model_section.upper()
 
     def test_uncategorised_keys_still_land_in_other(self, qtbot, monkeypatch):
         """The bucket is a safety net, not a section anyone should see."""
@@ -916,6 +941,13 @@ class TestRunStopStateMachine:
 
     def test_run_then_finish_walks_the_full_button_state_machine(
             self, qtbot, monkeypatch, no_modals):
+        # `_on_stop` asks how to quit before it stops anything. `no_modals`
+        # turns that prompt into a failure rather than a hang, which is what
+        # it is for -- so the answer has to be stubbed for the state machine
+        # under test to get past it.
+        from spacr.qt import shutdown
+        monkeypatch.setattr(shutdown, "ask_how_to_quit",
+                            lambda *a, **k: shutdown.GRACEFUL)
         gate = threading.Event()
         seen = {}
 
@@ -1032,10 +1064,27 @@ class TestRunStopStateMachine:
         assert _console_text(scr._console) == ""
 
     def test_stop_survives_a_thread_that_refuses_to_be_interrupted(
-            self, qtbot):
+            self, qtbot, monkeypatch):
+        """Stop must survive a thread whose requestInterruption throws.
+
+        `_on_stop` now asks how to quit first, and this test predates that.
+        Without an answer stubbed in it opened a real modal and hung the
+        entire suite -- see the `no_modals` fixture. The prompt is stubbed
+        rather than suppressed so the assertion below still exercises the
+        graceful path it was written for.
+        """
+        from spacr.qt import shutdown
+        monkeypatch.setattr(shutdown, "ask_how_to_quit",
+                            lambda *a, **k: shutdown.GRACEFUL)
         scr = _make_screen(qtbot, "mask")
 
         class _Stubborn:
+            # `_on_stop` asks whether the thread is running before it asks it
+            # to stop, so a double that answers only requestInterruption is
+            # no longer a faithful stand-in for a QThread.
+            def isRunning(self):
+                return True
+
             def requestInterruption(self):
                 raise RuntimeError("no")
 
