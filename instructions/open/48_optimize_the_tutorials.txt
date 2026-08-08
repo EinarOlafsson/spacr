@@ -2,8 +2,9 @@
 OPTIMIZE THE spaCR TUTORIALS
 ================================================================================
 
-Status:    in progress — generated site and deployment understood; editable
-           source workspace is not mounted at its documented path
+Status:    audit complete for all 40 published lessons and all 63 current Qt
+           modules; implementation is waiting for the editable tutorial source
+           workspace and publisher, which are not mounted at the documented path
 Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see how they are setup?"
            2026-08-08 — "great. now we need to audit these lessons one at a time.
 
@@ -88,7 +89,10 @@ narration synchronisation, fallback media, or the Pages budget.
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
-No tutorial files have been changed yet. The setup is being verified first.
+No generated tutorial media or catalog file has been changed. The repository
+copy is derived output and the documented source/publisher are absent; editing
+the derived copy would be overwritten by the next publish. Unrelated working-
+tree changes have not been touched.
 
 --------------------------------------------------------------------------------
 AUDIT — LESSON 01: PYPI AND GITHUB
@@ -1041,3 +1045,587 @@ Content
 - Keep the warning that the best epoch on the same validation curve is an
   optimistic selection. Model choice still needs a truly held-out evaluation
   and compatible data/split definitions; a visually better curve is not enough.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 29: REPORT
+--------------------------------------------------------------------------------
+
+Result: useful real document-generation walkthrough; tighten example-specific
+detail and action highlights.
+
+Narration
+- HTML, PDF, CSV, QC, Git, and Python are deliberately lettered or rendered
+  intelligibly. No definite phonetic correction was found.
+- The exact five-of-five, six/two sections, and seventeen-PDF inventory is
+  repeated. Summarize it once as the current run's preflight and leave counts
+  visible.
+
+Highlights
+- Source/Scan, preflight verdict, sections, format/embed options, destination,
+  generated result, and report pages are aligned.
+- Scenes 7 and 9 describe Generate and Open, but emphasize the whole output row.
+  Put the emphasis box tightly around the named button, then move it to the
+  resulting status/file when narration changes to the outcome.
+
+Content
+- Preserve: read-only purpose; scan before generation; explicit available and
+  missing evidence; choose HTML/PDF and figure cap; write outside an immutable
+  run; generate/open; inspect status, provenance, figures, statistics, settings,
+  and appendix.
+- Explain output format and figure cap in one short scene. The upper numeric cap
+  and the implementation detail about a missing PDF rasterizer are secondary;
+  the user needs to know why a figure is linked/listed instead of embedded.
+- Keep the important statement that the report documents saved evidence and
+  does not recompute, aggregate, or retest results. Missing QC must stay explicit.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 30: PLATE QUEUE
+--------------------------------------------------------------------------------
+
+Result: good sequential-state demonstration; correct four broad action boxes
+and shorten persistence detail.
+
+Narration
+- CSV, GPU, Mask, Measure, and spaCR are rendered intelligibly. No definite
+  phonetic correction was found.
+- Combine the persistence explanation with the first queued-row explanation and
+  remove repeated statements that the copied settings remain unchanged.
+
+Highlights
+- Prepared Mask, navigation, Add current plate, queued rows, status transition,
+  and final table state are aligned.
+- Scenes 7, 9, 11, and 13 narrate Run queue, Stop, Run queue again, and Clear
+  finished while emphasizing nearly the entire table. Use tight boxes around
+  the corresponding toolbar buttons; after each click, move emphasis to the
+  affected row/status.
+
+Content
+- Preserve: configure/validate a module first; snapshot current settings; add
+  folders or CSV rows; review persistent queued items; execute sequentially;
+  request a cooperative stop; resume pending work; inspect terminal states;
+  clear terminal rows without deleting data or outputs.
+- Be explicit that Stop does not interrupt the active pipeline: it prevents the
+  next queued item from starting after the current one reaches a terminal state.
+- The tutorial substitutes source validation for the expensive pipelines. Keep
+  that disclosure, but frame it as a queue-state demonstration; users must still
+  validate actual Mask/Measure output and resource needs before batching.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 31: EXTERNAL MASKS
+--------------------------------------------------------------------------------
+
+Result: sound two-pass workflow buried in a five-minute category recital;
+shorten and show imported artifacts.
+
+Narration
+- TIFF, PNG, 3D, Z, ID, and database/table names are represented intelligibly.
+  No definite phonetic correction was found.
+- Remove the one-scene-per-category tour. Mention measurement families, object
+  crops, timelapse/3D, and advanced settings only when they apply to the chosen
+  import.
+- Do not read exact field/file/plane/table counts twice; they are verification
+  details for this example, not recommended values.
+
+Highlights
+- Inputs, assignment table, category cards, Preview-only state, Run action, and
+  console outcome are aligned with the words spoken.
+- Tighten Run emphasis to the button during both preflight and import, then move
+  it to the preview/console result after the click.
+- The lesson ends on console text. Open at least one imported intensity stack
+  with its label planes, the measurement database/tables, and an object crop.
+
+Content
+- Teach: drop files/folder; review every inferred role and mask type; verify
+  matching field identities and integer label geometry; choose a new protected
+  destination; select only needed measurements/crops; run Preview only; resolve
+  missing/duplicate/mismatched items; disable preview; import; inspect artifacts.
+- Emphasize that normalization policy affects imported intensities/crops and
+  must be chosen for the downstream analysis; do not prescribe fixed values.
+- Preserve the distinction that object filters decide which supplied labels are
+  measured and do not repair bad external segmentation.
+- The preflight is the module's best miniature workflow. Show the actual pairing
+  report and a representative image–mask overlay before authorizing writes.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 32: ALIGN AND STITCH
+--------------------------------------------------------------------------------
+
+Result: focused plan-first lesson; make the final stitched artifact visible and
+tighten two action highlights.
+
+Narration
+- NPY, TIFF, RAM, X/Y, ER, and cross-correlation are rendered intelligibly. No
+  definite phonetic correction was found.
+- The exact 3-by-3 grid, 25-percent overlap, channel, memory budget, and row count
+  are correctly presented as this reproducible example; shorten repeated counts
+  after the plan succeeds.
+
+Highlights
+- Source, layout, quality settings, Plan, plan result, tile inspection, output,
+  and report are generally aligned.
+- The opening narration explains the whole plan-first surface while emphasizing
+  only navigation; move emphasis from navigation to Plan/result as the sentence
+  changes. Scene 9 should tightly emphasize Write stack, not the full output row.
+
+Content
+- Preserve: describe acquisition/grid/order/overlap/reference channel; explain
+  confidence and bounded-memory choices; plan without writes; inspect weak or
+  fallback tiles/residuals/canvas estimate; choose protected output; write; save
+  solved coordinates.
+- Add a final inspection of the actual stitched multi-channel stack at full view
+  and overlap seams, alongside the coordinate table/report. The current final
+  scene shows the plan/report but not the artifact whose quality matters most.
+- Clarify that low residuals and a completed write do not prove correct
+  acquisition order or biological alignment; compare recognizable structures
+  across seams and channels before downstream analysis.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 33: PLATE VIEWER
+--------------------------------------------------------------------------------
+
+Result: strong real, interactive walkthrough; shorten statistics and avoid
+turning example thresholds into recommendations.
+
+Narration
+- ER, CSV, Spearman rho, Cliff's delta, p-value, and SHA-256 are represented
+  intelligibly. No definite phonetic correction was found.
+- Scenes 6, 9, 11, 12, and 14 read too many exact counts/effect values. State
+  the visual/QC finding and leave exact estimates in the report/readout.
+
+Highlights
+- Navigation, database source, feature/aggregation options, Render, heatmap and
+  diagnostics, well inspection, Count, minimum-object filter, blank well,
+  Export, and status are well aligned with narration.
+
+Content
+- Preserve: open read-only data; choose table/feature/plate/aggregation; choose
+  a colour scale and evidence threshold; render; inspect spatial diagnostics and
+  wells; switch to Count; distinguish filtered blanks from true zeroes; export.
+- Explain robust colour limits as display controls rather than a fixed 2–98
+  recommendation. Derive minimum objects per well from assay precision/QC; 100
+  and 350 are example settings, not generally valid thresholds.
+- Keep the important warning that plate gradients and edge effects can resemble
+  biology. A significant spatial diagnostic should trigger inspection of
+  controls, acquisition order, seeding, segmentation, and plate design.
+- The final hash verification is useful provenance but not necessary narration;
+  a short statement that only the derived CSV is written is sufficient.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 34: DATABASE BROWSER
+--------------------------------------------------------------------------------
+
+Result: useful read-only workflow; remove backend internals and repeated exact
+counts.
+
+Narration
+- SQLite should be pronounced "S-Q-L-ite" or the common "sequel-ite"
+  consistently; SQL, CSV, SHA-256, and database filenames are otherwise
+  represented intelligibly.
+- The 81,969-row and 218-column totals are read repeatedly. State the full count
+  once, then describe loaded preview versus complete result.
+- Keyset paging, parameter binding, and journal-file verification are
+  implementation details beyond a surface-level user walkthrough.
+
+Highlights
+- Open/source, table list, preview, column search, paging controls, filter,
+  filtered preview, Export, status, Clear, and restored preview are aligned.
+
+Content
+- Preserve: open read-only database/folder; choose a table; search columns;
+  understand bounded preview/load-more; build a structured filter; distinguish
+  preview rows from the complete filtered count; export the complete filtered
+  result; clear the view state.
+- The cell-area threshold of 10,000 is only an illustrative filter. Use a neutral
+  predicate or explicitly say it demonstrates syntax and is not a biological
+  recommendation.
+- Keep raw SQL as a brief advanced option with a caution, not part of the main
+  path. Structured filtering is the safer surface-level demonstration.
+- Explain that exports can honor both row filters and visible-column selection,
+  and confirm the output's dimensions/path without reciting hash internals.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 35: FORMAT CONVERTER
+--------------------------------------------------------------------------------
+
+Result: good preview-first workflow; tighten action boxes and pronunciation.
+
+Narration
+- Add a pronunciation hint for Yokogawa ("yoh-koh-GAH-wah"). TIFF, CSV, Z,
+  plate/well IDs, and spaCR are otherwise represented intelligibly.
+- The exact first/last mapping, eight-file count, two-field count, and repeated
+  completion counts can stay on screen rather than all being narrated.
+
+Highlights
+- Source, layout/options, Preview, mapping plan, result summary, and Resume are
+  aligned.
+- Scenes 6 and 9 say Convert while emphasizing the broad destination row. Use a
+  tight box around Convert, then move emphasis to mapping/status after the click.
+
+Content
+- Preserve: separate source/destination; explain layout, Z policy, naming, and
+  resume; Preview with no writes; inspect complete mapping/collisions; Convert;
+  inspect provenance; demonstrate safe resume.
+- Keep the warning that projection/first-plane modes discard Z information.
+  Users should choose them only for a justified downstream representation.
+- Open the output folder or a representative converted field and provenance row
+  after conversion so filename/channel/Z correctness is visibly verified, not
+  inferred only from a success count.
+- Atomic checkpoints and hashes are useful safeguards but can be summarized as
+  validated field-level resume in a surface-level lesson.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 36: IMPORT PROJECT
+--------------------------------------------------------------------------------
+
+Result: strong preview/edit/import flow; shorten the case-study counts and show
+the resulting project artifacts.
+
+Narration
+- TIFF, CSV, IDs, micrometres, square micrometres, and database filenames are
+  represented intelligibly. No definite phonetic correction was found.
+- The exact matched/unmatched counts and full output inventory are too detailed
+  for speech; leave them in the join report and summarize the decision.
+
+Highlights
+- Overview, images, mask entry/Add, measurements/calibration, Preview, mapping
+  table, editable target cell, reviewed mapping, Save/Load, Import, and report
+  are aligned with narration.
+
+Content
+- Preserve: choose images/new destination; declare every available label-mask
+  class; add measurements and physical calibration; Preview without writes;
+  inspect joins, units, conflicts, and missing rows/labels; edit/save mapping;
+  Import; verify provenance.
+- State that 0.65 micrometres per pixel is acquisition metadata for this example,
+  not a tutorial value. Users must obtain calibration from instrument metadata
+  or another validated source before converting physical units.
+- Keep the central warning that an inferred column mapping is a proposal, not
+  truth, and that name conflicts must preserve foreign values rather than
+  silently overwrite native features.
+- After import, open a representative merged array with label planes, the
+  imported measurement table, and the applied mapping/provenance record. The
+  current final scene shows only the textual report.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 37: BATCH RUNNER
+--------------------------------------------------------------------------------
+
+Result: replace placeholder; it shows an empty screen and does not demonstrate
+a batch.
+
+Narration
+- No definite phonetic correction was found, but the prose is generic and the
+  lowercase sentence start in scene 4 ("validate") must be corrected.
+- "Presets" and "resource limits" are not the primary controls on the current
+  screen. Narrate the controls that exist: module, settings file, label,
+  dependencies, overrides, validation, failure policy, consecutive-failure
+  stop, saved queue, per-job log, and cooperative Stop.
+
+Highlights
+- The overview and navigation boxes are broadly aligned, but later scenes reuse
+  whole-screen emphasis on an empty interface. No job, dependency, problem,
+  status transition, or output/log is highlighted because none is created.
+
+Content and currency
+- Record a real bounded queue: add a valid module/settings job; show validation;
+  duplicate it or add a dependent second job; apply one small override; reorder;
+  save the queue; run; inspect status/progress and each job's separate log.
+- Demonstrate a validation failure safely (for example a missing settings path)
+  and correct it before starting, because early refusal is the module's most
+  important value.
+- Explain dependency behavior: a failed prerequisite skips its dependants while
+  independent jobs follow the chosen failure policy. Jobs run sequentially and
+  Stop waits for the current job to finish.
+- Remove the stale implication that Batch Runner has a generic preview/test
+  mode. Validation is the preflight; scientific output validation belongs in
+  each queued module before unattended execution.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 38: DISTRIBUTED JOBS
+--------------------------------------------------------------------------------
+
+Result: replace placeholder; all five scenes show an empty submission screen.
+
+Narration
+- SSH should be lettered, Slurm pronounced "slurm," HPC and CLI lettered. No
+  other definite phonetic correction was found.
+- The current script implies a generic preview/test mode that this screen does
+  not expose. Remove that claim.
+
+Highlights
+- Overview/navigation and the broad empty-screen boxes do not identify the
+  profile, settings snapshot, Submit, job row, Refresh, log, local record, or
+  Cancel controls being discussed.
+
+Content and currency
+- Demonstrate: create/edit a non-secret execution profile; choose SSH, Slurm, or
+  custom command; map local and remote dataset roots; identify the remote spaCR
+  runner/work directory; choose a module/settings file or receive a module's
+  Submit remote snapshot; review; submit a safe small job; refresh; inspect job
+  ID/state/details/log/local record; request cancellation only when appropriate.
+- State that profiles store commands/paths, not passwords; SSH keys or cloud CLI
+  credentials are configured outside spaCR. The module maps paths and transfers
+  small settings/log artifacts, not whole image datasets.
+- Use a controlled local/test backend or an isolated tutorial target for the
+  recording so no real cluster job or credentials are exposed. Show at least
+  one terminal status and failure message.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 39: CLASSIFIER EVALUATION
+--------------------------------------------------------------------------------
+
+Result: replace placeholder; the current lesson never loads an evaluation and
+therefore teaches none of the module.
+
+Narration
+- Cross-validation and calibration are rendered intelligibly. Use O-O-F or say
+  "out-of-fold" consistently if the abbreviation appears.
+- The script incorrectly describes configurable thresholds, calibration bins,
+  grouping, bootstrap uncertainty, and a generic preview/test path. This screen
+  primarily reads a completed evaluation bundle and provides inspection tabs.
+
+Highlights
+- Every scene shows the same empty result screen with broad emphasis. No source,
+  Scan, selected bundle, tab, confusion cell, crop list, or Annotate handoff is
+  demonstrated.
+
+Content and currency
+- Load a real bounded evaluation bundle and teach: Scan/select run; read Summary;
+  inspect the confusion matrix; click an error cell; compare error origin by
+  well/plate; separate high-confidence errors from low-confidence boundary cases;
+  open selected crops in Annotate; inspect per-plate metrics, calibration,
+  prediction filtering, and leakage audit.
+- Explain that held-out/out-of-fold provenance and group separation must be
+  established before interpreting metrics. Training-set performance is not a
+  substitute.
+- Tie the lesson to the current merged Classify workflow and end with concrete
+  actions: revise labels/class definitions, investigate a plate/batch, recalibrate
+  or retrain, then re-evaluate on untouched data.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 40: RUN HISTORY
+--------------------------------------------------------------------------------
+
+Result: populated interface but placeholder narration; replace with a real
+inspection workflow and remove unsupported claims.
+
+Narration
+- No definite phonetic correction was found. Correct the lowercase sentence
+  start in scene 4 ("open").
+- The narration claims direct filters for date, project, version, warning,
+  duration, and resource use. The current screen has free-text search plus
+  module and status filters; duration/CPU/input/output/warning counts are table
+  columns and details, not separate filter controls.
+- It also promises reproduce, compare, resume, and report actions. The current
+  direct actions are Open run folder, Copy path, and Load settings in module.
+
+Highlights
+- The run list is populated, but all scenes emphasize whole regions instead of
+  the named search/filter, selected row, tabs, and handoff button.
+
+Content and currency
+- Teach: refresh the journal; search by setting/path/warning/failure/version;
+  filter module/status; select a representative success and failure; inspect
+  Overview, Settings, Files & models, Warnings & failure, and Environment;
+  open/copy the run path; load exact saved settings back into the module.
+- State that Run History is read-only. Loading settings prepares a new run; it
+  does not reproduce the old output automatically, and compatibility/input
+  provenance must be checked before rerunning.
+- Comparison, resume, or report require the corresponding module/workflow and
+  should be described as handoffs only when those actions are actually shown.
+
+================================================================================
+CURRENT MODULE COVERAGE AUDIT
+================================================================================
+
+The launched Qt registry contains 63 user-facing modules. The current catalog
+has a lesson for 34 of those modules (its other entries are installation, Home,
+and API orientation), leaving 29 current modules without any tutorial:
+
+- Core: Classify (`classify_merged`), Curate.
+- Data: Illumination, Data Manager, Project Browser.
+- Segmentation models: Napari Bridge.
+- Results & QC: Barcode QC, Hit List, Methods & Results, Run Compare, Control
+  Charts.
+- Explore: Pipeline Graph, Prediction Profiler, QC Dashboard, Image Scatter,
+  Lineage, Layer Viewer, Graph Builder, AnnData Export, PCA, Tabulate, Feature
+  Dictionary, Small Multiples, Gate Editor, Feature Explorer, Outliers.
+- Design: Experiment Design, Power / Design, Dose–Response.
+
+Coverage decision
+- Every user-facing registry module should have a catalog entry. A simple
+  read-only viewer may need only 60–120 seconds, while a state-changing pipeline
+  needs a bounded input→preflight→run→output walkthrough. Maturity badges do
+  not replace tutorials; alpha lessons should state the stage and known limits.
+- Produce the missing lessons in this order: (1) merged Classify and Gate Editor,
+  because the user named them and both represent changed workflows; (2) uncovered
+  beta modules and Curate; (3) remaining alpha modules, grouped by a coherent
+  user journey but retained as one catalog lesson per module.
+- Do not use the old five-scene placeholder template. Each recording must load
+  a bounded representative input and demonstrate at least one real inspection,
+  validation, or result unique to that module.
+
+Live Preview and Hyperparameter Search inventory
+- Current Live Preview modules are Mask, Measure (Crop Preview), Timelapse
+  (Track Preview), Motility (Track Preview), Cellpose Masks, and Plaque Assay.
+  All six revised lessons must open and use the preview before a full run.
+- Current global Hyperparameter Search modules are Image UMAP, Classify (CV),
+  Classify (ML), and Activation. All four revised lessons must run a small
+  search, compare actual results/uncertainty, and Apply a selected configuration.
+- Merged Classify is not currently registered with the global search panel.
+  Its lesson must not claim it has one. Decide whether the product should route
+  the search according to `classifier_family`; until then, keep search in the
+  two original family-specific lessons.
+
+--------------------------------------------------------------------------------
+NEW LESSON REQUIRED: CLASSIFY (`classify_merged`)
+--------------------------------------------------------------------------------
+
+Current state
+- The current catalog contains separate Classify (CV) and Classify (ML) lessons
+  but no lesson for the merged Classify tile.
+- The merged screen's top-level `classifier_family` choice switches between CV
+  on object crops and ML on measured features. Shared Plate Sources & Workflow,
+  Labels & Classes, and Evaluation & Results groups remain visible; family-only
+  controls are grouped under explicit Computer Vision or Machine Learning names.
+- It dispatches to the same trusted backends as the original modules, which
+  remain available for saved-settings and API compatibility.
+
+Required surface-level lesson
+1. Load a small representative project and introduce the family choice.
+2. Define the training basis and classes once, using real annotation/metadata or
+   measurement rules; verify class counts and group-safe splits.
+3. Select Computer Vision and show crop source, channels, model, and the few
+   training controls that materially affect a bounded calibration run.
+4. Switch to Machine Learning and show measured-feature preparation, optional
+   batch correction, estimator, and group validation; make the changed controls
+   visually obvious.
+5. Run one bounded, validated route; inspect saved predictions, metrics, settings,
+   and evaluation bundle; hand off to Classifier Evaluation.
+6. Explain when to use the other family and that changing family changes the
+   data representation, not merely the model name.
+
+Do not recite every setting or run both full trainings. Use one complete route
+and a short visual comparison of the alternative. Do not imply merged Classify
+has Hyperparameter Search until the UI actually exposes it.
+
+--------------------------------------------------------------------------------
+NEW LESSON REQUIRED: GATE EDITOR (`gate_editor`)
+--------------------------------------------------------------------------------
+
+Current state
+- Gate Editor is registered at runtime and has no catalog lesson.
+- It loads CSV/TSV or database tables, can add several object tables to one
+  working set, supports computed columns and a local data filter, plots a
+  histogram or two-parameter scatter, draws threshold/rectangle/ellipse/polygon/
+  wand gates, shows gate hierarchy with `% parent` and `% all`, supports 2D/3D/
+  xD modes, saves/loads strategies, exports gate columns, and creates annotations
+  from the shown gates.
+- Display sampling is explicitly not selection sampling: exported gates are
+  re-applied to the full table using full object identity/merge keys.
+
+Required surface-level lesson
+1. Load a representative measurements database/table and verify object identity;
+   optionally add a second table only when a cross-compartment axis is useful.
+2. Choose X/Y features; use a histogram threshold or scatter rectangle as the
+   first gate; name it and inspect highlighted objects plus `% parent`/`% all`.
+3. Create one child gate, toggle visibility, and show that gates highlight the
+   full plot rather than silently hiding context.
+4. Briefly demonstrate a local filter or computed column only if it helps define
+   the shown population.
+5. Save/reload the gate strategy, then export gate columns or create a named
+   annotation and verify the written table/counts.
+6. Explain that a gate drawn on a display sample is applied to all objects and
+   that merge keys must uniquely identify objects across fields.
+
+Gate Editor product mismatch to resolve before recording
+- Gate Settings exposes clustering method, eps, minimum samples, scaling, Walk,
+  and Walk steps. The current Cluster button instead opens a separate dialog
+  with its own fixed starting values and directly calls DBSCAN; it does not read
+  the saved clustering settings or execute Walk. Do not demonstrate Walk as a
+  working mini-search until this is reconciled. Once working, the lesson should
+  use it to compare candidate cluster gates visually rather than prescribe one
+  eps/min-samples pair.
+
+--------------------------------------------------------------------------------
+CHANGED LESSON REQUIRED: IMAGE UMAP (`umap`)
+--------------------------------------------------------------------------------
+
+Lesson 15 already records the detailed replacement requirement. The current UI
+adds Hyperparameter Search with trustworthiness/continuity/silhouette and
+multi-objective ranking, small multiples, Pareto comparison, Walk axes, resume,
+and Propagate/Apply behavior. The replacement must use a bounded search and
+apply a visually and quantitatively justified configuration before running the
+full embedding. These features should be introduced as optional depth after the
+basic source/features/batch/embedding path, not recited as a feature list.
+
+================================================================================
+AUDIT OUTCOME AND PRODUCTION ACCEPTANCE GATES
+================================================================================
+
+Existing lessons
+- All 40 published lessons were checked in catalog order against their English
+  narration/speech overrides, scene timing sidecars, current 1440p silent video,
+  scene-midpoint emphasis frames, and the current module implementation.
+- Sixteen lessons need a substantial replacement rather than line edits: Home,
+  Python API/headless, Mask, Measure, Image UMAP, Activation, Timelapse,
+  Motility, Plaque Assay, Recruitment, Invasion, Replication, Batch Runner,
+  Distributed Jobs, Classifier Evaluation, and Run History.
+- The remaining lessons range from targeted action-box/pronunciation fixes to
+  meaningful shortening and current-UI updates. None should retain generic AI,
+  remote-execution, or one-category-per-scene tours unless that feature is the
+  actual subject of the module.
+
+English pronunciation lexicon for narration generation
+- PyPI: one joined "pie-pee," with a short second syllable and no pause.
+- CUDA: "koo-duh," not four separately spoken letters.
+- UMAP: joined "you-map"; t-SNE: "tee-snee"; DBSCAN: "dee-bee-scan."
+- Ultrack: "ull-track."
+- HeLa: "HEE-lah"; siRNA: "sigh-R-N-A."
+- Yokogawa: "yoh-koh-GAH-wah."
+- SQLite: choose one common English rendering ("sequel-ite" or "S-Q-L-ite")
+  and use it consistently.
+- Slurm: "slurm"; SSH/HPC/CLI/O-O-F remain lettered unless expanded.
+
+Apply the lexicon centrally to every English voice. Do not repair only the
+default voice, because all 28 English voices are generated from the same speech
+override and must stay semantically identical.
+
+Highlight acceptance
+- Each spoken clause gets one exact target. If a sentence changes from an action
+  (for example Generate, Run queue, Write stack, Convert) to its result, move the
+  spotlight from the button to the result/status instead of holding one broad
+  box for the whole sentence.
+- Re-render and inspect at the start, midpoint, and end of every scene plus every
+  click transition. No box may point at a neighbouring control, stale branch
+  selector, empty panel, or entire screen when the narration names a specific
+  control.
+- Pointer/ripple is for an actual scripted click; passive explanation uses a
+  spotlight without implying an action.
+
+Content acceptance
+- A pipeline lesson shows bounded input, the most useful preview/search or
+  validation surface, one real run, and inspected artifacts/QC. A read-only
+  lesson loads representative data and performs the module's central inspection.
+- Narration explains decisions and visible consequences. Exact sample counts,
+  cutoffs, normalisation percentiles, channel indices, and p-values remain on
+  screen unless speaking them is necessary to complete the workflow.
+- Example settings are explicitly sample-specific and justified from metadata,
+  preview behavior, controls, or validation data. No value is presented as a
+  universal spaCR recipe.
+- Completion is not validation. Every lesson distinguishes successful execution
+  from biological/model accuracy and points to the appropriate QC handoff.
+
+Publishing blocker
+- Required source: `/media/carruthers/mnt3/claude/tutorials/web/` and its sibling
+  `production/` masters.
+- Required publisher: `/media/carruthers/mnt3/claude/tutorials/tools/`
+  (documented routine invokes `tools/publish_tutorials.py`).
+- Neither exists on this machine, and neither is recoverable from this repo's Git
+  history. `spacr/qt/tutorial/` is a separate older six-lesson Piper recorder
+  that produces narrated MP4/SRT files; it is not the source for the published
+  silent-video, multi-voice bundle.
+- Once the source is mounted, revise in small catalog batches, publish with the
+  documented lesson filter, verify all voice/timing pairs and silent-video frame
+  counts, run `tools/docs_media_budget.py --report` plus its tests, and inspect
+  the staged player before any upload/deploy.

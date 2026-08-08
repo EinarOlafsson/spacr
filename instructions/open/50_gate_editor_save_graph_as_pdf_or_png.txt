@@ -1,0 +1,57 @@
+================================================================================
+SAVE THE GATE EDITOR'S GRAPH AS PDF OR PNG
+================================================================================
+
+Status:    not started
+Requested: 2026-08-08 — "for the gate editor. the user should be able to save the graph as a pdf or png."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not started. The gate editor draws onto `GateCanvas`
+(`spacr/qt/widgets/gate_editor.py`), a matplotlib canvas via `GraphCanvas`
+in `spacr/qt/widgets/graph_builder.py`. There is no export.
+
+Everything needed already exists elsewhere:
+`spacr/qt/widgets/figure_queue.py :: render_figure_to_png` renders a
+figure honouring the preferences, and `_export_vector_pdf` writes a true
+vector PDF rather than a raster wrapped in one.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A gated population is a figure panel. Without export the user screenshots
+the window, which loses the vector text a journal needs and bakes in the
+application's theme colours.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. A save action on the gate editor that writes the current graph.
+2. Format and resolution come from the EXISTING preferences --
+   `get_figure_format()` and `get_figure_png_dpi()` in
+   `spacr/qt/preferences.py`. Do NOT add a second setting; instruction 35
+   makes the same point for the search figure grid, and two places to set
+   "am I making PDFs" is one too many.
+3. Offer an explicit choice at save time as well, since "save as" is when
+   a user thinks about format, but let the preference be the default.
+4. Reuse `render_figure_to_png` / `_export_vector_pdf` rather than calling
+   `savefig` directly -- they already handle the theme colours, and a plot
+   exported with the dark theme's white-on-black is unusable on paper.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Save a gated graph as PDF and the text in it selects as text in a PDF
+reader. Save as PNG and the resolution matches the preference. Both open
+with readable, print-appropriate colours regardless of the app theme.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet -- not started.
