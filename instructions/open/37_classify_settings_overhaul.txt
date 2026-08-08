@@ -398,3 +398,52 @@ STILL OPEN -- two things, both real:
      missing is the panel control that populates keys from the chosen column
      and lets the user name them. Until then the dict is editable only as
      text.
+
+--------------------------------------------------------------------------------
+PROGRESS -- 2026-08-07 (final pass of this session), commit 30500970
+--------------------------------------------------------------------------------
+
+DONE since the last note:
+
+  * THE CLASSES EDITOR (spacr/qt/widgets/class_editor.py). Pick a column, its
+    distinct values become rows, the user names them. A second column adds to
+    the table. "Add random rest" is a row. Registered as the widget for the
+    `classes` key in settings_model, so the panel builds it instead of a text
+    box. 18 tests.
+  * location_column / positive_control / negative_control REMOVED from
+    set_default_classify, so the merged module no longer offers them. Classify
+    (ML) alone keeps them; an old CSV still trains on the same wells because
+    normalize_settings turns them into class rules first.
+  * The PANEL grouping merged from nine to six. This is the map the Classify
+    screen actually renders (_CLASSIFY ordering in settings_model.py) --
+    separate from spacr.settings.categories, and the one the user sees. The
+    heatmap moved into the shared evaluation group.
+
+STILL OPEN -- ONE thing, and it is the one that writes pipeline code:
+
+  THE DATASET BUILDER STILL DOES NOT CALL THE ON-DEMAND CUTTER.
+  spacr/crop_source.py can cut crops from merged (bounding box or object,
+  masks or database coordinates) and is tested doing so; classify() refuses a
+  setup that cannot work. What is missing is the call FROM io.py's dataset
+  builder: today it reads pre-generated crops whatever crop_source says, so
+  choosing `on_demand` validates and then trains on pre-cut PNGs.
+
+  Wiring point: the dataset-building path in spacr/io.py (the helpers around
+  `_load_png_table` / the training-dataset builders). It needs an END-TO-END
+  test that asserts crops exist and have the right shape and channel count --
+  a unit test on crop_source cannot see whether the builder called it.
+
+  Everything it needs already exists: crop_source.validate(),
+  crops_from_merged(), crop_at(), and mask_plane_for() which reads the
+  `*_mask_dim` settings the mask step writes.
+
+--------------------------------------------------------------------------------
+A NOTE ON EDITING settings_model.py's CATEGORY_TOOLTIPS
+--------------------------------------------------------------------------------
+
+Do NOT remove entries with a regex. The values are implicitly-concatenated
+multi-line strings, and a pattern that matches the key line leaves the
+continuation lines behind as bare strings inside a dict literal -- a
+SyntaxError several hundred lines away from the edit. It happened three times
+in this session. Match the exact block, or delete by line range after locating
+the next key.

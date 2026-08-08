@@ -1,0 +1,48 @@
+================================================================================
+CALL write_relationships AFTER THE MASK MODULE RUNS
+================================================================================
+
+Status:    not started
+Requested: 2026-08-07 (carved out of instruction 40, which is otherwise done)
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spacr.filters.write_relationships(db_path) builds and stores the
+`relationships` table, and ensure_relationships_table() builds it on demand if
+it is missing -- so gating works today whether or not it was ever written.
+
+What is missing is the call from the mask module, which is where the user
+asked for it: "this table shoul be generated after the mask moudle is run".
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Building it after masking is cheap: the relationships are known at that
+moment. Building it on demand later means reading the measurement tables back,
+which on a large plate is the difference between instant and a visible pause
+the first time a user opens the Gate Editor.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Call spacr.filters.write_relationships(db_path) at the end of the mask
+   module's run, after the object tables are written.
+2. It rebuilds by design -- the masks just changed, so the previous
+   relationships are stale.
+3. Failure must not fail the mask run: masking succeeded, and a missing
+   relationships table is rebuilt on demand by the Gate Editor anyway. Log it
+   and carry on.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * After a mask run on a database with cell, nucleus and pathogen, the
+    `relationships` table exists and its parent labels match a hand check.
+  * Re-running mask rebuilds it rather than appending to it.
+  * A mask run against a database it cannot write relationships for still
+    finishes, with the reason in the log.
