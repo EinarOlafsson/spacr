@@ -25,7 +25,9 @@ import logging
 import threading
 from dataclasses import dataclass, field
 from io import BytesIO
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import (
+    Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple,
+)
 
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QColor, QIcon, QPalette, QPixmap
@@ -40,7 +42,8 @@ from ..widgets.toggle import Toggle
 from ...hyperparam import (
     APP_CRITERIA, DEFAULT_SPACES, DEFAULT_UMAP_OBJECTIVE_WEIGHTS,
     LOWER_IS_BETTER, SearchResult, SearchSpace, Trial, UMAP_CRITERIA,
-    UMAP_METRICS as _UMAP_METRICS, UMAP_WALK_PARAMETERS,
+    MAX_WALK_CANDIDATES_PER_ROUND, UMAP_METRICS as _UMAP_METRICS,
+    UMAP_WALK_PARAMETERS, umap_walk_axes, walk_neighbourhood,
     run_search_for_app, umap_metrics as _umap_metrics,
 )
 from ..theme import active_palette, css_color
@@ -64,6 +67,26 @@ TOGGLE_TOOLTIP = (
 #: too and must not import Qt.
 UMAP_METRICS = _UMAP_METRICS
 umap_metrics = _umap_metrics
+
+
+
+#: Where a Walk starts on a parameter the panel has no field for. UMAP's
+#: own defaults, so an axis added without a starting value begins where an
+#: unconfigured run would have.
+_UMAP_DEFAULT_STARTS: Dict[str, Any] = {
+    "n_neighbors": 15, "min_dist": 0.1, "n_components": 2,
+    "metric": "euclidean", "spread": 1.0, "set_op_mix_ratio": 1.0,
+    "local_connectivity": 1, "repulsion_strength": 1.0,
+    "negative_sample_rate": 5, "init": "spectral",
+}
+
+#: How to parse a Walk starting value, keyed the same way as APP_PARAMS.
+_WALK_AXIS_KIND: Dict[str, str] = {
+    "n_neighbors": "int", "min_dist": "float", "n_components": "int",
+    "metric": "metric", "spread": "float", "set_op_mix_ratio": "float",
+    "local_connectivity": "int", "repulsion_strength": "float",
+    "negative_sample_rate": "int", "init": "str",
+}
 
 
 #: Apps this panel can search, with the parameters it offers and their types.
@@ -412,6 +435,10 @@ class SearchRequest:
     mode: str = "grid"
     n_trials: int = 12
     adaptive: bool = False
+    #: Which parameters the Walk searches. Empty means the original two,
+    #: so an existing request is unchanged by the space becoming choosable.
+    walk_parameters: Tuple[str, ...] = ()
+    walk_resolutions: Dict[str, int] = field(default_factory=dict)
     n_neighbors_step: int = 1
     min_dist_step: float = 0.05
     min_improvement: float = 0.0
@@ -478,6 +505,9 @@ def _default_search_fn(request: SearchRequest, on_trial, should_stop) -> SearchR
         request.app_key, request.settings, request.space,
         criterion=request.criterion, mode=request.mode,
         n_trials=request.n_trials, adaptive=request.adaptive,
+        walk_parameters=(list(request.walk_parameters)
+                         if request.walk_parameters else None),
+        walk_resolutions=dict(request.walk_resolutions or {}),
         n_neighbors_step=request.n_neighbors_step,
         min_dist_step=request.min_dist_step,
         min_improvement=request.min_improvement,
@@ -491,6 +521,16 @@ def _default_search_fn(request: SearchRequest, on_trial, should_stop) -> SearchR
 # ---------------------------------------------------------------------------
 # Panel
 # ---------------------------------------------------------------------------
+
+
+def _parse_walk_start(name: str, text: Any) -> Any:
+    """One Walk starting value, typed the way its axis expects."""
+    values = parse_values(str(text), _WALK_AXIS_KIND.get(name, "float"), name)
+    if len(values) != 1:
+        raise ValueError(
+            f"The Walk starts from one value of {name}, not {len(values)}.")
+    return values[0]
+
 
 class HyperparamPanel(QWidget):
     """Search-space controls, a live results table and a small-multiples panel.
@@ -524,6 +564,7 @@ class HyperparamPanel(QWidget):
         ] = None
         self._value_edits: Dict[str, QLineEdit] = {}
         self._adaptive_grid_text: Dict[str, str] = {}
+        self._walk_axes: Dict[str, Dict[str, Any]] = {}
         self._settings_dialog: Optional["UmapSearchSettingsDialog"] = None
         self._build_ui()
 
@@ -613,7 +654,16 @@ class HyperparamPanel(QWidget):
             "parameter fields above become single starting values. API: "
             "spacr.hyperparam.umap_search(adaptive=True).")
         self._adaptive.toggled.connect(self._on_adaptive_toggled)
-        run_grid.addWidget(self._adaptive, 0, 4, 1, 2)
+        run_grid.addWidget(self._adaptive, 0, 4)
+        self._walk_axes_button = QPushButton("Axes\u2026")
+        self._walk_axes_button.setObjectName("WalkAxesButton")
+        self._walk_axes_button.setVisible(self.app_key == "umap")
+        self._walk_axes_button.setToolTip(
+            "Choose which UMAP parameters the Walk searches and how finely. "
+            "The default is n_neighbors and min_dist; every parameter that "
+            "changes the structure of the embedding can be an axis.")
+        self._walk_axes_button.clicked.connect(self.open_walk_axes)
+        run_grid.addWidget(self._walk_axes_button, 0, 5)
 
         run_grid.addWidget(QLabel("n trials"), 1, 0)
         self._n_trials = QSpinBox()
@@ -1015,6 +1065,9 @@ class HyperparamPanel(QWidget):
                     self._adaptive_n_step, self._adaptive_d_step,
                     self._adaptive_rounds, self._adaptive_improvement):
                 edit.setEnabled(checked)
+        button = getattr(self, "_walk_axes_button", None)
+        if button is not None:
+            button.setEnabled(checked)
         if hasattr(self, "_mode"):
             self._mode.setEnabled(not checked)
         if hasattr(self, "_n_trials"):
@@ -1089,6 +1142,57 @@ class HyperparamPanel(QWidget):
 
     # -- search space ------------------------------------------------------
 
+
+    # -- Walk axes ---------------------------------------------------------
+
+    def walk_axes(self) -> Dict[str, Dict[str, Any]]:
+        """The chosen Walk axes, ``{name: {'start', 'resolution'}}``.
+
+        Empty means the Walk uses the two parameters it always used, which
+        is what an untouched panel should do.
+        """
+        return {name: dict(spec) for name, spec in self._walk_axes.items()}
+
+    def set_walk_axes(self, axes: Mapping[str, Mapping[str, Any]]) -> None:
+        """Replace the chosen Walk axes."""
+        cleaned: Dict[str, Dict[str, Any]] = {}
+        for name, spec in (axes or {}).items():
+            if name not in UMAP_WALK_PARAMETERS:
+                raise ValueError(
+                    f"Not a searchable UMAP parameter: {name!r}. Searchable: "
+                    f"{sorted(UMAP_WALK_PARAMETERS)}.")
+            cleaned[name] = {
+                "start": str(spec.get("start", "")).strip(),
+                "resolution": max(2, int(spec.get("resolution", 2) or 2)),
+            }
+        self._walk_axes = cleaned
+
+    def walk_start_for(self, name: str) -> str:
+        """Where the Walk should start on ``name``, as text for a field.
+
+        The main search field wins when it holds one value, then the run's
+        settings, then UMAP's own default. A starting point the user can
+        see somewhere else in the panel is the one they expect.
+        """
+        edit = self._value_edits.get(name)
+        if edit is not None:
+            text = edit.text().strip()
+            if text and "," not in text:
+                return text
+        value = self._settings.get(name)
+        if value is not None:
+            return str(value)
+        return str(_UMAP_DEFAULT_STARTS.get(name, ""))
+
+    def open_walk_axes(self) -> Optional["WalkAxesDialog"]:
+        """Open the axis picker. Returns the dialog, or None when not UMAP."""
+        if self.app_key != "umap":
+            return None
+        dialog = WalkAxesDialog(self)
+        if dialog.exec() == QDialog.Accepted:
+            self.set_walk_axes(dialog.selection())
+        return dialog
+
     def current_space(self) -> SearchSpace:
         """Build the :class:`SearchSpace` from the fields.
 
@@ -1101,10 +1205,35 @@ class HyperparamPanel(QWidget):
             values = parse_values(self._value_edits[key].text(), kind, label)
             if values:
                 params[key] = values
+        walking = (self.app_key == "umap"
+                   and getattr(self, "_adaptive", None) is not None
+                   and self._adaptive.isChecked())
+        if walking and self._walk_axes:
+            # A Walk needs a starting POINT, so each chosen axis enters the
+            # space as exactly one value. Parameters that are not axes keep
+            # whatever the fields hold, which is how a fixed metric or a
+            # fixed n_components travels with the walk.
+            for name, spec in self._walk_axes.items():
+                text = str(spec.get("start", "")).strip()
+                if not text:
+                    text = self.walk_start_for(name)
+                if not text:
+                    raise ValueError(
+                        f"The Walk searches {name} but has no value to start "
+                        "from. Give it one in the Axes dialog.")
+                kind = _WALK_AXIS_KIND.get(name, "float")
+                params[name] = parse_values(text, kind, name)
         if not params:
             raise ValueError(
                 "Nothing to search: fill in at least one parameter with at "
                 "least one value, e.g. n_neighbors = 5, 15, 50.")
+        if walking:
+            multiple = sorted(k for k, v in params.items() if len(v) > 1)
+            if multiple:
+                raise ValueError(
+                    "A Walk starts from one point, so each parameter takes a "
+                    f"single value. These hold more than one: "
+                    f"{', '.join(multiple)}.")
         return SearchSpace(params)
 
     # -- running -----------------------------------------------------------
@@ -1170,6 +1299,10 @@ class HyperparamPanel(QWidget):
             mode=self._mode.currentText(),
             n_trials=rounds,
             adaptive=adaptive,
+            walk_parameters=(tuple(self._walk_axes) if adaptive else ()),
+            walk_resolutions={
+                name: int(spec.get("resolution", 2))
+                for name, spec in self._walk_axes.items()} if adaptive else {},
             n_neighbors_step=n_step,
             min_dist_step=d_step,
             min_improvement=improvement,
@@ -1831,3 +1964,199 @@ def build_hyperparam_card(host):
 def searchable(app_key: str) -> bool:
     """Whether a hyperparameter search exists for ``app_key``."""
     return app_key in APP_PARAMS
+
+
+class WalkAxesDialog(QDialog):
+    """Choose which parameters a Walk searches, and how finely.
+
+    One row per structural UMAP parameter: whether it takes part, where the
+    walk starts on it, and the axis resolution -- how many values that axis
+    contributes to each round. 2 is the classic pair either side of the
+    centre; 3 includes the centre; 5 reaches two steps out.
+
+    The round cost is the PRODUCT of the resolutions, which is why the
+    dialog shows that number and says when it will trip the per-round
+    limit. Ten axes at resolution 2 is 1024 fits to take one step, and a
+    user who has to discover that by waiting has been failed by the
+    control, not by the search.
+    """
+
+    def __init__(self, panel: "HyperparamPanel"):
+        super().__init__(panel)
+        self._panel = panel
+        self.setObjectName("WalkAxesDialog")
+        self.setWindowTitle("Walk axes")
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(14, 14, 14, 14)
+        outer.setSpacing(10)
+
+        blurb = QLabel(
+            "The Walk searches the space these parameters define. Every one "
+            "of them changes the structure of the embedding, so searching "
+            "only n_neighbors and min_dist leaves the rest at a default "
+            "nobody chose.")
+        blurb.setWordWrap(True)
+        blurb.setObjectName("WalkAxesBlurb")
+        outer.addWidget(blurb)
+
+        page = QWidget(self)
+        page.setObjectName("WalkAxesPage")
+        grid = QGridLayout(page)
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setHorizontalSpacing(10)
+        grid.setVerticalSpacing(6)
+        for column, title in enumerate(("Search", "Start at", "Resolution")):
+            header = QLabel(title)
+            header.setObjectName("WalkAxesHeader")
+            grid.addWidget(header, 0, column)
+
+        chosen = dict(panel.walk_axes())
+        self._rows: Dict[str, Tuple[Toggle, QWidget, QSpinBox]] = {}
+        for row, name in enumerate(UMAP_WALK_PARAMETERS, start=1):
+            spec = UMAP_WALK_PARAMETERS[name]
+            enable = Toggle(name)
+            enable.setChecked(name in chosen)
+            grid.addWidget(enable, row, 0)
+
+            start_value = str(chosen.get(name, {}).get("start", ""))
+            if not start_value:
+                start_value = panel.walk_start_for(name)
+            if name == "metric":
+                choices = tuple(umap_metrics())
+            else:
+                choices = spec.get("choices")
+            if choices:
+                start: QWidget = QComboBox()
+                start.addItems([str(c) for c in choices])
+                if start_value in choices:
+                    start.setCurrentText(start_value)
+            else:
+                start = QLineEdit(start_value)
+                start.setPlaceholderText("one value")
+            start.setObjectName(f"WalkStart_{name}")
+            grid.addWidget(start, row, 1)
+
+            resolution = QSpinBox()
+            resolution.setObjectName(f"WalkResolution_{name}")
+            resolution.setRange(2, 7)
+            resolution.setValue(int(chosen.get(name, {}).get("resolution", 2)))
+            resolution.setToolTip(
+                f"How many values of {name} each round scores. 2 is one step "
+                "either side of the centre; an odd number keeps the centre "
+                "in the round as well.")
+            grid.addWidget(resolution, row, 2)
+
+            self._rows[name] = (enable, start, resolution)
+            enable.toggled.connect(self._update_cost)
+            resolution.valueChanged.connect(self._update_cost)
+
+        grid.setColumnStretch(1, 1)
+        scroll = QScrollArea(self)
+        scroll.setObjectName("WalkAxesScroll")
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QScrollArea.NoFrame)
+        scroll.setWidget(page)
+        outer.addWidget(scroll, 1)
+
+        self._cost = QLabel()
+        self._cost.setObjectName("WalkAxesCost")
+        self._cost.setWordWrap(True)
+        outer.addWidget(self._cost)
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        outer.addWidget(buttons)
+        self._style_surfaces()
+        self._update_cost()
+
+    def _style_surfaces(self) -> None:
+        """Paint this dialog's containers, locally.
+
+        `WalkAxesPage` is an anonymous QWidget inside a scroll area, and an
+        unstyled one inherits the blanket `QWidget { background-color: bg }`
+        rule and paints the window colour as a solid rectangle. Styling it
+        here rather than through `register_widget_qss` is deliberate: this
+        module is imported when a module screen is first built, which is
+        after the application stylesheet has been composed.
+        """
+        palette = active_palette()
+        bg = css_color(palette["bg"])
+        fg = css_color(palette["fg"])
+        muted = css_color(palette.get("muted", palette["fg"]))
+        self.setStyleSheet(f"""
+            QDialog#WalkAxesDialog,
+            QDialog#WalkAxesDialog QWidget#WalkAxesPage,
+            QDialog#WalkAxesDialog QScrollArea,
+            QDialog#WalkAxesDialog QScrollArea > QWidget > QWidget {{
+                background-color: {bg};
+                color: {fg};
+            }}
+            QDialog#WalkAxesDialog QLabel#WalkAxesBlurb,
+            QDialog#WalkAxesDialog QLabel#WalkAxesCost {{
+                color: {muted};
+            }}
+            QDialog#WalkAxesDialog QLabel#WalkAxesHeader {{
+                color: {muted};
+                font-weight: 600;
+            }}
+        """)
+
+    def _update_cost(self, *_args) -> None:
+        """Say what one round will cost, before it is paid.
+
+        The number is taken from the ENGINE -- the same
+        :func:`walk_neighbourhood` the search will call -- rather than
+        re-derived here. The arithmetic is not "product minus the centre":
+        an even resolution leaves the centre out of the axis entirely, a
+        categorical axis always includes it, and a value at a boundary
+        clamps two offsets onto one. A second implementation of that in the
+        dialog would be wrong in a way nobody would notice until a round
+        cost something other than what was promised.
+        """
+        selection = self.selection()
+        count = len(selection)
+        if count == 0:
+            self._cost.setText(
+                "No axes selected — the Walk falls back to n_neighbors and "
+                "min_dist, its original two.")
+            return
+        try:
+            start = {name: _parse_walk_start(name, spec["start"])
+                     for name, spec in selection.items()}
+            axes = umap_walk_axes(
+                start, parameters=list(selection),
+                resolutions={n: s["resolution"]
+                             for n, s in selection.items()})
+            moves, full = walk_neighbourhood(axes, start)
+            fits = len(moves)
+        except (ValueError, KeyError):
+            # A half-typed starting value. Say nothing rather than a number
+            # that is wrong; the OK button validates properly.
+            self._cost.setText(
+                f"{count} axes. Fill in a starting value for each to see "
+                "what a round will cost.")
+            return
+        if not full:
+            self._cost.setText(
+                f"{count} axes → {fits} fits per round. The full "
+                f"neighbourhood is past the {MAX_WALK_CANDIDATES_PER_ROUND} "
+                "limit, so each round varies ONE axis at a time instead: "
+                "still enough to pick a direction, but it does not see "
+                "interactions between axes.")
+        else:
+            self._cost.setText(
+                f"{count} axes → {fits} fits per round.")
+
+    def selection(self) -> Dict[str, Dict[str, Any]]:
+        """The chosen axes as ``{name: {'start': str, 'resolution': int}}``."""
+        out: Dict[str, Dict[str, Any]] = {}
+        for name, (enable, start, resolution) in self._rows.items():
+            if not enable.isChecked():
+                continue
+            text = (start.currentText() if isinstance(start, QComboBox)
+                    else start.text())
+            out[name] = {"start": str(text).strip(),
+                         "resolution": int(resolution.value())}
+        return out
