@@ -2,8 +2,8 @@
 IMAGE UMAP: SEARCH THE WHOLE HYPERPARAMETER SPACE, AND CALL IT WALK
 ================================================================================
 
-Status:    partly done 2026-08-08 - the NAME and the metric
-           dropdown landed; the N-dimensional search is open
+Status:    4 of 5 parts done 2026-08-08. Only the presentation grid is
+           left, and it is instruction 35's rendering half.
 Requested: 2026-08-07 - "the hyperparameter search should search hyperparameter space, this space should be defined by all hyperparameters not just min dist and neighbours. the adaptive 2x2 should just be adaptive and should search more than just the n_neighbours and min dist... the user should be able to choose the grid the algorithm uses to make directional decisions in hyperparameter space, now that that space will be expanded beyond n_neighbours and min_dist, it is no longer 2X2... this dimensionality of the search should be reflected in the grid that the UMAPs are presented on." Also: "there should be a clustering algorithm option with a hyperparameter search and which should include a hyperparameter walk (that is what the setting should be called, Walk, this name should also apply to the new image UMAP adaptive setting!)"
 
 --------------------------------------------------------------------------------
@@ -75,3 +75,45 @@ be N-dimensional about. `spacr/hyperparam.py :: umap_search(adaptive=True)`
 is the engine and `APP_PARAMS` in `spacr/qt/screens/hyperparam.py` is the
 list the panel builds its fields from -- today it is three entries for
 umap, and the ten parameters the request names are the target.
+
+--------------------------------------------------------------------------------
+2026-08-08, LATER - THE SEARCH IS N-DIMENSIONAL
+--------------------------------------------------------------------------------
+
+DONE, parts 2 and 3.
+
+  ENGINE (spacr/hyperparam.py)
+    WalkAxis          one direction: a step and a range, or a list of
+                      choices; plus a resolution -- how many values the
+                      axis contributes to a round.
+    walk_neighbourhood  the Cartesian product of every axis's values around
+                      the centre, minus the centre.
+    walk_search       the N-dimensional driver.
+    umap_walk_axes    builds axes for any subset of the ten structural
+                      UMAP parameters, each carrying UMAP's own range.
+    local_direction_search  now a nine-line wrapper. Two numeric axes at
+                      resolution 2 produce the same four diagonal corners,
+                      which is how all 174 existing tests kept passing.
+
+  PANEL (spacr/qt/screens/hyperparam.py)
+    "Axes..." beside the Walk toggle. Per parameter: search it or not,
+    where to start, resolution 2-7. The round cost is shown before it is
+    paid, and comes FROM the engine rather than from arithmetic repeated
+    in the dialog.
+
+  Round cost is capped at 48 fits; past that a round varies one axis at a
+  time and says so, in the notes and in the dialog. Ten axes at resolution
+  2 is 5183 fits to take one step.
+
+STILL OPEN - part 4, and only part 4.
+
+  The presentation grid mirroring the search dimensionality. The figures
+  still come back on the flat small-multiples grid, which cannot show which
+  axis a panel moved along once there are more than two. This is the same
+  rendering problem as instruction 35 and is shared with the Gate Editor's
+  clustering Walk, so do it there once rather than here twice.
+
+  What the renderer now has to work with: `result.space.params` names every
+  searched parameter, and each `Trial.params` carries its coordinates, so
+  the grid axes can be read off the result without the panel telling it
+  anything.
