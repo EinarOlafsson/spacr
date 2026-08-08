@@ -2518,6 +2518,58 @@ class _ApiTooltipFilter(QObject):
         return False
 
 
+
+#: Marks a tooltip carrying a "not used here" note, so the note is appended
+#: once and removed cleanly rather than accumulating.
+_BASIS_NOTE_PROPERTY = "_spacr_basis_note"
+
+
+def _basis_note(basis: str) -> str:
+    """The sentence shown on a setting the current training basis ignores."""
+    return (f"Not used when the training basis is '{basis}'. "
+            f"The value is kept and still saved.")
+
+
+def _family_note(family: str) -> str:
+    """The sentence shown on a setting the chosen classifier ignores."""
+    return (f"Not used by the '{family}' classifier. The value is "
+            f"kept and still saved.")
+
+
+def _apply_greyed_note(control, note: str) -> None:
+    """Add the greyed-out note WITHOUT destroying the setting's API help.
+
+    This was a bare `setToolTip(note)`, which replaced linked documentation
+    with a plain sentence. The label's help is composed from the control's
+    tooltip, so greying a setting silently stripped its API link: measured
+    on `annotation_column`, whose LABEL help was the note alone while the
+    FIELD still held the full documentation. The smoke test reported it as
+    "label help has no API link" on classify, classify_merged, ml_analyze.
+
+    Both greying passes go through here -- training basis and classifier
+    family -- because the second had the identical bug and would have been
+    found the identical way, one test run later.
+
+    The note is appended to the help instead, and the help properties are
+    left untouched so nothing downstream mistakes the note for the
+    setting's own description.
+    """
+    _clear_greyed_note(control)     # the reason may have changed; it is named
+    base = control.property("apiTooltipHtml") or control.toolTip()
+    control.setProperty(_BASIS_NOTE_PROPERTY, True)
+    control.setToolTip(f"{base}<br><i>{note}</i>" if base else note)
+
+
+def _clear_greyed_note(control) -> None:
+    """Put the setting's own help back when it applies again."""
+    if not control.property(_BASIS_NOTE_PROPERTY):
+        return
+    control.setProperty(_BASIS_NOTE_PROPERTY, False)
+    restored = control.property("apiTooltipHtml")
+    if restored:
+        control.setToolTip(restored)
+
+
 def attach_api_tooltip(
     widget: QWidget,
     app_key: str,
@@ -4255,11 +4307,10 @@ class SettingsWidgets:
         for key, control in self._widgets.items():
             if key in greyed:
                 control.setEnabled(False)
-                control.setToolTip(
-                    f"Not used by the '{family}' classifier. The value is "
-                    f"kept and still saved.")
+                _apply_greyed_note(control, _family_note(family))
             elif key in owned:
                 control.setEnabled(True)
+                _clear_greyed_note(control)
 
     def _on_classifier_family_changed(self, *_args) -> None:
         """Re-grey the panel when the classifier family changes."""
@@ -4311,11 +4362,10 @@ class SettingsWidgets:
         for key, control in self._widgets.items():
             if key in greyed:
                 control.setEnabled(False)
-                control.setToolTip(
-                    f"Not used when the training basis is '{basis}'. "
-                    f"The value is kept and still saved.")
+                _apply_greyed_note(control, _basis_note(basis))
             elif key in _ALL_BASIS_SETTINGS:
                 control.setEnabled(True)
+                _clear_greyed_note(control)
 
     def _refresh_contextual_widgets(self) -> None:
         """Refresh widgets whose choices come from the selected data source."""
