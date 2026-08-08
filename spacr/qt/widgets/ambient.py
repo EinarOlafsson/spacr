@@ -1571,9 +1571,43 @@ AURORA_COLUMNS = 40
 #: on a floor rather than on nothing, because the sheet between them still
 #: glows — rays are a modulation of a curtain, not a row of separate bars.
 #: ``(centre, half width, intensity)``, all as fractions of the tile.
-AURORA_TILE_RAYS = ((0.17, 0.115, 1.00), (0.49, 0.085, 0.86),
-                    (0.80, 0.100, 0.94))
-AURORA_TILE_FLOOR = 0.58
+#: Sharper than the first version, on request ("the rays of light should be
+#: even sharper"). Two changes make an edge, and only together: the half
+#: widths come in by about a third, and the floor between the rays drops.
+#: Narrowing alone leaves thin rays sitting on a bright sheet, which reads
+#: as a lighter curtain rather than as a defined ray.
+AURORA_TILE_RAYS = ((0.17, 0.075, 1.00), (0.49, 0.055, 0.86),
+                    (0.80, 0.065, 0.94))
+AURORA_TILE_FLOOR = 0.34
+
+#: How long each ray in the tile is, as a fraction of the full ray length,
+#: and how fast it breathes. One entry per entry in AURORA_TILE_RAYS.
+#:
+#: "each ray should at different speeds be changing length" -- so the
+#: periods are deliberately not multiples of one another, or the three
+#: would return to the same arrangement on a short cycle and the eye would
+#: find it. 11, 17 and 7 seconds beat against each other for 21 minutes.
+#:
+#: Never reaching 1.0 for the longest, nor 0 for the shortest: a ray that
+#: touches the full height reads as the curtain itself rather than as a ray
+#: in it, and one that vanishes leaves a gap that looks like a rendering
+#: fault rather than like weather.
+AURORA_RAY_LIFE = ((11.0, 0.00), (17.0, 0.37), (7.0, 0.71))
+AURORA_RAY_LENGTH = (0.55, 0.98)
+
+#: Quantisation of the breathing, for the same reason the shimmer is
+#: quantised: the tile is a cached texture, and a length that follows the
+#: clock exactly would rebuild all three tiles every frame. Eight steps
+#: across the range is about 5% of the ray length per step, which is below
+#: what the eye resolves on a slow fade at this size.
+AURORA_LENGTH_STEPS = 8
+
+#: How much of a ray's tip is taper, as a fraction of the FULL ray length.
+#: A square cut gives a shortened ray a flat top, which reads as a broken
+#: ray and measurably sharpens the curtain's upper edge -- the asymmetry
+#: between the hard lower edge and the diffuse top is as recognisable as
+#: the colour, and there is a test on it.
+AURORA_RAY_FEATHER = 0.22
 
 #: Where in the tile the colour ramp sits, as fractions of its height. What
 #: is left over at each end is a transparent guard band. A tiled brush
@@ -1601,7 +1635,15 @@ AURORA_TILE_MIN_PX = 3
 #: the working set is a cache that is cleared every frame. The rest of the
 #: headroom is for a window being resized, which changes the pixel size the
 #: tiles are built at.
-AURORA_TILE_CACHE = 192
+#: Raised for the breathing: the working set is now curtains x shimmer
+#: steps x length steps, and a cache one short of the working set is a
+#: cache that is cleared every frame -- which is the mistake this number
+#: already carries a comment about.
+#: 9 curtains x 12 shimmer steps x 8 length steps = 864, plus headroom for
+#: a window being resized. 768 was the first guess and it was 96 SHORT of
+#: the densest working set -- exactly the mistake the paragraph above
+#: describes, made again while adding a dimension to it.
+AURORA_TILE_CACHE = 1024
 
 #: The vertical structure, lower edge upward: ``(height fraction, palette
 #: role, alpha)``. Full strength immediately at the bottom — the sheet's lower
@@ -1874,6 +1916,34 @@ class AuroraEngine(_BufferedEngine):
         return {"main": main, "high": high, "fringe": fringe, "blend": blend}
 
     # -- painting ------------------------------------------------------
+    def ray_lengths(self, curtain: Curtain) -> Tuple[float, ...]:
+        """Each ray's current length, as a fraction of the full one.
+
+        One value per entry in :data:`AURORA_TILE_RAYS`, quantised into
+        :data:`AURORA_LENGTH_STEPS` so the tile stays cacheable -- a length
+        that followed the clock exactly would rebuild every tile every
+        frame, which is the cost the tile cache exists to avoid.
+
+        The periods in :data:`AURORA_RAY_LIFE` are deliberately not
+        multiples of one another, and the curtain's own phase is added, so
+        two curtains never breathe together either.
+        """
+        low, high = AURORA_RAY_LENGTH
+        out = []
+        for period, offset in AURORA_RAY_LIFE:
+            angle = (2 * math.pi * (self.time / period + offset)
+                     + curtain.pulse_phase)
+            # Quantise the UNIT and then map, not the mapped value. The
+            # other way round quantises [low, high] against a 0..1 grid, so
+            # only the top of the range survives -- measured, it gave four
+            # levels spanning 0.80..0.98 out of an intended 0.55..0.98, and
+            # the breathing was a fifth of the depth it should have been.
+            unit = 0.5 * (1.0 + math.sin(angle))
+            stepped = round(unit * (AURORA_LENGTH_STEPS - 1)) \
+                / (AURORA_LENGTH_STEPS - 1)
+            out.append(low + (high - low) * stepped)
+        return tuple(out)
+
     def _tile(self, curtain: Curtain, peak: float, width: int,
               height: int) -> QImage:
         """The ray comb crossed with the vertical colour ramp, as a tiling
@@ -1887,7 +1957,8 @@ class AuroraEngine(_BufferedEngine):
         followed the clock.
         """
         step = int(round(self.hue_phase(curtain) * (AURORA_HUE_STEPS - 1)))
-        key = (curtain.depth, step, width, height)
+        lengths = self.ray_lengths(curtain)
+        key = (curtain.depth, step, width, height, lengths)
         tile = self._tiles.get(key)
         if tile is not None:
             return tile
@@ -1928,6 +1999,49 @@ class AuroraEngine(_BufferedEngine):
         comb.setColorAt(1.0, floor)
         inner.setBrush(comb)
         inner.drawRect(0, 0, width, height)
+
+        # Each ray cut to its own length. Done AFTER the comb, still in
+        # DestinationIn, so it takes alpha away from one ray's band without
+        # touching its neighbours or the sheet between them.
+        #
+        # Cut from the TOP: an aurora ray is anchored at the lower edge and
+        # reaches upward, so a ray that is breathing shortens away from its
+        # tip. Shortening from the bottom would lift it off the curtain's
+        # edge and look like it is floating.
+        for (centre, half, _strength), length in zip(AURORA_TILE_RAYS,
+                                                     lengths):
+            if length >= 1.0:
+                continue
+            left = int(round(max(0.0, centre - half) * width))
+            right = int(round(min(1.0, centre + half) * width))
+            if right <= left:
+                continue
+            # `ramp_bottom` is the curtain's lower edge and `ramp_top` its
+            # tip, so the kept part runs upward from the bottom.
+            kept = int(round((ramp_bottom - ramp_top) * length))
+            cut_bottom = ramp_bottom - kept
+            # The tip fades over a fixed share of the FULL ray length, so a
+            # short ray and a long one taper alike rather than the short one
+            # being all taper.
+            feather = max(1, int(round(
+                (ramp_bottom - ramp_top) * AURORA_RAY_FEATHER)))
+            if cut_bottom <= 0:
+                continue
+            # FEATHERED, not a hard rectangle. A square cut gives a
+            # shortened ray a flat tip, which is both wrong -- a real ray
+            # fades out at the top -- and measurable: it sharpened the
+            # curtain's upper edge until the lower-edge-to-upper-edge
+            # contrast fell from 2.5x to 2.1x and
+            # `test_the_lower_edge_is_sharp_and_the_top_is_diffuse` caught
+            # it. The asymmetry between the two edges is as recognisable
+            # as the colour, so it is not something to trade away for a
+            # cheaper fill.
+            fade = QLinearGradient(0.0, float(max(0, cut_bottom - feather)),
+                                   0.0, float(cut_bottom))
+            fade.setColorAt(0.0, QColor(0, 0, 0, 0))
+            fade.setColorAt(1.0, QColor(0, 0, 0, 255))
+            inner.setBrush(fade)
+            inner.drawRect(left, 0, right - left, cut_bottom)
         inner.end()
         self._tiles[key] = tile
         return tile
