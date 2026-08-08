@@ -1099,6 +1099,19 @@ def set_default_classify(settings):
     settings.setdefault('classifier_family', 'cv')
     set_default_analyze_screen(settings)
     deep_spacr_defaults(settings)
+
+    # `location_column`, `positive_control` and `negative_control` come from
+    # the ML factory, and the Classes dict now says the same thing better: a
+    # control well IS a class defined by a metadata column, which is exactly a
+    # row of that dict. Three settings saying it a second way were three ways
+    # for the two to disagree, and nothing said which one won.
+    #
+    # Dropped from the MERGED module only. Classify (ML) on its own still
+    # offers them, and an old settings CSV that sets them still trains on the
+    # same wells -- spacr.classify_classes.normalize_settings turns them into
+    # class rules before anything reads them.
+    for retired in ("location_column", "positive_control", "negative_control"):
+        settings.pop(retired, None)
     return settings
 
 
