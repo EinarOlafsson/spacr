@@ -1772,6 +1772,23 @@ class AppScreen(QWidget):
         self._btn_copy_console.clicked.connect(self._on_copy_console)
         row.addWidget(self._btn_copy_console)
 
+        # Preferences, to the right of Copy console. Every module screen
+        # gets it because every module screen is somewhere a user notices
+        # the font is too small or the backdrop is costing frames -- and
+        # the alternative is the menu bar, which is a trip out of the work.
+        # Icon-only: the row is already three words wide and a gear is the
+        # one glyph nobody has to be taught.
+        from .. import iconset as _iconset_prefs
+
+        self._btn_preferences = QPushButton()
+        self._btn_preferences.setObjectName("GhostButton")
+        self._btn_preferences.setIcon(_iconset_prefs.icon("settings"))
+        self._btn_preferences.setCursor(Qt.PointingHandCursor)
+        self._btn_preferences.setToolTip("Open Preferences (Ctrl+,).")
+        self._btn_preferences.setAccessibleName("Preferences")
+        self._btn_preferences.clicked.connect(self._open_preferences_dialog)
+        row.addWidget(self._btn_preferences)
+
         # (The manual "Explain error" button was removed — errors now route to
         # the AI automatically when AI is enabled; see _on_pipeline_error.)
         from .. import iconset as _iconset
@@ -2122,6 +2139,27 @@ class AppScreen(QWidget):
         # ("QThread: Destroyed while thread is still running" → abort).
         self._thread.finished.connect(self._clear_thread_refs)
         self._thread.start()
+
+    def _open_preferences_dialog(self) -> None:
+        """Open Preferences from this screen.
+
+        Routed through the MainWindow when there is one, so the dialog is
+        the same object the menu opens and a preference changed here reaches
+        the same live-apply path. Falls back to constructing one directly so
+        a screen built on its own -- which is how every test builds one --
+        still works rather than raising.
+        """
+        window = self.window()
+        opener = getattr(window, "_open_preferences", None)
+        if callable(opener):
+            opener()
+            return
+        try:
+            from ..preferences import PreferencesDialog
+
+            PreferencesDialog(self).exec()
+        except Exception:
+            LOG.exception("could not open Preferences from %s", self.app_key)
 
     def _on_copy_console(self) -> None:
         """Copy the whole console, and say how much went to the clipboard.
