@@ -1539,6 +1539,15 @@ class AppScreen(QWidget):
             self._umap_explorer = ImageUmapExplorer(
                 parent=self._figures_card)
             self._umap_explorer.hide()
+            # The same propagate seam the Mask live preview uses, so a value
+            # tuned in the explorer's display window lands in the settings
+            # panel and is saved with the run rather than living only in the
+            # widget. The getter lets that window open showing the CURRENT
+            # run settings for the half it does not itself hold -- without
+            # it, figure size and image count open as zeros.
+            self._umap_explorer.set_propagate_callback(
+                self._propagate_live_settings)
+            self._umap_explorer._settings_getter = self._umap_display_defaults
             self._figures_card.body_layout.addWidget(
                 self._umap_explorer, 1)
         self._figures_card.setMinimumHeight(360)
@@ -2438,6 +2447,27 @@ class AppScreen(QWidget):
             "submit to complete filing.\n{url}...\n",
             url=str((outcome or {}).get("url") or "")[:100],
         )
+
+    def _umap_display_defaults(self) -> dict:
+        """The display settings the run is currently configured with.
+
+        Read from the settings model rather than from the explorer: these
+        are the ones the explorer cannot apply live, so it does not hold
+        them, and a dialog that opens showing 0 for a setting the user set
+        to 20 is worse than one that does not offer it at all.
+        """
+        model = getattr(self, "_settings_model", None)
+        if model is None:
+            return {}
+        try:
+            current = model.collect() or {}
+        except Exception:
+            LOG.debug("could not read the settings for the UMAP display "
+                      "window", exc_info=True)
+            return {}
+        return {key: current[key]
+                for key in ("figuresize", "image_nr", "img_zoom")
+                if key in current and current[key] is not None}
 
     def _propagate_live_settings(self, settings: dict) -> None:
         """Write live-preview-tuned values into the main settings panel."""
