@@ -2,8 +2,8 @@
 A TOOLTIP AND DOCUMENTATION SWEEP: SHORT, INFORMATIVE, CORRECTLY REFERENCED
 ================================================================================
 
-Status:    the link-resolution TEST exists (2026-08-08), opt-in until
-           the docs are built. The text sweep is open.
+Status:    the links are VERIFIED CLEAN against a real build
+           (2026-08-08). Only the tooltip TEXT sweep is open.
 Requested: 2026-08-08 — "do a full documentation and tooltips sweep to make the tool tips short and informative (not to short) with the correct api reference."
 
 --------------------------------------------------------------------------------
@@ -115,3 +115,34 @@ for the same reason.
 WHAT IS STILL OPEN HERE: the text sweep itself -- the shape, the length,
 the units and defaults. The test covers the links; it says nothing about
 whether a tooltip is any good.
+
+--------------------------------------------------------------------------------
+2026-08-08 - RUN AGAINST A REAL BUILD. THE LINKS ARE CLEAN.
+--------------------------------------------------------------------------------
+
+Built the docs (`sphinx-build -E -b html --keep-going docs/source <out>`,
+~8 minutes, 125 module pages) and ran the check against the output rather
+than against the stale tree:
+
+    links checked : 1151
+    dead targets  : 0
+
+So the API links are FINE, and the "dozens of dead links" from an hour
+earlier were entirely an artefact of a local `docs/api/` holding 4 pages
+for 124 modules. Recorded because the wrong version of this note would
+have sent someone hunting a bug that does not exist.
+
+This also answers part of instruction 63 for free: the generated tree has
+a page per module -- 125 of them -- so the API site is not missing content.
+Whatever 63 finds will be about presentation and docstring quality, not
+absence.
+
+TO RE-RUN:
+
+    python -m sphinx -E -b html --keep-going docs/source /tmp/docsbuild
+    SPACR_DOCS_BUILT=1 pytest tests/test_tooltip_api_links_resolve.py
+
+WHAT REMAINS IN 61: the text itself -- one or two sentences, the type, the
+default, the unit, and a shape applied consistently. That is the part no
+test can judge, and it is untouched. `annotated_classes` is still a
+paragraph about its own deprecation history.
