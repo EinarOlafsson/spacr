@@ -1122,11 +1122,23 @@ def set_default_analyze_screen(settings):
     :returns: the settings dict with defaults applied.
     """
     settings.setdefault('src', 'path')
-    # The shared training basis. 'metadata' is what this module has always
-    # defaulted to; spacr.training_basis.resolve_basis keeps an older
+    # The shared training basis. `resolve_basis` is what keeps an older
     # settings CSV -- which selected the basis IMPLICITLY, by whether
     # annotation_column was set -- behaving exactly as it did.
-    settings.setdefault('dataset_mode', 'metadata')
+    #
+    # It has to be asked BEFORE annotation_column is defaulted, and the
+    # answer has to become the default rather than 'metadata'. A plain
+    # `setdefault('dataset_mode', 'metadata')` here made that promise
+    # unkeepable: it runs before `resolve_basis` is ever consulted, and
+    # once dataset_mode is set explicitly the implicit rule cannot fire for
+    # any real run. A project whose settings named an annotation_column and
+    # no dataset_mode therefore trained on plate metadata controls instead
+    # of the user's manual annotations -- silently, reporting success, with
+    # the wrong labels. That is precisely what resolve_basis's own
+    # docstring says must not happen.
+    from .training_basis import resolve_basis
+    if not settings.get('dataset_mode'):
+        settings['dataset_mode'] = resolve_basis(settings)
     settings.setdefault('measurement_rules', None)
     settings.setdefault('annotation_column', None)
     settings.setdefault('save_to_db', False)
