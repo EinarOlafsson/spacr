@@ -132,16 +132,23 @@ def test_umap_settings_uses_measure_style_tabbed_dialog(panel, qtbot):
             panel._stability_weight, panel._cluster_weight,
             panel._max_panels,
     )
+    # The linked help stays on the label; the API link DOT is gone. It was
+    # removed by request -- "remove the API link dots from Image UMAP
+    # settings" -- the same way the Live Preview panel and the main settings
+    # form dropped theirs. Asserting its absence rather than deleting the
+    # assertion is the point: the risk in removing a decoration that carries
+    # a tooltip is that the documentation leaves with it, and these two
+    # assertions together say it did not.
     for widget in help_widgets:
         label = getattr(widget, "_spacr_setting_label", None)
         if label is not None:
             assert widget.toolTip() == ""
             assert "href=" in label.toolTip()
-            assert getattr(label, "_spacr_api_dot", None) is not None
+            assert getattr(label, "_spacr_api_dot", None) is None
         else:
             # Adaptive is a Toggle: its text is both label and control.
             assert "href=" in widget.toolTip()
-            assert getattr(widget, "_spacr_api_dot", None) is not None
+            assert getattr(widget, "_spacr_api_dot", None) is None
     for widget in (
         panel._stability_repeats, panel._neighborhood_weight,
         panel._stability_weight, panel._cluster_weight,
@@ -153,7 +160,7 @@ def test_umap_settings_uses_measure_style_tabbed_dialog(panel, qtbot):
         assert label is not None
         assert widget.toolTip() == ""
         assert "href=" in label.toolTip()
-        assert getattr(label, "_spacr_api_dot", None) is not None
+        assert getattr(label, "_spacr_api_dot", None) is None
 
     # Omitted categories are removed, not merely hidden: their
     # RowExclusionEditor owned the stray "+ Add exclusion" overlay.
@@ -830,7 +837,10 @@ class TestRunningASearch:
         assert captured["request"].resume is True
         assert isinstance(panel._resume, Toggle)
         assert "checkpoint" in panel._resume.toolTip().lower()
-        assert getattr(panel._resume, "_spacr_api_dot", None) is not None
+        # Help on the toggle, no dot beside it -- see the note in
+        # test_umap_settings_uses_measure_style_tabbed_dialog. The tooltip
+        # assertion above is the half that matters and is unchanged.
+        assert getattr(panel._resume, "_spacr_api_dot", None) is None
 
 
 # ---------------------------------------------------------------------------
