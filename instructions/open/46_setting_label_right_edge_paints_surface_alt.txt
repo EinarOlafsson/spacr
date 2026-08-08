@@ -1,0 +1,98 @@
+================================================================================
+FOUR MODULES PAINT surface_alt UNDER THE RIGHT HALF OF A SETTING LABEL
+================================================================================
+
+Status:    confirmed, not diagnosed. Pre-existing -- reproduces at eb2fa168,
+           before the Walk work (2026-08-08).
+Requested: found while checking whether the Walk changes broke anything.
+Severity:  visual, and in the family the maintainer has reported most --
+           a container showing the wrong colour behind settings.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+tests/qt/test_all_module_smoke.py :: _setting_row_contract samples the four
+corners of the first setting label's wrapper and expects all four to be the
+SectionCard colour. In four modules the LEFT two are right and the RIGHT
+two are wrong:
+
+    classify, classify_merged, ml_analyze, activation
+
+        observed  ['#0d0e10', '#161719', '#0d0e10', '#161719']
+        expected  ['#0d0e10'] x 4
+                    ^ surface   ^ surface_alt
+
+Left edge correct, right edge surface_alt, top and bottom agreeing with
+each other. So it is a horizontal boundary, not a stray widget.
+
+These are NOT the five in instruction 03. Different modules, and these fail
+when the file is run ALONE -- 03's fail only after other files have run.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A container showing the wrong colour behind the settings column is the
+exact failure the maintainer reported ten times running, and the one that
+took four wrong fixes before INVARIANTS 1 found it. This is smaller -- the
+right half of one label wrapper, not the whole left column -- but it is the
+same family, it is on screen in four modules, and a test is already
+pointing straight at it.
+
+It also costs the smoke file: four of its 57 cases fail, so nobody can read
+that file's result as pass/fail without knowing these are expected.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Diagnose it -- see WHERE TO LOOK NEXT below -- then fix it in the layout or
+the stylesheet. Do not move the test's sample points.
+
+--------------------------------------------------------------------------------
+WHAT IS ALREADY RULED OUT
+--------------------------------------------------------------------------------
+
+NOT the test measuring the wrong widget. The obvious explanation is that
+`label.parentWidget()` is a row container spanning label AND field, so the
+right-hand samples land on the field, which is legitimately surface_alt.
+It is not: the wrapper is `SettingLabelWithInfo`, its only child widget is
+the QLabel, and the field is not inside it. Checked on `activation` (fails)
+and `mask` (passes) -- both have the same wrapper of the same shape, so the
+difference is not structural in the wrapper.
+
+NOT the page-opacity preference. The test already pins surface_opacity=1.0
+for the measurement, and the bleed-through colour that caused would be
+`#151a28`, not surface_alt.
+
+--------------------------------------------------------------------------------
+WHERE TO LOOK NEXT
+--------------------------------------------------------------------------------
+
+The leading hypothesis, untested: the wrapper is WIDER than the SectionCard
+behind it, so its right edge overhangs the card onto whatever is behind --
+a scroll viewport or a stripe painted in surface_alt. That would make the
+pixels honest and the LAYOUT wrong, which is a real defect and not a test
+artefact.
+
+To settle it, on a shown `activation` screen compare, in screen
+coordinates, the wrapper's right edge against the SectionCard's right edge.
+If the wrapper extends past the card, that is the bug. If it does not, find
+what paints surface_alt at that x -- and remember INVARIANTS 7 before
+trusting any offscreen render: prefer asserting on what the stylesheet and
+the widget tree say over sampling pixels.
+
+Four modules and not the others is the strongest clue available; whatever
+`classify`, `classify_merged`, `ml_analyze` and `activation` share that
+`mask` does not is very likely the cause.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    pytest tests/qt/test_all_module_smoke.py -q -p no:randomly
+
+goes from `4 failed, 53 passed` to 57 passed, and the fix is in the layout
+or the stylesheet rather than in the test's sample points. Moving where the
+test looks would hide this rather than fix it.
