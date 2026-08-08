@@ -1056,104 +1056,462 @@ def random_search(fit_fn: Callable[[Dict[str, Any]], Any],
                        notes=extra_notes)
 
 
-def local_direction_search(
-        fit_fn: Callable[[Dict[str, Any]], Any],
-        start: Mapping[str, Any],
-        *,
-        n_trials: Optional[int] = 100,
-        n_neighbors_step: int = 1,
-        n_neighbors_max: Optional[int] = None,
-        min_dist_step: float = 0.05,
-        min_improvement: float = 0.0,
-        metric: str = "score",
-        higher_is_better: bool = True,
-        on_trial: Optional[Callable[[Trial, int, int], None]] = None,
-        should_stop: Optional[Callable[[], bool]] = None,
-        notes: Optional[Sequence[str]] = None,
-        checkpoint: Optional[_UmapCheckpoint] = None,
-        ) -> SearchResult:
-    """Move through UMAP's parameter plane using scored 2-by-2 neighborhoods.
+#: The metrics umap-learn actually accepts. A typo in this field used to
+#: fail deep inside the run -- after the embedding had started -- rather
+#: than under the control that holds it, which is the difference between a
+#: sentence and a traceback.
+#:
+#: Taken from umap.distances at import when it is importable, so this
+#: cannot drift from the installed version; the literal is the fallback for
+#: a checkout without umap-learn (the GUI must still build).
+UMAP_METRICS: Tuple[str, ...] = (
+    "euclidean", "manhattan", "chebyshev", "minkowski", "canberra",
+    "braycurtis", "haversine", "mahalanobis", "wminkowski", "seuclidean",
+    "cosine", "correlation", "hamming", "jaccard", "dice", "russellrao",
+    "kulsinski", "rogerstanimoto", "sokalmichener", "sokalsneath", "yule",
+)
 
-    The starting point is a *centre*, not a fifth trial.  Around it the search
-    evaluates the four diagonal corners ``(n ± step, d ± step)``.  The
-    highest-scoring corner becomes the next centre.  Later rounds continue only
-    when their best corner improves on the best score already observed.
 
-    ``n_trials`` is the maximum number of complete 2-by-2 rounds (100 when
-    blank/None), not the number of individual fits. ``n_neighbors`` is clamped
-    to 2 and, when supplied, ``n_neighbors_max``; ``min_dist`` is clamped to
-    [0, 1]. Configurations already evaluated are skipped, which matters at
-    either boundary. When ``checkpoint`` is supplied, every completed trial
-    and every centre move is persisted; an incomplete round resumes its
-    remaining corners before the direction is chosen.
+def umap_metrics() -> Tuple[str, ...]:
+    """Every metric the INSTALLED umap-learn will accept.
+
+    Falls back to :data:`UMAP_METRICS` when umap-learn is absent, because
+    the settings panel has to build on a machine that cannot run UMAP --
+    a user configuring a run on a laptop and executing it elsewhere is an
+    ordinary thing to do.
     """
-    required = {"n_neighbors", "min_dist"}
-    missing = required.difference(start)
+    try:
+        from umap.distances import named_distances
+    except Exception:
+        return UMAP_METRICS
+    names = tuple(sorted(named_distances))
+    return names or UMAP_METRICS
+
+
+
+#: Every UMAP parameter that changes the STRUCTURE of the embedding, with
+#: the range UMAP itself requires. This is the space a Walk searches when
+#: the user does not narrow it.
+#:
+#: Excluded deliberately: `random_state` and `n_epochs` change the result
+#: without changing the structure being modelled, and searching them
+#: rewards noise. `n_components` is here because it changes the embedding,
+#: but note that anything above 2 cannot be plotted as a scatter.
+UMAP_WALK_PARAMETERS: Dict[str, Dict[str, Any]] = {
+    "n_neighbors": {"step": 1.0, "minimum": 2.0, "integer": True},
+    "min_dist": {"step": 0.05, "minimum": 0.0, "maximum": 1.0},
+    "n_components": {"step": 1.0, "minimum": 1.0, "maximum": 10.0,
+                     "integer": True},
+    "metric": {"choices": None},  # filled from the installed umap-learn
+    "spread": {"step": 0.25, "minimum": 0.1, "maximum": 10.0},
+    "set_op_mix_ratio": {"step": 0.1, "minimum": 0.0, "maximum": 1.0},
+    "local_connectivity": {"step": 1.0, "minimum": 1.0, "integer": True},
+    "repulsion_strength": {"step": 0.25, "minimum": 0.0, "maximum": 10.0},
+    "negative_sample_rate": {"step": 1.0, "minimum": 1.0, "maximum": 50.0,
+                             "integer": True},
+    "init": {"choices": ("spectral", "random", "pca")},
+}
+
+
+#: A Walk round that would need more fits than this stops being a
+#: neighbourhood and becomes a grid search with extra steps. Ten axes at
+#: resolution 2 is 1024 UMAP fits for ONE round; at a minute each that is
+#: seventeen hours to take a single step. Past the cap the round falls back
+#: to axis-at-a-time, which is linear in the number of axes.
+MAX_WALK_CANDIDATES_PER_ROUND = 48
+
+
+@dataclass
+class WalkAxis:
+    """One searchable direction in hyperparameter space.
+
+    An axis is either NUMERIC -- it has a ``step`` and the walk moves along
+    it by multiples of that step -- or CATEGORICAL, where ``choices`` lists
+    the values and there is no direction to move in, only other values to
+    try.
+
+    :param name: the parameter name, as the fit function expects it.
+    :param step: numeric axes only: how far one move goes.
+    :param minimum: numeric axes only: inclusive lower clamp, or ``None``.
+    :param maximum: numeric axes only: inclusive upper clamp, or ``None``.
+    :param integer: numeric axes only: round candidates to whole numbers.
+    :param choices: categorical axes only: the permitted values, in the
+        order the walk should try them.
+    :param resolution: how many values this axis contributes to one round,
+        counting the centre. 2 is the classic ``±step`` pair with no centre;
+        3 adds the centre back; 5 reaches two steps out. **The old 2-by-2
+        search is exactly two numeric axes at resolution 2**, which is why
+        that number is the default and not a special case in the code.
+    """
+
+    name: str
+    step: Optional[float] = None
+    minimum: Optional[float] = None
+    maximum: Optional[float] = None
+    integer: bool = False
+    choices: Optional[Tuple[Any, ...]] = None
+    resolution: int = 2
+
+    def __post_init__(self) -> None:
+        if not str(self.name).strip():
+            raise ValueError("A Walk axis needs a parameter name.")
+        self.name = str(self.name)
+        try:
+            self.resolution = int(self.resolution)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"Walk axis {self.name!r} needs a whole-number resolution."
+            ) from exc
+        if self.resolution < 2:
+            raise ValueError(
+                f"Walk axis {self.name!r} has resolution {self.resolution}; "
+                "an axis that contributes fewer than two values is not being "
+                "searched at all and should be left out of the space.")
+        if self.choices is not None:
+            self.choices = tuple(self.choices)
+            if len(self.choices) < 2:
+                raise ValueError(
+                    f"Walk axis {self.name!r} is categorical with "
+                    f"{len(self.choices)} choice(s); it needs at least two.")
+            return
+        if self.step is None:
+            raise ValueError(
+                f"Walk axis {self.name!r} needs either a step (numeric) or a "
+                "list of choices (categorical).")
+        try:
+            self.step = float(self.step)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"Walk axis {self.name!r} needs a numeric step.") from exc
+        if self.step <= 0:
+            raise ValueError(
+                f"Walk axis {self.name!r} has step {self.step:g}; a step of "
+                "zero or less never leaves the centre.")
+        if self.minimum is not None:
+            self.minimum = float(self.minimum)
+        if self.maximum is not None:
+            self.maximum = float(self.maximum)
+        if (self.minimum is not None and self.maximum is not None
+                and self.minimum > self.maximum):
+            raise ValueError(
+                f"Walk axis {self.name!r} has minimum {self.minimum:g} above "
+                f"maximum {self.maximum:g}.")
+
+    @property
+    def categorical(self) -> bool:
+        """Whether this axis has choices rather than a step."""
+        return self.choices is not None
+
+    def clamp(self, value: Any) -> Any:
+        """Bring ``value`` inside this axis's declared range.
+
+        Categorical axes clamp by membership: a value that is not a choice
+        becomes the first choice, because a walk that steps outside its own
+        alphabet has nowhere to come back from.
+        """
+        if self.categorical:
+            return value if value in self.choices else self.choices[0]
+        number = float(value)
+        if self.minimum is not None:
+            number = max(self.minimum, number)
+        if self.maximum is not None:
+            number = min(self.maximum, number)
+        if self.integer:
+            number = float(int(round(number)))
+            if self.minimum is not None:
+                number = max(float(int(round(self.minimum))), number)
+            if self.maximum is not None:
+                number = min(float(int(round(self.maximum))), number)
+            return int(number)
+        return round(number, 12)
+
+    def values_around(self, centre: Any) -> List[Any]:
+        """The values this axis offers for one round, centred on ``centre``.
+
+        Clamping happens here, so an axis at its boundary offers fewer
+        distinct values rather than duplicates of the edge -- which is what
+        lets the walk keep moving along the axes that still have room.
+        """
+        if self.categorical:
+            current = self.clamp(centre)
+            order = list(self.choices)
+            start = order.index(current)
+            rotated = order[start:] + order[:start]
+            return _dedupe_preserving_order(rotated[:self.resolution])
+        current = float(self.clamp(centre))
+        half = self.resolution // 2
+        multipliers = list(range(-half, half + 1))
+        if self.resolution % 2 == 0:
+            multipliers = [m for m in multipliers if m != 0]
+        return _dedupe_preserving_order(
+            [self.clamp(current + m * float(self.step)) for m in multipliers])
+
+
+def _dedupe_preserving_order(values: Sequence[Any]) -> List[Any]:
+    """``values`` without repeats, first occurrence winning."""
+    out: List[Any] = []
+    for value in values:
+        if not any(existing == value and type(existing) is type(value)
+                   for existing in out):
+            out.append(value)
+    return out
+
+
+def walk_neighbourhood(axes: Sequence[WalkAxis],
+                       centre: Mapping[str, Any],
+                       *,
+                       max_candidates: int = MAX_WALK_CANDIDATES_PER_ROUND,
+                       ) -> Tuple[List[Dict[str, Any]], bool]:
+    """The configurations one Walk round evaluates around ``centre``.
+
+    The full neighbourhood is the Cartesian product of every axis's
+    :meth:`WalkAxis.values_around`, minus the centre itself. With two
+    numeric axes at resolution 2 that is the four diagonal corners the
+    original 2-by-2 search used, which is the point: the old behaviour is
+    this function's two-axis case and not a separate code path.
+
+    The product is exponential in the number of axes, so when it exceeds
+    ``max_candidates`` the round falls back to varying **one axis at a
+    time** -- linear in the axis count, and still enough to choose a
+    direction, at the cost of not seeing interactions between axes.
+
+    :returns: ``(candidates, full_factorial)``. The flag is False when the
+        fallback was used, and the caller is expected to say so in the
+        result notes rather than quietly search less than it claimed.
+    """
+    axes = list(axes)
+    if not axes:
+        return [], True
+    per_axis = {axis.name: axis.values_around(centre.get(axis.name))
+                for axis in axes}
+    centred = {axis.name: axis.clamp(centre.get(axis.name)) for axis in axes}
+
+    product = 1
+    for axis in axes:
+        product *= max(1, len(per_axis[axis.name]))
+
+    full_factorial = product <= max_candidates
+    combos: List[Dict[str, Any]] = []
+    if full_factorial:
+        for combo in itertools.product(
+                *(per_axis[axis.name] for axis in axes)):
+            combos.append(dict(zip((axis.name for axis in axes), combo)))
+    else:
+        for axis in axes:
+            for value in per_axis[axis.name]:
+                moved = dict(centred)
+                moved[axis.name] = value
+                combos.append(moved)
+
+    out: List[Dict[str, Any]] = []
+    keys = set()
+    centre_key = _trial_key(centred)
+    for combo in combos:
+        key = _trial_key(combo)
+        if key == centre_key or key in keys:
+            continue
+        keys.add(key)
+        out.append(combo)
+    return out, full_factorial
+
+
+def umap_walk_axes(start: Mapping[str, Any],
+                   *,
+                   parameters: Optional[Sequence[str]] = None,
+                   steps: Optional[Mapping[str, float]] = None,
+                   resolutions: Optional[Mapping[str, int]] = None,
+                   n_neighbors_max: Optional[int] = None,
+                   ) -> List[WalkAxis]:
+    """Build Walk axes for UMAP from a starting configuration.
+
+    ``parameters`` names which of UMAP's structural parameters take part.
+    The default is the two the search has always used, so an existing call
+    is unchanged; the panel passes the user's selection.
+
+    Every axis carries the range UMAP itself requires -- ``n_neighbors``
+    at least 2, ``min_dist`` within [0, 1], ``set_op_mix_ratio`` within
+    [0, 1] -- because a walk is the one search that generates values that
+    were never typed by anyone, and an out-of-range one fails inside the
+    fit rather than at the edge.
+    """
+    names = list(parameters) if parameters else ["n_neighbors", "min_dist"]
+    steps = dict(steps or {})
+    resolutions = dict(resolutions or {})
+    unknown = [n for n in names if n not in UMAP_WALK_PARAMETERS]
+    if unknown:
+        raise ValueError(
+            f"Not a searchable UMAP parameter: {sorted(unknown)}. "
+            f"Searchable: {sorted(UMAP_WALK_PARAMETERS)}.")
+    axes: List[WalkAxis] = []
+    for name in names:
+        spec = dict(UMAP_WALK_PARAMETERS[name])
+        if name == "n_neighbors" and n_neighbors_max is not None:
+            spec["maximum"] = float(n_neighbors_max)
+        if name in steps and not spec.get("choices"):
+            spec["step"] = steps[name]
+        if name == "metric" and not spec.get("choices"):
+            spec["choices"] = tuple(umap_metrics())
+        axes.append(WalkAxis(
+            name=name,
+            step=spec.get("step"),
+            minimum=spec.get("minimum"),
+            maximum=spec.get("maximum"),
+            integer=bool(spec.get("integer")),
+            choices=spec.get("choices"),
+            resolution=int(resolutions.get(name, 2)),
+        ))
+    missing = [axis.name for axis in axes if axis.name not in start]
     if missing:
         raise ValueError(
-            "Local UMAP optimization needs one starting value for "
-            f"n_neighbors and min_dist; missing {sorted(missing)}.")
+            "A Walk needs one starting value per searched parameter; "
+            f"missing {sorted(missing)}.")
+    return axes
+
+def walk_search(fit_fn: Callable[[Dict[str, Any]], Any],
+                start: Mapping[str, Any],
+                axes: Sequence[WalkAxis],
+                *,
+                n_trials: Optional[int] = 100,
+                min_improvement: float = 0.0,
+                metric: str = "score",
+                higher_is_better: bool = True,
+                max_candidates_per_round: int = MAX_WALK_CANDIDATES_PER_ROUND,
+                on_trial: Optional[Callable[[Trial, int, int], None]] = None,
+                should_stop: Optional[Callable[[], bool]] = None,
+                notes: Optional[Sequence[str]] = None,
+                checkpoint: Optional[_UmapCheckpoint] = None,
+                ) -> SearchResult:
+    """Walk N-dimensional hyperparameter space toward a better score.
+
+    Each round scores the neighbourhood around the current centre -- see
+    :func:`walk_neighbourhood` -- and moves to the best configuration found,
+    stopping when a round fails to improve on the best score by more than
+    ``min_improvement``. The starting point is a *centre*, not a trial: it
+    is never fitted, because a walk asks "which way is better from here",
+    and "here" is where the user already is.
+
+    With two numeric axes at resolution 2 this is the 2-by-2 search that
+    preceded it, corner for corner. It is not restricted to two: any
+    parameter the fit function accepts can be an axis, and each axis
+    carries its own step and resolution.
+
+    :param start: one value per axis, plus any parameters held fixed --
+        anything not named by an axis is passed to every fit unchanged.
+    :param axes: the search space. Empty raises.
+    :param n_trials: maximum complete rounds (100 when blank/None). NOT the
+        number of fits, which is rounds times the neighbourhood size.
+    :param max_candidates_per_round: past this, a round varies one axis at
+        a time instead of taking the full product. Recorded in the notes.
+    """
+    axes = list(axes)
+    if not axes:
+        raise ValueError(
+            "A Walk needs at least one axis; with none there is no direction "
+            "to move in and the search would score the starting point for "
+            "ever.")
+    seen_names = set()
+    for axis in axes:
+        if axis.name in seen_names:
+            raise ValueError(
+                f"Walk axis {axis.name!r} is listed twice; one parameter is "
+                "one direction.")
+        seen_names.add(axis.name)
+    missing = [axis.name for axis in axes if axis.name not in start]
+    if missing:
+        raise ValueError(
+            "A Walk needs one starting value per searched parameter; "
+            f"missing {sorted(missing)}.")
     try:
         max_rounds = 100 if n_trials in (None, "") else int(n_trials)
-        n_step = int(n_neighbors_step)
-        d_step = float(min_dist_step)
         improvement_floor = float(min_improvement)
-        centre_n = int(start["n_neighbors"])
-        centre_d = float(start["min_dist"])
-        maximum_n = (
-            None if n_neighbors_max is None else int(n_neighbors_max))
     except (TypeError, ValueError) as exc:
         raise ValueError(
-            "Local UMAP optimization requires numeric n_neighbors, min_dist, "
-            "and step sizes.") from exc
+            "A Walk requires a numeric round limit and minimum "
+            "improvement.") from exc
     if max_rounds < 1:
+        raise ValueError("A Walk needs a maximum of at least 1 round.")
+    if improvement_floor < 0:
         raise ValueError(
-            "Adaptive UMAP optimization needs n_trials/max rounds of at "
-            "least 1.")
-    if n_step < 1 or d_step <= 0 or improvement_floor < 0:
-        raise ValueError(
-            "Local UMAP optimization steps must be positive and the minimum "
-            "improvement must be zero or greater.")
-    if maximum_n is not None and maximum_n < 2:
-        raise ValueError("n_neighbors_max must be at least 2.")
-    centre_n = max(2, centre_n)
-    if maximum_n is not None:
-        centre_n = min(maximum_n, centre_n)
-    centre_d = min(1.0, max(0.0, centre_d))
+            "The minimum improvement must be zero or greater.")
 
-    frozen = {k: v for k, v in start.items()
-              if k not in ("n_neighbors", "min_dist")}
+    frozen = {k: v for k, v in start.items() if k not in seen_names}
+    centre = {axis.name: axis.clamp(start[axis.name]) for axis in axes}
+
+    probe, full_factorial = walk_neighbourhood(
+        axes, centre, max_candidates=max_candidates_per_round)
+    per_round = max(1, len(probe))
+
     space = SearchSpace({
-        "n_neighbors": [centre_n],
-        "min_dist": [centre_d],
+        **{name: [value] for name, value in centre.items()},
         **{key: [value] for key, value in frozen.items()},
     })
+    axis_summary = ", ".join(
+        f"{axis.name} (" + (
+            f"{len(axis.choices)} choices" if axis.categorical
+            else f"step {float(axis.step):g}")
+        + f", resolution {axis.resolution})"
+        for axis in axes)
+    walk_notes = list(notes or []) + [
+        f"Walk over {len(axes)} parameter(s): {axis_summary}. Each round "
+        f"scores the neighbourhood around the current centre and moves to "
+        f"the best configuration in it. The starting values define the "
+        f"initial centre and are not fitted. The walk stops after at most "
+        f"{max_rounds} rounds or when the best new score improves by no "
+        f"more than {improvement_floor:g}."
+    ]
+    if not full_factorial:
+        walk_notes.append(
+            f"The full neighbourhood of these {len(axes)} axes exceeds the "
+            f"{max_candidates_per_round}-fit round limit, so each round "
+            f"varies ONE axis at a time ({per_round} fits per round instead "
+            "of the product). The walk still chooses a direction; it does "
+            "not see interactions between axes. Search fewer parameters, or "
+            "raise the limit, to get the full neighbourhood back.")
     result = SearchResult(
         space=space, metric=metric, higher_is_better=higher_is_better,
-        notes=list(notes or []) + [
-            "Adaptive local optimization: each round scores the four diagonal "
-            f"neighbors at n_neighbors ± {n_step} and min_dist ± {d_step:g}, "
-            "then moves toward the best improving score. The starting values "
-            "define the initial centre and are not fitted as a fifth trial. "
-            f"The search stops after at most {max_rounds} rounds or when the "
-            f"best new score improves by no more than {improvement_floor:g}."
-        ],
-    )
+        notes=walk_notes)
+
     loaded = checkpoint.load() if checkpoint is not None else {}
     state = checkpoint.state if checkpoint is not None else {}
     rounds_completed = int(state.get("rounds_completed", 0) or 0)
+
+    def _persisted_state() -> Dict[str, Any]:
+        # `centre_n`/`centre_d` are written alongside the general `centre`
+        # so a checkpoint from this build stays readable by the 1.5.x
+        # two-axis reader. Dropping them would make an in-flight search
+        # unresumable by the version that started it.
+        payload: Dict[str, Any] = {
+            "rounds_completed": rounds_completed,
+            "centre": dict(centre),
+            "best_score": best_score,
+        }
+        if "n_neighbors" in centre:
+            payload["centre_n"] = centre["n_neighbors"]
+        if "min_dist" in centre:
+            payload["centre_d"] = centre["min_dist"]
+        return payload
+
     if checkpoint is not None and checkpoint.resumed:
-        try:
-            centre_n = int(state.get("centre_n", centre_n))
-            centre_d = float(state.get("centre_d", centre_d))
-        except (TypeError, ValueError):
-            centre_n = int(start["n_neighbors"])
-            centre_d = float(start["min_dist"])
+        stored = state.get("centre")
+        if isinstance(stored, Mapping):
+            for axis in axes:
+                if axis.name in stored:
+                    centre[axis.name] = axis.clamp(stored[axis.name])
+        else:
+            # A checkpoint written before the walk went N-dimensional.
+            legacy = {"n_neighbors": state.get("centre_n"),
+                      "min_dist": state.get("centre_d")}
+            for axis in axes:
+                value = legacy.get(axis.name)
+                if value is not None:
+                    try:
+                        centre[axis.name] = axis.clamp(value)
+                    except (TypeError, ValueError):
+                        pass
         result.notes.append(
-            f"Resumed {len(loaded)} completed trial(s) at adaptive round "
+            f"Resumed {len(loaded)} completed trial(s) at Walk round "
             f"{rounds_completed + 1} from {checkpoint.store.path}.")
-    # Trials from completed rounds already belong to the result. Trials from
-    # the current, interrupted round are appended in candidate order below.
+
     prior_items = [
         (trial, round_index)
         for trial, round_index in loaded.values()
@@ -1162,7 +1520,7 @@ def local_direction_search(
     for trial, _round in sorted(prior_items, key=lambda item: item[0].index):
         result.trials.append(trial)
         if on_trial is not None:
-            on_trial(trial, len(result.trials), max_rounds * 4)
+            on_trial(trial, len(result.trials), max_rounds * per_round)
 
     seen = {
         key for key, (_trial, round_index) in loaded.items()
@@ -1178,22 +1536,22 @@ def local_direction_search(
 
     for _round_index in range(rounds_completed, max_rounds):
         cancellation_checkpoint()
+        moves, _full = walk_neighbourhood(
+            axes, centre, max_candidates=max_candidates_per_round)
         candidates = []
         candidate_keys = set()
-        for n_delta in (-n_step, n_step):
-            for d_delta in (-d_step, d_step):
-                params = dict(frozen)
-                candidate_n = max(2, centre_n + n_delta)
-                if maximum_n is not None:
-                    candidate_n = min(maximum_n, candidate_n)
-                params["n_neighbors"] = candidate_n
-                params["min_dist"] = round(
-                    min(1.0, max(0.0, centre_d + d_delta)), 12)
-                key = _trial_key(params)
-                if key not in seen and key not in candidate_keys:
-                    candidate_keys.add(key)
-                    candidates.append(params)
+        for move in moves:
+            params = dict(frozen)
+            params.update(move)
+            key = _trial_key(params)
+            if key not in seen and key not in candidate_keys:
+                candidate_keys.add(key)
+                candidates.append(params)
         if not candidates:
+            result.notes.append(
+                f"Round {_round_index + 1} had no configuration left to try "
+                "-- every neighbour of the current centre has already been "
+                "scored, or the axes are all at a boundary.")
             break
         round_trials: List[Trial] = []
         for params in candidates:
@@ -1207,7 +1565,8 @@ def local_direction_search(
                 round_trials.append(trial)
                 seen.add(key)
                 if on_trial is not None:
-                    on_trial(trial, len(result.trials), max_rounds * 4)
+                    on_trial(trial, len(result.trials),
+                             max_rounds * per_round)
                 continue
             if should_stop is not None and should_stop():
                 stopped = True
@@ -1229,16 +1588,10 @@ def local_direction_search(
             round_trials.append(trial)
             seen.add(key)
             if checkpoint is not None:
-                checkpoint.record(
-                    trial, round_index=_round_index,
-                    state={
-                        "rounds_completed": rounds_completed,
-                        "centre_n": centre_n,
-                        "centre_d": centre_d,
-                        "best_score": best_score,
-                    })
+                checkpoint.record(trial, round_index=_round_index,
+                                  state=_persisted_state())
             if on_trial is not None:
-                on_trial(trial, len(result.trials), max_rounds * 4)
+                on_trial(trial, len(result.trials), max_rounds * per_round)
         if stopped:
             break
         rounds_completed = _round_index + 1
@@ -1246,12 +1599,7 @@ def local_direction_search(
         successful = [trial for trial in round_trials if trial.ok]
         if not successful:
             if checkpoint is not None:
-                checkpoint.update({
-                    "rounds_completed": rounds_completed,
-                    "centre_n": centre_n,
-                    "centre_d": centre_d,
-                    "best_score": best_score,
-                })
+                checkpoint.update(_persisted_state())
             break
         round_best = successful[0]
         for trial in successful[1:]:
@@ -1267,30 +1615,19 @@ def local_direction_search(
                   if higher_is_better
                   else best_score - float(round_best.score))
         )
-        improving = gain > improvement_floor
-        if not improving:
+        if gain <= improvement_floor:
             result.notes.append(
-                "Local optimization stopped because the newest 2-by-2 "
-                f"neighborhood improved the best score by {gain:.4g}, not "
-                f"more than the {improvement_floor:g} stopping threshold.")
+                "The Walk stopped because the newest neighbourhood improved "
+                f"the best score by {gain:.4g}, not more than the "
+                f"{improvement_floor:g} stopping threshold.")
             if checkpoint is not None:
-                checkpoint.update({
-                    "rounds_completed": rounds_completed,
-                    "centre_n": centre_n,
-                    "centre_d": centre_d,
-                    "best_score": best_score,
-                })
+                checkpoint.update(_persisted_state())
             break
         best_score = float(round_best.score)
-        centre_n = int(round_best.params["n_neighbors"])
-        centre_d = float(round_best.params["min_dist"])
+        for axis in axes:
+            centre[axis.name] = axis.clamp(round_best.params[axis.name])
         if checkpoint is not None:
-            checkpoint.update({
-                "rounds_completed": rounds_completed,
-                "centre_n": centre_n,
-                "centre_d": centre_d,
-                "best_score": best_score,
-            })
+            checkpoint.update(_persisted_state())
 
     if stopped:
         result.partial = True
@@ -1300,21 +1637,94 @@ def local_direction_search(
             f"{max_rounds} rounds).")
     elif rounds_completed == max_rounds:
         result.notes.append(
-            f"Local optimization reached the maximum of {max_rounds} rounds.")
+            f"The Walk reached the maximum of {max_rounds} rounds.")
     _select_best(result)
-    _append_summary_notes(result, max_rounds * 4)
+    _append_summary_notes(result, max_rounds * per_round)
     if checkpoint is not None:
-        final_state = {
-            "rounds_completed": rounds_completed,
-            "centre_n": centre_n,
-            "centre_d": centre_d,
-            "best_score": best_score,
-        }
         if stopped:
-            checkpoint.update(final_state, status="partial")
+            checkpoint.update(_persisted_state(), status="partial")
         else:
-            checkpoint.finish(final_state)
+            checkpoint.finish(_persisted_state())
     return result
+
+
+def local_direction_search(
+        fit_fn: Callable[[Dict[str, Any]], Any],
+        start: Mapping[str, Any],
+        *,
+        n_trials: Optional[int] = 100,
+        n_neighbors_step: int = 1,
+        n_neighbors_max: Optional[int] = None,
+        min_dist_step: float = 0.05,
+        min_improvement: float = 0.0,
+        metric: str = "score",
+        higher_is_better: bool = True,
+        on_trial: Optional[Callable[[Trial, int, int], None]] = None,
+        should_stop: Optional[Callable[[], bool]] = None,
+        notes: Optional[Sequence[str]] = None,
+        checkpoint: Optional[_UmapCheckpoint] = None,
+        ) -> SearchResult:
+    """Walk UMAP's ``n_neighbors`` x ``min_dist`` plane by 2-by-2 rounds.
+
+    The original two-axis Walk, kept as the name every existing caller
+    uses. It is now :func:`walk_search` with two numeric axes at resolution
+    2, which produces the same four diagonal corners per round; pass axes
+    to that function directly to search more than these two parameters.
+    """
+    required = {"n_neighbors", "min_dist"}
+    missing = required.difference(start)
+    if missing:
+        raise ValueError(
+            "Local UMAP optimization needs one starting value for "
+            f"n_neighbors and min_dist; missing {sorted(missing)}.")
+    try:
+        n_step = int(n_neighbors_step)
+        d_step = float(min_dist_step)
+        maximum_n = (
+            None if n_neighbors_max is None else int(n_neighbors_max))
+        int(start["n_neighbors"])
+        float(start["min_dist"])
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "Local UMAP optimization requires numeric n_neighbors, min_dist, "
+            "and step sizes.") from exc
+    if n_step < 1 or d_step <= 0:
+        raise ValueError(
+            "Local UMAP optimization steps must be positive and the minimum "
+            "improvement must be zero or greater.")
+    try:
+        if float(min_improvement) < 0:
+            raise ValueError(
+                "Local UMAP optimization steps must be positive and the "
+                "minimum improvement must be zero or greater.")
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "Local UMAP optimization requires numeric n_neighbors, min_dist, "
+            "and step sizes.") from exc
+    if maximum_n is not None and maximum_n < 2:
+        raise ValueError("n_neighbors_max must be at least 2.")
+    try:
+        rounds = 100 if n_trials in (None, "") else int(n_trials)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "Local UMAP optimization requires numeric n_neighbors, min_dist, "
+            "and step sizes.") from exc
+    if rounds < 1:
+        raise ValueError(
+            "Adaptive UMAP optimization needs n_trials/max rounds of at "
+            "least 1.")
+    axes = [
+        WalkAxis("n_neighbors", step=float(n_step), minimum=2.0,
+                 maximum=(None if maximum_n is None else float(maximum_n)),
+                 integer=True, resolution=2),
+        WalkAxis("min_dist", step=d_step, minimum=0.0, maximum=1.0,
+                 resolution=2),
+    ]
+    return walk_search(
+        fit_fn, start, axes,
+        n_trials=rounds, min_improvement=min_improvement, metric=metric,
+        higher_is_better=higher_is_better, on_trial=on_trial,
+        should_stop=should_stop, notes=notes, checkpoint=checkpoint)
 
 
 # ---------------------------------------------------------------------------
@@ -1630,6 +2040,9 @@ def umap_search(features,
                 n_neighbors_step: int = 1,
                 min_dist_step: float = 0.05,
                 min_improvement: float = 0.0,
+                walk_parameters: Optional[Sequence[str]] = None,
+                walk_resolutions: Optional[Mapping[str, int]] = None,
+                walk_steps: Optional[Mapping[str, float]] = None,
                 stability_repeats: int = 3,
                 objective_weights: Optional[Mapping[str, Any]] = None,
                 embed_fn: Optional[Callable[[Any, Dict[str, Any]], Any]] = None,
@@ -1655,8 +2068,15 @@ def umap_search(features,
     :param labels: optional class labels; required for ``'silhouette'``.
     :param seed: ``random_state`` for the reducer, so the sweep reproduces.
     :param neighbourhood_k: neighbourhood size for trustworthiness/continuity.
-    :param adaptive: use iterative 2-by-2 local optimization instead of a grid.
-    :param n_trials: maximum complete 2-by-2 rounds in adaptive mode; blank or
+    :param adaptive: run a Walk -- iterative local optimization from one
+        starting point -- instead of a grid. See :func:`walk_search`.
+    :param walk_parameters: which UMAP parameters the Walk searches.
+        Defaults to n_neighbors and min_dist, the two it has always
+        used; any subset of :data:`UMAP_WALK_PARAMETERS` is accepted.
+    :param walk_resolutions: per-axis grid resolution, ``{name: n}``.
+        2 is the classic +/-step pair. Missing axes get 2.
+    :param walk_steps: per-axis step override, ``{name: size}``.
+    :param n_trials: maximum complete Walk rounds; blank or
         None means 100.
     :param n_neighbors_step: local step along the n_neighbors axis.
     :param min_dist_step: local step along the min_dist axis.
@@ -1862,14 +2282,34 @@ def umap_search(features,
         starts = space.grid()
         if len(starts) != 1:
             raise ValueError(
-                "Adaptive UMAP optimization needs exactly one starting value "
-                "for every parameter. Enter a single n_neighbors and a single "
-                "min_dist value.")
-        result = local_direction_search(
-            _fit, starts[0], n_trials=n_trials,
-            n_neighbors_step=n_neighbors_step,
-            n_neighbors_max=maximum_neighbors,
-            min_dist_step=min_dist_step,
+                "A Walk needs exactly one starting value for every "
+                "parameter -- it is a path through the space from one point, "
+                "not a grid over it. Enter a single value in each field.")
+        if walk_parameters:
+            # The user chose the space. Anything they named that the
+            # starting point does not carry is an error there rather than
+            # here, so `umap_walk_axes` is given the whole start dict.
+            axes = umap_walk_axes(
+                starts[0], parameters=walk_parameters,
+                steps=walk_steps, resolutions=walk_resolutions,
+                n_neighbors_max=maximum_neighbors)
+        else:
+            # The two-axis default, expressed as axes rather than as a
+            # separate code path, so there is one Walk and not two.
+            axes = [
+                WalkAxis("n_neighbors", step=float(n_neighbors_step),
+                         minimum=2.0, integer=True,
+                         maximum=(None if maximum_neighbors is None
+                                  else float(maximum_neighbors)),
+                         resolution=int((walk_resolutions or {})
+                                        .get("n_neighbors", 2))),
+                WalkAxis("min_dist", step=float(min_dist_step), minimum=0.0,
+                         maximum=1.0,
+                         resolution=int((walk_resolutions or {})
+                                        .get("min_dist", 2))),
+            ]
+        result = walk_search(
+            _fit, starts[0], axes, n_trials=n_trials,
             min_improvement=min_improvement, metric=metric,
             higher_is_better=True, on_trial=on_trial,
             should_stop=should_stop, notes=notes, checkpoint=checkpoint)
@@ -3023,6 +3463,9 @@ def run_search_for_app(app_key: str,
                        mode: str = "grid",
                        n_trials: int = 12,
                        adaptive: bool = False,
+                       walk_parameters: Optional[Sequence[str]] = None,
+                       walk_resolutions: Optional[Mapping[str, int]] = None,
+                       walk_steps: Optional[Mapping[str, float]] = None,
                        n_neighbors_step: int = 1,
                        min_dist_step: float = 0.05,
                        min_improvement: float = 0.0,
@@ -3057,10 +3500,15 @@ def run_search_for_app(app_key: str,
       :data:`APP_CRITERIA` entry.
     :param mode: ``'grid'`` or ``'random'``.
     :param n_trials: configurations to evaluate when ``mode='random'``.
-    :param adaptive: for UMAP only, optimize locally from one starting point.
-    :param n_neighbors_step: adaptive UMAP integer neighborhood increment.
-    :param min_dist_step: adaptive UMAP min_dist increment.
-    :param min_improvement: adaptive UMAP score-gain stopping threshold.
+    :param adaptive: for UMAP only, run a Walk from one starting point.
+    :param walk_parameters: which UMAP parameters the Walk searches; the
+      default is n_neighbors and min_dist. Any subset of
+      :data:`UMAP_WALK_PARAMETERS`.
+    :param walk_resolutions: per-axis Walk grid resolution, ``{name: n}``.
+    :param walk_steps: per-axis Walk step override, ``{name: size}``.
+    :param n_neighbors_step: Walk integer neighborhood increment.
+    :param min_dist_step: Walk min_dist increment.
+    :param min_improvement: Walk score-gain stopping threshold.
     :param stability_repeats: repeated seeded embeddings per multi-objective
         UMAP configuration.
     :param objective_weights: weights for neighborhood preservation, stability
@@ -3136,6 +3584,9 @@ def run_search_for_app(app_key: str,
             n_neighbors_step=n_neighbors_step,
             min_dist_step=min_dist_step,
             min_improvement=min_improvement,
+            walk_parameters=walk_parameters,
+            walk_resolutions=walk_resolutions,
+            walk_steps=walk_steps,
             stability_repeats=stability_repeats,
             objective_weights=objective_weights,
             on_trial=on_trial, should_stop=should_stop,

@@ -40,7 +40,8 @@ from ..widgets.toggle import Toggle
 from ...hyperparam import (
     APP_CRITERIA, DEFAULT_SPACES, DEFAULT_UMAP_OBJECTIVE_WEIGHTS,
     LOWER_IS_BETTER, SearchResult, SearchSpace, Trial, UMAP_CRITERIA,
-    run_search_for_app,
+    UMAP_METRICS as _UMAP_METRICS, UMAP_WALK_PARAMETERS,
+    run_search_for_app, umap_metrics as _umap_metrics,
 )
 from ..theme import active_palette, css_color
 
@@ -57,36 +58,12 @@ TOGGLE_TOOLTIP = (
     "real or noise. Nothing is applied to your settings until you press Apply."
 )
 
-#: The metrics umap-learn actually accepts. A typo in this field used to
-#: fail deep inside the run -- after the embedding had started -- rather
-#: than under the control that holds it, which is the difference between a
-#: sentence and a traceback.
-#:
-#: Taken from umap.distances at import when it is importable, so this
-#: cannot drift from the installed version; the literal is the fallback for
-#: a checkout without umap-learn (the GUI must still build).
-UMAP_METRICS: Tuple[str, ...] = (
-    "euclidean", "manhattan", "chebyshev", "minkowski", "canberra",
-    "braycurtis", "haversine", "mahalanobis", "wminkowski", "seuclidean",
-    "cosine", "correlation", "hamming", "jaccard", "dice", "russellrao",
-    "kulsinski", "rogerstanimoto", "sokalmichener", "sokalsneath", "yule",
-)
-
-
-def umap_metrics() -> Tuple[str, ...]:
-    """Every metric the INSTALLED umap-learn will accept.
-
-    Falls back to :data:`UMAP_METRICS` when umap-learn is absent, because
-    the settings panel has to build on a machine that cannot run UMAP --
-    a user configuring a run on a laptop and executing it elsewhere is an
-    ordinary thing to do.
-    """
-    try:
-        from umap.distances import named_distances
-    except Exception:
-        return UMAP_METRICS
-    names = tuple(sorted(named_distances))
-    return names or UMAP_METRICS
+#: Re-exported from :mod:`spacr.hyperparam`, which is where the searchable
+#: UMAP parameters and their ranges live. They were defined here while the
+#: search was a two-axis grid this panel owned; the Walk engine needs them
+#: too and must not import Qt.
+UMAP_METRICS = _UMAP_METRICS
+umap_metrics = _umap_metrics
 
 
 #: Apps this panel can search, with the parameters it offers and their types.
