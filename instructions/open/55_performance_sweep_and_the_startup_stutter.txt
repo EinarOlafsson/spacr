@@ -1,0 +1,83 @@
+================================================================================
+A PERFORMANCE SWEEP: NOTHING THAT LOADS BELONGS ON THE GUI THREAD
+================================================================================
+
+Status:    not started
+Requested: 2026-08-08 — "do a performance optemization sweep, where loading of data for example is allways kept of the main app thred, and that background loading is generally kept on the background threads so the main application remains smooth. i noticed that there is a stutter at the beggining of starting the application."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+There is a reported STUTTER AT STARTUP. Not diagnosed, and it is the one
+concrete symptom here, so it is where to begin rather than a general audit.
+
+The infrastructure to fix it already exists. `spacr/qt/bridge.py` is the
+route for long work -- `RunHandle`, `RunRegistry`, `PipelineWorker`,
+`make_thread` -- and it is what pipeline runs already use. What has not been
+audited is everything ELSE: icon loading, theme composition, settings
+resolution, database opens, model discovery, the ambient backdrop.
+
+Two measurements already taken this session are worth knowing:
+
+  * `spacr.qt.theme.stylesheet()` imports 37 modules to collect their QSS
+    the first time it is called, and it is called during startup.
+  * A figure re-render on resize was measured at 1321ms on the GUI thread
+    against a 250ms budget, and was moved to a worker. That was found by
+    measuring, not by reading, and the same is likely true here.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A stutter is the application saying it is not listening. It is worst at
+startup, which is the first thing every user sees and the moment they form
+an opinion about whether the software is solid.
+
+It is also the cheapest class of bug to let accumulate: every individual
+blocking call is small enough to justify, and the sum is a program that
+feels heavy. INVARIANTS have the rule already -- the GUI must never freeze,
+long work goes through `bridge.py` -- what is missing is enforcement.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. MEASURE THE STARTUP STUTTER FIRST. Do not optimise on a guess; this
+   codebase has punished that repeatedly. Two cheap approaches:
+       - `python -X importtime -m spacr.qt` to rank import cost, which
+         finds the "importing 37 modules" class of problem.
+       - A QTimer on the GUI thread that logs whenever an event-loop tick
+         takes longer than ~50ms, then start the app and read what it says.
+   The second is better: it measures the actual symptom -- the loop not
+   turning -- rather than a proxy for it.
+2. Fix what the measurement names, in cost order. Likely candidates, all
+   unverified: stylesheet composition, icon rasterisation, the app registry
+   walk, any database or model-directory scan at construction.
+3. THEN sweep for the general rule: no file read, database open, model load
+   or network call on the GUI thread. Anything that must happen at startup
+   and cannot be moved should be made LAZY -- deferred until the screen
+   that needs it is opened -- which is usually easier than threading it.
+4. Where work does move to a thread, follow INVARIANTS 4: connect BOUND
+   METHODS to `QThread.finished`, never closures, and never connect
+   `worker.deleteLater` to `worker.finished`. Both have already cost
+   crashes here.
+5. Add a guard test for whatever gets fixed, in the shape of the existing
+   perf tests (`tests/qt/test_perf_guard_qt.py`), so it does not come back.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The event-loop monitor from step 1 reports no tick over ~50ms during a cold
+start, and the startup stutter is gone when a human launches it. Both:
+the number is what makes it a regression test, and the human is what makes
+it the actual bug.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. Resist making this a general refactor. The user reported ONE
+symptom; find its cause, fix it, and let the sweep be informed by what that
+turns up rather than by a list of everything that could theoretically block.

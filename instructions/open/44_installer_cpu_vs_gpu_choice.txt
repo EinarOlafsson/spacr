@@ -74,3 +74,17 @@ DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
 Nothing yet.
+
+--------------------------------------------------------------------------------
+2026-08-08 - RESTATED, WITH THE VERIFICATION ATTACHED
+--------------------------------------------------------------------------------
+
+"make sure to add the CPU/GPU ask and GIThub, claude, gemeni, gpt, asks
+during installation and making sure the installers work."
+
+The last clause is the one that turns this from a screen into a feature:
+adding a page to an installer that nobody has built and run is not done.
+Instruction 53 owns that verification and covers all three platforms; this
+task is not finished until 53 confirms the CPU/GPU page appears in a real
+built installer and that the choice it records actually changes which
+wheels get installed.
