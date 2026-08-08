@@ -55,6 +55,12 @@ The rules:
 * **While working** — keep `Status:` and *what the state is* current. A file
   that says "in progress" and nothing else is worth almost nothing; one that
   names the function you were half-way through rewriting is worth the session.
+* **On finishing** — print TWO TABLES in the chat: everything done, and
+  everything left. Asked for directly: "whenever you complete an item on the
+  instructions list print all the items done and all the items left in two
+  tables here in the chat." The ledger lives on disk, but the maintainer is
+  reading the chat, and a completion with no visible position in the list is
+  progress they cannot see.
 * **On finishing** — move the file to `instructions/done/`, set `Status: done`,
   and replace *what to do* with what was actually done and how it was
   verified, including anything deliberately left out.
