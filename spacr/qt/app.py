@@ -1501,6 +1501,10 @@ class MainWindow(QMainWindow):
         # the application menu whatever their position here -- that is the
         # platform convention and cannot be overridden -- so this ordering is
         # what Linux and Windows users see, and it costs macOS nothing.
+        act_home = QAction("Home", self)
+        act_home.setShortcut(QKeySequence("Ctrl+H"))
+        act_home.triggered.connect(lambda: self._on_nav_selected("__home__"))
+        app_menu.addAction(act_home)
         act_prefs = QAction("Preferences…", self)
         act_prefs.setShortcut(QKeySequence("Ctrl+,"))
         act_prefs.triggered.connect(self._open_preferences)
@@ -1525,21 +1529,22 @@ class MainWindow(QMainWindow):
             app_menu.addAction(act)
             self._app_actions[key] = act
         self._refresh_app_action_visibility()
-        app_menu.addSeparator()
-        act_home = QAction("Home", self)
-        act_home.setShortcut(QKeySequence("Ctrl+H"))
-        act_home.triggered.connect(lambda: self._on_nav_selected("__home__"))
-        app_menu.addAction(act_home)
-        # The keyboard + menu route into the edge reveal. A panel you can
-        # only summon by hovering a 6 px strip is a panel a keyboard user
-        # does not have, so this is not optional decoration.
+
+        # "All apps" is NOT in the menu: a menu entry whose purpose is not
+        # obvious from its name costs attention every time it is read, and
+        # this one names a drawer most users never knew existed.
+        #
+        # The action itself stays, registered on the window rather than on
+        # the menu. Ctrl+B is the only keyboard route into the edge reveal --
+        # a panel you can otherwise summon only by hovering a 6 px strip is
+        # a panel a keyboard user does not have -- and deleting the action
+        # would take the shortcut with it.
         act_all = QAction("All apps", self)
         act_all.setShortcut(QKeySequence("Ctrl+B"))
         act_all.setStatusTip(
             "Show the full app list. Also revealed by moving the pointer "
             "to the left edge of the window.")
         act_all.triggered.connect(self.toggle_app_drawer)
-        app_menu.addAction(act_all)
         self.addAction(act_all)
         #: Kept so :meth:`apply_dock_mode` can grey it out — a Ctrl+B that
         #: silently does nothing because the dock is hidden is worse than
