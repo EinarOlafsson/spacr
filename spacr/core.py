@@ -476,6 +476,29 @@ def preprocess_generate_masks(settings):
                                        'measurements', 'measurements.db')
                 if os.path.isfile(db_path):
                     ledger.stamp(db_path)
+                    # The `relationships` table -- which nucleus is in which
+                    # cell, and so on. Rebuilt rather than topped up: the
+                    # masks that define those relationships have just
+                    # changed, so the previous answer is about objects that
+                    # no longer exist.
+                    #
+                    # Inside this loop and not after it. `db_path` is the
+                    # loop variable, so a write placed after the loop would
+                    # silently do one plate -- the last -- and leave every
+                    # other plate in a multi-plate run without the table.
+                    #
+                    # Never fatal, for the same reason the artifact registry
+                    # above is not: masking succeeded, and a missing
+                    # relationships table is rebuilt on demand by the Gate
+                    # Editor anyway. Failing here would throw away hours of
+                    # segmentation to protect a lookup that costs seconds.
+                    try:
+                        from .filters import write_relationships
+                        write_relationships(db_path)
+                    except Exception as exc:
+                        print(f"WARNING: could not write the relationships "
+                              f"table for {db_path}: "
+                              f"{type(exc).__name__}: {exc}")
 
             # Run completion hook: record what this run produced, and what it was
             # produced from, in the project's artifact registry. strict=False —
