@@ -169,7 +169,10 @@ def test_umap_settings_uses_measure_style_tabbed_dialog(panel, qtbot):
     assert {
         button.text() for button in dialog.findChildren(QPushButton)
         if button.isVisible()
-    } == {"Close", "Run search", "Propagate settings"}
+    # "Axes…" opens the Walk's search-space picker. It sits beside the
+    # Walk toggle it configures, which the settings dialog adopts along
+    # with the rest of the run controls.
+    } == {"Close", "Run search", "Propagate settings", "Axes…"}
     assert dialog._close_btn.icon().isNull()
     assert panel._compact_stop_btn.objectName() == "DangerButton"
     assert panel._compact_stop_btn.property("buttonActionRole") == "negative"
