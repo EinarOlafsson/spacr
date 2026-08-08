@@ -2119,6 +2119,17 @@ class AppScreen(QWidget):
         import time as _time
         self._run_started_at = _time.time()
 
+        # The one preference the PIPELINE needs to know about, passed as an
+        # ordinary setting. The pipeline must never read QSettings -- a
+        # `from PySide6 import` in a pipeline module makes the package
+        # unimportable on a cluster -- so the GUI reads it here and a
+        # headless caller sets the same key itself.
+        try:
+            from ..preferences import get_hash_inputs
+            settings.setdefault("hash_inputs", get_hash_inputs())
+        except Exception:
+            LOG.debug("could not read the hashing preference", exc_info=True)
+
         self._thread, worker = make_thread(entry, settings)
         # Keep a strong reference to the worker on ``self``. PySide6
         # does NOT keep a QObject alive through a bound-method signal

@@ -983,9 +983,15 @@ class PipelineWorker(QObject):
         try:
             from spacr.run_journal import open_run
             if self._journal_enabled:
-                self.line_ready.emit(
-                    "Recording reproducibility input hashes…\n"
-                )
+                # Only announce the hashing when it is actually going to
+                # happen. Hashing is the slow part of opening a run, which
+                # is why the line exists at all; printing it with hashing
+                # off names a pause that is not there and claims a record
+                # that was not made.
+                if self._settings.get("hash_inputs", False):
+                    self.line_ready.emit(
+                        "Recording reproducibility input hashes…\n"
+                    )
                 journal_context = open_run(
                     self.app_key or getattr(self._fn, "__name__", "job"),
                     self._settings,

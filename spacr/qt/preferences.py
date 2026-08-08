@@ -1573,6 +1573,26 @@ def effective_pane_alpha() -> float:
 #: values rather than as a wall of boxes, and it is the shipped look;
 #: the preference exists because an effect that touches every input in
 #: the app has to be refusable.
+#: Off. Hashing every file under every path-valued setting is proportional
+#: to the DATA and not to the run: on a plate of raw images it is minutes of
+#: reading before the first mask is made, and it happens whether or not
+#: anybody will ever compare the digests. The manifest is written either
+#: way and SAYS which it was, so the record is never ambiguous.
+DEFAULT_HASH_INPUTS = False
+_KEY_HASH_INPUTS = "prefs/hash_inputs"
+
+
+def get_hash_inputs() -> bool:
+    """Whether a run hashes its inputs and outputs for the manifest."""
+    return _as_bool(_settings().value(_KEY_HASH_INPUTS, DEFAULT_HASH_INPUTS),
+                    DEFAULT_HASH_INPUTS)
+
+
+def set_hash_inputs(on: bool) -> None:
+    """Persist the input-hashing choice."""
+    _settings().setValue(_KEY_HASH_INPUTS, bool(on))
+
+
 DEFAULT_FIELD_FADE = True
 
 
@@ -2764,6 +2784,23 @@ class PreferencesDialog:
             performance.addRow(tr(row_label), button)
             return button
 
+        # Hashing is a COST setting, which is why it lives here beside the
+        # four that free resources rather than under Appearance. It is off
+        # by default: hashing every file under every path-valued setting is
+        # proportional to the data, not the run, and on a plate of raw
+        # images it is minutes of reading before the first mask is made.
+        hash_check = Toggle(tr("Hash inputs for the run manifest"))
+        hash_check.setObjectName("HashInputsEnabled")
+        hash_check.setToolTip(
+            "Record a SHA-256 of every input and output file in the run "
+            "manifest, so a result can be traced to the exact data and "
+            "weights that produced it. Costs minutes on a large plate. The "
+            "manifest is written either way and says which it was, so a run "
+            "without hashes is never mistaken for one whose hashes matched."
+        )
+        hash_check.setChecked(get_hash_inputs())
+        performance.addRow(tr("Reproducibility"), hash_check)
+
         _resource_button("ram", "Clear RAM", "Memory")
         _resource_button("vram", "Clear VRAM", "GPU memory")
         _resource_button("cpu", "Clear CPU", "Threads")
@@ -2884,6 +2921,7 @@ class PreferencesDialog:
                 setting_anim_check.setChecked(
                     get_setting_animations_enabled())
                 field_fade_check.setChecked(get_field_fade_enabled())
+                hash_check.setChecked(get_hash_inputs())
                 verbose_check.setChecked(get_verbose_logging())
                 db_edit_check.setChecked(get_db_browser_editable())
                 alpha_check.setChecked(get_show_alpha())
@@ -2923,6 +2961,7 @@ class PreferencesDialog:
             set_dock_mode(dock_combo.currentData())
             set_pane_opacity(opacity_slider.value() / 100.0)
             set_field_fade_enabled(field_fade_check.isChecked())
+            set_hash_inputs(hash_check.isChecked())
             set_color_blind_mode(cb_combo.currentData())
             set_verbose_logging(verbose_check.isChecked())
             # set_log_levels re-clamps rather than trusting the dialog: the

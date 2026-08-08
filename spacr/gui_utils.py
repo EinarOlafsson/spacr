@@ -662,7 +662,12 @@ def function_gui_wrapper(
     journal_run = None
     try:
         from .run_journal import open_run
-        print("Recording reproducibility input hashes…")
+        # Only say it when it is happening. The line exists because hashing
+        # is the slow part of opening a run and a pause deserves a name --
+        # printing it when hashing is off names a pause that is not there
+        # and claims a record that was not made.
+        if settings.get("hash_inputs", False):
+            print("Recording reproducibility input hashes…")
         journal_context = open_run(
             app_key or getattr(function, "__name__", "job"), settings,
         )
