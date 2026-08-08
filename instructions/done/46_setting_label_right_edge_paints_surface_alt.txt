@@ -2,8 +2,7 @@
 FOUR MODULES PAINT surface_alt UNDER THE RIGHT HALF OF A SETTING LABEL
 ================================================================================
 
-Status:    confirmed, not diagnosed. Pre-existing -- reproduces at eb2fa168,
-           before the Walk work (2026-08-08).
+Status:    done 2026-08-08. It was TWO bugs wearing one test failure.
 Requested: found while checking whether the Walk changes broke anything.
 Severity:  visual, and in the family the maintainer has reported most --
            a container showing the wrong colour behind settings.
@@ -137,3 +136,61 @@ overhangs its own viewport. On mask it does not (640 vs 428, the card is
 inside). Whether or not that is the cause here, a card wider than the
 viewport scrolling it is a layout fault of its own and is where I would
 start.
+
+--------------------------------------------------------------------------------
+2026-08-08 - DONE. IT WAS TWO BUGS, NOT ONE
+--------------------------------------------------------------------------------
+
+The four failing modules were never failing for one reason, which is why
+"what do classify, classify_merged, ml_analyze and activation share that
+mask does not" was the right question with a misleading answer.
+
+BUG 1 -- activation only. The label wrapper's right edge really did paint
+surface_alt, because it was hanging outside its own scroll viewport.
+
+    activation   settings column  60px   viewport  50px, card 290px
+    mask         settings column 248px   viewport 238px
+
+The body splitter asks for setSizes([400, 800]) and could not have it: the
+runtime panel's minimumSizeHint was 1117px, so 60px was what was left. That
+minimum came from the action row, and the entire difference between the
+two modules was one widget -- an AiToggleLabel reading "Hyperparameter
+search" at 281px against "Live" at 83px. QLabel reports its full text width
+as its minimum, so the text was a hard floor for every ancestor layout.
+
+Fixed by capping AiToggleLabel.minimumSizeHint at 120px and eliding past
+it. sizeHint is untouched, so a window with room still shows the full
+label. Settings go from 60px to 211px at a 1200px window; at 1600px
+nothing elides at all.
+
+BUG 2 -- classify, classify_merged, ml_analyze. A different assertion in
+the same test: "label help has no API link". Both greying passes replaced a
+setting's API-linked help with a plain sentence via setToolTip, and the
+label composes its help from the control's tooltip, so greying a setting
+deleted its documentation. The field kept it; only the label lost it, which
+is what made the asymmetry diagnostic.
+
+Fixed by appending the note to the help instead of replacing it, through
+one helper shared by both passes -- basis AND classifier family, since the
+second had the identical bug and surfaced the moment the first was fixed.
+
+TWO THINGS I GOT WRONG ON THE WAY, recorded because both would cost the
+next person the same hour:
+
+  * Qt DEFERS the resize event for a widget that has never been shown. My
+    first elision tests resized a hidden label, saw the full text, and
+    passed for the wrong reason. Show the widget.
+
+  * My first standalone reproduction used the default font scale while the
+    test fixtures pin 1.0 (INVARIANTS 9), so I was measuring different
+    geometry than the failure and briefly concluded it did not reproduce.
+
+VERIFIED  tests/qt/test_all_module_smoke.py is 57/57. It was 4 failed,
+53 passed. 19 new tests across test_toggle_label_width.py and
+test_greyed_setting_help.py.
+
+NOT DONE, and deliberately: the SectionCard is still wider than the scroll
+viewport that holds it on every module -- 624px of card in a 238px
+viewport on mask, which scrolls horizontally. That is pre-existing, is not
+what this test was catching, and is a settings-layout question rather than
+a painting one. It is worth its own file if anyone minds it.

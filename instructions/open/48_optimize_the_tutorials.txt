@@ -1,0 +1,1043 @@
+================================================================================
+OPTIMIZE THE spaCR TUTORIALS
+================================================================================
+
+Status:    in progress — generated site and deployment understood; editable
+           source workspace is not mounted at its documented path
+Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see how they are setup?"
+           2026-08-08 — "great. now we need to audit these lessons one at a time.
+
+           list of things to fix
+
+           for the first lesson the emphasis boxes are miss alligned with the video. when th voice says PyPi the second sylable \"Pi\" is to long and the second sylable should come faster after the first.
+
+           for the lessons on masks i told you in an earlier setting to set the normalization to specific values so you wrote  that into the tutorial, that is not what i wanted. i want the tutorials to genuinely be helpful
+
+           for moduals with Live preview or Hyperparamiter search, it is very usefull to use these to demonstrate the module as they are mini versions of what the module can do.
+
+           for the user and contain only the level of detail necessary to achieve that. you included some redundant detail. so i want you to audit all of the videos and make sure:
+
+           1. the voice pronounces the words phonetically correctly (in English).
+           2. the highlight boxes are alligned with what they are trying to highlight.
+           3. the content is a sufficient surface level walkthrough of the modual.
+           4. some moduals have changed (Gate Editor, Image UMAP, etc), and some may have been added (Classify). wake sure these have tutorials and that the old tutorials are updated."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The generated tutorial library is present under
+`docs/source/_extra/tutorials`: one HTML/CSS/JavaScript player, 40 catalogued
+lessons, one poster and one silent 1440p MP4 per lesson, 54 narration voices
+across eight languages with timing JSON, translated lesson/caption catalogs,
+and 40 YouTube 4K links. The player synchronizes the separate narration and
+silent video by playback rate and stores theme, progress, language, voice,
+quality, and caption preferences in localStorage.
+
+The full checked-in library is 2,879.2 MiB / 4,424 files. Sphinx does not copy
+it directly: `tools/docs_media_budget.py` stages 603.3 MiB / 744 files, keeping
+all lessons, videos, posters and captions plus the first voice in each
+language as an offline fallback. All 54 voices and the 4K masters are served
+from Hugging Face. `.github/workflows/docs.yml` builds on main and nightly but
+deploys GitHub Pages only from main.
+
+The documented editable source `/media/carruthers/mnt3/claude/tutorials/web/`
+and `tools/publish_tutorials.py` are not present on this machine. A filesystem
+search under `/mnt/firecuda2` found only the generated copies. The generated
+bundle must not be optimized in place until the current source-of-truth
+workspace is located, because the next publish would overwrite it.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Optimizing the derived repository copy would be overwritten by the next
+publish. Media changes can also desynchronise video, narration, captions, and
+scene timings or push GitHub Pages over its size ceiling.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Inventory the editable tutorial source, production media, published copy,
+   catalogs, and publishing scripts.
+2. Trace how a lesson flows from source through encoding/upload/deployment.
+3. Establish measurable optimization targets before changing anything.
+4. Implement and verify the agreed optimizations in the source of truth.
+5. Audit all 40 lessons in catalog order. For every scene, check English
+   pronunciation, highlight timing/geometry, concise surface-level coverage,
+   and agreement with the current module UI and feature set.
+6. Demonstrate Live Preview and Hyperparameter Search wherever the module
+   offers them, because they are useful miniature versions of the workflow.
+7. Remove prescriptive parameter values that came from a prior request rather
+   than from generally useful teaching, including fixed Mask normalization
+   values.
+8. Confirm changed/new modules such as Gate Editor, Image UMAP, and merged
+   Classify have current lessons; replace or add lessons where needed.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The source/derived boundaries are confirmed from the code, baseline loading,
+media, accessibility, and publishing measurements are recorded, and each
+optimization improves a named measurement without breaking lesson playback,
+narration synchronisation, fallback media, or the Pages budget.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+No tutorial files have been changed yet. The setup is being verified first.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 01: PYPI AND GITHUB
+--------------------------------------------------------------------------------
+
+Result: needs revision.
+
+Narration
+- The English script deliberately renders PyPI as two separated words,
+  `pie pee`, and applies only a small duration shortening to `pee`. This
+  produces the reported long second syllable and gap. Render PyPI as one
+  closely joined pronunciation, approximately `pie-pee`, with a short second
+  syllable and no rhetorical pause.
+
+Highlights
+- Scene 2 uses an overly broad box around the PyPI page header while the
+  narration is specifically about the stable release, pip command, and release
+  files.
+- Scene 3 discusses Documentation, Source, and Issues, but the box covers the
+  page navigation and project description instead of the Project links panel.
+- Scene 4 discusses GitHub main versus nightly, but highlights the Go to file
+  and Code controls rather than the branch selector.
+- Scene 5 correctly highlights release assets and checksums.
+- Scene 6 discusses both the not-yet-published conda route and PyPI as the
+  current installation route, but highlights only the PyPI card. The status
+  headline and future-channel card also need visual emphasis.
+
+Content
+- Keep the lesson as a short orientation to PyPI, GitHub branches/releases,
+  and conda availability. Scene 1 should visually introduce the three routes
+  rather than showing an unhighlighted PyPI page. The final three-card summary
+  is useful and should remain.
+- Remove repeated explanation of the same installation distinction where a
+  single route summary is sufficient.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 02: INSTALLATION WITH CONDA
+--------------------------------------------------------------------------------
+
+Result: mostly sound; shorten it.
+
+Narration
+- Conda, Python, pip, Qt, PyTorch, and spaCR are rendered intelligibly in the
+  reviewed English voice. No phonetic correction is required.
+- Python 3.12 is consistent with the current README: spaCR supports Python 3.9
+  through 3.14 except 3.14.1, and 3.12 currently has the widest optional-package
+  compatibility. Keep it as the example version, not as a permanent rule.
+
+Highlights
+- The create, activate/verify, pip upgrade, desktop/headless install, doctor,
+  and unavailable-conda-package commands are each highlighted in agreement
+  with the narration. No material alignment defect was found.
+
+Content
+- The usable path is complete: create, activate, verify the interpreter,
+  upgrade pip, select desktop or headless spaCR, and run spacr-doctor.
+- Remove the final 13-second conda-forge publication warning. Lesson 1 already
+  explains distribution status, while this lesson correctly installs the PyPI
+  package inside a Conda environment. This repetition dates quickly and does
+  not help the user complete the workflow.
+- Tighten the opening explanation, but retain why isolation is useful and why
+  Python 3.12 appears in the example command.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 03: INSTALLATION WITH PIP
+--------------------------------------------------------------------------------
+
+Result: sound; minor visual refinement.
+
+Narration
+- pip, Windows, macOS, Linux, Python, Qt, and spaCR are intelligible in the
+  reviewed English voice. No phonetic correction is required.
+
+Highlights
+- The POSIX and Windows environment commands, pip upgrade, verification,
+  spacr-doctor, and update command track the narrated actions correctly.
+- When contrasting the plain headless package with the Qt desktop extra, the
+  video emphasizes only the Qt command. Briefly emphasize each command as it
+  is named so the choice is visually unambiguous.
+
+Content
+- This is a sufficient surface-level pip workflow and is usefully distinct
+  from the Conda lesson. It covers isolation, OS-specific activation, package
+  choice, verification, diagnosis, and intentional upgrades without teaching
+  unrelated package-management detail.
+- The opening and closing can be tightened slightly, but no scene should be
+  removed.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 04: PLATFORM INSTALLERS
+--------------------------------------------------------------------------------
+
+Result: sound structure; one pronunciation fix and modest tightening.
+
+Narration
+- CUDA is currently spoken as the letters `C-U-D-A`. In standard English
+  technical usage it should be pronounced `koo-duh`.
+- SHA-256, NVIDIA, Qt, PyTorch, Windows, macOS, Linux, Gatekeeper, and spaCR are
+  otherwise intelligible in the reviewed voice.
+
+Highlights
+- The GitHub download choices, Windows card, macOS card, Linux command,
+  optional acceleration command, validation stage, and final launcher summary
+  match the spoken sequence. No material alignment defect was found.
+- In the download scene, momentarily emphasize the checksum reference when
+  SHA-256 is mentioned instead of leaving all three operating-system cards at
+  equal prominence.
+
+Content
+- The lesson gives the necessary platform choice, security exception, CPU/GPU
+  choice, safe update behavior, log location, and launch route.
+- Condense the safe-update explanation to the user-facing facts: an interrupted
+  update preserves the prior environment and `install.log` is the diagnostic
+  location. The internal replacement sequence is unnecessary here.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 05: HOME SCREEN AND NAVIGATION
+--------------------------------------------------------------------------------
+
+Result: replace and rerecord.
+
+Narration
+- The English words are intelligible, but the script is generic template text
+  rather than a real tour. The sentence about the tutorial pointer appearing
+  only for real clicks is production metadata and should not be narrated to a
+  user.
+
+Highlights
+- The Home item in the sidebar is correctly emphasized when Home is named.
+- The scene that names the sidebar, category tabs, searchable tiles, and
+  command palette highlights only the entire central tile pane. It does not
+  point to any of those four controls as they are named.
+- The last two scenes repeat essentially the same broad content-pane outline;
+  neither identifies status information or a concrete action.
+
+Content and currency
+- The recording is outdated. It shows separate Classify (CV) and Classify
+  (ML) tiles and a Home count of 34 modules, while the current registry has a
+  merged Classify entry and 63 registered applications.
+- Replace the five-scene template with a short real tour: sidebar and Home;
+  category tabs; search and command palette; tile maturity state; recent runs
+  and system/status panels; opening one module and returning Home.
+- Each feature should be demonstrated once. Do not narrate generic advice about
+  reviewing settings or using a preview before a run in a navigation lesson.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 06: PYTHON API AND HEADLESS WORKFLOWS
+--------------------------------------------------------------------------------
+
+Result: replace and rerecord.
+
+Narration
+- The reviewed English narration is intelligible, but it describes a vague
+  mixture of a Python API and terminal workflow without actually teaching
+  either one.
+
+Highlights
+- The video shows `spacr-run --list`, a settings-file run, and a `--test`
+  command. These visuals do not match narration about constructing a Python
+  dictionary, choosing paths/workers/hardware, or running from a notebook.
+- The shown `spacr-run ... --test` form is stale. The current CLI exposes
+  `--dry-run` and `spacr-run validate --module MODULE --settings FILE`.
+
+Content and currency
+- Refocus this lesson on the supported headless path: `spacr-run --list`,
+  `--describe MODULE`, exporting/reusing a GUI settings file, validation or
+  `--dry-run`, running the module, and locating logs/run records.
+- If the public Python API also needs coverage, demonstrate one real supported
+  function call in a separate short segment or separate lesson; do not label a
+  CLI-only recording “Python API.”
+- Replace generic lists of terminals, notebooks, schedulers, and remote jobs
+  with one concrete reproducible workflow. The Distributed Jobs lesson can
+  cover remote execution.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 07: MASK
+--------------------------------------------------------------------------------
+
+Result: replace with a shorter Live-Preview-led walkthrough.
+
+Narration
+- CQ1 and ER are expanded as letter names, `regex` is spoken as “regular
+  expression,” and the other reviewed English technical names are
+  intelligible. No definite phonetic defect was found in this lesson.
+- Scene 26 incorrectly teaches lower normalization percentile 2 and upper
+  percentile 99.5 as instructions. These are sample-specific values, not a
+  general Mask procedure.
+- Scenes 30–31 similarly present a 10,000-pixel minimum area as an instruction.
+  It can be retained only as an intentionally exaggerated demonstration, with
+  explicit language that the useful value depends on object scale and data.
+
+Highlights
+- The dialogs, mode controls, category panels, and Live Preview result modes
+  are generally emphasized in agreement with the narration.
+- The 13 consecutive category scenes are visually aligned but pedagogically
+  weak: each outlines a large settings group while reciting its contents.
+  Correct boxes do not make this enumeration useful.
+- The preview sequence correctly shows the selected field, Live Settings,
+  outlines, Cellpose flows, integer masks, a live filter change, and its result.
+
+Content
+- At 31 scenes and about five minutes, the lesson is far beyond a surface-level
+  Mask walkthrough. Remove the AI/provider tour, GitHub reporting details,
+  remote-submission detour, and one-by-one recital of all 13 settings groups.
+  Those features belong in shared or dedicated lessons.
+- Build the replacement around the useful miniature workflow: choose the
+  source folder; verify detected filename metadata; assign channels and object
+  types; review Essentials/Modified/All; open a representative field in Live
+  Preview; compare source, outlines, flows, and masks; tune one or two controls
+  based on visible segmentation quality; propagate the chosen settings; run a
+  small test; then identify the full-run outputs and QC signal.
+- Teach normalization by outcome: adjust the lower and upper percentiles only
+  when needed to make the relevant signal usable without clipping it, compare
+  the preview, and select values appropriate to the experiment. Do not state a
+  universal numeric pair.
+- Briefly mention Recipes only as a way to reuse a validated configuration.
+  Demonstrate Distributed Jobs in its own lesson rather than interrupting Mask.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 08: MEASURE
+--------------------------------------------------------------------------------
+
+Result: replace with a shorter Crop-Preview-led walkthrough.
+
+Narration
+- ER and PNG are rendered as letter names, `measurements.db` is spoken as
+  “measurements dot d-b,” and the other reviewed English technical terms are
+  intelligible. No definite phonetic correction was found.
+- Scenes 22–23 overfit the tutorial experiment by prescribing exact crop
+  dimensions, channel indices, a 1-to-99 preview stretch, and fixed cell,
+  nucleus, and pathogen area cutoffs. The narration should explain what the
+  choices do and how to validate them, not turn one dataset's settings into
+  universal advice.
+
+Highlights
+- The form modes, category panels, dialogs, and Crop Preview views generally
+  agree with the narration. The preview correctly demonstrates grouped crops,
+  its General/Object Crops/Filters controls, and a single-channel inspection.
+- As in Mask, the consecutive category highlights are geometrically correct
+  but mostly accompany an unhelpful recital of form sections.
+
+Content
+- At 25 scenes and about 4.6 minutes, the lesson spends too long on AI/provider
+  controls, remote execution, and every settings category. Remove those shared
+  detours.
+- Retain a concise workflow: select the Mask project's merged arrays; verify
+  image and label-plane mapping; choose compartments/features and whether to
+  create crops; set crop object, channels, and size; open Crop Preview; inspect
+  representative multichannel and single-channel crops; adjust filtering or
+  display normalization according to visible quality; run a small test; then
+  locate `measurements.db` and crop outputs.
+- Exact object counts from one five-field run do not teach the module. Show the
+  success/failure ledger and explain that the output counts should be checked
+  for plausibility instead.
+- Preserve the important distinction that preview display stretching does not
+  change saved crop normalization, but do not prescribe a fixed percentile
+  pair.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 09: ANNOTATE
+--------------------------------------------------------------------------------
+
+Result: update for merged Classify and shorten.
+
+Narration
+- The English technical terms and expanded key names are intelligible in the
+  reviewed voice. No definite phonetic correction was found.
+- The narration recites nearly the entire keyboard reference and many exact
+  tutorial-dataset counts. Name the core actions and let the on-screen shortcut
+  reference carry the exhaustive list.
+
+Highlights
+- The source load, settings dialog, crop grid/focus, shortcut reference,
+  keyboard and mouse label changes, undo, counts/coverage dialogs, paging,
+  active-learning controls, training handoffs, clear warning, and saved grid
+  are generally emphasized in agreement with the spoken action.
+- Paging scenes should tightly emphasize the relevant toolbar control; a page
+  change alone is not enough visual guidance.
+
+Content and currency
+- Remove the recurring AI/provider tour. It is not part of learning to annotate.
+- Replace the obsolete “Train CV” and “Train XG” explanation with the current
+  merged Classify handoff and show which classification mode/input type the
+  annotation column configures.
+- A concise walkthrough should cover: open a measured project; create/select
+  an annotation column and define the class meanings; adjust displayed
+  channels/filters; label with keyboard or mouse; navigate, undo, and save;
+  inspect class counts and coverage across wells/plates; optionally use the
+  uncertainty queue/retrain cycle; then hand the labels to Classify.
+- Remove exact visible/total crop counts, four-example class counts, and the
+  final database row recital. Retain the important lesson that labels must be
+  representative across experimental groups before training.
+- The destructive Clear Column warning is useful but can be one brief callout,
+  not a full scene in the main workflow.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 10: CLASSIFY (CV)
+--------------------------------------------------------------------------------
+
+Result: retain as the image-classifier lesson, update and shorten; add a
+separate merged-Classify lesson.
+
+Narration
+- CV, AI, PNG, ID, and the other reviewed English technical names are rendered
+  intelligibly. No definite phonetic correction was found.
+- The Hyperparameter Search narration says it evaluates architectures, but the
+  current panel shown searches learning rate, dropout, epochs, and weight decay.
+  Describe only the parameters actually offered.
+
+Highlights
+- The mode controls, settings categories, class mapping, Hyperparameter Search
+  toggle, and Search Settings dialog are generally emphasized in agreement
+  with the narration.
+- The most useful miniature workflow is not actually demonstrated: the results
+  table is empty while the narration describes completed trials. Run a bounded
+  search, show scored trials/fold variation, select a result, and use Apply so
+  the user sees the complete feature.
+
+Content and currency
+- Classify (CV) still exists as a separate current module, so keep a focused
+  image-classification lesson even after adding the merged Classify tutorial.
+- Remove the AI/provider, remote-job, and exhaustive category tours. Avoid
+  reciting tutorial-project crop counts and fixed c1/c2 counts.
+- Retain the important workflow: select measured projects/crops; choose label
+  source; define and verify classes; use group-aware train/validation/test
+  splits to prevent plate/well leakage; select an image model/channels; use a
+  small Hyperparameter Search; apply the chosen settings; explain the full run;
+  and locate held-out metrics, calibration, predictions, and checkpoint/run
+  records.
+- Explicitly state that metadata positions such as c1/c2 are only examples and
+  must be mapped from the experiment design. This existing warning is useful.
+- Do not end on “this tutorial does not launch” with no evidence of an output.
+  A small bounded search or validation run should produce real, inspectable
+  results even if full training remains out of scope.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 11: CLASSIFY (ML)
+--------------------------------------------------------------------------------
+
+Result: retain as the feature-classifier lesson, update and shorten.
+
+Narration
+- ML, AI, ER, DB, XGBoost, ID, and the other reviewed English technical names
+  are rendered intelligibly. No definite phonetic correction was found.
+- “The mapping uses the first two plate columns exactly as requested” exposes a
+  prior one-off instruction and is not generally useful. Remove it, along with
+  the assumption that c1/c2 always mean negative/positive control.
+
+Highlights
+- Settings-category and class-mapping emphasis is generally aligned.
+- Hyperparameter Search again shows an empty results table while narration
+  describes ranked completed trials. Run a small bounded search, show the
+  results and variation, select a trial, and apply it back to the module.
+
+Content and currency
+- Classify (ML) remains a separate current module, so retain a focused lesson
+  for measurement-feature classifiers in addition to the new merged Classify
+  lesson.
+- Remove AI/provider, remote-job, exhaustive category, and tutorial-dataset
+  count scenes.
+- Teach the real decision path: choose the measurement database; identify a
+  biologically valid label source/control mapping; select relevant compartments
+  and features; decide whether and how to correct plates/batches; choose the
+  estimator and group-aware validation; run a small Hyperparameter Search;
+  apply settings; then locate metrics, feature importance, plots, predictions,
+  and database outputs.
+- Present plate centering as an optional strategy whose control population must
+  be valid on every plate, not as a default c1 recipe.
+- Keep the distinction that plot controls affect summaries rather than the
+  fitted model, but state it once during output review.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 12: MAP BARCODES
+--------------------------------------------------------------------------------
+
+Result: useful real run; shorten and generalize library-specific values.
+
+Narration
+- DNA, FASTQ (“fast cue”), R1/R2, CSV, gRNA, ID, HDF5, and QC are rendered in
+  intelligible standard technical forms. No definite phonetic correction was
+  found.
+- The 26-base target, minus-eight offset, 89-base window, read counts, wells,
+  guides, and batch sizes belong to the synthetic example. Identify them as
+  example values and teach the user to derive them from the actual library/read
+  design.
+
+Highlights
+- Input/drop handling, form modes, parsing/reference/output/runtime categories,
+  Run/Stop controls, progress/console, and final output are generally
+  emphasized in agreement with the narration.
+- The moving-DNA-background visibility control is decorative application
+  chrome and should not consume a lesson scene.
+
+Content
+- This lesson has a strong core because it performs a bounded real run and
+  shows real output. Preserve that.
+- Remove the DNA backdrop, AI/provider, remote-job, and exhaustive form-mode
+  detours. Briefly mention Recipes only after a read layout has been validated.
+- A concise workflow should cover: choose paired or single FASTQ input; load
+  row/column/guide reference tables; explain the known anchor, extraction
+  window, named regex groups, and R1/R2 consensus; use test mode on a small
+  chunk; run; then inspect mapping rate, unmatched reads,
+  `unique_combinations.csv`, `qc.csv`, and saved settings/manifest.
+- Avoid implying that every experiment uses three lookup tables or the same
+  capture layout without first tying those choices to the user's library.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 13: REGRESSION
+--------------------------------------------------------------------------------
+
+Result: useful real run; shorten and remove experiment-specific prescriptions.
+
+Narration
+- OLS, AI, ID, ComBat, and the other reviewed English technical terms are
+  intelligible. No definite phonetic correction was found.
+- The exact positive/negative gene IDs, neutral guide name, excluded c1–c3
+  columns, row counts, and fixed-threshold language are specific to the
+  synthetic design. They must not be presented as reusable instructions.
+
+Highlights
+- Input/mode controls, each settings category, the example design, Run/Stop,
+  progress/console, and result gallery are generally emphasized in agreement
+  with the narration.
+
+Content
+- Preserve the bounded real run and real diagnostic/output review.
+- Remove AI/provider, remote-job, and exhaustive settings-category scenes.
+- Teach the decision path: select aligned phenotype and guide-count tables;
+  verify plate/well join keys; define positive, negative, and neutral controls;
+  choose whether batch/plate correction is justified; select a response and
+  model family; set minimum evidence and hit criteria; run; inspect diagnostics,
+  coefficient/hit tables, plots, and reproducibility records.
+- Explain that controls and excluded wells/columns come from the experiment
+  design. The tutorial's numeric IDs can appear visually as an example, but
+  narration should not imply that users should copy them.
+- Mention estimator-specific tuning only after a model family is selected;
+  listing every supported family is unnecessary for a surface walkthrough.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 14: MAKE MASKS
+--------------------------------------------------------------------------------
+
+Result: useful module-specific walkthrough; remove fixed normalization and
+combine redundant tool scenes.
+
+Narration
+- Cellpose (“Cell Pose”), ER, 4K, TIFF, and uint16 (“unsigned sixteen bit”) are
+  rendered intelligibly. No definite phonetic correction was found.
+- Scene 10 again hard-codes second and 99.5th normalization percentiles. Replace
+  this with outcome-based guidance: display normalization changes only the
+  view, and the user should adjust it until relevant boundaries are visible
+  without hiding saturation or background structure.
+- The 10,000-pixel cleanup threshold is already described as an exaggerated
+  example, but the number is unnecessary in narration. Demonstrate the effect
+  and tell the user to choose a biologically appropriate object-size floor.
+
+Highlights
+- The image/mask load, tool selection, brush/erase/wand actions, zoom, contrast,
+  history, object operations, size cleanup, save, navigation, and blank-mask
+  state are visually aligned with the narration.
+
+Content
+- This is genuinely module-specific and shows real interactions, so it needs
+  refinement rather than replacement.
+- Combine Brush/Erase/Erase Object into one correction segment; combine the two
+  wand modes; combine Undo/Redo with cleanup safeguards. Keep zoom, display
+  contrast, save, image navigation, and starting a new mask.
+- The concise lesson should emphasize the safe loop: load an image and existing
+  mask if present; zoom and correct labels; inspect object integrity; undo if
+  necessary; save the uint16 label image; advance and repeat. Tool-by-tool
+  shortcut recital can live in on-screen help.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 15: IMAGE UMAP
+--------------------------------------------------------------------------------
+
+Result: replace and rerecord for the current module and Hyperparameter Search.
+
+Narration
+- Render UMAP as the joined English technical pronunciation “you-map,” not as
+  two separated words. Render t-SNE consistently as “tee-snee.” DBSCAN may be
+  spoken as “dee-bee-scan.”
+- The fixed 15-neighbor, 0.1-minimum-distance, Euclidean, DBSCAN epsilon, sample
+  count, and epoch values describe one example; they should not be taught as a
+  generally correct configuration.
+
+Highlights
+- The old form-mode/category, Run/Stop, console, and result-gallery emphasis is
+  generally aligned with the narration.
+- The recording never opens the Hyperparameter Search control visible at the
+  bottom of the screen, so it omits the most useful miniature representation of
+  this module's changed workflow.
+
+Content and currency
+- The current Image UMAP module has a substantially expanded Hyperparameter
+  Search: candidate `n_neighbors`/`min_dist`/metric values, criterion guidance,
+  small-multiple previews, multi-objective scores and Pareto rows, Walk mode,
+  compatible checkpoint resume, and Propagate Settings. None appears here.
+- Replace AI/provider, remote-job, exhaustive category, and fixed-parameter
+  scenes with: choose a measured project and crop source; select the
+  compartments/features and exclusions that define geometry; decide whether
+  plate correction is justified; set a bounded row sample; open Hyperparameter
+  Search; run a small search; compare trial previews/scores; apply one setting;
+  run Image UMAP; then inspect the point/glyph map, cluster crop grid, aligned
+  result table, figures, and reproducibility files.
+- Keep multi-objective/Walk/resume at surface level: show where they are and
+  when they help, but do not explain the objective mathematics in the video.
+- State clearly that UMAP structure is exploratory and parameter-sensitive;
+  attractive clusters are not biological evidence by themselves.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 16: ACTIVATION MAPS
+--------------------------------------------------------------------------------
+
+Result: replace with a validated example and demonstrate Hyperparameter Search.
+
+Narration
+- Grad-CAM, ResNet, PDF, Manders, and the other reviewed English technical
+  terms are rendered intelligibly. No definite phonetic correction was found.
+- The repeated warning that the artifact is deterministic but untrained is
+  accurate, but it also reveals that the example cannot teach users what a
+  meaningful attribution result looks like.
+
+Highlights
+- Old settings-category, Run/Stop, and console emphasis is generally aligned.
+- The current Hyperparameter Search control is omitted. It can compare method,
+  target layer, smoothing/sample, occlusion, and integrated-gradient settings
+  with side-by-side maps and criteria.
+- The video claims that two saliency-overlay PDFs were produced but never opens
+  a useful map for visual inspection. Output existence is not output teaching.
+
+Content and currency
+- Use a small validated model/crop set whose channel order, crop size,
+  normalization, architecture, and object type are known. If an interface-only
+  fallback remains, label it separately and never invite interpretation.
+- Remove AI/provider, remote-job, and exhaustive category tours.
+- Teach: select matching model and data artifacts; verify preprocessing;
+  choose an attribution method and compatible layer/parameters; run a small
+  Hyperparameter Search to compare actual maps and sanity/fidelity metrics;
+  apply a configuration; run a bounded batch; then open the overlays,
+  quantification, validation/sanity checks, and reproducibility output.
+- Preserve the important warnings: display contrast is not validity; maps that
+  survive model randomization may reflect image structure rather than learned
+  reasoning; attribution is evidence about model sensitivity, not biological
+  causation.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 17: TIMELAPSE
+--------------------------------------------------------------------------------
+
+Result: replace with a Track-Preview-led walkthrough and show actual output.
+
+Narration
+- Cellpose, Trackastra, Trackpy (“track-pie”), btrack (“bee-track”), U-Net, ER,
+  and intersection-over-union are intelligible. Give Ultrack an explicit
+  “ull-track” pronunciation to avoid voice-dependent ambiguity.
+- Exact eight-frame/channel/backend/movie-speed/object-count/run-time values
+  are properties of the synthetic example, not recommended defaults.
+
+Highlights
+- The old mode/category and Run/Stop/console emphasis is generally aligned.
+- The current Track Preview is completely omitted even though it is the safest
+  and clearest miniature of segmentation plus linking.
+- The final narration lists movies, tracks, arrays, and QC results, but the
+  recording leaves the viewer on console text instead of opening the tracked
+  overlay/movie or a track-quality view.
+
+Content and currency
+- Remove AI/provider, remote-job, and 13-category recital scenes.
+- Teach: load a correctly ordered time series and verify parsed time/channel
+  metadata; assign segmentation channels and the object to track; enable Track
+  Preview; inspect segmentation on representative frames; select a backend;
+  tune linking/displacement/memory on the bounded preview while watching
+  trajectories and track metrics; propagate settings; run one small field;
+  then inspect the tracked overlay/movie, track table, QC warnings, masks,
+  merged arrays, and run record.
+- Explain that normalization/preprocessing must remain consistent across time,
+  and that apparent high velocity, track fragmentation, or implausible jumps
+  indicate segmentation/linking problems to fix before scaling.
+- Mention alternative backends only as choices for different motion/division
+  behavior. A surface walkthrough does not need to enumerate every backend
+  parameter.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 18: MOTILITY ASSAY
+--------------------------------------------------------------------------------
+
+Result: replace with a Track-Preview-led walkthrough and show real plots.
+
+Narration
+- XGBoost, z-score, and the other reviewed English technical terms are
+  intelligible. Use joined “you-map” and “tee-snee” pronunciations for UMAP and
+  t-SNE.
+- One second per frame and one pixel per micrometer are synthetic conveniences,
+  not calibration guidance. Tell users to obtain both values from acquisition
+  metadata/instrument calibration because every physical velocity depends on
+  them.
+
+Highlights
+- Old mode/category and Run/Stop/console emphasis is generally aligned.
+- The current Motility Track Preview is omitted even though it can display
+  trajectories, velocity, straightness, filtering, and infection split on a
+  bounded sample.
+- The final scene reports tracks, classes, velocities, correlations, and a
+  motility panel but leaves the viewer on console text instead of opening any
+  trajectory or QC result.
+
+Content and currency
+- Remove AI/provider, remote-job, and nine-category recital scenes.
+- Teach: select tracked arrays and verify object/channel mapping; enter true
+  spatial and temporal calibration; enable Track Preview; inspect trajectories
+  and derived motion metrics; adjust jump/outlier filters while watching which
+  tracks remain; choose and validate an infection-classification strategy;
+  propagate settings; run a small sample; then inspect trajectory plots,
+  velocity distributions, infection groups, correlations, database tables,
+  and QC warnings.
+- Treat XGBoost, clustering, and embedding-based infection assignment as
+  optional alternatives, not three feature lists. Use one justified strategy
+  in the demonstration and explain what evidence is needed for it.
+- Replace exact synthetic counts with a plausibility check: track counts,
+  durations, speed units, and infection-group balance should agree with the
+  preview and experiment design.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 19: TRAIN CELLPOSE
+--------------------------------------------------------------------------------
+
+Result: useful bounded training demonstration; shorten and strengthen the
+validation handoff.
+
+Narration
+- CP-SAM (“C-P-SAM”), TIFF, GPU, CSV, and Cellpose are rendered intelligibly.
+  No definite phonetic correction was found.
+- One epoch, learning rate 0.01, batch size two, resize target, six fields, and
+  patch counts are clearly tutorial-speed values, but there is no need to
+  repeat them across several scenes.
+
+Highlights
+- Dataset load, mode/category controls, Run/Stop, paired image-mask previews,
+  progress, and saved-output view are generally aligned with the narration.
+
+Content
+- Remove AI/provider, remote-job, and exhaustive category tours.
+- Keep: required image/mask folder structure and matching stems; visual review
+  of instance labels; pretrained fine-tuning versus starting from scratch;
+  the few training schedule/geometry choices that materially affect the fit;
+  a short calibration run; paired input preview; checkpoint/settings/run output.
+- State explicitly that successful completion and aligned input pairs do not
+  validate segmentation quality. The next step is evaluation on independent,
+  withheld fields with Cellpose Masks/Model Compare before using the checkpoint
+  in Mask.
+- Avoid implying that “more epochs” fixes weak data. Label quality, diversity,
+  representative validation fields, and overfitting checks come first.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 20: CELLPOSE MASKS
+--------------------------------------------------------------------------------
+
+Result: update for the new Live Preview and remove fixed preprocessing values.
+
+Narration
+- CP-SAM, TIFF, ER, and GPU are rendered intelligibly. No definite phonetic
+  correction was found.
+- Scenes 5, 7, and 18 again prescribe or repeat the tutorial experiment's
+  normalization percentiles, batch size, probability/flow thresholds,
+  resampling, and hole-filling state. Explain effects and preview-based choice
+  rather than narrating a fixed recipe.
+
+Highlights
+- Old mode/category and Run/Stop emphasis is aligned, and the final figure
+  genuinely shows source image, mask overlay, and Cellpose flows.
+- The current module now inherits Mask's Live Preview, but the recording never
+  opens it. This is the most useful miniature inference workflow.
+
+Content and currency
+- Remove AI/provider, remote-job, and exhaustive category tours.
+- Teach: load representative images; verify plane/channel and image geometry;
+  choose stock weights or a validated custom checkpoint; enable Live Preview;
+  compare source, outlines, integer masks, and flows; adjust normalization only
+  when needed for the input signal; tune diameter/probability/flow controls by
+  visible segmentation behavior; propagate settings; run a small batch; then
+  inspect saved masks and diagnostics.
+- Do not imply that six successful files validate the checkpoint. Completion
+  verifies execution; independent ground-truth comparison in Model Compare is
+  required to assess quality.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 21: MODEL COMPARE
+--------------------------------------------------------------------------------
+
+Result: strong, concise lesson; minor wording cleanup.
+
+Narration
+- TIFF, PNG, NPY, NPZ, ER, CP-SAM, ARI, and the expanded intersection-over-
+  union terminology are rendered intelligibly. No definite phonetic correction
+  was found.
+- The long recital of shared diameter/flow/probability/minimum-size values is
+  unnecessary. State that all non-model settings are held constant so the
+  comparison isolates the intended difference.
+
+Highlights
+- Source/model panels, Compare/status, resolved-parameter report, per-field
+  metrics, row selection, and paired previews are tightly aligned with the
+  narration.
+
+Content
+- Preserve the current nine-scene structure and its central warning: candidate
+  agreement is not ground truth and an unchanged checkpoint is a valid result,
+  not evidence of improvement.
+- Call the non-reference checks shape/object QC rather than “independent mask
+  quality” if no human ground truth is supplied. ARI, matching, split/merge, and
+  count differences compare two candidates; they do not establish accuracy.
+- Add one short handoff: when ground-truth masks exist, evaluate each candidate
+  against those masks on withheld fields before selecting a production model.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 22: MODEL ZOO
+--------------------------------------------------------------------------------
+
+Result: strong real workflow; shorten the benchmark detail and clarify what QC
+can establish.
+
+Narration
+- Cellpose, CP-model, ER, QC, and A-B are rendered intelligibly. No definite
+  phonetic correction was found.
+- Do not narrate the exact cell count, runtime, and pass count as though those
+  values transfer to another project. Identify them as this small benchmark's
+  result and move quickly to interpretation.
+
+Highlights
+- Scan/catalogue, model details, download controls, field controls, status,
+  benchmark table, preview, two-model selection, and Model Compare handoff are
+  aligned with the narration.
+
+Content
+- Retain the useful end-to-end structure: scan; inspect provenance/checksum;
+  test one installed model on representative fields; review table and overlay;
+  hand two candidates to Model Compare.
+- Explain that checksum verification establishes file integrity, not model
+  suitability. Likewise, border fraction, object count, and other intrinsic
+  mask checks flag suspicious behavior but do not measure segmentation
+  accuracy without ground-truth masks.
+- The interface-thread implementation detail is not useful to the operator;
+  replace it with what to do while the bounded benchmark runs and how to
+  recognize completion or failure.
+- End with selection on withheld, representative fields with reference masks
+  when those are available, not candidate agreement alone.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 23: ANNOTATOR AGREEMENT
+--------------------------------------------------------------------------------
+
+Result: accurate, well-aligned walkthrough; condense the numerical case study.
+
+Narration
+- PNG, Fleiss kappa, and Cohen's kappa are represented with suitable speech
+  text. No definite phonetic correction was found.
+- Scenes 6 and 7 spend too long reading every count in the example. State the
+  key finding: raw agreement is high, abstention is extensive, and kappa is
+  undefined because one column has no class variation. Leave exact counts in
+  the visible tables.
+
+Highlights
+- Database source, discovered columns, Compute Agreement, progress, pairwise
+  summary, confusion matrix, disagreement rows, and crop previews are aligned
+  with the corresponding narration.
+
+Content
+- Preserve: choose a read-only source; select comparable categorical columns;
+  compute on jointly labelled rows; interpret agreement, abstentions, class
+  balance, confusion matrix, and kappa together; inspect disagreement crops.
+- Make the denominator explicit in one sentence: raw agreement and kappa refer
+  to complete pairs, while abstention coverage must be reported separately.
+- End on adjudication or revision of the labelling guide. Avoid implying that a
+  reviewer should change a valid biological threshold simply to increase an
+  aggregate agreement score.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 24: PLAQUE ASSAY
+--------------------------------------------------------------------------------
+
+Result: replace with a concise Live Preview-led workflow.
+
+Narration
+- TIFF, GPU, AI, SSH, QC, and the database filename are represented
+  intelligibly. No definite phonetic correction was found.
+- Remove four AI/provider scenes, the remote-job detour, the recipe tour, and
+  six consecutive settings-category descriptions. They obscure the assay.
+- Do not read synthetic per-field counts as transferable expectations.
+
+Highlights
+- The existing boxes generally match the generic controls being described,
+  but the recording spends most of its time highlighting empty settings and
+  console areas.
+- The current Plaque Assay declares a Live Preview specifically to check plaque
+  diameter and thresholds on a sampled field. The lesson never opens it and
+  therefore omits the module's best teaching surface.
+- The final scene highlights console text rather than opening the written
+  summary, statistics, object-detail table, or a saved mask overlay.
+
+Content and currency
+- Teach: select representative plaque images; choose new segmentation versus
+  correctly named existing labelled masks; open Live Preview; inspect source,
+  outlines/masks, diameter, candidate probability, and flow consistency;
+  compare representative control and treatment wells; propagate settings;
+  run a small sample; inspect saved masks and per-image/object tables.
+- Explain settings through observed effects. Diameter establishes scale;
+  probability changes candidate inclusion; flow consistency rejects irregular
+  candidates. Do not prescribe a fixed combination.
+- If reusing masks, make clear that segmentation controls are inactive and
+  visually verify name matching and label integrity before measuring.
+- End with plausibility checks on plaque count, area distribution, border
+  objects, fields with zero plaques, and plate metadata. Successful execution
+  alone does not validate the bundled model on a new assay.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 25: RECRUITMENT
+--------------------------------------------------------------------------------
+
+Result: valuable real output, but replace the five-minute settings tour with a
+short assay workflow.
+
+Narration
+- Use an explicit pronunciation hint for HeLa ("HEE-lah") and siRNA
+  ("sigh-R-N-A"). ER, PV, CSV, QC, AI, and database paths are otherwise
+  represented intelligibly.
+- Remove AI/provider, remote-job, recipe, and Essentials/Modified/All tours.
+- Do not narrate the experiment's exact mask indices, area cutoffs, row count,
+  or three control means as if they are recommended defaults.
+
+Highlights
+- Existing emphasis generally surrounds the control being described, but much
+  of the lesson highlights generic dialogs or entire category cards.
+- The final output figure is useful. Open individual overlay and distribution
+  outputs long enough to connect failed mapping/filter choices to visible QC,
+  rather than leaving them as a small multi-panel thumbnail.
+
+Content
+- Teach: choose an existing measured project; verify intensity and mask-plane
+  mapping against a merged array; identify the recruitment channel and formula;
+  derive defensible object filters from representative data; map controls and
+  conditions; run; inspect exclusion counts, overlays, control distributions,
+  per-PV/per-cell rows, and well summaries.
+- Explain the score once: pathogen-region signal divided by matched host-cell
+  cytoplasm signal in the same channel. State what values above, near, and below
+  one mean, subject to background and segmentation validity.
+- Keep the warning that plausible ratios can come from a valid but wrong channel
+  index. Show a mapping check visually before any thresholds are discussed.
+- Treat the displayed experiment values as an example. Interpretation should
+  use replicate-level variability, control separation, segmentation QC, and the
+  experimental unit, not retained-object count or group means alone.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 26: INVASION ASSAY
+--------------------------------------------------------------------------------
+
+Result: scientifically careful, but far too long; retain the biological logic
+and real outputs in a concise walkthrough.
+
+Narration
+- HeLa should be rendered "HEE-lah." Mann–Whitney, Holm, QC, AI, and the
+  remaining assay terms are represented intelligibly.
+- Remove AI/provider, remote-job, recipe, view-mode, and eight-category tours.
+- The final 36-second recital of every count, percentage, threshold, and p-value
+  should become one example result plus the statistical lesson.
+
+Highlights
+- Category and action boxes are aligned with their narration. The most useful
+  visual is the final threshold-QC/result figure, but it appears only at the end
+  and too small for the claims being made. Open threshold distributions and
+  representative classified fields while explaining the decision rule.
+
+Content
+- Teach: load one-row-per-parasite measurements; verify outside and total stain
+  columns; confirm attached has outside signal and invaded lacks it; identify
+  staining controls; derive and inspect a threshold; apply object/minimum-count
+  filters; map conditions; run; inspect sensitivity, field/well QC, and
+  replicate-level results.
+- Preserve the crucial warning that reversing stain channels reverses the
+  biological conclusion without necessarily causing a software error.
+- Explain why failure of the outside stain inflates apparent invasion and show
+  how control distributions, bimodality/QC, and sensitivity bounds reveal it.
+- Use wells, not pooled parasites, as the inferential replicate. Preserve the
+  pseudoreplication contrast, but do not read a long exact p-value aloud.
+- Clearly label synthetic data as interface/analysis demonstration, not assay
+  validation or expected biological performance.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 27: REPLICATION ASSAY
+--------------------------------------------------------------------------------
+
+Result: replace the long generic tour; keep the strong vacuole-assignment and
+replication-QC concepts.
+
+Narration
+- HeLa should be rendered "HEE-lah." ID, QC, AI, Mann–Whitney, and database
+  paths are otherwise represented intelligibly.
+- Remove AI/provider, remote-job, recipe, view-mode, and seven-category tours.
+- Shorten the synthetic output recital; counts, medians, and warning percentages
+  should remain visible in the result rather than all being read aloud.
+
+Highlights
+- Existing emphasis is aligned with each category/action, but much of it marks
+  generic dialogs and whole category cards.
+- The final distribution is useful. Add source-image examples of a one-, two-,
+  four-, and non-power-of-two vacuole so the count buckets are visibly grounded
+  in segmentation and assignment quality.
+
+Content
+- Teach: load one-row-per-parasite measurements; choose an explicit validated
+  vacuole ID when available; otherwise review spatial assignment carefully;
+  map conditions; validate parasite filters; inspect the doubling buckets;
+  run; review assignments, non-power-of-two cases, well distributions, and
+  replicate-level statistics.
+- Preserve the central warning that host-cell ID is not necessarily vacuole ID;
+  grouping by host cell can merge distinct biological units without an error.
+- Explain how debris inflates small-count buckets and merged parasite masks
+  depress counts. Inspect both ends of the distribution in source images.
+- Use wells/independent experiments for inference rather than treating every
+  vacuole as an independent biological replicate. Label synthetic outcomes as
+  workflow examples only.
+
+--------------------------------------------------------------------------------
+AUDIT — LESSON 28: TRAINING RUNS
+--------------------------------------------------------------------------------
+
+Result: good module-specific lesson; shorten numeric narration and keep the
+interactive curve comparison.
+
+Narration
+- spaCR, QC, CSV-style logs, cross-validation, and precision–recall are rendered
+  intelligibly. No definite phonetic correction was found.
+- Scenes 8, 10, and 14 read unnecessary decimal endpoints. Narrate the pattern
+  (higher peak, worse final value, fold spread) and leave exact values in the
+  selected-series detail.
+
+Highlights
+- Source/Scan, discovered-run list, row selection, metric/fold controls, Overlay,
+  result plot, picked-curve detail, and later fold-mode controls are aligned.
+- When defining dashed training versus solid validation lines, emphasize the
+  plot legend as well as the Overlay button.
+
+Content
+- Preserve the read-only workflow: scan; keep incomplete runs visibly flagged;
+  select comparable runs; overlay a metric; click a curve for provenance;
+  compare best versus last; inspect loss; examine fold mean/spread and per-fold
+  instability; audit setting and environment differences.
+- Combine the two separate row-selection scenes and combine the fold-mode
+  selector/result pairs where possible.
+- Keep the warning that the best epoch on the same validation curve is an
+  optimistic selection. Model choice still needs a truly held-out evaluation
+  and compatible data/split definitions; a visually better curve is not enough.
