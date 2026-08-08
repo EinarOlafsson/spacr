@@ -105,3 +105,38 @@ STILL OPEN in this instruction:
     says nothing about the version.
   * "optimal" still needs defining: newest that passes, or oldest that
     passes? They imply opposite CI jobs.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE CLAIMED RANGE IS NOW ACTUALLY EXERCISED
+--------------------------------------------------------------------------------
+
+The claim was already right, which is worth stating because it was the
+first thing I suspected:
+
+    pyproject.toml:  requires-python = ">=3.9,<3.15,!=3.14.1"
+
+So 3.9 through 3.14 is exactly what spaCR promises. The gap was COVERAGE,
+not the declaration.
+
+The "installs, from wheels only" job -- which asks only whether pip accepts
+spaCR and whether the graph resolves without a compiler -- ran on
+["3.13", "3.14"]. It now runs on
+
+    ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+
+the whole claimed range. That job is cheap, so six interpreters cost
+little, and it is the check that matches the claim most directly: a
+`requires-python` floor nobody exercises is the same defect as the cellpose
+one settled above -- pip resolves it happily and the failure lands on a
+user rather than on CI.
+
+WHAT THIS DOES NOT DO. It proves pip ACCEPTS spaCR and resolves to wheels
+on each interpreter. It does not run the test suite there; the full matrix
+still covers 3.11 through 3.14 only, and 3.10 has no suite run at all.
+Widening the full matrix is a heavier change and is still open.
+
+EXPECT THIS TO GO RED FIRST, and treat that as the result rather than a
+setback: the scientific stack may not publish wheels for 3.9 or 3.10 on
+every platform. Where it does not, the honest answer is to narrow
+`requires-python` and say so in the README -- not to delete the job. That
+decision is what this task is for.
