@@ -134,3 +134,45 @@ find; it may not be the whole of what the maintainer saw.
 
 147 tests pass across the gates, figure-grid, hyperparameter and API
 contract suites.
+
+--------------------------------------------------------------------------------
+2026-08-08, LATER - PANDAS AT STARTUP IS MULTI-PATH. THIS IS WHACK-A-MOLE.
+--------------------------------------------------------------------------------
+
+Second path closed: `spacr/layers.py` imported `OBJECT_KEY_COLUMNS` and
+`object_keys` from `spacr.selection` at module scope, and `selection`
+imports pandas at module scope. All four uses in `layers.py` are at CALL
+time -- inside `columns()`, `frame()` and `object_keys()` -- so the
+module-scope import bought nothing and put pandas on the Qt startup path.
+They are imported inside those three methods now.
+
+AND PANDAS IS STILL THERE, by a fourth route:
+
+    604 ms  spacr.qt.app
+    204 ms    spacr.qt.linked_selection
+    198 ms      pandas
+
+BE HONEST ABOUT THE SCORE. The widgets fix was a real, measured win
+(670 -> 592 ms). This second one closed a path without moving the total,
+because pandas still arrives via `linked_selection`. It is correct in
+principle and worth keeping -- a module-scope import that nothing needs at
+import time is wrong regardless -- but nobody should read it as 200 ms
+saved. It is not.
+
+WHAT THIS PATTERN MEANS, and it is the useful finding: pandas is not
+imported at startup by one careless line. It is woven through the Qt entry
+path in at least four places, and closing one reveals the next. So chasing
+them one at a time is the wrong shape of work. Better:
+
+    python -X importtime -c "import spacr.qt.app" 2>&1 | grep -n pandas
+
+names every importer in one pass. Fix them together, then assert the
+result with a TEST -- `'pandas' not in sys.modules` after importing
+`spacr.qt.app` -- or the fifth path arrives next month and nobody notices.
+
+That test is the actual deliverable of this half of the instruction, more
+than any individual deferral.
+
+STILL UNTOUCHED: the event-loop tick monitor. Import time remains a proxy;
+the reported symptom is a stutter, and no measurement here has yet observed
+the event loop failing to turn.

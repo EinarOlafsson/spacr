@@ -72,7 +72,11 @@ import numpy as np
 # The object identity every table in measurements.db already agrees on. A
 # labels layer that invented its own key scheme would be a fifth island; the
 # whole point of `linked_selection` is that there are no more of those.
-from .selection import OBJECT_KEY_COLUMNS, object_keys
+# Imported inside the methods that use them, not here. `spacr.selection`
+# imports pandas at module scope, and every one of the four uses below is
+# at CALL time -- so a module-scope import here bought nothing and put
+# ~200 ms of pandas on the Qt startup path, which is instruction 55.
+# Measured: `spacr.qt.app` -> `spacr.layers` -> `spacr.selection` -> pandas.
 
 __all__ = [
     "LayerError",
@@ -1385,6 +1389,7 @@ class FieldKey:
     @classmethod
     def columns(cls, *, timelapse: bool = False) -> Tuple[str, ...]:
         """The key columns a field key of this flavour needs, label excluded."""
+        from .selection import OBJECT_KEY_COLUMNS
         label_column = OBJECT_KEY_COLUMNS[-1]
         if timelapse:
             from . import schema
@@ -1417,11 +1422,13 @@ class FieldKey:
         import pandas as pd
         ids = [int(v) for v in labels]
         data = {c: [self.values[c]] * len(ids) for c in self.values}
+        from .selection import OBJECT_KEY_COLUMNS
         data[OBJECT_KEY_COLUMNS[-1]] = ids
         return pd.DataFrame(data)
 
     def object_keys(self, labels: Iterable[int]):
         """:class:`pandas.Index` of object keys for ``labels``, in order."""
+        from .selection import object_keys
         return object_keys(self.frame(labels), timelapse=self.timelapse,
                            object_type=self.object_type)
 
