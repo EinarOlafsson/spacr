@@ -2,8 +2,8 @@
 THE FULL tests/qt RUN HANGS PART-WAY THROUGH
 ================================================================================
 
-Status:    observed, NOT isolated. I killed the process before capturing a
-           stack, which lost the evidence (2026-08-08).
+Status:    the HANG is fixed (2026-08-08). The suite now reaches 28%
+           and SEGFAULTS. Same task -- it still cannot finish.
 Severity:  test-only, but it makes the qt suite unrunnable as a whole,
            which is how the order-dependent failures in 03 and 46 stay
            invisible.
@@ -60,3 +60,50 @@ HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
 The full `pytest tests/qt` run reaches its summary line unattended.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE HANG IS FIXED. NOW IT SEGFAULTS, SLIGHTLY FURTHER ON.
+--------------------------------------------------------------------------------
+
+THE HANG: found with pytest's own faulthandler, no extra package needed --
+`-o faulthandler_timeout=180`, which is what I should have used instead of
+SIGABRT the first time.
+
+    test_stop_survives_a_thread_that_refuses_to_be_interrupted
+      -> app_screen.py:2680 _on_stop
+      -> shutdown.py:89 ask_how_to_quit
+
+`_on_stop` asks how to quit before stopping anything, the test predates
+that feature, and it opened a real QMessageBox with nobody to click it. The
+`no_modals` guard had a genuine hole: it patched `QDialog.exec`, and
+QMessageBox OVERRIDES exec, so an instance-level `box.exec()` went straight
+past it. Both `exec` and `exec_` are patched now, and the guard immediately
+caught a second test, which is the evidence the hole was real. Fixed in
+commit 59a2d1a1; test_cov_app_screen.py is 149/149.
+
+THE SEGFAULT, which is now what stops the suite finishing:
+
+    Fatal Python error: Segmentation fault, at 28%
+      File "spacr/qt/screens/app_screen.py", line 2987 in _sample_usage
+      File "spacr/qt/screens/app_screen.py", line 2930 in <lambda>
+      File "spacr/qt/job_runner.py", line 60 in _capture
+      File "spacr/qt/job_runner.py", line 143 in <lambda>
+      File "spacr/qt/bridge.py", line 1018 in run
+
+So it dies inside the RESOURCE USAGE SAMPLER, running on a job-runner
+thread. Two candidates, both worth checking before changing anything:
+
+  * `_sample_usage` touching a QWidget from a non-GUI thread. Qt widgets
+    are not thread-safe and this is the classic way to earn a segfault
+    rather than an exception.
+  * the GPU/NVML query. `pynvml` is already warning it is deprecated in
+    this environment, and it is a C extension -- a bad call there crashes
+    the process rather than raising.
+
+Read `_sample_usage` and ask which objects it touches and which thread owns
+them. INVARIANTS 4 is the neighbouring rule and the same family: the last
+crash of this kind here was an object with two owners, measured at 3
+crashes in 8 runs.
+
+HOW TO KNOW IT WORKED is unchanged: the full `pytest tests/qt` run reaches
+its summary line unattended. It now gets to 28%, up from wedging at 25%.

@@ -1,8 +1,11 @@
 ================================================================================
-IMAGE UMAP: DROP THE API DOTS, AND SHOW SEARCH FIGURES AS THEY ARRIVE
+IMAGE UMAP: DROP THE API LINK DOTS FROM THE SETTINGS
 ================================================================================
 
-Status:    not started
+Status:    not started. SCOPE REDUCED 2026-08-08: the second half of
+           this request -- streaming the search figures onto a grid --
+           was the same change as instruction 35 and is merged there.
+           This file is now the API dots alone.
 Requested: 2026-08-08 — "remove the API link dots from Image UMAP settings and make the graphs generated pop up when generated on a grid in hyperparamiter search not just at the end in one grid."
 
 --------------------------------------------------------------------------------

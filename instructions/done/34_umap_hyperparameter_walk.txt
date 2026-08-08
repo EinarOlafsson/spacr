@@ -2,8 +2,9 @@
 IMAGE UMAP: SEARCH THE WHOLE HYPERPARAMETER SPACE, AND CALL IT WALK
 ================================================================================
 
-Status:    4 of 5 parts done 2026-08-08. Only the presentation grid is
-           left, and it is instruction 35's rendering half.
+Status:    done 2026-08-08. Four parts built; the fifth -- the
+           presentation grid -- is not dropped but MERGED into
+           instruction 35, which is the single home for that change.
 Requested: 2026-08-07 - "the hyperparameter search should search hyperparameter space, this space should be defined by all hyperparameters not just min dist and neighbours. the adaptive 2x2 should just be adaptive and should search more than just the n_neighbours and min dist... the user should be able to choose the grid the algorithm uses to make directional decisions in hyperparameter space, now that that space will be expanded beyond n_neighbours and min_dist, it is no longer 2X2... this dimensionality of the search should be reflected in the grid that the UMAPs are presented on." Also: "there should be a clustering algorithm option with a hyperparameter search and which should include a hyperparameter walk (that is what the setting should be called, Walk, this name should also apply to the new image UMAP adaptive setting!)"
 
 --------------------------------------------------------------------------------
@@ -117,3 +118,34 @@ STILL OPEN - part 4, and only part 4.
   searched parameter, and each `Trial.params` carries its coordinates, so
   the grid axes can be read off the result without the panel telling it
   anything.
+
+--------------------------------------------------------------------------------
+2026-08-08 - CLOSED. PART 4 LIVES IN INSTRUCTION 35 NOW.
+--------------------------------------------------------------------------------
+
+Parts 1, 2, 3 and 5 are built, tested and pushed:
+
+  1  the RENAME to "Walk", in the Image UMAP search and the Gate Editor's
+     clustering search both. One name for one idea.
+  2  the search space chosen BY THE USER, over any subset of the ten UMAP
+     parameters that change the structure of the embedding.
+  3  per-axis grid resolution. The old 2-by-2 is not a special case in the
+     code -- it is two numeric axes at resolution 2, producing the same
+     four corners, which is why all 174 existing tests passed unchanged.
+  5  `metric` as a validated dropdown built from the INSTALLED umap-learn.
+
+Part 4, the presentation grid, is MERGED into instruction 35 rather than
+tracked here. It was always the same change as 35's wiring -- 35's own text
+called this file "the search side" and this file called 35 "the rendering
+half" -- and instruction 57 later asked for it a third time. One change
+should not be three files.
+
+Everything the renderer needs is in place: `result.space.params` names the
+searched parameters and each `Trial.params` carries its coordinates, so the
+grid places itself. `axis_layout` in `spacr/qt/widgets/figure_grid.py`
+already implements the N-dimensional placement, with 22 tests.
+
+HOW TO KNOW IT WORKED, for the parts closed here: a Walk over three
+parameters runs, explores all three, and the setting is called Walk in both
+modules. Verified -- a 3-axis Walk ran end to end, 24 trials over 2 rounds,
+with `spread` genuinely varied.
