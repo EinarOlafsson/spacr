@@ -2,7 +2,7 @@
 MENU: DROP 'ALL APPS', ORDER HOME / PREFERENCES / QUIT
 ================================================================================
 
-Status:    not started
+Status:    done 2026-08-08 - Home/Preferences/Quit/apps; 'All apps' off the menu, Ctrl+B still registered on the window.
 Requested: 2026-08-07 - "from the preferences bar you can remove the all apps i dont know what that is for and you can move the home below to the top so the order should be: home, preferences, quit, then all the apps"
 
 --------------------------------------------------------------------------------

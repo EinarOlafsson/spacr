@@ -2,7 +2,7 @@
 A PREFERENCES GEAR BESIDE COPY CONSOLE ON THE MODULE SCREENS
 ================================================================================
 
-Status:    not started
+Status:    done 2026-08-08 - gear on every AppScreen right of Copy console, routed through the MainWindow's own dialog.
 Requested: 2026-08-06 - "add a preferences button in the mask, measure, classify moduals to the right of copy console (att it as a clickable gear icon)"
 
 --------------------------------------------------------------------------------

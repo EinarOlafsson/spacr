@@ -2,7 +2,7 @@
 CALL write_relationships AFTER THE MASK MODULE RUNS
 ================================================================================
 
-Status:    not started
+Status:    done 2026-08-08 - written per source folder inside the loop, never fatal.
 Requested: 2026-08-07 (carved out of instruction 40, which is otherwise done)
 
 --------------------------------------------------------------------------------

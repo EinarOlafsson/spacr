@@ -2,7 +2,7 @@
 DARK MODE: SELECTED COLUMNS IN THE SQL PICKER ARE INVISIBLE
 ================================================================================
 
-Status:    not started
+Status:    done 2026-08-08 - fixed app-wide: every item view had a :hover rule and no :selected one. Ink derived by contrast, not by role.
 Requested: 2026-08-07 - "in general in dark mode in the sql popup when
            choosing multiple columns the chosen columns get black text and are
            therefore effectively invisable, they should become blue instead,
