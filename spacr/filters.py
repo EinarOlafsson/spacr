@@ -111,6 +111,12 @@ def table_names(db_path: str) -> Tuple[str, ...]:
 
 
 def column_names(db_path: str, table: str) -> Tuple[str, ...]:
+    """Every column in ``table``, in the order the database declares them.
+
+    :param db_path: path to the SQLite database.
+    :param table: table to describe.
+    :returns: the column names; empty when the table does not exist.
+    """
     with _connect(db_path) as db:
         rows = db.execute(f'PRAGMA table_info("{table}")').fetchall()
     return tuple(str(r[1]) for r in rows)

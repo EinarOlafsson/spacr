@@ -508,6 +508,12 @@ def _canvas_class():
 
 
 class GraphCanvas(LinkedView, QWidget):
+    """The matplotlib canvas every built graph is drawn on.
+
+    A :class:`LinkedView`, so a selection made here propagates to the other
+    views sharing its model, and the base class for :class:`GateCanvas`.
+    """
+
     #: Whether the axes follow a filter.
     #:
     #: True here, and tested: for an ordinary chart, filtering down to one

@@ -176,6 +176,11 @@ def _connect(db_path: str) -> sqlite3.Connection:
 
 
 def table_names(db_path: str) -> Tuple[str, ...]:
+    """Every table in the database, excluding SQLite's own internals.
+
+    :param db_path: path to the SQLite database.
+    :returns: the table names, sorted.
+    """
     with _connect(db_path) as db:
         rows = db.execute(
             "SELECT name FROM sqlite_master WHERE type='table'").fetchall()
