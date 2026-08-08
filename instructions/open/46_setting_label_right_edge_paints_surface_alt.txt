@@ -96,3 +96,44 @@ HOW TO KNOW IT WORKED
 goes from `4 failed, 53 passed` to 57 passed, and the fix is in the layout
 or the stylesheet rather than in the test's sample points. Moving where the
 test looks would hide this rather than fix it.
+
+--------------------------------------------------------------------------------
+2026-08-08 - IT DOES NOT REPRODUCE STANDALONE, AND THE CARD OVERHANGS
+--------------------------------------------------------------------------------
+
+Built `activation` directly, resized to 1400x900, shown, first section
+expanded, stylesheet applied at surface_opacity=1.0, then sampled the same
+two points. BOTH came back `#0d0e10`. Correct. So the bug needs something
+the test does that this did not.
+
+Two differences to try first, in this order:
+
+  1. SIZE. The probe resized the screen to 1400x900; the test does not
+     resize at all, so the settings column is much narrower there. Ratios
+     measured at 1400x900:
+
+         activation   wrapper x=55  w=47   right=102
+                      SectionBody          right=305
+                      SectionCard          right=306
+                      scroll viewport      right=289   <-- 17px NARROWER
+         mask         wrapper x=124 w=19   right=143
+                      SectionCard          right=640
+                      scroll viewport      right=428
+
+     At this width the wrapper is nowhere near the edge, so nothing shows.
+     Narrow the screen until the wrapper's right edge passes the viewport's
+     and see whether the sampled colour changes. That is the hypothesis in
+     testable form.
+
+  2. STYLESHEET ORDER. The probe applied the sheet BEFORE building the
+     screen; the test applies it AFTER the screen is built and shown. Given
+     INVARIANTS 1, order is never safe to assume irrelevant in this
+     codebase -- a rule that is not in the sheet when a widget is styled is
+     not applied to it.
+
+WORTH NOTING SEPARATELY: on activation the SectionCard is 17px WIDER than
+the scroll viewport that contains it (306 vs 289), so the card already
+overhangs its own viewport. On mask it does not (640 vs 428, the card is
+inside). Whether or not that is the cause here, a card wider than the
+viewport scrolling it is a layout fault of its own and is where I would
+start.
