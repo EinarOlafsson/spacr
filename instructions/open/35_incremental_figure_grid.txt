@@ -3,7 +3,9 @@ SHOW SEARCH FIGURES AS THEY ARRIVE, ON A GRID THAT FITS THE CONTAINER
 ================================================================================
 
 Status:    the widget is built and tested; wiring it into the two
-           modules is what is left (2026-08-08)
+           modules is what is left (2026-08-08). MERGED: this file is now
+           the single home for the streaming figure grid -- instruction 34
+           part 4 and instruction 57's second half were the same change.
 Requested: 2026-08-07 - "when evaluating hyperparameters, show each graph as soon as it is generated on a grid defined by the width and height of the container, which is dynamic. whether to show each as a png (which takes less compute) or as a pdf (editable but takes more compute) is defined by the spacr preference figure format and PNG resolution." Also, for the Gate Editor: "the figures should map onto a grid where each figure is a pdf or png defined by the general settings in preferences, and the grid should map onto the hyperparameter search space."
 
 --------------------------------------------------------------------------------
@@ -100,3 +102,47 @@ STILL OPEN - the wiring, and it is a real change rather than a hookup.
     How to know it worked is unchanged: figures appear one by one, the grid
     reflows on resize, and switching the Preferences figure format changes
     what is produced without touching the module.
+
+--------------------------------------------------------------------------------
+2026-08-08 - MERGED: THIS IS NOW THE ONLY FILE FOR THE STREAMING GRID
+--------------------------------------------------------------------------------
+
+Three files described one change, which is how a job gets done twice or
+half-done twice with nobody able to tell which from the ledger. They are
+folded in here:
+
+  instruction 34, part 4  "PRESENTATION GRID mirrors the search
+                          dimensionality". Its other four parts are done,
+                          so 34 is now closed and lives in done/.
+  instruction 57, half 2  "make the graphs generated pop up when generated
+                          on a grid in hyperparamiter search not just at
+                          the end in one grid" (2026-08-08). 57 keeps its
+                          first half, removing the API dots, which is an
+                          unrelated edit to a different file.
+
+ALSO REQUESTED, and part of this task:
+
+    "make the graphs generated pop up when generated on a grid in
+     hyperparamiter search not just at the end in one grid"
+
+which is the same requirement stated from the user's side rather than the
+widget's: today the panel draws ONE matplotlib figure containing all the
+small multiples when the search finishes, and that is the "one grid at the
+end" being complained about.
+
+THE AXES REQUIREMENT, inherited from 34 part 4: the grid's axes mirror the
+search dimensionality, so a cell's position says which parameter values
+produced it. `axis_layout` already implements this -- one parameter is one
+ordered row, two is the familiar table, more than two puts the widest axis
+across and gives every combination of the rest its own row. What the
+renderer needs from a result is already there: `result.space.params` names
+every searched parameter and each `Trial.params` carries its coordinates,
+so the grid can place itself without the panel telling it anything.
+
+Call `set_parameters(result.space.params)` when the search STARTS, so the
+axes are right from the first figure instead of rearranging as figures
+land.
+
+SHARED WITH THE GATE EDITOR. Instruction 49 gives the Gate Editor an xD
+reduction with a hyperparameter tab built on the same `HyperparamPanel`.
+Wire the grid once, here, and 49 inherits it.
