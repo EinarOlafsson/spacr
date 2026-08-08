@@ -244,6 +244,21 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "validate",
     "updater",
     "version",
+    # The Classify overhaul and the Gate Editor added these and the lazy
+    # loader was not told. `test_lazy_loader_matches_files` caught it on
+    # every CI platform: a module that exists as a file but is not listed
+    # cannot be reached as `spacr.<name>`, so `import spacr; spacr.filters`
+    # raised AttributeError while `from spacr import filters` worked --
+    # which is the kind of split that gets diagnosed as "sometimes the
+    # import fails".
+    "classify",
+    "classify_classes",
+    "crop_source",
+    "filters",
+    "merge_tables",
+    "model_check",
+    "surrogate",
+    "training_basis",
 )
 
 __all__ = ["__version__", "download_models", *_SUBMODULES]
