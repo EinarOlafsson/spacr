@@ -2,7 +2,8 @@
 spaCR MUST RUN ON PYTHON 3.9 THROUGH 3.14, ON THE RIGHT DEPENDENCY VERSIONS
 ================================================================================
 
-Status:    not started
+Status:    the cellpose floor is SETTLED (2026-08-08). The Python-range
+           half and the remaining floors are open.
 Requested: 2026-08-08 — "make sure spacr works on python 3.9-3.14 and that the optimal dependency versions are allways used."
 
 --------------------------------------------------------------------------------
@@ -72,3 +73,35 @@ Not started. One thing to check before adding jobs: whether the scientific
 stack (torch, cellpose, umap-learn) publishes wheels for 3.9 and 3.14 on
 every platform in the matrix. Where it does not, the honest answer is to
 narrow the claimed range, not to add a job that can never go green.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE CELLPOSE FLOOR IS DECIDED
+--------------------------------------------------------------------------------
+
+`cellpose>=4.0,<5.0` became `cellpose>=4.0.7,<5.0`.
+
+The disagreement was real and the resolution is the one this file argued
+for: a floor that is declared but never verified is worse than one declared
+too high. `>=4.0` resolved to 4.0.1 in the minimum-dependencies CI job,
+where `CellposeModel.__init__` has no `use_bfloat16` and `eval`'s
+`resample` defaults differently, so `test_cellpose_api_contract.py` --
+which records the installed signature and asserts a match -- failed about
+22 tests against an API spaCR has never been developed against.
+
+Raising the floor rather than loosening the contract, deliberately. The
+contract is what CAUGHT the drift; making it tolerant of a version range
+would have kept the CI green and left users free to install 4.0.1, where
+the mismatch is real and would surface as a runtime failure somewhere less
+obvious. Note `use_bfloat16` is not passed anywhere in spaCR -- the
+argument for the higher floor is not that we need the parameter, it is that
+we do not test the version that lacks it.
+
+STILL OPEN in this instruction:
+
+  * 3.9 and 3.10 are not in the full matrix -- 3.9 only via the
+    minimum-deps job, 3.10 not at all.
+  * every OTHER dependency floor is still a guess, and nothing verifies
+    them. The import-declaration test proves each import is declared; it
+    says nothing about the version.
+  * "optimal" still needs defining: newest that passes, or oldest that
+    passes? They imply opposite CI jobs.
