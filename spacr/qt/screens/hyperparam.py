@@ -57,6 +57,38 @@ TOGGLE_TOOLTIP = (
     "real or noise. Nothing is applied to your settings until you press Apply."
 )
 
+#: The metrics umap-learn actually accepts. A typo in this field used to
+#: fail deep inside the run -- after the embedding had started -- rather
+#: than under the control that holds it, which is the difference between a
+#: sentence and a traceback.
+#:
+#: Taken from umap.distances at import when it is importable, so this
+#: cannot drift from the installed version; the literal is the fallback for
+#: a checkout without umap-learn (the GUI must still build).
+UMAP_METRICS: Tuple[str, ...] = (
+    "euclidean", "manhattan", "chebyshev", "minkowski", "canberra",
+    "braycurtis", "haversine", "mahalanobis", "wminkowski", "seuclidean",
+    "cosine", "correlation", "hamming", "jaccard", "dice", "russellrao",
+    "kulsinski", "rogerstanimoto", "sokalmichener", "sokalsneath", "yule",
+)
+
+
+def umap_metrics() -> Tuple[str, ...]:
+    """Every metric the INSTALLED umap-learn will accept.
+
+    Falls back to :data:`UMAP_METRICS` when umap-learn is absent, because
+    the settings panel has to build on a machine that cannot run UMAP --
+    a user configuring a run on a laptop and executing it elsewhere is an
+    ordinary thing to do.
+    """
+    try:
+        from umap.distances import named_distances
+    except Exception:
+        return UMAP_METRICS
+    names = tuple(sorted(named_distances))
+    return names or UMAP_METRICS
+
+
 #: Apps this panel can search, with the parameters it offers and their types.
 #: ``(setting_key, label, kind)`` — kind drives the inline validation, so a
 #: typo lands as a sentence under the controls instead of a traceback.
@@ -64,7 +96,7 @@ APP_PARAMS: Dict[str, Tuple[Tuple[str, str, str], ...]] = {
     "umap": (
         ("n_neighbors", "n_neighbors", "int"),
         ("min_dist", "min_dist", "float"),
-        ("metric", "metric", "str"),
+        ("metric", "metric", "metric"),
     ),
     "classify": (
         ("learning_rate", "learning_rate", "float"),
@@ -132,6 +164,15 @@ def parse_values(text: str, kind: str, name: str) -> List[Any]:
                     f"Parameter '{name}' takes numbers; {p!r} is not one. "
                     f"Write values like: 0.0, 0.1, 0.5"
                 ) from None
+        elif kind == "metric":
+            allowed = umap_metrics()
+            if p not in allowed:
+                raise ValueError(
+                    f"Parameter '{name}' takes a umap-learn metric; {p!r} "
+                    f"is not one. Try: "
+                    f"{', '.join(allowed[:6])}…"
+                )
+            out.append(p)
         else:
             out.append(p)
     return out
@@ -582,11 +623,17 @@ class HyperparamPanel(QWidget):
             "the space with the seed below, which is reproducible.")
         run_grid.addWidget(self._mode, 0, 3)
 
-        self._adaptive = Toggle("Adaptive 2×2")
+        # "Walk", not "Adaptive 2x2". One name for one idea, shared with
+        # the Gate Editor's clustering search -- a directional search
+        # through hyperparameter space is the same thing in both modules
+        # and was called two things. "2x2" was also a description of
+        # today's two-parameter special case rather than of the design.
+        self._adaptive = Toggle("Walk")
         self._adaptive.setVisible(self.app_key == "umap")
         self._adaptive.setToolTip(
-            "Enable local UMAP optimization. The n_neighbors and min_dist "
-            "fields above become single starting values. API: "
+            "Walk through hyperparameter space instead of sweeping a grid: "
+            "each round steps in the direction that improved the score. The "
+            "parameter fields above become single starting values. API: "
             "spacr.hyperparam.umap_search(adaptive=True).")
         self._adaptive.toggled.connect(self._on_adaptive_toggled)
         run_grid.addWidget(self._adaptive, 0, 4, 1, 2)

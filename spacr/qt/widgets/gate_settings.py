@@ -453,7 +453,7 @@ class GateSettingsDialog(QDialog):
             lambda v: self._change(cluster_scale=bool(v)))
         form.addRow("", self._scale)
 
-        self._walk = QCheckBox("Walk the hyperparameters", page)
+        self._walk = QCheckBox("Walk", page)
         self._walk.setChecked(self._settings.cluster_walk)
         self._walk.setToolTip(
             "Try the space instead of taking the values above, showing each "
