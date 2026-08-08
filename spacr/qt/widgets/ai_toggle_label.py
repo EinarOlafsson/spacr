@@ -21,11 +21,30 @@ for the "AI" switch that sits at the bottom-right of every AppScreen.
 """
 from __future__ import annotations
 
-from PySide6.QtCore import QEvent, Qt, Signal
+from PySide6.QtCore import QEvent, QSize, Qt, Signal
 from PySide6.QtWidgets import QLabel
 
 from ..i18n import tr
 from ..theme import active_palette, font_px
+
+#: The widest a toggle may force the row it sits in to be.
+#:
+#: These toggles live in the action row, and that row's minimum width is
+#: the minimum width of the whole screen -- a QHBoxLayout cannot go below
+#: the sum of its children. "Live" is 83px and never caused anyone
+#: trouble, which is why this went unnoticed for as long as it did.
+#: "Hyperparameter search" is 281px, and it held the action row at 1109px
+#: on every module with a hyperparameter panel (activation, classify,
+#: classify_merged, ml_analyze). At a 1200px window the body splitter was
+#: then left with 60px for the entire settings column -- a 290px settings
+#: card inside a 50px viewport, with the labels hanging out of the right
+#: of it.
+#:
+#: Only the MINIMUM is capped. `sizeHint` still asks for the full text, so
+#: a layout with room to spare shows all of it; a squeezed one elides
+#: instead of forcing the window wider. A secondary control must not be
+#: able to starve the primary one -- see INVARIANTS 10.
+ELIDE_ABOVE_PX = 120
 
 
 class AiToggleLabel(QLabel):
@@ -62,6 +81,11 @@ class AiToggleLabel(QLabel):
         self.setToolTip(tr(source_tooltip))
         self._on = False
         self._restyling = False
+        # The logical text, always. `QLabel.text()` holds whatever fits
+        # right now, which may be elided; every caller that asks this
+        # widget what it says wants the full thing.
+        self._full_text = tr(source_text)
+        self._eliding = False
         self._refresh_style()
 
     # -- live preference changes ---------------------------------------
@@ -83,6 +107,71 @@ class AiToggleLabel(QLabel):
                     QEvent.ApplicationPaletteChange,
                     QEvent.ApplicationFontChange):
             self._refresh_style()
+
+    # -- width -----------------------------------------------------------
+    def minimumSizeHint(self) -> QSize:      # noqa: N802 (Qt naming)
+        """Cap how much width this toggle can demand of its row.
+
+        QLabel reports the full width of its text here, which makes the
+        text a hard floor for every ancestor layout. See
+        :data:`ELIDE_ABOVE_PX` for what that cost.
+        """
+        hint = super().minimumSizeHint()
+        if hint.width() <= ELIDE_ABOVE_PX:
+            return hint
+        return QSize(ELIDE_ABOVE_PX, hint.height())
+
+    def setText(self, text) -> None:         # noqa: N802 (Qt naming)
+        """Remember the full text, then show as much of it as fits.
+
+        The language switch calls this with a fresh translation, so the
+        stored text has to follow it rather than be captured once.
+        """
+        if not self._eliding:
+            self._full_text = str(text)
+        super().setText(text)
+        if not self._eliding:
+            self._apply_elision()
+
+    def text(self) -> str:
+        """The full logical text, even when the label is showing less."""
+        return getattr(self, "_full_text", None) or super().text()
+
+    def displayed_text(self) -> str:
+        """What the label is actually painting, elided or not.
+
+        Distinct from :meth:`text`, which is the logical label. Tests need
+        both to tell "the toggle says X" from "the toggle currently fits
+        this much of X".
+        """
+        return QLabel.text(self)
+
+    def resizeEvent(self, event):            # noqa: N802 (Qt naming)
+        """Re-elide for the width just granted."""
+        super().resizeEvent(event)
+        self._apply_elision()
+
+    def _apply_elision(self) -> None:
+        """Show the full text when it fits, an elided one when it does not."""
+        full = getattr(self, "_full_text", "")
+        if not full:
+            return
+        inner = self.contentsRect().width()
+        if inner <= 0:
+            return
+        metrics = self.fontMetrics()
+        shown = (full if metrics.horizontalAdvance(full) <= inner
+                 else metrics.elidedText(full, Qt.ElideRight, inner))
+        if shown == QLabel.text(self):
+            return
+        # `setText` re-enters through the override above; the flag keeps it
+        # from mistaking the elided text for a new logical text and
+        # truncating the stored copy one character at a time.
+        self._eliding = True
+        try:
+            QLabel.setText(self, shown)
+        finally:
+            self._eliding = False
 
     # -- QCheckBox-compat API -----------------------------------------
     def isChecked(self) -> bool:
