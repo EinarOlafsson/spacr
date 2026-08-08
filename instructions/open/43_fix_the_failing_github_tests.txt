@@ -2,7 +2,8 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 ================================================================================
 
-Status:    not started
+Status:    in progress 2026-08-08 - Linux went from all-failing
+           to all-passing; macOS and Windows still fail
 Requested: 2026-08-08 - "fix the failing GitHub tests."
 
 --------------------------------------------------------------------------------
@@ -71,3 +72,48 @@ DELIBERATELY NOT DONE
 
 Nothing yet. Note that instruction 05 (the version bump) is deliberately
 sequenced AFTER this one for the reason in WHY IT MATTERS.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THREE REAL FAULTS FOUND BY READING ACTUAL RUNS
+--------------------------------------------------------------------------------
+
+Step 1 done: `gh run view <id> --log-failed`, not local inference. All three
+faults below were invisible locally, and two of them had been failing on
+every CI run for as long as the code has existed.
+
+FIXED
+
+  1. `_SUBMODULES` was missing eight modules that exist as files --
+     classify, classify_classes, crop_source, filters, merge_tables,
+     model_check, surrogate, training_basis. Added by the Classify overhaul
+     and the Gate Editor work; nothing added them to the lazy loader.
+     User-visible as a split that reads as flakiness: `from spacr import
+     filters` works, `import spacr; spacr.filters` raises AttributeError.
+     This one DOES reproduce locally -- it was simply never run.
+
+  2. `QSettings.setPath(NativeFormat, ...)` is IGNORED on macOS and
+     Windows. On macOS NativeFormat is CFPreferences, on Windows the
+     registry; neither is a directory. Fixed by making the two-argument
+     constructor produce INI via `setDefaultFormat`.
+
+  3. The sandbox ROOT was not resolved while the path being checked was.
+     On macOS `/var` is a symlink to `/private/var`; on Windows the 8.3
+     short name resolves to the long one. Both platforms reported
+     "QSettings escaped the test sandbox" for settings sitting inside it --
+     the guard accusing itself.
+
+RESULT: the compat matrix went from every platform job failing to all six
+Linux jobs passing (x86-64 3.12/3.13/3.14, ARM64 3.11, plus the two
+wheels-only cells and packaging metadata).
+
+STILL FAILING: macOS arm64 / py3.11 and Windows x86-64 / py3.11, both on
+the step "Packaging + smoke subset (decides this cell)". Not yet diagnosed
+-- the run was still in progress when this was written, and
+`--log-failed` refuses until it completes. Re-read it with:
+
+    gh run view <id> --log-failed | grep -iE "error|assert|failed"
+
+NOT YET LOOKED AT AT ALL: the `tests` workflow (six marker suites x 3.9-3.14)
+and `docs`. Only `compat-matrix` has been read. The five order-dependent qt
+failures in instruction 03 are expected to appear in `tests` and will make
+it unreadable until they are closed.
