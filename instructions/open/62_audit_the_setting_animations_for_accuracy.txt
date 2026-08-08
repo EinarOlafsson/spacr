@@ -1,0 +1,87 @@
+================================================================================
+THE SETTING ANIMATIONS MUST SHOW WHAT THE SETTING ACTUALLY DOES
+================================================================================
+
+Status:    not started. One inaccuracy already reported and named.
+Requested: 2026-08-08 — "evaluate all tooltips animations and make sure they are acurate (i know for example that remove edge objects annimation shows removing one edge object and one not edge object because of animation missallignment during animation generation)"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+94 GIFs in `spacr/resources/setting_animations/gifs/`, described by
+`manifest.json` (94 entries) and loaded through
+`spacr/setting_animations.py`. `validate_setting_animation_assets()`
+already exists and checks that the FILES are present and hashed -- it says
+nothing about whether they show the right thing.
+
+ONE KNOWN INACCURACY, reported by the maintainer:
+
+    the "remove edge objects" animation removes one edge object AND one
+    object that is not on the edge.
+
+The border-object family is four files, so the fault may be in all of them:
+
+    cell_remove_border_objects.gif
+    nucleus_remove_border_objects.gif
+    organelle_remove_border_objects.gif
+    pathogen_remove_border_objects.gif
+
+The stated cause is "animation misalignment during animation generation" --
+i.e. the before and after frames came from runs that do not correspond, so
+the difference between them is not the difference the setting makes.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+An animation is a stronger claim than a sentence. A user who reads "removes
+objects touching the image border" and sees a non-border object vanish will
+believe the picture, and will then either avoid a setting they needed or
+distrust the ones next to it.
+
+It is also the hardest kind of documentation error to notice: it looks
+finished. Nothing fails, the asset validator passes, and the only way to
+find it is for someone to watch 94 short loops and think about each one --
+which is what this task is.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Find the GENERATOR. These were produced by a script, and if the cause is
+   misalignment then the fix belongs there rather than in the GIFs -- a
+   hand-patched asset regenerates wrong the next time.
+2. Fix the border-object family first, since it is reported and specific.
+   The correct animation shows exactly the objects touching the border
+   disappearing, and nothing else changing between the frames.
+3. Then audit all 94. For each: does the visible difference between the
+   before and after frames equal the difference the setting makes, and
+   nothing more? Record the verdict per animation here so a second pass
+   does not start from zero.
+4. Where before/after frames are generated separately, make them share a
+   SEED and an input image. Misalignment of exactly this kind is what
+   happens when two runs are allowed to differ in more than the one
+   variable being illustrated.
+5. Consider whether the validator can grow a real check. It cannot judge
+   meaning, but it can assert that a before/after pair differs in only the
+   region the setting is documented to affect -- which would have caught
+   this one.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The four border-object animations each show only border-touching objects
+being removed. Every one of the 94 has a recorded verdict, and the ones
+found wrong have been regenerated from a fixed generator rather than
+edited.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. Note this is 94 judgements and cannot be automated end to end
+-- the machine can check that a pair differs only where it should, but not
+that the illustration is a good one. Budget it as a watching task, and do
+the reported family first so the most visible error is gone early.

@@ -1,0 +1,80 @@
+================================================================================
+A TOOLTIP AND DOCUMENTATION SWEEP: SHORT, INFORMATIVE, CORRECTLY REFERENCED
+================================================================================
+
+Status:    not started
+Requested: 2026-08-08 — "do a full documentation and tooltips sweep to make the tool tips short and informative (not to short) with the correct api reference."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Tooltips come from one place -- the descriptions table in
+`spacr/settings.py` (`descriptions` / `get_tooltips`), rendered by
+`format_tooltip` and attached by `attach_api_tooltip` in
+`spacr/qt/screens/settings_model.py`. So a sweep edits data, not widgets.
+
+The quality is uneven by construction, because the entries were written at
+different times to different standards. Both failure directions are present
+today, and both are visible in `settings.py`:
+
+  TOO LONG   `annotated_classes` runs to a full paragraph explaining its own
+             deprecation history -- accurate, and nobody reads it hovering.
+  TOO SHORT  entries that restate the setting name and add nothing:
+             a tooltip that says "the source folder" for `src` costs a
+             hover and returns nothing.
+
+The API reference part is checkable rather than a matter of taste: the
+tooltip's link is built from the app key and setting key, and a link that
+points at a page or anchor that does not exist is a dead end the user
+finds at the moment they needed help.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The settings panels are the product's real interface -- a module screen is
+a hundred numbered choices, and the tooltip is the only explanation of what
+each one does. A wrong or empty one does not merely fail to help: it makes
+the user guess, and a guessed segmentation parameter produces a plausible
+wrong answer rather than an error.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Decide the shape ONCE and apply it everywhere, so the panel reads as one
+   voice. Proposed, and worth keeping unless there is a reason not to:
+       "(type) - what it does, in one sentence. When to change it.
+        Default X."
+   That is roughly the shape the good entries already have.
+2. One or two sentences. "Not too short" is the request's own qualifier:
+   the test is whether someone who does not already know the setting could
+   choose a value from the tooltip alone.
+3. Say the DEFAULT, and say the UNIT. A number without a unit is the most
+   common way these fail -- pixels or microns, seconds or frames.
+4. Verify every API link resolves. Write this as a TEST rather than a
+   read-through: generate every tooltip, extract every href, and assert the
+   target exists in the built docs. A sweep done by eye will be stale
+   within a month; a test will not.
+5. Where a setting is genuinely obscure, say what it interacts with. Half
+   the confusing settings here are confusing because they only matter when
+   another one is set.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Every setting in every module has a tooltip of one or two sentences that
+names the type, the default and the unit; every API link in every tooltip
+resolves to a real page, asserted by a test rather than checked by hand.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. Related but SEPARATE, and not to be merged into this: the
+tooltip ANIMATIONS (instruction 62) are a different artefact with a
+different failure mode, and the API documentation PAGE (instruction 63) is
+the target of the links rather than the links themselves. Fixing a link
+that points at a bad page is instruction 63's job.
