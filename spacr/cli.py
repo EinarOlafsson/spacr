@@ -1477,6 +1477,14 @@ def cmd_validate(args: argparse.Namespace) -> int:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_USAGE
 
+    # --hash-inputs / --no-hash-inputs, applied AFTER the settings file so
+    # the flag wins. `None` means neither was given, in which case whatever
+    # the settings file says stands -- a settings file written by the GUI
+    # already carries the user's preference, and a CLI run of that file
+    # should reproduce the GUI run rather than silently differ.
+    if getattr(args, "hash_inputs", None) is not None:
+        settings["hash_inputs"] = bool(args.hash_inputs)
+
     validate_key = module.validate_key if module is not None else ""
     problems = _preflight(settings, validate_key)
     errors = _error_count(problems)
@@ -1644,6 +1652,16 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--no-preflight", action="store_true",
         help="Skip the pre-flight check entirely.")
+    parser.add_argument(
+        "--hash-inputs", dest="hash_inputs", action="store_true",
+        default=None,
+        help="Record a SHA-256 of every input and output file in the run "
+             "manifest. Off by default: it is proportional to the DATA, not "
+             "the run, and costs minutes on a large plate. The manifest is "
+             "written either way and says which it was.")
+    parser.add_argument(
+        "--no-hash-inputs", dest="hash_inputs", action="store_false",
+        help="Skip input hashing even if the settings file asks for it.")
     parser.add_argument(
         "--verbose", "-v", action="store_true",
         help="Log at DEBUG, including the fully-resolved settings.")
