@@ -270,6 +270,26 @@ _MODULE_LIST: Tuple[Module, ...] = (
               "'train_only' module for the training stage alone."),
     ),
     Module(
+        key="classify_merged",
+        summary=("Train a classifier on single objects: Torch on crops, or "
+                 "gradient boosting on measured features."),
+        entry="spacr.classify:classify",
+        defaults="set_default_classify",
+        validate_key="classify_merged",
+        requires=("src — plate folder with a measurements database",
+                  "dataset_mode — the training basis: metadata, annotation "
+                  "or measurement",
+                  "classifier family — 'cv' for Torch on crops, or a "
+                  "gradient-boosting family for measured features"),
+        writes=("<src>/datasets/", "<src>/model/",
+                "scores merged into measurements.db"),
+        note=("The same function the Classify button runs in the GUI. It "
+              "dispatches to deep_spacr or generate_ml_scores unchanged, so "
+              "a run here, a run from the Classify screen, and a run through "
+              "Classify (CV) / Classify (ML) are the same run. Alpha: the "
+              "merged settings vocabulary may still move."),
+    ),
+    Module(
         key="train_only",
         summary="The training stage alone: train / evaluate on an existing dataset folder.",
         entry="spacr.deep_spacr:train_test_model",

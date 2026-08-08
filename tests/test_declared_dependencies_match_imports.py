@@ -84,6 +84,10 @@ IMPORT_TO_DIST = {
     "PIL": "pillow",
     "PySide6": "PySide6",
     "cv2": "opencv-python-headless",
+    # mpl_toolkits ships INSIDE matplotlib -- there is no `mpl-toolkits` on
+    # PyPI to depend on, so without this the check asks for a distribution
+    # that cannot be installed.
+    "mpl_toolkits": "matplotlib",
     "huggingface_hub": "huggingface-hub",
     # No import statement anywhere -- see STRING_LITERAL_ONLY. Here so that the
     # day one is written, `omero` resolves to `omero-py` (which the `omero`
