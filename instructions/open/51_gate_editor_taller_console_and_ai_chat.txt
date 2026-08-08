@@ -2,7 +2,9 @@
 THE CONSOLE AND THE AI CHAT BOX ARE TOO SHORT
 ================================================================================
 
-Status:    not started
+Status:    investigated 2026-08-08, not changed. The widgets are found
+           and one of them is not what 'taller' implies -- see below.
+           One question to answer before touching it.
 Requested: 2026-08-08 — "also the console and the AI chatbox should be taller ."
 
 --------------------------------------------------------------------------------
@@ -49,3 +51,47 @@ DELIBERATELY NOT DONE
 
 Nothing yet -- not started. "Taller" is not a number; if the obvious
 change looks wrong on screen, ask rather than guess a pixel count.
+
+--------------------------------------------------------------------------------
+2026-08-08 - FOUND BOTH. THEY ARE NOT THE SAME KIND OF PROBLEM.
+--------------------------------------------------------------------------------
+
+`spacr/qt/widgets/gate_console.py` -- "A console and a chat box beside the
+gating surface" -- holds both:
+
+    self.log    QTextEdit,  added with stretch 1   <- the console transcript
+    self.input  QLineEdit                          <- the command entry
+    self.chat   QLineEdit                          <- the AI chat box
+
+THE CHAT BOX IS A QLineEdit. A single-line control. It cannot be made
+"taller" by resizing -- it is one line by construction, and giving it a
+larger fixed height just puts one line of text in a tall box. Making it
+taller means making it MULTI-LINE (QTextEdit / QPlainTextEdit), which is a
+behaviour change and brings a question with it: what does Enter do?
+Today Enter sends. In a multi-line box, Enter usually inserts a newline and
+Ctrl+Enter (or Shift+Enter) sends -- and changing that on someone who has
+built the habit of pressing Enter is worse than a short box.
+
+THE CONSOLE is different: `self.log` already has stretch 1, so it grows
+with its panel. If it looks short, the constraint is the PANEL, not the
+widget. And the panel is in a HORIZONTAL splitter in
+`spacr/qt/screens/gate_editor.py`:
+
+    body = QSplitter(Qt.Horizontal, self)
+    body.addWidget(self.console)
+    body.setSizes([700, 260, 0])          <- console starts at width 0
+
+So the console is collapsed by DEFAULT, with the comment "it is a thing you
+reach for, not a thing you look past". Since the splitter is horizontal,
+that 0 is a WIDTH, and the console already has the full height available.
+
+THE QUESTION TO ASK, and the reason this was not just changed: "taller"
+does not fit either widget as found. Either
+  (a) the chat box should become multi-line -- then decide the Enter key;
+  (b) the console panel should not start collapsed, and "taller" meant
+      "give it room without me dragging for it"; or
+  (c) this is about a different console -- the AppScreen one that every
+      module has, rather than the gate editor's own.
+Ask before changing, rather than pick one and ship a UI the maintainer did
+not describe. The measurement above is what makes the question answerable
+in one sentence.
