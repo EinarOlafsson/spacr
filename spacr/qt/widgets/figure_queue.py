@@ -38,7 +38,7 @@ from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QEvent, QSize, Qt, QTimer
 from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import (
     QDialog, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton,
@@ -324,6 +324,13 @@ def render_pdf_to_image(pdf_path: str, max_px: int = PDF_DISPLAY_MAX_PX,
 RAM_CAP = 100
 
 
+#: How long a resize has to settle before the figure is redrawn. A drag
+#: emits a resize per frame, and re-rendering a figure carrying a few
+#: thousand thumbnails is not a per-frame cost -- so the raster is scaled
+#: during the drag and the true render lands when the user lets go.
+FIGURE_RESIZE_DEBOUNCE_MS = 220
+
+
 class FigureQueue(QWidget):
     """Scrollable, RAM-bounded gallery of pipeline figures."""
 
@@ -375,6 +382,21 @@ class FigureQueue(QWidget):
         body.addWidget(self._list)
 
         self._view = _ZoomView(self)
+        # Re-render the figure when the container changes size, rather than
+        # scaling the raster. A UMAP draws its thumbnails with
+        # `OffsetImage(zoom=...)`, which is in DISPLAY pixels -- so a figure
+        # re-rendered at a larger size spreads the points out and leaves
+        # every thumbnail the same size on screen, which is what makes a
+        # crowded embedding readable. Scaling the PNG magnifies the
+        # thumbnails with everything else, which is the opposite.
+        #
+        # Debounced: a drag emits a resize per frame and re-rendering a
+        # figure with a few thousand thumbnails is not a per-frame cost.
+        self._resize_timer = QTimer(self)
+        self._resize_timer.setSingleShot(True)
+        self._resize_timer.setInterval(FIGURE_RESIZE_DEBOUNCE_MS)
+        self._resize_timer.timeout.connect(self._rerender_for_size)
+        self._view.installEventFilter(self)
         self._view.setMinimumHeight(280)
         body.addWidget(self._view, 1)
         root.addLayout(body, 1)
@@ -391,6 +413,78 @@ class FigureQueue(QWidget):
         nav.addWidget(self._fig_settings_btn)
         root.addLayout(nav)
         self._refresh_nav()
+
+    def eventFilter(self, obj, event):
+        """Debounce the view's resizes into one re-render."""
+        if obj is self._view and event.type() == QEvent.Resize:
+            self._resize_timer.start()
+        return super().eventFilter(obj, event)
+
+    def _rerender_for_size(self) -> None:
+        """Redraw the current figure at the view's current size.
+
+        The EMBEDDING is untouched -- this only changes the canvas the same
+        points are drawn on. A resize that re-embeds is a resize that loses
+        the user's place, and on a UMAP that means every neighbour
+        relationship the user was reading moves.
+        """
+        fig = self._figures.get(self._current)
+        png = self._png_paths.get(self._current)
+        if fig is None or not png:
+            return
+        size = self._view.size()
+        if size.width() < 80 or size.height() < 80:
+            return
+        try:
+            dpi = float(fig.get_dpi()) or 100.0
+            want = (max(2.0, size.width() / dpi), max(2.0, size.height() / dpi))
+            if (abs(fig.get_size_inches()[0] - want[0]) < 0.05
+                    and abs(fig.get_size_inches()[1] - want[1]) < 0.05):
+                return
+            fig.set_size_inches(*want)
+        except Exception:
+            LOG.debug("could not resize the figure", exc_info=True)
+            return
+
+        # OFF the GUI thread. `render_figure_to_png` is pure matplotlib and
+        # documents itself as safe to call from a worker, and re-rendering a
+        # real figure is not cheap: doing it inline stalled the GUI thread
+        # for 1321 ms against a 250 ms budget and
+        # `test_adding_a_pdf_figure_does_not_freeze_the_gui_thread` caught
+        # it. The same `_jobs.submit` seam the PDF refinement uses.
+        #
+        # The callable touches no widget and returns a path, not a QPixmap:
+        # QPixmap is GUI-thread-only.
+        idx = self._current
+        self._resize_seq = getattr(self, "_resize_seq", 0) + 1
+        token = self._resize_seq
+        self._jobs.submit(
+            lambda _i=idx, _t=token, _f=fig, _p=str(png): (
+                _i, _t, render_figure_to_png(_f, _p), _p),
+            self._on_resize_rendered)
+
+    def _on_resize_rendered(self, payload) -> None:
+        """Show a finished resize render. Always on the GUI thread.
+
+        Discarded when a later resize has already been dispatched, or when
+        the user has navigated to another figure since -- both are ordinary
+        during a drag, and showing a stale render is worse than showing the
+        scaled raster for another moment.
+        """
+        if not payload:
+            return
+        idx, token, ok, png = payload
+        if not ok or idx != self._current:
+            return
+        if token != getattr(self, "_resize_seq", 0):
+            return
+        pixmap = QPixmap(png)
+        if pixmap.isNull():
+            return
+        self._cache_pixmap(idx, pixmap)
+        # Any crisp render cached for this slot is of the old size.
+        self._pdf_state.pop(idx, None)
+        self._view.set_pixmap(self._display_pixmap(idx, pixmap))
 
     def _open_figure_settings(self) -> None:
         """Open the figure-settings dialog for the current figure."""
