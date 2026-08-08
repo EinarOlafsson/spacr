@@ -2,10 +2,9 @@
 IMAGE UMAP: DROP THE API LINK DOTS FROM THE SETTINGS
 ================================================================================
 
-Status:    not started. SCOPE REDUCED 2026-08-08: the second half of
-           this request -- streaming the search figures onto a grid --
-           was the same change as instruction 35 and is merged there.
-           This file is now the API dots alone.
+Status:    done 2026-08-08. The streaming-grid half of this request was
+           the same change as instruction 35 and is merged there; the API
+           dots, which is what was left here, are removed.
 Requested: 2026-08-08 — "remove the API link dots from Image UMAP settings and make the graphs generated pop up when generated on a grid in hyperparamiter search not just at the end in one grid."
 
 --------------------------------------------------------------------------------
@@ -85,3 +84,41 @@ DELIBERATELY NOT DONE
 
 Not started. The two halves are independent and should be separate commits;
 the dots are a small edit and the streaming grid is a threading change.
+
+--------------------------------------------------------------------------------
+2026-08-08 - DONE
+--------------------------------------------------------------------------------
+
+The dots came from one call. `UmapSearchSettingsDialog` built its help with
+`install_api_tooltips(self, panel.app_key, search_tooltips)`, taking the
+default `api_dots=True`; it now passes `api_dots=False`, which is exactly
+what `spacr/qt/widgets/live_preview.py` already did when the same request
+was made about that panel. The main settings form had dropped them earlier
+still, for the reason recorded beside it: the dot sat between the label and
+the field and carried a tooltip of its own, so the help popped when the
+pointer was over the row's right-hand side, which reads as "the field has a
+tooltip".
+
+MEASURED, on the Image UMAP settings dialog:
+
+    API link dots                    0   (was one per setting)
+    labels carrying linked help     50   (unchanged)
+
+That second number is the point. The risk in deleting a decoration that
+carries a tooltip is that the documentation leaves with it, and the smoke
+test asserts every setting label keeps help containing `href=`.
+
+SCOPE. The change is on the shared settings dialog, so it also drops the
+dots for classify, ml_analyze and activation, which use the same panel.
+That is deliberate: leaving three modules with dots and one without would
+be an inconsistency inside a single dialog class, and the argument for
+removing them does not depend on which module opened it.
+
+THREE TESTS UPDATED, none by deleting an assertion. They asserted the dot
+EXISTS; they now assert it does NOT, keeping the neighbouring assertion
+that the label still carries `href=` help. Written that way round on
+purpose -- "no dot" and "help survived" together are what make this a
+removal rather than a regression.
+
+138 pass across the hyperparameter screen, the axes dialog and the gates
+suite.
