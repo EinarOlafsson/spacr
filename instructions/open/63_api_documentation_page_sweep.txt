@@ -2,7 +2,8 @@
 MAKE THE API PAGE LOOK PROFESSIONAL, CLEAN AND USEFUL
 ================================================================================
 
-Status:    not started
+Status:    BUILT AND MEASURED 2026-08-08. The defect list below is
+           real data, not a plan. Nothing fixed yet.
 Requested: 2026-08-08 — "do a sweep of the API page and make sure everything looks as professions and clean and informative and usefull as you can make it"
 
 --------------------------------------------------------------------------------
@@ -82,3 +83,55 @@ Not started. A caution worth stating: a tutorials effort is running in
 parallel (instruction 48, a concurrent Codex session) and touches the same
 docs tree. Check what that session has changed before editing docs, or the
 two sweeps will conflict.
+
+--------------------------------------------------------------------------------
+2026-08-08 - BUILT IT, AND HERE IS THE DEFECT LIST
+--------------------------------------------------------------------------------
+
+    python -m sphinx -E -b html --keep-going docs/source /tmp/docsbuild
+
+~8 minutes, 125 module pages, index.html produced. Two things settled
+before any read-through:
+
+  CONTENT IS NOT MISSING. A page per module, 125 of them. Whatever is
+  wrong with this site is presentation, not absence -- a much better
+  problem to start from than the one I expected.
+
+  THE LINKS ARE CLEAN. 1151 tooltip links checked against this build,
+  0 dead (instruction 61). So the tooltip -> docs route works end to end.
+
+WHAT THE BUILD ACTUALLY COMPLAINS ABOUT: 231 warnings, 21 errors. Grouped,
+worst first, and every one of these is visible on the rendered page:
+
+    ~150  duplicate object description
+          database_concurrency (37), remote_execution.R* (27),
+          plugins.AppContrib* (21), remote_execution.E* (18),
+          classifier_evaluation (11), plugins.SpacrPlugin (8), ...
+          The same symbol documented twice, so it appears twice in the
+          page and twice in the index. Usually a re-export: the object is
+          picked up in its defining module AND wherever it is imported.
+
+     18  ERROR: Unexpected indentation  [docutils]
+     17  WARNING: Title underline too short
+     11  WARNING: Block quote ends without a blank line
+      2  ERROR: Malformed table
+      1  ERROR: Undefined substitution referenced
+
+The last five groups are ~49 malformed docstrings, and each one renders as
+BROKEN MARKUP on the page -- a table that does not become a table, a code
+block that loses its indentation. That is exactly the "unprofessional"
+this instruction is about, and it is a finite, addressable list rather
+than a matter of taste.
+
+ORDER TO FIX IN:
+  1. the ~49 malformed docstrings. Each is one file, one line number, in
+     the build log, and each one is visibly wrong on the site.
+  2. the duplicate object descriptions. One cause, ~150 warnings: decide
+     where a re-exported symbol should be documented and configure
+     autoapi to document it once.
+  3. THEN read the pages, which is what the original note asks for. Doing
+     the read-through first would mean re-reading everything after the
+     markup is fixed.
+
+Keep the build log. The line numbers are the work list, and regenerating
+it is eight minutes.
