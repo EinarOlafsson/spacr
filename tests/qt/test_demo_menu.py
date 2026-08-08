@@ -171,7 +171,17 @@ def test_demo_settings_survive_the_widget_round_trip(qtbot, qt_theme_applied,
     from spacr.utils import load_settings
     written = load_settings(str(layout.settings_csv),
                             setting_key="Key", setting_value="Value")
-    missing = sorted(k for k in written if k not in collected)
+    # A key a module deliberately never shows is not one it dropped. The
+    # demo CSVs still carry superseded aliases -- `png_type` is the one
+    # that surfaced this -- and those keys are read by the pipeline for
+    # backward compatibility while being deliberately absent from the
+    # form. See `_APP_HIDDEN_KEYS`, and INVARIANTS 6 for why hidden and
+    # absent are different things.
+    from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
+
+    never_shown = _APP_HIDDEN_KEYS.get(target_app, set())
+    missing = sorted(k for k in written
+                     if k not in collected and k not in never_shown)
     assert not missing, (
         f"{demo_key}: the {target_app} screen has no widget for "
         f"{missing} — those settings are dropped on the floor")
@@ -179,8 +189,11 @@ def test_demo_settings_survive_the_widget_round_trip(qtbot, qt_theme_applied,
     # `src` is exempt from equality and checked by containment below: the
     # multi-plate apps (classify) edit it as a list of roots, so one path in
     # legitimately comes back as a one-element list. Nothing else may change.
+    # `k in collected` as well: a deliberately hidden key has no widget to
+    # round-trip through, so asking what the form holds for it raises
+    # rather than reporting a mismatch.
     mangled = {k: (v, collected[k]) for k, v in written.items()
-               if k != "src" and collected[k] != v}
+               if k != "src" and k in collected and collected[k] != v}
     assert not mangled, (
         f"{demo_key}: the {target_app} screen changed these values on the way "
         f"through its widgets:\n"
