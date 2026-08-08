@@ -167,6 +167,18 @@ def _redirect_qsettings(target) -> None:
     settings = _qsettings_module()
     if settings is None:
         return
+    # `setPath` is IGNORED for NativeFormat on macOS and Windows. Qt says so:
+    # on macOS NativeFormat is CFPreferences (a plist under
+    # ~/Library/Preferences) and on Windows it is the registry, and neither
+    # is a directory `setPath` can move. It only works on Linux, where
+    # NativeFormat IS IniFormat -- which is why this sandbox held here and
+    # failed the macOS arm64 / py3.11 compat job with "QSettings escaped the
+    # test sandbox" at teardown.
+    #
+    # So make the two-argument constructor produce INI in the first place.
+    # `setDefaultFormat` is what `QSettings(org, app)` consults, and INI is
+    # the one format `setPath` genuinely redirects on every platform.
+    settings.setDefaultFormat(settings.IniFormat)
     for fmt in (settings.NativeFormat, settings.IniFormat):
         for scope in (settings.UserScope, settings.SystemScope):
             settings.setPath(fmt, scope, str(target))
