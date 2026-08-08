@@ -744,11 +744,21 @@ def _rendered_sections(app_key):
     would bucket them -- including the trailing "Other"."""
     pytest.importorskip("PySide6")
     from spacr.qt.screens.settings_model import (
-        _APP_HIDDEN_CATEGORIES, categories_for_app,
+        _APP_HIDDEN_CATEGORIES, _APP_HIDDEN_KEYS, categories_for_app,
         resolve_default_settings,
     )
     defaults = resolve_default_settings(app_key)
     hidden = _APP_HIDDEN_CATEGORIES.get(app_key, set())
+    # Hidden KEYS as well as hidden categories. This mirror dropped only the
+    # categories, so it reported an "Other" section for every module with a
+    # hidden key -- `timelapse`, whose own module forces it True and does not
+    # offer it -- while the real screen showed nothing of the kind. Measured:
+    # SettingsWidgets("timelapse").build_sections() has no "Other", because a
+    # hidden key gets no widget and the trailing section is built from
+    # `self._widgets`. See INVARIANTS 6: hidden is not the same as absent,
+    # and a mirror that models one and not the other fails on the difference.
+    hidden_keys = _APP_HIDDEN_KEYS.get(app_key, frozenset())
+    defaults = {k: v for k, v in defaults.items() if k not in hidden_keys}
     used, sections = set(), []
     for name, keys in categories_for_app(app_key, S.categories).items():
         if name in hidden:
@@ -833,9 +843,19 @@ def test_requested_modules_use_workflow_ordered_categories(app_key, expected):
     sections = _rendered_sections(app_key)
     assert [name for name, _keys in sections] == expected
     rendered_keys = [key for _name, keys in sections for key in keys]
-    from spacr.qt.screens.settings_model import resolve_default_settings
+    from spacr.qt.screens.settings_model import (
+        _APP_HIDDEN_KEYS, resolve_default_settings,
+    )
     assert rendered_keys == list(dict.fromkeys(rendered_keys))
-    assert set(rendered_keys) == set(resolve_default_settings(app_key))
+    # Every key is rendered exactly once EXCEPT the deliberately hidden ones.
+    # Hidden is not absent (INVARIANTS 6): the key stays in the settings dict
+    # at the value the module forces -- `timelapse` is True for the Timelapse
+    # module -- and simply gets no control. Comparing against the unfiltered
+    # defaults demands that a hidden key be rendered, which is the opposite
+    # of what hiding it means.
+    expected_keys = set(resolve_default_settings(app_key)).difference(
+        _APP_HIDDEN_KEYS.get(app_key, frozenset()))
+    assert set(rendered_keys) == expected_keys
 
 
 @pytest.mark.parametrize("app_key", sorted(GUI_MODULE_DEFAULTS))
