@@ -65,6 +65,18 @@ The rules:
   "add them to instructions first then continue on the instructions, not
   necessarily with what i asked for most recently first." A backlog
   reordered around whatever was said last stops being a ranking.
+* **Overlapping asks are MERGED into the first task, not filed beside it.**
+  "whenever i ask for overlapping tasks, instead of keeping several tasks
+  please merge the tasks, the new tasks into the first task." When a new
+  request covers work an existing file already describes, fold it into that
+  file — quote the new words in `Requested:` alongside the original — and
+  do not create a second file for the same change. Where a request is
+  partly new, split it: the overlapping half merges, the genuinely new half
+  gets its own file.
+
+  The test is whether the two would be finished by **one commit**. Three
+  files describing one change is how a job gets done twice, or half-done
+  twice, and nobody can tell which from the ledger.
 * Files are numbered from 10 upward; 01–08 at the top level are the older
   flat-numbered work and stay where they are.
 
