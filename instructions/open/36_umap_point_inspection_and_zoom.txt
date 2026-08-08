@@ -2,7 +2,7 @@
 IMAGE UMAP: ZOOM EVERY PLOT, CLICK EVERY POINT
 ================================================================================
 
-Status:    not started
+Status:    partly resolved - see the 2026-08-08 measurement
 Requested: 2026-08-07 - "the live button in Image UMAP does nothing. UMAPs should always be individually zoomable. and i should be able to press every point. when i choose a point it should be shown as an image in a panel to the right of the UMAP(s) and the relevant point information should be presented with the image."
 
 --------------------------------------------------------------------------------
@@ -41,3 +41,38 @@ HOW TO KNOW IT WORKED
 
 Press Live and the interactive view appears. Click any point and its image
 and row appear beside the plot. Zoom works on every UMAP shown.
+
+--------------------------------------------------------------------------------
+2026-08-08 - MEASURED, BEFORE CHANGING ANYTHING
+--------------------------------------------------------------------------------
+
+Step 1 of WHAT TO DO, done. The Live chain WORKS end to end. Built a real
+`AppScreen("umap")`, attached a payload to a figure the way
+`spacr/utils.py:7038` does, and drove it:
+
+    explorer built : True
+    Live switch    : True
+    payload_ready  : True      <- set by _on_figure_ready
+    explorer shown : True      <- after toggling Live on
+    queue hidden   : True
+
+So the reported "the live button does nothing" is not reproducible on this
+tree. Either it was fixed between the report and now, or it needs a
+condition not captured in the report -- a run whose figure carries no
+payload would do exactly this, and `interactive_payload` is only attached
+when `plot_embedding` is called with one (core.py:976). Worth asking the
+reporter whether the run that misbehaved was an ordinary UMAP run or a
+re-plot from cached results.
+
+ZOOM on the static figures is already there and was missed in the survey:
+the figure view IS `live_preview._ZoomView`, which carries wheel-zoom and
+drag-pan, and since 2026-08-08 also re-renders the figure at the new
+container size (instruction 27) so enlarging spreads the points instead of
+magnifying the thumbnails.
+
+STILL GENUINELY MISSING: clicking a point on a STATIC figure. That cannot
+work without hit-testing a rendered PNG against the embedding, and the
+honest answer may be that this is what the Live explorer is for -- it
+already does click-to-preview with `_build_point_identity`. Before building
+a second hit-test path, settle whether the static figure needs to be
+clickable at all, or whether the fix is to make Live more discoverable.
