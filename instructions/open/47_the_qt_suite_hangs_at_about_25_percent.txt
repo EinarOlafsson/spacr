@@ -2,8 +2,9 @@
 THE FULL tests/qt RUN HANGS PART-WAY THROUGH
 ================================================================================
 
-Status:    the HANG is fixed (2026-08-08). The suite now reaches 28%
-           and SEGFAULTS. Same task -- it still cannot finish.
+Status:    THREE causes found and fixed (2026-08-08): a modal hang at
+           25%, a segfault at 28%, a third modal hang at 35%. The class
+           is now guarded globally. A full clean run is unconfirmed.
 Severity:  test-only, but it makes the qt suite unrunnable as a whole,
            which is how the order-dependent failures in 03 and 46 stay
            invisible.
@@ -107,3 +108,45 @@ crashes in 8 runs.
 
 HOW TO KNOW IT WORKED is unchanged: the full `pytest tests/qt` run reaches
 its summary line unattended. It now gets to 28%, up from wedging at 25%.
+
+--------------------------------------------------------------------------------
+2026-08-08, THIRD FIND - AND THE REASON THIS KEPT HAPPENING
+--------------------------------------------------------------------------------
+
+The suite wedged AGAIN, at 35%, past both previous points. Same cause,
+third location -- pytest's faulthandler named it after five minutes:
+
+    dnd_handlers.py:730  _open_regex_editor   ->  dlg.exec()
+    dnd_handlers.py:573  _render_mask_report
+    dnd_handlers.py:420  <lambda>
+
+A QDialog modal, in a drag-and-drop path, in a test file with no modal
+guard. Order-dependent: `tests/qt/test_dnd.py` alone passes in 2.58 s, so
+some earlier test leaves the state that makes the regex editor open.
+
+THE PATTERN, which is the actual finding. Three hangs, three locations,
+one cause:
+
+    25%   _on_stop       -> shutdown.ask_how_to_quit   QMessageBox
+    28%   (segfault, different -- the usage sampler)
+    35%   drag-and-drop  -> dnd_handlers:730           QDialog
+
+Each was fixed by adding a guard to ONE test file, and each fix cost a
+multi-hour run to discover the next. Per-file guards do not scale: the next
+`.exec()` anyone writes hangs the suite again, and finding it costs another
+afternoon.
+
+SO THE GUARD IS GLOBAL NOW. An autouse fixture in `tests/qt/conftest.py`
+makes `QDialog.exec`, `QMessageBox.exec` and their `exec_` spellings RAISE,
+with a message naming the fix. A test that genuinely drives a dialog
+patches it itself, and because monkeypatch in the test body runs after the
+fixture, that patch wins.
+
+Verified: 5 dialog-heavy suites, 0 failures -- test_cov_app_screen,
+test_issue_report_url, test_gates, test_hyperparam_screen,
+test_layout_drops. test_dnd.py passes in 2.58 s.
+
+STILL UNCONFIRMED, and it is the whole point of this instruction: a full
+`pytest tests/qt` run reaching its summary line. It has now been stopped
+three times by three different causes and has never finished. Run it early;
+it takes hours.
