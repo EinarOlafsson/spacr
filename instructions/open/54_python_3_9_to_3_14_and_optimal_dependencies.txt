@@ -1,0 +1,74 @@
+================================================================================
+spaCR MUST RUN ON PYTHON 3.9 THROUGH 3.14, ON THE RIGHT DEPENDENCY VERSIONS
+================================================================================
+
+Status:    not started
+Requested: 2026-08-08 — "make sure spacr works on python 3.9-3.14 and that the optimal dependency versions are allways used."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The `compat-matrix` workflow already tests a spread: Linux x86-64 on 3.12,
+3.13 and 3.14, Linux ARM64 and Windows and macOS on 3.11, plus two
+"installs from wheels only" jobs on 3.13 and 3.14, and a "Minimum
+dependencies" job on 3.9. As of this session every job passes except macOS,
+which is still being confirmed.
+
+So the ENDS of the range are the thin part: 3.9 is covered only by the
+minimum-dependencies job, and 3.10 is not in the matrix at all.
+
+The minimum-dependencies job is also where a real disagreement shows.
+`tests/test_cellpose_api_contract.py` records cellpose's signature and
+asserts the INSTALLED one matches. It passes on 4.0.7 and fails on 4.0.1 --
+the declared minimum -- because `use_bfloat16` and the `resample` default
+differ between them. That is not a bug in either; it is the floor being
+declared lower than the code actually supports, and it is unresolved.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A user on a cluster does not choose their Python. If 3.9 or 3.10 is broken
+they cannot run spaCR at all, and the failure arrives as an import error
+with no indication that the version is the problem.
+
+"Optimal versions" is the other half and the subtler one. A floor that is
+declared too low is worse than one declared too high: pip will happily
+resolve to it, the install succeeds, and the failure comes later and
+somewhere else -- exactly the cellpose case above, where the recorded API
+and the minimum version disagree about what a function takes.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Add 3.9 and 3.10 to the full matrix rather than leaving 3.9 to the
+   minimum-deps job alone. If either cannot be supported, say so in
+   `setup.py`'s `python_requires` and in the README, and stop claiming it.
+2. Settle the cellpose floor. Either raise the declared minimum to the
+   version whose signature is recorded, or make the contract tolerate the
+   supported range. Do not "fix" it by loosening the assertion until the
+   floor question is answered -- the contract is what caught the drift.
+3. Audit every declared dependency for a floor that is a guess. The test
+   `tests/test_declared_dependencies_match_imports.py` proves each import
+   is DECLARED; nothing yet proves the declared version actually works.
+4. Decide what "optimal" means and write it down: newest that passes, or
+   oldest that passes? They imply opposite CI jobs. The matrix currently
+   tests both ends without saying which one users get.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+`compat-matrix` green on 3.9 through 3.14, with the minimum-dependency job
+green on the SAME declared floors a fresh `pip install spacr` resolves.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. One thing to check before adding jobs: whether the scientific
+stack (torch, cellpose, umap-learn) publishes wheels for 3.9 and 3.14 on
+every platform in the matrix. Where it does not, the honest answer is to
+narrow the claimed range, not to add a job that can never go green.

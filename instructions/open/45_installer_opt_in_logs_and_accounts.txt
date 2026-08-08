@@ -118,3 +118,28 @@ Nothing yet. Recorded here rather than in the code: the transport decision
 above is the one to bring back to the maintainer before building, because
 "send to this address" and "do not ship a password" pull in different
 directions and only they can say which matters more.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE ACCOUNT LIST IS FOUR, AND GEMINI WAS MISSING
+--------------------------------------------------------------------------------
+
+Restated: "make sure to add the CPU/GPU ask and GIThub, claude, gemeni,
+gpt, asks during installation".
+
+So the sign-in step offers all four:
+
+    GitHub    - also what the auto-issue feature needs (instruction 55)
+    Claude    - the AI console's provider
+    Gemini    - NEW; was not in the original list and is now asked for
+    GPT       - the AI console's provider
+
+Each is independent and each is skippable. An installer that cannot be
+completed without signing into four services is an installer people
+abandon; every one of these is a convenience, and the product has to run
+with none of them.
+
+Sign-in during INSTALL only saves a step if the credential survives to
+first launch, so whatever is captured has to land where the running app
+looks for it. Check that before designing the screens -- if the app reads
+its keys from somewhere the installer cannot write, this is four screens
+that achieve nothing.
