@@ -2,7 +2,8 @@
 IMAGE UMAP: SEARCH THE WHOLE HYPERPARAMETER SPACE, AND CALL IT WALK
 ================================================================================
 
-Status:    not started
+Status:    partly done 2026-08-08 - the NAME and the metric
+           dropdown landed; the N-dimensional search is open
 Requested: 2026-08-07 - "the hyperparameter search should search hyperparameter space, this space should be defined by all hyperparameters not just min dist and neighbours. the adaptive 2x2 should just be adaptive and should search more than just the n_neighbours and min dist... the user should be able to choose the grid the algorithm uses to make directional decisions in hyperparameter space, now that that space will be expanded beyond n_neighbours and min_dist, it is no longer 2X2... this dimensionality of the search should be reflected in the grid that the UMAPs are presented on." Also: "there should be a clustering algorithm option with a hyperparameter search and which should include a hyperparameter walk (that is what the setting should be called, Walk, this name should also apply to the new image UMAP adaptive setting!)"
 
 --------------------------------------------------------------------------------
@@ -44,3 +45,33 @@ HOW TO KNOW IT WORKED
 
 Run a Walk over three parameters: the figures come back on a grid whose
 axes are those parameters, and the setting is called Walk in both modules.
+
+--------------------------------------------------------------------------------
+2026-08-08 - TWO OF THE FIVE PARTS LANDED
+--------------------------------------------------------------------------------
+
+DONE
+  1. The RENAME. "Adaptive 2x2" -> "Walk" in the Image UMAP search, and the
+     Gate Editor's "Walk the hyperparameters" -> "Walk". One name for one
+     idea in both modules, which is what was asked for. The tooltip now
+     defines the metaphor once: each round steps in the direction that
+     improved the score.
+  5. The METRIC field is a validated choice rather than free text, checked
+     against `umap.distances.named_distances` from the INSTALLED umap-learn
+     so it cannot drift, with a literal fallback for a checkout without the
+     library -- the settings panel must build on a machine that cannot run
+     UMAP. A typo used to fail after the embedding had started.
+
+STILL OPEN, and this is the larger half
+  2. The search space defined BY THE USER, defaulting to every parameter
+     that influences UMAP structure rather than n_neighbors x min_dist.
+  3. Per-axis grid resolution. "2x2" is a special case, not the design.
+  4. The presentation grid mirroring the search dimensionality -- shared
+     with instruction 35, which is the rendering half, and with the Gate
+     Editor's clustering Walk.
+
+Start at (2): until the space is N-dimensional, (3) and (4) have nothing to
+be N-dimensional about. `spacr/hyperparam.py :: umap_search(adaptive=True)`
+is the engine and `APP_PARAMS` in `spacr/qt/screens/hyperparam.py` is the
+list the panel builds its fields from -- today it is three entries for
+umap, and the ten parameters the request names are the target.
