@@ -537,12 +537,16 @@ class Run:
         :param path: input file or directory.
         :param setting_key: optional setting that referred to ``path``.
         """
+        if not self.hashing_enabled():
+            return
         self._record_tree(
             Path(path), self.input_hashes, setting_key=setting_key,
         )
 
     def record_output(self, path: Any, *, setting_key: str = "") -> None:
         """Hash a file or directory as an explicit run output."""
+        if not self.hashing_enabled():
+            return
         self._record_tree(
             Path(path), self.output_hashes, setting_key=setting_key,
         )
@@ -621,8 +625,30 @@ class Run:
             self.provenance_warnings.append(warning)
             LOG.warning(warning)
 
+    def hashing_enabled(self) -> bool:
+        """Whether to hash inputs and outputs for this run.
+
+        Off unless the settings say otherwise. Hashing every file under
+        every path-valued setting is proportional to the DATA, not to the
+        run: on a plate of raw images it is minutes of reading before the
+        first mask is made, and it happens whether or not anybody will ever
+        compare the digests.
+
+        Read from the settings dict, never from QSettings. A
+        `from PySide6 import` in a pipeline module makes the package
+        unimportable on a cluster (see the architecture notes), so the GUI
+        reads the preference and passes it down as an ordinary setting, and
+        a headless caller sets the same key.
+        """
+        return bool(self.settings.get("hash_inputs", False))
+
     def _capture_initial_provenance(self) -> None:
-        """Discover path-valued inputs and retain a before-run inventory."""
+        """Discover path-valued inputs and retain a before-run inventory.
+
+        The inventory is taken whether or not hashing is on: it is a cheap
+        stat() per file and it is what lets the final pass know which files
+        the run CREATED. Only the hashing is skipped.
+        """
         self.seeds = extract_seeds(self.settings)
         self._path_candidates = _setting_path_candidates(self.settings)
         seen_files: Set[str] = set()
@@ -643,6 +669,8 @@ class Run:
 
     def _capture_final_provenance(self) -> None:
         """Hash files created or modified under setting-derived roots."""
+        if not self.hashing_enabled():
+            return
         seen_files: Set[str] = set()
         for key, path, _output_only in self._path_candidates:
             root = path if path.is_dir() else path.parent
@@ -697,6 +725,13 @@ class Run:
         manifest = {
             "schema_version": MANIFEST_SCHEMA_VERSION,
             "hash_algorithm": _HASH_ALGORITHM,
+            # Stated, not implied. A manifest that simply LACKS hashes is
+            # indistinguishable from one whose hashes were computed and
+            # matched, and telling those apart is the whole value of the
+            # record. Top level rather than under `performance`, because
+            # "were the digests taken" is a claim about provenance and not
+            # a timing.
+            "input_hashing": "on" if self.hashing_enabled() else "skipped",
             "app_key":       self.app_key,
             "start_utc":     datetime.fromtimestamp(
                 self.start_ts, tz=timezone.utc).isoformat(),
