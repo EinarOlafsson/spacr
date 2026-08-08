@@ -1629,3 +1629,54 @@ Publishing blocker
   documented lesson filter, verify all voice/timing pairs and silent-video frame
   counts, run `tools/docs_media_budget.py --report` plus its tests, and inspect
   the staged player before any upload/deploy.
+
+================================================================================
+IMPLEMENTATION RUNBOOK WHEN THE TUTORIAL SOURCE IS AVAILABLE
+================================================================================
+
+1. Freeze the target inventory before editing. Re-read the runtime module
+   registry and tutorial catalog, reconcile renamed/merged modules, and require
+   at least one current lesson for every user-facing module. With the inventory
+   captured in this audit, that means retaining/updating the 40 existing lessons
+   and adding the 29 listed missing lessons (69 catalog entries total), unless a
+   module is deliberately removed from the product first.
+2. Fix shared production behavior before individual scenes: use one English
+   pronunciation map for every voice; let each narration clause target a precise
+   widget/result; distinguish clicks from passive spotlights; and add coverage
+   checks that compare catalog keys with the current module registry. Keep the
+   narration text semantically identical across voices.
+3. Correct the highest-risk material first: lesson 01's PyPI timing and
+   spotlights; mask/measure normalization guidance; all stale changed-module
+   lessons; then the new Classify and Gate Editor lessons. Resolve the documented
+   Gate Editor cluster-settings mismatch before demonstrating Walk.
+4. Update the six modules with Live Preview so the preview is the small,
+   representative decision loop rather than an ornamental button. Update the
+   four modules with Hyperparameter Search so a bounded search compares useful
+   candidates and applies one justified result. Do not claim these facilities
+   for a merged or renamed screen unless the current UI actually exposes them.
+5. Replace generic settings tours with the smallest real workflow: load a
+   representative input, make only the decisions needed for the module, perform
+   one bounded action/run, inspect the result and QC, and name the next logical
+   handoff. Keep exact values visible instead of narrating them unless they are
+   essential to reproducing the action.
+6. Regenerate in small filtered batches from the external production masters.
+   First publish locally with upload disabled, then inspect scene start/mid/end
+   frames and click transitions, validate every audio/timing pair against the
+   shared silent video, and confirm captions and durations for all English
+   voices. Never hand-edit the derived media bundle in this repository.
+7. Run the publisher/media tests and `tools/docs_media_budget.py --report`, load
+   the staged player, click every lesson, and test resizing plus keyboard/player
+   controls. Only upload/deploy after the staged bundle passes these checks.
+
+Definition of done
+- Every current user-facing module is covered or has an explicit documented
+  exclusion; renamed modules do not leave stale catalog keys behind.
+- English pronunciation passes the lexicon above, especially joined, quickly
+  spoken "pie-pee" for PyPI.
+- Every emphasis box points to the named control or result for the full spoken
+  clause and remains aligned through clicks and layout changes.
+- Each lesson is a sufficient surface-level workflow, contains no invented
+  universal normalization/settings recipe, and uses Preview/Search where that
+  is the module's most useful miniature feedback loop.
+- Current Classify, Gate Editor, Image UMAP, and every other changed or added
+  module have tutorials verified against the running UI.
