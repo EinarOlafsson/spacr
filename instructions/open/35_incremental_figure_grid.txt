@@ -2,7 +2,8 @@
 SHOW SEARCH FIGURES AS THEY ARRIVE, ON A GRID THAT FITS THE CONTAINER
 ================================================================================
 
-Status:    not started
+Status:    the widget is built and tested; wiring it into the two
+           modules is what is left (2026-08-08)
 Requested: 2026-08-07 - "when evaluating hyperparameters, show each graph as soon as it is generated on a grid defined by the width and height of the container, which is dynamic. whether to show each as a png (which takes less compute) or as a pdf (editable but takes more compute) is defined by the spacr preference figure format and PNG resolution." Also, for the Gate Editor: "the figures should map onto a grid where each figure is a pdf or png defined by the general settings in preferences, and the grid should map onto the hyperparameter search space."
 
 --------------------------------------------------------------------------------
@@ -46,3 +47,56 @@ HOW TO KNOW IT WORKED
 Start a search: figures appear one by one, the grid reflows when the panel
 is resized, and switching the preference between png and pdf changes what
 is produced without touching the module.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE WIDGET EXISTS. WIRING IT DOES NOT.
+--------------------------------------------------------------------------------
+
+DONE  spacr/qt/widgets/figure_grid.py, 22 tests in
+      tests/qt/test_figure_grid.py.
+
+    reflow_shape(count, width, height)   -> (columns, rows, cell_width)
+        Fills the container in both directions; nine figures in a square
+        panel is 3x3, not 9x1. Stops adding columns at MIN_CELL_PX and
+        scrolls instead of shrinking past readable.
+
+    axis_layout(coordinates, parameters) -> (row_params, col_values, cells)
+        Part 3, and part 4 of instruction 34. One parameter is one ordered
+        row; two is the familiar table; more than two puts the widest axis
+        across and gives every combination of the rest its own row, so two
+        cells in a row always differ in exactly one parameter.
+
+    SearchFigureGrid(parameters)
+        add_figure(png_path, coordinate) as each arrives, reflow debounced
+        on resize, format and DPI from the existing Preferences. Renders
+        nothing itself -- it adopts a PNG already rasterised by the worker.
+
+STILL OPEN - the wiring, and it is a real change rather than a hookup.
+
+    The panel today shows ONE matplotlib figure containing all the small
+    multiples (`build_panel_figure`), drawn once when the search finishes.
+    Streaming needs a per-trial figure, and the figure has to be rendered
+    OFF the GUI thread. `_SearchWorker` currently emits `Trial` objects
+    only.
+
+    The shape that fits what is already here:
+
+    1. `_SearchWorker.run` already sits on a worker thread and already sees
+       every trial as it completes. Render there -- one figure per trial
+       from `trial.extra_metrics['embedding']` (kept when
+       `keep_embeddings=True`) via `render_figure_to_png`, to a temp file --
+       and widen `trial_ready` to carry the PNG path.
+       Do NOT render in the panel's `trial_ready` handler: that runs on the
+       GUI thread, and fifty embeddings drawn there is a fifty-second
+       freeze.
+    2. Replace the panel's `self._preview` QLabel with a `SearchFigureGrid`,
+       and call `set_parameters(result.space.params)` when the search
+       starts so the axes are right from the first figure.
+    3. `build_panel_figure` stays for the finished-sweep summary and for
+       whatever exports it. It is not what the grid replaces.
+    4. The Gate Editor's clustering Walk gets the same widget. Written once
+       was the requirement; wiring it twice is expected.
+
+    How to know it worked is unchanged: figures appear one by one, the grid
+    reflows on resize, and switching the Preferences figure format changes
+    what is produced without touching the module.
