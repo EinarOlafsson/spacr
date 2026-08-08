@@ -144,6 +144,9 @@ def test_manifest_hashes_inputs_outputs_settings_seeds_and_packages(
         "src": str(project),
         "output_path": str(output),
         "random_seed": 1234,
+        # Hashing is opt-in (it costs ~0.55 s/GB warm, more cold). This
+        # test is about the hashes, so it asks for them.
+        "hash_inputs": True,
     }
 
     with rj.open_run("measure", settings) as run:
@@ -182,7 +185,8 @@ def test_modified_existing_file_is_recorded_as_output(tmp_path, monkeypatch):
     database = project / "measurements.db"
     database.write_bytes(b"before")
 
-    with rj.open_run("measure", {"src": str(project)}) as run:
+    with rj.open_run("measure", {"src": str(project),
+                                 "hash_inputs": True}) as run:
         database.write_bytes(b"after, and a different size")
 
     manifest = json.loads((run.dir / "manifest.json").read_text())
@@ -241,7 +245,7 @@ def test_search_runs_filters_settings_outputs_warnings_and_failures(
 
     with rj.open_run(
         "classify", {"src": str(source), "output_path": str(output),
-                     "optimizer": "adamw"},
+                     "optimizer": "adamw", "hash_inputs": True},
     ) as run:
         run.record_warning("class imbalance detected")
         output.write_text("class,score\nA,0.8\n")
