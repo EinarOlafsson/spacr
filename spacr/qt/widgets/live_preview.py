@@ -684,12 +684,18 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     except Exception:
         gpu = False
 
-    if req.model == "cpsam":
-        model = cp_models.CellposeModel(
-            gpu=gpu, pretrained_model="cpsam", device=None)
-    else:
-        model = cp_models.CellposeModel(
-            gpu=gpu, model_type=req.model, device=None)
+    # `model_type=` is accepted-and-IGNORED by Cellpose 4 -- it logs "not
+    # used in v4.0.1+" and drops it, leaving pretrained_model at its 'cpsam'
+    # default. So picking any other model here silently segmented with cpsam,
+    # including a checkpoint the user had just trained in spaCR's own Train
+    # Cellpose module. `_resolve_cellpose_pretrained` is what the pipeline
+    # uses: it maps the legacy pre-SAM names to cpsam and says so once, and
+    # returns a path unchanged when the name is a fine-tuned checkpoint.
+    from spacr.utils import _resolve_cellpose_pretrained
+    model = cp_models.CellposeModel(
+        gpu=gpu,
+        pretrained_model=_resolve_cellpose_pretrained(req.model),
+        device=None)
 
     out: Dict[str, np.ndarray] = {}
     flows_out: Dict[str, np.ndarray] = {}
