@@ -157,6 +157,10 @@ _QSETTINGS_ALLOWED_ROOTS: list = [_QSETTINGS_SANDBOX]
 
 _QSETTINGS_ACTIVE = False
 
+#: Whether `setPath` actually moves the two-argument constructor on this
+#: platform. False on macOS and Windows -- see `_install_qsettings_sandbox`.
+_QSETTINGS_PATHS_REDIRECTABLE = True
+
 
 def _qsettings_module():
     """Return ``PySide6.QtCore.QSettings``, or None when PySide6 is absent."""
@@ -177,18 +181,11 @@ def _redirect_qsettings(target) -> None:
     settings = _qsettings_module()
     if settings is None:
         return
-    # `setPath` is IGNORED for NativeFormat on macOS and Windows. Qt says so:
-    # on macOS NativeFormat is CFPreferences (a plist under
-    # ~/Library/Preferences) and on Windows it is the registry, and neither
-    # is a directory `setPath` can move. It only works on Linux, where
-    # NativeFormat IS IniFormat -- which is why this sandbox held here and
-    # failed the macOS arm64 / py3.11 compat job with "QSettings escaped the
-    # test sandbox" at teardown.
-    #
-    # So make the two-argument constructor produce INI in the first place.
-    # `setDefaultFormat` is what `QSettings(org, app)` consults, and INI is
-    # the one format `setPath` genuinely redirects on every platform.
-    settings.setDefaultFormat(settings.IniFormat)
+    # NOTE, because this is the second time it has been "fixed" wrongly:
+    # `setDefaultFormat(IniFormat)` does NOT help. The block at the top of
+    # this section already says why -- `QSettings(org, app)` is built with
+    # NativeFormat ALWAYS and ignores the default format. Adding that call
+    # here changed nothing on macOS and cost a CI round to find out.
     for fmt in (settings.NativeFormat, settings.IniFormat):
         for scope in (settings.UserScope, settings.SystemScope):
             settings.setPath(fmt, scope, str(target))
@@ -234,6 +231,27 @@ def pytest_configure(config):
         _QSETTINGS_REAL_STATE[parent] = _stat_signature(parent)
     _redirect_qsettings(_QSETTINGS_SANDBOX)
     _QSETTINGS_ACTIVE = True
+    # Can NativeFormat be redirected on this platform at all? Asked by
+    # trying it rather than by naming operating systems, because the answer
+    # is a property of the Qt backend and not of the OS badge.
+    #
+    # On Linux NativeFormat IS IniFormat and `setPath` moves it. On macOS it
+    # is CFPreferences -- a plist under ~/Library/Preferences -- and on
+    # Windows it is the registry; neither is a directory, so nothing can
+    # move them and the probe below resolves to
+    # `/Users/runner/Library/Preferences/com.spacr.qt.plist` or
+    # `\HKEY_CURRENT_USER\Software\spacr\qt` however the sandbox is set.
+    #
+    # Where it cannot be redirected, the "did the path stay inside the
+    # sandbox" check is structurally unanswerable and is turned off. The
+    # check that MATTERS is kept on every platform: whether the real store
+    # was modified. That is the actual harm -- deleting a developer's
+    # preferences -- and `_QSETTINGS_REAL_STATE` detects it directly rather
+    # than by inference from a path.
+    global _QSETTINGS_PATHS_REDIRECTABLE
+    probes = _qsettings_probe_paths()
+    _QSETTINGS_PATHS_REDIRECTABLE = bool(probes) and all(
+        _inside_allowed_root(p) for p in probes)
 
     try:
         basetemp = config._tmp_path_factory.getbasetemp()
@@ -292,8 +310,9 @@ def _isolated_qsettings_store(request):
     try:
         yield
     finally:
-        escaped = [p for p in _qsettings_probe_paths()
-                   if not _inside_allowed_root(p)]
+        escaped = ([p for p in _qsettings_probe_paths()
+                    if not _inside_allowed_root(p)]
+                   if _QSETTINGS_PATHS_REDIRECTABLE else [])
         damaged = [p for p, was in _QSETTINGS_REAL_STATE.items()
                    if _stat_signature(p) != was]
         # Always restore the sandbox, even on failure, so one leaky module
