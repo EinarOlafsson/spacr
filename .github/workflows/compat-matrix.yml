@@ -152,7 +152,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.13", "3.14"]
+        # THE WHOLE CLAIMED RANGE, not just the top of it. pyproject says
+        # requires-python = ">=3.9,<3.15", and this job is the cheap check
+        # that the claim is true -- it only asks whether pip accepts spacr
+        # and resolves to wheels, so covering six interpreters costs little.
+        #
+        # It was ["3.13", "3.14"], which verified the two newest and left
+        # 3.9 through 3.12 asserted by the metadata and tested by nothing.
+        # A claimed floor nobody exercises is the same defect as the
+        # cellpose one: pip resolves it happily and the failure lands on a
+        # user instead of on CI.
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
 
     steps:
       - uses: actions/checkout@v7
