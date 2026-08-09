@@ -208,3 +208,47 @@ USE THE BUILD. It is eight minutes:
 and its warnings are the authoritative list. Nice it down if the machine is
 shared -- there is a concurrent session on this box that has taken ~15
 cores for an hour at a time.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE AUTHORITATIVE LIST, AND A MASS EDIT THAT HAD TO BE REVERTED
+--------------------------------------------------------------------------------
+
+Rebuilt the docs (8 minutes, niced): 231 warnings, 21 errors. The markup
+defects, which is the actionable half:
+
+    18  ERROR    Unexpected indentation
+    17  WARNING  Title underline too short
+    11  WARNING  Block quote ends without a blank line
+     7  WARNING  Definition list ends without a blank line
+     6  WARNING  Inline literal start-string without end-string
+     4  WARNING  Inline interpreted text or phrase reference
+     3  WARNING  Field list ends without a blank line
+     2  ERROR    Malformed table
+     8  various  undefined substitutions, unknown targets
+
+They are reported against the GENERATED files under docs/source/api/, but
+the line numbers match the SOURCE docstrings -- e.g.
+anndata_export/index.rst:94 is spacr/anndata_export/__init__.py:94, where
+
+    Where the cell -> nucleus -> pathogen links go, and why not ``obsp``
+    -------------------------------------------------------------------
+
+and `The labels the table join drops` (31 chars) sits over 30 dashes. The
+underline must match the SOURCE length, and ``obsp`` is 8 source characters
+rendering as 4, which is how these get written short.
+
+DO NOT FIX THESE WITH A LINE-BASED REGEX. I tried, and it corrupted 203
+files, because `"` is a legal rST underline character -- so a docstring's
+closing `"""` matched the underline pattern and was "lengthened" to the
+width of the line above it, producing `"""""""""`. Reverted with
+`git checkout`; nothing was committed.
+
+Two mistakes worth naming, since either alone would have caught it:
+  * it ran over the whole package in one pass instead of one file first;
+  * it checked `ast.parse` AFTER writing rather than before, when the check
+    is cheap enough to gate every write.
+
+THE SAFE SHAPE, for whoever does this: walk the file with `ast`, take each
+docstring's own start and end offsets, edit only INSIDE that span, and
+re-parse the file before writing it back. The closing quotes are then
+outside the region being touched and cannot be mistaken for content.
