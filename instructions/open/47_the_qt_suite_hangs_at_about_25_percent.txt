@@ -2,9 +2,9 @@
 THE FULL tests/qt RUN HANGS PART-WAY THROUGH
 ================================================================================
 
-Status:    THREE causes found and fixed (2026-08-08): a modal hang at
-           25%, a segfault at 28%, a third modal hang at 35%. The class
-           is now guarded globally. A full clean run is unconfirmed.
+Status:    the fix that was making it worse is REMOVED (2026-08-08).
+           Best run: 66%, zero crashes, zero failures, stopped only by
+           the harness timeout. A full clean run is still unconfirmed.
 Severity:  test-only, but it makes the qt suite unrunnable as a whole,
            which is how the order-dependent failures in 03 and 46 stay
            invisible.
@@ -150,3 +150,43 @@ STILL UNCONFIRMED, and it is the whole point of this instruction: a full
 `pytest tests/qt` run reaching its summary line. It has now been stopped
 three times by three different causes and has never finished. Run it early;
 it takes hours.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE A/B, AND DELETING MY OWN FIX
+--------------------------------------------------------------------------------
+
+Five stopping points had been found and four "fixed", and the suite still
+would not finish. Two of those crashes were in `_drain_job_runners`, the
+fixture I wrote to fix the first one. So rather than guard it a third time,
+I ran the experiment:
+
+    WITH the fixture     segfault at 28% (dead widgets)
+                         segfault at 33% (event loop pumped at teardown)
+                         segfault at 35%
+    WITHOUT it           66%, ZERO crashes, ZERO failures -- and it stopped
+                         only because my own 5.5-hour timeout expired
+
+So it is deleted, and the reasoning is left in `tests/qt/conftest.py` where
+the next person will look.
+
+THREE BUGS CAME OUT OF ONE FIXTURE: a 3000ms-per-runner shutdown budget
+that turned "crashes at 28%" into "still going at 35% after 80 minutes";
+a crash on widgets whose C++ side was already gone; and a crash on LIVE
+ones, because `shutdown()` pumps the event loop, which runs pending
+deleteLater calls on widgets pytest-qt was about to close itself.
+
+THE SHAPE WAS THE PROBLEM, not the details. A teardown fixture that reaches
+across every widget in the application, during Qt teardown, cannot be made
+safe by guarding -- each guard I added revealed the next crash. That is the
+lesson worth keeping.
+
+WHAT SURVIVES, and should: the GLOBAL MODAL GUARD. `QDialog.exec` and
+`QMessageBox.exec` raise in tests unless a test patches them itself. Three
+separate hangs were modals with nobody to answer them, and per-file guards
+had already failed to scale -- each new `.exec()` cost another multi-hour
+run to find.
+
+STILL UNCONFIRMED: a full run reaching its summary line. Best so far is
+66%. The suite is slow enough under load that this needs a quiet machine
+and a longer budget than 5.5 hours, or `-p xdist` if that can be made to
+work with the Qt fixtures.
