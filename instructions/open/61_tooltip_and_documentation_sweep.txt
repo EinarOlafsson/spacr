@@ -284,3 +284,32 @@ the value per entry is lower than the 13 too-short ones already done -- a
 tooltip that explains the setting but omits its default is incomplete
 rather than useless. Do it opportunistically while touching a module's
 settings, not as a sweep.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE TWO LONGEST REWRITTEN
+--------------------------------------------------------------------------------
+
+    over 600 chars   37 -> 35
+    under 80 chars   13 -> 1     (earlier)
+    empty             1 -> 0     (earlier)
+
+`annotated_classes`  1022 -> 386. It contained its own history: the current
+    text, then the word "Previously:", then the ENTIRE superseded tooltip
+    after it. Both halves said the setting is inert and both explained
+    dataset_mode, so a reader got the same paragraph twice and had to work
+    out which one still applied. Now says INERT, what still reads it, and
+    what to use instead.
+
+`verbose`  860 -> 496. The content was right and the length was the
+    problem: a per-pipeline enumeration of which module defaults it to True
+    and which to False, in a hover. Kept the actionable sentence -- turn it
+    on when object counts come out unexpected and you need to see which
+    stage removed them -- and compressed the enumeration to one line.
+
+THE PATTERN worth applying to the remaining 35: these are not badly
+written, they are ARCHIVES. Something was learned, appended, and never
+edited down. Ask what a user hovering needs to DECIDE, keep that, and move
+the archaeology to the API page where there is room for it.
+
+Next by length: strict_errors (841), control_wells (831), custom_regex
+(827), Signal_to_noise (815).
