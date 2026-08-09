@@ -232,6 +232,18 @@ def _drain_job_runners():
             if id(runner) in seen:
                 continue
             seen.add(id(runner))
+            # ONLY the ones actually working. An idle runner has nothing to
+            # drain, and calling shutdown() on it still pumps the event
+            # loop -- which runs any pending deleteLater, destroying the
+            # C++ side of widgets that pytest-qt is about to close itself.
+            # That crashed the suite at 33% inside pytestqt's _close_widgets,
+            # with no spacr frame in the stack at all, because by then the
+            # damage was done and the caller was innocent.
+            try:
+                if not runner.is_busy():
+                    continue
+            except Exception:
+                continue
             try:
                 # A SHORT budget, deliberately. `shutdown` defaults to
                 # 3000ms, and paid per runner per test that is minutes
