@@ -2,8 +2,8 @@
 THE USER SETS THE PROGRAM'S LANGUAGE
 ================================================================================
 
-Status:    MEASURED 2026-08-08, and the picker ALREADY WORKS. What is
-           missing is catalogue coverage: 4% of one screen's strings.
+Status:    done 2026-08-09. The ask as clarified is satisfied and
+           verified; catalogue COVERAGE is split out as instruction 65.
 Requested: 2026-08-08 — "the user sets the default language of the programme."
            2026-08-08, clarified — "With default I just mean the translation
            that is loaded first on startup."
@@ -138,3 +138,31 @@ policy, NOT a translation effort. The translations exist. If they turn out
 to be thin or stale, that is a separate task with a separate cost, and it
 should be measured -- count the translated strings per language -- before
 anyone promises a language is supported.
+
+--------------------------------------------------------------------------------
+2026-08-09 - CLOSED. THE ASK IS SATISFIED; COVERAGE IS A DIFFERENT TASK.
+--------------------------------------------------------------------------------
+
+The request, as the maintainer clarified it, was: the user sets the
+translation that is loaded first on startup. That works, and was verified
+end to end rather than assumed:
+
+    a language combo in PreferencesDialog, FIRST in the General tab
+    the choice persists at prefs/language
+    it is what loads on the next start
+
+        sv -> Settings = 'Installningar'   Run = 'Kor'
+        is -> Settings = 'Stillingar'      Run = 'Keyra'
+        fr -> Settings = 'Parametres'      Run = 'Executer'
+
+Nothing needed building. Two of my own measurements were wrong on the way
+here and are corrected in this file: I reported the picker missing after
+grepping the wrong module, and reported French empty after an off-by-one
+that came from English being the catalogue KEY rather than a column.
+
+WHAT IS NOT DONE, and is now instruction 65: only 10 of 230 distinct
+strings on a Mask screen are in the catalogue. Choosing Swedish translates
+the chrome and leaves the settings in English. That is a translation
+project with a real decision in it -- how far to go, and who reads the
+languages -- not a missing feature, and keeping it inside this task would
+have made a satisfied request look unfinished for months.

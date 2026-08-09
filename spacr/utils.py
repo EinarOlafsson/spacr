@@ -4058,6 +4058,7 @@ class FocalLossWithLogits(nn.Module):
 
     Auto-selects the BCE or cross-entropy branch based on the shapes of
     ``logits`` and ``target``:
+
       - binary: logits ``(N,)`` or ``(N,1)``; target float ``(N,)`` in ``{0,1}``.
       - multiclass: logits ``(N,C)``; target long ``(N,)`` in ``[0..C-1]``.
       - multilabel: logits ``(N,C)``; target float ``(N,C)`` in ``{0,1}``.
