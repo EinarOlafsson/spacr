@@ -1118,6 +1118,54 @@ def search_runs(
     return records
 
 
+
+#: Bumped when what is counted changes. An old cache is then WRONG
+#: rather than merely stale.
+_TOTALS_CACHE_VERSION = 1
+
+
+def _totals_cache_path() -> Path:
+    """Where the incremental totals live. Inside the runs root, as a FILE --
+    `journal_totals` only iterates directories, so it cannot see itself."""
+    return runs_root() / ".journal_totals.json"
+
+
+def _read_totals_cache():
+    """Cached totals, or None when absent, unreadable or the wrong shape.
+
+    Any doubt returns None and the caller recounts from scratch. A wrong
+    run count on the Home dashboard is worse than a slow one.
+    """
+    try:
+        raw = json.loads(_totals_cache_path().read_text())
+        if int(raw.get("version", 0)) != _TOTALS_CACHE_VERSION:
+            return None
+        return {
+            "totals": {k: int(v) for k, v in dict(raw["totals"]).items()},
+            "counted": set(raw["counted"]),
+            "models": set(raw["models"]),
+        }
+    except Exception:
+        return None
+
+
+def _write_totals_cache(totals, counted, models) -> None:
+    """Store the totals. Failure is silent -- this is an optimisation."""
+    try:
+        path = _totals_cache_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".part")
+        tmp.write_text(json.dumps({
+            "version": _TOTALS_CACHE_VERSION,
+            "totals": dict(totals),
+            "counted": sorted(counted),
+            "models": sorted(models),
+        }))
+        os.replace(tmp, path)
+    except Exception:
+        pass
+
+
 def journal_totals() -> Dict[str, int]:
     """Return aggregate counts across every stored run.
 
@@ -1136,8 +1184,33 @@ def journal_totals() -> Dict[str, int]:
     root = runs_root()
     if not root.exists():
         return totals
+
+    # INCREMENTAL. This has to read every manifest -- the answer is an
+    # aggregate over all runs, so it cannot be bounded the way recent_runs
+    # can -- but a journal is append-only in practice, so it does not have
+    # to read them all TWICE.
+    #
+    # The docstring below used to say "cheap enough to call on Home-screen
+    # construction: one iterdir + a file read per run folder". That was true
+    # at fifty runs. At 3521 it was 671 ms on the GUI thread at startup, and
+    # it got worse with every run the user ever did.
+    #
+    # So the counted folder names are remembered alongside the totals, and
+    # only folders not already counted are parsed. A DELETED folder cannot
+    # be undone incrementally -- nothing records what it contributed -- so
+    # that case falls back to a full recount, which is correct and rare.
+    present = {d.name for d in root.iterdir() if d.is_dir()}
+    cached = _read_totals_cache()
+    counted: set = set()
+    if cached is not None and cached["counted"] <= present:
+        totals.update(cached["totals"])
+        seen_models |= cached["models"]
+        counted = cached["counted"]
+
     for d in root.iterdir():
         if not d.is_dir():
+            continue
+        if d.name in counted:
             continue
         manifest_path = d / "manifest.json"
         if not manifest_path.exists():
@@ -1170,7 +1243,9 @@ def journal_totals() -> Dict[str, int]:
             sha = model.get("sha256") if isinstance(model, dict) else None
             if sha:
                 seen_models.add(sha)
+        counted.add(d.name)
     totals["models_recorded"] = len(seen_models)
+    _write_totals_cache(totals, counted, seen_models)
     return totals
 
 
