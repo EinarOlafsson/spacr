@@ -22,7 +22,9 @@ anything. See :mod:`spacr.hyperparam` for why.
 from __future__ import annotations
 
 import logging
+import tempfile
 import threading
+from pathlib import Path
 from dataclasses import dataclass, field
 from io import BytesIO
 from typing import (
@@ -37,6 +39,7 @@ from PySide6.QtWidgets import (
     QLineEdit, QPushButton, QScrollArea, QSizePolicy, QSpinBox, QSplitter,
     QTabWidget, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
+from ..widgets.figure_grid import SearchFigureGrid
 from ..widgets.toggle import Toggle
 
 from ...hyperparam import (
@@ -46,7 +49,7 @@ from ...hyperparam import (
     UMAP_WALK_PARAMETERS, umap_walk_axes, walk_neighbourhood,
     run_search_for_app, umap_metrics as _umap_metrics,
 )
-from ..theme import active_palette, css_color
+from ..theme import active_palette, css_color, make_transparent
 
 LOG = logging.getLogger("spacr.qt.hyperparam")
 
@@ -451,10 +454,48 @@ class SearchRequest:
     resume: bool = False
 
 
+
+def render_trial_figure(trial: Trial, metric: str, png_path: str) -> bool:
+    """Draw ONE trial's embedding and write it to ``png_path``.
+
+    Pure matplotlib, no Qt, so this is safe to call from a worker thread --
+    which is the whole point. Fifty embeddings drawn on the GUI thread is a
+    fifty-second freeze, and the search is the one place where the user most
+    wants to keep interacting (to stop it).
+
+    Returns False when the trial has no embedding to draw: a classifier
+    sweep has none, and a failed UMAP trial has none either. The caller
+    treats that as "no figure for this cell" rather than as an error.
+    """
+    embedding = trial.extra_metrics.get("embedding")
+    if embedding is None or trial.score is None:
+        return False
+    import matplotlib
+    matplotlib.use("Agg", force=False)
+    from matplotlib.figure import Figure
+
+    figure = Figure(figsize=(3.2, 2.6))
+    axis = figure.add_subplot(111)
+    count = len(embedding)
+    axis.scatter([point[0] for point in embedding],
+                 [point[1] for point in embedding],
+                 c=list(range(count)), cmap="viridis",
+                 s=4, alpha=0.8, edgecolors="none")
+    axis.set_xticks([])
+    axis.set_yticks([])
+    axis.set_title(f"{format_params(trial.params)}\n"
+                   f"{metric}={float(trial.score):.3f}", fontsize=7)
+    figure.tight_layout()
+    from ..widgets.figure_queue import render_figure_to_png
+    return bool(render_figure_to_png(figure, png_path))
+
+
 class _SearchWorker(QThread):
     """Runs one sweep in the background, streaming trials as they complete."""
 
-    trial_ready = Signal(object, int, int)   # (Trial, completed, total)
+    # (Trial, completed, total, png_path). The path is rendered HERE, on
+    # the worker thread, and is "" when the trial has no embedding.
+    trial_ready = Signal(object, int, int, str)
     search_done = Signal(object, str)        # (SearchResult or None, error)
 
     def __init__(self, request: SearchRequest, search_fn=None, parent=None):
@@ -463,12 +504,37 @@ class _SearchWorker(QThread):
         self._request = request
         self._search_fn = search_fn
         self._stop = threading.Event()
+        self._metric = str(getattr(request, "criterion", "score") or "score")
+        try:
+            self._figure_dir = Path(tempfile.mkdtemp(prefix="spacr-search-"))
+        except Exception:                       # pragma: no cover - defensive
+            self._figure_dir = None
         # QThread.finished is the lifecycle boundary the panel must wait for.
         # The result signal is emitted just before QThread.run() returns, so it
         # is too early to drop the final Python reference to this object.
         self.result: Optional[SearchResult] = None
         self.error = ""
         self.completion_ready = False
+
+
+    def _emit_trial(self, trial, done: int, total: int) -> None:
+        """Render this trial, then announce it. Runs on the worker thread.
+
+        A bound method rather than a lambda: the rendering has to happen
+        before the signal is emitted, and doing it here keeps every
+        matplotlib call off the GUI thread.
+        """
+        path = ""
+        try:
+            if self._figure_dir is not None:
+                target = self._figure_dir / f"trial_{trial.index:04d}.png"
+                if render_trial_figure(trial, self._metric, str(target)):
+                    path = str(target)
+        except Exception:
+            # A figure is decoration; a search that dies because a plot
+            # failed would lose hours of real work. INVARIANTS 10.
+            LOG.debug("could not render trial %s", trial.index, exc_info=True)
+        self.trial_ready.emit(trial, done, total, path)
 
     def request_stop(self) -> None:
         """Ask the sweep to stop after the trial currently in flight."""
@@ -484,11 +550,7 @@ class _SearchWorker(QThread):
         req = self._request
         try:
             fn = self._search_fn or _default_search_fn
-            self.result = fn(
-                req,
-                lambda t, done, total: self.trial_ready.emit(t, done, total),
-                self._stop.is_set,
-            )
+            self.result = fn(req, self._emit_trial, self._stop.is_set)
         except Exception as exc:
             LOG.info("hyperparameter search failed: %s", exc, exc_info=True)
             self.error = f"{type(exc).__name__}: {exc}"
@@ -935,12 +997,29 @@ class HyperparamPanel(QWidget):
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
         split.addWidget(self._table)
 
+        # Two views of the same sweep, stacked: the GRID fills a cell at a
+        # time while the search runs, and the summary figure replaces it at
+        # the end. Live steering is the grid's job -- seeing the first few
+        # embeddings is what tells you the range is wrong before the other
+        # fifty run -- and the summary is the deliverable.
+        self._preview_stack = QWidget(self)
+        self._preview_stack.setObjectName("SearchPreviewStack")
+        make_transparent(self._preview_stack)
+        preview_column = QVBoxLayout(self._preview_stack)
+        preview_column.setContentsMargins(0, 0, 0, 0)
+        preview_column.setSpacing(0)
+
+        self._figure_grid = SearchFigureGrid(parent=self._preview_stack)
+        self._figure_grid.setVisible(False)
+        preview_column.addWidget(self._figure_grid, 1)
+
         self._preview = QLabel("No search has been run yet.")
         self._preview.setAlignment(Qt.AlignCenter)
         self._preview.setMinimumWidth(220)
         self._preview.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self._preview.setWordWrap(True)
-        split.addWidget(self._preview)
+        preview_column.addWidget(self._preview, 1)
+        split.addWidget(self._preview_stack)
         split.setStretchFactor(0, 3)
         split.setStretchFactor(1, 4)
         root.addWidget(split, 1)
@@ -1319,6 +1398,16 @@ class HyperparamPanel(QWidget):
         self._notes.setText("")
         self._preview.setText("Running…")
         self._preview.setPixmap(QPixmap())
+        if self._figure_grid is not None:
+            self._figure_grid.clear()
+            # Axes from the SPACE, set before the first figure lands, so the
+            # grid does not rearrange itself as results arrive.
+            try:
+                self._figure_grid.set_parameters(list(space.params))
+            except Exception:
+                self._figure_grid.set_parameters([])
+            self._figure_grid.setVisible(True)
+            self._preview.setVisible(False)
         search_label = (
             f"adaptive 2×2 search over at most {request.n_trials} rounds"
             if request.adaptive
@@ -1399,9 +1488,20 @@ class HyperparamPanel(QWidget):
             return
         self._on_search_done(worker.result, worker.error)
 
-    def _on_trial_ready(self, trial: Trial, done: int, total: int) -> None:
-        """Append one finished trial to the table as the sweep progresses."""
+    def _on_trial_ready(self, trial: Trial, done: int, total: int,
+                        png_path: str = "") -> None:
+        """Append one finished trial to the table as the sweep progresses.
+
+        :param png_path: a figure the WORKER already rendered, or "". The
+            panel only loads and places it -- rendering here would be on
+            the GUI thread.
+        """
         self._live_trials.append(trial)
+        if png_path and self._figure_grid is not None:
+            try:
+                self._figure_grid.add_figure(png_path, dict(trial.params))
+            except Exception:
+                LOG.debug("could not place the trial figure", exc_info=True)
         row = self._table.rowCount()
         self._table.insertRow(row)
         self._set_row(row, str(trial.index + 1),
@@ -1463,6 +1563,7 @@ class HyperparamPanel(QWidget):
         if disagreement:
             summary.append(disagreement)
         self._status.setText(" ".join(summary))
+        self._show_summary_instead_of_grid()
         self._draw_preview(result)
         self.search_finished.emit(result)
 
@@ -1573,6 +1674,18 @@ class HyperparamPanel(QWidget):
         return True
 
     # -- preview -----------------------------------------------------------
+
+    def _show_summary_instead_of_grid(self) -> None:
+        """Hand the pane back to the finished-sweep figure.
+
+        The grid keeps its figures rather than clearing: a user who wants
+        the live view back gets it on the next run, and throwing away the
+        per-trial images the moment the search ends would discard the thing
+        they were watching.
+        """
+        if self._figure_grid is not None:
+            self._figure_grid.setVisible(False)
+        self._preview.setVisible(True)
 
     def _draw_preview(self, result: SearchResult) -> None:
         """Render the small-multiples panel for a finished sweep."""
