@@ -289,7 +289,7 @@ settings, not as a sweep.
 2026-08-09 - THE TWO LONGEST REWRITTEN
 --------------------------------------------------------------------------------
 
-    over 600 chars   37 -> 33
+    over 600 chars   37 -> 31
     under 80 chars   13 -> 1     (earlier)
     empty             1 -> 0     (earlier)
 
@@ -336,3 +336,29 @@ keys in the tooltips literal are quoted BOTH ways -- `"verbose":` and
 `'strict_errors':` -- so a pattern anchored on double quotes silently
 matches nothing for half the table and reports success. That cost one
 round here. Match `['\"]` on both sides.
+
+--------------------------------------------------------------------------------
+2026-08-09 - SIX CUT SO FAR
+--------------------------------------------------------------------------------
+
+    annotated_classes  1022 -> 386     verbose          860 -> 496
+    strict_errors       841 -> 591     control_wells    831 -> 547
+    custom_regex        827 -> 599     Signal_to_noise  815 -> 590
+
+    over 600 chars   37 -> 31
+
+Two of these earned a sentence that was NOT in the original, because
+cutting made room for the thing a user actually needs:
+
+  custom_regex   now says that a filename missing a required group is
+                 SKIPPED with a warning -- so a near-miss quietly shrinks
+                 the dataset rather than failing. That is the failure mode
+                 of this setting and it was buried mid-paragraph.
+  Signal_to_noise now says which direction to move it and why (RAISE for
+                 less clipping and dimmer output, LOWER to stretch faint
+                 objects at the cost of saturating bright ones), and that a
+                 collapsed range is the sign the value is far too high.
+
+That is the test for the remaining 31: not "is it shorter" but "can
+someone choose a value from it". Length is the symptom; an archive of
+everything ever learned about the setting is the cause.
