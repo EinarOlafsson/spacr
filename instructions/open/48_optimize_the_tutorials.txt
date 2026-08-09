@@ -140,6 +140,11 @@ The production implementation is complete in the editable workspace:
 - The complete release verifier passed for 69 lessons, eight languages, 54
   voices, 3,726 tracks, and 69 4K videos. The media-budget suite passes all 18
   tests, and static path/syntax/catalog checks pass.
+- A final scene-midpoint visual review of PyPI, Mask, Image UMAP, Classify, and
+  Gate Editor caught one residual generic Classify focus. Its English lesson
+  was rerecorded across all 28 voices and rerendered so the input card, exact
+  classifier-family selector, Run button, and console each receive their own
+  bounded emphasis. The full release verifier passed again afterward.
 
 The release is intentionally not marked done or promoted to `main` until the
 Hugging Face dataset accepts the new narration, timing sidecars, and 4K masters.

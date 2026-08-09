@@ -3015,16 +3015,16 @@
           "speech_text": "This tutorial covers Classify. Choose one classification workflow for image crops or measured features and evaluate it without leaking related objects across splits."
         },
         {
-          "narration": "Choose the project, labels, and either the image or feature workflow.",
+          "narration": "Choose the project and labels before selecting the representation the model will use.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "Choose the project, labels, and either the image or feature workflow."
+          "speech_text": "Choose the project and labels before selecting the representation the model will use."
         },
         {
-          "narration": "In the main configuration area, review grouped splits, class balance, model controls, and the metrics that match the decision you need to make.",
+          "narration": "In the main configuration area, use Classifier family as the top-level choice: Computer Vision trains on object crops, while Machine Learning trains on measured features.",
           "visual": "settings",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, review grouped splits, class balance, model controls, and the metrics that match the decision you need to make."
+          "speech_text": "In the main configuration area, use Classifier family as the top-level choice: Computer Vision trains on object crops, while Machine Learning trains on measured features."
         },
         {
           "narration": "Run a small grouped validation before committing to expensive training; the dedicated Classify CV and Classify ML lessons demonstrate their bounded Hyperparameter Search workbenches.",
@@ -3033,10 +3033,10 @@
           "speech_text": "Run a small grouped validation before committing to expensive training; the dedicated Classify C V and Classify M L lessons demonstrate their bounded Hyperparameter Search workbenches."
         },
         {
-          "narration": "When the workflow finishes, the model, predictions, split records, metrics, and settings remain linked to the run.",
+          "narration": "When the workflow finishes, the console and run record link the model, predictions, split records, metrics, and settings.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, the model, predictions, split records, metrics, and settings remain linked to the run."
+          "speech_text": "When the workflow finishes, the console and run record link the model, predictions, split records, metrics, and settings."
         }
       ]
     },
