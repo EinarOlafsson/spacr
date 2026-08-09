@@ -1891,6 +1891,15 @@ class AppScreen(QWidget):
             )
             self._interactive_switch.toggled.connect(
                 self._on_interactive_switch)
+            # Clicking the STATIC figure turns Live on. The request was "i
+            # should be able to press every point" -- pressing a point on a
+            # rendered PNG means hit-testing pixels back to the embedding,
+            # a second and fragile implementation of what the explorer
+            # already does properly. So the click takes you to the view
+            # where pressing points works, instead of building that twice.
+            queue = getattr(self, "_figure_queue", None)
+            if queue is not None and hasattr(queue, "figure_clicked"):
+                queue.figure_clicked.connect(self._on_static_figure_clicked)
             row.addWidget(self._interactive_switch)
 
         # AI toggle + provider dropdown, bottom-right of the actions row.
@@ -2285,6 +2294,30 @@ class AppScreen(QWidget):
             model = getattr(self, "_settings_model", None)
             if model is not None:
                 self._hyperparam.apply_settings(model.collect())
+
+
+    def _on_static_figure_clicked(self) -> None:
+        """A click on the static UMAP opens the interactive explorer.
+
+        Only when there is a payload to explore -- clicking an ordinary
+        figure, or one from a run that carried no embedding, does nothing
+        rather than flipping a switch that then shows an empty panel.
+
+        Says so in the console, because a view that changes under you with
+        no explanation is worse than one that does not change.
+        """
+        if not getattr(self, "_umap_payload_ready", False):
+            return
+        switch = getattr(self, "_interactive_switch", None)
+        if switch is None or switch.isChecked():
+            return
+        switch.setChecked(True)
+        try:
+            self._console.append_notice(
+                "\nInteractive mode is on — click any point to preview its "
+                "image. Turn it off with the Live toggle.\n")
+        except Exception:
+            LOG.debug("could not announce interactive mode", exc_info=True)
 
     def _on_interactive_switch(self, on: bool) -> None:
         """Switch UMAP results between the static figure and explorer.
