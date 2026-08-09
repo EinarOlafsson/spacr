@@ -5,7 +5,7 @@ Four buttons in Preferences — **clear RAM**, **clear VRAM**, **clear CPU**,
 This module is what they call.
 
 The rule, and it is a refusal rather than a preference
------------------------------------------------------
+------------------------------------------------------
 
 "Free as many resources as possible" must never reach anything spaCR does
 not own. This machine runs other people's work: a segmentation that starts

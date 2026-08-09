@@ -101,7 +101,7 @@ output filename, never replaced — so a project's provenance back to its
 own original files survives an import into it.
 
 The copy in the canonical table is a convenience, and it is handed back
-----------------------------------------------------------------------
+-----------------------------------------------------------------------
 
 The copy an import-only project gets exists so the rest of spaCR has a
 ``cell`` table to read. It stops being useful the moment spaCR measures
