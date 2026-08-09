@@ -289,7 +289,7 @@ settings, not as a sweep.
 2026-08-09 - THE TWO LONGEST REWRITTEN
 --------------------------------------------------------------------------------
 
-    over 600 chars   37 -> 35
+    over 600 chars   37 -> 33
     under 80 chars   13 -> 1     (earlier)
     empty             1 -> 0     (earlier)
 
@@ -313,3 +313,26 @@ the archaeology to the API page where there is room for it.
 
 Next by length: strict_errors (841), control_wells (831), custom_regex
 (827), Signal_to_noise (815).
+
+--------------------------------------------------------------------------------
+2026-08-09, LATER - TWO MORE, AND A NOTE ON EDITING THIS FILE
+--------------------------------------------------------------------------------
+
+    strict_errors   841 -> 591
+    control_wells   831 -> 547
+    over 600 chars   35 -> 33
+
+Both kept everything a user needs to decide and dropped the enumeration.
+`strict_errors` still says what OFF and ON each do and that per-item
+failures survive either way; `control_wells` still says how to name a well
+and that these are dropped from every efficiency. What went was length, not
+content -- except in one place worth noting: control_wells' second
+paragraph, about the screen regression reading the same key for a different
+job, is compressed to one sentence rather than deleted. It is surprising
+enough that removing it would cost someone an afternoon.
+
+A PRACTICAL NOTE for whoever edits `spacr/settings.py` with a script: the
+keys in the tooltips literal are quoted BOTH ways -- `"verbose":` and
+`'strict_errors':` -- so a pattern anchored on double quotes silently
+matches nothing for half the table and reports success. That cost one
+round here. Match `['\"]` on both sides.
