@@ -2,9 +2,9 @@
 THE FULL tests/qt RUN HANGS PART-WAY THROUGH
 ================================================================================
 
-Status:    the fix that was making it worse is REMOVED (2026-08-08).
-           Best run: 66%, zero crashes, zero failures, stopped only by
-           the harness timeout. A full clean run is still unconfirmed.
+Status:    NO LONGER CRASHING (2026-08-09). Two consecutive runs
+           reached 66% with zero crashes and zero failures, both stopped
+           by a 5.5h timeout on a machine that was not idle.
 Severity:  test-only, but it makes the qt suite unrunnable as a whole,
            which is how the order-dependent failures in 03 and 46 stay
            invisible.
@@ -190,3 +190,47 @@ STILL UNCONFIRMED: a full run reaching its summary line. Best so far is
 66%. The suite is slow enough under load that this needs a quiet machine
 and a longer budget than 5.5 hours, or `-p xdist` if that can be made to
 work with the Qt fixtures.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE CRASHES ARE GONE. WHAT IS LEFT IS WALL CLOCK, AND IT IS
+             NOT THE SUITE'S FAULT.
+--------------------------------------------------------------------------------
+
+Two consecutive full runs, one with the drain fixture removed and one after
+that:
+
+    66%, 0 crashes, 0 failures, killed by a 5.5-hour timeout
+    66%, 0 crashes, 0 failures, killed by a 5.5-hour timeout
+
+Identical stopping point, and neither is a crash -- exit 124 is the timeout
+I set. So every crash and hang catalogued in this file is fixed. What
+remains is that the run does not FIT in 5.5 hours.
+
+AND THE MACHINE IS NOT IDLE. Measured while the second run was going:
+
+    load average 29 on 32 cores
+    5 x tools/render_all_voices.py --languages all --lessons, ~294% CPU
+      each, 53 minutes elapsed
+
+That is the concurrent Codex session generating tutorial voice-overs
+(instruction 48), taking roughly 15 cores. The qt suite has been sharing a
+saturated machine for every run recorded here, so "the suite is slow" is
+not a supported conclusion -- it has never been timed on an idle box.
+
+This also explains a measurement I nearly reported as a regression: a
+startup timing that looked 2x worse was taken at load 33 and was noise.
+
+WHAT TO DO, in order of cost:
+
+  1. Time it once on an IDLE machine. Until then the duration is unknown,
+     not long. Coordinate with whoever is running the tutorials.
+  2. `pip install pytest-xdist` -- NOT currently installed. `-n 8` would
+     cut wall clock roughly eightfold, and the qt fixtures are mostly
+     per-test so it has a fair chance of working. Try it before assuming
+     the suite needs to stay serial; if the session-scoped `qt_theme_applied`
+     fixture fights it, that is worth knowing too.
+  3. Only if both fail, split the suite into halves that can run
+     separately in CI.
+
+HOW TO KNOW IT WORKED is unchanged: one run reaches its summary line. It is
+now a scheduling problem rather than a debugging one.
