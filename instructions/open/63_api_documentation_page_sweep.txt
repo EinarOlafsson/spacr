@@ -2,8 +2,8 @@
 MAKE THE API PAGE LOOK PROFESSIONAL, CLEAN AND USEFUL
 ================================================================================
 
-Status:    in progress. 17 of ~70 markup defects fixed and VERIFIED
-           by rebuild (2026-08-09). The rest are listed below.
+Status:    in progress. 17 short underlines and 181 duplicate object
+           descriptions fixed, both VERIFIED by rebuild (2026-08-09).
 Requested: 2026-08-08 — "do a sweep of the API page and make sure everything looks as professions and clean and informative and usefull as you can make it"
 
 --------------------------------------------------------------------------------
@@ -290,3 +290,42 @@ re-parse, run on one file first. The underline fix it performed is the
 cheapest of these categories; "Unexpected indentation" and the block quotes
 need a human reading each docstring, because the right fix is usually a
 blank line in a place only a person can choose.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE DUPLICATES WERE HAND-WRITTEN PAGES, NOT autoapi
+--------------------------------------------------------------------------------
+
+    duplicate object description   182 -> 1
+
+The cause was not autoapi's `imported-members` as this file guessed. It was
+SIX `.. automodule::` directives in hand-written narrative pages, each
+pointing at a module autoapi already documents:
+
+    database_concurrency_audit.rst   spacr.database_concurrency, cli_database
+    distributed_execution.rst        spacr.remote_execution
+    leakage_audit.rst                spacr.classifier_evaluation
+    plugin_sdk.rst                   spacr.plugins
+    threading_cancellation_audit.rst spacr.cancellation
+
+Those five files produced 181 of the 182 warnings, and the top offenders in
+the count map onto them one for one -- remote_execution 122, plugins 116,
+database_concurrency 74.
+
+THE FIX IS `:noindex:` ON EACH, which is exactly what the directive is for:
+render the API inline in the narrative page, without claiming to be the
+canonical definition of those symbols. Deleting the directives would have
+been wrong -- the narrative pages want the API visible in context -- and
+excluding the modules from autoapi would have been worse, since the API
+reference should list everything.
+
+ONE SURVIVOR, and it is a different cause:
+
+    spacr/mask_io/index.rst:89  spacr.mask_io.DEFAULT_FORMAT
+
+A module-level constant documented twice by autoapi itself. Worth a look,
+but it is one warning rather than a class.
+
+STILL OPEN: 18 unexpected indentation, 11 block quotes, 7 definition lists,
+6 inline literals, 2 malformed tables, 8 substitutions/targets. Those need a
+person per docstring -- the repair is usually a blank line only a reader can
+place -- unlike the two classes fixed today, which were mechanical.
