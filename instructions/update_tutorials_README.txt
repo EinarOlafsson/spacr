@@ -4,7 +4,6 @@ UPDATING THE spaCR TUTORIALS
 
 Live site:  https://einarolafsson.github.io/spacr/tutorials/
 Media host: https://huggingface.co/datasets/einarolafsson/spacr-tutorials
-Videos:     https://www.youtube.com/channel/UCft7M--R8Vb2W1Q0sFOSOGA
 
 --------------------------------------------------------------------------------
 1. THE ROUTINE UPDATE
@@ -12,7 +11,7 @@ Videos:     https://www.youtube.com/channel/UCft7M--R8Vb2W1Q0sFOSOGA
 
 After changing anything -- a lesson video, narration, the player, the catalog:
 
-    cd /media/carruthers/mnt3/claude/tutorials
+    cd /mnt/firecuda2/Claude/toxoplasma_projects/tutorials
     python tools/publish_tutorials.py
 
 That does all four halves of the job:
@@ -23,7 +22,7 @@ That does all four halves of the job:
 
 Then commit the part that lives in git:
 
-    cd /media/carruthers/mnt3/claude/repo
+    cd /mnt/firecuda2/codex/repo/spacr
     git add -A docs/source/_extra/tutorials
     git commit -m 'tutorials: refresh lesson media' && git push
 
@@ -36,7 +35,6 @@ Useful flags:
     --lessons 07_mask,24_plaque   only these lessons
     --skip-hf                     docs tree only, do not touch the media host
     --force-encode                re-encode even if the master looks unchanged
-    --youtube-masters DIR         also build narrated 4K files to upload
 
 Re-running is cheap and safe. Encoding is skipped when a master's size and
 mtime are unchanged (tracked in tools/tutorial-encode-manifest.json in the
@@ -48,20 +46,19 @@ A no-op run takes seconds.
 2. THE ONE RULE THAT WILL BITE YOU
 --------------------------------------------------------------------------------
 
-    EDIT  /media/carruthers/mnt3/claude/tutorials/web/
-    NEVER /media/carruthers/mnt3/claude/repo/docs/source/_extra/tutorials/
+    EDIT  /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/web/
+    NEVER /mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/
 
 The repo copy is derived output. publish_tutorials.py overwrites it every
 run. Editing the repo copy appears to work -- it even deploys -- and is then
 silently reverted by the next publish, with no error and no conflict.
 
-This already happened once: the YouTube links, the quality selector and the
-Hugging Face roots were all written into the repo copy first and had to be
-moved back into web/.
+This already happened once: the quality selector and Hugging Face roots were
+written into the repo copy first and had to be moved back into web/.
 
 Files that flow web/ -> repo:
     index.html  styles.css  app_v2.js  voice_catalog.js  lesson_catalog.js
-    youtube_links.js  logo_spacr.png  favicon.svg  TUTORIAL_MEDIA_NOTICE.md
+    logo_spacr.png  favicon.svg  TUTORIAL_MEDIA_NOTICE.md
     fonts/  catalog/
 
 index.html is rewritten in transit: web/ uses data-production-root="../production"
@@ -71,34 +68,24 @@ so it can be previewed in place; the published copy uses "production".
 3. WHERE THE MEDIA LIVES, AND WHY IT IS SPLIT
 --------------------------------------------------------------------------------
 
-Three homes, because one has a hard cap.
+Two homes, because GitHub Pages has a hard cap.
 
   docs/source/_extra  (GitHub Pages -- 1 GB HARD LIMIT)
-      player, posters, 1440p video, and ONE narration voice per language as
-      an offline fallback.  ~603 MiB.  committed to git.
+      player, posters, and 1440p video. committed to git.
 
   Hugging Face dataset
-      all 54 narration voices + timing sidecars, and the 4K masters.  ~3.5 GB.
+      all 54 narration voices + timing sidecars, and the 4K masters. The exact
+      size grows with the lesson catalog and is intentionally not committed.
       NOT in git.  Uploaded by publish_tutorials.py.
 
-  YouTube
-      one narrated 4K cut per lesson, linked from each lesson page.
-      Uploaded by hand.  Ids live in web/youtube_links.js.
+Why the voices are on the host: narration grows once per lesson, language, and
+voice. Hosting all 54 there keeps every choice reachable without consuming the
+Pages budget.
 
-Why the voices are on the host: all 54 are 2,662 MiB. While the site carried
-them it could publish only one per language, so 27 of the 28 English voices
-were listed nowhere and reachable never.
-
-Why one voice is STILL on the site: so a host outage degrades the tutorials
-instead of breaking them. If narration fails to load, app_v2.js switches to
-that language's fallback voice served from the site, shows a toast, and
-carries on -- audio and captions intact, at one voice and 1440p rather than
-54 voices and 4K. The 4K quality option falls back the same way.
-
-That fallback costs 413 MiB of the ~950 MiB Pages budget, spent knowingly.
-Do NOT raise VOICES_PER_LANGUAGE to 2: that is another 413 MiB for a second
-fallback nobody would hear, and it puts the site over the limit it fails at
-silently.
+Narration is not duplicated on Pages. If the media host is unavailable, the
+player keeps the GitHub-hosted 1440p video, reports that narration is
+temporarily unavailable, and continues silently. The 4K option similarly
+falls back to the GitHub-hosted 1440p cut.
 
 Pages is the dangerous one. It does not fail loudly when a site exceeds 1 GB
 -- it refuses the deployment and keeps serving the last build that fitted,
@@ -107,11 +94,11 @@ exactly how the tutorials appeared frozen for four days.
 
 Check the budget any time:
 
-    cd /media/carruthers/mnt3/claude/repo
+    cd /mnt/firecuda2/codex/repo/spacr
     python tools/docs_media_budget.py --report
 
 Guard rails, in tools/docs_media_budget.py and tests/test_docs_media_budget.py:
-    PUBLISHED_MEDIA_CEILING = 300 MiB   payload ceiling
+    PUBLISHED_MEDIA_CEILING = 700 MiB   payload ceiling
     a second test keeps the whole site under 85% of the 1 GB limit
 
 --------------------------------------------------------------------------------
@@ -120,7 +107,7 @@ Guard rails, in tools/docs_media_budget.py and tests/test_docs_media_budget.py:
 
 Replace the 4K master:
 
-    /media/carruthers/mnt3/claude/tutorials/production/<lesson>/video/<lesson>_silent.mp4
+    /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/production/<lesson>/video/<lesson>_silent.mp4
 
 then run publish_tutorials.py. It re-encodes to 1440p and uploads the 4K.
 
@@ -160,12 +147,8 @@ After adding voices: update voice_catalog.js, then publish.
 There is no per-language limit on the host -- it has room. Currently:
     en 28,  zh-CN 8,  ja 5,  hi 4,  es 3,  pt-BR 3,  it 2,  fr 1   = 54
 
-The FIRST voice listed for each language is special: it is the one staged to
-the site as the offline fallback, and the one the player drops to when the
-host is unreachable. Reordering a language's voices changes which voice is
-published. tests/test_docs_media_budget.py asserts the staged voice is
-exactly voices[0], so a reorder without a re-publish fails CI rather than
-shipping a fallback the player never asks for.
+The first voice listed for English remains the player default. Narration for
+every listed voice is served from Hugging Face; none is duplicated on Pages.
 
 --------------------------------------------------------------------------------
 6. HOW IT DEPLOYS
@@ -190,32 +173,7 @@ makes its push non-fast-forward and the whole release fails after the
 installers have already built. This has happened.
 
 --------------------------------------------------------------------------------
-7. YOUTUBE 4K LINKS
---------------------------------------------------------------------------------
-
-Build the uploadable files (4K + English narration muxed in):
-
-    python tools/publish_tutorials.py --youtube-masters /path/to/out
-
-Never upload the raw masters -- they have no audio stream at all, so they
-would publish 40 silent videos.
-
-Upload them, then put the 11-character video ids in web/youtube_links.js:
-
-    "07_mask": "nlErufRyrtU",
-
-A lesson with an empty id renders no button, so the catalogue can be filled
-a few at a time without ever showing a dead link.
-
-ALWAYS verify the id belongs to the lesson you are mapping it to. Pasted
-lists have been wrong three times. Check with:
-
-    curl -s "https://www.youtube.com/oembed?url=https://youtu.be/<ID>&format=json"
-
-and read the title back.
-
---------------------------------------------------------------------------------
-8. THE QUALITY TOGGLE
+7. THE QUALITY TOGGLE
 --------------------------------------------------------------------------------
 
 The player offers 1440p (from Pages) and 4K (from the media host). Both are
@@ -223,12 +181,9 @@ the same silent cut on the same timeline, so switching quality does not
 interrupt narration -- the audio keeps playing and is only re-synced to the
 new video clock.
 
-This is why the 4K option is a plain <video src> and not a YouTube embed:
-the player drives the element at an arbitrary playback rate to match the
-selected voice, and the YouTube IFrame API only accepts a fixed set of
-rates. YouTube also keys alternate audio by LANGUAGE, not by voice, so the
-54-voice picker could never work there. Hence: YouTube for a 4K link,
-Hugging Face for 4K playback.
+The 4K option remains a plain <video src> so the player can drive it at an
+arbitrary playback rate to match the selected narration. Hugging Face hosts
+the 4K silent master and every narration voice.
 
 Roots are declared on <html> in web/index.html:
     data-production-root  video, posters, captions   (the site itself)
@@ -239,14 +194,14 @@ They must match NARRATION_HOST in tools/docs_media_budget.py and HF_DATASET
 in tools/publish_tutorials.py.
 
 --------------------------------------------------------------------------------
-9. VERIFYING A DEPLOY
+8. VERIFYING A DEPLOY
 --------------------------------------------------------------------------------
 
     B=https://einarolafsson.github.io/spacr/tutorials
 
     # the player picked up the new build
-    curl -s "$B/youtube_links.js" | md5sum
-    md5sum docs/source/_extra/tutorials/youtube_links.js
+    curl -s "$B/app_v2.js" | md5sum
+    md5sum docs/source/_extra/tutorials/app_v2.js
 
     # narration is NOT on Pages (should be 404 -- it comes from the host)
     curl -sI "$B/production/07_mask/audio/en/af_heart.m4a" | head -1
@@ -264,7 +219,7 @@ Browsers cache the old build aggressively. Hard-refresh (Ctrl+Shift+R)
 before concluding a deploy did not work.
 
 --------------------------------------------------------------------------------
-10. THINGS THAT HAVE ALREADY GONE WRONG
+9. THINGS THAT HAVE ALREADY GONE WRONG
 --------------------------------------------------------------------------------
 
 * Editing the repo copy instead of web/. Silently reverted on next publish.
