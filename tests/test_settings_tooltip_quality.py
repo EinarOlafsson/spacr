@@ -71,28 +71,16 @@ def test_every_tooltip_declares_its_type():
 def test_no_duplicate_keys_in_the_tooltips_literal():
     """A repeated key in the dict literal silently discards the earlier text.
 
-    This is not hypothetical: the literal carried ten shadowed entries before
-    the 2026-07 audit, so ten tooltips were dead text nobody could ever see.
+    This is not hypothetical: the literal carried ten shadowed entries
+    before the 2026-07 audit, so ten tooltips were dead text nobody could
+    ever see. An eleventh -- `crop_source` -- was found in 2026-08, and it
+    was worse than dead text: the shadowed entry documented values the code
+    rejects ('png', 'merged'), so the CORRECT tooltip only won by where it
+    happened to sit in the file.
     """
-    import inspect
     from collections import Counter
 
-    import spacr.settings as st
-
-    src = inspect.getsource(st)
-    m = re.search(r"^tooltips\s*=\s*\{", src, re.M)
-    assert m, "tooltips dict literal not found"
-    start = m.end() - 1
-    depth = 0
-    for j in range(start, len(src)):
-        if src[j] == "{":
-            depth += 1
-        elif src[j] == "}":
-            depth -= 1
-            if depth == 0:
-                end = j + 1
-                break
-    keys = re.findall(r'[\{,]\s*["\']([A-Za-z_][A-Za-z_0-9]*)["\']\s*:', src[start:end])
+    keys = _literal_keys("tooltips")
     dupes = {k: c for k, c in Counter(keys).items() if c > 1}
     assert not dupes, f"duplicate keys shadow earlier tooltips: {dupes}"
 
@@ -100,28 +88,31 @@ def test_no_duplicate_keys_in_the_tooltips_literal():
 def _literal_keys(dict_name: str):
     """Every key as it appears in a top-level dict literal in settings.py.
 
-    Reading the source rather than the imported dict is the point: Python
-    silently keeps only the last of a repeated key, so the live object cannot
-    reveal the shadowing.
+    Reading the SOURCE rather than the imported dict is the point: Python
+    silently keeps only the last of a repeated key, so the live object
+    cannot reveal the shadowing.
+
+    Parsed with `ast`, not a regex. The regex version matched quoted names
+    inside DESCRIPTION TEXT -- `png_channel_mapping`'s tooltip contains the
+    literal ``{'r': 2, 'g': 1, 'b': 0}`` (see INVARIANTS 13), so r, g and b
+    were reported as duplicate keys forever. Its brace counter also could
+    not tell a `{` in prose from a real one, so the end of the literal
+    moved with the wording. An AST cannot be fooled by either.
     """
+    import ast
     import inspect
+
     import spacr.settings as st
 
-    src = inspect.getsource(st)
-    m = re.search(rf"^{dict_name}\s*=\s*\{{", src, re.M)
-    assert m, f"{dict_name} dict literal not found"
-    start = m.end() - 1
-    depth = 0
-    for j in range(start, len(src)):
-        if src[j] == "{":
-            depth += 1
-        elif src[j] == "}":
-            depth -= 1
-            if depth == 0:
-                end = j + 1
-                break
-    return re.findall(r'[\{,]\s*["\']([A-Za-z_][A-Za-z_0-9]*)["\']\s*:', src[start:end])
-
+    tree = ast.parse(inspect.getsource(st))
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        names = [t.id for t in node.targets if isinstance(t, ast.Name)]
+        if dict_name in names and isinstance(node.value, ast.Dict):
+            return [k.value for k in node.value.keys
+                    if isinstance(k, ast.Constant) and isinstance(k.value, str)]
+    raise AssertionError(f"{dict_name} dict literal not found")
 
 def test_no_duplicate_keys_in_expected_types():
     """A repeated key here silently changes a setting's declared type.
