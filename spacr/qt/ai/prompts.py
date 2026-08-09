@@ -2,6 +2,7 @@
 System prompts used by the AI console.
 
 Two shapes:
+
 * `default_system_prompt()` — spacr-aware assistant persona, used for
   the freeform chat panel.
 * `error_explainer_prompt()` — prefix that turns a traceback into a
