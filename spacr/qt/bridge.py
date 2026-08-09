@@ -807,14 +807,14 @@ class PipelineWorker(QObject):
     """Runs one pipeline function in its own thread.
 
     Signals:
-        line_ready(str)  — a chunk of stdout/stderr text
-        finished(bool)   — True if the function returned without an
-                            unhandled exception
-        error(str)       — traceback string on failure
-        figure_ready(object)
-                         — a matplotlib Figure that the pipeline
-                            asked to show(); emitted from the worker
-                            thread so the UI slot can attach it.
+
+    * ``line_ready(str)`` — a chunk of stdout/stderr text
+    * ``finished(bool)`` — True if the function returned without an
+      unhandled exception
+    * ``error(str)`` — traceback string on failure
+    * ``figure_ready(object)`` — a matplotlib Figure that the pipeline
+      asked to show(); emitted from the worker thread so the UI slot can
+      attach it.
     """
 
     line_ready = Signal(str)
