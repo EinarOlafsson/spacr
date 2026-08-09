@@ -31,7 +31,7 @@ same rule. The only symmetric summary numbers are the ones that genuinely are
 symmetric — the ARI and the matched fraction.
 
 The metrics, and why each one is computed the way it is
-------------------------------------------------------
+-------------------------------------------------------
 ``ari`` — **background is excluded, and that is the whole trick.**
     The Adjusted Rand Index over two raw label images is nearly useless: a
     1400x1400 field is ~95 % background, both models agree it is background,

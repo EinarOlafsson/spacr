@@ -14,7 +14,7 @@ widget on top. Putting the compositing rules in a ``paintEvent`` would make
 all five untestable without a running ``QApplication``.
 
 Why this canvas paints rather than reusing ``_ZoomView``
--------------------------------------------------------
+--------------------------------------------------------
 
 :class:`spacr.qt.widgets.live_preview._ZoomView` is the right answer when the
 thing being shown is a finished pixmap: it scales what it was given. Here the
