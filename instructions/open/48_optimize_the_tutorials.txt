@@ -2,9 +2,8 @@
 OPTIMIZE THE spaCR TUTORIALS
 ================================================================================
 
-Status:    audit complete for all 40 published lessons and all 63 current Qt
-           modules; implementation is waiting for the editable tutorial source
-           workspace and publisher, which are not mounted at the documented path
+Status:    implementation in progress in the recovered editable workspace;
+           69 lessons now cover all 63 current Qt modules
 Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see how they are setup?"
            2026-08-08 — "great. now we need to audit these lessons one at a time.
 
@@ -27,26 +26,25 @@ Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see
 WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
-The generated tutorial library is present under
-`docs/source/_extra/tutorials`: one HTML/CSS/JavaScript player, 40 catalogued
-lessons, one poster and one silent 1440p MP4 per lesson, 54 narration voices
-across eight languages with timing JSON, translated lesson/caption catalogs,
-and 40 YouTube 4K links. The player synchronizes the separate narration and
+The editable source is present under
+`/mnt/firecuda2/Claude/toxoplasma_projects/tutorials`. It generates the
+HTML/CSS/JavaScript player, 69 catalogued lessons, posters, silent video,
+54 narration voices across eight languages with timing JSON, and translated
+lesson/caption catalogs. The player synchronizes the separate narration and
 silent video by playback rate and stores theme, progress, language, voice,
 quality, and caption preferences in localStorage.
 
-The full checked-in library is 2,879.2 MiB / 4,424 files. Sphinx does not copy
-it directly: `tools/docs_media_budget.py` stages 603.3 MiB / 744 files, keeping
-all lessons, videos, posters and captions plus the first voice in each
-language as an offline fallback. All 54 voices and the 4K masters are served
-from Hugging Face. `.github/workflows/docs.yml` builds on main and nightly but
-deploys GitHub Pages only from main.
+Sphinx does not copy the complete production library. The current media policy
+stages the player, posters, captions, and 1440p silent videos, with no narration
+duplicated into GitHub Pages. All 54 voices, their timing sidecars, and the 4K
+masters are served from Hugging Face. `.github/workflows/docs.yml` builds on
+main and nightly but deploys GitHub Pages only from main.
 
-The documented editable source `/media/carruthers/mnt3/claude/tutorials/web/`
-and `tools/publish_tutorials.py` are not present on this machine. A filesystem
-search under `/mnt/firecuda2` found only the generated copies. The generated
-bundle must not be optimized in place until the current source-of-truth
-workspace is located, because the next publish would overwrite it.
+`web/` is the player source of truth and `tools/publish_tutorials.py` copies
+derived assets into the spaCR repository at
+`/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials`. GitHub Pages
+hosts the player, posters, and 1440p silent cuts; Hugging Face hosts narration,
+timing sidecars, and 4K silent masters. YouTube is no longer used.
 
 --------------------------------------------------------------------------------
 WHY IT MATTERS
@@ -60,21 +58,55 @@ scene timings or push GitHub Pages over its size ceiling.
 WHAT TO DO
 --------------------------------------------------------------------------------
 
-1. Inventory the editable tutorial source, production media, published copy,
-   catalogs, and publishing scripts.
-2. Trace how a lesson flows from source through encoding/upload/deployment.
-3. Establish measurable optimization targets before changing anything.
-4. Implement and verify the agreed optimizations in the source of truth.
-5. Audit all 40 lessons in catalog order. For every scene, check English
+1. Work only in the editable tutorial workspace, then publish derived files.
+2. Audit all 69 lessons in catalog order. For every scene, check English
    pronunciation, highlight timing/geometry, concise surface-level coverage,
    and agreement with the current module UI and feature set.
-6. Demonstrate Live Preview and Hyperparameter Search wherever the module
+3. Demonstrate Live Preview and Hyperparameter Search wherever the module
    offers them, because they are useful miniature versions of the workflow.
-7. Remove prescriptive parameter values that came from a prior request rather
+4. Remove prescriptive parameter values that came from a prior request rather
    than from generally useful teaching, including fixed Mask normalization
    values.
-8. Confirm changed/new modules such as Gate Editor, Image UMAP, and merged
-   Classify have current lessons; replace or add lessons where needed.
+5. Keep the standalone Gate Editor, current Image UMAP, and unified Classify
+   lessons synchronized with the nightly registry. Load self-registering
+   modules before comparing catalog coverage; importing `spacr.qt.app.APPS`
+   alone omits dynamically registered Explore and Design screens.
+6. Capture with per-module walkthrough coach marks marked seen, or the overlay
+   will obscure the screen and contaminate every subsequent keyframe.
+7. Publish to Hugging Face and GitHub only, then verify narration/video sync,
+   media budgets, tests, and the live Pages deployment.
+8. Tutorial release screenshots use `1.5.0.0`, and any visible CI/test badge
+   must show a passing state. The package version for this publication is
+   `1.5.0.4`; keep that package bump separate from screenshot labels.
+
+Recovered-audit findings that now form part of this workflow:
+
+- The current registry has 63 modules. The release catalog has 69 lessons and
+  473 scenes: six non-module foundations plus exactly one lesson for every
+  registered module, with no unknown or duplicate module keys.
+- Do not combine sidebar navigation and input setup in one emphasized scene.
+  The box cannot point at both. The additional-module lessons now begin at the
+  real input panel, which also removes redundant “open this module” narration.
+- A generic “first primary button” heuristic is not a semantic action target.
+  Graph Builder, Tabulate, Small Multiples, and Feature Explorer update from
+  their central interactive panels; Outliers and Dose–Response use Scan and
+  Fit. Capture those exact targets rather than highlighting Load table.
+- Gate Editor is only instructive when populated. Its release capture uses a
+  deterministic two-population measurement table and a real named rectangle
+  gate, with emphasis on axes/header, tools, canvas, and gate statistics. The
+  unrelated assistant and formula/filter sidebars are hidden only in the
+  isolated capture so the core workflow remains readable.
+- Image UMAP currently has nine settings categories, including Computer
+  Vision Data Source. Its concise lesson includes that category, a successful
+  four-trial Hyperparameter Search with real small-multiple results, and a
+  successful microscopy crop-gallery output.
+- Unified Classify currently does not expose Hyperparameter Search. Its Run
+  scene therefore teaches grouped validation and points users to the separate
+  Classify CV and Classify ML lessons, whose real mini workbenches demonstrate
+  bounded hyperparameter search.
+- Mark both each capture target and Mask as having completed their first-use
+  walkthrough. Home opens Mask during capture, and an unseen Mask coach mark
+  otherwise contaminates every screen captured after it.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
@@ -83,16 +115,15 @@ HOW TO KNOW IT WORKED
 The source/derived boundaries are confirmed from the code, baseline loading,
 media, accessibility, and publishing measurements are recorded, and each
 optimization improves a named measurement without breaking lesson playback,
-narration synchronisation, fallback media, or the Pages budget.
+narration synchronisation, hosted-media behavior, or the Pages budget.
 
 --------------------------------------------------------------------------------
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
-No generated tutorial media or catalog file has been changed. The repository
-copy is derived output and the documented source/publisher are absent; editing
-the derived copy would be overwritten by the next publish. Unrelated working-
-tree changes have not been touched.
+The implementation is not complete until all changed narration and silent
+masters have been regenerated, the full release verifier passes, Hugging Face
+and the derived docs tree are updated, and nightly is merged into main.
 
 --------------------------------------------------------------------------------
 AUDIT — LESSON 01: PYPI AND GITHUB
@@ -1564,7 +1595,7 @@ AUDIT OUTCOME AND PRODUCTION ACCEPTANCE GATES
 ================================================================================
 
 Existing lessons
-- All 40 published lessons were checked in catalog order against their English
+- The original 40 published lessons were checked in catalog order against their English
   narration/speech overrides, scene timing sidecars, current 1440p silent video,
   scene-midpoint emphasis frames, and the current module implementation.
 - Sixteen lessons need a substantial replacement rather than line edits: Home,
@@ -1616,19 +1647,14 @@ Content acceptance
 - Completion is not validation. Every lesson distinguishes successful execution
   from biological/model accuracy and points to the appropriate QC handoff.
 
-Publishing blocker
-- Required source: `/media/carruthers/mnt3/claude/tutorials/web/` and its sibling
-  `production/` masters.
-- Required publisher: `/media/carruthers/mnt3/claude/tutorials/tools/`
-  (documented routine invokes `tools/publish_tutorials.py`).
-- Neither exists on this machine, and neither is recoverable from this repo's Git
-  history. `spacr/qt/tutorial/` is a separate older six-lesson Piper recorder
-  that produces narrated MP4/SRT files; it is not the source for the published
-  silent-video, multi-voice bundle.
-- Once the source is mounted, revise in small catalog batches, publish with the
-  documented lesson filter, verify all voice/timing pairs and silent-video frame
-  counts, run `tools/docs_media_budget.py --report` plus its tests, and inspect
-  the staged player before any upload/deploy.
+Publishing workspace
+- Source: `/mnt/firecuda2/Claude/toxoplasma_projects/tutorials`, including
+  `web/`, `production/`, and `tools/publish_tutorials.py`.
+- Derived repository copy:
+  `/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials`.
+- Publish with the documented lesson filter, verify every voice/timing pair and
+  silent-video frame count, run `tools/docs_media_budget.py --report` plus its
+  tests, and inspect the staged player before deployment.
 
 ================================================================================
 IMPLEMENTATION RUNBOOK WHEN THE TUTORIAL SOURCE IS AVAILABLE

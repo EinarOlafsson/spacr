@@ -2,7 +2,8 @@
 IMAGE UMAP: ZOOM EVERY PLOT, CLICK EVERY POINT
 ================================================================================
 
-Status:    partly resolved - see the 2026-08-08 measurement
+Status:    done 2026-08-08. All three parts resolved, one of them by
+           deciding NOT to build what was literally asked for.
 Requested: 2026-08-07 - "the live button in Image UMAP does nothing. UMAPs should always be individually zoomable. and i should be able to press every point. when i choose a point it should be shown as an image in a panel to the right of the UMAP(s) and the relevant point information should be presented with the image."
 
 --------------------------------------------------------------------------------
@@ -76,3 +77,51 @@ honest answer may be that this is what the Live explorer is for -- it
 already does click-to-preview with `_build_point_identity`. Before building
 a second hit-test path, settle whether the static figure needs to be
 clickable at all, or whether the fix is to make Live more discoverable.
+
+--------------------------------------------------------------------------------
+2026-08-08 - DONE. THE THIRD PART WAS A DESIGN DECISION, NOT A BUILD.
+--------------------------------------------------------------------------------
+
+The three parts of the request, and what each turned out to be:
+
+  "the live button does nothing"  -- NOT REPRODUCIBLE. Measured on a real
+      AppScreen("umap") with a payload attached the way spacr/utils.py does
+      it: the chain works end to end. Either it was fixed between the report
+      and the measurement, or the run that misbehaved carried no
+      `interactive_payload` -- which core.py only attaches when
+      `plot_embedding` is called with one.
+
+  "UMAPs should always be individually zoomable" -- ALREADY TRUE, and
+      missed in the original survey. The figure view IS `_ZoomView`, with
+      wheel-zoom and drag-pan, and since instruction 27 it re-renders at the
+      new container size so enlarging spreads the points rather than
+      magnifying thumbnails.
+
+  "i should be able to press every point" -- BUILT, but not the way the
+      words describe. Pressing a point on a STATIC figure means hit-testing
+      a rendered PNG back to the embedding: mapping pixels to data
+      coordinates through whatever matplotlib did to the axes, and keeping
+      that correct across zoom, pan and re-render. The explorer already
+      does click-to-preview properly. A second implementation of the same
+      feature, and a fragile one, is worse than making the good one easy to
+      reach.
+
+      So a click on the static figure turns Live on. The user presses a
+      point and arrives in the view where pressing points works.
+
+WHAT MADE IT NON-TRIVIAL: `_ZoomView` pans with the left button, so a naive
+"left release means click" fires at the end of every pan, and the figure
+would flip to Live every time someone tried to move it. The press position
+is remembered and the click only counts under CLICK_SLOP_PX (4 px) of
+travel. Both directions of that boundary are tested.
+
+Guarded on there being a payload: with nothing to explore the click does
+nothing, rather than flipping a switch that shows an empty panel. It
+announces itself in the console, because a view that changes under you with
+no explanation is worse than one that does not change.
+
+9 tests. Zero failures across the live-preview and figure-queue suites.
+
+DELIBERATELY NOT DONE: hit-testing static figures. Recorded here as a
+decision rather than an omission -- if it is ever genuinely wanted, the
+cost above is what it costs, and the explorer is why it has not been paid.
