@@ -220,3 +220,42 @@ Their generator needs two parameter values far enough apart to see -- the
 whole *_diameter family is in the list, and diameter should be among the
 most visible settings there is. And the four border-object animations still
 remove a non-edge object. Both need the generator, not the assets.
+
+--------------------------------------------------------------------------------
+2026-08-09 - WHY THE *_diameter ANIMATIONS SHOW NOTHING. CAUSE FOUND.
+--------------------------------------------------------------------------------
+
+`tools/generate_setting_animations.py :: _diameter_scene`:
+
+    radius = 64 if kind == "cell" else 40        # NEVER changes
+    extent = radius * (0.35 + 0.65 * action)     # only the caliper moves
+
+The object outline is drawn at a FIXED radius. The only thing that
+animates is a measuring line of width 0.5 and two 10-pixel tick marks.
+That is a few hundred pixels of a 360x360 frame, which is exactly the
+0.0-0.2% the audit measured, and it explains why the whole *_diameter
+family sits at the bottom of the list.
+
+It is also the wrong illustration. `diameter` tells Cellpose what size an
+object is expected to be; drawing a caliper that grows across an object
+that never changes size shows the measurement, not the setting. A viewer
+learns "diameter is a width" -- which they knew -- and nothing about what
+changing it does.
+
+THE FIX IS IN THE GENERATOR, and it is small: scale the outline with
+`action` so the object grows as the setting grows, keeping the caliper as
+the annotation rather than the subject. Something like
+
+    scale = 0.55 + 0.45 * action
+    _object_outline(painter, kind, center,
+                    (radius * scale, radius * scale * 0.8), 1.0, 0.4)
+
+NOT APPLIED HERE. Regenerating touches 94 GIF assets and every hash in
+`manifest.json`, and the honest way to do that is one run of the generator
+followed by `validate_animations_show_something()` over the result -- which
+now exists and would confirm the whole family clears 1%. That is a
+contained job for someone who can eyeball the output, and doing it blind
+from a diff is how you ship 94 subtly wrong pictures.
+
+The border-object family (the original report) still needs its own look:
+that one removes a non-edge object, which is a different scene function.
