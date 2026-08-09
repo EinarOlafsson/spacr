@@ -11,10 +11,14 @@ Everything is reverse-engineered from what the pipelines actually
 consume:
 
 * Filenames match the cellvoyager regex in
-  `spacr.utils._get_regex('.tif', 'cellvoyager')`:
+  `spacr.utils._get_regex('.tif', 'cellvoyager')`::
+
       <plateID>_<wellID>_T<timeID>F<fieldID>L<laserID>A<AID>Z<sliceID>C<chanID>.tif
-* Channels are laid out in the order every mask default expects:
+
+* Channels are laid out in the order every mask default expects::
+
       C0 = nucleus, C1 = cell, C2 = pathogen, C3 = organelle
+
 * Images are 16-bit uint16. Every channel of a field is drawn from
   *one shared cell layout*, so the nucleus really is inside the cell
   and the pathogen really is inside the same cell — the relationships
@@ -479,7 +483,8 @@ def generate_mask_demo(
     channels: Iterable[int] = (0, 1, 2, 3),
 ) -> DemoLayout:
     """Populate `dst` with a folder that runs cleanly through the Mask
-    app. Layout:
+    app. Layout::
+
         dst/
           <plateID>_<wellID>_T01F<field>L01A01Z01C<chan>.tif
           settings_mask.csv

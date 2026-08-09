@@ -109,11 +109,12 @@ class LinkedSelection(QObject):
     """The shared filter and selection every linked view reads.
 
     Signals:
-        filter_changed()      — the population narrowed or widened
-        selection_changed()   — the highlighted subset moved
-        objects_opened(request) — an :class:`~spacr.selection.ObjectRequest`
-            was routed somewhere. Emitted after the opener returned, so a view
-            following along never chases a jump that failed.
+
+    * filter_changed()        — the population narrowed or widened
+    * selection_changed()     — the highlighted subset moved
+    * objects_opened(request) — an :class:`~spacr.selection.ObjectRequest` was
+      routed somewhere. Emitted after the opener returned, so a view following
+      along never chases a jump that failed.
 
     The first two are separate signals because they cost different amounts to
     honour. A filter change means a view has to re-query and re-lay-out; a
