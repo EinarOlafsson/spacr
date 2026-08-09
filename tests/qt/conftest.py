@@ -202,6 +202,11 @@ def _drain_job_runners():
     this codebase earned its other threading crash (INVARIANTS 4).
     """
     yield
+    # A/B switch. Five separate suite-stopping crashes have now been traced
+    # to Qt object lifetime, and this fixture caused two of them, so it has
+    # to be possible to run WITHOUT it rather than assume it helps.
+    if os.environ.get("SPACR_NO_DRAIN"):
+        return
     try:
         from PySide6.QtWidgets import QApplication
 
