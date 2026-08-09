@@ -289,7 +289,7 @@ settings, not as a sweep.
 2026-08-09 - THE TWO LONGEST REWRITTEN
 --------------------------------------------------------------------------------
 
-    over 600 chars   37 -> 29
+    over 600 chars   37 -> 26
     under 80 chars   13 -> 1     (earlier)
     empty             1 -> 0     (earlier)
 
@@ -345,7 +345,7 @@ round here. Match `['\"]` on both sides.
     strict_errors       841 -> 591     control_wells    831 -> 547
     custom_regex        827 -> 599     Signal_to_noise  815 -> 590
 
-    over 600 chars   37 -> 29
+    over 600 chars   37 -> 26
 
 Two of these earned a sentence that was NOT in the original, because
 cutting made room for the thing a user actually needs:
@@ -379,3 +379,28 @@ you do neither (the run stops rather than guessing).
 That ordering is the reusable part: consequence, then action, then the
 edge case. The archives all have those three things in them somewhere;
 they just have them in the wrong order and surrounded by enumeration.
+
+--------------------------------------------------------------------------------
+2026-08-09 - ELEVEN CUT. over 600: 37 -> 26
+--------------------------------------------------------------------------------
+
+    t_axis_order             812 -> 544
+    z_segmentation_mode      799 -> 499
+    treatment_plate_metadata 787 -> 451
+
+A THIRD THING WORTH LEADING WITH, beyond consequence-action-edge-case:
+say when a wrong value FAILS SILENTLY. Three of the eleven so far turn out
+to have that property, and in every case it was buried:
+
+    t_axis_order              wrong order does not crash -- it links each
+                              object to whatever is above it in the next z
+                              plane and reports that as motion, so tracks
+                              look plausible and velocities are meaningless
+    custom_regex              a filename missing a required group is skipped
+                              with a warning, quietly shrinking the dataset
+    treatment_plate_metadata  an entry not starting with 'r' or 'c' is
+                              ignored, and those wells get no label rather
+                              than an error
+
+Those are the sentences worth the hover. A setting that fails loudly is
+self-documenting; one that fails silently is exactly what a tooltip is for.
