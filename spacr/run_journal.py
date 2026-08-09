@@ -899,9 +899,29 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
     """
     all_entries: List[Dict[str, Any]] = []
     root = runs_root()
-    for d in root.iterdir():
-        if not d.is_dir():
-            continue
+
+    # Newest-first BY FOLDER NAME before opening anything. Run folders are
+    # named `{YYYY-MM-DD_HHMMSS}_{tag}__{app}`, so the name sorts to the
+    # second without touching the disk.
+    #
+    # This used to read and parse EVERY manifest in the journal and then
+    # keep ten. On a real machine that was 3521 folders and ~0.85 s of
+    # json.loads on the GUI thread at startup, to populate a ten-row list
+    # -- and it grows with every run the user has ever done, so the launch
+    # gets slower the more the tool is used.
+    #
+    # Only `limit` are needed, but the name truncates to the second while
+    # `start_utc` does not, so runs inside one second can reorder. Reading a
+    # margin past the limit and sorting those precisely keeps the documented
+    # ordering while bounding the work.
+    candidates = sorted(
+        (d for d in root.iterdir() if d.is_dir()),
+        key=lambda d: d.name, reverse=True,
+    ) if root.exists() else []
+    if limit is not None and limit >= 0:
+        candidates = candidates[:max(limit * 4, limit + 64)]
+
+    for d in candidates:
         manifest_path = d / "manifest.json"
         if not manifest_path.exists():
             continue
