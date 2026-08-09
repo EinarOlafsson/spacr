@@ -201,3 +201,17 @@ classify_merged CLI gap, the silent training-basis switch, the discarded
 preview model, the mpl_toolkits phantom dependency -- were all found in
 jobs OTHER than min-deps, which is the useful distinction: min-deps
 failures are a version question, everything else is a code question.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE CAUSE OF THE MIN-DEPS FAILURES IS FIXED
+--------------------------------------------------------------------------------
+
+The ~23 failures traced to cellpose 4.0.1 were not a version QUESTION after
+all -- setup.py has required >=4.0.7 all along, and
+`.github/constraints/minimum-py39.txt` pinned 4.0.1 in contradiction of it.
+Raised, with a test asserting no constraint may sit below its setup.py
+floor.
+
+So the next matrix run should drop roughly 23 failures without a single
+test being touched. Count what is left AFTER that run rather than from the
+old log -- the earlier tally of ~85 includes them.
