@@ -365,3 +365,54 @@ NEXT, in order:
   3. THEN read the rendered pages, which is what the original task asked
      for and which is now worth doing, because the noise that would have
      buried a real judgement is gone.
+
+--------------------------------------------------------------------------------
+2026-08-09 - "UNEXPECTED INDENTATION" HAS ONE CAUSE, AND IT IS FIXABLE
+--------------------------------------------------------------------------------
+
+It is not arbitrary bad markup. Every instance is a reStructuredText
+DEFINITION LIST whose term wrapped onto a second line:
+
+    ``ErrorPolicy``, ``resolve_error_policy``, ``SkipRecord``, ``SKIPPED``,
+    ``ON_ERROR_STOP``, ``ON_ERROR_SKIP``, ``ON_ERROR_RETRY``
+        The S9 machinery.
+
+rST requires the term to be ONE line. A wrapped term is an ordinary
+paragraph, so the indented definition under it is "unexpected", and the
+whole entry renders as body text instead of a definition list. The fix is
+to join the term onto one long line -- long lines being correct here, since
+this is prose, not code.
+
+FIXED: 4. Three in `spacr/runctx.py` by hand, one in `spacr/data_manager.py`
+by `scratchpad/fix_defterms.py`, which joins wrapped terms and KEEPS the
+change only when re-parsing shows the error count actually dropped and no
+new error appeared.
+
+WHY THE TOOL ONLY GOT ONE, recorded so nobody assumes it is broken:
+`ast.get_docstring` returns the CLEANED docstring -- dedented, escapes
+processed -- so for any docstring indented inside a class or function the
+text does not appear verbatim in the source and the replace no-ops. It
+works for module-level docstrings at column 0 and nothing else. Fixing that
+properly means slicing the source by the node's own offsets, which is what
+`tools/fix_rst_underlines.py` already does and what this tool should adopt
+if anyone extends it.
+
+REMAINING, each one docstring, each the same wrapped-term shape:
+
+    spacr/artifacts.py            module
+    spacr/deep_spacr.py           train_model
+    spacr/qt/__init__.py          module
+    spacr/qt/ai/__init__.py       module
+    spacr/qt/ai/prompts.py        module
+    spacr/qt/ai/providers.py      module
+    spacr/qt/bridge.py            PipelineWorker  (2)
+    spacr/qt/hf_download.py       _HFDownloadWorker
+    spacr/qt/linked_selection.py  LinkedSelection
+    spacr/qt/regex_detect.py      auto_detect_regex
+    spacr/qt/settings_diff.py     module
+    spacr/qt/synthetic.py         module, generate_mask_demo
+    spacr/utils.py                (see build log)
+
+That list came from running docutils per docstring with napoleon-style ones
+EXCLUDED -- Google-style "Args:" docstrings are napoleon's job and were the
+false positives that made the earlier bare-docutils sweep useless.
