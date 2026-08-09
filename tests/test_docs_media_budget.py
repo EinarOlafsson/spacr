@@ -1,10 +1,11 @@
 """What the published documentation site is allowed to weigh.
 
-The tutorial library under ``docs/source/_extra`` is 2,879 MiB, most of it one
-narration ``.m4a`` per lesson x language x voice. ``html_extra_path`` copied
-all of it into every build, which would put the site far past the GitHub Pages
-**1 GB** limit — a wall that gets hit mid-lesson-batch, from a build that has
-never once warned about it.
+The editable tutorial production library is dominated by one narration
+``.m4a`` per lesson x language x voice. The derived library under
+``docs/source/_extra`` deliberately is not: copying all narration through
+``html_extra_path`` would put the site far past the GitHub Pages **1 GB**
+limit — a wall that gets hit mid-lesson-batch, from a build that has never
+once warned about it.
 
 ``tools/docs_media_budget.py`` now publishes no narration at all: the audio and
 its timing sidecars are served from ``NARRATION_HOST`` instead, which is what
@@ -22,6 +23,7 @@ suite.
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
 from pathlib import Path
 
@@ -76,10 +78,22 @@ def test_the_published_tutorial_library_is_under_its_ceiling(real_plan):
         f"the lessons grew or VOICES_PER_LANGUAGE went up; do not raise the "
         f"ceiling without checking the whole site against the 1 GB Pages "
         f"limit first.")
-    assert after < before / 3, (
-        f"the filter is not doing its job: {after / mib:.1f} MiB published "
-        f"out of {before / mib:.1f} MiB. Audio is 93% of this library and "
-        f"one voice per language is ~21% of it.")
+    voice_assets = [
+        path for path in published
+        if "audio" in path.parts
+        and path.suffix.lower() in budget.VOICE_ASSET_SUFFIXES
+    ]
+    assert not voice_assets, (
+        f"the derived tree still publishes {len(voice_assets)} narration "
+        "asset(s); narration belongs on the configured host")
+    # Older checkouts can still contain the pre-policy narration tree. In
+    # those, prove that staging makes a material reduction. The current
+    # publisher removes those derived copies entirely, so there is correctly
+    # nothing left for the staging filter to drop.
+    if dropped:
+        assert after < before / 3, (
+            f"the filter is not doing its job: {after / mib:.1f} MiB "
+            f"published out of {before / mib:.1f} MiB")
 
 
 @requires_library
@@ -93,18 +107,13 @@ def test_the_whole_site_clears_the_pages_limit_with_room(real_plan):
     *silent* one — GitHub Pages refuses the deployment, and the live site keeps
     serving the last build that fitted.
 
-    The bound was "half the limit" while the published library was ~158 MiB.
-    Re-recording all 40 lessons roughly quadrupled the narration, and audio
-    does not respond to video encoding: at 413 MiB it alone is more than the
-    old whole-site budget. Re-encoding the videos to 1440p bought back 515 MiB
-    (681 -> 166), which is what keeps this passing at all, and the 4K masters
-    live on YouTube instead. Today's site is ~723 MiB of the 954 MiB limit.
+    The bound was "half the limit" when the course was much smaller. Audio
+    does not respond to video encoding, so the complete voice matrix and 4K
+    masters live on Hugging Face while Pages carries the 1440p video.
 
-    85% rather than 50% is therefore a deliberate loosening, not an oversight.
-    It is the price of keeping all eight narrated languages, and it still
-    fails ~6 lessons before Pages would start refusing the deploy. If it ever
-    trips, the lever with the most give is narration: another language costs
-    ~52 MiB, a second voice per language costs ~413 MiB.
+    85% rather than 50% retains room for the growing module catalog while still
+    failing before Pages would silently refuse the deployment. Narration must
+    remain external; the remaining levers are video encoding and poster size.
     """
     published, _dropped, _keep = real_plan
     html_allowance = 120 * 1024 * 1024
@@ -147,7 +156,12 @@ def test_every_lesson_keeps_its_video_and_its_poster(real_plan):
     kept = {p.relative_to(_LIBRARY) for p in published}
     lessons = sorted({p.parts[2] for p in kept
                       if len(p.parts) > 2 and p.parts[1] == "production"})
-    assert len(lessons) == 40, f"expected 40 lessons, found {len(lessons)}"
+    catalog = json.loads(
+        (_LIBRARY / "tutorials" / "catalog" / "lessons_en.json").read_text())
+    expected = [lesson["id"] for lesson in catalog["lessons"]]
+    assert lessons == expected, (
+        f"published lesson media differs from the {len(expected)}-lesson "
+        "catalog")
 
     for lesson in lessons:
         videos = [p for p in kept
@@ -159,35 +173,25 @@ def test_every_lesson_keeps_its_video_and_its_poster(real_plan):
 
 
 @requires_library
-def test_every_language_keeps_one_offline_voice(real_plan):
-    """The fallback the player drops to when the narration host is down.
-
-    ``app_v2.js`` reacts to a failed narration load by switching to
-    ``language.voices[0]`` served from the site itself. That only degrades
-    gracefully if the voice is actually here, and it has to be *that* voice:
-    any other choice and the player asks for something the site never staged.
-    """
+def test_narration_is_external_not_duplicated_on_pages(real_plan):
+    """Hugging Face serves narration; Pages keeps video and captions."""
     _published, _dropped, keep = real_plan
     catalog = budget.parse_voice_catalog(
         budget.voice_catalog_path(_LIBRARY).read_text())
 
+    assert budget.NARRATION_HOST
     assert set(keep) == set(catalog)
-    for language, voices in catalog.items():
-        assert keep[language], f"{language}: no offline voice published"
-        assert keep[language] == [voices[0]], (
-            f"{language}: publishes {keep[language]} but the player falls "
-            f"back to {voices[0]!r}, and only that")
+    assert all(not voices for voices in keep.values())
 
 
 @requires_library
-def test_the_catalog_offers_every_voice_not_just_the_offline_one(real_plan):
+def test_the_catalog_offers_every_hosted_voice(real_plan):
     """``app_v2.js`` reads this catalog to build the picker.
 
     While the site served narration the catalog had to be trimmed to what was
     staged, or the picker offered voices whose audio 404'd. The host serves
-    all 54 now, so trimming to the 8 staged as fallbacks would hide 46
-    working voices to prevent failures that only occur while the host is
-    down — which the player already handles by dropping to the staged voice.
+    all 54 now, so trimming the catalog to the empty staged narration set would
+    hide working voices.
     """
     _published, _dropped, keep = real_plan
     catalog = budget.parse_voice_catalog(
@@ -204,13 +208,8 @@ def test_the_catalog_offers_every_voice_not_just_the_offline_one(real_plan):
 
 
 @requires_library
-def test_the_offline_voices_ship_with_their_timings(real_plan):
-    """Every staged ``.m4a`` needs its ``.json`` beside it, in the real tree.
-
-    The synthetic check below proves the filter pairs them; this one proves
-    the library actually contains both. A voice rendered without its timing
-    sidecar would fall back to audio the player cannot caption or sync.
-    """
+def test_no_narration_is_staged_on_pages(real_plan):
+    """External narration must not consume the GitHub Pages budget."""
     published, _dropped, _keep = real_plan
     audio, timings = set(), set()
     for path in published:
@@ -220,10 +219,8 @@ def test_the_offline_voices_ship_with_their_timings(real_plan):
             audio.add(path.with_suffix(""))
         elif path.suffix == ".json":
             timings.add(path.with_suffix(""))
-    assert audio, "no offline narration published at all"
-    assert audio == timings, (
-        f"{len(audio ^ timings)} offline voice(s) missing their pair: "
-        f"{sorted(p.name for p in (audio ^ timings))[:5]}")
+    assert not audio
+    assert not timings
 
 
 def test_audio_and_its_timing_track_travel_together(tiny_library, tmp_path):
@@ -372,9 +369,9 @@ def test_a_configured_host_leaves_the_catalog_alone(tiny_library, tmp_path,
                                                     monkeypatch):
     """The inverse: with a host set, trimming would hide working voices.
 
-    The staged audio is a fallback for an outage, not the offering. Filtering
-    the picker down to it would drop every voice the host serves — which is
-    the entire reason the audio was moved there.
+    Staged audio in this synthetic policy check is not the offering. Filtering
+    the picker down to it would drop voices the host serves — which is the
+    entire reason the real policy keeps narration external.
     """
     monkeypatch.setattr(budget, "NARRATION_HOST", "https://example.invalid/x")
     dest = tmp_path / "staged"
