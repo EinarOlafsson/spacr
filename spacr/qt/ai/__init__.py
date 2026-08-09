@@ -7,7 +7,8 @@ env vars first (`ANTHROPIC_API_KEY` / `OPENAI_API_KEY` /
 `GOOGLE_API_KEY`), then from the OS keyring under service name
 `spacr-qt-ai`.
 
-Public entry points:
+Public entry points::
+
     list_providers()           -> [ChatProvider, ...]
     get_provider(name)         -> ChatProvider | None
     configured_providers()     -> [ChatProvider, ...] (only ones with a key)

@@ -15,13 +15,14 @@ Public API::
     SettingsDiffDialog(a, b, parent).exec()
 
 Diff kinds:
-  ``"added"``   — key present in B but not A
-  ``"removed"`` — key present in A but not B
-  ``"changed"`` — key in both, value differs
-  ``"same"``    — a key both runs set to the same value. Never returned by
-                  :func:`diff_settings`; :func:`diff_settings_grouped`
-                  carries it only when asked, because the default view of a
-                  200-key settings dict has to be the handful that moved.
+
+* ``"added"``   — key present in B but not A
+* ``"removed"`` — key present in A but not B
+* ``"changed"`` — key in both, value differs
+* ``"same"``    — a key both runs set to the same value. Never returned by
+  :func:`diff_settings`; :func:`diff_settings_grouped` carries it only when
+  asked, because the default view of a 200-key settings dict has to be the
+  handful that moved.
 
 Grouping uses the same ``spacr.settings.categories`` map both GUIs group
 their settings panels by, so "what changed" is read under the same
