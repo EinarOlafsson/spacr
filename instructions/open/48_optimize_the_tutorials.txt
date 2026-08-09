@@ -145,6 +145,11 @@ The production implementation is complete in the editable workspace:
   was rerecorded across all 28 voices and rerendered so the input card, exact
   classifier-family selector, Run button, and console each receive their own
   bounded emphasis. The full release verifier passed again afterward.
+- Contact-sheet review of every scene in lessons 37 through 69 then exposed a
+  shared whole-screen fallback in custom workbenches that do not use the common
+  settings-scroll/console layout. Twenty-eight lessons now use explicit
+  semantic regions for their actual input, decision, action, and result
+  surfaces. All corrected 4K/1440p cuts were rerendered and visually reviewed.
 
 The release is intentionally not marked done or promoted to `main` until the
 Hugging Face dataset accepts the new narration, timing sidecars, and 4K masters.
