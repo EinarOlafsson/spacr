@@ -58,15 +58,12 @@ Public API
 ----------
 ``run_context``, ``RunContext``, ``current_run_context``, ``current_run_id``
     The run itself, and the ambient lookup a worker or a library call uses.
-``new_run_id``, ``install_run_id_logging``, ``uninstall_run_id_logging``,
-``RunIdFilter``, ``runs_log_dir``, ``run_log_path``, ``read_run_log``
+``new_run_id``, ``install_run_id_logging``, ``uninstall_run_id_logging``, ``RunIdFilter``, ``runs_log_dir``, ``run_log_path``, ``read_run_log``
     The S7 machinery: minting, stamping and querying by run id.
-``seed_everything``, ``SeedReport``, ``resolve_seed``, ``random_state``,
-``spacr_rng``, ``torch_generator``, ``seed_worker``, ``DEFAULT_SEED``
+``seed_everything``, ``SeedReport``, ``resolve_seed``, ``random_state``, ``spacr_rng``, ``torch_generator``, ``seed_worker``, ``DEFAULT_SEED``
     The S5 machinery: one call that seeds them all, plus the per-library
     handles for the places a global seed cannot reach.
-``ErrorPolicy``, ``resolve_error_policy``, ``SkipRecord``, ``SKIPPED``,
-``ON_ERROR_STOP``, ``ON_ERROR_SKIP``, ``ON_ERROR_RETRY``, ``ON_ERROR_MODES``
+``ErrorPolicy``, ``resolve_error_policy``, ``SkipRecord``, ``SKIPPED``, ``ON_ERROR_STOP``, ``ON_ERROR_SKIP``, ``ON_ERROR_RETRY``, ``ON_ERROR_MODES``
     The S9 machinery.
 ``apply_defaults``, ``RUN_SETTING_KEYS``
     The settings seam: the keys this module owns, applied to any settings
