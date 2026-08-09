@@ -116,13 +116,13 @@ jobs:
 
       # --- everything else: build only, and say so ------------------------
       # No artifact is uploaded on purpose. `html_extra_path = ['_extra']`
-      # copies docs/source/_extra/tutorials (723 MB of narration .m4a and
-      # lesson .mp4) into every build, so the site is ~876 MB; pushing that
-      # to artifact storage on every nightly push costs minutes per run for
-      # a preview nobody asked for. The build itself is the value here — it
-      # fails the run if sphinx cannot produce index.html. If a browsable
-      # nightly preview is ever wanted, upload a filtered subset or deploy
-      # it to a target that is not production Pages.
+      # copies the staged tutorial player, posters, catalogs, and 1440p video
+      # into every build. Narration and 4K masters are external, but uploading
+      # the same build artifact for every nightly push still costs time and
+      # storage for a preview nobody asked for. The build itself is the value
+      # here — it fails the run if sphinx cannot produce index.html. If a
+      # browsable nightly preview is ever wanted, deploy it to a target that
+      # is not production Pages.
       - name: Report build-only outcome (non-main)
         if: github.ref != 'refs/heads/main'
         # The ref goes through the environment, not through `${{ }}`

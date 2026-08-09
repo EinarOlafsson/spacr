@@ -12,7 +12,15 @@ Media host: https://huggingface.co/datasets/einarolafsson/spacr-tutorials
 After changing anything -- a lesson video, narration, the player, the catalog:
 
     cd /mnt/firecuda2/Claude/toxoplasma_projects/tutorials
+    hf auth whoami
     python tools/publish_tutorials.py
+
+`hf auth whoami` must identify an account with write access to
+`einarolafsson/spacr-tutorials`. If it reports "Not logged in", run
+`hf auth login` with a fine-grained write token scoped to that dataset. Never
+put the token in this repository, a command example, or a tutorial asset. The
+publisher performs this same check before copying or encoding anything, so a
+missing login fails immediately rather than leaving a half-published release.
 
 That does all four halves of the job:
   * copies the player (web/) into the docs tree

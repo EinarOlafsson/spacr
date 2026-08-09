@@ -1,43 +1,39 @@
 """What the published documentation site is allowed to weigh.
 
 ``docs/source/conf.py`` sets ``html_extra_path`` so that sphinx copies the
-tutorial library into every build. That library is 2,879 MiB, most of it
-pre-rendered narration: one ``.m4a`` per lesson x language x **voice**,
-40 x 54 = 2,160 files. Copying it whole would put the built site far past the
+tutorial library into every build. The complete production library contains
+one pre-rendered ``.m4a`` per lesson × language × **voice**. Copying it whole
+would put the built site far past the
 GitHub Pages limit of **1 GB**, and Pages does not fail loudly when that
 happens -- it refuses the deployment and keeps serving the last build that
 fitted, which reads exactly like a site that did not rebuild.
 
 This module stages a *filtered* copy of ``_extra`` for the build, so the site
-ships one voice per language instead of all 54. Nothing is deleted: the full
-library stays on disk and in git exactly as recorded, and
-``SPACR_DOCS_FULL_AUDIO=1`` publishes every voice again. The choice is a
-publishing policy, not an edit to the media.
+ships no duplicate narration. Staging itself deletes nothing. The publisher
+removes obsolete narration copies from the derived git tree; the complete
+library remains in the editable production workspace and on Hugging Face.
+``SPACR_DOCS_FULL_AUDIO=1`` can still stage every locally available voice.
 
 What is dropped, and what is not
 --------------------------------
 
-Dropped: the ``.m4a`` and its timing ``.json`` for every voice after the first
-one the catalog lists for a language.
+Dropped: every narration ``.m4a`` and voice timing ``.json`` under a lesson.
 
 Kept, in full: every lesson, every silent ``.mp4``, every poster, every caption
-catalog, the player itself, and **one voice in every narrated language** -- the
-one ``app_v2.js`` selects by default (``language.voices[0]``), so a first visit
-in any of the eight narrated languages sounds exactly as it does today. The six
-caption-only languages are untouched because they never had audio.
+catalog, and the player itself. Narration and timing sidecars come from the
+configured Hugging Face dataset. Caption-only languages never had audio.
 
-``voice_catalog.js`` is rewritten in the staged copy to list only the voices
-that were published. Without that the picker offers 27 English voices whose
-audio 404s -- the player degrades to a "narration is unavailable" toast, which
-is a worse answer than not offering the choice.
+With :data:`NARRATION_HOST` configured, ``voice_catalog.js`` remains complete
+because every listed voice is served there. It is filtered only for a
+site-local audio build, where offering an unstaged voice would create a 404.
 
 Why staging rather than pruning the output
 ------------------------------------------
 
 Sphinx has no exclude mechanism for ``html_extra_path``, so the alternative is
-to let it copy 2,879 MiB and delete most of it on ``build-finished``. Staging
-hardlinks instead: the tree costs nothing to build, and sphinx copies ~603 MiB
-rather than 2,879.
+to copy the complete changing library and delete most of it on
+``build-finished``. Staging hardlinks instead keeps the build proportional to
+the published subset.
 
 Run it directly for the measurement::
 
@@ -71,33 +67,21 @@ NARRATION_EXTERNAL = -1
 #: -- what a visitor hears without touching the picker; 0 keeps all of them;
 #: :data:`NARRATION_EXTERNAL` keeps none.
 #:
-#: 1 is not a budget any more, it is a fallback. All 54 voices are served from
-#: :data:`NARRATION_HOST`, and the catalog offers every one of them; this copy
-#: exists so that a host outage degrades the tutorials instead of breaking
-#: them. ``app_v2.js`` drops to this voice, from this site, when narration
-#: fails to load -- the lesson keeps its audio and captions, at one voice per
-#: language and 1440p rather than 4K.
-#:
-#: The cost is 413 MiB of the site's ~950 MiB ceiling, spent deliberately.
-#: Raising this to 2 would add another ~413 MiB for a second fallback nobody
-#: would hear, and put the site back over the limit it silently fails at.
-VOICES_PER_LANGUAGE = 1
+#: Narration is external. Publishing no audio is what lets the growing lesson
+#: catalog keep every 1440p video on Pages while Hugging Face serves all 54
+#: voices. If that host is unavailable, the player keeps the GitHub video and
+#: reports that narration is temporarily unavailable.
+VOICES_PER_LANGUAGE = NARRATION_EXTERNAL
 
 #: Ceiling on the staged tutorial payload, in bytes. Not the Pages limit --
 #: this is the tutorial library alone, and the rest of the site (autoapi HTML,
 #: ``_modules``, ``_static``, ``resources``) is ~52 MiB on top.
 #:
-#: Today's payload is 603 MiB: 166 MiB of 1440p video, 14 MiB of posters, and
-#: 413 MiB of fallback narration -- one voice per language, kept so a
-#: :data:`NARRATION_HOST` outage degrades the tutorials rather than breaking
-#: them. The whole site is ~655 MiB, 69% of the 1 GB Pages limit.
+#: The payload consists of 1440p video, posters, player assets, and catalogs.
+#: Exact measurements are reported in CI because the lesson catalog grows.
 #:
-#: The headroom is thin, and that is a choice: the alternative was a site that
-#: goes silent whenever the host does. What is left still absorbs a lesson
-#: batch (~15 MiB each). What it will not absorb is a second fallback voice
-#: per language, which is another 413 MiB and would push the site past the
-#: limit it fails at silently -- which is exactly what this ceiling exists to
-#: catch, along with the video being committed at 4K (681 MiB) again.
+#: The ceiling catches accidental 4K publication or narration duplication
+#: before GitHub Pages silently refuses an oversized deployment.
 PUBLISHED_MEDIA_CEILING = 700 * 1024 * 1024
 
 #: Set to ``1`` to publish the entire library, ceiling and all.
@@ -279,10 +263,8 @@ def stage(dest: Path, extra: Path | None = None,
         target.parent.mkdir(parents=True, exist_ok=True)
         # The catalog is trimmed to what was staged only when the site is the
         # thing serving narration. With NARRATION_HOST set every voice is
-        # reachable from there, and the copy staged here is a fallback rather
-        # than the whole offering -- trimming to it would hide 46 working
-        # voices to prevent 404s that only happen while the host is down, and
-        # the player already handles that case by dropping to the staged voice.
+        # reachable from there. The catalog must continue to list every hosted
+        # voice even though no narration is duplicated in the staged tree.
         if path == catalog_source and not NARRATION_HOST:
             target.write_text(filter_voice_catalog(path.read_text(), keep))
             continue
@@ -329,8 +311,7 @@ def report(extra: Path | None = None,
     ]
     if NARRATION_HOST:
         lines.append(f"narration:        served from {NARRATION_HOST}")
-        lines.append("                  every voice offered; the voices below "
-                     "are the offline fallback")
+        lines.append("                  every hosted voice remains offered")
     if per_language < 0:
         lines.append("                  nothing published, no fallback")
     else:

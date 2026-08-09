@@ -2,8 +2,8 @@
 OPTIMIZE THE spaCR TUTORIALS
 ================================================================================
 
-Status:    implementation in progress in the recovered editable workspace;
-           69 lessons now cover all 63 current Qt modules
+Status:    production and local verification complete; GitHub publication tree
+           ready; Hugging Face upload awaits an authenticated write session
 Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see how they are setup?"
            2026-08-08 — "great. now we need to audit these lessons one at a time.
 
@@ -118,12 +118,36 @@ optimization improves a named measurement without breaking lesson playback,
 narration synchronisation, hosted-media behavior, or the Pages budget.
 
 --------------------------------------------------------------------------------
-DELIBERATELY NOT DONE
+PUBLICATION STATUS
 --------------------------------------------------------------------------------
 
-The implementation is not complete until all changed narration and silent
-masters have been regenerated, the full release verifier passes, Hugging Face
-and the derived docs tree are updated, and nightly is merged into main.
+The production implementation is complete in the editable workspace:
+
+- All 69 lessons and 473 scenes cover the 63 current Qt modules plus six
+  foundations, with no missing, unknown, or duplicate module keys.
+- All 3,726 narration tracks across 54 voices and eight narrated languages were
+  regenerated and verified as AAC mono at 24 kHz, with valid durations,
+  monotonic scene boundaries, and complete timing sidecars.
+- Every English scene uses the central pronunciation form; the PyPI rendering
+  is the joined "pie-pee" form with a 150 ms second syllable and no inserted
+  gap.
+- All 69 silent masters are 3840 x 2160 with valid durations and no audio
+  stream. Their posters and the derived 1440p GitHub videos also passed the
+  release checks.
+- The player, catalogs, posters, and 1440p videos have been regenerated in the
+  derived documentation tree. It contains no YouTube integration and no local
+  narration copies; the measured tutorial payload is 72.8 MiB.
+- The complete release verifier passed for 69 lessons, eight languages, 54
+  voices, 3,726 tracks, and 69 4K videos. The media-budget suite passes all 18
+  tests, and static path/syntax/catalog checks pass.
+
+The release is intentionally not marked done or promoted to `main` until the
+Hugging Face dataset accepts the new narration, timing sidecars, and 4K masters.
+The current machine reports `Not logged in` from `hf auth whoami`; publishing
+the new player first would leave the 29 added lessons with missing hosted audio.
+After an authenticated write session exists, run the fail-fast publisher,
+repeat the release verifier, bump the package to 1.5.0.4 in a separate commit,
+and fast-forward `nightly` then `main`.
 
 --------------------------------------------------------------------------------
 AUDIT — LESSON 01: PYPI AND GITHUB
