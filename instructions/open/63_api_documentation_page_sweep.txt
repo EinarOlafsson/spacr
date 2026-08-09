@@ -416,3 +416,29 @@ REMAINING, each one docstring, each the same wrapped-term shape:
 That list came from running docutils per docstring with napoleon-style ones
 EXCLUDED -- Google-style "Args:" docstrings are napoleon's job and were the
 false positives that made the earlier bare-docutils sweep useless.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE TOOL NOW SLICES BY OFFSETS, AND STILL REFUSES MOST FILES
+--------------------------------------------------------------------------------
+
+`tools/fix_rst_def_terms.py` was rewritten to edit by LINE NUMBER inside
+each docstring's own span, which fixes the silent no-op described above --
+it no longer depends on `ast.get_docstring` text matching the source.
+
+It still declines almost every file, and the reason is worth knowing before
+someone "fixes" the gate: its join loop is GREEDY. Scanning top-down, it
+joins the first candidate pair it sees, which can consume a line that
+belonged to the pair that actually mattered. On `spacr/artifacts.py` it
+finds 2 joins, the total message count drops 17 -> 16, and the
+"Unexpected indentation" count stays at 1 -- so the verification gate
+discards the whole edit, correctly.
+
+That is the gate working as designed. An unverified version of this tool
+would have written a change that looked plausible and fixed nothing, and
+its line-based ancestor corrupted 203 files.
+
+FOR WHOEVER FINISHES THIS: the ~15 remaining are one edit each and take
+about a minute apiece by hand -- find the wrapped term, join it onto one
+line. That is cheaper than teaching the tool to choose between candidate
+joins, which is a search problem for a payoff of fifteen edits. The list of
+files and symbols is in the previous section.
