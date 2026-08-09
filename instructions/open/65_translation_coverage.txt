@@ -1,0 +1,69 @@
+================================================================================
+TRANSLATION COVERAGE: THE CHROME IS TRANSLATED, THE MODULES ARE NOT
+================================================================================
+
+Status:    not started. Split from instruction 64 on 2026-08-09, whose
+           picker works and whose ask is satisfied.
+Requested: 2026-08-08 - "the user sets the default language of the programme."
+           The PICKER half is done (instruction 64). This is the half that
+           makes choosing a language worth doing.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Measured on one Mask screen, in English, counting distinct label and button
+strings against the catalogue:
+
+    catalogue entries                 267
+    distinct strings on ONE screen    230
+    of those, in the catalogue         10   (4%)
+
+Ten languages are bundled and every one carries all 267 strings. So
+choosing Swedish today translates menus and buttons -- Run, Settings -- and
+leaves every setting label on every module screen in English.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A half-translated interface is arguably worse than an untranslated one: the
+user is told the program speaks their language, and then the part they work
+in does not. It is also the part where a bad translation costs most --
+"Anisotropy" and "Flow threshold" are domain terms, and a wrong rendering
+is worse than the English word a microscopist already knows.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. DECIDE HOW FAR, which is the real content of this task:
+     (a) chrome only, as today -- and say so, rather than implying a fully
+         localised program;
+     (b) chrome plus setting LABELS -- roughly 230 strings per screen, and
+         where the value is;
+     (c) everything, including the ~700 tooltips of instruction 61.
+   (c) is a translation project rather than a feature.
+2. Whoever decides needs to read the languages. Machine-translating domain
+   terms and shipping them is the failure mode to avoid.
+3. Count translated strings per language before claiming any language is
+   supported. Today all ten are complete against a 267-entry catalogue,
+   which is a different claim from "spaCR is available in ten languages".
+4. Check non-Latin scripts (zh_CN, hi, ko) render in the bundled fonts, and
+   that longer German strings do not break layouts.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Choose Swedish, open Mask, and the settings column is in Swedish -- not
+just the buttons around it. The per-language counts are recorded somewhere
+a reader can check before trusting a language.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started, and deliberately not begun by machine translation. The
+decision at step 1 comes first; translating 230 strings into ten languages
+before deciding whether that is the right scope would waste most of it.
