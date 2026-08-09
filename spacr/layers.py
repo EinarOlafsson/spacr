@@ -23,7 +23,7 @@ It is deliberately **pure numpy** with no Qt anywhere, for the same reasons
 :mod:`spacr.qt.layer_viewer` is the Qt view over it.
 
 The world, and why it is not optional
-------------------------------------
+-------------------------------------
 
 Layers do not agree on pixels. A labels mask may be at full resolution while a
 downsampled preview is not; a points layer of centroids is in continuous
