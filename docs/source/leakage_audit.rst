@@ -72,4 +72,5 @@ API
 ---
 
 .. automodule:: spacr.classifier_evaluation
+   :noindex:
    :members: LeakageReport, FoldLeakageAudit, audit_split_leakage, audit_cv_folds, audit_dataset_splits, write_leakage_audit

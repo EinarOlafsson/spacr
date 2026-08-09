@@ -130,6 +130,7 @@ Python API
 ----------
 
 .. automodule:: spacr.remote_execution
+   :noindex:
    :members:
    :undoc-members:
    :show-inheritance:

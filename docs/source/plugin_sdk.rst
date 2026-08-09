@@ -162,6 +162,7 @@ API reference
 -------------
 
 .. automodule:: spacr.plugins
+   :noindex:
    :members:
    :undoc-members:
    :show-inheritance:

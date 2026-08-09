@@ -73,6 +73,7 @@ durability-before-cancel, resumable queues, and termination of an active batch
 subprocess.
 
 .. automodule:: spacr.cancellation
+   :noindex:
    :members:
    :undoc-members:
    :show-inheritance:
