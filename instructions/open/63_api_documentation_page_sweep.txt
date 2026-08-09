@@ -442,3 +442,31 @@ about a minute apiece by hand -- find the wrapped term, join it onto one
 line. That is cheaper than teaching the tool to choose between candidate
 joins, which is a search problem for a payoff of fifteen edits. The list of
 files and symbols is in the previous section.
+
+--------------------------------------------------------------------------------
+2026-08-09 - "UNEXPECTED INDENTATION" IS TWO CAUSES, NOT ONE
+--------------------------------------------------------------------------------
+
+An earlier note here said every instance is a wrapped definition-list term.
+That was true of the four fixed in `runctx.py` and `data_manager.py` and is
+NOT true of the rest. Looking at four more:
+
+    spacr/qt/ai/prompts.py     a bullet list with NO BLANK LINE after the
+                               paragraph introducing it. rST requires one;
+                               without it the bullets are an indented block.
+                               FIXED -- 1 -> 0 errors.
+    spacr/qt/settings_diff.py  a definition whose continuation is indented
+                               DEEPER than the definition body
+    spacr/qt/ai/providers.py   aligned continuation lines under a term
+    spacr/qt/synthetic.py      a bullet whose continuation is indented
+
+So the class splits roughly in two: MISSING BLANK LINE before a list, and
+CONTINUATION LINES aligned by eye rather than by rST's rules. The first is
+a one-character fix; the second needs someone to decide what the author
+meant, because de-indenting changes which text belongs to which item.
+
+The method that works for both, and is worth reusing: parse the docstring
+with docutils, count "Unexpected indentation", apply the candidate fix,
+count again, and keep it ONLY if the count dropped. That gate is what
+distinguishes a fix from a plausible-looking edit, and it is cheap --
+`errs(doc)` is four lines.
