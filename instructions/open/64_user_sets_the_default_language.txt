@@ -1,0 +1,91 @@
+================================================================================
+THE USER SETS THE PROGRAM'S LANGUAGE
+================================================================================
+
+Status:    not started. The BACKEND IS ALREADY BUILT -- what is missing is
+           the control, which makes this much smaller than it sounds.
+Requested: 2026-08-08 — "the user sets the default language of the programme."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Nearly everything exists except the way to use it. Measured:
+
+    spacr/qt/i18n.py
+        LANGUAGES            10 bundled: en, sv, de, es, zh_CN, pt, hi, ko,
+                             is, fr -- each with a native name and an
+                             English name, so a picker can show both.
+        DEFAULT_LANGUAGE     "en"
+        current_language()   reads the preference
+        tr()                 the translation call, used throughout the Qt
+                             layer, with `_spacr_i18n_text` properties so a
+                             runtime switch re-translates live rather than
+                             needing a restart.
+
+    spacr/qt/preferences.py
+        get_language() / set_language()   persisted at `prefs/language`,
+                                          normalised and validated.
+
+    spacr/qt/prefs.py       -- THE PREFERENCES UI. Contains no reference to
+                               language at all. Grepped: zero hits.
+
+So the program can be translated into ten languages and there is no way
+for a user to ask for one.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The translations are built, bundled and shipped, and every user sees
+English. That is the whole cost of the i18n work sitting unused behind a
+missing combo box.
+
+It matters more for this tool than for most: spaCR's users are labs, and
+the ones least served by an English-only interface are exactly the ones
+least likely to file an issue about it in English.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. A language selector in Preferences, beside Theme and Font scale -- they
+   are the same class of setting and belong together. Show the NATIVE name
+   with the English one after it ("Svenska — Swedish"), because a user who
+   needs the picker may not read the list's English names.
+2. Apply on change, without a restart. `tr()` and the `_spacr_i18n_text`
+   properties already support live re-translation; the switch is what does
+   not exist. Verify a running window actually re-labels rather than
+   waiting for the next launch -- AiToggleLabel's `setText` override is one
+   place that has to keep working, since it stores the logical text.
+3. DECIDE WHAT THE DEFAULT IS on a fresh install. Today it is hard-coded
+   "en". Following the SYSTEM locale when it matches a bundled language is
+   the better default -- a Swedish-locale machine starting in Swedish is
+   what a user expects -- with "en" as the fallback. That is a behaviour
+   change on first launch and should be deliberate; the request says the
+   user sets it, so an explicit choice on first run is also defensible.
+4. Persist through the installer question if instruction 45's account /
+   options screens land first: asking the language at install time and then
+   again on first launch would be asking twice.
+5. Check that a language with a non-Latin script (zh_CN, hi, ko) actually
+   renders in the bundled fonts, and that the layout survives longer German
+   strings. A picker that produces boxes-instead-of-glyphs is worse than
+   no picker.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Open Preferences, choose Svenska, and the running window re-labels without
+a restart. Reopen the app and it is still Swedish. On a fresh profile with
+a Swedish system locale, it starts Swedish without being asked.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. Note the scope trap: this task is a combo box and a default
+policy, NOT a translation effort. The translations exist. If they turn out
+to be thin or stale, that is a separate task with a separate cost, and it
+should be measured -- count the translated strings per language -- before
+anyone promises a language is supported.
