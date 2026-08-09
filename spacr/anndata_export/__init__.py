@@ -1797,10 +1797,7 @@ _TOOLTIPS = {
         "absent from obs. Default ['cell', 'cytoplasm', 'nucleus', "
         "'pathogen', 'png_list']."),
     "anndata_single_table": (
-        "(str) - Export this one object table instead of the join, one row "
-        "per object of that type. The only way to get a nucleus-level or "
-        "pathogen-level matrix: the join averages children onto their "
-        "parent cell. Empty means the joined export."),
+        "(str) - Export this one object table instead of the join, one row per object of that type. The only way to get a nucleus-level or pathogen-level matrix: the join averages children onto their parent cell. Empty means the joined export. Default ''."),
     "anndata_nan_policy": (
         "(str) - What happens to missing values in X: 'keep' (default; "
         "AnnData stores them, scanpy's scale/pca/neighbors do not), "
@@ -1810,9 +1807,7 @@ _TOOLTIPS = {
         "(str) - dtype of X. Default 'float32' - the scanpy convention and "
         "half the memory of float64."),
     "anndata_row_limit": (
-        "(int) - Hard cap on exported objects, applied after filtering. 0 "
-        "means no cap. A cap, not a filter: the objects kept are simply the "
-        "first N in table order."),
+        '(int) - Hard cap on exported objects, applied after filtering. 0 means no cap. A cap, not a filter: the objects kept are simply the first N in table order. Default 0.'),
     "anndata_compute_umap": (
         "(bool) - Compute obsm['X_umap'] during the export, through the "
         "same reducer the UMAP app uses. Off by default: it costs minutes "
