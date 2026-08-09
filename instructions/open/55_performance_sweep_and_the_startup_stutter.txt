@@ -2,8 +2,9 @@
 A PERFORMANCE SWEEP: NOTHING THAT LOADS BELONGS ON THE GUI THREAD
 ================================================================================
 
-Status:    measured, and the first cause is fixed (2026-08-08).
-           670 ms -> 592 ms. A third pandas path remains.
+Status:    THREE causes fixed (2026-08-08). MainWindow build
+           5107 ms -> 1457 ms; worst stall 6087 ms -> 2551 ms.
+           The pandas question is settled: not worth doing.
 Requested: 2026-08-08 — "do a performance optemization sweep, where loading of data for example is allways kept of the main app thred, and that background loading is generally kept on the background threads so the main application remains smooth. i noticed that there is a stutter at the beggining of starting the application."
 
 --------------------------------------------------------------------------------
@@ -219,3 +220,58 @@ unbuilt -- is what should decide it. If the loop never stalls more than
 
 DO NOT keep deferring imports one at a time before that measurement. Two
 were worth doing and are done; the third would be guessing.
+
+--------------------------------------------------------------------------------
+2026-08-08, LATER - THE TICK MONITOR GOT BUILT, AND IT CHANGED THE ANSWER
+--------------------------------------------------------------------------------
+
+The monitor this file kept asking for exists now, and it settled the
+open (a)-or-(b) question by making it irrelevant. It measures the SYMPTOM
+-- how long the GUI event loop fails to turn -- not import time, which is
+a proxy for it.
+
+    FIRST MEASUREMENT
+      theme + stylesheet     969 ms
+      MainWindow build      5107 ms
+      worst single stall    6087 ms
+
+Six seconds of a dead loop. The remaining ~200 ms of pandas is 3.5% of one
+stall, so splitting `spacr.selection` -- a real refactor with real
+regression risk -- is NOT worth doing. That is decided: option (b). Stop
+deferring imports.
+
+Then cProfile named the real costs, both of them data loading on the GUI
+thread, which is exactly what the request said must not happen.
+
+  1. ICON RASTERISATION, 2.9 s of 4.8 s. The lru_cache already collapsed
+     160 requests to 50 distinct files; the waste was that every launch
+     started from nothing, decoding and LANCZOS-downscaling source art up
+     to 3334x3334 to draw into a 52 px slot. Re-inked icons are now cached
+     on disk as PNG, one per (file, theme).
+         MainWindow build   5107 ms -> 1930 ms
+
+  2. THE RUN JOURNAL, 852 ms in 7037 json.loads calls. `recent_runs(10)`
+     read and parsed EVERY manifest -- 3521 folders on this machine -- then
+     sorted and kept ten. Worse, it grew with every run the user had ever
+     done, so the launch got slower the more the tool was used. Run folders
+     are named `{YYYY-MM-DD_HHMMSS}_{tag}__{app}`, so they sort to the
+     second without opening anything; it now sorts by name, reads a margin
+     past the limit, and sorts those precisely.
+         recent_runs(10)     852 ms -> 24 ms
+         MainWindow build   1930 ms -> 1457 ms
+
+     Verified identical to an exhaustive scan at limits 1, 10 and 50 over
+     the real 3518-run journal -- bounding the read must not change WHICH
+     runs come back, and a test pins that.
+
+WHERE IT STANDS NOW
+
+      theme + stylesheet    1081 ms
+      MainWindow build      1457 ms      (was 5107)
+      worst single stall    2551 ms      (was 6087)
+      stalls over 50 ms          2      (was 3)
+
+STILL OPEN. Two stalls of ~2.5 s remain and neither has been profiled yet.
+`_build_aside` in `home.py` was 1481 ms in the last profile and is the
+obvious next line to pull. The method is unchanged: run the tick monitor,
+then cProfile, then fix what it names -- not what looks slow.
