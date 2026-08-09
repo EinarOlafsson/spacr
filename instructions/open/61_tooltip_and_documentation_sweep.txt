@@ -289,7 +289,7 @@ settings, not as a sweep.
 2026-08-09 - THE TWO LONGEST REWRITTEN
 --------------------------------------------------------------------------------
 
-    over 600 chars   37 -> 14
+    over 600 chars   37 -> 11
     under 80 chars   13 -> 1     (earlier)
     empty             1 -> 0     (earlier)
 
@@ -345,7 +345,7 @@ round here. Match `['\"]` on both sides.
     strict_errors       841 -> 591     control_wells    831 -> 547
     custom_regex        827 -> 599     Signal_to_noise  815 -> 590
 
-    over 600 chars   37 -> 14
+    over 600 chars   37 -> 11
 
 Two of these earned a sentence that was NOT in the original, because
 cutting made room for the thing a user actually needs:
@@ -501,3 +501,28 @@ wants to know.
 `metadata_type_by` gained a sixth silent failure: values in class_metadata
 that do not appear in the chosen column simply produce no crops for that
 class, rather than erroring.
+
+--------------------------------------------------------------------------------
+2026-08-09 - TWENTY-SIX CUT. over 600: 37 -> 11
+--------------------------------------------------------------------------------
+
+    outline_color  690 -> 381    class_balance  680 -> 462    tables  671 -> 458
+
+Two more silent failures, bringing the running total to EIGHT:
+
+    outline_color  an unrecognised code falls back to 'rbg', so a typo
+                   changes your figure colours rather than raising
+    tables         a name that is not one of the five merged -- including
+                   'organelle', which the measure step DOES write -- is
+                   loaded and then dropped, so asking for it costs time and
+                   returns nothing, with no warning that the table you
+                   wanted is absent from the result
+
+That `tables` one is the most likely of the eight to cost a real analysis:
+someone measures organelles, asks for the organelle table, gets a merged
+frame without it, and has no reason to suspect the setting rather than
+their data.
+
+`class_balance` gained the threshold it was missing -- reach for a sampler
+or class weights when the ratio the run prints is worse than about 3:1 --
+which turns three described options into a decision.
