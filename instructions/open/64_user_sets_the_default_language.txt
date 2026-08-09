@@ -2,9 +2,11 @@
 THE USER SETS THE PROGRAM'S LANGUAGE
 ================================================================================
 
-Status:    not started. The BACKEND IS ALREADY BUILT -- what is missing is
-           the control, which makes this much smaller than it sounds.
+Status:    MEASURED 2026-08-08, and the picker ALREADY WORKS. What is
+           missing is catalogue coverage: 4% of one screen's strings.
 Requested: 2026-08-08 — "the user sets the default language of the programme."
+           2026-08-08, clarified — "With default I just mean the translation
+           that is loaded first on startup."
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
@@ -27,19 +29,58 @@ Nearly everything exists except the way to use it. Measured:
         get_language() / set_language()   persisted at `prefs/language`,
                                           normalised and validated.
 
-    spacr/qt/prefs.py       -- THE PREFERENCES UI. Contains no reference to
-                               language at all. Grepped: zero hits.
+    spacr/qt/preferences.py :: PreferencesDialog, line ~2220
+        A QComboBox of languages, FIRST in the General tab -- its own
+        comment says "Language is first so it remains discoverable even on
+        a small screen."
 
-So the program can be translated into ten languages and there is no way
-for a user to ask for one.
+CORRECTION, recorded because the first version of this file said the
+opposite: I grepped `spacr/qt/prefs.py` and reported zero hits. That file
+is a 56-line QSettings wrapper for recent paths, not the Preferences UI.
+The control exists and has existed.
+
+VERIFIED END TO END. Chose a language, then built a screen:
+
+    sv -> Settings = 'Inställningar'   Run = 'Kör'
+    is -> Settings = 'Stillingar'      Run = 'Keyra'
+    fr -> Settings = 'Paramètres'      Run = 'Exécuter'
+
+The persisted choice IS what loads at startup, which is precisely what was
+asked for. A SECOND CORRECTION: an earlier count here said French had 0 of
+249 strings. That was an off-by-one of mine -- the catalogue rows are
+9-tuples because ENGLISH IS THE KEY rather than a column, so indexing by
+`LANGUAGES` order shifted every language by one and pushed French out of
+range. All ten languages carry all the strings.
+
+--------------------------------------------------------------------------------
+WHAT IS ACTUALLY MISSING: COVERAGE
+--------------------------------------------------------------------------------
+
+Measured on one Mask screen, in English, counting distinct label and
+button strings against the catalogue:
+
+    catalogue entries                 267
+    distinct strings on ONE screen    230
+    of those, in the catalogue         10   (4%)
+
+Untranslated samples: "Adjust cells", "Anisotropy", and every setting
+label on the screen.
+
+So choosing Swedish today translates the chrome -- menus, buttons like Run
+and Settings -- and leaves the module screens in English. That is why a
+Swedish session still shows 223 English labels.
 
 --------------------------------------------------------------------------------
 WHY IT MATTERS
 --------------------------------------------------------------------------------
 
-The translations are built, bundled and shipped, and every user sees
-English. That is the whole cost of the i18n work sitting unused behind a
-missing combo box.
+A half-translated interface is arguably worse than an untranslated one: the
+user is told the program speaks their language, and then the part they
+actually work in does not.
+
+The setting labels are also the hardest part to translate well -- they are
+domain terms, and a wrong translation of "Anisotropy" or "Flow threshold"
+is worse than the English word a microscopist already knows.
 
 It matters more for this tool than for most: spaCR's users are labs, and
 the ones least served by an English-only interface are exactly the ones
@@ -49,21 +90,29 @@ least likely to file an issue about it in English.
 WHAT TO DO
 --------------------------------------------------------------------------------
 
-1. A language selector in Preferences, beside Theme and Font scale -- they
-   are the same class of setting and belong together. Show the NATIVE name
-   with the English one after it ("Svenska — Swedish"), because a user who
-   needs the picker may not read the list's English names.
-2. Apply on change, without a restart. `tr()` and the `_spacr_i18n_text`
-   properties already support live re-translation; the switch is what does
-   not exist. Verify a running window actually re-labels rather than
-   waiting for the next launch -- AiToggleLabel's `setText` override is one
-   place that has to keep working, since it stores the logical text.
-3. DECIDE WHAT THE DEFAULT IS on a fresh install. Today it is hard-coded
-   "en". Following the SYSTEM locale when it matches a bundled language is
-   the better default -- a Swedish-locale machine starting in Swedish is
-   what a user expects -- with "en" as the fallback. That is a behaviour
-   change on first launch and should be deliberate; the request says the
-   user sets it, so an explicit choice on first run is also defensible.
+1. DONE ALREADY -- the selector exists and the choice loads at startup.
+   Nothing to build for the request as clarified.
+2. DECIDE HOW FAR TRANSLATION SHOULD GO, which is the real question this
+   task turned out to be. Three defensible answers:
+     (a) chrome only, as today -- and then say so, rather than implying a
+         fully localised program;
+     (b) chrome plus setting LABELS, leaving the tooltips English;
+     (c) everything, including the 700 tooltips of instruction 61.
+   (c) is a translation project, not a feature. (b) is roughly 230 strings
+   per screen and is where the value is. Someone who reads the languages
+   has to make this call -- a machine translation of "Anisotropy" shipped
+   to a microscopist is worse than the English.
+3. THE CHOICE IS WHAT LOADS AT STARTUP. Clarified by the maintainer:
+   "default" means the translation loaded first on startup, not a fallback
+   for missing strings. So the persisted `prefs/language` value must be
+   applied during application start, before the first window is built --
+   otherwise the user picks Swedish, restarts, and gets English until they
+   touch the setting again.
+
+   Following the SYSTEM locale on a first-ever launch is NOT part of this
+   request and should not be bundled into it. Noted only so the next reader
+   does not re-derive it: it would be a separate, arguable behaviour change,
+   and the ask here is simply that the user's own choice is what loads.
 4. Persist through the installer question if instruction 45's account /
    options screens land first: asking the language at install time and then
    again on first launch would be asking twice.
