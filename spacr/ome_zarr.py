@@ -20,7 +20,7 @@ picks the level, and the per-level ``scale`` transformation is what makes the
 picked level land in the same world coordinates as level 0.
 
 What spaCR implements itself, and what the extra is for
-------------------------------------------------------
+-------------------------------------------------------
 The **metadata** — ``multiscales``, ``axes``, ``coordinateTransformations``,
 ``omero`` — is parsed and written here, in pure Python, because that layout is
 the thing worth getting right and a library would only hide it behind a call
@@ -43,7 +43,7 @@ who do nothing else. **The pure-Python reader is a fallback for the common
 case, not a reimplementation of zarr**, and it says so where it gives up.
 
 Axes and units, which is the decision this module exists to get right
---------------------------------------------------------------------
+---------------------------------------------------------------------
 NGFF names its axes and gives each one a UDUNITS-2 unit
 (``"micrometer"``, ``"nanometer"``, ``"second"``). :class:`spacr.layers.Spacing`
 names its axes and carries one short unit token (``"um"``, ``"px"``) that

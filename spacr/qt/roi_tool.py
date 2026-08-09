@@ -8,7 +8,7 @@ turns the shapes layer into a :class:`spacr.roi.RoiSet` and switches the
 measurement filter on.
 
 The pen draws into the model, not onto the widget
-------------------------------------------------
+-------------------------------------------------
 
 Every vertex is a world coordinate taken from
 :meth:`spacr.layers.Canvas.world_at`, and the polygon being drawn is a real

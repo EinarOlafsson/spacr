@@ -91,7 +91,7 @@ They are converted to NaN before the policy runs and counted separately in
 ``uns['spacr']['nan']['n_infinite']`` so the substitution is never silent.
 
 Where the cell -> nucleus -> pathogen links go, and why not ``obsp``
--------------------------------------------------------------------
+--------------------------------------------------------------------
 They go in ``obs`` and ``uns``. **Never ``obsp``.**
 
 ``obsp`` is an ``n_obs x n_obs`` matrix: a relation among *the observations
@@ -127,7 +127,7 @@ knows nothing about spaCR):
   :func:`export_anndata_set`) the sibling ``.h5ad`` file holding the parent.
 
 The labels the table join drops
-------------------------------
+-------------------------------
 :func:`spacr.io._read_and_join_tables` takes six named columns off
 ``png_list`` -- the object id, ``png_path`` and the four field keys -- and
 drops the rest. The rest is every annotation column the Annotate app added

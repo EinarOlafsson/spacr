@@ -28,7 +28,7 @@ machine with neither installed; only :func:`benchmark` (through
 is called. ``tests/test_model_zoo.py`` asserts that.
 
 The four things that make this trustworthy rather than merely convenient
------------------------------------------------------------------------
+------------------------------------------------------------------------
 **Every download is checksummed, and verification happens before use.**
     A checkpoint truncated by a dropped connection, or swapped for a different
     one at the same URL, still loads. It does not raise; it produces silently
