@@ -289,7 +289,7 @@ settings, not as a sweep.
 2026-08-09 - THE TWO LONGEST REWRITTEN
 --------------------------------------------------------------------------------
 
-    over 600 chars   37 -> 17
+    over 600 chars   37 -> 14
     under 80 chars   13 -> 1     (earlier)
     empty             1 -> 0     (earlier)
 
@@ -345,7 +345,7 @@ round here. Match `['\"]` on both sides.
     strict_errors       841 -> 591     control_wells    831 -> 547
     custom_regex        827 -> 599     Signal_to_noise  815 -> 590
 
-    over 600 chars   37 -> 17
+    over 600 chars   37 -> 14
 
 Two of these earned a sentence that was NOT in the original, because
 cutting made room for the thing a user actually needs:
@@ -477,3 +477,27 @@ name and quietly ignoring it -- so it was worth stating in both places.
 
 `plate` is marked INERT first and says to set plateID instead, rather than
 explaining at length what does not happen.
+
+--------------------------------------------------------------------------------
+2026-08-09 - TWENTY-THREE CUT. over 600: 37 -> 14
+--------------------------------------------------------------------------------
+
+    metadata_type_by  704 -> 437
+    resume            692 -> 471
+    t_track_backend   690 -> 433
+
+`t_track_backend` gained the sentence the original was missing entirely --
+WHICH ONE TO PICK. It described both linkers accurately and left the reader
+to work out the rule: iou for crowded slow fields, centroid for sparse fast
+ones. That is a one-line decision rule hidden behind two paragraphs of
+mechanism, and it is the only thing a user hovering actually needs.
+
+`resume` dropped the per-module enumeration and kept the guarantee it was
+really making: every module VERIFIES before accepting work as done, so
+resuming cannot inherit a half-written result -- the cost is re-reading,
+not correctness. That is what someone deciding whether to trust the flag
+wants to know.
+
+`metadata_type_by` gained a sixth silent failure: values in class_metadata
+that do not appear in the chosen column simply produce no crops for that
+class, rather than erroring.
