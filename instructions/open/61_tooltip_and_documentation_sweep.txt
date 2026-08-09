@@ -289,7 +289,7 @@ settings, not as a sweep.
 2026-08-09 - THE TWO LONGEST REWRITTEN
 --------------------------------------------------------------------------------
 
-    over 600 chars   37 -> 20
+    over 600 chars   37 -> 17
     under 80 chars   13 -> 1     (earlier)
     empty             1 -> 0     (earlier)
 
@@ -345,7 +345,7 @@ round here. Match `['\"]` on both sides.
     strict_errors       841 -> 591     control_wells    831 -> 547
     custom_regex        827 -> 599     Signal_to_noise  815 -> 590
 
-    over 600 chars   37 -> 20
+    over 600 chars   37 -> 17
 
 Two of these earned a sentence that was NOT in the original, because
 cutting made room for the thing a user actually needs:
@@ -457,3 +457,23 @@ discouraged:
 
 Verified against the exact input that broke it: text containing both "
 and ' is accepted and the module still parses.
+
+--------------------------------------------------------------------------------
+2026-08-09 - TWENTY CUT. over 600: 37 -> 17
+--------------------------------------------------------------------------------
+
+    plate  715 -> 351    t_stack  714 -> 425    cell_model_name  706 -> 437
+
+`cell_model_name` is the fifth silent failure found by this sweep, and the
+worst of them for a user's results: the pre-SAM names 'cyto', 'cyto2',
+'cyto3' and 'nuclei' are still ACCEPTED so old settings files load, and
+they all resolve to cpsam. Naming one does not get you that model, because
+it no longer exists. Someone reusing a 2023 settings file gets different
+masks than they think, with no warning anywhere.
+
+The tooltip now says so in those words. This is the same fault the preview
+panels had in code (fixed earlier today) -- Cellpose 4 accepting a legacy
+name and quietly ignoring it -- so it was worth stating in both places.
+
+`plate` is marked INERT first and says to set plateID instead, rather than
+explaining at length what does not happen.
