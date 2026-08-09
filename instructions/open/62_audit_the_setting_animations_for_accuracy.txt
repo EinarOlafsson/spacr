@@ -2,8 +2,9 @@
 THE SETTING ANIMATIONS MUST SHOW WHAT THE SETTING ACTUALLY DOES
 ================================================================================
 
-Status:    ALL 94 AUDITED 2026-08-09. Two defect lists, both short.
-           The reported inaccuracy is confirmed in its four files.
+Status:    audited, and the VALIDATOR NOW EXISTS (2026-08-09). The 27
+           silent animations are caught automatically; regenerating
+           them is what is left.
 Requested: 2026-08-08 — "evaluate all tooltips animations and make sure they are acurate (i know for example that remove edge objects annimation shows removing one edge object and one not edge object because of animation missallignment during animation generation)"
 
 --------------------------------------------------------------------------------
@@ -180,3 +181,42 @@ change -- say 1% of the frame -- which catches list 1 across all 94 and
 would have caught `pathogen_diameter` at generation time. The "interior
 change" assertion applies ONLY to settings documented as edge-only, and
 must be opt-in per animation rather than global.
+
+--------------------------------------------------------------------------------
+2026-08-09 - STEP 5 IS DONE: THE CHECK EXISTS
+--------------------------------------------------------------------------------
+
+`spacr/setting_animations.py` gains two functions:
+
+    measure_visible_change(path)          -> fraction of the frame changed
+    validate_animations_show_something()  -> {slug: fraction} below threshold
+
+with `MIN_VISIBLE_CHANGE = 0.01`. It reproduces the audit exactly: 27
+animations below 1%, `pathogen_diameter` at 0.01%.
+
+THREE DECISIONS IN IT, each of which was a bug in an earlier attempt:
+
+  The "after" frame is the one MOST DIFFERENT from the first, not the last.
+  These GIFs loop, so first-vs-last is zero for every animation ever made.
+  A test pins this, because it is the mistake anyone writing this check
+  makes once.
+
+  An unreadable file measures 0.0 rather than raising. The caller wants
+  "this one shows nothing" in its report beside the others, not a
+  traceback that hides the other 93.
+
+  It RETURNS the failures instead of raising on the first. Raising would
+  make fixing 27 animations a 27-round loop.
+
+Deliberately SEPARATE from `validate_setting_animation_assets`, which
+checks the files are intact. A GIF can have the right size and the right
+digest and still show nothing -- it passes that check and fails this one,
+which is the whole point.
+
+9 tests.
+
+STILL OPEN, and it is the part a machine cannot do: REGENERATE the 27.
+Their generator needs two parameter values far enough apart to see -- the
+whole *_diameter family is in the list, and diameter should be among the
+most visible settings there is. And the four border-object animations still
+remove a non-edge object. Both need the generator, not the assets.
