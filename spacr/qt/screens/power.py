@@ -1352,83 +1352,49 @@ APP_TRANSLATIONS = (
 _SETTINGS: Dict[str, Tuple[Any, Any, str]] = {
     "power_n_genes": (
         452, int,
-        "(int) - Genes in the library. The real T. gondii screen this "
-        "simulator was fitted to had 452. Power falls roughly as the log of "
-        "this: doubling the library costs about as much as halving the wells."),
+        '(int) - Genes in the library. The real T. gondii screen this simulator was fitted to had 452. Power falls roughly as the log of this: doubling the library costs about as much as halving the wells. Default 452.'),
     "power_n_grnas_per_gene": (
         4, int,
-        "(int) - Guides per gene. Only reaches the simulation when "
-        "power_score_per is 'guide'; there is no guide-efficiency layer in "
-        "the port, so scoring per gene it changes no number."),
+        "(int) - Guides per gene. Only reaches the simulation when power_score_per is 'guide'; there is no guide-efficiency layer in the port, so scoring per gene it changes no number. Default 4."),
     "power_score_per": (
         "gene", str,
-        "(str) - 'gene' pools a gene's guides before the model sees them, "
-        "which is what the real analysis and spaCRPower do; 'guide' gives "
-        "every construct its own coefficient."),
+        "(str) - 'gene' pools a gene's guides before the model sees them, which is what the real analysis and spaCRPower do; 'guide' gives every construct its own coefficient. Default 'gene'."),
     "power_cells_per_well": (
         123.0, float,
-        "(float) - Mean cells imaged per well. The real screen averaged 123. "
-        "This is the parameter you buy with microscope time, and the first "
-        "curve sweeps it."),
+        '(float) - Mean cells imaged per well. The real screen averaged 123. This is the parameter you buy with microscope time, and the first curve sweeps it. Default 123.0.'),
     "power_wells_per_plate": (
         384, int,
-        "(int) - Wells per plate: 96, 384 or 1536. With the plate count it "
-        "sets the total number of wells, and raising it buys replication "
-        "rather than cells - a 1536 plate holds four times the wells of a 384 "
-        "at the same imaging cost per well, so power rises while cells per "
-        "well stays where you set it."),
+        '(int) - Wells per plate: 96, 384 or 1536. With the plate count it sets the total number of wells, and raising it buys replication rather than cells - a 1536 plate holds four times the wells of a 384 at the same imaging cost per well, so power rises while cells per well stays where you set it. Default 384.'),
     "power_n_plates": (
         4, int,
-        "(int) - Plates in the screen; four 384-well plates in the real one. "
-        "This is the cheapest axis to move: another plate is another full set "
-        "of wells, and because plate is a random effect in the model it also "
-        "buys a better estimate of plate-to-plate variance rather than "
-        "confounding with it."),
+        '(int) - Plates in the screen; four 384-well plates in the real one. This is the cheapest axis to move: another plate is another full set of wells, and because plate is a random effect in the model it also buys a better estimate of plate-to-plate variance rather than confounding with it. Default 4.'),
     "power_constructs_per_well": (
         4.6, float,
-        "(float) - Mean library constructs spotted into each well. The knob "
-        "that trades constructs-per-well against wells-per-construct, and "
-        "the sweep spaCRPower cared most about. 4.6 in the real screen."),
+        '(float) - Mean library constructs spotted into each well. The knob that trades constructs-per-well against wells-per-construct, and the sweep spaCRPower cared most about. 4.6 in the real screen. Default 4.6.'),
     "power_background_positive_rate": (
         0.12, float,
-        "(float) - Probability a non-hit cell is called positive - the "
-        "classifier's false-positive rate. 0.12 in the real screen."),
+        "(float) - Probability a non-hit cell is called positive - the classifier's false-positive rate. 0.12 in the real screen. Default 0.12."),
     "power_effect_fold": (
         6.667, float,
-        "(float) - How many times more often a hit-genotype cell is called "
-        "positive. The effect size. The real screen's MaxViT classifier sat "
-        "at 0.80 against 0.12, i.e. 6.67-fold."),
+        "(float) - How many times more often a hit-genotype cell is called positive. The effect size. The real screen's MaxViT classifier sat at 0.80 against 0.12, i.e. 6.67-fold. Default 6.667."),
     "power_hit_rate": (
         0.025, float,
-        "(float) - Fraction of the library that is a true hit. 0.025 was "
-        "inferred from the real screen by inverting the well positivity rate "
-        "against the classifier operating point. The single number most "
-        "worth checking against your own pilot data."),
+        '(float) - Fraction of the library that is a true hit. 0.025 was inferred from the real screen by inverting the well positivity rate against the classifier operating point. The single number most worth checking against your own pilot data. Default 0.025.'),
     "power_reads_per_well": (
         30000, int,
-        "(int) - Mean sequencing reads per well. Unambiguously per well: "
-        "spaCRPower divided its read budget by the number of genes, giving "
-        "~284 where a real screen has ~30000."),
+        '(int) - Mean sequencing reads per well. Unambiguously per well: spaCRPower divided its read budget by the number of genes, giving ~284 where a real screen has ~30000. Default 30000.'),
     "power_n_replicates": (
         3, int,
-        "(int) - Simulated screens per grid point. One screen at one setting "
-        "is a single draw from a noisy process."),
+        '(int) - Simulated screens per grid point. One screen at one setting is a single draw from a noisy process. Default 3.'),
     "power_detection_auroc": (
         0.80, float,
-        "(float) - The AUROC a simulated screen must reach to count as a "
-        "detection. There is no p-value here - the model ranks genes, so the "
-        "bar is a ranking quality and you choose it."),
+        '(float) - The AUROC a simulated screen must reach to count as a detection. There is no p-value here - the model ranks genes, so the bar is a ranking quality and you choose it. Default 0.8.'),
     "power_seed": (
         0, int,
-        "(int) - Master seed. Every number the screen reports is reproducible "
-        "from this plus the parameters above."),
+        '(int) - Master seed. Every number the screen reports is reproducible from this plus the parameters above. Default 0.'),
     "power_backend": (
         "torch", str,
-        "(str) - Inference backend: 'auto', 'torch' (mean-field ADVI, always "
-        "available), 'numpyro' or 'pymc' (exact NUTS, if installed). ADVI "
-        "gets the coefficient ORDER right, which is all AUROC needs, and "
-        "understates the intervals, which is why it is not the choice when "
-        "the interval is the deliverable."),
+        "(str) - Inference backend: 'auto', 'torch' (mean-field ADVI, always available), 'numpyro' or 'pymc' (exact NUTS, if installed). ADVI gets the coefficient ORDER right, which is all AUROC needs, and understates the intervals, which is why it is not the choice when the interval is the deliverable. Default 'torch'."),
 }
 
 

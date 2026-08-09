@@ -2,8 +2,8 @@
 A TOOLTIP AND DOCUMENTATION SWEEP: SHORT, INFORMATIVE, CORRECTLY REFERENCED
 ================================================================================
 
-Status:    FOUR of the five defect classes are at zero (2026-08-09),
-           held by a guard test. Only the missing defaults remain: 52.
+Status:    FOUR classes at zero and held by a guard test (2026-08-09).
+           Missing defaults down to 37, and the rest are hand work.
 Requested: 2026-08-08 — "do a full documentation and tooltips sweep to make the tool tips short and informative (not to short) with the correct api reference."
 
 --------------------------------------------------------------------------------
@@ -627,3 +627,28 @@ those differ between modules, so a single stated value would be wrong
 somewhere. The rest live in the function that consumes them. Hand work,
 about a minute each, best done while touching a module's settings for
 another reason.
+
+--------------------------------------------------------------------------------
+2026-08-09 - 15 DEFAULTS STATED, FROM THE TUPLE THEY WERE SITTING NEXT TO
+--------------------------------------------------------------------------------
+
+    no stated Default   52 -> 37
+
+THE TOOLTIPS ARE NOT ALL IN `spacr/settings.py`. That assumption cost a
+round: `tools/edit_tooltip.py` reported "not found" for every power_* and
+anndata_* key, because those are contributed by PLUGIN APPS --
+`settings_model.py` does `self._tooltips.update(plugin_app.tooltips)`, and
+`spacr/qt/screens/power.py` builds its table from a `_SETTINGS` dict of
+
+    "power_n_genes": (452, int, "(int) - Genes in the library. ...")
+
+So for these the DEFAULT IS IN THE SAME TUPLE as the tooltip that omitted
+it -- 15 of them, all stated now, taken from the tuple rather than guessed.
+That is the cheapest fix in this whole task and it was invisible until
+someone looked in the right file.
+
+WORTH KNOWING FOR THE REMAINING 37: check where a tooltip actually lives
+before concluding it cannot be fixed. `get_tooltips()` merges
+`spacr.settings.descriptions`, `spacr.settings.tooltips`, and every plugin
+app's own table. A key absent from settings.py is not necessarily
+undocumented -- it is somewhere else, possibly right beside its default.
