@@ -17,9 +17,8 @@ const AUDIO_ROOT = document.documentElement.dataset.audioRoot || PRODUCTION_ROOT
 // The 4K silent masters, when they are hosted somewhere with room for them.
 // Same silent cut as the 1440p copy at the same timings, so narration syncs
 // against either without recomputation -- a plain <video src>, which is why
-// this can carry the voice picker where a YouTube embed could not: the player
-// drives the element at an arbitrary playback rate to match the selected
-// narration, and the IFrame API only accepts a fixed set of rates.
+// this can carry the voice picker while the player drives the element at an
+// arbitrary playback rate to match the selected narration.
 // Empty means no 4K is available and the quality control stays hidden.
 const VIDEO_4K_ROOT = document.documentElement.dataset.video4kRoot || "";
 const STORAGE_KEY = "spacr-tutorial-progress-v2";
@@ -91,7 +90,6 @@ const elements = {
   next: $("#next-button"), previousTitle: $("#previous-title"),
   nextTitle: $("#next-title"), complete: $("#complete-button"),
   completeLabel: $("#complete-label"), copyLink: $("#copy-link-button"),
-  youtubeLink: $("#youtube-link"),
   quality: $("#quality-select"), qualityControl: $("#quality-control"),
   continue: $("#continue-button"), progressLabel: $("#progress-label"),
   progressBar: $("#progress-bar"), availableCount: $("#available-count"),
@@ -549,21 +547,8 @@ function voiceById(language, id) {
   return language?.voices.find(voice => voice.id === id);
 }
 
-// Set once the narration host has failed to answer. The site publishes one
-// voice per language precisely so this is survivable: the lesson keeps its
-// narration and its captions, just not the visitor's chosen voice. Sticky for
-// the session -- a host that is down for one request is down for the next, and
-// retrying it on every voice change would stall the picker each time.
-let narrationFallback = false;
-
 function narrationRoot() {
-  return narrationFallback ? PRODUCTION_ROOT : AUDIO_ROOT;
-}
-
-// The voice published to the site itself, which is the one the picker defaults
-// to for that language (`language.voices[0]`).
-function offlineVoiceFor(languageId) {
-  return languageById(languageId)?.voices?.[0]?.id || "";
+  return AUDIO_ROOT;
 }
 
 function fourKAvailable() {
@@ -800,26 +785,7 @@ function updateLessonHeader() {
   elements.status.className = "status-pill ready";
   elements.title.textContent = lesson.title;
   elements.description.textContent = lesson.description;
-  updateYoutubeLink();
   document.title = `${lesson.title} · spaCR Learning Path`;
-}
-
-// The player streams a 1440p copy to stay inside the published-media budget;
-// YouTube carries the 4K cut. Lessons without an id in youtube_links.js show
-// no link at all, so the catalogue can be filled in a few lessons at a time.
-function updateYoutubeLink() {
-  if (!elements.youtubeLink) return;
-  const links = window.SPACR_YOUTUBE_LINKS || {};
-  const id = activeLesson && typeof links[activeLesson.id] === "string"
-    ? links[activeLesson.id].trim() : "";
-  if (!id) {
-    elements.youtubeLink.hidden = true;
-    elements.youtubeLink.removeAttribute("href");
-    return;
-  }
-  elements.youtubeLink.href = `https://www.youtube.com/watch?v=${encodeURIComponent(id)}`;
-  elements.youtubeLink.title = `Watch "${localizedLesson(activeLesson.id).title}" in 4K on YouTube`;
-  elements.youtubeLink.hidden = false;
 }
 
 function updateGuide() {
@@ -900,21 +866,9 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
       narrationAudioAvailable = true;
     } catch (audioError) {
       if (!isCurrent()) return;
-      // The site carries one voice per language for exactly this moment. Drop
-      // to it and retry once: the lesson keeps narration and captions, just
-      // not the voice that was asked for. Retrying is safe from a loop because
-      // the second attempt is already on the offline root and the offline
-      // voice, so this branch cannot choose to fall back again.
-      const offline = offlineVoiceFor(elements.language.value);
-      if (offline && !(narrationFallback && elements.voice.value === offline)) {
-        narrationFallback = true;
-        elements.voice.value = offline;
-        showToast("Narration host unreachable — playing this language's offline voice.");
-        return loadNarration(resume, outerCurrent);
-      }
       elements.audio.removeAttribute("src");
       elements.audio.load();
-      showToast("Narration audio is unavailable; video and captions remain available.");
+      showToast("Narration is unavailable; the GitHub-hosted video remains available.");
     }
     elements.video.currentTime = normalized * elements.video.duration;
     configureMediaSync();
