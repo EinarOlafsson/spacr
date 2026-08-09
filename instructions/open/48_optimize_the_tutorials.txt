@@ -1740,3 +1740,7 @@ Definition of done
   is the module's most useful miniature feedback loop.
 - Current Classify, Gate Editor, Image UMAP, and every other changed or added
   module have tutorials verified against the running UI.
+- Every narration file decodes cleanly as mono 24 kHz AAC, has no unintended
+  silence of eight seconds or longer, and has a measured true peak at or below
+  -1 dBFS. Use a -3 dBTP render target to retain AAC headroom; the earlier
+  -1.5 dBTP target was measured at up to +1.4 dBFS after decoding.
