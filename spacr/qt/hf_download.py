@@ -52,10 +52,10 @@ class _HFDownloadWorker(QObject):
     progress signals along the way.
 
     Signals:
-        progress(str, int, int) — (file_name, done_files, total_files)
-        info(str)               — status message for the dialog label
-        finished(bool, str, str, str)
-            — (ok, dataset_path, settings_path, error)
+
+    * ``progress(str, int, int)`` — (file_name, done_files, total_files)
+    * ``info(str)`` — status message for the dialog label
+    * ``finished(bool, str, str, str)`` — (ok, dataset_path, settings_path, error)
     """
 
     progress = Signal(str, int, int)
