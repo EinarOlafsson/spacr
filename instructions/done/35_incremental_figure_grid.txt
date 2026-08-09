@@ -2,10 +2,8 @@
 SHOW SEARCH FIGURES AS THEY ARRIVE, ON A GRID THAT FITS THE CONTAINER
 ================================================================================
 
-Status:    the widget is built and tested; wiring it into the two
-           modules is what is left (2026-08-08). MERGED: this file is now
-           the single home for the streaming figure grid -- instruction 34
-           part 4 and instruction 57's second half were the same change.
+Status:    done for Image UMAP 2026-08-08. The Gate Editor inherits the
+           widget and is wired by instruction 49.
 Requested: 2026-08-07 - "when evaluating hyperparameters, show each graph as soon as it is generated on a grid defined by the width and height of the container, which is dynamic. whether to show each as a png (which takes less compute) or as a pdf (editable but takes more compute) is defined by the spacr preference figure format and PNG resolution." Also, for the Gate Editor: "the figures should map onto a grid where each figure is a pdf or png defined by the general settings in preferences, and the grid should map onto the hyperparameter search space."
 
 --------------------------------------------------------------------------------
@@ -146,3 +144,44 @@ land.
 SHARED WITH THE GATE EDITOR. Instruction 49 gives the Gate Editor an xD
 reduction with a hyperparameter tab built on the same `HyperparamPanel`.
 Wire the grid once, here, and 49 inherits it.
+
+--------------------------------------------------------------------------------
+2026-08-08 - WIRED. FIGURES ARRIVE DURING THE SEARCH NOW.
+--------------------------------------------------------------------------------
+
+The rendering happens on the WORKER, which was the whole design constraint
+and the reason this sat unwired.
+
+`_SearchWorker.run` passes `run_search_for_app` a bound method rather than
+a lambda now. That method draws the trial's embedding, writes a PNG, and
+only THEN emits -- so every matplotlib call is on the search thread and the
+GUI thread does nothing but load a finished image. The `on_trial` callback
+was always invoked from inside the fit loop, so this needed no new thread.
+
+    trial_ready = Signal(object, int, int, str)     # + the png path
+
+`render_trial_figure` is module-level and touches no Qt, which is what
+makes it safe to call from there. It returns False rather than raising when
+a trial has no embedding -- a classifier sweep has none, and a failed UMAP
+trial has none either, and neither is an error.
+
+THE PANE HOLDS BOTH VIEWS, stacked. The grid fills a cell at a time while
+the search runs; `build_panel_figure`'s summary replaces it at the end.
+Live steering and the deliverable are different jobs and neither replaces
+the other. The grid KEEPS its figures when the summary takes over -- the
+user was watching those.
+
+`set_parameters(space.params)` is called when the search STARTS, before the
+first figure lands, so the grid does not rearrange itself as results
+arrive.
+
+A figure that fails to render or place is swallowed with a debug log. A
+search is hours of real work and a plot is decoration; losing the second
+must never lose the first (INVARIANTS 10).
+
+10 new tests; 103 pass across the hyperparameter screen, the axes dialog
+and the grid.
+
+STILL OPEN, and it is instruction 49's: the Gate Editor's clustering Walk
+uses the same `HyperparamPanel`, so it inherits this the moment 49 wires
+its xD search to that panel. Nothing further is needed HERE for it.
