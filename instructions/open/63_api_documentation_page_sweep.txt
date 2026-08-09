@@ -329,3 +329,39 @@ STILL OPEN: 18 unexpected indentation, 11 block quotes, 7 definition lists,
 6 inline literals, 2 malformed tables, 8 substitutions/targets. Those need a
 person per docstring -- the repair is usually a blank line only a reader can
 place -- unlike the two classes fixed today, which were mechanical.
+
+--------------------------------------------------------------------------------
+2026-08-09 - WHERE IT STANDS, ACROSS THREE BUILDS
+--------------------------------------------------------------------------------
+
+                       WARNING   ERROR   duplicates
+    baseline               231      21          182
+    after 17 underlines    214      21          182
+    after :noindex: x6      33      21            1
+
+Warnings are down 86%, and the two fixes account for all of it. The ERROR
+count has not moved, and that is the honest state of this task: what is
+left needs a person.
+
+    18  Unexpected indentation
+     2  Malformed table
+     1  Undefined substitution
+
+Plus 32 remaining warnings of the block-quote / definition-list / inline-
+literal families.
+
+WHY THE REST IS HAND WORK. Every one of these is "a blank line is missing
+in a place that changes the meaning", and which place is a judgement about
+what the author meant. A regex attempt at exactly this class corrupted 203
+files earlier today. The safe tool -- tools/fix_rst_underlines.py -- works
+because "underline shorter than title" has ONE correct repair; these do
+not.
+
+NEXT, in order:
+  1. the 18 Unexpected indentation errors -- each is one docstring, and
+     the build log gives file and line.
+  2. the 2 malformed tables, which are usually a column-width row that
+     stopped matching after an edit.
+  3. THEN read the rendered pages, which is what the original task asked
+     for and which is now worth doing, because the noise that would have
+     buried a real judgement is gone.
