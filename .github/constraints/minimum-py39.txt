@@ -5,7 +5,14 @@
 # impossible independent floors:
 #   torch 2.1.0 + torchvision 0.16.0 require sympy 1.12;
 #   statsmodels 0.13.5 is the first 0.13 line with a CPython 3.9 wheel;
-#   cellpose 4.0.1 is the first published release in the required 4.x line;
+#   cellpose 4.0.7 is setup.py's declared floor, NOT the first 4.x
+#     release. This file used to pin 4.0.1 on the reasoning that it was
+#     the first published 4.x, which stopped being the point when the
+#     floor was raised: CellposeModel's signature differs between them
+#     (use_bfloat16 absent in 4.0.1, resample defaulting True rather
+#     than None), so the min-deps job was installing a version the
+#     package declares it does not support and failing ~23 tests that
+#     pass on every other job;
 #   umap-learn 0.5.11 requires scikit-learn 1.6 or newer;
 #   tensorboard 2.21.0 requires protobuf 6.31.1 or newer.
 #
@@ -16,7 +23,7 @@
 numpy==1.26.4
 pandas==2.2.1
 scipy==1.12.0
-cellpose==4.0.1
+cellpose==4.0.7
 scikit-image==0.22.0
 scikit-learn==1.6.0
 scikit-posthocs==0.10.0

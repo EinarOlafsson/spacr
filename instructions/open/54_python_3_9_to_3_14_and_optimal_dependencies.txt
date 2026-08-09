@@ -140,3 +140,31 @@ setback: the scientific stack may not publish wheels for 3.9 or 3.10 on
 every platform. Where it does not, the honest answer is to narrow
 `requires-python` and say so in the README -- not to delete the job. That
 decision is what this task is for.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE CELLPOSE FLOOR WAS NEVER THE QUESTION. THE CONSTRAINT WAS WRONG.
+--------------------------------------------------------------------------------
+
+This file recorded the cellpose disagreement as an open question: what IS
+the real minimum? It was already answered in setup.py and had been for some
+time:
+
+    setup.py                                cellpose>=4.0.7,<5.0
+    .github/constraints/minimum-py39.txt    cellpose==4.0.1
+
+The constraints file pinned BELOW the declared floor, so the "Minimum
+dependencies" job installed a version the package says it does not support.
+Its own comment explained the choice -- "4.0.1 is the first published
+release in the required 4.x line" -- which was true when written and
+stopped being the point when the floor was raised to 4.0.7.
+
+Raised to 4.0.7. Checked every other pin in that file against setup.py:
+NO other violations.
+
+`tests/test_minimum_constraints_match_setup.py` now asserts it, because
+this is a bad failure to debug from the outside -- the tests look broken,
+the code is fine, and the answer lives in a file nobody reads.
+
+WHAT REMAINS OF THIS INSTRUCTION is the actual Python-range question: 3.10
+is still absent from the matrix and 3.9 is covered only by this one job.
+That is unchanged.
