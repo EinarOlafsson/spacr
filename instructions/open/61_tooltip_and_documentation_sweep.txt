@@ -2,8 +2,8 @@
 A TOOLTIP AND DOCUMENTATION SWEEP: SHORT, INFORMATIVE, CORRECTLY REFERENCED
 ================================================================================
 
-Status:    the links are VERIFIED CLEAN against a real build
-           (2026-08-08). Only the tooltip TEXT sweep is open.
+Status:    MEASURED 2026-08-08. Links clean; the text sweep is a
+           countable defect list of ~150 entries out of 700.
 Requested: 2026-08-08 — "do a full documentation and tooltips sweep to make the tool tips short and informative (not to short) with the correct api reference."
 
 --------------------------------------------------------------------------------
@@ -146,3 +146,55 @@ WHAT REMAINS IN 61: the text itself -- one or two sentences, the type, the
 default, the unit, and a shape applied consistently. That is the part no
 test can judge, and it is untouched. `annotated_classes` is still a
 paragraph about its own deprecation history.
+
+--------------------------------------------------------------------------------
+2026-08-08 - MEASURED. THE SWEEP IS ~150 ENTRIES, NOT 700.
+--------------------------------------------------------------------------------
+
+    settings with a tooltip     700
+    median length               341 chars
+    mean                        357
+    longest                    1022
+    shortest                      0
+
+THE DEFECT LIST, each countable and each with a named key:
+
+    38   OVER 600 CHARS -- too long to read on a hover.
+         Worst: annotated_classes (1022), verbose (860), strict_errors
+         (841), control_wells (831), custom_regex (827).
+         `annotated_classes` is the known one: a paragraph about its own
+         deprecation history, which is accurate and useless in a tooltip.
+
+    13   UNDER 80 CHARS -- restate the name and add nothing:
+             normalize_plots  "(bool) - Normalize images before plotting."
+             train            "(bool) - Whether to train the model."
+             pc               "(str) - Positive control identifier."
+             nc               "(str) - Negative control identifier."
+         `pc` and `nc` are the clearest failures in the whole table: a user
+         who does not already know what a positive control identifier looks
+         like learns nothing, and the answer -- it matches values in
+         `location_column` -- is exactly what they need.
+
+     1   EMPTY: `activation` has a tooltip of length 0.
+
+    14   NO LEADING (type). The rest of the table opens "(bool) - ", so
+         these read as a different voice.
+
+    84   NO STATED DEFAULT. The largest group, and the cheapest to fix:
+         the default is knowable from `resolve_default_settings`, so this
+         can be checked -- and largely generated -- rather than written.
+
+SO THE ORDER IS: the 1 empty, then the 13 too-short (highest value per
+word -- these are the ones that actively waste a hover), then the 38
+too-long, then the 84 missing defaults, then the 14 type prefixes.
+
+That is ~150 entries needing a human sentence, not 700. The other 550 are
+already in the house style.
+
+A TEST WOULD HOLD THE LINE. The five counts above are all mechanical:
+length bounds, a leading "(type)", the presence of "Default". Writing that
+as a test with the current numbers as a ceiling stops the table drifting
+back while the sweep is in progress -- and the numbers only go down.
+
+Regenerate with:
+    from spacr.qt.screens.settings_model import get_tooltips
