@@ -246,3 +246,41 @@ DUPLICATE KEYS in the settings literals -- r, g, b and crop_source appear
 twice, so the later entry silently shadows the earlier tooltip. That is a
 real bug of exactly the kind this instruction is about, and it belongs to
 instruction 43's list.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE "CHEAPEST GROUP" IS NOT AS CHEAP AS THIS FILE CLAIMED
+--------------------------------------------------------------------------------
+
+CORRECTION. This file said the 84 missing defaults were "the largest group
+and the cheapest to fix, since the default is knowable from
+`resolve_default_settings`, so this can be checked -- and largely generated
+-- rather than written". Measured, that is mostly false:
+
+    missing a stated Default                        73  (84 before the
+                                                         13 rewrites)
+    resolvable from a real app's defaults           32
+    of those, DIFFERING between apps                 8
+    safely statable as one value                    24
+
+`pathogen_limit`, `pathogen_types`, `column_csv`, `count_data`, `grna_csv`
+and `row_csv` all have DIFFERENT defaults in different modules. A single
+"Default 3." on a shared tooltip would be wrong in whichever module
+disagrees -- worse than saying nothing, because it reads as authoritative.
+
+The other 41 are not in any module's resolved defaults at all, so their
+default has to be read out of the function that consumes them. That is
+per-setting archaeology, not generation.
+
+APPLIED: 6. Only the single-line tooltip entries could be edited
+mechanically; the rest are multi-line string concatenations that a regex
+should not be let near. The 6 are checked and read correctly, e.g.
+`tar_path` now ends "... API: spacr.deep_spacr.apply_model_to_tar. Default
+empty."
+
+    still missing a Default: 67
+
+SO THE HONEST PLAN for the rest: it is hand work, roughly 67 entries, and
+the value per entry is lower than the 13 too-short ones already done -- a
+tooltip that explains the setting but omits its default is incomplete
+rather than useless. Do it opportunistically while touching a module's
+settings, not as a sweep.
