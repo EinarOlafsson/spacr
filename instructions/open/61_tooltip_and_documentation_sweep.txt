@@ -289,7 +289,7 @@ settings, not as a sweep.
 2026-08-09 - THE TWO LONGEST REWRITTEN
 --------------------------------------------------------------------------------
 
-    over 600 chars   37 -> 23
+    over 600 chars   37 -> 20
     under 80 chars   13 -> 1     (earlier)
     empty             1 -> 0     (earlier)
 
@@ -345,7 +345,7 @@ round here. Match `['\"]` on both sides.
     strict_errors       841 -> 591     control_wells    831 -> 547
     custom_regex        827 -> 599     Signal_to_noise  815 -> 590
 
-    over 600 chars   37 -> 23
+    over 600 chars   37 -> 20
 
 Two of these earned a sentence that was NOT in the original, because
 cutting made room for the thing a user actually needs:
@@ -426,3 +426,34 @@ choose; the API page can carry the alias table.
 
 `diameter` is marked DEPRECATED first rather than in passing, and says what
 to use instead. Its old text explained the 30/diameter rescale twice.
+
+--------------------------------------------------------------------------------
+2026-08-09 - SEVENTEEN CUT, AND A TOOL THAT MAKES THE MISTAKE IMPOSSIBLE
+--------------------------------------------------------------------------------
+
+    regression_type      767 -> 516
+    cell_plate_metadata  721 -> 441
+    custom_model         718 -> 368
+    over 600 chars        37 -> 20
+
+USE `tools/edit_tooltip.py`. Editing this file by hand-rolled regex broke
+it once today: a replacement containing "fraction of infected cells" put
+unescaped double quotes inside a double-quoted string, and the script
+called write_text() BEFORE ast.parse(), so the gate existed and ran too
+late to help. Every screen failed to import until it was reverted.
+
+The tool makes all three of today's failures impossible rather than
+discouraged:
+
+    new text is passed as a VALUE and quoted by repr(), so quotes and
+        apostrophes in the text cannot terminate the string;
+    the file is PARSED BEFORE IT IS WRITTEN, so a bad edit is refused
+        rather than discovered;
+    both key quotings are matched -- this file uses "key": and 'key':
+        interchangeably, and a pattern anchored on one silently does
+        nothing for half the table while reporting success.
+
+    replace("some_setting", "(str) - what it does. Default 'x'.")
+
+Verified against the exact input that broke it: text containing both "
+and ' is accepted and the module still parses.
