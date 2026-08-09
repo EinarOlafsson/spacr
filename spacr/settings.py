@@ -2360,7 +2360,6 @@ expected_types = {
     'class_balance':str,
     'strict_errors':(bool, type(None)),
     'max_failure_rate':(float, type(None)),
-    'crop_source':str,
     'queue_by_uncertainty':bool,
     'queue_measure':str,
     'queue_diversity':str,
@@ -3171,7 +3170,14 @@ tooltips = {
     'queue_measure': "(str) - How uncertainty is scored for the queue. 'entropy' spreads its attention across every class and is the right default for three or more; 'least_confidence' ranks on how weak the top class is; 'margin' ranks on the gap between the top two. With exactly two classes margin and least_confidence produce the IDENTICAL ranking, including ties - they only diverge at three classes or more. These are uncertainty scores, not calibrated confidences: a softmax is not a probability. Default 'entropy'.",
     'queue_diversity': "(str) - Which metadata level the queue is spread across before it is served. Ranking purely by uncertainty collapses: the hundred most uncertain crops on a real plate routinely come from one or two wells, so the annotator labels the same ambiguity a hundred times and the model learns nothing new. 'well' (the default) deals crops round-robin across wells, 'field' and 'plate' do the same at those levels, and 'none' turns the protection off and serves the raw ranking. The cost of diversity is that position two is the most uncertain crop in a DIFFERENT well and may be less uncertain than the overall runner-up. Default 'well'.",
     'queue_limit': "(int) - How many crops the queue holds. 0 (the default) queues the whole unlabelled pool. A limit smaller than the number of wells interacts with queue_diversity: you get roughly one crop from each of that many wells and none from the rest, which is useful for a quick sweep across a plate and misleading if you expected the top N by uncertainty. Default 0.",
-    'crop_source': "(str) - Where single-object images come from. 'auto' (the default) uses the pre-generated PNG crop folder when one exists and otherwise cuts each crop out of merged/*.npy on demand; 'png' insists on the folder and fails if it is absent; 'merged' always cuts on demand and ignores the folder even when it is there. On-demand crops are pixel-identical to what the PNG folder would have held for the same settings, so annotations and models stay comparable across the two, and they cost no disk and cannot go stale when crop settings change - at the price of reading the merged array each time. Default 'auto'.",
+    # NOTE: a SECOND 'crop_source' description used to sit here,
+    # documenting values 'auto' / 'png' / 'merged'. Those are not what
+    # the code accepts -- crop_source.CROP_SOURCES is
+    # ('pre_generated', 'on_demand', 'generate'), with 'auto' kept only
+    # as an alias for pre_generated. Being a duplicate key in the same
+    # dict, it was silently shadowed by the correct entry further down,
+    # so the right tooltip showed by luck of ordering rather than by
+    # design. Removed; the accurate one is the only one now.
     'class_balance': "(str) - How skew between the training classes is corrected. 'none' (the default) changes nothing but still prints the per-class counts, the majority-over-minority ratio and a recommendation, so the skew is never invisible. 'weighted_sampler' attaches a WeightedRandomSampler with 1/n weights, drawing every class about equally often; 'sqrt_weighted_sampler' uses 1/sqrt(n) for a gentler pull that avoids showing a tiny class so often the model memorises it; 'weighted_loss' leaves sampling alone and switches loss_type to 'ce_weighted' instead. Resampling is applied to the train loader only - validation and test keep the real prior so their scores stay comparable to the screen.",
     'cross_validation': "(bool) - Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
     'cross_validation_folds': "(int) - Number of k-fold splits the vision classifier is trained with in place of the single val_split hold-out. 0 (the default) or 1 keeps today's one random split; 2 or more trains a fresh model per fold, scores each on the fold it never saw, and reports the mean together with the fold-to-fold standard deviation and range - which is the only way to see whether one lucky split was flattering the model. Costs roughly k times the training time. Distinct from 'cross_validation', which is the regression pipeline's own toggle.",
