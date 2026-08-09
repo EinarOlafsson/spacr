@@ -2,8 +2,9 @@
 A TOOLTIP AND DOCUMENTATION SWEEP: SHORT, INFORMATIVE, CORRECTLY REFERENCED
 ================================================================================
 
-Status:    in progress 2026-08-08. The empty one and 12 of the 13
-           too-short are rewritten; 84 missing defaults remain.
+Status:    the LENGTH work is finished (2026-08-09): 0 over 600, 1
+           under 80, 0 empty. What remains is 67 missing defaults and
+           14 missing type prefixes, both hand work.
 Requested: 2026-08-08 — "do a full documentation and tooltips sweep to make the tool tips short and informative (not to short) with the correct api reference."
 
 --------------------------------------------------------------------------------
@@ -289,7 +290,7 @@ settings, not as a sweep.
 2026-08-09 - THE TWO LONGEST REWRITTEN
 --------------------------------------------------------------------------------
 
-    over 600 chars   37 -> 8
+    over 600 chars   37 -> 0  DONE
     under 80 chars   13 -> 1     (earlier)
     empty             1 -> 0     (earlier)
 
@@ -345,7 +346,7 @@ round here. Match `['\"]` on both sides.
     strict_errors       841 -> 591     control_wells    831 -> 547
     custom_regex        827 -> 599     Signal_to_noise  815 -> 590
 
-    over 600 chars   37 -> 8
+    over 600 chars   37 -> 0  DONE
 
 Two of these earned a sentence that was NOT in the original, because
 cutting made room for the thing a user actually needs:
@@ -556,3 +557,42 @@ the fix is for `cell_intensity_range` to filter the cell channel and for
 `nuclei_limit` to reject False. Neither was touched -- changing filter
 semantics silently would alter existing analyses, which needs the
 maintainer's call.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE LENGTH SWEEP IS COMPLETE. 37 -> 0
+--------------------------------------------------------------------------------
+
+    over 600 chars   37 -> 0
+    under 80 chars   13 -> 1
+    empty             1 -> 0
+    median length          341
+
+Final four: intensity_statistic, annotation_column, fill_in,
+t_max_displacement_px.
+
+WHAT THIS SWEEP ACTUALLY FOUND. It was framed as "make the tooltips
+shorter". Length turned out to be the symptom. The 37 long ones were
+archives -- everything ever learned about a setting, appended and never
+edited -- and buried inside them were TEN WAYS A SETTING FAILS SILENTLY:
+
+    t_axis_order          wrong order reported as motion; tracks look fine
+    custom_regex          a near-miss filename is skipped, shrinking the set
+    treatment_plate_metadata  a bad prefix is ignored, not rejected
+    model_type            an unknown backbone fails later, elsewhere
+    cell_model_name       legacy Cellpose names resolve to cpsam
+    metadata_type_by      unmatched values produce no crops
+    outline_color         an unknown code falls back to 'rbg'
+    tables                'organelle' is loaded and then dropped
+    cell_intensity_range  filters the NUCLEUS channel, not the cell
+    nuclei_limit          False is read as 0 and removes every cell
+
+The last two look like code bugs rather than documentation ones and are
+recorded for instruction 07.
+
+THE SHAPE THAT WORKED, for the 67 defaults still to do and for anyone
+writing a new tooltip: lead with the CONSEQUENCE, then the ACTION, then the
+edge case -- and if the setting can fail SILENTLY, say that first. A
+setting that fails loudly is self-documenting; one that fails quietly is
+exactly what a tooltip is for.
+
+Use `tools/edit_tooltip.py`. Hand-rolled regex broke this file once today.
