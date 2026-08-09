@@ -289,7 +289,7 @@ settings, not as a sweep.
 2026-08-09 - THE TWO LONGEST REWRITTEN
 --------------------------------------------------------------------------------
 
-    over 600 chars   37 -> 26
+    over 600 chars   37 -> 23
     under 80 chars   13 -> 1     (earlier)
     empty             1 -> 0     (earlier)
 
@@ -345,7 +345,7 @@ round here. Match `['\"]` on both sides.
     strict_errors       841 -> 591     control_wells    831 -> 547
     custom_regex        827 -> 599     Signal_to_noise  815 -> 590
 
-    over 600 chars   37 -> 26
+    over 600 chars   37 -> 23
 
 Two of these earned a sentence that was NOT in the original, because
 cutting made room for the thing a user actually needs:
@@ -404,3 +404,25 @@ to have that property, and in every case it was buried:
 
 Those are the sentences worth the hover. A setting that fails loudly is
 self-documenting; one that fails silently is exactly what a tooltip is for.
+
+--------------------------------------------------------------------------------
+2026-08-09 - FOURTEEN CUT. over 600: 37 -> 23
+--------------------------------------------------------------------------------
+
+    model_type  745 -> 482    diameter  735 -> 415    loss_type  722 -> 456
+
+`model_type` gains a fourth silent failure to the list: an unrecognised
+backbone name is NOT fatal when it is read -- choose_model prints "Invalid
+model_type", returns None, and training fails later somewhere else. The
+special name 'custom' passes the name check and then raises
+NotImplementedError. Both are exactly the kind of thing a user cannot
+deduce and will otherwise diagnose from the wrong stack trace.
+
+`loss_type` dropped the full enumeration of aliases (each loss had two or
+three names listed) and kept one name per loss plus the rule that decides:
+reach for a weighted or focal loss when the classes are imbalanced, which
+for a screen they usually are. A tooltip listing eight aliases helps nobody
+choose; the API page can carry the alias table.
+
+`diameter` is marked DEPRECATED first rather than in passing, and says what
+to use instead. Its old text explained the 30/diameter rescale twice.
