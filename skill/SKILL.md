@@ -89,6 +89,48 @@ The rules:
 `refresh.py` checks that every file in `open/` and `done/` still has its
 required sections, and that nothing is in both.
 
+
+## When you run low on context
+
+**Do not stop and hand back. Compress, reload, and carry on.** This is the
+maintainer's explicit instruction: "If you get close to your context limit,
+compress the context, re-load the skills in the repo skill folder and the
+instruction list in the repo instruction folder and keep going through the
+instruction list. If you reach your limit this is the behavior I want."
+
+The recovery, in order:
+
+1. **Compress.** Keep the state that cannot be recovered from disk: what is
+   in flight right now, what you were about to do, and any measurement you
+   have taken but not yet written down. Everything else is already in the
+   repository or is not worth carrying.
+2. **Write down anything unrecorded FIRST.** A measurement or diagnosis
+   still living only in the conversation is the one thing a reload cannot
+   recover. Put it in the relevant `instructions/open/*.txt` before you
+   compress, not after.
+3. **Reload**, in this order:
+   ```bash
+   python skill/refresh.py            # checks the invariants, regenerates FACTS.md
+   ```
+   then `skill/INVARIANTS.md`, `skill/WORKFLOW.md`, `skill/ARCHITECTURE.md`,
+   then `instructions/00_INDEX.txt` and everything in `instructions/open/`.
+4. **Resume the list.** Work by priority, not by recency, and not by
+   whatever you happened to be doing when you ran out.
+
+This works because the ledger is the durable state and the conversation is
+not. A task file written the way `TEMPLATE.txt` asks -- what the state is,
+why it matters, what to do, how to know it worked -- is designed to be
+picked up cold, and "cold" includes by yourself an hour from now with none
+of the reasoning that produced it.
+
+The failure mode this prevents is real and has happened here: a session
+that ends with ten requests answered only in the transcript loses all ten.
+A session that ends with ten files in `instructions/open/` loses nothing.
+
+**Check in on cost occasionally rather than only at the cliff.** Reloading
+mid-task is cheap; discovering at the limit that a three-hour diagnosis was
+never written down is not.
+
 ## Keep this skill current
 
 This is part of the job, not housekeeping. When you finish a change:
