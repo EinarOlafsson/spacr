@@ -207,6 +207,7 @@ def auto_detect_regex(
     """Return the best-fitting regex for a set of filenames.
 
     Strategy:
+
     1. Try every :data:`BUILTIN_REGEXES` pattern; if one matches every
        file it wins immediately.
     2. Otherwise pick the built-in that matches the MOST files (>=50 %).

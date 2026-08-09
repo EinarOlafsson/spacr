@@ -8,7 +8,8 @@ Google account) — no separate API billing.
 * OpenAI ChatGPT   → the `codex`  CLI
 * Google Gemini    → the `gemini` CLI
 
-Each provider:
+Each provider::
+
     is_installed()   — is the CLI on PATH?
     is_logged_in()   — best-effort check; falls back to "assume yes if
                        installed" (the actual auth error surfaces on
