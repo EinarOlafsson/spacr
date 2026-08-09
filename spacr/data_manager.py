@@ -84,8 +84,7 @@ Public API
 ----------
 ``scan_project``, ``ProjectUsage``, ``KindUsage``, ``format_usage``
     Where the space went.
-``plan_prune``, ``PrunePlan``, ``PruneCandidate``, ``PruneSkip``,
-``format_prune_plan``, ``prune``, ``PruneResult``
+``plan_prune``, ``PrunePlan``, ``PruneCandidate``, ``PruneSkip``, ``format_prune_plan``, ``prune``, ``PruneResult``
     What can safely go, and the deletion that is gated on it.
 ``plan_archive``, ``ArchivePlan``, ``archive``, ``ArchiveResult``
     Moving it, with a record.
