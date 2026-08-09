@@ -38,7 +38,7 @@ from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
-from PySide6.QtCore import QEvent, QSize, Qt, QTimer
+from PySide6.QtCore import Signal, QEvent, QSize, Qt, QTimer
 from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import (
     QDialog, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton,
@@ -334,6 +334,9 @@ FIGURE_RESIZE_DEBOUNCE_MS = 220
 class FigureQueue(QWidget):
     """Scrollable, RAM-bounded gallery of pipeline figures."""
 
+    #: The displayed figure was clicked (not dragged).
+    figure_clicked = Signal()
+
     def __init__(self, ram_cap: int = RAM_CAP, parent=None):
         super().__init__(parent)
         self._ram_cap = int(ram_cap)
@@ -382,6 +385,9 @@ class FigureQueue(QWidget):
         body.addWidget(self._list)
 
         self._view = _ZoomView(self)
+        # Re-emitted so a caller can react to "the user clicked the
+        # figure" without reaching into a private view.
+        self._view.clicked.connect(self.figure_clicked)
         # Re-render the figure when the container changes size, rather than
         # scaling the raster. A UMAP draws its thumbnails with
         # `OffsetImage(zoom=...)`, which is in DISPLAY pixels -- so a figure
