@@ -2,8 +2,8 @@
 A TOOLTIP AND DOCUMENTATION SWEEP: SHORT, INFORMATIVE, CORRECTLY REFERENCED
 ================================================================================
 
-Status:    MEASURED 2026-08-08. Links clean; the text sweep is a
-           countable defect list of ~150 entries out of 700.
+Status:    in progress 2026-08-08. The empty one and 12 of the 13
+           too-short are rewritten; 84 missing defaults remain.
 Requested: 2026-08-08 — "do a full documentation and tooltips sweep to make the tool tips short and informative (not to short) with the correct api reference."
 
 --------------------------------------------------------------------------------
@@ -198,3 +198,51 @@ back while the sweep is in progress -- and the numbers only go down.
 
 Regenerate with:
     from spacr.qt.screens.settings_model import get_tooltips
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE WORST 13 ARE DONE
+--------------------------------------------------------------------------------
+
+    under 80 chars   13 -> 1
+    empty             1 -> 0
+    over 600 chars   38 -> 37   (settings; two MODULE blurbs are also long,
+                                 which is fine -- they describe a module)
+
+Rewritten, each saying what the setting does, what to put in it, and the
+default -- the three things the one-liners were missing:
+
+    pc, nc          were "(str) - Positive control identifier." Now they
+                    say the value is matched against the column named by
+                    location_column, that matching rows become class 1 / 0,
+                    and that a value absent from that column finds nothing.
+                    That last clause is the actual failure mode.
+    pc_loc, nc_loc  the column to search when it differs from
+                    location_column.
+    train           says to turn it OFF to apply an existing model without
+                    retraining, which is the common case the old text hid.
+    from_scratch    says almost always leave it off, with the reason:
+                    fine-tuning needs tens of images, from-scratch needs
+                    thousands.
+    normalize_plots says it affects FIGURES only, never measurements, and
+                    that normalising makes a dim field look as bright as a
+                    strong one.
+    backgrounds     says it is per object type in list order, read as
+                    {object}_background, and which way raising it moves.
+    rescale         it is a bool, not the float the old text claimed.
+    width_height    it is [w, h] in pixels and must match the model.
+    visualize       says the embedding is computed and saved either way.
+    activation      was EMPTY. Now describes the module, including the
+                    thing worth saying: a saliency map is evidence about
+                    the MODEL, not the cell.
+
+STILL OPEN: the 84 with no stated default -- the largest group and the
+cheapest, since the default is knowable from `resolve_default_settings`
+and can be checked rather than written; the 37 over 600; and the 14 with
+no leading (type).
+
+NOT CAUSED BY THIS WORK, found while verifying it and confirmed against a
+clean tree: `tests/test_settings_tooltip_quality.py` has two failures from
+DUPLICATE KEYS in the settings literals -- r, g, b and crop_source appear
+twice, so the later entry silently shadows the earlier tooltip. That is a
+real bug of exactly the kind this instruction is about, and it belongs to
+instruction 43's list.
