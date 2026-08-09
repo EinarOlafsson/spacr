@@ -513,3 +513,25 @@ The workflow that makes this quick, about a minute each:
 
 `spacr/qt/ai/prompts.py` is the worked example, and `runctx.py` the other
 shape (a wrapped definition term joined onto one line).
+
+--------------------------------------------------------------------------------
+2026-08-09 - A DIFFERENT ERROR FOUND WHILE FIXING THESE: MATH READ AS MARKUP
+--------------------------------------------------------------------------------
+
+In `spacr/timelapse.py :: _infection_qc_pca_clustering`:
+
+    Undefined substitution referenced:
+        "GT-infected fraction difference between clusters"
+
+The docstring writes that quantity as |GT-infected fraction difference
+between clusters| -- vertical bars meaning absolute value, as anyone would
+in maths. rST reads |...| as a SUBSTITUTION REFERENCE, so it looks for a
+definition, finds none, and errors.
+
+Left unfixed deliberately: the repair is to wrap it in double backticks or
+rephrase, and that is a wording decision in someone else's explanation of
+their own QC metric. It is ONE error and it is now written down, which is
+better than a guess at what reads well.
+
+Worth checking whether other docstrings use |x| for absolute value -- it is
+a natural thing to write and rST will object every time.

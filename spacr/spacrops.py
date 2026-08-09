@@ -2259,8 +2259,11 @@ class StitchedMultiAligner:
         Output directory for images/csv.
     opencv_threads : int
         Limit OpenCV internal threading (avoid oversubscription).
+
     # Axis/Z/time handling (for TIFF reading)
+
     arr_axes : "AUTO" or a string over {T,C,Z,Y,X}
+
     mip : bool
         If True and Z exists, max-project Z.
     z_index : int

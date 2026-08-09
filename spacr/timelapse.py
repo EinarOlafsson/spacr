@@ -4288,11 +4288,13 @@ def _infection_qc_pca_clustering(
          - up-weight pathogen-channel features (if configured)
     4. Embed to 2D using PCA / UMAP / t-SNE
        (controlled by settings['infection_intensity_strategy']:
-        'pca', 'umap', or 'tsne').
+       'pca', 'umap', or 'tsne').
        For UMAP and t-SNE, an internal hyperparameter search is
        performed (if enabled) to maximize a separation score based on:
+
          - distance between the two clusters in the embedding
          - how well clusters separate GT infected vs GT uninfected.
+
     5. KMeans clustering (2 clusters) in the embedded space.
     6. Define "ground-truth" subsets based on pathogen-channel intensity:
          - uninfected_gt: lowest 25% of intensities in the UNINFECTED group
@@ -4328,6 +4330,7 @@ def _infection_qc_pca_clustering(
       (if settings.get('infection_pca_log_intensity', True) is True).
     - Optional up-weighting of pathogen-channel features after
       standardization:
+
           settings['infection_pca_pathogen_weight'] (default 1.0)
 
     Side effects
@@ -6896,7 +6899,7 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     - Ambiguous band removal:
         * if infection_xgb_drop_ambiguous is True (default),
           drop cells with proba in [infection_xgb_ambiguous_low,
-                                    infection_xgb_ambiguous_high]
+          infection_xgb_ambiguous_high]
           (defaults: 0.25 and 0.75).
 
     Additionally, this function stores three QC payloads in `settings`:
