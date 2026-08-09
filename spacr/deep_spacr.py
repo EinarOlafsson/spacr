@@ -2177,13 +2177,14 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     Trains a model (supports 2-class and >2-class via CrossEntropy).
 
     New parameters:
-        early_stopping_patience: number of epochs with no val improvement before stopping.
-                                 Set to 0 to disable (original behavior).
-        settings: the run's settings dict, recorded (hashed) in the model card.
-        split_rule: how the held-out set was drawn, in words, for the card.
-        write_card: write ``<model>.card.json`` beside the weights and
-                    register it as an artifact. On by default: an uncarded
-                    checkpoint is a file nobody can audit six months later.
+
+    * ``early_stopping_patience``: number of epochs with no val improvement
+      before stopping. Set to 0 to disable (original behavior).
+    * ``settings``: the run's settings dict, recorded (hashed) in the model card.
+    * ``split_rule``: how the held-out set was drawn, in words, for the card.
+    * ``write_card``: write ``<model>.card.json`` beside the weights and
+      register it as an artifact. On by default: an uncarded checkpoint is a
+      file nobody can audit six months later.
     """
 
 
