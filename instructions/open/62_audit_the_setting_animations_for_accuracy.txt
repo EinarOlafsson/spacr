@@ -2,7 +2,8 @@
 THE SETTING ANIMATIONS MUST SHOW WHAT THE SETTING ACTUALLY DOES
 ================================================================================
 
-Status:    not started. One inaccuracy already reported and named.
+Status:    MEASURED 2026-08-08. The reported inaccuracy is confirmed
+           in all four border-object animations, with a repeatable check.
 Requested: 2026-08-08 — "evaluate all tooltips animations and make sure they are acurate (i know for example that remove edge objects annimation shows removing one edge object and one not edge object because of animation missallignment during animation generation)"
 
 --------------------------------------------------------------------------------
@@ -85,3 +86,48 @@ Not started. Note this is 94 judgements and cannot be automated end to end
 -- the machine can check that a pair differs only where it should, but not
 that the illustration is a good one. Budget it as a watching task, and do
 the reported family first so the most visible error is gone early.
+
+--------------------------------------------------------------------------------
+2026-08-08 - CONFIRMED, MEASURED, AND THE CHECK IS REPEATABLE
+--------------------------------------------------------------------------------
+
+THE METHOD, which is the reusable part. Comparing the FIRST and LAST frames
+proves nothing -- the GIFs loop, so those are identical (measured: 0 pixels
+different). The "after" state is the frame MOST DIFFERENT from frame 0.
+From there:
+
+    diff  = |after - before| summed over RGB, thresholded at 30
+    label = connected components of the changed mask
+    a component is legitimate if it TOUCHES the image border
+
+Results for the four border-object animations, components >= 60 px:
+
+    cell        border: 1    interior: 3
+    nucleus     border: 1    interior: 4
+    organelle   border: 1    interior: 18
+    pathogen    border: 1    interior: 6
+
+Every one shows exactly ONE border-touching change -- the object being
+removed, which is correct -- and interior changes as well. That corroborates
+the report: something that is not on the edge changes when "remove edge
+objects" is illustrated.
+
+A CAVEAT WORTH KEEPING, because pixel diffs cannot tell an object from a
+caption: some interior components are probably chrome. Across all four
+files there is a component near (row 50-65, col 245-265), which is
+consistent enough to look like a fixed label rather than an object. The
+larger mid-image components -- cell's 5284 px at rows 148-211, cols 101-240
+-- are the suspicious ones.
+
+A rendered before | after | overlay strip was produced and sent to the
+maintainer for visual confirmation, with border-touching changes in GREEN
+and interior ones in RED. Regenerate it with the snippet above.
+
+WHAT THIS CHANGES ABOUT THE TASK: step 5 of WHAT TO DO -- "consider whether
+the validator can grow a real check" -- is now clearly worth doing, because
+the check exists and is four lines of numpy. Asserting "no interior
+component larger than N pixels changes" would have caught this at
+generation time, and would catch it again for the other 90 animations.
+
+Do that BEFORE regenerating anything, so the fix can be verified rather
+than assumed.
