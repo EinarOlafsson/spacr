@@ -289,7 +289,7 @@ settings, not as a sweep.
 2026-08-09 - THE TWO LONGEST REWRITTEN
 --------------------------------------------------------------------------------
 
-    over 600 chars   37 -> 11
+    over 600 chars   37 -> 8
     under 80 chars   13 -> 1     (earlier)
     empty             1 -> 0     (earlier)
 
@@ -345,7 +345,7 @@ round here. Match `['\"]` on both sides.
     strict_errors       841 -> 591     control_wells    831 -> 547
     custom_regex        827 -> 599     Signal_to_noise  815 -> 590
 
-    over 600 chars   37 -> 11
+    over 600 chars   37 -> 8
 
 Two of these earned a sentence that was NOT in the original, because
 cutting made room for the thing a user actually needs:
@@ -526,3 +526,33 @@ their data.
 `class_balance` gained the threshold it was missing -- reach for a sampler
 or class weights when the ratio the run prints is worse than about 3:1 --
 which turns three described options into a decision.
+
+--------------------------------------------------------------------------------
+2026-08-09 - TWENTY-NINE CUT. over 600: 37 -> 8
+--------------------------------------------------------------------------------
+
+    cell_intensity_range  667 -> 420
+    nuclei_limit          663 -> 387
+    z_stack               655 -> 402
+
+TWO OF THESE ARE NOT TOOLTIP PROBLEMS -- they document CODE that is
+probably wrong, and the tooltip is only where it was written down:
+
+  cell_intensity_range  `_object_filter` is called with mask_chans ordered
+                        [nucleus, pathogen, cell] and index 0, so a setting
+                        named CELL intensity range filters on the NUCLEUS
+                        channel. The old text said so mid-paragraph. The
+                        new text leads with BEWARE and says to check the
+                        filtered counts.
+
+  nuclei_limit          passing False is read as 0 and removes every cell,
+                        leaving an empty analysis rather than an error.
+                        That is a value a user will reasonably try, since
+                        None/True/int are all accepted.
+
+Both belong in instruction 07 (known bugs not fixed) as candidates, not
+just here. A tooltip warning users away from a footgun is a workaround;
+the fix is for `cell_intensity_range` to filter the cell channel and for
+`nuclei_limit` to reject False. Neither was touched -- changing filter
+semantics silently would alter existing analyses, which needs the
+maintainer's call.
