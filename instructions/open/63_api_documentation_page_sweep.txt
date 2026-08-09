@@ -170,3 +170,41 @@ The modules with the most faults, from this build, as a starting order:
     qt/bridge (2), model_zoo (2), model_compare (2), foreign (2)
 
 That is ~20 of the ~49 in eight files.
+
+--------------------------------------------------------------------------------
+2026-08-09 - A SHORTCUT THAT DOES NOT WORK, RECORDED SO NOBODY REPEATS IT
+--------------------------------------------------------------------------------
+
+The build log from the first pass was lost in a machine crash, and a
+rebuild is ~8 minutes, so I tried to regenerate the defect list cheaply by
+running docutils directly over every docstring -- docutils being what
+actually emits "Unexpected indentation" and friends.
+
+IT DOES NOT REPRODUCE SPHINX'S FINDINGS, in two separate ways:
+
+  5335 false "Unknown interpreted text role" -- :func:, :class:, :data:,
+       :mod:, :meth:, :attr:. Those are SPHINX roles; bare docutils has
+       never heard of them. Every one is correct markup.
+
+   ~130 false "Unexpected indentation" / "Block quote ends without a blank
+       line" -- these are GOOGLE-STYLE docstrings ("Args:", "Returns:"),
+       which `sphinx.ext.napoleon` rewrites into field lists before
+       docutils sees them. conf.py line 42 enables napoleon. Bare docutils
+       sees the indented block raw and objects.
+
+So the check reported 5466 findings, essentially all of them noise, and I
+came close to rewriting 130 correct docstrings to satisfy a tool that was
+not modelling the real pipeline.
+
+THE LESSON, which generalises past this task: a cheaper substitute for a
+build is only useful if it runs the SAME extensions. Sphinx's own numbers
+already account for napoleon and its roles; a bare parser cannot, and its
+disagreement is about the parser rather than the docstrings.
+
+USE THE BUILD. It is eight minutes:
+
+    python -m sphinx -E -b html --keep-going docs/source <out>
+
+and its warnings are the authoritative list. Nice it down if the machine is
+shared -- there is a concurrent session on this box that has taken ~15
+cores for an hour at a time.
