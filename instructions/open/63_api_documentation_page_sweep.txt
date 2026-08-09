@@ -470,3 +470,46 @@ with docutils, count "Unexpected indentation", apply the candidate fix,
 count again, and keep it ONLY if the count dropped. That gate is what
 distinguishes a fix from a plausible-looking edit, and it is cheap --
 `errs(doc)` is four lines.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE AUTOMATABLE PART OF THIS CLASS IS EXHAUSTED AT 16 DOCSTRINGS
+--------------------------------------------------------------------------------
+
+Ran the missing-blank-line fix across every docstring in the package, gated
+on the error count dropping. It fixed ZERO beyond `prompts.py`, which
+confirms the split recorded above: that variant was one instance, and the
+rest are continuation lines aligned by eye.
+
+Remaining, 16 docstrings, 19 errors (each verified per-docstring with
+docutils, napoleon-style excluded):
+
+    3x  spacr/timelapse.py            _infection_qc_pca_clustering
+    2x  spacr/qt/bridge.py            PipelineWorker
+    1x  spacr/deep_spacr.py           train_model
+    1x  spacr/qt/__init__.py          <module>
+    1x  spacr/qt/ai/__init__.py       <module>
+    1x  spacr/qt/ai/providers.py      <module>
+    1x  spacr/qt/hf_download.py       _HFDownloadWorker
+    1x  spacr/qt/linked_selection.py  LinkedSelection
+    1x  spacr/qt/regex_detect.py      auto_detect_regex
+    1x  spacr/qt/settings_diff.py     <module>
+    1x  spacr/qt/synthetic.py         <module>, generate_mask_demo
+    1x  spacr/qt/tutorial/engine.py   Step
+    1x  spacr/spacrops.py             StitchedMultiAligner
+    1x  spacr/timelapse.py            _infection_qc_xgboost
+    1x  spacr/utils.py                FocalLossWithLogits
+
+EACH NEEDS A DECISION, not a rule. The text is indented to line up under
+something -- a term, a bullet, an argument name -- and rST reads that
+alignment as a nested block. De-indenting fixes the error and changes which
+text belongs to which item, so the right repair depends on what the author
+meant. That is why the gated sweep declines them rather than guessing.
+
+The workflow that makes this quick, about a minute each:
+
+    err = count "Unexpected indentation" in the docstring
+    try the candidate edit
+    keep it only if the count dropped
+
+`spacr/qt/ai/prompts.py` is the worked example, and `runctx.py` the other
+shape (a wrapped definition term joined onto one line).
