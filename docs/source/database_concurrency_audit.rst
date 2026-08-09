@@ -105,9 +105,11 @@ API reference
 -------------
 
 .. automodule:: spacr.database_concurrency
+   :noindex:
    :members:
    :undoc-members:
    :show-inheritance:
 
 .. automodule:: spacr.cli_database
+   :noindex:
    :members:
