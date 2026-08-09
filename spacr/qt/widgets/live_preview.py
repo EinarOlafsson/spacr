@@ -818,6 +818,12 @@ def _apply_size_filter(mask: np.ndarray,
 # Twin zoomable views with a shared transform
 # ---------------------------------------------------------------------------
 
+#: How far the pointer may travel and still count as a click rather than a
+#: drag. This view pans with the left button, so without a slop threshold
+#: every pan would end in a click.
+CLICK_SLOP_PX = 4
+
+
 class _ZoomView(QGraphicsView):
     """A :class:`QGraphicsView` that emits pixel-hover events + supports
     plain wheel-scroll zoom.
@@ -839,6 +845,10 @@ class _ZoomView(QGraphicsView):
 
     hover_pixel = Signal(int, int)   # (x, y) in image coords
     zoom_changed = Signal(float)     # new scale factor
+    #: A press-and-release with no drag in between. Distinct from a pan,
+    #: which this view already uses the left button for -- so a listener
+    #: gets "the user clicked the picture" without stealing dragging.
+    clicked = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -949,6 +959,28 @@ class _ZoomView(QGraphicsView):
                 self.verticalScrollBar().value())
         finally:
             self._syncing = False
+
+    def mousePressEvent(self, event):        # noqa: N802 (Qt naming)
+        """Remember where a press started, to tell a click from a drag."""
+        self._press_pos = event.position().toPoint()
+        super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):      # noqa: N802 (Qt naming)
+        """Emit :attr:`clicked` when the pointer did not really move.
+
+        The left button already pans this view, so a click cannot simply be
+        "left release" -- that would fire at the end of every drag. A few
+        pixels of slop, because a click with a real mouse is rarely exactly
+        zero movement.
+        """
+        start = getattr(self, "_press_pos", None)
+        super().mouseReleaseEvent(event)
+        if start is None:
+            return
+        moved = (event.position().toPoint() - start).manhattanLength()
+        self._press_pos = None
+        if moved <= CLICK_SLOP_PX:
+            self.clicked.emit()
 
     def mouseMoveEvent(self, event):
         if self._pixmap_item is not None:
