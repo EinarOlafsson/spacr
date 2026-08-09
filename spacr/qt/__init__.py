@@ -11,7 +11,8 @@ The old GUI keeps working via:
     spacr               # Tk (classic)
     python -m spacr
 
-The Qt code lives in three layers:
+The Qt code lives in three layers::
+
     theme.py              — palette + QSS stylesheet
     widgets/              — reusable custom widgets (tiles, sections, ...)
     screens/              — one Qt widget per app screen

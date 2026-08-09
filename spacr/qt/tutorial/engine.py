@@ -51,36 +51,36 @@ class Step:
     """A single narrated beat of a tutorial.
 
     Fields:
-        narration:    what the narrator says (also becomes the subtitle)
-        action:       optional callable that mutates the UI. Runs AFTER
-                      the cursor animation completes but BEFORE the
-                      narration finishes playing.
-        target:       optional (widget, point-in-widget) the cursor
-                      animates to before the action fires. Point is
-                      relative to `widget`. Pass a QWidget with point
-                      omitted to target its center.
-                      `widget` may also be a zero-argument callable
-                      returning the widget, for targets that only come
-                      into existence once an earlier step has run —
-                      see Director._deref.
-        hold_ms:      extra silence at the end of the step, in ms.
-                      Useful to let a UI change settle before the next
-                      step begins.
-        highlight:    optional widget to draw a soft highlight ring
-                      around while this step runs. Also accepts a
-                      zero-argument callable, same as `target`.
-        dim_background:
-                      when ``highlight`` resolves, dim the rest of the
-                      interface and leave the highlighted widget in a
-                      clear spotlight. Disable for overview steps that
-                      should keep the whole interface at full brightness.
-        live_capture: recapture the app for every frame while this step
-                      runs. The default uses a cached screenshot and only
-                      refreshes after an action changes the interface.
-                      Enable this for genuinely animated app content.
-        show_pointer: draw and animate the small magenta point for a
-                      scripted click. Passive explanatory steps leave it
-                      off, even when they target or highlight a widget.
+
+    narration
+        what the narrator says (also becomes the subtitle)
+    action
+        optional callable that mutates the UI. Runs AFTER the cursor
+        animation completes but BEFORE the narration finishes playing.
+    target
+        optional (widget, point-in-widget) the cursor animates to before the
+        action fires. Point is relative to `widget`. Pass a QWidget with point
+        omitted to target its center. `widget` may also be a zero-argument
+        callable returning the widget, for targets that only come into
+        existence once an earlier step has run — see Director._deref.
+    hold_ms
+        extra silence at the end of the step, in ms. Useful to let a UI change
+        settle before the next step begins.
+    highlight
+        optional widget to draw a soft highlight ring around while this step
+        runs. Also accepts a zero-argument callable, same as `target`.
+    dim_background
+        when ``highlight`` resolves, dim the rest of the interface and leave
+        the highlighted widget in a clear spotlight. Disable for overview
+        steps that should keep the whole interface at full brightness.
+    live_capture
+        recapture the app for every frame while this step runs. The default
+        uses a cached screenshot and only refreshes after an action changes
+        the interface. Enable this for genuinely animated app content.
+    show_pointer
+        draw and animate the small magenta point for a scripted click. Passive
+        explanatory steps leave it off, even when they target or highlight a
+        widget.
     """
     narration: str
     action: Optional[Callable[[], None]] = None
