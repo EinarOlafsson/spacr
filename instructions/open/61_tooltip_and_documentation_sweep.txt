@@ -289,7 +289,7 @@ settings, not as a sweep.
 2026-08-09 - THE TWO LONGEST REWRITTEN
 --------------------------------------------------------------------------------
 
-    over 600 chars   37 -> 31
+    over 600 chars   37 -> 29
     under 80 chars   13 -> 1     (earlier)
     empty             1 -> 0     (earlier)
 
@@ -345,7 +345,7 @@ round here. Match `['\"]` on both sides.
     strict_errors       841 -> 591     control_wells    831 -> 547
     custom_regex        827 -> 599     Signal_to_noise  815 -> 590
 
-    over 600 chars   37 -> 31
+    over 600 chars   37 -> 29
 
 Two of these earned a sentence that was NOT in the original, because
 cutting made room for the thing a user actually needs:
@@ -362,3 +362,20 @@ cutting made room for the thing a user actually needs:
 That is the test for the remaining 31: not "is it shorter" but "can
 someone choose a value from it". Length is the symptom; an archive of
 everything ever learned about the setting is the cause.
+
+--------------------------------------------------------------------------------
+2026-08-09 - EIGHT CUT. over 600: 37 -> 29
+--------------------------------------------------------------------------------
+
+    dry_run     812 -> 599      anisotropy  791 -> 583
+
+`anisotropy` is the one worth reading as a model for the rest. The old text
+buried the consequence in the middle of a paragraph; the new one leads with
+it -- left at 1.0 on a confocal stack the segmenter reads a 5 um gap as a
+5 pixel gap and FUSES everything along z into columns -- and then says what
+to do instead (set the voxel sizes and let it derive) and what happens if
+you do neither (the run stops rather than guessing).
+
+That ordering is the reusable part: consequence, then action, then the
+edge case. The archives all have those three things in them somewhere;
+they just have them in the wrong order and surrounded by enumeration.
