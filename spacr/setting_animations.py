@@ -214,6 +214,78 @@ def iter_setting_animations() -> Iterator[SettingAnimation]:
     return iter(setting_animations())
 
 
+
+#: An animation whose before and after differ by less than this fraction of
+#: the frame is not illustrating its setting. Measured across all 94 in the
+#: 2026-08 audit: the median is well above 1%, 27 fall below it, and
+#: `pathogen_diameter` changes 0.0% -- it shows the viewer nothing at all.
+MIN_VISIBLE_CHANGE = 0.01
+
+#: Pixels differing by less than this (summed over RGB) are noise from GIF
+#: palette quantisation rather than a real change.
+_CHANGE_THRESHOLD = 30
+
+
+def measure_visible_change(path) -> float:
+    """Fraction of the frame that changes between an animation's states.
+
+    The "after" state is the frame MOST DIFFERENT from the first, not the
+    last: these GIFs loop, so the last frame is the first one again and
+    comparing them reports zero change for every animation ever made.
+
+    :param path: the GIF to measure.
+    :returns: fraction of pixels that differ, 0.0 to 1.0. Returns 0.0 when
+        the file cannot be read as an animation, so a caller sees "shows
+        nothing" rather than an exception.
+    """
+    try:
+        import numpy as np
+        from PIL import Image
+    except Exception:                       # pragma: no cover - no imaging
+        return 1.0
+    try:
+        frames = []
+        with Image.open(path) as im:
+            while True:
+                frames.append(np.asarray(im.convert("RGB"), dtype=np.int16))
+                im.seek(im.tell() + 1)
+    except EOFError:
+        pass
+    except Exception:
+        return 0.0
+    if len(frames) < 2:
+        return 0.0
+    base = frames[0]
+    worst = max(frames[1:], key=lambda f: int(np.abs(f - base).sum()))
+    changed = np.abs(worst - base).sum(axis=2) > _CHANGE_THRESHOLD
+    return float(changed.mean())
+
+
+def validate_animations_show_something(
+        *, minimum: float = MIN_VISIBLE_CHANGE) -> Dict[str, float]:
+    """Every animation must visibly change something.
+
+    An animation is a stronger claim than a sentence: a user who watches
+    one believes it. One that changes nothing teaches nothing, and unlike a
+    wrong sentence it cannot be spotted by reading the source.
+
+    Separate from :func:`validate_setting_animation_assets`, which checks
+    that the FILES are intact -- an unchanged, perfectly-hashed GIF passes
+    that and fails this.
+
+    :param minimum: fraction of the frame that must change.
+    :returns: ``{slug: fraction}`` for every animation BELOW the threshold,
+        empty when they all pass. Returned rather than raised so a caller
+        can report the whole list instead of the first one.
+    """
+    failures: Dict[str, float] = {}
+    for animation in setting_animations():
+        fraction = measure_visible_change(animation.path)
+        if fraction < minimum:
+            failures[animation.slug] = round(fraction, 4)
+    return failures
+
+
 def validate_setting_animation_assets(*, check_hashes: bool = False) -> Dict[str, int]:
     """Validate packaged files and optionally recompute their SHA-256 hashes.
 
