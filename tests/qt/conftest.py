@@ -176,96 +176,32 @@ def _skip_first_launch_tour():
         yield
 
 
-@pytest.fixture(autouse=True)
-def _drain_job_runners():
-    """Stop every background JobRunner before its owner is destroyed.
-
-    A screen polls resource usage on a 2-second QTimer and samples it on a
-    JobRunner thread. `AppScreen.closeEvent` stops the timer and drains the
-    runners -- but only if the screen is CLOSED, and a test that builds a
-    screen and lets it fall out of scope never closes anything. So the
-    sampler was still inside `psutil.virtual_memory()` on a worker thread
-    while Qt was deleting the widget that owned it, and the process died:
-
-        Fatal Python error: Segmentation fault
-          app_screen.py:2987 in _sample_usage
-          job_runner.py:60 in _capture
-          bridge.py:1018 in run
-
-    at 28% of the qt suite, which is why the run never reached its summary.
-    `JobRunner` takes a parent but does not tie its threads to that parent's
-    destruction, so nothing else was going to stop them.
-
-    Draining here rather than in JobRunner itself is deliberate: the
-    production path already stops cleanly on close, and reaching for
-    `QObject.destroyed` would run Python during C++ teardown, which is how
-    this codebase earned its other threading crash (INVARIANTS 4).
-    """
-    yield
-    # A/B switch. Five separate suite-stopping crashes have now been traced
-    # to Qt object lifetime, and this fixture caused two of them, so it has
-    # to be possible to run WITHOUT it rather than assume it helps.
-    if os.environ.get("SPACR_NO_DRAIN"):
-        return
-    try:
-        from PySide6.QtWidgets import QApplication
-
-        from spacr.qt.job_runner import JobRunner
-    except Exception:
-        return
-    app = QApplication.instance()
-    if app is None:
-        return
-    # `allWidgets()` hands back widgets whose C++ side may already be gone --
-    # Qt is mid-teardown when this fixture runs. Calling findChildren() on a
-    # dead one SEGFAULTS rather than raising, so no try/except can save it:
-    # this fixture crashed the suite at 35% doing exactly that, which is the
-    # same class of bug it was written to fix.
-    try:
-        from shiboken6 import isValid
-    except Exception:
-        def isValid(_obj):      # pragma: no cover - shiboken is always there
-            return True
-
-    seen = set()
-    for widget in list(app.allWidgets()):
-        if not isValid(widget):
-            continue
-        for runner in widget.findChildren(JobRunner):
-            if not isValid(runner):
-                continue
-            if id(runner) in seen:
-                continue
-            seen.add(id(runner))
-            # ONLY the ones actually working. An idle runner has nothing to
-            # drain, and calling shutdown() on it still pumps the event
-            # loop -- which runs any pending deleteLater, destroying the
-            # C++ side of widgets that pytest-qt is about to close itself.
-            # That crashed the suite at 33% inside pytestqt's _close_widgets,
-            # with no spacr frame in the stack at all, because by then the
-            # damage was done and the caller was innocent.
-            try:
-                if not runner.is_busy():
-                    continue
-            except Exception:
-                continue
-            try:
-                # A SHORT budget, deliberately. `shutdown` defaults to
-                # 3000ms, and paid per runner per test that is minutes
-                # across the suite -- the first version of this fixture took
-                # the run from "segfaults at 28%" to "still at 35% after 80
-                # minutes", which is not an improvement anyone asked for.
-                # An idle runner returns immediately; a busy one is a test
-                # that left work running, and parking it is what `shutdown`
-                # already does when its budget runs out.
-                runner.shutdown(timeout_ms=50)
-            except TypeError:
-                runner.shutdown()
-            except Exception:
-                # Teardown is best-effort: a runner already gone is the
-                # outcome we wanted, and raising here would fail a test
-                # that had already passed.
-                pass
+# REMOVED 2026-08-08: `_drain_job_runners`.
+#
+# It was added to fix a segfault in the resource-usage sampler at 28% of
+# the suite, and it caused more than it fixed. Measured, by running the
+# suite with and without it:
+#
+#     WITH     segfault at 28% (dead widgets), 33% (event loop pumped at
+#              teardown), 35% -- three separate crashes, two of them in
+#              this fixture itself
+#     WITHOUT  reached 66% with zero crashes and zero failures, and only
+#              stopped because the harness timeout expired
+#
+# Three bugs came out of one fixture: a 3000ms-per-runner budget that took
+# the run from "crashes at 28%" to "still going at 35% after 80 minutes";
+# a crash on widgets whose C++ side was already gone; and a crash on live
+# ones, because shutdown() pumps the event loop and that runs pending
+# deleteLater calls on widgets pytest-qt was about to close itself.
+#
+# The shape was the problem. A teardown fixture that reaches across every
+# widget in the application, during Qt teardown, is dangerous in a way no
+# amount of guarding fixes -- each guard I added revealed the next crash.
+#
+# If the original 28% sampler segfault returns, fix it where it lives
+# (AppScreen stops its timer and drains its runners in closeEvent already;
+# a test that never closes the screen is the real gap) rather than by
+# reaching across the application again.
 
 
 @pytest.fixture(autouse=True)
