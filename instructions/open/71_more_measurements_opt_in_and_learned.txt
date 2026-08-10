@@ -20,7 +20,7 @@ here. (4) is a different KIND of thing from (1) and (2) and the biggest risk
 of the four -- see the storage note below.
 
 --------------------------------------------------------------------------------
-WHAT IS ALREADY CAPTURED
+WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
 `spacr/measure.py` is 3662 lines and already computes more than the question
@@ -41,7 +41,7 @@ already in. ANY proposal must be checked against this list first; proposing
 something already implemented is the most likely failure mode here.
 
 --------------------------------------------------------------------------------
-THE STORAGE QUESTION, WHICH IS THE REAL DECISION IN (4)
+WHY IT MATTERS
 --------------------------------------------------------------------------------
 
 A CNN penultimate layer is 512-2048 floats PER OBJECT. A plate can hold
