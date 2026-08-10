@@ -24,6 +24,7 @@ longer needed: "positive control is column 3" is exactly a row in this table.
 """
 from __future__ import annotations
 
+import ast
 import logging
 from typing import Any, Dict, List, Mapping, Optional, Sequence
 
@@ -173,8 +174,28 @@ class ClassEditorWidget(QWidget):
 
     # -- the value ---------------------------------------------------------
     def set_value(self, value: Any) -> None:
-        """Show ``value``, whether it is the dict or the old list of names."""
+        """Show ``value``, whether it is the dict, the old list, or a string.
+
+        A settings CSV stores ``repr(value)``, so ``classes`` comes back as
+        the TEXT ``"['nc', 'pc']"``. Without the string branch below, that
+        matched neither the Mapping nor the list arm, fell through to an empty
+        table, and reported SUCCESS: ``apply_settings_dict`` returned
+        ``applied=1`` while ``collect()['classes']`` was ``{}``. The class
+        names were dropped without a word -- and because ``{}`` is a Mapping,
+        ``classify_classes.normalize_settings`` then skipped its own
+        legacy-translation branch too, so nothing downstream recovered them.
+        Every other list-shaped key survived that round trip; this was the one
+        that decides what gets trained.
+        """
         self._rules = []
+        if isinstance(value, str):
+            text = value.strip()
+            if text.startswith(("[", "(", "{")):
+                try:
+                    value = ast.literal_eval(text)
+                except (ValueError, SyntaxError):
+                    LOG.debug("classes is a string that does not parse: %r",
+                              text)
         if isinstance(value, Mapping):
             for name, spec in value.items():
                 if not isinstance(spec, Mapping):
