@@ -7,15 +7,13 @@ containing everything a reviewer needs to reproduce the result:
 
 ::
 
-    ~/.spacr/runs/2026-07-23_143507_ab12cd34/
+    ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask/
         settings.csv          # exact settings dict, Key,Value CSV
         settings.json         # same, JSON (source of truth for machines)
         manifest.json         # spaCR version, git hash, python, packages,
                               # torch / cuda / cellpose, start time,
                               # end time, elapsed, exit status, model hashes
         log.txt               # tail of ~/.spacr/logs/spacr.log for the run
-        stdout.txt            # captured pipeline stdout (if opened via
-                              # :func:`capture_stdout`)
         outputs/              # optional — any pipeline-emitted artifacts
                               # (masks, DBs, CSVs, plots) copied in
 
@@ -28,9 +26,10 @@ Public API::
         run.attach_output(Path("/path/to/mask.tif"))
         run.set_status("success")
 
-The context manager records start / end timestamps, catches
-exceptions, writes a ``FAILED`` marker when something raises, and
-returns the run folder path on ``__exit__`` so callers can log it.
+The context manager records start / end timestamps and yields the
+:class:`Run` object, whose ``dir`` attribute is the run folder. When
+something raises it stamps ``"status": "failed"`` (plus the traceback)
+into ``manifest.json`` and re-raises; no marker file is written.
 
 Consumers of the journal:
 
@@ -203,7 +202,7 @@ def hash_file(
     *,
     full: bool = False,
 ) -> Optional[str]:
-    """Return a SHA-256 digest of a file, or ``None`` on error.
+    """Return the first 16 hex characters of a file's SHA-256, or ``None``.
 
     :param path: regular file to hash.
     :param chunk_size: bytes read per iteration.
@@ -318,6 +317,16 @@ def extract_seeds(settings: Dict[str, Any]) -> Dict[str, Any]:
     The state fingerprints do not import NumPy or Torch. When those libraries
     are already loaded, their state is captured; otherwise the manifest says
     so explicitly instead of changing application startup behavior.
+
+    :param settings: settings dict; every nested key whose name contains
+        ``seed``, ``random_state`` or ``random_seed`` is collected.
+    :returns: a dict with ``declared`` (the collected seed settings),
+        ``python_hash_seed`` (``PYTHONHASHSEED``, or ``None`` when unset),
+        ``python_random_state_sha256``, ``numpy_random_state_sha256`` and
+        ``torch_initial_seed`` — the last two ``None`` when the library is
+        not already imported. A probe that raises contributes
+        ``numpy_random_state_error`` / ``torch_seed_error`` instead of its
+        value key.
     """
     declared: Dict[str, Any] = {}
     for key, value in _walk_setting_values(settings):
@@ -472,8 +481,8 @@ class Run:
     :ivar end_ts: unix epoch seconds when the run closed (set by
         :func:`open_run` on exit).
     :ivar status: ``"running"`` / ``"success"`` / ``"failed"``.
-    :ivar model_hashes: dict of ``{human-name → sha256-16}``. Populated
-        by callers via :meth:`record_model`.
+    :ivar model_hashes: dict of ``{human-name: "filename:sha256-16"}``.
+        Populated by callers via :meth:`record_model`.
     :ivar model_files: full SHA-256, size, and path records for models.
     :ivar input_hashes: per-file full SHA-256 input provenance.
     :ivar output_hashes: per-file full SHA-256 output provenance.
@@ -511,8 +520,9 @@ class Run:
     def record_model(self, name: str, checkpoint_path: Any) -> None:
         """Fingerprint ``checkpoint_path`` and remember it under ``name``.
 
-        Silently no-ops if the file is unreadable — model logging must
-        never itself fail a run.
+        Records ``"<filename>:<digest>"`` in ``model_hashes``. A failure is
+        appended to ``provenance_warnings`` (so it reaches ``manifest.json``)
+        and logged — model logging must never itself fail a run.
         """
         try:
             p = Path(checkpoint_path)
@@ -531,6 +541,8 @@ class Run:
     def record_input(self, path: Any, *, setting_key: str = "") -> None:
         """Hash a file or directory as an explicit run input.
 
+        A no-op unless :meth:`hashing_enabled` is true, i.e. unless the
+        settings enable ``hash_inputs`` — a default run records nothing here.
         Directories are recorded as one full SHA-256 record per regular file.
         Unreadable files are reported in ``provenance_warnings`` and logs.
 
@@ -544,7 +556,14 @@ class Run:
         )
 
     def record_output(self, path: Any, *, setting_key: str = "") -> None:
-        """Hash a file or directory as an explicit run output."""
+        """Hash a file or directory as an explicit run output.
+
+        Like :meth:`record_input`, a no-op unless :meth:`hashing_enabled` is
+        true, i.e. unless the settings enable ``hash_inputs``.
+
+        :param path: output file or directory.
+        :param setting_key: optional setting that referred to ``path``.
+        """
         if not self.hashing_enabled():
             return
         self._record_tree(
@@ -802,7 +821,7 @@ _RUN_LOCAL = threading.local()
 
 
 def current_run() -> Optional["Run"]:
-    """Return the :class:`Run` currently open in this process, or None.
+    """Return the :class:`Run` currently open on this thread, or ``None``.
 
     Useful for pipeline internals (Cellpose model loaders, etc.) that
     want to record a model checkpoint hash without every caller
@@ -890,8 +909,12 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
     Ordered by the manifest's ``start_utc`` timestamp (parsed as
     :class:`datetime.datetime`), so runs opened in the same wall-
     clock second still sort correctly — folder names alone truncate
-    to seconds and would produce ties. Corrupt / partial run
-    folders are silently skipped.
+    to seconds and would produce ties. Only the newest
+    ``max(limit * 4, limit + 64)`` folders by name are opened at all
+    (for non-negative ``limit``), so startup cost does not grow with the
+    size of the journal. A folder with no ``manifest.json`` is skipped
+    quietly; one whose manifest cannot be parsed is skipped with a
+    logged warning.
 
     Each entry is a dict with keys ``dir`` (Path), ``app_key`` (str),
     ``status`` (str), ``start_utc`` (ISO str), ``elapsed_s`` (float),
@@ -1172,11 +1195,15 @@ def journal_totals() -> Dict[str, int]:
     Powers the Home-screen insights dashboard: ``total_runs`` (all
     manifests seen), ``mask_runs`` / ``measure_runs`` / ``classify_runs``
     (per-app tallies), and ``models_recorded`` (distinct model hashes
-    ever recorded across all mask runs). Returns zeros when no journal
-    exists yet.
+    ever recorded, across runs of every app — not only mask runs).
+    Returns zeros when no journal exists yet.
 
-    Cheap enough to call on Home-screen construction — one iterdir + a
-    file read per run folder. Callers that need more should cache.
+    Counting is incremental: the totals and the names of the folders
+    already counted are persisted in ``.journal_totals.json`` in the runs
+    root, so each call parses only the manifests it has not seen. A folder
+    that has since been deleted cannot be subtracted, so that case falls
+    back to a full recount. A manifest that cannot be parsed is left out
+    of the totals with a logged warning.
     """
     totals = {"total_runs": 0, "mask_runs": 0, "measure_runs": 0,
                 "classify_runs": 0, "models_recorded": 0}

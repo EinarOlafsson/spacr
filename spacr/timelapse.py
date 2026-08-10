@@ -1593,7 +1593,9 @@ def plot_data(measurement, group, ax, label, marker='o', linestyle='-'):
 def infected_vs_noninfected(result_df, measurement):
     """Plot per-well mean ``delta_<measurement>`` for infected vs uninfected cell groups.
 
-    :param result_df: per-cell/time DataFrame with plate/row/column/field/object identifiers, ``parasite_count`` and the target measurement.
+    :param result_df: per-cell/time DataFrame keyed by the composed
+        ``plate_row_column_field_object`` column, with ``time``,
+        ``parasite_count`` and the ``delta_<measurement>`` column.
     :param measurement: base measurement column name to plot (the ``delta_`` variant is drawn).
     :returns: None.
     """
@@ -1628,12 +1630,16 @@ def infected_vs_noninfected(result_df, measurement):
     plt.show()
 
 def save_figure(fig, src, figure_number):
-    """Save ``fig`` as ``figure_<figure_number>.pdf`` inside a sibling ``results`` folder.
+    """Save ``fig`` as ``figure_<figure_number>`` inside a sibling ``results`` folder.
+
+    The ``.pdf`` extension built here is only a proposal:
+    :func:`spacr.plot.save_figure` rewrites it to the configured figure
+    format, so the file on disk is often ``figure_1.png``.
 
     :param fig: matplotlib Figure to persist.
     :param src: reference path used to derive the parent directory.
     :param figure_number: integer/string suffix embedded in the filename.
-    :returns: None.
+    :returns: None; the written path is printed.
     """
     source = os.path.dirname(src)
     results_fldr = os.path.join(source,'results')
@@ -1798,11 +1804,14 @@ def summarize_per_well_inf_non_inf(peak_details_df):
     """Aggregate per-object peak details per well, split by infection status.
 
     :param peak_details_df: per-object peak DataFrame with an ``ID`` column
-        encoding ``plate_row_column_field_object``, peak metrics, and
-        pathogen counts used to infer infection.
-    :returns: DataFrame with two rows per well (infected/uninfected) of
-        peak counts, cell counts, and per-well means of numeric metrics.
+        encoding ``plate_row_column_field_object``, peak metrics, and an
+        ``infected`` column whose positive values mark infected objects.
+    :returns: DataFrame with one row per well and infection status (so one
+        row for a well seen in a single status) of peak counts, cell counts,
+        and per-well means of numeric metrics.
     :raises spacr.schema.KeyParseError: when an ``ID`` is not an object key.
+    :raises KeyError: when the frame has no ``infected`` column; the pathogen
+        count must be carried under exactly that name.
     """
     # Step 1: Recover the identity from the 'ID' key (see _explode_peak_ids).
     _explode_peak_ids(peak_details_df, 'summarize_per_well_inf_non_inf')
@@ -1834,20 +1843,28 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
 
     Loads the ``cell`` (and optionally ``pathogen``/``cytoplasm``) tables,
     filters transient tracks, detects peaks on the chosen intensity trace,
-    and returns both per-peak details and per-well summaries.
+    and writes the per-peak, per-cell and per-well tables to CSV beside the
+    database.
 
     :param db_loc: path to the measurements SQLite database.
     :param measurement: intensity column analysed for oscillations.
     :param size_filter: object-size column used for gating.
-    :param fluctuation_threshold: minimum normalised fluctuation to keep a trace.
+    :param fluctuation_threshold: maximum coefficient of variation
+        (std / mean) of ``size_filter`` within a track; more variable tracks
+        are dropped.
     :param num_lines: cap on the number of traces to plot; plots all when ``None``.
-    :param peak_height: minimum peak prominence for ``scipy.find_peaks``.
+    :param peak_height: minimum absolute peak height, passed to
+        ``scipy.find_peaks(height=...)`` on the delta trace.
     :param pathogen: optional pathogen table name to join for infection status.
     :param cytoplasm: optional cytoplasm table name to join.
     :param remove_transient: drop tracks shorter than the transience threshold.
     :param verbose: print diagnostic information.
     :param transience_threshold: fraction of timepoints a track must span to be retained.
-    :returns: tuple of per-peak DataFrame and per-well summary DataFrame(s).
+    :returns: tuple ``(result_df, peak_details_df, fig)`` -- the
+        photobleach-corrected per-cell traces, the per-peak details and the
+        summary matplotlib Figure. The per-well summaries are only written to
+        CSV. Returns ``None`` when the database has no time axis, the decay
+        fit fails, or no cells pass the filters.
     """
     # Load data
     conn = sqlite3.connect(db_loc)
@@ -7658,8 +7675,10 @@ def automated_motility_assay(settings):
         ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``,
         ``motility_origin_xlim``, ``motility_origin_ylim``, and
         ``reuse_existing_measurements``.
-    :returns: None. Writes measurements and summary tables to
-        ``measurements/measurements.db`` and saves panel PDFs under ``src``.
+    :returns: the per-cell measurements DataFrame carrying the final
+        (QC-adjusted) labels. Measurements and summary tables are also written
+        to ``measurements/measurements.db`` and the QC panels saved under
+        ``src``.
     :raises ValueError: when ``settings['db_table_name']`` names a spaCR-owned
         table; see :func:`_validate_db_table_name`.
     """

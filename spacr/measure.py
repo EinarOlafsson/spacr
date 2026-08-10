@@ -1901,25 +1901,27 @@ def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
 
     .. note::
 
-       **The channel order on disk matches ``settings['png_dims']``:**
-       ``png_dims[0]`` is the file's red channel, ``[1]`` green, ``[2]`` blue.
+       **The file's colour slots hold what the mapping declares.** The
+       caller assembles ``png_channels`` in file order — red plane first —
+       with :func:`spacr.crops.build_png_channels` and
+       :func:`spacr.crops.resolve_png_channel_mapping`; under the legacy
+       ``settings['png_dims']`` list that mapping is entry 0 blue, 1 green,
+       2 red, so ``png_dims[0]`` lands in the file's BLUE slot.
 
-       ``cv2.imwrite`` interprets a 3-channel array as BGR, so handing it the
-       crop unchanged put ``png_dims[0]`` in the file's blue slot — the
-       REVERSE of what the setting says, and the reverse of what every
-       consumer assumes, since they all open these files with PIL, which
-       reads RGB. :func:`spacr.crops.to_cv2_bgr` reverses the array once,
-       here, so cv2's interpretation lands the user's first channel in red.
-       It refuses more than three channels rather than letting cv2 write the
+       ``cv2.imwrite`` interprets a 3-channel array as BGR, so
+       :func:`spacr.crops.to_cv2_bgr` reverses the array once, here, and
+       cv2's interpretation lands the red plane in the file's red slot. It
+       refuses more than three channels rather than letting cv2 write the
        fourth as an alpha plane for every reader to drop in silence.
 
-       Crops written *before* this change are in the reversed order and carry
-       no marker, so the format is versioned:
-       :func:`spacr.crops.stamp_crop_folder` drops a
+       The format is versioned: :func:`spacr.crops.stamp_crop_folder` drops a
        ``.spacr_crop_format.json`` sidecar into the crop folder before the
-       first PNG lands, an unmarked folder means legacy, and
-       :func:`spacr.crops.read_crop_png` converts legacy content on load.
-       ``spacr.crops.migrate_crop_folder`` rewrites an old folder in place.
+       first PNG lands, recording format 3 (``declared_rgb``). An unmarked
+       folder means format 1 (legacy), whose bytes match format 3 for the
+       same declared mapping, so both are read as-is; only format 2 — written
+       between 2026-07-26 and 2026-08-06 — is reversed by
+       :func:`spacr.crops.read_crop_png`, and
+       ``spacr.crops.migrate_crop_folder`` rewrites such a folder in place.
 
        Crops are still ``uint16``, so these are 16-bit PNGs and no intensity
        is discarded at write time. The narrowing to 8 bit happens once, on
@@ -2668,13 +2670,21 @@ def measure_crop(settings):
         - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.
         - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).
         - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.
+        - ``dry_run`` — validate the settings and stop; nothing is read,
+          written or imported.
 
-    :returns: None. Writes ``measurements/measurements.db``,
-        ``measure_crop_settings.csv``, and (if ``save_png``) PNGs into
-        per-object subfolders under ``src``.
-    :raises ValueError: if ``src`` is not a string or list of strings, if
-        ``normalize=True`` is passed as a bool, or if mask/crop settings
-        fail the type checks above.
+    :returns: ``None`` on a normal run, which writes
+        ``measurements/measurements.db``, ``measure_crop_settings.csv``, and
+        (if ``save_png``) PNGs into per-object subfolders under ``src``. When
+        ``dry_run`` is set, the list of :class:`spacr.validate.Problem`
+        returned by :func:`spacr.validate.run_preflight`, and nothing is
+        written.
+    :raises ValueError: if ``src`` is not a string or a list of strings.
+    :raises spacr.errors.ConfigurationError: only in strict mode
+        (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS``
+        environment variable). The ``normalize``, ``normalize_by``,
+        mask-dimension/min-size and ``channels`` type checks otherwise print
+        a WARNING and return ``None`` without measuring anything.
 
     Example:
         .. code-block:: python
@@ -3015,12 +3025,13 @@ def measure_crop(settings):
 
 def process_meassure_crop_results(partial_results, settings):
     """
-    Process the results, display, and optionally save the figures.
+    Save and display the figures carried by each partial result.
 
     Args:
-        partial_results (list): List of partial results.
-        settings (dict): Settings dictionary.
-        save_figures (bool): Flag to save figures or not.
+        partial_results (list): List of partial results; ``None`` entries are
+            skipped. Each figure is written under
+            ``<src>/../results/`` and then shown and closed.
+        settings (dict): Settings dictionary; ``src`` gives the output root.
     """
     for result in partial_results:
         if result is None:
@@ -3056,9 +3067,9 @@ def generate_cellpose_train_set(folders, dst, min_objects=5):
         created if missing.
     :param min_objects: Minimum number of unique object labels required in a
         mask for the pair to be included. Default ``5``.
-    :returns: None. Unreadable masks and failed copies are recorded on a
-        :class:`spacr.errors.RunLedger` and summarised loudly at the end, so
-        a training set that is quietly short of pairs announces itself.
+    :returns: The finalized :class:`spacr.errors.RunLedger`. Unreadable masks
+        and failed copies are recorded on it and summarised loudly at the end,
+        so a training set that is quietly short of pairs announces itself.
     """
     os.makedirs(dst, exist_ok=True)
     os.makedirs(os.path.join(dst,'masks'), exist_ok=True)
@@ -3313,9 +3324,11 @@ def generate_object_dataset(
 
     :param src: experiment root (the folder that holds ``merged/`` and
         ``measurements/measurements.db``), or the ``merged`` folder itself.
-    :param object_type: which object table + mask slice to crop
-        (``'cell'`` | ``'nucleus'`` | ``'pathogen'`` | ``'organelle'`` |
-        ``'cytoplasm'``).
+    :param object_type: which object table + mask slice to crop. With the
+        default ``mask_dims`` the accepted values are ``'cell'``,
+        ``'nucleus'``, ``'pathogen'`` and ``'organelle'``; any other value
+        (``'cytoplasm'`` included) raises ``ValueError`` unless ``mask_dims``
+        names its slice explicitly.
     :param channels: image channel indices to include, in output order. Three
         indices → an RGB image; one → greyscale; two → padded to RGB; more than
         three → kept as an ``.npy`` array (and the first three saved as a PNG

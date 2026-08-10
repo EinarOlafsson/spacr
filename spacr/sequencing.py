@@ -128,7 +128,12 @@ def save_unique_combinations_to_csv(unique_combinations, csv_file):
         raise
 
 def save_qc_df_to_csv(qc_df, qc_csv_file):
-    """Append a QC DataFrame to a CSV, summing element-wise when the file already exists.
+    """Write a QC DataFrame to a CSV, index-aligning it with any existing file.
+
+    An existing CSV is re-read and combined via ``DataFrame.add(..., fill_value=0)``,
+    and the result overwrites the file with ``index=False``. Because the index is
+    never written, the incoming ``NaN_Counts`` row does not align with the re-read
+    ``RangeIndex``, so the CSV gains a row per call rather than accumulating totals.
 
     :param qc_df: numeric QC metrics (e.g. missing counts, total reads).
     :param qc_csv_file: destination CSV path.
@@ -209,8 +214,9 @@ def process_chunk(chunk_data):
     with the named-group ``regex``, and maps each barcode to its ID via
     the reference CSVs.
 
-    The regex may use the public ``column``/``row`` group names from the
-    shipped defaults or the legacy internal ``columnID``/``rowID`` aliases.
+    The regex must supply a ``grna`` group plus a row and a column group.
+    ``columnID``/``rowID``, the names used by the shipped default regex,
+    take precedence; ``column``/``row`` are accepted as aliases.
 
     :param chunk_data: 9-tuple for single-end
         ``(r1_chunk, regex, target_sequence, offset_start, expected_end,
@@ -811,6 +817,12 @@ def generate_barecode_mapping(settings=None):
         - ``save_h5``, ``comp_type``, ``comp_level`` — HDF5 output
           knobs.
         - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.
+        - ``barcode_qc`` — when true, QC each finished sample with
+          :func:`spacr.sequencing_qc.barcode_qc`, writing plots and a
+          report into ``<dst>/barcode_qc`` (default False; not filled in
+          by the settings defaults).
+        - ``target_grnas_per_well`` — expected gRNAs per well, from which
+          that QC step derives its abundance threshold (default 1).
 
     :returns: None. Writes per-sample outputs into
         ``<src>/<sample>_<mode>[_<direction>]/``.
@@ -919,7 +931,8 @@ def generate_barecode_mapping(settings=None):
 def barecodes_reverse_complement(csv_file):
     """Write a copy of a barcode CSV with the ``sequence`` column reverse-complemented.
 
-    Output is saved as ``<csv_file>_RC.csv`` in the same directory.
+    Output is saved in the same directory with the extension dropped and
+    ``_RC.csv`` appended, so ``rows.csv`` becomes ``rows_RC.csv``.
 
     :param csv_file: input CSV path with a ``sequence`` column.
     :returns: None.

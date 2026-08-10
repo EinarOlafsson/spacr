@@ -332,7 +332,16 @@ def scale_variables(X, y):
     return X_scaled, y_scaled
 
 def select_glm_family(y):
-    """Select the appropriate GLM family based on the data."""
+    """Choose a ``statsmodels`` GLM family from the range and type of the response.
+
+    A coarser rule than :func:`pick_glm_family_and_link`, which also sets
+    the link: binary values give ``Binomial``, any other values inside
+    ``[0, 1]`` give ``QuasiBinomial``, non-negative integers give
+    ``Poisson`` and everything else ``Gaussian``.
+
+    :param y: Response vector.
+    :returns: An unfitted ``statsmodels`` family instance on its default link.
+    """
     if np.all((y == 0) | (y == 1)):
         print("Using Binomial family (for binary data).")
         return sm.families.Binomial()
@@ -347,7 +356,19 @@ def select_glm_family(y):
         return sm.families.Gaussian()
 
 def prepare_formula(dependent_variable, random_row_column_effects=False):
-    """Return the regression formula using random effects for plate, row, and column."""
+    """Build the fixed-effects formula for the gRNA / gene regression.
+
+    Both branches regress the response on ``fraction:grna`` and
+    ``gene_fraction:gene``. By default ``rowID`` and ``columnID`` are
+    added as *fixed* effects; with ``random_row_column_effects=True``
+    they are left out of the formula because :func:`fit_mixed_model`
+    puts plate, row and column into its random structure instead.
+
+    :param dependent_variable: Name of the response column.
+    :param random_row_column_effects: Drop the fixed ``rowID`` /
+        ``columnID`` terms. Default ``False``.
+    :returns: The formula string.
+    """
     if random_row_column_effects:
         # Random effects for row and column + gene weighted by gene_fraction + grna weighted by fraction
         return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene'
@@ -393,7 +414,22 @@ def fit_mixed_model(df, formula, dst):
     return mixed_model, coef_df
 
 def check_and_clean_data(df, dependent_variable):
-    """Check for collinearity, missing values, or invalid types in relevant columns. Clean data accordingly."""
+    """Prepare the merged count / score frame for model fitting.
+
+    Drops rows with a missing ``fraction`` or dependent variable, casts
+    the identifier columns to categorical and reports (without dropping)
+    collinear columns via VIF. The returned frame keeps only
+    ``fraction``, the dependent variable, ``gene``, ``grna``, ``prc``,
+    ``plateID``, ``rowID``, ``columnID`` and ``cell_count`` when present,
+    plus a computed ``gene_fraction`` column: the sum of the gene's gRNA
+    fractions within each well, which the regression formula regresses on.
+
+    :param df: Merged DataFrame of counts and scores.
+    :param dependent_variable: Name of the response column.
+    :returns: The cleaned DataFrame used as the model input.
+    :raises ValueError: if a ``(prc, grna)`` pair carries more than one
+        ``fraction``, which makes ``gene_fraction`` ambiguous.
+    """
     
     def handle_missing_values(df, columns):
         """Handle missing values in specified columns."""
@@ -519,8 +555,29 @@ def check_and_clean_data(df, dependent_variable):
 
 def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance=0.02, smoothing=10, increment=10):
     """
-    Plot the mean absolute difference with standard deviation as shaded area vs. sample size.
-    Detect and mark the elbow point (inflection) with smoothing and tolerance control.
+    Estimate the minimum number of cells per well needed for a stable well mean.
+
+    For the wells with the most objects, repeatedly subsamples cells at
+    increasing sample sizes and records the mean absolute difference from
+    the well's full mean. Plots the smoothed curve with a ±1 s.d. band,
+    marks the elbow point (or ``settings['min_cell_count']`` when it is
+    set) and writes ``results/cell_min_threshold.pdf`` next to
+    ``settings['count_data'][0]``.
+
+    :param settings: Requires ``score_data`` (CSV path or list of paths),
+        ``score_column``, ``tolerance`` (int percent or float fraction),
+        ``min_cell_count`` and ``count_data``.
+    :param num_repeats: Subsamples drawn per sample size. Default ``10``.
+    :param sample_size: Number of wells, taken largest-first by cell
+        count, to simulate. Default ``100``.
+    :param tolerance: Unused; the tolerance applied is
+        ``settings['tolerance']``.
+    :param smoothing: Rolling-window width used to smooth the curve.
+    :param increment: Step between the simulated sample sizes.
+    :returns: The elbow point's sample size, i.e. the minimum cell count
+        per well, for passing to :func:`process_scores`.
+    :raises ValueError: if ``settings['tolerance']`` is neither an int nor
+        a float.
     """
 
     from .utils import correct_metadata_column_names
@@ -893,7 +950,15 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls,
     return coef_df[~coef_df['feature'].str.contains('row|column')]
 
 def check_distribution(y, epsilon=1e-6):
-    """Check the distribution of y and recommend an appropriate model."""
+    """Check the distribution of ``y`` and recommend a regression type.
+
+    :param y: Response vector.
+    :param epsilon: How close to 0 or 1 a value may sit before it counts
+        as a boundary case. Default ``1e-6``.
+    :returns: One of ``'logit'``, ``'quasi_binomial'``, ``'beta'``,
+        ``'ols'`` or ``'glm'``, as accepted by :func:`regression`'s
+        ``regression_type``.
+    """
     
     # Check if the dependent variable is binary (only 0 and 1)
     if np.all((y == 0) | (y == 1)):
@@ -2176,7 +2241,13 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
 
 def save_summary_to_file(model, file_path='summary.csv'):
     """
-    Save the model's summary output to a CSV or text file.
+    Write ``model.summary().as_text()`` to ``file_path`` as plain text.
+
+    Despite the default ``'summary.csv'`` name, the content is the
+    statsmodels text summary, never CSV.
+
+    :param model: Fitted statsmodels results object.
+    :param file_path: Destination path. Default ``'summary.csv'``.
     """
     # Get the summary as a string
     summary_str = model.summary().as_text()
@@ -3643,13 +3714,15 @@ def check_normality(data, variable_name, verbose=False):
         return False
 
 def clean_controls(df,values, column):
-    """Drop rows whose ``column`` is in ``values``.
+    """Drop rows whose ``column`` holds one of the listed ``values``.
 
     :param df: Source DataFrame.
-    :param values: Value or list of values to remove.
+    :param values: List of values to remove. Anything that is not a list
+        (a bare value included) is a no-op.
     :param column: Column, or list of columns, to check. ``None`` is a
         no-op.
-    :returns: Filtered DataFrame (unchanged if ``column`` is missing).
+    :returns: Filtered DataFrame (unchanged if ``column`` is missing or
+        ``values`` is not a list).
     """
     if column is None:
         return df
@@ -3670,7 +3743,8 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
 
     Ensures ``plateID/rowID/columnID/prc`` columns exist, applies an
     optional inversion of the raw response, aggregates by well according
-    to ``agg_type`` (or by count for Poisson), enforces
+    to ``agg_type`` (or with ``sum`` for the count models
+    ``'poisson'`` and ``'horseshoe'``), enforces
     ``min_cell_count`` and optionally transforms the aggregated response.
 
     :param df: Per-object score DataFrame.
@@ -3947,11 +4021,11 @@ def generate_ml_scores(settings):
           ``remove_highly_correlated_features``, ``prune_features``,
           ``cross_validation``, ``verbose``.
 
-    :returns: Tuple of file paths ``(data_path, permutation_path,
-        feature_importance_path, model_metrics_path,
-        permutation_fig_path, feature_importance_fig_path,
-        shap_fig_path, plate_heatmap_path, settings_csv, ml_features)``
-        pointing to the written artifacts.
+    :returns: The two-element list ``[output, plate_heatmap]``, where
+        ``output`` is the 10-element result list of :func:`ml_analysis`
+        and ``plate_heatmap`` is the plate-heatmap ``matplotlib``
+        figure. The CSVs and figures are written to ``results/`` as a
+        side effect; their paths are not returned.
     :raises ValueError: if ``annotation_column`` is set but the
         ``png_list`` table lacks ``prcfo`` / that column, or if
         ``heatmap_feature`` is not among the trained features.
@@ -4804,8 +4878,10 @@ def interpret_vision_model(settings=None):
         - ``nuclei_limit`` / ``pathogen_limit`` — object-count caps.
         - ``n_jobs``, ``save``.
 
-    :returns: None. Renders radar + importance plots and, when
-        ``save=True``, writes importance CSVs alongside the DB.
+    :returns: The merged per-object DataFrame — the measurement tables
+        joined to the scores CSV — that the explainers were fitted on.
+        Radar and importance plots are rendered, and with ``save=True``
+        importance CSVs are written alongside the DB, as side effects.
 
     Example:
         .. code-block:: python
@@ -4820,7 +4896,8 @@ def interpret_vision_model(settings=None):
 
     See Also:
         :func:`spacr.submodules.interpret_vision_model` — legacy /
-        alternative entry point returning result DataFrames.
+        alternative entry point returning a dict of importance
+        DataFrames instead of the merged measurements.
     """
     if settings is None:
         settings = {}

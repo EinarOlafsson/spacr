@@ -222,7 +222,45 @@ def plot_image_mask_overlay(
     all_outlines=False,
     filter_dict=None
 ):
-    """Plot image and mask overlays."""
+    """Plot image and mask overlays.
+
+    Loads the merged ``.npy`` stack, draws one panel per requested channel
+    with the object masks applied as contours or filled labels, and closes
+    with a panel showing every object combined.
+
+    :param file: Path to the merged ``.npy`` stack for one field of view.
+    :param channels: Indices of the image channels to draw, one panel each.
+    :param cell_channel: Intensity channel the cell mask belongs to, or
+        ``None`` when there is no cell mask.
+    :param nucleus_channel: Intensity channel the nucleus mask belongs to,
+        or ``None``.
+    :param pathogen_channel: Intensity channel the pathogen mask belongs to,
+        or ``None``.
+    :param organelle_channel: Intensity channel the organelle mask belongs
+        to, or ``None``. Default ``None``.
+    :param figuresize: Figure height in inches; the figure is drawn four
+        times as wide. Default ``10``.
+    :param percentiles: Two-element percentile pair used to normalise each
+        channel. Default ``(2, 98)``.
+    :param thickness: Contour line width in pixels. Default ``3``.
+    :param save_pdf: If True, save the figure into ``results/overlay/``
+        two directories above ``file``, in the configured figure format
+        rather than always as PDF. Default ``True``.
+    :param mode: ``'outlines'`` draws mask contours; any other value
+        overlays filled, randomly coloured labels. Default ``'outlines'``.
+    :param export_tiffs: If True, also write every stack plane as a
+        grayscale TIFF into ``results/<stem>/tiff/`` alongside it. Default
+        ``False``.
+    :param all_on_all: If True, draw every mask on every channel. Default
+        ``False``.
+    :param all_outlines: If True, draw every mask on the channels that own
+        no mask themselves. Default ``False``.
+    :param filter_dict: Optional per-object limits keyed by ``'cell'``,
+        ``'nucleus'``, ``'pathogen'`` or ``'organelle'``, each holding
+        ``((min_area, max_area), (min_intensity, max_intensity))``; objects
+        outside the limits are dropped before plotting.
+    :returns: The generated matplotlib ``Figure``.
+    """
 
     def random_color_cmap(n_labels, seed=None):
         """Generate a random-looking but deterministic colormap with a unique seed."""
@@ -575,7 +613,44 @@ def plot_image_mask_overlay_magenta_outlines(
     all_outlines=False,
     filter_dict=None
 ):
-    """Plot image and mask overlays."""
+    """Plot image and mask overlays, outlining each channel's own mask in magenta.
+
+    Variant of :func:`plot_image_mask_overlay` with no ``organelle_channel``:
+    when ``all_on_all`` is False the mask belonging to a channel is drawn in
+    magenta rather than in that object's colour, and the masks are read from
+    the last stack planes in pathogen, nucleus, cell order.
+
+    :param file: Path to the merged ``.npy`` stack for one field of view.
+    :param channels: Indices of the image channels to draw, one panel each.
+    :param cell_channel: Intensity channel the cell mask belongs to, or
+        ``None`` when there is no cell mask.
+    :param nucleus_channel: Intensity channel the nucleus mask belongs to,
+        or ``None``.
+    :param pathogen_channel: Intensity channel the pathogen mask belongs to,
+        or ``None``.
+    :param figuresize: Figure height in inches; the figure is drawn four
+        times as wide. Default ``10``.
+    :param percentiles: Two-element percentile pair used to normalise each
+        channel. Default ``(2, 98)``.
+    :param thickness: Contour line width in pixels. Default ``3``.
+    :param save_pdf: If True, save the figure into ``results/overlay/``
+        two directories above ``file``, in the configured figure format
+        rather than always as PDF. Default ``True``.
+    :param mode: ``'outlines'`` draws mask contours; any other value
+        overlays filled, randomly coloured labels. Default ``'outlines'``.
+    :param export_tiffs: If True, also write every stack plane as a
+        grayscale TIFF into ``results/<stem>/tiff/`` alongside it. Default
+        ``False``.
+    :param all_on_all: If True, draw every mask on every channel in its own
+        colour. Default ``False``.
+    :param all_outlines: If True, draw every mask on the channels that own
+        no mask themselves. Default ``False``.
+    :param filter_dict: Optional per-object limits with a ``'cell'``,
+        ``'nucleus'`` and ``'pathogen'`` entry, each holding
+        ``((min_area, max_area), (min_intensity, max_intensity))``; objects
+        outside the limits are dropped before plotting.
+    :returns: The generated matplotlib ``Figure``.
+    """
 
     def random_color_cmap(n_labels, seed=None):
         """Generates a random color map for a given number of labels."""
@@ -2517,7 +2592,7 @@ def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True
     :param grouping: Aggregation mode — ``'count'``, ``'mean'`` or
         ``'sum'``.
     :param min_max: Color-scale spec forwarded to
-        :func:`generate_plate_heatmap` (``'auto'``, ``'allq'``,
+        :func:`generate_plate_heatmap` (``'all'``, ``'allq'``,
         ``[vmin, vmax]``).
     :param cmap: Matplotlib colormap name or object.
     :param min_count: Drop wells with fewer than this many rows before
@@ -2722,7 +2797,15 @@ def plot_resize(images, resized_images, labels, resized_labels):
     plt.show()
     
 def normalize_and_visualize(image, normalized_image, title=""):
-    """Utility function for visualization"""
+    """Show the original and the normalised image side by side in grayscale.
+
+    Multi-channel inputs are averaged over their channels for display.
+
+    :param image: Original image, 2D or ``(H, W, C)``.
+    :param normalized_image: Normalised counterpart to compare against.
+    :param title: Suffix appended to both panel titles. Default ``""``.
+    :returns: None
+    """
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
     if image.ndim == 3:  # Multi-channel image
         ax[0].imshow(np.mean(image, axis=-1), cmap='gray')  # Display the average over channels for visualization
@@ -3310,7 +3393,9 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
     :param save: If True, save the plot and per-comparison stats CSV.
     :param y_lim: Two-element y-axis limits.
     :param error_bar_type: ``'std'`` or ``'sem'``. Default ``'std'``.
-    :returns: None (side-effects: plot displayed, files written).
+    :returns: ``(figure, results_df)`` — the displayed matplotlib ``Figure``
+        and a DataFrame holding the normality, pairwise and Tukey post-hoc
+        rows (``Comparison``, ``Test Statistic``, ``p-value``, ``Test Name``).
     :raises ValueError: if ``error_bar_type`` is not recognised.
     """
     
@@ -3484,8 +3569,9 @@ class spacrGraph:
 
     Wraps preprocessing (aggregation by object / well / plate), normality
     and variance testing, group-wise pairwise stats, and plot rendering
-    (bar / violin / jitter / box / jitter_box) in a single object whose
-    output can optionally be persisted alongside a CSV of stats.
+    (bar / jitter / box / violin / jitter_box / jitter_bar / line /
+    line_std) in a single object whose output can optionally be persisted
+    alongside a CSV of stats.
 
     :param df: Input DataFrame.
     :param grouping_column: Categorical grouping variable.
@@ -3571,9 +3657,19 @@ class spacrGraph:
         return reordered_palette
   
     def preprocess_data(self):
-        """
-        Preprocess the data: remove NaNs, optionally ensure 'plateID' column is created,
-        then group by either 'prc', 'plateID', or do no grouping at all if representation == 'object'.
+        """Return a new DataFrame aggregated to the configured representation.
+
+        Drops rows with NaN in the grouping or data columns, aggregates the
+        data columns with ``summary_func`` per well (``'prc'``) or per plate
+        (``'plateID'``, split out of ``prc`` when needed) — or leaves them
+        per object — and makes the grouping column an ordered Categorical.
+
+        :returns: The preprocessed DataFrame; ``__init__`` assigns it back to
+            ``self.df`` rather than the frame being modified in place.
+        :raises KeyError: if ``representation='plate'`` and neither a
+            ``plateID`` nor a ``prc`` column is available.
+        :raises ValueError: if ``representation`` is not ``'object'``,
+            ``'well'`` or ``'plate'``.
         """
         # 1) Remove NaNs in both the grouping column and each data column
         df = self.df.dropna(subset=[self.grouping_column] + self.data_column)
@@ -3732,7 +3828,19 @@ class spacrGraph:
         return stat, p_value
 
     def perform_statistical_tests(self, unique_groups, is_normal):
-        """Perform statistical tests separately for each data column."""
+        """Perform statistical tests separately for each data column.
+
+        :param unique_groups: Groups to compare. Two groups get a pairwise
+            test, more get an omnibus test across all of them, but the
+            ``Comparison`` label always names only the first two.
+        :param is_normal: If True, use the parametric test (t-test, paired
+            t-test or one-way ANOVA); otherwise Mann-Whitney, paired
+            Wilcoxon or Kruskal-Wallis.
+        :returns: One result dict per data column, with keys ``Comparison``,
+            ``Test Statistic``, ``p-value``, ``Test Name``, ``Column``,
+            ``n_object`` and ``n_well``. Statistic and p-value are ``nan``
+            when the data cannot support the chosen test.
+        """
         test_results = []
         for column in self.data_column:  # Iterate over each data column
             grouped_data = [
@@ -3884,7 +3992,11 @@ class spacrGraph:
         return posthoc_results
     
     def create_plot(self, ax=None):
-        """Create and display the plot based on the chosen graph type."""
+        """Build the plot for the chosen graph type onto ``self.fig``.
+
+        Nothing is displayed: retrieve the figure with :meth:`get_figure`
+        (and the statistics with :meth:`get_results`), or call ``plt.show()``.
+        """
 
         def _generate_tabels(unique_groups):
             """Generate row labels and a symbol table for multi-level grouping."""
@@ -4848,8 +4960,9 @@ def plot_region(settings):
     """Render mask overlay, cropped PNG grid and activation-map grid for one FOV.
 
     Reads the FOV's merged NPY, resolves its PNG crops and activation
-    maps from the measurements and activation DBs, and writes three PDFs
-    under ``<src>/results/<name>/`` when possible.
+    maps from the measurements and activation DBs, and writes the three
+    figures under ``<src>/results/<name>/`` when possible — in the
+    configured figure format, so PDF only while that is the preference.
 
     :param settings: Settings dict with ``src``, ``name``, ``channels``,
         ``cell_channel``, ``nucleus_channel``, ``pathogen_channel``,

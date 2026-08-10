@@ -1716,7 +1716,9 @@ def collect_report(src: Any,
     :param journal_limit: how many recent journal entries to consider.
     :param include_plan: render :func:`spacr.validate.describe_plan` into
         the settings section.
-    :returns: a :class:`Report` with one section per :data:`SECTION_KEYS`.
+    :returns: a :class:`Report` holding one section per :data:`SECTION_KEYS`,
+        plus any section contributed by a plugin, each inserted after the core
+        section it names (or appended when that key is absent).
 
     Example:
         .. code-block:: python

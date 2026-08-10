@@ -826,7 +826,24 @@ def correction_kwargs(
     default_control_column: Optional[str] = None,
     default_control_values: Any = None,
 ) -> Dict[str, Any]:
-    """Translate shared GUI settings into correction-call keyword arguments."""
+    """Translate shared GUI settings into correction-call keyword arguments.
+
+    Emits exactly six keys -- ``batch_correction``, ``batch_column``,
+    ``batch_control_column``, ``batch_control_values``, ``batch_min_samples``
+    and ``batch_missing_control`` -- with the same defaults as
+    :func:`correct_from_metadata`. The combat-only keys
+    ``batch_covariate_column`` and ``batch_combat_mean_only`` are deliberately
+    left out so the result stays safe to splat into signatures that do not
+    accept them; a caller using ``batch_correction="combat"`` must pass those
+    two alongside this mapping or :func:`correct_from_metadata` raises.
+
+    :param settings: settings mapping the batch keys are read from.
+    :param default_control_column: control column used when
+        ``batch_control_column`` is absent or blank.
+    :param default_control_values: control values used when
+        ``batch_control_values`` is absent or blank.
+    :returns: keyword arguments for :func:`correct_from_metadata`.
+    """
     control_column = settings.get("batch_control_column")
     if control_column in (None, ""):
         control_column = default_control_column

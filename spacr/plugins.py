@@ -10,6 +10,10 @@ without preventing spaCR or the remaining plugins from loading.
 For editable/local development, ``SPACR_PLUGIN_MODULES`` may contain a
 comma-separated list of ``module`` or ``module:attribute`` references.
 Installed plugins should always use package entry points instead.
+
+Setting ``SPACR_DISABLE_PLUGINS`` to ``1``, ``true``, ``yes`` or ``on``
+(case-insensitively) skips discovery entirely, so no plugin loads from either
+source.
 """
 from __future__ import annotations
 
@@ -59,7 +63,53 @@ _CALL_STYLES = frozenset({"settings", "folder"})
 
 @dataclass(frozen=True)
 class AppContribution:
-    """One runnable GUI/headless application contributed by a plugin."""
+    """One runnable GUI/headless application contributed by a plugin.
+
+    Discovery rejects the contribution with :exc:`ValueError` when ``section``,
+    ``stage``, ``kind`` or ``call_style`` falls outside the fixed vocabulary
+    listed below, when ``key`` does not match ``^[a-z][a-z0-9_]{1,63}$``, or
+    when any non-empty ``module:callable`` reference is malformed.
+
+    :ivar key: identifier the CLI accepts and the GUI registers under; must
+        match ``^[a-z][a-z0-9_]{1,63}$``. Reusing another plugin's key fails
+        that plugin's load; colliding with a built-in app skips the
+        contribution and records a diagnostic.
+    :ivar name: human-readable title shown in the sidebar and screen header;
+        cannot be blank.
+    :ivar description: one-line blurb used as the app intro and the
+        ``spacr-run --list`` summary; cannot be blank.
+    :ivar entrypoint: ``"module:callable"`` reference to the callable that
+        does the work.
+    :ivar defaults: ``"module:callable"`` reference to a helper returning the
+        settings dictionary; called with ``{}`` and retried with no argument.
+    :ivar section: sidebar group; one of ``"core"``, ``"data"``, ``"models"``,
+        ``"results"`` or ``"toxo"``.
+    :ivar stage: maturity annotation; one of ``"alpha"``, ``"beta"`` or
+        ``"stable"``.
+    :ivar kind: what the app is; one of ``"assay"``, ``"importer"``,
+        ``"analysis"`` or ``"utility"``.
+    :ivar categories: settings-screen tabs, mapping a tab name to the setting
+        keys it holds; empty means the generic ungrouped layout.
+    :ivar tooltips: hover text per setting key.
+    :ivar labels: display label per setting key, overriding the generated one.
+    :ivar docs_url: address the settings screen's API link opens.
+    :ivar aliases: extra names the CLI and :mod:`spacr.validate` resolve to
+        :attr:`key`.
+    :ivar validator: optional ``"module:callable"`` reference to a callable
+        taking the settings dict and returning ``spacr.validate.Problem``
+        objects or equivalent mappings.
+    :ivar screen_factory: optional ``"module:callable"`` reference to a
+        factory returning a ``QWidget``, replacing the generic settings
+        screen; it is passed ``app_key`` and ``host`` if it declares them.
+    :ivar drop_handler: optional ``"module:callable"`` reference to a
+        ``spacr.qt.dnd_handlers.DropHandler`` subclass.
+    :ivar icon: absolute image path, or the name of a spaCR semantic icon;
+        empty falls back to the puzzle-piece icon.
+    :ivar requires: settings the user must supply, phrased for a human.
+    :ivar writes: what the app leaves on disk.
+    :ivar call_style: ``"settings"`` for ``fn(settings_dict)``; ``"folder"``
+        for a callable taking a bare path.
+    """
 
     key: str
     name: str
@@ -85,7 +135,14 @@ class AppContribution:
 
 @dataclass(frozen=True)
 class ModelProviderContribution:
-    """A callable returning model-zoo entries or entry mappings."""
+    """Immutable record naming a plugin's model-zoo provider.
+
+    :ivar key: identifier for the provider; must match
+        ``^[a-z][a-z0-9_]{1,63}$`` and be unique across all loaded plugins.
+    :ivar provider: ``"module:callable"`` reference string -- not the callable
+        itself -- resolved at catalogue time to a zero-argument callable
+        returning model-zoo entries or entry mappings.
+    """
 
     key: str
     provider: str
@@ -93,7 +150,21 @@ class ModelProviderContribution:
 
 @dataclass(frozen=True)
 class ReportSectionContribution:
-    """A callable adding one section to :func:`spacr.report.collect_report`."""
+    """Immutable record naming a builder that adds one report section.
+
+    :func:`spacr.report.collect_report` resolves and calls the builder, and
+    substitutes a visible problem section if it fails.
+
+    :ivar key: identifier for the section; must match
+        ``^[a-z][a-z0-9_]{1,63}$`` and not repeat an existing section key.
+    :ivar title: heading for the section, used when the builder returns no
+        title of its own and when the builder fails; cannot be blank.
+    :ivar builder: ``"module:callable"`` reference string -- not the callable
+        itself -- to a callable taking a :class:`ReportContext` and returning
+        a ``spacr.report.Section``.
+    :ivar after: key of the existing section this one is inserted directly
+        after; an unmatched key appends it to the end of the report.
+    """
 
     key: str
     title: str
@@ -385,7 +456,13 @@ def _registry() -> _Registry:
 
 
 def discover_plugins() -> Tuple[SpacrPlugin, ...]:
-    """Return every valid discovered plugin in deterministic order."""
+    """Return every valid discovered plugin in deterministic order.
+
+    Returns an empty tuple, with no diagnostic recorded, when
+    ``SPACR_DISABLE_PLUGINS`` is set to ``1``, ``true``, ``yes`` or ``on``
+    (case-insensitively): nothing is imported at all. The result is cached;
+    :func:`reload_plugins` discards the cache and discovers again.
+    """
     return _registry().plugins
 
 

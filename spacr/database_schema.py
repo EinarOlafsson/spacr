@@ -89,7 +89,12 @@ class MigrationReport:
 
     @property
     def changed(self) -> bool:
-        """Whether at least one schema transition was applied."""
+        """Whether the database changed: a version transition or a rename.
+
+        A column repair at an unchanged version, as
+        :func:`ensure_database_schema` performs, also counts, so this can be
+        True while ``applied`` is empty.
+        """
 
         return (
             self.from_version != self.to_version

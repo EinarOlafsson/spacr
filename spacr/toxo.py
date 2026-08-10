@@ -33,7 +33,9 @@ def custom_volcano_plot(
     :param point_size: Marker size passed to ``ax.scatter``.
     :param figsize: Side length in inches of the (square) figure.
     :param threshold: Absolute coefficient threshold used to select hits.
-    :param save_path: Optional path to save the figure as a PDF.
+    :param save_path: Optional destination for the figure. Saving goes through
+        :func:`spacr.plot.save_figure`, so the format and the file extension
+        follow the figure preference rather than always being PDF.
     :param x_lim: X-axis limits ``[low, high]``. Defaults to ``[-0.5, 0.5]``.
     :param y_lims: None, ``[low, high]``, or ``[[low1, high1], [low2, high2]]``
         for a broken axis.
@@ -434,7 +436,9 @@ def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gon
     :param x_column: Column holding gene identifiers used for matching.
     :param data_column: Numeric column plotted on the y-axis.
     :param error_column: Numeric column used for the SE shading band.
-    :param save_path: Optional PDF path to save the figure.
+    :param save_path: Optional destination for the figure. Saving goes through
+        :func:`spacr.plot.save_figure`, so the format and the file extension
+        follow the figure preference rather than always being PDF.
     :returns: None. Displays the Matplotlib figure.
     """
     # Ensure x_column is properly processed
@@ -525,7 +529,9 @@ def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=F
     :param columns: Column names to include as heatmap columns.
     :param x_column: Column holding gene identifiers for row matching.
     :param normalize: When True, min-max scale each gene's row to [0, 1].
-    :param save_path: Optional PDF path to save the figure.
+    :param save_path: Optional destination for the figure. Saving goes through
+        :func:`spacr.plot.save_figure`, so the format and the file extension
+        follow the figure preference rather than always being PDF.
     :returns: None. Displays the Matplotlib figure.
     """
     # Ensure x_column is properly processed

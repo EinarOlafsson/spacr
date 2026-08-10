@@ -100,3 +100,88 @@ DELIBERATELY NOT DONE
 Nothing yet. Related: 70 (GPU offload — the per-label reduction kernels are
 the same work), 61 (every setting states its default and unit), 60 (anything
 added here needs tests), 59 (a new dependency has a packaging cost).
+
+--------------------------------------------------------------------------------
+2026-08-10 - INVESTIGATED. ALL FOUR SUB-QUESTIONS ANSWERED, WITH NUMBERS.
+--------------------------------------------------------------------------------
+
+Full findings: `instructions/data/71_measurements_investigation.txt`.
+
+FOUR PREREQUISITES THAT DELETE A NEW FEATURE SILENTLY. Any new column must
+clear all four or it will not survive to a model:
+
+  * a name containing the substring `label` is swallowed by
+    `utils._check_integrity` -- folded into `label_list` and dropped with no
+    warning, and if it sorts before the real label column it BECOMES
+    `object_label` and corrupts the merge key;
+  * `utils.filter_dataframe_features` does `df.dropna(axis=1)`, so ONE NaN
+    anywhere -- a partially re-measured plate, one flat object producing a
+    NaN skew -- deletes the column from every model matrix;
+  * every `<object>_`-prefixed numeric column auto-enrols in every
+    classifier/UMAP/timelapse feature matrix, with nobody opting in;
+  * without a `KNOWN_PROPERTIES` + `FEATURE_SCOPE` entry in feature_dict it
+    reports as family `unknown` with a null description.
+
+(1) CHEAP ADDITIONS, ranked. The largest genuine gap is NEIGHBOURS / LOCAL
+DENSITY -- there is no spatial family in the taxonomy at all, and local
+density is the dominant confounder in image screens (crowded cells are
+smaller, dimmer, cell-cycle-shifted) with no per-object column to regress it
+out. Cost is O(field) once, not O(objects x field): a cKDTree over 400
+centroids is 0.437 ms. Then: the GLCM matrix is already built and thrown
+away after ONE of skimage's ten properties is read (contrast, dissimilarity,
+correlation, energy, entropy are nearly free); radial MeanFrac, which is the
+recruitment statistic, is ~20 us against the ~615 us already spent per bin;
+Spearman + Manders overlap coefficient are reductions on vectors already
+extracted; form_factor and roundness at 0.67 ms per 5000 rows. Note
+`aspect_ratio` and `elongation` are exact monotone bijections of eccentricity
+which is already stored -- adding them adds nothing.
+
+(2) OPT-IN. True Manders M1/M2 at a single threshold (~0.68 s/field) is a
+CORRECTNESS FIX, not a feature: the current `M1_correlation_85` is not
+Manders M1 -- both channels are thresholded at their own within-object
+percentile and share one overlap mask, so M1 and M2 correlate at r=0.998 and
+two pure-noise channels give M1=0.047. Costes auto-threshold ~38 s/field.
+REFUSE per-object Costes randomisation: 83-112 s/field, 30-40x the whole
+coloc block.
+
+(3) GPU: mostly no -- see instruction 70. The expensive things are
+O(N_objects x H x W) full-field passes inside Python loops, and cropping to a
+bounding box gives 87x on the CPU, bit-identical.
+
+(4) LEARNED FEATURES: yes, and most of it is already built. Nothing embeds
+crops today -- `generate_image_umap` is 100% tabular and the
+`resnet_features` branch raises NotImplementedError with a test pinning the
+raise. The recommendation is the plate's OWN trained classifier rather than a
+fresh ImageNet ResNet, at `model._run_backbone(x)` -- the penultimate pooled
+vector, no hook and no extra forward pass, and the honest choice since the
+classifier's decision is a linear function of exactly it. maxvit_t (the
+shipped default) is 512-d.
+
+  THE STORAGE ANSWER IS A HARD LIMIT, NOT TASTE. This env's sqlite is
+  compiled MAX_COLUMN=2000: 2000 columns create, 2001 fails, ALTER TABLE
+  hits the same ceiling and Python 3.10 cannot raise it. A 2048-d ResNet-50
+  vector CANNOT be stored one-value-per-column in any table at any channel
+  count. Even 512-d, which does fit, takes the cell table from 2.04 to 8.08
+  KB/object -- a 384-well plate goes ~301 MB to ~1205 MB. And packing it
+  into one column is rejected by `schema.validate_object_table_frame`, which
+  refuses any non-numeric column in the object namespace (text, str(list)
+  and a float32 blob were all tried and all raised).
+
+  So: a SIDECAR, reusing the artifact kind that already exists --
+  `ports.EMBEDDING` is already produced into `results/`, already labelled
+  "embeddings" in the usage report, already in `DEFAULT_PRUNABLE_KINDS`.
+  `<src>/results/embeddings/<model>__penultimate.npy`, float16, with a key
+  index carrying OBJECT_KEY_COLUMNS **plus the object type** (untyped keys
+  collide when one sidecar covers cell and nucleus in the same field).
+
+  CONSUMPTION IS ALREADY WRITTEN: `build_anndata(db, embeddings=...)`
+  aligns BY OBJECT KEY, not positionally, and raises with the first three
+  unmatched objects otherwise. The only gap is that `run_anndata_export`
+  never passes `embeddings`, so the settings path needs one new key.
+
+A BUG FOUND IN PASSING, retroactive and needing no re-measurement:
+`channel_of_interest` DELETES colocalization columns that were computed and
+stored. A coloc column contains two channel tokens and the substring test
+hits it via the partner channel -- at the UMAP default `filter_by='channel_0'`
+ZERO coloc columns survive. Fix by special-casing `channel_<i>_channel_<j>_`
+to survive when either member matches.

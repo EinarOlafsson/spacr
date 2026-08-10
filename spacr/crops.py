@@ -47,12 +47,14 @@ contract, and ``tests/test_crops.py`` asserts they agree.
 Crop PNG format
 ---------------
 This module is also the authority on **what a crop PNG on disk means** --
-see the "Crop PNG format" section below. In short: ``png_dims[0]`` is the
-file's red channel (format 2), crops written before that fix are the reverse
-(format 1, "legacy"), a folder says which it is via a
-``.spacr_crop_format.json`` sidecar, an unmarked folder is legacy, and
-:func:`read_crop_png` corrects legacy content on load so nothing downstream
-has to care.
+see the "Crop PNG format" section below. In short: the current format is 3
+("declared_rgb", :data:`CROP_FORMAT_CURRENT`), whose red, green and blue slots
+hold exactly the source channels ``settings['png_channel_mapping']`` names;
+format 1 ("legacy", unmarked) holds the same bytes for the default mapping and
+is returned untouched; format 2, written for eleven days in 2026, is the one
+that is reversed, and :func:`read_crop_png` is what reverses it back. A folder
+says which format it is via a ``.spacr_crop_format.json`` sidecar, and an
+unmarked folder is format 1.
 
 Dependencies
 ------------
@@ -1151,16 +1153,20 @@ def narrow_to_uint8(arr: np.ndarray) -> np.ndarray:
 def to_cv2_bgr(png_channels: np.ndarray) -> np.ndarray:
     """Return ``png_channels`` in the order ``cv2.imwrite`` has to be handed it.
 
-    ``cv2.imwrite`` interprets a 3-channel array as BGR, so writing the crop
-    unchanged put ``png_dims[0]`` in the file's blue slot. Reversing the
-    channel axis here -- once, in the writer -- makes cv2's interpretation land
-    ``png_dims[0]`` in red, which is what the setting says and what every
-    reader assumes. This is the whole of the format-2 fix.
+    :func:`build_png_channels` assembles the crop in **file order** -- red
+    plane first -- while ``cv2.imwrite`` interprets a 3-channel array as BGR.
+    Reversing the channel axis here, once, in the writer, makes cv2's
+    interpretation land the array's red plane in the file's red slot, so the
+    PNG's slots hold the channels ``settings['png_channel_mapping']`` named
+    (format 3). Under :data:`DEFAULT_PNG_CHANNEL_MAPPING` that puts
+    ``png_dims[0]`` in blue, byte-identical to format 1.
 
     * 2-D or single-channel: returned unchanged. cv2 writes a grayscale PNG
       and does no colour interpretation, so there is nothing to reverse.
-    * 2 channels: padded with a zero plane to RGB first, exactly as
-      ``_measure_crop_core`` does, then reversed.
+    * 2 channels: padded with a zero plane to RGB first, then reversed.
+      :func:`build_png_channels` never emits two planes -- it carries an empty
+      colour as a zero plane in the slot the user left blank -- so this is for
+      callers that assemble their own array.
     * 3 channels: reversed.
     * 4 or more: **refused**. cv2 would write BGRA, and PIL then reads the
       fourth intensity plane as an alpha channel and drops it on
@@ -1168,7 +1174,8 @@ def to_cv2_bgr(png_channels: np.ndarray) -> np.ndarray:
       ``settings['png_dims']`` documents a maximum of three entries; this is
       where a fourth stops being ignored and starts being an error.
 
-    :param png_channels: the crop as ``_measure_crop_core`` built it.
+    :param png_channels: the crop in file order, as :func:`build_png_channels`
+        assembles it for ``_measure_crop_core``.
     :returns: the array to hand to ``cv2.imwrite``.
     :raises CropError: more than three channels.
     """
@@ -1461,7 +1468,8 @@ def write_crop_folder_marker(folder: str, fmt: int = CROP_FORMAT_CURRENT,
     crops.
 
     :param folder: the crop folder.
-    :param fmt: :data:`CROP_FORMAT_RGB` or :data:`CROP_FORMAT_LEGACY_BGR`.
+    :param fmt: any known crop format (1, 2 or 3); defaults to
+        :data:`CROP_FORMAT_CURRENT`, i.e. :data:`CROP_FORMAT_DECLARED_RGB`.
     :param extra: extra keys to record (``migration``, ``png_dims``, ...).
         A key whose value is ``None`` is dropped.
     :returns: the sidecar path.
@@ -1778,10 +1786,12 @@ def read_crop_png(path: str, fmt: Optional[int] = None,
     """Read a crop PNG and return it in the corrected order, as 8-bit RGB.
 
     The one function every consumer of a crop folder should go through. It
-    resolves the file's format (see :func:`crop_format_for_png`), undoes the
-    legacy channel reversal when there is one, and narrows to 8 bit with
-    :func:`narrow_to_uint8` -- so a legacy dataset and a new one come back
-    identical, and the caller never has to know which it opened.
+    resolves the file's format (see :func:`crop_format_for_png`), reverses the
+    channel axis when the file's ordering differs from the one asked for --
+    which today means format 2 only, since formats 1 and 3 are both already in
+    declared order -- and narrows to 8 bit with :func:`narrow_to_uint8`, so a
+    legacy dataset and a new one come back identical and the caller never has
+    to know which it opened.
 
     The result equals ``png_view(extract_crop(...))`` for the same object,
     under either format. That equality is the contract, and
