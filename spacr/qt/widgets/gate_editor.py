@@ -42,7 +42,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import (
     QButtonGroup, QLabel,
-    QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
+    QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
     QFormLayout, QHBoxLayout, QHeaderView, QInputDialog, QLabel, QPushButton,
     QSpinBox, QSplitter, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
     QWidget,
@@ -57,6 +57,7 @@ from .gate_spec import (
     GATE_KINDS, POLYGON, RECTANGLE, THRESHOLD, Gate, GateError, GateSet,
     PolygonGate, RectGate, ThresholdGate,
 )
+from .toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.gate_editor")
 
@@ -124,14 +125,15 @@ def _gate_tree_qss(palette, opacity=None) -> str:
     colour -- black -- on the theme's surface. On the dark themes that is
     black on grey and simply cannot be read.
 
-    Transparent backgrounds, theme foreground: the panel behind it already
-    carries the page opacity, and painting a colour here would freeze one
-    opacity into the list while everything around it kept following the
-    preference.
+    Theme foreground, and no background of its own: painting a colour here
+    would freeze one opacity into the list while everything around it kept
+    following the preference. The tree is marked as a surface (see
+    `GateTree`), so the theme's ``*[spacrSurface="true"]`` rule supplies the
+    fill at the user's page opacity -- declaring ``background: transparent``
+    here would beat that rule and leave the list with no surface at all.
     """
     return f"""
     QTreeWidget#GateHierarchy {{
-        background: transparent;
         color: {palette['fg']};
         border: none;
     }}
@@ -1951,7 +1953,7 @@ class _ClusterSettingsDialog(QDialog):
             "treated as debris and left out of every gate.")
         form.addRow("min samples", self._min_samples)
 
-        self._scale = QCheckBox("Standardise both axes first", self)
+        self._scale = Toggle("Standardise both axes first", self)
         self._scale.setChecked(True)
         self._scale.setToolTip(
             "On unless you know otherwise. Without it, the axis with the "

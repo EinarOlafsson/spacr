@@ -401,7 +401,8 @@ CATS_BROAD3 = _with_late_registrations([
                  "illumination", "make_masks", "train_cellpose",
                  "cellpose_masks", "model_zoo"]),
     ("Run", ["mask", "timelapse", "motility", "measure", "annotate",
-             "classify", "ml_analyze", "map_barcodes", "regression",
+             "classify_merged", "classify", "ml_analyze",
+             "map_barcodes", "regression",
              "queue", "batch", "distributed_jobs", "analyze_plaques",
              "recruitment", "invasion", "replication"]),
     ("Review", ["plate_view", "agreement", "umap", "activation",
@@ -464,6 +465,17 @@ CATS_BROAD3 = _with_late_registrations([
 #: is what makes the next app a decision rather than a silently squashed
 #: page, and it asserts the floor too, so a cap left loose after apps are
 #: removed fails as loudly as one left too tight.
+#:
+#: The merged Classify module then took the registry to fifty-four and the
+#: test went red at "Report has 12" again, for the same reason as last
+#: time: it was filed nowhere, so the fallback piled it into Report. The
+#: cap did NOT move — eleven is still the floor, fifty-four over five
+#: bands — but fifty-four leaves exactly one spare slot in 5 × 11, so the
+#: shape is now four bands of eleven and one of ten, and Segment's nine
+#: was no longer a shape the arithmetic allowed. Classify went beside its
+#: two originals in Analyse and Activation came out of that band to
+#: Segment, which is the one move the counts left available and is argued
+#: on its own terms below. 11/10/11/11/11.
 CATS_STAGE5 = _with_late_registrations([
     # Illumination is a correction of the sensor, applied to the pixels
     # before anything is segmented or measured — it belongs with the
@@ -495,9 +507,22 @@ CATS_STAGE5 = _with_late_registrations([
     # mask is producing a mask, so it is this band and not a later one —
     # ``EXPECTED_SECTIONS`` files it under Core beside Mask and Timelapse
     # on exactly that argument, and this is the second table agreeing.
+    # Activation moves here from Analyse, and the reason is half
+    # arithmetic and half the band's own argument. The arithmetic: the
+    # merged Classify module took the registry to fifty-four, and
+    # fifty-four over five bands under a cap of eleven is 11/11/11/11/10
+    # however it is shared out — so filing Classify beside the two
+    # originals it dispatches to meant one key had to leave Analyse, and
+    # this was the only band under the cap. The argument: Activation is
+    # the one app in Analyse that never touches the measurement table or
+    # the screen — it takes a trained model and a folder of crops and
+    # paints what the model looked at, which is the job Layer Viewer does
+    # for a mask, in the band the models themselves are already in (Train
+    # Cellpose, Model Compare, and Model Zoo, which benches "Cellpose +
+    # classifier" models).
     ("Segment", ["mask", "timelapse", "cellpose_masks", "make_masks",
                  "train_cellpose", "model_zoo", "model_compare",
-                 "layer_viewer", "curate"]),
+                 "layer_viewer", "curate", "activation"]),
     # Annotator Agreement moves here from Report, beside Annotate. It is
     # not a report on the screen, it is the check on the labelling step:
     # kappa between two annotation columns says whether the labels this
@@ -542,8 +567,17 @@ CATS_STAGE5 = _with_late_registrations([
     # both reduce the measurement table to a couple of components to see
     # what separates, and neither is something you hand to anybody. It was
     # falling through to Report for want of a line here.
-    ("Analyse", ["classify", "ml_analyze", "map_barcodes", "barcode_qc",
-                 "regression", "umap", "activation", "graph_builder",
+    # Classify — the merged module — is here beside the two originals it
+    # dispatches to, which is where every other table already files the
+    # three together: CATS_BROAD3 under "Run", CATS_NARROW8 under
+    # "Classify", CATS_QUESTIONS under "I have a screen. Which genes
+    # matter?". It had been landing in Report, which took that band to
+    # twelve against a cap of eleven — and Report is only where an
+    # uncategorised key falls, never an argument that training a
+    # classifier is a deliverable. Activation went the other way, to
+    # Segment; the note there says why.
+    ("Analyse", ["classify_merged", "classify", "ml_analyze", "map_barcodes",
+                 "barcode_qc", "regression", "umap", "graph_builder",
                  "anndata_export", "profiler", "pca"]),
     # Report is "decide whether to believe it, then hand it on", which is
     # where the two model/provenance QC apps belong: Classifier Evaluation
@@ -581,12 +615,17 @@ CATS_NARROW8 = _with_late_registrations([
                           "model_compare"]),
     ("Measure",          ["measure", "motility", "image_scatter"]),
     ("Label",            ["annotate", "agreement"]),
-    ("Classify",         ["classify", "ml_analyze", "activation",
-                          "train_compare", "classifier_evaluation"]),
+    # Classify (the merged module) is one of the apps that trains a
+    # per-object classifier, so it is here with the two originals it
+    # dispatches to rather than in the fallback band, which had been
+    # swallowing it.
+    ("Classify",         ["classify_merged", "classify", "ml_analyze",
+                          "activation", "train_compare",
+                          "classifier_evaluation"]),
     # The Prediction Profiler goes here rather than under "Classify":
     # what it sweeps is a screen's regression, which is this band's
     # subject, and variant 04's argument is that "Classify" is exactly
-    # the five apps that train and judge a per-object classifier.
+    # the six apps that train and judge a per-object classifier.
     ("Screens & reports", ["map_barcodes", "barcode_qc", "regression",
                            "umap", "graph_builder", "layer_viewer",
                            "anndata_export", "plate_view", "report",
@@ -621,9 +660,9 @@ CATS_QUESTIONS = _with_late_registrations([
     # is — it IS the list of genes that matter — and the Prediction
     # Profiler is how you interrogate the model that produced it.
     ("I have a screen. Which genes matter?",
-     ["classify", "ml_analyze", "map_barcodes", "regression", "umap",
-      "activation", "graph_builder", "anndata_export", "hit_list",
-      "profiler"]),
+     ["classify_merged", "classify", "ml_analyze", "map_barcodes",
+      "regression", "umap", "activation", "graph_builder", "anndata_export",
+      "hit_list", "profiler"]),
     # Pipeline Graph belongs here for the literal reason: it marks the
     # outputs that no longer follow from their inputs, which is the
     # question in the heading. Methods & Results is the other half — what
