@@ -42,11 +42,17 @@ LOG = logging.getLogger("spacr.mask_io")
 
 PathLike = Union[str, os.PathLike, Path]
 
-DEFAULT_FORMAT = os.environ.get("SPACR_MASK_FORMAT", "tif").lower()
-if DEFAULT_FORMAT not in ("tif", "tiff", "npy"):
+_requested_format = os.environ.get("SPACR_MASK_FORMAT", "tif").lower()
+if _requested_format not in ("tif", "tiff", "npy"):
     LOG.warning("SPACR_MASK_FORMAT=%r not recognised; using 'tif'",
-                 DEFAULT_FORMAT)
-    DEFAULT_FORMAT = "tif"
+                _requested_format)
+    _requested_format = "tif"
+
+#: Mask file format used when a caller does not name one, overridable with
+#: the ``SPACR_MASK_FORMAT`` environment variable. Assigned ONCE: autoapi
+#: documents every module-level binding, so the earlier write-then-correct
+#: form produced two entries for this constant on the API page.
+DEFAULT_FORMAT = _requested_format
 
 
 def save_mask(path: PathLike, mask: np.ndarray,

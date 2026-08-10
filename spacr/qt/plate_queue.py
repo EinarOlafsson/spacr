@@ -92,7 +92,7 @@ class QueueItem:
 # ---------------------------------------------------------------------------
 
 class PlateQueue:
-    """Ordered list of :class:`QueueItem`s with atomic on-disk snapshots.
+    """Ordered list of :class:`QueueItem` objects with atomic on-disk snapshots.
 
     The queue is thread-agnostic — the Qt screen owns exclusive
     access. If two callers ever need to touch it concurrently, wrap
@@ -223,7 +223,7 @@ class PlateQueue:
 def import_plates_from_csv(csv_path: Any,
                               base_settings: Dict[str, Any],
                               app_key: str = "mask") -> List[QueueItem]:
-    """Parse a CSV of plates into :class:`QueueItem`s.
+    """Parse a CSV of plates into :class:`QueueItem` objects.
 
     The CSV must have a header row. Each remaining row is one plate.
     Columns other than ``src`` are merged over ``base_settings``;

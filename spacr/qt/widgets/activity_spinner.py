@@ -19,14 +19,14 @@ asked to reuse, and reuse was rejected on three measurements, not on taste:
   Scaled to 16 px that stroke is 0.02 px wide: it does not survive, with or
   without smooth transformation.
 
-Pre-scaling the frames once into ``QPixmap``s fixes the per-frame cost but
-none of the other two, and it still costs a 276 MB decode pass at start-up
+Pre-scaling the frames once into ``QPixmap`` objects fixes the per-frame cost
+but none of the other two, and it still costs a 276 MB decode pass at start-up
 for a 16 px dot. So the motif is redrawn instead: the GIF's *character* is a
 thin ring with a double-helix braid travelling around it (see the frames --
 the braid sweeps, the ring stays), and that is exactly what
-:meth:`ActivitySpinner.paintEvent` draws with two ``QPolygonF``s. It costs
-microseconds, it takes its colours from the live palette so it themes in
-both light and dark, and it is sharp at any size.
+:meth:`ActivitySpinner.paintEvent` draws with two ``QPolygonF`` objects. It
+costs microseconds, it takes its colours from the live palette so it themes
+in both light and dark, and it is sharp at any size.
 
 Measured cost
 =============
@@ -365,7 +365,7 @@ class ActivitySpinner(QWidget):
     def paintEvent(self, event):     # noqa: N802 - Qt override
         """Draw the ring and the braid travelling around it.
 
-        Two ``QPolygonF``s of :data:`BRAID_POINTS` points each plus one
+        Two ``QPolygonF`` objects of :data:`BRAID_POINTS` points each plus one
         ellipse. No pixmap, no cache to invalidate on a theme change, and
         nothing to scale.
         """

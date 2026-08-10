@@ -3620,7 +3620,7 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
 def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretrained=True,dropout_rate=None,use_checkpoint=False,aggregator='mean'):
     """Fuse the weights of several identically-shaped model checkpoints into one.
 
-    :param model_paths: Paths to source checkpoints (dicts or ``TorchModel``s).
+    :param model_paths: Paths to source checkpoints (dicts or ``TorchModel`` objects).
     :param save_path: Base output path; suffix ``_<aggregator>.pth`` is
         appended.
     :param device: Torch device string. Default ``'cpu'``.

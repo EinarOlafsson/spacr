@@ -466,7 +466,7 @@ class PCAResult:
         return int(k)
 
     def dominant(self, k: int = 0) -> Tuple[str, float]:
-        """``(feature, share)`` — the feature with the largest |loading| on
+        """``(feature, share)`` — the feature with the largest ``|loading|`` on
         component ``k``, and how much of the component's squared loading it
         carries.
 
