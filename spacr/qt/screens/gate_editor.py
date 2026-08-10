@@ -220,6 +220,7 @@ class GateEditorScreen(QWidget):
         self.gates.settings_requested.connect(self.open_settings)
         self.gates.mode_requested.connect(self._on_mode_requested)
         self.gates.spin_axis_changed.connect(self.gates.canvas.set_spin_axis)
+        self._install_graph_context_menu()
         body.addWidget(self.gates)
 
         self.console = GateConsole(self)
@@ -429,6 +430,95 @@ class GateEditorScreen(QWidget):
                   f"× {len(frame.columns)} columns")
 
     # -- settings ---------------------------------------------------------
+
+    # -- context menu ------------------------------------------------------
+    def _install_graph_context_menu(self) -> None:
+        """Right-click the plot for the things you can do to it.
+
+        Every action here already exists somewhere on the screen. This is
+        discoverability, not capability -- right-clicking a plot is where
+        people look for plot actions, and a feature nobody finds is a
+        feature nobody has.
+
+        Each item CALLS the existing method rather than reimplementing it,
+        so the menu and the buttons cannot drift apart.
+        """
+        canvas = getattr(self.gates, "canvas", None)
+        if canvas is None:
+            return
+        canvas.setContextMenuPolicy(Qt.CustomContextMenu)
+        canvas.customContextMenuRequested.connect(self._show_graph_menu)
+
+    def graph_menu_items(self):
+        """The plot menu as data: ``[(label, enabled, callback, why)]``.
+
+        Separated from the QMenu so the CONTENTS can be tested without a
+        display. An offscreen Qt cannot grab for a popup, so a test that
+        builds a real menu hangs -- which is how this method came to exist.
+
+        Every callback is an EXISTING method. The menu is a second route to
+        the same code, never a second implementation.
+        """
+        canvas = getattr(self.gates, "canvas", None)
+        if canvas is None:
+            return []
+        try:
+            has_figure = bool(canvas.figure().get_axes())
+        except Exception:
+            has_figure = False
+        draw_first = "" if has_figure else "Draw a graph first."
+        items = [
+            ("Save graph\u2026", has_figure, lambda: self.save_graph(),
+             draw_first),
+            ("Copy image to clipboard", has_figure,
+             self._copy_graph_to_clipboard, draw_first),
+            (None, True, None, ""),                       # separator
+            ("Reset view", hasattr(canvas, "reset_view"),
+             getattr(canvas, "reset_view", None),
+             "" if hasattr(canvas, "reset_view") else "Not available here."),
+            ("Graph settings\u2026", True, self.open_settings, ""),
+            (None, True, None, ""),
+            ("Export gates to the database\u2026", True, self.export_gates, ""),
+        ]
+        return items
+
+    def _show_graph_menu(self, point) -> None:
+        """Build and show the plot menu at ``point``."""
+        from PySide6.QtWidgets import QMenu
+
+        canvas = getattr(self.gates, "canvas", None)
+        if canvas is None:
+            return
+        menu = QMenu(self)
+        for label, enabled, callback, why in self.graph_menu_items():
+            if label is None:
+                menu.addSeparator()
+                continue
+            action = menu.addAction(label)
+            action.setEnabled(bool(enabled))
+            # A greyed row with no reason is a dead end that looks like a
+            # bug, so disabled items say why.
+            if why:
+                action.setToolTip(why)
+            if callback is not None and enabled:
+                action.triggered.connect(lambda _c=False, cb=callback: cb())
+        menu.exec(canvas.mapToGlobal(point))
+
+    def _copy_graph_to_clipboard(self) -> None:
+        """Put the rendered plot on the clipboard."""
+        canvas = getattr(self.gates, "canvas", None)
+        if canvas is None:
+            return
+        try:
+            from PySide6.QtWidgets import QApplication
+            pixmap = canvas.grab()
+            if not pixmap.isNull():
+                QApplication.clipboard().setPixmap(pixmap)
+                self.console.write("Graph copied to the clipboard.")
+        except Exception as exc:
+            LOG.debug("clipboard copy failed: %s", exc, exc_info=True)
+            self.console.write(f"Could not copy the graph: {exc}")
+
     def open_settings(self) -> None:
         """Show the settings window.
 
