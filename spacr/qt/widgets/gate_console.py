@@ -39,6 +39,13 @@ from ..theme import SPACING, register_widget_qss
 #: scrolling is most unwelcome.
 CONSOLE_MIN_HEIGHT = 180
 
+#: Narrowest the console is worth showing. It lives in a HORIZONTAL
+#: splitter, so it can be dragged thin as easily as short -- and it was:
+#: measured at 126px, about fifteen characters, which wraps every line into
+#: a ribbon and reads as "the console is still one line" even though the
+#: transcript is 549px tall. Height was never the whole problem.
+CONSOLE_MIN_WIDTH = 320
+
 #: Visible lines in the chat box before it scrolls. Three is enough for a
 #: sentence that wraps without stealing the transcript's room.
 CHAT_VISIBLE_LINES = 3
@@ -197,6 +204,10 @@ class GateConsole(QWidget):
         # of lines -- and a console you have to scroll to read one answer in
         # is the moment you least want to be scrolling.
         self.log.setMinimumHeight(CONSOLE_MIN_HEIGHT)
+        # Width floor on the PANEL, not the log: the entry rows below it
+        # are what a narrow column really ruins, since a QLineEdit cannot
+        # wrap and simply scrolls.
+        self.setMinimumWidth(CONSOLE_MIN_WIDTH)
         outer.addWidget(self.log, 1)
 
         hint = QLabel("Ask with an expression — area.mean(), (area > 500).sum()",

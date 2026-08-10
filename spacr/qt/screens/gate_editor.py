@@ -207,7 +207,13 @@ class GateEditorScreen(QWidget):
         outer.addLayout(axes)
 
         body = QSplitter(Qt.Horizontal, self)
-        body.setChildrenCollapsible(False)
+        # Collapsible, deliberately. The console carries a width floor
+        # (CONSOLE_MIN_WIDTH), so with collapsing DISABLED the splitter
+        # would be forced to hand it 320px on every screen -- and the
+        # console is meant to start out of the way. Allowing collapse gives
+        # it two honest states, hidden or readable, instead of the third
+        # one the user actually met: open but too narrow to read.
+        body.setChildrenCollapsible(True)
         self.gates = GateEditorPanel(self, link=link)
         self.gates.gates_changed.connect(self._on_gates_changed)
         self.gates.axes_requested.connect(self._on_axes_requested)

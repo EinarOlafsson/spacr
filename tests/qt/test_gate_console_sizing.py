@@ -14,7 +14,7 @@ from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QLineEdit
 
 from spacr.qt.widgets.gate_console import (
-    CHAT_VISIBLE_LINES, CONSOLE_MIN_HEIGHT, GateConsole,
+    CHAT_VISIBLE_LINES, CONSOLE_MIN_HEIGHT, CONSOLE_MIN_WIDTH, GateConsole,
 )
 
 
@@ -87,3 +87,35 @@ class TestTheEnterKey:
         """Only the chat box changed. The command entry is still one line,
         because an expression is one line."""
         assert isinstance(console.input, QLineEdit)
+
+
+class TestItIsNeverTooNarrowToRead:
+    """Height was only half of "the console is still one line".
+
+    It sits in a HORIZONTAL splitter, so it can be dragged thin as easily
+    as short. Measured in the gate editor at 126px -- about fifteen
+    characters -- which wraps every line into a ribbon. The transcript was
+    549px tall at the time, so the vertical fix had worked and the console
+    still read as one line.
+    """
+
+    def test_the_panel_has_a_width_floor(self, qt_theme_applied, qtbot):
+        widget = GateConsole()
+        qtbot.addWidget(widget)
+        assert widget.minimumWidth() == CONSOLE_MIN_WIDTH
+        assert CONSOLE_MIN_WIDTH >= 280, "narrower than this wraps badly"
+
+    def test_in_the_gate_editor_it_is_hidden_or_readable(self, qt_theme_applied,
+                                                          qtbot):
+        """Two honest states, not three. The third -- open but unreadable --
+        is the one that was reported."""
+        from spacr.qt.screens.gate_editor import GateEditorScreen
+
+        screen = GateEditorScreen()
+        qtbot.addWidget(screen)
+        screen.resize(1400, 900)
+        screen.show()
+        qt_theme_applied.processEvents()
+        width = screen.console.width()
+        assert width == 0 or width >= CONSOLE_MIN_WIDTH, (
+            f"console is {width}px -- open but too narrow to read")
