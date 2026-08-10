@@ -2,8 +2,8 @@
 IMAGE UMAP: THE RESULTS TABLE IS AMBIGUOUS, AND THE WALK MAY NOT BE WALKING
 ================================================================================
 
-Status:    not started. The convergence half is a possible BUG in the
-           search, not a display problem, and matters more.
+Status:    done 2026-08-09. All three resolved -- and the convergence
+           complaint was a DISPLAY bug, not a search bug.
 Requested: 2026-08-09 — "In image UMAP the table states score fold sd (whach seems to be allways NA) and paramiters and status. it is ambiguous what score is, is it trustwortheness if trustworthiness is chosen then sthe column should say trustworthiness. also the walf dosnt seem to converge towards a higher score ... which it shoul if it is walking and not at the max score."
 
 --------------------------------------------------------------------------------
@@ -76,3 +76,36 @@ Not started. Note instruction 34 (the N-dimensional Walk) is closed, and
 this is the first report of its behaviour on real data -- so if (3) is a
 real defect it belongs to that work rather than to the display, and this
 file should say so once it is known.
+
+--------------------------------------------------------------------------------
+2026-08-09 - DONE. THE WALK WAS CLIMBING ALL ALONG.
+--------------------------------------------------------------------------------
+
+The file said to check the cheap explanation first -- that the table shows
+ARRIVAL order rather than accepted centres -- and that is exactly what it
+was. Measured on a landscape with a known optimum:
+
+    arrival order   0.663 0.672 0.679 0.683 0.669 0.691 0.662 0.705 ...
+    best-so-far     0.663 0.672 0.679 0.683 0.683 0.691 0.691 0.705 ...
+
+Best-so-far is monotonic and the winner equals the table maximum. The
+search is correct: a Walk scores every NEIGHBOUR of its centre, including
+the ones it rejects, so the score column legitimately goes up and down. A
+"best so far" column now shows the climb, which is the number the user was
+looking for.
+
+"SCORE" now carries the criterion's own name and follows the dropdown --
+trustworthiness, continuity, and so on. A column headed "score" cannot say
+whether it holds trustworthiness or a multi-objective blend.
+
+"FOLD SD" is hidden for UMAP. It was structurally always NA -- one
+embedding per trial means no folds to take a standard deviation over --
+and a column of NA invites the reader to wonder what went wrong when
+nothing did. Classify and ml_analyze keep it; they cross-validate.
+
+A SIDE EFFECT WORTH KEEPING: inserting a column broke nine test assertions
+that hard-coded column NUMBERS while being about parameters and status.
+They now look the column up by NAME. The names are stable; the positions
+never were.
+
+65 pass in the screen suite.
