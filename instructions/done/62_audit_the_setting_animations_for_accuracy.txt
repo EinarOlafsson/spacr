@@ -415,3 +415,65 @@ REMAINING 8, and they are now one-offs rather than families:
 Six of the eight are between 0.6% and 0.92% -- close to the bar, so these
 are "small but real" rather than "shows nothing". The two worth actual
 redesign are `organelle_fill_holes` and `fill_in`, which share a scene.
+
+--------------------------------------------------------------------------------
+2026-08-09 - DONE. ALL 94 CLEAR THE THRESHOLD (27 -> 0).
+--------------------------------------------------------------------------------
+
+The last eight were one-offs rather than a family, and six shared a cause:
+the subject was drawn too small to see. Nucleus objects at 14x11 in a 360px
+frame (CP_prob), 16x12 (Signal_to_noise), organelles at 10x8
+(mask_within_cells), and a "background" made of three hairlines
+(rolling_ball). Enlarging the subject is not padding the number -- these are
+displayed small in a tooltip, where a 10px object is not visible at all.
+
+Two needed redrawing rather than resizing:
+
+  _fill_holes faded a hole-sized OUTLINE RING. That reads as a circle being
+  rubbed out, not as a hole being filled. Now the background is punched
+  through the mask and the fill closes over it, with three holes, since the
+  setting fills all of them and real masks have more than one.
+
+  timelapse_memory faded a single cell. The setting is how many CONSECUTIVE
+  frames an object may go missing and still be linked, so it now shows a run
+  of missed detections with the track surviving across the gap.
+
+mask_within_cells needed both: enlarging the organelles pushed them outside
+the cell, because every "inside" one had been sitting ON the cell boundary
+and only looked contained at 10x8. The cell had to grow to visibly hold
+them. Caught by looking at the render, which no measurement would have
+flagged -- the pixel count went UP while the picture became wrong.
+
+WHAT THE WHOLE TASK COST, and where the leverage was: 27 silent animations
+were FOUR causes, not 27 problems. Grouping the failures BY SCENE FUNCTION
+is what made it tractable --
+
+    _diameter_scene   4   object drawn at a fixed radius; only the caliper moved
+    _filter_scene     8   faded one object where the setting is a threshold
+    _umap_scene       7   3 clusters x 5 dots at radius 1.5 = 106 px of 129,600
+    one-offs          8   subject drawn 10-16 px wide
+
+FINAL STATE
+
+    under the 1% threshold        27 -> 0
+    asset validator               PASS, 94 manifest entries, all_to_mip intact
+    border family                 removes only objects crossing the well edge
+    tests                         test_border_animation_geometry.py (15),
+                                  test_animations_show_something.py (ratchet at 0
+                                  plus a per-family regression guard)
+
+STILL TRUE AND STILL NOT DONE, carried from the entry above: 
+`docs/source/setting_animations.rst` is STALE relative to the generator (it
+lists `all_to_mip` under Z projection and describes a tooltip-footer
+mechanism the generator no longer emits). Everything here used `--only`, so
+the docs page was not touched and not reverted. A full regeneration would
+silently revert it, so fix the page BEFORE anyone runs one.
+
+A CAVEAT ON THE AUDIT ITSELF, which the next person should not inherit
+blindly: the all-94 semantic audit recorded above used the pixel-diff
+method, and this session proved that method has a blind spot -- it cannot
+see a composition fault. The border scene passed a zoom-constant pixel diff
+while removing an interior object, because the diff classified objects by
+the scene's own `touches` flag. Any animation whose fault is "the picture
+shows the wrong thing" rather than "the picture barely changes" is still
+only as audited as someone's eyes made it.
