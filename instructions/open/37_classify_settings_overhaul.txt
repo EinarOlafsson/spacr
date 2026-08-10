@@ -2,7 +2,8 @@
 CLASSIFY: CLASSES AS A DICT, HONEST CROP SOURCES, AND FEWER CATEGORIES
 ================================================================================
 
-Status:    not started
+Status:    not started. SCOPE REVISED 2026-08-09 -- the classes dict
+           is replaced by a simpler editor; see the end of this file.
 Requested: 2026-08-07
 
 Verbatim, because most of this is precise and the paraphrase would lose it:
@@ -447,3 +448,91 @@ continuation lines behind as bare strings inside a dict literal -- a
 SyntaxError several hundred lines away from the edit. It happened three times
 in this session. Match the exact block, or delete by line range after locating
 the next key.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE CLASSES DICT IS OVERCOMPLICATED. THIS SUPERSEDES IT.
+--------------------------------------------------------------------------------
+
+Requested 2026-08-09, and it REPLACES the "Classes setting should be a
+dictionary" design at the top of this file rather than adding to it:
+
+  "in classify the clases dict seems overly complicated. i just need a
+   column to apply the key and value to
+
+   so on field for column (or columns, the user might want to add multiple
+   columns here), and then 2 fields side by side that are for class and
+   value then by the side of that a add button then the user jsut adds
+   classes and what their values are in the column, easy! if there are
+   several columns given and the same value occurs in several columns as is
+   often the case, then a combination column is generated that generates a
+   unique label for each combination of lables from the given columns."
+
+THE EDITOR, concretely:
+
+    Column(s):  [ column picker, multi-select ]
+
+    Class: [____]   Value: [____]   [ Add ]
+
+    then a list of the rows added, each removable.
+
+So the user says "class `infected` is value `1`" and "class `uninfected`
+is value `0`", and that is the whole interaction. No dict to populate, no
+keys appearing when a column is chosen.
+
+THE COMBINATION RULE is the part with real logic in it. When SEVERAL
+columns are given and the same value appears in more than one -- which the
+maintainer says is common -- a combination column is generated, giving each
+distinct COMBINATION of labels its own unique class. Decide and write down:
+
+  * what the generated label looks like (``colA=1|colB=2``, or the class
+    names joined, or an index), because it ends up in the database and in
+    figures;
+  * whether combinations the user never named become a class, are dropped,
+    or are an error. Dropping silently would lose objects with no trace,
+    which is the failure mode this module already has elsewhere;
+  * where the generated column is written, and whether it persists or is
+    recomputed -- a column that appears in measurements.db after a classify
+    run is a schema change and needs to be deliberate.
+
+--------------------------------------------------------------------------------
+2026-08-09 - MERGE THE TWO SETTINGS THAT ASK THE SAME QUESTION
+--------------------------------------------------------------------------------
+
+  "in classify cant Annotation column and Metadata by Type be the same
+   setting, they fill the same function i think. if so merge them into one
+   setting."
+
+CHECK BEFORE MERGING, since "I think" is doing work in that sentence.
+`annotation_column` names a column of `png_list` holding manual calls;
+`metadata_type_by` names the metadata column the training basis splits on
+(normally `columnID`). They are both "which column carries the label", and
+if the merged editor above takes a column picker then it may genuinely be
+one setting -- but they are read by different code paths today
+(`resolve_basis` in spacr/training_basis.py chooses between them). Read
+both paths, then either merge them or record here why they cannot be.
+
+--------------------------------------------------------------------------------
+2026-08-09 - REMOVE SETTINGS THAT NEVER CHANGE
+--------------------------------------------------------------------------------
+
+  "look at all settings, some of them esspecially settings in imaging and
+   cropping are will not be used very often. Take a look at each setting,
+   if the setting dosnt really add much and esspecially settings that will
+   allways be the same, remove them to streamline the modual, too many
+   settings is just confusing."
+
+Method, so this is a judgement made once rather than argued repeatedly:
+
+  1. List every setting the Classify screen offers, by category. Imaging &
+     Cropping first, as named.
+  2. For each, find its default and ask what a user would ever set it TO.
+     A setting whose default is correct for every real run is not a choice,
+     it is a constant with a text box in front of it.
+  3. Removing is not deleting the key: INVARIANTS 6 -- hidden is not
+     absent. A removed setting keeps its value in `resolve_default_settings`
+     and stops being rendered, so old settings CSVs keep working.
+  4. Say in this file which ones went and why. A future reader will ask.
+
+Note instruction 61 measured 700 tooltips and found seven settings that no
+module reads at all; that same sweep is the natural place to check whether
+a Classify setting is inert before deciding it is merely rarely used.
