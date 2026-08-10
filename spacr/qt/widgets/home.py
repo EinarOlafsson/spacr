@@ -1495,9 +1495,15 @@ class HomePage(QWidget):
             "letter-spacing: -0.6px; background: transparent;")
         row.addWidget(title)
 
-        subtitle = QLabel(
-            "End-to-end microscopy → single-cell measurements "
-            "→ genotype-phenotype mapping.")
+        # THE SAME SENTENCE THE LOADING SCREEN SHOWS, from the same place.
+        # This used to be a literal here that had drifted from it -- "single-
+        # cell measurements" against "single-cell image analysis", and
+        # "genotype-phenotype" against "genotype-to-phenotype" -- so a user
+        # saw two slightly different claims about the same product within
+        # five seconds of launching it. One string, one definition, one set
+        # of translation rows.
+        from .loading_screen import strap_line
+        subtitle = QLabel(strap_line())
         subtitle.setObjectName("HeroSubtitle")
         subtitle.setWordWrap(True)
         row.addWidget(subtitle, 1)

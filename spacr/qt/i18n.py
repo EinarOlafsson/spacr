@@ -117,6 +117,30 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Om spaCR", "Über spaCR", "Acerca de spaCR", "关于 spaCR",
         "Sobre o spaCR", "spaCR के बारे में", "spaCR 정보", "Um spaCR",
         "À propos de spaCR"),
+    # The strap line, one phase per row. Split rather than translated as one
+    # sentence because the loading screen lights the phases INDIVIDUALLY, so
+    # each has to stand alone -- and a language that reorders the clauses
+    # would otherwise light them in the wrong order.
+    # See spacr.qt.widgets.loading_screen.STRAP_PHASES.
+    "End-to-end microscopy": _row(
+        "Mikroskopi från början till slut", "Mikroskopie von Anfang bis Ende",
+        "Microscopía de extremo a extremo", "端到端显微成像",
+        "Microscopia de ponta a ponta", "आद्यंत माइक्रोस्कोपी",
+        "엔드투엔드 현미경 분석", "Smásjárgreining frá upphafi til enda",
+        "Microscopie de bout en bout"),
+    "single-cell image analysis": _row(
+        "bildanalys på encellsnivå", "Einzelzell-Bildanalyse",
+        "análisis de imágenes de células individuales", "单细胞图像分析",
+        "análise de imagens de células individuais",
+        "एकल-कोशिका छवि विश्लेषण", "단일 세포 이미지 분석",
+        "myndgreining einstakra frumna", "analyse d'images unicellulaires"),
+    "genotype-to-phenotype mapping": _row(
+        "kartläggning från genotyp till fenotyp",
+        "Genotyp-zu-Phänotyp-Zuordnung", "mapeo de genotipo a fenotipo",
+        "基因型到表型的映射", "mapeamento de genótipo para fenótipo",
+        "जीनोटाइप-से-फेनोटाइप मानचित्रण", "유전형-표현형 매핑",
+        "vörpun frá arfgerð til svipgerðar",
+        "cartographie génotype-phénotype"),
     "Check for updates…": _row(
         "Sök efter uppdateringar…", "Nach Updates suchen…",
         "Buscar actualizaciones…", "检查更新…", "Verificar atualizações…",
