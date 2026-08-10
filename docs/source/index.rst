@@ -14,6 +14,11 @@ high-throughput microscopy screens. Ships with a modern PySide6 GUI
 plate-to-classification workflow that runs on top of PyTorch,
 Cellpose, scikit-image, and scipy.
 
+It is built for cell biologists running pooled or arrayed CRISPR screens
+who need per-cell measurements out of plate images. The GUI route needs no
+programming; the same steps are available as a scripted pipeline when a
+screen outgrows one desktop.
+
 .. grid:: 2
    :gutter: 3
 

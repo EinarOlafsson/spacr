@@ -1,4 +1,9 @@
-"""
+"""Entry point for ``python -m spacr``.
+
+Builds the argument parser for the ``spacr`` CLI subcommands and
+dispatches to them. The GUI entry points live elsewhere: ``spacr`` starts
+the Tk interface and ``spacr-qt`` the PySide6 one.
+
 Copyright © 2025 olafsson lab
 """
 
