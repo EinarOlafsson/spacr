@@ -71,13 +71,30 @@ class TestTheShippedAnimations:
         assert isinstance(failures, dict)
 
     def test_the_known_offenders_are_caught(self):
-        """The 2026-08 audit found 27 below 1%, pathogen_diameter at 0.0%.
-        This pins that the check still sees them -- if it stops, the check
-        broke rather than the animations improving.
+        """Pins that the check still SEES a known-bad animation.
+
+        The slug has to be re-pointed whenever the named one is fixed,
+        which is the honest cost of pinning a real example rather than a
+        synthetic one -- and the fix is the good outcome, not the failure.
+
+        History: the 2026-08 audit found 27 animations below 1%, with
+        `pathogen_diameter` at 0.0001 -- it drew a caliper over an object
+        that never changed size. Fixing `_diameter_scene` to scale the
+        OBJECT took it to 0.1390 and the whole *_diameter family with it,
+        leaving 23. `remove_cluster_noise` is now the worst at 0.0006.
         """
         failures = validate_animations_show_something()
-        assert "pathogen_diameter" in failures
-        assert failures["pathogen_diameter"] < 0.005
+        assert "remove_cluster_noise" in failures
+        assert failures["remove_cluster_noise"] < 0.005
+
+    def test_the_diameter_family_stays_fixed(self):
+        """The four that the 2026-08 fix repaired, pinned against a
+        regeneration that silently undoes it."""
+        failures = validate_animations_show_something()
+        for slug in ("cell_diameter", "nucleus_diameter",
+                     "pathogen_diameter", "organelle_diameter"):
+            assert slug not in failures, (
+                f"{slug} has gone back under the visible-change threshold")
 
     def test_a_generous_threshold_passes_everything(self):
         """Sanity: the measurement is not returning zero for everything."""
