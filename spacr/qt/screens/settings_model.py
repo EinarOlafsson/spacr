@@ -1031,8 +1031,18 @@ CURATION_THRESHOLD = 6
 #: express. UMAP and External Masks reshape the shared categories in place —
 #: they add groups ("UMAP Display", "Input mapping") rather than replacing
 #: the whole layout, and a spec would have to restate every key they leave
-#: alone. All three are curated; none of them is a spec.
-_INLINE_LAYOUT_APPS = frozenset({"classify", "umap", "external_masks"})
+#: alone. All four are curated; none of them is a spec.
+#:
+#: `classify_merged` shares Classify's regroup and then amends it — it is
+#: named twice in :func:`categories_for_app`, once with `classify` and once
+#: on its own to lift the family switch out of "Model Architecture". It was
+#: missing here until 2026-08-09, so `has_curated_layout` reported False for
+#: a module with 110 settings and a hand-written layout: the module was
+#: registered without this list being updated, which is the failure mode of
+#: keeping the same fact in two places.
+_INLINE_LAYOUT_APPS = frozenset({
+    "classify", "classify_merged", "umap", "external_masks",
+})
 
 
 def has_curated_layout(app_key: str) -> bool:
