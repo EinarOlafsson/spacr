@@ -496,3 +496,64 @@ positions are defensible -- a kill button that cannot kill is not a kill
 button -- so this needs a decision rather than a patch: either the kill path
 gets a safer mechanism, or the ratchet gets a narrow, documented exemption
 naming those two sites. Verified pre-existing.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE SWEEP AUDITED ITSELF, AND THAT IS WHERE THE VALUE WAS
+--------------------------------------------------------------------------------
+
+The stale/ordering sweep took its eleven suites from 48 failures to 3, but
+the useful output was its SELF-AUDIT: every agent's work was checked by a
+second agent that ran mutation tests against the new assertions. It found
+several of its own edits had produced tests that could no longer fail.
+
+TWO DEAD ASSERTIONS, both now repaired and both mutation-proven in each
+direction:
+
+  `assert not bar.clipped_items()` (twice in test_cov_qt_app) could NEVER
+  fail. `clipped_items()` reads `_elided`, which is only ever set in
+  `resizeEvent`, so a widget that was never shown reports nothing clipped
+  however narrow it is. Proven by mutation: a sidebar column 52 px too narrow
+  for its own text passed all six sidebar tests. One of the two was
+  pre-existing -- the sweep had merely copied it into a second parametrised
+  test. Both now lay the widget out first, and a WIDTH_MAX of 150 makes them
+  fail as they should.
+
+  `test_the_classes_setting_gets_the_class_editor` asserted shape with
+  `all(isinstance(rule, dict) for rule in value.values())`, which is
+  VACUOUSLY TRUE over an empty dict -- an editor that dropped every class
+  passed. It now pins the two default class names.
+
+AND A REAL PRODUCT BUG, found by an agent following the "if the change looks
+accidental the test is right" rule rather than editing the assertion:
+
+  A settings CSV stores `repr(value)`, so `classes` comes back as the TEXT
+  `"['nc', 'pc']"`. `ClassEditorWidget.set_value` handled Mapping and list
+  and nothing else, so the string matched neither arm, fell through to an
+  empty table, and REPORTED SUCCESS: `apply_settings_dict` returned
+  `applied=1` while `collect()['classes']` was `{}`. Because `{}` is a
+  Mapping, `classify_classes.normalize_settings` then skipped its own
+  legacy-translation branch, so nothing downstream recovered them.
+
+  Every other list-shaped key survived that round trip. This was the one that
+  decides WHAT GETS TRAINED, and losing it was silent. Fixed, with the
+  corrupt-string case tolerated rather than raising out of an import.
+
+THE LESSON, which is why the audit stage is worth its cost: a sweep that
+updates failing assertions will, left unchecked, produce a green suite that
+tests less than the red one did. Three of the weakenings here were
+introduced by the very pass that fixed the failures, and none would have been
+visible in a summary line. Mutation testing -- change the product, confirm
+the test screams -- is the only check that catches it.
+
+TWO MORE FINDINGS RECORDED, NOT FIXED:
+
+  `verbose_logger.apply_console_levels()` mutates a process-global forwarder
+  and has NO counterpart that restores or removes the filter. Fine for a GUI
+  that launches once; it means the console gate is unrestorable by design,
+  and the test fixture now has to reach into `_handler.filters` to undo it.
+  A small restore/reset API would let the fixture stop touching privates.
+
+  A flake, not reproducible on demand: constructing `AppScreen` leaves a
+  QThread alive ("QThread: Destroyed while thread '' is still running"), and
+  one run in ~5 segfaulted with a background PipelineWorker importing
+  matplotlib concurrently with pytest-qt's GC on the main thread.
