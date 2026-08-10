@@ -274,47 +274,47 @@
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home screen and navigation",
+      "title": "Écran d'accueil et navigation",
       "series": 1,
-      "app_key": "__home__",
-      "section": "Home",
-      "description": "Visitez l'application, ses groupes de modules, exécutez des résumés, des indicateurs de maturité et des contrôles de navigation.",
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Trouver les modules, vérifier l'état de l'application et passer à un flux de travail à partir de l'écran d'accueil spaCR.",
       "objectives": [
-        "Comprendre quand utiliser l'écran d'accueil et la navigation.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Trouvez les modules à partir de la page d'accueil, des onglets de catégories ou de la barre latérale.",
+        "Lire les informations sur le système et l'état du module.",
+        "Ouvrez un flux de travail et confirmez le module actif."
       ],
       "prerequisite": "Installez et lancez l'application de bureau spaCR.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre l'écran d'accueil et la navigation.",
+          "narration": "L’écran Home regroupe les modules spaCR par flux de travail, afin que vous puissiez passer du traitement d’images à l’analyse et au contrôle qualité.",
           "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre l'écran d'accueil et la navigation."
+          "hold_after": 0.7,
+          "speech_text": "L’écran Home regroupe les modules spakeur par flux de travail, afin que vous puissiez passer du traitement d’images à l’analyse et au contrôle qualité."
         },
         {
-          "narration": "Ouvrez Home screen and navigation dans la section Home. Lancez l'application spaCR et commencez sur Accueil.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez Home screen and navigation dans la section Home. Lancez l'application spakeur et commencez sur Accueil."
+          "narration": "Utilisez la barre latérale gauche pour changer de section. Sélectionnez Home chaque fois que vous souhaitez revenir à la bibliothèque complète des modules.",
+          "visual": "navigation",
+          "hold_after": 0.7,
+          "speech_text": "Utilisez la barre latérale gauche pour changer de section. Sélectionnez Home chaque fois que vous souhaitez revenir à la bibliothèque complète des modules."
         },
         {
-          "narration": "Dans la zone de configuration principale, utilisez la barre latérale, les onglets de catégories, les carreaux d'applications recherchables et la palette de commandes pour atteindre un flux de travail.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, utilisez la barre latérale, les onglets de catégories, les carreaux d'applications recherchables et la palette de commandes pour atteindre un flux de travail."
+          "narration": "Parcourez les onglets de catégories et les lignes de flux de travail pour trouver un module. Chaque tuile ouvre un flux de travail et sa couleur indique si le module est à l’état Alpha, Beta ou Stable.",
+          "visual": "modules",
+          "hold_after": 0.7,
+          "speech_text": "Parcourez les onglets de catégories et les lignes de flux de travail pour trouver un module. Chaque tuile ouvre un flux de travail et sa couleur indique si le module est à l’état Alpha, Beta ou Stable."
         },
         {
-          "narration": "Avant la mise en marche complète, consultez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Avant la mise en marche complète, consultez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+          "narration": "Le panneau droit affiche l’utilisation actuelle du système, les nouveautés de la version et la légende des états des modules. Vérifiez l’utilisation du système avant de lancer une tâche exigeante.",
+          "visual": "status",
+          "hold_after": 0.7,
+          "speech_text": "Le panneau droit affiche l’utilisation actuelle du système, les nouveautés de la version et la légende des états des modules. Vérifiez l’utilisation du système avant de lancer une tâche exigeante."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, vous pouvez parcourir l'application et comprendre les informations d'état affichées sur Home.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, vous pouvez parcourir l'application et comprendre les informations d'état affichées sur Home."
+          "narration": "Sélectionnez la tuile d’un module pour ouvrir son écran de paramètres. Le nom et la description du module, en haut de l’écran, confirment le flux de travail actif.",
+          "visual": "open_module",
+          "hold_after": 0.7,
+          "speech_text": "Sélectionnez la tuile d’un module pour ouvrir son écran de paramètres. Le nom et la description du module, en haut de l’écran, confirment le flux de travail actif."
         }
       ]
     },
@@ -380,83 +380,111 @@
         "Configurer uniquement les commandes de segmentation requises par les images.",
         "Utilisez Live Preview pour valider les masques avant une opération complète."
       ],
-      "prerequisite": "Utilisez une source de microscopie dont les identités de canal et les métadonnées de nom de fichier sont connues.",
+      "prerequisite": "Utilisez une source de microscopie dont les identités du canal et les métadonnées du nom du fichier sont connues.",
       "scenes": [
         {
-          "narration": "Le masque place les paramètres à gauche et la console de fonctionnement à droite. La console rapporte la validation, les progrès, les avertissements et les sorties enregistrées.",
+          "narration": "Ce module affiche les paramètres à gauche et la console d’exécution à droite. La console indique les validations, la progression, les avertissements et les fichiers de sortie enregistrés.",
           "visual": "01_console",
           "hold_after": 0.7,
-          "speech_text": "Le masque place les paramètres à gauche et la console de fonctionnement à droite. La console rapporte la validation, les progrès, les avertissements et les sorties enregistrées."
+          "speech_text": "Ce module affiche les paramètres à gauche et la console d’exécution à droite. La console indique les validations, la progression, les avertissements et les fichiers de sortie enregistrés."
         },
         {
-          "narration": "Laissez le dossier d'image source dans Mask. Confirmez le modèle de nom de fichier détecté et les métadonnées, puis cartez chaque canal d'acquisition à son signal biologique. Dans cet exemple, les quatre canaux contiennent des noyaux, le réticulum endoplasmique, des gouttes de lipides et des parasites.",
+          "narration": "Déposez le dossier d’images source dans le module. Confirmez le modèle de nommage détecté et les métadonnées, puis associez chaque canal d’acquisition à son signal biologique. Dans cet exemple, les quatre canaux contiennent les noyaux, le réticulum endoplasmique, les gouttelettes lipidiques et les parasites.",
           "visual": "05_metadata",
           "hold_after": 0.7,
           "focus_key": "metadata_dialog",
-          "speech_text": "Laissez le dossier d'image source dans Mask. Confirmez le modèle de nom de fichier détecté et les métadonnées, puis cartez chaque canal d'acquisition à son signal biologique. Dans cet exemple, les quatre canaux contiennent des noyaux, le réticulum endoplasmique, des gouttes de lipides et des parasites."
+          "speech_text": "Déposez le dossier d’images source dans le module. Confirmez le modèle de nommage détecté et les métadonnées, puis associez chaque canal d’acquisition à son signal biologique. Dans cet exemple, les quatre canaux contiennent les noyaux, le réticulum endoplasmique, les gouttelettes lipidiques et les parasites."
         },
         {
-          "narration": "Les éléments essentiels montrent les contrôles nécessaires à une course typique. Utilisez Tout uniquement lorsque vous avez besoin d'options avancées, Modifié pour revoir les valeurs modifiées et Receptions pour enregistrer une configuration que vous allez réutiliser.",
+          "narration": "Commencez par les paramètres essentiels, qui affichent les commandes nécessaires à une exécution courante. Ouvrez tous les paramètres uniquement pour accéder aux options avancées, vérifiez les valeurs modifiées et enregistrez comme recette toute configuration réutilisable.",
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "Les éléments essentiels montrent les contrôles nécessaires à une course typique. Utilisez Tout uniquement lorsque vous avez besoin d'options avancées, Modifié pour revoir les valeurs modifiées et Receptions pour enregistrer une configuration que vous allez réutiliser."
+          "speech_text": "Commencez par les paramètres essentiels, qui affichent les commandes nécessaires à une exécution courante. Ouvrez tous les paramètres uniquement pour accéder aux options avancées, vérifiez les valeurs modifiées et enregistrez comme recette toute configuration réutilisable."
         },
         {
-          "narration": "En entrée et métadonnées, vérifiez le dossier source, les affectations de canaux, l'agrandissement et les métadonnées de nom de fichier avant de configurer la segmentation.",
+          "narration": "Dans Entrée et métadonnées, vérifiez le dossier source, l’affectation des canaux, le grossissement et les métadonnées des noms de fichiers avant de configurer la segmentation.",
           "visual": "12_category_01_input_metadata",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "En entrée et métadonnées, vérifiez le dossier source, les affectations de canaux, l'agrandissement et les métadonnées de nom de fichier avant de configurer la segmentation."
+          "speech_text": "Dans Entrée et métadonnées, vérifiez le dossier source, l’affectation des canaux, le grossissement et les métadonnées des noms de fichiers avant de configurer la segmentation."
         },
         {
-          "narration": "Les contrôles de flux de travail et de test run permettent de déterminer quels masques sont créés, si le travail existant est repris et combien de champs représentatifs sont utilisés pour un test.",
+          "narration": "Dans Flux de travail et exécution de test, choisissez les compartiments à segmenter, indiquez si le traitement existant doit reprendre et définissez le nombre de champs représentatifs utilisés pour le test.",
           "visual": "12_category_02_workflow_test_run",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Les contrôles de flux de travail et de test run permettent de déterminer quels masques sont créés, si le travail existant est repris et combien de champs représentatifs sont utilisés pour un test."
+          "speech_text": "Dans Flux de travail et exécution de test, choisissez les compartiments à segmenter, indiquez si le traitement existant doit reprendre et définissez le nombre de champs représentatifs utilisés pour le test."
         },
         {
-          "narration": "La cellule, le noyau, l'agent pathogène et l'organe sections chaque groupe le modèle, le canal, les seuils de noyau et les filtres d'objets pour ce compartiment. Modifiez uniquement les paramètres nécessaires pour les images actuelles.",
+          "narration": "Les sections consacrées aux cellules, aux noyaux, aux agents pathogènes et aux organites regroupent le modèle, le canal, les principaux seuils et les filtres d’objets de chaque compartiment. Ne modifiez que les paramètres nécessaires aux images en cours.",
           "visual": "12_category_04_cell_segmentation",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "La cellule, le noyau, l'agent pathogène et l'organe sections chaque groupe le modèle, le canal, les seuils de noyau et les filtres d'objets pour ce compartiment. Modifiez uniquement les paramètres nécessaires pour les images actuelles."
+          "speech_text": "Les sections consacrées aux cellules, aux noyaux, aux agents pathogènes et aux organites regroupent le modèle, le canal, les principaux seuils et les filtres d’objets de chaque compartiment. Ne modifiez que les paramètres nécessaires aux images en cours."
         },
         {
-          "narration": "Activez Live Preview, chargez une image représentative et sélectionnez le compartiment que vous ajustez. Utilisez le prétraitement tel que la normalisation uniquement lorsqu'il améliore cette image.",
+          "narration": "Activez l’aperçu en direct, chargez un champ représentatif et sélectionnez l’objet à ajuster. Cet exemple prévisualise le signal cellulaire.",
           "visual": "25_cell_ready",
           "hold_after": 0.7,
           "focus_key": "canvases",
-          "speech_text": "Activez Live Preview, chargez une image représentative et sélectionnez le compartiment que vous ajustez. Utilisez le prétraitement tel que la normalisation uniquement lorsqu'il améliore cette image."
+          "speech_text": "Activez l’aperçu en direct, chargez un champ représentatif et sélectionnez l’objet à ajuster. Cet exemple prévisualise le signal cellulaire."
         },
         {
-          "narration": "Exécutez l'aperçu et inspectez la source à côté de la superposition. Les contours des objets doivent suivre les limites biologiques visibles sans se joindre à des voisins ou manquer d'objets clairs.",
+          "narration": "Dans les paramètres de l’aperçu, confirmez d’abord l’objet et le canal. Ne modifiez le diamètre, le seuil de flux ou le seuil de probabilité cellulaire que si l’aperçu en montre la nécessité.",
+          "visual": "26_live_settings",
+          "hold_after": 0.7,
+          "focus_key": "segmentation",
+          "speech_text": "Dans les paramètres de l’aperçu, confirmez d’abord l’objet et le canal. Ne modifiez le diamètre, le seuil de flux ou le seuil de probabilité cellulaire que si l’aperçu en montre la nécessité."
+        },
+        {
+          "narration": "Activez la propagation des paramètres afin d’appliquer à l’exécution complète les valeurs validées ici.",
+          "visual": "26_live_settings",
+          "hold_after": 0.7,
+          "focus_key": "propagate",
+          "speech_text": "Activez la propagation des paramètres afin d’appliquer à l’exécution complète les valeurs validées ici."
+        },
+        {
+          "narration": "Exécutez l’aperçu et comparez la superposition à l’image source. Les contours doivent suivre les limites visibles des cellules, sans réunir des cellules voisines ni omettre des objets bien définis.",
           "visual": "27_cell_outlines",
           "hold_after": 0.7,
           "focus_key": "action_and_canvases",
-          "speech_text": "Exécutez l'aperçu et inspectez la source à côté de la superposition. Les contours des objets doivent suivre les limites biologiques visibles sans se joindre à des voisins ou manquer d'objets clairs."
+          "speech_text": "Exécutez l’aperçu et comparez la superposition à l’image source. Les contours doivent suivre les limites visibles des cellules, sans réunir des cellules voisines ni omettre des objets bien définis."
         },
         {
-          "narration": "Passez entre la surposition, les flux et les masques lorsque vous avez besoin de diagnostiquer un résultat. Les masques montrent les objets étiquetés définitifs; le noir est l'arrière-plan.",
+          "narration": "Passez à la vue des flux pour examiner le champ de directions utilisé par Cellpose. Des motifs de flux irréguliers peuvent expliquer des masques scindés ou fusionnés de manière incorrecte.",
+          "visual": "28_cell_flows",
+          "hold_after": 0.7,
+          "focus_key": "action_and_canvases",
+          "speech_text": "Passez à la vue des flux pour examiner le champ de directions utilisé par celle pose. Des motifs de flux irréguliers peuvent expliquer des masques scindés ou fusionnés de manière incorrecte."
+        },
+        {
+          "narration": "La vue des masques affiche uniquement les étiquettes finales sur fond noir. Utilisez-la pour vérifier la couverture et la séparation des objets sans l’image source en arrière-plan.",
           "visual": "29_cell_objects",
           "hold_after": 0.7,
           "focus_key": "action_and_canvases",
-          "speech_text": "Passez entre la surposition, les flux et les masques lorsque vous avez besoin de diagnostiquer un résultat. Les masques montrent les objets étiquetés définitifs; le noir est l'arrière-plan."
+          "speech_text": "La vue des masques affiche uniquement les étiquettes finales sur fond noir. Utilisez-la pour vérifier la couverture et la séparation des objets sans l’image source en arrière-plan."
         },
         {
-          "narration": "Si des fragments ou des objets évidents restent, ajustez un filtre d'objet pertinent, tel que la surface minimale, et comparez à nouveau l'aperçu. Choisissez la valeur de l'échelle d'image plutôt que de copier un numéro de tutoriel.",
+          "narration": "Les filtres d’objets mettent immédiatement à jour l’aperçu en cache. Augmentez l’aire minimale juste assez pour supprimer les fragments évidents ; le seuil approprié dépend de l’échelle de l’image.",
+          "visual": "30_cell_size_filter",
+          "hold_after": 0.7,
+          "focus_key": "min_area",
+          "speech_text": "Les filtres d’objets mettent immédiatement à jour l’aperçu en cache. Augmentez l’aire minimale juste assez pour supprimer les fragments évidents ; le seuil approprié dépend de l’échelle de l’image."
+        },
+        {
+          "narration": "Comparez la superposition filtrée à l’aperçu initial. Les cellules valides doivent rester visibles ; si elles disparaissent, réduisez l’aire minimale.",
           "visual": "31_cell_filtered",
           "hold_after": 0.7,
           "focus_key": "canvases",
-          "speech_text": "Si des fragments ou des objets évidents restent, ajustez un filtre d'objet pertinent, tel que la surface minimale, et comparez à nouveau l'aperçu. Choisissez la valeur de l'échelle d'image plutôt que de copier un numéro de tutoriel."
+          "speech_text": "Comparez la superposition filtrée à l’aperçu initial. Les cellules valides doivent rester visibles ; si elles disparaissent, réduisez l’aire minimale."
         },
         {
-          "narration": "Choisissez les masques et les fichiers intermédiaires dont vous avez besoin dans la section Sortie et stockage. Exécutez d'abord un petit test, puis traitez la source complète après la vérification de l'aperçu et de la console.",
+          "narration": "Dans Sortie et stockage, sélectionnez les masques et les fichiers intermédiaires nécessaires. Lancez d’abord un petit test, puis traitez l’ensemble de la source lorsque l’aperçu et les contrôles de la console sont satisfaisants.",
           "visual": "12_category_12_output_storage",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Choisissez les masques et les fichiers intermédiaires dont vous avez besoin dans la section Sortie et stockage. Exécutez d'abord un petit test, puis traitez la source complète après la vérification de l'aperçu et de la console."
+          "speech_text": "Dans Sortie et stockage, sélectionnez les masques et les fichiers intermédiaires nécessaires. Lancez d’abord un petit test, puis traitez l’ensemble de la source lorsque l’aperçu et les contrôles de la console sont satisfaisants."
         }
       ]
     },
@@ -1098,83 +1126,90 @@
       "series": 1,
       "app_key": "umap",
       "section": "Results and quality control",
-      "description": "Embed des objets mesurés en deux dimensions et inspecter les quartiers phénotypes en utilisant leurs réelles cultures de microscopie.",
+      "description": "Intégrez des objets mesurés en deux dimensions et inspectez les quartiers phénotypés à l'aide de leurs réelles cultures microscopiques.",
       "objectives": [
         "Choisissez les caractéristiques et les exclusions biologiquement pertinentes.",
-        "Configurer une intégration reproductible sans copier les hyperparametres fixes.",
-        "Inspecter les glyphes des cultures pour la structure biologique et les objets techniques."
+        "Recherchez une gamme de paramètres concentrés et propagez un résultat révisé.",
+        "Interpréter une carte lisible de recouvrement des cultures et des sorties enregistrées."
       ],
-      "prerequisite": "Mesure complète avec des caractéristiques d'objet valides et des images de culture ou des matrices fusionnées accessibles.",
+      "prerequisite": "Mesure complète avec des caractéristiques d'objet valides et des images accessibles ou des matrices fusionnées.",
       "scenes": [
         {
-          "narration": "Image UMAP réduit les mesures d'objets haute dimension à deux coordonnées et place les cultures de microscopie sur la carte. Les enregistrements de la console sont joints, pré-traités, intégrés, regroupés et sortés.",
+          "narration": "Image UMAP réduit les mesures d’objets de grande dimension à deux coordonnées et place des vignettes de microscopie sur la carte. La console consigne les jointures, le prétraitement, la réduction dimensionnelle, le regroupement et les fichiers de sortie.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "Image UMAP réduit les mesures d'objets haute dimension à deux coordonnées et place les cultures de microscopie sur la carte. Les enregistrements de la console sont joints, pré-traités, intégrés, regroupés et sortés."
+          "speech_text": "Image you map réduit les mesures d’objets de grande dimension à deux coordonnées et place des vignettes de microscopie sur la carte. La console consigne les jointures, le prétraitement, la réduction dimensionnelle, le regroupement et les fichiers de sortie."
         },
         {
-          "narration": "Paths sélectionne le projet mesuré. Image UMAP localise les mesures dot db et utilise des images de cultures existantes ou construit des cultures à partir de matrices fusionnées lorsqu'elles sont prises en charge.",
+          "narration": "Chemins sélectionne le projet déjà mesuré. Image UMAP repère measurements.db et utilise les vignettes existantes ou, lorsque cela est possible, les crée à partir des tableaux fusionnés.",
           "visual": "12_category_01_paths",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Paths sélectionne le projet mesuré. Image UMAP localise les mesures dot db et utilise des images de cultures existantes ou construit des cultures à partir de matrices fusionnées lorsqu'elles sont prises en charge."
+          "speech_text": "Chemins sélectionne le projet déjà mesuré. Image you map repère measurements point dé bé et utilise les vignettes existantes ou, lorsque cela est possible, les crée à partir des tableaux fusionnés."
         },
         {
-          "narration": "Les mesures sélectionnent les tables d'objets et les familles de fonctionnalités jointes, suppriment les exclusions explicites et peuvent supprimer les fonctionnalités corrélées redondantes. Ces choix définissent la géométrie de la carte.",
+          "narration": "Mesures sélectionne les tables d’objets jointes et les familles de caractéristiques, applique les exclusions explicites et peut supprimer les variables corrélées redondantes. Ces choix déterminent la géométrie de la carte.",
           "visual": "12_category_02_measurements",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Les mesures sélectionnent les tables d'objets et les familles de fonctionnalités jointes, suppriment les exclusions explicites et peuvent supprimer les fonctionnalités corrélées redondantes. Ces choix définissent la géométrie de la carte."
+          "speech_text": "Mesures sélectionne les tables d’objets jointes et les familles de caractéristiques, applique les exclusions explicites et peut supprimer les variables corrélées redondantes. Ces choix déterminent la géométrie de la carte."
         },
         {
-          "narration": "L'élaboration et les contrôles de plaques excluent les puits, les contrôles ou les groupes de métadonnées qui ne devraient pas façonner cette intégration exploratoire.",
+          "narration": "Plan de plaque et contrôles exclut les puits en échec, les témoins ou les groupes de métadonnées qui ne doivent pas influencer cette projection exploratoire.",
           "visual": "12_category_03_plate_layout_controls",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "L'élaboration et les contrôles de plaques excluent les puits, les contrôles ou les groupes de métadonnées qui ne devraient pas façonner cette intégration exploratoire."
+          "speech_text": "Plan de plaque et contrôles exclut les puits en échec, les témoins ou les groupes de métadonnées qui ne doivent pas influencer cette projection exploratoire."
         },
         {
-          "narration": "La source de données de vision informatique choisit si les caractéristiques dérivées d'images complètent les caractéristiques mesurées et d'où proviennent leurs cultures. Utilisez-les uniquement lorsque l'apparence de l'image fait partie de la question.",
+          "narration": "Source des données de vision par ordinateur détermine si les caractéristiques issues des images complètent les mesures et d’où proviennent les vignettes. Utilisez-les uniquement lorsque l’apparence des images fait partie de la question.",
           "visual": "12_category_04_computer_vision_data_source",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "La source de données de vision informatique choisit si les caractéristiques dérivées d'images complètent les caractéristiques mesurées et d'où proviennent leurs cultures. Utilisez-les uniquement lorsque l'apparence de l'image fait partie de la question."
+          "speech_text": "Source des données de vision par ordinateur détermine si les caractéristiques issues des images complètent les mesures et d’où proviennent les vignettes. Utilisez-les uniquement lorsque l’apparence des images fait partie de la question."
         },
         {
-          "narration": "L'intégration et le regroupement sélectionnent UMAP ou t-SNE, comportement du quartier, mesure de distance, compartiment et regroupement optionnel. Comparer les paramètres reproduisables et ne pas traiter une mise en page comme une vérité fondamentale.",
+          "narration": "Projection et regroupement sélectionne UMAP ou t-SNE, le comportement du voisinage, la métrique de distance, le compartiment et le regroupement facultatif. Comparez des réglages reproductibles et ne considérez pas une seule disposition comme une vérité absolue.",
           "visual": "12_category_05_embedding_clustering",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "L'intégration et le regroupement sélectionnent UMAP ou t-SNE, comportement du quartier, mesure de distance, compartiment et regroupement optionnel. Comparer les paramètres reproduisables et ne pas traiter une mise en page comme une vérité fondamentale."
+          "speech_text": "Projection et regroupement sélectionne you map ou té esse enne e, le comportement du voisinage, la métrique de distance, le compartiment et le regroupement facultatif. Comparez des réglages reproductibles et ne considérez pas une seule disposition comme une vérité absolue."
         },
         {
-          "narration": "L'affichage UMAP contrôle le style des points, le nombre et le zoom des glyphes de culture, les grilles de cluster, les arrière-plans et les chiffres enregistrés. Ces options d'affichage ne modifient pas les coordonnées installées.",
+          "narration": "Affichage UMAP contrôle le style des points, le nombre et la taille des vignettes, l’arrière-plan et les figures enregistrées. Gardez les vignettes à peine plus grandes que les points afin que la projection reste visible ; ces réglages ne modifient pas les coordonnées calculées.",
           "visual": "12_category_09_umap_display",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "L'affichage UMAP contrôle le style des points, le nombre et le zoom des glyphes de culture, les grilles de cluster, les arrière-plans et les chiffres enregistrés. Ces options d'affichage ne modifient pas les coordonnées installées."
+          "speech_text": "Affichage you map contrôle le style des points, le nombre et la taille des vignettes, l’arrière-plan et les figures enregistrées. Gardez les vignettes à peine plus grandes que les points afin que la projection reste visible ; ces réglages ne modifient pas les coordonnées calculées."
         },
         {
-          "narration": "Hyperparameter Search est un mini-tableau de travail pour comparer un ensemble de choix UMAP axés. Utilisez ses résultats petits et multiples pour juger de la stabilité et de la structure, puis appliquez une configuration révisée à la pleine course.",
+          "narration": "Avant l’exécution complète, utilisez Recherche d’hyperparamètres pour comparer un petit ensemble de réglages UMAP. Les graphiques comparatifs révèlent les dispositions instables ou celles qui masquent une structure utile.",
           "visual": "19_hyperparameter_search",
           "hold_after": 0.7,
           "focus_key": "search_card",
-          "speech_text": "Hyperparameter Search est un mini-tableau de travail pour comparer un ensemble de choix UMAP axés. Utilisez ses résultats petits et multiples pour juger de la stabilité et de la structure, puis appliquez une configuration révisée à la pleine course."
+          "speech_text": "Avant l’exécution complète, utilisez Recherche d’hyperparamètres pour comparer un petit ensemble de réglages you map. Les graphiques comparatifs révèlent les dispositions instables ou celles qui masquent une structure utile."
         },
         {
-          "narration": "Run valide la base de données et la source de culture, joint et filtre les caractéristiques numériques, les rangées d'échantillons, s'adapte au réducteur et aux grappes optionnelles, puis écrit des enregistrements de résultats alignés.",
+          "narration": "Sélectionnez un résultat vérifié, puis choisissez Propager les réglages. Le nombre de voisins, la distance minimale et la métrique sont alors copiés dans le formulaire principal d’Image UMAP avant l’exécution complète.",
+          "visual": "20_hyperparameter_apply",
+          "hold_after": 0.7,
+          "focus_key": "dialog",
+          "speech_text": "Sélectionnez un résultat vérifié, puis choisissez Propager les réglages. Le nombre de voisins, la distance minimale et la métrique sont alors copiés dans le formulaire principal d’Image you map avant l’exécution complète."
+        },
+        {
+          "narration": "Exécuter vérifie la base de données et la source des vignettes, joint et filtre les caractéristiques numériques, échantillonne les lignes, ajuste le réducteur et le regroupement facultatif, puis enregistre les résultats alignés.",
           "visual": "21_run",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "Run valide la base de données et la source de culture, joint et filtre les caractéristiques numériques, les rangées d'échantillons, s'adapte au réducteur et aux grappes optionnelles, puis écrit des enregistrements de résultats alignés."
+          "speech_text": "Exécuter vérifie la base de données et la source des vignettes, joint et filtre les caractéristiques numériques, échantillonne les lignes, ajuste le réducteur et le regroupement facultatif, puis enregistre les résultats alignés."
         },
         {
-          "narration": "La galerie complète montre la carte glyphographique et la grille de culture des grappes. Les sorties enregistrées comprennent les coordonnées, les étiquettes de cluster, les chiffres, les paramètres et un manifeste de reproductibilité.",
+          "narration": "La carte finale laisse visible le nuage de points UMAP et superpose de petites vignettes de microscopie transparentes à des positions représentatives. Les fichiers enregistrés comprennent les coordonnées, les étiquettes de groupe, la figure, les réglages et un manifeste de reproductibilité.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "figures",
-          "speech_text": "La galerie complète montre la carte glyphographique et la grille de culture des grappes. Les sorties enregistrées comprennent les coordonnées, les étiquettes de cluster, les chiffres, les paramètres et un manifeste de reproductibilité."
+          "speech_text": "La carte finale laisse visible le nuage de points you map et superpose de petites vignettes de microscopie transparentes à des positions représentatives. Les fichiers enregistrés comprennent les coordonnées, les étiquettes de groupe, la figure, les réglages et un manifeste de reproductibilité."
         }
       ]
     },
@@ -4092,43 +4127,54 @@
       "series": 5,
       "app_key": "gate_editor",
       "section": "Explore",
-      "description": "Dessiner, modifier, nicher et réutiliser les portes de mesure comme filtres de population transparents.",
+      "description": "Dessinez, inspectez, nidifiez et réutilisez les portes de population en 2D, 3D ou dans une vue haute-dimensionnelle réduite.",
       "objectives": [
-        "Comprendre quand utiliser l'éditeur de porte.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Dessinez et inspectez une porte de population en 2D.",
+        "Comparez le volume 3D réel et les modes de projection xD.",
+        "Lire, nicher, sauvegarder et réutiliser en toute sécurité une hiérarchie de portes nommée."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Préparez un tableau de mesure avec des caractéristiques numériques et des identifiants d'objets stables.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre Gate Editor. Dessiner, modifier, nicher et réutiliser les portes de mesure comme filtres de population transparents.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre Gate Editor. Dessiner, modifier, nicher et réutiliser les portes de mesure comme filtres de population transparents."
+          "narration": "Gate Editor transforme des régions d’une table de mesures en fenêtres de sélection nommées et réutilisables. L’espace de travail réunit les axes des variables, les outils de dessin, la vue complète des données et la hiérarchie des fenêtres.",
+          "visual": "01_overview",
+          "hold_after": 0.7,
+          "speech_text": "guéïte éditeur transforme des régions d’une table de mesures en fenêtres de sélection nommées et réutilisables. L’espace de travail réunit les axes des variables, les outils de dessin, la vue complète des données et la hiérarchie des fenêtres."
         },
         {
-          "narration": "Ouvrez une table de mesure et choisissez les caractéristiques d'un histogramme ou d'un dispersant bidimensionnel.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez une table de mesure et choisissez les caractéristiques d'un histogramme ou d'un dispersant bidimensionnel."
+          "narration": "En 2D, choisissez X et Y pour créer un nuage de points, ou laissez Y vide pour créer un histogramme. Sélectionnez un seuil ou un outil de forme, puis entourez la population d’intérêt. Le nuage complet reste visible tandis que les objets inclus sont mis en évidence.",
+          "visual": "02_two_d_gate",
+          "hold_after": 0.7,
+          "focus_key": "two_d_workspace",
+          "speech_text": "En deux dé, choisissez X et Y pour créer un nuage de points, ou laissez Y vide pour créer un histogramme. Sélectionnez un seuil ou un outil de forme, puis entourez la population d’intérêt. Le nuage complet reste visible tandis que les objets inclus sont mis en évidence."
         },
         {
-          "narration": "Dans la zone de configuration principale, choisissez un seuil, un rectangle, une ellipse ou un outil polygone et examinez les transformations d'axe, l'affichage de densité et la population mère.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, choisissez un seuil, un rectangle, une ellipse ou un outil polygone et examinez les transformations d'axe, l'affichage de densité et la population mère."
+          "narration": "Choisissez le mode 3D et une variable Z pour examiner un volume orientable. Les boutons d’axe contrôlent le sens de rotation, et le bouton Box gate enregistre les limites sur les trois variables affichées.",
+          "visual": "03_three_d_volume",
+          "hold_after": 0.7,
+          "focus_key": "three_d_workspace",
+          "speech_text": "Choisissez le mode trois dé et une variable Z pour examiner un volume orientable. Les boutons d’axe contrôlent le sens de rotation, et le bouton box guéïte enregistre les limites sur les trois variables affichées."
         },
         {
-          "narration": "Dessinez une porte, inspectez son nombre et ses pourcentages, puis déplacez les sommets ou les bords jusqu'à ce que la limite correspond à la population prévue.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Dessinez une porte, inspectez son nombre et ses pourcentages, puis déplacez les sommets ou les bords jusqu'à ce que la limite correspond à la population prévue."
+          "narration": "Choisissez xD pour projeter les mesures admissibles sur des composantes principales. L’étiquette de la source indique la variance expliquée, et PC1, PC2 et PC3 deviennent des axes ordinaires utilisables avec les mêmes outils de sélection.",
+          "visual": "04_xd_projection",
+          "hold_after": 0.7,
+          "focus_key": "xd_workspace",
+          "speech_text": "Choisissez ixe dé pour projeter les mesures admissibles sur des composantes principales. L’étiquette de la source indique la variance expliquée, et pé cé un, pé cé deux et pé cé trois deviennent des axes ordinaires utilisables avec les mêmes outils de sélection."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, les portes ancrées nommées peuvent filtrer les vues liées, générer des annotations et être enregistrées pour une application sur des plaques ultérieures.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, les portes ancrées nommées peuvent filtrer les vues liées, générer des annotations et être enregistrées pour une application sur des plaques ultérieures."
+          "narration": "La hiérarchie indique le nombre d’objets, le pourcentage par rapport à la fenêtre parente et le pourcentage par rapport à toutes les lignes. Cochez ou décochez une fenêtre pour l’afficher ou la masquer, et sélectionnez une fenêtre avant de dessiner si la population suivante doit y être imbriquée.",
+          "visual": "05_gate_hierarchy",
+          "hold_after": 0.7,
+          "focus_key": "gate_tree",
+          "speech_text": "La hiérarchie indique le nombre d’objets, le pourcentage par rapport à la fenêtre parente et le pourcentage par rapport à toutes les lignes. Cochez ou décochez une fenêtre pour l’afficher ou la masquer, et sélectionnez une fenêtre avant de dessiner si la population suivante doit y être imbriquée."
+        },
+        {
+          "narration": "Donnez un nom explicite à chaque population, puis enregistrez la stratégie de sélection. Chargez-la dans une table compatible pour réutiliser les mêmes noms de variables, limites et hiérarchie, puis vérifiez les nouveaux effectifs avant de continuer.",
+          "visual": "06_save_reuse",
+          "hold_after": 0.7,
+          "focus_key": "save_controls",
+          "speech_text": "Donnez un nom explicite à chaque population, puis enregistrez la stratégie de sélection. Chargez-la dans une table compatible pour réutiliser les mêmes noms de variables, limites et hiérarchie, puis vérifiez les nouveaux effectifs avant de continuer."
         }
       ]
     },

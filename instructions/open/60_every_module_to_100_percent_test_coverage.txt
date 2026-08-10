@@ -80,3 +80,45 @@ Not started as a sweep. Two things to know before starting:
   * It is blocked in practice by instruction 47 until the qt suite can
     finish unattended: a coverage run over a suite that hangs or segfaults
     produces no report at all.
+
+--------------------------------------------------------------------------------
+2026-08-10 - UNBLOCKED, AND A MEASUREMENT TRAP TO AVOID
+--------------------------------------------------------------------------------
+
+THIS TASK WAS BLOCKED ON INSTRUCTION 47 and is not any more. The qt suite now
+reaches its summary line (41 minutes at `-n 8`), so a whole-suite coverage
+run is possible for the first time. A full run is in flight as this is
+written.
+
+THE TRAP, hit while scoping this and worth writing down because the number it
+produces looks authoritative: COVERAGE FROM A PARTIAL RUN IS MEANINGLESS.
+Running three test files with `--cov=spacr.utils` reported
+
+    spacr/utils.py   4598 statements   16%
+
+against the 99% this file records for the same module. Nothing regressed --
+the 99% came from the WHOLE suite, and utils is exercised by hundreds of
+files. A per-module coverage number is only comparable to another number
+taken over the same test set, and the honest way to state one is
+"<module> at <percent> over <which tests>".
+
+THE COMMAND, with the two settings that make it work here:
+
+    QT_QPA_PLATFORM=offscreen PYTHONPATH=<dir with sitecustomize.py> \
+    OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 \
+    pytest tests -q -p no:randomly -n 4 --timeout=600 \
+      --cov=spacr --cov-report=term:skip-covered --cov-report=json:cov.json
+
+  * the `sitecustomize.py` is one line, `import torch`, and exists because
+    coverage's tracer plus torch's lazy `_has_torch_function` import crash
+    together otherwise. It has to be on PYTHONPATH, not in the repo.
+  * the thread caps matter: `-n 4` does NOT bound the run to 4 cores, because
+    torch and numpy spawn threads per worker. Without them load reached 20+
+    on this machine during the qt run.
+  * `--timeout=600` rather than 300: coverage slows every test, and the
+    heavier integration tests do exceed 300 s under the tracer.
+
+WHAT TO DO WITH THE RESULT: rank by UNCOVERED STATEMENTS, not by percentage.
+A 4,598-statement module at 90% has more untested code than a 200-statement
+module at 40%, and this repo's biggest modules are exactly the ones whose
+percentage looks respectable.

@@ -103,7 +103,14 @@ def _connect(db_path: str, *, read_only: bool = True) -> sqlite3.Connection:
 
 
 def table_names(db_path: str) -> Tuple[str, ...]:
-    """Every table in the database, in the order SQLite lists them."""
+    """Every table in the database, in the order SQLite lists them.
+
+    :param db_path: the measurement database, opened read-only through a
+        SQLite URI. Read-only mode does not create a file, so a path that is
+        not there raises :class:`sqlite3.OperationalError` rather than
+        returning an empty tuple -- "no tables" always means an empty
+        database, never a wrong path.
+    """
     with _connect(db_path) as db:
         rows = db.execute(
             "SELECT name FROM sqlite_master WHERE type='table'").fetchall()
@@ -130,6 +137,11 @@ def object_tables(db_path: str) -> Tuple[str, ...]:
     present and empty of the identity a filter needs, and discovering that at
     merge time rather than here would produce a filter that quietly matches
     nothing.
+
+    :param db_path: the measurement database. Only the names in
+        :data:`OBJECT_TABLES` are looked for, so a table holding some other
+        kind of object is invisible here however it is keyed -- add it to that
+        tuple rather than expecting discovery.
     """
     present = set(table_names(db_path))
     out: List[str] = []
@@ -152,6 +164,11 @@ def choose_anchor(tables: Sequence[str]) -> str:
     and a database of only organelles on organelles -- there is no table that
     has to be present.
 
+    :param tables: the object tables actually present, as returned by
+        :func:`object_tables`. Only membership is tested -- the preference
+        comes from the order of :data:`OBJECT_TABLES`, not from the order
+        given here, so putting ``nucleus`` first does not make it the anchor
+        while ``cell`` is also in the sequence.
     :raises FilterError: nothing to anchor on. Naming the tables that WERE
         found is the difference between a fixable message and a shrug.
     """
@@ -170,6 +187,14 @@ def resolve_column(columns: Iterable[str],
     Returns the name AS SPELLED in the table, which is what has to go in the
     SQL -- returning the canonical spelling would produce queries for columns
     that are not there.
+
+    :param columns: the column names as the table spells them, typically from
+        :func:`column_names`. Where a table carries two spellings that differ
+        only in case, the one appearing LAST is the one returned.
+    :param aliases: candidate spellings in preference order; the first one
+        present wins, which is why the canonical name leads every entry of
+        :data:`IDENTITY_ALIASES`. A single-element tuple is the way to ask
+        "does this exact column exist, whatever its case".
     """
     lookup = {str(c).lower(): str(c) for c in columns}
     for alias in aliases:
@@ -185,6 +210,14 @@ def identity_columns_of(db_path: str, table: str) -> Dict[str, str]:
     Missing columns are simply absent from the map. A table without a field
     column still merges on the keys it does have; refusing outright would rule
     out databases that are perfectly usable.
+
+    :param db_path: opened read-only, so unlike a missing table a database
+        file that is not there is fatal: it raises
+        :class:`sqlite3.OperationalError` instead of an empty map.
+    :param table: the table to inspect; it need not be an object table. A name
+        that is not in the database is not an error -- ``PRAGMA table_info``
+        returns nothing for it, so the result is an empty map, the same answer
+        as a table that exists and carries no identity at all.
     """
     columns = column_names(db_path, table)
     found: Dict[str, str] = {}
@@ -208,6 +241,12 @@ def read_identity(db_path: str, table: str) -> pd.DataFrame:
     and a measurement table is wide -- hundreds of columns of which four
     matter. ``SELECT *`` here is the difference between a bootstrap that takes
     a moment and one that reads the whole database.
+
+    :param table: must carry an ``object_label`` column -- that name, in any
+        case. Every other identity column is optional and is simply absent
+        from the returned frame; the object label is not, because without it
+        the rows cannot be told apart.
+    :raises FilterError: ``table`` has no object label column.
     """
     mapping = identity_columns_of(db_path, table)
     if OBJECT_COLUMN not in mapping:
@@ -230,6 +269,17 @@ def key_columns(frame: pd.DataFrame) -> List[str]:
 
     One definition, used by the bootstrap, the merge and the writer, so a
     filter can never be merged on a different key than it was built with.
+
+    :param frame: a frame whose columns use the CANONICAL identity names --
+        what :func:`read_identity` returns, having aliased them on the way
+        out. Membership is tested exactly and case-sensitively, with no alias
+        lookup: a raw ``SELECT *`` from a database that spells them ``plate``
+        and ``row`` contributes none of the well keys. ``object_label`` is not
+        aliased and does come through, so such a frame yields
+        ``["object_label"]`` -- which passes the identity check in
+        :func:`export_gate` and :func:`export_annotation`, and the gate is then
+        merged on the object label alone. Only column names are inspected; no
+        values are touched.
     """
     keys = [c for c in IDENTITY_COLUMNS if c in frame.columns]
     if TIME_COLUMN in frame.columns:
@@ -396,6 +446,9 @@ def build_relationships_frame(db_path: str) -> pd.DataFrame:
     carried with a null parent rather than dropped: the object exists, and
     saying it has no parent is different from pretending it is not there.
 
+    :param db_path: the measurement database. Read-only: the frame is returned
+        and nothing is stored, so a caller that wants it on disk goes through
+        :func:`write_relationships` or :func:`ensure_relationships_table`.
     :raises FilterError: no object table to build from.
     """
     tables = object_tables(db_path)
@@ -435,6 +488,14 @@ def ensure_relationships_table(db_path: str, *,
     filters table, then the relationships table gets generated first." A user
     who gated before ever running the new mask step must not hit an error
     for it.
+
+    :param db_path: the measurement database. Opened for WRITING whenever the
+        table has to be built, so a database that is only readable can be
+        gated on if it was bootstrapped already, and not otherwise.
+    :param rebuild: derive the table again from the object tables and replace
+        whatever is stored. Relationships are never refreshed on their own, so
+        a stored table built before the masks changed stays stale until this
+        is passed -- which is exactly what :func:`write_relationships` does.
     """
     if not rebuild and RELATIONSHIPS_TABLE in table_names(db_path):
         with _connect(db_path) as db:
@@ -452,6 +513,10 @@ def write_relationships(db_path: str) -> pd.DataFrame:
     Separate from :func:`ensure_relationships_table` so the mask step can say
     "rebuild this, the masks just changed" without a caller having to know
     the flag.
+
+    :param db_path: the measurement database, opened for writing. Any stored
+        ``relationships`` table is REPLACED, so this is the call to make after
+        re-masking and the wrong one to make merely to read the table.
     """
     return ensure_relationships_table(db_path, rebuild=True)
 
@@ -482,6 +547,12 @@ def build_filters_from_relationships(db_path: str) -> pd.DataFrame:
     onto it: a filter then automatically carries every relationship, and
     there is one definition of what an object is rather than two that can
     drift.
+
+    :param db_path: the measurement database. Despite being a build step this
+        can WRITE: the relationships table it copies is created on demand when
+        the mask step never wrote one. An existing one is used as it stands --
+        pass through :func:`write_relationships` first if the masks have
+        changed since it was written.
     """
     frame = ensure_relationships_table(db_path).copy()
 
@@ -509,6 +580,12 @@ def write_filters_table(db_path: str, frame: pd.DataFrame) -> None:
     row per object, a handful of columns), it is owned entirely by this
     module, and a partial write that left a gate column half-populated would
     be indistinguishable from a gate that selected those rows.
+
+    :param db_path: the measurement database, opened for writing.
+    :param frame: the WHOLE table as it should end up on disk. Since the write
+        replaces rather than merges, any gate column missing from ``frame`` is
+        dropped from the database -- callers read the current table, add their
+        column to it and pass the result back, never the column on its own.
     """
     with _connect(db_path, read_only=False) as db:
         frame.to_sql(FILTERS_TABLE, db, if_exists="replace", index=False)
@@ -525,6 +602,13 @@ def column_name_for(gate_name: str) -> str:
     underscore collapsed to an underscore. The name is what the user reads in
     both places, so it is kept recognisable rather than hashed.
 
+    :param gate_name: the gate's display name. It is stripped, every run of
+        characters outside ``[0-9A-Za-z_]`` collapses to one underscore,
+        leading and trailing underscores are dropped, and a result starting
+        with a digit is prefixed ``g_`` -- legal in quoted SQLite but not in
+        the tools that read the table afterwards. Two gates whose names differ
+        only in punctuation therefore land on the SAME column, and
+        :func:`export_gate` replaces rather than suffixes.
     :raises FilterError: a name with nothing usable left in it, which would
         otherwise become an anonymous column called ``_``.
     """
@@ -649,6 +733,14 @@ def combination_label(memberships: Sequence[bool], names: Sequence[str]) -> str:
     as what it means -- ``live+CD8`` rather than ``class_3``. An object in no
     gate is ``none``, which is a real class: "outside everything" is a
     finding, not a gap.
+
+    :param memberships: one truth value per gate, for ONE object, positionally
+        aligned to ``names``.
+    :param names: the gate names, in the order the label reads. Order is part
+        of the class name -- ``live+CD8`` and ``CD8+live`` are two different
+        classes -- so the same order has to be used for every object, which is
+        why :func:`annotate_from_gates` fixes it once. The two sequences are
+        zipped, so a longer one is truncated silently rather than reported.
     """
     inside = [name for name, is_in in zip(names, memberships) if is_in]
     return "+".join(inside) if inside else "none"
@@ -707,7 +799,24 @@ def export_annotation(db_path: str, frame: pd.DataFrame, labels: pd.Series,
     Through the same path a single gate takes, so an annotation and a filter
     are the same kind of thing in the database and merge the same way.
 
+    :param db_path: the measurement database. ``filters`` is built first if it
+        is not there yet, and rewritten whole afterwards.
+    :param frame: the objects the labels describe. Only its identity columns
+        are read -- the measurements are not needed -- and ``object_label``
+        must be among them.
+    :param labels: one label per row of ``frame``, taken POSITIONALLY: the
+        Series index is discarded, so labels that were reindexed or sorted
+        away from the frame's row order would be attached to the wrong
+        objects. A length mismatch is not checked here and surfaces as a
+        pandas ``ValueError``. Where several rows share one object key the
+        first label wins.
+    :param column: the name to write it under, sanitised by
+        :func:`column_name_for`; an existing column of that name is dropped
+        and replaced. Objects outside ``frame`` are left NULL rather than
+        filled, since a multiclass annotation has no zero.
     :returns: ``(column name, objects labelled)``.
+    :raises FilterError: ``frame`` carries no object identity, or shares no
+        object key with the ``filters`` table.
     """
     name = column_name_for(column)
     keys = key_columns(frame)
@@ -757,6 +866,11 @@ def rowid_expression(columns: Iterable[str]) -> Optional[str]:
     nothing. The symptom is a sampling setting that appears to do nothing,
     which is indistinguishable from the read being slow for another reason.
 
+    :param columns: the table's own column names, typically from
+        :func:`column_names`. Compared case-insensitively, which is the whole
+        point: it is ``rowID`` that shadows ``rowid``. Pass the columns of the
+        table about to be queried -- an alias is only unusable relative to a
+        particular table.
     :returns: the first alias not shadowed by a real column, or ``None`` for
         a table that shadows all three (or has no row id at all).
     """
@@ -838,6 +952,12 @@ def read_sampled(db_path: str, table: str, *, fraction: float = 1.0,
 
 
 def row_count(db_path: str, table: str) -> int:
-    """How many objects the table has -- what a sample is a fraction OF."""
+    """How many objects the table has -- what a sample is a fraction OF.
+
+    :param table: goes into the query as a quoted name, so it must be a table
+        that exists -- a typo raises :class:`sqlite3.OperationalError` rather
+        than counting zero, and a caller sizing a sample should check with
+        :func:`table_names` first.
+    """
     with _connect(db_path) as db:
         return int(db.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0])

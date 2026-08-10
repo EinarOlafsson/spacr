@@ -538,7 +538,15 @@ FALLBACK_REQUIRES_PYTHON = ">=3.9,<3.15,!=3.14.1"
 
 @_register("python")
 def check_python(ctx: Context) -> Result:
-    """The running interpreter is one spaCR supports."""
+    """The running interpreter is one spaCR supports.
+
+    :param ctx: not read. The verdict comes from ``sys.version_info`` and the
+        ``Requires-Python`` field of the installed metadata, falling back to
+        :data:`FALLBACK_REQUIRES_PYTHON` when spaCR is not installed at all.
+        Accepted only so every check shares one signature, so any
+        :class:`Context` — including a default-constructed one — gives the
+        same row.
+    """
     running = ".".join(str(part) for part in sys.version_info[:3])
     try:
         from importlib.metadata import metadata
@@ -593,7 +601,14 @@ def _import_spacr() -> Any:
 
 @_register("spacr package")
 def check_spacr_package(ctx: Context) -> Result:
-    """``import spacr`` works, and reports where from."""
+    """``import spacr`` works, and reports where from.
+
+    :param ctx: not read. The row describes the interpreter this process is
+        running in — it imports ``spacr`` and reports ``__file__`` and
+        ``__version__`` — so it answers "does spaCR import" and never
+        "is it the copy in ``ctx.checkout``"; that second question belongs to
+        :func:`check_running_checkout`.
+    """
     try:
         spacr = _import_spacr()
     except Exception as exc:
@@ -636,6 +651,15 @@ def check_running_checkout(ctx: Context) -> Result:
     editable install pointing at the first, and a developer editing the
     second. Every test passes, every edit does nothing, and nothing in the
     output says so.
+
+    :param ctx: only ``ctx.checkout`` is read, and it need not be the checkout
+        root: the check walks *up* from it for the first directory holding
+        both ``spacr/__init__.py`` and a setup.py or pyproject.toml, so any
+        subdirectory of a clone works. When no such directory is found above
+        it — the usual case when spaCR is installed from a wheel — the row
+        falls back to comparing the editable-install target recorded by pip
+        with what ``import spacr`` actually resolves to, and passes if there
+        is nothing to contradict.
     """
     try:
         spacr = _import_spacr()
@@ -730,7 +754,14 @@ def check_running_checkout(ctx: Context) -> Result:
 
 @_register("duplicate installs")
 def check_duplicate_installs(ctx: Context) -> Result:
-    """Exactly one importable ``spacr`` package directory exists."""
+    """Exactly one importable ``spacr`` package directory exists.
+
+    :param ctx: not read, and deliberately so: the candidates come from the
+        import machinery and ``sys.path`` of the running process, which is
+        what an actual ``import spacr`` consults. That makes the row depend on
+        the directory this process was *launched* from — an empty ``sys.path``
+        entry means the current directory — rather than on ``ctx.checkout``.
+    """
     directories = _importable_spacr_dirs()
     if not directories:
         return Result(
@@ -770,6 +801,13 @@ def check_conflicting_distributions(ctx: Context) -> Result:
     leftover ``spacr.egg-info`` inside a checkout shadows the real install
     whenever the checkout is on ``sys.path``, so version, dependency list and
     console-script table are all read from stale metadata.
+
+    :param ctx: not read. Every installed metadata directory on ``sys.path``
+        is enumerated, so — like :func:`check_duplicate_installs` — the row
+        can change with the directory the process was launched from and not
+        with ``ctx.checkout``. Two distinct distribution names
+        (:data:`SPACR_DISTRIBUTION_NAMES`) are a FAIL; two copies of the same
+        name, typically a stale ``spacr.egg-info``, are only a WARN.
     """
     present = _spacr_distributions()
     if not present:
@@ -825,6 +863,13 @@ def check_console_scripts(ctx: Context) -> Result:
     ``sim=spacr.app_sim:gui_sim`` outlived the file it named, so the installed
     ``sim`` command died with ImportError. A partially upgraded install
     reproduces that for any command.
+
+    :param ctx: not read. The entry points come from the *installed*
+        distribution's metadata rather than from ``ctx.checkout``'s setup.py,
+        because it is the installed table that pip turned into scripts on
+        PATH. Only the module half of ``module:function`` is resolved, so a
+        command whose target function was renamed still passes here and fails
+        when run.
     """
     import importlib.util
     from importlib.metadata import distribution
@@ -878,6 +923,13 @@ def check_command_on_path(ctx: Context) -> Result:
 
     A second environment earlier on ``PATH`` is the other half of "which spacr
     am I actually running": the import can be right while the command is not.
+
+    :param ctx: not read. The comparison is between ``PATH`` and
+        ``sys.prefix`` as this process sees them, so the row describes the
+        shell that launched it: activate a different environment and the
+        answer legitimately changes. A command found outside ``sys.prefix``
+        is a FAIL; no ``spacr`` command anywhere on ``PATH`` is only a WARN,
+        since ``python -m spacr.doctor`` still works.
     """
     located = shutil.which("spacr-doctor") or shutil.which("spacr")
     if located is None:
@@ -920,6 +972,12 @@ def check_qt_extra(ctx: Context) -> Result:
     Reuses :mod:`spacr.qt`'s own diagnosis — ``_missing_qt_extra`` and
     ``_QT_MISSING_MESSAGE`` — rather than restating which distributions are in
     the extra, so the two cannot drift apart.
+
+    :param ctx: not read. The check imports the real GUI entry point, which
+        means it is the one check that pays for importing PySide6, and it
+        reports what that import did in this interpreter. It says nothing
+        about whether a window can be opened — see :func:`check_display` for
+        that half.
     """
     from .qt import _QT_MISSING_MESSAGE, _missing_qt_extra
 
@@ -954,7 +1012,16 @@ def check_qt_extra(ctx: Context) -> Result:
 
 @_register("display")
 def check_display(ctx: Context) -> Result:
-    """A GUI can actually open a window here."""
+    """A GUI can actually open a window here.
+
+    :param ctx: not read. The inputs are ``sys.platform`` and this process's
+        ``QT_QPA_PLATFORM``, ``DISPLAY`` and ``WAYLAND_DISPLAY`` environment
+        variables, so the row follows the environment rather than anything the
+        caller passes. Only Linux is examined; every other platform passes
+        outright, as does Linux with ``QT_QPA_PLATFORM`` set to a deliberately
+        headless value. A missing display is a WARN, never a FAIL, because the
+        pipelines run headless.
+    """
     if not sys.platform.startswith("linux"):
         return Result(
             "display",
@@ -1004,7 +1071,15 @@ CORE_MODULES: Tuple[Tuple[str, str], ...] = (
 
 @_register("core imports")
 def check_core_dependencies(ctx: Context) -> Result:
-    """Every core dependency imports."""
+    """Every core dependency imports.
+
+    :param ctx: not read. The list is the fixed :data:`CORE_MODULES` table,
+        and each entry is genuinely imported rather than merely looked up in
+        the installed metadata — a distribution present but broken (a torch
+        whose shared libraries will not load, say) has to fail here rather
+        than at hour one of a run. That makes this the slowest of the
+        dependency checks.
+    """
     import importlib
 
     missing: List[Tuple[str, str]] = []
@@ -1053,6 +1128,12 @@ def check_optional_extras(ctx: Context) -> Result:
     A missing extra is fine and expected. An extra with some of its
     distributions present and others not is a resolve that went wrong, and it
     fails at the moment the feature is used rather than at install time.
+
+    :param ctx: not read; the extras and the distributions in each come from
+        :data:`OPTIONAL_EXTRAS`. Presence is decided from installed metadata
+        rather than by importing, which keeps the check cheap but means an
+        extra that is installed and broken still counts as present — the
+        opposite trade-off from :func:`check_core_dependencies`.
     """
     installed: List[str] = []
     absent: List[str] = []
@@ -1098,7 +1179,14 @@ def _import_torch() -> Any:
 
 @_register("torch")
 def check_torch(ctx: Context) -> Result:
-    """torch imports, and says whether it was built with CUDA at all."""
+    """torch imports, and says whether it was built with CUDA at all.
+
+    :param ctx: not read — in particular ``ctx.probe_gpu`` belongs to
+        :func:`check_gpu`, not here. This row only imports torch and reports
+        ``torch.version.cuda``, and a CPU-only build still passes: whether
+        that build is *wrong* for this machine is a question about the driver,
+        which is why it is answered one row later.
+    """
     try:
         torch = _import_torch()
     except Exception as exc:
@@ -1115,7 +1203,18 @@ def check_torch(ctx: Context) -> Result:
 
 @_register("gpu")
 def check_gpu(ctx: Context) -> Result:
-    """CUDA is not merely reported as present but is actually usable."""
+    """CUDA is not merely reported as present but is actually usable.
+
+    :param ctx: only ``ctx.probe_gpu`` is read, and only on the path where
+        CUDA already reports at least one device. Left ``True`` (the default,
+        cleared by ``--no-gpu-probe``) the check allocates an 8x8 tensor on
+        ``cuda``, multiplies it and synchronises, which is what catches the
+        driver/runtime mismatch that ``torch.cuda.is_available()`` cheerfully
+        reports as fine. Set it ``False`` on a card that is full or shared:
+        the row then repeats what torch claims, says the probe was skipped,
+        and can therefore pass on a GPU that would fail at the first
+        allocation.
+    """
     try:
         torch = _import_torch()
     except Exception:
@@ -1230,7 +1329,16 @@ FALLBACK_CELLPOSE_SPECIFIER = ">=4.0,<5.0"
 
 @_register("cellpose")
 def check_cellpose(ctx: Context) -> Result:
-    """The installed Cellpose is the 4.x / SAM API spaCR calls."""
+    """The installed Cellpose is the 4.x / SAM API spaCR calls.
+
+    :param ctx: not read. The version bound comes from spaCR's own installed
+        metadata, falling back to :data:`FALLBACK_CELLPOSE_SPECIFIER` when
+        that cannot be read, and the verdict does not rest on the version
+        string alone: the API itself is probed for ``models.CellposeModel``,
+        for the *absence* of the 3.x ``models.Cellpose`` wrapper, and for
+        ``cpsam`` in ``MODEL_NAMES``. A version string too odd to compare
+        downgrades a finding to WARN rather than guessing.
+    """
     try:
         import cellpose
     except Exception as exc:
@@ -1311,6 +1419,14 @@ def check_declared_pins(ctx: Context) -> Result:
     ``conda env create -f environment.yaml`` is how a new user builds an
     environment, so a pin in that file that setup.py forbids produces an
     install that is broken before anyone runs anything.
+
+    :param ctx: only ``ctx.checkout`` is read, and only to walk up to the
+        enclosing checkout root the way :func:`check_running_checkout` does.
+        Everything after that is read from files on disk — ``setup.py`` and
+        ``environment.yaml`` in that root — never from the installed
+        environment, so this row says nothing about a wheel install and is a
+        SKIP whenever the pair is absent. Point ``ctx.checkout`` at another
+        clone to cross-check that clone instead of the running one.
     """
     root = _checkout_root(ctx.checkout)
     if root is None:
@@ -1423,7 +1539,18 @@ def _parse_environment_pins(env_yaml: Path) -> Dict[str, str]:
 
 @_register("database")
 def check_database(ctx: Context) -> Union[Result, List[Result]]:
-    """A project database is readable, intact, unlocked, and the right schema."""
+    """A project database is readable, intact, unlocked, and the right schema.
+
+    :param ctx: only ``ctx.db`` is read. ``None`` — the usual case — makes the
+        whole check one SKIP row rather than a failure, since most
+        invocations have no project to point at. It must name the SQLite file
+        itself, which spaCR writes to ``<src>/measurements/measurements.db``,
+        not the plate directory; a path that is not a file is a FAIL. The
+        integrity and schema rows open it read-only, but the locking row
+        briefly takes a real write lock, so pointing this at a database a run
+        or an open GUI is currently writing to reports that lock — which is
+        the intended answer, not a false alarm.
+    """
     if ctx.db is None:
         return Result(
             "database",
@@ -1680,6 +1807,16 @@ def check_settings(ctx: Context) -> Union[Result, List[Result]]:
     every combination this project has seen fail — ``normalize=True`` with
     ``measure``, a ``crop_mode`` naming an object with no mask dimension, a
     mask run with all four object channels unset.
+
+    :param ctx: ``ctx.settings`` and ``ctx.app`` are both read, and both are
+        needed. ``ctx.settings`` is a ``.csv`` or ``.json`` settings file;
+        ``None`` is a SKIP and a path that is not a file is a FAIL.
+        ``ctx.app`` selects which pipeline's rules apply (``mask``,
+        ``measure``, ``classify``, ...); an empty string is a WARN instead of
+        a guess, because the same file is valid for one app and invalid for
+        another, and an app name that :func:`spacr.validate.validate_settings`
+        does not recognise runs only the generic checks. Unlike the other
+        checks this one can return many rows — one per problem found.
     """
     if ctx.settings is None:
         return Result(
@@ -1788,7 +1925,14 @@ def run_checks(
 
 
 def summarize(results: Iterable[Result]) -> Dict[str, int]:
-    """Count rows by verdict, always returning every key."""
+    """Count rows by verdict, always returning every key.
+
+    :param results: rows to tally, iterated exactly once, so a generator is
+        safe here (it is not in :func:`format_report`). The five standard
+        verdicts are always present in the result even when ``results`` is
+        empty, so callers can index them without ``get``; a row carrying some
+        other status string adds a sixth key rather than being dropped.
+    """
     counts = {status: 0 for status in (PASS, WARN, FAIL, ERROR, SKIP)}
     for result in results:
         counts[result.status] = counts.get(result.status, 0) + 1
@@ -1809,7 +1953,17 @@ def exit_code(results: Iterable[Result], strict: bool = False) -> int:
 
 
 def format_report(results: Sequence[Result]) -> str:
-    """Render the rows as the text the command prints."""
+    """Render the rows as the text the command prints.
+
+    :param results: rows in the order they should appear — nothing here sorts
+        or groups them, so the printed order is whatever produced the
+        sequence, normally :func:`run_checks` in :data:`CHECKS` order. It must
+        be a real sequence and not a generator: it is traversed three times,
+        once to size the check column to the widest label *in this sequence*,
+        once for the lines, and once for the trailing counts. ``fix`` is
+        printed only for non-``PASS`` rows, so a fix attached to a passing row
+        never reaches the report.
+    """
     width = max((len(row.check) for row in results), default=0)
     lines: List[str] = []
     for row in results:
@@ -1869,7 +2023,17 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
-    """Run every check, print the report, and return a shell exit code."""
+    """Run every check, print the report, and return a shell exit code.
+
+    :param argv: arguments *without* the program name, as
+        :meth:`argparse.ArgumentParser.parse_args` takes them; ``None`` reads
+        ``sys.argv[1:]``. Anything argparse rejects — including ``--help`` —
+        exits the process rather than returning, which is the one way a caller
+        embedding this does not get its exit code back. Passing ``[]`` runs
+        the full check list against the current working directory with no
+        database and no settings file, which is what plain ``spacr-doctor``
+        does.
+    """
     args = build_parser().parse_args(argv)
     ctx = Context(
         checkout=Path(args.checkout) if args.checkout else Path.cwd(),

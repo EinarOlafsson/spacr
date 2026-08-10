@@ -1908,6 +1908,12 @@ def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
        ``settings['png_dims']`` list that mapping is entry 0 blue, 1 green,
        2 red, so ``png_dims[0]`` lands in the file's BLUE slot.
 
+       That is the REVERSE of what ``png_dims`` reads like, and it is LEFT
+       THAT WAY ON PURPOSE: every crop already on disk was written with this
+       mapping, so flipping it would silently change what each colour means
+       and invalidate the models trained on those crops. The mapping is
+       declared rather than corrected.
+
        ``cv2.imwrite`` interprets a 3-channel array as BGR, so
        :func:`spacr.crops.to_cv2_bgr` reverses the array once, here, and
        cv2's interpretation lands the red plane in the file's red slot. It
@@ -2877,7 +2883,27 @@ def measure_crop(settings):
                 reported_files = set()
 
                 def job_callback(result):
-                    """Record one completed field and save its optional figures."""
+                    """Record one completed field and save its optional figures.
+
+                    :param result: The 4-tuple ``(index, average_time, cells,
+                        figs)`` that :func:`_measure_crop_core` returns, taken
+                        straight off the ``AsyncResult`` -- one result, not the
+                        list that :func:`process_meassure_crop_results` takes,
+                        which is why it is re-wrapped as ``[result]`` below.
+                        ``index`` is the position in ``files`` and is translated
+                        back through ``index_to_file`` so the ledger entry names
+                        the field rather than a number. ``cells`` decides the
+                        verdict: the success path leaves the
+                        ``np.unique(cell_mask)`` array there, while a plain int
+                        ``0`` is the cross-process failure sentinel a worker
+                        leaves when it caught its own exception, so only that
+                        int records a failure. ``figs`` may be an empty dict --
+                        nothing is drawn unless ``settings['plot']``. Passing
+                        the same field twice is safe for the counters
+                        (``completed_jobs`` and ``reported_files`` are sets) but
+                        would save its figures twice, so the retry loop calls
+                        this only for the attempt that actually returned.
+                    """
                     completed_jobs.add(result[0])
                     item = index_to_file.get(result[0], result[0])
                     reported_files.add(item)
@@ -2903,6 +2929,22 @@ def measure_crop(settings):
                     that died outright vanished entirely: the exception sat on an
                     AsyncResult nobody read, and the run still printed
                     "Successfully completed run".
+
+                    :param job_file: The ``.npy`` filename of the field, as it
+                        appears in ``files`` -- a bare basename, not a path
+                        joined onto ``settings['src']``. It is used unchanged as
+                        the ledger key *and* as the ``reported_files`` entry, so
+                        anything else silently loses the match against ``files``
+                        in the ``finally`` sweep and the field is filed a second
+                        time as "field produced no result".
+                    :returns: A one-argument callable suitable as the
+                        ``error_callback`` of ``Pool.apply_async``; it takes the
+                        exception and returns ``None``. Call it as
+                        ``make_error_callback(file)(exc)`` when raising the
+                        exception yourself, which is what the retry loop does on
+                        the last attempt -- the ledger counts fields, not tries,
+                        so a field that failed twice and then worked must not be
+                        reported here at all.
                     """
                     def _on_error(exc):
                         reported_files.add(job_file)

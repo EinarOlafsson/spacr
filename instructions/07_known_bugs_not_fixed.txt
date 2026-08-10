@@ -84,3 +84,110 @@ The habit that prevents it: a script that touches preferences points
 `tests/qt/test_preferences_reset.py::private_store` does. There is now a
 Reset to defaults button in Preferences, which is the repair path, but not
 touching them is better than repairing them.
+
+--------------------------------------------------------------------------------
+N. key_columns can return an object key with NO plate/well/field in it, and
+   the guard downstream lets it through
+--------------------------------------------------------------------------------
+
+Found 2026-08-10 while auditing new parameter documentation, and confirmed by
+executing the real function rather than reading it.
+
+    key_columns(DataFrame with plateID/rowID/columnID/fieldID/object_label)
+        -> ['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']
+
+    key_columns(DataFrame with plate/row/column/field/object_label)
+        -> ['object_label']
+
+`spacr/filters.py` builds the identity from `IDENTITY_COLUMNS`, which carry
+the canonical `*ID` spellings, and appends `OBJECT_COLUMN` unconditionally
+when present. A frame using the LEGACY spellings therefore yields an
+identity of `object_label` alone.
+
+THE GUARD DOES NOT CATCH IT. Both call sites read
+
+    if not keys or OBJECT_COLUMN not in keys:
+        raise FilterError("this table has no object identity ...")
+
+(`export_gate` around line 649, `export_annotation` around line 818.) For
+`['object_label']` the first half is False and the second half is False, so
+the guard PASSES and the merge proceeds on the label alone -- and
+`object_label` is only unique WITHIN a field. Objects with the same label in
+different plates, wells or fields would silently collide.
+
+WHY IT IS LEFT: reachability is unproven. The legacy spellings do exist --
+`utils.correct_metadata_column_names` exists precisely to rename them, and
+`schema.py:251` records that they were two conventions -- but every path that
+was checked normalises before reaching here (`ml.py:583`,
+`sequencing.py:1060`). So this may be an unreachable hazard rather than a
+live bug, and the honest fix depends on which:
+
+  * if unreachable, the guard should still be tightened to require the full
+    identity, as documentation of the invariant;
+  * if reachable, it is a silent data-corruption path and the guard must
+    reject, not warn.
+
+Deciding needs someone who knows whether a user-supplied or hand-queried
+frame can reach `export_gate`/`export_annotation` without passing through
+`correct_metadata_column_names`. That is a question about how people use the
+tool, not about the code.
+
+A DOCSTRING WAS WRONG ABOUT THIS TOO, and is now corrected: it claimed such a
+frame "yields an empty list here, which downstream reads as 'this table has
+no object identity'". Both halves were false -- it yields `['object_label']`
+and downstream accepts it. The docstring described a safe failure where the
+code has an unsafe one, which is the most misleading kind.
+
+--------------------------------------------------------------------------------
+N+1. SEVEN MORE, all found 2026-08-10 by documenting parameters and having a
+     second agent EXECUTE each claim before accepting it
+--------------------------------------------------------------------------------
+
+Writing a parameter description forces someone to state what a value does,
+and stating it forces a check. Every one below was reproduced, not read.
+
+  make_validation_holdout(seed=...) IS DEAD. The seed is forwarded to
+  make_cv_folds, which consumes its RNG only in the `groups is None` branch --
+  but make_validation_holdout REQUIRES groups and raises without them, so the
+  deterministic greedy path always runs. Verified: seed=0 and seed=12345 give
+  byte-identical holdouts. A caller varying the seed to get a different
+  validation set silently gets the same one.
+
+  make_validation_holdout SILENTLY CLAMPS. `requested_folds = max(2, ...)`
+  means any validation_fraction above 0.5 becomes a 2-way split:
+  fraction=0.9 holds out 0.5, with no warning. The `min(requested_folds,
+  distinct)` cap misses in the other direction -- 0.05 over 8 groups realises
+  0.125. Both are silent divergences from an explicitly requested size.
+
+  plot_single_array's panel title OVERSTATES THE OBJECT COUNT BY ONE. It
+  prints `len(np.unique(array))` under a "(obj.)" label, and background 0 is
+  one of those values -- a 3-object mask renders as "4 (obj.)". This one is
+  on screen, in every mask panel.
+
+  show_cam_on_image WRAPS INSTEAD OF CLIPPING. `np.uint8(255 * mask)` on an
+  un-normalised CAM sends anything above 1.0 to an arbitrary colormap
+  position rather than saturating: measured, 1.1 -> 24 (cold end), 1.5 -> 126
+  (mid), 2.0 -> 254. A `np.clip(mask, 0, 1)` before the cast is the fix.
+
+  show_cam_on_image TURNS NaN INTO BLACK. Its `else: cam.fill(0.0)` fallback
+  cannot fire for the reason it looks like it should -- COLORMAP_JET maps 0 to
+  BGR (128,0,0), so a zero input still has a positive peak. It is reachable
+  only via NaN or a sufficiently negative img, and then returns a silent
+  all-black image instead of surfacing the bad input.
+
+  invert_image WRAPS ON SIGNED DTYPES. `max_value - image` on int8 with a
+  pixel of -100 gives 227, which wraps to -29. Verified. The function neither
+  checks signedness nor promotes.
+
+  MergedCropSource.get_many RAISES WHERE ITS TYPE SAYS IT SKIPS. It calls
+  extract_crops without on_error, i.e. the default 'raise', so one row whose
+  label is missing from its mask plane aborts the whole batch -- while the
+  `List[Optional[np.ndarray]]` return type and the `if crop is not None`
+  guard on the next line (which can never take the None branch) both say
+  on_error='none' was intended, so a grid render survives one bad row.
+
+ALL LEFT UNFIXED, deliberately: the task was documentation, and each of these
+changes behaviour. The docstrings now describe what the code does TODAY, so
+none of them is hidden. Three are worth prioritising because a user sees the
+wrong answer rather than an error -- the object-count label, the dead seed,
+and the clamped validation fraction.

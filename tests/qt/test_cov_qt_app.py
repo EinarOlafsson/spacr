@@ -25,6 +25,7 @@ import pytest
 
 from PySide6.QtGui import QFontMetrics, QIcon
 from PySide6.QtWidgets import (
+    QApplication,
     QCheckBox,
     QComboBox,
     QDoubleSpinBox,
@@ -549,6 +550,19 @@ def at_font_scale(qapp, qt_theme_applied):
     qapp.processEvents()
 
 
+def _lay_out(widget):
+    """Show and settle a widget so elision actually runs.
+
+    Qt computes elision in ``resizeEvent``; a widget that was never shown
+    reports nothing elided however narrow it is, which turns
+    ``assert not clipped_items()`` into a tautology.
+    """
+    widget.show()
+    QApplication.processEvents()
+    widget.resize(widget.width(), widget.height())
+    QApplication.processEvents()
+
+
 @pytest.mark.parametrize("scale", SIDEBAR_SCALES)
 def test_sidebar_column_never_narrows_below_its_floor(
         qtbot, at_font_scale, monkeypatch, scale):
@@ -560,6 +574,11 @@ def test_sidebar_column_never_narrows_below_its_floor(
     bar = Sidebar()
     qtbot.addWidget(bar)
     assert bar.width() == scaled_px(Sidebar.WIDTH_MIN)
+    # SHOW IT FIRST. `clipped_items()` reads `_elided`, which is only ever
+    # set in `resizeEvent`, so this assertion on an unshown widget can never
+    # fail -- proven by mutation: a column 52 px too narrow for its own text
+    # still passed. Showing it is what makes the claim real.
+    _lay_out(bar)
     assert not bar.clipped_items()
 
 
@@ -582,7 +601,10 @@ def test_sidebar_column_widens_for_a_longer_name(
     qtbot.addWidget(bar)
     assert scaled_px(Sidebar.WIDTH_MIN) < bar.width() <= scaled_px(
         Sidebar.WIDTH_MAX)
-    # Widening that still clips the name it widened for is not widening.
+    # Widening that still clips the name it widened for is not widening --
+    # but only a LAID-OUT widget can report clipping. See the note in
+    # test_sidebar_column_never_narrows_below_its_floor.
+    _lay_out(bar)
     assert not bar.clipped_items()
 
 

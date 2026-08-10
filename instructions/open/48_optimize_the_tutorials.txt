@@ -2,8 +2,8 @@
 OPTIMIZE THE spaCR TUTORIALS
 ================================================================================
 
-Status:    production and local verification complete; GitHub publication tree
-           ready; Hugging Face upload awaits an authenticated write session
+Status:    complete after live QA of the 1.5.0.4 publication; the narration
+           transport and all five named visual/content defects are corrected
 Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see how they are setup?"
            2026-08-08 — "great. now we need to audit these lessons one at a time.
 
@@ -21,6 +21,17 @@ Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see
            2. the highlight boxes are alligned with what they are trying to highlight.
            3. the content is a sufficient surface level walkthrough of the modual.
            4. some moduals have changed (Gate Editor, Image UMAP, etc), and some may have been added (Classify). wake sure these have tutorials and that the old tutorials are updated."
+           2026-08-10 — "for the first video the boxes highlight boxes are still miss alligned, the version past over you did is very visable and needs to be removed, just show the current version.
+
+           in the gate editor you do not show 3D or xD mode
+
+           for mask i want you to use the live preview more use the live preview to show and talk abourt the settings (not all settings just mention a few and showcase them on the objects like min area). show the flows.
+
+           for home screen an navigation the application is zoomed in more than in other tutorials this needs to change.
+
+           for Image UMAP the cell image you use are way to large for the iamge umap i cant eaven see the umap.so reduce thos settings so the images are only slightly larger than the UMAP itself and before you run the Image umap run the hyperparamiter search to define the hyperparamiters then run image UMAP and show the umap with overlayed images.
+
+           the largest issue is that i cannot hear any of the voice tracks. i tested it on my phone and hear nothing. I get a popup that says \"Narration is unavailable the GitHub hosted video remains available.\""
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
@@ -33,6 +44,15 @@ HTML/CSS/JavaScript player, 69 catalogued lessons, posters, silent video,
 lesson/caption catalogs. The player synchronizes the separate narration and
 silent video by playback rate and stores theme, progress, language, voice,
 quality, and caption preferences in localStorage.
+
+Mobile narration must not point the hidden audio element directly at the
+Hugging Face Xet URL. A normal single-range request succeeds, but the endpoint
+can reject the multipart byte-range request used by a mobile media element.
+The player therefore performs one CORS full-file fetch, creates a same-origin
+Blob URL, and gives that URL to the decoder. Metadata readiness is bounded
+rather than treated as an immediate availability test because mobile Safari
+may defer it until a play gesture. Blob URLs are revoked and stale fetches are
+aborted whenever the lesson or voice changes.
 
 Sphinx does not copy the complete production library. The current media policy
 stages the player, posters, captions, and 1440p silent videos, with no narration
@@ -75,14 +95,16 @@ WHAT TO DO
    will obscure the screen and contaminate every subsequent keyframe.
 7. Publish to Hugging Face and GitHub only, then verify narration/video sync,
    media budgets, tests, and the live Pages deployment.
-8. Tutorial release screenshots use `1.5.0.0`, and any visible CI/test badge
-   must show a passing state. The package version for this publication is
-   `1.5.0.4`; keep that package bump separate from screenshot labels.
+8. Tutorial release screenshots must be fresh captures of the current stable
+   release. Never repair a stale version or badge with fixed-coordinate paint:
+   hide irrelevant dynamic badge rows and derive emphasis geometry from the
+   live DOM. For this publication every visible version is `1.5.0.4`, and the
+   captured PyPI page contains no failing-test badge.
 
 Recovered-audit findings that now form part of this workflow:
 
 - The current registry has 63 modules. The release catalog has 69 lessons and
-  473 scenes: six non-module foundations plus exactly one lesson for every
+  479 scenes: six non-module foundations plus exactly one lesson for every
   registered module, with no unknown or duplicate module keys.
 - Do not combine sidebar navigation and input setup in one emphasized scene.
   The box cannot point at both. The additional-module lessons now begin at the
@@ -92,14 +114,14 @@ Recovered-audit findings that now form part of this workflow:
   their central interactive panels; Outliers and Dose–Response use Scan and
   Fit. Capture those exact targets rather than highlighting Load table.
 - Gate Editor is only instructive when populated. Its release capture uses a
-  deterministic two-population measurement table and a real named rectangle
-  gate, with emphasis on axes/header, tools, canvas, and gate statistics. The
-  unrelated assistant and formula/filter sidebars are hidden only in the
-  isolated capture so the core workflow remains readable.
+  deterministic multi-feature, two-population measurement table and shows a
+  real 2D gate, a rotatable 3D Box gate, and real xD PCA axes with PC1, PC2,
+  and PC3. The hierarchy, counts, save, and reuse controls are also shown.
 - Image UMAP currently has nine settings categories, including Computer
-  Vision Data Source. Its concise lesson includes that category, a successful
-  four-trial Hyperparameter Search with real small-multiple results, and a
-  successful microscopy crop-gallery output.
+  Vision Data Source. Its concise lesson runs a successful four-trial
+  Hyperparameter Search, propagates the reviewed result to the main form, and
+  then shows the fitted UMAP with small transparent microscopy crops that do
+  not obscure the point cloud.
 - Unified Classify currently does not expose Hyperparameter Search. Its Run
   scene therefore teaches grouped validation and points users to the separate
   Classify CV and Classify ML lessons, whose real mini workbenches demonstrate
@@ -118,46 +140,71 @@ optimization improves a named measurement without breaking lesson playback,
 narration synchronisation, hosted-media behavior, or the Pages budget.
 
 --------------------------------------------------------------------------------
+REOPENED LIVE QA — 2026-08-10
+--------------------------------------------------------------------------------
+
+The 1.5.0.4 media publication itself completed and the remote inventory matched
+all 7,521 expected hosted artifacts, but live user testing found defects that
+the file/hash release gate could not detect:
+
+- narration fails in the deployed player, including on a phone, and the player
+  falls back to the silent GitHub-hosted video;
+- lesson 01 still has visibly misaligned emphasis boxes and shows a conspicuous
+  historical-version pass-over instead of only the current version;
+- lesson 05 Home/navigation is captured at a different zoom from the suite;
+- lesson 07 Mask does not make enough teaching use of Live Preview or show a
+  small set of settings, such as minimum area, acting on objects and flows;
+- lesson 15 Image UMAP hides the map behind oversized crop overlays and must
+  demonstrate Hyperparameter Search before the final overlaid-image run; and
+- lesson 64 Gate Editor does not demonstrate its 3D or xD modes.
+
+Narration is the first release blocker. Reproduce the actual deployed request
+and media error in desktop and mobile-style browser contexts, fix the shared
+player or hosted-media contract at the source, then rebuild the five named
+lessons from their editable capture/catalog sources. Acceptance requires live
+audible narration, semantic highlight geometry, consistent framing, and visual
+review of every changed scene—not only file existence and hashes.
+
+--------------------------------------------------------------------------------
 PUBLICATION STATUS
 --------------------------------------------------------------------------------
 
-The production implementation is complete in the editable workspace:
+The reopened 1.5.0.4 correction is complete:
 
-- All 69 lessons and 473 scenes cover the 63 current Qt modules plus six
+- All 69 lessons and 479 scenes cover the 63 current Qt modules plus six
   foundations, with no missing, unknown, or duplicate module keys.
-- All 3,726 narration tracks across 54 voices and eight narrated languages were
-  regenerated and verified as AAC mono at 24 kHz, with valid durations,
-  monotonic scene boundaries, and complete timing sidecars.
-- Every English scene uses the central pronunciation form; the PyPI rendering
-  is the joined "pie-pee" form with a 150 ms second syllable and no inserted
-  gap.
-- All 69 silent masters are 3840 x 2160 with valid durations and no audio
-  stream. Their posters and the derived 1440p GitHub videos also passed the
-  release checks.
-- The player, catalogs, posters, and 1440p videos have been regenerated in the
-  derived documentation tree. It contains no YouTube integration and no local
-  narration copies; the measured tutorial payload is 72.8 MiB.
-- The complete release verifier passed for 69 lessons, eight languages, 54
-  voices, 3,726 tracks, and 69 4K videos. The media-budget suite passes all 18
-  tests, and static path/syntax/catalog checks pass.
-- A final scene-midpoint visual review of PyPI, Mask, Image UMAP, Classify, and
-  Gate Editor caught one residual generic Classify focus. Its English lesson
-  was rerecorded across all 28 voices and rerendered so the input card, exact
-  classifier-family selector, Run button, and console each receive their own
-  bounded emphasis. The full release verifier passed again afterward.
-- Contact-sheet review of every scene in lessons 37 through 69 then exposed a
-  shared whole-screen fallback in custom workbenches that do not use the common
-  settings-scroll/console layout. Twenty-eight lessons now use explicit
-  semantic regions for their actual input, decision, action, and result
-  surfaces. All corrected 4K/1440p cuts were rerendered and visually reviewed.
-
-The release is intentionally not marked done or promoted to `main` until the
-Hugging Face dataset accepts the new narration, timing sidecars, and 4K masters.
-The current machine reports `Not logged in` from `hf auth whoami`; publishing
-the new player first would leave the 29 added lessons with missing hosted audio.
-After an authenticated write session exists, run the fail-fast publisher,
-repeat the release verifier, bump the package to 1.5.0.4 in a separate commit,
-and fast-forward `nightly` then `main`.
+- The four changed scripts were human-reviewed in every narrated locale. The
+  resulting 259 localized scenes replace misleading literal translations of
+  scientific terms and provide spoken-only forms for Cellpose, UMAP, 2D, 3D,
+  xD, PC1 through PC3, and relevant Japanese and Chinese interface labels.
+- All 216 affected narration tracks were regenerated. The complete set of
+  3,726 tracks across 54 voices and eight languages then passed AAC, 24 kHz
+  mono, timing, true-peak, and dead-air validation. Every English scene uses
+  the central pronunciation rules; PyPI is "pie pee" with no inserted pause
+  and the second vowel shortened by 150 ms.
+- Lesson 01 uses unpainted live 1.5.0.4 PyPI and GitHub captures with
+  DOM-derived emphasis geometry and no failing-test badge. Home is native
+  3840 x 2160 at device-pixel ratio one. Mask shows Live Preview settings,
+  Propagate, Overlay, Flows, Masks, and a sample-derived minimum-area change
+  that removes only the smallest 8.04 percent of objects. Image UMAP performs
+  and propagates Hyperparameter Search before showing a readable overlaid map.
+  Gate Editor shows real 2D, 3D, and xD states.
+- Every scene in the five changed encoded masters was sampled at a
+  timing-derived interior point. Focus alignment, 1.5.0.4 labels, readability,
+  4K H.264 encoding, and compression passed visual review.
+- The narration outage was reproduced as a hosted-media transport failure.
+  The corrected player fetches each complete M4A with CORS, attaches a Blob
+  URL, tolerates deferred mobile metadata, aborts stale requests, and revokes
+  old URLs. Desktop and iPhone-style browser tests both loaded HTTP 200 audio,
+  played unmuted at volume one, stayed within 0.11 seconds of the video, and
+  showed no fallback toast.
+- The complete source verifier passed for 69 lessons, eight languages, 54
+  voices, 3,726 tracks, and 69 4K videos. Hugging Face accepted the five
+  corrected lesson bundles at dataset commit
+  `675529b8b9c1d50ef942ffcc8c0ac79039f33938`; all 545 selected remote files
+  match local hashes. The regenerated GitHub tree contains the player,
+  captions, posters, and 1440p videos without YouTube integration or duplicated
+  narration.
 
 --------------------------------------------------------------------------------
 AUDIT — LESSON 01: PYPI AND GITHUB
