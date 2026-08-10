@@ -3741,6 +3741,7 @@ class TorchModel(nn.Module):
       3) Adds a simple Linear 'spacr' classifier with `num_classes` outputs
       4) Optionally applies dropout before the final classifier
       5) Supports gradient checkpointing
+
     Works with most TorchVision **classification** models. Non-classification
     (detection/segmentation) models are rejected with a clear error.
     """
