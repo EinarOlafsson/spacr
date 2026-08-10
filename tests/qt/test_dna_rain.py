@@ -1307,11 +1307,20 @@ def test_a_theme_switch_re_backdrops_the_rain(qtbot, qt_theme_applied,
     re-styled in place. That covers everything whose colours come from
     the QSS and nothing that paints itself, so the rain kept the flat
     fill and the wallpaper it was constructed with — a black rectangle
-    on the light page, or flat black over a freshly-loaded micrograph."""
+    on the light page, or flat black over a freshly-loaded micrograph.
+
+    The expected fill is ``page_colour``, not ``palette_for(theme)["bg"]``.
+    28e9662c (2026-08-04) gave the page a palette role of its own, because
+    ``bg`` is the WINDOW colour and on dark it is ``#000000`` — pinning
+    ``bg`` here meant asserting that every palette event pushed black back
+    into a backdrop that had been built with the page colour. The sibling
+    assertions in test_ambient_wiring moved with that commit; this file
+    was missed.
+    """
     from PySide6.QtCore import QEvent
     from spacr.qt.screens import app_screen
     from spacr.qt.screens.app_screen import AppScreen
-    from spacr.qt.theme import palette_for
+    from spacr.qt.theme import page_colour, palette_for
 
     monkeypatch.setattr(app_screen, "_theme_wallpaper", lambda: None)
     screen = AppScreen("map_barcodes")
@@ -1330,6 +1339,10 @@ def test_a_theme_switch_re_backdrops_the_rain(qtbot, qt_theme_applied,
 
     assert rain.backdrop() is not None, "the new wallpaper must reach it"
     assert rain.background_color().name() == \
+        QColor(page_colour("light")).name()
+    # The two roles really are distinct on this theme, so the assertion
+    # above is not accidentally satisfied by a palette where page == bg.
+    assert QColor(page_colour("light")).name() != \
         QColor(palette_for("light")["bg"]).name()
     assert rain.color().name() == chosen.name(), \
         "a colour the user picked must survive a theme switch"
@@ -1407,11 +1420,23 @@ def test_a_broken_theme_lookup_does_not_break_the_switch(qtbot,
     ``_backdrop_applied``: recording the tuple before resolving it would
     make the *next*, working switch a no-op, which is what the control
     at the end drives.
+
+    Two expectations were relaxed to say what they meant. This used to
+    assert ``_backdrop_applied is None`` after the failed event, which
+    was a proxy for "not poisoned" that only worked while the cache
+    happened to be empty — Qt delivers an ApplicationPaletteChange during
+    AppScreen construction, so by the time the test runs the cache
+    legitimately holds the dark page colour that really was painted. The
+    honest statement of "not poisoned" is that the failed event leaves
+    the cache exactly as it found it, so that is what is asserted, along
+    with the cache being truthful in the first place. The final
+    expectation moved from ``bg`` to ``page_colour`` for the reason given
+    on the sibling test above (28e9662c, 2026-08-04).
     """
     from PySide6.QtCore import QEvent
     from spacr.qt.screens import app_screen
     from spacr.qt.screens.app_screen import AppScreen
-    from spacr.qt.theme import palette_for
+    from spacr.qt.theme import page_colour
 
     monkeypatch.setattr(app_screen, "_theme_wallpaper", lambda: None)
     screen = AppScreen("map_barcodes")
@@ -1419,9 +1444,18 @@ def test_a_broken_theme_lookup_does_not_break_the_switch(qtbot,
     rain = screen._dna_rain
     assert rain is not None
 
+    # The cache is not empty here, and what is in it is not a guess: the
+    # construction-time palette event painted that fill. A cache holding
+    # a colour the rain was never given would already be the poisoning
+    # this test is about.
+    cached_fill, cached_wallpaper = screen._backdrop_applied
+    assert cached_fill == rain.background_color().name()
+    assert cached_wallpaper is None
+
     rain.set_color("#ff00ff")
     rain.set_background_color("#123456")
     rain.set_backdrop(_backdrop(64, 48))
+    applied_before = screen._backdrop_applied
 
     def boom():
         raise RuntimeError("preferences are gone")
@@ -1433,7 +1467,7 @@ def test_a_broken_theme_lookup_does_not_break_the_switch(qtbot,
         "a half-applied theme: the fill moved without a theme to move to")
     assert rain.backdrop() is not None, "the wallpaper was cleared"
     assert rain.color().name() == "#ff00ff"
-    assert screen._backdrop_applied is None, (
+    assert screen._backdrop_applied == applied_before, (
         "the failed lookup was cached and will skip the next real switch")
 
     # Control — with the lookup working again, the same event does move
@@ -1442,8 +1476,9 @@ def test_a_broken_theme_lookup_does_not_break_the_switch(qtbot,
                         lambda: "light")
     screen.changeEvent(QEvent(QEvent.ApplicationPaletteChange))
     assert rain.background_color().name() == \
-        QColor(palette_for("light")["bg"]).name()
-    assert screen._backdrop_applied == (palette_for("light")["bg"], None)
+        QColor(page_colour("light")).name()
+    assert screen._backdrop_applied == (page_colour("light"), None)
+    assert screen._backdrop_applied != applied_before
 
 
 # ---------------------------------------------------------------------------

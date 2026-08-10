@@ -49,6 +49,18 @@ IMG = 8
 SCORE_KEYS = ("deletion_auc", "insertion_auc", "pointing_game", "sanity_gap")
 
 
+def _col(panel, name: str) -> int:
+    """Column index by NAME.
+
+    Hard-coded indices broke on 2026-08-09 (13a7b335, "The Walk was climbing;
+    the table was showing the wrong thing"), which inserted a "best so far"
+    column between "score" and "fold sd" and pushed "parameters" from 3 to 4.
+    The names are stable; the positions never were. Same helper, same reason,
+    as ``tests/qt/test_hyperparam_screen.py``.
+    """
+    return panel.COLUMNS.index(name)
+
+
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -254,14 +266,41 @@ class TestRegistration:
 
 class TestMockedSweep:
     def test_a_mocked_sweep_fills_the_table(self, panel, qtbot):
+        """Every column of the winning row, looked up by name.
+
+        The row is the whole point of the table, so this covers all five
+        visible cells rather than two of them. When "best so far" was inserted
+        on 2026-08-09 (13a7b335) the old ``item(0, 3)`` silently started
+        reading "fold sd" — an assertion that moved to a different column
+        without saying so is the failure mode this shape prevents.
+        """
         _prep(panel)
         panel.set_search_fn(scripted_search())
         with qtbot.waitSignal(panel.search_finished, timeout=5000):
             assert panel.run_search() is True
         assert panel._table.rowCount() == 3
         assert panel.result.ok
-        assert panel._table.item(0, 3).text() == "cam_type=gradcam"
-        assert panel._table.item(0, 1).text() == "0.1000"
+
+        def cell(row, name):
+            return panel._table.item(row, _col(panel, name)).text()
+
+        assert cell(0, "#") == "1"
+        assert cell(0, "parameters") == "cam_type=gradcam"
+        assert cell(0, "score") == "0.1000"
+        assert cell(0, "status") == "ok"
+        # "best so far" is a LIVE column: it shows the running best while
+        # trials arrive out of order, and the ranked rebuild that follows the
+        # sweep blanks it, because rows sorted best-first already say it.
+        assert cell(0, "best so far") == "-"
+        # Attribution scores one map per configuration, so there are no folds
+        # to take a standard deviation over and "fold sd" is structurally
+        # empty — the same reason the fold control is hidden for this app.
+        assert cell(0, "fold sd") == "-"
+        # Ranked best-first: gradcam wins deletion_auc (lowest), then
+        # occlusion 0.25, then saliency 0.30.
+        assert [cell(row, "parameters") for row in range(3)] == [
+            "cam_type=gradcam", "cam_type=occlusion", "cam_type=saliency",
+        ]
 
     def test_deletion_auc_is_minimised_not_maximised(self, panel, qtbot):
         """The one criterion here where a small number wins.

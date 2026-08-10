@@ -150,14 +150,34 @@ def test_explicit_rgb_order_does_not_reverse_an_unmarked_standard_png(
 
 
 def test_explicit_legacy_order_is_corrected_to_an_rgb_array(tmp_path):
+    """"legacy_bgr" is the ANNOTATOR's word for "the slots are the other
+    way round", and it is the only setting that reverses on load.
+
+    Do not re-point this at ``crops.CROP_FORMAT_LEGACY_BGR``. The 2026-08-06
+    three-format redesign (2cab81f7) established that reversal is decided by
+    whether a format's slots already hold the declared colours, not by its
+    number: formats 1 and 3 agree pixel-for-pixel, so only format 2 -- the
+    eleven-day window written 2026-07-26..08-06 -- is out of step. The
+    annotator maps its "legacy_bgr" onto that format, which 8f09987f fixed
+    after the flag flip left both channel-order choices doing the opposite
+    of what they claimed.
+    """
     from spacr.qt.annotate_engine import load_crop_image
 
     path = tmp_path / "legacy.png"
     intended_rgb = np.zeros((4, 5, 3), dtype=np.uint8)
     intended_rgb[:, :, 0] = 211
     intended_rgb[:, :, 2] = 23
-    # A legacy cv2 write is observed by PIL in reversed order.
-    Image.fromarray(intended_rgb[:, :, ::-1], "RGB").save(path)
+    on_disk = intended_rgb[:, :, ::-1]
+    Image.fromarray(on_disk, "RGB").save(path)
+
     shown = np.asarray(load_crop_image(
         str(path), stored_channel_order="legacy_bgr"))
     assert np.array_equal(shown, intended_rgb)
+
+    # The reversal is the SETTING's doing, not a property of the file: the
+    # same bytes read as "rgb" come back untouched. Asserting both from one
+    # file is what makes this a test of the choice rather than of the decoder.
+    assert np.array_equal(
+        np.asarray(load_crop_image(str(path), stored_channel_order="rgb")),
+        on_disk)

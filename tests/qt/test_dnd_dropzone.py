@@ -12,7 +12,8 @@ the dropzone refuses) observable.
 
 Modal dialogs are driven by :func:`_auto_modal`, a timer that accepts/rejects
 whatever modal is up; that keeps the real dialog code in the loop without
-blocking the suite.
+blocking the suite. Since 2026-08-08 that helper also has to put the real
+``QDialog.exec`` back — see :func:`_auto_modal` for why.
 """
 from __future__ import annotations
 
@@ -22,7 +23,9 @@ from pathlib import Path
 import pytest
 from PySide6.QtCore import QEvent, QMimeData, QPoint, QPointF, QTimer, QUrl, Qt
 from PySide6.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
-from PySide6.QtWidgets import QApplication, QListWidget, QWidget
+from PySide6.QtWidgets import (
+    QApplication, QDialog, QLabel, QListWidget, QWidget,
+)
 
 from spacr.qt import dnd as dnd_mod
 from spacr.qt.dnd import (
@@ -71,10 +74,39 @@ def _drop(widget, paths, remote=(), enter_paths=None):
     return e3
 
 
+# Captured at import time, which runs during collection — before the autouse
+# tests/qt/conftest.py::_no_unguarded_modals fixture replaces these with a
+# function that raises. This is the only handle on the genuine exec left once
+# a test has started.
+_REAL_DIALOG_EXEC = QDialog.exec
+_REAL_DIALOG_EXEC_ = getattr(QDialog, "exec_", None)
+
+
 @contextlib.contextmanager
-def _auto_modal(action="accept", select_row=None):
-    """Accept (or reject) the next modal dialog that appears."""
-    state = {"seen": 0}
+def _auto_modal(action="accept", select_row=None, on_modal=None,
+                timeout_ms=5000):
+    """Accept (or reject) the next modal dialog that appears.
+
+    Since 2026-08-08 (commit 3b758161) tests/qt/conftest.py installs an
+    autouse ``_no_unguarded_modals`` fixture that makes ``QDialog.exec``
+    raise, because three separate suite hangs were all one thing: a modal in
+    a headless run with nobody to click it. That guard names its own
+    exception — "a test that genuinely drives a dialog patches it itself" —
+    and this file is that case, so the real ``exec`` goes back for the
+    duration of the block and the guard is restored on the way out. The
+    opt-out is scoped to the block on purpose: a file-wide one would put
+    every other test here back in the class of failure the guard exists to
+    stop.
+
+    The watchdog keeps the guard's promise. If ``tick`` never manages to
+    answer the dialog, the block force-closes it after ``timeout_ms`` and
+    fails, rather than wedging the run for hours the way the pre-guard code
+    would have.
+
+    :param on_modal: called with the dialog while it is up, before it is
+        accepted/rejected — for asserting on what the dialog actually built.
+    """
+    state = {"seen": 0, "timed_out": False}
     t = QTimer()
     t.setInterval(5)
 
@@ -85,15 +117,44 @@ def _auto_modal(action="accept", select_row=None):
         if select_row is not None:
             for lw in dlg.findChildren(QListWidget):
                 lw.setCurrentRow(select_row)
+        if on_modal is not None:
+            on_modal(dlg)
         state["seen"] += 1
         getattr(dlg, action)()
 
+    def give_up():
+        state["timed_out"] = True
+        for w in QApplication.topLevelWidgets():
+            if isinstance(w, QDialog) and w.isVisible():
+                w.done(0)
+
+    watchdog = QTimer()
+    watchdog.setSingleShot(True)
+    watchdog.timeout.connect(give_up)
+
     t.timeout.connect(tick)
     t.start()
+    watchdog.start(timeout_ms)
+
+    # Last thing before the try, so nothing can leave the guard off.
+    guarded_exec = QDialog.exec
+    guarded_exec_ = getattr(QDialog, "exec_", None)
+    QDialog.exec = _REAL_DIALOG_EXEC
+    if _REAL_DIALOG_EXEC_ is not None:
+        QDialog.exec_ = _REAL_DIALOG_EXEC_
     try:
         yield state
     finally:
+        watchdog.stop()
         t.stop()
+        QDialog.exec = guarded_exec
+        if guarded_exec_ is not None:
+            QDialog.exec_ = guarded_exec_
+    assert not state["timed_out"], (
+        f"no modal was answered within {timeout_ms} ms — the dialog either "
+        f"never went modal or ignored .{action}(), and without the watchdog "
+        "this would have hung the run"
+    )
 
 
 class _Console:
@@ -490,7 +551,7 @@ def test_rejected_drop_with_alternatives_applies_the_users_pick(
     w = zone(h)
     with _auto_modal("accept", select_row=1) as st:
         _drop(w, [wrong])
-    assert st["seen"] >= 1
+    assert st["seen"] == 1                 # exactly one dialog, asked once
     assert h.applied == [other]            # row 1 of the alternatives
     assert msgbox.calls == []
 
@@ -505,7 +566,7 @@ def test_rejected_drop_with_alternatives_cancelled_applies_nothing(
     w = zone(h)
     with _auto_modal("reject") as st:
         _drop(w, [wrong])
-    assert st["seen"] >= 1
+    assert st["seen"] == 1                 # cancelling is not re-asked
     assert h.applied == []
     assert msgbox.calls == []
 
@@ -518,8 +579,9 @@ def test_alternative_pick_that_fails_to_apply_warns(zone, tmp_path, msgbox):
     h = RecordingHandler(accept=False, alternatives=[right],
                          raise_on_apply=True)
     w = zone(h)
-    with _auto_modal("accept"):
+    with _auto_modal("accept") as st:
         _drop(w, [wrong])
+    assert st["seen"] == 1                 # the pick really went through
     assert msgbox.calls == []
     assert "Reason: The drop handler failed: boom: disk on fire" in \
         w._console.text
@@ -645,6 +707,37 @@ def test_apply_settings_csv_works_without_a_console(tmp_path, msgbox):
 # suggest_alternatives_dialog — the real dialog
 # ---------------------------------------------------------------------------
 
+def test_auto_modal_hands_the_headless_guard_back(qtbot, qt_theme_applied,
+                                                   tmp_path):
+    """_auto_modal's opt-out from conftest's ``_no_unguarded_modals`` must be
+    scoped to the block.
+
+    The guard (2026-08-08) is what stops an unanswered modal hanging the
+    whole qt run, and this file is the one place that turns it off. If the
+    restore ever regressed, every later test in the file would silently lose
+    the protection, so it is asserted rather than assumed.
+    """
+    assert QDialog.exec is not _REAL_DIALOG_EXEC      # guard in force here
+    with _auto_modal("reject"):
+        assert QDialog.exec is _REAL_DIALOG_EXEC      # real exec inside
+        suggest_alternatives_dialog(None, tmp_path / "o", [tmp_path / "a"])
+    assert QDialog.exec is not _REAL_DIALOG_EXEC      # and handed back
+
+
+def test_auto_modal_watchdog_fails_instead_of_hanging(qtbot, qt_theme_applied,
+                                                       tmp_path):
+    """A modal nobody answers must fail fast, not wedge the run.
+
+    This is the property the conftest guard buys and that _auto_modal must
+    not give away when it puts the real ``exec`` back: with a tick that
+    refuses to close the dialog, the watchdog closes it and the block raises.
+    """
+    with pytest.raises(AssertionError, match="would have hung the run"):
+        with _auto_modal("show", timeout_ms=300):     # show() never closes it
+            suggest_alternatives_dialog(None, tmp_path / "o", [tmp_path / "a"])
+    assert QDialog.exec is not _REAL_DIALOG_EXEC      # still handed back
+
+
 def test_suggest_dialog_returns_first_row_by_default(qtbot, qt_theme_applied,
                                                      tmp_path):
     alts = [tmp_path / "one", tmp_path / "two"]
@@ -678,29 +771,29 @@ def test_suggest_dialog_returns_none_when_nothing_is_selected(
 
 def test_suggest_dialog_lists_every_alternative(qtbot, qt_theme_applied,
                                                  tmp_path):
+    """Used to hand-roll its own QTimer; moved onto _auto_modal 2026-08-10 so
+    that the conftest modal guard is opted out of in exactly one place, and
+    so this one inherits the watchdog too."""
     alts = [tmp_path / "a", tmp_path / "b", tmp_path / "c"]
     captured = {}
 
-    t = QTimer()
-    t.setInterval(5)
-
-    def tick():
-        dlg = QApplication.activeModalWidget()
-        if dlg is None:
-            return
+    def look(dlg):
         lw = dlg.findChildren(QListWidget)[0]
         captured["items"] = [lw.item(i).text() for i in range(lw.count())]
         captured["title"] = dlg.windowTitle()
-        dlg.reject()
+        captured["row"] = lw.currentRow()
+        captured["why"] = "".join(
+            lb.text() for lb in dlg.findChildren(QLabel)
+        )
 
-    t.timeout.connect(tick)
-    t.start()
-    try:
+    with _auto_modal("reject", on_modal=look) as st:
         suggest_alternatives_dialog(None, tmp_path / "orig", alts, why="why!")
-    finally:
-        t.stop()
+    assert st["seen"] == 1
     assert captured["items"] == [str(a) for a in alts]
     assert captured["title"] == "Did you mean…"
+    assert captured["row"] == 0            # first row preselected
+    assert "orig" in captured["why"]       # names the path that was refused
+    assert "why!" in captured["why"]       # and the reason it was refused
 
 
 # ---------------------------------------------------------------------------

@@ -17,7 +17,10 @@ The fix, and what these tests hold it to:
 * the sample is stable — re-rendering must never silently swap it — and
   changing the maximum, an explicit act, redraws it;
 * the panel says out loud that it is showing N of M sets;
-* the maximum sits immediately **left** of the sets dropdown in every panel.
+* the maximum sits immediately **left** of the thing it sizes: the sets
+  dropdown in Measure, Timelapse and Motility, and — since b840a914
+  (2026-08-05) made the set table Mask's source selector — the ``Choose
+  image…`` button in Mask, where what it sizes is the table below.
 
 The file-opening assertions count **real** ``open`` and ``imread`` calls, not a
 counter the code under test maintains.
@@ -436,10 +439,16 @@ def test_a_folder_the_regex_cannot_parse_still_lists_file_names(
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("factory", [
-    LivePreviewPanel, MeasurePreviewPanel, TimelapsePreviewPanel,
-    MotilityPreviewPanel,
+    MeasurePreviewPanel, TimelapsePreviewPanel, MotilityPreviewPanel,
 ])
 def test_max_sets_control_sits_left_of_the_sets_dropdown(factory, qtbot):
+    """The cap sits on the dropdown it sizes, in the three panels that show one.
+
+    LivePreviewPanel was in this list until b840a914 (2026-08-05), "the table
+    is the source selector", which took the field dropdown out of its pick row
+    — there is no dropdown there to be left of any more. It has its own
+    placement test below; it was not dropped.
+    """
     panel = factory()
     qtbot.addWidget(panel)
     row = panel._pick_row
@@ -450,6 +459,44 @@ def test_max_sets_control_sits_left_of_the_sets_dropdown(factory, qtbot):
     assert index < widgets.index(panel._fov_box)
     # Immediately left of it — nothing gets between them.
     assert widgets[index + 1] is panel._fov_box
+
+
+def test_max_sets_control_caps_the_mask_preview_table_from_beside_choose(
+        tmp_path, qtbot):
+    """The Mask preview's cap sizes the set table, and sits last before Choose.
+
+    b840a914 (2026-08-05) made the table the source selector, so the number
+    that used to say how many entries the field dropdown offered now says how
+    many **rows** the table has. The control did not move house: it is still
+    the last thing in the pick row before ``Choose image…``, still to the
+    right of the images cap it reads next to.
+    """
+    panel = LivePreviewPanel()
+    qtbot.addWidget(panel)
+    row = panel._pick_row
+    widgets = [row.itemAt(i).widget() for i in range(row.count())]
+
+    assert panel._fov_box not in widgets            # the redesign, pinned
+    index = widgets.index(panel._max_sets_box)
+    assert widgets.index(panel._max_images_box) < index
+    # Immediately left of the Choose control — nothing gets between them.
+    assert widgets[index + 1] is panel._pick_btn
+
+    tile = np.zeros((8, 8), dtype=np.uint16)
+    for field in range(1, 6):
+        tifffile.imwrite(
+            tmp_path / f"plate1_A01_T0001F{field:03d}L01A01Z01C01.tif", tile)
+    panel.load_image(sorted(tmp_path.iterdir())[0])
+    assert panel._max_sets_box.value() == 5         # clamped to what exists
+    assert panel._set_table.rowCount() == 5         # a row per set
+
+    panel._max_sets_box.setValue(2)
+    # Two drawn, plus the set on screen if the draw missed it — the open image
+    # always keeps a row to click back to. Never all five: the cap bit.
+    assert panel._set_table.rowCount() in (2, 3)
+    # The table is a readable form of the same sample the dropdown lists, not
+    # a second, differently-populated view of the folder.
+    assert panel._set_table.rowCount() == panel._fov_box.count()
 
 
 @pytest.mark.parametrize("factory", [

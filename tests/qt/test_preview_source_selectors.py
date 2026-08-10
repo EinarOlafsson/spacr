@@ -1,9 +1,14 @@
 """FOV and channel dropdowns in every live preview, asserted by rendering.
 
 Execution list 5.3. Four modules ship a live preview — Mask, Measure,
-Timelapse and Motility — and each now carries a field-of-view dropdown and a
-channel dropdown sitting immediately *left* of its ``Choose …`` control, all
-three flat and chrome-free like the **Live** toggle beside them.
+Timelapse and Motility — and each carries a field-of-view dropdown and a
+channel dropdown, flat and chrome-free like the **Live** toggle beside them.
+Three of them show those two immediately *left* of the ``Choose …`` control.
+Mask no longer does: b840a914 (2026-08-05), "the table is the source
+selector", took both out of that row because the set table picks exactly what
+they picked and two controls for one choice can disagree. They are still
+constructed and still driven there, so every *selection* test below applies to
+all four; only the placement test splits in two.
 
 The tests assert the layout order by index, the flat look against the very
 palette entries :class:`AiToggleLabel` paints itself with, and — the part that
@@ -135,10 +140,16 @@ PREVIEW_PANELS = (
 )
 
 
-@pytest.mark.parametrize("app_key,build,choose_text", PREVIEW_PANELS,
-                         ids=[p[0] for p in PREVIEW_PANELS])
-def test_every_live_preview_has_fov_and_channel_left_of_choose(
+#: The three that still *show* the two dropdowns. Mask left this list in
+#: b840a914 (2026-08-05) — see the test below it.
+DROPDOWN_PANELS = tuple(p for p in PREVIEW_PANELS if p[0] != "mask")
+
+
+@pytest.mark.parametrize("app_key,build,choose_text", DROPDOWN_PANELS,
+                         ids=[p[0] for p in DROPDOWN_PANELS])
+def test_dropdown_previews_have_fov_and_channel_left_of_choose(
         qtbot, app_key, build, choose_text):
+    """Measure, Timelapse and Motility keep the 5.3 row exactly as laid out."""
     panel = build(qtbot)
     row = panel._pick_row
     fov = row.indexOf(panel._fov_box)
@@ -148,8 +159,52 @@ def test_every_live_preview_has_fov_and_channel_left_of_choose(
     assert fov >= 0 and channel >= 0 and choose >= 0
     # FOV, then channel, then the Choose control — dropdowns on its left.
     assert fov < channel < choose
+    # Shown, not merely laid out: a hidden widget still has a layout index.
+    assert panel._fov_box.isVisibleTo(panel)
+    assert panel._channel_box.isVisibleTo(panel)
     assert (panel._pick_btn if app_key != "timelapse"
             else panel._seq_btn).text() == choose_text
+
+
+def test_the_mask_preview_selects_its_source_from_the_table_not_the_dropdowns(
+        qtbot):
+    """b840a914 (2026-08-05): one choice, one control, and it is the table.
+
+    The field and channel dropdowns picked precisely what the set table picks,
+    so the Mask panel carried two controls for one choice that could disagree.
+    Both left the pick row — but neither was deleted, because
+    ``apply_sample_to_combo`` still fills the field box, the saved view state
+    still names a field through it, and ``display_channel()`` still reads the
+    channel box. So this pins all three halves of that decision: out of the
+    row, not shown, still live. It also pins what 10ece3b9 was about — the
+    ``Choose image…`` button stays in the row, so a folder whose names the
+    configured regex cannot group leaves an empty table but never leaves the
+    user with no way at all to open an image.
+    """
+    panel = _mask_panel(qtbot)
+    row = panel._pick_row
+
+    # Out of the row, and not shown even so.
+    assert row.indexOf(panel._fov_box) == -1
+    assert row.indexOf(panel._channel_box) == -1
+    assert not panel._fov_box.isVisibleTo(panel)
+    assert not panel._channel_box.isVisibleTo(panel)
+
+    # Still constructed and still the objects the rest of the panel reads.
+    assert isinstance(panel._fov_box, FlatComboBox)
+    assert isinstance(panel._channel_box, FlatComboBox)
+    assert panel._channel_box.currentText() == ALL_CHANNELS
+    assert panel.display_channel() is None          # reads the hidden combo
+
+    # The table is the visible selector, and it is shown.
+    assert panel._set_table.objectName() == "PreviewSetTable"
+    assert panel._table_split.indexOf(panel._set_table) >= 0
+    assert panel._set_table.isVisibleTo(panel)
+
+    # ... with the file dialog still beside it as the ungroupable-folder path.
+    assert row.indexOf(panel._pick_btn) >= 0
+    assert panel._pick_btn.isVisibleTo(panel)
+    assert panel._pick_btn.text() == "Choose image…"
 
 
 @pytest.mark.parametrize("app_key,build,_choose", PREVIEW_PANELS,

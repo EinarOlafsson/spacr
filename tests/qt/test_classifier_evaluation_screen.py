@@ -71,6 +71,27 @@ def screen(qtbot, qt_theme_applied, evaluation_root):
     return widget
 
 
+#: The workbench's own settings, as Classify must offer them. Their GROUP was
+#: "Evaluation Workbench" until 2026-08-06/07 (c41a75b6, 30500970), when
+#: Classify's nine categories became six: "Validation", "Evaluation Workbench"
+#: and "Monitoring & Runtime" were three headings asking one question — how do
+#: I know whether this worked — so nobody looking for a cross-validation
+#: setting knew which of the three to open. They are now under "Evaluation &
+#: Results", and this test pins the placement rather than the old name.
+EVALUATION_SETTINGS = [
+    "classifier_evaluation",
+    "nested_cv_inner_folds",
+    "evaluation_calibration",
+    "evaluation_bins",
+    "evaluation_fail_on_leakage",
+    "leakage_audit_train_test",
+    "leakage_hash_content",
+    "leakage_require_identity",
+]
+
+EVALUATION_GROUP = "Evaluation & Results"
+
+
 def test_registration_metadata_matches_app_registry():
     from spacr.qt.app import APPS
     from spacr.qt.screens.settings_model import (
@@ -83,19 +104,16 @@ def test_registration_metadata_matches_app_registry():
     assert row[1] == APP_NAME == "Classifier Evaluation"
     assert row[3] == APP_SECTION == "Results & QC"
     assert APP_INTRO
-    settings = [
-        "classifier_evaluation",
-        "nested_cv_inner_folds",
-        "evaluation_calibration",
-        "evaluation_bins",
-        "evaluation_fail_on_leakage",
-        "leakage_audit_train_test",
-        "leakage_hash_content",
-        "leakage_require_identity",
-    ]
     categories = categories_for_app("classify", get_categories())
-    assert categories["Evaluation Workbench"] == settings
-    for key in settings:
+    assert EVALUATION_GROUP in categories
+    for key in EVALUATION_SETTINGS:
+        # Placed EXACTLY once, and in the evaluation group. Naming its home
+        # by hand is what broke when the groups merged; asking where every
+        # home is catches the failure the rename could actually cause — a
+        # setting silently falling through into the "Additional Settings"
+        # catch-all, where it is curated by nobody.
+        homes = [name for name, keys in categories.items() if key in keys]
+        assert homes == [EVALUATION_GROUP], (key, homes)
         assert api_docs_url("classify", key).endswith(
             "/spacr/classifier_evaluation/index.html"
         )
