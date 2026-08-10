@@ -679,3 +679,38 @@ So the remaining 35 need a person to open the consuming function and read
 what it does when the key is absent. About a minute each, best done while
 touching a module for another reason -- and the guard test now holds the
 line at 35 so it cannot quietly grow back.
+
+--------------------------------------------------------------------------------
+2026-08-09 - SEVEN OF THE REMAINING SETTINGS DO NOT EXIST
+--------------------------------------------------------------------------------
+
+    no stated default   16 -> 9
+
+Chasing the last defaults turned up something better than a default. Seven
+of them are PHANTOM settings -- documented in the tooltips table, read by
+nothing in the package, and offered by NO module:
+
+    postprocess_cell_masks        postprocess_nucleus_masks
+    postprocess_pathogen_masks    postprocess_organelle_masks
+    signal_direction              redunction_method
+    plate_dict
+
+Measured three ways: zero mentions anywhere outside settings.py, and
+`resolve_default_settings` for all ten apps returns none of them. So they
+have no default because they are not part of anything -- a user who finds
+one in the documentation and sets it in a settings CSV gets silence.
+
+`redunction_method` is worth noticing on its own: it is a typo of
+"reduction_method", which is presumably why nothing reads it.
+
+Each now says so explicitly rather than being given an invented default.
+That is the honest fix from HERE; the real fix is a product decision --
+delete them from the table, or restore whatever they were meant to do.
+Marking them makes that decision possible without making it.
+
+REMAINING 9: highlight, offset, pathogens, pathogen_loc, organelle_chann_dim,
+reverse_complement, infection_pca_method, infection_xgb_proba,
+infection_intensity_qc_panel_path. Of these, `infection_pca_method` is
+WRITTEN by spacr/timelapse.py:4636 rather than read -- it is an output
+recorded into the settings dict, not an input, which is a different thing
+again and should be said rather than given a default.
