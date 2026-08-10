@@ -114,19 +114,19 @@
       "id": "05_home",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker Hjemskærmen og navigationen. Besøg applikationen, dens modulgrupper, køre resuméer, modulationsindikatorer og navigationskontroller."
+          "narration": "Hjemgrupper spaCR moduler efter arbejdsproces, så du kan gå fra billedbehandling gennem analyse og kvalitetskontrol."
         },
         {
-          "narration": "Åbner Hjemskærmen og navigerer fra Hjem afsnittet. Start desktop-applikationen spaCR og start på Home."
+          "narration": "Brug venstre sidebar til at skifte sektioner. Vælg Hjem, når du vil vende tilbage til det fulde modulbibliotek."
         },
         {
-          "narration": "I hovedkonfigurationsområdet skal du bruge sidebar, kategoriflag, søgelige appflade og kommandopalette til at nå en arbejdsproces."
+          "narration": "Browse kategorifilerne og arbejdsflow-rækkerne for at finde et modul. Hver tegl åbner en arbejdsproces, og farven angiver, om modulen er alfa, beta eller stabil."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. Åbn et modul kun, når du har til hensigt at interagere med det; pointeren vises kun for reelle klik."
+          "narration": "Den højre panel viser den aktuelle system brug, udgivelse nyheder, og modul-stat legenden. Kontroller systembruget, før du begynder dyrt arbejde."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, kan du gå gennem applikationen og forstå de statusoplysninger, der vises på Home."
+          "narration": "Vælg en modulplade for at åbne indstillingskærmen. Modulens navn og beskrivelse øverst bekræfter hvilken arbejdsproces der er aktiv."
         }
       ]
     },
@@ -154,37 +154,49 @@
       "id": "07_mask",
       "scenes": [
         {
-          "narration": "Mask placerer indstillingerne til venstre og køre-konsolaren til højre. Konsolen rapporterer validering, fremskridt, advarsler og gemte udgang."
+          "narration": "Masken placerer indstillingerne til venstre og køre-konsollen til højre. Konsolen rapporterer validering, fremskridt, advarsler og gemte output."
         },
         {
-          "narration": "Sæt kildebilledmappen i Mask. bekræft det registrerede filnavn og metadata, og kortlæg derefter hver erhvervskanale til dets biologiske signal. I dette eksempel indeholder de fire kanaler kerner, endoplasmatisk retikulum, lipiddråber og parasitter."
+          "narration": "Slip kildebilledmappen ind i Mask. Bekræft det registrerede filnavn og metadata, og kortlæg derefter hver optagelseskanal til det biologiske signal. I dette eksempel indeholder de fire kanaler kerne, endoplasmatisk retikulum, lipiddråber og parasitter."
         },
         {
-          "narration": "Det væsentlige viser de kontroller, der er nødvendige for en typisk løb. Brug Alle kun, når du har brug for avancerede muligheder, Modificeret til at gennemgå ændrede værdier og Recipes til at gemme en konfiguration, du vil genbruge."
+          "narration": "Essentials viser de kontroller, der er nødvendige for et typisk løb. Brug Alle kun, når du har brug for avancerede muligheder, Modificeret til at gennemgå ændrede værdier og opskrifter til at gemme en konfiguration, du vil genbruge."
         },
         {
-          "narration": "I indgang og metadata, verificere kildespanden, kanaltildeling, forstørrelse og filnavn metadata før konfigurering segmentering."
+          "narration": "I Input og Metadata skal du kontrollere kildemappen, kanaltildelinger, forstørrelse og filnavnmetadata, før du konfigurerer segmentering."
         },
         {
-          "narration": "Arbejdstrøm og testrun kontrollerer, hvilke masker der oprettes, om eksisterende arbejde genoptages, og hvor mange repræsentative felter der anvendes til en test."
+          "narration": "Workflow og Test Run kontrollerer, hvilke masker der oprettes, om eksisterende arbejde genoptages, og hvor mange repræsentative felter der anvendes til en test."
         },
         {
-          "narration": "Cellen, kernen, patogenen og organellen deler hver gruppe model, kanal, kernegrænser og objektfiltre til det pågældende rum. Ændre kun indstillinger, der er nødvendige for de aktuelle billeder."
+          "narration": "Cellen, kernen, patogenen og organellen deler hver gruppe model, kanal, kernegrænser og objektfilter til det rum. Ændre kun indstillinger, der er nødvendige for de aktuelle billeder."
         },
         {
-          "narration": "Aktiver Live Preview, last et repræsentativt billede og vælg det rum, du afstemmer. Brug forarbejdning som normalisering kun, når det forbedrer dette billede."
+          "narration": "Aktiver Live Preview, indlæse et repræsentativt felt og vælg det objekt, du afstemmer. Dette eksempel forudsiger cellens signal."
         },
         {
-          "narration": "Gør en forhåndsvisning og inspicér kilden ved siden af overlaget. Objektlinjerne skal følge de synlige biologiske grænser uden at forbinde naboer eller mangler klare objekter."
+          "narration": "I Live-indstillinger bekræft først objektet og kanalen. Juster diameteren, strømningsgrænsen eller cellens sandsynlighed kun, når forbilledet giver dig en grund."
         },
         {
-          "narration": "Skift mellem Overlay, Flow og Masker, når du skal diagnosticere et resultat. Masker viser de sidste mærkede genstande; sort er baggrunden."
+          "narration": "Tænd indstillingerne Spred, så de værdier, du validerer her, bliver indstillingerne, der anvendes af den fulde run."
         },
         {
-          "narration": "Hvis der stadig er tydelige fragmenter eller artefakter, skal du justere et relevant objektfilter, f.eks. minimum areal, og sammenligne forhåndsvisning igen. Vælg værdien fra billedskalaen i stedet for at kopiere et tutorialnummer."
+          "narration": "Gennemfør forhåndsvisning og inspicér overlæg ved siden af kilden. Grænserne skal følge de synlige celler uden at gå sammen med naboer eller mangler klare objekter."
         },
         {
-          "narration": "Vælg de masker og mellemfiler, du har brug for i Udgang og Lagring. Gør en lille test først, og så behandle den fulde kilde efter forhåndsvisning og konsolkontrol passerer."
+          "narration": "Skift til Flow for at kontrollere det retningsfelt, Cellpose bruger. Uregelmæssige strømningsmønstre kan hjælpe med at forklare masker, der splittes eller sammensættes forkert."
+        },
+        {
+          "narration": "Masker isolerer de endelige mærker mod en sort baggrund. Brug det til at tjekke objekt dækning og adskillelse uden kildebilledet under."
+        },
+        {
+          "narration": "Objektfiltre opdaterer den caché forhåndsvisning med det samme. Løft kun det mindste område nok til at fjerne tydelige fragmenter; den korrekte afskæring afhænger af billedskalaen."
+        },
+        {
+          "narration": "Sammenlign den filtrerede overlapning med den oprindelige forhåndsvisning. De oprindelige celler skal forblive, og hvis de forsvinder, skal den mindste areal reduceres."
+        },
+        {
+          "narration": "Vælg de masker og mellemfiler, du har brug for i Udgang og Lagring. Udfør først en lille test, og behandle derefter den fulde kilde, efter forhånds- og konsolkontrol er gået."
         }
       ]
     },
@@ -443,34 +455,37 @@
       "id": "15_image_umap",
       "scenes": [
         {
-          "narration": "Image UMAP reducerer højdimensionelle objektsmålinger til to koordinater og placerer mikroskopiske afgrøder på kortet. Konsolen samler optegnelser, forudbearbejder, indlejrer, grupperer og udsteder."
+          "narration": "Image UMAP reducerer højdimensionelle objektmålinger til to koordinater og placerer mikroskopiske afgrøder på kortet. Konsolens optegnelser føjes sammen, forudbearbejdes, indlejres, grupperes og udgives."
         },
         {
-          "narration": "Paths vælger det målte projekt. Image UMAP lokaliserer målinger dot db og bruger eksisterende afgrøder eller bygger afgrøder fra sammensatte matriser, når de understøttes."
+          "narration": "Paths vælger det målte projekt. Image UMAP lokaliserer målinger dot db og bruger eksisterende afgrødebilleder eller bygger afgrøder fra fusionerede arrays, når de understøttes."
         },
         {
-          "narration": "Målinger vælger de tilkoblede objekttabeller og funktion families, fjerner eksplicit udelukkelse og kan droppe redundante korrelerede funktioner. Disse valg definerer kartens geometri."
+          "narration": "Målinger udvælger de tilslutte objekttabeller og funktion families, fjerner eksplicit udelukkelse og kan slippe overflødige korrelerede funktioner. Disse valg definerer kartens geometri."
         },
         {
-          "narration": "Plate Layout og Controls udelukker fejlagtige brønde, kontroller eller metadatagrupper, der ikke skal forme denne eksplorerende indlejring."
+          "narration": "Plate Layout and Controls udelukker fejlagtige brønde, kontroller eller metadatagrupper, der ikke skal forme denne eksplorerende indlejring."
         },
         {
-          "narration": "Computer Vision Data Source vælger, om billedderiverede funktioner supplerer de målte funktioner og hvor deres afgrøder kommer fra. Brug dem kun, når billedudseendet er en del af spørgsmålet."
+          "narration": "Computer Vision Data Source vælger, om billedderiverede funktioner supplerer de målte funktioner, og hvor deres afgrøder kommer fra. Brug dem kun, når billedudseendet er en del af spørgsmålet."
         },
         {
-          "narration": "Embedding og Clustering vælger UMAP eller t-SNE, nabolagets adfærd, afstandsmetrik, compartment og valgfri clustering. Sammenlign gentagelige indstillinger og behandle ikke et layout som grundlig sandhed."
+          "narration": "Embedding og Clustering vælger UMAP eller t-SNE, nabolagets adfærd, afstandsmetrik, compartment og valgfri clustering. Sammenlign reproducerbare indstillinger og behandle ikke ét layout som grundlig sandhed."
         },
         {
-          "narration": "UMAP Display kontrollerer punktstyle, høst glyph tælle og zoom, clustergrids, baggrund og gemte figurer. Disse displayvalg ændrer ikke de anpassede koordinater."
+          "narration": "UMAP Display kontrollerer punktstil, høstglyf tal og zoom, baggrund og gemte figurer. Hold afgrødeglyfer kun lidt større end punkterne, så indlejringen forbliver synlig; disse displayvalg ændrer ikke monterede koordinater."
         },
         {
-          "narration": "Hyperparameter Search er en mini-arbejdsbord til sammenligning af et fokuseret sæt af UMAP-valg. Brug dens små-multiple resultater til at bedømme stabilitet og struktur, og anvende derefter en revideret konfiguration til fuld løbetid."
+          "narration": "Brug Hyperparameter Search før fuld run for at sammenligne et fokuseret sæt af UMAP-valg. Dens små-multiple resultater afslører layouter, der er ustabile eller skjule nyttige strukturer."
         },
         {
-          "narration": "Run validerer databasen og kildekortet, tilslutter og filtrerer numeriske funktioner, prøver rækker, passer til reduceren og valgfrie klynger, og skriver derefter justerede resultatoptegnelser."
+          "narration": "Vælg et gennemgået søgeresultat, og vælg derefter Indstillinger til at sprede. Dette kopierer dens nabolagstørrelse, minimumsafstand og metrik i hovedbilledet UMAP-formularen før fuld løbetid."
         },
         {
-          "narration": "Det færdige galleri viser det mikroskopiske glyfkort og klyngegraden. De gemte udgivelser omfatter koordinater, clusteretiketter, tal, indstillinger og en reproducerbarhedsanvisning."
+          "narration": "Run validerer databasen og afgrødekilden, tilslutter og filtrerer numeriske funktioner, prøver rækker, passer til reduktor og valgfrie klynger, og skriver derefter justerede resultatoptegnelser."
+        },
+        {
+          "narration": "Det færdige kort holder UMAP-punktskylen synlig og overlapper små gennemsigtige mikroskopiske afgrøder på repræsentative stillinger. De gemte udgivelser omfatter koordinater, clusteretiketter, figur, indstillinger og en reproducerbarhedsanvisning."
         }
       ]
     },
@@ -1651,19 +1666,22 @@
       "id": "64_gate_editor",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker Gate Editor. Tegn, redigér, anbring og genbrug målesteder som gennemsigtige befolkningsfiltre."
+          "narration": "Gate Editor omdanner områder af et målebord til navngivne, genanvendelige befolkningsporte. Arbejdsrummet holder funktionsaxerne, tegning værktøjer, fuld datavisning og gate hierarki sammen."
         },
         {
-          "narration": "Åbn en målebord og vælg karakteristika for et histogram eller to-dimensionel spredt."
+          "narration": "I 2D vælg X og Y for en scatter, eller efterlad Y tom for et histogram. Vælg et tærskelværktøj eller et formværktøj og tegne omkring den tilsigtede befolkning. Den fulde sky forbliver synlig, mens de inkluderede objekter fremhæves."
         },
         {
-          "narration": "I det primære konfigurationsområde skal du vælge et tærskel, rektangel, ellips eller polygonværktøj og gennemgå aksetransformer, tæthedskærm og moders befolkning."
+          "narration": "Vælg 3D- og Z-målinger for at kontrollere et roterende volumen. Akselknapperne styrer spinnet, og Box gate registrerer grænserne på alle tre visede målinger."
         },
         {
-          "narration": "Tegn en port, tjek dens antal og procentdel, og flytter derefter hjørner eller kanter, indtil grænsen matcher den ønskede befolkning."
+          "narration": "Vælg xD for at projektere de støtteberettigede målinger i hovedkomponenter. Kildemærkningens rapporter forklarede variansen, og PC1, PC2 og PC3 blev almindelige akser for de samme gatingværktøjer."
         },
         {
-          "narration": "Når arbejdsprocessen er færdig, kan navngivne indlejrede porte filtrere sammenkoblede visninger, drive annotation og gemmes til anvendelse på senere plader."
+          "narration": "Gate-hierarkiet rapporterer objektantallet, procentdelen af dets moderskab og procentdelen af alle rækker. Vælg en portens stikkasse for at vise eller skjule den, og vælg en port før du tegner, hvornår den næste befolkning skal være indlejret i den."
+        },
+        {
+          "narration": "Giv hver enkelt befolkning et meningsfuldt navn, så gem portestrategien. Last den på en kompatibel tabel for at genbruge de samme funktionernavne, grænser og hierarki, og verificere de nye tal før du fortsætter."
         }
       ]
     },

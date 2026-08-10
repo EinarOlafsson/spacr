@@ -274,47 +274,47 @@
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home screen and navigation",
+      "title": "La pantalla de inicio y la navegación",
       "series": 1,
-      "app_key": "__home__",
-      "section": "Home",
-      "description": "Visite la aplicación, sus grupos de módulos, ejecute resúmenes, indicadores de madurez y controles de navegación.",
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Encontrar módulos, inspeccionar el estado de la aplicación y pasar a un flujo de trabajo desde la pantalla de inicio de spaCR.",
       "objectives": [
-        "Comprender cuándo utilizar la pantalla de inicio y la navegación.",
-        "Configurar las entradas y configuraciones importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus salidas."
+        "Encuentra módulos en Inicio, pestañas de categorías o en la barra lateral.",
+        "Leer la información del sistema y del estado del módulo.",
+        "Abre un flujo de trabajo y confirma el módulo activo."
       ],
       "prerequisite": "Instale y inicie la aplicación de escritorio spaCR.",
       "scenes": [
         {
-          "narration": "Este tutorial cubre la pantalla de inicio y la navegación. Recorre la aplicación, sus grupos de módulos, ejecuta resúmenes, indicadores de madurez y controles de navegación.",
+          "narration": "La pantalla Home agrupa los módulos de spaCR por flujo de trabajo, para que pueda avanzar desde el procesamiento de imágenes hasta el análisis y el control de calidad.",
           "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial cubre la pantalla de inicio y la navegación. Recorre la aplicación, sus grupos de módulos, ejecuta resúmenes, indicadores de madurez y controles de navegación."
+          "hold_after": 0.7,
+          "speech_text": "La pantalla Home agrupa los módulos de espáquer por flujo de trabajo, para que pueda avanzar desde el procesamiento de imágenes hasta el análisis y el control de calidad."
         },
         {
-          "narration": "Abra Home screen and navigation en la sección Home. Abre la pantalla de inicio y navega desde la sección de inicio. Lanza la aplicación de escritorio spaCR y comienza en Inicio.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Home screen and navigation en la sección Home. Abre la pantalla de inicio y navega desde la sección de inicio. Lanza la aplicación de escritorio espáquer y comienza en Inicio."
+          "narration": "Utilice la barra lateral izquierda para cambiar de sección. Seleccione Home cuando quiera volver a la biblioteca completa de módulos.",
+          "visual": "navigation",
+          "hold_after": 0.7,
+          "speech_text": "Utilice la barra lateral izquierda para cambiar de sección. Seleccione Home cuando quiera volver a la biblioteca completa de módulos."
         },
         {
-          "narration": "En el área de configuración principal, utilice la barra lateral, las pestañas de categorías, las fichas de aplicaciones buscadas y la paleta de comandos para llegar a un flujo de trabajo.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "En el área de configuración principal, utilice la barra lateral, las pestañas de categorías, las fichas de aplicaciones buscadas y la paleta de comandos para llegar a un flujo de trabajo."
+          "narration": "Explore las pestañas de categorías y las filas de flujos de trabajo para encontrar un módulo. Cada mosaico abre un flujo de trabajo y su color indica si el módulo está en estado Alpha, Beta o Stable.",
+          "visual": "modules",
+          "hold_after": 0.7,
+          "speech_text": "Explore las pestañas de categorías y las filas de flujos de trabajo para encontrar un módulo. Cada mosaico abre un flujo de trabajo y su color indica si el módulo está en estado Alpha, Beta o Stable."
         },
         {
-          "narration": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o prueba cuando esté disponible.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o prueba cuando esté disponible."
+          "narration": "El panel derecho muestra el uso actual del sistema, las novedades de la versión y la leyenda de estados de los módulos. Compruebe el uso del sistema antes de iniciar una tarea exigente.",
+          "visual": "status",
+          "hold_after": 0.7,
+          "speech_text": "El panel derecho muestra el uso actual del sistema, las novedades de la versión y la leyenda de estados de los módulos. Compruebe el uso del sistema antes de iniciar una tarea exigente."
         },
         {
-          "narration": "Cuando termine el flujo de trabajo, puede recorrer la aplicación y comprender la información de estado que se muestra en el Inicio.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Cuando termine el flujo de trabajo, puede recorrer la aplicación y comprender la información de estado que se muestra en el Inicio."
+          "narration": "Seleccione el mosaico de un módulo para abrir su pantalla de ajustes. El nombre y la descripción del módulo, en la parte superior, confirman qué flujo de trabajo está activo.",
+          "visual": "open_module",
+          "hold_after": 0.7,
+          "speech_text": "Seleccione el mosaico de un módulo para abrir su pantalla de ajustes. El nombre y la descripción del módulo, en la parte superior, confirman qué flujo de trabajo está activo."
         }
       ]
     },
@@ -374,89 +374,117 @@
       "series": 1,
       "app_key": "mask",
       "section": "Core",
-      "description": "Configure la segmentación, valida con Live Preview y crea máscaras para medición en aguas subidas.",
+      "description": "Configurar la segmentación, validarla con Live Preview, y crear máscaras para la medición en aguas subyacentes.",
       "objectives": [
-        "Verifique los metadatos de origen y el mapeo de canales.",
+        "Verifique los metadatos de origen y el mapeo del canal.",
         "Configurar sólo los controles de segmentación requeridos por las imágenes.",
         "Utilice Live Preview para validar las máscaras antes de una ejecución completa."
       ],
-      "prerequisite": "Utilice una fuente de microscopía cuyas identidades de canal y metadatos de nombre de archivo se conocen.",
+      "prerequisite": "Utilice una fuente de microscopía cuyas identidades de canal y metadatos de nombre de archivo son conocidos.",
       "scenes": [
         {
-          "narration": "La máscara coloca las configuraciones a la izquierda y la consola de ejecución a la derecha. La consola informa de validación, progreso, advertencias y salidas.",
+          "narration": "Este módulo muestra los ajustes a la izquierda y la consola de ejecución a la derecha. La consola informa sobre la validación, el progreso, las advertencias y los archivos de salida guardados.",
           "visual": "01_console",
           "hold_after": 0.7,
-          "speech_text": "La máscara coloca las configuraciones a la izquierda y la consola de ejecución a la derecha. La consola informa de validación, progreso, advertencias y salidas."
+          "speech_text": "Este módulo muestra los ajustes a la izquierda y la consola de ejecución a la derecha. La consola informa sobre la validación, el progreso, las advertencias y los archivos de salida guardados."
         },
         {
-          "narration": "Arriba la carpeta de imagen fuente en Mask. Confirme el patrón de nombre de archivo detectado y los metadatos, luego mapee cada canal de adquisición a su señal biológica. En este ejemplo, los cuatro canales contienen núcleos, retículo endoplasmático, gotas de lípidos y parásitos.",
+          "narration": "Arrastre la carpeta de imágenes de origen al módulo. Confirme el patrón de nombres de archivo y los metadatos detectados; después, asigne cada canal de adquisición a su señal biológica. En este ejemplo, los cuatro canales contienen núcleos, retículo endoplásmico, gotas lipídicas y parásitos.",
           "visual": "05_metadata",
           "hold_after": 0.7,
           "focus_key": "metadata_dialog",
-          "speech_text": "Arriba la carpeta de imagen fuente en Mask. Confirme el patrón de nombre de archivo detectado y los metadatos, luego mapee cada canal de adquisición a su señal biológica. En este ejemplo, los cuatro canales contienen núcleos, retículo endoplasmático, gotas de lípidos y parásitos."
+          "speech_text": "Arrastre la carpeta de imágenes de origen al módulo. Confirme el patrón de nombres de archivo y los metadatos detectados; después, asigne cada canal de adquisición a su señal biológica. En este ejemplo, los cuatro canales contienen núcleos, retículo endoplásmico, gotas lipídicas y parásitos."
         },
         {
-          "narration": "Los elementos esenciales muestran los controles necesarios para una carrera típica. Utilice Todos sólo cuando necesite opciones avanzadas, Modificado para revisar los valores cambiados y Recetas para guardar una configuración que volverá a usar.",
+          "narration": "Empiece por la vista de ajustes esenciales, que muestra los controles necesarios para una ejecución habitual. Abra todos los ajustes solo si necesita opciones avanzadas, revise los valores modificados y guarde como receta cualquier configuración que vaya a reutilizar.",
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "Los elementos esenciales muestran los controles necesarios para una carrera típica. Utilice Todos sólo cuando necesite opciones avanzadas, Modificado para revisar los valores cambiados y Recetas para guardar una configuración que volverá a usar."
+          "speech_text": "Empiece por la vista de ajustes esenciales, que muestra los controles necesarios para una ejecución habitual. Abra todos los ajustes solo si necesita opciones avanzadas, revise los valores modificados y guarde como receta cualquier configuración que vaya a reutilizar."
         },
         {
-          "narration": "En la entrada y metadatos, verifique la carpeta fuente, asignaciones de canal, aumento y metadatos de nombre de archivo antes de configurar la segmentación.",
+          "narration": "En Entrada y metadatos, compruebe la carpeta de origen, la asignación de canales, el aumento y los metadatos de los nombres de archivo antes de configurar la segmentación.",
           "visual": "12_category_01_input_metadata",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "En la entrada y metadatos, verifique la carpeta fuente, asignaciones de canal, aumento y metadatos de nombre de archivo antes de configurar la segmentación."
+          "speech_text": "En Entrada y metadatos, compruebe la carpeta de origen, la asignación de canales, el aumento y los metadatos de los nombres de archivo antes de configurar la segmentación."
         },
         {
-          "narration": "Control de flujo de trabajo y prueba de ejecución de las máscaras que se crean, si se reanuda el trabajo existente y cuántos campos representativos se utilizan para una prueba.",
+          "narration": "En Flujo de trabajo y ejecución de prueba, elija qué compartimentos se segmentarán, si se reanudará el trabajo existente y cuántos campos representativos se usarán en la prueba.",
           "visual": "12_category_02_workflow_test_run",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Control de flujo de trabajo y prueba de ejecución de las máscaras que se crean, si se reanuda el trabajo existente y cuántos campos representativos se utilizan para una prueba."
+          "speech_text": "En Flujo de trabajo y ejecución de prueba, elija qué compartimentos se segmentarán, si se reanudará el trabajo existente y cuántos campos representativos se usarán en la prueba."
         },
         {
-          "narration": "La célula, el núcleo, el patógeno y la órganola seccionan cada grupo el modelo, el canal, los umbrales del núcleo y los filtros de objetos para ese compartimiento. Cambiar sólo las configuraciones necesarias para las imágenes actuales.",
+          "narration": "Las secciones de células, núcleos, patógenos y orgánulos agrupan el modelo, el canal, los umbrales principales y los filtros de objetos de cada compartimento. Cambie únicamente los ajustes que requieran las imágenes actuales.",
           "visual": "12_category_04_cell_segmentation",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "La célula, el núcleo, el patógeno y la órganola seccionan cada grupo el modelo, el canal, los umbrales del núcleo y los filtros de objetos para ese compartimiento. Cambiar sólo las configuraciones necesarias para las imágenes actuales."
+          "speech_text": "Las secciones de células, núcleos, patógenos y orgánulos agrupan el modelo, el canal, los umbrales principales y los filtros de objetos de cada compartimento. Cambie únicamente los ajustes que requieran las imágenes actuales."
         },
         {
-          "narration": "Habilitar la vista previa en vivo, cargar una imagen representativa y seleccionar el compartimiento que está sintonizando. Utilice el preprocesamiento, como la normalización, sólo cuando mejore esta imagen.",
+          "narration": "Active la vista previa en vivo, cargue un campo representativo y seleccione el objeto que va a ajustar. En este ejemplo se previsualiza la señal celular.",
           "visual": "25_cell_ready",
           "hold_after": 0.7,
           "focus_key": "canvases",
-          "speech_text": "Habilitar la vista previa en vivo, cargar una imagen representativa y seleccionar el compartimiento que está sintonizando. Utilice el preprocesamiento, como la normalización, sólo cuando mejore esta imagen."
+          "speech_text": "Active la vista previa en vivo, cargue un campo representativo y seleccione el objeto que va a ajustar. En este ejemplo se previsualiza la señal celular."
         },
         {
-          "narration": "Ejecutar la vista previa e inspeccionar la fuente junto a la superposición. Los contornos de los objetos deben seguir los límites biológicos visibles sin unir a los vecinos o sin objetos claros.",
+          "narration": "En los ajustes de la vista previa, confirme primero el objeto y el canal. Ajuste el diámetro, el umbral de flujo o el umbral de probabilidad celular solo cuando la previsualización indique que es necesario.",
+          "visual": "26_live_settings",
+          "hold_after": 0.7,
+          "focus_key": "segmentation",
+          "speech_text": "En los ajustes de la vista previa, confirme primero el objeto y el canal. Ajuste el diámetro, el umbral de flujo o el umbral de probabilidad celular solo cuando la previsualización indique que es necesario."
+        },
+        {
+          "narration": "Active la propagación de ajustes para que los valores validados aquí se apliquen a la ejecución completa.",
+          "visual": "26_live_settings",
+          "hold_after": 0.7,
+          "focus_key": "propagate",
+          "speech_text": "Active la propagación de ajustes para que los valores validados aquí se apliquen a la ejecución completa."
+        },
+        {
+          "narration": "Ejecute la previsualización y compare la superposición con la imagen de origen. Los contornos deben seguir los límites celulares visibles sin unir células vecinas ni omitir objetos definidos.",
           "visual": "27_cell_outlines",
           "hold_after": 0.7,
           "focus_key": "action_and_canvases",
-          "speech_text": "Ejecutar la vista previa e inspeccionar la fuente junto a la superposición. Los contornos de los objetos deben seguir los límites biológicos visibles sin unir a los vecinos o sin objetos claros."
+          "speech_text": "Ejecute la previsualización y compare la superposición con la imagen de origen. Los contornos deben seguir los límites celulares visibles sin unir células vecinas ni omitir objetos definidos."
         },
         {
-          "narration": "Cambiar entre Overlay, Flujos y Máscaras cuando necesitas diagnosticar un resultado. Las máscaras muestran los objetos etiquetados finales; negro es el fondo.",
+          "narration": "Cambie a la vista de flujos para inspeccionar el campo de direcciones que utiliza Cellpose. Los patrones de flujo irregulares pueden ayudar a explicar máscaras que se dividen o se fusionan de forma incorrecta.",
+          "visual": "28_cell_flows",
+          "hold_after": 0.7,
+          "focus_key": "action_and_canvases",
+          "speech_text": "Cambie a la vista de flujos para inspeccionar el campo de direcciones que utiliza sel póus. Los patrones de flujo irregulares pueden ayudar a explicar máscaras que se dividen o se fusionan de forma incorrecta."
+        },
+        {
+          "narration": "La vista de máscaras muestra únicamente las etiquetas finales sobre un fondo negro. Úsela para comprobar la cobertura y la separación de los objetos sin la imagen de origen debajo.",
           "visual": "29_cell_objects",
           "hold_after": 0.7,
           "focus_key": "action_and_canvases",
-          "speech_text": "Cambiar entre Overlay, Flujos y Máscaras cuando necesitas diagnosticar un resultado. Las máscaras muestran los objetos etiquetados finales; negro es el fondo."
+          "speech_text": "La vista de máscaras muestra únicamente las etiquetas finales sobre un fondo negro. Úsela para comprobar la cobertura y la separación de los objetos sin la imagen de origen debajo."
         },
         {
-          "narration": "Si quedan fragmentos o artefactos obvios, ajuste un filtro de objeto relevante, como el área mínima, y vuelva a comparar la vista previa. Elija el valor de la escala de imagen en lugar de copiar un número de tutorial.",
+          "narration": "Los filtros de objetos actualizan de inmediato la previsualización almacenada en caché. Aumente el área mínima solo lo suficiente para eliminar fragmentos evidentes; el umbral adecuado depende de la escala de la imagen.",
+          "visual": "30_cell_size_filter",
+          "hold_after": 0.7,
+          "focus_key": "min_area",
+          "speech_text": "Los filtros de objetos actualizan de inmediato la previsualización almacenada en caché. Aumente el área mínima solo lo suficiente para eliminar fragmentos evidentes; el umbral adecuado depende de la escala de la imagen."
+        },
+        {
+          "narration": "Compare la superposición filtrada con la previsualización original. Las células válidas deben permanecer; si desaparecen, reduzca el área mínima.",
           "visual": "31_cell_filtered",
           "hold_after": 0.7,
           "focus_key": "canvases",
-          "speech_text": "Si quedan fragmentos o artefactos obvios, ajuste un filtro de objeto relevante, como el área mínima, y vuelva a comparar la vista previa. Elija el valor de la escala de imagen en lugar de copiar un número de tutorial."
+          "speech_text": "Compare la superposición filtrada con la previsualización original. Las células válidas deben permanecer; si desaparecen, reduzca el área mínima."
         },
         {
-          "narration": "Seleccione las máscaras y archivos intermedios que necesite en la sección de salida y almacenamiento. Ejecutar una pequeña prueba primero, luego procesar la fuente completa después de que la vista previa y las comprobatorias de la consola pasan.",
+          "narration": "En Salida y almacenamiento, elija las máscaras y los archivos intermedios que necesite. Ejecute primero una prueba pequeña y procese todo el conjunto de origen cuando la previsualización y las comprobaciones de la consola sean correctas.",
           "visual": "12_category_12_output_storage",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Seleccione las máscaras y archivos intermedios que necesite en la sección de salida y almacenamiento. Ejecutar una pequeña prueba primero, luego procesar la fuente completa después de que la vista previa y las comprobatorias de la consola pasan."
+          "speech_text": "En Salida y almacenamiento, elija las máscaras y los archivos intermedios que necesite. Ejecute primero una prueba pequeña y procese todo el conjunto de origen cuando la previsualización y las comprobaciones de la consola sean correctas."
         }
       ]
     },
@@ -1098,83 +1126,90 @@
       "series": 1,
       "app_key": "umap",
       "section": "Results and quality control",
-      "description": "Embed objetos medidos en dos dimensiones e inspeccionar los vecindarios de fenotipos utilizando sus verdaderos cultivos de microscopía.",
+      "description": "Incorporar objetos medidos en dos dimensiones e inspeccionar vecindarios de fenotipos utilizando sus verdaderos cultivos de microscopía.",
       "objectives": [
         "Elige características y exclusiones biológicamente relevantes.",
-        "Configurar una incorporación reproducible sin copiar los hiperparámetros fijos.",
-        "Inspeccionar los glifos de cultivos para detectar estructuras biológicas y artefactos técnicos."
+        "Busque un rango de parámetros enfocado y propague un resultado revisado.",
+        "Interpretar un mapa legible de recubrimiento de cultivos y las salidas guardadas."
       ],
-      "prerequisite": "Medida completa con características de objeto válidas y imágenes accesibles de cultivos o matrices combinadas.",
+      "prerequisite": "Medida completa con características objetivas válidas y imágenes accesibles de cultivos o matrices combinadas.",
       "scenes": [
         {
-          "narration": "Imagen UMAP reduce las mediciones de objetos de alta dimensión a dos coordenadas y coloca los cultivos de microscopía en el mapa. Los registros de la consola se unen, se procesan previamente, se incorporan, se agrupan y se producen.",
+          "narration": "Image UMAP reduce las mediciones de objetos de alta dimensión a dos coordenadas y coloca recortes de microscopía en el mapa. La consola registra las uniones, el preprocesamiento, la reducción dimensional, el agrupamiento y los archivos de salida.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "Imagen UMAP reduce las mediciones de objetos de alta dimensión a dos coordenadas y coloca los cultivos de microscopía en el mapa. Los registros de la consola se unen, se procesan previamente, se incorporan, se agrupan y se producen."
+          "speech_text": "Image ú map reduce las mediciones de objetos de alta dimensión a dos coordenadas y coloca recortes de microscopía en el mapa. La consola registra las uniones, el preprocesamiento, la reducción dimensional, el agrupamiento y los archivos de salida."
         },
         {
-          "narration": "Paths selecciona el proyecto medido. Imagen UMAP localiza las mediciones punto db y utiliza imágenes de cultivos existentes o construye cultivos a partir de matrices fusionadas cuando se admite.",
+          "narration": "Rutas selecciona el proyecto ya medido. Image UMAP localiza measurements.db y utiliza recortes existentes o, cuando es posible, los crea a partir de las matrices combinadas.",
           "visual": "12_category_01_paths",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Paths selecciona el proyecto medido. Imagen UMAP localiza las mediciones punto db y utiliza imágenes de cultivos existentes o construye cultivos a partir de matrices fusionadas cuando se admite."
+          "speech_text": "Rutas selecciona el proyecto ya medido. Image ú map localiza measurements punto de be y utiliza recortes existentes o, cuando es posible, los crea a partir de las matrices combinadas."
         },
         {
-          "narration": "Las mediciones seleccionan las tablas de objetos y familias de características unidas, eliminan las exclusiones explícitas y pueden eliminar las características correlacionadas redundantes. Estas opciones definen la geometría del mapa.",
+          "narration": "Mediciones selecciona las tablas de objetos combinadas y las familias de características, aplica exclusiones explícitas y puede eliminar variables correlacionadas redundantes. Estas decisiones determinan la geometría del mapa.",
           "visual": "12_category_02_measurements",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Las mediciones seleccionan las tablas de objetos y familias de características unidas, eliminan las exclusiones explícitas y pueden eliminar las características correlacionadas redundantes. Estas opciones definen la geometría del mapa."
+          "speech_text": "Mediciones selecciona las tablas de objetos combinadas y las familias de características, aplica exclusiones explícitas y puede eliminar variables correlacionadas redundantes. Estas decisiones determinan la geometría del mapa."
         },
         {
-          "narration": "Plate Layout and Controls excluye pozos fallidos, controles o grupos de metadatos que no deben dar forma a esta incorporación exploratoria.",
+          "narration": "Diseño de placa y controles excluye pozos fallidos, controles o grupos de metadatos que no deben influir en esta proyección exploratoria.",
           "visual": "12_category_03_plate_layout_controls",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Plate Layout and Controls excluye pozos fallidos, controles o grupos de metadatos que no deben dar forma a esta incorporación exploratoria."
+          "speech_text": "Diseño de placa y controles excluye pozos fallidos, controles o grupos de metadatos que no deben influir en esta proyección exploratoria."
         },
         {
-          "narration": "La fuente de datos de visión por ordenador elige si las características derivadas de imágenes complementan las características medidas y de dónde provienen sus cultivos. Sólo los usa cuando la apariencia de la imagen es parte de la pregunta.",
+          "narration": "Fuente de datos de visión por computadora decide si las características extraídas de imágenes complementan las mediciones y de dónde proceden los recortes. Úselas solo cuando la apariencia de las imágenes forme parte de la pregunta.",
           "visual": "12_category_04_computer_vision_data_source",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "La fuente de datos de visión por ordenador elige si las características derivadas de imágenes complementan las características medidas y de dónde provienen sus cultivos. Sólo los usa cuando la apariencia de la imagen es parte de la pregunta."
+          "speech_text": "Fuente de datos de visión por computadora decide si las características extraídas de imágenes complementan las mediciones y de dónde proceden los recortes. Úselas solo cuando la apariencia de las imágenes forme parte de la pregunta."
         },
         {
-          "narration": "Embedding and Clustering selecciona UMAP o t-SNE, comportamiento de vecindario, métrica de distancia, compartimiento y agrupamiento opcional. Compara configuraciones reproducibles y no trate un diseño como verdad fundamental.",
+          "narration": "Incrustación y agrupamiento selecciona UMAP o t-SNE, el comportamiento del vecindario, la métrica de distancia, el compartimento y el agrupamiento opcional. Compare ajustes reproducibles y no considere una sola distribución como la verdad absoluta.",
           "visual": "12_category_05_embedding_clustering",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Embedding and Clustering selecciona UMAP o t-SNE, comportamiento de vecindario, métrica de distancia, compartimiento y agrupamiento opcional. Compara configuraciones reproducibles y no trate un diseño como verdad fundamental."
+          "speech_text": "Incrustación y agrupamiento selecciona ú map o te ese ene e, el comportamiento del vecindario, la métrica de distancia, el compartimento y el agrupamiento opcional. Compare ajustes reproducibles y no considere una sola distribución como la verdad absoluta."
         },
         {
-          "narration": "UMAP Display controla el estilo de punto, el conteo y el zoom de los gráficos de cultivo, las redes de grupos, el fondo y las figuras guardadas. Estas opciones de visualización no cambian las coordenadas instaladas.",
+          "narration": "Visualización UMAP controla el estilo de los puntos, el número y el tamaño de los recortes, el fondo y las figuras guardadas. Mantenga los recortes apenas más grandes que los puntos para que la distribución siga siendo visible; estos ajustes no cambian las coordenadas calculadas.",
           "visual": "12_category_09_umap_display",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "UMAP Display controla el estilo de punto, el conteo y el zoom de los gráficos de cultivo, las redes de grupos, el fondo y las figuras guardadas. Estas opciones de visualización no cambian las coordenadas instaladas."
+          "speech_text": "Visualización ú map controla el estilo de los puntos, el número y el tamaño de los recortes, el fondo y las figuras guardadas. Mantenga los recortes apenas más grandes que los puntos para que la distribución siga siendo visible; estos ajustes no cambian las coordenadas calculadas."
         },
         {
-          "narration": "Hyperparameter Search es un mini banco de trabajo para comparar un conjunto enfocado de opciones UMAP. Utilice sus resultados pequeños-múltiples para juzgar la estabilidad y la estructura, luego aplique una configuración revisada a la ejecución completa.",
+          "narration": "Antes de la ejecución completa, use Búsqueda de hiperparámetros para comparar un conjunto reducido de ajustes UMAP. Los pequeños gráficos comparativos revelan distribuciones inestables o que ocultan estructuras útiles.",
           "visual": "19_hyperparameter_search",
           "hold_after": 0.7,
           "focus_key": "search_card",
-          "speech_text": "Hyperparameter Search es un mini banco de trabajo para comparar un conjunto enfocado de opciones UMAP. Utilice sus resultados pequeños-múltiples para juzgar la estabilidad y la estructura, luego aplique una configuración revisada a la ejecución completa."
+          "speech_text": "Antes de la ejecución completa, use Búsqueda de hiperparámetros para comparar un conjunto reducido de ajustes ú map. Los pequeños gráficos comparativos revelan distribuciones inestables o que ocultan estructuras útiles."
         },
         {
-          "narration": "Run valida la base de datos y la fuente de cultivo, une y filtra características numéricas, filas de muestras, se ajusta al reducidor y a los grupos opcionales, luego escribe registros de resultados alineados.",
+          "narration": "Seleccione un resultado revisado y pulse Propagar ajustes. Así se copian el número de vecinos, la distancia mínima y la métrica al formulario principal de Image UMAP antes de la ejecución completa.",
+          "visual": "20_hyperparameter_apply",
+          "hold_after": 0.7,
+          "focus_key": "dialog",
+          "speech_text": "Seleccione un resultado revisado y pulse Propagar ajustes. Así se copian el número de vecinos, la distancia mínima y la métrica al formulario principal de Image ú map antes de la ejecución completa."
+        },
+        {
+          "narration": "Ejecutar comprueba la base de datos y el origen de los recortes, combina y filtra las características numéricas, toma una muestra de filas, ajusta el reductor y el agrupamiento opcional, y guarda los resultados alineados.",
           "visual": "21_run",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "Run valida la base de datos y la fuente de cultivo, une y filtra características numéricas, filas de muestras, se ajusta al reducidor y a los grupos opcionales, luego escribe registros de resultados alineados."
+          "speech_text": "Ejecutar comprueba la base de datos y el origen de los recortes, combina y filtra las características numéricas, toma una muestra de filas, ajusta el reductor y el agrupamiento opcional, y guarda los resultados alineados."
         },
         {
-          "narration": "La galería completa muestra el mapa de glifos microscópicos y la cuadrícula de cultivos de racimos. Las salidas incluyen coordenadas, etiquetas de grupos, figuras, configuraciones y un manifiesto de reproducibilidad.",
+          "narration": "El mapa final mantiene visible la nube de puntos UMAP y superpone pequeños recortes de microscopía transparentes en posiciones representativas. Los archivos guardados incluyen coordenadas, etiquetas de grupo, la figura, los ajustes y un manifiesto de reproducibilidad.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "figures",
-          "speech_text": "La galería completa muestra el mapa de glifos microscópicos y la cuadrícula de cultivos de racimos. Las salidas incluyen coordenadas, etiquetas de grupos, figuras, configuraciones y un manifiesto de reproducibilidad."
+          "speech_text": "El mapa final mantiene visible la nube de puntos ú map y superpone pequeños recortes de microscopía transparentes en posiciones representativas. Los archivos guardados incluyen coordenadas, etiquetas de grupo, la figura, los ajustes y un manifiesto de reproducibilidad."
         }
       ]
     },
@@ -4092,43 +4127,54 @@
       "series": 5,
       "app_key": "gate_editor",
       "section": "Explore",
-      "description": "Dibujar, editar, anidar y reutilizar puertas de medición como filtros de población transparentes.",
+      "description": "Dibujar, inspeccionar, anidar y reutilizar puertas de población en 2D, 3D o una vista reducida de alta dimensión.",
       "objectives": [
-        "Comprender cuándo usar el Gate Editor.",
-        "Configurar las entradas y configuraciones importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus salidas."
+        "Dibujar e inspeccionar una puerta de población en 2D.",
+        "Compare el volumen 3D real y los modos de proyección xD.",
+        "Lea, anida, guarde y reutilice de forma segura una jerarquía de puertas nombradas."
       ],
-      "prerequisite": "Siga las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados de arriba.",
+      "prerequisite": "Preparar una tabla de medición con características numéricas y identificadores de objetos estables.",
       "scenes": [
         {
-          "narration": "Este tutorial cubre el Editor de Puertas. Dibujar, editar, anidar y reutilizar puertas de medición como filtros de población transparentes.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial cubre el Editor de Puertas. Dibujar, editar, anidar y reutilizar puertas de medición como filtros de población transparentes."
+          "narration": "Gate Editor convierte regiones de una tabla de mediciones en compuertas de población con nombre y reutilizables. El espacio de trabajo reúne los ejes de las variables, las herramientas de dibujo, la vista completa de los datos y la jerarquía de compuertas.",
+          "visual": "01_overview",
+          "hold_after": 0.7,
+          "speech_text": "gueit éditor convierte regiones de una tabla de mediciones en compuertas de población con nombre y reutilizables. El espacio de trabajo reúne los ejes de las variables, las herramientas de dibujo, la vista completa de los datos y la jerarquía de compuertas."
         },
         {
-          "narration": "Abre una tabla de medición y seleccione las características de un histograma o dispersión bidimensional.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abre una tabla de medición y seleccione las características de un histograma o dispersión bidimensional."
+          "narration": "En 2D, elija X e Y para crear un diagrama de dispersión, o deje Y vacío para crear un histograma. Seleccione un umbral o una herramienta de forma y dibuje alrededor de la población de interés. La nube completa permanece visible mientras se resaltan los objetos incluidos.",
+          "visual": "02_two_d_gate",
+          "hold_after": 0.7,
+          "focus_key": "two_d_workspace",
+          "speech_text": "En dos de, elija X e Y para crear un diagrama de dispersión, o deje Y vacío para crear un histograma. Seleccione un umbral o una herramienta de forma y dibuje alrededor de la población de interés. La nube completa permanece visible mientras se resaltan los objetos incluidos."
         },
         {
-          "narration": "En el área de configuración principal, elija un umbral, rectángulo, elipso o herramienta de polígono y revise las transformaciones de eje, la pantalla de densidad y la población matriz.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "En el área de configuración principal, elija un umbral, rectángulo, elipso o herramienta de polígono y revise las transformaciones de eje, la pantalla de densidad y la población matriz."
+          "narration": "Elija 3D y una variable Z para examinar un volumen que se puede girar. Los botones de eje controlan la dirección del giro, y el botón Box gate guarda los límites de las tres variables mostradas.",
+          "visual": "03_three_d_volume",
+          "hold_after": 0.7,
+          "focus_key": "three_d_workspace",
+          "speech_text": "Elija tres de y una variable Z para examinar un volumen que se puede girar. Los botones de eje controlan la dirección del giro, y el botón box gueit guarda los límites de las tres variables mostradas."
         },
         {
-          "narration": "Dibujar una puerta, inspeccionar su conteo y porcentajes, luego mover los vértices o bordes hasta que el límite coincida con la población prevista.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Dibujar una puerta, inspeccionar su conteo y porcentajes, luego mover los vértices o bordes hasta que el límite coincida con la población prevista."
+          "narration": "Elija xD para proyectar las mediciones válidas en componentes principales. La etiqueta de origen muestra la varianza explicada, y PC1, PC2 y PC3 pasan a ser ejes normales para las mismas herramientas de creación de compuertas.",
+          "visual": "04_xd_projection",
+          "hold_after": 0.7,
+          "focus_key": "xd_workspace",
+          "speech_text": "Elija equis de para proyectar las mediciones válidas en componentes principales. La etiqueta de origen muestra la varianza explicada, y pe ce uno, pe ce dos y pe ce tres pasan a ser ejes normales para las mismas herramientas de creación de compuertas."
         },
         {
-          "narration": "Cuando el flujo de trabajo termina, las puertas anidadas nombradas pueden filtrar las vistas vinculadas, dirigir anotaciones y guardarse para su aplicación en placas posteriores.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Cuando el flujo de trabajo termina, las puertas anidadas nombradas pueden filtrar las vistas vinculadas, dirigir anotaciones y guardarse para su aplicación en placas posteriores."
+          "narration": "La jerarquía de compuertas muestra el número de objetos, el porcentaje respecto a la compuerta padre y el porcentaje respecto a todas las filas. Active o desactive la casilla de una compuerta para mostrarla u ocultarla, y seleccione una compuerta antes de dibujar si desea anidar dentro de ella la población siguiente.",
+          "visual": "05_gate_hierarchy",
+          "hold_after": 0.7,
+          "focus_key": "gate_tree",
+          "speech_text": "La jerarquía de compuertas muestra el número de objetos, el porcentaje respecto a la compuerta padre y el porcentaje respecto a todas las filas. Active o desactive la casilla de una compuerta para mostrarla u ocultarla, y seleccione una compuerta antes de dibujar si desea anidar dentro de ella la población siguiente."
+        },
+        {
+          "narration": "Asigne un nombre claro a cada población y guarde la estrategia de compuertas. Cárguela en una tabla compatible para reutilizar los mismos nombres de variables, límites y jerarquía, y compruebe los nuevos recuentos antes de continuar.",
+          "visual": "06_save_reuse",
+          "hold_after": 0.7,
+          "focus_key": "save_controls",
+          "speech_text": "Asigne un nombre claro a cada población y guarde la estrategia de compuertas. Cárguela en una tabla compatible para reutilizar los mismos nombres de variables, límites y jerarquía, y compruebe los nuevos recuentos antes de continuar."
         }
       ]
     },
