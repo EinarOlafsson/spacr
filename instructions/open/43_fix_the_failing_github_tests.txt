@@ -267,3 +267,40 @@ in-flight matrix. To get a complete count, push once and then STOP pushing
 until the run finishes -- roughly 40 minutes, longer when GitHub's runners
 are backed up. Committing locally and holding the push is the way to keep
 working meanwhile.
+
+--------------------------------------------------------------------------------
+2026-08-10 - FIVE FIXED. AND ONE OF THEM WAS MY OWN REGRESSION.
+--------------------------------------------------------------------------------
+
+    class_balance tooltip                  named a value the code REJECTS
+    two batch_correction tooltips          lost their API reference
+    cell/nucleus/pathogen/organelle
+      _model_name tooltips                 did not say which cellpose 4
+                                           parameters still act
+    save_and_add_image_to_grid docstring   lost the deliberate-reversal note
+
+THE LAST ONE WAS SELF-INFLICTED and is worth recording. The docstring sweep
+of instruction 63 CORRECTED that note -- the old text claimed
+``png_dims[0]`` is the file's red channel, and the code says otherwise:
+
+    resolve_png_channel_mapping({"png_dims": [0,1,2]}) -> {'r': 2, 'g': 1, 'b': 0}
+    build_png_channels(...)  ->  source plane 0 lands in the file's BLUE slot
+
+So the correction was right. But the old wording also carried a FACT the
+correction dropped: that this mapping is the reverse of what ``png_dims``
+reads like and is left that way ON PURPOSE, because every crop on disk was
+written with it and flipping it would invalidate the models trained on those
+crops. `test_png_channel_order_reversal_is_documented` exists to hold exactly
+that, and it went red.
+
+THE LESSON: a docstring can be WRONG and LOad-BEARING at the same time. When
+correcting one, check what the old text was protecting before deleting it --
+the test that guards it is the cheapest place to find out, and running the
+suite for the file you edited would have caught this before it reached CI.
+
+WHAT DOES NOT REPRODUCE LOCALLY, and is therefore version-dependent rather
+than a code fault: test_cellpose_api_contract (5),
+test_cellpose_channel_axis_contract (3), test_cov_io_tail,
+test_cov_plot_compare_viz, test_feature_dict, test_hits. All pass here on the
+installed cellpose 4.x. They need a run in the CI environment to see, which
+means the next matrix run is the measurement -- not more local work.
