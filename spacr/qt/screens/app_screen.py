@@ -11,6 +11,7 @@ Structure (horizontal splitter):
 """
 from __future__ import annotations
 
+import logging
 import sys
 from functools import partial
 from html import escape
@@ -41,6 +42,8 @@ from .settings_model import (
     SettingsWidgets,
     category_tooltip,
 )
+
+LOG = logging.getLogger(__name__)
 
 
 #: Object name the settings column carries, and what the block below keys
