@@ -67,3 +67,39 @@ DELIBERATELY NOT DONE
 Not started, and deliberately not begun by machine translation. The
 decision at step 1 comes first; translating 230 strings into ten languages
 before deciding whether that is the right scope would waste most of it.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE ANSWER TO "HOW FAR": EVERYTHING, AND THE API TOO
+--------------------------------------------------------------------------------
+
+  "for each translation, as much as possible should be translated including
+   tooltips and settings names and the API should be translated as well. fo
+   the api the translated docstrings canot live in the functions themselcves.
+   needs to be somwhere else, otherwise it gets to cluttered."
+
+That settles step 1: option (c). Scope is chrome + setting NAMES + the ~700
+tooltips + the API documentation.
+
+THE ARCHITECTURAL CONSTRAINT IS THE USEFUL PART, and it is right: a
+docstring carrying ten languages is unreadable as source, and source is
+read far more often than the rendered page. So translated docstrings live
+OUTSIDE the functions.
+
+That means a catalogue keyed by qualified symbol name --
+`spacr.core.preprocess_generate_masks` -> {language: text} -- in the shape
+`spacr/qt/i18n.py` already uses for UI strings, and a docs build that
+substitutes them. Two things to settle before building it:
+
+  * WHAT IS THE KEY. A qualified name is stable until someone renames or
+    moves a function, at which point the translation silently detaches. A
+    test that every catalogue key still resolves to a real symbol is the
+    cheap defence, and it is the same shape as the tooltip link test.
+  * WHO BUILDS WHICH LANGUAGE. Sphinx builds one language per run, so this
+    is N builds and N output trees, and the API link in every tooltip has
+    to point at the reader's language rather than at English.
+
+SIZE, measured so nobody starts blind: 267 catalogue entries today, ~700
+tooltips, and the API surface is 125 module pages. Translating the
+tooltips alone is roughly 7000 strings across ten languages. This is a
+project with a budget, not a task -- and the domain-term warning above
+stands: "Anisotropy" translated badly is worse than the English.
