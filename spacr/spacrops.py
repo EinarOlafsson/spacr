@@ -139,7 +139,8 @@ class spacrStitcher:
         edge image.
     :param outline_alpha: opacity of the outlines drawn on the QC overlay.
     :param outdir: output folder, created on construction and used for QC
-        images, CSVs and the default feature cache.
+        images, stitched-pair outputs and the default feature cache; pairwise
+        CSVs are written where the caller's ``csv_path`` points instead.
     :param save_qc: write per-pair QC outline PNGs. Default ``True``.
     :param save_stitched_default: default for writing a pair's stitched TIFF;
         per-call arguments override it.

@@ -1,0 +1,659 @@
+[
+ {
+  "nodeid": "tests/qt/test_category_tooltips.py::test_every_category_of_every_module_has_a_tooltip[classify_merged:Classifier]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "classify_merged's curated layout (categories_for_app, spacr/qt/screens/settings_model.py:1262-1305) rebuilds the panel with its own headings, including a family-chooser group titled \"Classifier\" holding classifier_family. Neither CATEGORY_TOOLTIPS nor CATEGORY_TOOLTIPS_BY_APP has any key \"CLASSIFIER\" (only \"CLASSIFIER & VALIDATION\"), and CATEGORY_TOOLTIPS_BY_APP has no 'classify_merged' entry at all, so category_tooltip falls back to the generic sentence and category_tooltip_is_curated returns False. The module was registered in CURATED_LAYOUT_APPS today (80c7b8bf) without the accompanying tooltip-table entries; 6 of the 9 categories classify_merged renders are uncurated.",
+  "consequence": "Opening Classify (merged), the very first heading \u2014 the one that decides which classifier family the whole panel is about \u2014 describes itself in the category strip as \"Settings that control classifier.\", telling the user nothing.",
+  "suggested_fix": "Add a \"CLASSIFIER\" entry to CATEGORY_TOOLTIPS in spacr/qt/screens/settings_model.py saying what picking a family changes (which of the two sets of groups below applies). It is the only one of the six with no existing text anywhere to adapt.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_category_tooltips.py::test_every_category_of_every_module_has_a_tooltip[classify_merged:Computer Vision \u2014 Images & Cropping]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "categories_for_app prefixes classify_merged's CV groups with \"Computer Vision \u2014 \" (settings_model.py:1270), so the rendered title is \"Computer Vision \u2014 Images & Cropping\". CATEGORY_TOOLTIPS is keyed on the UNPREFIXED \"IMAGES & CROPPING\", which exists and is used by the plain classify module; the prefixed key does not exist, category_tooltip does no prefix stripping (settings_model.py:2189-2194), so the lookup misses and the generic fallback is returned.",
+  "consequence": "In Classify (merged) the crop-source group shows placeholder text, while the identical group in Classify shows a written explanation \u2014 the same settings are documented on one screen and not the other.",
+  "suggested_fix": "Either add prefixed keys (\"COMPUTER VISION \u2014 IMAGES & CROPPING\" etc.) to CATEGORY_TOOLTIPS reusing/adapting the unprefixed text, or strip a recognised family prefix in category_tooltip/category_tooltip_is_curated before lookup. Note: putting the text verbatim into CATEGORY_TOOLTIPS_BY_APP['classify_merged'] is not viable \u2014 test_overrides_actually_differ_from_the_shared_table forbids an override identical to the shared blurb.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_category_tooltips.py::test_every_category_of_every_module_has_a_tooltip[classify_merged:Computer Vision \u2014 Model & Regularization]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "Same prefix mismatch: rendered title \"Computer Vision \u2014 Model & Regularization\" vs the existing shared key \"MODEL & REGULARIZATION\". No prefixed key and no classify_merged override, so category_tooltip_is_curated is False.",
+  "consequence": "The architecture/regularisation group in Classify (merged) is described only by a restatement of its own heading, unlike the same group in Classify.",
+  "suggested_fix": "Same as the other CV groups: add the prefixed key to CATEGORY_TOOLTIPS or strip the family prefix during lookup.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_category_tooltips.py::test_every_category_of_every_module_has_a_tooltip[classify_merged:Computer Vision \u2014 Training & Loss]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "Same prefix mismatch: rendered title \"Computer Vision \u2014 Training & Loss\" vs the existing shared key \"TRAINING & LOSS\".",
+  "consequence": "The 15 training/loss settings in Classify (merged) render under a heading with no written help.",
+  "suggested_fix": "Same as the other CV groups.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_category_tooltips.py::test_every_category_of_every_module_has_a_tooltip[classify_merged:Machine Learning \u2014 Model & Features]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "categories_for_app prefixes the ML groups with \"Machine Learning \u2014 \" (settings_model.py:1271), producing \"Machine Learning \u2014 Model & Features\". The shared table has the text under the differently spelled key \"MACHINE LEARNING MODEL AND FEATURES\" (no em dash, \"AND\" not \"&\"), so the lookup misses and falls back.",
+  "consequence": "The feature-based classifier's model/feature group in Classify (merged) shows placeholder text even though the blurb for it already exists in the table under another spelling.",
+  "suggested_fix": "Reconcile the key with the rendered title \u2014 add \"MACHINE LEARNING \u2014 MODEL & FEATURES\" (or normalise em dash/&/AND in the lookup key) in spacr/qt/screens/settings_model.py.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_category_tooltips.py::test_every_category_of_every_module_has_a_tooltip[classify_merged:Machine Learning \u2014 Plate & Batch Correction]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "Same prefix mismatch: rendered title \"Machine Learning \u2014 Plate & Batch Correction\" vs the existing shared key \"PLATE & BATCH CORRECTION\".",
+  "consequence": "The batch-correction group in Classify (merged) \u2014 the one users most need explained, since it decides whether plate effects are removed \u2014 carries no written help.",
+  "suggested_fix": "Same as the other prefixed groups.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_category_tooltips.py::test_category_help_says_more_than_the_heading[classify_merged:Classifier]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "Same missing-entry root cause as the coverage test: with no \"CLASSIFIER\" key the fallback 'Settings that control classifier.' is 4 words, below the 12-word floor this test enforces. It fails as a direct consequence of the absent tooltip, not independently.",
+  "consequence": "Same as the coverage failure \u2014 the family-chooser heading is self-described placeholder text.",
+  "suggested_fix": "Fixed by the same CATEGORY_TOOLTIPS addition; the new text must be >=12 words and >=8 words after removing the heading's own words, which any real explanation satisfies.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_category_tooltips.py::test_category_help_says_more_than_the_heading[classify_merged:Computer Vision \u2014 Images & Cropping]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "Consequence of the same missing prefixed key: the fallback sentence is a restatement of the heading and trips the length floor.",
+  "consequence": "Same as the corresponding coverage failure.",
+  "suggested_fix": "Resolved by adding the prefixed entry / stripping the prefix at lookup.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_category_tooltips.py::test_category_help_says_more_than_the_heading[classify_merged:Computer Vision \u2014 Model & Regularization]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "Consequence of the same missing prefixed key; the generic fallback is too short and is mostly the heading.",
+  "consequence": "Same as the corresponding coverage failure.",
+  "suggested_fix": "Resolved by adding the prefixed entry / stripping the prefix at lookup.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_category_tooltips.py::test_category_help_says_more_than_the_heading[classify_merged:Computer Vision \u2014 Training & Loss]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "Consequence of the same missing prefixed key; the generic fallback is too short and is mostly the heading.",
+  "consequence": "Same as the corresponding coverage failure.",
+  "suggested_fix": "Resolved by adding the prefixed entry / stripping the prefix at lookup.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_category_tooltips.py::test_category_help_says_more_than_the_heading[classify_merged:Machine Learning \u2014 Model & Features]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "Consequence of the key-spelling mismatch (\"MACHINE LEARNING MODEL AND FEATURES\" vs the rendered em-dash/& title); the 9-word fallback trips the 12-word floor.",
+  "consequence": "Same as the corresponding coverage failure.",
+  "suggested_fix": "Resolved by reconciling the key with the rendered title.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_category_tooltips.py::test_category_help_says_more_than_the_heading[classify_merged:Machine Learning \u2014 Plate & Batch Correction]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "Consequence of the same missing prefixed key; the 10-word fallback trips the 12-word floor.",
+  "consequence": "Same as the corresponding coverage failure.",
+  "suggested_fix": "Resolved by adding the prefixed entry / stripping the prefix at lookup.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_dnd_dropzone.py::test_rejected_drop_with_alternatives_applies_the_users_pick",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Not the product. tests/qt/conftest.py::_no_unguarded_modals (autouse, added 2026-08-08 in commit 3b758161 \"A third modal hang, and a global guard so there is not a fourth\") monkeypatches QDialog.exec/exec_ and QMessageBox.exec/exec_ to raise AssertionError in every qt test. This file (last touched 2026-08-03) drives real modals with the _auto_modal() QTimer helper at tests/qt/test_dnd_dropzone.py:75, which requires the genuine exec() to spin the event loop so the timer can click the dialog. The drop path reaches spacr/qt/dnd.py:460 `if dlg.exec() != QDialog.Accepted:` in suggest_alternatives_dialog and hits the refusal. The guard commit updated conftest.py and a notes file only -- it opted out zero test files, and its own message says \"A test that genuinely drives a dialog patches it itself\", which this file never did. Proved by re-running the file with a plugin fixture that depends on _no_unguarded_modals and restores the real exec: all 8 failures pass, 9/9 green.",
+  "consequence": "None user-visible. suggest_alternatives_dialog opening a modal via dlg.exec() is correct product behaviour; this is a test-infrastructure collision only.",
+  "suggested_fix": "Opt this file out of the guard the way the guard documents. Capture `_REAL_EXEC = QDialog.exec` at module import in tests/qt/test_dnd_dropzone.py (import time precedes the fixture patch), then set QDialog.exec = _REAL_EXEC on entry to _auto_modal() and restore it in the finally alongside t.stop(). No hang risk: the timer already answers the dialog.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_dnd_dropzone.py::test_rejected_drop_with_alternatives_cancelled_applies_nothing",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Same root cause: the autouse tests/qt/conftest.py::_no_unguarded_modals guard makes QDialog.exec raise, and the drop path reaches spacr/qt/dnd.py:460 in suggest_alternatives_dialog. _auto_modal(\"reject\") needs the real exec() event loop to deliver the rejection. Confirmed passing when the real exec is restored.",
+  "consequence": "None user-visible; test-only artefact.",
+  "suggested_fix": "Same as above -- restore the real QDialog.exec inside _auto_modal for the duration of the context manager.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_dnd_dropzone.py::test_alternative_pick_that_fails_to_apply_warns",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Same root cause: autouse _no_unguarded_modals guard refuses QDialog.exec, so the drop reaches spacr/qt/dnd.py:460 and raises before the handler-failure path under test is ever exercised. Confirmed passing when the real exec is restored.",
+  "consequence": "None user-visible; test-only artefact.",
+  "suggested_fix": "Same as above -- restore the real QDialog.exec inside _auto_modal.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_dnd_dropzone.py::test_suggest_dialog_returns_first_row_by_default",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Same root cause, called directly rather than through a drop: the test invokes suggest_alternatives_dialog() itself, which hits `dlg.exec()` at spacr/qt/dnd.py:460 while the autouse tests/qt/conftest.py::_no_unguarded_modals fixture has QDialog.exec patched to raise AssertionError. Confirmed passing when the real exec is restored.",
+  "consequence": "None user-visible; test-only artefact.",
+  "suggested_fix": "Same as above -- restore the real QDialog.exec inside _auto_modal.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_dnd_dropzone.py::test_suggest_dialog_returns_the_selected_row",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Same root cause: direct suggest_alternatives_dialog() call hits spacr/qt/dnd.py:460 `dlg.exec()` with the autouse _no_unguarded_modals guard in force. Confirmed passing when the real exec is restored.",
+  "consequence": "None user-visible; test-only artefact.",
+  "suggested_fix": "Same as above -- restore the real QDialog.exec inside _auto_modal.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_dnd_dropzone.py::test_suggest_dialog_returns_none_on_cancel",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Same root cause: direct suggest_alternatives_dialog() call hits spacr/qt/dnd.py:460 `dlg.exec()` with the autouse _no_unguarded_modals guard in force. Confirmed passing when the real exec is restored.",
+  "consequence": "None user-visible; test-only artefact.",
+  "suggested_fix": "Same as above -- restore the real QDialog.exec inside _auto_modal.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_dnd_dropzone.py::test_suggest_dialog_returns_none_when_nothing_is_selected",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Same root cause: direct suggest_alternatives_dialog() call with an empty alternatives list still reaches spacr/qt/dnd.py:460 `dlg.exec()`, which the autouse _no_unguarded_modals guard refuses. Confirmed passing when the real exec is restored.",
+  "consequence": "None user-visible; test-only artefact.",
+  "suggested_fix": "Same as above -- restore the real QDialog.exec inside _auto_modal.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_dnd_dropzone.py::test_suggest_dialog_lists_every_alternative",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Same root cause, but this test does NOT use _auto_modal -- it builds its own QTimer inline at tests/qt/test_dnd_dropzone.py:684-701 and then calls suggest_alternatives_dialog(), which reaches spacr/qt/dnd.py:460 `dlg.exec()` while the autouse tests/qt/conftest.py::_no_unguarded_modals guard has it patched to raise. Confirmed passing when the real exec is restored.",
+  "consequence": "None user-visible; test-only artefact.",
+  "suggested_fix": "Needs its own opt-out in addition to the _auto_modal fix, because it hand-rolls its timer: save/restore the real QDialog.exec around the try/finally that already calls t.stop(), or refactor this test onto the fixed _auto_modal helper with a capture callback.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_perf_guard_qt.py::test_stepping_through_fields_never_re_enumerates_the_plate",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "ImageSetSampler (/mnt/firecuda2/codex/repo/spacr/spacr/qt/widgets/preview_controls.py) uses ONE field, self._directory, for two different jobs. enumerate() writes and compares the composite cache key f\"{directory}|{metadata_type}|{custom_regex or ''}\"; adopt() writes the bare directory string. The two can never be equal, so the enumeration the worker thread hands the panel (LivePreviewPanel._on_source_payload -> sampler.adopt) is thrown away by the very next _refresh_source_selectors() -> sampler.enumerate(), which rescans the folder synchronously on the GUI thread. Proven, not read: a probe printed `after adopt, _directory = '/some/dir'` vs the key enumerate() computes `'/some/dir|cellvoyager|'`, cache hit? False; and a real panel load logged `enumerate_image_sets calls during one folder load: 2` with `sampler._directory = '/tmp/plate_.../plate1|cellvoyager|'`. In this test _panel_on() adopts 32768 synthetic sets, then load_image() triggers the rescan, which finds only the 60 files actually on disk -> 20 sets, so `before` is already 20 when it is read and `before == BIG_SETS` fails. The test's docstring anticipated exactly this detection (\"a re-scan of this folder would find the 60 files that exist on disk instead of the 98304 sets the sampler was given, so a silent re-enumeration cannot hide\") and it worked. Note the `calls == []` half PASSES: the rescan happens once per folder load, before the monkeypatch is installed, not per field change. Patching only the key/seed conflation in memory (no repo edit) made this test and the two below pass.",
+  "consequence": "Opening a folder in the live preview enumerates it twice - once off-thread as designed, then again synchronously on the GUI thread - freezing the UI for a measured 152 ms on an 18432-file plate (~800 ms extrapolated to the documented 98304-file plate), which is the stall the async loader was written to remove; _on_source_payload's own docstring asserts this call \"is a cache hit only because the worker's listing has already landed here\", and that invariant is false.",
+  "suggested_fix": "Stop conflating the cache key with the folder. Keep the real directory in a separate attribute (e.g. self._dir_path) set by both enumerate() and adopt(); have adopt() write the same composite key enumerate() compares against, so the worker's listing is a cache hit; and have the `seed` property derive from the real directory rather than from the cache-key string.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_preview_set_sampling.py::test_preview_opens_only_the_sample_never_the_plate",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "Same ImageSetSampler defect, seen through its second face. `seed` computes sample_seed(self._directory, ...) and sample_seed() keys on Path(directory).name. After the spurious GUI-thread re-enumeration described above, self._directory is the cache key, so that name is 'plate1|cellvoyager|' rather than 'plate1'. load_source_payload() picked the field to open on using sample_seed(path.parent, ...) i.e. 'plate1'. Two different seeds, two different draws: the field the panel opened on is not in the sample the panel then lists, so ImageSetSampler.sample() pins it as an extra entry and _fov_box.count() is 21, not DEFAULT_MAX_SETS (20). Verified on a real panel: `pinned = ('plate1','A02','001')`, `loaded set in DRAW (unpinned)? False`, `note: showing a random sample of 20 of 192 image sets, plus the field you loaded`. Not stale: the +1 pin is a legitimate feature for a user-chosen file, but here nobody chose anything - the panel auto-loaded a field and then failed to draw the sample it had just used. Fails alone, and passes with the key/seed conflation probe-patched.",
+  "consequence": "Every folder auto-loaded into the live preview opens on a field outside its own sample, so the panel shows 21 entries and announces \"plus the field you loaded\" when the user loaded nothing specific, and the reproducible seed it prints for hand-off is computed from a string containing '|cellvoyager|' so it does not match the seed anything else in the product uses.",
+  "suggested_fix": "Same fix as the perf-guard entry: separate cache key from directory so the `seed` property hashes the real folder name, making the worker's draw and the panel's draw identical and removing the phantom pin.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_preview_set_sampling.py::test_panel_opens_on_a_sampled_field_not_on_the_first_file",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "Identical root cause to the entry above - the seed the panel samples with is derived from the cache-key string, not the folder, so the auto-loaded field falls outside the panel's own draw. Failure is at line 276, `assert panel._fov_box.count() == DEFAULT_MAX_SETS` (21 != 20). Worth noting the assertion two lines earlier, `loaded.key in [s.key for s in panel._sampler.sample()]`, PASSES only because sample() adds the pin - it is masked by the same bug it should catch, and the count assertion is the one that exposes it. Fails alone; passes with the probe patch.",
+  "consequence": "Same as above - the auto-loaded field is not one of the sampled sets, it survives in the list only as a pin, and the dropdown/table carries a 21st entry the user never asked for.",
+  "suggested_fix": "One fix covers all three: give ImageSetSampler a real directory attribute distinct from its cache key, have adopt() write the composite key, and compute `seed` from the directory.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_preview_source_selectors.py::test_every_live_preview_has_fov_and_channel_left_of_choose[mask]",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Deliberate redesign in commit b840a914 \"feat(preview): the table is the source selector\": \"The field and channel dropdowns picked the same two things the table picks, so the panel had two controls for one choice and they could disagree. Both leave the row. They stay constructed, hidden, because apply_sample_to_combo fills one, the saved view state names a field through it and selected_channel() reads the other.\" live_preview.py carries the matching comment at the layout site and calls _fov_box.setVisible(False) / _channel_box.setVisible(False); only _path_label, _mip_toggle, _max_images_box, _max_sets_box and _pick_btn are added to _pick_row. So row.indexOf(panel._fov_box) is legitimately -1. Only the [mask] case (LivePreviewPanel) fails - measure/timelapse/motility still carry the dropdowns and pass - which matches a redesign scoped to one panel. The test was never updated; its file's last three commits are unrelated tooltip/threading fixes.",
+  "consequence": "None. The mask panel's field and channel are chosen through _set_table, which is the more capable control; the dropdowns are retained purely as internal plumbing for saved view state and selected_channel(). Test-only artefact.",
+  "suggested_fix": "Drop the (\"mask\", _mask, \"Choose image\u2026\") entry from PREVIEW_PANELS for this test, or re-point the mask case at panel._set_table and assert the table is the visible selector while _fov_box/_channel_box are hidden.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_preview_set_sampling.py::test_max_sets_control_sits_left_of_the_sets_dropdown[LivePreviewPanel]",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Same redesign, commit b840a914. _max_sets_box IS still in _pick_row (live_preview.py: pick_row.addWidget(self._max_sets_box)); it is _fov_box that was deliberately removed, so widgets.index(panel._fov_box) raises ValueError at line 450. The test asserts the spin box sits immediately left of a dropdown that no longer exists in that row. Only the [LivePreviewPanel] parametrisation fails - MeasurePreviewPanel, TimelapsePreviewPanel and MotilityPreviewPanel all still show the dropdown and pass.",
+  "consequence": "None. The cap control is still present and still adjacent to the thing it sizes, which for this panel is the set table rather than a dropdown. Test-only artefact.",
+  "suggested_fix": "Keep the three dropdown panels in the parametrize list and give LivePreviewPanel its own assertion - _max_sets_box present in _pick_row and immediately left of _pick_btn, with _set_table as the selector it caps.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_widgets.py::test_qt_boolean_controls_do_not_construct_plain_checkboxes",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "The ratchet was closed at zero offenders on 2026-08-03 (commit 3c15261c). Three widgets added AFTER that reintroduced plain QCheckBox and were never caught because the qt suite had never reached its summary line: spacr/qt/widgets/timelapse_movie.py (3c299181, 2026-08-05, lines 367 and 375), spacr/qt/widgets/gate_editor.py (cd0351b6, 2026-08-06, line 1954), spacr/qt/widgets/gate_settings.py (1b4019c1/3a2dfae9, 2026-08-07, lines 342, 372, 389, 447, 456, 546) \u2014 nine constructions in all. This is not a stale rule: the convention is asserted in product code itself, at spacr/qt/settings_search.py:179 (\"A `Toggle`, not a QCheckBox: every boolean control in the shell is a switch, and `tests/qt/test_widgets.py` bans the plain checkbox outright so one panel cannot quietly reintroduce it\"). All three widgets are live UI \u2014 GateSettingsDialog/GateEditorSettings are constructed at spacr/qt/screens/gate_editor.py:532, GateEditorPanel at :40, TimelapseMoviePanel at spacr/qt/widgets/timelapse_preview.py:1888.",
+  "consequence": "Nine boolean controls in the gate editor, its settings dialog and the timelapse movie panel render as square checkboxes instead of the app's switch, so those panels look unlike every other boolean in the application.",
+  "suggested_fix": "Swap the nine constructions to `Toggle` from spacr/qt/widgets/toggle.py \u2014 it subclasses QCheckBox with the identical `__init__(text: str = \"\", parent=None)` signature, so `QCheckBox(\"Show grid\", page)` becomes `Toggle(\"Show grid\", page)` with no other change. Sites: gate_settings.py:342,372,389,447,456,546; gate_editor.py:1954; timelapse_movie.py:367,375.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_threading_cancellation_audit.py::test_app_screen_stop_is_cooperative_and_reports_cancelled",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "The test dates to 2026-07-30/08-02 and encodes the pre-redesign Stop. Commit 5cb219f1 (2026-08-06, \"stop: ask whether to wait or to kill, instead of asking once and hoping\") deliberately changed AppScreen._on_stop (spacr/qt/screens/app_screen.py:2727) to (a) open the ask_how_to_quit modal first and (b) deliberately NOT disable the Stop button \u2014 its docstring states the reason verbatim: \"NOT disabled. A cooperative stop that never lands used to leave the user with no way to escalate; the button stays live so pressing it again reaches the same prompt.\" The test stubs neither the modal (hence the QMessageBox.exec headless guard firing at conftest.py:268) nor updates the button assertion. Verified empirically: with `monkeypatch.setattr(spacr.qt.shutdown, 'ask_how_to_quit', lambda *a, **k: GRACEFUL)` the whole scenario passes \u2014 buttonActionBusy is True, run button re-enables, _thread clears, console shows \"Requesting stop\" and \"Stopped safely\" and no \"Failed \u2014 see traceback\". The ONLY surviving contradiction is `assert not screen._btn_stop.isEnabled()`, which is the behaviour that was intentionally removed. Cooperative cancellation itself is not broken.",
+  "consequence": "None \u2014 the product behaves as redesigned; this is a test that was not re-pointed when Stop gained its wait-or-kill prompt.",
+  "suggested_fix": "Monkeypatch `spacr.qt.shutdown.ask_how_to_quit` to return `spacr.qt.shutdown.GRACEFUL` (app_screen imports it inside _on_stop via `from ..shutdown import ...`, so patching the module attribute works \u2014 confirmed), and replace `assert not screen._btn_stop.isEnabled()` with an assertion that it stays enabled, which is now the contract. Keep the buttonActionBusy and console assertions as they are; they already pass. A companion case returning FORCE and one returning CANCEL would cover the two other branches.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_setting_tooltip_layout.py::test_the_frames_on_screen_are_the_zoomed_ones",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "The test measures ONE displayed frame (`az.content_extent([frame])` on the first pixmap after reveal) and its inline comment states the premise: \"`cell_diameter` draws its whole shape in every frame.\" That was true when the test was written (2026-08-03/04) and was deliberately made false by commit 97ba3e75 (2026-08-09, \"The diameter animations drew a caliper over an object that never changed size\"), which regenerated the four diameter GIFs so the object now scales with the animation instead of holding a fixed radius. Measured directly on the shipped asset: the 18 per-frame extents of the zoomed cell_diameter run 0.423, 0.432, 0.468, 0.532, 0.605, 0.668, 0.723, 0.759, 0.759, 0.750, 0.723, 0.682, 0.632, 0.568, 0.514, 0.468, 0.432, 0.423 \u2014 only 5 frames sit inside the 0.70-0.80 band, and frame 0 (the one the label shows) is the smallest at 0.4227, exactly the failure value. The zoom is correct and meets its documented contract, which is stated on the UNION across frames: spacr/qt/widgets/animation_zoom.py content_mask docstring \u2014 \"The union \u2014 not one representative frame \u2014 is what has to be framed\" \u2014 and ZoomedAnimation.measured_fill() for cell_diameter returns 0.759, inside the band. cell_diameter is not among the four animations that genuinely fall out of band.",
+  "consequence": "None \u2014 the animation is correct and correctly zoomed; a pulsating diameter illustration necessarily has small frames, and the test asserts a per-frame invariant the design never promised.",
+  "suggested_fix": "Measure the union rather than one frame: capture the frames the view holds (or use `az.zoomed_animation(path, HoverTooltip.ANIMATION_SIZE).measured_fill()`) and assert MIN_FILL <= that <= MAX_FILL. If the intent is to prove the widget is showing the zoomed frames rather than the raw GIF, a per-frame `extent <= MAX_FILL` plus a union-in-band assertion keeps that guarantee without pinning the smallest frame.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_tooltip_animation_on_request.py::test_the_revealed_square_lands_at_the_measured_geometry",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Identical root cause to test_the_frames_on_screen_are_the_zoomed_ones, in a second file: the test's geometry assertions (square right of the text, tops level, ANIMATION_SIZE square) all PASS; it fails only on its trailing `az.content_extent([frame])` check of the single revealed frame, at the same 42.3%. Commit 97ba3e75 (2026-08-09) deliberately made the cell_diameter object grow and shrink across its 18 frames, so frame 0 is now the smallest of the cycle (0.4227) while the union the zoom actually targets measures 0.759, inside the 0.70-0.80 band. That commit re-pointed test_the_known_offenders_are_caught but missed these two per-frame assertions, which the incomplete qt suite had never surfaced.",
+  "consequence": "None \u2014 a test-only artefact of measuring the first frame of an animation that is now intentionally animated in size.",
+  "suggested_fix": "Same change as the sibling test: drop the single-frame extent assertion in favour of the union \u2014 `az.content_extent(zoomed.frames)` or `zoomed.measured_fill()` for the cell_diameter asset \u2014 leaving the geometry assertions, which are the point of this test, untouched.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_settings_list_editor.py::test_every_default_round_trips_untouched[classify]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "Half-finished migration of the `classes` setting. Commit 30500970 (\"classify: the Classes editor...\") turned `classes` from a list of names into a dict of name -> {column, value} and routed the key to ClassEditorWidget (spacr/qt/screens/settings_model.py:4031), but the DEFAULT was never migrated: spacr/settings.py still does settings.setdefault('classes', ['nc','pc']). ClassEditorWidget.set_value (spacr/qt/widgets/class_editor.py:191-197) converts that legacy list into placeholder rules with column=\"?\", so the panel collects {'nc': {'column': '?', 'value': None}, 'pc': {...}} where the module's declared default is ['nc','pc']. Same family as the classify_merged case: a new shape registered without its accompanying entries. Verified in a live panel: SettingsWidgets('classify')._defaults['classes'] == ['nc','pc'] while collect()['classes'] is the '?' dict. The test is a generic invariant (defaults vs collect), not retired behaviour -- once the classify default is expressed in the dict shape it passes unchanged, which is why I call it real rather than stale.",
+  "confidence": "medium",
+  "consequence": "Opening Classify and pressing Run without touching the Classes editor ships class rules on a column literally named \"?\", so the run aborts with ClassDefinitionError: \"class 'nc' is defined on column '?', which this table does not have\" -- naming a column the user never typed. Verified by hand against spacr.classify_classes.assign_classes. Additionally, because the collected value is now a Mapping, classify_classes.normalize_settings skips its legacy translation branch entirely (`if not isinstance(raw, Mapping)`), so the annotation_column / metadata-control translation the redesign promised can never fire on a GUI-collected settings dict.",
+  "suggested_fix": "Migrate the product default, not the test: give classify (and deep_spacr) `classes` the dict shape ({} or a real rule dict) so the panel round-trips it, and stop emitting placeholder rules from collect() -- either drop rules whose column is the \"?\" placeholder, or keep the placeholder purely as display text."
+ },
+ {
+  "nodeid": "tests/qt/test_settings_list_editor.py::test_a_flat_list_setting_gets_one_strip",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "The test asserts model._widgets['classes'] is a _ListEditor with one chip strip returning ['nc','pc']. `classes` was deliberately taken away from the chip editor in commit 30500970 and given ClassEditorWidget, because a class is a (name, column, value) rule now, not a bare name -- a chip strip cannot express that. The chip-editor invariant the test cares about is still covered for genuinely flat list keys in the same file (e.g. `tables`, `homogeneity_distances`, which pass).",
+  "confidence": "high",
+  "consequence": "None -- test-only. The flat-list chip editor still exists and still works; only the key this test picked changed widget on purpose.",
+  "suggested_fix": "Repoint the test at a key that is still a flat list (classify's `tables` or measure's `homogeneity_distances`), and cover ClassEditorWidget separately."
+ },
+ {
+  "nodeid": "tests/qt/test_settings_list_editor.py::test_numbers_stay_numbers_and_text_stays_text",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Two retired keys in one test. (1) `png_dims` was deliberately replaced by `png_channel_mapping` in commit 2cab81f7 (\"crops: declare the channel mapping instead of inferring it from list position\") -- spacr/settings.py:3372 says outright it is \"no longer rendered\", and it is absent from the measure panel's defaults, hence the KeyError. (2) the third block uses `classes` chips, which moved to ClassEditorWidget (commit 30500970). I re-ran the same element-typing checks against surviving keys in a live measure panel: homogeneity_distances -> [8,16,32,3] (all int), dialate_png_ratios -> [0.2,0.5], timelapse_objects -> ['cell','3'] (text stays text). The behaviour under test is intact.",
+  "confidence": "high",
+  "consequence": "None -- test-only. Number/text element typing still works on every key that still has a chip editor.",
+  "suggested_fix": "Swap png_dims for a surviving int-list key (homogeneity_distances or manders_thresholds) and drop the `classes` block."
+ },
+ {
+  "nodeid": "tests/qt/test_settings_list_editor.py::test_a_chip_can_be_added_and_removed",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "AttributeError: ClassEditorWidget has no _strips. Same root cause as test_a_flat_list_setting_gets_one_strip -- `classes` is no longer a chip strip by design (commit 30500970). Add/remove still works on real chip editors: committing '3' into measure's homogeneity_distances appends it and the strip behaves as before.",
+  "confidence": "high",
+  "consequence": "None -- test-only.",
+  "suggested_fix": "Run the add/remove assertions against a key that still uses _ListEditor."
+ },
+ {
+  "nodeid": "tests/qt/test_settings_list_editor.py::test_a_comma_splits_a_pasted_run_into_chips",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Same AttributeError on ClassEditorWidget._strips; the test drives `classes`, which lost the chip editor deliberately in commit 30500970. Comma splitting is a _ListEditor/_ChipStrip behaviour and is untouched.",
+  "confidence": "high",
+  "consequence": "None -- test-only.",
+  "suggested_fix": "Repoint at a surviving _ListEditor key (e.g. classify's `tables` or measure's `timelapse_objects`)."
+ },
+ {
+  "nodeid": "tests/qt/test_settings_list_editor.py::test_uncommitted_text_is_still_collected",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Same ClassEditorWidget._strips AttributeError from the `classes` redesign (commit 30500970). I verified the behaviour the test protects is still live: typing 'typed' into measure's manders_thresholds entry without committing still collects [15, 85, 95, 'typed'].",
+  "confidence": "high",
+  "consequence": "None -- test-only. Uncommitted text is still collected by every chip editor.",
+  "suggested_fix": "Repoint at a key that still uses _ListEditor."
+ },
+ {
+  "nodeid": "tests/qt/test_settings_list_editor.py::test_importing_a_settings_dict_reaches_the_chip_editor",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "The first half of the test passes (applied == 2, class_metadata imports as [['r1'],['r2']]); only the last line fails, because it asserts the imported ['a','b'] reads back as a list while `classes` now reads back as the dict {'a': {'column':'?','value':None}, 'b': {...}} (commit 30500970). The stated intent -- an imported list must not be silently dropped -- still holds: the names do reach the editor as rows. NOTE, separate real bug found while checking this: ClassEditorWidget.set_value (class_editor.py:175-198) handles Mapping and list/tuple but NOT a string, and a settings CSV stores the repr. AppScreen('classify').apply_settings_dict({'classes': \"['nc', 'pc']\"}) reports applied=1 yet collect() returns classes == {} -- the names are dropped without a word, and because {} is a Mapping, classify_classes.normalize_settings then skips its legacy translation too. _ListEditor used to parse that string (test_set_value_parses_what_a_settings_csv_holds still asserts it for class_metadata).",
+  "confidence": "high",
+  "consequence": "The failing assertion itself has no user-visible consequence -- but the adjacent gap it walks past does: loading a pre-redesign settings CSV into the Qt Classify screen silently discards `classes`.",
+  "suggested_fix": "Update the assertion to the dict shape, and file the string-parsing gap separately: ClassEditorWidget.set_value should ast.literal_eval a str the way _ListEditor.set_value does."
+ },
+ {
+  "nodeid": "tests/qt/test_settings_list_editor.py::test_live_preview_propagation_reaches_the_chip_editor",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "set_value_for_key('png_dims', ...) returns False because `png_dims` is no longer a measure setting -- retired in favour of png_channel_mapping (commit 2cab81f7; spacr/settings.py:3372 \"no longer rendered\", kept only as a legacy input translated by crops.resolve_png_channel_mapping). The propagation path itself is fine: on the live measure panel set_value_for_key returned True and the widget took the value for png_size ([3,4]), homogeneity_distances ([3,4]) and dialate_png_ratios ([0.3,0.4]).",
+  "confidence": "high",
+  "consequence": "None -- test-only. Live-preview propagation into chip editors still works for every key that still exists.",
+  "suggested_fix": "Repoint at png_size (or homogeneity_distances), which is the surviving int-list key in that panel."
+ },
+ {
+  "nodeid": "tests/qt/test_preferences_tabs.py::test_the_dialog_has_the_five_subject_tabs",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "EXPECTED_TABS in the test is a frozen 5-tab inventory ('General','Appearance','Performance','Modules','Figures') written by e1650244 (2026-08-04). Commit f1183805 (2026-08-05) 'feat(logging): a switch per level, per destination' deliberately added a sixth tab: spacr/qt/preferences.py:2156 builds `logging_form = _page(\"Logging\", \"PreferencesTabLogging\")` with a per-level file/console switch matrix. The dialog now reports 6 tabs and the test compares against 5. The TEST is out of date, not the dialog.",
+  "consequence": "None. Test-only artefact \u2014 the Logging tab is a shipped, intentional feature and every other Preferences test (control placement, per-tab scrolling, Save-writes-all) still passes.",
+  "suggested_fix": "Add \"Logging\" to EXPECTED_TABS in tests/qt/test_preferences_tabs.py (and add the LogFileLevel*/LogConsoleLevel* toggles plus \"LoggingTabHelp\" to the CONTROLS map so the new tab is covered by the same inventory ratchet the file exists to enforce).",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_preferences_tabs.py::test_the_performance_tab_reads_as_one_subject",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "The test asserts the Performance tab holds exactly four named buttons. Commit 35a05890 (2026-08-05) 'Force quit, from Preferences and from the Home run banner' deliberately added a fifth: spacr/qt/preferences.py:2859 creates `QuitSpacrButton` and adds it with `performance.addRow(tr(\"Application\"), quit_button)`, under an explicit comment \u2014 'Quitting belongs on this tab and not with Save/Cancel: it is the last of the \"this machine is not behaving\" tools, next to the four that free what a wedged run is holding.' The test predates that commit by a day.",
+  "consequence": "None. Test-only artefact \u2014 the extra button is the intended design and the test's other claims (SpacrMode combo present, SpacrModeNote wraps) still hold.",
+  "suggested_fix": "Extend the expected set in tests/qt/test_preferences_tabs.py:171 to include \"QuitSpacrButton\", and add \"QuitSpacrButton\": \"Performance\" to the CONTROLS map so it is covered by test_every_control_is_still_there_and_on_the_right_tab.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_dna_rain.py::test_a_theme_switch_re_backdrops_the_rain",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "The test asserts the backdrop fill equals `palette_for(\"light\")[\"bg\"]` (#fafafa). Commit 28e9662c (2026-08-04) 'Give the page a colour of its own so it stops being black' deliberately changed the fill to `page_colour(theme)` (#e1e4e6 on light). spacr/qt/screens/app_screen.py:942-946 in `_retheme_backdrops` says so outright: 'The fill is `page`, not `bg`. It used to be `bg`, which meant that on the dark theme every palette event ... pushed `#000000` back into a backdrop that had been built with the page colour.' spacr/qt/theme.py:1099 reinforces it: 'Prefer this over palette_for(theme)[\"bg\"] anywhere the question is \"what is behind the panels\".' The test (written 2026-07-27) encodes the pre-redesign expectation.",
+  "consequence": "None. Test-only artefact \u2014 the behaviour the test is really about (a theme switch reaches the rain with the new wallpaper and does not clobber a user-picked rain colour) passes; only the expected constant is the old one. Verified: after the switch, backdrop is set, rain.color() is still #ff00ff, fill is #e1e4e6.",
+  "suggested_fix": "In tests/qt/test_dna_rain.py:1332 import `page_colour` from spacr.qt.theme and assert `rain.background_color().name() == QColor(page_colour(\"light\")).name()` instead of `palette_for(\"light\")[\"bg\"]`.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_dna_rain.py::test_a_broken_theme_lookup_does_not_break_the_switch",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Two stale assertions, and neither is the defect the test guards. (1) `assert screen._backdrop_applied is None` after a failed lookup assumes the cache was never primed \u2014 but Qt delivers an ApplicationPaletteChange during AppScreen construction, so the cache legitimately holds ('#23252a', None), the dark page colour that really was pushed. I verified the guarded behaviour directly: with the lookup raising, `_retheme_backdrops` returns at app_screen.py:955 BEFORE the `self._backdrop_applied = (fill, wallpaper)` on line 959, so the cache is not poisoned (still ('#23252a', None)), fill/backdrop/colour are untouched (#123456 / present / #ff00ff), and the control switch that follows does move the fill. (2) The final `assert screen._backdrop_applied == (palette_for(\"light\")[\"bg\"], None)` is the same bg-vs-page staleness as the sibling test \u2014 the cache becomes ('#e1e4e6', None). Both assertions predate 28e9662c (2026-08-04); the `is None` line came in on 2026-08-03 with 3c15261c.",
+  "consequence": "None. Test-only artefact \u2014 a failed theme lookup genuinely leaves the backdrop whole, leaves the cache unpoisoned, and the next working switch genuinely re-fills. Confirmed by running the exact sequence outside pytest.",
+  "suggested_fix": "Replace `assert screen._backdrop_applied is None` with an assertion that the cache is UNCHANGED across the failed event (capture it before the boom and compare), which is what 'not poisoned' actually means; and change the final expectation to `(page_colour(\"light\"), None)`.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_annotate_engine_v2.py::test_explicit_rgb_order_does_not_reverse_an_unmarked_standard_png",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "Commit 2cab81f7 (2026-08-06) 'crops: declare the channel mapping instead of inferring it from list position' redefined the crop formats: CROP_FORMAT_RGB (=2) is now documented as the format that is *wrong* ('Written between 2026-07-26 and 2026-08-06, when png_dims[0] was wrongly placed in the file's RED channel'), `_FORMAT_IS_DECLARED_ORDER[CROP_FORMAT_RGB] = False`, so read_crop_png REVERSES it on load; CROP_FORMAT_DECLARED_RGB (=3) became CROP_FORMAT_CURRENT. That commit touched crops.py, measure.py, settings_model.py and the crops tests but NOT spacr/qt/annotate_engine.py or spacr/qt/screens/annotate.py \u2014 the Annotate half was left behind. So spacr/qt/annotate_engine.py:100-101 still maps the string \"rgb\" to CROP_FORMAT_RGB, that string is the AnnotateSettings default (annotate_engine.py:338 `stored_channel_order: str = \"rgb\"`) and the fallback at annotate.py:629-630, and the combo at annotate.py:769 labels it 'RGB (standard)' with the tooltip 'RGB keeps standard PNG channels unchanged' (annotate.py:778-782). The three-format model is otherwise self-consistent \u2014 tests/test_crop_format.py runs 59/59 green. This is the same shape as the classify_merged case: a registered/renamed entity whose accompanying table entries were not updated with it.",
+  "consequence": "Annotate's default 'RGB (standard)' setting silently swaps red and blue on every crop it displays \u2014 an operator scoring a 405/488/555 stack sees the nuclear stain in blue, and the r/g/b channel filters address the wrong stains, on crops written by current spaCR. Verified end to end: an on-disk pixel of [231,0,17] loads as [17,0,231] under \"rgb\", while \"auto\" and \"legacy_bgr\" both correctly return [231,0,17]; there is no combo option at all for CROP_FORMAT_DECLARED_RGB, the format every new crop is written in.",
+  "suggested_fix": "Migrate Annotate's stored_channel_order vocabulary onto the three-format model in spacr/qt/annotate_engine.py:99-108: the default 'RGB (standard)' choice should resolve to CROP_FORMAT_CURRENT / CROP_FORMAT_DECLARED_RGB, not CROP_FORMAT_RGB, and the 2026-07-26..2026-08-06 format should get its own explicitly-named entry in the annotate.py combo (annotate.py:768-783) with a tooltip matching _FORMAT_NOTE. Keep this test's assertion \u2014 'an explicit standard-RGB selection does not reverse a standard PNG' is still what the product owes the user.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_annotate_engine_v2.py::test_explicit_legacy_order_is_corrected_to_an_rgb_array",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Same 2026-08-06 redesign (2cab81f7), opposite direction. The test asserts that stored_channel_order='legacy_bgr' REVERSES the file's channels. The redesign deliberately decided it must not: spacr/crops.py:1022-1027 states of CROP_FORMAT_LEGACY_BGR 'Named \"legacy BGR\" for the array-order reversal that produced it, but ... the pixels it left on disk are in the order the user declared, so it is read back as-is', and `_FORMAT_IS_DECLARED_ORDER[CROP_FORMAT_LEGACY_BGR] = True` with the note 'Formats 1 and 3 agree pixel-for-pixel for the same declared mapping ... so reading one as the other must NOT reverse. Only format 2 is out of step.' The new contract is covered by tests/test_crop_format.py, all 59 passing. This test (added 2026-07-28 by 140ce15f) encodes the old two-format model. It stays wrong even after the sibling defect above is fixed, which is why it classifies apart.",
+  "consequence": "None. Test-only artefact \u2014 reading a format-1 file as-is is the intended, separately-tested behaviour; the test asserts a channel reversal that would corrupt genuinely-legacy crops.",
+  "suggested_fix": "Rewrite the test against the three-format model: a legacy (format 1) file's bytes are already in declared order, so assert `load_crop_image(path, stored_channel_order=\"legacy_bgr\")` returns the file unchanged, and move the 'gets reversed on load' assertion onto the format-2 case once the Annotate vocabulary is migrated.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_shortcut_overlay.py::test_ctrl_f_lands_in_the_settings_search_box",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Headless-platform artefact, not a product defect and not an ordering effect (it fails identically alone). Qt's `QWidget.hasFocus()` is False for any widget whose top-level window is not the ACTIVE window, and QT_QPA_PLATFORM=offscreen never activates a shown window \u2014 I instrumented it: after win.show()+waitExposed, `win.isActiveWindow()` is False and `QApplication.activeWindow()` is None. The product code is correct: `_focus_settings_search` (spacr/qt/shortcuts.py:322-340) resolves `window._stack.currentWidget()` (verified to be the mask screen), finds `_settings_search`, and calls `bar._input.setFocus()` + `selectAll()`; the input is visible, enabled and StrongFocus. Proof: I ran a byte-identical copy of the test with `QApplication.setActiveWindow(window)` inserted as the ONLY change and it passed. The test landed with the feature in b55403d8 (2026-08-03) and has presumably never run green under offscreen.",
+  "consequence": "None in the product \u2014 Ctrl+F reaches the settings search box in a real session, where the window is active by definition. The assertion measures window activation, which the test environment does not grant.",
+  "suggested_fix": "Activate the window in tests/qt/test_shortcut_overlay.py's `window` fixture (`QApplication.setActiveWindow(win)` after `qtbot.waitExposed(win)`), which makes the assertion measure focus rather than activation. A conftest-level autouse activation would fix this class of assertion for the whole tests/qt suite. Do not weaken the assertion to 'did not raise'.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_home_v2.py::test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "The test spells out ALPHA_MODULES as a 36-name literal. `classify_merged` was added to the registry on 2026-08-06 (commit 2d4da7df) and deliberately annotated `STAGE_ALPHA` in spacr/qt/app.py:759, with an explicit comment saying 'stable' is the absence of a line and the merged screen has not earned it. The registry now has 37 alpha modules; the test's literal was never updated. Product is correct, the test list is one line behind.",
+  "consequence": "None. The registry annotation is intentional and correct; only the hand-copied list in the test is out of date.",
+  "suggested_fix": "Add \"classify_merged\" to ALPHA_MODULES in tests/qt/test_home_v2.py:757 and change `len(ALPHA_MODULES) == 36` to `== 37` (line 809) plus the '36 alpha, 9 beta' docstring.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_home_v2.py::test_every_tab_uses_the_same_large_tile",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "`assert len(core) == len(section_members(\"Core\")) == 10`. The property under test \u2014 the tab draws its members and nothing else \u2014 still holds: both sides are 11. Only the spelled-out constant is wrong, because commit 2d4da7df registered classify_merged into SECTION_CORE (spacr/qt/app.py:687). The test's own comment says the number is spelled out so 'an app arriving in Core is a line changed here'; that line was not changed.",
+  "consequence": "None. Both measured quantities agree with each other; only the literal 10 disagrees with a deliberate registration.",
+  "suggested_fix": "Change 10 to 11 in tests/qt/test_home_v2.py:881 and update the adjacent comment ('Ten since Curate joined the pipeline') to record that the merged Classify module made it eleven.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_home_v2.py::test_the_drawer_is_not_the_only_way_to_reach_every_app",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Only the last line fails: `assert \"All apps\" in menu_labels` (test_home_v2.py:1386). \"All apps\" was deliberately removed from the spaCR menu in commit ff28b7eb (2026-08-08, 'Menu: Home first, and \"All apps\" is not a menu entry'). spacr/qt/app.py:1533 carries the reasoning in a comment, and tests/qt/test_menu_roles.py:123 asserts the exact opposite \u2014 `assert \"All apps\" not in texts`. Two tests now contradict each other; the newer one matches the shipped design. The QAction still exists on the window carrying Ctrl+B (app.py:1542), which is what test_menu_roles.py::test_ctrl_b_survives_leaving_the_menu covers. The two earlier assertions in this test (all 54 apps on the Home tab, all 54 in the menu) pass.",
+  "consequence": "None in the product. This is a stale assertion that ff28b7eb missed when it updated test_menu_roles.py.",
+  "suggested_fix": "Delete line 1386 of tests/qt/test_home_v2.py and note in the docstring that the drawer toggle left the menu but kept Ctrl+B on the window; if a third route must still be pinned here, assert the Ctrl+B QAction is registered on the window instead.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_home_layout.py::test_every_app_is_on_exactly_one_subject_tab_and_one_home_band",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Both partition assertions pass; only `assert len(staged) == 42` fails with 43. The extra key is classify_merged, added to APPS and to APP_STAGE as alpha by commit 2d4da7df without this count being touched. Same family as the other two count literals in test_home_v2.py.",
+  "consequence": "None. The registry annotation is deliberate; the count in the test is one behind.",
+  "suggested_fix": "Change 42 to 43 at tests/qt/test_home_layout.py:187 (and in the message string), and extend the comment above it to say the merged Classify module is the forty-third \u2014 the comment is explicitly a log of why the number moved.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_home_layout.py::test_the_widest_name_fits_the_tile_the_grid_gives_it[dark]",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "A fixture-scope artefact, proved with a pytest_fixture_setup probe. Setup order in a solo run is: `_font_scale_starts_at_one` (session) writes 1.0 -> the module-scoped `home` fixture BUILDS the page at scale 1.0 (tiles get width scaled_px(172)=172, max 260) -> then the function-scoped `_isolated_qsettings_store` (tests/conftest.py) redirects QSettings to an EMPTY per-test directory, where get_font_scale() falls back to DEFAULT_FONT_SCALE = 1.5 (spacr/qt/preferences.py:220). The assertion then computes floor=scaled_px(172)=258 and cap=390 at 1.5 and compares them against tiles laid out at 1.0. 'Experiment Design' is 199 px because the 2-tile Design band is stretched across the 5 columns the 1.0-scale layout chose; 199 is comfortably inside the 1.0 window of 172..260. I built the shipped HomePage at 1400x900 with the scale genuinely set to 1.5 and every visible tile measured 280-282 px, inside 258..390, offending list empty.",
+  "consequence": "None \u2014 the shipped page is correct at both scales; the test measures a page built under one QSettings store against thresholds read from another.",
+  "suggested_fix": "Make the measurement and the page agree on one scale: either call `prefs.set_font_scale(1.0)` at the top of the test (the pattern test_home_variants.py already uses inline), or have the module-scoped `home` fixture capture floor/cap with `scaled_px` at build time and yield them alongside the page. A durable alternative is making `_isolated_qsettings_store` seed the per-test store with the session's font scale instead of leaving it empty, so DEFAULT_FONT_SCALE=1.5 stops leaking into every test that built state earlier.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_home_layout.py::test_the_widest_name_fits_the_tile_the_grid_gives_it[light]",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Identical to the [dark] parametrisation and the same single root cause \u2014 the module-scoped `home` fixture builds the page while QSettings still points at the shared sandbox (font scale 1.0), then the function-scoped `_isolated_qsettings_store` swaps in an empty per-test store whose DEFAULT_FONT_SCALE is 1.5, so the assertion's floor/cap are 1.5x while the tiles were laid out at 1.0. Probe output for this param: fixture `home` scale 1.0 -> 1.0, then `_isolated_qsettings_store` 1.0 -> 1.5. Theme is irrelevant; both params fail on the same tile at the same width.",
+  "consequence": "None \u2014 same as [dark]; a real 1.5-scale HomePage measures 280-282 px per tile, inside the band.",
+  "suggested_fix": "Same fix as the [dark] param; one change covers both parametrisations.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_home_variants.py::test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "classify_merged is not named in CATS_STAGE5 in spacr/resources/home/versions/_generators/common.py:467, so `_with_late_registrations(..., fallback=\"Report\")` appends it to Report, taking that band to 12 against a cap of 11. I enumerated every table: it is the ONLY unfiled key (STAGE5 = 11/9/11/11/12 = 54; NARROW8 'Screens & reports' is 20 = 19 literal + the same fallback). This is exactly the failure mode the test's docstring names \u2014 'A fallback overflow is usually this: not a band that is too small, but a key filed nowhere.' The test is right and the source table is missing an entry; the fix is a source edit, not a test edit. Note the cap does NOT need to rise: 54 apps over 5 bands still fit at 11 (5x11=55), so this is a filing decision. Analyse (with classify and ml_analyze) is the argued home but is already at 11, so one key moves out of Analyse or classify_merged goes to Segment, which sits at 9.",
+  "consequence": "In the archived home-screen variant renders under spacr/resources/home/versions/, the merged Classify module is drawn in the Report band instead of Analyse and Report overflows its seven-column grid \u2014 visible only to someone reviewing that gallery, since variants.py states nothing in _generators/ is wired into the app, so the live Home page is unaffected.",
+  "suggested_fix": "File \"classify_merged\" explicitly in CATS_STAGE5 (and in CATS_NARROW8/CATS_BROAD3/CATS_INTENT4/CATS_QUESTIONS, which are silently absorbing it too) in spacr/resources/home/versions/_generators/common.py, rebalancing one key out of Analyse so no band exceeds 11 \u2014 e.g. classify_merged into Analyse and one Analyse member into Segment, which has room at 9.",
+  "confidence": "medium"
+ },
+ {
+  "nodeid": "tests/qt/test_home_variants.py::test_no_variant_clips_elides_or_overflows",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "The KNOWN_LAYOUT_DEFECTS ledger (tests/qt/test_home_variants.py:103) was last measured on 2026-08-04 at 53 apps (commit eea05fc0); classify_merged took the registry to 54 on 2026-08-06 and the record was not updated in the same commit, which is precisely what the ledger's own contract requires. Proved by re-running the audit driver with the single row filtered out of spacr.qt.app.APPS: the result then equals the recorded table exactly (v04 back to clipped 10, v22 back to clean). A second run with classify_merged FILED into CATS_NARROW8's 'Classify' band showed v04's +7 is the fallback effect from the same unfiled-key gap as the stage-band failure (v04 returns to clipped 10 once it is filed), but v22 is a pure alphabetical index over all keys with no category table, and it stays at clipped 1 \u2014 one more DenseRow that does not fit 1440x900. So the v22 delta is irreducible registry growth and the ledger must be edited either way.",
+  "consequence": "No live-GUI consequence \u2014 the audited variants are archived design candidates and variants.py states nothing in _generators/ is wired into the app. The v04 half shares the source gap reported for the stage-band test.",
+  "suggested_fix": "File classify_merged in the generator category tables (see the stage-band entry), then re-record KNOWN_LAYOUT_DEFECTS: keep 4: {'clipped': 10} and add 22: {'clipped': 1}, with a note that the registry reached 54 and v22's alphabetical index gained a row that does not fit the fixed canvas. If the key is left unfiled, the recorded value for 4 becomes {'clipped': 17} instead.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_ambient_home.py::test_a_failed_install_leaves_the_page_opaque",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "The test pins the pre-2026-08-04 rule that surfaces are cleared only inside the successful-install arm. Commit 28e9662c ('Give the page a colour of its own so it stops being black') deliberately reversed it: HomePage.__init__ now calls `self._clear_page_surfaces()` UNCONDITIONALLY after `_install_ambient()` (spacr/qt/widgets/home.py:1225), and the comment above that call names this test's exact reasoning as the bug \u2014 'that reasoning is what left Home a solid bg slab for anyone with the ambient preference off... There is never nothing behind it: paintEvent paints the page.' HomePage.paintEvent (line 1253) fills page_fill(), which returns a real colour whenever _ambient is None, so a transparent body after a failed install now shows the page colour, not a hole. That commit moved three matching assertions in test_ambient_wiring; this one in test_ambient_home.py was missed. The sibling test test_home_still_opens_when_the_backdrop_cannot_be_built still passes, so the failure-safety half of the contract is intact.",
+  "consequence": "None in the product \u2014 reverting to satisfy this assertion would reintroduce the black-slab bug that was reported three times and fixed by 28e9662c. Note spacr/qt/widgets/home.py:1271's `_install_ambient` docstring still describes the old rule and is now wrong; worth correcting alongside.",
+  "suggested_fix": "Invert the assertion in tests/qt/test_home_v2... (tests/qt/test_ambient_home.py:130) to assert the body IS transparent after a failed install and that page_fill() returns a real colour, and rename the test to match \u2014 the invariant that survived is 'a failed install still leaves something painted behind the containers', not 'the containers stay opaque'. Also fix the stale docstring on HomePage._install_ambient.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_setting_animation_zoom.py::test_every_packaged_animation_zooms_into_the_band",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "zoom_frames() in /mnt/firecuda2/codex/repo/spacr/spacr/qt/widgets/animation_zoom.py:378 erases only `field_ring_mask(source_size)` when the well does not survive the crop, but the measurement's `chrome_mask()` discounts the ring AND everything OUTSIDE the well (`ring | ~inside_outer`). 32 of the 94 packaged GIFs draw ink outside the well (a full-canvas border in the middle frames), and for organelle_min_area, organelle_min_intensity_percentile, plot_outlines and plot_by_cluster the crop pulls a sliver of that border in, where it is never erased. Verified directly: organelle_min_area has source_extent 0.708 (already in band) yet crop=(6,14,340), shows_field=False, and in output frames 1-16 columns 0-1 and rows 218-219 are lit at 230-248 across the whole 220 px, giving measured extent 1.0. Frames 0 and 17, which have no outer border in the source, measure correctly. The four assets were regenerated on 2026-08-09 (dc594b1f), after the zoom feature landed on 2026-08-03 (e636bc1c).",
+  "consequence": "Four setting tooltips (organelle_min_area, organelle_min_intensity_percentile, plot_outlines, plot_by_cluster) render the animation with a bright white line down the left edge and along the bottom -- a leftover sliver of the source frame's outer border that the crop kept and the zoom never erased.",
+  "suggested_fix": "In zoom_frames, when shows_field is False erase `chrome_mask(source_size)` (ring plus everything outside the well) instead of `field_ring_mask(source_size)`, so the erasure matches exactly what content_bounds discounted; alternatively clamp the crop so no out-of-well pixel can enter.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_run_history_screen.py::test_dashboard_lists_performance_and_failure",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Commit 03838b8b (2026-08-08, \"Input hashing becomes opt-in, and the manifest says which it was\") made input/output hashing opt-in via the `hash_inputs` setting, default False. `Run._capture_final_provenance` and `Run.record_input/record_output` now return early unless `hashing_enabled()`, so a run opened without `hash_inputs` writes `output_hashes: {}` and the dashboard's outputs pane correctly shows `{\"inputs\": {}, \"models\": {}, \"outputs\": {}}`. The fixture in the test (file last touched 2026-07-30, 25668a07) opens the run without that key. Verified: adding `\"hash_inputs\": True` to the fixture settings makes the manifest record `.../plate/scores.csv` under output_hashes and `image.tif` under input_hashes, and the manifest reports `input_hashing: on`.",
+  "consequence": "None -- test-only artefact. The product behaves as deliberately redesigned; the fixture encodes the pre-opt-in default.",
+  "suggested_fix": "Add `\"hash_inputs\": True` to the classify run's settings in the `history_root` fixture (and keep a second case asserting the pane is empty with `input_hashing: skipped` when hashing is off).",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_page_panels_backdrop.py::test_each_region_is_one_panel_thick[Gate Editor tree]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "GateTree calls `theme.mark_surface(self.tree)` (/mnt/firecuda2/codex/repo/spacr/spacr/qt/widgets/gate_editor.py:1782) so the tree gets its fill from the `*[spacrSurface=\"true\"]` rule, but `_gate_tree_qss` (same file, line ~133) registers `QTreeWidget#GateHierarchy { background: transparent; ... }` -- an ID selector, which outranks the attribute selector, so the tree paints nothing at all. The surface mark landed 2026-08-04 (180d2c29, which also added this test row); the conflicting QSS block landed 2026-08-07 (d23ebe4a) and silently un-did it. Verified by re-registering the same block with only the `background: transparent;` line removed: the measured transmission over the tree rect goes from 1.000 to 0.702, exactly EXPECTED. `is_surface(tree)` is True and the `*[spacrSurface=\"true\"] { background-color: rgba(22,23,25,0.300) }` rule is present in the live sheet, so the mark is being made and simply outranked.",
+  "consequence": "In the Gate Editor the gate hierarchy has no panel behind it: the window/backdrop colour arrives untouched, so on the dark themes the gate list reads as a black box with the text floating on it, and the page-opacity slider has no effect on that region.",
+  "suggested_fix": "Drop the `background: transparent;` declaration from the `QTreeWidget#GateHierarchy` rule so the surface rule supplies the fill (the ::item rules can keep transparent backgrounds), or paint the surface colour at the page opacity from the `palette`/`opacity` arguments `_gate_tree_qss` already receives.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_i18n.py::test_every_registered_module_and_section_has_an_exact_translation",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "The `classify_merged` module is registered in `spacr.qt.app.APPS` with display name \"Classify\" (section \"Core\"), but \"Classify\" was never added to `_ROWS` in /mnt/firecuda2/codex/repo/spacr/spacr/qt/i18n.py. All nine non-English catalogs carry \"Classify (CV)\", \"Classify (ML)\" and \"Classifier Evaluation\" but not the bare \"Classify\", so all nine (sv, de, es, zh_CN, pt, hi, ko, is, fr) miss it and `tr('Classify','sv')` falls back to the English string. This is the same known root cause as the other classify_merged gaps: the module was registered without its accompanying table entries.",
+  "consequence": "With the app set to any non-English language, the merged Classify module is the one entry in the Core section whose name stays in English while every module around it is translated.",
+  "suggested_fix": "Add a `\"Classify\": _row(...)` entry to `_ROWS` in spacr/qt/i18n.py with the nine translations (the existing \"Classify (CV)\" row gives the wording for each language).",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_classifier_evaluation_screen.py::test_registration_metadata_matches_app_registry",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "The curated \"Evaluation Workbench\" group for classify was deliberately removed. /mnt/firecuda2/codex/repo/spacr/spacr/qt/screens/settings_model.py:1155 states it outright: \"NINE groups became SIX ... 'Validation', 'Evaluation Workbench' and 'Monitoring & Runtime' were three headings for one question\". The change landed in c41a75b6 (2026-08-06) and 30500970 (2026-08-07). All eight settings the test lists are still curated for classify -- verified present in `categories_for_app('classify')['Evaluation & Results']` -- and `api_docs_url('classify', key)` still returns .../spacr/classifier_evaluation/index.html for each of the eight. Only the group name and the contiguous ordering the test hard-codes are gone.",
+  "consequence": "None -- test-only artefact. Nothing about the Classifier Evaluation screen or its settings is missing; the test pins a superseded category layout.",
+  "suggested_fix": "Assert that the eight keys are all reachable in `categories_for_app('classify', ...)` regardless of group (or expect them inside \"Evaluation & Results\"), and keep the api_docs_url assertions unchanged.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_activation_search.py::TestMockedSweep::test_a_mocked_sweep_fills_the_table",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Commit 13a7b335 (2026-08-09, \"The Walk was climbing; the table was showing the wrong thing\") inserted a \"best so far\" column: COLUMNS went from (\"#\",\"score\",\"fold sd\",\"parameters\",\"status\") to (\"#\",\"score\",\"best so far\",\"fold sd\",\"parameters\",\"status\") in spacr/qt/screens/hyperparam.py:649. \"parameters\" therefore moved from model index 3 to 4, and item(0,3) is now the fold-sd cell, which renders \"-\" for a search with no folds. The test (last touched 2026-07-30) predates the new column; its sibling assertions (rowCount, item(0,1) score, best.params) all still hold, so the panel is filling the table correctly.",
+  "consequence": "None for this assertion -- test-only. But the same commit left two index-3 references behind that ARE product bugs worth queueing: `self._table.horizontalHeader().setSectionResizeMode(3, QHeaderView.Stretch)` (hyperparam.py:1053) now stretches \"fold sd\" instead of \"parameters\", and `NO_FOLD_APPS = (\"umap\",)` (line 654) omits \"activation\" even though the folds spinbox is hidden for both (line 800), so the Activation results table shows a permanently empty \"fold sd\" column -- exactly the placeholder column the NO_FOLD_APPS comment says it exists to avoid.",
+  "suggested_fix": "Update the test to index the \"parameters\" column by name (`HyperparamPanel.COLUMNS.index('parameters')`) rather than a literal 3. Separately (product side, not this triage): add \"activation\" to NO_FOLD_APPS and change the stretch to `COLUMNS.index('parameters')`.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_cov_qt_app.py::test_sidebar_column_widens_for_a_longer_name",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Test-harness scale mismatch, not product code. During the test the font-scale PREFERENCE reads 1.5 (probe: font_scale_pref=1.5) so scaled_px(WIDTH_MIN)=330 and scaled_px(WIDTH_MAX)=480, but the QApplication stylesheet was built by the session fixture tests/qt/conftest.py::qt_theme_applied calling theme.stylesheet() with NO font_scale argument, whose default is 1.0 (probe: SidebarItem font-size=13px, i.e. the unscaled sheet). So the bounds are measured at 150% while the button text is drawn at 100%: the 'Cellpose Model Comparison Workbench' row hints 302px, below the inflated 330px floor, and the column stays pinned at the floor. Why the preference is 1.5: tests/conftest.py::_isolated_qsettings_store (function-scoped autouse, added 2026-08-03) redirects QSettings to an EMPTY per-test directory, so get_font_scale() falls back to DEFAULT_FONT_SCALE=1.5 (raised from 1.0 on 2026-08-03, commit b530f70a). The fixture meant to prevent exactly this, tests/qt/conftest.py::_font_scale_starts_at_one (session-scoped, added 2026-08-04), writes 1.0 into the SESSION-level sandbox store before the per-test redirect happens, so its write is never in the store the test actually reads. I verified the product directly with a standalone script at a CONSISTENT scale: at 1.0 the column is 314px (floor 220, cap 320) and at 1.5 it is 457px (floor 330, cap 480) \u2014 the assertion holds at both, so the widening policy itself is correct.",
+  "confidence": "high",
+  "consequence": "None user-visible. The real app always applies the stylesheet with the preference's scale (spacr/qt/preferences.py:1950 passes font_scale=scale), so bounds and text are never measured at different scales outside the test fixture. Test-only artefact.",
+  "suggested_fix": "Make the fixture honest: have qt_theme_applied build the sheet at the effective scale \u2014 qapp.setStyleSheet(stylesheet(font_scale=preferences.get_font_scale())) \u2014 or move the 1.0 pin into a function-scoped autouse fixture that runs AFTER _isolated_qsettings_store so it writes into the per-test store the test reads."
+ },
+ {
+  "nodeid": "tests/qt/test_cov_qt_app.py::test_sidebar_caps_its_width_and_elides_a_pathological_name",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Same single root cause as test_sidebar_column_widens_for_a_longer_name: bounds computed from the QSettings font-scale preference (1.5, because the per-test QSettings sandbox is empty and DEFAULT_FONT_SCALE is 1.5) versus a stylesheet built at font_scale=1.0 by tests/qt/conftest.py::qt_theme_applied. The 60-character name hints 446px at the 100% sheet, which is under the inflated cap of scaled_px(320)=480, so the column settles at 453 instead of hitting the cap and the '== WIDTH_MAX' assertion fails. Standalone verification at a consistent scale: at 1.0 the column is exactly 320 with the name elided, at 1.5 it is exactly 480 with the name elided \u2014 the cap-and-elide behaviour is correct at both.",
+  "confidence": "high",
+  "consequence": "None user-visible. The cap and the elision both work at every consistent font scale; only the fixture's split scale produces the failure. Test-only artefact.",
+  "suggested_fix": "Fix the fixture as above (build the stylesheet at the preference's scale, or pin the scale inside the per-test QSettings store). One fixture change clears both sidebar failures."
+ },
+ {
+  "nodeid": "tests/qt/test_qt_worker_teardown.py::test_no_shipped_code_calls_qthread_terminate",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "The test is a blanket AST ban on any `.terminate()` call under spacr/qt (added 2026-08-03 in e0440529, the live-lock/core-dump fix that introduced bridge.drain_thread). It now reports two call sites \u2014 spacr/qt/screens/app_screen.py:2821 (AppScreen._force_stop) and spacr/qt/widgets/home.py:609 (home._terminate) \u2014 both of which were added DELIBERATELY and LATER: 35a05890 'Force quit, from Preferences and from the Home run banner' (2026-08-05) and 5cb219f1 'stop: ask whether to wait or to kill, instead of asking once and hoping' (2026-08-06). Those commit messages spell out the policy change: cooperative cancellation is still the default, force is a separate escalation reached only through ask_how_to_quit with a prompt that states what it costs, and request_cancel is always tried first. drain_thread is not a substitute for that path \u2014 it PARKS a wedged thread (bridge.py:796), i.e. the run keeps computing, which is precisely what the user pressing Force is trying to stop. So the product policy was deliberately redesigned and the guard test was never updated; the test predates the redesign by two and three days respectively, which is the textbook stale signature.",
+  "confidence": "medium",
+  "consequence": "The blanket ban is stale, but there is a residual hazard worth a follow-up ticket rather than a triage failure: the Preferences force-quit path ends in os._exit so a corrupt heap cannot matter, whereas these two call sites terminate a QThread running Python and then keep the process ALIVE (home.py even does thread.wait(2000) afterwards). That is the exact scenario the ban was written for \u2014 a thread cancelled while holding the GIL can live-lock the app, one cancelled inside PySide can crash it later somewhere unrelated. So: clicking Force on the Home run banner or the module Stop dialog can leave spaCR wedged or crash it minutes later, on a path the user was warned about only in terms of half-written files.",
+  "suggested_fix": "Narrow the guard instead of deleting it: allow terminate() only where it is immediately followed by os._exit, or maintain an explicit allowlist of the two warned force-quit call sites so a third one still trips the test. Separately, consider making the two surviving paths exit the process (as the Preferences path does) rather than terminating a Python thread and continuing."
+ },
+ {
+  "nodeid": "tests/qt/test_qt_worker_teardown.py::test_a_record_logged_while_writing_the_console_is_dropped",
+  "verdict": "ordering",
+  "passes_alone": true,
+  "root_cause": "Leaked process-global logging state. Culprit isolated to tests/qt/test_cov_qt_app.py::test_launch_drains_the_ai_consoles_on_quit \u2014 running just that test then this one reproduces the failure; the whole test_qt_worker_teardown.py file on its own does not. That test calls app_mod.launch(['mask']), whose theme/preferences path runs logging_util.apply_level_policy(get_log_file_levels(), get_log_console_levels()) -> verbose_logger.apply_console_levels(DEFAULT_CONSOLE_LEVELS). That installs a mutable LevelSetFilter({WARNING, ERROR, CRITICAL}) on the MODULE-LEVEL _ConsoleForwarder singleton, and nothing ever removes it. Probe output between the two tests: filters=[('LevelSetFilter', [30, 40, 50])], console_levels=[30, 40, 50]. This test logs at DEBUG (10), so every record is vetoed by the filter and the console target receives nothing; it fails on `assert seen, 'the console target received nothing at all'` -> `assert []`, never reaching the re-entrancy assertion it exists to make. Confirmed causally: pre-installing ONLY apply_console_levels({WARNING, ERROR, CRITICAL}) via an autouse fixture, with no other test running, reproduces both console failures exactly. The file's _restore_console_target fixture saves and restores vl._console_ref but not the handler's filters or level.",
+  "confidence": "high",
+  "consequence": "None in the product \u2014 the console showing WARNING and above while verbose logging is on is intentional (spacr/qt/preferences.py:1995 comments that the per-level switches 'are the finer statement and have to be the one that lands last'). The failure is purely leaked test state.",
+  "suggested_fix": "Extend _restore_console_target (or add a conftest autouse fixture) to save/restore verbose_logger._handler's filters and level alongside _console_ref; or have these two tests call verbose_logger.apply_console_levels({DEBUG, INFO, WARNING, ERROR, CRITICAL}) explicitly so they do not depend on no LevelSetFilter having been installed. Fixing the leak at its source \u2014 restoring the console level policy after any test that calls launch() \u2014 closes both console failures."
+ },
+ {
+  "nodeid": "tests/qt/test_qt_worker_teardown.py::test_the_console_sink_reopens_after_a_delivery",
+  "verdict": "ordering",
+  "passes_alone": true,
+  "root_cause": "Identical single root cause to test_a_record_logged_while_writing_the_console_is_dropped: tests/qt/test_cov_qt_app.py::test_launch_drains_the_ai_consoles_on_quit calls app_mod.launch(['mask']), which via apply_level_policy installs a LevelSetFilter({WARNING, ERROR, CRITICAL}) on verbose_logger's module-global _ConsoleForwarder that is never restored. This test emits 'marker-0/1/2' on spacr.trace at DEBUG; the filter drops all three at the handler, so calls == [] and it fails on 'line 0 never reached the console'. The captured log confirms the records were produced (they reach pytest's own handler) and simply never reached the console sink. Verified by pre-installing only that filter with no other test running: both console tests then fail identically. The latch under test (_DELIVERY_STATE) is innocent \u2014 probe shows depth=0 at every teardown.",
+  "confidence": "high",
+  "consequence": "None in the product; the level filter behaviour is deliberate. Leaked test state only.",
+  "suggested_fix": "Same fix as the sibling test: restore the _ConsoleForwarder's filters/level in _restore_console_target, or have the test open the console levels to DEBUG explicitly before logging."
+ },
+ {
+  "nodeid": "tests/qt/test_theme_blind_widgets.py::test_home_inlines_no_colour_from_another_theme[light]",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "The `themed_home` fixture does `page.setStyleSheet(theme.stylesheet(theme_name))`, so `page.styleSheet()` IS the whole application sheet. The sweep then scans that whole sheet for dark-only hexes with a bare `#[0-9a-fA-F]{6}` regex that does not strip QSS comments. The single offender it finds, `#000000`, sits inside a comment in the QC-dashboard widget block: `the WINDOW colour -- #000000 on dark -- as a solid rectangle behind its` (added 2026-08-06 in 9cebd643, after the test was last touched on 2026-07-27). Verified programmatically: with `/* ... */` stripped, the light, cell and glass sheets contain ZERO dark-only hexes; with comments left in, each contains exactly one, the comment. Qt's QSS parser discards comments, so not one pixel is affected.",
+  "consequence": "None. The flagged hex is inside a QSS comment that Qt never parses; it is a test-only artefact of a regex that does not skip comments combined with a fixture that hangs the entire app stylesheet on the widget being swept.",
+  "suggested_fix": "In the test, strip `/\\*.*?\\*/` (DOTALL) from each `styleSheet()` before running `_HEX`, and skip the page's own sheet (the fixture set it to the full app sheet by construction, so it can never be an 'inline' colour).",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_theme_blind_widgets.py::test_home_inlines_no_colour_from_another_theme[cell]",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Identical to the [light] case: the only dark-only hex in the cell stylesheet is `#000000` inside the QC-dashboard QSS *comment* (`the WINDOW colour -- #000000 on dark -- ...`), reached because the fixture puts the whole app sheet on HomePage and `_HEX` does not skip comments. Stripping comments leaves the cell sheet with no dark-only hex at all.",
+  "consequence": "None. Pure test artefact \u2014 a hex inside a QSS comment paints nothing.",
+  "suggested_fix": "Strip QSS comments before the hex sweep, and exclude the page's own (app-wide) stylesheet from the per-widget scan.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_theme_blind_widgets.py::test_home_inlines_no_colour_from_another_theme[glass]",
+  "verdict": "stale",
+  "passes_alone": false,
+  "root_cause": "Two offenders, both false positives. (1) `HomePage inlines #000000` is the same QSS-comment artefact as [light]/[cell]. (2) `DangerButton inlines #ffffff` comes from `style_as_danger` in /mnt/firecuda2/codex/repo/spacr/spacr/qt/shutdown.py:224, which emits `QPushButton#DangerButton:hover { background: {danger}; color: #ffffff; }`. The fill IS resolved from `active_palette()`; only the hover ink is the literal `#ffffff`, which happens to collide with the dark palette's `fg` and is absent from the glass palette (`fg` = #fafafa). Substituting the glass `fg` \u2014 which is what the test is asking for \u2014 would make contrast WORSE, not better: measured white-on-danger is 2.04:1 on glass vs 1.95:1 for #fafafa. So the flagged literal is not the 'wrong palette imported' defect this test exists to catch.",
+  "consequence": "None for the assertion as written. Separately worth queueing (NOT what this test measures): the danger button's hover ink is only 2.04:1 on glass and 2.20:1 on cell because those themes use a pale red danger (#ff9a95 / #ff8f86) \u2014 neither #ffffff nor the theme `fg` is legible on it, so the hover state of Force-quit / Stop / Clear buttons is hard to read on those two themes.",
+  "suggested_fix": "Strip QSS comments in the test, and either whitelist #ffffff as a constant role (it is already excused for `button_accent` and friends via CONSTANT_ROLES) or have `style_as_danger` pick its hover ink by contrast against the resolved danger fill rather than by palette lookup.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_zoom_reaches_text.py::test_zoom_reaches_the_text_toggles[Live]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "In /mnt/firecuda2/codex/repo/spacr/spacr/qt/widgets/ai_toggle_label.py, `_refresh_style()` installs a new per-widget stylesheet with a bigger `font-size` AND bigger `padding` but never invalidates the label's geometry (no `updateGeometry()`/`adjustSize()`), so the label keeps the width it was granted at the old font size. `_apply_elision()` then measures the NEW font against the STALE `contentsRect()` \u2014 42px width minus 2x15px padding = 12px of inner room \u2014 and elides. Reproduced outside pytest: a toggle built at 100% and then moved to 150% stays 42px wide and shows only the ellipsis for 'Live' (the 'AI' case elides all the way to the empty string, since QFontMetrics.elidedText returns '' when not even the ellipsis fits). Once the visible text shrinks, the label's size hint shrinks with it, so no parent layout ever gives the width back \u2014 verified by resizing the parent afterwards, which does not recover it. Built fresh at 150% the same widget is 63px wide and reads correctly, so this is strictly a live-update defect. The elision cap landed 2026-08-08 (1eedb705) to stop the toggle starving the settings column; the test predates it (b99ffc67, 2026-08-04). The deliberate change was capping the MINIMUM width \u2014 blanking the label on a zoom change is an unintended side effect, so the test's requirement still stands.",
+  "consequence": "Raising the Zoom preference while a module screen is open shrinks that screen's 'Live' toggle to an ellipsis (and its 'AI' toggle to nothing at all), and it stays that way until spaCR is restarted, because MainWindow.refresh_theme rebuilds only the Home page (_rebuild_startup_page) and never the module screens.",
+  "suggested_fix": "In `_refresh_style()`, after `setStyleSheet`, call `self.updateGeometry()` (and re-run `_apply_elision()` against the new hint); and make `_apply_elision()` never reduce the label below the ellipsis \u2014 if `elidedText` comes back empty, keep the previous text rather than blanking the widget.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_zoom_reaches_text.py::test_zoom_reaches_the_text_toggles[AI]",
+  "verdict": "real",
+  "passes_alone": false,
+  "root_cause": "Same defect as the [Live] parametrisation, worse symptom. `AiToggleLabel._refresh_style()` grows font-size and padding without invalidating geometry; `_apply_elision()` then measures the 20px font against the 42px-wide widget's stale contentsRect (12px of inner room after the grown padding) and `QFontMetrics.elidedText` returns the EMPTY STRING because not even the ellipsis fits. Measured directly: at 100% the widget is QSize(42,26) showing 'AI'; after the zoom change it is still QSize(42,x) showing ''. The test's ink-row count therefore goes 9 -> 0. Constructed fresh at 150% it is 63px and shows 'AI', confirming the sizing itself is right and only the live update is broken.",
+  "consequence": "Raising the Zoom preference while a module screen is open makes that screen's 'AI' toggle vanish entirely (blank, still clickable), and it never comes back without restarting spaCR, since MainWindow.refresh_theme rebuilds only the Home page.",
+  "suggested_fix": "Call `self.updateGeometry()` after installing the new sheet in `_refresh_style()`, and guard `_apply_elision()` so an empty `elidedText` result is never applied.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_space_theme.py::TestPreferencesWiring::test_apply_preferences_only_pays_for_space",
+  "verdict": "ordering",
+  "passes_alone": true,
+  "root_cause": "Passes alone (exit 0) and with its whole file (all 107 tests, exit 0). It fails only after other tests have left AppScreen instances alive in the process \u2014 reproduced deterministically with `pytest tests/qt/test_preferences_gear.py tests/qt/test_space_theme.py::TestPreferencesWiring::test_apply_preferences_only_pays_for_space`, giving the same `assert [1, 1, 1, ...] == [1]`. Mechanism: `apply_preferences_to_app` calls `apply_qpalette` + `app.setStyleSheet(...)`, which raises `PaletteChange` on every live widget; `AppScreen.changeEvent` (spacr/qt/screens/app_screen.py:872) responds with `refresh_ambient_background()` and `_retheme_backdrops()`, and both call `_theme_wallpaper()` -> `preferences.theme_background_path(resolve_effective_theme())` -> the monkeypatched `space_background_path`. Every accumulated screen therefore adds one call, so the exact `== [1]` count grew to 69 on xdist worker gw2. The property the test actually cares about \u2014 that the DARK path costs nothing \u2014 still holds (the first `assert calls == []` passes in every run).",
+  "consequence": "Test-only. The product behaviour is unchanged; only the exact-count assertion is sensitive to how many AppScreens the process happens to be holding.",
+  "suggested_fix": "Assert `calls == []` then `calls != []` (or `len(calls) >= 1`) instead of `calls == [1]`; or build the qapp fixture per-test / delete leftover screens so the count is deterministic.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_widget_qss_is_complete.py::test_the_settings_search_pane_is_styled_in_a_fresh_stylesheet",
+  "verdict": "ordering",
+  "passes_alone": true,
+  "root_cause": "The whole file passes alone (5/5, exit 0) and in the 4-file combination. It fails after tests/qt/test_field_fade.py \u2014 reproduced with `pytest tests/qt/test_field_fade.py tests/qt/test_widget_qss_is_complete.py`, giving exactly 'SettingsSearchPane has no rule in a freshly built stylesheet'. Culprit: the `prefs_sandbox` fixture at tests/qt/test_field_fade.py:45 does `saved_qss = dict(theme_mod._WIDGET_QSS)` at SETUP \u2014 before `theme.load_widget_qss_registrars()` has ever run in that process, when only 19 blocks are registered \u2014 and at teardown does `_WIDGET_QSS.clear(); _WIDGET_QSS.update(saved_qss)`. That permanently shrinks the process-wide registry from ~49 blocks to 19, and because `load_widget_qss_registrars()` latches on `_QSS_REGISTRARS_LOADED` (theme.py:2224, set before the imports and never reset) it can never refill. Every later `stylesheet()` call in that worker is missing ~30 widget blocks, SettingsSearchPane among them. Note: my own `-n 8` full run happened not to schedule these two files on the same worker, so this trio does not appear in my run log; the mechanism is reproducible on demand.",
+  "consequence": "Test-only. Nothing is wrong with the product registry; a test fixture destroys process-global state it snapshotted too early.",
+  "suggested_fix": "Have the `prefs_sandbox` fixture call `theme_mod.load_widget_qss_registrars()` BEFORE snapshotting `_WIDGET_QSS` (or drop the clear/restore entirely \u2014 the fixture only needs the app stylesheet restored, not the registrar table).",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_widget_qss_is_complete.py::test_a_fresh_stylesheet_carries_every_registered_block[dark]",
+  "verdict": "ordering",
+  "passes_alone": true,
+  "root_cause": "Passes alone and with its own file; two independent predecessors break it. (a) After tests/qt/test_field_fade.py: 'only 19 widget QSS blocks registered; the loader did not run' \u2014 its `prefs_sandbox` fixture snapshots `_WIDGET_QSS` before `load_widget_qss_registrars()` has run and restores that 19-entry snapshot at teardown, and the loader's `_QSS_REGISTRARS_LOADED` latch means it never refills. (b) After tests/qt/test_spacr_mode.py: 'registered but rendering to nothing: [FieldFade]' \u2014 the Extra-Performance tests set the field-fade preference off, and `spacr.qt.widgets.field_fade._enabled` is a process-global cache (field_fade.py:119-139) that nothing invalidates at teardown, so `_field_fade_qss()` keeps returning '' (empty is its documented, load-bearing 'off' output) long after the sandboxed QSettings has been restored. Both reproduced directly.",
+  "consequence": "Test-only. Neither the registrar table nor the FieldFade block is broken in the product; both failures are leaked process-global state from earlier tests.",
+  "suggested_fix": "(a) load the registrars before snapshotting in test_field_fade's `prefs_sandbox`; (b) add an autouse teardown in test_spacr_mode (or a shared conftest fixture) that calls `spacr.qt.widgets.field_fade.invalidate_field_fade()`.",
+  "confidence": "high"
+ },
+ {
+  "nodeid": "tests/qt/test_widget_qss_is_complete.py::test_a_fresh_stylesheet_carries_every_registered_block[light]",
+  "verdict": "ordering",
+  "passes_alone": true,
+  "root_cause": "Identical to the [dark] parametrisation \u2014 same two leaks, same two reproductions: test_field_fade.py's `prefs_sandbox` restoring a 19-entry `_WIDGET_QSS` snapshot taken before `load_widget_qss_registrars()` ran (and the loader latches, so it never refills), and test_spacr_mode.py leaving `field_fade._enabled = False` in the module-global cache so the FieldFade block renders to the empty string.",
+  "consequence": "Test-only. No product defect; leaked process-global state from earlier tests in the same worker.",
+  "suggested_fix": "Same two fixes: load the registrars before snapshotting in test_field_fade's `prefs_sandbox`, and invalidate the field-fade cache at test_spacr_mode teardown.",
+  "confidence": "high"
+ }
+]

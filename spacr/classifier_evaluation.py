@@ -827,7 +827,9 @@ def evaluate_predictions(
           :func:`sample_identity` columns, ``true_label`` / ``true_class``,
           ``predicted_label`` / ``predicted_class``, ``correct``,
           ``confidence`` (the calibrated probability of the chosen class) and
-          a ``raw_prob_<class>`` / ``prob_<class>`` pair per class;
+          a ``raw_prob_<name>`` / ``prob_<name>`` pair per class, where
+          ``<name>`` is the sanitized, de-duplicated class name listed in
+          ``probability_column_names`` rather than the class name itself;
         * ``confusion_counts`` — counts indexed and columned by class name;
         * ``confusion_normalized`` — the same matrix divided by its true-class
           row totals, with all-zero rows left at zero;

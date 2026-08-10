@@ -2670,8 +2670,8 @@ def measure_crop(settings):
         - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.
         - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).
         - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.
-        - ``dry_run`` — validate the settings and stop; nothing is read,
-          written or imported.
+        - ``dry_run`` — validate the settings, report the plan and stop;
+          the input folders are inspected but nothing is written.
 
     :returns: ``None`` on a normal run, which writes
         ``measurements/measurements.db``, ``measure_crop_settings.csv``, and
