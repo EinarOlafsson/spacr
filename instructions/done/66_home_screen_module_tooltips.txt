@@ -2,7 +2,7 @@
 HOME SCREEN: KEEP THE BOTTOM TOOLTIP, DROP THE PER-MODULE POPUP
 ================================================================================
 
-Status:    not started
+Status:    done 2026-08-09
 Requested: 2026-08-09 - "on the home screen keep the tooltip at the botom of the screen but remove the popup tooltip for each module."
 
 --------------------------------------------------------------------------------
@@ -56,3 +56,34 @@ DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
 Not started.
+
+--------------------------------------------------------------------------------
+2026-08-09 - DONE, AND THE TOOLTIP WAS CARRYING SOMETHING
+--------------------------------------------------------------------------------
+
+The per-tile popup is gone from all 108 tiles; the hint bar keeps updating
+on hover. Verified: 0 tooltips, 108 accessible names, 108 accessible
+descriptions.
+
+WHAT MADE IT MORE THAN A DELETION. This file guessed that removing the
+tooltip might remove the only text an assistive tool could read. That guess
+was half right and pointed at the wrong user: the accessible name and
+description are set independently, so screen readers were never at risk.
+The tooltip was carrying the module's STAGE word for a SIGHTED
+COLOUR-BLIND user -- who reads neither the hover hue nor the accessibility
+tree -- and `test_the_stage_is_a_word_on_the_tile_not_only_a_colour` cites
+WCAG 1.4.1 for exactly that.
+
+So the stage word moved to the hint bar rather than going away:
+
+    "How many cells per well and how many wells ... - Stable"
+
+Two tests were re-pointed rather than deleted, and both now assert the new
+arrangement: the tile has NO tooltip, and the hint bar carries the stage.
+The second one had asserted the hint bar equals the description exactly,
+which the appended stage broke -- changed to "contains", since what it
+defends is that hovering EXPLAINS the tile.
+
+TEN OTHER FAILURES in the home suites are pre-existing and unrelated --
+confirmed by stashing these changes and watching one fail anyway. Layout
+and tab-assignment tests; they belong to instruction 43.

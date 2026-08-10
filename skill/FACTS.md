@@ -7,10 +7,10 @@ stale; nothing here is a rule. The rules are in INVARIANTS.md.
 ## This checkout
 
 - version: **get_version()**
-- branch: `nightly` at `f489fa82`
+- branch: `nightly` at `1f8cb094`
 - Python modules under `spacr/`: 306
 - of those under `spacr/qt/`: 177 (44 screens, 65 widgets)
-- test files: 686 (239 under `tests/qt/`)
+- test files: 688 (241 under `tests/qt/`)
 
 ## The biggest modules
 
@@ -36,7 +36,7 @@ Size is not a defect, but it is where the work is. Read the docstring before the
 - PASS — thread finished wiring: make_thread still owns the finished wiring
 - PASS — test isolation fixtures: registry + font-scale isolation in place
 - PASS — QSettings sandbox: QSettings sandbox present
-- PASS — task ledger: 26 open, 34 done, all with their sections
+- PASS — task ledger: 21 open, 39 done, all with their sections
 
 A FAIL means INVARIANTS.md is describing software that has moved.
 Fix the code or fix the file, then say which in the commit.
