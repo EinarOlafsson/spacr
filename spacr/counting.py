@@ -72,8 +72,9 @@ class CountClass:
         interpret.
     :param color: the marker colour, in any form :func:`spacr.layers.to_rgba`
         takes.
-    :param shortcut: the key that selects it, ``'1'``–``'9'`` by position when
-        the caller does not choose. A counting session is a keyboard job.
+    :param shortcut: the key that selects it, blank by default —
+        :meth:`CountingSession.add_class` is what fills in ``'1'``–``'9'`` by
+        position. A counting session is a keyboard job.
     """
 
     name: str
@@ -150,6 +151,10 @@ class CountingSession:
 
         :param spec: a :class:`CountClass`, a ``(name, colour)`` pair, or a
             bare name (which is given the next default colour).
+        :param shortcut_index: zero-based position deciding the ``'1'``–``'9'``
+            key the class answers to; defaults to the number of classes already
+            added. Ignored when ``spec`` already carries a shortcut, and no key
+            is assigned past ``'9'``.
         :raises LayerError: on a duplicate name.
         """
         if isinstance(spec, CountClass):
@@ -326,7 +331,11 @@ class CountingSession:
         return counts[self._check_class(name)] / total if total else 0.0
 
     def describe(self) -> str:
-        """One line for a status bar: ``infected 12 (40%) · uninfected 18``."""
+        """One line for a status bar, ``'nothing counted yet'`` when empty.
+
+        Every class gets a percentage and the total is appended:
+        ``infected 12 (40%) · uninfected 18 (60%) · 30 total``.
+        """
         counts = self.counts()
         total = sum(counts.values())
         if not total:
@@ -364,7 +373,7 @@ class CountingSession:
         return pd.DataFrame(rows, columns=columns)
 
     def summary(self):
-        """One row per class: the count, the fraction and the field key."""
+        """One row per class: the field key, class, count, fraction and total."""
         import pandas as pd
 
         counts = self.counts()
