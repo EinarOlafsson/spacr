@@ -27,11 +27,14 @@ laptop, copy ``<src>/settings/gen_mask_settings.csv`` to the cluster, and
 ``sbatch`` it unchanged.
 
 Exit codes (a cluster job that exits 0 after failing is the classic headless
-footgun, so these are exact):
+footgun, so spaCR's own codes are exact):
 
   0  the module ran to completion, or the dry run / validation found no errors
   1  the module raised
   2  bad arguments, unreadable settings, or pre-flight found errors
+
+A pipeline that raises ``SystemExit`` itself is the exception: its integer
+code is passed through unchanged, so any value can reach the shell.
 
 Matplotlib is forced to ``Agg`` when there is no display, and ``plt.show`` is
 replaced by a close-the-figure shim for the duration of the run — the same
@@ -105,14 +108,16 @@ class Module:
     :param requires: settings that must be supplied, phrased for a human.
     :param writes: what lands on disk.
     :param call_style: ``"settings"`` for ``fn(settings_dict)``; ``"folder"``
-        for the one entry point that takes a bare path.
+        for ``fn(settings["src"])``. No built-in module uses ``"folder"``; it
+        reaches spaCR only through a plugin app that declares it.
     :param note: caveat worth printing in ``--describe``.
     :param defaults_entry: ``"module:function"`` of a defaults helper that does
-        **not** live in :mod:`spacr.settings`. Two pipelines keep their own
-        (``spacr.foreign.default_settings``, ``spacr.convert.default_settings``)
-        because their keys are theirs alone; without this the CLI would resolve
-        an empty defaults dict for them, and ``--set`` would then reject every
-        one of their keys as a setting that does not exist.
+        **not** live in :mod:`spacr.settings`. Six built-in pipelines keep
+        their own (``foreign``, ``external_masks``, ``convert``,
+        ``illumination``, ``barcode_qc``, ``anndata_export``), as does every
+        plugin app, because their keys are theirs alone; without this the CLI
+        would resolve an empty defaults dict for them, and ``--set`` would then
+        reject every one of their keys as a setting that does not exist.
     """
 
     key: str
@@ -1703,7 +1708,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     :param argv: argument list; ``sys.argv[1:]`` when None.
     :returns: process exit code — 0 success, 1 the module raised, 2 bad
-        arguments or settings.
+        arguments or settings. Any other integer comes from a pipeline that
+        raised ``SystemExit`` itself; :func:`cmd_run` passes that code through
+        unchanged.
     """
     parser = build_parser()
     try:

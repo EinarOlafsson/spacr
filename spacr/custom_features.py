@@ -6,10 +6,18 @@ export functions::
 
     def <name>(mask: np.ndarray, image: np.ndarray, **kwargs) -> float | dict
 
-spaCR's measure step auto-discovers them at ``measure_crop`` boot
-and includes each one alongside the built-in features (intensity /
-morphology / colocalisation / …). The result is written to the
-same measurements DB, one column per key returned.
+:func:`discover_features` collects each such function — it has to be
+public, defined in the file itself and take at least two parameters —
+and :func:`call_feature` invokes one, coercing the result into a
+``{column_name: value}`` mapping (``<name>`` for a scalar,
+``<name>_<key>`` per key for a dict).
+
+.. note::
+
+   This is a standalone API. No part of the measure pipeline calls it
+   yet, so dropping a file into ``~/.spacr/features/`` does not on its
+   own add columns to the measurements DB — a caller has to run the
+   discovery and invocation loop itself.
 
 Example ``~/.spacr/features/asymmetry.py``::
 
@@ -21,9 +29,8 @@ Example ``~/.spacr/features/asymmetry.py``::
         # Something the built-ins don't compute
         return float(np.std(xs) / (np.std(ys) + 1e-9))
 
-Every function is called once per (object, image_channel) tuple.
-Errors in one custom feature don't stop the others — they're logged
-and the offending column simply gets NaN for that object.
+Errors are logged and swallowed: a feature that raises simply yields
+an empty mapping, so one bad function cannot break the caller's loop.
 
 Public API::
 

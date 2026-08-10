@@ -812,7 +812,30 @@ def evaluate_predictions(
     calibration_method: str = "none",
     calibration_bins: int = 10,
 ) -> Dict[str, Any]:
-    """Build overall, confusion, calibration, and per-plate evaluation tables."""
+    """Build overall, confusion, calibration, and per-plate evaluation tables.
+
+    :returns: the evaluation bundle, a dict with six keys:
+
+        * ``summary`` — scalar metrics (``n``, accuracy, balanced accuracy,
+          macro/weighted F1, macro precision/recall, log loss, multiclass
+          Brier, expected calibration error, mean confidence) plus
+          ``classes``, ``n_classes``, ``calibration_method``,
+          ``raw_expected_calibration_error``,
+          ``temperatures_by_held_out_fold``, ``calibration_warnings`` and
+          ``probability_column_names``;
+        * ``predictions`` — one row per sample with ``fold``, the
+          :func:`sample_identity` columns, ``true_label`` / ``true_class``,
+          ``predicted_label`` / ``predicted_class``, ``correct``,
+          ``confidence`` (the calibrated probability of the chosen class) and
+          a ``raw_prob_<class>`` / ``prob_<class>`` pair per class;
+        * ``confusion_counts`` — counts indexed and columned by class name;
+        * ``confusion_normalized`` — the same matrix divided by its true-class
+          row totals, with all-zero rows left at zero;
+        * ``per_plate`` — the same scalar metrics per ``plate`` group, with
+          ``plate`` as the first column;
+        * ``calibration`` — the :func:`calibration_table` reliability bins for
+          the calibrated probabilities.
+    """
     y = np.asarray(y_true, dtype=int)
     raw = normalize_probabilities(probabilities)
     n_classes = raw.shape[1]
