@@ -82,11 +82,14 @@ class TestTheShippedAnimations:
         `_umap_scene` drew three clusters of five dots at radius 1.5 --
         about 106 px of a 129,600 px frame -- so an animation that changed
         every point still measured a fifth of a percent (7 fixed, 8 left).
+        The last eight were one-offs, mostly non-cell objects drawn 10-16 px
+        wide in a 360 px frame.
 
-        Lower this number as they are fixed. It may never rise.
+        All 94 clear the threshold now, so this asserts zero. It may
+        never rise.
         """
         failures = validate_animations_show_something()
-        assert len(failures) <= 8, (
+        assert len(failures) == 0, (
             "an animation has gone under the visible-change threshold: "
             f"{sorted(failures)}")
 
