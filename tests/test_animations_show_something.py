@@ -70,31 +70,43 @@ class TestTheShippedAnimations:
         failures = validate_animations_show_something()
         assert isinstance(failures, dict)
 
-    def test_the_known_offenders_are_caught(self):
-        """Pins that the check still SEES a known-bad animation.
+    def test_the_number_of_silent_animations_never_grows(self):
+        """A ratchet, because the previous version of this test pinned one
+        slug and so FAILED the moment someone fixed it.
 
-        The slug has to be re-pointed whenever the named one is fixed,
-        which is the honest cost of pinning a real example rather than a
-        synthetic one -- and the fix is the good outcome, not the failure.
+        History: the 2026-08 audit found 27 animations below 1%.
+        `_diameter_scene` drew a caliper over an object that never changed
+        size (4 fixed, 23 left). `_filter_scene` faded a single object where
+        the setting is a THRESHOLD, and for the `minimum` variants that one
+        object is the smallest of the four (8 fixed, 15 left).
+        `_umap_scene` drew three clusters of five dots at radius 1.5 --
+        about 106 px of a 129,600 px frame -- so an animation that changed
+        every point still measured a fifth of a percent (7 fixed, 8 left).
 
-        History: the 2026-08 audit found 27 animations below 1%, with
-        `pathogen_diameter` at 0.0001 -- it drew a caliper over an object
-        that never changed size. Fixing `_diameter_scene` to scale the
-        OBJECT took it to 0.1390 and the whole *_diameter family with it,
-        leaving 23. `remove_cluster_noise` is now the worst at 0.0006.
+        Lower this number as they are fixed. It may never rise.
         """
         failures = validate_animations_show_something()
-        assert "remove_cluster_noise" in failures
-        assert failures["remove_cluster_noise"] < 0.005
+        assert len(failures) <= 8, (
+            "an animation has gone under the visible-change threshold: "
+            f"{sorted(failures)}")
 
-    def test_the_diameter_family_stays_fixed(self):
-        """The four that the 2026-08 fix repaired, pinned against a
-        regeneration that silently undoes it."""
+    def test_the_repaired_families_stay_fixed(self):
+        """Pinned against a regeneration that silently undoes the fix."""
         failures = validate_animations_show_something()
-        for slug in ("cell_diameter", "nucleus_diameter",
-                     "pathogen_diameter", "organelle_diameter"):
-            assert slug not in failures, (
-                f"{slug} has gone back under the visible-change threshold")
+        repaired = (
+            "cell_diameter", "nucleus_diameter",
+            "pathogen_diameter", "organelle_diameter",
+            "cell_min_area", "nucleus_min_area",
+            "pathogen_min_area", "organelle_min_area",
+            "cell_min_intensity_percentile",
+            "nucleus_min_intensity_percentile",
+            "pathogen_min_intensity_percentile",
+            "organelle_min_intensity_percentile",
+            "remove_cluster_noise", "plot_points", "plot_by_cluster",
+            "min_dist", "plot_images", "remove_image_canvas", "dot_size",
+        )
+        back = [slug for slug in repaired if slug in failures]
+        assert not back, f"back under the visible-change threshold: {back}"
 
     def test_a_generous_threshold_passes_everything(self):
         """Sanity: the measurement is not returning zero for everything."""
