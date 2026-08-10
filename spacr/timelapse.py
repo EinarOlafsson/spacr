@@ -4314,7 +4314,7 @@ def _infection_qc_pca_clustering(
       - Grid (overrideable via settings):
           settings['infection_pca_umap_n_neighbors_grid'] (default [5, 10, 15, 30])
           settings['infection_pca_umap_min_dist_grid']    (default [0.0, 0.05, 0.1, 0.3])
-      - Score = centroid_distance * |GT-infected fraction difference between clusters|.
+      - Score = centroid_distance * the absolute GT-infected fraction difference between clusters.
 
     t-SNE:
       - Enabled if settings.get('infection_pca_tsne_search', True) is True.
