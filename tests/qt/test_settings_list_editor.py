@@ -141,8 +141,14 @@ def test_the_classes_setting_gets_the_class_editor(qapp):
     assert isinstance(widget, ClassEditorWidget)
     assert not isinstance(widget, _ListEditor)
     # The value is a mapping of class name -> rule, not a bare list of names.
+    # PIN THE CONTENT, not just the shape: `all(...)` over an empty dict is
+    # vacuously true, so an editor that silently dropped every class would
+    # have passed the shape check. Mutation-proven -- forcing get_value() to
+    # return {} left the earlier version of this test green.
     value = widget.get_value()
     assert isinstance(value, dict)
+    assert list(value) == ["nc", "pc"], (
+        "the two default classes must survive routing to ClassEditorWidget")
     assert all(isinstance(rule, dict) for rule in value.values())
 
 
@@ -365,6 +371,36 @@ def test_set_value_parses_what_a_settings_csv_holds(qapp, text, expected):
                          nested_capable=True, allow_none=True)
     widget.set_value(text)
     assert widget.get_value() == expected
+
+
+@pytest.mark.parametrize("text", ["['nc', 'pc']", "['nc','pc']", "  ['nc', 'pc']  "])
+def test_the_class_editor_reads_a_settings_csv_string(qapp, text):
+    """A settings CSV stores ``repr(value)``, so ``classes`` arrives as TEXT.
+
+    ClassEditorWidget.set_value handled Mapping and list and nothing else, so
+    the string matched neither arm, fell through to an empty table, and
+    reported success: apply_settings_dict returned applied=1 while
+    collect()['classes'] was {}. Every other list-shaped key survived that
+    round trip -- this was the one that decides what gets trained, and losing
+    it is silent.
+
+    The sibling assertion for ``class_metadata`` is
+    ``test_set_value_parses_what_a_settings_csv_holds``; this is the same
+    contract for the editor that replaced the chip strip.
+    """
+    from spacr.qt.widgets.class_editor import ClassEditorWidget
+    widget = ClassEditorWidget()
+    widget.set_value(text)
+    assert list(widget.get_value()) == ["nc", "pc"], (
+        "class names from a settings CSV must survive set_value")
+
+
+def test_the_class_editor_survives_a_string_that_does_not_parse(qapp):
+    """A corrupt cell must not raise out of a settings import."""
+    from spacr.qt.widgets.class_editor import ClassEditorWidget
+    widget = ClassEditorWidget()
+    widget.set_value("['nc', 'pc'")          # unbalanced
+    assert widget.get_value() == {}
 
 
 def test_importing_a_settings_dict_reaches_the_custom_editors(qapp):

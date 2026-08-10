@@ -1,0 +1,106 @@
+================================================================================
+LOAD EVERYTHING BEHIND A LOADING SCREEN, THEN SHOW A READY APP
+================================================================================
+
+Status:    not started, 2026-08-10. Supersedes the deferred-preload trade in
+           instruction 55.
+Requested: 2026-08-10 — "instead just wait to show everything until the preload is done. the problem is the stutter if preload is triggered right away its fine. Generate a loading screen that goas away as soon as everything is loaded. The loading screen should be the spacr logo with a dark green background (like the icon for the installations) with some text to the right of the logo that says something like 'End-to-end microscopy--> single-cell image analysis --> genotype-to-phenotype mapping' this is the text that should be to the right of the spacr logo on the home screen as well. the loading screen should take up the entire window untill everything is loaded also indicate loading progress somehow simplistically and elegantly and thematically appropriately."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Measured on a real windowed launch, 2026-08-10 (instruction 55):
+
+    import spacr.qt.app     501 ms
+    MainWindow()            731 ms
+    show()                   36 ms
+    STALL at 4982 ms       2164 ms   <- spacr.core          (1968 ms import)
+    STALL at 5986 ms        888 ms   <- spacr.deep_spacr     (711 ms import)
+    two smaller                       <- spacr.submodules    (374 ms import)
+
+`_PipelinePreloader` (spacr/qt/app.py:84) imports seven heavy modules ON THE
+GUI THREAD, one per event-loop tick, starting `QTimer.singleShot(1500, ...)`
+after the window is built. Total 3140 ms. The window is already up and
+interactive-looking when they land, so the user is mid-gesture when it
+freezes.
+
+THE MAINTAINER'S DIAGNOSIS IS THE RIGHT ONE: "the problem is the stutter if
+preload is triggered right away its fine." The work is not too slow; it is
+badly timed. A freeze during a screen that says LOADING is not a freeze.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. START THE PRELOAD IMMEDIATELY, not on a 1500 ms timer. The delay exists
+   only because kicking it off pre-nav once caused a circular-import race in
+   spacr.core/IPython ("partially initialized module 'IPython'"). Reproduce
+   that before assuming it is still real; if it is, order the imports around
+   it rather than sleeping through it.
+
+   KEEP THE IMPORTS ON THE MAIN THREAD. The comment above the class records
+   that a background thread caused intermittent "Segmentation fault (core
+   dumped)" -- C extensions initialising CUDA/GL off-thread against Qt's own
+   GPU init -- and a segfault of exactly that shape was seen in the qt suite
+   on 2026-08-09. The loading screen makes the main thread acceptable, which
+   is the whole point: nobody minds a busy main thread behind a splash.
+
+2. FULL-WINDOW LOADING SCREEN, covering everything until the last module is
+   in. Not a separate top-level splash window -- a widget filling the
+   MainWindow, so there is one window from first paint to ready and no
+   second taskbar entry.
+
+     background   dark green, matching the INSTALLER ICON. Take the exact
+                  colour from that asset rather than inventing one, and put
+                  it in the palette so it themes with everything else.
+     logo         the spaCR logo, left.
+     text         to its right:
+                  "End-to-end microscopy -> single-cell image analysis ->
+                   genotype-to-phenotype mapping"
+     progress     "simplistically and elegantly and thematically
+                  appropriately" -- seven modules is a known denominator, so
+                  real progress is available, not a spinner pretending.
+                  Something in the project's own visual language (the aurora
+                  rays, the DNA rain, a filling ring) beats a stock bar.
+
+3. THE SAME STRAP LINE GOES ON THE HOME SCREEN, right of the logo. One
+   string, one place in the source, used twice -- and it needs a translation
+   row like every other UI string (see instruction 65 and
+   `tests/qt/test_i18n.py`, which fails on a registered phrase with no
+   translation).
+
+--------------------------------------------------------------------------------
+WHAT WILL BREAK IF THIS IS DONE CARELESSLY
+--------------------------------------------------------------------------------
+
+  * A modal or blocking splash in a HEADLESS TEST hangs the suite forever.
+    This project has been bitten by exactly that (`no_modals` had to grow
+    `QMessageBox.exec`). The loading screen must be skippable/instant under
+    `QT_QPA_PLATFORM=offscreen`, or the qt suite stops finishing -- which
+    instruction 47 has only just achieved.
+  * Time-to-first-paint must not regress. The logo and strap line have to be
+    on screen FAST; the point is to cover the 3 s, not to add to it. Measure
+    with the tick monitor from 55, on a real display.
+  * `initial_app` (launching straight into a module) must still work -- the
+    screen has to come down and hand over, not fight the navigation.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The tick monitor on a real windowed launch shows NO stall over 50 ms after
+the loading screen comes down; the logo and strap line are visible within a
+few hundred milliseconds of launch; progress advances visibly rather than
+sitting at one value; the qt suite still reaches its summary line; and the
+same strap line appears on the home screen with a translation for every
+shipped language.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. Related: 55 (which measured the stalls and whose four-option
+trade this decision settles -- none of them, cover it instead), 65
+(translation coverage for the new string), 32 (the aurora rays, whose visual
+language the progress indicator should borrow rather than reinvent).

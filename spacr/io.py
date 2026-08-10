@@ -87,7 +87,24 @@ def process_non_tif_non_2D_images(folder):
 
     # Helper function to save grayscale images
     def save_grayscale_images(image, base_name, folder, dtype, channel=None, z=None, t=None):
-        """Save grayscale images with appropriate suffix based on channel, z, and t, preserving bit depth."""
+        """Save grayscale images with appropriate suffix based on channel, z, and t, preserving bit depth.
+
+        :param image: A single 2D plane already sliced out of the stack.
+        :param base_name: Stem of the source file. Every plane cut from one
+            source shares it, so the ``_C``/``_Z``/``_T`` suffix built below is
+            the only thing keeping those planes from overwriting each other.
+        :param folder: Directory the TIFF is written to. The converter passes
+            the folder it is scanning, so planes land beside the
+            multi-dimensional file they came from.
+        :param dtype: NumPy dtype the plane is cast to before writing. This
+            cast is the whole of the "bit depth is preserved" promise — pass
+            the dtype ``load_image`` reported for the source rather than a
+            convenient default, or 16-bit data is silently rewritten.
+        :param channel: 1-based channel index appended as ``_C``. ``None``
+            leaves that part of the suffix off.
+        :param z: 1-based Z index appended as ``_Z``; ``None`` omits it.
+        :param t: 1-based time index appended as ``_T``; ``None`` omits it.
+        """
         suffix = ""
         if channel is not None:
             suffix += f"_C{channel}"
@@ -101,7 +118,20 @@ def process_non_tif_non_2D_images(folder):
 
     # Function to handle splitting of multi-dimensional images into grayscale channels
     def split_channels(image, folder, base_name, dtype):
-        """Splits the image into channels and handles 3D, 4D, and 5D image cases."""
+        """Splits the image into channels and handles 3D, 4D, and 5D image cases.
+
+        :param image: Array whose axis order is assumed to be
+            ``(height, width, channel[, Z[, T]])``. A 2D array returns without
+            writing anything (the caller handles those), and anything with
+            more than five axes falls through silently, writing nothing. The
+            axis order is never checked, so a channel-first array from some
+            other reader is sliced along width instead of being rejected.
+        :param folder: Directory the per-plane TIFFs are written into.
+        :param base_name: Stem shared by every plane written from this image;
+            the ``_C``/``_Z``/``_T`` indices are appended to it, all 1-based.
+        :param dtype: NumPy dtype passed straight through to each write, so it
+            should be the source image's own dtype to keep its bit depth.
+        """
         if image.ndim == 2:
             # Grayscale image, already processed separately
             return
@@ -126,7 +156,14 @@ def process_non_tif_non_2D_images(folder):
 
     # Function to load images in various formats
     def load_image(file_path):
-        """Loads image from various formats and returns it as a numpy array along with its dtype."""
+        """Loads image from various formats and returns it as a numpy array along with its dtype.
+
+        :param file_path: Path to the image. Only the extension selects the
+            reader: ``.tif`` and ``.tiff`` go to tifffile, ``.png``, ``.jpg``
+            and ``.jpeg`` to PIL, ``.czi`` to czifile, ``.nd2`` to ND2Reader.
+            Content is never sniffed, so a mislabelled file is read with the
+            wrong reader, and any other extension raises ``ValueError``.
+        """
         ext = os.path.splitext(file_path)[1].lower()
         
         if ext in ['.tif', '.tiff']:
@@ -157,7 +194,18 @@ def process_non_tif_non_2D_images(folder):
 
     # Function to check if an image is grayscale and save it as a TIFF if it isn't already
     def convert_grayscale_to_tiff(image, filename, folder, dtype):
-        """Convert grayscale images that are not in TIFF format to TIFF, preserving bit depth."""
+        """Convert grayscale images that are not in TIFF format to TIFF, preserving bit depth.
+
+        :param image: The decoded 2D plane to write.
+        :param filename: Base name of the source file, not a path. Only the
+            extension is stripped, so an absolute path here would be joined
+            with ``folder`` and win, writing the TIFF back next to the
+            original instead of into ``folder``.
+        :param folder: Directory the ``.tif`` is written into; the original
+            file is left in place next to it rather than replaced.
+        :param dtype: NumPy dtype the plane is cast to, which is what carries
+            the source bit depth into the TIFF.
+        """
         base_name = os.path.splitext(filename)[0]
         output_filename = os.path.join(folder, f"{base_name}.tif")
         write_tiff(output_filename, image.astype(dtype))
@@ -603,7 +651,16 @@ class spacrDataset(Dataset):
             self.images = None
 
     def load_image(self, img_path):
-        """Return the image at ``img_path`` decoded as RGB with EXIF orientation applied."""
+        """Return the image at ``img_path`` decoded as RGB with EXIF orientation applied.
+
+        :param img_path: Path to one crop, taken from ``self.filenames``.
+            The file is fully decoded and copied before the handle closes, so
+            the returned image owns its buffer and is safe to hand to a
+            prefetch thread. Anything PIL can open works: a greyscale crop is
+            widened to three channels and an RGBA one loses its alpha, which
+            is what makes every sample the same shape for the transform.
+        :returns: A ``PIL.Image.Image`` in mode ``RGB``.
+        """
         # Force decoding while the file is open, then detach the returned
         # image.  Leaving PIL's lazy decoder/file handle alive in a background
         # prefetch thread can race interpreter/loader cleanup.
@@ -2210,10 +2267,29 @@ def _check_masks(batch, batch_filenames, output_folder, resume=False):
         from .resume import validate_merged_field
 
         def needs_processing(filename):
+            """Report whether a field still has to be generated (resume mode).
+
+            Args:
+                filename (str): Name relative to the enclosing
+                    ``output_folder``, not a full path — it is joined onto
+                    that folder here. Unlike the non-resume variant, an
+                    existing file is also opened and validated, so a
+                    truncated ``.npy`` left behind by a killed run counts as
+                    missing and is regenerated.
+            """
             path = os.path.join(output_folder, filename)
             return not os.path.isfile(path) or not validate_merged_field(path)[0]
     else:
         def needs_processing(filename):
+            """Report whether a field still has to be generated.
+
+            Args:
+                filename (str): Name relative to the enclosing
+                    ``output_folder``, not a full path. Only existence is
+                    checked, so a zero-byte or truncated file counts as done
+                    and is skipped; pass ``resume=True`` to have its contents
+                    validated instead.
+            """
             return not os.path.isfile(os.path.join(output_folder, filename))
 
     # True means this field must be generated.
@@ -4147,11 +4223,36 @@ class LazyCropPNG:
 
     # -- the file protocol PIL needs ---------------------------------------
     def read(self, size=-1):
-        """Read up to ``size`` bytes of the PNG."""
+        """Read up to ``size`` bytes of the PNG.
+
+        The first read is what actually cuts and encodes the crop; every later
+        one is served from the same buffer and continues where the previous
+        read stopped, so re-reading the image needs an explicit ``seek(0)``.
+
+        :param size: Byte count. The default ``-1`` (or any negative value)
+            reads to the end of the PNG, which is what PIL does when it is
+            handed this object as a file.
+        :returns: The bytes read, empty once the buffer is exhausted.
+        """
         return self._stream().read(size)
 
     def seek(self, offset, whence=0):
-        """Seek within the PNG."""
+        """Seek within the PNG.
+
+        Seeking materialises the crop if it has not been produced yet, so the
+        cost of the first ``seek`` is the cost of encoding the whole image,
+        not of moving a cursor.
+
+        :param offset: How far to move, in bytes, and it must be an integer —
+            a float raises ``TypeError``. Seeking past the end of the encoded
+            PNG is allowed rather than an error: the position lands beyond the
+            buffer and the next ``read`` returns empty.
+        :param whence: ``0`` from the start (the default), ``1`` from the
+            current position, ``2`` from the end. Semantics are the
+            underlying ``BytesIO`` ones, so a negative ``offset`` is a
+            ``ValueError`` under ``0`` but legal under ``1`` and ``2``.
+        :returns: The new absolute position.
+        """
         return self._stream().seek(offset, whence)
 
     def tell(self):
@@ -5251,6 +5352,33 @@ def make_validation_holdout(labels, validation_fraction, groups, seed=0):
     could put crops from one well on both sides even though grouped CV did not.
     This helper uses the same group-stratified partitioner as CV and selects
     the candidate fold closest to the requested size and class distribution.
+
+    :param labels: One integer class label per sample, in dataset order; the
+        returned indices point back into that same order.
+    :param validation_fraction: Target share of samples to hold out, strictly
+        between 0 and 1; any number outside that range, ``nan`` and ``inf``
+        included, is a ``ValueError``. It is only a target. The holdout is one
+        whole fold of a split into ``max(2, round(1 / fraction))`` folds,
+        itself capped at the number of distinct groups, so the realised share
+        is quantised to whole groups and can miss in either direction, by a
+        lot. Over eight equal groups, 0.05 holds out 0.125 (no finer split is
+        available) and 0.7 holds out 0.5 (the two-fold floor); with one
+        dominant group — 70 of 100 samples across four groups — those same two
+        requests instead hold out 0.10 and 0.70.
+    :param groups: Group id per sample — well, field, or whatever
+        ``cv_group_by`` names — and required, not optional, because the point
+        of this function is that a group never straddles the split. Needs the
+        same length as ``labels`` and at least two distinct values.
+    :param seed: Seed handed to :func:`make_cv_folds`, which touches its RNG
+        only in the ungrouped branch, for the per-class shuffle and starting
+        offset. ``groups`` is mandatory here, so that branch is never reached
+        and the value changes nothing: the grouped assignment is a
+        deterministic greedy pass, and every seed returns the same holdout for
+        the same labels and groups.
+    :returns: One ``(train_idx, val_idx)`` pair of numpy integer arrays.
+    :raises ValueError: if ``validation_fraction`` is outside ``(0, 1)``, if
+        ``groups`` is missing or the wrong length, or if fewer than two
+        distinct groups are present.
     """
     labels = np.asarray([int(value) for value in labels])
     fraction = float(validation_fraction)
@@ -5276,6 +5404,16 @@ def make_validation_holdout(labels, validation_fraction, groups, seed=0):
     total_distribution /= max(total_distribution.sum(), 1.0)
 
     def score(candidate):
+        """Rank one candidate fold; lower is a better holdout.
+
+        :param candidate: A ``(train_idx, val_idx)`` pair as produced by
+            :func:`make_cv_folds`; only the validation half is looked at.
+        :returns: ``(cost, n_validation)`` where cost adds the size error
+            (as a fraction of the dataset) to the mean absolute per-class
+            deviation from the whole dataset's distribution. The trailing
+            count is a tie-break, so equally good folds resolve to the
+            smaller holdout.
+        """
         _train, validation = candidate
         distribution = np.bincount(
             labels[validation], minlength=len(total_distribution)
@@ -7199,7 +7337,15 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
         return ['rotate90', 'rotate180', 'rotate270', 'flip_h', 'flip_v']
 
     def find_image_mask_pairs(dataset_path):
-        """Return ``(image_path, mask_path)`` pairs found under ``dataset_path``."""
+        """Return ``(image_path, mask_path)`` pairs found under ``dataset_path``.
+
+        :param dataset_path: One dataset folder holding its images at the top
+            level and a ``masks`` subfolder in which each mask carries exactly
+            the same file name as its image. Only ``.tif``/``.tiff`` images
+            are considered, matching is by name rather than by order, and an
+            image whose mask is absent is dropped without a message — so a
+            short pair count here means missing or renamed masks.
+        """
         mask_dir = os.path.join(dataset_path, "masks")
         pairs = []
         for fname in os.listdir(dataset_path):
@@ -7211,7 +7357,14 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
         return pairs
 
     def prepare_output_folders(base):
-        """Create ``train/{images,masks}`` and ``test/{images,masks}`` under ``base``."""
+        """Create ``train/{images,masks}`` and ``test/{images,masks}`` under ``base``.
+
+        :param base: Output root, which the caller sets to
+            ``<input_root>/cellpose_dataset``. Creation is ``exist_ok``, so
+            rerunning does not fail, but nothing is emptied first and the
+            copies are renumbered from ``00000``, so a smaller second run
+            leaves the tail of a larger earlier one mixed into the split.
+        """
         for subset in ["train", "test"]:
             os.makedirs(os.path.join(base, subset, "images"), exist_ok=True)
             os.makedirs(os.path.join(base, subset, "masks"), exist_ok=True)
