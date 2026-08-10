@@ -357,3 +357,61 @@ changed, nothing else.
 STILL OPEN: the 23 animations under the 1% visible-change threshold. The
 worst is `remove_cluster_noise` at 0.0006. The *_diameter family and the
 border family are both out of that list now.
+
+--------------------------------------------------------------------------------
+2026-08-09 - TWO MORE SCENE FUNCTIONS FIXED. 27 -> 8 UNDER THRESHOLD.
+--------------------------------------------------------------------------------
+
+Grouping the under-threshold list BY SCENE FUNCTION is what made this cheap.
+23 animations were 8 distinct scenes, and two of them held 15:
+
+  _filter_scene   8 animations   min_area, min_intensity_percentile x4 kinds
+  _umap_scene     7 animations   plot_points, min_dist, dot_size, ...
+
+_filter_scene faded exactly ONE object. For `maximum`/`bright` that object
+is the largest of four and measured 2.7-4.8%; for `minimum`/`dim` it is the
+SMALLEST and measured 0.2-0.9%. Identical code -- the variants differ only
+in which object they fade -- so the whole min family sat at the bottom for a
+reason that had nothing to do with the settings. But the real fault is that
+these are THRESHOLDS: everything past the threshold is discarded, not one
+representative object. Now a threshold sweeps through the objects in order,
+smallest-first or dimmest-first, and one always survives. 3-19% each.
+
+_umap_scene drew three clusters of five dots at radius 1.5. That is about
+106 px of a 129,600 px frame, so an animation changing EVERY point still
+measured a fifth of a percent -- no per-animation fix could have worked, and
+seven of them were under threshold for that single structural reason. Now 15
+points per cluster on a deterministic golden-angle spiral (no RNG, so
+regeneration is reproducible) at a shared DOT_RADIUS. It also just looks
+like an embedding now instead of a diagram.
+
+plot_by_cluster was additionally illustrating the WRONG THING: it grew one
+thumbnail by two pixels. The setting chooses whether the overlaid thumbnails
+are sampled per cluster or at random across the whole map -- so it now shows
+that contrast, with a cluster left unrepresented when the setting is off.
+Checking `settings.py` for what a setting MEANS before redrawing it caught
+this; the spec title ("Sample images by cluster") was the clue.
+
+A TEST THAT PINNED THE BUG. `test_the_known_offenders_are_caught` asserted
+`remove_cluster_noise` was still broken, so fixing it failed the suite. Its
+own docstring admitted the slug "has to be re-pointed whenever the named one
+is fixed" -- a test that fails on success. Replaced with a RATCHET (the
+count may fall, never rise) plus a per-family regression guard, which is the
+shape this should have had.
+
+    under 1%   27 -> 23 (diameter) -> 15 (filter) -> 8 (umap)
+
+REMAINING 8, and they are now one-offs rather than families:
+
+    0.180%  organelle_fill_holes        _fill_holes_scene (2)
+    0.330%  fill_in                     _fill_holes_scene
+    0.460%  timelapse_memory            _tracking_scene
+    0.640%  organelle_rolling_ball      _organelle_scene (2)
+    0.820%  crop_mode                   _crop_scene
+    0.900%  nucleus_CP_prob             _probability_scene
+    0.900%  organelle_mask_within_cells _organelle_scene
+    0.920%  nucleus_Signal_to_noise     _signal_scene
+
+Six of the eight are between 0.6% and 0.92% -- close to the bar, so these
+are "small but real" rather than "shows nothing". The two worth actual
+redesign are `organelle_fill_holes` and `fill_in`, which share a scene.
