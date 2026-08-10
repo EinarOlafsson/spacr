@@ -1,0 +1,65 @@
+================================================================================
+GATE EDITOR: RIGHT-CLICK THE GRAPH FOR EVERYTHING YOU CAN DO TO IT
+================================================================================
+
+Status:    not started
+Requested: 2026-08-09 — "in gate editor right clicking on the graph should give you as many options as possible to edit the graph including to save the graph."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The gate editor's canvas has no context menu. Saving exists but only as the
+"Save graph…" button added for instruction 50; axis choice, gate actions
+and display settings are spread across the panel and a settings dialog.
+
+`GateCanvas` (spacr/qt/widgets/gate_editor.py) extends `GraphCanvas`, which
+already owns the figure and the spec, so it has everything a menu would
+need to act on.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Right-clicking a plot is where people look for plot actions. Every one of
+these is currently reachable, which makes this discoverability rather than
+capability -- but a feature nobody finds is a feature nobody has.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. A context menu on the canvas. Candidates, most useful first:
+       Save graph as…            (reuse GateEditorScreen.save_graph)
+       Copy to clipboard
+       Reset zoom / fit to data
+       Change X / Y axis         (submenus of available columns)
+       Toggle log X / log Y
+       Point size, opacity       (or "Display settings…" to the dialog)
+       Colour by…                (column submenu)
+       Clear gates / delete gate under the cursor
+       Export gated rows         (reuse export_gates)
+2. Reuse the existing actions rather than reimplementing them -- the menu
+   is a second route to the same code, and two routes that drift apart is
+   worse than one route.
+3. Act on the CLICKED point where it matters: "delete gate under the
+   cursor" needs the gate hit-tested at the click position, which
+   GateCanvas already does for dragging.
+4. Keep it working when there is no figure yet: an empty canvas should show
+   a short menu or none, never a menu whose items raise.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Right-click the gate editor's graph: a menu appears, Save graph writes the
+same file the button does, and each item either acts or is greyed with a
+reason.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. Note `_ZoomView` already consumes left-press for panning and
+emits `clicked` on a release under 4px; a right-click menu must not disturb
+that, and the two should be tested together.
