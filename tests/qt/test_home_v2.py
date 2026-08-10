@@ -967,9 +967,15 @@ def test_hovering_a_tile_explains_it_in_the_hint_bar(home):
                 if t.text_label == "Mask")
     desc = next(d for k, _n, d, _s in APPS if k == "mask")
     home.eventFilter(tile, QEvent(QEvent.Enter))
-    assert home._hint_bar.text() == desc
+    # CONTAINS rather than equals: the hint bar also carries the module's
+    # stage word ("- Stable"), which moved here when the per-tile tooltip
+    # was removed. It cannot go back to the tooltip and it cannot be the
+    # hover colour alone -- WCAG 1.4.1 -- so the hint bar carries both. What
+    # this test is defending is that hovering EXPLAINS the tile, and it
+    # still does.
+    assert desc in home._hint_bar.text()
     home.eventFilter(tile, QEvent(QEvent.Leave))
-    assert home._hint_bar.text() != desc
+    assert desc not in home._hint_bar.text()
 
 
 # -- the queue segment -------------------------------------------------------
