@@ -4307,8 +4307,10 @@ def choose_model(model_type: str,
     :param dropout_rate: dropout probability before the classifier head (``None``/``0`` disables).
     :param use_checkpoint: enable gradient checkpointing for the backbone.
     :param channels: unused; the forward sanity check always feeds 3 channels.
-    :param height: nominal input size; used for both dimensions of the square
-        forward sanity check (falls back to ``224`` when falsy).
+    :param height: square input resolution, forwarded as ``TorchModel(image_size=...)``;
+        it therefore fixes the dummy-forward size used to infer the backbone feature
+        dimension (and so the size of the classifier head) as well as both dimensions
+        of the square forward sanity check (falls back to ``224`` when falsy).
     :param width: unused; ``height`` sets both dimensions.
     :param chan_dict: unused; reserved for the unimplemented custom branch.
     :param num_classes: output class count; ``1`` yields a single-logit BCE head.
