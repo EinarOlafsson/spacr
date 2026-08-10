@@ -266,3 +266,42 @@ they vanish with the process. Clicking opens them while the app runs, and
 nothing saves them with the run. If the figures are meant to be kept they
 should go to the run folder -- that is a decision about where a search's
 output belongs, not a bug, and it is what remains here.
+
+--------------------------------------------------------------------------------
+2026-08-09 - DONE. THE FIGURES ARE KEPT WITH THE RUN.
+--------------------------------------------------------------------------------
+
+The one thing left was a decision rather than a bug: per-trial figures went
+to `tempfile.mkdtemp`, so they vanished with the process. DECIDED, and the
+reasoning is the same one the rest of the package already follows -- a
+search's figures are OUTPUT, and output goes beside the run's other output:
+
+    <src>/results/hyperparameter_search/<app>_<YYYY-MM-DD_HHMMSS>/
+
+`<src>/results` is where `plot.py` writes, and the report page already lists
+it as where key figures live, so this needs no new convention. The timestamp
+is the same format `run_journal._new_run_dir` uses, so a search folder sorts
+beside the run that made it.
+
+`_search_figure_dir(settings, app_key)` is a module-level function rather
+than a method, so it is testable without constructing a QThread.
+
+THE FALLBACK IS THE PART WORTH REVIEWING. It returns a temp directory when
+there is no usable `src` -- a request built by a test, a sweep over data not
+on disk, an unwritable path. Losing the FILES to a reboot is a small harm;
+losing the RUN because the output folder could not be created is a large
+one, and a search that dies at trial 40 of 60 because `<src>` is read-only
+would be exactly that. So every failure here degrades to temp rather than
+raising.
+
+`app_key` reaches this from a settings dict and is not trusted: it is
+sanitised with the same character class `run_journal` uses, and a test
+asserts `../../etc` cannot escape `<src>`.
+
+    9 new tests, 86 pass across the figures, streaming and screen suites
+
+WHAT WAS ALREADY TRUE, from the entries above: figures stream as they
+arrive, the grid reflows to the container, the end state shows BOTH the grid
+and the summary, and clicking a cell opens the PDF when the preference asks
+for PDFs. That was the whole of the original request; this entry is the last
+loose end.
