@@ -84,3 +84,56 @@ The habit that prevents it: a script that touches preferences points
 `tests/qt/test_preferences_reset.py::private_store` does. There is now a
 Reset to defaults button in Preferences, which is the repair path, but not
 touching them is better than repairing them.
+
+--------------------------------------------------------------------------------
+N. key_columns can return an object key with NO plate/well/field in it, and
+   the guard downstream lets it through
+--------------------------------------------------------------------------------
+
+Found 2026-08-10 while auditing new parameter documentation, and confirmed by
+executing the real function rather than reading it.
+
+    key_columns(DataFrame with plateID/rowID/columnID/fieldID/object_label)
+        -> ['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']
+
+    key_columns(DataFrame with plate/row/column/field/object_label)
+        -> ['object_label']
+
+`spacr/filters.py` builds the identity from `IDENTITY_COLUMNS`, which carry
+the canonical `*ID` spellings, and appends `OBJECT_COLUMN` unconditionally
+when present. A frame using the LEGACY spellings therefore yields an
+identity of `object_label` alone.
+
+THE GUARD DOES NOT CATCH IT. Both call sites read
+
+    if not keys or OBJECT_COLUMN not in keys:
+        raise FilterError("this table has no object identity ...")
+
+(`export_gate` around line 649, `export_annotation` around line 818.) For
+`['object_label']` the first half is False and the second half is False, so
+the guard PASSES and the merge proceeds on the label alone -- and
+`object_label` is only unique WITHIN a field. Objects with the same label in
+different plates, wells or fields would silently collide.
+
+WHY IT IS LEFT: reachability is unproven. The legacy spellings do exist --
+`utils.correct_metadata_column_names` exists precisely to rename them, and
+`schema.py:251` records that they were two conventions -- but every path that
+was checked normalises before reaching here (`ml.py:583`,
+`sequencing.py:1060`). So this may be an unreachable hazard rather than a
+live bug, and the honest fix depends on which:
+
+  * if unreachable, the guard should still be tightened to require the full
+    identity, as documentation of the invariant;
+  * if reachable, it is a silent data-corruption path and the guard must
+    reject, not warn.
+
+Deciding needs someone who knows whether a user-supplied or hand-queried
+frame can reach `export_gate`/`export_annotation` without passing through
+`correct_metadata_column_names`. That is a question about how people use the
+tool, not about the code.
+
+A DOCSTRING WAS WRONG ABOUT THIS TOO, and is now corrected: it claimed such a
+frame "yields an empty list here, which downstream reads as 'this table has
+no object identity'". Both halves were false -- it yields `['object_label']`
+and downstream accepts it. The docstring described a safe failure where the
+code has an unsafe one, which is the most misleading kind.
