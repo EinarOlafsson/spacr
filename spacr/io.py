@@ -3237,8 +3237,10 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
 
     :param train_file_path: Path to the training stats CSV.
     :param val_file_path: Path to the validation stats CSV.
-    :param save: If True, write PDFs next to the training CSV instead of
-        showing them. Default ``False``.
+    :param save: If True, write the figures next to the training CSV instead
+        of showing them. The file format follows the user's figure preference
+        via :func:`spacr.plot.save_figure`, which also corrects the extension.
+        Default ``False``.
     :returns: None
     """
 
@@ -5596,7 +5598,8 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
     :param image_size: Square resize target in pixels. Default ``224``.
     :param batch_size: Loader batch size. Default ``32``.
     :param classes: Ordered class names. Default ``['nc', 'pc']``.
-    :param n_jobs: DataLoader worker count. Default: derived from CPU count.
+    :param n_jobs: DataLoader worker count. ``None`` (the default) means 0
+        workers, i.e. batches are read in the calling process.
     :param validation_split: Fraction of the train split to hold out.
     :param pin_memory: If True, pin batches to page-locked memory.
     :param normalize: If True, apply per-channel normalisation.
@@ -5736,11 +5739,13 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
 def generate_training_dataset(settings):
     """
     Build a balanced training/testing dataset from one of:
+
       - metadata rules (exact matches or compound 'where' rules)
       - annotation columns (each <col>_<value> is a standalone class)
       - measurement rules (numeric ranges/bins; supports multiple conditions per class)
 
     New behavior (annotation mode):
+
       - If a column has only one annotated value (e.g., only '1's), we add a
         '<column>_random' class using unannotated rows for that column (same size as positives).
       - Optional: persist that random selection into DB as a new INT column named '<column>_random' with 1's.
@@ -5755,10 +5760,39 @@ def generate_training_dataset(settings):
     ``png_list`` at all falls back to the object measurement table, which
     still carries everything the metadata rules select on.
 
-    Required helpers:
-      - _read_db (from this module)
-      - generate_dataset_from_lists(dst, class_data, classes, test_split)
-      - save_settings (from .utils)
+    :param settings: Settings dict, first completed by
+        :func:`spacr.settings.set_generate_training_dataset_defaults`. Keys
+        read here:
+
+        - ``src``: plate root, or a list of roots merged into one dataset.
+        - ``dataset_mode``: ``'metadata'``, ``'annotation'`` or ``'measurement'``.
+        - ``test_split``: fraction of each class routed to ``test/``.
+        - ``cv_group_by``: acquisition identity kept intact across the
+          train/test boundary. Default ``'well'``.
+        - ``path_string`` (legacy alias ``png_type``): substring a crop path
+          must contain. Default ``'cell_png'``.
+        - ``crop_source``: ``'auto'``, ``'png'`` or ``'merged'``, as above.
+        - ``balance_to_smallest``: downsample every class to the smallest one.
+          Default True.
+        - ``random_seed``: seeds balancing and random-class sampling.
+          Default 42.
+        - ``tables``: object tables available to the merge helper.
+        - metadata mode: ``metadata_rules``, or ``class_metadata`` values
+          matched against the ``metadata_type_by`` column.
+        - annotation mode: ``annotation_columns`` (legacy
+          ``annotation_column``), optional ``annotation_values`` filter, and
+          ``write_random_annotation_column``.
+        - measurement mode: ``measurement_rules``.
+
+        The resulting ``classes`` and ``nr_classes`` are written back into the
+        dict for downstream training.
+    :returns: ``(train_class_dir, test_class_dir)`` — the ``train/`` and
+        ``test/`` roots written under ``<src>/datasets/training``
+        (``training_all`` when several sources are combined), suffixed to stay
+        unique.
+    :raises ValueError: if ``dataset_mode`` is unrecognised, a rule names a
+        missing column or unsupported operator, or a requested class selected
+        no crops.
     """
     import os, random, operator, sqlite3
     import numpy as np

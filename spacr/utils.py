@@ -4299,20 +4299,24 @@ def choose_model(model_type: str,
                  verbose: bool = False) -> Optional[nn.Module]:
     """Instantiate a classification model by name for binary or multiclass problems.
 
-    :param model_type: TorchVision model name (e.g. ``'resnet50'``, ``'vit_b_16'``) or ``'custom'``.
-    :param device: target device (the caller moves the returned model).
+    :param model_type: TorchVision model name (e.g. ``'resnet50'``, ``'vit_b_16'``).
+        ``'custom'`` passes the name check but then raises ``NotImplementedError``,
+        as no custom builder is wired up.
+    :param device: unused; the model is built on the CPU and the caller moves it.
     :param init_weights: load pretrained weights when available.
     :param dropout_rate: dropout probability before the classifier head (``None``/``0`` disables).
     :param use_checkpoint: enable gradient checkpointing for the backbone.
-    :param channels: input channel count (pretrained backbones assume 3).
-    :param height: nominal input height used for a forward sanity check.
-    :param width: nominal input width used for a forward sanity check.
-    :param chan_dict: optional dict forwarded to a custom model builder.
+    :param channels: unused; the forward sanity check always feeds 3 channels.
+    :param height: nominal input size; used for both dimensions of the square
+        forward sanity check (falls back to ``224`` when falsy).
+    :param width: unused; ``height`` sets both dimensions.
+    :param chan_dict: unused; reserved for the unimplemented custom branch.
     :param num_classes: output class count; ``1`` yields a single-logit BCE head.
     :param verbose: print the model structure when ``True``.
 
     :returns:
-        nn.Module or None if invalid.
+        The instantiated ``nn.Module``, or ``None`` if ``model_type`` is unknown
+        or the forward sanity check fails.
     """
 
     tv_names = _list_torchvision_model_names()
@@ -7017,6 +7021,32 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors,
                    point_alpha=0.65, outline_width=1.0):
     """Plot a 2-D embedding with cluster outlines, points, and optional image overlays.
 
+    :param embedding: ``(N, 2)`` array of 2-D points (e.g. UMAP output).
+    :param image_paths: length-``N`` image paths used for the overlays; ``None`` skips them.
+    :param labels: length-``N`` cluster labels; ``-1`` denotes noise.
+    :param image_nr: number of images to overlay (per cluster when ``plot_by_cluster``).
+    :param img_zoom: zoom factor applied to each overlaid thumbnail.
+    :param colors: palette of per-cluster colors, one entry per unique label.
+    :param plot_by_cluster: sample the overlaid images per cluster instead of at random.
+    :param plot_outlines: draw a hull/smoothed outline around each cluster.
+    :param plot_points: render the scatter points (otherwise plotted invisibly).
+    :param plot_images: overlay the images from ``image_paths``.
+    :param smooth_lines: use a smoothed hull polyline instead of the convex hull edges.
+    :param black_background: use the white-on-black default theme instead of
+        black-on-white; entries in ``theme_colors`` override it per role.
+    :param figuresize: figure side length in inches; also scales label and tick fonts.
+    :param dot_size: scatter marker size in points.
+    :param remove_image_canvas: mask out zero-valued pixels of each overlaid image.
+    :param verbose: forwarded to the cluster and image helpers, which ignore it.
+    :param interactive_payload: optional object stashed on the figure as
+        ``_spacr_umap_payload`` so the Qt bridge can keep point/image identities.
+        Default ``None``.
+    :param theme_colors: dict with ``background``/``foreground``/``border`` colors.
+        Default ``None``.
+    :param point_color: ``'cluster'``/``'viridis'`` colors points per cluster; any other
+        Matplotlib color is applied to every point. Default ``'cluster'``.
+    :param point_alpha: scatter opacity, clamped to ``[0, 1]``. Default ``0.65``.
+    :param outline_width: hull line width in points, floored at ``0.1``. Default ``1.0``.
     :returns: matplotlib ``Figure``.
     """
     unique_labels = np.unique(labels)
@@ -7122,6 +7152,11 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers,
     :param figuresize: base size in inches used to scale axis label and tick fonts. Default ``10``.
     :param dot_size: scatter marker size in points. Default ``50``.
     :param verbose: unused placeholder kept for API compatibility. Default ``False``.
+    :param point_color: ``'cluster'``/``'viridis'`` (or empty) colors points per cluster;
+        any other Matplotlib color is applied to every point. Default ``'cluster'``.
+    :param point_alpha: scatter opacity, clamped to ``[0, 1]``; ignored when
+        ``plot_points`` is ``False``. Default ``0.65``.
+    :param outline_width: hull line width in points, floored at ``0.1``. Default ``1.0``.
     :returns: None.
     """
     unique_labels = np.unique(labels)
@@ -7944,7 +7979,17 @@ def load_image(image_path):
     return image
 
 def extract_features(image_paths, resnet=resnet50):
-    """Extract features from images using a pre-trained ResNet model."""
+    """Extract features from images using a pre-trained ResNet model.
+
+    The classification head is stripped, so each image yields its pooled backbone
+    features.
+
+    :param image_paths: Iterable of image paths, each loaded via :func:`load_image`.
+    :param resnet: TorchVision model *constructor* (not an instance), called as
+        ``resnet(pretrained=True)``. Default ``resnet50``.
+    :returns: ``(N, 2048)`` ndarray of pooled features, one row per image
+        (2048 for ResNet-50; the width follows the chosen backbone).
+    """
     model = resnet(pretrained=True)
     model = model.eval()
     model = torch.nn.Sequential(*list(model.children())[:-1])  # Remove the last classification layer
@@ -7967,7 +8012,17 @@ def check_normality(series):
     return True
 
 def random_forest_feature_importance(all_df, cluster_col='cluster'):
-    """Random Forest feature importance."""
+    """Rank features by how well they predict the cluster label.
+
+    Z-scales the numeric feature columns and fits a 100-tree
+    ``RandomForestClassifier`` against ``cluster_col``.
+
+    :param all_df: DataFrame with the numeric feature columns and the cluster column.
+    :param cluster_col: Column holding the cluster label, excluded from the
+        features. Default ``'cluster'``.
+    :returns: DataFrame with ``Feature`` and ``Importance`` columns, sorted by
+        descending importance.
+    """
     numeric_features = schema.model_feature_columns(
         all_df,
         allow_unknown=True,
@@ -7993,7 +8048,19 @@ def random_forest_feature_importance(all_df, cluster_col='cluster'):
     return importance_df
 
 def perform_statistical_tests(all_df, cluster_col='cluster'):
-    """Perform ANOVA or Kruskal-Wallis tests depending on normality of features."""
+    """Perform ANOVA or Kruskal-Wallis tests depending on normality of features.
+
+    Each numeric feature is tested for normality and then sent to *either* ANOVA or
+    Kruskal-Wallis across the groups defined by ``cluster_col``, never both.
+
+    :param all_df: DataFrame with the numeric feature columns and the cluster column.
+    :param cluster_col: Column holding the cluster label, excluded from the
+        features. Default ``'cluster'``.
+    :returns: ``(anova_df, kruskal_df)``, with columns
+        ``Feature``/``ANOVA_Statistic``/``ANOVA_pValue`` and
+        ``Feature``/``Kruskal_Statistic``/``Kruskal_pValue`` respectively; together
+        they cover the features exactly once.
+    """
     numeric_features = schema.model_feature_columns(
         all_df,
         allow_unknown=True,
@@ -8828,7 +8895,7 @@ def generate_cytoplasm_mask(nucleus_mask, cell_mask):
     - cell_mask (np.array): Binary or segmented mask of the whole cell (non-zero values represent cell).
     
     Returns:
-    - cytoplasm_mask (np.array): Mask for the cytoplasm (1 for cytoplasm, 0 for nucleus and pathogens).
+    - cytoplasm_mask (np.array): Copy of cell_mask with nucleus pixels set to 0, keeping the cell labels elsewhere (pathogens are not considered).
     """
     
     # Make sure the nucleus and cell masks are numpy arrays
@@ -8954,7 +9021,8 @@ def correct_metadata_column_names(df):
     into ``plateID`` and ``rowID``.
 
     :param df: DataFrame whose columns may use legacy names.
-    :returns: The same DataFrame with columns renamed in place.
+    :returns: A DataFrame carrying the canonical names. The renames are not applied
+        in place, so the caller must use the returned frame.
     """
     if 'plate_name' in df.columns:
         df = df.rename(columns={'plate_name': 'plateID'})

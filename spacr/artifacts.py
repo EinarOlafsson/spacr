@@ -1034,7 +1034,9 @@ def latest(kind: str, *, project: Union[str, os.PathLike, None] = None,
     """The newest artifact of ``kind``; see :meth:`Registry.latest`.
 
     :param kind: a :mod:`spacr.ports` kind.
-    :param project: the project root.
+    :param project: the project root, used only to locate the registry file.
+        It is not forwarded as a filter, so a shared registry (see
+        :data:`ARTIFACTS_DB_ENV`) may return another project's artifact.
     :param registry: an open registry to use instead of opening one.
     :param kwargs: passed through to :meth:`Registry.latest`.
     """
