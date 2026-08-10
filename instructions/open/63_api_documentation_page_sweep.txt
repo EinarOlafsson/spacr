@@ -614,3 +614,49 @@ WHERE THE REST OF THIS TASK STANDS, item by item:
 SO WHAT IS LEFT IS ITEM 3 AND THE READ-THROUGH, which is what the original
 request actually asked for and is now worth doing: the markup noise that
 would have buried a real judgement is gone.
+
+--------------------------------------------------------------------------------
+2026-08-10 - ITEM 3 MEASURED. THE GAP IS 681 FUNCTIONS, NOT 1,919.
+--------------------------------------------------------------------------------
+
+"Consistent docstring shape across the public API" had no number attached.
+Measured over every public function that TAKES ARGUMENTS (a function with no
+parameters cannot fail to document them):
+
+    top-level spacr/*.py     2010 functions   1940 documented   65% document
+                                              their parameters   681 do not
+    spacr/qt/**              1772 functions   1400 documented   19% document
+                                              their parameters  1128 do not
+
+THE TWO HALVES ARE NOT THE SAME TASK, and conflating them is how this looks
+like 1,919 functions of work.
+
+`spacr/*.py` IS the API reference -- it is where every tooltip link lands,
+and it is what a prospective user reads. 681 gaps at 65% coverage is a real
+and finishable job.
+
+`spacr/qt/**` is GUI internals. A parameter list for `_paint_backdrop` helps
+nobody: those pages exist because autoapi documents the package, not because
+anyone navigates to them. Raising 19% to 100% there would be ~1,100
+docstrings of low-value text, and the noise would make the half that matters
+harder to find. RECOMMEND LEAVING IT, and saying so here so the number is
+not re-discovered as an oversight.
+
+WORST FILES in the half that matters:
+
+    87  utils.py       21  crops.py       19  plot.py
+    81  layers.py      20  doctor.py      17  filters.py
+    49  gui_elements.py 19 curation.py
+
+Two of those need a caveat. `gui_elements.py` belongs to the Tk GUI, which is
+the older front end; `layers.py` is model-definition code whose parameters
+are mostly torch conventions. Both are lower value than `utils.py`, `crops.py`
+and `plot.py`, which users call directly.
+
+THE RULE FOR WHOEVER DOES IT, learned from the read-through above: a
+parameter entry that restates the name (":param src: the src") is worse than
+none, because it costs a line and adds nothing. If there is nothing to say
+beyond the name, say the CONSTRAINT instead -- what range is legal, what a
+wrong value does, which other setting it interacts with. And the build must
+stay at 0 warnings: an inline literal followed by a word character is the
+error this project keeps making.
