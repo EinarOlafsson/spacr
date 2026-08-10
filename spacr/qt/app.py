@@ -91,9 +91,25 @@ class _PipelinePreloader:
     C-extension modules that initialise CUDA/GL (torch, cellpose) from
     a non-main thread concurrent with Qt's own GPU init is a classic
     cause of intermittent "Segmentation fault (core dumped)" at
-    startup. Each import here blocks the event loop only briefly, and
-    a QTimer tick between imports lets Qt process repaints/clicks so
-    the UI stays responsive without the off-thread race.
+    startup. A QTimer tick between imports lets Qt process repaints and
+    clicks, so the UI recovers between them.
+
+    IT DOES NOT STAY RESPONSIVE DURING THEM, and this docstring claimed it
+    did until it was measured on a real windowed launch (2026-08-10). The
+    tick monitor sees three stalls the user feels, and they are these
+    imports:
+
+        spacr.core          1968 ms      seen as a 2164 ms freeze
+        spacr.deep_spacr     711 ms      seen as an 888 ms freeze
+        spacr.submodules     374 ms
+        ---------------------------
+        all seven           3140 ms      starting 1.5 s after the window
+
+    So the trade this class makes is not "brief pauses now for no pause
+    later" -- it is a ~2 s freeze while the user is reading the home
+    screen, bought to save the same wait on their first click. Whether
+    that is the right trade is instruction 55's open question; the
+    off-thread alternative is not available, for the reason above.
     """
 
     _MODULES = (
