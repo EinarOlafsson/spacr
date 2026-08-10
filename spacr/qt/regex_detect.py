@@ -263,7 +263,8 @@ def auto_detect_regex(
 def _synthesise_regex(filenames: Sequence[str]) -> Optional[str]:
     r"""Best-effort: build a regex from the common shape of filenames.
 
-    Recognises Illumina/Yokogawa-style tokens:
+    Recognises Illumina/Yokogawa-style tokens::
+
         <letter><digits>   → single-letter prefix + digits
                               (F00013, C02, Z01, T0001, etc.)
         <letter>\d{2}      → likely wellID (A01, B12, ...).
