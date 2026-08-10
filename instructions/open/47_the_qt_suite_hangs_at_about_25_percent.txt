@@ -234,3 +234,38 @@ WHAT TO DO, in order of cost:
 
 HOW TO KNOW IT WORKED is unchanged: one run reaches its summary line. It is
 now a scheduling problem rather than a debugging one.
+
+--------------------------------------------------------------------------------
+2026-08-09 - pytest-xdist INSTALLED, AND IT WORKS ON THE QT SUITE
+--------------------------------------------------------------------------------
+
+Step 2 of WHAT TO DO, done. `pip install pytest-xdist` (3.8.0, with
+execnet 2.1.2). Measured on a five-file qt subset, same machine, same load:
+
+    serial      44 s
+    -n 4        17 s        2.6x, 0 failures
+
+THE QUESTION THIS ANSWERS is not the speed -- it is whether the fixtures
+survive being distributed. This file worried that the session-scoped
+`qt_theme_applied` fixture would fight xdist. It does not: xdist gives each
+worker its OWN session, so a session-scoped fixture runs once per worker
+rather than once, which is exactly what a per-process QApplication needs.
+That is the property that makes a Qt suite parallelisable at all, and it is
+why `-n` works here when it often does not for suites sharing a database.
+
+Used `--dist load` (the default), so tests are handed out as workers free
+up. If an order-dependent failure appears under `-n` that does not appear
+serially, `--dist loadfile` keeps each FILE on one worker and is the first
+thing to try -- that distinction matters here because instructions 03 and 46
+are about order-dependent failures, and xdist changes the order.
+
+A FULL `tests/qt` RUN AT `-n 4` IS IN FLIGHT as this is written, with
+`--timeout=300` so a single hung test names itself instead of stopping the
+run at a wall clock. That run is the actual success criterion for this task
+-- "one run reaches its summary line" -- and its result belongs in the next
+entry here.
+
+Note the machine is NOT idle (load ~18 from the concurrent tutorials
+session), so `-n 4` rather than `-n 8`: the standing constraint is 16 cores
+for this session, and oversubscribing would make the timing meaningless in
+the same way the load-33 measurement was.
