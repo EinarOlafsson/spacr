@@ -394,3 +394,45 @@ one fix per shared-state collision rather than one per test.
 THE 43 STALE TESTS are the larger number and the cheaper work: each pins
 behaviour that was deliberately changed and was not updated with it. They
 are listed per-test in the JSON with what changed under each.
+
+--------------------------------------------------------------------------------
+2026-08-10 - 20 OF THE 24 REAL BUGS ARE FIXED.
+--------------------------------------------------------------------------------
+
+    classify_merged category tooltips   12 tests, one fix   DONE
+    ai_toggle_label zoom                 2 tests            DONE
+    ImageSetSampler cache key            3 tests            DONE
+    annotate channel-order vocabulary    1 test             DONE
+    i18n "Classify" row                  1 test             DONE
+    home stage bands                     1 test             DONE
+    animation_zoom chrome mask           1 test             DONE
+    GateTree surface fill                1 test             DONE
+    plain QCheckBox ratchet              1 test             DONE
+
+REMAINING REAL: the `classes` setting migration (a half-finished change from
+commit 30500970 that needs the PRODUCT DEFAULT migrated, not the test), plus
+two pre-existing failures found while fixing the others and deliberately not
+touched -- `test_max_sets_control_sits_left_of_the_sets_dropdown` (a widget
+ordering assertion) and `test_no_variant_clips_elides_or_overflows` (variant
+22 splits `alphabetical()` at hardcoded [0:10]/[10:20]/[20:], so its third
+column holds 34 rows at 54 apps).
+
+THE METHOD THAT MADE THIS SAFE, and it is the transferable part. Every fix
+went through three independent agents: one triaged, a second tried to REFUTE
+the "real bug" verdict, and a third proved the fix by running the tests
+itself and comparing against a PRISTINE-HEAD CONTROL -- several built a
+detached git worktree at HEAD to establish which neighbour failures already
+existed. Three "real" verdicts were downgraded at the refutation stage, and
+every remaining-failure claim was backed by a control run rather than
+asserted.
+
+That matters because the obvious shortcut -- edit the test -- was available
+for most of these and would have looked identical in a summary line. The
+`classes` migration is the one left precisely because its honest fix is to
+change a product default, and the tempting fix is to change the test.
+
+A REPORTING GAP FOUND IN PASSING: this repo's pytest configuration suppresses
+the terminal "N passed" summary for some suites, so a run can exit 0 with no
+visible count. Two agents had to parse junitxml to get real numbers. That is
+the same blindness that let the QCheckBox ratchet regress unnoticed -- worth
+fixing on its own.
