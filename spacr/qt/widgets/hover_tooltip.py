@@ -3,10 +3,12 @@ HoverTooltip — a QFrame-based popup that stays visible when the mouse
 enters it. Unlike QToolTip, users can move their cursor into the popup
 to click links inside.
 
-Usage:
+Usage::
+
     tip = HoverTooltip.instance()
     tip.show_for(some_widget, "some html")   # on hover-enter
     tip.start_hide()                          # on hover-leave
+
 The popup cancels its own hide timer if the mouse enters it, and only
 actually hides when neither the anchor nor the popup itself is under
 the cursor.

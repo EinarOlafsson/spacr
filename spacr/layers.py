@@ -1059,7 +1059,7 @@ class OrthoViews:
         return self.clamped(**{a: world[a] for a in canvas.axes})
 
     def zoomed(self, factor: float) -> "OrthoViews":
-        """Every panel ``factor``× closer, about the crosshair.
+        """Every panel ``factor`` times closer, about the crosshair.
 
         All three together, and about the crosshair rather than about each
         panel's own middle, so the panels still line up afterwards.

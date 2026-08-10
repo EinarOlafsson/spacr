@@ -1335,30 +1335,32 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
 
     The backends, and what each is for:
 
-    ================  ==========================================================
-    ``ols``           Ordinary least squares on a continuous well response.
-    ``wls``           Weighted least squares; ``weights`` is the well's cell
-                      count, so a well of 400 cells outweighs one of 30.
-    ``rlm``/``huber`` Robust M-estimation (Huber loss). For outlier-heavy
-                      wells: a handful of runaway wells no longer drag the fit.
-    ``glm``           GLM with the family auto-selected from the response by
-                      :func:`pick_glm_family_and_link`.
-    ``poisson``       Poisson GLM with a log link and ``offset(log(exposure))``,
-                      for per-well counts - so the coefficients are effects on
-                      the per-cell RATE, not on the well's headcount.
-    ``quasi_binomial`` Binomial GLM whose dispersion is estimated from the
-                      Pearson chi-square, for overdispersed fractions.
-    ``beta``          Beta regression, for a fraction strictly inside (0, 1).
-    ``logit``/``probit`` GLM-binomial on a fraction, weighted by cell count.
-    ``quantile``      Quantile regression at ``quantile``; fits the tail of the
-                      response rather than its mean.
-    ``mixed``         Mixed-effects linear model with ``groups`` as the random
-                      intercept.
-    ``lasso``/``ridge``/``elasticnet`` Penalised least squares.
-    ``hinge``         Linear SVM (hinge loss) on a binarised response.
-    ``horseshoe``     Sparse Poisson GLM with a horseshoe prior (spaCRPower's
-                      power-analysis model), via :mod:`spacr.power_model`.
-    ================  ==========================================================
+    ==================================  ========================================================
+    ``ols``                             Ordinary least squares on a continuous well response.
+    ``wls``                             Weighted least squares; ``weights`` is the well's cell
+                                        count, so a well of 400 cells outweighs one of 30.
+    ``rlm``/``huber``                   Robust M-estimation (Huber loss). For outlier-heavy
+                                        wells: a handful of runaway wells no longer drag the
+                                        fit.
+    ``glm``                             GLM with the family auto-selected from the response by
+                                        :func:`pick_glm_family_and_link`.
+    ``poisson``                         Poisson GLM with a log link and
+                                        ``offset(log(exposure))``, for per-well counts - so the
+                                        coefficients are effects on the per-cell RATE, not on
+                                        the well's headcount.
+    ``quasi_binomial``                  Binomial GLM whose dispersion is estimated from the
+                                        Pearson chi-square, for overdispersed fractions.
+    ``beta``                            Beta regression, for a fraction strictly inside (0, 1).
+    ``logit``/``probit``                GLM-binomial on a fraction, weighted by cell count.
+    ``quantile``                        Quantile regression at ``quantile``; fits the tail of
+                                        the response rather than its mean.
+    ``mixed``                           Mixed-effects linear model with ``groups`` as the random
+                                        intercept.
+    ``lasso``/``ridge``/``elasticnet``  Penalised least squares.
+    ``hinge``                           Linear SVM (hinge loss) on a binarised response.
+    ``horseshoe``                       Sparse Poisson GLM with a horseshoe prior (spaCRPower's
+                                        power-analysis model), via :mod:`spacr.power_model`.
+    ==================================  ========================================================
 
     Settings a backend cannot read are REFUSED, not ignored — see
     :data:`REGRESSION_SETTINGS_USED`.
