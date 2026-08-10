@@ -159,15 +159,22 @@ The first voice listed for English remains the player default. Narration for
 every listed voice is served from Hugging Face; none is duplicated on Pages.
 
 Narration mastering is part of release acceptance, not just file existence.
-Render AAC from the synthesized PCM with `loudnorm=I=-16:TP=-3:LRA=11`.
-The extra peak margin is intentional: measurement on the release matrix showed
-that a -1.5 dBTP filter target could decode as high as +1.4 dBFS after AAC.
-Measure the decoded file (for example with FFmpeg `ebur128=peak=true`) and
-require a final true peak at or below -1 dBFS, no long unintended silence, mono
-24 kHz AAC, and timing sidecars whose final scene duration matches the audio.
-`tools/render_all_voices.py --repair-peaks` measures existing tracks and
-re-synthesizes only those that fail the true-peak ceiling; do not repair them by
-transcoding an already lossy AAC file.
+Start from synthesized PCM with `loudnorm=I=-16:TP=-3:LRA=11`, but treat that
+as a request rather than proof: AAC overshoot varies by track. Measure the
+decoded file with FFmpeg `ebur128=peak=true` and require a final true peak at
+or below -1 dBFS. If the first encode fails, retry from the same PCM at -5 dBTP
+with `alimiter` at 0.7, then 0.5 only when needed, and assert the decoded
+result after every encode. The extra margin is intentional: the release matrix
+measured a -1.5 dBTP request as high as +1.4 dBFS after AAC, and even an
+unlimited -5 dBTP retry could decode at -0.2 dBFS.
+
+`tools/render_all_voices.py --repair-peaks` re-synthesizes only tracks that
+fail the decoded ceiling; never repair by transcoding an already lossy AAC.
+After repair, rerun it over the complete matrix and require
+`rendered=0 skipped=3726`. Then run
+`tools/verify_audio_release.py --workers 16` and require mono 24 kHz AAC,
+timing-sidecar duration agreement, and no unintended silence of eight seconds
+or longer.
 
 --------------------------------------------------------------------------------
 6. HOW IT DEPLOYS
