@@ -2,8 +2,8 @@
 THE CONSOLE AND THE AI CHAT BOX ARE TOO SHORT
 ================================================================================
 
-Status:    REOPENED 2026-08-09 -- reported still one line in the gate
-           editor. Closed 2026-08-08; see below.
+Status:    done 2026-08-09. The reopen was right and my first diagnosis
+           was wrong: the console was NARROW, not short.
 Requested: 2026-08-08 — "also the console and the AI chatbox should be taller ."
 
 --------------------------------------------------------------------------------
@@ -157,3 +157,44 @@ Do (2) FIRST -- it is one grep and it decides whether the earlier fix was
 even in the right file. The unit test passes against GateConsole; if the
 screen builds something else, the test was measuring a widget the user
 never sees.
+
+--------------------------------------------------------------------------------
+2026-08-09 - FIXED, AND THE FIRST DIAGNOSIS WAS THE WRONG AXIS
+--------------------------------------------------------------------------------
+
+The grep that this file said to do first answered it: the gate editor DOES
+use `GateConsole`, so the earlier fix was in the right file. Measuring the
+built screen showed the real problem:
+
+    console panel   126 x 736
+      log           126 x 549   (minimum height 180 -- satisfied)
+      chat           74 x  63
+
+The transcript was 549px tall. The vertical fix had worked. The console sat
+in a HORIZONTAL splitter and had been dragged to 126px WIDE -- about
+fifteen characters -- so every line wrapped into a ribbon and the whole
+thing read as one line.
+
+Height was never the whole problem, and the earlier note in this file
+saying the collapse "was never what taller referred to" was wrong. Width
+was the axis.
+
+FIXED with `CONSOLE_MIN_WIDTH = 320` on the panel, and by making the body
+splitter COLLAPSIBLE. Those two go together: with collapsing disabled a
+width floor would force 320px onto every screen, and the console is meant
+to start out of the way. Together they give it two honest states -- hidden,
+or readable -- instead of the third one that was reported: open but too
+narrow to read.
+
+    console now   320 x 736
+      log         320 x 585
+      chat        268 x  63
+
+The floor is on the PANEL rather than the log, because the entry rows are
+what a narrow column really ruins: a QLineEdit cannot wrap, it just
+scrolls.
+
+Two tests added, and the second is the one that matters -- it builds the
+real gate editor screen and asserts the console is either 0 or at least
+readable, rather than testing the widget in isolation as the first attempt
+did. 74 pass across the console, gates and export suites.
