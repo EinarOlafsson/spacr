@@ -709,10 +709,10 @@
       "slug": "cell_CP_prob",
       "title": "Cell probability threshold",
       "validation": {
-        "bytes": 86101,
+        "bytes": 109923,
         "frames": 15,
-        "sha256": "6c67983f01784141af85f255051e5bcafbaec3d5d36a7c9813fabde9f07d0906",
-        "unique_frames": 14
+        "sha256": "13bef4907a3dcdf17bfef5ab91becf17311418373f3993b10100711abff0c449",
+        "unique_frames": 15
       }
     },
     {
@@ -786,9 +786,9 @@
       "slug": "cell_Signal_to_noise",
       "title": "Cell signal-to-noise",
       "validation": {
-        "bytes": 103470,
+        "bytes": 172920,
         "frames": 18,
-        "sha256": "159f8d54f770f1e71d0e598afc2566cc6545260cf3fc6ea2007106b985eafe08",
+        "sha256": "8f5a9d5cfb50227ef339d681d0e9e2c338a0e3dc3a7a2e88f972ec733a36d6f8",
         "unique_frames": 17
       }
     },
@@ -805,9 +805,9 @@
       "slug": "nucleus_CP_prob",
       "title": "Nucleus probability threshold",
       "validation": {
-        "bytes": 92502,
+        "bytes": 141491,
         "frames": 15,
-        "sha256": "acbd658ab57301d26d7acdf6b3031ee0799e87193b06cb21299194bdc73a57a1",
+        "sha256": "5ce3f90cbb698b33c859fa7f1db64f71cd1470113537055c63464673fc5ac2ba",
         "unique_frames": 14
       }
     },
@@ -882,9 +882,9 @@
       "slug": "nucleus_Signal_to_noise",
       "title": "Nucleus signal-to-noise",
       "validation": {
-        "bytes": 99361,
+        "bytes": 200128,
         "frames": 18,
-        "sha256": "ff58d45f4c270c9747b6f833d43e9ba0137dad10f1012d40e8194017c1cc223c",
+        "sha256": "1a4d1e83a267d4365e8992f229c85a976199a5740b8229f9ccb6c73542e75b25",
         "unique_frames": 17
       }
     },
@@ -901,10 +901,10 @@
       "slug": "pathogen_CP_prob",
       "title": "Pathogen probability threshold",
       "validation": {
-        "bytes": 127161,
+        "bytes": 215905,
         "frames": 15,
-        "sha256": "e149b8a802364695343b9c24e6632b6643cda3662fc03c4c2c0a63cfcc4cc8fe",
-        "unique_frames": 14
+        "sha256": "5af20dc3085d26ff2f378e4ab0e04812b239e5920986cf84b0c86f9916f72405",
+        "unique_frames": 15
       }
     },
     {
@@ -978,9 +978,9 @@
       "slug": "pathogen_Signal_to_noise",
       "title": "Pathogen signal-to-noise",
       "validation": {
-        "bytes": 134102,
+        "bytes": 313076,
         "frames": 18,
-        "sha256": "04b3b1f688ac65267ad692d3758aed49189cf614ead7610718a968a976fb1e7a",
+        "sha256": "67c7389972bbcf953e17351a1415d34c510d62c2ef38a84054dcf0b3e2c81282",
         "unique_frames": 17
       }
     },
@@ -1016,10 +1016,10 @@
       "slug": "organelle_CP_prob",
       "title": "Organelle probability threshold",
       "validation": {
-        "bytes": 129957,
+        "bytes": 287983,
         "frames": 15,
-        "sha256": "26a0073acdfab53ac96df0708eef359c8549fc01df08fefe79f25c3e5104a5be",
-        "unique_frames": 14
+        "sha256": "f1671472959a9c300be9e91371b8fe2aa834e0a856f1b265a8c2ea8f46108f6b",
+        "unique_frames": 15
       }
     },
     {
@@ -1054,9 +1054,9 @@
       "slug": "fill_in",
       "title": "Fill holes in masks",
       "validation": {
-        "bytes": 121039,
+        "bytes": 138851,
         "frames": 18,
-        "sha256": "88ae6c64fd94158e4378735c5b20740d4b999e7fd4c50a8f2b39069c3a02fe4b",
+        "sha256": "e36ddc86721717a4e3422b15e3f5f46612a44e48cfb64800c03a3cf323649433",
         "unique_frames": 16
       }
     },
@@ -1073,9 +1073,9 @@
       "slug": "organelle_fill_holes",
       "title": "Fill small organelle holes",
       "validation": {
-        "bytes": 233849,
+        "bytes": 331023,
         "frames": 18,
-        "sha256": "fa4f516291df09dd8d741cc4de08e4f60c9dae3f594183e47b00b6d543ee95d1",
+        "sha256": "3d6bf20a4c3e97c5aa17702296399f173bc822d1ccbf0c0ee2aa1ab1b08261af",
         "unique_frames": 17
       }
     },
@@ -1131,9 +1131,9 @@
       "slug": "organelle_rolling_ball",
       "title": "Rolling-ball background correction",
       "validation": {
-        "bytes": 128134,
+        "bytes": 166226,
         "frames": 16,
-        "sha256": "1b152a629dc68ab20a0312b2ba72c0c4273f45acf7accc2f020fd6fc691ddce1",
+        "sha256": "f182b13410b972f7ac2ba327919141d0556278dedbcc6779dee1e7f7a33fe4f9",
         "unique_frames": 15
       }
     },
@@ -1170,9 +1170,9 @@
       "slug": "organelle_mask_within_cells",
       "title": "Mask organelles within cells",
       "validation": {
-        "bytes": 189194,
+        "bytes": 452241,
         "frames": 17,
-        "sha256": "53559924fde58a305b10213285db3fface4efd5a81b40d7b0725d7d747e8bec7",
+        "sha256": "4343e4cae74ccc13d2c204dc10ebe3ac40540c323ed06dd763529257aff93533",
         "unique_frames": 16
       }
     },
@@ -1284,9 +1284,9 @@
       "slug": "crop_mode",
       "title": "Choose crop target",
       "validation": {
-        "bytes": 74782,
+        "bytes": 75328,
         "frames": 9,
-        "sha256": "8af325063bb195a3de8d20cfb5e4de9eed0538ec9be8490f48b9c8d647719869",
+        "sha256": "14c14cd09e711fc3c02c0fe41d4bafb08d2dbe5794fbfa2b862908b062fcbeb2",
         "unique_frames": 4
       }
     },
@@ -1416,9 +1416,9 @@
       "slug": "timelapse_memory",
       "title": "Tracking memory",
       "validation": {
-        "bytes": 107471,
+        "bytes": 142088,
         "frames": 17,
-        "sha256": "b2361503e5c1a828287529e853b6ea55dff7e4a11e7bc993b627de90304d0aea",
+        "sha256": "7e54524ed6c7d874846aec6b20c4f3715b5b1c3b835a65bbd5007af7f95cf5fc",
         "unique_frames": 15
       }
     },
