@@ -2802,29 +2802,51 @@ class AppScreen(QWidget):
             pass
 
     def _force_stop(self) -> None:
-        """Take the thread away from the worker.
+        """Give the window back, whether or not the worker cooperates.
 
         Never reached without the user having been shown what it costs. The
-        cooperative request goes first regardless, so a worker that IS still
-        checking gets the chance to stop on its own terms in the moment
-        before its thread is terminated.
+        cooperative request goes first, so a worker that IS still checking
+        stops on its own terms.
+
+        A worker that is NOT checking -- one inside a long C call in torch or
+        cellpose, which is the case this button exists for -- is PARKED by
+        :func:`spacr.qt.bridge.drain_thread` rather than terminated. Parking
+        keeps a reference so nothing drops a running QThread, lets the call
+        finish in the background, and returns the window immediately.
+
+        THIS USED TO CALL ``thread.terminate()``, and that was worse than the
+        problem it solved. ``terminate()`` is ``pthread_cancel``, and every
+        thread here runs Python: cancelled while holding the GIL, the whole
+        process stops making progress with every thread still alive -- so
+        "kill" produced a permanently frozen application rather than a
+        returned one -- and cancelled inside a Qt or PySide internal it
+        corrupts the heap and the process dies later somewhere unrelated.
+        Both were live symptoms in this project, which is why
+        ``tests/qt/test_qt_worker_teardown.py`` refuses the call outright.
         """
         import logging
 
         logging.getLogger(__name__).warning(
             "Force-stopping %s at the user's request", self.app_key)
         self._request_cooperative_stop()
-        self._console.append_notice(
-            "\nForce-stopping. Anything being written right now is left "
-            "half-written.\n")
         thread = self._thread
         if thread is None:
             return
-        try:
-            thread.terminate()
-        except Exception:
-            logging.getLogger(__name__).exception(
-                "could not terminate the %s thread", self.app_key)
+        from ..bridge import drain_thread
+        stopped = drain_thread(thread, getattr(self, "_worker", None),
+                               timeout_ms=2000)
+        if stopped:
+            self._console.append_notice(
+                "\nStopped. Anything being written at that moment is left "
+                "half-written.\n")
+        else:
+            # Parked: the window is usable now, and the run is still out
+            # there. Say so -- a user who is told "stopped" and then sees the
+            # file grow has been lied to.
+            self._console.append_notice(
+                "\nStopped waiting. The step would not interrupt -- it is "
+                "still finishing in the background and may keep writing for "
+                "a while. The window is yours again.\n")
 
     def _on_import_settings(self):
         from PySide6.QtWidgets import QFileDialog
