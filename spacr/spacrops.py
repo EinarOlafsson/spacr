@@ -129,6 +129,9 @@ class spacrStitcher:
 
     Axis & Z handling
     -----------------
+
+    ::
+
       arr_axes : str in {"AUTO"} or a string over {T,C,Z,Y,X} (e.g. "CZYX", "CYX", "ZYX").
                  Determines how to interpret multi-dimensional TIFFs.
       mip      : bool. If True and Z exists, perform max-intensity projection over Z.

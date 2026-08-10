@@ -40,19 +40,19 @@ is worse than no report:
 
 What it reads
 -------------
-================================  =========================================
-source                            section
-================================  =========================================
-``spacr.errors`` run-status       Run status (stamps on ``*.db`` and
-stamps                            ``*.run_status.json`` sidecars)
-``~/.spacr/runs`` journal         Provenance + versions
-``<src>/qc/segmentation_qc_*``    Segmentation QC
-``<src>/qc/`` layout exports      Plate QC / edge effects
+===================================  =============================================
+source                               section
+===================================  =============================================
+``spacr.errors`` run-status stamps   Run status (stamps on ``*.db`` and
+                                     ``*.run_status.json`` sidecars)
+``~/.spacr/runs`` journal            Provenance + versions
+``<src>/qc/segmentation_qc_*``       Segmentation QC
+``<src>/qc/`` layout exports         Plate QC / edge effects
 ``<src>/results``, ``<src>/figure``  Key figures
-``<src>/results/**/*.csv``        Statistics
-``<src>/settings/*.csv``, journal Settings
-``<src>/measurements/*.db``       Appendix (feature dictionary, annotations)
-================================  =========================================
+``<src>/results/**/*.csv``           Statistics
+``<src>/settings/*.csv``, journal    Settings
+``<src>/measurements/*.db``          Appendix (feature dictionary, annotations)
+===================================  =============================================
 
 Usage::
 

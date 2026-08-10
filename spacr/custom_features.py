@@ -2,7 +2,7 @@
 Custom per-object feature functions.
 
 Users can drop Python files under ``~/.spacr/features/*.py`` that
-export functions:
+export functions::
 
     def <name>(mask: np.ndarray, image: np.ndarray, **kwargs) -> float | dict
 
