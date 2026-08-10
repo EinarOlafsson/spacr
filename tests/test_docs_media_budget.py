@@ -203,6 +203,28 @@ def test_external_narration_is_downloaded_before_media_playback():
 
 
 @requires_library
+def test_narration_is_the_stable_mobile_clock():
+    """Normal playback must never repair drift by editing audible speech.
+
+    Mobile video clocks can advance in coarse bursts. Seeking or rate-shifting
+    narration from those updates is heard as skipped, repeated, or stretched
+    syllables. Narration therefore drives the silent visual master; only an
+    explicit seek/load boundary may move the audio clock.
+    """
+    player = (_LIBRARY / "tutorials" / "app_v2.js").read_text(
+        encoding="utf-8")
+
+    assert "function syncVideoToNarration(force = false)" in player
+    assert 'elements.audio.addEventListener("timeupdate"' in player
+    assert "VIDEO_CLOCK_DRIFT_SECONDS" in player
+    assert "function seekNarrationToVideo()" in player
+    assert "function syncAudio(" not in player
+    assert "elements.audio.playbackRate = userPlaybackRate" not in player
+    assert 'app_v2.js?v=20260810-mobile-smooth' in (
+        _LIBRARY / "tutorials" / "index.html").read_text(encoding="utf-8")
+
+
+@requires_library
 def test_the_catalog_offers_every_hosted_voice(real_plan):
     """``app_v2.js`` reads this catalog to build the picker.
 
