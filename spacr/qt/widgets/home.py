@@ -263,9 +263,17 @@ class AppTile(QPushButton):
         self.setAccessibleDescription(
             f"{mark} — {description}" if description and mark else
             (description or mark))
-        self.setToolTip(
-            f"{text} ({mark.lower()}) — {description}" if description
-            else f"{text} ({mark.lower()})")
+        # NO TOOLTIP on the tile. The description already appears in the
+        # hint bar at the bottom of the Home screen, updated by HomePage's
+        # eventFilter on the same hover -- so a popup was a second copy of
+        # the same sentence, drawn ON TOP of the grid the user is reading
+        # to choose between. These blurbs run to several hundred
+        # characters, which is fine in a fixed line the eye can skip and
+        # wrong in a box covering the tiles.
+        #
+        # The accessible name and description above are set independently
+        # and are what a screen reader reads, so removing the tooltip costs
+        # no assistive text.
 
         col = QVBoxLayout(self)
         col.setContentsMargins(10, 10, 10, 10)
@@ -1911,8 +1919,19 @@ class HomePage(QWidget):
             hint = self._tile_hints.get(obj)
             if hint:
                 from ..i18n_module_summaries import module_summary
+                from ..theme import STAGE_LABEL
                 key, source = hint
-                self._hint_bar.setText(module_summary(key, source))
+                summary = module_summary(key, source)
+                # The stage goes in the hint bar as a WORD. It used to ride
+                # on the tile's tooltip, which is gone -- and the tile's
+                # hover HUE cannot be the only carrier, because colour alone
+                # fails WCAG 1.4.1. The accessible description covers screen
+                # readers; this covers a sighted colour-blind user, who
+                # reads neither the hue nor the accessibility tree.
+                mark = STAGE_LABEL.get(
+                    str(obj.property("stage") or "stable"), "")
+                self._hint_bar.setText(
+                    f"{summary} — {mark}" if mark else summary)
         elif event.type() == QEvent.Leave:
             from ..i18n import tr
             self._hint_bar.setText(tr(_DEFAULT_HINT))
