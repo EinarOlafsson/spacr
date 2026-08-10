@@ -714,3 +714,57 @@ infection_intensity_qc_panel_path. Of these, `infection_pca_method` is
 WRITTEN by spacr/timelapse.py:4636 rather than read -- it is an output
 recorded into the settings dict, not an input, which is a different thing
 again and should be said rather than given a default.
+
+--------------------------------------------------------------------------------
+2026-08-09 - NO STATED DEFAULT: 9 -> 0. THE THREAD IS CLOSED.
+--------------------------------------------------------------------------------
+
+    no stated default   84 -> 0     (guard ceiling lowered 9 -> 0)
+    tooltips over 600   0
+    table size          685
+
+FOUR OF THE LAST NINE WERE NOT MISSING DEFAULTS. They were PHANTOM keys, the
+same class found earlier in this file, and chasing their defaults is how
+they were found. Measured the same two ways as before -- no code reads
+``settings[key]``, and `resolve_default_settings` for all ten apps offers
+none of them:
+
+    offset               superseded by `offset_start`, which is what
+                         analyze_reads actually passes to the extractor.
+                         The two sat side by side in the Sequencing
+                         category, so a user would reasonably set the
+                         wrong one.
+    reverse_complement   orientation is handled per barcode FILE instead;
+                         the CSVs are matched verbatim and
+                         `barecodes_reverse_complement` flips one that is
+                         on the wrong strand.
+    infection_xgb_proba  not a setting at all -- it is a dataframe COLUMN
+                         name the QC step looks for. The real settings are
+                         `infection_xgb_proba_column` and
+                         `infection_xgb_proba_threshold` (default 0.5).
+    highlight            already recorded as unread; now says it has no
+                         default because it has no effect.
+
+That brings the phantom count found by this task to ELEVEN. The pattern
+that keeps finding them: a setting with no discoverable default usually has
+no default because nothing reads it. "I cannot find the default" is a
+symptom worth following rather than a gap to fill with a guess.
+
+TWO MORE WERE OUTPUTS, NOT INPUTS. `infection_pca_method` and
+`infection_intensity_qc_panel_path` are written BY the pipeline and cleared
+before QC runs, so they are empty until it has. They now say so instead of
+claiming a default a user could set.
+
+THE REAL DEFAULTS, the remaining three:
+
+    organelle_chann_dim  None -- organelle masks are included only when the
+                         organelle_mask_stack folder already exists
+                         (spacr/io.py:3075 states the behaviour)
+    pathogens            None
+    pathogen_loc         None
+
+The guard test now holds at 0, so a new setting cannot be added without
+stating its default. Note what that ceiling means: it is satisfiable
+dishonestly, by writing "Default X" for a key nothing reads. Four of these
+nine would have passed it that way, and the entry would have been a lie
+that reads as documentation.

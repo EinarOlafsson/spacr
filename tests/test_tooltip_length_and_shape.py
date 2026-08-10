@@ -25,7 +25,13 @@ MAX_TOOLTIP_CHARS = 600
 MIN_TOOLTIP_CHARS = 80
 
 #: Settings still awaiting a stated default. Only ever revise DOWN.
-MAX_WITHOUT_DEFAULT = 9
+#: 84 -> 0. The last nine were not defaults at all: four are PHANTOM keys
+#: that no module offers and no code reads (`offset`, superseded by
+#: `offset_start`; `reverse_complement`; `infection_xgb_proba`, which is a
+#: dataframe COLUMN name rather than a setting; and `highlight`), and two
+#: are pipeline OUTPUTS that are empty until QC has run. Saying so is the
+#: honest entry; inventing a default for a key nothing reads is not.
+MAX_WITHOUT_DEFAULT = 0
 
 
 @pytest.fixture(scope="module")
