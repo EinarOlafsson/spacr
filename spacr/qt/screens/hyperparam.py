@@ -605,7 +605,16 @@ class HyperparamPanel(QWidget):
 
     search_finished = Signal(object)
 
-    COLUMNS = ("#", "score", "fold sd", "parameters", "status")
+    #: Fallback headers. "score" is replaced by the CRITERION's own name as
+    #: soon as one is chosen -- a column headed "score" does not say whether
+    #: it holds trustworthiness, a multi-objective blend or something else,
+    #: and the user has to guess which number they are ranking on.
+    COLUMNS = ("#", "score", "best so far", "fold sd", "parameters", "status")
+
+    #: Apps that do not cross-validate, so "fold sd" is structurally empty
+    #: for them. UMAP fits ONE embedding per trial: there are no folds to
+    #: take a standard deviation over, and the column was always NA.
+    NO_FOLD_APPS = ("umap",)
 
     def __init__(self, app_key: str = "umap", parent=None):
         """Build the controls, table and preview for ``app_key``."""
@@ -619,6 +628,7 @@ class HyperparamPanel(QWidget):
         self._worker: Optional[_SearchWorker] = None
         self._result: Optional[SearchResult] = None
         self._live_trials: List[Trial] = []
+        self._best_so_far: Optional[float] = None
         self._search_fn = None
         self._apply_cb: Optional[Callable[[Dict[str, Any]], Any]] = None
         self._settings_provider: Optional[
@@ -693,6 +703,11 @@ class HyperparamPanel(QWidget):
             "of structure.")
         self._criterion.currentTextChanged.connect(
             self._update_criterion_explanation)
+        # The header follows the criterion, so switching from
+        # trustworthiness to multi_objective re-labels the column the user
+        # is about to read rather than leaving it saying "score".
+        self._criterion.currentTextChanged.connect(
+            lambda _t: self._retitle_score_column())
         run_grid.addWidget(self._criterion, 0, 1)
 
         run_grid.addWidget(QLabel("mode"), 0, 2)
@@ -988,6 +1003,12 @@ class HyperparamPanel(QWidget):
 
         self._table = QTableWidget(0, len(self.COLUMNS))
         self._table.setHorizontalHeaderLabels(list(self.COLUMNS))
+        self._retitle_score_column()
+        if self.app_key in self.NO_FOLD_APPS:
+            # Hidden rather than filled with a placeholder: a column of NA
+            # invites the reader to wonder what went wrong, when nothing
+            # did -- this app simply has no folds.
+            self._table.setColumnHidden(self.COLUMNS.index("fold sd"), True)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setSelectionMode(QAbstractItemView.SingleSelection)
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -1489,6 +1510,27 @@ class HyperparamPanel(QWidget):
             return
         self._on_search_done(worker.result, worker.error)
 
+    def _retitle_score_column(self) -> None:
+        """Head the score column with the criterion it actually holds."""
+        table = getattr(self, "_table", None)
+        combo = getattr(self, "_criterion", None)
+        if table is None:
+            return
+        name = ""
+        try:
+            name = str(combo.currentText() or "").strip() if combo else ""
+        except Exception:
+            name = ""
+        header = name.replace("_", " ") if name else "score"
+        column = self.COLUMNS.index("score")
+        item = table.horizontalHeaderItem(column)
+        if item is not None:
+            item.setText(header)
+            item.setToolTip(
+                f"The value being optimised: {header}. Higher is better "
+                "unless the criterion is one of the lower-is-better ones."
+                if name else "The value being optimised.")
+
     def _on_trial_ready(self, trial: Trial, done: int, total: int,
                         png_path: str = "") -> None:
         """Append one finished trial to the table as the sweep progresses.
@@ -1498,6 +1540,15 @@ class HyperparamPanel(QWidget):
             the GUI thread.
         """
         self._live_trials.append(trial)
+        # Running maximum. A Walk scores every NEIGHBOUR of its current
+        # centre, including the ones it then rejects, so the score column
+        # in arrival order legitimately goes up and down -- which reads as
+        # "the walk is not converging" when it is. Measured on a landscape
+        # with a known optimum: arrival order wandered while best-so-far
+        # climbed 0.663 -> 0.705 monotonically. This column shows the climb.
+        if trial.score is not None:
+            self._best_so_far = (float(trial.score) if self._best_so_far is None
+                                 else max(self._best_so_far, float(trial.score)))
         if png_path and self._figure_grid is not None:
             try:
                 self._figure_grid.add_figure(png_path, dict(trial.params))
@@ -1507,6 +1558,8 @@ class HyperparamPanel(QWidget):
         self._table.insertRow(row)
         self._set_row(row, str(trial.index + 1),
                       "-" if trial.score is None else f"{trial.score:.4f}",
+                      "-" if self._best_so_far is None
+                      else f"{self._best_so_far:.4f}",
                       self._fold_sd(trial),
                       format_params(trial.params),
                       "failed" if trial.error else "ok",
@@ -1579,8 +1632,8 @@ class HyperparamPanel(QWidget):
         except (TypeError, ValueError):
             return "-"
 
-    def _set_row(self, row: int, rank: str, score: str, sd: str, params: str,
-                 status: str, param_dict: Dict[str, Any],
+    def _set_row(self, row: int, rank: str, score: str, best: str, sd: str,
+                 params: str, status: str, param_dict: Dict[str, Any],
                  error: Optional[str], trial: Optional[Trial] = None) -> None:
         """Write one table row and stash the config on the first cell.
 
@@ -1588,7 +1641,7 @@ class HyperparamPanel(QWidget):
         the one the table is ranked by: for an Activation sweep the other three
         are the reason the ranking should not be read as a verdict.
         """
-        cells = (rank, score, sd, params, error or status)
+        cells = (rank, score, best, sd, params, error or status)
         detail = format_scores(trial, APP_CRITERIA.get(self.app_key, ())) \
             if trial is not None else ""
         for col, text in enumerate(cells):
@@ -1609,7 +1662,7 @@ class HyperparamPanel(QWidget):
         for rank, trial in enumerate(result.ranked(), start=1):
             row = self._table.rowCount()
             self._table.insertRow(row)
-            self._set_row(row, str(rank), f"{float(trial.score):.4f}",
+            self._set_row(row, str(rank), f"{float(trial.score):.4f}", "-",
                           self._fold_sd(trial), format_params(trial.params),
                           (
                               "Pareto" if id(trial) in pareto_ids
@@ -1619,7 +1672,7 @@ class HyperparamPanel(QWidget):
         for trial in result.failed:
             row = self._table.rowCount()
             self._table.insertRow(row)
-            self._set_row(row, "-", "-", "-", format_params(trial.params),
+            self._set_row(row, "-", "-", "-", "-", format_params(trial.params),
                           "failed", trial.params, trial.error, trial)
         if self._table.rowCount():
             self._table.selectRow(0)

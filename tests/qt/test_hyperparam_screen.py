@@ -32,6 +32,16 @@ from spacr.qt.screens.hyperparam import (
     searchable,
 )
 
+def _col(panel, name: str) -> int:
+    """Column index by NAME.
+
+    Hard-coded indices broke the moment a "best so far" column was inserted
+    between score and fold sd. The names are stable; the positions are not.
+    """
+    return panel.COLUMNS.index(name)
+
+
+
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -528,8 +538,8 @@ class TestRunningASearch:
         assert panel._table.rowCount() == 4
         assert panel.result.ok
         assert panel.result.best.params == {"n_neighbors": 5}
-        assert panel._table.item(0, 1).text() == "0.9000"
-        assert panel._table.item(0, 3).text() == "n_neighbors=5"
+        assert panel._table.item(0, _col(panel, 'score')).text() == "0.9000"
+        assert panel._table.item(0, _col(panel, 'parameters')).text() == "n_neighbors=5"
 
     def test_the_table_fills_in_while_the_search_is_still_running(
             self, panel, qtbot):
@@ -556,8 +566,8 @@ class TestRunningASearch:
 
         assert panel.result is None                 # the sweep is not done
         assert panel._stop_btn.isEnabled()
-        assert panel._table.item(0, 3).text() == "n_neighbors=5"
-        assert panel._table.item(1, 3).text() == "n_neighbors=15"
+        assert panel._table.item(0, _col(panel, 'parameters')).text() == "n_neighbors=5"
+        assert panel._table.item(1, _col(panel, 'parameters')).text() == "n_neighbors=15"
 
         gate.set()
         with qtbot.waitSignal(panel.search_finished, timeout=5000):
@@ -586,7 +596,7 @@ class TestRunningASearch:
         panel.set_search_fn(scripted_search([0.1, 0.9, 0.5, 0.7]))
         with qtbot.waitSignal(panel.search_finished, timeout=5000):
             panel.run_search()
-        scores = [float(panel._table.item(r, 1).text())
+        scores = [float(panel._table.item(r, _col(panel, 'score')).text())
                   for r in range(panel._table.rowCount())]
         assert scores == sorted(scores, reverse=True)
         assert panel._table.item(0, 0).text() == "1"
@@ -616,7 +626,7 @@ class TestRunningASearch:
         )
         panel._on_search_done(result, "")
         statuses = [
-            panel._table.item(row, 4).text()
+            panel._table.item(row, _col(panel, 'status')).text()
             for row in range(panel._table.rowCount())
         ]
         assert statuses == ["Pareto", "Pareto", "dominated"]
@@ -629,8 +639,8 @@ class TestRunningASearch:
         with qtbot.waitSignal(panel.search_finished, timeout=5000):
             panel.run_search()
         last = panel._table.rowCount() - 1
-        assert panel._table.item(last, 4).text() == "boom"
-        assert panel._table.item(last, 1).text() == "-"
+        assert panel._table.item(last, _col(panel, 'status')).text() == "boom"
+        assert panel._table.item(last, _col(panel, 'score')).text() == "-"
         assert "2 trials failed" in panel._status.text()
 
     def test_the_summary_reports_the_spread(self, panel, qtbot):
