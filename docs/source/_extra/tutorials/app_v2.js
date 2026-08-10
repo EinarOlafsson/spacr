@@ -119,6 +119,8 @@ let languageRequest = 0;
 let narrationRequest = 0;
 let captionLanguageRequest = 0;
 let narrationAudioAvailable = false;
+let narrationFetchController = null;
+let narrationObjectUrl = "";
 let captionSettings = readCaptionSettings();
 let completed = readStoredSet(STORAGE_KEY);
 let watchProgress = readStoredObject(WATCH_KEY);
@@ -624,6 +626,31 @@ function audioSource(lesson = activeLesson) {
   return `${narrationRoot()}/${lesson.id}/audio/${elements.language.value}/${elements.voice.value}.m4a`;
 }
 
+function discardNarrationAudio() {
+  elements.audio.pause();
+  elements.audio.removeAttribute("src");
+  elements.audio.load();
+  if (narrationObjectUrl) URL.revokeObjectURL(narrationObjectUrl);
+  narrationObjectUrl = "";
+}
+
+async function fetchNarrationAudio(source, signal) {
+  // Safari's media stack can ask an MP4/M4A host for multiple byte ranges in
+  // one request. The Hugging Face Xet endpoint currently rejects that request
+  // shape even though a normal CORS GET succeeds. Narration files are small
+  // (the largest release track is under 1.5 MB), so download one complete file
+  // and let the media element read a local Blob URL instead of issuing ranges.
+  const response = await fetch(source, {
+    mode: "cors",
+    credentials: "omit",
+    signal,
+  });
+  if (!response.ok) throw new Error(`Narration download failed (${response.status})`);
+  const blob = await response.blob();
+  if (!blob.size) throw new Error("Narration download was empty");
+  return blob;
+}
+
 function timingSource(lesson = activeLesson) {
   if (elements.voice.value === "silent") {
     return defaultTimingSource(lesson);
@@ -810,6 +837,28 @@ function mediaReady(media) {
   });
 }
 
+function mediaReadyOrDeferred(media, timeoutMs = 1500) {
+  if (media.error) return Promise.reject(media.error);
+  if (media.readyState >= 1) return Promise.resolve(true);
+  return new Promise((resolve, reject) => {
+    let timer = 0;
+    const cleanup = () => {
+      clearTimeout(timer);
+      media.removeEventListener("loadedmetadata", loaded);
+      media.removeEventListener("error", failed);
+    };
+    const loaded = () => { cleanup(); resolve(true); };
+    const failed = () => {
+      cleanup();
+      reject(media.error || new Error("Media could not be loaded"));
+    };
+    const deferred = () => { cleanup(); resolve(false); };
+    media.addEventListener("loadedmetadata", loaded, { once: true });
+    media.addEventListener("error", failed, { once: true });
+    timer = setTimeout(deferred, timeoutMs);
+  });
+}
+
 async function loadReadyLesson() {
   const lessonId = activeLesson.id;
   elements.loading.classList.remove("hidden");
@@ -834,14 +883,14 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
   const isCurrent = () => request === narrationRequest && outerCurrent();
   const wasPlaying = resume && !elements.video.paused;
   const normalized = elements.video.duration ? elements.video.currentTime / elements.video.duration : 0;
-  elements.audio.pause();
+  if (narrationFetchController) narrationFetchController.abort();
+  narrationFetchController = null;
+  discardNarrationAudio();
   narrationAudioAvailable = false;
   audioTimings = null;
   visualTimings = null;
   clearCaptions();
   if (elements.voice.value === "silent") {
-    elements.audio.removeAttribute("src");
-    elements.audio.load();
     configureMediaSync();
     try {
       await mediaReady(elements.video);
@@ -856,18 +905,31 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
     return;
   }
   elements.loading.classList.remove("hidden");
-  elements.audio.src = audioSource();
-  elements.audio.load();
+  const controller = new AbortController();
+  narrationFetchController = controller;
+  // Resolve failures into data immediately so an early video error cannot
+  // leave a rejected fetch promise unobserved.
+  const download = fetchNarrationAudio(audioSource(), controller.signal)
+    .then(blob => ({ blob, error: null }))
+    .catch(error => ({ blob: null, error }));
   try {
     await mediaReady(elements.video);
     if (!isCurrent()) return;
     try {
-      await mediaReady(elements.audio);
+      const result = await download;
+      if (!isCurrent()) return;
+      if (result.error) throw result.error;
+      narrationObjectUrl = URL.createObjectURL(result.blob);
+      elements.audio.src = narrationObjectUrl;
+      elements.audio.load();
+      // iPhone browsers may defer audio metadata until a user presses Play.
+      // The complete Blob is already present, so a metadata timeout means
+      // "finish on the play gesture", not "narration is unavailable".
+      await mediaReadyOrDeferred(elements.audio);
       narrationAudioAvailable = true;
     } catch (audioError) {
       if (!isCurrent()) return;
-      elements.audio.removeAttribute("src");
-      elements.audio.load();
+      discardNarrationAudio();
       showToast("Narration is unavailable; the GitHub-hosted video remains available.");
     }
     elements.video.currentTime = normalized * elements.video.duration;
@@ -878,6 +940,7 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
   } catch (error) {
     if (isCurrent()) showToast("This narration track could not be loaded.");
   } finally {
+    if (narrationFetchController === controller) narrationFetchController = null;
     if (isCurrent()) elements.loading.classList.add("hidden");
   }
 }
@@ -1357,6 +1420,25 @@ elements.video.addEventListener("ratechange", () => {
 });
 elements.video.addEventListener("ended", markCompleteAtEnd);
 elements.audio.addEventListener("ended", markCompleteAtEnd);
+elements.audio.addEventListener("loadedmetadata", () => {
+  if (!narrationAudioAvailable) return;
+  configureMediaSync();
+  if (!elements.video.paused) {
+    syncAudio(true);
+    elements.audio.play().catch(() => {
+      showToast("Select play again to start narration.");
+    });
+  }
+});
+elements.audio.addEventListener("error", () => {
+  // Loading errors are handled by loadNarration while availability is false.
+  // This catches a deferred phone decoder failure after the player is ready.
+  if (!narrationAudioAvailable || !elements.audio.getAttribute("src")) return;
+  narrationAudioAvailable = false;
+  discardNarrationAudio();
+  configureMediaSync();
+  showToast("Narration is unavailable; the GitHub-hosted video remains available.");
+});
 elements.video.addEventListener("canplay", () => elements.loading.classList.add("hidden"));
 elements.video.textTracks?.addEventListener?.("change", syncCaptionPreferenceFromNativeControls);
 elements.voice.addEventListener("change", switchVoice);
@@ -1401,7 +1483,12 @@ elements.sidebar.addEventListener("keydown", event => {
   }
 });
 elements.themeToggle?.addEventListener("click", toggleTheme);
-window.addEventListener("beforeunload", () => { saveWatchPosition(); if (captionUrl) URL.revokeObjectURL(captionUrl); });
+window.addEventListener("beforeunload", () => {
+  saveWatchPosition();
+  if (narrationFetchController) narrationFetchController.abort();
+  if (narrationObjectUrl) URL.revokeObjectURL(narrationObjectUrl);
+  if (captionUrl) URL.revokeObjectURL(captionUrl);
+});
 window.addEventListener("resize", () => {
   if (!elements.captionSettingsPanel.hidden) positionCaptionSettingsPanel();
 });

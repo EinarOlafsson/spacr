@@ -185,6 +185,24 @@ def test_narration_is_external_not_duplicated_on_pages(real_plan):
 
 
 @requires_library
+def test_external_narration_is_downloaded_before_media_playback():
+    """Do not expose mobile media elements directly to the Xet range path.
+
+    Some mobile browsers request multiple byte ranges for a media-element
+    source. The hosted narration endpoint does not reliably satisfy that
+    request shape, so the player fetches the complete file with CORS and gives
+    the decoder a same-origin Blob URL instead.
+    """
+    player = (_LIBRARY / "tutorials" / "app_v2.js").read_text(
+        encoding="utf-8")
+
+    assert "fetchNarrationAudio" in player
+    assert "response.blob()" in player
+    assert "URL.createObjectURL(result.blob)" in player
+    assert "elements.audio.src = audioSource()" not in player
+
+
+@requires_library
 def test_the_catalog_offers_every_hosted_voice(real_plan):
     """``app_v2.js`` reads this catalog to build the picker.
 

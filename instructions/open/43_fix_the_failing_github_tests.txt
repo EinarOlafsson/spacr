@@ -215,3 +215,92 @@ floor.
 So the next matrix run should drop roughly 23 failures without a single
 test being touched. Count what is left AFTER that run rather than from the
 old log -- the earlier tally of ~85 includes them.
+
+--------------------------------------------------------------------------------
+2026-08-10 - LINT IS GREEN, AND THE FIRST REAL FAILURES ARE TRIAGED
+--------------------------------------------------------------------------------
+
+Matrix state from run 31408244080 (cancelled part-way by a later push, but
+enough jobs finished to be useful):
+
+    Lint / types / complexity   SUCCESS   <- was red, now green
+    Network                     SUCCESS
+    NAS                         SUCCESS
+    Fast py3.11 / 3.12 / 3.13   FAILURE
+    Integration                 FAILURE
+
+LINT WENT GREEN because of ten undefined names fixed on 2026-08-10 --
+`ruff --select E9,F63,F7,F82` reports genuine runtime crashes, not style.
+`gate_spec._midpoint` did not exist at all, so `BoxGate.centre()` raised
+NameError on every call; `LOG` was used at five sites with no module logger.
+
+THREE OF THE Fast FAILURES ARE FIXED, and all three were documentation
+asserting something the code contradicts:
+
+  `class_balance` told users to set `'class_weights'`. The legal modes are
+  ('none', 'weighted_sampler', 'sqrt_weighted_sampler', 'weighted_loss'), so
+  that value is REJECTED -- and `sqrt_weighted_sampler`, the middle ground
+  between no correction and full oversampling, was undocumented entirely.
+
+  Two batch-correction tooltips had lost the
+  `spacr.batch_correction.correct_batch_effects` reference their siblings
+  still carry.
+
+Verified pre-existing: all three fail identically with `settings.py` reverted
+to 41c061f8, so they are not fallout from this session's tooltip work.
+
+A TRAP WHILE FIXING THEM: the first version of the `class_balance` rewrite
+ran to 651 characters against the 600-char ceiling
+`test_no_tooltip_is_an_archive` enforces. Fixing one tooltip test by
+breaking another is easy here; run
+`tests/test_tooltip_length_and_shape.py` alongside whatever you are fixing.
+
+STILL TO TRIAGE from the same run, each named in the log and not yet looked
+at: test_cellpose_api_contract (5), test_cellpose_channel_axis_contract (3),
+test_cov_io_tail, test_cov_plot_compare_viz, test_feature_dict, test_hits,
+test_measure_bug_fixes, test_cellpose4_model_story. The cellpose cluster is
+the one to take first -- eight failures across two files suggests one
+signature change rather than eight faults.
+
+AND A PROCESS NOTE THAT COST THIS TASK A DAY: every push CANCELS the
+in-flight matrix. To get a complete count, push once and then STOP pushing
+until the run finishes -- roughly 40 minutes, longer when GitHub's runners
+are backed up. Committing locally and holding the push is the way to keep
+working meanwhile.
+
+--------------------------------------------------------------------------------
+2026-08-10 - FIVE FIXED. AND ONE OF THEM WAS MY OWN REGRESSION.
+--------------------------------------------------------------------------------
+
+    class_balance tooltip                  named a value the code REJECTS
+    two batch_correction tooltips          lost their API reference
+    cell/nucleus/pathogen/organelle
+      _model_name tooltips                 did not say which cellpose 4
+                                           parameters still act
+    save_and_add_image_to_grid docstring   lost the deliberate-reversal note
+
+THE LAST ONE WAS SELF-INFLICTED and is worth recording. The docstring sweep
+of instruction 63 CORRECTED that note -- the old text claimed
+``png_dims[0]`` is the file's red channel, and the code says otherwise:
+
+    resolve_png_channel_mapping({"png_dims": [0,1,2]}) -> {'r': 2, 'g': 1, 'b': 0}
+    build_png_channels(...)  ->  source plane 0 lands in the file's BLUE slot
+
+So the correction was right. But the old wording also carried a FACT the
+correction dropped: that this mapping is the reverse of what ``png_dims``
+reads like and is left that way ON PURPOSE, because every crop on disk was
+written with it and flipping it would invalidate the models trained on those
+crops. `test_png_channel_order_reversal_is_documented` exists to hold exactly
+that, and it went red.
+
+THE LESSON: a docstring can be WRONG and LOad-BEARING at the same time. When
+correcting one, check what the old text was protecting before deleting it --
+the test that guards it is the cheapest place to find out, and running the
+suite for the file you edited would have caught this before it reached CI.
+
+WHAT DOES NOT REPRODUCE LOCALLY, and is therefore version-dependent rather
+than a code fault: test_cellpose_api_contract (5),
+test_cellpose_channel_axis_contract (3), test_cov_io_tail,
+test_cov_plot_compare_viz, test_feature_dict, test_hits. All pass here on the
+installed cellpose 4.x. They need a run in the CI environment to see, which
+means the next matrix run is the measurement -- not more local work.

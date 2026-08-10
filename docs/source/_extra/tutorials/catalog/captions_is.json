@@ -114,19 +114,19 @@
       "id": "05_home",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um heimaskjá og leiðsögn. Skoðaðu umsóknina, hópana hennar, keyrið samantekningar, þroskavísitölur og umfjöllunartækni."
+          "narration": "Hús hópar spaCR hönnun eftir vinnuflokki svo þú getur farið frá myndvinnslu í gegnum greiningu og gæðastjórnun."
         },
         {
-          "narration": "Opnaðu Startskjárinn og leiða frá Húsdeildinni. Byrjaðu á skrifborðsforritinu spaCR og byrjaðu á Heim."
+          "narration": "Notaðu vinstri hliðarbarinn til að skipta um deildir. Veldu Heim hvenær sem þú vilt snúa aftur til heildarbókasafns modulsins."
         },
         {
-          "narration": "Í aðal uppsetningar svæðinu, notaðu hliðarbarinn, flokkur greinar, leitbar app flísar, og skipanarpalletta til að ná að vinna á vinnuflóð."
+          "narration": "Fylgdu í greinarkröfum og launum um vinnuflæði til að finna mótun. Hver flís opnar einn vinnuflóð og liturinn gefur til kynna hvort módúlinn sé alfa, beta eða stöðugur."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. Opnaðu einni lífrann aðeins þegar þú ætlar að hafa samskipti við hann. Merkið er sýnt aðeins fyrir raunverulega smelli."
+          "narration": "Á hægri skjánum má sjá núverandi notkun kerfisins, fréttafréttir og frásögn um líffræði. Skoðaðu notkun kerfisins áður en þú byrjar dýrt starf."
         },
         {
-          "narration": "Þegar vinnufljósið er lokið geturðu farið í gegnum forritið og skilið stöðuupplýsingarnar sem sýndar eru á Heim."
+          "narration": "Veldu flís fyrir stýrið til að opna stillingarskjáinn. Nafnið og lýsingin á modúlunni efst staðfestir hvaða vinnuflóð er virkt."
         }
       ]
     },
@@ -154,37 +154,49 @@
       "id": "07_mask",
       "scenes": [
         {
-          "narration": "Mask setur stillingar vinstri og rekstrartækið til hægri. Konsólinn skýrir staðfestingu, framfarir, viðvörun og sparað útgáfu."
+          "narration": "Mask setur stillingar til vinstri og rekstrartækið til hægri. Konsólinn skýrir staðfestingu, framfarir, viðvörun og sparað útgáfu."
         },
         {
-          "narration": "Læt upphafmyndaskrá í Mask. Staðfestir upptekt skránafn mynstur og metadata, síðan kort hver afla kanal til líffræðilega merki. Í þessu dæmi eru fjórir leiðir með kjarn, endoplasma reticulum, lípíddropa og parazitum."
+          "narration": "Fylgdu upprunamyndaskrá í Mask. Staðfestir upptekin skránafn mynstur og metadata, síðan kort hver afla kanal til líffræðilega merki. Í þessu dæmi innihalda fjórir leiðir kjarna, endoplasma reticulum, lípídtröppur og paraþíur."
         },
         {
-          "narration": "Hlutfallstaða sýnir stjórn sem þarf til að standa í venjulegum rekstri. Notaðu All aðeins þegar þú þarft háþróaðar valkosti, breytt til að skoða breytt gildi og uppskriftir til að vista uppstillingu sem þú ætlar að nota aftur."
+          "narration": "Aðalatriði sýnir stjórnun sem þarf til venjulegs reksturs. Nota All aðeins þegar þú þarft háþróaðar valkosti, Breytt til að skoða breytt gildi, og Uppskriftir til að vista stillingu sem þú munt nota aftur."
         },
         {
-          "narration": "Í innfærslu og metadata skaltu staðfesta uppsprettaglöðuna, kanalaskipti, stækkun og metadata á skránafn áður en þú stillir skiptingu."
+          "narration": "Input og Metadata, staðfesta uppspretta möppuna, kanalaskipti, stækkun og skránafn metadata áður en skipting."
         },
         {
-          "narration": "Vinnuflóð og prófstýringu stjórna hvaða grímur eru stofnuð, hvort starfinu er haldið áfram og hversu mörg fulltrúa sviði eru notuð í prófunni."
+          "narration": "Vinnuflóð og prófunargerðir stjórna því hvaða grímur eru stofnuð, hvort núverandi vinna hefst aftur og hversu mörg fulltrúa völl eru notuð í prófunni."
         },
         {
-          "narration": "Frumurinn, kjarnan, sjúklingurinn og líffæraflokkinn skipta sérhverri hópi fyrirmynd, leið, kjarnaþrósklar og hlutfiltrar fyrir þann þétt. Breyta aðeins stillingum sem þarf fyrir núverandi myndir."
+          "narration": "Frumurinn, kjarninn, sjúkdómsfrumurinn og líffæraflokkinn skipta sérhverri hópi fyrirmyndina, leiðina, kjarnaþröskurnar og fyrirbærafiltrar fyrir þann geim. Breyttu aðeins stillingum sem nauðsynlegar eru fyrir núverandi myndir."
         },
         {
-          "narration": "Vinntu á Live Preview, hlaðaðu mynd sem er fulltrúarmynd og veldu þá hlið sem þú ert að stilla upp. Notað er fyrirvinnslu eins og eðlilegun aðeins þegar hún bætir myndina."
+          "narration": "Leyfaðu Live Preview, hlaða umboðssviði og veldu hlutinn sem þú ert að stilla upp. Þessi dæmi sýnir fyrirsýn á sílueftirliti."
         },
         {
-          "narration": "Kynntu fyrirsýn og skoðaðu uppspretta við hliðina á yfirlaginu. Lögð á hlutunum eiga að fylgja sýnilegum líffræðilegum mörkum án þess að þeir tengjast nágrannum eða sakna hreinna hlutanna."
+          "narration": "Í Live stillingum staðfestir þú hlutinn og kanalinn fyrst. Breyttu þvermál, flæði eða líkindum frumu aðeins þegar forsýningin gefur þér ástæðu."
         },
         {
-          "narration": "Skiptið milli yfirlagningar, flæða og grímur þegar þú þarft að greina niðurstöðu. Grímur sýna síðustu merkjuð hlutir; svart er bakgrunn."
+          "narration": "Kveiktu á útbreiðslu stillingar svo gildi sem þú staðfestir hér verða stillingar notaðar af fullri hlaup."
         },
         {
-          "narration": "Ef augljós brot eða verklif eru eftir, stilla viðeigandi hlutfiltr, svo sem lágmarksvæði, og samanberðu forsýninguna aftur. Veldu gildi úr myndaskálu í stað þess að afrita kennslumynd."
+          "narration": "Kynntu forsýninguna og skoðaðu yfirlaginn við borð. Landamærin ættu að fylgja sýnilegum frumum án þess að tengjast nágrannum eða sakna hreinna hlutum."
         },
         {
-          "narration": "Veldu grímurnar og milli skrá sem þú þarft í Útgang og Geymslu. Fyrst skalst lítið próf og síðan endurskoðaður fullur heimild eftir að fyrirsýn og konsólustökur hafa verið yfir."
+          "narration": "Breyttu yfir á Flæði til að skoða stefnusvæðið sem Cellpose notar. Óreglulegar flæði mynstur geta hjálpað til við að útskýra grímur sem skiptast eða sameinast ranglega."
+        },
+        {
+          "narration": "Grímur einangrar síðari merkingar gegn svörtu bakgrunni. Notaðu hana til að athuga aðfang og aðskildingu fyrirbæra án uppruna myndinni hér að neðan."
+        },
+        {
+          "narration": "Efnisfiltrar uppfæra fyrirsjáinn strax. Hækkaðu lágmarksvæðið aðeins nóg til að fjarlægja augljósa brot; rétta niðurskurðurinn fer eftir myndaskáli."
+        },
+        {
+          "narration": "Samanberðu síað yfirborð við upprunalegu forsýninguna. Alvöru frumur ættu að vera til staðar; ef þeir hverfa, lækkaðu lágmarksvæðið."
+        },
+        {
+          "narration": "Veldu grímurnar og milli skrá sem þú þarft í Útgáfu og Geymslu. Fyrst gerðu litla próf og vinndu síðan fullri uppspretta eftir að fyrirsýn og konsólustökur hafa liðið."
         }
       ]
     },
@@ -443,34 +455,37 @@
       "id": "15_image_umap",
       "scenes": [
         {
-          "narration": "UMAP-mynd minnkar háþvíddar hlutmælingar í tveimur samræmdum og setur mikroskópsgróður á kortið. Skrárnar á spilakönnunni eru sameinuð, fyrirvinnslu, innbyggingu, klústrun og útgáfur."
+          "narration": "Mynd UMAP minnkar hávíddar hlutmælingar til tveggja samræminga og setur mikroskópsgróður á kortið. Spjöldin á spilakönnunni eru sameinuð, fyrirvinnslu, innbyggingu, hópun og útgáfur."
         },
         {
-          "narration": "Paths velur upp mæld verkefni. Mynd UMAP staðfestir mælingar db stafla og notar til staðar uppskera myndir eða byggir uppskera úr sameinuðum röðum þegar það er stutt."
+          "narration": "Paths velur mæld verkefni. Mynd UMAP staðfestir mælingar dot db og notar núverandi gróðurmyndir eða byggir gróður úr sameinuðum röðum þegar það er stutt."
         },
         {
-          "narration": "Matar velur samanbundnar hlutborðsborð og eiginleikafjölskyldur, fjarlægir skýrt útiloka og getur sleppt óþarfa tengd eiginleikum. Þessi valgreiningar skilgreina geometri kortsins."
+          "narration": "Mælingar velur samanbundnar hlutborðsborð og eiginleikafjölskyldur, fjarlægir augljósar útilokaðir og getur sleppt óflýðandi tengdum eiginleikum. Þessir valkostir skilgreina geometri kortsins."
         },
         {
-          "narration": "Plate Layout and Controls útilokar misheppnuð brunn, stjórn eða metadata hópa sem ekki ætti að móta þessa rannsóknar innbyggingu."
+          "narration": "Plate Layout and Controls útilokar misheppnuð brunn, stjórn eða metadata hópa sem eiga ekki að móta þessa rannsóknar innbyggingu."
         },
         {
-          "narration": "Tölvuþjónustudataútgangur velur hvort mynd-stýrð atriði bæta upp mæld atriði og hvaðan ræktun þeirra kemur. Notaðu þau aðeins þegar myndin er hluti af spurningunni."
+          "narration": "Tölvuþjónusta gagnaútgangur velur hvort myndatökuð atriði bæta við mæluð atriði og hvaðan ræktun þeirra kemur. Notaðu þau aðeins þegar myndin er hluti af spurningunni."
         },
         {
-          "narration": "Innlegg og kjarasöfnun velur UMAP eða t-SNE, hverfisviðferð, fjarlægðarmetrik, skammta og valfrjálsan kjarasöfnun. Samanberðu endurnýjanlegar stillingar og ekki meðhöndla eina skipulagningu sem staðreynd."
+          "narration": "Embedding og Clustering velur UMAP eða t-SNE, hverfi hegðun, fjarlægð mælikvarða, hólf og valfrjálsan hólf. Samanberðu endurnýjanlegar stillingar og líttu ekki á eina skipulagningu sem staðreynd."
         },
         {
-          "narration": "UMAP Display stjórnar stili staða, uppskera glyph tal og stækka, kluster gríður, bakgrunn og sparað tölur. Þessi sýningarspili breytir ekki viðbættum samræmdum."
+          "narration": "UMAP Display stjórnar stili staða, uppskera glyph tal og stækka, bakgrunn og vistað tölur. Höldum gróðurglyfum aðeins stærri en punktanir svo innbyggingin sést; þessi sýningarval breytir ekki settum samræmdum."
         },
         {
-          "narration": "Hyperparameter Search er mini vinnuborð til að bera saman einbeitt sett af UMAP valkostum. Notaðu litla margvíslega niðurstöður til að dæma stöðugleika og uppbyggingu og beita síðan endurskoðuðuðu uppfærslu á fullri rekstri."
+          "narration": "Áður en fullur rekstur, notaðu Hyperparameter Search til að bera saman einbeitt sett af UMAP valkostum. Lítil og margvísleg niðurstöður þess sýna upp skipulag sem eru óstöðugir eða fela gagnlega uppbyggingu."
         },
         {
-          "narration": "Run staðfestir gagnagrunn og uppskeruhyldið, fylgir og sía tölulíf, sýnatölur, passar í minkandi og valfrjálsan kjarna og skrifar síðan samræmda niðurstöðupláss."
+          "narration": "Veldu skoðaðu leitarniðurstöð og veldu síðan Fræðslu stillingar. Þetta kopið stærð hverfisins, lágmarks fjarlægð og mælikvarða í aðalmynd UMAP form áður en fullri hlaup."
         },
         {
-          "narration": "Í lokið galleri er sýnt sýnishornmynd og grillgrill. Sparað útgáfa felur í sér samhæfingar, klustermerki, tölur, stillingar og endurskapaleika manifest."
+          "narration": "Rennur staðfestir gagnagrunninn og uppruna ávöxtunar, fylgir og sía tölulíf, sýnatölur röður, passar í minkandi og valfrjálsan klúster og skrifar síðan samræmda niðurstöðurskrá."
+        },
+        {
+          "narration": "Lögð út kortið heldur UMAP-punktaflóðinni sýnilegri og yfirborgar litla gagnsæla mikroskópsgróður á fulltrúlegum stöðum. Sparað framleiðsla felur í sér samhæfingar, klúster merkingar, mynd, stillingar og endurnýjanleika manifest."
         }
       ]
     },
@@ -1651,19 +1666,22 @@
       "id": "64_gate_editor",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Gate Editor. Tekja, breyta, nista og nota mælingarborð aftur sem gagnsælir íbúafiltar."
+          "narration": "Gate Editor breytir svæðum af mælingarborði í nöfn, endurteknar fjölda gates. Vinnusvæðið heldur einkenniasunum, teikningartækjum, fullu gagnaútsýningu og gátastiginu saman."
         },
         {
-          "narration": "Opnaðu mælingatal og veldu eiginleika fyrir histogram eða tvívívíddar spretta."
+          "narration": "Í 2D veldu X og Y fyrir skera eða láttu Y vera tóm fyrir histogram. Veldu þröskulinn eða formverkið og teikniðu í kringum ætlaða mannfjölda. Fullur skýurinn er enn sýnilegur á meðan innihaldandi hlutir eru áberandi."
         },
         {
-          "narration": "Í aðalmyndunar svæði veldu þröskul, rétthyrning, ellipse eða fjölhyrning verkfæri og skoðaðu öxlar umbreytingar, þéttleika sýning og foreldrafjölda."
+          "narration": "Veldu 3D og Z mælingar til að skoða snúanlegt magn. Axis-knapparnir stjórna snúningsháttinni og Box-gátin skráir mörkin á öllum þremur sýndu mælingum."
         },
         {
-          "narration": "Settu upp gat, skoðaðu hópinn og hlutfallinn og hreyfðu síðan hóp eða kantir þar til mörkin henta ætlaðu íbúafjöldi."
+          "narration": "Veldu xD til að skipta hæfilegum mælingum í helstu þætti. Upplýsingar um uppspretta merkingar lýsa breytingum og PC1, PC2 og PC3 verða venjuleg axlar fyrir sömu gating verkfæri."
         },
         {
-          "narration": "Þegar vinnuflökunni er lokið geta nöfnunar innlegðar hliðar sía tengd sýningar, keyra athugasemdir og vistað til að beita til síðar skjá."
+          "narration": "Gönguherarkið skýrir frá hlutföllum, hlutfalli foreldra og hlutfalli allra raða. Skildu á sniðborðið á gatunni til að sýna hana eða fela hana og veldu gatuna áður en þú teiknar hvenær næsta íbúð ætti að vera í henni."
+        },
+        {
+          "narration": "Gefðu hverri íbúi merkisvert nafn og geymdu síðan gatastráfiđ. Hlaða það á samhæfan borð til að nota sömu eiginleika nöfn, mörk og röð, og staðfesta nýja telur áður en áfram."
         }
       ]
     },
