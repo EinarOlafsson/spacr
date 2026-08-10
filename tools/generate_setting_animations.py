@@ -652,19 +652,32 @@ def _filter_scene(painter: Painter, spec: Spec, action: float) -> None:
     if kind == "cell":
         sizes = [(25, 20), (35, 27), (45, 34), (56, 42)]
         centers = [(73, 73), (165, 64), (278, 76), (180, 166)]
-    removed = 0 if variant in ("minimum", "dim") else 3
-    for index, (center, size) in enumerate(zip(centers, sizes)):
-        brightness = 1.0
-        width = 0.5
-        if variant == "dim" and index == removed:
-            brightness = 0.35
-        if variant == "bright" and index == removed:
-            width = 0.9
-        if index == removed:
-            brightness *= 1.0 - action
+    # These settings are THRESHOLDS: everything past the threshold is
+    # discarded, not one representative object. Fading a single object made
+    # the `minimum` and `dim` variants measure a fifth of a percent -- the
+    # object they fade is the smallest one -- and taught the viewer that the
+    # setting drops one thing. A threshold sweeping through the objects in
+    # order is both the larger change and the true illustration.
+    by_intensity = variant in ("dim", "bright")
+    # Intensity variants need visibly different brightnesses for an order to
+    # exist at all; area variants read their order off the sizes.
+    base = [0.4, 0.6, 0.8, 1.0] if by_intensity else [1.0] * len(sizes)
+    if by_intensity:
+        rank_by = lambda index: base[index]
+    else:
+        rank_by = lambda index: sizes[index][0] * sizes[index][1]
+    order = sorted(
+        range(len(sizes)), key=rank_by,
+        reverse=variant in ("maximum", "bright"),
+    )
+    for rank, index in enumerate(order):
+        # One object always survives; an empty frame reads as a broken render
+        # rather than as a filter.
+        gone = min(1.0, max(0.0, action * (len(order) - 1) - rank))
         _object_outline(
-            painter, kind, center, size, brightness,
-            phase=index * 0.8, width=width,
+            painter, kind, centers[index], sizes[index],
+            base[index] * (1.0 - gone),
+            phase=index * 0.8, width=0.5,
         )
 
 

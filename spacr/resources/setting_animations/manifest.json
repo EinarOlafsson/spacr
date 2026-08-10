@@ -36,10 +36,10 @@
       "slug": "cell_min_area",
       "title": "Cell \u2014 Minimum object area",
       "validation": {
-        "bytes": 134470,
-        "frames": 17,
-        "sha256": "a07fccc598c5cb95e4ab4a470166997e0fb32f58d40b762a994b37bc52bac4ae",
-        "unique_frames": 16
+        "bytes": 119324,
+        "frames": 18,
+        "sha256": "89ec0c551e543f18d178b480e291bdb535965a08143a6e27822ff7890f438a94",
+        "unique_frames": 18
       }
     },
     {
@@ -56,10 +56,10 @@
       "slug": "cell_max_area",
       "title": "Cell \u2014 Maximum object area",
       "validation": {
-        "bytes": 131230,
-        "frames": 17,
-        "sha256": "39746721590463199181508c0db0f648c68e73d49af49c0f18086a25c1b8ef33",
-        "unique_frames": 16
+        "bytes": 112596,
+        "frames": 18,
+        "sha256": "c434d4b1790ce6e65ba6283aea7653873b80f7d3223faa5adcba724575a5e4c8",
+        "unique_frames": 17
       }
     },
     {
@@ -76,10 +76,10 @@
       "slug": "cell_min_intensity_percentile",
       "title": "Cell \u2014 Minimum intensity percentile",
       "validation": {
-        "bytes": 124885,
-        "frames": 16,
-        "sha256": "73564618b936f82bb456079791950cb8caeb8ef0ddda95cd8dd1785313b3d02d",
-        "unique_frames": 15
+        "bytes": 119059,
+        "frames": 18,
+        "sha256": "2d4f7a797686afee76d34e41ce3022f86d75db4e6153f9c88b334c56da222ad2",
+        "unique_frames": 18
       }
     },
     {
@@ -96,10 +96,10 @@
       "slug": "cell_max_intensity_percentile",
       "title": "Cell \u2014 Maximum intensity percentile",
       "validation": {
-        "bytes": 133823,
-        "frames": 17,
-        "sha256": "2892e5fa7f8f57a7ffe0ae56bde24cf1f891e00c80522c65fe8be209191c46a6",
-        "unique_frames": 16
+        "bytes": 110357,
+        "frames": 18,
+        "sha256": "542d90bd45ed2261779c91d7707ff1f7f099c4faeda9341f8f16411efd3977ee",
+        "unique_frames": 17
       }
     },
     {
@@ -138,10 +138,10 @@
       "slug": "nucleus_min_area",
       "title": "Nucleus \u2014 Minimum object area",
       "validation": {
-        "bytes": 148905,
-        "frames": 17,
-        "sha256": "57eab622a391d7b32c2e288e1ec2ad794c379d61a902d3782bd1410e2799a67d",
-        "unique_frames": 16
+        "bytes": 138762,
+        "frames": 18,
+        "sha256": "30db6757234a467cc6a95f41b442536645d39a0704cc748894d5c16d09922bc7",
+        "unique_frames": 17
       }
     },
     {
@@ -158,10 +158,10 @@
       "slug": "nucleus_max_area",
       "title": "Nucleus \u2014 Maximum object area",
       "validation": {
-        "bytes": 144136,
-        "frames": 17,
-        "sha256": "4fd07f953c2d89b9c12b85d5f0b140134aedfc173b2632ac670a92cf282c4b5d",
-        "unique_frames": 16
+        "bytes": 121503,
+        "frames": 18,
+        "sha256": "47901959e70804624ad1241fc94920ce3fc63565fe2cf12977330d86318933b6",
+        "unique_frames": 17
       }
     },
     {
@@ -178,10 +178,10 @@
       "slug": "nucleus_min_intensity_percentile",
       "title": "Nucleus \u2014 Minimum intensity percentile",
       "validation": {
-        "bytes": 138482,
-        "frames": 16,
-        "sha256": "36a5906520947d21334493c4c8e7045147be28c39adad2c28f3ba172469c061f",
-        "unique_frames": 15
+        "bytes": 132412,
+        "frames": 18,
+        "sha256": "24acc70e5c8277ce8b29e854dc4de4842fed72fc1c2b869c0b45270b8d492fa3",
+        "unique_frames": 17
       }
     },
     {
@@ -198,10 +198,10 @@
       "slug": "nucleus_max_intensity_percentile",
       "title": "Nucleus \u2014 Maximum intensity percentile",
       "validation": {
-        "bytes": 145962,
-        "frames": 17,
-        "sha256": "ea5f5212ef885a0c863c711e4842ed05e543f27044c705b56b6c6f1221d4fb1b",
-        "unique_frames": 16
+        "bytes": 115219,
+        "frames": 18,
+        "sha256": "fa8795cd5b33508bcd2298a319d7d89a7fac66678d1cdd709a3ee36a244eb459",
+        "unique_frames": 17
       }
     },
     {
@@ -240,10 +240,10 @@
       "slug": "pathogen_min_area",
       "title": "Pathogen \u2014 Minimum object area",
       "validation": {
-        "bytes": 225639,
-        "frames": 17,
-        "sha256": "bc31899111a56b9cab41dee101ddfa99d385d722deec9eed6759786bdee8bc93",
-        "unique_frames": 16
+        "bytes": 199520,
+        "frames": 18,
+        "sha256": "17a5297d8d06dc32a613e49b3c8aba5149fdc416dc0152528a954ad06b28a97d",
+        "unique_frames": 18
       }
     },
     {
@@ -260,10 +260,10 @@
       "slug": "pathogen_max_area",
       "title": "Pathogen \u2014 Maximum object area",
       "validation": {
-        "bytes": 215630,
-        "frames": 17,
-        "sha256": "dda3b78e32658e6e657b5d22cf9e7bd4be338fa9671b86a67950a1378bd1fe50",
-        "unique_frames": 16
+        "bytes": 173068,
+        "frames": 18,
+        "sha256": "70fec62a6155396fad33e73ff962d03d787b86521fa764f37c04b13b4d7903f7",
+        "unique_frames": 17
       }
     },
     {
@@ -280,10 +280,10 @@
       "slug": "pathogen_min_intensity_percentile",
       "title": "Pathogen \u2014 Minimum intensity percentile",
       "validation": {
-        "bytes": 209523,
-        "frames": 16,
-        "sha256": "ba3cbb0f8f90c58a94b7bbf4bb081f1c4bd3d9f6d6a2c59e56ad231a22c780d3",
-        "unique_frames": 15
+        "bytes": 195467,
+        "frames": 18,
+        "sha256": "b128a5cc43198e598124c685b5a1f0890e43806bcf8fbff6d8d2bf31f5563f82",
+        "unique_frames": 18
       }
     },
     {
@@ -300,10 +300,10 @@
       "slug": "pathogen_max_intensity_percentile",
       "title": "Pathogen \u2014 Maximum intensity percentile",
       "validation": {
-        "bytes": 217612,
-        "frames": 17,
-        "sha256": "9c25ca54f4a310336e6bdb3de053ba22a5ad560a20f597eeb17e8ca83ae03908",
-        "unique_frames": 16
+        "bytes": 161817,
+        "frames": 18,
+        "sha256": "154d7a295b784525a6ff7e47e577db02ff333d5695cc5ec953101e856f106bb1",
+        "unique_frames": 17
       }
     },
     {
@@ -343,10 +343,10 @@
       "slug": "organelle_min_area",
       "title": "Organelle \u2014 Minimum object area",
       "validation": {
-        "bytes": 296383,
-        "frames": 17,
-        "sha256": "ee8154ad429fb5fc6b96cd6e4461c21ad04c5b96fc26574a5474ec62344d4537",
-        "unique_frames": 16
+        "bytes": 266242,
+        "frames": 18,
+        "sha256": "54dd7a3b1552d9247e3cf653b13b43277063fa6a57ed9835592af0495e040ea6",
+        "unique_frames": 17
       }
     },
     {
@@ -364,10 +364,10 @@
       "slug": "organelle_max_area",
       "title": "Organelle \u2014 Maximum object area",
       "validation": {
-        "bytes": 276939,
-        "frames": 17,
-        "sha256": "4078819691ce9dd61aac3fb506c8e35875c935d03b39bf4607b23a0b02b441cd",
-        "unique_frames": 16
+        "bytes": 210851,
+        "frames": 18,
+        "sha256": "c2d408544dd8f0a0112c16c76d9935294ff5d8733d5eea29c2c8e40a1674bf8e",
+        "unique_frames": 17
       }
     },
     {
@@ -384,10 +384,10 @@
       "slug": "organelle_min_intensity_percentile",
       "title": "Organelle \u2014 Minimum intensity percentile",
       "validation": {
-        "bytes": 277298,
-        "frames": 16,
-        "sha256": "f626e9967dcfff729a2b2a6b794361c4e4ae5a87f364a9069c91b0854e7da11e",
-        "unique_frames": 15
+        "bytes": 259982,
+        "frames": 18,
+        "sha256": "6d1066c1c4a698dded27675650a7acc306d605047d75c87b03c99be11de120c3",
+        "unique_frames": 18
       }
     },
     {
@@ -404,10 +404,10 @@
       "slug": "organelle_max_intensity_percentile",
       "title": "Organelle \u2014 Maximum intensity percentile",
       "validation": {
-        "bytes": 284401,
-        "frames": 17,
-        "sha256": "3b743d1c4c5803dc9664f830821341338d4cd5201933fe4ad9610c19cab4e9c7",
-        "unique_frames": 16
+        "bytes": 206209,
+        "frames": 18,
+        "sha256": "9c029fda712656e2bc3cf41a4599d75dc035d95df675b0d9a3dccc89c28c875e",
+        "unique_frames": 17
       }
     },
     {
