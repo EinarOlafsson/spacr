@@ -269,3 +269,49 @@ Note the machine is NOT idle (load ~18 from the concurrent tutorials
 session), so `-n 4` rather than `-n 8`: the standing constraint is 16 cores
 for this session, and oversubscribing would make the timing meaningless in
 the same way the load-33 measurement was.
+
+--------------------------------------------------------------------------------
+2026-08-10 - IT REACHED ITS SUMMARY LINE. THE TASK'S OWN CRITERION IS MET.
+--------------------------------------------------------------------------------
+
+    started   07:03:54    idle machine, -n 8, --timeout=300
+    finished  07:45:09    41 minutes, pytest_exit=1
+    result    74 failed, the rest passed, NO hang and NO crash
+
+"HOW TO KNOW IT WORKED is unchanged: one run reaches its summary line." It
+did. The suite is no longer unrunnable as a whole, which is what this task
+was about; the 74 failures are a NEW and separate work item, not this one.
+
+WHAT ACTUALLY FIXED IT was not a bug fix -- the crashes were already gone
+(see the entries above) -- it was `-n 8` plus an IDLE machine. Serially, on
+a box sharing ~15 cores with the tutorials session, it never passed 66% in
+5.5 hours. The two variables were never separated before because the machine
+was never idle.
+
+A CORE-BUDGET TRAP worth knowing: `-n 8` does NOT bound the run to 8 cores.
+Load reached 20.6 with a single worker at 649% CPU, because the tests do
+numeric work and torch/numpy spawn threads per process. If a core budget has
+to be respected, set the thread env vars as well:
+
+    OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 -n 8
+
+TWO FAILURES ARE ALREADY UNDERSTOOD, and they share a cause with the bug
+fixed today in `_INLINE_LAYOUT_APPS`: `classify_merged` was registered as a
+module without the table entries that a registered module needs.
+`test_category_tooltips` fails 12 times because that module's categories
+have no tooltips. Verified pre-existing: 12 failures with OR without today's
+change, and they fail serially too, so this is not an xdist artefact.
+
+THE FAILURE LIST is at `<scratchpad>/qt_failures.txt` and the full log at
+`qtidle_keep.log`. Distribution, worst first:
+
+    12  test_category_tooltips        8  test_settings_list_editor
+     8  test_dnd_dropzone             4  test_cov_qt_app
+     3  test_theme_blind_widgets      3  test_qt_worker_teardown
+     3  test_preview_set_sampling     3  test_home_v2
+     3  test_home_layout              2  each x5, 1 each x15
+
+TRIAGE IS UNDERWAY as three-way: real bug / stale test / ordering artefact.
+xdist changes test ORDER, so some of these are the order-dependent failures
+that instructions 03 and 46 are about -- which means the suite finishing has
+made those visible for the first time, exactly as this file predicted.
