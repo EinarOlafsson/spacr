@@ -16,7 +16,7 @@ from functools import partial
 from html import escape
 from typing import Optional
 
-from PySide6.QtCore import QEvent, Qt, QTimer, QThread, Signal
+from PySide6.QtCore import QSize, QEvent, Qt, QTimer, QThread, Signal
 from PySide6.QtGui import QColor, QIcon, QPainter, QPalette, QPixmap
 from PySide6.QtWidgets import (
     QHBoxLayout,
@@ -1792,6 +1792,17 @@ class AppScreen(QWidget):
         self._btn_preferences = QPushButton()
         self._btn_preferences.setObjectName("GhostButton")
         self._btn_preferences.setIcon(_iconset_prefs.icon("settings"))
+        # SIZE THE GEAR, or it is Qt's 16px default forever. This project
+        # ships a 1.5 default font scale, so every label beside it renders
+        # half again as large while the icon stays 16px in a 44px button --
+        # which is why it was reported as "I cannot see the gear". The icon
+        # was never missing; it was rendering at a third of the button.
+        #
+        # Scaled with the font rather than fixed, so it keeps its
+        # proportion at every zoom level.
+        from ..preferences import scaled_px
+        self._btn_preferences.setIconSize(
+            QSize(scaled_px(18), scaled_px(18)))
         self._btn_preferences.setCursor(Qt.PointingHandCursor)
         self._btn_preferences.setToolTip("Open Preferences (Ctrl+,).")
         self._btn_preferences.setAccessibleName("Preferences")
