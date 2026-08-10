@@ -248,7 +248,7 @@
           "narration": "On Windows ten or eleven, open the online setup executable. The portable CPU installation is the default; NVIDIA acceleration is an optional installer component.",
           "visual": "windows",
           "hold_after": 0.7,
-          "speech_text": "On Windows ten or eleven, open the online setup executable. The portable C P U installation is the default; en vid ee uh acceleration is an optional installer component."
+          "speech_text": "On Windows ten or eleven, open the online setup executable. The portable CPU installation is the default; NVIDIA acceleration is an optional installer component."
         },
         {
           "narration": "On macOS eleven or newer, open the universal package for Intel and Apple silicon. If Gatekeeper blocks the unnotarized package, use Privacy and Security, Open Anyway, then run it again.",
@@ -260,13 +260,13 @@
           "narration": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. The default installation uses CPU-compatible PyTorch.",
           "visual": "linux",
           "hold_after": 0.7,
-          "speech_text": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. The default installation uses C P U-compatible pie torch."
+          "speech_text": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. The default installation uses CPU-compatible pie torch."
         },
         {
           "narration": "For supported NVIDIA hardware on Linux, pass --torch-backend auto. This selects acceleration when available without making CUDA libraries the silent default.",
           "visual": "linux_gpu",
           "hold_after": 0.7,
-          "speech_text": "For supported en vid ee uh hardware on Linux, pass dash dash torch backend auto. This selects acceleration when available without making koo duh libraries the silent default."
+          "speech_text": "For supported NVIDIA hardware on Linux, pass dash dash torch backend auto. This selects acceleration when available without making [CUDA](/kˈuːdᵊ/) libraries the silent default."
         },
         {
           "narration": "Each installer validates the replacement before switching versions. An interrupted update leaves the previous environment intact, and install.log remains in the private spaCR installation directory.",
