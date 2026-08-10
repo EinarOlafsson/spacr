@@ -1,0 +1,91 @@
+================================================================================
+IMAGE UMAP: THE NORMAL FIGURE VIEW, LIVE SETTINGS, AND A PROPAGATE BUTTON
+================================================================================
+
+Status:    not started, 2026-08-10.
+Requested: 2026-08-10 — "for the image UMAP i down want to see a grid wit plots i want the normal figure view i have in other modals where the graph is either a png or a pdf and the user can scroll through them. so no grid at the end just normal be behavior. the live view is perfect. the non live image UMAP figure settings should have all the image UMAP settings live editable (you should see changes in the graph directly) and remove the dots wit hapi links the tooltips have the links now. also add a propegate button so the settings can be propagated for the next run."
+
+--------------------------------------------------------------------------------
+FOUR THINGS, AND THEY ARE INDEPENDENT
+--------------------------------------------------------------------------------
+
+1. NO GRID AT THE END. Image UMAP should finish into the SAME figure view
+   every other module uses -- `spacr.qt.widgets.figure_queue.FigureQueue`,
+   built by `app_screen.py:1534` into the figures card. One figure at a time,
+   PNG or PDF according to the preference, scrolled through. Not a montage,
+   not a summary sheet.
+
+2. THE LIVE VIEW IS UNCHANGED. "the live view is perfect" -- do not touch it.
+   Whatever this does to the end state must leave the live preview exactly
+   as it is.
+
+3. EVERY IMAGE UMAP SETTING LIVE-EDITABLE IN THE NON-LIVE FIGURE SETTINGS,
+   with the graph redrawing as the value changes -- not on a re-run.
+   Instruction 26 (`umap_figure_settings_and_live_apply`, DONE) built live
+   apply for the FIGURE settings; this extends it to ALL Image UMAP settings.
+   Read 26 before starting: it already owns the apply path, and this should
+   widen it rather than add a second mechanism.
+
+4. REMOVE THE API DOTS, and add a PROPAGATE button.
+   * The dots are `spacr.qt.widgets.dot_link.DotLink`, wrapped by
+     `info_link.py`. They are redundant now that instruction 61 put an API
+     link in every tooltip. Instruction 57 did this same removal for the
+     Image UMAP dots once and 21 did it for annotate -- check what is
+     actually left before writing anything.
+   * PROPAGATE carries the current settings forward to the next run. Decide
+     and record what "next run" means: the same module's next launch, or
+     every module that shares these keys. The run journal already writes each
+     run's settings, so "propagate" is plausibly "seed the next run's
+     defaults from this one" rather than a new store.
+
+--------------------------------------------------------------------------------
+WHAT THIS REVISES
+--------------------------------------------------------------------------------
+
+Instruction 35 (`incremental_figure_grid`, DONE) built the streaming grid and
+made the end state show BOTH the grid and the summary. THAT WAS FOR THE
+HYPERPARAMETER SEARCH, which is a different surface from the module's own
+output figures, and the request here explicitly keeps the live view. So this
+does not undo 35 -- but whoever implements it must confirm which of the two
+grids they are looking at before removing anything, because both are reached
+from the Image UMAP screen and only one is meant to go.
+
+If it turns out the search's end-state grid is what the maintainer means by
+"no grid at the end", that IS a revision of 35 and should be recorded there
+as well as here.
+
+--------------------------------------------------------------------------------
+WHAT WILL BREAK IF THIS IS DONE CARELESSLY
+--------------------------------------------------------------------------------
+
+  * Live-editing EVERY setting means some of them are expensive. Re-running
+    the embedding on each keystroke would make the panel unusable; the
+    display-only settings (colour, dot size, outlines) are cheap, the ones
+    that change the embedding (n_neighbors, min_dist, the feature set) are
+    not. Split them, and debounce or defer the expensive half rather than
+    pretending they are all free.
+  * The figure format follows the preference (PNG at its DPI, or PDF).
+    `figure_path()` in the search grid already picks the PDF when one exists;
+    the same rule should hold here so the two surfaces do not disagree.
+  * Instruction 69 wants live views and searches standardised across modules.
+    Anything built here should be the shape 69 would want everywhere, not a
+    UMAP-only mechanism.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Image UMAP finishes into the standard scrollable figure view with no grid;
+every Image UMAP setting can be changed in the figure settings and the graph
+follows without a re-run; no API dots remain on the screen and the tooltips
+still carry their links; and a propagate button carries the settings to the
+next run in a way this file records.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. Related: 26 (live apply for the figure settings -- widen it,
+do not duplicate it), 27 (the resizable figure container), 35 (the search
+grid, a different surface), 57 and 21 (earlier dot removals), 61 (why the
+dots are redundant), 69 (standardise this shape across modules).
