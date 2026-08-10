@@ -17,6 +17,7 @@ switched off; one that informs it gets read.
 
 from __future__ import annotations
 
+import logging
 import os
 from typing import Any, List, Optional, Tuple
 
@@ -67,6 +68,8 @@ APP_TRANSLATIONS: Tuple[str, ...] = (
     "Painel de QC", "QC डैशबोर्ड", "QC 대시보드", "Gæðayfirlit",
     "Tableau de bord QC",
 )
+
+LOG = logging.getLogger(__name__)
 
 VERDICT_OBJECT = "spacrQCVerdict"
 CARDS_OBJECT = "spacrQCCards"

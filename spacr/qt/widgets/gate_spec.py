@@ -132,6 +132,23 @@ def _shift_bound(value: Optional[float], delta: float) -> Optional[float]:
     return None if value is None else float(value) + float(delta)
 
 
+def _midpoint(low: Optional[float], high: Optional[float]) -> Optional[float]:
+    """The centre of one axis of a gate, or ``None`` if it has no centre.
+
+    An open end has no midpoint: a gate bounded only below extends to
+    infinity, so averaging its one finite bound with nothing would report a
+    centre that sits on the edge of the region rather than in it. Both bounds
+    are required, for the same reason :func:`_shift_bound` refuses to close an
+    open end.
+
+    Called by :meth:`GateSpec.centre`, which referenced it before it was
+    written -- every call raised ``NameError``.
+    """
+    if low is None or high is None:
+        return None
+    return (float(low) + float(high)) / 2.0
+
+
 def _scale_bound(value: Optional[float], anchor: Optional[float],
                  factor: float) -> Optional[float]:
     """Scale one bound about ``anchor``. An open end stays open."""

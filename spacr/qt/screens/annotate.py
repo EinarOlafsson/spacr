@@ -39,7 +39,7 @@ import os
 from copy import deepcopy
 from collections import deque
 from functools import partial
-from typing import Deque, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Deque, Dict, List, Optional, Sequence, Tuple
 
 from PIL import Image
 from PIL.ImageQt import ImageQt

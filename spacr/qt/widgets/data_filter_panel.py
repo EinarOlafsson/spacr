@@ -245,7 +245,7 @@ class _CategoryRow(_ClauseRow):
 
     def __init__(self, column: str, series: pd.Series, parent=None):
         super().__init__(column, parent)
-        self._boxes: List[QCheckBox] = []
+        self._boxes: List[Toggle] = []
         values = sorted({str(v) for v in series.dropna().unique()})
 
         holder = QWidget()
