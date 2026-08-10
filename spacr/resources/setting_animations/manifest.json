@@ -15,9 +15,9 @@
       "slug": "cell_remove_border_objects",
       "title": "Cell \u2014 Remove border objects",
       "validation": {
-        "bytes": 116924,
+        "bytes": 131283,
         "frames": 20,
-        "sha256": "4bf84d9659034fb3de05826325daf8413fb0322235dde04679578d5b71d920fd",
+        "sha256": "e825f2e70f09a0d86978d6306772a1ae58b31f9fd8ec41e9cd3ae945754db7c5",
         "unique_frames": 19
       }
     },
@@ -117,9 +117,9 @@
       "slug": "nucleus_remove_border_objects",
       "title": "Nucleus \u2014 Remove border objects",
       "validation": {
-        "bytes": 129571,
+        "bytes": 140649,
         "frames": 20,
-        "sha256": "9dd8951ec52d89df965d8f8ff707c13a839a46d27764be684ab7199aba53e1e8",
+        "sha256": "243477fe6ae7ff3b578398e51b6b05fbaf4b70e712aa34fa14e8df500d7ae943",
         "unique_frames": 19
       }
     },
@@ -219,9 +219,9 @@
       "slug": "pathogen_remove_border_objects",
       "title": "Pathogen \u2014 Remove border objects",
       "validation": {
-        "bytes": 183802,
+        "bytes": 218466,
         "frames": 20,
-        "sha256": "ee88535c43eb5421d3f2917cb5a1562d76bdda8ae89371ff242a31ef46627b56",
+        "sha256": "2d3f1b448c5f81cd5edde2e9a88c363d60d26589f88ba56b96e83377cd0fbc0a",
         "unique_frames": 19
       }
     },
@@ -322,9 +322,9 @@
       "slug": "organelle_remove_border_objects",
       "title": "Organelle \u2014 Remove border objects",
       "validation": {
-        "bytes": 235304,
+        "bytes": 274695,
         "frames": 20,
-        "sha256": "dc1ccbeaf7824b1086f4a5662e571630a9f9b0731426c4f8850f0f84c6eb8a48",
+        "sha256": "f2889e048d622c6750ecd2432cf6ed4863cf50e271b096c8c87d3f1baa72b3ef",
         "unique_frames": 19
       }
     },
