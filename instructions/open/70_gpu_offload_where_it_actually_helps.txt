@@ -1,0 +1,86 @@
+================================================================================
+OFFLOAD THE COMPUTE THAT IS ACTUALLY GPU-SHAPED
+================================================================================
+
+Status:    not started. Under investigation 2026-08-10; findings go here.
+Requested: 2026-08-10 — "Cupy is the GPU accelerated numpy and there are other GPU translations of python packages. Are there any aspects of any modules e.g. measure, annotate, image UMAP that could be accelerated and therefore made smoother and faster by offloading some compute to the GPU?"
+
+--------------------------------------------------------------------------------
+WHAT IS ALREADY TRUE
+--------------------------------------------------------------------------------
+
+Measured on the development machine, 2026-08-10:
+
+    torch          2.9.1+cu128   INSTALLED, and already a hard dependency
+    GPU            RTX 3090, 24 GB
+    cupy           NOT installed
+    cucim          NOT installed
+    cuml           NOT installed
+    pyclesperanto  NOT installed
+
+That asymmetry is the most important fact in this task. `torch` is already
+paid for -- it ships with the tool, Cellpose needs it, and every user with a
+GPU already has a working CUDA stack for it. Anything expressible in torch
+is nearly free to adopt. Anything needing cupy/cucim/cuml is a NEW
+dependency with a CUDA-version coupling, and instruction 59 is trying to get
+this package onto conda-forge, where every extra pinned CUDA dependency is a
+packaging problem. So the bar for "add cupy" is much higher than the bar for
+"use the torch already imported".
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Two different goals are hiding in the request, and they need separating:
+
+  THROUGHPUT -- measure runs over a whole plate and takes as long as it
+  takes. A 2x here is real but nobody is watching.
+
+  SMOOTHNESS -- annotate and the UMAP search are INTERACTIVE. A stall is
+  felt. But a stall is only GPU-fixable if it is compute; if it is disk I/O
+  or work on the Qt event loop then a GPU does nothing, and instruction 55
+  has already found that most spaCR stalls were the event loop.
+
+Do not accept "make it faster with the GPU" as a goal. Each candidate needs
+a measurement first, and the honest answer for some of them will be that the
+bottleneck is elsewhere.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. MEASURE BEFORE MOVING ANYTHING. The rule instruction 55 arrived at the
+   hard way applies exactly: fix what the profile names, then A/B the fix in
+   fresh processes, because the profiler itself distorts call-heavy library
+   code. A GPU port that is not A/B'd is a guess with extra dependencies.
+2. Prefer torch to cupy wherever both would work, for the packaging reason
+   above. Per-label reductions (`scatter_add` over label ids), distance
+   transforms, convolutions, histograms and morphology-by-max-pool are all
+   expressible in torch.
+3. Watch the transfer cost. These are per-field images and int32 label
+   masks; a kernel that saves 5 ms and costs 8 ms of PCIe transfer is a
+   regression. Batch per field, not per object.
+4. Keep the CPU path. A GPU path that is not optional makes the tool
+   unusable on a laptop, and the test suite runs headless in CI without one.
+   Every offload needs a fallback and a test that exercises it.
+5. Say where GPU is the WRONG lever, and put that in this file too. That is
+   as useful an answer as a speedup, and it stops the question being asked
+   again.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A measured before/after on a real plate for throughput work, and on the tick
+monitor for interactive work — with the CPU fallback still passing its
+tests, and no new hard dependency that conda-forge cannot carry.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet. Related: instruction 55 owns the interactive stalls and has the
+tick-monitor method; 59 owns the conda-forge packaging constraint that makes
+new CUDA dependencies expensive; 71 is the measurement-expansion question
+asked in the same breath, and some of its answers (per-label reductions) are
+the same kernels as this one.
