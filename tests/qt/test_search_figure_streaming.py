@@ -86,14 +86,40 @@ class TestThePanelSide:
         panel._on_trial_ready(_trial(), 1, 4, "/nonexistent/nope.png")
         assert panel._table.rowCount() >= 1
 
-    def test_the_grid_hides_when_the_summary_takes_over(self, panel,
-                                                        tmp_path):
+    def test_the_grid_survives_the_end_of_the_search(self, panel, tmp_path):
+        """This test used to assert the OPPOSITE, and it was pinning a bug.
+
+        Hiding the grid when the summary arrived meant the END STATE -- the
+        only state a user who steps away ever sees -- was one large figure,
+        which is exactly the complaint the grid exists to answer: "not all
+        at the end in one large grid and as a large PNG".
+
+        Both are shown now: the grid because it is what the user asked to
+        look at, the summary because it carries the ranking and noise band
+        that individual panels cannot.
+        """
+        out = tmp_path / "t.png"
+        render_trial_figure(_trial(), "trustworthiness", str(out))
+        panel._figure_grid.setVisible(True)
+        panel._on_trial_ready(_trial(), 1, 1, str(out))
+        panel._show_summary_instead_of_grid()
+        assert panel._figure_grid.isVisibleTo(panel), (
+            "the grid disappeared when the search finished")
+        assert panel._preview.isVisibleTo(panel)
+
+    def test_clicking_a_cell_hands_back_the_vector_pdf(self, panel, tmp_path):
+        """A user who set the figure format to PDF should get the PDF.
+
+        The grid necessarily DISPLAYS a PNG -- a PDF cannot be painted into
+        a label -- so the file offered on click is not the one on screen.
+        """
+        from spacr.qt import preferences
+
+        preferences.set_figure_format("pdf")
         out = tmp_path / "t.png"
         render_trial_figure(_trial(), "trustworthiness", str(out))
         panel._on_trial_ready(_trial(), 1, 1, str(out))
-        panel._show_summary_instead_of_grid()
-        assert not panel._figure_grid.isVisibleTo(panel)
-        assert panel._preview.isVisibleTo(panel)
+        assert panel._figure_grid.figure_path(0).endswith(".pdf")
 
     def test_the_grid_keeps_its_figures_after_the_search_ends(self, panel,
                                                              tmp_path):
