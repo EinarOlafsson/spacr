@@ -1,4 +1,4 @@
-"""Computed columns — a small expression language, parsed rather than ``eval``ed.
+"""Computed columns — a small expression language, parsed rather than ``eval``-ed.
 
 ``ratio = cell_area / cell_perimeter ** 2`` is the sort of thing a user wants
 five seconds after seeing a measurement table, and until this module the answer
