@@ -1,0 +1,97 @@
+[
+ {
+  "file": "spacr/filters.py",
+  "kind": "untrue",
+  "issue": "/mnt/firecuda2/codex/repo/spacr/spacr/filters.py:273-277 key_columns :param frame: -- \"A raw ``SELECT *`` from a database that spells them ``plate`` and ``row`` yields an empty list here, which downstream reads as 'this table has no object identity'.\" BOTH halves are false. The body appends OBJECT_COLUMN unconditionally when present, and object_label is NOT aliased -- it is spelled that way in every spaCR object table. Verified by executing the real function: key_columns(DataFrame with columns plate,row,column,field,object_label,area) returns ['object_label'], not []. And the downstream guard is `if not keys or OBJECT_COLUMN not in keys` (export_gate:657, export_annotation:824), which PASSES for ['object_label'] -- so instead of being rejected, such a frame merges on object_label alone, silently colliding objects across plates/wells/fields. The docstring describes a safe failure where the code has an unsafe one."
+ },
+ {
+  "file": "spacr/filters.py",
+  "kind": "restating",
+  "issue": "/mnt/firecuda2/codex/repo/spacr/spacr/filters.py:214 identity_columns_of -- \":param db_path: the measurement database.\" (expands the abbreviation, adds nothing; the sibling :param table: carries all the content)"
+ },
+ {
+  "file": "spacr/filters.py",
+  "kind": "restating",
+  "issue": "/mnt/firecuda2/codex/repo/spacr/spacr/filters.py:243 read_identity -- \":param db_path: the measurement database.\""
+ },
+ {
+  "file": "spacr/filters.py",
+  "kind": "restating",
+  "issue": "/mnt/firecuda2/codex/repo/spacr/spacr/filters.py:952 row_count -- \":param db_path: the measurement database.\""
+ },
+ {
+  "file": "spacr/filters.py",
+  "kind": "restating",
+  "issue": "BORDERLINE, not counted in the 3: /mnt/firecuda2/codex/repo/spacr/spacr/filters.py:578 write_filters_table -- \":param db_path: the measurement database, opened for writing.\" -- thin, but \"opened for writing\" is a real fact about the connection mode (_connect(..., read_only=False)), so it clears the bar"
+ },
+ {
+  "file": "spacr/curation.py",
+  "kind": "untrue",
+  "issue": "CurationEdit.from_dict, :param data: \u2014 \"Every key is optional and a missing one falls back to the field default\". The body does not use field defaults; it uses `.get(key, <falsy literal>)` for all six keys. For `when` the field default is `field(default_factory=_now)`, but the body writes `str(data.get(\"when\", \"\"))`, so a missing key yields \"\", not the current time \u2014 the opposite of what the clause says. `kind` and `target` have no field default at all (`target` is a required field; a missing key gives None). Verified: `CurationEdit.from_dict({}).when == ''`. The very next sentence states the `when` behaviour correctly, so no reader is actually misled; the fix is to replace \"falls back to the field default\" with \"falls back to an empty value\". Scope: one clause of one entry out of 28."
+ },
+ {
+  "file": "spacr/crops.py",
+  "kind": "untrue",
+  "issue": "MergedCropSource.spec_for :param row: \"supplying them lets the crop skip scanning the label plane entirely\" \u2014 overstated, not flatly false. _region_for does skip fld.label_index(...) (the O(field) scan) when spec.bbox is set, which is the load-bearing half; but with use_bounding_box=False it still calls fld.read_mask_window(object_type, ...) over the bbox and builds `region = window == spec.label`, so the label plane is still read, just not scanned end to end. Drop \"entirely\" or say \"skip the full-plane label scan\"."
+ },
+ {
+  "file": "spacr/crops.py",
+  "kind": "untrue",
+  "issue": "CropSource.get_many :param rows: \"the ``Optional`` in the return type is there for overrides that report per-row failures instead\" \u2014 unsupported by any code in this module. The only override, MergedCropSource.get_many (spacr/crops.py:2798), calls extract_crops(path, specs) with the default on_error='raise', so it raises too and never yields None; the `crop is not None` guard there is dead. The rationale is defensible as forward-looking, but no override actually does it today."
+ },
+ {
+  "file": "spacr/io.py",
+  "kind": "untrue",
+  "issue": "/mnt/firecuda2/codex/repo/spacr/spacr/io.py:5356-5359 \u2014 `:param validation_fraction` says the holdout is 'one whole fold of a ``round(1 / fraction)``-way split, capped at the number of distinct groups, so with few groups the realised holdout can be considerably larger than asked for.' The body is `requested_folds = max(2, int(round(1.0 / fraction)))` (io.py:5384). The documented formula omits the floor of 2, and the caveat is one-directional. Verified by running it: labels=80, 8 groups, validation_fraction=0.7 -> realised holdout 0.50, i.e. considerably SMALLER than asked for, from a 2-way split where the stated formula predicts 1. (The 'larger' direction is correct: fraction=0.05 with 8 groups -> realised 0.125.)"
+ },
+ {
+  "file": "spacr/io.py",
+  "kind": "untrue",
+  "issue": "/mnt/firecuda2/codex/repo/spacr/spacr/io.py:5364-5366 \u2014 `:param seed: Seed handed to :func:`make_cv_folds`. The same seed, labels, and groups always yield the same holdout...` Every sentence is literally true, but the implication that the seed selects among possible splits is false. make_cv_folds touches its RNG only in the `if groups is None` branch (io.py:5290-5300); the grouped branch (io.py:5301-5334) is a deterministic greedy assignment, and groups is mandatory in make_validation_holdout, so the RNG is never reached. Verified: seed=0 and seed=12345 return byte-identical holdouts. A reader tuning the seed to get a different validation set will silently get the same one."
+ },
+ {
+  "file": "spacr/io.py",
+  "kind": "restating",
+  "issue": "CLEAR \u2014 /mnt/firecuda2/codex/repo/spacr/spacr/io.py:4247 `:param offset: Byte offset, interpreted against ``whence``.` \u2014 says offset is an offset; the only added fact (it is read against whence) is already the whole subject of the next entry. Worth deleting or folding into the whence entry."
+ },
+ {
+  "file": "spacr/io.py",
+  "kind": "restating",
+  "issue": "BORDERLINE \u2014 /mnt/firecuda2/codex/repo/spacr/spacr/io.py:198 `:param image: The decoded 2D plane to write.` \u2014 thin, but 'decoded' and '2D' are real contract facts (the caller only reaches this branch when image.ndim == 2). Keep."
+ },
+ {
+  "file": "spacr/io.py",
+  "kind": "restating",
+  "issue": "BORDERLINE \u2014 /mnt/firecuda2/codex/repo/spacr/spacr/io.py:129 `:param folder: Directory the per-plane TIFFs are written into.` \u2014 near-tautological ('folder is a directory'), rescued only by naming what lands there. Keep or merge with the base_name entry."
+ },
+ {
+  "file": "spacr/plot.py",
+  "kind": "untrue",
+  "issue": "_plot_cropped_arrays.plot_single_array, `title` entry: \"the object count is appended as ``, N (obj.)``\". The code appends `num_unique_values` (`f'{title}, {num_unique_values} (obj.)'`), i.e. the count of distinct label values, which for a normal mask is objects + 1 because background 0 is one of them. The docstring's own `array` entry gets this right (\"Its number of distinct values\"), so the `title` entry contradicts it and is off by one. Suggested fix: \"the number of distinct values is appended as ``, N (obj.)`` -- one more than the object count, because background counts as a value.\""
+ },
+ {
+  "file": "spacr/plot.py",
+  "kind": "untrue",
+  "issue": "plot_image_mask_overlay.random_color_cmap and plot_image_mask_overlay_magenta_outlines.random_color_cmap, `n_labels` entry: \"callers here pass ``int(mask.max() + 1)``\". No call site passes a variable named `mask`; the four sites in each function pass `int(outline.max() + 1)` and `int(combined_mask.max() + 1)`. Semantically right, but it is set as a literal, so it reads as a quote of code that does not exist. Minor -- drop the literal or use the real names."
+ },
+ {
+  "file": "spacr/utils.py",
+  "kind": "untrue",
+  "issue": "show_cam_on_image, :param mask: \"An all-zero result (possible when both inputs are zero) is returned as black rather than raising.\" -- the stated trigger is impossible. cv2.COLORMAP_JET maps input 0 to BGR (128,0,0), so with mask=0 and img=0 the peak is 0.502, not 0, and the `else: cam.fill(0.0)` branch is never entered. Verified: `cv2.applyColorMap(np.uint8(np.zeros(...)), cv2.COLORMAP_JET)[0,0] == [128 0 0]`, `np.max(cam) == 0.5019608`. The zero-fill branch is only reachable via NaN or negative img."
+ },
+ {
+  "file": "spacr/utils.py",
+  "kind": "untrue",
+  "issue": "show_cam_on_image, :param mask: \"values above 1.0 wrap around to the cold end of the colormap\" -- the wrap is real but the destination is wrong except just above 1.0. Verified with numpy 1.26.4: `np.uint8(255*np.array([1.5,1.1,0.5])) == [126 24 127]`, i.e. 1.1 -> 24 (cold end, as claimed) but 1.5 -> 126 (mid colormap, cyan/green) and 2.0 -> 254 (hot end). Should say \"wraps to an arbitrary point in the colormap\"."
+ },
+ {
+  "file": "spacr/utils.py",
+  "kind": "untrue",
+  "issue": "check_overlap, :param current_position: \"a length mismatch broadcasts instead of raising and gives a meaningless distance\" -- a genuine length mismatch raises. Verified: `np.array([1,2]) - np.array([1,2,3])` -> ValueError: operands could not be broadcast together with shapes (2,) (3,). Silent broadcasting only happens when one side has length 1 (`[1,2]` vs `[3]` -> 2.236). The warning is right in spirit but wrong about the mechanism."
+ },
+ {
+  "file": "spacr/utils.py",
+  "kind": "untrue",
+  "issue": "invert_image, :param image: \"A signed dtype underflows and wraps\" -- direction is inverted. `np.iinfo(int8).max - (-100) = 227` overflows the positive end and wraps to -29 (verified). It wraps, but by overflow, not underflow. One-word fix."
+ }
+]
