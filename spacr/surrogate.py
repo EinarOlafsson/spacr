@@ -349,7 +349,7 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
 
 def _shap_importance(model, x_test: pd.DataFrame, max_samples: int,
                      warnings: List[str]) -> Optional[np.ndarray]:
-    """Mean |SHAP| per feature, or None when shap is unavailable.
+    """Mean absolute SHAP value per feature, or None when shap is unavailable.
 
     Optional on purpose: SHAP is the most informative of the three and the
     most expensive, and a missing optional dependency must cost the SHAP
