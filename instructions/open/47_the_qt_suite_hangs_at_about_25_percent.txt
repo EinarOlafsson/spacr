@@ -557,3 +557,57 @@ TWO MORE FINDINGS RECORDED, NOT FIXED:
   QThread alive ("QThread: Destroyed while thread '' is still running"), and
   one run in ~5 segfaulted with a background PipelineWorker importing
   matplotlib concurrently with pytest-qt's GC on the main thread.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE 15 SURVIVORS TRIAGED. ONE WAS MINE; SEVEN ARE ORDERING.
+--------------------------------------------------------------------------------
+
+74 -> 15 after the fixes above, and the suite now runs in 13 MINUTES at
+`-n 12` (it was 41 at `-n 8`). Triaged with a pristine-worktree control for
+every claim:
+
+    caused by this session   1    fixed
+    pre-existing            14    7 of them order-dependent
+
+THE ONE THAT WAS MINE: deleting `plate_dict` (it was one of five settings
+nothing read) removed the SPECIMEN a localization test used.
+`test_dictionary_type_name_is_localized` had hard-coded it as a convenient
+dict-typed key; with the key gone, `_type_hint` correctly returns "" and the
+translated word never appears. The product is right -- three dict-typed
+settings remain and all three render `(ordbok)` / `(사전)` correctly. Fixed by
+DERIVING a dict-typed key from `expected_types` rather than naming another
+one, so the same rot cannot recur the next time a setting is retired.
+
+SEVEN MORE ORDER-DEPENDENT FAILURES, which is the same class instruction 03
+is about and which only became visible once the suite could finish:
+
+    test_preferences_gear (5)          fail after tests/qt/test_button_roles.py
+    test_preferences_gear_visible (2)  fail after tests/qt/test_preferences.py
+
+Both pass alone. Both were reproduced at HEAD~12, HEAD~35 AND HEAD~40, so
+they predate this session by weeks -- `git log -L` dates the button_roles
+lines to commit 3e11c796 on 2026-08-03.
+
+A TRAP THAT NEARLY INVALIDATED THE CONTROLS, and the reason to write this
+entry at all. spaCR is installed EDITABLE, via a setuptools MetaPathFinder
+pinned to /mnt/firecuda2/codex/repo/spacr. That finder BEATS PYTHONPATH. So
+the obvious control --
+
+    git worktree add /tmp/pristine HEAD~35
+    cd /tmp/pristine && pytest tests/qt/...
+
+-- runs the pristine TESTS against the CURRENT product code, silently, and
+reports "pre-existing" for something you may have just broken. The triage
+agent caught this and worked around it with a shim that strips
+`_EditableFinder` from `sys.meta_path` and puts the worktree at
+`sys.path[0]`, then ASSERTS the resolved path before running anything:
+
+    CONTROL spacr resolved to: /tmp/pristine_gear/spacr/__init__.py
+
+Any future "it is pre-existing" claim made from a worktree in this repo is
+worthless without that check. Corroborate with a `diff` of the implicated
+files between the worktree and HEAD, which is what confirmed it here.
+
+REMAINING 15, none attributable to this session's work: the 7 ordering ones
+above, the `classes` migration (now folded into instruction 37), and the rest
+listed in `instructions/data/47_qt_failure_triage.json`.
