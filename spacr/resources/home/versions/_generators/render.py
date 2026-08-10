@@ -305,8 +305,8 @@ Everything above is drawn at 1440x900 and nothing depends on a larger
 window, with these exceptions:
 
 * **07 rail-and-pane**, **08 tabs** and **29 intent-wizard** show one
-  category at a time with four to five tiles per row. On a wider screen
-  they simply fit more per row; on a narrower one the grid rewraps.
+  category at a time, in a grid four or five columns wide. On a wider
+  screen they simply fit more per row; on a narrower one the grid rewraps.
 * **13 dense-two-column** and **19 by-question** are two columns of
   ~660 px. Below about 1200 px they would want to become one column.
 * **24 command-palette** and **27 accordion-eight** are deliberately

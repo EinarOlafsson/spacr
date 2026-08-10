@@ -29,9 +29,11 @@ import numpy as np
 
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import (QCheckBox, QHBoxLayout, QLabel, QPushButton,
+from PySide6.QtWidgets import (QHBoxLayout, QLabel, QPushButton,
                                QScrollArea, QSizePolicy, QSlider, QSpinBox,
                                QVBoxLayout, QWidget)
+
+from .toggle import Toggle
 
 LOG = logging.getLogger(__name__)
 
@@ -364,7 +366,7 @@ class TimelapseMoviePanel(QWidget):
         row = QHBoxLayout()
         row.setSpacing(10)
 
-        self._objects_check = QCheckBox("Objects")
+        self._objects_check = Toggle("Objects")
         self._objects_check.setChecked(True)
         self._objects_check.setToolTip(
             "Outline each segmented object, coloured by the track it "
@@ -372,7 +374,7 @@ class TimelapseMoviePanel(QWidget):
         self._objects_check.toggled.connect(self._sync_overlays)
         row.addWidget(self._objects_check)
 
-        self._tracks_check = QCheckBox("Tracks")
+        self._tracks_check = Toggle("Tracks")
         self._tracks_check.setChecked(True)
         self._tracks_check.setToolTip(
             "Draw where each object came from over the preceding frames, "

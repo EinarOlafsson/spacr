@@ -678,7 +678,10 @@ class ImageSetSampler:
 
     def __init__(self, max_sets: int = DEFAULT_MAX_SETS):
         self.max_sets = int(max_sets)
+        #: The folder itself — what the seed is drawn from.
         self._directory: Optional[str] = None
+        #: Folder *and* naming dialect — what the cache is keyed on.
+        self._cache_key: Optional[str] = None
         self._sets: List[ImageSet] = []
         self._channels: List[str] = []
         self._nonce = 0
@@ -688,6 +691,16 @@ class ImageSetSampler:
         self._by_name: Optional[Dict[str, ImageSet]] = None
 
     # -- enumeration (touches the filesystem) ------------------------------
+
+    @staticmethod
+    def _key_for(directory, metadata_type: str, custom_regex) -> str:
+        """The cache key one folder read with one naming dialect is held under.
+
+        Built in exactly one place so that an enumeration adopted from a
+        worker lands under the key :meth:`enumerate` would look it up by;
+        anything else re-scans the plate on the GUI thread.
+        """
+        return f"{directory}|{metadata_type}|{custom_regex or ''}"
 
     def enumerate(self, directory, suffixes: Sequence[str],
                   metadata_type: str = DEFAULT_METADATA_TYPE,
@@ -700,12 +713,13 @@ class ImageSetSampler:
         with the old one, so the fix appeared to do nothing until the user
         opened a different folder.
         """
-        key = f"{directory}|{metadata_type}|{custom_regex or ''}"
-        if not force and key == self._directory:
+        key = self._key_for(directory, metadata_type, custom_regex)
+        if not force and key == self._cache_key:
             return self._sets
         self._sets, self._channels = enumerate_image_sets(
             directory, suffixes, metadata_type, custom_regex)
-        self._directory = key
+        self._directory = str(directory)
+        self._cache_key = key
         self._pinned = None
         self._by_name = None
         return self._sets
@@ -720,19 +734,28 @@ class ImageSetSampler:
         stepping through fields free.
         """
         key = str(directory)
-        if not force and key == self._directory:
+        if not force and key == self._cache_key:
             return self._sets
         self._sets = sets_from_paths(lister())
         self._channels = []
         self._directory = key
+        self._cache_key = key
         self._pinned = None
         self._by_name = None
         return self._sets
 
     def adopt(self, directory, sets: Sequence[ImageSet],
-              channels: Sequence[str]) -> None:
-        """Install an enumeration produced elsewhere — e.g. on a worker thread."""
+              channels: Sequence[str],
+              metadata_type: str = DEFAULT_METADATA_TYPE,
+              custom_regex: Optional[str] = None) -> None:
+        """Install an enumeration produced elsewhere — e.g. on a worker thread.
+
+        The dialect the caller grouped with belongs in the cache key, or the
+        very next :meth:`enumerate` — the panels run one on every load — misses
+        and re-scans the whole plate on the GUI thread.
+        """
         self._directory = str(directory)
+        self._cache_key = self._key_for(directory, metadata_type, custom_regex)
         self._sets = list(sets)
         self._channels = list(channels)
         self._pinned = None
@@ -741,6 +764,7 @@ class ImageSetSampler:
     def invalidate(self) -> None:
         """Forget the cache, so the next :meth:`enumerate` really scans."""
         self._directory = None
+        self._cache_key = None
         self._sets = []
         self._channels = []
         self._pinned = None

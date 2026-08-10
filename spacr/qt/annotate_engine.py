@@ -91,16 +91,22 @@ def load_crop_image(path: str, db_path: Optional[str] = None,
     :returns: PIL ``Image`` in RGB mode.
     """
     from ..crops import (
-        CROP_FORMAT_LEGACY_BGR,
+        CROP_FORMAT_CURRENT,
         CROP_FORMAT_RGB,
         read_crop_png,
     )
 
+    # This vocabulary is the ANNOTATOR's, not `spacr.crops`'s: it says what a
+    # file's slots hold, not which numbered format wrote them. "rgb" means the
+    # slots are already the declared colours -- the current format 3, which is
+    # read as-is; formats 1 and 3 hold identical bytes, so this covers unmarked
+    # legacy crops too. "legacy_bgr" means the slots are the other way round,
+    # which is the eleven-day format 2 -- the only one `read_crop_png` reverses.
     order = str(stored_channel_order or "auto").strip().lower()
     if order == "rgb":
-        stored_format = CROP_FORMAT_RGB
+        stored_format = CROP_FORMAT_CURRENT
     elif order in {"bgr", "legacy_bgr"}:
-        stored_format = CROP_FORMAT_LEGACY_BGR
+        stored_format = CROP_FORMAT_RGB
     elif order == "auto":
         stored_format = None
     else:

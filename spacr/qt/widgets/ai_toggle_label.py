@@ -162,6 +162,16 @@ class AiToggleLabel(QLabel):
         metrics = self.fontMetrics()
         shown = (full if metrics.horizontalAdvance(full) <= inner
                  else metrics.elidedText(full, Qt.ElideRight, inner))
+        # An elision that keeps no character of the label -- "" when the width
+        # cannot fit even the ellipsis, "…" when it barely can -- paints a
+        # blank toggle. The full text drawn slightly clipped is strictly
+        # better: it still says which control this is. Zoom lands here because
+        # the enlarged font gets measured against the width the layout granted
+        # the smaller one, one relayout behind. The long labels this eliding
+        # exists for keep plenty of characters at ELIDE_ABOVE_PX and are
+        # untouched by this guard.
+        if not shown.strip("…. \t"):
+            shown = full
         if shown == QLabel.text(self):
             return
         # `setText` re-enters through the override above; the flag keeps it
@@ -236,3 +246,9 @@ class AiToggleLabel(QLabel):
             self.setStyleSheet(sheet)
         finally:
             self._restyling = False
+        # The new sheet moves both the font size and the padding, so the
+        # `sizeHint` the layout is holding is stale. Without this the widget
+        # keeps its old width and the elision below measures the bigger glyphs
+        # against it, hiding the text that the zoom just enlarged.
+        self.updateGeometry()
+        self._apply_elision()

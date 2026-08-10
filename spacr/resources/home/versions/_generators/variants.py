@@ -660,9 +660,9 @@ def v11(ctx: Ctx) -> QWidget:
     adds="A pinned row with a '+' slot, so the user curates their own "
             "top of page.",
     removes="The hero, the dashboard, the reserved surface, the hint bar.",
-    argument="Whatever the categories are, everyone uses four or five "
-            "apps and ignores the rest. Let the user say which, and the "
-            "argument about the taxonomy stops mattering.")
+    argument="Whatever the categories are, everyone uses four or five of "
+            "the apps and ignores the rest. Let the user say which, and "
+            "the argument about the taxonomy stops mattering.")
 def v12(ctx: Ctx) -> QWidget:
     page = Page(ctx, margins=MARGINS, spacing=12)
     page.body.addWidget(parts.top_bar(
@@ -936,8 +936,9 @@ _BEHIND_THE_DOOR = [k for k in common.all_keys() if k not in common.core_keys()]
 
 @variant(
     "core-nine-only",
-    f"Nine apps, and a door to the other {len(_BEHIND_THE_DOOR)}",
-    changes="The home screen shows only the nine Core-pipeline apps, as "
+    f"The Core pipeline only, and a door to the other "
+    f"{len(_BEHIND_THE_DOOR)}",
+    changes="The home screen shows only the Core-pipeline apps, as "
             "large illustrated tiles with their descriptions. Everything "
             "else lives behind one button.",
     adds="A 'More tools' door with a count.",
@@ -946,7 +947,7 @@ _BEHIND_THE_DOOR = [k for k in common.all_keys() if k not in common.core_keys()]
             + ". Also the dashboard, the reserved surface and the hint "
               "bar.",
     argument="This is what 'too much on the home page' looks like taken "
-            "seriously. Nine tiles, each big enough to read, each one a "
+            "seriously. Tiles big enough to read, each one a "
             "thing you would actually do today — and the other "
             f"{len(_BEHIND_THE_DOOR)} are one click away, not gone.")
 def v18(ctx: Ctx) -> QWidget:
@@ -990,7 +991,7 @@ def v18(ctx: Ctx) -> QWidget:
     argument="Names are the cheapest thing to change and the thing "
             "people actually navigate by. 'Segmentation models' is a "
             "category of code; 'Where are my objects?' is a category of "
-            "intent, and the same five apps sit under it.")
+            "intent, and the same apps sit under it.")
 def v19(ctx: Ctx) -> QWidget:
     page = Page(ctx, margins=MARGINS, spacing=12)
     page.body.addWidget(parts.top_bar(ctx, subtitle="pick the question you "

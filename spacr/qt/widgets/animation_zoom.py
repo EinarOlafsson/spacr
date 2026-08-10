@@ -373,16 +373,22 @@ def zoom_frames(
         and crop_top + side >= field_bottom + FIELD_PAD
     )
 
-    # Built once, not per frame: the ring is the same in every frame and
+    # Built once, not per frame: the mask is the same in every frame and
     # rasterising a rounded rectangle twice per frame would dominate the load.
-    ring = None if shows_field else field_ring_mask(source_size)
+    # It has to be the whole chrome mask — the ring *and* everything outside
+    # the well — because that is exactly what the content measurement
+    # discounts. Erasing only the ring leaves whatever the generator painted
+    # outside the well in the crop, and since a sliced well means the output
+    # carries no chrome mask at all, that leftover measures as content at the
+    # frame's full extent.
+    erase = None if shows_field else chrome
 
     scaled = []
     for frame in frames:
         source = frame
-        if ring is not None:
+        if erase is not None:
             source = frame.copy()
-            source[ring] = 0
+            source[erase] = 0
         # Pillow's crop pads out-of-bounds regions with black, which is the
         # animations' own background — so scaling content *down* needs no
         # special case.
