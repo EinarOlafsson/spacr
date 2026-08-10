@@ -114,19 +114,19 @@
       "id": "05_home",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt den Startbildschirm und die Navigation. Durchsuchen Sie die Anwendung, ihre Modulgruppen, führen Sie Zusammenfassungen, Reifungsindikatoren und Navigationssteuerungen durch."
+          "narration": "Home-Gruppen spaCR-Module nach Workflow, so dass Sie von der Bildverarbeitung über Analyse und Qualitätskontrolle gehen können."
         },
         {
-          "narration": "Öffnen Sie den Startbildschirm und navigieren Sie aus dem Startbereich. Starten Sie die Desktop-Anwendung spaCR und starten Sie mit Home."
+          "narration": "Verwenden Sie die linke Seitenleiste, um Abschnitte zu wechseln. Wählen Sie Home aus, wann immer Sie zur vollständigen Modulbibliothek zurückkehren möchten."
         },
         {
-          "narration": "Verwenden Sie im Hauptkonfigurationsbereich die Seitenleiste, Kategorie-Tabs, durchsuchbare App-Fliesen und die Befehlspalette, um einen Workflow zu erreichen."
+          "narration": "Durchsuchen Sie die Kategorie-Tabs und Workflow-Zeilen, um ein Modul zu finden. Jede Fliese öffnet einen Workflow, und die Farbe zeigt an, ob das Modul alpha, beta oder stabil ist."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Öffnen Sie ein Modul nur, wenn Sie mit ihm interagieren möchten; der Zeiger wird nur für echte Klicks angezeigt."
+          "narration": "Das rechte Panel zeigt aktuelle Systemnutzung, Release-Nachrichten und die Modul-State-Legende. Überprüfen Sie die Systemnutzung, bevor Sie teure Arbeiten beginnen."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, können Sie sich durch die Anwendung bewegen und die in Home gezeigten Statusinformationen verstehen."
+          "narration": "Wählen Sie eine Modulfliese aus, um den Einstellungsbildschirm zu öffnen. Der Modulname und die Beschreibung oben bestätigen, welcher Workflow aktiv ist."
         }
       ]
     },
@@ -154,37 +154,49 @@
       "id": "07_mask",
       "scenes": [
         {
-          "narration": "Die Maske stellt die Einstellungen links und die Laufzeitkonsole rechts. Die Konsole berichtet über Validierung, Fortschritt, Warnungen und gespeicherte Ausgänge."
+          "narration": "Die Maske setzt die Einstellungen links und die Laufzeitkonsole rechts. Die Konsole berichtet über Validierung, Fortschritt, Warnungen und gespeicherte Ausgänge."
         },
         {
-          "narration": "Lassen Sie den Ursprungsbildordner in Mask fallen. Bestätigen Sie das erkannte Dateinamen-Muster und Metadaten und dann zeichnen Sie jeden Akquisitionskanal auf sein biologisches Signal ab. In diesem Beispiel enthalten die vier Kanäle Kern, endoplasmisches Rettikulum, Lipidtropfen und Parasiten."
+          "narration": "Lassen Sie den Ursprungsbildordner in Mask fallen. Bestätigen Sie das entdeckte Dateinamenmuster und die Metadaten, dann zeichnen Sie jeden Akquisitionskanal auf sein biologisches Signal ab. In diesem Beispiel enthalten die vier Kanäle Kerne, endoplasmisches Rettikulum, Lipidtropfen und Parasiten."
         },
         {
-          "narration": "Die wesentlichen Angaben zeigen die für einen typischen Lauf erforderlichen Kontrollen. Verwenden Sie alle nur, wenn Sie fortgeschrittene Optionen benötigen, Modified, um veränderte Werte zu überprüfen, und Rezepte, um eine Konfiguration zu speichern, die Sie wiederverwenden."
+          "narration": "Die Essentials zeigen die für einen typischen Lauf benötigten Kontrollen an. Verwenden Sie All nur, wenn Sie fortgeschrittene Optionen benötigen, Modified, um veränderte Werte zu überprüfen, und Rezepte, um eine Konfiguration zu speichern, die Sie erneut verwenden."
         },
         {
-          "narration": "In Input und Metadaten, überprüfen Sie den Quellordner, Kanalzuweisungen, Vergrößerung und Dateinamen Metadaten, bevor Sie die Segmentierung konfigurieren."
+          "narration": "In Input und Metadaten überprüfen Sie den Quellordner, die Kanalzuweisungen, die Vergrößerung und die Dateinamen-Metadaten, bevor Sie die Segmentierung konfigurieren."
         },
         {
-          "narration": "Arbeitsfluss und Testlauf-Kontrollen, welche Masken erstellt werden, ob die bestehende Arbeit wieder aufgenommen wird und wie viele repräsentative Felder für einen Test verwendet werden."
+          "narration": "Workflow und Test Run kontrollieren, welche Masken erstellt werden, ob vorhandene Arbeiten wieder aufgenommen werden und wie viele repräsentative Felder für einen Test verwendet werden."
         },
         {
-          "narration": "Die Zelle, der Kern, das Krankheitserreger und die Organelle unterteilen jedes Modell, den Kanal, die Kernschwelle und die Objektfilter für dieses Kompartiment. Ändern Sie nur die Einstellungen, die für die aktuellen Bilder erforderlich sind."
+          "narration": "Die Zelle, der Kern, das Krankheitserreger und die Organelle unterteilen jede Gruppe das Modell, den Kanal, die Kernschwelle und die Objektfilter für dieses Kompartiment. Ändern Sie nur die Einstellungen, die für die aktuellen Bilder erforderlich sind."
         },
         {
-          "narration": "Aktivieren Sie Live Preview, laden Sie ein repräsentatives Bild und wählen Sie den Abteil aus, den Sie abstimmen möchten. Verwenden Sie Vorverarbeitung wie Normalisierung nur, wenn sie dieses Bild verbessert."
+          "narration": "Aktivieren Sie Live Preview, laden Sie ein repräsentatives Feld und wählen Sie das Objekt aus, das Sie abstimmen möchten. Dieses Beispiel zeigt das Zellsignal voraus."
         },
         {
-          "narration": "Führen Sie die Vorschau durch und überprüfen Sie die Quelle neben der Überlagerung. Die Objektskizzen sollten den sichtbaren biologischen Grenzen folgen, ohne sich mit Nachbarn zu verbinden oder klare Objekte zu vermissen."
+          "narration": "In Live-Einstellungen bestätigen Sie zuerst das Objekt und den Kanal. Passen Sie den Durchmesser, die Durchflussschwelle oder die Zellwahrscheinlichkeit nur an, wenn die Vorschau einen Grund gibt."
         },
         {
-          "narration": "Wechseln Sie zwischen Überlagerung, Flüssigkeit und Masken, wenn Sie ein Ergebnis diagnostizieren müssen. Masken zeigen die letzten gekennzeichneten Objekte; Schwarz ist Hintergrund."
+          "narration": "Aktivieren Sie die Propagate-Einstellungen, damit die hier validierten Werte die Einstellungen des vollständigen Laufs werden."
         },
         {
-          "narration": "Wenn offensichtliche Fragmente oder Artefakte noch vorhanden sind, passen Sie einen relevanten Objektfilter wie z. B. eine Mindestfläche ein und vergleichen Sie die Vorschau erneut. Wählen Sie den Wert aus der Bildskala anstatt eine Tutorialnummer zu kopieren."
+          "narration": "Führen Sie die Vorschau durch und überprüfen Sie die Überlagerung neben der Quelle. Die Grenzen sollten den sichtbaren Zellen folgen, ohne sich mit Nachbarn zu verbinden oder klare Objekte zu verpassen."
         },
         {
-          "narration": "Wählen Sie die Masken und Zwischendateien aus, die Sie in Output und Storage benötigen. Führen Sie zuerst einen kleinen Test durch, dann verarbeiten Sie die vollständige Quelle, nachdem die Vorschau- und Konsolkontrollen vorbei sind."
+          "narration": "Wechseln Sie zu Flüssen, um das von Cellpose verwendete Richtungsfeld zu überprüfen. Unregelmäßige Flussmuster können dazu beitragen, Masken zu erklären, die falsch aufgeteilt oder verschmolzen sind."
+        },
+        {
+          "narration": "Masken isolieren die letzten Etiketten gegen einen schwarzen Hintergrund. Verwenden Sie es, um die Abdeckung und Trennung von Objekten ohne das Quellbild unten zu überprüfen."
+        },
+        {
+          "narration": "Objektfilter aktualisieren die cached Vorschau sofort. Erhöhen Sie die Mindestfläche nur genug, um offensichtliche Fragmente zu entfernen; die richtige Abkürzung hängt von der Bildskala ab."
+        },
+        {
+          "narration": "Vergleichen Sie die gefilterte Überlagerung mit der ursprünglichen Vorschau. Die ursprünglichen Zellen sollten erhalten bleiben; wenn sie verschwinden, verringern Sie die Mindestfläche."
+        },
+        {
+          "narration": "Wählen Sie in Output und Storage die Masken und Zwischendateien aus, die Sie benötigen. Führen Sie zuerst einen kleinen Test durch, dann verarbeiten Sie die vollständige Quelle, nachdem die Vorschau- und Konsolenprüfungen vorbei sind."
         }
       ]
     },
@@ -443,7 +455,7 @@
       "id": "15_image_umap",
       "scenes": [
         {
-          "narration": "Bild UMAP reduziert hochdimensionelle Objekte auf zwei Koordinaten und stellt Mikroskopiepflanzen auf der Karte. Die Konsolen-Aufzeichnungen werden verbunden, vorverarbeitet, eingebettet, gruppiert und ausgegeben."
+          "narration": "Bild UMAP reduziert hochdimensionale Objekte auf zwei Koordinaten und stellt Mikroskopiepflanzen auf der Karte. Die Konsolen-Aufzeichnungen werden zusammengefasst, vorverarbeitet, eingebettet, gruppiert und ausgegeben."
         },
         {
           "narration": "Paths wählt das gemessene Projekt aus. Bild UMAP lokalisiert Messpunkte db und verwendet bestehende Erntebilder oder baut Ernte aus verschmelzten Arrays auf, wenn sie unterstützt werden."
@@ -452,25 +464,28 @@
           "narration": "Messungen wählen die verbundenen Objekttabellen und Feature-Familien aus, entfernen explizite Ausschlüsse und können redundante korrelierte Features fallen lassen. Diese Entscheidungen definieren die Geometrie der Karte."
         },
         {
-          "narration": "Plate Layout und Controls schließt fehlgeschlagenen Brunnen, Kontrollen oder Metadatengruppen aus, die diese Explorations-Einbetriebnahme nicht gestalten sollten."
+          "narration": "Plate Layout and Controls schließt fehlgeschlagene Wells, Kontrollen oder Metadatengruppen aus, die diese explorative Einbettung nicht gestalten sollten."
         },
         {
           "narration": "Die Computer Vision-Datenquelle entscheidet, ob bildgebende Merkmale die gemessenen Merkmale ergänzen und woher ihre Ernte kommt. Verwenden Sie sie nur, wenn das Aussehen des Bildes Teil der Frage ist."
         },
         {
-          "narration": "Das Einbinden und Clustering wählt UMAP oder t-SNE, Nachbarschaftsverhalten, Entfernungsgrenze, Abteilungsbereich und optionales Clustering aus. Vergleichen Sie reproduzierbare Einstellungen und behandeln Sie keine Layout als Grundwahrheit."
+          "narration": "Einbettung und Clustering wählt UMAP oder t-SNE, Nachbarschaftsverhalten, Entfernungsmetrik, Kompartiment und optionales Clustering aus. Vergleichen Sie reproduzierbare Einstellungen und behandeln Sie keine Layout als Grundwahrheit."
         },
         {
-          "narration": "UMAP Display steuert die Punktgestaltung, die Grafikzählung und das Zoomen, Clustergrids, Hintergrund und gespeicherte Figuren. Diese Anzeigenauswahl ändert die angepassten Koordinaten nicht."
+          "narration": "UMAP Display steuert Punkt-Styling, Grafik-Zahl und Zoom, Hintergrund und gespeicherte Figuren. Halten Sie die Pflanzenglyphen nur etwas größer als die Punkte, damit die Einbeziehung sichtbar bleibt; diese Anzeigenauswahl ändert die angebrachten Koordinaten nicht."
         },
         {
-          "narration": "Hyperparameter Search ist eine Mini-Workbank zum Vergleich einer fokussierten Reihe von UMAP-Optionen. Verwenden Sie die Ergebnisse mit kleinen Mehrfachen, um Stabilität und Struktur zu beurteilen, und wenden Sie dann eine überarbeitete Konfiguration auf den gesamten Betrieb an."
+          "narration": "Vor dem vollständigen Lauf verwenden Sie Hyperparameter-Suche, um eine fokussierte Reihe von UMAP-Optionen zu vergleichen. Seine kleinen und vielfältigen Ergebnisse enthüllen Layouts, die instabil sind oder nützliche Strukturen verbergen."
+        },
+        {
+          "narration": "Wählen Sie ein überprüftes Suchergebnis aus und wählen Sie dann die Einstellungen \"Verbreiten\". Dies kopiert die Nachbarschaftsgröße, die Mindeststrecke und die Metrik in das Hauptbild-UMAP-Formular vor dem vollen Lauf."
         },
         {
           "narration": "Run validiert die Datenbank und die Erntequelle, verbindet und filtert numerische Merkmale, Probenreihen, passt dem Reduktor und optionalen Clustern und schreibt dann ausgerichtete Ergebnisregister."
         },
         {
-          "narration": "Die abgeschlossenen Galerien zeigen die mikroskopische Glyphkarte und das Cluster-Nutzpflanznetz. Zu den gespeicherten Ausgängen gehören Koordinaten, Clusteretiketten, Zahlen, Einstellungen und ein Reproduzierbarkeitsmanifest."
+          "narration": "Die ausgefüllte Karte hält die UMAP-Punktwolke sichtbar und überlagert kleine transparente Mikroskopiepflanzen in repräsentativen Positionen. Zu den gespeicherten Outputs gehören Koordinaten, Clusteretiketten, die Figur, Einstellungen und ein Reproduzierbarkeitsmanifest."
         }
       ]
     },
@@ -1651,19 +1666,22 @@
       "id": "64_gate_editor",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Gate Editor. Zeichnen, bearbeiten, nesteln und wiederverwenden Sie Messungen als transparente Bevölkerungsfilter."
+          "narration": "Gate Editor verwandelt Regionen einer Messtabelle in benannte, wiederverwendbare Population-Tore. Der Arbeitsbereich hält die Feature-Achsen, Zeichnungswerkzeuge, die vollständige Datenansicht und die Gate-Hierarchie zusammen."
         },
         {
-          "narration": "Öffnen Sie eine Messtabelle und wählen Sie die Merkmale für ein Histogramm oder zweidimensionalen Streu."
+          "narration": "In 2D wählen Sie X und Y für einen Scatter, oder lassen Sie Y leer für ein Histogramm. Wählen Sie ein Schwellenwert oder ein Formwerkzeug aus und ziehen Sie um die beabsichtigte Bevölkerung herum. Die vollständige Wolke bleibt sichtbar, während eingeschlossene Objekte hervorgehoben werden."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich eine Schwelle, ein Rechteck, eine Ellipse oder ein Polygonwerkzeug aus und überprüfen Sie die Achsentransformationen, die Dichteanzeige und die Mutterpopulation."
+          "narration": "Wählen Sie eine 3D- und eine Z-Messung, um ein drehbares Volumen zu untersuchen. Die Achsenknöpfe steuern die Drehrichtung, und das Box-Gate registriert die Grenzen auf allen drei angezeigten Messungen."
         },
         {
-          "narration": "Zeichnen Sie ein Tor, prüfen Sie seine Anzahl und Prozentsätze und bewegen Sie dann die Spitzen oder Ränder, bis die Grenze der beabsichtigten Bevölkerung entspricht."
+          "narration": "Wählen Sie xD, um die berechtigten Messungen in Hauptkomponenten zu projizieren. Die Quelllabelberichte erklärten die Varianz, und PC1, PC2 und PC3 wurden zu gewöhnlichen Achsen für die gleichen Schließwerkzeuge."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, können benannte verschachtelte Tore verknüpfte Ansichten filtern, Anmerkungen anführen und für die Anwendung auf spätere Platten gespeichert werden."
+          "narration": "Die Gate-Hierarchie berichtet über die Anzahl der Objekte, den Prozentsatz ihrer Eltern und den Prozentsatz aller Zeilen. Wählen Sie das Kontrollkästchen eines Tores aus, um es zu zeigen oder zu verbergen, und wählen Sie ein Tor aus, bevor Sie zeichnen, wann die nächste Bevölkerung darin eingebettet werden soll."
+        },
+        {
+          "narration": "Geben Sie jeder Bevölkerung einen bedeutenden Namen, dann speichern Sie die Gate-Strategie. Laden Sie es auf eine kompatible Tabelle, um die gleichen Funktionsnamen, Grenzen und Hierarchie erneut zu verwenden, und überprüfen Sie die neuen Zahlen, bevor Sie weitermachen."
         }
       ]
     },

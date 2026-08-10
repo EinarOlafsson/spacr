@@ -292,8 +292,8 @@
       "section": "spaCR",
       "description": "Find modules, inspect application status, and move into a workflow from the spaCR Home screen.",
       "objectives": [
-        "Find modules by section, category, or search.",
-        "Read recent-run, system, and module-state information.",
+        "Find modules from Home, category tabs, or the sidebar.",
+        "Read system and module-state information.",
         "Open a workflow and confirm the active module."
       ],
       "prerequisite": "Install and launch the spaCR desktop application.",
@@ -311,16 +311,16 @@
           "speech_text": "Use the left sidebar to switch sections. Choose Home whenever you want to return to the complete module library."
         },
         {
-          "narration": "Browse the category rows or use search to find a module. Each tile opens one workflow, and its color indicates whether the module is alpha, beta, or stable.",
+          "narration": "Browse the category tabs and workflow rows to find a module. Each tile opens one workflow, and its color indicates whether the module is alpha, beta, or stable.",
           "visual": "modules",
           "hold_after": 0.7,
-          "speech_text": "Browse the category rows or use search to find a module. Each tile opens one workflow, and its color indicates whether the module is alpha, beta, or stable."
+          "speech_text": "Browse the category tabs and workflow rows to find a module. Each tile opens one workflow, and its color indicates whether the module is alpha, beta, or stable."
         },
         {
-          "narration": "The right panel summarizes recent runs, system use, project totals, news, and the module-state legend. Check it before starting expensive work.",
+          "narration": "The right panel shows current system use, release news, and the module-state legend. Check system use before starting expensive work.",
           "visual": "status",
           "hold_after": 0.7,
-          "speech_text": "The right panel summarizes recent runs, system use, project totals, news, and the module-state legend. Check it before starting expensive work."
+          "speech_text": "The right panel shows current system use, release news, and the module-state legend. Check system use before starting expensive work."
         },
         {
           "narration": "Select a module tile to open its settings screen. The module name and description at the top confirm which workflow is active.",
@@ -436,32 +436,60 @@
           "speech_text": "The cell, nucleus, pathogen, and organelle sections each group the model, channel, core thresholds, and object filters for that compartment. Change only settings needed for the current images."
         },
         {
-          "narration": "Enable Live Preview, load a representative image, and select the compartment you are tuning. Use preprocessing such as normalization only when it improves this image.",
+          "narration": "Enable Live Preview, load a representative field, and choose the object you are tuning. This example previews the cell signal.",
           "visual": "25_cell_ready",
           "hold_after": 0.7,
           "focus_key": "canvases",
-          "speech_text": "Enable Live Preview, load a representative image, and select the compartment you are tuning. Use preprocessing such as normalization only when it improves this image."
+          "speech_text": "Enable Live Preview, load a representative field, and choose the object you are tuning. This example previews the cell signal."
         },
         {
-          "narration": "Run the preview and inspect the source beside the overlay. Object outlines should follow the visible biological boundaries without joining neighbors or missing clear objects.",
+          "narration": "In Live settings, confirm the object and channel first. Adjust diameter, flow threshold, or cell probability only when the preview gives you a reason.",
+          "visual": "26_live_settings",
+          "hold_after": 0.7,
+          "focus_key": "segmentation",
+          "speech_text": "In Live settings, confirm the object and channel first. Adjust diameter, flow threshold, or cell probability only when the preview gives you a reason."
+        },
+        {
+          "narration": "Turn on Propagate settings so the values you validate here become the settings used by the full run.",
+          "visual": "26_live_settings",
+          "hold_after": 0.7,
+          "focus_key": "propagate",
+          "speech_text": "Turn on Propagate settings so the values you validate here become the settings used by the full run."
+        },
+        {
+          "narration": "Run the preview and inspect Overlay beside the source. Boundaries should follow the visible cells without joining neighbors or missing clear objects.",
           "visual": "27_cell_outlines",
           "hold_after": 0.7,
           "focus_key": "action_and_canvases",
-          "speech_text": "Run the preview and inspect the source beside the overlay. Object outlines should follow the visible biological boundaries without joining neighbors or missing clear objects."
+          "speech_text": "Run the preview and inspect Overlay beside the source. Boundaries should follow the visible cells without joining neighbors or missing clear objects."
         },
         {
-          "narration": "Switch between Overlay, Flows, and Masks when you need to diagnose a result. Masks shows the final labeled objects; black is background.",
+          "narration": "Switch to Flows to inspect the direction field used by Cellpose. Irregular flow patterns can help explain masks that split or merge incorrectly.",
+          "visual": "28_cell_flows",
+          "hold_after": 0.7,
+          "focus_key": "action_and_canvases",
+          "speech_text": "Switch to Flows to inspect the direction field used by cell pose. Irregular flow patterns can help explain masks that split or merge incorrectly."
+        },
+        {
+          "narration": "Masks isolates the final labels against a black background. Use it to check object coverage and separation without the source image underneath.",
           "visual": "29_cell_objects",
           "hold_after": 0.7,
           "focus_key": "action_and_canvases",
-          "speech_text": "Switch between Overlay, Flows, and Masks when you need to diagnose a result. Masks shows the final labeled objects; black is background."
+          "speech_text": "Masks isolates the final labels against a black background. Use it to check object coverage and separation without the source image underneath."
         },
         {
-          "narration": "If obvious fragments or artifacts remain, adjust a relevant object filter, such as minimum area, and compare the preview again. Choose the value from the image scale rather than copying a tutorial number.",
+          "narration": "Object filters update the cached preview immediately. Raise minimum area only enough to remove obvious fragments; the correct cutoff depends on image scale.",
+          "visual": "30_cell_size_filter",
+          "hold_after": 0.7,
+          "focus_key": "min_area",
+          "speech_text": "Object filters update the cached preview immediately. Raise minimum area only enough to remove obvious fragments; the correct cutoff depends on image scale."
+        },
+        {
+          "narration": "Compare the filtered overlay with the original preview. Genuine cells should remain; if they disappear, lower the minimum area.",
           "visual": "31_cell_filtered",
           "hold_after": 0.7,
           "focus_key": "canvases",
-          "speech_text": "If obvious fragments or artifacts remain, adjust a relevant object filter, such as minimum area, and compare the preview again. Choose the value from the image scale rather than copying a tutorial number."
+          "speech_text": "Compare the filtered overlay with the original preview. Genuine cells should remain; if they disappear, lower the minimum area."
         },
         {
           "narration": "Choose the masks and intermediate files you need in Output and Storage. Run a small test first, then process the full source after the preview and console checks pass.",
@@ -1113,8 +1141,8 @@
       "description": "Embed measured objects in two dimensions and inspect phenotype neighborhoods using their real microscopy crops.",
       "objectives": [
         "Choose biologically relevant features and exclusions.",
-        "Configure a reproducible embedding without copying fixed hyperparameters.",
-        "Inspect crop glyphs for biological structure and technical artifacts."
+        "Search a focused parameter range and propagate a reviewed result.",
+        "Interpret a readable crop-overlay map and saved outputs."
       ],
       "prerequisite": "Complete Measure with valid object features and accessible crop images or merged arrays.",
       "scenes": [
@@ -1161,18 +1189,25 @@
           "speech_text": "Embedding and Clustering selects you map or tee snee, neighborhood behavior, distance metric, compartment, and optional clustering. Compare reproducible settings and do not treat one layout as ground truth."
         },
         {
-          "narration": "UMAP Display controls point styling, crop glyph count and zoom, cluster grids, background, and saved figures. These display choices do not change fitted coordinates.",
+          "narration": "UMAP Display controls point styling, crop glyph count and zoom, background, and saved figures. Keep crop glyphs only slightly larger than the points so the embedding remains visible; these display choices do not change fitted coordinates.",
           "visual": "12_category_09_umap_display",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "you map Display controls point styling, crop glyph count and zoom, cluster grids, background, and saved figures. These display choices do not change fitted coordinates."
+          "speech_text": "you map Display controls point styling, crop glyph count and zoom, background, and saved figures. Keep crop glyphs only slightly larger than the points so the embedding remains visible; these display choices do not change fitted coordinates."
         },
         {
-          "narration": "Hyperparameter Search is a mini workbench for comparing a focused set of UMAP choices. Use its small-multiple results to judge stability and structure, then apply a reviewed configuration to the full run.",
+          "narration": "Before the full run, use Hyperparameter Search to compare a focused set of UMAP choices. Its small-multiple results expose layouts that are unstable or hide useful structure.",
           "visual": "19_hyperparameter_search",
           "hold_after": 0.7,
           "focus_key": "search_card",
-          "speech_text": "Hyperparameter Search is a mini workbench for comparing a focused set of you map choices. Use its small-multiple results to judge stability and structure, then apply a reviewed configuration to the full run."
+          "speech_text": "Before the full run, use Hyperparameter Search to compare a focused set of you map choices. Its small-multiple results expose layouts that are unstable or hide useful structure."
+        },
+        {
+          "narration": "Select a reviewed search result, then choose Propagate settings. This copies its neighborhood size, minimum distance, and metric into the main Image UMAP form before the full run.",
+          "visual": "20_hyperparameter_apply",
+          "hold_after": 0.7,
+          "focus_key": "dialog",
+          "speech_text": "Select a reviewed search result, then choose Propagate settings. This copies its neighborhood size, minimum distance, and metric into the main Image you map form before the full run."
         },
         {
           "narration": "Run validates the database and crop source, joins and filters numeric features, samples rows, fits the reducer and optional clusters, then writes aligned result records.",
@@ -1182,11 +1217,11 @@
           "speech_text": "Run validates the database and crop source, joins and filters numeric features, samples rows, fits the reducer and optional clusters, then writes aligned result records."
         },
         {
-          "narration": "The completed gallery shows the microscopy glyph map and cluster crop grid. Saved outputs include coordinates, cluster labels, figures, settings, and a reproducibility manifest.",
+          "narration": "The completed map keeps the UMAP point cloud visible and overlays small transparent microscopy crops at representative positions. Saved outputs include coordinates, cluster labels, the figure, settings, and a reproducibility manifest.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "figures",
-          "speech_text": "The completed gallery shows the microscopy glyph map and cluster crop grid. Saved outputs include coordinates, cluster labels, figures, settings, and a reproducibility manifest."
+          "speech_text": "The completed map keeps the you map point cloud visible and overlays small transparent microscopy crops at representative positions. Saved outputs include coordinates, cluster labels, the figure, settings, and a reproducibility manifest."
         }
       ]
     },
@@ -4104,43 +4139,54 @@
       "series": 5,
       "app_key": "gate_editor",
       "section": "Explore",
-      "description": "Draw, edit, nest, and reuse measurement gates as transparent population filters.",
+      "description": "Draw, inspect, nest, and reuse population gates in 2D, 3D, or a reduced high-dimensional view.",
       "objectives": [
-        "Understand when to use Gate Editor.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Draw and inspect a population gate in 2D.",
+        "Compare the real 3D volume and xD projection modes.",
+        "Read, nest, save, and safely reuse a named gate hierarchy."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Prepare a measurement table with numeric features and stable object identifiers.",
       "scenes": [
         {
-          "narration": "This tutorial covers Gate Editor. Draw, edit, nest, and reuse measurement gates as transparent population filters.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers Gate Editor. Draw, edit, nest, and reuse measurement gates as transparent population filters."
+          "narration": "Gate Editor turns regions of a measurement table into named, reusable population gates. The workspace keeps the feature axes, drawing tools, full data view, and gate hierarchy together.",
+          "visual": "01_overview",
+          "hold_after": 0.7,
+          "speech_text": "Gate Editor turns regions of a measurement table into named, reusable population gates. The workspace keeps the feature axes, drawing tools, full data view, and gate hierarchy together."
         },
         {
-          "narration": "Open a measurement table and choose the features for a histogram or two-dimensional scatter.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Open a measurement table and choose the features for a histogram or two-dimensional scatter."
+          "narration": "In 2D, choose X and Y for a scatter, or leave Y empty for a histogram. Select a threshold or shape tool and draw around the intended population. The full cloud remains visible while included objects are highlighted.",
+          "visual": "02_two_d_gate",
+          "hold_after": 0.7,
+          "focus_key": "two_d_workspace",
+          "speech_text": "In two D, choose X and Y for a scatter, or leave Y empty for a histogram. Select a threshold or shape tool and draw around the intended population. The full cloud remains visible while included objects are highlighted."
         },
         {
-          "narration": "In the main configuration area, choose a threshold, rectangle, ellipse, or polygon tool and review axis transforms, density display, and parent population.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, choose a threshold, rectangle, ellipse, or polygon tool and review axis transforms, density display, and parent population."
+          "narration": "Choose 3D and a Z measurement to inspect a rotatable volume. The axis buttons control the spin direction, and Box gate records bounds on all three displayed measurements.",
+          "visual": "03_three_d_volume",
+          "hold_after": 0.7,
+          "focus_key": "three_d_workspace",
+          "speech_text": "Choose three D and a Z measurement to inspect a rotatable volume. The axis buttons control the spin direction, and Box gate records bounds on all three displayed measurements."
         },
         {
-          "narration": "Draw a gate, inspect its count and percentages, then move vertices or edges until the boundary matches the intended population.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Draw a gate, inspect its count and percentages, then move vertices or edges until the boundary matches the intended population."
+          "narration": "Choose xD to project the eligible measurements into principal components. The source label reports explained variance, and PC1, PC2, and PC3 become ordinary axes for the same gating tools.",
+          "visual": "04_xd_projection",
+          "hold_after": 0.7,
+          "focus_key": "xd_workspace",
+          "speech_text": "Choose X D to project the eligible measurements into principal components. The source label reports explained variance, and P C one, P C two, and P C three become ordinary axes for the same gating tools."
         },
         {
-          "narration": "When the workflow finishes, named nested gates can filter linked views, drive annotation, and be saved for application to later plates.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, named nested gates can filter linked views, drive annotation, and be saved for application to later plates."
+          "narration": "The gate hierarchy reports the object count, percentage of its parent, and percentage of all rows. Toggle a gate's check box to show or hide it, and select a gate before drawing when the next population should be nested inside it.",
+          "visual": "05_gate_hierarchy",
+          "hold_after": 0.7,
+          "focus_key": "gate_tree",
+          "speech_text": "The gate hierarchy reports the object count, percentage of its parent, and percentage of all rows. Toggle a gate's check box to show or hide it, and select a gate before drawing when the next population should be nested inside it."
+        },
+        {
+          "narration": "Give each population a meaningful name, then save the gate strategy. Load it on a compatible table to reuse the same feature names, boundaries, and hierarchy, and verify the new counts before continuing.",
+          "visual": "06_save_reuse",
+          "hold_after": 0.7,
+          "focus_key": "save_controls",
+          "speech_text": "Give each population a meaningful name, then save the gate strategy. Load it on a compatible table to reuse the same feature names, boundaries, and hierarchy, and verify the new counts before continuing."
         }
       ]
     },

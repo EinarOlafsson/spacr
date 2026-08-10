@@ -114,19 +114,19 @@
       "id": "05_home",
       "scenes": [
         {
-          "narration": "Den här handledningen omfattar hemskärmen och navigationen. Besök applikationen, dess modulgrupper, kör sammanfattningar, mognadsindikatorer och navigationskontroller."
+          "narration": "Hemgrupper spaCR-moduler efter arbetsflöde så att du kan gå från bildbehandling genom analys och kvalitetskontroll."
         },
         {
-          "narration": "Öppna hemskärmen och navigera från hemsidan. Startar skrivbordsanvändningen spaCR och börjar på Hem."
+          "narration": "Använd vänster sidebar för att byta sektioner. Välj Hem när du vill återvända till det kompletta modulbiblioteket."
         },
         {
-          "narration": "I huvudkonfigurationsområdet använder du sidebar, kategoriflikar, sökbara appflischer och kommandopalett för att nå ett arbetsflöde."
+          "narration": "Bläddra i kategoriflikar och arbetsflödesrör för att hitta en modul. Varje platt öppnar ett arbetsflöde, och dess färg indikerar om modulen är alfa, beta eller stabil."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. Öppna en modul endast när du har för avsikt att interagera med den; pekaren visas endast för verkliga klick."
+          "narration": "Den högra panelen visar nuvarande systemanvändning, nyheterna och modulen-stat legenden. Kontrollera systemanvändningen innan du börjar med dyrt arbete."
         },
         {
-          "narration": "När arbetsflödet är slut kan du gå igenom applikationen och förstå statusinformationen som visas på Hem."
+          "narration": "Välj en modulplattform för att öppna inställningsskärmen. Modulnamnet och beskrivningen ovan bekräftar vilken arbetsflöde som är aktiv."
         }
       ]
     },
@@ -154,34 +154,46 @@
       "id": "07_mask",
       "scenes": [
         {
-          "narration": "Mask placerar inställningar till vänster och löptidskonsolen till höger. Konsolen rapporterar validering, framsteg, varningar och sparas utgångar."
+          "narration": "Mask placerar inställningar till vänster och körkonsolen till höger. Konsolen rapporterar validering, framsteg, varningar och sparas utgångar."
         },
         {
-          "narration": "Lägg ned bildmappen i Mask. Bekräfta det upptäckta filnamnmönstret och metadata, och kartlägga sedan varje förvärvskanal till dess biologiska signal. I detta exempel innehåller de fyra kanalerna kärnor, endoplasmisk retikulum, lipiddroppar och parasiter."
+          "narration": "Lägg källan bild mapp i Mask. Bekräfta det upptäckta filnamnsmönstret och metadata, och kartlägga sedan varje förvärvskanal till dess biologiska signal. I det här exemplet innehåller de fyra kanalerna kärnor, endoplasmisk retikulum, lipiddroppar och parasiter."
         },
         {
-          "narration": "Det är viktigt att se vilka kontroller som behövs för en typisk körning. Använd All endast när du behöver avancerade alternativ, Modifierad för att granska ändrade värden och Recept för att spara en konfiguration som du kommer att använda igen."
+          "narration": "Essentials visar de kontroller som behövs för en typisk körning. Använd All endast när du behöver avancerade alternativ, Modified för att granska ändrade värden och Recipes för att spara en konfiguration som du kommer att återanvända."
         },
         {
-          "narration": "I Input och Metadata, verifiera källan mapp, kanaltilldelningar, förstoring och filnamn metadata innan du konfigurerar segmentering."
+          "narration": "I Input och Metadata verifierar du källmappen, kanaltilldelningar, förstoring och filnamnmetadata innan du konfigurerar segmentering."
         },
         {
-          "narration": "Kontroll av vilka masker som skapas, om befintligt arbete återupptas och hur många representativa fält som används för ett test."
+          "narration": "Workflow och Test Run kontrollerar vilka masker som skapas, om befintligt arbete återupptas och hur många representativa fält som används för ett test."
         },
         {
           "narration": "Cellen, kärnan, patogenen och organellen delar varje grupp med modell, kanal, kärntröskel och objektfilter för det avdelningen. Ändra endast de inställningar som behövs för aktuella bilder."
         },
         {
-          "narration": "Aktivera Live Preview, ladda en representativ bild och välj det utrymme du ska ställa in. Använd förbehandling som normalisering endast när den förbättrar bilden."
+          "narration": "Aktivera Live Preview, ladda ett representativt fält och välj det objekt du ställer in. Detta exempel förutbildar cellsignalen."
         },
         {
-          "narration": "Kör förhandsgranskningen och kontrollera källan bredvid överlagningen. Objektens konturer bör följa de synliga biologiska gränserna utan att de ansluter sig till grannar eller saknar klara objekt."
+          "narration": "I Live-inställningar bekräftar du objektet och kanalen först. Anpassa diameter, flödesgräns eller cell sannolikhet endast när förhandsgranskningen ger dig en anledning."
         },
         {
-          "narration": "Skicka mellan överlagning, flöden och maskerna när du behöver diagnostisera ett resultat. Masker visar de sista märkta objekten; svart är bakgrunden."
+          "narration": "Aktivera Propagate-inställningarna så att de värden du validerar här blir de inställningar som används av den fullständiga körningen."
         },
         {
-          "narration": "Om det finns kvar uppenbara fragment eller artefakter, justera ett relevant objektfilter, till exempel minsta yta, och jämföra förhandsgranskningen igen. Välj värdet i bildskalan i stället för att kopiera ett handledning nummer."
+          "narration": "Kör förhandsgranskningen och kontrollera överläggningen bredvid källan. Gränserna bör följa de synliga cellerna utan att ansluta sig till grannar eller sakna tydliga föremål."
+        },
+        {
+          "narration": "Skicka till Flöden för att kontrollera riktningsfältet som används av Cellpose. Oregelbundna flödesmönster kan hjälpa till att förklara masker som delar eller sammanfaller felaktigt."
+        },
+        {
+          "narration": "Masker isolerar de sista märkningarna mot en svart bakgrund. Använd den för att kontrollera objekt täckning och separation utan källbilden under."
+        },
+        {
+          "narration": "Objektfiltrar uppdaterar inställd förhandsvisning omedelbart. Höja minsta yta bara tillräckligt för att ta bort uppenbara fragment; rätt avskärning beror på bildskalan."
+        },
+        {
+          "narration": "Jämför den filtrerade överlagningen med den ursprungliga förhandsgranskningen. Om de försvinner, sänk minsta yta."
         },
         {
           "narration": "Välj de masker och mellanfiler du behöver i Utgång och Lagring. Kör ett litet test först, och behandla sedan den fullständiga källan efter att förhandsgranskningen och konsolkontrollen har passerat."
@@ -443,34 +455,37 @@
       "id": "15_image_umap",
       "scenes": [
         {
-          "narration": "Bild UMAP minskar högdimensionella objektmätningar till två koordinater och placerar mikroskopiska grödor på kartan. Konsolens poster ansluter, förarbeta, inbäddar, clustering och utgångar."
+          "narration": "Bild UMAP minskar högdimensionella objektmätningar till två koordinater och placerar mikroskopiska grödor på kartan. Konsolens register ansluter, förarbeta, inbäddar, clusterar och utgångar."
         },
         {
           "narration": "Paths väljer det mätade projektet. Bild UMAP lokaliserar mätpunkter db och använder befintliga grödabilder eller bygger gröda från sammansatta matriser när det stöds."
         },
         {
-          "narration": "Mätningar väljer de anslutna objekttabellerna och funktionshemnen, tar bort uttryckliga uteslutanden och kan släppa överflödiga korrelerade funktioner. Dessa val definierar kartans geometris."
+          "narration": "Mätningar väljer de anslutna objekttabellerna och funktionfamiljerna, tar bort uttryckliga uteslutanden och kan släppa överflödiga korrelerade funktioner. Dessa val definierar kartans geometri."
         },
         {
           "narration": "Plattens layout och kontroller utesluter misslyckade brunnar, kontroller eller metadatagrupper som inte bör forma denna utforskningsliga inbäddning."
         },
         {
-          "narration": "Data källor för datorvisuell data bestämmer om bilder som är avledda kompletterar de mätda funktionerna och var deras grödor kommer ifrån. Använd dem endast när bildens utseende är en del av frågan."
+          "narration": "Data källor för datorsyn väljer huruvida bilder avledda funktioner kompletterar de mätda funktionerna och var deras grödor kommer ifrån. Använd dem endast när bildens utseende är en del av frågan."
         },
         {
-          "narration": "Inbyggnad och Clustering väljer UMAP eller t-SNE, grannskapsbeteende, distansmetrik, kompartment och valfri clustering. Jämför reproducerbara inställningar och behandla inte en layout som grund sanning."
+          "narration": "Embedding and Clustering väljer UMAP eller t-SNE, grannskapsbeteende, distansmetrik, kompartment och valfri clustering. Jämför reproducerbara inställningar och behandla inte en layout som grund sanning."
         },
         {
-          "narration": "UMAP Display kontrollerar punktstilen, gröda glyfantal och zoom, clusternät, bakgrunds- och sparasfigurer. Dessa visningsval ändrar inte de inställda koordinaterna."
+          "narration": "UMAP Display kontrollerar punktstilen, gröda glyfantal och zoom, bakgrund och sparade siffror. Håll gröda glyfer bara något större än punkterna så att inbäddningen förblir synlig; dessa visningsval ändrar inte monterade koordinater."
         },
         {
-          "narration": "Hyperparameter Search är en mini-arbetsbord för att jämföra ett fokuserat uppsättning UMAP-val. Använd sina små-multiple resultat för att bedöma stabilitet och struktur, och tillämpa sedan en reviderad konfiguration på hela körningen."
+          "narration": "Använd Hyperparameter Search för att jämföra en fokuserad uppsättning UMAP-val. Dess små-många resultat avslöjar layouter som är instabila eller döljer användbar struktur."
         },
         {
-          "narration": "Run validerar databasen och källan, kopplar och filtrerar numeriska funktioner, provräkningar, passar reducenten och valbara kluster, och skriver sedan justerade resultatregister."
+          "narration": "Välj ett granskat sökresultat, och välj sedan Spridningsinställningar. Detta kopierar dess grannskapsstorlek, minsta avstånd och metrik i huvudbilden UMAP före fullkörning."
         },
         {
-          "narration": "Det färdiga galleriet visar den mikroskopiska glyfkarten och grädet för clusterskörd. Spara utgångar inkluderar koordinater, clusteretiketter, siffror, inställningar och en reproduktionsmanifest."
+          "narration": "Run validerar databasen och produktkällan, ansluter och filtrerar numeriska funktioner, provräkningar, passar reducenten och valfria kluster, och skriver sedan justerade resultatregister."
+        },
+        {
+          "narration": "Den färdiga kartan gör att UMAP-punktskylen är synlig och överlappar små genomskinliga mikroskopiska grödor i representativa positioner. Spara utgångar inkluderar koordinater, clusteretiketter, siffra, inställningar och en reproducerbarhet manifest."
         }
       ]
     },
@@ -1651,19 +1666,22 @@
       "id": "64_gate_editor",
       "scenes": [
         {
-          "narration": "Denna handledning täcker Gate Editor. Resa, redigera, anställa och återanvända mätportar som transparenta befolkningsfilter."
+          "narration": "Gate Editor förvandlar regioner i ett mätbord till namngivna, återanvändbara befolkningsportar. Arbetsplatsen håller funktionsaxerna, ritverktygen, full datavisning och porthierarkiet tillsammans."
         },
         {
-          "narration": "Öppna en mättabell och välj funktionerna för ett histogram eller tvådimensionell spridning."
+          "narration": "I 2D, välj X och Y för en scatter, eller lämna Y tom för ett histogram. Välj ett tröskel- eller formverktyg och dra runt den avsedda populationen. Hela molnet är synligt medan de inkluderade objekten lyfts fram."
         },
         {
-          "narration": "I huvudkonfigurationsområdet väljer du ett tröskel-, rektangel-, ellips- eller polygonverktyg och granskar axeltransformationer, densitetsdisplay och föräldrapopulation."
+          "narration": "Välj en 3D- och en Z-mätning för att inspektera en roterande volym. Akstknapparna styr spinnriktningen och Boxgate registrerar gränser på alla tre visade mätningar."
         },
         {
-          "narration": "Resa en port, kontrollera dess antal och procent, och sedan flytta höjder eller kanter tills gränsen matchar den avsedda befolkningen."
+          "narration": "Välj xD för att projicera de stödberättigande mätningarna i huvudkomponenter. Källa etiketten rapporterade förklarade variansen, och PC1, PC2 och PC3 blir vanliga axlar för samma gating verktyg."
         },
         {
-          "narration": "När arbetsflödet är klart kan namngivna inbäddade portar filtrera länkade vyer, driva annotering och sparas för tillämpning på senare plattor."
+          "narration": "Porthierarkiet rapporterar objektets antal, procent av dess förälder och procent av alla rader. Välj en portens checkbox för att visa eller dölja den, och välj en port innan du ritar när nästa befolkning ska vara inbäddad i den."
+        },
+        {
+          "narration": "Ge varje befolkning ett meningsfullt namn, och spara portstrategin. Läda den på en kompatibel tabell för att återanvända samma funktionsnamn, gränser och hierarki, och verifiera de nya räkningarna innan du fortsätter."
         }
       ]
     },
