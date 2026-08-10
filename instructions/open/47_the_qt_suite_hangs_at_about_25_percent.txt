@@ -274,19 +274,29 @@ the same way the load-33 measurement was.
 2026-08-10 - IT REACHED ITS SUMMARY LINE. THE TASK'S OWN CRITERION IS MET.
 --------------------------------------------------------------------------------
 
-    started   07:03:54    idle machine, -n 8, --timeout=300
+    started   07:03:54    -n 8, --timeout=300
     finished  07:45:09    41 minutes, pytest_exit=1
     result    74 failed, the rest passed, NO hang and NO crash
+
+CORRECTION TO THE MACHINE STATE, made an hour later and worth more than the
+timing. This was FIRST RECORDED as "on an idle machine". It was not. The box
+was idle when the run started and the concurrent tutorials render
+(`render_all_voices.py --threads 16`, instruction 48) restarted at 07:06:09
+-- two minutes in -- and held ~10.6 cores for the remaining 39 minutes.
+Checked with `ps -eo pid,pcpu,etimes,args`, whose ELAPSED column dates the
+start precisely.
 
 "HOW TO KNOW IT WORKED is unchanged: one run reaches its summary line." It
 did. The suite is no longer unrunnable as a whole, which is what this task
 was about; the 74 failures are a NEW and separate work item, not this one.
 
 WHAT ACTUALLY FIXED IT was not a bug fix -- the crashes were already gone
-(see the entries above) -- it was `-n 8` plus an IDLE machine. Serially, on
-a box sharing ~15 cores with the tutorials session, it never passed 66% in
-5.5 hours. The two variables were never separated before because the machine
-was never idle.
+(see the entries above) -- and it was not an idle machine either, per the
+correction above. It was `-n 8` ALONE. The suite finished in 41 minutes
+while sharing the box with the same ~10-core renderer that was running
+during every serial attempt that never passed 66% in 5.5 hours. That is a
+cleaner result than the one first recorded: parallelism did it, and the
+contention this file kept blaming was never the whole story.
 
 A CORE-BUDGET TRAP worth knowing: `-n 8` does NOT bound the run to 8 cores.
 Load reached 20.6 with a single worker at 649% CPU, because the tests do

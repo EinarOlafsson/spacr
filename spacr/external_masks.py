@@ -522,7 +522,21 @@ def _tables(path: str) -> List[str]:
 def run_external_masks(plan: ExternalMaskPlan,
                        settings: Optional[Mapping[str, Any]] = None
                        ) -> ExternalMaskResult:
-    """Materialize ``plan`` and call the standard Measure pipeline."""
+    """Materialize ``plan`` and call the standard Measure pipeline.
+
+    :param plan: Validated plan from :func:`plan_external_masks`, whose
+        ``ok`` property must be True.
+    :param settings: Partial settings mapping accepted by
+        :func:`default_settings`; it carries the full Measure contract and
+        supplies ``overwrite`` for the intensity conversion and
+        ``channels``, ``png_dims``, ``crop_mode`` and ``cytoplasm`` for the
+        Measure call.
+    :returns: Result describing the written project, its merged arrays,
+        measurements database and tables, and the plan used.
+    :raises ConfigurationError: If the plan is not ``ok``, if a field's
+        channel count, shapes, dtypes or label IDs violate the Measure
+        uint16 contract, or if Measure finishes without a required table.
+    """
     if not plan.ok:
         raise ConfigurationError(
             "External-mask import refused; nothing was written:\n  "
@@ -686,7 +700,18 @@ def run_external_masks(plan: ExternalMaskPlan,
 
 def prepare_external_masks(settings: Optional[Mapping[str, Any]] = None
                            ) -> Any:
-    """Settings-dict entry point used by Qt and ``spacr-run``."""
+    """Plan an external-mask import, print the preview, and run it.
+
+    The plan summary is always printed to stdout.  Unless ``preview_only``
+    is set, the project is written and Measure is run, and the result
+    summary is printed too.
+
+    :param settings: Partial settings mapping accepted by
+        :func:`default_settings`.
+    :returns: The :class:`ExternalMaskPlan` when ``preview_only`` is set,
+        otherwise the :class:`ExternalMaskResult` from
+        :func:`run_external_masks`.
+    """
     resolved = default_settings(settings)
     plan = plan_external_masks(resolved)
     print(plan.summary())
