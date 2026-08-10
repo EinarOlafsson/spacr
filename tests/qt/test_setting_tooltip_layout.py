@@ -317,11 +317,21 @@ def test_the_preferences_dialog_offers_the_toggle(qtbot, monkeypatch):
 # ---------------------------------------------------------------------------
 
 def test_the_frames_on_screen_are_the_zoomed_ones(tooltip, qtbot):
-    """End to end: measure the pixmap the label is showing.
+    """End to end: measure every pixmap the label cycles through.
 
     The zoom is verified against the arrays in its own module's tests; this
     one closes the loop by measuring what the widget put on screen, so a
     later refactor cannot leave the zoom working and the widget bypassing it.
+
+    Measured on the UNION of the displayed frames, which is the contract the
+    zoom is written to — ``animation_zoom.content_mask``: "The union — not one
+    representative frame — is what has to be framed." This test used to
+    measure the first frame alone, on the premise that `cell_diameter` drew
+    its whole shape in every frame. Commit 97ba3e75 (2026-08-09) deliberately
+    made the diameter animations scale their OBJECT with the caliper instead
+    of holding it at a fixed radius, so the shape now grows and shrinks and
+    frame 0 is the smallest of the cycle at 42.3%, while the union the crop
+    is computed from measures 75.9%.
     """
     _reveal(tooltip, _anchor(qtbot))
     view = tooltip.animation_view()
@@ -329,12 +339,39 @@ def test_the_frames_on_screen_are_the_zoomed_ones(tooltip, qtbot):
     assert not pixmap.isNull()
     assert pixmap.width() == pixmap.height() == HoverTooltip.ANIMATION_SIZE
 
-    frame = az.from_qimage(pixmap.toImage())
-    # One frame, not the union, so it can only be smaller than the target —
-    # never larger. `cell_diameter` draws its whole shape in every frame.
-    measured = az.content_extent([frame])
+    # Driven through the same advance the frame timer drives, so these are
+    # the pixmaps the label really displays — reading the private frame list
+    # would measure what the widget stored rather than what it shows.
+    shown = [az.from_qimage(view.pixmap().toImage())]
+    for _ in range(view.frame_count() - 1):
+        view._advance()
+        shown.append(az.from_qimage(view.pixmap().toImage()))
+    assert len(shown) == view.frame_count() > 1, (
+        "the label is not cycling frames, so the union below is one frame")
+
+    measured = az.content_extent(shown)
     assert az.MIN_FILL <= measured <= az.MAX_FILL, (
-        f"the displayed frame covers {measured:.1%} of the square")
+        f"the displayed frames cover {measured:.1%} of the square")
+
+    # Tighter than the single-frame check this replaced, in both directions.
+    # No individual frame may overflow the band's ceiling: the union can only
+    # be larger than any one frame, so a union inside the band would happily
+    # hide one frame spilling past the edge of the square.
+    worst = max(az.content_extent([frame]) for frame in shown)
+    assert worst <= az.MAX_FILL, (
+        f"one displayed frame covers {worst:.1%}, past the "
+        f"{az.MAX_FILL:.0%} ceiling")
+
+    # And the union has to be the ZOOMED extent rather than the packaged
+    # one, which is what earns this test its name: a widget that bypassed
+    # the zoom would show the GIF at its own 36.1%.
+    from spacr.setting_animations import animation_for_setting
+
+    source = az.source_content_extent(
+        str(animation_for_setting(ANIMATED_KEY).path))
+    assert measured > source, (
+        f"the label shows content at the source extent {source:.1%}; that is "
+        "the raw GIF, not the zoom")
 
 
 def test_the_animation_plays_and_stops_with_the_popup(tooltip, qtbot):

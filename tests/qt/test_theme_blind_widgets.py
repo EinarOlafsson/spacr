@@ -26,6 +26,12 @@ Three layers, because they fail for different reasons:
    (:meth:`HomePage.set_reserved_content`).
 3. A static sweep pins the modules that still import the frozen dark
    palette. It may only ever shrink.
+
+Layer 2 grew a second case on 2026-08-10: a *filled* danger surface,
+where the ink is ``bg`` rather than ``fg``. The sweep in layer 2 flagged
+``style_as_danger`` hard-coding ``#ffffff`` for the force-quit button's
+hover state — right on light, 2.04:1 on glass — which is the same
+mistake as importing the wrong palette, only spelled as a literal.
 """
 from __future__ import annotations
 
@@ -37,7 +43,7 @@ import re
 import pytest
 
 from PySide6.QtGui import QColor, QPalette
-from PySide6.QtWidgets import QLabel, QWidget
+from PySide6.QtWidgets import QLabel, QPushButton, QWidget
 
 from spacr.qt import bridge, preferences, theme
 from spacr.qt.app import make_home_page
@@ -49,6 +55,25 @@ AA_BODY = 4.5
 QT_ROOT = pathlib.Path(theme.__file__).resolve().parent
 
 _HEX = re.compile(r"#[0-9a-fA-F]{6}\b")
+
+#: A QSS comment. Qt's parser throws these away before it resolves a
+#: single rule, so a hex inside one cannot colour a pixel.
+_QSS_COMMENT = re.compile(r"/\*.*?\*/", re.DOTALL)
+
+
+def _painted(sheet: str) -> str:
+    """``sheet`` reduced to the part Qt actually parses.
+
+    Added 2026-08-10. The QSS blocks in ``spacr/qt`` document the bug they
+    fix *inside the stylesheet*: ``screens/qc_dashboard.py`` gained one on
+    2026-08-06 (9cebd643) explaining, in a ``/* ... */``, that an unstyled
+    QLabel "paints the WINDOW colour -- #000000 on dark". Sweeping the raw
+    text charged that prose with inlining a dark-only colour on every
+    non-dark theme. The prose is the point of those blocks and must not
+    have to launder its own hexes, so the sweep discards comments exactly
+    as Qt does.
+    """
+    return _QSS_COMMENT.sub(" ", sheet)
 
 
 @pytest.fixture(autouse=True)
@@ -198,6 +223,12 @@ def test_home_inlines_no_colour_from_another_theme(themed_home, theme_name):
     hex in every theme, on purpose) and anything from outside the
     palettes entirely — this test is about importing the wrong palette,
     not about every literal in the tree.
+
+    Scanned through :func:`_painted`, which drops QSS comments (see its
+    docstring). The page's own sheet is the whole application stylesheet,
+    put there by the fixture; it is swept anyway rather than excused,
+    because a composed sheet that carried a dark-only hex into the light
+    theme would be the same bug one level up.
     """
     page = themed_home(theme_name)
     live = {value.lower() for value in theme.palette_for(theme_name).values()}
@@ -208,8 +239,8 @@ def test_home_inlines_no_colour_from_another_theme(themed_home, theme_name):
 
     offenders = []
     for widget in [page] + page.findChildren(QWidget):
-        sheet = widget.styleSheet()
-        if not sheet:
+        sheet = _painted(widget.styleSheet())
+        if not sheet.strip():
             continue
         for found in {m.group(0).lower() for m in _HEX.finditer(sheet)}:
             if found in dark_only:
@@ -217,6 +248,68 @@ def test_home_inlines_no_colour_from_another_theme(themed_home, theme_name):
                     f"{widget.objectName() or type(widget).__name__} "
                     f"inlines {found} (dark {role_of[found]})")
     assert not offenders, f"{theme_name}: {sorted(set(offenders))}"
+
+
+def test_the_comment_strip_only_removes_comments():
+    """Control for :func:`_painted`, so the sweep above cannot go vacuous.
+
+    A strip that ate the rules as well as the comments would make
+    ``test_home_inlines_no_colour_from_another_theme`` pass forever
+    without looking at anything, which is the failure mode of every
+    "ignore the false positive" fix. Both halves are asserted: the hex in
+    the comment is gone, the hex in the rule survives, and the surviving
+    one is still recognised by the same :data:`_HEX` the sweep uses.
+    """
+    sheet = ("/* a QLabel with no background paints the WINDOW colour --\n"
+             "   #000000 on dark -- behind its own text. */\n"
+             "QLabel { color: #161719; background: transparent; }")
+    painted = _painted(sheet)
+    assert {m.group(0) for m in _HEX.finditer(painted)} == {"#161719"}
+    assert "QLabel { color:" in painted
+
+
+# ===========================================================================
+# 2b. Filled danger surfaces
+# ===========================================================================
+
+@pytest.mark.parametrize("theme_name", theme.THEMES)
+def test_the_force_quit_button_is_legible_while_hovered(qtbot, theme_name):
+    """Hovering the force-quit button fills it; the ink has to survive that.
+
+    Found 2026-08-10 by the sweep above, which reported ``DangerButton
+    inlines #ffffff`` on glass. :func:`spacr.qt.shutdown.style_as_danger`
+    resolved the fill from the live palette but hard-coded the hover ink
+    as white, which is only right on light — ``error`` is a *pale* red on
+    cell and glass, so the ink on the one control that force-quits a run
+    measured **2.20:1** and **2.04:1**, below AA-large.
+
+    Pinned against ``bg`` rather than a literal because that is the role
+    the theme already reserves for this: ``CONTRAST_RULES`` carries
+    ``("bg", "error", 4.5)`` under the comment "`bg` is the ink on filled
+    accent/danger surfaces … DangerButton on hover", and the application
+    sheet's own ``#DangerButton:pressed`` rule inks with it.
+    """
+    from spacr.qt.shutdown import style_as_danger
+
+    palette = theme.palette_for(theme_name)
+    button = QPushButton("Force quit")
+    qtbot.addWidget(button)
+    style_as_danger(button, palette)
+
+    hover = _painted(button.styleSheet()).split(":hover", 1)[1]
+    fill = re.search(r"(?<![-\w])background:\s*(#[0-9a-fA-F]{6})",
+                     hover).group(1)
+    ink = re.search(r"(?<![-\w])color:\s*(#[0-9a-fA-F]{6})", hover).group(1)
+
+    assert fill.lower() == palette["error"].lower(), (
+        "the hover fill stopped following the live palette")
+    assert ink.lower() == palette["bg"].lower(), (
+        f"{theme_name}: hover ink is {ink}, not the palette's bg "
+        f"{palette['bg']} — a literal here is right on at most one theme")
+    ratio = theme.contrast_ratio(ink, fill)
+    assert ratio >= AA_BODY, (
+        f"{theme_name}: force-quit reads {ratio:.2f}:1 while hovered — "
+        f"ink {ink} on a fill of {fill}")
 
 
 # ===========================================================================

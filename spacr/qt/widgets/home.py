@@ -1277,12 +1277,19 @@ class HomePage(QWidget):
         registry comment in ``__init__``), so a stale flat fill cannot
         survive one, and there is no second attempt to guard against.
 
-        Ordered exactly as the module screens are, for the same two reasons:
-        the preference is read *before* anything is constructed, because not
-        building it is the cost the toggle exists to avoid; and the page
-        surfaces are cleared only *after* a successful install, so a failed
-        one leaves Home opaque and normal rather than transparent with
-        nothing behind it.
+        Ordered exactly as the module screens are: the preference is read
+        *before* anything is constructed, because not building it is the
+        cost the toggle exists to avoid, and the surfaces are cleared here
+        only *after* a successful install so that the animation is already
+        behind them when they go transparent.
+
+        That ordering is no longer what decides whether a failed install
+        leaves Home opaque, and the docstring used to claim it was.
+        ``__init__`` clears the surfaces again unconditionally after
+        calling this, because there is never nothing behind them —
+        :meth:`paintEvent` paints :meth:`page_fill`. See the comment on
+        that second call for why the old "stay opaque on failure" rule was
+        the black-slab bug rather than a safety net.
         """
         widget = None
         try:

@@ -508,7 +508,20 @@ class TestPreferencesWiring:
         assert fg == "#ffffff", "Space was treated as a light theme"
         assert preferences.figure_bg_is_transparent(bg), bg
 
-    def test_apply_preferences_only_pays_for_space(self, qapp, monkeypatch):
+    def test_apply_preferences_only_pays_for_space(
+            self, qapp, monkeypatch, deferred_deletions_flushed):
+        """Applying preferences costs one wallpaper lookup, and only on Space.
+
+        ``deferred_deletions_flushed`` is what makes the count sayable.
+        ``apply_preferences_to_app`` ends in ``setPalette`` +
+        ``setStyleSheet``, which raise ``PaletteChange`` on every live
+        widget, and ``AppScreen.changeEvent`` answers with a wallpaper
+        lookup — so the total is one for the application plus two for every
+        ``AppScreen`` still alive, including the ones an earlier test
+        finished with and Qt has not got round to deleting. Delivering
+        those pending deletions first is what makes ``== [1]`` mean "the
+        application paid once" rather than "nobody left a screen behind".
+        """
         from spacr.qt import preferences
         calls = []
         monkeypatch.setattr(preferences, "space_background_path",
