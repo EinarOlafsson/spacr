@@ -404,3 +404,34 @@ patch:
 
 RECOMMEND 2, falling back to 1. Both remove a stall the user did not ask
 for, and neither reintroduces the off-thread segfault.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE PRELOADER TRADE IS SETTLED: NONE OF THE FOUR. COVER IT.
+--------------------------------------------------------------------------------
+
+The four options above (drop it, preload on intent, warm a subprocess, keep
+it) all accepted the premise that the 3140 ms has to happen somewhere the
+user is looking. The maintainer rejected the premise:
+
+    "instead just wait to show everything until the preload is done. the
+     problem is the stutter if preload is triggered right away its fine."
+
+Which is right, and better than my recommendation. The work is not too slow;
+it is badly timed. Start it IMMEDIATELY and cover it with a full-window
+loading screen, and the 3140 ms stops being a stutter and becomes a load.
+
+Moved to instruction 74, which carries the design (spaCR logo on the
+installer's dark green, the strap line to its right, honest progress over the
+seven known modules) and the two hazards -- a blocking splash hangs the
+headless suite, and time-to-first-paint must not regress.
+
+WHAT REMAINS IN 55 after that: nothing measured and unattributed. Every stall
+this file set out to find is now named:
+
+    theme + stylesheet     1081 ms -> fixed (icon PNG cache)
+    MainWindow build       5107 ms -> 731 ms
+    recent_runs(10)         852 ms -> 24 ms
+    the two ~2.5 s stalls           -> _PipelinePreloader, handed to 74
+
+This instruction can close once 74 lands and the tick monitor shows a clean
+launch on a real display.
