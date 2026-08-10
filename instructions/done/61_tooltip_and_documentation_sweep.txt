@@ -768,3 +768,53 @@ stating its default. Note what that ceiling means: it is satisfiable
 dishonestly, by writing "Default X" for a key nothing reads. Four of these
 nine would have passed it that way, and the entry would have been a lie
 that reads as documentation.
+
+--------------------------------------------------------------------------------
+2026-08-09 - DONE. EVERY CLAUSE OF "HOW TO KNOW IT WORKED" IS AT ZERO AND HELD.
+--------------------------------------------------------------------------------
+
+The criterion was: every setting names its TYPE, its DEFAULT and its UNIT,
+in one or two sentences, and every API link resolves to a real page asserted
+by a test. Each clause, with what holds it:
+
+    type          0 missing   test_every_tooltip_opens_with_its_type
+    default       0 missing   ceiling lowered 84 -> 9 -> 0
+    length        0 over 600  MAX_TOOLTIP_CHARS, and 1 known short entry
+    unit          verified    see below
+    links         1151 / 0 dead, against a fresh build
+
+UNITS, and the reason there is no counter for it. Scanning the 75 settings
+whose NAME implies a physical quantity found 16 without a unit -- and 15 of
+those were the scan being wrong, not the tooltip: it did not know "bases",
+"points" or "micrometres" are units, and the rest are genuinely
+dimensionless (ratios, multiples of a median, 0-1 ranges, booleans). Only
+`target_size` was really missing one; it now says pixels. A guard test for
+units would be a regex asserting a vocabulary, and it would have reported 16
+failures against 1 real one -- the same false-positive shape as the bare
+docutils sweep in instruction 63. Recorded rather than automated.
+
+RUNNING THE LINK TEST, since it took two tries: it resolves URLs against
+`docs/<rel>`, and sphinx with `autoapi_root = 'api'` writes module pages to
+`<outdir>/api/spacr/...`. Building with `-b html docs/source docs/api` puts
+them at `docs/api/api/spacr/...` and every link appears dead. Build to a
+temp directory and copy its `api/` subtree to `docs/api`:
+
+    python -m sphinx -E -b html --keep-going docs/source /tmp/docsbuild
+    rm -rf docs/api && cp -r /tmp/docsbuild/api docs/api
+    SPACR_DOCS_BUILT=1 pytest tests/test_tooltip_api_links_resolve.py
+
+`/docs/*` is gitignored, so this leaves the tree clean.
+
+WHAT THIS TASK KEPT FINDING, which is the part worth carrying forward: a
+setting whose default cannot be found usually has no default because
+NOTHING READS IT. Eleven phantom settings came out of chasing defaults --
+seven in the earlier pass, four in the last nine. The ceiling test is
+satisfiable dishonestly by writing "Default X" for such a key, and four of
+these would have passed it that way. The check that actually finds them is
+`resolve_default_settings` across all ten apps plus a grep for
+`settings[key]`; neither is expensive.
+
+The remaining product decision is unchanged and is NOT this task's: those
+eleven should either be deleted from the table or reconnected to whatever
+they were meant to do. Each now says which it is, which is what makes the
+decision possible.
