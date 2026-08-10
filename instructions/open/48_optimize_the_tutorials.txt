@@ -2,8 +2,8 @@
 OPTIMIZE THE spaCR TUTORIALS
 ================================================================================
 
-Status:    complete after live QA of the 1.5.0.4 publication; the narration
-           transport and all five named visual/content defects are corrected
+Status:    complete after the second 1.5.0.4 mobile-smooth publication; the
+           narration transport, timing, pronunciation, and named visuals pass
 Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see how they are setup?"
            2026-08-08 — "great. now we need to audit these lessons one at a time.
 
@@ -32,6 +32,7 @@ Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see
            for Image UMAP the cell image you use are way to large for the iamge umap i cant eaven see the umap.so reduce thos settings so the images are only slightly larger than the UMAP itself and before you run the Image umap run the hyperparamiter search to define the hyperparamiters then run image UMAP and show the umap with overlayed images.
 
            the largest issue is that i cannot hear any of the voice tracks. i tested it on my phone and hear nothing. I get a popup that says \"Narration is unavailable the GitHub hosted video remains available.\""
+           2026-08-10 — "the audio is now available but it is verry hacky when i listen on my phone. i havnt tested a desktop yet. but it should be smooth on my phone. the highlight windows look good! the first one with the pypi spacr box now starts at the right place bit dosnt encasulate all the text assoceated with the releas so it needs to be widened to the right to do this. also i heared that the pronounsiation of Nvidia and CUDA was strange.CPU Nvidia CUDA all sound super wierd thevoice slows down on certain sylables, please find a phonetic reference for these types of words so the video sounds normal. the pronounciation of spacr is fine though."
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
@@ -140,6 +141,45 @@ optimization improves a named measurement without breaking lesson playback,
 narration synchronisation, hosted-media behavior, or the Pages budget.
 
 --------------------------------------------------------------------------------
+MOBILE SMOOTHNESS AND TECHNICAL PRONUNCIATION CONTRACT
+--------------------------------------------------------------------------------
+
+Making narration available is not sufficient if synchronization repeatedly
+seeks or rate-shifts the audible track. Mobile browsers can publish video time
+updates in coarse bursts. Treating that video clock as authoritative and
+hard-seeking narration whenever drift crosses a small threshold produces
+skipped consonants, repeated audio, and syllables that appear to slow down.
+
+The narration must therefore be the master clock during ordinary playback:
+
+- keep narration at its natural one-times playback rate;
+- map each narration scene onto the shared silent visual master;
+- correct material drift by seeking only the silent video;
+- seek narration only for an explicit user seek or a load/resume boundary;
+- mark programmatic video corrections so their seeking events cannot feed
+  back into a narration seek; and
+- test with a phone viewport, touch input, and a mobile user agent while
+  counting audio seeks, rate changes, waiting/stalled events, and clock
+  regressions—not merely checking that both media elements report `playing`.
+
+Do not approximate technical names by splitting them into separately stressed
+English words. Kokoro already supplies cohesive dictionary tokens for CPU and
+NVIDIA; retain those spellings for synthesis. CUDA needs one cohesive
+`/KOO-duh/` token, not the two independently stressed words `koo duh`. The
+reference pronunciations are Cambridge `/siː.piː.juː/`, NVIDIA's published
+`en-VID-ee-yah`, and NVIDIA's `koo-duh` for CUDA. Keep the display spelling in
+captions and use a synthesis-only form where required. Measure the rendered
+token duration and phoneme sequence in the actual default voice before
+regenerating every affected English voice. The current Misaki synthesis-only
+form is `[CUDA](/kˈuːdᵊ/)`: long `oo`, then one reduced unstressed schwa.
+
+Lesson 01's PyPI release emphasis is a semantic union of the current version
+title, release summary, complete pip command, and copy control. Derive it from
+those live DOM elements. A union of only the title text and code text clips the
+summary and right side of the command even when the box begins in the correct
+place.
+
+--------------------------------------------------------------------------------
 REOPENED LIVE QA — 2026-08-10
 --------------------------------------------------------------------------------
 
@@ -205,6 +245,29 @@ The reopened 1.5.0.4 correction is complete:
   match local hashes. The regenerated GitHub tree contains the player,
   captions, posters, and 1440p videos without YouTube integration or duplicated
   narration.
+
+Second mobile-smooth correction:
+
+- Narration is now the playback master at an unchanged one-times rate. In
+  iPhone-style dynamic tests, both the default voice and the substantially
+  slower `af_nicole` voice crossed scene boundaries with zero narration seeks,
+  rate changes, stalls, or clock regressions. Mapped visual drift remained
+  below 65 milliseconds because only the silent video absorbs corrections.
+- Lesson 01's live-DOM PyPI rectangle retains the correct left edge and widens
+  from 721 to 962 pixels. It encloses the complete 1.5.0.4 title, summary, pip
+  command, and copy control with an 11-pixel minimum inner margin; no version
+  text is painted onto the capture.
+- Lesson 04's 28 English voices were regenerated. CPU and NVIDIA are cohesive
+  dictionary tokens with no adjacent-token gap. CUDA is `/kˈuːdᵊ/` in every
+  voice, 0.325 to 0.538 seconds long, with no elongated final syllable. spaCR's
+  approved pronunciation is unchanged.
+- The complete 3,726-track audio release passed AAC, 24 kHz mono, true-peak,
+  timing, and dead-air checks. The source verifier again passed all 69 lessons,
+  eight languages, 54 voices, and 69 4K masters. The derived player/media suite
+  passed 20 tests and the Pages payload is 74.2 MiB against its 700 MiB ceiling.
+- Hugging Face accepted the corrected lesson 01/04 bundles at dataset commit
+  `684f3f24ca853c42b91d1e83e5b44a329fead51d`; the GitHub player cache key is
+  `20260810-mobile-smooth` so phones do not reuse the superseded sync code.
 
 --------------------------------------------------------------------------------
 AUDIT — LESSON 01: PYPI AND GITHUB
