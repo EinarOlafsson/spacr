@@ -237,28 +237,25 @@ def _restore_console_level_policy():
         return
 
     handler = vl._handler
-    saved = (list(handler.filters), handler.level) if handler else None
+    saved = ((list(handler.filters), handler.level)
+             if handler is not None else None)
     try:
         yield
     finally:
         current = vl._handler
-        if current is None:
-            pass
-        elif saved is not None and current is handler:
-            filters, level = saved
+        if current is not None:
+            # A handler that is not the one we measured — created during the
+            # test, or swapped for a new one — carries a policy that is
+            # entirely the test's, so "before" for it is no gate at all.
+            # The handler object itself is left attached; detaching it is a
+            # different concern and tests hold references to it.
+            restorable = current is handler and saved is not None
+            filters, level = saved if restorable else ([], 0)
             for existing in list(current.filters):
                 current.removeFilter(existing)
             for existing in filters:
                 current.addFilter(existing)
             current.setLevel(level)
-        elif saved is None:
-            # No handler existed before the test, so "before" was a console
-            # with no gate at all. The handler itself is left attached —
-            # detaching it is a different concern, and tests hold references
-            # to it — but its policy goes back to nothing.
-            for existing in list(current.filters):
-                current.removeFilter(existing)
-            current.setLevel(0)
 
 
 @pytest.fixture(autouse=True)

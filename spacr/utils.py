@@ -2030,7 +2030,13 @@ def _extract_filename_metadata(filenames, src, regular_expression, metadata_type
     return images_by_key
 
 def mask_object_count(mask):
-    """Return the number of nonzero labeled objects in ``mask``."""
+    """Return the number of nonzero labeled objects in ``mask``.
+
+    :param mask: integer label image where ``0`` is background. The count is the
+        number of *distinct* nonzero values, so label IDs need not be contiguous
+        and gaps left by filtering are not counted. A purely binary mask
+        therefore reports ``1`` however many blobs it contains.
+    """
     unique_labels = np.unique(mask)
     num_objects = len(unique_labels[unique_labels!=0])
     return num_objects
@@ -5322,7 +5328,16 @@ def model_metrics(model):
     plt.show()
 
 def check_multicollinearity(x):
-    """Checks multicollinearity of the predictors by computing the VIF."""
+    """Checks multicollinearity of the predictors by computing the VIF.
+
+    :param x: DataFrame of the design matrix -- one row per observation, one
+        column per predictor, and *no* response column. Every column is fed to
+        ``variance_inflation_factor`` via ``x.values``, so all columns must be
+        numeric; categorical predictors have to be one-hot encoded first. Add an
+        explicit constant column if you want the intercept accounted for, since
+        without one the VIFs are inflated by the shared mean. Perfectly
+        collinear columns yield ``inf``.
+    """
     vif_data = pd.DataFrame()
     vif_data["Variable"] = x.columns
     vif_data["VIF"] = [variance_inflation_factor(x.values, i) for i in range(x.shape[1])]
@@ -5424,7 +5439,17 @@ def MLR(merged_df, refine_model):
     return max_effects, max_effects_pvalues, model, df
 
 def get_files_from_dir(dir_path, file_extension="*"):
-    """Return glob matches for ``dir_path/file_extension``."""
+    """Return glob matches for ``dir_path/file_extension``.
+
+    :param dir_path: directory to list. It is joined to the pattern rather than
+        walked, so subdirectories are never searched and a nonexistent path
+        yields an empty list instead of an error.
+    :param file_extension: despite the name this is a full glob *pattern*, not a
+        suffix -- pass ``'*.tif'``, not ``'.tif'`` or ``'tif'``, or nothing
+        matches. Matching follows the filesystem's case sensitivity, and dotfiles
+        are excluded by ``glob`` semantics. Default ``'*'`` returns every
+        non-hidden entry, directories included.
+    """
     # ``glob`` is imported as the module here (see glob.glob usage elsewhere),
     # so it must be called as glob.glob — a bare glob(...) raised TypeError.
     return glob.glob(os.path.join(dir_path, file_extension))
@@ -5450,7 +5475,20 @@ def create_circular_mask(h, w, center=None, radius=None):
     return mask
     
 def apply_mask(image, output_value=0):
-    """Zero out (or set to ``output_value``) pixels outside a circular mask fit to ``image``."""
+    """Zero out (or set to ``output_value``) pixels outside a circular mask fit to ``image``.
+
+    The circle is not a parameter: :func:`create_circular_mask` is called with no
+    center or radius, so it is always the largest circle inscribed in the frame.
+    On a non-square image that means the *short* side sets the radius.
+
+    :param image: 2-D ``(H, W)`` or 3-D ``(H, W, C)`` array. The mask is built
+        from the first two axes and broadcast across every channel, so all
+        channels are cropped identically.
+    :param output_value: fill written outside the circle. It goes through
+        ``np.where``, so a value the input dtype cannot hold promotes the whole
+        result -- passing ``np.nan`` to a ``uint16`` image returns a float array,
+        not a masked integer one. Default ``0``.
+    """
     h, w = image.shape[:2]  # Assuming image is grayscale or RGB
     mask = create_circular_mask(h, w)
     
@@ -5463,7 +5501,17 @@ def apply_mask(image, output_value=0):
     return masked_image
     
 def invert_image(image):
-    """Return the intensity-inverted image, using the dtype max as the pivot."""
+    """Return the intensity-inverted image, using the dtype max as the pivot.
+
+    :param image: ndarray with an *integer* dtype. The pivot comes from
+        ``np.iinfo(image.dtype).max``, so a float image raises ``ValueError``
+        rather than inverting -- convert or rescale to an integer dtype first.
+        The pivot is the dtype ceiling, not the image maximum, so a dim ``uint16``
+        image inverts against 65535 and comes back near-white; normalize to the
+        dtype range first if you want a contrast-preserving inversion. A signed
+        dtype overflows and wraps without warning: under ``int8`` a pixel of
+        ``-100`` inverts to ``127 - (-100) = 227``, which wraps to ``-29``.
+    """
     # The maximum value depends on the image dtype (e.g., 255 for uint8)
     max_value = np.iinfo(image.dtype).max
     inverted_image = max_value - image
@@ -5555,7 +5603,19 @@ def resize_labels_back(labels, orig_dims):
     return resized_labels
 
 def calculate_iou(mask1, mask2):
-    """Return the intersection-over-union of two binary masks after zero-padding to a common shape."""
+    """Return the intersection-over-union of two binary masks after zero-padding to a common shape.
+
+    Unlike :func:`jaccard_index`, this returns ``0`` rather than ``nan`` when both
+    masks are empty, which is what makes it safe to call inside the matching loop.
+
+    :param mask1: 2-D array. Any nonzero value counts as foreground, so a
+        multi-label crop is treated as one merged object -- pass a single
+        object's mask if you want a per-object IoU.
+    :param mask2: 2-D array compared against ``mask1``. Shapes may differ;
+        :func:`pad_to_same_shape` zero-pads both at the bottom and right, which
+        assumes the two masks share a top-left origin. Two crops taken from
+        different offsets in the same image will score meaninglessly low.
+    """
     mask1, mask2 = pad_to_same_shape(mask1, mask2)
     intersection = np.logical_and(mask1, mask2).sum()
     union = np.logical_or(mask1, mask2).sum()
@@ -5583,7 +5643,24 @@ def match_masks(true_masks, pred_masks, iou_threshold):
     return matches
     
 def compute_average_precision(matches, num_true_masks, num_pred_masks):
-    """Return ``(precision, recall)`` given match count, true count, and predicted count."""
+    """Return ``(precision, recall)`` given match count, true count, and predicted count.
+
+    Despite the name this computes a single precision/recall point, not an
+    averaged precision; :func:`compute_ap_over_iou_thresholds` is what integrates
+    those points into an AP.
+
+    :param matches: the pair list from :func:`match_masks`. Only its length is
+        used, so any sized container works, but it must be the *matched* pairs
+        rather than all candidate pairs -- matching is greedy and one-to-one, so
+        the length is the true-positive count.
+    :param num_true_masks: total ground-truth objects; drives false negatives as
+        ``num_true_masks - len(matches)``. Passing a count smaller than the match
+        count silently yields a recall above 1, which
+        :func:`compute_ap_over_iou_thresholds` rejects with ``ValueError``.
+    :param num_pred_masks: total predicted objects, used the same way for false
+        positives. Both counts are the totals for the whole field, not per class.
+        Zero denominators return ``0`` instead of raising.
+    """
     TP = len(matches)
     FP = num_pred_masks - TP
     FN = num_true_masks - TP
@@ -5592,7 +5669,19 @@ def compute_average_precision(matches, num_true_masks, num_pred_masks):
     return precision, recall
 
 def pad_to_same_shape(mask1, mask2):
-    """Zero-pad ``mask1`` and ``mask2`` to their element-wise maximum shape."""
+    """Zero-pad ``mask1`` and ``mask2`` to their element-wise maximum shape.
+
+    Padding is appended at the bottom and right only, so the two masks are aligned
+    on their top-left corner. This is an alignment *assumption*, not a
+    registration: crops taken from different offsets are not brought into
+    correspondence by padding them.
+
+    :param mask1: 2-D array. Only axes 0 and 1 are considered, so a 3-D stack is
+        padded on its first two axes and left ragged on the third.
+    :param mask2: 2-D array padded to the same element-wise maximum shape. Each
+        mask is padded independently, so the larger one along a given axis is
+        returned untouched on that axis.
+    """
     # Find the shape differences
     shape_diff = np.array([max(mask1.shape[0], mask2.shape[0]) - mask1.shape[0], 
                            max(mask1.shape[1], mask2.shape[1]) - mask1.shape[1]])
@@ -5607,7 +5696,23 @@ def pad_to_same_shape(mask1, mask2):
     return padded_mask1, padded_mask2
     
 def compute_ap_over_iou_thresholds(true_masks, pred_masks, iou_thresholds):
-    """Return the area under the precision-recall curve swept over ``iou_thresholds``."""
+    """Return the area under the precision-recall curve swept over ``iou_thresholds``.
+
+    :param true_masks: sequence of *per-object* ground-truth masks, one entry per
+        object -- not a single label image. Its length is the ground-truth count
+        used for recall, so filtering objects out changes the denominator.
+    :param pred_masks: sequence of per-object predicted masks, matched greedily
+        against ``true_masks`` at each threshold. Matching walks predictions in
+        the order given and claims the first free true mask that clears the
+        threshold, so the ordering can change which pairs form.
+    :param iou_thresholds: iterable of IoU cutoffs to sweep. The curve is the
+        trapezoid over the resulting points sorted by recall, so a single
+        threshold gives an area of ``0`` -- pass at least two (COCO convention is
+        ``np.linspace(0.5, 0.95, 10)``). Duplicate thresholds contribute
+        zero-width segments and simply do not count.
+    :raises ValueError: if a computed precision or recall falls outside
+        ``[0, 1]``, which indicates the mask counts disagree with the matches.
+    """
     precision_recall_pairs = []
     for iou_threshold in iou_thresholds:
         matches = match_masks(true_masks, pred_masks, iou_threshold)
@@ -5624,7 +5729,25 @@ def compute_ap_over_iou_thresholds(true_masks, pred_masks, iou_thresholds):
     return _trapezoid(sorted_precisions, x=sorted_recalls)
     
 def compute_segmentation_ap(true_masks, pred_masks, iou_thresholds=np.linspace(0.5, 0.95, 10)):
-    """Return the COCO-style segmentation AP by matching connected components across IoU thresholds."""
+    """Return the COCO-style segmentation AP by matching connected components across IoU thresholds.
+
+    This is the whole-image entry point: unlike
+    :func:`compute_ap_over_iou_thresholds` it takes label images and splits them
+    into objects itself.
+
+    :param true_masks: ground-truth label or binary image for one field. It is
+        re-run through ``label()``, so existing IDs are discarded and touching
+        objects that share a border merge into one component -- the AP is
+        computed on connected components, not on the IDs you supply.
+    :param pred_masks: predicted mask for the same field, treated identically.
+        Each object is reduced to its bounding-box crop by ``regionprops``, so
+        objects are compared shape-to-shape with their positions dropped; two
+        identically shaped cells in different corners score as a perfect match.
+    :param iou_thresholds: IoU cutoffs to sweep. Default
+        ``np.linspace(0.5, 0.95, 10)`` is the COCO sweep. This default array is
+        evaluated once at import and shared by every call, so do not mutate it
+        in place.
+    """
     true_mask_labels = label(true_masks)
     pred_mask_labels = label(pred_masks)
     true_mask_regions = [region.image for region in regionprops(true_mask_labels)]
@@ -5632,13 +5755,31 @@ def compute_segmentation_ap(true_masks, pred_masks, iou_thresholds=np.linspace(0
     return compute_ap_over_iou_thresholds(true_mask_regions, pred_mask_regions, iou_thresholds)
 
 def jaccard_index(mask1, mask2):
-    """Return the Jaccard/IoU index of two binary masks."""
+    """Return the Jaccard/IoU index of two binary masks.
+
+    :param mask1: array of any shape; nonzero is foreground, so a multi-label
+        mask collapses to one merged object.
+    :param mask2: array that must already have the *same shape* as ``mask1`` --
+        there is no padding step here, so mismatched shapes either raise a
+        broadcast error or, worse, broadcast silently against a length-1 axis.
+        Use :func:`calculate_iou` when the shapes can differ; it also returns
+        ``0`` for two empty masks, whereas this divides by zero and returns
+        ``nan`` with a runtime warning.
+    """
     intersection = np.logical_and(mask1, mask2)
     union = np.logical_or(mask1, mask2)
     return np.sum(intersection) / np.sum(union)
 
 def dice_coefficient(mask1, mask2):
-    """Return the Dice similarity of two masks, treating any nonzero value as foreground."""
+    """Return the Dice similarity of two masks, treating any nonzero value as foreground.
+
+    :param mask1: array binarized with ``> 0``, so negative values are counted as
+        *background* -- a signed difference image will not behave as expected.
+    :param mask2: array of the same shape as ``mask1``; like
+        :func:`jaccard_index` there is no padding step, so shapes must already
+        agree. Two empty masks return ``1.0`` here (defined as perfect
+        agreement) rather than ``nan``.
+    """
     # Convert to binary masks
     mask1 = np.where(mask1 > 0, 1, 0)
     mask2 = np.where(mask2 > 0, 1, 0)
@@ -5671,7 +5812,23 @@ def extract_boundaries(mask, dilation_radius=1):
     return np.logical_xor(dilated, eroded)
 
 def boundary_f1_score(mask_true, mask_pred, dilation_radius=1):
-    """Return the boundary F1 score between two masks with tolerance ``dilation_radius``."""
+    """Return the boundary F1 score between two masks with tolerance ``dilation_radius``.
+
+    Both masks are binarized before the boundary is taken, so this scores the
+    outline of the *foreground as a whole*: boundaries where two labeled objects
+    abut are interior to that foreground and do not appear. Split/merge errors
+    between touching cells are therefore invisible to this metric.
+
+    :param mask_true: reference label or binary mask, reduced to its boundary by
+        :func:`extract_boundaries`.
+    :param mask_pred: predicted mask of the same shape; the two boundary images
+        are intersected element-wise, so the masks must be pixel-registered.
+    :param dilation_radius: half-width of the square structuring element, giving a
+        band ``2 * dilation_radius + 1`` pixels wide. This is the matching
+        tolerance -- raising it forgives localization error but also thickens both
+        boundaries, so scores rise for every model and stop being comparable
+        across different radii. Default ``1``.
+    """
     # Assume extract_boundaries is defined to extract object boundaries with given dilation_radius
     boundary_true = extract_boundaries(mask_true, dilation_radius)
     boundary_pred = extract_boundaries(mask_pred, dilation_radius)
@@ -6763,7 +6920,24 @@ class GradCAM:
         return cam
 
 def show_cam_on_image(img, mask):
-    """Return ``img`` overlaid with a jet colormap of ``mask`` as an 8-bit RGB image."""
+    """Return ``img`` overlaid with a jet colormap of ``mask`` as an 8-bit RGB image.
+
+    The sum of heatmap and image is renormalized by its own peak, so the output
+    brightness is relative to the single hottest pixel -- two images overlaid
+    separately are not comparable to each other on absolute intensity.
+
+    :param img: 3-channel ``(H, W, 3)`` image already scaled to ``[0, 1]``. It is
+        added to the colormap rather than blended, so a ``[0, 255]`` image
+        swamps the heatmap and the result is a near-uniform wash. A 2-D
+        grayscale array fails to broadcast against the 3-channel heatmap.
+    :param mask: ``(H, W)`` activation map in ``[0, 1]``, matching ``img`` in
+        height and width. It is scaled by 255 and cast with ``np.uint8``, which
+        wraps rather than clips -- a value above 1.0 lands at an arbitrary point
+        in the colormap (1.1 wraps to the cold end, 1.5 to the middle, 2.0 back
+        to the hot end), so normalize the CAM before passing it. An all-zero
+        mask does not produce a black overlay: jet maps 0 to a non-zero color,
+        so a zero mask over a zero image renormalizes to a saturated flat field.
+    """
     heatmap = cv2.applyColorMap(np.uint8(255 * mask), cv2.COLORMAP_JET)
     heatmap = np.float32(heatmap) / 255
     cam = heatmap + np.float32(img)
@@ -6829,14 +7003,31 @@ class IntegratedGradients:
         return integrated_grads
 
 def get_db_paths(src):
-    """Return the standard ``measurements/measurements.db`` paths for one or more source roots."""
+    """Return the standard ``measurements/measurements.db`` paths for one or more source roots.
+
+    :param src: plate folder, or list of plate folders for a multi-plate run. A
+        bare string is wrapped, so the return type is always a list and a
+        single-plate caller still has to index ``[0]``. These are the run roots
+        that Measure wrote into, not the ``measurements`` folder itself -- the
+        ``measurements/measurements.db`` suffix is appended here. Nothing is
+        checked for existence, so a typo produces a path that only fails later at
+        connect time.
+    """
     if isinstance(src, str):
         src = [src]
     db_paths = [os.path.join(source, 'measurements/measurements.db') for source in src]
     return db_paths
 
 def get_sequencing_paths(src):
-    """Return the standard ``sequencing/sequencing_data.csv`` paths for one or more source roots."""
+    """Return the standard ``sequencing/sequencing_data.csv`` paths for one or more source roots.
+
+    :param src: plate folder, or list of plate folders, given in the *same order*
+        as the corresponding :func:`get_db_paths` call -- the two lists are
+        zipped positionally when measurements are joined to barcode counts, so a
+        reordered list silently pairs a plate's images with another plate's
+        reads. A bare string is wrapped, so the result is always a list, and no
+        path is checked for existence.
+    """
     if isinstance(src, str):
         src = [src]
     seq_paths = [os.path.join(source, 'sequencing/sequencing_data.csv') for source in src]
@@ -7009,7 +7200,21 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
     return embedding, labels, reducer
 
 def remove_noise(embedding, labels):
-    """Drop rows of ``embedding`` (and ``labels``) whose label is DBSCAN noise (``-1``)."""
+    """Drop rows of ``embedding`` (and ``labels``) whose label is DBSCAN noise (``-1``).
+
+    Rows are removed, not renumbered, so positional indices into the original
+    data (an ``image_paths`` list, a DataFrame row order) no longer line up with
+    the returned arrays -- filter those alongside, using the same mask, or keep
+    the identities before calling.
+
+    :param embedding: ``(N, D)`` ndarray of points. It is filtered by boolean
+        mask, so a Python list or a DataFrame will not index correctly; pass a
+        numpy array.
+    :param labels: length-``N`` ndarray of cluster labels, aligned row-for-row
+        with ``embedding``. Only ``-1`` is treated as noise, which is the DBSCAN
+        convention -- KMeans labels contain no ``-1`` and pass through unchanged,
+        making this a no-op rather than an error on KMeans output.
+    """
     non_noise_indices = labels != -1
     embedding = embedding[non_noise_indices]
     labels = labels[non_noise_indices]
@@ -7074,7 +7279,20 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors,
     return fig
 
 def generate_colors(num_clusters, black_background):
-    """Return a deterministic Viridis RGBA palette for cluster points."""
+    """Return a deterministic Viridis RGBA palette for cluster points.
+
+    :param num_clusters: how many colors to sample, evenly spaced across the
+        Viridis range ``0.08``-``0.92`` (the extremes are trimmed so the darkest
+        cluster stays visible on black and the lightest on white). Coerced with
+        ``int()`` and floored at ``1``, so ``0`` or a negative still yields a
+        one-entry palette rather than an empty one. Count the clusters you will
+        actually plot: DBSCAN's ``-1`` noise label is not drawn, so including it
+        shifts every real cluster's color.
+    :param black_background: accepted for call compatibility with the plotting
+        helpers but **not used** -- the palette is Viridis either way. Set the
+        background through ``setup_plot``/``theme_colors`` instead; changing this
+        flag will not change the colors you get back.
+    """
     count = max(int(num_clusters), 1)
     positions = np.linspace(0.08, 0.92, count)
     return mpl.colormaps['viridis'](positions)
@@ -7461,7 +7679,17 @@ def correct_paths(df, base_path, folder='data'):
         return adjusted_image_paths
 
 def delete_folder(folder_path):
-    """Recursively delete ``folder_path`` if it exists (files and subdirectories included)."""
+    """Recursively delete ``folder_path`` if it exists (files and subdirectories included).
+
+    :param folder_path: directory to remove, contents and all. A missing path or
+        a plain file is reported on stdout and ignored -- the function never
+        raises for those, so it cannot be used to confirm that a delete
+        happened; check with ``os.path.isdir`` afterwards if that matters.
+        Deletion is unconditional and unprompted, with no trash or dry-run, so a
+        wrong path is not recoverable. Symlinked subdirectories are not descended
+        into but are still handed to ``os.rmdir``, which raises on a symlink, so
+        a tree containing one aborts part-way through.
+    """
     if os.path.exists(folder_path) and os.path.isdir(folder_path):
         for root, dirs, files in os.walk(folder_path, topdown=False):
             for name in files:
@@ -7530,6 +7758,17 @@ def normalize_feature_filter(filter_by):
     Settings imported from CSV files and older Qt sessions can contain the
     literal string ``"None"``. Treating that as a feature-name substring
     removes every measurement column, although the UI means "all channels".
+
+    :param filter_by: the raw setting value. A string is stripped and, if it
+        case-insensitively matches one of the "no filter" spellings
+        (``""``, ``"none"``, ``"null"``, ``"all"``, ``"all_channels"``,
+        ``"all channels"``, ``"*"``), collapsed to ``None`` -- otherwise the
+        stripped string is returned as a feature-name substring. Anything that is
+        not a string (a real ``None``, or a list of channels) passes through
+        untouched, so this is safe to apply unconditionally to whatever the
+        settings dict holds. Note ``"*"`` means *no filter*, not a glob: real
+        patterns are not supported, and the surviving string is matched as a
+        plain substring of the column name.
     """
     if isinstance(filter_by, str):
         value = filter_by.strip()
@@ -7888,7 +8127,24 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
 
 # Create a function to check if images overlap
 def check_overlap(current_position, other_positions, threshold):
-    """Return ``True`` if ``current_position`` is within ``threshold`` of any point in ``other_positions``."""
+    """Return ``True`` if ``current_position`` is within ``threshold`` of any point in ``other_positions``.
+
+    :param current_position: candidate point as a sequence of coordinates. Any
+        dimensionality works as long as it matches the entries of
+        ``other_positions``; a genuine length mismatch raises ``ValueError`` from
+        the subtraction, while a length-1 entry broadcasts silently and yields a
+        meaningless distance.
+    :param other_positions: already-placed points to test against. Scanned
+        linearly with an early return, so cost grows with the number of placed
+        items -- this is the inner loop of the image-scatter layout. An empty
+        sequence returns ``False``, so the first placement always succeeds.
+    :param threshold: minimum center-to-center Euclidean separation, in the same
+        units as the coordinates (data units for an embedding, not pixels or
+        points). The comparison is strict ``<``, so a distance exactly equal to
+        ``threshold`` counts as *not* overlapping. Because it measures centers,
+        set it to roughly the thumbnail width; half of that still lets images
+        overlap visually.
+    """
     for other_position in other_positions:
         distance = np.linalg.norm(np.array(current_position) - np.array(other_position))
         if distance < threshold:
@@ -7970,7 +8226,23 @@ def search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric,
     return embedding, labels
 
 def load_image(image_path):
-    """Load and preprocess an image."""
+    """Load and preprocess an image.
+
+    The preprocessing is fixed to the ImageNet recipe used by
+    :func:`extract_features`: resize to 224x224, then normalize with the ImageNet
+    channel means and standard deviations. None of it is configurable.
+
+    :param image_path: path to any file PIL can open. It is forced through
+        ``convert('RGB')``, so a 16-bit or float microscopy TIFF is downcast to
+        8-bit and a single-channel image is replicated across three channels
+        rather than rejected -- the dynamic range of a raw scientific image is
+        lost here, so rescale to 8-bit yourself if that matters. Aspect ratio is
+        not preserved: ``Resize((224, 224))`` takes both dimensions, so
+        non-square crops are stretched, not letterboxed. Returns a
+        ``(1, 3, 224, 224)`` tensor with the batch axis already added, so it can
+        be fed to a model directly but must be concatenated, not stacked, to
+        batch several images.
+    """
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
@@ -8006,7 +8278,23 @@ def extract_features(image_paths, resnet=resnet50):
     return np.array(features)
 
 def check_normality(series):
-    """Helper function to check if a feature is normally distributed."""
+    """Helper function to check if a feature is normally distributed.
+
+    This is a *failure to reject* at alpha 0.05, not evidence of normality: the
+    answer is ``True`` whenever the D'Agostino-Pearson test does not find
+    significant skew or kurtosis. Small samples therefore look normal for want of
+    power, and very large ones fail on deviations too small to matter -- which is
+    what decides whether :func:`perform_statistical_tests` sends a feature to
+    ANOVA or to Kruskal-Wallis.
+
+    :param series: one numeric column of observations, pooled across all groups.
+        ``NaN`` propagates and makes the p-value ``NaN``, which compares ``False``
+        against alpha and so is reported as normal -- drop missing values first.
+        Under 8 observations ``scipy`` cannot run the skew test, returns ``NaN``,
+        and the feature is likewise reported as normal; a constant column
+        behaves the same way. Values are treated as one sample, so a strongly
+        bimodal feature whose groups are each normal is judged on the mixture.
+    """
     k2, p = stats.normaltest(series)
     alpha = 0.05
     if p < alpha:  # null hypothesis: x comes from a normal distribution
@@ -8108,6 +8396,23 @@ def cluster_feature_analysis(all_df, cluster_col='cluster'):
     """
     Perform Random Forest feature importance, ANOVA for normally distributed features,
     and Kruskal-Wallis for non-normally distributed features. Combine results into a single DataFrame.
+
+    :param all_df: DataFrame holding the numeric feature columns *and*
+        ``cluster_col``, one row per object. The same frame is passed to the
+        Random Forest and to the statistical tests, so the two rankings describe
+        the same rows. The features are selected by
+        ``schema.model_feature_columns(..., allow_unknown=True)``, which means
+        stray numeric bookkeeping columns (row/column indices, object IDs) are
+        picked up as features unless you drop them first. Because each feature is
+        routed to *either* ANOVA or Kruskal-Wallis, the merged output has exactly
+        one of the two p-value pairs filled per row and ``NaN`` in the other.
+    :param cluster_col: column holding the group label, excluded from the
+        features and used as the Random Forest target and the grouping variable
+        for the tests. It needs at least two distinct labels, and every group
+        needs enough rows for the test to run. DBSCAN's ``-1`` noise label is not
+        special-cased here, so it is analysed as if it were a real cluster --
+        strip it with :func:`remove_noise` first if you do not want that.
+        Default ``'cluster'``.
     """
     rf_df = random_forest_feature_importance(all_df, cluster_col)
     anova_df, kruskal_df = perform_statistical_tests(all_df, cluster_col)
@@ -8600,7 +8905,23 @@ def get_ml_results_paths(src, model_type='xgboost', channel_of_interest=1):
     return data_path, permutation_path, feature_importance_path, model_metricks_path, permutation_fig_path, feature_importance_fig_path, shap_fig_path, plate_heatmap_path, settings_csv, ml_features
 
 def augment_image(image):
-    """Return a list of PIL images covering 4 rotations x 2 horizontal reflections of ``image``."""
+    """Return a list of PIL images covering 4 rotations x 2 horizontal reflections of ``image``.
+
+    The 8 outputs are the dihedral group of the square and include the unmodified
+    original as element 0, so the list is an 8x expansion, not 8 *extra* images.
+    Ordering is rotation-major -- ``[0deg, 0deg flipped, 90deg, 90deg flipped, ...]``
+    -- which matters if you are keeping a parallel list of labels.
+
+    :param image: a PIL image or a numpy array. Arrays are used as-is; PIL images
+        are converted first. A 2-D grayscale input is expanded to 3 channels via
+        ``cv2.cvtColor``, so every result is RGB even when the input was not --
+        channel count is not preserved. The rotations go through ``cv2``, which
+        expects ``uint8`` or another OpenCV-supported dtype; the final
+        ``Image.fromarray`` likewise rejects the float or 16-bit arrays typical
+        of raw microscopy, so convert to 8-bit before calling. Because 90-degree
+        rotations swap height and width, a non-square input yields images of two
+        different shapes in the same list.
+    """
     augmented_images = []
 
     # Convert PIL image to numpy array if necessary

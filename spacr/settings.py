@@ -177,12 +177,26 @@ def unregister_defaults(app_key):
     Only the factory: the types, tooltips and categories it merged stay,
     because another module may already have added keys to the same
     category and unpicking a merge is guesswork.
+
+    :param app_key: key to drop, coerced with ``str()`` exactly as
+        :func:`register_defaults` stored it. An unknown key is not an
+        error — the call returns ``False`` — so a test teardown can run
+        unconditionally. Dropping a key first is also how a module
+        re-registers without reaching for ``replace=True``.
     """
     return _DEFAULTS_REGISTRY.pop(str(app_key), None) is not None
 
 
 def has_registered_defaults(app_key):
-    """Whether a module registered a defaults factory for ``app_key``."""
+    """Whether a module registered a defaults factory for ``app_key``.
+
+    :param app_key: key to look up, coerced with ``str()`` as
+        :func:`register_defaults` stored it. This registry holds only what
+        registers itself, so the built-in ``set_default_*`` families in
+        this file answer ``False`` — they are reached through the GUI
+        dispatch instead. ``True`` only promises a factory is there, not
+        that it works: :func:`defaults_for` still has to run it.
+    """
     return str(app_key) in _DEFAULTS_REGISTRY
 
 
@@ -199,6 +213,10 @@ def defaults_for(app_key, settings=None):
     back, and a factory that hands out one shared dict would let one
     module's screen edit another's defaults.
 
+    :param app_key: key some module passed to :func:`register_defaults`.
+        Only that registry is consulted, so the ``set_default_*`` families
+        defined below in this file are not reachable through it; the error
+        lists the keys that are.
     :param settings: values to seed the factory with, exactly like the
         ``settings`` argument of every ``set_default_*`` in this file.
     :raises KeyError: when nothing is registered for ``app_key``.
@@ -763,6 +781,16 @@ def cellpose_model_menu(block=False, refresh=False):
     cpsam — but a user whose saved settings say ``cyto2`` has to be able
     to see their own value in the combo rather than have it silently
     replaced the first time they open the panel.
+
+    :param block: passed through to :func:`cellpose_model_choices` — import
+        Cellpose (~2.5 s, it pulls in torch) instead of answering from the
+        stock list when Cellpose is not loaded yet. Leave it off while a
+        settings page is being built.
+    :param refresh: passed through likewise — discard the cached answer and
+        ask Cellpose again, for a caller that has just registered a model.
+    :returns: the live choices followed by every legacy spelling not
+        already among them, so the aliases are offered even with ``block``
+        off and the fallback list in play.
     """
     live = cellpose_model_choices(block=block, refresh=refresh)
     return live + tuple(n for n in _CELLPOSE_ALIASES if n not in live)

@@ -263,7 +263,21 @@ def plot_image_mask_overlay(
     """
 
     def random_color_cmap(n_labels, seed=None):
-        """Generate a random-looking but deterministic colormap with a unique seed."""
+        """Generate a random-looking but deterministic colormap with a unique seed.
+
+        :param n_labels: How many object colours to draw. Index 0 of the
+            returned colormap is forced to black for background, so the map
+            holds ``n_labels + 1`` entries; callers here pass
+            ``int(outline.max() + 1)`` per object type, or
+            ``int(combined_mask.max() + 1)`` for the merged panel. A value
+            ``<= 0`` short-circuits to a black-only colormap rather than
+            raising.
+        :param seed: Seed for a local ``default_rng``; the same seed always
+            produces the same hue assignment, which is why each object type
+            is given its own fixed seed and so keeps its colours across
+            panels. ``None`` draws fresh entropy and colours change per call.
+        :returns: A ``ListedColormap`` of vivid, well-separated hues.
+        """
         if n_labels <= 0:
             return ListedColormap(np.array([[0, 0, 0]]))
 
@@ -655,7 +669,24 @@ def plot_image_mask_overlay_magenta_outlines(
     """
 
     def random_color_cmap(n_labels, seed=None):
-        """Generates a random color map for a given number of labels."""
+        """Generates a random color map for a given number of labels.
+
+        :param n_labels: How many object colours to draw. Index 0 is
+            prepended as black for background, so the map holds
+            ``n_labels + 1`` entries; callers here pass
+            ``int(outline.max() + 1)`` per object type, or
+            ``int(combined_mask.max() + 1)`` for the merged panel. Colours
+            are drawn as uniform RGB, so unlike the
+            HSV variant in :func:`plot_image_mask_overlay` some come out
+            dark and low-contrast against the image.
+        :param seed: Seeds the *global* ``numpy.random`` state, not a local
+            generator, so passing it also shifts every later ``np.random``
+            draw in the process. Callers here pass a fresh
+            ``random.randint(0, 100)`` per panel, which is why the same
+            object gets a different colour in each panel and each run.
+            ``None`` leaves the global state alone.
+        :returns: A ``ListedColormap``.
+        """
         if seed is not None:
             np.random.seed(seed)
         rand_colors = np.random.rand(n_labels, 3)
@@ -1282,12 +1313,35 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
     if extensions is None:
         extensions = ['.npy', '.tif', '.tiff', '.png']
     def normalize_image(image, lower=1, upper=99):
-        """Percentile-clip and rescale ``image`` to ``[0, 1]``."""
+        """Percentile-clip and rescale ``image`` to ``[0, 1]``.
+
+        :param image: Any numeric array; normalisation is over the whole
+            array at once, so a multi-channel stack is scaled by a single
+            pair of percentiles rather than per channel.
+        :param lower: Lower percentile, in 0-100. Default ``1``.
+        :param upper: Upper percentile, in 0-100, and must be strictly
+            greater than ``lower``: when the two percentiles evaluate equal
+            (a flat image) the rescale divides by zero and returns ``nan``
+            rather than a blank frame, and swapping the two inverts the
+            image instead of raising. Default ``99``.
+        :returns: A float array clipped to ``[0, 1]``.
+        """
         p2, p98 = np.percentile(image, (lower, upper))
         return np.clip((image - p2) / (p98 - p2), 0, 1)
 
     def find_files(folders, extensions=None):
-        """Return a dict keyed by base filename mapping to files with the requested extensions."""
+        """Return a dict keyed by base filename mapping to files with the requested extensions.
+
+        :param folders: Folder paths, each walked recursively. Grouping is
+            by basename without extension, and only names found in *every*
+            folder survive the final filter — one missing file drops that
+            name from the result entirely, and two files with the same
+            basename under one folder keep only the last one walked.
+        :param extensions: Extensions to accept, matched with
+            ``str.endswith`` so they must include the dot and match case.
+            ``None`` means ``['.npy', '.tif', '.tiff', '.png']``.
+        :returns: ``{basename: {folder: path}}`` for complete groups only.
+        """
         if extensions is None:
             extensions = ['.npy', '.tif', '.tiff', '.png']
         file_dict = {}
@@ -1934,7 +1988,25 @@ def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', thresho
     dim = stack.shape
     
     def plot_single_array(array, ax, title, chosen_cmap):
-        """Render one channel from ``stack`` onto ``ax`` with a colorbar."""
+        """Render one channel from ``stack`` onto ``ax`` with a colorbar.
+
+        Args:
+            array (ndarray): One 2D plane of ``stack``. Its number of
+                distinct values is what decides whether it is treated as an
+                intensity image or as a label mask.
+            ax (matplotlib.axes.Axes): Axes drawn on in place; its frame and
+                ticks are switched off, and nothing is returned.
+            title (str): Panel title. When the plane is treated as a mask,
+                the number of distinct values is appended as
+                ``", N (obj.)"`` -- one more than the object count, because
+                the background value counts as one of them.
+            chosen_cmap (Colormap): Colormap for the intensity case only.
+                It is discarded when the plane has no more than
+                ``threshold`` unique values (the enclosing function's
+                argument, default ``500``), because a random per-label
+                colormap is generated instead so neighbouring objects stay
+                distinguishable.
+        """
         unique_values = np.unique(array)
         num_unique_values = len(unique_values)
         
@@ -2661,7 +2733,19 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
     """
 
     def resize_if_needed(image, max_size):
-        """Resize image if any dimension exceeds max_size while maintaining aspect ratio."""
+        """Resize image if any dimension exceeds max_size while maintaining aspect ratio.
+
+        :param image: 2D or ``(H, W, C)`` array. The channel axis is left
+            untouched, and the result is cast back to the input dtype, so a
+            label mask keeps integer labels — but the interpolation is
+            anti-aliased, which can invent label values that belong to no
+            object along object borders.
+        :param max_size: Cap on the larger of height and width, in pixels.
+            The image is returned unchanged when it already fits, so no
+            upscaling ever happens; a non-positive value drives the scale
+            factor to zero, so pass a real pixel budget.
+        :returns: The resized array, or ``image`` itself when it fits.
+        """
         if max(image.shape[:2]) > max_size:
             scale = max_size / max(image.shape[:2])
             new_shape = (int(image.shape[0] * scale), int(image.shape[1] * scale))
@@ -2671,12 +2755,33 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
         return image
 
     def generate_contours(mask):
-        """Generate contours for each object in the mask using OpenCV."""
+        """Generate contours for each object in the mask using OpenCV.
+
+        :param mask: Label mask, cast to ``uint8`` before tracing — labels
+            above 255 wrap around, and because only external contours are
+            retrieved, touching objects trace as one outline and holes
+            inside an object are not outlined.
+        :returns: The OpenCV contour list, ready for ``cv2.drawContours``.
+        """
         contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         return contours
 
     def apply_contours_on_image(image, mask, color=(255, 0, 0), thickness=2):
-        """Draw the contours on the original image."""
+        """Draw the contours on the original image.
+
+        :param image: Base image. A 2D array is normalised to ``uint8`` and
+            promoted to RGB first, which assumes it is already scaled to
+            ``[0, 1]``; anything already 3D is copied and drawn on as-is, so
+            the caller owns its dtype and value range.
+        :param mask: Label mask the outlines come from, traced with
+            ``generate_contours``. It must line up pixel-for-pixel with
+            ``image``, so resize both with the same ``max_size``.
+        :param color: Contour colour as a BGR/RGB triple in 0-255, matching
+            however the image channels are ordered. Default ``(255, 0, 0)``.
+        :param thickness: Line width in pixels; a negative value fills each
+            contour solid instead of outlining it. Default ``2``.
+        :returns: A new RGB array; the input ``image`` is not modified.
+        """
         # Ensure the image is in RGB format
         if image.ndim == 2:  # Grayscale to RGB
             image = normalize_to_uint8(image)  # Convert to uint8 if needed
@@ -2691,7 +2796,15 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
         return image_rgb
 
     def normalize_to_uint8(image):
-        """Normalize and convert image to uint8."""
+        """Normalize and convert image to uint8.
+
+        :param image: Array whose values are assumed to be scaled to
+            ``[0, 1]`` already — the function only clips and multiplies by
+            255, it does not rescale. Raw 16-bit camera data therefore
+            saturates to solid white apart from its zero pixels, and
+            negative values clip to black.
+        :returns: A ``uint8`` array of the same shape.
+        """
         image = np.clip(image, 0, 1)  # Ensure values are between 0 and 1
         return (image * 255).astype(np.uint8)  # Convert to uint8
     
@@ -2758,7 +2871,18 @@ def plot_resize(images, resized_images, labels, resized_labels):
     :returns: None
     """
     def prepare_image(img):
-        """Return ``(display_array, cmap)`` handling 2D/3D input shapes."""
+        """Return ``(display_array, cmap)`` handling 2D/3D input shapes.
+
+        :param img: A 2D array, or a 3D array in channels-last order. One
+            channel is squeezed to 2D and three or four are passed through
+            as RGB/RGBA with a ``None`` colormap; any other channel count
+            (a 5-channel spaCR stack, or a channels-first array read
+            straight off disk) falls back to the mean across the last axis,
+            which is a legal but usually misleading picture.
+        :returns: ``(array, cmap)`` to hand straight to ``imshow``, where
+            ``cmap`` is ``None`` for true-colour data.
+        :raises ValueError: if ``img`` is neither 2D nor 3D.
+        """
         if img.ndim == 2:
             return img, 'gray'
         elif img.ndim == 3:
@@ -3060,7 +3184,16 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
     if y_lim is None:
         y_lim = [0, 1]
     def lorenz_curve(data):
-        """Calculate Lorenz curve."""
+        """Calculate Lorenz curve.
+
+        :param data: 1D array of non-negative counts; it is sorted here, so
+            the caller's order does not matter. The curve is normalised by
+            the running total's last element, so an all-zero input divides
+            by zero and an input mixing signs is not a Lorenz curve at all.
+            Must be non-empty — an empty array indexes past the end.
+        :returns: ``len(data) + 1`` cumulative shares rising from 0 to 1,
+            one longer than the input because the origin is prepended.
+        """
         sorted_data = np.sort(data)
         cumulative_data = np.cumsum(sorted_data)
         lorenz_curve = cumulative_data / cumulative_data[-1]
@@ -3068,7 +3201,19 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
         return lorenz_curve
     
     def gini_coefficient(data):
-        """Calculate Gini coefficient from data."""
+        """Calculate Gini coefficient from data.
+
+        :param data: 1D array of non-negative counts, sorted internally.
+            It is normalised by ``np.sum(data)``, so an all-zero input
+            yields ``nan``. Unlike ``lorenz_curve``, an empty array does
+            not raise here — it silently returns ``1.0``, the value for
+            maximum inequality — so filter empty plates out upstream.
+        :returns: The Gini coefficient as a float, from ``0.0`` for a
+            perfectly even distribution up towards ``1.0`` as the counts
+            concentrate on a few gRNAs. The area is taken with the
+            trapezoid rule, so an even distribution reports exactly ``0.0``
+            rather than ``1/n``.
+        """
         sorted_data = np.sort(data)
         n = len(data)
         cumulative_data = np.cumsum(sorted_data) / np.sum(sorted_data)
@@ -3080,7 +3225,26 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
         return gini
 
     def remove_outliers_by_wells(data, name_col, wells_col):
-        """Remove outliers based on 95% confidence interval for well counts."""
+        """Remove outliers based on 95% confidence interval for well counts.
+
+        :param data: DataFrame with one row per well-and-name observation.
+            Whole names are kept or dropped together, never individual
+            rows, so the surviving frame still has every well of every
+            name it keeps.
+        :param name_col: Column identifying the gRNA (or other name). Rows
+            are grouped on it and the group *size* — the number of wells a
+            name appears in — is what the fence is applied to, so the count
+            column's values play no part in this filter.
+        :param wells_col: Accepted so the call reads symmetrically with the
+            enclosing function's ``value_column``, but never read: the well
+            count is derived from the group sizes above. Passing a wrong or
+            missing column name changes nothing.
+        :returns: ``data`` restricted to the names inside the fence. The
+            fence is ``1.5 *`` the 5th-to-95th-percentile spread, not the
+            interquartile range, so it is far wider than a textbook IQR
+            rule and its lower edge is usually negative — in practice only
+            unusually widespread names are removed.
+        """
         well_counts = data.groupby(name_col, observed=False).size()
         q1 = well_counts.quantile(0.05)
         q3 = well_counts.quantile(0.95)
@@ -3276,7 +3440,22 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
     """
 
     def join_measurments_and_annotation(src, tables = None):
-        """Join per-object measurement tables with the ``png_list`` annotation table."""
+        """Join per-object measurement tables with the ``png_list`` annotation table.
+
+        :param src: spaCR experiment directory; the database is read from
+            ``<src>/measurements/measurements.db`` and no other layout is
+            supported — pass the experiment folder, not the ``.db`` file.
+        :param tables: Object tables to merge, joined on ``prcfo``.
+            ``None`` means ``['cell', 'nucleus', 'pathogen', 'cytoplasm']``,
+            and every name listed must exist in the database. Listing fewer
+            tables is how you plot a run that measured fewer object types.
+        :returns: One row per object, with the ``png_list`` crop path
+            attached by a left join.
+        :raises pandas.errors.MergeError: if ``png_list`` holds more than
+            one crop per ``prcfo``; the join is validated ``one_to_one``
+            precisely so duplicated crops cannot silently multiply the
+            measurement rows and inflate the jitter plot.
+        """
         if tables is None:
             tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
         from .io import _read_and_merge_data, _read_db
@@ -3934,7 +4113,25 @@ class spacrGraph:
         return test_results
     
     def perform_posthoc_tests(self, is_normal, unique_groups):
-        """Perform post-hoc tests for multiple groups based on all_to_all flag."""
+        """Perform post-hoc tests for multiple groups based on all_to_all flag.
+
+        :param is_normal: Outcome of the normality check, which selects the
+            family of test: True runs Tukey HSD, False runs Dunn's test
+            with an automatically chosen p-adjustment. It only matters when
+            post-hoc testing runs at all — see ``unique_groups``.
+        :param unique_groups: The distinct group labels. Only its *length*
+            is read; the comparisons themselves are rebuilt from
+            ``self.df[self.grouping_column]``, so reordering or renaming
+            entries has no effect. Fewer than three groups returns an empty
+            list, as does ``self.all_to_all`` being False, because pairwise
+            correction is meaningless for a single comparison.
+        :returns: A list of per-comparison dicts with ``Comparison``,
+            ``Test Statistic`` (always ``None`` — neither test reports one),
+            ``p-value``, ``Test Name`` and the ``n_object`` / ``n_well``
+            counts; empty when no post-hoc test was warranted. Only
+            ``self.data_column[0]`` is tested, so extra data columns are
+            ignored here.
+        """
 
         from .sp_stats import choose_p_adjust_method
 
@@ -3998,6 +4195,15 @@ class spacrGraph:
 
         Nothing is displayed: retrieve the figure with :meth:`get_figure`
         (and the statistics with :meth:`get_results`), or call ``plt.show()``.
+
+        :param ax: Existing ``Axes`` to draw into, for placing this graph in
+            a panel of a larger figure. ``self.fig`` is then set to that
+            axes' parent figure, so a later ``save=True`` writes the whole
+            enclosing figure, not this panel alone. ``None`` creates a fresh
+            figure sized from the group count and ``bar_width`` — and note
+            that with a single ``data_column`` the standardisation pass
+            still calls ``ax.figure.set_size_inches``, which resizes a
+            shared figure underneath its other panels.
         """
 
         def _generate_tabels(unique_groups):
@@ -4872,7 +5078,20 @@ def plot_data_from_csv(settings):
     
 
     def filter_rows_by_column_values(df: pd.DataFrame, column: str, values: list) -> pd.DataFrame:
-        """Return a filtered DataFrame where only rows with the column value in the list are kept."""
+        """Return a filtered DataFrame where only rows with the column value in the list are kept.
+
+        :param df: Frame to filter; it is not modified, and the result is a
+            ``.copy()`` so later assignment to it raises no
+            ``SettingWithCopyWarning``.
+        :param column: Column to test. Must exist, or ``KeyError`` is
+            raised — here it is the caller's ``grouping_column``.
+        :param values: Values to keep, matched with ``isin`` so comparison
+            is exact and type-sensitive: the string ``'1'`` will not match
+            an integer ``1`` read from the CSV. An empty list keeps nothing
+            and yields an empty frame rather than passing everything
+            through.
+        :returns: A new filtered DataFrame.
+        """
         return df[df[column].isin(values)].copy()
     
     if isinstance(settings['src'], str):
@@ -4985,6 +5204,13 @@ def plot_region(settings):
         Named for the format it used to hard-code; it follows the
         preference now, like every other figure the user keeps, and
         `save_figure` creates the parent directory itself.
+
+        :param fig: Figure to write. It is left open, so the caller can
+            still return it to the notebook after saving.
+        :param path: Destination path. Its extension is rewritten to
+            whichever format the preference selected, so passing a ``.pdf``
+            name does not force PDF; missing parent directories are
+            created. The path actually written is printed, not returned.
         """
         path = save_figure(fig, path, bbox_inches='tight')
         print(f"Saved {path}")
@@ -5143,7 +5369,19 @@ def overlay_masks_on_images(img_folder, normalize=True, resize=True, save=False,
     """
 
     def normalize_image(image):
-        """Normalize the image to the 1st and 99th percentiles."""
+        """Normalize the image to the 1st and 99th percentiles.
+
+        :param image: Image array of any numeric dtype, typically the raw
+            16-bit TIFF. The percentiles are taken over the whole array, so
+            a multi-channel image is stretched by one shared window rather
+            than per channel, and the brightest and darkest 1% saturate.
+            A flat or near-constant image puts both percentiles on the same
+            value; the rescale then divides by zero and the ``uint8`` cast
+            turns the resulting ``nan`` into an undefined value, so guard
+            empty fields upstream.
+        :returns: A ``uint8`` array on 0-255, ready to blend with the mask
+            overlay.
+        """
         lower, upper = np.percentile(image, [1, 99])
         image = np.clip((image - lower) / (upper - lower), 0, 1)
         return (image * 255).astype(np.uint8)
