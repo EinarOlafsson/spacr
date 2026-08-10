@@ -1,0 +1,834 @@
+[
+ {
+  "file": "spacr/utils.py",
+  "line": 8831,
+  "symbol": "generate_cytoplasm_mask",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The Returns section describes a binary mask that also excludes pathogens, but the body is `cytoplasm_mask = np.where(nucleus_mask != 0, 0, cell_mask)` \u2014 it returns the cell mask's integer labels (not 1s) and never sees a pathogen mask at all (there is no pathogen parameter)."
+ },
+ {
+  "file": "spacr/io.py",
+  "line": 5599,
+  "symbol": "generate_loaders",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The documented default is wrong: the body reads `num_workers = max(0, int(n_jobs)) if n_jobs is not None else 0`, so leaving n_jobs unset gives 0 (in-process loading), not a CPU-derived worker count \u2014 and the adjacent comment says the CPU-derived minimum was deliberately removed."
+ },
+ {
+  "file": "spacr/utils.py",
+  "line": 4302,
+  "symbol": "choose_model",
+  "category": "stale",
+  "severity": "high",
+  "problem": "'custom' is advertised as a legal model_type but the body raises NotImplementedError for it, and the two parameters that only exist to serve it \u2014 chan_dict (\"forwarded to a custom model builder\") and channels \u2014 are never read anywhere in the function."
+ },
+ {
+  "file": "spacr/utils.py",
+  "line": 8957,
+  "symbol": "correct_metadata_column_names",
+  "category": "stale",
+  "severity": "high",
+  "problem": "Nothing is renamed in place \u2014 every branch uses `df = df.rename(columns=...)`, which returns a new frame, so a caller who trusts \"in place\" and discards the return value gets an unmodified DataFrame (contrast canonicalize_measurement_columns, which really does mutate `df.columns`)."
+ },
+ {
+  "file": "spacr/io.py",
+  "line": 3235,
+  "symbol": "read_plot_model_stats",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "The saved files are not necessarily PDFs: the inner helper routes through `spacr.plot.save_figure`, which by its own contract picks the format from the user's figure preference and rewrites the extension to match, so the docstring promises a format the code no longer guarantees."
+ },
+ {
+  "file": "spacr/core.py",
+  "line": 65,
+  "symbol": "preprocess_generate_masks",
+  "category": "returns",
+  "severity": "medium",
+  "problem": "The function does not always return None \u2014 the very first statement is `if settings.get('dry_run', False): return run_preflight(settings, 'mask')`, and neither the returns clause nor the (otherwise exhaustive) list of settings keys mentions dry_run or the preflight result it returns."
+ },
+ {
+  "file": "spacr/utils.py",
+  "line": 7012,
+  "symbol": "plot_embedding",
+  "category": "params",
+  "severity": "medium",
+  "problem": "Twenty-one parameters \u2014 including non-obvious ones a caller must decide (plot_by_cluster, smooth_lines, remove_image_canvas, interactive_payload, point_color, point_alpha, outline_width) \u2014 and not one :param: entry; the whole body of the docstring is a single :returns: line."
+ },
+ {
+  "file": "spacr/io.py",
+  "line": 5736,
+  "symbol": "generate_training_dataset",
+  "category": "params",
+  "severity": "medium",
+  "problem": "The one parameter is a settings dict driving three different selection modes, yet no key is documented (no :param:/Args at all), there is no :returns: even though it returns `(train_class_dir, test_class_dir)`, and the space is spent on an internal implementation note instead."
+ },
+ {
+  "file": "spacr/utils.py",
+  "line": 7108,
+  "symbol": "plot_clusters",
+  "category": "params",
+  "severity": "medium",
+  "problem": "The parameter list stops at `verbose` (correctly flagged as unused), leaving the three parameters that actually change the rendering \u2014 point_color, point_alpha and outline_width, all read in the body \u2014 undocumented, so the docstring documents the dead knob and omits the live ones."
+ },
+ {
+  "file": "spacr/utils.py",
+  "line": 7995,
+  "symbol": "perform_statistical_tests",
+  "category": "returns",
+  "severity": "medium",
+  "problem": "The function returns a two-element tuple `(anova_df, kruskal_df)` whose split depends on a per-feature normality test, and nothing in the docstring says a tuple comes back or what is in each frame."
+ },
+ {
+  "file": "spacr/utils.py",
+  "line": 7969,
+  "symbol": "random_forest_feature_importance",
+  "category": "summary",
+  "severity": "medium",
+  "problem": "The summary is a bare noun phrase restating the function name \u2014 it does not say what happens (features are z-scaled, a 100-tree classifier is fitted against cluster_col) \u2014 and there is no :param: or :returns: for the sorted Feature/Importance DataFrame it hands back."
+ },
+ {
+  "file": "spacr/utils.py",
+  "line": 7946,
+  "symbol": "extract_features",
+  "category": "params",
+  "severity": "low",
+  "problem": "Neither parameter is documented (notably `resnet`, which takes a torchvision constructor, not a model instance) and the returned stacked `(N, 2048)` ndarray of pooled features is not described."
+ },
+ {
+  "file": "spacr/deep_spacr.py",
+  "line": 168,
+  "symbol": "apply_model_to_tar",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The code routes every output through `_probability_columns`, which for a >2-class head softmaxes and stores the winning-class confidence plus one `prob_class_<i>` column per class (and a `predicted_label`/`cv_predictions` column) \u2014 it never sigmoids those logits, so the documented rule is wrong for exactly the multiclass case the function now supports, and the documented output columns are incomplete."
+ },
+ {
+  "file": "spacr/deep_spacr.py",
+  "line": 75,
+  "symbol": "apply_model",
+  "category": "stale",
+  "severity": "high",
+  "problem": "Same drift: `_probability_columns` softmaxes any multi-logit head and the frame then also carries `predicted_label` and `prob_class_<i>` columns, so the docstring both misstates the maths and understates the returned schema."
+ },
+ {
+  "file": "spacr/deep_spacr.py",
+  "line": 652,
+  "symbol": "test_model_core",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The function returns a 4-tuple `(metrics, probs, labels, results_df)`, so a caller who follows the docstring and writes `metrics, df = test_model_core(...)` gets a ValueError; the two middle values are documented nowhere."
+ },
+ {
+  "file": "spacr/deep_spacr.py",
+  "line": 1277,
+  "symbol": "train_test_model",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "With `cross_validation_enabled` (or `cross_validation_folds >= 2`) the train branch returns `cv_result_loc`, the per-fold metrics CSV, not a model path \u2014 a cross-validation mode the settings list in this docstring never mentions either."
+ },
+ {
+  "file": "spacr/deep_spacr.py",
+  "line": 2160,
+  "symbol": "train_model",
+  "category": "params",
+  "severity": "medium",
+  "problem": "The signature has ~40 parameters and the docstring documents four of them as a changelog-style 'New parameters' list, leaving loss_type, optimizer_type, schedule, early_stopping_patience semantics, focal/label-smoothing knobs etc. undocumented, and never says it returns `(model, model_path)` (or `(None, None)` when the architecture cannot be built)."
+ },
+ {
+  "file": "spacr/deep_spacr.py",
+  "line": 3739,
+  "symbol": "annotate_filter_vision",
+  "category": "summary",
+  "severity": "medium",
+  "problem": "The order is backwards and the step is conditional: the function annotates, filters on `filter_column`/`upper_threshold`/`lower_threshold` and writes `<src>_annotated_filtered.csv` first, and only strips training images afterwards, and only when `settings['remove_train']` is set \u2014 none of those settings keys are documented."
+ },
+ {
+  "file": "spacr/deep_spacr.py",
+  "line": 725,
+  "symbol": "test_model_performance",
+  "category": "summary",
+  "severity": "medium",
+  "problem": "The first line says nothing about what the function does (evaluate a model on one loader and return the metrics row plus the per-file results) and addresses an unnamed 'your caller', which reads as a leftover note to the author rather than API documentation."
+ },
+ {
+  "file": "spacr/deep_spacr.py",
+  "line": 2979,
+  "symbol": "visualize_classes",
+  "category": "summary",
+  "severity": "medium",
+  "problem": "The body is `for target_y in range(2)`, so a 3+ class model silently gets only its first two classes visualised and a single-name `class_names` raises IndexError; the promise 'per class' is only walked back in a parenthesis on the `class_names` entry."
+ },
+ {
+  "file": "spacr/diameter.py",
+  "line": 59,
+  "symbol": "spacr.diameter (module docstring)",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "`_aggregate` computes `fused = split.size > 0 and (collapsed or outnumbered)` where only `outnumbered` requires `confluent`, so a plane whose thresholding kept nothing switches to the watershed estimate on that one signal alone, with no density check and no threshold estimate left to 'stand'."
+ },
+ {
+  "file": "spacr/external_masks.py",
+  "line": 687,
+  "symbol": "prepare_external_masks",
+  "category": "returns",
+  "severity": "medium",
+  "problem": "This is the module's main entry point and its return is annotated `Any` because it is two different things \u2014 an `ExternalMaskPlan` when `preview_only` is set and an `ExternalMaskResult` otherwise \u2014 yet nothing in the docstring says so, or that the plan/result summaries are printed to stdout."
+ },
+ {
+  "file": "spacr/external_masks.py",
+  "line": 689,
+  "symbol": "prepare_external_masks",
+  "category": "summary",
+  "severity": "low",
+  "problem": "The summary names the callers instead of the effect \u2014 it never says the function plans the import, prints the preview, and (unless `preview_only`) writes the whole project and runs Measure."
+ },
+ {
+  "file": "spacr/external_masks.py",
+  "line": 522,
+  "symbol": "run_external_masks",
+  "category": "params",
+  "severity": "medium",
+  "problem": "Neither parameter is documented \u2014 `settings` is the full Measure settings contract from `default_settings` and decides `channels`, `png_dims`, `crop_mode`, `cytoplasm` and `overwrite` \u2014 nor is the `ExternalMaskResult` return or the `ConfigurationError` raised for a plan whose `ok` is False (and for every shape/dtype/label-range violation)."
+ },
+ {
+  "file": "spacr/measure.py",
+  "line": 2675,
+  "symbol": "measure_crop",
+  "category": "stale",
+  "severity": "high",
+  "problem": "Only the ``src`` check raises ValueError; the normalize/normalize_by/int-settings/channels checks print a WARNING and `return None`, and even under SPACR_STRICT_ERRORS `raise_if_strict` raises `ConfigurationError`, never ValueError \u2014 so a caller writing `except ValueError` silently gets an empty run."
+ },
+ {
+  "file": "spacr/measure.py",
+  "line": 1905,
+  "symbol": "save_and_add_image_to_grid",
+  "category": "stale",
+  "severity": "high",
+  "problem": "This describes crop format 2, which spacr.crops now calls \"the format that is *wrong*\" and no longer writes: the caller at measure.py:2576 builds the planes with `build_png_channels(resolve_png_channel_mapping(settings))`, whose default mapping is `{'r': 2, 'g': 1, 'b': 0}`, so png_dims[0] lands in BLUE \u2014 the exact reverse of the note; the note's closing claim that \"read_crop_png converts legacy content on load\" is also inverted (legacy/format 1 is now read as-is)."
+ },
+ {
+  "file": "spacr/crops.py",
+  "line": 1151,
+  "symbol": "to_cv2_bgr",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The stated effect is the opposite of what the current writer does: its input is now `build_png_channels` output in declared r,g,b file order (format 3), where png_dims[0] is blue by `DEFAULT_PNG_CHANNEL_MAPPING`, and this same module documents format 2 as the wrong format that `migrate_crop_folder` exists to undo."
+ },
+ {
+  "file": "spacr/crops.py",
+  "line": 50,
+  "symbol": "module docstring (\"Crop PNG format\" section)",
+  "category": "stale",
+  "severity": "high",
+  "problem": "Every specific claim here is out of date relative to the format table 900 lines below: the current format is 3 (declared_rgb, `CROP_FORMAT_CURRENT`), format 2 is the broken one, and `read_crop_png` reverses format 2 while returning legacy format-1 content untouched (`_FORMAT_IS_DECLARED_ORDER[1] is True`)."
+ },
+ {
+  "file": "spacr/custom_features.py",
+  "line": 1,
+  "symbol": "module docstring",
+  "category": "stale",
+  "severity": "high",
+  "problem": "Nothing in the package ever calls `discover_features`/`call_feature` \u2014 `grep -rn custom_features spacr/*.py` finds only the `__init__` export, so a user who drops a file into ~/.spacr/features/ gets no extra DB columns at all; the only callers are tests."
+ },
+ {
+  "file": "spacr/measure.py",
+  "line": 3023,
+  "symbol": "process_meassure_crop_results",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The function takes only `(partial_results, settings)` \u2014 there is no `save_figures` parameter, and figures are always saved (`save_figure(fig, fig_path)`), so the summary's \"optionally save the figures\" is wrong too."
+ },
+ {
+  "file": "spacr/measure.py",
+  "line": 3046,
+  "symbol": "generate_cellpose_train_set",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The function ends with `return ledger`, so callers get a RunLedger (which is how they would check what failed), not None."
+ },
+ {
+  "file": "spacr/crops.py",
+  "line": 1782,
+  "symbol": "read_crop_png",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "Legacy (format 1) content is precisely what is NOT reversed any more \u2014 the code reverses only when `_FORMAT_IS_DECLARED_ORDER` differs, i.e. only for format 2 \u2014 so a reader trying to reason about which folders get touched is told the wrong one."
+ },
+ {
+  "file": "spacr/measure.py",
+  "line": 2643,
+  "symbol": "measure_crop",
+  "category": "returns",
+  "severity": "medium",
+  "problem": "The first branch of the body is `if settings.get('dry_run'): return run_preflight(settings, 'measure')`, which returns a `List[Problem]` and writes nothing \u2014 and `dry_run` is not listed among the settings keys the function reads."
+ },
+ {
+  "file": "spacr/crops.py",
+  "line": 1464,
+  "symbol": "write_crop_folder_marker",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "The parameter's own default is `CROP_FORMAT_CURRENT`, which is `CROP_FORMAT_DECLARED_RGB` (3) \u2014 a value the doc does not list, while listing format 2 which nothing writes any more."
+ },
+ {
+  "file": "spacr/measure.py",
+  "line": 3316,
+  "symbol": "generate_object_dataset",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "`cytoplasm` is not an accepted value with the documented defaults: `mask_dims` defaults to `{'cell':4,'nucleus':5,'pathogen':6,'organelle':7}` and the very next check raises `ValueError(\"no mask slice known for object_type...\")`, so the caller must pass `mask_dims` explicitly \u2014 which this entry does not say."
+ },
+ {
+  "file": "spacr/feature_dict.py",
+  "line": 3199,
+  "symbol": "describe_database",
+  "category": "returns",
+  "severity": "medium",
+  "problem": "The frame is built from `_FRAME_COLUMNS`, which also carries `key, object_types, channel_scope, module, written_when, concepts` \u2014 six columns the docstring never mentions, so the documented shape (12 columns) does not match the returned one (18)."
+ },
+ {
+  "file": "spacr/ml.py",
+  "line": 3950,
+  "symbol": "generate_ml_scores",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The function actually ends with `return [output, plate_heatmap]` (line 4186) \u2014 a two-element list holding ml_analysis's 10-element result list and a matplotlib Figure; the ten path names exist only as locals and are never returned, so any caller written from this docstring unpacks garbage."
+ },
+ {
+  "file": "spacr/ml.py",
+  "line": 4782,
+  "symbol": "interpret_vision_model",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The function ends with `return merged_df` (line 5146) and hands back the merged per-object measurement DataFrame; the 'See Also' note reinforces the error by describing the other entry point as the one 'returning result DataFrames'."
+ },
+ {
+  "file": "spacr/ml.py",
+  "line": 350,
+  "symbol": "prepare_formula",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The claim is unconditional but false in both branches: the default (random_row_column_effects=False) returns '... + rowID + columnID', i.e. row and column as FIXED effects, and neither branch mentions plate at all \u2014 the random structure lives in fit_mixed_model's re_formula, not in this formula."
+ },
+ {
+  "file": "spacr/ml.py",
+  "line": 3649,
+  "symbol": "clean_controls",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The body is wrapped in `if isinstance(values, list):`, so passing a single value (the documented scalar form) silently removes nothing and returns the frame untouched, with no error and no printed message."
+ },
+ {
+  "file": "spacr/ml.py",
+  "line": 520,
+  "symbol": "minimum_cell_simulation",
+  "category": "params",
+  "severity": "medium",
+  "problem": "Six parameters and no :param: entries at all; worse, the advertised 'tolerance control' is dead \u2014 the signature default `tolerance=0.02` is never read, the body uses `settings['tolerance']` instead, and `sample_size` is silently rebound by the inner `for sample_size in sample_sizes` loop."
+ },
+ {
+  "file": "spacr/ml.py",
+  "line": 2177,
+  "symbol": "save_summary_to_file",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "It only ever writes `model.summary().as_text()`, so no CSV is ever produced; the default `file_path='summary.csv'` yields a plain-text file wearing a .csv extension, which is the opposite of what the docstring promises."
+ },
+ {
+  "file": "spacr/ml.py",
+  "line": 3673,
+  "symbol": "process_scores",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "The count path uses `grouped.sum()`, not a count \u2014 it returns the well's summed response (and applies to 'horseshoe' as well as 'poisson'), contradicting the function's own `:param regression_type:` entry two paragraphs later which correctly says 'aggregation uses ``sum``'."
+ },
+ {
+  "file": "spacr/ml.py",
+  "line": 395,
+  "symbol": "check_and_clean_data",
+  "category": "returns",
+  "severity": "medium",
+  "problem": "No :param: or :returns: at all for a function whose returned frame is the model input: it drops every column except a fixed whitelist, computes the `gene_fraction` column the regression formula depends on, and raises ValueError when a (prc, grna) pair carries two fractions \u2014 none of which 'clean data accordingly' conveys."
+ },
+ {
+  "file": "spacr/ml.py",
+  "line": 520,
+  "symbol": "minimum_cell_simulation",
+  "category": "returns",
+  "severity": "medium",
+  "problem": "The summary describes only the plot, but the function returns the elbow point's sample size (the minimum cell count callers then feed to process_scores) and writes `results/cell_min_threshold.pdf` next to settings['count_data'][0]; neither the return value nor the file is documented."
+ },
+ {
+  "file": "spacr/ml.py",
+  "line": 895,
+  "symbol": "check_distribution",
+  "category": "returns",
+  "severity": "medium",
+  "problem": "The 'recommendation' is the return value \u2014 one of the literal strings 'logit', 'quasi_binomial', 'beta', 'ols' or 'glm' that regression() feeds straight into regression_type \u2014 and neither the returned vocabulary nor the `epsilon=1e-6` boundary parameter is documented."
+ },
+ {
+  "file": "spacr/ml.py",
+  "line": 334,
+  "symbol": "select_glm_family",
+  "category": "summary",
+  "severity": "low",
+  "problem": "The summary only restates the function name, documents neither `y` nor the returned statsmodels family instance, and gives the reader no way to tell it apart from the fully documented pick_glm_family_and_link (line 1005) that sits on the same API page and does the same job with different rules."
+ },
+ {
+  "file": "spacr/classifier_evaluation.py",
+  "line": 805,
+  "symbol": "evaluate_predictions",
+  "category": "returns",
+  "severity": "medium",
+  "problem": "The module's central function returns a six-key dict ('summary', 'predictions', 'confusion_counts', 'confusion_normalized', 'per_plate', 'calibration') that is the whole evaluation-bundle contract, and no :returns: describes it \u2014 spacr.confusion's module docstring has to document the 'predictions' frame's columns on its behalf."
+ },
+ {
+  "file": "spacr/sequencing.py",
+  "line": 130,
+  "symbol": "save_qc_df_to_csv",
+  "category": "stale",
+  "severity": "high",
+  "problem": "Nothing is summed: the file is written with `index=False` so the re-read frame has a RangeIndex while the incoming `qc_df` is indexed `['NaN_Counts']`, so `qc_df.add(existing_qc_df, fill_value=0)` takes the union of the two indexes and the CSV gains one more row per chunk instead of accumulating totals (verified against pandas 2.3.3)."
+ },
+ {
+  "file": "spacr/sequencing.py",
+  "line": 212,
+  "symbol": "process_chunk",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The attribution is inverted -- the shipped default `settings.DEFAULT_BARCODE_REGEX` uses `(?P<columnID>...)`/`(?P<rowID>...)`, and settings.py both mandates those names in a comment ('Group names MUST be columnID / rowID') and documents them in the `regex` help text, so a reader is told the names that are actually canonical are 'legacy' leftovers."
+ },
+ {
+  "file": "spacr/counting.py",
+  "line": 329,
+  "symbol": "CountingSession.describe",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "The one example the docstring gives is not what the code produces: every class gets a percentage and a total is appended, so 12/18 renders as `infected 12 (40%) \u00b7 uninfected 18 (60%) \u00b7 30 total`."
+ },
+ {
+  "file": "spacr/sequencing.py",
+  "line": 786,
+  "symbol": "generate_barecode_mapping",
+  "category": "params",
+  "severity": "medium",
+  "problem": "The enumerated settings omit `barcode_qc` and `target_grnas_per_well`, which are read by the per-sample QC step and turn on an entire extra stage writing plots and a report into `<dst>/barcode_qc`; neither key appears in `set_default_generate_barecode_mapping` or the settings help text either, so this docstring is the only place a caller could learn they exist."
+ },
+ {
+  "file": "spacr/batch_correction.py",
+  "line": 823,
+  "symbol": "correction_kwargs",
+  "category": "params",
+  "severity": "medium",
+  "problem": "A public three-parameter function documents none of them and none of the six keys it emits, and it silently omits the combat-only keys (`batch_covariate_column`, `batch_combat_mean_only`) that every caller has to add by hand -- splatting its result alone into `correct_from_metadata` with `batch_correction='combat'` raises."
+ },
+ {
+  "file": "spacr/sequencing.py",
+  "line": 919,
+  "symbol": "barecodes_reverse_complement",
+  "category": "stale",
+  "severity": "low",
+  "problem": "The extension is stripped before the suffix is appended, so `rows.csv` produces `rows_RC.csv`, not the `rows.csv_RC.csv` that the literal template describes."
+ },
+ {
+  "file": "spacr/counting.py",
+  "line": 75,
+  "symbol": "CountClass",
+  "category": "stale",
+  "severity": "low",
+  "problem": "`CountClass` never assigns a positional shortcut -- `__post_init__` only stringifies it, so a directly constructed `CountClass('infected')` has `shortcut == ''`; the '1'-'9' numbering happens in `CountingSession.add_class`."
+ },
+ {
+  "file": "spacr/counting.py",
+  "line": 147,
+  "symbol": "CountingSession.add_class",
+  "category": "params",
+  "severity": "low",
+  "problem": "The public keyword-only `shortcut_index` parameter, which decides the '1'-'9' key the class answers to, is undocumented."
+ },
+ {
+  "file": "spacr/counting.py",
+  "line": 367,
+  "symbol": "CountingSession.summary",
+  "category": "returns",
+  "severity": "low",
+  "problem": "The enumerated columns are incomplete -- each row also carries a `total` column, which matters to anyone reading the exported summary CSV."
+ },
+ {
+  "file": "spacr/plot.py",
+  "line": 3313,
+  "symbol": "create_grouped_plot",
+  "category": "returns",
+  "severity": "high",
+  "problem": "The function ends with `return plt.gcf(), results_df`, so it returns a (Figure, DataFrame) tuple and the documented `None` is simply false \u2014 a caller reading the reference page will never unpack the stats DataFrame it actually hands back."
+ },
+ {
+  "file": "spacr/plot.py",
+  "line": 4851,
+  "symbol": "plot_region",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The three saves go through the nested `save_figure_as_pdf` helper, whose own docstring says it \"Save[s] ``fig`` in the user's chosen figure format\" via `save_figure`, so the files are PNG whenever the figure-format preference is PNG and the extension is rewritten to match."
+ },
+ {
+  "file": "spacr/report.py",
+  "line": 1719,
+  "symbol": "collect_report",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "The body inserts plugin-contributed `Section` objects into `sections` (`sections.insert(insert_at, plugin_section)`), so a report can have more sections than `SECTION_KEYS` and sections whose key is not in `SECTION_KEYS` at all."
+ },
+ {
+  "file": "spacr/plot.py",
+  "line": 3887,
+  "symbol": "spacrGraph.create_plot",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "The method never calls `plt.show()` (it ends at `ax.margins(x=0.12)`), so it builds the figure onto `self.fig` but displays nothing \u2014 the caller must show or fetch it via `get_figure()`, which the docstring does not mention."
+ },
+ {
+  "file": "spacr/plot.py",
+  "line": 3487,
+  "symbol": "spacrGraph",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "The class also implements and branches on `'line'` and `'line_std'` (`_create_line_graph`, `_create_line_with_std_area`, and the repeated `if not self.graph_type in ['line','line_std']` guards in `create_plot`), so the documented list of plot types is incomplete."
+ },
+ {
+  "file": "spacr/plot.py",
+  "line": 2520,
+  "symbol": "plot_plates",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "`generate_plate_heatmap` accepts `'all'`, not `'auto'` (and its own docstring says so); a caller following this page passes an unrecognised string that falls through to the untested else-branch instead of a documented mode."
+ },
+ {
+  "file": "spacr/toxo.py",
+  "line": 36,
+  "symbol": "custom_volcano_plot",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "The save goes through `spacr.plot.save_figure`, which picks the format from the user's figure preference and rewrites the extension, so the file is a PNG named `.png` whenever the preference says PNG \u2014 not \"a PDF\"."
+ },
+ {
+  "file": "spacr/plot.py",
+  "line": 208,
+  "symbol": "plot_image_mask_overlay",
+  "category": "params",
+  "severity": "medium",
+  "problem": "Fifteen parameters a caller must decide about (`channels`, `mode`, `all_on_all`, `all_outlines`, `filter_dict`, `save_pdf`, `export_tiffs`, \u2026) are undocumented, and the returned matplotlib `Figure` is not mentioned either."
+ },
+ {
+  "file": "spacr/plot.py",
+  "line": 562,
+  "symbol": "plot_image_mask_overlay_magenta_outlines",
+  "category": "summary",
+  "severity": "medium",
+  "problem": "Byte-identical summary to `plot_image_mask_overlay` directly above it on the reference page, with no hint of what distinguishes the two (magenta outlines, no `organelle_channel`) and none of its fourteen parameters or its `Figure` return documented."
+ },
+ {
+  "file": "spacr/plot.py",
+  "line": 2724,
+  "symbol": "normalize_and_visualize",
+  "category": "summary",
+  "severity": "medium",
+  "problem": "The summary says nothing the reader could not guess from the module name \u2014 it never states that the function shows the original and normalised image side by side \u2014 and none of `image`, `normalized_image`, `title` is documented."
+ },
+ {
+  "file": "spacr/plot.py",
+  "line": 3573,
+  "symbol": "spacrGraph.preprocess_data",
+  "category": "returns",
+  "severity": "medium",
+  "problem": "The summary recites the implementation steps rather than the effect, and omits the only thing a caller needs \u2014 that it returns a new aggregated DataFrame (assigned to `self.df` in `__init__`) rather than mutating in place."
+ },
+ {
+  "file": "spacr/plot.py",
+  "line": 3734,
+  "symbol": "spacrGraph.perform_statistical_tests",
+  "category": "params",
+  "severity": "medium",
+  "problem": "Neither `unique_groups` nor `is_normal` is documented, and the returned list of per-comparison result dicts (keys `Comparison`, `Test Statistic`, `p-value`, `Test Name`, `n_object`, `n_well`) is not described at all, unlike the sibling `perform_levene_test` right above it."
+ },
+ {
+  "file": "spacr/timelapse.py",
+  "line": 1850,
+  "symbol": "analyze_calcium_oscillations",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The function actually ends with `return result_df, peak_details_df, fig` \u2014 a 3-tuple of the corrected per-cell trace frame, the per-peak frame and a matplotlib Figure; the per-well summaries are only written to CSV and are never returned, and three early paths (no time axis, curve-fit failure, no suitable cells) return bare `None`."
+ },
+ {
+  "file": "spacr/timelapse.py",
+  "line": 7661,
+  "symbol": "automated_motility_assay",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The function's last statement is `return all_df`, so it returns the full per-cell measurements DataFrame, not None."
+ },
+ {
+  "file": "spacr/timelapse.py",
+  "line": 1842,
+  "symbol": "analyze_calcium_oscillations",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The direction and the subject are both wrong: the code computes `size_diff = group[size_filter].std() / group[size_filter].mean()` and keeps the track only when `size_diff <= fluctuation_threshold`, so it is a MAXIMUM allowed coefficient of variation of the size column, not a minimum fluctuation of the intensity trace."
+ },
+ {
+  "file": "spacr/timelapse.py",
+  "line": 1631,
+  "symbol": "save_figure",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "The path is only a proposal: it is handed to `spacr.plot.save_figure`, which rewrites the extension to the user's configured figure format (`destination = _with_extension(path, chosen_fmt)`), so the file on disk is frequently `figure_1.png`, not `.pdf`."
+ },
+ {
+  "file": "spacr/timelapse.py",
+  "line": 1844,
+  "symbol": "analyze_calcium_oscillations",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "The value is passed as `find_peaks(..., height=peak_height)`, which is absolute peak height, not prominence \u2014 a caller tuning it as a prominence will pick the wrong scale."
+ },
+ {
+  "file": "spacr/timelapse.py",
+  "line": 1797,
+  "symbol": "summarize_per_well_inf_non_inf",
+  "category": "params",
+  "severity": "medium",
+  "problem": "Infection is read from a column literally named `infected` (`peak_details_df['infected'].apply(...)`), so a frame carrying pathogen counts under any other name raises KeyError; the ':returns: DataFrame with two rows per well' is also overstated, since groupby(['well_ID','infected_status']) emits one row for a well with a single status."
+ },
+ {
+  "file": "spacr/timelapse.py",
+  "line": 1593,
+  "symbol": "infected_vs_noninfected",
+  "category": "params",
+  "severity": "low",
+  "problem": "The two columns the body actually indexes are the pre-composed key `plate_row_column_field_object` and `time` (plus `delta_<measurement>` via plot_data); separate plate/row/column/field columns are never touched, so the stated contract does not describe a frame the function can consume."
+ },
+ {
+  "file": "spacr/spacrops.py",
+  "line": 3495,
+  "symbol": "align_image_to_stitch",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "`qc_outlines` is accepted, documented and forwarded by `ops_preprocess`, but the function body never reads it and never passes it to FOVAlignAndCropper, so setting it True produces no overlays at all."
+ },
+ {
+  "file": "spacr/spacrops.py",
+  "line": 3635,
+  "symbol": "ops_preprocess",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "`npy_out_root` is `<phenotype_source>/output`, created by `os.makedirs` and then never passed anywhere \u2014 the `.npy` stacks are written by FOVAlignAndCropper.run into each well's `crops_20x` folder, so the returned \"npy output root\" is an empty directory that contains no npy files."
+ },
+ {
+  "file": "spacr/spacrops.py",
+  "line": 108,
+  "symbol": "spacrStitcher",
+  "category": "params",
+  "severity": "medium",
+  "problem": "The constructor takes 35 parameters and the class docstring has no :param:/Args: entries at all \u2014 prose mentions roughly ten (feature_cache_mode, pair_batch_size, stream_csv, opencv_threads, allow_scale, allow_rotation, arr_axes, mip, z_index, t_index) and leaves the rest, including detector, nfeatures, downsample, ransac_thresh_px, score_threshold, outline_source, cellpose_model, canny, outdir and save_qc, entirely undocumented."
+ },
+ {
+  "file": "spacr/spacrops.py",
+  "line": 1392,
+  "symbol": "build_multichannel_mosaic_from_manifest",
+  "category": "params",
+  "severity": "medium",
+  "problem": "Seven parameters and no :param: entries: the free-form Notes cover only channel_indices, blend and tmp_dir, leaving manifest_csv, out_tif, out_png and preview_downsample unmentioned, and there is no :returns: even though the function returns the written `out_tif` path."
+ },
+ {
+  "file": "spacr/align.py",
+  "line": 1869,
+  "symbol": "write_stack",
+  "category": "stale",
+  "severity": "high",
+  "problem": "`peak_buffer_bytes` is pure arithmetic computed before anything is allocated (`result.peak_buffer_bytes = int(rows) * _band_bytes_per_row(spec)`), and it is returned unchanged on the `dry_run=True` path where no buffer is ever allocated \u2014 so it is exactly the estimate the docstring says it is not."
+ },
+ {
+  "file": "spacr/run_journal.py",
+  "line": 1178,
+  "symbol": "journal_totals",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The docstring still makes the performance promise the code's own comment ten lines below explicitly retracts (\"That was true at fifty runs. At 3521 it was 671 ms on the GUI thread\") and it never mentions that the function is now incremental and persists a `.journal_totals.json` cache in the runs root."
+ },
+ {
+  "file": "spacr/run_journal.py",
+  "line": 1,
+  "symbol": "run_journal (module docstring)",
+  "category": "stale",
+  "severity": "high",
+  "problem": "Three concrete claims are false: `capture_stdout` does not exist anywhere in the package and no code ever writes `stdout.txt`, no `FAILED` marker file is written (failure is recorded as `status: \"failed\"` inside manifest.json), and `open_run` yields a Run and returns nothing from `__exit__`; the illustrated folder name `2026-07-23_143507_ab12cd34/` also omits the `__<app>` suffix `_new_run_dir` actually appends."
+ },
+ {
+  "file": "spacr/run_journal.py",
+  "line": 531,
+  "symbol": "Run.record_input",
+  "category": "stale",
+  "severity": "high",
+  "problem": "The method is a no-op unless `settings['hash_inputs']` is truthy (`if not self.hashing_enabled(): return`, and `hashing_enabled` documents itself as \"Off unless the settings say otherwise\"), so on a default run this documented hashing never happens and the docstring gives no hint of the switch."
+ },
+ {
+  "file": "spacr/run_journal.py",
+  "line": 475,
+  "symbol": "Run",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "`record_model` stores `f\"{p.name}:{digest}\"`, i.e. `{name: \"filename:digest\"}` \u2014 the comment in `journal_totals` even calls this out explicitly \u2014 so the documented value shape is wrong for anyone parsing the manifest."
+ },
+ {
+  "file": "spacr/run_journal.py",
+  "line": 546,
+  "symbol": "Run.record_output",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "Like `record_input`, it silently returns without doing anything unless `hash_inputs` is enabled in settings, and it also omits the `setting_key` keyword parameter it accepts."
+ },
+ {
+  "file": "spacr/run_journal.py",
+  "line": 511,
+  "symbol": "Run.record_model",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "The failure path is not silent: it appends the text to `self.provenance_warnings` (which lands in manifest.json) and emits `LOG.warning`, and `hash_file` logs its own warning too."
+ },
+ {
+  "file": "spacr/run_journal.py",
+  "line": 893,
+  "symbol": "recent_runs",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "Skipping is no longer silent \u2014 the code logs `\"skipping run folder %s: its manifest.json could not be read\"` and its comment insists on that \u2014 and the docstring also fails to say that only the newest `max(limit*4, limit+64)` folders by name are examined at all."
+ },
+ {
+  "file": "spacr/run_journal.py",
+  "line": 1169,
+  "symbol": "journal_totals",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "The loop collects `model_hashes` from every run folder regardless of `app_key`, so the count is across all runs, not only mask runs."
+ },
+ {
+  "file": "spacr/run_journal.py",
+  "line": 805,
+  "symbol": "current_run",
+  "category": "summary",
+  "severity": "medium",
+  "problem": "The summary line says \"in this process\" while the state is thread-local (`_RUN_LOCAL`), which the docstring's own last paragraph then contradicts \u2014 a caller reading only the summary will expect a run opened on another thread to be visible."
+ },
+ {
+  "file": "spacr/run_journal.py",
+  "line": 315,
+  "symbol": "extract_seeds",
+  "category": "returns",
+  "severity": "low",
+  "problem": "The one parameter is undocumented and the non-obvious return value \u2014 a dict keyed `declared` / `python_hash_seed` / `python_random_state_sha256` / `numpy_random_state_sha256` / `torch_initial_seed`, sometimes with `*_error` keys instead \u2014 is not described at all."
+ },
+ {
+  "file": "spacr/run_journal.py",
+  "line": 206,
+  "symbol": "hash_file",
+  "category": "summary",
+  "severity": "low",
+  "problem": "By default the function returns only the first 16 hex characters of the digest, so the summary overstates what a caller gets unless they read the `full` parameter entry underneath."
+ },
+ {
+  "file": "spacr/database_schema.py",
+  "line": 91,
+  "symbol": "MigrationReport.changed",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "The property also returns True when `from_version == to_version` and only `column_renames` is non-empty \u2014 exactly the report `ensure_database_schema` builds from `repair_legacy_columns` \u2014 so it reads True for a run in which no migration was applied."
+ },
+ {
+  "file": "spacr/cli.py",
+  "line": 111,
+  "symbol": "Module (defaults_entry)",
+  "category": "stale",
+  "severity": "high",
+  "problem": "Six built-in modules now set `defaults_entry` (foreign, external_masks, convert, illumination, barcode_qc, anndata_export) plus every plugin app, so the \"two pipelines\" claim and its list are stale \u2014 `module_defaults` a few hundred lines below names all six correctly, proving the drift."
+ },
+ {
+  "file": "spacr/cli.py",
+  "line": 107,
+  "symbol": "Module (call_style)",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "No entry in `_MODULE_LIST` sets `call_style=\"folder\"` any more (every Module uses the default \"settings\"), so the \"one entry point\" the docstring points at does not exist and the reader cannot tell that the folder style now only reaches spaCR through plugin contributions."
+ },
+ {
+  "file": "spacr/artifacts.py",
+  "line": 1033,
+  "symbol": "latest",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "`project` is used only to locate the registry file and is never forwarded as a filter (`_resolve(registry, project).latest(kind, **kwargs)` leaves `Registry.latest(project=None)`), so with `SPACR_ARTIFACTS_DB` set \u2014 the shared-registry case the module docstring advertises \u2014 this returns the newest artifact of that kind from *any* project, not the one named."
+ },
+ {
+  "file": "spacr/artifacts.py",
+  "line": 1002,
+  "symbol": "by_kind",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "Same defect as the module-level `latest`: `project` selects the registry file but is dropped before `Registry.by_kind`, which then applies no project clause, so a shared registry returns other projects' artifacts under a parameter documented as \"the project root\"."
+ },
+ {
+  "file": "spacr/artifacts.py",
+  "line": 357,
+  "symbol": "content_fingerprint",
+  "category": "stale",
+  "severity": "medium",
+  "problem": "The walk skips every symlinked file and never descends into symlinked directories, so \"every file\" is wrong \u2014 a folder of links (a common way of staging merged/ or masks/) fingerprints as empty and its artifacts never register as changed."
+ },
+ {
+  "file": "spacr/plugins.py",
+  "line": 61,
+  "symbol": "AppContribution",
+  "category": "params",
+  "severity": "medium",
+  "problem": "The central type a plugin author fills in has 20 public fields and not one is documented, including four that only accept fixed vocabularies enforced with ValueError (`section` core/data/models/results/toxo, `stage` alpha/beta/stable, `kind` assay/importer/analysis/utility, `call_style` settings/folder) \u2014 none of which appear anywhere in the published docs."
+ },
+ {
+  "file": "spacr/plugins.py",
+  "line": 387,
+  "symbol": "discover_plugins",
+  "category": "returns",
+  "severity": "medium",
+  "problem": "It returns an empty tuple when `SPACR_DISABLE_PLUGINS` is set to 1/true/yes/on, and that kill switch is named in no public docstring (the module docstring documents only `SPACR_PLUGIN_MODULES`), so \"every valid discovered plugin\" is the one thing a user debugging vanished plugins would be misled by."
+ },
+ {
+  "file": "spacr/plugins.py",
+  "line": 87,
+  "symbol": "ModelProviderContribution",
+  "category": "summary",
+  "severity": "medium",
+  "problem": "The class is a frozen dataclass holding `key` plus a `\"module:callable\"` reference *string*, not a callable \u2014 the summary describes the function the record points at, so a reader arrives expecting to call the contribution object."
+ },
+ {
+  "file": "spacr/cli.py",
+  "line": 1701,
+  "symbol": "main",
+  "category": "returns",
+  "severity": "medium",
+  "problem": "The enumeration is presented as exhaustive (the module docstring even says \"these are exact\"), but `cmd_run` propagates a pipeline's own `SystemExit` code verbatim (`code = exc.code if isinstance(exc.code, int) else EXIT_RUNTIME`), so any integer a module exits with reaches the shell."
+ },
+ {
+  "file": "spacr/doctor.py",
+  "line": 1747,
+  "symbol": "run_checks",
+  "category": "params",
+  "severity": "low",
+  "problem": "The `checks` parameter \u2014 the documented-in-the-module-header way to run a subset of checks, and the reason each check is independently callable \u2014 is not mentioned at all, and the summary's \"every check\" contradicts its existence."
+ },
+ {
+  "file": "spacr/plugins.py",
+  "line": 95,
+  "symbol": "ReportSectionContribution",
+  "category": "summary",
+  "severity": "low",
+  "problem": "Like `ModelProviderContribution`, this describes the referenced builder rather than the class, which is an immutable record of `key`/`title`/`builder`/`after` \u2014 and `after` (\"statistics\") is the one field a plugin author must actually decide about, with no explanation of what values are valid."
+ }
+]
