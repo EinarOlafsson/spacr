@@ -1908,6 +1908,12 @@ def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
        ``settings['png_dims']`` list that mapping is entry 0 blue, 1 green,
        2 red, so ``png_dims[0]`` lands in the file's BLUE slot.
 
+       That is the REVERSE of what ``png_dims`` reads like, and it is LEFT
+       THAT WAY ON PURPOSE: every crop already on disk was written with this
+       mapping, so flipping it would silently change what each colour means
+       and invalidate the models trained on those crops. The mapping is
+       declared rather than corrected.
+
        ``cv2.imwrite`` interprets a 3-channel array as BGR, so
        :func:`spacr.crops.to_cv2_bgr` reverses the array once, here, and
        cv2's interpretation lands the red plane in the file's red slot. It
