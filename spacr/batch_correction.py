@@ -834,12 +834,15 @@ def correction_kwargs(
     :func:`correct_from_metadata`. The combat-only keys
     ``batch_covariate_column`` and ``batch_combat_mean_only`` are deliberately
     left out so the result stays safe to splat into signatures that do not
-    accept them; a caller using ``batch_correction="combat"`` must pass those
-    two alongside this mapping or :func:`correct_from_metadata` raises.
+    accept them; a caller using ``batch_correction="combat"`` must pass
+    ``batch_covariate_column`` alongside this mapping or
+    :func:`correct_from_metadata` raises. ``batch_combat_mean_only`` stays
+    optional and defaults to ``False``.
 
     :param settings: settings mapping the batch keys are read from.
     :param default_control_column: control column used when
-        ``batch_control_column`` is absent or blank.
+        ``batch_control_column`` is absent or an empty string; a
+        whitespace-only name is kept verbatim.
     :param default_control_values: control values used when
         ``batch_control_values`` is absent or blank.
     :returns: keyword arguments for :func:`correct_from_metadata`.

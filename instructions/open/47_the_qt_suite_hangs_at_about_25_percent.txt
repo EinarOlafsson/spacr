@@ -325,3 +325,72 @@ TRIAGE IS UNDERWAY as three-way: real bug / stale test / ordering artefact.
 xdist changes test ORDER, so some of these are the order-dependent failures
 that instructions 03 and 46 are about -- which means the suite finishing has
 made those visible for the first time, exactly as this file predicted.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE 74 TRIAGED. 24 REAL, 43 STALE, 6 ORDERING.
+--------------------------------------------------------------------------------
+
+Per-test verdicts: `instructions/data/47_qt_failure_triage.json`. Each "real"
+call was then handed to a separate agent told to REFUTE it; three were
+downgraded that way and are not counted below.
+
+    real       24      a user would see something wrong
+    stale      43      the test pins behaviour that was deliberately changed
+    ordering    6      passes alone, fails after other tests
+
+THE HEADLINE: 12 OF THE 24 ARE ONE BUG. Commit c41a75b6 (2026-08-06) added
+`"Computer Vision — "` and `"Machine Learning — "` prefixes to
+`classify_merged`'s group titles at `settings_model.py:1270-1295` and did not
+add matching keys to `CATEGORY_TOOLTIPS`, which is keyed on the UNPREFIXED
+names. `category_tooltip` does no prefix stripping, so every lookup misses
+and returns the generic fallback.
+
+  What the user sees, demonstrated on the real widget rather than inferred:
+  hovering the group header in Classify (merged) gives
+
+      COMPUTER VISION — IMAGES & CROPPING — Settings that control computer
+      vision — images & cropping.
+
+  while the SAME group in Classify gives
+
+      IMAGES & CROPPING — Where the training images come from and how they
+      are cut — the crop source, the path and format filters ...
+
+  Six of the module's nine headings fall back this way, and both modules are
+  on the home grid at once, so the inconsistency is reachable without
+  changing any preference.
+
+  This is the THIRD defect from the same root: `classify_merged` was
+  registered as a module without the table entries a registered module
+  needs. The other two were `_INLINE_LAYOUT_APPS` (fixed 2026-08-09) and
+  `CATS_STAGE5` in the home version generator (still open, below). Whatever
+  registers a module should fail loudly when its accompanying tables are
+  missing -- three separate tests found three separate halves of the same
+  omission.
+
+THE OTHER 12 REAL BUGS, one line each:
+
+    preview_controls.ImageSetSampler   one seed for what should be per-set;
+                                       the seed is derived from the wrong
+                                       thing (2 tests, one defect)
+    widget QSS ratchet                 three widgets added since 2026-08-03
+                                       without registering their block
+    classes setting                    half-finished migration from commit
+                                       30500970
+    crops channel mapping              half-finished migration from 2cab81f7
+    home version generator             classify_merged missing from CATS_STAGE5
+    animation_zoom.zoom_frames         erases frames it should keep
+    GateTree                           mark_surface makes a region two panels
+                                       thick
+    i18n                               classify_merged registers display name
+                                       "Classify", colliding with classify
+    ai_toggle_label._refresh_style     zoom does not reach the text (2 tests)
+
+THE 6 ORDERING FAILURES are the order-dependent failures instructions 03 and
+46 are about. They were invisible until the suite could finish, which is
+what this task unlocked -- they are findings, not regressions, and they are
+one fix per shared-state collision rather than one per test.
+
+THE 43 STALE TESTS are the larger number and the cheaper work: each pins
+behaviour that was deliberately changed and was not updated with it. They
+are listed per-test in the JSON with what changed under each.

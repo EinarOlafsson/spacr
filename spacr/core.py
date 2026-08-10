@@ -60,8 +60,9 @@ def preprocess_generate_masks(settings):
         - ``adjust_cells`` — reconcile cell masks against nuclei+pathogen.
         - ``timelapse`` — enable trackpy linking; forces
           ``randomize=False``.
-        - ``dry_run`` — validate only: print the preflight report and plan
-          and return, reading and writing nothing.
+        - ``dry_run`` — validate only: inspect the input folders, print the
+          preflight report and plan and return, without writing anything or
+          loading a model.
         - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.
 
     :returns: ``None`` on a normal run, having written masks, overlays,
