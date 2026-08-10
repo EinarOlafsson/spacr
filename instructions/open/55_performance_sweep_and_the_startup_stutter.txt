@@ -328,3 +328,79 @@ an offscreen MainWindow build, and nothing above reproduces them. The next
 step is the tick monitor on a real launch -- an offscreen build cannot see
 a stall caused by compositing, font loading or the platform theme, which is
 the most likely place for 2.5 s to hide now that the build itself is 860 ms.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE TWO REMAINING STALLS ARE FOUND, MEASURED AND ATTRIBUTED
+--------------------------------------------------------------------------------
+
+This file has said for two entries that the remaining ~2.5 s stalls were
+"unprofiled" and needed the tick monitor on a REAL windowed launch rather
+than an offscreen build. That is exactly right, and it is why every offscreen
+profile came back clean: THE STALLS ARE NOT IN THE BUILD PATH.
+
+Tick monitor, real X display, 6 s of idle event loop after `show()`:
+
+    PHASES                import spacr.qt.app    501 ms
+                          MainWindow()           731 ms
+                          show()                  36 ms
+
+    STALLS over 50 ms     at 4982 ms  ->  2164 ms
+                          at 5986 ms  ->   888 ms
+                          at 6113 ms  ->    80 ms
+                          at 6410 ms  ->   181 ms
+
+Everything the earlier work optimised is now under a second. The stalls
+happen FIVE SECONDS AFTER THE WINDOW APPEARS, while the event loop is
+otherwise idle -- which is why profiling `MainWindow()` never showed them.
+
+THE CAUSE IS `_PipelinePreloader` (spacr/qt/app.py:84), started by
+`QTimer.singleShot(1500, ...)`. It imports seven heavy modules ON THE MAIN
+GUI THREAD, one per event-loop tick. Timed individually:
+
+    spacr.core          1968 ms      <- the 2164 ms freeze
+    spacr.deep_spacr     711 ms      <- the 888 ms freeze
+    spacr.submodules     374 ms
+    spacr.ml              58 ms
+    spacr.sequencing      16 ms
+    spacr.measure         13 ms
+    spacr.spacr_cellpose   0 ms
+    --------------------------
+    total               3140 ms
+
+ITS DOCSTRING SAID "Each import here blocks the event loop only briefly."
+That was never measured and is false by a factor of twenty for
+`spacr.core`. Corrected in place with the numbers above, so the next person
+reads the real trade.
+
+THE TRADE, STATED HONESTLY: this class buys a responsive FIRST CLICK by
+spending a ~2 s freeze while the user is reading the home screen. It is not
+"brief pauses now for no pause later" -- it is the same wait, moved from a
+moment the user asked for work to a moment they did not.
+
+WHY THE OBVIOUS FIX IS NOT AVAILABLE: the comment above the class records
+that importing these on a background thread caused intermittent
+"Segmentation fault (core dumped)" -- C-extension modules initialising
+CUDA/GL from a non-main thread concurrent with Qt's own GPU init. That is a
+real constraint and this session watched a segfault of exactly that shape in
+the qt suite, so it is not stale.
+
+FOUR OPTIONS, none of them free, and this needs a decision rather than a
+patch:
+
+  1. DROP THE PRELOAD. The wait returns to the first click, where the user
+     has just asked for something. Simplest, and arguably correct: a freeze
+     you asked for is not the same as one you did not.
+  2. PRELOAD ON INTENT. Start the chain when the pointer enters a module
+     tile rather than on a timer. Costs nothing when the user reads the home
+     screen and is usually early enough to matter.
+  3. WARM THE PAGE CACHE IN A SUBPROCESS. A child process importing
+     `spacr.core` faults the shared objects into the OS cache without
+     touching this process's CUDA/GL state; the later in-process import is
+     then cheaper. Needs measuring -- the saving may be small and it doubles
+     peak memory briefly.
+  4. KEEP IT, AND SAY SO. If a fast first click is worth a 2 s freeze at
+     1.5 s, that is a legitimate choice -- but it should be a choice, and
+     the docstring now states its cost so it can be one.
+
+RECOMMEND 2, falling back to 1. Both remove a stall the user did not ask
+for, and neither reintroduces the off-thread segfault.
