@@ -233,6 +233,17 @@ def style_as_danger(button: QPushButton, palette: Optional[dict] = None) -> None
 
     P = palette or active_palette()
     colour = P.get("danger") or P.get("error") or "#e5484d"
+    # The ink on a FILLED danger surface is `bg`, not white. theme.py's
+    # CONTRAST_RULES carries ("bg", "error", 4.5) with the comment "`bg` is
+    # the ink on filled accent/danger surfaces: the selected menu row, a
+    # pressed button, DangerButton on hover", and the application sheet's
+    # own `#DangerButton:pressed` rule inks with `P["bg"]` for that reason.
+    # This helper hard-coded `#ffffff` instead, which is only right on the
+    # light theme: `error` is a PALE red on cell and glass, so white ink on
+    # the hover fill measured 2.20:1 and 2.04:1 — below AA-large, on the
+    # one control that force-quits a run. `bg` measures 6.23:1 (light)
+    # through 9.55:1 (glass) and is guaranteed by the contrast rule above.
+    ink = P.get("bg") or "#000000"
     # Key the rule on whatever the button is already called. Setting a
     # name here would take the caller's: `QuitSpacrButton` became
     # `DangerButton` and every lookup for it stopped finding anything --
@@ -248,5 +259,5 @@ def style_as_danger(button: QPushButton, palette: Optional[dict] = None) -> None
         f"border: 1px solid {colour};"
         "background: transparent; }"
         f"QPushButton#{name}:hover {{"
-        f"background: {colour}; color: #ffffff; }}"
+        f"background: {colour}; color: {ink}; }}"
     )

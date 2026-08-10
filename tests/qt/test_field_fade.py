@@ -42,6 +42,11 @@ def prefs_sandbox(qapp, tmp_path, monkeypatch):
     resolved = prefs._settings().fileName()
     assert str(tmp_path) in resolved, resolved
 
+    # Complete only because tests/qt/conftest.py's
+    # `_widget_qss_registrars_loaded` has already filled the registry. Taken
+    # before that loader runs this is 19 blocks of 37, and the restore below
+    # then deletes the other 18 for the rest of the process -- the loader
+    # latches on `_QSS_REGISTRARS_LOADED` and cannot refill them.
     saved_qss = dict(theme_mod._WIDGET_QSS)
     saved_sheet = qapp.styleSheet()
     ff.invalidate_field_fade()

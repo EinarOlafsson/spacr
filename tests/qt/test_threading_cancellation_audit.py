@@ -293,10 +293,48 @@ def test_cancelled_worker_has_distinct_manifest_status(
     assert errors == []
 
 
-def test_app_screen_stop_is_cooperative_and_reports_cancelled(
-        qtbot, qt_theme_applied, monkeypatch):
-    from spacr.qt.screens.app_screen import AppScreen
+def _pin_stop_answer(monkeypatch, choice):
+    """Answer the Stop prompt with ``choice`` and record how it was asked.
 
+    ``AppScreen._on_stop`` does ``from ..shutdown import ask_how_to_quit``
+    at call time, so patching the attribute on the module is what reaches
+    it. Unstubbed, ``QMessageBox.exec`` trips the headless guard in
+    ``tests/qt/conftest.py`` — a modal has nobody to answer it here.
+    """
+    import spacr.qt.shutdown as shutdown
+
+    asked: list[dict] = []
+
+    def _answer(*_args, **kwargs):
+        asked.append(kwargs)
+        return choice
+
+    monkeypatch.setattr(shutdown, "ask_how_to_quit", _answer)
+    return asked
+
+
+def test_app_screen_stop_asks_then_cooperates_and_stays_live_to_escalate(
+        qtbot, qt_theme_applied, monkeypatch):
+    """A cooperative Stop cancels the run, says so, and does NOT disable Stop.
+
+    Until 2026-08-06 Stop requested cancellation immediately and then
+    disabled itself. Commit 5cb219f1 ("stop: ask whether to wait or to
+    kill, instead of asking once and hoping") changed both halves: it asks
+    through ``shutdown.ask_how_to_quit`` first, and the button deliberately
+    stays enabled, because a cooperative stop that never lands used to
+    leave the user with no way to escalate. The old
+    ``assert not screen._btn_stop.isEnabled()`` pinned exactly the
+    misfeature that commit removed, so it is INVERTED here rather than
+    dropped -- re-disabling the button must fail this test.
+
+    ``tests/qt/test_stop_soft_and_hard.py`` covers the three dialog answers
+    against fake threads; this is the end-to-end case, on a real QThread
+    running a real ``cancellation_checkpoint``.
+    """
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.shutdown import GRACEFUL
+
+    asked = _pin_stop_answer(monkeypatch, GRACEFUL)
     started = threading.Event()
     monkeypatch.setattr(
         "spacr.qt.screens.app_screen.resolve_pipeline_entry",
@@ -309,7 +347,15 @@ def test_app_screen_stop_is_cooperative_and_reports_cancelled(
     assert started.wait(2)
 
     screen._on_stop()
-    assert not screen._btn_stop.isEnabled()
+
+    assert asked, "Stop cancelled the run without asking first"
+    # A button labelled Stop that opens a dialog headed "Quit" reads as the
+    # wrong dialog, and a user who thinks they mis-clicked cancels out of
+    # the thing they wanted -- hence the `verb` argument.
+    assert asked[0].get("verb") == "Stop"
+    assert screen._btn_stop.isEnabled(), (
+        "Stop disabled itself again; a cooperative stop that does not land "
+        "then leaves the user with no way to escalate")
     assert screen._btn_stop.property("buttonActionBusy") is True
     qtbot.waitUntil(lambda: screen._btn_run.isEnabled(), timeout=5000)
     qtbot.waitUntil(lambda: screen._thread is None, timeout=5000)
@@ -318,6 +364,49 @@ def test_app_screen_stop_is_cooperative_and_reports_cancelled(
     assert "Requesting stop" in text
     assert "Stopped safely" in text
     assert "Failed — see traceback" not in text
+
+
+def test_app_screen_stop_cancelled_at_the_prompt_leaves_a_real_run_alone(
+        qtbot, qt_theme_applied, monkeypatch):
+    """Answering Cancel must not touch the run, on a live thread.
+
+    The companion of the test above, and the more important half: since
+    2026-08-06 Stop opens a prompt, so a mis-click is now recoverable --
+    but only if Cancel really is inert. ``test_stop_soft_and_hard.py``
+    asserts that against a fake thread; this asserts it against a worker
+    that is genuinely running and genuinely checking for cancellation, so
+    "nothing happened" is measured on the object that would have died.
+    """
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.shutdown import CANCEL, GRACEFUL
+
+    _pin_stop_answer(monkeypatch, CANCEL)
+    started = threading.Event()
+    monkeypatch.setattr(
+        "spacr.qt.screens.app_screen.resolve_pipeline_entry",
+        lambda _key: _cooperative_job(started),
+    )
+    screen = AppScreen("mask")
+    qtbot.addWidget(screen)
+    screen.show()
+    screen._on_run()
+    assert started.wait(2)
+    thread, worker = screen._thread, screen._worker
+
+    try:
+        screen._on_stop()
+
+        assert screen._thread is thread
+        assert thread.isRunning()
+        assert worker.was_cancelled is False
+        assert not thread.isInterruptionRequested()
+        assert screen._btn_stop.property("buttonActionBusy") is not True
+        assert "Requesting stop" not in _console_text(screen._console)
+    finally:
+        # The job loops forever; it only ends because something cancels it.
+        _pin_stop_answer(monkeypatch, GRACEFUL)
+        screen._on_stop()
+        qtbot.waitUntil(lambda: screen._thread is None, timeout=5000)
 
 
 def test_screen_close_refuses_to_drop_a_live_stubborn_worker(

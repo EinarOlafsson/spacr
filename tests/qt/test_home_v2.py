@@ -788,6 +788,13 @@ ALPHA_MODULES = {
     # component view and the pivot-table builder. Registering them is what
     # made them alpha; they were not reachable at all before.
     "pca", "tabulate",
+    # And the merged Classify screen, registered 2026-08-06 (2d4da7df).
+    # It arrived alpha ON PURPOSE, and ``APP_STAGE`` says why: "stable" is
+    # the ABSENCE of a line there, so omitting it would have claimed a
+    # maturity it has not earned — it dispatches to two pipelines that ARE
+    # trusted, but the merged screen itself has not been run on real data.
+    # Signing it off means deleting its line there and here.
+    "classify_merged",
 }
 BETA_MODULES = {
     "make_masks", "train_cellpose", "cellpose_masks", "timelapse",
@@ -796,17 +803,19 @@ BETA_MODULES = {
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
-    """36 alpha, 9 beta, named one at a time.
+    """37 alpha, 9 beta, named one at a time.
 
     Spelling the lists out means a quiet drift fails here rather than
-    being noticed in a screenshot."""
+    being noticed in a screenshot. It read 36 until the merged Classify
+    module was registered alpha on 2026-08-06; the number moves with the
+    list above it, never on its own."""
     from spacr.qt.app import app_stage
     by_stage: dict = {}
     for key, _name, _desc, _section in APPS:
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
     assert by_stage["beta"] == BETA_MODULES
-    assert len(ALPHA_MODULES) == 36 and len(BETA_MODULES) == 9
+    assert len(ALPHA_MODULES) == 37 and len(BETA_MODULES) == 9
     assert by_stage["stable"] == (
         {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
 
@@ -873,12 +882,15 @@ def test_every_tab_uses_the_same_large_tile(home):
     from spacr.qt.preferences import scaled_px
     assert home._tabs.tabText(1).startswith("Core")
     core = home._tabs.widget(1).findChildren(AppTile)
-    # Ten since Curate joined the pipeline; it was nine for as long as Core
-    # was exactly the run. The number is spelled out rather than derived
-    # twice so that an app arriving in Core is a line changed here, but the
-    # property being tested is the equality on its left: the tab draws its
-    # members and nothing else.
-    assert len(core) == len(section_members("Core")) == 10
+    # Nine for as long as Core was exactly the run, ten when Curate joined
+    # the pipeline, and eleven since the merged Classify module was filed
+    # into SECTION_CORE on 2026-08-06 (2d4da7df) — beside Classify (CV) and
+    # Classify (ML) rather than instead of them, which is why Core gained a
+    # tile instead of trading two for one. The number is spelled out rather
+    # than derived twice so that an app arriving in Core is a line changed
+    # here, but the property being tested is the equality on its left: the
+    # tab draws its members and nothing else.
+    assert len(core) == len(section_members("Core")) == 11
     for index in range(home._tabs.count()):
         for tile in home._tabs.widget(index).findChildren(AppTile):
             assert tile.sizeHint().height() >= scaled_px(HomePage.TILE_H)
@@ -1370,7 +1382,19 @@ def test_choosing_an_app_from_the_drawer_navigates_and_closes_it(
 
 def test_the_drawer_is_not_the_only_way_to_reach_every_app(window, qapp):
     """The reveal is now a convenience, not the only route: the Home tab
-    lists all thirty apps, and so does the spaCR menu."""
+    lists every app, and so does the spaCR menu.
+
+    The third route used to be checked as an "All apps" entry in that
+    menu. On 2026-08-08 (ff28b7eb) that entry was deliberately taken out —
+    a menu item whose purpose is not obvious from its name costs attention
+    every time it is read, and this one named an edge drawer most users
+    never knew existed. The ACTION stayed, registered on the window, and
+    Ctrl+B with it, because a panel you can otherwise summon only by
+    hovering a 6 px strip is a panel a keyboard user does not have. So the
+    keyboard route is asserted where it now lives, and the menu is
+    asserted NOT to carry it — the mistake the change invites is deleting
+    the QAction along with the menu entry, which would take the shortcut
+    with it."""
     home_tab = window._startup._tabs.widget(0)
     assert {t.text_label for t in home_tab.findChildren(AppTile)} == {
         name for _k, name, *_r in APPS}
@@ -1383,7 +1407,13 @@ def test_the_drawer_is_not_the_only_way_to_reach_every_app(window, qapp):
                 menu_labels.add(act.text())
         break
     assert {name for _k, name, *_r in APPS} <= menu_labels
-    assert "All apps" in menu_labels
+    assert "All apps" not in menu_labels, (
+        "the drawer toggle was put back in the menu — see ff28b7eb")
+    drawer_action = next(
+        (a for a in window.actions() if a.text() == "All apps"), None)
+    assert drawer_action is not None, (
+        "the drawer QAction is gone from the window, and Ctrl+B with it")
+    assert drawer_action.shortcut().toString() == "Ctrl+B"
 
 
 def test_the_sidebar_draws_an_ampersand_instead_of_a_mnemonic(window):

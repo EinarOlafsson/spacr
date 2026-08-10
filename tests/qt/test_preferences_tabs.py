@@ -48,9 +48,34 @@ CONTROLS = {
     "CheckDiskButton": "Performance",
     "ShowAlphaFeatures": "Modules",
     "ShowBetaFeatures": "Modules",
+    # Force quit joined the Performance tab on 2026-08-05 (35a05890): it is
+    # the last of the "this machine is not behaving" tools, deliberately
+    # placed beside the four that free what a wedged run is holding rather
+    # than with Save/Cancel.
+    "QuitSpacrButton": "Performance",
+    # The Logging tab arrived on 2026-08-05 (f1183805), replacing two
+    # severity thresholds with a switch per level per destination. Ten
+    # switches, and the inventory names all ten: a threshold could not
+    # express "record DEBUG but not INFO", and a control that silently
+    # stopped being built would take that expressiveness with it.
+    "LoggingTabHelp": "Logging",
+    "LogFileLevelDebug": "Logging",
+    "LogFileLevelInfo": "Logging",
+    "LogFileLevelWarning": "Logging",
+    "LogFileLevelError": "Logging",
+    "LogFileLevelCritical": "Logging",
+    "LogConsoleLevelDebug": "Logging",
+    "LogConsoleLevelInfo": "Logging",
+    "LogConsoleLevelWarning": "Logging",
+    "LogConsoleLevelError": "Logging",
+    "LogConsoleLevelCritical": "Logging",
 }
 
-EXPECTED_TABS = ("General", "Appearance", "Performance", "Modules", "Figures")
+#: Tab order, not just tab membership: General must stay first (see below),
+#: and the rest are ordered by how often a user goes looking for them.
+#: "Logging" was appended on 2026-08-05 by f1183805.
+EXPECTED_TABS = ("General", "Appearance", "Performance", "Modules", "Figures",
+                 "Logging")
 
 
 @pytest.fixture(autouse=True)
@@ -87,7 +112,12 @@ def _tab_of(dialog, object_name):
     raise AssertionError(f"{object_name} is not on any tab")
 
 
-def test_the_dialog_has_the_five_subject_tabs(dialog):
+def test_the_dialog_has_the_expected_subject_tabs_in_order(dialog):
+    """Was "the five subject tabs" until 2026-08-05, when f1183805 added
+    Logging as a sixth. Named for the invariant rather than the count now,
+    so the next subject tab does not require renaming the test as well as
+    the list: what is being defended is that the tabs are exactly these and
+    in this order, whatever the count happens to be."""
     tabs = _tabs(dialog)
     assert tuple(tabs.tabText(i) for i in range(tabs.count())) == EXPECTED_TABS
 
@@ -161,15 +191,30 @@ def test_saving_from_one_tab_still_writes_the_others(dialog, qtbot):
 
 
 def test_the_performance_tab_reads_as_one_subject(dialog):
-    """The mode and the four buttons are together on purpose: a mode that
-    says "cleanup runs at launch" is only readable next to the buttons that
-    say what a cleanup is."""
+    """The mode and the recovery buttons are together on purpose: a mode
+    that says "cleanup runs at launch" is only readable next to the buttons
+    that say what a cleanup is.
+
+    Force quit joined them on 2026-08-05 (35a05890) as a fifth, so the
+    expected set grew by one. Its placement is the assertion, not an
+    accident of where there was room: it is the last of the "this machine
+    is not behaving" tools, the one to reach for when freeing memory was
+    not enough, and it must stay on this tab and out of the Save/Cancel
+    box — somebody reaching for it has a window that will not close, and
+    making them save preferences on the way out is one more thing between
+    them and leaving.
+    """
     tab = EXPECTED_TABS.index("Performance")
     page = _tabs(dialog).widget(tab)
     buttons = [b.objectName() for b in page.findChildren(QPushButton)
                if b.objectName()]
     assert set(buttons) == {"ClearRamButton", "ClearVramButton",
-                            "ClearCpuButton", "CheckDiskButton"}
+                            "ClearCpuButton", "CheckDiskButton",
+                            "QuitSpacrButton"}
+    quit_button = page.findChild(QPushButton, "QuitSpacrButton")
+    button_box = dialog.findChild(QDialogButtonBox)
+    assert not button_box.isAncestorOf(quit_button), (
+        "force quit was moved in with Save/Cancel")
     assert page.findChild(QComboBox, "SpacrMode") is not None
     note = page.findChild(QLabel, "SpacrModeNote")
     assert note is not None and note.wordWrap()
