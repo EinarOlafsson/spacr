@@ -2266,8 +2266,9 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         register it as an artifact. On by default: an uncarded checkpoint is a
         file nobody can audit six months later.
     :returns: ``(model, model_path)`` — the trained model and the best
-        checkpoint (the last one written if no epoch was flagged best), or
-        ``(None, None)`` when ``model_type`` could not be built.
+        checkpoint, which on a resumed run where no epoch beat the restored
+        best metric is ``resume_checkpoint`` itself, or ``(None, None)`` when
+        ``model_type`` could not be built.
     :raises ValueError: on an unknown ``optimizer_type``, a checkpoint whose
         class count differs from ``num_classes``, a ``resume_checkpoint``
         carrying no optimizer state, or a checkpoint that already completed
