@@ -1,0 +1,58 @@
+================================================================================
+HOME SCREEN: KEEP THE BOTTOM TOOLTIP, DROP THE PER-MODULE POPUP
+================================================================================
+
+Status:    not started
+Requested: 2026-08-09 - "on the home screen keep the tooltip at the botom of the screen but remove the popup tooltip for each module."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The Home screen shows module descriptions TWICE: a hover popup on each
+module tile, and a line at the bottom of the screen. The bottom line is the
+one to keep.
+
+Not yet located precisely. `spacr/qt/widgets/home.py` builds the tiles, and
+the descriptions come from `spacr.settings.descriptions` (13 module blurbs,
+which instruction 61 measured at 340-1022 characters). Find which of the
+two mechanisms feeds each.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A popup that repeats what is already on screen is noise, and it appears
+over the grid the user is trying to read -- so it hides the thing they are
+choosing between at the moment they are choosing.
+
+The blurbs are also long: several hundred characters is a paragraph, which
+is fine in a fixed line at the bottom that the eye can ignore, and wrong in
+a popup that covers the tiles.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Find both mechanisms in `spacr/qt/widgets/home.py`. The popup is likely
+   a `setToolTip` on the tile or a HoverTooltip install; the bottom line is
+   likely a label updated on hover.
+2. Remove the popup only. The bottom line must keep updating on hover --
+   that is the behaviour being kept, not merely tolerated.
+3. Check the tile still has an accessible name for screen readers if the
+   tooltip was providing it. Removing a tooltip can remove the only text an
+   assistive tool could read.
+4. Leave every other screen alone. This is the Home grid specifically.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Hovering a module tile updates the line at the bottom of the Home screen
+and shows no popup over the grid.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started.
