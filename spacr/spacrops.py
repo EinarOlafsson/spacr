@@ -115,6 +115,59 @@ class spacrStitcher:
       - stream_csv:         write pairwise rows immediately (low RAM)
       - opencv_threads:     limit OpenCV internal threading to avoid oversubscription
 
+    :param detector: keypoint detector, ``'ORB'`` or ``'SIFT'``; any other value
+        raises ``ValueError`` and ``'SIFT'`` needs an opencv-contrib build.
+    :param nfeatures: keypoint budget handed to the detector. Default ``6000``.
+    :param max_keypoints: cap on keypoints kept per image; ``None`` keeps all.
+    :param downsample: scale factor of the downsampled feature/scoring pass.
+    :param ransac_thresh_px: RANSAC reprojection threshold in pixels.
+    :param allow_scale: allow scale in the estimated transform.
+    :param allow_rotation: allow rotation when ``allow_scale`` is ``False``.
+    :param outline_source: how QC outlines are found: ``'otsu'`` (default),
+        ``'cellpose'`` or ``'none'``.
+    :param cellpose_model: Cellpose model name or checkpoint path; read only
+        when ``outline_source`` is ``'cellpose'``.
+    :param cellpose_diameter: expected object diameter passed to Cellpose;
+        ``None`` lets Cellpose choose.
+    :param canny: ``(low, high)`` Canny thresholds turning the foreground mask
+        into outlines.
+    :param blur_sigma: Gaussian sigma applied before Otsu thresholding; ``0``
+        disables the blur.
+    :param dilate_ksize: elliptical kernel size used to dilate the foreground
+        mask; ``0`` disables the dilation.
+    :param line_thickness: outline thickness; values above ``1`` dilate the
+        edge image.
+    :param outline_alpha: opacity of the outlines drawn on the QC overlay.
+    :param outdir: output folder, created on construction and used for QC
+        images, CSVs and the default feature cache.
+    :param save_qc: write per-pair QC outline PNGs. Default ``True``.
+    :param save_stitched_default: default for writing a pair's stitched TIFF;
+        per-call arguments override it.
+    :param all_scores: also compute the slower full-resolution metrics
+        (full-res edge ZNCC and foreground correlation/IoU/Dice/XOR).
+    :param score_threshold: default minimum score required to write a stitched
+        image; ``None`` means no default threshold.
+    :param verbose: print progress messages.
+    :param feature_cache_mode: ``'disk'`` or ``'ram'``; any other value raises
+        ``ValueError``.
+    :param feature_cache_dir: where disk-mode features are stored. Defaults to
+        ``<outdir>/feat_cache``.
+    :param max_ram_features: LRU size, in images, of the RAM cache in front of
+        the disk feature store.
+    :param n_workers_features: feature-extraction thread count; defaults to
+        half the CPU count.
+    :param pair_batch_size: pairs submitted to the thread pool per batch, with
+        a floor of ``1024``.
+    :param stream_csv: accepted and stored but never read; pairwise rows are
+        always written as they are scored.
+    :param opencv_threads: value passed to ``cv2.setNumThreads``.
+    :param arr_axes: axis order of input TIFFs; must contain ``Y`` and ``X``
+        unless it is ``'AUTO'``.
+    :param mip: max-intensity-project over Z instead of taking one slice.
+    :param z_index: Z slice used when ``mip`` is ``False``.
+    :param t_index: time index used when a T axis is present.
+    :param squeeze_singleton: drop singleton axes after axis selection.
+
     Transform control
     -----------------
       allow_scale:    if True  → use RANSAC affine (rotation+scale+translation)
@@ -1408,7 +1461,23 @@ class spacrStitcher:
             M00, M01, M02,
             M10, M11, M12,
             canvas_x, canvas_y, best_pair_score
-    
+
+        :param manifest_csv: mosaic manifest to read; a missing required column
+            or a row whose size/affine will not parse raises ``RuntimeError``.
+        :param out_tif: destination path for the CYX mosaic TIFF.
+        :param out_png: optional preview PNG of channel 0; no preview is
+            written when ``None``.
+        :param channel_indices: channels to composite; ``None`` uses every
+            channel of the first usable tile.
+        :param blend: ``'max'`` or ``'overwrite'``; any other value raises
+            ``ValueError``.
+        :param tmp_dir: workspace for the on-disk memmap. Defaults to
+            ``mosaic_tmp`` under ``self.feature_cache_dir`` if set, otherwise
+            next to ``out_tif``.
+        :param preview_downsample: factor by which the preview PNG is shrunk;
+            values of ``1`` or less keep full size.
+        :returns: the ``out_tif`` path that was written.
+
         Notes
         -----
         * Uses the 2x3 affine in the manifest (already includes global offset).
@@ -3492,7 +3561,8 @@ def align_image_to_stitch(
     :param ransac_thresh_px: RANSAC reprojection threshold in pixels.
     :param allow_scale: allow scale in the estimated affine.
     :param allow_rotation: allow rotation in the estimated affine.
-    :param qc_outlines: emit QC outline overlays.
+    :param qc_outlines: accepted but unused; :class:`FOVAlignAndCropper` takes
+        no QC option, so no overlays are produced either way.
     :param recursive_align_src: recurse when scanning ``align_src``.
     :param exts: accepted image extensions.
     :returns: mapping ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``.
@@ -3632,7 +3702,10 @@ def ops_preprocess(settings):
     :param settings: dict of preprocessing settings; see
         :func:`get_preprocess_ops_settings` for supported keys.
     :returns: dict with ``stitch`` (per-genotype summaries), ``align``
-        (per-genotype align results) and ``npy_out_root`` (npy output root path).
+        (per-genotype align results) and ``npy_out_root``, the
+        ``<phenotype_source>/output`` folder that is created here but never
+        written to — the ``.npy`` crops land in each well's ``crops_20x``
+        folder beside its mosaic.
     """
     import os
     # Fill in defaults for all stitching / alignment-related keys

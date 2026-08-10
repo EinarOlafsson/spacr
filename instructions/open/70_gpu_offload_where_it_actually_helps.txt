@@ -84,3 +84,66 @@ tick-monitor method; 59 owns the conda-forge packaging constraint that makes
 new CUDA dependencies expensive; 71 is the measurement-expansion question
 asked in the same breath, and some of its answers (per-label reductions) are
 the same kernels as this one.
+
+--------------------------------------------------------------------------------
+2026-08-10 - INVESTIGATED AND MEASURED. THE ANSWER IS MOSTLY "NOT THE GPU".
+--------------------------------------------------------------------------------
+
+Full findings: `instructions/data/70_gpu_investigation.txt`. 70 agents, 45
+findings survived independent fact-checking against the source.
+
+THE HEADLINE, and it is the opposite of what the question assumed: almost
+nothing here is compute-bound in the way that makes cupy pay. The three
+things that actually make spaCR feel slow are
+
+  (a) accidental O(objects x image) loops in measure.py -- a whole-field
+      pass run once per object;
+  (b) a Qt paint path that re-composites the layer stack in numpy on the
+      GUI thread;
+  (c) PNG inflate in annotate.
+
+None of the three is a GPU problem. (a) becomes 25-87x faster on ONE CPU
+core once it stops touching the whole field per object, (b) is fixed by
+QPainter, and (c) has no CUDA decoder available here.
+
+MEASURED CPU WINS, all bit-identical to the current output, all needing only
+`find_objects` added to the scipy.ndimage import already there:
+
+    _calculate_radial_distribution   22.07 s -> 0.254 s   87x   (per field)
+    _outside_intensity                3.04 s -> 0.041 s   74x   (per mask/chan)
+    colocalization pair loop           3.28 s -> 1.36 s  2.4x   (per field)
+    percentile batching in
+      _extended_regionprops_table     4.9 s of 48,816 calls -> 1 call, 7.3x
+
+That is ~25 s per field of pure waste. On a 2048^2 field with ~800 pairs the
+radial family alone was measured at 360-490 s.
+
+WHERE THE GPU DOES WIN, and it is narrow: torch is already a core dependency
+(`setup.py:205`, torch>=2.0,<3.0), so it costs nothing to use. A verified
+exact port exists -- five iterations of
+`torch.maximum(F.max_pool2d(x,(1,3),1,(0,1)), F.max_pool2d(x,(3,1),1,(1,0)))`
+is BIT-IDENTICAL to `binary_dilation(mask, iterations=5)` across 200
+randomised shapes including border-touching ones. But batched over 196 crops
+it is only 2.3x the FIXED CPU version, which does not repay a ~300 MiB CUDA
+context inside a multiprocessing worker.
+
+THE DECISIVE OBSTACLE for the radial family: torch has no exact Euclidean
+distance transform, in core or in nn.functional, and the EDT is the per-
+object cost. Moving that to the GPU means writing one.
+
+TRAP FOR ANYONE PORTING PERCENTILES: `torch.quantile` raises
+"input tensor is too large" above exactly 2**24 = 16,777,216 elements, on
+CPU as well as CUDA -- so there is no fallback, though it is testable in CI.
+A 2048^2 2-D field is 4.2M and fine; a 40-plane 1024^2 stack is 42M and
+raises. `torch.sort`/`torch.kthvalue` have no cap but are nearest-rank while
+numpy interpolates, so a faithful swap needs the floor/ceil lerp.
+
+DEPENDENCY VERDICT: add neither cupy nor cucim/cuml. cupy is a ~100 MB wheel
+(~500 MB installed) pinned to the CUDA major version, which puts a
+CUDA-coupled variant matrix into the conda-forge recipe (instruction 59);
+cucim/cudf/cuml would add the rapidsai channel to the install instructions.
+After the CPU fixes there is nothing left for them to accelerate.
+
+DO THE CPU FIXES FIRST. They are the whole win, they need no dependency, and
+each is guarded by a before/after DataFrame-equality test since all four are
+claimed bit-identical.

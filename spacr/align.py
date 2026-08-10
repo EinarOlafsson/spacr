@@ -1924,8 +1924,9 @@ def write_stack(plan: AlignPlan, dst: Union[str, os.PathLike],
     :param dry_run: compute the geometry and the band plan, write nothing.
     :param ledger: optional :class:`spacr.errors.RunLedger`.
     :returns: an :class:`AlignResult`, whose
-        :attr:`~AlignResult.peak_buffer_bytes` is the measured allocation
-        ceiling, not an estimate.
+        :attr:`~AlignResult.peak_buffer_bytes` is the band buffer size
+        predicted from the band geometry, computed before anything is
+        allocated and reported on the ``dry_run`` path too.
     :raises ConfigurationError: bad ``blend``/``writer``, or an existing
         output without ``overwrite``.
     """

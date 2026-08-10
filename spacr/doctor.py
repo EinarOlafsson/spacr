@@ -1747,13 +1747,16 @@ def check_settings(ctx: Context) -> Union[Result, List[Result]]:
 def run_checks(
     ctx: Context, checks: Optional[Sequence[Callable[[Context], Any]]] = None
 ) -> List[Result]:
-    """Run every check and return its rows.
+    """Run the selected checks and return their rows.
 
     A check that raises becomes an ``ERROR`` row and the run continues: the
     whole value of this command is the rows it does produce, and losing all of
     them because one probe hit an unexpected filesystem would be absurd.
     ``KeyboardInterrupt`` is the one exception — the user asking to stop is not
     a diagnostic finding.
+
+    :param checks: the checks to run, in order; ``None`` runs every check
+        registered in :data:`CHECKS`.
     """
     selected = CHECKS if checks is None else checks
     results: List[Result] = []

@@ -3198,7 +3198,10 @@ def describe_database(db_path: str | Path, table: str | None = None,
         describing a frame that has been detached from its database.
     :returns: DataFrame with one row per (table, column) and the columns
         ``table, column, object_type, object_type_2, channel, channel_2,
-        family, description, unit, measurement_units, computed_by, notes``.
+        family, description, unit, measurement_units, computed_by, notes,
+        key, object_types, channel_scope, module, written_when, concepts``.
+        ``object_types`` and ``concepts`` are comma-joined strings, and both
+        channel columns are nullable ``Int64``.
     :raises FileNotFoundError: If ``db_path`` does not exist.
     :raises ValueError: If ``table`` is given but not present in the database.
     """

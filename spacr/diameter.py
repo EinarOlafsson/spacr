@@ -56,20 +56,24 @@ For each requested object channel, on each sampled field:
    diameters are measured the same way.
 
 Both estimates are always computed, and choosing between them is where the
-care goes. Fusion is declared only when *both* halves of its signature are
-present: the threshold path kept nothing (or far fewer objects than the
-transform resolves), **and** the field is dense enough for fusion to be the
-explanation. Requiring both matters in each direction. A count disagreement
-alone is not fusion — a hollow, membrane-only object is one correct component
-by area but shatters into dozens of arcs under the distance transform, so a
-bare ratio test would discard the right answer in favour of the wall
-thickness, which is the same silent collapse entered from the other side. A
-high foreground fraction alone is not fusion either — a dense but
-well-separated field can reach 30% foreground and still be measured correctly
-by thresholding. When only one signal fires, the threshold estimate stands and
-the confidence comes down instead. When the two estimates disagree by more
-than 1.5-fold the confidence is downgraded and the note says so, because that
-disagreement is the honest signal that neither number should be trusted blind.
+care goes. The watershed estimate is taken when the transform resolved
+something *and* either the threshold path kept nothing at all, or the field is
+dense enough for fusion to be the explanation (foreground at or above
+``fused_fraction``) *and* the transform resolves at least five times as many
+objects. A count disagreement alone is therefore never fusion — a hollow,
+membrane-only object is one correct component by area but shatters into dozens
+of arcs under the distance transform, so a bare ratio test would discard the
+right answer in favour of the wall thickness, which is the same silent
+collapse entered from the other side. A high foreground fraction alone is not
+fusion either — a dense but well-separated field can reach 30% foreground and
+still be measured correctly by thresholding — so on its own it only brings the
+confidence down while the threshold estimate stands. An empty threshold result
+*is* taken as fusion on its own, with no density check, because no threshold
+estimate is left to stand; if the transform resolved nothing either, no
+estimate is returned for that channel. When fusion is not declared and the two
+estimates disagree by more than 1.5-fold, the confidence is downgraded and the
+note says so, because that disagreement is the honest signal that neither
+number should be trusted blind.
 
 Public API
 ----------

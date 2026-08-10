@@ -92,14 +92,17 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, 
     :type normalize: bool
     :param n_jobs: Number of worker processes used by the DataLoader.
     :type n_jobs: int
-    :return: DataFrame with image paths and predicted positive-class
-        probabilities.
+    :return: DataFrame with image paths and prediction scores.
     :rtype: pandas.DataFrame
 
-    The returned DataFrame contains the columns ``path`` and ``pred``.
-    Results are also written to a CSV file derived from ``model_path`` and the
-    current date. The model output is interpreted as a binary logit and
-    converted to probabilities with ``torch.sigmoid``.
+    The returned DataFrame always contains the columns ``path`` and ``pred``.
+    A single-logit head is converted with ``torch.sigmoid``, so ``pred`` is the
+    positive-class probability; a multi-logit head is converted with
+    ``torch.softmax``, so ``pred`` is the probability of class 1 for two
+    classes and the winning class's confidence for more. With more than two
+    classes the frame also carries ``predicted_label`` and one
+    ``prob_class_<i>`` column per class. Results are also written to a CSV file
+    derived from ``model_path`` and the current date.
     """
     from .io import NoClassDataset
     from .utils import print_progress
@@ -180,11 +183,14 @@ def apply_model_to_tar(settings=None):
     :return: DataFrame with processed prediction results.
     :rtype: pandas.DataFrame
 
-    The returned DataFrame contains at least the columns ``path`` and ``pred``.
-    Additional columns may be added by ``process_vision_results``. If the model
-    output has shape ``(N, 2)``, the probability of class 1 is computed with
-    ``torch.softmax``. Otherwise, outputs are treated as binary logits and
-    converted with ``torch.sigmoid``.
+    The returned DataFrame contains at least the columns ``path`` and ``pred``,
+    plus the columns added by ``process_vision_results``. A single-logit head is
+    converted with ``torch.sigmoid``; a multi-logit head with ``torch.softmax``,
+    giving the probability of class 1 for two classes and the winning class's
+    confidence for more. With more than two classes the frame also carries
+    ``predicted_label`` and one ``prob_class_<i>`` column per class, and its
+    ``cv_predictions`` column holds the predicted class index rather than a
+    threshold on ``pred``.
     """
     if settings is None:
         settings = {}
@@ -651,8 +657,15 @@ def evaluate_model_performance(model, loader, epoch, loss_type='auto',
 
 def test_model_core(model, loader, loader_name, epoch, loss_type):
     """
-    Core test loop returning both summary metrics and a row-per-image dataframe,
-    compatible with binary & multiclass.
+    Core test loop over ``loader``, compatible with binary & multiclass.
+
+    :returns: the 4-tuple ``(metrics, probs, labels, results_df)``. ``metrics``
+        is the summary dict, with ``loss``, ``epoch`` and ``Accuracy`` added.
+        ``probs`` is shape ``(N,)`` for a single-logit head and ``(N, C)``
+        otherwise. ``labels`` is the list of true class ids. ``results_df``
+        holds one row per image with ``filename``, ``true_label``,
+        ``predicted_label`` and either ``class_1_probability`` (single-logit
+        head) or one ``prob_class_<k>`` column per class.
     """
     from .utils import calculate_loss
 
@@ -724,8 +737,13 @@ def test_model_core(model, loader, loader_name, epoch, loss_type):
 
 def test_model_performance(loaders, model, loader_name_list, epoch, loss_type):
     """
-    Wrapper kept for API compatibility with your caller.
-    Returns (summary_metrics_dataframe, per_file_results_dataframe)
+    Evaluate ``model`` on a single loader and report the metrics as a frame.
+
+    Thin wrapper around :func:`test_model_core`, kept for API compatibility.
+
+    :returns: ``(summary_metrics_dataframe, per_file_results_dataframe)`` — the
+        first is the one-row frame of summary metrics, the second holds one row
+        per image.
     """
     data_dict, _, _, results_df = test_model_core(
         model=model,
@@ -1271,11 +1289,19 @@ def train_test_model(settings):
         - ``loss_type`` — ``'auto'``, ``'cross_entropy'``,
           ``'binary_cross_entropy_with_logits'``.
         - ``train`` / ``test`` — flip the two halves of the pipeline.
+        - ``cross_validation_enabled`` / ``cross_validation_folds`` — train
+          with k-fold cross-validation over ``train/`` instead of a single
+          validation split (enabling it with fewer than 2 folds uses 5, and
+          1 fold falls back to the single split); ``cv_group_by`` names the
+          grouping level used for the folds and the leakage audits.
         - ``augment``, ``dropout_rate``, ``optimizer_type``,
           ``early_stopping_patience``, ``n_jobs``, ``pin_memory``.
 
-    :returns: Path to the saved best model (when ``train=True``) or path to
-        the test-result CSV (when ``train=False`` and ``test=True``).
+    :returns: When ``train=True``, the path to the saved best model — or, in
+        cross-validation mode, the path to the per-fold metrics CSV, since
+        there is no single model; ``None`` if ``model_type`` could not be
+        built. When ``train=False`` and ``test=True``, the path to the
+        test-result CSV.
     :raises ValueError: if ``settings['classes']`` is missing or empty.
 
     Example:
@@ -2174,17 +2200,80 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                 settings=None, split_rule='', write_card=True,
                 ):
     """
-    Trains a model (supports 2-class and >2-class via CrossEntropy).
+    Train a classifier and return it together with its checkpoint path.
 
-    New parameters:
+    Supports 2-class and >2-class heads via CrossEntropy and a single-logit
+    head via BCE; the loss itself is built by :func:`spacr.utils.build_loss`.
 
-    * ``early_stopping_patience``: number of epochs with no val improvement
-      before stopping. Set to 0 to disable (original behavior).
-    * ``settings``: the run's settings dict, recorded (hashed) in the model card.
-    * ``split_rule``: how the held-out set was drawn, in words, for the card.
-    * ``write_card``: write ``<model>.card.json`` beside the weights and
-      register it as an artifact. On by default: an uncarded checkpoint is a
-      file nobody can audit six months later.
+    :param src: Dataset root. When ``<src>/train`` exists, its subfolder names
+        become the class list and override ``classes``.
+    :param dst: Output folder for checkpoints, progress CSVs and TensorBoard
+        logs.
+    :param model_type: Architecture name passed to
+        :func:`spacr.utils.choose_model`.
+    :param train_loaders: DataLoader yielding ``(data, target, filenames)``.
+    :param epochs: Final epoch number to train through. Default ``100``.
+    :param learning_rate: Optimizer learning rate. Default ``0.0001``.
+    :param weight_decay: Optimizer weight decay. Default ``0.05``.
+    :param amsgrad: AMSGrad variant, honoured by ``adamw`` and ``adam`` only.
+    :param optimizer_type: One of ``'adamw'``, ``'adam'``, ``'adamax'``,
+        ``'adagrad'``, ``'adadelta'``, ``'asgd'``, ``'sgd'``, ``'rmsprop'``,
+        ``'nadam'``, ``'radam'``. Default ``'adamw'``.
+    :param use_checkpoint: Enable gradient checkpointing in the architecture.
+    :param dropout_rate: Dropout rate passed to the architecture.
+    :param n_jobs: Unused; accepted for call-site compatibility.
+    :param val_loaders: Validation loader driving best-checkpoint selection and
+        early stopping. Without one, training accuracy is used instead.
+    :param test_loaders: Only its batch count is printed; it is not evaluated
+        here.
+    :param init_weights: Pretrained-weight selection, ignored (passed as
+        ``False``) when ``custom_model_path`` or ``resume_checkpoint`` is set.
+    :param intermedeate_save: Accuracy thresholds that trigger intermediate
+        checkpoints, forwarded to :func:`spacr.io._save_model`.
+    :param chan_dict: Unused; accepted for call-site compatibility.
+    :param schedule: ``None``, ``'step_lr'``, ``'reduce_lr_on_plateau'``,
+        ``'cosine'``, ``'cosine_warm_restarts'``, ``'exponential'`` or
+        ``'linear'``.
+    :param loss_type: Loss identifier passed to
+        :func:`spacr.utils.build_loss`; ``'auto'`` picks one from the head.
+    :param gradient_accumulation: Accumulate gradients over several batches.
+    :param gradient_accumulation_steps: Batches per optimizer step when
+        ``gradient_accumulation`` is on. Default ``4``.
+    :param channels: Channel names recorded with the checkpoint. Default
+        ``['r', 'g', 'b']``.
+    :param verbose: Verbose architecture construction.
+    :param num_classes: Size of the classifier head; ``1`` selects the binary
+        BCE path. Default ``2``.
+    :param image_size: Square input size in pixels. Default ``224``.
+    :param plot: Refresh a live training-curve figure after every epoch.
+    :param tensorboard: Write TensorBoard event files into ``dst``.
+    :param early_stopping_patience: Number of epochs with no val improvement
+        before stopping. Set to 0 to disable (original behavior).
+    :param custom_model_path: Checkpoint whose weights are fine-tuned.
+    :param resume_checkpoint: spaCR training artifact whose weights, optimizer,
+        scheduler and epoch counter are restored.
+    :param preprocessing: Preprocessing description stored in the checkpoint.
+    :param classes: Class names, used when ``<src>/train`` does not exist.
+    :param label_smoothing: Label-smoothing epsilon for the smoothed losses.
+        Default ``0.1``.
+    :param focal_gamma: Focal-loss focusing parameter. Default ``2.0``.
+    :param focal_alpha: Focal-loss class-balancing factor.
+    :param logit_adjust_tau: Strength of the logit adjustment; ``0`` disables
+        it. Default ``1.0``.
+    :param settings: the run's settings dict, recorded (hashed) in the model card.
+    :param split_rule: how the held-out set was drawn, in words, for the card.
+    :param write_card: write ``<model>.card.json`` beside the weights and
+        register it as an artifact. On by default: an uncarded checkpoint is a
+        file nobody can audit six months later.
+    :returns: ``(model, model_path)`` — the trained model and the best
+        checkpoint (the last one written if no epoch was flagged best), or
+        ``(None, None)`` when ``model_type`` could not be built.
+    :raises ValueError: on an unknown ``optimizer_type``, a checkpoint whose
+        class count differs from ``num_classes``, a ``resume_checkpoint``
+        carrying no optimizer state, or a checkpoint that already completed
+        ``epochs``.
+    :raises FileNotFoundError: if ``custom_model_path`` or
+        ``resume_checkpoint`` does not exist.
     """
 
 
@@ -2977,12 +3066,15 @@ def analyze_activation_maps(model, images, methods=None, *, masks=None,
 
 
 def visualize_classes(model, dtype, class_names, **kwargs):
-    """Show one synthesised class-visualisation image per class.
+    """Show one synthesised class-visualisation image for class 0 and class 1.
+
+    The loop is hard-coded to the first two classes, so a model with more than
+    two classes has only those two visualised.
 
     :param model: Trained classifier.
     :param dtype: Tensor dtype used for optimisation.
-    :param class_names: Ordered class names (currently assumes binary
-        classification).
+    :param class_names: Ordered class names; at least two are required, since
+        indices 0 and 1 are both looked up.
     :param kwargs: Extra keyword arguments forwarded to
         ``utils.class_visualization``.
     :returns: None
@@ -3736,10 +3828,21 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
     return fused_model
 
 def annotate_filter_vision(settings):
-    """Annotate vision-model score CSVs with plate metadata after removing training images.
+    """Annotate and filter vision-model score CSVs, then optionally drop training images.
 
-    :param settings: Settings dict with ``src`` (path or list of paths)
-        and downstream annotation keys used by ``annotate_conditions``.
+    For every ``src`` CSV the plate metadata is corrected and annotated, rows
+    whose ``filter_column`` value lies between ``lower_threshold`` and
+    ``upper_threshold`` are dropped, and the result is written to
+    ``<src>_annotated_filtered.csv``. Only afterwards, and only when
+    ``remove_train`` is set, are rows matching a PNG under the sibling
+    ``datasets/training/train`` folders removed and the same CSV rewritten.
+
+    :param settings: Settings dict with ``src`` (path or list of paths); the
+        ``annotate_conditions`` keys ``cells``, ``cell_loc``, ``pathogens``,
+        ``pathogen_loc``, ``treatments`` and ``treatment_loc``; the filter keys
+        ``filter_column`` (``None``, or a name absent from the frame, leaves it
+        unfiltered), ``upper_threshold`` and ``lower_threshold``; and
+        ``remove_train``.
     :returns: None
     """
     from .utils import annotate_conditions, correct_metadata
