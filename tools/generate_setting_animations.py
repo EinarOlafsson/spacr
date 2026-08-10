@@ -879,7 +879,7 @@ def _probability_scene(painter: Painter, spec: Spec, action: float) -> None:
         confidence = (0.28, 0.48, 0.68, 0.86, 1.0)[idx]
         cutoff = 0.25 + action * 0.55
         amount = confidence if confidence >= cutoff else confidence * (1.0 - action)
-        radius = (22, 17) if kind == "cell" else (14, 11)
+        radius = (36, 28) if kind == "cell" else (30, 23)
         _object_outline(painter, kind, center, radius, amount, idx * 0.7)
 
 
@@ -948,12 +948,17 @@ def _background_scene(painter: Painter, spec: Spec, action: float) -> None:
 def _signal_scene(painter: Painter, spec: Spec, action: float) -> None:
     _well(painter)
     kind = spec.params["kind"]
+    # A ramp of signal-to-noise across five objects rather than three, at a
+    # size that is legible in a tooltip. The faintest object carries the
+    # setting; at 16x12 it was too few pixels to see or to measure.
     for idx, (center, base) in enumerate(zip(
-        ((90, 118), (180, 118), (270, 118)), (0.25, 0.55, 1.0))):
+        ((66, 118), (123, 118), (180, 118), (237, 118), (294, 118)),
+        (0.15, 0.32, 0.52, 0.75, 1.0),
+    )):
         amount = base + (1.0 - base) * action
         _object_outline(
             painter, kind, center,
-            (30, 23) if kind == "cell" else (16, 12),
+            (44, 34) if kind == "cell" else (32, 24),
             amount, idx * 0.6,
         )
 
@@ -962,13 +967,28 @@ def _fill_holes(painter: Painter, spec: Spec, action: float) -> None:
     _well(painter)
     kind = spec.params.get("kind", "cell")
     color = OBJECT_COLORS[kind]
-    size = (92, 69) if kind == "cell" else (55, 42)
-    hole = 23 if kind == "cell" else 14
+    # A hole is an ABSENCE inside the mask, so draw it as one: punch the
+    # background through the object and let the fill close over it. The old
+    # scene faded a hole-sized OUTLINE RING, which reads as a circle being
+    # rubbed out rather than a hole being filled, and changed 0.2-0.3% of the
+    # frame because a ring is almost no pixels. Real masks have several holes
+    # and the setting fills all of them, so draw several.
+    size = (100, 75) if kind == "cell" else (85, 64)
+    radius = 15 if kind == "cell" else 13
+    offsets = ((-28, -6), (6, 10), (30, -12))
     _object_outline(painter, kind, (180, 120), size, 1.0, 0.3)
-    painter.ellipse(
-        (180 - hole, 120 - hole, 180 + hole, 120 + hole),
-        _mix(color, 1.0 - action), 0.5,
-    )
+    filled = _mix(color, FILL_ALPHA)
+    for offset_x, offset_y in offsets:
+        center = (180 + offset_x, 120 + offset_y)
+        shade = tuple(
+            int(round(channel * action)) for channel in filled
+        )
+        painter.dot(center, radius, shade)
+        painter.ellipse(
+            (center[0] - radius, center[1] - radius,
+             center[0] + radius, center[1] + radius),
+            _mix(color, 1.0 - action), 0.5,
+        )
 
 
 def _organelle_scene(painter: Painter, spec: Spec, action: float) -> None:
@@ -993,9 +1013,12 @@ def _organelle_scene(painter: Painter, spec: Spec, action: float) -> None:
         ]
         painter.line(skeleton, _mix(MAGENTA, action), 0.55)
     elif mode == "rolling_ball":
-        for y, strength in ((76, 0.25), (118, 0.35), (166, 0.22)):
+        # The background being subtracted has to LOOK like background:
+        # three hairlines were 0.6% of the frame and read as three lines.
+        for y, strength in ((58, 0.22), (94, 0.30), (130, 0.35),
+                            (166, 0.30), (202, 0.22)):
             wave = [(x, y + 10 * math.sin(x / 45.0)) for x in range(30, 331, 8)]
-            painter.line(wave, _mix(GRAY, strength * (1.0 - action)), 0.5)
+            painter.line(wave, _mix(GRAY, strength * (1.0 - action)), 2.4)
         for idx, center in enumerate(((105, 120), (180, 93), (248, 145))):
             _object_outline(painter, "organelle", center, (13, 10), 1.0, idx)
     elif mode == "clahe":
@@ -1006,14 +1029,19 @@ def _organelle_scene(painter: Painter, spec: Spec, action: float) -> None:
                 base + (1.0 - base) * action, idx,
             )
     elif mode == "within_cells":
-        _object_outline(painter, "cell", (175, 122), (100, 72), 1.0, 0.4)
-        inside = ((125, 104), (181, 84), (225, 139), (158, 159))
-        outside = ((51, 69), (303, 78), (307, 180))
+        # Every "inside" organelle used to sit ON the cell boundary, which
+        # only looked contained because they were 10x8. The cell has to be
+        # big enough to visibly HOLD them, or the animation shows organelles
+        # outside the cell surviving a setting that keeps the ones inside.
+        _object_outline(painter, "cell", (175, 122), (124, 90), 1.0, 0.4)
+        inside = ((146, 110), (201, 107), (206, 139), (150, 140))
+        outside = ((46, 58), (302, 64), (312, 184), (50, 192),
+                   (178, 38), (178, 208))
         for idx, center in enumerate(inside):
-            _object_outline(painter, "organelle", center, (10, 8), 1.0, idx)
+            _object_outline(painter, "organelle", center, (22, 17), 1.0, idx)
         for idx, center in enumerate(outside):
             _object_outline(
-                painter, "organelle", center, (10, 8), 1.0 - action, idx,
+                painter, "organelle", center, (22, 17), 1.0 - action, idx,
             )
     elif mode == "threshold":
         for idx, (center, base) in enumerate(zip(
@@ -1085,7 +1113,7 @@ def _crop_scene(painter: Painter, spec: Spec, action: float) -> None:
         painter.rectangle(
             (cx - width / 2, cy - height / 2,
              cx + width / 2, cy + height / 2),
-            _mix(WHITE, 0.72), 0.5, 4,
+            _mix(WHITE, 0.85), 2.4, 4,
         )
 
 
@@ -1171,10 +1199,15 @@ def _tracking_scene(painter: Painter, spec: Spec, action: float) -> None:
     elif mode == "memory":
         positions = ((65, 126), (112, 112), (160, 105), (210, 111), (270, 127))
         _track_path(painter, positions, 1.0, dashed=bool(action > 0.45))
-        # Missing middle detection; memory bridges the gap.
-        _draw_motile_cell(
-            painter, positions[2], (16, 13), 1.0 - action, 2,
-        )
+        # The setting is how many consecutive frames an object may go missing
+        # and still be linked, so show a RUN of missed detections and the
+        # track surviving it. One 16x13 cell fading showed neither.
+        for idx, center in enumerate(positions):
+            missing = idx in (2, 3)
+            _draw_motile_cell(
+                painter, center, (36, 28),
+                (1.0 - action) if missing else 1.0, idx * 0.6,
+            )
     elif mode in ("link", "stitch"):
         first = (145, 120)
         second = (190 + 38 * action, 120)
