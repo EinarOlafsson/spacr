@@ -275,3 +275,56 @@ STILL OPEN. Two stalls of ~2.5 s remain and neither has been profiled yet.
 `_build_aside` in `home.py` was 1481 ms in the last profile and is the
 obvious next line to pull. The method is unchanged: run the tick monitor,
 then cProfile, then fix what it names -- not what looks slow.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE NAMED NEXT TARGET IS ALREADY GONE, AND A PROFILER TRAP
+--------------------------------------------------------------------------------
+
+The entry above says "`_build_aside` in home.py was 1481 ms and is the
+obvious next line to pull". Re-measured before pulling it:
+
+    MainWindow build     ~860 ms      (recorded here as 1457)
+    make_home_page        390 ms
+    _build_aside          154 ms      (recorded here as 1481)
+
+So the icon PNG cache and the run-journal fix already took it, and this
+file's own next-step note was stale. RE-MEASURE BEFORE ACTING ON A NUMBER
+IN THIS FILE -- that is now three tasks in a row where the recorded
+remaining-work list was out of date (see instruction 63 for the other two).
+
+A CHANGE THAT LOOKED RIGHT, MEASURED, AND WAS REVERTED. cProfile on the
+MainWindow build attributed ~200 ms of 1000 ms to `_read_cached_icon` ->
+`PIL.Image.convert` -- 50 cached icons decoded through PIL into numpy. The
+pixmap path does not need an array at all, so Qt's own PNG loader should
+have been strictly cheaper. Implemented it (`_cached_qimage`, keyed on the
+resolved cache path so ENV_ICON_CACHE redirection stays isolated), then
+A/B'd it over five fresh processes each:
+
+    with the Qt fast path   907 923 857 835 979    (median 907)
+    without                 873 867 855 821 887    (median 867)
+
+No improvement, marginally worse. REVERTED.
+
+WHY THE PROFILE LIED, which is the transferable part: cProfile charges
+per-call overhead, and PIL decode plus `np.asarray` is call-heavy in a way
+that Qt's single C++ entry point is not. Under the profiler the PIL route
+looks ~5x its real cost; without it, decoding 50 small cached PNGs is not
+where the time goes. `sort_stats("tottime")` on a library that crosses the
+Python/C boundary often is a measurement artefact, not a finding.
+
+The rule this file already states -- "fix what it names, not what looks
+slow" -- needs one more clause: and then A/B the fix in fresh processes,
+because what the profiler names can itself be an artefact of profiling.
+
+WHERE IT STANDS
+
+      MainWindow build      ~860 ms     (was 5107)
+      make_home_page         390 ms
+      _build_aside           154 ms
+
+STILL OPEN, and now genuinely unprofiled: the two ~2.5 s stalls were
+measured with the TICK MONITOR against a real windowed launch, not against
+an offscreen MainWindow build, and nothing above reproduces them. The next
+step is the tick monitor on a real launch -- an offscreen build cannot see
+a stall caused by compositing, font loading or the platform theme, which is
+the most likely place for 2.5 s to hide now that the build itself is 860 ms.
