@@ -25,7 +25,7 @@ MAX_TOOLTIP_CHARS = 600
 MIN_TOOLTIP_CHARS = 80
 
 #: Settings still awaiting a stated default. Only ever revise DOWN.
-MAX_WITHOUT_DEFAULT = 23
+MAX_WITHOUT_DEFAULT = 16
 
 
 @pytest.fixture(scope="module")
