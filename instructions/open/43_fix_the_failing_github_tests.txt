@@ -215,3 +215,55 @@ floor.
 So the next matrix run should drop roughly 23 failures without a single
 test being touched. Count what is left AFTER that run rather than from the
 old log -- the earlier tally of ~85 includes them.
+
+--------------------------------------------------------------------------------
+2026-08-10 - LINT IS GREEN, AND THE FIRST REAL FAILURES ARE TRIAGED
+--------------------------------------------------------------------------------
+
+Matrix state from run 31408244080 (cancelled part-way by a later push, but
+enough jobs finished to be useful):
+
+    Lint / types / complexity   SUCCESS   <- was red, now green
+    Network                     SUCCESS
+    NAS                         SUCCESS
+    Fast py3.11 / 3.12 / 3.13   FAILURE
+    Integration                 FAILURE
+
+LINT WENT GREEN because of ten undefined names fixed on 2026-08-10 --
+`ruff --select E9,F63,F7,F82` reports genuine runtime crashes, not style.
+`gate_spec._midpoint` did not exist at all, so `BoxGate.centre()` raised
+NameError on every call; `LOG` was used at five sites with no module logger.
+
+THREE OF THE Fast FAILURES ARE FIXED, and all three were documentation
+asserting something the code contradicts:
+
+  `class_balance` told users to set `'class_weights'`. The legal modes are
+  ('none', 'weighted_sampler', 'sqrt_weighted_sampler', 'weighted_loss'), so
+  that value is REJECTED -- and `sqrt_weighted_sampler`, the middle ground
+  between no correction and full oversampling, was undocumented entirely.
+
+  Two batch-correction tooltips had lost the
+  `spacr.batch_correction.correct_batch_effects` reference their siblings
+  still carry.
+
+Verified pre-existing: all three fail identically with `settings.py` reverted
+to 41c061f8, so they are not fallout from this session's tooltip work.
+
+A TRAP WHILE FIXING THEM: the first version of the `class_balance` rewrite
+ran to 651 characters against the 600-char ceiling
+`test_no_tooltip_is_an_archive` enforces. Fixing one tooltip test by
+breaking another is easy here; run
+`tests/test_tooltip_length_and_shape.py` alongside whatever you are fixing.
+
+STILL TO TRIAGE from the same run, each named in the log and not yet looked
+at: test_cellpose_api_contract (5), test_cellpose_channel_axis_contract (3),
+test_cov_io_tail, test_cov_plot_compare_viz, test_feature_dict, test_hits,
+test_measure_bug_fixes, test_cellpose4_model_story. The cellpose cluster is
+the one to take first -- eight failures across two files suggests one
+signature change rather than eight faults.
+
+AND A PROCESS NOTE THAT COST THIS TASK A DAY: every push CANCELS the
+in-flight matrix. To get a complete count, push once and then STOP pushing
+until the run finishes -- roughly 40 minutes, longer when GitHub's runners
+are backed up. Committing locally and holding the push is the way to keep
+working meanwhile.
