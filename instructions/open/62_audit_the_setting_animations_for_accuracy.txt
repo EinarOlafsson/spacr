@@ -259,3 +259,35 @@ from a diff is how you ship 94 subtly wrong pictures.
 
 The border-object family (the original report) still needs its own look:
 that one removes a non-edge object, which is a different scene function.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE DIAMETER FAMILY IS FIXED, AND THE GENERATOR GREW A SAFE MODE
+--------------------------------------------------------------------------------
+
+    cell_diameter        0.0025 -> 0.0275
+    nucleus_diameter     0.0012 -> 0.1231
+    pathogen_diameter    0.0001 -> 0.1390
+    organelle_diameter   0.0014 -> 0.1304
+    under threshold      27 -> 23
+
+`_diameter_scene` drew the object at a FIXED radius and animated only the
+caliper. The setting being illustrated was the one thing held constant --
+which is why the whole family sat at the bottom of the audit and why that
+grouping was the clue.
+
+TWO THINGS THE NEXT PERSON NEEDS, both found by trying:
+
+  * A FULL REGENERATION IS NOT SAFE TODAY. 60 of 94 GIFs come out
+    byte-different though pixel-identical, because the shipped assets were
+    encoded by a different Pillow build; and it drops `all_to_mip` from the
+    manifest, since commit 46366cac retired that setting in the generator
+    specs without regenerating. Use `--only SLUG`, which now exists.
+  * `docs/source/setting_animations.rst` IS STALE relative to the
+    generator -- it still lists `all_to_mip` under Z projection and
+    describes a tooltip-footer mechanism the generator no longer emits. A
+    full run silently reverts both. Worth fixing before anyone does a full
+    regeneration; it is not fixed here because this task's scope was the
+    animations.
+
+STILL OPEN: the four border-object animations, and the other 23 under
+threshold. The worst is now `remove_cluster_noise` at 0.0006.
