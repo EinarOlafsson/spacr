@@ -1,0 +1,124 @@
+================================================================================
+ONE "ORGANELLE TYPE" CHOICE SHOULD DRIVE THE REST OF THE ORGANELLE SETTINGS
+================================================================================
+
+Status:    not started, 2026-08-10.
+Requested: 2026-08-10 — "add to instructions to work do a sweep of organelle in measure and mask. the point of this settings class and object class is to generate measurements and capture organelle objects. this is the most diverse set of objects. Best would be if there were the options organelle type with the following categories: Vesicular (vacuoles, autophagosomes, transport vesicles, secretory vesicles, early endosomes, lysosomes), Filamentous (microtubules, F-actin filaments, intermediate filaments), Punctate (peroxisomes, lipid droplets, ribosomes, PML nuclear bodies, vaults), Tubular (smooth endoplasmic reticulum, healthy mitochondrial networks, sorting endosomes, trans-Golgi network), Cisternal (rough endoplasmic reticulum sheets, Golgi stacks, nuclear envelope), Reticular (endoplasmic reticulum meshwork, interconnected mitochondrial reticula), Spherical (nucleus, nucleolus, chloroplasts, swollen mitochondria, macromolecular condensates), Toroidal (condensing/stressed mitochondria, midbodies, nuclear pore complexes), Crescent (phagophores/early autophagosomes, specialized yeast nucleoli) and then set up settings and detection modals for each type with the others not visible or grayed out that do not apply to the chosen organelle. as it is now there are too many options for organelle and to many settings for organelle in mask, so if organelle type is Vesicular then organelle morphology will always be spots (for example make sure this is true dont just take my word for it) and not network. so essentially i want to bundle a bunch of current (and potentially new settings into the categories specified above to make it easier for the user. all settings should still be modifiable by the user but they should be in an organelle advanced settings category, and only the minimum relevant settings in the organelle category."
+
+--------------------------------------------------------------------------------
+THE EXAMPLE IN THE REQUEST IS WRONG, AND CHECKING IT IS THE FIRST TASK
+--------------------------------------------------------------------------------
+
+The maintainer asked to verify rather than assume, so: **Vesicular does NOT
+map to `spots`.** By the project's own tooltip at `settings.py:3009`, today's
+`organelle_morphology` has four values and the request's Vesicular list is
+split across three of them:
+
+    'spots'      punctate (vesicles, lipid droplets)
+    'network'    filamentous (mitochondria, ER tubules)
+    'irregular'  solid blobby (Golgi, LYSOSOMES)
+    'ring'       hollow (ENDOSOMES, AUTOPHAGOSOMES)
+
+Vesicular as listed = vacuoles, autophagosomes, transport vesicles,
+secretory vesicles, early endosomes, lysosomes. Of those, autophagosomes and
+early endosomes are documented as `ring`, lysosomes as `irregular`, and only
+the transport/secretory vesicles as `spots`. A vacuole is hollow and large,
+so `ring` as well.
+
+THIS IS THE WHOLE DESIGN PROBLEM IN MINIATURE. "Vesicular" is a CELL-BIOLOGY
+category (membrane-bound compartment that carries cargo) while `spots` /
+`ring` / `network` / `irregular` is an IMAGE-APPEARANCE category (what the
+segmentation algorithm has to find). They do not nest, because the same
+biological family looks different at different sizes: a 200 nm transport
+vesicle is a diffraction-limited dot, a 2 um vacuole is a visible ring.
+
+So the mapping is not type -> morphology. It is
+
+    (organelle type, expected size relative to the PSF) -> morphology
+
+and the size half is already partly present as `organelle_diameter`. Any
+implementation that hard-codes one morphology per type will be wrong for
+half the entries in the request's own list, and the failure is silent: the
+user picks "Vesicular", gets a spot detector, and their lysosomes come out
+as rings of holes.
+
+--------------------------------------------------------------------------------
+WHY THE REQUEST IS STILL RIGHT
+--------------------------------------------------------------------------------
+
+The complaint underneath it is correct and measurable: organelle is the most
+over-configured object class in the tool. A user who knows they are imaging
+lysosomes should not have to know what a ridge filter is, or which of
+`organelle_method`'s seven values are legal for which morphology, or what
+`organelle_network_threshold` does when they are not segmenting a network.
+
+The fix is a NAMED PRESET that sets several settings at once and explains
+what it set -- not a new hard-coded pipeline. That keeps the request's real
+goal (fewer decisions in front of a biologist) without pretending a taxonomy
+is a segmentation strategy.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. INVENTORY FIRST. List every `organelle_*` setting in `settings.py` and
+   every place `mask` and `measure` read one. Record how many there are --
+   the claim "too many options" should have a number attached before and
+   after. Note which are legal in combination: `organelle_method` is already
+   validated against `organelle_morphology` and an unsupported pair raises
+   before any image loads, so that constraint graph partly exists and should
+   be read rather than re-invented.
+
+2. WORK OUT THE REAL MAPPING, type x size -> morphology + method + the
+   handful of parameters that matter. Do it as a table in this file, with
+   one row per entry in the maintainer's nine categories, and mark the rows
+   where size decides. Expect to find that several categories map to more
+   than one morphology; say so rather than forcing them.
+   Where the evidence is thin, say that too -- "Crescent" and "Toroidal"
+   have no dedicated detector today and may reduce to `ring` plus a shape
+   filter, which is an honest answer.
+
+3. ADD `organelle_type` as the ONE visible choice, defaulting to whatever
+   reproduces today's behaviour so no existing settings CSV changes meaning.
+   It must state its default in its tooltip like every other setting
+   (instruction 61 closed that at zero missing).
+
+4. PRESET, DO NOT OVERRIDE. Choosing a type fills the advanced settings with
+   its recommended values and leaves them editable. A user who then changes
+   `organelle_method` keeps that change; the type does not silently reassert
+   itself. The GUI should show which values came from the preset -- greying
+   out an inapplicable setting is fine, HIDING it is not, because a hidden
+   setting that is still in the settings dict is how a run gets a value
+   nobody can see (this project already has eleven phantom settings from
+   exactly that class of drift -- see instruction 61).
+
+5. SPLIT THE CATEGORY. "Organelle" keeps the minimum: channel, type,
+   diameter, the on/off switches a biologist recognises. "Organelle advanced"
+   takes the rest. This is the same move instruction 73 makes for the other
+   object classes, so do them together or make 73 follow this one's shape.
+
+6. MEASURE SIDE. The request says this is a sweep of organelle "in measure
+   and mask". On the measure side the question is which measurements make
+   sense per type -- neighbour counts and per-object spacing are meaningful
+   for Punctate and Vesicular and meaningless for a single Reticular network
+   filling the cell. Instruction 71 item 3 defers to this file for that gate.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A biologist can pick "lysosomes" from a list and get a working segmentation
+without opening advanced settings; the count of settings visible by default
+under Organelle has gone down and the number is recorded here; every advanced
+setting is still reachable and still editable; and no existing settings CSV
+changes meaning on load.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. Related: 73 (the same split for the other object classes, and
+the sub-section structure this should adopt), 71 (which measurements to
+enable per type), 61 (every setting states its default), 37 (the classify
+settings overhaul is the same shape of problem and its scope note is worth
+reading first).

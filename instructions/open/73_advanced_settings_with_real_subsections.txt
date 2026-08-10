@@ -1,0 +1,114 @@
+================================================================================
+AN "ADVANCED SETTINGS" CATEGORY, ORGANISED BY WHAT A SETTING DOES
+================================================================================
+
+Status:    not started, 2026-08-10.
+Requested: 2026-08-10 — "and actually when i think about it i would like to move several settings from the other object settings categories to a new 'advanced settings' category, move settings like remove background, intensity merge split, min distance, etc. but have all the similar settings here organized into sub and sub-sub sections with sub section headers like object filtration, image preprocessing with sub-sub sections for each object (cell, nuclei, pathogen, organelle)."
+
+--------------------------------------------------------------------------------
+WHAT IS BEING ASKED FOR
+--------------------------------------------------------------------------------
+
+Today the settings panel groups by OBJECT: everything about cells together,
+everything about nuclei together. The request is to add a second axis --
+group the advanced settings by WHAT THEY DO, and only then by which object
+they do it to:
+
+    Advanced settings
+      Image preprocessing
+        Cell
+        Nucleus
+        Pathogen
+        Organelle
+      Object filtration
+        Cell
+        Nucleus
+        Pathogen
+        Organelle
+      ...
+
+with the named examples (remove background, intensity merge/split, minimum
+distance) moving out of the per-object categories into it.
+
+The reason this is worth doing: `cell_remove_background` and
+`nucleus_remove_background` do the SAME THING to different objects. Filed
+under two different objects they read as two unrelated knobs; filed under one
+"image preprocessing" heading with an object sub-heading they read as one
+decision applied four times, which is what they are.
+
+--------------------------------------------------------------------------------
+WHAT HAS TO BE CHECKED BEFORE ANY OF IT
+--------------------------------------------------------------------------------
+
+THE PANEL MAY NOT SUPPORT NESTING. Today's category system is FLAT: a
+category maps to a list of keys (`_APP_CATEGORY_SPECS`, `get_categories`,
+`categories_for_app` in `spacr/qt/screens/settings_model.py`) and the screen
+renders one header per category. A sub-sub-section is a third level that
+probably does not exist in the widget. Find out FIRST, and record the answer
+here, because "add three levels of nesting to the settings panel" is a much
+larger job than "move some keys between categories" and the request reads
+like the second.
+
+There is a partial precedent worth reading: `categories_for_app` already
+prefixes merged-module groups with a family name ("Computer Vision — Training
+& Loss"), which is a two-level hierarchy faked with a string prefix. That
+worked, and it also broke every tooltip lookup for those groups until
+2026-08-10, which is the cautionary half of the precedent.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Establish whether the settings panel can render nested sections at all.
+   If it cannot, decide between (a) building it, (b) the prefix trick above
+   with its tooltip consequences understood, or (c) two levels only. Record
+   which and why -- this is the decision the rest depends on.
+
+2. Inventory what would move. Every setting that is (i) shared in FORM
+   across object classes and (ii) something a user does not touch on a first
+   run. `*_remove_background`, `*_intensity_merge`/`*_split`,
+   `*_minimum_distance` are the named ones; there will be more, and the list
+   belongs in this file with a count.
+
+3. Do not break existing settings CSVs. Moving a key between GUI categories
+   must not change its name or its meaning -- the category is presentation.
+   A test should assert that the set of keys a module offers is unchanged by
+   the regroup, because that is the failure that would silently drop a
+   setting from a run.
+
+4. Every category needs a tooltip. `tests/qt/test_category_tooltips.py`
+   enforces that every rendered heading has written help of at least twelve
+   words, and it will fail on each new sub-heading. Write those blurbs as
+   part of the change, not after.
+
+5. Watch the curated-layout registry. A module with a bespoke layout is
+   listed in `_INLINE_LAYOUT_APPS` or `_APP_CATEGORY_SPECS`, and this project
+   has already shipped THREE separate defects from a module being registered
+   without its accompanying table entries (see instruction 47's triage). If
+   this change adds a new layout mechanism, give it a test that fails when
+   the two halves disagree, as `tests/qt/test_inline_layout_registry.py` now
+   does.
+
+6. Coordinate with 72. Organelle is getting the same split ("Organelle" plus
+   "Organelle advanced") and should end up consistent with whatever structure
+   this instruction settles on, not a second parallel scheme.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The count of settings visible by default per object category has gone down
+and the before/after numbers are recorded here; every moved setting is still
+present, still editable and still named the same in a settings CSV; every new
+heading has a written blurb; and a test asserts the regroup did not change
+which keys a module offers.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. Related: 72 (organelle's own split, same shape, do them
+together), 37 (the classify settings overhaul -- the same "too many settings,
+group them by what they do" problem, and its scope note is worth reading
+first), 61 (every setting states its default and unit), 69 (standardise
+common elements across modules).
