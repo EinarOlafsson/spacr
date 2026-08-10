@@ -32,8 +32,7 @@ Public API
     :meth:`~Registry.by_project`, :meth:`~Registry.latest`,
     :meth:`~Registry.downstream_of`, :meth:`~Registry.upstream_of`,
     :meth:`~Registry.is_stale`, :meth:`~Registry.forget`.
-``open_registry``, and module-level ``register`` / ``by_kind`` /
-``by_project`` / ``latest`` / ``downstream_of`` / ``is_stale``
+``open_registry``, and module-level ``register`` / ``by_kind`` / ``by_project`` / ``latest`` / ``downstream_of`` / ``is_stale``
     The same, resolved from a project path.
 ``register_run_outputs``
     The one call a finished run makes; walks
