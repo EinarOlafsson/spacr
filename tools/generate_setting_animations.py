@@ -668,6 +668,52 @@ def _filter_scene(painter: Painter, spec: Spec, action: float) -> None:
         )
 
 
+def _assert_border_layout(
+    objects: Sequence[Tuple[Tuple[float, float], Tuple[float, float], bool]],
+    close: Tuple[float, float, float, float],
+) -> None:
+    """Refuse to draw a border scene that contradicts what it illustrates.
+
+    Two independent faults produced the reported "removes one edge object and
+    one that is not", and neither is visible in a pixel diff that trusts the
+    ``touches`` flag as ground truth:
+
+    * an object flagged as touching the border sat wholly inside the well, so
+      the animation removed an interior object;
+    * a KEPT object lay outside the close camera, so it left the frame during
+      the zoom and read as removed.
+
+    Both are geometry, so both can be checked here rather than watched for.
+    """
+    edge_low, edge_high = 12.0, float(CANVAS) - 12.0
+    left, top, right, bottom = close
+    for index, (center, size, touches) in enumerate(objects):
+        x0, x1 = center[0] - size[0] / 2.0, center[0] + size[0] / 2.0
+        y0, y1 = center[1] - size[1] / 2.0, center[1] + size[1] / 2.0
+        straddles = (
+            x0 < edge_low < x1 or x0 < edge_high < x1
+            or y0 < edge_low < y1 or y0 < edge_high < y1
+        )
+        if touches and not straddles:
+            raise ValueError(
+                f"border object {index} is flagged as touching the well edge "
+                f"but lies at x[{x0:.1f},{x1:.1f}] y[{y0:.1f},{y1:.1f}], which "
+                f"does not cross {edge_low:.0f} or {edge_high:.0f}; removing it "
+                "would illustrate the opposite of the setting"
+            )
+        if not touches and straddles:
+            raise ValueError(
+                f"object {index} is kept but crosses the well edge, so the "
+                "animation shows a border object surviving"
+            )
+        if not (left <= x0 and x1 <= right and top <= y0 and y1 <= bottom):
+            raise ValueError(
+                f"object {index} at x[{x0:.1f},{x1:.1f}] y[{y0:.1f},{y1:.1f}] "
+                f"is not contained in the close camera {close}; it would leave "
+                "the frame during the zoom and read as removed"
+            )
+
+
 def _border_scene(painter: Painter, spec: Spec, index: int) -> None:
     kind = spec.params["kind"]
     phase = index / max(1, FRAMES - 1)
@@ -689,7 +735,10 @@ def _border_scene(painter: Painter, spec: Spec, index: int) -> None:
     # a centred 240 px band, hence object y positions gain Y_OFFSET before the
     # camera transform and lose it again before Painter applies its offset.
     full = (0.0, 0.0, float(CANVAS), float(CANVAS))
-    close = (205.0, 0.0, 360.0, 155.0)
+    # The close camera must contain every object, including the ones that are
+    # KEPT. An object that leaves the frame during the zoom is indistinguishable
+    # from one that is removed, which is half of what made this scene wrong.
+    close = (228.0, 70.5, 378.0, 220.5)
     camera = tuple(a + (b - a) * zoom for a, b in zip(full, close))
     left, top, right, bottom = camera
     sx, sy = CANVAS / (right - left), CANVAS / (bottom - top)
@@ -708,19 +757,24 @@ def _border_scene(painter: Painter, spec: Spec, index: int) -> None:
         0.75,
         20 * min(sx, sy),
     )
+    # The two removed objects STRADDLE the well edge; the two kept objects are
+    # clear of it. Both facts are asserted below against the drawn rectangle,
+    # because the previous layout removed an object that sat wholly inside the
+    # well -- the reported "removes one edge object and one that is not".
     objects = [
-        ((278, 18 + Y_OFFSET), (30, 23), True),
-        ((346, 80 + Y_OFFSET), (27, 22), True),
-        ((274, 91 + Y_OFFSET), (24, 19), False),
-        ((315, 130 + Y_OFFSET), (18, 15), False),
+        ((348, 40 + Y_OFFSET), (30, 23), True),
+        ((350, 130 + Y_OFFSET), (27, 22), True),
+        ((255, 45 + Y_OFFSET), (24, 19), False),
+        ((262, 135 + Y_OFFSET), (18, 15), False),
     ]
     if kind != "cell":
         objects = [
-            ((281, 14 + Y_OFFSET), (16, 13), True),
-            ((348, 74 + Y_OFFSET), (15, 12), True),
-            ((275, 82 + Y_OFFSET), (14, 11), False),
-            ((313, 120 + Y_OFFSET), (11, 9), False),
+            ((348, 40 + Y_OFFSET), (16, 13), True),
+            ((350, 130 + Y_OFFSET), (15, 12), True),
+            ((255, 45 + Y_OFFSET), (14, 11), False),
+            ((262, 135 + Y_OFFSET), (11, 9), False),
         ]
+    _assert_border_layout(objects, close)
     for item_index, (center, size, touches) in enumerate(objects):
         transformed = transform(center)
         _object_outline(

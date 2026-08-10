@@ -291,3 +291,69 @@ TWO THINGS THE NEXT PERSON NEEDS, both found by trying:
 
 STILL OPEN: the four border-object animations, and the other 23 under
 threshold. The worst is now `remove_cluster_noise` at 0.0006.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE BORDER-OBJECT FAMILY IS FIXED. THE ORIGINAL REPORT WAS RIGHT,
+             AND EVERY EARLIER MEASUREMENT OF IT IN THIS FILE WAS WRONG.
+--------------------------------------------------------------------------------
+
+The maintainer said it removes one edge object AND one that is not. That is
+exactly what it did. Both of the audits recorded above -- the "CONFIRMED,
+MEASURED" entry and the all-94 sweep -- measured something else and got a
+right answer for wrong reasons, so the METHOD is the part worth keeping.
+
+TWO CAUSES, both geometry, neither visible to a pixel diff:
+
+  1. The object at (278, 18) was flagged `touches=True` while sitting wholly
+     INSIDE the well: it spans x[263,293] y[66.5,89.5], and the well edge is
+     at 348. It was removed because a boolean said so. Only ONE of the four
+     objects actually crossed the edge.
+
+  2. The close camera was (205, 0, 360, 155), which does not contain the
+     objects that are KEPT. At full zoom one interior object was entirely
+     off-screen and, for `cell`, a second was cut in half. They leave the
+     frame during the zoom, which a viewer cannot tell from removal. So the
+     animation appeared to remove three objects, one of them interior.
+
+WHY THE EARLIER MEASUREMENTS MISSED IT, which is the reusable warning:
+
+  * "after = the frame most different from frame 0" is wrong for THIS scene.
+    Frame 0 is fully zoomed OUT. The most-different frame is fully zoomed IN,
+    so that diff is dominated by the CAMERA, and every object registers as
+    changed. That is where "interior: 3 / 4 / 18 / 6" came from -- it is the
+    zoom, not the setting. The scene needs two frames at the SAME zoom
+    (render frames 13 and 21; `remove` goes 0 -> 1 while `zoom` stays 1.0).
+  * Holding zoom constant and classifying by the scene's own `touches` flag
+    ALSO passes -- it validates the generator against itself. It reported
+    "ALL CORRECT" on the broken assets. The flag is the thing under test, so
+    the check must use the drawn well rectangle instead.
+  * GIF frame index != render index. Pillow drops consecutive identical
+    frames and accumulates their duration, so these 28-frame renders are
+    stored as 20 frames (and other animations as 7 to 18). Any check that
+    maps a phase to a stored index is off by however many frames collapsed.
+
+THE FIX, in the generator:
+
+    close   = (228.0, 70.5, 378.0, 220.5)   # contains all four objects
+    removed = (348, 40+Y_OFFSET), (350, 130+Y_OFFSET)   # straddle x=348
+    kept    = (255, 45+Y_OFFSET), (262, 135+Y_OFFSET)   # clear of it
+
+Now two objects visibly straddle the well edge and vanish while two visibly
+inside it stay on screen and survive -- which is the setting.
+
+AND A GATE, `_assert_border_layout`, run on every render: it refuses to draw
+the scene if a flagged object does not cross the well edge, if a kept object
+does cross it, or if any object is not contained in the close camera. It
+rejects the layout that shipped, by name. That is step 5 of WHAT TO DO,
+except on geometry rather than pixels -- pixels could not have caught this.
+
+    visible change   cell 16.4%   nucleus 13.5%   organelle 13.5%   pathogen 21.1%
+    asset validator  PASS (94 manifest entries, all_to_mip intact)
+    tests            tests/test_border_animation_geometry.py, 15 tests
+
+Regenerated with `--only`, per the warning above; 4 GIFs and the manifest
+changed, nothing else.
+
+STILL OPEN: the 23 animations under the 1% visible-change threshold. The
+worst is `remove_cluster_noise` at 0.0006. The *_diameter family and the
+border family are both out of that list now.
