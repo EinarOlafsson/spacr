@@ -1,0 +1,78 @@
+================================================================================
+IMAGE UMAP: THE RESULTS TABLE IS AMBIGUOUS, AND THE WALK MAY NOT BE WALKING
+================================================================================
+
+Status:    not started. The convergence half is a possible BUG in the
+           search, not a display problem, and matters more.
+Requested: 2026-08-09 — "In image UMAP the table states score fold sd (whach seems to be allways NA) and paramiters and status. it is ambiguous what score is, is it trustwortheness if trustworthiness is chosen then sthe column should say trustworthiness. also the walf dosnt seem to converge towards a higher score ... which it shoul if it is walking and not at the max score."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Three separate observations, one of which is serious.
+
+  1. "Score" does not say WHICH score. The column is filled from
+     `result.metric`, which is whatever criterion was chosen --
+     trustworthiness, multi_objective, and so on. The header should say the
+     name, not the word "score".
+
+  2. "Fold SD" is always NA for UMAP. It is a cross-validation quantity and
+     UMAP does not cross-validate -- there is one embedding per trial, so
+     there is no fold to take a standard deviation over. A column that is
+     structurally always empty for this module should not be shown by it.
+
+  3. THE WALK DOES NOT SEEM TO IMPROVE. This is the one to chase. A Walk
+     moves to the best configuration in each neighbourhood and stops when a
+     round fails to beat the best score so far, so successive rounds should
+     show non-decreasing best scores.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+(1) and (2) cost the user a guess and a wasted column. (3) would mean the
+search is not doing the thing it is named after -- and a hyperparameter
+search that reports scores without climbing is worse than none, because the
+user trusts the winner it picks.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Name the column after the criterion. `SearchResult.metric` already
+   carries it, so the header is a lookup, not new state.
+2. Hide Fold SD for UMAP the way other module-specific columns are hidden.
+   Do not fill it with a fake number.
+3. CHASE THE CONVERGENCE, and instrument before concluding:
+     * log the best-so-far after each round and confirm it is monotonic;
+       `walk_search` only accepts a round when `gain > improvement_floor`,
+       so if the table shows the best getting worse, the acceptance rule is
+       not being applied to what the table displays;
+     * check whether the TABLE is showing trials in arrival order rather
+       than the walk's accepted centres -- arrival order legitimately goes
+       up and down, since every neighbour is scored including the bad ones.
+       That would make the display wrong and the search right, which is the
+       most likely explanation and the cheapest to check;
+     * confirm `_select_best` is choosing by the same metric the column
+       shows, especially under `multi_objective`.
+4. If the search really is not climbing, the note in `walk_search` about
+   the FIRST round always being accepted (gain is infinite when there is no
+   best score yet) is where to start reading.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The table's score column is headed with the criterion name; Fold SD is
+absent for UMAP; and a Walk over a real dataset shows a best-so-far that
+never decreases, with the winner matching the highest value in the table.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. Note instruction 34 (the N-dimensional Walk) is closed, and
+this is the first report of its behaviour on real data -- so if (3) is a
+real defect it belongs to that work rather than to the display, and this
+file should say so once it is known.

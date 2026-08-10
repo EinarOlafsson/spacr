@@ -2,7 +2,8 @@
 THE CONSOLE AND THE AI CHAT BOX ARE TOO SHORT
 ================================================================================
 
-Status:    done 2026-08-08.
+Status:    REOPENED 2026-08-09 -- reported still one line in the gate
+           editor. Closed 2026-08-08; see below.
 Requested: 2026-08-08 — "also the console and the AI chatbox should be taller ."
 
 --------------------------------------------------------------------------------
@@ -128,3 +129,31 @@ expression input is also still a QLineEdit, because an expression is one
 line.
 
 11 tests. 66 pass across the console and gates suites.
+
+--------------------------------------------------------------------------------
+2026-08-09 - REOPENED. STILL ONE LINE IN THE MODULE THAT ASKED.
+--------------------------------------------------------------------------------
+
+  "the console is still one line eaven though expanding the console height
+   in theis module is marked as done ..."
+
+The change made `GateConsole.chat` a three-line `_ChatInput` and gave
+`GateConsole.log` a 180px floor, verified by unit test. The maintainer
+still sees one line, which means one of:
+
+  1. THE PANEL IS COLLAPSED, not the widgets. `spacr/qt/screens/gate_editor.py`
+     does `body.setSizes([700, 260, 0])` on a HORIZONTAL splitter -- the
+     console starts at width 0, deliberately ("a thing you reach for").
+     Dragged open it may be narrow rather than short, and a 180px-tall log
+     in a 40px-wide column reads as one line. The earlier note said this
+     collapse "was never what taller referred to"; that reading now looks
+     wrong.
+  2. The gate editor shows a DIFFERENT console. Check whether the screen
+     uses `GateConsole` at all or the shared `console_panel`.
+  3. The minimum is being overridden by the splitter, which can shrink a
+     widget below its minimumHeight when the container is short.
+
+Do (2) FIRST -- it is one grep and it decides whether the earlier fix was
+even in the right file. The unit test passes against GateConsole; if the
+screen builds something else, the test was measuring a widget the user
+never sees.

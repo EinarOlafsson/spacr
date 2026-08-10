@@ -2,7 +2,8 @@
 SHOW SEARCH FIGURES AS THEY ARRIVE, ON A GRID THAT FITS THE CONTAINER
 ================================================================================
 
-Status:    done for Image UMAP 2026-08-08. The Gate Editor inherits the
+Status:    REOPENED 2026-08-09 -- reported still showing one large
+           PNG grid at the end. Closed 2026-08-08; see below. The Gate Editor inherits the
            widget and is wired by instruction 49.
 Requested: 2026-08-07 - "when evaluating hyperparameters, show each graph as soon as it is generated on a grid defined by the width and height of the container, which is dynamic. whether to show each as a png (which takes less compute) or as a pdf (editable but takes more compute) is defined by the spacr preference figure format and PNG resolution." Also, for the Gate Editor: "the figures should map onto a grid where each figure is a pdf or png defined by the general settings in preferences, and the grid should map onto the hyperparameter search space."
 
@@ -185,3 +186,40 @@ and the grid.
 STILL OPEN, and it is instruction 49's: the Gate Editor's clustering Walk
 uses the same `HyperparamPanel`, so it inherits this the moment 49 wires
 its xD search to that panel. Nothing further is needed HERE for it.
+
+--------------------------------------------------------------------------------
+2026-08-09 - REOPENED. IT IS NOT DOING THIS IN PRACTICE.
+--------------------------------------------------------------------------------
+
+  "in Image UMAP, in hyperparamiter search the generated graphs should all
+   be PDFs and pop up on a grid when generated, not all at the end in one
+   large grid and as a large PNG. if preferences specifies figures as 300
+   dpi PNGs use that if it specifies figures as PDFs use that."
+
+This file was closed on the strength of unit tests -- `_SearchWorker`
+renders per trial, `trial_ready` carries the path, the panel places it on
+`SearchFigureGrid`. The maintainer is still seeing the old behaviour, so
+something between those parts and a real run is not connected. Closing on
+tests that pass while the feature does not work is the mistake to learn
+from here.
+
+WHAT TO CHECK, in this order:
+
+  1. Does `_on_trial_ready` actually receive a non-empty png_path in a REAL
+     run? `render_trial_figure` returns False when the trial carries no
+     embedding -- and `keep_embeddings` must be True for one to exist. If
+     the UMAP search runs with keep_embeddings False, every path is "" and
+     the grid stays empty, which would look exactly like the old behaviour.
+  2. Is `_show_summary_instead_of_grid` firing too early, or the grid
+     never made visible? The panel stacks both views; if the summary is on
+     top the grid is invisible even when populated.
+  3. Is this the Image UMAP screen the maintainer means, or the standalone
+     hyperparameter screen? Both exist.
+
+AND THE FORMAT REQUIREMENT, which was NOT part of the original ask and is
+new: the per-trial figures must honour the figure-format preference -- PDF
+when preferences say PDF, 300 dpi PNG when they say PNG.
+`render_trial_figure` currently calls `render_figure_to_png`, which does
+write a sibling PDF in PDF mode, but the GRID then loads the PNG. So the
+user asking for PDFs gets PDFs on disk and PNGs on screen, and no
+mechanism offers them the PDF.

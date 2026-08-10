@@ -2,7 +2,8 @@
 A PREFERENCES GEAR BESIDE COPY CONSOLE ON THE MODULE SCREENS
 ================================================================================
 
-Status:    done 2026-08-08 - gear on every AppScreen right of Copy console, routed through the MainWindow's own dialog.
+Status:    REOPENED 2026-08-09 -- the button works, the ICON does not
+           render. Original status:    done 2026-08-08 - gear on every AppScreen right of Copy console, routed through the MainWindow's own dialog.
 Requested: 2026-08-06 - "add a preferences button in the mask, measure, classify moduals to the right of copy console (att it as a clickable gear icon)"
 
 --------------------------------------------------------------------------------
@@ -43,3 +44,28 @@ HOW TO KNOW IT WORKED
 The button appears on the named screens, and clicking it opens the same
 dialog as the menu item. A test that finds it by objectName and asserts the
 dialog type it opens.
+
+--------------------------------------------------------------------------------
+2026-08-09 - REOPENED: THE BUTTON IS THERE, THE GEAR IS NOT
+--------------------------------------------------------------------------------
+
+  "if i click to the right of copy console i get the preferences but i
+   cannot see the gear that should represent the button."
+
+So the hit area and the wiring are correct and only the ICON is missing --
+which is a narrower bug than it sounds and probably one of:
+
+  * the gear glyph is not in the bundled icon set under the name the
+    button asks for, so `themed_pixmap` returns None and the button
+    renders empty;
+  * it is being re-inked to the background colour and is invisible
+    rather than absent -- check against BOTH themes, since a glyph that
+    vanishes on dark may be fine on light;
+  * the icon is set but the button has no visible size, so it paints into
+    zero pixels.
+
+Distinguish them before fixing: `themed_qimage` returning None is a
+different bug from a correct image drawn in the wrong colour. Note the icon
+cache added on 2026-08-09 stores re-inked icons on disk under
+~/.spacr/icons -- if the icon was ever cached wrong it will stay wrong, so
+clear that directory when testing.
