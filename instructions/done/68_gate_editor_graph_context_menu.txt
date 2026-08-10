@@ -2,7 +2,7 @@
 GATE EDITOR: RIGHT-CLICK THE GRAPH FOR EVERYTHING YOU CAN DO TO IT
 ================================================================================
 
-Status:    not started
+Status:    done 2026-08-09
 Requested: 2026-08-09 — "in gate editor right clicking on the graph should give you as many options as possible to edit the graph including to save the graph."
 
 --------------------------------------------------------------------------------
@@ -63,3 +63,33 @@ DELIBERATELY NOT DONE
 Not started. Note `_ZoomView` already consumes left-press for panning and
 emits `clicked` on a release under 4px; a right-click menu must not disturb
 that, and the two should be tested together.
+
+--------------------------------------------------------------------------------
+2026-08-09 - DONE
+--------------------------------------------------------------------------------
+
+Right-clicking the plot offers: Save graph, Copy image to clipboard, Reset
+view, Graph settings, Export gates to the database.
+
+Every item CALLS an existing method. The menu is a second route to the same
+code, never a second implementation -- two routes that drift apart are
+worse than one, and this codebase has already paid for that twice (the same
+Cellpose model-type bug written into two preview panels).
+
+THE CONTENTS ARE DATA, which is the part worth keeping.
+`graph_menu_items()` returns `[(label, enabled, callback, why)]` and
+`_show_graph_menu` renders it. That split exists because an offscreen Qt
+CANNOT GRAB for a popup: a test that builds a real menu hangs the run, and
+two probes did exactly that before the design changed. Now the contents are
+testable without a display and the rendering is three lines.
+
+Disabled items carry a reason -- "Draw a graph first." -- because a greyed
+row with no explanation is a dead end that looks like a bug.
+
+7 tests, 80 pass across the gate suites.
+
+NOT INCLUDED, and worth stating: per-point actions such as "delete the gate
+under the cursor" or axis submenus. Those need hit-testing at the click
+position and a column list, and the menu is useful without them. The
+existing `_ZoomView` click/drag boundary was left untouched, so panning
+still works.
