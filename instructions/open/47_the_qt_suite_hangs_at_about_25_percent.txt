@@ -436,3 +436,63 @@ the terminal "N passed" summary for some suites, so a run can exit 0 with no
 visible count. Two agents had to parse junitxml to get real numbers. That is
 the same blindness that let the QCheckBox ratchet regress unnoticed -- worth
 fixing on its own.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE ORDERING LEAKS AND THE STALE PINS ARE DONE. 73 OF 74 CLOSED.
+--------------------------------------------------------------------------------
+
+    real      24  ->  1 left   (the `classes` migration, below)
+    stale     43  ->  0
+    ordering   6  ->  0
+
+    827 passed, 1 failed across the eleven affected suites
+
+THE ORDERING SIX WERE THREE LEAKS, each fixed at the source rather than in
+the victim:
+
+  test_field_fade's `prefs_sandbox` snapshotted `theme._WIDGET_QSS` at SETUP,
+  before `load_widget_qss_registrars()` had ever run in the process, when
+  only 19 blocks were registered -- and restored that 19-entry snapshot at
+  teardown. The loader has a `_QSS_REGISTRARS_LOADED` latch, so it never
+  refilled and three tests downstream saw a starved registry.
+
+  test_cov_qt_app's `launch()` reaches `apply_console_levels`, which installs
+  a mutable LevelSetFilter({WARNING, ERROR, CRITICAL}) on verbose_logger's
+  MODULE-GLOBAL forwarder; nothing removed it, so two teardown tests logging
+  at DEBUG saw nothing at all.
+
+  test_spacr_mode left `field_fade._enabled` False in a module cache, so the
+  FieldFade QSS block rendered to the empty string afterwards.
+
+That is the shape to expect from the rest: a fixture that saves and restores
+process-global state, taken at the wrong MOMENT or not restored at all. None
+of them was a bug in the test that failed.
+
+TWO PRODUCT BUGS FOUND WHILE UPDATING "STALE" TESTS, which is the argument
+for not simply rewriting a failing assertion:
+
+  `style_as_danger` inked the danger hover fill with a hard-coded #ffffff.
+  Measured against the real palettes: 2.20:1 on cell, 2.04:1 on glass -- both
+  below AA-large -- on the button that FORCE-QUITS A RUN. theme.py's
+  CONTRAST_RULES already carries ("bg", "error", 4.5) and the application
+  sheet inks `#DangerButton:pressed` with `P["bg"]` for exactly this reason.
+  `bg` measures 6.23:1 (light) to 9.55:1 (glass).
+
+  `HomePage._install_ambient`'s docstring claimed an ordering guarantee that
+  `__init__` no longer depends on -- the same class of stale docstring
+  instruction 63 is fixing.
+
+STILL OPEN, one real bug: `test_every_default_round_trips_untouched[classify]`.
+Commit 30500970 turned `classes` from a list of names into a dict of
+name -> {column, value} and routed it to ClassEditorWidget, but the PRODUCT
+DEFAULT was never migrated. The honest fix changes that default; the tempting
+fix changes the test, which is why it is still here.
+
+A SEPARATE CONFLICT FOUND AND NOT RESOLVED: `test_no_shipped_code_calls_
+qthread_terminate` fails on two `thread.terminate()` calls introduced by
+commit 5cb219f1 ("stop: ask whether to wait or to kill"). A deliberate KILL
+feature collides with a ratchet saying terminate() is never safe here. Both
+positions are defensible -- a kill button that cannot kill is not a kill
+button -- so this needs a decision rather than a patch: either the kill path
+gets a safer mechanism, or the ratchet gets a narrow, documented exemption
+naming those two sites. Verified pre-existing.
