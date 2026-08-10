@@ -6,7 +6,7 @@ Status:    not started, 2026-08-10.
 Requested: 2026-08-10 — "add to instructions to work do a sweep of organelle in measure and mask. the point of this settings class and object class is to generate measurements and capture organelle objects. this is the most diverse set of objects. Best would be if there were the options organelle type with the following categories: Vesicular (vacuoles, autophagosomes, transport vesicles, secretory vesicles, early endosomes, lysosomes), Filamentous (microtubules, F-actin filaments, intermediate filaments), Punctate (peroxisomes, lipid droplets, ribosomes, PML nuclear bodies, vaults), Tubular (smooth endoplasmic reticulum, healthy mitochondrial networks, sorting endosomes, trans-Golgi network), Cisternal (rough endoplasmic reticulum sheets, Golgi stacks, nuclear envelope), Reticular (endoplasmic reticulum meshwork, interconnected mitochondrial reticula), Spherical (nucleus, nucleolus, chloroplasts, swollen mitochondria, macromolecular condensates), Toroidal (condensing/stressed mitochondria, midbodies, nuclear pore complexes), Crescent (phagophores/early autophagosomes, specialized yeast nucleoli) and then set up settings and detection modals for each type with the others not visible or grayed out that do not apply to the chosen organelle. as it is now there are too many options for organelle and to many settings for organelle in mask, so if organelle type is Vesicular then organelle morphology will always be spots (for example make sure this is true dont just take my word for it) and not network. so essentially i want to bundle a bunch of current (and potentially new settings into the categories specified above to make it easier for the user. all settings should still be modifiable by the user but they should be in an organelle advanced settings category, and only the minimum relevant settings in the organelle category."
 
 --------------------------------------------------------------------------------
-WHAT THE STATE IS
+THE EXAMPLE IN THE REQUEST IS WRONG, AND CHECKING IT IS THE FIRST TASK
 --------------------------------------------------------------------------------
 
 The maintainer asked to verify rather than assume, so: **Vesicular does NOT
@@ -43,7 +43,7 @@ user picks "Vesicular", gets a spot detector, and their lysosomes come out
 as rings of holes.
 
 --------------------------------------------------------------------------------
-WHY IT MATTERS
+WHY THE REQUEST IS STILL RIGHT
 --------------------------------------------------------------------------------
 
 The complaint underneath it is correct and measurable: organelle is the most
