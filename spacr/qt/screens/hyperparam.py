@@ -22,8 +22,10 @@ anything. See :mod:`spacr.hyperparam` for why.
 from __future__ import annotations
 
 import logging
+import re
 import tempfile
 import threading
+from datetime import datetime
 from pathlib import Path
 from dataclasses import dataclass, field
 from io import BytesIO
@@ -490,6 +492,43 @@ def render_trial_figure(trial: Trial, metric: str, png_path: str) -> bool:
     return bool(render_figure_to_png(figure, png_path))
 
 
+def _search_figure_dir(settings, app_key: str):
+    """Where this search's per-trial figures are written.
+
+    A search's figures are OUTPUT, so they belong beside the run's other
+    output: ``<src>/results/hyperparameter_search/<app>_<timestamp>/``, which
+    is the same ``<src>/results`` convention the rest of the package writes
+    to. They used to go to ``mkdtemp``, which meant clicking a cell opened
+    the vector file only while the app was running and nothing survived the
+    process -- the figures a user waited through a sweep for were gone as
+    soon as they closed the window.
+
+    Falls back to a temporary directory when there is no usable ``src`` --
+    a request built by a test, or a sweep over data that is not on disk --
+    so a search never fails for want of somewhere to put a picture.
+    """
+    src = ""
+    try:
+        src = str((settings or {}).get("src", "") or "").strip()
+    except Exception:                           # pragma: no cover - defensive
+        src = ""
+    if src:
+        try:
+            stamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+            safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", app_key).strip("._") or "search"
+            target = (Path(src) / "results" / "hyperparameter_search"
+                      / f"{safe}_{stamp}")
+            target.mkdir(parents=True, exist_ok=True)
+            return target
+        except Exception:
+            # An unwritable or missing src is not a reason to lose the run.
+            pass
+    try:
+        return Path(tempfile.mkdtemp(prefix="spacr-search-"))
+    except Exception:                           # pragma: no cover - defensive
+        return None
+
+
 class _SearchWorker(QThread):
     """Runs one sweep in the background, streaming trials as they complete."""
 
@@ -505,10 +544,8 @@ class _SearchWorker(QThread):
         self._search_fn = search_fn
         self._stop = threading.Event()
         self._metric = str(getattr(request, "criterion", "score") or "score")
-        try:
-            self._figure_dir = Path(tempfile.mkdtemp(prefix="spacr-search-"))
-        except Exception:                       # pragma: no cover - defensive
-            self._figure_dir = None
+        self._figure_dir = _search_figure_dir(
+            request.settings, getattr(request, "app_key", "") or "search")
         # QThread.finished is the lifecycle boundary the panel must wait for.
         # The result signal is emitted just before QThread.run() returns, so it
         # is too early to drop the final Python reference to this object.
