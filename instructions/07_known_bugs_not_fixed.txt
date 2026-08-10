@@ -137,3 +137,57 @@ frame "yields an empty list here, which downstream reads as 'this table has
 no object identity'". Both halves were false -- it yields `['object_label']`
 and downstream accepts it. The docstring described a safe failure where the
 code has an unsafe one, which is the most misleading kind.
+
+--------------------------------------------------------------------------------
+N+1. SEVEN MORE, all found 2026-08-10 by documenting parameters and having a
+     second agent EXECUTE each claim before accepting it
+--------------------------------------------------------------------------------
+
+Writing a parameter description forces someone to state what a value does,
+and stating it forces a check. Every one below was reproduced, not read.
+
+  make_validation_holdout(seed=...) IS DEAD. The seed is forwarded to
+  make_cv_folds, which consumes its RNG only in the `groups is None` branch --
+  but make_validation_holdout REQUIRES groups and raises without them, so the
+  deterministic greedy path always runs. Verified: seed=0 and seed=12345 give
+  byte-identical holdouts. A caller varying the seed to get a different
+  validation set silently gets the same one.
+
+  make_validation_holdout SILENTLY CLAMPS. `requested_folds = max(2, ...)`
+  means any validation_fraction above 0.5 becomes a 2-way split:
+  fraction=0.9 holds out 0.5, with no warning. The `min(requested_folds,
+  distinct)` cap misses in the other direction -- 0.05 over 8 groups realises
+  0.125. Both are silent divergences from an explicitly requested size.
+
+  plot_single_array's panel title OVERSTATES THE OBJECT COUNT BY ONE. It
+  prints `len(np.unique(array))` under a "(obj.)" label, and background 0 is
+  one of those values -- a 3-object mask renders as "4 (obj.)". This one is
+  on screen, in every mask panel.
+
+  show_cam_on_image WRAPS INSTEAD OF CLIPPING. `np.uint8(255 * mask)` on an
+  un-normalised CAM sends anything above 1.0 to an arbitrary colormap
+  position rather than saturating: measured, 1.1 -> 24 (cold end), 1.5 -> 126
+  (mid), 2.0 -> 254. A `np.clip(mask, 0, 1)` before the cast is the fix.
+
+  show_cam_on_image TURNS NaN INTO BLACK. Its `else: cam.fill(0.0)` fallback
+  cannot fire for the reason it looks like it should -- COLORMAP_JET maps 0 to
+  BGR (128,0,0), so a zero input still has a positive peak. It is reachable
+  only via NaN or a sufficiently negative img, and then returns a silent
+  all-black image instead of surfacing the bad input.
+
+  invert_image WRAPS ON SIGNED DTYPES. `max_value - image` on int8 with a
+  pixel of -100 gives 227, which wraps to -29. Verified. The function neither
+  checks signedness nor promotes.
+
+  MergedCropSource.get_many RAISES WHERE ITS TYPE SAYS IT SKIPS. It calls
+  extract_crops without on_error, i.e. the default 'raise', so one row whose
+  label is missing from its mask plane aborts the whole batch -- while the
+  `List[Optional[np.ndarray]]` return type and the `if crop is not None`
+  guard on the next line (which can never take the None branch) both say
+  on_error='none' was intended, so a grid render survives one bad row.
+
+ALL LEFT UNFIXED, deliberately: the task was documentation, and each of these
+changes behaviour. The docstrings now describe what the code does TODAY, so
+none of them is hidden. Three are worth prioritising because a user sees the
+wrong answer rather than an error -- the object-count label, the dead seed,
+and the clamped validation fraction.
