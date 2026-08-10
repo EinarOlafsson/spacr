@@ -202,7 +202,7 @@ def hash_file(
     *,
     full: bool = False,
 ) -> Optional[str]:
-    """Return the first 16 hex characters of a file's SHA-256, or ``None``.
+    """Return a file's SHA-256 — 16 hex chars, 64 if ``full`` — or ``None``.
 
     :param path: regular file to hash.
     :param chunk_size: bytes read per iteration.
