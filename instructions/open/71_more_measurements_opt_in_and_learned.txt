@@ -185,3 +185,97 @@ stored. A coloc column contains two channel tokens and the substring test
 hits it via the partner channel -- at the UMAP default `filter_by='channel_0'`
 ZERO coloc columns survive. Fix by special-casing `channel_<i>_channel_<j>_`
 to survive when either member matches.
+
+--------------------------------------------------------------------------------
+2026-08-10 - MAINTAINER'S DECISIONS. SCOPE NARROWED AND FIXED.
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-10 — "add to instructions to fix the MI error, add the features that are already computed, add as many neighbours / local density and adjacent cells measurements as you can during measure only do this for the object classes you think it makes sense for, it does not for cytoplasm for example and i dont know about nucleus? probably does make sense for nucleus because cells can have multiple same for pathogen. fix the 'And a bug found in passing:'. the CNN feature thing dosnt seem worth it or valuable."
+
+THE CNN / TRANSFORMER EMBEDDING WORK IS DROPPED. Do not build it. The
+investigation above stays on file because its storage findings are true and
+worth knowing (this sqlite is compiled MAX_COLUMN=2000), but it is not work.
+
+FOUR THINGS TO DO, in this order:
+
+1. FIX THE MANDERS ERROR. `M1_correlation_85` is not Manders M1. Both
+   channels are thresholded at their own within-object percentile and share
+   one overlap mask, so M1 and M2 correlate at r=0.998, at t=95 M1 is
+   structurally capped at the intensity fraction in the object's own top 5%,
+   and two pure-noise channels give M1=0.047. The tooltips at
+   settings.py:2791 and :2669 call them "Manders' overlap coefficients",
+   which names a third statistic again. The activation-map path has the
+   identical pattern with `>=` instead of `>`.
+   This is a CORRECTNESS fix and it changes existing columns, so it needs a
+   decision recorded here about naming: either fix the statistic under the
+   existing column name (old plates then disagree with new ones) or add
+   correct columns beside the wrong ones and mark the old as deprecated.
+   Prefer the second -- a silently changed meaning is worse than a new
+   column -- and say so in the tooltip.
+
+2. ADD THE FEATURES ALREADY BEING COMPUTED AND THROWN AWAY. The GLCM
+   co-occurrence matrix is built and then only ONE of skimage's ten
+   properties is read off it. contrast, dissimilarity, correlation,
+   energy/ASM and entropy are nearly free from the matrix already in hand.
+   Two mechanics found by measurement:
+     * only angle 0 is used, and there is an 8.1% spread across the four
+       angles -- the current homogeneity is rotation-dependent. Pooling four
+       angles before reading properties costs 0.68 ms at 64 levels.
+     * `graycoprops` re-normalises the whole P array per call, so cost is
+       O(levels^2 x distances x angles) PER PROPERTY.
+     * `rescale_intensity` is called inside the per-distance loop although it
+       does not depend on distance -- 0.105 ms per object/channel wasted.
+   Also free from vectors already extracted: radial MeanFrac (the
+   recruitment statistic, ~20 us against ~615 us already spent per bin), and
+   Spearman + the Manders overlap coefficient in the coloc block.
+
+3. NEIGHBOURS / LOCAL DENSITY / ADJACENCY, scoped by object class.
+   Cost is O(field) once, not O(objects x field): a cKDTree over 400
+   centroids is 0.437 ms and one field-level `find_boundaries` is 14.1 ms.
+   Measure per object: neighbour count within a radius, first and second
+   nearest-neighbour distance, percent_touching, and the label ids of
+   adjacent objects where that is cheap.
+
+   WHICH CLASSES, and the reasoning the maintainer asked for:
+     cell        YES. This is the main case. Local density is the dominant
+                 confounder in image screens -- crowded cells are smaller,
+                 dimmer and cell-cycle-shifted -- and there is currently no
+                 PER-OBJECT column to regress it out (`object_counts` and
+                 `seg_qc.foreground_fraction` are per-field).
+     nucleus     YES, and the maintainer's instinct is right: a cell can hold
+                 more than one nucleus, so nucleus-to-nucleus spacing inside
+                 a cell is a real quantity (binucleation, mitotic pairs) and
+                 is not derivable from the cell's own neighbours.
+     pathogen    YES, same argument and stronger -- pathogen burden per cell
+                 and the spacing of pathogens within one cell are exactly
+                 what this assay measures.
+     organelle   YES for the punctate/vesicular families, where "how many and
+                 how clustered" is the phenotype. Probably meaningless for a
+                 reticular or cisternal organelle that is one connected
+                 object per cell -- so gate it on the organelle type being
+                 introduced by instruction 72 rather than shipping it for all.
+     cytoplasm   NO, as the maintainer says. Cytoplasm is defined as cell
+                 minus nucleus, so it is one object per cell by construction
+                 and its "neighbours" are just the cell's, restated.
+
+   TWO MECHANICS, both found by reading the code: `binary_dilation`
+   booleanises, so identity-aware touching needs
+   `skimage.segmentation.expand_labels(labels, distance=1, spacing=...)`;
+   and the KDTree must be built on spacing-scaled centroids or a 50-px
+   radius means different physical distances in 2-D and 3-D runs.
+
+4. FIX THE COLOCALIZATION COLUMN DELETION. `channel_of_interest` /
+   `filter_by` delete coloc columns that were computed and stored. A coloc
+   column carries TWO channel tokens and the substring test matches it via
+   the partner channel; at the UMAP default `filter_by='channel_0'` ZERO
+   coloc columns survive, and at channel_of_interest 1/2/3 exactly one pair
+   survives and the rest are deleted asymmetrically, purely because the
+   hard-coded drop list starts at `channel_1`. Fix by special-casing
+   `channel_<i>_channel_<j>_` to survive when EITHER member matches. The data
+   is already in measurements.db, so this is retroactive and needs no
+   re-measurement.
+
+REMEMBER THE FOUR SILENT KILLERS listed in the entry above before adding any
+column: a name containing `label`, one NaN anywhere, automatic enrolment of
+every `<object>_` numeric column into every model matrix, and the missing
+feature_dict entry.
