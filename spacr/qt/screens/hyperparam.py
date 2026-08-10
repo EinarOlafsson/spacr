@@ -1011,6 +1011,7 @@ class HyperparamPanel(QWidget):
 
         self._figure_grid = SearchFigureGrid(parent=self._preview_stack)
         self._figure_grid.setVisible(False)
+        self._figure_grid.cell_clicked.connect(self._open_trial_figure)
         preview_column.addWidget(self._figure_grid, 1)
 
         self._preview = QLabel("No search has been run yet.")
@@ -1675,16 +1676,44 @@ class HyperparamPanel(QWidget):
 
     # -- preview -----------------------------------------------------------
 
-    def _show_summary_instead_of_grid(self) -> None:
-        """Hand the pane back to the finished-sweep figure.
+    def _open_trial_figure(self, index: int) -> None:
+        """Open the clicked trial's figure in the desktop viewer.
 
-        The grid keeps its figures rather than clearing: a user who wants
-        the live view back gets it on the next run, and throwing away the
-        per-trial images the moment the search ends would discard the thing
-        they were watching.
+        Without this the per-trial figures are unreachable: they are
+        written to a temporary directory and only ever seen as thumbnails,
+        so a user who asked for PDFs got PDFs they could not open.
+        `figure_path` hands back the vector PDF when one was written.
         """
-        if self._figure_grid is not None:
-            self._figure_grid.setVisible(False)
+        grid = getattr(self, "_figure_grid", None)
+        if grid is None:
+            return
+        path = grid.figure_path(index)
+        if not path:
+            return
+        try:
+            from PySide6.QtCore import QUrl
+            from PySide6.QtGui import QDesktopServices
+            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+        except Exception:
+            LOG.debug("could not open %s", path, exc_info=True)
+
+    def _show_summary_instead_of_grid(self) -> None:
+        """Add the summary BESIDE the grid rather than in place of it.
+
+        This used to hide the grid and show only the finished-sweep figure,
+        which reproduced the exact complaint the grid was built to answer:
+        "not all at the end in one large grid and as a large PNG". The
+        per-trial figures appeared during the run and were then replaced by
+        one big image the moment it finished, so the end state -- the only
+        state a user who steps away ever sees -- was the old behaviour.
+
+        Both are shown now. The grid stays, because it is the thing the
+        user asked to look at and it is what makes a bad range obvious; the
+        summary keeps its place below it, because it carries the ranking
+        and the noise band that the individual panels cannot.
+        """
+        if self._figure_grid is not None and self._figure_grid.count():
+            self._figure_grid.setVisible(True)
         self._preview.setVisible(True)
 
     def _draw_preview(self, result: SearchResult) -> None:

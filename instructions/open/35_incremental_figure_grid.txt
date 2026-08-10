@@ -2,8 +2,8 @@
 SHOW SEARCH FIGURES AS THEY ARRIVE, ON A GRID THAT FITS THE CONTAINER
 ================================================================================
 
-Status:    REOPENED 2026-08-09 -- reported still showing one large
-           PNG grid at the end. Closed 2026-08-08; see below. The Gate Editor inherits the
+Status:    the end state is FIXED and PDFs are reachable (2026-08-09).
+           The reopen was right; my design was the bug. The Gate Editor inherits the
            widget and is wired by instruction 49.
 Requested: 2026-08-07 - "when evaluating hyperparameters, show each graph as soon as it is generated on a grid defined by the width and height of the container, which is dynamic. whether to show each as a png (which takes less compute) or as a pdf (editable but takes more compute) is defined by the spacr preference figure format and PNG resolution." Also, for the Gate Editor: "the figures should map onto a grid where each figure is a pdf or png defined by the general settings in preferences, and the grid should map onto the hyperparameter search space."
 
@@ -223,3 +223,46 @@ when preferences say PDF, 300 dpi PNG when they say PNG.
 write a sibling PDF in PDF mode, but the GRID then loads the PNG. So the
 user asking for PDFs gets PDFs on disk and PNGs on screen, and no
 mechanism offers them the PDF.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE REOPEN WAS RIGHT, AND I HAD BUILT THE COMPLAINT
+--------------------------------------------------------------------------------
+
+Traced the real path rather than the tests. The worker was innocent: a real
+`_SearchWorker` run emitted 4 trials, all 4 with a rendered PNG path and an
+embedding. `keep_embeddings` defaults True and `run_search_for_app` never
+overrides it, so the hypothesis at the top of this section was wrong.
+
+THE BUG WAS THE END STATE, and it was mine.
+`_show_summary_instead_of_grid` HID the grid and showed the single summary
+figure when the search finished. So the per-trial figures did stream during
+the run, and were then replaced -- and the end state is the only state a
+user who steps away ever sees. That is precisely "not all at the end in one
+large grid and as a large PNG": I had implemented the thing being
+complained about, at the last moment of the run.
+
+Both are shown now. The grid stays because it is what the user asked to
+look at; the summary keeps its place below because it carries the ranking
+and the noise band that individual panels cannot.
+
+A test asserted the old behaviour -- `test_the_grid_hides_when_the_summary_
+takes_over` -- so it was PINNING the bug. Inverted, with the reason
+recorded in it.
+
+THE PDF HALF. `render_figure_to_png` already writes a sibling `.pdf` per
+trial when the preference is PDF; measured, PDF mode produces trial.pdf and
+trial.png. What was missing is that nothing surfaced it: the figures live
+in a temp directory, the grid necessarily DISPLAYS the PNG (a PDF cannot be
+painted into a label), and there was no way to reach the vector file.
+
+`SearchFigureGrid.figure_path(index)` now hands back the PDF when one
+exists, and clicking a cell opens it. Measured: preference png -> trial.png,
+preference pdf -> trial.pdf.
+
+98 pass across the grid, streaming and screen suites.
+
+STILL OPEN: the per-trial figures are written to a TEMPORARY directory, so
+they vanish with the process. Clicking opens them while the app runs, and
+nothing saves them with the run. If the figures are meant to be kept they
+should go to the run folder -- that is a decision about where a search's
+output belongs, not a bug, and it is what remains here.
