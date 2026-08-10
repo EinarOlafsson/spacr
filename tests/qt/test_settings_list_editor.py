@@ -106,11 +106,44 @@ def test_the_nested_class_setting_gets_a_nested_editor(qapp):
 
 
 def test_a_flat_list_setting_gets_one_strip(qapp):
-    model = _model(qapp, "classify")
-    widget = model._widgets["classes"]
+    """A flat list is one strip, not a row per element.
+
+    This used to be driven through classify's ``classes``. That key stopped
+    being a flat list on 2026-08-07 (commit 30500970, "classify: the Classes
+    editor"): a class is a (name, column, value) RULE now, which a chip strip
+    cannot express, so it gets ``ClassEditorWidget`` instead -- asserted
+    directly in ``test_the_classes_setting_gets_the_class_editor`` below. The
+    invariant itself is unchanged, so it is asserted here on a key that is
+    still a flat list of scalars.
+    """
+    model = _model(qapp, "measure")
+    widget = model._widgets["homogeneity_distances"]
     assert isinstance(widget, _ListEditor)
     assert widget._nested is False
-    assert widget.get_value() == ["nc", "pc"]
+    assert len(widget._strips) == 1          # one strip for the whole list
+    assert widget.get_value() == [8, 16, 32]
+    assert model.collect()["homogeneity_distances"] == [8, 16, 32]
+
+
+def test_the_classes_setting_gets_the_class_editor(qapp):
+    """``classes`` deliberately does NOT get the chip editor.
+
+    Split out of ``test_a_flat_list_setting_gets_one_strip`` when commit
+    30500970 (2026-08-07) turned ``classes`` from ``['nc', 'pc']`` into a dict
+    of name -> {column, value}. A chip strip can hold the names and nothing
+    else, so a class defined on a column would have been unrepresentable; the
+    routing to ``ClassEditorWidget`` is the thing worth pinning, because
+    falling back to a chip strip would silently lose the column and value of
+    every class.
+    """
+    from spacr.qt.widgets.class_editor import ClassEditorWidget
+    widget = _model(qapp, "classify")._widgets["classes"]
+    assert isinstance(widget, ClassEditorWidget)
+    assert not isinstance(widget, _ListEditor)
+    # The value is a mapping of class name -> rule, not a bare list of names.
+    value = widget.get_value()
+    assert isinstance(value, dict)
+    assert all(isinstance(rule, dict) for rule in value.values())
 
 
 @pytest.mark.parametrize(("app_key", "key", "expected"), [
@@ -190,24 +223,36 @@ def test_a_none_default_declared_list_still_gets_the_editor(qapp):
 # ---------------------------------------------------------------------------
 
 def test_numbers_stay_numbers_and_text_stays_text(qapp):
+    """The element type comes from the default, so typing "3" into a list of
+    ints yields ``3`` and typing it into a list of names yields ``"3"``.
+
+    Both keys this used to drive have since gone: ``png_dims`` was replaced by
+    ``png_channel_mapping`` on 2026-08-06 (commit 2cab81f7 -- an ambiguous
+    list of positions became an explicit colour mapping) and is no longer
+    rendered at all, and ``classes`` moved to ``ClassEditorWidget`` on
+    2026-08-07 (commit 30500970). Repointed at surviving keys of each element
+    type; the typing rule under test is unchanged.
+    """
     model = _model(qapp, "measure")
-    dims = model._widgets["png_dims"]
-    dims._strips[0]._entry.setText("3")
-    dims._strips[0]._commit_entry()
-    assert dims.get_value() == [0, 1, 2, 3]
-    assert all(isinstance(v, int) for v in dims.get_value())
+    distances = model._widgets["homogeneity_distances"]
+    distances._strips[0]._entry.setText("3")
+    distances._strips[0]._commit_entry()
+    assert distances.get_value() == [8, 16, 32, 3]
+    assert all(isinstance(v, int) for v in distances.get_value())
 
     ratios = model._widgets["dialate_png_ratios"]
     ratios._strips[0]._entry.setText("0.5")
     ratios._strips[0]._commit_entry()
     assert ratios.get_value() == [0.2, 0.5]
+    assert all(isinstance(v, float) for v in ratios.get_value())
 
-    classes = _model(qapp, "classify")._widgets["classes"]
-    classes._strips[0]._entry.setText("3")
-    classes._strips[0]._commit_entry()
-    # element type inferred from the default (['nc','pc']) -> text, so a
+    objects = model._widgets["timelapse_objects"]
+    objects._strips[0]._entry.setText("3")
+    objects._strips[0]._commit_entry()
+    # element type inferred from the default (['cell']) -> text, so an object
     # class literally named "3" is not silently turned into the integer 3
-    assert classes.get_value() == ["nc", "pc", "3"]
+    assert objects.get_value() == ["cell", "3"]
+    assert all(isinstance(v, str) for v in objects.get_value())
 
 
 # ---------------------------------------------------------------------------
@@ -215,33 +260,56 @@ def test_numbers_stay_numbers_and_text_stays_text(qapp):
 # ---------------------------------------------------------------------------
 
 def test_a_chip_can_be_added_and_removed(qapp):
-    model = _model(qapp, "classify")
-    widget = model._widgets["classes"]
+    """Committing the entry appends a chip; a chip's remove button drops it
+    and nothing else.
+
+    Driven through classify's ``classes`` until commit 30500970 (2026-08-07)
+    gave that key ``ClassEditorWidget``; repointed at a key that still uses
+    the chip editor. Removal is asserted on a three-element default so a
+    remove that dropped the wrong chip -- or the whole list -- is visible.
+    """
+    model = _model(qapp, "measure")
+    widget = model._widgets["homogeneity_distances"]
     strip = widget._strips[0]
 
-    strip._entry.setText("mid")
+    strip._entry.setText("64")
     strip._commit_entry()
-    assert widget.get_value() == ["nc", "pc", "mid"]
+    assert widget.get_value() == [8, 16, 32, 64]
 
     strip._chips[0].removed.emit(strip._chips[0])
-    assert widget.get_value() == ["pc", "mid"]
+    assert widget.get_value() == [16, 32, 64]
+    assert model.collect()["homogeneity_distances"] == [16, 32, 64]
 
 
 def test_a_comma_splits_a_pasted_run_into_chips(qapp):
-    widget = _model(qapp, "classify")._widgets["classes"]
+    """A comma ends a chip while typing, so a pasted "a,b,c" becomes three.
+
+    Was driven through classify's ``classes``, which stopped being a chip
+    strip in commit 30500970 (2026-08-07); comma splitting belongs to
+    ``_ChipStrip`` and is asserted here on a key that still has one.
+    """
+    widget = _model(qapp, "measure")._widgets["timelapse_objects"]
     strip = widget._strips[0]
     for text in ("a,", "b,", "c"):
         strip._entry.setText(strip._entry.text() + text)
         strip._on_typed(strip._entry.text())
-    assert widget.get_value() == ["nc", "pc", "a", "b", "c"]
+    assert widget.get_value() == ["cell", "a", "b", "c"]
 
 
 def test_uncommitted_text_is_still_collected(qapp):
     """A user who types a value and presses Run without leaving the field
-    must not lose it."""
-    widget = _model(qapp, "classify")._widgets["classes"]
-    widget._strips[0]._entry.setText("typed")
-    assert widget.get_value() == ["nc", "pc", "typed"]
+    must not lose it.
+
+    Repointed off classify's ``classes`` when commit 30500970 (2026-08-07)
+    moved that key to ``ClassEditorWidget``; the key here still uses the chip
+    editor. Asserted through ``collect()`` as well, since Run reads that and
+    not the widget.
+    """
+    model = _model(qapp, "measure")
+    widget = model._widgets["timelapse_objects"]
+    widget._strips[0]._entry.setText("nucleus")
+    assert widget.get_value() == ["cell", "nucleus"]
+    assert model.collect()["timelapse_objects"] == ["cell", "nucleus"]
 
 
 def test_add_group_adds_a_row_and_removing_the_last_one_flattens(qapp):
@@ -299,9 +367,21 @@ def test_set_value_parses_what_a_settings_csv_holds(qapp, text, expected):
     assert widget.get_value() == expected
 
 
-def test_importing_a_settings_dict_reaches_the_chip_editor(qapp):
-    """AppScreen._apply_value used to have only a QLineEdit branch, and the
-    chip editor is a QWidget -- an imported list would have been dropped."""
+def test_importing_a_settings_dict_reaches_the_custom_editors(qapp):
+    """AppScreen._apply_value used to have only a QLineEdit branch, and both
+    of these editors are plain QWidgets -- an imported list would have been
+    dropped.
+
+    Renamed from ``..._reaches_the_chip_editor``: since commit 30500970
+    (2026-08-07) only ``class_metadata`` is a chip editor, while ``classes``
+    is a ``ClassEditorWidget`` that reads a legacy list of names back as a
+    dict of name -> rule. The invariant is the same one -- an imported value
+    must not be silently discarded -- so the classes half asserts the names
+    arrive, in order, as rows of the new mapping. The rules' placeholder
+    ``column`` is deliberately not pinned here: what a legacy list should fill
+    in for the column it never carried is an open question (see
+    instructions/open/37), and this test is about the import path.
+    """
     from spacr.qt.screens.app_screen import AppScreen
     screen = AppScreen("classify")
     applied = screen.apply_settings_dict({"class_metadata": "[['r1'], ['r2']]",
@@ -309,14 +389,29 @@ def test_importing_a_settings_dict_reaches_the_chip_editor(qapp):
     assert applied == 2
     assert screen._settings_model._widgets["class_metadata"].get_value() \
         == [["r1"], ["r2"]]
-    assert screen._settings_model._widgets["classes"].get_value() == ["a", "b"]
+    classes = screen._settings_model._widgets["classes"].get_value()
+    assert isinstance(classes, dict)
+    assert list(classes) == ["a", "b"]
+    assert all(isinstance(rule, dict) for rule in classes.values())
+    # and it survives collect(), which is what Run actually reads
+    assert list(screen._settings_model.collect()["classes"]) == ["a", "b"]
     screen.deleteLater()
 
 
 def test_live_preview_propagation_reaches_the_chip_editor(qapp):
+    """``set_value_for_key`` has to find the chip editor, not just line edits.
+
+    Was asserted on ``png_dims``, which stopped being a rendered setting on
+    2026-08-06 (commit 2cab81f7 replaced it with ``png_channel_mapping``), so
+    ``set_value_for_key`` correctly answers False for it now -- there is no
+    widget to reach. Repointed at the int-list key that survives in the same
+    panel, plus a check that an unknown key still reports False rather than
+    pretending it landed somewhere.
+    """
     model = _model(qapp, "measure")
-    assert model.set_value_for_key("png_dims", [1, 2]) is True
-    assert model._widgets["png_dims"].get_value() == [1, 2]
+    assert model.set_value_for_key("png_size", [1, 2]) is True
+    assert model._widgets["png_size"].get_value() == [1, 2]
+    assert model.set_value_for_key("png_dims", [1, 2]) is False
 
 
 # ---------------------------------------------------------------------------

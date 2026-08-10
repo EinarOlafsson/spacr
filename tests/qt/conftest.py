@@ -34,6 +34,46 @@ def qt_theme_applied(qapp):
 
 
 @pytest.fixture(scope="session", autouse=True)
+def _widget_qss_registrars_loaded():
+    """Fill ``theme._WIDGET_QSS`` before any test can snapshot it.
+
+    ``theme.load_widget_qss_registrars()`` imports the ~37 modules that
+    register a widget QSS block, and it LATCHES on
+    ``theme._QSS_REGISTRARS_LOADED`` — it runs once per process and nothing
+    resets the flag. Until it has run, the registry holds only the handful
+    of blocks whose modules happened to be imported already (19, in a run
+    that starts with ``test_field_fade``).
+
+    That turns the ordinary save/restore fixture into a one-way shrink.
+    ``test_field_fade``'s ``prefs_sandbox`` and ``test_registration_seams``'s
+    ``qss_sandbox`` both do ``saved = dict(theme._WIDGET_QSS)`` at setup and
+    ``clear() + update(saved)`` at teardown. Taken before the loader has run,
+    that snapshot is 19 entries, and putting it back deletes the other 18
+    permanently — the loader has already latched, so it can never refill
+    them. Every ``stylesheet()`` built afterwards in that process is missing
+    them, which is the black-box bug ``test_widget_qss_is_complete`` exists
+    to catch, reported against whichever file drew the short straw
+    (``SettingsSearchPane has no rule in a freshly built stylesheet``).
+
+    Loading here, before the first test, means every such snapshot is taken
+    of the full registry, so restoring one is a no-op instead of a deletion.
+    Fixed at the session level rather than in the two fixtures because the
+    shape — snapshot a lazily-filled global, restore it — is one anybody
+    writing the next sandbox fixture would reproduce, and would have no
+    reason to suspect.
+
+    Safe with no ``QApplication`` yet: the loader guards every import
+    individually and none of them needs one.
+    """
+    try:
+        from spacr.qt import theme
+        theme.load_widget_qss_registrars()
+    except Exception:
+        pass
+    yield
+
+
+@pytest.fixture(scope="session", autouse=True)
 def _font_scale_starts_at_one():
     """Start every session at scale 1.0, whatever the last one left behind.
 
@@ -158,6 +198,137 @@ def _restore_app_registry():
         # A side table that was only imported DURING the test is restored on
         # the next test instead; the snapshot above cannot hold what did not
         # exist yet, and re-snapshotting every teardown would defeat the point.
+
+
+@pytest.fixture(autouse=True)
+def _restore_console_level_policy():
+    """Put the in-app console's level gate back the way the test found it.
+
+    ``verbose_logger`` keeps ONE ``_ConsoleForwarder`` for the process, and
+    ``apply_console_levels`` gates it by mutating a ``LevelSetFilter`` on
+    that handler rather than by swapping the handler out — deliberately, so
+    the set can change while another thread is mid-log. The cost is that the
+    gate is process-global and lives for the rest of the run.
+
+    Anything that launches the GUI installs one.
+    ``app.launch()`` -> ``logging_util.apply_level_policy(...)`` ->
+    ``apply_console_levels(DEFAULT_CONSOLE_LEVELS)`` leaves the console
+    showing ``{WARNING, ERROR, CRITICAL}`` and nothing takes it off again.
+    Every later test that logs below WARNING then watches its records
+    vanish at the handler: ``test_qt_worker_teardown``'s two console tests
+    emit on ``spacr.trace`` at DEBUG, saw an empty console sink, and failed
+    on "the console target received nothing at all" — never reaching the
+    re-entrancy and reopen assertions they exist to make. They pass alone
+    and fail after ``test_cov_qt_app::test_launch_drains_the_ai_consoles_on_quit``.
+
+    Restored here rather than in those tests because the leak belongs to
+    every caller of ``launch()``, and a test that logs is not obviously a
+    test that depends on the console gate — the next one to be bitten would
+    have the same day debugging it.
+
+    The handler's own ``level`` goes with the filters: ``apply_console_levels``
+    forces it to DEBUG so the filter is what decides, and that is just as
+    much a change to the policy as the filter is.
+    """
+    try:
+        from spacr.qt import verbose_logger as vl
+    except Exception:
+        yield
+        return
+
+    handler = vl._handler
+    saved = (list(handler.filters), handler.level) if handler else None
+    try:
+        yield
+    finally:
+        current = vl._handler
+        if current is None:
+            pass
+        elif saved is not None and current is handler:
+            filters, level = saved
+            for existing in list(current.filters):
+                current.removeFilter(existing)
+            for existing in filters:
+                current.addFilter(existing)
+            current.setLevel(level)
+        elif saved is None:
+            # No handler existed before the test, so "before" was a console
+            # with no gate at all. The handler itself is left attached —
+            # detaching it is a different concern, and tests hold references
+            # to it — but its policy goes back to nothing.
+            for existing in list(current.filters):
+                current.removeFilter(existing)
+            current.setLevel(0)
+
+
+@pytest.fixture(autouse=True)
+def _invalidate_field_fade_cache():
+    """Drop the cached field-fade preference so the next test re-reads it.
+
+    ``field_fade._enabled`` is a module-global cache, and it is one on
+    purpose: ``field_fade_enabled()`` is called on every paint event and
+    building a ``QSettings`` per paint would put a file-format lookup in the
+    render loop. It is dropped by ``invalidate_field_fade()``, which both
+    setters call — so the cache and the store agree inside the application.
+
+    A test that sandboxes ``QSettings`` breaks that agreement. The store is
+    restored at teardown; the cache is not, so it goes on answering with the
+    sandbox's value. ``test_spacr_mode``'s Extra-Performance tests turn the
+    fade off, and every ``stylesheet()`` built after them carries an EMPTY
+    FieldFade block — empty being the documented, load-bearing output of
+    "off". ``test_widget_qss_is_complete`` then fails with "registered but
+    rendering to nothing: ['FieldFade']", which reads like a broken QSS
+    block and is really a stale bool.
+
+    Dropped at teardown rather than restored to a saved value: there is
+    nothing to restore. The cache is a copy of the preference, and the
+    preference has already been put back by whatever sandboxed it, so the
+    correct next value is "ask the store again".
+    """
+    try:
+        from spacr.qt.widgets import field_fade
+    except Exception:
+        yield
+        return
+    try:
+        yield
+    finally:
+        try:
+            field_fade.invalidate_field_fade()
+        except Exception:
+            pass
+
+
+@pytest.fixture
+def deferred_deletions_flushed(qapp):
+    """Deliver the ``deleteLater`` calls earlier tests already made.
+
+    Opt-in, and the only fixture here that is: a test needs it when it
+    measures something PER LIVE WIDGET, where a widget the previous test
+    finished with is indistinguishable from one this test is responsible
+    for.
+
+    pytest-qt closes and ``deleteLater()``s the widgets it was given, but
+    ``deleteLater`` only posts an event — the object dies on the next spin of
+    the event loop, and a headless test file may never spin one. Eight
+    ``AppScreen``s survive ``test_preferences_gear`` that way: not visible,
+    not parented, referenced by nothing but their own bound-method cycles,
+    already asked to die. They still answer ``PaletteChange``, so
+    ``apply_preferences_to_app`` pays for a wallpaper lookup on each of them
+    and ``test_space_theme``'s cost assertion counted 17 instead of 1.
+
+    This is NOT the "reach across every live widget at teardown" fixture
+    that was removed on 2026-08-08 for segfaulting the run three ways. It
+    deletes nothing on its own initiative — it delivers deletions their
+    owners already requested — and it runs at SETUP, when the previous
+    test's teardown is complete and pytest-qt is not part-way through
+    closing anything.
+    """
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication
+
+    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    yield qapp
 
 
 @pytest.fixture(autouse=True)

@@ -112,12 +112,26 @@ def test_home_still_opens_when_the_backdrop_cannot_be_built(
     assert page.findChildren(AmbientWidget) == []
 
 
-def test_a_failed_install_leaves_the_page_opaque(qtbot, qt_theme_applied,
-                                                 monkeypatch):
-    """Surfaces are cleared only after a SUCCESSFUL install.
+def test_a_failed_install_still_leaves_a_colour_behind_the_containers(
+        qtbot, qt_theme_applied, monkeypatch):
+    """The containers clear whatever the install did, and the page paints.
 
-    Clearing them first would leave a failed page transparent with nothing
-    behind it — a worse outcome than simply having no animation.
+    Was ``test_a_failed_install_leaves_the_page_opaque``, asserting the
+    opposite: that surfaces are cleared only inside the SUCCESSFUL-install
+    arm, because clearing them first would leave a failed page transparent
+    with nothing behind it. Commit 28e9662c (2026-08-04, "Give the page a
+    colour of its own so it stops being black") reversed that on purpose,
+    and the reasoning above is named in ``HomePage.__init__`` as the bug:
+    it is what left Home a solid ``bg`` slab — #000000 in the dark theme —
+    for everyone with the ambient preference off. There is never nothing
+    behind the containers, because ``paintEvent`` paints the page.
+
+    So the invariant that survived is not "the containers stay opaque", it
+    is "something is still painted behind them", and both halves are
+    asserted here: the body IS transparent after a failed install, and
+    ``page_fill()`` hands back a real colour to show through it. Three
+    matching assertions moved in ``test_ambient_wiring`` with that commit;
+    this one was missed.
     """
     import spacr.qt.widgets.ambient as ambient_mod
     monkeypatch.setattr(ambient_mod, "install_ambient",
@@ -126,8 +140,16 @@ def test_a_failed_install_leaves_the_page_opaque(qtbot, qt_theme_applied,
 
     page = _home()
     qtbot.addWidget(page)
+    assert page._ambient is None, "the install was supposed to fail"
     body = page.layout().itemAt(0).widget()
-    assert not body.property(theme.TRANSPARENT_PROPERTY)
+    assert body.property(theme.TRANSPARENT_PROPERTY) is True
+    # And the hole that would have been: with no animation installed the
+    # page owes the containers a colour, not None.
+    fill = page.page_fill()
+    assert fill is not None, (
+        "a failed install cleared the containers and left nothing behind "
+        "them — the black-box bug 28e9662c fixed")
+    assert fill.isValid() and fill.alpha() == 255
 
 
 def test_a_successful_install_clears_the_positioning_containers(

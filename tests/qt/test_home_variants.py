@@ -62,8 +62,8 @@ N_VARIANTS = 30
 SCROLLBARS_ALLOWED = {1, 25, 30}
 
 #: The variants that do NOT fit 1440x900 at the reference zoom, measured
-#: at a registry of forty-nine apps. Twenty-one of the thirty are clean and
-#: this is the record of the other nine.
+#: at a registry of fifty-four apps. Eighteen of the thirty are clean and
+#: this is the record of the other twelve.
 #:
 #: It is a measurement, not a permission. ``test_no_variant_clips_elides_or_
 #: overflows`` compares the audit against this table with ``==``, so all
@@ -72,7 +72,7 @@ SCROLLBARS_ALLOWED = {1, 25, 30}
 #: a fix has to delete its line here, which is what stops a known-red
 #: ledger from becoming a place defects go to be forgotten.
 #:
-#: Why these nine are recorded rather than fixed. They are a review
+#: Why these twelve are recorded rather than fixed. They are a review
 #: surface: thirty candidate home screens rendered from the real widgets so
 #: a human can pick one, and nothing in ``_generators/`` is installed into
 #: the app. Each entry is a design decision that a person has to take, and
@@ -85,7 +85,7 @@ SCROLLBARS_ALLOWED = {1, 25, 30}
 #: gets a taller canvas, or accepts elision with tooltips.
 #:
 #: The registry going from thirty-four to forty-nine — and now to
-#: fifty-three in the bands, with sixty-two registered — is what did this.
+#: fifty-four in the bands, with sixty-three registered — is what did this.
 #: Every count below is a fact about that growth against a fixed 1440x900,
 #: and the three shapes it takes are: names too long for a tile (elided),
 #: a description given fewer pixels of height than it needs (clipped), and
@@ -100,6 +100,17 @@ SCROLLBARS_ALLOWED = {1, 25, 30}
 #: paragraph above — fewer apps, a taller canvas, or elision with
 #: tooltips. What the record is for is making the growth visible when it
 #: happens rather than at the end, so the counts move with it.
+#:
+#: Re-measured 2026-08-10 at fifty-four apps, the merged Classify module
+#: having joined the registry on 2026-08-06 (2d4da7df). Exactly one number
+#: moved and it is v22's, which is the interesting part: v22 is the A-to-Z
+#: index, a flat alphabetical list over every key with no category table
+#: at all, split into three fixed columns. It has nowhere to absorb a
+#: fifty-fourth row, so the row it gained is a description clipped against
+#: the fixed 900 px canvas. Every other variant filed the new app inside a
+#: band it already had room for — including v04, which stayed at ten only
+#: because the same commit filed ``classify_merged`` in the generator
+#: category tables; unfiled it falls to the tail bucket and v04 reads 17.
 KNOWN_LAYOUT_DEFECTS: dict = {
     # New since the last record: v01 clips four descriptions and overflows.
     1:  {"clipped": 4, "overflow": 1},
@@ -114,6 +125,9 @@ KNOWN_LAYOUT_DEFECTS: dict = {
     17: {"overflow": 1},
     19: {"clipped": 1},
     20: {"elided": 1, "overflow": 1},
+    # New at fifty-four apps: the A-to-Z index has no bands to grow into,
+    # so the fifty-fourth row is one DenseRow past what 1440x900 holds.
+    22: {"clipped": 1},
     28: {"elided": 5, "overflow": 1},
     30: {"elided": 5},
 }
@@ -1661,7 +1675,7 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
 
     It asserted zero everywhere, which is what it should assert and what
     it did for as long as thirty-four apps fitted. The registry is at
-    forty-nine and nine of the thirty do not fit any more, so a bare
+    fifty-four and twelve of the thirty do not fit any more, so a bare
     "assert nothing is wrong" stopped on the first of them and said
     nothing about the other twenty-nine — a red test that measured one
     variant. :data:`KNOWN_LAYOUT_DEFECTS` is that measurement written
@@ -1669,7 +1683,7 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
     appearing, worsening OR being fixed all fail here.
 
     Nothing is excused by being listed. See the note on the table for why
-    these nine are a design decision rather than a defect to tune away.
+    these twelve are a design decision rather than a defect to tune away.
     """
     # Pin zoom to 1.0 for this measurement. The test builds widgets at
     # EXPLICIT pixel sizes and asks whether the text fits; the zoom preference
@@ -1709,11 +1723,13 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
         # variants with no line in the table carry no defect at all, which
         # is the property the test was written for and still holds. Nine
         # and twenty-one when the registry held forty-nine apps; eleven
-        # and nineteen now that it holds fifty-three in the bands. Both
+        # and nineteen at fifty-three in the bands; twelve and eighteen
+        # since the merged Classify module took it to fifty-four on
+        # 2026-08-06 and v22, the A-to-Z index, ran out of canvas. Both
         # numbers are asserted rather than derived so that a variant
         # quietly joining the defective set is a failure and not a
         # subtraction that still adds up.
-        assert len(measured) == 11 and N_VARIANTS - len(measured) == 19
+        assert len(measured) == 12 and N_VARIANTS - len(measured) == 18
     finally:
         _prefs.set_font_scale(_original_zoom)
 

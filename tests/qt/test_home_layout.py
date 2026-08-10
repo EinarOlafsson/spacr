@@ -75,13 +75,25 @@ def home(request, qapp, qt_theme_applied):
     QApplication: a global ``setStyleSheet`` re-polishes every widget any
     other test left behind, which is both slow and a good way to crash
     the interpreter on a stale one.
+
+    Module-scoped means it is BUILT before any function-scoped fixture of
+    the test that first asks for it, and ``tests/conftest.py``'s autouse
+    ``_isolated_qsettings_store`` is one of those: it swaps QSettings for
+    an EMPTY per-test directory, and an empty store reads
+    ``DEFAULT_FONT_SCALE`` (1.5), not the 1.0 the session fixture wrote.
+    So the page is laid out at one zoom and measured at another unless a
+    test says otherwise — the scale it was actually built at is recorded
+    on the page as ``testBuildFontScale`` so a test that measures with
+    ``scaled_px`` can put it back first.
     """
+    from spacr.qt.preferences import get_font_scale
     from spacr.qt.theme import stylesheet
 
     theme = request.param
     qss = stylesheet(theme)
 
     page = make_home_page()  # the page MainWindow ships
+    page.setProperty("testBuildFontScale", get_font_scale())
     page.setStyleSheet(qss)
     page.resize(1400, 900)
     page.show()
@@ -173,7 +185,7 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
         "an app is missing from Home, or drawn on it twice")
 
     staged = [k for k in keys if app_stage(k) != "stable"]
-    # Forty-two, and it moved for two reasons at once, which is why it is
+    # Forty-three, and it moved for two reasons at once, which is why it is
     # worth writing down. Apps kept arriving alpha — Pipeline Graph, Hit
     # List, Prediction Profiler and Methods & Results, then Control Charts,
     # Dose Response, Trellis, Gate Editor, Feature Explorer, Outliers,
@@ -184,8 +196,14 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
     # was answering a question nobody asks. The count is the user's list — how
     # many of the apps in front of them carry a "not signed off" colour — and
     # it drops by one every time an app is signed off.
-    assert len(staged) == 42, (
-        f"{len(staged)} apps staged, not 42 — if that is intended, say so "
+    #
+    # Forty-three since 2026-08-06 (2d4da7df): the merged Classify module
+    # registered itself STAGE_ALPHA on purpose, because "stable" is the
+    # absence of a line in APP_STAGE and the merged screen has not been run
+    # on real data. It is the only one that has ever moved this number UP
+    # by arriving rather than by the registry being read differently.
+    assert len(staged) == 43, (
+        f"{len(staged)} apps staged, not 43 — if that is intended, say so "
         "here; the count is the user\'s list")
 
 
@@ -398,11 +416,27 @@ def test_the_widest_name_fits_the_tile_the_grid_gives_it(home):
     size, laid out in a uniform grid, so "wider name, wider tile" is not
     the contract any more — what is, is that the *widest* name still
     fits the one size they all share.
+
+    Measured at the zoom the page was BUILT at. It used to measure at
+    whatever ``get_font_scale()`` happened to answer inside the test, and
+    once ``DEFAULT_FONT_SCALE`` became 1.5 that stopped being the same
+    number: the module-scoped ``home`` fixture builds before the autouse
+    per-test QSettings store arrives, so the tiles were laid out at 1.0
+    and the ``floor``/``cap`` around them computed at 1.5. Restoring the
+    build scale here — the autouse ``_restore_font_scale`` puts it back —
+    makes the window and the thing in it agree, which is the only way
+    this assertion measures the product rather than the fixture order.
     """
-    from spacr.qt.preferences import scaled_px
+    from spacr.qt import preferences as prefs
     _theme, page, _bar = home
+    prefs.set_font_scale(page.property("testBuildFontScale"))
+    scaled_px = prefs.scaled_px
     tiles = _tiles_by_name(page)
     floor, cap = scaled_px(HomePage.TILE_MIN_W), scaled_px(HomePage.TILE_MAX_W)
+    visible = [n for n, t in tiles.items() if t.isVisible()]
+    # A guard on the loop below, not decoration: every tile being hidden
+    # would pass it without measuring anything at all.
+    assert visible, "no tile on the current tab was laid out"
     for name, tile in tiles.items():
         if not tile.isVisible():
             continue        # a tile on a tab that is not the current one

@@ -15,6 +15,17 @@ from spacr.qt.screens.run_history import (
 
 @pytest.fixture
 def history_root(tmp_path, monkeypatch):
+    """One successful classify run with hashing ON, and one failed run.
+
+    ``hash_inputs`` is passed explicitly because input/output hashing became
+    OPT-IN on 2026-08-08 (03838b8b, "Input hashing becomes opt-in, and the
+    manifest says which it was"): its cost is proportional to the DATA rather
+    than to the run, so ``Run.record_input``/``record_output`` are no-ops
+    unless the settings ask for it. Without the key this run records no
+    digests at all and the "Files & models" pane has nothing to show. The
+    now-default OFF path is defended by
+    :func:`test_hashes_pane_is_empty_when_hashing_is_off`.
+    """
     from spacr import run_journal as journal
 
     root = tmp_path / "runs"
@@ -26,7 +37,8 @@ def history_root(tmp_path, monkeypatch):
     output = plate / "scores.csv"
     with journal.open_run(
         "classify",
-        {"src": str(plate), "output_path": str(output), "optimizer": "adamw"},
+        {"src": str(plate), "output_path": str(output), "optimizer": "adamw",
+         "hash_inputs": True},
     ) as run:
         run.record_warning("class imbalance")
         output.write_text("class,score\nA,0.9\n")
@@ -65,13 +77,62 @@ def test_dashboard_lists_performance_and_failure(screen):
     assert screen._table.rowCount() == 2
     _select_module(screen, "classify")
     assert "adamw" in screen._settings.toPlainText()
-    assert "scores.csv" in screen._outputs.toPlainText()
+    hashes = screen._outputs.toPlainText()
+    # Both halves of the provenance, not just the output. The run READ
+    # image.tif and WROTE scores.csv; a pane showing only one of them would
+    # still satisfy the old single assertion while half the record was lost.
+    assert "scores.csv" in hashes
+    assert "image.tif" in hashes
     assert "class imbalance" in screen._problems.toPlainText()
     assert "output_files" in screen._overview.toPlainText()
 
     _select_module(screen, "measure")
     assert "database locked" in screen._problems.toPlainText()
     assert "failed" in screen._selection_label.text()
+
+
+def test_hashes_pane_is_empty_when_hashing_is_off(qtbot, qt_theme_applied,
+                                                  tmp_path, monkeypatch):
+    """A default run records no digests, and the manifest says which it was.
+
+    Input hashing became opt-in on 2026-08-08 (03838b8b): a run opened
+    without ``hash_inputs`` — which is every run nobody configured — writes
+    empty input/output hash maps, so the "Files & models" pane is correctly
+    empty. That emptiness is a choice, not a lost record, and the manifest is
+    what tells the two apart: ``input_hashing: "skipped"`` is written rather
+    than the field being silently absent.
+    """
+    import json
+
+    from spacr import run_journal as journal
+
+    root = tmp_path / "runs"
+    root.mkdir()
+    monkeypatch.setattr(journal, "runs_root", lambda: root)
+    plate = tmp_path / "plate"
+    plate.mkdir()
+    (plate / "image.tif").write_bytes(b"pixels")
+    output = plate / "scores.csv"
+    with journal.open_run(
+        "classify", {"src": str(plate), "output_path": str(output)},
+    ):
+        output.write_text("class,score\nA,0.9\n")
+
+    widget = RunHistoryScreen(threaded=False)
+    qtbot.addWidget(widget)
+    widget.refresh()
+    _select_module(widget, "classify")
+    assert json.loads(widget._outputs.toPlainText()) == {
+        "inputs": {}, "models": {}, "outputs": {},
+    }
+
+    run_dir = next(
+        path for path in root.iterdir() if path.name.endswith("__classify")
+    )
+    manifest = json.loads((run_dir / "manifest.json").read_text())
+    assert manifest["input_hashing"] == "skipped"
+    assert manifest["input_hashes"] == {}
+    assert manifest["output_hashes"] == {}
 
 
 def test_search_and_filters_are_combined(screen):

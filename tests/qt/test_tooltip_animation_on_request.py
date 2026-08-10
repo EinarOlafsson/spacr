@@ -169,6 +169,12 @@ def test_the_revealed_square_lands_at_the_measured_geometry(tooltip, qtbot):
     TALLER than the square. Beside a column of exactly 220 px, top and bottom
     alignment put the square in the same place and the second assertion below
     cannot fail — which is the shape the first version of this test had.
+
+    The 70-80% is measured across the whole cycle, not on whichever frame
+    happens to be showing. Commit 97ba3e75 (2026-08-09) deliberately made the
+    diameter animations scale their object instead of holding it at a fixed
+    radius, so frame 0 of `cell_diameter` is now the smallest of its 18 at
+    42.3% while the union the zoom crops to measures 75.9%.
     """
     long_html = HTML.replace(
         "quietly degrades every downstream measurement.",
@@ -192,10 +198,25 @@ def test_the_revealed_square_lands_at_the_measured_geometry(tooltip, qtbot):
         f"{view_origin.y()}")
     assert view.width() == view.height() == HoverTooltip.ANIMATION_SIZE
 
-    frame = az.from_qimage(view.pixmap().toImage())
-    extent = az.content_extent([frame])
+    # Every frame the label displays, driven through the same advance the
+    # frame timer drives.
+    shown = [az.from_qimage(view.pixmap().toImage())]
+    for _ in range(view.frame_count() - 1):
+        view._advance()
+        shown.append(az.from_qimage(view.pixmap().toImage()))
+    assert len(shown) == view.frame_count() > 1, (
+        "the label is not cycling frames, so the union below is one frame")
+
+    extent = az.content_extent(shown)
     assert az.MIN_FILL <= extent <= az.MAX_FILL, (
-        f"the revealed frame covers {extent:.1%} of its square")
+        f"the revealed frames cover {extent:.1%} of their square")
+    # No single frame may spill past the ceiling either: the union is at
+    # least as large as any one frame, so a union inside the band cannot by
+    # itself rule out a frame overflowing the square.
+    worst = max(az.content_extent([frame]) for frame in shown)
+    assert worst <= az.MAX_FILL, (
+        f"one revealed frame covers {worst:.1%}, past the "
+        f"{az.MAX_FILL:.0%} ceiling")
 
 
 def test_every_packaged_animation_the_word_reveals_lands_at_220(

@@ -141,15 +141,47 @@ def test_the_new_bindings_are_both_declared_and_wired(window):
         assert keys in bound, f"{keys} is on the cheat sheet but not bound"
 
 
-def test_ctrl_f_lands_in_the_settings_search_box(window, qtbot):
+def _activate(window, qtbot) -> None:
+    """Make ``window`` the active window, and prove it took.
+
+    ``QWidget.hasFocus()`` is False for every widget whose top-level window
+    is not ACTIVE, so a focus assertion in an inactive window measures
+    activation instead of focus. Under ``QT_QPA_PLATFORM=offscreen`` there
+    is no window manager to hand activation out: ``show()`` never activates,
+    and — measured, not assumed — the FIRST ``_on_nav_selected`` for a
+    module drops activation again as the freshly built screen is reparented
+    into the stack. So this has to run after the navigation, not in the
+    fixture. The ``waitUntil`` is the point: if activation ever stops
+    landing, the test below fails here with "window never activated" rather
+    than blaming the product for a focus call that worked.
+    """
+    window.raise_()
+    window.activateWindow()
+    qtbot.waitUntil(window.isActiveWindow, timeout=2000)
+
+
+def test_ctrl_f_lands_in_the_settings_search_box_and_selects_the_old_query(
+        window, qtbot):
+    """Two claims, because ``_focus_settings_search`` makes two.
+
+    The caret lands in the strip, and the previous query comes back
+    SELECTED, so the next keystroke replaces the old search instead of
+    appending to it — Ctrl+F twice in a row must not build up
+    "diameterdiameter". Only the focus half was asserted before.
+    """
     from spacr.qt.shortcuts import _focus_settings_search
     window._on_nav_selected("mask")
     qtbot.wait(50)
     screen = window._screens.get("mask")
     bar = getattr(screen, "_settings_search", None)
     assert bar is not None, "the strip was never installed"
+    bar.set_query("merge")
+    _activate(window, qtbot)
+
     _focus_settings_search(window)
+
     assert bar._input.hasFocus()
+    assert bar._input.selectedText() == "merge"
 
 
 def test_ctrl_f_is_harmless_on_a_screen_without_a_form(window):

@@ -1327,11 +1327,13 @@ class LivePreviewPanel(QWidget):
         populate_channel_combo(self._channel_box, 0)
         self._pick_btn = FlatButton("Choose image…", self)
         self._pick_btn.clicked.connect(self._pick_file)
-        # The dropdown stays VISIBLE. It was hidden once on the assumption
-        # the table would always be populated; when enumeration finds no sets
-        # -- which is every folder whose names the configured regex does not
-        # match -- that left an empty table and no way at all to choose an
-        # image. A redundant control is a far smaller problem than no control.
+        # This button is why the field dropdown can be hidden below. It was
+        # hidden once before on the assumption the table would always be
+        # populated, and when enumeration finds no sets -- every folder whose
+        # names the configured regex does not match -- that left an empty
+        # table and no way at all to choose an image, so it went back. The
+        # answer is not a redundant dropdown but this dialog: it opens any
+        # file, grouped or not, and pins its set into the table.
         self._set_table = QTableWidget(0, 0, self)
         self._set_table.setObjectName("PreviewSetTable")
         self._set_table.setSelectionBehavior(QTableWidget.SelectItems)

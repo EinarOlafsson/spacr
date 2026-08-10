@@ -508,10 +508,54 @@ def _fake_apps(names):
             for i, n in enumerate(names)]
 
 
+#: The two zooms the width policy has to hold at: 100 %, which is what this
+#: file used to assume without saying so, and 150 %, which is what the app has
+#: SHIPPED since ``DEFAULT_FONT_SCALE`` was raised in b530f70a (2026-08-03) —
+#: "spaCR was laid out on a 1080p display and reads small on the 4K panels it
+#: is used on".
+SIDEBAR_SCALES = (1.0, 1.5)
+
+
+@pytest.fixture
+def at_font_scale(qapp, qt_theme_applied):
+    """Put the font-scale PREFERENCE and the STYLESHEET on the same scale.
+
+    These tests compare a bound computed from the preference
+    (``scaled_px(WIDTH_MIN)``) against a width driven by the size hint of
+    text the application stylesheet draws. The two agree only if the sheet
+    was built at the scale the preference reports, and nothing in the
+    harness guarantees that: ``qt_theme_applied`` builds the sheet with
+    ``stylesheet()``, whose ``font_scale`` default is still 1.0, while the
+    per-test QSettings sandbox is empty so ``get_font_scale()`` answers the
+    shipped ``DEFAULT_FONT_SCALE`` of 1.5. Bounds at 150 %, glyphs at
+    100 % — under which a policy that is correct at BOTH scales measures as
+    broken at neither.
+
+    So these tests state their scale rather than inherit it. Restores the
+    shared application's 100 % sheet on the way out: leaving it at 150 %
+    would move every later test that measures a pixel.
+    """
+    from spacr.qt import preferences
+    from spacr.qt.theme import stylesheet
+
+    def _apply(scale: float) -> float:
+        preferences.set_font_scale(scale)
+        qapp.setStyleSheet(stylesheet(font_scale=scale))
+        qapp.processEvents()
+        return scale
+
+    yield _apply
+    qapp.setStyleSheet(stylesheet())
+    qapp.processEvents()
+
+
+@pytest.mark.parametrize("scale", SIDEBAR_SCALES)
 def test_sidebar_column_never_narrows_below_its_floor(
-        qtbot, qt_theme_applied, monkeypatch):
-    """Short names must not produce a stubby column."""
+        qtbot, at_font_scale, monkeypatch, scale):
+    """Short names must not produce a stubby column — and the floor is the
+    SCALED floor, so 150 % text does not sit in a 100 % column."""
     from spacr.qt.preferences import scaled_px
+    at_font_scale(scale)
     monkeypatch.setattr(app_mod, "APPS", _fake_apps(["A", "B", "C"]))
     bar = Sidebar()
     qtbot.addWidget(bar)
@@ -519,22 +563,41 @@ def test_sidebar_column_never_narrows_below_its_floor(
     assert not bar.clipped_items()
 
 
+@pytest.mark.parametrize("scale", SIDEBAR_SCALES)
 def test_sidebar_column_widens_for_a_longer_name(
-        qtbot, qt_theme_applied, monkeypatch):
+        qtbot, at_font_scale, monkeypatch, scale):
+    """A name the floor cannot hold widens the column — off the floor, under
+    the cap, and far enough that nothing is cut.
+
+    Both bounds track the zoom, so this is asserted at 100 % and at the
+    shipped 150 %. Measured here, the column lands at 309 px (floor 220, cap
+    320) and at 449 px (floor 330, cap 480) — off the floor and short of the
+    cap at both, which is the whole claim.
+    """
     from spacr.qt.preferences import scaled_px
+    at_font_scale(scale)
     long_ish = "Cellpose Model Comparison Workbench"
     monkeypatch.setattr(app_mod, "APPS", _fake_apps(["A", long_ish]))
     bar = Sidebar()
     qtbot.addWidget(bar)
     assert scaled_px(Sidebar.WIDTH_MIN) < bar.width() <= scaled_px(
         Sidebar.WIDTH_MAX)
+    # Widening that still clips the name it widened for is not widening.
+    assert not bar.clipped_items()
 
 
+@pytest.mark.parametrize("scale", SIDEBAR_SCALES)
 def test_sidebar_caps_its_width_and_elides_a_pathological_name(
-        qtbot, qapp, qt_theme_applied, monkeypatch):
+        qtbot, qapp, at_font_scale, monkeypatch, scale):
     """A name no column could hold elides — with the full name on hover —
-    instead of pushing the sidebar across the window."""
+    instead of pushing the sidebar across the window.
+
+    The cap is ``scaled_px(WIDTH_MAX)``, not ``WIDTH_MAX``: at the shipped
+    150 % zoom the column is allowed 480 px, and pinning the raw 320 would
+    demand a column too narrow for its own text.
+    """
     from spacr.qt.preferences import scaled_px
+    at_font_scale(scale)
     huge = "An Extraordinarily Long Hypothetical Module Name For Testing"
     monkeypatch.setattr(app_mod, "APPS", _fake_apps([huge]))
     bar = Sidebar()
