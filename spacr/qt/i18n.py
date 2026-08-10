@@ -304,6 +304,9 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Annotate": _row(
         "Annotering", "Annotieren", "Anotación", "标注", "Anotação",
         "एनोटेशन", "주석", "Merking", "Annotation"),
+    "Classify": _row(
+        "Klassificering", "Klassifizieren", "Clasificar", "分类", "Classificar",
+        "वर्गीकरण", "분류", "Flokkun", "Classification"),
     "Classify (CV)": _row(
         "Klassificering (CV)", "Klassifizieren (CV)", "Clasificar (CV)",
         "分类（CV）", "Classificar (CV)", "वर्गीकरण (CV)",
