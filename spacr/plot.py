@@ -616,9 +616,11 @@ def plot_image_mask_overlay_magenta_outlines(
     """Plot image and mask overlays, outlining each channel's own mask in magenta.
 
     Variant of :func:`plot_image_mask_overlay` with no ``organelle_channel``:
-    when ``all_on_all`` is False the mask belonging to a channel is drawn in
-    magenta rather than in that object's colour, and the masks are read from
-    the last stack planes in pathogen, nucleus, cell order.
+    when ``mode`` is ``'outlines'`` and ``all_on_all`` is False, the mask
+    belonging to a channel is outlined in magenta rather than in that
+    object's colour. In every other mode it falls back to filled, randomly
+    coloured labels as that function does, but seeded per call rather than
+    per object, so the colours differ between runs and between panels.
 
     :param file: Path to the merged ``.npy`` stack for one field of view.
     :param channels: Indices of the image channels to draw, one panel each.

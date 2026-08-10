@@ -1634,7 +1634,8 @@ def save_figure(fig, src, figure_number):
 
     The ``.pdf`` extension built here is only a proposal:
     :func:`spacr.plot.save_figure` rewrites it to the configured figure
-    format, so the file on disk is often ``figure_1.png``.
+    format. That preference defaults to ``pdf``, so the file on disk is
+    ``figure_1.pdf`` unless another format has been selected.
 
     :param fig: matplotlib Figure to persist.
     :param src: reference path used to derive the parent directory.
@@ -1843,8 +1844,8 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
 
     Loads the ``cell`` (and optionally ``pathogen``/``cytoplasm``) tables,
     filters transient tracks, detects peaks on the chosen intensity trace,
-    and writes the per-peak, per-cell and per-well tables to CSV beside the
-    database.
+    and writes the per-peak, per-cell and per-well tables to CSV in a
+    ``results`` folder beside the database.
 
     :param db_loc: path to the measurements SQLite database.
     :param measurement: intensity column analysed for oscillations.

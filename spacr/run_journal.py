@@ -520,9 +520,10 @@ class Run:
     def record_model(self, name: str, checkpoint_path: Any) -> None:
         """Fingerprint ``checkpoint_path`` and remember it under ``name``.
 
-        Records ``"<filename>:<digest>"`` in ``model_hashes``. A failure is
-        appended to ``provenance_warnings`` (so it reaches ``manifest.json``)
-        and logged — model logging must never itself fail a run.
+        Records ``"<filename>:<digest>"`` in ``model_hashes``. An unreadable
+        checkpoint is only logged and leaves no entry at all; any other
+        failure is also appended to ``provenance_warnings``, so it reaches
+        ``manifest.json`` — model logging must never itself fail a run.
         """
         try:
             p = Path(checkpoint_path)

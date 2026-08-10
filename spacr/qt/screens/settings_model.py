@@ -1470,6 +1470,17 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How the model is fitted: epochs, learning rate, schedule, and which "
         "loss. Open it when training is unstable, stalls, or ignores the "
         "smaller class.",
+    "CLASSIFIER":
+        "Which family of classifier runs — a computer-vision network trained "
+        "on the object images, or a tabular model trained on the measurements "
+        "already in the database. This is the top-level choice: it decides "
+        "which of the groups below apply.",
+    "MODEL & FEATURES":
+        "The tabular model and the feature table it learns from — which "
+        "estimator, how much of the data is held back, and the pruning that "
+        "decides which measured features survive. Open it when the model "
+        "overfits, or when thousands of correlated features are drowning the "
+        "few that matter.",
     "EVALUATION & RESULTS":
         "How the fitted model is judged and how the result is shown — "
         "cross-validation, calibration, the leakage audit, the heatmap, and "
@@ -2168,6 +2179,43 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
 }
 
 
+#: Family prefixes :func:`categories_for_app` puts in front of a merged
+#: module's group titles, e.g. "Computer Vision — Training & Loss". The
+#: tooltip tables are keyed on the UNPREFIXED name, so a lookup has to try
+#: both: commit c41a75b6 added these prefixes and orphaned every blurb the
+#: plain Classify module was already using, leaving six of Classify
+#: (merged)'s nine headings describing themselves.
+_CATEGORY_FAMILY_PREFIXES = ("COMPUTER VISION", "MACHINE LEARNING")
+
+#: Dashes seen between a family prefix and the group name. Written out
+#: because the em dash in the source is easy to lose in an edit and the
+#: failure is silent — the lookup just misses.
+_CATEGORY_PREFIX_DASHES = ("—", "–", "-")
+
+
+def _category_blurb(app_key: str, title: str) -> str:
+    """The written blurb for a category title, or ``""`` if there is none.
+
+    Tries the module's own override then the shared table, first for the
+    title as rendered and then for the title with a family prefix removed.
+    """
+    key = str(title or "").upper().strip()
+    if not key:
+        return ""
+    candidates = [key]
+    for prefix in _CATEGORY_FAMILY_PREFIXES:
+        for dash in _CATEGORY_PREFIX_DASHES:
+            marker = f"{prefix} {dash} "
+            if key.startswith(marker):
+                candidates.append(key[len(marker):].strip())
+    overrides = CATEGORY_TOOLTIPS_BY_APP.get(str(app_key or ""), {})
+    for candidate in candidates:
+        text = overrides.get(candidate) or CATEGORY_TOOLTIPS.get(candidate, "")
+        if text:
+            return text
+    return ""
+
+
 def category_tooltip(
     app_key: str,
     title: str,
@@ -2184,24 +2232,24 @@ def category_tooltip(
     :param title: category title as shown on the header (any case).
     :param language: optional language override; defaults to the UI language.
     """
-    key = str(title or "").upper().strip()
-    if not key:
+    if not str(title or "").strip():
+        # An empty title has no fallback: "Settings that control ." is worse
+        # than nothing, and a caller passing "" wants silence.
         return ""
-    text = CATEGORY_TOOLTIPS_BY_APP.get(str(app_key or ""), {}).get(key)
-    if not text:
-        text = CATEGORY_TOOLTIPS.get(key, "")
+    text = _category_blurb(app_key, title)
     if not text:
         text = f"Settings that control {str(title).lower().strip()}."
     return _translated_body(text, language)
 
 
 def category_tooltip_is_curated(app_key: str, title: str) -> bool:
-    """True when a category has a written blurb rather than the fallback."""
-    key = str(title or "").upper().strip()
-    return bool(
-        CATEGORY_TOOLTIPS_BY_APP.get(str(app_key or ""), {}).get(key)
-        or CATEGORY_TOOLTIPS.get(key)
-    )
+    """True when a category has a written blurb rather than the fallback.
+
+    Shares :func:`_category_blurb` with :func:`category_tooltip` rather than
+    repeating the lookup: the two used to hold separate copies, so a lookup
+    rule added to one would silently not apply to the other.
+    """
+    return bool(_category_blurb(app_key, title))
 
 
 def get_tooltips() -> Dict[str, str]:

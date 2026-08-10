@@ -100,7 +100,8 @@ class AppContribution:
         objects or equivalent mappings.
     :ivar screen_factory: optional ``"module:callable"`` reference to a
         factory returning a ``QWidget``, replacing the generic settings
-        screen; it is passed ``app_key`` and ``host`` if it declares them.
+        screen; it is always invoked as ``factory(app_key=...)`` and so must
+        accept that keyword.
     :ivar drop_handler: optional ``"module:callable"`` reference to a
         ``spacr.qt.dnd_handlers.DropHandler`` subclass.
     :ivar icon: absolute image path, or the name of a spaCR semantic icon;

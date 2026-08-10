@@ -5776,7 +5776,9 @@ def generate_training_dataset(settings):
           Default True.
         - ``random_seed``: seeds balancing and random-class sampling.
           Default 42.
-        - ``tables``: object tables available to the merge helper.
+        - ``tables``: object tables the project has. Only clears
+          ``nuclei_limit`` and ``pathogen_limit`` when the matching table is
+          absent; it does not select where the crop list comes from.
         - metadata mode: ``metadata_rules``, or ``class_metadata`` values
           matched against the ``metadata_type_by`` column.
         - annotation mode: ``annotation_columns`` (legacy
