@@ -7,6 +7,7 @@ canvas, a rounded field boundary and restrained biological illustrations.
 """
 from __future__ import annotations
 
+import argparse
 import hashlib
 import html
 import json
@@ -582,6 +583,29 @@ def _draw_motile_cell(
     )
 
 
+def _drawn_half_size(
+    kind: str,
+    size: Tuple[float, float],
+) -> Tuple[float, float]:
+    """Return the logical half width and height an object actually occupies.
+
+    ``size`` is the requested half size; ``Painter.svg_object`` keeps the
+    template's own aspect ratio inside it, so the drawn extent is usually
+    smaller in one axis. Scenes that annotate an object -- the caliper in
+    :func:`_diameter_scene` -- need the drawn extent, not the request.
+    """
+    half_width, half_height = (
+        value * SVG_DRAW_SCALES[kind] for value in size
+    )
+    view_width, view_height = _template_view_box(kind)
+    aspect = view_width / view_height
+    if half_width / half_height > aspect:
+        half_width = half_height * aspect
+    else:
+        half_height = half_width / aspect
+    return half_width, half_height
+
+
 def _object_outline(
     painter: Painter,
     kind: str,
@@ -810,15 +834,19 @@ def _flow_scene(painter: Painter, spec: Spec, action: float) -> None:
 
 
 def _diameter_scene(painter: Painter, spec: Spec, action: float) -> None:
+    # The setting sizes the OBJECT, so the object is the subject of the
+    # animation and the caliper is only the annotation on it. Drawing the
+    # outline at a fixed radius and sweeping the caliper alone changed 0.01%
+    # of the frame for pathogen_diameter -- the viewer saw nothing move.
     _well(painter)
     kind = spec.params["kind"]
     color = OBJECT_COLORS[kind]
     center = (180, 120)
     radius = 64 if kind == "cell" else 40
-    _object_outline(
-        painter, kind, center, (radius, radius * 0.8), 1.0, 0.4,
-    )
-    extent = radius * (0.35 + 0.65 * action)
+    scale = 0.55 + 0.45 * action
+    size = (radius * scale, radius * scale * 0.8)
+    _object_outline(painter, kind, center, size, 1.0, 0.4)
+    extent = _drawn_half_size(kind, size)[0]
     painter.line(
         ((center[0] - extent, center[1]),
          (center[0] + extent, center[1])),
@@ -1779,6 +1807,14 @@ main{{padding:4px 28px 40px}} section{{padding-top:22px}} h2{{font-size:18px}} h
 <script>const q=document.querySelector('#search');q.addEventListener('input',()=>{{const s=q.value.toLowerCase().trim();document.querySelectorAll('.card').forEach(c=>c.classList.toggle('hidden',s&&!c.dataset.search.includes(s)));}});</script>
 </body></html>"""
     (REVIEW_ROOT / "index.html").write_text(document, encoding="utf-8")
+    _write_manifest(manifest, template_hashes)
+
+
+def _write_manifest(
+    manifest: Sequence[Dict[str, Any]],
+    template_hashes: Dict[str, str],
+) -> None:
+    """Write the shipped manifest describing every packaged GIF."""
     (ROOT / "manifest.json").write_text(
         json.dumps(
             {
@@ -1848,8 +1884,75 @@ def _write_docs_gallery(specs: Sequence[Spec]) -> None:
     DOCS_PAGE.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
 
 
-def main() -> int:
+def _regenerate_subset(specs: Sequence[Spec], slugs: Sequence[str]) -> int:
+    """Rebuild only the named GIFs and merge them into the shipped manifest.
+
+    A full run re-encodes all 94 GIFs, and a different Pillow build writes
+    byte-different files for pixel-identical frames. Rebuilding one scene
+    keeps every other packaged GIF, and its recorded hash, exactly as
+    shipped: manifest entries for animations that were not regenerated are
+    copied verbatim, never rewritten from the current specs.
+    """
+    template_hashes = _validate_templates()
+    by_slug = {spec.slug: spec for spec in specs}
+    wanted: List[str] = []
+    for slug in slugs:
+        if slug not in by_slug:
+            raise SystemExit(f"Unknown animation slug: {slug}")
+        if slug not in wanted:
+            wanted.append(slug)
+    try:
+        shipped = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        raise SystemExit(f"Could not read the shipped manifest: {error}")
+    if shipped.get("template_sha256") not in (None, template_hashes):
+        raise SystemExit(
+            "The SVG templates changed since the shipped manifest was written; "
+            "run without --only so every GIF is rebuilt from them."
+        )
+    entries = {
+        entry["slug"]: entry
+        for entry in shipped.get("animations", [])
+        if isinstance(entry, dict) and "slug" in entry
+    }
+    ASSETS.mkdir(parents=True, exist_ok=True)
+    for slug in wanted:
+        spec = by_slug[slug]
+        path = _write_gif(spec)
+        entry = asdict(spec)
+        entry["file"] = str(path.relative_to(ROOT))
+        entry["validation"] = _validate(path)
+        entries[slug] = entry
+    missing = [spec.slug for spec in specs if spec.slug not in entries]
+    if missing:
+        raise SystemExit(
+            "The shipped manifest has no entry for "
+            + ", ".join(missing)
+            + "; run without --only to generate every GIF."
+        )
+    _write_manifest([entries[spec.slug] for spec in specs], template_hashes)
+    print(f"Regenerated {len(wanted)} of {len(specs)} GIFs: {', '.join(wanted)}")
+    print("Contact sheets, storyboards and the docs gallery need a full run.")
+    return 0
+
+
+def main(argv: Sequence[str] | None = None) -> int:
     """Regenerate all review GIFs, validate them, and build the local gallery."""
+    parser = argparse.ArgumentParser(
+        description="Generate the shipped spaCR setting animations.",
+    )
+    parser.add_argument(
+        "--only",
+        action="append",
+        metavar="SLUG",
+        help=(
+            "Regenerate just this animation and keep every other packaged GIF "
+            "untouched. Repeatable."
+        ),
+    )
+    arguments = parser.parse_args(argv)
+    if arguments.only:
+        return _regenerate_subset(_specs(), arguments.only)
     template_hashes = _validate_templates()
     if ASSETS.exists():
         shutil.rmtree(ASSETS)

@@ -747,9 +747,9 @@
       "slug": "cell_diameter",
       "title": "Cell diameter",
       "validation": {
-        "bytes": 96174,
+        "bytes": 88601,
         "frames": 18,
-        "sha256": "1eecdae97ca3df15ccc2beb4497e8801e21ad43c1cfb19b35d3e8f51ec76a88f",
+        "sha256": "fd57aa4cf4221d14d2c48964348ab23efbbaaad5ed66f606f78918f34bd32b53",
         "unique_frames": 16
       }
     },
@@ -843,9 +843,9 @@
       "slug": "nucleus_diameter",
       "title": "Nucleus diameter",
       "validation": {
-        "bytes": 101487,
+        "bytes": 86875,
         "frames": 18,
-        "sha256": "1bc652661959dbd00b7263dc677b4a1209e15c5886d39d48377bb1bf4a7cda02",
+        "sha256": "bc731add313663c88aef6ff111655402efe32a2bd568fe30b55cb6056b3c5891",
         "unique_frames": 16
       }
     },
@@ -939,9 +939,9 @@
       "slug": "pathogen_diameter",
       "title": "Pathogen diameter",
       "validation": {
-        "bytes": 144341,
+        "bytes": 114098,
         "frames": 18,
-        "sha256": "7aa19b08b6fd779edc413418b81c469ed817f8897af66895e34e0cdca4c1a445",
+        "sha256": "cae6b082e799a7304068d3adb45f1b1e5d401969f5a938d285ac8e521ddc562d",
         "unique_frames": 16
       }
     },
@@ -997,10 +997,10 @@
       "slug": "organelle_diameter",
       "title": "Organelle diameter",
       "validation": {
-        "bytes": 177522,
+        "bytes": 136518,
         "frames": 18,
-        "sha256": "38ed8c130aa6c65369ba8cbcf264143f8292a7be3992001f3808bdbf0a621c4e",
-        "unique_frames": 16
+        "sha256": "77e2a69c7ca13d3390ae7e8816cadd1883c6edf226760d259170f59c86f044f8",
+        "unique_frames": 18
       }
     },
     {
