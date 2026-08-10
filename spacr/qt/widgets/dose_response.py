@@ -617,19 +617,28 @@ class DoseResponseResult:
         the experiment does not bound it.
     :param ec50_unconstrained: ``10 ** log10_ec50``, always. An extrapolation
         when :attr:`ec50_bounded` is ``False``.
-    :param ec50_low: :param ec50_high: back-transformed interval ends, or
+    :param ec50_low: back-transformed lower end of the interval, or ``None``
+        for an open side.
+    :param ec50_high: back-transformed upper end of the interval, or
         ``None`` for an open side.
     :param log10_ec50_ci: the same interval before back-transformation.
-    :param hill_ci: :param top_ci: :param bottom_ci: Wald intervals.
+    :param hill_ci: Wald interval for the Hill slope.
+    :param top_ci: Wald interval for the top asymptote.
+    :param bottom_ci: Wald interval for the bottom asymptote.
     :param bound_direction: one of :data:`BOUND_OK`, :data:`BOUND_ABOVE`,
         :data:`BOUND_BELOW`, :data:`BOUND_OPEN`.
-    :param dose: :param response: the observations actually fitted (positive
+    :param dose: the concentrations actually fitted, in input order.
+    :param response: the responses actually fitted, aligned with ``dose``
+        (positive
         concentrations only), in input order.
-    :param n_obs: observations fitted. :param n_doses: distinct
-        concentrations. :param dof: residual degrees of freedom, ``n_obs - 4``.
+    :param n_obs: observations fitted.
+    :param n_doses: distinct
+        concentrations.
+    :param dof: residual degrees of freedom, ``n_obs - 4``.
     :param rse: residual standard error, in response units.
     :param r_squared: with the health warning in :meth:`caveats` attached.
-    :param lack_of_fit_f: :param lack_of_fit_p: the F test against pure
+    :param lack_of_fit_f: F statistic of the test against pure error.
+    :param lack_of_fit_p: p value of the test against pure
         error, or ``None`` when the design cannot support it.
     :param lack_of_fit_df: ``(numerator, denominator)`` df of that test.
     :param covariance: the 4×4 matrix, or ``None`` when it could not be
