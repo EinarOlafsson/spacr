@@ -31,12 +31,13 @@ from typing import Dict, Mapping, Tuple
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
+    QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
     QFormLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QVBoxLayout,
     QWidget,
 )
 
 from ..theme import SPACING
+from .toggle import Toggle
 
 #: Colour maps offered for the density/colour axis. Perceptually uniform ones
 #: first: on a scatter of a million objects the colour IS the reading, and
@@ -339,7 +340,7 @@ class GateSettingsDialog(QDialog):
             setattr(self, f"_{field}", box)
             form.addRow(label, box)
 
-        self._grid = QCheckBox("Show grid", page)
+        self._grid = Toggle("Show grid", page)
         self._grid.setChecked(self._settings.show_grid)
         self._grid.toggled.connect(lambda v: self._change(show_grid=bool(v)))
         form.addRow("", self._grid)
@@ -369,7 +370,7 @@ class GateSettingsDialog(QDialog):
             lambda v: self._change(gate_line_width=float(v)))
         form.addRow("Gate line width", self._line_width)
 
-        self._highlight = QCheckBox("Ring the gated objects", page)
+        self._highlight = Toggle("Ring the gated objects", page)
         self._highlight.setChecked(self._settings.highlight_gated)
         self._highlight.setToolTip(
             "Marks the objects inside each shown gate. The rest of the cloud "
@@ -378,7 +379,7 @@ class GateSettingsDialog(QDialog):
             lambda v: self._change(highlight_gated=bool(v)))
         form.addRow("", self._highlight)
 
-        self._merge_boxes: Dict[str, QCheckBox] = {}
+        self._merge_boxes: Dict[str, Toggle] = {}
         merge_note = QLabel(
             "Keys a filter is merged back onto the object tables with. The "
             "object label alone repeats in every field, so dropping a key "
@@ -386,7 +387,7 @@ class GateSettingsDialog(QDialog):
         merge_note.setWordWrap(True)
         form.addRow("Merge on", merge_note)
         for key in MERGE_KEYS:
-            box = QCheckBox(key, page)
+            box = Toggle(key, page)
             box.setChecked(key in self._settings.merge_keys)
             box.toggled.connect(self._on_merge_key_toggled)
             self._merge_boxes[key] = box
@@ -444,7 +445,7 @@ class GateSettingsDialog(QDialog):
             lambda v: self._change(cluster_min_samples=int(v)))
         form.addRow("min samples", self._min_samples)
 
-        self._scale = QCheckBox("Standardise the axes first", page)
+        self._scale = Toggle("Standardise the axes first", page)
         self._scale.setChecked(self._settings.cluster_scale)
         self._scale.setToolTip(
             "Without it, eps means a distance in whichever measurement has "
@@ -453,7 +454,7 @@ class GateSettingsDialog(QDialog):
             lambda v: self._change(cluster_scale=bool(v)))
         form.addRow("", self._scale)
 
-        self._walk = QCheckBox("Walk", page)
+        self._walk = Toggle("Walk", page)
         self._walk.setChecked(self._settings.cluster_walk)
         self._walk.setToolTip(
             "Try the space instead of taking the values above, showing each "
@@ -543,7 +544,7 @@ class GateSettingsDialog(QDialog):
             lambda v: self._change(voxel_bins=int(v)))
         form.addRow("Voxels", self._voxels)
 
-        self._snap = QCheckBox("Snap to the nearest axis when a spin ends", page)
+        self._snap = Toggle("Snap to the nearest axis when a spin ends", page)
         self._snap.setChecked(self._settings.snap_to_axis)
         self._snap.setToolTip(
             "So a 3D gate is always finally read square-on. A volume stopped "
