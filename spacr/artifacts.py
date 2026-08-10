@@ -363,8 +363,10 @@ def content_fingerprint(
     it, and above ``full_hash_limit`` from its size plus its first and last
     megabyte — enough to notice a rewritten database without spending minutes
     of I/O at the end of every run. A folder is fingerprinted from its file
-    inventory: every file's relative path, size and modification time, in
-    sorted order.
+    inventory: each file's relative path, size and modification time, in
+    sorted order. Symlinks are skipped — linked files are ignored and linked
+    subfolders are not descended into — so a folder of links fingerprints as
+    empty.
 
     :param path: file or folder.
     :param full_hash_limit: byte size above which a file is sampled instead
@@ -1005,7 +1007,9 @@ def by_kind(kind: str, *, project: Union[str, os.PathLike, None] = None,
     """Every artifact of ``kind``; see :meth:`Registry.by_kind`.
 
     :param kind: a :mod:`spacr.ports` kind.
-    :param project: the project root.
+    :param project: the project root, used only to locate the registry file.
+        It is not forwarded as a filter, so a shared registry (see
+        :data:`ARTIFACTS_DB_ENV`) also returns other projects' artifacts.
     :param registry: an open registry to use instead of opening one.
     :param kwargs: passed through to :meth:`Registry.by_kind`.
     """
