@@ -138,9 +138,13 @@ class LoadingScreen(QWidget):
             painter.setFont(font)
             metrics = painter.fontMetrics()
 
-            widths = [metrics.horizontalAdvance(p) for p in STRAP_PHASES]
+            # Translated at PAINT time, not at import: the loading screen is
+            # built before the user's language preference has necessarily
+            # been read, and a phase cached in English would stay English.
+            phases = [_translate(p) for p in STRAP_PHASES]
+            widths = [metrics.horizontalAdvance(p) for p in phases]
             arrow_w = metrics.horizontalAdvance("  →  ")
-            text_w = sum(widths) + arrow_w * (len(STRAP_PHASES) - 1)
+            text_w = sum(widths) + arrow_w * (len(phases) - 1)
 
             block_w = side + gap + text_w
             x = (self.width() - block_w) / 2.0
@@ -156,12 +160,12 @@ class LoadingScreen(QWidget):
             lit = self.lit_phases()
             tx = x + side + gap
             baseline = y + metrics.ascent() / 2.0 - metrics.descent() / 2.0
-            for index, phase in enumerate(STRAP_PHASES):
+            for index, phase in enumerate(phases):
                 painter.setPen(QColor(255, 255, 255,
                                       255 if index < lit else 90))
                 painter.drawText(int(tx), int(baseline), phase)
                 tx += widths[index]
-                if index < len(STRAP_PHASES) - 1:
+                if index < len(phases) - 1:
                     painter.setPen(QColor(255, 255, 255,
                                           255 if index + 1 < lit else 70))
                     painter.drawText(int(tx), int(baseline), "  →  ")
@@ -183,6 +187,30 @@ class LoadingScreen(QWidget):
             painter.end()
 
 
+def _translate(text: str) -> str:
+    """Translate one phase, falling back to English.
+
+    Imported lazily and defensively: this widget is on the launch path, and a
+    loading screen that cannot render because the catalog failed to import
+    would take the whole application with it.
+    """
+    try:
+        from ..i18n import tr
+        return tr(text)
+    except Exception:
+        return text
+
+
 def strap_phrases() -> Sequence[str]:
-    """The strap line's phases, for the home screen to render the same words."""
-    return STRAP_PHASES
+    """The strap line's phases, translated, for the home screen to reuse.
+
+    The home screen shows the same sentence beside the same logo, so it takes
+    the words from here rather than repeating them -- one string, one place,
+    one set of translation rows.
+    """
+    return tuple(_translate(p) for p in STRAP_PHASES)
+
+
+def strap_line() -> str:
+    """The whole strap line as one translated string."""
+    return "  →  ".join(strap_phrases())
