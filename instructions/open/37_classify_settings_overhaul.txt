@@ -536,3 +536,49 @@ Method, so this is a judgement made once rather than argued repeatedly:
 Note instruction 61 measured 700 tooltips and found seven settings that no
 module reads at all; that same sweep is the natural place to check whether
 a Classify setting is inert before deciding it is merely rarely used.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE `classes` ROUND-TRIP, MEASURED. IT IS NOT A DATA-LOSS BUG.
+--------------------------------------------------------------------------------
+
+`tests/qt/test_settings_list_editor.py::test_every_default_round_trips_
+untouched[classify]` has been failing since commit 30500970 turned `classes`
+from `['nc','pc']` into a dict of name -> {column, value}. The triage called
+it "migrate the product default, not the test". Measured before doing that,
+and the picture is more constrained than it looked:
+
+  normalize_settings(['nc','pc'])                  -> class_names ['nc','pc']
+  normalize_settings({'nc': {...}, 'pc': {...}})   -> class_names ['nc','pc']
+
+`class_names` is what `deep_spacr` and the evaluation code actually read, and
+it is IDENTICAL either way. So merely opening the Classify screen and saving
+does not change what gets trained. The failing assertion is about the stored
+SHAPE, not about behaviour.
+
+THREE CONSTRAINTS THAT RULE OUT THE OBVIOUS FIX:
+
+  1. The Tk GUI expects a LIST. `gui_elements.py:5879` does
+     `str(defaults.get('classes', ['nc','pc']))` and `:6183` parses it back
+     with `_parse_list_literal`. spaCR ships both front ends, so changing the
+     default to a dict breaks the Tk path.
+  2. `normalize_settings` translates only `if not isinstance(raw, Mapping)`.
+     A dict default -- including `{}` -- SKIPS the legacy translation, so a
+     default of `{}` would silently mean "no classes" rather than "not set".
+  3. The migration fills `column='?'`, a deliberate "you must fill this in"
+     marker. Shipping that as a default puts a non-column in every fresh
+     settings CSV.
+
+SO THE HONEST FIX IS NOT THE DEFAULT. It is that the panel should not
+REWRITE a setting the user never touched: `collect()` should return the value
+it was given when nothing was edited. That keeps the Tk GUI working, keeps
+the legacy translation reachable, and satisfies the invariant the test is
+actually defending -- opening a screen and saving must not rewrite your
+settings file.
+
+That is a change to the collect path, not a one-line default swap, which is
+why it is still here rather than done. It belongs in this instruction rather
+than 47: 47's scope was "make the suite finish", and this is the classify
+settings design.
+
+NOT A BLOCKER FOR ANYTHING. The test is red, the behaviour is correct, and
+the reason is now written down.
