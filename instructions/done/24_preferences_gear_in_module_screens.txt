@@ -2,8 +2,8 @@
 A PREFERENCES GEAR BESIDE COPY CONSOLE ON THE MODULE SCREENS
 ================================================================================
 
-Status:    REOPENED 2026-08-09 -- the button works, the ICON does not
-           render. Original status:    done 2026-08-08 - gear on every AppScreen right of Copy console, routed through the MainWindow's own dialog.
+Status:    done 2026-08-09. The icon always rendered; it was a third of
+           the button. Original status:    done 2026-08-08 - gear on every AppScreen right of Copy console, routed through the MainWindow's own dialog.
 Requested: 2026-08-06 - "add a preferences button in the mask, measure, classify moduals to the right of copy console (att it as a clickable gear icon)"
 
 --------------------------------------------------------------------------------
@@ -69,3 +69,38 @@ different bug from a correct image drawn in the wrong colour. Note the icon
 cache added on 2026-08-09 stores re-inked icons on disk under
 ~/.spacr/icons -- if the icon was ever cached wrong it will stay wrong, so
 clear that directory when testing.
+
+--------------------------------------------------------------------------------
+2026-08-09 - IT WAS NEVER MISSING. IT WAS 16px.
+--------------------------------------------------------------------------------
+
+The file listed three candidate causes -- missing glyph, wrong ink colour,
+zero size -- and said to distinguish them before fixing. Measured:
+
+    icon('settings').isNull()   False
+    pixmap 24x24 isNull         False
+    opaque sampled pixels       31 of 64
+    colour                      #a1a6ad   (light grey, visible on dark)
+    button                      44 x 38
+    iconSize                    16 x 16
+
+So none of the three. The glyph is present, painted and a perfectly
+visible colour -- it is simply SMALL. `setIconSize` was never called, so it
+took Qt's 16px default.
+
+WHY THAT READS AS INVISIBLE, and why the tests never caught it: this
+project ships `DEFAULT_FONT_SCALE = 1.5`, and the qt suite pins 1.0
+(INVARIANTS 9). Everything beside the gear renders half again as large
+while the icon stays 16px, so on the SHIPPED configuration it is a third
+of its button and reads as an empty square. The suite was measuring the one
+configuration in which it looks least wrong.
+
+Fixed by sizing it with `scaled_px(18)`, so it keeps its proportion at
+every zoom rather than being correct at one:
+
+    font scale 1.0   18px in a 38px button   47% of button height
+    font scale 1.5   27px in a 40px button   68%
+
+Four tests, and the one that matters asserts the icon GROWS with the font
+scale -- a fixed size would pass every other assertion here and still be
+the bug.
