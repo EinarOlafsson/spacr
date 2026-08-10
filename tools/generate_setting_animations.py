@@ -1234,12 +1234,40 @@ def _tracking_scene(painter: Painter, spec: Spec, action: float) -> None:
         )
 
 
-CLUSTERS = (
-    ((75, 78), (100, 65), (119, 91), (89, 107), (132, 54)),
-    ((225, 78), (256, 66), (280, 91), (240, 108), (292, 55)),
-    ((140, 165), (175, 148), (204, 174), (158, 190), (218, 147)),
+def _scatter(
+    center: Tuple[float, float], count: int, rotation: float,
+) -> Tuple[Tuple[float, float], ...]:
+    """A deterministic, evenly covered disc of points.
+
+    The golden angle spreads points without clumping and without a random
+    number generator, so regenerating an animation on another machine
+    produces the same bytes. `rotation` only keeps the three clusters from
+    being copies of each other.
+    """
+    golden = math.pi * (3.0 - math.sqrt(5.0))
+    points = []
+    for index in range(count):
+        angle = rotation + index * golden
+        radius = 32.0 * math.sqrt((index + 0.5) / count)
+        points.append((
+            center[0] + radius * math.cos(angle) * 1.35,
+            center[1] + radius * math.sin(angle),
+        ))
+    return tuple(points)
+
+
+# Fifteen points per cluster rather than five, at DOT_RADIUS rather than 1.5.
+# The old scatter covered ~106 px of a 129,600 px frame, so an animation that
+# changed EVERY point still measured a fifth of a percent -- which is why
+# seven of these sat under the visible-change threshold at once. A sparse
+# scatter is also a poor picture of an embedding.
+CLUSTER_CENTERS = ((100, 82), (260, 82), (177, 168))
+CLUSTERS = tuple(
+    _scatter(center, 15, rotation)
+    for center, rotation in zip(CLUSTER_CENTERS, (0.0, 1.1, 2.3))
 )
 CLUSTER_COLORS = (BLUE, TEAL, MAGENTA)
+DOT_RADIUS = 4.0
 
 
 def _mini_cell(painter: Painter, center: Tuple[float, float], size: float,
@@ -1269,7 +1297,7 @@ def _umap_scene(painter: Painter, spec: Spec, action: float) -> None:
                 painter.line((point, other), _mix(WHITE, 0.12 + 0.08 * count), 0.35)
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster:
-                painter.dot(point, 1.5, color)
+                painter.dot(point, DOT_RADIUS, color)
     elif mode == "min_dist":
         centers = ((100, 84), (260, 82), (176, 166))
         for cluster, color, center in zip(CLUSTERS, CLUSTER_COLORS, centers):
@@ -1283,11 +1311,11 @@ def _umap_scene(painter: Painter, spec: Spec, action: float) -> None:
                     center[0] + (point[0] - original_center[0]) * spread,
                     center[1] + (point[1] - original_center[1]) * spread,
                 )
-                painter.dot(moved, 1.6, color)
+                painter.dot(moved, DOT_RADIUS, color)
     elif mode == "images":
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster:
-                painter.dot(point, 1.7, _mix(color, 1.0 - action))
+                painter.dot(point, DOT_RADIUS, _mix(color, 1.0 - action))
                 _mini_cell(painter, point, 4.5, color, action)
     elif mode == "canvas":
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
@@ -1301,7 +1329,7 @@ def _umap_scene(painter: Painter, spec: Spec, action: float) -> None:
     elif mode == "outlines":
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster:
-                painter.dot(point, 1.5, color)
+                painter.dot(point, DOT_RADIUS, color)
         for box, color in zip(
             ((57, 42, 145, 122), (205, 42, 310, 122), (120, 134, 235, 204)),
             CLUSTER_COLORS,
@@ -1310,7 +1338,7 @@ def _umap_scene(painter: Painter, spec: Spec, action: float) -> None:
     elif mode == "points":
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster:
-                painter.dot(point, 1.7, _mix(color, action))
+                painter.dot(point, DOT_RADIUS, _mix(color, action))
         for center, color in zip(((100, 82), (260, 82), (177, 168)), CLUSTER_COLORS):
             painter.ellipse((center[0] - 43, center[1] - 34,
                              center[0] + 43, center[1] + 34), color, 0.5)
@@ -1319,24 +1347,51 @@ def _umap_scene(painter: Painter, spec: Spec, action: float) -> None:
         painter.line(polygon, _mix(BLUE, 1.0 - action), 0.5, True)
         painter.ellipse((55, 43, 151, 126), _mix(BLUE, action), 0.5)
         for point in CLUSTERS[0]:
-            painter.dot(point, 1.5, BLUE)
+            painter.dot(point, DOT_RADIUS, BLUE)
     elif mode == "noise":
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster:
-                painter.dot(point, 1.5, color)
-        noise = ((33, 45), (330, 48), (320, 190), (45, 196), (180, 35), (300, 135))
+                painter.dot(point, DOT_RADIUS, color)
+        # Six stray points was too little scatter to read as noise, and too
+        # few pixels to measure: this animation changed 0.06% of the frame.
+        noise = (
+            (33, 45), (330, 48), (320, 190), (45, 196), (180, 35), (300, 135),
+            (62, 148), (211, 39), (338, 112), (26, 108), (155, 214), (287, 208),
+            (96, 214), (348, 158), (63, 32), (243, 216), (130, 33), (21, 168),
+            (196, 121), (118, 200), (272, 158), (84, 122), (312, 92), (168, 63),
+        )
         for point in noise:
-            painter.dot(point, 1.6, _mix(WHITE, 1.0 - action))
+            painter.dot(point, DOT_RADIUS, _mix(WHITE, 1.0 - action))
     elif mode == "by_cluster":
+        # The setting decides WHERE the overlaid thumbnails are sampled from:
+        # on, up to image_nr crops per cluster so every cluster is
+        # represented; off, image_nr crops at random across the whole map,
+        # which over-represents whichever cluster is densest. Growing one
+        # thumbnail by two pixels showed neither behaviour, and measured 0.2%.
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster:
-                painter.dot(point, 1.2, _mix(color, 0.45))
-            choice = cluster[0]
-            _mini_cell(painter, choice, 5.0 + 2.0 * action, color)
+                painter.dot(point, DOT_RADIUS, _mix(color, 0.5))
+        scattered = (
+            (CLUSTERS[0][0], CLUSTER_COLORS[0]),
+            (CLUSTERS[0][4], CLUSTER_COLORS[0]),
+            (CLUSTERS[0][9], CLUSTER_COLORS[0]),
+            (CLUSTERS[0][13], CLUSTER_COLORS[0]),
+            (CLUSTERS[1][6], CLUSTER_COLORS[1]),
+            (CLUSTERS[1][11], CLUSTER_COLORS[1]),
+        )
+        per_cluster = tuple(
+            (cluster[index], color)
+            for cluster, color in zip(CLUSTERS, CLUSTER_COLORS)
+            for index in (2, 10)
+        )
+        for point, color in scattered:
+            _mini_cell(painter, point, 9.5, color, 1.0 - action)
+        for point, color in per_cluster:
+            _mini_cell(painter, point, 9.5, color, action)
     elif mode == "dot_size":
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster:
-                painter.dot(point, 0.9 + 3.0 * action, color)
+                painter.dot(point, 1.2 + 5.8 * action, color)
     elif mode == "image_zoom":
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster[::2]:
@@ -1344,7 +1399,7 @@ def _umap_scene(painter: Painter, spec: Spec, action: float) -> None:
     elif mode == "density":
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster:
-                painter.dot(point, 1.5, color)
+                painter.dot(point, DOT_RADIUS, color)
         radius = 12 + 28 * action
         for center in ((100, 82), (260, 82), (177, 168)):
             painter.ellipse(
