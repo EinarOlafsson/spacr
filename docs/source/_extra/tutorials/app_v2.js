@@ -109,8 +109,13 @@ let chapterData = [];
 let audioTimings = null;
 let visualTimings = null;
 let syncRate = 1;
-let userPlaybackRate = 1;
 let programmedVideoRate = 1;
+// The narration is the audible clock. A phone must never have to repair drift
+// by seeking or rate-shifting speech while it is playing; either operation is
+// heard as a skip, repeated consonant, or stretched syllable. The silent
+// visual master can absorb a sub-frame correction without an audible cost.
+const VIDEO_CLOCK_DRIFT_SECONDS = 0.4;
+let videoClockCorrectionPending = false;
 let captionUrl = "";
 let captionTrackLoading = false;
 let toastTimer = null;
@@ -949,17 +954,16 @@ function configureMediaSync() {
   if (!narrationAudioAvailable || !elements.audio.duration ||
       !elements.video.duration || elements.voice.value === "silent") {
     syncRate = 1;
-    userPlaybackRate = 1;
     programmedVideoRate = 1;
     elements.video.defaultPlaybackRate = 1;
     elements.video.playbackRate = 1;
     return;
   }
-  userPlaybackRate = 1;
+  elements.audio.defaultPlaybackRate = 1;
   elements.audio.playbackRate = 1;
   elements.audio.volume = elements.video.volume;
   elements.audio.muted = elements.video.muted;
-  syncAudio(true);
+  seekNarrationToVideo();
 }
 
 function timingDuration(timings, fallback = 0) {
@@ -1016,22 +1020,51 @@ function updateSceneSyncRate(audioSeconds) {
   const referenceTotal = timingDuration(visualTimings, elements.video.duration);
   if (selectedDuration <= 0 || referenceDuration <= 0 || referenceTotal <= 0) return;
   syncRate = elements.video.duration / referenceTotal * referenceDuration / selectedDuration;
-  programmedVideoRate = clamp(syncRate * userPlaybackRate, 0.0625, 16);
-  elements.video.defaultPlaybackRate = syncRate;
+  programmedVideoRate = clamp(syncRate, 0.0625, 16);
+  elements.video.defaultPlaybackRate = programmedVideoRate;
   if (Math.abs(elements.video.playbackRate - programmedVideoRate) > 0.001) {
     elements.video.playbackRate = programmedVideoRate;
   }
-  elements.audio.playbackRate = userPlaybackRate;
+  // Narration remains natural-speed. Scene-duration differences are handled
+  // exclusively by the silent visual master above.
+  elements.audio.defaultPlaybackRate = 1;
+  if (Math.abs(elements.audio.playbackRate - 1) > 0.001) {
+    elements.audio.playbackRate = 1;
+  }
 }
 
-function syncAudio(force = false) {
+// This is the only routine that seeks narration, and callers use it only for
+// an explicit video seek or a load/resume boundary. Normal playback flows in
+// the other direction: stable narration time drives the silent video.
+function seekNarrationToVideo() {
   if (!narrationAudioAvailable || elements.voice.value === "silent" ||
       !elements.audio.duration || !elements.video.duration) return;
   const target = audioTimeFromVideo(elements.video.currentTime);
-  if (force || Math.abs(elements.audio.currentTime - target) > 0.16) {
+  if (Math.abs(elements.audio.currentTime - target) > 0.015) {
     elements.audio.currentTime = Math.min(target, Math.max(0, elements.audio.duration - 0.02));
   }
   updateSceneSyncRate(target);
+}
+
+function setVideoTimeFromNarration(target) {
+  if (!elements.video.duration || videoClockCorrectionPending) return;
+  const bounded = Math.min(
+    Math.max(0, target), Math.max(0, elements.video.duration - 0.02));
+  if (Math.abs(elements.video.currentTime - bounded) <= 0.015) return;
+  videoClockCorrectionPending = true;
+  elements.video.currentTime = bounded;
+}
+
+function syncVideoToNarration(force = false) {
+  if (!narrationAudioAvailable || elements.voice.value === "silent" ||
+      !elements.audio.duration || !elements.video.duration) return;
+  const audioSeconds = elements.audio.currentTime;
+  const target = videoTimeFromAudio(audioSeconds);
+  updateSceneSyncRate(audioSeconds);
+  const drift = Math.abs(elements.video.currentTime - target);
+  if (drift > (force ? 0.015 : VIDEO_CLOCK_DRIFT_SECONDS)) {
+    setVideoTimeFromNarration(target);
+  }
 }
 
 async function loadLessonDetail(isCurrent = () => true) {
@@ -1165,8 +1198,14 @@ function renderTranscript() {
 }
 
 function seekTo(audioSeconds) {
-  elements.video.currentTime = videoTimeFromAudio(audioSeconds);
-  syncAudio(true);
+  if (narrationAudioAvailable && elements.audio.duration &&
+      elements.voice.value !== "silent") {
+    const bounded = Math.min(
+      Math.max(0, audioSeconds), Math.max(0, elements.audio.duration - 0.02));
+    elements.audio.currentTime = bounded;
+    updateSceneSyncRate(bounded);
+  }
+  setVideoTimeFromNarration(videoTimeFromAudio(audioSeconds));
   elements.video.play().catch(() => {});
 }
 
@@ -1188,9 +1227,18 @@ function updatePagination() {
 }
 
 function mediaClock() {
+  if (narrationAudioAvailable && elements.voice.value !== "silent" &&
+      elements.audio.duration) {
+    const duration = audioTimings?.total_duration || elements.audio.duration;
+    const current = Math.min(elements.audio.currentTime || 0, duration);
+    return {
+      current,
+      duration,
+      ratio: duration ? current / duration : 0,
+    };
+  }
   const ratio = elements.video.duration ? elements.video.currentTime / elements.video.duration : 0;
-  const duration = audioTimings?.total_duration ||
-    (narrationAudioAvailable ? elements.audio.duration : elements.video.duration);
+  const duration = elements.video.duration;
   const current = audioTimings ? audioTimeFromVideo(elements.video.currentTime) : ratio * (duration || 0);
   return { current, duration: duration || 0, ratio };
 }
@@ -1400,31 +1448,53 @@ function resetCaptionAppearance() {
 
 elements.search.addEventListener("input", event => renderCurriculum(event.target.value));
 elements.video.addEventListener("play", () => {
-  syncAudio(true);
+  seekNarrationToVideo();
   if (narrationAudioAvailable) {
-    elements.audio.play().catch(() => showToast("Select play again to start narration."));
+    elements.audio.play()
+      .then(() => syncVideoToNarration(true))
+      .catch(() => showToast("Select play again to start narration."));
   }
 });
 elements.video.addEventListener("pause", () => { elements.audio.pause(); saveWatchPosition(); });
-elements.video.addEventListener("seeking", () => syncAudio(true));
-elements.video.addEventListener("timeupdate", () => { syncAudio(false); updateWatchUI(); });
+elements.video.addEventListener("seeking", () => {
+  if (!videoClockCorrectionPending) seekNarrationToVideo();
+});
+elements.video.addEventListener("seeked", () => {
+  if (videoClockCorrectionPending) {
+    videoClockCorrectionPending = false;
+    return;
+  }
+  seekNarrationToVideo();
+});
+elements.video.addEventListener("timeupdate", () => {
+  syncVideoToNarration(false);
+  updateWatchUI();
+});
 elements.video.addEventListener("volumechange", () => { elements.audio.volume = elements.video.volume; elements.audio.muted = elements.video.muted; });
 elements.video.addEventListener("ratechange", () => {
-  if (narrationAudioAvailable && syncRate && elements.voice.value !== "silent") {
+  if (narrationAudioAvailable && elements.voice.value !== "silent") {
     if (Math.abs(elements.video.playbackRate - programmedVideoRate) > 0.001) {
-      userPlaybackRate = clamp(elements.video.playbackRate / syncRate, 0.25, 4);
-      programmedVideoRate = elements.video.playbackRate;
+      // Native controls may offer a visual playback-rate menu. While
+      // narration is selected the visual rate is dictated by scene timing;
+      // accepting that menu's rate would require stretching the voice.
+      elements.video.playbackRate = programmedVideoRate;
     }
-    elements.audio.playbackRate = userPlaybackRate;
+    elements.audio.defaultPlaybackRate = 1;
+    if (Math.abs(elements.audio.playbackRate - 1) > 0.001) {
+      elements.audio.playbackRate = 1;
+    }
   }
 });
 elements.video.addEventListener("ended", markCompleteAtEnd);
 elements.audio.addEventListener("ended", markCompleteAtEnd);
+elements.audio.addEventListener("timeupdate", () => {
+  syncVideoToNarration(false);
+  updateWatchUI();
+});
 elements.audio.addEventListener("loadedmetadata", () => {
   if (!narrationAudioAvailable) return;
   configureMediaSync();
   if (!elements.video.paused) {
-    syncAudio(true);
     elements.audio.play().catch(() => {
       showToast("Select play again to start narration.");
     });
