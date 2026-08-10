@@ -112,6 +112,11 @@ def log_path_for(artifact: Any) -> str:
     Keyed on the full name including its extension, so ``masks.tif`` and
     ``masks.npy`` in one folder get their own ledgers instead of sharing one
     and interleaving two histories.
+
+    :param artifact: the artefact's own path — anything :func:`os.fspath`
+        accepts, so a :class:`pathlib.Path` as readily as a string. Nothing
+        is opened or checked and the file need not exist, which is what lets
+        a ledger be opened for a mask that is about to be written.
     """
     return f"{os.fspath(artifact)}{LOG_SUFFIX}"
 
@@ -124,6 +129,13 @@ def is_curated(artifact: Any) -> bool:
     ledger left by a session that opened the brush and painted nothing is not
     a curated dataset, and reporting it as one would make the flag useless by
     making it always true.
+
+    :param artifact: the artefact itself — the mask or tracks file, not its
+        ledger; the ``.curation.json`` suffix is appended here. Only the
+        sidecar is opened, so the artefact may be absent or unreadable
+        without changing the answer. A sidecar that exists but will not parse
+        answers ``True``: a damaged provenance record is a reason to be
+        suspicious, not grounds for certifying the data as raw.
     """
     path = log_path_for(artifact)
     if not os.path.isfile(path):
@@ -169,6 +181,19 @@ class CurationEdit:
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "CurationEdit":
+        """Rebuild one edit from its :meth:`to_dict` form.
+
+        :param data: a single entry out of a ledger's ``edits`` list. Every
+            key is optional, so an entry written by an older version — or one
+            hand-trimmed in the JSON — loads instead of taking the whole
+            ledger down with it. A missing key becomes an empty value
+            whatever the field declares: ``""`` for ``kind``, ``when`` and
+            ``who``, ``None`` for ``target``, ``0`` for ``n_changed``, ``{}``
+            for ``detail``. A missing ``when`` is therefore ``""`` and not
+            the current time, so a reconstructed edit never claims a
+            timestamp it does not have. Keys this class does not know are
+            dropped; put anything you want kept under ``detail``.
+        """
         return cls(kind=str(data.get("kind", "")),
                    target=data.get("target"),
                    when=str(data.get("when", "")),
@@ -211,7 +236,30 @@ class CurationLog:
 
     def append(self, kind: str, target: Any, *, n_changed: int = 0,
                **detail: Any) -> CurationEdit:
-        """Record one correction and return it."""
+        """Record one correction and return it.
+
+        :param kind: the verb. The curation classes write ``"paint"``,
+            ``"undo"``, ``"join"``, ``"split"`` and ``"delete"``; nothing
+            here restricts it, but it is the key :meth:`counts` groups by and
+            the word :meth:`describe` prints, so a second spelling of an
+            existing action reads as a second kind of edit.
+        :param target: what was corrected, in that kind's own terms — a label
+            for a paint, a track id for a split, a pair of ids for a join.
+            Stored as handed over, and the writer falls back to ``str`` for
+            anything :mod:`json` will not take: a numpy integer comes back
+            out of the ledger as the string ``"7"`` and no longer matches the
+            id it came from, which is why the track operations pass ids
+            through :func:`_plain` first.
+        :param n_changed: how much actually moved — voxels painted, rows
+            re-assigned. Left at its default of 0 the entry cannot be told
+            from an action that did nothing, which is most of what this
+            number is for.
+        :param detail: any further keys worth keeping with the entry: the
+            brush radius, the frame a split happened at, the labels that were
+            overwritten. They land in :attr:`CurationEdit.detail` verbatim
+            and are serialised with the rest of the ledger, so the same
+            ``str`` fallback applies to their values.
+        """
         edit = CurationEdit(kind=str(kind), target=target, who=_user(),
                             n_changed=int(n_changed), detail=dict(detail))
         self._edits.append(edit)
@@ -252,6 +300,15 @@ class CurationLog:
         while a long session is running: a half-written JSON file left by a
         crash would make the whole history unreadable, and the history is the
         one thing that cannot be reconstructed from the data.
+
+        :param path: the ledger file to write, extension and all — no suffix
+            is added, so pass the full ``<artifact>.curation.json`` name or
+            use :meth:`write_beside` to build it. Missing parent directories
+            are created. The bytes go to a hidden ``.<name>.tmp`` sibling and
+            are then renamed over the target, so the destination directory
+            must allow creating a file and not merely overwriting one, and
+            any ledger already at ``path`` is replaced whole rather than
+            appended to.
         """
         target = os.fspath(path)
         parent = os.path.dirname(os.path.abspath(target))
@@ -265,12 +322,26 @@ class CurationLog:
         return target
 
     def write_beside(self, artifact: Any) -> str:
-        """Write to ``<artifact>.curation.json``."""
+        """Write to ``<artifact>.curation.json``.
+
+        :param artifact: the artefact to sit beside. It need not be the one
+            this ledger names: :attr:`artifact` is set when the log is
+            created and is *not* updated here, so a ledger written next to a
+            copy still records which file the edits were actually made to.
+        """
         return self.write(log_path_for(artifact))
 
     @classmethod
     def read(cls, path: Any) -> "CurationLog":
-        """Read a ledger back. A missing file is an empty ledger."""
+        """Read a ledger back. A missing file is an empty ledger.
+
+        :param path: the ledger itself, not the artefact — use
+            :meth:`read_beside` when you have the artefact's name. A path
+            that does not exist gives an empty ledger, which is how a first
+            session starts and why this is safe to call unguarded; a file
+            that exists but is not JSON lets the decode error out rather than
+            reporting the data as never edited.
+        """
         target = os.fspath(path)
         if not os.path.isfile(target):
             return cls()
@@ -284,7 +355,14 @@ class CurationLog:
 
     @classmethod
     def read_beside(cls, artifact: Any) -> "CurationLog":
-        """Read ``<artifact>.curation.json``."""
+        """Read ``<artifact>.curation.json``.
+
+        :param artifact: the artefact whose sidecar to open; the suffix is
+            appended here. No sidecar means an empty ledger whose
+            :attr:`artifact` is ``""`` rather than this name, so a session
+            that intends to write should construct its own log with the
+            artefact rather than editing the one this returns.
+        """
         return cls.read(log_path_for(artifact))
 
 
@@ -336,6 +414,15 @@ class LabelEdit:
         crossed three objects has three previous labels and restoring "the"
         previous label would flatten them into one — which is a *new* editing
         mistake introduced by the undo.
+
+        :param layer: the labels layer to write back into — the same layer
+            the dab was taken from, still the same shape. :attr:`index` holds
+            raw element indices, not world coordinates, so reverting against
+            a re-loaded, re-cropped or differently oriented array silently
+            restores the old labels in the wrong places instead of failing.
+            Only ``set_labels_at`` is used, so the layer's subscribers hear
+            one notification per distinct label restored, not one per
+            element.
         """
         if not len(self.before):
             return 0
@@ -397,12 +484,31 @@ class MaskCuration:
         *layer*, which fires once per dab: a stroke is many dabs and one
         ledger entry, and a view that wants to show the entry has to hear
         about the entry.
+
+        :param fn: called as ``fn(edit)`` with the :class:`CurationEdit` just
+            appended, synchronously, on whichever thread made the edit. Pass
+            a bound method: registration is de-duplicated by equality, and a
+            bound method looked up fresh compares equal to the one already
+            held, so ``subscribe`` twice is a no-op and :meth:`unsubscribe`
+            works — where each fresh lambda is a new object that stacks up
+            and cannot be removed, besides keeping a closed panel alive as a
+            receiver. An exception raised inside ``fn`` is swallowed: the
+            correction has already happened to the data, and one view's
+            failed redraw must not be reported as a failed edit.
         """
         if fn not in self._listeners:
             self._listeners.append(fn)
 
     def unsubscribe(self, fn) -> None:
-        """Stop listening. Safe for something that never subscribed."""
+        """Stop listening. Safe for something that never subscribed.
+
+        :param fn: matched by equality against what :meth:`subscribe` was
+            given, so the usual teardown — handing back the same bound method
+            — removes it, while a lambda can only be removed by passing the
+            very object that was subscribed. Anything not currently
+            registered is ignored rather than raising, so a panel's close
+            handler need not know whether it ever connected.
+        """
         if fn in self._listeners:
             self._listeners.remove(fn)
 
@@ -470,6 +576,23 @@ class MaskCuration:
               radius: Optional[float] = None) -> int:
         """Paint one dab and remember exactly what it changed.
 
+        :param world: the brush centre as ``{axis: coordinate}`` in WORLD
+            units, keyed by the layer's axis names. Axes the mapping leaves
+            out are taken as 0, which is what a 2-D click on a 3-D stack
+            means once the viewer has filled in the slice it is showing. A
+            centre that puts the whole ball off the grid paints nothing and
+            returns 0 rather than raising.
+        :param label: the value to write; ``None`` means :attr:`label`. 0 is
+            background, so painting 0 is an erase — see :meth:`erase`.
+            Elements that already hold this value are not counted, not
+            recorded, and cannot be undone, because nothing happened to them.
+        :param radius: brush radius in world units — µm on a calibrated
+            stack, pixels on an uncalibrated one; ``None`` means
+            :attr:`radius`. The brush is a ball in world space, so on an
+            anisotropic stack it reaches fewer z-slices than y-rows. 0 is not
+            a one-element brush: it covers only an element whose centre the
+            point lands on exactly, so a click at a fractional coordinate
+            changes nothing.
         :returns: how many elements changed.
         """
         label = int(self.label if label is None else label)
@@ -497,7 +620,15 @@ class MaskCuration:
 
     def erase(self, world: Mapping[str, float],
               radius: Optional[float] = None) -> int:
-        """Paint background. The same act; named for what it is."""
+        """Paint background. The same act; named for what it is.
+
+        :param world: the brush centre in world units, exactly as for
+            :meth:`paint`.
+        :param radius: world-space radius; ``None`` means :attr:`radius`, the
+            same default the brush paints with — the eraser has no size of
+            its own, so widening the brush widens this too.
+        :returns: how many elements changed.
+        """
         return self.paint(world, label=0, radius=radius)
 
     # -- undo ---------------------------------------------------------------
@@ -533,7 +664,17 @@ class MaskCuration:
 
     # -- persistence --------------------------------------------------------
     def save_log(self, artifact: Optional[Any] = None) -> str:
-        """Write the ledger beside the artefact. Returns the path."""
+        """Write the ledger beside the artefact. Returns the path.
+
+        :param artifact: what to write beside; the ledger goes to
+            ``<artifact>.curation.json``. Anything falsy — including the
+            default ``None`` — means :attr:`artifact`, which when the session
+            was built without one is only the layer's *name*, so the ledger
+            lands in the process's working directory rather than next to the
+            image. Pass the mask's real path here, or at construction, if
+            that is not what you want. Writing to a different place does not
+            change the artefact name recorded inside the ledger.
+        """
         return self.log.write_beside(artifact or self.artifact)
 
 
@@ -583,12 +724,29 @@ class TrackCuration:
         return sorted(self.tracks["track_id"].unique().tolist())
 
     def frames_of(self, track_id: Any) -> List[Any]:
-        """The frames ``track_id`` appears in, sorted."""
+        """The frames ``track_id`` appears in, sorted.
+
+        :param track_id: matched with ``==`` against the ``track_id`` column,
+            so it has to be the same kind of value the table holds — 3 finds
+            nothing in a table of strings. An id that is not there gives an
+            empty list rather than raising: this is a reader, and the
+            operations do their own existence check. The result is sorted on
+            the frame values themselves, so a frame column of strings sorts
+            lexicographically and ``"10"`` lands before ``"2"``.
+        """
         rows = self.tracks[self.tracks["track_id"] == track_id]
         return sorted(rows["frame"].unique().tolist())
 
     def span(self, track_id: Any) -> Optional[Tuple[Any, Any]]:
-        """``(first frame, last frame)`` of a track, or ``None`` if absent."""
+        """``(first frame, last frame)`` of a track, or ``None`` if absent.
+
+        :param track_id: the track to measure, matched as in
+            :meth:`frames_of`. Unknown gives ``None``, which is how to ask
+            "is this track here at all" in one call. Both ends are inclusive,
+            so a track living in one frame answers with that frame twice
+            rather than an empty or half-open range, and a track with gaps
+            answers with its outer bounds — the span is not the frame count.
+        """
         frames = self.frames_of(track_id)
         return (frames[0], frames[-1]) if frames else None
 
@@ -649,6 +807,15 @@ class TrackCuration:
         forbid, and producing it silently would corrupt the table on the way
         to fixing it.
 
+        :param first: the track that survives. Its id is what every joined
+            row ends up carrying and what downstream analysis will see, so
+            pass the one you want to keep — usually the earlier half, though
+            nothing here requires it.
+        :param second: the track absorbed. Its rows are re-labelled in place,
+            never moved or re-timed, and its id then no longer exists in the
+            table. Nothing checks that the two halves are adjacent or even
+            near each other in time — only that they do not overlap — so this
+            will happily join tracks fifty frames apart if you ask it to.
         :returns: the ledger entry.
         :raises CurationError: on an unknown track, joining a track to
             itself, or a time overlap.
@@ -681,6 +848,15 @@ class TrackCuration:
         at the frame where it changed hands turns one wrong track into two
         right ones.
 
+        :param track_id: the track to break. It keeps the frames before
+            ``at_frame`` and keeps its id, so references to the head stay
+            valid; the tail is what gets renamed.
+        :param at_frame: the first frame of the NEW track — rows at this
+            frame and after are re-assigned, rows before it are left alone.
+            Compared with ``<`` and ``>=``, so it need not be a frame the
+            track actually has; any value with rows on both sides of it
+            works, and one that would leave a side empty is refused rather
+            than quietly doing nothing.
         :returns: the ledger entry, whose ``detail['new_track']`` is the id
             the tail was given.
         :raises CurationError: for an unknown track, or a frame that would
@@ -712,6 +888,12 @@ class TrackCuration:
         The rows go, but the ledger keeps what went: how many rows and which
         frames, so a count that changed between two analyses can be explained
         rather than argued about.
+
+        :param track_id: the track to drop. Every row carrying it goes, in
+            every frame — there is no partial delete, so :meth:`split` the
+            track first if only one end of it is debris. An id that is not in
+            the table raises :class:`CurationError` instead of removing
+            nothing and recording a delete that did not happen.
         """
         self._require_track(track_id)
         frames = self.frames_of(track_id)
@@ -729,6 +911,16 @@ class TrackCuration:
         One call, deliberately. A curated table written without its ledger is
         exactly the reproducibility hole this module exists to close, and
         leaving the second write to the caller is how that happens.
+
+        :param path: where the CSV goes; missing parent directories are
+            created. Two files are written, not one — the ledger lands at
+            ``<path>.curation.json`` beside it, so copying the CSV onward
+            without that sidecar drops the record of every correction. The
+            artefact name inside :attr:`log` is repointed at this path first,
+            so the saved ledger names the file it was saved with rather than
+            whatever the session was opened on. The table is written sorted
+            by track then frame, and any file already at ``path`` is
+            overwritten.
         """
         target = os.fspath(path)
         parent = os.path.dirname(os.path.abspath(target))

@@ -404,17 +404,35 @@ class _LabelIndex:
 
         Half-open (``y1``/``x1`` exclusive) to match skimage ``regionprops.bbox``,
         which is what a database column would hold.
+
+        :param label: the object's integer label in this plane. The index is
+            built from the plane's non-zero pixels, so background (``0``) is
+            never in it, and a label the plane does not hold raises
+            :class:`LabelMissing` rather than returning an empty box.
         """
         i = self._index(label)
         return (int(self.ymin[i]), int(self.ymax[i]) + 1,
                 int(self.xmin[i]), int(self.xmax[i]) + 1)
 
     def area(self, label: int) -> int:
-        """Return the pixel count of ``label``."""
+        """Return the pixel count of ``label``.
+
+        :param label: the object's integer label; one the plane does not hold
+            raises :class:`LabelMissing`. The count is of the label's own
+            pixels in the mask plane, not of the dilated or bounding-box
+            region the crop may end up covering.
+        """
         return int(self.count[self._index(label)])
 
     def centroid(self, label: int) -> Tuple[float, float]:
-        """Return the ``(row, col)`` centroid of ``label``."""
+        """Return the ``(row, col)`` centroid of ``label``.
+
+        :param label: the object's integer label; one the plane does not hold
+            raises :class:`LabelMissing`. The centroid is the unweighted mean
+            of that label's pixel coordinates -- what
+            ``scipy.ndimage.center_of_mass`` computes on the binary region --
+            so the intensity channels never move it.
+        """
         i = self._index(label)
         n = float(self.count[i])
         return (float(self._ysum[i]) / n, float(self._xsum[i]) / n)
@@ -475,6 +493,13 @@ class MergedField:
     def mask_dim(self, object_type: str) -> int:
         """Return the plane index holding ``object_type``'s labels.
 
+        :param object_type: one of :data:`MASK_PLANE_ORDER` -- ``'cell'``,
+            ``'nucleus'``, ``'pathogen'``, ``'organelle'``. ``'cytoplasm'``
+            is refused rather than defaulted: it has no plane on disk, so
+            :meth:`mask_plane` is the only way to get it. The index comes
+            from this field's ``mask_dims``, not from the array, so a
+            settings dict that names a plane the array does not have fails
+            here rather than silently cropping by the wrong stain.
         :raises MaskPlaneMissing: if the type has no plane, or the recorded
             plane index is out of range for this array.
         """
@@ -500,6 +525,13 @@ class MergedField:
         ``'cytoplasm'`` is derived on the fly -- ``measure_crop`` computes it as
         the cell mask with every nucleus / pathogen / organelle pixel zeroed and
         never writes it back to the merged file.
+
+        :param object_type: ``'cell'`` | ``'nucleus'`` | ``'pathogen'`` |
+            ``'organelle'`` come back as a view on the memory-mapped array, so
+            nothing is read off disk until pixels are touched.
+            ``'cytoplasm'`` is the derived plane and costs a full pass over
+            the field to build, so it is cached on this field and every later
+            call is free.
         """
         if object_type != "cytoplasm":
             return np.asarray(self.array[:, :, self.mask_dim(object_type)])
@@ -520,7 +552,15 @@ class MergedField:
         return cyto
 
     def label_index(self, object_type: str) -> _LabelIndex:
-        """Return the cached :class:`_LabelIndex` for ``object_type``'s plane."""
+        """Return the cached :class:`_LabelIndex` for ``object_type``'s plane.
+
+        :param object_type: which plane to index. The cache is keyed on the
+            plane index (``'cytoplasm'`` gets its own key, since it has no
+            plane on disk), so two object types recorded at the same
+            ``mask_dim`` share one index. The scan happens on first use and
+            is kept for the life of the field, which is what makes drawing
+            many objects out of one field a single pass over the plane.
+        """
         key = -1 if object_type == "cytoplasm" else self.mask_dim(object_type)
         idx = self._indices.get(key)
         if idx is None:
@@ -529,7 +569,14 @@ class MergedField:
         return idx
 
     def labels(self, object_type: str = "cell") -> List[int]:
-        """Return every non-zero label present in ``object_type``'s plane."""
+        """Return every non-zero label present in ``object_type``'s plane.
+
+        :param object_type: which plane to list; defaults to ``'cell'``
+            because that is the plane every spaCR run has. Labels come back
+            in ascending order, background (``0``) is never among them, and
+            an empty list means the plane holds no objects at all -- not that
+            the plane is missing, which raises instead.
+        """
         return [int(v) for v in self.label_index(object_type).labels]
 
     # -- windows -----------------------------------------------------------
@@ -539,6 +586,22 @@ class MergedField:
 
         The window may run off any edge; the out-of-array part comes back as
         zeros, which is what the PNG path's ``np.pad`` produces.
+
+        :param y0: first row of the window. May be negative -- that part is
+            padded, not clamped, so the object stays centred in the result.
+        :param y1: one past the last row (half-open). May exceed the field
+            height; the overhang is padded the same way.
+        :param x0: first column, negative allowed as for ``y0``.
+        :param x1: one past the last column, over-wide allowed as for ``y1``.
+        :param channels: plane indices in output order -- result channel
+            ``k`` holds plane ``channels[k]``, and repeating an index
+            repeats the plane. Each must satisfy ``0 <= c < C``; negative
+            indices are rejected rather than wrapped, so ``-1`` is an error
+            and not "the last plane". An empty sequence yields an
+            ``(h, w, 0)`` array here; :func:`extract_crop` rejects it first.
+        :param dtype: dtype of the returned array. ``None`` uses
+            :attr:`crop_dtype`, i.e. what the PNG path would have cropped in;
+            pass one explicitly only to match an array you already hold.
         """
         dtype = self.crop_dtype if dtype is None else np.dtype(dtype)
         H, W, C = self.shape
@@ -560,7 +623,19 @@ class MergedField:
 
     def read_mask_window(self, object_type: str, y0: int, y1: int,
                          x0: int, x1: int) -> np.ndarray:
-        """Read ``object_type``'s label plane over ``[y0:y1, x0:x1]``, zero-padded."""
+        """Read ``object_type``'s label plane over ``[y0:y1, x0:x1]``, zero-padded.
+
+        :param object_type: which label plane to read; ``'cytoplasm'`` is
+            served from the derived (and cached) plane, every other type
+            straight off the memory map.
+        :param y0: first row; may be negative, and the overhang comes back as
+            zeros -- which reads as background, so no label ever appears to
+            run past the edge of the field.
+        :param y1: one past the last row (half-open); may exceed the field
+            height, padded as for ``y0``.
+        :param x0: first column, negative allowed as for ``y0``.
+        :param x1: one past the last column, over-wide allowed as for ``y1``.
+        """
         H, W, _ = self.shape
         if object_type == "cytoplasm":
             plane = self.mask_plane("cytoplasm")
@@ -2285,6 +2360,16 @@ def mask_dims_from_settings(settings: Mapping[str, Any]) -> Dict[str, int]:
     """Return ``{object_type: plane index}`` from a ``measure_crop`` settings dict.
 
     Falls back to :data:`DEFAULT_MASK_DIMS` for anything the dict does not name.
+
+    :param settings: a ``measure_crop`` settings mapping (a live dict or one
+        read back by :func:`crop_settings_from_db`). Only the
+        ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim`` /
+        ``organelle_mask_dim`` keys are read; a key that is absent, blank,
+        the string ``'none'`` or not an integer is skipped rather than
+        raised on. The fallback is all-or-nothing: a dict naming even one
+        plane returns only the planes it named, so an object type it left out
+        has no entry at all -- it is not filled in from
+        :data:`DEFAULT_MASK_DIMS`.
     """
     dims: Dict[str, int] = {}
     for obj in MASK_PLANE_ORDER:
@@ -2343,6 +2428,26 @@ def crop_spec_from_settings(settings: Mapping[str, Any], merged_path: str = "",
     Uses ``png_dims``, ``png_size``, ``normalize``, ``normalize_by``,
     ``use_bounding_box``, ``dialate_pngs``, ``dialate_png_ratios``, ``crop_mode``
     and the ``*_mask_dim`` keys -- i.e. everything that shaped the PNG folder.
+
+    :param settings: the ``measure_crop`` settings. The per-``crop_mode``
+        lists (``png_size``, ``dialate_pngs``, ``dialate_png_ratios``) are
+        indexed by where the chosen object type sits in ``crop_mode``, and
+        fall back to entry 0 when it is not listed there. The crop's
+        channels come from ``png_channel_mapping`` -- or the legacy
+        ``png_dims`` -- via :func:`channels_from_settings`, so the spec is in
+        colour order, not ``png_dims`` list order. A ``normalize`` that is a
+        sequence of any length but 2 is discarded as ``False``.
+    :param merged_path: the ``merged/<fov>.npy`` to record on the spec. The
+        default ``""`` builds a *template* spec, which is what
+        :class:`MergedCropSource` wants: it fills the path (and label) in per
+        row.
+    :param object_type: which mask plane to crop by; ``None`` takes the first
+        entry of ``settings['crop_mode']``. ``'cytoplasm'`` forces
+        ``dilate=False`` whatever the settings say, because
+        ``_measure_crop_core`` hard-disables dilation for it.
+    :param label: the object's ``object_label``. The default ``0`` is
+        background, so it is only meaningful on a template spec -- cutting
+        with it raises :class:`LabelMissing`.
     """
     crop_mode = settings.get("crop_mode", ["cell"])
     if isinstance(crop_mode, str):
@@ -2440,16 +2545,37 @@ class CropSource:
     reason: str = ""
 
     def get(self, row: Any) -> np.ndarray:
-        """Return the crop for ``row`` as a ``(H, W, 3)`` uint8 RGB array."""
+        """Return the crop for ``row`` as a ``(H, W, 3)`` uint8 RGB array.
+
+        :param row: one measurement row -- a mapping, a pandas ``Series``, or
+            any object carrying the fields as attributes. Which fields are
+            required is the implementation's business, not the interface's:
+            :class:`PngCropSource` needs ``png_path`` (or accepts a bare path
+            string), :class:`MergedCropSource` needs the merged file and
+            ``object_label``.
+        """
         raise NotImplementedError
 
     def get_image(self, row: Any):
-        """Return the crop for ``row`` as a PIL ``Image`` in RGB mode."""
+        """Return the crop for ``row`` as a PIL ``Image`` in RGB mode.
+
+        :param row: as for :meth:`get`. PIL is imported inside this method,
+            so a consumer that only ever wants arrays never pays for it.
+        """
         from PIL import Image
         return Image.fromarray(self.get(row))
 
     def get_many(self, rows: Iterable[Any]) -> List[Optional[np.ndarray]]:
-        """Return crops for many rows. Overridden by sources that can batch."""
+        """Return crops for many rows. Overridden by sources that can batch.
+
+        :param rows: rows to crop. The result has one entry per row in the
+            same order, so a caller can zip the two. This base implementation
+            is a plain loop over :meth:`get` and therefore raises on the first
+            row it cannot crop, and so does the one override shipped here,
+            on :class:`MergedCropSource` -- despite the ``Optional`` in the
+            return type, no implementation in this module ever puts ``None``
+            in the list, so a caller need not test for it.
+        """
         return [self.get(r) for r in rows]
 
     def describe(self) -> str:
@@ -2487,7 +2613,16 @@ class PngCropSource(CropSource):
         self.db_path = db_path
 
     def resolve(self, row: Any) -> str:
-        """Return the on-disk PNG path for ``row``, re-anchored under ``root``."""
+        """Return the on-disk PNG path for ``row``, re-anchored under ``root``.
+
+        :param row: a row carrying ``png_path`` (or ``path``), or a bare path
+            string, which is accepted as-is and only re-anchored. A row with
+            neither raises :class:`CropError`. Re-anchoring is attempted only
+            when ``root`` is set and is not already a substring of the path,
+            and only when the path contains a literal ``/<folder>/`` segment;
+            a path that does not is returned untouched even if it points
+            nowhere on this machine, and the failure surfaces on read.
+        """
         path = row if isinstance(row, str) else _row_get(row, "png_path", "path")
         if not path:
             raise CropError("row has no 'png_path'")
@@ -2504,6 +2639,12 @@ class PngCropSource(CropSource):
         Legacy content is converted on load, so this equals
         ``png_view(extract_crop(...))`` for the same object whichever format
         the folder is in.
+
+        :param row: as for :meth:`resolve`. The folder's sidecar -- failing
+            that, this source's ``db_path`` -- is what decides whether the
+            file's channels are reversed on the way back, so the same row can
+            legitimately give different pixels before and after a folder is
+            marked or migrated.
         """
         return read_crop_png(self.resolve(row), db_path=self.db_path)
 
@@ -2548,6 +2689,16 @@ class MergedCropSource(CropSource):
         loads it standalone, outside the package, and asserts the sys.modules
         delta is empty), and a module-scope relative import would break that
         probe. Nothing above this point needs schema.
+
+        :param row: a measurement row. ``merged_path`` or ``path_name`` is
+            used directly, and -- when that path does not exist here --
+            retried as ``<merged_root>/<basename>``, which is how a database
+            written on another machine still resolves. A path that exists
+            nowhere is returned anyway, so the failure arrives later as
+            :class:`MergedFileMissing`. With neither key the name is rebuilt
+            from ``file_name``, or else from ``plateID`` / ``rowID`` /
+            ``columnID`` / ``fieldID`` (all four required), and
+            ``merged_root`` must be set or this raises.
         """
         path = _row_get(row, "merged_path", "path_name")
         if path:
@@ -2592,7 +2743,21 @@ class MergedCropSource(CropSource):
         return os.path.join(self.merged_root, f"{stem}.npy")
 
     def spec_for(self, row: Any) -> CropSpec:
-        """Return the :class:`CropSpec` describing ``row``'s crop."""
+        """Return the :class:`CropSpec` describing ``row``'s crop.
+
+        :param row: a measurement row. The label is the first present of
+            ``object_label``, ``label``, ``cell_id``, ``nucleus_id``,
+            ``pathogen_id``, ``cytoplasm_id``, and a row with none of them
+            raises :class:`CropError`; ``object_type``, if present,
+            overrides the template spec's. ``bbox-0`` .. ``bbox-3`` (or
+            ``bbox_0`` .. ``bbox_3``) are honoured only when all four are
+            there, and are reordered out of the skimage ``regionprops``
+            convention ``(min_row, min_col, max_row, max_col)`` into the
+            spec's ``(y0, y1, x0, x1)`` -- supplying them lets the crop skip
+            the whole-plane label index scan. The mask plane inside that box
+            is still read, unless the spec also sets ``use_bounding_box``,
+            which skips reading the label plane altogether.
+        """
         label = _row_get(row, "object_label", "label", "cell_id", "nucleus_id",
                          "pathogen_id", "cytoplasm_id")
         if label is None:
@@ -2609,7 +2774,14 @@ class MergedCropSource(CropSource):
 
     # -- crops -------------------------------------------------------------
     def get_array(self, row: Any) -> np.ndarray:
-        """Return the raw crop (native dtype, ``spec.channels`` order)."""
+        """Return the raw crop (native dtype, ``spec.channels`` order).
+
+        :param row: a measurement row; :meth:`spec_for` says which fields it
+            has to carry. What comes back is the *pre-write* array -- the
+            merged file's dtype (``uint16`` on a normal run) and as many
+            channels as the spec selects -- not 8-bit RGB. Use :meth:`get`
+            for something a viewer or a classifier can take.
+        """
         spec = self.spec_for(row)
         return extract_crop(spec.merged_path, spec=spec)
 
@@ -2619,11 +2791,24 @@ class MergedCropSource(CropSource):
         Deliberately routed through :func:`png_view`, so what a consumer gets
         here is identical to what :func:`read_crop_png` returns for the same
         object out of the PNG folder -- 16-bit narrowing included.
+
+        :param row: a measurement row; :meth:`spec_for` says which fields it
+            has to carry. Each row is resolved and cut on its own, so use
+            :meth:`get_many` when filling a grid -- it opens each merged file
+            once for the whole batch instead of once per row.
         """
         return png_view(self.get_array(row))
 
     def get_many(self, rows: Iterable[Any]) -> List[Optional[np.ndarray]]:
-        """Return crops for many rows, opening each merged file only once."""
+        """Return crops for many rows, opening each merged file only once.
+
+        :param rows: rows to crop; :meth:`spec_for` says which fields each has
+            to carry. The result has one entry per row in the original order,
+            however the rows were regrouped internally -- they are bucketed by
+            merged file so each ``.npy`` is memory-mapped and label-indexed
+            once for the whole bucket. Every spec is built up front, so one
+            row missing its label fails the batch before any file is opened.
+        """
         rows = list(rows)
         specs = [self.spec_for(r) for r in rows]
         out: List[Optional[np.ndarray]] = [None] * len(specs)
