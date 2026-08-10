@@ -122,9 +122,22 @@ class _PipelinePreloader:
         "spacr.spacr_cellpose",
     )
 
-    def __init__(self):
+    def __init__(self, on_step=None, on_done=None):
+        """
+        :param on_step: called with (completed, total) after each import, so a
+            loading screen can show honest progress -- the denominator is
+            known before the first module is touched.
+        :param on_done: called once, after the last import. This is what takes
+            the loading screen down; without it the screen would have to poll.
+        """
         self._i = 0
         self._started = False
+        self._on_step = on_step
+        self._on_done = on_done
+
+    def total(self) -> int:
+        """How many modules will be imported."""
+        return len(self._MODULES)
 
     def start(self) -> None:
         """Begin the main-thread import chain (no-op if already begun)."""
@@ -139,6 +152,13 @@ class _PipelinePreloader:
         next event-loop tick."""
         from PySide6.QtCore import QTimer
         if self._i >= len(self._MODULES):
+            if self._on_done is not None:
+                try:
+                    self._on_done()
+                except Exception:
+                    LOG.debug("preload completion callback failed",
+                              exc_info=True)
+                self._on_done = None
             return
         mod = self._MODULES[self._i]
         self._i += 1
@@ -149,6 +169,11 @@ class _PipelinePreloader:
             # Preloading is optional, but an import failure still belongs in
             # the diagnostic log so a later first-use failure has context.
             LOG.debug("Could not preload %s", mod, exc_info=True)
+        if self._on_step is not None:
+            try:
+                self._on_step(self._i, len(self._MODULES))
+            except Exception:
+                LOG.debug("preload progress callback failed", exc_info=True)
         # 50 ms between imports so Qt drains its event queue (repaints,
         # input) before the next potentially-blocking import.
         QTimer.singleShot(50, self._step)
@@ -1465,14 +1490,35 @@ class MainWindow(QMainWindow):
         # The AI Console now lives inside each pipeline app's Console
         # panel (see spacr.qt.widgets.console_panel). No side-dock.
 
-        # Preload heavy pipeline imports in a background thread AFTER
-        # the first screen has been built. Kicking it off pre-nav caused
-        # a real circular-import race in spacr.core/IPython on some
-        # systems ("partially initialized module 'IPython'"), so we wait
-        # a moment before starting.
+        # Preload the heavy pipeline imports IMMEDIATELY, behind a loading
+        # screen that covers the window until they land.
+        #
+        # They used to start on a 1500 ms timer, which put a 2.1 s freeze on
+        # a window that already looked interactive -- measured on a real
+        # launch, `spacr.core` alone is 1968 ms and the chain is 3140 ms. The
+        # delay also predates the loading screen: it existed because kicking
+        # the chain off pre-nav once caused a circular-import race in
+        # spacr.core/IPython ("partially initialized module 'IPython'"), and
+        # sleeping through it was the cheap fix. Starting after the first
+        # screen is built still satisfies that, and this call site is after
+        # it.
+        #
+        # The imports stay on the MAIN thread. A worker races Qt's own GPU
+        # init and segfaults -- see the note on _PipelinePreloader. Blocking
+        # the loop is acceptable precisely because nothing interactive is on
+        # screen while it happens.
         from PySide6.QtCore import QTimer
-        self._preloader = _PipelinePreloader()
-        QTimer.singleShot(1500, self._preloader.start)
+        self._loading_screen = self._install_loading_screen()
+        self._preloader = _PipelinePreloader(
+            on_step=self._on_preload_step, on_done=self._on_preload_done)
+        if self._loading_screen is None:
+            # Headless, or the screen could not be built: keep the old
+            # deferred start so a test process is not made to pay 3.1 s of
+            # imports it may not need.
+            QTimer.singleShot(1500, self._preloader.start)
+        else:
+            self._loading_screen.set_total(self._preloader.total())
+            QTimer.singleShot(0, self._preloader.start)
 
         # Keyboard shortcuts — Ctrl+H, Ctrl+1..9, Ctrl+K, F1/?, etc.
         try:
@@ -1498,6 +1544,68 @@ class MainWindow(QMainWindow):
             QTimer.singleShot(800, lambda: maybe_show_tour(self))
         except Exception:
             pass
+
+    def _install_loading_screen(self):
+        """Cover the window with the loading screen, or return ``None``.
+
+        Returns ``None`` under the offscreen platform, which is how the test
+        suite runs: a full-window cover there would hide the widgets every qt
+        test reaches for, and the suite has only just been made to finish
+        (instruction 47). Headless callers therefore keep the old behaviour.
+        """
+        try:
+            from PySide6.QtWidgets import QApplication
+            app = QApplication.instance()
+            if app is not None and app.platformName() == "offscreen":
+                return None
+            from .widgets.loading_screen import LoadingScreen
+            screen = LoadingScreen(parent=self)
+            screen.setGeometry(self.rect())
+            screen.raise_()
+            screen.show()
+            return screen
+        except Exception:
+            # A launch must never fail for want of a splash.
+            LOG.debug("could not install the loading screen", exc_info=True)
+            return None
+
+    def _on_preload_step(self, done: int, total: int) -> None:
+        """Advance the loading screen as each pipeline module lands."""
+        screen = getattr(self, "_loading_screen", None)
+        if screen is None:
+            return
+        try:
+            screen.set_total(total)
+            screen.advance(done)
+            # The imports block the loop, so without an explicit repaint the
+            # screen would jump from empty to full at the end and show no
+            # progress at all.
+            screen.repaint()
+        except RuntimeError:
+            # Deleted underneath us during teardown.
+            self._loading_screen = None
+
+    def _on_preload_done(self) -> None:
+        """Take the loading screen down and hand the window over."""
+        screen = getattr(self, "_loading_screen", None)
+        self._loading_screen = None
+        if screen is None:
+            return
+        try:
+            screen.hide()
+            screen.deleteLater()
+        except RuntimeError:
+            pass
+
+    def resizeEvent(self, event):
+        """Keep the loading screen covering the whole window while it is up."""
+        super().resizeEvent(event)
+        screen = getattr(self, "_loading_screen", None)
+        if screen is not None:
+            try:
+                screen.setGeometry(self.rect())
+            except RuntimeError:
+                self._loading_screen = None
 
     def _resolve_version(self) -> str:
         """Return the installed spacr version string, or ``"dev"`` on failure."""

@@ -180,3 +180,54 @@ Triage these against a NON-coverage run before treating any as a bug: the
 tracer roughly doubles wall time, and `test_perf_guard` is by definition
 timing-sensitive. The 3 in `test_theme_blind_widgets` are already known
 pre-existing (see instruction 47).
+
+--------------------------------------------------------------------------------
+2026-08-10 - SCOPE DECIDED: THE OLD APPLICATION IS OUT.
+--------------------------------------------------------------------------------
+
+Decided 2026-08-10 — "on coverage, skip all code files only related to the
+old application for now."
+
+FOUR FILES belong only to the Tk front end. Excluding them changes the
+picture more than the headline percentage suggests:
+
+    whole package        136,889 stmts   15,227 missing   89%
+    the four Tk files      5,728 stmts    2,145 missing   63%
+    EXCLUDING THEM       131,161 stmts   13,082 missing   90%
+
+    spacr/gui_core.py       998 missing    6%
+    spacr/gui_elements.py   679 missing   82%
+    spacr/gui_utils.py      398 missing   38%
+    spacr/gui.py             70 missing   54%
+
+`gui_core.py` was the single biggest hole in the package -- 998 uncovered
+statements at 6%, more than any other file -- and it is now out of scope.
+That removes the largest and least useful piece of work on this task at a
+stroke: covering the front end that the project is moving away from.
+
+"FOR NOW" IS IN THE DECISION AND SHOULD STAY IN IT. These files are not
+dead: `gui_elements.py` and `gui_utils.py` are still referenced from the qt
+tree (4 and 5 mentions), and the standing rule is that Tk gets UPDATED to
+accommodate new work rather than abandoned. So this is a priority call, not
+a retirement -- if the Tk GUI is ever declared retired, that is a separate
+decision and belongs in its own instruction.
+
+THE REAL TARGET LIST, worst first by uncovered statements:
+
+     650  37%  spacr/active_learning.py
+     458  20%  spacr/anndata_export/__init__.py
+     311  27%  spacr/qt/widgets/feature_dictionary.py
+     305  83%  spacr/qt/screens/annotate.py
+     304  75%  spacr/qt/screens/hyperparam.py
+     303  45%  spacr/qt/screens/foreign.py
+     292  71%  spacr/qt/dnd_handlers.py
+     277  73%  spacr/align.py
+
+The top two are the ones to take first, and not because they are largest:
+`active_learning` and `anndata_export` are live features with real users, at
+37% and 20%, and neither has the ambiguity that made gui_core the wrong
+place to spend a week.
+
+MEASURE IT THE SAME WAY EVERY TIME, or the number means nothing -- add
+`--cov=spacr` and then subtract these four files, rather than passing a
+narrower `--cov` target, so the baseline JSON stays comparable.
