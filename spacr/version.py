@@ -1,4 +1,8 @@
-"""
+"""The installed spaCR version, and the environment report built from it.
+
+Resolves the version from installed package metadata rather than a
+hard-coded string, so a source checkout and an installed wheel agree.
+
 Copyright © 2025 olafsson lab
 """
 

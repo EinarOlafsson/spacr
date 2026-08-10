@@ -535,3 +535,82 @@ better than a guess at what reads well.
 
 Worth checking whether other docstrings use |x| for absolute value -- it is
 a natural thing to write and rST will object every time.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE BUILD IS CLEAN. 231 WARNINGS + 21 ERRORS -> 0 AND 0.
+--------------------------------------------------------------------------------
+
+    baseline               231 warnings   21 errors   182 duplicates
+    after 17 underlines    214            21          182
+    after :noindex: x6      33            21            1
+    this pass                0             0            0
+
+The "Unexpected indentation" class listed above as 16 remaining docstrings
+was ALREADY GONE at the start of this pass -- the rebuild found 17 items
+total, none of them that class. Do not trust a remaining-work list in this
+file without rebuilding first; three of them have now been stale.
+
+THE LAST 17 WERE FOUR CAUSES:
+
+  INLINE LITERAL FOLLOWED BY A WORD CHARACTER, 11 of the 17. ``QPixmap``s,
+  ``QPolygonF``s, ``TorchModel``s, :class:`QueueItem`s, ``factor``x,
+  ``eval``ed. rST requires whitespace or punctuation after an end-string, so
+  every one rendered as an unclosed literal running to the end of the
+  paragraph. Writing the plural inside the backticks is the natural thing to
+  type and it is always wrong; "``QPixmap`` objects" is the fix.
+
+  TWO MALFORMED TABLES. A first-column cell had grown wider than the ====
+  rule above it (``lasso``/``ridge``/``elasticnet`` is 34 characters against
+  a 16-character rule) and spilled into column two. Exactly the "column-width
+  row that stopped matching after an edit" predicted above.
+
+  INDENTED BLOCKS INTRODUCED BY A SINGLE COLON, where ``**kwargs`` and a
+  hand-aligned parameter listing were parsed as inline markup and a
+  definition list. A literal block (``::``) fixes both and keeps the
+  alignment, which was the point of writing it that way.
+
+  ONE CONSTANT ASSIGNED TWICE. mask_io.DEFAULT_FORMAT was written, checked,
+  and rewritten at module level; autoapi documents every module-level
+  binding, so the constant appeared twice. Compute into a private name and
+  bind once.
+
+A GATE THAT PASSED A CORRUPTION, worth recording because it is the same
+shape as the 203-file regex incident. The table rebuild was gated on
+"docutils no longer reports Malformed table" -- and the first attempt passed
+that gate while TRUNCATING every overflowing term at the old column
+boundary, producing ``logit``/``probit  `` and ``lasso``/``ridge`  `. The
+table was well-formed and the content was destroyed. Reverted, and re-run
+with a second gate: the multiset of words in the table's cells must be
+identical before and after. That is the gate that catches a formatter.
+
+The same class of error bit the prose edits: replacing "``QPixmap``s fixes
+the per-frame cost but" dropped the "but". A word-level diff of the whole
+change caught it -- every token removed had to be accounted for by an
+intended substitution. Worth doing on any bulk prose edit.
+
+WHERE THE REST OF THIS TASK STANDS, item by item:
+
+  1. BUILD AND READ IT           build is clean; the read-through is open
+  2. Landing page                says what spaCR is and where to start; it
+                                 did NOT say who it is for, now added
+  3. Consistent docstring shape  open, and the largest remaining piece
+  4. Public surface vs internals ALREADY DONE in conf.py: autoapi_options
+                                 has no `private-members`, so `_helpers` are
+                                 not on the page. But `special-members` IS
+                                 on, and it is all-or-nothing --
+                                 __post_init__ (123 occurrences) is
+                                 dataclass noise while __len__ (105),
+                                 __getitem__, __iter__ and __call__ are
+                                 protocol methods a user needs. Left as the
+                                 maintainer's call rather than decided here.
+  5. Module page purpose line    DONE. 300 of 300 modules have a module
+                                 docstring; 6 were one-liners and 2 of those
+                                 (__main__.py, version.py) said only
+                                 "Copyright (c) 2025 olafsson lab", which is
+                                 not a purpose. Both now describe themselves.
+  6. Rendering defects           DONE -- 0 warnings, 0 errors.
+  7. Coordinate with 61          1151 tooltip links, 0 dead, checked above.
+
+SO WHAT IS LEFT IS ITEM 3 AND THE READ-THROUGH, which is what the original
+request actually asked for and is now worth doing: the markup noise that
+would have buried a real judgement is gone.
