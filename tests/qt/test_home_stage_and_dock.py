@@ -213,15 +213,29 @@ def test_the_stage_is_a_word_on_the_tile_not_only_a_colour(qtbot,
                                                            qt_theme_applied):
     """WCAG 1.4.1: colour is never the only carrier of information.
 
-    A screen reader gets "alpha" out of the accessible description and
-    the tooltip; a colour-blind user gets it out of the tooltip. The
-    hover hue is the fast path, not the only one."""
+    A screen reader gets "alpha" out of the accessible description; a
+    sighted colour-blind user gets it out of the HINT BAR, which is where
+    it moved when the per-tile tooltip was removed. The hover hue is the
+    fast path, not the only one.
+
+    The tooltip used to carry it. That popup was a second copy of the
+    module description drawn over the grid, and removing it would have
+    taken the stage word with it -- so the word moved rather than going
+    away, and this test moved with it.
+    """
+    from PySide6.QtCore import QEvent
+
     page = make_home_page()
     qtbot.addWidget(page)
-    for tile in page.findChildren(AppTile):
+    tiles = page.findChildren(AppTile)
+    assert tiles, "no tiles to check"
+    for tile in tiles:
         word = theme.STAGE_LABEL[tile.stage]
         assert word in tile.accessibleDescription()
-        assert word.lower() in tile.toolTip().lower()
+        assert not tile.toolTip(), (
+            "the per-tile popup is deliberately gone; the hint bar says it")
+        page.eventFilter(tile, QEvent(QEvent.Enter))
+        assert word.lower() in page._hint_bar.text().lower()
 
 
 # ===========================================================================
