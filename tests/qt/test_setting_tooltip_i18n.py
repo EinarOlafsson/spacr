@@ -144,8 +144,19 @@ def test_attached_unknown_setting_uses_localized_generic_fallback():
 
 def test_dictionary_type_name_is_localized():
     from spacr.qt.screens.settings_model import format_tooltip
+    from spacr.settings import expected_types
 
-    swedish = format_tooltip("Controls this setting.", "mask", "plate_dict", "sv")
-    korean = format_tooltip("Controls this setting.", "mask", "plate_dict", "ko")
+    # Any dict-typed setting exercises the "dictionary" type name. The key is
+    # looked up instead of hard-coded because this test used to name
+    # `plate_dict`, which was deleted along with four other unread settings --
+    # a removed setting is absent from `expected_types`, so `_type_hint`
+    # correctly renders no type at all and the check failed for a reason that
+    # had nothing to do with localization.
+    dict_keys = sorted(k for k, t in expected_types.items() if t is dict)
+    assert dict_keys, "no dict-typed setting left to exercise the type name"
+    key = dict_keys[0]
+
+    swedish = format_tooltip("Controls this setting.", "mask", key, "sv")
+    korean = format_tooltip("Controls this setting.", "mask", key, "ko")
     assert "ordbok" in swedish
     assert "사전" in korean
