@@ -6,7 +6,7 @@ Status:    not started, 2026-08-10.
 Requested: 2026-08-10 — "and actually when i think about it i would like to move several settings from the other object settings categories to a new 'advanced settings' category, move settings like remove background, intensity merge split, min distance, etc. but have all the similar settings here organized into sub and sub-sub sections with sub section headers like object filtration, image preprocessing with sub-sub sections for each object (cell, nuclei, pathogen, organelle)."
 
 --------------------------------------------------------------------------------
-WHAT THE STATE IS
+WHAT IS BEING ASKED FOR
 --------------------------------------------------------------------------------
 
 Today the settings panel groups by OBJECT: everything about cells together,
@@ -37,7 +37,7 @@ under two different objects they read as two unrelated knobs; filed under one
 decision applied four times, which is what they are.
 
 --------------------------------------------------------------------------------
-WHY IT MATTERS
+WHAT HAS TO BE CHECKED BEFORE ANY OF IT
 --------------------------------------------------------------------------------
 
 THE PANEL MAY NOT SUPPORT NESTING. Today's category system is FLAT: a
