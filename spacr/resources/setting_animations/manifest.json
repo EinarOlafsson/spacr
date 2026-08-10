@@ -1590,9 +1590,9 @@
       "slug": "n_neighbors",
       "title": "UMAP neighborhood size",
       "validation": {
-        "bytes": 44469,
+        "bytes": 73404,
         "frames": 7,
-        "sha256": "7fd52fe56166b5ab1501bad5fb57c1e41c8f355eb96e0b3bba1cce690c0329fb",
+        "sha256": "bd03244da331bd6d3c1dbd58e8fa2be3bada7e6c749c48088842aa2eec981a88",
         "unique_frames": 4
       }
     },
@@ -1609,9 +1609,9 @@
       "slug": "min_dist",
       "title": "UMAP minimum distance",
       "validation": {
-        "bytes": 72853,
+        "bytes": 151962,
         "frames": 18,
-        "sha256": "f34168be78ac8c77f8ddd73ea5f95043f415f8d90214a1a8054bcce1bac43f43",
+        "sha256": "dd730445f3309f6b605f9f548e6212b2f5362497c11d63990c26c258b194a8f8",
         "unique_frames": 17
       }
     },
@@ -1628,9 +1628,9 @@
       "slug": "plot_images",
       "title": "Show object images",
       "validation": {
-        "bytes": 77133,
+        "bytes": 155434,
         "frames": 18,
-        "sha256": "893feb2a9bd32d9005adf328abaead6325bd773575edb466e676bf77dd0ba4dd",
+        "sha256": "759b02c5303f54728d869d435d4f2df25fe767d56df623c0adf7cf64587eb5b4",
         "unique_frames": 17
       }
     },
@@ -1647,9 +1647,9 @@
       "slug": "remove_image_canvas",
       "title": "Remove image canvas",
       "validation": {
-        "bytes": 84138,
+        "bytes": 133610,
         "frames": 18,
-        "sha256": "485b34bc8254944925b356916542440070992e8089caa0567dc544d9d8b405d0",
+        "sha256": "a834872a535c7d2e58ef0465300b0bc4331901a4745b687c99753cd3854af08c",
         "unique_frames": 17
       }
     },
@@ -1666,10 +1666,10 @@
       "slug": "plot_outlines",
       "title": "Show cluster outlines",
       "validation": {
-        "bytes": 132689,
+        "bytes": 210799,
         "frames": 18,
-        "sha256": "26568985b69149de1baa4d7fb1fcdcf39c9ca15deb5aa6eb3a8b9ce2424fa4c0",
-        "unique_frames": 17
+        "sha256": "81a9d953864e84eda3f669ca6aef17b947e81bc89d7acbadc33ac797c4319a85",
+        "unique_frames": 18
       }
     },
     {
@@ -1685,9 +1685,9 @@
       "slug": "plot_points",
       "title": "Show embedding points",
       "validation": {
-        "bytes": 143064,
+        "bytes": 197614,
         "frames": 18,
-        "sha256": "33659783bbb0033fd3424f95af858b693e7a5fb899522f2d735e0c141f7b4bea",
+        "sha256": "c529acfe8dd1bc03d2191f454ee87ecb757c5852d2feea74319a4f4284e2eb05",
         "unique_frames": 17
       }
     },
@@ -1704,9 +1704,9 @@
       "slug": "smooth_lines",
       "title": "Smooth cluster outlines",
       "validation": {
-        "bytes": 102703,
+        "bytes": 135290,
         "frames": 18,
-        "sha256": "e2c36c2a8ab942ffb85a46ac86a1bbda1eea94eb77e09a4352cfc2af314232b9",
+        "sha256": "4f1652b0a83058ba3cd3567cf384ac239483e0e1ee2c9688205552aa431deff1",
         "unique_frames": 16
       }
     },
@@ -1723,9 +1723,9 @@
       "slug": "remove_cluster_noise",
       "title": "Remove cluster noise",
       "validation": {
-        "bytes": 69688,
+        "bytes": 183632,
         "frames": 18,
-        "sha256": "f4204addeacda9f9023be4271416fbaa83b83bbc0d87d2bb48c5556d39c50d67",
+        "sha256": "e4ea0cdf2fb7884660c1dbe46cb58dc8a6d462c5a1b74cd7fc65cef95a97bd7e",
         "unique_frames": 16
       }
     },
@@ -1742,9 +1742,9 @@
       "slug": "plot_by_cluster",
       "title": "Sample images by cluster",
       "validation": {
-        "bytes": 74766,
+        "bytes": 173674,
         "frames": 18,
-        "sha256": "ed69df69f0f1d021901e311ef0ecd9ba34641ce1341d24c2587f25391d999802",
+        "sha256": "f7e9ca481f364b8e454829bf6c2d3df595c69f64b2147e9d5d8ccc2f6f02b3c0",
         "unique_frames": 17
       }
     },
@@ -1761,10 +1761,10 @@
       "slug": "dot_size",
       "title": "Embedding point size",
       "validation": {
-        "bytes": 63047,
-        "frames": 15,
-        "sha256": "bc3eb2551e51910295be9424d8a33799c1f803ace23fc5291caff7fb6f27088b",
-        "unique_frames": 12
+        "bytes": 153565,
+        "frames": 18,
+        "sha256": "021dc4475e5d58bada1e5c14d9e1a1590a4fa1bca02f8d7abee426593cd967ce",
+        "unique_frames": 17
       }
     },
     {
@@ -1780,9 +1780,9 @@
       "slug": "img_zoom",
       "title": "Embedding image zoom",
       "validation": {
-        "bytes": 78525,
+        "bytes": 113641,
         "frames": 18,
-        "sha256": "15be844d5c4807177532c54175b17a21c56984af6e83600bcc354f4c2afe6909",
+        "sha256": "dabfc839643f76243105ed296eb837b8aa44008094b00504b9b8c8005c44edca",
         "unique_frames": 17
       }
     },
@@ -1801,9 +1801,9 @@
       "slug": "eps",
       "title": "Density clustering radius",
       "validation": {
-        "bytes": 98066,
+        "bytes": 178636,
         "frames": 18,
-        "sha256": "bb0b85cac7dca639ba116d6c584d599299153560914d5000bcf575c5cbce2a1c",
+        "sha256": "92f87620028c6e90fba60e3e328ffe84ad82b96a06cf82b5a89424c52afb9a11",
         "unique_frames": 16
       }
     },
