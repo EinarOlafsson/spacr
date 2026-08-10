@@ -27,6 +27,7 @@ never do.
 from __future__ import annotations
 
 import math
+from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
@@ -322,6 +323,20 @@ class SearchFigureGrid(QWidget):
     def columns(self) -> int:
         """The current column count. 0 while empty."""
         return self._columns
+
+    def figure_path(self, index: int) -> str:
+        """The best file for cell ``index`` -- the PDF when one exists.
+
+        `render_figure_to_png` writes a sibling `.pdf` when the figure
+        format preference is PDF, and the grid necessarily DISPLAYS the
+        PNG, because a PDF cannot be painted into a label. So the file a
+        user should be handed is not always the one on screen.
+        """
+        if not 0 <= index < len(self._cells):
+            return ""
+        png = Path(self._cells[index].source_path)
+        pdf = png.with_suffix(".pdf")
+        return str(pdf if pdf.is_file() else png)
 
     def coordinates(self) -> List[Dict[str, Any]]:
         """The parameter values behind each figure, in arrival order."""
