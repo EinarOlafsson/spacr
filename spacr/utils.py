@@ -6473,6 +6473,27 @@ class SelectChannels:
             img[2, :, :] = 0  # Zero out the blue channel
         return img
 
+def _activation_map_to_2d(activation_map):
+    """Return an activation map shaped for ``imshow``.
+
+    The two ``plot_activation_grid`` implementations disagreed about this:
+    the saliency one transposed a leading 3 to channels-last while the
+    Grad-CAM one did nothing, so ``(3, H, W)`` rendered in one and raised
+    ``TypeError`` in the other, and ``(1, H, W)`` raised in both. Same name,
+    same signature, incompatible inputs.
+
+    Accepts ``(H, W)``, ``(1, H, W)`` and ``(3, H, W)``; anything else is
+    handed back untouched so ``imshow`` still raises rather than this
+    silently reshaping a map it does not understand.
+    """
+    if getattr(activation_map, "ndim", 0) == 3:
+        if activation_map.shape[0] == 1:
+            return activation_map[0]
+        if activation_map.shape[0] == 3:
+            return np.transpose(activation_map, (1, 2, 0))
+    return activation_map
+
+
 class SaliencyMapGenerator:
     """Generate saliency maps and predictions for a binary classifier.
 
@@ -6570,18 +6591,20 @@ class SaliencyMapGenerator:
 
         for i in range(N):
             ax = axs[i // 8, i % 8]
-            saliency_map = saliency[i].cpu().numpy()  # Move to CPU and convert to numpy
+            saliency_map = _activation_map_to_2d(saliency[i].cpu().numpy())
 
-            if saliency_map.shape[0] == 3:  # Channels first, reshape to (H, W, 3)
-                saliency_map = np.transpose(saliency_map, (1, 2, 0))
-
-            # Normalize image channels to 2nd and 98th percentiles
+            # The MAP is always drawn. It used to be inside `if overlay`, so
+            # overlay=False produced a grid of bare class labels on empty
+            # axes -- no input, no map, nothing. overlay now means what its
+            # name says: draw the input UNDER the map, or the map alone.
             if overlay:
                 img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
                 if normalize:
                     img_np = self.percentile_normalize(img_np)
                 ax.imshow(img_np)
                 ax.imshow(saliency_map, cmap='jet', alpha=0.5)
+            else:
+                ax.imshow(saliency_map, cmap='jet')
 
             # Add class label in the top-left corner
             ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
@@ -6744,15 +6767,18 @@ class GradCAMGenerator:
 
         for i in range(N):
             ax = axs[i // 8, i % 8]
-            gradcam_map = gradcam[i].cpu().numpy()
+            gradcam_map = _activation_map_to_2d(gradcam[i].cpu().numpy())
 
-            # Normalize image channels to 2nd and 98th percentiles
+            # Same contract as the saliency twin: the map always draws, and
+            # overlay decides whether the input is drawn beneath it.
             if overlay:
                 img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
                 if normalize:
                     img_np = self.percentile_normalize(img_np)
                 ax.imshow(img_np)
                 ax.imshow(gradcam_map, cmap='jet', alpha=0.5)
+            else:
+                ax.imshow(gradcam_map, cmap='jet')
 
             #ax.imshow(X[i].permute(1, 2, 0).detach().cpu().numpy())  # Original image
             #ax.imshow(gradcam_map, cmap='jet', alpha=0.5)  # Overlay the gradcam map
@@ -10218,20 +10244,29 @@ def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1
         value_col (str): Column containing values to check for outliers. A name
             that is not in the frame raises ``KeyError``.
         method (str): 'iqr' or 'zscore'. Anything else raises ``ValueError``.
-            The two disagree on tiny groups: under 'zscore' a group of one row
-            has an undefined standard deviation and that row is dropped, while
-            under 'iqr' its quartiles collapse onto the value and it is kept.
+            The two now agree on tiny groups: a one-row group has an undefined
+            standard deviation, and since one row cannot be an outlier within
+            its own group it is KEPT under both. It used to be dropped by
+            'zscore' and kept by 'iqr'.
         threshold (float): Multiplier on the IQR (default 1.5), or the z-score
-            cutoff. Under 'zscore' an outlier inflates its own group's standard
+            cutoff. Must be >= 0; a negative value inverts the keep-band and is
+            refused, because under 'iqr' it silently emptied every group with a
+            nonzero IQR. Note ``0`` under 'zscore' still keeps only rows sitting
+            exactly on the group mean, which is what a zero cutoff means.
+            Under 'zscore' an outlier inflates its own group's standard
             deviation, so the usual cutoffs keep far more than 'iqr' does on the
-            same data. Values below zero are not rejected: under 'iqr' a
-            negative threshold inverts the band into an empty interval and every
-            group with a nonzero IQR loses all of its rows, and ``0`` under
-            'zscore' keeps only rows sitting exactly on the group mean.
+            same data -- that is the statistic, not a defect.
 
     Returns:
         pd.DataFrame: A DataFrame with outliers removed.
     """
+    # A negative threshold inverts the band: under 'iqr' it makes the keep
+    # interval empty, so every group with a nonzero IQR loses ALL its rows and
+    # the caller gets a near-empty frame with no error. Refuse it.
+    if threshold < 0:
+        raise ValueError(
+            f"threshold must be >= 0, not {threshold!r}: a negative value "
+            "inverts the keep-band and silently deletes whole groups.")
     grouped = df.groupby(group_col, observed=False)[value_col]
     if method == 'iqr':
         q1 = grouped.transform(lambda values: values.quantile(0.25))
@@ -10244,7 +10279,13 @@ def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1
     elif method == 'zscore':
         mean = grouped.transform('mean')
         std = grouped.transform('std')
+        # A single-row group has std NaN, and NaN comparisons are False, so
+        # 'zscore' used to DELETE every singleton while 'iqr' kept it (its
+        # quartiles collapse onto the value). One row cannot be an outlier
+        # within its own group under either definition; the two methods now
+        # agree instead of disagreeing on the smallest groups.
         keep = (df[value_col] - mean).abs() <= threshold * std
+        keep = keep | std.isna()
     else:
         raise ValueError("method must be 'iqr' or 'zscore'")
     return df.loc[keep]
