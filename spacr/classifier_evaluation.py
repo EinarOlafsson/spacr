@@ -841,6 +841,27 @@ def evaluate_predictions(
 ) -> Dict[str, Any]:
     """Build overall, confusion, calibration, and per-plate evaluation tables.
 
+    :param y_true: true class INDEX per sample, in ``range(n_classes)``. A
+        value outside that range is refused rather than clipped.
+    :param probabilities: ``(n_samples, n_classes)`` predicted probabilities.
+        Its column count defines ``n_classes``.
+    :param sample_paths: one source path per sample, used to derive the
+        per-plate tables. Must be the same length as ``y_true``.
+    :param classes: display names for the columns, in column order. Defaults
+        to ``class_0 ... class_n``; a length that disagrees with the
+        probability columns is refused.
+    :param fold_ids: which held-out fold each sample came from. REQUIRED for
+        temperature calibration and unused otherwise -- the temperature is
+        fitted per held-out fold so no sample is calibrated on itself, which
+        needs at least two distinct folds.
+    :param calibration_method: ``'none'`` (default) or ``'temperature'``.
+        Anything else is refused rather than silently ignored.
+    :param calibration_bins: bin count for the expected-calibration-error
+        estimate. More bins resolve the reliability curve better and make
+        each bin noisier.
+    :raises ValueError: on mismatched lengths, a class index outside the
+        probability columns, an unknown ``calibration_method``, or temperature
+        calibration with fewer than two distinct folds.
     :returns: the evaluation bundle, a dict with six keys:
 
         * ``summary`` — scalar metrics (``n``, accuracy, balanced accuracy,
