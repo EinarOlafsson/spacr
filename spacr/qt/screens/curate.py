@@ -254,5 +254,5 @@ def register(*, section: Optional[str] = None, stage: Optional[str] = None,
         stage=STAGE_ALPHA if stage is None else stage,
         intro=APP_INTRO, cli_note=APP_CLI_NOTE,
         api_module="qt/screens/curate",
-        translations=("Kurera", "Kuratieren", "Curar", "校正", "Curar",
-                      "क्यूरेट", "큐레이트", "Grisja", "Curer"))
+        translations=("Kurera", "Kuratieren", "Curación", "校正", "Curadoria",
+                      "क्यूरेट", "큐레이트", "Grisja", "Curation"))

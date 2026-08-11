@@ -9,11 +9,16 @@ param(
     [string]$Version = "",
     [string]$PackageSpec = "",
     [string]$TorchBackend = "",
+    [string]$Language = "",
     [switch]$DryRun
 )
 
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
+if (-not [string]::IsNullOrWhiteSpace($Language)) {
+    $env:SPACR_INSTALL_LANGUAGE = $Language
+}
+. (Join-Path $PSScriptRoot "generated\installer_messages.ps1")
 $UvVersion = "0.11.32"
 $PythonVersion = "3.12"
 $DefaultExtras = "qt"
@@ -30,7 +35,7 @@ if ([string]::IsNullOrWhiteSpace($TorchBackend)) {
     $TorchBackend = "cpu"
 }
 if ($TorchBackend -notmatch '^[a-z0-9]+$') {
-    throw "Invalid PyTorch backend '$TorchBackend'."
+    throw (Get-SpacrInstallerMessage "invalid_backend" @($TorchBackend))
 }
 
 if ([string]::IsNullOrWhiteSpace($PackageSpec)) {
@@ -48,7 +53,8 @@ $unsafeRoots = @(
     $env:LOCALAPPDATA.TrimEnd("\")
 )
 if ($unsafeRoots -contains $FullInstallRoot) {
-    throw "Refusing unsafe install root '$InstallRoot'. Choose a dedicated SpaCR directory."
+    throw ((Get-SpacrInstallerMessage "unsafe_root" @($InstallRoot)) + " " +
+        (Get-SpacrInstallerMessage "choose_directory"))
 }
 $InstallRoot = $FullInstallRoot
 
@@ -62,17 +68,17 @@ $StagePython = Join-Path $StageVenv "Scripts\python.exe"
 $Launcher = Join-Path $InstallRoot "launch_spacr.pyw"
 $CliLauncher = Join-Path $InstallRoot "spacr.cmd"
 
-Write-Host "spaCR lightweight online installer" -ForegroundColor Cyan
-Write-Host "  application:    $PackageSpec"
-Write-Host "  private Python: $PythonVersion"
-Write-Host "  install root:   $InstallRoot"
-Write-Host "  PyTorch backend: $TorchBackend"
-Write-Host "  resolver guards: $($ResolverGuards -join ', ')"
+Write-Host (Get-SpacrInstallerMessage "installer_title") -ForegroundColor Cyan
+Write-Host "  $(Get-SpacrInstallerMessage 'application'):    $PackageSpec"
+Write-Host "  $(Get-SpacrInstallerMessage 'private_python'): $PythonVersion"
+Write-Host "  $(Get-SpacrInstallerMessage 'install_root'):   $InstallRoot"
+Write-Host "  $(Get-SpacrInstallerMessage 'pytorch_backend'): $TorchBackend"
+Write-Host "  $(Get-SpacrInstallerMessage 'resolver_guards'): $($ResolverGuards -join ', ')"
 
 if ($DryRun -or $env:SPACR_INSTALL_DRY_RUN -eq "1") {
-    Write-Host "DRY RUN: would download $UvInstallUrl"
-    Write-Host "DRY RUN: would create and validate $VenvDir"
-    Write-Host "DRY RUN: would create $Launcher"
+    Write-Host (Get-SpacrInstallerMessage "dry_download" @($UvInstallUrl))
+    Write-Host (Get-SpacrInstallerMessage "dry_create" @($VenvDir))
+    Write-Host (Get-SpacrInstallerMessage "dry_launcher" @($Launcher))
     exit 0
 }
 
@@ -80,14 +86,15 @@ $driveName = [System.IO.Path]::GetPathRoot($InstallRoot)
 $drive = [System.IO.DriveInfo]::new($driveName)
 if ($drive.AvailableFreeSpace -lt 5GB) {
     $available = [math]::Round($drive.AvailableFreeSpace / 1GB, 1)
-    throw "spaCR needs at least 5 GB free while dependencies install; only $available GB is available."
+    throw ((Get-SpacrInstallerMessage "needs_free_space") + " " +
+        (Get-SpacrInstallerMessage "available_space" @($available, $InstallRoot)))
 }
 
 New-Item -ItemType Directory -Force -Path $BootstrapDir, $PythonDir, $CacheDir | Out-Null
 $InstallerScript = Join-Path $env:TEMP ("spacr-uv-installer-" + $PID + ".ps1")
 $LogPath = Join-Path $InstallRoot "install.log"
 Start-Transcript -Path $LogPath -Append | Out-Null
-Write-Host "Detailed installation log: $LogPath"
+Write-Host (Get-SpacrInstallerMessage "detailed_log" @($LogPath))
 
 function Invoke-Checked {
     param(
@@ -96,39 +103,39 @@ function Invoke-Checked {
     )
     & $Command @Arguments
     if ($LASTEXITCODE -ne 0) {
-        throw "$Command failed with exit code $LASTEXITCODE"
+        throw (Get-SpacrInstallerMessage "command_failed" @($Command, $LASTEXITCODE))
     }
 }
 
 try {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    Write-Host "Downloading the pinned uv bootstrap..." -ForegroundColor Cyan
+    Write-Host (Get-SpacrInstallerMessage "downloading_uv") -ForegroundColor Cyan
     Invoke-WebRequest -UseBasicParsing -Uri $UvInstallUrl -OutFile $InstallerScript
 
     $env:UV_UNMANAGED_INSTALL = $BootstrapDir
     $env:UV_NO_MODIFY_PATH = "1"
     & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $InstallerScript
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path $UvExe)) {
-        throw "uv did not install at the expected path: $UvExe"
+        throw (Get-SpacrInstallerMessage "uv_missing" @($UvExe))
     }
 
     $env:UV_PYTHON_INSTALL_DIR = $PythonDir
     $env:UV_CACHE_DIR = $CacheDir
     $env:UV_SYSTEM_CERTS = "true"
 
-    Write-Host "Downloading private Python $PythonVersion..." -ForegroundColor Cyan
+    Write-Host (Get-SpacrInstallerMessage "downloading_python" @($PythonVersion)) -ForegroundColor Cyan
     Invoke-Checked $UvExe python install $PythonVersion --managed-python --no-bin --no-registry
 
     if (Test-Path $StageVenv) {
         Remove-Item -Recurse -Force $StageVenv
     }
-    Write-Host "Creating an isolated spaCR environment..." -ForegroundColor Cyan
+    Write-Host (Get-SpacrInstallerMessage "creating_environment") -ForegroundColor Cyan
     Invoke-Checked $UvExe venv $StageVenv --python $PythonVersion --managed-python --relocatable
 
-    Write-Host "Downloading spaCR, Qt, PyTorch and scientific dependencies..." -ForegroundColor Cyan
+    Write-Host (Get-SpacrInstallerMessage "downloading_dependencies") -ForegroundColor Cyan
     Invoke-Checked $UvExe pip install --python $StagePython --torch-backend $TorchBackend $PackageSpec @ResolverGuards
 
-    Write-Host "Validating the installation before activating it..." -ForegroundColor Cyan
+    Write-Host (Get-SpacrInstallerMessage "validating_install") -ForegroundColor Cyan
     Invoke-Checked $UvExe pip check --python $StagePython
     $env:QT_QPA_PLATFORM = "offscreen"
     Invoke-Checked -Command $StagePython -Arguments @(
@@ -160,8 +167,8 @@ raise SystemExit(run())
         Set-Content -Encoding ASCII $CliLauncher
 
     Write-Host ""
-    Write-Host "spaCR installed successfully." -ForegroundColor Green
-    Write-Host "Launcher: $Launcher"
+    Write-Host (Get-SpacrInstallerMessage "installed") -ForegroundColor Green
+    Write-Host (Get-SpacrInstallerMessage "launcher" @($Launcher))
 } catch {
     if (Test-Path $StageVenv) {
         Remove-Item -Recurse -Force $StageVenv

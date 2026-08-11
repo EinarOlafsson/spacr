@@ -39,6 +39,13 @@ def module_summary(
     reviewed = MODULE_SUMMARIES.get(code, {}).get(str(app_key))
     if reviewed:
         return reviewed
+    try:
+        from .i18n_catalogs import module_summary as external_summary
+        translated = external_summary(app_key, english, code)
+        if translated:
+            return translated
+    except (ImportError, AttributeError):
+        pass
     # Plugins may ship exact translations in their manifest.  Do not apply
     # conservative term substitution to a scientific paragraph: either the
     # plugin supplies the whole sentence or it stays canonical English.

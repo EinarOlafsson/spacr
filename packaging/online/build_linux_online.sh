@@ -10,7 +10,9 @@ VERSION="$(python3 -c 'import ast,pathlib; t=ast.parse(pathlib.Path("setup.py").
 OUT_DIR="dist/online"
 OUT="$OUT_DIR/SpaCR-$VERSION-Linux-x86_64-Online.run"
 mkdir -p "$OUT_DIR"
-sed "s/@SPACR_VERSION@/$VERSION/g" \
-    packaging/online/install_spacr_unix.sh > "$OUT"
+python3 packaging/i18n/render.py \
+    --embed-unix packaging/online/install_spacr_unix.sh \
+    --output "$OUT" \
+    --version "$VERSION"
 chmod 755 "$OUT"
 echo "Built $OUT"

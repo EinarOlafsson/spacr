@@ -2788,8 +2788,10 @@ def _load_bundled_fonts() -> None:
     multiple times (Qt tracks the file path).
     """
     from PySide6.QtGui import QFontDatabase
-    here = os.path.dirname(os.path.abspath(__file__))
-    fonts_dir = os.path.join(here, "resources", "fonts")
+    package_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    fonts_dir = os.path.join(
+        package_dir, "resources", "font", "open_sans", "static"
+    )
     if not os.path.isdir(fonts_dir):
         return
     for name in os.listdir(fonts_dir):
@@ -2836,6 +2838,8 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # dark defaults on the first launch when nothing is stored yet.
     from .preferences import apply_preferences_to_app
     apply_preferences_to_app(app)
+    from .i18n import install_dialog_translation
+    install_dialog_translation(app)
 
     # Real Python logging → rotating file + Qt signal so ConsolePanel
     # can render records inline. Set it up before the launch breadcrumb and

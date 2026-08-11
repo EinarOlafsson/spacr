@@ -109,7 +109,7 @@ APP_TRANSLATIONS = (
     "हिट सूची",
     "히트 목록",
     "Niðurstöðulisti",
-    "Liste des touches",
+    "Liste des résultats",
 )
 from ..widgets.toggle import Toggle
 

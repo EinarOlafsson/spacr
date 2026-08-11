@@ -21,7 +21,7 @@ SetCompressor /SOLID lzma
 
 !define MUI_ABORTWARNING
 !define MUI_FINISHPAGE_RUN
-!define MUI_FINISHPAGE_RUN_TEXT "Launch spaCR"
+!define MUI_FINISHPAGE_RUN_TEXT "$(SPACR_NSIS_LAUNCH)"
 !define MUI_FINISHPAGE_RUN_FUNCTION "LaunchSpaCR"
 
 !insertmacro MUI_PAGE_WELCOME
@@ -31,17 +31,22 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_PAGE_FINISH
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
-!insertmacro MUI_LANGUAGE "English"
+!include "generated\installer_messages.nsh"
 
-Section /o "NVIDIA GPU acceleration (large download)" SecGpu
+Function .onInit
+  !insertmacro MUI_LANGDLL_DISPLAY
+FunctionEnd
+
+Section /o "$(SPACR_NSIS_GPU)" SecGpu
 SectionEnd
 
-Section "spaCR desktop application" SecSpaCR
+Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   SectionIn RO
   SetOutPath "$INSTDIR"
   File /oname=spacr.ico "${SPACR_ICON}"
   SetOutPath "$TEMP\spaCR-online-installer"
   File "install_spacr_windows.ps1"
+  File /r "generated"
 
   StrCpy $1 "cpu"
   SectionGetFlags ${SecGpu} $2
@@ -50,11 +55,34 @@ Section "spaCR desktop application" SecSpaCR
     StrCpy $1 "auto"
   ${EndIf}
 
-  DetailPrint "Downloading Python, Qt, PyTorch and spaCR. This can take several minutes."
-  nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$TEMP\spaCR-online-installer\install_spacr_windows.ps1" -InstallRoot "$INSTDIR" -Version "${VERSION}" -TorchBackend "$1"'
+  ; Keep the bootstrap phase in the language selected in MUI_LANGDLL_DISPLAY,
+  ; even when it differs from the account's Windows display language.
+  StrCpy $3 "en"
+  ${If} $LANGUAGE == ${LANG_SWEDISH}
+    StrCpy $3 "sv"
+  ${ElseIf} $LANGUAGE == ${LANG_GERMAN}
+    StrCpy $3 "de"
+  ${ElseIf} $LANGUAGE == ${LANG_SPANISH}
+    StrCpy $3 "es"
+  ${ElseIf} $LANGUAGE == ${LANG_SIMPCHINESE}
+    StrCpy $3 "zh_CN"
+  ${ElseIf} $LANGUAGE == ${LANG_PORTUGUESE}
+    StrCpy $3 "pt"
+  ${ElseIf} $LANGUAGE == ${LANG_HINDI}
+    StrCpy $3 "hi"
+  ${ElseIf} $LANGUAGE == ${LANG_KOREAN}
+    StrCpy $3 "ko"
+  ${ElseIf} $LANGUAGE == ${LANG_ICELANDIC}
+    StrCpy $3 "is"
+  ${ElseIf} $LANGUAGE == ${LANG_FRENCH}
+    StrCpy $3 "fr"
+  ${EndIf}
+
+  DetailPrint "$(SPACR_NSIS_DOWNLOADING)"
+  nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$TEMP\spaCR-online-installer\install_spacr_windows.ps1" -InstallRoot "$INSTDIR" -Version "${VERSION}" -TorchBackend "$1" -Language "$3"'
   Pop $0
   ${If} $0 != 0
-    MessageBox MB_ICONSTOP "spaCR installation failed with exit code $0. The existing installation, if any, was preserved."
+    MessageBox MB_ICONSTOP "$(SPACR_NSIS_FAILED)"
     Abort
   ${EndIf}
 
@@ -72,6 +100,8 @@ Section "spaCR desktop application" SecSpaCR
   CreateShortcut "$DESKTOP\spaCR.lnk" "$INSTDIR\venv\Scripts\pythonw.exe" '"$INSTDIR\launch_spacr.pyw"' "$INSTDIR\spacr.ico" 0
 
   Delete "$TEMP\spaCR-online-installer\install_spacr_windows.ps1"
+  Delete "$TEMP\spaCR-online-installer\generated\installer_messages.ps1"
+  RMDir "$TEMP\spaCR-online-installer\generated"
   RMDir "$TEMP\spaCR-online-installer"
 SectionEnd
 
@@ -79,7 +109,7 @@ Function LaunchSpaCR
   ExecShell "open" "$INSTDIR\venv\Scripts\pythonw.exe" '"$INSTDIR\launch_spacr.pyw"'
 FunctionEnd
 
-Section "Uninstall"
+Section "$(SPACR_NSIS_UNINSTALL)"
   Delete "$DESKTOP\spaCR.lnk"
   RMDir /r "$SMPROGRAMS\spaCR"
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\spaCR"

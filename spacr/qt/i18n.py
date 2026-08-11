@@ -327,7 +327,7 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "मापन", "측정", "Mæling", "Mesure"),
     "Annotate": _row(
         "Annotering", "Annotieren", "Anotación", "标注", "Anotação",
-        "एनोटेशन", "주석", "Merking", "Annotation"),
+        "एनोटेशन", "어노테이션", "Merking", "Annotation"),
     "Classify": _row(
         "Klassificering", "Klassifizieren", "Clasificar", "分类", "Classificar",
         "वर्गीकरण", "분류", "Flokkun", "Classification"),
@@ -364,7 +364,7 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Máscaras externas", "बाहरी मास्क", "외부 마스크", "Ytri grímur",
         "Masques externes"),
     "Plate Queue": _row(
-        "Plattkö", "Plattenwarteschlange", "Cola de placas", "板队列",
+        "Plattkö", "Plattenwarteschlange", "Cola de placas", "孔板队列",
         "Fila de placas", "प्लेट कतार", "플레이트 대기열", "Plöturöð",
         "File de plaques"),
     "Batch Runner": _row(
@@ -397,7 +397,7 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Biblioteca de modelos", "मॉडल संग्रह", "모델 라이브러리",
         "Líkanasafn", "Bibliothèque de modèles"),
     "Plate Viewer": _row(
-        "Plattvisare", "Plattenansicht", "Visor de placas", "板查看器",
+        "Plattvisare", "Plattenansicht", "Visor de placas", "孔板查看器",
         "Visualizador de placas", "प्लेट व्यूअर", "플레이트 뷰어",
         "Plötuskoðari", "Visionneuse de plaques"),
     "Annotator Agreement": _row(
@@ -595,8 +595,10 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Ensaio de placas", "प्लाक परीक्षण", "플라크 분석", "Skellugreining",
         "Test de plaques"),
     "Recruitment": _row(
-        "Rekrytering", "Rekrutierung", "Reclutamiento", "募集",
-        "Recrutamento", "भर्ती", "모집", "Söfnun", "Recrutement"),
+        "Rekryteringsanalys", "Rekrutierungsanalyse",
+        "Ensayo de reclutamiento", "募集分析", "Ensaio de recrutamento",
+        "रिक्रूटमेंट विश्लेषण", "리크루트먼트 분석", "Söfnunargreining",
+        "Test de recrutement"),
     "Invasion Assay": _row(
         "Invasionsanalys", "Invasionsassay", "Ensayo de invasión", "侵袭分析",
         "Ensaio de invasão", "आक्रमण परीक्षण", "침입 분석", "Innrásarpróf",
@@ -1454,7 +1456,7 @@ _TERM_ROWS: Dict[str, tuple[str, ...]] = {
     "Models": _row("Modeller", "Modelle", "Modelos", "模型", "Modelos", "मॉडल", "모델", "Líkön", "Modèles"),
     "Training": _row("Träning", "Training", "Entrenamiento", "训练", "Treinamento", "प्रशिक्षण", "학습", "Þjálfun", "Entraînement"),
     "Validation": _row("Validering", "Validierung", "Validación", "验证", "Validação", "सत्यापन", "검증", "Staðfesting", "Validation"),
-    "Runtime": _row("Körtid", "Laufzeit", "Ejecución", "运行时", "Execução", "रनटाइम", "실행", "Keyrslutími", "Exécution"),
+    "Runtime": _row("Körtid", "Laufzeit", "Tiempo de ejecución", "运行时", "Tempo de execução", "रनटाइम", "실행 시간", "Keyrslutími", "Temps d’exécution"),
     "Reliability": _row("Tillförlitlighet", "Zuverlässigkeit", "Fiabilidad", "可靠性", "Confiabilidade", "विश्वसनीयता", "신뢰성", "Áreiðanleiki", "Fiabilité"),
     "Image": _row("Bild", "Bild", "Imagen", "图像", "Imagem", "छवि", "이미지", "Mynd", "Image"),
     "Images": _row("Bilder", "Bilder", "Imágenes", "图像", "Imagens", "छवियाँ", "이미지", "Myndir", "Images"),
@@ -1463,7 +1465,7 @@ _TERM_ROWS: Dict[str, tuple[str, ...]] = {
     "Nucleus": _row("Cellkärna", "Zellkern", "Núcleo", "细胞核", "Núcleo", "नाभिक", "핵", "Kjarni", "Noyau"),
     "Pathogen": _row("Patogen", "Pathogen", "Patógeno", "病原体", "Patógeno", "रोगजनक", "병원체", "Sýkill", "Pathogène"),
     "Organelle": _row("Organell", "Organelle", "Orgánulo", "细胞器", "Organela", "कोशिकांग", "소기관", "Frumulíffæri", "Organite"),
-    "Segmentation": _row("Segmentering", "Segmentierung", "Segmentación", "分割", "Segmentação", "खंडन", "분할", "Hlutun", "Segmentation"),
+    "Segmentation": _row("Segmentering", "Segmentierung", "Segmentación", "分割", "Segmentação", "छवि विभाजन", "분할", "Hlutun", "Segmentation"),
     "Measurement": _row("Mätning", "Messung", "Medición", "测量", "Medição", "मापन", "측정", "Mæling", "Mesure"),
     "Measurements": _row("Mätningar", "Messungen", "Mediciones", "测量", "Medições", "मापन", "측정", "Mælingar", "Mesures"),
     "Features": _row("Egenskaper", "Merkmale", "Características", "特征", "Características", "विशेषताएँ", "특징", "Eiginleikar", "Caractéristiques"),
@@ -1479,40 +1481,40 @@ _TERM_ROWS: Dict[str, tuple[str, ...]] = {
     "Display": _row("Visning", "Anzeige", "Visualización", "显示", "Exibição", "प्रदर्शन", "표시", "Birting", "Affichage"),
     "Plot": _row("Diagram", "Diagramm", "Gráfico", "绘图", "Gráfico", "प्लॉट", "플롯", "Graf", "Graphique"),
     "Plots": _row("Diagram", "Diagramme", "Gráficos", "绘图", "Gráficos", "प्लॉट", "플롯", "Gröf", "Graphiques"),
-    "Cluster": _row("Kluster", "Cluster", "Clúster", "聚类", "Cluster", "क्लस्टर", "클러스터", "Klasi", "Groupe"),
-    "Clustering": _row("Klustring", "Clustering", "Agrupamiento", "聚类", "Agrupamento", "क्लस्टरिंग", "군집화", "Klösun", "Regroupement"),
+    "Cluster": _row("Kluster", "Cluster", "Clúster", "聚类", "Cluster", "क्लस्टर", "클러스터", "Klasi", "Cluster"),
+    "Clustering": _row("Klustring", "Clustering", "Agrupamiento", "聚类", "Agrupamento", "क्लस्टरिंग", "군집화", "Klösun", "Partitionnement"),
     "Advanced": _row("Avancerat", "Erweitert", "Avanzado", "高级", "Avançado", "उन्नत", "고급", "Ítarlegt", "Avancé"),
     "General": _row("Allmänt", "Allgemein", "General", "常规", "Geral", "सामान्य", "일반", "Almennt", "Général"),
     "Paths": _row("Sökvägar", "Pfade", "Rutas", "路径", "Caminhos", "पथ", "경로", "Slóðir", "Chemins"),
     "Controls": _row("Kontroller", "Kontrollen", "Controles", "控件", "Controles", "नियंत्रण", "컨트롤", "Stýringar", "Contrôles"),
-    "Plate": _row("Platta", "Platte", "Placa", "板", "Placa", "प्लेट", "플레이트", "Plata", "Plaque"),
+    "Plate": _row("Platta", "Platte", "Placa", "孔板", "Placa", "प्लेट", "플레이트", "Plata", "Plaque"),
     "Plates": _row("Plattor", "Platten", "Placas", "板", "Placas", "प्लेट", "플레이트", "Plötur", "Plaques"),
-    "Batch": _row("Batch", "Stapel", "Lote", "批次", "Lote", "बैच", "배치", "Lota", "Lot"),
+    "Batch": _row("Batch", "Batch", "Lote", "批次", "Lote", "बैच", "배치", "Lota", "Lot"),
     "Results": _row("Resultat", "Ergebnisse", "Resultados", "结果", "Resultados", "परिणाम", "결과", "Niðurstöður", "Résultats"),
     "Quality": _row("Kvalitet", "Qualität", "Calidad", "质量", "Qualidade", "गुणवत्ता", "품질", "Gæði", "Qualité"),
-    "Control": _row("Kontroll", "Kontrolle", "Control", "控制", "Controle", "नियंत्रण", "관리", "Stýring", "Contrôle"),
-    "Tracking": _row("Spårning", "Verfolgung", "Seguimiento", "跟踪", "Rastreamento", "ट्रैकिंग", "추적", "Rekjanleiki", "Suivi"),
+    "Control": _row("Kontroll", "Kontrolle", "Control", "对照", "Controle", "नियंत्रण", "대조군", "Viðmið", "Contrôle"),
+    "Tracking": _row("Spårning", "Verfolgung", "Seguimiento", "跟踪", "Rastreamento", "ट्रैकिंग", "추적", "Rakning", "Suivi"),
     "Time": _row("Tid", "Zeit", "Tiempo", "时间", "Tempo", "समय", "시간", "Tími", "Temps"),
     "Calibration": _row("Kalibrering", "Kalibrierung", "Calibración", "校准", "Calibração", "अंशांकन", "보정", "Kvörðun", "Étalonnage"),
     "Summary": _row("Sammanfattning", "Zusammenfassung", "Resumen", "摘要", "Resumo", "सारांश", "요약", "Samantekt", "Résumé"),
     "Confusion matrix": _row("Förväxlingsmatris", "Konfusionsmatrix", "Matriz de confusión", "混淆矩阵", "Matriz de confusão", "भ्रम मैट्रिक्स", "혼동 행렬", "Ruglingsfylki", "Matrice de confusion"),
     "Per-plate metrics": _row("Mätvärden per platta", "Kennzahlen pro Platte", "Métricas por placa", "每板指标", "Métricas por placa", "प्रति-प्लेट मेट्रिक्स", "플레이트별 지표", "Mæligildi á plötu", "Métriques par plaque"),
     "Predictions": _row("Förutsägelser", "Vorhersagen", "Predicciones", "预测", "Previsões", "पूर्वानुमान", "예측", "Spár", "Prédictions"),
-    "Leakage audit": _row("Läckagegranskning", "Datenleckprüfung", "Auditoría de fugas", "泄漏审计", "Auditoria de vazamento", "लीकेज ऑडिट", "누출 감사", "Lekagreining", "Audit des fuites"),
+    "Leakage audit": _row("Dataläckagegranskning", "Datenleckprüfung", "Auditoría de fuga de datos", "数据泄漏审计", "Auditoria de vazamento de dados", "डेटा लीकेज ऑडिट", "데이터 누수 감사", "Gagnalekagreining", "Audit des fuites de données"),
     "Results folder": _row("Resultatmapp", "Ergebnisordner", "Carpeta de resultados", "结果文件夹", "Pasta de resultados", "परिणाम फ़ोल्डर", "결과 폴더", "Niðurstöðumappa", "Dossier de résultats"),
     "Evaluation run": _row("Utvärderingskörning", "Auswertungslauf", "Ejecución de evaluación", "评估运行", "Execução de avaliação", "मूल्यांकन रन", "평가 실행", "Matskeyrsla", "Exécution d’évaluation"),
-    "Scan": _row("Sök", "Scannen", "Escanear", "扫描", "Verificar", "स्कैन करें", "스캔", "Skanna", "Analyser"),
+    "Scan": _row("Sök", "Scannen", "Escanear", "扫描", "Escanear", "स्कैन करें", "스캔", "Skanna", "Scanner"),
     "Open folder": _row("Öppna mapp", "Ordner öffnen", "Abrir carpeta", "打开文件夹", "Abrir pasta", "फ़ोल्डर खोलें", "폴더 열기", "Opna möppu", "Ouvrir le dossier"),
     "Classification": _row("Klassificering", "Klassifizierung", "Clasificación", "分类", "Classificação", "वर्गीकरण", "분류", "Flokkun", "Classification"),
-    "Annotation": _row("Annotering", "Annotation", "Anotación", "标注", "Anotação", "एनोटेशन", "주석", "Merking", "Annotation"),
+    "Annotation": _row("Annotering", "Annotation", "Anotación", "标注", "Anotação", "एनोटेशन", "어노테이션", "Merking", "Annotation"),
     "Classes": _row("Klasser", "Klassen", "Clases", "类别", "Classes", "वर्ग", "클래스", "Flokkar", "Classes"),
     "Optimization": _row("Optimering", "Optimierung", "Optimización", "优化", "Otimização", "अनुकूलन", "최적화", "Bestun", "Optimisation"),
     "stability repeats": _row("stabilitetsupprepningar", "Stabilitätswiederholungen", "repeticiones de estabilidad", "稳定性重复次数", "repetições de estabilidade", "स्थिरता पुनरावृत्तियाँ", "안정성 반복", "stöðugleikaendurtekningar", "répétitions de stabilité"),
     "neighborhood weight": _row("grannskapsvikt", "Nachbarschaftsgewicht", "peso de vecindad", "邻域权重", "peso da vizinhança", "पड़ोस भार", "이웃 가중치", "vægi nágrennis", "poids du voisinage"),
     "stability weight": _row("stabilitetsvikt", "Stabilitätsgewicht", "peso de estabilidad", "稳定性权重", "peso da estabilidade", "स्थिरता भार", "안정성 가중치", "vægi stöðugleika", "poids de stabilité"),
-    "cluster weight": _row("klustervikt", "Clustergewicht", "peso de clúster", "聚类权重", "peso do cluster", "क्लस्टर भार", "클러스터 가중치", "vægi klasa", "poids des groupes"),
+    "cluster weight": _row("klustervikt", "Clustergewicht", "peso de clúster", "聚类权重", "peso do cluster", "क्लस्टर भार", "클러스터 가중치", "vægi klasa", "poids des clusters"),
     "Loss": _row("Förlust", "Verlust", "Pérdida", "损失", "Perda", "हानि", "손실", "Tap", "Perte"),
-    "Inference": _row("Inferens", "Inferenz", "Inferencia", "推理", "Inferência", "अनुमान", "추론", "Ályktun", "Inférence"),
+    "Inference": _row("Inferens", "Inferenz", "Inferencia", "推理", "Inferência", "इंफरेंस", "추론", "Ályktun", "Inférence"),
     "Storage": _row("Lagring", "Speicher", "Almacenamiento", "存储", "Armazenamento", "भंडारण", "저장", "Geymsla", "Stockage"),
 }
 
@@ -1657,6 +1659,21 @@ def _exact_translation(source: str, language: str) -> Optional[str]:
     catalog = CATALOGS.get(language, {})
     if source in catalog:
         return catalog[source]
+    # TERM_CATALOGS also contains reviewed multi-word scientific phrases.
+    # The word-by-word fallback below cannot ever match those dictionary keys,
+    # so take an exact phrase before decomposing a short label into tokens.
+    term_catalog = TERM_CATALOGS.get(language, {})
+    if source in term_catalog:
+        return term_catalog[source]
+    try:
+        from .i18n_catalogs import ui_text
+        translated = ui_text(source, language)
+        if translated is not None:
+            return translated
+    except (ImportError, AttributeError):
+        # External catalogs add coverage; their absence must not make the
+        # compact core catalog unavailable.
+        pass
     try:
         from spacr.plugins import discover_plugins
         for plugin in discover_plugins():
@@ -1677,6 +1694,15 @@ def _exact_translation(source: str, language: str) -> Optional[str]:
         if "&&" in source:
             translated = translated.replace("&", "&&")
         return f"&{translated}" if mnemonic else translated
+    try:
+        from .i18n_catalogs import ui_text
+        translated = ui_text(lookup, language)
+        if translated is not None:
+            if "&&" in source:
+                translated = translated.replace("&", "&&")
+            return f"&{translated}" if mnemonic else translated
+    except (ImportError, AttributeError):
+        pass
 
     # Section headers are often uppercased before they reach QLabel.
     if source.isupper():
@@ -1878,7 +1904,8 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
         from PySide6.QtGui import QAction
         from PySide6.QtWidgets import (
             QAbstractButton, QComboBox, QGroupBox, QLabel, QLineEdit,
-            QPlainTextEdit, QTableWidget, QTabWidget, QTextEdit, QWidget,
+            QPlainTextEdit, QTableWidget, QTabWidget, QTextEdit, QTreeWidget,
+            QWidget,
         )
     except Exception:
         return
@@ -1912,8 +1939,45 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
         # Translating their contents during a language switch would mutate
         # user/provider text rather than application chrome.
         dynamic_text = _refresh_dynamic_text(widget, code)
+        semantic_setting_text = False
+        setting_key = widget.property("settingKey")
+        settings_app_key = widget.property("settingsAppKey")
+        if (isinstance(widget, (QLabel, QAbstractButton))
+                and setting_key and settings_app_key
+                and not dynamic_text
+                and not widget.property("i18nSkipText")):
+            try:
+                current = str(widget.text() or "")
+                source = widget.property("_spacr_i18n_setting_text")
+                if source is None:
+                    source = current
+                    if source:
+                        widget.setProperty(
+                            "_spacr_i18n_setting_text", str(source))
+                if source:
+                    rendered = None
+                    # The compact catalog contains manually reviewed terms and
+                    # therefore remains authoritative when it has this exact
+                    # visible label.  The context-keyed catalog fills the much
+                    # larger settings surface and app-specific labels.
+                    if str(source) in _ROWS or str(source) in _TERM_ROWS:
+                        rendered = tr(str(source), code)
+                    else:
+                        from .i18n_catalogs import setting_label
+                        rendered = setting_label(
+                            str(setting_key), str(source), code,
+                            str(settings_app_key),
+                        )
+                        if rendered is None:
+                            rendered = tr(str(source), code)
+                    if rendered:
+                        widget.setText(str(rendered))
+                        semantic_setting_text = True
+            except (AttributeError, RuntimeError, TypeError):
+                pass
         if (isinstance(widget, (QLabel, QAbstractButton))
                 and not dynamic_text
+                and not semantic_setting_text
                 and not widget.property("i18nSkipText")):
             _translate_qt_text(
                 widget, "text", "setText", "_spacr_i18n_text", code)
@@ -1943,6 +2007,20 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
                 item = widget.horizontalHeaderItem(index)
                 if item is not None and source:
                     item.setText(tr(source, code))
+        if isinstance(widget, QTreeWidget):
+            sources = getattr(widget, "_spacr_i18n_header_sources", None)
+            if sources is None or len(sources) != widget.columnCount():
+                header = widget.headerItem()
+                sources = [
+                    header.text(index) if header is not None else ""
+                    for index in range(widget.columnCount())
+                ]
+                widget._spacr_i18n_header_sources = sources
+            header = widget.headerItem()
+            if header is not None:
+                for index, source in enumerate(sources):
+                    if source:
+                        header.setText(index, tr(source, code))
         if isinstance(widget, QComboBox) and not widget.isEditable():
             if widget.property("i18nSkipItems"):
                 continue
@@ -1955,6 +2033,14 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
                 if translated != source or source in _ROWS:
                     widget.setItemText(index, translated)
         _refresh_module_help(widget, code)
+        try:
+            module_api_key = widget.property("moduleApiAppKey")
+        except (AttributeError, RuntimeError):
+            module_api_key = None
+        set_url = getattr(widget, "set_url", None)
+        if module_api_key and callable(set_url):
+            from .screens.settings_model import api_docs_url
+            set_url(api_docs_url(str(module_api_key), language=code))
 
     actions = []
     try:
@@ -1981,6 +2067,35 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
         pass
 
 
+def install_dialog_translation(app) -> None:
+    """Translate transient Qt dialogs when they are shown.
+
+    File pickers, message boxes, input prompts and progress dialogs are often
+    constructed and executed in one expression, so they do not exist during
+    the main-window language pass.  An application event filter catches only
+    top-level ``QDialog`` show events and applies the same conservative exact
+    catalog translation to their title, labels, buttons and accessible text.
+    Dynamic paths, table data and user text remain outside that traversal.
+    """
+    if app is None or getattr(app, "_spacr_dialog_i18n_filter", None) is not None:
+        return
+    try:
+        from PySide6.QtCore import QEvent, QObject
+        from PySide6.QtWidgets import QDialog
+    except Exception:
+        return
+
+    class _DialogTranslationFilter(QObject):
+        def eventFilter(self, watched, event):  # noqa: N802
+            if event.type() == QEvent.Show and isinstance(watched, QDialog):
+                retranslate_widget_tree(watched)
+            return False
+
+    event_filter = _DialogTranslationFilter(app)
+    app._spacr_dialog_i18n_filter = event_filter
+    app.installEventFilter(event_filter)
+
+
 __all__ = [
     "CATALOGS",
     "DEFAULT_LANGUAGE",
@@ -1993,6 +2108,7 @@ __all__ = [
     "catalog_coverage",
     "current_language",
     "has_translation",
+    "install_dialog_translation",
     "language_choices",
     "normalize_language",
     "retranslate_widget_tree",
