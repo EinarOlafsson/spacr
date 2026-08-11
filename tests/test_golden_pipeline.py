@@ -849,12 +849,25 @@ class TestStage3Classify:
                                                               scores):
         """(DERIVED) The crop's histogram *is* the segmentation, in 8 bits.
 
-        In channel 0 exactly ``NUCLEUS_AREA`` pixels hold the nucleus grey
-        level and exactly ``PATHOGEN_AREA`` hold 255; in channel 1 exactly
-        ``CELL_AREA - NUCLEUS_AREA - PATHOGEN_AREA`` hold 255. So the crop
-        the classifier reads carries the same areas the measurement tables
-        report, and a crop pipeline that resized, padded or re-thresholded
-        would change these counts without changing any table.
+        WHICH SLOT HOLDS WHICH SOURCE CHANNEL. ``png_dims=[0, 1]`` is the
+        legacy spelling, and :func:`spacr.crops.png_dims_to_channel_mapping`
+        translates it to ``{'r': None, 'g': 1, 'b': 0}``: entry 0 is BLUE,
+        entry 1 is green, red is the empty plane. That is not an accident of
+        cv2 -- microscope channels arrive in wavelength order, so channel 0
+        is the 405 nuclear stain and belongs in blue, and every crop spaCR
+        wrote before 2026-07-26 is in exactly this layout.
+
+        This test used to read source channel 0 out of the RED slot. That is
+        format 2, which `spacr/crops.py` documents outright as "the format
+        that is wrong": it was written between 2026-07-26 and 2026-08-06,
+        this file landed on 2026-08-03 inside that window, and when 2cab81f7
+        restored the declared mapping the expectation was left behind. The
+        pixels were never wrong; the assertion was.
+
+        So: source channel 0 (nucleus grey and pathogen 255) in BLUE, source
+        channel 1 (cytoplasm 255, pathogen ``PATHOGEN_GREY_CH1``) in GREEN,
+        and RED the zero plane -- because two channels were asked for and
+        the mapping leaves red empty rather than padding at the end.
         """
         from PIL import Image
 
@@ -862,17 +875,17 @@ class TestStage3Classify:
             well_index, label = _crop_key(path)
             image = np.asarray(Image.open(path).convert("RGB"))
             assert image.shape == (PNG_SIDE, PNG_SIDE, 3), path
-            counts0 = dict(zip(*[part.tolist() for part in np.unique(
-                image[:, :, 0], return_counts=True)]))
-            counts1 = dict(zip(*[part.tolist() for part in np.unique(
+            blue = dict(zip(*[part.tolist() for part in np.unique(
+                image[:, :, 2], return_counts=True)]))
+            green = dict(zip(*[part.tolist() for part in np.unique(
                 image[:, :, 1], return_counts=True)]))
             grey = nucleus_grey_level(well_index)
-            assert counts0[grey] == NUCLEUS_AREA[label], path
-            assert counts0[255] == PATHOGEN_AREA[label], path
-            assert counts1[255] == CYTO_LEVEL_PIXELS[label], path
-            assert counts1[PATHOGEN_GREY_CH1] == PATHOGEN_AREA[label], path
-            # Two channels were asked for; the third is zero padding.
-            assert set(np.unique(image[:, :, 2]).tolist()) == {0}, path
+            assert blue[grey] == NUCLEUS_AREA[label], path
+            assert blue[255] == PATHOGEN_AREA[label], path
+            assert green[255] == CYTO_LEVEL_PIXELS[label], path
+            assert green[PATHOGEN_GREY_CH1] == PATHOGEN_AREA[label], path
+            # png_dims named two channels, so the mapping leaves red empty.
+            assert set(np.unique(image[:, :, 0]).tolist()) == {0}, path
 
     @pytest.mark.parametrize("well_index", range(1, 13))
     def test_the_crop_grey_levels_are_the_stretch_of_the_painted_constants(
@@ -885,6 +898,10 @@ class TestStage3Classify:
         (truncating) followed by the high-byte narrowing. They fall
         monotonically because the stretch's upper end rises with the
         pathogen level, which is the invariant beside the twelve values.
+
+        Read out of BLUE, for the reason spelled out in
+        ``test_the_crops_carry_the_object_areas_as_pixel_counts``: source
+        channel 0 is the 405 stain and the declared mapping puts it there.
         """
         from PIL import Image
 
@@ -897,7 +914,7 @@ class TestStage3Classify:
                  if _crop_key(path)[0] == well_index]
         for path in paths:
             image = np.asarray(Image.open(path).convert("RGB"))
-            assert sorted(np.unique(image[:, :, 0]).tolist()) == [
+            assert sorted(np.unique(image[:, :, 2]).tolist()) == [
                 0, expected[well_index - 1], 255], path
 
     def test_the_reference_crop_scores_are_the_sigmoid_of_the_probe(self,
