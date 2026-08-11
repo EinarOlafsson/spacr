@@ -2,8 +2,12 @@
 OPTIMIZE THE spaCR TUTORIALS
 ================================================================================
 
-Status:    complete after the second 1.5.0.4 mobile-smooth publication; the
-           narration transport, timing, pronunciation, and named visuals pass
+Status:    NOT complete, despite what this line used to say. The narration
+           transport, timing, pronunciation and named visuals pass after the
+           second 1.5.0.4 mobile-smooth publication -- that part is done and
+           is what the old status was describing. The AUDIT of the existing
+           lessons is also done, and it is what reopened this: 16 lessons
+           need substantial replacement, and three do not exist yet.
 Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see how they are setup?"
            2026-08-08 — "great. now we need to audit these lessons one at a time.
 
@@ -1856,3 +1860,74 @@ Definition of done
   at -5 dBTP with 0.7/0.5 limiter fallbacks when the decoded AAC still exceeds
   the ceiling. Require a complete zero-change peak pass plus the codec,
   duration, and dead-air verifier before publication.
+
+--------------------------------------------------------------------------------
+2026-08-11 - THE GATE EDITOR BLOCKER IS FIXED. THE STATUS LINE WAS WRONG.
+--------------------------------------------------------------------------------
+
+TWO CORRECTIONS TO THIS FILE, the second larger than the first.
+
+The status line said "complete". The body of this same file ends with 16
+lessons needing substantial replacement and three that do not exist at all
+(Classify, Gate Editor, and the Image UMAP replacement). What was complete
+was the audio and visual pass, which is what that line was really about.
+Corrected above, because a status that contradicts its own body is how a
+task gets skipped.
+
+The Gate Editor section listed a "product mismatch to resolve before
+recording", and it was right:
+
+    "Gate Settings exposes clustering method, eps, minimum samples,
+     scaling, Walk, and Walk steps. The current Cluster button instead
+     opens a separate dialog with its own fixed starting values and
+     directly calls DBSCAN; it does not read the saved clustering
+     settings or execute Walk."
+
+Confirmed exactly, and worse than described. Counting readers outside
+`gate_settings.py`:
+
+    cluster_eps            0        cluster_walk          0
+    cluster_min_samples    0        cluster_walk_steps    0
+    cluster_scale          0
+
+All five were phantom. The first three were not just unread -- the dialog
+opened on 0.30 and 10 while Gate Settings offered and saved 0.5 and 20, so
+the two disagreed about the defaults as well. eps is the parameter that
+decides how many populations DBSCAN finds, so a user who deliberately set
+0.5 got an answer computed at 0.30, with nothing anywhere saying their value
+had been dropped. That is a wrong result, not a missing feature.
+
+FIXED, and the two halves were fixed differently on purpose:
+
+  * eps, min samples and scaling now SEED the cluster dialog from the saved
+    settings. The dialog stays a per-run override -- Gate Settings remains
+    the source of truth -- and `GateEditorSettings()` is the single place
+    each default is written.
+
+  * Walk is IMPLEMENTED rather than removed. The standing instruction is to
+    delete settings nothing uses, and these two qualified; but this file
+    asks for Walk by name as the thing the lesson should demonstrate, so
+    deleting them would have removed a requested feature to satisfy a
+    cleanup. `cluster_walk_candidates` sweeps eps geometrically around the
+    chosen value, scores each radius by silhouette over the clustered
+    points, and `best_cluster_candidate` picks the best that did not discard
+    more than half the objects.
+
+    The noise ceiling is the part that matters. Silhouette alone is
+    maximised by a radius that keeps a handful of tight points and calls
+    everything else debris -- it scores near 1.0 and answers no question.
+
+    Both are PURE FUNCTIONS in `gate_spec.py`, not dialog methods, so the
+    search is testable: a modal `exec()` never returns under the offscreen
+    platform, which is how this would otherwise have gone untested again.
+
+    A walk that finds nothing defensible says so and CLUSTERS NOTHING. It
+    does not quietly fall back to the typed eps, which would present an
+    unsearched radius as if the search had endorsed it.
+
+WHAT THIS UNBLOCKS: the Gate Editor lesson can now demonstrate Walk as the
+mini-search this file wanted -- compare candidate cluster gates visually
+rather than prescribe one eps/min-samples pair.
+
+STILL OPEN, and it is most of the instruction: the 16 replacement lessons,
+the three missing ones, and the acceptance gates at the end of this file.
