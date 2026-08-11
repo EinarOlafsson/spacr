@@ -102,3 +102,38 @@ because both change the data model rather than the drawing:
     thresholds in point 4 stop being per-measurement.
   * Does composition apply across gates on DIFFERENT plane anchors? The
     geometry allows it and the sentence does not exclude it.
+
+--------------------------------------------------------------------------------
+2026-08-11 - THREE SETTINGS FOR THIS FEATURE ALREADY EXIST, AND ARE INERT
+--------------------------------------------------------------------------------
+
+Found while sweeping every settings dataclass for fields nothing reads. Of
+`GateEditorSettings`'s 35 fields, seven had ZERO readers outside
+`gate_settings.py`. Four were clustering and are fixed (see instruction 48).
+The other three belong to THIS instruction:
+
+    voxel_bins: int = 64      "Voxels per axis in the 3D workspace."
+    snap_to_axis: bool = True  snap the camera when a spin ends, so a 3D
+                               gate is finally read from a square-on view
+    spin_speed: float = 1.0
+
+All three are declared, given a widget, saved and reloaded -- and read by
+nothing. `GateEditorPanel.apply_settings` says why in its own docstring:
+"the 3D ones belong to a workspace that does not exist yet".
+
+NOT DELETED, deliberately, and this is the one place that reasoning differs
+from the standing "remove settings nothing uses" rule. These are not
+leftovers from something removed; they are the settings THIS instruction
+needs, written in advance. Deleting them would mean writing them again, and
+`snap_to_axis` in particular encodes a real decision about how a 3D gate is
+finally read -- square-on, so the shape drawn is the shape stored.
+
+WHAT IS STILL WRONG TODAY: they are SHOWN. A control that turns nothing is a
+promise the app does not keep, which is the same defect as the clustering
+ones and is why they turned up in the same sweep. Until this instruction
+lands, the 3D group should either be hidden or carry a visible "not yet
+connected" note -- and when it lands, these three are the first things to
+wire, because the settings are already there.
+
+The count to hold this to: `GateEditorSettings` should end this instruction
+with ZERO fields that nothing reads.

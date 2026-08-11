@@ -67,10 +67,18 @@ MERGE_KEYS: Tuple[str, ...] = (
     "plateID", "rowID", "columnID", "fieldID", "object_label",
 )
 
-#: Clustering algorithms. DBSCAN is the confirmed default: it finds clusters
-#: of any shape and does not need to be told how many there are, which is the
-#: whole problem with k-means on a cytometry scatter.
-CLUSTER_METHODS: Tuple[str, ...] = ("dbscan", "hdbscan", "kmeans")
+#: Clustering algorithms the picker offers, RE-EXPORTED from the module that
+#: implements them so this dialog cannot list one the code does not have.
+#:
+#: That is not hypothetical tidiness. This tuple used to be written here and
+#: read "dbscan", "hdbscan", "kmeans", while `cluster_gates` called DBSCAN
+#: whatever it said -- so choosing k-means returned DBSCAN's answer under
+#: another name. k-means is not in the list any more rather than newly
+#: written, because it has to be told the number of clusters and the gate
+#: editor has no such setting; adding one to justify a list entry is the
+#: wrong way round, and the tooltip beside this control already argues
+#: against k-means on a cytometry scatter.
+from .gate_spec import CLUSTER_METHODS  # noqa: E402  (re-export)
 
 
 @dataclass(frozen=True)
