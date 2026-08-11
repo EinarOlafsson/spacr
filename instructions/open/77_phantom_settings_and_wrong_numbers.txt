@@ -12,7 +12,7 @@ Requested: 2026-08-08 - "remove phantom settings that are not used anyware.
            missleading results"
 
 --------------------------------------------------------------------------------
-WHERE THIS LIST CAME FROM
+WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
 Instruction 48's Gate Editor section turned out to be right about a "product
@@ -51,7 +51,16 @@ number anyone has been given. Treat this file as 23 live defects and one
 loaded gun.
 
 --------------------------------------------------------------------------------
-HOW TO WORK THIS LIST
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A wrong number that looks plausible is more dangerous than a control that
+does nothing: the latter is noticed, while the former can be reported as a
+biological result. Phantom settings also promise behavior the program does
+not provide and make legacy compatibility impossible to reason about.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
 --------------------------------------------------------------------------------
 
 Severity order, not file order. A wrong number that looks right is worse
@@ -64,6 +73,15 @@ exactly that reason. Check the instruction list before deleting.
 
 Every fix needs a test that FAILS without it. The reason this list exists is
 that all 24 passed CI.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Each surviving finding has a focused regression test that fails on the old
+behavior and passes after the fix, the relevant broader test group remains
+green, and settings that are removed or implemented no longer appear as
+unread inert configuration.
 
 --------------------------------------------------------------------------------
 THE FINDINGS

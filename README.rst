@@ -45,6 +45,18 @@
 spaCR
 =====
 
+Languages: `English <README.rst>`_ · `Svenska <docs/i18n/readme/README.sv.rst>`_ ·
+`Deutsch <docs/i18n/readme/README.de.rst>`_ ·
+`Español <docs/i18n/readme/README.es.rst>`_ ·
+`简体中文 <docs/i18n/readme/README.zh_CN.rst>`_ ·
+`Português <docs/i18n/readme/README.pt.rst>`_ ·
+`हिन्दी <docs/i18n/readme/README.hi.rst>`_ ·
+`한국어 <docs/i18n/readme/README.ko.rst>`_ ·
+`Íslenska <docs/i18n/readme/README.is.rst>`_ ·
+`Français <docs/i18n/readme/README.fr.rst>`_
+
+`Translation model attribution <docs/i18n/TRANSLATION_MODELS.md>`_
+
 **Spatial phenotype analysis of CRISPR screens.**
 
 spaCR segments and measures single cells in high-content microscopy images,
@@ -107,9 +119,9 @@ Installation details
 
 .. spacr-installer-links-begin
 
-* `Windows 10/11: download SpaCR 1.5.0.1 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.1/SpaCR-1.5.0.1-Windows-Online-Setup.exe>`_
-* `macOS 11+ (Intel and Apple silicon): download SpaCR 1.5.0.1 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.1/SpaCR-1.5.0.1-macOS-Universal-Online.pkg>`_
-* `64-bit Linux: download SpaCR 1.5.0.1 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.1/SpaCR-1.5.0.1-Linux-x86_64-Online.run>`_
+* `Windows 10/11: download SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe>`_
+* `macOS 11+ (Intel and Apple silicon): download SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg>`_
+* `64-bit Linux: download SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run>`_
 
 .. spacr-installer-links-end
 
@@ -123,6 +135,11 @@ the installation from pulling several gigabytes of CUDA libraries
 unannounced. Windows offers NVIDIA acceleration as an optional installer
 component, Linux accepts ``--torch-backend auto``, and the standard macOS
 PyTorch wheel keeps Apple MPS acceleration.
+
+Installer help, progress and errors follow the operating-system language in
+all ten spaCR languages: English, Swedish, German, Spanish, Simplified
+Chinese, Portuguese, Hindi, Korean, Icelandic and French. Unsupported locales
+fall back to English.
 
 On Linux, make the downloaded installer executable before opening it:
 

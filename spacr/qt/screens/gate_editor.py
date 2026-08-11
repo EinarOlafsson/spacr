@@ -1068,9 +1068,9 @@ APP_CLI_NOTE = (
 #: The display name in the nine non-English UI languages, in
 #: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
 APP_NAME_TRANSLATIONS = (
-    "Grindredigerare", "Gate-Editor", "Editor de compuertas",
+    "Gate-redigerare", "Gate-Editor", "Editor de compuertas",
     "门控编辑器", "Editor de gates", "गेट संपादक", "게이트 편집기",
-    "Hliðaritill", "Éditeur de fenêtres")
+    "Gate-ritill", "Éditeur de gates")
 
 
 def register() -> bool:
