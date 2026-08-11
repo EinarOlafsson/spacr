@@ -72,3 +72,42 @@ def test_a_cell_with_no_measurable_peak_still_counts_in_the_denominator():
     out = summarize_per_well(frame)
     assert int(out["cells_per_well"][0]) == 20, (
         "cells with no amplitude were dropped from the denominator")
+
+
+# ---------------------------------------------------------------------------
+# the two halves of the key are each load-bearing
+# ---------------------------------------------------------------------------
+
+def test_a_timelapse_track_is_one_cell_not_one_per_timepoint():
+    """The correction to the correction.
+
+    My first fix counted ``ID``. That is right for multi-field data and WRONG
+    for timelapse: a timelapse key carries the timepoint --
+    ``plate1_r1_c1_f1_t3_o7`` -- so the same tracked cell at t3 and t4 counts
+    twice and peaks_per_cell comes out too LOW. An existing contract test
+    caught it, and states the rule: the object key identifies a TRACK.
+
+    field + object is right for both -- the field disambiguates the
+    restarting labels, and the timepoint is left out of the identity.
+    """
+    frame = pd.DataFrame([
+        {"ID": "plate1_r1_c1_f1_t3_o7", "amplitude": 1.0, "infected": 0},
+        {"ID": "plate1_r1_c1_f1_t4_o7", "amplitude": 1.0, "infected": 0},
+        {"ID": "plate1_r1_c1_f1_t3_o8", "amplitude": 1.0, "infected": 0},
+    ])
+    out = summarize_per_well(frame)
+
+    assert int(out["cells_per_well"][0]) == 2, "a track was counted per timepoint"
+    assert int(out["peaks_per_well"][0]) == 3
+    assert out["peaks_per_cell"][0] == pytest.approx(1.5)
+
+
+def test_the_same_label_in_two_fields_is_two_cells():
+    """The other half, stated on its own: object_number alone undercounts."""
+    frame = pd.DataFrame([
+        {"ID": "plate1_r1_c1_f1_o1", "amplitude": 1.0, "infected": 0},
+        {"ID": "plate1_r1_c1_f2_o1", "amplitude": 1.0, "infected": 0},
+    ])
+    out = summarize_per_well(frame)
+    assert int(out["cells_per_well"][0]) == 2, (
+        "the same label in two different fields was counted as one cell")
