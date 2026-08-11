@@ -163,6 +163,12 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: module but had no category, so they rendered ungrouped. Extending this set
 #: is fine; it exists so that "the union grew" is always a deliberate act.
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # Instruction 71's two opt-in measurements. Both were added to the
+    # measure defaults and to NO group, so they fell into the trailing
+    # "Other" bucket -- which is not a heading anyone chose, it is the
+    # absence of one. They now sit in Measurements beside
+    # calculate_correlation, which is what they extend.
+    "corrected_manders", "spatial_measurements",
     # The Classify overhaul: a crop source that says where images come from,
     # the on-demand settings it reveals, the path filter that replaced
     # png_type, and real normalisation choices.
