@@ -4948,9 +4948,32 @@ def analyze_class_proportion(settings):
         for col in df.columns:
             print(col)
     
+    # NaN -> class 0, and SAY SO. The fill is a deliberate choice, pinned by
+    # tests/test_cov_submodules_class_proportion.py: an object the classifier
+    # did not call counts as the negative class rather than vanishing from
+    # the contingency table.
+    #
+    # It is the right answer when the column is a CLASSIFIER OUTPUT, where
+    # every object was scored and NaN means "below threshold". It is the
+    # wrong answer when the column is an ANNOTATION, where NaN means "nobody
+    # looked": annotate 500 of 40,000 cells as classes 1 and 2 and the other
+    # 39,500 arrive as a class-0 majority that decides the chi-squared on its
+    # own.
+    #
+    # Not flipped here, because that would break the case it is right for.
+    # Reported instead, so the second case stops being silent -- a user who
+    # reads "39500 of 40000 objects have no value" knows at once which
+    # situation they are in.
+    _missing = int(df[settings['class_column']].isna().sum())
+    if _missing:
+        print(f"{_missing} of {len(df)} objects have no value in "
+              f"{settings['class_column']!r} and are counted as class 0. If "
+              f"that column is an annotation rather than a classifier call, "
+              f"those are simply unannotated objects and the proportions "
+              f"below are dominated by them.")
     df[settings['class_column']] = df[settings['class_column']].fillna(0)
     output['data'] = df
-    
+
     # Perform chi-squared test and plot
     results_df, pairwise_results, fig = plot_proportion_stacked_bars(settings, df, settings['group_column'], bin_column=settings['class_column'], level=settings['level'])
     
