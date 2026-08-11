@@ -332,3 +332,57 @@ THE AGENT THAT MEASURED THIS WAS TOLD the diagnosis and told it could reject
 it. It confirmed all three MECHANICS and refuted the PREMISE, which is the
 outcome that makes asking worthwhile. Nothing was implemented from this
 plan -- the apply phase runs only on confirmed designs.
+
+--------------------------------------------------------------------------------
+2026-08-10 - DONE. ALL FOUR ITEMS RESOLVED, ONE OF THEM BY REFUTATION.
+--------------------------------------------------------------------------------
+
+    (1) the Manders error          FIXED   corrected_manders, default False
+    (2) features already computed  REFUTED with numbers; the one free win taken
+    (3) neighbours / local density FIXED   spatial_measurements, default False
+    (4) the coloc column deletion  FIXED   filter_dataframe_features
+
+CRITERIA, checked rather than asserted:
+
+  * The default run is unchanged. Both new families are off by default,
+    verified through the real settings factory, so no existing plate gains a
+    column or a second of runtime.
+  * Every new setting states its default in its tooltip. They were reaching
+    settings.get() undeclared at first -- working at runtime, invisible in the
+    GUI, no tooltip, no type -- which would have shipped a feature nobody
+    could switch on.
+  * The wrong Manders columns were NOT redefined. manders_m1, manders_m2 and
+    manders_overlap_coefficient sit BESIDE M1_correlation_*, which is now
+    marked deprecated in its tooltip, so plates measured before and after
+    still agree with each other.
+  * Neighbours are scoped as decided: cell, nucleus, pathogen and eligible
+    organelles; never cytoplasm, which is cell-minus-nucleus and therefore one
+    object per cell by construction.
+  * The coloc fix is RETROACTIVE. The columns were always computed and stored;
+    only the feature filter deleted them. Existing measurements.db files gain
+    them back with no re-measurement.
+
+ITEM (2) IS COMPLETE AS A DECISION, NOT AS AN OMISSION. The claim in this
+file -- that the extra GLCM properties are "nearly free from the matrix
+already in hand" -- was mine and was measured wrong. At 256 levels reading ONE
+property costs more than building the matrix, because the build is O(pixels)
+and the read is O(levels^2). All seven properties is 2.34x and pooling four
+angles is 8.5x. Both breach "the default measure run must not get slower",
+which is this instruction's own criterion, so they are correctly NOT shipped.
+
+What survived is the free half: hoisting `rescale_intensity` out of the
+distance loop, bit-identical over 60 random regions, 2.7% at the six default
+distances (commit ba7e8c69).
+
+TWO THINGS DELIBERATELY LEFT, both recorded where they belong:
+
+  The empty-GLCM silent lie -- 0.0 for six properties and 1.0 for correlation
+  when the object is smaller than the offset, i.e. most nuclei and pathogens
+  at d=32. In instructions/07_known_bugs_not_fixed.txt, because the honest
+  repair emits NaN and `dropna(axis=1)` would then delete the column
+  plate-wide. That is a feature-pipeline decision, not a GLCM one.
+
+  The levels lever. At 32 grey levels a fully rotation-invariant seven-property
+  block costs LESS than today's single rotation-dependent property at 256
+  (1.108 ms vs 1.206). The correct statistic is affordable -- it just renames
+  every existing homogeneity column, so it needs a migration decision.
