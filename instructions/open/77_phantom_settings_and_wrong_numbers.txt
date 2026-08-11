@@ -1027,3 +1027,38 @@ blanket `how='left'` is not obviously right and I have not written one.
 So the question is not "which how" but "which how PER TABLE, and does the
 caller get to say". Until that is answered the report is the honest
 behaviour: the numbers are unchanged and the loss is no longer silent.
+
+--------------------------------------------------------------------------------
+2026-08-11 (late) - THE LIVE PREVIEWS: DIAGNOSED, NOT YET FIXED
+--------------------------------------------------------------------------------
+
+`AppScreen._build_runtime_panel` builds the four screen-owned previews (mask,
+timelapse, motility, measure) and wires ONLY the push direction --
+`set_propagate_callback`. The pull direction exists and is used elsewhere:
+`_PreviewHost.prime()` calls `panel.apply_settings(model.collect())` when a
+card is first shown, and `_on_hyperparam_switch` does the same for the
+Hyperparameter card. But `install()` returns early for these four
+(`if spec is None or spec.owned_by_screen: return None`), and the screen's
+own `_on_preview_switch` does nothing but `card.setVisible(on)`.
+
+So a user opens Mask, sets `cell_FT`, opens Live preview to CHECK THE
+SEGMENTATION, and the preview runs Cellpose at its own hardcoded
+`flow_threshold=0.4` and its own diameter. The preview is consulted to make a
+decision, which is the worst place for it to disagree with the run.
+
+THE FIX IS NOT A ONE-LINER, and the trap is worth writing down because it
+would look fixed:
+
+    NAME TRANSLATION. Mask declares `cell_FT`, `cell_diameter`,
+    `cell_CP_prob`; `LivePreviewPanel.apply_settings` reads
+    `flow_threshold`, `diameter`, `CP_prob`. A seed written without the
+    rename map silently drops exactly the settings this item is about --
+    while `cell_channel` and `nucleus_channel` DO land, so the preview
+    visibly changes and looks seeded.
+
+Any patch must be verified against `_build_request()`, which is what turns
+the panel's state into the Cellpose call, not merely against
+`apply_settings` accepting the dict.
+
+Seed on FIRST SHOW rather than at construction, mirroring what
+`_PreviewHost.prime` already documents, so a preview nobody opens stays free.
