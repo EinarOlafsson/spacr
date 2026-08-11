@@ -178,3 +178,60 @@ def test_a_group_levene_cannot_judge_stays_on_the_equal_variance_test(groups):
 def test_welch_anova_refuses_rather_than_returning_a_number():
     assert all(np.isnan(v) for v in _welch_anova([[1.0, 2.0, 3.0]]))
     assert all(np.isnan(v) for v in _welch_anova([[1.0, 1.0], [2.0, 2.0]]))
+
+
+# ---------------------------------------------------------------------------
+# n_object and n_well were the same number
+# ---------------------------------------------------------------------------
+
+def test_n_object_and_n_well_are_different_numbers():
+    """Both used to be read off the AGGREGATED frame.
+
+    `preprocess_data` collapses self.df to one row per well when
+    representation='well'; raw_df is the copy taken before that. n_object was
+    computed from grouped_data, which is built from self.df, so a plate of
+    4,380 cells in 12 wells reported n_object = 12 -- the well count, under
+    the object column's name.
+
+    The post-hoc rows in the same results CSV already did it correctly, so
+    the two row types disagreed about the same comparison in the same file.
+    """
+    rng = np.random.default_rng(0)
+    rows = []
+    for cond in ("nc", "pc"):
+        for well in range(1, 7):
+            for _ in range(365):
+                rows.append({"condition": cond,
+                             "prc": f"p1_r1_c{well}_{cond}",
+                             "value": float(rng.normal(
+                                 0.4 if cond == "pc" else 0.0, 1.0))})
+    df = pd.DataFrame(rows)
+
+    graph = spacrGraph(df, grouping_column="condition",
+                       data_column=["value"], representation="well")
+    row = graph.perform_statistical_tests(["nc", "pc"], True)[0]
+
+    assert row["n_object"] == len(df) == 4380
+    assert row["n_well"] == df["prc"].nunique() == 12
+    assert row["n_object"] != row["n_well"], (
+        "n_object is being read off the aggregated frame again")
+
+
+def test_n_object_counts_only_rows_that_carry_the_measurement():
+    """A NaN measurement is not an object the test used."""
+    rng = np.random.default_rng(1)
+    rows = []
+    for cond in ("nc", "pc"):
+        for well in range(1, 4):
+            for i in range(40):
+                value = np.nan if i < 5 else float(rng.normal())
+                rows.append({"condition": cond, "prc": f"w{well}_{cond}",
+                             "value": value})
+    df = pd.DataFrame(rows)
+
+    graph = spacrGraph(df, grouping_column="condition",
+                       data_column=["value"], representation="well")
+    row = graph.perform_statistical_tests(["nc", "pc"], True)[0]
+
+    assert row["n_object"] == int(df["value"].notna().sum())
+    assert row["n_object"] < len(df)
