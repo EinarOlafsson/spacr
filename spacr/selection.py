@@ -101,6 +101,8 @@ __all__ = [
     "ObjectRequest",
     "object_keys",
     "untyped_object_keys",
+    "escape_key_component",
+    "KEY_ESCAPED_CHARACTERS",
     "with_object_type",
     "key_object_type",
     "untyped_object_key",
@@ -189,8 +191,39 @@ def with_object_type(df: pd.DataFrame, object_type: Any) -> pd.DataFrame:
     return out
 
 
+#: The characters :func:`escape_key_component` rewrites.
+#:
+#: Exported so a resolver can ask "does this component even have an escaped
+#: spelling?" without escaping it first. Derived from :data:`_KEY_ESCAPES`
+#: rather than written out, so the cheap test cannot drift away from the
+#: table it is standing in for.
+KEY_ESCAPED_CHARACTERS: Tuple[str, ...] = tuple(c for c, _ in _KEY_ESCAPES)
+
+
+def escape_key_component(value: Any) -> str:
+    """Percent-escape one key component the way :func:`object_keys` does.
+
+    Public because a *resolver* has to compose the same spelling the producer
+    did. :func:`spacr.active_learning.crops_for_object_keys` builds its lookup
+    keys out of ``png_list``'s own metadata columns, and a ``fieldID`` of
+    ``'f_1'`` composes to ``'f%5F1'`` here while a bare ``'_'.join`` composes
+    it to ``'f_1'`` — so a routed selection's key matched nothing and that
+    crop was silently dropped from the crops it opened, while its neighbours
+    in the same selection opened normally.
+
+    :param value: one component of an object key.
+    :returns: the component as it appears inside a composed key. Unchanged
+        when it contains neither ``%`` nor the separator, which is the
+        overwhelmingly common case.
+    """
+    text = str(value)
+    for character, escape in _KEY_ESCAPES:
+        text = text.replace(character, escape)
+    return text
+
+
 def _escape_component(values: pd.Series) -> pd.Series:
-    """Percent-escape ``%`` and the key separator, in that order."""
+    """Vectorised :func:`escape_key_component` — same table, same order."""
     out = values
     for character, escape in _KEY_ESCAPES:
         out = out.str.replace(character, escape, regex=False)

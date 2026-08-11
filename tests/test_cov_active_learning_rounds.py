@@ -26,9 +26,10 @@ accident:
   directory in the way** rather than a patched writer, so the note being
   asserted is the note the real exception produced.
 
-Four defects found while writing this are pinned at the bottom as
-``xfail(strict=True)`` asserting the CORRECT behaviour; each names its
-reproduction in the reason.
+Four defects found while writing this are pinned at the bottom. They were
+``xfail(strict=True)`` while the module was wrong; the module is now right,
+so they are ordinary tests asserting the correct behaviour, each carrying
+the wrong answer it used to give.
 
 No network, no GPU, no torch: sklearn on a dozen synthetic rows.
 """
@@ -923,53 +924,146 @@ def test_a_crop_row_that_names_two_object_types_claims_neither(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Defects found while writing the above. Each asserts the CORRECT behaviour
-# and is expected to fail until the module is fixed.
+# Defects found while writing the above, now fixed. Each asserts the CORRECT
+# behaviour, and each names the wrong answer it used to give — that number is
+# the regression to watch for, not the mechanism that produced it.
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True, reason=(
-    "retrain_round(group_by='Well') — any value not in _SPLIT_GROUPS — is "
-    "accepted silently. group_cols comes out empty, groups become "
-    "np.arange(n) so every object is its own group, and the split_rule "
-    "recorded on the learning curve and in the model card reads "
-    "'StratifiedGroupKFold(4) over 24 groups — no group appears on both "
-    "sides'. That is a per-object random split wearing the label of the "
-    "grouped one this module exists to enforce, and the accompanying note "
-    "blames columns the table actually has. build_queue raises for an "
-    "unknown diversity= strategy; this should too."))
 def test_an_unknown_group_by_is_refused_the_way_an_unknown_diversity_is(
         project):
-    with pytest.raises(ValueError, match="group_by"):
+    """A group_by spelling this module does not know is a hard error.
+
+    ``group_by='Well'`` used to be accepted in silence: ``_SPLIT_GROUPS`` is
+    matched exactly, so the column list came out empty, the groups became
+    one-per-object, and the split_rule written to the learning curve AND the
+    model card read "StratifiedGroupKFold(4) over 24 groups — no group
+    appears on both sides". That is a per-object random split wearing the
+    label of the grouped one this module exists to enforce — the exact
+    optimistic number, with provenance asserting the opposite.
+    ``build_queue`` raises for an unknown ``diversity=``; this raises too.
+    """
+    with pytest.raises(ValueError, match="group_by") as excinfo:
         al.retrain_round(project["db"], "annotate", group_by="Well",
                          save_model=False, write_card=False)
+    message = str(excinfo.value)
+    assert "'Well'" in message
+    # The valid names, so the fix is in the message rather than the source.
+    assert "well" in message and "plate" in message and "field" in message
+    # Nothing was recorded: a refused round must not leave a curve point.
+    assert al.learning_curve(project["db"], "annotate").empty
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "holdout_report(y_true=[0,1,2], probs=(N,2)) drops the row whose true "
-    "class is outside the probability matrix — `inside` masks it out of the "
-    "confusion matrix — but still reports n=3. The accuracy is then the "
-    "trace over the survivors: 1.0 on a held-out set the model got 2 of 3 "
-    "right. A three-class screen scored by a binary head reports a perfect "
-    "score. Either count the row as an error or say how many were dropped; "
-    "reporting n over one population and accuracy over another is the one "
-    "thing a card must not do."))
+def test_group_by_none_records_a_random_split_as_a_random_one(project):
+    """The honest spelling of "not grouped" is the same on every path.
+
+    ``group_by='none'`` reached the same singleton-group vector as the
+    unknown spelling did, so the documented way to ask for an ungrouped
+    split also recorded itself as "no group appears on both sides". The
+    rule now says NOT grouped, and a note says what that costs.
+    """
+    result = al.retrain_round(project["db"], "annotate", group_by="none",
+                              save_model=False, write_card=False,
+                              round_index=0)
+    assert "NOT grouped" in result.split_rule
+    assert "no group appears on both sides" not in result.split_rule
+    assert any("group_by='none'" in note and "optimistic" in note
+               for note in result.notes)
+    curve = al.learning_curve(project["db"], "annotate")
+    assert "NOT grouped" in curve["split_rule"].iloc[-1]
+
+
+def test_a_group_by_the_crop_table_cannot_honour_is_not_called_grouped(
+        tmp_path):
+    """A recognised strategy with none of its columns is still not grouped.
+
+    The refusal above only covers the misspelling. A crop table with no
+    plate map cannot group by well however correctly the caller spelled it,
+    and the rule has to say so rather than claim a grouping over 24 groups
+    of one object each.
+    """
+    db = _plain_png_list(
+        str(tmp_path / "measurements.db"),
+        [{"png_path": f"/crops/cell_png/{i}.png", "prcfo": f"p_r1_c1_f1_o{i}",
+          "annotate": i % 2} for i in range(24)],
+        ["png_path", "prcfo", "annotate"])
+    features = pd.DataFrame(
+        {"f0": [float(i % 2) * 10 + i * 0.01 for i in range(24)],
+         "f1": [float(i) for i in range(24)]},
+        index=[f"/crops/cell_png/{i}.png" for i in range(24)])
+    features.index.name = "png_path"
+
+    result = al.retrain_round(db, "annotate", features=features,
+                              group_by="well", save_model=False,
+                              write_card=False, round_index=0)
+
+    assert "NOT grouped" in result.split_rule
+    assert "no group appears on both sides" not in result.split_rule
+    assert any("none of the columns" in note and "plateID" in note
+               for note in result.notes)
+
+
 def test_holdout_report_scores_every_row_it_says_it_scored():
+    """``n`` and the supports describe one population, always.
+
+    A true class outside the probability matrix's columns used to be masked
+    out of the confusion matrix while ``n`` still counted it, so this set —
+    which the model gets 2 of 3 right — reported ``n=3``, ``accuracy=1.0``
+    and a support summing to 2. The ``accuracy == trace/total`` invariant
+    still checked out, because the missing row was missing from both sides.
+    The row is now an error the model cannot avoid: class 2 has a row in the
+    matrix and an empty column, because a two-column head can never predict
+    it.
+    """
     report = al.holdout_report([0, 1, 2], np.array([[0.9, 0.1],
                                                     [0.2, 0.8],
                                                     [0.6, 0.4]]))
     assert sum(report["class_support"]) == report["n"]
     assert report["accuracy"] == pytest.approx(2 / 3)
+    assert report["n"] == 3
+    assert report["num_classes"] == 3 and report["head_classes"] == 2
+    assert report["confusion_matrix"] == [[1, 0, 0], [0, 1, 0], [1, 0, 0]]
+    # The class the head cannot reach is never predicted, and scores 0.
+    assert report["predicted_support"] == [2, 1, 0]
+    assert report["per_class_accuracy"] == pytest.approx([1.0, 1.0, 0.0])
+    # And the card is told why, rather than left to infer it from a shape.
+    assert any("can never be predicted" in note for note in report["notes"])
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr.selection escapes the key separator in a component "
-    "(fieldID 'f_1' -> key 'p1_r1_c1_f%5F1_cell7'), but "
-    "crops_for_object_keys composes its lookup keys raw with '_'.join, so "
-    "the escaped key matches nothing and the crop is silently dropped from "
-    "a routed selection while its neighbours open normally. The escape was "
-    "added so two distinct objects could not share one key; the resolver "
-    "in this module never learned about it."))
+def test_holdout_report_excludes_a_negative_class_and_counts_it_out_loud():
+    """-1 is not a class; it leaves the totals rather than joining them.
+
+    The rule is the same one the row above enforces from the other side: a
+    row that is not in the matrix must not be in ``n`` either. A negative id
+    cannot have a row in a confusion matrix at all, so it leaves — and says
+    so, instead of shrinking the denominator in silence.
+    """
+    report = al.holdout_report([0, 1, -1], np.array([[0.9, 0.1],
+                                                     [0.2, 0.8],
+                                                     [0.6, 0.4]]))
+    assert report["n"] == 2
+    assert report["n_unscored"] == 1
+    assert sum(report["class_support"]) == report["n"]
+    assert report["accuracy"] == pytest.approx(1.0)
+    assert any("negative class id" in note for note in report["notes"])
+
+
+def test_holdout_report_refuses_labels_and_scores_of_different_lengths():
+    """Mismatched lengths compare one object's label to another's score."""
+    with pytest.raises(ValueError, match="different objects"):
+        al.holdout_report([0, 1, 0], np.array([[0.9, 0.1], [0.2, 0.8]]))
+
+
 def test_an_escaped_object_key_still_finds_its_crop(tmp_path):
+    """A key whose metadata needed escaping resolves to its crop.
+
+    ``spacr.selection`` percent-escapes the key separator inside a component
+    (fieldID ``'f_1'`` → key ``'plate1_r1_c1_f%5F1_cell7'``) so two distinct
+    objects cannot share one key. ``crops_for_object_keys`` composed its
+    lookup keys raw with ``'_'.join``, so the escaped key matched nothing:
+    the crop was dropped from a routed selection without a word while its
+    neighbours opened normally, and the user got fewer crops than they
+    picked.
+    """
     rows = [{"png_path": "/crops/cell_png/plate1_r1_c1_f_1_o7.png",
              "prcfo": "plate1_r1_c1_f_1_o7", "plateID": "plate1",
              "rowID": "r1", "columnID": "c1", "fieldID": "f_1",
@@ -985,15 +1079,61 @@ def test_an_escaped_object_key_still_finds_its_crop(tmp_path):
 
     assert al.crops_for_object_keys(db, keys) == \
         [("/crops/cell_png/plate1_r1_c1_f_1_o7.png", None)]
+    # The untyped spelling of the same key, which is what an older view
+    # sends, resolves to the same crop.
+    untyped = list(selection.untyped_object_keys(frame))
+    assert untyped == ["plate1_r1_c1_f%5F1_7"]
+    assert al.crops_for_object_keys(db, untyped) == \
+        [("/crops/cell_png/plate1_r1_c1_f_1_o7.png", None)]
+    # And the raw spelling still resolves: keys composed before the escape
+    # existed have to go on meaning what they meant.
+    assert al.crops_for_object_keys(db, ["plate1_r1_c1_f_1_7"]) == \
+        [("/crops/cell_png/plate1_r1_c1_f_1_o7.png", None)]
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "annotation_coverage(image_type=...) filters the crops but takes n_rows "
-    "before the filter, so format_coverage_summary prints '12 of 20 crops "
-    "annotated' for a filtered population of 12 that is fully annotated — "
-    "and, unlike build_queue, records no note that the filter excluded "
-    "anything. Numerator and denominator describe different populations."))
+def test_the_escaped_spelling_wins_when_two_fields_spell_one_key(tmp_path):
+    """Carrying both spellings must not reintroduce the collision.
+
+    A field literally named ``'f%5F1'`` spells its RAW key exactly the way a
+    field named ``'f_1'`` spells its ESCAPED one — which is why the escape
+    percent-encodes ``'%'`` in the first place. The escaped spelling is what
+    a producer emits today, so it is the one that wins; otherwise fixing the
+    dropped crop would have swapped it for the wrong crop, which is worse.
+    """
+    rows = [{"png_path": "/crops/cell_png/literal_percent.png",
+             "prcfo": "plate1_r1_c1_f%5F1_o7", "plateID": "plate1",
+             "rowID": "r1", "columnID": "c1", "fieldID": "f%5F1",
+             "cell_id": "o7", "annotate": None},
+            {"png_path": "/crops/cell_png/literal_underscore.png",
+             "prcfo": "plate1_r1_c1_f_1_o7", "plateID": "plate1",
+             "rowID": "r1", "columnID": "c1", "fieldID": "f_1",
+             "cell_id": "o7", "annotate": None}]
+    db = _routing_db(tmp_path, rows,
+                     ["png_path", "prcfo", "plateID", "rowID", "columnID",
+                      "fieldID", "cell_id", "annotate"])
+
+    frame = pd.DataFrame([{"plateID": "plate1", "rowID": "r1",
+                           "columnID": "c1", "fieldID": f, "object_label": 7}
+                          for f in ("f%5F1", "f_1")])
+    keys = list(selection.object_keys(frame))
+    # The two fields have distinct keys, which is the whole point of escaping
+    # '%' as well as the separator.
+    assert keys == ["plate1_r1_c1_f%255F1_7", "plate1_r1_c1_f%5F1_7"]
+
+    assert al.crops_for_object_keys(db, keys) == [
+        ("/crops/cell_png/literal_percent.png", None),
+        ("/crops/cell_png/literal_underscore.png", None)]
+
+
 def test_the_coverage_denominator_describes_the_filtered_population(tmp_path):
+    """Numerator and denominator come from the same population.
+
+    ``n_rows`` used to be counted before the ``image_type`` filter ran, so
+    ``format_coverage_summary`` printed "12 of 20 crops annotated" for a
+    filtered population of 12 in which nothing was left to annotate — and,
+    unlike ``build_queue``, recorded no note that the filter had excluded
+    anything.
+    """
     rows = [{"png_path": f"/crops/cell_png/{i}.png", "plateID": "p1",
              "rowID": "r1", "columnID": "c1", "annotate": i % 2}
             for i in range(12)]
@@ -1008,3 +1148,14 @@ def test_the_coverage_denominator_describes_the_filtered_population(tmp_path):
     meta = coverage.attrs["spacr_annotation_coverage"]
     assert meta["n_annotated"] == 12
     assert meta["n_rows"] == 12
+    # The total is kept, so nothing is lost — it is just not the denominator.
+    assert meta["n_rows_unfiltered"] == 20
+    assert meta["image_type"] == "cell_png"
+    assert any("excluded 8 of 20 crops" in note for note in meta["notes"])
+    assert "12 of 12 crops annotated" in al.format_coverage_summary(coverage)
+
+    # Unfiltered, the denominator is the whole table and there is no note.
+    whole = al.annotation_coverage(db, "annotate")
+    whole_meta = whole.attrs["spacr_annotation_coverage"]
+    assert whole_meta["n_rows"] == 20 and whole_meta["n_annotated"] == 12
+    assert not [n for n in whole_meta["notes"] if "image_type" in n]
