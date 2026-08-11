@@ -440,6 +440,35 @@ def run_concurrency_probe(
     An explicit ``path`` must not exist: the probe never adds audit tables to
     scientific data. When omitted, a temporary database is created and
     removed after its metrics are collected.
+
+    :param path: scratch database to create. It must not already exist
+        (:exc:`FileExistsError`); missing parent directories are created, and
+        the file is left on disk afterwards along with any ``-wal`` and
+        ``-shm`` sidecars, so every explicit run needs a fresh path. Omit it
+        to probe a temporary database instead, which is deleted only after a
+        clean finish: a worker that outlives the 30-second join deadline, or
+        a rejected ``journal_mode``, leaves the temporary directory behind.
+    :param writers: concurrent writer threads. Each owns a connection opened
+        with a 50 ms busy timeout and commits one transaction per row, so
+        ``expected_rows`` is ``writers * writes_per_writer``.
+    :param readers: concurrent read-only threads polling ``COUNT(*)`` until
+        the last writer exits. They move only ``reader_queries``, never
+        ``expected_rows``; at least one is required, so a writers-only probe
+        cannot be expressed.
+    :param writes_per_writer: rows each writer inserts, one row per
+        transaction.
+    :param journal_mode: mode applied once by the setup connection and then
+        inherited by every worker connection. Only ``"WAL"`` (the default)
+        and ``"DELETE"`` are accepted, case-insensitively; anything else
+        raises :exc:`DatabaseConfigurationError` from :func:`connect` after
+        the scratch database has already been created. Passing ``None`` skips
+        the PRAGMA, leaving the new database in SQLite's default DELETE mode.
+    :returns: result whose ``journal_mode`` is read back from the finished
+        database rather than echoed from this argument, and whose ``errors``
+        carry per-thread failures instead of raising.
+    :raises ValueError: when ``writers``, ``readers``, or
+        ``writes_per_writer`` is below 1. All three are coerced with
+        :func:`int` first, so ``2.9`` silently becomes 2.
     """
     writers = int(writers)
     readers = int(readers)
