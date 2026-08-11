@@ -95,6 +95,37 @@ with open("README.rst", "r", encoding="utf-8") as fh:
 # behind `if system == "Windows"`, so it carries the marker), and
 # catboost/lightgbm, which are alternative model backends behind a
 # `model_type=` string and live in the `boosting` extra — see the note there.
+#
+# ---------------------------------------------------------------------------
+# WHAT A VERSION BOUND IN THIS LIST MEANS. Settled 2026-08-11, because
+# "always use the optimal dependency versions" has two readings that imply
+# opposite CI jobs, and the list was being edited under both.
+#
+# The lower bound is the OLDEST VERSION CI ACTUALLY INSTALLS AND TESTS. It is
+# not a guess at the oldest that might work, and raising it is cheap. This is
+# the rule the cellpose floor was settled by: `>=4.0` was resolving to 4.0.1
+# in CI, whose `CellposeModel` signature spaCR has never been developed
+# against, so the floor moved to 4.0.7 rather than the contract test being
+# loosened. A floor nobody installs is worse than one declared too high --
+# pip resolves it happily and the failure lands on a user.
+# `.github/constraints/minimum-py39.txt` is the file that makes the floor
+# real, and `tests/test_minimum_constraints_match_setup.py` keeps the two
+# from drifting apart again.
+#
+# The upper bound is a MAJOR VERSION SPaCR HAS NOT SEEN. It exists so a
+# breaking release cannot arrive silently between a user's `pip install` and
+# their first run, and it is meant to be raised deliberately after testing --
+# not left to rot. Where a package has no upper bound here that is a
+# considered choice, not an oversight: tifffile, lxml, fastremap, tqdm and
+# protobuf have not broken us across a major.
+#
+# So a normal `pip install spacr` resolves to the NEWEST version in each
+# range, and that is what "optimal" means for a user. It deliberately does
+# NOT mean a lockfile. The reason is measured rather than assumed: on Python
+# 3.9 the newest resolvable IPython is 8.18.1 while on 3.11+ it is 9.16.1,
+# and matplotlib is 3.9.4 versus 3.11.1. Across the six interpreters spaCR
+# supports there is no single newest-that-works set, so any file claiming one
+# would be wrong on 3.9 the day it was written.
 # ---------------------------------------------------------------------------
 dependencies = [
     # -----------------------------------------------------------------------
