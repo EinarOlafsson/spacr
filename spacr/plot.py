@@ -4225,7 +4225,22 @@ class spacrGraph:
                 'p-value': p,
                 'Test Name': test_name,
                 'Column': column,
-                'n_object': sum(len(values) for values in grouped_data),
+                # n_object FROM raw_df, n_well from self.df. Both used to come
+                # from `grouped_data`, which is built from self.df -- and
+                # self.df is what `preprocess_data` AGGREGATED. With
+                # representation='well' that made the two columns the same
+                # number: a plate of 4,382 cells in 12 wells reported
+                # n_object = 12.
+                #
+                # The post-hoc rows in the same CSV already did it correctly
+                # (n_object from raw_df, n_well from self.df), so the two row
+                # types disagreed about the same comparison in the same file
+                # -- which is how you get a Methods section citing whichever
+                # was read first.
+                'n_object': sum(
+                    len(self.raw_df[self.raw_df[self.grouping_column] == group]
+                        [column].dropna())
+                    for group in unique_groups),
                 'n_well': sum(
                     len(self.df[self.df[self.grouping_column] == group])
                     for group in unique_groups)})
