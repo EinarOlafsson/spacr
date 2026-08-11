@@ -37,6 +37,16 @@ _DECLARATION_LITERALS = {
     "DEAD_SETTINGS",
 }
 
+#: Modules that are ENTIRELY declaration -- a translated copy of the tooltip
+#: table is the same kind of thing as the tooltip table itself, and carrying
+#: a dead setting's help text does not give that setting a reader.
+#:
+#: Without this every dead key becomes "live" the moment its tooltip is
+#: translated, and the registry test asserts the whole of DEAD_SETTINGS
+#: should be emptied -- which would delete the very entries that keep old
+#: settings CSVs loading.
+_DECLARATION_MODULES = ("i18n_catalogs",)
+
 _IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z_0-9]*")
 
 #: Phrases a dead setting's tooltip may use to admit that it is dead. The
@@ -148,7 +158,9 @@ def _live_tokens():
     tokens = set()
     files = 0
     for base, dirs, names in os.walk(package):
-        dirs[:] = [d for d in dirs if d not in {"__pycache__", "resources"}]
+        dirs[:] = [d for d in dirs
+                   if d not in {"__pycache__", "resources"}
+                   and d not in _DECLARATION_MODULES]
         for name in names:
             if not name.endswith(".py"):
                 continue
