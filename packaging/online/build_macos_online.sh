@@ -34,9 +34,13 @@ for size in 16 32 128 256 512; do
 done
 iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/SpaCR.icns"
 
-sed "s/@SPACR_VERSION@/$VERSION/g" \
-    packaging/online/install_spacr_unix.sh > "$SUPPORT/install-online.sh"
+python3 packaging/i18n/render.py \
+    --embed-unix packaging/online/install_spacr_unix.sh \
+    --output "$SUPPORT/install-online.sh" \
+    --version "$VERSION"
 chmod 755 "$SUPPORT/install-online.sh"
+cp packaging/online/generated/installer_messages.sh \
+    "$SUPPORT/installer_messages.sh"
 
 cat > "$APP/Contents/MacOS/SpaCR" <<'EOF'
 #!/bin/sh
@@ -84,10 +88,11 @@ EOF
 cat > "$SUPPORT/uninstall-spacr.sh" <<'EOF'
 #!/bin/sh
 set -eu
+. "/Library/Application Support/SpaCR/installer_messages.sh"
 rm -f /usr/local/bin/spacr
 rm -rf "/Applications/SpaCR.app"
 rm -rf "/Library/Application Support/SpaCR"
-echo "spaCR was removed. User-created data and preferences were left in place."
+spacr_say removed
 EOF
 chmod 755 "$SUPPORT/uninstall-spacr.sh"
 
@@ -95,13 +100,15 @@ cat > "$SUPPORT/install-for-user.sh" <<'EOF'
 #!/bin/sh
 set -eu
 
+. "/Library/Application Support/SpaCR/installer_messages.sh"
+
 RUNTIME_ROOT="${SPACR_USER_INSTALL_ROOT:-$HOME/Library/Application Support/SpaCR}"
 INSTALLER="/Library/Application Support/SpaCR/install-online.sh"
 LOCK_DIR="$RUNTIME_ROOT/.installing"
 
 mkdir -p "$RUNTIME_ROOT"
 if ! mkdir "$LOCK_DIR" 2>/dev/null; then
-    echo "A spaCR installation is already running for this user."
+    spacr_say already_running
     exit 0
 fi
 cleanup() {
@@ -116,7 +123,7 @@ trap cleanup EXIT INT TERM
   --no-launch
 
 echo
-echo "spaCR is ready. Opening the application..."
+spacr_say ready_opening
 if [ "${SPACR_NO_RELAUNCH:-0}" != "1" ]; then
     open -a "/Applications/SpaCR.app"
 fi

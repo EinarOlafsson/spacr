@@ -26,6 +26,10 @@ if (-not $VersionMatch) {
 }
 $Version = $VersionMatch.Matches[0].Groups[1].Value
 New-Item -ItemType Directory -Force -Path "dist\online" | Out-Null
+python packaging\i18n\render.py
+if ($LASTEXITCODE -ne 0) {
+    throw "Installer locale generation failed with exit code $LASTEXITCODE"
+}
 
 Push-Location "packaging\online"
 try {

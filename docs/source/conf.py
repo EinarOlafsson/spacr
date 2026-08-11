@@ -82,7 +82,13 @@ autoapi_options           = [
     'special-members',
     'imported-members',
 ]
-autoapi_ignore            = ['*/tests/*', '*/qt/tutorial/*']
+autoapi_ignore            = [
+    '*/tests/*',
+    '*/qt/tutorial/*',
+    # Generated localization payloads are static data, not Python API. Their
+    # source pages add tens of megabytes and expose no callable interface.
+    '*/qt/i18n_catalogs/*',
+]
 autoapi_python_class_content = 'both'   # class docstring + __init__ docstring
 autoapi_member_order         = 'groupwise'   # attrs → methods, alphabetical inside
 
@@ -94,6 +100,7 @@ html_favicon    = '_static/logo_spacr.png'
 templates_path  = ['_templates']
 html_static_path = ['_static']
 html_css_files  = ['custom.css']
+html_js_files   = ['api_i18n.js']
 
 # -- Tutorial media --------------------------------------------------------
 # `_extra` is 2,879 MiB, 93% of it one narration .m4a per lesson x language x

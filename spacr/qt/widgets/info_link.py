@@ -33,6 +33,10 @@ class InfoLink(DotLink):
         """Return the documentation URL opened by this button."""
         return self._url
 
+    def set_url(self, url: str) -> None:
+        """Change the destination without rebuilding the compact link."""
+        self._url = str(url)
+
     def open_documentation(self) -> None:
         """Open the configured documentation page in the system browser."""
         QDesktopServices.openUrl(QUrl(self._url))

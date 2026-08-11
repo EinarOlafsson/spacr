@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import subprocess
 import importlib.util
+import json
 from pathlib import Path
 
 import pytest
@@ -167,11 +168,85 @@ def test_windows_installer_is_per_user_and_registers_uninstall():
     assert "CurrentVersion\\Uninstall\\spaCR" in nsis
     assert "CreateShortcut" in nsis
     assert "pythonw.exe" in nsis
-    assert "Refusing unsafe install root" in bootstrap
-    assert 'Section /o "NVIDIA GPU acceleration (large download)"' in nsis
+    assert 'Get-SpacrInstallerMessage "unsafe_root"' in bootstrap
+    assert 'Section /o "$(SPACR_NSIS_GPU)"' in nsis
     assert '-TorchBackend "$1"' in nsis
     assert "app_icon.ico" in nsis
     assert 'File /oname=spacr.ico "${SPACR_ICON}"' in nsis
+
+
+def test_installer_locales_cover_every_supported_ui_language():
+    from spacr.qt.i18n import LANGUAGES
+
+    locale_dir = ROOT / "packaging" / "i18n"
+    expected_languages = {language.code for language in LANGUAGES}
+    expected_keys = set(json.loads(_text(locale_dir / "en.json")))
+    assert expected_languages == {
+        path.stem for path in locale_dir.glob("*.json")
+    }
+    for language in expected_languages:
+        table = json.loads(_text(locale_dir / f"{language}.json"))
+        assert set(table) == expected_keys
+        assert all(str(value).strip() for value in table.values())
+    generated = ONLINE / "generated"
+    assert "spacr_install_language" in _text(
+        generated / "installer_messages.sh"
+    )
+    assert "defaults read -g AppleLocale" in _text(
+        generated / "installer_messages.sh"
+    )
+    assert "CurrentUICulture" in _text(
+        generated / "installer_messages.ps1"
+    )
+    nsis_messages = _text(generated / "installer_messages.nsh")
+    for name in (
+        "English", "Swedish", "German", "Spanish", "SimpChinese",
+        "Portuguese", "Hindi", "Korean", "Icelandic", "French",
+    ):
+        assert f'MUI_LANGUAGE "{name}"' in nsis_messages
+
+
+def test_installer_catalogs_use_reviewed_software_and_screening_terms():
+    locale_dir = ROOT / "packaging" / "i18n"
+    expected = {
+        "sv": ("program", "CRISPR-screeningar", "PyTorch-backend"),
+        "de": ("Anwendung", "CRISPR-Screens", "PyTorch-Backend"),
+        "es": ("aplicación", "cribados CRISPR", "backend de PyTorch"),
+        "zh_CN": ("应用程序", "CRISPR 筛选", "PyTorch 后端"),
+        "pt": ("aplicativo", "triagens CRISPR", "backend do PyTorch"),
+        "hi": ("एप्लिकेशन", "CRISPR स्क्रीनिंग", "PyTorch बैकएंड"),
+        "ko": ("애플리케이션", "CRISPR 스크리닝", "PyTorch 백엔드"),
+        "is": ("forrit", "CRISPR-skimunum", "PyTorch-bakendi"),
+        "fr": ("application", "criblages CRISPR", "backend PyTorch"),
+    }
+    for language, (application, screening, backend) in expected.items():
+        table = json.loads(_text(locale_dir / f"{language}.json"))
+        assert table["application"] == application
+        assert screening in table["desktop_comment"]
+        assert backend in table["pytorch_backend"]
+
+
+def test_windows_selected_installer_language_reaches_bootstrap():
+    nsis = _text(NSIS)
+    powershell = _text(WINDOWS)
+    for code in ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"):
+        assert f'StrCpy $3 "{code}"' in nsis
+    assert '-Language "$3"' in nsis
+    assert '[string]$Language = ""' in powershell
+    assert '$env:SPACR_INSTALL_LANGUAGE = $Language' in powershell
+
+
+def test_unix_installer_uses_external_localized_messages():
+    source = _text(UNIX)
+    assert "@SPACR_INSTALLER_MESSAGES_BEGIN@" in source
+    assert 'source "$SPACR_INSTALLER_DIR/generated/installer_messages.sh"' in source
+    assert "spacr_say installed" in source
+    for english in (
+        "spaCR installed successfully.",
+        "Downloading the pinned uv bootstrap...",
+        "Creating an isolated spaCR environment...",
+    ):
+        assert english not in source
 
 
 def test_macos_builder_creates_application_and_pkg_with_uninstall_helper():
