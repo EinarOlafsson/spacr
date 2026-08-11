@@ -712,9 +712,9 @@ def cross_calibrate_probabilities(
     evaluated on that same sample.
 
     :param y_true: class INDEX per sample, read only to fit the temperatures.
-        A value outside the probability columns is NOT refused here: every
-        fold's fit fails, each falls back to temperature 1.0, and the call
-        returns uncalibrated probabilities plus a printed warning.
+        A value outside the probability columns is REFUSED -- it used to make
+        every fold's fit fail, fall back to temperature 1.0, and return
+        uncalibrated probabilities while reporting that calibration ran.
     :param probabilities: predicted probabilities; a 1-D positive-class vector
         is expanded to two columns and every row is renormalized, so the
         result is always a new normalized matrix -- never the object passed
@@ -738,6 +738,18 @@ def cross_calibrate_probabilities(
     probs = normalize_probabilities(probabilities)
     y = np.asarray(y_true, dtype=int)
     folds = np.asarray(fold_ids)
+    # REFUSE a label the head has no column for. Without this every fold's
+    # fit raised inside its own try/except, each fell back to temperature
+    # 1.0, and the function returned UNCALIBRATED probabilities while
+    # reporting that calibration ran -- visible only as a printed warning a
+    # caller has no reason to be watching.
+    if len(y) and probs.shape[1]:
+        stray = sorted({int(v) for v in y if v < 0 or v >= probs.shape[1]})
+        if stray:
+            raise ValueError(
+                f"y_true contains class indices {stray} outside the "
+                f"{probs.shape[1]} probability columns; calibration would "
+                "silently do nothing.")
     if len(y) != len(probs) or len(folds) != len(y):
         raise ValueError(
             "y_true, probabilities, and fold_ids must have equal length."
@@ -778,6 +790,15 @@ def cross_calibrate_probabilities(
     return calibrated, temperatures
 
 
+#: Columns of the frame :func:`calibration_table` returns, named here so an
+#: empty result still has them. Without this a table with no rows is shape
+#: (0, 0) and every downstream column access raises KeyError.
+CALIBRATION_COLUMNS = (
+    "class_index", "class_name", "bin", "bin_lower", "bin_upper",
+    "n", "mean_confidence", "observed_frequency", "calibration_gap",
+)
+
+
 def calibration_table(
     y_true: Sequence[int],
     probabilities: Any,
@@ -788,8 +809,9 @@ def calibration_table(
     """Return per-class reliability bins for calibration plots.
 
     :param y_true: class INDEX per sample, compared column by column. A label
-        outside the probability columns is NOT refused -- it matches no class,
-        so it only ever drags ``observed_frequency`` down.
+        outside the probability columns is REFUSED: it matches no class, so it
+        used to read ``observed_frequency`` 0.0 everywhere and render as a
+        catastrophically miscalibrated curve rather than an error.
     :param probabilities: predicted probabilities; a 1-D positive-class vector
         is expanded to two columns and every row is renormalized.
     :param classes: display names in column order. An EMPTY sequence falls
@@ -800,16 +822,26 @@ def calibration_table(
         bins. The top bin is closed on the right, so confidence 1.0 lands in
         it rather than falling out of the table.
     :raises ValueError: when ``y_true`` and ``probabilities`` differ in
-        length, or ``classes`` has the wrong length.
+        length, ``classes`` has the wrong length, or a class index falls
+        outside the probability columns.
     :returns: one row per class and NON-EMPTY bin, so the frame is shorter
-        than ``n_classes * n_bins`` rows -- and an empty ``y_true`` yields a
-        frame with no rows and no columns at all.
+        than ``n_classes * n_bins`` rows. An empty result still carries
+        :data:`CALIBRATION_COLUMNS`, so a column can be indexed on it.
     """
     y = np.asarray(y_true, dtype=int)
     probs = normalize_probabilities(probabilities)
     if len(y) != len(probs):
         raise ValueError("y_true and probabilities must have equal length.")
     n_classes = probs.shape[1]
+    # A label with no column matches nothing, so every observed_frequency
+    # reads 0.0 and the reliability curve looks catastrophically
+    # miscalibrated rather than wrong. Refuse it.
+    if len(y) and n_classes:
+        stray = sorted({int(v) for v in y if v < 0 or v >= n_classes})
+        if stray:
+            raise ValueError(
+                f"y_true contains class indices {stray} outside the "
+                f"{n_classes} probability columns.")
     names = list(classes or [f"class_{i}" for i in range(n_classes)])
     if len(names) != n_classes:
         raise ValueError("classes and probability columns must have equal length.")
@@ -844,7 +876,11 @@ def calibration_table(
                     observed[mask].mean() - confidence[mask].mean()
                 ),
             })
-    return pd.DataFrame(rows)
+    # Name the columns even with no rows. `pd.DataFrame([])` is shape (0, 0),
+    # so a caller indexing 'class_name' or 'bin' on an empty result got a
+    # KeyError rather than an empty column -- and an empty table is a
+    # legitimate state (every bin can be empty), not a broken frame.
+    return pd.DataFrame(rows, columns=CALIBRATION_COLUMNS)
 
 
 def _metric_summary(
