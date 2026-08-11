@@ -5660,8 +5660,35 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
     # Perform pairwise comparisons
     pairwise_results = chi_pairwise(raw_counts, verbose=settings.get('verbose', False))
 
-    # Plot based on level setting
-    if level in ['well', 'plateID']:
+    # Plot based on level setting.
+    #
+    # 'plate' USED TO FALL THROUGH HERE. The check read
+    # `level in ['well', 'plateID']`, while the setting's own tooltip offers
+    # 'object', 'well' and 'plate' -- so a user who asked for plate-level bars
+    # got object-level pooling instead: every object in one bar per condition,
+    # no per-plate averaging and no SD whiskers, which is a different figure
+    # answering a different question with nothing to say it had happened.
+    #
+    # An unknown level is now named rather than silently pooled, because
+    # falling back to 'object' is exactly what made the typo invisible.
+    _level = str(level or 'object').strip().lower()
+    _AGGREGATED = {'well': prc_column, 'plate': 'plateID', 'plateid': 'plateID'}
+    if _level not in _AGGREGATED and _level != 'object':
+        raise ValueError(
+            f"level={level!r} is not one of 'object', 'well' or 'plate'. "
+            f"Pooling every object would have answered a different question "
+            f"than the one asked.")
+    if _level in _AGGREGATED:
+        prc_column = _AGGREGATED[_level]
+        if prc_column not in df.columns:
+            # 'plateID' used to group by `prc` -- the WELL column -- so a
+            # plate-level request averaged wells and called them plates. It
+            # now groups by the plate, which means the plate column has to
+            # be present, and naming the missing one beats a bare KeyError
+            # raised from inside a groupby.
+            raise ValueError(
+                f"level={level!r} groups by {prc_column!r}, which this table "
+                f"does not have. Available: {sorted(df.columns)[:12]}")
         well_proportions = (
             df.groupby([group_column, prc_column, bin_column], observed=True)
             .size()
@@ -5677,7 +5704,7 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
         mean_proportions.plot(
             kind='bar', stacked=True, yerr=std_proportions, capsize=5, colormap=cmap, figsize=(12, 8)
         )
-        plt.title('Proportion of Volume Bins by Group (Mean ± SD across wells)')
+        plt.title(f'Proportion of Volume Bins by Group (Mean ± SD across {"plates" if _level != "well" else "wells"})')
     else:
         group_counts = df.groupby([group_column, bin_column], observed=True).size()
         group_totals = group_counts.groupby(
