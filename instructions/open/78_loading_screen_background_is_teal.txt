@@ -1,0 +1,64 @@
+================================================================================
+THE LOADING SCREEN BACKGROUND IS TEAL; MAKE IT BLACK OR DARK GREY
+================================================================================
+
+Status:    not started, 2026-08-11.
+Requested: 2026-08-11 — "add to instructions the background is teal, and i
+           want it to be black or dark gray"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+`spacr/qt/widgets/loading_screen.py:50` sets
+
+    INSTALLER_GREEN = "#003737"
+
+and paints the full-window preload cover with it. That colour was SAMPLED
+FROM THE INSTALLER ICON on purpose, so the splash and the installer would
+look like the same product. It reads as teal, because it is teal -- a very
+dark cyan-green, hue 180.
+
+The name is also wrong and should go with the colour: it is called
+INSTALLER_GREEN and it is not green.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+It is the first thing the application shows, full-window, before anything
+else is on screen. A saturated hue at that size reads as a brand statement
+rather than as a neutral surface, and it does not match the rest of the app:
+the Qt theme's own surfaces are neutral darks, so the splash is the one
+screen with a colour cast.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Replace `#003737` with black or a dark grey. Prefer taking the value from
+   the Qt theme's existing surface tokens rather than inventing a new hex, so
+   the splash and the first painted window agree -- the point of the loading
+   screen is that the transition is not visible, and a splash one shade off
+   the window behind it makes the handover flash.
+2. Rename the constant. `INSTALLER_GREEN` describes neither the old colour
+   nor the new one; something like `SPLASH_BACKGROUND` says what it is for.
+3. Check the foreground still passes contrast on the new background — the
+   strap line and any progress text were chosen against a dark teal.
+4. The installer icon keeps its own colour. This is about the splash only;
+   nothing here says the icon has to change.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Launch `spacr-qt` on a cold start: the cover is black or dark grey, the strap
+line is readable, and there is no visible colour change when the real window
+takes over.
+
+--------------------------------------------------------------------------------
+RELATED
+--------------------------------------------------------------------------------
+
+Instruction 74 owns the loading screen itself (it covers the preload). This
+is only its colour, and can land independently.
