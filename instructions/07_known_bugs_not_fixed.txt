@@ -287,3 +287,41 @@ STILL OPEN from the list above: the four `postprocess_*_masks` phantoms
 (registered dead, correctly, and not deletable -- see the settings entry), and
 `MergedCropSource.get_many` raising where its `List[Optional[...]]` return
 type says it skips.
+
+--------------------------------------------------------------------------------
+N+2. An EMPTY GLCM returns plausible numbers instead of nothing, for most
+     nuclei and pathogens
+--------------------------------------------------------------------------------
+
+Found 2026-08-10 while benchmarking the GLCM block, and measured rather than
+reasoned about.
+
+`graycomatrix` guards an empty co-occurrence matrix with
+`glcm_sums[glcm_sums == 0] = 1`, and `graycoprops` then reads a matrix of
+zeros. The result is not NaN and not an error: it is **0.0 for contrast,
+dissimilarity, homogeneity, ASM, energy and entropy, and 1.0 for
+correlation** (skimage guards std < 1e-15 by returning 1.0).
+
+The matrix is empty whenever the object is smaller than the offset distance,
+because no pixel pair at that separation lies inside it. Confirmed empty at
+d=32 for any patch 32 px or less across -- WHICH IS MOST NUCLEI AND MOST
+PATHOGENS at typical magnification.
+
+So `homogeneity_distance_32` for a small nucleus is not missing data that a
+model would drop; it is a confident 0.0, and `correlation_distance_32` is a
+confident 1.0 -- a perfect correlation reported for an object that has no
+pixel pairs at that distance at all. Both land in the feature table and
+enrol automatically in every classifier and UMAP matrix.
+
+WHY IT IS NOT FIXED HERE: the honest repair is to emit NaN (or omit the
+column) when the matrix is empty, and `utils.filter_dataframe_features` does
+`df.dropna(axis=1)` -- so a single small nucleus anywhere in the plate would
+delete the whole column from every model matrix. Fixing this properly means
+deciding what an absent texture measurement should DO downstream, which is a
+question about the feature pipeline rather than about GLCM.
+
+That decision belongs with instruction 71's texture work. Whoever takes it
+should also know: at 32 grey levels a fully rotation-invariant seven-property
+block costs LESS than today's single rotation-dependent property at 256
+levels (1.108 ms vs 1.206 ms per region), so the correct statistic is
+affordable -- it just renames every existing homogeneity column.
