@@ -87,7 +87,30 @@ touching them is better than repairing them.
 
 --------------------------------------------------------------------------------
 N. key_columns can return an object key with NO plate/well/field in it, and
-   the guard downstream lets it through
+   the guard downstream lets it through            [FIXED 2026-08-10]
+--------------------------------------------------------------------------------
+
+FIXED 2026-08-10. `filters.require_full_identity(keys, what)` now demands
+every one of `IDENTITY_COLUMNS` plus `object_label`, and both write-back
+sites call it (`export_gate`, `export_annotation`) in place of the
+`if not keys or OBJECT_COLUMN not in keys` guard, which passed for
+`['object_label']`. The refusal names the missing columns. `key_columns`
+itself is unchanged -- it still reports what is there -- but its docstring
+now says nothing merges on its result without going through the guard.
+
+The reachability question below is ANSWERED, and the answer is "reachable":
+the Qt gate editor loads a table through `filters.read_sampled`, which is a
+raw `SELECT *`, so a database spelling its identity `plate`/`row`/`column`/
+`field` reaches `export_annotation` with exactly the frame that yielded
+`['object_label']`. It now raises a FilterError naming the four missing
+columns instead of merging on the label. Tightening also refuses a genuinely
+partial identity (e.g. no `fieldID`), which is intended: an object label
+repeats in every field, so a merge without one is a wrong answer rather than
+a reduced one. Regression tests: `tests/test_filters.py::
+test_a_gate_needs_the_whole_identity_not_just_the_object_label` and the three
+tests beside it.
+
+The record of the defect, as found:
 --------------------------------------------------------------------------------
 
 Found 2026-08-10 while auditing new parameter documentation, and confirmed by
@@ -164,20 +187,37 @@ and stating it forces a check. Every one below was reproduced, not read.
   one of those values -- a 3-object mask renders as "4 (obj.)". This one is
   on screen, in every mask panel.
 
-  show_cam_on_image WRAPS INSTEAD OF CLIPPING. `np.uint8(255 * mask)` on an
+  show_cam_on_image WRAPS INSTEAD OF CLIPPING. [FIXED 2026-08-10]
+  `np.uint8(255 * mask)` on an
   un-normalised CAM sends anything above 1.0 to an arbitrary colormap
   position rather than saturating: measured, 1.1 -> 24 (cold end), 1.5 -> 126
   (mid), 2.0 -> 254. A `np.clip(mask, 0, 1)` before the cast is the fix.
+  FIX: the mask is clipped to [0, 1] before the cast, so 1.5 now renders the
+  same saturated red as 1.0 instead of mid-jet green, and a RuntimeWarning
+  names the range it clipped so the missing normalisation is not hidden. The
+  output cast is clipped too, so nothing wraps on the way out either.
 
-  show_cam_on_image TURNS NaN INTO BLACK. Its `else: cam.fill(0.0)` fallback
+  show_cam_on_image TURNS NaN INTO BLACK. [FIXED 2026-08-10]
+  Its `else: cam.fill(0.0)` fallback
   cannot fire for the reason it looks like it should -- COLORMAP_JET maps 0 to
   BGR (128,0,0), so a zero input still has a positive peak. It is reachable
   only via NaN or a sufficiently negative img, and then returns a silent
   all-black image instead of surfacing the bad input.
+  FIX: a non-finite `img` or `mask` raises ValueError, and the peak <= 0 case
+  raises instead of filling black -- a black attribution map is
+  indistinguishable from "the model looked nowhere", which is a claim the
+  overlay must not make on the strength of bad input.
 
-  invert_image WRAPS ON SIGNED DTYPES. `max_value - image` on int8 with a
+  invert_image WRAPS ON SIGNED DTYPES. [FIXED 2026-08-10]
+  `max_value - image` on int8 with a
   pixel of -100 gives 227, which wraps to -29. Verified. The function neither
   checks signedness nor promotes.
+  FIX: the pivot is now `iinfo.min + iinfo.max`, i.e. the dtype maximum when
+  unsigned (uint8/uint16 are bit-for-bit unchanged) and -1 when signed, the
+  convention `skimage.util.invert` uses. int8 -100 -> 99, in range, and
+  inverting twice is the identity for every integer dtype. A non-integer
+  dtype raises ValueError naming the dtype rather than numpy's "Invalid
+  integer data type".
 
   MergedCropSource.get_many RAISES WHERE ITS TYPE SAYS IT SKIPS. It calls
   extract_crops without on_error, i.e. the default 'raise', so one row whose
@@ -186,8 +226,64 @@ and stating it forces a check. Every one below was reproduced, not read.
   guard on the next line (which can never take the None branch) both say
   on_error='none' was intended, so a grid render survives one bad row.
 
-ALL LEFT UNFIXED, deliberately: the task was documentation, and each of these
-changes behaviour. The docstrings now describe what the code does TODAY, so
-none of them is hidden. Three are worth prioritising because a user sees the
-wrong answer rather than an error -- the object-count label, the dead seed,
-and the clamped validation fraction.
+LEFT UNFIXED WHEN WRITTEN, deliberately: the task was documentation, and each
+of these changes behaviour. The docstrings describe what the code does TODAY,
+so none of them is hidden. Three are worth prioritising because a user sees
+the wrong answer rather than an error -- the object-count label, the dead
+seed, and the clamped validation fraction.
+
+STATUS 2026-08-10: the three image-attribution defects above are FIXED (both
+`show_cam_on_image` ones and `invert_image`), each with regression tests in
+`tests/test_cov_utils_saliency_gradcam.py` and
+`tests/test_cov_utils_mask_metrics.py`. The remaining four in this list --
+the dead seed, the clamped validation fraction, the object-count label and
+`MergedCropSource.get_many` -- are still open.
+
+--------------------------------------------------------------------------------
+2026-08-10 - TWENTY OF THE ABOVE ARE NOW FIXED
+--------------------------------------------------------------------------------
+
+Requested 2026-08-10 — "fix all bugs and logic that leads to erroneous and
+missleading results". Commit 0ea68bb2.
+
+Fixed, with the reproduction re-run before and after each:
+
+    retrain_round group_by            recorded a random split as grouped
+    retrain_round group_by='none'     same lie, through the DOCUMENTED path
+    holdout_report                    accuracy 1.0 on a set it got 2 of 3
+    annotation_coverage               denominator counted before its filter
+    crops_for_object_keys             escaped keys resolved to nothing
+    frac_missing                      printed 114.3%
+    describe()                        charged policy drops to the filter too
+    show_cam_on_image                 wrapped, so hot rendered as cold
+    show_cam_on_image                 NaN became a silent black image
+    invert_image                      wrapped on signed dtypes
+    key_columns guard                 accepted an identity with no plate/well
+    make_validation_holdout seed      inert; every seed gave one split
+    make_validation_holdout fraction  silently clamped 0.9 to 0.5
+    plot_single_array title           overstated the object count by one
+
+TWO WENT DEEPER THAN THE BRIEF, which is why the agents were told to
+reproduce first rather than patch what they were handed:
+
+  The retrain_round lie was ALSO reachable through `group_by='none'`, a
+  documented and legitimate value. It fell through to n singleton groups and
+  reported the same "no group appears on both sides". Fixing only the typo
+  case would have left the honest path lying.
+
+  holdout_report's fix is not a mask: the confusion matrix now covers every
+  class the TRUTH names, so a class the head cannot predict is an ERROR (its
+  row is all-error, its column stays empty) rather than being dropped. n is
+  the matrix total, so n, class_support and accuracy finally describe one
+  population.
+
+A LATENT DEFECT FOUND ON THE WAY: `export_anndata` rebuilt its ExportResult
+field by field, so it silently dropped any newly added field -- a count
+arriving as its default was indistinguishable from a real zero. It would have
+swallowed the two counts added by the frac_missing fix. Now
+`dataclasses.replace`.
+
+STILL OPEN from the list above: the four `postprocess_*_masks` phantoms
+(registered dead, correctly, and not deletable -- see the settings entry), and
+`MergedCropSource.get_many` raising where its `List[Optional[...]]` return
+type says it skips.
