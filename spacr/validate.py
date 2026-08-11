@@ -36,6 +36,7 @@ import os
 import re
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple
+from .object_roles import SEGMENTED_ROLES
 
 __all__ = [
     "Problem",
@@ -205,7 +206,8 @@ MASK_DIM_KEYS: Tuple[str, ...] = (
     "organelle_mask_dim",
 )
 
-OBJECT_NAMES = ("cell", "nucleus", "pathogen", "organelle")
+#: Exactly the SEGMENTED roles -- cytoplasm has no channel to validate.
+OBJECT_NAMES = SEGMENTED_ROLES
 
 IMAGE_EXTENSIONS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 

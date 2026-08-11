@@ -65,6 +65,7 @@ from .measure_hooks import (
     unregister_region_filter_hook,
     warn_if_hooks_will_not_reach_workers,
 )
+from .object_roles import ordered
 
 
 # ---------------------------------------------------------------------------
@@ -2459,7 +2460,9 @@ def img_list_to_grid(grid, titles=None):
 
 
 #: crop_mode entries that name a mask _measure_crop_core knows how to crop.
-CROP_MODES = ('cell', 'nucleus', 'pathogen', 'cytoplasm', 'organelle')
+#: Crop modes, in the order the measure pipeline writes them. Membership is
+#: checked against spacr.object_roles; the order stays here.
+CROP_MODES = ordered('cell', 'nucleus', 'pathogen', 'cytoplasm', 'organelle')
 
 
 def _per_crop_mode(value, n_modes, name):
