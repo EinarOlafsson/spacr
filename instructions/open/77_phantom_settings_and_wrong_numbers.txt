@@ -911,3 +911,52 @@ both were disproven by CHECKING, not by re-reading the report. The finders
 were right about a great deal; they were also confidently wrong twice. Every
 remaining item gets the same treatment before it gets a fix: find the test
 that already covers it, and make it fail first.
+
+--------------------------------------------------------------------------------
+2026-08-11 - level='plate' FIXED. THE CHI-SQUARED HALF IS NOT, AND IS PROVEN.
+--------------------------------------------------------------------------------
+
+FIXED. `plot_proportion_stacked_bars` checked `level in ['well', 'plateID']`
+while the setting's tooltip offers 'object', 'well' and 'plate'. The spelling
+the tooltip uses matched neither and fell through to object pooling: one bar
+per condition, no per-plate averaging, no SD whiskers. An unrecognised level
+now raises instead of pooling, because falling back to 'object' is exactly
+what made that invisible.
+
+'plateID' ALSO CHANGED MEANING, and it is worth saying why. It used to group
+by `prc` -- the WELL column -- so a plate-level request averaged wells and
+labelled the result plates. It now groups by `plateID`. An existing test
+parametrized 'plateID' alongside 'well' and passed for that reason; the
+parametrization is removed, because it pinned the bug.
+
+STILL OPEN, and now with a measurement rather than an argument. The tooltip
+says outright:
+
+    "It changes the figure only - the reported statistics always treat the
+     well as the unit of replication."
+
+The second half is false. The chi-squared is computed at the top of the
+function, from `df.groupby([group_column, bin_column]).size()` -- OBJECT
+counts -- before the level branch is ever reached. Run on 1800 objects across
+3 plates x 3 wells:
+
+    level='object'   chi2 = 0.5794   p = 4.4655e-01
+    level='well'     chi2 = 0.5794   p = 4.4655e-01
+    level='plate'    chi2 = 0.5794   p = 4.4655e-01
+    level='plateID'  chi2 = 0.5794   p = 4.4655e-01
+
+Byte-identical. The statistic does not follow the level and never has.
+
+WHY IT IS NOT FIXED HERE. Making the tooltip true means choosing a test, not
+editing a line. A chi-squared on well-level counts is not the well-level
+answer either -- pooling counts across wells is what makes objects the unit
+in the first place. The honest options are a test on the per-well
+proportions (t-test / Mann-Whitney between conditions, which is what
+`spacrGraph` already does elsewhere) or a mixed model with well as a random
+effect. That is a statistical decision for the maintainer.
+
+`tests/test_proportion_bars_level.py::test_the_chi_squared_does_not_follow_
+the_level` PINS THE CURRENT BEHAVIOUR so it cannot be forgotten: when the
+statistic moves to the declared level, that test fails and says to rewrite
+it rather than delete it. Until then, correct the tooltip or the code -- but
+they must not keep disagreeing.
