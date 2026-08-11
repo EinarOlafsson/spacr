@@ -1306,6 +1306,169 @@ def wand_gate(frame: pd.DataFrame, x_column: str, y_column: str,
                        vertices=tuple((float(a), float(b)) for a, b in hull))
 
 
+def _cluster_matrix(frame: pd.DataFrame, x_column: str, y_column: str, *,
+                    eps: float, min_samples: int, scale: bool):
+    """Validate the request and return ``(raw, work)`` for DBSCAN.
+
+    Shared by :func:`cluster_gates` and :func:`cluster_walk_candidates` so a
+    Walk searches the SAME preparation the run it is tuning will use. Scaling
+    is the reason this matters: ``eps`` means a different distance either
+    side of that transform, so a search that scaled differently from the
+    final run would recommend a number that then behaved unlike the preview.
+
+    ``raw`` is in the measurements' own units, for hulls that must be drawn
+    on the real axes; ``work`` is what DBSCAN sees.
+
+    :raises ClusterError: a missing column, one column twice, a parameter out
+        of range, too few usable rows, or a measurement that never varies.
+    """
+    for column in (x_column, y_column):
+        if column not in frame.columns:
+            raise ClusterError(f"{column!r} is not a column of this table")
+    if x_column == y_column:
+        raise ClusterError("clustering needs two different measurements")
+    if eps <= 0:
+        raise ClusterError(f"eps must be positive, got {eps!r}")
+    if int(min_samples) < 2:
+        raise ClusterError(
+            f"min_samples must be at least 2, got {min_samples!r}")
+
+    data = frame[[x_column, y_column]].apply(pd.to_numeric, errors="coerce")
+    data = data.replace([np.inf, -np.inf], np.nan).dropna()
+    if len(data) < int(min_samples):
+        raise ClusterError(
+            f"only {len(data)} rows have both {x_column!r} and {y_column!r}; "
+            f"fewer than min_samples={min_samples}")
+
+    raw = data.to_numpy(dtype=float)
+    spread = raw.std(axis=0)
+    # A constant axis is refused rather than worked around. Every cluster on
+    # it is a straight line, every hull is collinear and has no area, and the
+    # honest result would be an empty list -- which reads as "clustering is
+    # broken" rather than "this measurement is the same for every object".
+    flat = [column for column, sd in zip((x_column, y_column), spread)
+            if sd == 0]
+    if flat:
+        raise ClusterError(
+            f"{flat[0]!r} is the same value for every object here, so there "
+            f"is nothing to cluster along it. Pick a measurement that varies.")
+    work = (raw - raw.mean(axis=0)) / spread if scale else raw
+    return raw, work
+
+
+@dataclass(frozen=True)
+class ClusterCandidate:
+    """One point in a clustering Walk: what this ``eps`` actually produced.
+
+    Kept as data rather than rendered straight into a table so the search is
+    testable without a GUI, and so the caller decides what "best" means --
+    which it must, because the scores disagree on purpose. Silhouette is
+    blind to how much was discarded, so a run that calls 90% of the plate
+    noise and tightly clusters the rest scores beautifully and is useless.
+    """
+
+    #: The neighbourhood radius tried, in the units DBSCAN saw.
+    eps: float
+    #: Clusters found, excluding the noise label.
+    clusters: int
+    #: Share of usable rows DBSCAN labelled noise, 0.0 to 1.0.
+    noise_fraction: float
+    #: Mean silhouette over the clustered points, or None when fewer than two
+    #: clusters were found and the score is undefined.
+    silhouette: Optional[float]
+
+
+def cluster_walk_candidates(frame: pd.DataFrame, x_column: str,
+                            y_column: str, *, eps: float = 0.5,
+                            min_samples: int = 10, scale: bool = True,
+                            steps: int = 12, span: float = 3.0
+                            ) -> List[ClusterCandidate]:
+    """Try a range of ``eps`` around the chosen one and score each result.
+
+    This is what "Walk" means elsewhere in spaCR -- try the space and show
+    the candidates -- applied to the one parameter that decides how many
+    populations DBSCAN finds. ``min_samples`` is deliberately held fixed:
+    sweeping both turns one readable list into a grid, and eps is the
+    parameter users actually get wrong.
+
+    The sweep is GEOMETRIC, from ``eps / span`` to ``eps * span``, because
+    eps is a distance and its useful range spans orders of magnitude -- an
+    arithmetic sweep from 0.1 to 3.0 spends most of its steps in a region
+    where every one gives the same single blob.
+
+    :param eps: the centre of the sweep, normally the user's current value.
+    :param steps: how many radii to try, at least 2.
+    :param span: multiplicative half-width, so 3.0 tries a ninefold range.
+    :returns: one :class:`ClusterCandidate` per radius, ordered by ``eps``
+        ascending. Radii that produce no cluster are INCLUDED, with
+        ``clusters=0``, because "nothing below here works" is the most
+        useful part of the answer.
+    :raises ClusterError: anything :func:`_cluster_matrix` refuses, plus a
+        ``steps`` or ``span`` that cannot describe a sweep.
+    """
+    try:
+        from sklearn.cluster import DBSCAN
+        from sklearn.metrics import silhouette_score
+    except Exception as exc:                       # pragma: no cover
+        raise ClusterError(f"clustering needs scikit-learn ({exc})") from exc
+
+    if int(steps) < 2:
+        raise ClusterError(f"a walk needs at least 2 steps, got {steps!r}")
+    if span <= 1.0:
+        raise ClusterError(
+            f"span must be greater than 1 to describe a range, got {span!r}")
+
+    raw, work = _cluster_matrix(frame, x_column, y_column,
+                                eps=eps, min_samples=min_samples, scale=scale)
+
+    lo, hi = float(eps) / float(span), float(eps) * float(span)
+    steps = int(steps)
+    radii = [lo * (hi / lo) ** (i / (steps - 1)) for i in range(steps)]
+
+    candidates: List[ClusterCandidate] = []
+    for radius in radii:
+        labels = DBSCAN(eps=radius,
+                        min_samples=int(min_samples)).fit_predict(work)
+        found = [lab for lab in np.unique(labels) if lab != -1]
+        noise = float((labels == -1).sum()) / float(len(labels))
+        score = None
+        if len(found) >= 2:
+            keep = labels != -1
+            # Silhouette is defined on the CLUSTERED points only. Including
+            # noise as if it were one more cluster would reward runs that
+            # discard the awkward objects, which is the opposite of useful.
+            try:
+                score = float(silhouette_score(work[keep], labels[keep]))
+            except Exception:
+                score = None
+        candidates.append(ClusterCandidate(
+            eps=float(radius), clusters=len(found),
+            noise_fraction=noise, silhouette=score))
+    return candidates
+
+
+def best_cluster_candidate(candidates: Sequence[ClusterCandidate], *,
+                           max_noise: float = 0.5
+                           ) -> Optional[ClusterCandidate]:
+    """Pick the candidate to recommend, or None when none is defensible.
+
+    Highest silhouette among those that found at least two clusters and did
+    not discard more than ``max_noise`` of the objects. The noise ceiling is
+    the important half: silhouette alone is maximised by a radius that keeps
+    a handful of tight points and calls everything else debris, which scores
+    near 1.0 and answers a question nobody asked.
+
+    Ties break toward the LARGER radius, which merges rather than splits --
+    the conservative direction when two settings score alike.
+    """
+    usable = [c for c in candidates
+              if c.silhouette is not None and c.clusters >= 2
+              and c.noise_fraction <= max_noise]
+    if not usable:
+        return None
+    return max(usable, key=lambda c: (c.silhouette, c.eps))
+
+
 def cluster_gates(frame: pd.DataFrame, x_column: str, y_column: str, *,
                   eps: float = 0.5, min_samples: int = 10,
                   scale: bool = True, max_clusters: int = 20,
@@ -1339,40 +1502,8 @@ def cluster_gates(frame: pd.DataFrame, x_column: str, y_column: str, *,
         raise ClusterError(
             f"clustering needs scikit-learn ({exc})") from exc
 
-    for column in (x_column, y_column):
-        if column not in frame.columns:
-            raise ClusterError(f"{column!r} is not a column of this table")
-    if x_column == y_column:
-        raise ClusterError("clustering needs two different measurements")
-    if eps <= 0:
-        raise ClusterError(f"eps must be positive, got {eps!r}")
-    if int(min_samples) < 2:
-        raise ClusterError(
-            f"min_samples must be at least 2, got {min_samples!r}")
-
-    data = frame[[x_column, y_column]].apply(pd.to_numeric, errors="coerce")
-    data = data.replace([np.inf, -np.inf], np.nan).dropna()
-    if len(data) < int(min_samples):
-        raise ClusterError(
-            f"only {len(data)} rows have both {x_column!r} and {y_column!r}; "
-            f"fewer than min_samples={min_samples}")
-
-    raw = data.to_numpy(dtype=float)
-    spread = raw.std(axis=0)
-    # A constant axis is refused rather than worked around. Every cluster on
-    # it is a straight line, every hull is collinear and has no area, and the
-    # honest result would be an empty list -- which reads as "clustering is
-    # broken" rather than "this measurement is the same for every object".
-    flat = [column for column, sd in zip((x_column, y_column), spread)
-            if sd == 0]
-    if flat:
-        raise ClusterError(
-            f"{flat[0]!r} is the same value for every object here, so there "
-            f"is nothing to cluster along it. Pick a measurement that varies.")
-    if scale:
-        work = (raw - raw.mean(axis=0)) / spread
-    else:
-        work = raw
+    raw, work = _cluster_matrix(frame, x_column, y_column,
+                                eps=eps, min_samples=min_samples, scale=scale)
 
     labels = DBSCAN(eps=float(eps),
                     min_samples=int(min_samples)).fit_predict(work)
