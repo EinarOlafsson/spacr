@@ -1462,11 +1462,33 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
     
     stack = _remove_outside_objects(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim)
 
-    for i, mask_dim in enumerate(mask_dims):
-        if not filter_min_max is None:
-            min_max = filter_min_max[i]
-        else:
+    # filter_min_max is in ROLE order -- [cell, nucleus, pathogen] -- while
+    # mask_dims is the COMPACTED list of the planes that exist. Indexing one
+    # by the other's position only agrees when every role is enabled.
+    #
+    # With cell_mask_dim=4, nucleus_mask_dim=None, pathogen_mask_dim=6,
+    # mask_dims is [4, 6]: i=0 gave the cell its own range, and i=1 gave the
+    # PATHOGEN the nucleus's range. So on any run with a disabled object, one
+    # object type was size-filtered by another's limits -- objects removed
+    # from the figure that the settings never asked to remove, and objects
+    # kept that they did.
+    _role_index = {}
+    for _position, _dim in enumerate((cell_mask_dim, nucleus_mask_dim,
+                                      pathogen_mask_dim)):
+        if _dim is not None and _dim not in _role_index:
+            _role_index[_dim] = _position
+
+    for mask_dim in mask_dims:
+        if filter_min_max is None:
             min_max = [0, 100000000]
+        else:
+            _position = _role_index.get(mask_dim)
+            if _position is None or _position >= len(filter_min_max):
+                # A plane that is not one of the three named roles has no
+                # declared range. Unfiltered beats borrowing a neighbour's.
+                min_max = [0, 100000000]
+            else:
+                min_max = filter_min_max[_position]
 
         mask = np.take(stack, mask_dim, axis=2)
         props = measure.regionprops_table(mask, properties=['label', 'area'])
