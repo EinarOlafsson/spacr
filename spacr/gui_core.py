@@ -775,7 +775,7 @@ def import_settings(settings_type='mask'):
     global vars_dict, scrollable_frame, button_scrollable_frame
 
     from .gui_utils import convert_settings_dict_for_gui, hide_all_settings, attach_dependency_listeners
-    from .settings import generate_fields, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model
+    from .settings import generate_fields, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, deep_spacr_defaults
     from .settings import set_default_generate_barecode_mapping, set_default_umap_image_settings, get_analyze_recruitment_default_settings
     from .settings import get_default_generate_activation_map_settings, get_analyze_plaque_settings, get_automated_motility_assay_default_settings
     from .settings import categories, category_dependencies, category_group_dependencies
@@ -843,7 +843,16 @@ def import_settings(settings_type='mask'):
     elif settings_type == 'measure':
         settings = get_measure_crop_settings(settings={})
     elif settings_type == 'classify':
-        settings = set_default_train_test_model(settings={})
+        # THE SAME FACTORY THAT BUILT THE PANEL. This used to be
+        # `set_default_train_test_model`, while `setup_settings_panel` builds
+        # Classify from `deep_spacr_defaults` -- and `update_settings_from_csv`
+        # keeps only keys the factory produced. So importing a Classify CSV
+        # rebuilt the panel from a smaller key set and silently dropped
+        # everything outside it: 80 widgets before the import, 46 after, with
+        # apply_model_to_dataset, model_path, generate_training_dataset and
+        # score_threshold among the casualties -- exactly the keys a user
+        # saves a settings CSV to preserve.
+        settings = deep_spacr_defaults(settings={})
     elif settings_type == 'sequencing':
         settings = set_default_generate_barecode_mapping(settings={})
     elif settings_type == 'umap':
@@ -855,7 +864,11 @@ def import_settings(settings_type='mask'):
     elif settings_type == 'analyze_plaques':
         settings = get_analyze_plaque_settings(settings={})
     elif settings_type == 'convert':
-        settings = {}
+        # Same as setup_settings_panel builds it. This was `{}`, so importing
+        # a Convert CSV rebuilt an entirely empty panel and dropped 'src'
+        # along with everything else -- the same defect as 'classify' above,
+        # one line further down.
+        settings = {'src': 'path to images'}
     else:
         raise ValueError(f"Invalid settings type: {settings_type}")
     
