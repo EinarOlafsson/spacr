@@ -114,3 +114,79 @@ the point of this), 73 (advanced settings sub-sections, which become
 per-instance), 71 (the four prerequisites any new column must clear, and the
 neighbour family that gets much more useful with two organelle classes), 37
 (the same "settings are spelled out per object" problem in classify).
+
+--------------------------------------------------------------------------------
+2026-08-11 - STEP 1 DONE: ~450 SITES INVENTORIED. FULL PLAN IN instructions/data/
+--------------------------------------------------------------------------------
+
+`instructions/data/76_migration_plan.txt` carries the migration plan, the
+per-file counts and the file:line lists. Roughly 355 mechanical / 95
+judgement across the package, EXCLUDING `spacr/qt/**` (a concurrent session
+owns it -- it is unsearched, not zero: `qt/widgets/live_preview.py:111` alone
+holds another copy of the vocabulary).
+
+THE HEADLINE, and it makes the job smaller than the count suggests: there is
+no single source of the object vocabulary. There are ELEVEN competing
+"canonical" constants, each spelled out independently --
+
+    OBJECT_TYPES        measure_hooks.py:142, feature_dict.py:98, schema.py:231
+    OBJECT_TABLES       schema.py:1554, filters.py:49, merge_tables.py:96
+    CROP_OBJECT_TYPES   io.py:4032
+    CROP_MODES          measure.py:2462
+    OBJECT_TYPES        crops.py:146, diameter.py:129
+    OBJECT_NAMES        validate.py:208
+
+Only two derive from another. COLLAPSING THESE ONTO ONE ROLE REGISTRY IS
+MECHANICAL AND FIXES ~40 DOWNSTREAM SITES FOR FREE -- do it first, as its own
+change, before anything about a second organelle.
+
+FIVE THINGS THAT ARE JUDGEMENTS, NOT EDITS:
+
+  1. `<parent>_organelle_summary` is a table-NAME family. With three
+     organelles 4 tables become 12, every existing database has the old
+     names, and feature_dict parses those names with a regex (2255/2262) and
+     rebuilds them with an f-string (2418).
+  2. THE PLANE BUDGET IS FULL. `crops.py:141` puts organelle at plane 7, the
+     last, and `io.py:3133` takes the four mask dims POSITIONALLY. Each extra
+     organelle is another plane.
+  3. `_morphological_measurements` and `_intensity_measurements` are
+     5-positional in AND 5-positional out (`measure.py:1132`, `:1485`,
+     unpacked at `:2839`/`:2841`). The single largest refactor.
+  4. `summarize_organelles_by` is a PARENT list in which "organelle" is a
+     magic member meaning "also write the raw table". With N organelles it
+     needs a second axis.
+  5. CYTOPLASM IS "CELL MINUS EVERYTHING ELSE" (`measure.py:2743`,
+     `crops.py:542`). It must subtract EVERY organelle role, or lipid
+     droplets get measured as cytoplasm.
+
+TWO TRAPS TO KNOW BEFORE STARTING:
+
+  `schema.py:239` sorts `_OBJECT_TYPE_MATCH` longest-first BECAUSE
+  'organelle' starts with 'o', the untyped-object prefix. Naming a second one
+  `organelle_1` adds a second hazard on the same line: 'organelle' is itself
+  a prefix of 'organelle_1', so the ordering becomes load-bearing twice over.
+
+  `schema.py:1617` CANONICAL_OBJECT_TABLES deliberately EXCLUDES organelle,
+  and `schema.py:1712` OBJECT_TABLE_SCHEMAS has no organelle entry. Bringing
+  organelle INTO the object-table contract is a prerequisite, not a
+  side-effect.
+
+A DEFECT FOUND WHILE COUNTING, AND GUARDED TODAY: forty organelle defaults
+are written TWICE -- `set_default_settings_preprocess_generate_masks`
+(settings.py:467-518) and `_set_organelle_defaults` (:4411-4468), which
+`object.py:1448` and `core.py:207` call. They agree exactly today and NOTHING
+ENFORCED THAT. Two hand-written copies of forty values drift silently,
+because a run takes whichever factory it went through and never compares
+them: the same plate measured two ways, with no error and nothing in the log.
+`tests/test_organelle_defaults_agree.py` now fails on any divergence.
+
+That test is a holding pattern, not the fix. Deleting the duplication is step
+one of this instruction's settings work, and the test should be deleted with
+it.
+
+NOTE THE NEAR-MISS in writing that guard: an unscoped scan for
+`setdefault('organelle_*')` also catches `get_measure_crop_settings`, where
+`organelle_min_size` deliberately defaults to 0 against the mask pipeline's
+10. That is a real difference between two PIPELINES, not a drift between two
+COPIES, and comparing them would have made the guard fail on correct code --
+which is how a guard gets deleted instead of heeded.
