@@ -727,6 +727,45 @@ class _TileReader:
 
         Only the requested rectangle is faulted in. The returned array is
         ``(y1 - y0, x1 - x0, len(channels))``.
+
+        :param y0: first row of the window, in this tile's own pixel
+            coordinates. May be negative — the overhang comes back as zeros
+            rather than being clamped, so the result keeps the size asked
+            for and the pixels stay at the offset the caller placed them at.
+        :param y1: one past the last row (half-open). May exceed the tile
+            height; that overhang is padded the same way. Must not be below
+            ``y0``: the output shape is computed as ``y1 - y0``, so a
+            reversed window raises ``ValueError`` out of ``np.zeros`` before
+            anything is read. Equal bounds give a zero-height array.
+        :param x0: first column, negative allowed as for ``y0``.
+        :param x1: one past the last column, over-wide allowed as for ``y1``
+            and reversed rejected as for ``y1``. A window entirely outside
+            the tile is all zeros, not an error.
+        :param channels: indices in output order — result plane ``k`` holds
+            ``channels[k]``, repeating an index repeats the plane, and an
+            empty sequence yields an ``(h, w, 0)`` array. What an index
+            *selects* depends on how the site is stored: when
+            :attr:`Tile.channel_paths` is set it picks the sibling file and
+            only plane 0 of that file is ever read, so additional planes
+            inside a sibling are unreachable from here; otherwise it picks a
+            plane of the single file. Out-of-range and negative indices are
+            not handled uniformly — see below.
+        :param dtype: dtype of the returned array, and of the cast applied
+            to the tile's pixels. That cast is a plain ``astype``: narrowing
+            a ``uint16`` tile to ``uint8`` wraps modulo — 300 comes back as
+            44 — it does not rescale or clip. Passing ``None`` does not mean
+            "the tile's own dtype"; it resolves through ``np.dtype`` to
+            ``float64``.
+
+        An index the site does not have behaves differently per backing
+        store, which is worth knowing before relying on either. A merged
+        ``(H, W, C)`` ``.npy`` is served by
+        :meth:`~spacr.crops.MergedField.read_window`, which raises
+        ``CropError``; every other layout — 2-D or channel-first ``.npy``,
+        TIFF, split channel files — silently leaves that output plane zero.
+        On the silent paths a negative index is not rejected either: for a
+        single-file tile it wraps Python-style, so ``-1`` reads the last
+        plane, while for split channel files it is filtered out to zeros.
         """
         out = np.zeros((int(y1 - y0), int(x1 - x0), len(channels)),
                        dtype=np.dtype(dtype))
