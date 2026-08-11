@@ -3863,7 +3863,27 @@ def _read_and_merge_data(
         merged_df = _merge_grouped(merged_df, png_list_g_df_non_numeric)
 
     metadata = metadata.assign(prc=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'])
-    cells_well = metadata.groupby('prc')[metadata_key].nunique().reset_index(name='cells_per_well')
+
+    # `prcfo` -- the per-OBJECT key -- has to exist before the well count,
+    # because the count is of objects and `metadata_key` alone does not
+    # identify one. `object_label` is assigned by the segmenter per FIELD and
+    # restarts at 1 in each, so `nunique()` over a well counted distinct LABEL
+    # VALUES: a 9-field well holding 360 cells reported roughly 40, the size
+    # of its largest field.
+    #
+    # That number is not cosmetic. `cells_per_well` is documented as the
+    # minimum a well must contribute and is used to drop under-populated
+    # wells, so a threshold of 100 discarded every well on a plate that
+    # averaged 360 cells -- and the wells it kept were the ones with the most
+    # crowded single field, which is the opposite of the intent.
+    if 'prcf' in metadata.columns:
+        metadata = metadata.assign(prcfo=lambda x: x['prcf'] + '_' + x[metadata_key])
+    else:
+        metadata = metadata.assign(
+            prcfo=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'] + '_' + x['fieldID'] + '_' + x[metadata_key]
+        )
+
+    cells_well = metadata.groupby('prc')['prcfo'].nunique().reset_index(name='cells_per_well')
     metadata = _merge_with_cardinality(
         metadata,
         cells_well,
@@ -3872,13 +3892,6 @@ def _read_and_merge_data(
         left_name='object metadata',
         right_name='well counts',
     )
-
-    if 'prcf' in metadata.columns:
-        metadata = metadata.assign(prcfo=lambda x: x['prcf'] + '_' + x[metadata_key])
-    else:
-        metadata = metadata.assign(
-            prcfo=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'] + '_' + x['fieldID'] + '_' + x[metadata_key]
-        )
 
     metadata.set_index('prcfo', inplace=True)
 
