@@ -399,3 +399,72 @@ WHY THESE ARE LISTED RATHER THAN FIXED HERE: each changes what a figure or a
 table shows, and three of them are in the plotting layer where the right fix
 is a judgement about what the user should see (should a short palette raise,
 cycle, or extend?). They are ranked wrong-output first.
+
+--------------------------------------------------------------------------------
+2026-08-11 - THE SECOND DOCUMENTATION SWEEP. Each verified by execution.
+--------------------------------------------------------------------------------
+
+SILENT WRONG OUTPUT
+
+  align.window: AN OUT-OF-RANGE CHANNEL INDEX BEHAVES DIFFERENTLY PER STORAGE
+  LAYOUT. A merged (H,W,C) .npy goes through crops.MergedField.read_window,
+  which validates and raises CropError. Every other layout -- 2-D .npy,
+  channel-first (C,H,W), TIFF, split channel files -- has NO validation and
+  silently leaves that output plane ZERO. Same call, same-looking tile, error
+  or silent zeros depending only on what is on disk.
+
+  A NEGATIVE index diverges three ways in the same function: merged raises;
+  a single-file memmap wraps Python-style, so channels=[-1] silently returns
+  the LAST plane; split-channel tiles fail a `0 <= group` guard and return
+  zeros.
+
+  align.window's dtype cast is a bare astype with no rescale or clip, so
+  narrowing WRAPS MODULO: a uint16 pixel of 300 read with dtype='uint8'
+  comes back as 44.
+
+  layers.Canvas.for_grid with depth=None pins every out-of-plane axis at
+  world 0 rather than at that axis's own translate. For a 3-D layer with
+  origin z=10.0 the canvas sits off the volume and EVERY LAYER RENDERS BLANK
+  -- coverage 0.0, no error, no warning. Verified: LabelsLayer and ImageLayer
+  both give coverage 0.0 by default and 12.0 with depth={'z': 10.0}.
+
+  lineage.tree_for(typed=False) RESOLVES A COLLIDING KEY TO THE WRONG FAMILY.
+  With nucleus 3 in cell 8 and pathogen 3 in cell 7, both collapse to
+  'plate1_r1_c1_f1_3' and the call returns cell 7 -- the first root in
+  field-then-label order -- whichever the caller meant.
+
+SHAPE THAT BREAKS BATCHING
+
+  crop_source.crop_at never calls _resize while crop_object does, so the same
+  `size` setting means "guaranteed size x size" on one path and "at most this,
+  unpadded" on the other. crop_at(a, 0, 0, size=6) on a 10x10 array returns
+  (3,3,1) and crop_at(a, 9, 9, size=6) returns (4,4,1): crops near a border
+  silently come out a different shape, which is what breaks naive batching.
+  `half = max(1, int(size) // 2)` also makes the box side always even and
+  never below 2, so size=5 cuts 4 px and size=0 or -4 cut 2 px.
+
+RESOURCE LEAKS
+
+  database_concurrency.run_concurrency_probe leaks its temporary directory
+  when journal_mode is rejected: 'MEMORY' and 'TRUNCATE' raise
+  DatabaseConfigurationError from connect() AFTER mkdtemp has run, and the
+  cleanup is the last statement of the function. Reproduced twice.
+  A stalled worker also leaks it, but that one is deliberate -- cleanup is
+  guarded by `not alive` so a hung thread's database survives for inspection.
+  An EXPLICIT path is never cleaned either, which is what makes the next run
+  on that path fail with FileExistsError.
+
+QUIET COERCION
+
+  run_concurrency_probe int()-coerces its three counts before the >= 1 check,
+  so writers=2.9 becomes 2 and writes_per_writer=3.7 becomes 3 with no
+  warning; strings work too. journal_mode is typed `str` but None is accepted
+  and means "do not set it", so the probe reports DELETE -- a quiet non-WAL
+  run rather than an error.
+
+WHY LISTED RATHER THAN FIXED: every one is a decision about intended
+behaviour, not a repair. Should an out-of-range channel raise everywhere, or
+zero-fill everywhere? Should crop_at pad like crop_object, or should the
+setting be renamed on one of the two paths? Ranked silent-wrong-output first;
+`layers.for_grid` and `lineage.tree_for` are the two that produce a confident
+wrong answer rather than a crash.
