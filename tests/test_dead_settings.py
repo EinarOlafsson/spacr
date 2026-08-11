@@ -172,7 +172,27 @@ def _live_tokens():
             tokens |= visitor.tokens
             files += 1
     assert files > 30, f"only scanned {files} modules; the scan is not running"
-    return tokens
+    return tokens - _NAMES_THAT_ARE_NOT_SETTING_READS
+
+
+#: Keys whose SPELLING collides with a live string literal that has nothing
+#: to do with the setting. The scan is deliberately name-based -- that is what
+#: makes it impossible to fool by an indirect read -- but a two-letter name is
+#: cheap enough that another meaning exists.
+#:
+#: 'nc' and 'pc' are the settings that named the negative and positive control
+#: gRNA in get_map_barcodes_default_settings. Nothing reads either:
+#: `settings['nc']` and `settings.get('nc')` appear nowhere in spacr/. What the
+#: scan finds instead is the CLASS NAME 'nc' -- submodules.py:2387 and :3361
+#: `settings.setdefault('pathogen_types', ['nc', 'pc'])`, io.py:5735
+#: `classes = ['nc', 'pc']`, hits.py:561 and :848 filtering
+#: `condition in ("nc", "pc", "control")`. Same two letters, different thing.
+#:
+#: Listed here rather than by loosening the scan, so the exemption is two
+#: names with a reason and not a hole. Anything added here needs the same:
+#: the grep that proves there is no settings read, and the line that shows
+#: what the collision actually is.
+_NAMES_THAT_ARE_NOT_SETTING_READS = {"nc", "pc"}
 
 
 def _declared_settings():
