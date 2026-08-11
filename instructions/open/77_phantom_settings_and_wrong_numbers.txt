@@ -1,0 +1,761 @@
+================================================================================
+THE SETTINGS NOTHING READS, AND THE NUMBERS THAT COME OUT WRONG
+================================================================================
+
+Status:    not started, 2026-08-11. 24 defects located and verified; the
+           three checked by hand were all real. NONE of the fixes below are
+           written yet.
+Requested: 2026-08-08 - "remove phantom settings that are not used anyware.
+           make sure their removal dosnt break the legacy application or the
+           new alpplication"
+           2026-08-08 - "fix all bugs and logic that leads to erroneous and
+           missleading results"
+
+--------------------------------------------------------------------------------
+WHERE THIS LIST CAME FROM
+--------------------------------------------------------------------------------
+
+Instruction 48's Gate Editor section turned out to be right about a "product
+mismatch": five GateEditorSettings fields were saved, reloaded and read by
+nothing, and the algorithm picker offered k-means while the code ran DBSCAN
+regardless. Those are fixed (48, 52). The question this file answers is how
+much MORE of that there is.
+
+A five-lens sweep of the shipped package, each finding adversarially checked
+by two independent skeptics told to default to "refuted" when unsure. 26
+verdicts, 25 survived. Three were then confirmed by hand -- the discarded
+Levene test, the sorted-vs-unsorted Cellpose filenames, and the outlier
+trimming that moves p-values -- and all three were real, which is the reason
+to trust the rest enough to work the list rather than re-derive it.
+
+ONE IS ALREADY FIXED: plot.py's discarded Levene test (commit 4dbb2a37).
+It is left in the list below, marked, because it is the worked example of
+what the rest look like.
+
+--------------------------------------------------------------------------------
+HOW TO WORK THIS LIST
+--------------------------------------------------------------------------------
+
+Severity order, not file order. A wrong number that looks right is worse
+than a control that does nothing, because the second is noticed.
+
+For a PHANTOM SETTING the standing rule is to delete it -- but instruction
+48 set the precedent that overrides it: where the setting names a feature
+someone actually asked for, implement it instead. Walk was implemented for
+exactly that reason. Check the instruction list before deleting.
+
+Every fix needs a test that FAILS without it. The reason this list exists is
+that all 24 passed CI.
+
+--------------------------------------------------------------------------------
+THE FINDINGS
+--------------------------------------------------------------------------------
+
+ 1. spacr/plot.py:5560
+    level='plate' silently falls through to object-level pooling in plot_proportion_stacked_bars
+
+    WHAT IS WRONG:
+      `plot_proportion_stacked_bars` branches on `if level in ['well', 
+      'plateID']`, but the setting it is fed only ever holds 'object', 'well' 
+      or 'plate' — never the string 'plateID'. Every caller passes 
+      `level=settings['level']` verbatim (spacr/submodules.py:2150, :3268, 
+      :4823) and each one explicitly prepares a plate key for it first 
+      (`prc_column = 'plateID' if settings['level'] == 'plate' else 'prc'`, 
+      submodules.py:3259 and :4808; `'plate'` at :2138). So 'plate' misses 
+      the aggregation branch entirely and drops into the `else:` branch that 
+      pools every object. The prepared `prc_column` is then never read. The 
+      settings tooltip (spacr/settings.py:3159) promises "'plate' does the 
+      same across plates", i.e. averaged per-plate proportions with SD 
+      whiskers.
+
+    FAILS LIKE THIS:
+      Run analyze_replication / analyze_invasion / analyze_endodyogeny with 
+      settings['level'] = 'plate' on a 3-plate screen. The user expects a bar 
+      per condition whose height is the mean of the 3 per-plate proportions 
+      with an SD whisker across plates. What is drawn is `group_counts / 
+      group_totals` over every parasite pooled — identical to level='object', 
+      with no whiskers at all — so a condition whose effect exists on one 
+      plate only and is driven by that plate's higher object count is 
+      rendered as a clean condition-level proportion, and the plate-to-plate 
+      spread the option exists to expose is never shown.
+
+
+ 2. spacr/timelapse.py:1811
+    peaks_per_cell divides by a cell count that collides across fields of the same well
+
+    WHAT IS WRONG:
+      `summarize_per_well` counts cells per well as 
+      `nunique('object_number')` grouped on `well_ID`, where `well_ID = rowID 
+      + '_' + columnID` (line 1794) and `object_number` is the per-field 
+      object label (`cell_df['object_number'] = cell_df['object_label']`, 
+      timelapse.py ~1976). Object labels restart at 1 in every field, so two 
+      fields of the same well that both contain objects 1..N contribute 
+      nunique = N, not 2N. The denominator is therefore the number of 
+      distinct object *labels* in the well, not the number of cells. The same 
+      function already has a field-aware count one line above — 
+      `unique_IDs_with_amplitude=('ID', 'nunique')` on the full 
+      `plate_row_column_field_object` key — so the correct denominator is 
+      available and is not the one used. Identical bug at line 1854 in 
+      `summarize_per_well_inf_non_inf`.
+
+    FAILS LIKE THIS:
+      A calcium-oscillation run with 4 fields per well, ~60 cells per field: 
+      the well truly holds ~240 cells and produces, say, 480 peaks. 
+      `cells_per_well` comes back as ~60 (the label range), so the CSV 
+      reports `peaks_per_cell = 480/60 = 8.0` instead of 2.0 — a 4x 
+      overstatement that scales with the number of fields imaged, so a well 
+      imaged at 6 fields looks more oscillatory than the same biology imaged 
+      at 2.
+
+
+ 3. spacr/plot.py:4129
+    spacrGraph reports n_object and n_well from the same aggregated frame, so one of the two is always wrong
+
+    WHAT IS WRONG:
+      In `spacrGraph.perform_statistical_tests`, both `n_object` and `n_well` 
+      are counted off `self.df`. But `__init__` (plot.py:3840-3841) keeps the 
+      un-aggregated frame in `self.raw_df` and replaces `self.df` with 
+      `preprocess_data()`, which collapses to one row per well when 
+      `representation='well'` and one per plate when 
+      `representation='plate'`. So at well/plate representation `n_object` 
+      counts wells (or plates), and at object representation `n_well` counts 
+      objects. The two columns are numerically identical in every run. 
+      `perform_posthoc_tests` on the same object does use `self.raw_df` for 
+      its `n_object` (plot.py:4165-4166, 4194-4195), so the single stats CSV 
+      mixes the two meanings under one column name.
+
+    FAILS LIKE THIS:
+      Build a spacrGraph with representation='well' on a plate of 12 wells 
+      and 4,382 cells and save the stats. The T-test row reports n_object = 
+      12 and n_well = 12; the Tukey/Dunn post-hoc rows in the same CSV report 
+      n_object = 4,382 for the same comparison. A reader quoting n_object as 
+      the sample size gets 12 from one row and 4,382 from the next, and the 
+      object count the t-test row claims is the well count.
+
+
+ 4. spacr/plot.py:4344
+    remove_outliers, documented as plot-only, trims the data the p-values are computed on
+
+    WHAT IS WRONG:
+      `create_plot` reassigns `self.df = self.remove_outliers_from_plot()` 
+      and only then runs the normality test, Levene, the group test and the 
+      post-hoc — all of which read `self.df`. The method's own docstring says 
+      "Remove outliers from the plot but keep them in the data" and the class 
+      docstring says "Drop 1.5*IQR outliers per group before plotting", so 
+      the option presents as cosmetic. Nothing in `results_df` records that 
+      trimming happened or how many rows went. The post-hoc block compounds 
+      it: its `n_object` is taken from the untrimmed `self.raw_df` while the 
+      Tukey/Dunn p-value beside it was computed on the trimmed `self.df`.
+
+    FAILS LIKE THIS:
+      A user re-renders the same comparison with remove_outliers=True purely 
+      to tidy the figure. Every row of the saved test_results CSV changes: 
+      with a right-skewed recruitment ratio, dropping the per-group 
+      >Q3+1.5*IQR tail shrinks both variance and the group difference, so a 
+      Mann-Whitney/T-test p of 0.03 can move either side of 0.05 with no 
+      record in the output that a different sample was tested — and the 
+      post-hoc rows still advertise the full, untrimmed n.
+
+
+ 5. spacr/plot.py:4349
+    spacrGraph computes Levene's equal-variance test and discards it, then runs equal-variance t-test/ANOVA anyway
+
+    WHAT IS WRONG:
+      `create_plot` calls `perform_levene_test` and binds the result to 
+      `levene_stat, levene_p`, which are never read again — the next line 
+      builds `results_df` from `normality_results + test_results + 
+      posthoc_results` only, and grep confirms 'levene' appears nowhere else 
+      in the file outside the import, the method and this call. The 
+      parametric branch is then selected on normality alone and runs 
+      `ttest_ind(grouped_data[0], grouped_data[1])` (scipy default 
+      `equal_var=True`, i.e. Student's, not Welch's) and `f_oneway`, neither 
+      of which tolerates heteroscedasticity. The variance check the code 
+      performs is the one thing that would have flagged that, and it is 
+      thrown away.
+
+    FAILS LIKE THIS:
+      Compare a low-variance control group (n=30) against a high-variance 
+      treated group (n=8) on a normally-distributed feature. Levene's p comes 
+      back at 0.001 — the assumption is violated and n is unbalanced in the 
+      anticonservative direction — but the value is dropped, Student's t-test 
+      runs on the pooled variance and reports p = 0.02 where Welch's gives p 
+      = 0.11. The user sees a significant result and no equal-variance row 
+      anywhere in the saved stats CSV to contradict it.
+
+
+ 6. spacr/io.py:257
+    _load_images_and_labels returns image_names sorted while images keep the caller's (shuffled) order, so Cellpose masks are written under other images' filenames
+
+    WHAT IS WRONG:
+      `image_names` is built with `sorted(...)`, but `images` is appended in 
+      `image_files` order in the loops below (and unreadable files are 
+      skipped with `continue`, shortening it further). The two returned lists 
+      are therefore not positionally paired. Its sibling loader 
+      `_load_normalized_images_and_labels` (io.py:334) deliberately does NOT 
+      sort — `image_names = [os.path.basename(f) for f in image_files]` — 
+      which is what makes the divergence visible: the normalize=True path is 
+      aligned and the normalize=False path is not. Both Cellpose mask 
+      generators consume the two by position after `random.shuffle`ing the 
+      file list, so the mismatch is essentially guaranteed rather than 
+      incidental.
+
+    FAILS LIKE THIS:
+      Run `identify_masks_finetune(settings)` with `normalize=False` on a 
+      folder holding a.tif, b.tif, c.tif. spacr_cellpose.py:169 
+      `random.shuffle(all_image_files)` makes image_files e.g. 
+      ['c.tif','a.tif','b.tif']; `images` loads in that order, but 
+      `image_names` comes back as ['a.tif','b.tif','c.tif']. At 
+      spacr_cellpose.py:245 `output_filename = os.path.join(dst, 
+      image_names[file_index])` writes c.tif's mask to masks/a.tif, a.tif's 
+      mask to masks/b.tif and b.tif's mask to masks/c.tif. Every mask in 
+      masks/ then belongs to a different field than its filename claims, and 
+      every downstream measurement joins that mask to the wrong image. The 
+      same two lines exist again in `generate_masks_from_imgs` (shuffle at 
+      spacr_cellpose.py:296, write at spacr_cellpose.py:352), which is what 
+      `check_cellpose_models` calls. Switching normalize to True makes the 
+      problem disappear, because that loader does not sort.
+
+
+ 7. spacr/plot.py:1467
+    plot_merged indexes filter_min_max by compacted mask position, so one object type's size filter is applied to another
+
+    WHAT IS WRONG:
+      `mask_dims` is a COMPACTED list — Nones are dropped at plot.py:1726 — 
+      but `filter_min_max` is documented (settings.py:3225) as "one 
+      [min_area, max_area] pair in pixels per mask dimension, in the order 
+      cell, nucleus, pathogen", i.e. a fixed 3-slot list. 
+      `_filter_objects_in_plot` pairs them with `enumerate(mask_dims)` -> 
+      `filter_min_max[i]`, so as soon as any of the three mask dims is None 
+      the two sequences go out of step and each remaining mask is filtered 
+      with the range belonging to an earlier object type. The sibling list 
+      `mask_names` on the very next line (1727) is compacted the same way as 
+      `mask_dims` and is therefore correct, which shows the pairing is 
+      positional by intent — `filter_min_max` simply was never compacted with 
+      it.
+
+    FAILS LIKE THIS:
+      Call plot_merged with cell_mask_dim=4, nucleus_mask_dim=None, 
+      pathogen_mask_dim=6 and 
+      filter_min_max=[[500,50000],[100,5000],[10,2000]] (the documented 
+      cell/nucleus/pathogen order). mask_dims becomes [4, 6]. i=0 filters the 
+      cell mask with [500,50000] (correct); i=1 filters the PATHOGEN mask 
+      with [100,5000] — the nucleus range — so every pathogen under 100 px is 
+      erased from the overlay and the pathogen's own [10,2000] range is never 
+      applied at all. The user sees an overlay with real parasites missing 
+      and oversized ones kept, with no warning. The same shift happens with 
+      cell_mask_dim=None (cell range applied to nuclei, nucleus range applied 
+      to pathogens).
+
+
+ 8. spacr/qt/annotate_engine.py:511
+    Qt annotate threshold filter zips measurements against thresholds, silently dropping the trailing filters when the two lists differ in length
+
+    WHAT IS WRONG:
+      `fetch_filtered_paths` broadcasts only the len==1 case (lines 505-509); 
+      any other length mismatch falls through to `zip(measurements, 
+      thresholds, directions)`, which truncates to the shortest input and 
+      applies no filter at all for the surplus measurement columns. The Tk 
+      implementation of the same feature refuses this — 
+      `_normalize_filter_inputs` raises `ValueError(f"len(threshold) = 
+      {len(t)} does not match len(measurement) = {n}.")` at 
+      gui_elements.py:4479 — so the Qt screen accepts a setting it does not 
+      honour and reports the resulting (too large) row count as the filtered 
+      total.
+
+    FAILS LIKE THIS:
+      In the Qt Annotate settings dialog 
+      (spacr/qt/screens/annotate.py:850-864, both fields are free-text 
+      comma-separated line edits) enter Measurement column(s) = "cell_area, 
+      nucleus_area, pathogen_area" and Threshold(s) = "500, 200". 
+      `_csv_to_list` produces 3 measurements and 2 thresholds; the len==1 
+      broadcast does not apply, so zip yields 2 triples and the pathogen_area 
+      cutoff is never applied. Every object that should have been excluded by 
+      the third rule is still shown in the annotation grid and counted in the 
+      "N objects" total, with no error and no message — the annotator labels 
+      a population that is not the one they asked for.
+
+
+ 9. spacr/io.py:7472
+    prepare_cellpose_dataset zips image pairs against a mis-sized augmentation list, so the "balanced" training split is not balanced
+
+    WHAT IS WRONG:
+      The augmentation loop is meant to add exactly `needed = target_size - 
+      dataset_len` pairs. Instead each of the `full_loops = needed // 
+      len(aug_methods)` iterations emits `min(dataset_len, len(aug_methods) * 
+      (dataset_len // len(aug_methods)))` pairs, because `zip` truncates 
+      `pairs` against `aug_methods * (dataset_len // len(aug_methods))`. That 
+      count only equals `len(aug_methods)` when `dataset_len` is an exact 
+      multiple of 5; otherwise the dataset is over-augmented, and when 
+      `dataset_len < len(aug_methods)` the multiplier is 0, the list is empty 
+      and zip yields nothing at all. The docstring states the function 
+      "balances datasets to a common size (with augmentations if requested)".
+
+    FAILS LIKE THIS:
+      Run prepare_cellpose_dataset(input_root, augment_data=True) over three 
+      dataset folders holding 12, 20 and 29 image/mask pairs. target_size = 
+      29 and get_augmentations() returns 5 names. For the 12-pair folder: 
+      needed=17, full_loops=3, extra=2; each loop zips 12 pairs against 
+      aug_methods*(12//5=2) = 10 entries, so 10 pairs per loop -> 30, plus 2 
+      from the extra branch -> the folder contributes 12+32 = 44 pairs 
+      against a target of 29. A folder with 4 pairs gets aug_methods*(4//5=0) 
+      == [], zip yields nothing, and it contributes 4. The resulting 
+      train/test split therefore holds 44 / 29 / 4 pairs from the three 
+      sources instead of 29 each, so the Cellpose model is trained with the 
+      sample weighting inverted relative to what augment_data=True promised, 
+      and nothing reports it.
+
+
+10. spacr/io.py:3850
+    cells_per_well counts distinct per-field object labels, so it undercounts a well's cells by roughly the number of fields
+
+    WHAT IS WRONG:
+      `metadata` holds one row per (plate,row,column,field,object) — its 
+      index is `prcfo`, which includes the field — and `object_label` is the 
+      per-image mask label, rewritten to 'o1','o2',… inside each field (line 
+      3720). Counting a well's cells with `.nunique()` on that label 
+      therefore counts the UNION of per-field label sets, not the objects. A 
+      well imaged in 9 fields with 40 cells each has 360 cells but 40 
+      distinct labels. The value is written into the merged frame as 
+      `cells_per_well`, exported in wells.csv/cells.csv, and used as the 
+      threshold column by `analyze_recruitment` (`spacr/submodules.py:1034`, 
+      `df_well = df_well[df_well['cells_per_well'] >= 
+      settings['cells_per_well']]`). The correct count is `.size()` on the 
+      already-one-row-per-object metadata (or `nunique()` on `prcfo`).
+
+    FAILS LIKE THIS:
+      A 384-well plate imaged with 9 fields/well, ~40 cells/field (≈360 
+      cells/well). Set `cells_per_well = 100` in analyze_recruitment, 
+      documented as "Minimum cells a well must contribute". `cells_per_well` 
+      computes to ~40 for every well, so EVERY well fails the filter: the 
+      printed line reads "After cells per well filter: 0 cells in 0 wells 
+      left" and both recruitment CSVs come out empty, on a plate where every 
+      well had 3.6x the requested cells. With the default `cells_per_well=0` 
+      no well is dropped, but the `cells_per_well` column exported in 
+      wells.csv still reads 40 instead of 360.
+
+
+11. spacr/merge_tables.py:401
+    Merge policy "drop" deletes every object with any NaN measurement, not just objects with no children
+
+    WHAT IS WRONG:
+      `_apply_na_policy` is documented (and labelled in the GUI) as deciding 
+      "what happens to a primary object with no children". Its `drop` branch 
+      selects the columns to test with `"_" in c`, which matches far more 
+      than the rolled-up child columns: the primary table's own measurements 
+      are all renamed to `<primary>_<column>` at `merge_tables.py:317` 
+      (`cell_area`, `cell_channel_0_mean_intensity`, …), and `png_list_path` 
+      from `_merge_crops` also matches. So `dropna(subset=child_columns, 
+      how="any")` removes any primary object that has a NaN anywhere in its 
+      own measurements or that has no crop path — objects that have all their 
+      children. Nothing is logged; the row count simply changes.
+
+    FAILS LIKE THIS:
+      In the Qt gate editor, set "Merge: missing children" to `drop` 
+      (tooltip: "What happens to an object with no children when tables are 
+      merged") with tables `cell, nucleus, png_list`. Every cell whose 
+      `cell_channel_*_correlation` is NaN (flat channel / object too small 
+      for GLCM), and every cell that has no registered crop in png_list, is 
+      deleted from the working set along with cells that genuinely have a 
+      nucleus. A gate drawn on that scatter then reports e.g. "12 400 of 18 
+      000 objects gated" when the real denominator was 41 000 — silently, 
+      with no message and no notice in the UI.
+
+
+12. spacr/submodules.py:4951
+    analyze_class_proportion turns every unannotated object into class 0, adding a phantom class to the chi-squared table
+
+    WHAT IS WRONG:
+      `class_column` defaults to `'test'` — the png_list annotation column 
+      the Annotate app writes, which is NULL for every crop nobody labelled 
+      and for every merged object that has no png_list row at all. 
+      `fillna(0)` silently converts all of those to the integer class 0. 
+      `plot_proportion_stacked_bars` then builds its contingency table with 
+      `groupby([group_column, bin_column]).size().unstack(fill_value=0)`, so 
+      0 becomes a real category: it is a column of the chi-squared table, it 
+      inflates `dof`, and it enters the denominator of every plotted 
+      proportion. Nothing in the output distinguishes "class 0" from "never 
+      annotated".
+
+    FAILS LIKE THIS:
+      Annotate 500 of 40 000 cells with classes 1 and 2 (250 per class, 
+      evenly split between conditions nc and pc), then run 
+      analyze_class_proportion with the defaults. The saved 
+      class_chi_squared_results.csv reports a 2-group x 3-class test (dof=2, 
+      not 1) whose largest cell is the 39 500 unannotated cells now called 
+      class 0, and the stacked bars show both conditions as ~99% class 0 with 
+      class 1 and class 2 at ~0.6% each instead of 50/50. The p-value is 
+      driven by which condition happened to get annotated more, not by the 
+      phenotype.
+
+
+13. spacr/plot.py:5551
+    The chi-squared p-value is computed over objects while the `level` setting documents the well as the unit of replication
+
+    WHAT IS WRONG:
+      `plot_proportion_stacked_bars` builds `raw_counts` by pooling every 
+      OBJECT (`groupby([group_column, bin_column]).size()`) and feeds that to 
+      `chi2_contingency` and `chi_pairwise` before the `level` branch is ever 
+      reached. `level` only chooses whether the bars are per-well means or 
+      pooled object counts; it never touches the statistics. The published 
+      contract for the setting says the opposite in so many words. The 
+      resulting p-value is a pseudo-replicated test whose n is the number of 
+      cells rather than the number of wells, and it is what gets written to 
+      class_chi_squared_results.csv and class_frequency_test.csv.
+
+    FAILS LIKE THIS:
+      analyze_class_proportion with its default `level='well'`, 3 wells per 
+      condition and ~20 000 classified cells per condition, where the class-1 
+      fraction is 0.50 in nc and 0.52 in pc and the well-to-well spread is 
+      +/-0.06. The bars are drawn as well means with SD whiskers (so the 
+      reader sees 3 replicates), but class_chi_squared_results.csv reports 
+      chi2 on 40 000 objects and p ~ 1e-8. The correct well-level test on n=3 
+      vs n=3 gives p ~ 0.4. A 2-percentage-point difference is published as 
+      overwhelmingly significant.
+
+
+14. spacr/io.py:3671
+    _read_and_merge_data joins the object tables INNER, so objects missing any requested table are silently deleted from the analysis
+
+    WHAT IS WRONG:
+      `_merge_grouped` calls `_merge_with_cardinality(left, right, 
+      left_index=True, right_index=True, ...)` with no `how=`, and 
+      `_merge_with_cardinality` forwards straight to `left.merge(right, ...)` 
+      whose default is `how='inner'`. Every table added to `tables` therefore 
+      intersects the population rather than annotating it: cells with no 
+      nucleus, cells with no pathogen (i.e. every uninfected cell), and 
+      objects with no registered crop are all removed from `merged_df` with 
+      no message. The only trace is the closing `Generated dataframe with … 
+      rows` line, printed only under `verbose`, which is off by default in 
+      the analysis entry points. That the author expected a left join is 
+      visible at line 3873, where 
+      `merged_df.index.to_series().map(pathogen_counts).fillna(0)` guards 
+      against a missing pathogen count that the inner join has already made 
+      impossible.
+
+    FAILS LIKE THIS:
+      analyze_class_proportion appends 'png_list' to `tables` unconditionally 
+      (spacr/submodules.py:4925) on top of its default 
+      `['cell','nucleus','pathogen','cytoplasm']`, with `verbose=False`. On a 
+      plate where 30% of cells are uninfected and crops were generated only 
+      for the wells someone annotated, the reported class proportions and 
+      chi-squared are computed on the intersection — infected cells that also 
+      have a crop — while every printed and saved artefact presents them as 
+      the plate's cell population. Removing 'pathogen' from `tables` to get 
+      more cells changes the reported proportions with nothing explaining 
+      why.
+
+
+15. spacr/object.py:719
+    The fallback that fills cellpose_*_channel writes RAW channel indices into keys that everywhere else hold DENSE stack positions, so a resumed segmentation run reads the wrong channel
+
+    WHAT IS WRONG:
+      The merged masks/*.npz stack is built by io.preprocess_img_data with 
+      its channel axis in OBJECT-ROLE order (nucleus, cell, pathogen, 
+      organelle), deduped: `seen[ch] = len(mask_channels)` (io.py:2098-2108) 
+      then `normalized_stack = normalized_stack[..., channels]` 
+      (io.py:1609/1679). At the end of that same function io.py:2249 writes 
+      `settings[f"cellpose_{key}"] = seen[ch]` — the DENSE position in that 
+      stack. utils._get_cellpose_channels then does `channels_to_extract = 
+      sorted(all_channels)` / `remap = {orig: new for new, orig in 
+      enumerate(channels_to_extract)}` (utils.py:3311-3312), which is the 
+      identity on those dense 0..N-1 values, so the first run is correct. But 
+      io.preprocess_img_data returns EARLY at io.py:2085-2087 (`if 
+      os.path.exists(os.path.join(src,'masks')): print('Found existing masks 
+      folder. Skipping preprocessing'); return settings, src`) whenever the 
+      raw images are no longer at the top of src — i.e. on every re-run — and 
+      it is skipped entirely when `settings['preprocess']` is False 
+      (core.py:288-289). In that case the cellpose_* keys are absent and 
+      object.py:719-726 (and the identical block at object.py:1142-1149) 
+      fills them with the RAW channel indices instead. _get_cellpose_channels 
+      then sorts those raw indices, producing a remap that does not match the 
+      role-order axis the stack was actually written with.
+
+    FAILS LIKE THIS:
+      Settings nucleus_channel=1, cell_channel=0 (pathogen/organelle None). 
+      First run: mask_channels=[1,0], so stack axis index 0 = raw channel 1 
+      (nucleus), index 1 = raw channel 0 (cell); io.py:2249 writes 
+      cellpose_nucleus_channel=0, cellpose_cell_channel=1 and segmentation is 
+      correct. Re-run the same folder (or set preprocess=False) to add a 
+      newly enabled object: preprocess_img_data early-returns at io.py:2087, 
+      object.py:719-726 sets cellpose_nucleus_channel=1 and 
+      cellpose_cell_channel=0, _get_cellpose_channels sorts to [0,1] giving 
+      the identity remap, so cellpose_channels['nucleus'] = [1] and 
+      object.py:809/813 slices stack index 1 — the CELL channel. Cellpose 
+      segments nuclei on the cell image and cells on the nucleus image, with 
+      no warning; every downstream count, intensity and recruitment 
+      measurement is computed from the wrong masks.
+
+
+16. spacr/settings.py:1568
+    pc, nc, pc_loc and nc_loc are declared, defaulted, tooltipped and offered in the GUI's Plate Layout & Controls category, but no line of spaCR ever reads them
+
+    WHAT IS WRONG:
+      All four keys are in `expected_types` (settings.py:2066-2069), carry 
+      tooltips that describe active behaviour (settings.py:2832-2844, e.g. 
+      nc: "Rows matching it are labelled class 0 for training"), are listed 
+      in the "Plate Layout & Controls" category (settings.py:3412) so both 
+      GUIs render controls for them, and get defaults from 
+      get_map_barcodes_default_settings (settings.py:1568-1571). An 
+      exhaustive AST scan of the whole shipped package finds exactly four 
+      occurrences of each as a settings key — the four `settings.setdefault` 
+      calls. There is no `settings['pc']`, `settings.get('nc')`, 
+      `settings['pc_loc']` or `settings['nc_loc']` anywhere. The live keys 
+      are `positive_control` / `negative_control`, which ml.py:3212 passes as 
+      `nc=settings['negative_control'], pc=settings['positive_control']`. 
+      None of the four is listed in DEAD_SETTINGS (settings.py:2561+), so 
+      neither validate.py nor cli.apply_overrides refuses them; the reason 
+      they escape tests/test_dead_settings.py is that the `setdefault` string 
+      literal at 1568-1571 is counted by that test as a reader.
+
+    FAILS LIKE THIS:
+      A user whose negative controls sit in column 3 rather than column 1 
+      sets nc='c3' in the GUI's Plate Layout & Controls panel (or runs 
+      `spacr-run ... --set nc=c3 --set nc_loc=rowID`). The CLI accepts it 
+      because it is in expected_types and not in DEAD_SETTINGS. Nothing reads 
+      it, so class 0 is still taken from `negative_control`, which still 
+      holds its own default 'c1'. The classifier trains on the wrong wells as 
+      negative controls and reports a plausible accuracy, with no error 
+      anywhere in the log.
+
+
+17. spacr/spacrops.py:1748
+    cap_one_per_dir is threaded through two public mosaic APIs into _compute_mosaic_transforms and never read; the per-direction edge cap always applies
+
+    WHAT IS WRONG:
+      `render_mosaic_from_csv` (spacrops.py:1945) and 
+      `render_multichannel_mosaic_from_csv` (spacrops.py:2142) both accept 
+      `cap_one_per_dir: bool = True`, document it as "keep at most one edge 
+      per direction per tile" (1962, 2159), and forward it to 
+      `_compute_mosaic_transforms` (2009, 2203). 
+      `_compute_mosaic_transforms`' own docstring repeats it as step 4: "For 
+      each tile, keep at most one best edge per direction bin (R/L/U/D) if 
+      cap_one_per_dir." The body never references the name. The capping is 
+      unconditional: the candidate-gathering loop keys `best_per_node_dir` on 
+      `(src, dbin)` and keeps only the highest-scoring edge per key, then 
+      builds `cand` from that dict alone. Passing False changes nothing.
+
+    FAILS LIKE THIS:
+      A user stitching a mosaic whose best-scoring right-hand edge for one 
+      tile is a false match (e.g. a repeated background pattern beats the 
+      true neighbour) passes cap_one_per_dir=False so that the 
+      maximum-spanning tree can fall back on the second-best horizontal edge. 
+      The cap still discards every non-best edge per direction, so the true 
+      edge is never a candidate; Kruskal joins that tile through the bad edge 
+      (or leaves its component unconnected), and the rendered mosaic places 
+      the tile in the wrong position — silently, since the run reports 
+      success and the only clue is the degree histogram printed under 
+      verbose.
+
+
+18. spacr/settings.py:1548
+    barecode_length_1 / barecode_length_2 are declared, defaulted and documented as the barcode window the reader uses, but nothing in spaCR reads either key
+
+    WHAT IS WRONG:
+      Both keys are in `expected_types` (settings.py:2062-2063), carry 
+      tooltips asserting they drive read parsing ('Length in bases of the 
+      first barcode read from the sequencing data. Must match the barcode 
+      design used in the library.'), and get defaults 8 and 7 from 
+      get_analyze_reads_default_settings (settings.py:1548-1549). An 
+      exhaustive AST scan of the shipped package finds only those two 
+      `setdefault` calls — no read anywhere. The barcode windows the 
+      sequencing pipeline actually uses come from `regex` / `target_sequence` 
+      / `offset_start` / `expected_end` in 
+      set_default_generate_barecode_mapping (settings.py:3942-3971), which is 
+      the function the live pipeline calls. Sibling keys of the same 
+      never-called helper (`grna`, `barcodes`, `barcode_coordinates`, 
+      `barcode_mapping`) have already had their tooltips rewritten to admit 
+      they are inert; these two still describe active behaviour and are 
+      absent from DEAD_SETTINGS (settings.py:2561+), so `spacr-run --set 
+      barecode_length_1=10` is accepted in silence.
+
+    FAILS LIKE THIS:
+      A library whose first barcode is 10 bases rather than 8: the user sets 
+      barecode_length_1=10 (and barecode_length_2=0 for a single-barcode 
+      design, exactly as the tooltip instructs). Both values are accepted by 
+      check_settings and by cli.apply_overrides. The read processors continue 
+      to slice from `target_sequence`/`offset_start`/`expected_end` and the 
+      default 8/7 regex groups, so every read is parsed on the wrong barcode 
+      boundaries; the run completes and writes a count table in which the 
+      gRNA column is systematically mis-assigned, with no error or warning.
+
+
+19. spacr/spacrops.py:3206
+    qc_outlines defaults to True in the ops-pipeline settings and is passed to align_image_to_stitch, which ignores it; QC overlays are actually gated by a different key that defaults to False
+
+    WHAT IS WRONG:
+      `get_preprocess_ops_settings` — the public defaults function for the 
+      organize/stitch/align pipeline — sets 
+      `settings.setdefault("qc_outlines", True)` (spacrops.py:3206) and the 
+      pipeline forwards it as `qc_outlines=stitch_settings["qc_outlines"]` 
+      (spacrops.py:3797). `align_image_to_stitch` accepts the parameter 
+      (spacrops.py:3567) and never references it in its body. Whether QC 
+      outline PNGs are written is decided instead by `self.save_qc` 
+      (spacrops.py:925 `do_qc = (self.save_qc and not bool(force_no_qc))`), 
+      which the stitcher takes from a *different* settings key with the 
+      opposite default: `save_qc=bool(settings.get("save_qc", False))` 
+      (spacrops.py:3068), `settings.setdefault("save_qc", False)` 
+      (spacrops.py:3223). So the user-visible knob that reads True does 
+      nothing, and the knob that actually controls it is off.
+
+    FAILS LIKE THIS:
+      A user running the ops pipeline leaves the defaults alone (or 
+      explicitly sets qc_outlines=True) expecting the per-pair 
+      `*__qc_outlines.png` alignment-QC overlays the setting names. None are 
+      written, because save_qc is False and qc_outlines is read nowhere. 
+      Conversely setting qc_outlines=False while save_qc is True still writes 
+      every overlay. The user has no way to tell from the settings dict which 
+      alignment QC was actually produced, and silently accepts a stitch whose 
+      registration was never inspected.
+
+
+20. spacr/settings.py:3835
+    Tk settings panel discards each module's own default for every key in settings_spec's special_cases table (Qt was fixed, Tk was not)
+
+    WHAT IS WRONG:
+      `convert_settings_dict_for_gui` returns `special_cases[key]` verbatim 
+      for ~35 keys, throwing away the value the module's own `set_default_*` 
+      factory just produced. The Qt panel repairs this in 
+      `settings_model._widget_for` (`if key in self._defaults: default = 
+      self._defaults[key]`, spacr/qt/screens/settings_model.py:4207-4209, 
+      whose comment names this exact bug). The Tk path does not: 
+      `gui_core.setup_settings_panel` -> `generate_fields` -> 
+      `create_input_field` passes the table's third element straight into the 
+      widget, and `check_settings` (settings.py:3584 `value = var.get()`) 
+      builds the run dict from those widgets. So on Tk the table's value is 
+      both what is displayed AND what runs.
+
+    FAILS LIKE THIS:
+      Open Tk 'Cellpose Masks' and press Run without touching anything: 
+      `get_identify_masks_finetune_default_settings` declares `channels = 
+      [0,0]` (settings.py:1793) but the panel shows and submits `[0,1,2,3]`, 
+      so `identify_masks_finetune` segments with a 4-entry channel list the 
+      module never asked for. Same mechanism on Tk 'Classify': 
+      `deep_spacr_defaults` declares `model_type='maxvit_t'` 
+      (settings.py:1339) and the panel trains `resnet50`. Same on Tk 
+      'Activation Maps': `get_default_generate_activation_map_settings` 
+      declares `model_type='maxvit'` and `channels=[1,2,3]` 
+      (settings.py:3980, 3990); the panel submits `resnet50` and `[0,1,2,3]`.
+
+
+21. spacr/qt/screens/app_screen.py:1598
+    Screen-owned live previews are never seeded from the module's settings, so they segment/track at their own hardcoded defaults
+
+    WHAT IS WRONG:
+      `LivePreviewPanel.apply_settings` ("Copy relevant values from a 
+      Mask-app settings dict") and `TimelapsePreviewPanel.apply_settings` 
+      ("Seed the preview from the main Timelapse settings dict") are only 
+      ever called from `preview_registry._PreviewHost.prime()`. `install()` 
+      returns early for any spec with `owned_by_screen=True`, and 
+      mask/measure/timelapse/motility are exactly the four marked that way. 
+      `AppScreen` builds those panels itself and wires only 
+      `set_propagate_callback` (preview -> panel), never the panel -> preview 
+      direction. Even if it were called for Mask it would still miss: 
+      `apply_settings` reads `diameter`/`flow_threshold`/`CP_prob`, while the 
+      Mask settings dict holds `cell_diameter`/`cell_FT`/`cell_CP_prob` (the 
+      rename map exists in preview_registry only for the two *attached* 
+      modules).
+
+    FAILS LIKE THIS:
+      Open the Mask module, set `cell_FT = 1.0` (its declared default, 
+      settings.py:390) or any tuned value, and open Live preview to check the 
+      segmentation: the preview runs Cellpose at `flow_threshold = 0.4` and 
+      `diameter = 30 px` (the Cellpose-Masks module's numbers), discarding 
+      masks a real run keeps, while `cell_diameter=None` means the real run 
+      auto-estimates the diameter instead of using 30. Same for Timelapse: 
+      the module default is `timelapse_mode='trackastra'` (settings.py:414) 
+      but the Track preview always opens on `iou`, so the preview's 
+      fragmentation numbers describe a linker the run will not use.
+
+
+22. spacr/settings.py:1384
+    crop_source has two incompatible vocabularies; 'on_demand' and 'generate' are silently ignored and run as 'pre_generated'
+
+    WHAT IS WRONG:
+      `deep_spacr_defaults` declares `crop_source='pre_generated'` and the 
+      shipped tooltip documents three modes ('pre_generated' / 'on_demand' / 
+      'generate', settings.py:3257), matching `crop_source.CROP_SOURCES`. But 
+      every consumer in the Classify pipeline goes through 
+      `io.open_crop_source` -> `crops.resolve_crop_source`, which accepts 
+      only 'auto' / 'png' / 'merged' and raises `CropError` for anything 
+      else. `open_crop_source` swallows that error and returns None, and both 
+      call sites then fall through to the plain pre-generated PNG list. The 
+      `crop_source` module's cutting helpers (`crops_from_merged`, 
+      `select_crops`, `crop_at`, `mask_plane_for`, `matches_path`) have zero 
+      callers anywhere in the package, so 'on_demand' and 'generate' are not 
+      implemented at all — only `validate()` and `CROP_SOURCES` are read.
+
+    FAILS LIKE THIS:
+      In Classify (CV), set `crop_source='on_demand'` plus 
+      `extract_channels`/`object_array` as the tooltip instructs, to cut 
+      fresh crops out of merged/*.npy at the current crop settings. 
+      `classify.validate_crops` accepts it, then `deep_spacr` -> 
+      `generate_training_dataset` calls `open_crop_source`, which prints 
+      "crop_source='on_demand': crop_source must be 'auto', 'png' or 
+      'merged'" and returns None; training silently proceeds on the stale 
+      pre-generated PNG folder at whatever size it was written with. Nothing 
+      marks the run as having ignored the setting. On a project with no 
+      `*_png` folder the run instead ends with "No png_list rows selected" / 
+      0 images rather than cutting the crops it was told to cut.
+
+
+23. spacr/gui_core.py:846
+    Tk 'Import settings' rebuilds the Classify panel from a different defaults factory than the one that built it, silently dropping imported keys
+
+    WHAT IS WRONG:
+      `setup_settings_panel` builds the Tk Classify panel from 
+      `deep_spacr_defaults` (gui_core.py:910), but `import_settings` rebuilds 
+      it from `set_default_train_test_model` (gui_core.py:846). 
+      `update_settings_from_csv` only overlays keys that already exist in the 
+      widget spec (`if key in new_settings`), so every key that 
+      `deep_spacr_defaults` declares and `set_default_train_test_model` does 
+      not — `apply_model_to_dataset`, `generate_training_dataset`, 
+      `generate_full_dataset`, `model_path`, `tar_path`, `score_threshold`, 
+      `n_top_examples`, `dataset_mode`, `class_metadata`, 
+      `balance_to_smallest`, `file_type`, `sample`, `experiment` — has no 
+      widget after the import, so `check_settings` never puts it in the run 
+      dict. The two factories also disagree on a value they share: 
+      `loss_type` is 'auto' in `deep_spacr_defaults` (settings.py:1342) and 
+      'focal_loss' in `set_default_train_test_model` (settings.py:1242).
+
+    FAILS LIKE THIS:
+      A user saves a Classify settings CSV with `apply_model_to_dataset: 
+      False`, `model_path: /data/plate01/model/best.pth`, `train: False` 
+      (score an existing model, do not retrain), then presses the Tk Classify 
+      'settings' import button and Run. Those three keys have no widget in 
+      the rebuilt panel, so they never reach `settings`; `deep_spacr` 
+      re-applies `deep_spacr_defaults`, restoring 
+      `apply_model_to_dataset=True`, `model_path=''` and `train=True`, and 
+      the run retrains from scratch instead of scoring the saved model. The 
+      panel's `loss_type` also flips from 'auto' to 'focal_loss' across the 
+      same import.
+
+
+24. spacr/core.py:158
+    The v2 streaming mask pipeline reads its own inline defaults because set_default_* is applied only after the v2 early return
+
+    WHAT IS WRONG:
+      `preprocess_generate_masks` dispatches to `run_v2` at the top of the 
+      function and returns, but 
+      `set_default_settings_preprocess_generate_masks(settings)` is only 
+      called further down inside the per-source loop (core.py:205 — the 
+      comment at core.py:164 acknowledges this ordering). So the v2 branch 
+      reads the settings dict undefaulted and supplies its own fallbacks, two 
+      of which disagree with the declared mask defaults: `cell_FT` falls back 
+      to 0.4 where `set_default_settings_preprocess_generate_masks` declares 
+      1.0, and `metadata_type` falls back to 'auto' where it declares 
+      'cellvoyager'. The other five fallbacks in the same call 
+      (cell_model_name, cell_CP_prob, cell_min_area, batch_fields, keep_npz) 
+      do match, which is what makes these two look like drift rather than 
+      intent.
+
+    FAILS LIKE THIS:
+      Call `preprocess_generate_masks(settings={'src': '/data/plate01', 
+      'pipeline_style': 'v2', 'cell_channel': 0})` from a notebook or script 
+      — the documented API entry point. The v1 pipeline would segment at 
+      `flow_threshold=1.0` (which the tooltip describes as effectively 
+      accepting every candidate mask); v2 segments the same plate at 0.4, 
+      discarding masks whose recomputed flows disagree with the network and 
+      producing a smaller object count from an identical settings dict. 
+      Filename parsing also switches from the declared 'cellvoyager' to 
+      auto-detection.
+
