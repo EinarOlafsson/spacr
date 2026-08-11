@@ -387,4 +387,5 @@ def validate(settings: Mapping[str, Any]) -> str:
         return source
 
     mask_plane_for(settings.get("object_array", "cell"), settings)
+
     return source
