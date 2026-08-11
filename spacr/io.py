@@ -51,6 +51,7 @@ LOG = logging.getLogger(__name__)
 # they used to carry three hand-written copies of "ABCDEFGHIJKLMNOP" and
 # range(1, 25), which stop at P24.
 from . import convert as _cv
+from .object_roles import ordered
 
 
 def _load_pylibczi():
@@ -4029,7 +4030,9 @@ def parse_gz_files(folder_path):
 # ===========================================================================
 
 #: Object types that can be cut on demand.
-CROP_OBJECT_TYPES = ('cell', 'nucleus', 'pathogen', 'cytoplasm', 'organelle')
+#: Crop order, which differs from the hook order on purpose. Membership is
+#: checked against spacr.object_roles; the order stays here.
+CROP_OBJECT_TYPES = ordered('cell', 'nucleus', 'pathogen', 'cytoplasm', 'organelle')
 
 #: ``png_list`` column holding the object id (``'o<N>'``) for each crop mode,
 #: as written by :func:`spacr.utils.filepaths_to_database`.
