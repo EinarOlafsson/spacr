@@ -244,6 +244,29 @@ def crop_at(array: np.ndarray, row: float, column: float, *,
     limitation to be worked around: a coordinate has no outline, so there is
     nothing to mask against, and a crop that claimed to be object-shaped would
     be a rectangle wearing the wrong name.
+
+    :param array: the merged stack, ``(H, W, planes)``. Its rank is not
+        checked as :func:`crop_object` checks it, so a 2-D image raises
+        ``IndexError`` from the slice rather than a ``CropSourceError``.
+    :param row: centre on the FIRST axis -- an image row, not ``y``. Floats
+        are rounded half-to-even, Python's rule, so a centroid of ``2.5``
+        lands on row 2 while ``3.5`` lands on row 4.
+    :param column: centre on the second axis; rounded the same way.
+    :param channels: which planes become image channels, in the order given,
+        so ``[2, 0]`` returns them swapped. A bare int counts as a one-plane
+        list. NOT bounds-checked here as it is in :func:`crop_object`: a plane
+        the array does not have raises ``IndexError``, and a negative one
+        silently counts back from the last plane. An empty list yields a
+        zero-channel crop rather than None.
+    :param size: the box asked for, not the shape returned -- nothing on this
+        path is resized or padded, unlike ``size`` in :func:`crop_object`. The
+        side is rounded DOWN to even (``size=5`` cuts 4 px) and never falls
+        below 2 (``0`` and negative values cut 2 px), and an array edge clips
+        it further, so a coordinate near a border yields a smaller crop than
+        one from the middle.
+    :returns: ``(h, w, len(channels))`` as float32, or None when the box falls
+        entirely off the array.
+    :raises CropSourceError: ``channels`` is None, or is not planes.
     """
     planes = _as_indices(channels, "extract_channels")
     half = max(1, int(size) // 2)

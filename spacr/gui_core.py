@@ -1183,7 +1183,44 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
     _gpu_poll = {'enabled': True}
 
     def update_usage(ram_bar, vram_bar, gpu_bar, usage_bars, parent_frame):
-        """Poll psutil/GPUtil and refresh the RAM/VRAM/GPU/CPU bars, then reschedule."""
+        """Poll psutil/GPUtil and refresh the RAM/VRAM/GPU/CPU bars, then reschedule.
+
+        Called once synchronously at the end of :func:`setup_usage_panel`, then
+        re-arms itself every ``uppdate_frequency`` ms, which is read from the
+        enclosing scope rather than passed in.
+
+        :param ram_bar: bar whose ``'value'`` item is set to
+            ``psutil.virtual_memory().percent`` on every tick. Written
+            unconditionally and before any guard, so ``None`` raises
+            ``TypeError`` at once; anything supporting item assignment (a plain
+            dict included) is accepted.
+        :param vram_bar: bar for GPU memory use, written only while GPU polling
+            is still enabled and ``GPUtil.getGPUs()`` returned at least one GPU;
+            only GPU 0 is ever read. When the list comes back empty the bar is
+            left untouched (``None`` is then harmless) and polling continues, but
+            a raising ``GPUtil.getGPUs()`` -- including ``GPUtil`` being ``None``
+            after a failed import -- prints one warning and disables GPU polling
+            for the life of the panel, freezing this bar.
+        :param gpu_bar: bar for GPU load, written under exactly the same
+            condition as ``vram_bar``.
+        :param usage_bars: list of every bar the caller built; only
+            ``usage_bars[3:]`` is read, zipped positionally against the per-core
+            CPU percentages. The slice assumes RAM/VRAM/GPU hold the first three
+            slots, so when the VRAM and GPU bars could not be created the list is
+            two entries short and the core bars are off by two: the bar labelled
+            ``C3`` shows core 1, the ``C1`` and ``C2`` bars never move, and the
+            last two cores are never displayed. Fewer than four entries simply
+            means no core bar is updated.
+        :param parent_frame: object used only to re-arm the loop through
+            ``parent_frame.after(...)``; the caller passes the usage panel's own
+            frame, which shadows the module-level ``parent_frame`` global. The
+            reschedule is wrapped in a bare ``except``, so an object with no
+            ``after`` method (``None``) ends the loop silently. That guard does
+            not cover teardown, though: Tk's ``after`` still succeeds on a
+            destroyed widget, and it is the bar writes above that raise
+            ``TclError`` first.
+        :returns: None.
+        """
         # Update RAM usage
         ram_usage = psutil.virtual_memory().percent
         ram_bar['value'] = ram_usage
