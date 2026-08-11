@@ -1923,9 +1923,17 @@ class _ClusterSettingsDialog(QDialog):
     magnitude -- `cell_area` runs to thousands and `eccentricity` to one, and
     unscaled DBSCAN on that pair clusters on area alone. The checkbox says so
     rather than leaving the user to discover it by getting one blob.
+
+    SEEDED FROM THE SAVED GATE SETTINGS, which it did not used to be. Gate
+    Settings has offered `cluster_eps`, `cluster_min_samples` and
+    `cluster_scale` for as long as this dialog has existed, and this dialog
+    opened on its own hardcoded 0.30/10 regardless -- so values the user set
+    deliberately were discarded, and the two disagreed about the defaults as
+    well (0.5 and 20 against 0.30 and 10). `settings` is optional only
+    because the dialog is constructible before `apply_settings` has run.
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, settings=None):
         super().__init__(parent)
         try:
             from ..dialogs import detach_from_window_manager
@@ -1935,11 +1943,22 @@ class _ClusterSettingsDialog(QDialog):
         self.setWindowTitle("Cluster settings")
         form = QFormLayout(self)
 
+        # One place decides each default: the GateEditorSettings dataclass. Reading
+        # through getattr keeps an older saved settings object -- one written
+        # before a field existed -- from raising here.
+        from .gate_settings import GateEditorSettings
+        fallback = GateEditorSettings()
+        source = settings if settings is not None else fallback
+
+        def _setting(name):
+            value = getattr(source, name, None)
+            return getattr(fallback, name) if value is None else value
+
         self._eps = QDoubleSpinBox(self)
         self._eps.setRange(0.01, 100.0)
         self._eps.setSingleStep(0.05)
         self._eps.setDecimals(2)
-        self._eps.setValue(0.30)
+        self._eps.setValue(float(_setting("cluster_eps")))
         self._eps.setToolTip(
             "Neighbourhood radius. Larger merges nearby populations into "
             "one; smaller splits one into several.")
@@ -1947,18 +1966,36 @@ class _ClusterSettingsDialog(QDialog):
 
         self._min_samples = QSpinBox(self)
         self._min_samples.setRange(2, 10000)
-        self._min_samples.setValue(10)
+        self._min_samples.setValue(int(_setting("cluster_min_samples")))
         self._min_samples.setToolTip(
             "Objects needed to seed a population. Anything sparser is "
             "treated as debris and left out of every gate.")
         form.addRow("min samples", self._min_samples)
 
         self._scale = Toggle("Standardise both axes first", self)
-        self._scale.setChecked(True)
+        self._scale.setChecked(bool(_setting("cluster_scale")))
         self._scale.setToolTip(
             "On unless you know otherwise. Without it, the axis with the "
             "larger numeric range decides the clustering on its own.")
         form.addRow("", self._scale)
+
+        self._walk = Toggle("Walk eps and use the best radius", self)
+        self._walk.setChecked(bool(_setting("cluster_walk")))
+        self._walk.setToolTip(
+            "Try a range of radii around the one above, score each by how "
+            "well separated the populations are, and cluster at the best "
+            "one. Use it when you do not know what eps should be.")
+        form.addRow("", self._walk)
+
+        self._walk_steps = QSpinBox(self)
+        self._walk_steps.setRange(2, 200)
+        self._walk_steps.setValue(int(_setting("cluster_walk_steps")))
+        self._walk_steps.setToolTip(
+            "How many radii to try. Each one is a full DBSCAN pass, so this "
+            "is what the search costs.")
+        self._walk_steps.setEnabled(self._walk.isChecked())
+        self._walk.toggled.connect(self._walk_steps.setEnabled)
+        form.addRow("walk steps", self._walk_steps)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok
                                    | QDialogButtonBox.Cancel)
@@ -1974,6 +2011,12 @@ class _ClusterSettingsDialog(QDialog):
 
     def scale(self) -> bool:
         return bool(self._scale.isChecked())
+
+    def walk(self) -> bool:
+        return bool(self._walk.isChecked())
+
+    def walk_steps(self) -> int:
+        return int(self._walk_steps.value())
 
 
 class GateEditorPanel(QWidget):
@@ -2003,6 +2046,11 @@ class GateEditorPanel(QWidget):
         self._gates = GateSet()
         self._frame: Optional[pd.DataFrame] = None
         self._namer = None
+        #: The gate-editor settings, kept because the CLUSTER button needs
+        #: them and the canvas only takes the drawing ones. None until
+        #: `apply_settings` runs, which is why every read below falls back to
+        #: the dataclass default rather than assuming this is set.
+        self._settings = None
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -2229,15 +2277,40 @@ class GateEditorPanel(QWidget):
                 "Clustering needs an X and a Y measurement.")
             return
 
-        dialog = _ClusterSettingsDialog(self)
+        dialog = _ClusterSettingsDialog(self, settings=self._settings)
         if dialog.exec() != QDialog.Accepted:
             return
 
-        from .gate_spec import ClusterError, cluster_gates
+        from .gate_spec import (ClusterError, best_cluster_candidate,
+                                cluster_gates, cluster_walk_candidates)
+        eps = dialog.eps()
+        chosen = None
         try:
+            if dialog.walk():
+                candidates = cluster_walk_candidates(
+                    frame, x_column, y_column,
+                    eps=eps, min_samples=dialog.min_samples(),
+                    scale=dialog.scale(), steps=dialog.walk_steps())
+                chosen = best_cluster_candidate(candidates)
+                if chosen is None:
+                    # Named rather than silently falling back to the typed
+                    # eps: a walk that found nothing defensible is a result
+                    # about the DATA, and clustering at the original radius
+                    # anyway would present it as if the search had endorsed
+                    # it.
+                    tried = ", ".join(f"{c.eps:.3g}" for c in candidates)
+                    QMessageBox.information(
+                        self, "The walk found nothing to recommend",
+                        "No radius produced two or more populations while "
+                        "keeping most of the objects.\n\nTried: "
+                        f"{tried}\n\nLower min samples, pick measurements "
+                        "that separate the populations, or turn the walk "
+                        "off and set eps yourself.")
+                    return
+                eps = chosen.eps
             found = cluster_gates(
                 frame, x_column, y_column,
-                eps=dialog.eps(), min_samples=dialog.min_samples(),
+                eps=eps, min_samples=dialog.min_samples(),
                 scale=dialog.scale(), parent=self.canvas.active_gate())
         except ClusterError as exc:
             # Named, not swallowed: every one of these messages says what to
@@ -2257,6 +2330,16 @@ class GateEditorPanel(QWidget):
             gates.add(gate)
         self.canvas.set_gates(gates, active=found[0].name)
         self._refresh_status()
+        if chosen is not None:
+            # What the walk decided, in the units the user typed in, so the
+            # number can be carried back to Gate Settings by hand. A search
+            # that silently substitutes a parameter is worse than one that
+            # never ran.
+            QMessageBox.information(
+                self, "Walk finished",
+                f"Clustered at eps {chosen.eps:.3g}, which gave "
+                f"{chosen.clusters} populations and left "
+                f"{chosen.noise_fraction:.0%} of objects outside them.")
 
     def _on_close_polygon(self) -> None:
         self.canvas.close_polygon()
@@ -2427,11 +2510,15 @@ class GateEditorPanel(QWidget):
     def apply_settings(self, settings) -> None:
         """Take the settings that change how the gates surface draws.
 
-        Only the drawing ones are read here. Sampling is the screen's job --
+        The canvas takes the drawing ones. Sampling is the screen's job --
         it owns the table and the read -- and the 3D ones belong to a
         workspace that does not exist yet. A setting silently read in two
         places is how the two get to disagree.
+
+        The CLUSTERING ones are kept here rather than passed on, because the
+        Cluster button is on this panel and used to ignore them entirely.
         """
+        self._settings = settings
         self.canvas.apply_settings(settings)
         self._refresh_status()
 
