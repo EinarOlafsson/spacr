@@ -209,6 +209,12 @@ def audit_split_leakage(
     :param group_by: ``none``, ``field``, ``well``, or ``plate``.
     :param raise_on_leakage: raise :class:`LeakageError` on a critical overlap.
     :param split_name: optional fold/split label stored in the report.
+    :param hash_content: also compare file CONTENT, so a byte-identical copy
+        under a different name is caught. Costs one read per file.
+    :param require_identity: treat UNVERIFIABLE as critical. A filename that
+        does not encode the requested identity, or a file that cannot be
+        hashed, is otherwise only a warning -- so leaving this False means a
+        clean report can still hide leakage nobody could check for.
     :returns: :class:`LeakageReport`.
     """
     if group_by not in {"none", "field", "well", "plate"}:
@@ -336,6 +342,27 @@ def audit_cv_folds(
     sample of pairwise boundaries. Each index must be validation exactly once;
     exact paths, byte-identical content, source/augmentation families and the
     requested plate/well/field group must map to one held-out fold only.
+
+    :param paths: one source path per sample, indexed by the fold indices.
+    :param folds: ``(train_indices, validation_indices)`` per fold. Indices
+        outside ``range(len(paths))`` are reported rather than ignored.
+    :param labels: optional class per path, one value per path. Only used to
+        describe the folds; it does not affect leakage detection.
+    :param group_by: identity level that may not cross a fold boundary --
+        ``none``, ``field``, ``well`` or ``plate``. A well-grouped split
+        permits the same plate on both sides but never the same well.
+    :param hash_content: also compare file CONTENT, so a byte-identical copy
+        under a different name is caught. Costs one read per file.
+    :param require_identity: treat UNVERIFIABLE as critical. A filename that
+        does not encode the requested identity, or a file that cannot be
+        hashed, is otherwise only a warning -- so leaving this False means a
+        clean report can still hide leakage nobody could check for.
+    :param raise_on_leakage: raise :class:`LeakageError` instead of returning
+        a report whose ``passed`` is False.
+    :returns: a :class:`FoldLeakageAudit` carrying the per-level overlap
+        counts, examples, and which levels were critical.
+    :raises ValueError: for an unsupported ``group_by``, or ``labels`` whose
+        length does not match ``paths``.
     """
     if group_by not in {"none", "field", "well", "plate"}:
         raise ValueError(f"unsupported group_by {group_by!r}")

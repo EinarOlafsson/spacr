@@ -1,0 +1,116 @@
+================================================================================
+MORE THAN ONE ORGANELLE: organelle, organelle_1, organelle_2, ...
+================================================================================
+
+Status:    not started, 2026-08-11.
+Requested: 2026-08-11 — "Add to instructions to add support for detecting organelle multiple times so I can have organelle, organelle_1, organelle_2, etc."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The object-type vocabulary is a FIXED FIVE, written out as a literal in many
+places rather than derived from one list. Found by grep, non-exhaustive:
+
+    spacr/measure_hooks.py:142   OBJECT_TYPES = ('cell','nucleus','pathogen',
+                                                 'organelle','cytoplasm')
+    spacr/feature_dict.py:1875   _ZERNIKE_OBJECTS  = (... 'organelle')
+    spacr/feature_dict.py:1880   _SUMMARY_PARENTS  = ('cell','nucleus',
+                                                      'pathogen','cytoplasm')
+    spacr/pipeline_v2.py:613     for role in ("cell","nucleus","pathogen",
+                                              "organelle")
+    spacr/ml.py:4072             tables = ['cell','nucleus','pathogen',
+                                           'cytoplasm']
+    spacr/settings.py:1290       settings.setdefault('tables', [...])
+
+and every `<object>_*` SETTING is spelled out four or five times over --
+`organelle_channel`, `organelle_diameter`, `organelle_method`,
+`organelle_morphology`, `organelle_min_area`, and so on, each declared,
+typed, tooltipped and categorised individually.
+
+So "add organelle_1" is not adding a channel. It is making the object-type
+vocabulary DYNAMIC, and the reason to say so up front is that a half-done
+version -- one that adds the masks but not the settings, or the settings but
+not the feature_dict entries -- produces columns that silently vanish from
+every model matrix (see the four prerequisites in instruction 71).
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Organelle is already the most diverse object class in the tool (instruction
+72), and one organelle channel forces a choice a biologist should not have to
+make: a cell stained for mitochondria AND lysosomes AND lipid droplets can
+currently measure one of them per run. Running three times gives three
+databases that have to be joined by hand on object identity -- which is
+exactly the join the measurements database exists to have already done.
+
+The colocalization, neighbour and per-parent summary families all become
+much more useful once two organelle classes coexist in one row: "how far is
+each lysosome from the nearest mitochondrion" is a question this schema
+almost supports today.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. FIND THE FULL LIST FIRST. Grep for every literal spelling of the five
+   object types and every `organelle_` setting, and put the count in this
+   file before writing code. The greps above are a starting point, not the
+   answer -- `spacr/qt/` was deliberately not searched because a concurrent
+   session owns it, and the Tk GUI has its own copies.
+
+2. DECIDE THE NAMING, and record it here. `organelle` then `organelle_1`
+   reads oddly -- the first has no index and the second starts at 1. Either
+   `organelle_1, organelle_2` with `organelle` as an alias for
+   `organelle_1`, or `organelle` then `organelle_2`. Whichever, EXISTING
+   DATABASES AND SETTINGS CSVs MUST KEEP WORKING: today's `organelle_channel`
+   has to go on meaning the first organelle, and today's `organelle` table
+   has to go on being readable.
+
+3. DERIVE, DO NOT DUPLICATE. One function should answer "what object types
+   does this run have", and everything else should call it. The current
+   literals are the reason this is a large change rather than a small one;
+   leaving them in place and adding a sixth literal everywhere makes the next
+   one worse again.
+
+4. THE SETTINGS CANNOT BE COPIED N TIMES BY HAND. Instruction 61 closed "no
+   stated default" at zero and there are guard tests on the settings table;
+   twenty hand-written `organelle_2_*` entries will drift from the
+   `organelle_*` ones within a release. Generate them, or make the settings
+   layer index-aware, and give the generator a test.
+
+5. COORDINATE WITH 72 AND 73. 72 gives each organelle a TYPE that presets its
+   detection settings -- and a per-instance type is exactly what makes
+   multiple organelles worth having (mitochondria as Tubular, lysosomes as
+   Vesicular, in one run). 73 is moving settings into an advanced category
+   with per-object sub-sections, and those sub-sections would now be
+   per-instance. All three want the same underlying change; do 76 first or
+   they will each invent their own indexing.
+
+6. THE DATABASE. Decide whether N organelles are N tables or one table with
+   an `organelle_index` column. One table is likely right -- it keeps joins
+   uniform and does not multiply the schema -- but it changes what
+   `object_type` means in the key columns, which `selection` and
+   `anndata_export` both rely on.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A run can segment and measure two or more organelle classes into one
+database, each with its own channel, diameter and detection settings; every
+per-object family (intensity, morphology, colocalization, neighbours) is
+produced for each of them; an existing settings CSV and an existing
+measurements.db still load and still mean what they meant; and no object type
+is spelled as a literal in more than one place.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. Related: 72 (organelle type presets -- a per-instance type is
+the point of this), 73 (advanced settings sub-sections, which become
+per-instance), 71 (the four prerequisites any new column must clear, and the
+neighbour family that gets much more useful with two organelle classes), 37
+(the same "settings are spelled out per object" problem in classify).
