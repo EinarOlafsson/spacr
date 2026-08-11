@@ -315,8 +315,26 @@ def test_verbose_displays_settings_table_and_channels(tmp_path, fake_model,
     # every value was stringified before display
     assert all(isinstance(v, str) for v in df["setting_value"])
 
-    # cell + nucleus channels remap to [0, 1] and are printed in verbose mode
-    assert "[0, 1]" in capsys.readouterr().out
+    # The resolved channel list is printed in verbose mode. DERIVED from the
+    # same helper the code uses rather than spelled as a literal: the dense
+    # positions depend on ROLE order (nucleus is seen before cell, so with
+    # nucleus_channel=1 and cell_channel=0 the stack axis is [1, 0]), and
+    # hard-coding one ordering here is what made this test agree with the
+    # resume-path bug instead of with the writer that builds the stack.
+    from spacr.utils import _get_cellpose_channels, dense_mask_channel_positions
+
+    resolved = dict(_settings(src, verbose=True))
+    dense = dense_mask_channel_positions(resolved)
+    for role in ("nucleus", "cell", "pathogen"):
+        raw = resolved.get(f"{role}_channel")
+        if raw is not None and int(raw) in dense:
+            resolved[f"cellpose_{role}_channel"] = dense[int(raw)]
+    _extract, expected = _get_cellpose_channels(resolved)
+
+    printed = capsys.readouterr().out
+    assert str(expected["cell"]) in printed, (
+        f"the resolved channel list {expected['cell']} must be printed; "
+        f"got: {printed[:200]}")
 
 
 def test_single_channel_stack_falls_back_to_channel_zero(tmp_path, fake_model):
