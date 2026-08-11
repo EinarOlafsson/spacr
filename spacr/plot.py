@@ -1997,9 +1997,9 @@ def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', thresho
             ax (matplotlib.axes.Axes): Axes drawn on in place; its frame and
                 ticks are switched off, and nothing is returned.
             title (str): Panel title. When the plane is treated as a mask,
-                the number of distinct values is appended as
-                ``", N (obj.)"`` -- one more than the object count, because
-                the background value counts as one of them.
+                the object count is appended as ``", N (obj.)"``. That count
+                is the number of distinct non-zero labels, so the background
+                value 0 is not counted as an object.
             chosen_cmap (Colormap): Colormap for the intensity case only.
                 It is discarded when the plane has no more than
                 ``threshold`` unique values (the enclosing function's
@@ -2009,11 +2009,15 @@ def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', thresho
         """
         unique_values = np.unique(array)
         num_unique_values = len(unique_values)
-        
+
         if num_unique_values <= threshold:
+            # The number of distinct values decides mask vs intensity, but the
+            # object count in the title must exclude the background label 0,
+            # otherwise a 3-object mask is annotated "4 (obj.)".
+            num_objects = int(np.count_nonzero(unique_values))
             chosen_cmap = _generate_mask_random_cmap(array)
-            title = f'{title}, {num_unique_values} (obj.)'
-        
+            title = f'{title}, {num_objects} (obj.)'
+
         ax.imshow(array, cmap=chosen_cmap)
         ax.set_title(title, size=18)
         ax.axis('off')

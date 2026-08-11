@@ -274,12 +274,13 @@ def key_columns(frame: pd.DataFrame) -> List[str]:
         what :func:`read_identity` returns, having aliased them on the way
         out. Membership is tested exactly and case-sensitively, with no alias
         lookup: a raw ``SELECT *`` from a database that spells them ``plate``
-        and ``row`` contributes none of the well keys. ``object_label`` is not
-        aliased and does come through, so such a frame yields
-        ``["object_label"]`` -- which passes the identity check in
-        :func:`export_gate` and :func:`export_annotation`, and the gate is then
-        merged on the object label alone. Only column names are inspected; no
-        values are touched.
+        and ``row`` contributes none of the well keys, and such a frame yields
+        ``["object_label"]`` alone. That is why nothing merges on the result
+        of this function without putting it through
+        :func:`require_full_identity` first -- an object label is unique only
+        WITHIN a field, so merging on it alone collides objects across plates,
+        wells and fields. Only column names are inspected; no values are
+        touched.
     """
     keys = [c for c in IDENTITY_COLUMNS if c in frame.columns]
     if TIME_COLUMN in frame.columns:
@@ -287,6 +288,34 @@ def key_columns(frame: pd.DataFrame) -> List[str]:
     if OBJECT_COLUMN in frame.columns:
         keys.append(OBJECT_COLUMN)
     return keys
+
+
+def require_full_identity(keys: Sequence[str], what: str) -> None:
+    """Raise unless ``keys`` names every identity column AND the object label.
+
+    The invariant a write-back depends on: ``object_label`` is unique only
+    within one field of one well of one plate, so a merge keyed on anything
+    less than the full identity silently joins one plate's object 7 onto
+    another's. The partial-identity tolerance elsewhere in this module
+    (:func:`identity_columns_of`, :func:`build_filters_frame`) is about
+    READING a database that is missing a column; writing a per-object column
+    back into it is the one operation where a partial key is a wrong answer
+    rather than a reduced one.
+
+    :param keys: what :func:`key_columns` returned for the frame.
+    :param what: names the operation in the error message, e.g. ``"a gate"``.
+    :raises FilterError: any identity column, or the object label, is absent.
+    """
+    missing = [c for c in IDENTITY_COLUMNS if c not in keys]
+    if OBJECT_COLUMN not in keys:
+        missing.append(OBJECT_COLUMN)
+    if missing:
+        raise FilterError(
+            f"this table has no object identity (missing "
+            f"{', '.join(missing)}; {what} needs "
+            f"{', '.join(IDENTITY_COLUMNS)}, {OBJECT_COLUMN} because an "
+            f"object label repeats in every field), so {what} on it cannot be "
+            f"written back to the database")
 
 
 def _png_paths(db_path: str) -> Optional[pd.DataFrame]:
@@ -628,14 +657,16 @@ def export_gate(db_path: str, frame: pd.DataFrame, inside: np.ndarray,
                 gate_name: str, *, rebuild: bool = False) -> Tuple[str, int]:
     """Write one gate to ``filters`` as a 1/0 column.
 
-    :param frame: the objects the gate was evaluated on. Must carry the
-        identity columns; the measurements are not needed and not read.
+    :param frame: the objects the gate was evaluated on. Must carry the FULL
+        identity (:data:`IDENTITY_COLUMNS` plus ``object_label``, in the
+        canonical spellings -- see :func:`require_full_identity`); the
+        measurements are not needed and not read.
     :param inside: boolean mask over ``frame``, True for objects in the gate.
     :param gate_name: names the column.
     :param rebuild: rebuild the identity table first, discarding gate columns.
     :returns: ``(column name, objects marked)``.
-    :raises FilterError: the frame cannot be identified, or the mask does not
-        match it.
+    :raises FilterError: the frame is missing any part of the object identity,
+        or the mask does not match it.
 
     Objects NOT in ``frame`` get 0, not null. A user who gated on a 20% sample
     and exported it would otherwise get a column that is null for four objects
@@ -651,11 +682,7 @@ def export_gate(db_path: str, frame: pd.DataFrame, inside: np.ndarray,
 
     column = column_name_for(gate_name)
     keys = key_columns(frame)
-    if not keys or OBJECT_COLUMN not in keys:
-        raise FilterError(
-            "this table has no object identity (" + ", ".join(IDENTITY_COLUMNS)
-            + f", {OBJECT_COLUMN}), so a gate on it cannot be written back to "
-            f"the database")
+    require_full_identity(keys, "a gate")
 
     filters = ensure_filters_table(db_path, rebuild=rebuild)
     shared = [k for k in keys if k in filters.columns]
@@ -802,8 +829,10 @@ def export_annotation(db_path: str, frame: pd.DataFrame, labels: pd.Series,
     :param db_path: the measurement database. ``filters`` is built first if it
         is not there yet, and rewritten whole afterwards.
     :param frame: the objects the labels describe. Only its identity columns
-        are read -- the measurements are not needed -- and ``object_label``
-        must be among them.
+        are read -- the measurements are not needed -- and it must carry the
+        FULL identity (:data:`IDENTITY_COLUMNS` plus ``object_label``, in the
+        canonical spellings), because an object label repeats in every field.
+        See :func:`require_full_identity`.
     :param labels: one label per row of ``frame``, taken POSITIONALLY: the
         Series index is discarded, so labels that were reindexed or sorted
         away from the frame's row order would be attached to the wrong
@@ -815,15 +844,12 @@ def export_annotation(db_path: str, frame: pd.DataFrame, labels: pd.Series,
         and replaced. Objects outside ``frame`` are left NULL rather than
         filled, since a multiclass annotation has no zero.
     :returns: ``(column name, objects labelled)``.
-    :raises FilterError: ``frame`` carries no object identity, or shares no
-        object key with the ``filters`` table.
+    :raises FilterError: ``frame`` is missing any part of the object identity,
+        or shares no object key with the ``filters`` table.
     """
     name = column_name_for(column)
     keys = key_columns(frame)
-    if not keys or OBJECT_COLUMN not in keys:
-        raise FilterError(
-            "this table has no object identity, so an annotation on it "
-            "cannot be written back to the database")
+    require_full_identity(keys, "an annotation")
 
     filters = ensure_filters_table(db_path)
     shared = [k for k in keys if k in filters.columns]

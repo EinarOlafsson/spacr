@@ -324,7 +324,8 @@ def test_plot_cropped_arrays_2d_label_image_gets_random_object_cmap():
     assert isinstance(fig, plt.Figure)
     assert len(fig.axes) == 1
     ax = fig.axes[0]
-    assert ax.get_title() == "Channel one, 3 (obj.)"  # 0, 1, 2
+    # 2 objects (labels 1 and 2); background 0 is not an object
+    assert ax.get_title() == "Channel one, 2 (obj.)"
     assert ax.axison is False
     assert len(ax.images) == 1
     np.testing.assert_array_equal(np.asarray(ax.images[0].get_array()), arr)
@@ -358,19 +359,52 @@ def test_plot_cropped_arrays_3d_makes_one_axis_per_channel():
 
     stack = np.zeros((8, 8, 3), dtype=np.uint16)
     stack[:, :, 0] = np.arange(64).reshape(8, 8)      # 64 unique -> label cmap
-    stack[2:5, 2:5, 1] = 1                            # 2 unique  -> label cmap
+    stack[2:5, 2:5, 1] = 1                            # 2 unique  -> label cmap, 1 obj
     stack[:, :, 2] = np.arange(64).reshape(8, 8) * 9  # 64 unique
 
     fig = _plot_cropped_arrays(stack, "field_3.npy", figuresize=4, threshold=10)
 
     assert len(fig.axes) == 3
     assert [ax.get_title() for ax in fig.axes] == [
-        "C. 0", "C. 1, 2 (obj.)", "C. 2",
+        "C. 0", "C. 1, 1 (obj.)", "C. 2",
     ]
     np.testing.assert_array_equal(
         np.asarray(fig.axes[1].images[0].get_array()), stack[:, :, 1]
     )
     assert all(ax.axison is False for ax in fig.axes)
+
+
+def test_plot_cropped_arrays_object_count_excludes_background():
+    """The "(obj.)" count is the number of labels, not of distinct values.
+
+    Regression: the title used to print ``len(np.unique(array))``, so the
+    background value 0 was counted as an object and every mask panel read one
+    too high -- an all-background mask claimed "1 (obj.)".
+    """
+    from spacr.plot import _plot_cropped_arrays
+
+    three = np.zeros((16, 16), dtype=np.uint8)
+    three[1:4, 1:4] = 1
+    three[6:9, 6:9] = 2
+    three[11:14, 11:14] = 3
+    assert _plot_cropped_arrays(three, "three.npy", figuresize=2).axes[0].get_title() \
+        == "Channel one, 3 (obj.)"
+
+    empty = np.zeros((8, 8), dtype=np.uint8)
+    assert _plot_cropped_arrays(empty, "empty.npy", figuresize=2).axes[0].get_title() \
+        == "Channel one, 0 (obj.)"
+
+    # No background pixel at all: the single label is still one object.
+    full = np.ones((8, 8), dtype=np.uint8)
+    assert _plot_cropped_arrays(full, "full.npy", figuresize=2).axes[0].get_title() \
+        == "Channel one, 1 (obj.)"
+
+    # Non-contiguous labels are counted as they are, not as max(label).
+    sparse = np.zeros((8, 8), dtype=np.uint16)
+    sparse[1:3, 1:3] = 7
+    sparse[5:7, 5:7] = 91
+    assert _plot_cropped_arrays(sparse, "sparse.npy", figuresize=2).axes[0].get_title() \
+        == "Channel one, 2 (obj.)"
 
 
 def test_plot_cropped_arrays_single_channel_stack():

@@ -12,6 +12,7 @@ is a fraction of a second.
 from __future__ import annotations
 
 import random
+import warnings
 
 import numpy as np
 import pytest
@@ -525,6 +526,84 @@ def test_show_cam_on_image_blends_jet_heatmap():
     # adding image intensity lifts the whole blend off zero
     bright = show_cam_on_image(np.full((4, 64, 3), 0.5, np.float32), mask)
     assert out.min() == 0 and bright.min() > 0
+
+
+@pytest.mark.parametrize("value", [1.1, 1.5, 2.0, 7.0])
+def test_show_cam_on_image_clips_an_unnormalized_mask_instead_of_wrapping(value):
+    """A CAM above 1.0 saturates at the hot end of jet, and says so.
+
+    Before the clip, ``np.uint8(255 * mask)`` WRAPPED: 1.1 landed at 24 (the
+    cold end), 1.5 at 126 (mid-jet), 2.0 back at 254 -- so the hottest region
+    of an un-normalized attribution map could render as the coldest colour,
+    inverting what the picture means.
+    """
+    from spacr.utils import show_cam_on_image
+    img = np.zeros((4, 4, 3), dtype=np.float32)
+    saturated = show_cam_on_image(img, np.ones((4, 4), dtype=np.float32))
+
+    with pytest.warns(RuntimeWarning, match="clipping"):
+        out = show_cam_on_image(img, np.full((4, 4), value, dtype=np.float32))
+
+    assert np.array_equal(out, saturated)
+    assert int(out[0, 0].argmax()) == 2          # hot end of jet, in BGR
+
+
+def test_show_cam_on_image_clips_a_negative_mask_to_the_cold_end():
+    from spacr.utils import show_cam_on_image
+    img = np.zeros((4, 4, 3), dtype=np.float32)
+    coldest = show_cam_on_image(img, np.zeros((4, 4), dtype=np.float32))
+    with pytest.warns(RuntimeWarning, match="clipping"):
+        out = show_cam_on_image(img, np.full((4, 4), -3.0, dtype=np.float32))
+    assert np.array_equal(out, coldest)
+
+
+def test_show_cam_on_image_leaves_a_normalized_mask_alone():
+    """The clip must not warn on the input the function documents."""
+    from spacr.utils import show_cam_on_image
+    mask = np.tile(np.linspace(0.0, 1.0, 8, dtype=np.float32), (8, 1))
+    img = np.full((8, 8, 3), 0.25, dtype=np.float32)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        out = show_cam_on_image(img, mask)
+    assert out.shape == (8, 8, 3) and out.dtype == np.uint8
+
+
+@pytest.mark.parametrize("bad", [np.nan, np.inf, -np.inf])
+def test_show_cam_on_image_refuses_a_non_finite_mask(bad):
+    """A non-finite CAM used to come back as an all-black overlay, which is
+    indistinguishable from 'the model looked nowhere'."""
+    from spacr.utils import show_cam_on_image
+    mask = np.zeros((4, 4), dtype=np.float32)
+    mask[1, 1] = bad
+    with pytest.raises(ValueError, match="NaN or infinity"):
+        show_cam_on_image(np.zeros((4, 4, 3), dtype=np.float32), mask)
+
+
+def test_show_cam_on_image_refuses_a_non_finite_image():
+    from spacr.utils import show_cam_on_image
+    img = np.zeros((4, 4, 3), dtype=np.float32)
+    img[0, 0, 0] = np.nan
+    with pytest.raises(ValueError, match="NaN or infinity"):
+        show_cam_on_image(img, np.zeros((4, 4), dtype=np.float32))
+
+
+def test_show_cam_on_image_refuses_an_image_that_cancels_the_heatmap():
+    """The old ``else: cam.fill(0.0)`` branch returned a black frame here."""
+    from spacr.utils import show_cam_on_image
+    img = np.full((4, 4, 3), -10.0, dtype=np.float32)
+    with pytest.raises(ValueError, match="nothing to normalize against"):
+        show_cam_on_image(img, np.zeros((4, 4), dtype=np.float32))
+
+
+def test_show_cam_on_image_never_wraps_the_output_cast():
+    """A partly negative image is clipped, not wrapped, on the way out."""
+    from spacr.utils import show_cam_on_image
+    img = np.zeros((4, 4, 3), dtype=np.float32)
+    img[0, 0] = -0.5
+    mask = np.linspace(0.0, 1.0, 16, dtype=np.float32).reshape(4, 4)
+    out = show_cam_on_image(img, mask)
+    assert out.dtype == np.uint8
+    assert int(out.min()) == 0 and int(out.max()) == 255
 
 
 def test_integrated_gradients_default_baseline_shape_and_values():

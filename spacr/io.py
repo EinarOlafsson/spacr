@@ -1,6 +1,6 @@
 """Image, dataset, and SQLite input/output helpers used across spaCR."""
 
-import os, re, json, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, glob, queue, threading, tifffile, czifile, atexit, readlif, tempfile, logging
+import os, re, json, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, glob, queue, threading, tifffile, czifile, atexit, readlif, tempfile, logging, warnings
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps
@@ -5270,7 +5270,12 @@ def make_cv_folds(labels, n_splits, groups=None, seed=0):
     :param labels: integer labels, one per sample.
     :param n_splits: number of folds, must be >= 2.
     :param groups: optional group id per sample (same length as ``labels``).
-    :param seed: seed for the deterministic shuffle.
+    :param seed: seed for the shuffle. Both branches use it: ungrouped, it
+        shuffles each class and picks the starting fold; grouped, it orders
+        groups of equal size and breaks ties between folds the greedy pass
+        rates equally, so re-running with a different seed gives a different
+        — and equally stratified — partition. Where only one partition is
+        feasible (as many groups as folds, say) no seed can change it.
     :returns: list of ``(train_idx, val_idx)`` numpy integer arrays.
     :raises ValueError: if ``n_splits`` < 2, if ``groups`` is the wrong
         length, or if there are fewer samples/groups than folds.
@@ -5315,21 +5320,32 @@ def make_cv_folds(labels, n_splits, groups=None, seed=0):
         for g in uniq:
             for c in labels[members[g]]:
                 hist[g][c] += 1.0
-        order = sorted(uniq, key=lambda g: (-hist[g].sum(), str(g)))
+        # Largest group first — the big blocks have to land while the folds
+        # are still empty enough to take them — but shuffle before the (stable)
+        # sort so equally large groups arrive in a seed-dependent order. Sorting
+        # on the group name instead, as this used to, made the grouped branch
+        # ignore ``seed`` entirely and hand back one fixed partition.
+        order = sorted(rng.permutation(uniq), key=lambda g: -hist[g].sum())
 
         class_totals = np.bincount(labels, minlength=n_classes).astype(float)
         class_totals[class_totals == 0] = 1.0
         fold_class = np.zeros((k, n_classes), dtype=float)
         fold_size = np.zeros(k, dtype=float)
         for g in order:
+            # Folds the cost cannot separate are genuinely interchangeable, so
+            # let the seed choose between them rather than always fold 0.
+            fold_rank = rng.permutation(k)
             best_f, best_cost = None, None
             for f in range(k):
                 fold_class[f] += hist[g]
                 # Spread of each class across folds, as a fraction of that
-                # class's total; lower is a more even stratification.
-                cost = float(np.mean(np.std(fold_class / class_totals, axis=0)))
+                # class's total; lower is a more even stratification. Rounded
+                # so that folds differing only by float summation order tie
+                # honestly and the seed, not the noise, separates them.
+                cost = round(
+                    float(np.mean(np.std(fold_class / class_totals, axis=0))), 12)
                 fold_class[f] -= hist[g]
-                key = (cost, fold_size[f], f)
+                key = (cost, fold_size[f], int(fold_rank[f]))
                 if best_cost is None or key < best_cost:
                     best_cost, best_f = key, f
             fold_class[best_f] += hist[g]
@@ -5364,21 +5380,29 @@ def make_validation_holdout(labels, validation_fraction, groups, seed=0):
         lot. Over eight equal groups, 0.05 holds out 0.125 (no finer split is
         available) and 0.7 holds out 0.5 (the two-fold floor); with one
         dominant group — 70 of 100 samples across four groups — those same two
-        requests instead hold out 0.10 and 0.70.
+        requests instead hold out 0.10 and 0.70. A miss that big is no longer
+        silent: whenever the realised share is further than
+        ``max(0.01, 0.1 * validation_fraction)`` from the requested one, a
+        ``UserWarning`` names both numbers and why they differ.
     :param groups: Group id per sample — well, field, or whatever
         ``cv_group_by`` names — and required, not optional, because the point
         of this function is that a group never straddles the split. Needs the
         same length as ``labels`` and at least two distinct values.
-    :param seed: Seed handed to :func:`make_cv_folds`, which touches its RNG
-        only in the ungrouped branch, for the per-class shuffle and starting
-        offset. ``groups`` is mandatory here, so that branch is never reached
-        and the value changes nothing: the grouped assignment is a
-        deterministic greedy pass, and every seed returns the same holdout for
-        the same labels and groups.
+    :param seed: Seed handed to :func:`make_cv_folds` and used again to pick
+        between candidate folds it rates equally. It really does move the
+        split: the grouped pass orders equally large groups and breaks ties
+        between equally good folds by this seed, so a second seed gives a
+        second, equally stratified holdout. It used to be dead — the grouped
+        branch was a fixed greedy pass — so every seed returned the same
+        holdout and a "robust across seeds" check was really one split tried
+        repeatedly. Where the groups admit only one partition (two groups over
+        two folds, say) no seed can move it.
     :returns: One ``(train_idx, val_idx)`` pair of numpy integer arrays.
     :raises ValueError: if ``validation_fraction`` is outside ``(0, 1)``, if
         ``groups`` is missing or the wrong length, or if fewer than two
         distinct groups are present.
+    :warns UserWarning: if whole-group quantisation makes the realised holdout
+        share miss ``validation_fraction`` by more than the tolerance above.
     """
     labels = np.asarray([int(value) for value in labels])
     fraction = float(validation_fraction)
@@ -5425,7 +5449,42 @@ def make_validation_holdout(labels, validation_fraction, groups, seed=0):
         ))) if len(total_distribution) else 0.0
         return size_cost + class_cost, len(validation)
 
-    return min(candidates, key=score)
+    # Folds the score cannot separate are interchangeable holdouts, so the seed
+    # picks between them instead of the first one always winning.
+    tie_break = np.random.default_rng(seed).permutation(len(candidates))
+    train_idx, val_idx = min(
+        enumerate(candidates),
+        key=lambda item: score(item[1]) + (int(tie_break[item[0]]),),
+    )[1]
+
+    realised = len(val_idx) / max(len(labels), 1)
+    tolerance = max(0.01, 0.1 * fraction)
+    if abs(realised - fraction) > tolerance:
+        if requested_folds > distinct:
+            reason = (
+                f"only {distinct} distinct group(s) are available, so the split "
+                f"could not go finer than {n_splits} folds"
+            )
+        elif fraction > 0.5:
+            reason = (
+                "a holdout larger than half the data would need fewer than two "
+                "folds, so the split floors at 2 and holds out about half"
+            )
+        else:
+            reason = (
+                "the holdout is one whole fold and groups are never split, so "
+                "the share is quantised to whole groups"
+            )
+        warnings.warn(
+            f"validation_fraction={fraction:.4g} was requested but "
+            f"{len(val_idx)} of {len(labels)} samples "
+            f"({realised:.4g}) were held out: {reason}. Group at a finer "
+            f"cv_group_by level for more groups to choose from, or ask for "
+            f"{realised:.4g} so the setting matches what you get.",
+            UserWarning,
+            stacklevel=2,
+        )
+    return train_idx, val_idx
 
 
 def summarize_cv_folds(labels, folds, classes=None, groups=None):

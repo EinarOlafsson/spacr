@@ -5501,21 +5501,40 @@ def apply_mask(image, output_value=0):
     return masked_image
     
 def invert_image(image):
-    """Return the intensity-inverted image, using the dtype max as the pivot.
+    """Return the intensity-inverted image, reflected through the dtype range.
 
-    :param image: ndarray with an *integer* dtype. The pivot comes from
-        ``np.iinfo(image.dtype).max``, so a float image raises ``ValueError``
-        rather than inverting -- convert or rescale to an integer dtype first.
-        The pivot is the dtype ceiling, not the image maximum, so a dim ``uint16``
-        image inverts against 65535 and comes back near-white; normalize to the
-        dtype range first if you want a contrast-preserving inversion. A signed
-        dtype overflows and wraps without warning: under ``int8`` a pixel of
-        ``-100`` inverts to ``127 - (-100) = 227``, which wraps to ``-29``.
+    The pivot is ``iinfo.min + iinfo.max``, which is the dtype maximum for
+    every unsigned dtype -- so ``uint8`` and ``uint16`` invert exactly as they
+    always did -- and ``-1`` for a signed one, the same convention
+    :func:`skimage.util.invert` uses. Reflecting through the range instead of
+    subtracting from the ceiling is what keeps a signed image in range: under
+    ``int8``, ``-100`` inverts to ``99`` rather than to ``227``, which used to
+    wrap silently to ``-29``.
+
+    :param image: array with an *integer* dtype. A float or boolean image
+        raises ``ValueError`` rather than inverting -- convert or rescale to an
+        integer dtype first. The pivot is the dtype range, not the image
+        range, so a dim ``uint16`` image inverts against 65535 and comes back
+        near-white; normalize to the dtype range first if you want a
+        contrast-preserving inversion.
+    :returns: the inverted image, in the input dtype. Every value stays in
+        range, so nothing wraps.
+    :raises ValueError: ``image`` does not have an integer dtype.
     """
-    # The maximum value depends on the image dtype (e.g., 255 for uint8)
-    max_value = np.iinfo(image.dtype).max
-    inverted_image = max_value - image
-    return inverted_image
+    image = np.asarray(image)
+    if not np.issubdtype(image.dtype, np.integer):
+        raise ValueError(
+            f"invert_image needs an integer dtype to know what to invert "
+            f"against; got {image.dtype}. Rescale to uint8/uint16 first.")
+    info = np.iinfo(image.dtype)
+    # min + max: the dtype ceiling for an unsigned image (0 + 255), and -1 for
+    # a signed one, so the reflection maps [min, max] onto itself either way.
+    # The pivot always fits the dtype (it IS max when unsigned, -1 when
+    # signed), so subtracting in the image's own dtype is exact -- and avoids
+    # the uint64 promotion to float64 that a Python int operand would cause.
+    pivot = np.asarray(info.min + info.max, dtype=image.dtype)
+    inverted_image = pivot - image
+    return inverted_image.astype(image.dtype, copy=False)
 
 def resize_images_and_labels(images, labels, target_height, target_width, show_example=True):
     """Resize aligned image/label lists to ``target_height`` x ``target_width``.
@@ -6930,22 +6949,60 @@ def show_cam_on_image(img, mask):
         added to the colormap rather than blended, so a ``[0, 255]`` image
         swamps the heatmap and the result is a near-uniform wash. A 2-D
         grayscale array fails to broadcast against the 3-channel heatmap.
+        An image negative enough that the blend has no positive pixel left
+        raises rather than returning a black frame -- a black attribution map
+        is indistinguishable from "the model looked nowhere", which is a
+        claim this function must never make on the strength of bad input.
     :param mask: ``(H, W)`` activation map in ``[0, 1]``, matching ``img`` in
-        height and width. It is scaled by 255 and cast with ``np.uint8``, which
-        wraps rather than clips -- a value above 1.0 lands at an arbitrary point
-        in the colormap (1.1 wraps to the cold end, 1.5 to the middle, 2.0 back
-        to the hot end), so normalize the CAM before passing it. An all-zero
-        mask does not produce a black overlay: jet maps 0 to a non-zero color,
-        so a zero mask over a zero image renormalizes to a saturated flat field.
+        height and width. Values outside that range are CLIPPED to it, with a
+        :class:`RuntimeWarning`, so an un-normalized CAM saturates at the hot
+        end instead of wrapping the ``np.uint8`` cast: before this was clipped,
+        ``1.1`` landed at the cold end of jet, ``1.5`` in the middle and ``2.0``
+        back at the top, which could render the hottest region of a map as the
+        coldest colour. An all-zero mask does not produce a black overlay: jet
+        maps 0 to a non-zero color, so a zero mask over a zero image
+        renormalizes to a saturated flat field.
+    :raises ValueError: ``img`` or ``mask`` contains NaN or infinity, or the
+        blend has no positive pixel to normalize against.
     """
-    heatmap = cv2.applyColorMap(np.uint8(255 * mask), cv2.COLORMAP_JET)
+    import warnings
+
+    mask = np.asarray(mask, dtype=np.float32)
+    img = np.asarray(img, dtype=np.float32)
+    if not np.isfinite(mask).all():
+        raise ValueError(
+            "the activation map contains NaN or infinity, so it cannot be "
+            "coloured; a CAM that came out non-finite means the attribution "
+            "itself failed and the overlay would hide that")
+    if not np.isfinite(img).all():
+        raise ValueError(
+            "the image contains NaN or infinity, so the overlay cannot be "
+            "normalized")
+    low, high = float(mask.min()), float(mask.max())
+    if low < 0.0 or high > 1.0:
+        # Clipping keeps hot pixels hot. The warning is what makes the
+        # normalization the caller skipped visible.
+        warnings.warn(
+            f"activation map spans [{low:g}, {high:g}]; show_cam_on_image "
+            f"expects [0, 1] and is clipping to it. Normalize the CAM to "
+            f"avoid saturating the colormap.",
+            RuntimeWarning, stacklevel=2)
+    scaled = np.clip(mask, 0.0, 1.0)
+
+    heatmap = cv2.applyColorMap(np.uint8(255 * scaled), cv2.COLORMAP_JET)
     heatmap = np.float32(heatmap) / 255
-    cam = heatmap + np.float32(img)
-    peak = np.max(cam)
-    if peak > 0:
-        cam = cam / peak
-    else:
-        cam.fill(0.0)
+    cam = heatmap + img
+    peak = float(np.max(cam))
+    if not peak > 0:
+        # Unreachable for an image in [0, 1]: jet maps even a zero mask to
+        # BGR (128, 0, 0), so the blend always has a positive pixel. Getting
+        # here means the image was negative enough to cancel the heatmap out.
+        raise ValueError(
+            f"the heatmap blend peaks at {peak:g}, so there is nothing to "
+            f"normalize against; show_cam_on_image needs an image scaled to "
+            f"[0, 1] (this one spans [{float(img.min()):g}, "
+            f"{float(img.max()):g}])")
+    cam = np.clip(cam / peak, 0.0, 1.0)
     return np.uint8(255 * cam)
 
 def recommend_target_layers(model):
@@ -8071,8 +8128,6 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
     df = df[declared_features].copy()
     
     if not channel_of_interest is None:
-        drop_columns = ['channel_1', 'channel_2', 'channel_3', 'channel_4']
-        
         if isinstance(channel_of_interest, list):
             feature_strings = [f"channel_{channel}" for channel in channel_of_interest]
 
@@ -8092,12 +8147,41 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
             feature_strings = [f"channel_{channel_of_interest}"]
 
         if channel_of_interest != 'morphology':
-            # Remove entries from drop_columns that are also in feature_strings
-            drop_columns = [col for col in drop_columns if col not in feature_strings]
+            # ONE rule: keep a column when it NAMES a requested channel (or,
+            # for a free-text filter, contains the requested text); drop it
+            # otherwise.
+            #
+            # There used to be a second, subtractive half: a hard-coded
+            # drop list ['channel_1'..'channel_4'] minus the request, and any
+            # column mentioning a leftover was dropped even if it also named
+            # the requested channel. That half is deleted, not amended, and
+            # the reason it can go is that it was inert everywhere except one
+            # place. A column naming exactly ONE channel is decided identically
+            # by both halves -- if it names the requested channel the drop list
+            # no longer contains that token, and if it names some other channel
+            # the `all(fs not in col)` test already drops it. So the drop list
+            # only ever changed the fate of a column carrying TWO channel
+            # tokens, and the only such family in the schema is
+            # `<object>_channel_<i>_channel_<j>_<stat>`: colocalisation.
+            #
+            # Colocalisation measures the relationship BETWEEN a pair of
+            # channels and therefore belongs to both members of the pair. It
+            # now survives when EITHER member is requested -- exactly the
+            # special case we want, obtained by REMOVING a rule rather than
+            # bolting a `channel_\d+_channel_\d+` exemption onto the drop list.
+            # Asking for channel 1 no longer means "only how channel 1 relates
+            # to channel 0"; it means how channel 1 relates to every channel it
+            # was measured against. Nothing is recomputed: the columns are
+            # already in measurements.db, this is a filter change only.
+            #
+            # Same edit also fixes free-text filters: filter_by='mean_intensity'
+            # used to keep only channel_0's mean_intensity because every other
+            # channel's column tripped the drop list.
+            #
+            # str(col) because column labels are not guaranteed to be str.
+            columns_to_drop = [col for col in df.columns
+                               if all(fs not in str(col) for fs in feature_strings)]
 
-            # Remove columns from the DataFrame that contain any entry from drop_columns in the column name
-            columns_to_drop = [col for col in df.columns if any(drop_col in col for drop_col in drop_columns) or all(fs not in col for fs in feature_strings)]
-        
         df = df.drop(columns=columns_to_drop)
         if verbose:
             print(f"Removed columns: {columns_to_drop}")

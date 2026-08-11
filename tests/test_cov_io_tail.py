@@ -21,6 +21,7 @@ import os
 import sqlite3
 import tarfile
 import types
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -1238,3 +1239,76 @@ def test_prepare_cellpose_dataset_default_n_jobs(tmp_path, monkeypatch):
     out = root / "cellpose_dataset"
     assert len(list((out / "train" / "images").glob("*.tif"))) == 2
     assert len(list((out / "test" / "images").glob("*.tif"))) == 2
+
+
+# ---------------------------------------------------------------------------
+# make_validation_holdout -- the seed moves the split, misses are announced
+# ---------------------------------------------------------------------------
+
+def _holdout_case(n_groups=8, per_group=10):
+    """Equal-sized groups, balanced classes: labels and group ids."""
+    labels = [(i % 2) for i in range(n_groups * per_group)]
+    groups = [f"g{i // per_group}" for i in range(n_groups * per_group)]
+    return labels, groups
+
+
+def test_holdout_seed_changes_the_split_instead_of_being_ignored():
+    """The grouped path used to be a fixed greedy pass, so every seed returned
+    a byte-identical holdout and "robust across seeds" meant one split tried
+    twice. The seed now really moves it."""
+    labels, groups = _holdout_case()
+    _, val_a = IO.make_validation_holdout(labels, 0.25, groups, seed=0)
+    _, val_b = IO.make_validation_holdout(labels, 0.25, groups, seed=12345)
+    assert val_a.tolist() != val_b.tolist()
+
+
+def test_holdout_is_reproducible_for_one_seed():
+    """Varying with the seed must not mean varying between runs."""
+    labels, groups = _holdout_case()
+    first = IO.make_validation_holdout(labels, 0.25, groups, seed=7)
+    second = IO.make_validation_holdout(labels, 0.25, groups, seed=7)
+    assert first[0].tolist() == second[0].tolist()
+    assert first[1].tolist() == second[1].tolist()
+
+
+@pytest.mark.parametrize("seed", [0, 3, 12345])
+def test_holdout_stays_leakage_safe_and_stratified_for_every_seed(seed):
+    """Whatever the seed picks is still a whole-group, class-balanced split."""
+    labels, groups = _holdout_case()
+    y, g = np.asarray(labels), np.asarray(groups)
+    train, val = IO.make_validation_holdout(labels, 0.25, groups, seed=seed)
+    assert set(g[train]).isdisjoint(set(g[val]))
+    assert sorted(train.tolist() + val.tolist()) == list(range(len(labels)))
+    assert len(val) == 20                       # 2 of 8 equal groups
+    assert set(y[val]) == {0, 1}
+
+
+def test_holdout_warns_when_a_large_fraction_is_clamped_to_a_two_way_split():
+    """0.9 cannot be honoured -- fewer than two folds is not a split -- and the
+    0.5 it silently gave back is a very different experiment."""
+    labels, groups = _holdout_case()
+    with pytest.warns(UserWarning) as record:
+        _, val = IO.make_validation_holdout(labels, 0.9, groups)
+    assert len(val) / len(labels) == 0.5
+    message = str(record[0].message)
+    assert "0.9" in message and "0.5" in message
+
+
+def test_holdout_warns_when_group_granularity_forces_a_bigger_holdout():
+    """0.05 over eight groups realises 0.125; the miss is named, not hidden."""
+    labels, groups = _holdout_case()
+    with pytest.warns(UserWarning) as record:
+        _, val = IO.make_validation_holdout(labels, 0.05, groups)
+    assert len(val) / len(labels) == 0.125
+    message = str(record[0].message)
+    assert "0.05" in message and "0.125" in message
+    assert "8 distinct group" in message
+
+
+def test_holdout_is_quiet_when_the_request_is_honoured():
+    """No warning noise on a fraction the groups can actually deliver."""
+    labels, groups = _holdout_case()
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", UserWarning)
+        _, val = IO.make_validation_holdout(labels, 0.25, groups)
+    assert len(val) / len(labels) == 0.25

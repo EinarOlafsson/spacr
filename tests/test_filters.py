@@ -267,6 +267,73 @@ def test_a_table_with_no_object_identity_cannot_be_exported(tmp_path):
         export_gate(path, pd.DataFrame({"area": [1.0]}), np.array([True]), "g")
 
 
+# ---------------------------------------------------------------------------
+# The full identity, not just the object label
+# ---------------------------------------------------------------------------
+
+_ALIAS_SPELLINGS = {"plateID": "plate", "rowID": "row",
+                    "columnID": "column", "fieldID": "field"}
+
+
+def test_key_columns_does_not_alias_the_well_keys(cell_db):
+    """The reason the guard cannot be "is there an object_label".
+
+    ``key_columns`` matches the canonical spellings exactly, so a frame that
+    spells them ``plate``/``row``/``column``/``field`` -- what a raw
+    ``SELECT *`` gives on a database written that way -- yields the object
+    label ALONE, and an object label is unique only within one field.
+    """
+    from spacr.filters import key_columns
+    frame = pd.read_sql_query("SELECT * FROM cell", sqlite3.connect(cell_db))
+    assert key_columns(frame) == ["plateID", "rowID", "columnID", "fieldID",
+                                  "object_label"]
+    assert key_columns(frame.rename(columns=_ALIAS_SPELLINGS)) == ["object_label"]
+
+
+@pytest.mark.parametrize("dropped", ["plateID", "rowID", "columnID", "fieldID",
+                                     "object_label"])
+def test_a_gate_needs_the_whole_identity_not_just_the_object_label(cell_db,
+                                                                   dropped):
+    """A merge on a partial key joins one plate's object 7 onto another's."""
+    frame = pd.read_sql_query("SELECT * FROM cell", sqlite3.connect(cell_db))
+    partial = frame.drop(columns=[dropped])
+    with pytest.raises(FilterError, match=dropped):
+        export_gate(cell_db, partial, (partial["area"] >= 30.0).to_numpy(), "g")
+
+
+def test_a_gate_on_alias_spelled_identity_is_refused_not_merged_on_the_label(
+        cell_db):
+    """The reachable form of the same bug: identity present, spelled the other
+    way, so only ``object_label`` survives ``key_columns``."""
+    frame = pd.read_sql_query("SELECT * FROM cell", sqlite3.connect(cell_db))
+    alias = frame.rename(columns=_ALIAS_SPELLINGS)
+    with pytest.raises(FilterError, match="cannot be written back"):
+        export_gate(cell_db, alias, (alias["area"] >= 30.0).to_numpy(), "g")
+    assert FILTERS_TABLE not in _tables(cell_db) or "g" not in pd.read_sql_query(
+        f"SELECT * FROM {FILTERS_TABLE}", sqlite3.connect(cell_db)).columns
+
+
+def test_an_annotation_needs_the_whole_identity_too(cell_db):
+    from spacr.filters import export_annotation
+    frame = pd.read_sql_query("SELECT * FROM cell", sqlite3.connect(cell_db))
+    alias = frame.rename(columns=_ALIAS_SPELLINGS)
+    labels = pd.Series(["a"] * len(alias))
+    with pytest.raises(FilterError, match="cannot be written back"):
+        export_annotation(cell_db, alias, labels, "cls")
+
+
+def test_require_full_identity_accepts_the_canonical_identity(cell_db):
+    """What a spaCR-written table gives, plus the timelapse key, is enough."""
+    from spacr.filters import key_columns, require_full_identity
+    frame = pd.read_sql_query("SELECT * FROM cell", sqlite3.connect(cell_db))
+    keys = key_columns(frame)
+    assert require_full_identity(keys, "a gate") is None
+    assert require_full_identity(keys + ["timeID"], "a gate") is None
+    column, marked = export_gate(cell_db, frame,
+                                 (frame["area"] >= 30.0).to_numpy(), "ok")
+    assert column == "ok" and marked == int((frame["area"] >= 30.0).sum())
+
+
 def test_the_table_is_built_once_and_reused(cell_db):
     first = ensure_filters_table(cell_db)
     frame = pd.read_sql_query("SELECT * FROM cell", sqlite3.connect(cell_db))

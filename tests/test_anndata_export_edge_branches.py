@@ -24,9 +24,11 @@ What these defend, in one line each:
 * an unusable path is named, and is not turned into a database by being
   opened.
 
-One strict ``xfail`` records a real defect found while writing this file:
-``ExportResult.frac_missing`` divides a pre-policy numerator by a
-post-policy shape and prints 127.3% missing.
+Two defects found while writing this file, now fixed and pinned green:
+``ExportResult.frac_missing`` divided a pre-policy numerator by a
+post-policy shape and printed 114.3% missing, and ``describe()`` charged the
+NaN policy's row drops to the filter as well, so one loss of four objects
+was reported twice.
 
 CPU-only, offline, deterministic.
 """
@@ -591,25 +593,24 @@ def test_the_summary_line_names_the_infinities_it_converted(tmp_path):
     assert int(adata.uns["spacr"]["nan"]["n_missing"]) >= 2
 
 
-#: ``ExportResult.frac_missing`` documents itself as "NaN as a fraction of
-#: the pre-policy matrix", and ``n_missing`` really is the pre-policy count
-#: -- but ``n_obs``/``n_vars`` are the shape AFTER the policy dropped rows or
-#: columns. Under ``drop_objects`` on the database below that is 28 missing
-#: values over a 2 x 11 matrix, and ``describe()`` prints "(127.3%)".
-FRAC_MISSING_DENOMINATOR_BUG = (
-    "ExportResult.frac_missing divides the pre-policy n_missing by the "
-    "post-policy n_obs * n_vars, so a dropping policy reports a fraction "
-    "above 100%")
+#: Was a strict ``xfail``. ``ExportResult.frac_missing`` documented itself as
+#: "NaN as a fraction of the pre-policy matrix", and ``n_missing`` really is
+#: the pre-policy count -- but it divided by ``n_obs * n_vars``, the shape
+#: AFTER the policy dropped rows or columns. Under ``drop_objects`` on the
+#: database below that was 32 missing values over a 2 x 14 matrix, and
+#: ``describe()`` printed "(114.3%)". Fixed by recording the shape the count
+#: was taken over (``ExportResult.counted_shape``) and dividing by that.
 
 
-@pytest.mark.xfail(strict=True, reason=FRAC_MISSING_DENOMINATOR_BUG)
 def test_frac_missing_is_a_fraction_of_the_matrix_it_counted(tmp_path):
     """A fraction of missing values cannot exceed 1.0.
 
     Whatever the two numbers are measured over, the printed percentage is
-    read as "how much of my data was missing", and 127.3% is not an answer
-    to that question. The same export with the default policy reports 42.4%,
-    which is the true figure for the matrix the values were counted in.
+    read as "how much of my data was missing", and 114.3% is not an answer
+    to that question. The numerator is the pre-policy count, so the
+    denominator is the pre-policy shape -- which makes the figure identical
+    to the one the same export reports under ``keep``, because it is a
+    statement about the same matrix.
     """
     db = build_project(str(tmp_path / "sparse"), pathogen_cells=1,
                        pathogen_channels=6)
@@ -625,10 +626,74 @@ def test_frac_missing_is_a_fraction_of_the_matrix_it_counted(tmp_path):
     assert (dropped.n_obs, dropped.n_vars) == (2, 14)
     assert dropped.n_missing == kept.n_missing == 32
     assert kept.frac_missing == pytest.approx(32 / (6 * 14))
-    # THE CLAIM: a fraction of missing values cannot exceed 1.0. Measured at
-    # 1.1428 because the pre-policy numerator is divided by the post-policy
-    # shape.
+    # THE CLAIM: a fraction of missing values cannot exceed 1.0. It was
+    # 1.1428 because the pre-policy numerator was divided by the post-policy
+    # shape. Both exports counted the same 32 NaN in the same 6 x 14 matrix,
+    # so both must report the same fraction of it.
     assert dropped.frac_missing <= 1.0
+    assert dropped.counted_shape == (6, 14)
+    assert dropped.frac_missing == pytest.approx(32 / (6 * 14))
+    assert dropped.frac_missing == pytest.approx(kept.frac_missing)
+    assert "114.3%" not in dropped.describe()
+    assert "38.1%" in dropped.describe()
+    # The shape the percentage is a percentage OF is named, because it is not
+    # the shape printed on the first line.
+    assert "6 x 14" in dropped.describe()
+
+
+def test_describe_charges_each_lost_object_to_the_stage_that_lost_it(tmp_path):
+    """One loss of four objects is not reported twice under two headings.
+
+    ``describe()`` computed its "filtered from N objects (M removed)" line as
+    ``n_obs_before_filter - n_obs``, which is every object lost at any stage
+    -- and then printed the NaN policy's row drops AGAIN on their own line.
+    On the export below, four objects went and the reader was told "filtered
+    from 6 objects (4 removed)" and "dropped objects: 4", which reads as
+    eight. No filter ran at all here.
+    """
+    db = build_project(str(tmp_path / "sparse"), pathogen_cells=1,
+                       pathogen_channels=6)
+    _adata, result = ax.build_anndata(
+        db, tables=OBJECT_TABLES, nan_policy=ax.NAN_DROP_OBJECTS,
+        verbose=False)
+    text = result.describe()
+
+    assert result.n_obs_before_filter == 6 and result.n_obs == 2
+    assert result.dropped_objects == 4
+    # Nothing was filtered, so nothing is charged to the filter.
+    assert "filtered from" not in text
+    # The one line that does report the loss names the stage that caused it.
+    assert "dropped objects (nan_policy 'drop_objects'): 4" in text
+    # The three stages account for every object exactly once.
+    assert (result.n_obs_before_filter
+            == (result.n_obs_before_filter - result.counted_shape[0])
+            + result.dropped_objects + result.n_obs)
+
+
+def test_a_filter_and_the_nan_policy_are_reported_as_two_separate_losses(
+        tmp_path):
+    """With both stages active each line counts only its own removals.
+
+    The filter drops 2 of 8 objects and ``drop_objects`` then drops 4 of the
+    remaining 6. The filter line must say 2 -- not 6, which is what
+    ``n_obs_before_filter - n_obs`` gives and what would make the export look
+    three times as selective as the filter actually was.
+    """
+    from spacr.selection import DataFilter, RangeFilter
+
+    db = build_project(str(tmp_path / "both"), n_cells=4, pathogen_cells=2)
+    data_filter = DataFilter().add(RangeFilter("cell_area", low=101.0))
+    _adata, result = ax.build_anndata(
+        db, tables=OBJECT_TABLES, data_filter=data_filter,
+        nan_policy=ax.NAN_DROP_OBJECTS, verbose=False)
+    text = result.describe()
+
+    assert result.n_obs_before_filter == 8
+    assert result.counted_shape[0] == 6
+    assert result.dropped_objects == 4
+    assert result.n_obs == 2
+    assert "filtered from 8 objects (2 removed)" in text
+    assert "dropped objects (nan_policy 'drop_objects'): 4" in text
 
 
 # ---------------------------------------------------------------------------
