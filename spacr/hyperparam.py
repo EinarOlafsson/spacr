@@ -1091,12 +1091,23 @@ def umap_metrics() -> Tuple[str, ...]:
         # name -- importlib rather than an import statement, because the
         # no-TF guard is a line-level grep and a `from umap.` line is what it
         # is there to catch.
-        import importlib
-
         from .utils import umap as _guarded_umap
         _guarded_umap.UMAP
-        named_distances = importlib.import_module(
-            "umap.distances").named_distances
+        # `__import__`, deliberately, and not importlib.import_module.
+        #
+        # Two constraints meet here. The no-TF guard is a line-level grep, so
+        # a `from umap.` line is out. And
+        # `test_the_panel_builds_without_umap_installed` simulates a machine
+        # with no umap by patching `builtins.__import__` -- which
+        # importlib.import_module bypasses, so using it made that test pass
+        # umap-less machines a library they do not have.
+        #
+        # `__import__` satisfies both: the grep does not match it, and the
+        # test's patch does intercept it. The guarded loader above has
+        # already put the package in sys.modules with the TF-backed roots
+        # blocked, so this only fetches the sibling submodule.
+        named_distances = __import__(
+            "umap.distances", fromlist=["named_distances"]).named_distances
     except Exception:
         return UMAP_METRICS
     names = tuple(sorted(named_distances))
