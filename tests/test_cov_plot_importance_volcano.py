@@ -291,9 +291,16 @@ def _proportion_df():
     return pd.DataFrame(rows)
 
 
-@pytest.mark.parametrize("level", ["well", "plateID"])
+@pytest.mark.parametrize("level", ["well"])
 def test_plot_proportion_stacked_bars_well_level(level):
-    """Well/plate level aggregates per-well proportions and adds SD error bars."""
+    """Well level aggregates per-well proportions and adds SD error bars.
+
+    "plateID" used to be parametrized here too, and it passed because the
+    function grouped BY `prc` -- the well column -- whatever the level said.
+    That is the defect: a plate-level request averaged wells and labelled the
+    result plates. Plate level now groups by `plateID`, so it needs a plate
+    column, and this fixture has none. See test_proportion_bars_level.py.
+    """
     from spacr.plot import plot_proportion_stacked_bars
 
     df = _proportion_df()
