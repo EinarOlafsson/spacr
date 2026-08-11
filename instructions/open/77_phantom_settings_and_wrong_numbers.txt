@@ -777,3 +777,46 @@ THE FINDINGS
       Filename parsing also switches from the declared 'cellvoyager' to 
       auto-detection.
 
+
+--------------------------------------------------------------------------------
+2026-08-11 - PROGRESS, AND TWO THINGS THE VERIFICATION ADDED
+--------------------------------------------------------------------------------
+
+FIXED SO FAR:
+
+  * plot.py -- Levene's verdict now reaches the test that assumes it, per
+    column, selecting Welch's t-test or Welch's ANOVA and naming whichever
+    ran. Commit 4dbb2a37.
+
+  * io.py:257 -- `_load_images_and_labels` names. Commit 7d5d6ff9. Worth
+    recording what the fix found that the report did not: SORTING WAS ONLY
+    HALF. Each loop `continue`s past a file that reads as None, which
+    shortened `images` while the precomputed name list kept every entry, so
+    one skipped file misnamed every mask after it EVEN ON SORTED INPUT. A
+    fix that only removed the `sorted()` would have left that behind.
+
+    Also learned while writing the test: cellpose's `imread` returns None for
+    a non-image extension but RAISES for a `.tif` that is not a TIFF. So the
+    `if image is None: continue` guard handles a stray `.txt` in the folder
+    and does NOT handle a truncated TIFF, which takes the run down instead.
+    That is the right way round -- silently skipping real input is worse --
+    but the guard reads as though it covers both.
+
+ADDED BY THE VERIFICATION, not by the finders. While confirming finding 15
+(`object.py:719`, raw vs dense channel indices on resume) the checker found
+the same root cause in a place the finders had not looked:
+
+    generate_organelle_masks_sam (object.py:1455-1478) applies the same
+    sorted-raw remap UNCONDITIONALLY, so the organelle channel is mis-sliced
+    on a FIRST run, not only a resumed one -- and object.py never back-fills
+    `cellpose_organelle_channel` at all.
+
+That makes it worse than the finding it was checking: no resume required.
+Treat it as its own item, ahead of 15, and note it lands on instruction 76's
+territory -- a second organelle cannot be added on top of a channel mapping
+that is already wrong for the first.
+
+WHY THIS IS IN THE FILE. The finders and the skeptics were looking for
+different things, and the skeptic found a bug by trying to disprove one. A
+verification pass that only ever says yes or no is worth less than one that
+reads the neighbourhood.
