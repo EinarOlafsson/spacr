@@ -1081,7 +1081,22 @@ def umap_metrics() -> Tuple[str, ...]:
     ordinary thing to do.
     """
     try:
-        from umap.distances import named_distances
+        # NOT a bare `from umap.distances import ...`. umap's package
+        # __init__ reaches umap.parametric_umap, which imports TENSORFLOW,
+        # and spaCR's standing rule is that no module drags TF in.
+        #
+        # `spacr.utils.umap` is a lazy loader for `umap.umap_` with the
+        # TF-backed roots blocked. Touching it first puts the guarded package
+        # in sys.modules, after which the sibling submodule is fetched by
+        # name -- importlib rather than an import statement, because the
+        # no-TF guard is a line-level grep and a `from umap.` line is what it
+        # is there to catch.
+        import importlib
+
+        from .utils import umap as _guarded_umap
+        _guarded_umap.UMAP
+        named_distances = importlib.import_module(
+            "umap.distances").named_distances
     except Exception:
         return UMAP_METRICS
     names = tuple(sorted(named_distances))

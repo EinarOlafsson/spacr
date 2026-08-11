@@ -505,8 +505,13 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
             getattr(model, "explained_variance_ratio_", []))
     elif method == "umap":
         try:
-            import umap
-        except ImportError as exc:
+            # spacr.utils' lazy loader, not a bare `import umap`: the
+            # package's __init__ reaches umap.parametric_umap -> tensorflow,
+            # and spaCR's standing rule is that nothing drags TF in. The
+            # loader imports umap.umap_ with the TF-backed roots blocked.
+            from .utils import umap
+            umap.UMAP
+        except Exception as exc:
             raise ReductionError(
                 "UMAP is not installed in this environment; PCA is always "
                 "available") from exc
