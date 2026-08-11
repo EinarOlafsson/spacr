@@ -1,19 +1,34 @@
-"""A setting nothing reads must be refused, not accepted.
+"""A setting nothing reads must not EXIST, let alone be accepted.
 
 ``spacr-run mask --set remove_border_pathogens=True`` used to be accepted in
-silence and do nothing. The key is declared: it is in ``expected_types``, it
-has a tooltip, and the Pathogen category offers it in both GUIs -- so every
-"is this a real setting?" test in the CLI passed it. Nothing reads it. On a
+silence and do nothing. The key was declared -- it was in ``expected_types``,
+it had a tooltip, and the Pathogen category offered it in both GUIs -- so
+every "is this a real setting?" check passed it. Nothing read it. On a
 40-plate cluster job that is a GPU-week spent producing a plausible wrong
-answer, and there is no error anywhere to find afterwards.
+answer, with no error anywhere to find afterwards.
 
-``spacr.settings.DEAD_SETTINGS`` names every such key and the spelling that
-works instead; ``spacr.validate`` turns each into a pre-flight ERROR and
-``spacr.cli.apply_overrides`` refuses a ``--set`` that names one.
+THE POLICY CHANGED ON 2026-08-11, at the maintainer's instruction: "remove
+dead settings entirely". There used to be a ``DEAD_SETTINGS`` registry that
+kept such keys DECLARED -- so an old settings CSV still loaded far enough to
+be told, by name, what to use instead -- plus a pre-flight validator and a
+``--set`` refusal built on it. The registry, its 27 entries, the validator
+and the CLI branch are all gone.
 
-The first test re-derives the registry from the source on every run, so it can
-rot in neither direction: a key that gains a reader must leave it, and a key
-that loses its last reader must join it.
+So the rule is absolute rather than documented: a setting spaCR declares is a
+setting spaCR reads. There is no third state, and a key that loses its last
+reader is DELETED rather than registered.
+
+WHAT THAT COSTS, stated plainly because it is a real trade. Eighteen of the
+twenty-seven entries were RENAMES with a working replacement --
+``remove_border_cells`` -> ``cell_remove_border_objects``, ``pick_slice`` ->
+``z_projection``. An old settings CSV naming one now fails with the generic
+"names a setting that does not exist -- did you mean ...?" from
+``_check_unknown_keys`` instead of a targeted migration hint. Both paths fail
+LOUDLY; neither can produce a silent wrong answer, which is the property that
+mattered.
+
+This test re-derives its answer from the source on every run, so it cannot
+rot in either direction.
 """
 from __future__ import annotations
 
@@ -25,7 +40,6 @@ import re
 import pytest
 
 import spacr.settings as S
-from spacr.settings import DEAD_SETTINGS
 
 
 #: The dict literals in settings.py that only *declare* a setting. An
@@ -34,7 +48,6 @@ _DECLARATION_LITERALS = {
     "expected_types", "tooltips", "descriptions", "categories",
     "category_dependencies", "category_group_dependencies",
     "category_integer_dependencies", "category_value_dependencies",
-    "DEAD_SETTINGS",
 }
 
 #: Modules that are ENTIRELY declaration -- a translated copy of the tooltip
@@ -228,219 +241,106 @@ def _every_default_key():
     return keys
 
 
+
+
 # ---------------------------------------------------------------------------
-# 1. the registry is re-derived, not maintained by hand
+# the absolute rule
 # ---------------------------------------------------------------------------
 
-def test_the_dead_registry_is_exactly_what_the_source_says():
-    """A declared key whose name appears nowhere else in spacr/ is dead."""
-    derived = _declared_settings() - _live_tokens()
-    assert set(DEAD_SETTINGS) == derived, (
-        "DEAD_SETTINGS disagrees with the source.\n"
-        f"  gained a reader, remove from the registry: "
-        f"{sorted(set(DEAD_SETTINGS) - derived)}\n"
-        f"  lost its last reader, add to the registry: "
-        f"{sorted(derived - set(DEAD_SETTINGS))}"
-    )
+def test_no_declared_setting_is_unread():
+    """Every key spaCR declares has a reader somewhere under spacr/.
 
+    This replaced `test_the_dead_registry_is_exactly_what_the_source_says`,
+    which asserted the registry EQUALLED the set of unread keys. With the
+    registry gone the assertion is simply that the set is empty.
 
-def test_the_registry_is_not_empty_so_the_scan_is_really_running():
-    assert "remove_border_pathogens" in DEAD_SETTINGS
-    assert len(DEAD_SETTINGS) >= 11
-
-
-def test_no_defaults_factory_produces_a_dead_setting():
-    """Otherwise a stock settings dict would fail its own pre-flight."""
-    overlap = sorted(set(DEAD_SETTINGS) & _every_default_key())
-    assert not overlap, (
-        f"{overlap} are both defaulted and registered dead, so every run of "
-        "the pipeline that defaults them would be refused"
-    )
-
-
-@pytest.mark.parametrize("key", sorted(DEAD_SETTINGS))
-def test_each_replacement_is_a_real_live_setting(key):
-    replacement = DEAD_SETTINGS[key]
-    if replacement is None:
-        return
-    assert replacement not in DEAD_SETTINGS, (
-        f"{key} points at {replacement}, which is itself dead"
-    )
-    assert replacement in _declared_settings(), (
-        f"{key} points at {replacement}, which spaCR does not declare"
-    )
-
-
-@pytest.mark.parametrize("key", sorted(DEAD_SETTINGS))
-def test_each_dead_tooltip_admits_it_is_dead(key):
-    """The tooltip is what the user reads before touching the knob.
-
-    ``remove_border_pathogens`` used to read "Remove pathogen objects that
-    touch the image border to avoid measuring partial pathogens." -- a flat
-    description of behaviour that does not happen, while its three siblings
-    all said they were dead. ``pick_slice`` ("keep a single z-slice instead of
-    a maximum-intensity projection") did the same.
+    When this fails the fix is to DELETE the key -- from `expected_types`,
+    from `tooltips`/`descriptions`, from every `categories` list, and from
+    whatever defaults factory produces it. Not to register it anywhere.
     """
-    tooltip = S.tooltips.get(key)
-    assert tooltip, f"{key} is registered dead but has no tooltip to warn in"
-    assert _ADMITS_IT_IS_DEAD.search(tooltip), (
-        f"the tooltip for {key} describes behaviour it does not have:\n"
-        f"  {tooltip}"
+    unread = sorted(_declared_settings() - _live_tokens())
+    assert not unread, (
+        "these settings are declared and read by nothing:\n  "
+        + "\n  ".join(unread)
+        + "\n\nDelete them. A setting spaCR declares is a setting spaCR "
+          "reads; there is no third state."
     )
 
 
+def test_the_scan_is_really_running():
+    """A scan that silently matched nothing would pass the test above."""
+    declared = _declared_settings()
+    live = _live_tokens()
+    assert len(declared) > 200, f"only {len(declared)} settings declared"
+    assert len(live) > 2000, f"only {len(live)} live tokens found"
+    # A key that certainly IS read must be seen as live, or the scan is broken.
+    assert "cell_channel" in live
+    assert "cell_channel" in declared
+
+
+def test_the_retired_keys_are_gone_from_every_declaration_site():
+    """The 27 that were retired on 2026-08-11, named so a revert is visible."""
+    import spacr.settings as S
+
+    retired = [
+        "all_to_mip", "barecode_length_1", "barecode_length_2",
+        "class_1_threshold", "custom_measurement", "gene_weights_csv",
+        "metadata_types", "nc", "nc_loc", "nucleus_loc", "pc", "pc_loc",
+        "pick_slice", "postprocess_cell_masks", "postprocess_nucleus_masks",
+        "postprocess_organelle_masks", "postprocess_pathogen_masks",
+        "redunction_method", "remove_border_cells", "remove_border_nuclei",
+        "remove_border_organelles", "remove_border_pathogens",
+        "signal_direction", "skip_mode", "use_sam_cell", "use_sam_nucleus",
+        "use_sam_pathogen",
+    ]
+    back = []
+    for key in retired:
+        if key in S.expected_types or key in getattr(S, "tooltips", {}) \
+                or key in S.descriptions:
+            back.append(key)
+        for group in S.categories.values():
+            if key in group:
+                back.append(f"{key} (in a category)")
+    assert not back, f"retired settings are declared again: {sorted(set(back))}"
+
+
+def test_the_registry_itself_is_gone():
+    """`DEAD_SETTINGS` is not a thing spaCR has any more."""
+    import spacr.settings as S
+    import spacr.validate as V
+
+    assert not hasattr(S, "DEAD_SETTINGS")
+    assert not hasattr(V, "_check_dead_settings")
+
+
+def test_no_defaults_factory_produces_an_unread_setting():
+    """A stock settings dict cannot contain a key nothing reads."""
+    unread = _declared_settings() - _live_tokens()
+    produced = _every_default_key()
+    assert not (produced & unread), (
+        f"a defaults factory produces unread keys: {sorted(produced & unread)}")
+
+
 # ---------------------------------------------------------------------------
-# 2. validate_settings refuses them
+# a retired key now fails as an UNKNOWN key -- loudly, just less specifically
 # ---------------------------------------------------------------------------
 
-_SAMPLE_OF_TYPE = {bool: True, str: "x", int: 1, float: 1.0, list: ["c1"],
-                   dict: {}, tuple: ()}
+def test_a_retired_key_is_refused_by_set():
+    """It used to be refused as "declared but unread". Now it does not exist.
 
-
-def _value_of_declared_type(key):
-    """A value of the key's declared type, so the dead-key problem is alone.
-
-    A bool in a list-typed key would add a type warning of its own and hide
-    whether the dead check fired exactly once.
+    The message is generic, but it still refuses -- which is the property
+    that stops a GPU-week from being spent on a silent no-op.
     """
-    declared = S.expected_types.get(key, bool)
-    first = declared[0] if isinstance(declared, tuple) else declared
-    return _SAMPLE_OF_TYPE[first]
-
-@pytest.mark.parametrize("key", sorted(DEAD_SETTINGS))
-def test_validate_settings_reports_each_dead_key_as_an_error(key):
-    from spacr.validate import validate_settings
-
-    value = _value_of_declared_type(key)
-    problems = [p for p in validate_settings({"src": "/nonexistent", key: value},
-                                             "mask")
-                if p.setting == key]
-    assert len(problems) == 1, f"{key} produced {len(problems)}: {problems}"
-    problem = problems[0]
-    assert problem.is_error, (
-        f"{key} is a warning, not an error; a warning does not stop "
-        "`spacr-run` and the silent no-op survives"
-    )
-    assert "read by nothing" in problem.message
-    replacement = DEAD_SETTINGS[key]
-    if replacement:
-        assert replacement in problem.fix
-    else:
-        assert "Delete" in problem.fix
-
-
-def test_validate_settings_says_nothing_when_no_dead_key_is_present():
-    from spacr.validate import validate_settings
-
-    problems = validate_settings({"src": "/nonexistent",
-                                  "pathogen_remove_border_objects": True},
-                                 "mask")
-    assert not [p for p in problems if "read by nothing" in p.message]
-
-
-@pytest.mark.parametrize("module_key", sorted(__import__("spacr.cli", fromlist=["MODULES"]).MODULES))
-def test_no_modules_stock_defaults_trip_the_dead_check(module_key):
-    """Every ``spacr-run`` module must still be startable from its defaults."""
-    from spacr.cli import MODULES, module_defaults
-    from spacr.validate import validate_settings
-
-    module = MODULES[module_key]
-    problems = validate_settings(module_defaults(module), module.validate_key)
-    dead = [p.setting for p in problems if "read by nothing" in p.message]
-    assert not dead, f"{module_key} defaults carry dead settings: {dead}"
-
-
-# ---------------------------------------------------------------------------
-# 3. the CLI refuses them before anything is imported or started
-# ---------------------------------------------------------------------------
-
-def test_apply_overrides_refuses_a_dead_key_and_names_the_replacement():
     from spacr.cli import MODULES, SettingsError, apply_overrides
 
-    with pytest.raises(SettingsError) as exc:
+    with pytest.raises(SettingsError, match="does not exist"):
         apply_overrides({"src": "/tmp"}, ["remove_border_pathogens=True"],
                         MODULES["mask"])
-    message = str(exc.value)
-    assert "reads nowhere" in message
-    assert "pathogen_remove_border_objects" in message
-    assert "--describe mask" in message
-
-
-def test_the_replacements_value_is_not_carried_over():
-    """``--set z_projection=True`` would be a confident wrong answer.
-
-    ``pick_slice`` is a bool; ``z_projection`` takes 'max' / 'mean' / 'sum' /
-    'best_focus'. Suggesting the old value with the new key trades a silent
-    no-op for a value the reader rejects.
-    """
-    from spacr.cli import MODULES, SettingsError, apply_overrides
-
-    with pytest.raises(SettingsError) as exc:
-        apply_overrides({"src": "/tmp"}, ["pick_slice=True"], MODULES["mask"])
-    assert "z_projection" in str(exc.value)
-    assert "z_projection=True" not in str(exc.value)
-
-
-def test_apply_overrides_refuses_a_dead_key_with_no_replacement():
-    from spacr.cli import SettingsError, apply_overrides
-
-    with pytest.raises(SettingsError) as exc:
-        apply_overrides({"src": "/tmp"}, ["skip_mode=skip"], None)
-    message = str(exc.value)
-    assert "reads nowhere" in message
-    assert "Drop it" in message
-    # module=None (the `validate` subcommand without --module) still renders.
-    assert "<module>" not in message
-
-
-def test_apply_overrides_without_a_module_still_names_the_replacement():
-    from spacr.cli import SettingsError, apply_overrides
-
-    with pytest.raises(SettingsError) as exc:
-        apply_overrides({}, ["redunction_method=umap"], None)
-    assert "reduction_method" in str(exc.value)
-    assert "--describe <module>" in str(exc.value)
 
 
 def test_a_live_setting_is_still_accepted():
     from spacr.cli import MODULES, apply_overrides
 
-    settings = {"src": "/tmp", "pathogen_remove_border_objects": False}
-    apply_overrides(settings, ["pathogen_remove_border_objects=True"],
-                    MODULES["mask"])
-    assert settings["pathogen_remove_border_objects"] is True
-
-
-def test_spacr_run_exits_usage_rather_than_starting(tmp_path, capsys):
-    """The whole point: the process must not reach the pipeline."""
-    import pandas as pd
-
-    from spacr.cli import EXIT_USAGE, main
-
-    plate = tmp_path / "plate"
-    (plate / "merged").mkdir(parents=True)
-    settings_csv = tmp_path / "mask.csv"
-    pd.DataFrame([("src", str(plate))],
-                 columns=["Key", "Value"]).to_csv(settings_csv, index=False)
-
-    code = main(["mask", "--settings", str(settings_csv),
-                 "--set", "remove_border_pathogens=True"])
-    assert code == EXIT_USAGE
-    assert "reads nowhere" in capsys.readouterr().err
-
-
-def test_a_settings_file_carrying_a_dead_key_fails_pre_flight(tmp_path, capsys):
-    """``--set`` is not the only way in; an old settings CSV is the other."""
-    import pandas as pd
-
-    from spacr.cli import EXIT_USAGE, main
-
-    plate = tmp_path / "plate"
-    (plate / "merged").mkdir(parents=True)
-    settings_csv = tmp_path / "mask.csv"
-    pd.DataFrame([("src", str(plate)), ("remove_border_pathogens", "True")],
-                 columns=["Key", "Value"]).to_csv(settings_csv, index=False)
-
-    code = main(["validate", "--module", "mask", "--settings", str(settings_csv)])
-    assert code == EXIT_USAGE
-    assert "read by nothing" in capsys.readouterr().out
+    out = apply_overrides({"src": "/tmp", "cell_channel": 0},
+                          ["cell_channel=2"], MODULES["mask"])
+    assert out["cell_channel"] == 2

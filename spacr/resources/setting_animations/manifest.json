@@ -9,8 +9,7 @@
       },
       "scene": "border",
       "settings": [
-        "cell_remove_border_objects",
-        "remove_border_cells"
+        "cell_remove_border_objects"
       ],
       "slug": "cell_remove_border_objects",
       "title": "Cell \u2014 Remove border objects",
@@ -111,8 +110,7 @@
       },
       "scene": "border",
       "settings": [
-        "nucleus_remove_border_objects",
-        "remove_border_nuclei"
+        "nucleus_remove_border_objects"
       ],
       "slug": "nucleus_remove_border_objects",
       "title": "Nucleus \u2014 Remove border objects",
@@ -213,8 +211,7 @@
       },
       "scene": "border",
       "settings": [
-        "pathogen_remove_border_objects",
-        "remove_border_pathogens"
+        "pathogen_remove_border_objects"
       ],
       "slug": "pathogen_remove_border_objects",
       "title": "Pathogen \u2014 Remove border objects",
@@ -316,8 +313,7 @@
       "scene": "border",
       "settings": [
         "organelle_remove_border_objects",
-        "organelle_remove_border",
-        "remove_border_organelles"
+        "organelle_remove_border"
       ],
       "slug": "organelle_remove_border_objects",
       "title": "Organelle \u2014 Remove border objects",
@@ -1468,9 +1464,7 @@
       },
       "scene": "tracking",
       "settings": [
-        "z_projection",
-        "all_to_mip",
-        "pick_slice"
+        "z_projection"
       ],
       "slug": "z_projection",
       "title": "Z projection",

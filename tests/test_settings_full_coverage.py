@@ -1329,41 +1329,6 @@ def test_a_defaults_factory_returns_a_json_shaped_dict(fn_name):
         ), f"{fn_name}[{key}] is a {type(value).__name__}"
 
 
-def test_no_dead_setting_is_still_being_defaulted():
-    """DEAD_SETTINGS names keys that were renamed away. A factory that still
-    fills one of them re-creates the key the rename removed."""
-    offenders = {}
-    for fn_name in _defaults_factories():
-        fn = getattr(S, fn_name)
-        try:
-            result = fn({}) if inspect.signature(fn).parameters else fn()
-        except (ValueError, KeyError):
-            continue
-        if not isinstance(result, dict):
-            continue
-        dead = set(result) & set(S.DEAD_SETTINGS)
-        if dead:
-            offenders[fn_name] = sorted(dead)
-    assert offenders == {}, offenders
-
-
-def test_dead_settings_replacements_all_exist_or_are_none():
-    """A rename map that points at a key nothing defaults is a broken
-    migration: the user is told to use a setting that does not exist."""
-    everything = set()
-    for fn_name in _defaults_factories():
-        fn = getattr(S, fn_name)
-        try:
-            result = fn({}) if inspect.signature(fn).parameters else fn()
-        except (ValueError, KeyError):
-            continue
-        if isinstance(result, dict):
-            everything |= set(result)
-    missing = sorted(
-        new for new in S.DEAD_SETTINGS.values()
-        if new is not None and new not in everything and
-        new not in S.expected_types)
-    assert missing == [], missing
 
 
 # ---------------------------------------------------------------------------
