@@ -141,3 +141,67 @@ def test_a_flat_measurement_is_refused_by_the_walk_too():
     frame["flat"] = 3.0
     with pytest.raises(ClusterError, match="same value for every object"):
         cluster_walk_candidates(frame, "x", "flat", eps=0.5, min_samples=10)
+
+
+# ---------------------------------------------------------------------------
+# The algorithm picker used to be decorative.
+# ---------------------------------------------------------------------------
+
+def test_the_picker_can_only_offer_methods_that_are_implemented():
+    """CLUSTER_METHODS listed "kmeans" while cluster_gates ran DBSCAN.
+
+    So a user who picked k-means got DBSCAN's answer labelled k-means -- a
+    wrong result with nothing on screen to reveal it. The list now lives
+    beside the dispatch that implements it, and this pins them together.
+    """
+    from spacr.qt.widgets.gate_settings import CLUSTER_METHODS as FROM_DIALOG
+    from spacr.qt.widgets.gate_spec import CLUSTER_METHODS as FROM_ENGINE
+
+    assert FROM_DIALOG is FROM_ENGINE, "the picker has its own list again"
+    assert "kmeans" not in FROM_ENGINE
+
+    frame = two_blobs()
+    for method in FROM_ENGINE:
+        gates = cluster_gates(frame, "x", "y", eps=0.5, min_samples=10,
+                              method=method)
+        assert gates, f"{method} is offered but found nothing on two blobs"
+
+
+def test_an_unknown_method_is_refused_by_name():
+    """Silently falling back to DBSCAN is what caused this in the first place."""
+    with pytest.raises(ClusterError, match="unknown clustering method"):
+        cluster_gates(two_blobs(), "x", "y", method="k-means")
+
+
+def test_hdbscan_and_dbscan_are_not_the_same_code_path():
+    """The regression would pass a weaker test: both find two blobs.
+
+    Separating populations of DIFFERENT density is the case DBSCAN gets
+    wrong at a single eps and HDBSCAN is for, so it is the case that proves
+    the method argument reaches the fit rather than being accepted and
+    dropped.
+    """
+    rng = np.random.default_rng(3)
+    tight = rng.normal([0.0, 0.0], 0.05, (300, 2))
+    loose = rng.normal([4.0, 4.0], 0.90, (300, 2))
+    frame = pd.DataFrame(np.vstack([tight, loose]), columns=["x", "y"])
+
+    d = cluster_walk_candidates(frame, "x", "y", eps=0.30, min_samples=15,
+                                steps=5, method="dbscan")
+    h = cluster_walk_candidates(frame, "x", "y", eps=0.30, min_samples=15,
+                                steps=5, method="hdbscan")
+    assert [c.clusters for c in d] != [c.clusters for c in h] or \
+           [c.noise_fraction for c in d] != [c.noise_fraction for c in h]
+
+
+def test_the_walk_passes_the_method_to_every_step():
+    """A walk that searched with one algorithm and ran with another would
+    recommend a radius that behaves differently on use."""
+    frame = two_blobs()
+    cands = cluster_walk_candidates(frame, "x", "y", eps=0.5, min_samples=10,
+                                    steps=7, method="hdbscan")
+    best = best_cluster_candidate(cands)
+    assert best is not None
+    gates = cluster_gates(frame, "x", "y", eps=best.eps, min_samples=10,
+                          method="hdbscan")
+    assert len(gates) == best.clusters

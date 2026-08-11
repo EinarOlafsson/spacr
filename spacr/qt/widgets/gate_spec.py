@@ -1381,7 +1381,8 @@ class ClusterCandidate:
 def cluster_walk_candidates(frame: pd.DataFrame, x_column: str,
                             y_column: str, *, eps: float = 0.5,
                             min_samples: int = 10, scale: bool = True,
-                            steps: int = 12, span: float = 3.0
+                            steps: int = 12, span: float = 3.0,
+                            method: str = "dbscan"
                             ) -> List[ClusterCandidate]:
     """Try a range of ``eps`` around the chosen one and score each result.
 
@@ -1407,7 +1408,6 @@ def cluster_walk_candidates(frame: pd.DataFrame, x_column: str,
         ``steps`` or ``span`` that cannot describe a sweep.
     """
     try:
-        from sklearn.cluster import DBSCAN
         from sklearn.metrics import silhouette_score
     except Exception as exc:                       # pragma: no cover
         raise ClusterError(f"clustering needs scikit-learn ({exc})") from exc
@@ -1427,8 +1427,8 @@ def cluster_walk_candidates(frame: pd.DataFrame, x_column: str,
 
     candidates: List[ClusterCandidate] = []
     for radius in radii:
-        labels = DBSCAN(eps=radius,
-                        min_samples=int(min_samples)).fit_predict(work)
+        labels = _fit_labels(work, method=method, eps=radius,
+                             min_samples=min_samples)
         found = [lab for lab in np.unique(labels) if lab != -1]
         noise = float((labels == -1).sum()) / float(len(labels))
         score = None
@@ -1469,12 +1469,54 @@ def best_cluster_candidate(candidates: Sequence[ClusterCandidate], *,
     return max(usable, key=lambda c: (c.silhouette, c.eps))
 
 
+#: Clustering algorithms this build actually runs. Defined HERE, beside
+#: `_fit_labels` which implements them, so the picker cannot offer a method
+#: the code does not have -- which is exactly what went wrong: Gate Settings
+#: listed "kmeans" and `cluster_gates` called DBSCAN regardless, so choosing
+#: k-means returned DBSCAN's answer under another name.
+CLUSTER_METHODS: Tuple[str, ...] = ("dbscan", "hdbscan")
+
+
+def _fit_labels(work, *, method: str, eps: float, min_samples: int):
+    """Cluster ``work`` with the named algorithm and return labels.
+
+    Both supported methods are DENSITY-BASED and label sparse points ``-1``,
+    which is what lets the rest of the clustering path treat them alike: the
+    noise fraction means the same thing, the hulls are built the same way,
+    and a Walk can score either.
+
+    :param method: ``"dbscan"`` or ``"hdbscan"``.
+    :raises ClusterError: on an unknown method, naming what is available.
+    """
+    name = str(method or "dbscan").strip().lower()
+    if name == "dbscan":
+        from sklearn.cluster import DBSCAN
+        return DBSCAN(eps=float(eps),
+                      min_samples=int(min_samples)).fit_predict(work)
+    if name == "hdbscan":
+        try:
+            from sklearn.cluster import HDBSCAN
+        except ImportError as exc:                 # pragma: no cover
+            raise ClusterError(
+                "HDBSCAN needs scikit-learn 1.3 or newer; choose DBSCAN or "
+                f"upgrade scikit-learn ({exc})") from exc
+        # `eps` becomes the floor below which HDBSCAN stops splitting, so the
+        # control keeps the meaning it has for DBSCAN -- larger merges. Zero
+        # (its own default) would make the setting inert, which is the defect
+        # this whole change is about.
+        return HDBSCAN(min_cluster_size=max(2, int(min_samples)),
+                       cluster_selection_epsilon=float(eps)).fit_predict(work)
+    raise ClusterError(
+        f"unknown clustering method {method!r}; this build has "
+        f"{', '.join(CLUSTER_METHODS)}")
+
+
 def cluster_gates(frame: pd.DataFrame, x_column: str, y_column: str, *,
                   eps: float = 0.5, min_samples: int = 10,
                   scale: bool = True, max_clusters: int = 20,
-                  name_prefix: str = "cluster",
+                  name_prefix: str = "cluster", method: str = "dbscan",
                   parent: Optional[str] = None) -> List["PolygonGate"]:
-    """Find dense populations with DBSCAN and return one gate per cluster.
+    """Find dense populations and return one gate per cluster.
 
     :param frame: the measurement table.
     :param x_column: the scatter's x measurement.
@@ -1490,29 +1532,26 @@ def cluster_gates(frame: pd.DataFrame, x_column: str, y_column: str, *,
         result, it is a wrongly-tuned eps, and drawing them all makes the
         editor unusable while the user works out why.
     :param name_prefix: gate names are ``<prefix> 1``, ``<prefix> 2``, ...
+    :param method: ``"dbscan"`` or ``"hdbscan"``. Gate Settings offered this
+        choice while this function always ran DBSCAN, so picking another
+        algorithm silently returned DBSCAN's answer.
     :param parent: parent gate name, so clusters can be found inside a gate.
     :returns: one :class:`PolygonGate` per cluster, largest first. Empty when
-        DBSCAN finds only noise.
+        only noise is found.
     :raises ClusterError: a missing column, no usable rows, bad parameters,
-        or more clusters than ``max_clusters``.
+        an unknown method, or more clusters than ``max_clusters``.
     """
-    try:
-        from sklearn.cluster import DBSCAN
-    except Exception as exc:                       # pragma: no cover
-        raise ClusterError(
-            f"clustering needs scikit-learn ({exc})") from exc
-
     raw, work = _cluster_matrix(frame, x_column, y_column,
                                 eps=eps, min_samples=min_samples, scale=scale)
 
-    labels = DBSCAN(eps=float(eps),
-                    min_samples=int(min_samples)).fit_predict(work)
+    labels = _fit_labels(work, method=method, eps=eps,
+                         min_samples=min_samples)
     found = [lab for lab in np.unique(labels) if lab != -1]
     if not found:
         return []
     if len(found) > int(max_clusters):
         raise ClusterError(
-            f"DBSCAN found {len(found)} clusters, more than max_clusters="
+            f"{method} found {len(found)} clusters, more than max_clusters="
             f"{max_clusters}. Raise eps to merge them, or raise "
             f"max_clusters if this is really what you meant.")
 
