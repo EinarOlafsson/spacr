@@ -533,7 +533,32 @@ def audit_dataset_splits(
     require_identity: bool = True,
     raise_on_leakage: bool = False,
 ) -> LeakageReport:
-    """Audit the permanent ``train/`` versus ``test/`` dataset boundary."""
+    """Audit the permanent ``train/`` versus ``test/`` dataset boundary.
+
+    :param root: dataset directory holding ``train/`` and ``test/``. Both are
+        searched recursively, and only ``.png``, ``.jpg``, ``.jpeg``, ``.tif``,
+        ``.tiff``, ``.bmp`` and ``.npy`` files are collected, so a folder of
+        any other format audits as empty.
+    :param group_by: identity level that may not appear on both sides --
+        ``none``, ``field``, ``well`` or ``plate``. The default ``well`` still
+        permits the same plate in train and test. It is validated only after
+        the images are found, so a bad value over an empty tree reports the
+        missing images instead.
+    :param hash_content: defaults to True here, unlike
+        :func:`audit_split_leakage`, so a byte-identical copy saved under a
+        different name fails the audit -- at the cost of one read per file.
+    :param require_identity: defaults to True here: filenames that do not
+        encode the ``group_by`` level, and files that cannot be hashed, become
+        critical instead of a warning, so an unverifiable split cannot report
+        as clean.
+    :param raise_on_leakage: raise :class:`LeakageError` instead of returning
+        a report whose ``passed`` is False.
+    :raises FileNotFoundError: when either side collects no image -- a missing
+        or unreadable folder is never treated as a passing split.
+    :returns: a :class:`LeakageReport` whose ``split_name`` is always
+        ``train_vs_test``; the ``test/`` side is counted as
+        ``validation_samples``.
+    """
     train_paths = dataset_split_paths(root, "train")
     test_paths = dataset_split_paths(root, "test")
     if not train_paths or not test_paths:
@@ -685,6 +710,29 @@ def cross_calibrate_probabilities(
 
     This cross-fitting prevents a sample from fitting the calibrator that is
     evaluated on that same sample.
+
+    :param y_true: class INDEX per sample, read only to fit the temperatures.
+        A value outside the probability columns is NOT refused here: every
+        fold's fit fails, each falls back to temperature 1.0, and the call
+        returns uncalibrated probabilities plus a printed warning.
+    :param probabilities: predicted probabilities; a 1-D positive-class vector
+        is expanded to two columns and every row is renormalized, so the
+        result is always a new normalized matrix -- never the object passed
+        in, even when no calibration is applied.
+    :param fold_ids: held-out block per sample; any hashable value works, and
+        each distinct value is calibrated from all the others, so at least two
+        distinct values are required. The returned map is keyed by
+        ``str(fold_id)``.
+    :param method: ``temperature``, or ``none``/``off``/``false`` (also
+        ``None`` and the empty string) to return the normalized probabilities
+        unchanged with an empty temperature map. Case and surrounding
+        whitespace are ignored; anything else is refused rather than skipped.
+    :param warnings_out: list appended in place when a fold cannot be
+        calibrated from the others. The message is printed either way, so
+        leaving this None only discards the machine-readable copy.
+    :raises ValueError: on mismatched lengths, an unrecognized ``method``, or
+        fewer than two distinct ``fold_ids`` when calibrating.
+    :returns: ``(calibrated_probabilities, temperature_by_held_out_fold)``.
     """
     normalized_method = str(method or "none").strip().lower()
     probs = normalize_probabilities(probabilities)
@@ -737,7 +785,26 @@ def calibration_table(
     classes: Optional[Sequence[str]] = None,
     n_bins: int = 10,
 ) -> pd.DataFrame:
-    """Return per-class reliability bins for calibration plots."""
+    """Return per-class reliability bins for calibration plots.
+
+    :param y_true: class INDEX per sample, compared column by column. A label
+        outside the probability columns is NOT refused -- it matches no class,
+        so it only ever drags ``observed_frequency`` down.
+    :param probabilities: predicted probabilities; a 1-D positive-class vector
+        is expanded to two columns and every row is renormalized.
+    :param classes: display names in column order. An EMPTY sequence falls
+        back to ``class_0 ... class_n``; a non-empty one whose length
+        disagrees with the columns is refused.
+    :param n_bins: equal-width confidence bins over ``[0, 1]``, truncated to
+        an int and floored at 2, so 0, 1 and any negative value all give two
+        bins. The top bin is closed on the right, so confidence 1.0 lands in
+        it rather than falling out of the table.
+    :raises ValueError: when ``y_true`` and ``probabilities`` differ in
+        length, or ``classes`` has the wrong length.
+    :returns: one row per class and NON-EMPTY bin, so the frame is shorter
+        than ``n_classes * n_bins`` rows -- and an empty ``y_true`` yields a
+        frame with no rows and no columns at all.
+    """
     y = np.asarray(y_true, dtype=int)
     probs = normalize_probabilities(probabilities)
     if len(y) != len(probs):
@@ -1013,6 +1080,29 @@ def nested_group_folds(
     """Build nested stratified/grouped outer and inner index partitions.
 
     Inner indexes are returned in the original/global coordinate system.
+
+    :param labels: class label per sample, coerced to int. Only its length and
+        class balance matter -- the folds carry indices, not data.
+    :param outer_splits: outer fold count, coerced with ``int`` (``2.9`` gives
+        2); below 2 is refused.
+    :param inner_splits: inner fold count built inside each outer TRAINING
+        set, so it is bounded by that subset, not by the dataset: three inner
+        folds over four samples fails on the outer training half even though
+        the outer split itself succeeded.
+    :param groups: optional group key per sample (well or plate id) kept whole
+        within a fold at BOTH levels. None gives a plain stratified split that
+        will scatter crops of the same well across folds.
+    :param seed: outer folds use ``seed``; the inner folds of outer fold ``k``
+        use ``seed + k``, so inner partitions differ between outer folds
+        instead of repeating one layout. Must be an int -- a float reaches
+        ``numpy.random.default_rng`` and raises ``TypeError``.
+    :raises ValueError: when either split count is below 2, or when the sample
+        count (or the number of distinct groups) cannot supply that many
+        folds.
+    :returns: one dict per outer fold, with ``outer_fold`` (1-based),
+        ``train``, ``validation`` and ``inner`` -- a list of
+        ``(train, validation)`` index pairs expressed in GLOBAL indices, not
+        as positions inside ``train``.
     """
     from .io import make_cv_folds
 

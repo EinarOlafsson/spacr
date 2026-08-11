@@ -5023,7 +5023,24 @@ def generate_score_heatmap(settings):
     """
 
     def group_cv_score(csv, plate=1, column='c3', data_column='pred'):
-        """Aggregate a CV predictions CSV to a per-(plate, row, column) mean."""
+        """Aggregate a CV predictions CSV to a per-(plate, row, column) mean.
+
+        :param csv: path to the cross-validation predictions CSV.
+        :param plate: a plate NUMBER, not a column name. Any value but ``None``
+            rewrites every row's ``plateID`` to ``plate<plate>``, discarding the
+            plate the CSV itself recorded; ``None`` keeps the CSV's own value and
+            raises ``KeyError`` if it has no ``plateID`` column. Default ``1``.
+        :param column: value kept from ``columnID``, or from a legacy ``column``
+            column which is copied to ``columnID`` first. A value matching no row
+            returns an empty frame rather than raising; a CSV carrying neither
+            key skips the filter silently and then dies on the groupby with
+            ``KeyError: 'columnID'``. Default ``'c3'``.
+        :param data_column: column averaged within each well. A name absent from
+            the CSV raises ``KeyError``, a non-numeric one ``TypeError``.
+            Default ``'pred'``.
+        :returns: one row per well, plus a ``prc`` key of
+            ``plateID_rowID_columnID``.
+        """
         
         df = pd.read_csv(csv)
         if 'columnID' in df.columns:
@@ -5038,7 +5055,25 @@ def generate_score_heatmap(settings):
         return grouped_df
 
     def calculate_fraction_mixed_condition(csv, plate=1, column='c3', control_sgrnas = None):
-        """Return per-well read fractions restricted to the given control sgRNAs."""
+        """Return per-well read fractions restricted to the given control sgRNAs.
+
+        :param csv: path to the reads CSV; needs ``grna_name``, ``count``,
+            ``rowID`` and ``columnID`` (a legacy ``column_name`` is renamed).
+        :param plate: a plate NUMBER, not a column name. Any value but ``None``
+            rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each
+            row's own value. Default ``1``.
+        :param column: value kept from ``columnID``. Default ``'c3'``.
+        :param control_sgrnas: ``None`` selects the built-in pair
+            ``TGGT1_220950_1`` / ``TGGT1_233460_4``. Exactly the first two
+            entries are read, so a longer list silently ignores the rest and a
+            shorter one (or an empty one) raises ``IndexError``. Entries are
+            interpolated into an anchored regex: metacharacters are live, and a
+            name that is only a prefix of the real sgRNA matches nothing.
+        :returns: the matching rows plus ``total_count``, ``fraction`` (that
+            sgRNA's share of the two controls' combined count -- non-control
+            reads never enter the denominator) and a ``prc`` key. Controls
+            absent from the CSV yield an empty frame, not an error.
+        """
         if control_sgrnas is None:
             control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']
         df = pd.read_csv(csv)
@@ -5127,7 +5162,27 @@ def generate_score_heatmap(settings):
 
 
     def combine_classification_scores(folders, csv_name, data_column, plate=1, column='c3'):
-        """Merge one ``data_column`` per sub-folder into a wide per-well DataFrame."""
+        """Merge one ``data_column`` per sub-folder into a wide per-well DataFrame.
+
+        :param folders: parent directory, or a list of them; a bare string is
+            wrapped in a list. Only the immediate sub-directories are scanned, so
+            a CSV sitting in the parent itself, or one nested two levels down, is
+            never found. A path that does not exist raises ``FileNotFoundError``.
+        :param csv_name: file name looked for inside each sub-directory. Misses
+            are printed, not raised -- finding none leaves the accumulator
+            ``None`` and the call ends in ``TypeError: 'NoneType' object is not
+            subscriptable``.
+        :param data_column: column averaged per well. Its output column is named
+            after the containing sub-directory (``<sub-folder>_<data_column>``),
+            so two parents holding same-named sub-folders collide and pandas
+            appends ``_x`` / ``_y``.
+        :param plate: a plate NUMBER, not a column name. Any value but ``None``
+            rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each
+            CSV's own value. Default ``1``.
+        :param column: value kept from ``columnID``; a CSV lacking that column
+            raises ``KeyError``. Default ``'c3'``.
+        :returns: the outer-joined well-by-channel frame with a ``prc`` key.
+        """
         # Ensure `folders` is a list
         if isinstance(folders, str):
             folders = [folders]
