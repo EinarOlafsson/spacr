@@ -20,7 +20,7 @@ here. (4) is a different KIND of thing from (1) and (2) and the biggest risk
 of the four -- see the storage note below.
 
 --------------------------------------------------------------------------------
-WHAT IS ALREADY CAPTURED
+WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
 `spacr/measure.py` is 3662 lines and already computes more than the question
@@ -41,7 +41,7 @@ already in. ANY proposal must be checked against this list first; proposing
 something already implemented is the most likely failure mode here.
 
 --------------------------------------------------------------------------------
-THE STORAGE QUESTION, WHICH IS THE REAL DECISION IN (4)
+WHY IT MATTERS
 --------------------------------------------------------------------------------
 
 A CNN penultimate layer is 512-2048 floats PER OBJECT. A plate can hold
@@ -279,3 +279,56 @@ REMEMBER THE FOUR SILENT KILLERS listed in the entry above before adding any
 column: a name containing `label`, one NaN anywhere, automatic enrolment of
 every `<object>_` numeric column into every model matrix, and the missing
 feature_dict entry.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE GLCM "NEARLY FREE" CLAIM IS REFUTED. MEASURED.
+--------------------------------------------------------------------------------
+
+The entry above says the extra GLCM properties are "nearly free from the
+matrix already in hand". THAT IS WRONG, and it was my claim, not the
+maintainer's. Benchmarked min-of-7 x 20-30 reps, taskset-pinned, ratios
+reproduced across four runs:
+
+    A  CURRENT code verbatim (rescale in loop, 1 prop, 1 angle)   1.206 ms   1.00x
+    B  hoist rescale + drop normed=True, IDENTICAL columns        0.959 ms   0.79x
+    C  = B + all 7 properties, shared normalisation, angle 0      2.827 ms   2.34x
+    D  = B + 4-angle mean, homogeneity ONLY                      10.254 ms   8.50x
+    E  = B + 4 angles + all 7 properties                         47.365 ms  39.27x
+
+WHY: at the default 256 levels, reading ONE property off the matrix costs
+MORE than building it. graycomatrix over three distances is 0.434 ms; a
+single graycoprops call is 2.1-6.7 ms. The matrix build is O(pixels) over a
+14,400-pixel patch; the property read is O(levels^2) over 65,536 float64
+elements. The "already in hand" intuition is exactly backwards -- the matrix
+is the cheap half.
+
+SO THE SHAPE OF THIS ITEM CHANGES:
+
+  * OPTION B IS A FREE WIN AND SHOULD BE TAKEN ON ITS OWN: hoisting
+    `rescale_intensity` out of the per-distance loop and dropping
+    `normed=True` (graycoprops re-normalises anyway) is **21% FASTER** than
+    today with byte-identical output. That is a pure defect fix, not a
+    feature, and it does not need a setting.
+  * The extra properties are a 2.34x texture block. Real value, but OPT-IN,
+    not "free".
+  * The rotation fix is 8.5x on its own. Pooling four angles is the correct
+    statistic -- angle-0-only homogeneity IS rotation-dependent -- but it is
+    the single most expensive change available here.
+
+TWO CORRECTIONS TO THE NUMBERS QUOTED ABOVE:
+
+  The "8.1% spread across the four angles" is ONE TEXTURE's number, not a
+  property of the method. Measured over 19 objects x 3 distances: mean 14.09%,
+  median 13.26%, max 33.63%. Per property it ranges from 0.3% (entropy) to
+  76-1466% for CORRELATION, which crosses zero and so has no stable relative
+  spread at all. Do not quote a single figure for this.
+
+  `graycoprops` re-normalising per call is confirmed and worth 1.66x when
+  seven properties share one normalisation (21.867 ms -> 13.191 ms on a
+  (256,256,3,1) matrix), verified byte-identical for six properties and
+  1.1e-16 for correlation.
+
+THE AGENT THAT MEASURED THIS WAS TOLD the diagnosis and told it could reject
+it. It confirmed all three MECHANICS and refuted the PREMISE, which is the
+outcome that makes asking worthwhile. Nothing was implemented from this
+plan -- the apply phase runs only on confirmed designs.
