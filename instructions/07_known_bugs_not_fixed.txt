@@ -325,3 +325,77 @@ should also know: at 32 grey levels a fully rotation-invariant seven-property
 block costs LESS than today's single rotation-dependent property at 256
 levels (1.108 ms vs 1.206 ms per region), so the correct statistic is
 affordable -- it just renames every existing homogeneity column.
+
+--------------------------------------------------------------------------------
+2026-08-11 - FOUND BY DOCUMENTING PARAMETERS. Each was REPRODUCED, not inferred.
+--------------------------------------------------------------------------------
+
+Writing `:param:` lines for 48 functions meant reading what each parameter
+actually DOES. That surfaced eighteen dead parameters (now documented as such)
+and the following defects, every one verified by calling the function.
+
+WRONG OUTPUT
+
+  utils.plot_images_by_cluster SILENTLY DROPS THE LAST CLUSTER. `colors` is
+  bound by `zip(np.unique(labels), colors)` and the colour itself is never
+  used -- only the zip LENGTH has an effect. Because np.unique counts the -1
+  DBSCAN noise label, a palette sized to the real clusters is one short and
+  the final cluster is plotted not at all. Verified: labels {-1,0,1} with a
+  2-colour palette plots cluster 0 only; a 4-colour palette plots both.
+
+  utils.plot_grid PAINTS ONE CLUSTER IN TWO DIFFERENT COLOURS. The panel
+  border uses `colors[label]` (a direct integer index) while the side-legend
+  swatch is positional. With cluster keys {0, 3} and a 4-colour palette,
+  cluster 3's border is colors[3] and its swatch is colors[1]. Verified by
+  reading the patch facecolors back off the figure. A reader matching
+  swatches to panels matches them wrongly.
+
+  utils.plot_activation_grid(overlay=False) DRAWS NO IMAGE AT ALL -- not the
+  input, not the saliency or Grad-CAM map. The result is a grid of bare
+  class-label boxes on empty axes (verified: len(ax.get_images()) == 0 for
+  every panel). `normalize` is then dead too. An incomplete last row also
+  renders as empty framed boxes, because ax.axis('off') runs only for i < N.
+
+SILENT NO-OP DRESSED AS SUCCESS
+
+  classifier_evaluation.cross_calibrate_probabilities DOES NOT VALIDATE
+  y_true against the probability columns. A label of 7 against a 2-column
+  matrix makes every fold's fit_temperature raise inside its try/except, each
+  falls back to temperature 1.0, and the function returns UNCALIBRATED
+  probabilities with only a printed warning. Verified: all four folds
+  returned 1.0. A caller who does not watch stdout is told calibration ran.
+
+  classifier_evaluation.calibration_table accepts an out-of-range label the
+  same way: y_true=[5,5] against 2 columns matches no class, so every
+  observed_frequency reads 0.0 and the reliability curve looks
+  catastrophically miscalibrated rather than raising.
+
+  calibration_table on EMPTY input returns a DataFrame of shape (0, 0) -- no
+  rows AND no columns -- so downstream code indexing 'class_name' or 'bin'
+  gets a KeyError instead of an empty column.
+
+DISAGREEING TWINS
+
+  The two plot_activation_grid implementations disagree on map shape. The
+  saliency one transposes a leading 3 to channels-last, so (N,H,W) and
+  (N,3,H,W) both work while (N,1,H,W) raises; the Grad-CAM one has no
+  transpose, so (N,3,H,W) raises there instead. Same name, same signature,
+  incompatible inputs.
+
+  utils.remove_outliers_by_group's two methods disagree on tiny groups. A
+  one-row group has std=NaN, so 'zscore' DELETES it while 'iqr' keeps it.
+  Verified on a 6-row frame: 'iqr' keeps the singleton and drops the 50.0
+  outlier; 'zscore' drops the singleton and KEEPS the 50.0, because the
+  outlier inflates its own group's std. It also accepts a NEGATIVE threshold,
+  which under 'iqr' inverts the band and deletes every row of every group
+  with a nonzero IQR.
+
+ALREADY CORRECTED IN THE DOCSTRING PASS: utils.filter_and_save_csv's summary
+claimed it filters for "> upper and < lower". The code uses `|`: it is a
+two-tailed selection that KEEPS the extremes, and passing upper < lower makes
+the conditions cover the line so nothing is filtered at all.
+
+WHY THESE ARE LISTED RATHER THAN FIXED HERE: each changes what a figure or a
+table shows, and three of them are in the plotting layer where the right fix
+is a judgement about what the user should see (should a short palette raise,
+cycle, or extend?). They are ranked wrong-output first.
