@@ -3639,8 +3639,26 @@ def _read_and_merge_data(
     metadata_key = 'object_label'
     shared_metadata_columns = set(MEASUREMENT_STAMP_COLUMNS)
 
-    def _merge_grouped(left, right):
-        """Merge grouped tables while keeping only one copy of shared acquisition metadata."""
+    def _merge_grouped(left, right, right_name="grouped object data"):
+        """Merge grouped tables while keeping only one copy of shared acquisition metadata.
+
+        THE JOIN IS INNER -- pandas' default, since no ``how=`` is passed --
+        so an object absent from ``right`` is removed from the result. That
+        is sometimes what a caller wants (a recruitment analysis really does
+        want cells that have a pathogen) and sometimes not (a cell without a
+        crop is still a cell), and the join type is deliberately left alone
+        here.
+
+        What is NOT defensible is doing it in silence, which is what this
+        used to do. The discontinuity is brutal: on a 100-cell plate where
+        NO crop carries a usable object id, png_list drops out before the
+        join and all 100 cells survive; where exactly ONE does, the merge
+        keeps that one and deletes the other 99. Nothing printed either way,
+        and every shipped caller passes verbose=False.
+
+        So the shortfall is reported, named by table. This is the mirror of
+        `_report_fan_out` for the shrinking direction.
+        """
         if left.empty:
             return right.copy()
         if right.empty:
@@ -3684,15 +3702,25 @@ def _read_and_merge_data(
                     left.loc[fill_index, col] = right.loc[fill_index, col]
 
         right = right.drop(columns=shared)
-        return _merge_with_cardinality(
+        before = len(left)
+        result = _merge_with_cardinality(
             left,
             right,
             left_index=True,
             right_index=True,
             validate="one_to_one",
             left_name="grouped object data",
-            right_name="grouped object data",
+            right_name=right_name,
         )
+        lost = before - len(result)
+        if lost > 0:
+            print(
+                f"{lost} of {before} objects have no row in {right_name} and "
+                f"were removed from the merged data. If {right_name} is "
+                f"expected to cover every object, that is a gap in the "
+                f"database rather than a filter."
+            )
+        return result
 
     def _split_object_data(frame, group_by, object_type):
         """Group object data while retaining its complete provenance stamp."""
@@ -3757,7 +3785,7 @@ def _read_and_merge_data(
         else:
             cytoplasms_g_df, _ = _split_object_data(
                 cytoplasms, 'prcfo', 'object_label')
-            merged_df = _merge_grouped(merged_df, cytoplasms_g_df)
+            merged_df = _merge_grouped(merged_df, cytoplasms_g_df, 'cytoplasm')
 
             if verbose:
                 print(f'cytoplasms: {len(cytoplasms)}, cytoplasms grouped: {len(cytoplasms_g_df)}')
@@ -3787,7 +3815,7 @@ def _read_and_merge_data(
         else:
             nucleus_g_df, _ = _split_object_data(
                 nucleus, 'prcfo', 'cell_id')
-            merged_df = _merge_grouped(merged_df, nucleus_g_df)
+            merged_df = _merge_grouped(merged_df, nucleus_g_df, 'nucleus')
 
             if verbose:
                 print(f'nucleus: {len(nucleus)}, nucleus grouped: {len(nucleus_g_df)}')
@@ -3817,7 +3845,7 @@ def _read_and_merge_data(
         else:
             pathogens_g_df, _ = _split_object_data(
                 pathogens, 'prcfo', 'cell_id')
-            merged_df = _merge_grouped(merged_df, pathogens_g_df)
+            merged_df = _merge_grouped(merged_df, pathogens_g_df, 'pathogen')
 
             if verbose:
                 print(f'pathogens: {len(pathogens)}, pathogens grouped: {len(pathogens_g_df)}')
@@ -3859,8 +3887,8 @@ def _read_and_merge_data(
             print(f'png_list: {len(png_list)}, png_list grouped: {len(png_list_g_df_numeric)}')
             print(f"Added png_list columns: {png_list_g_df_numeric.columns}, {png_list_g_df_non_numeric.columns}")
 
-        merged_df = _merge_grouped(merged_df, png_list_g_df_numeric)
-        merged_df = _merge_grouped(merged_df, png_list_g_df_non_numeric)
+        merged_df = _merge_grouped(merged_df, png_list_g_df_numeric, 'png_list')
+        merged_df = _merge_grouped(merged_df, png_list_g_df_non_numeric, 'png_list')
 
     metadata = metadata.assign(prc=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'])
 
