@@ -2056,6 +2056,12 @@ def format_model_card(card):
                      f"{held.get('accuracy', float('nan')):.4f} · macro-F1 "
                      f"{held.get('f1_macro', float('nan')):.4f}")
         lines.append('')
+        # Anything held_out_report had to say about WHICH rows those are.
+        # A card whose n and whose accuracy describe different populations is
+        # the failure this block exists to make impossible to miss.
+        for note in held.get('notes') or []:
+            lines.append(f"> {note}")
+            lines.append('')
         names = held.get('classes') or []
         lines.append('| class | accuracy | support |')
         lines.append('| --- | ---: | ---: |')
