@@ -115,6 +115,7 @@ from .validate import (
     _listdir,
     _peek_planes,
 )
+from .object_roles import SEGMENTED_ROLES
 
 __all__ = [
     "DiameterEstimate",
@@ -126,7 +127,9 @@ __all__ = [
 ]
 
 #: Object types whose diameter spaCR lets you set, in report order.
-OBJECT_TYPES: Tuple[str, ...] = ("cell", "nucleus", "pathogen", "organelle")
+#: Exactly the SEGMENTED roles: diameter is a property of something found
+#: in a channel, and cytoplasm is derived rather than segmented.
+OBJECT_TYPES: Tuple[str, ...] = SEGMENTED_ROLES
 
 #: Which settings key each object type's estimate belongs in.
 SETTING_KEYS: Dict[str, str] = {obj: f"{obj}_diameter" for obj in OBJECT_TYPES}
