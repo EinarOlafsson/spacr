@@ -61,9 +61,14 @@ AGGREGATION_RULES: Tuple[Tuple[str, str], ...] = (
     (r"(^|_)max(imum)?(_|$)", MAX),
     (r"(^|_)median(_|$)", MEDIAN),
     (r"(^|_)(mean|average|avg)(_|$)", MEAN),
-    # Extent: four objects' areas add up, they do not average.
-    (r"(^|_)(area|perimeter|volume|length|width|height|diameter|"
-     r"convex_area|filled_area|equivalent_diameter)(_|$)", SUM),
+    # Extent: four objects' AREAS add up. Their LENGTHS do not -- two nuclei
+    # each 10 units long are not one nucleus 20 units long, so an axis
+    # length, a perimeter and an equivalent diameter are shape descriptors of
+    # an individual object and the parent gets the typical one. Volume adds
+    # for the same reason area does. (Maintainer's call, 2026-08-11.)
+    (r"(^|_)(area|volume|convex_area|filled_area)(_|$)", SUM),
+    (r"(^|_)(perimeter|length|width|height|diameter|"
+     r"equivalent_diameter|major_axis_length|minor_axis_length)(_|$)", MEAN),
     # Anything already integrated over an object is a total.
     (r"(^|_)(integrated|total|sum|integral)(_|$)", SUM),
     # Spread and shape are properties of each object; the parent gets the
