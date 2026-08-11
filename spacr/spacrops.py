@@ -1817,8 +1817,11 @@ class spacrStitcher:
                     return False
             return True
 
-        # Gather per-direction best candidate edges
+        # Gather candidate edges. With `cap_one_per_dir` the best per
+        # (tile, direction) wins; without it every edge that passes `edge_ok`
+        # survives and the spanning tree chooses among them.
         best_per_node_dir: Dict[Tuple[str,str], Tuple[float, str, str, np.ndarray]] = {}
+        all_edges: List[Tuple[float, str, str, np.ndarray]] = []
         for r in rows:
             sc = float(r["score"]) if r["score"] != "" else -np.inf
             if not np.isfinite(sc) or sc < float(min_score):
@@ -1845,14 +1848,32 @@ class spacrStitcher:
                 if not edge_ok(tx, ty, theta, scale, dbin):
                     continue
 
-                key = (src, dbin)
-                prev = best_per_node_dir.get(key)
-                if (prev is None) or (sc > prev[0]):
-                    best_per_node_dir[key] = (sc, src, dst, M_src_to_dst)
+                if cap_one_per_dir:
+                    key = (src, dbin)
+                    prev = best_per_node_dir.get(key)
+                    if (prev is None) or (sc > prev[0]):
+                        best_per_node_dir[key] = (sc, src, dst, M_src_to_dst)
+                else:
+                    # `cap_one_per_dir=False` is asked for when the
+                    # best-scoring edge in a direction is a FALSE match -- a
+                    # repeated background pattern outscoring the true
+                    # neighbour. Keeping only the winner then hands the
+                    # spanning tree the wrong edge and no alternative, which
+                    # is the whole reason to be able to turn the cap off.
+                    #
+                    # The cap used to run unconditionally: this parameter is
+                    # declared here and on both public mosaic APIs
+                    # (align_mosaic_from_csv, ops_align_mosaic), documented on
+                    # all three, threaded down -- and never read.
+                    all_edges.append((sc, src, dst, M_src_to_dst))
 
         cand: List[Tuple[str,str,float,np.ndarray]] = []
-        for (_src, _dir), (sc, src, dst, M) in best_per_node_dir.items():
-            cand.append((src, dst, sc, M))
+        if cap_one_per_dir:
+            for (_src, _dir), (sc, src, dst, M) in best_per_node_dir.items():
+                cand.append((src, dst, sc, M))
+        else:
+            for (sc, src, dst, M) in all_edges:
+                cand.append((src, dst, sc, M))
 
         if self.verbose:
             deg = {p:0 for p in nodes}
@@ -3203,7 +3224,6 @@ def get_preprocess_ops_settings(settings):
     # alignment / nuclei channel
     settings.setdefault("channel_index", 0)
     settings.setdefault("relative_scale", 2.0)
-    settings.setdefault("qc_outlines", True)
 
     # --- spacrStitcher(...) core parameters ---
     settings.setdefault("detector", "ORB")
@@ -3586,8 +3606,12 @@ def align_image_to_stitch(
     :param ransac_thresh_px: RANSAC reprojection threshold in pixels.
     :param allow_scale: allow scale in the estimated affine.
     :param allow_rotation: allow rotation in the estimated affine.
-    :param qc_outlines: accepted but unused; :class:`FOVAlignAndCropper` takes
-        no QC option, so no overlays are produced either way.
+    :param qc_outlines: accepted for call compatibility and NOT used.
+        The ``*__qc_outlines.png`` overlays are written by
+        :class:`spacrStitcher`, which gates them on its own ``save_qc``;
+        :class:`FOVAlignAndCropper` has no such argument and draws no
+        overlays, so there is nothing here for this to switch on. Use
+        ``save_qc`` on the stitching step instead.
     :param recursive_align_src: recurse when scanning ``align_src``.
     :param exts: accepted image extensions.
     :returns: mapping ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``.
@@ -3794,7 +3818,13 @@ def ops_preprocess(settings):
                 meta_regex=stitch_settings["meta_regex"],
                 channel_index=stitch_settings["channel_index"],
                 relative_scale=stitch_settings["relative_scale"],
-                qc_outlines=stitch_settings["qc_outlines"],
+                # `qc_outlines` is NOT passed. It was, and that was the whole
+                # of its life: the ops defaults set it True, this line read it,
+                # align_image_to_stitch accepted it, and nothing switched on --
+                # the *__qc_outlines.png overlays belong to spacrStitcher and
+                # are gated on its own `save_qc`, which defaults False. A key
+                # whose only reader hands it to an inert parameter is not a
+                # read; use save_qc on the stitching step.
             )
             align_results.append({
                 "genotype_folder": geno_fldr,
