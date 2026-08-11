@@ -387,6 +387,37 @@ def tree_for(frames: Mapping[str, pd.DataFrame], key: str, *,
     this returns the *cell* it lives in, because the useful view of a
     pathogen is the cell around it. A caller that wants only the subtree
     calls :meth:`LineageNode.find` on the result.
+
+    The whole forest is rebuilt and rescanned on every call, and the cost is
+    the same whether the key is the first root or absent entirely, so a run
+    of lookups should call :func:`build_forest` once and use
+    :meth:`LineageNode.find` on what it gets back.
+
+    :param frames: ``{table name: rows}``, forwarded to :func:`build_forest`.
+        Only the tables in :data:`LINEAGE_TABLES` are read, so anything else
+        handed over is ignored, and a run that measured no pathogens simply
+        searches childless cells.
+    :param key: a shared object key, compared against :attr:`LineageNode.key`
+        after ``str()``. It is *not* compared against
+        :attr:`LineageNode.node_id`, so the table-prefixed spelling of the
+        same identity finds nothing and returns ``None``.
+    :param root: the table whose rows are the roots being searched. It is not
+        checked against what the children's parent column actually points at:
+        with ``root='nucleus'``, a pathogen whose ``cell_id`` equals a nucleus
+        label is attached to that nucleus, and a cell key then finds nothing
+        because no cell is in the forest at all.
+    :param typed: must agree with how ``key`` is spelled, and nothing checks
+        that it does. A typed key searched with ``typed=False`` — or a legacy
+        untyped one searched with the default — returns ``None``, the same
+        answer as "no such object". With ``typed=False`` a key that names two
+        objects returns the first root holding either of them, in field then
+        label order, so a nucleus 1 and a pathogen 1 sitting in *different*
+        cells resolve to whichever cell sorts first.
+    :raises LineageError: when ``root`` is missing from ``frames``, or when a
+        table that is present cannot be named. The forest is built before the
+        search, so a ``nucleus`` table without its field columns raises even
+        when the wanted key belongs to a pathogen. A key that is merely not
+        there is ``None``, not an exception.
     """
     wanted = str(key)
     for node in build_forest(frames, root=root, typed=typed):
