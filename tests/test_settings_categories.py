@@ -162,6 +162,25 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: Keys added to the map by the regroup. They were previously offered by a
 #: module but had no category, so they rendered ungrouped. Extending this set
 #: is fine; it exists so that "the union grew" is always a deliberate act.
+#: Settings RETIRED on 2026-08-11, at the maintainer's instruction to
+#: "remove dead settings entirely". They used to live in a ``DEAD_SETTINGS``
+#: registry that kept them declared so an old CSV could be told what to use
+#: instead; that registry is gone and so are they. Named here, once, so a key
+#: legitimately dropping out of the category map is distinguishable from one
+#: that fell out by accident -- which is the whole point of this file.
+KEYS_RETIRED = frozenset({
+    "all_to_mip", "barecode_length_1", "barecode_length_2",
+    "class_1_threshold", "custom_measurement", "gene_weights_csv",
+    "metadata_types", "nc", "nc_loc", "nucleus_loc", "pc", "pc_loc",
+    "pick_slice", "postprocess_cell_masks", "postprocess_nucleus_masks",
+    "postprocess_organelle_masks", "postprocess_pathogen_masks",
+    "redunction_method", "remove_border_cells", "remove_border_nuclei",
+    "remove_border_organelles", "remove_border_pathogens",
+    "signal_direction", "skip_mode", "use_sam_cell", "use_sam_nucleus",
+    "use_sam_pathogen",
+})
+
+
 KEYS_ADDED_BY_REGROUP = frozenset({
     # Instruction 71's two opt-in measurements. Both were added to the
     # measure defaults and to NO group, so they fell into the trailing
@@ -411,7 +430,7 @@ def test_no_previously_categorised_key_is_lost():
     """
     lost = sorted(KEYS_BEFORE_REGROUP
                   - set(_all_categorised_keys())
-                  - set(S.DEAD_SETTINGS))
+                  - KEYS_RETIRED)
     assert not lost, (
         f"{len(lost)} setting(s) fell out of spacr.settings.categories and are "
         f"no longer grouped in the settings panel: {lost}. If a key was "

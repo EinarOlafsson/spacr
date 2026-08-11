@@ -26,7 +26,11 @@ def test_registry_has_complete_unique_exact_key_mapping():
     by_setting = animations_by_setting()
 
     assert len(animations) == 94
-    assert len(by_setting) == 143
+    # 143 before 2026-08-11. Six alias entries pointed at settings
+    # that were RETIRED that day (all_to_mip, pick_slice and the four
+    # remove_border_* spellings); each animation still carries the
+    # live key it illustrates, so no animation lost its mapping.
+    assert len(by_setting) == 137
     assert len({animation.slug for animation in animations}) == 94
     assert animation_for_setting("merge_edge_pathogen_cells").slug == (
         "merge_edge_pathogen_cells"
@@ -39,7 +43,7 @@ def test_registry_has_complete_unique_exact_key_mapping():
 def test_every_asset_is_square_animated_and_matches_manifest_hash():
     summary = validate_setting_animation_assets(check_hashes=True)
     assert summary["animations"] == 94
-    assert summary["setting_keys"] == 143
+    assert summary["setting_keys"] == 137
     assert summary["bytes"] > 0
 
     for animation in setting_animations():
