@@ -32,6 +32,24 @@ ONE IS ALREADY FIXED: plot.py's discarded Levene test (commit 4dbb2a37).
 It is left in the list below, marked, because it is the worked example of
 what the rest look like.
 
+ONE OF THE 24 DID NOT SURVIVE, and the list below does not say so, so it is
+said here. Finding 4 -- `remove_outliers` trimming the data the p-values are
+computed on, plot.py:4344 -- was refuted on REACHABILITY, not on mechanism.
+The mechanism is exactly as described: `create_plot` assigns
+`self.df = self.remove_outliers_from_plot()` and only then runs the
+normality, variance, test and post-hoc passes, all of which read `self.df`.
+But `self.remove_outliers` is False in every shipped path. None of the five
+in-repo constructions of `spacrGraph` pass the kwarg, the three QC callers
+in ml.py hardcode False, the key is absent from the GUI categories, and
+`plot_data_from_csv` does its own trimming upstream and then builds the
+object without the flag. The only construction that sets it True anywhere is
+a test.
+
+So it is LATENT, not live: `spacrGraph` is public documented API, so a user
+scripting the class directly hits it. Worth fixing, worth not counting as a
+number anyone has been given. Treat this file as 23 live defects and one
+loaded gun.
+
 --------------------------------------------------------------------------------
 HOW TO WORK THIS LIST
 --------------------------------------------------------------------------------
