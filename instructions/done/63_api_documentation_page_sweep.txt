@@ -660,3 +660,55 @@ beyond the name, say the CONSTRAINT instead -- what range is legal, what a
 wrong value does, which other setting it interacts with. And the build must
 stay at 0 warnings: an inline literal followed by a word character is the
 error this project keeps making.
+
+--------------------------------------------------------------------------------
+2026-08-11 - DONE. EVERY CRITERION VERIFIED, NOT ASSERTED.
+--------------------------------------------------------------------------------
+
+    build                 231 warnings + 21 errors  ->  0 and 0
+    empty entries         0        (contract test)
+    module purpose lines  300 of 300
+    tooltip API links     1151 checked, 0 dead      (against a real build)
+    stale docstrings      104 found and fixed, 59 of them factually false
+    undocumented params   49 public functions -> 0 outside spacr/qt/
+
+WHAT ACTUALLY MADE THIS WORTH DOING, and it is not the warning count. The
+build was clean while the page was still full of confident false statements:
+every docstring existed, every markup block parsed, and 59 of them described
+behaviour the code did not have. A green build says the page RENDERS, not
+that it is true. The read-through is what found those, and nothing else
+could have.
+
+THE METHOD THAT FOUND THEM, worth reusing anywhere else in this repo:
+require every claim to be VERIFIED BY CALLING THE CODE. Applied to parameter
+documentation it stopped being a writing task and became a defect hunt --
+18 parameters that are never read (including plot_clusters_grid's FIRST
+argument, and test_model_core's loader_name and loss_type, dead through two
+layers), and 16 real bugs, 9 of which were fixed today.
+
+The same discipline caught a false report from the sweep itself: an agent
+described plot_grid as painting a cluster's border and its legend swatch in
+different colours, with specific RGB values it claimed to have read off the
+figure. There is no legend in plot_grid. Checking that claim is what found
+the REAL defect -- an IndexError that kills any run with more clusters than
+palette colours.
+
+WHAT IS DELIBERATELY NOT DONE
+
+  spacr/qt/** was excluded throughout: a concurrent session owns that tree
+  and two sessions rewriting one file produces a merge that silently drops
+  work. Its public surface is small (widgets are constructed, not called by
+  users) and the module pages there already carry docstrings, so the API page
+  is complete in the sense this instruction asked for. If that tree is ever
+  swept, the file list is the same query used here:
+      4+ parameters, none documented, public name.
+
+  spacr/resources/home/versions/_generators/** (12 functions) is a generator
+  for a review surface, not API. Documenting it would raise the count and
+  help nobody.
+
+  The 16 defects are recorded in instructions/07_known_bugs_not_fixed.txt
+  with reproductions. The 7 from the second sweep are decisions about
+  intended behaviour rather than repairs -- should an out-of-range channel
+  raise everywhere or zero-fill everywhere -- so they are listed, ranked
+  silent-wrong-output first.
