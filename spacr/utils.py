@@ -7633,7 +7633,12 @@ def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoo
     :param verbose: accepted and ignored; any value at all is tolerated.
     :returns: None.
     """
-    for cluster_label, color in zip(np.unique(labels), colors):
+    # NOT zip(np.unique(labels), colors). The colour was never read, so the
+    # only thing that zip contributed was a LENGTH -- and because np.unique
+    # counts the -1 noise label, a palette sized to the real clusters was one
+    # short and THE LAST CLUSTER WAS SILENTLY NOT PLOTTED. The palette does
+    # not get to decide how many clusters are drawn.
+    for cluster_label in np.unique(labels):
         if cluster_label == -1:
             continue
         indices = cluster_indices.get(cluster_label, [])
@@ -7786,13 +7791,18 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
         image_size = 0.9 / grid_size
         whitespace = (1 - grid_size * image_size) / (grid_size + 1)
 
+        # Both branches WRAP. A string label is positioned, an integer label
+        # indexes the palette directly -- and DBSCAN numbers its clusters
+        # 0..k-1, so a run with more clusters than colours used to die here
+        # with a bare "list index out of range" from colors[cluster_label].
+        # Reusing a colour is a worse figure; crashing is a lost run.
         if isinstance(cluster_label, str):
             idx = list(cluster_images.keys()).index(cluster_label)
-            color = colors[idx]
             if verbose:
                 print(f'Lable: {cluster_label} index: {idx}')
         else:
-            color = colors[cluster_label]
+            idx = int(cluster_label)
+        color = colors[idx % len(colors)] if len(colors) else (0.5, 0.5, 0.5)
 
         axes.add_patch(plt.Rectangle((0, 0), 1, 1, transform=axes.transAxes, color=color[:3]))
         axes.axis('off')
