@@ -2313,12 +2313,41 @@ def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
     Add an image to a grid and save it as PNG.
 
     Args:
-        png_channels (ndarray): The array representing the image channels.
-        img_path (str): The path to save the image as PNG.
-        grid (list): The grid of images to be plotted later.
+        png_channels (ndarray): The crop in file order -- red plane first --
+            as :func:`spacr.crops.build_png_channels` assembles it. Written
+            without narrowing, so a ``uint16`` crop becomes a 16-bit PNG; a
+            float crop is silently written as 8-bit by cv2. Four or more
+            channels raise rather than losing one to an alpha plane.
+        img_path (str): Where the PNG goes. Its parent folder is stamped with
+            the format sidecar and **must already exist** -- the caller in
+            ``_measure_crop_core`` creates it. If it does not, the stamp fails
+            with a printed warning, ``cv2.imwrite`` returns False, and the
+            call returns normally having written nothing at all. A bare
+            filename with no directory part stamps the current working
+            directory.
+        grid (list): Anything with ``append``; read only when ``plot`` is
+            true, and appended to in place, so the return value is the object
+            that was passed in. ``None`` passes through untouched while
+            ``plot`` is false.
+        plot (bool): Truthiness, not identity, decides. False (the default)
+            leaves ``grid`` completely untouched -- the PNG is still written --
+            which is why an ordinary run ends with an empty grid. True appends
+            the crop for :func:`img_list_to_grid`: a crop of exactly dtype
+            ``uint16`` is appended as a high-byte narrowed ``uint8`` copy,
+            every other dtype is appended unchanged, and a ``uint8`` crop is
+            appended by reference, so a caller that reuses its buffer mutates
+            what is already in the grid.
 
     Returns:
-        grid (list): Updated grid with the new image added.
+        grid (list): The same object that was passed in, with the crop
+        appended only if ``plot`` was true.
+
+    Raises:
+        spacr.crops.CropError: ``png_channels`` has more than three channels.
+        AttributeError: ``grid`` is ``None`` (or has no ``append``) and
+            ``plot`` is true. The PNG has already been written by then.
+        cv2.error: ``img_path`` has no extension cv2 recognises. The folder
+            sidecar has already been written by then.
 
     .. note::
 

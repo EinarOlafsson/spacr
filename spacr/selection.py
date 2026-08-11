@@ -692,7 +692,33 @@ class Selection:
     def from_frame(cls, df: pd.DataFrame, source: str = "",
                    *, timelapse: bool = False,
                    object_type: Any = None) -> "Selection":
-        """Select exactly the rows of ``df``."""
+        """Select exactly the rows of ``df``.
+
+        :param df: the rows to select, keyed by :func:`object_keys`. One key
+            per row and **no de-duplication** — unlike :meth:`from_keys` — so
+            two rows naming the same object give that key twice. An empty
+            frame gives an *active* selection of nothing, which is the
+            lasso-caught-nothing state and not :meth:`none`.
+        :param source: the name of the view that made this. Stored verbatim,
+            never stripped or validated.
+            :class:`spacr.qt.linked_selection.LinkedView` drops a selection
+            whose ``source`` equals its own name, so the default ``""`` is
+            delivered back to the publishing view along with everyone else.
+        :param timelapse: key each timepoint of an object separately. Left
+            False on a timelapse frame, every frame of an object composes to
+            the *same* key.
+        :param object_type: the object table ``df`` came from. Overrides
+            :data:`OBJECT_TYPE_COLUMN` when the frame carries one as well, and
+            is case-folded. ``None`` leaves the keys untyped rather than
+            assuming ``cell``.
+        :raises FilterError: if a key column is missing — including ``timeID``
+            when ``timelapse`` is set.
+        :raises spacr.schema.KeyParseError: if ``object_type`` is not one
+            spaCR keys objects by. :func:`with_object_type` treats such a
+            table as a no-op; this does not. An empty ``df`` returns before
+            the check, so the same argument raises or not depending on the
+            row count.
+        """
         return cls(keys=object_keys(df, timelapse=timelapse,
                                     object_type=object_type), source=source)
 
@@ -705,6 +731,25 @@ class Selection:
         The counterpart to :meth:`from_frame` for a view that never had the
         frame: a scatter plot holding an array of keys, or a screen restoring
         a selection from a settings file.
+
+        :param keys: a frame, another :class:`Selection`, ONE key ``str``, or
+            an iterable of keys coerced with ``str``. Order is kept and
+            duplicates dropped, which :meth:`from_frame` does not do.
+        :param source: as :meth:`from_frame`. NOT inherited from a
+            :class:`Selection` passed as ``keys`` — the re-publisher is the
+            source now, and carrying the original name over would suppress the
+            echo in the wrong view.
+        :param timelapse: forwarded to :func:`object_keys`, so it is read
+            **only** when ``keys`` is a frame. Key strings already carry
+            whatever timepoint they were composed with, so passing this with a
+            list or an Index is silently a no-op.
+        :param object_type: likewise frame-only: a list of untyped keys stays
+            untyped however this is set, and a type spaCR cannot key objects
+            by raises for a frame while being ignored for everything else.
+        :raises TypeError: if ``keys`` is not something that names objects —
+            ``None`` included.
+        :raises ValueError: for a resting :class:`Selection`, which names
+            nothing to select.
         """
         return cls(keys=as_key_index(keys, timelapse=timelapse,
                                      object_type=object_type), source=source)

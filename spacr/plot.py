@@ -1976,35 +1976,52 @@ def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', thresho
     Plot cropped arrays.
 
     Args:
-        stack (ndarray): The array to be plotted.
-        figuresize (int, optional): The size of the figure. Defaults to 20.
-        cmap (str, optional): The colormap to be used. Defaults to 'inferno'.
-        threshold (int, optional): The threshold for the number of unique intensity values. Defaults to 1000.
+        stack (ndarray): The array to be plotted, 2D (one panel) or 3D with
+            the channels last (one panel per ``stack.shape[2]``). A 1D array
+            matches neither branch and raises ``UnboundLocalError`` on the
+            return rather than being rejected up front.
+        filename (str): Accepted and ignored -- the only reference to it is a
+            commented-out print, so it never reaches the figure or a file.
+        figuresize (int, optional): Both width and height of the figure, in
+            inches; the multi-channel case does not widen it per channel, so
+            panels get thinner as channels are added. Defaults to 10.
+        cmap (str, optional): Name resolved with ``plt.get_cmap`` and used
+            only for the planes treated as intensity images. Defaults to
+            'inferno'.
+        threshold (int, optional): A plane with this many distinct values or
+            fewer is drawn as a label mask with a random colormap and an
+            object count in its title. Defaults to 500.
 
     Returns:
-        None
+        Figure: The figure that was drawn. The 2D case also calls
+        ``plt.show()`` before returning; the multi-channel case does not.
     """
     #start = time.time()
     dim = stack.shape
     
     def plot_single_array(array, ax, title, chosen_cmap):
-        """Render one channel from ``stack`` onto ``ax`` with a colorbar.
+        """Render one channel from ``stack`` onto ``ax``. No colorbar is drawn.
 
         Args:
-            array (ndarray): One 2D plane of ``stack``. Its number of
-                distinct values is what decides whether it is treated as an
-                intensity image or as a label mask.
+            array (ndarray): One 2D plane of ``stack``. Its count of distinct
+                values, not its dtype, is what decides whether it is treated
+                as an intensity image or as a label mask -- so a uint8 plane,
+                which can hold at most 256 distinct values, is always taken
+                for a mask under the default ``threshold`` of 500.
             ax (matplotlib.axes.Axes): Axes drawn on in place; its frame and
-                ticks are switched off, and nothing is returned.
+                ticks are switched off, the title is fixed at size 18, and
+                nothing is returned.
             title (str): Panel title. When the plane is treated as a mask,
                 the object count is appended as ``", N (obj.)"``. That count
-                is the number of distinct non-zero labels, so the background
-                value 0 is not counted as an object.
+                is the number of distinct non-zero values, so the background
+                value 0 is never counted, but a negative value is counted as
+                an object.
             chosen_cmap (Colormap): Colormap for the intensity case only.
                 It is discarded when the plane has no more than
                 ``threshold`` unique values (the enclosing function's
-                argument, default ``500``), because a random per-label
-                colormap is generated instead so neighbouring objects stay
+                argument, default ``500``), because a random colormap --
+                black at index 0, one random opaque colour per non-zero
+                label -- is generated instead so neighbouring objects stay
                 distinguishable.
         """
         unique_values = np.unique(array)
