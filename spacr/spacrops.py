@@ -1772,7 +1772,31 @@ class spacrStitcher:
 
         # Helper to check geometry/tolerances for one directed edge (src->dst)
         def edge_ok(tx, ty, theta, scale, dbin):
-            """Return True when the candidate ``(tx, ty, theta, scale, dbin)`` alignment is within the allowed limits."""
+            """Return True when the candidate ``(tx, ty, theta, scale, dbin)`` alignment is within the allowed limits.
+
+            :param tx: X translation of the directed edge, in full-resolution
+                pixels. Read only when ``dbin`` is ``'R'`` or ``'L'``, and only
+                as ``abs(tx)``, which must fall within ``step_tol_frac`` of the
+                estimated ``step_x``; the sign is never checked, and a
+                ``step_x`` of ``0`` (no horizontal pair scored at or above
+                ``min_score``) rejects every horizontal edge.
+            :param ty: Y translation, applied the same way against ``step_y``
+                for every ``dbin`` that is not ``'R'`` or ``'L'``. Exactly one
+                of ``tx`` and ``ty`` is consulted per call; the other is
+                ignored.
+            :param theta: edge rotation in degrees, read only when the
+                stitcher was built with ``allow_rotation=False``, where
+                ``abs(theta) > rot_tol_deg`` drops the edge. With rotation
+                allowed the value is ignored entirely.
+            :param scale: edge scale factor, read only when the stitcher was
+                built with ``allow_scale=False``, where
+                ``abs(scale - 1) > scale_tol`` drops the edge.
+            :param dbin: direction bin from ``_direction_bin``. ``None`` (the
+                translation was too diagonal for ``angle_tol_deg``) rejects the
+                edge before any other test, which is how a tile can vanish from
+                the mosaic; any value other than ``'R'`` or ``'L'`` takes the
+                vertical branch.
+            """
             if dbin is None:
                 return False
             # rotation/scale limits (if disallowed)

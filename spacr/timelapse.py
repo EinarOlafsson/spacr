@@ -1484,7 +1484,29 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
 
 
 def exponential_decay(x, a, b, c):
-    """Return ``a * exp(-b * x) + c`` for curve fitting."""
+    """Return ``a * exp(-b * x) + c`` for curve fitting.
+
+    The photobleaching model :func:`analyze_calcium_oscillations` fits with
+    ``scipy.optimize.curve_fit``, which reads the three arguments after ``x``
+    as the free parameters to solve for.
+
+    :param x: time points, as a scalar or a NumPy array / pandas Series; a
+        ``Series`` comes back as a ``Series`` on the same index, which is what
+        lets the caller's ``df[measurement] / exponential_decay(...)`` align
+        by label.
+    :param a: amplitude of the decaying term. At ``x == 0`` the result is
+        ``a + c``, not ``a``; ``a == 0`` flattens the curve to the constant ``c``.
+    :param b: decay rate. The sign is not checked -- a negative ``b`` grows
+        instead of decaying, and a large ``-b * x`` overflows to ``inf`` with a
+        ``RuntimeWarning`` rather than raising.
+    :param c: additive offset, and the asymptote as ``x`` grows. Nothing keeps
+        the curve positive, so a fit with ``c < 0`` crosses zero and the
+        caller's division by this curve flips sign across the crossing.
+    :returns: ``numpy.float64`` for scalar ``x``, otherwise the array type of ``x``.
+    :raises TypeError: when ``x`` is a plain list and ``b`` is a float, because
+        ``-b * x`` is then list arithmetic. An integer ``b`` does not raise: it
+        silently returns an empty array for ``b >= 0``.
+    """
     return a * np.exp(-b * x) + c
 
 #: Well-identifier columns every spaCR object table carries, in the spelling

@@ -290,7 +290,31 @@ def perform_mixed_model(y, X, groups, alpha=None):
     return MixedLM(y, X, groups=groups).fit()
 
 def create_volcano_filename(csv_path, regression_type, alpha, dst):
-    """Create and return the volcano plot filename based on regression type and alpha."""
+    """Build the path this run's volcano plot will be saved to.
+
+    Path construction only: nothing is read, written or created, and the
+    ``.pdf`` in the name is not binding - :func:`spacr.plot.save_figure`
+    rewrites the extension to whichever format the figure preference selected.
+
+    :param csv_path: Source CSV. Only its basename with the last extension
+        stripped becomes the ``<name>_volcano_plot.pdf`` stem, and only its
+        directory is used, when ``dst`` is falsy. The file is never opened, so
+        a path that does not exist is fine; a bare filename yields a bare
+        relative result rather than a path under the working directory.
+    :param regression_type: Prefixed to the filename, unless it is exactly
+        ``'quantile'`` - then ``alpha`` is prefixed instead. ``None`` is
+        stamped literally, giving ``None_...``: :func:`regression` calls this
+        before :func:`check_distribution` resolves the auto-selected model, so
+        an auto run's plot is never named for the model it actually fitted.
+    :param alpha: Read only on the ``'quantile'`` branch; accepted and ignored
+        for every other type, whatever its value. :func:`regression` passes
+        the ``quantile`` setting here, not the penalty, so two quantiles of
+        one screen cannot overwrite each other.
+    :param dst: Output directory. Any falsy value, ``None`` and ``''`` alike,
+        falls back to the directory of ``csv_path``. It is not created here.
+    :returns: The joined path, which :func:`regression` hands to
+        :func:`spacr.plot.volcano_plot` as ``save_path``.
+    """
     volcano_filename = os.path.splitext(os.path.basename(csv_path))[0] + '_volcano_plot.pdf'
     volcano_filename = f"{regression_type}_{volcano_filename}" if regression_type != 'quantile' else f"{alpha}_{volcano_filename}"
 
