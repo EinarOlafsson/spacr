@@ -1545,8 +1545,6 @@ def get_analyze_reads_default_settings(settings):
     settings.setdefault('src', 'path')
     settings.setdefault('upstream', 'CTTCTGGTAAATGGGGATGTCAAGTT') 
     settings.setdefault('downstream', 'GTTTAAGAGCTATGCTGGAAACAGCAG') #This is the reverce compliment of the column primer starting from the end #TGCTGTTTAAGAGCTATGCTGGAAACAGCA
-    settings.setdefault('barecode_length_1', 8)
-    settings.setdefault('barecode_length_2', 7)
     settings.setdefault('chunk_size', 1000000)
     settings.setdefault('test', False)
     return settings
@@ -1565,10 +1563,6 @@ def get_map_barcodes_default_settings(settings):
     settings.setdefault('barcodes', bundled_barcode_path('column'))
     settings.setdefault('test', False)
     settings.setdefault('verbose', True)
-    settings.setdefault('pc', 'TGGT1_220950_1')
-    settings.setdefault('pc_loc', 'c2')
-    settings.setdefault('nc', 'TGGT1_233460_4')
-    settings.setdefault('nc_loc', 'c1')
     return settings
 
 def get_train_cellpose_default_settings(settings):
@@ -2559,6 +2553,34 @@ expected_types = {
 # right to refuse it. They stop being OFFERED (their defaults are gone, so no
 # control is built) while an old settings CSV still runs unchanged.
 DEAD_SETTINGS = {
+    # ------------------------------------------------------------------
+    # Retired 2026-08-11: declared, defaulted, tooltipped, and in four cases
+    # offered in the GUI -- and read by no line of spaCR. Found by the sweep
+    # in instruction 77.
+    #
+    # `pc`/`nc` named the positive and negative control gRNA and `pc_loc`/
+    # `nc_loc` their plate columns, in `get_map_barcodes_default_settings`
+    # and the GUI's 'Plate Layout & Controls' group. A user whose negative
+    # controls sat in column 3 could set nc_loc='c3', have it accepted by
+    # check_settings and written to the settings CSV, and change nothing.
+    # The control/condition split that DOES run reads the row and column
+    # CSVs, which is what the note beside `grna`/`barcodes` already says.
+    #
+    # `barecode_length_1`/`_2` were documented as the barcode window the
+    # reader uses, down to "set to 0 if only a single barcode is used". The
+    # reader takes its window from the upstream/downstream flanks instead, so
+    # a library with a 10-base first barcode was silently read at 8.
+    #
+    # None, not a replacement key: there is no differently-spelled setting
+    # that does the job. Kept here so an old settings CSV still loads and
+    # `spacr-run --set nc=...` fails with a sentence instead of running a
+    # 40-plate job that quietly ignores it.
+    'pc': None,
+    'nc': None,
+    'pc_loc': None,
+    'nc_loc': None,
+    'barecode_length_1': None,
+    'barecode_length_2': None,
     # INERT for as long as it existed: the Tk 'Generate Dataset' form
     # collected it and no pipeline code ever read
     # settings['custom_measurement']. A control that changes nothing is
@@ -2829,8 +2851,8 @@ tooltips = {
     "model_name": "(str) - Cellpose model to segment with. Cellpose 4 ships exactly one, 'cpsam'; the pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') are accepted so old settings files load, but they are mapped to 'cpsam' and reported, because Cellpose resolves them to cpsam silently anyway. Of the three parameters that used to distinguish models, only diameter still does anything under Cellpose 4 (eval rescales the image by 30/diameter); model_type and diam_mean are logged as 'not used in v4.0.1+' and dropped. Leave at 'cpsam' unless you are loading a custom CPSAM checkpoint. Default 'cpsam'.",
     "model_type": "(str) - Backbone architecture for the single-object image classifier: any TorchVision classification model name (resnet50, maxvit_t, densenet121, ...). An unrecognised name is NOT fatal when it is read -- choose_model prints 'Invalid model_type' and returns None, and training fails afterwards -- and the special name 'custom' passes the name check then raises NotImplementedError. Bigger backbones need more memory and more labelled crops to beat a smaller one. Default 'maxvit_t'.",
     "model_type_ml": "(str) - Which classifier ml_analysis fits to separate positive- from negative-control wells and rank per-object features by permutation importance. One of xgboost (default), lightgbm, catboost, random_forest, extra_trees, gradient_boosting, logistic_regression, svm, mlp; lightgbm and catboost need their optional packages. reg_alpha, reg_lambda and learning_rate only affect the boosted models; logistic_regression is a good linear sanity check.",
-    "nc": "(str) - Value identifying the NEGATIVE control wells, matched against the metadata column named by location_column (normally columnID, so a value like 'c1'). Rows matching it are labelled class 0 for training. Must actually appear in that column or no negative examples are found. Default 'c1'.",
-    "nc_loc": "(str) - Metadata column searched for the nc value, when it differs from location_column. Leave empty to use location_column. Default None.",
+    "nc": "(str) - Intended to name the negative-control gRNA for the barcode map, but nothing in spaCR reads settings['nc']. As with 'pc', the split that runs comes from the row and column CSVs. Kept declared only so old settings CSVs still load, and rejected by the pre-flight check and by spacr-run --set.",
+    "nc_loc": "(str) - Intended as the plate column holding the negative control, but nothing in spaCR reads settings['nc_loc']. Setting it to the column your controls are actually in changed nothing: the layout is taken from the row and column CSVs. Kept declared only so old settings CSVs still load, and rejected by the pre-flight check and by spacr-run --set.",
     "negative_control": "(str) - Identifier of the negative-control class. In ML screening it is the value in location_column (e.g. 'c1') whose objects are labelled class 0 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '233460') matched against coefficient names to tag them 'nc' in the results and volcano plot. Defaults 'c1' and '233460' respectively.",
     "n_estimators": "(int) - Number of trees or boosting rounds in the tabular ML classifier - n_estimators for RandomForest/ExtraTrees/XGBoost/LightGBM, iterations for CatBoost, max_iter for HistGradientBoosting. More rounds keep improving fit up to a plateau while training time grows linearly; boosted models can overfit past it. Default 1000.",
     "n_epochs": "(int) - Number of training passes train_seg makes over the annotated image/mask batch. It also sets the checkpoint interval (a model is saved every n_epochs/10) and is written into the saved model filename. Raise it for a better fit on large annotation sets; lower it when a small set starts overfitting. Default 10000.",
@@ -2840,8 +2862,8 @@ tooltips = {
     "nucleus_Signal_to_noise": "(float) - Multiplied by nucleus_background to set the intensity a bright pixel must reach before normalization stops raising the upper clip point; spaCR walks the 98th to 99.5th percentiles of the non-zero nucleus channel and takes the first that meets it, falling back to the 99.5th. A higher value forces a HIGHER upper clip, so contrast is stretched less and bright nuclei are protected from saturating; a lower value picks a lower clip point, stretching dim nuclei harder but blowing out bright ones sooner. Default 10.",
     "pathogen_size_range": "(list) - Two-element [min, max] area filter in pixels squared applied to the pathogen table in analyze_recruitment, well after segmentation: rows with pathogen_area outside the open interval are dropped. Bounds must be ints - floats are silently ignored. None widens it to effectively unlimited. Default [0, 100000]. Use it to discard debris and merged clumps.",
     "pathogen_types": "(list) - Names given to each pathogen condition on the plate, e.g. ['wt','ku80']. Element i is written into the pathogen column for every well listed in pathogen_plate_metadata[i] and folded into the combined condition label used for grouping and plotting. Must match pathogen_plate_metadata in length and order; None skips pathogen annotation. Default ['pathogen_1', 'pathogen_2'] for the dataset builders, ['nc', 'pc'] for the control-based paths, None where types are not used.",
-    "pc": "(str) - Value identifying the POSITIVE control wells, matched against the metadata column named by location_column (normally columnID, so a value like 'c2'). Rows matching it are labelled class 1 for training. Must actually appear in that column or no positive examples are found. Default 'c2'.",
-    "pc_loc": "(str) - Metadata column searched for the pc value, when it differs from location_column. Leave empty to use location_column. Default None.",
+    "pc": "(str) - Intended to name the positive-control gRNA for the barcode map, but nothing in spaCR reads settings['pc']. The control/condition split that actually runs comes from the row and column CSVs (row_csv/column_csv/grna_csv), which carry the layout the plate was built with. Kept declared only so old settings CSVs still load, and rejected by the pre-flight check and by spacr-run --set.",
+    "pc_loc": "(str) - Intended as the plate column holding the positive control, but nothing in spaCR reads settings['pc_loc']. Setting it to the column your controls are actually in changed nothing: the layout is taken from the row and column CSVs. Kept declared only so old settings CSVs still load, and rejected by the pre-flight check and by spacr-run --set.",
     "percentiles": "(list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. Default None in the Cellpose steps.",
     "pin_memory": "(bool) - Decode and hold the entire train/test image set in RAM up front (loaded in parallel across all cores) and hand batches to the GPU from page-locked memory. Enable when the dataset fits comfortably in RAM and disk I/O is the bottleneck; disable for large datasets or it will exhaust memory before the first epoch even starts. Default False.",
     "plate": "(str) - INERT where the regression settings show it: nothing reads settings['plate'] on that path and it has no default. What people expect from it belongs to plateID, which perform_regression passes to process_scores and process_reads, where it is stamped onto count and score rows that carry no plate of their own. Set plateID instead. Default None.",
@@ -3132,8 +3154,8 @@ tooltips = {
     'organelle_max_intensity_percentile': "(int or None) - Drops organelle objects whose mean intensity exceeds this percentile of all organelle mean intensities in the same field, so it removes roughly the brightest (100 minus value) percent. Range 0-100; 100 or None disables it (None is read as the default 100, it does not error). Applied by the shared Qt live-preview filter - the batch organelle mask pipeline does not run this filter. Default 100. Use it to reject saturated dust and imaging artefacts.",
     # --- Descriptions filled in for settings that previously had no tooltip ---
     "annotation_column": "(str) - Integer column of the png_list table holding manual class calls. The Annotate app adds it with ALTER TABLE if missing and writes labels into it. It is the ground truth when dataset_mode is 'annotation', and the fallback when annotation_columns is unset. Setting it while leaving dataset_mode unset also SELECTS annotation mode, which is how an old settings file keeps working. Default None.",
-    'barecode_length_1': '(int) - Length in bases of the first barcode read from the sequencing data. Must match the barcode design used in the library. Default 8.',
-    'barecode_length_2': '(int) - Length in bases of the second barcode. Set to 0 if only a single barcode is used. Default 7.',
+    'barecode_length_1': "(int) - Intended as the length in bases of the first barcode, but nothing in spaCR reads settings['barecode_length_1']. generate_barecode_mapping locates each barcode by its flanking sequence -- the 'upstream' and 'downstream' settings -- so the window is whatever those flanks enclose and a library with a longer first barcode was never read at 8 by this key. Kept declared only so old settings CSVs still load, and rejected by the pre-flight check and by spacr-run --set.",
+    'barecode_length_2': "(int) - Intended as the length in bases of the second barcode, with 0 meaning a single-barcode design, but nothing in spaCR reads settings['barecode_length_2']. As with barecode_length_1, the window comes from the 'upstream' and 'downstream' flanks. Kept declared only so old settings CSVs still load, and rejected by the pre-flight check and by spacr-run --set.",
     'cmap': "(str) - Matplotlib colormap applied to single-channel image previews and to plate heatmaps. Perceptually uniform maps ('viridis', 'inferno', 'magma') keep intensity differences honest; 'gray' matches how the raw microscope data looks. Any registered matplotlib name works, with an '_r' suffix to reverse it. Default 'inferno' for image plots, 'viridis' for plate heatmaps.",
     'controls': "(list) - gRNA identifiers treated as non-targeting controls in the regression. Their coefficients are tagged 'control', and their spread sets reg_threshold = mean + threshold_multiplier x (std or var, per threshold_method) - the effect-size cut-off drawn on the volcano plot. A noisier or wider control set raises that bar. None skips the threshold. Default the built-in list of 30 non-targeting IDs, '000000_1' to '000000_32' (without _2 and _7).",
     "correlate": "(bool) - Intended to add pairwise correlations between selected measurements to the analysis output, but nothing reads settings['correlate']. Channel/activation correlations are controlled by the separate 'correlation' setting in the activation-map path. Kept only so old settings CSVs still load. No default is set: no set_default_* function fills this key, so it is absent unless an old settings CSV supplies it.",
@@ -3409,7 +3431,7 @@ categories = {
     # change_plate came from "Invasion Assay", where they were shared with the
     # replication assay and so gave that module a heading named after an assay
     # it does not run.
-    "Plate Layout & Controls": ["plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "nucleus_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control", "negative_control", "controls", "pc", "nc", "pc_loc", "nc_loc", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "metadata_types", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
+    "Plate Layout & Controls": ["plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "nucleus_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control", "negative_control", "controls", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "metadata_types", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
 
     # How the labelled set is assembled, in the order it is assembled:
     # which rule defines a class -> what the classes are -> which crops ->
