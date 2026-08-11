@@ -508,6 +508,26 @@ def fetch_filtered_paths(
         directions = [directions] * len(measurements)
     if len(directions) == 1 and len(measurements) > 1:
         directions = [directions[0]] * len(measurements)
+    # REFUSE A LENGTH MISMATCH rather than let zip() truncate it.
+    #
+    # The broadcasts above cover the documented shorthand -- one threshold
+    # applied to every column -- and must stay. What they do not cover is
+    # "three columns, two thresholds", which fell through to the zip below
+    # and silently dropped the third filter. Both fields in the Annotate
+    # settings dialog are free-text comma-separated line edits, so the two
+    # lists disagreeing is a typo away.
+    #
+    # There is no defensible pairing to guess: recycling, padding with the
+    # last value and dropping the tail are all equally arbitrary. And the
+    # consequence is not a crash but a plausible-looking WRONG POPULATION
+    # that gets hand-labelled and fed to a classifier, so failing loudly is
+    # cheaper than being approximately right.
+    if len(thresholds) != len(measurements) or len(directions) != len(measurements):
+        raise ValueError(
+            f"{len(measurements)} measurement column(s) but "
+            f"{len(thresholds)} threshold(s) and {len(directions)} "
+            f"direction(s): give one of each per measurement, or a single "
+            f"threshold and direction to apply to all of them.")
     for col, thr, direction in zip(measurements, thresholds, directions):
         df = _apply_threshold(df, col, thr, direction)
     if "png_path" not in df.columns:

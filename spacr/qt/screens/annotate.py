@@ -967,6 +967,40 @@ class _SettingsDialog(QDialog):
         if d:
             self._src_edit.setText(d)
 
+    def accept(self):  # noqa: D401 - Qt slot
+        """Refuse OK when the threshold filter cannot be applied as typed.
+
+        "Measurement column(s)" and "Threshold(s)" are two independent
+        free-text line edits, so three columns and two thresholds is a typo
+        away -- and the engine used to `zip` them, silently dropping the
+        third filter and hand-labelling a population the user never asked
+        for.
+
+        `fetch_filtered_paths` now raises on the mismatch, but that runs on a
+        worker thread whose failure signal has no receiver, so the raise
+        alone would be invisible. This is the half the user can act on: they
+        are standing in the dialog with both fields in front of them.
+
+        One threshold for several columns is a documented shorthand and stays
+        allowed; it is only the in-between case that is refused.
+        """
+        from PySide6.QtWidgets import QMessageBox
+
+        measurements = _csv_to_list(self._measurement.text().strip())
+        raw = [p.strip() for p in self._threshold.text().strip().split(",")
+               if p.strip()]
+        if measurements and raw and len(raw) not in (1, len(measurements)):
+            QMessageBox.warning(
+                self, "One threshold per measurement",
+                f"You have given {len(measurements)} measurement column(s) "
+                f"and {len(raw)} threshold(s).\n\nGive one threshold per "
+                f"column, or a single threshold to apply to all of them. "
+                f"Anything in between has no defined pairing, and guessing "
+                f"one would filter on a population you did not ask for.")
+            self._threshold.setFocus()
+            return
+        super().accept()
+
     def collect(self) -> AnnotateSettings:
         """Read every editor and return the updated settings object."""
         s = self._settings

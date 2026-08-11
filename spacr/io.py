@@ -7520,18 +7520,39 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
         else:
             sampled_pairs = pairs.copy()
             if augment_data:
+                # EXACTLY `needed` augmented pairs, so every folder reaches
+                # target_size and the "balanced" split is balanced.
+                #
+                # This used to zip `pairs` (length dataset_len) against
+                # `aug_methods * (dataset_len // len(aug_methods))` -- a list
+                # truncated to a multiple of five -- inside a loop that ran
+                # `needed // 5` times. So the number added depended on
+                # dataset_len rather than on `needed`, and was correct only
+                # for 5 <= dataset_len <= 9. Measured on folders of 12, 20
+                # and 29 pairs against a target of 29:
+                #
+                #     12 -> 44 pairs   (32 added where 17 were needed)
+                #     20 -> 44 pairs   (24 added where 9 were needed)
+                #     29 -> 29 pairs
+                #
+                # The smallest folder ended up the LARGEST. Below five pairs
+                # the multiplier is 0, the augmentation list is empty and the
+                # zip yields nothing, so that folder stayed short instead.
                 needed = target_size - dataset_len
                 aug_methods = get_augmentations()
-                full_loops = needed // len(aug_methods)
-                extra = needed % len(aug_methods)
 
-                for _ in range(full_loops):
-                    for (img_path, msk_path), aug in zip(pairs, aug_methods * (dataset_len // len(aug_methods))):
-                        sampled_pairs.append((img_path, msk_path, aug))
-                if extra > 0:
-                    subset = random.sample(pairs * ((extra // len(aug_methods)) + 1), extra)
-                    for (img_path, msk_path), aug in zip(subset, aug_methods[:extra]):
-                        sampled_pairs.append((img_path, msk_path, aug))
+                # Every distinct (pair, augmentation) combination, so a pair
+                # is re-augmented a different way before any one combination
+                # repeats.
+                combos = [(img_path, msk_path, aug)
+                          for aug in aug_methods
+                          for (img_path, msk_path) in pairs]
+                pool = []
+                while len(pool) < needed:
+                    round_ = combos[:]
+                    random.shuffle(round_)
+                    pool.extend(round_)
+                sampled_pairs.extend(pool[:needed])
 
         # Add "no augmentation" tag to original files
         augmented_sampled = [
