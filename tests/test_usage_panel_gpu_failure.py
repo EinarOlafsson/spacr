@@ -10,6 +10,8 @@ update_usage runs on a repeating Tk `after` callback, so that exception is not
 a one-off -- it lands in the Tk callback handler once a second for the life of
 the session. The panel is decoration; it must not be able to break the GUI.
 """
+import ast
+import textwrap
 import inspect
 import pytest
 
@@ -53,11 +55,31 @@ def test_the_message_tells_the_user_what_to_do():
 
 
 def test_ram_and_cpu_bars_survive_a_dead_gpu():
-    """The GPU is one of four things this panel shows; it is not all of them."""
+    """The GPU is one of four things this panel shows; it is not all of them.
+
+    Checked on the SYNTAX TREE, not by grepping the source text. The
+    substring version asserted ``"return" not in between`` over raw
+    characters, so it fired on any prose containing the word -- a docstring
+    saying "GPUtil.getGPUs() returned at least one GPU", and then the
+    ``:returns:`` field that documenting the function added. Both are
+    documentation the function should have, and neither is control flow.
+
+    The thing worth guarding is a `return` STATEMENT between the GPU poll and
+    the CPU poll, which is what this now looks for.
+    """
+    
     src = _source()
     gpu_at = src.index("GPUtil.getGPUs()")
     cpu_at = src.index("psutil.cpu_percent")
     assert cpu_at > gpu_at, "CPU polling must come after, and be reachable"
-    between = src[gpu_at:cpu_at]
-    assert "return" not in between, (
-        "an early return on GPU failure would kill the CPU bars too")
+
+    gpu_line = src.count("\n", 0, gpu_at) + 1
+    cpu_line = src.count("\n", 0, cpu_at) + 1
+    tree = ast.parse(textwrap.dedent(src))
+    offenders = [
+        node.lineno for node in ast.walk(tree)
+        if isinstance(node, ast.Return) and gpu_line <= node.lineno < cpu_line
+    ]
+    assert not offenders, (
+        f"an early return on GPU failure would kill the CPU bars too; "
+        f"return statement(s) at source line(s) {offenders}")

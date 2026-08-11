@@ -1265,7 +1265,7 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
             ``TypeError`` at once; anything supporting item assignment (a plain
             dict included) is accepted.
         :param vram_bar: bar for GPU memory use, written only while GPU polling
-            is still enabled and ``GPUtil.getGPUs()`` returned at least one GPU;
+            is still enabled and ``GPUtil.getGPUs()`` reported at least one GPU;
             only GPU 0 is ever read. When the list comes back empty the bar is
             left untouched (``None`` is then harmless) and polling continues, but
             a raising ``GPUtil.getGPUs()`` -- including ``GPUtil`` being ``None``
