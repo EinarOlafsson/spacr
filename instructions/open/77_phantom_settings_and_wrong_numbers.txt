@@ -978,3 +978,52 @@ the_level` PINS THE CURRENT BEHAVIOUR so it cannot be forgotten: when the
 statistic moves to the declared level, that test fails and says to rewrite
 it rather than delete it. Until then, correct the tooltip or the code -- but
 they must not keep disagreeing.
+
+--------------------------------------------------------------------------------
+2026-08-11 - THE INNER JOIN: THE LOSS IS NOW REPORTED. THE JOIN TYPE IS YOURS.
+--------------------------------------------------------------------------------
+
+`_read_and_merge_data` merges every grouped object table through one closure,
+`_merge_grouped`, whose merge passes `left_index=True, right_index=True,
+validate="one_to_one"` and NO `how=` -- so pandas uses `how='inner'`. All
+five joins go through it: cytoplasm, nucleus, pathogen, png_list numeric and
+non-numeric.
+
+THE DISCONTINUITY, measured against real synthetic databases:
+
+    usable crops =   0  ->  merged rows = 100   (cells in db = 100)
+    usable crops =   1  ->  merged rows =   1
+    usable crops =  50  ->  merged rows =  50
+    usable crops = 100  ->  merged rows = 100
+
+With NO usable crop, png_list drops out before the join and every cell
+survives. With exactly ONE, the merge keeps that one and deletes the other
+99. Nothing printed either way, and every shipped caller passes
+verbose=False. `analyze_class_proportion` force-appends 'png_list' on top of
+its default tables, so it is on that path by construction.
+
+DONE: the shortfall is reported, named by table -- "N of M objects have no
+row in png_list and were removed from the merged data." This moves no number
+on a healthy run and is the mirror of `_report_fan_out`, which already exists
+in the same file for the growth direction.
+
+NOT DONE, AND IT IS A MAINTAINER DECISION: the join type, PER TABLE. A
+blanket `how='left'` is not obviously right and I have not written one.
+
+  * png_list -- the case for 'left' is strong. It contributes no
+    measurements, only png_path and annotation columns, so crop availability
+    is a data-availability fact rather than a biological one. io.py's own
+    `_read_and_join_tables` already joins it `how='left'`, and the comment at
+    io.py:2541 says a crop subset is a normal database. Strongest of all for
+    the two callers that append it automatically.
+
+  * pathogen -- the case for 'inner' is real. `analyze_recruitment` on an
+    infection screen genuinely wants cells that HAVE a pathogen, and an outer
+    join would fill the measurement columns with NaN that later means zero.
+
+  * nucleus / cytoplasm -- in between, and probably follows whether the
+    analysis treats the compartment as required.
+
+So the question is not "which how" but "which how PER TABLE, and does the
+caller get to say". Until that is answered the report is the honest
+behaviour: the numbers are unchanged and the loss is no longer silent.
