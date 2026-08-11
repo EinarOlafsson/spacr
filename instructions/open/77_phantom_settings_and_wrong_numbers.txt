@@ -820,3 +820,56 @@ WHY THIS IS IN THE FILE. The finders and the skeptics were looking for
 different things, and the skeptic found a bug by trying to disprove one. A
 verification pass that only ever says yes or no is worth less than one that
 reads the neighbourhood.
+
+--------------------------------------------------------------------------------
+2026-08-11 (later) - FOUR MORE FIXED, AND ONE ANALYSED BUT NOT FIXED
+--------------------------------------------------------------------------------
+
+FIXED:
+
+  * io.py -- `cells_per_well` counted label VALUES, not cells. `object_label`
+    restarts at 1 in every field, so a 9-field well holding 360 cells
+    reported 40. Measured on that exact shape: 360 against 40. It is a
+    THRESHOLD, not a report -- asking for at least 100 cells discarded every
+    well on a plate averaging 360, and kept the ones with the single most
+    crowded field. Commit f4b4637b.
+
+  * object.py / utils.py -- the channel remap disagreed with how the stack is
+    built. Role order, not sorted order. Commit 7c1a6413. Both the
+    first-run organelle path and the resume fallback, and the fallback now
+    fills `organelle` at all, which it never did.
+
+  * settings.py -- `pc`, `nc`, `pc_loc`, `nc_loc`, `barecode_length_1` and
+    `_2` retired into DEAD_SETTINGS. Commit 977e1e3c.
+
+    ONE THING LEARNED THERE, worth keeping: the dead-settings registry test
+    scans by NAME, and `nc`/`pc` collide with the CLASS NAME literals in
+    submodules.py, io.py and hits.py. The scan could not tell the setting
+    from the class. Exempted as two named keys with the grep that proves
+    there is no settings read, rather than by loosening the scan -- a
+    name-based scan is exactly what makes it impossible to fool, and the
+    place to pay for that is a two-line exemption, not a weaker rule.
+
+ANALYSED, NOT FIXED -- merge_tables.py:401, the "drop" policy.
+
+Confirmed wrong, and left alone deliberately because the right answer is not
+obvious from the line:
+
+    child_columns = [c for c in frame.columns if "_" in c and c not in counts]
+    return frame.dropna(subset=child_columns, how="any")
+
+`child_columns` is EVERY column whose name contains an underscore, which on a
+measurement table is very nearly all of them -- `cell_area`,
+`cell_channel_1_mean_intensity`, and so on, including the PARENT's own
+columns. With `how="any"` the policy deletes every object carrying a single
+NaN anywhere, while its tooltip says "What happens to an object with no
+children when tables are merged".
+
+Why not simply `how="all"`: because the subset is wrong, not just the how.
+`how="all"` over a set that includes the parent's columns would be true for
+almost nothing, so the policy would silently become a no-op -- trading a
+policy that deletes too much for one that does nothing, which is harder to
+notice. The fix needs the actual child-column convention: whether merged
+child columns carry a table prefix, and whether the `*_count` columns are the
+honest test for "no children" (count of 0 or NaN) rather than any NaN scan.
+Establish that first, then fix. Do not change the `how` on its own.
