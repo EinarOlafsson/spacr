@@ -139,3 +139,44 @@ Every number in a screen comes through this merge. A fan-out multiplies
 per-cell values by the child count; a wrong aggregation replaces a
 measurement with something that is not a measurement of anything. Neither
 raises, both look like data, and the figure downstream is drawn from them.
+
+--------------------------------------------------------------------------------
+2026-08-11 - THE AGGREGATION TABLE IS DECIDED, AND THE FIRST PART IS DONE
+--------------------------------------------------------------------------------
+
+Asked: are `major_axis_length`, `minor_axis_length`, `equivalent_diameter`
+and `perimeter` summed or averaged when several children roll onto one cell?
+Answered: "those measurements should be averages."
+
+DONE. Both readers changed:
+
+    spacr/utils.py         `sum_keywords` -- perimeter, major_axis_length,
+                           minor_axis_length and equivalent_diameter removed;
+                           anything matching `area` stays.
+    spacr/merge_tables.py  the SUM regex split in two: area/volume/convex_area/
+                           filled_area SUM, perimeter/length/width/height/
+                           diameter MEAN.
+
+Measured on the survey's own case -- two nuclei in one cell, areas 10 and 20,
+each with major_axis_length 10.0 and perimeter 4.0:
+
+                          before      after
+    area                    30.0       30.0    (sum, unchanged)
+    major_axis_length       20.0       10.0
+    perimeter                8.0        4.0
+    mean_intensity         150.0      150.0    (mean, unchanged)
+
+THE RULE, STATED SO IT CAN BE APPLIED TO A NEW COLUMN: four objects occupy
+the SUM of their areas -- that is a real quantity of the parent. They have no
+combined LENGTH: two nuclei each 10 units long are not one nucleus 20 units
+long. An axis length, a perimeter and an equivalent diameter describe an
+INDIVIDUAL object, so the parent gets the typical one. Volume adds for the
+same reason area does.
+
+Two tests pinned the old rule and now pin the new one:
+`test_split_data_sums_size_columns_and_means_the_rest` and
+`test_each_measurement_gets_the_aggregation_it_deserves[perimeter]`.
+
+STILL OPEN in this instruction: the anchor-key registry, the duplicate-column
+compare, the pathogen inner/outer setting, organelle support in BOTH io.py
+readers, and cytoplasm subtracting every interior object.

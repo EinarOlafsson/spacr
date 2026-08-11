@@ -417,9 +417,15 @@ def test_split_data_sums_size_columns_and_means_the_rest():
 
     assert numeric.shape[0] == 1
     key = "p1_r1_c1_f1_1_1"
+    # AREAS SUM, LENGTHS AVERAGE (maintainer's call, 2026-08-11). Four
+    # objects rolled onto one parent occupy the sum of their areas -- a real
+    # quantity of the parent. They have no combined perimeter or diameter:
+    # those describe an INDIVIDUAL object, so the parent gets the typical
+    # one. perimeter and equivalent_diameter were summed here and are now
+    # averaged, which is why the expected values changed from 4.0 and 8.0.
     assert numeric.loc[key, "cell_area"] == 10.0                 # summed
-    assert numeric.loc[key, "cell_perimeter"] == 4.0             # summed
-    assert numeric.loc[key, "cell_equivalent_diameter"] == 8.0   # summed
+    assert numeric.loc[key, "cell_perimeter"] == 1.0             # averaged
+    assert numeric.loc[key, "cell_equivalent_diameter"] == 2.0   # averaged
     assert numeric.loc[key, "cell_channel_0_mean_intensity"] == 25.0  # averaged
     # timeID was present, so prcft got built and lands on the non-numeric side
     assert non_numeric.loc[key, "prcft"] == "p1_r1_c1_f1_1"
