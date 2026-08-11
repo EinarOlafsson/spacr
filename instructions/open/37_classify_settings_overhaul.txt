@@ -639,3 +639,41 @@ WHAT MUST STILL HOLD
 COLOURS: teal and green must come from the palette, not literals, or they
 will not survive a theme change -- and the contrast rules in `theme.py` apply
 to bubble text as much as to anything else.
+
+--------------------------------------------------------------------------------
+2026-08-11 - THE STALE DEFAULT, WITH A TEST NOW POINTING AT IT
+--------------------------------------------------------------------------------
+
+The remaining scope of this instruction has a concrete, reproducible symptom.
+`tests/qt/test_settings_list_editor.py::test_every_default_round_trips_untouched
+[classify]` fails, and it is right to:
+
+    default  (spacr/settings.py:1238)   ['nc', 'pc']
+    collected                           {'nc': {'column': '?', 'value': None},
+                                         'pc': {'column': '?', 'value': None}}
+
+Neither side is wrong on its own. 98ae880c changed `classes` from a list of
+names to a dict of name -> {column, value}, and `ClassEditor.set_value`
+MIGRATES the old shape on purpose: a bare list becomes rows with column '?'
+and no value, so the user sees what still has to be filled in rather than an
+empty table. What did not move with it is the shipped default, which is still
+the list -- and `expected_types["classes"]` still says `list`, and the
+tooltip at settings.py:2758 still opens "(list) - Ordered class names".
+
+WHY IT WAS NOT FIXED IN PASSING. Deciding what `classes` defaults to in the
+new shape is a real decision, not a spelling change. `{'nc': {'column': '?',
+...}}` is what the migration produces, but '?' is a placeholder meaning
+"unset" and shipping it as a DEFAULT states it differently. And the answer
+has to hold at four more sites than the default itself:
+
+    spacr/settings.py     expected_types['classes'] = list
+    spacr/settings.py     the tooltip, which announces the type
+    spacr/validate.py     whatever pre-flight checks the shape
+    spacr/cli.py          --set classes=... parsing
+    the Tk screen         which per the standing rule must be changed to fit
+                          the new code rather than holding it back
+
+MARKED, NOT SILENCED. The test now xfails with the drift printed in the
+reason, so CI is honest instead of noisy, and the day this instruction lands
+it fails as XPASS and says to remove the mark. A red test nobody can act on
+is how the rest of the suite stops being read -- see instruction 43.
