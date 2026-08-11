@@ -8,6 +8,12 @@
 
 set -Eeuo pipefail
 
+# @SPACR_INSTALLER_MESSAGES_BEGIN@
+SPACR_INSTALLER_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=generated/installer_messages.sh
+source "$SPACR_INSTALLER_DIR/generated/installer_messages.sh"
+# @SPACR_INSTALLER_MESSAGES_END@
+
 UV_VERSION="0.11.32"
 PYTHON_VERSION="3.12"
 DEFAULT_SPACR_VERSION="@SPACR_VERSION@"
@@ -29,43 +35,52 @@ NO_COMMAND_LAUNCHER=0
 DRY_RUN="${SPACR_INSTALL_DRY_RUN:-0}"
 
 usage() {
-    cat <<'EOF'
-Usage: install_spacr_unix.sh [options]
+    spacr_say usage
+    printf '\n%s:\n' "$(spacr_say options)"
+    printf '  --platform linux|macos  %s\n' "$(spacr_say help_platform)"
+    printf '  --install-root PATH     %s\n' "$(spacr_say help_install_root)"
+    printf '  --package-spec SPEC     %s\n' "$(spacr_say help_package_spec)"
+    printf '  --torch-backend NAME    %s\n' "$(spacr_say help_torch_backend)"
+    printf '  --launcher-dir PATH     %s\n' "$(spacr_say help_launcher_dir)"
+    printf '  --no-command-launcher   %s\n' "$(spacr_say help_no_command_launcher)"
+    printf '  --skip-system-deps      %s\n' "$(spacr_say help_skip_system_deps)"
+    printf '  --no-launch             %s\n' "$(spacr_say help_no_launch)"
+    printf '  --dry-run               %s\n' "$(spacr_say help_dry_run)"
+    printf '  -h, --help              %s\n' "$(spacr_say help_help)"
+}
 
-Options:
-  --platform linux|macos  Override automatic platform detection.
-  --install-root PATH     Install into PATH.
-  --package-spec SPEC     Install SPEC instead of the release's spaCR build.
-  --torch-backend NAME    PyTorch backend (default: cpu; use auto for NVIDIA).
-  --launcher-dir PATH     Put the command launcher in PATH (mainly for CI).
-  --no-command-launcher   Do not install a command-line launcher.
-  --skip-system-deps      Do not install Linux Qt runtime libraries.
-  --no-launch             Do not launch spaCR after installation.
-  --dry-run               Print the resolved plan without downloading.
-  -h, --help              Show this help.
-EOF
+require_option_value() {
+    if (($# < 2)) || [[ -z "${2:-}" ]]; then
+        spacr_say option_requires "$1" >&2
+        exit 2
+    fi
 }
 
 while (($#)); do
     case "$1" in
         --platform)
-            PLATFORM="${2:?--platform requires linux or macos}"
+            require_option_value "$1" "${2:-}"
+            PLATFORM="$2"
             shift 2
             ;;
         --install-root)
-            INSTALL_ROOT="${2:?--install-root requires a path}"
+            require_option_value "$1" "${2:-}"
+            INSTALL_ROOT="$2"
             shift 2
             ;;
         --package-spec)
-            PACKAGE_SPEC="${2:?--package-spec requires a requirement}"
+            require_option_value "$1" "${2:-}"
+            PACKAGE_SPEC="$2"
             shift 2
             ;;
         --torch-backend)
-            TORCH_BACKEND="${2:?--torch-backend requires a backend name}"
+            require_option_value "$1" "${2:-}"
+            TORCH_BACKEND="$2"
             shift 2
             ;;
         --launcher-dir)
-            LAUNCHER_DIR="${2:?--launcher-dir requires a path}"
+            require_option_value "$1" "${2:-}"
+            LAUNCHER_DIR="$2"
             shift 2
             ;;
         --skip-system-deps)
@@ -89,7 +104,7 @@ while (($#)); do
             exit 0
             ;;
         *)
-            echo "Unknown option: $1" >&2
+            spacr_say unknown_option "$1" >&2
             usage >&2
             exit 2
             ;;
@@ -101,13 +116,13 @@ if [[ -z "$PLATFORM" ]]; then
         Linux)  PLATFORM="linux" ;;
         Darwin) PLATFORM="macos" ;;
         *)
-            echo "Unsupported platform. Use the Windows online installer on Windows." >&2
+            spacr_say unsupported_platform >&2
             exit 2
             ;;
     esac
 fi
 if [[ "$PLATFORM" != "linux" && "$PLATFORM" != "macos" ]]; then
-    echo "Unsupported platform value: $PLATFORM" >&2
+    spacr_say unsupported_platform_value "$PLATFORM" >&2
     exit 2
 fi
 
@@ -125,7 +140,7 @@ if [[ "$PLATFORM" == "macos" && "$(uname -m)" == "x86_64" ]]; then
     )
 fi
 if [[ ! "$TORCH_BACKEND" =~ ^[a-z0-9]+$ ]]; then
-    echo "Invalid PyTorch backend: $TORCH_BACKEND" >&2
+    spacr_say invalid_backend "$TORCH_BACKEND" >&2
     exit 2
 fi
 
@@ -139,8 +154,8 @@ fi
 
 case "${INSTALL_ROOT%/}" in
     ""|"/"|"$HOME"|"/home"|"/Users"|"/Library"|"/usr"|"/usr/local")
-        echo "Refusing unsafe install root: $INSTALL_ROOT" >&2
-        echo "Choose a dedicated spaCR directory." >&2
+        spacr_say unsafe_root "$INSTALL_ROOT" >&2
+        spacr_say choose_directory >&2
         exit 2
         ;;
 esac
@@ -170,26 +185,26 @@ else
     LAUNCHER="$USER_BIN_DIR/spacr"
 fi
 
-echo "spaCR lightweight online installer"
-echo "  platform:       $PLATFORM"
-echo "  application:    $PACKAGE_SPEC"
-echo "  private Python: $PYTHON_VERSION"
-echo "  install root:   $INSTALL_ROOT"
-echo "  PyTorch backend: $TORCH_BACKEND"
-echo "  resolver guards: ${RESOLVER_GUARDS[*]}"
+spacr_say installer_title
+printf '  %s:       %s\n' "$(spacr_say platform)" "$PLATFORM"
+printf '  %s:    %s\n' "$(spacr_say application)" "$PACKAGE_SPEC"
+printf '  %s: %s\n' "$(spacr_say private_python)" "$PYTHON_VERSION"
+printf '  %s:   %s\n' "$(spacr_say install_root)" "$INSTALL_ROOT"
+printf '  %s: %s\n' "$(spacr_say pytorch_backend)" "$TORCH_BACKEND"
+printf '  %s: %s\n' "$(spacr_say resolver_guards)" "${RESOLVER_GUARDS[*]}"
 
 if [[ "$DRY_RUN" == "1" ]]; then
-    echo "DRY RUN: would download $UV_INSTALL_URL"
-    echo "DRY RUN: would create and validate $VENV_DIR"
+    spacr_say dry_download "$UV_INSTALL_URL"
+    spacr_say dry_create "$VENV_DIR"
     if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then
-        echo "DRY RUN: would install launcher $LAUNCHER"
+        spacr_say dry_launcher "$LAUNCHER"
     fi
     exit 0
 fi
 
 require_command() {
     if ! command -v "$1" >/dev/null 2>&1; then
-        echo "Required command not found: $1" >&2
+        spacr_say required_command "$1" >&2
         exit 3
     fi
 }
@@ -204,8 +219,8 @@ while [[ ! -e "$disk_probe" && "$disk_probe" != "/" ]]; do
 done
 available_kb="$(df -Pk "$disk_probe" 2>/dev/null | awk 'NR==2 {print $4}' || true)"
 if [[ "$available_kb" =~ ^[0-9]+$ ]] && ((available_kb < 5 * 1024 * 1024)); then
-    echo "spaCR needs at least 5 GB free while Python, Qt, PyTorch and dependencies install." >&2
-    echo "Only $((available_kb / 1024 / 1024)) GB is available near $INSTALL_ROOT." >&2
+    spacr_say needs_free_space >&2
+    spacr_say available_space "$((available_kb / 1024 / 1024))" "$INSTALL_ROOT" >&2
     exit 4
 fi
 
@@ -217,13 +232,13 @@ install_linux_system_dependencies() {
         if command -v sudo >/dev/null 2>&1; then
             elevate=(sudo)
         else
-            echo "No sudo command was found. Continuing without optional Linux Qt libraries."
-            echo "If spaCR does not start, install your distribution's Qt/XCB/OpenGL runtime packages."
+            spacr_say no_sudo
+            spacr_say qt_help
             return 0
         fi
     fi
 
-    echo "Installing the small Linux graphics/runtime prerequisites..."
+    spacr_say installing_linux_deps
     if command -v apt-get >/dev/null 2>&1; then
         "${elevate[@]}" apt-get update
         "${elevate[@]}" apt-get install --no-install-recommends -y \
@@ -248,7 +263,7 @@ install_linux_system_dependencies() {
             xcb-util-image xcb-util-keysyms xcb-util-renderutil \
             dbus libpulse nss ffmpeg
     else
-        echo "Unknown Linux package manager; continuing with the libraries already installed."
+        spacr_say unknown_package_manager
     fi
 }
 
@@ -256,7 +271,7 @@ mkdir -p "$BOOTSTRAP_DIR" "$PYTHON_DIR" "$CACHE_DIR"
 INSTALL_LOG="$INSTALL_ROOT/install.log"
 touch "$INSTALL_LOG"
 exec > >(tee -a "$INSTALL_LOG") 2>&1
-echo "Detailed installation log: $INSTALL_LOG"
+spacr_say detailed_log "$INSTALL_LOG"
 install_linux_system_dependencies
 installer_tmp="$(mktemp "${TMPDIR:-/tmp}/spacr-uv-installer.XXXXXX")"
 stage_venv="$INSTALL_ROOT/.venv-staging-$$"
@@ -268,14 +283,14 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo "Downloading the pinned uv bootstrap..."
+spacr_say downloading_uv
 curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location \
     --retry 3 --retry-all-errors \
     "$UV_INSTALL_URL" --output "$installer_tmp"
 UV_UNMANAGED_INSTALL="$BOOTSTRAP_DIR" UV_NO_MODIFY_PATH=1 \
     sh "$installer_tmp"
 if [[ ! -x "$UV_BIN" ]]; then
-    echo "uv did not install at the expected path: $UV_BIN" >&2
+    spacr_say uv_missing "$UV_BIN" >&2
     exit 5
 fi
 
@@ -283,24 +298,24 @@ export UV_PYTHON_INSTALL_DIR="$PYTHON_DIR"
 export UV_CACHE_DIR="$CACHE_DIR"
 export UV_SYSTEM_CERTS=true
 
-echo "Downloading private Python $PYTHON_VERSION..."
+spacr_say downloading_python "$PYTHON_VERSION"
 "$UV_BIN" python install "$PYTHON_VERSION" --managed-python --no-bin
 
-echo "Creating an isolated spaCR environment..."
+spacr_say creating_environment
 rm -rf "$stage_venv"
 "$UV_BIN" venv "$stage_venv" \
     --python "$PYTHON_VERSION" --managed-python --relocatable
 
 stage_python="$stage_venv/bin/python"
 
-echo "Downloading spaCR, Qt, PyTorch and scientific dependencies..."
+spacr_say downloading_dependencies
 "$UV_BIN" pip install \
     --python "$stage_python" \
     --torch-backend "$TORCH_BACKEND" \
     "$PACKAGE_SPEC" \
     "${RESOLVER_GUARDS[@]}"
 
-echo "Validating the installation before activating it..."
+spacr_say validating_install
 "$UV_BIN" pip check --python "$stage_python"
 QT_QPA_PLATFORM=offscreen "$stage_python" -I -c \
     "import spacr, PySide6, torch; import numpy as np; assert torch.from_numpy(np.zeros(1, dtype=np.float32)).numel() == 1; print('spaCR', spacr.__version__, '| torch', torch.__version__, '| numpy', np.__version__)"
@@ -329,11 +344,12 @@ if [[ "$PLATFORM" == "linux" ]]; then
     icon_path="$("$VENV_DIR/bin/python" -I -c \
         "from pathlib import Path; import spacr; d=Path(spacr.__file__).parent/'resources/icons'; p=d/'app_icon.png'; print(p if p.is_file() else d/'logo_spacr.png')")"
     desktop_tmp="$INSTALL_ROOT/.spacr-desktop-$$"
+    desktop_comment="$(spacr_say desktop_comment)"
     cat > "$desktop_tmp" <<EOF
 [Desktop Entry]
 Type=Application
 Name=spaCR
-Comment=Spatial phenotype analysis of CRISPR screens
+Comment=$desktop_comment
 Exec=$LAUNCHER
 Icon=$icon_path
 Terminal=false
@@ -344,21 +360,22 @@ EOF
     mv "$desktop_tmp" "$DESKTOP_DIR/spacr.desktop"
 
     uninstall_path="$INSTALL_ROOT/uninstall-spacr.sh"
+    removed_message="$(spacr_say removed)"
     cat > "$uninstall_path" <<EOF
 #!/usr/bin/env sh
 set -eu
 rm -f "$LAUNCHER"
 rm -f "$DESKTOP_DIR/spacr.desktop"
 rm -rf "$INSTALL_ROOT"
-echo "spaCR was removed. User-created data and preferences were left in place."
+echo "$removed_message"
 EOF
     chmod 755 "$uninstall_path"
 fi
 
 echo
-echo "spaCR installed successfully."
+spacr_say installed
 if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then
-    echo "Launcher: $LAUNCHER"
+    spacr_say launcher "$LAUNCHER"
 fi
 if [[ "$PLATFORM" == "linux" && "$NO_LAUNCH" == "0" ]]; then
     nohup "$LAUNCHER" >/dev/null 2>&1 &

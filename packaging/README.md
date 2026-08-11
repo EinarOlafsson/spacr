@@ -19,6 +19,15 @@ installer component; Linux users can request accelerator auto-detection with
 CUDA download and works on every supported machine. Apple's standard PyTorch
 wheel retains Metal Performance Shaders (MPS) support.
 
+Installer status, help, errors, and progress are localized for every spaCR UI
+language: English, Swedish, German, Spanish, Simplified Chinese, Portuguese,
+Hindi, Korean, Icelandic, and French. The installer selects the operating
+system's UI locale and falls back to English. Set
+``SPACR_INSTALL_LANGUAGE`` to one of ``en``, ``sv``, ``de``, ``es``,
+``zh_CN``, ``pt``, ``hi``, ``ko``, ``is``, or ``fr`` to override it. Canonical
+locale resources live in ``packaging/i18n``; generated shell, PowerShell, and
+NSIS resources are embedded by the native builders.
+
 Each bootstrap writes ``install.log`` under its private installation root and
 supplies compatible Numba/llvmlite floors. This prevents
 SHAP's unbounded transitive requirements from resolving to obsolete source

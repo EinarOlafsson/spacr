@@ -2239,7 +2239,7 @@ def category_tooltip(
     text = _category_blurb(app_key, title)
     if not text:
         text = f"Settings that control {str(title).lower().strip()}."
-    return _translated_body(text, language)
+    return _translated_body(text, language, category=True)
 
 
 def category_tooltip_is_curated(app_key: str, title: str) -> bool:
@@ -2336,7 +2336,11 @@ def _absorb_registered_api_modules() -> None:
 _absorb_registered_api_modules()
 
 
-def api_docs_url(app_key: str, key: str = "") -> str:
+def api_docs_url(
+    app_key: str,
+    key: str = "",
+    language: Optional[str] = None,
+) -> str:
     """Return the spaCR API URL for an app or shared setting.
 
     Known app keys land on their module page. New or UI-only modules fall
@@ -2377,8 +2381,11 @@ def api_docs_url(app_key: str, key: str = "") -> str:
     else:
         module = _APP_API_MODULE.get(app_key)
     if module:
-        return f"{DOCS_API_BASE}/spacr/{module}/index.html"
-    return f"{DOCS_API_BASE}/index.html"
+        url = f"{DOCS_API_BASE}/spacr/{module}/index.html"
+    else:
+        url = f"{DOCS_API_BASE}/index.html"
+    code = _language_code(language)
+    return f"{url}?lang={code}" if code != "en" else url
 
 
 _TYPE_NAMES = {int: "integer", float: "float", bool: "boolean",
@@ -2432,7 +2439,13 @@ def _language_code(language: Optional[str] = None) -> str:
     return normalize_language(language or current_language())
 
 
-def _translated_body(text: str, language: Optional[str] = None) -> str:
+def _translated_body(
+    text: str,
+    language: Optional[str] = None,
+    *,
+    setting_key: str = "",
+    category: bool = False,
+) -> str:
     """Translate setting prose only when a complete translation exists.
 
     The general UI translator deliberately supports conservative word-level
@@ -2448,6 +2461,18 @@ def _translated_body(text: str, language: Optional[str] = None) -> str:
     if code == "en":
         return source
     from ..i18n import _exact_translation, tr
+
+    try:
+        from ..i18n_catalogs import category_help, setting_tooltip
+        translated = (
+            setting_tooltip(setting_key, source, code)
+            if setting_key
+            else category_help(source, code) if category else None
+        )
+        if translated is not None:
+            return translated
+    except (ImportError, AttributeError):
+        pass
 
     return (
         tr(source, code)
@@ -2475,14 +2500,35 @@ def _translated_type_hint(key: str, language: Optional[str] = None) -> str:
     return translated
 
 
-def _translated_setting_name(key: str, language: Optional[str] = None) -> str:
+def _translated_setting_name(
+    key: str,
+    language: Optional[str] = None,
+    app_key: str = "",
+) -> str:
     """Translate a short humanized setting label using the UI term catalog."""
-    from ..i18n import tr
+    from ..i18n import _ROWS, _TERM_ROWS, tr
 
-    return tr(_humanize(key), _language_code(language))
+    source = _humanize(key)
+    code = _language_code(language)
+    # The compact catalog is the hand-reviewed authority for exact terms.
+    # External generated labels extend it, but never override a correction.
+    if source in _ROWS or source in _TERM_ROWS:
+        return tr(source, code)
+    try:
+        from ..i18n_catalogs import setting_label
+        translated = setting_label(key, source, code, app_key)
+        if translated is not None:
+            return translated
+    except (ImportError, AttributeError):
+        pass
+    return tr(source, code)
 
 
-def _api_reference_tooltip(key: str, language: Optional[str] = None) -> str:
+def _api_reference_tooltip(
+    key: str,
+    language: Optional[str] = None,
+    app_key: str = "",
+) -> str:
     """Localized accessible caption for a setting's teal API dot."""
     from ..i18n import tr
 
@@ -2490,7 +2536,7 @@ def _api_reference_tooltip(key: str, language: Optional[str] = None) -> str:
     return tr(
         "Open API reference for {name}",
         code,
-        name=_translated_setting_name(key, code),
+        name=_translated_setting_name(key, code, app_key),
     )
 
 
@@ -2504,9 +2550,9 @@ def format_tooltip(
     from ..i18n import tr
 
     code = _language_code(language)
-    body_source = _translated_body(text, code)
+    body_source = _translated_body(text, code, setting_key=key)
     body = escape(body_source)
-    header = escape(_translated_setting_name(key, code))
+    header = escape(_translated_setting_name(key, code, app_key))
     th = escape(_translated_type_hint(key, code))
     if header and th:
         header = f"<b>{header}</b> <i>({th})</i>"
@@ -2517,7 +2563,7 @@ def format_tooltip(
             body = f"Controls {escape(_humanize(key).lower())}."
         else:
             body = escape(tr("Controls this setting.", code))
-    url = escape(api_docs_url(app_key, key), quote=True)
+    url = escape(api_docs_url(app_key, key, code), quote=True)
     link = (
         f'<a href="{url}">'
         f'{escape(tr("Open spaCR API documentation", code))}</a>'
@@ -2537,17 +2583,17 @@ def plain_tooltip(
     from ..i18n import tr
 
     code = _language_code(language)
-    body = _translated_body(text, code)
+    body = _translated_body(text, code, setting_key=key)
     if not body:
         body = (f"Controls {_humanize(key).lower()}."
                 if code == "en" and key
                 else tr("Controls this setting.", code))
     th = _translated_type_hint(key, code)
-    name = _translated_setting_name(key, code)
+    name = _translated_setting_name(key, code, app_key)
     head = f"{name} ({th})" if (name and th) else name
     parts = [p for p in (head, body) if p]
     summary = " — ".join(parts)
-    url = api_docs_url(app_key, key)
+    url = api_docs_url(app_key, key, code)
     api = tr("API: {url}", code, url=url)
     return f"{summary} — {api}" if summary else api
 
@@ -2669,7 +2715,8 @@ def refresh_api_tooltips(
     Canonical English prose is retained in ``apiTooltipDescriptionSource``;
     only the presentation HTML/plain accessibility chrome is regenerated.
     Field widgets marked ``metadata`` stay quiet because their visible label
-    owns hover help.  API-dot URLs are never rebuilt or translated.
+    owns hover help. API-dot destinations carry the selected documentation
+    language while retaining the same module page.
     """
     if root is None:
         return
@@ -2707,7 +2754,10 @@ def refresh_api_tooltips(
         if role == "metadata":
             widget.setToolTip("")
         elif role == "api-link":
-            caption = _api_reference_tooltip(str(key), code)
+            caption = _api_reference_tooltip(str(key), code, str(app_key))
+            set_url = getattr(widget, "set_url", None)
+            if callable(set_url):
+                set_url(api_docs_url(str(app_key), str(key), code))
             widget.setToolTip(caption)
             widget.setAccessibleName(caption)
             widget.setAccessibleDescription(
@@ -2908,7 +2958,7 @@ def build_setting_link_widget(
 
     api_dot = InfoLink(
         api_docs_url(app_key, key),
-        tooltip=_api_reference_tooltip(key),
+        tooltip=_api_reference_tooltip(key, app_key=app_key),
     )
     api_dot.setObjectName("SettingInfoLink")
     api_dot.setProperty("settingsAppKey", app_key)

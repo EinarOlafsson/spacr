@@ -209,6 +209,7 @@ class ModuleHeader(QWidget):
                 info = InfoLink(api_docs_url(app_key),
                                 tooltip=str(description), parent=self)
                 info.setObjectName("ModuleInfoLink")
+                info.setProperty("moduleApiAppKey", app_key)
                 intro_row.addWidget(info)
                 self.info_link = info
             row.addLayout(intro_row)
