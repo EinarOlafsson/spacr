@@ -1333,6 +1333,25 @@ def umap_walk_axes(start: Mapping[str, Any],
     [0, 1] -- because a walk is the one search that generates values that
     were never typed by anyone, and an out-of-range one fails inside the
     fit rather than at the edge.
+
+    :param start: only its KEYS are read. Every searched name must be
+        present or this raises; the starting *values* never reach the
+        axes, so two different starting points build identical axes.
+    :param parameters: which names take part. Empty or ``None`` falls back
+        to the default pair, and a name outside
+        :data:`UMAP_WALK_PARAMETERS` raises. A name listed twice is passed
+        through here and only rejected later, by :func:`walk_search`.
+    :param steps: per-axis step override. Discarded on the categorical
+        axes (``init``, ``metric``), which move by choice rather than by
+        step -- a step given for ``metric`` is even stored on the axis,
+        but nothing ever reads it.
+    :param resolutions: per-axis values per round, counting the centre;
+        axes not named get 2. Below 2, or not a whole number, raises.
+    :param n_neighbors_max: upper clamp for the ``n_neighbors`` axis only,
+        and silently inert when that axis is not searched. Unvalidated
+        here, unlike in :func:`local_direction_search`: below 2 it
+        collides with the fixed minimum and raises from :class:`WalkAxis`,
+        and a fractional cap rounds up (7.9 admits 8).
     """
     names = list(parameters) if parameters else ["n_neighbors", "min_dist"]
     steps = dict(steps or {})
@@ -1670,6 +1689,45 @@ def local_direction_search(
     uses. It is now :func:`walk_search` with two numeric axes at resolution
     2, which produces the same four diagonal corners per round; pass axes
     to that function directly to search more than these two parameters.
+
+    :param fit_fn: called as ``fit_fn(params)`` with a clamped integer
+        ``n_neighbors``, a float ``min_dist``, and every frozen key from
+        ``start``. A call that raises is recorded as a failed trial; a
+        round in which all four fail ends the walk with no winner.
+    :param start: needs ``n_neighbors`` and ``min_dist`` -- missing or
+        non-numeric raises. Out-of-range values are clamped rather than
+        rejected (``n_neighbors`` up to at least 2, ``min_dist`` into
+        ``[0, 1]``). Any other key is held fixed and passed to every fit
+        unchanged.
+    :param n_trials: maximum ROUNDS, not fits; each round costs up to
+        four. Blank or ``None`` means 100. Zero, negative or non-numeric
+        raises.
+    :param n_neighbors_step: truncated by ``int()``, so 1.9 steps by 1 and
+        anything below 1 becomes 0 and raises instead of stepping
+        fractionally.
+    :param n_neighbors_max: upper clamp on the ``n_neighbors`` axis.
+        ``None`` leaves it unbounded and the walk climbs until the score
+        stops improving. Below 2 raises.
+    :param min_dist_step: step along ``min_dist``; must be strictly
+        positive.
+    :param min_improvement: a round must beat the running best by MORE
+        than this to continue, so the default 0.0 still stops on an exact
+        tie. Negative raises.
+    :param metric: a label recorded on the result, nothing more. It does
+        not choose a criterion -- whatever ``fit_fn`` returns is the
+        score, whatever this names it.
+    :param higher_is_better: the direction the walk climbs, and the
+        comparison that picks the winner.
+    :param on_trial: ``(trial, completed, total)`` after every trial,
+        failures included. ``total`` is ``4 * n_trials``, an upper bound
+        the walk normally undershoots because an already-scored
+        configuration is never refitted.
+    :param should_stop: polled before each new fit; True truncates the
+        walk and marks the result partial.
+    :param notes: caveats placed BEFORE the walk's own generated notes.
+    :param checkpoint: resumes an interrupted walk -- completed trials are
+        replayed without refitting and the centre, round count and best
+        score are restored. ``None`` runs without persistence.
     """
     required = {"n_neighbors", "min_dist"}
     missing = required.difference(start)
@@ -1972,6 +2030,37 @@ def umap_objective_scores(
     The returned ``multi_objective`` value is a weighted geometric mean used
     to guide grid/adaptive search. The individual objective values remain the
     primary result and define :meth:`SearchResult.pareto_front`.
+
+    :param features: read only for trustworthiness and continuity, hence
+        only for ``neighborhood_preservation``. Stability and cluster
+        structure come from the embeddings alone and do not move with it.
+    :param embeddings: two or more fits of the same rows; fewer than two
+        raises, because stability is a repeat-to-repeat measure. How they
+        were produced is the caller's business -- only their count and
+        geometry are used here.
+    :param labels: optional, and consumed in two places: the ``silhouette``
+        entry (present only when *every* repeat could compute it) and the
+        cluster-structure partition. Labels whose length does not match the
+        rows, or carrying fewer than two classes, are silently ignored and
+        K-means discovery runs instead, so read
+        ``cluster_structure_method`` rather than assuming they were used.
+    :param neighbourhood_k: one value, two different caps. Trustworthiness
+        and continuity clamp it to ``(n_samples - 1) // 2`` and report that
+        clamped number back as ``neighbourhood_k``; stability clamps only
+        to ``n_samples - 1``. A k near the sample count therefore drives
+        stability to a meaningless 1.0 while the reported k still looks
+        reasonable.
+    :param weights: merged over :data:`DEFAULT_UMAP_OBJECTIVE_WEIGHTS` and
+        then renormalized, so naming one objective does not zero the
+        others -- ``{'stability': 1.0}`` ends up near 0.59, not 1.0.
+        Unknown, negative, non-finite, non-numeric or all-zero raises.
+    :param seed: reaches only the K-means discovery path, offset by the
+        repeat index so the repeats are deliberately not identical. It has
+        no effect at all when usable ``labels`` are supplied.
+    :returns: the three objectives plus ``multi_objective``, the component
+        ``trustworthiness``/``continuity``, the normalized weights, and the
+        provenance fields ``cluster_structure_method`` and
+        ``cluster_counts``.
     """
     if len(embeddings) < 2:
         raise ValueError(

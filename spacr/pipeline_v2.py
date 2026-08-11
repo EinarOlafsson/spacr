@@ -23,8 +23,8 @@ downstream measure module actually reads:
     Pass 2 — segment
         stream the plate in batches of N fields, hand each batch to
         Cellpose, append the mask channels to the SAME stack file.
-        Optional intermediate NPZ is memory-only (never touches disk)
-        unless ``keep_npz=True``.
+        Each batch is written to a scratch NPZ on the way through and
+        deleted again unless ``keep_npz=True``.
 
 Output — ``merged/`` folder holds one file per field, each shape
 ``(H, W, C_image + C_mask)`` in uint16, plus:
@@ -500,18 +500,20 @@ def stream_masks_from_stack(
 
     :param stacks: list produced by :func:`stream_originals_to_stack`.
     :param model_name: Cellpose model to use (``"cyto"``, ``"nuclei"``, …).
-    :param channels_for_cellpose: Cellpose's ``channels=`` argument —
-        e.g. ``[0, 0]`` for grayscale, ``[2, 1]`` for green cyto +
-        blue nucleus.
+    :param channels_for_cellpose: C-axis indices selected out of each
+        assembled stack before it is handed to Cellpose — taken modulo the
+        channel count and de-duplicated in order. It is NOT forwarded as
+        Cellpose's ``channels=`` argument; ``[0, 0]`` therefore yields a
+        single plane, not a grayscale pair.
     :param diameter: expected object diameter in px (None → Cellpose
         auto).
     :param batch_fields: how many field stacks to load into memory at
         once. Larger = faster but more RAM.
     :param mask_channel_name: human name to record for the appended
         mask channel (default ``"mask"``).
-    :param keep_npz: when True, write the intermediate memory batch as
-        an NPZ file to ``npz_dir`` for debugging. Deleted after the
-        batch runs unless this flag is set.
+    :param keep_npz: the intermediate batch is compressed to an NPZ under
+        ``npz_dir`` on every batch regardless; this flag only decides
+        whether that file and the scratch folder survive the run.
     :param npz_dir: where to write the (optional) intermediate NPZ
         files. Defaults to a scratch subfolder under the stack folder.
     :returns: the same list, with each :class:`StackFile.shape` /
@@ -748,8 +750,73 @@ def run_v2(
         stream_masks_from_stack(stacks, model_name, channels_for_cellpose,
                                 diameter, batch_fields, keep_npz=keep_npz)
 
+    :param src: plate folder holding the originals, scanned
+        non-recursively. ``filename_map.csv`` lands here and output goes
+        to ``<src>/merged``; neither path is overridable from this wrapper.
+    :param channels: channel numbers as parsed from the filename
+        (``C01`` gives 1), not C-axis positions. The default
+        ``(0, 1, 2, 3)`` therefore misfits stock CellVoyager/Yokogawa
+        names: channel 0 never exists, so plane 0 is all zeros, and
+        ``C04`` is dropped. Pass ``(1, 2, 3, 4)`` for those layouts.
+    :param channel_names: names recorded in ``channel_order.json`` and on
+        each :class:`StackFile`. A length mismatch with ``channels`` trips
+        a bare ``assert``, so it goes unchecked under ``python -O``.
+    :param model_name: resolved by
+        :func:`spacr.utils._resolve_cellpose_pretrained`, not passed as
+        Cellpose's ``model_type``. On Cellpose 4 every legacy name
+        (``"cyto"``, ``"nuclei"``, …) collapses to ``cpsam``, so only a
+        fine-tuned checkpoint path actually changes the weights, and a
+        path with no file behind it raises instead of falling back.
+    :param channels_for_cellpose: despite the name this never reaches
+        Cellpose's ``channels=`` argument; it selects C-axis indices from
+        the assembled stack, taken modulo the channel count (7 with C=4
+        becomes 3) and de-duplicated in order. The default ``(0, 0)``
+        collapses to one plane, and an empty sequence falls back to plane 0.
+    :param diameter: forwarded to ``model.eval``; ``None`` leaves Cellpose
+        to size objects itself. Unlike ``model_name`` it is still honoured
+        on Cellpose 4, which rescales the image by ``30 / diameter``.
+    :param batch_fields: fields loaded and segmented per batch, the
+        memory-versus-speed dial. ``0`` raises ``ValueError``; a negative
+        value segments nothing at all, yet ``channel_order.json`` is still
+        rewritten to claim a mask channel that no stack received.
+    :param metadata_type: ``"cellvoyager"``, ``"yokogawa"``, ``"custom"``
+        or ``"auto"``. Only ``"custom"`` is special-cased; every other
+        unrecognised string quietly behaves as ``"auto"`` instead of
+        raising.
+    :param custom_regex: required when ``metadata_type="custom"``, else
+        ``ValueError``. It must supply the named groups (``plateID``,
+        ``wellID``, ``fieldID``, ``chanID``, ``timeID``, ``sliceID``); any
+        group it omits silently defaults, so a regex without ``chanID``
+        makes every image channel 1 and therefore its own single-plane
+        field.
+    :param keep_npz: the per-batch NPZ is compressed into
+        ``merged/_scratch`` either way — this only decides whether it and
+        the scratch folder survive, so ``False`` does not save the write.
+    :param cellprob_threshold: forwarded to ``model.eval`` through
+        ``float()``.
+    :param flow_threshold: forwarded to ``model.eval`` through ``float()``.
+    :param min_size: forwarded to ``model.eval`` through ``int()``;
+        ``None`` raises ``TypeError`` rather than meaning "no minimum".
+    :param resample: coerced with ``bool()``, so any non-empty string —
+        ``"false"`` included — is True, while ``None`` is False.
+    :param postprocess_settings: ``None`` hands the raw selected planes to
+        Cellpose and skips post-processing entirely. Any dict, ``{}``
+        included, switches on both :func:`spacr.io._normalize_img_batch`
+        and :func:`spacr.object.merge_split_filter_masks`. The four
+        ``*_channel`` role keys are rewritten on a copy (the caller's dict
+        is left alone): all cleared to None, then ``object_type`` set to 0,
+        plus ``nucleus_channel=1`` when ``object_type`` is ``"cell"`` and
+        two or more planes were selected.
+    :param object_type: picks the weights during ``model_name``
+        resolution, names the role given channel 0 in normalisation, and
+        is passed to the mask post-processor. An unrecognised value does
+        not raise — it adds a dead ``<value>_channel`` key and leaves every
+        real role unset.
     :returns: dict with ``mapper`` (:class:`FilenameMapper`), ``stacks``
         (list of :class:`StackFile`), and ``dst`` (Path to ``merged/``).
+    :raises ValueError: from :meth:`FilenameMapper.discover` when ``src``
+        holds no images, when ``metadata_type="custom"`` has no
+        ``custom_regex``, or from ``batch_fields=0``.
     """
     src = Path(src)
     mapper = FilenameMapper.discover(src, metadata_type=metadata_type,

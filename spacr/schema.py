@@ -1863,6 +1863,21 @@ def coerce_model_feature_types(
     The input frame is returned unchanged when no conversion is needed. A
     shallow copy is made on the first conversion, so callers do not have their
     source data mutated and wide database joins do not get copied needlessly.
+
+    :param frame: the measurements frame. Anything else — a Series
+        included — raises :class:`ModelFeatureSchemaError`, not ``TypeError``.
+    :param extra_features: names to treat as declared features whatever the
+        feature dictionary makes of them. The only way to get an unrecognised
+        text column repaired, and it opts that column into the error above too.
+    :param exclude: names to leave alone entirely — never repaired, never
+        reported. Tested first, so it overrides ``extra_features``. It is
+        iterated, so a bare string excludes its letters and hence nothing.
+    :param allow_unknown: widen what counts as a feature to unrecognised
+        columns — but an unrecognised column is then *skipped* rather than
+        repaired, so this only ever converts fewer columns. It reaches
+        ``DERIVED_MODEL_FEATURES`` as well: with it set, a text or all-NULL
+        ``recruitment`` stays ``object`` and is then silently dropped by
+        :func:`model_feature_columns` instead of being read as numbers.
     """
     import pandas as pd
     from pandas.api.types import is_bool_dtype, is_numeric_dtype
@@ -1959,6 +1974,20 @@ def model_feature_columns(
     is unusable. Refusing the first one and stopping made a user fix them one
     whole run at a time.
 
+    :param frame: the frame to select from; anything else (a Series included)
+        raises :class:`ModelFeatureSchemaError` rather than ``TypeError``.
+    :param extra_features: names to declare as features whatever the feature
+        dictionary makes of them. It cannot promote an identity or provenance
+        column — those are dropped before it is consulted — but it does turn a
+        non-numeric column from a silent omission into the error below.
+    :param exclude: names dropped before any check, so it overrides
+        ``extra_features`` and is the escape hatch the error message points at.
+        Iterated, so passing one bare column *name* excludes its letters only.
+    :param allow_unknown: also accept unrecognised columns, but only those
+        already of a numeric dtype: an unrecognised non-numeric one is skipped
+        instead of reported. It reaches ``DERIVED_MODEL_FEATURES`` as well, so
+        a ``recruitment`` column read back as text vanishes from the selection
+        rather than raising.
     :raises ModelFeatureSchemaError: if a declared feature is non-numeric.
     """
     import pandas as pd

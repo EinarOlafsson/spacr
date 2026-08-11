@@ -6531,7 +6531,36 @@ class SaliencyMapGenerator:
         return saliency, predictions
 
     def plot_activation_grid(self, X, saliency, predictions, overlay=True, normalize=False):
-        """Render a grid overlaying saliency maps on inputs with predicted-class labels."""
+        """Render a grid overlaying saliency maps on inputs with predicted-class labels.
+
+        The grid is always eight columns wide with ``ceil(N / 8)`` rows, and
+        ``axis('off')`` is applied only to the panels that get a sample, so an
+        incomplete last row renders as empty framed boxes. The figure is
+        returned, never shown.
+
+        :param X: batch tensor shaped ``(N, C, H, W)``; ``N`` fixes the grid
+            size, and an empty batch raises ``ValueError`` from ``subplots``.
+            The pixels are read only under ``overlay``, where the sample is
+            permuted to ``(H, W, C)`` -- ``C`` of 1, 3 or 4 renders, ``C`` of 2
+            reaches ``imshow`` as an invalid shape and raises ``TypeError``.
+        :param saliency: torch tensor of at least ``N`` entries. It is indexed
+            and moved to the CPU on every iteration even when ``overlay`` is
+            false, so a numpy array raises ``AttributeError`` either way. Each
+            entry must be ``(H, W)`` or ``(3, H, W)``: only a leading ``3`` is
+            transposed to channels-last, so ``(1, H, W)`` and ``(2, H, W)``
+            raise ``TypeError`` from ``imshow``.
+        :param predictions: sequence supporting ``predictions[i].item()``,
+            whose scalar is stamped in each panel's corner. A plain Python list
+            of ints raises ``AttributeError``.
+        :param overlay: false draws no image at all -- neither the input nor
+            the map -- leaving a grid of bare class labels on empty axes.
+            Default ``True``.
+        :param normalize: percentile-stretch the input image only; the saliency
+            map is always drawn raw. Has no effect unless ``overlay`` is true,
+            and a channel that is flat between its 2nd and 98th percentiles
+            divides by zero and comes out ``NaN``. Default ``False``.
+        :returns: the Matplotlib ``Figure``.
+        """
         N = X.shape[0]
         rows = (N + 7) // 8
         # squeeze=False keeps axs 2-D; without it matplotlib collapses a
@@ -6676,7 +6705,37 @@ class GradCAMGenerator:
         return torch.from_numpy(np.stack(gradcam_maps)), predictions
 
     def plot_activation_grid(self, X, gradcam, predictions, overlay=True, normalize=False):
-        """Render a grid overlaying Grad-CAM maps on inputs with predicted-class labels."""
+        """Render a grid overlaying Grad-CAM maps on inputs with predicted-class labels.
+
+        The grid is always eight columns wide with ``ceil(N / 8)`` rows, and
+        ``axis('off')`` is applied only to the panels that get a sample, so an
+        incomplete last row renders as empty framed boxes. The figure is
+        returned, never shown.
+
+        :param X: batch tensor shaped ``(N, C, H, W)``; ``N`` fixes the grid
+            size, and an empty batch raises ``ValueError`` from ``subplots``.
+            The pixels are read only under ``overlay``, where the sample is
+            permuted to ``(H, W, C)`` -- ``C`` of 1, 3 or 4 renders, ``C`` of 2
+            raises ``TypeError`` from ``imshow``.
+        :param gradcam: torch tensor of per-sample 2-D maps, i.e. ``(N, H, W)``
+            as returned by :meth:`compute_gradcam_and_predictions`. Unlike
+            :meth:`SaliencyMapGenerator.plot_activation_grid` there is no
+            channels-first transpose here, so an ``(N, 3, H, W)`` stack raises
+            ``TypeError``. It is indexed and moved to the CPU on every
+            iteration even when ``overlay`` is false, so it must be a tensor
+            either way.
+        :param predictions: sequence supporting ``predictions[i].item()``,
+            whose scalar is stamped in each panel's corner. A plain Python list
+            of ints raises ``AttributeError``.
+        :param overlay: false draws no image at all -- neither the input nor
+            the map -- leaving a grid of bare class labels on empty axes.
+            Default ``True``.
+        :param normalize: percentile-stretch the input image only; the Grad-CAM
+            map is always drawn raw. Has no effect unless ``overlay`` is true,
+            and a channel that is flat between its 2nd and 98th percentiles
+            divides by zero and comes out ``NaN``. Default ``False``.
+        :returns: the Matplotlib ``Figure``.
+        """
         N = X.shape[0]
         rows = (N + 7) // 8
         # See SaliencyMapGenerator.plot_activation_grid — squeeze=False is
@@ -7508,7 +7567,38 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers,
         axis='both', which='major', labelsize=int(figuresize * 0.75))
 
 def plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose):
-    """Overlay sample images from ``image_paths`` on the UMAP embedding in ``ax``."""
+    """Overlay sample images from ``image_paths`` on the UMAP embedding in ``ax``.
+
+    :param ax: axes the thumbnails are added to, as frameless annotation boxes.
+    :param image_paths: paths addressed by the same positional index as
+        ``embedding``, so the two must share a row order; a short list raises
+        ``IndexError``.
+    :param embedding: ``(N, 2)`` array whose selected rows give each thumbnail
+        its data-space position.
+    :param labels: cluster labels aligned with ``embedding``. Read only when
+        ``plot_by_cluster`` is true; ``None`` is accepted otherwise.
+    :param image_nr: with ``plot_by_cluster`` false, the exact number of rows
+        sampled at random from the whole embedding, so a value above ``N``
+        raises ``ValueError`` from ``random.sample``. With it true, a
+        per-cluster cap -- a cluster no larger than this contributes every
+        member, unsampled.
+    :param img_zoom: scale factor handed to ``OffsetImage``. It sizes the
+        thumbnail from the file's own pixel dimensions in display space, so
+        rescaling the axes does not change how big the image is drawn.
+    :param colors: only zipped against ``np.unique(labels)`` to drive the
+        iteration; the color itself is never drawn. Its LENGTH is therefore a
+        silent limit, and because ``np.unique`` includes the ``-1`` noise label
+        a palette sized to the real clusters leaves the last cluster with no
+        images. Unused (``None`` is fine) when ``plot_by_cluster`` is false.
+    :param plot_by_cluster: true samples per cluster and skips label ``-1``;
+        false ignores ``labels`` and ``colors`` entirely and samples globally.
+    :param remove_image_canvas: forwarded to :func:`plot_image`; true masks
+        zero-valued pixels out and restricts the inputs to PIL modes ``L``,
+        ``I`` and ``RGB``.
+    :param verbose: accepted and ignored, here and in the helper it is passed
+        to; any value at all is tolerated.
+    :returns: None.
+    """
     if plot_by_cluster:
         cluster_indices = {label: np.where(labels == label)[0] for label in np.unique(labels) if label != -1}
         plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, cluster_indices, remove_image_canvas, verbose)
@@ -7520,7 +7610,29 @@ def plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, col
             plot_image(ax, x, y, img, img_zoom, remove_image_canvas)
 
 def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, cluster_indices, remove_image_canvas, verbose):
-    """Overlay up to ``image_nr`` images per cluster on the embedding in ``ax``."""
+    """Overlay up to ``image_nr`` images per cluster on the embedding in ``ax``.
+
+    :param ax: axes the thumbnails are added to, as frameless annotation boxes.
+    :param image_paths: paths addressed by the indices held in
+        ``cluster_indices``, so they must be in the embedding's row order.
+    :param embedding: ``(N, 2)`` array supplying each thumbnail's position.
+    :param labels: only ``np.unique(labels)`` is used, to decide which clusters
+        to visit; ``-1`` is skipped as noise.
+    :param image_nr: per-cluster cap. A cluster no larger than this contributes
+        all of its members -- no sampling happens.
+    :param img_zoom: scale factor handed to ``OffsetImage``, applied to the
+        file's own pixel dimensions rather than to data units.
+    :param colors: bound by the ``zip`` and then never read, so it contributes
+        no color at all. What it does contribute is a length: ``zip`` stops at
+        the shorter sequence, and since ``np.unique`` counts the ``-1`` noise
+        label a palette sized to the real clusters silently drops the last one.
+    :param cluster_indices: mapping of label to the row indices to draw from.
+        Looked up with ``.get(label, [])``, so a label present in ``labels``
+        but absent here plots nothing instead of raising.
+    :param remove_image_canvas: forwarded to :func:`plot_image`.
+    :param verbose: accepted and ignored; any value at all is tolerated.
+    :returns: None.
+    """
     for cluster_label, color in zip(np.unique(labels), colors):
         if cluster_label == -1:
             continue
@@ -7533,7 +7645,25 @@ def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoo
             plot_image(ax, x, y, img, img_zoom, remove_image_canvas)
 
 def plot_image(ax, x, y, img, img_zoom, remove_image_canvas=True):
-    """Place a zoomed thumbnail of ``img`` at ``(x, y)`` on ``ax``."""
+    """Place a zoomed thumbnail of ``img`` at ``(x, y)`` on ``ax``.
+
+    :param ax: axes the thumbnail is added to, as a frameless annotation box.
+    :param x: data-space x coordinate the thumbnail is anchored at.
+    :param y: data-space y coordinate the thumbnail is anchored at.
+    :param img: PIL image when ``remove_image_canvas`` is true, since
+        ``img.mode`` is read; any array-like otherwise.
+    :param img_zoom: scale factor handed to ``OffsetImage``. It sizes the
+        thumbnail from the source's pixel dimensions in display space, so the
+        drawn size is unchanged by the axis limits.
+    :param remove_image_canvas: true swaps the image for an RGBA array whose
+        alpha channel hides zero-valued pixels, which accepts only PIL modes
+        ``L``, ``I`` and ``RGB`` -- ``RGBA`` and ``P`` raise ``ValueError``, and
+        a numpy array raises ``AttributeError`` because it has no ``mode``. An
+        all-zero ``L`` image divides by its own zero maximum and comes out
+        ``NaN`` rather than raising. False just calls ``np.array``.
+        Default ``True``.
+    :returns: None.
+    """
     # remove_canvas() inspects PIL's ``img.mode``, so it must run BEFORE the
     # array conversion — converting first made remove_image_canvas=True raise
     # AttributeError: 'numpy.ndarray' object has no attribute 'mode'.
@@ -7563,7 +7693,32 @@ def remove_canvas(img):
     return img_data_with_alpha
 
 def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figuresize, black_background, verbose, theme_colors=None):
-    """Plot a grid of example images per cluster label discovered in ``labels``."""
+    """Plot a grid of example images per cluster label discovered in ``labels``.
+
+    :param embedding: accepted and never read -- the panels are built from
+        ``labels`` and ``image_paths`` alone, so ``None`` works.
+    :param labels: cluster labels in the row order of ``image_paths``. ``-1`` is
+        dropped as noise, and if nothing else remains the function prints
+        ``No clusters found.`` and returns ``None`` instead of a figure.
+    :param image_nr: per-cluster cap on how many images are opened. A cluster no
+        larger than this contributes all of its members.
+    :param image_paths: paths addressed positionally by the label array; a list
+        shorter than ``labels`` raises ``IndexError``.
+    :param colors: palette indexed downstream by the cluster LABEL itself rather
+        than by its rank, so the palette has to be long enough to reach the
+        largest label -- labels ``0`` and ``5`` against a two-color palette
+        raise ``IndexError``. Entries need at least three components.
+    :param figuresize: per-cluster panel size in inches, shrunk downstream so
+        the whole row never exceeds 200 inches.
+    :param black_background: picks the white-on-black fallback theme instead of
+        black-on-white; ``theme_colors`` overrides it per role.
+    :param verbose: only ever prints for STRING cluster labels; silent for the
+        integer labels DBSCAN and KMeans produce.
+    :param theme_colors: dict with ``background``/``foreground``/``border``
+        colors. Entries Matplotlib cannot parse are dropped silently and fall
+        back to the ``black_background`` choice. Default ``None``.
+    :returns: the Matplotlib ``Figure``, or ``None`` when every label is ``-1``.
+    """
     unique_labels = np.unique(labels)
     num_clusters = len(unique_labels[unique_labels != -1])
     if num_clusters == 0:
@@ -7587,7 +7742,32 @@ def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figures
     return fig
 
 def plot_grid(cluster_images, colors, figuresize, black_background, verbose, theme_colors=None):
-    """Render one column per cluster of representative images with colored borders and labels."""
+    """Render one column per cluster of representative images with colored borders and labels.
+
+    :param cluster_images: ordered mapping of cluster label to that cluster's
+        list of image arrays; one column per key, and an empty mapping raises
+        ``ValueError`` from ``subplots``.
+    :param colors: consumed two different ways in the same figure. The panel
+        border uses ``colors[label]`` for integer keys, so the palette must
+        reach the largest label, while the legend swatches beside the grid are
+        taken positionally -- with non-contiguous labels the two disagree, and
+        cluster ``3`` gets border ``colors[3]`` beside swatch ``colors[1]``.
+        String keys use the positional index for both. A palette shorter than
+        the mapping raises ``IndexError``, and entries need at least three
+        components.
+    :param figuresize: figure height in inches and the label font size; the
+        width is this times the cluster count. It is shrunk to
+        ``200 / n_clusters`` when that product would exceed 200 inches, which
+        silently caps the font size too.
+    :param black_background: picks the white-on-black fallback theme instead of
+        black-on-white.
+    :param verbose: prints the label and its index for STRING cluster labels
+        only; integer labels never print anything.
+    :param theme_colors: dict with ``background``/``foreground``/``border``
+        colors overriding the ``black_background`` fallback; values Matplotlib
+        cannot parse are ignored. Default ``None``.
+    :returns: the Matplotlib ``Figure``, which is also passed to ``plt.show``.
+    """
     num_clusters = len(cluster_images)
     max_figsize = 200  # Set a maximum figure size
     if figuresize * num_clusters > max_figsize:
@@ -9742,18 +9922,30 @@ def delete_intermedeate_files(settings):
         
 def filter_and_save_csv(input_csv, output_csv, column_name, upper_threshold, lower_threshold):
     """
-    Reads a CSV into a DataFrame, filters rows based on a column for values > upper_threshold and < lower_threshold,
-    and saves the filtered DataFrame to a new CSV file.
+    Reads a CSV into a DataFrame, keeps the rows whose column value falls OUTSIDE
+    the two thresholds, and saves the filtered DataFrame to a new CSV file.
+
+    The two tests are combined with OR, not AND, so this is a two-tailed
+    selection that keeps the extremes and discards the middle. Both comparisons
+    are strict, so a value exactly equal to either threshold is dropped, and so
+    is ``NaN``. Passing an ``upper_threshold`` below ``lower_threshold`` makes
+    the two conditions cover the whole line and nothing is filtered out at all.
 
     Parameters:
-        input_csv (str): Path to the input CSV file.
-        output_csv (str): Path to save the filtered CSV file.
-        column_name (str): Column name to apply the filters on.
-        upper_threshold (float): Upper threshold for filtering (values greater than this are retained).
-        lower_threshold (float): Lower threshold for filtering (values less than this are retained).
+        input_csv (str): Path to the input CSV file, read with ``pd.read_csv``.
+        output_csv (str): Path to save the filtered CSV file, written without
+            the index. Its parent directory must already exist -- pandas raises
+            ``OSError`` rather than creating it.
+        column_name (str): Column the two comparisons are applied to. A name
+            that is not in the frame raises ``KeyError``, and a text column
+            raises ``TypeError`` when compared against a numeric threshold.
+        upper_threshold (float): Rows strictly greater than this are retained.
+        lower_threshold (float): Rows strictly less than this are retained too;
+            everything between the two bounds is discarded.
 
     Returns:
-        None
+        None. The filtered frame is written to ``output_csv``, shown with
+        ``display`` for notebook users, and the destination is printed.
     """
     # Read the input CSV file into a DataFrame
     df = pd.read_csv(input_csv)
@@ -10002,12 +10194,30 @@ def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1
     """
     Removes outliers from `value_col` within each group defined by `group_col`.
 
+    Rows are selected, never modified: the original index is preserved and a new
+    frame is returned. A row whose value is ``NaN`` fails the comparison and is
+    always dropped, whichever method is used.
+
     Parameters:
         df (pd.DataFrame): The input DataFrame.
-        group_col (str): Column name to group by.
-        value_col (str): Column containing values to check for outliers.
-        method (str): 'iqr' or 'zscore'.
-        threshold (float): Threshold multiplier for IQR (default 1.5) or z-score.
+        group_col (str): Column name to group by, or a list of column names.
+            Grouping passes ``observed=False``, so unused categories of a
+            Categorical are kept. Rows whose group key is missing are discarded,
+            because pandas drops ``NaN`` group keys and the per-row bound then
+            comes back ``NaN``.
+        value_col (str): Column containing values to check for outliers. A name
+            that is not in the frame raises ``KeyError``.
+        method (str): 'iqr' or 'zscore'. Anything else raises ``ValueError``.
+            The two disagree on tiny groups: under 'zscore' a group of one row
+            has an undefined standard deviation and that row is dropped, while
+            under 'iqr' its quartiles collapse onto the value and it is kept.
+        threshold (float): Multiplier on the IQR (default 1.5), or the z-score
+            cutoff. Under 'zscore' an outlier inflates its own group's standard
+            deviation, so the usual cutoffs keep far more than 'iqr' does on the
+            same data. Values below zero are not rejected: under 'iqr' a
+            negative threshold inverts the band into an empty interval and every
+            group with a nonzero IQR loses all of its rows, and ``0`` under
+            'zscore' keeps only rows sitting exactly on the group mean.
 
     Returns:
         pd.DataFrame: A DataFrame with outliers removed.

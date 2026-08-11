@@ -276,6 +276,29 @@ def migrate_connection(
     error.  Every selected migration and the final ``user_version`` update
     share one transaction, so an exception leaves both schema and version
     unchanged.
+
+    :param connection: migrated in place.  If it is already inside a
+        transaction the work nests in a ``SAVEPOINT``, so nothing is durable
+        until the caller commits and an outer rollback discards the whole
+        migration.  A read-only connection is only safe when nothing needs
+        applying; otherwise SQLite raises ``OperationalError``.
+    :param target_version: version to stop at.  Below the database's current
+        version is a downgrade and is refused; above ``CURRENT_SCHEMA_VERSION``
+        is refused as well.  Equal to the current version returns an empty
+        report and writes nothing at all -- not even ``application_id``, which
+        is stamped only when a migration actually runs.
+    :param migrations: registry, sorted by version before use, so declaration
+        order does not matter.  Versions 1 through ``target_version`` must all
+        be present and contiguous; entries numbered above it are accepted and
+        never applied.
+    :param path: a label, not an input.  It is never opened and never checked
+        against ``connection``; it only names the database in the too-new
+        error message (``None`` makes that message say ``database``) and is
+        copied verbatim into the report.
+    :raises DatabaseSchemaTooNewError: the database's ``user_version`` exceeds
+        ``CURRENT_SCHEMA_VERSION``.
+    :raises DatabaseMigrationError: for a downgrade, a ``target_version``
+        above this installation's, or a non-contiguous registry.
     """
 
     current = database_schema_version(connection)
@@ -347,7 +370,24 @@ def migrate_database(
     migrations: Sequence[Migration] = MIGRATIONS,
     timeout: float = 30.0,
 ) -> MigrationReport:
-    """Migrate an existing SQLite database path and close it on every path."""
+    """Migrate an existing SQLite database path and close it on every path.
+
+    :param db_path: an existing database file.  It is made absolute but **not**
+        tilde-expanded, so ``~/x.db`` is resolved under the working directory
+        and raises ``FileNotFoundError`` even when the home-relative file
+        exists.  A missing file raises the same and no database is created.
+        The returned report carries the absolute path, not the string given.
+    :param target_version: forwarded to :func:`migrate_connection`, with the
+        same downgrade and upper-bound rules.
+    :param migrations: forwarded to :func:`migrate_connection`, sorted by
+        version and required to be contiguous from 1 through
+        ``target_version``.
+    :param timeout: seconds SQLite waits for a lock, and only that; it does not
+        bound the migration itself.  A negative value is silently clamped to 0,
+        which makes locking non-blocking, while a non-numeric value raises
+        ``ValueError``.
+    :raises FileNotFoundError: ``db_path`` is not an existing file.
+    """
 
     path = os.path.abspath(os.fspath(db_path))
     if not os.path.isfile(path):
