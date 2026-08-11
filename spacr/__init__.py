@@ -144,6 +144,10 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "sp_stats",
     "sim",
     "object",
+    # The one registry of what object kinds exist. Eleven modules used to
+    # spell the vocabulary out independently and now derive from this, so it
+    # is imported by nearly everything that touches a mask.
+    "object_roles",
     # Image I/O against the two standards a lab is most likely to already be
     # keeping plates in. Both sit behind optional extras, so importing either
     # without its dependency names the `pip install "spacr[...]"` that fixes
