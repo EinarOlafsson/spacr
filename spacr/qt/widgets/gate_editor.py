@@ -1997,6 +1997,12 @@ class _ClusterSettingsDialog(QDialog):
         self._walk.toggled.connect(self._walk_steps.setEnabled)
         form.addRow("walk steps", self._walk_steps)
 
+        #: Not offered again here -- the algorithm is a Gate Settings
+        #: decision, and this dialog is the per-run tuning of it. Carried so
+        #: the run uses the method that was chosen, which is the whole
+        #: defect: the picker existed and `cluster_gates` ran DBSCAN anyway.
+        self._method = str(_setting("cluster_method"))
+
         buttons = QDialogButtonBox(QDialogButtonBox.Ok
                                    | QDialogButtonBox.Cancel)
         buttons.accepted.connect(self.accept)
@@ -2017,6 +2023,9 @@ class _ClusterSettingsDialog(QDialog):
 
     def walk_steps(self) -> int:
         return int(self._walk_steps.value())
+
+    def method(self) -> str:
+        return self._method
 
 
 class GateEditorPanel(QWidget):
@@ -2290,7 +2299,8 @@ class GateEditorPanel(QWidget):
                 candidates = cluster_walk_candidates(
                     frame, x_column, y_column,
                     eps=eps, min_samples=dialog.min_samples(),
-                    scale=dialog.scale(), steps=dialog.walk_steps())
+                    scale=dialog.scale(), steps=dialog.walk_steps(),
+                    method=dialog.method())
                 chosen = best_cluster_candidate(candidates)
                 if chosen is None:
                     # Named rather than silently falling back to the typed
@@ -2311,7 +2321,8 @@ class GateEditorPanel(QWidget):
             found = cluster_gates(
                 frame, x_column, y_column,
                 eps=eps, min_samples=dialog.min_samples(),
-                scale=dialog.scale(), parent=self.canvas.active_gate())
+                scale=dialog.scale(), method=dialog.method(),
+                parent=self.canvas.active_gate())
         except ClusterError as exc:
             # Named, not swallowed: every one of these messages says what to
             # change, and a silent empty result reads as a broken button.
