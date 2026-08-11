@@ -251,11 +251,23 @@ def _load_images_and_labels(image_files, label_files, invert=False):
     from cellpose import io as cellpose_io
     from .utils import invert_image
     
+    # THE NAMES ARE BUILT BESIDE THE PIXELS, one append each, never
+    # separately. They used to be `sorted(basename(f) for f in image_files)`
+    # while `images` was filled in the CALLER's order, and the caller shuffles:
+    # `spacr_cellpose.py:169` and `:296` do `random.shuffle(all_image_files)`
+    # before calling here. `identify_masks_finetune` then writes each mask as
+    # `os.path.join(dst, image_names[file_index])` over `enumerate(images)`, so
+    # every mask landed under a DIFFERENT image's filename -- a whole plate of
+    # segmentations silently attributed to the wrong wells.
+    #
+    # Sorting was only half of it. Each loop below `continue`s past a file that
+    # will not read, which shortened `images` while the precomputed name list
+    # kept every entry, so one unreadable file misnamed every mask after it
+    # even when the input was already in order.
     images = []
     labels = []
-
-    image_names = sorted([os.path.basename(f) for f in image_files]) if image_files else []
-    label_names = sorted([os.path.basename(f) for f in label_files]) if label_files else []
+    image_names = []
+    label_names = []
 
     if image_files and label_files:
         for img_file, lbl_file in zip(image_files, label_files):
@@ -275,6 +287,8 @@ def _load_images_and_labels(image_files, label_files, invert=False):
 
             images.append(image)
             labels.append(label)
+            image_names.append(os.path.basename(img_file))
+            label_names.append(os.path.basename(lbl_file))
 
     elif image_files:
         for img_file in image_files:
@@ -287,6 +301,7 @@ def _load_images_and_labels(image_files, label_files, invert=False):
             if image.max() > 1:
                 image = image / image.max()
             images.append(image)
+            image_names.append(os.path.basename(img_file))
 
     elif label_files:
         for lbl_file in label_files:
@@ -295,6 +310,7 @@ def _load_images_and_labels(image_files, label_files, invert=False):
                 print(f"WARNING: Could not load label: {lbl_file}")
                 continue
             labels.append(label)
+            label_names.append(os.path.basename(lbl_file))
 
     image_dir = os.path.dirname(image_files[0]) if image_files else None
     label_dir = os.path.dirname(label_files[0]) if label_files else None
