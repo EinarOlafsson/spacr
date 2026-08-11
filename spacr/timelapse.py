@@ -1808,20 +1808,28 @@ def summarize_per_well(peak_details_df):
 
     # Step 3: how many CELLS the well holds.
     #
-    # Counted on 'ID', not 'object_number'. `object_number` is the label the
-    # segmenter assigned WITHIN A FIELD and it restarts at 1 in every field,
-    # while `well_ID` is row+column and spans all of them -- so nunique()
-    # returned the size of the well's largest field. A well imaged as 4
-    # fields of ~60 cells holds ~240 and reported ~60, and since
-    # `peaks_per_well` counts every peak in the whole well, peaks_per_cell
-    # came out four times too high: 480/60 = 8 rather than 480/240 = 2.
+    # FIELD + OBJECT, and it has to be exactly that pair -- both halves are
+    # load-bearing and each one alone is wrong in a different direction.
     #
-    # 'ID' is plate_row_column_field_object, so it identifies one object
-    # across the whole plate. Two lines above, `unique_IDs_with_amplitude`
-    # already counts it that way; this is the same count without the
-    # amplitude filter.
+    # `object_number` alone UNDERCOUNTS. It is the label the segmenter
+    # assigned within a FIELD and restarts at 1 in every one, while `well_ID`
+    # is row+column and spans them all, so nunique() returned the size of the
+    # well's largest field. Four fields of ~60 cells is ~240, reported as
+    # ~60, and peaks_per_cell came out four times too high.
+    #
+    # `ID` alone OVERCOUNTS on timelapse data. A timelapse key carries the
+    # timepoint -- plate1_r1_c1_f1_t3_o7 -- so the same tracked cell at t3
+    # and t4 counts as two, and peaks_per_cell comes out too LOW.
+    # `test_a_timelapse_object_key_keeps_its_timepoint_out_of_the_identity`
+    # states the contract: the object key identifies a TRACK.
+    #
+    # field + object is right for both: the field disambiguates the
+    # restarting labels, and the timepoint is left out of the identity.
+    peak_details_df['_field_object'] = (
+        peak_details_df['fieldID'].astype(str) + '_'
+        + peak_details_df['object_number'].astype(str))
     summary_df_2 = peak_details_df.groupby('well_ID').agg(
-        cells_per_well=('ID', 'nunique'),
+        cells_per_well=('_field_object', 'nunique'),
     ).reset_index()
 
     # Join on well_ID rather than assigning the column positionally: summary_df is
@@ -1863,12 +1871,13 @@ def summarize_per_well_inf_non_inf(peak_details_df):
     numeric_cols = peak_details_df.select_dtypes(include=['number']).columns
 
     # Step 3: Calculate summary statistics
-    # 'ID', not 'object_number' -- see summarize_per_well for the arithmetic.
-    # object_number restarts at 1 in every field, so counting it per well
-    # returned the largest field's size and made peaks_per_cell too high by
-    # roughly the number of fields.
+    # field + object, not object_number and not ID -- see summarize_per_well
+    # for why each alone is wrong in a different direction.
+    peak_details_df['_field_object'] = (
+        peak_details_df['fieldID'].astype(str) + '_'
+        + peak_details_df['object_number'].astype(str))
     summary_df = peak_details_df.groupby(['well_ID', 'infected_status']).agg(
-        cells_per_well=('ID', 'nunique'),
+        cells_per_well=('_field_object', 'nunique'),
         peaks_per_well=('ID', 'size'),
         **{col: (col, 'mean') for col in numeric_cols}
     ).reset_index()
