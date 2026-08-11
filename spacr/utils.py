@@ -3503,16 +3503,25 @@ def _split_data(df, group_by, object_type):
     df_numeric = df.select_dtypes(include=np.number)
     df_non_numeric = df.select_dtypes(exclude=np.number)
 
-    # Define keywords for columns to be summed instead of averaged
+    # Columns SUMMED rather than averaged when several children roll up onto
+    # one cell.
+    #
+    # AREAS SUM, LENGTHS DO NOT. Four pathogens in a cell occupy the sum of
+    # their areas -- that is a real quantity of the cell. They do not have a
+    # combined major axis: two nuclei each 10 units long are not one nucleus
+    # 20 units long, and `perimeter`, `equivalent_diameter` and the axis
+    # lengths are all shape descriptors of an INDIVIDUAL object. Averaging
+    # gives "the typical nucleus in this cell", which is the only reading
+    # that means anything.
+    #
+    # `perimeter`, `major_axis_length`, `minor_axis_length` and
+    # `equivalent_diameter` were on this list and are deliberately off it
+    # (maintainer's call, 2026-08-11). Anything matching `area` stays.
     sum_keywords = [
         'area',
-        'perimeter',
         'convex_area',
         'bbox_area',
         'filled_area',
-        'major_axis_length',
-        'minor_axis_length',
-        'equivalent_diameter'
     ]
 
     # Create a dictionary for custom aggregation
