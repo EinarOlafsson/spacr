@@ -45,7 +45,8 @@ WHAT THE STATE IS
 The editable source is present under
 `/mnt/firecuda2/Claude/toxoplasma_projects/tutorials`. It generates the
 HTML/CSS/JavaScript player, 69 catalogued lessons, posters, silent video,
-54 narration voices across eight languages with timing JSON, and translated
+53 release-approved narration voices across eight languages with timing JSON,
+and translated
 lesson/caption catalogs. The player synchronizes the separate narration and
 silent video by playback rate and stores theme, progress, language, voice,
 quality, and caption preferences in localStorage.
@@ -61,7 +62,7 @@ aborted whenever the lesson or voice changes.
 
 Sphinx does not copy the complete production library. The current media policy
 stages the player, posters, captions, and 1440p silent videos, with no narration
-duplicated into GitHub Pages. All 54 voices, their timing sidecars, and the 4K
+duplicated into GitHub Pages. All 53 supported voices, their timing sidecars, and the 4K
 masters are served from Hugging Face. `.github/workflows/docs.yml` builds on
 main and nightly but deploys GitHub Pages only from main.
 
@@ -1931,3 +1932,68 @@ rather than prescribe one eps/min-samples pair.
 
 STILL OPEN, and it is most of the instruction: the 16 replacement lessons,
 the three missing ones, and the acceptance gates at the end of this file.
+
+--------------------------------------------------------------------------------
+2026-08-11 - AUTHORITATIVE ENGLISH NARRATION CONTRACT (SUPERSEDES OLD AUDIO NOTES)
+--------------------------------------------------------------------------------
+
+The user reported that classifier, PyPI, assay, and preprocessing still sounded
+wrong; some word endings seemed cut off; and cadence sometimes sounded rushed
+or unnatural. Earlier sections of this file describe the previous renderer and
+are retained as history, but their "pie pee" and waveform-shortening advice is
+obsolete. PyPI's official pronunciation is "pie pea eye". Synthesis now uses
+one cohesive `pie-P-I` token and never shortens, splices, or time-compresses a
+rendered vowel.
+
+English pronunciation is a synthesis-only layer. Captions keep their written
+spelling. US and UK voices receive dialect-appropriate forms for assay,
+classify/classifier, preprocessing, and other audited technical terms. CPU and
+NVIDIA remain cohesive dictionary tokens; CUDA is one `koo-duh` token. The
+lexicon also covers GitHub, Qt, Conda/conda-forge, t-SNE, napari, Slurm,
+macOS, PyTorch, XGBoost, Cellpose, and actual catalog words missing from the
+phonemizer. A full US/UK catalog pass must produce no unknown or empty tokens.
+
+Narration is rendered sentence by sentence. Model-generated edge silence is
+trimmed only as one contiguous slice, retaining 100 ms before first activity
+and 180 ms after last activity; active speech is never cut or cross-faded.
+Sentences within a scene have a 400 ms audible gap, and scene transitions target
+730-800 ms. Each voice uses one measured, uniform base speed. The experimental
+word-WPM scene profile is retained as audit data but disabled: an independent
+phone-rate pass showed that scene-level speed changes increased acoustic
+variation, dragged syllables in short-word scenes, and shortened technical-word
+endings. `af_nicole` is retired from the player because its very long internal
+pauses cannot be repaired with a natural scalar speed. The
+supported release matrix is therefore 53 voices across eight languages: 27
+English and 26 localized voices, or 3,657 lesson/voice tracks.
+
+Each render fingerprint binds the exact narration plan, language code,
+pronunciation and cadence source, effective speed, model config and weights,
+voice tensor, library/tool versions, CPU/GPU device, FFmpeg identity, and
+mastering settings. Inputs are frozen at process start and a source change
+during a render or verification aborts the run. Media and timing sidecars are
+written through non-publishable `.part` files and atomically replaced only
+after decode, peak, byte-count, and SHA-256 validation.
+
+The release verifier must strictly decode all 3,657 supported AAC tracks,
+reject decoder warnings as well as nonzero exits, compare decoded samples with
+sidecars, require per-scene activity, and bind current English media to exact
+catalog scenes, sentence timings, fingerprints, hashes, and byte counts. For
+this English-only rebuild, the publication gate is:
+
+    python tools/verify_audio_release.py --workers 16 --freshness-languages en
+
+The player treats narration as the 1x master clock and adjusts only the silent
+video. It parks the video on its final frame without pausing narration, lets a
+native Pause control pause both clocks, and resets both clocks on replay.
+English captions use the exact sentence intervals from the timing sidecar;
+legacy/localized captions retain a safe fallback. The browser and renderer
+sentence splitters must agree on all catalog scenes, including `.run`,
+`install.log`, and UI labels such as "Model B."
+
+This section records the implementation contract, not publication success.
+Before marking it complete, force-render all 27 supported English voices,
+rerender all 69 timing-dependent silent masters from the final `af_heart`
+timings, pass the strict release verifiers and listening checks, upload exact
+artifacts to Hugging Face, publish the derived GitHub Pages bundle, and verify
+smooth playback, pause/end/replay, pronunciation, and captions in a phone-sized
+browser against the live URLs.
