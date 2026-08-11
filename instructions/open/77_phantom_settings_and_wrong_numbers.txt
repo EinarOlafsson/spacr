@@ -873,3 +873,41 @@ notice. The fix needs the actual child-column convention: whether merged
 child columns carry a table prefix, and whether the `*_count` columns are the
 honest test for "no children" (count of 0 or NaN) rather than any NaN scan.
 Establish that first, then fix. Do not change the `how` on its own.
+
+--------------------------------------------------------------------------------
+2026-08-11 - crop_source IS NOT A DEFECT. THE FINDING IS WRONG.
+--------------------------------------------------------------------------------
+
+The report said `crop_source='on_demand'` and `'generate'` are "silently
+ignored and run as pre_generated". I believed it, checked with
+
+    grep -rn "resolve_source\|crops_from_merged\|select_crops" spacr/
+
+got one hit (classify.py's validator) and concluded there was no consumer. I
+then made `validate` REFUSE both values rather than let them silently train
+on the wrong images.
+
+That broke a working feature, and `tests/test_crop_source.py::
+test_validate_passes_a_workable_on_demand_setup` failed immediately.
+
+THE WIRING EXISTS. `tests/test_crop_source_wiring.py` is 800 lines pinning
+it, built on real projects written by `measure._measure_crop_core`:
+
+    test_tar_from_merged_is_pixel_identical_to_the_png_folder
+    test_training_split_from_merged_is_pixel_identical
+    test_umap_runs_with_no_png_folder_and_no_png_list
+
+A crop cut on demand is byte-for-byte what the PNG folder holds for the same
+object, so a model trained through either source is comparable. The image
+UMAP and both Classify dataset builders read merged arrays. My grep missed it
+because the consumers do not go through the three function names I searched
+for.
+
+Reverted. Nothing to fix here.
+
+WHAT THIS COSTS THE REST OF THE LIST. Two of the 24 are now disproven --
+`remove_outliers` (unreachable) and this one (not a defect at all) -- and
+both were disproven by CHECKING, not by re-reading the report. The finders
+were right about a great deal; they were also confidently wrong twice. Every
+remaining item gets the same treatment before it gets a fix: find the test
+that already covers it, and make it fail first.
