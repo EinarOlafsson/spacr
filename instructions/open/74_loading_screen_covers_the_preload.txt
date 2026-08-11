@@ -30,7 +30,7 @@ preload is triggered right away its fine." The work is not too slow; it is
 badly timed. A freeze during a screen that says LOADING is not a freeze.
 
 --------------------------------------------------------------------------------
-WHAT TO BUILD
+WHAT TO DO
 --------------------------------------------------------------------------------
 
 1. START THE PRELOAD IMMEDIATELY, not on a 1500 ms timer. The delay exists
@@ -71,7 +71,7 @@ WHAT TO BUILD
    translation).
 
 --------------------------------------------------------------------------------
-WHAT WILL BREAK IF THIS IS DONE CARELESSLY
+WHY IT MATTERS
 --------------------------------------------------------------------------------
 
   * A modal or blocking splash in a HEADLESS TEST hangs the suite forever.
@@ -104,3 +104,55 @@ Not started. Related: 55 (which measured the stalls and whose four-option
 trade this decision settles -- none of them, cover it instead), 65
 (translation coverage for the new string), 32 (the aurora rays, whose visual
 language the progress indicator should borrow rather than reinvent).
+
+--------------------------------------------------------------------------------
+2026-08-10 - BUILT. ONE CRITERION MET AND MEASURED; ONE NOT VERIFIABLE YET.
+--------------------------------------------------------------------------------
+
+MET, and this is the criterion the instruction exists for:
+
+    stalls over 50 ms after the cover comes down    0
+    (before: 2164 ms at 4982 ms, 888 ms at 5986 ms)
+
+Robust to machine load, because it measures gaps RELATIVE to the moment the
+cover is removed rather than absolute times.
+
+WHAT SHIPPED
+  * `spacr/qt/widgets/loading_screen.py` -- full-window cover, the installer
+    icon's own #003737 (sampled from app_icon.ico, not guessed), the white
+    mark, and the strap line beside it.
+  * Progress is the product's own sentence: the three phases light in turn
+    over a denominator known before the first import, with a hairline rule
+    beneath. No spinner pretending to know.
+  * `_PipelinePreloader` starts on `singleShot(0)` instead of 1500 ms and
+    reports `on_step`/`on_done`. Imports stay on the MAIN thread -- a worker
+    races Qt's GPU init and segfaults, which is why this is covered rather
+    than moved.
+  * Returns None under the offscreen platform, so the qt suite is untouched.
+  * The strap line is one string in one place, translated in all nine
+    languages, and the home hero now renders it -- it previously had its own
+    literal that had DRIFTED ("single-cell measurements" vs "single-cell
+    image analysis", "genotype-phenotype" vs "genotype-to-phenotype"), so a
+    user saw two different claims about the product within five seconds.
+
+NOT VERIFIABLE TODAY: "time-to-first-paint must not regress". Measured 5850
+ms as the MINIMUM of five runs, against ~1270 ms recorded earlier -- but the
+box is at load average 36 with a concurrent session running
+`tools/build_i18n_catalogs.py` across ~26 cores. Min-of-N does not rescue a
+measurement when every run competes; it only rescues one where some runs get
+a clear window.
+
+DO NOT READ 5850 ms AS A REGRESSION, and do not "fix" it. This file has
+already recorded one false 2x regression taken at load 33. Re-measure on an
+idle box with:
+
+    DISPLAY=:0 python <a script that times import->MainWindow->show->processEvents>
+
+and compare against the 501/731/36 ms breakdown in instruction 55. THAT is
+the number that decides this criterion.
+
+REMAINING, small: the loading screen paints its own colours directly rather
+than taking them from the palette. The instruction asked for the green to go
+into the palette so it themes with everything else. It is deliberately one
+colour today -- the installer's -- but the palette route is the tidier home
+for it.
