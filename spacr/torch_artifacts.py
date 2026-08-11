@@ -111,7 +111,41 @@ def make_model_artifact(
     include_rng: bool = True,
     artifact_role: str = "model",
 ) -> dict[str, Any]:
-    """Build the canonical serializable spaCR PyTorch artifact."""
+    """Build the canonical serializable spaCR PyTorch artifact.
+
+    Everything needed to REBUILD the model, not only to load its weights:
+    :func:`model_configuration` records the architecture so
+    :func:`build_model_from_configuration` can reconstruct it without the
+    caller remembering what it was.
+
+    :param model: the module to serialise. Its ``state_dict`` and its
+        configuration are both captured.
+    :param optimizer: optimiser whose state to store, so training can RESUME
+        rather than restart. Silently stored as ``None`` if it has no
+        ``state_dict``, which is what makes a plain object safe to pass.
+    :param scheduler: learning-rate scheduler, same contract as ``optimizer``.
+    :param epoch: epoch this artifact was written at. ``None`` records 0.
+    :param metrics: whatever the caller measured, stored verbatim. Not
+        interpreted, so the keys are the caller's own.
+    :param best_metric: the best value seen so far, for checkpoint selection
+        on resume. ``None`` means "no best recorded", which is not the same
+        as zero.
+    :param epochs_without_improvement: early-stopping counter, carried so a
+        resumed run does not forget how close it was to stopping.
+    :param preprocessing: the transform the inputs were prepared with.
+        Without it a loaded model can be fed differently-normalised images
+        and will simply be wrong rather than fail.
+    :param classes: class names in OUTPUT-COLUMN order. The order is the
+        contract -- a reordered list silently relabels every prediction.
+    :param channels: input channel names, in channel order, same contract.
+    :param include_rng: capture Python/NumPy/torch RNG state, so a resumed
+        run continues the same stream. Turn it off for a smaller artifact
+        when exact resumption does not matter.
+    :param artifact_role: what this file IS -- ``model`` for a trained
+        model, another role for a companion artifact -- recorded so a loader
+        can tell them apart.
+    :returns: the artifact dict, ready for :func:`atomic_torch_save`.
+    """
     optimizer_state = (
         optimizer.state_dict()
         if optimizer is not None and hasattr(optimizer, "state_dict")
