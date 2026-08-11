@@ -3766,6 +3766,53 @@ def _significance_marker(p_value):
         return '*'
     return 'ns'
 
+
+def _welch_anova(grouped_data):
+    """Welch's one-way ANOVA: the >2-group answer when variances differ.
+
+    ``scipy.stats.f_oneway`` assumes equal variance across groups, the same
+    assumption Levene's test exists to check. When Levene rejects it, this is
+    the standard replacement -- it weights each group by ``n / variance`` and
+    corrects the denominator degrees of freedom, so an arm with both a
+    different spread and a different size stops borrowing significance from
+    the others.
+
+    Computed here rather than through pingouin's ``welch_anova`` because that
+    one wants a long-form frame and a formula; this takes the same list of
+    arrays every other branch already built.
+
+    :param grouped_data: one 1-D array-like of values per group.
+    :returns: ``(F, p)``, or ``(nan, nan)`` when fewer than two groups carry
+        the variance the statistic divides by.
+    """
+    from scipy.stats import f
+
+    groups = [np.asarray(values, dtype=float) for values in grouped_data]
+    groups = [values[np.isfinite(values)] for values in groups]
+    groups = [values for values in groups
+              if values.size >= 2 and np.var(values, ddof=1) > 0]
+    k = len(groups)
+    if k < 2:
+        return np.nan, np.nan
+
+    n = np.array([values.size for values in groups], dtype=float)
+    mean = np.array([values.mean() for values in groups])
+    var = np.array([values.var(ddof=1) for values in groups])
+
+    w = n / var
+    w_sum = w.sum()
+    grand = (w * mean).sum() / w_sum
+
+    numerator = (w * (mean - grand) ** 2).sum() / (k - 1)
+    lam = ((1.0 - w / w_sum) ** 2 / (n - 1.0)).sum()
+    denominator = 1.0 + (2.0 * (k - 2.0) / (k ** 2 - 1.0)) * lam
+    statistic = numerator / denominator
+
+    df2 = (k ** 2 - 1.0) / (3.0 * lam)
+    p_value = f.sf(statistic, k - 1, df2)
+    return float(statistic), float(p_value)
+
+
 class spacrGraph:
     """Grouped plot + statistical-test helper for spacr experiment DataFrames.
 
@@ -4029,6 +4076,39 @@ class spacrGraph:
         stat, p_value = levene(*grouped)
         return stat, p_value
 
+    def _equal_variance(self, column, unique_groups, alpha=0.05):
+        """Does Levene's test allow the equal-variance assumption for ``column``?
+
+        PER COLUMN, unlike :meth:`perform_levene_test`, which only ever looks
+        at ``data_column[0]`` while :meth:`perform_statistical_tests` loops
+        over every column. Answering once for the first column and applying it
+        to the rest would trade one wrong assumption for another.
+
+        :param column: the measurement being tested.
+        :param unique_groups: the groups being compared.
+        :param alpha: significance at which unequal variance is accepted.
+        :returns: True when variances may be treated as equal -- including
+            when Levene cannot be computed at all, because the equal-variance
+            test is the historical behaviour and silently switching to Welch's
+            on a degenerate group would change old numbers for no evidence.
+        """
+        grouped = [
+            self.df.loc[self.df[self.grouping_column] == group,
+                        column].dropna()
+            for group in unique_groups
+        ]
+        if (len(grouped) < 2
+                or any(len(values) < 2 for values in grouped)
+                or not any(values.nunique() > 1 for values in grouped)):
+            return True
+        try:
+            _stat, p_value = levene(*grouped)
+        except Exception:
+            return True
+        if not np.isfinite(p_value):
+            return True
+        return bool(p_value >= alpha)
+
     def perform_statistical_tests(self, unique_groups, is_normal):
         """Perform statistical tests separately for each data column.
 
@@ -4073,8 +4153,18 @@ class spacrGraph:
                         stat, p = pg.ttest(grouped_data[0], grouped_data[1], paired=True).iloc[0][['T', 'p-val']]
                         test_name = 'Paired T-test'
                     else:
-                        stat, p = ttest_ind(grouped_data[0], grouped_data[1])
-                        test_name = 'T-test'
+                        # Levene's test used to be computed and thrown away,
+                        # and this line ran Student's t-test regardless
+                        # (scipy's equal_var defaults to True). So the
+                        # assumption was tested, the answer discarded, and the
+                        # test that assumes it run anyway -- which inflates
+                        # significance exactly when the groups differ in
+                        # spread, the common case for a treated arm.
+                        equal_var = self._equal_variance(column, unique_groups)
+                        stat, p = ttest_ind(grouped_data[0], grouped_data[1],
+                                            equal_var=equal_var)
+                        test_name = ('T-test' if equal_var
+                                     else "Welch's T-test")
                 else:
                     if self.paired:
                         # pingouin's wilcoxon statistic column is 'W-val'; 'T'
@@ -4102,16 +4192,25 @@ class spacrGraph:
                                 grouped_data[0], grouped_data[1])
             else:
                 if is_normal:
-                    test_name = 'One-way ANOVA'
                     parametric_testable = (
                         all(len(values) >= 2 for values in grouped_data)
                         and any(values.nunique() > 1
                                 for values in grouped_data)
                     )
                     if parametric_testable:
-                        stat, p = f_oneway(*grouped_data)
+                        # Same correction as the two-group branch: f_oneway is
+                        # the equal-variance ANOVA, so when Levene rejects
+                        # that, use Welch's.
+                        equal_var = self._equal_variance(column, unique_groups)
+                        if equal_var:
+                            stat, p = f_oneway(*grouped_data)
+                            test_name = 'One-way ANOVA'
+                        else:
+                            stat, p = _welch_anova(grouped_data)
+                            test_name = "Welch's ANOVA"
                     else:
                         stat, p = np.nan, np.nan
+                        test_name = 'One-way ANOVA'
                 else:
                     test_name = 'Kruskal-Wallis test'
                     if (any(len(values) == 0 for values in grouped_data)
@@ -4346,7 +4445,12 @@ class spacrGraph:
         self.df_melted = pd.melt(self.df, id_vars=[self.grouping_column], value_vars=self.data_column,var_name='Data Column', value_name='Value')
         unique_groups = self.df[self.grouping_column].unique()
         is_normal, normality_results = self.perform_normality_tests()
-        levene_stat, levene_p = self.perform_levene_test(unique_groups)
+        # The equal-variance check now happens inside
+        # `perform_statistical_tests`, PER COLUMN, and decides between the
+        # Student and Welch forms. It used to be computed here into
+        # `levene_stat, levene_p` and never read again, while the test that
+        # depends on the assumption ran regardless. `perform_levene_test`
+        # stays as public API for callers that want the statistic itself.
         test_results = self.perform_statistical_tests(unique_groups, is_normal)
         posthoc_results = self.perform_posthoc_tests(is_normal, unique_groups)
         self.results_df = pd.DataFrame(normality_results + test_results + posthoc_results)
