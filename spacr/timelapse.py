@@ -1806,9 +1806,22 @@ def summarize_per_well(peak_details_df):
         **{col: (col, 'mean') for col in numeric_cols}  # exclude 'amplitude' from averaging if it's numeric
     ).reset_index()
 
-    # Step 3: Calculate summary statistics
+    # Step 3: how many CELLS the well holds.
+    #
+    # Counted on 'ID', not 'object_number'. `object_number` is the label the
+    # segmenter assigned WITHIN A FIELD and it restarts at 1 in every field,
+    # while `well_ID` is row+column and spans all of them -- so nunique()
+    # returned the size of the well's largest field. A well imaged as 4
+    # fields of ~60 cells holds ~240 and reported ~60, and since
+    # `peaks_per_well` counts every peak in the whole well, peaks_per_cell
+    # came out four times too high: 480/60 = 8 rather than 480/240 = 2.
+    #
+    # 'ID' is plate_row_column_field_object, so it identifies one object
+    # across the whole plate. Two lines above, `unique_IDs_with_amplitude`
+    # already counts it that way; this is the same count without the
+    # amplitude filter.
     summary_df_2 = peak_details_df.groupby('well_ID').agg(
-        cells_per_well=('object_number', 'nunique'),
+        cells_per_well=('ID', 'nunique'),
     ).reset_index()
 
     # Join on well_ID rather than assigning the column positionally: summary_df is
@@ -1850,8 +1863,12 @@ def summarize_per_well_inf_non_inf(peak_details_df):
     numeric_cols = peak_details_df.select_dtypes(include=['number']).columns
 
     # Step 3: Calculate summary statistics
+    # 'ID', not 'object_number' -- see summarize_per_well for the arithmetic.
+    # object_number restarts at 1 in every field, so counting it per well
+    # returned the largest field's size and made peaks_per_cell too high by
+    # roughly the number of fields.
     summary_df = peak_details_df.groupby(['well_ID', 'infected_status']).agg(
-        cells_per_well=('object_number', 'nunique'),
+        cells_per_well=('ID', 'nunique'),
         peaks_per_well=('ID', 'size'),
         **{col: (col, 'mean') for col in numeric_cols}
     ).reset_index()
