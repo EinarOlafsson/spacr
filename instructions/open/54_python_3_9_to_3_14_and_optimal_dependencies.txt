@@ -168,3 +168,64 @@ the code is fine, and the answer lives in a file nobody reads.
 WHAT REMAINS OF THIS INSTRUCTION is the actual Python-range question: 3.10
 is still absent from the matrix and 3.9 is covered only by this one job.
 That is unchanged.
+
+--------------------------------------------------------------------------------
+2026-08-11 - 3.9 AND 3.10 ARE GREEN. THE PREDICTION IN THIS FILE WAS WRONG.
+--------------------------------------------------------------------------------
+
+The note above said to EXPECT THE WIDENED JOB TO GO RED FIRST, on the theory
+that the scientific stack might not publish wheels for 3.9 or 3.10. Checked
+the actual runs. It did not:
+
+    3.9  installs, from wheels only    success
+    3.10 installs, from wheels only    success
+    3.11 .. 3.14                       success
+
+All six interpreters spaCR claims resolve to wheels with no compiler. The
+honest conclusion is the one the file said to draw if the job went green:
+`requires-python = ">=3.9,<3.15,!=3.14.1"` is a claim spaCR can keep, and
+nothing needs narrowing. That question is CLOSED.
+
+TWO THINGS THAT LOOKED LIKE FINDINGS AND WERE NOT, recorded so the next
+person does not spend the same hour:
+
+  * Every one of the 51 declared floors has a release inside its declared
+    range that supports every claimed interpreter -- checked against PyPI
+    metadata directly, not inferred. No floor is declared above what its
+    package can deliver on 3.9.
+
+  * A stricter local check with `--only-binary=:all:` DOES fail, on trackpy,
+    on every Python including 3.12. That is not a 3.9 problem and not a
+    defect: trackpy has shipped sdist-only since 0.5.0, as have
+    matplotlib-venn and GPUtil, and the workflow already documents all three
+    as pure-Python exceptions. `--only-binary=:all:` is the wrong proxy for
+    "needs no compiler"; a pure-Python sdist needs none. The job's own
+    formulation is the correct one.
+
+WHAT IS ACTUALLY LEFT, now that the range question is settled:
+
+  1. The FULL SUITE still runs on 3.11-3.14 only; 3.9 and 3.10 are covered
+     by install-and-import, not by tests. That is a smaller gap than this
+     file has been claiming -- "does it install" was the open question and
+     is now answered -- but it is still a gap.
+  2. "Optimal" is STILL undefined, and this is now the largest open piece.
+     The PyPI audit shows the two readings genuinely diverge: on 3.9 the
+     newest resolvable IPython is 8.18.1, on 3.11+ it is 9.16.1; matplotlib
+     3.9.4 versus 3.11.1; llvmlite 0.43 versus 0.48. So "newest that passes"
+     is not one version set, it is one per interpreter, and a lockfile
+     claiming otherwise would be wrong on 3.9. Decide and write it down.
+
+--------------------------------------------------------------------------------
+2026-08-11 - AND A REGRESSION I CAUSED, FOUND BY LOOKING AT THIS
+--------------------------------------------------------------------------------
+
+Reading the matrix to answer the above showed all six cells failing on the
+same step, control included. That is the signature of one broken test, not a
+platform problem, and it was mine: `spacr/object_roles.py` (instruction 76)
+was not registered in `spacr._SUBMODULES`, and `test_smoke.py::
+test_lazy_loader_matches_files` asserts every `spacr/*.py` is reachable
+through the lazy loader. Fixed in 00feb743.
+
+Worth keeping for the method rather than the bug: I verified that commit
+against a scoped test selection, and a NEW FILE is precisely the failure a
+scoped selection cannot see. Adding a module means running the smoke suite.
