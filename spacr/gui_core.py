@@ -761,6 +761,60 @@ def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var,
     progress_bar = progress_bar_var
     usage_bars = usage_bars_var
 
+def _restore_module_defaults(variables, settings):
+    """Re-assert THIS module's own default over settings_spec's special_cases.
+
+    `convert_settings_dict_for_gui` replaces the caller's declared value with
+    a canned row whenever the key is in its ``special_cases`` table::
+
+        if key in special_cases:
+            variables[key] = special_cases[key]   # the supplied value is dropped
+
+    That table is ONE ROW PER KEY FOR THE WHOLE APP, so it hands Cellpose
+    Masks ``'[0,1,2,3]'`` where `get_identify_masks_finetune_default_settings`
+    declares ``[0, 0]``. Opening the Tk panel and pressing Run without
+    touching anything therefore segmented on four channels when the module's
+    own defaults asked for one.
+
+    Qt already corrects this locally in `SettingsWidgets._make_widget`, whose
+    comment names this same case. Tk never got the equivalent, so it is added
+    here rather than inside `convert_settings_dict_for_gui`: that function's
+    "special cases ignore the supplied value" contract is deliberately pinned
+    by a test, and changing it would reach every other caller.
+
+    The declared default is ADDED to the options, not substituted for them.
+    `create_input_field` falls back to ``options[0]`` for a value it does not
+    recognise, and for ``channels`` that is ``'[0,1,2,3,4,5,6,7,8]'`` -- worse
+    than what it replaced.
+
+    :param variables: ``{key: (widget_kind, options, value)}`` from
+        `convert_settings_dict_for_gui`.
+    :param settings: the module's own defaults, which are the authority here.
+    :returns: a new mapping with each module default restored and offered.
+    """
+    def _same(a, b):
+        # '[0,1,2,3]' and [0, 1, 2, 3] are the same choice written two ways.
+        # Comparing them raw would "restore" a spelling difference and add a
+        # near-duplicate option that differs only in whitespace.
+        return str(a).replace(" ", "") == str(b).replace(" ", "")
+
+    restored = {}
+    for key, spec in variables.items():
+        if key not in settings or not isinstance(spec, tuple) or len(spec) != 3:
+            restored[key] = spec
+            continue
+        kind, options, value = spec
+        declared = settings[key]
+        if _same(declared, value):
+            restored[key] = spec
+            continue
+        if isinstance(options, (list, tuple)) and options:
+            if not any(_same(declared, option) for option in options):
+                options = [str(declared)] + list(options)
+        restored[key] = (kind, options, declared)
+    return restored
+
+
 def import_settings(settings_type='mask'):
     """Prompt for a settings CSV and rebuild the settings panel with its values.
 
@@ -873,6 +927,8 @@ def import_settings(settings_type='mask'):
         raise ValueError(f"Invalid settings type: {settings_type}")
     
     variables = convert_settings_dict_for_gui(settings)
+    # Before the CSV is applied, so a value the CSV supplies still wins.
+    variables = _restore_module_defaults(variables, settings)
     new_settings = update_settings_from_csv(variables, csv_settings)
     vars_dict = generate_fields(new_settings, scrollable_frame)
     vars_dict = hide_all_settings(vars_dict, categories=None)
@@ -947,6 +1003,7 @@ def setup_settings_panel(vertical_container, settings_type='mask', tick_callback
         raise ValueError(f"Invalid settings type: {settings_type}")
 
     variables = convert_settings_dict_for_gui(settings)
+    variables = _restore_module_defaults(variables, settings)
     vars_dict = generate_fields(variables, scrollable_frame, tick_callback=tick_callback)
 
     containers = [settings_frame]
