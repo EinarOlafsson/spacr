@@ -129,6 +129,25 @@ def preprocess_generate_masks(settings):
     # real CellVoyager data. Enable v2 explicitly with
     # pipeline_style='v2'. See spacr.pipeline_v2 for design notes.
     if settings.get('pipeline_style', 'v1') == 'v2':
+        # THE DEFAULTS, BEFORE ANYTHING READS THE DICT. This branch returns
+        # at the end, and `set_default_settings_preprocess_generate_masks` is
+        # only called further down inside the per-source loop -- which v2
+        # never reaches. So every `settings.get(key, fallback)` below was
+        # answering with its own inline fallback rather than the declared
+        # default.
+        #
+        # One of them changes segmentation: `cell_FT` is declared 1.0 and the
+        # fallback here was 0.4, and it goes straight to
+        # `model.eval(flow_threshold=...)`. Cellpose's remove_bad_flow_masks
+        # drops a mask whose flow error exceeds the threshold, so on a field
+        # with per-object flow errors {0.0, 0.12, 0.30, 0.75} the v1 pipeline
+        # keeps four cells and this branch kept three -- same plate, same
+        # settings dict, same weights.
+        #
+        # Both helpers are setdefault-only and idempotent, so the later call
+        # on the v1 path is unaffected.
+        settings = set_default_settings_preprocess_generate_masks(settings)
+        settings = _set_organelle_defaults(settings)
         from .pipeline_v2 import run_v2
         from ._v1_v2_bridge import (
             v2_channels_from_settings, report_disk_savings,
