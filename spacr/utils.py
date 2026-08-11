@@ -3296,6 +3296,50 @@ def _pivot_counts_table(db_path):
     pivoted_df.to_sql('pivoted_counts', conn, if_exists='replace', index=False)
     conn.close()
     
+#: The order the merged stack's channel axis is built in, and the ONLY order
+#: that describes it. `io.preprocess_img_data` walks these four settings in
+#: exactly this sequence and assigns each new raw channel the next dense
+#: position (`seen[ch] = len(mask_channels)`), so the axis is in ROLE order,
+#: deduplicated -- not in ascending channel order.
+MASK_CHANNEL_ROLE_ORDER = ("nucleus_channel", "cell_channel",
+                           "pathogen_channel", "organelle_channel")
+
+
+def dense_mask_channel_positions(settings):
+    """Map each RAW channel index to its position on the merged stack's axis.
+
+    Built the same way `io.preprocess_img_data` builds the stack, because
+    that is the only thing that makes the answer true: walk the roles in
+    :data:`MASK_CHANNEL_ROLE_ORDER` and give each newly seen raw channel the
+    next dense position.
+
+    THE TRAP THIS EXISTS TO CLOSE. Several callers computed the position as
+    ``sorted({nucleus, cell, pathogen, organelle})`` instead, which agrees
+    with role order only when the roles happen to be in ascending channel
+    order. With ``nucleus_channel=2, cell_channel=0, organelle_channel=1``
+    the stack is ``[2, 0, 1]`` -- raw channel 1 sits at position 2 -- while
+    the sorted reading says position 1, which holds the CELL image. Cellpose
+    then segments organelles on the cell plane, silently, and every count and
+    intensity downstream is measured from the wrong masks.
+
+    :param settings: the run settings, holding the raw ``*_channel`` keys.
+    :returns: ``{raw_channel: dense_position}``. Channels that are None or
+        uncoercible are absent, matching the writer's own behaviour.
+    """
+    positions = {}
+    for key in MASK_CHANNEL_ROLE_ORDER:
+        raw = settings.get(key)
+        if raw is None:
+            continue
+        try:
+            raw = int(raw)
+        except (TypeError, ValueError):
+            continue
+        if raw not in positions:
+            positions[raw] = len(positions)
+    return positions
+
+
 def _get_cellpose_channels(settings):
     """Return the channel indices to extract and the per-object-type Cellpose channel remap."""
     nucleus_ch = settings.get('cellpose_nucleus_channel')
