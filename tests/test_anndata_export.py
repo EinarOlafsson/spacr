@@ -1263,11 +1263,37 @@ def test_the_result_describes_what_happened():
                              obsm_keys=("X_umap",), artifact_id="abc")
     text = result.describe()
     assert "10 objects x 4 features" in text
-    assert "filtered from 100" in text
-    assert "drop_features" in text
     assert "X_umap" in text
     assert "abc" in text
-    assert result.frac_missing == pytest.approx(8 / 40)
+    # `n_missing` is counted BEFORE the policy runs, so it is a fraction of
+    # the matrix the policy was handed -- the 10 x 4 that was written plus
+    # the 3 rows and 2 columns the policy removed. This asserted 8 / (10 * 4)
+    # and so pinned the defect that made `drop_objects` print 114.3%.
+    assert result.counted_shape == (13, 6)
+    assert result.frac_missing == pytest.approx(8 / 78)
+    # 87 of the 100 objects went to the filter and 3 to the policy; the line
+    # that names the filter counts only the filter's 87.
+    assert "filtered from 100 objects (87 removed)" in text
+    assert "dropped features (nan_policy 'drop_features'): a, b" in text
+    assert "dropped objects (nan_policy 'drop_features'): 3" in text
+
+
+def test_a_record_that_did_not_store_its_counted_shape_infers_it():
+    """An ExportResult from an older spaCR still divides by the right matrix.
+
+    ``n_obs_counted``/``n_vars_counted`` are newer than the record, so they
+    default to 0. ``drop_objects`` is the only policy that removes rows and
+    ``drop_features`` the only one that removes columns, so adding the drops
+    back to the written shape recovers the matrix the count was taken over --
+    which beats falling back to the post-policy shape that caused the bug.
+    """
+    old = ax.ExportResult(path="", n_obs=10, n_vars=4, n_obs_before_filter=13,
+                          n_missing=8, nan_policy=ax.NAN_DROP_OBJECTS,
+                          dropped_objects=3)
+    assert old.counted_shape == (13, 4)
+    assert old.frac_missing == pytest.approx(8 / 52)
+    assert old.frac_missing <= 1.0
+    assert "filtered from" not in old.describe()
 
 
 def test_frac_missing_of_an_empty_export_is_zero_not_a_zero_division():
