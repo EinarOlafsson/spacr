@@ -190,3 +190,47 @@ NOTE THE NEAR-MISS in writing that guard: an unscoped scan for
 10. That is a real difference between two PIPELINES, not a drift between two
 COPIES, and comparing them would have made the guard fail on correct code --
 which is how a guard gets deleted instead of heeded.
+
+--------------------------------------------------------------------------------
+2026-08-11 - STEP 2 DONE: THE REGISTRY EXISTS. AND ONE ALARM STOOD DOWN.
+--------------------------------------------------------------------------------
+
+`spacr/object_roles.py` now holds the membership (commit 5626a99b), split
+into SEGMENTED_ROLES (found in a channel, own mask and detection settings)
+and DERIVED_ROLES (cytoplasm). Eleven modules had spelled the vocabulary out
+independently; membership is now single-source.
+
+ORDER IS DELIBERATELY STILL LOCAL. The eleven agreed on membership and
+DISAGREED ON ORDER -- three orderings of the same five names. The
+merged-array plane order, the object-table order and the crop order are each
+load-bearing where they live, so each module keeps its own and passes it
+through `ordered()`, which validates the names without touching the
+sequence. Unifying them would have been a behaviour change dressed as a
+cleanup, and the snapshot below is what would have caught it.
+
+PROVED BEHAVIOUR-FREE, not assumed: all eleven tuples were captured from a
+running import before the change and every one is byte-identical after.
+`tests/test_object_roles.py` freezes each, so a future reorder fails loudly.
+
+A SIDE BENEFIT WORTH KEEPING: the SEGMENTED/DERIVED split explains something
+this file had listed as an inconsistency. `diameter` and `validate` omit
+cytoplasm not by oversight but because it has no channel to validate and no
+diameter to measure. Both now say `SEGMENTED_ROLES`, and a test pins it so
+nobody "fixes the inconsistency" by adding cytoplasm back.
+
+ALARM STOOD DOWN -- judgement 5 is NOT a present bug. The inventory warned
+that cytoplasm is "cell minus everything else" and must subtract every
+organelle role. Checked both paths:
+
+    measure.py:2748-2755   interior |= organelle_mask != 0, guarded by
+                           settings.get('organelle_mask_dim') is not None
+    crops.py:542           for other in ("nucleus", "pathogen", "organelle")
+
+Today's single organelle IS subtracted correctly. This becomes a defect only
+when a second one exists and the loop still names one -- which is what makes
+it a judgement for this instruction rather than a bug for 07. Do not chase it
+as a current defect.
+
+REMAINING JUDGEMENTS, unchanged: the plane budget being full at 7, the
+`<parent>_organelle_summary` table-name family, the 5-positional measurement
+signatures, and `summarize_organelles_by`'s magic "organelle" member.
