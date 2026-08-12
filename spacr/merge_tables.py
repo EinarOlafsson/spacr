@@ -39,6 +39,8 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
+from .object_roles import (ANCHOR_COLUMN, anchor_column,
+                           is_one_row_per_cell)
 
 LOG = logging.getLogger("spacr.merge_tables")
 
@@ -56,6 +58,15 @@ AGGREGATIONS: Tuple[str, ...] = (SUM, MIN, MAX, MEAN, MEDIAN, FIRST)
 #: question. `min_intensity` is the clearest -- a mean of four minima is not
 #: the minimum of anything.
 AGGREGATION_RULES: Tuple[Tuple[str, str], ...] = (
+    # Identity first, because it must beat every rule below it. A label is a
+    # NAME, not a quantity: averaging the three pathogen labels 1, 2 and 3 in
+    # a cell produces `object_label_pathogen` = 2.0, which looks like a
+    # measurement, plots like one, and can be handed to a model as a feature
+    # -- while naming an object that may not exist. The parent already learns
+    # how many children it had from the count column, so the label is carried
+    # only so a row can be traced back, and it is carried verbatim.
+    (r"(^|_)(object_label|label|id|cell_id|nucleus_id|pathogen_id|"
+     r"organelle_id|cytoplasm_id|parent_id|prcfo|prcf|prc)(_|$)", FIRST),
     (r"(^|_)(count|n_objects|number)(_|$)", SUM),
     (r"(^|_)min(imum)?(_|$)", MIN),
     (r"(^|_)max(imum)?(_|$)", MAX),
@@ -177,7 +188,7 @@ def aggregation_plan(frame: pd.DataFrame, *,
 
 
 def _connect(db_path: str) -> sqlite3.Connection:
-    return sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    return sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=30)
 
 
 def table_names(db_path: str) -> Tuple[str, ...]:
@@ -279,7 +290,13 @@ def roll_up(child: pd.DataFrame, keys: Sequence[str], *,
     out[f"count"] = grouped.size()
     out = out.reset_index()
 
-    renamed = {c: f"{name}_{c}" for c in out.columns if c not in keys}
+    # Measure already writes its columns prefixed -- the nucleus table holds
+    # `nucleus_area`, not `area` -- so prefixing unconditionally would hand
+    # the user `nucleus_nucleus_area` for a measurement they know by another
+    # name. Prefix only what needs it, matching the one-row-per-cell branch
+    # in `merge_tables` so a column has ONE name whichever way it was joined.
+    renamed = {c: f"{name}_{c}" for c in out.columns
+               if c not in keys and not str(c).startswith(f"{name}_")}
     return out.rename(columns=renamed)
 
 
@@ -331,16 +348,42 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
         if table == PNG_TABLE:
             merged = _merge_crops(merged, child, keys)
             continue
-        if PARENT_LINK not in child.columns:
+        # THE ANCHOR HAS TWO NAMES. cell and cytoplasm carry it as
+        # `object_label` -- a cytoplasm is the cell minus its interior
+        # objects, so its own label IS the cell's -- while nucleus, pathogen,
+        # organelle and png_list carry the parent's label in `cell_id`.
+        #
+        # This assumed `cell_id` for every non-primary table, so CYTOPLASM WAS
+        # SILENTLY DROPPED: it logged a line about an unlinkable table and
+        # returned a frame with no cytoplasm columns at all.
+        #
+        # One row per cell also means no roll-up. Aggregating a table that
+        # already has one row per cell is not wrong so much as meaningless,
+        # and it would put the cytoplasm's own measurements through the
+        # sum/mean rules meant for a group of children.
+        anchor = anchor_column(table) if table in ANCHOR_COLUMN else PARENT_LINK
+        if anchor not in child.columns:
             # Measured without a parent mask: the roll-up is not empty, it is
             # UNDEFINED. Named and skipped, exactly as io.py does -- one
             # unlinkable table must not cost the user the others.
-            LOG.info("%s carries no %s, so it cannot be rolled up onto %s; "
-                     "leaving it out", table, PARENT_LINK, policy.primary)
+            LOG.info("%s carries no %s, so it cannot be joined onto %s; "
+                     "leaving it out", table, anchor, policy.primary)
             continue
-        child_keys = _keys_in(child) + [PARENT_LINK]
-        rolled = roll_up(child, child_keys, name=table, policy=policy)
-        rolled = rolled.rename(columns={PARENT_LINK: OBJECT_COLUMN})
+
+        if is_one_row_per_cell(table):
+            # Prefixed like the primary table above, with two exceptions that
+            # would otherwise produce nonsense: the join keys keep their
+            # names, and a column that ALREADY carries the table's name is
+            # left alone -- `cytoplasm_area` must not become
+            # `cytoplasm_cytoplasm_area`.
+            skip = set(_keys_in(child)) | {anchor, "prcf", "prcfo"}
+            rolled = child.rename(
+                columns={c: (c if c.startswith(f"{table}_") else f"{table}_{c}")
+                         for c in child.columns if c not in skip})
+        else:
+            child_keys = _keys_in(child) + [anchor]
+            rolled = roll_up(child, child_keys, name=table, policy=policy)
+            rolled = rolled.rename(columns={anchor: OBJECT_COLUMN})
         on = [c for c in keys + [OBJECT_COLUMN] if c in rolled.columns]
         if OBJECT_COLUMN not in on:
             LOG.info("%s cannot be joined to %s on an object key", table,
