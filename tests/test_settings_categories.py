@@ -182,6 +182,8 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # The one visible choice instruction 72 adds in front of the other 53.
+    "organelle_type",
     # Instruction 71's two opt-in measurements. Both were added to the
     # measure defaults and to NO group, so they fell into the trailing
     # "Other" bucket -- which is not a heading anyone chose, it is the
@@ -536,31 +538,71 @@ def test_every_setting_a_module_offers_has_a_category(app_key):
 
 
 # ---------------------------------------------------------------------------
-# 5. The organelle settings live under one heading
+# 5. The organelle settings live under TWO headings, basic and advanced
 # ---------------------------------------------------------------------------
+# There used to be exactly one, holding FIFTY-THREE settings: the most
+# over-configured object class in the tool, and a biologist who knew they were
+# imaging lysosomes had to scroll past organelle_ridge_sigmas to find the
+# channel. Instruction 72 split it -- six basic, forty-eight advanced.
+#
+# `test_exactly_one_organelle_category` pinned the old shape and is rewritten,
+# not deleted. What it was really protecting is protected below and more
+# strictly: every organelle key must be in exactly ONE of the two, and no key
+# may fall out of both, which is the failure the original was aimed at.
 
-def test_exactly_one_organelle_category():
+ORGANELLE_CATEGORIES = ("Organelle", "Organelle advanced")
+
+
+def test_the_organelle_headings_are_the_two_expected_ones():
     organelle_cats = [c for c in S.categories if "organelle" in c.lower()]
-    assert organelle_cats == ["Organelle"], (
-        f"expected a single 'Organelle' heading, found {organelle_cats}"
+    assert organelle_cats == list(ORGANELLE_CATEGORIES), (
+        f"expected {list(ORGANELLE_CATEGORIES)}, found {organelle_cats}"
     )
 
 
-def test_the_organelle_category_holds_every_organelle_key():
-    organelle = set(S.categories["Organelle"])
+def test_no_organelle_key_is_in_both_headings():
+    basic = set(S.categories["Organelle"])
+    advanced = set(S.categories["Organelle advanced"])
+    both = sorted(basic & advanced)
+    assert not both, f"listed under both headings, so Tk renders it twice: {both}"
+
+
+def test_the_basic_heading_is_short_enough_to_be_the_point():
+    """The deliverable is a NUMBER: 53 settings became 6 visible by default.
+
+    A split that left thirty settings under the first heading would satisfy
+    every other test here and none of the request.
+    """
+    assert len(S.categories["Organelle"]) <= 8, S.categories["Organelle"]
+
+
+def test_the_one_visible_choice_is_in_the_basic_heading():
+    assert "organelle_type" in S.categories["Organelle"]
+
+
+def test_the_two_headings_hold_every_organelle_key():
+    organelle = set(S.categories["Organelle"]) | set(
+        S.categories["Organelle advanced"])
     stray = sorted(k for k in _all_categorised_keys()
                    if k.startswith("organelle_")
                    and k not in organelle
                    and k not in ORGANELLE_KEYS_KEPT_IN_GENERAL)
-    assert not stray, f"organelle settings filed outside 'Organelle': {stray}"
+    assert not stray, f"organelle settings filed outside both headings: {stray}"
     assert ORGANELLE_KEYS_KEPT_IN_GENERAL <= set(S.categories["General"])
 
 
-def test_the_organelle_category_covers_every_organelle_default():
-    """Every key ``_set_organelle_defaults`` fills is offered under the heading."""
+def test_the_headings_cover_every_organelle_default():
+    """Every key ``_set_organelle_defaults`` fills is offered somewhere.
+
+    MOVED, NOT HIDDEN. A setting that leaves the panel while staying in the
+    settings dict is how a run gets a value nobody can see -- this project
+    has eleven phantom settings from exactly that (instruction 61) -- so the
+    advanced half being off the first screen must not mean off the panel.
+    """
     defaults = set(S._set_organelle_defaults({}))
-    missing = sorted(defaults - set(S.categories["Organelle"])
-                     - ORGANELLE_KEYS_KEPT_IN_GENERAL)
+    offered = set(S.categories["Organelle"]) | set(
+        S.categories["Organelle advanced"])
+    missing = sorted(defaults - offered - ORGANELLE_KEYS_KEPT_IN_GENERAL)
     assert not missing, f"organelle defaults with no place in the panel: {missing}"
 
 
@@ -584,9 +626,16 @@ def test_every_dependency_map_names_a_real_category():
     )
 
 
-def test_the_organelle_trigger_reveals_the_merged_category():
+def test_the_organelle_trigger_reveals_both_organelle_categories():
+    """BOTH, not just the first.
+
+    Splitting the category would otherwise leave "Organelle advanced"
+    showing on a run that does no organelle segmentation at all -- the
+    trigger has to reveal everything it gates.
+    """
     assert S.category_integer_dependencies[
-        ("organelle_channel", "organelle_mask_dim")] == ["Organelle"]
+        ("organelle_channel", "organelle_mask_dim")] == [
+            "Organelle", "Organelle advanced"]
 
 
 def test_organelle_method_no_longer_gates_a_category():
@@ -816,6 +865,7 @@ def _rendered_sections(app_key):
             "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
             "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
+            "Organelle Segmentation (advanced)",
             "Quality Control", "Volumetric Processing (Beta)",
             "Time Axes & Tracking (Beta)", "Visualization & Diagnostics",
             "Output & Storage", "Runtime & Reliability",
@@ -830,6 +880,7 @@ def _rendered_sections(app_key):
             "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
             "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
+            "Organelle Segmentation (advanced)",
             "Quality Control", "Tracking Setup", "Tracking Backends",
             "Visualization & Diagnostics", "Output & Storage",
             "Runtime & Reliability",

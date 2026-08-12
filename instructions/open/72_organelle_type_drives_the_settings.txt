@@ -122,3 +122,98 @@ the sub-section structure this should adopt), 71 (which measurements to
 enable per type), 61 (every setting states its default), 37 (the classify
 settings overhaul is the same shape of problem and its scope note is worth
 reading first).
+
+--------------------------------------------------------------------------------
+2026-08-12 - DONE. THE NUMBER IS 53 -> 6.
+--------------------------------------------------------------------------------
+
+(1) INVENTORY, with the number attached as this instruction required.
+FIFTY-THREE `organelle_*` settings reached the mask pipeline. After the split:
+
+    Organelle             6 settings   (organelle_type, diameter,
+                                        mask_within_cells, min_size,
+                                        max_size, remove_border)
+    Organelle advanced   48 settings
+
+Total 54, because `organelle_type` is new. Nothing was removed.
+
+The constraint graph already existed and was READ rather than re-invented:
+`spacr.object._validate_organelle_settings` maps each morphology to its legal
+methods and raises before any image loads.
+
+(2) THE REAL MAPPING. It is (type, size) -> morphology, exactly as this file
+predicted, and two of the nine rows split on size:
+
+    type          small (< 15 px)     large (>= 15 px)    method
+    ----------    ----------------    ----------------    ----------
+    punctate      spots               spots               log
+    vesicular     spots               RING                log
+    spherical     spots               IRREGULAR           otsu
+    filamentous   network             network             ridge
+    tubular       network             network             ridge
+    reticular     network             network             hysteresis
+    cisternal     irregular           irregular           adaptive
+    toroidal      ring                ring                dog
+    crescent      ring                ring                dog
+    custom        -                   -                   -
+
+`RING_RESOLVABLE_PX = 15` is the split point, named and documented rather
+than buried in a branch: at ~100 nm/px it is ~1.5 um, an object whose
+membrane and lumen are several pixels apart. Below it the PSF fills the
+middle and a hollow vesicle is indistinguishable from a solid one.
+
+WHERE THE EVIDENCE IS THIN, THE PRESET SAYS SO, as instructed:
+  * toroidal  -- "THERE IS NO TOROID DETECTOR." ring + shape filter; NPCs are
+                 below the diffraction limit and belong under punctate.
+  * crescent  -- "THERE IS NO CRESCENT DETECTOR." ring with the prominence
+                 lowered so an open arc registers and a convex fill so the
+                 unclosed side does not leak.
+  * cisternal -- no sheet detector; a cisterna in-plane is 'irregular' and
+                 edge-on looks filamentous.
+  * vesicular -- LYSOSOMES are on the maintainer's own Vesicular list and
+                 image as solid blobby. The caveat names them.
+
+Proved rather than asserted: every preset, at eight diameters from 1 to 1000
+px, is fed to the REAL validator. None is rejected.
+
+(3) `organelle_type` ADDED, defaulting to 'custom', which recommends nothing.
+A settings file written before this existed still yields spots/otsu. Its
+tooltip states its default (instruction 61).
+
+(4) PRESET, NOT OVERRIDE. Three tiers, and the ORDER is the design:
+
+        what the USER set     >   what the PRESET advises   >   the DEFAULT
+
+The preset runs FIRST, against the caller's own dict, where the only keys
+present are the ones they chose. Running it after the defaults was the first
+attempt and was wrong: `organelle_method` was already 'otsu', the preset saw
+a set key, kept it, and naming a type did nothing at all.
+
+`verbose` prints what it set, what it KEPT because the user had set it, and
+the caveat.
+
+(5) CATEGORY SPLIT, in the house pattern -- both names in the `categories`
+literal, membership derived from `organelle_types.BASIC_SETTINGS`, the way
+motility's two already work. MOVED, NOT HIDDEN: every advanced setting is
+still in the panel and still editable. Both categories are gated on
+`organelle_channel`, not just the first.
+
+A BUG FOUND AND FIXED WHILE DOING IT, worth recording because it was
+silent: `apply_preset` returns a NEW dict, and every caller does
+`_set_organelle_defaults(settings)` without taking the return value. Rebinding
+the local name threw forty defaults onto a copy -- the mask panel's 53
+organelle settings became 13, with no error. Caught by the category tests,
+now pinned by `test_the_defaults_helper_still_fills_in_place`.
+
+Five tests that encoded "there is exactly one Organelle heading" were
+REWRITTEN, not deleted, and the replacement is stricter: no key may appear
+under both headings, none may fall out of both, and the basic heading must
+stay at or under eight settings -- a split that left thirty under the first
+heading would satisfy every other test and none of the request.
+
+(6) MEASURE SIDE: not done here. Which measurements are meaningful per type
+(neighbour counts mean something for Punctate and nothing for a single
+Reticular network filling the cell) is instruction 71 item 3, and it needs
+the per-instance types of instruction 76 to be worth wiring.
+
+STATUS: DONE except item 6, which is tracked under 71/76.
