@@ -5,9 +5,15 @@ erase-object / magic-wand / zoom-rectangle mouse handling, the zoom
 overlay paint, resize refit) and the screen layer (folder navigation,
 undo/redo wiring, object ops, save, and the *headless-safe* error
 reporting added after a real hang was reproduced — see
-``test_message_box_would_block_headless``).
+``test_a_message_box_has_nobody_to_answer_it_in_this_suite``).
 
-Everything runs under QT_QPA_PLATFORM=offscreen with no modal dialogs.
+No test here may open a modal dialog, on ANY platform. The suite defaults
+to QT_QPA_PLATFORM=offscreen, but it can also be run against a real X
+server (``xvfb-run`` + ``QT_QPA_PLATFORM=xcb``), where ``is_headless()``
+answers False and the screen's error path opens a genuine QMessageBox that
+nobody is there to dismiss. Tests about the no-display branch therefore
+take the ``headless`` fixture rather than inheriting that branch from
+whatever platform plugin happens to be loaded.
 """
 from __future__ import annotations
 
@@ -150,16 +156,47 @@ def screen(qtbot, qt_theme_applied, folder_3: Path):
 # The bug that motivated the headless-safe messaging
 # ===========================================================================
 
-def test_message_box_would_block_headless(qt_theme_applied):
+def test_a_message_box_has_nobody_to_answer_it_in_this_suite(qt_theme_applied):
     """Documents *why* make_masks must not call QMessageBox directly.
 
-    Under the offscreen platform plugin nobody can dismiss a modal box, so
-    ``QMessageBox.exec()`` never returns. We assert the platform really is
-    headless rather than actually hanging the suite to prove it.
+    Under the offscreen plugin nobody can dismiss a modal box, so
+    ``QMessageBox.exec()`` never returns. This test used to prove that by
+    asserting ``platformName() == "offscreen"``, and that proxy stopped
+    being true on 2026-08-12, when the suite was first run under a REAL X
+    server (``xvfb-run`` with ``QT_QPA_PLATFORM=xcb``). Xvfb IS a display as
+    far as Qt is concerned, so ``is_headless()`` correctly answered False,
+    the screen correctly opened its modal — and six tests in this file hung
+    a full-suite run until the worker was killed, because an Xvfb display
+    has no more of a human in front of it than an offscreen one.
+
+    So the platform name was never the property worth pinning. Two are:
+    the product branches on the display it can actually detect, and NO test
+    in this suite can be left holding an unanswerable modal. The second is
+    enforced globally by ``_no_unguarded_modals`` in ``tests/qt/conftest.py``
+    — including the static convenience constructors, which build the box and
+    spin its event loop inside C++ where a patched ``exec`` never sees them.
     """
-    from PySide6.QtWidgets import QApplication
-    assert QApplication.instance().platformName() == "offscreen"
-    assert is_headless() is True
+    from PySide6.QtWidgets import QApplication, QMessageBox
+    platform = str(QApplication.instance().platformName()).strip().lower()
+    assert is_headless() is (not platform or platform in mm._HEADLESS_PLATFORMS)
+    assert getattr(QMessageBox.warning, "_spacr_modal_guard", False), (
+        "the static message boxes are unguarded — this file hangs instead "
+        "of failing whenever it runs on a platform Qt calls a display")
+
+
+@pytest.fixture
+def headless(monkeypatch):
+    """Pin the no-display branch instead of inheriting it from the platform.
+
+    The mirror image of ``fake_box`` below, and it exists for the same
+    reason: a test about a branch should choose that branch. These tests
+    used to get the headless branch for free because the suite always ran
+    offscreen, and the day it was run under ``xvfb-run`` with a real xcb
+    platform they stopped testing what they name and started opening real
+    modal dialogs with nobody to click them.
+    """
+    monkeypatch.setattr(mm, "is_headless", lambda: True)
+    return True
 
 
 @pytest.mark.parametrize("platform_name, expected", [
@@ -629,7 +666,7 @@ def fake_box(monkeypatch):
     return _FakeBox
 
 
-def test_warn_falls_back_to_status_line_when_headless(screen, caplog):
+def test_warn_falls_back_to_status_line_when_headless(screen, headless, caplog):
     with caplog.at_level("WARNING", logger="spacr.qt.make_masks"):
         screen._warn("Load failed", "boom")
     assert screen._status_label.text() == "Load failed: boom"
@@ -642,7 +679,7 @@ def test_warn_uses_message_box_when_a_display_exists(screen, fake_box):
     assert screen._status_label.text() == "Save failed: disk on fire"
 
 
-def test_confirm_refuses_when_headless(screen):
+def test_confirm_refuses_when_headless(screen, headless):
     assert screen._confirm("Clear mask", "sure?") is False
     assert "no display" in screen._status_label.text()
 
@@ -658,7 +695,7 @@ def test_confirm_returns_user_answer_when_a_display_exists(screen, fake_box):
 # Screen — clear mask
 # ===========================================================================
 
-def test_clear_mask_is_not_performed_without_confirmation(screen):
+def test_clear_mask_is_not_performed_without_confirmation(screen, headless):
     screen._canvas.mask[10:20, 10:20] = 255
     before = screen._canvas.mask.copy()
     screen._on_clear_mask()                        # headless -> declined
@@ -703,7 +740,7 @@ def test_clear_mask_without_an_image_is_a_noop(qtbot, qt_theme_applied):
 # ===========================================================================
 
 def test_load_failure_clears_canvas_and_blocks_a_stale_save(
-        qtbot, qt_theme_applied, folder_corrupt_second: Path):
+        qtbot, qt_theme_applied, headless, folder_corrupt_second: Path):
     """Regression: on a read error the canvas kept the *previous* field's
     mask while _current_index already pointed at the failed file, so
     Save wrote the wrong mask out under the new filename."""
@@ -730,7 +767,7 @@ def test_load_failure_clears_canvas_and_blocks_a_stale_save(
     )
 
 
-def test_save_failure_is_reported_not_raised(qtbot, qt_theme_applied,
+def test_save_failure_is_reported_not_raised(qtbot, qt_theme_applied, headless,
                                              folder_3: Path):
     # A regular file where the masks/ directory needs to go.
     (folder_3 / "masks").write_text("not a directory")
@@ -744,7 +781,7 @@ def test_save_failure_is_reported_not_raised(qtbot, qt_theme_applied,
 
 
 def test_open_folder_without_images_reports_and_keeps_empty_state(
-        qtbot, qt_theme_applied, tmp_path: Path):
+        qtbot, qt_theme_applied, headless, tmp_path: Path):
     empty = tmp_path / "nothing"
     empty.mkdir()
     (empty / "readme.txt").write_text("no pictures here")
