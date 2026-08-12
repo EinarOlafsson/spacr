@@ -5,9 +5,10 @@ const BASE_CATALOG = window.SPACR_LESSON_CATALOG;
 const DEFAULT_LANGUAGE = "en";
 const DEFAULT_VOICE = "af_heart";
 const PRODUCTION_ROOT = document.documentElement.dataset.productionRoot || "../production";
-// Narration is served separately from the video. All 54 voices are 2,662 MiB,
-// which no GitHub Pages site can carry -- publishing one voice per language
-// was the only way to fit, and it left 27 of the 28 English voices unusable.
+// Narration is served separately from the video. The 50 supported voices are
+// collectively too large for a GitHub Pages site. Publishing one voice per
+// language was the only way to fit, and it left 23 of 24 English voices
+// unusable.
 // Pointing narration at external storage removes that constraint entirely:
 // the audio, its timing sidecars, and nothing else resolve against this root.
 // Video, posters and captions stay on Pages, so a lesson still plays if the
@@ -115,7 +116,16 @@ let programmedVideoRate = 1;
 // heard as a skip, repeated consonant, or stretched syllable. The silent
 // visual master can absorb a sub-frame correction without an audible cost.
 const VIDEO_CLOCK_DRIFT_SECONDS = 0.4;
+const VIDEO_END_PARK_SECONDS = 0.10;
+const VIDEO_END_PARK_RATE = 0.0625;
 let videoClockCorrectionPending = false;
+// A localized narration can outlast the silent visual master. The video stays
+// genuinely playing at a browser-safe minimum rate near its final frame so
+// native phone controls still offer a truthful Pause button while audio ends.
+let videoParkedForNarration = false;
+let narratedPlaybackCompleted = false;
+let programmaticVideoPlayPending = false;
+let programmaticVideoPausePending = false;
 let captionUrl = "";
 let captionTrackLoading = false;
 let toastTimer = null;
@@ -608,7 +618,7 @@ async function applyQualityChange() {
   if (activeLesson?.id !== lessonId) return;
 
   if (resumeAt > 0 && resumeAt < elements.video.duration - 0.25) {
-    elements.video.currentTime = resumeAt;
+    setVideoTimeWithoutNarrationSeek(resumeAt);
   }
   configureMediaSync();
   elements.loading.classList.add("hidden");
@@ -866,6 +876,8 @@ function mediaReadyOrDeferred(media, timeoutMs = 1500) {
 
 async function loadReadyLesson() {
   const lessonId = activeLesson.id;
+  videoParkedForNarration = false;
+  narratedPlaybackCompleted = false;
   elements.loading.classList.remove("hidden");
   elements.video.poster = `${PRODUCTION_ROOT}/${activeLesson.poster}`;
   elements.video.src = videoSource();
@@ -877,7 +889,9 @@ async function loadReadyLesson() {
   if (!isCurrent()) return;
   await mediaReady(elements.video);
   if (!isCurrent()) return;
-  if (saved > 0 && saved < elements.video.duration - 0.25) elements.video.currentTime = saved;
+  if (saved > 0 && saved < elements.video.duration - 0.25) {
+    setVideoTimeWithoutNarrationSeek(saved);
+  }
   configureMediaSync();
   elements.loading.classList.add("hidden");
   updateWatchUI();
@@ -888,6 +902,8 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
   const isCurrent = () => request === narrationRequest && outerCurrent();
   const wasPlaying = resume && !elements.video.paused;
   const normalized = elements.video.duration ? elements.video.currentTime / elements.video.duration : 0;
+  videoParkedForNarration = false;
+  narratedPlaybackCompleted = false;
   if (narrationFetchController) narrationFetchController.abort();
   narrationFetchController = null;
   discardNarrationAudio();
@@ -937,7 +953,7 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
       discardNarrationAudio();
       showToast("Narration is unavailable; the GitHub-hosted video remains available.");
     }
-    elements.video.currentTime = normalized * elements.video.duration;
+    setVideoTimeWithoutNarrationSeek(normalized * elements.video.duration);
     configureMediaSync();
     await loadLessonDetail(isCurrent);
     if (!isCurrent()) return;
@@ -953,6 +969,7 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
 function configureMediaSync() {
   if (!narrationAudioAvailable || !elements.audio.duration ||
       !elements.video.duration || elements.voice.value === "silent") {
+    videoParkedForNarration = false;
     syncRate = 1;
     programmedVideoRate = 1;
     elements.video.defaultPlaybackRate = 1;
@@ -964,6 +981,104 @@ function configureMediaSync() {
   elements.audio.volume = elements.video.volume;
   elements.audio.muted = elements.video.muted;
   seekNarrationToVideo();
+}
+
+function narrationOwnsCompletion() {
+  return narrationAudioAvailable && elements.voice.value !== "silent" &&
+    Number.isFinite(elements.audio.duration) && elements.audio.duration > 0 &&
+    !elements.audio.ended;
+}
+
+function shouldPauseNarrationForVideoPause(
+  narrationIsCompletionClock,
+  videoIsEnded
+) {
+  return !(narrationIsCompletionClock && videoIsEnded);
+}
+
+function narratedVideoPlayAction(
+  programmaticPlay,
+  completedNarration,
+  parkedForNarration
+) {
+  if (programmaticPlay) return "programmatic";
+  if (completedNarration) return "replay";
+  if (parkedForNarration) return "resume";
+  return "sync";
+}
+
+function setVideoTimeWithoutNarrationSeek(target) {
+  if (!Number.isFinite(elements.video.duration)) return;
+  const bounded = clamp(target, 0, elements.video.duration);
+  if (Math.abs(elements.video.currentTime - bounded) <= 0.005) return;
+  videoClockCorrectionPending = true;
+  elements.video.currentTime = bounded;
+}
+
+function playVideoWithoutNarrationSync() {
+  if (!elements.video.paused) return;
+  programmaticVideoPlayPending = true;
+  elements.video.play().catch(() => {
+    programmaticVideoPlayPending = false;
+  });
+}
+
+function parkVideoForNarration(force = false) {
+  if (!narrationOwnsCompletion() || !Number.isFinite(elements.video.duration) ||
+      elements.video.duration <= 0) return false;
+  if (!force && videoParkedForNarration) return true;
+  if (!force) {
+    // timeupdate can be sparse on phones and the visual rate can be high.
+    // Enter the park early enough to prevent the next tick crossing EOF.
+    const guard = Math.max(0.12, elements.video.playbackRate * 0.35);
+    if (elements.video.currentTime < elements.video.duration - guard) return false;
+  }
+  videoParkedForNarration = true;
+  narratedPlaybackCompleted = false;
+  programmedVideoRate = VIDEO_END_PARK_RATE;
+  elements.video.defaultPlaybackRate = VIDEO_END_PARK_RATE;
+  if (Math.abs(elements.video.playbackRate - VIDEO_END_PARK_RATE) > 0.001) {
+    elements.video.playbackRate = VIDEO_END_PARK_RATE;
+  }
+  setVideoTimeWithoutNarrationSeek(
+    Math.max(0, elements.video.duration - VIDEO_END_PARK_SECONDS)
+  );
+  // If a sparse phone timeupdate allowed natural EOF first, restart only the
+  // parked video clock. The still-audible narration clock is never sought.
+  playVideoWithoutNarrationSync();
+  return true;
+}
+
+function finishNarratedPlayback() {
+  if (narrationAudioAvailable && elements.voice.value !== "silent") {
+    videoParkedForNarration = false;
+    narratedPlaybackCompleted = true;
+    const videoWasPlaying = !elements.video.paused;
+    if (videoWasPlaying) {
+      programmaticVideoPausePending = true;
+      elements.video.pause();
+    }
+    if (Number.isFinite(elements.video.duration) && elements.video.duration > 0) {
+      setVideoTimeWithoutNarrationSeek(elements.video.duration);
+    }
+  }
+  markCompleteAtEnd();
+}
+
+function restartNarratedPlayback() {
+  narratedPlaybackCompleted = false;
+  videoParkedForNarration = false;
+  if (Number.isFinite(elements.audio.duration) && elements.audio.duration > 0) {
+    elements.audio.currentTime = 0;
+  }
+  setVideoTimeWithoutNarrationSeek(0);
+  programmedVideoRate = 1;
+  elements.video.defaultPlaybackRate = 1;
+  elements.video.playbackRate = 1;
+  updateSceneSyncRate(0);
+  elements.audio.play()
+    .then(() => syncVideoToNarration(true))
+    .catch(() => showToast("Select play again to start narration."));
 }
 
 function timingDuration(timings, fallback = 0) {
@@ -1037,7 +1152,8 @@ function updateSceneSyncRate(audioSeconds) {
 // an explicit video seek or a load/resume boundary. Normal playback flows in
 // the other direction: stable narration time drives the silent video.
 function seekNarrationToVideo() {
-  if (!narrationAudioAvailable || elements.voice.value === "silent" ||
+  if (videoParkedForNarration || !narrationAudioAvailable ||
+      elements.voice.value === "silent" ||
       !elements.audio.duration || !elements.video.duration) return;
   const target = audioTimeFromVideo(elements.video.currentTime);
   if (Math.abs(elements.audio.currentTime - target) > 0.015) {
@@ -1047,7 +1163,8 @@ function seekNarrationToVideo() {
 }
 
 function setVideoTimeFromNarration(target) {
-  if (!elements.video.duration || videoClockCorrectionPending) return;
+  if (videoParkedForNarration || !elements.video.duration ||
+      videoClockCorrectionPending) return;
   const bounded = Math.min(
     Math.max(0, target), Math.max(0, elements.video.duration - 0.02));
   if (Math.abs(elements.video.currentTime - bounded) <= 0.015) return;
@@ -1056,7 +1173,8 @@ function setVideoTimeFromNarration(target) {
 }
 
 function syncVideoToNarration(force = false) {
-  if (!narrationAudioAvailable || elements.voice.value === "silent" ||
+  if (videoParkedForNarration || !narrationAudioAvailable ||
+      elements.voice.value === "silent" ||
       !elements.audio.duration || !elements.video.duration) return;
   const audioSeconds = elements.audio.currentTime;
   const target = videoTimeFromAudio(audioSeconds);
@@ -1130,8 +1248,74 @@ function clearCaptions() {
 }
 
 function splitCaptionText(text) {
-  const sentences = String(text).match(/[^.!?。！？।]+(?:[.!?。！？।]+|$)/gu) || [String(text)];
-  return sentences.map(sentence => sentence.trim()).filter(Boolean);
+  const source = String(text).trim();
+  if (!source) return [];
+  const abbreviations = new Set([
+    "dr.", "fig.", "i.e.", "jr.", "mr.", "mrs.", "ms.", "no.",
+    "prof.", "sr.", "st.", "vs.", "e.g."
+  ]);
+  const closings = /["'”’)\]}]+$/gu;
+  const openings = /^["'“‘({\[]+/gu;
+  const sentences = [];
+  let start = 0;
+  for (const whitespace of source.matchAll(/\s+/gu)) {
+    const boundary = Number(whitespace.index);
+    const prefix = source.slice(start, boundary).trimEnd();
+    if (!prefix) continue;
+    const bare = prefix.replace(closings, "");
+    const terminal = bare.slice(-1);
+    if (!".!?。！？।".includes(terminal)) continue;
+    if (terminal === ".") {
+      const lower = bare.toLowerCase();
+      const token = lower.match(/(?:^|\s)([^\s]+)$/u)?.[1] || lower;
+      const modelLabel = /\bmodel\s+[a-z]\.$/u.test(lower);
+      if (!modelLabel && (abbreviations.has(token) || /^(?:[a-z]\.)+$/u.test(token))) {
+        continue;
+      }
+    }
+    const following = source.slice(boundary + whitespace[0].length)
+      .replace(openings, "");
+    if (!following || !(/^[A-Z0-9]/u.test(following) || /^spaCR\b/u.test(following))) {
+      continue;
+    }
+    sentences.push(source.slice(start, boundary).trim());
+    start = boundary + whitespace[0].length;
+  }
+  sentences.push(source.slice(start).trim());
+  return sentences.filter(Boolean);
+}
+
+function captionCueIntervals(chapter, timing, sentences) {
+  const precise = Array.isArray(timing?.sentences) ? timing.sentences : [];
+  let previousEnd = chapter.start;
+  const preciseIsUsable = precise.length === sentences.length && precise.every(item => {
+    const start = Number(item?.speech_start);
+    const end = Number(item?.speech_end);
+    const valid = Number.isFinite(start) && Number.isFinite(end) && end > start &&
+      start >= previousEnd - 0.001 && start >= chapter.start - 0.001 &&
+      end <= chapter.end + 0.001;
+    previousEnd = end;
+    return valid;
+  });
+  if (preciseIsUsable) {
+    return sentences.map((text, index) => ({
+      start: Number(precise[index].speech_start),
+      end: Number(precise[index].speech_end),
+      text
+    }));
+  }
+
+  const weights = sentences.map(sentence => Math.max(1, [...sentence].length));
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+  const duration = Math.max(0, chapter.end - chapter.start);
+  let cursor = chapter.start;
+  return sentences.map((text, index) => {
+    const end = index === sentences.length - 1
+      ? chapter.end : cursor + duration * weights[index] / totalWeight;
+    const cue = { start: cursor, end, text };
+    cursor = end;
+    return cue;
+  });
 }
 
 function renderCaptions() {
@@ -1144,20 +1328,14 @@ function renderCaptions() {
   let cueIndex = 0;
   chapterData.forEach(chapter => {
     const sentences = splitCaptionText(chapter.text);
-    const weights = sentences.map(sentence => Math.max(1, [...sentence].length));
-    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
-    const duration = Math.max(0, chapter.end - chapter.start);
-    let cursor = chapter.start;
-    sentences.forEach((sentence, index) => {
-      const end = index === sentences.length - 1
-        ? chapter.end : cursor + duration * weights[index] / totalWeight;
+    const timing = audioTimings?.scenes?.[chapter.index - 1];
+    captionCueIntervals(chapter, timing, sentences).forEach(cue => {
       lines.push(
         String(++cueIndex),
-        `${vttTime(videoTimeFromAudio(cursor))} --> ${vttTime(videoTimeFromAudio(end))}`,
-        sentence.replaceAll("-->", "→"),
+        `${vttTime(videoTimeFromAudio(cue.start))} --> ${vttTime(videoTimeFromAudio(cue.end))}`,
+        cue.text.replaceAll("-->", "→"),
         ""
       );
-      cursor = end;
     });
   });
   captionUrl = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/vtt" }));
@@ -1448,6 +1626,25 @@ function resetCaptionAppearance() {
 
 elements.search.addEventListener("input", event => renderCurriculum(event.target.value));
 elements.video.addEventListener("play", () => {
+  const action = narratedVideoPlayAction(
+    programmaticVideoPlayPending,
+    narratedPlaybackCompleted,
+    videoParkedForNarration
+  );
+  if (action === "programmatic") {
+    programmaticVideoPlayPending = false;
+    return;
+  }
+  if (action === "replay") {
+    restartNarratedPlayback();
+    return;
+  }
+  if (action === "resume") {
+    elements.audio.play()
+      .catch(() => showToast("Select play again to start narration."));
+    return;
+  }
+  videoParkedForNarration = false;
   seekNarrationToVideo();
   if (narrationAudioAvailable) {
     elements.audio.play()
@@ -1455,9 +1652,28 @@ elements.video.addEventListener("play", () => {
       .catch(() => showToast("Select play again to start narration."));
   }
 });
-elements.video.addEventListener("pause", () => { elements.audio.pause(); saveWatchPosition(); });
+elements.video.addEventListener("pause", () => {
+  if (programmaticVideoPausePending) {
+    programmaticVideoPausePending = false;
+    return;
+  }
+  // A sparse phone tick can still reach natural EOF before parking; that
+  // browser-generated pause must not clip narration. A parked video remains
+  // genuinely playing, so every native user pause has video.ended === false
+  // and pauses both clocks here.
+  if (shouldPauseNarrationForVideoPause(
+    narrationOwnsCompletion(), elements.video.ended
+  )) {
+    elements.audio.pause();
+    saveWatchPosition();
+  }
+});
 elements.video.addEventListener("seeking", () => {
-  if (!videoClockCorrectionPending) seekNarrationToVideo();
+  if (!videoClockCorrectionPending) {
+    videoParkedForNarration = false;
+    narratedPlaybackCompleted = false;
+    seekNarrationToVideo();
+  }
 });
 elements.video.addEventListener("seeked", () => {
   if (videoClockCorrectionPending) {
@@ -1467,7 +1683,7 @@ elements.video.addEventListener("seeked", () => {
   seekNarrationToVideo();
 });
 elements.video.addEventListener("timeupdate", () => {
-  syncVideoToNarration(false);
+  if (!parkVideoForNarration(false)) syncVideoToNarration(false);
   updateWatchUI();
 });
 elements.video.addEventListener("volumechange", () => { elements.audio.volume = elements.video.volume; elements.audio.muted = elements.video.muted; });
@@ -1485,8 +1701,10 @@ elements.video.addEventListener("ratechange", () => {
     }
   }
 });
-elements.video.addEventListener("ended", markCompleteAtEnd);
-elements.audio.addEventListener("ended", markCompleteAtEnd);
+elements.video.addEventListener("ended", () => {
+  if (!parkVideoForNarration(true)) markCompleteAtEnd();
+});
+elements.audio.addEventListener("ended", finishNarratedPlayback);
 elements.audio.addEventListener("timeupdate", () => {
   syncVideoToNarration(false);
   updateWatchUI();
@@ -1505,6 +1723,9 @@ elements.audio.addEventListener("error", () => {
   // This catches a deferred phone decoder failure after the player is ready.
   if (!narrationAudioAvailable || !elements.audio.getAttribute("src")) return;
   narrationAudioAvailable = false;
+  videoParkedForNarration = false;
+  narratedPlaybackCompleted = false;
+  programmaticVideoPlayPending = false;
   discardNarrationAudio();
   configureMediaSync();
   showToast("Narration is unavailable; the GitHub-hosted video remains available.");
