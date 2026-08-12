@@ -2564,7 +2564,8 @@ def _report_fan_out(left, merged, join_cols, left_name='cell',
 def _read_and_join_tables(db_path, table_names=None,
                           duplicate_column_policy='warn',
                           keep_uninfected=True,
-                          collapse_duplicate_identity=True):
+                          collapse_duplicate_identity=True,
+                          require_crops=True):
     """
     Reads and joins tables from a SQLite database.
 
@@ -2581,6 +2582,13 @@ def _read_and_join_tables(db_path, table_names=None,
     :mod:`spacr.anndata_export` does: its ``drop_redundant_identity=False``
     is documented to keep them, and a collapse here would have made that
     option a no-op.
+
+    ``require_crops=False`` is for a caller whose analysis does not need a
+    picture: a UMAP of MEASUREMENTS is still valid for an object whose crop
+    never wrote, and dropping it silently shrinks the embedding. The default
+    keeps the inner join, because the callers that do need a crop -- the
+    classifier, the annotator, the image grids -- are the majority and
+    carrying an unusable row into them is what that join prevents.
 
     **Which cells survive a join is a decision, not a default.** A cell with
     no nucleus is debris, and a cell with no crop cannot be classified, so
@@ -2724,7 +2732,8 @@ def _read_and_join_tables(db_path, table_names=None,
                 dataframes['cell'],
                 png_list_df,
                 on=join_cols,
-                how=join_how('png_list', keep_uninfected=keep_uninfected),
+                how=(join_how('png_list', keep_uninfected=keep_uninfected)
+                     if require_crops else 'left'),
                 validate='one_to_one',
                 left_name='cell',
                 right_name='png_list',
