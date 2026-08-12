@@ -353,6 +353,19 @@ def test_calculate_similarity_reports_and_returns_on_assignment_failure(capsys):
         def _constructor(self):
             return _ExplodingFrame
 
+        def _constructor_from_mgr(self, mgr, axes):
+            # Required on pandas 2.2.x, harmless on 2.3+. A subclass that
+            # overrides only `_constructor` sends pandas down
+            # `self._constructor(mgr)` on every internal reconstruction, and
+            # 2.2 DeprecationWarns there ("Passing a BlockManager to
+            # _ExplodingFrame is deprecated"). The min-deps CI job pins the
+            # declared floor pandas==2.2.1 and turns warnings into errors, so
+            # this test failed there and nowhere else -- a property of the
+            # fixture, not of spacr.ml. pandas 2.3 stopped warning; overriding
+            # the hook is what makes the fixture correct on BOTH, and it
+            # preserves the subclass either way.
+            return _ExplodingFrame._from_mgr(mgr, axes=axes)
+
         def __setitem__(self, key, value):
             if key == "similarity_to_pos_cosine":
                 raise RuntimeError("synthetic assignment failure")

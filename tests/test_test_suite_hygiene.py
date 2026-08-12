@@ -1231,3 +1231,102 @@ def test_the_cellpose_mock_ratchet_is_empty_and_stays_that_way():
     assert CELLPOSE_MOCK_RATCHET == {}
     assert CELLPOSE_MOCK_CEILING == 0
     assert not _cellpose_mock_offenders()
+
+
+# ---------------------------------------------------------------------------
+# 4. A DataFrame subclass that only overrides `_constructor`.
+#
+# This one only fails on the OLDEST pandas spaCR supports, which is what made
+# it worth a rule. A subclass that overrides `_constructor` and nothing else
+# sends pandas down `self._constructor(mgr)` on every internal
+# reconstruction. pandas 2.2 DeprecationWarns there ("Passing a BlockManager
+# to <Subclass> is deprecated"); pandas 2.3 stopped. setup.py declares
+# `pandas>=2.2.1`, the "Minimum dependencies" CI job installs exactly that,
+# and it turns warnings into errors -- so
+# `test_cov_ml_shap_vision.py::test_calculate_similarity_reports_and_returns_
+# on_assignment_failure` failed on that one job and passed everywhere else,
+# looking like a spacr.ml defect and being a property of the fixture.
+#
+# `_constructor_from_mgr` exists on pandas 2.2 and 2.3 alike and preserves
+# the subclass on both, so overriding it is not a workaround for an old
+# pandas -- it is the correct way to subclass a DataFrame across the declared
+# range.
+# ---------------------------------------------------------------------------
+
+def _dataframe_subclass_offenders(modules=None):
+    """(file, class) for every tests/ DataFrame subclass missing the hook."""
+    def _label(path):
+        try:
+            return _rel(path)
+        except ValueError:      # a synthetic module outside tests/
+            return str(path)
+
+    offenders = []
+    for path in (modules if modules is not None else _test_modules()):
+        try:
+            tree = _parse(path)
+        except SyntaxError:                     # pragma: no cover - unparsable
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ClassDef):
+                continue
+            bases = {
+                base.attr if isinstance(base, ast.Attribute)
+                else getattr(base, "id", "")
+                for base in node.bases
+            }
+            if "DataFrame" not in bases:
+                continue
+            defined = {
+                child.name for child in node.body
+                if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+            }
+            if "_constructor" in defined and "_constructor_from_mgr" not in defined:
+                offenders.append((_label(path), node.name))
+    return sorted(offenders)
+
+
+def test_no_dataframe_subclass_overrides_constructor_alone():
+    """Overriding `_constructor` without `_constructor_from_mgr` is a
+    DeprecationWarning on the declared pandas floor and an error in the job
+    that installs it."""
+    offenders = _dataframe_subclass_offenders()
+    assert offenders == [], (
+        "these tests/ DataFrame subclasses override `_constructor` but not "
+        "`_constructor_from_mgr`, which DeprecationWarns on pandas 2.2 (the "
+        "floor setup.py declares) and fails the min-deps job:\n" +
+        "\n".join(f"  {f}::{c}" for f, c in offenders)
+    )
+
+
+def test_the_dataframe_subclass_rule_discriminates(tmp_path):
+    """The rule catches the real shape and leaves the fixed one alone.
+
+    Without this, `offenders == []` above would also pass if the detector
+    matched nothing at all.
+    """
+    bad = tmp_path / "test_bad.py"
+    bad.write_text(textwrap.dedent("""
+        import pandas as pd
+
+        class Sub(pd.DataFrame):
+            @property
+            def _constructor(self):
+                return Sub
+    """), encoding="utf-8")
+    good = tmp_path / "test_good.py"
+    good.write_text(textwrap.dedent("""
+        import pandas as pd
+
+        class Sub(pd.DataFrame):
+            @property
+            def _constructor(self):
+                return Sub
+
+            def _constructor_from_mgr(self, mgr, axes):
+                return Sub._from_mgr(mgr, axes=axes)
+    """), encoding="utf-8")
+
+    found = {cls for _, cls in _dataframe_subclass_offenders([bad])}
+    assert found == {"Sub"}
+    assert _dataframe_subclass_offenders([good]) == []

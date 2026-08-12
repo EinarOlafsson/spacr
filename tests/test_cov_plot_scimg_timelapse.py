@@ -609,6 +609,48 @@ def test_display_gif_hands_the_raw_bytes_to_an_ipython_image(tmp_path, monkeypat
     assert shown[0].format == "gif"
 
 
+def test_display_gif_states_the_format_rather_than_leaving_it_to_ipython(
+        tmp_path, monkeypatch):
+    """The format must be PASSED, not inferred from the bytes.
+
+    `test_display_gif_hands_the_raw_bytes_to_an_ipython_image` above reads
+    `.format` off the constructed Image, which is green on IPython 9 whether
+    or not spaCR says anything: 9.0.0 was the release that learned to
+    recognise the GIF87a/GIF89a magic bytes. On IPython 8 the same call
+    yields `format == 'png'` and the animation goes out with an `image/png`
+    mime type -- and IPython 9 requires Python 3.11, so on the 3.9 and 3.10
+    ends of the range spaCR claims, 8.x is the only IPython there is. That is
+    how this reached CI as a 3.9-only failure.
+
+    Asserting on the keyword instead of on the sniffed result is what makes
+    the check independent of the installed IPython.
+    """
+    import spacr.plot
+    from spacr.plot import _display_gif
+
+    gif = tmp_path / "movie.gif"
+    _write_tiny_gif(gif)
+
+    calls = []
+
+    def _record(data, *args, **kwargs):
+        calls.append((data, args, kwargs))
+        return object()
+
+    monkeypatch.setattr(spacr.plot, "ipyimage", _record)
+    monkeypatch.setattr(spacr.plot, "display", lambda obj: None)
+
+    _display_gif(str(gif))
+
+    assert len(calls) == 1
+    data, args, kwargs = calls[0]
+    assert data == gif.read_bytes()
+    assert kwargs.get("format") == "gif", (
+        "spacr.plot._display_gif left the image format for IPython to guess; "
+        "IPython < 9 guesses 'png' for GIF bytes, and IPython < 9 is the only "
+        "IPython available on the Python 3.9/3.10 cells of the matrix")
+
+
 def test_display_gif_missing_file_raises(tmp_path, monkeypatch):
     import spacr.plot
     from spacr.plot import _display_gif
