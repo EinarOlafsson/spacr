@@ -7,26 +7,26 @@ stale; nothing here is a rule. The rules are in INVARIANTS.md.
 ## This checkout
 
 - version: **get_version()**
-- branch: `nightly` at `a5955842`
-- Python modules under `spacr/`: 321
-- of those under `spacr/qt/`: 189 (44 screens, 66 widgets)
-- test files: 739 (255 under `tests/qt/`)
+- branch: `nightly` at `e3bc34be`
+- Python modules under `spacr/`: 323
+- of those under `spacr/qt/`: 191 (44 screens, 68 widgets)
+- test files: 745 (258 under `tests/qt/`)
 
 ## The biggest modules
 
 Size is not a defect, but it is where the work is. Read the docstring before the code in any of these -- they carry their own reasoning.
 
 - `spacr/utils.py` — 10340 lines
-- `spacr/timelapse.py` — 8239 lines
-- `spacr/io.py` — 7704 lines
+- `spacr/timelapse.py` — 8245 lines
+- `spacr/io.py` — 7764 lines
 - `spacr/gui_elements.py` — 6735 lines
-- `spacr/plot.py` — 6385 lines
+- `spacr/plot.py` — 6394 lines
 - `spacr/submodules.py` — 5415 lines
-- `spacr/ml.py` — 5296 lines
-- `spacr/qt/screens/settings_model.py` — 4556 lines
-- `spacr/qt/i18n_catalogs/en.py` — 4515 lines
-- `spacr/settings.py` — 4441 lines
-- `spacr/measure.py` — 4212 lines
+- `spacr/ml.py` — 5407 lines
+- `spacr/qt/screens/settings_model.py` — 4613 lines
+- `spacr/settings.py` — 4559 lines
+- `spacr/qt/i18n_catalogs/en.py` — 4411 lines
+- `spacr/measure.py` — 4246 lines
 - `spacr/deep_spacr.py` — 3977 lines
 
 ## Invariant checks
@@ -36,7 +36,7 @@ Size is not a defect, but it is where the work is. Read the docstring before the
 - PASS — thread finished wiring: make_thread still owns the finished wiring
 - PASS — test isolation fixtures: registry + font-scale isolation in place
 - PASS — QSettings sandbox: QSettings sandbox present
-- PASS — task ledger: 23 open, 52 done, all with their sections
+- PASS — task ledger: 24 open, 52 done, all with their sections
 
 A FAIL means INVARIANTS.md is describing software that has moved.
 Fix the code or fix the file, then say which in the commit.
