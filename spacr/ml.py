@@ -4528,6 +4528,51 @@ def ml_analysis(
     if verbose:
         print(f'Found {len(df1)} samples for {negative_control} and {len(df2)} samples for {positive_control}. Total: {len(combined_df)}')
     
+    # REFUSE HERE, NAMING WHAT IS ACTUALLY IN THE COLUMN.
+    #
+    # When neither control matches, df1 and df2 are both empty, combined_df is
+    # empty, and the failure surfaces as
+    #
+    #     ValueError: With n_samples=0, test_size=0.2 and train_size=None,
+    #     the resulting train set will be empty
+    #
+    # from inside sklearn's train_test_split, three frames below anything a
+    # user recognises. That traceback was auto-filed to the spaCR tracker TEN
+    # TIMES in one day (issues #79-#90) and names neither the setting that is
+    # wrong nor the value it should have had.
+    #
+    # The verbose branch above would have said "samples: 0", but verbose is
+    # False on every shipped path.
+    if df1.empty or df2.empty:
+        column = df[location_column]
+        if isinstance(column, pd.DataFrame):
+            # TWO COLUMNS OF THAT NAME. `df[name]` is then a DataFrame, every
+            # matching strategy in `_match_control_values` fails against it,
+            # and no control is ever found. Worth its own sentence: the fix
+            # is to the TABLE, not to the control values, and no amount of
+            # correcting positive_control will help.
+            raise ValueError(
+                f"the measurement table has {column.shape[1]} columns named "
+                f"{location_column!r}, so the controls cannot be matched "
+                f"against it. Drop or rename the duplicate before running "
+                f"the analysis.")
+        present = column.astype(str).str.strip().unique().tolist()
+        shown = ", ".join(repr(v) for v in sorted(present)[:15])
+        if len(present) > 15:
+            shown += f", ... ({len(present)} distinct values)"
+        missing = []
+        if df1.empty:
+            missing.append(f"negative_control={negative_control!r}")
+        if df2.empty:
+            missing.append(f"positive_control={positive_control!r}")
+        raise ValueError(
+            f"no rows matched {' and '.join(missing)} in column "
+            f"{location_column!r}, so there is nothing to train on.\n"
+            f"  {location_column!r} contains: {shown}\n"
+            f"  Set positive_control and negative_control to values that "
+            f"appear there, or set location_column to the column that holds "
+            f"your controls.")
+
     X = combined_df[features]
     y = combined_df['target']
     
