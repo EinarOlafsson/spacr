@@ -163,3 +163,62 @@ objects look like they have settings they do not have.
 
 STILL OPEN: the regroup itself (item 3), the per-heading blurbs (item 4), the
 curated-layout registry check (item 5), and the before/after visible counts.
+
+--------------------------------------------------------------------------------
+2026-08-12 - ITEM 3 DONE. THE NUMBERS.
+--------------------------------------------------------------------------------
+
+    heading      before   after
+    Cell            21       8
+    Nucleus         20       7
+    Pathogen        21       8
+    Organelle        6       3     (was 53 before instruction 72)
+
+    NEW: Object filtration    31
+         Intensity handling   24
+
+THREE HEADINGS, NOT TWELVE, and that is the flat panel showing through. The
+request asks for sub-sections by function with sub-SUB-sections per object.
+Item 1 established that `build_sections` returns one flat header and its
+rows, with no third level, so a sub-sub-section cannot be expressed without
+changing that contract for every module in the tool. Within each family
+heading the keys are therefore ORDERED BY OBJECT, so the four `*_min_size`
+settings sit together and read as the group they are. A test pins that
+ordering: an object's keys must be contiguous.
+
+ORGANELLE FOLDS IN rather than keeping the separate scheme instruction 72
+shipped, per item 6 of this file: one structure, not two.
+
+"IMAGE PREPROCESSING" WAS NOT MOVED, for the reason flagged in the inventory:
+cell/nucleus/pathogen have one key each and organelle has four, so a shared
+heading would make three objects look like they have settings they do not.
+That is a capability gap to close, not a grouping to impose, and it belongs
+in whichever instruction gives the other three objects the preprocessing
+organelle already has.
+
+MEASUREMENTS IS EXEMPT, and this is the interesting one. `cell_min_size` and
+its siblings live there by an EARLIER DELIBERATE DECISION: they are
+measurement filters only measure_crop sets, and filing them under Cell /
+Nucleus / Pathogen gave the Measure module three headings holding one size
+field each and no segmentation. The first version of this regroup pulled
+them out and put those three near-empty headings back by another route. The
+regroup now leaves that category alone, and the family headings skip
+anything an exempt category owns -- without which a key lands in two
+categories, which renders twice in Tk and is silently dropped from the
+second section in Qt.
+
+ITEM 3'S OWN GUARD IS WRITTEN: every key a module offers is still
+categorised somewhere. That is the failure worth excluding -- a settings CSV
+names KEYS, not headings, so a file written before the regroup loads and
+means exactly what it meant, and a key that fell out of every category would
+be silently dropped from the panel while staying in the settings dict.
+
+ITEM 4 DONE: both new headings have curated tooltips, written in the same
+change rather than after, because the tooltip table is keyed on the exact
+heading text and the CV-prefix precedent broke every lookup for its groups
+until someone noticed.
+
+STATUS: items 1, 2, 3, 4 done. Item 5 (the curated-layout registry) is
+satisfied by the existing `test_requested_modules_use_workflow_ordered_
+categories`, which now names both new headings. Item 6 (coordinate with 72)
+is done by folding organelle in.
