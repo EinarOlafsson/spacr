@@ -1332,6 +1332,41 @@ def _replace_words(text: str, pattern: str, replacement: str) -> str:
     return re.sub(pattern, replacement, text, flags=re.IGNORECASE)
 
 
+def _initial_case(match: re.Match[str], replacement: str) -> str:
+    """Give an English sense expansion the source token's initial case."""
+    if match.group(0)[:1].isupper():
+        return replacement[:1].upper() + replacement[1:]
+    return replacement
+
+
+def _first_unprotected_ascii_letter(text: str) -> int | None:
+    """Return the first English prose-letter offset outside hard literals."""
+    source = str(text)
+    cursor = 0
+    for protected in _CONTEXT_HARD_PROTECT_RE.finditer(source):
+        found = re.search(r"[A-Za-z]", source[cursor:protected.start()])
+        if found is not None:
+            return cursor + found.start()
+        cursor = protected.end()
+    found = re.search(r"[A-Za-z]", source[cursor:])
+    return None if found is None else cursor + found.start()
+
+
+def _preserve_initial_prose_case(source: str, rendered: str) -> str:
+    """Keep a sentence-leading capital after a sense-neutral paraphrase."""
+    source_offset = _first_unprotected_ascii_letter(source)
+    rendered_offset = _first_unprotected_ascii_letter(rendered)
+    if source_offset is None or rendered_offset is None:
+        return rendered
+    if source[source_offset].isupper() and rendered[rendered_offset].islower():
+        return (
+            rendered[:rendered_offset]
+            + rendered[rendered_offset].upper()
+            + rendered[rendered_offset + 1:]
+        )
+    return rendered
+
+
 def _replace_alternatives_once(
     text: str, alternatives: Iterable[tuple[str, object]],
 ) -> str:
@@ -1398,15 +1433,43 @@ def _api_translation_source(block: str) -> str:
     transforms: list[tuple[str, str]] = []
     if re.search(_PLANE_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
-            (r"\bone[- ]plane\b", "one-image-slice"),
-            (r"\ba\s+plane\b", "an image slice"),
-            (r"\bimage\s+planes\b", "focal image slices"),
-            (r"\bimage\s+plane\b", "focal image slice"),
-            (r"\bplanes\b", "image slices"),
-            (r"\bplane\b", "image slice"),
+            # Match the combined crop phrase at the same source offset as
+            # ``plane``.  The non-cascading scanner otherwise consumes the
+            # earlier noun first and leaves an awkward "image layer to crop
+            # by" fragment for the later crop family.
+            (r"\b(?:mask\s+)?plane\s+to\s+crop\s+by\b", "mask image layer used to extract the image region"),
+            (r"\ba\s+one[- ]plane\b", "a single-image-layer"),
+            (r"\bone[- ]plane(?=\s+(?:list|image|stack|array|mode|case)\b)", "single-image-layer"),
+            (r"\bone[- ]plane\b", "one image layer"),
+            (r"\b(\d+)[- ]plane\b", r"\1-image-layer"),
+            (r"\bper-plane\b", lambda m: _initial_case(m, "per-image-layer")),
+            (r"\bper plane\b", lambda m: _initial_case(m, "for each image layer")),
+            (r"\bz[- ]plane\b", "z image layer"),
+            (r"\bmask[- ]plane\b", "mask image layer"),
+            (r"\ba\s+plane\b", "an image layer"),
+            (r"\bimage\s+planes\b", "image layers"),
+            (r"\bimage\s+plane\b", "image layer"),
+            (r"\bplanes\b", lambda m: _initial_case(m, "image layers")),
+            (r"\bplane\b", lambda m: _initial_case(m, "image layer")),
         ))
     if re.search(_COMPUTE_RUN_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
+            (r"\blong[- ]running\b", "long-running"),
+            (r"\b(a|an)\s+running\b", r"an executing"),
+            (r"\b(has|have|had)\s+re[- ]run\s+([^,.;:]+?)(?=\s+(?:and|but|so)\b|[,.;:]|$)", r"\1 executed \2 again"),
+            (r"\b(had)\s+([^,.;:]+?)\s+re[- ]run\s+([^,.;:]+?)(?=\s+(?:and|but|so)\b|[,.;:]|$)", r"\1 \2 executed again \3"),
+            (r"\b(do|does|did)\s+not\s+run\b", r"\1 not execute"),
+            (r"\b(has|have|had)\s+to\s+be\s+re[- ]run\b", r"\1 to be executed again"),
+            (r"\b(can|cannot|could|will|would|should|must|may|might)\s+(simply\s+)?be\s+re[- ]run\b", lambda m: m.group(1) + " " + (m.group(2) or "") + "be executed again"),
+            (r"\b(is|are|was|were|be|been|being)\s+re[- ]run\b", r"\1 executed again"),
+            (r"\b(is|are|was|were)\s+run[- ]journal\s+runs\b", r"\1 processing-session journal folders"),
+            (r"\b(has|have|had)\s+re[- ]run\b", r"\1 executed again"),
+            (r"\bre[- ]run\s+(it|them)\b", r"execute \1 again"),
+            (r"\bre[- ]run\s+(the|this|that|a|an)\s+([^,.;:]+)", r"execute \1 \2 again"),
+            (r"\bre[- ]run\s+jobs?\s+that\s+failed\b", "repeat failed jobs"),
+            (r"\bre[- ]run\s+(jobs?|modules?|pipelines?|workflows?|masks?)\b", r"execute \1 again"),
+            (r"\bre[- ]run(?=\s+(?:button|control|action|command|path|workflow)\b)", "repeat-execution"),
+            (r"\bre[- ]run(?=\s+(?:produces?|creates?|writes?|returns?)\b)", "repeat execution"),
             (r"\b(a|an|the|this|that)\s+re[- ]run\b", r"\1 repeat execution"),
             (r"\bre[- ]run\s+again\b", "executed again"),
             (r"\b(partly|partially)\s+re[- ]run\b", r"\1 executed again"),
@@ -1423,35 +1486,117 @@ def _api_translation_source(block: str) -> str:
             (r"\b(?:deliberately\s+)?not\s+run\b", lambda m: m.group(0)[:-3] + "executed"),
             (r"\bnever\s+run\b", "never executed"),
             (r"\b(?-i:Run)(?=\s+(?:the|this|that|a|an|one|each|every|before|after|on|in|with|without|preprocessing|analysis|inference|training|classification|segmentation|jobs?|modules?|pipelines?|workflows?|commands?)\b)", "Execute"),
-            (r"\bpipeline\s+runs\b", "workflow processing runs"),
-            (r"\bpipeline\s+run\b", "workflow processing run"),
+            (r"\bpipeline\s+runs\b", "workflow processing sessions"),
+            (r"\bpipeline\s+run\b", "workflow processing session"),
             (r"\b(jobs?|modules?|functions?|callbacks?|code|pipelines?|workflows?|queues?|applications?|workers?|everything|nothing|it|this|that)\s+runs\b", r"\1 executes"),
-            (r"\bruns\s+(?=(?:again|inline|sequentially|successfully|unchanged|on|in|inside|under|through|against|before|after|when|if|unless|without)\b)", "executes "),
-            (r"\brunning\b", "executing"),
-            (r"\b(per[- ]|cross[- ]|multi[- ])run\b", r"\1processing-run"),
-            (r"\brun(?:'s|’s)\b", "processing run's"),
-            (r"\b(?:run|runs)\s+(?=(?:id|ids|identifier|identifiers|settings|folder|folders|path|paths|root|roots|manifest|manifests|status|statuses|ledger|ledgers|journal|journals|history|histories|result|results|output|outputs|artifact|artifacts|order|digest|digests|record|records|comparison|comparisons)\b)", "processing-run "),
-            (r"\b(a|an|the|this|that|each|every|one|another|previous|current|failed|finished|completed|new|old|single|same|second|training|regression|GUI|overnight|ten-hour|twenty-minute)\s+run\b", r"\1 processing run"),
-            (r"\b(two|three|several|many|all|these|those|both|different|broken|completed|failed|finished|previous|current|training)\s+runs\b", r"\1 processing runs"),
+            (r"\b(pipelines?|workflows?)\s+(that\s+call\s+this)\s+run\b", r"\1 \2 execute"),
+            (r"\b(pipelines?|workflows?)\s+(?:that\s+)?run\b", r"\1 execute"),
+            (r"\b(\d+)\s+runs\b", r"\1 executions"),
+            (r"\bruns\s+(?=(?:again|inline|sequentially|successfully|unchanged|on|inside|under|through|against|before|after|when|if|unless|without)\b)", lambda m: _initial_case(m, "executes ")),
+            (r"\brunning\b", lambda m: _initial_case(m, "executing")),
+            (r"\bper[- ]run\b", "per processing session"),
+            (r"\bcross[- ]run\b", "cross-session"),
+            (r"\bmulti[- ]run\b", "multi-session"),
+            (r"\brun(?:'s|’s)\b", "processing session's"),
+            (r"\b(a|an|the|this|that|each|every|one|another|previous|current|failed|finished|completed|new|old|single|same|second|training|regression|GUI|overnight|ten-hour|twenty-minute)\s+run[- ](id|ids|identifier|identifiers|settings|folder|folders|path|paths|root|roots|manifest|manifests|status|statuses|ledger|ledgers|journal|journals|history|histories|result|results|output|outputs|artifact|artifacts|order|digest|digests|record|records|comparison|comparisons)\b", r"\1 processing-session \2"),
+            (r"\b(?:run|runs)\s+(?=(?:id|ids|identifier|identifiers|settings|folder|folders|path|paths|root|roots|manifest|manifests|status|statuses|ledger|ledgers|journal|journals|history|histories|result|results|output|outputs|artifact|artifacts|order|digest|digests|record|records|comparison|comparisons)\b)", lambda m: _initial_case(m, "processing-session ")),
+            (r"\b(a|an|the|this|that|each|every|one|another|previous|current|failed|finished|completed|new|old|single|same|second|training|regression|GUI|overnight|ten-hour|twenty-minute)\s+run\b", r"\1 processing session"),
+            (r"\b(two|three|several|many|all|these|those|both|different|broken|completed|failed|finished|previous|current|training)\s+runs\b", r"\1 processing sessions"),
             (r"\blong[- ]run\s+path\b", "long-running-operation path"),
-            (r"\bruns?\s+root(?:s)?\b", "processing-run root"),
-            (r"\brun[- ]journal\b", "processing-run journal"),
+            (r"\bruns?\s+root(?:s)?\b", "processing-session root"),
+            (r"\brun[- ]journal\b", lambda m: _initial_case(m, "processing-session journal")),
         ))
     if re.search(_COMPUTE_THREAD_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
+            (r"\bworker[- ]thread\s+counts\b", lambda m: _initial_case(m, "background-worker counts")),
+            (r"\bworker[- ]thread\s+count\b", lambda m: _initial_case(m, "background-worker count")),
+            (r"\b(a|an|the|this|that|each|every)\s+thread\s+pools\b", r"\1 worker pools"),
+            (r"\b(a|an|the|this|that|each|every)\s+thread\s+pool\b", r"\1 worker pool"),
+            (r"\bthread\s+pools\b", lambda m: _initial_case(m, "worker pools")),
+            (r"\bthread\s+pool\b", lambda m: _initial_case(m, "worker pool")),
+            (r"\bthread\s+counts\b", lambda m: _initial_case(m, "worker-count limits")),
+            (r"\bthread\s+count\b", lambda m: _initial_case(m, "worker-count limit")),
+            (r"\bthreaded\s+path\b", "background execution path"),
+            (r"\bthreaded\s+JobRunner\b", "background JobRunner"),
+            (r"\ba\s+threaded\b", "a background"),
+            (r"\b(?-i:Threaded),", "With worker execution,"),
+            (r"\b(?-i:threaded),", "with worker execution,"),
+            (r"\bthreaded,\s+not\s+repeated\b", "linked together, not repeated"),
+            (r"\bthread[- ]safety\b", lambda m: _initial_case(m, "safe use across execution paths")),
+            (r"\bthread[- ]safe\b", lambda m: _initial_case(m, "safe across execution paths")),
+            (r"\bGUI[- ]thread[- ]only\b", "allowed only in the main GUI execution path"),
+            (r"\bworker[- ]thread[- ]safe\b", "safe in a background execution unit"),
+            (r"\bthread[- ]agnostic\b", "independent of the execution path"),
+            (r"\bcross[- ]thread\b", "cross-execution-path"),
+            (r"\boff[- ]thread\b", "off-execution-path"),
+            (r"\bthread[- ]local\b", "execution-path-local"),
+            (r"\bthread\s+affinity\b", "execution-path affinity"),
             (r"\bthreading\b", "execution concurrency"),
             (r"\bthreaded\b", "executed in a worker"),
-            (r"\bworker\s+threads\b", "software worker threads"),
-            (r"\bworker\s+thread\b", "software worker thread"),
-            (r"\bthreads\b", "software execution threads"),
-            (r"\bthread\b", "software execution thread"),
+            (r"\bGUI[- ]worker[- ]threads\b", "main GUI execution paths"),
+            (r"\bGUI[- ]worker[- ]thread\b", "main GUI execution path"),
+            (r"\bGUI[- ]threads\b", "main GUI execution paths"),
+            (r"\bGUI[- ]thread\b", "main GUI execution path"),
+            (r"\bworker[- ]threads\b", lambda m: _initial_case(m, "background execution units")),
+            (r"\bworker[- ]thread\b", lambda m: _initial_case(m, "background execution unit")),
+            (r"\bbackground\s+threads\b", lambda m: _initial_case(m, "background execution units")),
+            (r"\bbackground\s+thread\b", lambda m: _initial_case(m, "background execution unit")),
+            (r"\bmain\s+threads\b", lambda m: _initial_case(m, "main execution paths")),
+            (r"\bmain\s+thread\b", lambda m: _initial_case(m, "main execution path")),
+            (r"\ba\s+thread\b", "an independent execution path"),
+            (r"\bthreads\b", lambda m: _initial_case(m, "independent execution paths")),
+            (r"\bthread\b", lambda m: _initial_case(m, "independent execution path")),
         ))
     if re.search(_IMAGE_CROP_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
-            (r"\bimage\s+crops\b", "cropped image cutouts"),
-            (r"\bimage\s+crop\b", "cropped image cutout"),
-            (r"\bcrops\b", "cropped image cutouts"),
-            (r"\bcrop\b", "cropped image cutout"),
+            (r"\bResolve\s+object\s+keys\s+to\s+crop\s+rows\b", "Resolve object identifiers to rows of extracted image regions"),
+            (r"\bIndex\s+of\s+the\s+crop\s+the\s+keyboard\b", "Index of the extracted image region that the keyboard"),
+            (r"\bRe[- ]crop\s+the\s+loaded\s+array\b", "Extract image regions from the loaded array again"),
+            (r"\bfrom\s+its\s+re[- ]crop\b", "after extracting image regions again"),
+            (r"\ba\s+re[- ]crop\b", "extracting image regions again"),
+            (r"\b(?-i:Crop)\s+every\s+object\s+out\s+of\b", "Extract an image region around every object in"),
+            (r"\b(?-i:Crop)\s+away\b", "Remove"),
+            (r"\b(?-i:Crop)\s+and\s+rescale\b", "Extract and rescale"),
+            (r"\b(it|this\s+function|the\s+function)\s+crops\b", r"\1 extracts image regions from"),
+            (r"\bit\s+cropped\b", "it extracted an image region around"),
+            (r"\balso\s+crops\s+per[- ]object\b", "also extracts per-object image regions as"),
+            (r"\bannotation[- ]crop\b", "annotation image region"),
+            (r"\bper[- ]crop\b", "per extracted image region"),
+            (r"\bobject[- ]crop\b", "object-image-region"),
+            (r"\bmeasure[- ]and[- ]crop\b", "measurement-and-image-region-extraction"),
+            (r"\b(?-i:a)\s+crop[- ]format\b", "an image-region-format"),
+            (r"\b(?-i:A)\s+crop[- ]format\b", "An image-region-format"),
+            (r"\b(?-i:a)\s+crop[- ]PNG\b", "an extracted-image-region PNG"),
+            (r"\b(?-i:A)\s+crop[- ]PNG\b", "An extracted-image-region PNG"),
+            (r"\b(?-i:a)\s+crop[- ]and[- ]measure\b", "an image-region extraction-and-measurement operation"),
+            (r"\b(?-i:A)\s+crop[- ]and[- ]measure\b", "An image-region extraction-and-measurement operation"),
+            (r"\bcrop[- ]and[- ]measure\b", "image-region extraction and measurement"),
+            (r"\bcrop[- ]format\b", "image-region format"),
+            (r"\bcrop[- ]PNG\b", "extracted-image-region PNG"),
+            (r"\bre[- ]cropping\b", lambda m: _initial_case(m, "extracting image regions again")),
+            (r"\bre[- ]cropped\b", lambda m: _initial_case(m, "extracted image regions again")),
+            (r"\bre[- ]crops\b", lambda m: _initial_case(m, "extracts image regions again")),
+            (r"\bre[- ]crop\b", lambda m: _initial_case(m, "extract image regions again")),
+            (r"\bcropping\b", lambda m: _initial_case(m, "extracting image regions")),
+            (r"\bcropped\b", lambda m: _initial_case(m, "extracted image regions")),
+            (r"\brows\s+to\s+crop\b", "rows whose extracted image regions are requested"),
+            (r"\bslice\s+index\s+of\s+the\s+object[- ]class\s+mask\s+to\s+crop\s+by\b", "mask image layer for the object class used to extract the image region"),
+            (r"\bobject\s+table\s*\+\s*mask\s+slice\s+to\s+crop\b", "object table and mask image layer used to extract image regions"),
+            (r"\b(?:plane|slice)(?:\s+index)?\s+to\s+crop(?:\s+by)?\b", "mask image layer used to extract the image region"),
+            (r"\bcannot\s+crop\b", "cannot extract an image region from"),
+            (r"\bto\s+crop\b", "to extract image regions from"),
+            (r"\b(?-i:Crop)\s+(?=(?:the|these|those|each|all|objects?)\b)", "Extract image regions around "),
+            (r"\bcrop\s+(?=(?:the|these|those|each|all|objects?)\b)", "extract image regions around "),
+            (r"\b(?-i:an)\s+image\s+crop\b", "an extracted image region"),
+            (r"\b(?-i:An)\s+image\s+crop\b", "An extracted image region"),
+            (r"\b(?-i:a)\s+crop\b", "an extracted image region"),
+            (r"\b(?-i:A)\s+crop\b", "An extracted image region"),
+            (r"\bcrop(?:'s|’s)\b", "extracted image region's"),
+            (r"\bcrop[- ](?=(?:PNG|path|file|table|row|key|column|grid|folder|manifest|mode|settings?|source|writer|pass|knob|preview|configuration|metadata|shaping|generation)\b)", "extracted-image-region "),
+            (r"\bimage\s+crops\b", lambda m: _initial_case(m, "extracted image regions")),
+            (r"\bimage\s+crop\b", lambda m: _initial_case(m, "extracted image region")),
+            (r"\bcrops\b", lambda m: _initial_case(m, "extracted image regions")),
+            (r"\bcrop\b", lambda m: _initial_case(m, "extracted image region")),
         ))
     if exception_raises:
         transforms.extend((
@@ -1463,11 +1608,40 @@ def _api_translation_source(block: str) -> str:
             (r"\b(?-i:raised)\s+when\b", "reported as an exception when"),
             (r"\bexception\s+raised\b", "exception thrown"),
             (r"\bre[- ]raise\s+it\b", "throw the same exception again"),
+            (r"\bre[- ]raises?\s+this\b", "throws this same exception again"),
+            (r"\bre[- ]raises?\s+the\s+same\s+exception\b", "throws the same exception again"),
+            (r"\b(?-i:Re[- ]raise)\s+([^.;]+?)\s+instead\b", r"Throw \1 again instead"),
             (r"\bre[- ]raises?\b", "throws the same exception again"),
+            (r"\bnever\s+raises\s+the\s+run\s+down\b", "never stops the processing session with an error"),
             (r"\braise\s+on\s+failure\b", "throw an exception on failure"),
             (r"\braise\s+(if|when|on)\b", r"throw an exception \1"),
-            (r"\b(?:does\s+not|do\s+not|cannot|never)\s+raise\b", lambda m: m.group(0)[:-5] + "throw an exception"),
-            (r"\b(without|instead\s+of|rather\s+than)\s+raising\b", r"\1 throwing an exception"),
+            (r"\b(?:does\s+not|do\s+not|cannot|never)\s+raise\b", lambda m: m.group(0)[:-5] + "throw"),
+            (r"\b(without|instead\s+of|rather\s+than)\s+raising\b", r"\1 throwing"),
+            (r"\breported\s+on\s+stderr\s+rather\s+than\s+raised\b", "reported on stderr without producing an error"),
+            (r"\bdetected\s+rather\s+than\s+raised\b", "detected without producing an error"),
+            (r"\bskipped\s+rather\s+than\s+raised\b", "skipped without producing an error"),
+            (r"\bcached\s+as\s+``None``\s+rather\s+than\s+raised\b", "cached as ``None`` without producing an error"),
+            (r"\brather\s+than\s+raised\b", "without producing an error"),
+            (r"\b(?-i:raises)\s+on\s+click\b", "produces an error when clicked"),
+            (r"\b(?-i:raises)\s+instead\b", "produces an error instead"),
+            (r"\b(?-i:Raises)\s+(?=:[A-Za-z])", "Throws "),
+            (r"\b(?-i:raises)\s+(?=:[A-Za-z])", "throws "),
+            (r"\b(?-i:Raise)\s+(?=:[A-Za-z])", "Throw "),
+            (r"\b(?-i:raise)\s+(?=:[A-Za-z])", "throw "),
+            # RST field-list names are structural chrome, not exception prose.
+            # ``:raises SpecError:`` must remain byte-identical so the parser
+            # continues to recognize the standard field.
+            (r"(?<!:)\braises(?=\s+[^:\n]+:\s)", "raises"),
+            (r"\b(?-i:Never\s+raises)\b", "Never throws"),
+            (r"\b(?-i:never\s+raises)\b", "never throws"),
+            (r"\b(?-i:never\s+raised)\b", "never reported as an error"),
+            (r"\b(?-i:anything\s+else\s+raises)\b", "anything else produces an error"),
+            (r"\b(?-i:raises)\s+(?=(?:for|with|from|on)\b)", "produces an error "),
+            (r"\b(?-i:raise)\s+(?=(?:for|with|from|on)\b)", "produce an error "),
+            (r"\b(?-i:Raises)(?=\s*$)", "Throws"),
+            (r"\b(?-i:raises)(?=\s*$)", "throws"),
+            (r"\b(?-i:Raise)(?=\s*$)", "Throw"),
+            (r"\b(?-i:raise)(?=\s*$)", "throw"),
         ))
     if re.search(_SCIENTIFIC_PLATE_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
@@ -1485,18 +1659,48 @@ def _api_translation_source(block: str) -> str:
         transforms.extend(alternatives)
     if re.search(_MAPPING_KEY_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
+            (r"\bkey/query/value\b", "attention-key/query/value"),
+            (r"\bkey[- ]value\b", "key-value"),
+            (r"\bquery/key/value\b", "query/identifier/value"),
+            (r"\bkey[- ]to[- ]key\b", "identifier-to-identifier"),
+            (r"\bkey\s+name\b", "field name"),
+            (r"\bkey\s+entries\b", lambda m: _initial_case(m, "structured-data entries")),
+            (r"\ba\s+key\s+column\b", "an identifier column"),
+            (r"\bsettings?\s+keys\b", "setting names"),
+            (r"\bsettings?\s+key\b", "setting name"),
+            (r"\bto\s+key\s+on\b", "to use as an index"),
+            (r"\bkeys\s+its\s+([^.;,]+?)\s+off\s+this\b", r"indexes its \1 using this"),
+            (r"\bcache\s+keys\s+off\s+it\b", "cache is indexed by it"),
+            (r"\bspaCR\s+keys\s+objects\s+by\b", "spaCR identifies objects by"),
+            (r"\btable\s+keys\s+each\b", "table identifies each"),
+            (r"\bdoes\s+not\s+key\s+objects\s+by\b", "does not identify objects by"),
+            (r"\bmeasurement\s+tables\s+key\s+on\b", "measurement tables are indexed by"),
+            (r"\b(features?|models?|results?)\s+key\s+on\b", lambda m: m.group(1) + (" are indexed by" if m.group(1).lower().endswith("s") else " is indexed by")),
+            (r"\bkeyed\s+on\b", "indexed by"),
+            (r"\bkeys\s+on\b", "is indexed by"),
+            (r"\bkey/value\b", "name/value"),
+            (r"\bevery\s+key\s+of\b", "every field name in"),
+            (r"\bkeys\s+the\b", "structured-data names that the"),
+            (r"\bkeys\s+a\b", "structured-data names that a"),
+            (r"\bwithout\s+keys\b", "without identifiers"),
+            (r"\bobject\s+keys\b", "object identifiers"),
+            (r"\bobject\s+key\b", "object identifier"),
+            (r"\brow\s+keys\b", "row identifiers"),
+            (r"\brow\s+key\b", "row identifier"),
+            (r"\bkey\s+columns\b", "identifier columns"),
+            (r"\bkey\s+column\b", "identifier column"),
             (r"\bstate[- ]dict\s+keys\b", "state-dictionary entry names"),
             (r"\bstate[- ]dict\s+key\b", "state-dictionary entry name"),
             (r"\b(?:settings?\s+)?dict\s+keys\b", "dictionary entry names"),
             (r"\b(?:settings?\s+)?dict\s+key\b", "dictionary entry name"),
             (r"\bimage[- ]key\s+values\b", "image-identifier values"),
             (r"\bimage[- ]key\s+value\b", "image-identifier value"),
-            (r"\bmapping\s+keys\b", "mapping identifiers"),
-            (r"\bmapping\s+key\b", "mapping identifier"),
-            (r"\bconfiguration\s+keys\b", "configuration identifiers"),
-            (r"\bconfiguration\s+key\b", "configuration identifier"),
-            (r"\bkeys\b", "mapping identifiers"),
-            (r"\bkey\b", "mapping identifier"),
+            (r"\bmapping\s+keys\b", "structured-data names"),
+            (r"\bmapping\s+key\b", "structured-data name"),
+            (r"\bconfiguration\s+keys\b", "configuration field names"),
+            (r"\bconfiguration\s+key\b", "configuration field name"),
+            (r"\bkeys\b", lambda m: _initial_case(m, "structured-data names")),
+            (r"\bkey\b", lambda m: _initial_case(m, "structured-data name")),
         ))
     # Mixed GUI/scientific-screen paragraphs need review rather than a blind
     # inverse rewrite because both English occurrences are intentional.
@@ -1537,9 +1741,40 @@ def _api_translation_source(block: str) -> str:
             (r"\bpower\b", "statistical detection sensitivity"),
         ))
     if re.search(_SOFTWARE_QUEUE_SOURCE, prose, re.IGNORECASE):
+        queue_is_job_list = bool(re.search(
+            r"(?i)\b(?:jobs?|tasks?|plates?|batches?|enqueue|dequeue|"
+            r"scheduler|runner)\b",
+            prose,
+        ))
+        queue_singular = "software job list" if queue_is_job_list else "work list"
+        queue_plural = "software job lists" if queue_is_job_list else "work lists"
         transforms.extend((
-            (r"\bqueues\b", "software task queues"),
-            (r"\bqueue\b", "software task queue"),
+            (r"\b(?-i:Queue)\s+plate\s+folders\b", "Add plate folders to the software job list"),
+            (r"\bQt\s+then\s+queues\b", "Qt then schedules"),
+            (r"\bmust\s+never\s+queue\b", "must never schedule"),
+            (r"\b(?:can|cannot|will|should|does|did|then)\s+queue\b", lambda m: m.group(0)[:-5] + "schedule"),
+            (r"\bqueue\s+(?=(?:the|a|an|plates?|jobs?|tasks?|them)\b)", "schedule "),
+            (r"\btwelve[- ]job\s+queue\b", "software job list with twelve jobs"),
+            (r"\bjob\s+queue\b", "software job list"),
+            (r"\bPlate\s+Queue\b", "Plate-processing list"),
+            (r"\bplate\s+queue\b", "plate-processing list"),
+            (r"\bqueue[- ]+\s*based\b", "work-list-based"),
+            (r"\bqueue[- ]backed\b", "work-list-backed"),
+            (r"\bmid[- ]queue\b", "while processing the software job list"),
+            (r"\bqueue[- ]level\b", "software-job-list level"),
+            (r"\breview\s+queue\b", lambda m: _initial_case(m, "review list")),
+            (r"\bactive[- ]learning\s+queue\b", lambda m: _initial_case(m, "annotation work list")),
+            (r"\bannotation\s+queue\b", lambda m: _initial_case(m, "annotation work list")),
+            (r"\buncertainty\s+queue\b", lambda m: _initial_case(m, "uncertainty-ranked work list")),
+            (r"\bwork\s+queue\b", lambda m: _initial_case(m, "work list")),
+            (r"\bfigure\s+queue\b", lambda m: _initial_case(m, "figure list")),
+            (r"\bmessage\s+queue\b", lambda m: _initial_case(m, "message list")),
+            (r"\bevent\s+queue\b", lambda m: _initial_case(m, "event-delivery list")),
+            (r"\bworker\s+queue\b", lambda m: _initial_case(m, "worker-event list")),
+            (r"\boptional\s+queue\s+used\s+to\s+surface\s+error\s+strings\b", "optional error-message list used to surface error strings"),
+            (r"\blog(?:/error)?\s+queue\b", lambda m: _initial_case(m, "log-message list")),
+            (r"\bqueues\b", lambda m: _initial_case(m, queue_plural)),
+            (r"\bqueue\b", lambda m: _initial_case(m, queue_singular)),
         ))
     if re.search(_IMAGING_FIELD_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
@@ -1590,6 +1825,7 @@ def _api_translation_source(block: str) -> str:
         return _replace_alternatives_once(fragment, transforms)
 
     contextual = _rewrite_unprotected_prose(source, rewrite)
+    contextual = _preserve_initial_prose_case(source, contextual)
     if not _syntax_preserved(source, contextual):
         raise ValueError(
             "API sense context changed a protected literal: "

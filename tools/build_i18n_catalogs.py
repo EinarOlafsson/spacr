@@ -186,6 +186,11 @@ _PROTECT_PATTERNS = (
     re.compile(r"(?<!:):{2}(?!:)"),
     re.compile(r"</?[A-Za-z][^>]*>"),
     re.compile(r"\{[^{}]+\}"),
+    # Inline RST field chrome can follow prose on the same physical line.
+    # Preserve the field name and argument while translating its body;
+    # otherwise exception disambiguation rewrites ``:raises SpecError:`` into
+    # a non-RST ``:throws SpecError:`` field.
+    re.compile(r"(?<!\w):raises?\s+[^:\n]+:"),
     re.compile(_RST_ROLE_PATTERN),
     re.compile(r"``[^`]+``|`[^`]+`_?"),
     # Dotted Python names and filenames are identifiers, not prose. Protect
@@ -254,6 +259,13 @@ _FRAGMENT_PROTECT_PATTERNS = (
     re.compile(
         r"\*\*(?:``[^`]+``|`[^`]+`_?|:[A-Za-z]+:`[^`]+`)\*\*"
     ),
+    # Keep prose quotation marks as reconstruction chrome.  The ordinary
+    # protection pass deliberately lets quoted sentences travel with their
+    # context, but the last-resort fragment pass sees only a small span.  M2M
+    # can otherwise turn an unmatched source edge such as ``\"Preview`` into
+    # a target angle bracket, invalidating an otherwise usable translation.
+    re.compile(r'(?<!\w)["“‘](?=[A-Za-zÀ-ÖØ-öø-ÿ])'),
+    re.compile(r'(?<=[A-Za-zÀ-ÖØ-öø-ÿ])["”’](?!\w)'),
     *_PROTECT_PATTERNS,
 )
 _FRAGMENT_PROTECT_RE = re.compile(
@@ -537,7 +549,9 @@ _DATA_GATE_SOURCE = (
 )
 _PLANE_SOURCE = (
     r"(?is)\A(?=.*\bplanes?\b)"
-    r"(?!.*\b(?:aircraft|airplanes?|aeroplanes?|aviation|flight)\b)"
+    r"(?!.*\b(?:aircraft|airplanes?|aeroplanes?|aviation|flight|airport|"
+    r"pilots?|runways?|take[- ]?off|land(?:ed|ing|s)?|Cartesian|geometric|"
+    r"geometry|Euclidean|coordinate|woodwork\w*|carpenter(?:'s)?|hand tool)\b)"
 )
 _IMAGE_TILE_SOURCE = (
     r"(?is)\A(?=.*\btiles?\b)"
@@ -554,7 +568,7 @@ _SCIENTIFIC_PLATE_SOURCE = (
 _IMAGE_CROP_SOURCE = (
     r"(?is)\A(?=.*\bcrops?\b)"
     r"(?!.*\b(?:agriculture|agricultural|farm(?:ing)?|harvest(?:ed|ing)?|"
-    r"crop rotation)\b)"
+    r"farmers?|grow(?:s|ing|n)?|soil|crop rotation)\b)"
 )
 _WINDOW_RAISE_SOURCE = (
     r"(?is)\A(?=.*(?:\braise or focus\b|\braise\b.{0,50}\b(?:window|screen)\b))"
@@ -572,8 +586,8 @@ _SCIENTIFIC_HIT_SOURCE = (
 _MAPPING_KEY_SOURCE = (
     r"(?is)\A(?=.*\bkeys?\b)"
     r"(?=.*\b(?:mapping|dictionary|dict|json|settings?|configuration|config|"
-    r"database|table|row|record|schema|field|column|identifier|identity|"
-    r"lookup|cache|metadata|payload|entries|values?|namespace|parameter|"
+    r"databases?|tables?|rows?|records?|schemas?|fields?|columns?|identifiers?|identity|"
+    r"lookup|cache|metadata|payload|entries|values?|namespace|parameters?|"
     r"kwargs)\b)"
     r"(?!.*(?:\b(?:keyboard|keypress|key press|key event|shortcut|hotkey|"
     r"Backspace|Escape|arrow keys?|modifier keys?|keystroke|Qt key)\b|"
@@ -591,14 +605,20 @@ _DICTIONARY_SOURCE = (
 # broadcast, human-actor, food and navigation senses remain valid.
 _SOFTWARE_QUEUE_SOURCE = (
     r"(?is)\A(?=.*\bqueues?\b)"
-    r"(?!.*\b(?:tails?|tailed|trailing|rear|hind|ending|ends?|last|back|"
-    r"bottom|final|previous|remaining)\b)"
+    r"(?!.*(?:\b(?:tails?|tail[- ]end)\b|"
+    r"\b(?:physical|waiting)\s+(?:line|queue)\b|"
+    r"\b(?:people|persons?|customers?|passengers?|visitors?|shoppers?|"
+    r"travellers?|travelers?)\b.{0,40}\b(?:wait\w*|stand\w*|form\w*|"
+    r"line\s+up|queu(?:ed|ing))\b|"
+    r"\b(?:wait\w*|stand\w*|form\w*|line\s+up)\b.{0,40}\bqueues?\b|"
+    r"\bqueues?\b.{0,40}\b(?:outside|airport|bank|store)\b))"
 )
 _IMAGING_FIELD_SOURCE = (
     r"(?is)\A(?=.*\b(?:fields?|FOVs?)\b)"
     r"(?=.*\b(?:images?|wells?|plates?|microscop\w*|acquisition|masks?|"
     r"crops?|objects?|planes?|FOVs?|channels?|tiles?)\b)"
-    r"(?!.*\b(?:farm|agricultur\w*|meadow|land|domain|region|area|scope)\b)"
+    r"(?!.*\b(?:farm(?:er|ers|ing)?|agricultur\w*|grow(?:s|ing|n)?|soil|"
+    r"meadow|land|domain|region|area|scope)\b)"
 )
 _IMAGING_CHANNEL_SOURCE = (
     r"(?is)\A(?=.*\bchannels?\b)"
@@ -1391,29 +1411,73 @@ def _translation_candidate_valid(
     force: bool = False,
 ) -> bool:
     """Apply every release gate to one runtime translation candidate."""
-    # The reviewed semantic table is a rejection contract, not an automatic
-    # word-substitution table. Preserve that pre-cleanup verdict; then apply
-    # deterministic fluency cleanup followed by orthographic normalization.
+    return not _translation_rejection_reasons(
+        source, value, language, force=force,
+    )
+
+
+def _translation_rejection_reasons(
+    source: str,
+    value: str,
+    language: str,
+    *,
+    force: bool = False,
+    raw_semantic_failure: bool = False,
+    candidate_validator: Callable[[str, str, str], bool] | None = None,
+) -> frozenset[str]:
+    """Classify why a candidate cannot pass the release contract.
+
+    The categories are also the retry state machine.  Only marker restoration
+    and protected-syntax failures are mechanical enough for the final
+    context-free fragment pass.  Semantic, target-script, exact-copy,
+    degeneration, EOS and caller-contract failures must retain sentence or
+    clause context and fail closed if those contextual retries do not rescue
+    them.
+    """
+    source_text = str(source)
     raw_value = str(value)
-    if _semantic_false_friends(str(source), raw_value, language):
-        return False
-    candidate = _contextualize(raw_value, language, str(source))
+    failures: set[str] = set()
+    if raw_semantic_failure or _semantic_false_friends(
+        source_text, raw_value, language,
+    ):
+        failures.add("semantic")
+
+    candidate = _contextualize(raw_value, language, source_text)
     if language == "zh_CN":
         candidate = _simplify_chinese_prose(candidate)
-    return bool(
-        candidate.strip()
-        and _syntax_preserved_or_reviewed(source, candidate, language)
-        and not _looks_degenerate(source, candidate, language)
-        and _has_expected_script(source, candidate, language, force=force)
-        and not _semantic_false_friends(source, candidate, language)
-        and not (
-            language == "zh_CN" and _has_traditional_chinese_prose(candidate)
-        )
-        and (
-            candidate != source
-            or (not force and not _looks_translatable(source))
-        )
-    )
+    if not candidate.strip():
+        failures.add("degenerate")
+    if not _syntax_preserved_or_reviewed(source_text, candidate, language):
+        failures.add("protected_syntax")
+    if _looks_degenerate(source_text, candidate, language):
+        failures.add("degenerate")
+    if not _has_expected_script(
+        source_text, candidate, language, force=force,
+    ):
+        failures.add("target_script")
+    if _semantic_false_friends(source_text, candidate, language):
+        failures.add("semantic")
+    if (
+        language == "zh_CN"
+        and _has_traditional_chinese_prose(candidate)
+    ):
+        failures.add("target_script")
+    if (
+        candidate == source_text
+        and (force or _looks_translatable(source_text))
+    ):
+        failures.add("exact")
+
+    # A caller validator is an additional contract, not a replacement for the
+    # shared gates.  Report it only for an otherwise viable candidate so a
+    # structural or semantic failure cannot be mislabeled as caller-only.
+    if (
+        not failures
+        and candidate_validator is not None
+        and not candidate_validator(source_text, candidate, language)
+    ):
+        failures.add("caller_gate")
+    return frozenset(failures)
 
 
 SOURCE_CONTEXT_REGEX_REPLACEMENTS: Mapping[
@@ -2612,7 +2676,15 @@ def _restore(text: str, protected: Mapping[str, str]) -> str:
                 rf"\b[xX]\s*{digits}\b)"
             )
         else:
-            fuzzy = rf"\b{digits}\s*[xX]\s*{digits}\b"
+            # Do not use Unicode word boundaries here. Translation models
+            # routinely remove the space beside a marker: Marian emits
+            # ``0X0A tradução`` and Korean attaches particles such as
+            # ``0X0을``. In both cases the marker is present exactly once,
+            # but ``\b`` sees the neighbouring Latin/Hangul letter as another
+            # word character and falsely rejects the entire translation.
+            # Digit-only guards still keep marker 1 out of 10X01 while
+            # allowing ordinary target-language text to touch either edge.
+            fuzzy = rf"(?<!\d){digits}\s*[xX]\s*{digits}(?!\d)"
         restored, count = re.subn(fuzzy, lambda _match, v=value: v, restored)
         if count != 1:
             raise ValueError(
@@ -2677,6 +2749,68 @@ def _translation_chunks(text: str, limit: int = 320) -> list[str]:
             if piece:
                 result.append(piece)
     return result
+
+
+_CONTEXT_CLAUSE_BOUNDARY_RE = re.compile(
+    # Keep the exact punctuation/whitespace as reconstruction chrome.  The
+    # connective belongs to the following translated clause so the model sees
+    # its grammatical role.  Colons require following whitespace, avoiding
+    # URLs and compact type/shape notation.
+    r":\s+|"
+    r"\s+(?:—|–|--)\s+|"
+    r",\s+(?=(?:and|but|so|because|although|while|whereas|which|when|if|"
+    r"unless|rather\s+than)\b)|"
+    r"(?<![,;:])\s+(?=(?:but|because|although|whereas)\b)",
+    re.IGNORECASE,
+)
+
+
+def _context_clause_plan(text: str) -> list[tuple[str, bool]]:
+    """Return exact source spans for a protected-aware clause retry.
+
+    ``True`` spans are prose sent independently to the same translation model;
+    ``False`` spans are byte-exact punctuation/whitespace chrome.  Empty means
+    the source has fewer than two useful clauses and should retain the result
+    of the sentence retry instead of losing context for no benefit.
+    """
+    source = str(text)
+    protected_ranges = [
+        (match.start(), match.end())
+        for match in _CONTEXT_HARD_PROTECT_RE.finditer(source)
+    ]
+
+    def protected(start: int, end: int) -> bool:
+        return any(start < protected_end and end > protected_start
+                   for protected_start, protected_end in protected_ranges)
+
+    boundaries = [
+        match for match in _CONTEXT_CLAUSE_BOUNDARY_RE.finditer(source)
+        if not protected(match.start(), match.end())
+    ]
+    if not boundaries:
+        return []
+
+    plan: list[tuple[str, bool]] = []
+    cursor = 0
+    for boundary in boundaries:
+        if boundary.start() > cursor:
+            plan.append((source[cursor:boundary.start()], True))
+        plan.append((boundary.group(0), False))
+        cursor = boundary.end()
+    if cursor < len(source):
+        plan.append((source[cursor:], True))
+
+    def has_prose(piece: str) -> bool:
+        unprotected = _CONTEXT_HARD_PROTECT_RE.sub(" ", piece)
+        return bool(re.search(r"[A-Za-zÀ-ÖØ-öø-ÿ]{2,}", unprotected))
+
+    plan = [
+        (piece, translate and has_prose(piece))
+        for piece, translate in plan
+    ]
+    if sum(translate for _piece, translate in plan) < 2:
+        return []
+    return plan
 
 
 def _contextualize(value: str, language: str, source: str = "") -> str:
@@ -3107,6 +3241,43 @@ def _seed_cache_from_catalog(language: str, cache: dict[str, str]) -> None:
             )
 
 
+def _current_invalid_sources(
+    sources: Iterable[str],
+    translated: Mapping[str, str],
+    candidate_valid: Callable[[str, str], bool],
+) -> list[str]:
+    """Recompute failures after a retry without trusting historical state."""
+    return [
+        source for source in sources
+        if not candidate_valid(source, translated.get(source, source))
+    ]
+
+
+def _fragment_retry_sources(
+    sources: Iterable[str],
+    translated: Mapping[str, str],
+    candidate_valid: Callable[[str, str], bool],
+    latest_failures: Mapping[str, Iterable[str]],
+) -> list[str]:
+    """Return current failures eligible for context-free fragment repair.
+
+    Sentence retry can rescue a source that failed primary marker restoration.
+    Selecting the later fragment pass from the historical failure list would
+    translate that source again without sentence context and could overwrite
+    the valid rescue. Recompute from current state, then admit only a latest
+    marker-restoration or protected-syntax failure. Every linguistic, script,
+    EOS and caller failure stays out.
+    """
+    mechanical = frozenset({"marker_restore", "protected_syntax"})
+    return [
+        source for source in _current_invalid_sources(
+            sources, translated, candidate_valid,
+        )
+        if bool(frozenset(latest_failures.get(source, ())))
+        and frozenset(latest_failures.get(source, ())) <= mechanical
+    ]
+
+
 def _translate_batches(
     strings: list[str],
     language: str,
@@ -3119,7 +3290,6 @@ def _translate_batches(
     force_sources: Iterable[str] = (),
     repair_protected: bool = False,
     cache_namespace: str = "",
-    fragment_sources_only: Iterable[str] = (),
     candidate_validator: Callable[[str, str, str], bool] | None = None,
 ) -> dict[str, str]:
     """Translate unique strings with one local OPUS model."""
@@ -3141,7 +3311,6 @@ def _translate_batches(
     }
     _seed_cache_from_catalog(language, cache)
     forced = frozenset(map(str, force_sources))
-    explicit_fragment_sources = frozenset(map(str, fragment_sources_only))
 
     def cache_key(source: str) -> str:
         return f"{cache_namespace}\0{source}" if cache_namespace else source
@@ -3161,6 +3330,28 @@ def _translate_batches(
             )
         )
 
+    def candidate_failures(
+        source: str,
+        candidate: str,
+        *,
+        raw_semantic_failure: bool = False,
+    ) -> frozenset[str]:
+        """Return the latest hard-gate state for one model attempt."""
+        return _translation_rejection_reasons(
+            source,
+            candidate,
+            language,
+            force=source in forced,
+            raw_semantic_failure=raw_semantic_failure,
+            candidate_validator=candidate_validator,
+        )
+
+    def normalize_candidate(source: str, candidate: str) -> str:
+        normalized = _contextualize(candidate, language, source)
+        if language == "zh_CN" and normalized != source:
+            normalized = _simplify_chinese_prose(normalized)
+        return normalized
+
     def checkpoint_candidate(source: str, candidate: str) -> None:
         """Persist only a candidate that passes every current hard gate."""
         if language == "zh_CN":
@@ -3174,9 +3365,7 @@ def _translate_batches(
     generated_sources: list[str] = []
     generated_inputs: list[str] = []
     protection: list[dict[str, str]] = []
-    retry_sources: list[str] = []
-    incomplete_sources: set[str] = set()
-    strict_fragment_sources: set[str] = set(explicit_fragment_sources)
+    latest_failures: dict[str, frozenset[str]] = {}
 
     from spacr.qt.i18n import CATALOGS
     compact = CATALOGS[language]
@@ -3341,6 +3530,7 @@ def _translate_batches(
         if width > model_input_limit:
             oversized_sources.add(source)
             translated[source] = source
+            latest_failures[source] = frozenset({"input_oversized"})
         else:
             kept_sources.append(source)
             kept_inputs.append(model_input)
@@ -3394,27 +3584,31 @@ def _translate_batches(
             index = start + offset
             source = generated_sources[index]
             if not completed(output[offset]):
+                latest_failures[source] = frozenset({"eos"})
+                translated[source] = source
+                checkpoint_candidate(source, source)
+                continue
+            try:
+                raw_value = _restore(value, protection[index])
+            except ValueError:
+                latest_failures[source] = frozenset({"marker_restore"})
+                translated[source] = source
+                checkpoint_candidate(source, source)
+                continue
+            raw_semantic_failure = bool(
+                _semantic_false_friends(source, raw_value, language)
+            )
+            value = normalize_candidate(source, raw_value)
+            failures = candidate_failures(
+                source,
+                value,
+                raw_semantic_failure=raw_semantic_failure,
+            )
+            if failures or not candidate_valid(source, value):
+                latest_failures[source] = failures or frozenset({"caller_gate"})
                 value = source
-                incomplete_sources.add(source)
             else:
-                try:
-                    value = _restore(value, protection[index])
-                except ValueError:
-                    value = source
-                    retry_sources.append(source)
-            semantic_failure = bool(
-                _semantic_false_friends(source, value, language)
-            )
-            value = _contextualize(value, language, source)
-            if language == "zh_CN" and value != source:
-                value = _simplify_chinese_prose(value)
-            semantic_failure = semantic_failure or bool(
-                _semantic_false_friends(source, value, language)
-            )
-            if semantic_failure or not candidate_valid(source, value):
-                if not _syntax_preserved(source, value):
-                    retry_sources.append(source)
-                value = source
+                latest_failures.pop(source, None)
             translated[source] = value.strip() or source
             checkpoint_candidate(source, translated[source])
         checkpoint_cache()
@@ -3434,8 +3628,14 @@ def _translate_batches(
     # token, especially in Chinese. Retry only those strings with a second,
     # independently tested numeric-X marker before accepting English fallback.
     # Keeping this inside the loaded-model lifetime makes the retry cheap.
+    mechanical_failures = frozenset({"marker_restore", "protected_syntax"})
+    retry_sources = [
+        source for source in all_generated_sources
+        if latest_failures.get(source)
+        and latest_failures[source] <= mechanical_failures
+        and not candidate_valid(source, translated.get(source, source))
+    ]
     if retry_sources and not is_m2m and allow_secondary_repairs:
-        retry_sources = list(dict.fromkeys(retry_sources))
         retry_inputs: list[str] = []
         retry_maps: list[dict[str, str]] = []
         for source in retry_sources:
@@ -3457,24 +3657,33 @@ def _translate_batches(
                 index = start + offset
                 source = retry_sources[index]
                 if not completed(output[offset]):
+                    latest_failures[source] = frozenset({"eos"})
+                    translated[source] = source
+                    checkpoint_candidate(source, source)
+                    continue
+                try:
+                    raw_value = _restore(value, retry_maps[index])
+                except ValueError:
+                    latest_failures[source] = frozenset({"marker_restore"})
+                    translated[source] = source
+                    checkpoint_candidate(source, source)
+                    continue
+                raw_semantic_failure = bool(
+                    _semantic_false_friends(source, raw_value, language)
+                )
+                value = normalize_candidate(source, raw_value)
+                failures = candidate_failures(
+                    source,
+                    value,
+                    raw_semantic_failure=raw_semantic_failure,
+                )
+                if failures or not candidate_valid(source, value):
+                    latest_failures[source] = (
+                        failures or frozenset({"caller_gate"})
+                    )
                     value = source
-                    incomplete_sources.add(source)
                 else:
-                    try:
-                        value = _restore(value, retry_maps[index])
-                    except ValueError:
-                        value = source
-                semantic_failure = bool(
-                    _semantic_false_friends(source, value, language)
-                )
-                value = _contextualize(value, language, source)
-                if language == "zh_CN" and value != source:
-                    value = _simplify_chinese_prose(value)
-                semantic_failure = semantic_failure or bool(
-                    _semantic_false_friends(source, value, language)
-                )
-                if semantic_failure or not candidate_valid(source, value):
-                    value = source
+                    latest_failures.pop(source, None)
                 translated[source] = value.strip() or source
                 checkpoint_candidate(source, translated[source])
             checkpoint_cache()
@@ -3487,19 +3696,11 @@ def _translate_batches(
     # numeric retry asks one model sequence to carry too many protected values.
     # Only accept the recomposed translation when every chunk restores and the
     # complete paragraph retains its structural/API tokens.
-    chunk_sources = [] if not allow_secondary_repairs else [
-        source for source in all_generated_sources
-        if translated.get(source, source) == source
-        or source in incomplete_sources
-        or not _syntax_preserved(source, translated.get(source, source))
-        or _looks_degenerate(source, translated.get(source, source), language)
-        or _semantic_false_friends(
-            source, translated.get(source, source), language,
+    chunk_sources = [] if not allow_secondary_repairs else (
+        _current_invalid_sources(
+            all_generated_sources, translated, candidate_valid,
         )
-        or not candidate_valid(
-            source, translated.get(source, source),
-        )
-    ]
+    )
     if chunk_sources:
         chunk_inputs: list[str] = []
         chunk_maps: list[dict[str, str]] = []
@@ -3517,6 +3718,7 @@ def _translate_batches(
             source: [None] * len(chunks)
             for source, chunks in chunks_by_source.items()
         }
+        chunk_failures: defaultdict[str, set[str]] = defaultdict(set)
         for start in range(0, len(chunk_inputs), batch_size):
             batch = chunk_inputs[start:start + batch_size]
             encoded = encode_batch(batch)
@@ -3532,15 +3734,20 @@ def _translate_batches(
                 owner, chunk_index = chunk_owners[start + offset]
                 if not completed(output[offset]):
                     restored_chunks[owner][chunk_index] = None
+                    chunk_failures[owner].add("eos")
                     continue
                 try:
                     value = _restore(value, chunk_maps[start + offset])
                 except ValueError:
                     value = None
+                    chunk_failures[owner].add("marker_restore")
                 restored_chunks[owner][chunk_index] = value
         accepted = 0
         for source, values in restored_chunks.items():
             if any(value is None for value in values):
+                latest_failures[source] = frozenset(
+                    chunk_failures[source] or {"marker_restore"}
+                )
                 continue
             raw_candidate = " ".join(
                 str(value).strip() for value in values
@@ -3548,21 +3755,139 @@ def _translate_batches(
             raw_semantic_failure = _semantic_false_friends(
                 source, raw_candidate, language,
             )
-            candidate = _contextualize(raw_candidate, language, source)
-            if language == "zh_CN":
-                candidate = _simplify_chinese_prose(candidate)
+            candidate = normalize_candidate(source, raw_candidate)
+            failures = candidate_failures(
+                source,
+                candidate,
+                raw_semantic_failure=bool(raw_semantic_failure),
+            )
             if (
-                candidate != source
-                and not raw_semantic_failure
+                not failures
                 and candidate_valid(source, candidate)
             ):
                 translated[source] = candidate
                 checkpoint_candidate(source, candidate)
+                latest_failures.pop(source, None)
                 accepted += 1
+            else:
+                latest_failures[source] = (
+                    failures or frozenset({"caller_gate"})
+                )
+                translated[source] = source
+                cache.pop(cache_key(source), None)
         checkpoint_cache()
         print(
             f"{language}: sentence retry accepted={accepted}/"
             f"{len(chunk_sources)}",
+            flush=True,
+        )
+
+    # Sentence chunks are deliberately conservative and retain whole API
+    # blocks whenever they fit.  If a current failure remains, make one final
+    # contextual attempt at strong clause boundaries.  Punctuation and
+    # whitespace separators are reconstructed byte-for-byte, while each prose
+    # clause uses the already-tested numeric marker contract.  Clause outputs
+    # are never cached independently: only a fully joined candidate that passes
+    # every shared and caller gate can become a checkpoint.
+    clause_sources = [] if not allow_secondary_repairs else (
+        _current_invalid_sources(
+            all_generated_sources, translated, candidate_valid,
+        )
+    )
+    clause_plans: dict[str, list[tuple[str, bool]]] = {}
+    clause_inputs: list[str] = []
+    clause_maps: list[dict[str, str]] = []
+    clause_owners: list[tuple[str, int]] = []
+    for source in clause_sources:
+        plan = _context_clause_plan(source)
+        if not plan:
+            continue
+        pending: list[tuple[str, dict[str, str], tuple[str, int]]] = []
+        oversized = False
+        for index, (piece, translate_piece) in enumerate(plan):
+            if not translate_piece:
+                continue
+            protected, mapping = _protect(piece, marker_style="numeric")
+            model_input = prefix + protected
+            width = len(tokenizer(
+                model_input, add_special_tokens=True,
+            )["input_ids"])
+            if width > model_input_limit:
+                oversized = True
+                break
+            pending.append((model_input, mapping, (source, index)))
+        if oversized or len(pending) < 2:
+            continue
+        clause_plans[source] = plan
+        for model_input, mapping, owner in pending:
+            clause_inputs.append(model_input)
+            clause_maps.append(mapping)
+            clause_owners.append(owner)
+
+    clause_values: dict[str, list[str | None]] = {
+        source: [piece if not translate_piece else None
+                 for piece, translate_piece in plan]
+        for source, plan in clause_plans.items()
+    }
+    clause_failures: defaultdict[str, set[str]] = defaultdict(set)
+    for start in range(0, len(clause_inputs), batch_size):
+        batch = clause_inputs[start:start + batch_size]
+        encoded = encode_batch(batch)
+        if device == "cuda":
+            encoded = {key: value.to("cuda") for key, value in encoded.items()}
+        with torch.inference_mode():
+            output = model.generate(
+                **encoded,
+                max_new_tokens=output_budget(encoded),
+                num_beams=beams,
+                **generation_kwargs,
+            )
+        decoded = tokenizer.batch_decode(output, skip_special_tokens=True)
+        for offset, value in enumerate(decoded):
+            owner, plan_index = clause_owners[start + offset]
+            if not completed(output[offset]):
+                clause_failures[owner].add("eos")
+                continue
+            try:
+                value = _restore(value, clause_maps[start + offset])
+            except ValueError:
+                clause_failures[owner].add("marker_restore")
+                continue
+            clause_values[owner][plan_index] = value
+
+    clause_accepted = 0
+    for source, values in clause_values.items():
+        if any(value is None for value in values):
+            latest_failures[source] = frozenset(
+                clause_failures[source] or {"marker_restore"}
+            )
+            continue
+        raw_candidate = "".join(str(value) for value in values)
+        raw_semantic_failure = bool(
+            _semantic_false_friends(source, raw_candidate, language)
+        )
+        candidate = normalize_candidate(source, raw_candidate)
+        failures = candidate_failures(
+            source,
+            candidate,
+            raw_semantic_failure=raw_semantic_failure,
+        )
+        if not failures and candidate_valid(source, candidate):
+            translated[source] = candidate
+            checkpoint_candidate(source, candidate)
+            latest_failures.pop(source, None)
+            clause_accepted += 1
+        else:
+            latest_failures[source] = (
+                failures or frozenset({"caller_gate"})
+            )
+            translated[source] = source
+            cache.pop(cache_key(source), None)
+    if clause_plans:
+        checkpoint_cache()
+        print(
+            f"{language}: clause retry accepted={clause_accepted}/"
+            f"{len(clause_plans)} pieces={len(clause_inputs)}",
             flush=True,
         )
 
@@ -3571,12 +3896,14 @@ def _translate_batches(
     # resort, translate only the prose spans *between* protected API values
     # and then splice the untouched values back in.  No synthetic marker ever
     # reaches the model in this pass, so HTML/identifiers cannot leak or drift.
-    fragment_sources = [] if not allow_secondary_repairs else [
-        source for source in all_generated_sources
-        if source in strict_fragment_sources
-        or source in retry_sources
-        or not _syntax_preserved(source, translated.get(source, source))
-    ]
+    fragment_sources = [] if not allow_secondary_repairs else (
+        _fragment_retry_sources(
+            all_generated_sources,
+            translated,
+            candidate_valid,
+            latest_failures,
+        )
+    )
     if fragment_sources:
         def fragment_is_prose(piece: str) -> bool:
             stripped = piece.strip()

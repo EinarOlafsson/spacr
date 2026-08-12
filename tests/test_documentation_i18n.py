@@ -128,7 +128,7 @@ def test_api_translation_source_disambiguates_model_input_and_hashes_it():
     cases = {
         "Read the image plane.": "Read the image layer.",
         "Resume the failed pipeline run.":
-            "Resume the failed workflow processing run.",
+            "Resume the failed workflow processing session.",
         "Run this on a GUI worker thread.":
             "Execute this on a main GUI execution path.",
         "Load image crops.": "Load extracted image regions.",
@@ -139,7 +139,7 @@ def test_api_translation_source_disambiguates_model_input_and_hashes_it():
         "Return each well in the plate.":
             "Return each microplate sample position in the laboratory microplate.",
         "Return the mapping keys.":
-            "Return the names used to retrieve values from structured data.",
+            "Return the structured-data names.",
         "A pooled CRISPR screen reports hits.":
             "A pooled CRISPR screening experiment reports hits.",
         "The Qt screen shows settings.":
@@ -190,6 +190,90 @@ def test_api_translation_source_keeps_negative_control_senses_and_literals():
     )
     for source in unchanged:
         assert builder._api_translation_source(source) == source
+
+
+def test_api_translation_source_preserves_fixed_exception_and_run_grammar():
+    import build_documentation_i18n as builder
+
+    cases = {
+        "Raise :class:`PipelineCancelled` when cancellation was requested.":
+            "Throw :class:`PipelineCancelled` when cancellation was requested.",
+        "These are run-journal runs for completed jobs.":
+            "These are processing-session journal folders for completed jobs.",
+        "Re-run the failed workflow.":
+            "Execute the failed workflow again.",
+        "Re-run it after the failed job.":
+            "Execute it again after the failed job.",
+        "The worker recorded 3 crashes in 8 runs.":
+            "The worker recorded 3 crashes in 8 executions.",
+    }
+    for source, expected in cases.items():
+        assert builder._api_translation_source(source) == expected
+
+
+def test_api_translation_source_preserves_fixed_thread_and_crop_morphology():
+    import build_documentation_i18n as builder
+
+    cases = {
+        "Thread pools use thread counts for worker processes.":
+            "Worker pools use worker-count limits for worker processes.",
+        "A thread pool uses a worker-thread count.":
+            "A worker pool uses a background-worker count.",
+        "A crop-format file and a crop PNG support object-crop previews.":
+            "An image-region-format file and an extracted-image-region PNG "
+            "support object-image-region previews.",
+        "Measure-and-crop creates a crop-and-measure workflow.":
+            "Measurement-and-image-region-extraction creates an image-region "
+            "extraction-and-measurement operation workflow.",
+        "Re-crop the loaded array.":
+            "Extract image regions from the loaded array again.",
+        "A re-crop is requested.":
+            "Extracting image regions again is requested.",
+    }
+    for source, expected in cases.items():
+        assert builder._api_translation_source(source) == expected
+
+
+def test_api_translation_source_preserves_finite_mapping_key_verbs():
+    import build_documentation_i18n as builder
+
+    cases = {
+        "The cache keys its entries off this mapping key.":
+            "The cache indexes its entries using this structured-data name.",
+        "The model keys on a configuration key.":
+            "The model is indexed by a configuration field name.",
+        "spaCR keys objects by the mapping key.":
+            "spaCR identifies objects by the structured-data name.",
+        "The table keys each row by its mapping key.":
+            "The table identifies each row by its structured-data name.",
+        "Database measurement tables key on the object key.":
+            "Database measurement tables are indexed by the object identifier.",
+    }
+    for source, expected in cases.items():
+        assert builder._api_translation_source(source) == expected
+
+
+def test_api_translation_source_preserves_plane_and_queue_grammar():
+    import build_documentation_i18n as builder
+
+    cases = {
+        "Process one row per plane.":
+            "Process one row for each image layer.",
+        "Per-plane labels are stored.":
+            "Per-image-layer labels are stored.",
+        "Read a one-plane list.":
+            "Read a single-image-layer list.",
+        "Use 3-plane input.":
+            "Use 3-image-layer input.",
+        "The worker uses a queue- based scheduler.":
+            "The worker uses a work-list-based scheduler.",
+        # Human waiting lines are an explicit negative control even when the
+        # same sentence also contains a software-worker cue.
+        "Workers watched people wait in a physical queue outside.":
+            "Workers watched people wait in a physical queue outside.",
+    }
+    for source, expected in cases.items():
+        assert builder._api_translation_source(source) == expected
 
 
 def test_v7_cache_namespace_cannot_reuse_v6_source_fallback():
@@ -565,7 +649,34 @@ def test_numeric_protection_marker_does_not_match_inside_larger_number():
         _restore("prefix 10X01 suffix", {"0X0": "**"})
 
 
-def test_fragment_retry_recomputes_current_invalid_candidates():
+def test_context_clause_plan_preserves_exact_chrome_and_protected_literals():
+    from build_i18n_catalogs import _context_clause_plan
+
+    source = (
+        "Returns: read ``mapping: value`` — keep the result, but retry "
+        "because the file changed."
+    )
+    plan = _context_clause_plan(source)
+
+    assert "".join(piece for piece, _translate in plan) == source
+    assert [piece for piece, translate in plan if not translate] == [
+        ": ", " — ", ", ", " ",
+    ]
+    assert any(
+        "``mapping: value``" in piece and translate
+        for piece, translate in plan
+    )
+    assert sum(translate for _piece, translate in plan) == 5
+
+
+def test_context_clause_plan_requires_two_translatable_spans():
+    from build_i18n_catalogs import _context_clause_plan
+
+    assert _context_clause_plan("No strong boundary here.") == []
+    assert _context_clause_plan("Type: ``dict[str, int]``") == []
+
+
+def test_fragment_retry_requires_current_latest_mechanical_failure():
     from build_documentation_i18n import _api_block_valid
     from build_i18n_catalogs import (
         _fragment_retry_sources,
@@ -576,11 +687,23 @@ def test_fragment_retry_recomputes_current_invalid_candidates():
     caller_bad = "Return this value to the caller."
     syntax_bad = "Write ``results.db``."
     already_good = "Return the image crop."
+    marker_bad = "Read ``other.db``."
+    semantic_bad = "Return another image crop."
+    script_bad = "Describe the image plane."
+    exact_bad = "Describe the image tile."
+    degenerate_bad = "Describe the pipeline."
+    eos_bad = "Append work to the queue."
     translations = {
         rescued: "``measurements.db``에서 읽습니다.",
         caller_bad: "Return this 값을 to the caller.",
         syntax_bad: "결과 데이터베이스에 씁니다.",
         already_good: "이미지 크롭을 반환합니다.",
+        marker_bad: marker_bad,
+        semantic_bad: semantic_bad,
+        script_bad: script_bad,
+        exact_bad: exact_bad,
+        degenerate_bad: degenerate_bad,
+        eos_bad: eos_bad,
     }
 
     def valid(source, value):
@@ -601,13 +724,22 @@ def test_fragment_retry_recomputes_current_invalid_candidates():
     assert valid(rescued, translations[rescued])
     assert valid(already_good, translations[already_good])
 
-    historical_retry = {rescued, syntax_bad}
+    latest_failures = {
+        rescued: {"marker_restore"},
+        caller_bad: {"caller_gate"},
+        syntax_bad: {"protected_syntax"},
+        already_good: {"marker_restore"},
+        marker_bad: {"marker_restore"},
+        semantic_bad: {"semantic"},
+        script_bad: {"target_script"},
+        exact_bad: {"exact"},
+        degenerate_bad: {"degenerate"},
+        eos_bad: {"eos"},
+    }
     selected = _fragment_retry_sources(
-        translations, translations, valid,
+        translations, translations, valid, latest_failures,
     )
-    assert selected == [caller_bad, syntax_bad]
-    assert set(selected) - historical_retry == {caller_bad}
-    assert historical_retry - set(selected) == {rescued}
+    assert selected == [syntax_bad, marker_bad]
 
 
 def test_valid_sentence_retry_is_not_overwritten_by_fragment_fallback():
@@ -618,11 +750,11 @@ def test_valid_sentence_retry_is_not_overwritten_by_fragment_fallback():
     )
 
     rescued = "Read ``measurements.db``."
-    still_bad = "Return this value to the caller."
+    still_bad = "Write ``results.db``."
     rescued_value = "``measurements.db``에서 읽습니다."
     translated = {
         rescued: rescued_value,
-        still_bad: "Return this 값을 to the caller.",
+        still_bad: "결과 데이터베이스에 씁니다.",
     }
 
     def valid(source, value):
@@ -631,12 +763,49 @@ def test_valid_sentence_retry_is_not_overwritten_by_fragment_fallback():
             and _api_block_valid(source, value, "ko")
         )
 
-    seen = _fragment_retry_sources(translated, translated, valid)
+    latest_failures = {
+        rescued: {"marker_restore"},
+        still_bad: {"protected_syntax"},
+    }
+    seen = _fragment_retry_sources(
+        translated, translated, valid, latest_failures,
+    )
     for source in seen:
         # Simulate a rejected fragment falling back to canonical English.
         translated[source] = source
     assert seen == [still_bad]
     assert translated[rescued] == rescued_value
+
+
+def test_translation_rejection_reasons_separate_mechanical_and_linguistic():
+    from build_i18n_catalogs import _translation_rejection_reasons
+
+    protected_source = "Read ``measurements.db``."
+    assert _translation_rejection_reasons(
+        protected_source,
+        "측정 데이터베이스를 읽습니다.",
+        "ko",
+        force=True,
+    ) == {"protected_syntax"}
+
+    crop_source = "Return the image crop."
+    semantic = _translation_rejection_reasons(
+        crop_source,
+        "이미지 농작물을 반환합니다.",
+        "ko",
+        force=True,
+    )
+    assert "semantic" in semantic
+    assert "protected_syntax" not in semantic
+
+    caller_source = "Return this value to the caller."
+    assert _translation_rejection_reasons(
+        caller_source,
+        "Return this 값을 to the caller.",
+        "ko",
+        force=True,
+        candidate_validator=lambda _source, _value, _language: False,
+    ) == {"caller_gate"}
 
 
 def test_rejected_models_use_the_reviewed_permissive_replacement():
@@ -1297,7 +1466,36 @@ def test_api_translation_context_has_no_reviewed_grammar_failures():
         r"\bagain\s+again\b|"
         r"\b(?:been|was|were|is|are) execute again\b|"
         r"\b(?:can|could|will|would|should|must|may|might|to|do|does|did) "
-        r"(?:repeat execution|processing run)\b",
+        r"(?:repeat execution|processing run)\b|"
+        # Run/session compounds and re-run objects must retain their English
+        # noun/verb order after the context-neutral sense expansion.
+        r"\bprocessing[- ]session journal (?:runs?|executions?|processing "
+        r"sessions?)\b|"
+        r"\bexecute again\s+(?:it|them|the|this|that|a|an)\b|"
+        r"\b\d+\s+(?:processing[- ]runs?|processing sessions?)\b|"
+        # These caught article, plurality and double-compound regressions in
+        # the thread/crop families during the corpus-wide morphology pass.
+        r"\b(?:a|an)\s+(?:worker pools|background execution units|"
+        r"independent execution paths)\b|"
+        r"\bworker-count (?:limits?) count\b|"
+        r"\ba\s+(?:image-region|extracted-image-region)\b|"
+        r"\ban\s+extracted image regions\b|"
+        r"\b(?:object|annotation|per|measure-and)-extracted image region\b|"
+        # Finite mapping-key verbs need subject agreement, not a generic noun
+        # substitution that leaves the original English verb behind.
+        r"\b(?:features|models|results) is indexed\b|"
+        r"\b(?:feature|model|result) are indexed\b|"
+        r"\b(?:cache keys off it|measurement tables key on)\b|"
+        # Plane and queue compounds are model-facing grammar contracts.
+        r"\bper image layers?\b|"
+        r"\bfor each image layers\b|"
+        r"\ba one image layer\b|"
+        r"\b(?:work list|software job list)[- ]based\b|"
+        r"\bwork-list based\b|"
+        # A protected RST exception role must be governed by Throw/Throws;
+        # inserting an indefinite exception noun before it is ungrammatical.
+        r"\b(?:produce[sd]? an? error|throw an exception)\s+"
+        r":(?:class|exc):`",
         re.IGNORECASE,
     )
     for key, document in builder.public_docstrings().items():
