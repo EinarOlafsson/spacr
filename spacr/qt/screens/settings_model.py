@@ -419,6 +419,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         # the one above, so the six settings a biologist recognises are not
         # buried under forty-eight detection parameters. Instruction 72.
         ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
+        # Instruction 73: the families that are one decision applied to
+        # several objects, grouped by what they do rather than by which
+        # object they do it to.
+        ("Object Filtration (all objects)", ("@Object filtration",)),
+        ("Intensity Handling (all objects)", ("@Intensity handling",)),
         ("Quality Control", ("@Segmentation QC",)),
         ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
         ("Time Axes & Tracking (Beta)", ("@4D Settings (Beta)",)),
@@ -514,6 +519,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         # the one above, so the six settings a biologist recognises are not
         # buried under forty-eight detection parameters. Instruction 72.
         ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
+        # Instruction 73: the families that are one decision applied to
+        # several objects, grouped by what they do rather than by which
+        # object they do it to.
+        ("Object Filtration (all objects)", ("@Object filtration",)),
+        ("Intensity Handling (all objects)", ("@Intensity handling",)),
         ("Quality Control", ("@Segmentation QC",)),
         ("Tracking Setup", (
             "timelapse_objects", "timelapse_frame_limits",
@@ -1407,6 +1417,22 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "parameters for you and says on the console what it picked — the "
         "rest are under Organelle advanced, still editable, if you want to "
         "change any of them.",
+    "OBJECT FILTRATION":
+        "Which detected objects are kept, for every object class in one "
+        "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
+        "different objects, so they are one decision applied four times "
+        "rather than four unrelated knobs — the settings are ordered by "
+        "object, so each group reads together. Raise the minimum size to "
+        "drop debris, set a maximum to drop merged clumps, and use the "
+        "border filters when objects cut off by the image edge would bias "
+        "your measurements.",
+    "INTENSITY HANDLING":
+        "How object intensity decides splitting, merging and inclusion, for "
+        "every object class in one place. The percentiles set the window "
+        "that intensities are read against; merge and split use intensity "
+        "to join objects the segmentation cut apart or separate ones it ran "
+        "together. Open this when the masks look right but the objects are "
+        "systematically over- or under-segmented.",
     "ORGANELLE ADVANCED":
         "The forty-eight detection parameters behind the organelle type: "
         "shape family and method, the background and contrast correction "
