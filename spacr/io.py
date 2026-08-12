@@ -2563,7 +2563,8 @@ def _report_fan_out(left, merged, join_cols, left_name='cell',
 
 def _read_and_join_tables(db_path, table_names=None,
                           duplicate_column_policy='warn',
-                          keep_uninfected=True):
+                          keep_uninfected=True,
+                          collapse_duplicate_identity=True):
     """
     Reads and joins tables from a SQLite database.
 
@@ -2574,7 +2575,12 @@ def _read_and_join_tables(db_path, table_names=None,
     Where it disagrees the two tables describe different objects under the
     same identity, which no analysis should quietly average over:
     ``duplicate_column_policy='warn'`` prints and keeps the cell table's
-    value, ``'raise'`` stops the run.
+    value, ``'raise'`` stops the run. ``collapse_duplicate_identity=False``
+    turns the whole comparison off and keeps both copies -- for a caller
+    that has its OWN reason to want the suffixed columns, which
+    :mod:`spacr.anndata_export` does: its ``drop_redundant_identity=False``
+    is documented to keep them, and a collapse here would have made that
+    option a no-op.
 
     **Which cells survive a join is a decision, not a default.** A cell with
     no nucleus is debris, and a cell with no crop cannot be classified, so
@@ -2767,9 +2773,10 @@ def _read_and_join_tables(db_path, table_names=None,
             left_name='cell',
             right_name='cytoplasm',
         )
-        joined_df = reconcile_duplicates(
-            joined_df, '_cytoplasm', left_name='cell',
-            right_name='cytoplasm', on_conflict=duplicate_column_policy)
+        if collapse_duplicate_identity:
+            joined_df = reconcile_duplicates(
+                joined_df, '_cytoplasm', left_name='cell',
+                right_name='cytoplasm', on_conflict=duplicate_column_policy)
     # From the registry, not a literal: ORGANELLE was missing from both
     # of these loops, so asking for it returned a frame with no
     # organelle columns and no message. Naming the child roles once is
@@ -2787,9 +2794,10 @@ def _read_and_join_tables(db_path, table_names=None,
                 left_name='cell',
                 right_name=f'aggregated {entity}',
             )
-            joined_df = reconcile_duplicates(
-                joined_df, f'_{entity}', left_name='cell',
-                right_name=entity, on_conflict=duplicate_column_policy)
+            if collapse_duplicate_identity:
+                joined_df = reconcile_duplicates(
+                    joined_df, f'_{entity}', left_name='cell',
+                    right_name=entity, on_conflict=duplicate_column_policy)
     return joined_df
     
 #: Table holding the settings of the run that wrote the database **last**.
@@ -3642,7 +3650,8 @@ def _read_db(db_loc, tables):
 
 def _read_and_merge_data(
         locs, tables, verbose=False, nuclei_limit=10, pathogen_limit=10,
-        change_plate=False, acquisition_conflict="raise"):
+        change_plate=False, acquisition_conflict="raise",
+        keep_uninfected=True):
     """Read object tables and merge their measurements by parent object.
 
     Shared acquisition-stamp values are coalesced when one table is missing a
@@ -3682,12 +3691,27 @@ def _read_and_merge_data(
     def _merge_grouped(left, right, right_name="grouped object data"):
         """Merge grouped tables while keeping only one copy of shared acquisition metadata.
 
-        THE JOIN IS INNER -- pandas' default, since no ``how=`` is passed --
-        so an object absent from ``right`` is removed from the result. That
-        is sometimes what a caller wants (a recruitment analysis really does
-        want cells that have a pathogen) and sometimes not (a cell without a
-        crop is still a cell), and the join type is deliberately left alone
-        here.
+        THE JOIN TYPE NOW COMES FROM THE REGISTRY. It used to be inner
+        unconditionally -- pandas' default, since no ``how=`` was passed --
+        and this docstring said the choice was "deliberately left alone"
+        because the decision had not been made. It has since: `object_roles.
+        join_how` records it and `_read_and_join_tables` already reads it, so
+        the two readers of the same tables were disagreeing about which
+        objects exist.
+
+            nucleus     INNER   a cell with no nucleus is debris
+            png_list    INNER   a cell with no crop cannot be classified
+            cytoplasm   LEFT    one row per cell; it makes no difference
+            pathogen    LEFT    an UNINFECTED cell is usually the control
+            organelle   LEFT    same reasoning
+
+        Inner for pathogen was the consequential one: it silently conditioned
+        every result on infection, deleting the control population from the
+        denominator without a word.
+
+        A ``right_name`` the registry does not know keeps the historical
+        inner join rather than being guessed at -- the metadata and stamp
+        merges go through here too, and they are not object tables.
 
         What is NOT defensible is doing it in silence, which is what this
         used to do. The discontinuity is brutal: on a 100-cell plate where
@@ -3743,11 +3767,15 @@ def _read_and_merge_data(
 
         right = right.drop(columns=shared)
         before = len(left)
+        from .object_roles import JOIN_HOW
+        how = (join_how(right_name, keep_uninfected=keep_uninfected)
+               if str(right_name).strip().lower() in JOIN_HOW else "inner")
         result = _merge_with_cardinality(
             left,
             right,
             left_index=True,
             right_index=True,
+            how=how,
             validate="one_to_one",
             left_name="grouped object data",
             right_name=right_name,

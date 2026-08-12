@@ -556,8 +556,29 @@ def _apply_na_policy(frame: pd.DataFrame, policy: MergePolicy) -> pd.DataFrame:
         return frame.fillna({c: 0 for c in frame.columns
                              if pd.api.types.is_numeric_dtype(frame[c])})
     if policy.na == "drop":
-        child_columns = [c for c in frame.columns if "_" in c and c not in counts]
-        return frame.dropna(subset=child_columns, how="any").reset_index(drop=True)
+        # DROPPED FOR HAVING NO CHILD, not for having an unmeasurable one.
+        #
+        # This used to drop on every column with an underscore in its name --
+        # i.e. every measurement the child contributed. Measured on three
+        # cells: one with a pathogen and a good correlation, one WITH A
+        # PATHOGEN whose correlation came back NaN, and one with no pathogen
+        # at all. Only the first survived. The second has a pathogen; it is a
+        # unit of analysis; its area and count are real numbers. It was
+        # removed from the denominator because one correlation could not be
+        # computed -- and a correlation is NaN whenever a channel is flat
+        # inside the object, which is common and says nothing about whether
+        # the object exists.
+        #
+        # The count is the column that answers "does this cell have one",
+        # which is the question this policy is documented to ask. Roll-up
+        # counts are NaN exactly when the child table contributed no row, so
+        # they are the correct and only subset.
+        if not counts:
+            # Nothing was rolled up, so there is no childlessness to test.
+            # Dropping on the measurements here would silently narrow the
+            # population on a merge that has no children in it at all.
+            return frame.reset_index(drop=True)
+        return frame.dropna(subset=counts, how="any").reset_index(drop=True)
     return frame
 
 
