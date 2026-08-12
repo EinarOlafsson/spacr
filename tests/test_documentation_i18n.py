@@ -126,7 +126,7 @@ def test_api_translation_source_disambiguates_model_input_and_hashes_it():
     import build_documentation_i18n as builder
 
     cases = {
-        "Read the image plane.": "Read the two-dimensional image layer.",
+        "Read the image plane.": "Read the image layer.",
         "Resume the failed pipeline run.":
             "Resume the failed workflow processing run.",
         "Run this on a GUI worker thread.":
@@ -139,7 +139,7 @@ def test_api_translation_source_disambiguates_model_input_and_hashes_it():
         "Return each well in the plate.":
             "Return each microplate sample position in the laboratory microplate.",
         "Return the mapping keys.":
-            "Return the identifiers of entries in a mapping.",
+            "Return the names used to retrieve values from structured data.",
         "A pooled CRISPR screen reports hits.":
             "A pooled CRISPR screening experiment reports hits.",
         "The Qt screen shows settings.":
@@ -153,7 +153,7 @@ def test_api_translation_source_disambiguates_model_input_and_hashes_it():
         "Estimate statistical power from sample size.":
             "Estimate statistical detection sensitivity from sample size.",
         "Append the job to the queue.":
-            "Append the job to the list of software jobs waiting to run.",
+            "Append the job to the software job list.",
         "Read each image field and channel.":
             "Read each microscope image field of view and image data channel.",
         "The classifier predicts each crop.":
