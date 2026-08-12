@@ -122,3 +122,52 @@ that commit, and a closing comment naming both — written as the maintainer,
 with no AI attribution anywhere in it.
 
 The auto-filer, run twice on the same traceback, produces ONE issue.
+
+--------------------------------------------------------------------------------
+2026-08-12 - #72 (ANNOTATE SEGFAULT ON RESIZE): NOT REPRODUCED, NOT CLOSED
+--------------------------------------------------------------------------------
+
+Investigated, not fixed, and deliberately NOT marked solved. What is known:
+
+RULED OUT BY INSPECTION, each recorded so it is not re-audited:
+
+  1. A widget painting from a freed numpy buffer. Every `QImage(...)` built
+     from an array in `spacr/qt/**` calls `.copy()` before the array can be
+     collected -- checked all nine sites (space.py:1002, iconset.py:450,
+     live_preview.py:517, model_compare.py:872, model_zoo.py:948,
+     measure_preview.py:988, animation_zoom.py:484, make_masks.py:221,
+     umap_explorer.py:813). This is the classic cause and it is absent.
+
+  2. A stale slot index walking off `_thumbs` after a rebuild.
+     `_set_slot_image` and `_repaint_slot` both bounds-check against the
+     CURRENT list, and `_rebuild_grid` resizes `_thumb_pixmaps` and
+     `_raw_thumb_images` with it.
+
+  3. A worker handler running on the worker thread -- the failure mode this
+     project has hit before. `JobRunner.submit` relays `worker.finished`
+     through a Signal whose receiver is a bound method of a GUI-thread
+     object, and the module says so at the connection.
+
+  4. Re-entrant resize (stack exhaustion presents as SIGSEGV).
+     `_compute_grid_dims` only READS viewport geometry and writes to the
+     settings dataclass; it mutates no widget, so `resizeEvent` cannot
+     recurse through it. `_rebuild_grid` is reached from the 150 ms debounce
+     timer, not from inside the resize event.
+
+NOT REPRODUCED. `tests/qt/test_annotate_resize_crash.py` drives the real
+AnnotateScreen against a real source and hammers it: a 21-step resize drag, a
+rebuild started while a page load is in flight, a close landing on a pending
+reload. Six tests, all pass, no crash. Run under QT_QPA_PLATFORM=offscreen,
+which is the limit of what this machine can do -- there is no X server and no
+xvfb here, so the real windowing and compositing path is NOT exercised, and
+that is where a windowed segfault would live.
+
+The tests are kept regardless: they pin the ordering invariants whose
+violation would produce exactly this class of crash -- the debounce
+collapsing a drag into at most two reloads, the three slot arrays staying the
+same length as the grid, and `_hover_slot` being dropped when its widget is.
+
+TO CLOSE THIS, one of: a stack trace from the reporter's crash, or a run on a
+machine with a real display. Guessing a fix for a native crash that four
+inspections and one measurement say is not in the Python paths would be a
+change with no evidence behind it.
