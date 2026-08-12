@@ -50,8 +50,17 @@ def test_every_preset_passes_the_real_validator(name, diameter):
     preset = preset_for(name, diameter)
     morphology = preset.get("organelle_morphology")
     if morphology is None:
+        assert name == "custom", (name, preset)
+        assert preset == {}, preset
         return
-    _validate_organelle_settings(morphology, preset["organelle_method"])
+    method = preset["organelle_method"]
+    # The validator returns None and raises on a bad pair, so the assertion
+    # that carries weight is the one about WHAT was shipped -- a legal pair
+    # for the morphology that this diameter selected.
+    assert _validate_organelle_settings(morphology, method) is None
+    assert morphology in LEGAL_METHODS
+    assert method in LEGAL_METHODS[morphology], (name, diameter, morphology,
+                                                 method)
 
 
 def test_the_mirrored_table_still_matches_the_validator():

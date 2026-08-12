@@ -8043,9 +8043,21 @@ def automated_motility_assay(settings):
         low = settings.get("infection_xgb_ambiguous_low", 0.25)
         high = settings.get("infection_xgb_ambiguous_high", 0.75)
 
-        # Try to locate a probability column created by the QC step
+        # Try to locate a probability column created by the QC step.
+        #
+        # THE FALLBACK BELOW WAS UNREACHABLE. This tested `is None`, and the
+        # setting's default is the non-empty string 'infection_xgb_proba' --
+        # so auto-discovery was always skipped, and the classifier writes
+        # 'infection_prob', so the guard two blocks down never matched
+        # either. The whole track-level ambiguous-track filter silently did
+        # not run on any default configuration: not an error, not a warning,
+        # just an analysis step that never happened.
+        #
+        # The condition is now "is the configured column actually here",
+        # which keeps an explicit correct setting authoritative and makes
+        # the discovery reachable when the default does not match the frame.
         xgb_proba_col = settings.get("infection_xgb_proba_column", None)
-        if xgb_proba_col is None:
+        if xgb_proba_col not in all_df.columns:
             cand_cols = [
                 c
                 for c in all_df.columns

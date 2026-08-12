@@ -176,3 +176,8 @@ def test_a_missing_callback_is_not_an_error(explorer, monkeypatch):
 
     monkeypatch.setattr(module, "UmapDisplaySettings", _Dialog)
     explorer.open_display_settings()
+
+    # With no callback wired the explorer must still APPLY the choice
+    # to itself. "Did not raise" would also pass if the dialog's value
+    # were dropped on the floor, which is the bug worth excluding.
+    assert explorer._display["point_size"] == 30

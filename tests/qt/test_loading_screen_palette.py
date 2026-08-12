@@ -190,4 +190,11 @@ def test_the_screen_paints_without_raising(qtbot):
     qtbot.addWidget(screen)
     screen.resize(640, 400)
     screen.advance(3)
-    screen.grab()          # forces a real paintEvent
+    shot = screen.grab()          # forces a real paintEvent
+
+    assert not shot.isNull()
+    assert (shot.width(), shot.height()) == (640, 400)
+    # The background it painted is the role's colour, read back off the
+    # pixels rather than off the palette that was asked for.
+    corner = shot.toImage().pixelColor(2, 2)
+    assert corner.name().lower() == palette_for()["splash_bg"].lower()

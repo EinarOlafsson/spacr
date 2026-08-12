@@ -446,6 +446,13 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Measurement Features", (
             "save_measurements", "calculate_correlation",
+            # Instruction 71's two opt-in measurements. They were added to
+            # the measure defaults and to the shared "Measurements" category
+            # but NOT to this literal list, so the measure panel dropped
+            # them into the trailing "Additional Settings" bucket -- which is
+            # not a heading anyone chose, it is the absence of one. They
+            # extend calculate_correlation, so they sit beside it.
+            "corrected_manders", "spatial_measurements",
             "manders_thresholds", "homogeneity", "homogeneity_distances",
             "radial_dist", "distance_gaussian_sigma",
             # Not a segmentation control -- it decides which organelle summary
@@ -1490,17 +1497,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How the model is fitted: epochs, learning rate, schedule, and which "
         "loss. Open it when training is unstable, stalls, or ignores the "
         "smaller class.",
-    "CLASSIFIER":
-        "Which family of classifier runs — a computer-vision network trained "
-        "on the object images, or a tabular model trained on the measurements "
-        "already in the database. This is the top-level choice: it decides "
-        "which of the groups below apply.",
-    "MODEL & FEATURES":
-        "The tabular model and the feature table it learns from — which "
-        "estimator, how much of the data is held back, and the pruning that "
-        "decides which measured features survive. Open it when the model "
-        "overfits, or when thousands of correlated features are drowning the "
-        "few that matter.",
+    # "CLASSIFIER" and "MODEL & FEATURES" were removed on 2026-08-12: no app
+    # renders either heading, checked against `categories_for_app` for all
+    # twenty-two app keys, so both blurbs were unreachable text that made
+    # `test_every_qt_section_hint_names_a_real_category` red. "EVALUATION &
+    # RESULTS" below is NOT dead -- it is a Qt-only regroup heading that
+    # exists in no shared category, which is exactly why that test has to
+    # consult every app rather than `S.categories` alone.
     "EVALUATION & RESULTS":
         "How the fitted model is judged and how the result is shown — "
         "cross-validation, calibration, the leakage audit, the heatmap, and "
