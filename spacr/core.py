@@ -317,6 +317,20 @@ def preprocess_generate_masks(settings):
 
                         if settings['masks']:
                             mask_src = os.path.join(src, 'masks')
+                            # CREATE IT IF IT IS NOT THERE.
+                            #
+                            # Only preprocess_img_data makes this folder, and
+                            # `preprocess` is exactly the box a user unticks
+                            # when re-masking a plate that has already been
+                            # measured. Delete masks/ first -- which is what
+                            # re-masking means -- and the run died on a
+                            # missing directory that it was about to fill
+                            # anyway (issue #13). The reported workaround was
+                            # to mkdir it by hand.
+                            #
+                            # exist_ok, so the normal path where preprocessing
+                            # just made it is unaffected.
+                            os.makedirs(mask_src, exist_ok=True)
                 
                             if settings['cell_channel'] != None:
                                 cancellation_checkpoint()
