@@ -142,3 +142,44 @@ RELATED
 37 (the classify settings overhaul -- this is the same surface and its
 `classes` work should land consistently), 61 (settings nobody chose deciding
 what runs), 81 (closing the issues).
+
+--------------------------------------------------------------------------------
+2026-08-12 - DONE. #91, #92 AND #93 CLOSED.
+--------------------------------------------------------------------------------
+
+Fixed, pushed, and the three issues closed together with the sequence
+explained -- a reader arriving at #93 alone would otherwise never learn the
+cause was two runs earlier.
+
+(1) THE MUTATION IS GONE. `settings['location_column']` is never written.
+The annotation path derives `_label_column` into a local and passes it to
+`ml_analysis`; the caller's dict comes back exactly as written. A test
+asserts the assignment is absent from the source, with comments stripped
+first, because the fix's own comment quotes the line it removed.
+
+(2) THE CLASSES COME FROM THE COLUMN, under a rule narrowed once already:
+
+      both named controls match  -> untouched (a two-of-five subset is a
+                                    choice, not a mistake)
+      exactly ONE matches        -> untouched, and the refusal names the
+                                    missing one
+      NEITHER matches, 2 classes -> derived, lower negative, higher
+                                    positive, printed on the console
+      NEITHER matches, 3+ or 1   -> not guessed at; the refusal lists what
+                                    is there
+
+    The one-match case was wrong in the first version: it derived, which
+    replaced the control the user got RIGHT along with the one they got
+    wrong and hid the message naming it. Caught by
+    `test_only_the_missing_control_is_named` in the full suite, not by any
+    targeted run.
+
+(3) THE POISONED STATE IS NAMED. A `location_column` absent from the
+measurement table raises a ValueError listing the columns that are there and
+saying the overwrite is the likely cause, rather than a pandas KeyError three
+frames down.
+
+STILL TRUE OF OLD SETTINGS FILES: one written before this may still carry
+the overwritten value. Nothing migrates it -- the run cannot tell a poisoned
+value from a deliberate one -- but the new message says exactly what to set
+it back to.
