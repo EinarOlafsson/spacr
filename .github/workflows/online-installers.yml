@@ -46,13 +46,15 @@ jobs:
           installer=$(find dist/online -name '*Linux*x86_64*Online.run' -print -quit)
           test -n "$installer"
           bash -n "$installer"
-          "$installer" \
-            --dry-run \
-            --torch-backend cpu \
-            --launcher-dir "$RUNNER_TEMP/bin" \
-            --skip-system-deps \
-            --no-launch \
-            --install-root "$RUNNER_TEMP/spacr"
+          for language in en sv de es zh_CN pt hi ko is fr; do
+            SPACR_INSTALL_LANGUAGE="$language" "$installer" \
+              --dry-run \
+              --torch-backend cpu \
+              --launcher-dir "$RUNNER_TEMP/bin" \
+              --skip-system-deps \
+              --no-launch \
+              --install-root "$RUNNER_TEMP/spacr-dry-$language"
+          done
       - name: Install and import the released Linux application
         run: |
           installer=$(find dist/online -name '*Linux*x86_64*Online.run' -print -quit)
@@ -88,13 +90,43 @@ jobs:
       - name: Validate PowerShell bootstrap dry run
         shell: powershell
         run: |
+          python .\packaging\i18n\render.py
+          if ($LASTEXITCODE -ne 0) {
+            throw "Installer locale generation failed with exit code $LASTEXITCODE"
+          }
+          $ParserInputs = @(
+            ".\packaging\online\install_spacr_windows.ps1",
+            ".\packaging\online\generated\installer_messages.ps1"
+          )
+          foreach ($ParserInput in $ParserInputs) {
+            $Tokens = $null
+            $ParseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $ParserInput).Path,
+              [ref]$Tokens,
+              [ref]$ParseErrors
+            ) | Out-Null
+            if ($ParseErrors.Count -ne 0) {
+              $ParseErrors | ForEach-Object { Write-Host $_.Message }
+              throw "PowerShell parser rejected $ParserInput"
+            }
+          }
           $VersionMatch = Select-String -Path "setup.py" -Pattern '^VERSION\s*=\s*["'']([^"'']+)'
           $Version = $VersionMatch.Matches[0].Groups[1].Value
-          & .\packaging\online\install_spacr_windows.ps1 `
-            -DryRun `
-            -InstallRoot (Join-Path $env:RUNNER_TEMP "SpaCR") `
-            -Version $Version `
-            -TorchBackend cpu
+          $Languages = @("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
+          foreach ($Language in $Languages) {
+            $DryRunRoot = Join-Path $env:RUNNER_TEMP "SpaCR-dry-$Language"
+            & powershell.exe -NoProfile -ExecutionPolicy Bypass `
+              -File .\packaging\online\install_spacr_windows.ps1 `
+              -DryRun `
+              -InstallRoot $DryRunRoot `
+              -Version $Version `
+              -TorchBackend cpu `
+              -Language $Language
+            if ($LASTEXITCODE -ne 0) {
+              throw "PowerShell dry run failed for $Language"
+            }
+          }
       - name: Build small NSIS web installer
         shell: powershell
         run: .\packaging\online\build_windows_online.ps1
@@ -208,6 +240,7 @@ jobs:
             --source installers \
             --destination spacr/application \
             --readme README.rst \
+            --localized-readme-dir docs/i18n/readme \
             --branch "$TARGET_BRANCH"
       - name: Commit generated application installers
         id: commit
@@ -216,7 +249,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.rst spacr/application
+          git add README.rst \
+            docs/i18n/readme/README.{sv,de,es,zh_CN,pt,hi,ko,is,fr}.rst \
+            spacr/application
           if git diff --cached --quiet; then
             echo "Installer files and links are already current."
           else
