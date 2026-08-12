@@ -34,6 +34,23 @@ from .torch_artifacts import (
 )
 
 
+def _class_folder_names(settings):
+    """The ordered training-folder names for ``settings``.
+
+    Every ``classes=`` argument in this module means the FOLDER names -- one
+    subfolder per class under ``src/train`` and ``src/test``, position is the
+    integer label. That is no longer what ``settings['classes']`` holds:
+    ``classes`` is the class DEFINITIONS (``name -> {column, value}``) and the
+    folder list is ``class_folder_names``.
+
+    Read through :func:`spacr.classify_classes.folder_names`, which falls back
+    to a list-shaped ``classes`` so a settings file written before the split
+    trains exactly as it did.
+    """
+    from .classify_classes import folder_names
+    return folder_names(settings)
+
+
 def _empty_device_cache() -> None:
     """Release accelerator caches without touching unavailable backends."""
     if torch.cuda.is_available():
@@ -929,7 +946,7 @@ def _cross_validate_model(settings, num_classes):
         mode='train',
         image_size=settings['image_size'],
         batch_size=settings['batch_size'],
-        classes=settings['classes'],
+        classes=_class_folder_names(settings),
         n_jobs=settings['n_jobs'],
         pin_memory=settings['pin_memory'],
         normalize=settings['normalize'],
@@ -1016,7 +1033,7 @@ def _cross_validate_model(settings, num_classes):
                 'channels': settings.get('train_channels'),
                 'augment': settings.get('augment', False),
             },
-            classes=list(settings.get('classes') or []),
+            classes=_class_folder_names(settings),
         )
 
     def _metrics_for_probabilities(labels, probabilities):
@@ -1256,7 +1273,7 @@ def _cross_validate_model(settings, num_classes):
             oof_labels,
             probabilities,
             oof_paths,
-            classes=settings.get('classes'),
+            classes=_class_folder_names(settings),
             fold_ids=oof_folds,
             calibration_method=calibration_method,
             calibration_bins=settings.get('evaluation_bins', 10),
@@ -1381,9 +1398,12 @@ def train_test_model(settings):
     os.makedirs(dst, exist_ok=True)
     settings['dst'] = dst
 
-    num_classes = len(settings.get('classes', [])) if settings.get('classes') else 0
+    num_classes = len(_class_folder_names(settings))
     if num_classes <= 0:
-        raise ValueError("No classes provided in settings['classes'].")
+        raise ValueError(
+            "No classes provided: neither class_folder_names nor "
+            "classes names any. Training needs one folder name per "
+            "class, in label order.")
 
     # Audit the permanent dataset boundary before a model sees a pixel. This
     # catches renamed byte-identical copies as well as plate/well/object and
@@ -1479,7 +1499,7 @@ def train_test_model(settings):
             mode='train',
             image_size=settings['image_size'],
             batch_size=settings['batch_size'],
-            classes=settings['classes'],
+            classes=_class_folder_names(settings),
             n_jobs=settings['n_jobs'],
             validation_split=settings['val_split'],
             pin_memory=settings['pin_memory'],
@@ -1560,7 +1580,7 @@ def train_test_model(settings):
                 'channels': settings.get('train_channels'),
                 'augment': settings.get('augment', False),
             },
-            classes=list(settings.get('classes') or []),
+            classes=_class_folder_names(settings),
             settings=settings,
             split_rule=(
                 f"{settings['val_split']:.0%} of train/ held out for "
@@ -1585,7 +1605,7 @@ def train_test_model(settings):
             mode='test',
             image_size=settings['image_size'],
             batch_size=settings['batch_size'],
-            classes=settings['classes'],
+            classes=_class_folder_names(settings),
             n_jobs=settings['n_jobs'],
             validation_split=0.0,
             pin_memory=settings['pin_memory'],
@@ -3596,7 +3616,7 @@ def deep_spacr(settings=None):
             n_examples = settings.get('n_top_examples', 20)
             save_top_class_examples(
                 df, tar_path, examples_dst, n=n_examples,
-                classes=settings.get('classes'))
+                classes=_class_folder_names(settings))
 
             # -- NEW: merge predictions back into the measurements database --
             # settings['src'] can be a string or list; use the first entry

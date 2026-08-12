@@ -266,7 +266,8 @@ _MODULE_LIST: Tuple[Module, ...] = (
         defaults="deep_spacr_defaults",
         validate_key="classify",
         requires=("src — plate folder with per-object PNGs from the measure module",
-                  "classes — the class names",
+                  "classes — what each class means, or "
+                  "class_folder_names for an existing dataset",
                   "model_path when train=False and apply_model_to_dataset=True"),
         writes=("<src>/datasets/", "<src>/model/*.pth",
                 "predictions merged into measurements.db"),
@@ -301,7 +302,7 @@ _MODULE_LIST: Tuple[Module, ...] = (
         defaults="get_train_test_model_settings",
         validate_key="classify",
         requires=("src — dataset folder laid out as train/<class>/*.png and test/<class>/*.png",
-                  "classes — the class folder names",
+                  "class_folder_names — the class folder names",
                   "train and/or test"),
         writes=("<src>/model/*.pth", "training + evaluation metrics CSVs"),
         note=("Ignores generate_training_dataset and apply_model_to_dataset — "

@@ -246,18 +246,17 @@ def test_a_rule_on_a_column_the_table_lacks_names_it():
 # ---------------------------------------------------------------------------
 
 def test_unbound_names_are_refused_without_blaming_the_caller():
-    """The shipped defaults reach `class_rules` ALREADY normalized.
+    """Names that survive normalization arrive here as a list.
 
     `normalize_settings` translates the old shape only when the settings
-    carry a basis to derive rules from. With none, it deliberately leaves
-    the names alone rather than guessing a column -- which is right. But
-    `class_rules` then said "run normalize_settings first", sending the
-    user to do the one thing they had just done, and saying nothing about
-    the column that is actually missing.
+    carry a basis to derive rules from. With none -- which is any settings
+    file naming classes that were never bound to a column -- it deliberately
+    leaves the names alone rather than guessing, and that is right. But
+    `class_rules` then said "run normalize_settings first", sending the user
+    to do the one thing they had just done, and saying nothing about the
+    column that is actually missing.
     """
-    from spacr.settings import deep_spacr_defaults
-
-    settings = normalize_settings(deep_spacr_defaults({}))
+    settings = normalize_settings({"classes": ["nc", "pc"], "src": "/x"})
     assert not isinstance(settings["classes"], dict), (
         "this test is about the case normalize_settings cannot bind")
 
@@ -285,3 +284,112 @@ def test_the_refusal_still_mentions_normalization_for_a_raw_settings_dict():
         class_rules({"classes": ["a", "b"]})
 
     assert "normalize_settings" in str(excinfo.value)
+
+
+# ---------------------------------------------------------------------------
+# `classes` carried two contracts; the folder names moved out (instruction 37)
+# ---------------------------------------------------------------------------
+
+def test_the_shipped_defaults_separate_the_two_meanings():
+    """One key held both "what a class means" and "where its crops are"."""
+    from spacr.settings import deep_spacr_defaults
+
+    s = deep_spacr_defaults({})
+    assert s["classes"] == {}, "no class is defined until the user defines one"
+    assert s["class_folder_names"] == ["nc", "pc"]
+
+
+def test_a_settings_file_written_before_the_split_still_trains():
+    """`classes` as a list is what every settings CSV in the wild holds.
+
+    It has to keep naming the training folders, or the split silently
+    retrains every existing project against no classes at all.
+    """
+    from spacr.classify_classes import folder_names
+
+    assert folder_names({"classes": ["alive", "dead"]}) == ["alive", "dead"]
+
+
+def test_the_explicit_key_wins_over_the_legacy_one():
+    from spacr.classify_classes import folder_names
+
+    names = folder_names({"classes": ["old", "older"],
+                          "class_folder_names": ["new", "newer"]})
+    assert names == ["new", "newer"]
+
+
+def test_defined_classes_name_their_own_folders():
+    """With neither list set, the definitions are the answer, in order."""
+    from spacr.classify_classes import folder_names
+
+    names = folder_names({"classes": {
+        "pc": {"column": "columnID", "value": "c3"},
+        "nc": {"column": "columnID", "value": "c1"}}})
+    assert names == ["pc", "nc"]
+
+
+def test_folder_names_does_not_raise_on_a_malformed_definition():
+    """Naming the folders is not the place to refuse a bad rule.
+
+    `class_rules` raises on its own terms for whoever needs the rules; a
+    listing helper that raised too would turn one bad row into a crash in
+    unrelated code.
+    """
+    from spacr.classify_classes import folder_names
+
+    assert folder_names({"classes": {"a": "not-a-mapping"}}) == []
+
+
+def test_an_empty_definition_still_derives_from_the_older_keys():
+    """`{}` is a Mapping, and that is the trap.
+
+    The default is now an empty dict meaning "nothing defined yet". A
+    normalize_settings that tested only the TYPE would skip its derivation
+    for exactly those settings, so a plate carrying the retired
+    location_column / control keys would train on no classes and say
+    nothing.
+    """
+    out = normalize_settings({
+        "classes": {},
+        "class_folder_names": ["nc", "pc"],
+        "location_column": "columnID",
+        "negative_control": "c1",
+        "positive_control": "c3",
+    })
+
+    assert isinstance(out["classes"], dict) and out["classes"], (
+        "the retired keys were not translated")
+    assert sorted(out["classes"]) == ["nc", "pc"]
+    assert out["classes"]["pc"]["column"] == "columnID"
+    assert out["classes"]["pc"]["value"] == "c3"
+
+
+def test_generate_training_dataset_writes_folders_not_definitions():
+    """io wrote the folder listing over `classes`, discarding the rules.
+
+    Asserted on the source, because reaching this line needs a full dataset
+    build: what matters is that the write targets the folder-name key.
+    """
+    import inspect
+    from spacr import io
+
+    source = inspect.getsource(io)
+    assert "settings['class_folder_names'] = final_names" in source
+    assert "settings['classes'] = final_names" not in source
+
+
+def test_deep_spacr_reads_the_folder_names():
+    """Every `classes=` argument in deep_spacr means the FOLDER names."""
+    import inspect
+    from spacr import deep_spacr
+
+    source = inspect.getsource(deep_spacr)
+    assert "classes=settings['classes']" not in source
+    assert "classes=_class_folder_names(settings)" in source
+
+
+def test_deep_spacr_resolves_a_legacy_settings_dict():
+    from spacr.deep_spacr import _class_folder_names
+
+    assert _class_folder_names({"classes": ["alive", "dead"]}) == [
+        "alive", "dead"]

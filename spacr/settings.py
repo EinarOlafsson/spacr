@@ -1229,7 +1229,8 @@ def set_default_train_test_model(settings):
     settings.setdefault('src','path')
     settings.setdefault('train',True)
     settings.setdefault('test',False)
-    settings.setdefault('classes',['nc','pc'])
+    settings.setdefault('classes', {})
+    settings.setdefault('class_folder_names', ['nc','pc'])
     settings.setdefault('model_type','maxvit_t')
     settings.setdefault('optimizer_type','adamw')
     settings.setdefault('schedule','cosine') #reduce_lr_on_plateau, step_lr
@@ -1320,7 +1321,8 @@ def deep_spacr_defaults(settings):
     settings.setdefault('src','path')
     settings.setdefault('dataset_mode','metadata')
     settings.setdefault('annotation_column','test')
-    settings.setdefault('classes',['nc','pc'])
+    settings.setdefault('classes', {})
+    settings.setdefault('class_folder_names', ['nc','pc'])
     settings.setdefault('test_split',0.1)
     settings.setdefault('class_metadata',[['c1'],['c2']])
     settings.setdefault('metadata_type_by','columnID')
@@ -1402,7 +1404,8 @@ def get_train_test_model_settings(settings):
      settings.setdefault('train', True)
      settings.setdefault('test', False)
      settings.setdefault('custom_model', False)
-     settings.setdefault('classes', ['nc','pc'])
+     settings.setdefault('classes', {})
+     settings.setdefault('class_folder_names', ['nc','pc'])
      settings.setdefault('train_channels', ['r','g','b'])
      settings.setdefault('model_type', 'maxvit_t')
      settings.setdefault('optimizer_type', 'adamw')
@@ -2013,7 +2016,10 @@ expected_types = {
     "n_repeats": int,
     "top_features": int,
     "remove_low_variance_features": bool,
-    "classes": list,
+    # The class DEFINITIONS. The ordered training-folder names
+    # are `class_folder_names`; see spacr.classify_classes.
+    "classes": dict,
+    "class_folder_names": list,
     "schedule": str,
     "loss_type": str,
     "image_size": int,
@@ -2672,7 +2678,8 @@ tooltips = {
     "channel_dims": '(list) - Recruitment analysis only: the image-channel indices held in the merged arrays. They drive the overlay figures and the recruitment loop -- but _calculate_recruitment writes fixed, channel-less column names, so changing this list changes WHICH channels are measured without changing what the output columns are called. Two runs with different values produce identically-named columns holding different measurements. Default [0, 1, 2, 3].',
     "channel_of_interest": "(int) - Index of the fluorescence channel the downstream analysis focuses on. It decides which channel's features survive filtering (other channels' features are dropped), defines recruitment = pathogen_channel_N_mean_intensity / cytoplasm_channel_N_mean_intensity, and is written into the ML result paths. Set it to the channel carrying your phenotype readout. Valid 0-3; default 3 in the ML/recruitment steps, 1-2 elsewhere.",
     "chunk_size": "(int) - Number of FASTQ reads read into memory and handed to each worker batch. Larger chunks cut per-batch overhead and make the progress bar coarser but raise peak RAM per job; smaller chunks stream more gently on low-memory machines. Also sets how many reads are processed when test is True. Default 100000.",
-    "classes": "(list) - Ordered class names. Each must exactly match a subfolder under src/train and src/test; a name's position in this list becomes its integer label, and the list length sets the width of the classifier head. Training raises a FileNotFoundError listing missing vs available folders if a name has no folder. Generate Training Dataset overwrites this with the class names it actually wrote to disk. Default ['nc','pc'].",
+    "classes": "(dict) - What each class MEANS: a mapping of class name -> {column, value}, so 'pc' might be {'column': 'columnID', 'value': 'c3'}. Set it in the Classes editor: choose a column and every distinct value in it becomes a row you name. One row may instead be a random complement - everything no other rule claimed, sampled to match the largest named class. Several columns can be used at once; each row remembers where its value came from. This says which OBJECTS belong to a class; the training subfolder names are class_folder_names. A settings file written before the split holds a plain list here and is translated on read. Default {} - nothing defined yet.",
+    "class_folder_names": "(list of str) - Ordered training folder names. Each must exactly match a subfolder under src/train and src/test; a name's position in this list becomes its integer label, and the list length sets the width of the classifier head. Training raises a FileNotFoundError listing missing vs available folders if a name has no folder. Generate Training Dataset overwrites this with the names it actually wrote to disk. This is where the crops ARE; 'classes' is what they MEAN. Default ['nc','pc'].",
     "clustering": "(str) - Algorithm run on the 2D embedding. 'dbscan' grows density-based clusters from eps and min_samples and labels sparse points as noise (-1), discovering the cluster count itself; 'kmeans' (that exact spelling) instead forces exactly min_samples clusters and assigns every point. Choose dbscan for a few distinct phenotypes over a diffuse background, kmeans when you want a fixed number of groups. Default 'dbscan'.",
     "col_to_compare": "(str) - Metadata column that identifies the control wells when embedding_by_controls is True: rows whose value equals pos or neg are used to train the reducer, and the column is then dropped before fitting. Typically 'columnID' or 'rowID' depending on where controls sit on the plate. Ignored otherwise. Default 'columnID'.",
     "color_by": "(str) - Name of a column in the joined measurement table (e.g. 'cond', 'columnID', 'plateID') used to color embedding points instead of the cluster labels. Set it to see how a known grouping such as condition or plate column falls across the map; leave it None to color by the clustering result. Setting it also disables remove_cluster_noise, plot_outlines and smooth_lines. Default None.",
@@ -3362,7 +3369,7 @@ categories = {
     # offers it any more: it is an ALIAS, not a dead setting (the Classes
     # translation still reads it), and a key that falls out of `categories`
     # altogether is one nothing can ever group again.
-    "Training Classes": ["dataset_mode", "classes", "class_metadata", "metadata_type_by", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "annotation_column", "annotated_classes", "measurement_rules", "write_random_annotation_column"],
+    "Training Classes": ["dataset_mode", "classes", "class_folder_names", "class_metadata", "metadata_type_by", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "annotation_column", "annotated_classes", "measurement_rules", "write_random_annotation_column"],
 
     # WHERE THE PIXELS COME FROM, whichever way they are obtained: crops
     # already on disk, cut on demand from merged, or generated first.
