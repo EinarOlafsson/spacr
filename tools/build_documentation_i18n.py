@@ -1455,7 +1455,7 @@ def _api_translation_source(block: str) -> str:
     if re.search(_COMPUTE_RUN_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
             (r"\blong[- ]running\b", "long-running"),
-            (r"\b(a|an)\s+running\b", r"an executing"),
+            (r"\b(a|an)\s+running\b", lambda m: _initial_case(m, "an executing")),
             (r"\b(has|have|had)\s+re[- ]run\s+([^,.;:]+?)(?=\s+(?:and|but|so)\b|[,.;:]|$)", r"\1 executed \2 again"),
             (r"\b(had)\s+([^,.;:]+?)\s+re[- ]run\s+([^,.;:]+?)(?=\s+(?:and|but|so)\b|[,.;:]|$)", r"\1 \2 executed again \3"),
             (r"\b(do|does|did)\s+not\s+run\b", r"\1 not execute"),
@@ -1508,6 +1508,8 @@ def _api_translation_source(block: str) -> str:
         ))
     if re.search(_COMPUTE_THREAD_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
+            (r"\b(?-i:A)\s+(?i:worker)\s+(?i:thread)\b", "A background execution unit"),
+            (r"\b(?-i:a)\s+(?i:worker)\s+(?i:thread)\b", "a background execution unit"),
             (r"\bworker[- ]thread\s+counts\b", lambda m: _initial_case(m, "background-worker counts")),
             (r"\bworker[- ]thread\s+count\b", lambda m: _initial_case(m, "background-worker count")),
             (r"\b(a|an|the|this|that|each|every)\s+thread\s+pools\b", r"\1 worker pools"),
@@ -1519,16 +1521,16 @@ def _api_translation_source(block: str) -> str:
             (r"\bthreaded\s+path\b", "background execution path"),
             (r"\bthreaded\s+JobRunner\b", "background JobRunner"),
             (r"\ba\s+threaded\b", "a background"),
+            (r"\bthreaded,\s+not\s+repeated\b", "linked together, not repeated"),
             (r"\b(?-i:Threaded),", "With worker execution,"),
             (r"\b(?-i:threaded),", "with worker execution,"),
-            (r"\bthreaded,\s+not\s+repeated\b", "linked together, not repeated"),
             (r"\bthread[- ]safety\b", lambda m: _initial_case(m, "safe use across execution paths")),
             (r"\bthread[- ]safe\b", lambda m: _initial_case(m, "safe across execution paths")),
             (r"\bGUI[- ]thread[- ]only\b", "allowed only in the main GUI execution path"),
-            (r"\bworker[- ]thread[- ]safe\b", "safe in a background execution unit"),
+            (r"\bworker[- ]thread[- ]safe\b", lambda m: _initial_case(m, "safe in a background execution unit")),
             (r"\bthread[- ]agnostic\b", "independent of the execution path"),
             (r"\bcross[- ]thread\b", "cross-execution-path"),
-            (r"\boff[- ]thread\b", "off-execution-path"),
+            (r"\boff[- ]thread\b", lambda m: _initial_case(m, "off-execution-path")),
             (r"\bthread[- ]local\b", "execution-path-local"),
             (r"\bthread\s+affinity\b", "execution-path affinity"),
             (r"\bthreading\b", "execution concurrency"),
@@ -1549,6 +1551,7 @@ def _api_translation_source(block: str) -> str:
         ))
     if re.search(_IMAGE_CROP_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
+            (r"\bkeys\s+a\s+crop\b", "keys an extracted image region"),
             (r"\bResolve\s+object\s+keys\s+to\s+crop\s+rows\b", "Resolve object identifiers to rows of extracted image regions"),
             (r"\bIndex\s+of\s+the\s+crop\s+the\s+keyboard\b", "Index of the extracted image region that the keyboard"),
             (r"\bRe[- ]crop\s+the\s+loaded\s+array\b", "Extract image regions from the loaded array again"),
@@ -1645,20 +1648,29 @@ def _api_translation_source(block: str) -> str:
         ))
     if re.search(_SCIENTIFIC_PLATE_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
+            (r"\b(?-i:A)\s+(?i:plate)\b", "A laboratory microplate"),
+            (r"\b(?-i:a)\s+(?i:plate)\b", "a laboratory microplate"),
             (r"\b(\d+)\s*[- ]well\s+plates\b", r"\1-position laboratory microplates"),
             (r"\b(\d+)\s*[- ]well\s+plate\b", r"\1-position laboratory microplate"),
-            (r"\bplates?\s+wells\b", "microplate sample positions"),
-            (r"\bplates?\s+well\b", "microplate sample position"),
-            (r"\bplates\b", "laboratory microplates"),
-            (r"\bplate\b", "laboratory microplate"),
+            (r"\bplates?\s+wells\b", lambda m: _initial_case(m, "microplate sample positions")),
+            (r"\bplates?\s+well\b", lambda m: _initial_case(m, "microplate sample position")),
+            (r"\bplates\b", lambda m: _initial_case(m, "laboratory microplates")),
+            (r"\bplate\b", lambda m: _initial_case(m, "laboratory microplate")),
         ))
     if scientific_wells:
-        alternatives = [(r"\bwells\b", "microplate sample positions")]
+        alternatives = [
+            (r"\ba\s+wells[- ]by[- ]genes\b", lambda m: _initial_case(
+                m, "a microplate-sample-position-by-gene",
+            )),
+            (r"\bwells\b", lambda m: _initial_case(m, "microplate sample positions")),
+        ]
         if total_wells == scientific_wells:
-            alternatives.append((r"\bwell\b", "microplate sample position"))
+            alternatives.append((r"\bwell\b", lambda m: _initial_case(m, "microplate sample position")))
         transforms.extend(alternatives)
     if re.search(_MAPPING_KEY_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
+            (r"\bA\s+one-column-per-key-column\s+frame\s+for\s+", "A frame with one output column for each identifier column in "),
+            (r",\s+in\s+their\s+order\.", ", preserving their order."),
             (r"\bkey/query/value\b", "attention-key/query/value"),
             (r"\bkey[- ]value\b", "key-value"),
             (r"\bquery/key/value\b", "query/identifier/value"),
@@ -1682,7 +1694,7 @@ def _api_translation_source(block: str) -> str:
             (r"\bevery\s+key\s+of\b", "every field name in"),
             (r"\bkeys\s+the\b", "structured-data names that the"),
             (r"\bkeys\s+a\b", "structured-data names that a"),
-            (r"\bwithout\s+keys\b", "without identifiers"),
+            (r"\bwithout\s+keys\b", lambda m: _initial_case(m, "without identifiers")),
             (r"\bobject\s+keys\b", "object identifiers"),
             (r"\bobject\s+key\b", "object identifier"),
             (r"\brow\s+keys\b", "row identifiers"),
@@ -1695,7 +1707,7 @@ def _api_translation_source(block: str) -> str:
             (r"\b(?:settings?\s+)?dict\s+key\b", "dictionary entry name"),
             (r"\bimage[- ]key\s+values\b", "image-identifier values"),
             (r"\bimage[- ]key\s+value\b", "image-identifier value"),
-            (r"\bmapping\s+keys\b", "structured-data names"),
+            (r"\bmapping\s+keys\b", lambda m: _initial_case(m, "structured-data names")),
             (r"\bmapping\s+key\b", "structured-data name"),
             (r"\bconfiguration\s+keys\b", "configuration field names"),
             (r"\bconfiguration\s+key\b", "configuration field name"),
@@ -1706,13 +1718,15 @@ def _api_translation_source(block: str) -> str:
     # inverse rewrite because both English occurrences are intentional.
     if has_gui_screen and not has_scientific_screen:
         transforms.extend((
-            (r"\bscreens\b", "application views"),
-            (r"\bscreen\b", "application view"),
+            (r"\ba\s+screens\b", "application views"),
+            (r"\ba\s+screen\b", lambda m: _initial_case(m, "an application view")),
+            (r"\bscreens\b", lambda m: _initial_case(m, "application views")),
+            (r"\bscreen\b", lambda m: _initial_case(m, "application view")),
         ))
     elif has_scientific_screen and not has_gui_screen:
         transforms.extend((
-            (r"\bscreens\b", "screening experiments"),
-            (r"\bscreen\b", "screening experiment"),
+            (r"\bscreens\b", lambda m: _initial_case(m, "screening experiments")),
+            (r"\bscreen\b", lambda m: _initial_case(m, "screening experiment")),
         ))
     if re.search(_DICTIONARY_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
@@ -1726,14 +1740,16 @@ def _api_translation_source(block: str) -> str:
         ))
     if re.search(_PIPELINE_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
-            (r"\bpipelines\b", "workflows"),
-            (r"\bpipeline\b", "workflow"),
+            (r"\bpipelines\b", lambda m: _initial_case(m, "workflows")),
+            (r"\bpipeline\b", lambda m: _initial_case(m, "workflow")),
         ))
     if re.search(_DATA_GATE_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
-            (r"\bgating\b", "data-selection filtering"),
-            (r"\bgates\b", "data-selection boundaries"),
-            (r"\bgate\b", "data-selection boundary"),
+            (r"\b(users?|callers?|filters?)\s+gates\s+on\b", r"\1 selects rows using"),
+            (r"\bto\s+gate\b", "to filter data"),
+            (r"\bgating\b", lambda m: _initial_case(m, "data-selection filtering")),
+            (r"\bgates\b", lambda m: _initial_case(m, "data-selection boundaries")),
+            (r"\bgate\b", lambda m: _initial_case(m, "data-selection boundary")),
         ))
     if _statistical_power_source(prose):
         transforms.extend((
@@ -1741,23 +1757,47 @@ def _api_translation_source(block: str) -> str:
             (r"\bpower\b", "statistical detection sensitivity"),
         ))
     if re.search(_SOFTWARE_QUEUE_SOURCE, prose, re.IGNORECASE):
+        queue_is_annotation_list = bool(re.search(
+            r"(?i)\b(?:active[- ]learning|annotation|annotator|uncertainty|"
+            r"diversif(?:y|ied|ication))\b",
+            prose,
+        ))
+        queue_is_batch_buffer = bool(re.search(
+            r"(?i)\b(?:DataLoader|pre[- ]?fetch|batches?\s+ahead|sentinel|"
+            r"coalesced\s+transactions)\b",
+            prose,
+        ))
         queue_is_job_list = bool(re.search(
             r"(?i)\b(?:jobs?|tasks?|plates?|batches?|enqueue|dequeue|"
             r"scheduler|runner)\b",
             prose,
         ))
-        queue_singular = "software job list" if queue_is_job_list else "work list"
-        queue_plural = "software job lists" if queue_is_job_list else "work lists"
+        if queue_is_batch_buffer:
+            queue_singular, queue_plural = "batch-data buffer", "batch-data buffers"
+        elif queue_is_annotation_list:
+            queue_singular = "annotation work list"
+            queue_plural = "annotation work lists"
+        elif queue_is_job_list:
+            queue_singular, queue_plural = "software job list", "software job lists"
+        else:
+            queue_singular, queue_plural = "work list", "work lists"
         transforms.extend((
+            (r"\ba\s+queue\b(?!\s*[- ]+\s*(?:based|backed)\b)", lambda m: _initial_case(m, (
+                "an annotation work list" if queue_is_annotation_list
+                else "a " + queue_singular
+            ))),
             (r"\b(?-i:Queue)\s+plate\s+folders\b", "Add plate folders to the software job list"),
             (r"\bQt\s+then\s+queues\b", "Qt then schedules"),
+            (r"\bbatches\s+from\s+a\s+Queue\b", "batches from a batch-data buffer"),
+            (r"\bA\s+private\s+Queue\b", "A private error-message list"),
             (r"\bmust\s+never\s+queue\b", "must never schedule"),
             (r"\b(?:can|cannot|will|should|does|did|then)\s+queue\b", lambda m: m.group(0)[:-5] + "schedule"),
+            (r"\bqueues\s+(?=(?:the|a|an|plates?|jobs?|tasks?|them)\b)", lambda m: _initial_case(m, "schedules ")),
             (r"\bqueue\s+(?=(?:the|a|an|plates?|jobs?|tasks?|them)\b)", "schedule "),
             (r"\btwelve[- ]job\s+queue\b", "software job list with twelve jobs"),
             (r"\bjob\s+queue\b", "software job list"),
-            (r"\bPlate\s+Queue\b", "Plate-processing list"),
-            (r"\bplate\s+queue\b", "plate-processing list"),
+            (r"\b(?-i:Plate\s+Queue)\b", "Plate-processing list"),
+            (r"\b(?-i:plate\s+queue)\b", "plate-processing list"),
             (r"\bqueue[- ]+\s*based\b", "work-list-based"),
             (r"\bqueue[- ]backed\b", "work-list-backed"),
             (r"\bmid[- ]queue\b", "while processing the software job list"),
@@ -1792,6 +1832,13 @@ def _api_translation_source(block: str) -> str:
         ))
     if re.search(_IMAGING_CHANNEL_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
+            (r"\bintensity\s+channels\s+first\b", "intensity image data channels first"),
+            (r"\bis\s+often\s+channel[- ]first\b", "often stores image data channels first"),
+            (r"\bis\s+often\s+channel[- ]last\b", "often stores image data channels last"),
+            (r"\bis\s+channel[- ]first\b", "stores image data channels first"),
+            (r"\bis\s+channel[- ]last\b", "stores image data channels last"),
+            (r"\ba\s+(\d+)[- ]channel\s+image\b", r"an image with \1 data channels"),
+            (r"\b(\d+)[- ]channel\s+image\b", r"image with \1 data channels"),
             (r"\bimage\s+channels\b", "image data channels"),
             (r"\bimage\s+channel\b", "image data channel"),
             (r"\ba\s+channels?[- ]last\b", "an image-channel-last"),
@@ -1809,8 +1856,8 @@ def _api_translation_source(block: str) -> str:
         ))
     if re.search(_HUMAN_READABLE_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
-            (r"\ba\s+human[- ]readable\b", "an easy-to-read"),
-            (r"\bhuman[- ]readable\b", "easy-to-read"),
+            (r"\ba\s+human[- ]readable\b", lambda m: _initial_case(m, "an easy-to-read")),
+            (r"\bhuman[- ]readable\b", lambda m: _initial_case(m, "easy-to-read")),
             (r"\bhuman\s+description\b", "user-facing description"),
             (r"\bhuman\s+summary\b", "user-facing summary"),
             (r"\bhuman\s+text\b", "user-facing text"),
