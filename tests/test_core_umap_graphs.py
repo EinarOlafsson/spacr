@@ -319,3 +319,68 @@ def test_reducer_search_row_limit_and_exclude(umap_src):
         dbscan_params=[{"eps": 0.5, "min_samples": 3}],
         kmeans_params=None, save=False, show=False)
     assert out is None or out is not None
+
+
+# ---------------------------------------------------------------------------
+# No grid at the end (instruction 75)
+# ---------------------------------------------------------------------------
+
+def test_the_cluster_grid_is_off_by_default():
+    """A default Image UMAP run must not add the montage.
+
+    The grid is a SECOND figure emitted after the embedding, so with it on
+    the last thing the run pushes at the figure view -- and therefore the
+    thing a user who steps away is left looking at -- is a sheet of cluster
+    panels rather than the graph. "no grid at the end just normal
+    behaviour", and the Tk GUI has always passed False here.
+    """
+    from spacr.settings import set_default_umap_image_settings
+
+    assert set_default_umap_image_settings({})["plot_cluster_grids"] is False
+
+
+def test_a_default_run_draws_the_embedding_and_no_grid(umap_src, monkeypatch):
+    """Measured end to end, not asserted off the defaults dict.
+
+    ``plot_images`` is on -- the condition under which the grid used to be
+    drawn -- and the setting is deliberately NOT passed, so the default is
+    what decides.
+    """
+    pytest.importorskip("umap")
+    import spacr.utils as utils
+    from spacr.core import generate_image_umap
+
+    drawn = []
+    real_grid = utils.plot_clusters_grid
+    real_embedding = utils.plot_embedding
+    monkeypatch.setattr(
+        utils, "plot_clusters_grid",
+        lambda *a, **k: (drawn.append("grid"), real_grid(*a, **k))[1])
+    monkeypatch.setattr(
+        utils, "plot_embedding",
+        lambda *a, **k: (drawn.append("embedding"),
+                         real_embedding(*a, **k))[1])
+
+    settings = _umap_settings(umap_src, plot_images=True, image_nr=2)
+    del settings["plot_cluster_grids"]
+    generate_image_umap(settings)
+
+    assert drawn == ["embedding"], f"the run drew {drawn}"
+
+
+def test_the_grid_is_still_one_setting_away(umap_src, monkeypatch):
+    """Removed from the DEFAULT, not from the module."""
+    pytest.importorskip("umap")
+    import spacr.utils as utils
+    from spacr.core import generate_image_umap
+
+    drawn = []
+    real_grid = utils.plot_clusters_grid
+    monkeypatch.setattr(
+        utils, "plot_clusters_grid",
+        lambda *a, **k: (drawn.append("grid"), real_grid(*a, **k))[1])
+
+    generate_image_umap(_umap_settings(
+        umap_src, plot_images=True, plot_cluster_grids=True, image_nr=2))
+
+    assert drawn == ["grid"]

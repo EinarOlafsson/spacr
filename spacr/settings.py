@@ -924,7 +924,17 @@ def set_default_umap_image_settings(settings=None):
     settings.setdefault('filter_by', 'channel_0')
     settings.setdefault('img_zoom', 0.5)
     settings.setdefault('plot_by_cluster', True)
-    settings.setdefault('plot_cluster_grids', True)
+    # OFF by default (2026-08-12, instruction 75). The cluster grid is a
+    # SECOND, montage figure emitted AFTER the embedding, so with it on the
+    # last thing an Image UMAP run put on screen -- and therefore the thing
+    # a user who steps away is left looking at -- was a sheet of cluster
+    # panels rather than the graph: "i don't want to see a grid with plots,
+    # i want the normal figure view i have in other modules ... no grid at
+    # the end, just normal behaviour". The Tk GUI has always passed False
+    # here (gui_elements._collect_common_settings), so this only makes the
+    # default agree with the one surface that already had it right. The
+    # figure is one checkbox away for anyone who wants it.
+    settings.setdefault('plot_cluster_grids', False)
     settings.setdefault('remove_cluster_noise', True)
     settings.setdefault('remove_highly_correlated', True)
     settings.setdefault('log_data', False)
@@ -2747,7 +2757,7 @@ tooltips = {
     "plate": "(str) - INERT where the regression settings show it: nothing reads settings['plate'] on that path and it has no default. What people expect from it belongs to plateID, which perform_regression passes to process_scores and process_reads, where it is stamped onto count and score rows that carry no plate of their own. Set plateID instead. Default None.",
     "plot": "(bool) - Render and save QC figures while the pipeline runs: channel montages and Cellpose mask overlays during segmentation, before/after filtration views and crop grids during measurement. It adds figures per batch, so a full plate becomes much slower and more memory-hungry; keep it for small or test_mode runs, which force it on. Default False.",
     "plot_by_cluster": "(bool) - Chooses which thumbnails get overlaid on the embedding: when True, up to image_nr crops are sampled from each cluster (DBSCAN noise excluded) so every cluster is represented; when False, image_nr crops are sampled at random across the whole map. Keep True to compare cluster morphologies, False for an unbiased sample. Default True.",
-    "plot_cluster_grids": "(bool) - Render a second figure with one color-bordered panel per cluster, each filled with up to image_nr example crops from that cluster, and save it as <METHOD>_grid.pdf when save_figure is on. Switch it off to skip the extra render when there are many clusters. Ignored unless plot_images is True. Default True.",
+    "plot_cluster_grids": "(bool) - Render a second figure with one color-bordered panel per cluster, each filled with up to image_nr example crops from that cluster, and save it as <METHOD>_grid.pdf when save_figure is on. Switch it on when you want the montage; it is an extra figure emitted after the embedding, so with it on the grid, not the graph, is what the run finishes on. Ignored unless plot_images is True. Default False.",
     "plot_control": "(bool) - Before the recruitment plots, draw a control panel of per-compartment mean intensities (cell, nucleus, pathogen, cytoplasm) for every channel, split by condition. Use it to confirm channel assignment and that positive/negative control wells separate as expected before trusting the recruitment numbers. Turn it off to shorten the run. Default True.",
     "plot_images": "(bool) - Paste the actual object crops onto the embedding scatter instead of showing bare points. Turn it off for a fast, plain scatter on large datasets - doing so also forces black_background to False and skips the cluster grid figure entirely. Default True.",
     "plot_nr": "(int) - How many merged image stacks from the start of the folder are drawn with cell, nucleus and pathogen outlines overlaid before recruitment analysis runs. The check is index <= plot_nr, so plot_nr + 1 images actually appear and 0 still plots one. Raise it to eyeball segmentation on more fields. Default 3.",

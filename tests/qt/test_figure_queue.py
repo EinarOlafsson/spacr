@@ -63,6 +63,16 @@ def _isolate_figure_prefs(monkeypatch, tmp_path_factory):
 
 class TestBasics:
     def test_figure_settings_fields_link_to_api_docs(self, qtbot):
+        """The help is on the LABEL's tooltip, and there is no dot.
+
+        This test asserted the opposite until instruction 75 -- every field
+        carried a ``_spacr_api_dot``. Inverted rather than deleted, and the
+        ``href=`` assertion above it kept deliberately: "no dot" on its own
+        would also pass if the documentation had left with the decoration,
+        which is the regression worth excluding. Same change, same reason,
+        as the Mask live preview, Annotate and the UMAP search dialog.
+        """
+        from spacr.qt.widgets.dot_link import DotLink
         from spacr.qt.widgets.figure_queue import _FigureSettingsDialog
         dialog = _FigureSettingsDialog(_make_fig())
         qtbot.addWidget(dialog)
@@ -70,7 +80,8 @@ class TestBasics:
             assert widget.toolTip() == ""
             label = widget._spacr_setting_label
             assert "href=" in label.toolTip()
-            assert getattr(label, "_spacr_api_dot", None) is not None
+            assert getattr(label, "_spacr_api_dot", None) is None
+        assert dialog.findChildren(DotLink) == []
 
     def test_add_figure_increments_count(self, qtbot):
         q = FigureQueue()
