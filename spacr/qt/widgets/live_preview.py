@@ -63,6 +63,10 @@ from .preview_controls import (
     channel_view, enumerate_image_sets, populate_channel_combo,
     sample_image_sets, sample_seed, selected_channel,
 )
+from .preview_contract import (
+    PREVIEW_CANCEL_TEXT, PREVIEW_RUN_TEXT, PREVIEW_RUNNING_MESSAGE,
+    LivePreviewContract, preview_cellpose_model, preview_failure_message,
+)
 from .toggle import Toggle
 from ..job_runner import JobRunner
 
@@ -677,25 +681,11 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     applied per-object-type after the model returns, using the
     ``postprocess_settings`` dict on the request.
     """
-    from cellpose import models as cp_models
-    try:
-        import torch
-        gpu = torch.cuda.is_available()
-    except Exception:
-        gpu = False
-
-    # `model_type=` is accepted-and-IGNORED by Cellpose 4 -- it logs "not
-    # used in v4.0.1+" and drops it, leaving pretrained_model at its 'cpsam'
-    # default. So picking any other model here silently segmented with cpsam,
-    # including a checkpoint the user had just trained in spaCR's own Train
-    # Cellpose module. `_resolve_cellpose_pretrained` is what the pipeline
-    # uses: it maps the legacy pre-SAM names to cpsam and says so once, and
-    # returns a path unchanged when the name is a fine-tuned checkpoint.
-    from spacr.utils import _resolve_cellpose_pretrained
-    model = cp_models.CellposeModel(
-        gpu=gpu,
-        pretrained_model=_resolve_cellpose_pretrained(req.model),
-        device=None)
+    # ONE constructor for every live view — see
+    # `preview_contract.preview_cellpose_model` for why `model_type=` may
+    # never appear here. The Timelapse preview calls the same helper, so the
+    # next Cellpose API change is one fix rather than two.
+    model = preview_cellpose_model(req.model)
 
     out: Dict[str, np.ndarray] = {}
     flows_out: Dict[str, np.ndarray] = {}
@@ -1022,10 +1012,18 @@ def _model_menu():
     return menu or _FALLBACK_MODELS
 
 
-class LivePreviewPanel(QWidget):
-    """Interactive segmentation preview — Mask app only."""
+class LivePreviewPanel(LivePreviewContract, QWidget):
+    """Interactive segmentation preview — Mask app only.
+
+    The reference implementation of
+    :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`: the
+    other three live views wear the same run button, the same cancel
+    button and the same words as this one.
+    """
 
     preview_ready = Signal(object)   # {object_type: mask}
+
+    PREVIEW_SOURCE_HINT = "Load an image first."
 
     def __init__(self, parent=None, *, threaded: bool = True):
         super().__init__(parent)
@@ -1371,8 +1369,18 @@ class LivePreviewPanel(QWidget):
 
         # Action row — Run + Live settings + status
         act = QHBoxLayout()
-        self._run_btn = QPushButton("Run preview", self)
+        self._run_btn = QPushButton(PREVIEW_RUN_TEXT, self)
         self._run_btn.clicked.connect(self.run_preview)
+        # Cancel sits beside Run in every live view, disabled until a pass
+        # is in flight. Before the shared contract only this panel could be
+        # cancelled at all, and only from Python.
+        self._cancel_btn = QPushButton(PREVIEW_CANCEL_TEXT, self)
+        self._cancel_btn.setToolTip(
+            "Abandon the preview in flight. Cellpose cannot be interrupted, "
+            "so the pass finishes in the background and its result is "
+            "dropped.")
+        self._cancel_btn.setEnabled(False)
+        self._cancel_btn.clicked.connect(self.cancel_preview)
         self._live_settings_btn = QPushButton("Live settings…", self)
         self._live_settings_btn.clicked.connect(self.open_live_settings)
         # What the right-hand canvas shows: outline overlay, the raw label
@@ -1387,6 +1395,7 @@ class LivePreviewPanel(QWidget):
             lambda *_: self._refresh_canvases())
         self._status = QLabel("", self)
         act.addWidget(self._run_btn)
+        act.addWidget(self._cancel_btn)
         act.addWidget(self._live_settings_btn)
         act.addWidget(QLabel("View:", self))
         act.addWidget(self._view_mode)
@@ -2127,33 +2136,23 @@ class LivePreviewPanel(QWidget):
             "fov": self._fov_box.currentText(),
         }
 
-    def cancel_preview(self) -> bool:
-        """Abandon the preview run in flight, if there is one.
-
-        Cellpose exposes no interrupt, so the thread is left to run itself
-        out; bumping the run token is what makes its answer land as a no-op
-        (:meth:`_on_worker_done` drops results carrying a stale token).
-
-        :returns: True when a running worker was abandoned.
-        """
-        self._run_token += 1
-        if self._worker is not None and self._worker.isRunning():
-            self._status.setText("Preview cancelled.")
-            self._run_btn.setEnabled(True)
-            return True
-        return False
+    def _preview_blocked_reason(self) -> str:
+        """Why this panel cannot segment right now, or ``""``."""
+        if self._image is None:
+            return self.PREVIEW_SOURCE_HINT
+        return ""
 
     def run_preview(self):
-        if self._image is None:
-            self._status.setText("Load an image first.")
-            return
-        if self._worker is not None and self._worker.isRunning():
-            self._status.setText("Preview already running.")
+        """Segment the loaded image off the GUI thread.
+
+        The guard, the refusals and the busy state are the shared ones —
+        see :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`.
+        """
+        if not self.begin_preview():
             return
         self._release_worker()
         req = self._build_request()
-        self._run_btn.setEnabled(False)
-        self._status.setText("Running preview…")
+        self._status.setText(PREVIEW_RUNNING_MESSAGE)
         worker = _PreviewWorker(req, self, token=self._run_token)
         worker.finished_masks.connect(self._on_worker_done)
         worker.flows_ready.connect(self._on_flows_ready)
@@ -2189,12 +2188,12 @@ class LivePreviewPanel(QWidget):
     def _on_worker_finished(self) -> None:
         """Relay for the worker thread's own ``finished`` signal.
 
-        A bound method on purpose (see :meth:`run_preview`). Re-enabling Run
-        here as well as in :meth:`_on_worker_done` is what keeps the button
-        usable after a run whose result was discarded as stale, or a worker
-        that died without emitting a result at all.
+        A bound method on purpose (see :meth:`run_preview`). Returning the
+        buttons to the idle state here as well as in :meth:`_on_worker_done`
+        is what keeps them usable after a run whose result was discarded as
+        stale, or a worker that died without emitting a result at all.
         """
-        self._run_btn.setEnabled(True)
+        self.set_preview_busy(False)
 
     # -- internals ---------------------------------------------------------
 
@@ -2619,9 +2618,9 @@ class LivePreviewPanel(QWidget):
             LOG.debug("dropping stale preview result (token %s, now %s)",
                       token, self._run_token)
             return
-        self._run_btn.setEnabled(True)
+        self.set_preview_busy(False)
         if err:
-            self._status.setText(f"Preview failed: {err}")
+            self._status.setText(preview_failure_message(err))
             self.preview_ready.emit(None)
             return
         if masks is None or not masks or self._image is None:
