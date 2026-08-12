@@ -4,7 +4,6 @@
 # packages intentionally use the first installable set rather than mutually
 # impossible independent floors:
 #   torch 2.1.0 + torchvision 0.16.0 require sympy 1.12;
-#   statsmodels 0.13.5 is the first 0.13 line with a CPython 3.9 wheel;
 #   cellpose 4.0.7 is setup.py's declared floor, NOT the first 4.x
 #     release. This file used to pin 4.0.1 on the reasoning that it was
 #     the first published 4.x, which stopped being the point when the
@@ -15,6 +14,15 @@
 #     pass on every other job;
 #   umap-learn 0.5.11 requires scikit-learn 1.6 or newer;
 #   tensorboard 2.21.0 requires protobuf 6.31.1 or newer.
+#
+# statsmodels and shap used to be the same failure the cellpose note below
+# describes, in the other direction: the pin matched setup.py exactly and
+# SETUP.PY was the file that was wrong. 0.13.5 and 0.45.0 were floors nobody
+# had run, and this job is what ran them -- 16 failures no other job had,
+# all of them an API spaCR uses that the pinned release does not have.
+# setup.py now declares statsmodels>=0.14.0 and shap>=0.47.0 with the reason
+# written next to each, and tests/test_dependency_floors_have_the_api.py
+# keeps the two facts joined. Both versions publish cp39 wheels.
 #
 # Dependencies with no declared lower bound (czifile and readlif) are left to
 # pip. This file constrains direct dependencies only; transitive packages are
@@ -29,9 +37,9 @@ scikit-learn==1.6.0
 scikit-posthocs==0.10.0
 btrack==0.7.0
 trackpy==0.6.2
-statsmodels==0.13.5
+statsmodels==0.14.0
 patsy==0.5.6
-shap==0.45.0
+shap==0.47.0
 numba==0.60.0
 llvmlite==0.43.0
 torch==2.1.0

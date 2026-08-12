@@ -61,8 +61,11 @@ installed.
 from __future__ import annotations
 
 import ast
+import os
+import pkgutil
 import re
 import sys
+import sysconfig
 from pathlib import Path
 
 import pytest
@@ -70,6 +73,60 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PKG = REPO_ROOT / "spacr"
 SETUP_PY = REPO_ROOT / "setup.py"
+
+
+# ---------------------------------------------------------------------------
+# What counts as the standard library.
+#
+# `sys.stdlib_module_names` arrived in CPython 3.10. spaCR claims 3.9, and on
+# 3.9 every test in this file died with
+# `AttributeError: module 'sys' has no attribute 'stdlib_module_names'` --
+# collected, run, and erroring, on both the 3.9 matrix cell and the
+# minimum-dependencies job. The census that proves every import is declared
+# was therefore not running on the one interpreter where an undeclared import
+# is most likely to bite, and the AttributeError read like an infrastructure
+# problem rather than a missing-dependency one.
+#
+# The 3.9 fallback ENUMERATES the interpreter's own stdlib rather than
+# carrying a hand-written list that would rot: `sysconfig`'s stdlib path plus
+# its `lib-dynload` (where the C extension modules live), scanned with
+# `pkgutil.iter_modules`, plus the modules compiled into the binary. Third
+# party code lives in `site-packages`, a subdirectory with no `__init__.py`,
+# so it is not reported by that scan.
+# ---------------------------------------------------------------------------
+
+#: Stdlib modules a scan cannot see because they ship only on one OS. The
+#: fallback below enumerates THIS interpreter, so on Linux it misses the
+#: Windows-only names and vice versa; without them a `import winreg` in a
+#: platform branch would be reported as an undeclared third-party import on
+#: the 3.9 cell, which runs on Linux. Measured, not assumed: diffing the scan
+#: against `sys.stdlib_module_names` on 3.10/Linux, the Windows five below are
+#: the ENTIRE shortfall. The POSIX five are their mirror, listed so a Windows
+#: run of this file is not the one that discovers the asymmetry.
+_PLATFORM_ONLY_STDLIB = frozenset({
+    "msilib", "msvcrt", "nt", "winreg", "winsound",    # Windows
+    "fcntl", "grp", "posix", "pwd", "termios",         # POSIX
+})
+
+
+def _stdlib_module_names() -> frozenset[str]:
+    names = getattr(sys, "stdlib_module_names", None)
+    if names is not None:                       # CPython 3.10+
+        return frozenset(names)
+
+    stdlib = sysconfig.get_paths().get("stdlib")
+    search = [p for p in (stdlib, os.path.join(stdlib or "", "lib-dynload"))
+              if p and os.path.isdir(p)]
+    found = {module.name for module in pkgutil.iter_modules(search)}
+    found |= set(sys.builtin_module_names)
+    found |= _PLATFORM_ONLY_STDLIB
+    # `pkgutil` reports what is importable, which on 3.9 includes a handful
+    # of private bootstrap names; harmless here, since this set is only ever
+    # used to EXCLUDE names from the third-party census.
+    return frozenset(found)
+
+
+STDLIB_MODULE_NAMES = _stdlib_module_names()
 
 
 # ---------------------------------------------------------------------------
@@ -207,7 +264,7 @@ def _imports() -> dict[str, set[str]]:
 def _third_party_imports() -> dict[str, set[str]]:
     return {
         mod: files for mod, files in _imports().items()
-        if mod not in sys.stdlib_module_names and mod != "spacr"
+        if mod not in STDLIB_MODULE_NAMES and mod != "spacr"
     }
 
 
@@ -310,7 +367,7 @@ def test_every_module_scope_import_is_a_CORE_dependency_not_an_extra():
 
     offenders = {}
     for mod, files in sorted(_module_scope_imports().items()):
-        if mod in sys.stdlib_module_names or mod == "spacr":
+        if mod in STDLIB_MODULE_NAMES or mod == "spacr":
             continue
         dist = _norm(IMPORT_TO_DIST.get(mod, mod))
         if dist in extra_only and dist not in KNOWN_PENDING:
@@ -417,3 +474,65 @@ def test_the_indirect_dependencies_are_still_declared_and_still_unimported():
         f"comment beside its pin in setup.py and remove it from "
         f"INDIRECT_BUT_REQUIRED here."
     )
+
+
+# ---------------------------------------------------------------------------
+# The census must be able to RUN on the oldest interpreter spaCR claims.
+# ---------------------------------------------------------------------------
+
+def test_the_stdlib_set_is_built_without_a_python_3_10_api(monkeypatch):
+    """`sys.stdlib_module_names` does not exist on 3.9, and spaCR claims 3.9.
+
+    Every test in this module used to raise
+    `AttributeError: module 'sys' has no attribute 'stdlib_module_names'`
+    on the 3.9 matrix cell and in the minimum-dependencies job -- so the one
+    check that proves no import is undeclared was dead on the one interpreter
+    where a resolver is most likely to hand a user a different package set.
+
+    The fallback is exercised here on EVERY interpreter by hiding the 3.10
+    attribute, because a branch that only runs on the oldest cell is a branch
+    that is only tested when it is already too late.
+    """
+    monkeypatch.delattr(sys, "stdlib_module_names", raising=False)
+    assert not hasattr(sys, "stdlib_module_names")
+
+    names = _stdlib_module_names()
+
+    # It found a real stdlib, not an empty set that would make every stdlib
+    # import look like an undeclared dependency.
+    assert len(names) > 100
+    for expected in ("os", "sys", "json", "ast", "sqlite3", "pathlib",
+                     "importlib", "multiprocessing", "tkinter", "winreg"):
+        assert expected in names, f"{expected} missing from the 3.9 stdlib set"
+
+    # And it did not sweep site-packages in, which would make an undeclared
+    # third-party import invisible -- the exact failure this file exists to
+    # catch. Only names spaCR actually imports are worth asserting.
+    for third_party in ("numpy", "pandas", "cv2", "PIL", "torch", "cellpose",
+                        "skimage", "sklearn", "shap", "statsmodels", "pytest"):
+        assert third_party not in names, (
+            f"{third_party} leaked into the stdlib set; every undeclared "
+            f"import would then be silently excused")
+
+
+def test_the_census_still_classifies_correctly_through_the_fallback(monkeypatch):
+    """The fallback is not merely non-empty -- it gives the same verdict.
+
+    Comparing the two paths directly is what proves the 3.9 branch is a
+    substitute rather than a second opinion.
+    """
+    real = getattr(sys, "stdlib_module_names", None)
+    if real is None:                            # pragma: no cover - on 3.9
+        pytest.skip("no 3.10 API to compare the fallback against")
+
+    monkeypatch.delattr(sys, "stdlib_module_names", raising=False)
+    fallback = _stdlib_module_names()
+
+    imported = set(_imports())
+    disagreements = sorted(
+        mod for mod in imported
+        if (mod in real) != (mod in fallback)
+    )
+    assert not disagreements, (
+        "the 3.9 stdlib fallback disagrees with sys.stdlib_module_names "
+        f"about modules spaCR actually imports: {disagreements}")

@@ -223,16 +223,48 @@ dependencies = [
     # spacr/ml.py imports and constructs ``Logit``. Keep the existing 0.15
     # boundary until the complete statistical suite has been qualified
     # against that release; the warning cleanup itself does not claim broader
-    # dependency compatibility. The floor is the release that introduced
-    # ``statsmodels.othermod.betareg.BetaModel``, imported by spacr/ml.py.
-    'statsmodels>=0.13.0,<0.15',
+    # dependency compatibility.
+    #
+    # Floor RAISED from 0.13.0, which was a guess and was wrong. The comment
+    # here justified 0.13 by ``statsmodels.othermod.betareg.BetaModel`` — the
+    # first API spaCR needed, not the LAST. Three later APIs are used and
+    # none of them exists before 0.14.0, which is why the min-deps job
+    # (pinned at 0.13.5) failed 16 tests no other job failed:
+    #
+    #   * ``links.Identity``  — spacr/ml.py:1142,1154. Before 0.14.0 the
+    #     CamelCase link classes did not exist for the Power subclasses;
+    #     0.13 spells it ``links.identity``, so this is AttributeError, not
+    #     a deprecation. (``Logit`` and ``Log``, also used, DO predate it —
+    #     which is exactly why the gap went unnoticed.)
+    #   * ``BetaResults.get_influence`` — spacr/regression_qc.py:1480 asks
+    #     the fitted model for its own leverage. Added to
+    #     ``othermod/betareg.py`` in 0.14.0; absent in 0.13.x, where the
+    #     `getattr` guard there silently falls back to the design matrix and
+    #     a beta fit is standardised by the wrong hat diagonal.
+    #   * perfect separation in ``GLM._fit_irls`` RAISES
+    #     ``PerfectSeparationError`` in 0.13 and only WARNS
+    #     (``PerfectSeparationWarning``) from 0.14.0 on. spaCR's binomial
+    #     backends rely on the fit returning.
+    #
+    # 0.14.0 publishes cp39 manylinux wheels, so the floor stays reachable
+    # on the oldest interpreter spaCR claims.
+    'statsmodels>=0.14.0,<0.15',
     # ADDED. `from patsy import dmatrices` at spacr/ml.py:33 is module scope
     # and unguarded, so `import spacr.ml` needs it. It was arriving only
     # because statsmodels declares it; statsmodels 0.15 is expected to finish
     # the move to its own formula engine, and the line above already admits
     # 0.14.x, so this was one upstream release away from breaking.
     'patsy>=0.5.6,<2.0',
-    'shap>=0.45.0,<1.0',
+    # Floor RAISED from 0.45.0, which was a guess. spacr/sim.py:1541 calls
+    # `shap.summary_plot(..., rng=np.random.default_rng(42))` — the seed that
+    # makes the beeswarm's jitter reproducible. `summary_plot` IS
+    # `shap.plots._beeswarm.summary_legacy`, and that function grew `rng`
+    # in 0.47.0: checked the signature at the 0.45.0, 0.46.0 and 0.47.0 tags,
+    # and neither of the first two takes it or a `**kwargs` that would
+    # swallow it. On 0.45 the call is `TypeError: summary_legacy() got an
+    # unexpected keyword argument 'rng'`, which is what the min-deps job hit.
+    # 0.47.0 publishes cp39 wheels, so the floor stays reachable on 3.9.
+    'shap>=0.47.0,<1.0',
     'torch>=2.0,<3.0',
     # PyTorch's official SummaryWriter backend. Vision training writes
     # loss/accuracy/F1/LR events to each run folder for an interactive
