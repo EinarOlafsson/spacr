@@ -42,13 +42,21 @@ def plate(column_values, n=10):
 
 
 def test_no_control_match_names_the_column_and_its_values():
-    """The message has to say what to change, not that something is empty."""
+    """The message has to say what to change, not that something is empty.
+
+    THREE classes, not two. A column holding exactly two values is now
+    resolved automatically -- if neither named control appears, those two
+    ARE the classes (instruction 84, issues #91-#93), so the refusal
+    correctly no longer fires there. With three, spaCR cannot know which
+    two the user means and has to ask; that is the case this message is
+    for.
+    """
     with pytest.raises(ValueError) as excinfo:
-        ml_analysis(plate(["1", "2"]), verbose=False)
+        ml_analysis(plate(["1", "2", "3"]), verbose=False)
 
     message = str(excinfo.value)
     assert "columnID" in message, "the column is not named"
-    assert "'1'" in message and "'2'" in message, (
+    assert "'1'" in message and "'2'" in message and "'3'" in message, (
         "the values actually present are not shown, so the user cannot see "
         "what to set the controls to")
     assert "c1" in message and "c2" in message, (
