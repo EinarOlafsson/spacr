@@ -96,3 +96,51 @@ fraction 0.50 in nc and 0.52 in pc with +/-0.06 well-to-well spread. The
 object chi-squared should be wildly significant and the well-level test
 should not be. If both agree on that data, the well-level test is not
 actually using wells.
+
+--------------------------------------------------------------------------------
+2026-08-11 - DONE
+--------------------------------------------------------------------------------
+
+`spacr/plot.py` now carries `proportions_per_unit`, `proportion_test_by_unit`
+and `proportion_mixed_model`, and `plot_proportion_stacked_bars` returns all
+three numbers in one table, each row labelled with its test, its unit and its
+n.
+
+Measured on the acceptance case from above -- 20,000 objects per condition,
+3 wells per condition, class-1 fraction 0.50 vs 0.52, +/-0.06 well-to-well:
+
+    chi-squared on object counts              n = 39,996 objects  p = 4.17e-39
+    T-test on per-prc proportions             n = 6 wells         p = 2.49e-01
+    binomial GLM, clustered by prc            n = 6 wells         p = 1.33e-01
+
+The object test screams; neither well-level test does. On a real effect
+(0.20 vs 0.80, 8 wells) all three agree at p < 0.05, so the fix is not a
+test that never fires.
+
+(1) PER-UNIT PROPORTIONS, using the selection spaCR already uses: Shapiro
+for normality, then Levene for Student's vs Welch's; Mann-Whitney when not
+normal; ANOVA / Welch's ANOVA / Kruskal-Wallis above two groups. Reuses
+`_welch_anova`. Too few units reports "too few units" and NaN rather than
+inventing a p-value.
+
+(2) MIXED MODEL: binomial GLM on the per-object outcome with standard errors
+clustered on the unit, Wald test across the condition terms. Keeps the
+object-level information the proportions test discards while charging the
+degrees of freedom the design supports. A model that does not fit prints why
+and reports NaN.
+
+(3) THE LEVEL DRIVES BOTH, through `_unit_column`: 'well' resolves to the
+caller's `prc_column`, 'plate' to `plateID`. `level='object'` still gets the
+well-level tests when a well column is present -- pooling objects does not
+make them independent, and the user who never changes the setting is the one
+most likely to report the object p-value.
+
+(4) ALL THREE REPORTED, the historical chi-squared kept as row 0 and labelled
+`unit='object'` rather than replaced.
+
+(5) TOOLTIP CORRECTED in `spacr/settings.py` and
+`spacr/qt/i18n_catalogs/en.py`.
+
+`test_the_chi_squared_does_not_follow_the_level` was rewritten (not deleted)
+as `test_the_object_chi_squared_is_kept_unchanged_at_every_level`, and
+`tests/test_proportion_replication_unit.py` holds the acceptance case.
