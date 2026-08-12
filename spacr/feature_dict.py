@@ -3098,7 +3098,9 @@ def _table_columns(db_path: str | Path, table: str | None = None
     if not path.is_file():
         raise FileNotFoundError(f"database not found: {path}")
 
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as conn:
+    from .database_concurrency import connect as _connect_database
+
+    with _connect_database(path, readonly=True) as conn:
         names = [
             row[0]
             for row in conn.execute(
@@ -3140,7 +3142,9 @@ def _table_measurement_units(db_path: str | Path, table: str,
     path = Path(db_path)
     quoted = _quoted(table)
     try:
-        with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as conn:
+        from .database_concurrency import connect as _connect_database
+
+        with _connect_database(path, readonly=True) as conn:
             if "measurement_units" not in columns:
                 row = conn.execute(
                     f"SELECT 1 FROM {quoted} LIMIT 1").fetchone()

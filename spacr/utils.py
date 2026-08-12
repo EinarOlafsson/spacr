@@ -2046,7 +2046,7 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=Non
     # Connect to the SQLite database
     if columns is None:
         columns = ['pathogen', 'treatment', 'host_cells', 'condition', 'prcfo']
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=30)
 
     # Read the existing table into a DataFrame
     try:
@@ -3269,7 +3269,7 @@ def _pivot_counts_table(db_path):
     def _read_table_to_dataframe(db_path, table_name='object_counts'):
         """Return the given SQLite table as a DataFrame."""
         # Connect to the SQLite database
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_path, timeout=30)
         # Read the entire table into a pandas DataFrame
         query = f"SELECT * FROM {table_name}"
         df = pd.read_sql_query(query, conn)
@@ -3291,7 +3291,7 @@ def _pivot_counts_table(db_path):
     # Pivot the DataFrame to have one row per filename and a column for each object type
     pivoted_df = _pivot_dataframe(df)
     # Reconnect to the SQLite database to overwrite the 'object_counts' table with the pivoted DataFrame
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=30)
     # When overwriting, ensure that you drop the existing table or use if_exists='replace' to overwrite it
     pivoted_df.to_sql('pivoted_counts', conn, if_exists='replace', index=False)
     conn.close()
@@ -7921,7 +7921,7 @@ def generate_path_list_from_db(db_path, file_metadata):
     # Connect to the database and retrieve the image paths
     print(f"Reading DataBase: {db_path}")
     try:
-        with sqlite3.connect(db_path) as conn:
+        with sqlite3.connect(db_path, timeout=30) as conn:
             cursor = conn.cursor()
 
             if file_metadata:
@@ -9615,7 +9615,7 @@ def add_column_to_database(settings):
         df[settings['update_column']] = df[settings['update_column']].replace(0, 2)
 
     # Connect to the SQLite database
-    conn = sqlite3.connect(settings['db_path'])
+    conn = sqlite3.connect(settings['db_path'], timeout=30)
     cursor = conn.cursor()
 
     # Get the existing columns in the database table

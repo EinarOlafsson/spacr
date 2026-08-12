@@ -39,6 +39,17 @@ SEGMENTED_ROLES: Tuple[str, ...] = ("cell", "nucleus", "pathogen", "organelle")
 #: lists, and why a per-object neighbour measurement is meaningless for it.
 DERIVED_ROLES: Tuple[str, ...] = ("cytoplasm",)
 
+#: The segmented kinds that BELONG TO A CELL -- everything except the cell
+#: itself. Each is many-rows-per-cell and carries its parent's label in a
+#: ``cell_id`` column, which is what makes them roll up the same way.
+#:
+#: `io._read_and_join_tables` and `io._read_and_merge_data` both used to spell
+#: this as the literal ``['nucleus', 'pathogen']``, so ORGANELLE WAS ABSENT
+#: FROM BOTH: asking for it returned a frame with no organelle columns and no
+#: message. Naming it once here is what lets a second organelle reach every
+#: reader by being added in one place -- which is the whole of instruction 76.
+CHILD_ROLES: Tuple[str, ...] = ("nucleus", "pathogen", "organelle")
+
 #: Every object kind, segmented and derived.
 ALL_ROLES: Tuple[str, ...] = SEGMENTED_ROLES + DERIVED_ROLES
 

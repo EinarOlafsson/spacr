@@ -160,7 +160,7 @@ class SurrogateResult:
 def _read_png_list(db_path: str) -> pd.DataFrame:
     if not os.path.isfile(db_path):
         raise SurrogateError(f"no measurements database at {db_path}")
-    with sqlite3.connect(db_path) as conn:
+    with sqlite3.connect(db_path, timeout=30) as conn:
         return pd.read_sql_query('SELECT * FROM "png_list"', conn)
 
 

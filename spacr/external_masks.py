@@ -512,7 +512,7 @@ def _save_npy(path: str, array: np.ndarray) -> str:
 def _tables(path: str) -> List[str]:
     if not os.path.isfile(path):
         return []
-    with sqlite3.connect(path) as connection:
+    with sqlite3.connect(path, timeout=30) as connection:
         rows = connection.execute(
             "SELECT name FROM sqlite_master WHERE type='table' "
             "ORDER BY name").fetchall()

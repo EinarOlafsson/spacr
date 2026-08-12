@@ -14,6 +14,7 @@ translation.
 from __future__ import annotations
 
 from functools import lru_cache
+import hashlib
 from importlib import import_module
 from types import ModuleType
 from typing import Optional
@@ -46,13 +47,27 @@ def _english() -> ModuleType:
     return import_module(f"{__name__}.en")
 
 
+def _localized_value(
+    module: ModuleType,
+    table_name: str,
+    key: str,
+    source: str,
+) -> Optional[str]:
+    """Return a localized record only when its stored source hash is current."""
+    expected = hashlib.sha256(str(source).encode("utf-8")).hexdigest()
+    hashes = getattr(module, "SOURCE_HASHES", {})
+    if hashes.get((table_name, str(key))) != expected:
+        return None
+    value = getattr(module, table_name, {}).get(str(key))
+    return str(value) if isinstance(value, str) and value.strip() else None
+
+
 def ui_text(source: str, language: str) -> Optional[str]:
     """Return an exact translation for spaCR-owned static Qt text."""
     module = _module(language)
     if module is None:
         return None
-    value = getattr(module, "UI", {}).get(str(source))
-    return str(value) if isinstance(value, str) and value.strip() else None
+    return _localized_value(module, "UI", str(source), str(source))
 
 
 def setting_label(
@@ -71,8 +86,9 @@ def setting_label(
     module = _module(language)
     if module is None:
         return None
-    value = getattr(module, "SETTING_LABELS", {}).get(lookup)
-    return str(value) if isinstance(value, str) and value.strip() else None
+    return _localized_value(
+        module, "SETTING_LABELS", lookup, canonical[lookup]
+    )
 
 
 def setting_tooltip(
@@ -87,8 +103,9 @@ def setting_tooltip(
     module = _module(language)
     if module is None:
         return None
-    value = getattr(module, "SETTING_TOOLTIPS", {}).get(str(key))
-    return str(value) if isinstance(value, str) and value.strip() else None
+    return _localized_value(
+        module, "SETTING_TOOLTIPS", str(key), canonical[str(key)]
+    )
 
 
 def category_help(source: str, language: str) -> Optional[str]:
@@ -99,8 +116,7 @@ def category_help(source: str, language: str) -> Optional[str]:
     module = _module(language)
     if module is None:
         return None
-    value = getattr(module, "CATEGORY_HELP", {}).get(text)
-    return str(value) if isinstance(value, str) and value.strip() else None
+    return _localized_value(module, "CATEGORY_HELP", text, text)
 
 
 def module_summary(
@@ -115,8 +131,9 @@ def module_summary(
     module = _module(language)
     if module is None:
         return None
-    value = getattr(module, "MODULE_SUMMARIES", {}).get(str(key))
-    return str(value) if isinstance(value, str) and value.strip() else None
+    return _localized_value(
+        module, "MODULE_SUMMARIES", str(key), canonical[str(key)]
+    )
 
 
 __all__ = [

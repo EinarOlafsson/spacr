@@ -617,9 +617,14 @@ def _connect(db_path: str) -> sqlite3.Connection:
     path = os.path.abspath(os.path.expanduser(str(db_path).strip()))
     if not os.path.isfile(path):
         raise FileNotFoundError(f"No such database: {path}")
-    con = sqlite3.connect(_read_only_uri(path), uri=True)
-    con.execute("PRAGMA query_only = ON")
-    return con
+    # Through the shared helper, which sets a 30s busy timeout and
+    # query_only. A bare sqlite3.connect takes sqlite's 5s default, and
+    # Measure writes from many worker processes at once -- 5s is routinely
+    # exceeded there, so the reader fails with "database is locked" instead
+    # of waiting (issue #15).
+    from .database_concurrency import connect as _connect_database
+
+    return _connect_database(path, readonly=True)
 
 
 def table_columns(db_path: str, table: str = PNG_TABLE) -> List[str]:

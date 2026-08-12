@@ -117,7 +117,7 @@ def discover_columns(source, tables=None) -> dict[str, list[tuple[Path, str]]]:
     found: dict[str, list[tuple[Path, str]]] = {}
     for db_path in source_paths(source):
         try:
-            connection = sqlite3.connect(str(db_path))
+            connection = sqlite3.connect(str(db_path), timeout=30)
         except sqlite3.Error:
             continue
         try:
@@ -160,7 +160,7 @@ def distinct_values(sources: Iterable[tuple[Path, str]], column: str,
     quoted_column = _quote(column)
     for db_path, table in sources:
         try:
-            connection = sqlite3.connect(str(db_path))
+            connection = sqlite3.connect(str(db_path), timeout=30)
         except sqlite3.Error:
             continue
         try:

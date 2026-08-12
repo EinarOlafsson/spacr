@@ -557,7 +557,9 @@ def read_object_tables(db_path: str,
         raise LineageError(f"no measurements database at {db_path!r}")
     wanted = list(tables or LINEAGE_TABLES)
     out: Dict[str, pd.DataFrame] = {}
-    connection = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    from .database_concurrency import connect as _connect_database
+
+    connection = _connect_database(db_path, readonly=True)
     try:
         present = {
             str(row[0]) for row in connection.execute(

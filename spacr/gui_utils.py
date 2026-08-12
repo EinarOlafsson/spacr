@@ -400,7 +400,11 @@ def annotate(settings):
     src  = settings['src']
 
     db = os.path.join(src, 'measurements/measurements.db')
-    conn = sqlite3.connect(db)
+    # Shared helper: a 30s busy timeout rather than sqlite's 5s default,
+    # which Measure's concurrent writers routinely exceed (issue #15).
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db, readonly=True)
     c = conn.cursor()
     c.execute('PRAGMA table_info(png_list)')
     cols = c.fetchall()
@@ -570,7 +574,11 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     src = settings['src']
 
     db = os.path.join(src, 'measurements/measurements.db')
-    conn = sqlite3.connect(db)
+    # Shared helper: a 30s busy timeout rather than sqlite's 5s default,
+    # which Measure's concurrent writers routinely exceed (issue #15).
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db, readonly=True)
     c = conn.cursor()
     c.execute('PRAGMA table_info(png_list)')
     cols = c.fetchall()

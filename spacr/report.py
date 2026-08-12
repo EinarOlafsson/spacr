@@ -1406,7 +1406,9 @@ def _sqlite_table_counts(path: Path, max_tables: int = 40) -> List[Tuple[str, in
     uri = "file:" + _quote(str(path).replace("\\", "/"), safe="/:") + "?mode=ro"
     out: List[Tuple[str, int]] = []
     try:
-        conn = sqlite3.connect(uri, uri=True)
+        from .database_concurrency import connect as _connect_database
+
+        conn = _connect_database(path, readonly=True)
     except sqlite3.Error:
         return out
     try:
