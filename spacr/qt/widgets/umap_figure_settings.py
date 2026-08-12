@@ -35,9 +35,11 @@ from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
 
 from PySide6.QtCore import QTimer, Signal
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QDoubleSpinBox, QFormLayout, QLabel, QLineEdit,
+    QComboBox, QDoubleSpinBox, QFormLayout, QLabel, QLineEdit,
     QSpinBox, QVBoxLayout, QWidget,
 )
+
+from .toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.umap_figure_settings")
 
@@ -375,7 +377,7 @@ class UmapFigureSettings(QWidget):
 
     def _editor(self, field: Field, value) -> QWidget:
         if field.kind == "bool":
-            box = QCheckBox()
+            box = Toggle()
             box.setChecked(bool(value))
             box.toggled.connect(self._schedule)
             return box
@@ -427,7 +429,7 @@ class UmapFigureSettings(QWidget):
             editor = self._editors.get(field.key)
             if editor is None:
                 continue
-            if isinstance(editor, QCheckBox):
+            if isinstance(editor, Toggle):
                 out[field.key] = bool(editor.isChecked())
             elif isinstance(editor, QComboBox):
                 out[field.key] = editor.currentText()
