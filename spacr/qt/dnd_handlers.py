@@ -1572,7 +1572,7 @@ def table_names(path: Path) -> List[str]:
         return []
     try:
         connection = sqlite3.connect(
-            f"file:{quote(str(path))}?mode=ro", uri=True)
+            f"file:{quote(str(path))}?mode=ro", uri=True, timeout=30)
     except sqlite3.Error:
         return []
     try:

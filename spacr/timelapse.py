@@ -1916,7 +1916,7 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
         fit fails, or no cells pass the filters.
     """
     # Load data
-    conn = sqlite3.connect(db_loc)
+    conn = sqlite3.connect(db_loc, timeout=30)
     # Load cell table
     cell_df = pd.read_sql(f"SELECT * FROM {'cell'}", conn)
     
@@ -5732,7 +5732,7 @@ def _save_measurements_and_well_summary(
     os.makedirs(measurements_dir, exist_ok=True)
     db_path = os.path.join(measurements_dir, "measurements.db")
 
-    with sqlite3.connect(db_path) as conn:
+    with sqlite3.connect(db_path, timeout=30) as conn:
         all_df.to_sql(db_table_name, conn, if_exists="replace", index=False)
         print(
             f"[summarise_tracks_from_merged] Saved measurements to "
@@ -6641,7 +6641,7 @@ def _load_measurements_from_db(db_path, db_table_name):
     if not os.path.isfile(db_path):
         return pd.DataFrame()
 
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=30)
     try:
         query = f"SELECT * FROM {db_table_name}"
         df = pd.read_sql_query(query, conn)
@@ -7768,7 +7768,7 @@ def automated_motility_assay(settings):
                 f"measurements from {db_path} (table='{db_table_name}')."
             )
 
-            with sqlite3.connect(db_path) as conn:
+            with sqlite3.connect(db_path, timeout=30) as conn:
                 # If the table does not exist, this will raise and fall back to recompute
                 all_df = pd.read_sql_query(f"SELECT * FROM {db_table_name}", conn)
 
