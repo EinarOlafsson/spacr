@@ -97,9 +97,16 @@ class FilterError(ValueError):
 # ---------------------------------------------------------------------------
 
 def _connect(db_path: str, *, read_only: bool = True) -> sqlite3.Connection:
-    if read_only:
-        return sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
-    return sqlite3.connect(db_path)
+    """Open the measurements database with a busy timeout.
+
+    Both arms used to be a bare ``sqlite3.connect``, which takes sqlite's 5
+    second default. Measure writes from many worker processes at once and 5
+    seconds is routinely exceeded there, so a reader failed with "database is
+    locked" rather than waiting for the writer (issue #15).
+    """
+    from .database_concurrency import connect as _connect_database
+
+    return _connect_database(db_path, readonly=read_only)
 
 
 def table_names(db_path: str) -> Tuple[str, ...]:

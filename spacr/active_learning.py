@@ -765,7 +765,11 @@ def _connect(db_path: str) -> sqlite3.Connection:
     path = os.path.abspath(os.path.expanduser(str(db_path).strip()))
     if not os.path.isfile(path):
         raise FileNotFoundError(f"No such database: {path}")
-    con = sqlite3.connect(_read_only_uri(path), uri=True)
+    # Shared helper: 30s busy timeout, not sqlite's 5s default,
+    # which Measure's concurrent writers routinely exceed (#15).
+    from .database_concurrency import connect as _connect_database
+
+    con = _connect_database(path, readonly=True)
     con.execute("PRAGMA query_only = ON")
     return con
 

@@ -873,7 +873,9 @@ def create_database(db_path):
     """
     conn = None
     try:
-        conn = sqlite3.connect(db_path)
+        from .database_concurrency import connect as _connect_database
+
+        conn = _connect_database(db_path)
         #print(f"SQLite version: {sqlite3.version}")
     except Exception as e:
         print(e)
@@ -1178,7 +1180,9 @@ def read_simulations_table(db_path):
     :returns: DataFrame of the ``simulations`` table, or ``None`` on failure.
     """
     # Create a connection object using the connect function
-    conn = sqlite3.connect(db_path)
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db_path)
     
     # Read the 'simulations' table into a pandas DataFrame
     try:

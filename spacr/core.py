@@ -636,7 +636,9 @@ def _validate_umap_source_db(db_path, tables, require_png_list=True):
             "Run the Measure module on this source folder (with save_png "
             "enabled) before embedding it.")
 
-    conn = _sqlite3.connect(db_path)
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db_path)
     try:
         present = {row[0] for row in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}

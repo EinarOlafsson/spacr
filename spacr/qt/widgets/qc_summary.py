@@ -331,7 +331,7 @@ def _read_units(src: Any) -> QCCard:
         MEASUREMENT_STAMP_COLUMNS = ("measurement_ndim", "measurement_units")
 
     try:
-        connection = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+        connection = sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30)
     except sqlite3.Error as exc:
         card.verdict = "error"
         card.headline = f"Could not open {os.path.basename(path)}: {exc}"
