@@ -429,8 +429,37 @@ def _no_unguarded_modals(monkeypatch):
 
     The message names the fix, because the failure it produces is otherwise
     mystifying to whoever meets it first.
+
+    AND THE STATIC CONVENIENCE CALLS GO WITH IT (added 2026-08-12). Patching
+    `exec` catches only the dialogs Python drives. `QMessageBox.warning(...)`,
+    `QFileDialog.getExistingDirectory(...)`, `QInputDialog.getText(...)` and
+    their siblings BUILD the dialog and run its event loop entirely inside
+    C++, so a Python-level `exec` override is never consulted and the call
+    blocks for ever exactly as before. That is the same hole one level down
+    from the 2026-08-08 one (QMessageBox overriding QDialog.exec), and it is
+    still open: under a REAL X server -- `xvfb-run` with
+    `QT_QPA_PLATFORM=xcb`, which is how this suite can now be run --
+    `MakeMasksScreen._warn` reaches `QMessageBox.warning` and six tests in
+    `test_make_masks_canvas.py` hang until something kills the worker. An
+    Xvfb display is a display as far as Qt is concerned, and there is still
+    nobody to click the button.
+
+    SEVENTEEN test files already carry a private copy of this list as a
+    per-file `no_modals` fixture (test_convert_screen, test_batch_screen,
+    test_report_screen, ...) -- and `test_make_masks_canvas`, the one file
+    that actually hung, was not among them. That is the argument for the
+    global guard in one line: the files that remember to write the fixture
+    are not the files that need it. Those copies are now redundant rather
+    than load-bearing, and are left alone rather than deleted in bulk.
     """
-    from PySide6.QtWidgets import QDialog, QMessageBox
+    from PySide6.QtWidgets import (
+        QColorDialog,
+        QDialog,
+        QFileDialog,
+        QFontDialog,
+        QInputDialog,
+        QMessageBox,
+    )
 
     def _refuse(self, *args, **kwargs):
         raise AssertionError(
@@ -443,3 +472,32 @@ def _no_unguarded_modals(monkeypatch):
     for cls in (QDialog, QMessageBox):
         for name in ("exec", "exec_"):
             monkeypatch.setattr(cls, name, _refuse, raising=False)
+
+    # class -> the static calls on it that build a modal and block in C++.
+    _BLOCKING_STATICS = {
+        QMessageBox: ("about", "aboutQt", "critical", "information",
+                      "question", "warning"),
+        QFileDialog: ("getExistingDirectory", "getOpenFileName",
+                      "getOpenFileNames", "getSaveFileName"),
+        QInputDialog: ("getDouble", "getInt", "getItem", "getMultiLineText",
+                       "getText"),
+        QColorDialog: ("getColor",),
+        QFontDialog: ("getFont",),
+    }
+
+    for cls, names in _BLOCKING_STATICS.items():
+        for name in names:
+            def _refuse_static(*args, _cls=cls, _name=name, **kwargs):
+                raise AssertionError(
+                    f"{_cls.__name__}.{_name}() was called in a headless "
+                    "test. It builds a modal and runs its event loop inside "
+                    "C++, so it never returns here and hangs the run -- "
+                    "patching `exec` does NOT cover it. Stub the call that "
+                    f"opens it, or monkeypatch {_cls.__name__}.{_name} in "
+                    "the test that wants to answer it.")
+
+            # Marked so a test can assert the guard is installed without
+            # having to CALL one of these and risk the hang it prevents.
+            _refuse_static._spacr_modal_guard = True
+            monkeypatch.setattr(cls, name, staticmethod(_refuse_static),
+                                raising=False)
