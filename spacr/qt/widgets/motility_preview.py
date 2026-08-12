@@ -50,6 +50,10 @@ from .preview_controls import (
     ImageSet, ImageSetSampler, configure_max_sets_box,
     populate_channel_combo, selected_channel,
 )
+from .preview_contract import (
+    PREVIEW_CANCEL_TEXT, PREVIEW_RUN_TEXT, LivePreviewContract,
+    preview_failure_message,
+)
 from .toggle import Toggle
 from ..job_runner import JobRunner
 
@@ -603,16 +607,20 @@ def scan_plate_payload(path) -> Dict[str, Any]:
     return out
 
 
-class MotilityPreviewPanel(QWidget):
+class MotilityPreviewPanel(LivePreviewContract, QWidget):
     """Interactive motility preview — Motility Assay module.
 
-    Same contract as :class:`~spacr.qt.widgets.live_preview.LivePreviewPanel`:
-    standalone ``QWidget``, ``QThread`` worker emitting over signals,
-    :meth:`set_propagate_callback` to push tuned values back into the main
-    settings panel, and a ``build_*_card`` factory.
+    Same contract as :class:`~spacr.qt.widgets.live_preview.LivePreviewPanel`,
+    and the shared half is the same code: standalone ``QWidget``, ``QThread``
+    worker emitting over signals,
+    :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract` for the
+    run/cancel/status protocol, :meth:`set_propagate_callback` to push tuned
+    values back into the main settings panel, and a ``build_*_card`` factory.
     """
 
     preview_ready = Signal(object)   # MotilitySummary, or None on failure
+
+    PREVIEW_SOURCE_HINT = "Load a plate folder first."
 
     def __init__(self, parent=None, *, threaded: bool = True):
         super().__init__(parent)
@@ -631,6 +639,13 @@ class MotilityPreviewPanel(QWidget):
         self._groups: "Dict[tuple, List[dict]]" = {}
         self._merged_dir: str = ""
         self._worker: Optional[_MotilityWorker] = None
+        # A worker whose result has landed but whose QThread may still be
+        # unwinding. Held until ``finished`` so it is never collected mid-run.
+        self._retired_worker: Optional[_MotilityWorker] = None
+        # Bumped whenever the pass in flight is superseded (a new plate, an
+        # explicit cancel); a stale result is dropped. See LivePreviewContract.
+        self._run_token = 0
+        self._pending_token = 0
         self._propagate_cb = None
         # Bounded, reproducible sample of the plate's time series — the
         # dropdown never lists them all. See ImageSetSampler.
@@ -798,8 +813,15 @@ class MotilityPreviewPanel(QWidget):
             self._sync_plane_combo_from_spin)
 
         act = QHBoxLayout()
-        self._run_btn = QPushButton("Run preview", self)
+        self._run_btn = QPushButton(PREVIEW_RUN_TEXT, self)
         self._run_btn.clicked.connect(self.run_preview)
+        # Same control, same place, same words as the Mask live preview.
+        self._cancel_btn = QPushButton(PREVIEW_CANCEL_TEXT, self)
+        self._cancel_btn.setToolTip(
+            "Abandon the read in flight. The arrays already being read finish "
+            "in the background and their result is dropped.")
+        self._cancel_btn.setEnabled(False)
+        self._cancel_btn.clicked.connect(self.cancel_preview)
         self._propagate_btn = QPushButton("Propagate settings", self)
         self._propagate_btn.setObjectName("ToggleButton")
         self._propagate_btn.setCheckable(True)
@@ -809,6 +831,7 @@ class MotilityPreviewPanel(QWidget):
         self._propagate_btn.toggled.connect(self._on_propagate_toggled)
         self._status = QLabel("", self)
         act.addWidget(self._run_btn)
+        act.addWidget(self._cancel_btn)
         act.addWidget(self._propagate_btn)
         act.addWidget(self._status, 1)
         root.addLayout(act)
@@ -1084,13 +1107,19 @@ class MotilityPreviewPanel(QWidget):
 
     # -- running -----------------------------------------------------------
 
-    def run_preview(self) -> None:
-        """Read the merged arrays into the cached point table, then score."""
+    def _preview_blocked_reason(self) -> str:
+        """Why this panel cannot read a plate right now, or ``""``."""
         if not self._groups:
-            self._status.setText("Load a plate folder first.")
-            return
-        if self._worker is not None and self._worker.isRunning():
-            self._status.setText("Preview already running.")
+            return self.PREVIEW_SOURCE_HINT
+        return ""
+
+    def run_preview(self) -> None:
+        """Read the merged arrays into the cached point table, then score.
+
+        The guard, the refusals and the busy state are the shared ones —
+        see :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`.
+        """
+        if not self.begin_preview():
             return
         key = self._group_box.currentData()
         metas = self._groups.get(key) or next(iter(self._groups.values()))
@@ -1103,22 +1132,71 @@ class MotilityPreviewPanel(QWidget):
             pathogen_plane=pat if pat >= 0 else None,
             max_frames=int(self._max_frames.value()),
         )
-        self._run_btn.setEnabled(False)
         self._status.setText("Reading merged arrays…")
+        self._release_worker()
         worker = _MotilityWorker(req, self)
+        # The generation this pass belongs to. Cancelling bumps the panel's
+        # token, and a result whose token no longer matches is dropped.
+        worker.preview_token_value = self.preview_token()
+        self._pending_token = worker.preview_token_value
         # Bound method, not a closure — a plain callable would be invoked on
         # the worker thread and every widget touch below would be off-thread.
         worker.finished_result.connect(self._on_worker_done)
-        worker.finished.connect(worker.deleteLater)
+        # NOT worker.deleteLater — that hands Qt a second owner for an object
+        # Python already holds, and the two race (the measured account is in
+        # spacr.qt.bridge.make_thread). The Mask preview was fixed away from
+        # this pattern; keeping it here left a running QThread owned by
+        # nobody when the user closed the screen mid-read.
+        worker.finished.connect(self._on_worker_finished)
         self._worker = worker
         worker.start()
 
+    def _release_worker(self) -> None:
+        """Free a worker whose thread has already exited.
+
+        Parented to the panel, so C++ owns it and it would otherwise hold the
+        whole point table until the panel itself died. Unparenting hands
+        ownership back to Python. Mirrors ``LivePreviewPanel._release_worker``.
+        """
+        old = self._retired_worker
+        self._retired_worker = None
+        if old is None:
+            return
+        try:
+            old.wait()
+            old.setParent(None)
+        except RuntimeError:
+            LOG.debug("worker already deleted", exc_info=True)
+
+    def _result_token(self):
+        """The generation the result now landing belongs to."""
+        worker = self.sender()
+        token = getattr(worker, "preview_token_value", None)
+        return getattr(self, "_pending_token", 0) if token is None else token
+
+    def _on_worker_finished(self) -> None:
+        """Relay for the worker thread's own ``finished`` signal.
+
+        A bound method on purpose (see :meth:`run_preview`), and the first
+        moment at which the QThread may be freed.
+        """
+        self.set_preview_busy(False)
+        self._release_worker()
+
     def _on_worker_done(self, points, err: str) -> None:
         """Adopt the point table. Runs on the GUI thread (queued signal)."""
-        self._run_btn.setEnabled(True)
-        self._worker = None
+        if self.preview_stale(self._result_token()):
+            LOG.debug("dropping a superseded motility preview result")
+            return
+        # The pass is over as far as the panel is concerned, so a new one may
+        # start; the reference is kept until ``QThread.finished`` because a
+        # QThread collected while it is still unwinding aborts the process.
+        if self._worker is not None:
+            self._retired_worker = self._worker
+            self._worker = None
+        self.set_preview_busy(False)
         if err:
-            self._status.setText(f"Preview failed: {err}")
+            self._status.setText(preview_failure_message(err))
             self.preview_ready.emit(None)
             return
         if points is None or points.empty:
@@ -1304,12 +1382,14 @@ class MotilityPreviewPanel(QWidget):
         # Cancel the scan before waiting on the motility worker: leaving the
         # screen mid-scan must not leave a QThread behind either.
         self.shutdown()
-        worker = self._worker
-        if worker is not None:
-            try:
-                worker.wait(5000)
-            except RuntimeError:
-                LOG.debug("worker already deleted", exc_info=True)
+        # Both of them: the pass in flight, and the one whose result has
+        # landed while its thread was still unwinding.
+        for worker in (self._worker, getattr(self, "_retired_worker", None)):
+            if worker is not None:
+                try:
+                    worker.wait(5000)
+                except RuntimeError:
+                    LOG.debug("worker already deleted", exc_info=True)
         super().closeEvent(event)
 
 
