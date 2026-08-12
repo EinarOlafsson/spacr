@@ -1198,7 +1198,10 @@ def categories_for_app(
             # column, which is exactly a row of the Classes dict, so three
             # settings saying it a second way were three ways to disagree.
             "Labels & Classes": [
-                "dataset_mode", "classes", "annotation_column",
+                # `classes` is what each class MEANS; `class_folder_names`
+                # is where its crops are written. One key used to be both.
+                "dataset_mode", "classes", "class_folder_names",
+                "annotation_column",
                 "class_metadata", "metadata_type_by",
                 "metadata_item_1_name", "metadata_item_1_value",
                 "metadata_item_2_name", "metadata_item_2_value",
