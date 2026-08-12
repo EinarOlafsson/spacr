@@ -3294,6 +3294,28 @@ def measure_crop(settings):
                     settings['src'] = src_fldr
                     print(f"Changed source folder to: {src_fldr}")
 
+                # Issue #15, "measurements sometimes hangs from completion".
+                # This run is about to start one worker per field, and every
+                # append issues pandas' `has_table` probe first -- a READ --
+                # before writing. Under the rollback journal a writer cannot
+                # COMMIT until every reader's SHARED lock is gone, so with
+                # enough workers someone is always reading and the
+                # committing worker waits out its busy timeout: measured at
+                # 1.037 s blocked under DELETE against 0.002 s under WAL.
+                # "database is locked" then surfaces on whichever
+                # `has_table` loses, which is the reporter's traceback.
+                #
+                # Once per source folder, not per write: the mode is a
+                # property of the file and persists. Silently declined on any
+                # filesystem not positively identified as local, which leaves
+                # the shipped DELETE behaviour exactly as it was.
+                from .database_concurrency import enable_wal_where_safe
+                _measurements_dir = os.path.join(
+                    os.path.dirname(src_fldr), 'measurements')
+                os.makedirs(_measurements_dir, exist_ok=True)
+                enable_wal_where_safe(
+                    os.path.join(_measurements_dir, 'measurements.db'))
+
                 # Illumination / flat-field correction, if the settings ask
                 # for it. Here, and not earlier: it estimates from the merged
                 # fields this loop is about to measure, so it needs `src`
