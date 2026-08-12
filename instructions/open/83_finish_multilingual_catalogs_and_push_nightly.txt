@@ -1,0 +1,80 @@
+================================================================================
+FINISH THE MULTILINGUAL CATALOGS AND PUSH THE VERIFIED BATCH TO NIGHTLY
+================================================================================
+
+Status:    in progress, 2026-08-12.
+Requested: 2026-08-11 — "push to nightly"
+           2026-08-12 — "ok please finish everything. thanks and make sure to
+           save anything you learn in terms of how to make the voises sound
+           natural as a skill in the repo folder"
+Owner:     root Codex session
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+English narration, tutorial publication, frontend localization, API extraction,
+and installer hardening are implemented and independently checked. The release
+is still blocked by generated API and runtime catalogs: all nine target locales
+must be rebuilt against the final parser, semantic, cache, OpenCC, and source-
+hash contracts. Initial Korean and Simplified Chinese API passes exposed
+structural ``::`` loss, context-free technical false friends, copied English,
+Chinese model-corpus contamination, and silent truncation. The builders have
+been redesigned, but their final corpus tests and identity freeze still need to
+pass before generation resumes. Nothing in this task is publishable yet.
+
+2026-08-12 checkpoint: builder hardening is now committed at ``9b354204``.
+The frozen English inventories contain 6,322 API records (6,203 canonical and
+119 exact aliases), 22,170 translatable blocks, 671 runtime setting labels,
+159 categories, 1,370 UI strings, and 54 module summaries. Corpus/context scans
+have zero failures and all real model-tokenizer inputs are below 400 tokens.
+Focused and combined builder/extractor/frontend tests pass. Two guarded CPU
+lanes are regenerating Portuguese and Korean first; OPUS then continues through
+Spanish/German/Swedish/French, while M2M100 continues through Simplified
+Chinese/Hindi/Icelandic. Each locale stops before runtime or advancement on any
+nonzero API audit. The repository skill requested alongside this task is
+complete separately as instruction 84 and commit ``d13d07bd``.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The runtime loader correctly rejects stale catalogs and falls back to English,
+so claiming multilingual support before regeneration would be false. Loosening
+the gates would instead activate corrupted literals and technically wrong prose.
+The branch must be pushed only once the exact generated artifacts and their
+source hashes pass strict audits and release tests.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Finish and regression-test the API/runtime builders, including context
+   grammar, protected RST, accepted-only caching, no-truncation/EOS checks,
+   source-conditioned semantic gates, and OpenCC ``t2s.json`` normalization.
+2. Freeze canonical and builder identities, then regenerate API followed by
+   runtime catalogs for all nine locales. Hold a locale on any nonzero audit.
+3. Run independent copied-English, script, false-friend, syntax, layout, hash,
+   loader, frontend, installer, Sphinx, and release tests against stable files.
+4. Re-audit the shared worktree and commit with explicit path groups. Merge
+   origin/nightly if needed; never rebase, amend, or reset the shared branch.
+5. Push the verified nightly branch once, then inspect its CI without starving
+   the runner queue with repeated pushes.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Both localization audit commands exit zero for every locale; each API catalog
+is schema 2 with the exact canonical/alias set and each runtime catalog carries
+all current SOURCE_HASHES. Focused and release tests, a clean Sphinx build, and
+fresh-process language switching pass. The explicit commits contain only the
+intended paths, origin/nightly contains them, and required GitHub checks pass.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Do not bypass translation-model safety checks, use the noncommercial NLLB
+model, loosen zero thresholds, or stamp fresh hashes onto old text. Do not make
+the 1.5.0.5 tag here; instruction 82 owns the final green-CI release sequence.

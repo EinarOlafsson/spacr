@@ -521,7 +521,11 @@ def test_no_category_name_is_declared_twice():
     # must not be expected there. Power/Design registers "Power analysis"
     # through `register_defaults`, so this comparison was order-dependent:
     # it passed alone and failed after any test that imported that screen.
-    assert set(declared) == set(S.categories) - S.REGISTERED_CATEGORIES
+    # Two more sources of live categories that are not in the literal:
+    # modules registering through `register_defaults`, and instruction 73's
+    # regroup, which creates its family headings from the keys it moves.
+    derived = S.REGISTERED_CATEGORIES | {n for n, _ in S._ADVANCED_FAMILIES}
+    assert set(declared) == set(S.categories) - derived
 
 
 # ---------------------------------------------------------------------------
@@ -599,20 +603,35 @@ def test_the_basic_heading_is_short_enough_to_be_the_point():
     every other test here and none of the request.
     """
     assert len(S.categories["Organelle"]) <= 8, S.categories["Organelle"]
+    assert S.categories["Organelle"], "the basic heading emptied entirely"
 
 
 def test_the_one_visible_choice_is_in_the_basic_heading():
     assert "organelle_type" in S.categories["Organelle"]
 
 
-def test_the_two_headings_hold_every_organelle_key():
-    organelle = set(S.categories["Organelle"]) | set(
+#: Headings instruction 73 pulls the shared families into. An organelle key
+#: may legitimately live here instead of under an Organelle heading -- the
+#: whole point of that regroup is that `organelle_min_size` and
+#: `cell_min_size` are one decision, not two.
+ADVANCED_FAMILY_HEADINGS = ("Object filtration", "Intensity handling")
+
+
+def _organelle_homes():
+    homes = set(S.categories["Organelle"]) | set(
         S.categories["Organelle advanced"])
+    for heading in ADVANCED_FAMILY_HEADINGS:
+        homes |= set(S.categories.get(heading, ()))
+    return homes
+
+
+def test_the_two_headings_hold_every_organelle_key():
+    organelle = _organelle_homes()
     stray = sorted(k for k in _all_categorised_keys()
                    if k.startswith("organelle_")
                    and k not in organelle
                    and k not in ORGANELLE_KEYS_KEPT_IN_GENERAL)
-    assert not stray, f"organelle settings filed outside both headings: {stray}"
+    assert not stray, f"organelle settings filed outside every heading: {stray}"
     assert ORGANELLE_KEYS_KEPT_IN_GENERAL <= set(S.categories["General"])
 
 
@@ -625,9 +644,8 @@ def test_the_headings_cover_every_organelle_default():
     advanced half being off the first screen must not mean off the panel.
     """
     defaults = set(S._set_organelle_defaults({}))
-    offered = set(S.categories["Organelle"]) | set(
-        S.categories["Organelle advanced"])
-    missing = sorted(defaults - offered - ORGANELLE_KEYS_KEPT_IN_GENERAL)
+    missing = sorted(defaults - _organelle_homes()
+                     - ORGANELLE_KEYS_KEPT_IN_GENERAL)
     assert not missing, f"organelle defaults with no place in the panel: {missing}"
 
 
@@ -891,6 +909,8 @@ def _rendered_sections(app_key):
             "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
+            "Object Filtration (all objects)",
+            "Intensity Handling (all objects)",
             "Quality Control", "Volumetric Processing (Beta)",
             "Time Axes & Tracking (Beta)", "Visualization & Diagnostics",
             "Output & Storage", "Runtime & Reliability",
@@ -906,6 +926,8 @@ def _rendered_sections(app_key):
             "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
+            "Object Filtration (all objects)",
+            "Intensity Handling (all objects)",
             "Quality Control", "Tracking Setup", "Tracking Backends",
             "Visualization & Diagnostics", "Output & Storage",
             "Runtime & Reliability",
@@ -1018,3 +1040,79 @@ def test_the_measure_module_shows_no_segmentation_headings():
     measurements = set(S.categories["Measurements"])
     assert {"cell_min_size", "nucleus_min_size", "pathogen_min_size",
             "cytoplasm_min_size", "merge_edge_pathogen_cells"} <= measurements
+
+
+# ---------------------------------------------------------------------------
+# 12. The regroup is presentation only (instruction 73, item 3)
+# ---------------------------------------------------------------------------
+# "Moving a key between GUI categories must not change its name or its
+# meaning -- the category is presentation. A test should assert that the set
+# of keys a module offers is unchanged by the regroup, because that is the
+# failure that would silently drop a setting from a run."
+
+def test_the_regroup_does_not_change_which_keys_a_module_offers():
+    """Every key a module offers is still categorised somewhere.
+
+    This is the failure worth excluding: a settings CSV names KEYS, not
+    headings, so a file written before the regroup must load and mean
+    exactly what it meant. A key that fell out of every category during the
+    move would be silently dropped from the panel while remaining in the
+    settings dict -- the phantom-setting failure mode this project already
+    has eleven of.
+    """
+    categorised = set(_all_categorised_keys())
+    for app_key in GUI_MODULE_DEFAULTS:
+        offered = set(_defaults_for(app_key))
+        lost = sorted(offered - categorised - ORGANELLE_KEYS_KEPT_IN_GENERAL)
+        assert not lost, f"{app_key!r} offers uncategorised settings: {lost}"
+
+
+def test_the_regrouped_families_hold_only_keys_that_existed_before():
+    """The regroup MOVES keys; it must not invent them."""
+    known = set(S.expected_types) | _every_default_key()
+    for heading in ADVANCED_FAMILY_HEADINGS:
+        for key in S.categories.get(heading, ()):
+            assert key in known, (heading, key)
+
+
+def test_a_family_heading_groups_by_object_so_it_reads_as_one_decision():
+    """`cell_min_size` and `nucleus_min_size` are one decision applied twice.
+
+    Ordering by object is what makes that visible in a FLAT panel, which is
+    the only kind this settings screen has -- `build_sections` returns one
+    header and its rows, with no third level to nest a per-object
+    sub-section under.
+    """
+    members = S.categories["Object filtration"]
+    seen_objects = []
+    for key in members:
+        obj = key.split("_", 1)[0]
+        if obj not in seen_objects:
+            seen_objects.append(obj)
+    # Each object's keys must be contiguous: an object may not reappear
+    # after another one has started.
+    order = [key.split("_", 1)[0] for key in members]
+    collapsed = [o for i, o in enumerate(order) if i == 0 or order[i - 1] != o]
+    assert collapsed == seen_objects, collapsed
+
+
+def test_the_per_object_headings_actually_shrank():
+    """The deliverable is a NUMBER, and it is recorded in instruction 73."""
+    assert len(S.categories["Cell"]) <= 10
+    assert len(S.categories["Nucleus"]) <= 10
+    assert len(S.categories["Pathogen"]) <= 10
+
+
+def test_measurements_keeps_the_sizes_an_earlier_decision_gave_it():
+    """Not everything shared should move.
+
+    The per-object minimum sizes are measurement filters that only
+    measure_crop sets. Pulling them into a shared filtration heading would
+    put Measure's three near-empty segmentation headings back by another
+    route, which is exactly what filing them under Measurements fixed.
+    """
+    measurements = set(S.categories["Measurements"])
+    assert {"cell_min_size", "nucleus_min_size", "pathogen_min_size",
+            "cytoplasm_min_size"} <= measurements
+    for heading in ADVANCED_FAMILY_HEADINGS:
+        assert not (set(S.categories.get(heading, ())) & measurements), heading

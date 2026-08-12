@@ -3465,6 +3465,114 @@ categories = {
 # Derived from `organelle_types.BASIC_SETTINGS` rather than hand-listed, so
 # the split cannot drift from the module that defines what "basic" means.
 
+# ---------------------------------------------------------------------------
+# ADVANCED SETTINGS, GROUPED BY WHAT THEY DO. Instruction 73.
+# ---------------------------------------------------------------------------
+# The panel groups by OBJECT: everything about cells together, everything
+# about nuclei together. The request adds a second axis, and the reason it is
+# worth doing is exact: `cell_min_size` and `nucleus_min_size` do the SAME
+# THING to different objects. Filed under two headings they read as two
+# unrelated knobs; filed under one heading they read as one decision applied
+# four times, which is what they are.
+#
+# THREE HEADINGS, NOT TWELVE, AND THAT IS THE FLAT PANEL SHOWING THROUGH.
+# The request asks for sub-sections by function with sub-SUB-sections per
+# object. `SettingsWidgets.build_sections` returns
+# List[Tuple[str, List[Tuple[str, QWidget]]]] -- one flat header then its
+# rows, no third level and no recursion -- so a sub-sub-section cannot be
+# expressed without changing that contract for every module in the tool.
+# Within each heading the keys are therefore ORDERED BY OBJECT, so the four
+# `*_min_size` settings sit together and read as the group they are.
+#
+# ORGANELLE FOLDS IN rather than keeping the separate scheme instruction 72
+# shipped, per that instruction's item 6: one structure, not two.
+_ADVANCED_FAMILIES = (
+    ("Object filtration", (
+        "min_size", "max_size", "min_area", "max_area", "min_object_area",
+        "area_multiplier", "min_distance", "perimeter_fraction",
+        "remove_border", "remove_border_objects",
+    )),
+    ("Intensity handling", (
+        "intensity_merge", "intensity_split", "intensity_percentile",
+        "intensity_threshold_method", "min_intensity_percentile",
+        "max_intensity_percentile",
+    )),
+)
+
+#: Categories the regroup leaves alone.
+#:
+#: "Measurements" holds `cell_min_size` and its siblings by an EARLIER
+#: DELIBERATE DECISION: they are measurement filters that only measure_crop
+#: sets, and filing them under Cell / Nucleus / Pathogen gave the Measure
+#: module three headings holding one size field each and no segmentation.
+#: Pulling them into a shared filtration heading would undo that and put the
+#: same three near-empty headings back by another route.
+_ADVANCED_REGROUP_EXEMPT = ("Measurements",)
+
+#: Object order within each family heading, so the same decision for four
+#: objects reads as one block rather than four scattered rows.
+_ADVANCED_OBJECT_ORDER = ("cell", "nucleus", "pathogen", "cytoplasm",
+                          "organelle")
+
+
+def _advanced_family_members(table, family_suffixes):
+    """Keys belonging to one family, ordered by object then by suffix.
+
+    Matched on the SUFFIX after the object prefix, not by substring: `area`
+    would otherwise pull in `area_multiplier` twice and miss nothing useful.
+    """
+    # A key an exempt category owns is NOT a member of the family heading.
+    # Without this it would end up in both, and a duplicate renders twice in
+    # Tk (each copy shown or hidden by a different heading) and is silently
+    # dropped from the second section in Qt.
+    spoken_for = {k for c in _ADVANCED_REGROUP_EXEMPT
+                  for k in table.get(c, ())}
+    found = []
+    for obj in _ADVANCED_OBJECT_ORDER:
+        for suffix in family_suffixes:
+            key = f"{obj}_{suffix}"
+            if key in spoken_for:
+                continue
+            if any(key in members for members in table.values()):
+                found.append(key)
+    return found
+
+
+def _regroup_advanced(table):
+    """Move the shared families out of the per-object categories.
+
+    MOVED, NOT HIDDEN, and never renamed: a settings CSV names keys, not
+    headings, so a file written before this loads and means exactly what it
+    meant. `test_the_regroup_does_not_change_which_keys_a_module_offers`
+    is the guard.
+    """
+    # IDENTITY IS PRESERVED FOR EVERY CATEGORY THIS DOES NOT TOUCH. Several
+    # headings are the module-level lists themselves -- `categories`
+    # ["Motility (beta)"] IS `motility_settings` -- and a test asserts that
+    # `is` relationship. Rebuilding the whole dict with fresh lists broke it
+    # for categories the regroup has no business changing.
+    out = dict(table)
+    moved = set()
+    for _heading, suffixes in _ADVANCED_FAMILIES:
+        moved.update(_advanced_family_members(out, suffixes))
+
+    for category, keys in list(out.items()):
+        if category in _ADVANCED_REGROUP_EXEMPT:
+            continue
+        if not any(k in moved for k in keys):
+            continue            # untouched: keep the original list object
+        out[category] = [k for k in keys if k not in moved]
+
+    for heading, suffixes in _ADVANCED_FAMILIES:
+        members = _advanced_family_members(table, suffixes)
+        if members:
+            out[heading] = members
+    return {k: v for k, v in out.items()
+            if v or k in dict(_ADVANCED_FAMILIES)}
+
+
+categories = _regroup_advanced(categories)
+
 category_dependencies = {
     'timelapse': ['Timelapse'],
     'motility_analysis': ['Motility (beta)', 'Motility Advanced (beta)'],

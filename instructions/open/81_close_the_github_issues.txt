@@ -2,9 +2,28 @@
 CLOSE THE GITHUB ISSUES BY FIXING THEM, AND CLOSE THEM AS THE MAINTAINER
 ================================================================================
 
-Status:    not started, 2026-08-11. 26 issues open.
+Status:    in progress, 2026-08-12. 25 of the original 26 issues are closed;
+           only #15 remains.
 Requested: 2026-08-11 — "add to instructions to solve the github bug issues
            and mark them as solved, in my name,"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The original inventory contained 26 issues. The work recorded below has closed
+25 of them with fixes, tests, duplicate handling, or a measured not-reproduced
+resolution where that was the truthful outcome. The only remaining issue is
+#15, measurements sometimes hanging at completion with "database is locked".
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+An unresolved database lock can leave a completed-looking analysis unable to
+finish or release its resources. Closing the wrong issue without evidence is
+also user-visible damage, so the remaining issue needs the same fix-plus-test
+standard as the 25 already handled.
 
 --------------------------------------------------------------------------------
 ATTRIBUTION, FIRST, BECAUSE IT GOVERNS EVERY ACTION IN THIS FILE

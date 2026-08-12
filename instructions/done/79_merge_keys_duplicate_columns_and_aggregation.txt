@@ -2,8 +2,9 @@
 ONE ANCHOR, ONE COPY OF EACH COLUMN, AND THE RIGHT AGGREGATION FOR EACH KIND
 ================================================================================
 
-Status:    not started, 2026-08-11. Supersedes the "drop policy" half of
-           instruction 77 (3c), which asked a smaller question.
+Status:    done, 2026-08-11. Supersedes the "drop policy" half of instruction
+           77 (3c), which asked a smaller question. Multi-organelle cytoplasm
+           subtraction remains separately tracked by instruction 76.
 Requested: 2026-08-11 — "here is what i want instead. when i merge tables and
            two of columns have the same name i want those columns compared if
            they have the same values when indexed by prcfo i want just one to
@@ -37,6 +38,15 @@ Requested: 2026-08-11 — "here is what i want instead. when i merge tables and
            be outer i guess, and its important that area measurements are
            summed and counts are added to each other and summary statistics
            are averaged or the mean is taken."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The anchor registry, duplicate reconciliation, per-column aggregation policy,
+join policy, and both database-reader integrations are complete and measured
+below. The only adjacent work not included here is numbered multi-organelle
+support, which belongs to instruction 76 and does not keep this task open.
 
 --------------------------------------------------------------------------------
 THE MODEL, STATED ONCE

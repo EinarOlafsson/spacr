@@ -8,6 +8,28 @@ Requested: 2026-08-11 — "all to instructions make sure Github test are all
            you do"
 
 --------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+This final release task has not started. The working tree is still carrying
+the current batch of changes, localization catalogs are being rebuilt, and a
+history rewrite is scheduled before the authoritative CI run. The declared
+package version is currently 1.5.0.4; 1.5.0.5 must not be cut until every
+prerequisite below is complete and CI is green on the final history.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A tag made before the history rewrite would point at a discarded commit, and a
+release made while tests or localization audits are red would publish known
+defects. This is deliberately the final gate for the batch.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
 ORDERING, INCLUDING THE ONE CONFLICT
 --------------------------------------------------------------------------------
 
@@ -90,6 +112,15 @@ editable tree.
 Do this ONLY when step 1 is genuinely green. A version bump onto known-red CI
 produces a release whose first result cannot be read, which is instruction
 43's whole argument.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The rewritten final branch has one uncancelled GitHub Actions run in which
+every required job and release gate passes. A clean detached worktree reports
+1.5.0.5 consistently from the package, installers, documentation, and release
+metadata, and the published tag and assets point at that tested commit.
 
 --------------------------------------------------------------------------------
 AND THEN STOP
