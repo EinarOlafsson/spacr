@@ -13,10 +13,12 @@ current state; the header often says "not started" when it is 80% done.**
 ## 0. FIRST: what is true as of the last update
 
 - **Everything is pushed.** `nightly` is in sync with origin.
-- **CI was triggered** against it: runs `31643731063` (tests) and
-  `31643733227` (compat-matrix). **Read them first** --
-  `gh run view <id> --log-failed` -- they are the live answer for
-  instructions 43, 54 and 82.
+- **CI is running** against `e98edc26`, started by the push itself:
+  `31643959268` (tests), `31643958936` (compat-matrix), `31643958921`
+  (docs). **Read them first** -- `gh run view <id> --log-failed` -- they are
+  the live answer for instructions 43, 54 and 82. Do not trust an older run
+  id: two earlier ones were cancelled when this push superseded them, which
+  is normal. `gh run list --limit 5` gives the current set.
 - **28 of 29 GitHub issues are closed.** Only **#15** is open (measurements
   hangs, "database is locked"); a diagnostic comment on it records what is
   already defended and the two remaining candidate fixes.
