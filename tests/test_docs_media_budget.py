@@ -210,6 +210,10 @@ def test_narration_is_the_stable_mobile_clock():
     narration from those updates is heard as skipped, repeated, or stretched
     syllables. Narration therefore drives the silent visual master; only an
     explicit seek/load boundary may move the audio clock.
+
+    Pin the current cache key too: the 2026-08-11 player keeps narration in
+    charge through visual EOF and derives caption cues from measured sentence
+    timings, so phones must not reuse the superseded mobile-smooth asset.
     """
     player = (_LIBRARY / "tutorials" / "app_v2.js").read_text(
         encoding="utf-8")
@@ -220,8 +224,9 @@ def test_narration_is_the_stable_mobile_clock():
     assert "function seekNarrationToVideo()" in player
     assert "function syncAudio(" not in player
     assert "elements.audio.playbackRate = userPlaybackRate" not in player
-    assert 'app_v2.js?v=20260810-mobile-smooth' in (
-        _LIBRARY / "tutorials" / "index.html").read_text(encoding="utf-8")
+    index = (_LIBRARY / "tutorials" / "index.html").read_text(encoding="utf-8")
+    assert 'app_v2.js?v=20260811-audio-end-park-captions' in index
+    assert "20260810-mobile-smooth" not in index
 
 
 @requires_library
