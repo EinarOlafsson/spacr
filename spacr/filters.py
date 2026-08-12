@@ -377,6 +377,93 @@ def _png_paths(db_path: str) -> Optional[pd.DataFrame]:
     return frame.drop(columns=["_png_object_id"])
 
 
+def png_crop_type(db_path: str) -> Optional[str]:
+    """WHICH OBJECT the crops in ``png_list`` are pictures of.
+
+    `png_list` names its id column after the object it cropped --
+    ``cell_id``, ``pathogen_id``, ``organelle_id`` -- so the crop mode a run
+    used is recoverable from the schema rather than having to be remembered.
+
+    This is what makes a crop path attachable to the right row. Without it
+    the label is just an integer, and matching integers across object types
+    hands nucleus 2 the crop of CELL 2.
+
+    :returns: ``'cell'``, ``'pathogen'``, ... or None when there is no
+        ``png_list``, no recognised id column, or no crops at all.
+    """
+    if PNG_TABLE not in table_names(db_path):
+        return None
+    from .utils import PNG_CROP_MODE_BY_ID_COLUMN, PNG_OBJECT_ID_COLUMNS
+
+    columns = column_names(db_path, PNG_TABLE)
+    id_column = resolve_column(columns, tuple(PNG_OBJECT_ID_COLUMNS.values()))
+    if id_column is None:
+        return None
+    return PNG_CROP_MODE_BY_ID_COLUMN.get(id_column)
+
+
+def _attach_png_paths(frame: pd.DataFrame, paths: pd.DataFrame,
+                      shared: Sequence[str], crop_type: Optional[str],
+                      *, type_column: str = "object_type",
+                      parent_column: str = "parent_label",
+                      parent_type_column: str = "parent_type") -> pd.DataFrame:
+    """Give each object the crop that is a picture of IT, or none.
+
+    THE DEFECT THIS REPLACES. The merge joined on the identity plus
+    ``object_label`` and nothing else, so a label matched across object
+    types. Measured on two cells with two nuclei each, crops taken of cells:
+
+        object     label   parent   png_path        correct?
+        cell       1       -        cell_1.png      yes
+        cell       2       -        cell_2.png      yes
+        nucleus    1       cell 1   cell_1.png      by coincidence
+        nucleus    2       cell 1   cell_2.png      NO -- its cell is 1
+        nucleus    1       cell 2   cell_1.png      NO -- its cell is 2
+        nucleus    2       cell 2   cell_2.png      by coincidence
+
+    Half the children pointed at a picture of a different cell, and the two
+    that were right were right because their label happened to equal their
+    parent's. Every crop-backed view downstream -- annotation, the classifier,
+    the image grids -- read that column.
+
+    A CHILD'S CROP IS ITS PARENT'S. The crop is a picture of one cell, and
+    the nuclei inside that cell appear in it. So an object of the cropped
+    type is matched on its own label, a child of the cropped type on its
+    PARENT's label, and anything else -- a nucleus in a run cropped by
+    pathogen, where no containment holds -- gets no path at all, because a
+    wrong picture is worse than a missing one.
+    """
+    if crop_type is None or type_column not in frame.columns:
+        # No type axis to reason with. Matching labels blind is what caused
+        # this, so nothing is attached rather than something arbitrary.
+        LOG.info("crop paths not attached: png_list's object type is unknown")
+        return frame
+
+    own = paths.rename(columns={OBJECT_COLUMN: OBJECT_COLUMN})
+    frame = frame.copy()
+    frame["png_path"] = pd.Series([None] * len(frame), index=frame.index,
+                                  dtype=object)
+
+    is_own = frame[type_column].astype(str) == crop_type
+    if is_own.any():
+        direct = frame.loc[is_own, shared].merge(
+            own[shared + ["png_path"]], on=list(shared), how="left")
+        frame.loc[is_own, "png_path"] = direct["png_path"].to_numpy()
+
+    # The child side: join the child's PARENT label onto the crop's label.
+    if parent_column in frame.columns and parent_type_column in frame.columns:
+        is_child = frame[parent_type_column].astype(str) == crop_type
+        if is_child.any():
+            keys = [k for k in shared if k != OBJECT_COLUMN]
+            left = frame.loc[is_child, keys + [parent_column]].rename(
+                columns={parent_column: OBJECT_COLUMN})
+            joined = left.merge(own[shared + ["png_path"]],
+                                on=keys + [OBJECT_COLUMN], how="left")
+            frame.loc[is_child, "png_path"] = joined["png_path"].to_numpy()
+
+    return frame
+
+
 def build_filters_frame(db_path: str) -> pd.DataFrame:
     """The ``filters`` table's identity, before any gate is written to it.
 
@@ -455,6 +542,16 @@ def build_filters_frame(db_path: str) -> pd.DataFrame:
         if shared:
             paths = paths[shared + ["png_path"]].drop_duplicates(subset=shared)
             out = out.merge(paths, on=shared, how="left")
+            # This frame has no object_type axis -- it is one row per
+            # (field, object_label) with `in_<table>` flags -- so a row that
+            # is NOT of the cropped type must not keep a path matched on the
+            # label alone. `in_cell = 0` with a cell crop attached is exactly
+            # the mismatch `_attach_png_paths` exists to prevent; here the
+            # flag is the type axis.
+            crop_type = png_crop_type(db_path)
+            flag = f"{PRESENT_PREFIX}{crop_type}" if crop_type else None
+            if flag and flag in out.columns:
+                out.loc[out[flag] != 1, "png_path"] = None
         else:
             LOG.info("%s shares no identity columns; no crop paths carried",
                      PNG_TABLE)
@@ -605,7 +702,8 @@ def build_filters_from_relationships(db_path: str) -> pd.DataFrame:
         shared = [k for k in key_columns(frame) if k in paths.columns]
         if shared:
             paths = paths[shared + ["png_path"]].drop_duplicates(subset=shared)
-            frame = frame.merge(paths, on=shared, how="left")
+            frame = _attach_png_paths(frame, paths, shared,
+                                      png_crop_type(db_path))
     return frame
 
 
