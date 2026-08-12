@@ -517,7 +517,7 @@ _MODULE_LIST: Tuple[Module, ...] = (
         defaults=None,
         validate_key="simulation",
         requires=("max_workers — process-pool size (None means cpu_count - 4)",
-                  "the sweep grid keys read by spacr.sim.generate_paramiters"),
+                  "the sweep grid keys read by spacr.sim.generate_parameters"),
         writes=("one results CSV per simulation under the configured output folder",),
         note=("No set_default_* helper exists for the simulator, so every key must "
               "come from the settings file."),
