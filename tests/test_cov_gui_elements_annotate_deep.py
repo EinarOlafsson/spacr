@@ -281,7 +281,10 @@ def test_window_builds_three_tabs_and_action_buttons(deep_app):
     # list-valued defaults are rendered with repr(), not stringified elementwise
     assert dw.gen["class_metadata (list-of-lists)"].get() == "[['c1'], ['c2']]"
     assert dw.gen["classes (list)"].get() == "['nc', 'pc']"
-    assert dw.gen["annotated_classes (list)"].get() == "[1, 2]"
+    # These two settings were always inert.  A control that collects a value
+    # no pipeline reads is actively misleading, so neither may reappear.
+    assert "annotated_classes (list)" not in dw.gen
+    assert "custom_measurement (optional)" not in dw.gen
 
 
 def test_cancel_button_destroys_window_without_running(deep_app, fake_deep_spacr):
@@ -392,7 +395,6 @@ def test_run_annotation_mode_multi_selection_builds_class_column(
     dw.gen["sample (rows, optional)"].set("25")
     dw.set_text(dw.gen["tables (csv)"], ",,")          # -> parts empty -> fallback
     dw.set_text(dw.gen["class_metadata (list-of-lists)"], "[[")  # literal_eval fails
-    dw.set_text(dw.gen["custom_measurement (optional)"], "my_meas")
     dw.set_text(dw.gen["file_type / png_type"], "cyto_png")
     dw.set_text(dw.inference["model_path (optional override)"], "/models/m.pth")
     dw.set_text(dw.inference["dataset (apply on this path)"], "/data/apply_here")
@@ -412,7 +414,8 @@ def test_run_annotation_mode_multi_selection_builds_class_column(
     assert settings["sample"] == 25
     assert settings["tables"] is None            # ",," -> no usable parts
     assert settings["class_metadata"] == [["c1"], ["c2"]]  # literal_eval fallback
-    assert settings["custom_measurement"] == "my_meas"
+    assert "custom_measurement" not in settings
+    assert "annotated_classes" not in settings
     assert settings["file_type"] == "cyto_png" == settings["png_type"]
     assert settings["model_path"] == "/models/m.pth"
     assert settings["dataset"] == "/data/apply_here"
@@ -466,22 +469,22 @@ def test_run_annotation_mode_with_db_columns_off_uses_app_column(
     dw.set_text(dw.gen["tables (csv)"], "cell, nucleus")
     dw.set_text(dw.gen["file_metadata (csv)"], "plateID,rowID")
     dw.set_text(dw.inference["model_path (optional override)"], "")
-    # blanked list-literal fields fall back to the defaults, they do not
-    # become None
+    # A blank list-literal field falls back to the default; it does not become
+    # None.  The retired annotated_classes control must not be smuggled back
+    # into the settings payload by that fallback path.
     dw.set_text(dw.gen["classes (list)"], "")
-    dw.set_text(dw.gen["annotated_classes (list)"], "   ")
     dw.run()
     _wait_for_worker(deep_app)
 
     (settings,) = fake_deep_spacr["calls"]
     assert settings["classes"] == ["nc", "pc"]
-    assert settings["annotated_classes"] == [1, 2]
+    assert "annotated_classes" not in settings
+    assert "custom_measurement" not in settings
     assert settings["use_db_columns"] is False
     assert settings["annotation_column"] == deep_app.annotation_column
     assert deep_app.ensure_calls == []
     assert settings["tables"] == ["cell", "nucleus"]
     assert settings["file_metadata"] == ["plateID", "rowID"]
-    assert settings["custom_measurement"] is None
     assert settings["sample"] is None
     assert settings["model_path"] == ""       # untouched default, not overridden
 
@@ -637,6 +640,7 @@ def test_defaults_with_list_valued_fields_populate_entries(
         sample=25,
         tables=["cell", "nucleus"],
         file_metadata=["plateID", "rowID"],
+        annotated_classes=[1, 2],
         custom_measurement="cm",
         measurement=["m1", "m2"],
         threshold=0.25,
@@ -649,7 +653,10 @@ def test_defaults_with_list_valued_fields_populate_entries(
     assert dw.gen["sample (rows, optional)"].get() == "25"
     assert dw.gen["tables (csv)"].get() == "cell,nucleus"
     assert dw.gen["file_metadata (csv)"].get() == "plateID,rowID"
-    assert dw.gen["custom_measurement (optional)"].get() == "cm"
+    # Even an obsolete key injected by an old settings file cannot resurrect
+    # either inert control.
+    assert "annotated_classes (list)" not in dw.gen
+    assert "custom_measurement (optional)" not in dw.gen
     assert dw.meas["measurement (csv: columns)"].get() == "m1,m2"
     assert dw.meas["threshold (float or q1..q9)"].get() == "0.25"
     assert dw.basic["train_channels"].get() == "['r', 'g']"
@@ -673,7 +680,7 @@ def test_defaults_with_scalar_fields_and_empty_src(tk_root, png_db, monkeypatch)
     assert dw.gen["sample (rows, optional)"].get() == ""
     assert dw.gen["tables (csv)"].get() == ""
     assert dw.gen["file_metadata (csv)"].get() == "plateID"
-    assert dw.gen["custom_measurement (optional)"].get() == ""
+    assert "custom_measurement (optional)" not in dw.gen
     assert dw.meas["measurement (csv: columns)"].get() == "m1"
     assert dw.basic["train_channels"].get() == "['r','g','b']"
     # empty src -> defaults['src'] ('path') -> dataset entry
