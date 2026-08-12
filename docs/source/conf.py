@@ -6,6 +6,7 @@ module tree, and renders reST docstrings without visual noise.
 """
 from __future__ import annotations
 
+import hashlib
 import os
 import sys
 
@@ -80,11 +81,18 @@ autoapi_options           = [
     'show-inheritance',
     'show-module-summary',
     'special-members',
-    'imported-members',
 ]
+# Imported objects already have a canonical page in the module that defines
+# them. Re-emitting them under every importing module creates duplicate or
+# non-package HTML ids that cannot be matched safely to the external docstring
+# catalogs; aliases based on suffixes would be ambiguous.
 autoapi_ignore            = [
     '*/tests/*',
     '*/qt/tutorial/*',
+    # Asset-generation utilities are build inputs, not importable spaCR API.
+    # Without this exclusion AutoAPI publishes them as top-level ``render``,
+    # ``parts`` and similar modules instead of canonical ``spacr.*`` symbols.
+    '*/resources/*/_generators/*',
     # Generated localization payloads are static data, not Python API. Their
     # source pages add tens of megabytes and expose no callable interface.
     '*/qt/i18n_catalogs/*',
@@ -100,7 +108,24 @@ html_favicon    = '_static/logo_spacr.png'
 templates_path  = ['_templates']
 html_static_path = ['_static']
 html_css_files  = ['custom.css']
-html_js_files   = ['api_i18n.js']
+
+# A content-derived version keeps browsers and intermediary caches from mixing
+# API catalogs from different documentation builds.  The frontend also checks
+# every localized source hash against the English manifest before rendering.
+_api_catalog_hasher = hashlib.sha256()
+_api_catalog_dir = os.path.join(
+    os.path.dirname(__file__), '_static', 'i18n', 'api')
+for _api_catalog_name in sorted(os.listdir(_api_catalog_dir)):
+    if not _api_catalog_name.endswith('.json'):
+        continue
+    _api_catalog_hasher.update(_api_catalog_name.encode('utf-8'))
+    with open(os.path.join(_api_catalog_dir, _api_catalog_name), 'rb') as _stream:
+        for _chunk in iter(lambda: _stream.read(1024 * 1024), b''):
+            _api_catalog_hasher.update(_chunk)
+_api_catalog_version = _api_catalog_hasher.hexdigest()[:16]
+html_js_files = [
+    ('api_i18n.js', {'data-api-catalog-version': _api_catalog_version}),
+]
 
 # -- Tutorial media --------------------------------------------------------
 # `_extra` is 2,879 MiB, 93% of it one narration .m4a per lesson x language x
