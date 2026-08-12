@@ -15,6 +15,7 @@ import colorsys
 import contextlib
 import logging
 import os
+import re
 import queue
 import sqlite3
 import threading
@@ -467,6 +468,111 @@ def ensure_annotation_column(db_path: str, column: str) -> None:
         conn.close()
 
 
+# ---------------------------------------------------------------------------
+# The image-type filter, with operators
+# ---------------------------------------------------------------------------
+
+def parse_image_type(expression: Optional[str]) -> Tuple[str, List[str]]:
+    """Turn an image-type expression into a SQL fragment and its parameters.
+
+    The filter used to be one substring matched with ``LIKE %x%``, which can
+    only ever say what a path MUST contain. There was no way to ask for the
+    complement -- "the cells with no pathogen crop" -- which is half of most
+    comparisons (issue #7).
+
+    The grammar is small and deliberately close to what someone would type:
+
+        pathogen                  contains "pathogen"
+        !pathogen                 does NOT contain it
+        NOT pathogen              the same, spelled out
+        cell AND nucleus          contains both
+        cell OR nucleus           contains either
+        cell AND NOT pathogen     mixes them
+
+    AND binds tighter than OR, as everywhere else. Terms are matched
+    case-insensitively, since ``LIKE`` is already case-insensitive for ASCII
+    in SQLite and a user typing "Pathogen" means the same thing.
+
+    EVERY TERM IS A BOUND PARAMETER. Nothing the user types is interpolated
+    into SQL, so a path fragment containing a quote is a path fragment and
+    not an injection.
+
+    :param expression: the user's filter, or None/empty for "no filter".
+    :returns: ``(sql, params)`` where sql is a bracketed boolean expression
+        over ``png_path``, or ``("", [])`` when there is nothing to filter.
+    :raises ValueError: on an expression that cannot be read, naming what was
+        wrong -- an empty NOT, a dangling operator, unbalanced parentheses.
+    """
+    text = (expression or "").strip()
+    if not text:
+        return "", []
+
+    tokens = _tokenise_image_type(text)
+    if not tokens:
+        return "", []
+    sql, params, rest = _parse_or(tokens)
+    if rest:
+        raise ValueError(
+            f"could not read the image filter after {' '.join(rest[:3])!r}; "
+            f"expected AND, OR, or the end of the expression")
+    return sql, params
+
+
+_IMAGE_TYPE_OPERATORS = {"and", "or", "not", "(", ")"}
+
+
+def _tokenise_image_type(text: str) -> List[str]:
+    """Split on whitespace and parentheses, turning a leading ! into NOT."""
+    out: List[str] = []
+    for raw in re.findall(r"\(|\)|[^\s()]+", text):
+        if raw in ("(", ")"):
+            out.append(raw)
+        elif raw.startswith("!") and len(raw) > 1:
+            out.extend(["NOT", raw[1:]])
+        elif raw == "!":
+            out.append("NOT")
+        else:
+            out.append(raw)
+    return out
+
+
+def _parse_or(tokens):
+    sql, params, rest = _parse_and(tokens)
+    while rest and rest[0].lower() == "or":
+        right_sql, right_params, rest = _parse_and(rest[1:])
+        sql = f"({sql} OR {right_sql})"
+        params = params + right_params
+    return sql, params, rest
+
+
+def _parse_and(tokens):
+    sql, params, rest = _parse_term(tokens)
+    while rest and rest[0].lower() == "and":
+        right_sql, right_params, rest = _parse_term(rest[1:])
+        sql = f"({sql} AND {right_sql})"
+        params = params + right_params
+    return sql, params, rest
+
+
+def _parse_term(tokens):
+    if not tokens:
+        raise ValueError("the image filter ends after an operator")
+    head, rest = tokens[0], tokens[1:]
+    if head.lower() == "not":
+        sql, params, rest = _parse_term(rest)
+        return f"(NOT {sql})", params, rest
+    if head == "(":
+        sql, params, rest = _parse_or(rest)
+        if not rest or rest[0] != ")":
+            raise ValueError("the image filter has an unclosed '('")
+        return f"({sql})", params, rest[1:]
+    if head.lower() in _IMAGE_TYPE_OPERATORS:
+        raise ValueError(
+            f"the image filter has {head!r} where a path fragment was "
+            f"expected")
+    return "png_path LIKE ?", [f"%{head}%"], rest
+
+
 def count_rows(db_path: str, image_type: Optional[str] = None) -> int:
     """Return the number of ``png_list`` rows, optionally filtered by ``image_type``.
 
@@ -479,13 +585,9 @@ def count_rows(db_path: str, image_type: Optional[str] = None) -> int:
         connect_database(db_path, readonly=True, timeout=30)
     ) as conn:
         cur = conn.cursor()
-        if image_type:
-            cur.execute(
-                'SELECT COUNT(*) FROM "png_list" WHERE png_path LIKE ?',
-                (f"%{image_type}%",),
-            )
-        else:
-            cur.execute('SELECT COUNT(*) FROM "png_list"')
+        where, params = parse_image_type(image_type)
+        clause = f" WHERE {where}" if where else ""
+        cur.execute(f'SELECT COUNT(*) FROM "png_list"{clause}', params)
         return int(cur.fetchone()[0])
 
 
@@ -504,17 +606,13 @@ def fetch_page(
         connect_database(db_path, readonly=True, timeout=30)
     ) as conn:
         cur = conn.cursor()
-        if image_type:
-            cur.execute(
-                f'SELECT png_path, "{col}" FROM "png_list" '
-                f'WHERE png_path LIKE ? LIMIT ? OFFSET ?',
-                (f"%{image_type}%", page_size, offset),
-            )
-        else:
-            cur.execute(
-                f'SELECT png_path, "{col}" FROM "png_list" LIMIT ? OFFSET ?',
-                (page_size, offset),
-            )
+        where, params = parse_image_type(image_type)
+        clause = f"WHERE {where} " if where else ""
+        cur.execute(
+            f'SELECT png_path, "{col}" FROM "png_list" '
+            f'{clause}LIMIT ? OFFSET ?',
+            (*params, page_size, offset),
+        )
         return cur.fetchall()
 
 
@@ -839,13 +937,9 @@ def find_last_annotated_offset(
         connect_database(db_path, readonly=True, timeout=30)
     ) as conn:
         cur = conn.cursor()
-        if image_type:
-            cur.execute(
-                f'SELECT "{col}" FROM "png_list" WHERE png_path LIKE ?',
-                (f"%{image_type}%",),
-            )
-        else:
-            cur.execute(f'SELECT "{col}" FROM "png_list"')
+        where, params = parse_image_type(image_type)
+        clause = f" WHERE {where}" if where else ""
+        cur.execute(f'SELECT "{col}" FROM "png_list"{clause}', params)
         rows = cur.fetchall()
     last = None
     for i, (val,) in enumerate(rows):
