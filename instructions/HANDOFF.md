@@ -70,6 +70,15 @@ assert the new contract and say why in the test. Never delete, never skip.**
 fires where nothing could happen teaches people to disable it. Scope a guard
 to the path that actually does the dangerous thing.
 
+**A NEW MODULE FILE MUST BE REGISTERED IN `spacr._SUBMODULES`.** Adding
+`spacr/foo.py` and nothing else turns every compat-matrix cell red on
+`tests/test_smoke.py::test_lazy_loader_matches_files` — "file present but not
+in _SUBMODULES". This happened TWICE today, with `object_roles.py` and then
+`organelle_types.py`, and a scoped local test run cannot catch it because the
+failing test is nowhere near the change. After adding any module, run:
+
+    python -m pytest tests/test_smoke.py::test_lazy_loader_matches_files -q
+
 **CPU/GPU etiquette:** at most 4–8 pytest workers. Qt needs
 `xvfb-run -a python -m pytest …` — offscreen is not a substitute for a real
 X server, which is what finally answered issue #72.
