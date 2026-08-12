@@ -415,6 +415,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
         ("Organelle Segmentation", ("@Organelle",)),
+        # The advanced half is its own heading rather than being folded into
+        # the one above, so the six settings a biologist recognises are not
+        # buried under forty-eight detection parameters. Instruction 72.
+        ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
         ("Quality Control", ("@Segmentation QC",)),
         ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
         ("Time Axes & Tracking (Beta)", ("@4D Settings (Beta)",)),
@@ -499,6 +503,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
         ("Organelle Segmentation", ("@Organelle",)),
+        # The advanced half is its own heading rather than being folded into
+        # the one above, so the six settings a biologist recognises are not
+        # buried under forty-eight detection parameters. Instruction 72.
+        ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
         ("Quality Control", ("@Segmentation QC",)),
         ("Tracking Setup", (
             "timelapse_objects", "timelapse_frame_limits",
@@ -1386,13 +1394,25 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Tightly packed parasites fusing into one object are the usual "
         "reason to come here.",
     "ORGANELLE":
-        "Everything the organelle mask needs, in the order you set it up: "
-        "shape family and detection method, the background and contrast "
-        "correction applied first, the knobs belonging to the method you "
-        "chose, the size, intensity and border filters applied to what was "
-        "found, and which parent compartment the results are summarised "
-        "into. Expect to spend time here — punctate, tubular and "
-        "ring-shaped organelles each want a different method.",
+        "The six choices you need to segment an organelle: which channel it "
+        "is in, what KIND of organelle it is, how big it is, and the size "
+        "and border filters. Setting the type fills in the detection "
+        "parameters for you and says on the console what it picked — the "
+        "rest are under Organelle advanced, still editable, if you want to "
+        "change any of them.",
+    "ORGANELLE ADVANCED":
+        "The forty-eight detection parameters behind the organelle type: "
+        "shape family and method, the background and contrast correction "
+        "applied first, the knobs belonging to the method chosen, and the "
+        "intensity filters applied to what was found. Choosing an organelle "
+        "type sets the ones that matter for it; anything you change here "
+        "wins and is never overwritten. Punctate, tubular and ring-shaped "
+        "organelles each want a different method, which is what the type is "
+        "choosing for you.",
+    "ORGANELLE SEGMENTATION (ADVANCED)":
+        "The forty-eight detection parameters behind the organelle type. "
+        "Choosing a type sets the ones that matter for it; anything you "
+        "change here wins and is never overwritten.",
     "CELLPOSE":
         "How Cellpose itself is run: expected object diameter, probability "
         "and flow thresholds, rescaling and inversion. Reach for these when "
