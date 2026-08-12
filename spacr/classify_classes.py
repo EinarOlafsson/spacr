@@ -50,6 +50,10 @@ LOG = logging.getLogger("spacr.classify_classes")
 #: The dict setting itself.
 CLASSES = "classes"
 
+#: The ordered training-folder names. Split out of :data:`CLASSES`, which was
+#: carrying both this and the class definitions -- see :func:`folder_names`.
+CLASS_FOLDER_NAMES = "class_folder_names"
+
 #: Columns the dict offers under ``dataset_mode='metadata'``. Fixed, because
 #: they are the plate's own coordinates rather than anything the user named.
 METADATA_COLUMNS: Tuple[str, ...] = (
@@ -222,8 +226,8 @@ def class_names(settings: Mapping[str, Any]) -> List[str]:
 
     Downstream (``deep_spacr``, ``model_zoo``, the evaluation code) reads a
     list of names and should keep doing so. This is what
-    :func:`normalize_settings` writes back under ``class_names`` so none of
-    that has to learn the dict.
+    :func:`normalize_settings` writes back under
+    :data:`CLASS_FOLDER_NAMES` so none of that has to learn the dict.
     """
     raw = settings.get(CLASSES)
     if isinstance(raw, (list, tuple)):
@@ -233,6 +237,46 @@ def class_names(settings: Mapping[str, Any]) -> List[str]:
         # names, which is a different question.
         return [str(n) for n in raw]
     return [r.name for r in class_rules(settings)]
+
+
+def folder_names(settings: Mapping[str, Any]) -> List[str]:
+    """The ordered TRAINING FOLDER names -- the other contract on ``classes``.
+
+    ``classes`` was carrying two unrelated meanings at once, which is what
+    made its default undecidable:
+
+    * the class DEFINITIONS -- ``name -> {column, value}``, which objects
+      belong to which class. That is what ``classes`` means now.
+    * the ordered TRAINING FOLDER names -- each must match a subfolder under
+      ``src/train`` and ``src/test``, a name's position is its integer
+      label, and ``generate_training_dataset`` overwrites the list with what
+      it actually wrote to disk. That is :data:`CLASS_FOLDER_NAMES`.
+
+    They are usually the same words, which is exactly why the collision went
+    unnoticed: one is what a class MEANS and the other is where its crops
+    were written.
+
+    Read through this function rather than off the key, so a settings file
+    written before the split keeps training. Precedence:
+
+    1. ``class_folder_names`` -- the explicit answer.
+    2. ``classes`` when it is still a list -- every settings CSV in the wild.
+    3. the names of the defined classes, in order.
+
+    :returns: the ordered folder names; ``[]`` when nothing declares any.
+    """
+    raw = settings.get(CLASS_FOLDER_NAMES)
+    if isinstance(raw, (list, tuple)) and raw:
+        return [str(n) for n in raw]
+    raw = settings.get(CLASSES)
+    if isinstance(raw, (list, tuple)) and raw:
+        return [str(n) for n in raw]
+    try:
+        return class_names(settings)
+    except ClassDefinitionError:
+        # A malformed definition is not a reason to refuse to name the
+        # folders; whoever needs the rules will raise on its own terms.
+        return []
 
 
 # ---------------------------------------------------------------------------
@@ -254,8 +298,14 @@ def _rules_from_annotation(settings: Mapping[str, Any]) -> List[ClassRule]:
     if not isinstance(values, (list, tuple)):
         values = [values]
 
-    names = settings.get(CLASSES)
-    names = list(names) if isinstance(names, (list, tuple)) else []
+    # The names come from `folder_names`, which prefers
+    # `class_folder_names` and falls back to a list-shaped `classes`.
+    # Reading `classes` directly stopped working the moment it
+    # became the definitions dict: a settings file carrying the
+    # retired keys alongside the new default named its derived
+    # classes 'negative control' / 'positive control' instead of the
+    # names sitting right beside them.
+    names = folder_names(settings)
 
     rules: List[ClassRule] = []
     for i, value in enumerate(values):
@@ -281,8 +331,7 @@ def _rules_from_metadata(settings: Mapping[str, Any]) -> List[ClassRule]:
     column = str(settings.get("location_column") or "").strip()
     if not column:
         return []
-    names = settings.get(CLASSES)
-    names = [str(n) for n in names] if isinstance(names, (list, tuple)) else []
+    names = folder_names(settings)
 
     rules: List[ClassRule] = []
     for i, key in enumerate(("negative_control", "positive_control")):
@@ -313,7 +362,13 @@ def normalize_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
     out = dict(settings)
     raw = out.get(CLASSES)
 
-    if not isinstance(raw, Mapping):
+    # `not raw` as well as `not isinstance(...)`: the default is now an EMPTY
+    # dict meaning "nothing defined yet", and an empty Mapping is still a
+    # Mapping -- so testing the type alone would skip the derivation for
+    # exactly the settings that need it most, and a plate with
+    # `class_metadata` set would train on no classes at all while reporting
+    # nothing. Empty means undefined, whichever shape it is empty in.
+    if not isinstance(raw, Mapping) or not raw:
         from .training_basis import resolve_basis
 
         basis = resolve_basis(out)
@@ -328,8 +383,12 @@ def normalize_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         elif rules:
             out[CLASSES] = {r.name: r.to_dict() for r in rules}
 
-    names = class_names(out)
+    names = folder_names(out)
     if names:
+        out.setdefault(CLASS_FOLDER_NAMES, names)
+        # `class_names` is still written for anything reading the older
+        # spelling. The two agree by construction -- both come from
+        # `folder_names` -- so this cannot become a third disagreeing answer.
         out.setdefault("class_names", names)
     return out
 

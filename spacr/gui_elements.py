@@ -5875,9 +5875,13 @@ class AnnotateApp:
         class_metadata_entry.insert(0, str(defaults.get('class_metadata', [['c1'],['c2']])))
         _row(gen_form, r, "class_metadata (list-of-lists)", class_metadata_entry); r += 1
 
+        # The FOLDER names this dataset will write, not the class
+        # definitions -- `classes` now holds name -> {column, value}.
+        # Updated here to fit the new code, per the standing rule.
         classes_entry = tk.Entry(gen_form)
-        classes_entry.insert(0, str(defaults.get('classes', ['nc','pc'])))
-        _row(gen_form, r, "classes (list)", classes_entry); r += 1
+        classes_entry.insert(0, str(defaults.get(
+            'class_folder_names', ['nc','pc'])))
+        _row(gen_form, r, "class_folder_names (list)", classes_entry); r += 1
 
         ch_interest_sp = ttk.Spinbox(gen_form, from_=1, to=5, increment=1)
         ch_interest_sp.set(int(defaults.get('channel_of_interest', 3)))
@@ -6180,7 +6184,8 @@ class AnnotateApp:
             settings['file_metadata'] = _parse_csv_list(file_metadata_entry.get(), None)
             settings['metadata_type_by'] = metadata_type_by_cbx.get().strip()
             settings['class_metadata'] = _parse_list_literal(class_metadata_entry.get(), defaults.get('class_metadata'))
-            settings['classes'] = _parse_list_literal(classes_entry.get(), defaults.get('classes'))
+            settings['class_folder_names'] = _parse_list_literal(
+                classes_entry.get(), defaults.get('class_folder_names'))
             settings['channel_of_interest'] = int(float(ch_interest_sp.get()))
             settings['balance_to_smallest'] = bool(balance_var.get())
 
