@@ -108,11 +108,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     ) == _NEW_VISIBLE_DIGEST
     assert dunders | assignments <= docs.keys()
 
-    # 6203 canonical bodies plus 119 exact materialized aliases. The nine new
-    # bodies are the reviewed organelle-type API (eight) and splash contrast
-    # helper (one); catalog regeneration must include all of them.
-    assert len(docs) - len(builder.API_DOC_ALIASES) == 6203
-    assert len(docs) == 6322
+    # 6232 canonical bodies plus 119 exact materialized aliases. The 29 newest
+    # bodies are the shared live-view contract — `spacr.qt.widgets.
+    # preview_contract` and its members (14), and the run/cancel/blocked-reason
+    # API the four preview panels gained when they adopted it (15). Catalog
+    # regeneration must include all of them.
+    assert len(docs) - len(builder.API_DOC_ALIASES) == 6232
+    assert len(docs) == 6351
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
