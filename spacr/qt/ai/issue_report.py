@@ -249,7 +249,8 @@ def build_report(
     :param settings: the pipeline settings dict in play, if any.
         Sanitised before inclusion.
     :param include_log_tail: also attach the last N log lines.
-    :returns: dict with keys ``title`` and ``body`` ready to be
+    :returns: dict with keys ``title``, ``body`` and ``fingerprint``,
+        ready to be
         URL-encoded onto ``issues/new``.
     """
     tb_clean = sanitize_traceback(traceback_text)
@@ -303,7 +304,11 @@ def build_report(
             body_parts.append("```")
             body_parts.append("</details>")
 
-    return {"title": title, "body": "\n".join(body_parts)}
+    # `fingerprint` is returned, not just embedded in the body, so the
+    # caller can look for an existing issue carrying it before opening a
+    # new one. Without that the hash was written and never read.
+    return {"title": title, "body": "\n".join(body_parts),
+            "fingerprint": tb_hash}
 
 
 # ---------------------------------------------------------------------------
@@ -389,12 +394,52 @@ def file_issue(
     """
     report = build_report(traceback_text, active_app=active_app,
                             settings=settings)
+
+    # NOTHING REACHES THE REAL TRACKER FROM A TEST RUN.
+    #
+    # spaCR posts whenever a token is resolvable, and on a developer machine
+    # the `gh` CLI supplies one -- so a test that reaches this helper without
+    # mocking files a live issue. That is how `[auto 54a0e8] [mask] Error:
+    # boom` (#75) arrived on the public tracker from a fixture's exception.
+    #
+    # The guard sits HERE rather than on github_auth.create_issue, which the
+    # offline suite exercises deliberately with a mocked urllib to check its
+    # error handling. This is the end-to-end helper the application calls;
+    # blocking it costs the tests nothing and closes the hole.
+    import os
+    if (os.environ.get("PYTEST_CURRENT_TEST")
+            and os.environ.get("SPACR_ALLOW_GITHUB_WRITES") != "1"):
+        return ("refusing to file a GitHub issue from inside a test run; "
+                "set SPACR_ALLOW_GITHUB_WRITES=1 if that is really intended")
     # If the user is signed in to GitHub (stored token / env / gh CLI), create
     # the issue directly via the API — no browser needed. Otherwise fall back to
     # opening the pre-filled issues/new URL in the browser.
     try:
         from . import github_auth
         if github_auth.is_authenticated():
+            # DEDUPE BY FINGERPRINT FIRST. `_traceback_hash` exists so the
+            # same bug hashes the same across runs and machines, and nothing
+            # consumed it: one crash produced one issue per occurrence -- ten
+            # in a single day on 2026-08-11 (#79-#81, #84-#90), which buries
+            # the reports that matter.
+            #
+            # A hit gets a COMMENT rather than a new issue, because the
+            # second occurrence is still information: it says the bug is
+            # reproducible and carries that run's environment.
+            #
+            # `searched` is distinguished from "found nothing" deliberately.
+            # If the search could not run we still file, because losing a
+            # crash report is worse than filing a duplicate.
+            searched, existing = github_auth.find_issue_by_fingerprint(
+                REPO, report["fingerprint"])
+            if searched and existing:
+                number = existing.get("number")
+                url = existing.get("html_url", "")
+                ok, _ = github_auth.comment_on_issue(
+                    REPO, number,
+                    "Seen again.\n\n" + report["body"])
+                if ok:
+                    return url
             ok, result = github_auth.create_issue(
                 REPO, report["title"], report["body"], labels=[ISSUE_LABEL])
             if ok and result:
