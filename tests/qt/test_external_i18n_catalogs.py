@@ -2,13 +2,24 @@
 from __future__ import annotations
 
 from importlib import import_module
+import hashlib
 import json
 from pathlib import Path
 import re
+import sys
 
 
 ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
+API_EXACT_TEXT_ALLOWLIST = {
+    "spacr.align.CanvasSpec.shape",
+    "spacr.hits.HitList.flag_counts",
+    "spacr.macro.MacroStep.entry",
+    "spacr.qt.widgets.plate_layout.PlateDesign.shape",
+    "spacr.resources.home.versions._generators.common.app_map",
+    "spacr.run_compare.HitList.by_key",
+    "spacr.schema.field_index",
+}
 
 
 def test_external_runtime_catalogs_have_exact_current_source_keys():
@@ -25,6 +36,38 @@ def test_external_runtime_catalogs_have_exact_current_source_keys():
         for table, keys in expected.items():
             assert set(getattr(catalog, table)) == keys
             assert all(str(value).strip() for value in getattr(catalog, table).values())
+        expected_hash_keys = {
+            (table, str(key)) for table, keys in expected.items() for key in keys
+        }
+        assert set(catalog.SOURCE_HASHES) == expected_hash_keys
+        assert catalog.SOURCE_HASHES == english.SOURCE_HASHES
+
+
+def test_runtime_rejects_a_localized_record_with_a_stale_source_hash(
+    monkeypatch,
+):
+    from spacr.qt.i18n_catalogs import setting_tooltip
+    from spacr.qt.i18n_catalogs import de as catalog
+    from spacr.qt.i18n_catalogs.en import SETTING_TOOLTIPS
+
+    key = "cell_diameter"
+    source = SETTING_TOOLTIPS[key]
+    assert setting_tooltip(key, source, "de")
+    monkeypatch.setitem(
+        catalog.SOURCE_HASHES, ("SETTING_TOOLTIPS", key), "stale"
+    )
+    assert setting_tooltip(key, source, "de") is None
+
+
+def test_runtime_tooltips_have_no_exact_english_prose_fallbacks():
+    english = import_module("spacr.qt.i18n_catalogs.en")
+    for language in LANGUAGES:
+        catalog = import_module(f"spacr.qt.i18n_catalogs.{language}")
+        unchanged = [
+            key for key, source in english.SETTING_TOOLTIPS.items()
+            if catalog.SETTING_TOOLTIPS[key] == source
+        ]
+        assert not unchanged, f"{language}: {unchanged[:10]}"
 
 
 def test_runtime_uses_external_static_and_context_keyed_setting_text():
@@ -128,16 +171,114 @@ def test_reviewed_scientific_terms_use_domain_context_not_false_friends():
     assert not any("l'criblage" in value or "l’criblage" in value
                    for value in french_values)
 
+    annotate_source = (
+        "Open the Annotate screen first — it is what shows crops."
+    )
+    annotate = french_catalog.UI[annotate_source]
+    assert "écran" in annotate and "vignettes" in annotate
+    assert not any(word in annotate.casefold()
+                   for word in ("criblage", "récolte", "culture"))
+
+    run_source = "Every verdict here was written by the run that produced it -- "
+    run_text = next(
+        value for source, value in french_catalog.UI.items()
+        if source.startswith(run_source)
+    )
+    assert "exécution" in run_text and "piste" not in run_text.casefold()
+
+    mixed_source = next(
+        source for source in french_catalog.UI
+        if source.startswith("The simulator parameters this screen")
+    )
+    mixed_text = french_catalog.UI[mixed_source]
+    assert "écran" in mixed_text and "criblage réel" in mixed_text
+
+
+def test_runtime_catalogs_resolve_all_reviewed_false_friend_variants():
+    tools_dir = str(ROOT / "tools")
+    sys.path.insert(0, tools_dir)
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.remove(tools_dir)
+
+    sources = builder.canonical_sources()
+    source_tables = {
+        "SETTING_LABELS": sources["setting_labels"],
+        "SETTING_TOOLTIPS": sources["setting_tooltips"],
+        "CATEGORY_HELP": {source: source for source in sources["categories"]},
+        "UI": {source: source for source in sources["ui"]},
+        "MODULE_SUMMARIES": sources["module_summaries"],
+    }
+    for language in LANGUAGES:
+        catalog = import_module(f"spacr.qt.i18n_catalogs.{language}")
+        unresolved = []
+        for table_name, table_sources in source_tables.items():
+            table = getattr(catalog, table_name)
+            for key, source in table_sources.items():
+                value = table[key]
+                if builder._contextualize(value, language, source) != value:
+                    unresolved.append(f"{table_name}/{key}")
+        assert not unresolved, f"{language}: {unresolved[:10]}"
+
+
+def test_chinese_and_scientific_runtime_terms_are_contextual():
+    from spacr.qt.i18n_catalogs import de, en, es, fr, zh_CN
+
+    for key, source in en.SETTING_LABELS.items():
+        value = zh_CN.SETTING_LABELS[key]
+        if re.search(r"\bmasks?\b", source, re.IGNORECASE):
+            assert "面具" not in value and "口罩" not in value
+        if re.search(r"\bcells?\b", source, re.IGNORECASE):
+            assert "电池" not in value
+        if re.search(r"\bplates?\b", source, re.IGNORECASE):
+            assert "板块" not in value
+    for table_name, sources in (
+        ("SETTING_TOOLTIPS", en.SETTING_TOOLTIPS),
+        ("UI", {source: source for source in en.UI_SOURCES}),
+    ):
+        table = getattr(zh_CN, table_name)
+        for key, source in sources.items():
+            value = table[key]
+            if re.search(r"\bmasks?\b", source, re.IGNORECASE):
+                assert "面具" not in value and "口罩" not in value
+            if re.search(r"\bcells?\b", source, re.IGNORECASE):
+                assert "电池" not in value
+            if re.search(r"\bplates?\b", source, re.IGNORECASE):
+                assert "板块" not in value
+            if re.search(r"\bguides?\b", source, re.IGNORECASE):
+                assert "指南" not in value and "向导 RNA" not in value
+
+    assert "golpe" not in es.SETTING_LABELS["power_hit_rate"].casefold()
+    assert "Rennen" not in de.SETTING_TOOLTIPS["intermedeate_save"]
+    assert "Formtor" not in de.SETTING_TOOLTIPS["organelle_ring_min_prominence"]
+    question = "Ask a question about the table you are gating without leaving the screen."
+    resolution = next(
+        source for source in en.UI_SOURCES
+        if "lower DPI for the screen" in source
+    )
+    assert "pantalla" in es.UI[question].casefold()
+    assert "écran" in fr.UI[question].casefold()
+    assert "pantalla" in es.UI[resolution].casefold()
+    assert "écran" in fr.UI[resolution].casefold()
+
 
 def test_api_doc_catalog_is_symbol_keyed_and_source_hashed():
     manifest = json.loads((
         ROOT / "docs" / "source" / "_static" / "i18n" / "api" / "en.json"
     ).read_text(encoding="utf-8"))
-    assert manifest["schema"] == 1
+    assert manifest["schema"] == 2
     assert len(manifest["symbols"]) >= 6000
     for key, record in manifest["symbols"].items():
         assert key.startswith("spacr")
         assert re.fullmatch(r"[0-9a-f]{64}", record["source_sha256"])
+        assert record["source_sha256"] == hashlib.sha256(
+            record["text"].encode("utf-8")
+        ).hexdigest()
+        assert all(
+            re.fullmatch(r"[0-9a-f]{64}", value)
+            for value in record["source_blocks_sha256"]
+        )
         assert record["text"].strip()
     for language in LANGUAGES:
         translated = json.loads((
@@ -145,9 +286,18 @@ def test_api_doc_catalog_is_symbol_keyed_and_source_hashed():
             / f"{language}.json"
         ).read_text(encoding="utf-8"))
         assert set(translated["symbols"]) == set(manifest["symbols"])
+        assert translated["schema"] == 2
         for key, record in translated["symbols"].items():
             assert record["source_sha256"] == manifest["symbols"][key]["source_sha256"]
+            assert record["source_blocks_sha256"] == manifest["symbols"][key]["source_blocks_sha256"]
             assert record["text"].strip()
+            if record["text"] == manifest["symbols"][key]["text"]:
+                assert key in API_EXACT_TEXT_ALLOWLIST
+        for key in (
+            "spacr.spacrops.align_image_to_stitch",
+            "spacr.utils.dense_mask_channel_positions",
+        ):
+            assert translated["symbols"][key]["text"] != manifest["symbols"][key]["text"]
 
 
 def test_github_readme_links_every_external_language_page():

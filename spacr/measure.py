@@ -3612,7 +3612,7 @@ def get_object_counts(src):
     """
     database_path = os.path.join(src, 'measurements/measurements.db')
     # Connect to the SQLite database
-    conn = sqlite3.connect(database_path)
+    conn = sqlite3.connect(database_path, timeout=30)
     # Read the table into a pandas DataFrame
     df = pd.read_sql_query("SELECT * FROM object_counts", conn)
     # Group by 'count_type' and calculate the sum of 'object_count' and the average 'object_count' per 'file_name'
@@ -3962,7 +3962,7 @@ def generate_object_dataset(
         "SELECT object_label, path_name, plateID, rowID, columnID, fieldID "
         f"FROM {object_type}{where_sql}{limit_sql}")
 
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=30)
     try:
         conn.row_factory = sqlite3.Row
         selected = conn.execute(query, params).fetchall()

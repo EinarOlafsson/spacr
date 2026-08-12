@@ -87,26 +87,72 @@ def test_an_unrecognised_level_is_refused_by_name(level, frame):
                                      bin_column="cls", level=level)
 
 
-def test_the_chi_squared_does_not_follow_the_level(frame):
-    """DOCUMENTS A DEFECT THAT IS STILL OPEN, so it cannot be forgotten.
+def test_the_object_chi_squared_is_kept_unchanged_at_every_level(frame):
+    """The old number survives, deliberately, and is now LABELLED.
 
-    The tooltip says "the reported statistics always treat the well as the
-    unit of replication". They do not: the chi-squared is computed on object
-    counts before the level branch is reached, so it is byte-identical at
-    every level. Pinned as the current behaviour rather than asserted as
-    correct -- see instruction 77. When the statistic is moved to the
-    declared level, this test fails and should be rewritten, not deleted.
+    Rewritten from `test_the_chi_squared_does_not_follow_the_level`, which
+    pinned the defect: the chi-squared was the only statistic reported, was
+    computed on object counts before the level branch, and came back
+    byte-identical at every level while the tooltip claimed the well was the
+    unit of replication.
+
+    It is still byte-identical, and that is now correct rather than a bug --
+    every published figure came from this number, so a reader comparing an
+    old result with a new one has to be able to find it. What changed is
+    that it no longer stands alone: it says `unit='object'`, and the
+    level-appropriate tests sit beside it (see the tests below).
     """
-    stats = []
+    stats, units = [], []
     for level in ("object", "well", "plate"):
         results, _pairwise, _fig = plot_proportion_stacked_bars(
             {"verbose": False}, frame, "condition", bin_column="cls",
             level=level)
-        stats.append(float(results["chi_squared_stat"].iloc[0]))
+        first = results.iloc[0]
+        stats.append(float(first["chi_squared_stat"]))
+        units.append(first["unit"])
 
-    assert len(set(stats)) == 1, (
-        "the chi-squared now varies with level -- if that was deliberate, "
-        "instruction 77's item is done and this test needs rewriting")
+    assert len(set(stats)) == 1, "the historical number must not move"
+    assert units == ["object"] * 3, (
+        "the chi-squared row must declare the unit it was computed over")
+
+
+def test_the_level_appropriate_tests_arrive_beside_it(frame):
+    """Three numbers, each labelled with its unit and its n."""
+    results, _pairwise, _fig = plot_proportion_stacked_bars(
+        {"verbose": False}, frame, "condition", bin_column="cls",
+        level="well")
+
+    assert len(results) > 1, "only the object chi-squared came back"
+    tests = " ".join(results["test"].astype(str))
+    assert "chi-squared on object counts" in tests
+    assert "proportions" in tests
+    assert "clustered by" in tests
+    for column in ("unit", "n", "p_value"):
+        assert column in results.columns
+    assert results["n"].notna().all()
+
+
+def test_the_unit_follows_the_declared_level(frame):
+    """`level='plate'` must not report a test computed over wells."""
+    for level, unit in (("well", "prc"), ("plate", "plateID")):
+        results, _pairwise, _fig = plot_proportion_stacked_bars(
+            {"verbose": False}, frame, "condition", bin_column="cls",
+            level=level)
+        reported = set(results["unit"].astype(str)) - {"object"}
+        assert reported == {unit}, (level, reported)
+
+
+def test_object_level_still_gets_the_well_tests(frame):
+    """Pooling objects does not make them independent.
+
+    A user who never changes `level` is the user most likely to report the
+    object p-value, so the honest denominator is computed whether or not it
+    was asked for.
+    """
+    results, _pairwise, _fig = plot_proportion_stacked_bars(
+        {"verbose": False}, frame, "condition", bin_column="cls",
+        level="object")
+    assert "prc" in set(results["unit"].astype(str))
 
 
 def test_plate_level_needs_a_plate_column_and_says_which(frame):

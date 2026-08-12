@@ -300,6 +300,116 @@ def roll_up(child: pd.DataFrame, keys: Sequence[str], *,
     return out.rename(columns=renamed)
 
 
+#: What happens when the same column arrives from two tables carrying
+#: DIFFERENT values for the same object. ``warn`` prints and keeps the
+#: left-hand one; ``raise`` stops the analysis.
+CONFLICT_POLICIES: Tuple[str, ...] = ("warn", "raise")
+
+
+#: Columns that name WHICH object a row is, rather than measuring it. Both
+#: tables read them off the same image, so they must match -- and when they
+#: do not, the two tables are describing different objects under one
+#: identity. Everything else is a measurement: cell ``area`` and cytoplasm
+#: ``area`` are SUPPOSED to differ, and reporting that as a conflict would
+#: bury the real ones.
+MUST_AGREE: Tuple[str, ...] = IDENTITY + (
+    "prc", "prcf", "prcfo", "object_label", "cell_id", "timeID", "time_id",
+    "plate_name", "row_name", "column_name", "field_name",
+)
+
+
+class ColumnConflict(MergeError):
+    """One column, two tables, two different values for the same object."""
+
+
+def _columns_agree(left: pd.Series, right: pd.Series) -> pd.Series:
+    """Row-wise equality that treats two missing values as agreement.
+
+    ``NaN != NaN`` is right for arithmetic and wrong here: a column absent
+    from both tables for a given object is not a disagreement about it.
+    """
+    both_missing = left.isna() & right.isna()
+    if (pd.api.types.is_numeric_dtype(left)
+            and pd.api.types.is_numeric_dtype(right)):
+        # Two tables can reach the same number by different arithmetic, so
+        # float noise is not a conflict; a real disagreement is never 1e-9.
+        same = pd.Series(
+            np.isclose(pd.to_numeric(left, errors="coerce"),
+                       pd.to_numeric(right, errors="coerce"),
+                       rtol=1e-9, atol=1e-12, equal_nan=True),
+            index=left.index)
+    else:
+        same = left.astype(object).eq(right.astype(object))
+    return same | both_missing
+
+
+def reconcile_duplicates(frame: pd.DataFrame, suffix: str, *,
+                         key: str = "prcfo",
+                         left_name: str = "the primary table",
+                         right_name: str = "the joined table",
+                         on_conflict: str = "warn") -> pd.DataFrame:
+    """Collapse ``col``/``col+suffix`` pairs that agree; report those that do not.
+
+    Joining two measurement tables gives every shared column twice --
+    ``plateID`` and ``plateID_cytoplasm`` hold the same plate written by two
+    stages of the same run. Carrying both doubles the width of the frame and
+    invites a downstream reader to pick the wrong one.
+
+    So the pair is COMPARED, object by object, rather than assumed: identical
+    columns collapse to one, and a column that disagrees means the two tables
+    describe different objects under the same identity, which is a defect in
+    the data no analysis should quietly average over.
+
+    :param frame: the merged frame, modified only by dropping columns.
+    :param suffix: what the merge appended to the right-hand duplicates.
+    :param key: the identity the comparison is reported against.
+    :param on_conflict: ``warn`` keeps the left-hand column and prints;
+        ``raise`` stops with :class:`ColumnConflict`.
+    :returns: the frame with agreeing duplicates dropped.
+    :raises ColumnConflict: a pair disagrees and ``on_conflict='raise'``.
+    """
+    if on_conflict not in CONFLICT_POLICIES:
+        raise MergeError(
+            f"on_conflict={on_conflict!r} is not one of "
+            f"{list(CONFLICT_POLICIES)}")
+    if not suffix:
+        return frame
+
+    drop, conflicts = [], []
+    for right_col in [c for c in frame.columns if str(c).endswith(suffix)]:
+        left_col = str(right_col)[: -len(suffix)]
+        if left_col not in frame.columns:
+            continue        # a genuinely new column that happens to end so
+        agree = _columns_agree(frame[left_col], frame[right_col])
+        if bool(agree.all()):
+            drop.append(right_col)
+            continue
+        if left_col not in MUST_AGREE:
+            # Two measurements that happen to share a name. They describe
+            # different objects, so they differ by design and both are kept.
+            continue
+        disagreeing = frame.index[~agree]
+        where = (frame.loc[disagreeing, key].astype(str).tolist()[:5]
+                 if key in frame.columns else
+                 [str(i) for i in disagreeing[:5]])
+        conflicts.append(
+            f"{left_col!r}: {int((~agree).sum())} of {len(agree)} objects "
+            f"disagree between {left_name} and {right_name}"
+            + (f" (e.g. {key} " + ", ".join(where) + ")" if where else ""))
+
+    if conflicts:
+        detail = ("the same column arrived from two tables with different "
+                  "values for the same object:\n  "
+                  + "\n  ".join(conflicts))
+        if on_conflict == "raise":
+            raise ColumnConflict(detail)
+        LOG.warning(detail)
+        print(f"WARNING: {detail}")
+
+    return frame.drop(columns=drop) if drop else frame
+
+
+
 def merge_tables(db_path: str, tables: Sequence[str], *,
                  policy: Optional[MergePolicy] = None) -> pd.DataFrame:
     """One table with every chosen object's measurements on it.

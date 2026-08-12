@@ -5668,6 +5668,168 @@ def graph_importance(settings):
 
     plt.show()
     
+#: Which column carries the unit of replication for each declared level.
+#: `level` chose the FIGURE and nothing else; it now chooses the denominator
+#: of the test as well, which is the whole point of declaring it.
+REPLICATION_UNIT = {"well": None, "plate": "plateID", "plateid": "plateID"}
+
+
+def _unit_column(level, prc_column):
+    """The column whose distinct values are the independent observations.
+
+    ``well`` resolves to whatever the caller passed as ``prc_column`` -- the
+    well identifier is not always spelled ``prc`` -- and ``plate`` to
+    ``plateID``.
+    """
+    key = str(level or "object").strip().lower()
+    if key == "object":
+        return None
+    return REPLICATION_UNIT.get(key, prc_column) or prc_column
+
+
+def proportions_per_unit(df, group_column, bin_column, unit_column):
+    """Each unit's share of every bin, one row per unit.
+
+    :returns: a frame with ``group_column``, ``unit_column`` and one column
+        per bin holding a proportion in [0, 1]. Units contributing no
+        objects do not appear.
+    """
+    counts = (df.groupby([group_column, unit_column, bin_column],
+                         observed=True).size()
+              .unstack(fill_value=0))
+    totals = counts.sum(axis=1)
+    proportions = counts.div(totals.where(totals > 0), axis=0)
+    return proportions.dropna(how="all").reset_index()
+
+
+def _compare_groups(samples):
+    """The test spaCR already uses for this shape, chosen the same way.
+
+    Two groups: Shapiro decides normal, then Levene decides Student's or
+    Welch's; non-normal goes to Mann-Whitney. More than two: ANOVA, Welch's
+    ANOVA or Kruskal-Wallis on the same two questions. Returns
+    ``(name, statistic, p)``, or ``(name, nan, nan)`` when there are too few
+    units to test -- which is itself the answer worth printing.
+    """
+    samples = [np.asarray(s, dtype=float) for s in samples]
+    samples = [s[np.isfinite(s)] for s in samples]
+    if len(samples) < 2 or any(len(s) < 2 for s in samples):
+        return "too few units", float("nan"), float("nan")
+
+    normal = True
+    for sample in samples:
+        if len(sample) >= 3 and float(np.ptp(sample)) > 0:
+            try:
+                if shapiro(sample)[1] < 0.05:
+                    normal = False
+            except ValueError:
+                pass
+
+    spread_differs = False
+    if all(float(np.ptp(s)) > 0 for s in samples):
+        try:
+            spread_differs = levene(*samples)[1] < 0.05
+        except ValueError:
+            spread_differs = False
+
+    if len(samples) == 2:
+        if not normal:
+            stat, p = mannwhitneyu(*samples, alternative="two-sided")
+            return "Mann-Whitney U", float(stat), float(p)
+        stat, p = ttest_ind(*samples, equal_var=not spread_differs)
+        return ("Welch's T-test" if spread_differs else "T-test",
+                float(stat), float(p))
+    if not normal:
+        stat, p = kruskal(*samples)
+        return "Kruskal-Wallis", float(stat), float(p)
+    if spread_differs:
+        stat, p = _welch_anova(samples)
+        return "Welch's ANOVA", float(stat), float(p)
+    stat, p = f_oneway(*samples)
+    return "One-way ANOVA", float(stat), float(p)
+
+
+def proportion_test_by_unit(df, group_column, bin_column, unit_column):
+    """Compare conditions on their PER-UNIT proportions, one row per bin.
+
+    The object-level chi-squared asks whether 20,000 objects came from one
+    distribution. Objects in a well share a treatment, a transfection, an
+    imaging session and a monolayer, so that is not the question anyone
+    asked, and its p-value is smaller than the experiment supports by orders
+    of magnitude. This asks the question the design supports: do the WELLS
+    differ, with n = the number of wells.
+    """
+    table = proportions_per_unit(df, group_column, bin_column, unit_column)
+    bins = [c for c in table.columns if c not in (group_column, unit_column)]
+    groups = list(dict.fromkeys(table[group_column].tolist()))
+
+    rows = []
+    for bin_value in bins:
+        samples = [table.loc[table[group_column] == g, bin_value].to_numpy()
+                   for g in groups]
+        name, stat, p = _compare_groups(samples)
+        rows.append({
+            "test": f"{name} on per-{unit_column} proportions",
+            "bin": bin_value,
+            "unit": unit_column,
+            "n": int(table[unit_column].nunique()),
+            "n_per_group": ", ".join(f"{g}={len(s)}"
+                                     for g, s in zip(groups, samples)),
+            "statistic": stat,
+            "p_value": p,
+        })
+    return pd.DataFrame(rows)
+
+
+def proportion_mixed_model(df, group_column, bin_column, unit_column):
+    """A binomial GLM on the per-object outcome, standard errors clustered by unit.
+
+    The proportions test throws away how many objects each well contributed;
+    this keeps them while still charging the degrees of freedom the DESIGN
+    supports, by clustering on the unit. Reported beside the other two
+    because when it disagrees with them, the disagreement is the finding.
+    """
+    bins = list(dict.fromkeys(df[bin_column].dropna().tolist()))
+    groups = list(dict.fromkeys(df[group_column].dropna().tolist()))
+    rows = []
+    for bin_value in bins:
+        outcome = (df[bin_column] == bin_value).astype(float).to_numpy()
+        design = pd.get_dummies(df[group_column].astype(str),
+                                drop_first=True, dtype=float)
+        if design.empty or len(groups) < 2:
+            rows.append({"test": "binomial GLM, clustered by " + unit_column,
+                         "bin": bin_value, "unit": unit_column,
+                         "n": int(df[unit_column].nunique()),
+                         "n_per_group": f"objects={len(df)}",
+                         "statistic": float("nan"), "p_value": float("nan")})
+            continue
+        design = sm.add_constant(design, has_constant="add")
+        try:
+            fit = sm.GLM(outcome, design.to_numpy(),
+                         family=sm.families.Binomial()).fit(
+                cov_type="cluster",
+                cov_kwds={"groups": df[unit_column].astype(str).to_numpy()})
+            terms = [i for i, name in enumerate(design.columns)
+                     if name != "const"]
+            wald = fit.wald_test(np.eye(len(design.columns))[terms],
+                                 scalar=True)
+            statistic, p = float(wald.statistic), float(wald.pvalue)
+        except Exception as error:      # singular, separated, or too few clusters
+            print(f"mixed model for bin {bin_value!r} did not fit: {error}")
+            statistic = p = float("nan")
+        rows.append({
+            "test": f"binomial GLM, standard errors clustered by {unit_column}",
+            "bin": bin_value,
+            "unit": unit_column,
+            "n": int(df[unit_column].nunique()),
+            "n_per_group": f"objects={len(df)}",
+            "statistic": statistic,
+            "p_value": p,
+        })
+    return pd.DataFrame(rows)
+
+
+
 def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_column='prc', level='object', cmap='viridis'):
     """Plot stacked proportion bars per group with chi-squared and pairwise stats.
 
@@ -5759,11 +5921,45 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
     plt.ylim(0, 1)
     fig = plt.gcf()
 
+    # THREE NUMBERS, EACH LABELLED WITH ITS UNIT AND ITS N.
+    #
+    # The chi-squared above is computed over OBJECTS and was the only number
+    # this function reported, at every level -- object, well and plate gave
+    # byte-identical chi2 and p, while the level tooltip promised that "the
+    # reported statistics always treat the well as the unit of replication".
+    # It never did.
+    #
+    # The old number is kept as the first row rather than replaced: every
+    # figure already published came from it, and a reader comparing an old
+    # result with a new one has to be able to see why they differ.
     results_df = pd.DataFrame({
         'chi_squared_stat': [chi2],
         'p_value': [p],
-        'degrees_of_freedom': [dof]
+        'degrees_of_freedom': [dof],
+        'test': ['chi-squared on object counts'],
+        'unit': ['object'],
+        'n': [int(len(df))],
+        'statistic': [float(chi2)],
     })
+
+    # `level='object'` still gets the well-level tests when a well column is
+    # there. Pooling objects does not make them independent, so the honest
+    # denominator is reported whether or not it was asked for.
+    unit_column = _unit_column(level, prc_column) or prc_column
+    if unit_column in df.columns:
+        extra = [proportion_test_by_unit(df, group_column, bin_column,
+                                         unit_column),
+                 proportion_mixed_model(df, group_column, bin_column,
+                                        unit_column)]
+        results_df = pd.concat([results_df] + extra, ignore_index=True)
+        for _, row in pd.concat(extra, ignore_index=True).iterrows():
+            print(f"{row['test']} [bin {row['bin']}, n={row['n']} "
+                  f"{row['unit']}]: p = {row['p_value']:.4e}")
+    else:
+        print(f"no {unit_column!r} column, so only the object-level "
+              f"chi-squared could be computed; objects in one well are not "
+              f"independent and this p-value is smaller than the experiment "
+              f"supports")
 
     return results_df, pairwise_results, fig
     

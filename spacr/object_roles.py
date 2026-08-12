@@ -136,3 +136,48 @@ def anchor_column(table: str) -> str:
 def is_one_row_per_cell(table: str) -> bool:
     """True when ``table`` holds one row per cell and needs no roll-up."""
     return str(table).strip().lower() in ONE_ROW_PER_CELL
+
+
+#: How each table joins onto the cell, and why the answers differ.
+#:
+#: ``nucleus`` is INNER because a cell object with no nucleus is not a cell:
+#: it is debris, a segmentation artefact, or a fragment at the image edge.
+#: Keeping it adds a row with every nuclear measurement missing, which then
+#: propagates as NaN through every ratio computed from it.
+#:
+#: ``png_list`` is INNER because a cell with no crop cannot be classified,
+#: annotated or shown. Carrying it left the classification stage with rows it
+#: could only drop later, after the counts had already been reported.
+#:
+#: ``cytoplasm`` is LEFT and it makes no difference: it is one row per cell,
+#: derived from the cell mask, so it exists exactly when the cell does.
+#:
+#: ``pathogen`` and ``organelle`` are LEFT, and this one is a real choice --
+#: an UNINFECTED cell is a cell, and in a screen it is usually the control
+#: population. Dropping it would silently condition every result on infection.
+#: :func:`join_how` takes the setting that reverses it.
+JOIN_HOW: Dict[str, str] = {
+    "cytoplasm": "left",
+    "nucleus": "inner",
+    "pathogen": "left",
+    "organelle": "left",
+    "png_list": "inner",
+}
+
+
+def join_how(table: str, *, keep_uninfected: bool = True) -> str:
+    """Whether ``table`` keeps cells it has no rows for.
+
+    :param table: an object table name.
+    :param keep_uninfected: ``False`` restricts the analysis to cells that
+        actually contain a pathogen (or organelle), turning those joins
+        inner. It does not touch nucleus or png_list, which are inner
+        regardless -- a cell with no nucleus is not an uninfected cell, it is
+        not a cell.
+    :returns: ``'left'`` or ``'inner'``, for :meth:`pandas.DataFrame.merge`.
+    """
+    key = str(table).strip().lower()
+    how = JOIN_HOW.get(key, "left")
+    if not keep_uninfected and key in ("pathogen", "organelle"):
+        return "inner"
+    return how

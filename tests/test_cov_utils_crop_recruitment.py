@@ -322,10 +322,16 @@ def test_split_data_reports_missing_well_columns_and_reuses_existing_prcf(capsys
 
     assert "prcft" not in numeric.columns and "prcft" not in non_numeric.columns
     assert numeric.index.tolist() == ["p1_r1_c1_f1", "p1_r2_c1_f1"]
-    # area is summed, object_label averaged
+    # area is summed; object_label is CARRIED, not averaged. It used to be
+    # averaged -- objects 1 and 2 rolled up to 1.5, a label for an object
+    # that does not exist, sitting in a numeric column indistinguishable from
+    # a measurement. `aggregation_for` matches identity ahead of every other
+    # rule now, so the label arrives verbatim and the count is what says how
+    # many objects went into the row.
     assert numeric.loc["p1_r1_c1_f1", "cell_area"] == 300.0
     assert numeric.loc["p1_r2_c1_f1", "cell_area"] == 700.0
-    assert numeric.loc["p1_r1_c1_f1", "object_label"] == 1.5
+    assert numeric.loc["p1_r1_c1_f1", "object_label"] == 1
+    assert numeric.loc["p1_r2_c1_f1", "object_label"] == 3
     assert non_numeric.loc["p1_r1_c1_f1", "prcfo"] == "p1_r1_c1_f1_1"
     # the caller's frame must not be mutated
     assert "prcfo" not in df.columns

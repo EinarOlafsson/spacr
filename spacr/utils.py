@@ -3503,34 +3503,30 @@ def _split_data(df, group_by, object_type):
     df_numeric = df.select_dtypes(include=np.number)
     df_non_numeric = df.select_dtypes(exclude=np.number)
 
-    # Columns SUMMED rather than averaged when several children roll up onto
-    # one cell.
+    # HOW EACH COLUMN COMBINES, from the one place that decides it.
     #
-    # AREAS SUM, LENGTHS DO NOT. Four pathogens in a cell occupy the sum of
-    # their areas -- that is a real quantity of the cell. They do not have a
-    # combined major axis: two nuclei each 10 units long are not one nucleus
-    # 20 units long, and `perimeter`, `equivalent_diameter` and the axis
-    # lengths are all shape descriptors of an INDIVIDUAL object. Averaging
-    # gives "the typical nucleus in this cell", which is the only reading
-    # that means anything.
+    # This used to be a second, independent implementation: a `sum_keywords`
+    # substring match, everything else averaged. It disagreed with
+    # `merge_tables` on three kinds of column, and each disagreement produced
+    # a number rather than an error --
     #
-    # `perimeter`, `major_axis_length`, `minor_axis_length` and
-    # `equivalent_diameter` were on this list and are deliberately off it
-    # (maintainer's call, 2026-08-11). Anything matching `area` stays.
-    sum_keywords = [
-        'area',
-        'convex_area',
-        'bbox_area',
-        'filled_area',
-    ]
+    #   `object_label`     averaged. Three pathogens labelled 1, 2 and 3 came
+    #                      back as 2.0: a label for an object that need not
+    #                      exist, indistinguishable from a measurement.
+    #   `count_*`          averaged. Counts add; a cell with 2 and 3 of
+    #                      something has 5 of it, not 2.5.
+    #   `total_*`,         averaged. Something already integrated over an
+    #   `integrated_*`     object is a total, and totals add.
+    #
+    # AREAS SUM, LENGTHS DO NOT, which is the rule those keywords got right:
+    # four pathogens occupy the sum of their areas, but two nuclei each 10
+    # units long are not one nucleus 20 units long. `aggregation_for` holds
+    # that rule now, matching on word boundaries rather than substrings, so
+    # the two readers cannot drift apart again.
+    from .merge_tables import aggregation_for
 
-    # Create a dictionary for custom aggregation
-    agg_dict = {}
-    for column in df_numeric.columns:
-        if any(keyword in column for keyword in sum_keywords):
-            agg_dict[column] = 'sum'
-        else:
-            agg_dict[column] = 'mean'
+    agg_dict = {column: aggregation_for(column)
+                for column in df_numeric.columns}
 
     # Apply custom aggregation
     if len(agg_dict) > 0 and not df_numeric.empty:

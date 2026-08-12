@@ -1,0 +1,392 @@
+[
+ {
+  "file": "spacr/pipeline_v2.py",
+  "func": "run_v2",
+  "line": 724,
+  "params": 16
+ },
+ {
+  "file": "spacr/hyperparam.py",
+  "func": "local_direction_search",
+  "line": 1651,
+  "params": 13
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/parts.py",
+  "func": "big_tile_grid",
+  "line": 687,
+  "params": 10
+ },
+ {
+  "file": "spacr/utils.py",
+  "func": "plot_umap_images",
+  "line": 7510,
+  "params": 10
+ },
+ {
+  "file": "spacr/utils.py",
+  "func": "plot_images_by_cluster",
+  "line": 7522,
+  "params": 10
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/parts.py",
+  "func": "htile_grid",
+  "line": 592,
+  "params": 9
+ },
+ {
+  "file": "spacr/utils.py",
+  "func": "plot_clusters_grid",
+  "line": 7565,
+  "params": 9
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/parts.py",
+  "func": "wrapped",
+  "line": 89,
+  "params": 8
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/parts.py",
+  "func": "dense_list",
+  "line": 768,
+  "params": 8
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/parts.py",
+  "func": "text_label",
+  "line": 117,
+  "params": 7
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/variants.py",
+  "func": "variant",
+  "line": 84,
+  "params": 7
+ },
+ {
+  "file": "spacr/align.py",
+  "func": "window",
+  "line": 724,
+  "params": 6
+ },
+ {
+  "file": "spacr/hyperparam.py",
+  "func": "umap_objective_scores",
+  "line": 1961,
+  "params": 6
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/parts.py",
+  "func": "panel",
+  "line": 414,
+  "params": 6
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/parts.py",
+  "func": "cat_rail",
+  "line": 1121,
+  "params": 6
+ },
+ {
+  "file": "spacr/sequencing.py",
+  "func": "paired_find_sequence_in_chunk_reads",
+  "line": 270,
+  "params": 6
+ },
+ {
+  "file": "spacr/utils.py",
+  "func": "plot_image",
+  "line": 7535,
+  "params": 6
+ },
+ {
+  "file": "spacr/utils.py",
+  "func": "plot_grid",
+  "line": 7589,
+  "params": 6
+ },
+ {
+  "file": "spacr/classifier_evaluation.py",
+  "func": "audit_dataset_splits",
+  "line": 528,
+  "params": 5
+ },
+ {
+  "file": "spacr/classifier_evaluation.py",
+  "func": "cross_calibrate_probabilities",
+  "line": 676,
+  "params": 5
+ },
+ {
+  "file": "spacr/classifier_evaluation.py",
+  "func": "nested_group_folds",
+  "line": 1005,
+  "params": 5
+ },
+ {
+  "file": "spacr/crop_source.py",
+  "func": "crop_at",
+  "line": 239,
+  "params": 5
+ },
+ {
+  "file": "spacr/database_concurrency.py",
+  "func": "run_concurrency_probe",
+  "line": 430,
+  "params": 5
+ },
+ {
+  "file": "spacr/deep_spacr.py",
+  "func": "test_model_core",
+  "line": 658,
+  "params": 5
+ },
+ {
+  "file": "spacr/deep_spacr.py",
+  "func": "test_model_performance",
+  "line": 738,
+  "params": 5
+ },
+ {
+  "file": "spacr/deep_spacr.py",
+  "func": "model_card",
+  "line": 2175,
+  "params": 5
+ },
+ {
+  "file": "spacr/gui_core.py",
+  "func": "update_usage",
+  "line": 1185,
+  "params": 5
+ },
+ {
+  "file": "spacr/hyperparam.py",
+  "func": "umap_walk_axes",
+  "line": 1318,
+  "params": 5
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/parts.py",
+  "func": "cat_header",
+  "line": 487,
+  "params": 5
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/render.py",
+  "func": "write_markdown",
+  "line": 452,
+  "params": 5
+ },
+ {
+  "file": "spacr/sequencing.py",
+  "func": "single_find_sequence_in_chunk_reads",
+  "line": 341,
+  "params": 5
+ },
+ {
+  "file": "spacr/sequencing.py",
+  "func": "find_and_visualize_fraction_threshold",
+  "line": 977,
+  "params": 5
+ },
+ {
+  "file": "spacr/spacrops.py",
+  "func": "edge_ok",
+  "line": 1774,
+  "params": 5
+ },
+ {
+  "file": "spacr/submodules.py",
+  "func": "combine_classification_scores",
+  "line": 5129,
+  "params": 5
+ },
+ {
+  "file": "spacr/utils.py",
+  "func": "filter_and_save_csv",
+  "line": 9743,
+  "params": 5
+ },
+ {
+  "file": "spacr/utils.py",
+  "func": "remove_outliers_by_group",
+  "line": 10001,
+  "params": 5
+ },
+ {
+  "file": "spacr/utils.py",
+  "func": "plot_activation_grid",
+  "line": 6533,
+  "params": 5
+ },
+ {
+  "file": "spacr/utils.py",
+  "func": "plot_activation_grid",
+  "line": 6678,
+  "params": 5
+ },
+ {
+  "file": "spacr/classifier_evaluation.py",
+  "func": "calibration_table",
+  "line": 733,
+  "params": 4
+ },
+ {
+  "file": "spacr/database_schema.py",
+  "func": "migrate_connection",
+  "line": 266,
+  "params": 4
+ },
+ {
+  "file": "spacr/database_schema.py",
+  "func": "migrate_database",
+  "line": 343,
+  "params": 4
+ },
+ {
+  "file": "spacr/layers.py",
+  "func": "for_grid",
+  "line": 724,
+  "params": 4
+ },
+ {
+  "file": "spacr/lineage.py",
+  "func": "tree_for",
+  "line": 381,
+  "params": 4
+ },
+ {
+  "file": "spacr/measure.py",
+  "func": "save_and_add_image_to_grid",
+  "line": 2311,
+  "params": 4
+ },
+ {
+  "file": "spacr/ml.py",
+  "func": "create_volcano_filename",
+  "line": 292,
+  "params": 4
+ },
+ {
+  "file": "spacr/ome_zarr.py",
+  "func": "space",
+  "line": 679,
+  "params": 4
+ },
+ {
+  "file": "spacr/ome_zarr.py",
+  "func": "time",
+  "line": 686,
+  "params": 4
+ },
+ {
+  "file": "spacr/plot.py",
+  "func": "plot_single_array",
+  "line": 1990,
+  "params": 4
+ },
+ {
+  "file": "spacr/plugins.py",
+  "func": "record_diagnostic",
+  "line": 503,
+  "params": 4
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/parts.py",
+  "func": "elide_to_lines",
+  "line": 43,
+  "params": 4
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/parts.py",
+  "func": "search_box",
+  "line": 517,
+  "params": 4
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/parts.py",
+  "func": "recent_runs_strip",
+  "line": 825,
+  "params": 4
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/parts.py",
+  "func": "pinned_row",
+  "line": 1036,
+  "params": 4
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/render.py",
+  "func": "render_one",
+  "line": 90,
+  "params": 4
+ },
+ {
+  "file": "spacr/resources/home/versions/_generators/render.py",
+  "func": "build_sheet",
+  "line": 178,
+  "params": 4
+ },
+ {
+  "file": "spacr/schema.py",
+  "func": "coerce_model_feature_types",
+  "line": 1833,
+  "params": 4
+ },
+ {
+  "file": "spacr/schema.py",
+  "func": "model_feature_columns",
+  "line": 1942,
+  "params": 4
+ },
+ {
+  "file": "spacr/selection.py",
+  "func": "from_frame",
+  "line": 692,
+  "params": 4
+ },
+ {
+  "file": "spacr/selection.py",
+  "func": "from_keys",
+  "line": 700,
+  "params": 4
+ },
+ {
+  "file": "spacr/sim.py",
+  "func": "save_shap_plot",
+  "line": 1493,
+  "params": 4
+ },
+ {
+  "file": "spacr/submodules.py",
+  "func": "group_cv_score",
+  "line": 5025,
+  "params": 4
+ },
+ {
+  "file": "spacr/submodules.py",
+  "func": "calculate_fraction_mixed_condition",
+  "line": 5040,
+  "params": 4
+ },
+ {
+  "file": "spacr/timelapse.py",
+  "func": "exponential_decay",
+  "line": 1486,
+  "params": 4
+ },
+ {
+  "file": "spacr/torch_artifacts.py",
+  "func": "load_model_artifact",
+  "line": 215,
+  "params": 4
+ },
+ {
+  "file": "spacr/torch_artifacts.py",
+  "func": "restore_training_state",
+  "line": 286,
+  "params": 4
+ }
+]

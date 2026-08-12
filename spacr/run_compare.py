@@ -696,7 +696,7 @@ def count_database(path: Union[str, os.PathLike, None]) -> RunCounts:
     overall: Dict[str, int] = {}
     per_plate: Dict[str, Dict[str, int]] = {}
     try:
-        connection = sqlite3.connect(f"file:{target}?mode=ro", uri=True)
+        connection = sqlite3.connect(f"file:{target}?mode=ro", uri=True, timeout=30)
     except sqlite3.Error as exc:
         return RunCounts(path=target, note=f"could not open the database: {exc}")
     try:
