@@ -532,6 +532,33 @@ def test_translation_protection_has_no_nested_tokens_and_round_trips():
     assert _restore(protected, mapping) == source
 
 
+def test_numeric_protection_markers_restore_when_models_join_target_text():
+    """Joined Latin text and Korean particles must not look like lost tokens.
+
+    Marian commonly removes whitespace around numeric fallback markers.  A
+    Unicode ``\b`` does not exist between the marker's final digit and either
+    a Latin letter or a Hangul particle, so the old restore path discarded a
+    complete translation even though every marker was still present once.
+    """
+    from build_i18n_catalogs import _restore
+
+    mapping = {"0X0": "**", "1X1": "``measurements.db``"}
+    assert _restore(
+        "0X0A tradução termina em 1X1.", mapping,
+    ) == "**A tradução termina em ``measurements.db``."
+    assert _restore(
+        "0X0을 번역하고 1X1에서 읽습니다.", mapping,
+    ) == "**을 번역하고 ``measurements.db``에서 읽습니다."
+
+
+def test_numeric_protection_marker_does_not_match_inside_larger_number():
+    from build_i18n_catalogs import _restore
+    import pytest
+
+    with pytest.raises(ValueError, match="did not preserve 0X0 exactly once"):
+        _restore("prefix 10X01 suffix", {"0X0": "**"})
+
+
 def test_rejected_models_use_the_reviewed_permissive_replacement():
     from build_i18n_catalogs import MODEL_SPECS
 
