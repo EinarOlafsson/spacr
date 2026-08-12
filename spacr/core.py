@@ -770,7 +770,13 @@ def generate_image_umap(settings=None, return_fig=False):
         # join fail with a bare KeyError three modules away.
         _validate_umap_source_db(db_path, tables,
                                  require_png_list=not on_demand)
-        df = _read_and_join_tables(db_path, table_names=tables)
+        # require_crops=False: this embeds MEASUREMENTS. An object whose crop
+        # never wrote has valid measurements and belongs in the embedding --
+        # it simply has no thumbnail to show when its point is hovered.
+        # Letting the png_list inner join drop it would silently shrink the
+        # embedding, which is a wrong number rather than a missing picture.
+        df = _read_and_join_tables(db_path, table_names=tables,
+                                   require_crops=False)
         # Keep the exact update identities before correct_paths re-anchors
         # png_path for display on this machine. These columns are removed
         # before the result CSV/DataFrame leaves this function.
@@ -994,6 +1000,12 @@ def generate_image_umap(settings=None, return_fig=False):
         'embedding': np.asarray(embedding),
         'labels': cluster_labels,
         'records': records,
+        # What the STATIC figure was coloured by, which is not always the
+        # cluster label: `color_by` swaps in a metadata column. Carried
+        # separately from `labels` so a redraw of the finished figure
+        # reproduces the colours the run actually drew, while the explorer
+        # keeps clustering on the algorithmic labels.
+        'plot_labels': np.asarray(plot_labels),
         'display': {
             'point_size': settings['dot_size'],
             'point_color': settings['point_color'],
@@ -1002,6 +1014,14 @@ def generate_image_umap(settings=None, return_fig=False):
             'canvas_width': settings['umap_canvas_width'],
             'sidebar_width': settings['umap_sidebar_width'],
         },
+        # The settings this embedding was produced with. The Qt figure
+        # settings window opens on these, so every Image UMAP knob it offers
+        # starts at the value the run used rather than at a package default
+        # the user never chose. Underscore-prefixed keys are internal
+        # plumbing (`_plot_theme`) and are not settings anyone edits.
+        'settings': {key: value for key, value in settings.items()
+                     if not str(key).startswith('_')},
+        'theme_colors': settings.get('_plot_theme'),
     }
 
     # Plot the embedding
