@@ -171,3 +171,33 @@ TO CLOSE THIS, one of: a stack trace from the reporter's crash, or a run on a
 machine with a real display. Guessing a fix for a native crash that four
 inspections and one measurement say is not in the Python paths would be a
 change with no evidence behind it.
+
+--------------------------------------------------------------------------------
+2026-08-12 - #72 CLOSED. 25 OF 26. XVFB IS WHAT MADE IT ANSWERABLE.
+--------------------------------------------------------------------------------
+
+The maintainer installed xvfb, so the real-display run this file recorded as
+impossible became possible, and the answer changed from "cannot verify" to
+"cannot reproduce, with evidence".
+
+WHAT WAS RUN, under a real X server rather than QT_QPA_PLATFORM=offscreen:
+
+  * 600 programmatic resizes of a loaded AnnotateScreen with
+    PYTHONFAULTHANDLER=1, cycling width 360-1260 and height 300-900 every
+    3 ms while a page load was in flight. Survived; clean exit 0.
+  * The annotate Qt suite under Xvfb: 169 passed.
+  * The maintainer's own manual attempt on a real desktop: no crash.
+
+Together with the four causes ruled out by inspection (recorded in the
+earlier note and repeated in the closing comment so the issue is
+self-contained), that is enough to close it. MOST LIKELY ALREADY FIXED by
+the resize debounce: a drag used to start one QThread -- and one inner pool
+of native image workers -- per geometry event, and overlapping native calls
+during a resize is exactly the shape this crash had.
+
+Closed as "not planned" rather than "completed", because no commit in this
+session is the fix and claiming one would be false. The closing comment
+names the artefact that would reopen it usefully: a faulthandler log, or a
+gdb backtrace if nothing is printed.
+
+REMAINING: #15 only (measurements hangs, "database is locked").
