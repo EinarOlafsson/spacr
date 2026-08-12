@@ -1131,7 +1131,7 @@ def analyze_plaques(settings):
     
     # Save DataFrames to a SQLite database
     db_name = os.path.join(folder, 'plaques_analysis.db')
-    conn = sqlite3.connect(db_name)
+    conn = sqlite3.connect(db_name, timeout=30)
     
     summary_df.to_sql('summary', conn, if_exists='replace', index=False)
     details_df.to_sql('details', conn, if_exists='replace', index=False)

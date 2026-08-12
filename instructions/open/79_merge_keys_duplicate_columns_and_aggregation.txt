@@ -180,3 +180,71 @@ Two tests pinned the old rule and now pin the new one:
 STILL OPEN in this instruction: the anchor-key registry, the duplicate-column
 compare, the pathogen inner/outer setting, organelle support in BOTH io.py
 readers, and cytoplasm subtracting every interior object.
+
+--------------------------------------------------------------------------------
+2026-08-11 - THE ANCHOR, THE DUPLICATES, THE JOIN TYPE AND THE SECOND READER
+--------------------------------------------------------------------------------
+
+(1) THE KEY IS NAMED IN ONE PLACE. `spacr.object_roles` now carries
+`ANCHOR_COLUMN`, `anchor_column()`, `ONE_ROW_PER_CELL` and
+`is_one_row_per_cell()`. cell and cytoplasm anchor on `object_label` and join
+one row to one row; nucleus, pathogen, organelle and png_list anchor on
+`cell_id` and roll up first. An undeclared table raises and names the ones
+that are declared, rather than guessing.
+
+This was not only untidy. `merge_tables` decided whether a table could be
+joined by asking whether it carried `cell_id`, so CYTOPLASM FAILED THE TEST
+and was skipped behind a LOG.info -- the merged frame came back with zero
+cytoplasm columns and no error. Measured, then fixed, then pinned.
+
+(2) DUPLICATES ARE COMPARED. `merge_tables.reconcile_duplicates()` takes the
+merged frame and the suffix, compares each `col`/`col+suffix` pair row by
+row, drops the duplicate where they agree, and reports where they do not --
+`duplicate_column_policy='warn'` prints and keeps the cell table's value,
+`'raise'` stops the run. Two missing values count as agreement, and float
+noise below 1e-9 is not a disagreement.
+
+Scoped to the columns that MUST agree (`MUST_AGREE`: the plate/row/column/
+field identity, prc/prcf/prcfo, object_label, cell_id, the timepoint). A
+cell's `area` and its cytoplasm's `area` are supposed to differ, and
+reporting that as a conflict would bury the real ones under one per measured
+column.
+
+(3) AGGREGATION IS NOW DECIDED IN ONE PLACE, and the second reader calls it.
+`utils.py` held an independent `sum_keywords` substring match that disagreed
+with `merge_tables` on three kinds of column, each producing a number rather
+than an error:
+
+    object_label     averaged -> a label of 2.0 for pathogens 1, 2 and 3
+    count_*          averaged -> 2 and 3 of something became 2.5, not 5
+    total_/integrated_  averaged -> a total that is not a total
+
+Both readers now call `merge_tables.aggregation_for()`, which matches on word
+boundaries rather than substrings. Identity matches FIRST, ahead of every
+other rule, and is carried verbatim.
+
+Also aligned: column prefixing. Measure writes `nucleus_area`, not `area`, so
+the unconditional prefix produced `nucleus_nucleus_area`. A column now has
+one name whichever way it was joined.
+
+(4) THE JOIN TYPE IS A REGISTRY AND A SETTING.
+`object_roles.JOIN_HOW` / `join_how(table, keep_uninfected=)`:
+
+    nucleus     INNER   a cell with no nucleus is debris, not a cell
+    png_list    INNER   a cell with no crop cannot be classified
+    cytoplasm   LEFT    one row per cell; it makes no difference
+    pathogen    LEFT    an uninfected cell is usually the CONTROL population
+    organelle   LEFT    same reasoning
+
+`keep_uninfected=False` turns pathogen and organelle inner and leaves nucleus
+and png_list alone -- a cell with no nucleus is not an uninfected cell.
+`_read_and_join_tables` takes both settings and reads the registry; a test
+fails if a literal `how='left'` reappears beside a merge.
+
+(5) CYTOPLASM already subtracts nucleus, pathogen AND organelle
+(`measure.py`, the interior mask). What remains is `organelle_1`,
+`organelle_2`, ... which needs the multi-organelle model and lands with
+instruction 76.
+
+STILL OPEN in this instruction: only (5)'s multi-organelle half, tracked
+under 76.
