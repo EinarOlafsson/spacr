@@ -15,6 +15,13 @@ Issues:    #91 [ml_analyze]      ValueError: no rows matched negative_control
            the third is the user following the advice the second one gave.
 
 --------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The defect has been reproduced and fixed locally, but the three linked issues
+remain open until the verified fix is pushed and available to the reporter.
+
+--------------------------------------------------------------------------------
 WHAT ACTUALLY HAPPENS, VERIFIED IN THE CODE
 --------------------------------------------------------------------------------
 
