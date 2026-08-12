@@ -11,7 +11,7 @@ import pytest
 
 from spacr.classify_classes import (
     METADATA_COLUMNS, ClassDefinitionError, ClassRule, assign_classes,
-    candidate_columns, class_names, class_rules, normalize_settings,
+    candidate_columns, class_names, class_rules, folder_names, normalize_settings,
     values_in,
 )
 
@@ -310,10 +310,17 @@ def test_a_settings_file_written_before_the_split_still_trains():
     assert folder_names({"classes": ["alive", "dead"]}) == ["alive", "dead"]
 
 
-def test_the_explicit_key_wins_over_the_legacy_one():
+def test_the_new_key_is_read_once_classes_holds_definitions():
+    """`class_folder_names` is the answer for a post-split settings file.
+
+    Which is the file whose `classes` is a dict. It deliberately does NOT
+    win over a list-shaped `classes` -- see
+    `test_a_legacy_list_beats_the_injected_folder_default` for why that
+    direction would silently retrain every settings file in existence.
+    """
     from spacr.classify_classes import folder_names
 
-    names = folder_names({"classes": ["old", "older"],
+    names = folder_names({"classes": {"new": {"column": "c", "value": 1}},
                           "class_folder_names": ["new", "newer"]})
     assert names == ["new", "newer"]
 
@@ -364,6 +371,22 @@ def test_an_empty_definition_still_derives_from_the_older_keys():
     assert out["classes"]["pc"]["value"] == "c3"
 
 
+def test_normalization_carries_legacy_names_past_injected_defaults():
+    """Deriving rules must not let the injected nc/pc default take over."""
+    out = normalize_settings({
+        "dataset_mode": "annotation",
+        "annotation_column": "annot_1",
+        "annotated_classes": [1, 2],
+        "classes": ["alive", "dead"],
+        "class_folder_names": ["nc", "pc"],
+    })
+
+    assert list(out["classes"]) == ["alive", "dead"]
+    assert out["class_folder_names"] == ["alive", "dead"]
+    assert out["class_names"] == ["alive", "dead"]
+    assert folder_names(out) == ["alive", "dead"]
+
+
 def test_generate_training_dataset_writes_folders_not_definitions():
     """io wrote the folder listing over `classes`, discarding the rules.
 
@@ -374,8 +397,25 @@ def test_generate_training_dataset_writes_folders_not_definitions():
     from spacr import io
 
     source = inspect.getsource(io)
-    assert "settings['class_folder_names'] = final_names" in source
+    assert "_record_generated_folder_names(settings, final_names)" in source
     assert "settings['classes'] = final_names" not in source
+
+
+def test_generated_folders_retire_the_legacy_list_before_training():
+    """The folders just written must beat names from a pre-split settings file."""
+    from spacr.classify_classes import (
+        _record_generated_folder_names,
+        folder_names,
+    )
+
+    settings = {
+        "classes": ["nc", "pc"],
+        "class_folder_names": ["nc", "pc"],
+    }
+    _record_generated_folder_names(settings, ["c1", "c2"])
+
+    assert settings == {"class_folder_names": ["c1", "c2"]}
+    assert folder_names(settings) == ["c1", "c2"]
 
 
 def test_deep_spacr_reads_the_folder_names():
@@ -393,3 +433,51 @@ def test_deep_spacr_resolves_a_legacy_settings_dict():
 
     assert _class_folder_names({"classes": ["alive", "dead"]}) == [
         "alive", "dead"]
+
+
+def test_a_legacy_list_beats_the_injected_folder_default():
+    """The defaults factories inject `class_folder_names` into everything.
+
+    So if the new key won, every settings file ever written would silently
+    train on ['nc','pc'] instead of its own classes -- the exact opposite of
+    what the split is for. The SHAPE of `classes` says which file this is:
+    a list is the pre-split spelling and decides.
+    """
+    from spacr.classify_classes import folder_names
+
+    assert folder_names({"classes": ["only"],
+                         "class_folder_names": ["nc", "pc"]}) == ["only"]
+
+
+def test_an_explicitly_empty_legacy_list_still_means_no_classes():
+    """`classes=[]` aborts a run before any loader is built, and must keep
+    doing so rather than picking up the injected default."""
+    from spacr.classify_classes import folder_names
+
+    assert folder_names({"classes": [],
+                         "class_folder_names": ["nc", "pc"]}) == []
+
+
+def test_an_empty_dict_is_not_an_empty_list():
+    """`{}` says "no class is DEFINED yet", which is not "no classes"."""
+    from spacr.classify_classes import folder_names
+
+    assert folder_names({"classes": {},
+                         "class_folder_names": ["nc", "pc"]}) == ["nc", "pc"]
+
+
+def test_an_explicitly_empty_new_folder_list_means_no_folders():
+    from spacr.classify_classes import folder_names
+
+    assert folder_names({
+        "classes": {"defined": {"column": "condition", "value": 1}},
+        "class_folder_names": [],
+    }) == []
+
+
+def test_absent_new_folder_list_falls_back_to_definition_names():
+    from spacr.classify_classes import folder_names
+
+    assert folder_names({
+        "classes": {"defined": {"column": "condition", "value": 1}},
+    }) == ["defined"]

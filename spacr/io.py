@@ -6209,8 +6209,10 @@ def generate_training_dataset(settings):
           ``write_random_annotation_column``.
         - measurement mode: ``measurement_rules``.
 
-        The resulting ``classes`` and ``nr_classes`` are written back into the
-        dict for downstream training.
+        The resulting ``class_folder_names`` and ``nr_classes`` are written
+        back into the dict for downstream training. A pre-split list-shaped
+        ``classes`` entry is retired only after those folders are written;
+        dict-shaped class definitions remain untouched.
     :returns: ``(train_class_dir, test_class_dir)`` — the ``train/`` and
         ``test/`` roots written under ``<src>/datasets/training``
         (``training_all`` when several sources are combined), suffixed to stay
@@ -6686,7 +6688,8 @@ def generate_training_dataset(settings):
     # FOLDER names, while `classes` is the definition of what each class
     # MEANS (name -> {column, value}). Overwriting the definitions with the
     # folder listing discarded the columns and values the user had set.
-    settings['class_folder_names'] = final_names
+    from .classify_classes import _record_generated_folder_names
+    _record_generated_folder_names(settings, final_names)
     settings['nr_classes'] = len(final_names)
     
     try:
