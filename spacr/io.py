@@ -51,7 +51,8 @@ LOG = logging.getLogger(__name__)
 # they used to carry three hand-written copies of "ABCDEFGHIJKLMNOP" and
 # range(1, 25), which stop at P24.
 from . import convert as _cv
-from .object_roles import CHILD_ROLES, ordered
+from .object_roles import CHILD_ROLES, join_how, ordered
+from .merge_tables import reconcile_duplicates
 
 
 def _load_pylibczi():
@@ -2560,9 +2561,28 @@ def _report_fan_out(left, merged, join_cols, left_name='cell',
     )
 
 
-def _read_and_join_tables(db_path, table_names=None):
+def _read_and_join_tables(db_path, table_names=None,
+                          duplicate_column_policy='warn',
+                          keep_uninfected=True):
     """
     Reads and joins tables from a SQLite database.
+
+    **A column that arrives from two tables is compared, not duplicated.**
+    Cell and cytoplasm are both keyed to the same object, so a join hands
+    back ``plateID`` and ``plateID_cytoplasm``, ``prcf`` and
+    ``prcf_cytoplasm``, and so on. Where the pair agrees, one copy is kept.
+    Where it disagrees the two tables describe different objects under the
+    same identity, which no analysis should quietly average over:
+    ``duplicate_column_policy='warn'`` prints and keeps the cell table's
+    value, ``'raise'`` stops the run.
+
+    **Which cells survive a join is a decision, not a default.** A cell with
+    no nucleus is debris, and a cell with no crop cannot be classified, so
+    both of those joins are inner. A cell with no PATHOGEN is an uninfected
+    cell -- usually the control population -- so that join keeps it, and
+    ``keep_uninfected=False`` is how an analysis restricts itself to infected
+    cells deliberately rather than by accident. See
+    :func:`spacr.object_roles.join_how`.
 
     ``png_list`` is joined to the object tables on plate / row / column / field
     **and on the timepoint when both sides carry one**. Without the timepoint
@@ -2697,7 +2717,7 @@ def _read_and_join_tables(db_path, table_names=None):
                 dataframes['cell'],
                 png_list_df,
                 on=join_cols,
-                how='left',
+                how=join_how('png_list', keep_uninfected=keep_uninfected),
                 validate='one_to_one',
                 left_name='cell',
                 right_name='png_list',
@@ -2741,12 +2761,15 @@ def _read_and_join_tables(db_path, table_names=None):
             joined_df,
             dataframes['cytoplasm'],
             on=['object_label', 'prcf'],
-            how='left',
+            how=join_how('cytoplasm', keep_uninfected=keep_uninfected),
             suffixes=('', '_cytoplasm'),
             validate='one_to_one',
             left_name='cell',
             right_name='cytoplasm',
         )
+        joined_df = reconcile_duplicates(
+            joined_df, '_cytoplasm', left_name='cell',
+            right_name='cytoplasm', on_conflict=duplicate_column_policy)
     # From the registry, not a literal: ORGANELLE was missing from both
     # of these loops, so asking for it returned a frame with no
     # organelle columns and no message. Naming the child roles once is
@@ -2758,12 +2781,15 @@ def _read_and_join_tables(db_path, table_names=None):
                 dataframes[entity],
                 left_on=['object_label', 'prcf'],
                 right_index=True,
-                how='left',
+                how=join_how(entity, keep_uninfected=keep_uninfected),
                 suffixes=('', f'_{entity}'),
                 validate='one_to_one',
                 left_name='cell',
                 right_name=f'aggregated {entity}',
             )
+            joined_df = reconcile_duplicates(
+                joined_df, f'_{entity}', left_name='cell',
+                right_name=entity, on_conflict=duplicate_column_policy)
     return joined_df
     
 #: Table holding the settings of the run that wrote the database **last**.
