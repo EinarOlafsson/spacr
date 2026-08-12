@@ -104,16 +104,21 @@ def test_normal_api_generation_translates_current_context_before_hashing(
     def fake_translate(blocks, language, model_root, args, **kwargs):
         captured["blocks"] = list(blocks)
         captured["namespace"] = kwargs.get("cache_namespace")
+        captured["validator"] = kwargs.get("candidate_validator")
         return {contextual: "A frase contextual traduzida."}
 
     monkeypatch.setattr(builder, "_translate_blocks", fake_translate)
     translated = builder._translate_api_documents(
         {"spacr.example": source}, "pt", tmp_path, object(),
     )
-    assert captured == {
-        "blocks": [contextual],
-        "namespace": builder.API_BLOCK_CACHE_NAMESPACE,
-    }
+    assert captured["blocks"] == [contextual]
+    assert captured["namespace"] == builder.API_BLOCK_CACHE_NAMESPACE
+    assert captured["validator"](
+        contextual, "A frase contextual traduzida.", "pt"
+    )
+    assert not captured["validator"](
+        contextual, "The reviewed contextual sentence.", "pt"
+    )
     assert translated == {"spacr.example": "A frase contextual traduzida."}
 
 
@@ -349,7 +354,9 @@ def test_code_definition_shape_inside_explicit_literal_block_stays_exact():
     ``name``  exact output
     ``kind``  another literal"""
     blocks, layout = translatable_blocks(source)
-    assert blocks == ["Example::"]
+    # The literal-block introducer is structural RST chrome.  Translate only
+    # its prose label, then reattach ``::`` during reconstruction.
+    assert blocks == ["Example"]
     assert rebuild_document(layout, blocks) == source
 
 
@@ -1157,6 +1164,35 @@ def test_opencc_t2s_normalizes_only_unprotected_chinese_prose():
     assert _simplify_chinese_prose(normalized) == normalized
     assert not _has_traditional_chinese_prose(normalized)
     assert _has_traditional_chinese_prose(source)
+
+
+def test_opencc_audit_probe_fails_closed_when_dependency_is_missing(
+    monkeypatch,
+):
+    import build_i18n_catalogs as builder
+
+    monkeypatch.setattr(builder.ctypes.util, "find_library", lambda _name: None)
+    with __import__("pytest").raises(RuntimeError, match="requires OpenCC"):
+        builder._has_traditional_chinese_prose("简体中文")
+
+
+def test_api_translation_context_has_no_reviewed_grammar_failures():
+    import build_documentation_i18n as builder
+
+    forbidden = re.compile(
+        r"\b(?:a|an) execute\b|"
+        r"\b(?:partly|partially) execute\b|"
+        r"\bagain\s+again\b|"
+        r"\b(?:been|was|were|is|are) execute again\b|"
+        r"\b(?:can|could|will|would|should|must|may|might|to|do|does|did) "
+        r"(?:repeat execution|processing run)\b",
+        re.IGNORECASE,
+    )
+    for key, document in builder.public_docstrings().items():
+        blocks, _layout = builder.translatable_blocks(document)
+        for index, block in enumerate(blocks):
+            contextual = builder._api_translation_source(block)
+            assert not forbidden.search(contextual), (key, index, contextual)
 
 
 def test_api_semantic_gate_rejects_bad_senses_and_surplus_globally():
