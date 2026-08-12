@@ -244,8 +244,17 @@ def test_generate_ml_scores_annotation_column_balances_single_class(tmp_path, rn
     settings = _ml_settings(src, annotation_column="test")
     output, _ = generate_ml_scores(settings)
 
-    # annotation column drives the control assignment
-    assert settings["location_column"] == "test"
+    # THE ANNOTATION COLUMN DRIVES THE RUN WITHOUT REWRITING THE SETTINGS.
+    #
+    # This used to assert `settings["location_column"] == "test"` -- i.e. it
+    # pinned the mutation AS the contract. That mutation is issues #91-#93:
+    # `location_column` is a user-facing setting, shown in the panel and
+    # saved with the project, and overwriting it left a user who tried
+    # annotation mode once unable to return to metadata mode by changing the
+    # mode. The column the run trains on is derived into a local now, so the
+    # caller's setting comes back exactly as they wrote it.
+    assert settings["location_column"] == "columnID", (
+        "the caller's location_column was overwritten again")
     assert settings["positive_control"] == "1.0"
     assert settings["negative_control"] == "2.0"
     counts = output[0]["test"].value_counts().to_dict()
