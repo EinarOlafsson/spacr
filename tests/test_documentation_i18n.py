@@ -1170,10 +1170,15 @@ def test_opencc_audit_probe_fails_closed_when_dependency_is_missing(
     monkeypatch,
 ):
     import build_i18n_catalogs as builder
+    import build_documentation_i18n as docs_builder
 
     monkeypatch.setattr(builder.ctypes.util, "find_library", lambda _name: None)
     with __import__("pytest").raises(RuntimeError, match="requires OpenCC"):
         builder._has_traditional_chinese_prose("简体中文")
+    with __import__("pytest").raises(RuntimeError, match="requires OpenCC"):
+        builder.audit({}, ["zh_CN"])
+    with __import__("pytest").raises(RuntimeError, match="requires OpenCC"):
+        docs_builder.audit({}, ["zh_CN"])
 
 
 def test_api_translation_context_has_no_reviewed_grammar_failures():
