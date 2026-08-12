@@ -239,3 +239,49 @@ def test_a_rule_on_a_column_the_table_lacks_names_it():
     settings = {"classes": {"a": {"column": "ghost", "value": 1}}}
     with pytest.raises(ClassDefinitionError, match="ghost"):
         assign_classes(_annotated(), settings)
+
+
+# ---------------------------------------------------------------------------
+# The refusal has to name what is actually wrong (instruction 37)
+# ---------------------------------------------------------------------------
+
+def test_unbound_names_are_refused_without_blaming_the_caller():
+    """The shipped defaults reach `class_rules` ALREADY normalized.
+
+    `normalize_settings` translates the old shape only when the settings
+    carry a basis to derive rules from. With none, it deliberately leaves
+    the names alone rather than guessing a column -- which is right. But
+    `class_rules` then said "run normalize_settings first", sending the
+    user to do the one thing they had just done, and saying nothing about
+    the column that is actually missing.
+    """
+    from spacr.settings import deep_spacr_defaults
+
+    settings = normalize_settings(deep_spacr_defaults({}))
+    assert not isinstance(settings["classes"], dict), (
+        "this test is about the case normalize_settings cannot bind")
+
+    with pytest.raises(ClassDefinitionError) as excinfo:
+        class_rules(settings)
+
+    message = str(excinfo.value)
+    # Names the classes it could not bind...
+    assert "'nc'" in message and "'pc'" in message
+    # ...says what is missing...
+    assert "nothing says which objects belong to them" in message
+    # ...and what to do about it.
+    assert "column" in message
+    assert "annotation_column" in message
+
+
+def test_the_refusal_still_mentions_normalization_for_a_raw_settings_dict():
+    """A dict that never went through normalize_settings is the OTHER case.
+
+    Both arrive at the same refusal, so it has to serve both: the message
+    keeps pointing at normalization for the caller who really has skipped
+    it.
+    """
+    with pytest.raises(ClassDefinitionError) as excinfo:
+        class_rules({"classes": ["a", "b"]})
+
+    assert "normalize_settings" in str(excinfo.value)

@@ -177,9 +177,22 @@ def class_rules(settings: Mapping[str, Any]) -> Tuple[ClassRule, ...]:
         # objects belong to which class, so it cannot be turned into rules
         # here -- `normalize_settings` translates it, using the other retired
         # keys, before anything asks.
+        #
+        # It does NOT always translate it, and that is why this message says
+        # more than "run normalize_settings first". With no basis to derive
+        # rules from, normalize_settings deliberately leaves the names alone
+        # rather than guessing a column -- so the SHIPPED defaults
+        # (classes=['nc','pc'], nothing bound to a column) arrive here
+        # having already been normalized, and the old message sent the user
+        # to do the one thing they had just done.
+        names = ", ".join(repr(str(n)) for n in raw)
         raise ClassDefinitionError(
-            f"{CLASSES} is a {type(raw).__name__}, not a dict of "
-            f"name -> {{column, value}}; run normalize_settings first")
+            f"{CLASSES} names {len(raw)} class(es) ({names}) but nothing "
+            f"says which objects belong to them. Give each one a column and "
+            f"a value in the Classes editor, or set annotation_column / "
+            f"class_metadata so they can be derived. (If {CLASSES} has not "
+            f"been through normalize_settings yet, that is what runs the "
+            f"derivation.)")
 
     rules: List[ClassRule] = []
     for name, spec in raw.items():
