@@ -273,3 +273,84 @@ def test_no_detection_parameter_leaked_into_the_basic_heading():
         for jargon in ("ridge", "hysteresis", "sigma", "adaptive", "tophat",
                        "unet", "clahe", "watershed", "morph_radius"):
             assert jargon not in key, key
+
+
+# ---------------------------------------------------------------------------
+# the measure-stage gate, and the regression instruction 72 caused there
+# ---------------------------------------------------------------------------
+# `_spatial_organelle_eligible` read `organelle_type` FIRST and tested the raw
+# string for membership of {'network','reticular','cisternal'}. Adding
+# organelle_type broke it two ways at once, silently:
+#
+#   * the new default 'custom' is not in that set, so a run that said
+#     organelle_morphology='network' and meant it had its explicit choice
+#     SHADOWED by a default it never set;
+#   * 'filamentous' and 'tubular' are not in the set either, though the preset
+#     maps both to `network`.
+#
+# Both turned the spatial block back on for a single connected network, whose
+# neighbour statistics are not a measurement of anything. The type is now
+# resolved to a morphology before the test.
+
+from spacr.measure import (_morphology_of_organelle_type,
+                           _spatial_organelle_eligible)
+
+
+@pytest.mark.parametrize("settings", [
+    {"organelle_morphology": "network"},
+    {"organelle_type": "custom", "organelle_morphology": "network"},
+    {"organelle_type": "filamentous"},
+    {"organelle_type": "tubular"},
+    {"organelle_type": "reticular"},
+])
+def test_a_connected_network_never_gets_neighbour_statistics(settings):
+    assert _spatial_organelle_eligible(settings) is False, settings
+
+
+@pytest.mark.parametrize("settings", [
+    {"organelle_morphology": "spots"},
+    {"organelle_type": "punctate"},
+    {"organelle_type": "vesicular", "organelle_diameter": 8},
+    {"organelle_type": "vesicular", "organelle_diameter": 40},
+    {"organelle_type": "spherical", "organelle_diameter": 40},
+    {"organelle_type": "toroidal"},
+])
+def test_separable_objects_still_get_them(settings):
+    assert _spatial_organelle_eligible(settings) is True, settings
+
+
+def test_the_default_type_does_not_shadow_an_explicit_morphology():
+    """The regression, stated as the thing that must hold.
+
+    Every run now carries organelle_type='custom' whether the user chose it
+    or not, so 'custom' must have NO opinion here.
+    """
+    from spacr.settings import _set_organelle_defaults
+
+    settings = _set_organelle_defaults({"organelle_morphology": "network",
+                                        "organelle_method": "ridge"})
+    assert settings["organelle_type"] == "custom"
+    assert _spatial_organelle_eligible(settings) is False
+
+
+def test_custom_and_unknown_types_defer_to_the_morphology():
+    assert _morphology_of_organelle_type({"organelle_type": "custom"}) is None
+    assert _morphology_of_organelle_type({}) is None
+    assert _morphology_of_organelle_type({"organelle_type": "nonsense"}) is None
+
+
+def test_the_type_is_resolved_not_string_matched():
+    """'filamentous' is not the word 'network', and that was the bug."""
+    assert _morphology_of_organelle_type(
+        {"organelle_type": "filamentous"}) == "network"
+    assert _morphology_of_organelle_type(
+        {"organelle_type": "tubular"}) == "network"
+
+
+def test_a_measure_only_run_still_assumes_the_shipped_default(capsys):
+    """Neither key reaches a measure-only run; the assumption is printed."""
+    import spacr.measure as M
+
+    M._SPATIAL_ORGANELLE_ASSUMED = False
+    assert _spatial_organelle_eligible({}) is True
+    assert "assumes the shipped default" in capsys.readouterr().out

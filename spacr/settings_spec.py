@@ -34,6 +34,8 @@ a third time, to the module itself.
 from __future__ import annotations
 
 import sys
+from .organelle_types import (DEFAULT_TYPE as _ORGANELLE_TYPE_DEFAULT,
+                              TYPE_ORDER as _ORGANELLE_TYPE_ORDER)
 
 __all__ = ["convert_settings_dict_for_gui"]
 
@@ -142,6 +144,12 @@ def convert_settings_dict_for_gui(settings):
         'grouping': ('combo', ['mean', 'median'], 'mean'),
         'min_max': ('combo', ['allq', 'all'], 'allq'),
         'transform': ('combo', ['log', 'sqrt', 'square', None], None),
+        # The ONE visible organelle choice (instruction 72). A combo, not a
+        # free-text field: the nine names are a closed set, and
+        # `organelle_types.resolve_type` raises on anything else -- typing it
+        # by hand would turn a typo into a failed run instead of a pick.
+        'organelle_type': ('combo', list(_ORGANELLE_TYPE_ORDER),
+                           _ORGANELLE_TYPE_DEFAULT),
         'organelle_morphology': ('combo', ['spots', 'network', 'irregular', 'ring'], 'spots'),
         'organelle_method': ('combo', ['otsu', 'adaptive', 'log', 'dog', 'ridge', 'hysteresis', 'cellpose', 'unet'], 'otsu'),
         'organelle_model_name': ('combo', cellpose_models,
