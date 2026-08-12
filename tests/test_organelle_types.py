@@ -255,16 +255,30 @@ def test_every_maintainer_category_is_present():
 # ---------------------------------------------------------------------------
 
 def test_the_visible_count_went_down_and_this_is_the_number():
-    """53 settings under one heading became 6 visible by default."""
-    assert len(categories["Organelle"]) == 6
-    assert len(categories["Organelle advanced"]) == 48
+    """53 settings under one heading became 3 visible by default.
+
+    Instruction 72 took it to 6; instruction 73 then pulled the shared
+    families -- object filtration and intensity handling -- out to headings
+    of their own, because `organelle_min_size` and `cell_min_size` are one
+    decision applied to two objects rather than two unrelated knobs. What is
+    left under Organelle is the channel-shaped choices only.
+    """
+    assert len(categories["Organelle"]) == 3
+    assert len(categories["Organelle advanced"]) == 35
+    # Still 53 + organelle_type, just spread across four headings now.
+    total = sum(len(categories[c]) for c in
+                ("Organelle", "Organelle advanced",
+                 "Object filtration", "Intensity handling"))
+    assert total >= 54
 
 
 def test_everything_is_still_reachable():
     """MOVED, NOT HIDDEN -- a setting that leaves the panel while staying in
     the settings dict is how a run gets a value nobody can see."""
-    offered = set(categories["Organelle"]) | set(
-        categories["Organelle advanced"])
+    offered = set()
+    for heading in ("Organelle", "Organelle advanced",
+                    "Object filtration", "Intensity handling"):
+        offered |= set(categories.get(heading, ()))
     defaults = {k for k in _set_organelle_defaults({})
                 if k.startswith("organelle_")}
     assert defaults - offered <= {"organelle_channel", "organelle_mask_dim"}

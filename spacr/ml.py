@@ -4334,9 +4334,14 @@ def _resolve_controls(df, location_column, negative_control,
     if isinstance(column, pd.DataFrame):
         return negative_control, positive_control, False
 
-    named_found = (matches(column, negative_control).any()
-                   and matches(column, positive_control).any())
-    if named_found:
+    # NEITHER may match before anything is derived. If ONE does, the user
+    # has a real partial match -- 'c1' present and 'c2' mistyped, say -- and
+    # deriving would silently replace the control they got RIGHT along with
+    # the one they got wrong. The refusal downstream names only the missing
+    # one, which is the useful message; overriding both would hide it.
+    any_found = (matches(column, negative_control).any()
+                 or matches(column, positive_control).any())
+    if any_found:
         return negative_control, positive_control, False
 
     present = sorted(v for v in column.dropna().unique())
