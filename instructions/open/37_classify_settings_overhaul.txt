@@ -2,8 +2,10 @@
 CLASSIFY: CLASSES AS A DICT, HONEST CROP SOURCES, AND FEWER CATEGORIES
 ================================================================================
 
-Status:    not started. SCOPE REVISED 2026-08-09 -- the classes dict
-           is replaced by a simpler editor; see the end of this file.
+Status:    partially complete. SCOPE REVISED 2026-08-09 -- the classes dict
+           is replaced by a simpler editor; see the end of this file. The
+           class/folder-name contract landed 2026-08-12; selector redesign
+           remains open.
 Requested: 2026-08-07
 
 Verbatim, because most of this is precise and the paraphrase would lose it:
@@ -677,3 +679,93 @@ MARKED, NOT SILENCED. The test now xfails with the drift printed in the
 reason, so CI is honest instead of noisy, and the day this instruction lands
 it fails as XPASS and says to remove the mark. A red test nobody can act on
 is how the rest of the suite stops being read -- see instruction 43.
+
+--------------------------------------------------------------------------------
+2026-08-12 - THE `classes` SHAPE, SETTLED: ONE KEY WAS CARRYING TWO CONTRACTS
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-12 - "cant we just change the class foder names to
+           class_folder_names if thats all it is?"
+
+That is the answer, and finding out whether it WAS all it is turned out to be
+the useful part. `classes` was carrying two unrelated meanings:
+
+  * the shipped tooltip and the training code -- "Each must exactly match a
+    subfolder under src/train and src/test; a name's position in this list
+    becomes its integer label ... Generate Training Dataset overwrites this
+    with the class names it actually wrote to disk". An ordered list.
+  * since 98ae880c, the Classes editor -- `name -> {column, value}`, which
+    OBJECTS belong to each class.
+
+They are usually the same words, which is exactly why the collision went
+unnoticed, and it is why the default was undecidable: `{}` is wrong for the
+first reading and `['nc','pc']` is wrong for the second.
+
+NOT ONLY A TOOLTIP. Eight sites in `deep_spacr` read `settings['classes']`
+and pass it as `classes=` into `generate_loaders` / `evaluate_predictions` /
+`save_top_class_examples`, all meaning the folder names, and `io.py:6685`
+overwrote the key with the folder listing it had just written -- discarding
+whatever columns and values the user had set.
+
+WHAT LANDED
+
+    classes             {}            the DEFINITIONS. Empty means no class
+                                      is defined yet, which is what an
+                                      untouched editor produces and collects
+                                      back unchanged.
+    class_folder_names  ['nc','pc']   the ordered TRAINING FOLDER names.
+
+`classify_classes.folder_names()` is the single reader, and everything goes
+through it: `deep_spacr._class_folder_names`, `normalize_settings` (which
+now writes `class_folder_names`, and `class_names` beside it for the older
+spelling -- both from the same call, so they cannot disagree), the two
+derivation helpers when naming rules they rebuilt, `io`'s write-back, the Tk
+Generate-Training-Dataset form, the CLI help and the merged-panel group.
+
+THE PRECEDENCE, which took two wrong answers to get right. THE SHAPE OF
+`classes` SAYS WHICH FILE THIS IS:
+
+  * `classes` is a LIST -> pre-split file, and it IS the folder list. It
+    wins, INCLUDING WHEN EMPTY.
+  * `classes` is a dict or absent -> post-split file, `class_folder_names`
+    is the answer.
+
+After dataset generation succeeds, the generated folder names are recorded
+under `class_folder_names` and a legacy list-shaped `classes` entry is removed.
+Otherwise that stale legacy list would win again during the immediate training
+handoff and make a newly generated c1/c2 tree look for the old nc/pc folders.
+An explicitly empty `class_folder_names=[]` remains an explicit request for no
+training folders; absence alone falls back to the names of defined classes.
+
+The first two attempts had `class_folder_names` winning, and both broke real
+behaviour, because THE DEFAULTS FACTORIES INJECT THAT KEY INTO EVERY SETTINGS
+DICT THEY TOUCH. So the new key was always present and always won:
+
+  * `classes=['only']` trained on 2 classes, not 1, and the loss silently
+    resolved to cross-entropy instead of binary_cross_entropy_with_logits.
+  * `classes=[]` -- a caller disabling the run -- stopped raising and trained
+    on ['nc','pc'] instead.
+
+Every settings file in existence would have silently retrained on nc/pc,
+which is the exact opposite of the point. Both cases are now named tests.
+
+TWO MORE THINGS FIXED ON THE WAY
+
+  * `class_rules` refused a list-shaped `classes` with "run normalize_settings
+    first". The shipped defaults reach it HAVING been normalized -- with no
+    basis to derive from, `normalize_settings` deliberately leaves the names
+    alone rather than guessing -- so the message sent the user to do the one
+    thing they had just done, and said nothing about the missing column.
+  * `normalize_settings` tested `isinstance(raw, Mapping)` to decide whether
+    to derive. An empty dict is a Mapping, so the moment the default became
+    `{}` a plate carrying the retired `location_column` / control keys would
+    have skipped derivation and trained on no classes at all, silently.
+    Empty now means undefined whichever shape it is empty in.
+
+`test_every_default_round_trips_untouched[classify]` passes and its xfail
+mark is removed, as its own note asked. That invariant -- opening a screen
+and saving must not rewrite the user's settings file -- is what the stale
+default was breaking.
+
+STILL OPEN IN THIS FILE: the class-selector redesign (the bubble/teal-green
+UI work described above). The shape question that blocked it is answered.
