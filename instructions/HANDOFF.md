@@ -10,11 +10,24 @@ current state; the header often says "not started" when it is 80% done.**
 
 ---
 
-## 1. What needs the maintainer, and nothing else does
+## 0. FIRST: what is true as of the last update
+
+- **Everything is pushed.** `nightly` is in sync with origin.
+- **CI was triggered** against it: runs `31643731063` (tests) and
+  `31643733227` (compat-matrix). **Read them first** --
+  `gh run view <id> --log-failed` -- they are the live answer for
+  instructions 43, 54 and 82.
+- **28 of 29 GitHub issues are closed.** Only **#15** is open (measurements
+  hangs, "database is locked"); a diagnostic comment on it records what is
+  already defended and the two remaining candidate fixes.
+- 23 open instructions.
+
+## 1. What needs the maintainer
 
 | Need | Unblocks | Note |
 |---|---|---|
-| **`git push origin nightly`** | 43, 54, 82, and closing #91–#93 | 11 commits live on one disk |
+| **The cellpose ceiling decision** | 54, 82 | `>=4.0.7,<5.0` admits 4.2.1.1, and ten tests fail on it on EVERY Python version. Not a Python-range question. `CellposeModel.__init__`'s default `pretrained_model` drifted. Pick a ceiling. |
+| A push, whenever work accumulates | 82 | the standing rule is: never push without asking |
 | Nothing else | | xvfb is installed, the GPU is free, `gh` is authenticated |
 
 `gh` **is** authenticated (`EinarOlafsson`, scopes `gist, read:org, repo`) and
@@ -31,7 +44,7 @@ maintainer's accounts (59).
 
 ## 2. State of the tree
 
-- Branch `nightly`, **11 commits ahead of origin**.
+- Branch `nightly`, **in sync with origin**.
 - `docs/source/_extra/tutorials/**`, the i18n catalogs, and
   `instructions/open/48_*` are **owned by a concurrent codex session**. Do not
   edit them. 48 carries a hands-off note saying so.
