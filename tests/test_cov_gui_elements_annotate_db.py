@@ -822,12 +822,17 @@ def test_convert_settings_dict_classifies_widget_kinds():
     assert out["channels_list"] == ("entry", None, "[1, 2, 3]")
     assert out["name"] == ("entry", None, "abc")
     assert out["nothing"] == ("entry", None, None)
-    # special cases ignore the supplied value and use the canned spec
+    # A special case keeps its curated OPTION LIST and preselects the value
+    # THIS module declared. It used to return the canned triple verbatim --
+    # pinned here as `initial == "[0,1,2,3]"` for a dict that said "[0,1]",
+    # and as "cellvoyager" for a dict that said "cq1". On Tk that value is
+    # both what is shown and what runs, so Cellpose Masks segmented with
+    # [0,1,2,3] where its own factory declares [0, 0].
     assert out["metadata_type"] == ("combo",
                                     ["cellvoyager", "cq1", "auto", "custom"],
-                                    "cellvoyager")
+                                    "cq1")
     kind, options, initial = out["channels"]
-    assert kind == "combo" and initial == "[0,1,2,3]" and "[0,1]" in options
+    assert kind == "combo" and initial == "[0,1]" and "[0,1,2,3]" in options
 
 
 def test_annotate_app_no_longer_shadows_convert_settings_dict():
