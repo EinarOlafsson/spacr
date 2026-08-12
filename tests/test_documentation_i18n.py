@@ -126,19 +126,20 @@ def test_api_translation_source_disambiguates_model_input_and_hashes_it():
     import build_documentation_i18n as builder
 
     cases = {
-        "Read the image plane.": "Read the focal image slice.",
+        "Read the image plane.": "Read the two-dimensional image layer.",
         "Resume the failed pipeline run.":
             "Resume the failed workflow processing run.",
         "Run this on a GUI worker thread.":
-            "Execute this on a GUI software worker thread.",
-        "Load image crops.": "Load cropped image cutouts.",
+            "Execute this on a main GUI execution path.",
+        "Load image crops.": "Load extracted image regions.",
         "Raises ValueError for invalid input.":
             "Throws ValueError for invalid input.",
         "Read the 384-well plate.":
             "Read the 384-position laboratory microplate.",
         "Return each well in the plate.":
             "Return each microplate sample position in the laboratory microplate.",
-        "Return the mapping keys.": "Return the mapping identifiers.",
+        "Return the mapping keys.":
+            "Return the identifiers of entries in a mapping.",
         "A pooled CRISPR screen reports hits.":
             "A pooled CRISPR screening experiment reports hits.",
         "The Qt screen shows settings.":
@@ -152,11 +153,11 @@ def test_api_translation_source_disambiguates_model_input_and_hashes_it():
         "Estimate statistical power from sample size.":
             "Estimate statistical detection sensitivity from sample size.",
         "Append the job to the queue.":
-            "Append the job to the software task queue.",
+            "Append the job to the list of software jobs waiting to run.",
         "Read each image field and channel.":
             "Read each microscope image field of view and image data channel.",
         "The classifier predicts each crop.":
-            "The machine-learning classification model predicts each cropped image cutout.",
+            "The machine-learning classification model predicts each extracted image region.",
         "Return a human-readable reference.":
             "Return an easy-to-read reference.",
     }
@@ -181,6 +182,11 @@ def test_api_translation_source_keeps_negative_control_senses_and_literals():
         "Serve food on the plate.",
         "Store the API key in the credential vault.",
         "Use ``pipeline`` as the code key.",
+        "People formed a queue outside the application.",
+        "The farmer grows a crop in the field.",
+        "The plane landed at the airport.",
+        "Plot the points on a Cartesian plane.",
+        "The carpenter used a flat plane as a hand tool.",
     )
     for source in unchanged:
         assert builder._api_translation_source(source) == source
@@ -557,6 +563,80 @@ def test_numeric_protection_marker_does_not_match_inside_larger_number():
 
     with pytest.raises(ValueError, match="did not preserve 0X0 exactly once"):
         _restore("prefix 10X01 suffix", {"0X0": "**"})
+
+
+def test_fragment_retry_recomputes_current_invalid_candidates():
+    from build_documentation_i18n import _api_block_valid
+    from build_i18n_catalogs import (
+        _fragment_retry_sources,
+        _translation_candidate_valid,
+    )
+
+    rescued = "Read ``measurements.db``."
+    caller_bad = "Return this value to the caller."
+    syntax_bad = "Write ``results.db``."
+    already_good = "Return the image crop."
+    translations = {
+        rescued: "``measurements.db``에서 읽습니다.",
+        caller_bad: "Return this 값을 to the caller.",
+        syntax_bad: "결과 데이터베이스에 씁니다.",
+        already_good: "이미지 크롭을 반환합니다.",
+    }
+
+    def valid(source, value):
+        return (
+            _translation_candidate_valid(source, value, "ko", force=True)
+            and _api_block_valid(source, value, "ko")
+        )
+
+    # Pin the fixture: the caller-gate failure is structurally sound, while
+    # the syntax failure dropped its protected database literal.
+    assert _translation_candidate_valid(
+        caller_bad, translations[caller_bad], "ko", force=True,
+    )
+    assert not _api_block_valid(caller_bad, translations[caller_bad], "ko")
+    assert not _translation_candidate_valid(
+        syntax_bad, translations[syntax_bad], "ko", force=True,
+    )
+    assert valid(rescued, translations[rescued])
+    assert valid(already_good, translations[already_good])
+
+    historical_retry = {rescued, syntax_bad}
+    selected = _fragment_retry_sources(
+        translations, translations, valid,
+    )
+    assert selected == [caller_bad, syntax_bad]
+    assert set(selected) - historical_retry == {caller_bad}
+    assert historical_retry - set(selected) == {rescued}
+
+
+def test_valid_sentence_retry_is_not_overwritten_by_fragment_fallback():
+    from build_documentation_i18n import _api_block_valid
+    from build_i18n_catalogs import (
+        _fragment_retry_sources,
+        _translation_candidate_valid,
+    )
+
+    rescued = "Read ``measurements.db``."
+    still_bad = "Return this value to the caller."
+    rescued_value = "``measurements.db``에서 읽습니다."
+    translated = {
+        rescued: rescued_value,
+        still_bad: "Return this 값을 to the caller.",
+    }
+
+    def valid(source, value):
+        return (
+            _translation_candidate_valid(source, value, "ko", force=True)
+            and _api_block_valid(source, value, "ko")
+        )
+
+    seen = _fragment_retry_sources(translated, translated, valid)
+    for source in seen:
+        # Simulate a rejected fragment falling back to canonical English.
+        translated[source] = source
+    assert seen == [still_bad]
+    assert translated[rescued] == rescued_value
 
 
 def test_rejected_models_use_the_reviewed_permissive_replacement():
