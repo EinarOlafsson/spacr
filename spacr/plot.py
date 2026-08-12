@@ -4476,11 +4476,30 @@ class spacrGraph:
                 ax.text((x1 + x2) / 2, line_y, significance, ha='center', va='bottom', fontsize=12)
 
         # Optional: Remove outliers for plotting
-        if self.remove_outliers:
-            self.df = self.remove_outliers_from_plot()
-
-        self.df_melted = pd.melt(self.df, id_vars=[self.grouping_column], value_vars=self.data_column,var_name='Data Column', value_name='Value')
-        unique_groups = self.df[self.grouping_column].unique()
+        # THE TRIM IS FOR THE PICTURE, NOT FOR THE TEST, and it used to be
+        # for both. `remove_outliers_from_plot` drops 1.5*IQR points PER
+        # GROUP, and it ran here -- before the normality test, before the
+        # comparison and before the post-hoc, all of which then read the
+        # trimmed frame.
+        #
+        # That inflates significance in the one direction nobody checks.
+        # Removing a group's tails shrinks its standard deviation, so the
+        # t-statistic grows for a difference in means that has not changed.
+        # Worse, trimming PER GROUP removes exactly the points that make two
+        # groups overlap. A caller asking not to have one point stretch the
+        # y-axis was silently also asking for a smaller p-value.
+        #
+        # No shipped caller passes remove_outliers=True, so nothing published
+        # came through here -- but `spacrGraph` is public API and the
+        # parameter is documented, so this is a live trap rather than a
+        # historical one.
+        #
+        # The statistics now run on every point, and only the drawing is
+        # trimmed. The results table says so, because a reader looking at a
+        # trimmed plot beside a p-value has to know which one used what.
+        stats_df = self.df
+        self.df_melted = pd.melt(stats_df, id_vars=[self.grouping_column], value_vars=self.data_column,var_name='Data Column', value_name='Value')
+        unique_groups = stats_df[self.grouping_column].unique()
         is_normal, normality_results = self.perform_normality_tests()
         # The equal-variance check now happens inside
         # `perform_statistical_tests`, PER COLUMN, and decides between the
@@ -4491,6 +4510,21 @@ class spacrGraph:
         test_results = self.perform_statistical_tests(unique_groups, is_normal)
         posthoc_results = self.perform_posthoc_tests(is_normal, unique_groups)
         self.results_df = pd.DataFrame(normality_results + test_results + posthoc_results)
+
+        # Now, and only now, trim what gets drawn.
+        if self.remove_outliers:
+            self.df = self.remove_outliers_from_plot()
+            if not self.results_df.empty:
+                self.results_df['outliers_removed_from_plot_only'] = True
+            trimmed = len(stats_df) - len(self.df)
+            if trimmed > 0:
+                print(f"remove_outliers: {trimmed} of {len(stats_df)} points "
+                      f"are hidden from the plot. THE STATISTICS ABOVE USED "
+                      f"ALL {len(stats_df)}.")
+            self.df_melted = pd.melt(
+                self.df, id_vars=[self.grouping_column],
+                value_vars=self.data_column, var_name='Data Column',
+                value_name='Value')
 
         #num_groups = len(self.data_column)*len(self.grouping_column)
         num_groups = len(self.df[self.grouping_column].unique())
@@ -5694,12 +5728,26 @@ def proportions_per_unit(df, group_column, bin_column, unit_column):
         per bin holding a proportion in [0, 1]. Units contributing no
         objects do not appear.
     """
-    counts = (df.groupby([group_column, unit_column, bin_column],
-                         observed=True).size()
+    # Deduplicated, because a caller may GROUP BY the unit -- the
+    # replication tables group by `prc`, which is also the well. Passing
+    # 'prc' to groupby twice puts it in the index twice, and `reset_index`
+    # then raises "cannot insert prc, already exists" instead of choosing.
+    keys = list(dict.fromkeys([group_column, unit_column, bin_column]))
+    counts = (df.groupby(keys, observed=True).size()
               .unstack(fill_value=0))
     totals = counts.sum(axis=1)
     proportions = counts.div(totals.where(totals > 0), axis=0)
-    return proportions.dropna(how="all").reset_index()
+    proportions = proportions.dropna(how="all")
+    # `unstack` leaves the bin values as COLUMN names, and a caller's frame
+    # can already carry a column spelled like one of the index levels --
+    # `prc` is both the unit and, in the replication tables, a plain column.
+    # `reset_index` then raises "cannot insert prc, already exists" rather
+    # than choosing, so the clash is removed before it can happen.
+    clashing = [name for name in proportions.index.names
+                if name in proportions.columns]
+    if clashing:
+        proportions = proportions.drop(columns=clashing)
+    return proportions.reset_index()
 
 
 def _compare_groups(samples):
@@ -5759,6 +5807,20 @@ def proportion_test_by_unit(df, group_column, bin_column, unit_column):
     of magnitude. This asks the question the design supports: do the WELLS
     differ, with n = the number of wells.
     """
+    if unit_column == group_column:
+        # The unit of replication IS the thing being compared, so every
+        # group holds exactly one unit and there is nothing to test across.
+        # Saying so beats returning a p-value computed from one number each.
+        return pd.DataFrame([{
+            "test": f"not applicable: the groups ARE the {unit_column}s",
+            "bin": None,
+            "unit": unit_column,
+            "n": int(df[unit_column].nunique()) if unit_column in df else 0,
+            "n_per_group": "1 each",
+            "statistic": float("nan"),
+            "p_value": float("nan"),
+        }])
+
     table = proportions_per_unit(df, group_column, bin_column, unit_column)
     bins = [c for c in table.columns if c not in (group_column, unit_column)]
     groups = list(dict.fromkeys(table[group_column].tolist()))
@@ -5789,6 +5851,15 @@ def proportion_mixed_model(df, group_column, bin_column, unit_column):
     supports, by clustering on the unit. Reported beside the other two
     because when it disagrees with them, the disagreement is the finding.
     """
+    if unit_column == group_column:
+        return pd.DataFrame([{
+            "test": f"not applicable: the groups ARE the {unit_column}s",
+            "bin": None, "unit": unit_column,
+            "n": int(df[unit_column].nunique()) if unit_column in df else 0,
+            "n_per_group": f"objects={len(df)}",
+            "statistic": float("nan"), "p_value": float("nan"),
+        }])
+
     bins = list(dict.fromkeys(df[bin_column].dropna().tolist()))
     groups = list(dict.fromkeys(df[group_column].dropna().tolist()))
     rows = []

@@ -112,3 +112,54 @@ together), 37 (the classify settings overhaul -- the same "too many settings,
 group them by what they do" problem, and its scope note is worth reading
 first), 61 (every setting states its default and unit), 69 (standardise
 common elements across modules).
+
+--------------------------------------------------------------------------------
+2026-08-12 - ITEM 1 ANSWERED, AND ITEM 2 COUNTED
+--------------------------------------------------------------------------------
+
+ITEM 1: THE PANEL CANNOT NEST. Established rather than assumed.
+`SettingsWidgets.build_sections` (spacr/qt/screens/settings_model.py:3917) is
+typed and implemented as
+
+    List[Tuple[str, List[Tuple[str, QWidget]]]]
+
+-- one flat header, then its rows. There is no third element and no recursion
+anywhere in the render path. A sub-sub-section does not exist and cannot be
+expressed without changing that return type and every consumer of it.
+
+DECISION: (b), THE PREFIX TRICK, TWO LEVELS. It is already the house
+precedent -- `settings_model.py:1278` builds "Computer Vision — Training &
+Loss" exactly this way -- and instruction 72 has now shipped the same flat
+shape for organelle ("Organelle" / "Organelle advanced"). Choosing (a),
+building real nesting, would change the panel contract for every module to
+serve one request; choosing a second scheme would leave the tool with two.
+
+THE CAUTIONARY HALF OF THAT PRECEDENT IS REAL and is why item 4 exists: the
+CV prefix broke every tooltip lookup for those groups until 2026-08-10,
+because the tooltip table is keyed on the heading's exact text. Any heading
+this instruction adds needs its blurb written in the same commit, not after.
+
+ITEM 2: THE INVENTORY. 66 settings are candidates, in three families across
+five object classes. Measured from `spacr.settings.categories`, not guessed:
+
+    family                cell  nucleus  pathogen  organelle  cytoplasm  total
+    Image preprocessing      1        1         1          4          -      7
+    Object filtration        8        8         8         10          1     35
+    Intensity handling       6        6         6          6          -     24
+                                                                         -----
+                                                                            66
+
+Object filtration and Intensity handling are the two that pay: eight
+identically-shaped keys per object, filed under four different objects, that
+are one decision applied four times. `cell_intensity_merge` and
+`nucleus_intensity_merge` do the same thing and read as unrelated knobs.
+
+Image preprocessing is LOPSIDED and worth flagging before anyone moves it:
+cell/nucleus/pathogen have one key each (`*_background`) while organelle has
+four (clahe and rolling-ball, with their parameters). That is not a grouping
+problem, it is a capability gap -- organelle can pre-process and the other
+three cannot -- and hiding it behind a shared heading would make three
+objects look like they have settings they do not have.
+
+STILL OPEN: the regroup itself (item 3), the per-heading blurbs (item 4), the
+curated-layout registry check (item 5), and the before/after visible counts.

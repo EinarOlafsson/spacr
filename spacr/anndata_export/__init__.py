@@ -495,7 +495,9 @@ def _available_tables(db_path: Union[str, os.PathLike]) -> Tuple[str, ...]:
 
 
 def _read_frame(db_path: str, tables: Sequence[str],
-                single_table: Optional[str]) -> Tuple[pd.DataFrame, Tuple[str, ...]]:
+                single_table: Optional[str], *,
+                collapse_duplicate_identity: bool = True,
+                ) -> Tuple[pd.DataFrame, Tuple[str, ...]]:
     """Read the object frame this export will describe.
 
     :param db_path: a ``measurements.db``.
@@ -544,7 +546,14 @@ def _read_frame(db_path: str, tables: Sequence[str],
     # and this module must stay importable on a machine that cannot segment.
     from ..io import _read_and_join_tables
 
-    frame = _read_and_join_tables(db_path, list(wanted))
+    # `drop_redundant_identity=False` is documented to KEEP the join's
+    # suffixed identity copies. The reader now collapses agreeing duplicates
+    # by default (instruction 79), which would have made that option a no-op
+    # -- the columns were gone before this module ever saw them. Passed
+    # through so the documented choice is the one that happens.
+    frame = _read_and_join_tables(
+        db_path, list(wanted),
+        collapse_duplicate_identity=collapse_duplicate_identity)
     if frame is None:
         raise ValueError(
             f"could not join {wanted} from {db_path}; the join returned "
@@ -1272,7 +1281,13 @@ def build_anndata(db_path: Union[str, os.PathLike],
     anndata = require_anndata()
     db_path = os.path.abspath(os.path.expanduser(os.fspath(db_path)))
 
-    frame, read_tables = _read_frame(db_path, tables, single_table)
+    # `drop_redundant_identity=False` is documented to KEEP the join's
+    # suffixed identity copies. The reader collapses agreeing duplicates by
+    # default now (instruction 79), which would have made that option a
+    # no-op -- the columns were gone before this module saw them.
+    frame, read_tables = _read_frame(
+        db_path, tables, single_table,
+        collapse_duplicate_identity=drop_redundant_identity)
     n_before = len(frame)
     joined = single_table is None
     anchor = "cell" if joined else str(single_table)

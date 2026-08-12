@@ -1062,3 +1062,81 @@ the panel's state into the Cellpose call, not merely against
 
 Seed on FIRST SHOW rather than at construction, mirroring what
 `_PreviewHost.prime` already documents, so a preview nobody opens stays free.
+
+--------------------------------------------------------------------------------
+2026-08-12 - ITEMS (a), (c) AND (d): FIXED, MEASURED, PINNED
+--------------------------------------------------------------------------------
+
+(a) `na='drop'` DROPPED A CELL FOR HAVING AN UNMEASURABLE CHILD, NOT FOR
+HAVING NO CHILD. `merge_tables._apply_na_policy` dropped on every column with
+an underscore in its name -- i.e. every measurement a child contributed.
+
+Measured on three cells: one with a pathogen and a good correlation, one WITH
+A PATHOGEN whose correlation came back NaN, and one with no pathogen at all.
+
+    before:  survivors [1]        after:  survivors [1, 2]
+
+The middle cell has a pathogen. Its area and count are real numbers. It was
+removed from the denominator because one correlation could not be computed --
+and a correlation is NaN whenever a channel is flat inside the object, which
+is common and says nothing about whether the object exists.
+
+The roll-up `<table>_count` columns are NaN exactly when the child table
+contributed no row, so they are the correct and only subset to test. A merge
+with no roll-up at all is now returned whole rather than filtered on its
+measurements.
+
+(c) `_merge_grouped` JOINED INNER UNCONDITIONALLY. Its docstring said the
+join type was "deliberately left alone" because the decision had not been
+made. It has since -- `object_roles.join_how` records it and
+`_read_and_join_tables` already read it -- so the two readers of the same
+tables disagreed about which objects exist.
+
+    nucleus     INNER   a cell with no nucleus is debris
+    png_list    INNER   a cell with no crop cannot be classified
+    cytoplasm   LEFT    one row per cell; it makes no difference
+    pathogen    LEFT    an UNINFECTED cell is usually the control
+    organelle   LEFT    same reasoning
+
+Inner for pathogen was the consequential one: it silently conditioned every
+result on infection, deleting the control population from the denominator
+without a word. `keep_uninfected=False` restores the old behaviour
+deliberately. A `right_name` the registry does not know -- the metadata and
+stamp merges go through the same helper -- keeps the historical inner join
+rather than being guessed at.
+
+(d) `remove_outliers` TRIMMED BEFORE THE STATISTICS. `spacrGraph.create_plot`
+called `remove_outliers_from_plot` before the normality test, the comparison
+and the post-hoc, all of which then read the trimmed frame.
+
+Trimming 1.5*IQR PER GROUP removes exactly the points that make two groups
+overlap. It shrinks each group's standard deviation, so the t-statistic grows
+for a difference in means that has not changed: a caller asking not to have
+one point stretch the y-axis was silently also asking for a smaller p-value.
+Measured in the test, so the fix is not taken on faith.
+
+The statistics now run on every point and only the drawing is trimmed. The
+results table carries `outliers_removed_from_plot_only` and the console says
+how many points are hidden and that the statistics used all of them, because
+a reader looking at a trimmed plot beside a p-value has to know which used
+what.
+
+TWO CRASHES FOUND WHILE REGRESSION-TESTING, both in instruction 80's new
+code and both from real callers rather than from reading:
+
+  * `analyze_replication` passes frames that already carry `prc` as a plain
+    column, and `unstack` puts the bin values in the columns -- so
+    `reset_index` raised "cannot insert prc, already exists". The clash is
+    removed before it can happen.
+  * `analyze_replication` also GROUPS BY `prc`, which is the well. Every
+    group then holds exactly one unit and there is nothing to test across;
+    the row now says "not applicable: the groups ARE the prcs" rather than
+    computing a p-value from one number per group.
+
+ONE CONSEQUENCE OF INSTRUCTION 79 REPAIRED: `anndata_export`'s documented
+`drop_redundant_identity=False` had become a no-op, because the reader
+collapsed agreeing duplicate identity columns before this module ever saw
+them. `_read_and_join_tables` takes `collapse_duplicate_identity` and
+anndata_export passes its own option through, so the documented choice is
+the one that happens. Verified by AST that the name is in scope at every
+call site.
