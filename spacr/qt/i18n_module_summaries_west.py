@@ -26,7 +26,6 @@ _BUILTIN_APP_KEYS = (
     "batch",
     "distributed_jobs",
     "db_browser",
-    "make_masks",
     "train_cellpose",
     "cellpose_masks",
     "model_compare",
@@ -68,7 +67,6 @@ MODULE_SUMMARIES_WEST: dict[str, dict[str, str]] = {
         "batch": "Köa valfria moduler, plattor och inställningar och kör dem över natten",
         "distributed_jobs": "Skicka och övervaka spaCR-körningar på SSH-arbetsstationer, Slurm eller moln-/HPC-system",
         "db_browser": "Bläddra i och exportera measurements.db utan sqlite3 CLI",
-        "make_masks": "Finjustera Cellpose-modeller för ditt dataset",
         "train_cellpose": "Träna anpassade Cellpose-modeller",
         "cellpose_masks": "Generera masker med Cellpose",
         "model_compare": "Kör två Cellpose-modeller på samma synfält: jämför masker sida vid sida samt skillnader i objektantal och ARI",
@@ -104,7 +102,6 @@ MODULE_SUMMARIES_WEST: dict[str, dict[str, str]] = {
         "batch": "Beliebige Module, Platten und Einstellungen einreihen und über Nacht ausführen",
         "distributed_jobs": "spaCR-Läufe auf SSH-Arbeitsstationen, Slurm oder Cloud-/HPC-Systemen übermitteln und überwachen",
         "db_browser": "measurements.db ohne sqlite3 CLI durchsuchen und exportieren",
-        "make_masks": "Cellpose-Modelle für den eigenen Datensatz feinabstimmen",
         "train_cellpose": "Benutzerdefinierte Cellpose-Modelle trainieren",
         "cellpose_masks": "Masken mit Cellpose erzeugen",
         "model_compare": "Zwei Cellpose-Modelle auf denselben Bildfeldern ausführen: Masken nebeneinander sowie Differenzen bei Objektzahl und ARI vergleichen",
@@ -140,7 +137,6 @@ MODULE_SUMMARIES_WEST: dict[str, dict[str, str]] = {
         "batch": "Poner en cola cualquier combinación de módulos, placas y ajustes y ejecutarla durante la noche",
         "distributed_jobs": "Enviar y supervisar ejecuciones de spaCR en estaciones de trabajo SSH, Slurm o sistemas de nube/HPC",
         "db_browser": "Explorar y exportar measurements.db sin usar sqlite3 CLI",
-        "make_masks": "Ajustar con precisión modelos de Cellpose para su conjunto de datos",
         "train_cellpose": "Entrenar modelos personalizados de Cellpose",
         "cellpose_masks": "Generar máscaras con Cellpose",
         "model_compare": "Ejecutar dos modelos de Cellpose en los mismos campos: comparar las máscaras en paralelo y las diferencias de recuento de objetos y ARI",
@@ -165,11 +161,11 @@ def validate_module_summaries_west() -> None:
     """Raise :class:`AssertionError` if this parallel catalog is incomplete."""
     expected_languages = {"sv", "de", "es"}
     assert set(MODULE_SUMMARIES_WEST) == expected_languages
-    assert len(_BUILTIN_APP_KEYS) == len(set(_BUILTIN_APP_KEYS)) == 34
+    assert len(_BUILTIN_APP_KEYS) == len(set(_BUILTIN_APP_KEYS)) == 33
 
     expected_keys = set(_BUILTIN_APP_KEYS)
     for language_code, summaries in MODULE_SUMMARIES_WEST.items():
-        assert len(summaries) == 34, language_code
+        assert len(summaries) == 33, language_code
         assert set(summaries) == expected_keys, language_code
         assert all(isinstance(text, str) and text.strip() for text in summaries.values())
         assert all("http://" not in text and "https://" not in text for text in summaries.values())

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 import importlib.util
@@ -29,6 +30,29 @@ def _release_module():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def _installer_i18n_module():
+    spec = importlib.util.spec_from_file_location(
+        "spacr_installer_i18n", ROOT / "packaging" / "i18n" / "render.py"
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _standalone_unix_installer(tmp_path, version="9.9.9"):
+    renderer = _installer_i18n_module()
+    generated = tmp_path / "generated"
+    generated.mkdir()
+    (generated / "installer_messages.sh").write_text(
+        renderer.render_shell(renderer.catalogs()), encoding="utf-8"
+    )
+    renderer.OUTPUT_DIR = generated
+    installer = tmp_path / "SpaCR-Linux-x86_64-Online.run"
+    renderer.embed_unix(UNIX, installer, version)
+    return installer
 
 
 def _text(path: Path) -> str:
@@ -178,6 +202,8 @@ def test_windows_installer_is_per_user_and_registers_uninstall():
 def test_installer_locales_cover_every_supported_ui_language():
     from spacr.qt.i18n import LANGUAGES
 
+    renderer = _installer_i18n_module()
+    values = renderer.catalogs()
     locale_dir = ROOT / "packaging" / "i18n"
     expected_languages = {language.code for language in LANGUAGES}
     expected_keys = set(json.loads(_text(locale_dir / "en.json")))
@@ -188,22 +214,175 @@ def test_installer_locales_cover_every_supported_ui_language():
         table = json.loads(_text(locale_dir / f"{language}.json"))
         assert set(table) == expected_keys
         assert all(str(value).strip() for value in table.values())
-    generated = ONLINE / "generated"
-    assert "spacr_install_language" in _text(
-        generated / "installer_messages.sh"
-    )
-    assert "defaults read -g AppleLocale" in _text(
-        generated / "installer_messages.sh"
-    )
-    assert "CurrentUICulture" in _text(
-        generated / "installer_messages.ps1"
-    )
-    nsis_messages = _text(generated / "installer_messages.nsh")
+    shell_messages = renderer.render_shell(values)
+    assert "spacr_install_language" in shell_messages
+    assert "defaults read -g AppleLocale" in shell_messages
+    assert "CurrentUICulture" in renderer.render_powershell(values)
+    nsis_messages = renderer.render_nsis(values)
     for name in (
         "English", "Swedish", "German", "Spanish", "SimpChinese",
         "Portuguese", "Hindi", "Korean", "Icelandic", "French",
     ):
         assert f'MUI_LANGUAGE "{name}"' in nsis_messages
+
+
+def test_installer_renderer_outputs_are_deterministic():
+    renderer = _installer_i18n_module()
+    values = renderer.catalogs()
+    first = (
+        renderer.render_shell(values),
+        renderer.render_powershell(values),
+        renderer.render_nsis(values),
+    )
+    second = (
+        renderer.render_shell(values),
+        renderer.render_powershell(values),
+        renderer.render_nsis(values),
+    )
+
+    assert tuple(values) == renderer.LANGUAGES
+    assert first == second
+
+
+@pytest.mark.parametrize(
+    ("delimiter", "quoted"),
+    (
+        ("'", "'left''right'"),
+        ("\u2018", "'left‘‘right'"),
+        ("\u2019", "'left’’right'"),
+        ("\u201b", "'left‛‛right'"),
+    ),
+)
+def test_powershell_quote_doubles_every_single_quote_delimiter(
+    delimiter, quoted
+):
+    renderer = _installer_i18n_module()
+    original = f"left{delimiter}right"
+
+    assert renderer._ps_quote(original) == quoted
+    assert quoted[1:-1].replace(delimiter * 2, delimiter) == original
+
+
+def test_embedded_unix_catalog_preserves_markers_and_is_idempotent(
+    tmp_path, monkeypatch
+):
+    renderer = _installer_i18n_module()
+    source = tmp_path / "installer.sh"
+    once = tmp_path / "installer-once.sh"
+    twice = tmp_path / "installer-twice.sh"
+    begin = "# @SPACR_INSTALLER_MESSAGES_BEGIN@"
+    end = "# @SPACR_INSTALLER_MESSAGES_END@"
+    source.write_text(
+        f"#!/bin/sh\n{begin}\nsource generated/messages.sh\n{end}\n"
+        'VERSION="@SPACR_VERSION@"\n',
+        encoding="utf-8",
+    )
+    generated = tmp_path / "generated"
+    generated.mkdir()
+    (generated / "installer_messages.sh").write_text(
+        renderer.render_shell(renderer.catalogs()), encoding="utf-8"
+    )
+    monkeypatch.setattr(renderer, "OUTPUT_DIR", generated)
+
+    renderer.embed_unix(source, once, "7.8.9")
+    renderer.embed_unix(once, twice, "7.8.9")
+
+    rendered = _text(once)
+    assert rendered == _text(twice)
+    assert rendered.count(begin) == rendered.count(end) == 1
+    assert "source generated/messages.sh" not in rendered
+    assert "spacr_install_language()" in rendered
+    assert 'VERSION="7.8.9"' in rendered
+
+
+@pytest.mark.parametrize(
+    "language", ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
+)
+def test_unix_dry_run_detects_every_installer_language(
+    language, tmp_path
+):
+    renderer = _installer_i18n_module()
+    catalog = renderer.catalogs()[language]
+    installer = _standalone_unix_installer(tmp_path)
+    env = os.environ.copy()
+    env.update(
+        SPACR_INSTALL_LANGUAGE=language,
+        LC_ALL="C",
+        LANG="C",
+    )
+    result = subprocess.run(
+        [
+            "bash",
+            str(installer),
+            "--platform",
+            "linux",
+            "--dry-run",
+            "--skip-system-deps",
+            "--no-launch",
+            "--install-root",
+            str(tmp_path / language / "spacr"),
+            "--package-spec",
+            "spacr[qt]==9.9.9",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+
+    assert catalog["installer_title"] in result.stdout
+    assert catalog["application"] in result.stdout
+    assert catalog["dry_download"].replace(
+        "%s", "https://astral.sh/uv/0.11.32/install.sh"
+    ) in result.stdout
+    assert not (tmp_path / language).exists()
+
+
+@pytest.mark.parametrize(
+    "language", ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
+)
+def test_powershell_and_nsis_dry_run_language_paths_keep_exact_catalogs(
+    language,
+):
+    renderer = _installer_i18n_module()
+    values = renderer.catalogs()
+    powershell = renderer.render_powershell(values)
+    nsis_messages = renderer.render_nsis(values)
+    nsis_installer = _text(NSIS)
+
+    # PowerShell's dry-run bootstrap reads this exact per-language table.
+    ps_start = powershell.index(f"  '{language}' = @{{")
+    ps_end = powershell.index("  }", ps_start)
+    ps_catalog = powershell[ps_start:ps_end]
+    for key, value in values[language].items():
+        expected = (
+            f"    {renderer._ps_quote(key)} = "
+            f"{renderer._ps_quote(renderer._ps_format(value))}"
+        )
+        assert expected in ps_catalog
+
+    nsis_name = renderer.NSIS_LANGUAGE[language]
+    assert f'!insertmacro MUI_LANGUAGE "{nsis_name}"' in nsis_messages
+    for key in (
+        "nsis_launch", "nsis_gpu", "nsis_application",
+        "nsis_downloading", "nsis_failed", "nsis_uninstall",
+    ):
+        expected = (
+            f"LangString SPACR_{key.upper()} ${{LANG_{nsis_name.upper()}}} "
+            f'"{renderer._nsis_escape(values[language][key])}"'
+        )
+        assert expected in nsis_messages
+
+    if language == "en":
+        assert 'StrCpy $3 "en"' in nsis_installer
+    else:
+        selector = re.compile(
+            rf"\$LANGUAGE == \$\{{LANG_{nsis_name.upper()}\}}.*?"
+            rf'StrCpy \$3 "{re.escape(language)}"',
+            re.DOTALL,
+        )
+        assert selector.search(nsis_installer)
+    assert '-Language "$3"' in nsis_installer
 
 
 def test_installer_catalogs_use_reviewed_software_and_screening_terms():
@@ -267,11 +446,12 @@ def test_macos_builder_creates_application_and_pkg_with_uninstall_helper():
 
 
 def test_unix_bootstrap_parses_and_dry_run_never_downloads(tmp_path):
-    subprocess.run(["bash", "-n", str(UNIX)], check=True)
+    installer = _standalone_unix_installer(tmp_path)
+    subprocess.run(["bash", "-n", str(installer)], check=True)
     result = subprocess.run(
         [
             "bash",
-            str(UNIX),
+            str(installer),
             "--platform",
             "linux",
             "--dry-run",
@@ -303,6 +483,22 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert "actions/upload-artifact@v7" in workflow
     assert "actions/download-artifact@v8" in workflow
     assert "python packaging/release.py collect" in workflow
+    assert "--localized-readme-dir docs/i18n/readme" in workflow
+    assert "README.{sv,de,es,zh_CN,pt,hi,ko,is,fr}.rst" in workflow
+    assert "for language in en sv de es zh_CN pt hi ko is fr" in workflow
+    assert (
+        '$Languages = @("en", "sv", "de", "es", "zh_CN", "pt", '
+        '"hi", "ko", "is", "fr")'
+    ) in workflow
+    assert "Language.Parser]::ParseFile" in workflow
+    assert "generated\\installer_messages.ps1" in workflow
+    assert workflow.index("python .\\packaging\\i18n\\render.py") < (
+        workflow.index("Language.Parser]::ParseFile")
+    )
+    assert workflow.index("Language.Parser]::ParseFile") < workflow.index(
+        "$Languages = @"
+    )
+    assert "PowerShell dry run failed for $Language" in workflow
     assert "spacr/application" in workflow
     for platform in ("Linux", "Windows", "macOS"):
         assert f"Install and import the released {platform} application" in (
@@ -387,11 +583,30 @@ def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path)
     setup = tmp_path / "setup.py"
     setup.write_text(f'VERSION = "{version}"\n', encoding="utf-8")
     readme = tmp_path / "README.rst"
-    readme.write_text(
-        "Before\n\n.. spacr-installer-links-begin\nold\n"
-        ".. spacr-installer-links-end\n\nAfter\n",
-        encoding="utf-8",
-    )
+    old_version = "1.0.0"
+
+    def write_readme(path, translated_label):
+        links = [helper.README_BEGIN, ""]
+        for label, suffix in helper.PLATFORMS:
+            old_name = f"SpaCR-{old_version}-{suffix}"
+            old_url = (
+                f"{helper.RELEASE_DOWNLOAD_ROOT}/v{old_version}/{old_name}"
+            )
+            links.append(
+                f"* `{translated_label} {label}: SpaCR {old_version} "
+                f"localized-action <{old_url}>`_"
+            )
+        links.extend(["", helper.README_END])
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            "Before\n\n" + "\n".join(links) + "\n\nAfter\n",
+            encoding="utf-8",
+        )
+
+    write_readme(readme, "English download")
+    localized_dir = tmp_path / "docs" / "i18n" / "readme"
+    for code in helper.LOCALIZED_README_CODES:
+        write_readme(localized_dir / f"README.{code}.rst", f"translated-{code}")
     source = tmp_path / "artifacts"
     source.mkdir()
     names = [
@@ -413,19 +628,63 @@ def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path)
 
     assert {path.name for path in copied} == set(names)
     assert not old.exists()
-    links = readme.read_text(encoding="utf-8")
-    assert "old" not in links
+    all_readmes = [readme] + [
+        localized_dir / f"README.{code}.rst"
+        for code in helper.LOCALIZED_README_CODES
+    ]
+    assert len(all_readmes) == 10
+    for index, current_readme in enumerate(all_readmes):
+        links = current_readme.read_text(encoding="utf-8")
+        translated_label = (
+            "English download" if index == 0
+            else f"translated-{helper.LOCALIZED_README_CODES[index - 1]}"
+        )
+        assert translated_label in links
+        assert old_version not in links
+        for name in names:
+            assert name in links
+            assert (
+                f"https://github.com/EinarOlafsson/spacr/releases/download/"
+                f"v{version}/{name}"
+            ) in links
+        assert "/raw/nightly/" not in links
     for name in names:
-        assert name in links
-        assert (
-            f"https://github.com/EinarOlafsson/spacr/releases/download/"
-            f"v{version}/{name}"
-        ) in links
         assert (destination / name).is_file()
-    assert "/raw/nightly/" not in links
     manifest = (destination / "README.rst").read_text(encoding="utf-8")
     assert f"Current version: ``{version}``" in manifest
     assert manifest.count("SHA-256") == 4  # heading + one line per installer
+
+
+def test_release_helper_refuses_an_incomplete_localized_readme_set(tmp_path):
+    helper = _release_module()
+    version = "2.3.4"
+    setup = tmp_path / "setup.py"
+    setup.write_text(f'VERSION = "{version}"\n', encoding="utf-8")
+    readme = tmp_path / "README.rst"
+    original = (
+        "Before\n.. spacr-installer-links-begin\n"
+        ".. spacr-installer-links-end\nAfter\n"
+    )
+    readme.write_text(original, encoding="utf-8")
+    locale_dir = tmp_path / "docs" / "i18n" / "readme"
+    locale_dir.mkdir(parents=True)
+    for code in helper.LOCALIZED_README_CODES[:-1]:
+        (locale_dir / f"README.{code}.rst").write_text(
+            original, encoding="utf-8"
+        )
+    source = tmp_path / "artifacts"
+    source.mkdir()
+    for _label, suffix in helper.PLATFORMS:
+        (source / f"SpaCR-{version}-{suffix}").write_bytes(b"installer")
+    destination = tmp_path / "application"
+
+    with pytest.raises(FileNotFoundError, match="README.fr.rst"):
+        helper.collect_installers(
+            source, destination, readme, setup, branch="nightly"
+        )
+
+    assert _text(readme) == original
+    assert not destination.exists()
 
 
 def test_builders_read_version_without_importing_setup_py():

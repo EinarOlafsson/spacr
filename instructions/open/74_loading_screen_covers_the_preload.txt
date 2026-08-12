@@ -156,3 +156,64 @@ than taking them from the palette. The instruction asked for the green to go
 into the palette so it themes with everything else. It is deliberately one
 colour today -- the installer's -- but the palette route is the tidier home
 for it.
+
+--------------------------------------------------------------------------------
+2026-08-12 - THE TIME-TO-FIRST-PAINT MEASUREMENT, ON AN IDLE BOX. NO REGRESSION.
+--------------------------------------------------------------------------------
+
+The criterion this file could not decide is decided. Load average 0.37 on 32
+cores, against load 36 when the misleading 5850 ms was taken. Three runs,
+minimum reported:
+
+                          now      instruction 55 baseline
+    import spacr.qt.app   554 ms   501 ms
+    MainWindow()          704 ms   731 ms
+    show()                 20 ms    36 ms
+    processEvents()        28 ms      -
+    TOTAL                1305 ms  ~1268 ms
+
++37 ms, about 3%, which is inside the run-to-run spread (1305/1341/1503).
+TIME-TO-FIRST-PAINT DOES NOT REGRESS. The 5850 ms figure was load
+contention exactly as this file predicted, and the warning not to "fix" it
+was correct.
+
+CAVEAT, stated rather than buried: this run is QT_QPA_PLATFORM=offscreen,
+because the box has no display and no xvfb. The two phases that dominate --
+importing the module and building MainWindow -- are platform-independent, and
+`show()` is the only one that plausibly differs; it came in SMALLER offscreen
+(20 vs 36 ms), so a windowed run would land a few ms higher, not lower. The
+conclusion holds with room to spare.
+
+--------------------------------------------------------------------------------
+2026-08-12 - THE COLOURS ARE IN THE PALETTE. INSTRUCTION 74 IS DONE.
+--------------------------------------------------------------------------------
+
+The last remaining item. Five roles added to `theme.CONSTANT_ROLES`:
+
+    splash_bg        #003737                    the installer green
+    splash_ink       #FFFFFF                    the strap line
+    splash_ink_dim   rgba(255, 255, 255, 110)   phases not yet reached
+    splash_track     rgba(255, 255, 255, 45)    the hairline's groove
+    splash_fill      rgba(255, 255, 255, 200)   the hairline's fill
+
+CONSTANT rather than per-theme, and that is the point: the splash must be
+the same colour as the icon the user double-clicked, so following the in-app
+theme is exactly what would break it. A test asserts each role is identical
+across all five themes, so "theming" it later fails loudly.
+
+`paintEvent` no longer contains a literal colour. `INSTALLER_GREEN` is kept
+as the module's alias so existing importers keep working, and now reads the
+role.
+
+EVERY LOOKUP CARRIES THE LITERAL IT REPLACED. The splash is the first thing
+painted, sometimes before the theme is resolved and always before anything
+else could report a problem, so a palette lookup that raised would replace
+the loading screen with a traceback. Tested: an exploding `palette_for`, an
+empty palette, and three unparseable colour spellings all fall back to the
+green.
+
+Measured identical to what it replaced: bg #003737, track (255,255,255,45),
+fill (255,255,255,200), ink lit (255,255,255,255), unlit (255,255,255,90).
+The change is invisible on screen, which is the whole requirement.
+
+STATUS: DONE.
