@@ -4116,6 +4116,11 @@ def generate_ml_scores(settings):
     from .training_basis import resolve_basis
     _basis = resolve_basis(settings)
 
+    #: The column the annotation path trains against. None on the metadata
+    #: path, where the caller's own `location_column` is the answer. Declared
+    #: here so every branch below has it defined.
+    _label_column = None
+
     if _basis == 'measurement':
         settings = _labels_from_measurements(df, settings)
         _basis = 'annotation'      # the rules wrote a column; read it back
@@ -4127,7 +4132,20 @@ def generate_ml_scores(settings):
                 "column of png_list. Nothing else in these settings says "
                 "which labels to train on.")
 
-        settings['location_column'] = settings['annotation_column']
+        # DERIVED, NOT WRITTEN BACK. This used to be
+        #     settings['location_column'] = settings['annotation_column']
+        # and that assignment mutated the CALLER'S settings dict -- a
+        # user-facing value, shown in the panel and saved with the project.
+        #
+        # The mutation outlived the run. A user who tried annotation mode
+        # once and then switched dataset_mode back to 'metadata' still had
+        # `location_column` naming their annotation column, which is not in
+        # the measurement frame, so the next run died at `df[[location_
+        # column]]` with a pandas KeyError that pointed nowhere near the
+        # cause. They could not get out by changing the mode; they had to
+        # know an invisible write had happened and undo it by hand.
+        # (Issues #91, #92, #93 -- one defect, walked through in sequence.)
+        _label_column = settings['annotation_column']
 
         # Repair-on-read, the same contract utils.rename_columns_in_db has:
         # a database written before the prediction columns were namespaced
@@ -4191,7 +4209,8 @@ def generate_ml_scores(settings):
     from .batch_correction import correction_kwargs
     batch_kwargs = correction_kwargs(
         settings,
-        default_control_column=settings.get('location_column'),
+        default_control_column=(_label_column
+                                or settings.get('location_column')),
         default_control_values=settings.get('negative_control'),
     )
     # Added here rather than in `correction_kwargs` — see the note at its
@@ -4201,9 +4220,13 @@ def generate_ml_scores(settings):
         'batch_covariate_column')
     batch_kwargs['batch_combat_mean_only'] = bool(
         settings.get('batch_combat_mean_only', False))
+    # `_label_column` is set only on the annotation path and is what that
+    # path trains against; metadata runs use the caller's own setting. Either
+    # way `settings['location_column']` is left exactly as the user wrote it.
+    _training_column = _label_column or settings['location_column']
     output, figs = ml_analysis(df,
                                settings['channel_of_interest'],
-                               settings['location_column'],
+                               _training_column,
                                settings['positive_control'],
                                settings['negative_control'],
                                settings['exclude'],
@@ -4282,6 +4305,53 @@ def generate_ml_scores(settings):
                              table=settings['table_name'])
 
     return [output, plate_heatmap]
+
+def _resolve_controls(df, location_column, negative_control,
+                      positive_control, matches):
+    """The control values to match, and whether they had to be derived.
+
+    :param matches: ``(series, control) -> boolean mask``. Passed in rather
+        than imported because the matcher is defined inside `ml_analysis`;
+        taking it as an argument keeps this function module-level and
+        testable on its own.
+    :returns: ``(negative, positive, derived)``. ``derived`` is True when the
+        named controls matched nothing and the column's own two classes were
+        used instead.
+
+    THE CASE THIS EXISTS FOR: annotation mode points `location_column` at the
+    annotation column, whose values are class labels, while the control
+    settings still hold plate column names from the metadata path. Neither
+    matches, and the user is told to "set positive_control and
+    negative_control to values that appear there" -- for a column that
+    already says, unambiguously, what its two classes are.
+
+    Nothing is derived when the named controls DO match: an explicit choice
+    is always honoured, including a deliberate two-of-five subset.
+    """
+    if location_column not in df.columns:
+        return negative_control, positive_control, False
+    column = df[location_column]
+    if isinstance(column, pd.DataFrame):
+        return negative_control, positive_control, False
+
+    named_found = (matches(column, negative_control).any()
+                   and matches(column, positive_control).any())
+    if named_found:
+        return negative_control, positive_control, False
+
+    present = sorted(v for v in column.dropna().unique())
+    if len(present) != 2:
+        # Three or more classes, or one: the user has to say which two, and
+        # the refusal below will list what is there.
+        return negative_control, positive_control, False
+
+    low, high = present
+    print(f"{location_column!r} holds exactly two classes, {low!r} and "
+          f"{high!r}, and neither {negative_control!r} nor "
+          f"{positive_control!r} appears in it. Training on the column's own "
+          f"classes: negative={low!r}, positive={high!r}.")
+    return low, high, True
+
 
 def ml_analysis(
     df,
@@ -4443,6 +4513,32 @@ def ml_analysis(
         df = df.drop(columns=['cells_per_well'])
 
     correction_metadata = df.copy()
+    # THE POISONED-SETTINGS SIGNATURE, NAMED RATHER THAN RAISED THROUGH.
+    # `df[[name]]` on a missing column raises a pandas KeyError from three
+    # frames down that says only "None of [Index([...])] are in the
+    # [columns]" -- issue #93. It points at the column and not at the reason
+    # the column is being asked for, which was an annotation-mode run that
+    # overwrote `location_column` and left it overwritten.
+    if location_column not in df.columns:
+        available = ", ".join(repr(c) for c in list(df.columns)[:12])
+        if len(df.columns) > 12:
+            available += f", ... ({len(df.columns)} columns)"
+        # The hint is unconditional because the cause is: any missing
+        # location_column reaching here is either a typo or the overwrite,
+        # and naming the overwrite costs a sentence while a user who cannot
+        # find it loses an afternoon. Phrased as a possibility, not a
+        # diagnosis, because a typo deserves the column list either way.
+        raise ValueError(
+            f"location_column={location_column!r} is not a column of the "
+            f"measurement table, so there is nothing to group the controls "
+            f"by.\n  The table has: {available}"
+            f"\n  If you have run this module in annotation mode, that is "
+            f"the likely cause: versions before 1.5.0.5 wrote "
+            f"annotation_column into location_column and never put it back, "
+            f"so a later metadata run looked for an annotation column in the "
+            f"measurement table. Set location_column back to your well "
+            f"column ('columnID' or 'rowID').")
+
     df_metadata = df[[location_column]].copy()
 
     df, features = filter_dataframe_features(df, channel_of_interest, exclude, remove_low_variance_features, remove_highly_correlated_features, verbose)
@@ -4509,6 +4605,21 @@ def ml_analysis(
     #if verbose:
     #    print(f'Positive control: {positive_control}, samples: {len(df2)}')
         
+    # THE CONTROLS MUST BE VALUES OF THE COLUMN BEING MATCHED. In annotation
+    # mode `location_column` is the ANNOTATION column, whose values are the
+    # class labels -- 1.0 and 2.0, say -- while positive_control and
+    # negative_control default to plate column names like 'c1' and 'c2'.
+    # Applying one to the other finds nothing, which is issues #91 and #92.
+    #
+    # When the named controls appear nowhere in the column but it holds
+    # exactly TWO classes, those two ARE the classes: the lower value is the
+    # negative and the higher the positive. That is the ordinary annotation
+    # case and it should not require the user to restate what the column
+    # already says.
+    negative_control, positive_control, _derived_classes = _resolve_controls(
+        df, location_column, negative_control, positive_control,
+        _match_control_values)
+
     df1 = df[_match_control_values(df[location_column], negative_control)].copy()
     if verbose:
         print(f'Negative control: {negative_control}, samples: {len(df1)}')
