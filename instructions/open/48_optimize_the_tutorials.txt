@@ -1997,3 +1997,18 @@ timings, pass the strict release verifiers and listening checks, upload exact
 artifacts to Hugging Face, publish the derived GitHub Pages bundle, and verify
 smooth playback, pause/end/replay, pronunciation, and captions in a phone-sized
 browser against the live URLs.
+
+--------------------------------------------------------------------------------
+2026-08-12 - OWNED BY A CONCURRENT CODEX SESSION. DO NOT EDIT.
+--------------------------------------------------------------------------------
+
+The maintainer has assigned the tutorials to a separate codex session:
+"the tutorials are handled by codex so dont touch them."
+
+This file and everything under docs/source/_extra/tutorials/ are therefore
+OFF LIMITS to any other session, including for incidental fixes. Two sessions
+editing the same media tree and the same narration scripts would produce
+conflicts in files that are large, binary and expensive to re-render.
+
+If a defect in the tutorials is found while working on something else, record
+it HERE as a note and leave it. Do not fix it.
