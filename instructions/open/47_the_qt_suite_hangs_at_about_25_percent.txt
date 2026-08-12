@@ -611,3 +611,110 @@ files between the worktree and HEAD, which is what confirmed it here.
 REMAINING 15, none attributable to this session's work: the 7 ordering ones
 above, the `classes` migration (now folded into instruction 37), and the rest
 listed in `instructions/data/47_qt_failure_triage.json`.
+
+--------------------------------------------------------------------------------
+2026-08-12 - THE FIRST RUN AGAINST A REAL X SERVER, AND A FOURTH MODAL HANG
+--------------------------------------------------------------------------------
+
+xvfb is installed now, so this suite can be run against a real display for
+the first time. THE OBVIOUS COMMAND DOES NOT DO IT:
+
+    xvfb-run -a pytest tests/qt            # still offscreen
+
+`tests/qt/conftest.py` does `os.environ.setdefault("QT_QPA_PLATFORM",
+"offscreen")`, so an Xvfb display is started and then ignored. The platform
+has to be asked for:
+
+    QT_QPA_PLATFORM=xcb xvfb-run -a pytest tests/qt -q -p no:randomly \
+        -n 4 --timeout=120 --timeout-method=thread
+
+Both full runs, same machine (load ~17-24 from three concurrent sessions):
+
+    BEFORE   68 failed, 8028 passed, 2 errors, 52m19s, TWELVE workers killed
+    AFTER    51 failed, 8136 passed, 1 error, 48m09s, FOUR workers killed
+
+THE HANGING FILE IS tests/qt/test_make_masks_canvas.py -- six tests, and the
+cause is one line of product code doing exactly what it should:
+
+    make_masks.py:750   _warn()  ->  QMessageBox.warning(self, title, text)
+
+`_warn` opens a modal only when `is_headless()` says a display is attached.
+Under `xcb` a display IS attached, so the branch is correct and the box
+opens -- and an Xvfb screen has no more of a human in front of it than an
+offscreen one, so it never closes. Killed with `--timeout=120
+--timeout-method=thread`, which named it in one 2-minute run:
+
+    test_warn_falls_back_to_status_line_when_headless
+      -> make_masks.py:750 _warn -> QMessageBox.warning
+
+THE GUARD HAD A HOLE, one level down from the 2026-08-08 one. That entry
+found that QMessageBox OVERRIDES `QDialog.exec`, and patched both. But the
+STATIC convenience calls -- `QMessageBox.warning/question/information/
+critical/about`, `QFileDialog.getExistingDirectory/getOpenFileName/...`,
+`QInputDialog.getText/getInt/...`, `QColorDialog.getColor`,
+`QFontDialog.getFont` -- build the dialog and run its event loop entirely
+inside C++. A Python-level `exec` override is never consulted, so every one
+of them sails past the guard exactly as `box.exec()` used to.
+
+`_no_unguarded_modals` now replaces those statics as well. With the guard
+extended and NOTHING else changed, the same file went from six hangs that
+killed their worker to seven fast failures in 9.07 s -- which is the whole
+argument for the fixture, and how all six offenders were enumerated in one
+run instead of one per multi-hour run.
+
+SEVENTEEN test files carry a private copy of that same list as a per-file
+`no_modals` fixture. `test_make_masks_canvas` -- the file that actually hung
+-- is not one of them. The files that remember to write the guard are not
+the files that need it.
+
+THE TESTS WERE FIXED WHERE THEY WERE WRONG, not by loosening them. Two tests
+named `..._when_headless` and four more that assert the status-line fallback
+-- the six that hung -- were getting the headless branch by accident of the
+platform. They now take a `headless` fixture -- the mirror of the `fake_box` fixture that
+was already there for the other branch -- so a test about a branch chooses
+that branch. `test_message_box_would_block_headless` asserted
+`platformName() == "offscreen"`, an environment fact that stopped being true;
+it is rewritten as
+`test_a_message_box_has_nobody_to_answer_it_in_this_suite` and now pins the
+two properties that survive a platform change: the product branches on the
+display it can detect, and no test in this suite is left holding an
+unanswerable modal.
+
+NEW: `tests/qt/test_modal_guard.py` asserts the guard's COVERAGE, one
+parametrised case per blocking call. A missing entry is otherwise invisible
+until it costs somebody a whole run. Each case checks a marker attribute
+before making any call, so a regression fails in milliseconds instead of
+reproducing the hang. Mutation-checked in both directions: with the static
+patching disabled, 18 of its 20 tests fail in 2.86 s.
+
+THE OTHER FOUR WORKER KILLS ARE NOT HANGS -- they are tests slower than the
+120 s timeout, and the reason is worth its own item:
+
+    spacr.run_journal.open_run() TAKES 80 SECONDS.
+
+Measured directly, twice, outside pytest: 78.67 s and 82.26 s per call.
+cProfile puts 178 of 178 s in `_capture_initial_provenance` ->
+`_iter_files`, which walks 836,511 paths and calls `Path.resolve()` on each
+one, then checks it against the exclude list with `any(root in
+resolved.parents ...)` -- an O(files x excludes) walk with a syscall-heavy
+`realpath` inside it (6.2 M `posix.lstat` calls). Three tests pay it three
+times over:
+
+    test_batch_c_home_redesign  TestInsightsDashboard::...populated_journal
+                                223.65 s IN SETUP (_populated_journal opens 3)
+    test_batch_c_home_redesign  TestJournalTotals::test_counts_by_app_key
+                                 79.09 s
+    test_onboarding             ...shows_recent_runs_when_history_present
+                                 78.00 s
+
+That is a PRODUCT cost, not a test cost: every real spaCR run pays 80 s of
+provenance capture before it starts, and it grows with the repository --
+which now carries the tutorial media of instruction 48. Left unfixed here
+because `spacr/run_journal.py` is another session's file today.
+
+STILL UNEXPLAINED, two worker kills that are not slow tests and not modals:
+`test_scrim_solver::TestMakeTransparent::test_tagged_widgets_paint_nothing_
+in_the_opaque_themes` (its whole file runs in 8.35 s alone) and
+`test_space_theme::TestRuntimeSwitch::test_switching_theme_restyles_without_
+leaking_or_raising`. Both smell like the segfault flake already recorded
+above ("constructing AppScreen leaves a QThread alive"), not like a hang.
