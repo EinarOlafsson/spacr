@@ -986,3 +986,96 @@ def test_mark_crop_output_folder_inherits_from_the_source(tmp_path):
     mark_crop_output_folder(str(dst2), source_folder=str(src))
     assert crops.read_crop_folder_marker(str(dst2))["spacr_crop_format"] == \
         crops.CROP_FORMAT_DECLARED_RGB
+
+
+# ---------------------------------------------------------------------------
+# The two vocabularies for the same idea (instruction 37)
+# ---------------------------------------------------------------------------
+# `spacr.settings` writes the user-facing words -- 'pre_generated' for the
+# PNGs already on disk, 'on_demand' to cut them now from the merged stacks.
+# `crops.resolve_crop_source` speaks in terms of the source it builds: 'png'
+# or 'merged'. NOTHING TRANSLATED BETWEEN THEM.
+#
+# So `crop_source='on_demand'`, which the Classify screen validates and
+# accepts, reached `resolve_crop_source`, raised CropError, and the error was
+# swallowed -- printed only under `verbose`, which every shipped caller
+# leaves False. `open_crop_source` returned None and the run fell back to the
+# pre-cut PNGs. The user asked for on-demand crops and got a classifier
+# trained on different data, with nothing in the log to say so.
+
+import pytest
+
+from spacr.io import CROP_SOURCE_ALIASES, _canonical_crop_source, open_crop_source
+
+
+@pytest.mark.parametrize("spoken,understood", [
+    ("pre_generated", "png"),
+    ("generate", "png"),
+    ("on_demand", "merged"),
+    ("png", "png"),
+    ("merged", "merged"),
+    ("auto", "auto"),
+])
+def test_the_settings_vocabulary_translates(spoken, understood):
+    assert _canonical_crop_source(spoken) == understood
+
+
+def test_an_unset_source_is_auto():
+    assert _canonical_crop_source(None) == "auto"
+    assert _canonical_crop_source("") == "auto"
+
+
+def test_an_unknown_word_is_passed_through_not_coerced():
+    """Quietly substituting a default is how the original defect behaved.
+
+    Passing it through means `resolve_crop_source` raises and NAMES it, which
+    is what a typo deserves.
+    """
+    assert _canonical_crop_source("nonsense") == "nonsense"
+
+
+def test_every_alias_resolves_to_something_the_resolver_accepts():
+    from spacr import crops
+    import inspect
+
+    source = inspect.getsource(crops.resolve_crop_source)
+    for understood in set(CROP_SOURCE_ALIASES.values()):
+        assert f"'{understood}'" in source, understood
+
+
+def test_on_demand_reaches_the_merged_stacks(project):
+    """The end-to-end claim: on_demand must NOT return the PNG source."""
+    from spacr import crops
+
+    source = open_crop_source({"src": project, "crop_source": "on_demand"},
+                              verbose=False)
+    assert source is not None, (
+        "on_demand still resolves to nothing; it will fall back to PNGs")
+    assert not isinstance(source, crops.PngCropSource), (
+        "on_demand resolved to the pre-generated PNG source, which is the "
+        "silent substitution this fixes")
+
+
+def test_pre_generated_still_reaches_the_pngs(project):
+    from spacr import crops
+
+    source = open_crop_source({"src": project,
+                               "crop_source": "pre_generated"}, verbose=False)
+    assert isinstance(source, crops.PngCropSource)
+
+
+def test_the_two_words_resolve_to_different_sources(project):
+    """If they came back the same, the setting would be decorative."""
+    on_demand = open_crop_source({"src": project,
+                                  "crop_source": "on_demand"}, verbose=False)
+    pre_gen = open_crop_source({"src": project,
+                                "crop_source": "pre_generated"}, verbose=False)
+    assert type(on_demand) is not type(pre_gen)
+
+
+def test_an_unusable_crop_source_says_so_without_verbose(project, capsys):
+    """It printed only under verbose, and every shipped caller passes False."""
+    open_crop_source({"src": project, "crop_source": "nonsense"},
+                     verbose=False)
+    printed = capsys.readouterr().out
+    assert "nonsense" in printed

@@ -4268,6 +4268,38 @@ def _crop_shape_overrides(settings):
     return out
 
 
+#: The two vocabularies for the same idea, and the map between them.
+#:
+#: `spacr.settings` writes the USER-FACING words -- 'pre_generated' means the
+#: PNGs already cut to disk, 'on_demand' means cut them now from the merged
+#: stacks. `crops.resolve_crop_source` speaks in terms of the SOURCE it will
+#: build: 'png' or 'merged'. Nothing translated between them, so
+#: `crop_source='on_demand'` -- which the Classify screen validates and
+#: accepts -- reached `resolve_crop_source`, raised CropError, was swallowed,
+#: and the run trained on pre-cut PNGs instead. The user's explicit choice
+#: was ignored in silence.
+CROP_SOURCE_ALIASES = {
+    'pre_generated': 'png',
+    'generate': 'png',
+    'png': 'png',
+    'on_demand': 'merged',
+    'merged': 'merged',
+    'auto': 'auto',
+}
+
+
+def _canonical_crop_source(choice):
+    """The word `crops.resolve_crop_source` understands.
+
+    An unrecognised value is passed through UNCHANGED rather than coerced to
+    'auto', so `resolve_crop_source` raises on it and names it. Quietly
+    substituting a default is how the original defect behaved.
+    """
+    if not choice:
+        return 'auto'
+    return CROP_SOURCE_ALIASES.get(str(choice).strip().lower(), str(choice))
+
+
 def open_crop_source(settings, src=None, object_type=None, verbose=True):
     """Return the :class:`spacr.crops.CropSource` a run should read crops from.
 
@@ -4296,7 +4328,7 @@ def open_crop_source(settings, src=None, object_type=None, verbose=True):
 
     if isinstance(settings, dict):
         request = _crop_shape_overrides(settings)
-        choice = settings.get('crop_source') or 'auto'
+        choice = _canonical_crop_source(settings.get('crop_source'))
         if src is None:
             src = settings.get('src')
     else:
@@ -4313,8 +4345,13 @@ def open_crop_source(settings, src=None, object_type=None, verbose=True):
     try:
         source = crops.resolve_crop_source(request, object_type=object_type)
     except crops.CropError as exc:
-        if verbose:
-            print(f"crop_source={choice!r}: {exc}")
+        # LOUD, NOT SILENT. This printed only under `verbose`, and every
+        # shipped caller passes verbose=False, so an unusable crop_source
+        # returned None without a word -- and the caller then fell back to
+        # the pre-generated PNGs. A user who asked for on-demand crops got a
+        # classifier trained on different data than they requested, with
+        # nothing in the log to say so.
+        print(f"crop_source={choice!r}: {exc}")
         return None
     if verbose:
         print(f"Crop source: {source.describe()}")
