@@ -2307,11 +2307,50 @@ class AppScreen(QWidget):
         card.setVisible(on)
 
     def _on_preview_switch(self, on: bool) -> None:
-        """Show or hide this module's runtime preview card."""
+        """Show or hide this module's runtime preview card.
+
+        Opening it also seeds the panel from the form, once. Before that,
+        this screen wired only the push direction — ``set_propagate_callback``
+        — so all four previews ran at their own hardcoded defaults. A user
+        set ``cell_FT``, opened Live preview to check the segmentation, and
+        the preview segmented at 0.4 regardless: the preview is consulted to
+        make a decision, which is the worst place for it to disagree with
+        the run.
+
+        On FIRST show rather than at construction, mirroring what
+        ``_PreviewHost.prime`` documents for the previews attached through
+        :mod:`spacr.qt.preview_registry` — ``collect()`` is a pass over every
+        widget on the screen, and a preview nobody opens should cost nothing.
+        Once, not on every open, or re-opening the card would silently
+        discard whatever the user had just tuned inside it.
+        """
         attr = getattr(self, "_preview_card_attr", "")
         card = getattr(self, attr, None) if attr else None
-        if card is not None:
-            card.setVisible(on)
+        if card is None:
+            return
+        if on and not getattr(self, "_preview_primed", False):
+            self._preview_primed = True
+            self._prime_preview()
+        card.setVisible(on)
+
+    def _prime_preview(self) -> None:
+        """Push the current settings into this screen's preview panel.
+
+        Never raises: a preview that cannot be seeded is still worth showing,
+        and the alternative is a module whose Live switch takes the window
+        down.
+        """
+        attr = getattr(self, "_preview_card_attr", "")
+        panel = getattr(self, attr[:-len("_card")], None) if attr else None
+        model = getattr(self, "_settings_model", None)
+        apply_settings = getattr(panel, "apply_settings", None)
+        if model is None or not callable(apply_settings):
+            return
+        try:
+            apply_settings(model.collect())
+        except Exception:
+            LOG.debug("could not seed the %s preview", self.app_key,
+                      exc_info=True)
 
     def _on_hyperparam_switch(self, on: bool) -> None:
         """Show/hide the Hyperparameter search card when its toggle flips."""
