@@ -62,3 +62,73 @@ RELATED
 
 Instruction 74 owns the loading screen itself (it covers the preload). This
 is only its colour, and can land independently.
+
+--------------------------------------------------------------------------------
+2026-08-12 - DONE. THE SPLASH IS THE WINDOW'S OWN BACKGROUND.
+--------------------------------------------------------------------------------
+
+Landed together with the palette half of instruction 74, which is what made
+this a small change rather than a hunt through paint code.
+
+(1) THE COLOUR. `splash_bg` is no longer a hex at all: `palette_for` derives
+it from the theme's OWN window background, and `splash_ink` from its
+foreground.
+
+    theme    splash_bg    splash_ink
+    dark     #000000      #ffffff
+    light    #fafafa      #0d0e10
+    cell     #02080b      #ffffff
+    glass    #0b0d11      #fafafa
+
+Black on the dark theme, as asked. This is item 1 of this instruction taken
+literally -- "take the value from the Qt theme's existing surface tokens
+rather than inventing a new hex, so the splash and the first painted window
+agree". A test asserts `splash_bg == bg` and `splash_ink == fg` in every
+theme, so the handover cannot acquire a flash later.
+
+THE INK HAD TO FOLLOW. It was white. On the light theme's #fafafa surface a
+white strap line is invisible, so pinning the background to the theme while
+leaving the text fixed would have traded a colour cast for an unreadable
+screen.
+
+(2) THE NAME. `INSTALLER_GREEN` -> `SPLASH_BACKGROUND`. The old name is kept
+as a deprecated alias; a grep found no importer outside this module's own
+tests, so it costs nothing.
+
+(3) CONTRAST, CHECKED AND THEN FIXED. The lit strap line measures 21.0 : 1
+on dark and 18.5 : 1 at worst (light) -- better than the 15.3 : 1 it had on
+the teal.
+
+The UNREACHED phases were not fine, and this is the part worth recording. A
+fixed alpha is not a fixed contrast: dark ink fading toward a light surface
+loses contrast faster than white ink fading toward black gains it, so the
+same alpha 110 measured
+
+    dark   3.04 : 1     light   2.31 : 1
+
+-- one on each side of the 3.0 floor, on the one screen the user has nothing
+else to look at. The dim weight is now SOLVED rather than fixed, the way the
+scrim alphas already are in this module: the lowest alpha that still reaches
+3.0 : 1 over that theme's own background, searched upward from 110 so a
+pending phase still looks pending.
+
+    dark 110 -> 4.12    light 113 -> 3.02    cell 110 -> 4.20
+    glass 110 -> 4.10
+
+The solved colours are then FLATTENED AGAINST THE BACKGROUND and stored as
+opaque hex, because every palette value is #rrggbb and nothing else --
+`test_palette_values_are_hex` is that contract, and the first attempt here
+broke it in twelve tests by storing `rgba(...)` strings and one integer.
+Flattening is exact rather than an approximation: the splash background is
+the only surface these three are ever painted on. The widget draws opaque
+colours and does no alpha arithmetic at all.
+
+    theme    ink_dim   track     fill
+    dark     #6e6e6e   #2d2d2d   #c8c8c8
+    light    #919192   #d0d0d1   #404142
+    cell     #6f7374   #2f3436   #c8caca
+    glass    #727376   #35373a   #c6c7c8
+
+(4) THE INSTALLER ICON IS UNCHANGED, as this instruction directs.
+
+STATUS: DONE.
