@@ -1,0 +1,4 @@
+interface:
+  display_name: "Natural Voice Narration"
+  short_description: "Build and audit natural tutorial narration"
+  default_prompt: "Use $natural-voice-narration to plan, render, diagnose, and verify natural English tutorial narration."
