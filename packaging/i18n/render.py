@@ -82,7 +82,12 @@ def render_shell(values: dict[str, dict[str, str]]) -> str:
 
 
 def _ps_quote(value: str) -> str:
-    return "'" + value.replace("'", "''") + "'"
+    # PowerShell accepts the typographic single quotation marks below as
+    # string delimiters too.  Each delimiter must therefore be doubled inside
+    # a single-quoted literal, just like an ASCII apostrophe.
+    for delimiter in ("'", "\u2018", "\u2019", "\u201b"):
+        value = value.replace(delimiter, delimiter * 2)
+    return "'" + value + "'"
 
 
 def _ps_format(value: str) -> str:
@@ -164,7 +169,11 @@ def embed_unix(source: Path, output: Path, version: str) -> None:
     messages = (OUTPUT_DIR / "installer_messages.sh").read_text(
         encoding="utf-8"
     ).rstrip()
-    rendered = text[:start] + messages + text[finish:]
+    # Keep the sentinels in standalone installers.  Besides documenting where
+    # generated content begins, this makes embedding idempotent and lets tests
+    # prove that no source surrounding the catalog was lost.
+    embedded = f"{begin}\n{messages}\n{end}"
+    rendered = text[:start] + embedded + text[finish:]
     rendered = rendered.replace("@SPACR_VERSION@", version)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(rendered, encoding="utf-8")
