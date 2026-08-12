@@ -8053,11 +8053,17 @@ def automated_motility_assay(settings):
         # not run on any default configuration: not an error, not a warning,
         # just an analysis step that never happened.
         #
-        # The condition is now "is the configured column actually here",
-        # which keeps an explicit correct setting authoritative and makes
-        # the discovery reachable when the default does not match the frame.
+        # Discovery now runs when the column was NOT CHOSEN -- unset, or
+        # left at the shipped default -- and the name is not in the frame.
+        #
+        # Not simply "the column is absent": a user who NAMES a column that
+        # does not exist must be told so, not silently given a different one.
+        # That distinction is the whole reason the default cannot be treated
+        # as a choice; it is what the caller gets for expressing no opinion.
         xgb_proba_col = settings.get("infection_xgb_proba_column", None)
-        if xgb_proba_col not in all_df.columns:
+        _shipped_default = "infection_xgb_proba"
+        _chosen_by_user = xgb_proba_col not in (None, "", _shipped_default)
+        if not _chosen_by_user and xgb_proba_col not in all_df.columns:
             cand_cols = [
                 c
                 for c in all_df.columns
