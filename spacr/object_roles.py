@@ -26,7 +26,7 @@ it.
 """
 from __future__ import annotations
 
-from typing import Tuple
+from typing import Dict, Tuple
 
 #: Kinds that are SEGMENTED from an image channel -- each has its own mask,
 #: its own ``<role>_channel`` setting and its own detection parameters.
@@ -82,3 +82,57 @@ def ordered(*roles: str) -> Tuple[str, ...]:
             f"unknown object role(s) {unknown}; expected some ordering of "
             f"{list(ALL_ROLES)}")
     return tuple(roles)
+
+# ---------------------------------------------------------------------------
+# The anchor: one concept, two column names
+# ---------------------------------------------------------------------------
+
+#: EVERY OBJECT TABLE IS ANCHORED TO THE CELL, and the column carrying that
+#: anchor has two names depending on the table:
+#:
+#:     cell, cytoplasm                    'object_label'
+#:     nucleus, pathogen, organelle,
+#:     png_list                           'cell_id'
+#:
+#: cell and cytoplasm are ONE ROW PER CELL -- a cytoplasm is the cell minus
+#: its interior objects, so its own label IS the cell's. The rest are MANY
+#: rows per cell and carry the parent's label in ``cell_id``.
+#:
+#: A merge that does not translate between the two is joining on a
+#: coincidence. `merge_tables` assumed every non-primary table was keyed by
+#: ``cell_id`` and therefore SILENTLY DROPPED CYTOPLASM -- it logged a line
+#: about an unlinkable table and returned a frame with no cytoplasm columns.
+ANCHOR_COLUMN: Dict[str, str] = {
+    "cell": "object_label",
+    "cytoplasm": "object_label",
+    "nucleus": "cell_id",
+    "pathogen": "cell_id",
+    "organelle": "cell_id",
+    "png_list": "cell_id",
+}
+
+#: Tables holding exactly one row per cell. They are JOINED to the cell
+#: directly; everything else must be aggregated onto it first, or the cell's
+#: own measurements fan out across its children.
+ONE_ROW_PER_CELL: Tuple[str, ...] = ("cell", "cytoplasm")
+
+
+def anchor_column(table: str) -> str:
+    """The column in ``table`` that carries the cell it belongs to.
+
+    :param table: an object table name.
+    :returns: ``'object_label'`` or ``'cell_id'``.
+    :raises ValueError: for a table with no declared anchor, naming the ones
+        that have. Guessing produces a join on a coincidence.
+    """
+    key = str(table).strip().lower()
+    if key not in ANCHOR_COLUMN:
+        raise ValueError(
+            f"no anchor column declared for table {table!r}; known tables are "
+            f"{sorted(ANCHOR_COLUMN)}")
+    return ANCHOR_COLUMN[key]
+
+
+def is_one_row_per_cell(table: str) -> bool:
+    """True when ``table`` holds one row per cell and needs no roll-up."""
+    return str(table).strip().lower() in ONE_ROW_PER_CELL
