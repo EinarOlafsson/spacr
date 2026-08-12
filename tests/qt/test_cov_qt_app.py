@@ -23,6 +23,7 @@ import types
 
 import pytest
 
+from PySide6.QtCore import QObject
 from PySide6.QtGui import QFontMetrics, QIcon
 from PySide6.QtWidgets import (
     QApplication,
@@ -2055,11 +2056,17 @@ def test_missing_font_directory_is_not_an_error(monkeypatch):
 
     hidden = {"on": True}
     real_isdir = os.path.isdir
+    # The directory is `resources/font/open_sans/static` -- SINGULAR "font",
+    # and two levels deeper than this predicate used to look. It matched
+    # `resources/fonts`, which exists nowhere, so `isdir` always returned the
+    # real answer, the directory was never hidden, and the missing-directory
+    # branch this test is named for had never once been exercised. The
+    # assertion below then failed for the honest reason: fonts really were
+    # registered.
+    fonts_dir = os.path.join("resources", "font", "open_sans", "static")
     monkeypatch.setattr(
         os.path, "isdir",
-        lambda p: False if (hidden["on"]
-                            and str(p).endswith(
-                                os.path.join("resources", "fonts")))
+        lambda p: False if (hidden["on"] and str(p).endswith(fonts_dir))
         else real_isdir(p))
 
     assert _load_bundled_fonts() is None
@@ -2087,16 +2094,27 @@ class _FakeSignal:
         self.callbacks.append(cb)
 
 
-class _AppShim:
+class _AppShim(QObject):
     """Stands in for the QApplication ``launch`` would construct.
 
     Delegates everything it doesn't override to the real, already-running
     QApplication so ``apply_preferences_to_app`` still does its work —
     except ``setStyleSheet`` (a global re-polish would touch every widget
     other tests left behind) and ``exec`` (which would block forever).
+
+    A REAL QObject, not a bare class. `launch` installs
+    `_DialogTranslationFilter(app)`, which passes the application as the
+    filter's Qt PARENT, and PySide6 refuses a parent that is not a QObject:
+    "QObject.__init__ called with wrong argument types: _AppShim". A plain
+    duck-typed double cannot stand in for something the C++ side takes
+    ownership through, so it inherits instead of pretending.
+
+    `__getattr__` still forwards everything QObject does not already define,
+    which is what keeps the delegation working.
     """
 
     def __init__(self, real, argv):
+        super().__init__()
         self._real = real
         self.argv = list(argv)
         self.aboutToQuit = _FakeSignal()

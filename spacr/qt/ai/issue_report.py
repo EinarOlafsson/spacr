@@ -407,16 +407,31 @@ def file_issue(
     # error handling. This is the end-to-end helper the application calls;
     # blocking it costs the tests nothing and closes the hole.
     import os
-    if (os.environ.get("PYTEST_CURRENT_TEST")
-            and os.environ.get("SPACR_ALLOW_GITHUB_WRITES") != "1"):
-        return ("refusing to file a GitHub issue from inside a test run; "
-                "set SPACR_ALLOW_GITHUB_WRITES=1 if that is really intended")
+    # THE GUARD SITS ON THE WRITING PATH, NOT ON THE FUNCTION. It used to
+    # refuse here, before the authentication check, which also blocked the
+    # BROWSER FALLBACK -- a path that builds a URL string and opens it, and
+    # cannot create anything on GitHub. That broke
+    # `test_file_issue_returns_url_without_opening`, which exercises exactly
+    # that fallback with the opener stubbed and `is_authenticated` forced
+    # False: no write was possible and the guard refused anyway.
+    #
+    # A guard that fires where nothing could happen teaches people to
+    # disable it, so it now fires only where an issue would really be
+    # created.
+    def _writes_are_allowed() -> bool:
+        return (not os.environ.get("PYTEST_CURRENT_TEST")
+                or os.environ.get("SPACR_ALLOW_GITHUB_WRITES") == "1")
+
     # If the user is signed in to GitHub (stored token / env / gh CLI), create
     # the issue directly via the API — no browser needed. Otherwise fall back to
     # opening the pre-filled issues/new URL in the browser.
     try:
         from . import github_auth
         if github_auth.is_authenticated():
+            if not _writes_are_allowed():
+                return ("refusing to file a GitHub issue from inside a test "
+                        "run; set SPACR_ALLOW_GITHUB_WRITES=1 if that is "
+                        "really intended")
             # DEDUPE BY FINGERPRINT FIRST. `_traceback_hash` exists so the
             # same bug hashes the same across runs and machines, and nothing
             # consumed it: one crash produced one issue per occurrence -- ten
