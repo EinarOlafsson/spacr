@@ -44,19 +44,13 @@
           "narration": "Before installing spaCR, choose the official source. PyPI provides the released Python package, GitHub provides source code and desktop installers, and conda-forge will become an option once its package is published.",
           "visual": "sources",
           "hold_after": 0.7,
-          "speech_text": "Before installing spacer, choose the official source. pie pee provides the released Python package, GitHub provides source code and desktop installers, and conda-forge will become an option once its package is published.",
-          "shorten_spoken_words": {
-            "pee": 0.15
-          }
+          "speech_text": "Before installing spacer, choose the official source. pie-P-I provides the released Python package, [GitHub](/ɡˈɪthˌʌb/) provides source code and desktop installers, and [conda-forge](/kˈɑndə fˌɔɹʤ/) will become an option once its package is published."
         },
         {
           "narration": "On PyPI, the release header shows the current stable version and the pip install spacr command.",
           "visual": "pypi_release",
           "hold_after": 0.7,
-          "speech_text": "On pie pee, the release header shows the current stable version and the pip install spacer command.",
-          "shorten_spoken_words": {
-            "pee": 0.15
-          }
+          "speech_text": "On pie-P-I, the release header shows the current stable version and the pip install spacer command."
         },
         {
           "narration": "The Project links section opens the documentation, homepage, issue tracker, and source repository.",
@@ -68,31 +62,25 @@
           "narration": "On GitHub, use the branch selector to choose the source line. Main is the released line; nightly contains newer work still being tested.",
           "visual": "github_repo",
           "hold_after": 0.7,
-          "speech_text": "On GitHub, use the branch selector to choose the source line. Main is the released line; nightly contains newer work still being tested."
+          "speech_text": "On [GitHub](/ɡˈɪthˌʌb/), use the branch selector to choose the source line. Main is the released line; nightly contains newer work still being tested."
         },
         {
           "narration": "In a GitHub Release, expand Assets to download the Windows, macOS, or Linux installer, the Python package files, or the checksum list.",
           "visual": "github_release",
           "hold_after": 0.7,
-          "speech_text": "In a GitHub Release, expand Assets to download the Windows, mac O S, or Linux installer, the Python package files, or the checksum list."
+          "speech_text": "In a [GitHub](/ɡˈɪthˌʌb/) Release, expand Assets to download the Windows, [macOS](/mˈækOˌɛs/), or Linux installer, the Python package files, or the checksum list."
         },
         {
           "narration": "Conda-forge does not publish spaCR yet. Today, create a Conda environment and install spaCR from PyPI; use the conda-forge channel only after the package is published.",
           "visual": "conda_status",
           "hold_after": 0.7,
-          "speech_text": "Conda-forge does not publish spacer yet. Today, create a Conda environment and install spacer from pie pee; use the conda-forge channel only after the package is published.",
-          "shorten_spoken_words": {
-            "pee": 0.15
-          }
+          "speech_text": "[Conda-forge](/kˈɑndə fˌɔɹʤ/) does not publish spacer yet. Today, create a [Conda](/kˈɑndə/) environment and install spacer from pie-P-I; use the [conda-forge](/kˈɑndə fˌɔɹʤ/) channel only after the package is published."
         },
         {
           "narration": "Use PyPI or pip for a Python environment, GitHub Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route.",
           "visual": "decision",
           "hold_after": 0.7,
-          "speech_text": "Use pie pee or pip for a Python environment, GitHub Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route.",
-          "shorten_spoken_words": {
-            "pee": 0.15
-          }
+          "speech_text": "Use pie-P-I or pip for a Python environment, [GitHub](/ɡˈɪthˌʌb/) Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route."
         }
       ]
     },
@@ -116,13 +104,13 @@
           "narration": "Use a Conda environment to isolate spaCR and its scientific dependencies. Python three point twelve is the example because it currently supports the widest range of optional packages.",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "Use a Conda environment to isolate spacer and its scientific dependencies. Python three point twelve is the example because it currently supports the widest range of optional packages."
+          "speech_text": "Use a [Conda](/kˈɑndə/) environment to isolate spacer and its scientific dependencies. Python three point twelve is the example because it currently supports the widest range of optional packages."
         },
         {
           "narration": "Open a Conda-enabled terminal and create an environment named spacr with Python three point twelve and pip.",
           "visual": "create",
           "hold_after": 0.7,
-          "speech_text": "Open a Conda-enabled terminal and create an environment named spacer with Python three point twelve and pip."
+          "speech_text": "Open a [Conda](/kˈɑndə/)-enabled terminal and create an environment named spacer with Python three point twelve and pip."
         },
         {
           "narration": "Activate the environment. Confirm that Python belongs to the spacr environment before installing anything.",
@@ -140,13 +128,13 @@
           "narration": "For the desktop application, install spacr with the qt extra. Use the plain spacr package for a headless workstation or server.",
           "visual": "desktop",
           "hold_after": 0.7,
-          "speech_text": "For the desktop application, install spacer with the qt extra. Use the plain spacer package for a headless workstation or server."
+          "speech_text": "For the desktop application, install spacer with the cute extra. Use the plain spacer package for a headless workstation or server."
         },
         {
           "narration": "Run spacr-doctor before the first launch. It reports the active installation, Qt, PyTorch, optional components, and hardware support with a suggested fix for every failed check.",
           "visual": "doctor",
           "hold_after": 0.7,
-          "speech_text": "Run spacer doctor before the first launch. It reports the active installation, cute, pie torch, optional components, and hardware support with a suggested fix for every failed check."
+          "speech_text": "Run spacer doctor before the first launch. It reports the active installation, cute, [PyTorch](/pˈItˌɔɹʧ/), optional components, and hardware support with a suggested fix for every failed check."
         },
         {
           "narration": "After spacr-doctor passes, keep this environment activated whenever you run spaCR.",
@@ -176,13 +164,13 @@
           "narration": "The pip route works on Windows, macOS, and Linux. Always use an isolated virtual environment rather than modifying the operating system's Python installation.",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "The pip route works on Windows, mac O S, and Linux. Always use an isolated virtual environment rather than modifying the operating system's Python installation."
+          "speech_text": "The pip route works on Windows, [macOS](/mˈækOˌɛs/), and Linux. Always use an isolated virtual environment rather than modifying the operating system's Python installation."
         },
         {
           "narration": "On macOS or Linux, create the environment with Python three point twelve, then activate it from its bin directory.",
           "visual": "venv_posix",
           "hold_after": 0.7,
-          "speech_text": "On mac O S or Linux, create the environment with Python three point twelve, then activate it from its bin directory."
+          "speech_text": "On [macOS](/mˈækOˌɛs/) or Linux, create the environment with Python three point twelve, then activate it from its bin directory."
         },
         {
           "narration": "On Windows, use the Python launcher to create the environment and activate it from the Scripts directory.",
@@ -200,7 +188,7 @@
           "narration": "Install the plain spacr package for headless use, or spacr with the qt extra for the desktop interface.",
           "visual": "install",
           "hold_after": 0.7,
-          "speech_text": "Install the plain spacer package for headless use, or spacer with the qt extra for the desktop interface."
+          "speech_text": "Install the plain spacer package for headless use, or spacer with the cute extra for the desktop interface."
         },
         {
           "narration": "Verify the imported version and run spacr-doctor. Resolve any failed checks before opening experimental data.",
@@ -236,13 +224,13 @@
           "narration": "The lightweight native installers create a private Python three point twelve runtime, then download Qt, PyTorch, spaCR, and its scientific dependencies.",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "The lightweight native installers create a private Python three point twelve runtime, then download cute, pie torch, spacer, and its scientific dependencies."
+          "speech_text": "The lightweight native installers create a private Python three point twelve runtime, then download cute, [PyTorch](/pˈItˌɔɹʧ/), spacer, and its scientific dependencies."
         },
         {
           "narration": "Download installers only from the latest spaCR GitHub Release. Match the file to your operating system and use the published SHA-256 file when you need to verify the download.",
           "visual": "release",
           "hold_after": 0.7,
-          "speech_text": "Download installers only from the latest spacer GitHub Release. Match the file to your operating system and use the published S H A two fifty six file when you need to verify the download."
+          "speech_text": "Download installers only from the latest spacer [GitHub](/ɡˈɪthˌʌb/) Release. Match the file to your operating system and use the published S H A two fifty six file when you need to verify the download."
         },
         {
           "narration": "On Windows ten or eleven, open the online setup executable. The portable CPU installation is the default; NVIDIA acceleration is an optional installer component.",
@@ -254,19 +242,19 @@
           "narration": "On macOS eleven or newer, open the universal package for Intel and Apple silicon. If Gatekeeper blocks the unnotarized package, use Privacy and Security, Open Anyway, then run it again.",
           "visual": "macos",
           "hold_after": 0.7,
-          "speech_text": "On mac O S eleven or newer, open the universal package for Intel and Apple silicon. If Gatekeeper blocks the unnotarized package, use Privacy and Security, Open Anyway, then run it again."
+          "speech_text": "On [macOS](/mˈækOˌɛs/) eleven or newer, open the universal package for Intel and Apple silicon. If Gatekeeper blocks the [unnotarized](/ʌnnˈOTəɹIzd/) package, use Privacy and Security, Open Anyway, then run it again."
         },
         {
           "narration": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. The default installation uses CPU-compatible PyTorch.",
           "visual": "linux",
           "hold_after": 0.7,
-          "speech_text": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. The default installation uses CPU-compatible pie torch."
+          "speech_text": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. The default installation uses CPU compatible [PyTorch](/pˈItˌɔɹʧ/)."
         },
         {
           "narration": "For supported NVIDIA hardware on Linux, pass --torch-backend auto. This selects acceleration when available without making CUDA libraries the silent default.",
           "visual": "linux_gpu",
           "hold_after": 0.7,
-          "speech_text": "For supported NVIDIA hardware on Linux, pass dash dash torch backend auto. This selects acceleration when available without making [CUDA](/kˈuːdᵊ/) libraries the silent default."
+          "speech_text": "For supported NVIDIA hardware on Linux, pass dash dash torch back end auto. This selects acceleration when available without making [CUDA](/kˈuːdᵊ/) libraries the silent default."
         },
         {
           "narration": "Each installer validates the replacement before switching versions. An interrupted update leaves the previous environment intact, and install.log remains in the private spaCR installation directory.",
@@ -278,7 +266,7 @@
           "narration": "After installation, use the operating system launcher. No separate Python or Conda setup is required.",
           "visual": "finish",
           "hold_after": 0.7,
-          "speech_text": "After installation, use the operating system launcher. No separate Python or Conda setup is required."
+          "speech_text": "After installation, use the operating system launcher. No separate Python or [Conda](/kˈɑndə/) setup is required."
         }
       ]
     },
@@ -356,13 +344,13 @@
           "narration": "Run spacr-run with the list option to see the available pipeline entry points, including mask, measure, annotate, classify, and report.",
           "visual": "list",
           "hold_after": 0.7,
-          "speech_text": "Run spacer-run with the list option to see the available pipeline entry points, including mask, measure, annotate, classify, and report."
+          "speech_text": "Run spacer run with the list option to see the available pipeline entry points, including mask, measure, annotate, [classify](/klˈæsəfI/), and report."
         },
         {
           "narration": "Start a module with spacr-run, the module name, and an exported settings file. spaCR validates paths, channels, workers, and hardware options before work begins.",
           "visual": "settings",
           "hold_after": 0.7,
-          "speech_text": "Start a module with spacer-run, the module name, and an exported settings file. spacer validates paths, channels, workers, and hardware options before work begins."
+          "speech_text": "Start a module with spacer run, the module name, and an exported settings file. spacer validates paths, channels, workers, and hardware options before work begins."
         },
         {
           "narration": "Add the test option to process a small representative subset first. Review the preview and saved log before submitting a full unattended run.",
@@ -405,7 +393,7 @@
           "visual": "05_metadata",
           "hold_after": 0.7,
           "focus_key": "metadata_dialog",
-          "speech_text": "Drop the source image folder into Mask. Confirm the detected filename pattern and metadata, then map each acquisition channel to its biological signal. In this example, the four channels contain nuclei, endoplasmic reticulum, lipid droplets, and parasites."
+          "speech_text": "Drop the source image folder into Mask. Confirm the detected filename pattern and metadata, then map each acquisition channel to its biological signal. In this example, the four channels contain nuclei, [endoplasmic](/ˌɛndOplˈæzmɪk/) reticulum, lipid droplets, and parasites."
         },
         {
           "narration": "Essentials shows the controls needed for a typical run. Use All only when you need advanced options, Modified to review changed values, and Recipes to save a configuration you will reuse.",
@@ -468,7 +456,7 @@
           "visual": "28_cell_flows",
           "hold_after": 0.7,
           "focus_key": "action_and_canvases",
-          "speech_text": "Switch to Flows to inspect the direction field used by cell pose. Irregular flow patterns can help explain masks that split or merge incorrectly."
+          "speech_text": "Switch to Flows to inspect the direction field used by [Cellpose](/sˈɛlpˌOz/). Irregular flow patterns can help explain masks that split or merge incorrectly."
         },
         {
           "narration": "Masks isolates the final labels against a black background. Use it to check object coverage and separation without the source image underneath.",
@@ -549,7 +537,7 @@
           "visual": "12_category_03_measurement_features",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Measurement Features selects the intensity, morphology, texture, colocalization, and spatial summaries needed for the analysis. Leave unused feature families off."
+          "speech_text": "Measurement Features selects the intensity, morphology, texture, co-localization, and spatial summaries needed for the analysis. Leave unused feature families off."
         },
         {
           "narration": "Object Filtering removes known artifacts, while Crop Output controls whether representative object images are saved for annotation or classification. Choose filters and crop scale from the experiment rather than copying fixed values.",
@@ -584,7 +572,7 @@
           "visual": "25_outputs",
           "hold_after": 0.7,
           "focus_key": "status",
-          "speech_text": "After the test succeeds, run the full source. Measure saves traceable object rows in measurements dot db and any requested crops beside the project outputs."
+          "speech_text": "After the test succeeds, run the full source. Measure saves traceable object rows in measurements dot D B and any requested crops beside the project outputs."
         }
       ]
     },
@@ -665,14 +653,14 @@
           "visual": "22_training_handoffs",
           "hold_after": 0.7,
           "focus_key": "training",
-          "speech_text": "Train C V sends image crops and this annotation column to the vision classifier. Train X G sends the same labels to the feature-based classifier; both open a configured module without starting training automatically."
+          "speech_text": "Train CV sends image crops and this annotation column to the vision [classifier](/klˈæsəfIəɹ/). Train XG sends the same labels to the feature-based [classifier](/klˈæsəfIəɹ/); both open a configured module without starting training automatically."
         },
         {
           "narration": "Annotations remain in measurements dot db with object identifiers and provenance intact. Continue until coverage is adequate for the intended model or quality-control decision.",
           "visual": "24_saved_result",
           "hold_after": 0.7,
           "focus_key": "status",
-          "speech_text": "Annotations remain in measurements dot db with object identifiers and provenance intact. Continue until coverage is adequate for the intended model or quality-control decision."
+          "speech_text": "Annotations remain in measurements dot D B with object identifiers and provenance intact. Continue until coverage is adequate for the intended model or quality-control decision."
         }
       ]
     },
@@ -697,7 +685,7 @@
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "Classify C V trains image models on annotated object crops. The console reports dataset checks, training progress, held-out metrics, inference, warnings, and output paths."
+          "speech_text": "[Classify](/klˈæsəfI/) CV trains image models on annotated object crops. The console reports dataset checks, training progress, held-out metrics, inference, warnings, and output paths."
         },
         {
           "narration": "Plate Sources and Workflow selects the measured projects and the stages to run: build a split, train, evaluate, or apply an existing checkpoint.",
@@ -732,7 +720,7 @@
           "visual": "12_category_04_model_architecture",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Model Architecture selects the network, input channels and size, pretrained weights, and normalization expected by the images. Begin with one reasonable baseline."
+          "speech_text": "Model Architecture selects the network, input channels and size, pre-trained weights, and normalization expected by the images. Begin with one reasonable baseline."
         },
         {
           "narration": "Optimization and Loss contains learning rate, augmentation, batches, epochs, and early stopping. Change a small number of controls at a time and judge them on validation behavior.",
@@ -760,7 +748,7 @@
           "visual": "23_hyperparameter_search",
           "hold_after": 0.7,
           "focus_key": "results",
-          "speech_text": "Enable Hyperparameter Search when several plausible configurations need comparison. The mini workbench runs grouped trials and displays each score, fold variation, parameters, and status."
+          "speech_text": "Enable hyper-parameter Search when several plausible configurations need comparison. The mini workbench runs grouped trials and displays each score, fold variation, parameters, and status."
         },
         {
           "narration": "Search Settings defines a focused candidate space, ranking metric, grouped folds, and trial budget. Avoid broad searches that spend compute on choices the experiment cannot distinguish.",
@@ -799,7 +787,7 @@
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "Classify M L trains a classical model on per-object measurements. The console reports database loading, feature preparation, validation, importance, predictions, and errors."
+          "speech_text": "[Classify](/klˈæsəfI/) ML trains a classical model on per-object measurements. The console reports database loading, feature preparation, validation, importance, predictions, and errors."
         },
         {
           "narration": "Data and Controls selects the measurement project, label field, positive and negative values, and experimental grouping. Verify the biological meaning of that mapping before fitting a model.",
@@ -834,14 +822,14 @@
           "visual": "12_category_04_classifier_validation",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Classifier and Validation selects the estimator, complexity, held-out split, and cross-validation behavior. Group related objects by plate or well to avoid leakage."
+          "speech_text": "[Classifier](/klˈæsəfIəɹ/) and Validation selects the estimator, complexity, held-out split, and cross-validation behavior. Group related objects by plate or well to avoid leakage."
         },
         {
           "narration": "Feature Selection and Importance prunes the final feature set and estimates which measurements support the classifier. Interpret importance only after held-out performance is acceptable.",
           "visual": "12_category_05_feature_selection_importance",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Feature Selection and Importance prunes the final feature set and estimates which measurements support the classifier. Interpret importance only after held-out performance is acceptable."
+          "speech_text": "Feature Selection and Importance prunes the final feature set and estimates which measurements support the [classifier](/klˈæsəfIəɹ/). Interpret importance only after held-out performance is acceptable."
         },
         {
           "narration": "Output and Database controls whether probabilities, class calls, model files, and selected features are saved or written back to the measurement project.",
@@ -855,7 +843,7 @@
           "visual": "23_hyperparameter_search",
           "hold_after": 0.7,
           "focus_key": "results",
-          "speech_text": "Hyperparameter Search is a mini workbench for comparing a focused set of model choices with grouped folds. The results table ranks completed trials and shows their variation."
+          "speech_text": "hyper-parameter Search is a mini workbench for comparing a focused set of model choices with grouped folds. The results table ranks completed trials and shows their variation."
         },
         {
           "narration": "Search Settings defines candidate values, trial budget, folds, seed, and ranking metric. Keep the search space small enough to explain and reproduce.",
@@ -869,7 +857,7 @@
           "visual": "25_run_pipeline",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "Run validates controls, prepares features, applies any plate correction, evaluates the classifier, calculates importance, and saves enabled outputs. Review held-out and per-plate behavior before using predictions biologically."
+          "speech_text": "Run validates controls, prepares features, applies any plate correction, evaluates the [classifier](/klˈæsəfIəɹ/), calculates importance, and saves enabled outputs. Review held-out and per-plate behavior before using predictions biologically."
         }
       ]
     },
@@ -1024,7 +1012,7 @@
           "visual": "12_category_07_regression_plots",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Regression Plots configures diagnostic and volcano displays. Plot limits change presentation, not the fitted coefficients, so keep untruncated tables for interpretation."
+          "speech_text": "Regression Plots configures diagnostic and volcano displays. Plot limits change presentation, not the fitted coefficients, so keep [untruncated](/ʌntɹˈʌŋkATᵻd/) tables for interpretation."
         },
         {
           "narration": "Run validates schemas and well keys, applies exclusions and correction, aggregates scores, fits the selected model, and evaluates evidence. Watch controls and diagnostics before calling hits.",
@@ -1038,7 +1026,7 @@
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "The completed project contains aligned regression data, guide- and gene-level coefficients, uncertainty or significance tables, diagnostic figures, saved settings, and a rerunnable manifest."
+          "speech_text": "The completed project contains aligned regression data, guide- and gene-level coefficients, uncertainty or significance tables, diagnostic figures, saved settings, and a [rerunnable](/ɹˌiɹˈʌnəbəl/) manifest."
         }
       ]
     },
@@ -1151,14 +1139,14 @@
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "Image you map reduces high-dimensional object measurements to two coordinates and places microscopy crops on the map. The console records joins, preprocessing, embedding, clustering, and outputs."
+          "speech_text": "Image you map reduces high-dimensional object measurements to two coordinates and places microscopy crops on the map. The console records joins, pre-processing, embedding, clustering, and outputs."
         },
         {
           "narration": "Paths selects the measured project. Image UMAP locates measurements dot db and uses existing crop images or builds crops from merged arrays when supported.",
           "visual": "12_category_01_paths",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Paths selects the measured project. Image you map locates measurements dot db and uses existing crop images or builds crops from merged arrays when supported."
+          "speech_text": "Paths selects the measured project. Image you map locates measurements dot D B and uses existing crop images or builds crops from merged arrays when supported."
         },
         {
           "narration": "Measurements selects the joined object tables and feature families, removes explicit exclusions, and can drop redundant correlated features. These choices define the geometry of the map.",
@@ -1186,7 +1174,7 @@
           "visual": "12_category_05_embedding_clustering",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Embedding and Clustering selects you map or tee snee, neighborhood behavior, distance metric, compartment, and optional clustering. Compare reproducible settings and do not treat one layout as ground truth."
+          "speech_text": "Embedding and Clustering selects you map or [t-SNE](/tˌi snˈi/), neighborhood behavior, distance metric, compartment, and optional clustering. Compare reproducible settings and do not treat one layout as ground truth."
         },
         {
           "narration": "UMAP Display controls point styling, crop glyph count and zoom, background, and saved figures. Keep crop glyphs only slightly larger than the points so the embedding remains visible; these display choices do not change fitted coordinates.",
@@ -1200,7 +1188,7 @@
           "visual": "19_hyperparameter_search",
           "hold_after": 0.7,
           "focus_key": "search_card",
-          "speech_text": "Before the full run, use Hyperparameter Search to compare a focused set of you map choices. Its small-multiple results expose layouts that are unstable or hide useful structure."
+          "speech_text": "Before the full run, use hyper-parameter Search to compare a focused set of you map choices. Its small-multiple results expose layouts that are unstable or hide useful structure."
         },
         {
           "narration": "Select a reviewed search result, then choose Propagate settings. This copies its neighborhood size, minimum distance, and metric into the main Image UMAP form before the full run.",
@@ -1281,7 +1269,7 @@
           "visual": "12_category_04_map_display",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Map Display applies training-compatible input preprocessing and controls overlays and grids. Display contrast changes presentation, not evidence that the model learned valid biology."
+          "speech_text": "Map Display applies training-compatible input pre-processing and controls overlays and grids. Display contrast changes presentation, not evidence that the model learned valid biology."
         },
         {
           "narration": "Map Quantification can compare input channels with attribution intensity and save those summaries. Enable it only when the statistic answers a defined question.",
@@ -1302,14 +1290,14 @@
           "visual": "21_run",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "Run validates the model and crops, recreates training preprocessing, computes predictions and maps, renders requested grids, and records the settings."
+          "speech_text": "Run validates the model and crops, recreates training pre-processing, computes predictions and maps, renders requested grids, and records the settings."
         },
         {
           "narration": "Review maps across correct, incorrect, high-confidence, and low-confidence examples, together with validation checks. Draw biological conclusions only from a validated trained classifier.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "Review maps across correct, incorrect, high-confidence, and low-confidence examples, together with validation checks. Draw biological conclusions only from a validated trained classifier."
+          "speech_text": "Review maps across correct, incorrect, high-confidence, and low-confidence examples, together with validation checks. Draw biological conclusions only from a validated trained [classifier](/klˈæsəfIəɹ/)."
         }
       ]
     },
@@ -1334,7 +1322,7 @@
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "Timelapse segments each frame and links selected objects into stable tracks. The console records preprocessing, masks, tracking attempts, quality control, movies, and reproducibility files."
+          "speech_text": "time lapse segments each frame and links selected objects into stable tracks. The console records pre-processing, masks, tracking attempts, quality control, movies, and reproducibility files."
         },
         {
           "narration": "Input and Metadata selects the image folder, assigns acquired channels to object types, and defines how plate, well, field, time, depth, and channel identifiers are parsed.",
@@ -1348,14 +1336,14 @@
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "Essentials contains the controls needed for a first sequence. Use Modified to audit changes, All for optional axes and backends, and Recipes for a repeated acquisition design."
+          "speech_text": "Essentials contains the controls needed for a first sequence. Use Modified to audit changes, All for optional axes and back ends, and Recipes for a repeated acquisition design."
         },
         {
           "narration": "Image Preprocessing applies normalization, background handling, denoising, and resizing. Use one consistent transform across all frames so preprocessing does not create artificial motion.",
           "visual": "12_category_03_image_preprocessing",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Image Preprocessing applies normalization, background handling, denoising, and resizing. Use one consistent transform across all frames so preprocessing does not create artificial motion."
+          "speech_text": "Image pre-processing applies normalization, background handling, de-noising, and resizing. Use one consistent transform across all frames so pre-processing does not create artificial motion."
         },
         {
           "narration": "Configure the segmentation section for each object that must be masked or tracked. Validate model, channel, scale, and core filters on representative early, middle, and late frames.",
@@ -1383,7 +1371,7 @@
           "visual": "12_category_10_tracking_backends",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Tracking Backends offers several linkers with different displacement, gap, division, and worker controls. Choose the simplest backend that matches the motion and verify its identities visually."
+          "speech_text": "Tracking back ends offers several linkers with different displacement, gap, division, and worker controls. Choose the simplest back end that matches the motion and verify its identities visually."
         },
         {
           "narration": "Visualization and Diagnostics creates examples for checking segmentation and track continuity, while Output and Storage selects masks, merged arrays, movies, and retained intermediates.",
@@ -1411,7 +1399,7 @@
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "A successful project contains time-indexed masks, stable track identities, quality-control records, movies, merged arrays, saved settings, and a rerunnable manifest."
+          "speech_text": "A successful project contains time-indexed masks, stable track identities, quality-control records, movies, merged arrays, saved settings, and a [rerunnable](/ɹˌiɹˈʌnəbəl/) manifest."
         }
       ]
     },
@@ -1436,7 +1424,7 @@
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "Motility Assay rebuilds measurements from tracked arrays and calculates displacement, velocity, path length, and straightness. The console records derived tables, quality checks, and figures."
+          "speech_text": "Motility [Assay](/ˈæsA/) rebuilds measurements from tracked arrays and calculates displacement, velocity, path length, and straightness. The console records derived tables, quality checks, and figures."
         },
         {
           "narration": "Objects and Channels selects the tracked source, moving object, and channels carrying cell, nucleus, and pathogen signals. Incorrect mapping invalidates intensity and infection results.",
@@ -1450,7 +1438,7 @@
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "Essentials contains the controls needed for a first assay. Use Modified to audit changes, All for optional classifiers and embedding, and Recipes for repeated acquisitions."
+          "speech_text": "Essentials contains the controls needed for a first [assay](/ˈæsA/). Use Modified to audit changes, All for optional [classifiers](/klˈæsəfIəɹz/) and embedding, and Recipes for repeated acquisitions."
         },
         {
           "narration": "Spatial and Temporal Calibration supplies the frame interval and pixel scale. Verify both from acquisition metadata because errors scale every physical displacement and velocity.",
@@ -1478,14 +1466,14 @@
           "visual": "12_category_05_xgboost_infection_model",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "The optional X G Boost, clustering, and embedding sections provide alternative infection classifiers when direct masks are insufficient. Validate any learned rule on held-out labeled tracks."
+          "speech_text": "The optional [XGBoost](/ˌɛksʤˌibˈust/), clustering, and embedding sections provide alternative infection [classifiers](/klˈæsəfIəɹz/) when direct masks are insufficient. Validate any learned rule on held-out labeled tracks."
         },
         {
           "narration": "Motility Plots and QC selects trajectory, intensity, position, velocity, and infection panels. Plot limits change presentation but not underlying measurements.",
           "visual": "12_category_08_motility_plots_qc",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Motility Plots and Q C selects trajectory, intensity, position, velocity, and infection panels. Plot limits change presentation but not underlying measurements."
+          "speech_text": "Motility Plots and QC selects trajectory, intensity, position, velocity, and infection panels. Plot limits change presentation but not underlying measurements."
         },
         {
           "narration": "Run measures frames, smooths and filters tracks, assigns infection status, computes calibrated summaries and correlations, and saves tables and figures.",
@@ -1524,7 +1512,7 @@
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "Train cell pose fits a segmentation model from paired microscopy images and instance-label masks. The console reports data validation, progress, checkpoint path, and reproducibility records."
+          "speech_text": "Train [Cellpose](/sˈɛlpˌOz/) fits a segmentation model from paired microscopy images and instance-label masks. The console reports data validation, progress, checkpoint path, and reproducibility records."
         },
         {
           "narration": "Choose the dataset root containing matching training images and masks. Review label quality and reserve representative fields that will not be used to fit the model.",
@@ -1538,14 +1526,14 @@
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "Essentials contains the controls needed for a first calibration. Use Modified to audit changes, All for preprocessing and runtime options, and Recipes for a repeatable training design."
+          "speech_text": "Essentials contains the controls needed for a first calibration. Use Modified to audit changes, All for pre-processing and runtime options, and Recipes for a repeatable training design."
         },
         {
           "narration": "Starting Point chooses the model family, pretrained checkpoint, fine-tuning or training from scratch, and output name. Fine-tuning usually needs fewer reviewed images than a random start.",
           "visual": "12_category_01_starting_point",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Starting Point chooses the model family, pretrained checkpoint, fine-tuning or training from scratch, and output name. Fine-tuning usually needs fewer reviewed images than a random start."
+          "speech_text": "Starting Point chooses the model family, pre-trained checkpoint, fine-tuning or training from scratch, and output name. Fine-tuning usually needs fewer reviewed images than a random start."
         },
         {
           "narration": "Training Schedule sets learning rate, regularization, batches, augmentation, and epochs. Increase training only after image-mask pairs and held-out evaluation are correct.",
@@ -1566,7 +1554,7 @@
           "visual": "12_category_04_background_denoising",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Background and Denoising applies optional intensity cleanup before training. Use it only when the same preprocessing can be reproduced during model application."
+          "speech_text": "Background and de-noising applies optional intensity cleanup before training. Use it only when the same pre-processing can be reproduced during model application."
         },
         {
           "narration": "Run validates matching filenames, previews paired fields, and starts training. Inspect the image above its mask in the figures panel before trusting a long fit.",
@@ -1605,21 +1593,21 @@
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "cell pose Masks applies a packaged model or custom checkpoint to microscopy images. The console records model resolution, preprocessing, progress, diagnostics, and output paths."
+          "speech_text": "[Cellpose](/sˈɛlpˌOz/) Masks applies a packaged model or custom checkpoint to microscopy images. The console records model resolution, pre-processing, progress, diagnostics, and output paths."
         },
         {
           "narration": "Input and Channels selects the image folder, planes, grayscale or inversion behavior, and optional normalization. Verify the channel first; use preprocessing only when the representative images require it.",
           "visual": "12_category_01_input_channels",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Input and Channels selects the image folder, planes, grayscale or inversion behavior, and optional normalization. Verify the channel first; use preprocessing only when the representative images require it."
+          "speech_text": "Input and Channels selects the image folder, planes, gray scale or inversion behavior, and optional normalization. Verify the channel first; use pre-processing only when the representative images require it."
         },
         {
           "narration": "Essentials contains the controls needed for a first application. Use Modified to audit the current model and preprocessing, All for geometry and runtime, and Recipes for repeatable inference.",
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "Essentials contains the controls needed for a first application. Use Modified to audit the current model and preprocessing, All for geometry and runtime, and Recipes for repeatable inference."
+          "speech_text": "Essentials contains the controls needed for a first application. Use Modified to audit the current model and pre-processing, All for geometry and runtime, and Recipes for repeatable inference."
         },
         {
           "narration": "Model selects packaged weights or a custom checkpoint and records expected object scale. The checkpoint and channel arrangement should match the images used during training.",
@@ -1654,7 +1642,7 @@
           "visual": "21_run",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "Run loads the checkpoint, applies the configured preprocessing, predicts masks and flows, performs selected cleanup, and saves each label image."
+          "speech_text": "Run loads the checkpoint, applies the configured pre-processing, predicts masks and flows, performs selected cleanup, and saves each label image."
         },
         {
           "narration": "Inspect representative originals, mask outlines, and flow fields in the figure panel before downstream measurement. Choose normalization and thresholds from those previews rather than copying tutorial values.",
@@ -1700,7 +1688,7 @@
           "visual": "03_models",
           "hold_after": 0.7,
           "focus_key": "model_panels",
-          "speech_text": "Configure Model A and Model B. Keep channels, scale, preprocessing, and shared thresholds matched unless that setting is the intended difference."
+          "speech_text": "Configure Model A and Model B. Keep channels, scale, pre-processing, and shared thresholds matched unless that setting is the intended difference."
         },
         {
           "narration": "Compare segments every selected field with both resolved configurations. Advanced arguments are recorded, and unsupported parameters are reported instead of silently treated as effective.",
@@ -1760,7 +1748,7 @@
           "visual": "01_overview",
           "hold_after": 0.7,
           "focus_key": "catalogue",
-          "speech_text": "Model Zoo lists reusable models available from bundled, local, or declared catalogue sources. Start by matching the task, channels, object scale, and expected preprocessing."
+          "speech_text": "Model Zoo lists reusable models available from bundled, local, or declared catalogue sources. Start by matching the task, channels, object scale, and expected pre-processing."
         },
         {
           "narration": "Choose a model folder and scan it. The catalogue keeps local paths and remote metadata together while avoiding duplicate entries.",
@@ -1848,7 +1836,7 @@
           "visual": "03_columns",
           "hold_after": 0.7,
           "focus_key": "columns",
-          "speech_text": "Select at least two columns. Additional columns enable pairwise comparisons and a multi-rater summary."
+          "speech_text": "Select at least two columns. Additional columns enable pairwise comparisons and a [multi-rater](/mˌʌlTiɹˈATəɹ/) summary."
         },
         {
           "narration": "Compute Agreement aligns labels by object. Missing labels are reported as abstentions rather than silently counted as disagreements.",
@@ -1908,7 +1896,7 @@
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "Plaque Assay measures cleared regions in plate images. The console records resolved settings, progress, warnings, and output paths."
+          "speech_text": "Plaque [Assay](/ˈæsA/) measures cleared regions in plate images. The console records resolved settings, progress, warnings, and output paths."
         },
         {
           "narration": "Choose the plaque-image folder and decide whether to segment source images or reuse correctly named label masks.",
@@ -1943,7 +1931,7 @@
           "visual": "12_category_05_background_denoising",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Use background correction or denoising only when previews show that the acquisition requires it."
+          "speech_text": "Use background correction or de-noising only when previews show that the acquisition requires it."
         },
         {
           "narration": "Run after checking source, model, scale, and output behavior. Start with a small validation set when segmentation is being recalibrated.",
@@ -2056,7 +2044,7 @@
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "Invasion Assay scores measured parasites from a two-colour staining design. The console records settings, quality checks, and outputs."
+          "speech_text": "Invasion [Assay](/ˈæsA/) scores measured parasites from a two-colour staining design. The console records settings, quality checks, and outputs."
         },
         {
           "narration": "Choose an experiment containing parasite measurements, stain channels, controls, and plate metadata.",
@@ -2091,7 +2079,7 @@
           "visual": "12_category_04_controls_minimum_counts",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Define staining controls and minimum evidence for fields and wells so weak groups are reported rather than overinterpreted."
+          "speech_text": "Define staining controls and minimum evidence for fields and wells so weak groups are reported rather than over-interpreted."
         },
         {
           "narration": "Run after verifying stain mapping, controls, object filters, and condition metadata.",
@@ -2105,7 +2093,7 @@
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "figures",
-          "speech_text": "Review attached, invaded, and uncertain examples together with well-level summaries. Exported results retain the assay settings and source identifiers."
+          "speech_text": "Review attached, invaded, and uncertain examples together with well-level summaries. Exported results retain the [assay](/ˈæsA/) settings and source identifiers."
         }
       ]
     },
@@ -2130,7 +2118,7 @@
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "Replication Assay scores parasite counts per vacuole from existing relationships and measurements. The console records settings, filtering, and outputs."
+          "speech_text": "Replication [Assay](/ˈæsA/) scores parasite counts per vacuole from existing relationships and measurements. The console records settings, filtering, and outputs."
         },
         {
           "narration": "Choose the experiment root and confirm that host cells, vacuoles, and parasites have stable identifiers.",
@@ -2232,7 +2220,7 @@
           "visual": "08_accuracy",
           "hold_after": 0.7,
           "focus_key": "plot",
-          "speech_text": "Overlay validation behavior to compare convergence, stability, and overfitting on the same axes."
+          "speech_text": "Overlay validation behavior to compare convergence, stability, and over-fitting on the same axes."
         },
         {
           "narration": "Compare the best checkpoint with the final checkpoint when late training may have degraded generalization.",
@@ -2560,14 +2548,14 @@
           "visual": "01_overview",
           "hold_after": 0.7,
           "focus_key": "screen",
-          "speech_text": "Plate Viewer turns object measurements into well-level heatmaps with spatial quality checks beside them."
+          "speech_text": "Plate Viewer turns object measurements into well-level heat maps with spatial quality checks beside them."
         },
         {
           "narration": "Open a measurements database or run folder. The source is queried read-only.",
           "visual": "02_database",
           "hold_after": 0.7,
           "focus_key": "source",
-          "speech_text": "Open a measurements database or run folder. The source is queried read-only."
+          "speech_text": "Open a measurements database or run folder. The source is queryd read-only."
         },
         {
           "narration": "Choose the object table, numeric feature, and plate to display.",
@@ -2588,7 +2576,7 @@
           "visual": "05_render",
           "hold_after": 0.7,
           "focus_key": "render",
-          "speech_text": "Render the view, then compare the heatmap with row, column, ring, and edge diagnostics."
+          "speech_text": "Render the view, then compare the heat map with row, column, ring, and edge diagnostics."
         },
         {
           "narration": "Select a well to inspect its identifier, object count, displayed value, and position.",
@@ -2903,7 +2891,7 @@
           "narration": "This tutorial covers Distributed Jobs. Submit and monitor spaCR work on SSH workstations, Slurm clusters, or cloud and HPC commands.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Distributed Jobs. Submit and monitor spacer work on S S H workstations, slurm clusters, or cloud and H P C commands."
+          "speech_text": "This tutorial covers Distributed Jobs. Submit and monitor spacer work on SSH workstations, [Slurm](/slˈɜɹm/) clusters, or cloud and HPC commands."
         },
         {
           "narration": "Configure a remote profile, connection method, working directory, environment, and data paths.",
@@ -2951,7 +2939,7 @@
           "narration": "This tutorial covers Classifier Evaluation. Audit held-out predictions, nested cross-validation, calibration, leakage, and per-plate performance.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Classifier Evaluation. Audit held-out predictions, nested cross-validation, calibration, leakage, and per-plate performance."
+          "speech_text": "This tutorial covers [Classifier](/klˈæsəfIəɹ/) Evaluation. Audit held-out predictions, nested cross-validation, calibration, leakage, and per-plate performance."
         },
         {
           "narration": "Choose predictions with ground truth, split metadata, plate identifiers, probabilities, and model-run records.",
@@ -2969,7 +2957,7 @@
           "narration": "Evaluate held-out and per-plate behavior before using a classifier for biological conclusions.",
           "visual": "run",
           "hold_after": 0.45,
-          "speech_text": "Evaluate held-out and per-plate behavior before using a classifier for biological conclusions."
+          "speech_text": "Evaluate held-out and per-plate behavior before using a [classifier](/klˈæsəfIəɹ/) for biological conclusions."
         },
         {
           "narration": "When the workflow finishes, spaCR produces discrimination, calibration, confusion, leakage, and robustness reports.",
@@ -3047,7 +3035,7 @@
           "narration": "This tutorial covers Classify. Choose one classification workflow for image crops or measured features and evaluate it without leaking related objects across splits.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Classify. Choose one classification workflow for image crops or measured features and evaluate it without leaking related objects across splits."
+          "speech_text": "This tutorial covers [Classify](/klˈæsəfI/). Choose one classification workflow for image crops or measured features and evaluate it without leaking related objects across splits."
         },
         {
           "narration": "Choose the project and labels before selecting the representation the model will use.",
@@ -3059,13 +3047,13 @@
           "narration": "In the main configuration area, use Classifier family as the top-level choice: Computer Vision trains on object crops, while Machine Learning trains on measured features.",
           "visual": "settings",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, use Classifier family as the top-level choice: Computer Vision trains on object crops, while Machine Learning trains on measured features."
+          "speech_text": "In the main configuration area, use [Classifier](/klˈæsəfIəɹ/) family as the top-level choice: Computer Vision trains on object crops, while Machine Learning trains on measured features."
         },
         {
           "narration": "Run a small grouped validation before committing to expensive training; the dedicated Classify CV and Classify ML lessons demonstrate their bounded Hyperparameter Search workbenches.",
           "visual": "run",
           "hold_after": 0.45,
-          "speech_text": "Run a small grouped validation before committing to expensive training; the dedicated Classify C V and Classify M L lessons demonstrate their bounded Hyperparameter Search workbenches."
+          "speech_text": "Run a small grouped validation before committing to expensive training; the dedicated [Classify](/klˈæsəfI/) CV and [Classify](/klˈæsəfI/) ML lessons demonstrate their bounded hyper-parameter Search workbenches."
         },
         {
           "narration": "When the workflow finishes, the console and run record link the model, predictions, split records, metrics, and settings.",
@@ -3095,7 +3083,7 @@
           "narration": "This tutorial covers Curate. Correct segmentation masks and tracks by hand while preserving an auditable record of every edit.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Curate. Correct segmentation masks and tracks by hand while preserving an auditable record of every edit."
+          "speech_text": "This tutorial covers Curate. Correct segmentation masks and tracks by hand while preserving an [auditable](/ˈɔdɪTəbəl/) record of every edit."
         },
         {
           "narration": "Open a project and select the fields, mask class, or tracks that need review.",
@@ -3167,7 +3155,7 @@
           "narration": "When the workflow finishes, approved correction fields and diagnostics are saved for reproducible preprocessing.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, approved correction fields and diagnostics are saved for reproducible preprocessing."
+          "speech_text": "When the workflow finishes, approved correction fields and diagnostics are saved for reproducible pre-processing."
         }
       ]
     },
@@ -3203,7 +3191,7 @@
           "narration": "In the main configuration area, review artifact type, size, provenance, rebuildability, and dependency warnings before selecting anything.",
           "visual": "settings",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, review artifact type, size, provenance, rebuildability, and dependency warnings before selecting anything."
+          "speech_text": "In the main configuration area, review artifact type, size, provenance, rebuild-ability, and dependency warnings before selecting anything."
         },
         {
           "narration": "Preview the cleanup plan and remove only derived artifacts you are prepared to rebuild.",
@@ -3287,7 +3275,7 @@
           "narration": "This tutorial covers Napari Bridge. Review a mask in napari and return corrected labels to spaCR with provenance.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Napari Bridge. Review a mask in napari and return corrected labels to spacer with provenance."
+          "speech_text": "This tutorial covers [Napari](/nəpˈɑɹi/) Bridge. Review a mask in [napari](/nəpˈɑɹi/) and return corrected labels to spacer with provenance."
         },
         {
           "narration": "Choose a project, field, and mask plane to inspect.",
@@ -3305,7 +3293,7 @@
           "narration": "Edit labels in napari, return them to spaCR, and review the change before acceptance.",
           "visual": "run",
           "hold_after": 0.45,
-          "speech_text": "Edit labels in napari, return them to spacer, and review the change before acceptance."
+          "speech_text": "Edit labels in [napari](/nəpˈɑɹi/), return them to spacer, and review the change before acceptance."
         },
         {
           "narration": "When the workflow finishes, corrected masks and the curation record remain connected to the original field.",
@@ -3335,7 +3323,7 @@
           "narration": "This tutorial covers Barcode QC. Check mapping depth, coverage, collisions, positional effects, and an evidence-based abundance threshold.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Barcode Q C. Check mapping depth, coverage, collisions, positional effects, and an evidence-based abundance threshold."
+          "speech_text": "This tutorial covers Barcode QC. Check mapping depth, coverage, collisions, positional effects, and an evidence-based abundance threshold."
         },
         {
           "narration": "Open a completed barcode-mapping run with plate and library metadata.",
@@ -3671,7 +3659,7 @@
           "narration": "This tutorial covers QC Dashboard. Combine segmentation, unit, leakage, plate-effect, and annotation checks into one review surface.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Q C Dashboard. Combine segmentation, unit, leakage, plate-effect, and annotation checks into one review surface."
+          "speech_text": "This tutorial covers QC Dashboard. Combine segmentation, unit, leakage, plate-effect, and annotation checks into one review surface."
         },
         {
           "narration": "Choose the project and runs whose quality evidence should be summarized.",
@@ -3911,7 +3899,7 @@
           "narration": "This tutorial covers AnnData Export. Write spaCR measurements as an AnnData file for scanpy or scvi-tools.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Ann data Export. Write spacer measurements as an Ann data file for scan pie or S C V I tools."
+          "speech_text": "This tutorial covers Anne data Export. Write spacer measurements as an Anne data file for scan pie or S C V I tools."
         },
         {
           "narration": "Choose the measurement table, object type, features, observations, and metadata columns.",
@@ -3959,7 +3947,7 @@
           "narration": "This tutorial covers PCA. Summarize correlated measurements with principal components and inspect the features driving them.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers P C A. Summarize correlated measurements with principal components and inspect the features driving them."
+          "speech_text": "This tutorial covers PCA. Summarize correlated measurements with principal components and inspect the features driving them."
         },
         {
           "narration": "Choose a measurement table, numeric features, and optional labels or groups.",
@@ -3977,7 +3965,7 @@
           "narration": "Fit PCA and inspect scores, explained variance, loadings, and image-linked outliers together.",
           "visual": "run",
           "hold_after": 0.45,
-          "speech_text": "Fit P C A and inspect scores, explained variance, loadings, and image-linked outliers together."
+          "speech_text": "Fit PCA and inspect scores, explained variance, loadings, and image-linked outliers together."
         },
         {
           "narration": "When the workflow finishes, scores, loadings, settings, and plots can be exported for reproducible exploration.",
@@ -4079,7 +4067,7 @@
           "narration": "When the workflow finishes, the selected definitions can be copied or exported alongside an analysis.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, the selected definitions can be copied or exported alongside an analysis."
+          "speech_text": "When the workflow finishes, the selected definitions can be copyd or exported alongside an analysis."
         }
       ]
     },
@@ -4158,21 +4146,21 @@
           "visual": "02_two_d_gate",
           "hold_after": 0.7,
           "focus_key": "two_d_workspace",
-          "speech_text": "In two D, choose X and Y for a scatter, or leave Y empty for a histogram. Select a threshold or shape tool and draw around the intended population. The full cloud remains visible while included objects are highlighted."
+          "speech_text": "In 2D, choose X and Y for a scatter, or leave Y empty for a histogram. Select a threshold or shape tool and draw around the intended population. The full cloud remains visible while included objects are highlighted."
         },
         {
           "narration": "Choose 3D and a Z measurement to inspect a rotatable volume. The axis buttons control the spin direction, and Box gate records bounds on all three displayed measurements.",
           "visual": "03_three_d_volume",
           "hold_after": 0.7,
           "focus_key": "three_d_workspace",
-          "speech_text": "Choose three D and a Z measurement to inspect a rotatable volume. The axis buttons control the spin direction, and Box gate records bounds on all three displayed measurements."
+          "speech_text": "Choose 3D and a Z measurement to inspect a [rotatable](/ɹˈOtATəbəl/) volume. The axis buttons control the spin direction, and Box gate records bounds on all three displayed measurements."
         },
         {
           "narration": "Choose xD to project the eligible measurements into principal components. The source label reports explained variance, and PC1, PC2, and PC3 become ordinary axes for the same gating tools.",
           "visual": "04_xd_projection",
           "hold_after": 0.7,
           "focus_key": "xd_workspace",
-          "speech_text": "Choose X D to project the eligible measurements into principal components. The source label reports explained variance, and P C one, P C two, and P C three become ordinary axes for the same gating tools."
+          "speech_text": "Choose xD to project the eligible measurements into principal components. The source label reports explained variance, and PC1, PC2, and PC3 become ordinary axes for the same gating tools."
         },
         {
           "narration": "The gate hierarchy reports the object count, percentage of its parent, and percentage of all rows. Toggle a gate's check box to show or hide it, and select a gate before drawing when the next population should be nested inside it.",
@@ -4354,7 +4342,7 @@
           "narration": "This tutorial covers Power / Design. Estimate cells and wells needed to detect an effect under stated assumptions.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Power / Design. Estimate cells and wells needed to detect an effect under stated assumptions."
+          "speech_text": "This tutorial covers Power and Design. Estimate cells and wells needed to detect an effect under stated assumptions."
         },
         {
           "narration": "Enter the outcome type, expected effect, variability, grouping, and planned analysis.",
