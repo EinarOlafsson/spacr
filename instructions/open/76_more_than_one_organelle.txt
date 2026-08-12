@@ -234,3 +234,45 @@ as a current defect.
 REMAINING JUDGEMENTS, unchanged: the plane budget being full at 7, the
 `<parent>_organelle_summary` table-name family, the 5-positional measurement
 signatures, and `summarize_organelles_by`'s magic "organelle" member.
+
+--------------------------------------------------------------------------------
+2026-08-12 - THE THREE QUEUED measure.py BUGS: TWO REAL, ONE DISPROVEN
+--------------------------------------------------------------------------------
+
+(i) THE ORGANELLE PLANE WAS NEVER WRITTEN BACK. Cell, nucleus and pathogen
+each get `data[..., <role>_mask_dim] = <role>_mask` after filtering; organelle
+did not, though its mask IS modified at the read -- `_filter_object` drops
+everything under `organelle_min_size` there. So the array kept the UNFILTERED
+organelle plane while the measurements used the filtered one.
+
+The comment above that block states the invariant it exists for: "the PNG
+crops and region arrays cover the same objects the measurements do".
+Organelle sat outside that guarantee, so a crop could show debris the
+measurement table had already dropped. Fixed, and a test now requires all
+four roles to be written back.
+
+(ii) `settings['cytoplasm_mask_dim']` RAISED KeyError, and not because the
+value was None -- THE KEY NEVER EXISTED. It is in neither the measure
+defaults nor `expected_types`, because the cytoplasm mask is DERIVED (cell
+minus its interior objects) and appended as a new plane rather than read from
+one. Every user who put "cytoplasm" in `summarize_organelles_by` hit it. The
+gate is now `settings['cytoplasm']`, which is the boolean that actually
+exists.
+
+(iii) `organelle_min_size` APPLIED TWICE -- DISPROVEN, and removing the
+"duplicate" would have introduced a real bug.
+
+`_filter_object` is idempotent: measured on a mask with 9-, 25- and 100-pixel
+objects at three thresholds, one pass and two give byte-identical results. So
+"applied twice" costs a pass and changes nothing.
+
+More importantly THE FIRST PASS IS LOAD-BEARING. The cytoplasm mask is built
+as "cell minus every interior object" FROM the organelle mask, between the
+two filter calls. Filtering only at the later site would carve sub-threshold
+organelle debris out of the cytoplasm -- a silent change to a measured area.
+The ordering (filter, build cytoplasm, filter again) is now asserted by a
+test and explained in a comment, so nobody tidies it away.
+
+This is the second claim from that survey to be disproven by checking rather
+than assumed correct. Recorded here for the same reason as the first: an
+instruction that lists a non-bug wastes the next person's afternoon.

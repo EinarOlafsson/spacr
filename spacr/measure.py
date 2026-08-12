@@ -2815,6 +2815,19 @@ def _measure_crop_core(index, time_ls, file, settings):
         
         if settings.get('organelle_min_size') and settings['organelle_min_size'] != 0:
             organelle_mask = _filter_object(organelle_mask, settings['organelle_min_size'])
+            # YES, THIS RUNS TWICE, AND BOTH ARE WANTED. The organelle mask
+            # is already filtered where it is read, ~35 lines up, and that
+            # early pass is LOAD-BEARING: the cytoplasm mask is built as
+            # "cell minus every interior object" from the organelle mask
+            # between the two, so filtering only here would carve
+            # sub-threshold organelle debris out of the cytoplasm.
+            #
+            # The second pass is harmless because `_filter_object` is
+            # idempotent -- measured: one pass and two give byte-identical
+            # masks -- and it keeps organelle in the same block as its four
+            # siblings, where someone looking for "where are the size
+            # filters" will find it. Removing either one is a behaviour
+            # change; removing the FIRST is a silent one.
 
         # REGION-FILTER EXTENSION POINT. Registered filters are handed the
         # label ids of each object type (and, only if they ask, the centroids)
@@ -2871,6 +2884,18 @@ def _measure_crop_core(index, time_ls, file, settings):
             data[..., settings['nucleus_mask_dim']] = nucleus_mask.astype(data_type)
         if settings['pathogen_mask_dim'] is not None:
             data[..., settings['pathogen_mask_dim']] = pathogen_mask.astype(data_type)
+        # ORGANELLE WAS MISSING FROM THIS BLOCK. Cell, nucleus and pathogen
+        # were each written back; organelle was not, though its mask IS
+        # modified above -- `_filter_object` drops everything under
+        # `organelle_min_size` at the read. So the array kept the UNFILTERED
+        # organelle plane while the measurements used the filtered one.
+        #
+        # The comment above these write-backs states the invariant they
+        # exist for: "the PNG crops and region arrays cover the same objects
+        # the measurements do". Organelle was outside that guarantee, so a
+        # crop could show debris the measurement table had already dropped.
+        if settings.get('organelle_mask_dim') is not None:
+            data[..., settings['organelle_mask_dim']] = organelle_mask.astype(data_type)
         if settings['cytoplasm']:
             data = np.concatenate((data, cytoplasm_mask[..., np.newaxis]), axis=-1)
 
@@ -2919,7 +2944,16 @@ def _measure_crop_core(index, time_ls, file, settings):
                         org_per_pathogen.columns = [f'organelle_summary_{col}' if col != 'label' else col for col in org_per_pathogen.columns]
                         _merge_and_save_to_database(org_per_pathogen, pd.DataFrame(), 'pathogen_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
                 if "cytoplasm" in settings['summarize_organelles_by']:
-                    if settings['cytoplasm_mask_dim'] is not None:
+                    # `cytoplasm` IS A BOOLEAN, NOT A DIM. There is no
+                    # `cytoplasm_mask_dim` setting -- it is in neither the
+                    # measure defaults nor expected_types -- because the
+                    # cytoplasm mask is DERIVED (cell minus its interior
+                    # objects) and appended as a new plane rather than read
+                    # from one. So this line raised KeyError, not because
+                    # the value was None but because the key never existed,
+                    # for every user who asked to summarise organelles by
+                    # cytoplasm.
+                    if settings['cytoplasm']:
                         org_per_cytoplasm = _summarize_organelles_per_parent(organelle_mask, cytoplasm_mask, channel_arrays, parent_name='cytoplasm', spacing=spacing)
                         org_per_cytoplasm.columns = [f'organelle_summary_{col}' if col != 'label' else col for col in org_per_cytoplasm.columns]
                         _merge_and_save_to_database(org_per_cytoplasm, pd.DataFrame(), 'cytoplasm_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)

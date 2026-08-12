@@ -229,3 +229,103 @@ through the lazy loader. Fixed in 00feb743.
 Worth keeping for the method rather than the bug: I verified that commit
 against a scoped test selection, and a NEW FILE is precisely the failure a
 scoped selection cannot see. Adding a module means running the smoke suite.
+
+--------------------------------------------------------------------------------
+2026-08-12 - THE MATRIX WAS RED FOR ONE REASON, AND THE FLOORS WERE STILL GUESSES
+--------------------------------------------------------------------------------
+
+Read the runs rather than the file. compat-matrix 31612651755: EIGHT cells
+red -- 3.9, 3.10, 3.12 (control), 3.13, 3.14, Linux ARM64, Windows, macOS --
+every one of them on the same step and the same assertion:
+
+    tests/test_smoke.py::test_lazy_loader_matches_files
+    AssertionError: file present but not in _SUBMODULES: {'organelle_types'}
+
+That is the SECOND time this file has recorded exactly this failure (see
+2026-08-11, `object_roles.py`), for the same reason: a new `spacr/*.py`
+shipped without a line in `_SUBMODULES`. Registered. The deciding step is now
+410 passed locally, and nothing else in it fails on any cell. The three
+Python-range questions this file has carried are, separately, all CLOSED --
+tests.yml already runs the full suite on 3.9 through 3.14 and compat-matrix
+carries blocking 3.9 and 3.10 cells.
+
+THE FLOORS WERE THE REAL FINDING. "every OTHER dependency floor is still a
+guess, and nothing verifies them" was the item left open above. Two of them
+were wrong, and the min-deps job -- the only job that installs the declared
+floors -- had been failing 16 tests on them that no other job failed:
+
+  statsmodels>=0.13.0 -> >=0.14.0. The old comment justified 0.13 by
+  `othermod.betareg.BetaModel`, which is the FIRST API spaCR needed, not the
+  last. Three APIs in use arrive in 0.14.0: `links.Identity` (0.13 spells the
+  Power links lowercase, so it is AttributeError, not a deprecation),
+  `BetaResults.get_influence`, and perfect separation becoming a WARNING
+  instead of an exception in `GLM._fit_irls`. Note `links.Logit` and
+  `links.Log` -- also used -- do predate it, which is why nothing noticed.
+
+  shap>=0.45.0 -> >=0.47.0. `spacr/sim.py` calls
+  `shap.summary_plot(..., rng=...)`; `summary_plot` IS
+  `plots._beeswarm.summary_legacy`, which grew `rng` in 0.47.0. On 0.45/0.46
+  it is a TypeError, and neither has a `**kwargs` to swallow it.
+
+Both were MEASURED, not inferred: an isolated venv on the rest of the minimum
+profile (numpy 1.26.4, pandas 2.2.1, scipy 1.12.0, patsy 0.5.6), each API run
+on the release below the new floor and on the floor itself. Both floors
+publish cp39 wheels, so the 3.9 claim is untouched.
+
+`tests/test_dependency_floors_have_the_api.py` is the answer to "nothing
+verifies them". Each row records an API, the release that introduced it,
+where spaCR calls it, and asserts three things: the call site still exists,
+setup.py admits nothing below that release, and the INSTALLED release still
+provides it -- the last being the mirror-image drift the cellpose contract
+catches.
+
+THREE MORE THINGS THE FLOOR AUDIT TURNED UP, all of them 3.9-only:
+
+  * `tests/test_declared_dependencies_match_imports.py` -- the file this
+    instruction cites as proof that every import is declared -- could not RUN
+    on 3.9. It used `sys.stdlib_module_names`, which is 3.10+, so all four of
+    its tests died with AttributeError on the 3.9 cell and in the min-deps
+    job. The census proving no import is undeclared was dead on precisely the
+    interpreter where a resolver hands the user a different package set.
+    Given a fallback that enumerates the interpreter's own stdlib.
+
+  * `spacr/plot.py::_display_gif` left the image format for IPython to guess.
+    IPython only recognises the GIF magic bytes from 9.0.0, and IPython 9
+    needs Python 3.11 -- so on 3.9 and 3.10 there is NO IPython that guesses
+    right, and a GIF went out with an `image/png` mime type. Now stated.
+
+  * a `pd.DataFrame` subclass in the test suite overrode `_constructor` and
+    not `_constructor_from_mgr`, which DeprecationWarns on pandas 2.2 (the
+    declared floor) and nowhere else. A hygiene rule in
+    `test_test_suite_hygiene.py` now bans the shape.
+
+AND ONE DRIFT IN THE OTHER DIRECTION, WHICH THIS FILE CAUSED: the conda-forge
+recipe still said `cellpose >=4.0`. It was never updated when the floor was
+raised to 4.0.7 on 2026-08-08, because `test_conda_forge_recipe.py` only
+compared NAMES. A conda user would have resolved to exactly the release the
+PyPI package refuses. Recipe synced; the test now compares floors too.
+
+STILL OPEN, and the largest piece is unchanged:
+
+  1. "Optimal" is STILL undefined. Nothing here settles it. The audit above
+     only sharpens the point: a floor is now verified to be a version that
+     WORKS, which is the "oldest that passes" reading, while every non-min
+     job resolves newest. Both are tested; neither is declared.
+
+  2. THE CEILING is now the live version question, not the floor.
+     `cellpose>=4.0.7,<5.0` admits 4.2.1.1, and on 4.2.1.1 ten tests fail on
+     EVERY "Fast / Newest compatible" cell (3.9 through 3.14 alike -- it is
+     not a Python question). The drift is real and not cosmetic:
+     `CellposeModel.__init__` default `pretrained_model` 'cpsam' -> 'cpsam_v2';
+     `eval` lost `invert` and changed `bsize` 256 -> None; the deprecation
+     guards spaCR's contract reads are gone; and
+     `test_real_cellpose_accepts_the_chosen_axis` fails on channel COUNT
+     ((16,16,1) where 3 is expected), which is a behaviour change in the
+     masking path rather than a signature record.
+
+     Deliberately not decided here, because the three options are not
+     equivalent and the evidence to choose is not in hand: cap at `<4.2` and
+     deny users 4.2; re-record the contract at 4.2 and break min-deps at
+     4.0.7; or make the contract range-aware, which the 2026-08-08 note
+     forbids for good reasons. Answering it needs cellpose 4.2.1.1 actually
+     installed and spaCR's masking path run against it.
