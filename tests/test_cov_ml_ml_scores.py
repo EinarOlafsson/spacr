@@ -444,14 +444,22 @@ def test_ml_analysis_matches_list_controls_numerically(rng):
 
 def test_ml_analysis_duplicate_location_column_matches_nothing(rng):
     """A duplicated location column makes df[location_column] a DataFrame, so
-    all three matching strategies fail and no control rows are found."""
+    all three matching strategies fail and no control rows are found.
+
+    This used to surface as sklearn's "n_samples=0" from inside
+    train_test_split, three frames below anything a user recognises -- the
+    traceback that was auto-filed ten times as issues #79-#90. It is now
+    named where it happens, and the DUPLICATE COLUMN gets its own sentence
+    because the fix is to the table rather than to the control values: no
+    amount of correcting positive_control helps.
+    """
     import spacr.ml as ML
 
     df = _feature_df(per_class=20)
     df["dup"] = df["columnID"]
     df.columns = ["columnID" if c == "dup" else c for c in df.columns]
 
-    with pytest.raises(ValueError, match="n_samples=0"):
+    with pytest.raises(ValueError, match="columns named 'columnID'"):
         ML.ml_analysis(df, positive_control="c2", negative_control="c1",
                        model_type="random_forest", n_estimators=5,
                        verbose=False, **COMMON)
