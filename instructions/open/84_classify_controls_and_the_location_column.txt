@@ -2,7 +2,10 @@
 ANNOTATION MODE OVERWRITES location_column, AND THE USER CANNOT GET OUT
 ================================================================================
 
-Status:    not started, 2026-08-12.
+Status:    code fixed 2026-08-12; the three issues are not yet closed.
+           RENUMBERED from 83 to 84: a concurrent codex session created its
+           own 83 for the multilingual catalogs at almost the same moment.
+           Two files with one number is how one of them gets lost.
 Requested: 2026-08-12 — "there are some new github issues that relate to
            classify, add them"
 

@@ -23,17 +23,20 @@ Chinese model-corpus contamination, and silent truncation. The builders have
 been redesigned, but their final corpus tests and identity freeze still need to
 pass before generation resumes. Nothing in this task is publishable yet.
 
-2026-08-12 checkpoint: builder hardening is now committed at ``9b354204``.
-The frozen English inventories contain 6,322 API records (6,203 canonical and
-119 exact aliases), 22,170 translatable blocks, 671 runtime setting labels,
-159 categories, 1,370 UI strings, and 54 module summaries. Corpus/context scans
-have zero failures and all real model-tokenizer inputs are below 400 tokens.
-Focused and combined builder/extractor/frontend tests pass. Two guarded CPU
-lanes are regenerating Portuguese and Korean first; OPUS then continues through
-Spanish/German/Swedish/French, while M2M100 continues through Simplified
-Chinese/Hindi/Icelandic. Each locale stops before runtime or advancement on any
-nonzero API audit. The repository skill requested alongside this task is
-complete separately as instruction 84 and commit ``d13d07bd``.
+2026-08-12 checkpoint: builder hardening is committed at ``9b354204``. The
+final source work expanded the English API inventory to 6,351 records (6,232
+canonical and 119 exact aliases): 29 reviewed public bodies from the shared
+live-preview contract committed at ``c127c421``. The Image UMAP settings change
+at ``66610343`` also changed the runtime-English source contract, so runtime
+catalog work is deliberately held until the two in-flight API jobs finish and
+the English runtime manifest is rebuilt once. Portuguese and Korean API repair
+are running on the final 6,351-record corpus on CUDA; both primary passes are
+complete and their strict sentence/protected-text repair and audits remain in
+flight. OPUS then continues through Spanish/German/Swedish/French, while
+M2M100 continues through Simplified Chinese/Hindi/Icelandic. Each locale stops
+before runtime or advancement on any nonzero audit. The repository narration
+skill requested alongside this task is complete separately as instruction 84
+and commit ``d13d07bd``; ``quick_validate.py`` passes.
 
 --------------------------------------------------------------------------------
 WHY IT MATTERS
