@@ -756,13 +756,32 @@ def _mode() -> str:
         return "balanced"
 
 
+def _report(result, prefix: str = "") -> None:
+    """Log a cleanup result at the level its NEWS VALUE deserves.
+
+    Extra-performance mode runs the pre-run cleanup before every job, and
+    most of the time there is nothing to reclaim -- the caches are already
+    empty, or the allocator has not handed the pages back. Logging that at
+    INFO produced two lines every couple of seconds, all of them saying
+    nothing happened (issue #83), which drowns the console and trains the
+    reader to ignore it.
+
+    So INFO is reserved for a cleanup that actually moved something, or one
+    that found the process LARGER than before -- both are worth a line.
+    Everything else is DEBUG, where it is still available when someone is
+    diagnosing memory behaviour on purpose.
+    """
+    worth_saying = result.freed or result.grew
+    (LOG.info if worth_saying else LOG.debug)("%s%s", prefix, result.summary())
+
+
 def _cleanup(*, aggressive: bool, release_models: bool) -> List[Reclaim]:
     results = [clear_ram(aggressive=aggressive),
                clear_vram(release_models=release_models)]
     if aggressive:
         results.append(clear_cpu())
     for result in results:
-        LOG.info("%s", result.summary())
+        _report(result)
     return results
 
 
@@ -813,7 +832,7 @@ def run_pre_run_cleanup(app_key: str = "") -> List[Reclaim]:
         LOG.debug("could not consult the run registry", exc_info=True)
     results = [clear_ram(aggressive=True), clear_vram(release_models=False)]
     for result in results:
-        LOG.info("before %s: %s", app_key or "a run", result.summary())
+        _report(result, prefix=f"before {app_key or 'a run'}: ")
     return results
 
 
