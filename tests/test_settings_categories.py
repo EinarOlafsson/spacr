@@ -517,7 +517,11 @@ def test_no_category_name_is_declared_twice():
         f"category name(s) typed twice in the dict literal: {duplicated}. The "
         "later entry silently replaces the earlier one and its settings vanish."
     )
-    assert set(declared) == set(S.categories)
+    # Categories a module CONTRIBUTED at import are not in the literal and
+    # must not be expected there. Power/Design registers "Power analysis"
+    # through `register_defaults`, so this comparison was order-dependent:
+    # it passed alone and failed after any test that imported that screen.
+    assert set(declared) == set(S.categories) - S.REGISTERED_CATEGORIES
 
 
 # ---------------------------------------------------------------------------
