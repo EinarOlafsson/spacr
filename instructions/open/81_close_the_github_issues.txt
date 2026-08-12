@@ -1,0 +1,124 @@
+================================================================================
+CLOSE THE GITHUB ISSUES BY FIXING THEM, AND CLOSE THEM AS THE MAINTAINER
+================================================================================
+
+Status:    not started, 2026-08-11. 26 issues open.
+Requested: 2026-08-11 — "add to instructions to solve the github bug issues
+           and mark them as solved, in my name,"
+
+--------------------------------------------------------------------------------
+ATTRIBUTION, FIRST, BECAUSE IT GOVERNS EVERY ACTION IN THIS FILE
+--------------------------------------------------------------------------------
+
+"in my name" — the maintainer is the author of this work. So:
+
+  * NO "Generated with Claude", no Co-Authored-By trailer, no AI attribution
+    in a commit message, an issue comment, or a closing note. This matches
+    the standing rule already in force for commits.
+  * A closing comment says WHAT WAS WRONG and WHAT FIXED IT, with the commit
+    SHA. It does not say who or what wrote it.
+  * Write in the register the repository already uses. An issue comment is
+    read by users, so it names the symptom they saw, not the internals.
+
+CLOSING AN ISSUE IS PUBLIC AND OUTWARD-FACING. Close an issue only when the
+fix is committed AND a test covers it. "I believe this is fixed" is not a
+reason to close; it is a reason to comment.
+
+--------------------------------------------------------------------------------
+THE INVENTORY
+--------------------------------------------------------------------------------
+
+TEN FILINGS OF ONE BUG — fingerprint 500e6c, ml_analyze
+-------------------------------------------------------
+  #79   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #80   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #81   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #84   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #85   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #86   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #87   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #88   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #89   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #90   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+
+OTHER AUTO-FILED
+----------------
+  #75   2026-07-29  [auto 54a0e8] [mask] Error: boom
+  #82   2026-08-11  [auto e5d682] [ml_analyze] ValueError: Found array with 0 sample(s) (shape=(0, 64)) while a mini
+
+REAL, REPORTED BY HAND
+----------------------
+  #4    2026-05-20  #enhancement Quickly return to the last annotated image in manual annotation
+  #6    2026-05-20  #bug OS X labels in annotation are low contrast
+  #7    2026-05-20  #enhancement Pass operator-based keywords for image type in Annotations
+  #13   2026-06-02  #bug Creation of masks folder when re-masking an existing dataset
+  #15   2026-06-05  #bug measurements sometimes hangs from completion
+  #19   2026-06-05  [Feature Request] Introduce Active Learning / Interactive Training to Classify Module to Reduce 
+  #20   2026-06-16  [Bug] Training warnings
+  #21   2026-07-09  [Bug] spacr-ml typos
+  #72   2026-07-28  annotate: residual segfault on window-resize during page reload (same signature as #71, cause no
+  #73   2026-07-28  341f446 mirrors the displayed channel order of every pre-existing crop folder
+  #76   2026-07-29  use_checkpoint=True silently freezes the backbone — only the classifier head trains
+  #77   2026-07-29  _save_model never persists the best checkpoint on real (non-toy) datasets
+  #78   2026-07-29  F1(macro) always prints as nan for binary classification
+  #83   2026-08-11  Extra performance mode still continuously printing to console
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. THE ml_analyze CRASH (#79-#82, #84-#90) IS ONE BUG. `ml_analysis` reaches
+   `train_test_split` with an EMPTY frame:
+
+       ml.py:4346  train_test_split(X, y, test_size=0.2, ...)
+       ValueError: With n_samples=0 ... the resulting train set will be empty
+
+   Find why X is empty rather than guarding the split. A guard turns a crash
+   into a silent no-result, which is worse.
+
+   A STRONG HYPOTHESIS, NOT A DIAGNOSIS: instruction 77 measured
+   `_read_and_merge_data` joining INNER through all five object tables, where
+   ONE missing crop row deletes 99 of 100 cells. An empty X is what the end
+   of that looks like. Test it before believing it — two findings in 77 were
+   confidently wrong.
+
+   Fix once, close all ten, each referencing the same commit. Nine of them
+   are duplicates and should say so.
+
+2. THE AUTO-FILER MUST DEDUPLICATE. Ten issues carry the SAME fingerprint,
+   which is what a fingerprint is for. It should find the open issue with
+   that fingerprint and add a comment (or a reaction, or a count) rather than
+   opening another. Ten filings of one crash will bury the issues that matter,
+   and this is a defect in the feature instruction 56 delivered.
+
+3. #75 "[auto 54a0e8] [mask] Error: boom" IS A TEST ARTIFACT that reached the
+   real tracker. Close it, and make sure the issue-filing tests cannot post
+   to the live repository — that is a second defect in the same feature.
+
+4. THE THREE ML BUGS FROM 2026-07-29 (#76, #77, #78) are the same class this
+   repository has been clearing all day — a run that looks like it worked:
+
+       #76  use_checkpoint=True silently freezes the backbone, so only the
+            classifier head trains. Every reported accuracy from such a run
+            is from a frozen network.
+       #77  _save_model never persists the best checkpoint on real
+            (non-toy) datasets, so the model kept is not the model chosen.
+       #78  F1(macro) always prints as nan for binary classification.
+
+   Take these before the older feature requests: each one silently
+   invalidates a result.
+
+5. WORK THE REST OLDEST-FIRST once the above are done. Several are small
+   (#6 low-contrast labels on OS X, #4 return to the last annotated image),
+   and #19 (active learning in Classify) is a feature, not a bug — it does
+   not belong in this instruction and should get its own if it is wanted.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Every closed issue has: a commit that fixes it, a test that fails without
+that commit, and a closing comment naming both — written as the maintainer,
+with no AI attribution anywhere in it.
+
+The auto-filer, run twice on the same traceback, produces ONE issue.
