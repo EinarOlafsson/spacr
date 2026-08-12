@@ -192,8 +192,21 @@ def test_real_db_run_returns_annotated_data_and_chi_squared(tmp_path):
     assert set(np.unique(df["test"])) <= {0.0, 1.0, 2.0}
 
     chi = out["chi_squared"]
-    assert list(chi.columns) == ["chi_squared_stat", "p_value", "degrees_of_freedom"]
-    assert len(chi) == 1
+    # The historical three columns are still there and still row 0.
+    # Instruction 80 added the columns naming the test and its unit, plus
+    # rows for the level-appropriate test and the mixed model: a chi-squared
+    # over objects and a t-test over wells answer different questions and
+    # were previously reported as one number with one n.
+    for column in ("chi_squared_stat", "p_value", "degrees_of_freedom",
+                   "test", "unit", "n"):
+        assert column in chi.columns, column
+    assert chi.loc[0, "unit"] == "object"
+    # One row per test now, not one row total: the object chi-squared, then
+    # the per-unit proportion test and the clustered model, one of each per
+    # bin. The object row must still be first, because every published
+    # figure came from it.
+    assert len(chi) >= 1
+    assert chi.loc[0, "test"] == "chi-squared on object counts"
     # 3 conditions x 3 classes -> (3-1)*(3-1) = 4 degrees of freedom, and the
     # deliberately skewed class mix must come out significant.
     assert int(chi["degrees_of_freedom"].iloc[0]) == 4
