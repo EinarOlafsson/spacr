@@ -209,6 +209,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "coordinate_columns", "crop_shape", "normalization",
     "normalization_scope",
     "balance_to_smallest",
+    # The filesystem-facing class folder names are deliberately separate
+    # from the semantic `classes` rules and belong beside them in the UI.
+    "class_folder_names",
     # The declared channel mapping that replaced png_dims (INVARIANTS 13).
     "png_channel_mapping",
     # The measurement training basis, shared by Classify (CV) and (ML).
