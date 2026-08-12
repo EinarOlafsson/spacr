@@ -148,6 +148,20 @@ UNDO_LIMIT = 128
 CLOSE_DRAIN_MS = 15000
 
 
+def on_dark_theme() -> bool:
+    """Is the app currently showing the dark theme?
+
+    The Annotate grid paints raw colours rather than being QSS-styled, so it
+    resolves this itself -- see :func:`tile_palette`, which does the same for
+    the tile chrome.
+    """
+    try:
+        from ..preferences import resolve_effective_theme
+        return str(resolve_effective_theme()).lower() != "light"
+    except Exception:
+        return True
+
+
 def tile_palette() -> Dict[str, str]:
     """Palette for the theme the app is actually showing right now.
 
@@ -2051,7 +2065,7 @@ class AnnotateScreen(QWidget):
             return
         lines = ["Class    Count    Color"]
         for cls, cnt in rows:
-            lines.append(f"{cls:>5}  {cnt:>7}    {label_to_hex(cls) or ''}")
+            lines.append(f"{cls:>5}  {cnt:>7}    {label_to_hex(cls, dark=on_dark_theme()) or ''}")
         QMessageBox.information(self, "Class counts", "\n".join(lines))
 
     # ------------------------------------------------------------------
@@ -2850,8 +2864,15 @@ class AnnotateScreen(QWidget):
         ``label_to_hex`` is the app's one class→colour map (the Class counts
         dialog reads the same function), so the border can never disagree
         with the colour shown anywhere else.
+
+        THE THEME IS PASSED THROUGH. The palette is tuned against a dark
+        tile; on a light one the same colours measured 1.28-4.34 contrast,
+        five of the first six below the readability floor. That is issue #6 --
+        reported as a macOS problem, and really a light-theme one, since
+        macOS defaults to the light appearance far more often than Linux.
         """
-        return label_to_hex(self._current_value(slot)) or resting_border_color()
+        return (label_to_hex(self._current_value(slot), dark=on_dark_theme())
+                or resting_border_color())
 
     def _repaint_slot(self, slot: int) -> None:
         """Sync one tile's chrome with the model. Cheap: no pixmap work.
