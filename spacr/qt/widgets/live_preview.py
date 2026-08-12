@@ -2061,9 +2061,36 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         the main settings panel (wired by the AppScreen)."""
         self._propagate_cb = cb
 
+    #: The three segmentation settings, as ``(panel name, Mask suffix)``.
+    #:
+    #: The panel has ONE diameter / flow / probability triple and an object
+    #: selector, while Mask declares all three per compartment
+    #: (``cell_diameter``, ``nucleus_FT``, ...). Which compartment the
+    #: triple means is therefore decided by the selector, and this table is
+    #: the whole of the translation — used in BOTH directions so the two
+    #: cannot drift apart again.
+    #:
+    #: The bare panel names are real settings for the modules that reach
+    #: this panel through :mod:`spacr.qt.preview_registry`
+    #: (``cellpose_masks``, ``analyze_plaques``), which have one object type
+    #: and call it ``diameter``. Those keep working: a native name present
+    #: in the dict wins over the compartment alias.
+    _SEGMENTATION_ALIASES: Tuple[Tuple[str, str], ...] = (
+        ("diameter", "diameter"),
+        ("flow_threshold", "FT"),
+        ("CP_prob", "CP_prob"),
+    )
+
     def settings_for_propagation(self) -> dict:
         """Map the live-preview widget values to main-panel settings keys."""
         model = self._model_box.currentText()
+        # The tuned value belongs to the compartment being segmented. With
+        # "nucleus" selected the panel runs Cellpose on the nucleus, so
+        # writing the result to `cell_diameter` left `nucleus_diameter`
+        # untouched and the run used neither the tuned number nor the one on
+        # screen. "cell" is the default selection, so the ordinary case is
+        # unchanged.
+        primary = self._primary_object()
         out = {
             "model_name": model,
             "cell_channel": int(self._cell_channel.value()),
@@ -2073,9 +2100,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             # instead of being lost when the dialog closes.
             "pathogen_channel": int(self._pathogen_channel.value()),
             "organelle_channel": int(self._organelle_channel.value()),
-            "cell_diameter": float(self._diameter.value()),
-            "cell_FT": float(self._flow.value()),
-            "cell_CP_prob": float(self._prob.value()),
+            f"{primary}_diameter": float(self._diameter.value()),
+            f"{primary}_FT": float(self._flow.value()),
+            f"{primary}_CP_prob": float(self._prob.value()),
             "normalize": bool(self._normalise_check.isChecked()),
             "lower_percentile": float(self._lo_pct.value()),
         }
@@ -2096,26 +2123,62 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 LOG.debug("propagate_settings failed", exc_info=True)
 
     def apply_settings(self, settings: dict):
-        """Copy relevant values from a Mask-app ``settings`` dict, and
-        cache the whole dict for the Pre / Post routes to read from."""
-        self._settings = dict(settings)
-        try:
-            if "diameter" in settings:
-                self._diameter.setValue(float(settings["diameter"]))
-            if "flow_threshold" in settings:
-                self._flow.setValue(float(settings["flow_threshold"]))
-            if "CP_prob" in settings:
-                self._prob.setValue(float(settings["CP_prob"]))
-            if "cell_channel" in settings and settings["cell_channel"] is not None:
-                self._cell_channel.setValue(int(settings["cell_channel"]))
-            if "nucleus_channel" in settings and settings["nucleus_channel"] is not None:
-                self._nucleus_channel.setValue(int(settings["nucleus_channel"]))
-            if "model_name" in settings:
-                idx = self._model_box.findText(str(settings["model_name"]))
-                if idx >= 0:
-                    self._model_box.setCurrentIndex(idx)
-        except Exception:
-            LOG.debug("apply_settings failed", exc_info=True)
+        """Seed the panel from a module's settings, and cache the whole dict
+        for the Pre / Post routes to read from.
+
+        This is the inverse of :meth:`settings_for_propagation` and is
+        tested as one — the defect it was written for is that the two spoke
+        different vocabularies. The panel emitted ``cell_diameter`` and read
+        back ``diameter``, which Mask does not declare, so a Mask screen
+        seeded here kept the panel's own hardcoded 30 px, 0.4 flow and 0.0
+        probability while ``cell_channel`` and ``nucleus_channel`` DID land
+        — the preview visibly changed and looked seeded, having silently
+        dropped exactly the three settings it is opened to check.
+
+        Every field is copied independently. A single unusable value used to
+        abort the whole copy through the shared ``except``, so one junk
+        diameter also cost the flow threshold, the channels and the model.
+        """
+        settings = dict(settings or {})
+        self._settings = settings
+        primary = self._primary_object()
+
+        def _seed(widget, keys, cast):
+            """Write the first present, usable value of ``keys``."""
+            for key in keys:
+                if key not in settings or settings[key] is None:
+                    continue
+                try:
+                    widget.setValue(cast(settings[key]))
+                except Exception:
+                    LOG.debug("apply_settings: %r is not usable for %r",
+                              settings[key], key, exc_info=True)
+                return
+
+        for native, suffix in self._SEGMENTATION_ALIASES:
+            widget = {"diameter": self._diameter,
+                      "flow_threshold": self._flow,
+                      "CP_prob": self._prob}[native]
+            _seed(widget, (native, f"{primary}_{suffix}"), float)
+
+        # Pathogen and organelle are propagated OUT of this panel, so they
+        # are read back in as well: a round trip that drops two of its four
+        # channels is how the panel came to disagree with the run.
+        for comp in COMPARTMENTS:
+            _seed(getattr(self, f"_{comp}_channel"), (f"{comp}_channel",), int)
+
+        _seed(self._lo_pct, ("lower_percentile",), float)
+        if settings.get("normalize") is not None:
+            try:
+                # Mask declares a bool; the crop-preview vocabulary allows a
+                # [lo, hi] percentile pair, which is equally "normalise on".
+                self._normalise_check.setChecked(bool(settings["normalize"]))
+            except Exception:
+                LOG.debug("apply_settings: bad normalize", exc_info=True)
+        if settings.get("model_name") is not None:
+            idx = self._model_box.findText(str(settings["model_name"]))
+            if idx >= 0:
+                self._model_box.setCurrentIndex(idx)
 
     def current_params(self) -> dict:
         """Snapshot for tests + external callers."""
