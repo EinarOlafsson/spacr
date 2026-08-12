@@ -1215,30 +1215,38 @@ load-bearing (2), and the threshold zip REFUSES a length mismatch rather
 than truncating (8). Do not re-fix these; do check the comment before
 believing a future report that says otherwise.
 
-FINDING 20 WAS STILL LIVE, and it was the last one. Measured against the
-shipped factories:
+FINDING 20: I CLAIMED IT WAS STILL LIVE. IT WAS NOT, AND THE WAY I GOT
+THERE IS THE POINT.
 
-    Cellpose Masks   channels    declared [0, 0]     panel ran [0,1,2,3]
-    Classify         model_type  declared maxvit_t   panel ran resnet50
-    Activation Maps  model_type  declared maxvit     panel ran resnet50
-    Activation Maps  channels    declared [1, 2, 3]  panel ran [0,1,2,3]
+I measured `convert_settings_dict_for_gui` directly:
 
-`convert_settings_dict_for_gui` returned `special_cases[key]` verbatim,
-discarding the value the module's own factory had just produced. That table
-is one row per key for the whole application. The Qt panel repaired it
-downstream; Tk did not, and on Tk `check_settings` builds the run dict out
-of the widgets, so the table's value is what RUNS -- press Run on a freshly
-opened Tk module and it segments with a channel list that module never
-asked for.
+    Cellpose Masks   channels    declared [0, 0]     converter said [0,1,2,3]
+    Classify         model_type  declared maxvit_t   converter said resnet50
 
-Fixed at the SOURCE rather than in a second place: `_combo_default_for`
-keeps the curated option list and preselects the module's own value, adding
-it to the list when the curated one does not offer it. That last part is
-not optional -- Activation Maps declares `channels=[1, 2, 3]` and no
-channel option ever offered it, so a fix that only preselected would still
-have shown something else. It is the policy the Qt side had already settled
-on, now reached from one place by both GUIs, and the Qt repair downstream
-now agrees with its input instead of correcting it.
+Those numbers are real. The conclusion drawn from them was not. Tk does not
+render the converter's output -- `gui_core.setup_settings_panel` and
+`import_settings` both pass it through `_restore_module_defaults` first,
+added 2026-08-11 by c41a5f68 and covered by
+`tests/test_tk_panel_keeps_module_defaults.py`, which names these exact four
+cases. The panel shows the module's own default. The finding is CLOSED.
+
+Worse, that function's docstring says outright why the repair lives there
+and not in the converter: the "special cases ignore the supplied value"
+contract is deliberately pinned by a test, and changing it reaches every
+other caller. I changed the converter anyway, which duplicated a working
+fix at a second layer, broke the test guarding the first, and had to be
+reverted.
+
+THE LESSON, which is the same one this repository keeps teaching: I measured
+a COMPONENT and reported on the PATH. A settings panel is a pipeline --
+converter, then repair, then widget -- and reading the first stage answers a
+question nobody asked. The instrument for "what does Tk show" is the
+function Tk calls, or the panel itself. Two things would have caught it
+before the commit: running the existing test file whose name says what it
+covers, and grepping for other callers of the function being measured.
+
+So all 24 findings are closed: 23 by the audit above, and 21 by this
+session's preview work.
 
 WHAT IS LEFT IN THIS FILE IS TWO MAINTAINER DECISIONS AND NOTHING ELSE:
 
