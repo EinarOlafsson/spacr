@@ -827,7 +827,10 @@ def test_every_qt_section_hint_names_a_real_category():
     for app_key in (
         "measure", "external_masks", "map_barcodes", "umap", "ml_analyze", "mask",
         "timelapse", "motility", "regression", "activation", "replication",
-        "classify", "train_cellpose", "cellpose_masks", "cellpose_all",
+        # `classify_merged` was MISSING, and its absence cost two live
+        # tooltips: they were deleted as unreachable on 2026-08-12 because
+        # no app in this list rendered them. It renders both.
+        "classify", "classify_merged", "train_cellpose", "cellpose_masks",
         "analyze_plaques", "recruitment", "invasion",
         # Curated layouts of their own whose headings exist nowhere else.
         # Barcode QC and Illumination register settings that are in no

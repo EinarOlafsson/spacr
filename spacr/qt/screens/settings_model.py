@@ -1417,6 +1417,26 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "parameters for you and says on the console what it picked — the "
         "rest are under Organelle advanced, still editable, if you want to "
         "change any of them.",
+    # The workflow-ordered layouts render these under a longer title, and
+    # the tooltip table is keyed on the heading's EXACT text -- which is the
+    # trap the "Computer Vision — " prefix fell into and why instruction 73
+    # says to write the blurbs in the same change.
+    "OBJECT FILTRATION (ALL OBJECTS)":
+        "Which detected objects are kept, for every object class in one "
+        "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
+        "different objects, so they are one decision applied four times "
+        "rather than four unrelated knobs — the settings are ordered by "
+        "object, so each group reads together. Raise the minimum size to "
+        "drop debris, set a maximum to drop merged clumps, and use the "
+        "border filters when objects cut off by the image edge would bias "
+        "your measurements.",
+    "INTENSITY HANDLING (ALL OBJECTS)":
+        "How object intensity decides splitting, merging and inclusion, for "
+        "every object class in one place. The percentiles set the window "
+        "that intensities are read against; merge and split use intensity "
+        "to join objects the segmentation cut apart or separate ones it ran "
+        "together. Open this when the masks look right but the objects are "
+        "systematically over- or under-segmented.",
     "OBJECT FILTRATION":
         "Which detected objects are kept, for every object class in one "
         "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
@@ -1523,13 +1543,24 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How the model is fitted: epochs, learning rate, schedule, and which "
         "loss. Open it when training is unstable, stalls, or ignores the "
         "smaller class.",
-    # "CLASSIFIER" and "MODEL & FEATURES" were removed on 2026-08-12: no app
-    # renders either heading, checked against `categories_for_app` for all
-    # twenty-two app keys, so both blurbs were unreachable text that made
-    # `test_every_qt_section_hint_names_a_real_category` red. "EVALUATION &
-    # RESULTS" below is NOT dead -- it is a Qt-only regroup heading that
-    # exists in no shared category, which is exactly why that test has to
-    # consult every app rather than `S.categories` alone.
+    # RESTORED. These two were deleted on 2026-08-12 as unreachable, on the
+    # strength of an app list that did not include `classify_merged` -- which
+    # renders BOTH of them. The list came from
+    # `test_every_qt_section_hint_names_a_real_category`, whose own comment
+    # says it has to be exhaustive rather than representative, and it was
+    # neither. The test now includes classify_merged, so deleting a live
+    # blurb on that evidence again fails instead of shipping.
+    "CLASSIFIER":
+        "Which family of classifier runs — a computer-vision network trained "
+        "on the object images, or a tabular model trained on the measurements "
+        "already in the database. This is the top-level choice: it decides "
+        "which of the groups below apply.",
+    "MACHINE LEARNING — MODEL & FEATURES":
+        "The tabular model and the feature table it learns from — which "
+        "estimator, how much of the data is held back, and the pruning that "
+        "decides which measured features survive. Open it when the model "
+        "overfits, or when thousands of correlated features are drowning the "
+        "few that matter.",
     "EVALUATION & RESULTS":
         "How the fitted model is judged and how the result is shown — "
         "cross-validation, calibration, the leakage audit, the heatmap, and "
