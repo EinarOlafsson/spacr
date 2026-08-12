@@ -6681,8 +6681,12 @@ def generate_training_dataset(settings):
         group_by=settings.get('cv_group_by', 'well'),
     )
 
-    # expose actual disk classes for downstream training
-    settings['classes'] = final_names
+    # Expose the actual disk classes for downstream training. This is
+    # `class_folder_names`, NOT `classes`: what went to disk is a set of
+    # FOLDER names, while `classes` is the definition of what each class
+    # MEANS (name -> {column, value}). Overwriting the definitions with the
+    # folder listing discarded the columns and values the user had set.
+    settings['class_folder_names'] = final_names
     settings['nr_classes'] = len(final_names)
     
     try:
