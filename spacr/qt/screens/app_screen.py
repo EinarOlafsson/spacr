@@ -1536,6 +1536,15 @@ class AppScreen(QWidget):
         self._figures_card = Card(title="Figures")
         self._figure_queue = FigureQueue(parent=self._figures_card)
         self._figures_card.body_layout.addWidget(self._figure_queue, 1)
+        # "Figure settings…" on the NON-LIVE figure holds every Image UMAP
+        # setting, live against the figure on screen (instruction 75), and a
+        # Propagate button. Propagate means the same thing here as everywhere
+        # else in the app: write the values into THIS module's settings
+        # panel, which is what the next Run reads and what is saved with the
+        # run. Wired for every module, not just UMAP -- the figure colours
+        # and text size propagate the same way.
+        self._figure_queue.set_propagate_callback(
+            self._propagate_live_settings)
         self._umap_explorer = None
         self._umap_payload_ready = False
         if self.app_key == "umap":
@@ -1893,10 +1902,17 @@ class AppScreen(QWidget):
         # It starts off so ordinary runs retain the familiar static figure.
         # Turning it on before or after a run switches the same payload to the
         # click / image-preview / lasso / database-annotation interface.
+        #
+        # It says "Interactive", not "Live". A LIVE view re-renders a module's
+        # own output from the current settings before a run — Mask, Timelapse,
+        # Measure and Motility, all four of which now share one contract
+        # (spacr.qt.widgets.preview_contract). This explorer is not one of
+        # those: it makes an already-computed embedding clickable, and no
+        # setting changes what it draws. One word for one thing.
         self._interactive_switch = None
         if self.app_key == "umap" and self._umap_explorer is not None:
             self._interactive_switch = AiToggleLabel(
-                text="Live",
+                text="Interactive",
                 tooltip=(
                     "Toggle the interactive image UMAP. When ON (blue), "
                     "click a point to preview its image, draw around a "
@@ -2330,7 +2346,7 @@ class AppScreen(QWidget):
         try:
             self._console.append_notice(
                 "\nInteractive mode is on — click any point to preview its "
-                "image. Turn it off with the Live toggle.\n")
+                "image. Turn it off with the Interactive toggle.\n")
         except Exception:
             LOG.debug("could not announce interactive mode", exc_info=True)
 
