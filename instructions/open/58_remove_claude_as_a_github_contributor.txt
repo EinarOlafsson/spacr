@@ -11,6 +11,9 @@ Requested: 2026-08-08 — "remove claude as a contributoa on the spacr github pa
            every commit hash after the earliest rewritten one": "i want you
            to do this: changes every commit hash after the earliest
            rewritten one / but do this last on the instructions list"
+           2026-08-12 — SCOPE WIDENED: "add to instructions remove claude and
+           github-actions[bot] from all commits so they are no longer
+           contributers"
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
@@ -139,3 +142,56 @@ WHAT COULD STILL STOP IT. If, when the time comes, there are open PRs or
 another session is mid-work, say so and ask rather than proceeding -- the
 approval is for the rewrite, not for doing it at a moment that costs
 somebody else their work.
+
+--------------------------------------------------------------------------------
+2026-08-12 - SCOPE WIDENED TO github-actions[bot], AND MEASURED
+--------------------------------------------------------------------------------
+
+Requested: "add to instructions remove claude and github-actions[bot] from
+all commits so they are no longer contributers"
+
+MEASURED ON THE FULL HISTORY, not the last 400:
+
+    olafsson              1587      Einar
+    Einar work             955      Einar
+    Einar Olafsson         112      Einar
+    EinarOlafsson           44      Einar
+    SpaCr                   26      Einar
+    Lophorinus              82      SOMEBODY ELSE -- DO NOT TOUCH
+    jak18015                18      SOMEBODY ELSE -- DO NOT TOUCH
+    github-actions[bot]      6      to be rewritten
+
+    Co-Authored-By trailers 39      to be stripped
+
+THE TWO HUMAN CO-AUTHORS ARE NOT IN SCOPE. `Lophorinus` and `jak18015` are
+real contributors with 100 commits between them. The request names Claude and
+the bot; a rewrite that swept up "everyone who is not Einar" would erase two
+people's authorship, which is the opposite of what this instruction is for.
+Whoever runs this must filter on the two named identities and nothing else.
+
+WHAT THE BOT'S SIX COMMITS ARE: `chore(release): add SpaCR <version>
+installers`, produced by the release workflows. They are real commits with
+real content; only the authorship is wrong.
+
+AND THE REWRITE ALONE WILL NOT HOLD. Three places configure that identity:
+
+    .github/workflows/online-installers.yml:250-251
+    .github/workflows/release.yml:98-99
+    .github/workflows/release.yml:274-275
+
+Each does `git config user.name "github-actions[bot]"`. Rewriting the six
+historical commits without changing these means the NEXT release puts the bot
+straight back in the contributors list, and the rewrite has to be done again
+-- after the hashes have already been published once. Change the workflows in
+the same change, or the work is temporary.
+
+The maintainer's own identity is the right replacement there:
+`Einar Olafsson <einar.olafsson@gmail.com>`, which is what every other commit
+in this repository uses.
+
+ORDER, unchanged: this whole instruction is still LAST. It rewrites every
+commit hash after the earliest rewritten one, so anything unpushed or
+unmerged at that moment is stranded. The workflow-file change is the one part
+that could safely land earlier -- it only affects FUTURE commits -- and doing
+it early is worth considering precisely because it stops the six from
+becoming seven.
