@@ -166,11 +166,29 @@ def test_a_crop_over_several_cells_or_none_no_longer_kills_the_read(project, cap
     out = _read_and_join_tables(db_of(project),
                                table_names=['cell', 'nucleus', 'png_list'])
 
-    assert len(out) == 3                       # every cell still measured
-    assert out['png_path'].notna().sum() == 1  # only object 1 has a real crop
+    # THE READ SURVIVES, which is what this test was written for: 'omulti'
+    # and 'onone' used to raise ValueError and take the whole database read
+    # down. They no longer do.
+    #
+    # The ROW COUNT changed on 2026-08-11 for a separate and deliberate
+    # reason: png_list joins INNER now (instruction 79, item 4, at the
+    # maintainer's explicit instruction), because a cell with no crop that
+    # can be matched to it cannot be classified, annotated or displayed.
+    # Objects 2 and 3 have crops on disk whose ids are unusable, so they have
+    # no attributable crop and do not reach the joined table.
+    #
+    # Both losses are REPORTED, and that is what makes the restriction
+    # acceptable rather than silent: the migration names the unusable ids,
+    # and the join says how many measured cells it dropped.
+    assert len(out) == 1
+    assert out['png_path'].notna().all()
+    assert out['object_label'].tolist() == [1]
+
     message = capsys.readouterr().out
     assert 'omulti' in message and 'onone' in message
     assert 'skipped' in message
+    assert 'no crop that can be matched' in message
+    assert '2 of 3' in message
 
 
 def test_an_unparseable_crop_name_is_reported_not_mangled(project, capsys):
@@ -184,9 +202,19 @@ def test_an_unparseable_crop_name_is_reported_not_mangled(project, capsys):
     out = _read_and_join_tables(db_of(project),
                                table_names=['cell', 'png_list'])
 
-    assert len(out) == 3
-    assert out['png_path'].notna().sum() == 1
-    assert "'error'" in capsys.readouterr().out
+    # The value is NAMED rather than mangled -- `.str[1:]` used to turn
+    # 'error' into 'rror' and not even say what it choked on. That is the
+    # subject of this test and it still holds.
+    #
+    # One row, not three: png_list joins inner (instruction 79, item 4), so
+    # the two cells with no attributable crop do not reach the joined table.
+    # Both losses are reported.
+    assert len(out) == 1
+    assert out['png_path'].notna().all()
+
+    message = capsys.readouterr().out
+    assert "'error'" in message
+    assert 'no crop that can be matched' in message
 
 
 def test_two_crop_modes_in_one_png_list_no_longer_crash(project, capsys):
