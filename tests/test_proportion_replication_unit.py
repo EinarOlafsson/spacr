@@ -179,3 +179,43 @@ def test_the_plate_is_a_usable_unit_too():
     result = proportion_test_by_unit(df, "condition", "cls", "plateID")
     assert (result["unit"] == "plateID").all()
     assert (result["n"] == 3).all()
+
+
+# ---------------------------------------------------------------------------
+# the two shapes that crashed a real caller
+# ---------------------------------------------------------------------------
+# Both were found by running the replication analysis, not by reading the
+# code. `analyze_replication` groups by `prc`, which is ALSO the well column,
+# and it passes frames that already carry `prc` as a plain column.
+
+def test_the_unit_being_a_column_already_does_not_crash():
+    """`reset_index` raised "cannot insert prc, already exists".
+
+    `unstack` puts the bin values in the columns, and a caller's frame can
+    already carry a column spelled like one of the index levels.
+    """
+    df = pd.DataFrame({
+        "condition": ["nc", "nc", "pc", "pc"],
+        "prc": ["w1", "w2", "w3", "w4"],
+        "cls": [0, 1, 0, 1],
+    })
+    table = proportions_per_unit(df, "condition", "cls", "prc")
+    assert len(table) == 4
+
+
+def test_grouping_by_the_unit_itself_is_reported_not_computed():
+    """When the groups ARE the wells, every group holds exactly one well.
+
+    There is nothing to test across, and a p-value computed from one number
+    per group would be worse than saying so.
+    """
+    df = pd.DataFrame({
+        "prc": ["w1", "w1", "w2", "w2"],
+        "cls": [0, 1, 0, 1],
+    })
+    result = proportion_test_by_unit(df, "prc", "cls", "prc")
+    assert result["p_value"].isna().all()
+    assert result["test"].str.contains("not applicable").all()
+
+    model = proportion_mixed_model(df, "prc", "cls", "prc")
+    assert model["p_value"].isna().all()
