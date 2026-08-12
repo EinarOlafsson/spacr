@@ -40,7 +40,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, MutableMapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -259,17 +259,31 @@ def folder_names(settings: Mapping[str, Any]) -> List[str]:
     Read through this function rather than off the key, so a settings file
     written before the split keeps training. Precedence:
 
-    1. ``class_folder_names`` -- the explicit answer.
-    2. ``classes`` when it is still a list -- every settings CSV in the wild.
+    1. ``classes`` when it is still a list -- every settings CSV in the wild.
+       Dataset generation retires that legacy spelling after it writes the
+       actual folder names, so it cannot shadow the generated result.
+    2. ``class_folder_names`` -- the explicit answer, including ``[]``.
     3. the names of the defined classes, in order.
 
     :returns: the ordered folder names; ``[]`` when nothing declares any.
     """
+    legacy = settings.get(CLASSES)
+    if isinstance(legacy, (list, tuple)):
+        # THE SHAPE OF `classes` SAYS WHICH FILE THIS IS. A list is the
+        # pre-split spelling, and in that file `classes` IS the folder list
+        # -- so it decides, including when it is empty, which is a caller
+        # saying "this run has no classes" and must keep aborting the run
+        # rather than picking up a default.
+        #
+        # It has to win over `class_folder_names` rather than lose to it,
+        # because the defaults factories inject that key into every settings
+        # dict they touch. Losing would mean every settings file ever
+        # written silently trained on ['nc','pc'] instead of its own
+        # classes, which is the opposite of what the split is for.
+        return [str(n) for n in legacy]
+
     raw = settings.get(CLASS_FOLDER_NAMES)
-    if isinstance(raw, (list, tuple)) and raw:
-        return [str(n) for n in raw]
-    raw = settings.get(CLASSES)
-    if isinstance(raw, (list, tuple)) and raw:
+    if isinstance(raw, (list, tuple)):
         return [str(n) for n in raw]
     try:
         return class_names(settings)
@@ -277,6 +291,17 @@ def folder_names(settings: Mapping[str, Any]) -> List[str]:
         # A malformed definition is not a reason to refuse to name the
         # folders; whoever needs the rules will raise on its own terms.
         return []
+
+
+def _record_generated_folder_names(
+    settings: MutableMapping[str, Any], names: Sequence[Any],
+) -> List[str]:
+    """Record folders written to disk and retire the ambiguous legacy list."""
+    recorded = [str(name) for name in names]
+    settings[CLASS_FOLDER_NAMES] = recorded
+    if isinstance(settings.get(CLASSES), (list, tuple)):
+        settings.pop(CLASSES, None)
+    return recorded
 
 
 # ---------------------------------------------------------------------------
@@ -298,8 +323,8 @@ def _rules_from_annotation(settings: Mapping[str, Any]) -> List[ClassRule]:
     if not isinstance(values, (list, tuple)):
         values = [values]
 
-    # The names come from `folder_names`, which prefers
-    # `class_folder_names` and falls back to a list-shaped `classes`.
+    # The names come from `folder_names`, which preserves a pre-split,
+    # list-shaped `classes` before consulting `class_folder_names`.
     # Reading `classes` directly stopped working the moment it
     # became the definitions dict: a settings file carrying the
     # retired keys alongside the new default named its derived
@@ -361,6 +386,10 @@ def normalize_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
     """
     out = dict(settings)
     raw = out.get(CLASSES)
+    legacy_names = (
+        [str(name) for name in raw]
+        if isinstance(raw, (list, tuple)) else None
+    )
 
     # `not raw` as well as `not isinstance(...)`: the default is now an EMPTY
     # dict meaning "nothing defined yet", and an empty Mapping is still a
@@ -383,13 +412,21 @@ def normalize_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         elif rules:
             out[CLASSES] = {r.name: r.to_dict() for r in rules}
 
-    names = folder_names(out)
-    if names:
-        out.setdefault(CLASS_FOLDER_NAMES, names)
-        # `class_names` is still written for anything reading the older
-        # spelling. The two agree by construction -- both come from
-        # `folder_names` -- so this cannot become a third disagreeing answer.
-        out.setdefault("class_names", names)
+    if legacy_names is not None:
+        # Defaults inject class_folder_names=['nc', 'pc']; it is not evidence
+        # that a pre-split file chose those names. Carry the legacy list across
+        # the shape migration explicitly, including [] (which means stop).
+        names = legacy_names
+        out[CLASS_FOLDER_NAMES] = names
+        out["class_names"] = names
+    else:
+        names = folder_names(out)
+        if CLASS_FOLDER_NAMES not in out and names:
+            out[CLASS_FOLDER_NAMES] = names
+        if names or isinstance(out.get(CLASS_FOLDER_NAMES), (list, tuple)):
+            # `class_names` is retained for older downstream readers, but is
+            # always synchronized with the one folder-name contract.
+            out["class_names"] = names
     return out
 
 

@@ -280,7 +280,10 @@ def test_window_builds_three_tabs_and_action_buttons(deep_app):
     assert dw.inference["score_threshold"].get() == "0.5"
     # list-valued defaults are rendered with repr(), not stringified elementwise
     assert dw.gen["class_metadata (list-of-lists)"].get() == "[['c1'], ['c2']]"
-    assert dw.gen["classes (list)"].get() == "['nc', 'pc']"
+    # Renamed from "classes (list)" by instruction 37: this control always
+    # meant the training FOLDER names, and `classes` now holds the class
+    # definitions (name -> {column, value}) instead.
+    assert dw.gen["class_folder_names (list)"].get() == "['nc', 'pc']"
     # These two settings were always inert.  A control that collects a value
     # no pipeline reads is actively misleading, so neither may reappear.
     assert "annotated_classes (list)" not in dw.gen
@@ -472,12 +475,12 @@ def test_run_annotation_mode_with_db_columns_off_uses_app_column(
     # A blank list-literal field falls back to the default; it does not become
     # None.  The retired annotated_classes control must not be smuggled back
     # into the settings payload by that fallback path.
-    dw.set_text(dw.gen["classes (list)"], "")
+    dw.set_text(dw.gen["class_folder_names (list)"], "")
     dw.run()
     _wait_for_worker(deep_app)
 
     (settings,) = fake_deep_spacr["calls"]
-    assert settings["classes"] == ["nc", "pc"]
+    assert settings["class_folder_names"] == ["nc", "pc"]
     assert "annotated_classes" not in settings
     assert "custom_measurement" not in settings
     assert settings["use_db_columns"] is False

@@ -73,25 +73,17 @@ def test_every_default_round_trips_untouched(qapp, app_key):
                 and round(value, 6) == round(got, 6):
             continue
         drift[key] = (value, got)
-    if set(drift) == {"classes"}:
-        # NOT a harmless normalisation, and not a bug in this widget either.
-        # `classes` changed shape in 98ae880c from a list of names to a dict
-        # of name -> {column, value}, and the editor MIGRATES the old shape
-        # deliberately: ['nc', 'pc'] becomes two rows with column '?' and no
-        # value, so the user sees what still has to be filled in instead of
-        # an empty table. What has not moved with it is the shipped DEFAULT,
-        # still the list at spacr/settings.py:1238 with expected_types
-        # saying `list`.
-        #
-        # So the round trip is honest and the default is stale. Deciding what
-        # `classes` defaults to in the new shape is the named remaining scope
-        # of instruction 37, and it reaches expected_types, validate, the CLI
-        # and the Tk screen -- not something to settle from inside a test.
-        # Marked rather than deleted so the day 37 lands, this fails and says
-        # to remove the mark.
-        pytest.xfail(
-            "classes default is still the pre-98ae880c list while the editor "
-            f"produces the dict shape: {drift['classes']} -- instruction 37")
+    # `classes` used to be xfailed here. It drifted because the default was
+    # still the pre-98ae880c list while the editor produced the dict shape,
+    # so opening the screen rewrote the setting -- and opening a screen and
+    # saving must never rewrite a user's settings file.
+    #
+    # Instruction 37 settled it by separating the two meanings that were
+    # sharing the key: `classes` is the DEFINITIONS (name -> {column,
+    # value}, default {} -- nothing defined yet, which the editor renders as
+    # an empty table and collects back unchanged), and the ordered TRAINING
+    # FOLDER names moved to `class_folder_names`. The mark is removed rather
+    # than loosened, as its own note asked.
     assert not drift, drift
 
 
@@ -166,9 +158,25 @@ def test_the_classes_setting_gets_the_class_editor(qapp):
     # return {} left the earlier version of this test green.
     value = widget.get_value()
     assert isinstance(value, dict)
+    # This used to read `list(value) == ["nc", "pc"]`, from the days when
+    # `classes` defaulted to those two names. Instruction 37 split the key:
+    # the NAMES are `class_folder_names` and `classes` now defaults to {} --
+    # no class is DEFINED until the user picks a column and names its
+    # values. So the default table is legitimately empty, and the content
+    # has to be pinned on a table that has content.
+    assert value == {}, "no class is defined until the user defines one"
+
+    widget.set_value({"nc": {"column": "columnID", "value": "c1"},
+                      "pc": {"column": "columnID", "value": "c3"}})
+    value = widget.get_value()
     assert list(value) == ["nc", "pc"], (
-        "the two default classes must survive routing to ClassEditorWidget")
+        "the classes must survive routing to ClassEditorWidget")
     assert all(isinstance(rule, dict) for rule in value.values())
+    # PIN THE CONTENT, not just the shape: `all(...)` over an empty dict is
+    # vacuously true, so an editor that silently dropped every class would
+    # have passed the shape check. Mutation-proven -- forcing get_value() to
+    # return {} left the earlier version of this test green.
+    assert value["pc"] == {"column": "columnID", "value": "c3"}
 
 
 @pytest.mark.parametrize(("app_key", "key", "expected"), [
