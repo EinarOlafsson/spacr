@@ -178,6 +178,18 @@ KEYS_RETIRED = frozenset({
     "remove_border_organelles", "remove_border_pathogens",
     "signal_direction", "skip_mode", "use_sam_cell", "use_sam_nucleus",
     "use_sam_pathogen",
+    # Retired 2026-08-12. Verified dead before being named here: neither is
+    # produced by any set_default_*/get_*_settings helper, neither is in
+    # expected_types, and a grep of spacr/ finds no reader of either -- Tk
+    # included. They were falling out of the category map with nothing to
+    # say whether that was deliberate, which is the exact ambiguity this set
+    # exists to remove.
+    "highlight", "offset",
+    # A GHOST, not a setting: `infection_xgb_proba` was in the Motility
+    # Advanced category list, but the setting is `infection_xgb_proba_column`
+    # -- whose DEFAULT VALUE is the string 'infection_xgb_proba'. The value
+    # had been pasted into the category list beside the key it belongs to.
+    "infection_xgb_proba",
 })
 
 
@@ -328,8 +340,17 @@ KEYS_ADDED_BY_REGROUP = frozenset({
 #: are legacy keys kept so old settings CSVs still load (several say so in
 #: their own tooltip). Nothing may be added here -- a new entry means a
 #: category is advertising a setting that does not exist.
+#: Keys that are CATEGORISED but have no default -- ghosts the panel still
+#: offers. `highlight` and `offset` left this set on 2026-08-12: they are not
+#: ghosts any more, they are RETIRED (see KEYS_RETIRED), which is a different
+#: thing. A ghost is still on screen; a retired key is not.
 LEGACY_KEYS_WITHOUT_A_DEFAULT = frozenset({
-    "highlight", "nucleus_loc", "offset", "other", "plate", "signal_direction",
+    # `highlight`, `offset`, `nucleus_loc` and `signal_direction` left this
+    # set on 2026-08-12. They are not ghosts any more, they are RETIRED (see
+    # KEYS_RETIRED), which is a different thing: a ghost is still on screen
+    # and still wants a default one day, a retired key is gone. All four were
+    # verified uncategorised before being moved.
+    "other", "plate",
 })
 
 #: ``settings_type`` -> defaults factory, mirroring both dispatchers:

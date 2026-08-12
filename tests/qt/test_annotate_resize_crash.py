@@ -144,11 +144,19 @@ def test_a_rebuild_during_an_in_flight_load_does_not_install_into_dead_tiles(
     qtbot.wait(300)
 
     for slot in range(len(screen._thumbs)):
-        screen._set_slot_image(slot, None)      # must not crash
+        screen._set_slot_image(slot, None)
+    assert all(p is None for p in screen._thumb_pixmaps)
+    assert all(i is None for i in screen._raw_thumb_images)
 
-    # Out-of-range slots are refused rather than raising or writing.
+    # Out-of-range slots are refused rather than raising OR writing: the
+    # arrays must be the same length afterwards, which is what proves the
+    # bounds check returned instead of appending.
+    before = (len(screen._thumb_pixmaps), len(screen._raw_thumb_images))
     screen._set_slot_image(len(screen._thumbs) + 5, None)
     screen._repaint_slot(len(screen._thumbs) + 5)
+    assert (len(screen._thumb_pixmaps),
+            len(screen._raw_thumb_images)) == before
+    assert before[0] == len(screen._thumbs)
 
 
 def test_hover_is_dropped_when_the_tile_it_pointed_at_is_gone(
