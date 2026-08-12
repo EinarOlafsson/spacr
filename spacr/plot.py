@@ -2160,9 +2160,18 @@ def _display_gif(path):
     Returns:
     None
     """
+    # `format='gif'` is stated rather than sniffed. IPython only learned to
+    # recognise the GIF87a/GIF89a magic bytes in 9.0.0; before that, raw bytes
+    # with no format fall through to 'png' and the animation is emitted with
+    # an `image/png` mime type. IPython 9 needs Python 3.11, so on the 3.9 and
+    # 3.10 ends of the range spaCR claims there is no version of IPython that
+    # would guess right -- setup.py's `IPython>=8.18.1` resolves to exactly
+    # 8.18.1 on 3.9. Saying what the file is costs nothing and is correct on
+    # every version.
     with open(path, 'rb') as file:
-        display(ipyimage(file.read()))
-        
+        display(ipyimage(file.read(), format='gif'))
+
+
 def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize=10):
     """
     Plot recruitment data for different conditions and pathogens.
