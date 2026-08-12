@@ -1140,3 +1140,114 @@ them. `_read_and_join_tables` takes `collapse_duplicate_identity` and
 anndata_export passes its own option through, so the documented choice is
 the one that happens. Verified by AST that the name is in scope at every
 call site.
+
+--------------------------------------------------------------------------------
+2026-08-12 - ITEM (b) FIXED, AND ALL 24 FINDINGS RE-AUDITED AGAINST THE CODE
+--------------------------------------------------------------------------------
+
+(b) THE LIVE PREVIEWS ARE SEEDED. `AppScreen._on_preview_switch` did nothing
+but `card.setVisible(on)`; it now primes the panel from `_settings_model.
+collect()` on FIRST show, once, through a `_prime_preview` that cannot
+raise. Mirrors `_PreviewHost.prime`: a preview nobody opens costs nothing,
+and re-opening the card does not discard what the user just tuned in it.
+
+THE NAME-TRANSLATION TRAP THIS FILE WARNED ABOUT WAS REAL, and the warning
+was worth more than the diagnosis. Seeding alone would have left Mask
+broken while looking fixed. Measured before the fix:
+
+    settings {'cell_diameter': 42.5}  ->  _build_request().diameter == 30.0
+
+`apply_settings` read `diameter` / `flow_threshold` / `CP_prob`, which Mask
+does not declare, while `settings_for_propagation` WROTE `cell_diameter` /
+`cell_FT` / `cell_CP_prob`. The two directions were not inverses and
+nothing compared them. They are now one table, `_SEGMENTATION_ALIASES`,
+used both ways, and the round trip is asserted as a fixed point. Every
+assertion goes through `_build_request()`, which is what turns the panel's
+state into the Cellpose call -- not through "apply_settings accepted it".
+
+The compartment came with it. The panel has ONE diameter/flow/prob triple
+and an object selector, and it wrote the tuned value to `cell_*`
+regardless -- so tuning a diameter with "nucleus" selected left
+`nucleus_diameter` untouched and the run used neither the tuned number nor
+the one on screen. Both directions now follow the selector. "cell" is the
+default, so the ordinary case is unchanged.
+
+A SECOND WRONG PICTURE, FOUND WHILE MAKING THE CROP PREVIEW SEEDABLE, and
+this one shipped in the default configuration:
+
+    preview R,G,B (13, 128, 255)   run R,G,B (200, 100, 10)
+
+The panel's RGB control went straight to `crop_objects_from_array`, whose
+`channels` argument IS RGB order, while a run resolves
+`png_channel_mapping` -- shipped as {'r': 2, 'g': 1, 'b': 0}. The control
+defaulted to "0,1,2". The two were exact mirrors: on a 405/488/555 stack
+the preview showed the nuclear stain RED and the run wrote it BLUE. The
+crop preview's entire job is "which stain lands where".
+
+It could not be corrected by using the control either, because the control
+propagated `png_dims` -- which `resolve_png_channel_mapping` ignores
+whenever a mapping is set, and Measure sets one by default. So the value
+was discarded by the run it was tuning. It now writes
+`png_channel_mapping`, and reads EITHER vocabulary back through the run's
+own resolver, so a legacy `png_dims` settings file still seeds the colours
+that file will actually produce.
+
+`MeasurePreviewPanel` also had no `apply_settings` at all, so the crop
+preview could not have been seeded even once the screen tried. Added as the
+inverse of `settings_for_propagation` and tested as one.
+
+THE RE-AUDIT. The 24 findings were re-checked against the CODE, not against
+this file's own notes, because several had been fixed elsewhere without
+being recorded here. TWENTY-THREE ARE CLOSED:
+
+  fixed and recorded here already ... 1, 4, 5, 6, 10, 11, 15, 16, 18
+  fixed by instruction 79/80 ........ 13, 14 (statistics at the declared
+                                      level; the join type per table)
+  refuted, not a defect ............. 22 (crop_source)
+  fixed elsewhere, unrecorded ....... 2, 3, 7, 8, 9, 12, 17, 19, 23, 24
+  fixed here ........................ 20, 21
+
+Each of the ten "fixed elsewhere" was confirmed by reading the cited site,
+and each carries a comment explaining the repair -- e.g. core.py now calls
+`set_default_settings_preprocess_generate_masks` BEFORE the v2 dispatch
+(24), `summarize_per_well` counts field+object and says why both halves are
+load-bearing (2), and the threshold zip REFUSES a length mismatch rather
+than truncating (8). Do not re-fix these; do check the comment before
+believing a future report that says otherwise.
+
+FINDING 20 WAS STILL LIVE, and it was the last one. Measured against the
+shipped factories:
+
+    Cellpose Masks   channels    declared [0, 0]     panel ran [0,1,2,3]
+    Classify         model_type  declared maxvit_t   panel ran resnet50
+    Activation Maps  model_type  declared maxvit     panel ran resnet50
+    Activation Maps  channels    declared [1, 2, 3]  panel ran [0,1,2,3]
+
+`convert_settings_dict_for_gui` returned `special_cases[key]` verbatim,
+discarding the value the module's own factory had just produced. That table
+is one row per key for the whole application. The Qt panel repaired it
+downstream; Tk did not, and on Tk `check_settings` builds the run dict out
+of the widgets, so the table's value is what RUNS -- press Run on a freshly
+opened Tk module and it segments with a channel list that module never
+asked for.
+
+Fixed at the SOURCE rather than in a second place: `_combo_default_for`
+keeps the curated option list and preselects the module's own value, adding
+it to the list when the curated one does not offer it. That last part is
+not optional -- Activation Maps declares `channels=[1, 2, 3]` and no
+channel option ever offered it, so a fix that only preselected would still
+have shown something else. It is the policy the Qt side had already settled
+on, now reached from one place by both GUIs, and the Qt repair downstream
+now agrees with its input instead of correcting it.
+
+WHAT IS LEFT IN THIS FILE IS TWO MAINTAINER DECISIONS AND NOTHING ELSE:
+
+  1. The join type PER TABLE for `_read_and_merge_data` (the 2026-08-11
+     note above sets out png_list / pathogen / nucleus / cytoplasm and why
+     a blanket `how` is not obviously right). The shortfall is reported by
+     table today, so the loss is no longer silent and no number moved.
+
+  2. The `na='drop'` question is CLOSED by item (a) -- it now tests the
+     `<table>_count` roll-ups rather than every column with an underscore.
+
+So: item 1 is the only open question, and it needs the maintainer.

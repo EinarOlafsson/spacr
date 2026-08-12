@@ -77,6 +77,53 @@ def _torchvision_model_names():
     return list(_TORCHVISION_MODELS_CURATED)
 
 
+def _combo_default_for(value, options, table_default):
+    """Pick a combo's preselected value: the MODULE's, not the table's.
+
+    ``special_cases`` is one row per key for the whole application, so its
+    third element is a single default shared by every module that declares
+    the key. Returning it verbatim threw away the value the module's own
+    ``set_default_*`` factory had just produced, and on Tk that value is
+    both what is displayed AND what runs (``check_settings`` builds the run
+    dict from the widgets). Measured on the shipped factories:
+
+        Cellpose Masks   channels    [0, 0]     -> panel ran [0,1,2,3]
+        Classify         model_type  maxvit_t   -> panel ran resnet50
+        Activation Maps  model_type  maxvit     -> panel ran resnet50
+        Activation Maps  channels    [1, 2, 3]  -> panel ran [0,1,2,3]
+
+    The Qt panel repaired this downstream in ``settings_model._widget_for``;
+    doing it here means both GUIs get the same answer from one place.
+
+    A value the curated list does not offer is ADDED rather than dropped,
+    which is the policy the Qt side already settled on: silently leaving the
+    first option selected substitutes a value the module never asked for,
+    and that is the whole defect.
+
+    :param value: what this module's defaults factory declared.
+    :param options: the curated choices for the key.
+    :param table_default: the shared fallback, used only when the module
+        declares nothing usable.
+    :returns: ``(options, default)``.
+    """
+    opts = list(options or [])
+    for opt in opts:
+        if opt is value or opt == value:
+            return opts, opt
+    # `str([0, 0])` is "[0, 0]" and the curated channel lists are written
+    # "[0,0]" -- the same choice, spelled two ways.
+    target = str(value).replace(" ", "")
+    for opt in opts:
+        if str(opt).replace(" ", "") == target:
+            return opts, opt
+    if value is None or value == "":
+        return opts, table_default
+    shown = target if isinstance(value, (list, tuple)) else value
+    if not isinstance(shown, str):
+        shown = str(shown)
+    return [shown] + opts, shown
+
+
 def convert_settings_dict_for_gui(settings):
     """Convert a plain settings dict into the GUI variable spec.
 
@@ -163,7 +210,10 @@ def convert_settings_dict_for_gui(settings):
 
     for key, value in settings.items():
         if key in special_cases:
-            variables[key] = special_cases[key]
+            var_type, options, table_default = special_cases[key]
+            options, default = _combo_default_for(value, options,
+                                                  table_default)
+            variables[key] = (var_type, options, default)
         elif isinstance(value, bool):
             variables[key] = ('check', None, value)
         elif isinstance(value, int) or isinstance(value, float):
