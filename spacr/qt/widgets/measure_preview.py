@@ -48,6 +48,9 @@ from .preview_controls import (
     ImageSetSampler, apply_sample_to_combo, enumerate_image_sets,
     populate_channel_combo, selected_channel,
 )
+from .preview_contract import (
+    PREVIEW_CANCEL_TEXT, PREVIEW_RUN_TEXT, LivePreviewContract,
+)
 from .toggle import Toggle
 from ..job_runner import JobRunner
 
@@ -251,8 +254,25 @@ class _CropThumb(QLabel):
         super().mousePressEvent(event)
 
 
-class MeasurePreviewPanel(QWidget):
-    """Preview Measure crops and propagate a faithful run configuration."""
+class MeasurePreviewPanel(LivePreviewContract, QWidget):
+    """Preview Measure crops and propagate a faithful run configuration.
+
+    A live view like the other three, and since the shared contract
+    (:class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`) it
+    wears their vocabulary: the same **Run preview** button, the same
+    **Cancel** beside it, and a sentence on the status line whenever it
+    cannot preview. It used to be alone in every one of those columns —
+    its button said "Refresh crops", nothing could be cancelled, and a
+    press with no array loaded did nothing and said nothing.
+    """
+
+    # The list of crops a pass produced, or None when it produced nothing.
+    # The other three live views have announced their result since they were
+    # written; this one was the odd column out, so nothing outside the panel
+    # could tell that a crop pass had landed.
+    preview_ready = Signal(object)
+
+    PREVIEW_SOURCE_HINT = "Load a merged array first."
 
     def __init__(self, parent=None, *, threaded: bool = True):
         super().__init__(parent)
@@ -440,12 +460,22 @@ class MeasurePreviewPanel(QWidget):
         root.addLayout(pick_row)
 
         actions = QHBoxLayout()
-        self._refresh_btn = QPushButton("Refresh crops")
-        self._refresh_btn.clicked.connect(self.refresh)
+        self._run_btn = QPushButton(PREVIEW_RUN_TEXT)
+        self._run_btn.clicked.connect(self.run_preview)
+        # The old name for the same button. Kept so anything that reached for
+        # it by name still finds it, pointing at the one control.
+        self._refresh_btn = self._run_btn
+        # Same control, same place, same words as the Mask live preview.
+        self._cancel_btn = QPushButton(PREVIEW_CANCEL_TEXT)
+        self._cancel_btn.setToolTip(
+            "Abandon the crop pass in flight; its result is dropped.")
+        self._cancel_btn.setEnabled(False)
+        self._cancel_btn.clicked.connect(self.cancel_preview)
         self._settings_btn = QPushButton("Crop settings…")
         self._settings_btn.clicked.connect(self.open_crop_settings)
         self._status = QLabel("")
-        actions.addWidget(self._refresh_btn)
+        actions.addWidget(self._run_btn)
+        actions.addWidget(self._cancel_btn)
         actions.addWidget(self._settings_btn)
         actions.addWidget(self._status, 1)
         root.addLayout(actions)
@@ -846,6 +876,37 @@ class MeasurePreviewPanel(QWidget):
     def _annotate_cell_categories(self) -> None:
         annotate_crops(self._crops, self._data, self._category_params())
 
+    def _preview_blocked_reason(self) -> str:
+        """Why this panel cannot crop right now, or ``""``."""
+        if self._data is None:
+            return self.PREVIEW_SOURCE_HINT
+        return ""
+
+    def _extra_work_in_flight(self) -> bool:
+        """The crop pass runs on the shared runner, not on a ``_worker``."""
+        runner = getattr(self, "_jobs", None)
+        return bool(runner is not None and runner.active_jobs())
+
+    def _cancel_extra_work(self) -> None:
+        """Drop the result of the crop (or load) pass in flight."""
+        self._crop_token += 1
+        runner = getattr(self, "_jobs", None)
+        if runner is not None:
+            runner.cancel()
+
+    def run_preview(self) -> None:
+        """Re-crop on demand — the shared name for the shared action.
+
+        Every live view answers to ``run_preview``; this panel's own
+        :meth:`refresh` stays as the internal path the crop knobs drive,
+        which supersedes rather than refusing.
+        """
+        reason = self.preview_blocked_reason()
+        if reason:
+            self.set_preview_status(reason)
+            return
+        self.refresh()
+
     def refresh(self) -> None:
         """Re-crop the loaded array and redraw the grid.
 
@@ -854,8 +915,13 @@ class MeasurePreviewPanel(QWidget):
         it used to freeze the window for 1441 ms per spinbox step on a
         1024x1024x8 array. Re-cropping supersedes by token, so dragging a
         spinbox through ten values draws the last one rather than all ten.
+
+        Says why when it cannot: returning in silence left the button doing
+        nothing with nothing on the status line, which is the one thing no
+        live view may do.
         """
         if self._data is None:
+            self.set_preview_status(self.PREVIEW_SOURCE_HINT)
             return
         channels = _parse_channels(self._png_dims.text())
         channels = [c for c in channels if 0 <= c < self._data.shape[2]]
@@ -892,6 +958,7 @@ class MeasurePreviewPanel(QWidget):
         params = self._category_params()
         self._crop_token += 1
         token = self._crop_token
+        self.set_preview_busy(True)
         self._jobs.submit(
             lambda: compute_crops(data, crop_kwargs, params),
             lambda result, _t=token: self._on_crops_ready(_t, result))
@@ -900,8 +967,10 @@ class MeasurePreviewPanel(QWidget):
         """Draw the crop grid. Always on the GUI thread -- QPixmap demands it."""
         if token != self._crop_token or not isinstance(result, dict):
             return
+        self.set_preview_busy(False)
         if result.get("error"):
             self._status.setText(result["error"])
+            self.preview_ready.emit(None)
             return
         self._crops = result.get("crops") or []
         self._selected.clear()
@@ -911,6 +980,8 @@ class MeasurePreviewPanel(QWidget):
             f"{len(self._crops)} object(s) · {groups} categor"
             f"{'y' if groups == 1 else 'ies'}")
         self._maybe_propagate()
+        # Announced like every other live view's result.
+        self.preview_ready.emit(self._crops)
 
     # -- rendering -----------------------------------------------------
 
