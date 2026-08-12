@@ -2,40 +2,40 @@
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
-   :alt: Documentation
+   :alt: 文档
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
    :target: https://einarolafsson.github.io/spacr/tutorials/
-   :alt: Interactive tutorials
+   :alt: 交互式教程
 .. |PyPI| image:: https://img.shields.io/pypi/v/spacr
    :target: https://pypi.org/project/spacr/
-   :alt: PyPI version
+   :alt: PyPI 版本
 .. |Python| image:: https://img.shields.io/badge/Python-3.9%E2%80%933.14-3776AB?logo=python&logoColor=white
    :target: https://pypi.org/project/spacr/
-   :alt: Python 3.9 through 3.14
+   :alt: Python 3.9 至 3.14
 .. |Tests| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml/badge.svg
    :target: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml
-   :alt: Test suite
+   :alt: 测试套件
 .. |Qt| image:: https://img.shields.io/badge/GUI-Qt%20%28PySide6%29-41CD52
    :target: https://einarolafsson.github.io/spacr/
-   :alt: Qt interface
+   :alt: Qt 界面
 .. |Source| image:: https://img.shields.io/badge/GitHub-Source-181717?logo=github
    :target: https://github.com/EinarOlafsson/spacr
-   :alt: GitHub source
+   :alt: GitHub 源代码
 .. |Issues| image:: https://img.shields.io/github/issues/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/issues
-   :alt: GitHub issues
+   :alt: GitHub 问题
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: PolyForm Noncommercial license
+   :alt: PolyForm 非商业许可证
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343317-blue
    :target: https://doi.org/10.5281/zenodo.21343317
    :alt: Zenodo DOI
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
-   :alt: Latest installers
+   :alt: 最新安装程序
 .. |CondaRecipe| image:: https://img.shields.io/badge/conda--forge-recipe-44A833?logo=anaconda
    :target: https://github.com/EinarOlafsson/spacr/tree/main/conda-forge/recipe
-   :alt: conda-forge recipe
+   :alt: conda-forge 配方
 
 .. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/logo_spacr.png
    :alt: spaCR
@@ -74,7 +74,7 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
 |Tutorials|
 
 .. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/flow_chart_v3.png
-   :alt: spaCR workflow and output organization
+   :alt: spaCR 工作流程及输出结构
    :align: center
 
 显微镜图像（TIFF、OME-TIFF、LIF、CZI、ND2）和测序读段（FASTQ）分别进入互补的图像分析与条形码映射流程。随后对对象表、图像裁剪、标注、预测、向导 RNA 身份、QC 结果和孔位级汇总进行联合分析。
@@ -91,41 +91,41 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
    python -m pip install "spacr[qt]"
    spacr
 
-spaCR supports Python **3.9 through 3.14** (except Python 3.14.1, which torchvision excludes). Python 3.12 has the widest choice of optional scientific packages. Linux is recommended for CUDA workflows; macOS and Windows are also supported.
+spaCR 支持 Python **3.9 至 3.14** （torchvision 不支持的 Python 3.14.1 除外）。Python 3.12 可选的科学计算软件包最齐全。涉及 CUDA 的工作流程建议使用 Linux；同时也支持 macOS 和 Windows。
 
 
 安装详情
 --------------------
 
-此分類上一篇: |Release| |PyPI| |CondaRecipe|
+|Release| |PyPI| |CondaRecipe|
 
-**(beta) Lightweight 桌面安装器:**
+**（测试版）轻量级桌面安装程序：**
 
 .. spacr-installer-links-begin
 
-* `Windows 10/11:下载 SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe>`_
-* `macOS 11+ (英特尔和苹果硅):下载SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg>`_
-* `64 位 Linux:下载 SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run>`_
+* `Windows 10/11：下载 SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe>`_
+* `macOS 11+（英特尔和苹果硅）：下载 SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg>`_
+* `64 位 Linux：下载 SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run>`_
 
 .. spacr-installer-links-end
 
 轻量级安装程序 — 无需 conda 或现有 Python 环境
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The installer downloads a private Python 3.12 runtime, Qt, PyTorch, spaCR and the scientific dependencies during installation, so neither conda nor an existing Python is needed. The portable CPU build is the default, which keeps the installation from pulling several gigabytes of CUDA libraries unannounced. Windows offers NVIDIA acceleration as an optional installer component, Linux accepts ``--torch-backend auto``, and the standard macOS PyTorch wheel keeps Apple MPS acceleration.
+安装过程中，安装程序会下载独立的 Python 3.12 运行时、Qt、PyTorch、spaCR 及科学计算依赖项，因此无需预先安装 conda 或 Python。默认使用便携式 CPU 版本，以免在未提示的情况下下载数 GB 的 CUDA 库。Windows 可将 NVIDIA 加速选为安装组件，Linux 接受 ``--torch-backend auto``，macOS 的标准 PyTorch wheel 则保留 Apple MPS 加速。
 
-安装帮助、进展和错误,以所有十种语言(spaCR)跟踪操作系统语言:英语、瑞典语、德语、西班牙语、简化中国语、葡萄牙语、印度语、韩语、冰岛语和法语。
+安装程序的帮助、进度和错误信息会根据操作系统的语言，使用 spaCR 支持的十种语言之一：英语、瑞典语、德语、西班牙语、简体中文、葡萄牙语、印地语、韩语、冰岛语和法语。不支持的语言环境会回退到英语。
 
-在 Linux 上,在打开之前,让下载的安装程序执行:
+在 Linux 上，打开已下载的安装程序前，先赋予其可执行权限：
 
 .. code-block:: bash
 
    chmod +x SpaCR-*-Linux-x86_64-Online.run
    ./SpaCR-*-Linux-x86_64-Online.run
 
-在 macOS 中,打开下载的 ``.pkg`` 如果 Gatekeeper 阻止当前 beta 安装程序,因为它没有被注册,打开 **系统设置 → 隐私和安全**,选择 ** 无论如何打开** 为 spaCR,然后重新运行包。
+在 macOS 上，打开已下载的 ``.pkg`` 文件。如果当前测试版安装程序因未公证而被 Gatekeeper 阻止，请打开 **系统设置 → 隐私与安全性**，为 spaCR 选择 **仍要打开**，然后再次运行该安装包。
 
-The installer validates spaCR, Qt, PyTorch and dependency consistency before replacing an older installation, so an interrupted update leaves the previous working environment in place. A diagnostic log is kept as ``install.log`` inside the private spaCR installation directory.
+替换旧安装前，安装程序会验证 spaCR、Qt、PyTorch 以及依赖项是否一致，因此更新即使中断，原有可用环境也会保留。诊断日志以 ``install.log`` 保存于 spaCR 的独立安装目录中。
 
 通过 PyPI 安装桌面应用程序
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -165,7 +165,7 @@ Conda 环境
 可选功能
 ~~~~~~~~~~~~~~~~~~~~~
 
-安装仅剩余的工作流需要:
+仅安装工作流程所需的可选依赖：
 
 .. code-block:: bash
 
@@ -178,9 +178,9 @@ Conda 环境
    python -m pip install "spacr[napari]"        # napari mask correction
    python -m pip install "spacr[czi,nd2,lif]"   # vendor file readers
 
-哪个额外的分辨率取决于 Python 版本. 在 Python 3.13 ,超极限限限为 ``spacr[all]`` 和 TorchCAM 的 NumPy 限制限为``attribution`` 额外; 核心包和 Qt 应用程序不受影响。 在 Python 3.14 , btrack 通过其额外可用。
+可安装的可选依赖取决于 Python 版本。在 Python 3.13 上，ultrack 的依赖限制会影响 ``spacr[all]``，TorchCAM 的 NumPy 限制会影响 ``attribution``；核心包和 Qt 应用不受影响。在 Python 3.14 上，btrack 可通过其可选依赖安装。pylibCZIrw CZI 转换器是可选且尚未测试的；基于 czifile 的 CZI 读取功能仍然可用。
 
-遗传 Tk 界面仍然安装为 ``spacr-legacy`` 但不再开发。
+旧版 Tk 界面仍会以 ``spacr-legacy`` 安装，但已不再继续开发。
 
 
 命令行入口
@@ -197,7 +197,7 @@ Conda 环境
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
 
-设置 ``SPACR_LOG_LEVEL=DEBUG`` 在解决问题时. 旋转日志写为 ``~/.spacr/logs/spacr.log``。
+排查问题时，请设置 ``SPACR_LOG_LEVEL=DEBUG``。轮转日志写入 ``~/.spacr/logs/spacr.log``。
 
 
 功能
@@ -206,38 +206,38 @@ Conda 环境
 大多数筛选实验使用的六个模块
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**按摩**细胞,核,病原体和有机细胞与Cellpose,在2D图像和量或时间序列数据。 模型列表是从安装的Cellpose而不是硬编码,而一个对象的直径是从图像之前开始的估计。
+**Mask** 使用 Cellpose 在二维图像、体积数据或时间序列中分割细胞、细胞核、病原体和细胞器。模型列表直接读取已安装的 Cellpose，而不是写死在代码中；运行开始前还会根据图像估算对象直径。掩膜可在图层查看器中手动修正，也可发送到 napari 中编辑后再导回。
 
-**测量**写到项目数据库的物质形态,强度,结构和配置特性,以及作物。新在 1.5.0.0:照明纠正估计板本身的平面,并分开它之前任何强度特性被采取,这取消了板温地图显示为边缘效果的良好位置比亚。 一个分区QC旗帜表明在平面语言中,面具看起来像什么,直到测量运行; 报告,它不会阻止。
+**Measure** 将每个对象的形态、强度、纹理和共定位特征连同图像裁剪写入项目数据库。1.5.0.0 新增的照明校正会从孔板本身估算平场，并在提取任何强度特征前完成校正，从而消除孔板热图中表现为边缘效应的孔位偏差。分割 QC 横幅会在 Measure 运行前用简明文字说明掩膜质量；它只提供信息，不会阻止运行。绘制的多边形可将测量限制在感兴趣区域内。
 
-** 注意** 显示基板驱动的网上的种子,并写标签直至 SQLite. 现在关闭了活跃学习圈:在没有离开屏幕的情况下,重新排序的尾巴,观看学习曲线,并获得停止判断,当进一步的标签停止改变模型时,它将对一个模型进行回归。
+**Annotate** 在键盘操作的网格中显示图像裁剪，并将标签直接写入 SQLite。它还能完成主动学习闭环：不离开当前界面即可用已有标注重新训练模型，按不确定性重新排列队列，查看学习曲线，并在继续标注已无法改善模型时给出停止建议。系统会按类别、孔位和孔板报告覆盖率，并记录每一轮过程。
 
-**Classify**列车 PyTorchCNN和转换器在注册的作物,和经典或增强的模型在测量表。 每个类的准确性现在保持每个时代而不是被排除,每个检查点得到一个模型卡记录其数据集,类平衡,分裂规则和持有的测量。 在评估屏幕上,一个混乱的矩阵细胞是一个问题:点击它打开这些作物,与安全错误的预测列出与不确定。
+**Classify** 在已标注的图像裁剪上训练 PyTorch CNN 和 Transformer，也可在测量表上训练经典模型或提升模型。现在每个 epoch 都会保留各类别的准确率，每个检查点还会生成模型卡，记录数据集、类别平衡、拆分规则和留出集指标。在评估界面中，混淆矩阵的单元格可直接查询：单击即可打开对应裁剪，并将高置信度错误与不确定样本分开列出。
 
-**Map Barcodes** decodes row, column and gRNA barcodes from FASTQ reads, assigns guide identities to wells, and joins them to imaged cells. Barcode QC reports reads per well, collision rate and unmapped fraction, sweeping around the number of gRNAs per well you say you expect rather than a fixed threshold.
+**Map Barcodes** 从 FASTQ 读段中解码行、列和 gRNA 条形码，为孔位分配向导 RNA 身份，并将其与成像细胞关联。Barcode QC 会根据用户给出的每孔预期 gRNA 数进行范围评估，报告每孔读段数、冲突率和未映射比例，而不是采用固定阈值。
 
-** 回归** 估计指南,基因,状态和控制效果,使用17个模型家庭,包括混合模型,物流和 probit,量子,beta,GLM与量子比诺变量,拉索,雷吉,弹性网,环和马匹。
+**Regression** 使用 17 类模型估计向导 RNA、基因、条件和对照效应，其中包括混合模型、Logistic、Probit、分位数、Beta、具有准二项方差的 GLM、Lasso、Ridge、Elastic Net、Hinge 和 Horseshoe。输出是经过排序并附有注释的候选结果列表，而不是未经整理的系数集合。
 
 1.5.0.0 新增功能
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
-在屏幕存在之前,电源 / 设计模块回答需要多少细胞和多少井,以序列错误而定价,并以从图像过薄的井中产生的滴滴。 实验设计师将板块、控制器和复制器放出并出口管道的布局。 随后,一个 QC 板块将分区、孔板,笔记本商协议和泄漏检查到一个判决中, ComBat 可在 ``center`` 和 ``zscore`` 旁边进行包装纠正。
+在筛选实验开始前，Power / Design 模块会计算所需的细胞数和孔数，并将测序错误以及成像细胞过少的孔造成的丢失纳入估算。实验设计工具排布孔板、对照和重复，并将版式导出到工作流程。实验完成后，QC 仪表板将分割、孔板、标注者一致性和数据泄漏检查汇总为一项结论；除 ``center`` 和 ``zscore`` 外，还可使用 ComBat 进行批次校正。
 
-结果被探索而不是出口和重新进口. 一张图形建筑师将一个表格,拖拉列到x,y,颜色,尺寸和面孔. 门控拖在一个希斯托格拉或分散器变成过滤器. 一个功能探测器排序的特点是他们如何分开类。 小多元,剂量答案匹配,控制图表和强大的外部检测使用相同的轴发动机. 在一个视野中选择对象,并打开一个选项带来收获这些对象来自。 一个层观察员将图像,标签,点和形状,与正方形景,一个同步比较网,以及从核到病原的树线。
+结果可以直接探索，无需导出后再重新导入。在 Graph Builder 中，将表格列拖到 x、y、颜色、大小和分面即可作图。在直方图或散点图上绘制的门会转换为过滤器。Feature Explorer 会按特征区分各类的能力进行排序。小多图、剂量–反应拟合、控制图和稳健异常值检测使用同一套坐标轴引擎。在一个视图中选择对象后，其他视图中也会同步选中；打开该选择可查看这些对象对应的图像裁剪。Layer Viewer 可叠加图像、标签、点和形状，并提供正交视图、同步比较网格以及从细胞到细胞核再到病原体的谱系树。
 
-Runs are now identifiable. Each carries one run id, one seed and an ``on_error`` policy; Mask, Measure, Classify and the AnnData export register what they wrote in an artifact registry, so an output file leads back to the settings that produced it. A module opens on what the previous step actually wrote, the pipeline graph marks which outputs are stale, run comparison diffs the settings, object counts and hit lists of two runs, and every GUI run emits the equivalent Python script. Measurements export to ``.h5ad`` for scanpy; OME-Zarr and OMERO are available through the Python API. The methods-and-results exporter drafts those two manuscript sections from a structured digest of the run: the model writes the prose, but every number comes from the digest, and a draft containing a number the digest does not contain is rejected. 当安装错误时, ``spacr-doctor`` 报告 spaCR 实际上运行,是否 GPU 可用,是否Cellpose 符合 API spaCR 通话,以及项目数据库和设置是否有声音,并且每个线上都可以复制的修正,而不是通道。
+现在每次运行都可被明确追踪。每次运行都有运行 ID、随机种子和 ``on_error`` 策略；Mask、Measure、Classify 和 AnnData 导出会将各自产生的内容登记到工件注册表，因此可以从输出文件追溯到生成它的设置。模块会打开上一步实际写出的内容，流程图会标记已过期的输出，运行比较会列出两次运行在设置、对象数量和候选结果列表上的差异，而每次 GUI 运行都会生成等效的 Python 脚本。测量结果可导出为供 scanpy 使用的 ``.h5ad``；OME-Zarr 和 OMERO 可通过 Python API 使用。方法与结果导出器根据运行的结构化摘要起草论文的这两个部分：模型负责行文，但每个数字都必须来自摘要；包含摘要中不存在数字的草稿会被拒绝。安装出现问题时，``spacr-doctor`` 会报告实际运行的 spaCR、GPU 是否可用、Cellpose 是否匹配 spaCR 调用的 API，以及项目数据库和设置是否有效，并为每项失败的检查提供可复制的修复命令。
 
 多语言桌面界面
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**spaCR → 偏好 → 语言** 将运行应用程序翻译成英语、瑞典语、德语、西班牙语、曼达林语、葡萄牙语、印度语、韩国语、冰岛语或法语,而无需重新启动。
+通过 **spaCR → 偏好设置 → 语言** 可在不重启的情况下，将正在运行的应用程序切换为英语、瑞典语、德语、西班牙语、简体中文、葡萄牙语、印地语、韩语、冰岛语或法语。该选择会被保存，之后打开的界面也会采用同一语言。
 
-Navigation, Preferences, AI and LIVE controls, module descriptions and spaCR-authored console notices follow the selected language. Worker output, logs, tracebacks, paths, database values, annotations, AI responses, measurements and saved results are never translated, so scientific output remains canonical English. Setting tooltips not yet reviewed in a language stay in English rather than becoming a mixed-language explanation. The `位置指南 <https://einarolafsson.github.io/spacr/localization.html>`_ documents the behavior, the environment override, and the `背景援助 <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_ that is translated with it.
+导航、偏好设置、AI 和 LIVE 控件、模块说明以及 spaCR 自身生成的控制台提示都会采用所选语言。工作进程输出、日志、回溯信息、路径、数据库值、标注、AI 回复、测量值和保存的结果不会被翻译，因此科学结果始终保留规范的英文形式。尚未经过人工审校的设置工具提示将保留英文，避免出现语言混杂的说明。`本地化指南 <https://einarolafsson.github.io/spacr/localization.html>`_ 介绍了此行为、环境变量覆盖方式以及随界面一同翻译的 `上下文帮助 <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_。
 
 动画设置指南
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-94 short animations explain what 143 visual settings do to an image. Hover a setting and click **Animation** in its tooltip to play the square beside the text; click it again to fold it away. Animations are off until asked for, and can be disabled in Preferences. The `画廊 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ shows all of them, and the `创建动画记录 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_ records which setting each one belongs to.
+94 个短动画展示了 143 项可视化设置会怎样影响图像。将鼠标悬停在某项设置上，然后单击工具提示中的 **动画**，即可播放文字旁的方形预览；再次单击可将其收起。动画只在用户请求时播放，也可在“偏好设置”中彻底关闭。`动画库 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ 展示全部动画，`设置动画注册表 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_ 则记录每个动画对应的设置。
 
 模块参考
 ~~~~~~~~~~~~~~~~
@@ -246,281 +246,281 @@ Navigation, Preferences, AI and LIVE controls, module descriptions and spaCR-aut
    :header-rows: 1
    :widths: 25 25 25 25
 
-   * - Module
-     - Feature
-     - State
-     - Description
-   * - **Desktop experience**
+   * - 模块
+     - 功能
+     - 状态
+     - 说明
+   * - **桌面体验**
      -
      -
      -
    * - |api-qt-app|_
      - |doc-i18n|_
-     - Stable
-     - Retranslates open and lazily created screens across ten bundled languages.
+     - 稳定
+     - 可在十种内置语言之间即时重译已打开及按需创建的界面。
    * - |api-qt-app|_
      - |doc-i18n-help|_
-     - Stable
-     - Localizes module summaries and setting-help chrome while preserving exact API URLs.
+     - 稳定
+     - 本地化模块摘要和设置帮助界面，同时保持 API URL 完全不变。
    * - |api-qt-ai|_
      - |api-qt-ai-console|_
-     - Stable
-     - Localizes AI and LIVE controls without changing user or model content.
+     - 稳定
+     - 本地化 AI 和 LIVE 控件，但不改动用户内容或模型内容。
    * - |api-animations|_
      - |doc-animations|_
-     - Stable
-     - Plays 94 packaged animations for 143 visual settings from the setting tooltip.
+     - 稳定
+     - 可从设置工具提示播放 94 个内置动画，说明 143 项可视化设置。
    * - |api-selection|_
      - |api-linked-views|_
      - Alpha
-     - Shares one object selection across the table, plate, embedding, scatter and graph views.
+     - 在表格、孔板、嵌入、散点图和图形视图之间共享同一对象选择。
    * - |api-doctor|_
      - |api-doctor-checks|_
      - Alpha
-     - Diagnoses the install — GPU, Cellpose API, database, settings — with a fix per failing check.
-   * - **Image analysis**
+     - 检查 GPU、Cellpose API、数据库和设置，并为每项失败的检查提供修复方法。
+   * - **图像分析**
      -
      -
      -
    * - |api-mask|_
      - |api-mask-2d|_
-     - Stable
-     - Segments cells, nuclei, pathogens and organelles in 2D images.
+     - 稳定
+     - 在二维图像中分割细胞、细胞核、病原体和细胞器。
    * - |api-mask|_
      - |api-mask-3d|_
      - Beta
-     - Segments volumetric images and 4D time series.
+     - 分割三维体积图像和四维时间序列。
    * - |api-illumination|_
      - |api-flatfield|_
      - Alpha
-     - Estimates the flat-field from the plate and divides it out before intensity is measured.
+     - 从整块孔板估算平场，并在测量强度前完成校正。
    * - |api-measure|_
      - |api-measure-2d|_
-     - Stable
-     - Measures morphology, intensity, texture and colocalization, and writes the crops.
+     - 稳定
+     - 测量形态、强度、纹理和共定位特征，并保存图像裁剪。
    * - |api-segqc|_
      - |api-segqc-verdict|_
      - Alpha
-     - States what the segmentation looks like before Measure runs, without blocking it.
+     - 在 Measure 运行前说明分割质量，但不会阻止运行。
    * - |api-timelapse|_
      - |api-tracking|_
      - Beta
-     - Tracks objects with IoU, Trackpy, btrack, Trackastra or ultrack, and quantifies motility.
+     - 使用 IoU、Trackpy、btrack、Trackastra 或 ultrack 跟踪对象并量化运动性。
    * - |api-layers|_
      - |api-layer-viewer|_
      - Alpha
-     - Stacks image, label, point and shape layers, with orthogonal views and a comparison grid.
+     - 叠加图像、标签、点和形状图层，并提供正交视图和比较网格。
    * - |api-napari|_
      - |api-napari-curation|_
      - Alpha
-     - Hands a mask to napari for correction and takes it back, recording every edit.
-   * - **AI and phenotyping**
+     - 将掩膜交给 napari 修正后取回，并记录每一次编辑。
+   * - **AI 与表型分析**
      -
      -
      -
    * - |api-annotate|_
      - |api-annotation|_
-     - Stable
-     - Reviews crops on a keyboard-driven grid and saves annotations to SQLite.
+     - 稳定
+     - 在键盘操作的网格中审阅图像裁剪，并将标注保存到 SQLite。
    * - |api-active-learning|_
      - |api-al-loop|_
      - Alpha
-     - Retrains inside Annotate, re-ranks by uncertainty, and says when labelling can stop.
+     - 在 Annotate 内重新训练模型，按不确定性重新排序，并提示何时可以停止标注。
    * - |api-classify|_
      - |api-classification|_
-     - Stable
-     - Trains and applies PyTorch CNN and transformer models.
+     - 稳定
+     - 训练并应用 PyTorch CNN 和 Transformer 模型。
    * - |api-classify|_
      - |api-model-cards|_
      - Alpha
-     - Records dataset, class balance, split rule and held-out metrics beside each checkpoint.
+     - 为每个检查点记录数据集、类别平衡、拆分规则和留出集指标。
    * - |api-confusion|_
      - |api-confusion-drill|_
      - Alpha
-     - Opens the crops behind a confusion cell, confident errors listed apart from uncertain ones.
+     - 打开混淆矩阵单元格对应的图像裁剪，并将高置信度错误与不确定样本分开列出。
    * - |api-ml|_
      - |api-ml-models|_
-     - Stable
-     - Trains interpretable classical and boosted models on measurement tables.
+     - 稳定
+     - 在测量表上训练可解释的经典模型和提升模型。
    * - |api-classify|_
      - |api-activation|_
      - Beta
-     - Explains predictions with Captum, SmoothGrad and TorchCAM.
+     - 使用 Captum、SmoothGrad 和 TorchCAM 解释预测结果。
    * - |api-umap|_
      - |api-embedding|_
      - Beta
-     - Explores image embeddings interactively and propagates cluster labels.
-   * - **Sequencing and screen analysis**
+     - 以交互方式探索图像嵌入，并传播聚类标签。
+   * - **测序与筛选分析**
      -
      -
      -
    * - |api-sequencing|_
      - |api-barcodes|_
-     - Stable
-     - Maps row, column and gRNA barcodes from FASTQ reads and assigns guides to imaged cells.
+     - 稳定
+     - 从 FASTQ 读段映射行、列和 gRNA 条形码，并为成像细胞分配向导 RNA。
    * - |api-barcode-qc|_
      - |api-barcode-qc-sweep|_
      - Alpha
-     - Reports reads per well, collision rate and unmapped fraction against the expected gRNAs per well.
+     - 根据每孔预期的 gRNA 数，报告每孔读段数、冲突率和未映射比例。
    * - |api-regression|_
      - |api-regression-models|_
-     - Stable
-     - Estimates guide, gene, condition and control effects with 17 model families.
+     - 稳定
+     - 使用 17 类模型估计向导 RNA、基因、条件和对照效应。
    * - |api-power|_
      - |api-power-design|_
      - Alpha
-     - Answers how many cells and wells a screen needs, with sequencing error and well dropout priced in.
+     - 在计入测序误差和孔位脱落后，估算筛选所需的细胞数和孔数。
    * - |api-graph|_
      - |api-graph-builder|_
      - Alpha
-     - Builds a plot by dragging columns onto x, y, colour, size and facet.
+     - 通过将列拖到 x、y、颜色、大小和分面字段来生成图表。
    * - |api-artifacts|_
      - |api-provenance|_
      - Alpha
-     - Records the run id, seed and settings behind mask, measure, classify and export outputs.
+     - 记录 Mask、Measure、Classify 和导出结果对应的运行 ID、随机种子及设置。
 
-.. |api-qt-app| replace:: **Qt application**
+.. |api-qt-app| replace:: **Qt 应用程序**
 .. _api-qt-app: https://einarolafsson.github.io/spacr/api/spacr/qt/app/index.html
 
-.. |doc-i18n| replace:: **Ten-language localization**
+.. |doc-i18n| replace:: **十种语言本地化**
 .. _doc-i18n: https://einarolafsson.github.io/spacr/localization.html
 
-.. |doc-i18n-help| replace:: **Localized contextual help**
+.. |doc-i18n-help| replace:: **本地化上下文帮助**
 .. _doc-i18n-help: https://einarolafsson.github.io/spacr/localization.html#contextual-help
 
 .. |api-qt-ai| replace:: **Qt AI**
 .. _api-qt-ai: https://einarolafsson.github.io/spacr/api/spacr/qt/ai/index.html
 
-.. |api-qt-ai-console| replace:: **AI-assisted console**
+.. |api-qt-ai-console| replace:: **AI 辅助控制台**
 .. _api-qt-ai-console: https://einarolafsson.github.io/spacr/api/spacr/qt/ai/index.html
 
-.. |api-animations| replace:: **Setting animation registry**
+.. |api-animations| replace:: **设置动画注册表**
 .. _api-animations: https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html
 
-.. |doc-animations| replace:: **Visual setting animations**
+.. |doc-animations| replace:: **可视化设置动画**
 .. _doc-animations: https://einarolafsson.github.io/spacr/setting_animations.html
 
-.. |api-selection| replace:: **Selection**
+.. |api-selection| replace:: **选择**
 .. _api-selection: https://einarolafsson.github.io/spacr/api/spacr/selection/index.html
 
-.. |api-linked-views| replace:: **Linked selection**
+.. |api-linked-views| replace:: **联动选择**
 .. _api-linked-views: https://einarolafsson.github.io/spacr/api/spacr/qt/linked_selection/index.html
 
 .. |api-doctor| replace:: **Doctor**
 .. _api-doctor: https://einarolafsson.github.io/spacr/api/spacr/doctor/index.html
 
-.. |api-doctor-checks| replace:: **Installation diagnosis**
+.. |api-doctor-checks| replace:: **安装诊断**
 .. _api-doctor-checks: https://einarolafsson.github.io/spacr/api/spacr/doctor/index.html
 
 .. |api-mask| replace:: **Mask**
 .. _api-mask: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
 
-.. |api-mask-2d| replace:: **2D mask generation**
+.. |api-mask-2d| replace:: **二维掩膜生成**
 .. _api-mask-2d: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
 
-.. |api-mask-3d| replace:: **3D and 4D mask generation**
+.. |api-mask-3d| replace:: **三维和四维掩膜生成**
 .. _api-mask-3d: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
 
-.. |api-illumination| replace:: **Illumination**
+.. |api-illumination| replace:: **照明校正**
 .. _api-illumination: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
 
-.. |api-flatfield| replace:: **Flat-field correction**
+.. |api-flatfield| replace:: **平场校正**
 .. _api-flatfield: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
 
 .. |api-measure| replace:: **Measure**
 .. _api-measure: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
 
-.. |api-measure-2d| replace:: **Object measurements**
+.. |api-measure-2d| replace:: **对象测量**
 .. _api-measure-2d: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html#spacr.measure.measure_crop
 
-.. |api-segqc| replace:: **Segmentation QC**
+.. |api-segqc| replace:: **分割质量控制**
 .. _api-segqc: https://einarolafsson.github.io/spacr/api/spacr/seg_qc/index.html
 
-.. |api-segqc-verdict| replace:: **Pre-run verdict**
+.. |api-segqc-verdict| replace:: **运行前评估**
 .. _api-segqc-verdict: https://einarolafsson.github.io/spacr/api/spacr/seg_qc/index.html
 
 .. |api-timelapse| replace:: **Timelapse**
 .. _api-timelapse: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
 
-.. |api-tracking| replace:: **Object tracking**
+.. |api-tracking| replace:: **对象跟踪**
 .. _api-tracking: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
 
-.. |api-layers| replace:: **Layers**
+.. |api-layers| replace:: **图层**
 .. _api-layers: https://einarolafsson.github.io/spacr/api/spacr/layers/index.html
 
-.. |api-layer-viewer| replace:: **Layer viewer**
+.. |api-layer-viewer| replace:: **图层查看器**
 .. _api-layer-viewer: https://einarolafsson.github.io/spacr/api/spacr/qt/layer_viewer/index.html
 
-.. |api-napari| replace:: **napari bridge**
+.. |api-napari| replace:: **napari 桥接**
 .. _api-napari: https://einarolafsson.github.io/spacr/api/spacr/napari_bridge/index.html
 
-.. |api-napari-curation| replace:: **Mask curation**
+.. |api-napari-curation| replace:: **掩膜校正**
 .. _api-napari-curation: https://einarolafsson.github.io/spacr/api/spacr/napari_bridge/index.html
 
 .. |api-annotate| replace:: **Annotate**
 .. _api-annotate: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
 
-.. |api-annotation| replace:: **Manual annotation**
+.. |api-annotation| replace:: **手动标注**
 .. _api-annotation: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
 
-.. |api-active-learning| replace:: **Active learning**
+.. |api-active-learning| replace:: **主动学习**
 .. _api-active-learning: https://einarolafsson.github.io/spacr/api/spacr/active_learning/index.html
 
-.. |api-al-loop| replace:: **Retrain and re-rank**
+.. |api-al-loop| replace:: **重新训练和排序**
 .. _api-al-loop: https://einarolafsson.github.io/spacr/api/spacr/active_learning/index.html
 
 .. |api-classify| replace:: **Classify**
 .. _api-classify: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
 
-.. |api-classification| replace:: **Image classification**
+.. |api-classification| replace:: **图像分类**
 .. _api-classification: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
 
-.. |api-model-cards| replace:: **Model cards**
+.. |api-model-cards| replace:: **模型卡**
 .. _api-model-cards: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
 
-.. |api-activation| replace:: **Activation maps**
+.. |api-activation| replace:: **激活图**
 .. _api-activation: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
 
 .. |api-confusion| replace:: **Confusion**
 .. _api-confusion: https://einarolafsson.github.io/spacr/api/spacr/confusion/index.html
 
-.. |api-confusion-drill| replace:: **Confusion drill-down**
+.. |api-confusion-drill| replace:: **混淆矩阵下钻**
 .. _api-confusion-drill: https://einarolafsson.github.io/spacr/api/spacr/confusion/index.html
 
-.. |api-ml| replace:: **Machine learning**
+.. |api-ml| replace:: **机器学习**
 .. _api-ml: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
 
-.. |api-ml-models| replace:: **Measurement classification**
+.. |api-ml-models| replace:: **测量值分类**
 .. _api-ml-models: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
 
 .. |api-umap| replace:: **Image UMAP**
 .. _api-umap: https://einarolafsson.github.io/spacr/api/spacr/app_umap/index.html
 
-.. |api-embedding| replace:: **Interactive embedding**
+.. |api-embedding| replace:: **交互式嵌入**
 .. _api-embedding: https://einarolafsson.github.io/spacr/api/spacr/app_umap/index.html
 
-.. |api-sequencing| replace:: **Sequencing**
+.. |api-sequencing| replace:: **测序**
 .. _api-sequencing: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
 
-.. |api-barcodes| replace:: **Map barcodes**
+.. |api-barcodes| replace:: **条形码映射**
 .. _api-barcodes: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
 
-.. |api-barcode-qc| replace:: **Barcode QC**
+.. |api-barcode-qc| replace:: **条形码质量控制**
 .. _api-barcode-qc: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
 
-.. |api-barcode-qc-sweep| replace:: **Well and collision report**
+.. |api-barcode-qc-sweep| replace:: **孔位和冲突报告**
 .. _api-barcode-qc-sweep: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
 
 .. |api-regression| replace:: **Regression**
 .. _api-regression: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
 
-.. |api-regression-models| replace:: **Screen effect estimation**
+.. |api-regression-models| replace:: **筛选效应估计**
 .. _api-regression-models: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
 
 .. |api-power| replace:: **Power**
 .. _api-power: https://einarolafsson.github.io/spacr/api/spacr/power_model/index.html
 
-.. |api-power-design| replace:: **Power and design**
+.. |api-power-design| replace:: **统计功效与实验设计**
 .. _api-power-design: https://einarolafsson.github.io/spacr/api/spacr/power_simulate/index.html
 
 .. |api-graph| replace:: **Graph**
@@ -529,10 +529,10 @@ Navigation, Preferences, AI and LIVE controls, module descriptions and spaCR-aut
 .. |api-graph-builder| replace:: **Graph Builder**
 .. _api-graph-builder: https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/graph_builder/index.html
 
-.. |api-artifacts| replace:: **Artifacts**
+.. |api-artifacts| replace:: **工件**
 .. _api-artifacts: https://einarolafsson.github.io/spacr/api/spacr/artifacts/index.html
 
-.. |api-provenance| replace:: **Run provenance**
+.. |api-provenance| replace:: **运行溯源**
 .. _api-provenance: https://einarolafsson.github.io/spacr/api/spacr/runctx/index.html
 
 
@@ -542,32 +542,32 @@ Navigation, Preferences, AI and LIVE controls, module descriptions and spaCR-aut
 参考数据集
 ~~~~~~~~~~~~~~~~~~
 
-- `全微镜数据集:BioStudies S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
-- `测试数据集:Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
-- `序列数据:NCBI BioProject PRJNA1261935 <https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935>`_
-- `Power analysis: spaCRPower <https://github.com/maomlab/spaCRPower>`_
+- `完整显微镜数据集：BioStudies S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
+- `测试数据集：Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
+- `测序数据：NCBI BioProject PRJNA1261935 <https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935>`_
+- `统计功效分析：spaCRPower <https://github.com/maomlab/spaCRPower>`_
 
 
 贡献与支持
 ------------------------
 
-Bug reports and focused feature requests are welcome through `GitHub 問題 <https://github.com/EinarOlafsson/spacr/issues>`_. When reporting a failure, include the spaCR version, operating system, Python version, module settings and the relevant log excerpt. ``spacr-doctor`` collects most of that for you.
+欢迎通过 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_ 提交错误报告和明确的功能请求。报告故障时，请附上 spaCR 版本、操作系统、Python 版本、模块设置及相关日志片段；``spacr-doctor`` 会自动收集其中的大部分信息。
 
 许可
 ~~~~~~~~~
 
-目前的开发分支在 `非商用许可证 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ 下可用。 商业使用需要从版权持有者获得单独许可. 通过 spaCR 1.4.9.9 发布的版本仍然可用,根据 MIT 许可证,这些出版物伴随。
+当前开发分支的源代码按 `PolyForm 非商业许可证 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ 提供。商业使用需要另行获得版权持有者的许可。spaCR 1.4.9.9 及更早发布版仍按各自发布时附带的 MIT 许可证提供。
 
 教程
 ~~~~~~~~~
 
-`互动式 spaCR 教程图书馆 <https://einarolafsson.github.io/spacr/tutorials/>`_ 包含在八种语言中描述、标记的安装和每个应用程序工作流程的步行路径。
+`交互式 spaCR 教程库 <https://einarolafsson.github.io/spacr/tutorials/>`_ 以八种语言提供安装过程和各应用工作流程的配音、字幕操作指南。
 
 引用 spaCR
 ~~~~~~~~~~~~
 
-如果 spaCR 有助于您的研究,请引用:
+如果 spaCR 有助于您的研究，请引用：
 
-Olafsson EB, *et al.* 基于图像的集成屏幕 CRISPR 将 EAF1 定义为 ESCRT 子转换器的 *T. gondii* 模块化器。
+Olafsson EB, *et al.* 一项汇集式图像 CRISPR 筛选将 EAF1 鉴定为 *T. gondii* 中 ESCRT 功能劫持的调控因子。
 
-`生物Rxiv 预印 <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `软件档案 <https://doi.org/10.5281/zenodo.21343317>`_
+`bioRxiv 预印本 <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `软件归档 <https://doi.org/10.5281/zenodo.21343317>`_
