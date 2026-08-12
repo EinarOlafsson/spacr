@@ -108,9 +108,11 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     ) == _NEW_VISIBLE_DIGEST
     assert dunders | assignments <= docs.keys()
 
-    # 6194 canonical bodies plus 119 exact materialized aliases.
-    assert len(docs) - len(builder.API_DOC_ALIASES) == 6194
-    assert len(docs) == 6313
+    # 6203 canonical bodies plus 119 exact materialized aliases. The nine new
+    # bodies are the reviewed organelle-type API (eight) and splash contrast
+    # helper (one); catalog regeneration must include all of them.
+    assert len(docs) - len(builder.API_DOC_ALIASES) == 6203
+    assert len(docs) == 6322
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
