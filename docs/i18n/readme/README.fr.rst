@@ -5,37 +5,37 @@
    :alt: Documentation
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
    :target: https://einarolafsson.github.io/spacr/tutorials/
-   :alt: Interactive tutorials
+   :alt: Tutoriels interactifs
 .. |PyPI| image:: https://img.shields.io/pypi/v/spacr
    :target: https://pypi.org/project/spacr/
-   :alt: PyPI version
+   :alt: Version PyPI
 .. |Python| image:: https://img.shields.io/badge/Python-3.9%E2%80%933.14-3776AB?logo=python&logoColor=white
    :target: https://pypi.org/project/spacr/
-   :alt: Python 3.9 through 3.14
+   :alt: Python 3.9 à 3.14
 .. |Tests| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml/badge.svg
    :target: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml
-   :alt: Test suite
+   :alt: Suite de tests
 .. |Qt| image:: https://img.shields.io/badge/GUI-Qt%20%28PySide6%29-41CD52
    :target: https://einarolafsson.github.io/spacr/
-   :alt: Qt interface
+   :alt: Interface Qt
 .. |Source| image:: https://img.shields.io/badge/GitHub-Source-181717?logo=github
    :target: https://github.com/EinarOlafsson/spacr
-   :alt: GitHub source
+   :alt: Code source GitHub
 .. |Issues| image:: https://img.shields.io/github/issues/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/issues
-   :alt: GitHub issues
+   :alt: Tickets GitHub
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: PolyForm Noncommercial license
+   :alt: Licence PolyForm Noncommercial
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343317-blue
    :target: https://doi.org/10.5281/zenodo.21343317
-   :alt: Zenodo DOI
+   :alt: DOI Zenodo
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
-   :alt: Latest installers
+   :alt: Derniers installateurs
 .. |CondaRecipe| image:: https://img.shields.io/badge/conda--forge-recipe-44A833?logo=anaconda
    :target: https://github.com/EinarOlafsson/spacr/tree/main/conda-forge/recipe
-   :alt: conda-forge recipe
+   :alt: Recette conda-forge
 
 .. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/logo_spacr.png
    :alt: spaCR
@@ -74,7 +74,7 @@ Vue d’ensemble du flux de travail
 |Tutorials|
 
 .. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/flow_chart_v3.png
-   :alt: spaCR workflow and output organization
+   :alt: Flux de travail spaCR et organisation des sorties
    :align: center
 
 Les images de microscopie (TIFF, OME-TIFF, LIF, CZI, ND2) et les lectures de séquençage (FASTQ) alimentent des flux complémentaires d’analyse d’images et d’association des codes-barres. Les tables d’objets, recadrages, annotations, prédictions, identités des guides, résultats de QC et résumés par puits sont ensuite analysés ensemble.
@@ -91,7 +91,7 @@ Démarrage rapide
    python -m pip install "spacr[qt]"
    spacr
 
-spaCR prend en charge Python **3.9 à 3.14** (sauf Python 3.14.1, ce qui exclut la torchvision). Python 3.12 a le plus grand choix de paquets scientifiques optionnels. Linux est recommandé pour les workflows CUDA; macOS et Windows sont également pris en charge.
+spaCR prend en charge Python **3.9 à 3.14** (à l’exception de Python 3.14.1, exclu par torchvision). Python 3.12 offre le plus grand choix de paquets scientifiques facultatifs. Linux est recommandé pour les flux de travail CUDA ; macOS et Windows sont également pris en charge.
 
 
 Détails de l’installation
@@ -112,20 +112,20 @@ Détails de l’installation
 Programmes d’installation légers — ni conda ni installation Python existante requis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-L'installateur télécharge un Python privé 3.12 runtime, Qt, PyTorch, spaCR et les dépendances scientifiques pendant l'installation, de sorte que ni conda ni un Python existant n'est nécessaire. La compilation portable CPU est la valeur par défaut, ce qui empêche l'installation de tirer plusieurs gigaoctets de bibliothèques CUDA sans préavis. Windows offre une accélération NVIDIA en option, Linux accepte ``--torch-backend auto``, et la roue standard macOS PyTorch maintient l'accélération Apple MPS.
+Pendant l’installation, l’installateur télécharge un environnement privé Python 3.12, Qt, PyTorch, spaCR et les dépendances scientifiques ; conda et une installation Python existante ne sont donc pas nécessaires. La version portable pour CPU est utilisée par défaut afin d’éviter le téléchargement inopiné de plusieurs gigaoctets de bibliothèques CUDA. Windows propose l’accélération NVIDIA comme composant facultatif, Linux accepte ``--torch-backend auto`` et le wheel PyTorch standard pour macOS conserve l’accélération Apple MPS.
 
-L'aide, le progrès et les erreurs d'installation suivent la langue du système d'exploitation dans les dix langues spaCR: anglais, suédois, allemand, espagnol, chinois simplifié, portugais, hindi, coréen, islandais et français.
+L’aide, la progression et les messages d’erreur de l’installateur suivent la langue du système d’exploitation dans les dix langues de spaCR : anglais, suédois, allemand, espagnol, chinois simplifié, portugais, hindi, coréen, islandais et français. Les paramètres régionaux non pris en charge utilisent l’anglais.
 
-Sur Linux, rendre l'exécutable d'installation téléchargé avant de l'ouvrir :
+Sous Linux, rendez l’installateur téléchargé exécutable avant de l’ouvrir :
 
 .. code-block:: bash
 
    chmod +x SpaCR-*-Linux-x86_64-Online.run
    ./SpaCR-*-Linux-x86_64-Online.run
 
-À macOS, ouvrir le téléchargé ``.pkg``. Si Gatekeeper bloque l'installateur bêta actuel parce qu'il n'est pas notarié, ouvrez **Paramètres du système → Confidentialité et sécurité**, choisissez **Ouvrir de toute façon** pour spaCR, puis lancez le paquet à nouveau.
+Sous macOS, ouvrez le fichier ``.pkg`` téléchargé. Si Gatekeeper bloque l’installateur bêta actuel parce qu’il n’est pas notarié, ouvrez **Réglages Système → Confidentialité et sécurité**, choisissez **Ouvrir quand même** pour spaCR, puis relancez le paquet.
 
-L'installateur valide spaCR, Qt, PyTorch et la cohérence de dépendance avant de remplacer une installation plus ancienne, de sorte qu'une mise à jour interrompue laisse l'environnement de travail précédent en place. Un journal de diagnostic est conservé comme ``install.log`` dans le répertoire d'installation privé spaCR.
+Avant de remplacer une installation antérieure, l’installateur vérifie spaCR, Qt, PyTorch et la cohérence des dépendances. Une mise à jour interrompue laisse donc l’environnement fonctionnel précédent en place. Un journal de diagnostic nommé ``install.log`` est conservé dans le répertoire d’installation privé de spaCR.
 
 Application de bureau depuis PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -178,7 +178,7 @@ Installez uniquement les extras dont votre workflow a besoin :
    python -m pip install "spacr[napari]"        # napari mask correction
    python -m pip install "spacr[czi,nd2,lif]"   # vendor file readers
 
-La résolution des extras dépend de la version Python. Sur Python 3.13, les limites d'ultrack ``spacr[all]`` et la contrainte NumPy de TorchCAM limitent l'extra ``attribution``; le paquet de base et l'application Qt ne sont pas affectées. Sur Python 3.14, btrack est disponible via son extra. Le convertisseur CZI pylibCZIrw est optionnel et non testé; la lecture CZI basée sur czifile reste disponible.
+Les extras disponibles dépendent de la version de Python. Sous Python 3.13, ultrack limite ``spacr[all]`` et la contrainte NumPy de TorchCAM limite l’extra ``attribution`` ; le paquet principal et l’application Qt ne sont pas affectés. Sous Python 3.14, btrack est disponible par l’intermédiaire de son extra. Le convertisseur CZI pylibCZIrw est facultatif et non testé ; la lecture des fichiers CZI avec czifile reste disponible.
 
 L'interface Tk est toujours installée sous la forme ``spacr-legacy`` mais n'est plus développée.
 
@@ -206,38 +206,38 @@ Fonctionnalités
 Les six modules les plus utilisés dans les criblages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Masque** segmente les cellules, les noyaux, les pathogènes et les organites avec Cellpose, dans les images 2D et dans les données volumétriques ou chronologiques. La liste des modèles est lue à partir du Cellpose installé plutôt que codé dur, et un diamètre d'objet est estimé à partir des images avant le début de l'exécution.
+**Mask** segmente avec Cellpose les cellules, noyaux, agents pathogènes et organites dans les images 2D ainsi que dans les données volumétriques ou les séries temporelles. La liste des modèles provient de l’installation de Cellpose au lieu d’être codée en dur, et le diamètre des objets est estimé à partir des images avant l’exécution. Les masques peuvent être corrigés manuellement dans la visionneuse de calques, ou envoyés dans napari pour y être modifiés puis réimportés.
 
-**Mesure** Nouveau dans 1.5.0.0: correction de l'éclairage estime le champ plat de la plaque elle-même et la divise avant qu'une caractéristique d'intensité ne soit prise, ce qui élimine le biais de position que les cartes de chaleur de plaque montrent comme effets de bord. Une segmentation QC La bannière indique en langage clair à quoi ressemblent les masques avant que Mesure ne tourne; elle informe, elle ne bloque pas. Un polygone dessiné limite la mesure à une région d'intérêt.
+**Measure** enregistre dans la base de données du projet les caractéristiques de morphologie, d’intensité, de texture et de colocalisation de chaque objet, avec les recadrages correspondants. Nouveauté de la version 1.5.0.0 : la correction d’éclairage estime le champ uniforme à partir de la plaque et corrige les images avant le calcul des caractéristiques d’intensité. Elle supprime ainsi le biais lié à la position des puits, visible sous forme d’effets de bord dans les cartes thermiques de la plaque. Avant l’exécution de Measure, une bannière de QC de segmentation décrit les masques en langage clair ; elle informe sans bloquer l’exécution. Un polygone tracé limite les mesures à une région d’intérêt.
 
-**Annoter** affiche les vignettes sur une grille pilotée au clavier et écrit les étiquettes directement dans SQLite. Il ferme maintenant la boucle d'apprentissage actif : réentraîner un modèle sur les données étiquetées sans quitter le criblage, reclasser la file d'attente selon l'incertitude, examiner la courbe d'apprentissage et obtenir un critère d'arrêt lorsque de nouvelles étiquettes ne modifient plus le modèle. La couverture est indiquée par classe, par puits et par plaque, et chaque cycle est enregistré.
+**Annotate** affiche les recadrages dans une grille pilotée au clavier et enregistre directement les étiquettes dans SQLite. La boucle d’apprentissage actif est intégrée à l’écran : réentraînement sur les données déjà annotées, reclassement de la file selon l’incertitude, suivi de la courbe d’apprentissage et recommandation d’arrêt lorsque de nouvelles annotations ne modifient plus le modèle. La couverture est indiquée par classe, par puits et par plaque, et chaque cycle est enregistré.
 
-**Classifier** trains PyTorch CNN et transformateurs sur les vignettes annotées, et modèles classiques ou boostés sur les tables de mesure. La précision par classe est maintenant maintenue à chaque époque au lieu d'être jetée, et chaque point de contrôle obtient une carte modèle enregistrant son ensemble de données, son équilibre de classe, sa règle de fractionnement et les mesures maintenues.
+**Classify** entraîne des CNN et des Transformer PyTorch sur les recadrages annotés, ainsi que des modèles classiques ou de boosting sur les tables de mesures. La précision par classe est désormais conservée à chaque epoch, et chaque checkpoint reçoit une fiche indiquant le jeu de données, l’équilibre des classes, la règle de partition et les métriques de l’ensemble de validation. Dans l’écran d’évaluation, chaque cellule de la matrice de confusion sert de requête : un clic ouvre les recadrages correspondants et sépare les erreurs à forte confiance des cas incertains.
 
-**Codes barres de carte** décode la ligne, la colonne et gRNA code-barres de FASTQ lit, attribue les identités de guide aux puits, et les joint aux cellules imaged. QC les rapports se lit par puits, taux de collision et fraction non maculée, balayant autour du nombre de gRNA par puits vous dites que vous attendez plutôt qu'un seuil fixe.
+**Map Barcodes** décode les codes-barres de ligne, de colonne et de gRNA dans les lectures FASTQ, attribue les identités des guides aux puits et les relie aux cellules imagées. Barcode QC indique le nombre de lectures par puits, le taux de collision et la fraction non attribuée, en explorant une plage autour du nombre de gRNA par puits attendu par l’utilisateur plutôt qu’un seuil fixe.
 
-**Les estimations de régression** indiquent les effets de référence, les gènes, les conditions et les contrôles à l'aide de 17 familles modèles, y compris des modèles mixtes, des modèles logistiques et probit, des modèles quantile, bêta, GLM avec variance quasi-binomiale, lasso, crête, filet élastique, charnière et fer à cheval.
+**Regression** estime les effets des guides, des gènes, des conditions et des témoins avec 17 familles de modèles, notamment les modèles mixtes, Logistic, Probit, Quantile, Beta, les GLM à variance quasi binomiale, Lasso, Ridge, Elastic Net, Hinge et Horseshoe. Le résultat est une liste de candidats classée et annotée, et non un simple ensemble de coefficients.
 
 Nouveautés de la version 1.5.0.0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Avant l'apparition d'un criblage, le module Power / Design répond au nombre de cellules et de puits dont il a besoin, à prix avec erreur de séquençage et avec l'abandon qui vient de puits qui ont été représentés trop finement. Un concepteur d'expérience pose la plaque, ses commandes et ses répliques et exporte la disposition pour le pipeline. Ensuite, un tableau de bord QC recueille la segmentation, la plaque, l'accord annotateur et les vérifications de fuite dans un seul verdict, et ComBat est disponible à côté de ``center`` et ``zscore`` pour la correction par lots.
+Avant même qu’un criblage existe, le module Power / Design calcule le nombre de cellules et de puits nécessaires en tenant compte des erreurs de séquençage et de la perte des puits contenant trop peu de cellules imagées. Un concepteur d’expérience organise la plaque, les témoins et les réplicats, puis exporte le plan pour le pipeline. Ensuite, un tableau de bord de QC rassemble les contrôles de segmentation, de plaque, d’accord entre annotateurs et de fuite de données en un verdict unique ; ComBat est disponible aux côtés de ``center`` et ``zscore`` pour la correction des effets de lot.
 
-Les résultats sont explorés plutôt que exportés et réimportés. Un concepteur graphique trace une table en faisant glisser des colonnes sur x, y, couleur, taille et facette. Les portes tirées sur un histogramme ou un scatter deviennent des filtres. Un explorateur de fonction classe les caractéristiques en fonction de leur degré de séparation des classes. Les petits multiplex, les ajustements dose-réponse, les cartes de contrôle et la détection robuste des aberrations utilisent le même moteur d'axe.
+Les résultats sont explorés directement plutôt qu’exportés puis réimportés. Graph Builder crée un graphique en faisant glisser des colonnes vers x, y, couleur, taille et facette. Les zones tracées dans un histogramme ou un nuage de points deviennent des filtres. Un explorateur de caractéristiques les classe selon leur capacité à séparer les classes. Les petits multiples, les ajustements dose-réponse, les cartes de contrôle et la détection robuste des valeurs aberrantes utilisent le même moteur d’axes. La sélection d’objets dans une vue se propage à toutes les autres ; l’ouverture de la sélection affiche les recadrages d’origine. Une visionneuse de calques superpose images, étiquettes, points et formes, avec des vues orthogonales, une grille de comparaison synchronisée et un arbre de filiation reliant cellule, noyau et agent pathogène.
 
-Chaque exécution est maintenant identifiable. Chaque exécution porte un id, une graine et une politique ``on_error``; Masque, Mesure, Classer et l'export AnnData enregistre ce qu'ils ont écrit dans un registre d'artefacts, de sorte qu'un fichier de sortie renvoie aux paramètres qui l'ont produit. Un module s'ouvre sur ce que l'étape précédente a réellement écrit, les marques du graphique de pipeline qui sont des sorties discontinues, exécutent des comparaisons diffrent les paramètres, les nombres d'objets et les listes de succès de deux exécutions, et chaque exécution de GUI émet le script équivalent Python. Les mesures exportent vers ``.h5ad`` pour scanpy; OME-Zarr et OMERO sont disponibles par l'intermédiaire de Python API. L'exportateur de méthodes et de résultats rédige ces deux sections manuscrites d'un digest structuré de l'exécution : le modèle écrit la prose, mais chaque numéro provient du digest, et un projet contenant un numéro que le digest ne contient pas est rejeté. Lorsque quelque chose ne va pas avec l'installation, ``spacr-doctor`` signale ce qui est réellement lancé spaCR, si le GPU est utilisable, si le Cellpose correspond aux appels API spaCR, et si la base de données et les paramètres du projet sont sonores, avec une correction copiable sur chaque ligne qui n'est pas un passe.
+Chaque exécution est maintenant identifiable par un ID, une graine aléatoire et une politique ``on_error``. Mask, Measure, Classify et l’export AnnData inscrivent leurs sorties dans un registre d’artefacts, ce qui permet de remonter d’un fichier de sortie aux paramètres qui l’ont produit. Un module ouvre la sortie réellement écrite par l’étape précédente, le graphe du pipeline signale les sorties obsolètes, la comparaison des exécutions affiche les différences de paramètres, de nombres d’objets et de listes de candidats, et chaque exécution depuis l’interface produit le script Python équivalent. Les mesures s’exportent au format ``.h5ad`` pour scanpy ; OME-Zarr et OMERO sont disponibles dans l’API Python. L’exportateur de méthodes et de résultats rédige ces deux sections du manuscrit à partir d’un résumé structuré de l’exécution : le modèle rédige le texte, mais chaque nombre provient du résumé, et tout brouillon contenant un nombre absent de celui-ci est rejeté. En cas de problème d’installation, ``spacr-doctor`` indique quelle installation de spaCR est réellement exécutée, si le GPU est utilisable, si Cellpose correspond à l’API appelée par spaCR et si la base de données et les paramètres du projet sont valides ; chaque contrôle en échec est accompagné d’une correction copiable.
 
 Interface de bureau multilingue
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**spaCR → Préférences → Langue** retransforme l'application en anglais, suédois, allemand, espagnol, mandarin chinois, portugais, hindi, coréen, islandais ou français sans redémarrer. Le choix persiste et les criblages ouverts plus tard héritent de lui.
+**spaCR → Préférences → Langue** retraduit l’application en cours d’exécution en anglais, suédois, allemand, espagnol, chinois simplifié, portugais, hindi, coréen, islandais ou français, sans redémarrage. Le choix est mémorisé et s’applique aux écrans ouverts par la suite.
 
-Navigation, Préférences, contrôles AI et LIVE, descriptions de modules et avis de consoles spaCR-autorisés suivent la langue sélectionnée. La sortie Worker, logs, tracebacks, chemins, valeurs de base de données, annotations, réponses AI, mesures et résultats enregistrés ne sont jamais traduits, donc la sortie scientifique reste canonique anglais. `guide de localisation <https://einarolafsson.github.io/spacr/localization.html>`_ documente le comportement, l'environnement et la `aide contextuelle <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_ qui est traduit avec elle.
+La navigation, les préférences, les commandes AI et LIVE, les descriptions des modules et les messages de console produits par spaCR suivent la langue sélectionnée. Les sorties des processus, journaux, traces d’erreur, chemins, valeurs de base de données, annotations, réponses AI, mesures et résultats enregistrés ne sont jamais traduits : les résultats scientifiques restent ainsi dans leur forme anglaise canonique. Les infobulles de réglage qui n’ont pas encore été relues dans une langue restent en anglais afin d’éviter les explications bilingues. Le `guide de localisation <https://einarolafsson.github.io/spacr/localization.html>`_ décrit ce comportement, le remplacement par variable d’environnement et l’`aide contextuelle <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_ traduite avec l’interface.
 
-Orientations de l'aménagement animé
+Guide animé des paramètres
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-94 animations courtes expliquent ce que 143 paramètres visuels font à une image. Déplacez un paramètre et cliquez sur **Animation** dans son tooltip pour lire le carré à côté du texte; cliquez-le à nouveau pour le plier. Les animations sont désactivées jusqu'à ce que vous le vouliez, et peuvent être désactivées dans Préférences. Le `galerie <https://einarolafsson.github.io/spacr/setting_animations.html>`_ les affiche tous, et les enregistrements `Configuration du registre d'animation <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_ qui définissent chacun d'eux.
+94 courtes animations montrent l’effet de 143 paramètres visuels sur une image. Survolez un paramètre puis cliquez sur **Animation** dans son infobulle pour lancer l’aperçu carré à côté du texte ; cliquez de nouveau pour le replier. Les animations ne démarrent qu’à la demande et peuvent être entièrement désactivées dans les Préférences. La `galerie <https://einarolafsson.github.io/spacr/setting_animations.html>`_ les présente toutes, et le `registre des animations de paramètres <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_ indique le paramètre associé à chacune.
 
 Référence des modules
 ~~~~~~~~~~~~~~~~~~~~~
@@ -247,280 +247,280 @@ Référence des modules
    :widths: 25 25 25 25
 
    * - Module
-     - Feature
-     - State
+     - Fonction
+     - État
      - Description
-   * - **Desktop experience**
+   * - **Expérience de bureau**
      -
      -
      -
    * - |api-qt-app|_
      - |doc-i18n|_
      - Stable
-     - Retranslates open and lazily created screens across ten bundled languages.
+     - Retraduit instantanément les écrans ouverts ou créés à la demande dans les dix langues fournies.
    * - |api-qt-app|_
      - |doc-i18n-help|_
      - Stable
-     - Localizes module summaries and setting-help chrome while preserving exact API URLs.
+     - Localise les résumés de modules et l’interface d’aide des paramètres sans modifier les URL de l’API.
    * - |api-qt-ai|_
      - |api-qt-ai-console|_
      - Stable
-     - Localizes AI and LIVE controls without changing user or model content.
+     - Localise les commandes AI et LIVE sans modifier le contenu de l’utilisateur ni celui du modèle.
    * - |api-animations|_
      - |doc-animations|_
      - Stable
-     - Plays 94 packaged animations for 143 visual settings from the setting tooltip.
+     - Lit depuis les infobulles 94 animations intégrées couvrant 143 paramètres visuels.
    * - |api-selection|_
      - |api-linked-views|_
      - Alpha
-     - Shares one object selection across the table, plate, embedding, scatter and graph views.
+     - Partage une même sélection d’objets entre les vues tableau, plaque, plongement, nuage de points et graphique.
    * - |api-doctor|_
      - |api-doctor-checks|_
      - Alpha
-     - Diagnoses the install — GPU, Cellpose API, database, settings — with a fix per failing check.
-   * - **Image analysis**
+     - Vérifie le GPU, l’API Cellpose, la base de données et les paramètres, avec une solution pour chaque contrôle en échec.
+   * - **Analyse d’images**
      -
      -
      -
    * - |api-mask|_
      - |api-mask-2d|_
      - Stable
-     - Segments cells, nuclei, pathogens and organelles in 2D images.
+     - Segmente les cellules, noyaux, agents pathogènes et organites dans les images 2D.
    * - |api-mask|_
      - |api-mask-3d|_
-     - Beta
-     - Segments volumetric images and 4D time series.
+     - Bêta
+     - Segmente les images volumétriques et les séries temporelles 4D.
    * - |api-illumination|_
      - |api-flatfield|_
      - Alpha
-     - Estimates the flat-field from the plate and divides it out before intensity is measured.
+     - Estime le champ uniforme à partir de la plaque et le corrige avant la mesure de l’intensité.
    * - |api-measure|_
      - |api-measure-2d|_
      - Stable
-     - Measures morphology, intensity, texture and colocalization, and writes the crops.
+     - Mesure la morphologie, l’intensité, la texture et la colocalisation, puis enregistre les recadrages.
    * - |api-segqc|_
      - |api-segqc-verdict|_
      - Alpha
-     - States what the segmentation looks like before Measure runs, without blocking it.
+     - Décrit la qualité de la segmentation avant l’exécution de Measure, sans la bloquer.
    * - |api-timelapse|_
      - |api-tracking|_
-     - Beta
-     - Tracks objects with IoU, Trackpy, btrack, Trackastra or ultrack, and quantifies motility.
+     - Bêta
+     - Suit les objets avec IoU, Trackpy, btrack, Trackastra ou ultrack et quantifie leur motilité.
    * - |api-layers|_
      - |api-layer-viewer|_
      - Alpha
-     - Stacks image, label, point and shape layers, with orthogonal views and a comparison grid.
+     - Superpose les calques d’images, d’étiquettes, de points et de formes, avec vues orthogonales et grille de comparaison.
    * - |api-napari|_
      - |api-napari-curation|_
      - Alpha
-     - Hands a mask to napari for correction and takes it back, recording every edit.
-   * - **AI and phenotyping**
+     - Envoie un masque à napari pour correction, le récupère et consigne chaque modification.
+   * - **AI et phénotypage**
      -
      -
      -
    * - |api-annotate|_
      - |api-annotation|_
      - Stable
-     - Reviews crops on a keyboard-driven grid and saves annotations to SQLite.
+     - Examine les recadrages dans une grille pilotée au clavier et enregistre les annotations dans SQLite.
    * - |api-active-learning|_
      - |api-al-loop|_
      - Alpha
-     - Retrains inside Annotate, re-ranks by uncertainty, and says when labelling can stop.
+     - Réentraîne le modèle dans Annotate, reclasse par incertitude et indique quand l’annotation peut s’arrêter.
    * - |api-classify|_
      - |api-classification|_
      - Stable
-     - Trains and applies PyTorch CNN and transformer models.
+     - Entraîne et applique des CNN et des modèles transformer PyTorch.
    * - |api-classify|_
      - |api-model-cards|_
      - Alpha
-     - Records dataset, class balance, split rule and held-out metrics beside each checkpoint.
+     - Consigne pour chaque point de contrôle le jeu de données, l’équilibre des classes, la règle de partition et les métriques de validation.
    * - |api-confusion|_
      - |api-confusion-drill|_
      - Alpha
-     - Opens the crops behind a confusion cell, confident errors listed apart from uncertain ones.
+     - Ouvre les recadrages associés à une cellule de la matrice de confusion et sépare les erreurs certaines des cas incertains.
    * - |api-ml|_
      - |api-ml-models|_
      - Stable
-     - Trains interpretable classical and boosted models on measurement tables.
+     - Entraîne des modèles classiques et de boosting interprétables sur les tables de mesures.
    * - |api-classify|_
      - |api-activation|_
-     - Beta
-     - Explains predictions with Captum, SmoothGrad and TorchCAM.
+     - Bêta
+     - Explique les prédictions avec Captum, SmoothGrad et TorchCAM.
    * - |api-umap|_
      - |api-embedding|_
-     - Beta
-     - Explores image embeddings interactively and propagates cluster labels.
-   * - **Sequencing and screen analysis**
+     - Bêta
+     - Explore interactivement les plongements d’images et propage les étiquettes de groupes.
+   * - **Séquençage et analyse de criblage**
      -
      -
      -
    * - |api-sequencing|_
      - |api-barcodes|_
      - Stable
-     - Maps row, column and gRNA barcodes from FASTQ reads and assigns guides to imaged cells.
+     - Associe les codes-barres de ligne, de colonne et de gRNA des lectures FASTQ et attribue les guides aux cellules imagées.
    * - |api-barcode-qc|_
      - |api-barcode-qc-sweep|_
      - Alpha
-     - Reports reads per well, collision rate and unmapped fraction against the expected gRNAs per well.
+     - Rapporte les lectures par puits, le taux de collision et la fraction non attribuée selon le nombre de gRNA attendu par puits.
    * - |api-regression|_
      - |api-regression-models|_
      - Stable
-     - Estimates guide, gene, condition and control effects with 17 model families.
+     - Estime les effets des guides, gènes, conditions et témoins à l’aide de 17 familles de modèles.
    * - |api-power|_
      - |api-power-design|_
      - Alpha
-     - Answers how many cells and wells a screen needs, with sequencing error and well dropout priced in.
+     - Calcule le nombre de cellules et de puits requis pour un criblage en tenant compte des erreurs de séquençage et des puits perdus.
    * - |api-graph|_
      - |api-graph-builder|_
      - Alpha
-     - Builds a plot by dragging columns onto x, y, colour, size and facet.
+     - Construit un graphique en faisant glisser des colonnes vers x, y, couleur, taille et facette.
    * - |api-artifacts|_
      - |api-provenance|_
      - Alpha
-     - Records the run id, seed and settings behind mask, measure, classify and export outputs.
+     - Consigne l’identifiant d’exécution, la graine et les paramètres à l’origine des sorties Mask, Measure, Classify et d’exportation.
 
-.. |api-qt-app| replace:: **Qt application**
+.. |api-qt-app| replace:: **Application Qt**
 .. _api-qt-app: https://einarolafsson.github.io/spacr/api/spacr/qt/app/index.html
 
-.. |doc-i18n| replace:: **Ten-language localization**
+.. |doc-i18n| replace:: **Localisation en dix langues**
 .. _doc-i18n: https://einarolafsson.github.io/spacr/localization.html
 
-.. |doc-i18n-help| replace:: **Localized contextual help**
+.. |doc-i18n-help| replace:: **Aide contextuelle localisée**
 .. _doc-i18n-help: https://einarolafsson.github.io/spacr/localization.html#contextual-help
 
 .. |api-qt-ai| replace:: **Qt AI**
 .. _api-qt-ai: https://einarolafsson.github.io/spacr/api/spacr/qt/ai/index.html
 
-.. |api-qt-ai-console| replace:: **AI-assisted console**
+.. |api-qt-ai-console| replace:: **Console assistée par AI**
 .. _api-qt-ai-console: https://einarolafsson.github.io/spacr/api/spacr/qt/ai/index.html
 
-.. |api-animations| replace:: **Setting animation registry**
+.. |api-animations| replace:: **Registre des animations de paramètres**
 .. _api-animations: https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html
 
-.. |doc-animations| replace:: **Visual setting animations**
+.. |doc-animations| replace:: **Animations des paramètres visuels**
 .. _doc-animations: https://einarolafsson.github.io/spacr/setting_animations.html
 
-.. |api-selection| replace:: **Selection**
+.. |api-selection| replace:: **Sélection**
 .. _api-selection: https://einarolafsson.github.io/spacr/api/spacr/selection/index.html
 
-.. |api-linked-views| replace:: **Linked selection**
+.. |api-linked-views| replace:: **Sélection liée**
 .. _api-linked-views: https://einarolafsson.github.io/spacr/api/spacr/qt/linked_selection/index.html
 
 .. |api-doctor| replace:: **Doctor**
 .. _api-doctor: https://einarolafsson.github.io/spacr/api/spacr/doctor/index.html
 
-.. |api-doctor-checks| replace:: **Installation diagnosis**
+.. |api-doctor-checks| replace:: **Diagnostic de l’installation**
 .. _api-doctor-checks: https://einarolafsson.github.io/spacr/api/spacr/doctor/index.html
 
 .. |api-mask| replace:: **Mask**
 .. _api-mask: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
 
-.. |api-mask-2d| replace:: **2D mask generation**
+.. |api-mask-2d| replace:: **Génération de masques 2D**
 .. _api-mask-2d: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
 
-.. |api-mask-3d| replace:: **3D and 4D mask generation**
+.. |api-mask-3d| replace:: **Génération de masques 3D et 4D**
 .. _api-mask-3d: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
 
-.. |api-illumination| replace:: **Illumination**
+.. |api-illumination| replace:: **Éclairage**
 .. _api-illumination: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
 
-.. |api-flatfield| replace:: **Flat-field correction**
+.. |api-flatfield| replace:: **Correction de champ uniforme**
 .. _api-flatfield: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
 
 .. |api-measure| replace:: **Measure**
 .. _api-measure: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
 
-.. |api-measure-2d| replace:: **Object measurements**
+.. |api-measure-2d| replace:: **Mesures des objets**
 .. _api-measure-2d: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html#spacr.measure.measure_crop
 
-.. |api-segqc| replace:: **Segmentation QC**
+.. |api-segqc| replace:: **QC de segmentation**
 .. _api-segqc: https://einarolafsson.github.io/spacr/api/spacr/seg_qc/index.html
 
-.. |api-segqc-verdict| replace:: **Pre-run verdict**
+.. |api-segqc-verdict| replace:: **Avis avant exécution**
 .. _api-segqc-verdict: https://einarolafsson.github.io/spacr/api/spacr/seg_qc/index.html
 
 .. |api-timelapse| replace:: **Timelapse**
 .. _api-timelapse: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
 
-.. |api-tracking| replace:: **Object tracking**
+.. |api-tracking| replace:: **Suivi des objets**
 .. _api-tracking: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
 
-.. |api-layers| replace:: **Layers**
+.. |api-layers| replace:: **Calques**
 .. _api-layers: https://einarolafsson.github.io/spacr/api/spacr/layers/index.html
 
-.. |api-layer-viewer| replace:: **Layer viewer**
+.. |api-layer-viewer| replace:: **Visionneuse de calques**
 .. _api-layer-viewer: https://einarolafsson.github.io/spacr/api/spacr/qt/layer_viewer/index.html
 
-.. |api-napari| replace:: **napari bridge**
+.. |api-napari| replace:: **Passerelle napari**
 .. _api-napari: https://einarolafsson.github.io/spacr/api/spacr/napari_bridge/index.html
 
-.. |api-napari-curation| replace:: **Mask curation**
+.. |api-napari-curation| replace:: **Correction des masques**
 .. _api-napari-curation: https://einarolafsson.github.io/spacr/api/spacr/napari_bridge/index.html
 
 .. |api-annotate| replace:: **Annotate**
 .. _api-annotate: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
 
-.. |api-annotation| replace:: **Manual annotation**
+.. |api-annotation| replace:: **Annotation manuelle**
 .. _api-annotation: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
 
-.. |api-active-learning| replace:: **Active learning**
+.. |api-active-learning| replace:: **Apprentissage actif**
 .. _api-active-learning: https://einarolafsson.github.io/spacr/api/spacr/active_learning/index.html
 
-.. |api-al-loop| replace:: **Retrain and re-rank**
+.. |api-al-loop| replace:: **Réentraîner et reclasser**
 .. _api-al-loop: https://einarolafsson.github.io/spacr/api/spacr/active_learning/index.html
 
 .. |api-classify| replace:: **Classify**
 .. _api-classify: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
 
-.. |api-classification| replace:: **Image classification**
+.. |api-classification| replace:: **Classification d’images**
 .. _api-classification: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
 
-.. |api-model-cards| replace:: **Model cards**
+.. |api-model-cards| replace:: **Fiches de modèles**
 .. _api-model-cards: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
 
-.. |api-activation| replace:: **Activation maps**
+.. |api-activation| replace:: **Cartes d’activation**
 .. _api-activation: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
 
 .. |api-confusion| replace:: **Confusion**
 .. _api-confusion: https://einarolafsson.github.io/spacr/api/spacr/confusion/index.html
 
-.. |api-confusion-drill| replace:: **Confusion drill-down**
+.. |api-confusion-drill| replace:: **Exploration de la matrice de confusion**
 .. _api-confusion-drill: https://einarolafsson.github.io/spacr/api/spacr/confusion/index.html
 
-.. |api-ml| replace:: **Machine learning**
+.. |api-ml| replace:: **Apprentissage automatique**
 .. _api-ml: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
 
-.. |api-ml-models| replace:: **Measurement classification**
+.. |api-ml-models| replace:: **Classification des mesures**
 .. _api-ml-models: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
 
 .. |api-umap| replace:: **Image UMAP**
 .. _api-umap: https://einarolafsson.github.io/spacr/api/spacr/app_umap/index.html
 
-.. |api-embedding| replace:: **Interactive embedding**
+.. |api-embedding| replace:: **Plongement interactif**
 .. _api-embedding: https://einarolafsson.github.io/spacr/api/spacr/app_umap/index.html
 
-.. |api-sequencing| replace:: **Sequencing**
+.. |api-sequencing| replace:: **Séquençage**
 .. _api-sequencing: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
 
-.. |api-barcodes| replace:: **Map barcodes**
+.. |api-barcodes| replace:: **Association des codes-barres**
 .. _api-barcodes: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
 
-.. |api-barcode-qc| replace:: **Barcode QC**
+.. |api-barcode-qc| replace:: **QC des codes-barres**
 .. _api-barcode-qc: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
 
-.. |api-barcode-qc-sweep| replace:: **Well and collision report**
+.. |api-barcode-qc-sweep| replace:: **Rapport sur les puits et les collisions**
 .. _api-barcode-qc-sweep: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
 
 .. |api-regression| replace:: **Regression**
 .. _api-regression: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
 
-.. |api-regression-models| replace:: **Screen effect estimation**
+.. |api-regression-models| replace:: **Estimation des effets du criblage**
 .. _api-regression-models: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
 
 .. |api-power| replace:: **Power**
 .. _api-power: https://einarolafsson.github.io/spacr/api/spacr/power_model/index.html
 
-.. |api-power-design| replace:: **Power and design**
+.. |api-power-design| replace:: **Puissance et plan expérimental**
 .. _api-power-design: https://einarolafsson.github.io/spacr/api/spacr/power_simulate/index.html
 
 .. |api-graph| replace:: **Graph**
@@ -529,10 +529,10 @@ Référence des modules
 .. |api-graph-builder| replace:: **Graph Builder**
 .. _api-graph-builder: https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/graph_builder/index.html
 
-.. |api-artifacts| replace:: **Artifacts**
+.. |api-artifacts| replace:: **Artefacts**
 .. _api-artifacts: https://einarolafsson.github.io/spacr/api/spacr/artifacts/index.html
 
-.. |api-provenance| replace:: **Run provenance**
+.. |api-provenance| replace:: **Provenance de l’exécution**
 .. _api-provenance: https://einarolafsson.github.io/spacr/api/spacr/runctx/index.html
 
 
@@ -543,7 +543,7 @@ Jeux de données de référence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - `Ensemble de données complet de microscopie: BioStudies S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
-- `Ensemble de données d'essai : Face de harnais toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
+- `Jeu de données de test : Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
 - `Données de séquence: NCBI BioProject PRJNA1261935 <https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935>`_
 - `Analyse de puissance: spaCRPower <https://github.com/maomlab/spaCRPower>`_
 
@@ -551,23 +551,23 @@ Jeux de données de référence
 Contributions et assistance
 ---------------------------
 
-Les rapports de bogues et les requêtes de fonctionnalités ciblées sont les bienvenus par `Questions GitHub <https://github.com/EinarOlafsson/spacr/issues>`_. Lorsque vous signalez une défaillance, incluez la version spaCR, le système d'exploitation, la version Python, les paramètres du module et l'extrait de journal pertinent. ``spacr-doctor`` recueille la plupart de ces informations pour vous.
+Les rapports de bogues et les demandes de fonctionnalité précises sont les bienvenus dans les `tickets GitHub <https://github.com/EinarOlafsson/spacr/issues>`_. Lorsque vous signalez un échec, indiquez la version de spaCR, le système d’exploitation, la version de Python, les paramètres du module et l’extrait de journal pertinent. ``spacr-doctor`` rassemble automatiquement la plupart de ces informations.
 
 Licence
 ~~~~~~~~~
 
-La branche de développement actuelle est disponible en source sous la rubrique `Licence non commerciale PolyForm 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. L'utilisation commerciale nécessite une licence distincte du titulaire du droit d'auteur. Les versions publiées par spaCR 1.4.9.9 restent disponibles sous la licence MIT qui accompagne ces versions.
+Le code source de la branche de développement actuelle est disponible sous la `licence PolyForm Noncommercial 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Toute utilisation commerciale nécessite une licence distincte du titulaire des droits d’auteur. Les versions publiées jusqu’à spaCR 1.4.9.9 inclus restent disponibles sous la licence MIT qui accompagnait ces versions.
 
 Tutoriels
 ~~~~~~~~~
 
-Le `bibliothèque interactive spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ contient des passages narratés et sous-titrés de l'installation et de chaque workflow d'application, en huit langues.
+La `bibliothèque interactive de tutoriels spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ contient, en huit langues, des parcours commentés et sous-titrés sur l’installation et chaque flux de travail de l’application.
 
 Citer spaCR
 ~~~~~~~~~~~~
 
 Si spaCR contribue à votre recherche, citez :
 
-Olafsson EB, *et al.* Un criblage à base d'images groupées CRISPR identifie EAF1 comme un modulateur *T. gondii* de la subversion ESCRT.
+Olafsson EB, *et al.* Un criblage CRISPR groupé fondé sur l’imagerie identifie EAF1 comme modulateur de la subversion d’ESCRT par *T. gondii*.
 
 `préimpression bioRxiv <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `archive logicielle <https://doi.org/10.5281/zenodo.21343317>`_
