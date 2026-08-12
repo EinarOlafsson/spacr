@@ -605,8 +605,13 @@ class _FakeCellposeModel:
 @pytest.fixture
 def fake_cellpose(monkeypatch):
     """Swap the Cellpose constructor for a recording double (no weights, no GPU)."""
+    # The production cache is intentionally process-wide within one run.  A
+    # test parameter is a new run and must not inherit an earlier parameter's
+    # suppressed notice.
+    U.reset_cellpose_model_reports()
     monkeypatch.setattr(U.cp_models, "CellposeModel", _FakeCellposeModel)
-    return _FakeCellposeModel
+    yield _FakeCellposeModel
+    U.reset_cellpose_model_reports()
 
 
 @pytest.mark.parametrize(
