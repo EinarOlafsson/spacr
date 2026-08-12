@@ -464,57 +464,16 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     #settings.setdefault(False)
     #settings.setdefault(False)
     
-    #organelle settings
-    settings.setdefault('organelle_channel', None)
-    settings.setdefault('organelle_morphology', 'spots')
-    settings.setdefault('organelle_method', 'otsu')
-    settings.setdefault('organelle_diameter', 30)
-    settings.setdefault('organelle_model_name','cpsam' )
-    settings.setdefault('organelle_min_size', 10)
-    settings.setdefault('organelle_max_size', None)
-    settings.setdefault('organelle_remove_border',False )
-    settings.setdefault('organelle_log_min_sigma', 1)
-    settings.setdefault('organelle_log_max_sigma', 10)
-    settings.setdefault('organelle_log_num_sigma', 10)
-    settings.setdefault('organelle_log_threshold', 0.01)
-    settings.setdefault('organelle_tophat_radius', 5)
-    settings.setdefault('organelle_watershed_spots', True)
-    settings.setdefault('organelle_ridge_sigmas', [1, 2, 3])
-    settings.setdefault('organelle_ridge_filter', 'frangi')
-    settings.setdefault('organelle_skeletonize', False)
-    settings.setdefault('organelle_network_threshold','otsu' )
-    settings.setdefault('organelle_adaptive_block_size', 51)
-    settings.setdefault('organelle_adaptive_offset', 5)
-    settings.setdefault('organelle_morph_radius', 3)
-    settings.setdefault('organelle_fill_holes', 64)
-    settings.setdefault('organelle_CP_prob', 0.0)
-    settings.setdefault('organelle_FT', 0.4)
-    settings.setdefault('organelle_resample', True)
-    
-    # Preprocessing
-    settings.setdefault('organelle_rolling_ball', False)
-    settings.setdefault('organelle_rolling_ball_radius', 50)
-    settings.setdefault('organelle_clahe', False)
-    settings.setdefault('organelle_clahe_clip_limit', 0.01)
-    settings.setdefault('organelle_mask_within_cells', False)
-
-    # DoG (spots)
-    settings.setdefault('organelle_dog_sigma_low', 1.0)
-    settings.setdefault('organelle_dog_sigma_high', 3.0)
-
-    # Hysteresis (network)
-    settings.setdefault('organelle_hysteresis_low', 0.2)
-    settings.setdefault('organelle_hysteresis_high', 0.6)
-
-    # U-Net (network)
-    settings.setdefault('organelle_unet_model_path', None)
-    settings.setdefault('organelle_unet_threshold', 0.5)
-
-    # Ring
-    settings.setdefault('organelle_ring_sigma_inner', 1.0)
-    settings.setdefault('organelle_ring_sigma_outer', 3.0)
-    settings.setdefault('organelle_ring_min_prominence', 0.1)
-    settings.setdefault('organelle_ring_fill_method', 'flood')
+    # ORGANELLE DEFAULTS, from the one function that owns them.
+    #
+    # Forty-odd `settings.setdefault('organelle_*', ...)` lines stood here,
+    # a second hand-written copy of `_set_organelle_defaults`. They agreed
+    # exactly and NOTHING ENFORCED THAT: a run takes whichever factory it
+    # went through and never compares the two, so a value corrected in one
+    # copy and not the other measures the same plate two ways with no error
+    # and nothing in the log. `tests/test_organelle_defaults_agree.py` was
+    # the holding pattern; deleting the duplication is the fix.
+    _set_organelle_defaults(settings)
     settings.setdefault('summarize_organelles_by', 'cell')
 
     #merge_split

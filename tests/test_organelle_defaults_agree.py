@@ -1,127 +1,121 @@
-"""The organelle defaults are written twice. They must not drift apart.
+"""There is one copy of the organelle defaults, and this proves it.
 
-`spacr.settings` declares a default for the same 40 organelle keys in two
-hand-maintained places:
+WHAT THIS FILE USED TO BE. Forty organelle defaults were written twice --
+`set_default_settings_preprocess_generate_masks` and
+`_set_organelle_defaults` -- and they agreed exactly while NOTHING ENFORCED
+THAT. A run takes whichever factory it went through and never compares the
+two, so a value corrected in one copy and not the other would measure the
+same plate two ways, with no error and nothing in the log. This file scanned
+both blocks and failed on any divergence.
 
-  * `set_default_settings_preprocess_generate_masks` (the mask pipeline), and
-  * `_set_organelle_defaults` (called by `object.py` and `core.py`).
+That was a holding pattern. The duplication is now deleted: the mask factory
+calls `_set_organelle_defaults`, and these tests assert the single source
+instead of policing two.
 
-They agree exactly today. Nothing enforced that, and two hand-written copies
-of forty values drift — silently, because a run takes whichever it reached
-first and never compares them. A user would see two runs of the same plate
-disagree with no error and nothing in the log naming the cause.
-
-Found while inventorying instruction 76 (support more than one organelle),
-where the duplication is the first thing that has to go. This test is the
-holding pattern until it does: it does not fix the duplication, it just makes
-a divergence fail loudly instead of quietly.
+Proved behaviour-free before the deletion, not assumed. Every one of the 40
+shared keys was compared between the two factories: none missing, none
+differing.
 """
 
+import inspect
 import re
-from pathlib import Path
 
 import pytest
 
-
-SETTINGS = Path(__file__).resolve().parent.parent / "spacr" / "settings.py"
-
-#: Keys the mask pipeline defaults but `_set_organelle_defaults` does not.
-#: Not a defect: the second block covers the segmentation knobs only. Listed
-#: so the test fails if the OVERLAP changes, rather than silently shrinking.
-MASK_ONLY_IS_EXPECTED = True
+from spacr.settings import (_set_organelle_defaults,
+                            set_default_settings_preprocess_generate_masks)
 
 
-def _normalise(value: str) -> str:
-    """Strip the trailing punctuation of a call or a dict entry."""
-    return value.strip().rstrip(",").rstrip(")").strip()
+def mask_settings():
+    return set_default_settings_preprocess_generate_masks({"src": "/tmp"})
 
 
-def _mask_pipeline_defaults(lines):
-    """`settings.setdefault('organelle_x', value)` in the MASK factory only.
+def organelle_keys(settings):
+    return {k: v for k, v in settings.items() if k.startswith("organelle_")}
 
-    Scoped to one function on purpose. An unscoped scan also catches
-    `get_measure_crop_settings`, where `organelle_min_size` deliberately
-    defaults to 0 against the mask pipeline's 10 -- a real difference between
-    two pipelines, not a drift between two copies of one. Comparing those
-    would make this test fail on correct code, which is how a guard gets
-    deleted rather than heeded.
+
+# ---------------------------------------------------------------------------
+# one source
+# ---------------------------------------------------------------------------
+
+def test_the_mask_factory_calls_the_owner_rather_than_repeating_it():
+    source = inspect.getsource(set_default_settings_preprocess_generate_masks)
+    assert "_set_organelle_defaults(settings)" in source
+
+    # Only the keys the OWNER declares. The mask factory has organelle keys
+    # of its own -- the merge/split and filtering ones -- which were never
+    # duplicated and are not this test's business.
+    owned = set(organelle_keys(_set_organelle_defaults({})))
+    written_out = {k for k in re.findall(
+        r"setdefault\(\s*['\"](organelle_[A-Za-z_]+)['\"]", source)
+        if k in owned}
+    assert not written_out, (
+        f"{sorted(written_out)} are hand-written in the mask factory again; "
+        f"they belong to _set_organelle_defaults")
+
+
+def test_every_default_the_owner_declares_reaches_the_mask_factory():
+    owned = organelle_keys(_set_organelle_defaults({}))
+    produced = organelle_keys(mask_settings())
+
+    assert owned, "the owner declares no organelle defaults at all"
+    missing = set(owned) - set(produced)
+    assert not missing, f"the mask factory never received {sorted(missing)}"
+
+
+def test_the_values_are_the_owners_values():
+    owned = organelle_keys(_set_organelle_defaults({}))
+    produced = organelle_keys(mask_settings())
+
+    differing = {k: (produced[k], owned[k])
+                 for k in owned if produced[k] != owned[k]}
+    assert not differing, differing
+
+
+def test_a_caller_supplied_value_still_wins():
+    """setdefault semantics: the owner fills gaps, it does not overwrite."""
+    chosen = _set_organelle_defaults({"organelle_diameter": 999})
+    assert chosen["organelle_diameter"] == 999
+
+
+# ---------------------------------------------------------------------------
+# the keys the mask factory owns itself are untouched
+# ---------------------------------------------------------------------------
+
+def test_the_mask_factory_keeps_its_own_organelle_keys():
+    """Not every `organelle_*` key belongs to the detection block.
+
+    The merge/split and filtering keys are declared by the mask factory and
+    were never duplicated, so collapsing the copies must not have taken them
+    with it.
     """
-    found = {}
-    inside = False
-    for line in lines:
-        if "def set_default_settings_preprocess_generate_masks" in line:
-            inside = True
-            continue
-        if inside and re.match(r"^def \w", line):
-            break
-        if not inside:
-            continue
-        match = re.search(
-            r"setdefault\(\s*['\"](organelle_[A-Za-z0-9_]+)['\"]\s*,\s*(.+)$",
-            line)
-        if match:
-            found[match.group(1)] = _normalise(match.group(2))
-    return found
+    produced = organelle_keys(mask_settings())
+    for key in ("organelle_min_area", "organelle_max_area",
+                "organelle_perimeter_fraction"):
+        assert key in produced
 
 
-def _organelle_default_block(lines):
-    """`'organelle_x': value,` inside `_set_organelle_defaults`."""
-    found = {}
-    inside = False
-    for line in lines:
-        if "_set_organelle_defaults" in line:
-            inside = True
-            continue
-        if inside and re.match(r"^def \w", line):
-            break
-        if not inside:
-            continue
-        match = re.match(
-            r"^\s*['\"](organelle_[A-Za-z0-9_]+)['\"]\s*:\s*(.+)$", line)
-        if match:
-            found[match.group(1)] = _normalise(match.group(2))
-    return found
+def test_summarize_organelles_by_survived_the_deletion():
+    """It sat inside the deleted block without being an `organelle_*` key."""
+    assert mask_settings()["summarize_organelles_by"] == "cell"
 
 
-@pytest.fixture(scope="module")
-def blocks():
-    lines = SETTINGS.read_text(encoding="utf-8").splitlines()
-    return _mask_pipeline_defaults(lines), _organelle_default_block(lines)
+# ---------------------------------------------------------------------------
+# the difference that is real, and must not be "fixed"
+# ---------------------------------------------------------------------------
 
+def test_the_crop_pipelines_zero_min_size_is_left_alone():
+    """`get_measure_crop_settings` sets organelle_min_size = 0 deliberately.
 
-def test_both_blocks_were_actually_found(blocks):
-    """A regex that matches nothing would make every other test vacuous."""
-    mask, organelle = blocks
-    assert len(mask) > 30, f"only {len(mask)} mask defaults parsed"
-    assert len(organelle) > 30, f"only {len(organelle)} organelle defaults parsed"
-
-
-def test_the_two_blocks_still_overlap(blocks):
-    """If the overlap vanishes, this test stops defending anything."""
-    mask, organelle = blocks
-    assert set(mask) & set(organelle), (
-        "the two default blocks no longer share a key — either the "
-        "duplication was removed (delete this test) or a rename broke the "
-        "comparison (fix it), but do not leave it passing vacuously")
-
-
-def test_every_shared_organelle_default_agrees(blocks):
-    """The claim: forty values written twice, identical.
-
-    A divergence here means two code paths disagree about what a setting
-    defaults to, and which one a run gets depends on which factory it went
-    through. That is not a preference — it is the same plate measured two
-    ways.
+    That is a real difference between two PIPELINES, not a drift between two
+    COPIES. An unscoped scan for `setdefault('organelle_*')` catches it and
+    would fail on correct code -- which is how a guard gets deleted instead
+    of heeded.
     """
-    mask, organelle = blocks
-    shared = sorted(set(mask) & set(organelle))
-    disagree = {
-        key: (mask[key], organelle[key])
-        for key in shared if mask[key] != organelle[key]
-    }
-    assert not disagree, (
-        "organelle defaults disagree between "
-        "set_default_settings_preprocess_generate_masks and "
-        "_set_organelle_defaults:\n"
-        + "\n".join(f"  {k}: mask={a!r} organelle_block={b!r}"
-                    for k, (a, b) in disagree.items()))
+    from spacr.settings import get_measure_crop_settings
+
+    crop = get_measure_crop_settings({"src": "/tmp"})
+    if "organelle_min_size" not in crop:
+        pytest.skip("this pipeline no longer declares organelle_min_size")
+    assert crop["organelle_min_size"] == 0
+    assert _set_organelle_defaults({})["organelle_min_size"] == 10
