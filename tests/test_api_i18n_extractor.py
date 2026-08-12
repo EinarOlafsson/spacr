@@ -108,13 +108,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     ) == _NEW_VISIBLE_DIGEST
     assert dunders | assignments <= docs.keys()
 
-    # 6232 canonical bodies plus 119 exact materialized aliases. The 29 newest
+    # 6234 canonical bodies plus 119 exact materialized aliases. The 29 shared
     # bodies are the shared live-view contract — `spacr.qt.widgets.
     # preview_contract` and its members (14), and the run/cancel/blocked-reason
-    # API the four preview panels gained when they adopted it (15). Catalog
-    # regeneration must include all of them.
-    assert len(docs) - len(builder.API_DOC_ALIASES) == 6232
-    assert len(docs) == 6351
+    # API the four preview panels gained when they adopted it (15). The final
+    # body is Measure's now-public settings-seeding contract; the latest one
+    # documents the class-folder naming helper. Catalog regeneration must
+    # include all 6,353 records.
+    assert len(docs) - len(builder.API_DOC_ALIASES) == 6234
+    assert len(docs) == 6353
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
