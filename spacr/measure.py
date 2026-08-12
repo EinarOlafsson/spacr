@@ -880,8 +880,11 @@ _SPATIAL_NO_NEIGHBOUR = -1.0
 #: Organelle families that are one connected network per cell rather than a
 #: population of separable objects. Neighbour statistics of a single connected
 #: network are not a measurement of anything, so the spatial block skips them.
-#: 'network' is today's ``organelle_morphology`` value; 'reticular'/'cisternal'
-#: are the ``organelle_type`` values instruction 72 will add.
+#: These are MORPHOLOGY values, not type names. An `organelle_type` is
+#: resolved to its morphology by `_morphology_of_organelle_type` before it
+#: is tested here -- 'filamentous' and 'tubular' both map to 'network', and
+#: comparing the type name directly missed both. 'reticular'/'cisternal'
+#: remain listed because a run may still carry them as a raw morphology.
 _SPATIAL_NETWORKED_ORGANELLES = frozenset({'network', 'reticular', 'cisternal'})
 
 #: ``expand_labels`` grew its ``spacing`` argument after scikit-image 0.22, and
@@ -1105,17 +1108,36 @@ def _spatial_measurements(mask, spacing=None, radius=50, expand=1):
 def _spatial_organelle_eligible(settings):
     """Whether the organelle mask gets spatial columns.
 
-    Reads ``organelle_type`` first (instruction 72; not built yet) and falls
-    back to ``organelle_morphology``. Neither is defined by
-    ``get_measure_crop_settings`` -- ``organelle_morphology`` is a *mask*-stage
-    setting -- so in a measure-only run the gate sees neither key and assumes
-    the shipped default 'spots', which is eligible. That keeps the default
-    reproducing today's behaviour; the assumption is printed once.
+    THE TYPE IS RESOLVED TO A MORPHOLOGY, NOT COMPARED AS A STRING, and that
+    is what this gate got wrong the moment instruction 72 landed. It read
+    ``organelle_type`` first and tested the raw value for membership. Two
+    things then broke at once, silently, on every run:
 
-    Update this gate when instruction 72's ``organelle_type`` lands.
+      * `organelle_type` now DEFAULTS to 'custom', which is not in the
+        networked set -- so a run that said `organelle_morphology='network'`
+        and meant it had its explicit choice shadowed by a default it never
+        set, and the spatial block ran on a connected network.
+      * 'filamentous' and 'tubular' are not in the set either, though the
+        preset maps both to `network`. Picking the biological name for a
+        mitochondrial network turned the block back on.
+
+    Neighbour statistics of ONE connected network are not a measurement of
+    anything -- that is why this gate exists -- so both cases wrote columns
+    that look like data and are not.
+
+    The type is therefore put through the same preset mapping the mask stage
+    uses, and only the resulting morphology is tested. 'custom' has no
+    opinion by design, so it falls through to `organelle_morphology`.
+
+    Neither key is defined by ``get_measure_crop_settings`` --
+    ``organelle_morphology`` is a *mask*-stage setting -- so in a
+    measure-only run the gate sees neither and assumes the shipped default
+    'spots', which is eligible. That keeps the default reproducing today's
+    behaviour; the assumption is printed once.
     """
     global _SPATIAL_ORGANELLE_ASSUMED
-    kind = settings.get('organelle_type')
+
+    kind = _morphology_of_organelle_type(settings)
     if kind is None:
         kind = settings.get('organelle_morphology')
     if kind is None:
@@ -1128,6 +1150,26 @@ def _spatial_organelle_eligible(settings):
                   "'spots' (punctate, eligible). Set organelle_morphology to "
                   "'network' to skip it.")
     return str(kind).strip().lower() not in _SPATIAL_NETWORKED_ORGANELLES
+
+
+def _morphology_of_organelle_type(settings):
+    """The morphology an `organelle_type` implies, or None if it has none.
+
+    None for 'custom' (which recommends nothing by design), for a missing
+    key, and for an unrecognised one -- in every case the caller falls back
+    to `organelle_morphology`, which is what a pre-72 settings file carries.
+    """
+    name = settings.get('organelle_type')
+    if not name:
+        return None
+    try:
+        from .organelle_types import resolve_type
+        preset = resolve_type(name)
+    except (ImportError, ValueError):
+        return None
+    # Size is half the mapping for 'vesicular' and 'spherical'; neither is a
+    # network at any size, but it is passed through rather than assumed.
+    return preset.morphology_for(settings.get('organelle_diameter'))
 
 
 def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, settings, zernike=None, degree=8):
