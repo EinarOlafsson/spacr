@@ -605,12 +605,15 @@ _DICTIONARY_SOURCE = (
 # broadcast, human-actor, food and navigation senses remain valid.
 _SOFTWARE_QUEUE_SOURCE = (
     r"(?is)\A(?=.*\bqueues?\b)"
-    r"(?!.*(?:\b(?:tails?|tail[- ]end)\b|"
+    r"(?!.*(?:\b(?:rear|back|tails?|tail[- ]end)\s+of\s+the\s+queues?\b|"
     r"\b(?:physical|waiting)\s+(?:line|queue)\b|"
     r"\b(?:people|persons?|customers?|passengers?|visitors?|shoppers?|"
     r"travellers?|travelers?)\b.{0,40}\b(?:wait\w*|stand\w*|form\w*|"
     r"line\s+up|queu(?:ed|ing))\b|"
     r"\b(?:wait\w*|stand\w*|form\w*|line\s+up)\b.{0,40}\bqueues?\b|"
+    r"\bqueues?\b.{0,40}\b(?:held|contained)?\s*(?:waiting|standing)\s+"
+    r"(?:people|persons?|customers?|passengers?|visitors?|shoppers?|"
+    r"travellers?|travelers?)\b|"
     r"\bqueues?\b.{0,40}\b(?:outside|airport|bank|store)\b))"
 )
 _IMAGING_FIELD_SOURCE = (
@@ -3278,6 +3281,21 @@ def _fragment_retry_sources(
     ]
 
 
+def _join_completed_fragments(
+    pieces: Iterable[str], failure_reasons: Iterable[str],
+) -> str | None:
+    """Join fragment output only when every model sequence completed."""
+    if frozenset(failure_reasons):
+        return None
+    joined = ""
+    for piece in pieces:
+        if (joined and piece and joined[-1].isalnum()
+                and piece[0].isalnum()):
+            joined += " "
+        joined += piece
+    return joined.strip()
+
+
 def _translate_batches(
     strings: list[str],
     language: str,
@@ -3955,6 +3973,7 @@ def _translate_batches(
         fragment_inputs = [item[0] for item in packed_fragments]
         fragment_owners = [item[1] for item in packed_fragments]
         fragment_done: defaultdict[str, int] = defaultdict(int)
+        fragment_failures: defaultdict[str, set[str]] = defaultdict(set)
         finalized: set[str] = set()
         accepted = 0
         rejected_reasons: defaultdict[str, int] = defaultdict(int)
@@ -3965,13 +3984,16 @@ def _translate_batches(
             if source in finalized:
                 return
             pieces = pieces_by_source[source]
-            joined = ""
-            for piece in pieces:
-                if (joined and piece and joined[-1].isalnum()
-                        and piece[0].isalnum()):
-                    joined += " "
-                joined += piece
-            raw_candidate = joined.strip()
+            raw_candidate = _join_completed_fragments(
+                pieces, fragment_failures[source],
+            )
+            if raw_candidate is None:
+                reason = sorted(fragment_failures[source])[0]
+                rejected_reasons[reason] += 1
+                cache.pop(cache_key(source), None)
+                translated[source] = source
+                finalized.add(source)
+                return
             raw_semantic_failure = _semantic_false_friends(
                 source, raw_candidate, language,
             )
@@ -4056,6 +4078,7 @@ def _translate_batches(
             for offset, value in enumerate(decoded):
                 owner, piece_index = fragment_owners[start + offset]
                 if not completed(output[offset]):
+                    fragment_failures[owner].add("eos")
                     value = ""
                 original = pieces_by_source[owner][piece_index]
                 leading = " " if original[:1].isspace() else ""

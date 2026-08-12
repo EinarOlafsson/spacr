@@ -183,6 +183,9 @@ def test_api_translation_source_keeps_negative_control_senses_and_literals():
         "Store the API key in the credential vault.",
         "Use ``pipeline`` as the code key.",
         "People formed a queue outside the application.",
+        "Show the rear of the queue.",
+        "Show the back of the queue.",
+        "The queue held waiting customers.",
         "The farmer grows a crop in the field.",
         "The plane landed at the airport.",
         "Plot the points on a Cartesian plane.",
@@ -267,10 +270,82 @@ def test_api_translation_source_preserves_plane_and_queue_grammar():
             "Use 3-image-layer input.",
         "The worker uses a queue- based scheduler.":
             "The worker uses a work-list-based scheduler.",
+        "The scheduler queues jobs.":
+            "The scheduler schedules jobs.",
+        "A screen reads a queue of crops for annotation.":
+            "An application view reads an annotation work list of extracted "
+            "image regions for annotation.",
+        "The table keys a crop by path.":
+            "The table keys an extracted image region by path.",
+        "The plate queue appears below the title.":
+            "The plate-processing list appears below the title.",
+        "One step is complete. A queue file for jobs is read next.":
+            "One step is complete. A software job list file for jobs is read next.",
+        "The callback completes. A screen receives the result.":
+            "The callback completes. An application view receives the result.",
+        "Return a wells-by-genes fraction matrix.":
+            "Return a microplate-sample-position-by-gene fraction matrix.",
+        "Read well names for a Plate and write from a WORKER thread.":
+            "Read microplate sample position names for a laboratory microplate "
+            "and write from a background execution unit.",
+        "The user gates on a table; there is no button to gate.":
+            "The user selects rows using a table; there is no button to filter "
+            "data.",
         # Human waiting lines are an explicit negative control even when the
         # same sentence also contains a software-worker cue.
         "Workers watched people wait in a physical queue outside.":
             "Workers watched people wait in a physical queue outside.",
+    }
+    for source, expected in cases.items():
+        assert builder._api_translation_source(source) == expected
+
+
+def test_api_translation_source_preserves_reviewed_corpus_grammar():
+    import build_documentation_i18n as builder
+
+    cases = {
+        "The queue is diversified by uncertainty for the annotator.":
+            "The annotation work list is diversified by uncertainty for the "
+            "annotator.",
+        "DataLoader pre-fetches batches into a queue.":
+            "DataLoader pre-fetches batches into a batch-data buffer.",
+        "Consumes batches from a Queue in coalesced transactions.":
+            "Consumes batches from a batch-data buffer in coalesced transactions.",
+        "Optional queue for errors. A private Queue is created if None.":
+            "Optional work list for errors. A private error-message list is "
+            "created if None.",
+        "Mirrors intensity channels first, then the cell mask.":
+            "Mirrors intensity image data channels first, then the cell mask.",
+        "A frame is channel-last, but a TIFF page is often channel-first; "
+        "guessing turns a 3-channel image into noise.":
+            "A frame stores image data channels last, but a TIFF page often "
+            "stores image data channels first; guessing turns an image with 3 "
+            "data channels into noise.",
+        "A one-column-per-key-column frame for ``labels``, in their order.":
+            "A frame with one output column for each identifier column in "
+            "``labels``, preserving their order.",
+        "*Intermediate paths are threaded, not repeated.*":
+            "*Intermediate paths are linked together, not repeated.*",
+        "4. Done. 5. **A running job is shown here.**":
+            "4. Done. 5. **An executing job is shown here.**",
+        "The error is handled. Pipelines pass False to the Qt screen.":
+            "The error is handled. Workflows pass False to the Qt application view.",
+        "Rows are loaded. Wells are matched to the plate.":
+            "Rows are loaded. Microplate sample positions are matched to the "
+            "laboratory microplate.",
+        "The error is handled. Qt screens catch it at the gate.":
+            "The error is handled. Qt application views catch it at the "
+            "data-selection boundary.",
+        "``diameter`` is stored. Human-readable labels explain it.":
+            "``diameter`` is stored. Easy-to-read labels explain it.",
+        "Without keys, the mapping has no lookup identifiers.":
+            "Without identifiers, the mapping has no lookup identifiers.",
+        "Worker-thread safe callbacks return to the GUI.":
+            "Safe in a background execution unit callbacks return to the GUI.",
+        "Off-thread notices return to the GUI thread.":
+            "Off-execution-path notices return to the main GUI execution path.",
+        "Mapping keys identify dictionary values.":
+            "Structured-data names identify key-value mapping values.",
     }
     for source, expected in cases.items():
         assert builder._api_translation_source(source) == expected
@@ -775,6 +850,16 @@ def test_valid_sentence_retry_is_not_overwritten_by_fragment_fallback():
         translated[source] = source
     assert seen == [still_bad]
     assert translated[rescued] == rescued_value
+
+
+def test_incomplete_fragment_output_can_never_be_reassembled():
+    from build_i18n_catalogs import _join_completed_fragments
+
+    pieces = ["번역된 앞부분 ", "", " ``literal`` 뒤부분"]
+    assert _join_completed_fragments(pieces, {"eos"}) is None
+    assert _join_completed_fragments(pieces, set()) == (
+        "번역된 앞부분  ``literal`` 뒤부분"
+    )
 
 
 def test_translation_rejection_reasons_separate_mechanical_and_linguistic():
