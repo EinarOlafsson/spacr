@@ -51,7 +51,7 @@ LOG = logging.getLogger(__name__)
 # they used to carry three hand-written copies of "ABCDEFGHIJKLMNOP" and
 # range(1, 25), which stop at P24.
 from . import convert as _cv
-from .object_roles import ordered
+from .object_roles import CHILD_ROLES, ordered
 
 
 def _load_pylibczi():
@@ -2611,7 +2611,9 @@ def _read_and_join_tables(db_path, table_names=None):
                         _time_column)
     ensure_database_schema(db_path)
 
-    conn = sqlite3.connect(db_path)
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db_path)
     dataframes = {}
     for table_name in table_names:
         try:
@@ -2704,7 +2706,11 @@ def _read_and_join_tables(db_path, table_names=None):
         else:
             print("Cell table not found in database tables.")
             return png_list_df
-    for entity in ['nucleus', 'pathogen']:
+    # From the registry, not a literal: ORGANELLE was missing from both
+    # of these loops, so asking for it returned a frame with no
+    # organelle columns and no message. Naming the child roles once is
+    # what lets a second organelle reach every reader (instruction 76).
+    for entity in CHILD_ROLES:
         if entity in dataframes:
             if 'cell_id' not in dataframes[entity].columns:
                 # A child table measured with cell_mask_dim=None has no parent
@@ -2741,7 +2747,11 @@ def _read_and_join_tables(db_path, table_names=None):
             left_name='cell',
             right_name='cytoplasm',
         )
-    for entity in ['nucleus', 'pathogen']:
+    # From the registry, not a literal: ORGANELLE was missing from both
+    # of these loops, so asking for it returned a frame with no
+    # organelle columns and no message. Naming the child roles once is
+    # what lets a second organelle reach every reader (instruction 76).
+    for entity in CHILD_ROLES:
         if entity in dataframes:
             joined_df = _merge_with_cardinality(
                 joined_df,
@@ -3010,7 +3020,9 @@ def _save_object_counts_to_database(arrays, object_type, file_names, db_path, ad
         records.append((file_name, count_type, object_count))
 
     # Connect to the database
-    conn = sqlite3.connect(db_path)
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db_path)
     try:
         from .database_schema import migrate_connection
         migrate_connection(conn, path=os.path.abspath(db_path))
@@ -3045,7 +3057,9 @@ def _create_database(db_path):
     rather than being silently opened with older code.
     """
     try:
-        conn = sqlite3.connect(db_path)
+        from .database_concurrency import connect as _connect_database
+
+        conn = _connect_database(db_path)
     except sqlite3.Error as error:
         # Preserve the historical helper contract: an unusable destination is
         # reported to the caller's console without taking down a processing
@@ -3556,7 +3570,7 @@ def _read_db(db_loc, tables):
     dfs = []
     chunksize = 100_000  # internal safety setting; adjust if needed
 
-    with sqlite3.connect(db_loc) as conn:
+    with sqlite3.connect(db_loc, timeout=30) as conn:
         # Optional but useful: fail early if a table name is wrong
         existing_tables = {
             row[0]
@@ -3851,6 +3865,38 @@ def _read_and_merge_data(
                 print(f'pathogens: {len(pathogens)}, pathogens grouped: {len(pathogens_g_df)}')
 
         pathogen_counts = pathogens.groupby('prcfo')['prcfo'].size().rename('pathogen_prcfo_count')
+
+    if 'organelle' in data_dict:
+        # ORGANELLE WAS ABSENT FROM THIS READER ENTIRELY. There is one
+        # hardcoded block per table above -- cytoplasm, nucleus, pathogen --
+        # and no organelle block, so asking for it read the table, dropped it,
+        # and returned a frame with no organelle columns and no message.
+        #
+        # It is a cell_id-linked child exactly like nucleus and pathogen, so
+        # this block mirrors theirs. Instruction 76 cannot add a SECOND
+        # organelle until the first one arrives here.
+        organelles = data_dict['organelle'].copy()
+        organelles = organelles.dropna(subset=['cell_id'])
+        organelles = organelles.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
+        organelles = organelles.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
+        organelles = organelles.assign(prcfo=lambda x: x['prcf'] + '_' + x['cell_id'])
+        organelles['organelle_prcfo_count'] = organelles.groupby('prcfo')['prcfo'].transform('count')
+
+        if all(key not in data_dict for key in ['cell', 'cytoplasm', 'nucleus', 'pathogen']):
+            merged_df, metadata = _split_object_data(
+                organelles, 'prcfo', 'cell_id')
+            metadata_key = 'cell_id'
+
+            if verbose:
+                print(f'organelles: {len(organelles)}, organelles grouped: {len(merged_df)}')
+
+        else:
+            organelles_g_df, _ = _split_object_data(
+                organelles, 'prcfo', 'cell_id')
+            merged_df = _merge_grouped(merged_df, organelles_g_df, 'organelle')
+
+            if verbose:
+                print(f'organelles: {len(organelles)}, organelles grouped: {len(organelles_g_df)}')
 
     if 'png_list' in data_dict:
         from .utils import PNG_CROP_MODE_BY_ID_COLUMN, PNG_OBJECT_ID_COLUMNS, object_label_from_png_id
@@ -4393,7 +4439,9 @@ def _merged_field_paths(db_path, object_type='cell'):
     order = [object_type] + [t for t in ('cell', 'cytoplasm', 'nucleus',
                                          'pathogen', 'organelle')
                              if t != object_type]
-    conn = sqlite3.connect(db_path)
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db_path)
     try:
         for table in order:
             try:
@@ -4514,7 +4562,9 @@ def crop_rows_from_object_table(db_path, object_type='cell', verbose=True):
         return pd.DataFrame()
     select = ('object_label, plateID, rowID, columnID, fieldID, prcf, '
               'file_name, path_name')
-    conn = sqlite3.connect(db_path)
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db_path)
     try:
         try:
             df = pd.read_sql(f'SELECT {select} FROM "{object_type}"', conn)
@@ -4891,7 +4941,9 @@ def _dataset_crop_refs(db_path, source, settings, object_type, verbose=True):
     file_metadata = settings.get('file_metadata')
     png_df = None
     if os.path.isfile(db_path):
-        conn = sqlite3.connect(db_path)
+        from .database_concurrency import connect as _connect_database
+
+        conn = _connect_database(db_path)
         try:
             png_df = pd.read_sql('SELECT * FROM png_list', conn)
         except Exception:
@@ -6575,7 +6627,7 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
 
     # Connect to the database and retrieve the image paths and annotations
     print(f'Reading DataBase: {db_path}')
-    with sqlite3.connect(db_path) as conn:
+    with sqlite3.connect(db_path, timeout=30) as conn:
         cursor = conn.cursor()
         # Retrieve all paths and annotations from the database
         query = f"SELECT png_path, {annotation_column} FROM png_list"
@@ -6649,7 +6701,7 @@ def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='t
 
     # Connect to the database and retrieve the image paths and annotations
     print(f'Reading DataBase: {db_path}')
-    with sqlite3.connect(db_path) as conn:
+    with sqlite3.connect(db_path, timeout=30) as conn:
         cursor = conn.cursor()
         # Retrieve all paths and annotations from the database
         query = f"SELECT png_path, {annotation_column}, rowID, columnID FROM png_list"

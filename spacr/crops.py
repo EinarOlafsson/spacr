@@ -2409,7 +2409,9 @@ def crop_settings_from_db(db_path: str) -> Dict[str, Any]:
     """
     if not os.path.isfile(db_path):
         raise MergedFileMissing(f"measurements database not found: {db_path}")
-    conn = sqlite3.connect(db_path)
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db_path)
     try:
         rows = conn.execute(
             "SELECT setting_key, setting_value FROM settings").fetchall()
