@@ -4,6 +4,8 @@ import inspect
 import logging
 import sys
 import os, ast
+from .organelle_types import (DEFAULT_TYPE as DEFAULT_ORGANELLE_TYPE,
+                              apply_preset)
 
 LOG = logging.getLogger(__name__)
 
@@ -2279,6 +2281,7 @@ expected_types = {
     'infection_pca_umap_min_dist':float,
     'infection_pca_tsne_perplexity':float,
     'organelle_channel': (int, type(None)),
+    'organelle_type': str,
     'organelle_morphology': str,
     'organelle_method': str,
     'organelle_diameter': int,
@@ -2902,6 +2905,7 @@ tooltips = {
     "infection_pca_min_gt_separation": "(float) - Alert level for the ground-truth separation score - the absolute difference, between the two clusters, in the fraction of intensity-extreme cells that are infected (0-1). Dropping below it only prints a warning; the cluster labels are still applied. Raise it to be told sooner that the embedding is not separating infection. Default 0.2.",
     "infection_pca_max_cells": "(int) - Ceiling on cells fed to the embedding; above it a random subsample of this size is drawn using a fixed seed of 0, independent of infection_pca_random_state. Lower it when UMAP or t-SNE is slow or memory-hungry, raise it to keep rare subpopulations. Applied after non-finite rows are dropped. Default 50000.",
     'organelle_channel': "(int) - Zero-indexed raw acquisition channel segmented into organelle masks by whichever organelle_method is chosen (otsu, adaptive, log, dog, ridge, hysteresis, cellpose, unet). Setting it to an integer adds an organelle mask plane to merged/ and unlocks the Organelle setting categories in the GUI; None skips organelle segmentation entirely. Default None.",
+    'organelle_type': "(str) - What KIND of organelle this is, in cell-biology terms, chosen once instead of setting the fifteen detection parameters below by hand. Picking one fills the Organelle advanced settings with recommended values and says on the console what it set and why; every one of them stays editable, and a value you have already set is never overwritten. 'custom' (the default) recommends nothing and reproduces the behaviour of a settings file written before this existed. The other nine are 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. NOTE that the biological name does not fix the detector on its own: 'vesicular' and 'spherical' also depend on organelle_diameter, because a 200 nm transport vesicle is a dot and a 2 um vacuole is a ring, and both are vesicular. Default 'custom'.",
     'organelle_morphology': "(str) - Shape family of the target organelle; picks the segmentation pipeline and restricts which organelle_method values are legal. 'spots' = punctate (vesicles, lipid droplets), 'network' = filamentous (mitochondria, ER tubules), 'irregular' = solid blobby (Golgi, lysosomes), 'ring' = hollow (endosomes, autophagosomes). Default 'spots'. An unsupported morphology/method pair raises before any image is loaded.",
     'organelle_method': "(str) - Segmentation backend, validated against organelle_morphology: 'otsu' (one global threshold), 'adaptive' (local threshold), 'log'/'dog' (blob detection), 'ridge' (tubeness filter, network only), 'hysteresis' (dual threshold, network only), 'cellpose' (pretrained model), 'unet' (your own model, network only). Classical methods run on CPU across n_jobs workers; cellpose and unet run on the GPU. Default 'otsu'.",
     'organelle_diameter': "(float) - (DEPRECEATED) Expected organelle diameter in pixels. The Cellpose-SAM path used for organelles calls model.eval with diameter=None, and no classical method sizes its kernels from it, so changing this value has no effect on organelle masks. Bound object size with organelle_min_size / organelle_max_size instead. Default 30.",
@@ -3176,6 +3180,64 @@ motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_
 #      That is why `timelapse` sits in General and not in "Timelapse", and why
 #      organelle_channel / organelle_mask_dim sit in General and not in
 #      "Organelle".
+# ORGANELLE, SPLIT IN TWO. Instruction 72 item 5.
+#
+# One heading used to hold FIFTY-THREE settings -- the most over-configured
+# object class in the tool, and a biologist who knew they were imaging
+# lysosomes had to scroll past organelle_ridge_sigmas to reach the diameter.
+#
+# `organelle_basic_settings` keeps only what a biologist recognises without
+# knowing how segmentation works. Everything else is advanced. The membership
+# is DERIVED from `organelle_types.BASIC_SETTINGS`, not typed out here, so the
+# split cannot drift from the module that defines what basic means -- but both
+# NAMES appear in the `categories` literal below, the way motility's two do,
+# because that literal is where category names are declared and checked.
+#
+# MOVED, NOT HIDDEN. Every advanced setting is still in the panel, still
+# editable, still in the settings dict. A setting that leaves the UI while
+# staying in the dict is how a run gets a value nobody can see; this project
+# has eleven phantom settings from exactly that (instruction 61).
+_organelle_all_settings = [
+        # what to detect
+        "organelle_morphology", "organelle_method", "organelle_diameter",
+        # clean the image first
+        "organelle_mask_within_cells", "organelle_rolling_ball", "organelle_rolling_ball_radius", "organelle_clahe", "organelle_clahe_clip_limit",
+        # method: adaptive
+        "organelle_adaptive_block_size", "organelle_adaptive_offset",
+        # method: otsu / adaptive / log / dog (spots)
+        "organelle_tophat_radius", "organelle_watershed_spots", "organelle_log_min_sigma", "organelle_log_max_sigma", "organelle_log_num_sigma", "organelle_log_threshold", "organelle_dog_sigma_low", "organelle_dog_sigma_high",
+        # method: ridge / hysteresis (networks)
+        "organelle_ridge_filter", "organelle_ridge_sigmas", "organelle_skeletonize", "organelle_network_threshold", "organelle_hysteresis_low", "organelle_hysteresis_high",
+        # morphology: ring
+        "organelle_ring_sigma_inner", "organelle_ring_sigma_outer", "organelle_ring_min_prominence", "organelle_ring_fill_method",
+        # morphology: irregular
+        "organelle_morph_radius", "organelle_fill_holes",
+        # method: cellpose
+        "organelle_model_name", "organelle_CP_prob", "organelle_FT", "organelle_resample",
+        # method: unet
+        "organelle_unet_model_path", "organelle_unet_threshold",
+        # filter the detected objects
+        "organelle_min_size", "organelle_max_size", "organelle_min_area", "organelle_max_area", "organelle_min_object_area", "organelle_area_multiplier", "organelle_min_distance", "organelle_perimeter_fraction", "organelle_intensity_merge", "organelle_intensity_split", "organelle_intensity_threshold_method", "organelle_intensity_percentile", "organelle_min_intensity_percentile", "organelle_max_intensity_percentile", "organelle_remove_border", "organelle_remove_border_objects",
+        # what to write out
+        "summarize_organelles_by",
+]
+
+# The one visible choice goes first, ahead of the six it stands in for.
+_organelle_all_settings.insert(0, "organelle_type")
+
+
+def _partition_organelle_settings(members):
+    """Split the organelle settings into (basic, advanced), order preserved."""
+    from .organelle_types import is_basic
+
+    return ([k for k in members if is_basic(k)],
+            [k for k in members if not is_basic(k)])
+
+
+organelle_basic_settings, organelle_advanced_settings = (
+    _partition_organelle_settings(_organelle_all_settings))
+
+
 categories = {
     "Paths": ["src", "grna", "barcodes", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "score_data", "count_data"],
 
@@ -3204,30 +3266,8 @@ categories = {
     # per-method blocks used to be eight separate headings gated on
     # organelle_method; they are sub-ordered here instead, so the knobs that do
     # not apply to your method are simply further down the list.
-    "Organelle": [
-        # what to detect
-        "organelle_morphology", "organelle_method", "organelle_diameter",
-        # clean the image first
-        "organelle_mask_within_cells", "organelle_rolling_ball", "organelle_rolling_ball_radius", "organelle_clahe", "organelle_clahe_clip_limit",
-        # method: adaptive
-        "organelle_adaptive_block_size", "organelle_adaptive_offset",
-        # method: otsu / adaptive / log / dog (spots)
-        "organelle_tophat_radius", "organelle_watershed_spots", "organelle_log_min_sigma", "organelle_log_max_sigma", "organelle_log_num_sigma", "organelle_log_threshold", "organelle_dog_sigma_low", "organelle_dog_sigma_high",
-        # method: ridge / hysteresis (networks)
-        "organelle_ridge_filter", "organelle_ridge_sigmas", "organelle_skeletonize", "organelle_network_threshold", "organelle_hysteresis_low", "organelle_hysteresis_high",
-        # morphology: ring
-        "organelle_ring_sigma_inner", "organelle_ring_sigma_outer", "organelle_ring_min_prominence", "organelle_ring_fill_method",
-        # morphology: irregular
-        "organelle_morph_radius", "organelle_fill_holes",
-        # method: cellpose
-        "organelle_model_name", "organelle_CP_prob", "organelle_FT", "organelle_resample",
-        # method: unet
-        "organelle_unet_model_path", "organelle_unet_threshold",
-        # filter the detected objects
-        "organelle_min_size", "organelle_max_size", "organelle_min_area", "organelle_max_area", "organelle_min_object_area", "organelle_area_multiplier", "organelle_min_distance", "organelle_perimeter_fraction", "organelle_intensity_merge", "organelle_intensity_split", "organelle_intensity_threshold_method", "organelle_intensity_percentile", "organelle_min_intensity_percentile", "organelle_max_intensity_percentile", "organelle_remove_border", "organelle_remove_border_objects",
-        # what to write out
-        "summarize_organelles_by",
-    ],
+    "Organelle": organelle_basic_settings,
+    "Organelle advanced": organelle_advanced_settings,
 
     "Segmentation QC": ["seg_qc", "seg_qc_min_objects", "seg_qc_count_ratio", "seg_qc_size_ratio", "seg_qc_border_fraction", "seg_qc_outlier_mad", "seg_qc_outlier_fraction", "seg_qc_foreground_fraction", "seg_qc_split_ratio", "seg_qc_min_diameter", "seg_qc_tiny_fraction", "seg_qc_max_object_fraction", "seg_qc_plate_fail_fraction"],
 
@@ -3382,6 +3422,26 @@ categories = {
     "Motility Advanced (beta)": motility_advanced_settings,
 }
 
+# ---------------------------------------------------------------------------
+# ORGANELLE, SPLIT. Instruction 72 item 5.
+# ---------------------------------------------------------------------------
+# One "Organelle" category held FIFTY-THREE settings -- the most
+# over-configured object class in the tool. A biologist who knows they are
+# imaging lysosomes should not have to scroll past organelle_ridge_sigmas and
+# organelle_hysteresis_high to find the channel.
+#
+# "Organelle" now keeps only what a biologist recognises without knowing how
+# segmentation works; everything else moves to "Organelle advanced".
+#
+# MOVED, NOT HIDDEN, and the distinction matters: every advanced setting is
+# still in the panel, still editable, and still in the settings dict. A
+# setting removed from the UI while staying in the dict is how a run gets a
+# value nobody can see, which is exactly how this project acquired eleven
+# phantom settings (instruction 61).
+#
+# Derived from `organelle_types.BASIC_SETTINGS` rather than hand-listed, so
+# the split cannot drift from the module that defines what "basic" means.
+
 category_dependencies = {
     'timelapse': ['Timelapse'],
     'motility_analysis': ['Motility (beta)', 'Motility Advanced (beta)'],
@@ -3395,7 +3455,11 @@ category_integer_dependencies = {
     ('cell_channel', 'cell_mask_dim'): ['Cell'],
     ('nucleus_channel', 'nucleus_mask_dim'): ['Nucleus'],
     ('pathogen_channel', 'pathogen_mask_dim'): ['Pathogen'],
-    ('organelle_channel', 'organelle_mask_dim'): ['Organelle'],
+    # Both organelle categories are gated on the channel, not just the
+    # first: splitting the category would otherwise leave "Organelle
+    # advanced" showing on a run that does no organelle segmentation at all.
+    ('organelle_channel', 'organelle_mask_dim'): ['Organelle',
+                                                  'Organelle advanced'],
 }
 
 # Categories shown only when a setting equals a specific value.
@@ -4269,6 +4333,10 @@ def _set_organelle_defaults(settings):
     defaults = {
         # General
         'organelle_channel': None,
+        # ONE visible choice in front of fifty-three. Defaults to 'custom',
+        # which recommends nothing: a settings file written before this
+        # existed has no opinion about it and must keep its exact meaning.
+        'organelle_type': DEFAULT_ORGANELLE_TYPE,
         'organelle_morphology': 'spots',
         'organelle_method': 'otsu',
         'organelle_diameter': 30,
@@ -4323,6 +4391,28 @@ def _set_organelle_defaults(settings):
         'organelle_FT': 0.4,
         'organelle_resample': True,
     }
+    # THREE TIERS, AND THE ORDER IS THE WHOLE DESIGN:
+    #
+    #   what the USER set        wins over
+    #   what the PRESET advises  wins over
+    #   the bare DEFAULT
+    #
+    # So the preset runs FIRST, against the caller's own dict, where the
+    # only keys present are the ones they chose. It fills the gaps it has an
+    # opinion about and never touches a key that is already there -- that is
+    # "preset, do not override": pick 'punctate', change organelle_method to
+    # 'adaptive', and the change sticks.
+    #
+    # Running it after `setdefault` was the first attempt and it was wrong:
+    # the defaults had already filled organelle_method with 'otsu', the
+    # preset saw a set key, kept it, and naming a type did nothing at all.
+    # UPDATED IN PLACE, not rebound. `apply_preset` returns a NEW dict, and
+    # every caller here does `_set_organelle_defaults(settings)` without
+    # taking the return value -- so rebinding the local name silently threw
+    # forty defaults away onto a copy, and the mask panel lost every
+    # detection setting it had. Measured: 53 organelle keys became 13.
+    settings.update(apply_preset(settings,
+                                 explain=bool(settings.get('verbose'))))
     for key, val in defaults.items():
         settings.setdefault(key, val)
     return settings
