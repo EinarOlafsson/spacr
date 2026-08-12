@@ -227,6 +227,50 @@ def _optional_spin_value(widget: QSpinBox) -> Optional[int]:
     return None if value < 0 else value
 
 
+def _default_png_mapping() -> Dict[str, Optional[int]]:
+    """The run's own default crop colouring, read rather than copied.
+
+    Imported inside the call for the reason ``compute_crops`` does the same
+    with ``spacr.measure``: this module is imported to build a screen, and a
+    constant is not worth 77 ms of import at that moment. A literal copy
+    would be free and is exactly how the preview and the run came to
+    disagree in the first place.
+    """
+    try:
+        from spacr.crops import DEFAULT_PNG_CHANNEL_MAPPING
+        return dict(DEFAULT_PNG_CHANNEL_MAPPING)
+    except Exception:      # pragma: no cover - crops is a hard dependency
+        LOG.debug("could not read the default png mapping", exc_info=True)
+        return {"r": 2, "g": 1, "b": 0}
+
+
+def _resolve_png_mapping(settings) -> Dict[str, Optional[int]]:
+    """``png_channel_mapping``, or the legacy ``png_dims``, or the default.
+
+    The run's own precedence, reached through the run's own function, so a
+    settings dict seeds this panel with the colours it will actually get.
+    """
+    try:
+        from spacr.crops import resolve_png_channel_mapping
+        return resolve_png_channel_mapping(settings)
+    except Exception:
+        LOG.debug("could not resolve the png mapping", exc_info=True)
+        return _default_png_mapping()
+
+
+def _mapping_to_rgb_list(mapping: Dict[str, Optional[int]]) -> List[int]:
+    """``{r, g, b}`` -> the RGB-ordered channel list the cropper takes.
+
+    ``crop_objects_from_array``'s ``channels`` argument is RGB order, so the
+    mapping the run resolves and the list the preview draws with are the same
+    thing written two ways. A colour mapped to ``None`` is an empty plane in
+    the run; it is dropped here, which is the closest the three-channel
+    preview grid can get.
+    """
+    return [int(mapping[k]) for k in ("r", "g", "b")
+            if mapping.get(k) is not None]
+
+
 class _CropThumb(QLabel):
     clicked = Signal(int)
 
@@ -354,7 +398,17 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._crop_height = self._spin(16, 2048, 224, parent=self)
         self._lock_aspect = Toggle(parent=self)
         self._lock_aspect.setChecked(True)
-        self._png_dims = QLineEdit("0,1,2", self)
+        # R, G, B source channels in that order, defaulted to the shipped
+        # `png_channel_mapping` ({'r': 2, 'g': 1, 'b': 0}) rather than to
+        # "0,1,2". The text is handed straight to
+        # `crop_objects_from_array`, whose `channels` argument IS RGB order,
+        # so a default of "0,1,2" drew channel 0 RED while the run writes it
+        # BLUE -- measured on a three-channel array as preview (13, 128, 255)
+        # against run (200, 100, 10). A crop preview exists to answer "which
+        # stain lands where", and it answered with red and blue swapped.
+        self._png_dims = QLineEdit(
+            ",".join(str(c) for c in
+                     _mapping_to_rgb_list(_default_png_mapping())), self)
         self._use_bbox = Toggle(parent=self)
         self._buffer = self._spin(0, 200, 10, parent=self)
         self._normalise = Toggle(parent=self)
@@ -804,7 +858,12 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             "png_size": [
                 int(self._crop_width.value()), int(self._crop_height.value())
             ],
-            "png_dims": _parse_channels(self._png_dims.text()),
+            # `png_channel_mapping`, NOT the legacy `png_dims` this control
+            # used to write. `resolve_png_channel_mapping` ignores png_dims
+            # whenever a mapping is set, and Measure sets one by default --
+            # so every value this control propagated was discarded by the
+            # run it was tuning.
+            "png_channel_mapping": self._png_channel_mapping(),
             "use_bounding_box": self._use_bbox.isChecked(),
             "normalize": normalize,
             "normalize_by": self._normalize_by.currentText(),
@@ -819,6 +878,109 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             "merge_edge_pathogen_cells":
                 self._merge_edge_pathogen_cells.isChecked(),
         }
+
+    def _png_channel_mapping(self) -> Dict[str, Optional[int]]:
+        """The RGB control, as the ``{r, g, b}`` mapping the run reads."""
+        dims = _parse_channels(self._png_dims.text())
+        mapping = dict(_default_png_mapping())
+        for colour, channel in zip(("r", "g", "b"), dims):
+            mapping[colour] = int(channel)
+        # Fewer than three entries means the user named fewer planes, not
+        # that the unnamed ones keep the default: leaving them would put a
+        # channel on screen that the entry above deliberately removed.
+        for colour in ("r", "g", "b")[len(dims):]:
+            mapping[colour] = None
+        return mapping
+
+    def apply_settings(self, settings: dict) -> None:
+        """Seed the panel from the main Measure settings dict.
+
+        The inverse of :meth:`settings_for_propagation`, and tested as one.
+        This panel had no ``apply_settings`` at all, so the crop preview --
+        opened to decide whether a crop size will cut the cell in half, or
+        which stain lands in which colour -- always answered for its own
+        defaults rather than for the run about to happen.
+
+        Every field is copied independently: a settings file carrying one
+        unusable value must not cost the panel every field after it.
+        """
+        settings = dict(settings or {})
+
+        def _set(fn, key, cast=None):
+            if key not in settings or settings[key] is None:
+                return
+            try:
+                fn(settings[key] if cast is None else cast(settings[key]))
+            except Exception:
+                LOG.debug("apply_settings: %r is not usable for %r",
+                          settings[key], key, exc_info=True)
+
+        _set(self._experiment.setText, "experiment", str)
+        _set(self._measurement_channels.setText, "channels",
+             lambda v: ",".join(str(int(c)) for c in v))
+        for name in _OBJECTS:
+            if name == "cytoplasm":
+                continue
+            key = f"{name}_mask_dim"
+            if key in settings:
+                # -1 is the spinbox's "Not present" and None is the settings
+                # dict's. They have to translate, or an organelle declared
+                # absent comes back pointing at channel 0.
+                try:
+                    value = settings[key]
+                    self._mask_dims[name].setValue(
+                        -1 if value is None else int(value))
+                except Exception:
+                    LOG.debug("apply_settings: bad %s", key, exc_info=True)
+            _set(self._min_sizes[name].setValue, f"{name}_min_size", int)
+        _set(self._min_sizes["cytoplasm"].setValue, "cytoplasm_min_size", int)
+
+        for widget, key in (
+                (self._cytoplasm, "cytoplasm"),
+                (self._plot, "plot"),
+                (self._test_mode, "test_mode"),
+                (self._timelapse, "timelapse"),
+                (self._save_png, "save_png"),
+                (self._save_arrays, "save_arrays"),
+                (self._use_bbox, "use_bounding_box"),
+                (self._dilate, "dialate_pngs"),
+                (self._uninfected, "uninfected"),
+                (self._merge_edge_pathogen_cells, "merge_edge_pathogen_cells"),
+        ):
+            _set(widget.setChecked, key, bool)
+
+        if settings.get("crop_mode"):
+            modes = {str(m) for m in settings["crop_mode"]}
+            for name, widget in self._crop_mode_checks.items():
+                widget.setChecked(name in modes)
+        _set(lambda v: (self._crop_width.setValue(v[0]),
+                        self._crop_height.setValue(v[1])), "png_size",
+             lambda v: (int(v[0]), int(v[1])))
+        _set(self._dilate_ratio.setValue, "dialate_png_ratios",
+             lambda v: float(list(v)[0]))
+        _set(self._normalize_by.setCurrentText, "normalize_by", str)
+
+        # `normalize` is a bool OR a [lo, hi] percentile pair, and the pair
+        # is the only place the percentiles come from.
+        if "normalize" in settings:
+            value = settings["normalize"]
+            if isinstance(value, (list, tuple)) and len(value) == 2:
+                self._normalise.setChecked(True)
+                try:
+                    self._lo_pct.setValue(float(value[0]))
+                    self._hi_pct.setValue(float(value[1]))
+                except Exception:
+                    LOG.debug("apply_settings: bad normalize percentiles",
+                              exc_info=True)
+            elif value is not None:
+                self._normalise.setChecked(bool(value))
+
+        # Through the run's own resolver, so a legacy `png_dims` settings
+        # file seeds the panel with the colours that file will produce.
+        if "png_channel_mapping" in settings or "png_dims" in settings:
+            self._png_dims.setText(",".join(
+                str(c) for c in
+                _mapping_to_rgb_list(_resolve_png_mapping(settings))))
 
     def set_propagate_callback(self, callback) -> None:
         self._propagate_cb = callback
@@ -1185,7 +1347,7 @@ class CropSettingsDialog(QDialog):
             panel._crop_width: "png_size",
             panel._crop_height: "png_size",
             panel._lock_aspect: "lock_aspect_ratio",
-            panel._png_dims: "png_dims",
+            panel._png_dims: "png_channel_mapping",
             panel._use_bbox: "use_bounding_box",
             panel._buffer: "bounding_box_padding",
             panel._normalise: "normalize",
