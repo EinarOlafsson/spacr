@@ -2719,6 +2719,7 @@ def _read_and_join_tables(db_path, table_names=None,
                     f"to every frame's object. Re-run the missing step with the "
                     f"same 'timelapse' setting."
                 )
+            _before_png = len(dataframes['cell'])
             merged = _merge_with_cardinality(
                 dataframes['cell'],
                 png_list_df,
@@ -2728,6 +2729,19 @@ def _read_and_join_tables(db_path, table_names=None,
                 left_name='cell',
                 right_name='png_list',
             )
+            # THE INNER JOIN'S LOSS IS SAID OUT LOUD. png_list joins inner --
+            # a cell with no attributable crop cannot be classified,
+            # annotated or displayed -- but "your population just shrank" is
+            # not something a reader should have to infer from a row count.
+            # Crops whose id is 'omulti'/'onone'/'error' are dropped during
+            # the id migration above, which reports itself; the CELLS they
+            # would have matched disappear here, which did not.
+            _lost_png = _before_png - len(merged)
+            if _lost_png > 0:
+                print(f"png_list: {_lost_png} of {_before_png} measured "
+                      f"cell(s) have no crop that can be matched to them and "
+                      f"are not in the joined table. They were measured; "
+                      f"they simply cannot be shown or classified.")
             dataframes['cell'] = merged
         else:
             print("Cell table not found in database tables.")
