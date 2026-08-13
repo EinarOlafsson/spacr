@@ -43,7 +43,8 @@ from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import (
     QButtonGroup, QLabel,
     QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
-    QFormLayout, QHBoxLayout, QHeaderView, QInputDialog, QLabel, QPushButton,
+    QFormLayout, QHBoxLayout, QHeaderView, QInputDialog, QLabel, QLineEdit,
+    QPushButton,
     QSpinBox, QSplitter, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
     QWidget,
 )
@@ -56,6 +57,9 @@ from .gate_spec import (
     BOX, BoxGate, ELLIPSE, EllipseGate, Handle, WAND,
     GATE_KINDS, POLYGON, RECTANGLE, THRESHOLD, Gate, GateError, GateSet,
     PolygonGate, RectGate, ThresholdGate,
+    CYLINDER, PRISM,
+    COMPOSITE,
+    CylinderGate, PrismGate,
 )
 from .toggle import Toggle
 
@@ -177,9 +181,16 @@ TOOL_LABELS = {
     THRESHOLD: "Threshold — drag across a histogram to cut one column",
     RECTANGLE: "Rectangle — drag a box on a two-column plot",
     ELLIPSE: "Oval — drag a box; the oval is drawn inside it",
-    POLYGON: "Polygon — click each vertex, then Close",
+    POLYGON: "Polygon — click each vertex, then Close. In 3D the vertices "
+             "land on the anchor plane and the shape becomes a prism",
     WAND: "Wand — click a population; the gate grows to fit it",
     BOX: "Box — three measurements at once, made from the 3D view",
+    CYLINDER: "Cylinder — an oval drawn on one plane of the 3D view, "
+              "extended along the third measurement",
+    PRISM: "Prism — a polygon drawn on one plane of the 3D view, "
+           "extended along the third measurement",
+    COMPOSITE: "Combined — other gates added to or subtracted from each "
+               "other, chosen in the gates panel",
 }
 
 
@@ -235,8 +246,16 @@ class GateCanvas(GraphCanvas):
         self._disabled: set = set()
         try:
             self._canvas.mpl_connect("scroll_event", self._on_scroll)
+            # A spin ends here. `snap_to_axis` is read on release rather
+            # than during the drag: snapping mid-turn would fight the user's
+            # hand, and the point of snapping is only about the FINAL view.
+            self._canvas.mpl_connect("button_release_event",
+                                     self._on_button_release)
         except Exception:      # pragma: no cover - no canvas in a bare test
             LOG.debug("no scroll events available", exc_info=True)
+        #: Which plane the pending polygon's vertices were clicked on, as
+        #: (first, second). A polygon spanning two planes is not one shape.
+        self._pending_plane: Optional[Tuple[str, str]] = None
         #: Set while an anchor point is being pulled: (gate name, role).
         self._resize: Optional[Tuple[str, str]] = None
         #: The dashed shape following the mouse mid-drag. Its artists are
@@ -588,16 +607,21 @@ class GateCanvas(GraphCanvas):
         self._figure.clear()
         self._axes = {}
         ax = self._figure.add_subplot(projection="3d")
+        self._apply_spin_speed(ax)
+        self._draw_anchor_aura(ax)
 
         x = pd.to_numeric(frame[spec.x], errors="coerce").to_numpy(float)
         y = pd.to_numeric(frame[spec.y], errors="coerce").to_numpy(float)
         zs = pd.to_numeric(frame[z], errors="coerce").to_numpy(float)
         finite = np.isfinite(x) & np.isfinite(y) & np.isfinite(zs)
 
-        ax.scatter(x[finite], y[finite], zs[finite],
-                   s=max(1.0, self.POINT_SIZE_BASE / 4.0),
-                   c=self._density(x, y)[finite], cmap=self.point_colormap(),
-                   depthshade=False, linewidths=0.0, alpha=self.POINT_ALPHA)
+        if not self._draw_voxels(ax, x[finite], y[finite], zs[finite]):
+            ax.scatter(x[finite], y[finite], zs[finite],
+                       s=max(1.0, self.POINT_SIZE_BASE / 4.0),
+                       c=self._density(x, y)[finite],
+                       cmap=self.point_colormap(),
+                       depthshade=False, linewidths=0.0,
+                       alpha=self.POINT_ALPHA)
 
         for axis, label in ((ax.xaxis, spec.x), (ax.yaxis, spec.y),
                             (ax.zaxis, z)):
@@ -626,6 +650,55 @@ class GateCanvas(GraphCanvas):
         # and nothing downstream has to know this one is three-dimensional.
         self._axes = {(0, 0): ax}
         self._canvas.draw_idle()
+        return True
+
+    #: Points above which the volume is drawn as voxels instead of dots.
+    #:
+    #: Not a taste threshold. A scatter of a million points in 3D is slower
+    #: to draw than to compute, and every dot is drawn over by the ones in
+    #: front of it -- so past this the picture stops improving and only the
+    #: frame rate changes. Below it the dots ARE the better picture, because
+    #: an individual object can be seen and clicked.
+    VOXEL_THRESHOLD = 20000
+
+    def _draw_voxels(self, ax, x, y, z) -> bool:
+        """Draw the volume as occupancy voxels. False if it should not be.
+
+        THIS IS WHAT `voxel_bins` IS FOR, and until now nothing read it --
+        the setting was declared, given a control, saved, reloaded and
+        ignored, which is the phantom-control defect instruction 77 swept
+        for.
+
+        A voxel is drawn where objects ARE, sized by how many. Occupancy
+        rather than a surface: a surface implies a boundary the data has not
+        got, while a cloud of sized markers says "this many here" and is the
+        same claim the 2D density plot makes.
+
+        :returns: False when the point count does not justify it, so the
+            caller scatters as before.
+        """
+        bins = int(getattr(self._settings, "voxel_bins", 0) or 0)
+        if bins < 2 or len(x) < self.VOXEL_THRESHOLD:
+            return False
+        try:
+            counts, edges = np.histogramdd(
+                np.column_stack([x, y, z]), bins=(bins, bins, bins))
+        except Exception:
+            LOG.debug("could not bin the volume", exc_info=True)
+            return False
+        filled = counts > 0
+        if not filled.any():
+            return False
+        centres = [(e[:-1] + e[1:]) / 2.0 for e in edges]
+        ix, iy, iz = np.nonzero(filled)
+        weight = counts[filled]
+        # Area, not radius, tracks the count: a marker whose RADIUS was the
+        # count would exaggerate a busy voxel by its square.
+        sizes = 6.0 + 40.0 * (weight / weight.max())
+        ax.scatter(centres[0][ix], centres[1][iy], centres[2][iz],
+                   s=sizes, c=weight, cmap=self.point_colormap(),
+                   depthshade=False, linewidths=0.0,
+                   alpha=min(1.0, self.POINT_ALPHA * 2))
         return True
 
     def volume_axis_map(self):
@@ -806,6 +879,66 @@ class GateCanvas(GraphCanvas):
                 pd.to_numeric(picked[self._z_column], errors="coerce"),
                 s=18, facecolor="none", edgecolor=colour,
                 linewidths=0.7, depthshade=False)
+
+    def _on_button_release(self, event) -> None:
+        """Square the volume up when a spin ends, if the setting says so.
+
+        `snap_to_axis` was declared, given a control, saved and reloaded, and
+        READ BY NOTHING -- a control that turns nothing is a promise the
+        application does not keep. This is where it turns something.
+
+        Only in 3D, and only when the view has actually been turned: snapping
+        a volume nobody rotated would move a view the user set deliberately.
+        """
+        if self._mode not in ("3D", "xD"):
+            return
+        if not bool(getattr(self._settings, "snap_to_axis", False)):
+            return
+        if self._view_angles is None:
+            return
+        try:
+            self.snap_to_nearest_axis()
+        except Exception:
+            LOG.debug("could not snap the view", exc_info=True)
+
+    def _apply_spin_speed(self, axes) -> None:
+        """Scale how far a drag turns the volume.
+
+        matplotlib has no public setting for this: ``Axes3D`` converts the
+        drag straight into degrees inside ``_on_move``. So the method is
+        WRAPPED rather than reimplemented -- the wrapper scales the reported
+        cursor movement and lets matplotlib do the rest, which keeps the
+        rotation matplotlib's and the speed ours.
+
+        Guarded end to end: a matplotlib whose internals moved leaves the
+        rotation at its normal speed, which is a setting not taking effect
+        rather than a volume that will not turn.
+        """
+        speed = float(getattr(self._settings, "spin_speed", 1.0) or 1.0)
+        original = getattr(axes, "_on_move", None)
+        if original is None or getattr(original, "_spacr_wrapped", False):
+            return
+        if abs(speed - 1.0) < 1e-9:
+            return
+
+        def scaled(event):
+            try:
+                start_x = getattr(axes, "_sx", None)
+                start_y = getattr(axes, "_sy", None)
+                if start_x is not None and event.x is not None:
+                    event.x = start_x + (event.x - start_x) * speed
+                if start_y is not None and event.y is not None:
+                    event.y = start_y + (event.y - start_y) * speed
+            except Exception:
+                LOG.debug("could not scale the spin", exc_info=True)
+            return original(event)
+
+        scaled._spacr_wrapped = True
+        try:
+            axes._on_move = scaled
+        except Exception:
+            LOG.debug("this matplotlib does not allow a spin-speed wrap",
+                      exc_info=True)
 
     def snap_to_nearest_axis(self) -> Tuple[float, float]:
         """Turn the volume square-on to whichever axis it is nearest.
@@ -1352,6 +1485,21 @@ class GateCanvas(GraphCanvas):
             return None
 
         spec = self._spec
+        depth_column = next(c for c in (spec.x, spec.y, self._z_column)
+                            if c not in (first, second))
+
+        # THE TOOL DECIDES THE SHAPE, on the plane the drag happened in.
+        # Instruction 52 asks for a circle, a rectangle and a polygon on the
+        # anchor plane; the first two are drags and are here. All three
+        # extrude along the same depth axis, and all three are UNBOUNDED on
+        # it for the reason in this method's docstring.
+        if self._tool == ELLIPSE:
+            return CylinderGate(
+                name="(unnamed)",
+                u_column=first, v_column=second, axis_column=depth_column,
+                u_centre=(x0 + x1) / 2.0, v_centre=(y0 + y1) / 2.0,
+                u_radius=abs(x1 - x0) / 2.0, v_radius=abs(y1 - y0) / 2.0)
+
         bounds = {first: (min(x0, x1), max(x0, x1)),
                   second: (min(y0, y1), max(y0, y1))}
         def side(column):
@@ -1365,6 +1513,84 @@ class GateCanvas(GraphCanvas):
                        x_low=x_low, x_high=x_high,
                        y_low=y_low, y_high=y_high,
                        z_low=z_low, z_high=z_high)
+
+    def anchor_plane(self) -> Optional[Tuple[str, str, str]]:
+        """``(first, second, normal)`` of the plane a drag would land on.
+
+        Instruction 52 point 1 asks for the anchor plane to be VISIBLE before
+        the user commits to drawing. It is already implicit -- a drag on the
+        snapped view is read in the two measurements facing the camera -- but
+        implicit is exactly the problem: the affordance has to say which
+        surface the next shape lands on.
+
+        :returns: None in 2D, or when the view is not square-on to a face and
+            so has no plane to name.
+        """
+        if self._mode not in ("3D", "xD"):
+            return None
+        axes = self.axes_at(0, 0)
+        spec = self._spec
+        if axes is None or not (spec.x and spec.y and self._z_column):
+            return None
+        try:
+            elevation = float(axes.elev)
+            azimuth = float(axes.azim) % 360
+        except Exception:
+            return None
+        # Square-on only. Off a face there is no plane a drag means, which is
+        # why `snap_to_axis` exists -- saying nothing is better than naming
+        # a plane the user is not looking at.
+        if abs(elevation) > 1e-6 and abs(abs(elevation) - 90.0) > 1e-6:
+            return None
+        if abs(abs(elevation) - 90.0) < 1e-6:
+            return (spec.x, spec.y, self._z_column)
+        if min(abs(azimuth), abs(azimuth - 360)) < 1e-6:
+            return (spec.y, self._z_column, spec.x)
+        if abs(azimuth - 90.0) < 1e-6 or abs(azimuth - 270.0) < 1e-6:
+            return (spec.x, self._z_column, spec.y)
+        if abs(azimuth - 180.0) < 1e-6:
+            return (spec.y, self._z_column, spec.x)
+        return None
+
+    def _draw_anchor_aura(self, ax) -> None:
+        """The blue hue on the plane the next shape would land on.
+
+        A translucent FILLED quad rather than an edge highlight, because
+        point 1 asks for it to be visible from any camera angle and an edge
+        disappears the moment it points at the viewer.
+        """
+        plane = self.anchor_plane()
+        if plane is None:
+            return
+        first, second, normal = plane
+        spec = self._spec
+        axis_of = {spec.x: "x", spec.y: "y", self._z_column: "z"}
+        limits = {"x": ax.get_xlim3d(), "y": ax.get_ylim3d(),
+                  "z": ax.get_zlim3d()}
+        try:
+            u0, u1 = limits[axis_of[first]]
+            v0, v1 = limits[axis_of[second]]
+            far = limits[axis_of[normal]][0]
+        except KeyError:
+            return
+        order = {spec.x: 0, spec.y: 1, self._z_column: 2}
+        corners = []
+        for pu, pv in ((u0, v0), (u1, v0), (u1, v1), (u0, v1)):
+            point = [None, None, None]
+            point[order[first]] = pu
+            point[order[second]] = pv
+            point[order[normal]] = far
+            corners.append(point)
+        try:
+            from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+            quad = Poly3DCollection(
+                [corners], facecolor=active_palette()["accent"], alpha=0.12,
+                edgecolor=active_palette()["accent"], linewidths=0.8)
+            ax.add_collection3d(quad)
+            self._artists.append(quad)
+        except Exception:
+            LOG.debug("could not draw the anchor plane", exc_info=True)
 
     def _apply_volume_zoom(self, ax) -> None:
         """Scale the three axes about the data's centre.
@@ -1425,6 +1651,30 @@ class GateCanvas(GraphCanvas):
             return
         if self._tool != POLYGON:
             super()._on_press(event)
+            return
+        if self._mode in ("3D", "xD"):
+            # In the volume, `event.xdata` is a projected screen coordinate
+            # and means nothing in data units. The same reader the drag tools
+            # use answers this properly, in the two measurements facing the
+            # camera.
+            placed = self.screen_to_volume(event)
+            if placed is None:
+                return
+            first, x, second, y = placed
+            plane = (first, second)
+            if self._pending and self._pending_plane != plane:
+                # The view turned mid-polygon. Vertices from two planes are
+                # not one shape, and quietly mixing them would produce a
+                # prism whose outline nobody drew.
+                LOG.debug("polygon abandoned: the view turned mid-shape")
+                self._pending = []
+            self._pending_plane = plane
+            if len(self._pending) >= 3 and self._near_first_vertex(event, x, y):
+                self.close_polygon_now()
+                return
+            self._pending.append((x, y))
+            self.polygon_changed.emit(len(self._pending))
+            self._draw_gates()
             return
         if event.inaxes is None or event.xdata is None or event.ydata is None:
             return
@@ -1714,6 +1964,22 @@ class GateCanvas(GraphCanvas):
         spec = self._spec
         if len(self._pending) < 3 or not (spec.x and spec.y):
             return None
+        if self._mode in ("3D", "xD") and self._pending_plane:
+            first, second = self._pending_plane
+            normal = next((c for c in (spec.x, spec.y, self._z_column)
+                           if c not in (first, second)), "")
+            if not normal:
+                return None
+            # Unbounded along the normal, like every other shape drawn on the
+            # anchor plane: they said nothing about depth.
+            gate = PrismGate(name=name, u_column=first, v_column=second,
+                             axis_column=normal,
+                             vertices=tuple(self._pending))
+            self._pending = []
+            self._pending_plane = None
+            self.polygon_changed.emit(0)
+            self.gate_drawn.emit(gate)
+            return gate
         gate = PolygonGate(name=name,
                            x_column=spec.x, y_column=spec.y,
                            vertices=tuple(self._pending))
@@ -1770,6 +2036,7 @@ class GateTree(QWidget):
             "sets the axes to its measurements and makes the next gate you "
             "draw a child of it — it never changes what the plot shows.")
         self.tree.currentItemChanged.connect(self._on_selection)
+        self.active_changed.connect(self._rebuild_thresholds)
         self.tree.itemChanged.connect(self._on_item_changed)
         #: Gates the user has unticked. The tree owns this because the tick
         #: is in the tree; the canvas is told, and does not have to be asked.
@@ -1783,6 +2050,27 @@ class GateTree(QWidget):
         # it and is the page itself.
         mark_surface(self.tree)
         outer.addWidget(self.tree, 1)
+
+        # Instruction 52 point 4: "the user should also be able to set
+        # thresholds for each individual gate for the measurements they are
+        # defined by". One row per measurement the SELECTED gate can take a
+        # threshold on -- which for a cylinder is its normal, and is how its
+        # height is bounded.
+        #
+        # Rebuilt on selection rather than kept for every gate: a panel
+        # holding rows for gates nobody has selected is a panel that has to
+        # keep them in step with edits made elsewhere.
+        self._thresholds = QWidget(self)
+        self._threshold_form = QFormLayout(self._thresholds)
+        self._threshold_form.setContentsMargins(0, 0, 0, 0)
+        self._threshold_rows: Dict[str, Tuple[QLineEdit, QLineEdit]] = {}
+        #: Which gate the rows above belong to. Remembered rather than
+        #: re-read from the selection: if the selection moves between a row
+        #: being filled in and the edit landing, re-reading would put the
+        #: number on the wrong gate.
+        self._threshold_gate: str = ""
+        self._thresholds.setVisible(False)
+        outer.addWidget(self._thresholds)
 
         row = QHBoxLayout()
         row.setContentsMargins(0, 0, 0, 0)
@@ -1910,6 +2198,74 @@ class GateTree(QWidget):
         self.refresh()
         self.gates_changed.emit()
         self.active_changed.emit(self.active_gate())
+
+    def _rebuild_thresholds(self, name: str) -> None:
+        """Show one low/high pair per measurement the selected gate can bound.
+
+        Blank means UNBOUNDED, not zero. That distinction is the whole
+        interface here: a cylinder with no bound on its normal means the 2D
+        oval extended through the volume, and a cylinder bounded 0..0 means
+        nothing at all.
+        """
+        while self._threshold_form.rowCount():
+            self._threshold_form.removeRow(0)
+        self._threshold_rows = {}
+        self._threshold_gate = str(name or "")
+        gate = None
+        if name and name in self._gates:
+            gate = self._gates.get(name)
+        offered = {}
+        if gate is not None:
+            try:
+                offered = gate.thresholds()
+            except Exception:
+                LOG.debug("could not read thresholds", exc_info=True)
+        self._thresholds.setVisible(bool(offered))
+        for column, (low, high) in offered.items():
+            pair = QWidget(self._thresholds)
+            line = QHBoxLayout(pair)
+            line.setContentsMargins(0, 0, 0, 0)
+            low_edit, high_edit = QLineEdit(pair), QLineEdit(pair)
+            for edit, value, hint in ((low_edit, low, "min"),
+                                      (high_edit, high, "max")):
+                edit.setText("" if value is None else f"{float(value):g}")
+                edit.setPlaceholderText(hint)
+                edit.setToolTip(
+                    f"Threshold on {column} for this gate. Leave it EMPTY "
+                    f"for no bound \u2014 empty is unbounded, not zero.")
+                edit.editingFinished.connect(
+                    lambda c=column: self._apply_threshold(c))
+                line.addWidget(edit)
+            self._threshold_rows[column] = (low_edit, high_edit)
+            self._threshold_form.addRow(column, pair)
+
+    def _apply_threshold(self, column: str) -> None:
+        """Put an edited pair back on the gate."""
+        name = self._threshold_gate
+        if not name or name not in self._gates:
+            return
+        low_edit, high_edit = self._threshold_rows.get(column, (None, None))
+        if low_edit is None:
+            return
+
+        def value(edit):
+            text = edit.text().strip()
+            if not text:
+                return None
+            try:
+                return float(text)
+            except ValueError:
+                return None
+
+        try:
+            updated = self._gates.get(name).with_threshold(
+                column, value(low_edit), value(high_edit))
+        except GateError:
+            LOG.debug("gate %s cannot take a threshold on %s", name, column)
+            return
+        self._gates.add(updated)
+        self._rebuild_thresholds(name)
+        self.gates_changed.emit()
 
     def _on_selection(self, *_args) -> None:
         self.active_changed.emit(self.active_gate())
@@ -2043,7 +2399,9 @@ class GateEditorPanel(QWidget):
     #: The Settings button was pressed. The panel does not own the settings
     #: window -- the screen does, because sampling is the screen's job.
     settings_requested = Signal()
-    #: A gating mode was chosen: "2D", "3D" or "xD".
+    #: The xD projection was switched on or off. Carries a bool.
+    projection_requested = Signal(bool)
+    #: A gating mode was chosen: "2D" or "3D".
     mode_requested = Signal(str)
     #: The volume's spin axis changed: "x", "y" or "z".
     spin_axis_changed = Signal(str)
@@ -2071,11 +2429,14 @@ class GateEditorPanel(QWidget):
         self._tool = QComboBox(self)
         self._tool.setObjectName("GateToolPicker")
         for key in ("",) + GATE_KINDS:
-            if key == BOX:
-                # Not a drag tool. A box comes from the 3D view (Box gate),
-                # because a rectangle dragged on a rotated projection has no
-                # defined depth -- offering it here would promise a gesture
-                # that cannot work.
+            if key in (BOX, CYLINDER, PRISM, COMPOSITE):
+                # Not drag tools. The first three come from the 3D view: a
+                # shape
+                # dragged on a rotated projection has no defined extent
+                # along the axis pointing at the viewer, so offering them
+                # here would promise a gesture that cannot work. A composite
+                # is not drawn at all -- it is made from gates that already
+                # exist, in the gates panel.
                 continue
             self._tool.addItem(TOOL_LABELS[key].split(" — ")[0], key)
         self._tool.setToolTip("\n".join(TOOL_LABELS.values()))
@@ -2122,7 +2483,7 @@ class GateEditorPanel(QWidget):
         self._mode_buttons: Dict[str, QPushButton] = {}
         group = QButtonGroup(self)
         group.setExclusive(True)
-        for mode in ("2D", "3D", "xD"):
+        for mode in ("2D", "3D"):
             button = QPushButton(mode, self)
             button.setCheckable(True)
             button.setChecked(mode == "2D")
@@ -2136,6 +2497,22 @@ class GateEditorPanel(QWidget):
             group.addButton(button)
             self._mode_buttons[mode] = button
             tools.addWidget(button)
+
+        # OUTSIDE the exclusive group, deliberately. xD is not a third
+        # dimensionality: it says what the AXES ARE -- components rather than
+        # raw measurements -- and that is orthogonal to how many are drawn.
+        # Gating PC1 vs PC2 in 2D and PC1/PC2/PC3 in 3D are both things
+        # people want, and one exclusive group could express neither.
+        self._xd_button = QPushButton("xD", self)
+        self._xd_button.setCheckable(True)
+        self._xd_button.setToolTip(
+            "Project the chosen measurements onto components and gate on "
+            "those. Independent of 2D/3D \u2014 pick how many axes there "
+            "are separately.\n\nWhich measurements are reduced is the xD "
+            "tab of the settings.")
+        fit_to_text(self._xd_button, padding=18)
+        self._xd_button.toggled.connect(self.projection_requested.emit)
+        tools.addWidget(self._xd_button)
 
         # Which axis the volume spins about. Shown only in 3D, because in 2D
         # there is nothing to spin and a dead control is worse than no
@@ -2492,6 +2869,19 @@ class GateEditorPanel(QWidget):
 
     def status(self) -> str:
         return self._status.text()
+
+    def set_projection_active(self, on: bool) -> None:
+        """Show the xD button as on or off without re-emitting.
+
+        Used when a projection was asked for and could not be made: the
+        button must not keep claiming something that did not happen.
+        """
+        button = getattr(self, "_xd_button", None)
+        if button is None:
+            return
+        blocked = button.blockSignals(True)
+        button.setChecked(bool(on))
+        button.blockSignals(blocked)
 
     def set_spin_controls_visible(self, visible: bool) -> None:
         self._box_gate.setVisible(visible)

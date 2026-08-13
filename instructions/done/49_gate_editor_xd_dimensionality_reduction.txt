@@ -206,3 +206,69 @@ surfacing these two diagnostics in that panel. Instruction 31's last item --
 the filter/search tabs -- waits on the hyperparameter tab here.
 
 15 tests; 75 pass across the diagnostics, merge_tables and column_groups.
+
+--------------------------------------------------------------------------------
+2026-08-13 (last) - DONE. THE PICKER, THE TABS, THE HYPERPARAMETERS, AND xD
+                    STOPPED BEING A THIRD DIMENSIONALITY
+--------------------------------------------------------------------------------
+
+THE PICKER is the xD tab of the gate settings dialog. Three inner tabs, one
+per kind, because a table names a column three ways at once -- object,
+channel, family -- and which one is meant depends on the question. Groups and
+hand-typed columns ADD UP, as the request asked for both. An identifier is
+never OFFERED as part of a group but can still be typed: not offered is not
+the same as forbidden.
+
+NOTHING TICKED MEANS EVERY NUMERIC COLUMN, which is what xD did before the
+picker existed, so an existing session behaves exactly as it did.
+
+THE PICKER SAYS WHAT IT SELECTED -- "3 of 7 columns selected" -- because a
+picker that does not is one the user has to RUN to find out about, and
+running a UMAP is the expensive part. A table with no channels says so
+rather than showing an empty box: "no channels here" and "channels exist and
+none are ticked" are different answers.
+
+HYPERPARAMETERS PER METHOD, GREYED NOT REMOVED (INVARIANTS 6). UMAP gets
+n_neighbors and min_dist, t-SNE gets perplexity, PCA gets nothing -- and
+"PCA has nothing to tune" is a fact about PCA worth showing rather than
+hiding. A value set for a greyed method survives switching away and back.
+The projection dropdown and the component count MOVED from the 3D tab to
+this one, which is where xD is configured.
+
+A LATENT CRASH FIXED ON THE WAY: sklearn RAISES when t-SNE's perplexity
+reaches the sample size, so the default 30 turned any selection under ~90
+objects into a failed projection. The reducer clamps rather than passing it
+through.
+
+xD IS NOT A THIRD DIMENSIONALITY, and that was the design error underneath
+"make xD non-exclusive with 2D/3D". `gate_mode` had three values in one
+exclusive button group. But 2D/3D is HOW MANY AXES ARE DRAWN and xD is WHAT
+THE AXES ARE -- components rather than raw measurements -- and the two are
+orthogonal. Gating PC1 vs PC2 in 2D and PC1/PC2/PC3 in 3D are both things
+people want, and one exclusive group could express NEITHER: choosing xD
+silently chose a dimensionality too.
+
+So `gate_mode` is now 2D or 3D, `xd_projection` is a separate bool, and the
+xD button sits outside the button group. A settings file written while xD
+was a third mode migrates to `3D + xd_projection` -- xD produced three
+components precisely so the 3D view had a Z, so that is what it meant.
+
+SWITCHING THE PROJECTION OFF DOES NOT UNDO IT. The components are ordinary
+columns by then and gates may already be drawn on them; dropping the columns
+those gates name would break them. The user picks different axes instead,
+which is the same gesture as any other axis change. A projection that CANNOT
+run puts the button back, because a button that keeps claiming something
+that did not happen is worse than one that refuses.
+
+THE DIAGNOSTICS ARE SURFACED where the result is read: a group carrying
+under 5% of the variance is named, and a projection that separated objects
+by whether a column was measured says so and says it is not a phenotype.
+Reported only when they fire -- a line that appears every time is one the
+user learns to ignore. Neither can take the projection down: both are
+wrapped, and a test asserts the projection still lands when they raise.
+
+32 tests in tests/qt/test_xd_column_picker.py; 539 pass across the gate
+suites, merge_tables and smoke.
+
+THIS UNBLOCKS INSTRUCTION 31's last item: the filter/search tabs now have a
+hyperparameter side to put in the second tab.

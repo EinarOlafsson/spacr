@@ -219,6 +219,7 @@ class GateEditorScreen(QWidget):
         self.gates.axes_requested.connect(self._on_axes_requested)
         self.gates.settings_requested.connect(self.open_settings)
         self.gates.mode_requested.connect(self._on_mode_requested)
+        self.gates.projection_requested.connect(self._on_projection_requested)
         self.gates.spin_axis_changed.connect(self.gates.canvas.set_spin_axis)
         self._install_graph_context_menu()
         body.addWidget(self.gates)
@@ -546,25 +547,46 @@ class GateEditorScreen(QWidget):
 
     def _on_z_changed(self, column: str) -> None:
         self._settings = self._settings.replaced(z_axis=column or "")
-        if self._settings.gate_mode in ("3D", "xD"):
+        if self._settings.gate_mode == "3D":
             self.gates.canvas.set_mode(self._settings.gate_mode,
                                        z_column=column or "")
 
     def _on_mode_requested(self, mode: str) -> None:
-        """2D / 3D / xD, from the buttons beside Cluster.
+        """2D or 3D, from the buttons beside Cluster.
+
+        HOW MANY AXES ARE DRAWN, and nothing else. Whether those axes are
+        components is `_on_projection_requested`, because the two are
+        orthogonal: PC1 vs PC2 in 2D and PC1/PC2/PC3 in 3D are both things
+        people want, and one exclusive button group could express neither.
 
         Routed through `apply_settings` rather than set directly, so the mode
-        button and the 3D tab's dropdown cannot end up disagreeing about which
+        button and the settings dialog cannot end up disagreeing about which
         mode the editor is in.
         """
         self.apply_settings(self._settings.replaced(gate_mode=mode))
-        self._set_z_visible(mode in ("3D", "xD"))
-        self.gates.set_spin_controls_visible(mode in ("3D", "xD"))
-        if mode == "xD":
-            self.reduce_to_components()
+        self._set_z_visible(mode == "3D")
+        self.gates.set_spin_controls_visible(mode == "3D")
         self.gates.canvas.set_mode(mode, z_column=self._z.currentText())
         if self._settings_dialog is not None:
             self._settings_dialog.set_mode(mode)
+
+    def _on_projection_requested(self, on: bool) -> None:
+        """Gate on components, or on the measurements themselves.
+
+        Switching it ON projects now. Switching it OFF does NOT undo the
+        projection: the components are ordinary columns by then, gates may
+        already be drawn on them, and silently dropping the columns those
+        gates name would break them. The user chooses different axes, which
+        is the same gesture as any other axis change.
+        """
+        self.apply_settings(self._settings.replaced(xd_projection=bool(on)))
+        if on:
+            error = self.reduce_to_components()
+            if error:
+                # The button claimed something that did not happen.
+                self.gates.set_projection_active(False)
+                self.apply_settings(
+                    self._settings.replaced(xd_projection=False))
 
     def apply_settings(self, settings: GateEditorSettings) -> None:
         """Take new settings, re-reading the table only if one of them needs it.
@@ -599,16 +621,30 @@ class GateEditorScreen(QWidget):
         """
         from ...merge_tables import ReductionError, reduce_dimensions
 
+        from ...column_groups import resolve
+
         frame = self._frame
         if frame is None or frame.empty:
             return "Load a table first."
-        columns = [c for c in plottable_columns(frame)
+        numeric = [c for c in plottable_columns(frame)
                    if not str(c).startswith(("PC", "UMAP", "tSNE"))]
+        # Nothing picked means every numeric column -- what xD did before
+        # there was a picker, so an existing session is unchanged.
+        groups = getattr(self._settings, "reduction_groups", None) or {}
+        explicit = getattr(self._settings, "reduction_columns", ()) or ()
+        columns = resolve(numeric, groups, explicit=explicit) \
+            if (groups or explicit) else numeric
+        if len(columns) < 2:
+            return ("The xD tab selects fewer than two measurements; a "
+                    "projection needs two.")
         method = getattr(self._settings, "reduction", "pca")
         try:
             components = reduce_dimensions(
                 frame, columns, method=method,
-                components=int(getattr(self._settings, "components", 3)))
+                components=int(getattr(self._settings, "components", 3)),
+                n_neighbors=int(getattr(self._settings, "xd_n_neighbors", 15)),
+                min_dist=float(getattr(self._settings, "xd_min_dist", 0.1)),
+                perplexity=float(getattr(self._settings, "xd_perplexity", 30.0)))
         except ReductionError as exc:
             LOG.info("could not reduce: %s", exc)
             self._source.setText(str(exc))
@@ -617,8 +653,11 @@ class GateEditorScreen(QWidget):
         variance = components.attrs.get("explained_variance") or []
         combined = frame.drop(columns=[c for c in components.columns
                                        if c in frame.columns])
+        label = self._variance_label(components, variance)
+        warning = self._projection_warning(frame, components, columns, groups,
+                                           explicit)
         self.set_frame(combined.join(components),
-                       label=self._variance_label(components, variance))
+                       label=label + warning)
         names = list(components.columns)
         if len(names) >= 2:
             self._x.setCurrentText(names[0])
@@ -626,6 +665,63 @@ class GateEditorScreen(QWidget):
         if len(names) >= 3:
             self._z.setCurrentText(names[2])
         return None
+
+    @staticmethod
+    def _projection_warning(frame, components, columns, groups, explicit) -> str:
+        """What the projection is about, and whether it is an artefact.
+
+        Two questions a picture cannot answer on its own, and neither is
+        optional once a user is allowed to choose columns:
+
+        WHICH GROUP DRIVES IT. A group can be ticked and carry almost
+        nothing, and nobody notices, because a projection always produces a
+        picture. Reported only when one group is doing nearly all the work
+        or nearly none -- a balanced split is the expected case and saying
+        so every time would train the user to ignore the line.
+
+        WHETHER IT SPLIT ON MISSINGNESS. `reduce_dimensions` fills gaps with
+        the column median rather than dropping the row, which is right --
+        dropping loses every measurement the object DID have -- but it puts
+        every uninfected cell on the same point of every pathogen column.
+        The projection can then separate infected from uninfected on the
+        FACT of measurement, which is real, reproducible, and not a
+        phenotype. That is a split someone would otherwise write up.
+
+        Never raises: a diagnostic that takes the projection down with it
+        has cost more than it explained.
+        """
+        from ...column_groups import columns_in
+        from ...merge_tables import group_variance_share, missingness_leak
+
+        notes = []
+        try:
+            if groups or explicit:
+                named = {f"{kind}:{name}": columns_in(columns, kind, name)
+                         for kind, names in (groups or {}).items()
+                         for name in names}
+                if explicit:
+                    named["picked by hand"] = list(explicit)
+                share = group_variance_share(frame, named)
+                if len(share) > 1 and not share.empty:
+                    worst = share.iloc[-1]
+                    if worst["share"] < 0.05 and worst["columns"]:
+                        notes.append(
+                            f"{share.index[-1]} carries "
+                            f"{worst['share']:.0%} of the variance")
+        except Exception:
+            LOG.debug("variance share failed", exc_info=True)
+        try:
+            leak = missingness_leak(components, frame, columns)
+            if not leak.empty and leak.iloc[0]["severity"] > 0.5:
+                row = leak.iloc[0]
+                notes.append(
+                    f"the projection separates objects by whether "
+                    f"{row['column']} was measured "
+                    f"({row['missing_fraction']:.0%} missing) — that is not "
+                    f"a phenotype")
+        except Exception:
+            LOG.debug("missingness leak failed", exc_info=True)
+        return ("  ·  " + "; ".join(notes)) if notes else ""
 
     @staticmethod
     def _variance_label(components, variance) -> str:

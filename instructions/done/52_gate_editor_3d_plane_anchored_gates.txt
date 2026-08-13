@@ -161,3 +161,268 @@ nothing is a promise the application does not keep, which is what instruction
 THE INSTRUCTION ITSELF IS STILL OPEN. The volume, the plane-anchored gates
 and the snap-on-release behaviour are not built. What changed is that the
 application no longer claims they are.
+
+--------------------------------------------------------------------------------
+2026-08-13 (later) - THE GEOMETRY IS BUILT: CYLINDER AND PRISM
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "for 49 and 52 take inspiration from starplast
+           (/mnt/firecuda2/Claude/repo/starplast)"
+
+Point 2 of this file asks for three tools -- circle to a CYLINDER, rectangle
+to a BOX, polygon to a PRISM. The box half already existed. The other two are
+now in `spacr/qt/widgets/gate_spec.py`: `CylinderGate` and `PrismGate`.
+
+THE ANCHOR PLANE IS NAMED BY ITS COLUMNS, not by an "xy"/"xz"/"yz" string.
+`u_column` and `v_column` are the two the shape is drawn on and `axis_column`
+is the normal. That says which plane was the anchor without a second field
+that can disagree with the columns, and it is the same principle `BoxGate`
+already states: a shape dragged on a rotated projection has no well-defined
+extent along the axis pointing at the viewer, so anything read off one is
+invented. A gate defined this way reads the same from every camera angle.
+
+THE DEFAULT ALONG THE NORMAL IS UNBOUNDED, and point 3 asked for that
+decision to be made rather than fall out. Unbounded means the cylinder means
+EXACTLY what the 2D oval on that plane already meant -- so drawing in 3D and
+drawing in 2D agree instead of being two answers to one question -- and
+narrowing it is then an explicit act. Two tests assert that agreement
+directly, by comparing the masks.
+
+EXTRUSION HAPPENS AT GENERATION, not while drawing, which is what point 2
+asked for: `CylinderGate.from_ellipse` and `PrismGate.from_polygon` take the
+2D gate the existing canvas already produces and add the third measurement.
+`to_ellipse` / `to_polygon` go back the other way, so the 2D editor's
+handles, drag and outline all work on a 3D gate unchanged -- and the extent
+along the normal, which a 2D view cannot express, is LEFT ALONE rather than
+silently reset. That is the same service `BoxGate.to_rect` provides.
+
+ONLY THE NORMAL BECOMES A RANGE CLAUSE. The oval and the polygon are not
+conjunctions of ranges, so offering a bounding box for them would quietly
+include the corners -- the same reason `PolygonGate.range_filters` returns
+nothing. The axis bound IS exact, so it is given, and a test checks the
+clause selects the same rows the gate does.
+
+The two kinds are registered, round-trip through `gate_from_dict`, and are
+SKIPPED in the 2D tool combo alongside BOX, for the reason now written there:
+all three come from the 3D view, and offering them as drag tools would
+promise a gesture that cannot work. Their labels exist so the gates panel can
+name them.
+
+35 tests; 511 pass across gates, gate settings and smoke.
+
+STILL OPEN IN THIS FILE, and it is the interaction rather than the model:
+plane selection with the blue aura (point 1), the drawing gesture on the
+chosen plane (point 2's front half), per-gate threshold editing in the panel
+(point 4), COMPOSITION -- add / subtract between gates (point 5) -- and the
+three settings `voxel_bins`, `snap_to_axis` and `spin_speed` that still read
+"saved but not yet in effect".
+
+--------------------------------------------------------------------------------
+2026-08-13 (last) - COMPOSITION IS BUILT, AND TWO OF THE THREE PHANTOM
+                    SETTINGS NOW TURN SOMETHING
+--------------------------------------------------------------------------------
+
+COMPOSITION (point 5). `CompositeGate` -- union, intersect, subtract over
+other gates.
+
+    OPERANDS ARE NAMES, NOT COPIES, and that is the whole design decision.
+    Copies would make `mask` self-contained, which is tidier, and would mean
+    that adjusting one of the gates being combined left the composite showing
+    the OLD shape, silently, for as long as nobody looked. One source of truth
+    costs a resolver; two sources cost a wrong answer.
+
+So `CompositeGate.mask` cannot work alone and SAYS SO rather than guessing;
+`GateSet.mask` resolves the names. An operand carries its OWN ancestors,
+because a gate drawn inside another means the pair -- combining it as the
+shape alone would include rows its parent excluded.
+
+SUBTRACT KEEPS THE ORDER IT WAS GIVEN. A minus B is not B minus A, and a set
+that sorted its operands would silently change which one the user meant.
+
+NOT THE SAME THING AS `parent`, and both exist because both are asked for. A
+parent is SEQUENTIAL gating -- draw inside what you already kept -- which is
+always an intersection and always a tree. This is set algebra between
+siblings, which is neither. A composite can still have a parent.
+
+What it refuses, each with the reason: fewer than two operands, a gate
+combining itself, the same operand twice (a gate unioned with itself is
+itself and subtracted from itself is empty -- neither is likely to be meant),
+an unknown operation, a deleted operand (it must not quietly become the union
+of what is left), and a loop, which is a sentence naming the loop rather than
+a RecursionError.
+
+THE PHANTOM SETTINGS. This file set the bar itself: "GateEditorSettings
+should end this instruction with ZERO fields that nothing reads." Two of the
+three now read:
+
+  snap_to_axis   read on button RELEASE, not during the drag -- snapping
+                 mid-turn would fight the user's hand, and the point is only
+                 about the final view. Only in 3D, and only when the view has
+                 actually been turned: snapping a volume nobody rotated would
+                 move a view someone set deliberately.
+  spin_speed     matplotlib has no public setting for this -- Axes3D turns
+                 the drag straight into degrees inside `_on_move` -- so the
+                 method is WRAPPED rather than reimplemented. The wrapper
+                 scales the reported cursor movement and lets matplotlib do
+                 the rest, which keeps the rotation matplotlib's and the
+                 speed ours. Guarded end to end: a matplotlib whose internals
+                 moved leaves the rotation at normal speed, which is a
+                 setting not taking effect rather than a volume that will not
+                 turn. At 1.0 nothing is wrapped at all.
+
+`voxel_bins` IS THE ONE LEFT. It needs the volume to aggregate rather than
+scatter, which is a rendering change and not a wiring one, so it keeps its
+"saved but not yet in effect" note honestly.
+
+23 tests for composition, 14 for the volume settings; 471 pass across the
+gate suites, the library and smoke.
+
+STILL OPEN IN THIS FILE: plane selection with the blue aura (point 1) and the
+drawing gesture on the chosen plane (point 2's front half) -- the GEOMETRY
+for both landed earlier today as CylinderGate and PrismGate, so what remains
+is the interaction. Plus per-gate threshold editing in the panel (point 4)
+and `voxel_bins`.
+
+--------------------------------------------------------------------------------
+2026-08-13 (later still) - THE ANCHOR PLANE IS NAMED AND SHOWN, AND THE OVAL
+                           TOOL DRAWS IN IT
+--------------------------------------------------------------------------------
+
+POINT 1 IS DONE. `GateCanvas.anchor_plane()` returns `(first, second,
+normal)` for the plane a drag would land on, and `_draw_anchor_aura` puts a
+translucent blue quad on it.
+
+WHAT WAS ALREADY TRUE, and is the reason this is smaller than it reads: the
+plane was already IMPLICIT. A drag on the snapped view is read in the two
+measurements facing the camera -- `screen_to_volume` has always done that --
+and the resulting box is bounded on those two and unbounded on the third.
+Implicit is exactly the problem the request names, though: the affordance has
+to say which surface the next shape lands on BEFORE the user commits.
+
+A FILLED QUAD, NOT AN EDGE HIGHLIGHT, because the request asks for it to be
+visible from any camera angle and an edge disappears the moment it points at
+the viewer.
+
+SQUARE-ON ONLY. Off a face there is no plane a drag means, so `anchor_plane`
+returns None and no aura is drawn -- saying nothing beats naming a plane the
+user is not looking at. That is also what `snap_to_axis` is for, and the two
+now work together: snap on release, then the aura says where you are.
+
+POINT 2's OVAL IS DONE. `_gate_from_volume_drag` branches on the active tool:
+rectangle still makes a `BoxGate`, and the oval tool now makes a
+`CylinderGate` on the same plane -- the geometry that landed earlier today.
+Both are unbounded along the normal, for the reason already recorded: the
+user said nothing about depth, so the gate says nothing about depth.
+
+19 tests; 598 pass across the gate suites, the xD picker and smoke.
+
+STILL OPEN IN THIS FILE, and it is now a short list:
+  * the POLYGON on the anchor plane -- `PrismGate` exists and is tested, but
+    the gesture is click-per-vertex rather than a drag, so it needs its own
+    handler rather than a branch in the drag one;
+  * per-gate threshold editing in the gates panel (point 4) -- the gates
+    carry the bounds already, so this is a panel row and not a model change;
+  * `voxel_bins`, which needs the volume to aggregate rather than scatter.
+
+--------------------------------------------------------------------------------
+2026-08-13 (later again) - POINT 4 IS DONE: PER-GATE THRESHOLDS
+--------------------------------------------------------------------------------
+
+`Gate.thresholds()` and `Gate.with_threshold(column, low, high)`, plus a row
+per measurement in the gates panel under the hierarchy.
+
+`thresholds()` AND `range_filters()` ANSWER TWO DIFFERENT QUESTIONS, and
+which is which is the whole design here. `range_filters` is "what does this
+gate FILTER on" -- an unbounded axis filters on nothing and is rightly
+absent from it. `thresholds` is "what can the user SET", and an axis they
+cannot see in the panel is an axis they cannot bound, which is exactly point
+4. So an unbounded cylinder still offers its normal, at (None, None).
+
+NOT NAMED `bounds`. `PolygonGate.bounds()` already exists and returns that
+shape's bounding box as a 4-tuple; overriding it would have changed what a
+caller of the old one got back. `thresholds` is also the word the request
+uses.
+
+A CYLINDER OFFERS ITS NORMAL AND NOT ITS OVAL, which is right twice over:
+the oval is not a conjunction of ranges (a bounding box for it would quietly
+include the corners, the same reason a polygon offers nothing), and the
+normal is precisely the axis the request names -- "for an extruded shape
+that includes the normal axis, which is how the user bounds the cylinder's
+height".
+
+BLANK MEANS UNBOUNDED, NOT ZERO, and the tooltip says so. A cylinder with no
+bound on its normal is the 2D oval extended through the volume; one bounded
+0..0 selects nothing. Those are opposite answers and the field must not
+confuse them.
+
+THE ROWS REMEMBER WHICH GATE THEY BELONG TO rather than re-reading the
+selection when an edit lands. If the selection moved between a field being
+filled in and `editingFinished` firing, re-reading would put the number on a
+different gate -- silently, and on the gate the user was looking at LAST.
+
+A gate that cannot take a threshold on a column REFUSES rather than ignoring
+it, naming what it can take instead: a gate that silently swallowed the edit
+would leave the panel showing a number the gate does not honour.
+
+29 tests across the model and the panel; 653 pass over the gate suites, the
+xD picker, the library and smoke.
+
+REMAINING IN 52, and it is now two items:
+  * the POLYGON gesture on the anchor plane -- `PrismGate` exists, is tested
+    and round-trips; what is missing is click-per-vertex in the volume,
+    which needs its own handler rather than a branch in the drag one;
+  * `voxel_bins`, which needs the volume to aggregate rather than scatter.
+
+--------------------------------------------------------------------------------
+2026-08-13 (last) - DONE. THE POLYGON GESTURE AND voxel_bins CLOSE IT.
+--------------------------------------------------------------------------------
+
+THE POLYGON ON THE ANCHOR PLANE. `event.xdata` in the volume is a PROJECTED
+SCREEN COORDINATE and means nothing in data units -- the 2D click path would
+have placed vertices at numbers that look plausible and are not measurements.
+The 3D path reads clicks through `screen_to_volume`, the same reader the drag
+tools use, and closes into a `PrismGate` on the plane the clicks were made on.
+
+TURNING THE VIEW MID-POLYGON ABANDONS IT. Vertices clicked on two different
+planes are not one shape, and quietly mixing them would produce a prism whose
+outline nobody drew. The plane is remembered with the pending vertices, and a
+click on a different one starts over.
+
+Unbounded along the normal, like every other shape drawn here: they said
+nothing about depth.
+
+voxel_bins IS READ. Above `VOXEL_THRESHOLD` points the volume draws OCCUPANCY
+VOXELS instead of dots -- a marker where objects are, sized by how many.
+
+  * Occupancy rather than a surface: a surface implies a boundary the data has
+    not got, while sized markers say "this many here", which is the same claim
+    the 2D density plot makes.
+  * AREA tracks the count, not radius. A marker whose radius was the count
+    would exaggerate a busy voxel by its square.
+  * Only occupied voxels are drawn: an 8^3 grid over a real cloud is mostly
+    empty, and drawing the empties is drawing nothing.
+  * Below the threshold the dots ARE the better picture, because an individual
+    object can be seen and clicked. The threshold is not taste: past it every
+    dot is drawn over by the ones in front of it, so the picture stops
+    improving and only the frame rate changes.
+
+THE COUNT THIS FILE SET FOR ITSELF IS MET: `GateEditorSettings` has no field
+that nothing reads. `voxel_bins`, `snap_to_axis` and `spin_speed` were
+declared, controlled, saved, reloaded and ignored; all three now turn
+something, and a test asserts each is read somewhere beyond its declaration
+and its control.
+
+EVERY POINT OF THE REQUEST, and where it landed:
+
+  1. plane selection with a blue aura      anchor_plane + _draw_anchor_aura
+  2. circle -> cylinder                    CylinderGate, from the drag
+     rectangle -> box                      BoxGate, as before
+     polygon -> prism                      PrismGate, from clicks
+  3. extent along the normal               unbounded by default, stated
+  4. per-gate thresholds                   Gate.thresholds / with_threshold
+                                           + a row per measurement in the panel
+  5. composition                           CompositeGate: union / intersect /
+                                           subtract, resolved by GateSet
+
+97 tests across the five; 731 pass over the gate suites, the xD picker, the
+library, merge_tables and smoke.
