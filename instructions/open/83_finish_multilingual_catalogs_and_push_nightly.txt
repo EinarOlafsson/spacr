@@ -97,7 +97,26 @@ Sixty disjoint PT hard-tail candidates are preserved under
 v2 forensic indices 0–59 and pass source hashes, syntax, canonical API, and
 contextual API gates 60/60. Their SHA-256 values are ``3331b081...`` (0–19),
 ``7bb1ada2...`` (20–39), and ``5b918fa1...`` (40–59). They have not been
-stamped into a target catalog. The saved-output adjacency replay now accepts
+stamped into a target catalog. Commit ``b942a6c3`` adds the accepted-only
+review loader: a record is usable only when its exact label, block index,
+canonical source, source hash, reviewed context, syntax, canonical gate, and
+contextual gate still match the current corpus. Anonymous output from another
+prompt is never promoted as reviewed evidence.
+
+A fresh Portuguese strict pass against the 6,357-record corpus then recovered
+all 60 original reviews and reduced the unresolved tail from 123 to 46 unique
+blocks. It stopped red before runtime, as required: reused 21,655 blocks,
+generated 134, admitted 60 reviewed records and one exact cache value, decoded
+73 candidates, relaid 2 symbols, and left 46 exact/copy/ordinary-English
+blocks (42 contextual false-friend hits and 40 contextual-source failures).
+The first 16 blocks of this fresh tail are now preserved in
+``2026-08-12-tail-current-000-015.json`` (SHA-256 ``a09ae523...``); all 16
+pass exact current source/context/hash, syntax, canonical, and contextual
+checks. Thirty Portuguese blocks remain for review, followed by a fresh strict
+run. The nine dirty target API JSONs remain failed-run artifacts and are not
+part of this checkpoint.
+
+The saved-output adjacency replay now accepts
 37 current and 38 compact XML variants (75 total) with no observed losses.
 The one deliberately rejected former current-context hit used a fully stripped
 bare ``x0`` marker, which is indistinguishable from natural coordinate prose;
@@ -132,10 +151,10 @@ WHAT TO DO NEXT
 1. Before generation, freeze the committed English API manifest and exact
    extractor count together with the runtime-English and two builder
    identities. Do not generate against a dirty or moving public-docstring set.
-2. Bind the committed 60 PT candidates to their exact source/context hashes
-   through an explicit accepted-only review path. Review old-v2 indices
-   60–122, then rerun PT against the new freeze. Trust the fresh strict audit,
-   not the old 123-source denominator: marker repair can change the tail.
+2. Continue from the fresh Portuguese 46-block tail, not old-v2 indices
+   60–122. Sixteen current blocks are preserved and validated; review the
+   remaining 30, then rerun PT against an immutable 6,357-record freeze. Trust
+   that fresh strict audit before starting Portuguese runtime.
 3. Resolve Korean's fresh hard tail with target-language review or a separately
    admitted, licensed model. Do not use the rejected OPUS Korean checkpoint;
    retain M2M fail-closed until every surviving value is technically correct.

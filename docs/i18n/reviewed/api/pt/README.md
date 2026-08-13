@@ -15,8 +15,9 @@ and reviewed contextual source.
 - Review method: Codex-assisted translation followed by exact label/source/
   context alignment, source-hash verification, `_syntax_preserved`, canonical
   `_api_block_valid`, and contextual `_api_block_valid`.
-- Result: 60/60 records passed every listed check. A maintainer has not yet
-  promoted these candidates into a target catalog.
+- Result: the original 60/60 records passed every listed check. They are now
+  admitted only through the exact source/context-bound reviewed path; a stale
+  source, context, hash, or target fails closed.
 
 | Records | File | SHA-256 |
 |---:|---|---|
@@ -24,6 +25,18 @@ and reviewed contextual source.
 | 20–39 | `2026-08-12-tail-020-039.json` | `7bb1ada2a938362b5d48465fbc005482b59f91ee85c9db00d3c4d77837f05e5f` |
 | 40–59 | `2026-08-12-tail-040-059.json` | `5b918fa17499a83eb53d88216f9b3e70de91b3ab5ca1f2750f76aed9da202068` |
 
-The remaining old-v2 forensic records are 60–122. A fresh strict run can
-change that tail after marker repair, so future work must trust the new audit
-rather than assume the old 123-record denominator is still current.
+The next fresh strict run recovered all 60 original records and reduced the
+Portuguese hard tail to 46 unique blocks. The first 16 of that current tail
+were reviewed against the 6,357-record corpus and preserved separately:
+
+| Fresh-tail records | File | SHA-256 |
+|---:|---|---|
+| 0–15 | `2026-08-12-tail-current-000-015.json` | `a09ae523ee90de832c8bf10cfb5640f80a3efe1766ab1cf493fc09e88208431b` |
+
+All 16 pass the same source-hash, syntax, canonical, and contextual gates.
+They are evidence inputs only until another fresh strict generator run stamps
+accepted values into the generated catalog.
+
+The old-v2 indices 60–122 are historical only. The fresh strict audit is now
+authoritative: after the 16 records above, 30 current Portuguese blocks remain
+to review before the next fail-closed generator run.
