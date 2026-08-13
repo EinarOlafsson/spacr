@@ -194,3 +194,100 @@ def test_the_wrapped_move_still_reaches_matplotlib(canvas):
     canvas._apply_spin_speed(axes)
     axes._on_move(_Move(101, 99))
     assert len(axes.seen) == 1
+
+
+# ---------------------------------------------------------------------------
+# voxel_bins -- the last of the three
+# ---------------------------------------------------------------------------
+
+class _Scatter3D:
+    """Records what would have been drawn."""
+
+    def __init__(self):
+        self.calls = []
+
+    def scatter(self, x, y, z, **kw):
+        self.calls.append((np.asarray(x), kw))
+
+
+def _cloud(n):
+    rng = np.random.default_rng(0)
+    return (rng.normal(0, 1, n), rng.normal(0, 1, n), rng.normal(0, 1, n))
+
+
+def test_a_small_cloud_is_still_drawn_as_points(canvas):
+    """Below the threshold the dots ARE the better picture: an individual
+    object can be seen and clicked."""
+    canvas.apply_settings(GateEditorSettings(voxel_bins=16))
+    axes = _Scatter3D()
+    assert canvas._draw_voxels(axes, *_cloud(100)) is False
+    assert not axes.calls
+
+
+def test_a_large_cloud_is_drawn_as_voxels(canvas):
+    canvas.apply_settings(GateEditorSettings(voxel_bins=8))
+    axes = _Scatter3D()
+    assert canvas._draw_voxels(axes, *_cloud(canvas.VOXEL_THRESHOLD + 1)) is True
+    assert axes.calls
+
+
+def test_only_occupied_voxels_are_drawn(canvas):
+    """A voxel is drawn where objects ARE. An 8^3 grid over a normal cloud
+    is mostly empty, and drawing the empties would be drawing nothing."""
+    canvas.apply_settings(GateEditorSettings(voxel_bins=8))
+    axes = _Scatter3D()
+    canvas._draw_voxels(axes, *_cloud(canvas.VOXEL_THRESHOLD + 1))
+    drawn = len(axes.calls[0][0])
+    assert 0 < drawn < 8 ** 3
+
+
+def test_the_count_drives_area_and_not_radius(canvas):
+    """A marker whose radius was the count would exaggerate a busy voxel by
+    its square."""
+    canvas.apply_settings(GateEditorSettings(voxel_bins=4))
+    axes = _Scatter3D()
+    canvas._draw_voxels(axes, *_cloud(canvas.VOXEL_THRESHOLD + 1))
+    sizes = axes.calls[0][1]["s"]
+    colours = axes.calls[0][1]["c"]
+    # s is linear in the count, which for a scatter is an AREA.
+    assert np.corrcoef(sizes, colours)[0, 1] > 0.999
+
+
+def test_bins_below_two_is_not_a_voxel_grid(canvas):
+    canvas.apply_settings(GateEditorSettings(voxel_bins=1))
+    axes = _Scatter3D()
+    assert canvas._draw_voxels(axes, *_cloud(canvas.VOXEL_THRESHOLD + 1)) is False
+
+
+def test_more_bins_means_more_voxels(canvas):
+    cloud = _cloud(canvas.VOXEL_THRESHOLD + 1)
+    drawn = []
+    for bins in (4, 16):
+        canvas.apply_settings(GateEditorSettings(voxel_bins=bins))
+        axes = _Scatter3D()
+        canvas._draw_voxels(axes, *cloud)
+        drawn.append(len(axes.calls[0][0]))
+    assert drawn[1] > drawn[0]
+
+
+def test_binning_that_fails_falls_back_to_points(canvas):
+    canvas.apply_settings(GateEditorSettings(voxel_bins=8))
+    axes = _Scatter3D()
+    assert canvas._draw_voxels(axes, np.array([]), np.array([]),
+                               np.array([])) is False
+
+
+def test_every_settings_field_is_read_by_something():
+    """Instruction 52 set this bar itself: GateEditorSettings should end with
+    zero fields that nothing reads."""
+    import inspect
+
+    from spacr.qt import widgets
+    from spacr.qt.widgets import gate_editor, gate_settings
+    from spacr.qt.screens import gate_editor as screen
+
+    source = "\n".join(inspect.getsource(m)
+                       for m in (gate_editor, gate_settings, screen))
+    for field in ("voxel_bins", "snap_to_axis", "spin_speed"):
+        # Declared once, controlled once -- and read at least once more.
+        assert source.count(field) >= 3, field
