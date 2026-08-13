@@ -1,0 +1,79 @@
+================================================================================
+THE INTENSITY RESCALE FACTOR IS PER FIELD, AND NOTHING RECORDS IT
+================================================================================
+
+Status:    not started, 2026-08-13. FOUND while answering the dtype question
+           of instruction 91.
+Requested: 2026-08-13 - "the dtype matter for more than training it matters
+           for measurements as well."
+
+--------------------------------------------------------------------------------
+THE DEFECT
+--------------------------------------------------------------------------------
+
+`measure._promote_merged_to_uint16` brings a merged stack that is neither
+uint8 nor uint16 into the measure pipeline's working dtype. It is careful
+work -- it rescales rather than truncating, and it uses ONE factor across all
+intensity planes so the ratio between channels is untouched. The docstring
+records the bug it was written to fix: `astype(np.uint16)` on a float32 stack
+on [0, 1] truncated every pixel to 0 and measured a whole field as black.
+
+BUT THE FACTOR IS CHOSEN FROM THE FIELD'S OWN MAXIMUM:
+
+    if float and top <= 1.0:   factor = 65535.0          <- fixed, comparable
+    elif top > 65535.0:        factor = 65535.0 / top    <- PER FIELD
+
+and `_measure_crop_core` runs once per file. So when a stack's intensities
+run past the 16-bit ceiling, a BRIGHT field is divided by more than a DIM
+one, and `mean_intensity` for the same biological object comes out different
+in the two. Every intensity feature, every recruitment ratio computed from
+them, and every per-well aggregate is then comparing numbers that are not on
+the same scale.
+
+AND NOTHING SAYS SO. The factor is printed only when `verbose` is on, and it
+is never written to the database. A user reading measurements.db has no way
+to learn that the intensities in it were scaled per field, let alone by what.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS, AND HOW OFTEN
+--------------------------------------------------------------------------------
+
+The float-on-[0, 1] case -- which is what `io._normalize_img_batch` writes --
+uses a FIXED 65535 and is comparable across fields. That is the common path
+and it is fine.
+
+The dangerous path is a merged stack whose values exceed 65535: raw float
+data that was never normalised, a converted 32-bit acquisition, or anything
+summed before merging. It is not the common case, which is exactly why it
+would go unnoticed: the run completes, the numbers look plausible, and the
+comparison between wells is quietly wrong.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+  1. RECORD THE FACTOR PER FIELD, in the database, beside the measurements it
+     scaled. That is the minimum: a number nobody can see cannot be corrected
+     for.
+  2. WARN UNCONDITIONALLY, not only under `verbose`, when the factor is not
+     1.0 and not the fixed 65535. A per-field rescale is a statement about
+     comparability and belongs in the run's output whatever the log level.
+  3. PREFER A PLATE-WIDE FACTOR. One maximum taken across the plate makes
+     every field comparable again, at the cost of one pass over the merged
+     arrays before measuring -- which is a read of the headers plus a max, not
+     a second measure. The per-field factor should be the fallback for the
+     case where that pass cannot be made.
+  4. Consider REFUSING instead. A stack whose intensities exceed the 16-bit
+     ceiling is arguably a conversion problem upstream, and silently
+     compressing it is the kind of accommodation that hides the real fault.
+     At minimum the pre-flight (`validate.describe_resources` already reads
+     one array's dtype) should say so before the run rather than after.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Two fields of the same plate with different maxima produce intensities on the
+same scale, or the database records the scale each was measured on; a run that
+rescales says so whatever the log level; and a user comparing two wells can
+tell from the artifact alone whether the comparison is valid.

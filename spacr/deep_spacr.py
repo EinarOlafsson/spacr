@@ -234,13 +234,19 @@ def apply_model_to_tar(settings=None):
         # now, and the model card records the answer.
         from .normalization import describe_normalization, normalization_stats
         mode = settings.get('input_statistics', 'symmetric')
-        stats = normalization_stats(mode)
+        stats = normalization_stats(
+            mode, mean=settings.get('input_mean'),
+            std=settings.get('input_std'),
+            channels=len(settings.get('channels') or (0, 1, 2)))
         steps = [transforms.ToTensor(),
                  transforms.CenterCrop(size=(settings['image_size'],
                                              settings['image_size']))]
         if stats is not None:
             steps.append(transforms.Normalize(mean=stats[0], std=stats[1]))
-        print(describe_normalization(mode))
+        print(describe_normalization(
+            mode, mean=settings.get('input_mean'),
+            std=settings.get('input_std'),
+            channels=len(settings.get('channels') or (0, 1, 2))))
         transform = transforms.Compose(steps)
     else:
         transform = transforms.Compose([
@@ -2888,7 +2894,10 @@ def generate_activation_map(settings):
         # statistics is `input_statistics`, so an existing settings file
         # keeps its meaning exactly.
         from .normalization import normalization_stats
-        stats = normalization_stats(settings.get('input_statistics', 'symmetric'))
+        stats = normalization_stats(
+            settings.get('input_statistics', 'symmetric'),
+            mean=settings.get('input_mean'), std=settings.get('input_std'),
+            channels=len(settings.get('channels') or (0, 1, 2)))
         if stats is not None:
             transform_steps.append(
                 transforms.Normalize(mean=stats[0], std=stats[1]))
