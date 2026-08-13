@@ -4894,21 +4894,34 @@ def repair_api_translations(
             api_cache = {}
         for source in pending_sources:
             contextual_source = _api_translation_source(source)
-            candidate = _contextualize(
-                str(api_cache.get(
-                    f"{API_BLOCK_CACHE_NAMESPACE}\0{contextual_source}", "",
-                )),
-                language,
-                source,
-            )
-            if (
-                _api_block_valid(contextual_source, candidate, language)
-                and _api_block_valid(source, candidate, language)
-            ):
-                generated[source] = candidate
-                recovered_cache += 1
-            else:
+            candidate = ""
+            # Before API contexts were namespaced, the shared decoder stored
+            # accepted output under its model input itself. Reuse that exact
+            # key only when the current contextual model input is unchanged;
+            # a dual-valid value from a different prompt is still not honest
+            # provenance for ``translation_source_blocks_sha256``.
+            raw_candidates = [api_cache.get(
+                f"{API_BLOCK_CACHE_NAMESPACE}\0{contextual_source}", "",
+            )]
+            if source == contextual_source:
+                raw_candidates.append(api_cache.get(source, ""))
+            for raw_candidate in raw_candidates:
+                reviewed_candidate = _contextualize(
+                    str(raw_candidate), language, source,
+                )
+                if (
+                    _api_block_valid(
+                        contextual_source, reviewed_candidate, language,
+                    )
+                    and _api_block_valid(source, reviewed_candidate, language)
+                ):
+                    candidate = reviewed_candidate
+                    break
+            if not candidate:
                 translation_input[source] = contextual_source
+                continue
+            generated[source] = candidate
+            recovered_cache += 1
         for source, contextual_source in translation_input.items():
             if not _syntax_preserved(source, contextual_source):
                 raise ValueError(
@@ -5243,8 +5256,16 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                             )
                 if _looks_degenerate(source, translated_text, language):
                     failures.append(f"{language}/{key}: degenerate translation")
+                # Compare whole-document literals in the canonical parser
+                # layout. Wrapped simple-table prose can be one short quoted
+                # fragment in the raw docstring and several complete quoted
+                # cells after rebuilding. Every prose block already passed
+                # the strict literal gate above; canonical layout prevents the
+                # document check from mistaking those translations for newly
+                # invented source literals.
                 syntax_contract(
-                    source, translated_text,
+                    rebuild_document(_source_layout, source_blocks),
+                    translated_text,
                     f"{language}/{key}",
                 )
         if block_layout_errors:
