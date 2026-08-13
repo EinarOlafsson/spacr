@@ -958,11 +958,21 @@ def test_the_cellpose_mock_contract_accepts_what_spacr_actually_passes():
     stack = np.zeros((16, 16, 2), dtype=np.uint16)
     converted = check_cellpose_eval_call([stack, stack], -1)
     assert len(converted) == 2
-    # Cellpose pads to 3 channels; the spatial dims are untouched.
-    assert converted[0].shape == (16, 16, 3)
+
+    # THE AXIS BEING ACCEPTED IS THE POINT, not the channel count that comes
+    # back. Cellpose 4.0 padded every input to three planes and 4.2 keeps the
+    # native count -- (16,16,2) stays two -- so `== (16, 16, 3)` here was an
+    # assertion about a padding detail that spaCR never depended on, and it
+    # failed on 4.2 while nothing was wrong. Same correction as
+    # tests/test_cellpose_channel_axis_contract.py; the reasoning is written
+    # out there.
+    assert converted[0].shape[:2] == (16, 16), "the geometry must survive"
+    assert 1 <= converted[0].shape[2] <= 3
 
     grey = np.zeros((16, 16), dtype=np.uint16)
-    assert check_cellpose_eval_call(grey, None)[0].shape == (16, 16, 3)
+    got = check_cellpose_eval_call(grey, None)[0]
+    assert got.shape[:2] == (16, 16)
+    assert 1 <= got.shape[2] <= 3
 
 
 def test_the_cellpose_mock_contract_notices_a_missing_channel_axis():

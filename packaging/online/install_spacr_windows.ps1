@@ -5,7 +5,7 @@
 
 [CmdletBinding()]
 param(
-    [string]$InstallRoot = (Join-Path $env:LOCALAPPDATA "SpaCR"),
+    [string]$InstallRoot = (Join-Path $env:LOCALAPPDATA "spaCR"),
     [string]$Version = "",
     [string]$PackageSpec = "",
     [string]$TorchBackend = "",

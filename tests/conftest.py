@@ -118,7 +118,7 @@ _install_gui_stubs()
 # `~/.config/spacr/qt.conf`, and the `.clear()` those fixtures follow it with
 # DELETES THE USER'S PREFERENCES — 53 times in one full run. The same hole let
 # `spacr.qt.prefs` write pytest tmp paths into the real
-# `~/.config/Olafsson Lab/SpaCR.conf`, where a later test could read them back:
+# `~/.config/Olafsson Lab/spaCR.conf`, where a later test could read them back:
 # cross-test pollution AND collateral damage from one bug.
 #
 # The fix is to redirect every (format, scope) pair, including NativeFormat,
@@ -196,7 +196,7 @@ def _qsettings_probe_paths() -> list:
     settings = _qsettings_module()
     if settings is None:
         return []
-    pairs = (("spacr", "qt"), ("Olafsson Lab", "SpaCR"))
+    pairs = (("spacr", "qt"), ("Olafsson Lab", "spaCR"))
     out = []
     for org, app in pairs:
         try:

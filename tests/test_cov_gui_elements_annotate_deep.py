@@ -1,6 +1,6 @@
 """Coverage for ``AnnotateApp.open_deep_spacr_window`` (spacr/gui_elements.py).
 
-The Deep-SPACR window is a Tk ``Toplevel`` full of form widgets whose "Run"
+The Deep-spaCR window is a Tk ``Toplevel`` full of form widgets whose "Run"
 button assembles a settings dict and hands it to ``spacr.deep_spacr.deep_spacr``
 on a daemon thread. These tests
 
@@ -188,13 +188,13 @@ def _form(container):
 
 
 class DeepWindow:
-    """Structural facade over the Deep-SPACR window's widget tree."""
+    """Structural facade over the Deep-spaCR window's widget tree."""
 
     def __init__(self, root):
         tops = [w for w in root.winfo_children()
                 if w.winfo_class() == "Toplevel"
-                and str(w.title()).startswith("Deep SPACR")]
-        assert len(tops) == 1, f"expected 1 Deep SPACR window, got {len(tops)}"
+                and str(w.title()).startswith("Deep spaCR")]
+        assert len(tops) == 1, f"expected 1 Deep spaCR window, got {len(tops)}"
         self.win = tops[0]
         self.notebook = _by_class(self.win, "TNotebook")[0]
         paned = _by_class(self.win, "Panedwindow")[0]
@@ -265,7 +265,7 @@ def _wait_for_worker(app, timeout=15.0):
 
 def test_window_builds_three_tabs_and_action_buttons(deep_app):
     dw = _open(deep_app)
-    assert dw.win.title() == "Deep SPACR — Train"
+    assert dw.win.title() == "Deep spaCR — Train"
     assert dw.tab_texts() == ["Generate training dataset", "Train", "Apply model"]
     # Run/Cancel live on the window, not inside the notebook.
     assert dw.button("Run").winfo_exists()
@@ -407,7 +407,7 @@ def test_run_annotation_mode_multi_selection_builds_class_column(
 
     dw.run()
     assert dw.win.winfo_exists() == 0, "Run must close the window"
-    assert _wait_for_worker(deep_app) == ["Deep SPACR: preparing…", "Deep SPACR: done."]
+    assert _wait_for_worker(deep_app) == ["Deep spaCR: preparing…", "Deep spaCR: done."]
 
     assert deep_app.ensure_calls == [(["test", "annotate"], "class_column", True)]
     (settings,) = fake_deep_spacr["calls"]
@@ -618,8 +618,8 @@ def test_run_reports_worker_exception_through_gui_text(deep_app, fake_deep_spacr
     dw.run()
     texts = _wait_for_worker(deep_app)
 
-    assert texts[0] == "Deep SPACR: preparing…"
-    assert texts[1] == "Deep SPACR error: no CUDA for you"
+    assert texts[0] == "Deep spaCR: preparing…"
+    assert texts[1] == "Deep spaCR error: no CUDA for you"
     assert len(fake_deep_spacr["calls"]) == 1
 
 

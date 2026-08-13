@@ -304,3 +304,63 @@ test_cellpose_channel_axis_contract (3), test_cov_io_tail,
 test_cov_plot_compare_viz, test_feature_dict, test_hits. All pass here on the
 installed cellpose 4.x. They need a run in the CI environment to see, which
 means the next matrix run is the measurement -- not more local work.
+
+--------------------------------------------------------------------------------
+2026-08-12 - THE "NOT REPRODUCIBLE LOCALLY" ONES WERE REPRODUCIBLE ALL ALONG
+--------------------------------------------------------------------------------
+
+The note above said these needed a CI run to see, "not more local work". That
+was wrong, and the reason is worth keeping: THIS MACHINE HAS THE CI CELLS
+ALREADY. `conda env list` shows `spacr12`, `spacr13` and `spacr14`, and
+`spacr12` carries exactly the "Fast / Newest compatible" stack --
+
+    Python 3.12.13   numpy 2.4.6   scipy 1.18.0   scikit-learn 1.9.0
+    scikit-image 0.26.0   pandas 2.3.3   tifffile 2026.7.14   cellpose 4.2.1.1
+
+-- while the default `spacr` env is Python 3.10 with scikit-learn 1.7.2. Every
+failure that "did not reproduce" reproduced there in ten seconds. A second
+interpreter was the missing instrument, not a 40-minute matrix run.
+
+FIVE OF THE SIX FIXED, and only one was a stale test:
+
+  * test_seg_qc_banner -- A REAL PRODUCT BUG ON PYTHON >= 3.12. `read_scorecard`
+    detected a corrupted scorecard by letting CPython's csv module raise
+    `_csv.Error: line contains NUL`. 3.12 STOPPED RAISING and parses the NUL
+    into a FIELD NAME instead. The module's own NUL check looked only at
+    `row.values()`, so a NUL in the header became a key it could not see:
+    every real column went missing, every field took its default, `severity`
+    fell back to "ok", and a damaged card came back as a clean verdict -- the
+    exact invented verdict the function's docstring promises to refuse. Now
+    checks the HEADER for NUL and requires `field` and `n_objects` to be
+    present, so the detection no longer depends on an interpreter raising.
+
+  * test_outlier_model (3) -- pinned numbers from a randomised estimator.
+    scikit-learn 1.9 changed MinCovDet's subsampling, so the same planted
+    outliers score 76-214 instead of 84-214 and the same clean 2,000 points
+    flag 2 instead of 4. THE DETECTOR IS FINE: every planted point is still
+    flagged, still five times the threshold past it, and 2/2000 is 0.001 --
+    exactly the nominal false-positive rate this test claims to check, so the
+    newer estimator is CLOSER to the contract and the equality failed on the
+    improvement. Now asserts the margins and bounds instead of the digits.
+
+  * test_settings_full_coverage -- the test's own PREMISE expired. It asserted
+    `inspect.signature(print)` raises, and CPython 3.12 gave `print` a
+    signature, so the uninspectable-callable fallback was never reached. It
+    now DISCOVERS an uninspectable builtin at runtime and skips if the
+    interpreter has none, which is the only version of this test that cannot
+    break the same way again.
+
+  * test_test_suite_hygiene -- the cellpose 4.2 padding change, same stale
+    assumption already corrected in test_cellpose_channel_axis_contract.
+
+STILL NOT REPRODUCED: test_cov_io_tail::test_convert_numpy_to_tiff_honours_limit
+passes on 3.10, 3.12 AND 3.14 with the newest stack. Not a version difference,
+so the remaining hypothesis is test ORDER -- CI runs the whole suite with
+pytest-randomly and these runs use `-p no:randomly`. `pytest-randomly` is not
+installed in the 3.12 env, so confirming it needs either that plugin there or
+the CI run itself.
+
+THE GENERAL LESSON, which applies past this instruction: "does not reproduce
+locally" is a statement about the environment that was used, not about the
+failure. Before concluding a failure needs CI, check whether the machine can
+be made to look like CI -- here it already did.
