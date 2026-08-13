@@ -135,7 +135,7 @@ def convert_settings_dict_for_gui(settings):
         'class_balance': ('combo', ['none', 'weighted_sampler', 'sqrt_weighted_sampler', 'weighted_loss'], 'none'),
         'cv_group_by': ('combo', ['well', 'field', 'plate', 'none'], 'well'),
         # spacr.seg_qc.MODES
-        'seg_qc': ('combo', ['off', 'report', 'flag'], 'report'),
+        'seg_qc': ('combo', ['off', 'report', 'flag', 'stop'], 'report'),
         # Three states, not two: None defers to SPACR_STRICT_ERRORS so a
         # cluster can turn it on for a batch without editing every file.
         'strict_errors': ('combo', [None, True, False], None),
