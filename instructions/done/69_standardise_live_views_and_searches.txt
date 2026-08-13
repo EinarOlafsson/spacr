@@ -86,3 +86,39 @@ DELIBERATELY NOT DONE
 Not started. This is a refactor across five widgets and one shared panel,
 and it should NOT be attempted while the individual defects are open --
 standardising on a broken example is how a single bug becomes five.
+
+--------------------------------------------------------------------------------
+2026-08-13 - DONE. THE FILE'S "not started" WAS WRONG, AND THIS IS THE SEVENTH
+--------------------------------------------------------------------------------
+
+Every one of the five steps is shipped, in `spacr/qt/widgets/preview_contract.py`:
+
+  1. INVENTORY FIRST -- the table is the module docstring, one column per live
+     view, eleven rows.
+  2. FIX THE DEFECTS FIRST -- 35, 51 and 67 are all in instructions/done/.
+  3. EXTRACT WHAT IS SHARED -- `LivePreviewContract` owns the run guard, the
+     cancellation token, the busy/idle button state and the status line;
+     `preview_cellpose_model` is the one constructor, so the next Cellpose API
+     change is one fix rather than the two it was last time.
+  4. STANDARDISE THE VOCABULARY -- "live view" is defined; the Image UMAP
+     explorer's toggle says INTERACTIVE because nothing it draws depends on a
+     setting; Cancel and Stop are two words on purpose, because a user who
+     presses one expecting the other loses either nothing or hours.
+  5. BETTER, NOT MERELY UNIFORM -- every view says why it cannot preview
+     (Measure used to return in silence), and the search reports trials SCORED
+     rather than trials started.
+
+Three of the unified rows were bugs, not taste: Measure's silent refusal,
+Timelapse and Motility wiring `QThread.finished` to `deleteLater` while
+dropping their own reference -- the race `bridge.make_thread` documents, which
+leaves a running thread owned by nobody -- and Measure never announcing its
+result at all.
+
+THE SEAM PAID FOR ITSELF THE SAME DAY. Instruction 89 needed the colourblind
+display transform on every viewer, and asked for it "behind 69's seam". It
+went into `LivePreviewContract.display_primaries` and
+`set_preview_status`, so all four panels state their mapping without any of
+them containing the code that does it.
+
+This file said "not started". It was the seventh instruction this week to be
+wrong about its own state, which is now the top section of HANDOFF.md.

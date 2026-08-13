@@ -44,7 +44,7 @@ import os
 import random
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -389,7 +389,45 @@ def _random_outline_palette(
 _AUTO_COLOUR_RNG = random.Random()
 
 
-def random_outline_colour(rng: Optional[random.Random] = None
+def safe_outline_palette() -> Optional[List[Tuple[int, int, int]]]:
+    """Colours ``auto`` may draw from, or ``None`` when any colour will do.
+
+    A random hue is right for a sighted user and exactly wrong for a
+    colour-blind one: uniform over the circle, it will sooner or later hand
+    two adjacent compartments a pair that user cannot tell apart, and the
+    outlines are the one thing on the screen whose whole job is to be told
+    apart. When a colour-vision mode is set, ``auto`` draws from the
+    Okabe-Ito set instead -- eight colours chosen to stay distinct under all
+    three deficiencies.
+
+    :returns: RGB triples, or ``None`` when the preference is ``off``.
+    """
+    try:
+        from ..preferences import (color_blind_categorical_palette,
+                                   get_color_blind_mode)
+        if get_color_blind_mode() == "off":
+            return None
+        hexes = color_blind_categorical_palette()
+    except Exception:
+        # No QSettings, no Qt, or a preferences module that moved: a random
+        # colour is the historic behaviour and is never worse than crashing
+        # the renderer over a palette.
+        return None
+    out: List[Tuple[int, int, int]] = []
+    for value in hexes:
+        text = str(value).lstrip("#")
+        if len(text) != 6:
+            continue
+        try:
+            out.append((int(text[0:2], 16), int(text[2:4], 16),
+                        int(text[4:6], 16)))
+        except ValueError:
+            continue
+    return out or None
+
+
+def random_outline_colour(rng: Optional[random.Random] = None,
+                          palette: Optional[Sequence[Tuple[int, int, int]]] = None
                           ) -> Tuple[int, int, int]:
     """Return one vivid random RGB triple for the ``auto`` outline mode.
 
@@ -398,9 +436,13 @@ def random_outline_colour(rng: Optional[random.Random] = None
     RGB would regularly produce muddy near-grey outlines nobody can see.
 
     :param rng: optional generator, for reproducible tests.
+    :param palette: draw from these instead of the hue circle. This is how
+        :func:`safe_outline_palette` reaches the ``auto`` mode.
     :returns: ``(r, g, b)`` in 0..255.
     """
     source = rng if rng is not None else _AUTO_COLOUR_RNG
+    if palette:
+        return tuple(source.choice(list(palette)))
     hue = source.random()
     saturation = 0.70 + 0.30 * source.random()
     value = 0.85 + 0.15 * source.random()
@@ -418,7 +460,8 @@ def overlay_masks(image: np.ndarray,
                     hi_pct: float = 98.0,
                     random_outline: bool = False,
                     outline_colors: Optional[
-                        Dict[str, Tuple[int, int, int]]] = None) -> np.ndarray:
+                        Dict[str, Tuple[int, int, int]]] = None,
+                    primaries: str = "rgb") -> np.ndarray:
     """Return an RGB uint8 view of ``image`` with every mask's boundary
     drawn in the object's colour (or ``outline_rgb`` when supplied).
 
@@ -438,6 +481,15 @@ def overlay_masks(image: np.ndarray,
         mode reaches the renderer: it holds one random colour per
         compartment for the current run. Falls back to
         :data:`OBJECT_COLORS` for anything it does not name.
+    :param primaries: one of :data:`spacr.crops.DISPLAY_PRIMARIES`. Applied
+        to the IMAGE ONLY, before a single outline is drawn.
+
+    WHY THE ORDER MATTERS, and it is the whole reason this parameter is here
+    rather than in :func:`numpy_to_qpixmap`. The primaries are a
+    channel-to-colour mapping and only channels belong in it. An outline is
+    not a channel -- it is a colour the user chose, or a categorical label
+    -- so putting it through the same matrix would answer a request for a
+    red outline with a yellow one. Recolour the image, then draw on top.
     """
     base = _to_uint8(image, normalise=normalise,
                         lo_pct=lo_pct, hi_pct=hi_pct)
@@ -445,6 +497,9 @@ def overlay_masks(image: np.ndarray,
         rgb = np.stack([base, base, base], axis=-1)
     else:
         rgb = base[..., :3].copy()
+    if str(primaries or "rgb").lower() != "rgb":
+        from ...crops import apply_display_primaries
+        rgb = np.ascontiguousarray(apply_display_primaries(rgb, primaries))
     outline_thickness = max(1, min(5, int(outline_thickness)))
     for obj_type, mask in masks.items():
         if mask is None:
@@ -2467,7 +2522,21 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         every cell preview green no matter what — the setting looked stuck.
         It now means a random colour, re-rolled once per preview run so the
         outline stays put while the user tunes thickness or normalisation.
+
+        UNDER A COLOUR-VISION MODE the colours are DEALT, not drawn: one
+        compartment per palette entry, without replacement. Drawing
+        independently from a safe palette is not enough -- eight safe
+        colours still collide by chance, and two compartments sharing one is
+        the exact failure the safe palette exists to prevent.
         """
+        palette = safe_outline_palette()
+        if palette:
+            order = list(palette)
+            _AUTO_COLOUR_RNG.shuffle(order)
+            self._auto_outline_colours = {
+                comp: order[i % len(order)]
+                for i, comp in enumerate(COMPARTMENTS)}
+            return
         self._auto_outline_colours = {
             comp: random_outline_colour() for comp in COMPARTMENTS}
 
@@ -2475,7 +2544,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """The current random ``auto`` colour for one compartment."""
         colour = self._auto_outline_colours.get(obj_type)
         if colour is None:
-            colour = random_outline_colour()
+            colour = random_outline_colour(palette=safe_outline_palette())
             self._auto_outline_colours[obj_type] = colour
         return colour
 
@@ -2521,7 +2590,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 random_outline=(
                     self._outline_colour.currentText() == "color (random)"
                 ),
-                outline_colors=self._auto_outline_map())
+                outline_colors=self._auto_outline_map(),
+                primaries=self.display_primaries())
             self._mask_view.set_pixmap(numpy_to_qpixmap(overlay))
         else:
             self._mask_view.set_pixmap(src_pix)
@@ -2781,7 +2851,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 random_outline=(
                     self._outline_colour.currentText() == "color (random)"
                 ),
-                outline_colors=self._auto_outline_map())
+                outline_colors=self._auto_outline_map(),
+                primaries=self.display_primaries())
             self._mask_view.set_pixmap(numpy_to_qpixmap(overlay))
         else:
             self._mask_view.set_pixmap(src_pix)

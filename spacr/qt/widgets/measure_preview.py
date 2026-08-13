@@ -1217,6 +1217,14 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
     def _crop_pixmap(self, crop: np.ndarray) -> QPixmap:
         array = np.ascontiguousarray(crop.astype(np.uint8))
+        primaries = self.display_primaries()
+        if primaries != "rgb" and array.ndim == 3 and array.shape[2] >= 3:
+            # A DISPLAY transform and nothing else. `crop` is the array the
+            # pipeline would write and it is not touched -- only this thumb
+            # is recoloured, and set_preview_status names the mapping.
+            from ...crops import apply_display_primaries
+            array = np.ascontiguousarray(
+                apply_display_primaries(array, primaries))
         height, width = array.shape[:2]
         image = QImage(
             array.data, width, height, 3 * width, QImage.Format_RGB888)

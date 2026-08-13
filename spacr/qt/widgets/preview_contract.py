@@ -95,9 +95,24 @@ __all__ = [
     "PREVIEW_CANCELLED_MESSAGE",
     "PREVIEW_RUNNING_MESSAGE",
     "LivePreviewContract",
+    "PRIMARY_NOTES",
     "preview_cellpose_model",
     "preview_failure_message",
 ]
+
+#: What each non-RGB display mode does to the channels, in one sentence.
+#:
+#: Shown on the panel whenever a mode is active. An image recoloured in
+#: silence is one a reader takes for the raw colours -- and, if they export
+#: it, publishes as them. Stating the mapping costs a clause; not stating it
+#: costs a figure legend that is wrong.
+PRIMARY_NOTES = {
+    "cmy": "Channels drawn as cyan / magenta / yellow (publication style, "
+           "not a colour-blind mode).",
+    "deuteranope": "Red channel drawn as yellow, for deuteranopia.",
+    "protanope": "Red channel drawn as yellow, for protanopia.",
+    "tritanope": "Blue channel drawn as magenta, for tritanopia.",
+}
 
 #: The primary action on every live view. One noun for one thing.
 PREVIEW_RUN_TEXT = "Run preview"
@@ -220,11 +235,51 @@ class LivePreviewContract:
         label = getattr(self, "_status", None)
         return "" if label is None else str(label.text())
 
+    def display_primaries(self) -> str:
+        """Which primaries this view draws channels in.
+
+        Read from the GLOBAL preference, never from a control on one panel.
+        A user who needs the substitution needs it in every view and every
+        session; a per-screen toggle is one they have to re-find, and the
+        screen they forget to set is the one that misleads them.
+
+        A view MAY override this -- a figure being prepared for publication
+        wants ``cmy`` whatever the author's vision -- but every view starts
+        here.
+
+        :returns: one of :data:`spacr.crops.DISPLAY_PRIMARIES`.
+        """
+        try:
+            from ..preferences import image_display_primaries
+            return image_display_primaries()
+        except Exception:
+            # No QSettings, no Qt: the untransformed image is the honest
+            # answer, and never worse than failing to draw one.
+            return "rgb"
+
+    def display_primaries_note(self) -> str:
+        """One sentence naming the mapping, or ``""`` for plain RGB."""
+        mode = self.display_primaries()
+        if mode == "rgb":
+            return ""
+        return PRIMARY_NOTES.get(mode, f"Channels drawn in {mode} primaries.")
+
     def set_preview_status(self, text: Any) -> None:
-        """Put one sentence on the panel's status line."""
+        """Put one sentence on the panel's status line.
+
+        The display-primaries note is appended here rather than at each
+        call site, so no panel and no code path can recolour an image
+        without saying so. When the preference is off -- which it is for
+        almost everybody -- this changes nothing at all.
+        """
         label = getattr(self, "_status", None)
-        if label is not None:
-            label.setText(str(text))
+        if label is None:
+            return
+        sentence = str(text)
+        note = self.display_primaries_note()
+        if note and note not in sentence:
+            sentence = f"{sentence}  ·  {note}" if sentence else note
+        label.setText(sentence)
 
     def preview_token(self) -> int:
         """The generation of the pass now current."""

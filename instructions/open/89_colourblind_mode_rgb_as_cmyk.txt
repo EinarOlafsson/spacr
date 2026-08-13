@@ -189,3 +189,72 @@ input array.
 STILL TO DO, unchanged: the global preference (per-call today), the same
 transform on the other viewers via instruction 69's seam, the on-screen
 statement of the mapping in exported figures, and the safe outline colours.
+
+--------------------------------------------------------------------------------
+2026-08-13 (later still) - THE GLOBAL HALF. THE PREFERENCE ALREADY EXISTED AND
+                           NOTHING READ IT
+--------------------------------------------------------------------------------
+
+The four items left above are done. The finding worth recording is that the
+GLOBAL PREFERENCE this file asked for was already built:
+
+    preferences.get_color_blind_mode()          off | deuteranopia |
+                                                protanopia | tritanopia
+    preferences.color_blind_categorical_palette()   Okabe-Ito, safe under all
+                                                    three
+
+and outside preferences.py the mode had exactly ONE reader -- the plate-view
+heatmap colour map -- and the categorical palette had NONE. A whole
+accessibility preference a user could set and then watch do nothing to any
+image on the screen.
+
+TWO VOCABULARIES, KEPT ON PURPOSE. The preference names a CONDITION, because
+that is what a user knows about themselves and picks in Preferences: "I have
+deuteranopia". `crops.DISPLAY_PRIMARIES` names a RENDERING: "draw this for a
+deuteranope". They are one fact seen from its two ends. Renaming either would
+break stored settings for nothing, so `_CB_MODE_TO_PRIMARIES` writes the
+bridge down once instead of it being guessed at each call site.
+
+`cmy` is deliberately unreachable from that map. It is the publishing
+convention and measured WORSE than plain RGB under deuteranope simulation, so
+it must be something somebody chooses, never a consequence of their vision.
+
+WHERE IT NOW REACHES: the mask overlay (`overlay_masks(primaries=...)`), the
+Measure crop grid (`_crop_pixmap`), and Annotate, whose combo now STARTS from
+the preference instead of hard "rgb" -- a user who told spaCR once should not
+tell it again per screen. Picking a mode in Annotate still overrides it, which
+is what a figure being prepared for publication needs.
+
+THE ORDER INSIDE overlay_masks IS THE POINT, and is why the parameter is
+there rather than on `numpy_to_qpixmap`. Primaries are a channel-to-colour
+mapping and ONLY CHANNELS BELONG IN IT. An outline is not a channel -- it is a
+colour the user chose -- so running it through the same matrix would answer a
+request for a red outline with a yellow one. Recolour the image, then draw on
+top.
+
+SAFE OUTLINE COLOURS, the item this file flagged as worth doing at the same
+time. `auto` drew a uniform random hue, which is right for a sighted user and
+exactly wrong here. It now draws from the Okabe-Ito set -- and DEALS it,
+without replacement, one compartment per entry. Drawing independently from a
+safe palette is not enough: eight safe colours still collide by chance, and
+two compartments sharing one is the precise failure the palette exists to
+prevent.
+
+SAYING SO ON SCREEN is in `LivePreviewContract.set_preview_status`, not at
+each call site, so no panel and no code path can recolour an image without
+saying which mapping it used. When the preference is off -- which it is for
+almost everybody -- nothing changes at all.
+
+Every fallback is "draw the untransformed image", never "fail to draw": no
+QSettings, no Qt, a preferences module that raises, a malformed palette entry
+and a palette with nothing usable in it are each tested and each land on plain
+RGB.
+
+20 tests in tests/qt/test_display_primaries_global.py; 209 pass across mask
+outline colour, crop preview colours, the preview contract, live preview,
+measure preview and annotate.
+
+STILL OPEN: exported FIGURES do not carry the mapping yet -- a PDF in
+substituted colours has no way to tell its reader the mapping is not the usual
+one. That is the figure pipeline rather than a viewer, and it is the last
+piece of this instruction.
