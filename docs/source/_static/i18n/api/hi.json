@@ -694,7 +694,7 @@
     },
     "spacr.attribution.ClassScoreModel.forward": {
       "source_sha256": "3ec240972e2266cedb4757c6b3a4ca18a1a44a4b7dee47423ca297a10106b821",
-      "text": "Return ``(B, n_classes)`` scores for ``x``."
+      "text": "``x`` के लिए ``(B, n_classes)`` स्कोर लौटाएँ।"
     },
     "spacr.attribution.ClassScoreModel.n_classes": {
       "source_sha256": "36b3c0e4ce3657e2c42c209329e6bdaf86858a5a65140fc950a62489feb6080f",
@@ -1814,7 +1814,7 @@
     },
     "spacr.convert.ConversionResult.n_written": {
       "source_sha256": "10959fe22b32aa7949d28ccb42093bb682cd6f7ab897a389744412fe3b2ee463",
-      "text": "How many TIFFs this run created."
+      "text": "इस रन में बनाए गए TIFF की संख्या।"
     },
     "spacr.convert.ConversionResult.rows": {
       "source_sha256": "88a0cf19cb28bb9bbe29b4e5cba5f8cf0f0fe5cf4470e5fdcfaca5c65974b4e9",
@@ -3270,7 +3270,7 @@
     },
     "spacr.feature_dict.Coverage.fraction": {
       "source_sha256": "76a50ac9a1d164ed06fcf38fb79c30abaec96f3d32134fca4277f120b4aa7a9f",
-      "text": "Explained share, in ``[0, 1]``. An empty input is 1.0."
+      "text": "समझाया गया अनुपात, ``[0, 1]`` में। खाली इनपुट के लिए मान 1.0 है।"
     },
     "spacr.feature_dict.FeatureDoc": {
       "source_sha256": "65caa55ebf6befcddae5a1c467f8ac01feaed4f2e22352e95efc25e402f7cb47",
@@ -3830,7 +3830,7 @@
     },
     "spacr.gui_elements.AnnotateApp.load_images": {
       "source_sha256": "11585e60724ecd9d1b550138e147962fe7d4be550fc67ebe78badf3b47b78b2d",
-      "text": "Load and paint the current page of PNGs into the grid labels."
+      "text": "PNG के वर्तमान पृष्ठ को लोड करके ग्रिड लेबलों में दिखाएँ।"
     },
     "spacr.gui_elements.AnnotateApp.load_single_image": {
       "source_sha256": "42fd5ff49ffefb244591aadd31101f5e8d03c37f881cbe51714d42129eed507f",
@@ -4686,7 +4686,7 @@
     },
     "spacr.hits.HitList.flag_counts": {
       "source_sha256": "a8356398b7efb4933388f52627f8426e5131037bde864f92cf70702d8febf0d8",
-      "text": "``{flag: how many rows carry it}`` के लिए।"
+      "text": "``{flag: how many rows carry it}``."
     },
     "spacr.hits.HitList.gene": {
       "source_sha256": "36e3ccf5982eb5ab261347205115289123b25278a0b85f19981ab6a7cd348af5",
@@ -4982,7 +4982,7 @@
     },
     "spacr.illumination.IlluminationField.dark_stack": {
       "source_sha256": "15169b5425a398a4ec914c054474dab33c1473ebec78bfb617873e854a514412",
-      "text": "``(C,)`` additive offsets for ``channels``, ready to broadcast."
+      "text": "``channels`` के लिए प्रसारण-तैयार ``(C,)`` योगात्मक ऑफ़सेट।"
     },
     "spacr.illumination.IlluminationField.describe": {
       "source_sha256": "19cb5c553d92d693b0845fd2db2cac508e181103d5fd0f9d029c9ec3f36119b1",
@@ -7246,7 +7246,7 @@
     },
     "spacr.omero.ContainerListing.n_planes": {
       "source_sha256": "02e111347a2d4b4a0d15deb0f230d015340dfca5a01e1c9fe11be79b91bb49e9",
-      "text": "Return how many 2-D TIFFs a full import would write."
+      "text": "पूर्ण आयात द्वारा लिखे जाने वाले 2-D TIFF की संख्या लौटाएँ।"
     },
     "spacr.omero.ExportResult": {
       "source_sha256": "7fc23453c9a3486d1fbc96f1e91866778fc651b2ce8f7076ff03fffbfbde3352",
@@ -7630,7 +7630,7 @@
     },
     "spacr.plate_qc.EdgeEffectReport.ring": {
       "source_sha256": "ed88e0510e695cd0ec2ab39323cb0ffdf6aac05688dc640056b8b449222d1c40",
-      "text": "Return the :class:`RingStats` for ring ``index``, if computed."
+      "text": "यदि गणना की गई हो, तो रिंग ``index`` के लिए :class:`RingStats` लौटाएँ।"
     },
     "spacr.plate_qc.EdgeEffectReport.summary": {
       "source_sha256": "655ce9fdf1581d4707c1a068f4c042486e6f15c87f6052bba9a1db841926e2da",
@@ -8594,7 +8594,7 @@
     },
     "spacr.qt.ai.prompts.default_system_prompt": {
       "source_sha256": "4770e850e7ad392b913239cca0429912c24f5cdb5d66c7dac5f67783adba3bf2",
-      "text": "Return the spaCR-aware assistant persona used for freeform chat."
+      "text": "मुक्त-रूप चैट में प्रयुक्त spaCR-संदर्भित सहायक व्यक्तित्व लौटाएँ।"
     },
     "spacr.qt.ai.prompts.error_explainer_prompt": {
       "source_sha256": "3327fc1aa7f8bca8ba65eb4ed46a73a90c3b2e55a18f6a46dbf9f29f36c49daf",
@@ -9626,7 +9626,7 @@
     },
     "spacr.qt.dnd_handlers.LayoutDropHandler.resolve": {
       "source_sha256": "f71f978b7c6e57647131e78471d646400eb898132302b013bcc64df0d27f8131",
-      "text": "Return the :class:`spacr.chaining.DropResolution` for ``path``."
+      "text": "``path`` के लिए :class:`spacr.chaining.DropResolution` लौटाएँ।"
     },
     "spacr.qt.dnd_handlers.LineageDropHandler": {
       "source_sha256": "06655ac63e96a3e36d9d6b9b138de927a06f190dbec0f5e45a9ee4406cb554db",
@@ -9946,7 +9946,7 @@
     },
     "spacr.qt.iconset.themed_array": {
       "source_sha256": "5ce0544f2a65735b0312b98e22bb63e95ce6bf1ae2af75509bde29d463dc4fb9",
-      "text": "Re-inked ``(h, w, 4)`` uint8 array for ``path``, or ``None``."
+      "text": "``path`` के लिए पुनः रंगी गई ``(h, w, 4)`` uint8 सरणी, या ``None``।"
     },
     "spacr.qt.iconset.themed_pixmap": {
       "source_sha256": "7ab84379e50229cb38a7daed5a94552e797b2e6b1ad22630b391cb5db7465ca8",
@@ -10002,7 +10002,7 @@
     },
     "spacr.qt.imagery.dim": {
       "source_sha256": "ebcc82f986af12bcc667804aba7bd17f270b63966fc2b26bcd25e89a7207b759",
-      "text": "Return ``arr`` darkened by ``factor`` in linear light."
+      "text": "रैखिक प्रकाश में ``factor`` से गहरा किया गया ``arr`` लौटाएँ।"
     },
     "spacr.qt.imagery.exposure_target": {
       "source_sha256": "4d032a34bd64751ddae2d99605a5af7d5fee0f374dc36d7e25de897beb63a27a",
@@ -11682,7 +11682,7 @@
     },
     "spacr.qt.screens.annotate.AnnotateScreen.closeEvent": {
       "source_sha256": "577c37b1ca3d97148f34c21f546377760adcaee6252499c685d37fe653679f6f",
-      "text": "Drain every native/Python worker before Qt destroys this screen."
+      "text": "Qt द्वारा इस स्क्रीन को नष्ट करने से पहले प्रत्येक नेटिव/Python वर्कर का काम पूरा कराएँ।"
     },
     "spacr.qt.screens.annotate.AnnotateScreen.current_slot": {
       "source_sha256": "9981d2d873934a47181ce05498e55909ae42c8f3ec4ae39cb9a663643d7c6ee0",
@@ -12518,7 +12518,7 @@
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.table_info": {
       "source_sha256": "8c7264dd4ff492526086f3f385eebc3ef81479f3a9bf0b85a8e9cf62a7e4ee1a",
-      "text": "Raw ``PRAGMA table_info`` rows for ``table``."
+      "text": "``table`` के लिए मूल ``PRAGMA table_info`` पंक्तियाँ।"
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.tables": {
       "source_sha256": "0951a65979274a2899d331f7f6d2e1a9e38a945282edfe7a2663941606d69781",
@@ -13634,7 +13634,7 @@
     },
     "spacr.qt.screens.napari_bridge.NapariBridgeScreen": {
       "source_sha256": "9ee8314ac87db753d3ceedc0efe69fd50c8801548b6a5b369eef5a743a9a2179",
-      "text": "Pick a field, open it in napari, take the corrected mask back."
+      "text": "एक फ़ील्ड चुनें, उसे napari में खोलें और सुधारा हुआ मास्क वापस लें।"
     },
     "spacr.qt.screens.napari_bridge.NapariBridgeScreen.close_viewer": {
       "source_sha256": "aca1a6ded22e58fd01a1ea3d2e6bb55940f23050a0abaf214613088522029340",
@@ -14526,7 +14526,7 @@
     },
     "spacr.qt.screens.settings_model.format_tooltip": {
       "source_sha256": "e35fb1b547401cf09a889f6ae3a5f076a454341a19f897018c5db9253ff2d4db",
-      "text": "Return localized typed HTML with an unchanged API-document URL."
+      "text": "अपरिवर्तित API-दस्तावेज़ URL के साथ स्थानीयकृत टाइप किया हुआ HTML लौटाएँ।"
     },
     "spacr.qt.screens.settings_model.get_categories": {
       "source_sha256": "f7f3b38bf4cc3c06594690001d6f632c217a4633823041f959e291eccb464c66",
@@ -15242,7 +15242,7 @@
     },
     "spacr.qt.theme.scrim_alpha": {
       "source_sha256": "1b3d5c1747d1b90b0fe461dfc43ea61bc2437770c092a01446f9f58d5aad5106",
-      "text": "Opacity of surface ``role`` in ``theme``. 1.0 unless translucent."
+      "text": "``theme`` में सतह ``role`` की अपारदर्शिता। पारदर्शी न होने पर 1.0।"
     },
     "spacr.qt.theme.scrim_failures": {
       "source_sha256": "1a82b696bb11817b518323d37e0a5163e54b23e70f149821da34e67bbc0e6313",
@@ -16658,7 +16658,7 @@
     },
     "spacr.qt.widgets.data_filter_panel.DataFilterPanel.save": {
       "source_sha256": "0ce1b5aff78e959c7174b14d7dfa83691399af05fc64d331a2c3b04f94c4a1dc",
-      "text": "Write the filter set to ``path`` as JSON."
+      "text": "फ़िल्टर सेट को ``path`` पर JSON के रूप में लिखें।"
     },
     "spacr.qt.widgets.data_filter_panel.DataFilterPanel.set_frame": {
       "source_sha256": "a8aabdceda5a630171167f09387c9c98c390a90a1e8450e9ffe10f498f8b830f",
@@ -18094,7 +18094,7 @@
     },
     "spacr.qt.widgets.gate_spec.GateSet.save": {
       "source_sha256": "e572f03c600115834c7042ac7e2e73112f757b23afa613e3820da4259e3871dd",
-      "text": "Write the gates to ``path`` as JSON. Returns the path."
+      "text": "गेट्स को ``path`` पर JSON के रूप में लिखें। पथ लौटाता है।"
     },
     "spacr.qt.widgets.gate_spec.GateSet.stats": {
       "source_sha256": "65923dc0debe0c91c4507b7e62ee8dc4f6240ca53d431739acf6aa2abd9d17a0",
@@ -18350,7 +18350,7 @@
     },
     "spacr.qt.widgets.graph_spec.GraphSpec.with_channel": {
       "source_sha256": "c6723b5f5876520fe8f4c8a2e361b5df4921a12986333d7478de1ad8c28c5ecf",
-      "text": "A copy with ``column`` on ``channel`` (``None`` empties the zone)."
+      "text": "``channel`` पर ``column`` वाली प्रति (``None`` उस ज़ोन को खाली करता है)।"
     },
     "spacr.qt.widgets.graph_spec.GraphSpec.with_kind": {
       "source_sha256": "a52af360ec7215172f89bde56e1bd2e2025d7e78453c6a185b4f030e473b6b7a",
@@ -18630,7 +18630,7 @@
     },
     "spacr.qt.widgets.info_link.InfoLink": {
       "source_sha256": "3e9e3cc5ebdc0fa94be6a72adfda6106a17767033099978db7d793ae8d27e084",
-      "text": "A small teal dot that opens an API-reference URL when pressed."
+      "text": "दबाने पर API-संदर्भ URL खोलने वाला छोटा टील बिंदु।"
     },
     "spacr.qt.widgets.info_link.InfoLink.open_documentation": {
       "source_sha256": "9b3894abe559d45a655c8960d93de05e95fecfc625e05b20d1c23c2dd7af12c1",
@@ -20814,7 +20814,7 @@
     },
     "spacr.resources.home.versions._generators.parts.line_count": {
       "source_sha256": "8b46bb4f685567d0f0f99857cfd485f0c8d636a48988e4e7022a0c063d58a663",
-      "text": "How many lines ``text`` occupies when wrapped at ``width`` px."
+      "text": "``text`` को ``width`` px पर लपेटने पर वह कितनी पंक्तियाँ घेरता है।"
     },
     "spacr.resources.home.versions._generators.parts.menu_strip": {
       "source_sha256": "856ec33ec007b016983310e5d017cbef0fc6f7c1a66aad11b3fd8b5f46ed1058",
@@ -22914,7 +22914,7 @@
     },
     "spacr.spacrops.align_image_to_stitch": {
       "source_sha256": "0bcda96dbca175d39bb2c56d2ad700bc2051b6df593725b14c38f1a553060f8b",
-      "text": "Align each well's higher-mag FOVs to that well's stitched mosaic.\n\nFor every well with a mosaic at\n``<stitch_dst_root>/<WELL>/_stitch/mosaic_allc.tif``, groups images\nfrom ``align_src`` by well and runs :class:`FOVAlignAndCropper` to\nproduce per-well crop manifests and ``.npy`` crops.\n\n:param stitch_dst_root: root folder containing per-well stitched mosaics.\n:param align_src: folder of higher-magnification images to align.\n:param meta_regex: regex extracting well/site metadata from filenames.\n:param well_group: named capture group holding the well identifier.\n:param channel_index: nuclei channel index. Default ``0``.\n:param relative_scale: FOV-to-mosaic pixel-scale factor. Default ``2.0``.\n:param downsample: feature-pass downsample factor. Default ``0.5``.\n:param nfeatures: keypoint budget for the detector.\n:param ransac_thresh_px: RANSAC reprojection threshold in pixels.\n:param allow_scale: allow scale in the estimated affine.\n:param allow_rotation: allow rotation in the estimated affine.\n:param qc_outlines: accepted for call compatibility and NOT used.\n    The ``*__qc_outlines.png`` overlays are written by\n    :class:`spacrStitcher`, which gates them on its own ``save_qc``;\n    :class:`FOVAlignAndCropper` has no such argument and draws no\n    overlays, so there is nothing here for this to switch on. Use\n    ``save_qc`` on the stitching step instead.\n:param recursive_align_src: recurse when scanning ``align_src``.\n:param exts: accepted image extensions.\n:returns: mapping ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``."
+      "text": "हर वेल के अधिक आवर्धन वाले FOV को उसी वेल के स्टिच किए गए मोज़ेक से संरेखित करें।\n\nजिस हर वेल का मोज़ेक\n``<stitch_dst_root>/<WELL>/_stitch/mosaic_allc.tif`` में मौजूद है, उसके लिए\n``align_src`` की छवियों को वेल के अनुसार समूहित किया जाता है और प्रति-वेल\nक्रॉप मैनिफ़ेस्ट तथा ``.npy`` क्रॉप बनाने के लिए :class:`FOVAlignAndCropper`\nचलाया जाता है।\n\n:param stitch_dst_root: प्रति-वेल स्टिच किए गए मोज़ेक वाली रूट फ़ोल्डर।\n:param align_src: संरेखित की जाने वाली अधिक आवर्धन वाली छवियों की फ़ोल्डर।\n:param meta_regex: फ़ाइल नामों से वेल और साइट मेटाडेटा निकालने वाला रेगुलर एक्सप्रेशन।\n:param well_group: वेल पहचानकर्ता रखने वाला नामित कैप्चर समूह।\n:param channel_index: नाभिक चैनल का इंडेक्स। डिफ़ॉल्ट ``0``।\n:param relative_scale: FOV और मोज़ेक के बीच पिक्सेल-स्केल गुणक। डिफ़ॉल्ट ``2.0``।\n:param downsample: फ़ीचर चरण का डाउनसैंपल गुणक। डिफ़ॉल्ट ``0.5``।\n:param nfeatures: डिटेक्टर के लिए की-पॉइंट की अधिकतम संख्या।\n:param ransac_thresh_px: पिक्सेल में RANSAC रीप्रोजेक्शन त्रुटि की सीमा।\n:param allow_scale: अनुमानित अफ़ाइन ट्रांसफ़ॉर्म में स्केल की अनुमति दें।\n:param allow_rotation: अनुमानित अफ़ाइन ट्रांसफ़ॉर्म में रोटेशन की अनुमति दें।\n:param qc_outlines: कॉल संगतता के लिए स्वीकार किया जाता है, पर उपयोग नहीं होता।\n    ``*__qc_outlines.png`` ओवरले :class:`spacrStitcher` लिखता है और उन्हें\n    अपने ``save_qc`` से नियंत्रित करता है; :class:`FOVAlignAndCropper` में ऐसा\n    कोई आर्ग्युमेंट नहीं है और वह ओवरले नहीं बनाता। इसलिए यहाँ चालू करने के लिए\n    कुछ नहीं है। इसके बजाय स्टिचिंग चरण में ``save_qc`` का उपयोग करें।\n:param recursive_align_src: ``align_src`` स्कैन करते समय सबफ़ोल्डर भी खोजें।\n:param exts: स्वीकार किए गए छवि एक्सटेंशन।\n:returns: मैपिंग ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``।"
     },
     "spacr.spacrops.get_preprocess_ops_settings": {
       "source_sha256": "14829a2ada53682630337e73eeef88bc8c9f0274210aa320981fb8192c772194",
@@ -23422,7 +23422,7 @@
     },
     "spacr.utils.GradCAMGenerator.compute_gradcam_and_predictions": {
       "source_sha256": "7a5ed95239a78e83b4bb8286a7cc105d68d164a2498f905e06eb09d729a8d5a5",
-      "text": "Return ``(gradcam_maps, predictions)`` for every sample in the batch ``X``."
+      "text": "बैच ``X`` के हर नमूने के लिए ``(gradcam_maps, predictions)`` लौटाएँ।"
     },
     "spacr.utils.GradCAMGenerator.compute_gradcam_maps": {
       "source_sha256": "3769b3a63a636054e289d64edf8fa392bd919d04643360ae8ab2f7e9ffc7eed4",
@@ -23538,7 +23538,7 @@
     },
     "spacr.utils.SpatialAttention.forward": {
       "source_sha256": "990134f4efb9f40f4eae365de6ec7abd12714e6802ae433ec51c38917f4445e3",
-      "text": "Return the spatial attention map for ``x`` in ``[0, 1]``."
+      "text": "``[0, 1]`` में ``x`` का स्थानिक ध्यान मानचित्र लौटाएँ।"
     },
     "spacr.utils.TorchModel": {
       "source_sha256": "ace239548679bd737c5a932dcc7950f2bcf046b3a80cafc372aa5ac5dff1762f",
@@ -23546,7 +23546,7 @@
     },
     "spacr.utils.TorchModel.forward": {
       "source_sha256": "18d745b246f7c2576bd1f7781461fe86aeaa3f3fe16d562a484625e72a103b8e",
-      "text": "Return classification logits of shape ``(N, num_classes)`` for input batch ``x``."
+      "text": "इनपुट बैच ``x`` के लिए आकार ``(N, num_classes)`` के वर्गीकरण logits लौटाएँ।"
     },
     "spacr.utils.TorchModel_v2": {
       "source_sha256": "0b436bab761cf6af7b586697ca2e8b6c29d441778b037030e4f121b417573986",
@@ -23554,7 +23554,7 @@
     },
     "spacr.utils.TorchModel_v2.forward": {
       "source_sha256": "18d745b246f7c2576bd1f7781461fe86aeaa3f3fe16d562a484625e72a103b8e",
-      "text": "Return classification logits of shape ``(N, num_classes)`` for input batch ``x``."
+      "text": "इनपुट बैच ``x`` के लिए आकार ``(N, num_classes)`` के वर्गीकरण logits लौटाएँ।"
     },
     "spacr.utils.activation_correlations_to_database": {
       "source_sha256": "2c576704b38fed0cbda0aee8d990aeabed6cdb7b89dc843958eb042fc2ff637d",
@@ -23594,7 +23594,7 @@
     },
     "spacr.utils.assign_colors": {
       "source_sha256": "8dc4048e22632b8797c5cbf9fb22cfc1628d9c137bf0a91a53671a0081f694a0",
-      "text": "Return a ``(colors, label_to_index)`` mapping keyed by ``unique_labels``."
+      "text": "``unique_labels`` से कुंजीबद्ध ``(colors, label_to_index)`` मैपिंग लौटाएँ।"
     },
     "spacr.utils.augment_classes": {
       "source_sha256": "5fc2dd42d6b93a1f61d9a02cace8445bcd053551d8146115a475d154edd99850",
@@ -23774,7 +23774,7 @@
     },
     "spacr.utils.dense_mask_channel_positions": {
       "source_sha256": "93f6e0130aa50072e2ba8bc398060b7de28a2213c85c84fc7acc43a07d605113",
-      "text": "Map each RAW channel index to its position on the merged stack's axis.\n\nBuilt the same way `io.preprocess_img_data` builds the stack, because\nthat is the only thing that makes the answer true: walk the roles in\n:data:`MASK_CHANNEL_ROLE_ORDER` and give each newly seen raw channel the\nnext dense position.\n\nTHE TRAP THIS EXISTS TO CLOSE. Several callers computed the position as\n``sorted({nucleus, cell, pathogen, organelle})`` instead, which agrees\nwith role order only when the roles happen to be in ascending channel\norder. With ``nucleus_channel=2, cell_channel=0, organelle_channel=1``\nthe stack is ``[2, 0, 1]`` -- raw channel 1 sits at position 2 -- while\nthe sorted reading says position 1, which holds the CELL image. Cellpose\nthen segments organelles on the cell plane, silently, and every count and\nintensity downstream is measured from the wrong masks.\n\n:param settings: the run settings, holding the raw ``*_channel`` keys.\n:returns: ``{raw_channel: dense_position}``. Channels that are None or\n    uncoercible are absent, matching the writer's own behaviour."
+      "text": "हर RAW चैनल इंडेक्स को मर्ज किए गए स्टैक के अक्ष पर उसकी स्थिति से मैप करें।\n\nयह मैपिंग उसी तरह बनती है जैसे `io.preprocess_img_data` स्टैक बनाता है, क्योंकि\nसही उत्तर पाने का यही तरीका है: :data:`MASK_CHANNEL_ROLE_ORDER` में भूमिकाओं\nको क्रम से देखें और पहली बार मिलने वाले हर रॉ चैनल को अगली लगातार स्थिति दें।\n\nयह फ़ंक्शन एक महत्वपूर्ण त्रुटि रोकता है। कई कॉलर स्थिति को\n``sorted({nucleus, cell, pathogen, organelle})`` से निकालते थे। यह केवल तब\nभूमिका-क्रम से मेल खाता है जब भूमिकाएँ संयोग से बढ़ते चैनल-क्रम में हों।\n``nucleus_channel=2, cell_channel=0, organelle_channel=1`` होने पर स्टैक\n``[2, 0, 1]`` है -- रॉ चैनल 1 स्थिति 2 पर है -- जबकि सॉर्ट किया हुआ क्रम स्थिति\n1 बताता है, जहाँ सेल की छवि है। तब Cellpose बिना चेतावनी के सेल वाले तल पर\nऑर्गेनेल का विभाजन करता है, और बाद की हर गिनती व तीव्रता गलत मास्क से मापी जाती है।\n\n:param settings: रन सेटिंग, जिनमें रॉ ``*_channel`` कुंजियाँ होती हैं।\n:returns: ``{raw_channel: dense_position}``। None या परिवर्तित न किए जा सकने वाले चैनल छोड़ दिए जाते हैं, ठीक वैसे ही जैसे लेखक करता है।"
     },
     "spacr.utils.dice_coefficient": {
       "source_sha256": "d66df0c548ed601b31d6cd9dcc659a4ffab562e8442bae95695bb0784a47c13b",

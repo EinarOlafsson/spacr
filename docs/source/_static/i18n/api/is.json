@@ -4686,7 +4686,7 @@
     },
     "spacr.hits.HitList.flag_counts": {
       "source_sha256": "a8356398b7efb4933388f52627f8426e5131037bde864f92cf70702d8febf0d8",
-      "text": "„``{flag: how many rows carry it}``“"
+      "text": "``{flag: how many rows carry it}``."
     },
     "spacr.hits.HitList.gene": {
       "source_sha256": "36e3ccf5982eb5ab261347205115289123b25278a0b85f19981ab6a7cd348af5",
@@ -10586,7 +10586,7 @@
     },
     "spacr.qt.ortho_view.OrthoPanel.show_canvas": {
       "source_sha256": "f684d24b7c95fdb08dbdd14150ce78ecd9c72548b4574b49ac1a2c91f545d57e",
-      "text": "Paint ``stack`` through ``canvas``, with the crosshair at a point."
+      "text": "Teiknar ``stack`` í ``canvas`` og staðsetur krosshárin á punkti."
     },
     "spacr.qt.ortho_view.OrthoView": {
       "source_sha256": "4a7e8f3ac92aaa624b8bd3a557c65cfc7d3b3adf718a2507c28265afb307dc70",
@@ -18426,7 +18426,7 @@
     },
     "spacr.qt.widgets.home.AppTile.stage": {
       "source_sha256": "a88ab7a449928dcc77de8cbb2ca25f1e6fe13d4363681e62745d9e991c6bb9c4",
-      "text": "``stable`` / ``beta`` / ``alpha`` — what the hover colour says."
+      "text": "``stable`` / ``beta`` / ``alpha`` — það sem liturinn við yfirsvif gefur til kynna."
     },
     "spacr.qt.widgets.home.AppTile.text_label": {
       "source_sha256": "2b6c9afdd140abc0b8fc74ee81843fa20926e24574f1128d9b9ba427d1d105b7",
@@ -21926,7 +21926,7 @@
     },
     "spacr.schema.row_index": {
       "source_sha256": "212a4690619d5debd7d18651d4b7444a52bd7dbe2e9dee9bf772dfa8985bba96",
-      "text": "``'r3'`` → ``3``; ``'C'`` → ``3``; an unparseable id → ``None``."
+      "text": "``'r3'`` → ``3``; ``'C'`` → ``3``; óþekkjanlegt auðkenni → ``None``."
     },
     "spacr.schema.row_index_from_letters": {
       "source_sha256": "f332f6510e8a89dab2dafb67b87a54b18d6d739e22c394ded8850ff193a552d1",
@@ -22914,7 +22914,7 @@
     },
     "spacr.spacrops.align_image_to_stitch": {
       "source_sha256": "0bcda96dbca175d39bb2c56d2ad700bc2051b6df593725b14c38f1a553060f8b",
-      "text": "Align each well's higher-mag FOVs to that well's stitched mosaic.\n\nFor every well with a mosaic at\n``<stitch_dst_root>/<WELL>/_stitch/mosaic_allc.tif``, groups images\nfrom ``align_src`` by well and runs :class:`FOVAlignAndCropper` to\nproduce per-well crop manifests and ``.npy`` crops.\n\n:param stitch_dst_root: root folder containing per-well stitched mosaics.\n:param align_src: folder of higher-magnification images to align.\n:param meta_regex: regex extracting well/site metadata from filenames.\n:param well_group: named capture group holding the well identifier.\n:param channel_index: nuclei channel index. Default ``0``.\n:param relative_scale: FOV-to-mosaic pixel-scale factor. Default ``2.0``.\n:param downsample: feature-pass downsample factor. Default ``0.5``.\n:param nfeatures: keypoint budget for the detector.\n:param ransac_thresh_px: RANSAC reprojection threshold in pixels.\n:param allow_scale: allow scale in the estimated affine.\n:param allow_rotation: allow rotation in the estimated affine.\n:param qc_outlines: accepted for call compatibility and NOT used.\n    The ``*__qc_outlines.png`` overlays are written by\n    :class:`spacrStitcher`, which gates them on its own ``save_qc``;\n    :class:`FOVAlignAndCropper` has no such argument and draws no\n    overlays, so there is nothing here for this to switch on. Use\n    ``save_qc`` on the stitching step instead.\n:param recursive_align_src: recurse when scanning ``align_src``.\n:param exts: accepted image extensions.\n:returns: mapping ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``."
+      "text": "Stillir FOV-myndum með meiri stækkun úr hverjum brunni upp við samsetta mósaíkmynd sama brunns.\n\nFyrir hvern brunn sem á mósaíkmynd í\n``<stitch_dst_root>/<WELL>/_stitch/mosaic_allc.tif`` eru myndir úr\n``align_src`` flokkaðar eftir brunni og :class:`FOVAlignAndCropper` keyrt\ntil að búa til skurðarskrár og ``.npy``-myndúrklippur fyrir hvern brunn.\n\n:param stitch_dst_root: rótarmappa með samsettum mósaíkmyndum fyrir hvern brunn.\n:param align_src: mappa með myndum í meiri stækkun sem á að stilla saman.\n:param meta_regex: regluleg segð sem sækir lýsigögn um brunn og myndsvæði úr skráarheitum.\n:param well_group: nafngreindur fanghópur sem geymir auðkenni brunnsins.\n:param channel_index: rásarvísir fyrir kjarna. Sjálfgefið ``0``.\n:param relative_scale: hlutfall pixlastærðar milli FOV og mósaíkmyndar. Sjálfgefið ``2.0``.\n:param downsample: niðurkvörðunarstuðull við leit að einkennum. Sjálfgefið ``0.5``.\n:param nfeatures: hámarksfjöldi einkennispunkta fyrir skynjarann.\n:param ransac_thresh_px: RANSAC-þröskuldur endurvörpunarskekkju í pixlum.\n:param allow_scale: leyfa kvörðun í metnu affínu vörpuninni.\n:param allow_rotation: leyfa snúning í metnu affínu vörpuninni.\n:param qc_outlines: tekið við til að viðhalda samhæfni kalla en EKKI notað.\n    Yfirlögin ``*__qc_outlines.png`` eru skrifuð af :class:`spacrStitcher`\n    og stjórnað með eigin ``save_qc`` stillingu þess;\n    :class:`FOVAlignAndCropper` hefur ekkert slíkt viðfang og teiknar engin\n    yfirlög, þannig að hér er ekkert sem hægt er að kveikja á. Notið\n    ``save_qc`` í samsetningarskrefinu í staðinn.\n:param recursive_align_src: leita endurkvæmt þegar ``align_src`` er skannað.\n:param exts: samþykktar skráarendingar mynda.\n:returns: vörpun ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``."
     },
     "spacr.spacrops.get_preprocess_ops_settings": {
       "source_sha256": "14829a2ada53682630337e73eeef88bc8c9f0274210aa320981fb8192c772194",
@@ -23774,7 +23774,7 @@
     },
     "spacr.utils.dense_mask_channel_positions": {
       "source_sha256": "93f6e0130aa50072e2ba8bc398060b7de28a2213c85c84fc7acc43a07d605113",
-      "text": "Map each RAW channel index to its position on the merged stack's axis.\n\nBuilt the same way `io.preprocess_img_data` builds the stack, because\nthat is the only thing that makes the answer true: walk the roles in\n:data:`MASK_CHANNEL_ROLE_ORDER` and give each newly seen raw channel the\nnext dense position.\n\nTHE TRAP THIS EXISTS TO CLOSE. Several callers computed the position as\n``sorted({nucleus, cell, pathogen, organelle})`` instead, which agrees\nwith role order only when the roles happen to be in ascending channel\norder. With ``nucleus_channel=2, cell_channel=0, organelle_channel=1``\nthe stack is ``[2, 0, 1]`` -- raw channel 1 sits at position 2 -- while\nthe sorted reading says position 1, which holds the CELL image. Cellpose\nthen segments organelles on the cell plane, silently, and every count and\nintensity downstream is measured from the wrong masks.\n\n:param settings: the run settings, holding the raw ``*_channel`` keys.\n:returns: ``{raw_channel: dense_position}``. Channels that are None or\n    uncoercible are absent, matching the writer's own behaviour."
+      "text": "Varpar hverjum RAW-rásarvísi á stöðu hans á ás sameinaða staflans.\n\nVörpunin er byggð á sama hátt og `io.preprocess_img_data` byggir staflann,\nþví aðeins þannig verður svarið rétt: farið er í gegnum hlutverkin í\n:data:`MASK_CHANNEL_ROLE_ORDER` og hver ný hrá rás fær næstu samfelldu stöðu.\n\nGILDRAN SEM ÞESSI AÐFERÐ LOKAR. Nokkrir kallarar reiknuðu stöðuna í staðinn\nsem ``sorted({nucleus, cell, pathogen, organelle})``. Það samsvarar röð\nhlutverkanna aðeins þegar þau raðast fyrir tilviljun eftir hækkandi rásarnúmeri.\nMeð ``nucleus_channel=2, cell_channel=0, organelle_channel=1`` er staflinn\n``[2, 0, 1]`` -- hrá rás 1 er í stöðu 2 -- en röðun eftir rásarnúmeri bendir á\nstöðu 1, þar sem frumumyndin er. Cellpose hlutar þá frumulíffæri á frumufletinum\nán viðvörunar og allur fjöldi og styrkur síðar í ferlinu er mældur úr röngum grímum.\n\n:param settings: keyrslustillingar sem geyma hráu ``*_channel`` lyklana.\n:returns: ``{raw_channel: dense_position}``. Rásum sem eru None eða ekki er hægt að umbreyta er sleppt, í samræmi við hegðun skrifarans."
     },
     "spacr.utils.dice_coefficient": {
       "source_sha256": "d66df0c548ed601b31d6cd9dcc659a4ffab562e8442bae95695bb0784a47c13b",
