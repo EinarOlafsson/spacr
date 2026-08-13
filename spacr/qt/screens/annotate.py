@@ -836,8 +836,18 @@ class _SettingsDialog(QDialog):
         }
         for mode in DISPLAY_PRIMARIES:
             self._display_primaries.addItem(_PRIMARY_LABELS[mode], mode)
+        # Unset means "whatever this user needs", not "RGB". The global
+        # colour-vision preference is the default, so somebody who told
+        # Preferences once that they are colour-blind finds Annotate already
+        # correct; choosing a mode here still overrides it for this session.
         current_primaries = str(
-            getattr(settings, "display_primaries", "rgb")).lower()
+            getattr(settings, "display_primaries", "") or "").lower()
+        if current_primaries in ("", "rgb"):
+            try:
+                from ..preferences import image_display_primaries
+                current_primaries = image_display_primaries()
+            except Exception:
+                current_primaries = "rgb"
         primaries_index = self._display_primaries.findData(current_primaries)
         self._display_primaries.setCurrentIndex(max(0, primaries_index))
         self._display_primaries.setToolTip(

@@ -1692,6 +1692,44 @@ def set_color_blind_mode(mode: str) -> None:
     _settings().setValue(_KEY_CB_MODE, mode)
 
 
+#: The stored colour-vision mode -> the display-primaries mode
+#: :func:`spacr.crops.apply_display_primaries` takes.
+#:
+#: TWO VOCABULARIES, ON PURPOSE. This preference names a CONDITION, because
+#: that is what a user knows about themselves and what they pick in
+#: Preferences: "I have deuteranopia". :data:`spacr.crops.DISPLAY_PRIMARIES`
+#: names a RENDERING: "draw this for a deuteranope". They are one fact seen
+#: from its two ends, and renaming either would break stored settings for no
+#: gain, so the bridge is written down once here rather than guessed at every
+#: call site.
+#:
+#: ``cmy`` is deliberately absent. It is a PUBLISHING convention, not an
+#: accessibility mode -- measured against a deuteranope simulation it is
+#: WORSE than plain RGB -- so it must never be reached by having a
+#: deficiency. It is chosen per view, by somebody making a figure.
+_CB_MODE_TO_PRIMARIES = {
+    "off": "rgb",
+    "deuteranopia": "deuteranope",
+    "protanopia": "protanope",
+    "tritanopia": "tritanope",
+}
+
+
+def image_display_primaries() -> str:
+    """How images should be drawn for this user, everywhere.
+
+    The global half of the colour-blind mode. A user who needs the
+    substitution needs it in Annotate, in every live view and in every crop
+    grid, in every session -- not as a toggle they re-find on each screen.
+    A view may still override it, because a figure being prepared for
+    publication wants ``cmy`` whatever the author's vision, but this is
+    what every view starts from.
+
+    :returns: one of :data:`spacr.crops.DISPLAY_PRIMARIES`.
+    """
+    return _CB_MODE_TO_PRIMARIES.get(get_color_blind_mode(), "rgb")
+
+
 def color_blind_categorical_palette() -> list:
     """Return a list of hex colours safe for the active CB mode.
 
