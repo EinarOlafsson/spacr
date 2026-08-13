@@ -452,3 +452,47 @@ twice.
 
 STILL OPEN AFTER THIS: filter/search tabs, console + AI chat, table merging
 UI. The 3D voxel workspace is instruction 52's.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE "STILL OPEN AFTER THIS" LIST WAS ALSO STALE. TWO OF ITS THREE
+             ITEMS ARE BUILT. ONE IS LEFT AND IT BELONGS TO 49.
+--------------------------------------------------------------------------------
+
+The note directly above ends "STILL OPEN AFTER THIS: filter/search tabs,
+console + AI chat, table merging UI". Checked against the code, same day:
+
+CONSOLE + AI CHAT IS BUILT. `spacr/qt/widgets/gate_console.py::GateConsole`,
+constructed in `screens/gate_editor.py` and given its own pane in the body
+splitter, tooltip "Ask a question about the table you are gating without
+leaving the screen." It is collapsed by default with a recorded reason: the
+console carries a width floor, so a NON-collapsible splitter would force 320
+px onto every screen, and the state the user actually met was "open but too
+narrow to read". `tests/qt/test_gate_console_sizing.py` covers it.
+
+TABLE MERGING IS BUILT, and it is the spec's version rather than a lesser
+one. A working set of tables, each a removable `TableChip`; adding or
+removing one re-reads and re-merges off the GUI thread through
+`_reload_working_set`; the join goes through `merge_tables.MergePolicy`,
+which carries the cell-anchored default key, `consolidate_on_cell`,
+`keep_uninfected` and per-table join direction. One table is read straight
+rather than merged with itself, with the reason recorded: self-merging only
+renames columns and would make every gate saved in a single-table session
+stop matching.
+
+FILTER / SEARCH TABS IS THE ONE GENUINELY LEFT, AND IT CANNOT BE BUILT YET.
+The spec is "Filter and Hyperparameter-search become TABS, the active one
+blue like the app's buttons, sitting above the console." There is no
+hyperparameter search on this screen -- grep returns nothing -- because the
+search this screen needs is the xD reduction search, which is INSTRUCTION
+49's. A tab bar over one tab is not the feature; building it before 49 would
+be building the furniture for a room with nothing in it.
+
+Note also that Filter and Columns were deliberately NOT made tabs, and the
+reason is in the code: they were two tabs inside a 340 px `QTabWidget`, which
+is what read as "elements overlapping", and they are the same job -- both
+narrow what the scatter shows -- so hiding one behind the other meant neither
+could be checked while using the other. That is not the pair the spec means.
+
+SO: 31 is blocked on 49 for its last item, and nothing else. This is the
+FOURTH stale list in this file's own history (resolution modes, colour map
+and Clustering Walk were the previous three, all shipped while listed open).
