@@ -76,3 +76,12 @@ point at the assets PUBLISHED under v1.5.0.4, which are named
 page 404 -- the sweep did exactly that and it was reverted. The link TEXT now
 reads spaCR; the URLs keep the filenames that exist. Instruction 82 builds
 1.5.0.5 with the corrected artifact names, and updates those three URLs then.
+
+--------------------------------------------------------------------------------
+2026-08-13 - CLOSED
+--------------------------------------------------------------------------------
+134 mis-cased mentions corrected across 33 files, with the four identifier
+classes deliberately spared and each separately asserted. The README download
+URLs still carry the published `SpaCR-1.5.0.4-*` asset names because those
+files exist under that name on GitHub; they change when a release next builds
+artifacts under the corrected name.
