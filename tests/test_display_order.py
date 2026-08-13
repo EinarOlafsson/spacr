@@ -128,3 +128,49 @@ def test_display_order_makes_no_claim_about_the_file(tmp_path):
                                           display_order="bgr"))
     # Same pixels, different slots -- nothing was re-decoded.
     assert sorted(as_written[0, 0].tolist()) == sorted(permuted[0, 0].tolist())
+
+
+# ---------------------------------------------------------------------------
+# The control, and that it cannot be confused with the format one
+# ---------------------------------------------------------------------------
+
+def _dialog(qtbot):
+    """The settings dialog is where both channel controls live."""
+    from spacr.qt.annotate_engine import AnnotateSettings
+    from spacr.qt.screens.annotate import _SettingsDialog
+
+    dialog = _SettingsDialog(AnnotateSettings())
+    qtbot.addWidget(dialog)
+    return dialog
+
+
+def test_the_dialog_offers_all_six_orders(qtbot):
+    from spacr.crops import DISPLAY_ORDERS
+
+    combo = _dialog(qtbot)._display_order
+    offered = [combo.itemData(i) for i in range(combo.count())]
+    assert offered == list(DISPLAY_ORDERS)
+
+
+def test_the_control_defaults_to_the_identity(qtbot):
+    assert _dialog(qtbot)._display_order.currentData() == "rgb"
+
+
+def test_the_two_controls_are_separate_widgets(qtbot):
+    """One control doing both jobs is the version a user cannot reason
+    about; this asserts they stayed apart."""
+    dialog = _dialog(qtbot)
+    assert dialog._display_order is not dialog._stored_channel_order
+
+
+def test_the_tooltip_says_it_changes_nothing_on_disk(qtbot):
+    """The whole point of it being a preference rather than a format."""
+    tip = _dialog(qtbot)._display_order.toolTip().lower()
+    assert "disk" in tip and "view" in tip
+
+
+def test_the_setting_round_trips_through_the_dataclass():
+    from spacr.qt.annotate_engine import AnnotateSettings
+
+    assert AnnotateSettings().display_order == "rgb"
+    assert AnnotateSettings(display_order="bgr").display_order == "bgr"

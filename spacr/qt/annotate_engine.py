@@ -442,6 +442,9 @@ class AnnotateSettings:
     # the safe default for standard PNGs; Auto consults spaCR's format marker,
     # and Legacy BGR remains available for old unmarked cv2-written crops.
     stored_channel_order: str = "rgb"  # rgb | auto | legacy_bgr
+    #: A DISPLAY preference, not a claim about the file. One of
+    #: `spacr.crops.DISPLAY_ORDERS`; the default is the identity.
+    display_order: str = "rgb"
     measurement: Optional[Any] = None
     threshold: Optional[Any] = None
     threshold_direction: Optional[Any] = None
