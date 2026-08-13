@@ -319,3 +319,68 @@ as stale -- printing them would assert a verification that did not happen.
 report, report coverage and run_journal.
 
 STILL OPEN IN 86: (a) the dry-run RESOURCE card and (b) checkpoint/resume.
+
+--------------------------------------------------------------------------------
+2026-08-13 - (a) THE DRY-RUN RESOURCE CARD IS BUILT
+--------------------------------------------------------------------------------
+
+`validate.describe_resources`, printed by `run_preflight` right after
+`describe_plan`. Built ON the existing pre-flight as the note above required,
+not beside it -- there is still one card.
+
+WHY IT IS A SECOND FUNCTION AND NOT MORE ROWS IN describe_plan. The plan
+answers "what would this do", and every number in it is a COUNT of something
+that exists. The card answers "can this machine finish it", and every number
+in it is a PROJECTION. Merged, a projection would be read with the confidence
+of a count.
+
+THE RULE, WHICH IS THE WHOLE DESIGN: a figure that cannot be derived is NAMED
+AND LEFT OUT, never guessed. A fabricated ceiling that a run then sails past
+is worse than no card at all, because the user stopped watching.
+
+  MEASURED, off this machine        bytes on disk; the shape and dtype of one
+                                    real .npy, read memory-mapped so the
+                                    header is read and the pixels are not;
+                                    MemAvailable; free space on the volume
+                                    that would be written to
+  DERIVED, AND SAID TO BE           memory is a FLOOR -- n_jobs workers each
+                                    holding one field, before a single
+                                    working copy. A floor is defensible and
+                                    still catches the case that matters,
+                                    which is eight workers holding a 900 MB
+                                    field each on a 16 GB laptop. The card
+                                    points at `spacr.benchmark` for the
+                                    measured peak rather than inventing a
+                                    multiplier for it
+  REFUSED, AND NAMED                the PNG crop tree. It is objects x crop
+                                    modes and the object count is what the
+                                    run exists to discover, so a number there
+                                    would be wrong by an order of magnitude
+                                    in either direction
+
+WHEN n_jobs DOES NOT FIT the card says so and names one that would, computed
+from the per-field figure against MemAvailable less a 2 GiB reserve -- the
+same reserve `benchmark` uses, and for the same reason.
+
+THE TRAP IT STATES OUT LOUD: merged/ is uncompressed .npy, so it can be
+LARGER than a compressed TIFF source rather than the same size. That is the
+disk projection people get wrong.
+
+TORCH IS READ OUT OF `sys.modules`, NEVER IMPORTED. This module's reason to
+exist is that it stays light enough to run before anything heavy is loaded,
+and `test_validate_does_not_import_torch_or_cellpose` enforces it -- a lazy
+import inside the function would still be an import, and would still cost
+seconds on a cluster node that only wanted its settings checked. So the card
+reports the device when the process already has torch and says plainly that
+it did not look when it does not, because SILENCE WOULD READ AS "no GPU",
+which is a different answer. The GPU row appears for `mask` only; measure
+loads no model and a VRAM figure there is noise.
+
+The card is best-effort inside `run_preflight`: it stats the disk, and a
+pre-flight that raises has denied the user the report it exists to give
+them. The failure path is tested rather than pragma'd.
+
+24 tests. Every line of the new code is covered; 103 pass in test_validate,
+827 across the pre-flight-adjacent suites.
+
+STILL OPEN IN 86: only (b), checkpoint/resume.
