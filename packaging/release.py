@@ -71,7 +71,7 @@ def bump_version(
 def _installer_paths(source: Path, version: str) -> list[tuple[str, Path]]:
     found = []
     for label, suffix in PLATFORMS:
-        name = f"SpaCR-{version}-{suffix}"
+        name = f"spaCR-{version}-{suffix}"
         matches = list(source.rglob(name))
         if len(matches) != 1:
             raise ValueError(
@@ -87,9 +87,9 @@ def _readme_links(version: str, branch: str) -> str:
     del branch
     lines = [README_BEGIN, ""]
     for label, suffix in PLATFORMS:
-        name = f"SpaCR-{version}-{suffix}"
+        name = f"spaCR-{version}-{suffix}"
         url = f"{RELEASE_DOWNLOAD_ROOT}/v{version}/{name}"
-        lines.append(f"* `{label}: download SpaCR {version} <{url}>`_")
+        lines.append(f"* `{label}: download spaCR {version} <{url}>`_")
     lines.extend(["", README_END])
     return "\n".join(lines)
 
@@ -153,7 +153,7 @@ def _updated_readme_text(readme: Path, version: str) -> str:
         line = lines[line_index]
         url_pattern = re.compile(
             rf"<{re.escape(RELEASE_DOWNLOAD_ROOT)}/v(?P<tag_version>[^/<>]+)/"
-            rf"SpaCR-(?P<file_version>[^/<>]+)-{re.escape(suffix)}>"
+            rf"spaCR-(?P<file_version>[^/<>]+)-{re.escape(suffix)}>"
         )
         url_match = url_pattern.search(line)
         if url_match is None or url_match.group("tag_version") != url_match.group(
@@ -170,7 +170,7 @@ def _updated_readme_text(readme: Path, version: str) -> str:
                 f"once in its {suffix} label"
             )
         line = label.replace(old_version, version) + line[url_match.start():]
-        name = f"SpaCR-{version}-{suffix}"
+        name = f"spaCR-{version}-{suffix}"
         url = f"{RELEASE_DOWNLOAD_ROOT}/v{version}/{name}"
         line, url_count = url_pattern.subn(f"<{url}>", line, count=1)
         if url_count != 1:
@@ -202,7 +202,7 @@ def collect_installers(
 
     # This folder intentionally contains only the current lightweight set.
     expected_names = {path.name for _, path in installers}
-    for old in destination.glob("SpaCR-*-Online*"):
+    for old in destination.glob("spaCR-*-Online*"):
         if old.name not in expected_names and old.is_file():
             old.unlink()
 
@@ -216,7 +216,7 @@ def collect_installers(
         manifest_rows.append((label, target.name, target.stat().st_size, digest))
 
     application_readme = [
-        "SpaCR lightweight installers",
+        "spaCR lightweight installers",
         "============================",
         "",
         f"Current version: ``{version}``",
