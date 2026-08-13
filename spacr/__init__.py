@@ -270,6 +270,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "column_groups",
     "filters",
     "gate_library",
+    "gpu_reduce",
     "merge_tables",
     "model_check",
     "surrogate",
