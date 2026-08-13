@@ -642,7 +642,8 @@ def _load_thumb_image_worker(row, src, settings):
                 path, db_path=s.db_path,
                 stored_channel_order=getattr(
                     s, "stored_channel_order", "rgb"),
-                display_order=getattr(s, "display_order", "rgb"))
+                display_order=getattr(s, "display_order", "rgb"),
+                display_primaries=getattr(s, "display_primaries", "rgb"))
         except Exception:
             return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
 
@@ -822,6 +823,34 @@ class _SettingsDialog(QDialog):
             "restores that picture without marking the folder as a format it "
             "is not.")
         form.addRow("Display order", self._display_order)
+
+        from ...crops import DISPLAY_PRIMARIES
+
+        self._display_primaries = QComboBox()
+        _PRIMARY_LABELS = {
+            "rgb": "RGB   (as acquired)",
+            "cmy": "CMY   (publication style)",
+            "deuteranope": "Colourblind \u2014 deuteranope (red-green)",
+            "protanope": "Colourblind \u2014 protanope (red-green)",
+            "tritanope": "Colourblind \u2014 tritanope (blue-yellow)",
+        }
+        for mode in DISPLAY_PRIMARIES:
+            self._display_primaries.addItem(_PRIMARY_LABELS[mode], mode)
+        current_primaries = str(
+            getattr(settings, "display_primaries", "rgb")).lower()
+        primaries_index = self._display_primaries.findData(current_primaries)
+        self._display_primaries.setCurrentIndex(max(0, primaries_index))
+        self._display_primaries.setToolTip(
+            "What colours the channels are drawn in. A VIEW setting: it "
+            "changes nothing on disk and nothing measured.\n\n"
+            "CMY is the publication style most multichannel micrographs use "
+            "now. The three colourblind modes are separate because which "
+            "PAIR of colours collapses depends on the deficiency \u2014 "
+            "red-green for a deuteranope or protanope, blue-yellow for a "
+            "tritanope \u2014 so one setting cannot serve all three. CMY is "
+            "NOT one of them: measured against a red-green deficiency it "
+            "separates the channels less well than plain RGB.")
+        form.addRow("Channel colours", self._display_primaries)
 
         self._norm_channels = QLineEdit(_list_to_csv(settings.normalize_channels))
         self._norm_channels.setPlaceholderText("r, g, b (blank = off)")
