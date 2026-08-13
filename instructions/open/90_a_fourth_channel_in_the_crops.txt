@@ -2,8 +2,8 @@
 A FOURTH CHANNEL IN THE CROPS: A MASK, OR ANOTHER STAIN
 ================================================================================
 
-Status:    not started, 2026-08-13. THE PREMISES NEED CORRECTING FIRST -- see
-           below; the feature is worth building but not for the stated reason.
+Status:    DROPPED 2026-08-13 by the maintainer. Kept for the reasoning,
+           which is worth not re-deriving. Do not build this.
 Requested: 2026-08-13 - "when images are cropped they are cropped as PNGs and
            PNGs have 3 channels. but there is an extra alpha channel i could
            allow the user to fill with either a mask or a fourth intensity
@@ -124,3 +124,51 @@ A user can put the segmentation mask, or a fourth stain, alongside the three
 image channels; a pretrained model finetunes on it without being retrained
 from scratch; no viewer draws the object as transparent; and no
 `convert('RGB')` anywhere in spaCR can silently discard the extra plane.
+
+
+--------------------------------------------------------------------------------
+2026-08-13 - DROPPED, AND THE TWO REASONS THAT DECIDED IT
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "this is more challenging than it sounds because you
+           need to do this for every single model available through torch."
+           "is this a feature you think should be added? wont the mask jsut
+           allways be dropped?" ... "it sounds like we should just DROP the A
+           addition adie to RGB"
+
+AGREED, AND BOTH OBJECTIONS ARE RIGHT.
+
+1. THE SURGERY IS PER-ARCHITECTURE, NOT ONE FUNCTION. The five-line adaptation
+   in the section above is for a ResNet's `conv1`. spaCR offers the whole
+   torchvision zoo, and the first layer is somewhere different in each:
+   `features[0][0]` in EfficientNet, `features.conv0` in DenseNet,
+   `conv_proj` in a ViT, a patch-embedding projection in MaxViT, and so on.
+   That is a per-model table to write, keep correct across torchvision
+   releases, and test -- for a feature few runs would use.
+
+2. THE MASK PROBABLY CONTRIBUTES NOTHING, and this is the stronger reason.
+   Nothing "drops" the plane mechanically -- gradients do flow -- but a
+   channel only earns its place if it carries information the network cannot
+   already get. A segmentation mask does not: the object's boundary is
+   visible in the image the network is already looking at, AND spaCR already
+   masks the background out of the crop by default, so the mask is very
+   nearly the alpha of what is already there. Seeding its weights from the
+   mean of the RGB planes also starts it as "another copy of the image",
+   which is a poor prior for a binary mask. The expected gain is small and
+   the cost is a per-architecture table.
+
+A FOURTH STAIN IS A DIFFERENT CASE and the reasoning above does not condemn
+it: that is genuinely new information. A user who needs it can already write
+`.npy` crops with as many planes as they like -- what they would then need is
+the conv1 adaptation, which is exactly the cost this decision declines to pay.
+If it ever becomes worth paying, pay it for a fourth STAIN and not for a mask.
+
+WHAT SURVIVES FROM THIS FILE, and is worth keeping even though the feature is
+dropped:
+
+  * a pretrained model is NOT automatically compatible with a 4-plane input;
+  * but adapting it is NOT a retrain, so ".npy means training from scratch"
+    is false and should not be repeated;
+  * PIL treats a 4-channel TIFF as RGBA and silently reinterprets a 5-channel
+    one's dimensions, so no image container is a free path past three planes;
+  * `convert('RGB')` silently drops a fourth plane, in five places in spaCR.
