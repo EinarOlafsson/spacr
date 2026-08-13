@@ -64,6 +64,7 @@ SOURCE_DIR = ROOT / "docs" / "i18n"
 README_DIR = SOURCE_DIR / "readme"
 STATIC_API_DIR = ROOT / "docs" / "source" / "_static" / "i18n" / "api"
 API_DIR = STATIC_API_DIR
+REVIEWED_API_DIR = ROOT / "docs" / "i18n" / "reviewed" / "api"
 README_SOURCE = ROOT / "README.rst"
 
 # A cache entry is meaningful only for the exact English text sent to the
@@ -4788,6 +4789,72 @@ def reusable_api_translations(
     return reusable
 
 
+def reviewed_api_block_translations(
+    docs: Mapping[str, str], language: str,
+) -> dict[str, str]:
+    """Load reviewed API blocks only after revalidating exact evidence.
+
+    Review files are evidence, not catalogs. Every record remains bound to an
+    exact symbol/block, canonical hash, and current reviewed model context;
+    any drift is a hard error rather than a silently promoted translation.
+    """
+    directory = REVIEWED_API_DIR / language
+    if not directory.is_dir():
+        return {}
+    reviewed: dict[str, str] = {}
+    for path in sorted(directory.glob("*.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            raise ValueError(f"invalid reviewed API evidence {path}") from exc
+        if payload.get("schema") != 1 or payload.get("language") != language:
+            raise ValueError(f"invalid reviewed API evidence header: {path}")
+        records = payload.get("records")
+        if not isinstance(records, list):
+            raise ValueError(f"invalid reviewed API record list: {path}")
+        for record in records:
+            if not isinstance(record, Mapping):
+                raise ValueError(f"invalid reviewed API record: {path}")
+            label = str(record.get("label", ""))
+            symbol, separator, raw_index = label.rpartition("#")
+            if not separator:
+                raise ValueError(f"invalid reviewed API label {label!r}: {path}")
+            # Callers may repair an intentional documentation subset. Evidence
+            # for symbols outside that subset is neither admitted nor stale.
+            if symbol not in docs:
+                continue
+            try:
+                index = int(raw_index)
+            except ValueError as exc:
+                raise ValueError(
+                    f"invalid reviewed API block index {label!r}: {path}"
+                ) from exc
+            blocks, _layout = translatable_blocks(docs[symbol])
+            if not 0 <= index < len(blocks):
+                raise ValueError(f"stale reviewed API index {label!r}: {path}")
+            source = str(record.get("source", ""))
+            context = str(record.get("context", ""))
+            target = str(record.get("translation", ""))
+            if blocks[index] != source:
+                raise ValueError(f"stale reviewed API source {label!r}: {path}")
+            if record.get("source_sha256") != _source_hash(source):
+                raise ValueError(f"stale reviewed API hash {label!r}: {path}")
+            if _api_translation_source(source) != context:
+                raise ValueError(f"stale reviewed API context {label!r}: {path}")
+            if not (
+                _syntax_preserved(source, target)
+                and _api_block_valid(source, target, language)
+                and _api_block_valid(context, target, language)
+            ):
+                raise ValueError(f"rejected reviewed API target {label!r}: {path}")
+            previous = reviewed.setdefault(source, target)
+            if previous != target:
+                raise ValueError(
+                    f"conflicting reviewed API targets for {source!r}"
+                )
+    return reviewed
+
+
 def repair_api_translations(
     docs: Mapping[str, str], language: str, model_root: Path, args,
 ) -> dict[str, str]:
@@ -4876,7 +4943,9 @@ def repair_api_translations(
     generated: dict[str, str] = {}
     translation_input: dict[str, str] = {}
     recovered_cache = 0
+    recovered_review = 0
     if pending_sources:
+        reviewed_blocks = reviewed_api_block_translations(docs, language)
         # A stricter audit can reject a catalog entry after its model output
         # was already checkpointed. If a later review narrows that audit (for
         # example by recognizing the Python type name ``dict`` as code), reuse
@@ -4894,6 +4963,11 @@ def repair_api_translations(
             api_cache = {}
         for source in pending_sources:
             contextual_source = _api_translation_source(source)
+            reviewed_target = reviewed_blocks.get(source, "")
+            if reviewed_target:
+                generated[source] = reviewed_target
+                recovered_review += 1
+                continue
             candidate = ""
             # Before API contexts were namespaced, the shared decoder stored
             # accepted output under its model input itself. Reuse that exact
@@ -5000,6 +5074,7 @@ def repair_api_translations(
     print(
         f"{language}: API blocks reused={reused_blocks} "
         f"generated={len(pending_sources)} unresolved={unresolved} "
+        f"review_recovered={recovered_review} "
         f"cache_recovered={recovered_cache} "
         f"decoded={len(translation_input)} relaid_symbols={relaid_symbols}",
         flush=True,

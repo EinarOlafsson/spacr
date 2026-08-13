@@ -172,6 +172,53 @@ def test_api_repair_reuses_legacy_cache_only_for_identical_model_input(
     assert repaired == {"spacr.example": source}
 
 
+def test_reviewed_api_blocks_are_exact_bound_accepted_only_evidence(
+    tmp_path, monkeypatch,
+):
+    import argparse
+    import hashlib
+    import build_documentation_i18n as builder
+
+    source = "Return the processing session status."
+    context = builder._api_translation_source(source)
+    target = "Retorna o estado da sessão de processamento."
+    docs = {"spacr.example": source}
+    reviewed = tmp_path / "reviewed"
+    pt = reviewed / "pt"
+    pt.mkdir(parents=True)
+    evidence = {
+        "schema": 1,
+        "language": "pt",
+        "records": [{
+            "label": "spacr.example#0",
+            "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
+            "source": source,
+            "context": context,
+            "translation": target,
+        }],
+    }
+    evidence_path = pt / "tail.json"
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", reviewed)
+    api_dir = tmp_path / "api"
+    api_dir.mkdir()
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+
+    def unexpected_translate(*_args, **_kwargs):
+        raise AssertionError("accepted review must avoid model decoding")
+
+    monkeypatch.setattr(builder, "_translate_blocks", unexpected_translate)
+    repaired = builder.repair_api_translations(
+        docs, "pt", tmp_path / "models", argparse.Namespace(),
+    )
+    assert repaired == {"spacr.example": target}
+
+    evidence["records"][0]["context"] = context + " changed"
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+    with pytest.raises(ValueError, match="stale reviewed API context"):
+        builder.reviewed_api_block_translations(docs, "pt")
+
+
 def test_api_translation_source_disambiguates_model_input_and_hashes_it():
     import build_documentation_i18n as builder
 
