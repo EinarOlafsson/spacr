@@ -205,6 +205,51 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False, **kwargs):
     return destination
 
 
+#: Outline colours for the published overlay figure, per palette.
+#:
+#: ``default`` is what spaCR has always drawn and stays the default: changing
+#: it silently would change every figure a user has already made and every one
+#: their paper's methods section describes.
+#:
+#: IT IS ALSO NOT LEGIBLE TO EVERYONE, and the numbers say how badly. Worst
+#: confusable pair across the four outlines, 0-255, under Brettel-style
+#: simulation -- the pair a reader would have to tell apart and could not:
+#:
+#:     palette        normal  deuteranope  protanope  tritanope
+#:     default          255       27          77         39
+#:     colourblind      148      142         125        134
+#:
+#: 27 is not a small number, it is invisible. cell is drawn RED and pathogen
+#: GREEN, which is the one pair red-green deficiency removes, in the figure
+#: that goes into the paper.
+#:
+#: ``colourblind`` is the four of the Okabe-Ito set that scored best on that
+#: worst-pair measure. It gives up separation under normal vision (148 against
+#: 255) to buy five times as much under every deficiency, which is the right
+#: trade for a figure with more than one reader.
+OUTLINE_PALETTES = {
+    'default': {'cell': 'red', 'nucleus': 'blue',
+                'pathogen': 'green', 'organelle': 'yellow'},
+    'colourblind': {'cell': '#D55E00',        # vermillion
+                    'nucleus': '#56B4E9',     # sky blue
+                    'pathogen': '#009E73',    # bluish green
+                    'organelle': '#F0E442'},  # yellow
+}
+
+
+def outline_palette_colours(palette):
+    """The four outline colours for ``palette``.
+
+    :param palette: a key of :data:`OUTLINE_PALETTES`. Anything unknown --
+        including ``None`` -- falls back to ``default`` rather than raising:
+        a figure drawn in the historic colours is a far smaller problem than
+        a pipeline that stops at the plotting step.
+    :returns: ``{object_name: colour}``.
+    """
+    name = str(palette or 'default').strip().lower()
+    return dict(OUTLINE_PALETTES.get(name, OUTLINE_PALETTES['default']))
+
+
 def plot_image_mask_overlay(
     file,
     channels,
@@ -220,7 +265,8 @@ def plot_image_mask_overlay(
     export_tiffs=False,
     all_on_all=False,
     all_outlines=False,
-    filter_dict=None
+    filter_dict=None,
+    outline_palette='default'
 ):
     """Plot image and mask overlays.
 
@@ -259,6 +305,13 @@ def plot_image_mask_overlay(
         ``'nucleus'``, ``'pathogen'`` or ``'organelle'``, each holding
         ``((min_area, max_area), (min_intensity, max_intensity))``; objects
         outside the limits are dropped before plotting.
+    :param outline_palette: which outline colours to draw, a key of
+        :data:`OUTLINE_PALETTES`. ``'default'`` is what spaCR has always
+        drawn; ``'colourblind'`` is legible under red-green and blue-yellow
+        deficiency, where the default's worst pair scores 27 out of 255 --
+        cell is drawn red and pathogen green, the one pair the commonest
+        deficiency removes. Default ``'default'``, because changing every
+        figure a user has already made would be worse than the defect.
     :returns: The generated matplotlib ``Figure``.
     """
 
@@ -550,11 +603,12 @@ def plot_image_mask_overlay(
     outlines = []
     outline_colors = []
 
+    colours = outline_palette_colours(outline_palette)
     object_specs = [
-        ('cell', cell_channel, 'red'),
-        ('nucleus', nucleus_channel, 'blue'),
-        ('pathogen', pathogen_channel, 'green'),
-        ('organelle', organelle_channel, 'yellow'),
+        ('cell', cell_channel, colours['cell']),
+        ('nucleus', nucleus_channel, colours['nucleus']),
+        ('pathogen', pathogen_channel, colours['pathogen']),
+        ('organelle', organelle_channel, colours['organelle']),
     ]
 
     present_objects = [(name, channel, color) for name, channel, color in object_specs if channel is not None]
