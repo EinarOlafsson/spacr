@@ -5589,8 +5589,14 @@ class AnnotateApp:
             pass
 
         # lists (comma-separated) for known list keys
+        # `classes` is NOT here any more: it holds name -> {column, value}
+        # since instruction 37, and splitting a dict on commas produced a list
+        # of fragments that the pipeline then refused. `class_folder_names` is
+        # the list that used to live under that name -- the training subfolder
+        # names -- and it takes its place. Tk updated to fit the new code, per
+        # the standing rule.
         listy = {
-            "classes", "class_metadata", "train_channels",
+            "class_folder_names", "class_metadata", "train_channels",
             "tables", "file_metadata"
         }
         if key in listy or ("," in s):

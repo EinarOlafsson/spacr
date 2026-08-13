@@ -769,3 +769,51 @@ default was breaking.
 
 STILL OPEN IN THIS FILE: the class-selector redesign (the bubble/teal-green
 UI work described above). The shape question that blocked it is answered.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE SELECTOR IS THE TWO-FIELD BUBBLE EDITOR. 37 IS COMPLETE.
+--------------------------------------------------------------------------------
+
+"2 fields next to each other with class then value class generating a teal
+bubble and the value generating a green bubble."
+
+WHAT LANDED. `ClassEditorWidget` grew a CLASS field and a VALUE field side by
+side, and a `ClassChip` that draws the pair as one object: a teal pill for the
+name, a green pill for the value, the source column in muted text, and one
+remove button for the pair. Enter in either field adds the class; the fields
+clear and focus returns to the first, so a second class is two words and a
+keystroke. The bulk path ("Add values" from a column) produces the same chips,
+so there is one object on screen however a class got there.
+
+THE SAME IN BOTH BASES, which was the actual request -- "simplified and
+standardized between the metadata mode and the annotate mode". Only the
+COLUMNS the picker offers differ (plate/row/column/field/well under metadata,
+the table's own annotation columns otherwise). The gesture is identical, so it
+is learned once.
+
+THE RANDOM COMPLEMENT SURVIVES and shows ONE bubble, not two: there is no
+value to put in the green half, so the green half says "the rest, at random"
+instead of inventing one.
+
+COLOURS ARE PALETTE ROLES, `chip_class` and `chip_value`, added to all five
+palettes. Not literals at the call site, and named for what they MEAN rather
+than for the colour, so a retheme can move them. A test asserts the widget
+contains no hex literal at all and that every palette defines both -- a
+missing role is a KeyError at paint time in one theme only, which is the
+worst way to find out.
+
+THE TABLE IS KEPT, HIDDEN. Every existing test and integration reads
+`self.table`, and removing it would be a second change riding on this one. It
+is still the surface that edits a name.
+
+TK UPDATED TO FIT, per the standing rule. `gui_elements`'s comma-separated
+`listy` set still had `classes` in it, which since the class/folder split
+means splitting a DICT on commas into fragments the pipeline then refuses.
+Replaced with `class_folder_names`, which is the list that used to live under
+that name.
+
+31 tests in tests/test_class_editor.py, 81 palette-consumer tests, 136 across
+the class, classify and Tk suites.
+
+STILL OPEN IN THIS FILE: nothing. The shape question was answered 2026-08-12
+and the selector is built.

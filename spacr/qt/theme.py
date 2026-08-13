@@ -97,6 +97,11 @@ DARK_PALETTE = {
     "accent_soft": "#1e3550",   # accent-tinted surface (chips, highlights)
     # Status
     "success":     "#3fb950",
+    # The class/value bubbles of the Classify selector. Semantic roles, not
+    # literals at the call site, so they follow the theme -- and named for
+    # what they MEAN rather than for the colour, so a retheme can move them.
+    "chip_class":  "#1fb6ad",   # teal  -- the class name
+    "chip_value":  "#3fb950",   # green -- its value
     "warning":     "#d29922",
     "error":       "#f85149",
     "info":        "#4A9EFF",
@@ -136,6 +141,11 @@ LIGHT_PALETTE = {
     "accent_lo":   "#063d7a",
     "accent_soft": "#dbe8fb",
     "success":     "#0f7030",
+    # The class/value bubbles of the Classify selector. Semantic roles, not
+    # literals at the call site, so they follow the theme -- and named for
+    # what they MEAN rather than for the colour, so a retheme can move them.
+    "chip_class":  "#0a6f6a",   # teal  -- the class name
+    "chip_value":  "#0f7030",   # green -- its value
     "warning":     "#8f4e00",
     "error":       "#b81d1a",
     "info":        "#0a63c4",
@@ -166,6 +176,11 @@ SPACE_PALETTE = {
     "accent_lo":   "#3d8ddb",   # scrim, not on solid #161719
     "accent_soft": "#16304f",
     "success":     "#5fd97a",
+    # The class/value bubbles of the Classify selector. Semantic roles, not
+    # literals at the call site, so they follow the theme -- and named for
+    # what they MEAN rather than for the colour, so a retheme can move them.
+    "chip_class":  "#4fd6ce",   # teal  -- the class name
+    "chip_value":  "#5fd97a",   # green -- its value
     "warning":     "#f0c14b",
     "error":       "#ff7b72",
     "info":        "#6cb6ff",
@@ -204,6 +219,11 @@ CELL_PALETTE = {
     "accent_lo":   "#4fb3cf",
     "accent_soft": "#123742",
     "success":     "#6fe39a",
+    # The class/value bubbles of the Classify selector. Semantic roles, not
+    # literals at the call site, so they follow the theme -- and named for
+    # what they MEAN rather than for the colour, so a retheme can move them.
+    "chip_class":  "#5fe0d8",   # teal  -- the class name
+    "chip_value":  "#6fe39a",   # green -- its value
     "warning":     "#f2ca5c",
     "error":       "#ff8f86",
     "info":        "#8fe3f7",
@@ -241,6 +261,11 @@ GLASS_PALETTE = {
     "accent_lo":   "#579fe0",
     "accent_soft": "#263746",
     "success":     "#78dfa3",
+    # The class/value bubbles of the Classify selector. Semantic roles, not
+    # literals at the call site, so they follow the theme -- and named for
+    # what they MEAN rather than for the colour, so a retheme can move them.
+    "chip_class":  "#6fe0d8",   # teal  -- the class name
+    "chip_value":  "#78dfa3",   # green -- its value
     "warning":     "#f5cf72",
     "error":       "#ff9a95",
     "info":        "#8cc8ff",
