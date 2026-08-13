@@ -346,3 +346,48 @@ as an opt-in for genuinely network-mounted projects.
 WHAT DOES NOT WORK: raising `DB_WRITE_TIMEOUT`. utils.py:2801 records that
 30 s made the whole suite time out, and a longer wait does not remove
 contention -- it hides it until the plate is big enough.
+
+--------------------------------------------------------------------------------
+2026-08-13 - OPTION (1) WAS IMPLEMENTED, BROKE THE SAFETY NET, AND WAS BACKED OUT
+--------------------------------------------------------------------------------
+
+Written down because the next person will otherwise reach for it first, as I
+did, and it is not as simple as "swap to_sql for INSERT".
+
+WHAT WAS BUILT: `_insert_frame`, a plain `executemany` INSERT replacing
+`frame.to_sql(if_exists='append')` inside `_append_frame`, plus `_sql_values`
+to convert numpy scalars and NaN the way to_sql did. Eleven tests passed,
+INCLUDING an equivalence test that wrote the same frame both ways into two
+databases and compared them row for row, and a trace-callback test proving
+no `sqlite_master` read remained.
+
+IT STILL LOST A ROW. The wider regression failed 10 tests, among them the two
+that exist for exactly this:
+
+    test_append_frame_widens_after_losing_the_create_race_to_a_narrower_frame
+        expected {1: None, 2: 17.0}, got {1: None}
+    test_four_processes_writing_a_fresh_db_lose_no_fields
+    test_measure_crop_completes_in_a_spawn_pool
+
+So the equivalence test was necessary and NOT sufficient: it proved the happy
+path writes identical bytes, and said nothing about the three repair paths
+`_append_frame` wraps around it -- the CREATE race, the widen-and-retry, and
+what each does to rows already in flight. The row went missing on the widen
+retry, which is the path with the most moving parts and the one no
+single-frame test exercises.
+
+REVERTED IN FULL. `to_sql` is back and the 8 intermittent-write tests pass.
+
+WHAT THE NEXT ATTEMPT NEEDS, beyond what this one had:
+
+  * the widen path tested FIRST, not the happy path -- write a narrow frame,
+    then a wider one, from two connections, and assert every row of both;
+  * `head(0).to_sql(if_exists='fail')` is the wrong create: losing the race
+    raises ValueError, not OperationalError, so the caller's retry does not
+    catch it. Create with `if_exists='append'`, or catch both;
+  * a decision about executemany and partial application under a mid-batch
+    error, which is the likeliest place the row went.
+
+THE ANALYSIS BEHIND IT IS STILL RIGHT and is worth someone's time: the read
+IS the contention, and removing it is the only fix that reaches a cluster.
+This records that the obvious implementation is not the correct one.
