@@ -89,7 +89,8 @@ def _unpack_supervised_batch(batch):
             "A supervised data loader must yield at least (images, labels).")
     return batch[0], batch[1]
 
-def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, n_jobs=10):
+def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
+                n_jobs=10, input_statistics='symmetric'):
     """
     Apply a trained PyTorch model to images in a directory.
 
@@ -127,10 +128,19 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
     if normalize:
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.CenterCrop(size=(image_size, image_size)),
-            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
+        # WHICH statistics is now a setting. spaCR has always used 0.5/0.5,
+        # which maps [0,1] to [-1,1]; every ImageNet-pretrained torchvision
+        # model was fitted on 0.485/0.456/0.406 and 0.229/0.224/0.225, so a
+        # finetune under the old default hands pretrained weights inputs
+        # distributed differently from the ones they learned. The default is
+        # unchanged so existing scores do not move under anybody.
+        from .normalization import normalization_stats
+        stats = normalization_stats(input_statistics)
+        steps = [transforms.ToTensor(),
+                 transforms.CenterCrop(size=(image_size, image_size))]
+        if stats is not None:
+            steps.append(transforms.Normalize(mean=stats[0], std=stats[1]))
+        transform = transforms.Compose(steps)
     else:
         transform = transforms.Compose([
             transforms.ToTensor(),
@@ -220,11 +230,18 @@ def apply_model_to_tar(settings=None):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     if settings['normalize']:
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.CenterCrop(size=(settings['image_size'], settings['image_size'])),
-            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
-        ])
+        # See the note on the other transform: which statistics is a setting
+        # now, and the model card records the answer.
+        from .normalization import describe_normalization, normalization_stats
+        mode = settings.get('input_statistics', 'symmetric')
+        stats = normalization_stats(mode)
+        steps = [transforms.ToTensor(),
+                 transforms.CenterCrop(size=(settings['image_size'],
+                                             settings['image_size']))]
+        if stats is not None:
+            steps.append(transforms.Normalize(mean=stats[0], std=stats[1]))
+        print(describe_normalization(mode))
+        transform = transforms.Compose(steps)
     else:
         transform = transforms.Compose([
             transforms.ToTensor(),
@@ -2867,7 +2884,14 @@ def generate_activation_map(settings):
         transforms.CenterCrop(size=(settings['image_size'], settings['image_size'])),
     ]
     if settings['normalize_input']:
-        transform_steps.append(transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))
+        # `normalize_input` stays the on/off it has always been; WHICH
+        # statistics is `input_statistics`, so an existing settings file
+        # keeps its meaning exactly.
+        from .normalization import normalization_stats
+        stats = normalization_stats(settings.get('input_statistics', 'symmetric'))
+        if stats is not None:
+            transform_steps.append(
+                transforms.Normalize(mean=stats[0], std=stats[1]))
     transform_steps.append(SelectChannels(settings['channels']))
     transform = transforms.Compose(transform_steps)
 

@@ -102,6 +102,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "external_masks",
     "resume",
     "checkpoint",
+    "normalization",
     "cancellation",
     "zstack",
     "report",
