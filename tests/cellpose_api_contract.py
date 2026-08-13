@@ -56,53 +56,138 @@ from tests.conftest import MISSING_CHANNEL_AXIS
 #: module was read off this install with ``inspect.signature``.
 INSTALLED_CELLPOSE_VERSION = cellpose.version
 
-#: ``cellpose.models.CellposeModel.__init__`` parameters, name -> default.
+#: The recorded API, keyed by the cellpose release that introduced it.
 #:
-#: Cellpose 3's ``models.Cellpose`` wrapper and ``models.SizeModel`` do not
-#: exist in 4.x at all; ``CellposeModel`` is the only entry point, and
-#: ``pretrained_model`` (not ``model_type``) is how you choose weights.
-CELLPOSE_INIT_PARAMETERS = {
-    "gpu": False,
-    "pretrained_model": "cpsam",
-    "model_type": None,
-    "diam_mean": None,
-    "device": None,
-    "nchan": None,
-    "use_bfloat16": True,
+#: ONE EXACT TABLE PER VERSION -- not a tolerant union. The 2026-08-08 note
+#: refused to make this contract "range-aware", and that reasoning still
+#: holds: the contract is what CAUGHT `channel_axis=3`, and a contract that
+#: shrugs at a range stays green while a user installs the release where the
+#: mismatch is real. What is recorded here instead is every version spaCR has
+#: actually been run against, written out in full. A version matching none of
+#: them fails loudly and names itself -- see :func:`_recorded_band_for`.
+#:
+#: 4.2 is where the SAM-era API moved again:
+#:   * `pretrained_model` default 'cpsam' -> 'cpsam_v2', and MODEL_NAMES grew
+#:     from ['cpsam'] to ['cpsam_v2', 'cpdino', 'cpdino-vitb', 'cpsam'];
+#:   * `eval` LOST `invert` outright;
+#:   * `eval`'s `bsize` default 256 -> None.
+#: spaCR passes none of those three, which is why the product needed no change
+#: for them; what it DID need was `_resolve_cellpose_pretrained` learning that
+#: cpsam is no longer the only stock model.
+_RECORDED_INIT_PARAMETERS = {
+    (4, 0): {
+        "gpu": False,
+        "pretrained_model": "cpsam",
+        "model_type": None,
+        "diam_mean": None,
+        "device": None,
+        "nchan": None,
+        "use_bfloat16": True,
+    },
+    (4, 2): {
+        "gpu": False,
+        "pretrained_model": "cpsam_v2",
+        "model_type": None,
+        "diam_mean": None,
+        "device": None,
+        "nchan": None,
+        "use_bfloat16": True,
+    },
 }
 
-#: ``cellpose.models.CellposeModel.eval`` parameters, name -> default, in
-#: declaration order. ``x`` is positional and has no default.
-#:
-#: Read straight off the installed 4.0.7. NOTE that the ``CellposeModel`` class
-#: docstring in that same file still advertises the Cellpose 3 signature
-#: (``interp=True``, no ``max_size_fraction``, no ``flow3D_smooth``) — the
-#: docstring is stale and this dict follows ``inspect.signature`` instead.
-CELLPOSE_EVAL_PARAMETERS = {
-    "batch_size": 8,
-    "resample": True,
-    "channels": None,
-    "channel_axis": None,
-    "z_axis": None,
-    "normalize": True,
-    "invert": False,
-    "rescale": None,
-    "diameter": None,
-    "flow_threshold": 0.4,
-    "cellprob_threshold": 0.0,
-    "do_3D": False,
-    "anisotropy": None,
-    "flow3D_smooth": 0,
-    "stitch_threshold": 0.0,
-    "min_size": 15,
-    "max_size_fraction": 0.4,
-    "niter": None,
-    "augment": False,
-    "tile_overlap": 0.1,
-    "bsize": 256,
-    "compute_masks": True,
-    "progress": None,
+_RECORDED_EVAL_PARAMETERS = {
+    (4, 0): {
+        "batch_size": 8,
+        "resample": True,
+        "channels": None,
+        "channel_axis": None,
+        "z_axis": None,
+        "normalize": True,
+        "invert": False,
+        "rescale": None,
+        "diameter": None,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "do_3D": False,
+        "anisotropy": None,
+        "flow3D_smooth": 0,
+        "stitch_threshold": 0.0,
+        "min_size": 15,
+        "max_size_fraction": 0.4,
+        "niter": None,
+        "augment": False,
+        "tile_overlap": 0.1,
+        "bsize": 256,
+        "compute_masks": True,
+        "progress": None,
+    },
+    (4, 2): {
+        "batch_size": 8,
+        "resample": True,
+        "channels": None,
+        "channel_axis": None,
+        "z_axis": None,
+        "normalize": True,
+        "rescale": None,
+        "diameter": None,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "do_3D": False,
+        "anisotropy": None,
+        "flow3D_smooth": 0,
+        "stitch_threshold": 0.0,
+        "min_size": 15,
+        "max_size_fraction": 0.4,
+        "niter": None,
+        "augment": False,
+        "tile_overlap": 0.1,
+        "bsize": None,
+        "compute_masks": True,
+        "progress": None,
+    },
 }
+
+
+def _version_tuple(text):
+    """(major, minor) from a cellpose version string; (0, 0) if unreadable."""
+    parts = []
+    for chunk in str(text).split(".")[:2]:
+        digits = "".join(c for c in chunk if c.isdigit())
+        parts.append(int(digits) if digits else 0)
+    while len(parts) < 2:
+        parts.append(0)
+    return tuple(parts)
+
+
+def _recorded_band_for(version):
+    """The recorded band covering ``version``, or None if it is unrecorded.
+
+    The highest recorded band at or below the installed release, so 4.2.1.1
+    reads the (4, 2) row and a future 4.2.9 does too. A release below the
+    lowest recorded band -- which the pin forbids anyway -- returns None, and
+    the contract test turns that into a failure naming the version.
+    """
+    installed = _version_tuple(version)
+    covered = [band for band in _RECORDED_EVAL_PARAMETERS if band <= installed]
+    return max(covered) if covered else None
+
+
+#: The band this install falls in, or ``None`` when it is not recorded.
+INSTALLED_CELLPOSE_BAND = _recorded_band_for(INSTALLED_CELLPOSE_VERSION)
+
+#: Every band this suite knows how to run against, newest last.
+RECORDED_CELLPOSE_BANDS = tuple(sorted(_RECORDED_EVAL_PARAMETERS))
+
+#: ``CellposeModel.__init__`` parameters for the INSTALLED release.
+CELLPOSE_INIT_PARAMETERS = dict(
+    _RECORDED_INIT_PARAMETERS.get(INSTALLED_CELLPOSE_BAND)
+    or _RECORDED_INIT_PARAMETERS[max(_RECORDED_INIT_PARAMETERS)])
+
+#: ``CellposeModel.eval`` parameters, name -> default, in declaration order,
+#: for the INSTALLED release.
+CELLPOSE_EVAL_PARAMETERS = dict(
+    _RECORDED_EVAL_PARAMETERS.get(INSTALLED_CELLPOSE_BAND)
+    or _RECORDED_EVAL_PARAMETERS[max(_RECORDED_EVAL_PARAMETERS)])
 
 #: Defaults a compliant double is allowed to substitute, ``name -> default``.
 #: See "The one sanctioned deviation" above.
