@@ -1259,3 +1259,64 @@ WHAT IS LEFT IN THIS FILE IS TWO MAINTAINER DECISIONS AND NOTHING ELSE:
      `<table>_count` roll-ups rather than every column with an underscore.
 
 So: item 1 is the only open question, and it needs the maintainer.
+
+--------------------------------------------------------------------------------
+2026-08-12 - THE MAINTAINER ANSWERED THE JOIN QUESTION, AND IT IS BIGGER
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-12 - "a cell can have one cytoplasm, multiple nuclei,
+           multiple pathogens and multiple organells. so the merging needs to
+           acomodate these facts. maybie add an option to consolidate on cell
+           (True should be recommended) which would use INNER i guess for the
+           objects that can be multiple per cell. and if consolidate on cell
+           is off then use left on the objects that can be multiple per cell."
+           "you need to make sure that the aggregation is also correct for the
+           type of measurement area gets summed, counts get added together
+           mean intensity gets averaged, and so on"
+           "also make sure that having Na values in columns dosnt mess with
+           any thing downstream or at least make sure there are propper
+           mechanisms to handle NAs so they dont get deleted silently or the
+           first value chosen etc."
+
+THE CARDINALITY, which nothing in the merge currently states:
+
+    cytoplasm    EXACTLY ONE per cell
+    nucleus      MANY per cell
+    pathogen     MANY per cell
+    organelle    MANY per cell
+
+So the join type was never the whole question. A many-per-cell child joined
+onto cells MULTIPLIES ROWS -- one row per (cell, child) pair -- and every
+downstream count, mean and test then treats one cell as N. The fix is to
+consolidate the children to one row per cell BEFORE the join, which is what
+`consolidate_on_cell` names.
+
+    consolidate_on_cell=True   (recommended default) aggregate each
+                               many-per-cell child up to the cell, then INNER
+                               -- the analysis is about cells that HAVE the
+                               child.
+    consolidate_on_cell=False  LEFT, keeping cells with no child, rows not
+                               consolidated.
+
+AGGREGATION IS PER MEASUREMENT TYPE, and this is where a blanket rule does
+real damage. Summing a mean intensity is meaningless; averaging an area
+under-reports the cell's total by a factor of the child count.
+
+    area, perimeter, volume, integrated intensity, counts   SUM
+    mean / median / percentile intensities, ratios, texture MEAN
+    min                                                     MIN
+    max                                                     MAX
+    identity columns (plate, well, field, label)            FIRST, and only
+                                                            where every row
+                                                            agrees
+
+NA HANDLING IS A NAMED REQUIREMENT, not a detail. Nothing may silently drop a
+row for a NaN or silently take the first value of a disagreeing group. Every
+NA decision has to be one of: excluded from the aggregate and REPORTED,
+propagated as NA, or refused. Item (a) of this file already fixed one of
+these -- `na='drop'` deleting a cell for an unmeasurable child -- and the
+same standard applies to the aggregation.
+
+This supersedes the "which how PER TABLE" question recorded on 2026-08-11:
+the answer is that `how` follows `consolidate_on_cell`, and the aggregation
+is the part that was actually missing.
