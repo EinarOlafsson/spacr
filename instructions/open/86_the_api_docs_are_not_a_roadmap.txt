@@ -230,3 +230,34 @@ The conda-forge recipe (59) must NOT list it, which an extra makes automatic.
 
 The xgboost `device='cuda'` half still has no conflict at all -- xgboost is
 already a dependency and the flag is free.
+
+--------------------------------------------------------------------------------
+2026-08-13 - EVERY EXTRA MUST BE REACHABLE FROM THE INSTALLERS
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "by the way all the extra options need to be
+           available via the installers as well add this to the instructions"
+
+So an optional extra is not finished when `pip install spacr[rapids]` works.
+The .exe, the .pkg and the .run are how most users arrive, and an extra only
+a pip user can reach is an extra most users do not have.
+
+WHAT THIS MEANS CONCRETELY, and it lands on instructions 44, 45 and 53:
+
+  * The online installers already resolve dependencies at install time
+    (`packaging/online/install_spacr_*.{ps1,sh}`), so they are the natural
+    place: the extra becomes a CHOICE on the way through, not a second
+    installation afterwards.
+  * The choice must state its cost and its constraint. `rapids` pulls
+    gigabytes of CUDA libraries and REQUIRES Python 3.11 or 3.12 -- an
+    installer that offers it on 3.13 produces a resolver error the user
+    cannot read. Offer it only where it can succeed, and say why when it
+    cannot.
+  * DEFAULT OFF, always. An extra that installs itself is a dependency
+    wearing a different hat, and the whole reason `rapids` is an extra is
+    that it must not reach anyone who did not ask.
+  * The same applies to `attribution` (torchcam) and any extra added later,
+    so this is a rule about the installer's shape rather than about rapids.
+
+44 already covers the CPU-vs-GPU choice at install time; this is the same
+dialog gaining a row per extra rather than a new mechanism.
