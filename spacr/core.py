@@ -478,7 +478,10 @@ def preprocess_generate_masks(settings):
                                                     figuresize=10,
                                                     percentiles=(1,99),
                                                     thickness=3,
-                                                    save_pdf=True
+                                                    save_pdf=True,
+                                                    outline_palette=settings.get(
+                                                        'outline_palette',
+                                                        'default')
                                                 )
                                                 stop = time.time()
                                                 duration = stop-start
