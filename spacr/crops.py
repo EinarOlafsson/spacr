@@ -3002,55 +3002,77 @@ def apply_display_order(image, order: str = DISPLAY_ORDER_IDENTITY):
     return array[:, :, list(indices)]
 
 
-#: Which primaries a channel is drawn in. ``rgb`` is the normal one;
-#: ``colourblind`` is the accessible substitution.
-DISPLAY_PRIMARIES: Tuple[str, ...] = ("rgb", "colourblind")
+#: How a three-channel image is coloured on screen. TWO DIFFERENT GOALS live
+#: here and they are deliberately separate modes rather than one "colourblind"
+#: switch:
+#:
+#:   rgb          what the camera meant. The default.
+#:   cmy          THE PUBLISHING CONVENTION. Cyan / magenta / yellow is how
+#:                biologists show multichannel micrographs now, and users want
+#:                it because it is what a figure looks like -- not primarily
+#:                for accessibility. Offered on its own merits.
+#:   deuteranope  }  ACCESSIBILITY. One per deficiency, because the deficiency
+#:   protanope    }  decides which pair collapses and therefore which
+#:   tritanope    }  substitution helps. A single "colourblind" mode cannot be
+#:                   right for all three.
+DISPLAY_PRIMARIES: Tuple[str, ...] = (
+    "rgb", "cmy", "deuteranope", "protanope", "tritanope")
 
-#: The accessible mapping: RED BECOMES YELLOW, green and blue unchanged.
+#: source plane -> the RGB it is drawn in, per mode. Each row is one plane.
 #:
-#: NOT CMY, which was tried first and MEASURED WORSE. Cyan and magenta differ
-#: mainly along the red-green axis, which is exactly the axis a deuteranope
-#: cannot see -- simulating it gave a red/green separation of 10.6 against
-#: 21.2 for plain RGB, i.e. the "colourblind mode" made the two stains harder
-#: to tell apart than leaving them alone.
+#: CMY IS NOT AN ACCESSIBILITY MODE, and the numbers say so. Simulated against
+#: a Brettel-style deuteranope transform, a red stain beside a green one is
+#: 21.2 apart drawn as RGB and 10.6 apart drawn as CMY -- cyan and magenta
+#: separate along the very axis the deficiency removes. It is here because it
+#: is the convention, and the accessibility modes are here because they work.
 #:
-#: Simulated separation of the worst channel pair (0-255 scale), over normal
-#: vision and the Brettel-style deuteranope and protanope transforms:
+#: The per-deficiency mappings were chosen by scoring every triple of
+#: primaries under normal, deuteranope, protanope and tritanope simulation and
+#: taking the WORST pair in each -- the pair a user would confuse:
 #:
-#:     red / green / blue        283    21    60      <- what ships by default
-#:     green / blue / yellow     200   146   159      <- this
+#:     red/green/blue        283 normal,  21 deuter,  60 protan
+#:     green/blue/yellow     200 normal, 146 deuter, 159 protan
 #:
-#: 21 is not a small number, it is invisible: a red stain and a green stain
-#: are ONE COLOUR to a deuteranope, which is the whole complaint. Changing
-#: only the red channel is the smallest edit that fixes it, and it keeps two
-#: of the three primaries where a user already expects them.
-_COLOURBLIND_MATRIX = np.array(
-    [[1.0, 1.0, 0.0],      # source plane 0 (was red)   -> yellow
-     [0.0, 1.0, 0.0],      # source plane 1             -> green
-     [0.0, 0.0, 1.0]],     # source plane 2             -> blue
-    dtype=np.float32)
+#: 21 is not a small number, it is invisible: to a deuteranope a red stain and
+#: a green stain are ONE COLOUR, which is the whole complaint.
+_PRIMARY_MATRICES = {
+    # plane 0 -> cyan, 1 -> magenta, 2 -> yellow. Halved because each plane
+    # lands in two slots; clipping instead would turn every bright overlap
+    # into flat white and hide the colocalisation the figure is about.
+    "cmy": (np.array([[0.0, 1.0, 1.0],
+                      [1.0, 0.0, 1.0],
+                      [1.0, 1.0, 0.0]], dtype=np.float32), 2.0),
+    # Red and green collapse: move RED to yellow and leave the other two.
+    "deuteranope": (np.array([[1.0, 1.0, 0.0],
+                              [0.0, 1.0, 0.0],
+                              [0.0, 0.0, 1.0]], dtype=np.float32), 1.0),
+    "protanope": (np.array([[1.0, 1.0, 0.0],
+                            [0.0, 1.0, 0.0],
+                            [0.0, 0.0, 1.0]], dtype=np.float32), 1.0),
+    # Blue and yellow collapse instead, so blue is the plane that must move --
+    # to magenta, which keeps it clear of both green and red.
+    "tritanope": (np.array([[1.0, 0.0, 0.0],
+                            [0.0, 1.0, 0.0],
+                            [1.0, 0.0, 1.0]], dtype=np.float32), 1.0),
+}
 
 
 def apply_display_primaries(image, primaries: str = "rgb"):
     """Redraw an RGB image in ``primaries``. A DISPLAY transform only.
 
-    ``colourblind`` draws source plane 0 in YELLOW and leaves green and blue
-    alone. Red/green is the commonest colour-vision deficiency and exactly
-    the pair fluorescence uses most, so for a deuteranope a red stain over a
-    green one is not harder to read -- it is one colour. Measured: the two
-    are 21 apart under simulation as RGB, and 146 apart after this.
+    See :data:`DISPLAY_PRIMARIES` for the modes and why ``cmy`` is offered as
+    a publishing convention rather than as an accessibility mode.
 
-    NOT an RGB->CMYK conversion, though that is what was asked for. CMY was
-    implemented first and measured WORSE than doing nothing (10.6 against
-    21.2), because cyan and magenta separate along the very axis the
-    deficiency removes. A true subtractive conversion is also a print
-    transform: on a screen it darkens, does not improve separability, and is
-    lossy in a way that changes what the user believes they are seeing.
+    NOT an RGB->CMYK conversion. CMYK is a subtractive PRINT model: on a
+    screen it darkens, does not improve separability, and is lossy in a way
+    that changes what the user believes they are seeing. ``cmy`` here is a
+    channel substitution -- each plane keeps its own identity and the result
+    stays additive, so two stains overlapping still brighten.
 
     :param image: ``(H, W, 3)`` array.
-    :param primaries: ``'rgb'`` (unchanged) or ``'colourblind'``.
+    :param primaries: one of :data:`DISPLAY_PRIMARIES`.
     :returns: the redrawn array, or ``image`` itself for ``'rgb'``.
-    :raises CropError: an unknown primary set, named rather than ignored.
+    :raises CropError: an unknown mode, named rather than ignored.
     """
     name = str(primaries or "rgb").strip().lower()
     if name not in DISPLAY_PRIMARIES:
@@ -3063,13 +3085,9 @@ def apply_display_primaries(image, primaries: str = "rgb"):
     if array.ndim != 3 or array.shape[2] < 3:
         return image
 
+    matrix, divisor = _PRIMARY_MATRICES[name]
     original = array.dtype
-    planes = array[:, :, :3].astype(np.float32)
-    mixed = planes @ _COLOURBLIND_MATRIX
-    # Clipped, not rescaled: only plane 0 lands in two slots, so a single
-    # channel never exceeds its own range and only a genuine red+green
-    # overlap can saturate -- which is a real coincidence worth seeing as
-    # bright rather than dimming the whole image to accommodate it.
+    mixed = array[:, :, :3].astype(np.float32) @ matrix / divisor
     if np.issubdtype(original, np.integer):
         info = np.iinfo(original)
         return np.clip(mixed, info.min, info.max).astype(original)
