@@ -220,3 +220,59 @@ names the artefact that would reopen it usefully: a faulthandler log, or a
 gdb backtrace if nothing is printed.
 
 REMAINING: #15 only (measurements hangs, "database is locked").
+
+--------------------------------------------------------------------------------
+2026-08-12 (later) - #15 HAS A FIX, AND THE FIRST EXPLANATION OF IT WAS WRONG
+--------------------------------------------------------------------------------
+
+Candidate 2 from the diagnostic comment ("the measurement writer does not go
+through database_concurrency.connect") IS ALREADY DONE:
+`_append_to_measurements_db` calls `connect(db_path, timeout=DB_WRITE_TIMEOUT)`
+at utils.py:2943. Nothing to do there.
+
+Candidate 1 -- WAL where the filesystem allows it -- is now implemented, and
+working out WHY it helps corrected the diagnostic comment's own reasoning.
+
+THE COMMENT SAID, and I repeated it: "under WAL a reader does not block a
+writer, which is most of this problem", with the failing has_table probe as a
+READ that was being blocked by writers. The test written to prove that
+measured 0.000 s and refuted it. In rollback-journal mode a writer holding
+RESERVED does NOT block readers; only its brief EXCLUSIVE commit does.
+
+THE DIRECTION IS THE OTHER WAY, and it is worse for this workload. A reader
+holds SHARED for the length of its statement, and a writer cannot COMMIT
+until every SHARED lock is gone. Measure runs one worker per field, and
+to_sql issues has_table (a read) before every append -- so each worker
+alternates read, write, read, write, someone is always reading, and the
+committing worker waits out its busy timeout. Measured, a commit attempted
+while one reader holds an open SELECT:
+
+    journal_mode=delete    writer waited 1.037 s
+    journal_mode=wal       writer waited 0.002 s
+
+That is writer starvation by a stream of readers, and "database is locked"
+surfaces on whichever has_table loses the race -- which is exactly the
+statement in the reporter's traceback.
+
+WHAT SHIPPED: `database_concurrency.enable_wal_where_safe`, called once per
+source folder from `measure_crop` before any worker starts. The safety bar is
+a POSITIVELY IDENTIFIED local filesystem -- `WAL_SAFE_FILESYSTEMS` is an
+allowlist, not the complement of `NETWORK_FILESYSTEMS`, because "not a type I
+recognise as networked" is a weaker claim than "local" and the gap between
+them is a corrupted database on a cluster. Network types, unrecognised types,
+and platforms where `filesystem_type` cannot tell (it reads /proc/mounts, so
+macOS and Windows always answer None) all keep the shipped DELETE behaviour.
+Never raises.
+
+NOT CLOSED, AND NOT YET COMMENTED ON, for two reasons:
+
+  1. It is unpushed, so it is not real for the reporter yet.
+  2. It fixes the reader-blocks-writer half. It does NOT make two writers
+     concurrent -- SQLite still serialises those -- and the reporter's path
+     (`/home/jkellerm/.conda/...`) may well be a network filesystem, in which
+     case this changes NOTHING for them and the `df -T` the diagnostic asked
+     for is still the next thing needed.
+
+So the honest state is: a measured improvement for local-disk runs, which is
+most runs, and an open question for theirs. Say that in the comment rather
+than "fixed", and ask for `df -T` again.
