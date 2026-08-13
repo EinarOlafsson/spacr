@@ -568,6 +568,33 @@ class GateSettingsDialog(QDialog):
             lambda v: self._change(spin_speed=float(v)))
         form.addRow("Spin speed", self._spin)
 
+        # THE VOLUME ITSELF IS NOT BUILT YET (instruction 52), and until it is
+        # these four controls turn nothing. They are still SHOWN -- the values
+        # are saved, reloaded and carried in the settings, so hiding them
+        # would lose a user's 3D setup silently the first time they opened
+        # this tab. What changes is that they no longer promise behaviour the
+        # application does not have.
+        #
+        # This is instruction 52's own prescription, quoted: "Until this
+        # instruction lands, the 3D group should either be hidden or carry a
+        # visible 'not yet'." A control that turns nothing is a promise the
+        # app does not keep, which is the defect the whole phantom-settings
+        # sweep of instruction 77 was about.
+        pending = QLabel(
+            "The 3D volume is not built yet, so these four settings are "
+            "saved but do not change what is drawn. 2D and xD gating are "
+            "unaffected.", page)
+        pending.setObjectName("GateSettingsPending")
+        pending.setWordWrap(True)
+        form.addRow("", pending)
+        for widget, label in ((self._voxels, "Voxels"),
+                              (self._snap, "Snap to axis"),
+                              (self._spin, "Spin speed")):
+            widget.setToolTip(
+                (widget.toolTip() + "\n\n" if widget.toolTip() else "")
+                + "NOT YET IN EFFECT: the 3D volume is not built (instruction "
+                  "52). The value is saved and will apply when it is.")
+
         self._rules_button = QPushButton("Aggregation rules…", page)
         self._rules_button.setToolTip(
             "Show the rule chosen for every measurement, and change any of "
