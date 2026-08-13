@@ -961,6 +961,22 @@ def test_reviewed_quoted_human_phrases_are_prose_not_api_literals():
         "Mark objects as 'not scored' or 'exclude this debris'.",
         "Marque os objetos como 'não pontuados' ou 'exclua estes detritos'.",
     )
+    assert _syntax_preserved(
+        'Compare "the run that worked" with the failed run.',
+        'Compare "a execução que funcionou" com a execução que falhou.',
+    )
+
+
+def test_inline_pip_install_command_is_a_protected_literal():
+    from build_i18n_catalogs import _PROTECT_RE, _syntax_preserved
+
+    source = "Uses the Piper CLI installed with pip install piper-tts."
+    matches = [match.group(0) for match in _PROTECT_RE.finditer(source)]
+    assert "pip install piper-tts" in matches
+    assert _syntax_preserved(
+        source,
+        "Usa a CLI do Piper instalada com pip install piper-tts.",
+    )
 
 
 def test_readme_language_picker_is_never_sent_through_translation():
