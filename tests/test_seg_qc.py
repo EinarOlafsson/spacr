@@ -779,3 +779,123 @@ def test_the_dataclass_is_the_documented_shape():
     qc.severity = "fail"
     assert qc.failed
     assert "empty_field" in str(qc)
+
+
+# ---------------------------------------------------------------------------
+# The QC gate: seg_qc='stop' (instruction 86, insight d)
+# ---------------------------------------------------------------------------
+
+def test_stop_is_a_mode():
+    from spacr.seg_qc import MODES
+
+    assert "stop" in MODES
+
+
+@pytest.mark.parametrize("spelling", ["stop", "gate", "halt", "STOP", " stop "])
+def test_the_gate_is_reachable_by_the_words_a_user_would_type(spelling):
+    from spacr.seg_qc import qc_mode
+
+    assert qc_mode({"seg_qc": spelling}) == "stop"
+
+
+def test_a_failing_plate_raises_and_carries_its_summary(tmp_path, monkeypatch):
+    """A caller must be able to say WHICH fields failed, not only that some did."""
+    import spacr.seg_qc as sq
+
+    monkeypatch.setattr(sq, "score_masks", lambda *a, **k: [])
+    monkeypatch.setattr(sq, "summarize_qc", lambda *a, **k: {
+        "verdict": "fail", "message": "8 of 10 fields failed"})
+
+    with pytest.raises(sq.SegmentationQCFailed) as excinfo:
+        sq.run_segmentation_qc(str(tmp_path), object_type="cell",
+                               dst=str(tmp_path), mode="stop",
+                               print_fn=lambda *a, **k: None)
+
+    assert excinfo.value.summary["verdict"] == "fail"
+    assert "8 of 10" in str(excinfo.value)
+    assert "seg_qc='report'" in str(excinfo.value), "say how to run anyway"
+
+
+def test_the_gate_never_fires_on_a_warning(tmp_path, monkeypatch):
+    """Halting on an unsure verdict is how a gate gets switched off."""
+    import spacr.seg_qc as sq
+
+    monkeypatch.setattr(sq, "score_masks", lambda *a, **k: [])
+    monkeypatch.setattr(sq, "summarize_qc", lambda *a, **k: {
+        "verdict": "warn", "message": "borderline"})
+
+    out = sq.run_segmentation_qc(str(tmp_path), object_type="cell",
+                                 dst=str(tmp_path), mode="stop",
+                                 print_fn=lambda *a, **k: None)
+    assert out is not None and out["summary"]["verdict"] == "warn"
+
+
+def test_a_passing_plate_returns_normally(tmp_path, monkeypatch):
+    import spacr.seg_qc as sq
+
+    monkeypatch.setattr(sq, "score_masks", lambda *a, **k: [])
+    monkeypatch.setattr(sq, "summarize_qc", lambda *a, **k: {
+        "verdict": "ok", "message": "all good"})
+
+    out = sq.run_segmentation_qc(str(tmp_path), object_type="cell",
+                                 dst=str(tmp_path), mode="stop",
+                                 print_fn=lambda *a, **k: None)
+    assert out["mode"] == "stop"
+
+
+def test_report_and_flag_never_raise_however_bad_the_plate(tmp_path, monkeypatch):
+    """The existing modes keep their promise: surfacing is the job."""
+    import spacr.seg_qc as sq
+
+    monkeypatch.setattr(sq, "score_masks", lambda *a, **k: [])
+    monkeypatch.setattr(sq, "summarize_qc", lambda *a, **k: {
+        "verdict": "fail", "message": "everything failed"})
+
+    for mode in ("report", "flag"):
+        out = sq.run_segmentation_qc(str(tmp_path), object_type="cell",
+                                     dst=str(tmp_path), mode=mode,
+                                     print_fn=lambda *a, **k: None)
+        assert out["summary"]["verdict"] == "fail"
+
+
+def test_the_scorecard_is_written_before_the_gate_fires():
+    """A gate that stops before it writes the card leaves a failure and
+    nothing to read.
+
+    Asserted on the ORDER IN THE SOURCE rather than by stubbing the write:
+    reaching the raise needs a summary shaped exactly as the printing path
+    expects, and a test that stubs its way there ends up asserting the shape
+    of the stub. What matters is that the raise is the last thing in the
+    function, after the card, the flags and the printed verdict.
+    """
+    import inspect
+
+    from spacr import seg_qc
+
+    source = inspect.getsource(seg_qc.run_segmentation_qc)
+    raise_at = source.index("raise SegmentationQCFailed")
+    assert source.index("write_scorecard(") < raise_at
+    assert source.index("flags_path = ") < raise_at
+    assert source.index("print_fn(") < raise_at
+
+
+def test_the_exception_is_its_own_class():
+    """So a caller can tell "the plate failed QC" from "the run broke"."""
+    from spacr.seg_qc import SegmentationQCFailed
+
+    assert issubclass(SegmentationQCFailed, RuntimeError)
+
+
+def test_the_settings_combo_offers_the_gate():
+    from spacr.gui_utils import convert_settings_dict_for_gui
+
+    _kind, options, _default = convert_settings_dict_for_gui(
+        {"seg_qc": "report"})["seg_qc"]
+    assert "stop" in options
+
+
+def test_the_tooltip_says_what_stop_does():
+    from spacr.settings import tooltips
+
+    text = tooltips["seg_qc"]
+    assert "stop" in text and "fail" in text
