@@ -718,3 +718,54 @@ in_the_opaque_themes` (its whole file runs in 8.35 s alone) and
 `test_space_theme::TestRuntimeSwitch::test_switching_theme_restyles_without_
 leaking_or_raising`. Both smell like the segfault flake already recorded
 above ("constructing AppScreen leaves a QThread alive"), not like a hang.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE THREE NAMED ITEMS RE-MEASURED. TWO ARE GONE, ONE MOVED.
+--------------------------------------------------------------------------------
+
+THE TWO "UNEXPLAINED WORKER KILLS" ARE NOT HANGS. Both run and PASS, alone
+and together, under xvfb:
+
+    test_scrim_solver::TestMakeTransparent::test_tagged_widgets_paint_
+      nothing_in_the_opaque_themes                            7.08 s  PASS
+    test_space_theme::TestRuntimeSwitch::...restyles_without_
+      leaking_or_raising                                      PASS
+
+The file's own guess was right -- they smell like the segfault flake, not a
+hang -- so they are flakes and not a standing defect. 155 tests across
+test_onboarding, test_scrim_solver and test_space_theme pass in 94 s.
+
+`TestJournalTotals::test_counts_by_app_key` IS NO LONGER SLOW: 0.28 s,
+against the 79.09 s recorded here. Nothing in this session touched it, so it
+was either a cold-cache artefact of a full-suite run or was fixed elsewhere.
+
+THE PROVENANCE ATTRIBUTION IS WRONG, and this is the part worth correcting
+because it is stated as a PRODUCT cost -- "every real spaCR run pays 80 s of
+provenance capture before it starts, and it grows with the repository".
+Measured directly:
+
+    _installed_packages()   0.60 s (404 distributions), and it is lru_cached
+    _git_hash()             0.02 s
+    git rev-parse           0.00 s
+    git status --porcelain  0.01 s   (on the 5.7 GB checkout)
+
+Both subprocess calls also carry `timeout=3`, so neither CAN take 80 s. No
+spaCR run pays 80 s of provenance capture. Whatever the 80 s was, it was not
+this, and the conclusion "left unfixed because run_journal.py is another
+session's file" was protecting a file that is not the problem.
+
+WHAT IS ACTUALLY SLOW, and it is one test, not the journal:
+
+    test_onboarding::test_home_page_shows_recent_runs_when_history_present
+                                                             61.74 s
+
+It writes ONE journal entry and then constructs a full `MainWindow()`.
+cProfile puts 364 million function calls behind those 61 s. Instruction 55
+measured MainWindow build at 731 ms after its fixes, so this is three orders
+of magnitude off that and is a DIFFERENT path -- most likely the
+`_PipelinePreloader` 55 handed to instruction 74, running to completion
+inside a test rather than behind the loading screen.
+
+NEXT STEP, for whoever takes it: profile with the preloader stubbed and
+compare. If that is the cause, the fix is a test-time seam rather than a
+product change, because 74 already covers the real launch.
