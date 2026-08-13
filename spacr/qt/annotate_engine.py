@@ -145,7 +145,8 @@ def label_to_hex(val: Optional[int], dark: bool = True) -> Optional[str]:
 
 def load_crop_image(path: str, db_path: Optional[str] = None,
                     stored_channel_order: str = "auto",
-                    display_order: str = "rgb") -> Image.Image:
+                    display_order: str = "rgb",
+                    display_primaries: str = "rgb") -> Image.Image:
     """Open one object crop PNG as an 8-bit RGB image, in the corrected order.
 
     Not ``Image.open(path).convert('RGB')``. Crop PNGs come in two formats:
@@ -190,6 +191,7 @@ def load_crop_image(path: str, db_path: Optional[str] = None,
         CROP_FORMAT_CURRENT,
         CROP_FORMAT_RGB,
         apply_display_order,
+        apply_display_primaries,
         read_crop_png,
     )
 
@@ -213,7 +215,11 @@ def load_crop_image(path: str, db_path: Optional[str] = None,
     # Format first, preference second. Reversing them would permute planes
     # that are still in the wrong slots, and the two would compose into an
     # order neither the file nor the user asked for.
-    return Image.fromarray(apply_display_order(corrected, display_order))
+    # Order, then primaries. The order says WHICH source plane fills a slot;
+    # the primaries say what colour that slot is drawn in. Doing primaries
+    # first would recolour planes that are about to move.
+    shown = apply_display_order(corrected, display_order)
+    return Image.fromarray(apply_display_primaries(shown, display_primaries))
 
 
 def normalize_pil(
@@ -445,6 +451,9 @@ class AnnotateSettings:
     #: A DISPLAY preference, not a claim about the file. One of
     #: `spacr.crops.DISPLAY_ORDERS`; the default is the identity.
     display_order: str = "rgb"
+    #: 'rgb' or 'colourblind'. A view setting; see
+    #: crops.apply_display_primaries.
+    display_primaries: str = "rgb"
     measurement: Optional[Any] = None
     threshold: Optional[Any] = None
     threshold_direction: Optional[Any] = None
