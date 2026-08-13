@@ -60,7 +60,7 @@ def test_red_and_green_become_separable(simulation, name):
     """The whole point. Without this they are one colour."""
     red, green = _stain(0), _stain(1)
     before = _separation(red, green, simulation, "rgb")
-    after = _separation(red, green, simulation, "colourblind")
+    after = _separation(red, green, simulation, "deuteranope")
     assert after > before * 2, (
         f"{name}: {before:.1f} -> {after:.1f}; the mode must make the two "
         f"stains MORE separable, not less")
@@ -77,7 +77,7 @@ def test_every_channel_pair_stays_separable_under_both_deficiencies():
     for simulation in (DEUTERANOPE, PROTANOPE):
         for a, b in pairs:
             assert _separation(_stain(a), _stain(b), simulation,
-                               "colourblind") > 60
+                               "deuteranope") > 60
 
 
 # ---------------------------------------------------------------------------
@@ -90,14 +90,14 @@ def test_rgb_is_the_default_and_returns_the_same_object():
 
 
 def test_red_is_drawn_as_yellow():
-    assert apply_display_primaries(_stain(0), "colourblind")[0, 0].tolist() \
+    assert apply_display_primaries(_stain(0), "deuteranope")[0, 0].tolist() \
         == [200, 200, 0]
 
 
 def test_green_and_blue_are_left_where_the_user_expects_them():
-    assert apply_display_primaries(_stain(1), "colourblind")[0, 0].tolist() \
+    assert apply_display_primaries(_stain(1), "deuteranope")[0, 0].tolist() \
         == [0, 200, 0]
-    assert apply_display_primaries(_stain(2), "colourblind")[0, 0].tolist() \
+    assert apply_display_primaries(_stain(2), "deuteranope")[0, 0].tolist() \
         == [0, 0, 200]
 
 
@@ -105,7 +105,7 @@ def test_the_dtype_survives():
     for dtype in (np.uint8, np.uint16, np.float32):
         image = (np.zeros((2, 2, 3), dtype))
         image[..., 0] = 100
-        assert apply_display_primaries(image, "colourblind").dtype == dtype
+        assert apply_display_primaries(image, "deuteranope").dtype == dtype
 
 
 def test_an_overlap_saturates_rather_than_dimming_the_image():
@@ -114,22 +114,26 @@ def test_an_overlap_saturates_rather_than_dimming_the_image():
     both = np.zeros((2, 2, 3), np.uint8)
     both[..., 0] = 200
     both[..., 1] = 200
-    out = apply_display_primaries(both, "colourblind")
+    out = apply_display_primaries(both, "deuteranope")
     assert out[0, 0, 1] == 255
 
 
 def test_an_unknown_primary_set_is_refused_by_name():
-    with pytest.raises(CropError, match="colourblind"):
+    with pytest.raises(CropError, match="deuteranope"):
         apply_display_primaries(_stain(0), "cmyk")
 
 
 def test_a_greyscale_image_is_left_alone():
     grey = np.zeros((2, 2), np.uint8)
-    assert apply_display_primaries(grey, "colourblind") is grey
+    assert apply_display_primaries(grey, "deuteranope") is grey
 
 
-def test_the_offered_modes_are_exactly_two():
-    assert DISPLAY_PRIMARIES == ("rgb", "colourblind")
+def test_the_modes_separate_the_convention_from_the_accessibility_ones():
+    """CMY is how biologists publish; the others are per-deficiency. One
+    "colourblind" switch cannot be right for all three deficiencies, because
+    which PAIR collapses is what decides the substitution."""
+    assert DISPLAY_PRIMARIES == (
+        "rgb", "cmy", "deuteranope", "protanope", "tritanope")
 
 
 # ---------------------------------------------------------------------------
@@ -153,7 +157,7 @@ def test_the_loader_applies_the_mode(tmp_path):
 
     path = str(tmp_path / "c.png")
     Image.fromarray(_stain(0)).save(path)
-    out = np.asarray(load_crop_image(path, display_primaries="colourblind"))
+    out = np.asarray(load_crop_image(path, display_primaries="deuteranope"))
     assert out[0, 0].tolist() == [200, 200, 0]
 
 
@@ -179,3 +183,98 @@ def test_it_changes_nothing_on_disk():
     source = inspect.getsource(crops.apply_display_primaries)
     for forbidden in ("imwrite", "save(", "to_sql", "open("):
         assert forbidden not in source
+
+
+# ---------------------------------------------------------------------------
+# CMY is the publishing convention, and is NOT sold as accessibility
+# ---------------------------------------------------------------------------
+
+def test_cmy_is_offered_because_it_is_the_convention():
+    """Cyan/magenta/yellow is how biologists show multichannel micrographs
+    now. It is a figure style, and this asserts it exists as its own mode."""
+    out = apply_display_primaries(_stain(0), "cmy")[0, 0].tolist()
+    assert out == [0, 100, 100], "plane 0 should read as cyan"
+    assert apply_display_primaries(_stain(1), "cmy")[0, 0].tolist() == [100, 0, 100]
+    assert apply_display_primaries(_stain(2), "cmy")[0, 0].tolist() == [100, 100, 0]
+
+
+def test_cmy_does_not_help_a_deuteranope_and_the_test_says_so():
+    """Recorded as a MEASUREMENT so nobody re-labels cmy an accessibility
+    mode: cyan and magenta separate along the axis the deficiency removes."""
+    red, green = _stain(0), _stain(1)
+    as_rgb = _separation(red, green, DEUTERANOPE, "rgb")
+    as_cmy = _separation(red, green, DEUTERANOPE, "cmy")
+    assert as_cmy < as_rgb, (
+        f"cmy {as_cmy:.1f} vs rgb {as_rgb:.1f} -- if this ever reverses, the "
+        f"comment calling cmy a convention rather than an accessibility mode "
+        f"needs revisiting")
+
+
+TRITANOPE = np.array([[0.950, 0.050, 0.000],
+                      [0.000, 0.433, 0.567],
+                      [0.000, 0.475, 0.525]], np.float32)
+
+
+def test_the_tritanope_mode_separates_the_pair_that_collapses_for_them():
+    """Blue/yellow collapses for a tritanope, not red/green -- which is why
+    one mode cannot serve every deficiency."""
+    before = _separation(_stain(2), _stain(1), TRITANOPE, "rgb")
+    after = _separation(_stain(2), _stain(1), TRITANOPE, "tritanope")
+    assert after > before * 2, f"{before:.1f} -> {after:.1f}"
+
+
+@pytest.mark.parametrize("mode", ["cmy", "deuteranope", "protanope",
+                                  "tritanope"])
+def test_no_mode_touches_the_data(mode):
+    """Every mode is a display transform; none may write anything."""
+    import inspect
+
+    from spacr import crops
+
+    source = inspect.getsource(crops.apply_display_primaries)
+    for forbidden in ("imwrite", "save(", "to_sql"):
+        assert forbidden not in source
+    # and it must not mutate its input
+    image = _stain(0)
+    before = image.copy()
+    apply_display_primaries(image, mode)
+    assert np.array_equal(image, before)
+
+
+# ---------------------------------------------------------------------------
+# Reachable where it matters: Annotate
+# ---------------------------------------------------------------------------
+
+def _dialog(qtbot):
+    from spacr.qt.annotate_engine import AnnotateSettings
+    from spacr.qt.screens.annotate import _SettingsDialog
+
+    dialog = _SettingsDialog(AnnotateSettings())
+    qtbot.addWidget(dialog)
+    return dialog
+
+
+def test_annotate_offers_every_mode(qtbot):
+    """"especially in annotate" -- the maintainer's own emphasis."""
+    combo = _dialog(qtbot)._display_primaries
+    assert [combo.itemData(i) for i in range(combo.count())] == list(
+        DISPLAY_PRIMARIES)
+
+
+def test_annotate_defaults_to_as_acquired(qtbot):
+    assert _dialog(qtbot)._display_primaries.currentData() == "rgb"
+
+
+def test_the_labels_say_which_deficiency_each_mode_is_for(qtbot):
+    """A user picking one needs to know which is theirs."""
+    combo = _dialog(qtbot)._display_primaries
+    labels = [combo.itemText(i).lower() for i in range(combo.count())]
+    assert any("red-green" in l for l in labels)
+    assert any("blue-yellow" in l for l in labels)
+    assert any("publication" in l for l in labels)
+
+
+def test_the_tooltip_separates_the_convention_from_accessibility(qtbot):
+    tip = _dialog(qtbot)._display_primaries.toolTip().lower()
+    assert "disk" in tip, "it must say it changes nothing on disk"
+    assert "cmy is not one of them" in tip or "not one of them" in tip
