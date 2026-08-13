@@ -195,3 +195,86 @@ def test_the_cylinder_selects_what_it_encloses(canvas):
     frame = pd.DataFrame({"a": [2.0, 2.0, 9.0], "b": [2.0, 3.9, 2.0],
                           "c": [0.0, 0.0, 0.0]})
     assert gate.mask(frame).tolist() == [True, True, False]
+
+
+# ---------------------------------------------------------------------------
+# The polygon gesture on the anchor plane
+# ---------------------------------------------------------------------------
+
+from spacr.qt.widgets.gate_spec import POLYGON, PolygonGate, PrismGate  # noqa: E402
+
+
+class _Press:
+    inaxes = object()
+    xdata = ydata = 0.0
+    x = y = 0
+
+
+def _click(canvas, first, u, second, v):
+    canvas.screen_to_volume = lambda _e: (first, u, second, v)
+    canvas._on_press(_Press())
+
+
+def test_vertices_land_in_data_units_not_screen_ones(canvas):
+    """In the volume event.xdata is a projected screen coordinate and means
+    nothing in data units."""
+    canvas._tool = POLYGON
+    _at(canvas, 90.0, 0.0)
+    _click(canvas, "a", 1.0, "b", 2.0)
+    assert canvas._pending == [(1.0, 2.0)]
+
+
+def test_three_clicks_and_a_close_make_a_prism(canvas):
+    canvas._tool = POLYGON
+    _at(canvas, 90.0, 0.0)
+    for u, v in ((0.0, 0.0), (2.0, 0.0), (1.0, 2.0)):
+        _click(canvas, "a", u, "b", v)
+    gate = canvas.close_polygon(name="p")
+    assert isinstance(gate, PrismGate)
+    assert (gate.u_column, gate.v_column, gate.axis_column) == ("a", "b", "c")
+    assert gate.vertices == ((0.0, 0.0), (2.0, 0.0), (1.0, 2.0))
+
+
+def test_the_prism_is_unbounded_along_the_normal(canvas):
+    """They said nothing about depth, like every other shape drawn here."""
+    canvas._tool = POLYGON
+    _at(canvas, 90.0, 0.0)
+    for u, v in ((0.0, 0.0), (2.0, 0.0), (1.0, 2.0)):
+        _click(canvas, "a", u, "b", v)
+    gate = canvas.close_polygon(name="p")
+    assert (gate.axis_low, gate.axis_high) == (None, None)
+
+
+def test_turning_the_view_mid_polygon_abandons_it(canvas):
+    """Vertices from two planes are not one shape, and mixing them would
+    produce a prism whose outline nobody drew."""
+    canvas._tool = POLYGON
+    _at(canvas, 90.0, 0.0)
+    _click(canvas, "a", 0.0, "b", 0.0)
+    _click(canvas, "a", 2.0, "b", 0.0)
+    _click(canvas, "b", 5.0, "c", 5.0)          # a different plane
+    assert canvas._pending == [(5.0, 5.0)]
+
+
+def test_two_vertices_close_to_nothing(canvas):
+    canvas._tool = POLYGON
+    _at(canvas, 90.0, 0.0)
+    _click(canvas, "a", 0.0, "b", 0.0)
+    _click(canvas, "a", 2.0, "b", 0.0)
+    assert canvas.close_polygon(name="p") is None
+
+
+def test_a_click_the_volume_cannot_read_places_nothing(canvas):
+    canvas._tool = POLYGON
+    _at(canvas, 90.0, 0.0)
+    canvas.screen_to_volume = lambda _e: None
+    canvas._on_press(_Press())
+    assert canvas._pending == []
+
+
+def test_in_2d_the_polygon_is_still_a_polygon(canvas):
+    canvas._mode = "2D"
+    canvas._tool = POLYGON
+    canvas._pending = [(0.0, 0.0), (2.0, 0.0), (1.0, 2.0)]
+    gate = canvas.close_polygon(name="p")
+    assert isinstance(gate, PolygonGate)
