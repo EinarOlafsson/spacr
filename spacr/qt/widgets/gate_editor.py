@@ -33,6 +33,7 @@ is.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 import logging
 from typing import Dict, List, Optional, Tuple
 
@@ -2271,6 +2272,25 @@ class GateTree(QWidget):
         self.active_changed.emit(self.active_gate())
 
 
+@dataclass(frozen=True)
+class _ClusterRun:
+    """One clustering pass's parameters, from wherever they came from.
+
+    The dialog and the Search tab are two editors of the same five numbers.
+    Naming them once here is what lets `run_cluster` have ONE body -- and
+    the modal's own docstring records what happens when two editors of the
+    same settings drift: it opened on hardcoded 0.30/10 while Gate Settings
+    offered 0.5/20, and the values the user set were discarded.
+    """
+
+    eps: float
+    min_samples: int
+    scale: bool
+    walk: bool
+    walk_steps: int
+    method: str
+
+
 class _ClusterSettingsDialog(QDialog):
     """DBSCAN's two parameters, with what they mean in the units they act in.
 
@@ -2635,12 +2655,22 @@ class GateEditorPanel(QWidget):
                 f"{count} vertex(es) — three or more make a region")
 
     def _on_cluster(self) -> None:
+        """The Cluster… button: ask, then run."""
+        self.run_cluster(ask=True)
+
+    def run_cluster(self, *, ask: bool = True) -> None:
         """Find dense populations and add one gate per cluster.
 
         Clusters become REAL gates rather than a separate kind of selection,
         so each is editable, nestable, serialisable and usable as a filter
         the moment it appears -- everything a hand-drawn gate can do, because
         it is one.
+
+        :param ask: open the parameter dialog first. The Cluster… button
+            does; the Search TAB does not, because the tab IS the parameter
+            editor -- asking again there would be asking twice for the same
+            numbers. Both read the same settings object, which is what stops
+            the two from disagreeing.
         """
         from PySide6.QtWidgets import QMessageBox
 
@@ -2663,21 +2693,34 @@ class GateEditorPanel(QWidget):
                 "Clustering needs an X and a Y measurement.")
             return
 
-        dialog = _ClusterSettingsDialog(self, settings=self._settings)
-        if dialog.exec() != QDialog.Accepted:
-            return
+        if ask:
+            dialog = _ClusterSettingsDialog(self, settings=self._settings)
+            if dialog.exec() != QDialog.Accepted:
+                return
+            params = _ClusterRun(dialog.eps(), dialog.min_samples(),
+                                 dialog.scale(), dialog.walk(),
+                                 dialog.walk_steps(), dialog.method())
+        else:
+            settings = self._settings
+            params = _ClusterRun(
+                float(getattr(settings, "cluster_eps", 0.5)),
+                int(getattr(settings, "cluster_min_samples", 20)),
+                bool(getattr(settings, "cluster_scale", True)),
+                bool(getattr(settings, "cluster_walk", False)),
+                int(getattr(settings, "cluster_walk_steps", 12)),
+                str(getattr(settings, "cluster_method", "dbscan")))
 
         from .gate_spec import (ClusterError, best_cluster_candidate,
                                 cluster_gates, cluster_walk_candidates)
-        eps = dialog.eps()
+        eps = params.eps
         chosen = None
         try:
-            if dialog.walk():
+            if params.walk:
                 candidates = cluster_walk_candidates(
                     frame, x_column, y_column,
-                    eps=eps, min_samples=dialog.min_samples(),
-                    scale=dialog.scale(), steps=dialog.walk_steps(),
-                    method=dialog.method())
+                    eps=eps, min_samples=params.min_samples,
+                    scale=params.scale, steps=params.walk_steps,
+                    method=params.method)
                 chosen = best_cluster_candidate(candidates)
                 if chosen is None:
                     # Named rather than silently falling back to the typed
@@ -2697,8 +2740,8 @@ class GateEditorPanel(QWidget):
                 eps = chosen.eps
             found = cluster_gates(
                 frame, x_column, y_column,
-                eps=eps, min_samples=dialog.min_samples(),
-                scale=dialog.scale(), method=dialog.method(),
+                eps=eps, min_samples=params.min_samples,
+                scale=params.scale, method=params.method,
                 parent=self.canvas.active_gate())
         except ClusterError as exc:
             # Named, not swallowed: every one of these messages says what to

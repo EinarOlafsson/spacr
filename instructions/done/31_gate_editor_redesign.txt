@@ -496,3 +496,49 @@ could be checked while using the other. That is not the pair the spec means.
 SO: 31 is blocked on 49 for its last item, and nothing else. This is the
 FOURTH stale list in this file's own history (resolution modes, colour map
 and Clustering Walk were the previous three, all shipped while listed open).
+
+--------------------------------------------------------------------------------
+2026-08-13 (last) - DONE. THE FILTER / SEARCH TABS.
+--------------------------------------------------------------------------------
+
+The last item, and it needed instruction 49 first: the second tab had nothing
+to hold until there was a search to put in it.
+
+WHY IT WAS WORTH MOVING AND NOT JUST REARRANGING. A search is a thing you
+ITERATE on -- change a parameter, look at the plot, change it again. It lived
+in `_ClusterSettingsDialog`, a MODAL, so *looking* meant closing the dialog,
+and changing anything meant reopening it. Every loop cost two clicks and the
+loss of the previous view. Beside the filter it is one click away and the
+scatter stays on screen while the numbers move.
+
+`spacr/qt/widgets/gate_search_panel.py`, in a `QTabWidget` named
+`GateSidePanel` so `theme.page_tabs_qss` paints the selected tab in the
+accent -- "the active one blue like the app's buttons" -- with the console
+still below it.
+
+FILTER AND COLUMNS ARE NOT THE PAIR THAT BECOMES TABS, and that is worth
+restating because this file's own list makes it look as though they are. They
+were deliberately merged into ONE page earlier in this instruction: they are
+the same job -- both narrow what the scatter shows -- so hiding one behind the
+other meant neither could be checked while using the other. SEARCH is a
+different job, which is what makes it a different tab.
+
+ONE SOURCE OF TRUTH, AND THE FILE ALREADY RECORDS WHY. The modal's docstring
+carries the bug from when it did not have one: it opened on hardcoded 0.30/10
+while Gate Settings offered 0.5/20, so values the user set were discarded and
+the two disagreed about the defaults as well. So the panel and the dialog are
+two editors of the same five numbers on `GateEditorSettings`, and
+`run_cluster` has ONE body -- `_ClusterRun` names the parameters once,
+gathered from the dialog when the button asked and from the settings when the
+tab did not.
+
+THE TAB DOES NOT ASK AGAIN. `run_cluster(ask=False)`: the tab IS the parameter
+editor, and opening the dialog from it would be asking twice for the same
+numbers. The Cluster… button still asks.
+
+Walk steps is greyed while the walk is off rather than removed (INVARIANTS 6),
+the button says which of the two it will do, and the note says what the
+numbers above mean in each mode -- with a walk they are the starting point,
+not the answer, which is not obvious from a checkbox.
+
+16 tests; 541 pass across the gate suites, the xD picker and smoke.
