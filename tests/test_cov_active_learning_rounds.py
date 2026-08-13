@@ -966,7 +966,10 @@ def test_group_by_none_records_a_random_split_as_a_random_one(project):
                               round_index=0)
     assert "NOT grouped" in result.split_rule
     assert "no group appears on both sides" not in result.split_rule
-    assert any("group_by='none'" in note and "optimistic" in note
+    # 'none' is still accepted, and now reports itself as the level it IS
+    # -- 'cell' -- because a model card should record the deliberate choice
+    # of the leakiest level, not the absence of a strategy.
+    assert any("group_by='cell'" in note and "optimistic" in note
                for note in result.notes)
     curve = al.learning_curve(project["db"], "annotate")
     assert "NOT grouped" in curve["split_rule"].iloc[-1]

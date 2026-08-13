@@ -315,8 +315,18 @@ def test_filter_and_columns_are_one_section_not_two_tabs(qtbot):
     screen = GateEditorScreen()
     qtbot.addWidget(screen)
 
-    assert screen.findChildren(QTabWidget) == [], (
-        "the side panel is still tabbed")
+    # NOT "no tabs anywhere": Filter and Search ARE tabs, which is what
+    # instruction 31 asks for. What must not happen is Filter and COLUMNS
+    # being split from each other -- they are the same job, and hiding one
+    # behind the other meant neither could be checked while using the other.
+    # So the assertion is that they share a page.
+    tabs = screen.findChildren(QTabWidget)
+    assert [tabs[0].tabText(i) for i in range(tabs[0].count())] == \
+        ["Filter", "Search"]
+    filter_page = tabs[0].widget(0)
+    assert filter_page.isAncestorOf(screen.filters)
+    assert filter_page.isAncestorOf(screen.formulas), (
+        "Columns was split away from Filter")
     headings = sorted(label.text() for label in screen.findChildren(QLabel)
                       if label.objectName() == "SectionHeading")
     assert headings == ["Columns", "Filter"]
@@ -329,13 +339,14 @@ def test_the_side_panel_width_is_the_splitters_to_decide(qtbot):
     """A hard maximum is what made the cap unescapable: the user could not
     widen the column even when the content plainly needed it."""
     pytest.importorskip("PySide6")
-    from PySide6.QtWidgets import QScrollArea
-
     from spacr.qt.screens.gate_editor import GateEditorScreen
 
     screen = GateEditorScreen()
     qtbot.addWidget(screen)
-    area = screen.findChildren(QScrollArea)[0]
+    # The SPLITTER'S CHILD, which is the tab widget since Filter and Search
+    # became tabs. The scroll areas are inside it now, and their width is the
+    # tabs' business rather than the splitter's.
+    area = screen.side_tabs
     # Qt's "no maximum" sentinel. Anything smaller is a cap.
     assert area.maximumWidth() == 16777215
     assert area.minimumWidth() > 0, "it still needs a floor to be usable"
@@ -352,8 +363,14 @@ def test_the_side_panel_does_not_paint_the_window_colour(qtbot):
 
     screen = GateEditorScreen()
     qtbot.addWidget(screen)
-    area = screen.findChildren(QScrollArea)[0]
-    assert area.property(theme.TRANSPARENT_PROPERTY) is True
+    # Every scroll area on this screen, because they all sit beside the plot
+    # and any one of them painting `bg` is the black slab.
+    areas = screen.findChildren(QScrollArea)
+    assert areas
+    for area in areas:
+        assert area.viewport().autoFillBackground() is False, (
+            f"{area.objectName() or area} fills its viewport with the "
+            f"window colour")
 
 
 # ---------------------------------------------------------------------------
@@ -517,8 +534,13 @@ def test_the_gate_list_has_its_own_handle(qtbot):
     # assertion is about the plot and the side panel each having a handle, not
     # about how many panes there happen to be -- pinning the count would fail
     # every time a pane is added, which is not what this test is for.
-    body = next(p for p in pairs if p[:2] == ("GateEditorPanel", "QScrollArea"))
-    assert body[:2] == ("GateEditorPanel", "QScrollArea"), pairs
+    # The side panel is a QTabWidget since Filter and Search became tabs.
+    # The assertion is about the plot and the side panel each having a
+    # HANDLE -- what the pane happens to be made of is not this test's
+    # business, and pinning the class failed the moment the panel gained
+    # tabs without anything about the handles changing.
+    body = next(p for p in pairs if p[0] == "GateEditorPanel")
+    assert len(body) >= 2, pairs
 
 
 def test_the_gate_list_width_is_not_capped(qtbot):

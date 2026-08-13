@@ -2453,12 +2453,33 @@ def holdout_report(y_true: Any, probs: Any,
 
 
 #: What ``group_by`` accepts, and the columns each strategy groups over.
+#: What a held-out split refuses to share, as a LADDER from the leakiest to
+#: the strictest. Every level is a real choice a design can justify, so all
+#: four are offered rather than one being imposed:
+#:
+#:     cell    each object is its own group, so siblings from one well land
+#:             on both sides. The optimistic end, and named for its UNIT
+#:             rather than called "none" -- "none" reads as the feature
+#:             being switched off, when it is in fact the leaky setting.
+#:     field   two fields of one well still share illumination, seeding and
+#:             edge position, so this narrows the leak without closing it.
+#:     well    the level at which the experiment assigns a condition, and so
+#:             the level at which a held-out set is independent.
+#:     plate   for a design where the batch is the plate.
+#:
+#: ``none``, ``off``, False and None stay accepted as aliases of ``cell``:
+#: they are what shipped, and a settings file written before this rename
+#: must keep meaning what it meant.
 _SPLIT_GROUPS: Dict[str, Tuple[str, ...]] = {
+    "cell": (),
+    "field": ("plateID", "rowID", "columnID", "fieldID"),
     "well": ("plateID", "rowID", "columnID"),
     "plate": ("plateID",),
-    "field": ("plateID", "rowID", "columnID", "fieldID"),
     "none": (),
 }
+
+#: The ladder in order, for a picker and for the tooltip that explains it.
+SPLIT_LEVELS: Tuple[str, ...] = ("cell", "field", "well", "plate")
 
 
 def _split_columns_for(group_by: Any, columns: Sequence[str], table: str,
@@ -2482,7 +2503,7 @@ def _split_columns_for(group_by: Any, columns: Sequence[str], table: str,
     :raises ValueError: for a strategy that is not in :data:`_SPLIT_GROUPS`.
     """
     if group_by in (None, False, "none", "off"):
-        key = "none"
+        key = "cell"
     else:
         key = str(group_by)
         if key not in _SPLIT_GROUPS:
@@ -2497,12 +2518,19 @@ def _split_columns_for(group_by: Any, columns: Sequence[str], table: str,
 
     wanted = list(_SPLIT_GROUPS[key])
     if not wanted:
+        # Reported as 'cell', which is what the user picked and what the
+        # model card should say. Returning 'none' here made the card record
+        # the ABSENCE of a strategy rather than the deliberate choice of the
+        # leakiest one -- and those read very differently to whoever reads
+        # the card next.
         notes.append(
-            "group_by='none': the held-out split is a plain stratified "
+            "group_by='cell': the held-out split is a plain stratified "
             "random split of objects, so crops from the same well sit on "
-            "both sides of it and the accuracy is optimistic. Pass "
-            "group_by='well' for a number that transfers.")
-        return "none", []
+            "both sides of it and the accuracy is optimistic — it measures "
+            "how well the model separates these cells, not whether it "
+            "transfers to a well it has not seen. Pass group_by='well' for "
+            "a number that transfers.")
+        return "cell", []
 
     present = [c for c in wanted if c in columns]
     if not present:
@@ -2877,7 +2905,7 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
         # both sides" into the learning curve and the model card.
         groups = np.zeros(n_labels, dtype=object)
         ungrouped_reason = (
-            "group_by='none' was asked for" if group_name == "none"
+            f"group_by={group_name!r} was asked for" if not columns
             else f"{table} carries none of the columns needed to group by "
                  f"{group_name!r}")
 
