@@ -137,12 +137,47 @@ class MergePolicy:
     primary: str = DEFAULT_PRIMARY
     na: str = "keep"
     overrides: Mapping[str, str] = None
+    consolidate_on_cell: bool = True
+    keep_uninfected: bool = True
 
     def __post_init__(self) -> None:
         if self.na not in NA_POLICIES:
             raise MergeError(
                 f"na={self.na!r} is not one of {list(NA_POLICIES)}")
         object.__setattr__(self, "overrides", dict(self.overrides or {}))
+
+    def how_for(self, table: str) -> str:
+        """Whether ``table`` keeps cells it contributed no rows for.
+
+        THE CARDINALITY IS WHY THIS IS NOT ONE ANSWER. A cell has exactly one
+        cytoplasm, and MANY nuclei, pathogens and organelles. The
+        many-per-cell tables are rolled up to one row per cell first (see
+        :func:`roll_up`), and ``consolidate_on_cell`` decides what happens to
+        a cell the roll-up found nothing for:
+
+            consolidate_on_cell=True   the analysis is about cells that HAVE
+                                       the child, so the join is inner
+            consolidate_on_cell=False  keep the cell and leave the child's
+                                       columns NA
+
+        WITH ONE EXCEPTION, which is instruction 77 item (c) in full: an
+        UNINFECTED cell is a cell, and in a screen it is usually the control
+        population. Making pathogen inner silently conditions every result on
+        infection and deletes the comparison group from the denominator --
+        measured there as object p = 4e-39 against well p = 0.25 on the same
+        data. So pathogen and organelle follow ``keep_uninfected``, which
+        exists for exactly this and defaults to keeping them; setting it
+        False is how a caller deliberately restricts to infected cells.
+
+        A one-row-per-cell table keeps whatever :data:`object_roles.JOIN_HOW`
+        declares, because there is no consolidation to decide about.
+        """
+        from .object_roles import join_how
+
+        name = str(table).strip().lower()
+        if not self.consolidate_on_cell and not is_one_row_per_cell(name):
+            return "left"
+        return join_how(name, keep_uninfected=self.keep_uninfected)
 
 
 def aggregation_for(column: str, *, numeric: bool = True,
@@ -287,7 +322,41 @@ def roll_up(child: pd.DataFrame, keys: Sequence[str], *,
     out = grouped.agg(plan)
     # The count is the one measurement the child table does not carry and the
     # parent almost always wants: "how many pathogens are in this cell".
-    out[f"count"] = grouped.size()
+    out["count"] = grouped.size()
+
+    # HOW MANY CHILDREN ACTUALLY CONTRIBUTED, which is not always `count`.
+    #
+    # pandas skips NaN in every aggregation and says nothing. A cell with
+    # three pathogens, one of whose area could not be measured, reports
+    # `pathogen_area` as the sum of TWO while `pathogen_count` says three --
+    # measured: areas [10, NaN, 30] give 40.0 with a count of 3. The sum is
+    # not wrong so much as answering a question nobody asked, and the two
+    # columns disagree with nothing to reveal it.
+    #
+    # `measured` is the smallest number of non-null values behind any
+    # measurement in the row. `measured < count` is the flag: some child
+    # contributed nothing to at least one column. Downstream can test it,
+    # and the log below names the columns so a user does not have to.
+    measured_columns = [c for c in plan
+                        if plan[c] != FIRST and c in child.columns]
+    if measured_columns:
+        non_null = grouped[measured_columns].count()
+        out["measured"] = non_null.min(axis=1)
+        short = {c: int((non_null[c] < out["count"]).sum())
+                 for c in measured_columns
+                 if (non_null[c] < out["count"]).any()}
+        if short:
+            worst = sorted(short.items(), key=lambda kv: -kv[1])[:5]
+            LOG.info(
+                "%s roll-up: %d column(s) had missing values that pandas "
+                "skips silently; worst affected %s. `%s_measured` carries "
+                "the smallest contributing count per parent, and is less "
+                "than `%s_count` wherever this happened.",
+                name, len(short),
+                ", ".join(f"{c} ({n} parents)" for c, n in worst), name, name)
+    else:
+        out["measured"] = out["count"]
+
     out = out.reset_index()
 
     # Measure already writes its columns prefixed -- the nucleus table holds
@@ -500,7 +569,24 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
                      policy.primary)
             continue
         _align_keys(merged, rolled, on)
-        merged = merged.merge(rolled, on=on, how="left")
+        # `how="left"` used to be hard-coded here, so this reader and
+        # `io._read_and_join_tables` -- which has always called `join_how` --
+        # disagreed about which objects exist. Two readers of the same tables
+        # giving different populations is the defect instruction 77 item (c)
+        # fixed for `_merge_grouped`; this was the same bug in the third
+        # reader. See `MergePolicy.how_for` for what decides it.
+        how = policy.how_for(table)
+        before = len(merged)
+        merged = merged.merge(rolled, on=on, how=how)
+        if how == "inner" and len(merged) < before:
+            # Never silent. An inner join is a filter, and a filter that
+            # removes a third of the population without saying so is how a
+            # result gets reported for a subgroup nobody chose.
+            LOG.info(
+                "%s joined %s: %d of %d %s objects had no %s row and were "
+                "removed (consolidate_on_cell=%s, keep_uninfected=%s)",
+                how, table, before - len(merged), before, policy.primary,
+                table, policy.consolidate_on_cell, policy.keep_uninfected)
 
     return _apply_na_policy(merged, policy)
 
