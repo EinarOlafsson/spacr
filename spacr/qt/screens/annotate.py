@@ -641,7 +641,8 @@ def _load_thumb_image_worker(row, src, settings):
             img = load_crop_image(
                 path, db_path=s.db_path,
                 stored_channel_order=getattr(
-                    s, "stored_channel_order", "rgb"))
+                    s, "stored_channel_order", "rgb"),
+                display_order=getattr(s, "display_order", "rgb"))
         except Exception:
             return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
 
@@ -796,6 +797,32 @@ class _SettingsDialog(QDialog):
             "After decoding, Annotate always uses RGB arrays.")
         form.addRow("Stored PNG order", self._stored_channel_order)
 
+        # Deliberately the NEXT row, and worded to draw the distinction the
+        # one above it is about: that control says how the file was written,
+        # this one says how you want to look at it. Six orders, identity
+        # first, so the default is a no-op.
+        from ...crops import DISPLAY_ORDERS
+
+        self._display_order = QComboBox()
+        for order in DISPLAY_ORDERS:
+            label = "  ".join(order.upper())
+            self._display_order.addItem(
+                f"{label}" + ("   (unchanged)" if order == "rgb" else ""),
+                order)
+        current_display = str(
+            getattr(settings, "display_order", "rgb")).lower()
+        display_index = self._display_order.findData(current_display)
+        self._display_order.setCurrentIndex(max(0, display_index))
+        self._display_order.setToolTip(
+            "Which source channel is drawn in each colour slot. This is a "
+            "VIEW setting and changes nothing on disk and nothing measured "
+            "\u2014 it does not say how the file was written, which is the "
+            "row above. Use it when a project authored before the crop-format "
+            "fix should be seen in the colours it was authored for: B G R "
+            "restores that picture without marking the folder as a format it "
+            "is not.")
+        form.addRow("Display order", self._display_order)
+
         self._norm_channels = QLineEdit(_list_to_csv(settings.normalize_channels))
         self._norm_channels.setPlaceholderText("r, g, b (blank = off)")
         form.addRow("Normalize channels", self._norm_channels)
@@ -944,6 +971,11 @@ class _SettingsDialog(QDialog):
             self._image_type: "image_type",
             self._channels: "channels",
             self._stored_channel_order: "stored_channel_order",
+            # `_display_order` is deliberately NOT here. This map installs the
+            # API tooltip for a pipeline SETTING, and `display_order` is a
+            # view preference that no pipeline function takes -- listing it
+            # replaced the explanatory tooltip written above with an empty
+            # one, which is worse than having no entry at all.
             self._norm_channels: "normalize_channels",
             self._pct_lo: "lower_percentile",
             self._pct_hi: "upper_percentile",
