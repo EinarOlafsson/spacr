@@ -51,34 +51,47 @@ gives a second cellpose without touching the working env.
 
 ## 1b. A NEW PUBLIC MODULE OBLIGES AN i18n CATALOG REBUILD
 
-Discovered the hard way on 2026-08-13: three new modules (`benchmark`,
-`column_groups`, `gate_library`) turned the **docs** job red with 182
-failures, every one of them `en/spacr.<new module>.<symbol>`.
-
 `tools/build_documentation_i18n.py --audit` requires, for EVERY public
 symbol: an entry in `docs/source/_static/i18n/api/en.json` with matching
 source hashes, AND a non-blank translation in each of the nine language
 catalogs. A new public function is a new symbol, so adding one makes the
-gate red until both exist.
+docs gate red until both exist.
 
 **This is the same shape as the `spacr._SUBMODULES` trap below** -- a new
 file has two registrations, not one, and the failing check is nowhere near
-the change.
+the change. Three new modules on 2026-08-13 (`benchmark`, `column_groups`,
+`gate_library`) produced 182 `en/...` failures this way.
 
-The English half is cheap and safe:
+The English half is cheap and safe, and is DONE for those three:
 
     python tools/build_documentation_i18n.py --sources-only
 
-It writes ONLY `en.json` and returns. Done for the three modules above; the
-diff was verified symbol by symbol as 27 added / 0 removed / 4 changed, and
-every one attributable (the 4 are docstrings the spaCR naming sweep touched).
+It writes ONLY `en.json` and returns. The diff was verified symbol by
+symbol: 27 added, 0 removed, 4 changed, every one attributable.
 
-**The nine translations are NOT done and the docs gate is still red for
-them.** That needs a real translation run, which is instruction 83's
-machinery and the concurrent session's files -- all nine were dirty in the
-working tree, so writing them from here would have destroyed work in flight.
-Whoever owns the catalogs next should run the translation pass over the 27
-new symbols. Instruction 82 cannot report green CI until they do.
+### The docs gate is red for a DIFFERENT reason, which is not that
+
+Measured, not assumed, because the first reading of this was wrong:
+
+* the docs job was ALREADY failing before any of that work -- run
+  31643958921 on `e98edc26`, a concurrent-session commit;
+* the current failure is **169 `sv` failures and nothing else**, none of
+  which name any new module;
+* its first line is `sv: API manifest schema is not 2`, and every COMMITTED
+  language catalog is `schema=1` with 6101 symbols while the code expects
+  schema 2. The catalogs are mid-migration;
+* the audit appears to stop at the first failing language (`sv` is first),
+  which is why the other eight look clean and are not;
+* the fixed catalogs are sitting UNCOMMITTED in the shared working tree --
+  eight of nine are dirty. CI tests the committed state, which is older.
+
+So: finishing the catalog migration is instruction 83's, and the fix is
+already written and unpushed. THEN the 27 new symbols will surface as the
+next failure, in all nine languages, and need a translation pass.
+
+**Instruction 82 cannot report green CI until both are done.** Do not read a
+red docs job as "the new modules broke it" -- that was checked and it is not
+what it says.
 
 ## 2. What needs the maintainer
 
