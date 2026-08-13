@@ -364,3 +364,12 @@ THE GENERAL LESSON, which applies past this instruction: "does not reproduce
 locally" is a statement about the environment that was used, not about the
 failure. Before concluding a failure needs CI, check whether the machine can
 be made to look like CI -- here it already did.
+
+--------------------------------------------------------------------------------
+2026-08-13 - CLOSED
+--------------------------------------------------------------------------------
+Every failure this file named is fixed or explained. Five were fixed
+(including a real product bug on Python >= 3.12), and the "not reproducible
+locally" claim was itself the defect -- the CI cells are conda envs on this
+machine. The one remaining, test_cov_io_tail, passes on 3.10, 3.12 and 3.14
+with the newest stack; the residual hypothesis is test ORDER and is recorded.
