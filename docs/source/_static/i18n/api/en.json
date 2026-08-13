@@ -3000,6 +3000,81 @@
       "source_sha256": "cbce1cf9cd196ece29b8f53675dd12b1c26c110c0f4b858a26b0086805c25c53",
       "text": "Write a correction report as stable JSON and return its path."
     },
+    "spacr.benchmark": {
+      "source_blocks_sha256": [
+        "949091343b65a878fff1aeb9a3d51d7d38ea79b6fedbb06308dee1df0f103441",
+        "767abab40e114c5255297b32a6ae1f2401fdd6da66edfe6bec0cdd7ad6466b8f",
+        "14875fe29d52a85fa24cebe19288448126870f414646519fb81b9cce6bcc570d",
+        "fb96c1dd329e54648f223108b0e5298bd0be8188b0a6ca48ce4f8194a4e23b5e",
+        "254247978390e48d8d45284d7884dd5f215408288ecef353f20193455cf5d722",
+        "6ba2256b9f0c94798e8934da6e403b0125ced7a289c4498688ded94b49bff757",
+        "4eeacd0e6493516f52d5cb3598e61846889acdb623df992173b3622f35171901"
+      ],
+      "source_sha256": "097cfc8f450660f2a11783d8a35e839689358e2700d1abd9d6b6119f53ad2d2e",
+      "text": "Measure this machine, then choose the worker count from the measurement.\n\nInstruction 86:\n\n    \"Add a small benchmark command that records throughput and peak RAM/VRAM\n     for representative fields, making worker-count defaults specific to the\n     current machine.\"\n\nWHY A DEFAULT NEEDS THIS. spaCR's worker defaults are arithmetic on the core\ncount -- ``cpu_count() - 4``, ``cpu_count() // 2``, ``-1``. Cores are the one\nthing that is never the binding constraint on a measurement run: a field is\nhundreds of megabytes decompressed, and eight workers on a 16-core laptop\nwith 16 GB will swap long before they saturate the CPU. The number that\nmatters is how much MEMORY one worker needs for one representative field, and\nthat is a property of the plate and the machine, not of the core count.\n\nSo: run the real work over a few fields, watch peak RSS and peak VRAM, and\ndivide what is available by what one worker actually took.\n\n**This measures; it does not tune.** It returns a recommendation and the\nevidence behind it, and never writes a setting. A benchmark that silently\nchanged `n_jobs` would make a run's speed depend on when the benchmark last\nran, which is the opposite of reproducible.\n\nQt-free and torch-optional: VRAM is reported when torch is present with a\nCUDA device and reported as ``None`` otherwise, which is not the same as 0."
+    },
+    "spacr.benchmark.Measurement": {
+      "source_blocks_sha256": [
+        "e627e741ce46b15d543f43935063f2617d2da4a7da4581d6ffa9e789c6fe9b1b",
+        "be77779f0a66c7f51d89c9f58a9f4ae5c3c7309ec742a4c01fcc98620306f28f",
+        "6131dafc91e7d5124d16b978541afa6d6b36e332234ea425df819c4660448d2a",
+        "842508222e1eaaca9b10ff55d2daa6d92426022206c1abce1984b677a37db3d3",
+        "3d49bae378e9c9211dddb171a51513e192e5200db1e7ab16e80e1b5f8886a697",
+        "aa3d6fe9f2cb5759e0dbe0cc0909accedcb3743c9032de0bc30d1858a63ace59"
+      ],
+      "source_sha256": "56c4fdf94848e35334fa83512e926e16e05e0f6984131a3f885927385ab6a6e9",
+      "text": "What one benchmark run observed.\n\n:param items: how many representative units were processed.\n:param seconds: wall clock for all of them.\n:param peak_rss_bytes: the highest resident set size seen, for the whole\n    process. Not per worker -- the benchmark runs serially on purpose, so\n    this IS one worker's requirement.\n:param peak_vram_bytes: peak CUDA allocation, or ``None`` when there is\n    no CUDA device. ``None`` and ``0`` are different answers: one means\n    \"not measured\", the other \"measured, and it used none\".\n:param baseline_rss_bytes: RSS before the work started, so the caller can\n    tell the interpreter's own footprint from the work's."
+    },
+    "spacr.benchmark.Measurement.work_rss_bytes": {
+      "source_blocks_sha256": [
+        "ffdc2ff474ef1b0db781c2aa5dde11413d7299e4641c5553bcc982344d9275f6"
+      ],
+      "source_sha256": "ffdc2ff474ef1b0db781c2aa5dde11413d7299e4641c5553bcc982344d9275f6",
+      "text": "What the WORK needed, above the interpreter that was already there."
+    },
+    "spacr.benchmark.Recommendation": {
+      "source_blocks_sha256": [
+        "31116bcd61923d2755ab9e6d57964136a91bdc86ff35b9b8f39362614170003e"
+      ],
+      "source_sha256": "31116bcd61923d2755ab9e6d57964136a91bdc86ff35b9b8f39362614170003e",
+      "text": "A worker count, and every number that produced it."
+    },
+    "spacr.benchmark.available_memory_bytes": {
+      "source_blocks_sha256": [
+        "6e864f15f315c415434ac8f61d62fd357046ac89d391fbd35f5a1fb74d66a8ab",
+        "0e41e3b7732c0cfc7652c4db52f4076e9cfa949c84f69aa18af26731c058cde8"
+      ],
+      "source_sha256": "a5cdc7deeed2559063745baf76b7279ab521b2ef12410b81d897470fcbc4b9fa",
+      "text": "Memory this machine can actually give to workers.\n\n``MemAvailable`` from ``/proc/meminfo`` rather than total: total includes\nwhat is already in use, and sizing workers against it is how a run gets\nOOM-killed at field 900."
+    },
+    "spacr.benchmark.benchmark": {
+      "source_blocks_sha256": [
+        "95e9c4efb0273d1a6b1b92511497c038e0917f920b4c65ea400a0b0bb4df3c67",
+        "2311ad6f4cd068ad8c578376b847efc8ea67bfa1a456f487f11dc7ea3fc22d29",
+        "fd1ac62a29d6b66634581de4c8882116f4cbab236e5d1701b2794353e03cda13",
+        "8c377f5e8fd2379dabd49a755ccc2e6b7ac2bfabb034d5d534fdf65c7ddf04fb"
+      ],
+      "source_sha256": "6f5e4bcefa8e24cde18aab3e4188be4b660183d4d5707b45e55b158c999f85fb",
+      "text": "Run ``work`` over ``items`` serially and record what it cost.\n\nSERIALLY ON PURPOSE. The question is what ONE worker needs, and running\nthem in parallel measures the sum while hiding the per-worker figure that\nthe recommendation divides by.\n\n:param warmup: items processed before the clock starts. The first field\n    pays for imports, CUDA context creation and page faults that no later\n    field pays again, and counting it makes a short run look far slower\n    than the plate it is predicting.\n:raises ValueError: no items to measure -- a benchmark over nothing would\n    return a per-item cost of NaN and a recommendation built on it."
+    },
+    "spacr.benchmark.format_report": {
+      "source_blocks_sha256": [
+        "c14ec6b24badc5753411fb5faa0a2b4c11b4ad81fdbe1c9d756c1792974441cb"
+      ],
+      "source_sha256": "c14ec6b24badc5753411fb5faa0a2b4c11b4ad81fdbe1c9d756c1792974441cb",
+      "text": "The benchmark as a few lines a user can read and paste into an issue."
+    },
+    "spacr.benchmark.recommend_workers": {
+      "source_blocks_sha256": [
+        "e7e063720b3e4755bc02e072162764a259a5244fb2661a7c3854494130c2d90e",
+        "9f44f8c7b64de4c419d1782a1b227d00cbc1d4a1b98b8acc160d5cac46980e89",
+        "4093c1d3f30a23a74605e55792c36d07bda4905e69a37d87d797c88c020b7edc",
+        "5ed856bc15253833bf4175c56a7c182310d337608ea7f67f5e9439d2bb453d7f",
+        "95acc186608059dca558b06739fdbc92817a54826a7a5b032e81bc4e3cf283ac"
+      ],
+      "source_sha256": "2aedf54fc556b40763631903713e765837ab2ecbc9ef5d4cd39420dcbd57c300",
+      "text": "How many workers this machine can actually feed.\n\nThe rule, in order:\n\n1. Never more than ``cores``. More workers than cores is contention.\n2. Never more than ``available memory - reserve`` divided by what ONE\n   worker measurably needed. This is the term the core-count defaults\n   omit, and it is usually the binding one.\n3. Never fewer than 1, and never more than ``maximum``.\n\n:param reserve_bytes: memory left for everything that is not a worker --\n    the GUI, the page cache the readers depend on, and the operating\n    system. Defaults to 2 GiB.\n:returns: a :class:`Recommendation` carrying the reason, so a number a\n    user disagrees with can be argued with rather than just overridden."
+    },
     "spacr.cancellation": {
       "source_blocks_sha256": [
         "3f84354a540370637d573e4799537b53d19d83e1bcb3c7200c3c4aecba4faabe",
@@ -4558,6 +4633,61 @@
       ],
       "source_sha256": "ea3761a21cd60d6162d3ef9ae9a1e2ab2501ed5184901505335d75090a91f62d",
       "text": "CLI entry point wired as the ``spacr-repro`` console script.\n\n:param argv: optional argv list; defaults to ``sys.argv[1:]``.\n:returns: process exit code."
+    },
+    "spacr.column_groups": {
+      "source_blocks_sha256": [
+        "b08bcd3e473d17cfec2c5ed963692e9667d1ff1b9ebfd0cb455a8772639572e3",
+        "f232bacdb2c4a7a0065f36630dd87c7682a44742c2d9eaddc46ebc93d3a641b0",
+        "6294ffc609fb512d5df58e271d2e36dfdea5ea81110548ba7b38b3a4ede8490f",
+        "416bd3b61dd75bc148462d534f0b57a0f763d1fd0c3cd42452ef5d2843133fdf",
+        "a6dc638801bd6c15a546790c1f7d07cbcdf70167e031e64e322618c1d69539c6",
+        "3b7dac2663cceb38238e7e912e708d87c2bf0542797f47737549785b3d025288"
+      ],
+      "source_sha256": "cddb27945e096fd8d9956fe6fa9639bb55a20253ce822aa4a8b2bbf038f8efcc",
+      "text": "Choosing measurement columns by NAME, in groups. Instruction 49.\n\n    \"the user should be able to pick the columns that are dimentionally\n     reduced, they should be able to do this through choosing individual\n     columns for dimentional reduction and they should be able to chhose\n     categories based on name lik cell, cor channel_1 or intensity\n     measurements (have channel i thing), or morphology measurements, etc.\"\n\nThree ways of naming the same set, because a measurement table names a column\nthree ways at once -- ``cell_channel_1_mean_intensity`` is a CELL measurement,\na CHANNEL 1 measurement and an INTENSITY measurement, and which of those a\nuser means depends on the question:\n\n    object      cell, nucleus, pathogen, cytoplasm, organelle\n    channel     channel_0, channel_1, ...\n    family      morphology, intensity, texture, correlation, moment\n\nTHE FAMILIES ARE NOT INVENTED HERE. They come from\n:data:`spacr.feature_dict.FEATURE_FAMILIES`, which is the dictionary that\nalready documents every column, and the classification is\n:func:`spacr.feature_dict.parse_column`. A second taxonomy would be a second\nthing to keep in step with the measurement code, and it would disagree first\nin exactly the corners nobody checks.\n\nQt-free, so the picker's logic is testable without a display and the same\ngrouping can serve the CLI, a notebook, or a future screen."
+    },
+    "spacr.column_groups.classify": {
+      "source_blocks_sha256": [
+        "b96c7e3cbeddc829755c4a78127b17ff1fda079ba38359c6de88edb0bc91e45e",
+        "4c65ef9edaccfe68ea2dcaead6a1422bb7ec287f6963ade93cec09177eaaa1d5",
+        "53fdbecf0589450cf72466d1eb12db104d07f6305f6e3f972b91c73df741c8fa"
+      ],
+      "source_sha256": "23c335acb0c16faa19fdb505ff088728b63bb41d50e070fa69771ce86f08f8ff",
+      "text": "Group ``columns`` by object, by channel and by family.\n\n:param columns: the table's column names.\n:returns: ``{kind: {group name: [column, ...]}}`` for the kinds in\n    :data:`GROUP_KINDS`. A column can appear in one group of each kind,\n    which is the point -- ``cell_channel_1_mean_intensity`` is in\n    ``object/cell``, ``channel/channel_1`` and ``family/intensity``."
+    },
+    "spacr.column_groups.columns_in": {
+      "source_blocks_sha256": [
+        "f3e69cee0aca35d5b7901f995e87f8069ce275ab424a0210e4ba561c3e19ca9d",
+        "0420d54a989e6d1c37f862f8f5c6fe5fd5c378885bfb53e945124c35232f5901"
+      ],
+      "source_sha256": "5cf3888f3e6c55f0763f2555166808aa03e220f5701401bca109471885e2f65e",
+      "text": "Every column in one named group.\n\n:raises KeyError: an unknown kind, naming the ones there are. A typo here\n    would otherwise select nothing and read as \"this table has no\n    intensity measurements\"."
+    },
+    "spacr.column_groups.group_names": {
+      "source_blocks_sha256": [
+        "7700d0b33ca5b02805ae1806c83eb58226442829463cf2c4014db3f53de2721f",
+        "dc67887bb6fab6859c7cf75c457a6bf9ad45a6fe4edfbec944c9379c453c578e"
+      ],
+      "source_sha256": "b7d51cbdba3f07e8448ad252aa6a3e49aa35cf8df98e81455f4043189e746374",
+      "text": "The group names a picker should offer, per kind, sorted.\n\nChannels sort NUMERICALLY -- ``channel_2`` before ``channel_10`` -- which\na plain string sort gets wrong the moment a run has more than ten."
+    },
+    "spacr.column_groups.resolve": {
+      "source_blocks_sha256": [
+        "c493179f43e4bfab744fb1545c2c7e244416d8290e3cb15b84fefe3372dc29bc",
+        "d262f61e0791fa1dadd35a66374fc59b002e4d01fd970760cbfff31b9dd5c5e2",
+        "8670e67997213459b281cd41002ac96fb297aaf20baf08dbce5646e7f29728b0",
+        "811c6f55f88a3e11192a512765e1e7ddddf1b59d83fc9801b6edd8c4e10bf113"
+      ],
+      "source_sha256": "bbef12cdbb3283544281cad65c42096f88c1c89e69f6e728a10bf82646ca6643",
+      "text": "The columns a selection actually means, de-duplicated and in order.\n\n:param selection: ``{kind: [group name, ...]}`` -- the groups ticked.\n:param explicit: individual columns ticked, which are added to whatever\n    the groups select. Both halves of the request are the same list in\n    the end, so a user can tick \"intensity\" and then add one morphology\n    column without the two mechanisms fighting.\n:returns: the columns, in the order they appear in ``columns``, so a\n    reduction's input order does not depend on which checkbox was clicked\n    first -- a UMAP whose axes depend on click order is not reproducible."
+    },
+    "spacr.column_groups.summarise": {
+      "source_blocks_sha256": [
+        "f52873cbfb9b872a40cc1fbb760488eb21b8b057acefb582cc26f4b81a34fa5d",
+        "73cbd34eeb78b6b8a9e1f1a1f227b93b2b6873685c8f87d4c6d459f59bf5a934"
+      ],
+      "source_sha256": "d60ac828102ab3b57cdda6dd9c562465de538c12466391321ebafbd4a241e566",
+      "text": "One line saying what is selected, for the picker to show.\n\nA reduction over 400 columns and one over 4 look identical in a dialog\nuntil something says which it is."
     },
     "spacr.confusion": {
       "source_blocks_sha256": [
@@ -9805,6 +9935,88 @@
       "source_sha256": "6aa31e12d2b445565e2cb543f15f28255bf8940e9a393b7dbf1961f8edec671d",
       "text": "Write the reviewable column-map CSV.\n\nSix columns — :data:`COLUMN_MAP_COLUMNS` — and a few ``#`` comment\nlines above them explaining what the file is for. It opens in a\nspreadsheet, and the round trip through :func:`load_column_map` is\nexact.\n\n:param plan_or_maps: an :class:`ImportPlan` or a list of\n    :class:`ColumnMap`.\n:param path: destination CSV.\n:returns: the written path."
     },
+    "spacr.gate_library": {
+      "source_blocks_sha256": [
+        "2d28d3253ca7748fa0a3af3ce1f5d7ebe5a0bb098b2eeeb7bc6540340238d607",
+        "0d7e29fcbc615fc4d5177de2bb720fd2b08b5210f21bf23d370f9b51f35f824b",
+        "7f9d8dc7455eeb21a15dd00fdc1a54bf1e8861a7484860b7967166ea96386f9f",
+        "aad53ca53de1558f57fc874939fe4f60a0ad56d68fcd6a8ebb6218f2846a2e70",
+        "28c97e748b7abeb928b91f73b020f84d4a6e0896bdce0ec1cf3c504d0528ddcd"
+      ],
+      "source_sha256": "e2308e1fb35dd738766a73bf7f7b08088f6f7f2d8626321bfb218dea3463c6c2",
+      "text": "Named gating strategies, saved with the project rather than in a file dialog.\n\nInstruction 31's \"saveable filter sets\". The Gate Editor could already write a\nstrategy to a path and read one back, but only through a file chooser, which\nmakes reuse a matter of remembering where you put it. A screen is gated the\nsame way over and over -- \"live singlets\", \"infected cells\", \"the debris\nfilter I always apply\" -- and that is a LIBRARY, not a file.\n\nSo a strategy has a NAME and lives under ``<project>/gates/<name>.json``. The\nGate Editor lists what is there, applies one by name, and saves the current\ngates under a name.\n\nQt-free on purpose, like :mod:`spacr.filters`: the library is a directory of\nJSON files, and everything here is testable without a display.\n\n**A name is not a path.** ``save(project, \"../../etc/passwd\", gates)`` must not\nwrite outside the project, and a name with a slash in it is a mistake rather\nthan a subdirectory. :func:`slugify` is the whole of that rule and every entry\npoint goes through it."
+    },
+    "spacr.gate_library.GateLibraryError": {
+      "source_blocks_sha256": [
+        "478ddf91048a44598426b9aadc17fe555ff980d45f82907f0167a4041f4e7a31"
+      ],
+      "source_sha256": "478ddf91048a44598426b9aadc17fe555ff980d45f82907f0167a4041f4e7a31",
+      "text": "A strategy that cannot be saved or read, and why."
+    },
+    "spacr.gate_library.delete": {
+      "source_blocks_sha256": [
+        "d2d84356e1d586e8f866e779fa09125ffaa2ddda01735fe4b16ff88a08f261fc"
+      ],
+      "source_sha256": "d2d84356e1d586e8f866e779fa09125ffaa2ddda01735fe4b16ff88a08f261fc",
+      "text": "Remove the strategy called ``name``. ``False`` if there was none."
+    },
+    "spacr.gate_library.describe": {
+      "source_blocks_sha256": [
+        "3a69000948771f41db1bb7c1612b55856fb5988777221c7aee165d476f0aaf45",
+        "af5032348b6e47c7b2261adcce1ded3ed98ced74bf6836ed709a17678ff0b9cf"
+      ],
+      "source_sha256": "1139e86dfdf300341a4d82e412330b0c73a213e9402e024773e72f68750574d6",
+      "text": "``(gate count, error)`` for one saved strategy, without applying it.\n\nWhat a list needs to show next to a name. A strategy that will not read\nreports its error rather than a count, so a broken file is visible in the\nlist instead of at the moment someone applies it."
+    },
+    "spacr.gate_library.library_dir": {
+      "source_blocks_sha256": [
+        "c3ecfdc6e8a69cde34c7d7c10c685a60c186c4f8a10a88640a3f1021d9df48fd"
+      ],
+      "source_sha256": "c3ecfdc6e8a69cde34c7d7c10c685a60c186c4f8a10a88640a3f1021d9df48fd",
+      "text": "The library directory for ``project``. Not created."
+    },
+    "spacr.gate_library.list_strategies": {
+      "source_blocks_sha256": [
+        "c17370bef0935b20449094469273bff53c7d98d650432cf46ee609a0cd1da950",
+        "847810d972024c7135f3aee58bd2b266ddab486e4c27a5628277e20100069992"
+      ],
+      "source_sha256": "5e3e8768bbbec9312dda45de84ab077b6bdf3c98376e083319987d5499dd20b8",
+      "text": "Every saved strategy in ``project``, by name, sorted.\n\nAn unreadable directory is an empty library rather than an error: a\ndropdown that cannot be filled is not a reason to refuse to open a screen."
+    },
+    "spacr.gate_library.load": {
+      "source_blocks_sha256": [
+        "f241df58c24f98c5d33b308f5732201dad79f811ec7bb744719fde417163d106",
+        "0a7b31a864237e7a2f8d5ea170372eb728570ad51eaac9563802418b906b43d0"
+      ],
+      "source_sha256": "8a5721e312ae12968dc521562bbf7480e6e4f8fac33378b396c275baa7997fa1",
+      "text": "Read the strategy called ``name``.\n\n:raises GateLibraryError: no such strategy, or the file is not readable\n    JSON. Both name the strategy, because \"expecting value: line 1\" on\n    its own tells a user nothing about which one to fix."
+    },
+    "spacr.gate_library.path_for": {
+      "source_blocks_sha256": [
+        "e7b5f8bfa7a26ad6bb9288a1244d394a0222123093e713e2409d5356e3c9f015",
+        "f330a459adcf0c423d0bc469895d29653a9a9e680796a073d36ba87ac49f7945"
+      ],
+      "source_sha256": "74407c217fd245545403c7fa5d7bc264e4c6d4a2ab990553e971e84c5129953c",
+      "text": "Where the strategy called ``name`` lives.\n\nAlways inside the library directory: the name is slugified first, so a\nname carrying ``/`` or ``..`` cannot climb out of it."
+    },
+    "spacr.gate_library.save": {
+      "source_blocks_sha256": [
+        "71d1eb123f9e2aa7c781523aa03c99b924bb57e26c019831019d7dcd54093e21",
+        "ceae9e15cfb84db6203f624477c1f2e17ab1de06b5fe11487941499f5b9637f9",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "11f2353e9b6a18f74f663a3f83e86cde596e2904d560034e3cc7db086a2a12b6"
+      ],
+      "source_sha256": "2080c10c3f4bf7a4f9a805afe4ab3310ea5c5e9a1e5cabf434edb6a10edcceb0",
+      "text": "Write ``payload`` as the strategy called ``name``.\n\n:param payload: whatever ``GateSet.to_json``-shaped structure the caller\n    holds. Serialised here rather than accepting a pre-made string so a\n    caller cannot store something that will not read back.\n:returns: the path written.\n:raises GateLibraryError: the name is unusable, or the payload will not\n    serialise -- caught here rather than leaving a half-written file."
+    },
+    "spacr.gate_library.slugify": {
+      "source_blocks_sha256": [
+        "87ae4caa922877e79fc2e7e23deca6306e27baab81b2c30371f0a59ef796028b",
+        "5a79d2098e941434a60809b05a4f660870906265f9aa7b4e2e237fb70b166613"
+      ],
+      "source_sha256": "e0cfb8812e7419bd307a13e53159eca94946ae33c6ea3c1545e32baa7d61ba78",
+      "text": "The filename for ``name``, with no way out of the library directory.\n\n:raises GateLibraryError: a name that is empty once cleaned. Writing it\n    would produce ``.json``, an invisible file the list would then show\n    with no name."
+    },
     "spacr.gui": {
       "source_blocks_sha256": [
         "0671211f893e71d525ca7d341f8f3178f4b046f47c2d4a02403db09d6cdf170d"
@@ -10270,11 +10482,11 @@
     },
     "spacr.gui_elements.AnnotateApp.open_deep_spacr_window": {
       "source_blocks_sha256": [
-        "37927648aae9ab2383d00472e6c1d841d059f2a476ce2db6ca7e3116cc49b379",
+        "38110d78749be61cca937ae8dcd88d55dc893f7cfce8a113547748b9e86f9fe2",
         "20a4595d7c6ee8f65ea1482240c736e14d719418f1fdfd7ca5f7cdb3effbdb84"
       ],
-      "source_sha256": "f34b0929b4fc6b567dc170079b473c4503ea3428ec66d8f43c3b85a2b446438c",
-      "text": "Open the Deep-SPACR train/apply configuration window.\n\nPresents a notebook of tabs (dataset generation, training, inference)\nwhose 'Run' hands the resolved settings dict to ``deep_spacr`` on a\nbackground thread."
+      "source_sha256": "616cf659799b0c07f51c0c763597cc14e123a2c41d73c09479e7f8a43de2759d",
+      "text": "Open the Deep-spaCR train/apply configuration window.\n\nPresents a notebook of tabs (dataset generation, training, inference)\nwhose 'Run' hands the resolved settings dict to ``deep_spacr`` on a\nbackground thread."
     },
     "spacr.gui_elements.AnnotateApp.open_settings_window": {
       "source_blocks_sha256": [
@@ -30674,10 +30886,10 @@
         "c3c71e6e4c6728e92dc058bc103865097dde2daeec5d8931ecc1f61f4b6d1362",
         "53574eb95ed47eb357d3539beb3a89a30729b0ad08279acbeb578d50b6778b84",
         "22d3da6b0ce573ea4c94ec13ce6ba7f7047b339762bf019d79995ccb84c4d0da",
-        "4c46cdcf8456c9b7058a33c6ca0d6a3a294afe5835108f4cfe9e68a802a737f0"
+        "481b45de70b5503170f9f51ca0554ed4f27d905ba7358946a3585b7d4311fb2a"
       ],
-      "source_sha256": "8f4e55af984d9a6b9377e538e6bf9f7a51ecb5aeafd3cfd4d4f5686a808f20d4",
-      "text": "AnnotateScreen — Qt widget replacing the Tk AnnotateApp.\n\nDisplays a paginated grid of clickable image thumbnails backed by\n`png_list` in a `measurements/measurements.db`. Left-click = value 1,\nright-click = value 2, re-click the same value = clear. Annotations\nare persisted through a background SaveWorker (see\n`spacr.qt.annotate_engine.SaveWorker`).\n\nA keyboard-only rapid-annotation layer sits on top of the same write\npath (see :meth:`AnnotateScreen.handle_key`): ``1``–``9`` assign a class\nand auto-advance to the next unlabelled crop, ``0`` clears, arrows /\n``hjkl`` move focus, ``Space``/``Backspace`` step without labelling,\n``u`` undoes and ``Enter`` commits the page.\n\nEvery crop is drawn as a rounded square (see :class:`_Thumbnail`) with\ntwo independent bands of colour, so its three states stay readable\ntogether rather than overwriting each other:\n\n* **resting** — a thin gray ring hugging the image\n* **classified** — that same ring in the class colour\n  (:func:`~spacr.qt.annotate_engine.label_to_hex`, the app's one\n  class→colour map)\n* **current** — an *extra* white ring outside it on the single tile the\n  next click or keystroke will hit\n\nThe cursor and the keyboard move the same current tile: entering a tile\nmakes it current, and an arrow key moves it away. There is no second\n\"hovered\" highlight that could point somewhere else.\n\nAdvanced features that are *not* yet ported (marked as TODOs in the UI):\nUMAP window, Deep Spacr training launcher, measurement-threshold\nfiltering (the threshold filter can be entered in settings but only\nplain per-page fetch is used at query time in this MVP)."
+      "source_sha256": "439dca0ef15ad3052e911ef7eff2096c79ec1e426254baf9c9c9c7a4a1f9fc02",
+      "text": "AnnotateScreen — Qt widget replacing the Tk AnnotateApp.\n\nDisplays a paginated grid of clickable image thumbnails backed by\n`png_list` in a `measurements/measurements.db`. Left-click = value 1,\nright-click = value 2, re-click the same value = clear. Annotations\nare persisted through a background SaveWorker (see\n`spacr.qt.annotate_engine.SaveWorker`).\n\nA keyboard-only rapid-annotation layer sits on top of the same write\npath (see :meth:`AnnotateScreen.handle_key`): ``1``–``9`` assign a class\nand auto-advance to the next unlabelled crop, ``0`` clears, arrows /\n``hjkl`` move focus, ``Space``/``Backspace`` step without labelling,\n``u`` undoes and ``Enter`` commits the page.\n\nEvery crop is drawn as a rounded square (see :class:`_Thumbnail`) with\ntwo independent bands of colour, so its three states stay readable\ntogether rather than overwriting each other:\n\n* **resting** — a thin gray ring hugging the image\n* **classified** — that same ring in the class colour\n  (:func:`~spacr.qt.annotate_engine.label_to_hex`, the app's one\n  class→colour map)\n* **current** — an *extra* white ring outside it on the single tile the\n  next click or keystroke will hit\n\nThe cursor and the keyboard move the same current tile: entering a tile\nmakes it current, and an arrow key moves it away. There is no second\n\"hovered\" highlight that could point somewhere else.\n\nAdvanced features that are *not* yet ported (marked as TODOs in the UI):\nUMAP window, Deep spaCR training launcher, measurement-threshold\nfiltering (the threshold filter can be entered in settings but only\nplain per-page fetch is used at query time in this MVP)."
     },
     "spacr.qt.screens.annotate.AnnotateScreen": {
       "source_blocks_sha256": [
@@ -40054,6 +40266,16 @@
       "source_sha256": "cbed3c160ee81a6c141039cd6e3f9731ae9daae4847418b5b8ec1245b82206e2",
       "text": "The Classes editor: pick a column, name what is in it.\n\nThe setting is a dict of ``name -> {column, value}``, and this is how it gets\nfilled in: choose a column, and every distinct value in it becomes a row the\nuser gives a name to. That is the whole gesture — \"you set the column then the\nkeys of this dict get populated and the user fills in their names.\"\n\nTwo things it does that the old settings could not.\n\n**More than one column.** Each row remembers which column its value came from,\nso classes can be defined across several annotation columns at once. Adding a\nsecond column appends its values rather than replacing the first's.\n\n**The random complement.** One row can be \"everything not claimed, chosen at\nrandom\", which is what the retired ``write_random_annotation_column`` used to\narrange. It is a KIND OF ROW here rather than a button pressed beforehand,\nbecause it is a way of defining a class and belongs where the other class\ndefinitions are.\n\nUnder the metadata basis the offered columns become the plate's own\ncoordinates — plate, row, column, field, well — which is why\n``location_column``, ``positive_control`` and ``negative_control`` are no\nlonger needed: \"positive control is column 3\" is exactly a row in this table."
     },
+    "spacr.qt.widgets.class_editor.ClassChip": {
+      "source_blocks_sha256": [
+        "912ee9b6bdd7e833577ebffc61bac6cef2eb03d49f9e80c8026ca6cb90dc7228",
+        "eae4c20bcfa1226218d6d5a61a8fc4e90ada897d47cd78b07a63e2cd53b8e465",
+        "1e9e02f19909e1ecb1226515afe22f60c02b8020d87d11f4f8900d2254c73286",
+        "aff94b5c03c0aa4ffae2388ec73f0d23e08f1e2f7074bf1d2d3ac16d78b7f298"
+      ],
+      "source_sha256": "e9691433f5d51e7f9f190cb66a333cc43289fc69cef0c0d27722876549e65ac1",
+      "text": "One class, as the two bubbles the maintainer asked for.\n\n\"class then value class generating a teal bubble and the value generating\na green bubble ... i just thought it was a good idea to consolidate the\ninformation into one object.\"\n\nSo the two halves are one object on screen: a TEAL pill carrying the class\nname and a GREEN pill carrying the value it selects, side by side with a\nsingle remove button for the pair. A class that selects nothing -- the\nrandom complement -- shows only the teal half, because there is no value\nto put in the green one.\n\nThe colours are palette ROLES (`chip_class`, `chip_value`), not literals.\nA hard-coded teal survives exactly until someone switches to the light\ntheme, where it fails contrast against a white surface."
+    },
     "spacr.qt.widgets.class_editor.ClassEditorWidget": {
       "source_blocks_sha256": [
         "d8ee32ad983658066916ded5aecc33788022cf19b50c7a5aef3234419938d2e1",
@@ -40063,6 +40285,14 @@
       "source_sha256": "3dd8c543b5b44462c8b8049ab25bedc73bf732e18c5aaebe860d99f6a7405982",
       "text": "Edits the ``classes`` setting.\n\n:param value: the current setting -- a dict, or the old list of names.\n:param frame: the table whose columns and values are offered. Without one\n    the widget still edits an existing dict; it simply cannot populate new\n    rows, and says so rather than showing an empty column picker as though\n    the table had no columns."
     },
+    "spacr.qt.widgets.class_editor.ClassEditorWidget.add_typed_class": {
+      "source_blocks_sha256": [
+        "fd6d691b9f787d0895fd7b809cc6166199062a63b1d45c04e32af9eb1ced4e0e",
+        "940f936d2421deec694f636cbcfea932e9da2d3cc863d78e02e835cba026cb4e"
+      ],
+      "source_sha256": "04e70c9a16374c2875174c084fe358a62a1edd30d82f94be156375d9f5eee13b",
+      "text": "Add one class from the two fields. The chip appears; the fields clear.\n\nA class with no name is refused rather than added blank -- `ClassRule`\nraises on it anyway, and the message a user needs is which field is\nempty, not a traceback."
+    },
     "spacr.qt.widgets.class_editor.ClassEditorWidget.populate_from_column": {
       "source_blocks_sha256": [
         "22b35a66bda4deb9da1bca0d5fe447c5019bfa17fd97278f59cfa1cd16bc7d3b",
@@ -40070,6 +40300,13 @@
       ],
       "source_sha256": "a5d0805cb86185b3e1003541e17c8815618df2ad52097b33cf5bb7e05e7a3b46",
       "text": "Fill the table from the chosen column's distinct values.\n\nValues already present are left alone, so adding a second column adds\nto the table rather than replacing what is in it -- and re-adding the\nsame column does not duplicate or reset the names already typed."
+    },
+    "spacr.qt.widgets.class_editor.ClassEditorWidget.remove_at": {
+      "source_blocks_sha256": [
+        "d4653462b36464fe038d37722bb4c7dabbd989f5ba6dad20309db2fdbb1f9ea9"
+      ],
+      "source_sha256": "d4653462b36464fe038d37722bb4c7dabbd989f5ba6dad20309db2fdbb1f9ea9",
+      "text": "Remove the class a chip's × belongs to."
     },
     "spacr.qt.widgets.class_editor.ClassEditorWidget.set_basis": {
       "source_blocks_sha256": [
@@ -57951,14 +58188,14 @@
     },
     "spacr.utils.ResNet": {
       "source_blocks_sha256": [
-        "84ca21d02a0ce6a2d6413671bccdf67cd4ceaf80a4f7e4d5b05845f979e34c92",
+        "19cdd2cd0fbb777fc5c232e9bf82ed2f3af675f9f95fe21adfdfdeb6debd7b55",
         "368880d9d1f2f0666a414a9ba07c0f0e926b0a1eb27f91321d088285835baec1",
         "422a5a52421f946bcc0b5a7615825cd12ea04f0c1fa307021585a78a7ce87a69",
         "09d3be50d565722e0d99a3aa809769c62db8d98a9f855c32a93ed0eed679cd85",
         "4f32a31ff75f900e8378f362898ca7a900a5473857ada9ed55f0ceb30f28de70"
       ],
-      "source_sha256": "6498103acfe4668b310360cbbdc559a91564da4e792b4bd45e892086aa6d7506",
-      "text": "ResNet backbone with a two-layer SPACR binary-classification head.\n\n:param resnet_type: one of ``'resnet18'``/``'resnet34'``/``'resnet50'``/``'resnet101'``/``'resnet152'``.\n:param dropout_rate: dropout probability before the final linear layer; ``None`` disables.\n:param use_checkpoint: enable gradient checkpointing through the ResNet backbone.\n:param init_weights: ``'imagenet'`` for pretrained weights or ``'none'`` for random init."
+      "source_sha256": "d3e996dd3faa74efc47dcc67ac810153a5c924a75afbd027c8d1fa48ff61b70d",
+      "text": "ResNet backbone with a two-layer spaCR binary-classification head.\n\n:param resnet_type: one of ``'resnet18'``/``'resnet34'``/``'resnet50'``/``'resnet101'``/``'resnet152'``.\n:param dropout_rate: dropout probability before the final linear layer; ``None`` disables.\n:param use_checkpoint: enable gradient checkpointing through the ResNet backbone.\n:param init_weights: ``'imagenet'`` for pretrained weights or ``'none'`` for random init."
     },
     "spacr.utils.ResNet.forward": {
       "source_blocks_sha256": [
@@ -58104,16 +58341,16 @@
     },
     "spacr.utils.TorchModel_v2": {
       "source_blocks_sha256": [
-        "f3f6864492e2380f07da3a6840d29c6a8bc44f5a3374ce073dae2fb499a0f140",
+        "0a8ad9581411fe5158f76c6acfc6cf97b47badacdda231996a3181b1efa1c552",
         "bbcea90270bfbc7e69cbc1f4b897d6ddef369c61cfadcf55e0a945f62109fe6c",
         "9470b4f801493f371d0f40bffbf59e140f2b806ca1c255260088bc1821caa2c7",
-        "fe10b1be9adc69d50960d88b8ceea2798a8db7030941655f9d9b68cd80dd8400",
+        "9e78bc4ce758e1268eeeb4c60ba1e6db05d3ec72eb12a984805bb325f2d6f2cb",
         "3a13a0da0dacac7638714681e6d52579b4e8a12f53a480f25553c82149202297",
         "1a68ce383dcc9ff298a5610c30cb8cb2dff16a3d24a73f52d72897064eea1b42",
         "eb9ad8a6e4a3332e26dfb0e92547146673bb45c454766b5d860ec1583563a833"
       ],
-      "source_sha256": "0b436bab761cf6af7b586697ca2e8b6c29d441778b037030e4f121b417573986",
-      "text": "TorchVision backbone with a SPACR linear head (streamlined variant of :class:`TorchModel`).\n\n:param model_name: TorchVision classification model to load.\n:param pretrained: use ImageNet-pretrained weights when available.\n:param dropout_rate: dropout probability applied to backbone and SPACR head; ``None`` disables.\n:param use_checkpoint: enable gradient checkpointing through the backbone.\n:param num_classes: output class count.\n:param multilabel: informational flag consumed by external loss/metrics code."
+      "source_sha256": "175079cd605e5577f9bb9f8fe3fd45d6e18e30c07451204cffa8704d375b70db",
+      "text": "TorchVision backbone with a spaCR linear head (streamlined variant of :class:`TorchModel`).\n\n:param model_name: TorchVision classification model to load.\n:param pretrained: use ImageNet-pretrained weights when available.\n:param dropout_rate: dropout probability applied to backbone and spaCR head; ``None`` disables.\n:param use_checkpoint: enable gradient checkpointing through the backbone.\n:param num_classes: output class count.\n:param multilabel: informational flag consumed by external loss/metrics code."
     },
     "spacr.utils.TorchModel_v2.forward": {
       "source_blocks_sha256": [
