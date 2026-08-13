@@ -85,3 +85,54 @@ No well appears on both sides of any split in the package; a design that
 cannot be grouped is refused with a sentence naming why; the reported test
 fraction distinguishes wells from cells; and a model card says which grouping
 produced the score it reports.
+
+--------------------------------------------------------------------------------
+2026-08-13 (later) - A LADDER THE USER PICKS FROM, NOT A LEVEL IMPOSED
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "instead cant we alow the user to choose split level
+           with the options of cell, fieldID, and wellID?"
+
+BETTER THAN HARD-CODING, and the vocabulary was already there: `_SPLIT_GROUPS`
+in active_learning.py had well / field / plate / none, and `cv_group_by`
+already defaulted to `'well'`. So this is exposing a choice that exists rather
+than inventing one, and it is FOUR levels, not three -- `plate` comes free and
+is stricter than well, for a design where the batch is the plate.
+
+    cell    each object its own group. Siblings from one well on both sides.
+    field   narrows the leak; two fields of one well still share illumination,
+            seeding, edge position and fixation, so it does not close it.
+    well    the level at which the experiment assigns a condition, and so the
+            level at which a held-out set is independent.
+    plate   for a design whose batch is the plate.
+
+`none` RENAMED TO `cell`, WITH THE OLD NAME KEPT AS AN ALIAS. "None" reads as
+the feature being switched OFF; it is in fact the leakiest setting on the
+ladder, deliberately chosen. Naming it for its UNIT makes the four readable as
+a ladder and stops a model card recording "no strategy" when what happened was
+a strategy somebody picked. `none`, `off`, False and None all still resolve to
+it, because that is what shipped and a settings file must keep meaning what it
+meant.
+
+THE REPORTED NAME FOLLOWS THE CHOICE. `_split_columns_for` returned `'none'`
+for a `cell` split, so the card recorded the ABSENCE of a strategy rather than
+the deliberate choice of the leakiest one -- and those two read very
+differently to whoever reads the card next.
+
+TESTS THAT PINNED THE OLD SHAPE, updated with their INTENT kept rather than
+their assertion:
+
+  * `test_filter_and_columns_are_one_section_not_two_tabs` asserted there were
+    NO tab widgets at all. That was right when it was written and is wrong
+    now: Filter and SEARCH are tabs, by instruction 31's spec. What must not
+    happen is Filter and COLUMNS being split from each other, so that is what
+    it asserts.
+  * `test_the_gate_list_has_its_own_handle` pinned the splitter pane's CLASS
+    and failed the moment the panel gained tabs, with nothing about the
+    handles having changed. It checks the handle, which is what it is for.
+  * `test_the_side_panel_does_not_paint_the_window_colour` checked the first
+    scroll area found; there are several now, so it checks them all.
+
+STILL TO DO: route the five ungrouped sites through this, expose `split_by` as
+a setting with the ladder and its tooltip, and report the split as wells AND
+cells rather than one number.
