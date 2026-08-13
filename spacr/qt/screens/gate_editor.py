@@ -30,12 +30,13 @@ import pandas as pd
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QScrollArea,
-    QSizePolicy, QSplitter, QVBoxLayout, QWidget,
+    QSizePolicy, QSplitter, QVBoxLayout, QWidget, QTabWidget,
 )
 
 from ..job_runner import JobRunner
 from ..theme import SPACING
 from ..widgets.data_filter_panel import DataFilterPanel
+from ..widgets.gate_search_panel import GateSearchPanel
 from ..widgets.formula_editor import FormulaPanel
 from ..widgets.gate_editor import GateEditorPanel
 from ..widgets.gate_spec import GateError, GateSet
@@ -255,19 +256,51 @@ class GateEditorScreen(QWidget):
             side_column.addWidget(panel)
         side_column.addStretch(1)
 
-        side = QScrollArea(self)
-        side.setWidget(side_body)
-        side.setWidgetResizable(True)
+        filter_scroll = QScrollArea(self)
+        filter_scroll.setWidget(side_body)
+        filter_scroll.setWidgetResizable(True)
+        filter_scroll.viewport().setAutoFillBackground(False)
+
+        # FILTER AND SEARCH AS TABS, which is the last item of instruction 31.
+        #
+        # The search is a thing you ITERATE ON -- change a parameter, look,
+        # change it again -- and it lived behind a modal, so looking meant
+        # closing the dialog and reopening it to change anything. Beside the
+        # filter it is one click away and the plot stays visible while it is
+        # adjusted.
+        #
+        # Filter and COLUMNS are NOT the pair that becomes tabs, and they were
+        # deliberately merged into one page earlier: they are the same job --
+        # both narrow what the scatter shows -- so hiding one behind the other
+        # meant neither could be checked while using the other. Search is a
+        # different job, which is what makes it a different tab.
+        self.side_tabs = QTabWidget(self)
+        self.side_tabs.setObjectName("GateSidePanel")
+        self.side_tabs.addTab(filter_scroll, "Filter")
+        self.search = GateSearchPanel(self)
+        self.search.settings_changed.connect(self._on_search_settings)
+        self.search.run_requested.connect(self.gates.run_cluster)
+        search_scroll = QScrollArea(self)
+        search_scroll.setWidget(self.search)
+        search_scroll.setWidgetResizable(True)
+        search_scroll.viewport().setAutoFillBackground(False)
+        self.side_tabs.addTab(search_scroll, "Search")
+        try:
+            from ..theme import register_qss, page_tabs_qss
+            register_qss("GateSidePanel",
+                         lambda palette: page_tabs_qss("GateSidePanel", palette))
+        except Exception:
+            # The tabs work without the accent styling; the styling is not
+            # worth taking the screen down for.
+            LOG.debug("could not register the side-tab styling", exc_info=True)
+
+        side = self.side_tabs
         side.setSizePolicy(QSizePolicy.Policy.Preferred,
                            QSizePolicy.Policy.Expanding)
         # The width is the SPLITTER's to decide now. A hard maximum is what
         # made the cap unescapable: the user could not widen the column even
         # when the content plainly needed it.
         side.setMinimumWidth(260)
-        # A QScrollArea's viewport auto-fills with the WINDOW colour, which
-        # is #000000 on dark and would put a black slab beside the plot
-        # (INVARIANTS 2/3).
-        side.viewport().setAutoFillBackground(False)
         try:
             from ..theme import make_transparent
             make_transparent(side)
@@ -588,6 +621,15 @@ class GateEditorScreen(QWidget):
                 self.apply_settings(
                     self._settings.replaced(xd_projection=False))
 
+    def _on_search_settings(self, changed: dict) -> None:
+        """Fold a search-panel edit into the screen's settings.
+
+        Through `apply_settings` like every other route, so the panel, the
+        Cluster dialog and the settings dialog cannot end up holding three
+        different opinions about the same number.
+        """
+        self.apply_settings(self._settings.replaced(**changed))
+
     def apply_settings(self, settings: GateEditorSettings) -> None:
         """Take new settings, re-reading the table only if one of them needs it.
 
@@ -597,6 +639,7 @@ class GateEditorScreen(QWidget):
         """
         previous, self._settings = self._settings, settings
         self.gates.apply_settings(settings)
+        self.search.apply_settings(settings)
         if previous.costs_a_reload(settings) and self._path:
             # Through the working set, so a reload keeps every merged table.
             if len(self._tables) > 1:
