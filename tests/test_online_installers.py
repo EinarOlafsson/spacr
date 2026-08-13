@@ -50,7 +50,7 @@ def _standalone_unix_installer(tmp_path, version="9.9.9"):
         renderer.render_shell(renderer.catalogs()), encoding="utf-8"
     )
     renderer.OUTPUT_DIR = generated
-    installer = tmp_path / "SpaCR-Linux-x86_64-Online.run"
+    installer = tmp_path / "spaCR-Linux-x86_64-Online.run"
     renderer.embed_unix(UNIX, installer, version)
     return installer
 
@@ -430,7 +430,7 @@ def test_unix_installer_uses_external_localized_messages():
 
 def test_macos_builder_creates_application_and_pkg_with_uninstall_helper():
     source = _text(ONLINE / "build_macos_online.sh")
-    assert "/Applications/SpaCR.app" in source
+    assert "/Applications/spaCR.app" in source
     assert "pkgbuild" in source
     assert "codesign" in source
     assert "iconutil -c icns" in source
@@ -439,7 +439,7 @@ def test_macos_builder_creates_application_and_pkg_with_uninstall_helper():
     assert "PRODUCTSIGN_IDENTITY" in source
     assert "install-for-user.sh" in source
     assert "osascript" in source
-    assert '$HOME/Library/Application Support/SpaCR' in source
+    assert '$HOME/Library/Application Support/spaCR' in source
     assert "--no-command-launcher" in source
     postinstall = source[source.index('cat > "$SCRIPTS/postinstall"'):]
     assert "install-online.sh" not in postinstall
@@ -588,12 +588,12 @@ def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path)
     def write_readme(path, translated_label):
         links = [helper.README_BEGIN, ""]
         for label, suffix in helper.PLATFORMS:
-            old_name = f"SpaCR-{old_version}-{suffix}"
+            old_name = f"spaCR-{old_version}-{suffix}"
             old_url = (
                 f"{helper.RELEASE_DOWNLOAD_ROOT}/v{old_version}/{old_name}"
             )
             links.append(
-                f"* `{translated_label} {label}: SpaCR {old_version} "
+                f"* `{translated_label} {label}: spaCR {old_version} "
                 f"localized-action <{old_url}>`_"
             )
         links.extend(["", helper.README_END])
@@ -610,9 +610,9 @@ def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path)
     source = tmp_path / "artifacts"
     source.mkdir()
     names = [
-        f"SpaCR-{version}-Windows-Online-Setup.exe",
-        f"SpaCR-{version}-macOS-Universal-Online.pkg",
-        f"SpaCR-{version}-Linux-x86_64-Online.run",
+        f"spaCR-{version}-Windows-Online-Setup.exe",
+        f"spaCR-{version}-macOS-Universal-Online.pkg",
+        f"spaCR-{version}-Linux-x86_64-Online.run",
     ]
     for index, name in enumerate(names):
         nested = source / f"job-{index}"
@@ -620,7 +620,7 @@ def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path)
         (nested / name).write_bytes(f"installer-{index}".encode())
     destination = tmp_path / "application"
     destination.mkdir()
-    old = destination / "SpaCR-1.0.0-Linux-x86_64-Online.run"
+    old = destination / "spaCR-1.0.0-Linux-x86_64-Online.run"
     old.write_bytes(b"old")
 
     copied = helper.collect_installers(
@@ -675,7 +675,7 @@ def test_release_helper_refuses_an_incomplete_localized_readme_set(tmp_path):
     source = tmp_path / "artifacts"
     source.mkdir()
     for _label, suffix in helper.PLATFORMS:
-        (source / f"SpaCR-{version}-{suffix}").write_bytes(b"installer")
+        (source / f"spaCR-{version}-{suffix}").write_bytes(b"installer")
     destination = tmp_path / "application"
 
     with pytest.raises(FileNotFoundError, match="README.fr.rst"):

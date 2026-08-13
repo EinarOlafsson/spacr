@@ -3810,11 +3810,11 @@ class TorchModel(nn.Module):
         multilabel: bool = False,  # kept for external loss/metrics decisions
         image_size: int = 224,     # actual training resolution (ViT/inception need it)
     ):
-        """Build the backbone, strip its head, and attach the SPACR linear classifier.
+        """Build the backbone, strip its head, and attach the spaCR linear classifier.
 
         :param model_name: TorchVision classification model to load.
         :param pretrained: use ImageNet-pretrained weights when available.
-        :param dropout_rate: dropout probability applied to backbone and SPACR head; ``None`` disables.
+        :param dropout_rate: dropout probability applied to backbone and spaCR head; ``None`` disables.
         :param use_checkpoint: enable gradient checkpointing through the backbone.
         :param num_classes: output class count; ``1`` yields a BCE-style binary head.
         :param multilabel: informational flag consumed by external loss/metrics code.
@@ -3852,7 +3852,7 @@ class TorchModel(nn.Module):
         # 5) Infer flattened feature dimension with a dummy forward
         self.num_ftrs = self._infer_feature_dim()
 
-        # 6) Build SPACR head (optional dropout + linear classifier)
+        # 6) Build spaCR head (optional dropout + linear classifier)
         if self.use_dropout:
             self.dropout = nn.Dropout(float(dropout_rate))
         self.spacr_classifier = nn.Linear(self.num_ftrs, self.num_classes)
@@ -3946,7 +3946,7 @@ class TorchModel(nn.Module):
     def _run_backbone_raw(self, x: torch.Tensor) -> torch.Tensor:
         """
         Call the underlying backbone and unwrap common container outputs.
-        Does NOT apply the new SPACR head.
+        Does NOT apply the new spaCR head.
         """
         def forward_fn(t):
             """Run the underlying backbone on ``t`` (used as the checkpoint target)."""
@@ -3988,11 +3988,11 @@ class TorchModel(nn.Module):
         return logits
 
 class TorchModel_v2(nn.Module):
-    """TorchVision backbone with a SPACR linear head (streamlined variant of :class:`TorchModel`).
+    """TorchVision backbone with a spaCR linear head (streamlined variant of :class:`TorchModel`).
 
     :param model_name: TorchVision classification model to load.
     :param pretrained: use ImageNet-pretrained weights when available.
-    :param dropout_rate: dropout probability applied to backbone and SPACR head; ``None`` disables.
+    :param dropout_rate: dropout probability applied to backbone and spaCR head; ``None`` disables.
     :param use_checkpoint: enable gradient checkpointing through the backbone.
     :param num_classes: output class count.
     :param multilabel: informational flag consumed by external loss/metrics code.
@@ -4006,7 +4006,7 @@ class TorchModel_v2(nn.Module):
         num_classes: int = 2,          # arbitrary classes (>=2 => multiclass; 1 => binary head)
         multilabel: bool = False       # kept for external loss/metrics decisions (not used internally)
     ):
-        """Build the backbone, strip its head, and attach the SPACR classifier."""
+        """Build the backbone, strip its head, and attach the spaCR classifier."""
         super().__init__()
         self.model_name = model_name
         self.pretrained = bool(pretrained)
@@ -4033,7 +4033,7 @@ class TorchModel_v2(nn.Module):
         # 4) discover feature dim
         self.num_ftrs = self._infer_feature_dim()
 
-        # 5) add SPACR head
+        # 5) add spaCR head
         self._init_spacr_classifier(dropout_rate)
 
     # --------------------------------------------------------------------- #
@@ -4164,7 +4164,7 @@ class FocalLossWithLogits(nn.Module):
         return loss
     
 class ResNet(nn.Module):
-    """ResNet backbone with a two-layer SPACR binary-classification head.
+    """ResNet backbone with a two-layer spaCR binary-classification head.
 
     :param resnet_type: one of ``'resnet18'``/``'resnet34'``/``'resnet50'``/``'resnet101'``/``'resnet152'``.
     :param dropout_rate: dropout probability before the final linear layer; ``None`` disables.

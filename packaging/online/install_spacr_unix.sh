@@ -146,7 +146,7 @@ fi
 
 if [[ -z "$INSTALL_ROOT" ]]; then
     if [[ "$PLATFORM" == "macos" && "$(id -u)" -eq 0 ]]; then
-        INSTALL_ROOT="/Library/Application Support/SpaCR"
+        INSTALL_ROOT="/Library/Application Support/spaCR"
     else
         INSTALL_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/spacr"
     fi

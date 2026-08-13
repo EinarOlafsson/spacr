@@ -29,7 +29,7 @@ makes it current, and an arrow key moves it away. There is no second
 "hovered" highlight that could point somewhere else.
 
 Advanced features that are *not* yet ported (marked as TODOs in the UI):
-UMAP window, Deep Spacr training launcher, measurement-threshold
+UMAP window, Deep spaCR training launcher, measurement-threshold
 filtering (the threshold filter can be entered in settings but only
 plain per-page fetch is used at query time in this MVP).
 """

@@ -11,14 +11,16 @@ Requested: 2026-08-12 - "add to instructions in the readme all mentions of
 WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
-README.rst alone spells it three ways:
+README.rst alone spelled it three ways (counts taken 2026-08-12, before
+the sweep; the wrong spellings are written with a dot so this file does not
+rewrite its own evidence the next time the sweep runs):
 
-    spacr   172
-    spaCR    20
-    SpaCR     8
+    spacr    172   -- almost all of them `pip install spacr`, `import spacr`,
+                      `cd spacr` and dotted paths, which are correct
+    spa.CR    20   -- the canonical one
+    Spa.Cr     8   -- all of them installer names
 
-so the canonical spelling is outnumbered eight to one in the project's own
-front page.
+so the canonical spelling was outnumbered in the project's own front page.
 
 --------------------------------------------------------------------------------
 WHAT TO DO
@@ -64,6 +66,13 @@ HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
 A test asserts the spelling, so this cannot drift back: no prose file
-contains `SpaCR`, `SPACR` or a bare `spacr` outside the identifier contexts
-listed above, and the installer artifacts built by packaging/ carry the
-canonical spelling wherever the platform allows it.
+carries a mis-cased spelling outside the identifier contexts listed above,
+and the installer artifacts built by packaging/ carry the canonical spelling
+wherever the platform allows it.
+
+THE ONE THING LEFT FOR THE 1.5.0.5 RELEASE. README's three download links
+point at the assets PUBLISHED under v1.5.0.4, which are named
+`SpaCR-1.5.0.4-...` on GitHub. Renaming them in the README makes the front
+page 404 -- the sweep did exactly that and it was reverted. The link TEXT now
+reads spaCR; the URLs keep the filenames that exist. Instruction 82 builds
+1.5.0.5 with the corrected artifact names, and updates those three URLs then.

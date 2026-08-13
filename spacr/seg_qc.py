@@ -2137,10 +2137,35 @@ def read_scorecard(path: str) -> Tuple[List["FieldQC"], str]:
         does not invent one.
     """
     reserved = {"field", "object_type", "n_objects", "severity", "flags", "note"}
+    #: A card without these is not a card. Checked against the HEADER, because
+    #: every field below has a default and a row of defaults reads as a clean
+    #: verdict -- `severity` alone falls back to "ok", which is the invented
+    #: verdict this function exists to refuse.
+    required = {"field", "n_objects"}
     out: List["FieldQC"] = []
     try:
         with open(path, newline="", encoding="utf-8", errors="replace") as handle:
-            for row in csv.DictReader(handle):
+            reader = csv.DictReader(handle)
+            header = list(reader.fieldnames or [])
+
+            # THE NUL CHECK HAS TO LOOK AT THE HEADER, and this is why.
+            # CPython's csv module used to raise `_csv.Error: line contains
+            # NUL`, so a corrupted card was caught by the `except csv.Error`
+            # below and reported as unreadable. PYTHON 3.12 STOPPED RAISING:
+            # it parses the NUL straight through into a FIELD NAME. The check
+            # here only ever looked at `row.values()`, so a NUL in the header
+            # became a key it could not see, every real column went missing,
+            # every default applied, and a damaged scorecard came back "ok"
+            # on exactly the interpreters this project targets.
+            if any("\x00" in str(name) for name in header):
+                return [], f"{os.path.basename(path)} is not CSV (NUL byte)"
+            missing = sorted(required - set(header))
+            if header and missing:
+                return [], (f"{os.path.basename(path)} has no "
+                            f"{', '.join(missing)} column, so it carries no "
+                            f"verdict to read")
+
+            for row in reader:
                 if any("\x00" in str(v) for v in row.values() if v is not None):
                     return [], f"{os.path.basename(path)} is not CSV (NUL byte)"
                 metrics: Dict[str, float] = {}

@@ -169,7 +169,7 @@ the bot; a rewrite that swept up "everyone who is not Einar" would erase two
 people's authorship, which is the opposite of what this instruction is for.
 Whoever runs this must filter on the two named identities and nothing else.
 
-WHAT THE BOT'S SIX COMMITS ARE: `chore(release): add SpaCR <version>
+WHAT THE BOT'S SIX COMMITS ARE: `chore(release): add spaCR <version>
 installers`, produced by the release workflows. They are real commits with
 real content; only the authorship is wrong.
 

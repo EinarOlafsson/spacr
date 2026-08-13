@@ -1,4 +1,4 @@
-name: release SpaCR
+name: release spaCR
 
 on:
   push:
@@ -281,7 +281,7 @@ jobs:
             fi
           else
             git tag -a "$RELEASE_TAG" "$RELEASE_SHA" \
-              -m "SpaCR ${RELEASE_TAG#v}"
+              -m "spaCR ${RELEASE_TAG#v}"
             git push origin "$RELEASE_TAG"
           fi
       - name: Publish release notes and downloadable installers
@@ -296,7 +296,7 @@ jobs:
           else
             gh release create "$RELEASE_TAG" release-assets/* \
               --target "$RELEASE_SHA" \
-              --title "SpaCR $VERSION" \
+              --title "spaCR $VERSION" \
               --generate-notes \
               --verify-tag
           fi

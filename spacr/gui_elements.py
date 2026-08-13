@@ -5726,7 +5726,7 @@ class AnnotateApp:
         return effective
 
     def open_deep_spacr_window(self):
-        """Open the Deep-SPACR train/apply configuration window.
+        """Open the Deep-spaCR train/apply configuration window.
 
         Presents a notebook of tabs (dataset generation, training, inference)
         whose 'Run' hands the resolved settings dict to ``deep_spacr`` on a
@@ -5752,7 +5752,7 @@ class AnnotateApp:
 
         # ---- window -----------------------------------------------------------
         win = tk.Toplevel(self.root)
-        win.title("Deep SPACR — Train")
+        win.title("Deep spaCR — Train")
         win.configure(bg=bg)
         win.geometry("1120x760")
 
@@ -6294,14 +6294,14 @@ class AnnotateApp:
 
             def _worker():
                 try:
-                    self.update_gui_text("Deep SPACR: preparing…")
+                    self.update_gui_text("Deep spaCR: preparing…")
                     from spacr.deep_spacr import deep_spacr
                     deep_spacr(settings)
-                    self.update_gui_text("Deep SPACR: done.")
+                    self.update_gui_text("Deep spaCR: done.")
                 except Exception as e:
                     import traceback
                     traceback.print_exc()
-                    self.update_gui_text(f"Deep SPACR error: {e}")
+                    self.update_gui_text(f"Deep spaCR error: {e}")
 
             threading.Thread(target=_worker, daemon=True).start()
 

@@ -119,9 +119,9 @@ Installation details
 
 .. spacr-installer-links-begin
 
-* `Windows 10/11: download SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe>`_
-* `macOS 11+ (Intel and Apple silicon): download SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg>`_
-* `64-bit Linux: download SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run>`_
+* `Windows 10/11: download spaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe>`_
+* `macOS 11+ (Intel and Apple silicon): download spaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg>`_
+* `64-bit Linux: download spaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run>`_
 
 .. spacr-installer-links-end
 
@@ -145,8 +145,8 @@ On Linux, make the downloaded installer executable before opening it:
 
 .. code-block:: bash
 
-   chmod +x SpaCR-*-Linux-x86_64-Online.run
-   ./SpaCR-*-Linux-x86_64-Online.run
+   chmod +x spaCR-*-Linux-x86_64-Online.run
+   ./spaCR-*-Linux-x86_64-Online.run
 
 On macOS, open the downloaded ``.pkg``. If Gatekeeper blocks the current beta
 installer because it is not notarized, open **System Settings → Privacy &

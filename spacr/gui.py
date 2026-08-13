@@ -184,7 +184,7 @@ class MainApp(tk.Tk):
         title_frame = tk.Frame(self.inner_frame, bg=bg)
         title_frame.pack(pady=(spacing['xl'], spacing['md']))
         tk.Label(
-            title_frame, text="SpaCR", font=_font('title'),
+            title_frame, text="spaCR", font=_font('title'),
             bg=bg, fg=fg, cursor="hand2",
         ).pack()
 
@@ -200,7 +200,7 @@ class MainApp(tk.Tk):
         # `html_extra_path`. The singular `/tutorial/` this used to open is
         # a 404.
         logo_button = spacrButton(
-            main_card.body, text="SpaCR",
+            main_card.body, text="spaCR",
             command=lambda: webbrowser.open_new(TUTORIALS_URL),
             icon_name="logo_spacr", size=90, show_text=False,
         )
