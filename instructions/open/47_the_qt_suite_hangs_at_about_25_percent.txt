@@ -769,3 +769,82 @@ inside a test rather than behind the loading screen.
 NEXT STEP, for whoever takes it: profile with the preloader stubbed and
 compare. If that is the cause, the fix is a test-time seam rather than a
 product change, because 74 already covers the real launch.
+
+--------------------------------------------------------------------------------
+2026-08-13 (later) - THE 45 s TEST IS FIXED, AND IT WAS NOT MainWindow. IT WAS
+                     A PRODUCT BUG, AND MY OWN CORRECTION ABOVE WAS WRONG
+--------------------------------------------------------------------------------
+
+The note above pointed the next implementer at `_PipelinePreloader` and said
+the fix would be "a test-time seam rather than a product change". BOTH HALVES
+WERE WRONG. Measured, step by step, inside the test body:
+
+    open_run                 44.13 s     <-- all of it
+    import MainWindow         0.00 s
+    MainWindow()              0.72 s
+    findChildren(300)         0.00 s
+
+MainWindow is 0.72 s, in line with instruction 55's 731 ms. The preloader is
+innocent. cProfile put 91 s of cumulative time in
+`Run._capture_initial_provenance` -> `_iter_files`: 474,759 files walked,
+661,531 `Path.resolve()` calls, 6 M lstats.
+
+AND MY EARLIER CORRECTION IN THIS FILE IS ALSO WRONG, which matters more than
+being right the second time. It said:
+
+    "No spaCR run pays 80 s of provenance capture. Whatever the 80 s was, it
+     was not this, and the conclusion 'left unfixed because run_journal.py is
+     another session's file' was protecting a file that is not the problem."
+
+I had measured the ENVIRONMENT SNAPSHOT -- `_installed_packages`, `_git_hash`
+-- and not the INVENTORY WALK, which is the expensive half and is in the same
+function. The original note was right that this is a product cost. It is not
+80 s of package listing; it is an unbounded directory walk.
+
+THE BUG, one line:
+
+    root = path if path.is_dir() else path.parent
+
+A path-valued setting naming a FILE dragged in the whole directory that file
+sits in. `model_path` pointing at one checkpoint among 20,000 stat'ed 20,001
+paths -- of which 20,000 CANNOT CHANGE, because `model_path` is an input and
+the run writes nothing beside it. The test's `src` was `/tmp/x`, which exists
+on this machine as a file, so the root became `/tmp`: 475,250 paths, 44 s
+cold.
+
+AND EVERY RUN PAYS IT. The baseline is deliberately taken whether or not
+hashing was asked for -- it is what tells the final pass which files the run
+created -- so this was not confined to opted-in provenance.
+
+A path that does NOT exist costs nothing: `_setting_path_candidates` drops
+those. So the exposure is exactly "a setting naming an existing file", which
+is `model_path`, `csv`, `db`, `weights` -- ordinary inputs.
+
+THE FIX, `Run._inventory_root`: the baseline exists to answer ONE question --
+which files did this run CREATE -- so it only has to cover somewhere the run
+might write. A directory is walked as before. An OUTPUT file's directory is
+walked, because a run may write siblings beside it (a report beside its
+figures, a tar beside its manifest). An INPUT file is inventoried as itself,
+and nothing else.
+
+The two passes were narrowed TOGETHER, and that is the part that had to be
+right: a final pass walking wider than the baseline would report every
+sibling as a file this run created. Tested from both ends -- neighbours are
+not reported, and a genuinely modified input still is.
+
+A BUDGET AS A BACKSTOP for the case the narrowing cannot rule out, a real
+source folder holding a million crops: `INVENTORY_BUDGET`, recorded in
+`provenance_warnings` when hit, because a truncated inventory that says
+nothing is a manifest claiming completeness it does not have.
+
+MEASURED AFTER:
+
+    input model file among 20,000    20,001 -> 1 baseline entry
+    the folder itself as src         20,001 -> 20,001   (unchanged; correct)
+    an output file                   20,001 -> 20,001   (unchanged; correct)
+    the failing test                 44 s   -> 0.03 s
+
+test_onboarding: 11 tests, 12.1 s total, where one test used to take 45.
+
+15 tests in tests/test_run_journal_inventory_scope.py; 174 pass across
+run_journal, report and report coverage.

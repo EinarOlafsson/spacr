@@ -1,0 +1,91 @@
+================================================================================
+A TEST BUTTON THAT RACES cuML AGAINST THE CPU AND SHOWS BOTH UMAPS
+================================================================================
+
+Status:    not started, 2026-08-13.
+Requested: 2026-08-13 - "in the GPU version id also like a test where the
+           setting is the user should be able to press a test button where
+           it compares how fast the CPU versions is and how fast the GPU
+           version is and show the two UMAPS side by side."
+
+--------------------------------------------------------------------------------
+WHY THIS IS THE RIGHT FEATURE, AND NOT JUST A NICE ONE
+--------------------------------------------------------------------------------
+
+`spacr/gpu_reduce.py` already ships the accelerator and already records the
+thing that makes it awkward:
+
+    "cuML's UMAP is not bit-identical to umap-learn's, and its KMeans and
+     DBSCAN can differ at the boundaries. A figure regenerated on a different
+     machine would move. So the accelerator is OPT-IN per call, reports which
+     backend ran, and any caller that pins a seed for reproducibility should
+     keep the CPU path."
+
+That is a warning in a docstring. Nobody reads it, and a user who turns the
+GPU on has no way to find out what it cost them. THE SIDE-BY-SIDE IS THE
+ANSWER TO EXACTLY THAT: it shows the speed-up and the disagreement in one
+picture, on the user's own data, and lets them decide. A number in a
+changelog cannot do that.
+
+It also answers the question the extra raises and nothing currently settles:
+is cuML worth a multi-gigabyte install on THIS machine, for THIS dataset? On
+a small table the transfer overhead can exceed the gain -- instruction 70's
+finding -- and the honest way to know is to measure rather than to promise.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+  * A "Compare CPU and GPU" button in the Image UMAP settings, beside the
+    RAPIDS toggle. Present but DISABLED with a reason when cuML is absent,
+    the interpreter is wrong, or there is no CUDA device --
+    `gpu_reduce.describe()` already produces that sentence, so use it rather
+    than writing a second one.
+  * It runs the SAME embedding twice, once per backend, on the data already
+    loaded. Same seed, same n_neighbors, same min_dist: the comparison is
+    worthless if the two runs differ in anything but the backend.
+  * Two plots side by side, same axes scaling, each captioned with its
+    backend and its wall time. Off the GUI thread, cancellable, and reported
+    through `LivePreviewContract` like every other live view -- instruction
+    69's seam exists for this.
+  * SAY WHAT DIFFERED, not only what was faster. A speed-up with a visibly
+    different embedding is the finding, and the point of showing both. A
+    label-agreement number (adjusted Rand over a shared clustering, or
+    nearest-neighbour overlap) turns "they look different" into something a
+    user can put in a methods section.
+  * The timing is a MEASUREMENT and must say so: one run each, on this
+    machine, on this data, warm or cold. `spacr.benchmark` already sets the
+    house style for that -- a warm-up that is not timed, and the evidence
+    carried beside the number.
+
+--------------------------------------------------------------------------------
+DECISIONS THE IMPLEMENTER HAS TO MAKE
+--------------------------------------------------------------------------------
+
+  * WHAT SIZE TO RACE ON. The whole table can be minutes on the CPU path,
+    which is a long time to hold a button down. A subsample makes the test
+    fast but understates the GPU's advantage, because the transfer overhead
+    is fixed and the gain grows with n. Probably: race on a subsample by
+    default, say so on the figure, and offer the full table as a checkbox.
+  * WHETHER IT WRITES ANYTHING. It should not. This is a measurement a user
+    takes before choosing a backend, not a run -- so no journal entry, no
+    figure on disk unless they ask, and nothing propagated into settings.
+  * WHETHER THE SAME BUTTON SERVES THE OTHER FOUR ALGORITHMS.
+    `gpu_reduce.ACCELERATED` also covers t-SNE, PCA, DBSCAN and KMeans. UMAP
+    is what was asked for and is where the time goes; the others can follow
+    the same seam if it turns out to be wanted.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+On a machine with cuML the button produces two embeddings and two honest
+timings side by side; on a machine without it, the button is visible and
+disabled and says exactly why; the two runs differ in nothing but the
+backend; the comparison writes nothing; and a user can answer "is the GPU
+path worth it for my data" without reading a docstring.
+
+Related: 86 (the cuML extra and where it does and does not help), 70 (the
+GPU offload audit whose transfer-overhead finding this exposes), 75 (the
+Image UMAP figure view this button lives beside), 69 (the live-view seam it
+reports through).
