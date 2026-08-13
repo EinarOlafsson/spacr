@@ -258,3 +258,71 @@ STILL OPEN: exported FIGURES do not carry the mapping yet -- a PDF in
 substituted colours has no way to tell its reader the mapping is not the usual
 one. That is the figure pipeline rather than a viewer, and it is the last
 piece of this instruction.
+
+--------------------------------------------------------------------------------
+2026-08-13 (last) - THE EXPORTED FIGURE. THE BLANKET TRANSFORM WOULD HAVE BEEN
+                    WRONG, AND THE REAL DEFECT WAS SOMEWHERE ELSE
+--------------------------------------------------------------------------------
+
+The note above said "a figure exported in these colours must carry the
+mapping too". TESTED FIRST, and the premise does not hold two ways over.
+
+1. NO EXPORTED FIGURE IS DRAWN IN SUBSTITUTED PRIMARIES. The transform is a
+   viewer transform; nothing in the pipeline calls it. So there was never a
+   mapping to stamp.
+
+2. APPLYING IT TO A FIGURE WOULD BE A BUG, not the missing feature. The
+   matrix is built for CHANNEL planes, and a saved figure is a composited
+   raster with axes, labels and a legend already drawn into it. Measured on
+   the deuteranope matrix:
+
+       white      (255,255,255) -> (255,255,255)   fine
+       black      (0,0,0)       -> (0,0,0)         fine
+       axis grey  (80,80,80)    -> (80,160,80)     GREEN
+       mid grey   (128,128,128) -> (128,255,128)   GREEN
+
+   Every grey label and tick in the figure turns green. And the overlay
+   figure draws each channel as GREYSCALE (`np.dstack([normalized] * 3)`)
+   with coloured outlines on top, so there are no stain planes to substitute
+   in the first place.
+
+THE REAL DEFECT WAS THE OUTLINE COLOURS, which is what this file's "worth
+doing at the same time" section flagged for the live preview -- and it is
+worse in the figure, because the figure is the thing that goes into a paper.
+`plot_image_mask_overlay` hard-coded:
+
+    cell red, nucleus blue, pathogen green, organelle yellow
+
+CELL RED BESIDE PATHOGEN GREEN IS THE ONE PAIR RED-GREEN DEFICIENCY REMOVES,
+and there was no way to change it. Worst confusable pair across the four
+outlines, 0-255, Brettel-style simulation:
+
+    palette        normal  deuteranope  protanope  tritanope
+    default          255       27          77         39
+    colourblind      148      142         125        134
+
+27 is not a small number, it is invisible. `colourblind` is the four of the
+Okabe-Ito set that scored best on that worst-pair measure, chosen by scoring
+every 4-subset rather than by picking pretty ones. It gives up separation
+under normal vision -- 148 against 255 -- to buy five times as much under
+every deficiency, which is the right trade for a figure with more than one
+reader.
+
+DEFAULT UNCHANGED, deliberately: switching it silently would change every
+figure a user has already made and every methods section describing them. It
+arrives as an ordinary setting, `outline_palette`, because the pipeline
+cannot read QSettings -- the GUI reads the preference and passes it down, the
+same architecture rule the run journal follows.
+
+A REAL BUG FOUND ON THE WAY. `submodules.py` called
+`plot_image_mask_overlay(..., normalize=True)`. There is no such parameter:
+every call raised TypeError, the bare `except Exception` two lines down
+swallowed it, and that branch has been printing "Failed to plot images with
+outlines" instead of drawing a single overlay. It wanted percentile
+normalisation, which is `percentiles`. Fixed.
+
+13 tests, and the ones that matter carry the SIMULATION rather than the
+palette -- a better palette can replace this one by beating the numbers
+instead of by argument. 588 pass across settings, plot, smoke and validate.
+
+89 IS DONE.
