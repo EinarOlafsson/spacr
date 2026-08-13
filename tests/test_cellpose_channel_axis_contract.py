@@ -63,10 +63,42 @@ def test_cellpose_channel_axis_accepts_a_plain_list():
 
 @pytest.mark.parametrize("shape", _LOADER_SHAPES)
 def test_real_cellpose_accepts_the_chosen_axis(shape):
-    """convert_image is what CellposeModel.eval calls; it must not raise."""
+    """convert_image is what CellposeModel.eval calls; it must not raise.
+
+    THE ASSERTION THAT MATTERS IS "does not raise", and it holds on every
+    recorded cellpose. The channel COUNT that comes back does not:
+
+        input          4.0.7          4.2.1.1
+        (16, 16)       (16, 16, 3)    (16, 16, 1)
+        (16, 16, 1)    (16, 16, 3)    (16, 16, 1)
+        (16, 16, 2)    (16, 16, 3)    (16, 16, 2)
+        (16, 16, 3)    (16, 16, 3)    (16, 16, 3)
+        (16, 16, 5)    (16, 16, 3)    (16, 16, 3)   + "only first 3" warning
+
+    4.0 padded everything to three planes; 4.2 keeps the native count up to
+    three. This test used to assert `== (16, 16, 3)` unconditionally, which
+    on 4.2 failed for the three narrow shapes -- and that failure was read as
+    "a behaviour change in the masking path", i.e. as spaCR being broken. It
+    is not: spaCR hands the stack to `eval` and gets masks back, and the
+    intermediate channel count never reaches spaCR. What the padding change
+    breaks is this assertion, nothing else.
+
+    So the invariant is stated as what spaCR actually depends on: the axis
+    is accepted, the spatial shape survives, and the result never has more
+    than the three planes cellpose segments on.
+    """
     x = np.random.default_rng(0).random(shape).astype(np.float32)
     out = transforms.convert_image(x, channel_axis=SC.cellpose_channel_axis(x))
-    assert out.shape == (16, 16, 3)          # Cellpose 4 always emits 3 channels
+
+    assert out.shape[:2] == (16, 16), "the image geometry must survive"
+    assert out.ndim == 3, "cellpose always returns a channels-last stack"
+    assert 1 <= out.shape[2] <= 3, (
+        f"cellpose segments on at most 3 channels; got {out.shape[2]}")
+
+    channels_in = 1 if x.ndim == 2 else x.shape[-1]
+    assert out.shape[2] == min(channels_in, 3) or out.shape[2] == 3, (
+        f"{channels_in} channels in became {out.shape[2]} out, which is "
+        f"neither the native count nor the padded 3")
 
 
 @pytest.mark.parametrize("shape", _LOADER_SHAPES)
