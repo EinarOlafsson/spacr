@@ -10,6 +10,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
@@ -382,6 +384,68 @@ def test_model_safe_split_preserves_complete_long_api_blocks():
     assert found_long
 
 
+def test_every_api_translation_context_preserves_the_literal_contract():
+    import build_documentation_i18n as builder
+
+    for key, document in builder.public_docstrings().items():
+        for index, block in enumerate(builder.translatable_blocks(document)[0]):
+            contextual = builder._api_translation_source(block)
+            assert builder._syntax_preserved(block, contextual), (key, index)
+
+
+@pytest.mark.parametrize(
+    ("source_fragment", "required_fragments"),
+    (
+        (
+            "Feature detector for keypoint matching",
+            (
+                "after detection",
+                "using the detector’s ranking",
+                "feature detection and scoring",
+                "in downsampled space",
+            ),
+        ),
+        (
+            "A replicate whose fit failed or did not converge",
+            (
+                "mean over converged fits",
+                "failed or did not converge",
+                "five non-converged fits",
+            ),
+        ),
+        (
+            "get_db_browser_editable` must be on",
+            (
+                "off by default and is not on this screen",
+                "selection alone does nothing",
+                "Otherwise refuse the edit",
+            ),
+        ),
+        (
+            "structural amplitude of the flattened plane",
+            (
+                "structural amplitude (p99 - p30)",
+                "raw-plane noise estimate",
+                "unfilled foreground",
+                "coarse pass sets the suppression radius",
+            ),
+        ),
+    ),
+)
+def test_hard_tail_contexts_retain_the_complete_semantic_contract(
+    source_fragment, required_fragments,
+):
+    import build_documentation_i18n as builder
+
+    matches = [
+        target
+        for source, target in builder.API_TRANSLATION_CONTEXT.items()
+        if source_fragment in source
+    ]
+    assert len(matches) == 1
+    assert all(fragment in matches[0] for fragment in required_fragments)
+
+
 def test_docstring_reflow_preserves_rst_roles_fields_and_inline_code():
     from build_documentation_i18n import rebuild_document, translatable_blocks
 
@@ -440,6 +504,160 @@ Fourth::
     assert rebuilt.count("::") == source.count("::") == 6
     assert len(translatable_blocks(rebuilt)[0]) == len(blocks)
     assert "    call()" in rebuilt and "      item()" in rebuilt
+
+
+def test_standalone_literal_intro_is_raw_not_an_empty_translation_block():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = """Example
+
+::
+
+    literal()"""
+    blocks, layout = translatable_blocks(source)
+    assert blocks == ["Example"]
+    assert all(block for block in blocks)
+    assert rebuild_document(layout, blocks) == source
+
+
+@pytest.mark.parametrize(
+    ("source", "translated"),
+    (
+        ("``setting`` explains the choice.", "``setting``  explica a escolha."),
+        (
+            ":class:`spacr.Widget` explains the choice.",
+            ":class:`spacr.Widget`   explica a escolha.",
+        ),
+    ),
+)
+def test_leading_literal_model_whitespace_cannot_reparse_as_a_definition(
+    source, translated,
+):
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    blocks, layout = translatable_blocks(source)
+    rebuilt = rebuild_document(layout, [translated])
+    assert "  " not in rebuilt.split(" explica", 1)[0]
+    assert translatable_blocks(rebuilt)[0] == [
+        re.sub(r"\s+(?=explica)", " ", translated)
+    ]
+    assert len(translatable_blocks(rebuilt)[0]) == len(blocks) == 1
+
+
+def test_unlabelled_indented_diagram_after_prose_stays_raw():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = """Structure:
+    ┌────────┐
+    │ panel  │
+    └────────┘"""
+    blocks, layout = translatable_blocks(source)
+    assert blocks == ["Structure:"]
+    assert rebuild_document(layout, ["Estrutura:"]) == (
+        "Estrutura:\n    ┌────────┐\n    │ panel  │\n    └────────┘"
+    )
+
+
+def test_simple_table_merges_all_cells_on_a_wrapped_continuation_row():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = """============  ============  ============
+question      Mask          Timelapse
+============  ============  ============
+busy text     \"Preview      \"Preview
+              already       already
+              running.\"     running.\"
+============  ============  ============"""
+    blocks, layout = translatable_blocks(source)
+    assert '"Preview already running."' in blocks
+    assert blocks.count('"Preview already running."') == 2
+    rebuilt = rebuild_document(layout, blocks)
+    assert translatable_blocks(rebuilt)[0] == blocks
+
+
+def test_indented_pip_install_command_is_literal_not_prose():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = '''Install it with:
+
+    python -m pip install "spacr[anndata]"'''
+    blocks, layout = translatable_blocks(source)
+    assert blocks == ["Install it with:"]
+    assert rebuild_document(layout, ["Instale com:"]) == source.replace(
+        "Install it with:", "Instale com:"
+    )
+
+
+def test_unicode_mapping_arrows_are_protected_structural_operators():
+    from build_i18n_catalogs import _protect, _restore, _syntax_preserved
+
+    source = "``setting`` → κ = 2 × value; score ≥ 0.8 ± 0.1 ≈ result"
+    protected, mapping = _protect(source)
+    for operator in ("→", "κ", "×", "≥", "±", "≈"):
+        assert operator not in protected
+    assert _restore(protected, mapping) == source
+    target = "``setting`` → κ = 2 × valor; pontuação ≥ 0.8 ± 0.1 ≈ resultado"
+    assert _syntax_preserved(source, target)
+    assert not _syntax_preserved(source, target.replace(" →", ""))
+    assert not _syntax_preserved(source, target.replace("κ", "k"))
+
+
+def test_ui_navigation_glyphs_are_protected_literals():
+    from build_i18n_catalogs import _protect, _restore, _syntax_preserved
+
+    source = "Open ⓘ, choose Facet ↓, then use ◀ / ▶ or spaCR ▸ Settings."
+    protected, mapping = _protect(source)
+    for glyph in ("ⓘ", "↓", "◀", "▶", "▸"):
+        assert glyph not in protected
+    assert _restore(protected, mapping) == source
+    assert not _syntax_preserved(source, source.replace("ⓘ", "i"))
+
+
+def test_scientific_units_and_variables_cannot_silently_disappear():
+    from build_i18n_catalogs import _protect, _restore, _syntax_preserved
+
+    source = "At 5 µm and 2 µm², κ uses pₒ and pₑ; see §6 © 2025."
+    protected, mapping = _protect(source)
+    for literal in ("µm", "µm²", "κ", "pₒ", "pₑ", "§6", "©"):
+        assert literal not in protected
+    assert _restore(protected, mapping) == source
+    target = "A 5 µm e 2 µm², κ usa pₒ e pₑ; consulte §6 © 2025."
+    assert _syntax_preserved(source, target)
+    assert not _syntax_preserved(source, target.replace("5 µm", "5"))
+    assert not _syntax_preserved(source, target.replace("pₑ", "pe"))
+
+
+def test_unquoted_identifiers_inside_prose_table_cells_stay_exact():
+    from build_i18n_catalogs import _protect, _restore, _syntax_preserved
+
+    source = "No — deleteLater; then preview_ ready."
+    protected, mapping = _protect(source)
+    for literal in ("deleteLater", "preview_"):
+        assert literal not in protected
+    assert _restore(protected, mapping) == source
+    assert not _syntax_preserved(
+        source, source.replace("deleteLater", "excluirDepois")
+    )
+
+
+def test_preview_contract_table_reassembles_prose_but_hides_code_cells():
+    from build_documentation_i18n import (
+        _api_block_requires_translation,
+        public_docstrings,
+        translatable_blocks,
+    )
+
+    blocks, _layout = translatable_blocks(
+        public_docstrings()["spacr.qt.widgets.preview_contract"]
+    )
+    assert blocks.count('"Preview already running."') == 3
+    assert blocks.count("no — deleteLater") == 2
+    assert blocks.count("preview_ ready") == 3
+    assert "JobRunner" not in blocks
+    assert "a rescore from the cache" in blocks
+    assert "matplotlib plot" in blocks
+    assert _api_block_requires_translation("no")
+    assert _api_block_requires_translation("no — deleteLater")
 
 
 def test_canonical_literal_introducers_never_reach_model_blocks():
@@ -860,6 +1078,167 @@ def test_incomplete_fragment_output_can_never_be_reassembled():
     assert _join_completed_fragments(pieces, set()) == (
         "번역된 앞부분  ``literal`` 뒤부분"
     )
+
+
+def test_ranked_generation_returns_one_candidate_per_existing_beam():
+    from build_i18n_catalogs import (
+        _group_ranked_outputs,
+        _ranked_generation_kwargs,
+    )
+
+    assert _ranked_generation_kwargs(4) == {
+        "num_beams": 4,
+        "num_return_sequences": 4,
+    }
+    output = ["a0", "a1", "a2", "a3", "b0", "b1", "b2", "b3"]
+    grouped = _group_ranked_outputs(output, list(output), 2, 4)
+    assert [[value for _sequence, value in group] for group in grouped] == [
+        ["a0", "a1", "a2", "a3"],
+        ["b0", "b1", "b2", "b3"],
+    ]
+
+
+def test_ranked_candidate_skips_invalid_eos_restore_and_gate_results():
+    from build_i18n_catalogs import _first_valid_ranked_candidate
+
+    candidates = [
+        ("incomplete", "ignored"),
+        ("complete", "broken-marker"),
+        ("complete", "gate-rejected"),
+        ("complete", "accepted"),
+    ]
+
+    def restore(value):
+        if value == "broken-marker":
+            raise ValueError("marker was damaged")
+        return value
+
+    def evaluate(value):
+        if value == "gate-rejected":
+            return value, {"caller_gate"}
+        return f"translated:{value}", set()
+
+    selected, failures = _first_valid_ranked_candidate(
+        candidates,
+        completed=lambda sequence: sequence == "complete",
+        restore=restore,
+        evaluate=evaluate,
+    )
+    assert selected == "translated:accepted"
+    assert failures == set()
+
+    selected, failures = _first_valid_ranked_candidate(
+        candidates[:-1],
+        completed=lambda sequence: sequence == "complete",
+        restore=restore,
+        evaluate=evaluate,
+    )
+    assert selected is None
+    assert failures == {"eos", "marker_restore", "caller_gate"}
+
+
+def test_rank_zero_rejection_can_select_rank_one_without_mixing_pieces():
+    from build_i18n_catalogs import (
+        _first_valid_ranked_candidate,
+        _rank_aligned_joins,
+    )
+
+    selected, failures = _first_valid_ranked_candidate(
+        [(object(), "rank-zero"), (object(), "rank-one")],
+        completed=lambda _sequence: True,
+        restore=lambda value: value,
+        evaluate=lambda value: (
+            value,
+            {"protected_syntax"} if value == "rank-zero" else set(),
+        ),
+    )
+    assert selected == "rank-one"
+    assert failures == set()
+
+    assert _rank_aligned_joins(
+        [["left-0", "left-1"], ["right-0", "right-1"]],
+        lambda values: "|".join(values),
+    ) == ["left-0|right-0", "left-1|right-1"]
+    assert _rank_aligned_joins(
+        [["left-0", None], [None, "right-1"]],
+        lambda values: "|".join(values),
+    ) == [None, None]
+
+
+def test_no_valid_beam_falls_back_to_source_without_cache(
+    tmp_path, monkeypatch,
+):
+    import types
+
+    import torch
+    import build_i18n_catalogs as builder
+
+    source = "Translate this deliberately unique beam fixture."
+    model_folder = tmp_path / builder.MODEL_SPECS["pt"][1]
+    model_folder.mkdir(parents=True)
+    generation_calls = []
+
+    class FakeTokenizer:
+        eos_token_id = 2
+        model_max_length = 480
+
+        def __call__(self, value, **_kwargs):
+            if isinstance(value, str):
+                return {"input_ids": [1, 2]}
+            width = max(2, max(map(len, value)))
+            input_ids = torch.ones((len(value), width), dtype=torch.long)
+            return {
+                "input_ids": input_ids,
+                "attention_mask": torch.ones_like(input_ids),
+            }
+
+        def batch_decode(self, output, **_kwargs):
+            values = {
+                11: "Primeira tradução rejeitada.",
+                12: "Segunda tradução rejeitada.",
+            }
+            return [values[int(sequence[0])] for sequence in output]
+
+    tokenizer = FakeTokenizer()
+
+    class FakeModel:
+        def eval(self):
+            return self
+
+        def generate(self, **kwargs):
+            generation_calls.append(kwargs)
+            return torch.tensor([[11, 2], [12, 2]], dtype=torch.long)
+
+    fake_transformers = types.SimpleNamespace(
+        AutoTokenizer=types.SimpleNamespace(
+            from_pretrained=lambda *_args, **_kwargs: tokenizer,
+        ),
+        AutoModelForSeq2SeqLM=types.SimpleNamespace(
+            from_pretrained=lambda *_args, **_kwargs: FakeModel(),
+        ),
+    )
+    monkeypatch.setitem(sys.modules, "transformers", fake_transformers)
+    monkeypatch.setattr(builder, "_seed_cache_from_catalog", lambda *_args: None)
+
+    translated = builder._translate_batches(
+        [source],
+        "pt",
+        tmp_path,
+        device="cpu",
+        batch_size=1,
+        beams=2,
+        threads=1,
+        force_sources={source},
+        cache_namespace="beam-fixture",
+        candidate_validator=lambda *_args: False,
+    )
+
+    assert translated == {source: source}
+    assert len(generation_calls) == 1
+    assert generation_calls[0]["num_beams"] == 2
+    assert generation_calls[0]["num_return_sequences"] == 2
+    cache_path = tmp_path / ".spacr_translation_cache" / "pt.json"
+    assert not cache_path.exists()
 
 
 def test_translation_rejection_reasons_separate_mechanical_and_linguistic():

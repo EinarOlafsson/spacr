@@ -171,6 +171,15 @@ _QUOTE_PROTECT_PATTERNS = frozenset({
 # payload byte-for-byte while translating the surrounding prose.
 _RST_ROLE_PATTERN = r":(?:[A-Za-z][\w-]*:)?[A-Za-z][\w-]*:`[^`]+`"
 
+_SCIENTIFIC_NOTATION_RE = re.compile(
+    # Visible scientific units and variables are data, not prose.  Marian can
+    # otherwise drop the non-ASCII glyph while leaving a fluent sentence
+    # (``5 µm`` becoming merely ``5``), which silently changes its meaning.
+    r"(?<!\w)µ(?:m|M|s)(?:²|³)?(?:/(?:px|pixel|s|min))?(?!\w)|"
+    r"(?<!\w)p[ₒₑ](?!\w)|"
+    r"[κπδΔ]|§\s*\d+|©"
+)
+
 _PROTECT_PATTERNS = (
     re.compile(
         r"^:(?!(?:class|func|mod|meth|attr|data|doc):)"
@@ -202,6 +211,11 @@ _PROTECT_PATTERNS = (
     re.compile(r"https?://\S+"),
     re.compile(r"(?<!\w)(?:--[A-Za-z][\w-]*|-[A-Za-z](?!\w))"),
     re.compile(r"\b[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+\b"),
+    # These two unquoted identifiers occur inside otherwise-human table cells.
+    # Keep them exact without hiding every CamelCase English cue from the
+    # semantic source classifier (``DataLoader`` and ``spaCR`` are meaningful
+    # context there).
+    re.compile(r"(?<!\w)(?:deleteLater|preview_)(?!\w)"),
     # Short quoted values name literal UI labels, log snippets, or option
     # values the reader must be able to find verbatim.  Preserve up to four
     # simple words (for example "Verbose logging" or 'using 12 cpu cores').
@@ -220,7 +234,11 @@ _PROTECT_PATTERNS = (
     # not punctuation a translation model may drop.  Keeping even bare ``>``
     # and ``<`` in this contract also turns an invented angle bracket into a
     # global syntax failure instead of inviting a lossy cleanup pass.
-    re.compile(r"(?<![-=])(?:->|=>|>=|<=|==|!=|>|<)(?![=>])"),
+    re.compile(
+        r"(?<![-=])(?:->|=>|>=|<=|==|!=|>|<)(?![=>])|"
+        r"[→←↔⇒↑↓×≤≥±≈−·²³ⓘ▸◀▶]"
+    ),
+    _SCIENTIFIC_NOTATION_RE,
     re.compile(r"%(?:\d+\$)?[sd]"),
 )
 
@@ -3296,6 +3314,88 @@ def _join_completed_fragments(
     return joined.strip()
 
 
+def _ranked_generation_kwargs(beams: int) -> dict[str, int]:
+    """Return one ranked sequence per beam without launching another search."""
+    beam_count = int(beams)
+    if beam_count < 1:
+        raise ValueError("translation beam count must be at least one")
+    return {
+        "num_beams": beam_count,
+        "num_return_sequences": beam_count,
+    }
+
+
+def _group_ranked_outputs(
+    output: object,
+    decoded: list[str],
+    batch_count: int,
+    rank_count: int,
+) -> list[list[tuple[object, str]]]:
+    """Group Hugging Face's input-major beam output by source input."""
+    expected = int(batch_count) * int(rank_count)
+    if len(decoded) != expected or len(output) != expected:  # type: ignore[arg-type]
+        raise ValueError(
+            "ranked generation returned an unexpected sequence count: "
+            f"expected={expected} output={len(output)} "  # type: ignore[arg-type]
+            f"decoded={len(decoded)}"
+        )
+    return [
+        [
+            (output[input_index * rank_count + rank],  # type: ignore[index]
+             decoded[input_index * rank_count + rank])
+            for rank in range(rank_count)
+        ]
+        for input_index in range(batch_count)
+    ]
+
+
+def _first_valid_ranked_candidate(
+    candidates: Iterable[tuple[object, str]],
+    *,
+    completed: Callable[[object], bool],
+    restore: Callable[[str], str],
+    evaluate: Callable[[str], tuple[str, Iterable[str]]],
+) -> tuple[str | None, frozenset[str]]:
+    """Select the first complete, restorable candidate passing every gate."""
+    rejections: set[str] = set()
+    for sequence, decoded in candidates:
+        if not completed(sequence):
+            rejections.add("eos")
+            continue
+        try:
+            raw_value = restore(decoded)
+        except ValueError:
+            rejections.add("marker_restore")
+            continue
+        candidate, failures = evaluate(raw_value)
+        rank_failures = frozenset(failures)
+        if not rank_failures:
+            return candidate, frozenset()
+        rejections.update(rank_failures)
+    return None, frozenset(rejections or {"caller_gate"})
+
+
+def _rank_aligned_joins(
+    ranked_pieces: Iterable[list[str | None]],
+    joiner: Callable[[list[str]], str],
+) -> list[str | None]:
+    """Join only pieces with the same beam rank; never mix local winners."""
+    pieces = list(ranked_pieces)
+    if not pieces:
+        return []
+    rank_count = len(pieces[0])
+    if any(len(piece) != rank_count for piece in pieces):
+        raise ValueError("ranked translation pieces have inconsistent widths")
+    joined: list[str | None] = []
+    for rank in range(rank_count):
+        values = [piece[rank] for piece in pieces]
+        joined.append(
+            None if any(value is None for value in values)
+            else joiner([str(value) for value in values])
+        )
+    return joined
+
+
 def _translate_batches(
     strings: list[str],
     language: str,
@@ -3479,6 +3579,8 @@ def _translate_batches(
         "no_repeat_ngram_size": 3,
         "repetition_penalty": 1.12,
     }
+    ranked_generation = _ranked_generation_kwargs(beams)
+    rank_count = ranked_generation["num_return_sequences"]
 
     def output_budget(encoded: Mapping[str, object]) -> int:
         """Allow expansion; EOS checks reject and re-split exhausted output."""
@@ -3585,6 +3687,34 @@ def _translate_batches(
             or int(eos_token_id) in sequence.detach().cpu().tolist()
         )
 
+    def evaluate_raw_candidate(
+        source: str, raw_value: str,
+    ) -> tuple[str, frozenset[str]]:
+        raw_semantic_failure = bool(
+            _semantic_false_friends(source, raw_value, language)
+        )
+        candidate = normalize_candidate(source, raw_value)
+        failures = candidate_failures(
+            source,
+            candidate,
+            raw_semantic_failure=raw_semantic_failure,
+        )
+        if not failures and not candidate_valid(source, candidate):
+            failures = frozenset({"caller_gate"})
+        return candidate, failures
+
+    def select_ranked_candidate(
+        source: str,
+        mapping: Mapping[str, str],
+        candidates: Iterable[tuple[object, str]],
+    ) -> tuple[str | None, frozenset[str]]:
+        return _first_valid_ranked_candidate(
+            candidates,
+            completed=completed,
+            restore=lambda value: _restore(value, mapping),
+            evaluate=lambda value: evaluate_raw_candidate(source, value),
+        )
+
     for start in range(0, len(generated_inputs), batch_size):
         batch = generated_inputs[start:start + batch_size]
         encoded = encode_batch(batch)
@@ -3594,40 +3724,25 @@ def _translate_batches(
             output = model.generate(
                 **encoded,
                 max_new_tokens=output_budget(encoded),
-                num_beams=beams,
+                **ranked_generation,
                 **generation_kwargs,
             )
         decoded = tokenizer.batch_decode(output, skip_special_tokens=True)
-        for offset, value in enumerate(decoded):
+        ranked_outputs = _group_ranked_outputs(
+            output, decoded, len(batch), rank_count,
+        )
+        for offset, candidates in enumerate(ranked_outputs):
             index = start + offset
             source = generated_sources[index]
-            if not completed(output[offset]):
-                latest_failures[source] = frozenset({"eos"})
-                translated[source] = source
-                checkpoint_candidate(source, source)
-                continue
-            try:
-                raw_value = _restore(value, protection[index])
-            except ValueError:
-                latest_failures[source] = frozenset({"marker_restore"})
-                translated[source] = source
-                checkpoint_candidate(source, source)
-                continue
-            raw_semantic_failure = bool(
-                _semantic_false_friends(source, raw_value, language)
+            value, failures = select_ranked_candidate(
+                source, protection[index], candidates,
             )
-            value = normalize_candidate(source, raw_value)
-            failures = candidate_failures(
-                source,
-                value,
-                raw_semantic_failure=raw_semantic_failure,
-            )
-            if failures or not candidate_valid(source, value):
-                latest_failures[source] = failures or frozenset({"caller_gate"})
-                value = source
+            if value is None:
+                latest_failures[source] = failures
+                translated[source] = source
             else:
                 latest_failures.pop(source, None)
-            translated[source] = value.strip() or source
+                translated[source] = value.strip() or source
             checkpoint_candidate(source, translated[source])
         checkpoint_cache()
         print(
@@ -3667,42 +3782,27 @@ def _translate_batches(
                 encoded = {key: value.to("cuda") for key, value in encoded.items()}
             with torch.inference_mode():
                 output = model.generate(
-                    **encoded, max_new_tokens=output_budget(encoded), num_beams=beams,
+                    **encoded,
+                    max_new_tokens=output_budget(encoded),
+                    **ranked_generation,
                     **generation_kwargs,
                 )
             decoded = tokenizer.batch_decode(output, skip_special_tokens=True)
-            for offset, value in enumerate(decoded):
+            ranked_outputs = _group_ranked_outputs(
+                output, decoded, len(batch), rank_count,
+            )
+            for offset, candidates in enumerate(ranked_outputs):
                 index = start + offset
                 source = retry_sources[index]
-                if not completed(output[offset]):
-                    latest_failures[source] = frozenset({"eos"})
-                    translated[source] = source
-                    checkpoint_candidate(source, source)
-                    continue
-                try:
-                    raw_value = _restore(value, retry_maps[index])
-                except ValueError:
-                    latest_failures[source] = frozenset({"marker_restore"})
-                    translated[source] = source
-                    checkpoint_candidate(source, source)
-                    continue
-                raw_semantic_failure = bool(
-                    _semantic_false_friends(source, raw_value, language)
+                value, failures = select_ranked_candidate(
+                    source, retry_maps[index], candidates,
                 )
-                value = normalize_candidate(source, raw_value)
-                failures = candidate_failures(
-                    source,
-                    value,
-                    raw_semantic_failure=raw_semantic_failure,
-                )
-                if failures or not candidate_valid(source, value):
-                    latest_failures[source] = (
-                        failures or frozenset({"caller_gate"})
-                    )
-                    value = source
+                if value is None:
+                    latest_failures[source] = failures
+                    translated[source] = source
                 else:
                     latest_failures.pop(source, None)
-                translated[source] = value.strip() or source
+                    translated[source] = value.strip() or source
                 checkpoint_candidate(source, translated[source])
             checkpoint_cache()
         print(
@@ -3732,11 +3832,14 @@ def _translate_batches(
                 chunk_inputs.append(prefix + protected)
                 chunk_maps.append(mapping)
                 chunk_owners.append((source, index))
-        restored_chunks: dict[str, list[str | None]] = {
-            source: [None] * len(chunks)
+        restored_chunks: dict[str, list[list[str | None]]] = {
+            source: [[None] * rank_count for _chunk in chunks]
             for source, chunks in chunks_by_source.items()
         }
-        chunk_failures: defaultdict[str, set[str]] = defaultdict(set)
+        chunk_failures: dict[str, list[set[str]]] = {
+            source: [set() for _rank in range(rank_count)]
+            for source in chunks_by_source
+        }
         for start in range(0, len(chunk_inputs), batch_size):
             batch = chunk_inputs[start:start + batch_size]
             encoded = encode_batch(batch)
@@ -3744,52 +3847,54 @@ def _translate_batches(
                 encoded = {key: value.to("cuda") for key, value in encoded.items()}
             with torch.inference_mode():
                 output = model.generate(
-                    **encoded, max_new_tokens=output_budget(encoded), num_beams=beams,
+                    **encoded,
+                    max_new_tokens=output_budget(encoded),
+                    **ranked_generation,
                     **generation_kwargs,
                 )
             decoded = tokenizer.batch_decode(output, skip_special_tokens=True)
-            for offset, value in enumerate(decoded):
+            ranked_outputs = _group_ranked_outputs(
+                output, decoded, len(batch), rank_count,
+            )
+            for offset, candidates in enumerate(ranked_outputs):
                 owner, chunk_index = chunk_owners[start + offset]
-                if not completed(output[offset]):
-                    restored_chunks[owner][chunk_index] = None
-                    chunk_failures[owner].add("eos")
-                    continue
-                try:
-                    value = _restore(value, chunk_maps[start + offset])
-                except ValueError:
-                    value = None
-                    chunk_failures[owner].add("marker_restore")
-                restored_chunks[owner][chunk_index] = value
+                restored = restored_chunks[owner][chunk_index]
+                for rank, (sequence, value) in enumerate(candidates):
+                    if not completed(sequence):
+                        chunk_failures[owner][rank].add("eos")
+                        continue
+                    try:
+                        restored[rank] = _restore(
+                            value, chunk_maps[start + offset],
+                        )
+                    except ValueError:
+                        chunk_failures[owner][rank].add("marker_restore")
         accepted = 0
         for source, values in restored_chunks.items():
-            if any(value is None for value in values):
-                latest_failures[source] = frozenset(
-                    chunk_failures[source] or {"marker_restore"}
+            joined_candidates = _rank_aligned_joins(
+                values,
+                lambda pieces: " ".join(piece.strip() for piece in pieces),
+            )
+            candidate = None
+            rank_failures = [set(value) for value in chunk_failures[source]]
+            for rank, raw_candidate in enumerate(joined_candidates):
+                if raw_candidate is None:
+                    continue
+                ranked_candidate, failures = evaluate_raw_candidate(
+                    source, raw_candidate,
                 )
-                continue
-            raw_candidate = " ".join(
-                str(value).strip() for value in values
-            )
-            raw_semantic_failure = _semantic_false_friends(
-                source, raw_candidate, language,
-            )
-            candidate = normalize_candidate(source, raw_candidate)
-            failures = candidate_failures(
-                source,
-                candidate,
-                raw_semantic_failure=bool(raw_semantic_failure),
-            )
-            if (
-                not failures
-                and candidate_valid(source, candidate)
-            ):
+                if not failures:
+                    candidate = ranked_candidate
+                    break
+                rank_failures[rank].update(failures)
+            if candidate is not None:
                 translated[source] = candidate
                 checkpoint_candidate(source, candidate)
                 latest_failures.pop(source, None)
                 accepted += 1
             else:
-                latest_failures[source] = (
-                    failures or frozenset({"caller_gate"})
+                latest_failures[source] = frozenset(
+                    set().union(*rank_failures) or {"marker_restore"}
                 )
                 translated[source] = source
                 cache.pop(cache_key(source), None)
@@ -3842,12 +3947,18 @@ def _translate_batches(
             clause_maps.append(mapping)
             clause_owners.append(owner)
 
-    clause_values: dict[str, list[str | None]] = {
-        source: [piece if not translate_piece else None
-                 for piece, translate_piece in plan]
+    clause_values: dict[str, list[list[str | None]]] = {
+        source: [
+            [piece] * rank_count if not translate_piece
+            else [None] * rank_count
+            for piece, translate_piece in plan
+        ]
         for source, plan in clause_plans.items()
     }
-    clause_failures: defaultdict[str, set[str]] = defaultdict(set)
+    clause_failures: dict[str, list[set[str]]] = {
+        source: [set() for _rank in range(rank_count)]
+        for source in clause_plans
+    }
     for start in range(0, len(clause_inputs), batch_size):
         batch = clause_inputs[start:start + batch_size]
         encoded = encode_batch(batch)
@@ -3857,47 +3968,52 @@ def _translate_batches(
             output = model.generate(
                 **encoded,
                 max_new_tokens=output_budget(encoded),
-                num_beams=beams,
+                **ranked_generation,
                 **generation_kwargs,
             )
         decoded = tokenizer.batch_decode(output, skip_special_tokens=True)
-        for offset, value in enumerate(decoded):
+        ranked_outputs = _group_ranked_outputs(
+            output, decoded, len(batch), rank_count,
+        )
+        for offset, candidates in enumerate(ranked_outputs):
             owner, plan_index = clause_owners[start + offset]
-            if not completed(output[offset]):
-                clause_failures[owner].add("eos")
-                continue
-            try:
-                value = _restore(value, clause_maps[start + offset])
-            except ValueError:
-                clause_failures[owner].add("marker_restore")
-                continue
-            clause_values[owner][plan_index] = value
+            restored = clause_values[owner][plan_index]
+            for rank, (sequence, value) in enumerate(candidates):
+                if not completed(sequence):
+                    clause_failures[owner][rank].add("eos")
+                    continue
+                try:
+                    restored[rank] = _restore(
+                        value, clause_maps[start + offset],
+                    )
+                except ValueError:
+                    clause_failures[owner][rank].add("marker_restore")
 
     clause_accepted = 0
     for source, values in clause_values.items():
-        if any(value is None for value in values):
-            latest_failures[source] = frozenset(
-                clause_failures[source] or {"marker_restore"}
+        joined_candidates = _rank_aligned_joins(
+            values, lambda pieces: "".join(pieces),
+        )
+        candidate = None
+        rank_failures = [set(value) for value in clause_failures[source]]
+        for rank, raw_candidate in enumerate(joined_candidates):
+            if raw_candidate is None:
+                continue
+            ranked_candidate, failures = evaluate_raw_candidate(
+                source, raw_candidate,
             )
-            continue
-        raw_candidate = "".join(str(value) for value in values)
-        raw_semantic_failure = bool(
-            _semantic_false_friends(source, raw_candidate, language)
-        )
-        candidate = normalize_candidate(source, raw_candidate)
-        failures = candidate_failures(
-            source,
-            candidate,
-            raw_semantic_failure=raw_semantic_failure,
-        )
-        if not failures and candidate_valid(source, candidate):
+            if not failures:
+                candidate = ranked_candidate
+                break
+            rank_failures[rank].update(failures)
+        if candidate is not None:
             translated[source] = candidate
             checkpoint_candidate(source, candidate)
             latest_failures.pop(source, None)
             clause_accepted += 1
         else:
-            latest_failures[source] = (
-                failures or frozenset({"caller_gate"})
+            latest_failures[source] = frozenset(
+                set().union(*rank_failures) or {"marker_restore"}
             )
             translated[source] = source
             cache.pop(cache_key(source), None)
