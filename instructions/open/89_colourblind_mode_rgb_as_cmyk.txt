@@ -92,3 +92,53 @@ substituted primaries; nothing on disk changes; a test simulates deuteranope
 and protanope vision over a two-channel overlay and asserts the two channels
 remain distinguishable where they did not before; and the mapping is stated
 on screen and in any exported figure.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE ENGINE IS BUILT, AND CMY WAS MEASURED WORSE THAN DOING NOTHING
+--------------------------------------------------------------------------------
+
+The file above says the mapping needs deciding and names CMY as "almost
+certainly what is wanted". IT WAS IMPLEMENTED AND IT IS WRONG, which is worth
+recording in full because it is a plausible idea that fails for a reason that
+is not obvious.
+
+Cyan and magenta separate along the RED-GREEN axis, and that is the axis the
+deficiency removes. Simulated with a Brettel-style deuteranope transform, a
+red stain against a green one:
+
+    drawn as RGB     21.2 apart
+    drawn as CMY     10.6 apart      <- HALF. The "colourblind mode" would
+                                        have made the two stains harder to
+                                        tell apart than leaving them alone.
+
+WHAT SHIPS INSTEAD changes exactly one channel: RED IS DRAWN AS YELLOW, green
+and blue stay where a user already expects them. Chosen by scoring every
+triple of primaries under normal, deuteranope and protanope simulation and
+taking the worst pair in each:
+
+    red / green / blue        283 normal,  21 deuter,  60 protan
+    green / blue / yellow     200 normal, 146 deuter, 159 protan
+
+21 is not a small number, it is invisible -- to a deuteranope a red stain and
+a green stain are ONE COLOUR, which is the whole complaint. Changing only red
+is the smallest edit that fixes it.
+
+BUILT: `crops.apply_display_primaries` and `DISPLAY_PRIMARIES`, beside
+`apply_display_order` from instruction 87, and both reached through the one
+loader every annotate surface uses. Order first, primaries second -- the
+order decides which plane fills a slot, the primaries what colour the slot is
+drawn in, so recolouring first would paint planes about to move.
+
+A DISPLAY TRANSFORM AND NOTHING ELSE, asserted by a test that scans the
+function for `imwrite`, `save(`, `to_sql` and `open(`: a crop saved in
+colourblind colours would silently become the training set.
+
+16 tests, and the ones that matter carry the SIMULATION rather than the
+mapping -- they assert the two stains get more separable, not that a
+particular matrix was used, so a better mapping can replace this one without
+rewriting the tests.
+
+STILL TO DO: the global preference (this is per-call today), the same
+transform on the other viewers -- live preview, crop preview, Make Masks,
+figures -- which is instruction 69's seam, the on-screen statement of the
+mapping, and the safe outline colours noted above.
