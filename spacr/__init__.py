@@ -266,6 +266,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "classify",
     "classify_classes",
     "crop_source",
+    "benchmark",
     "column_groups",
     "filters",
     "gate_library",
