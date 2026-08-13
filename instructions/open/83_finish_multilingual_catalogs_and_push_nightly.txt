@@ -38,6 +38,21 @@ before runtime or advancement on any nonzero audit. The repository narration
 skill requested alongside this task is complete separately as instruction 84
 and commit ``d13d07bd``; ``quick_validate.py`` passes.
 
+Later 2026-08-12 checkpoint: the first Portuguese strict pass stopped red,
+as required, with 180 exact-English blocks rather than advancing to runtime.
+The forensic audit showed no cache-propagation bug. It found six standalone
+``::`` markers incorrectly treated as empty prose, seven target reparse shifts
+after Marian dropped unprotected scientific notation, wrapped simple-table
+cells and five indented ``pip install`` commands reaching the model, one GUI
+screen context selected from a literal-stripped view, and unused valid
+alternatives among the four beams already searched. Those parser/protection
+and conservative ranked-candidate repairs are now under focused test; no gate
+has been loosened and no failed locale has advanced. Concurrent WAL work for
+issue #15 added two documented public helpers, so the next immutable freeze is
+6,355 API records, not the earlier 6,353. Refresh both English manifests only
+after the repaired builders are committed, then restart all locales against
+that one quartet.
+
 --------------------------------------------------------------------------------
 WHY IT MATTERS
 --------------------------------------------------------------------------------
