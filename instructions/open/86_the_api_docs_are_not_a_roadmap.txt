@@ -261,3 +261,61 @@ WHAT THIS MEANS CONCRETELY, and it lands on instructions 44, 45 and 53:
 
 44 already covers the CPU-vs-GPU choice at install time; this is the same
 dialog gaining a row per extra rather than a new mechanism.
+
+--------------------------------------------------------------------------------
+2026-08-13 - (c) PROVENANCE HASHES AND (d) QC GATES ARE DONE. THE NOTE ON (c)
+             WAS WRONG ABOUT ITS OWN STATE
+--------------------------------------------------------------------------------
+
+(d) IS DONE. `seg_qc.MODES` gained `stop`, `SegmentationQCFailed` carries the
+summary, and the gate raises LAST so the scorecard is written before the run
+stops. Shipped earlier today.
+
+(c) THE NOTE ABOVE SAYS "the settings are recorded, the INPUTS are not". THAT
+IS FALSE, and it is the sixth instruction file this week to be wrong about
+what already exists. `run_journal` hashes all of it:
+
+    settings_sha256       full SHA-256 of settings.json
+    input_hashes          per-file sha256 + size + mtime for every file under
+                          every path-valued setting
+    input_tree_sha256     a digest over that whole map
+    output_hashes         only files whose (size, mtime) CHANGED during the
+                          run, so an output is distinguished from an input
+                          that happened to sit in the same folder
+    output_tree_sha256
+    model_hashes          checkpoints, already surfaced in the report
+    input_hashing         "on" or "skipped", stated rather than implied
+
+THE MISSING HALF WAS THE LAST MILE, and it is exactly the half the insight
+named: "so REPORTS can prove which source state produced them". The manifest
+had the digests; `spacr/report.py` -- the one artefact a collaborator
+actually receives -- carried only the model hashes. Two runs of the same code
+on two different plates produced byte-identical provenance sections.
+
+BUILT: `report._fingerprints`, rendered into the provenance section.
+
+THE DESIGN POINT WORTH KEEPING. There are THREE outcomes and they must not
+look alike, because an absent fingerprint that reads as an absent difference
+is a FALSE ASSURANCE -- worse than printing nothing:
+
+    digests present        the report can be verified against the data
+    input_hashing skipped  a CHOICE the run made; say so, and say that
+                           re-running with it on is what makes the report
+                           verifiable
+    schema_version < 2     the field did not exist yet, so nothing was
+                           declined and nothing is missing
+
+That is this module's own "a missing section is stated, never omitted" rule
+applied to a digest, where the cost of getting it wrong is highest.
+
+PER RUN, NEVER MERGED, unlike the model hashes directly above it in the same
+section. A tree digest identifies ONE run's view of the data; combining two
+produces a number that matches neither and can be checked against nothing.
+
+When hashing was skipped the tree digests are suppressed rather than printed
+as stale -- printing them would assert a verification that did not happen.
+
+6 tests, one per branch plus the two-run and no-run cases; 159 pass across
+report, report coverage and run_journal.
+
+STILL OPEN IN 86: (a) the dry-run RESOURCE card and (b) checkpoint/resume.

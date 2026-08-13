@@ -134,15 +134,20 @@ def _stamp(name="measure_crop", status="complete", attempted=100, failed=0,
 
 
 def _write_run_dir(root: Path, src: Path, app_key="mask", status="success",
-                   settings=None, name="2026-07-01_100000_abcd1234__mask") -> Path:
-    """A run-journal folder the way :func:`spacr.run_journal.open_run` writes one."""
+                   settings=None, name="2026-07-01_100000_abcd1234__mask",
+                   manifest_extra=None) -> Path:
+    """A run-journal folder the way :func:`spacr.run_journal.open_run` writes one.
+
+    ``manifest_extra`` merges into the manifest, so a fingerprint test can
+    pin those fields without every other test's manifest gaining them.
+    """
     run_dir = root / name
     run_dir.mkdir(parents=True, exist_ok=True)
     payload = {"src": str(src), "channels": [0, 1, 2], "cell_diameter": 30,
                "magnification": 20, "plot": True}
     payload.update(settings or {})
     (run_dir / "settings.json").write_text(json.dumps(payload, default=str))
-    (run_dir / "manifest.json").write_text(json.dumps({
+    manifest = {
         "app_key": app_key,
         "start_utc": "2026-07-01T10:00:00+00:00",
         "end_utc": "2026-07-01T10:20:00+00:00",
@@ -155,7 +160,9 @@ def _write_run_dir(root: Path, src: Path, app_key="mask", status="success",
         "traceback": ("Traceback (most recent call last):\n"
                       "ValueError: the plate ran out of nuclei"
                       if status == "failed" else None),
-    }, default=str))
+    }
+    manifest.update(manifest_extra or {})
+    (run_dir / "manifest.json").write_text(json.dumps(manifest, default=str))
     return run_dir
 
 
@@ -566,6 +573,83 @@ def test_provenance_without_a_journal_entry_says_whose_versions_these_are(tmp_pa
     assert section.status == STATUS_MISSING
     assert "No journalled run was found" in section.body_html
     assert "not the machine that produced the data" in section.body_html
+
+
+# -- fingerprints ----------------------------------------------------------
+#
+# The three outcomes must be told apart. An absent fingerprint that reads as
+# an absent difference is a false assurance, which is worse than no
+# fingerprint at all -- so each branch is pinned by its own test.
+
+_HASHED_MANIFEST = {
+    "schema_version": 2,
+    "input_hashing": "on",
+    "settings_sha256": "aa" * 32,
+    "input_tree_sha256": "bb" * 32,
+    "output_tree_sha256": "cc" * 32,
+    "performance": {"input_files": 4812, "input_bytes": 61_200_000_000,
+                    "output_files": 319, "output_bytes": 2_100_000_000},
+}
+
+
+def _provenance_for(tmp_path, manifest_extra, name="plate_fp"):
+    src = tmp_path / name
+    _write_db(src, stamps=[_stamp()])
+    run_dir = _write_run_dir(tmp_path / "runs", src,
+                             manifest_extra=manifest_extra)
+    report = collect_report(src, run_dirs=[run_dir])
+    return report.section("provenance")
+
+
+def test_provenance_carries_the_input_and_output_digests(tmp_path):
+    section = _provenance_for(tmp_path, _HASHED_MANIFEST)
+    for digest in ("aa" * 32, "bb" * 32, "cc" * 32):
+        assert digest in section.body_html
+        assert any(digest in line for line in section.text_lines)
+    # The counts come with them, or a digest is a number with no scale.
+    assert "4,812" in section.body_html
+    assert "319" in section.body_html
+
+
+def test_skipped_hashing_says_so_rather_than_showing_nothing(tmp_path):
+    manifest = dict(_HASHED_MANIFEST, input_hashing="skipped")
+    section = _provenance_for(tmp_path, manifest, name="plate_skipped")
+    assert "input hashing was off" in section.body_html
+    # The tree digests must NOT appear -- they are stale or absent, and
+    # printing them would assert a verification that did not happen.
+    assert "bb" * 32 not in section.body_html
+    assert "cc" * 32 not in section.body_html
+    # The settings digest is written either way, so it survives.
+    assert "aa" * 32 in section.body_html
+
+
+def test_a_manifest_older_than_the_field_is_not_reported_as_a_choice(tmp_path):
+    """Schema 1 predates input digests: nothing was declined."""
+    section = _provenance_for(tmp_path, {"schema_version": 1,
+                                         "settings_sha256": "dd" * 32},
+                              name="plate_old")
+    assert "journalled before spaCR recorded input digests" in section.body_html
+    assert "hashing was off" not in section.body_html
+
+
+def test_two_runs_keep_their_own_digests_and_are_never_merged(tmp_path):
+    src = tmp_path / "plate_two"
+    _write_db(src, stamps=[_stamp()])
+    first = _write_run_dir(tmp_path / "runs", src, manifest_extra=dict(
+        _HASHED_MANIFEST, input_tree_sha256="11" * 32), name="run_one")
+    second = _write_run_dir(tmp_path / "runs", src, manifest_extra=dict(
+        _HASHED_MANIFEST, input_tree_sha256="22" * 32), name="run_two")
+    section = collect_report(src, run_dirs=[first, second]).section("provenance")
+    assert "11" * 32 in section.body_html
+    assert "22" * 32 in section.body_html
+    assert "run_one" in section.body_html and "run_two" in section.body_html
+
+
+def test_no_journalled_run_renders_no_fingerprint_block(tmp_path):
+    src = tmp_path / "plate_none"
+    _write_db(src, stamps=[_stamp()])
+    section = collect_report(src, run_dirs=[]).section("provenance")
+    assert "Fingerprints" not in section.body_html
 
 
 def test_settings_section_carries_every_recorded_setting(full_run):
