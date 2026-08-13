@@ -451,8 +451,15 @@ class AnnotateSettings:
     #: A DISPLAY preference, not a claim about the file. One of
     #: `spacr.crops.DISPLAY_ORDERS`; the default is the identity.
     display_order: str = "rgb"
-    #: 'rgb' or 'colourblind'. A view setting; see
+    #: One of `spacr.crops.DISPLAY_PRIMARIES`. A view setting; see
     #: crops.apply_display_primaries.
+    #:
+    #: The dataclass default is the identity, because this module must stay
+    #: importable without Qt. The SCREEN starts it from the global
+    #: colour-vision preference instead -- see
+    #: `LivePreviewContract.display_primaries`. A user who has told spaCR
+    #: once that they are colour-blind should not have to say it again on
+    #: every screen.
     display_primaries: str = "rgb"
     measurement: Optional[Any] = None
     threshold: Optional[Any] = None
