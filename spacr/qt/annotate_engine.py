@@ -144,7 +144,8 @@ def label_to_hex(val: Optional[int], dark: bool = True) -> Optional[str]:
 # ---------------------------------------------------------------------------
 
 def load_crop_image(path: str, db_path: Optional[str] = None,
-                    stored_channel_order: str = "auto") -> Image.Image:
+                    stored_channel_order: str = "auto",
+                    display_order: str = "rgb") -> Image.Image:
     """Open one object crop PNG as an 8-bit RGB image, in the corrected order.
 
     Not ``Image.open(path).convert('RGB')``. Crop PNGs come in two formats:
@@ -161,13 +162,34 @@ def load_crop_image(path: str, db_path: Optional[str] = None,
     Every crop is narrowed the same way now -- by its high byte.
 
     :param path: the crop PNG.
+    TWO DIFFERENT QUESTIONS, and keeping them apart is why there are two
+    parameters rather than one control that does both:
+
+        stored_channel_order   HOW WAS THIS FILE WRITTEN. A fact about the
+                               bytes, resolved from the sidecar marker or the
+                               database. Getting it wrong shows the wrong
+                               stain, so 'auto' is the right answer almost
+                               always.
+        display_order          HOW DO I WANT TO LOOK AT IT. A preference,
+                               making no claim about the file. Defaults to
+                               'rgb', the identity.
+
+    The second exists because a project authored before the crop-format fix
+    can want its ORIGINAL picture back -- its parasite stain in red rather
+    than blue -- and the only ways to get it were to re-run measurement for
+    hours, or to mark the folder as a format it is not. The second works and
+    then lies to every later reader. A display preference does neither.
+
     :param db_path: optional ``measurements.db``, consulted when the crop
         folder carries no sidecar marker.
+    :param display_order: one of ``spacr.crops.DISPLAY_ORDERS``. Applied
+        AFTER the format is corrected, so the two never fight.
     :returns: PIL ``Image`` in RGB mode.
     """
     from ..crops import (
         CROP_FORMAT_CURRENT,
         CROP_FORMAT_RGB,
+        apply_display_order,
         read_crop_png,
     )
 
@@ -187,8 +209,11 @@ def load_crop_image(path: str, db_path: Optional[str] = None,
     else:
         raise ValueError(
             "stored_channel_order must be 'rgb', 'auto', or 'legacy_bgr'")
-    return Image.fromarray(
-        read_crop_png(path, fmt=stored_format, db_path=db_path))
+    corrected = read_crop_png(path, fmt=stored_format, db_path=db_path)
+    # Format first, preference second. Reversing them would permute planes
+    # that are still in the wrong slots, and the two would compose into an
+    # order neither the file nor the user asked for.
+    return Image.fromarray(apply_display_order(corrected, display_order))
 
 
 def normalize_pil(

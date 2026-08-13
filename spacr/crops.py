@@ -2939,3 +2939,64 @@ def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+#: The six ways three colour slots can be filled from three source planes.
+#: A DISPLAY choice, not a statement about the file -- see
+#: :func:`apply_display_order`.
+DISPLAY_ORDERS: Tuple[str, ...] = ("rgb", "rbg", "grb", "gbr", "brg", "bgr")
+
+#: The identity, and the default everywhere. Named so call sites read as
+#: "no permutation" rather than as a magic string.
+DISPLAY_ORDER_IDENTITY = "rgb"
+
+
+def display_order_indices(order: str) -> Tuple[int, int, int]:
+    """``'bgr'`` -> ``(2, 1, 0)``: which SOURCE plane each slot draws from.
+
+    :param order: three letters from r/g/b, each used once.
+    :returns: source index for the red, green and blue slots.
+    :raises CropError: anything that is not a permutation of rgb. Refused
+        rather than defaulted, because silently ignoring a typed order shows
+        the user a picture they did not ask for and did not know they were
+        not getting.
+    """
+    text = str(order or "").strip().lower().replace(",", "").replace(" ", "")
+    if sorted(text) != ["b", "g", "r"]:
+        raise CropError(
+            f"display order {order!r} must use r, g and b exactly once; "
+            f"the six valid orders are {list(DISPLAY_ORDERS)}")
+    return tuple("rgb".index(letter) for letter in text)  # type: ignore[return-value]
+
+
+def apply_display_order(image, order: str = DISPLAY_ORDER_IDENTITY):
+    """Permute an RGB image's channels for DISPLAY only.
+
+    THIS IS NOT THE CROP FORMAT, and keeping the two apart is the whole point
+    of having a separate function. ``read_crop_png`` answers "how was this
+    file written" -- a fact about the bytes, resolved from a sidecar marker or
+    the database, and getting it wrong means showing the wrong stain.
+    ``apply_display_order`` answers "how do I want to look at it" -- a
+    preference, with no claim about the file at all.
+
+    That distinction is why a project authored before the crop-format fix can
+    get its original picture back WITHOUT marking the folder as a format it is
+    not. Marking it would work, and would then lie to every later reader.
+
+    :param image: ``(H, W, 3)`` array, already in the corrected format.
+    :param order: one of :data:`DISPLAY_ORDERS`. The default is the identity
+        and returns the array unchanged, so this costs nothing for the
+        overwhelming majority who never set it.
+    :returns: the permuted array, or ``image`` itself for the identity.
+    :raises CropError: an order that is not a permutation of rgb.
+    """
+    indices = display_order_indices(order)
+    if indices == (0, 1, 2):
+        return image
+    array = np.asarray(image)
+    if array.ndim != 3 or array.shape[2] < 3:
+        # A greyscale or two-plane crop has no three slots to permute. Left
+        # alone rather than refused: the order is a display preference and a
+        # single-channel image is not wrong, it simply has nothing to reorder.
+        return image
+    return array[:, :, list(indices)]
