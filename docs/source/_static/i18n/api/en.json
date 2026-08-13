@@ -1190,9 +1190,7 @@
       "source_blocks_sha256": [
         "39f178a70c88f4e89697bd59a11a036dec22d2ea8a4c375ce730de33e6d774f7",
         "2817bf4a9bb39c7afddc555f519b2f752c6677bb2576f101c49408c3e929b17f",
-        "dc8d8c940ee304073021a59394da41bf9c2797e41f507d4185d2e6dde8af5476",
-        "58e2751e5f5374ae53d902e7cb5e83b39c5eaa4371c4a03365f16702ac687d00",
-        "dd2bbb234a06707f9a8236b7e0fab6446c7fa808609cdbe35cc3932373ea5661"
+        "58e2751e5f5374ae53d902e7cb5e83b39c5eaa4371c4a03365f16702ac687d00"
       ],
       "source_sha256": "53625fc6521070110774f46aaec2471380cfd47dbb4409217222d1cdf9974db4",
       "text": "Exporting to AnnData (.h5ad) needs the optional `anndata` extra, which is\nnot installed in this environment (missing module: {module}).\n\nInstall it with:\n\n    python -m pip install \"spacr[anndata]\"\n\nscanpy is a separate install and is NOT required to write the file:\n\n    python -m pip install scanpy"
@@ -7311,6 +7309,22 @@
       "source_sha256": "3b3e51c388c01e7bdc1b0fb80197cf9822284e2e28498b1e7fb469074f06e12d",
       "text": "Open one configured connection owned by the calling thread.\n\n:param path: SQLite database path.\n:param readonly: open with URI ``mode=ro`` and ``query_only=ON``.\n:param timeout: seconds SQLite waits inside a lock operation.\n:param journal_mode: optional explicit ``\"WAL\"`` or ``\"DELETE\"``.\n    Omit to preserve the database's current mode. WAL must not be enabled\n    blindly on shared/NFS storage; use :func:`filesystem_type` or the\n    concurrency probe first.\n:param foreign_keys: enable SQLite foreign-key enforcement on this\n    connection. SQLite defaults it off per connection.\n:returns: connection in autocommit mode; use :func:`transaction` for\n    multi-statement writes.\n:raises DatabaseConfigurationError: for an unsafe/unsupported requested\n    journal mode or when SQLite refuses to apply it."
     },
+    "spacr.database_concurrency.enable_wal_where_safe": {
+      "source_blocks_sha256": [
+        "29253ff131bc4822755d02aa56e80ea2870735cdb9a501681363a07be0749a50",
+        "ad110845da957eb87c328c3d0ed57f8bd58b92d8cf8e0cb2cd1df6b530b01f52",
+        "29c37f81b06254b64618c53c9b2d7fe02c7eeb7681c5ed9c1968a838339a5dd8",
+        "9d9bc41cf378ef4a72859cc9e10017663ba76025924d86cbca3919f72468a94c",
+        "ab41ae4398d648fcf78f7bc8085cbbc1b3c1b440029954f553a344147238c545",
+        "b3a10090a1fbcf41e806979f050fe8216f02a68f215a75b835485f6605c3bcc3",
+        "b3f69094fbceb23afd90ede0bad4d241db93e15a673dea5dcbbf514314074afb",
+        "2522bccaac729880485d7a2ee9e92cf9b148209374ea47d119391dca32a0980d",
+        "012d3d9a91467f9223419e4033144c87a13c934222a9af1608bffad2207c827c",
+        "5070d9d4f949aff40a5acdd1ae3706dce5030a91f6a62fcec54b16c3565602c3"
+      ],
+      "source_sha256": "539cec2e63d9e6e5e8d6cb43ffec7736edd5e913846be6cff5392f85f56b6823",
+      "text": "Put ``path`` into WAL when the filesystem allows it. Never raises.\n\nWHY THIS EXISTS (issue #15, \"measurements sometimes hangs\"). Measure\nruns one worker per field and every append goes through pandas'\n``DataFrame.to_sql``, which issues a ``has_table`` probe -- a READ --\nbefore writing. So each worker alternates read, write, read, write\nagainst one file.\n\nUnder the shipped rollback journal that combination starves the writer.\nA reader holds SHARED for the length of its statement, and a writer\ncannot COMMIT until every SHARED lock is gone, so with enough workers\nthere is almost always someone reading and the committing worker waits\nout its busy timeout and raises \"database is locked\" -- usually\nsurfacing on the next process's ``has_table``, which is the statement in\nthe reporter's traceback.\n\nMeasured on this exact shape, a commit attempted while one reader holds\nan open SELECT:\n\n    journal_mode=delete    writer waited 1.037 s\n    journal_mode=wal       writer waited 0.002 s\n\nWAL readers do not block a writer at all, which removes the starvation.\nIt does NOT make two WRITERS concurrent -- SQLite still serialises those\n-- so this fixes the reader-blocks-writer half, which is the half the\ntraceback is in.\n\n(The first version of this note had the direction backwards, claiming\nreads were blocked by writes. The test written to prove it measured\n0.000 s and refuted it: in rollback-journal mode a writer holding\nRESERVED does not block readers, only its brief EXCLUSIVE commit does.)\n\nCalled once when a database is opened for a run rather than per write:\nthe mode is a property of the FILE and persists, so paying for it per\nconnection would buy nothing.\n\n:param path: the database to switch. A file that does not exist yet is\n    created by the connection, which is fine -- the mode persists.\n:returns: the journal mode in force afterwards, or ``None`` when the\n    database could not be opened at all."
+    },
     "spacr.database_concurrency.filesystem_type": {
       "source_blocks_sha256": [
         "55b0a038e538ea1864cda5b6bcd35aefd38bcaaea0d26bfe18e3572a4320037d",
@@ -7363,6 +7377,15 @@
       ],
       "source_sha256": "9e0a57e656d78b97e0eda00589be7f73f4d54106e5362e3c57e0e5e2d49a51da",
       "text": "Run an all-or-nothing transaction with bounded lock retry.\n\nOnly ``BEGIN`` is retried. Once a transaction starts, retrying individual\nstatements could duplicate earlier writes. Any body or commit error rolls\nthe complete transaction back and propagates.\n\n:param connection: calling thread's open autocommit connection.\n:param mode: ``DEFERRED``, ``IMMEDIATE`` (default), or ``EXCLUSIVE``.\n:param attempts: maximum attempts to acquire the transaction.\n:param initial_delay: first backoff between lock failures.\n:param maximum_delay: backoff cap.\n:param busy_timeout: total seconds this transaction may spend waiting on\n    locks inside SQLite, shared over ``attempts`` and floored at\n    ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS`` per attempt. Omit to inherit the\n    connection's configured ``busy_timeout``; pass it when the write's own\n    tolerance differs from whatever ``timeout`` the connection happened to\n    be opened with.\n:raises DatabaseBusy: when the lock outlives the retry budget.\n:raises RuntimeError: when asked to nest inside an active transaction."
+    },
+    "spacr.database_concurrency.wal_is_safe_here": {
+      "source_blocks_sha256": [
+        "c6b8333ab9b9395f19256ba1558d461d8bf304c82ef6aecdd081b5e138833984",
+        "1d8d799574719d5729400a280b0ac4f78a696ca13407db90c886e3d41ae88222",
+        "ba8a73ce1a7c9f180598c44241ea753fb3ee928d280f041c987f30810ecba1d7"
+      ],
+      "source_sha256": "1c23b84cee04cefe998144aa3a4c9ebd2f9702176d61ff57736d7adf4a7fe6e0",
+      "text": "Is ``path`` on a filesystem where WAL is known to behave?\n\n``True`` only for a POSITIVELY IDENTIFIED local filesystem. Anything\nelse -- a network type, an unrecognised type, or a platform where\n:func:`filesystem_type` cannot tell (it reads ``/proc/mounts``, so macOS\nand Windows always answer ``None``) -- is ``False``.\n\nThat asymmetry is the point. The cost of a wrong ``False`` is the\nlock contention this project already survives; the cost of a wrong\n``True`` is WAL shared memory on storage that cannot support it, which\nis a corrupted database."
     },
     "spacr.database_schema": {
       "source_blocks_sha256": [
@@ -18370,7 +18393,6 @@
       "source_blocks_sha256": [
         "876ea285b39dff0001b03c501258d4ec66b315974789e75db2dbf1225c063ec8",
         "2817bf4a9bb39c7afddc555f519b2f752c6677bb2576f101c49408c3e929b17f",
-        "a2f0c9213d4e0903427683d273285aa72e41065e6656cc5c05a0202a46378cb7",
         "a596e0af2b76ce6d4c78dc0b1ef4f428f3ec839978fe99686a5ed7a1b737fcb8"
       ],
       "source_sha256": "fabfd55d1e96fe8554cfa763de744551c2e39a951db5b6e437f791887edfb20b",
@@ -18780,7 +18802,6 @@
       "source_blocks_sha256": [
         "e15c1870417616eb6afd67acc23be6c7883a1fb8b534d614ef36822e435e439d",
         "2817bf4a9bb39c7afddc555f519b2f752c6677bb2576f101c49408c3e929b17f",
-        "14b9b8d425b474c8fe6584bba9a95722d9c476617515a1ef708ca07f47480fb0",
         "3fa8cf7a8d766e5290e214d7a2e7732389ca17feecc630033178acc7441c63a1"
       ],
       "source_sha256": "f248eb1c5b45c2db251bce435b868a137183773f03b648c7db6f4c52be545392",
@@ -18982,7 +19003,6 @@
       "source_blocks_sha256": [
         "d432eedb8bd2dd450c6ecae247d5425c0e7420368699dfab7f23709bc95cae76",
         "2817bf4a9bb39c7afddc555f519b2f752c6677bb2576f101c49408c3e929b17f",
-        "14b9b8d425b474c8fe6584bba9a95722d9c476617515a1ef708ca07f47480fb0",
         "7fa238a45d957c051a51d28b35606577f1245213806b9752794764cf538707f9"
       ],
       "source_sha256": "b00295ac9410fa8f5859a3e642d4bdd65c520b43a16e1470d73daf50e477cba2",
@@ -19308,7 +19328,6 @@
       "source_blocks_sha256": [
         "339e9c67c7c33ad884bfa0bb43b1a015d799954c4a9cdfbc3a1a80d9a58507b8",
         "2817bf4a9bb39c7afddc555f519b2f752c6677bb2576f101c49408c3e929b17f",
-        "46332f949f0c220c06ce4421caf21d2ad0e65309ed1aee3042d3293929f9d426",
         "064a6c8f9b6dc1048d5150d3f3bc44ea5ac704baed921d4cc1bb9e0a458babc5"
       ],
       "source_sha256": "09a20a492a539ecf5fd49b8ad0b3b819c31f2d054f752f38643cf949be8e3c74",
@@ -23049,7 +23068,7 @@
       "source_blocks_sha256": [
         "929aeb66e8cfd87aa2da9bd6252e6537a475d08343535d73789b7bbe79ce288d",
         "b7eb9fea98b25f046ee950e83fb6fa8edf0b47b8941a07bd1d7e027e91671dc4",
-        "ad2f9681a8b8418a3a8107b7c9032525ba4eedd7cb95d9167c8755661da2e7a1",
+        "f6cdf5cfa74eb77344cacbc788eaa7b7a8cdd9db9acb0c246320f2ba8513ade7",
         "3c343a00e798b37ef78acc2a6fd456e46b1d2d0a5fc41391fe340ef0ba2f2fbf"
       ],
       "source_sha256": "e263829cce74e8b3664c54231b6ce7bffa3d5155486e28334f28c964a0d4c492",
@@ -30788,7 +30807,7 @@
     "spacr.qt.screens.app_screen": {
       "source_blocks_sha256": [
         "b8e76d616ad7e170f67ad6d54a26ccec3e6c8838e4eadc3cf7ee6c93e5139263",
-        "09171e88a80b04066c177fa828b4ec2e9a3f9e06e071fc29531275fe94876d49"
+        "f50b3dd0f81c52fb520bf7dddffcb4c514abd0521c23ae44fff0412119c6094e"
       ],
       "source_sha256": "81ed53832c1c67642b2ab17deecc83be4be9c818e1989ef2328a5390ddfc437f",
       "text": "AppScreen — the reusable layout every non-interactive spacr app uses.\n\nStructure (horizontal splitter):\n    ┌───────────────────────┬─────────────────────────────┐\n    │ Settings (scrollable) │ Console (top)               │\n    │                       │ Usage bars   |  Run/Stop... │\n    │  QGroupBox sections   │ Progress bar                │\n    │  QFormLayout inside   │                             │\n    └───────────────────────┴─────────────────────────────┘"
@@ -34934,7 +34953,6 @@
         "cc336587bd11778fa86bb6415c9057803804cfb498829ceaaf341f9c298e36aa",
         "3e861deab6c2821d4d70f1ea38fa318a241ac54658bc591ed386fc34bedf1d33",
         "3b40a516e729e213f0484074e9adb854f95a638de500d3e6185dff600b3e1685",
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "d341be5b3c1a677bb7186c11cce6f7493434daefe76a8b3893ce6d262144373a",
         "f94d99afc217349d50cc453a4030e504d4b0992912711946b5e077090c3d9deb",
         "723fb734799ee5e02d0ddd1d7d2d6e98c50b3c1bca5c9b493724b8b3b80657b0",
@@ -35587,7 +35605,6 @@
       "source_blocks_sha256": [
         "a1187763f33a7c62cf9f80550bdbac1003c4db9262c929033dfafafa7e0061a6",
         "27ecf1fbb538484389430ab9f4522469e83a45747bafa92634ee9f133a3a8f15",
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "1377ad53045a37d2ab652c6e02be2ec42cabc1cbb4c54fd3dd1d87f171b8b1d0",
         "bb3520824cfd6f39fe2eea4766dfdff5e63d1cf08a53d63103db4d4eb904edd8",
         "df7da60137cf441697f7b6e58244857307a6c85fc5b401dfebd7e675a6ea3664",
@@ -37482,7 +37499,7 @@
         "320ccab98da3358b63ad31a79a98865e07a265cb6c9abb4afcccfc863abcba5c",
         "7bea82d3c34c7e0b9e0aebdce377f7e05191ecffd376cb16720d6b2d48ab435e",
         "a1b0b118e72f9ab34aedf8a8f00d1da31f02e6843e02de8f5ff7568f6c62ea2c",
-        "dad752c61526a8407fc3793497731f5c989b6cfb1eb05d4177c317ee7fdfbfca"
+        "9024a52317a3d2bd473ae0810cc67f5cbc6bfe3a897e0034506f4ebe605e5930"
       ],
       "source_sha256": "770d6354abaecdf1e514733c07494503e502ae6cb7cd69661e120cf2182790f8",
       "text": "Synthetic datasets + saved settings for exercising every pipeline app.\n\nThe goal: give a developer (or a bug reporter) a one-line way to\ngenerate a demo folder that flows cleanly through every spacr\npipeline — mask, measure, crop, classify, timelapse, map_barcodes —\nplus a matching settings CSV that plugs into the \"Import settings…\"\nbutton on each app screen.\n\nEverything is reverse-engineered from what the pipelines actually\nconsume:\n\n* Filenames match the cellvoyager regex in\n  `spacr.utils._get_regex('.tif', 'cellvoyager')`::\n\n      <plateID>_<wellID>_T<timeID>F<fieldID>L<laserID>A<AID>Z<sliceID>C<chanID>.tif\n\n* Channels are laid out in the order every mask default expects::\n\n      C0 = nucleus, C1 = cell, C2 = pathogen, C3 = organelle\n\n* Images are 16-bit uint16. Every channel of a field is drawn from\n  *one shared cell layout*, so the nucleus really is inside the cell\n  and the pathogen really is inside the same cell — the relationships\n  measure_crop goes looking for when it links objects.\n* Measure/crop demos ship the `merged/*.npy` stacks measure_crop\n  actually reads (image planes first, then the label-mask planes),\n  not a stand-in.\n* Settings CSVs are written in the two-column ``Key,Value`` format, the\n  first of the header pairs `spacr.qt.screens.app_screen.AppScreen\n  ._load_settings_csv` tries, so the \"Import settings…\" button restores\n  every value into the form. Reading one straight from Python means\n  naming the columns —\n  ``load_settings(path, setting_key=\"Key\", setting_value=\"Value\")`` —\n  because `spacr.utils.load_settings` *defaults* to the other spelling\n  (``setting_key``/``setting_value``, what `spacr.io.save_settings_to_db`\n  writes) and raises rather than guessing.\n\nEvery generator is *reproducible*: identical inputs give byte-identical\noutput on any machine. That is not decoration. Two people comparing\n\"the demo fails here\" have to be looking at the same pixels, and the\nprevious seeding (``hash((well, field, time, chan))``) was salted by\nPYTHONHASHSEED, so it changed on every interpreter start.\n\nPublic API:\n    generate_mask_demo(dst, ...) -> DemoLayout\n    generate_measure_demo(dst, ...) -> DemoLayout\n    generate_crop_demo(dst, ...) -> DemoLayout\n    generate_classify_demo(dst, ...) -> DemoLayout\n    generate_timelapse_demo(dst, ...) -> DemoLayout\n    generate_map_barcodes_demo(dst, ...) -> DemoLayout\n    save_settings_csv(dst, settings) -> Path\n    demo_settings(app_key, src, channels=None) -> Dict[str, Any]\n\nCLI:\n    python -m spacr.qt.synthetic mask /tmp/demo\n    python -m spacr.qt.synthetic all  /tmp/demo"
@@ -37571,7 +37588,6 @@
     "spacr.qt.synthetic.generate_map_barcodes_demo": {
       "source_blocks_sha256": [
         "44cbd380410c5a9d3357f75f26ec809694c538a4470c23e9f860235d39080cc8",
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "138ba95550b6af2fdbf20b8c5671d831756dcefc8a76288793ffce6d6bcc7b92",
         "139d37a5970afd1279a45ce1f05acb789f0f9d83797d1ed56f1d1cceb8dd6fb0",
         "fc8660691e51172420b427a249cae855bff34da1d170c3a6616d8c3733fbb8f2",
@@ -38199,8 +38215,8 @@
       "source_blocks_sha256": [
         "ad106562cbfc953c64e8f3d3ed690ae8bb87fea22b8d53a76bc485d53d6db3a5",
         "02f23ed191625abd3d3bb18dc1bb9326a05378084e344bc8119ca65e2bd358df",
-        "f4d70f33b8be9f4ce75e0b5970125233deec7f80f901dd6e2c7b9928f4b818bf",
-        "ee46f460a3d8a7d9a26afc11382f32bf1f29eb32bea7a8d5f6a009b07b08f0cb"
+        "0f9fd36e56053946352d4551051f9ab47cb411894a57f8ef78892325c5461184",
+        "029125e1c5c775a35805f90b30e9ce695affd555bdd69188ec17c49fdbfd11b2"
       ],
       "source_sha256": "d0aad734ec47fd387ab1198e99b8825bd6854b71cd327df3cfe7b9710f183fd7",
       "text": "Scripted narrated tutorials for the spaCR Qt GUI.\n\nRenders a self-contained MP4 (+ SRT sidecar) for each pipeline app.\nUses Piper for narration and QWidget.grab() for frame capture so the\nrecorder works on any display (real or Xvfb).\n\nPublic entry points:\n    from spacr.qt.tutorial import render_tutorial\n    render_tutorial(\"mask\", out_dir=\"/tmp/spacr-tutorials\")\n\nOr via the CLI:\n    spacr-tutorial mask\n    spacr-tutorial all"
@@ -38208,7 +38224,7 @@
     "spacr.qt.tutorial.__main__": {
       "source_blocks_sha256": [
         "88c3116d5c5f74aa511d08be3ead1a2597e25666d9ddd78c9ec263ce0464afa8",
-        "17e3f4e7cc5e59d2d265ff806dc87b9650ce278bb01e73947bb1f07f3b2fb196"
+        "2bad3eeaf33caffe3bc9b482b4934ed19eb4ec3614c12373e1a5c5f8948217da"
       ],
       "source_sha256": "78d3f8c8496bf9a3f6f52ebfb30e0b6aacf67afc21bebd59d0140153bca0f76e",
       "text": "CLI entry point for spacr-tutorial.\n\nUsage:\n    spacr-tutorial mask\n    spacr-tutorial all\n    spacr-tutorial home --out ~/tutorials --voice ~/.spacr/piper/foo.onnx"
@@ -38878,12 +38894,9 @@
         "7a8a58e6a263879823e5c6ead5b343fbd7eccb2cc92e01a2f5b6f2ac7402bc18",
         "799cc83526194fe7b25ef4025c0f3bf4538c646d1de56aa8eb2874f65eaa2224",
         "3cb8201e7ff1e7777446032ef1bf4338535aadbabe464c15411cdce8c2317590",
-        "7df6c082db4772cee65750ca37acf48a4992abb8fe34e155b4150ec43b9dcbe8",
-        "c35d6132be8a09c68f8792328264c54070e1d7c18bafd64fa94f981884bbdac7",
-        "18ec580343e49131f7e4fc72cefb9d81e65b472648368a90c4851d7f47f98171",
-        "dd8f654575f34fac863c064f1266f629c62e63bfd4046d19672de59e295461f8",
-        "dd8f654575f34fac863c064f1266f629c62e63bfd4046d19672de59e295461f8",
-        "03144537ac35c0bd106d4b72cf974dc7b225f59cafb88c904f47f761450cc181",
+        "cfe7b78a5d5b7d778ccd2ef859fe2e15b1b851e8ec418bd059ecf1d9cbc34db6",
+        "016abec9f3e791ab41fe7187f3c55ca96ab72f7a2fccfa0939f7ffb32b78ca6f",
+        "c6b28c75de451bd5d8bd0b9260face1d83b45d6f0c683a9489e2c966d038c10e",
         "beb06d9e71bafdcc1d855b7ae3fc1d75d1d88dbd36fb8bc47739dbf2110490dd",
         "0ad923f714fda284303d6b768aec55e5142cee24306349fdf6b4e132dbbdb8f3",
         "dbee8666aadb96d5531e528f4a0a0380b0b694a927820a9f6557d720510a4760",
@@ -43316,7 +43329,6 @@
         "8df8315984246cbabd350053ae4b2e210c1854cf3fcdaac2ff68d3f1304b9af8",
         "b434274c74b3008ce5258c21430e84bd78fddc2d3c1a1e29b68e3a05c5f3230a",
         "90491c2415fe3055394fd5d9954b670f96847507baf19dc2099f3e66554aa052",
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "6049d6c6f8adcbe3e888fb4c343d062d4b1326a83efbb93969edad7fabc0bdf6",
         "d24c44fa0d02b62508fd1edf293d2c178d51f1ceb30c4b71f515bb809a37c821",
         "fece2adf0d15b84f1882072045b637f87e1de20b5b010becfa80d625dc783ce2",
@@ -47823,56 +47835,33 @@
         "972599679235a89fbfd213243d78eb2c2fca33f899eb2a22ecb8c986e461812b",
         "8a798890fe93817163b10b5f7bd2ca4d25d84c52739a645a889c173eee7d9d3d",
         "4e656ed947764d806db81fa5faa86ce26bc868e2faf0b84bb04b50971f403ccb",
-        "b8e084d93ba8fddf367392769ccfe5d51a20be88a3a6f77c7ade424da5523cf1",
-        "b8e084d93ba8fddf367392769ccfe5d51a20be88a3a6f77c7ade424da5523cf1",
+        "2be7cb7a9a643c1e95335bc51461194ab42a6f3e478d9fb91bccc105bf2db586",
+        "2be7cb7a9a643c1e95335bc51461194ab42a6f3e478d9fb91bccc105bf2db586",
         "a683c5c5349f6f7fb903ba8a9e7e55d0ba1b8f03579f95be83f4954c33e81098",
-        "b8e084d93ba8fddf367392769ccfe5d51a20be88a3a6f77c7ade424da5523cf1",
-        "ea53396caebc40d702a99967c8b6cea050267d7b7b229aa68a6929f9c5659878",
-        "ea53396caebc40d702a99967c8b6cea050267d7b7b229aa68a6929f9c5659878",
-        "ea53396caebc40d702a99967c8b6cea050267d7b7b229aa68a6929f9c5659878",
-        "d59fe183a07f34bca5f390a9c8a47dc7138182bb2968697496d219302f3f52c9",
-        "d59fe183a07f34bca5f390a9c8a47dc7138182bb2968697496d219302f3f52c9",
-        "d59fe183a07f34bca5f390a9c8a47dc7138182bb2968697496d219302f3f52c9",
+        "2be7cb7a9a643c1e95335bc51461194ab42a6f3e478d9fb91bccc105bf2db586",
         "8a798890fe93817163b10b5f7bd2ca4d25d84c52739a645a889c173eee7d9d3d",
-        "6c88ea6e9506ef56250c2c1d0aedc1f18619ba3a5f5a0953af4ffcd99e472519",
+        "dd125045119f73fd8a964697bbfd849049628d928fe45f48693c18dacc2c80db",
         "a683c5c5349f6f7fb903ba8a9e7e55d0ba1b8f03579f95be83f4954c33e81098",
-        "6c88ea6e9506ef56250c2c1d0aedc1f18619ba3a5f5a0953af4ffcd99e472519",
-        "185e6863ad10665b7b5863dcfbf275d55bab247a9563be5bc8eca4f28322a5a8",
-        "185e6863ad10665b7b5863dcfbf275d55bab247a9563be5bc8eca4f28322a5a8",
+        "dd125045119f73fd8a964697bbfd849049628d928fe45f48693c18dacc2c80db",
         "81745af00667b6cf8b958cdb763d1b575103c6addf787b24002a9015b6cb636c",
-        "2e13387aa714066caedd3906b7b461ca5a9497b21ddde94e7d71b32cebb9e6c3",
-        "2e13387aa714066caedd3906b7b461ca5a9497b21ddde94e7d71b32cebb9e6c3",
+        "61e87d8cae8de5e1baa8617cd5116c81c3f8d5d5357c04d7f3d0a3eb5099f4aa",
+        "61e87d8cae8de5e1baa8617cd5116c81c3f8d5d5357c04d7f3d0a3eb5099f4aa",
         "b126c5710b9ff958acf3aa91261428e472658ae0b573f44d4788afd0b371e5f1",
-        "2e13387aa714066caedd3906b7b461ca5a9497b21ddde94e7d71b32cebb9e6c3",
-        "b24d6d33736ecd5604a4b17bc9c6481039fac362bb7df044ef1c10a2bfd21db6",
-        "b24d6d33736ecd5604a4b17bc9c6481039fac362bb7df044ef1c10a2bfd21db6",
-        "b24d6d33736ecd5604a4b17bc9c6481039fac362bb7df044ef1c10a2bfd21db6",
+        "61e87d8cae8de5e1baa8617cd5116c81c3f8d5d5357c04d7f3d0a3eb5099f4aa",
         "5601828b2f3d43ecbee38b91175c87ea809805c9430ce2bd47eb07007df47829",
         "9521fb5b254e10de8fd33683497ed70ca22e68e4b52c768b22d6ffdbc8ef66e4",
         "9521fb5b254e10de8fd33683497ed70ca22e68e4b52c768b22d6ffdbc8ef66e4",
-        "e1768605e6818d59dd8009bdf74952659ab19e992bbd1fe9d34197ad547a5fbd",
         "9521fb5b254e10de8fd33683497ed70ca22e68e4b52c768b22d6ffdbc8ef66e4",
         "0599b6663c4cf8d6452bcaf1b10958e7dbb877406a76fa8cd0650dc1f3ea7477",
-        "230e3e67ca00fb1455efdd0ed8f2bd77180f0abe3afbad30000c750fd4c07b7c",
-        "d46c9992044b44407260f9a01a424a303a1f86aba5fa223f2a6a081d97c59689",
-        "8b8c4df5bebd24dd32342ad8f2c70d47229986c499649feaa7e55e1bfe5fec01",
-        "297441d903ab0cc8d5732bcbbb72fd2c2978aa9273fd0b3b19eb3be50a1ba249",
-        "3b283e93debf035e990dfce1f21468476dc57c69313c5574f43ad1a185840277",
-        "3673014e72b67383be302485694555a57ad393afdebaed6ded110a775bd0556d",
-        "444bd9c51d51643ccd939e7eb50c847bde7bfdfe271f2fca928e7dbfc73377f0",
-        "4f56bf5fd8e4753ba57720268f0333576ac22c9387534579f73848a433d99a1b",
-        "acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
-        "07368dcb59c33d889e61393ebc16fa174951aa424bf07c4f64dbb974e417726a",
-        "082c4d5177119a0cfc963dc3d5ce92b2bccd66bba200bc983aef6018497bed3a",
-        "5e1ecee06a7fc06f305ae5c12acfe7a7f67b8ece7af76932ed3afab00c3c6921",
+        "f398a3364a14f5e4ba33724099ad4d741e3a388f03db85a606d38322a5035ad8",
+        "9020b49c4968d8c8c409eca2ce020f4ae0744cc72870925386e6860186a619f5",
+        "d9ee3b56848a6821c3119dcb8a0ea5574ea9f34ca766cbcbb5c57ab88d31c483",
+        "3886269b86e155f7d9e70ddf79291a8eaf84b13b3e6daf697d95d086fab6fc0d",
         "96b1fdf8f1a51046723cc22c16847f9654f2cf00a837aaa9154671ee0d677c28",
-        "d3efc91d716c024a7270634a6ac6af2c59c59c08037f1d6b60cf8c68c07f4964",
-        "d3efc91d716c024a7270634a6ac6af2c59c59c08037f1d6b60cf8c68c07f4964",
+        "30c8e5221ba14968bbced8b26bfd843ab7673367a6b543bce47d8040fa150c2d",
+        "30c8e5221ba14968bbced8b26bfd843ab7673367a6b543bce47d8040fa150c2d",
         "8ba9f7ff43017b78ef678326cf68944d0b571e903d84920db11b39e2756e7e85",
-        "2b15fcd19d49b750303f64b9b70540582f3a8c234f5db2be6e932c350fb4d8be",
-        "df3800986b8bb483822e040a2ddcf8faf49ba910c01015aba0e38ebc53d0fbaa",
-        "df3800986b8bb483822e040a2ddcf8faf49ba910c01015aba0e38ebc53d0fbaa",
-        "0f3850ab36e9d43a8615d62d179e484003562531b41a9f517c5f4e7313b00222",
+        "c438f230d09a3548823a4cd4f1a8a0122aed9188145c0dc1cfc87f23865361f7",
         "53140c4ed9bcfa4372c297c7224cf3efdcd926aee94bf991c71b36d0560dea4b",
         "bb44de2635b4cb12118a2ca0c419753afbde2182091bcbbafa503c26dd783e70",
         "6c546dea2753bf74dd798459902d2f9ad96545274a4a2b8b5692de633f4eb58a",
@@ -52279,7 +52268,6 @@
       "source_blocks_sha256": [
         "be380ada8c3205fd1f2ec92a57b0fe58c25e0be581f6b84ab87cd630731d4eda",
         "2e49f4b14fca416bf6e73f501634a051330a0a3758cbb2364ade5a2638ea1b6f",
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
         "9b19121f58e804e8d007f68e305d00b00933876634218d7773a2d22d814447dd",
         "62789fd9ca307f5731762889e038931a45ffc0bd9d2e466aeaf2b24e6e39f6a1",
@@ -56428,8 +56416,7 @@
         "7298d22c9768b94e67ca1a88d7939754eb6e178d0e2516faa08a7be4f83e9527",
         "6a7777b75458adf9a824414623537e137d8442f314dc6dc5e711e5e9329aa748",
         "6a34c1d1b4c851473f83caeac3fefb18fd135b2888842f39e151dae796e1630c",
-        "59ecadb05aaf55ca70829b1b3d152e6ba1750cb5a1cabafbcaf9150b07f187f6",
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "59ecadb05aaf55ca70829b1b3d152e6ba1750cb5a1cabafbcaf9150b07f187f6"
       ],
       "source_sha256": "531dce4429c6e6f7ecfb20cf78833b4071a6fad703c82d0a40b588629bdea7ae",
       "text": "Pairwise stitcher with downsampled scoring and whole-well mosaic assembly.\n\nRobustness features for very large datasets:\n  - feature_cache_mode: \"disk\" (default) writes DS features to disk with an LRU RAM cap\n  - pair_batch_size:    limit number of concurrent pair futures\n  - stream_csv:         write pairwise rows immediately (low RAM)\n  - opencv_threads:     limit OpenCV internal threading to avoid oversubscription\n\n:param detector: keypoint detector, ``'ORB'`` or ``'SIFT'``; any other value\n    raises ``ValueError`` and ``'SIFT'`` needs an opencv-contrib build.\n:param nfeatures: keypoint budget handed to the detector. Default ``6000``.\n:param max_keypoints: cap on keypoints kept per image; ``None`` keeps all.\n:param downsample: scale factor of the downsampled feature/scoring pass.\n:param ransac_thresh_px: RANSAC reprojection threshold in pixels.\n:param allow_scale: allow scale in the estimated transform.\n:param allow_rotation: allow rotation when ``allow_scale`` is ``False``.\n:param outline_source: how QC outlines are found: ``'otsu'`` (default),\n    ``'cellpose'`` or ``'none'``.\n:param cellpose_model: Cellpose model name or checkpoint path; read only\n    when ``outline_source`` is ``'cellpose'``.\n:param cellpose_diameter: expected object diameter passed to Cellpose;\n    ``None`` lets Cellpose choose.\n:param canny: ``(low, high)`` Canny thresholds turning the foreground mask\n    into outlines.\n:param blur_sigma: Gaussian sigma applied before Otsu thresholding; ``0``\n    disables the blur.\n:param dilate_ksize: elliptical kernel size used to dilate the foreground\n    mask; ``0`` disables the dilation.\n:param line_thickness: outline thickness; values above ``1`` dilate the\n    edge image.\n:param outline_alpha: opacity of the outlines drawn on the QC overlay.\n:param outdir: output folder, created on construction and used for QC\n    images, stitched-pair outputs and the default feature cache; pairwise\n    CSVs are written where the caller's ``csv_path`` points instead.\n:param save_qc: write per-pair QC outline PNGs. Default ``True``.\n:param save_stitched_default: default for writing a pair's stitched TIFF;\n    per-call arguments override it.\n:param all_scores: also compute the slower full-resolution metrics\n    (full-res edge ZNCC and foreground correlation/IoU/Dice/XOR).\n:param score_threshold: default minimum score required to write a stitched\n    image; ``None`` means no default threshold.\n:param verbose: print progress messages.\n:param feature_cache_mode: ``'disk'`` or ``'ram'``; any other value raises\n    ``ValueError``.\n:param feature_cache_dir: where disk-mode features are stored. Defaults to\n    ``<outdir>/feat_cache``.\n:param max_ram_features: LRU size, in images, of the RAM cache in front of\n    the disk feature store.\n:param n_workers_features: feature-extraction thread count; defaults to\n    half the CPU count.\n:param pair_batch_size: pairs submitted to the thread pool per batch, with\n    a floor of ``1024``.\n:param stream_csv: accepted and stored but never read; pairwise rows are\n    always written as they are scored.\n:param opencv_threads: value passed to ``cv2.setNumThreads``.\n:param arr_axes: axis order of input TIFFs; must contain ``Y`` and ``X``\n    unless it is ``'AUTO'``.\n:param mip: max-intensity-project over Z instead of taking one slice.\n:param z_index: Z slice used when ``mip`` is ``False``.\n:param t_index: time index used when a T axis is present.\n:param squeeze_singleton: drop singleton axes after axis selection.\n\nTransform control\n-----------------\n  allow_scale:    if True  → use RANSAC affine (rotation+scale+translation)\n                  if False → enforce unit scale (see allow_rotation)\n  allow_rotation: if True  → rotation+translation\n                  if False → translation-only\n\nMosaic\n------\n  Uses topology-aware pruning + maximum spanning tree on pairwise scores\n  to build a cohesive grid. Exports mosaic image and a mosaic.csv manifest.\n\nAxis & Z handling\n-----------------\n\n::\n\n  arr_axes : str in {\"AUTO\"} or a string over {T,C,Z,Y,X} (e.g. \"CZYX\", \"CYX\", \"ZYX\").\n             Determines how to interpret multi-dimensional TIFFs.\n  mip      : bool. If True and Z exists, perform max-intensity projection over Z.\n  z_index  : int  (if mip=False) choose Z slice index.\n  t_index  : int  choose time index if T exists."
