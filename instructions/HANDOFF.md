@@ -1,28 +1,63 @@
-# Handoff — 2026-08-12
+# Handoff — 2026-08-13
 
 Written for whoever picks this up next, human or agent. It records what is
-true right now, what needs the maintainer, and the traps that cost time
-today so they cost nobody else any.
+true right now, what needs the maintainer, and the traps that cost time so
+they cost nobody else any.
 
 Read this, then `instructions/00_INDEX.txt`, then the open instruction you
 are taking. **The trailing notes at the end of each instruction file are the
-current state; the header often says "not started" when it is 80% done.**
+current state; the header often says "not started" when it is done.**
 
 ---
 
-## 0. FIRST: what is true as of the last update
+## 0. THE LESSON OF 2026-08-12/13: AUDIT BEFORE YOU BUILD
+
+Four instruction files were materially wrong about their own state, and each
+would have cost a rebuild of something that already shipped:
+
+| file | said | was |
+|---|---|---|
+| 73 | "not started" | all six items done |
+| 43 | failures "need a CI run to see" | every one reproduced locally in seconds |
+| 31 | hexbin / colour map / Walk open | all three shipped |
+| 49 | "not started" | the reduction shipped; only the column CHOICE was missing |
+| 77 | ten findings open | fixed elsewhere, unrecorded |
+
+**Read the code before building from any of these files.** The trailing notes
+beat the header, and the code beats both.
+
+**The CI cells are already on this machine.** `spacr12` (Python 3.12, numpy
+2.4.6, scikit-learn 1.9, cellpose 4.2.1.1), `spacr13`, `spacr14` — while the
+default `spacr` env is 3.10 with scikit-learn 1.7.2. Every failure that "did
+not reproduce locally" reproduced in `spacr12` in ten seconds. A throwaway
+`python -m venv --system-site-packages` plus `pip install cellpose==4.2.1.1`
+gives a second cellpose without touching the working env.
+
+---
+
+## 1. FIRST: what is true as of the last update
 
 - **Everything is pushed.** `nightly` is in sync with origin.
-- **CI is running** against `e98edc26`, started by the push itself:
-  `31643959268` (tests), `31643958936` (compat-matrix), `31643958921`
-  (docs). **Read them first** -- `gh run view <id> --log-failed` -- they are
-  the live answer for instructions 43, 54 and 82. Do not trust an older run
-  id: two earlier ones were cancelled when this push superseded them, which
-  is normal. `gh run list --limit 5` gives the current set.
-- **28 of 29 GitHub issues are closed.** Only **#15** is open (measurements
-  hangs, "database is locked"); a diagnostic comment on it records what is
-  already defended and the two remaining candidate fixes.
-- 23 open instructions.
+- **22 open instructions, 57 done.**
+- Closed 2026-08-12/13: **54** (cellpose 4.0 AND 4.2 from one suite),
+  **43** (the CI-only failures, including a real product bug), **85** (the
+  spaCR spelling), **77**, **73**, **37** (the two-field bubble selector),
+  **55**. Progressed: **31** (saved gate-set library), **49** (column groups),
+  **52** (its own interim "not yet" fix), **81** (#15 answered).
+- **26 of 27 GitHub issues are closed.** #15 is open ON PURPOSE — see below.
+- **#74 is a PULL REQUEST**, not an issue, which is why `gh issue list` never
+  showed it. Filed as instruction 87. An audit run with `gh issue list`
+  silently excludes every PR.
+
+## 2. What needs the maintainer
+
+| Need | Unblocks | Note |
+|---|---|---|
+| **`df -T` from issue #15's reporter** | closing #15 | The WAL fix is measured (1.037 s → 0.002 s) but is DESIGNED not to apply on a network filesystem, and their path may be one. Closing it without this would be a false claim. |
+| **A decision on PR #74** | 87 | Outside contribution, targets `main`, CONFLICTING, 100 mostly unrelated commits. Three options are in the file. |
+| **The cuML question** | 86 | The new GPU insight says "optional RAPIDS cuML"; instruction 70 already concluded "add neither cupy nor cucim/cuml" for a conda-forge reason that has not changed. Reconcilable only as a truly optional extra. |
+| **One reading of "no grid at the end"** | 75 | 75 is BUILT, all four parts; it stays open only for this. |
+| `git config user.name` | 58 | The repo has NO user.name set, so commits fall back to `olafsson`. Fold the history fix into 58. |
 
 ## 1. What needs the maintainer
 
