@@ -1000,15 +1000,23 @@ def analyze_recruitment(settings):
                 for idx, file in enumerate(os.listdir(merged_path)):
                     file_path = os.path.join(merged_path,file)
                     if idx <= settings['plot_nr']:
-                        plot_image_mask_overlay(file_path, 
+                        # `normalize=True` used to be passed here. There is
+                        # no such parameter: every call raised TypeError, the
+                        # bare except below swallowed it, and this branch has
+                        # been printing a failure instead of drawing a single
+                        # overlay. Percentile normalisation is what it wanted
+                        # and `percentiles` is how it is asked for.
+                        plot_image_mask_overlay(file_path,
                                                 settings['channel_dims'],
                                                 settings['cell_chann_dim'],
                                                 settings['nucleus_chann_dim'],
                                                 settings['pathogen_chann_dim'],
                                                 figuresize=10,
-                                                normalize=True,
+                                                percentiles=(1, 99),
                                                 thickness=3,
-                                                save_pdf=True)
+                                                save_pdf=True,
+                                                outline_palette=settings.get(
+                                                    'outline_palette', 'default'))
             except Exception as e:
                 print(f'Failed to plot images with outlines, Error: {e}')
         
