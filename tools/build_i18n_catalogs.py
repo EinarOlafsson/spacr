@@ -143,7 +143,8 @@ _SHORT_QUOTED_LITERAL_RE = re.compile(
     # those out of the literal contract explicitly rather than weakening the
     # general quoted-value protection.
     r'(?<!\w)"(?!(?:the user chose this|we put it there|it is lazy|'
-    r'not scored|exclude this debris|measure this colony|Edit mode)")'
+    r'not scored|exclude this debris|measure this colony|Edit mode|'
+    r'the run that worked)")'
     r'[A-Za-z][A-Za-z0-9_.:/…-]*'
     r'(?: [A-Za-z0-9_.:/…-]+){0,3}"|'
     r"(?<!\w)'(?!(?:the user chose this|we put it there|it is lazy|"
@@ -209,6 +210,12 @@ _PROTECT_PATTERNS = (
     re.compile(r"(?<!\w)[A-Za-z_]\w*(?:\.[A-Za-z_]\w+)+(?!\w)"),
     re.compile(r"(?<![\w#])#[0-9A-Fa-f]{3,8}(?![0-9A-Fa-f])"),
     re.compile(r"https?://\S+"),
+    # Inline installation commands are executable text even when a docstring
+    # mentions them inside prose rather than as an indented literal block.
+    re.compile(
+        r"(?<!\w)(?:python\s+-m\s+)?pip\s+install\s+"
+        r"(?:\"[^\"\n]+\"|'[^'\n]+'|[^\s,.;:()]+)"
+    ),
     re.compile(r"(?<!\w)(?:--[A-Za-z][\w-]*|-[A-Za-z](?!\w))"),
     re.compile(r"\b[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+\b"),
     # These two unquoted identifiers occur inside otherwise-human table cells.
