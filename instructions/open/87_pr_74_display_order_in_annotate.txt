@@ -85,3 +85,63 @@ HOW TO KNOW IT WORKED
 #74 is resolved one way or the other with a comment saying why, and a project
 authored before `341f446` can see its stains in the colours it was authored
 for without re-running measurement or lying about the format on disk.
+
+--------------------------------------------------------------------------------
+2026-08-13 - IMPLEMENTED. THE MAINTAINER LEFT THE DESIGN TO ME; HERE IS THE CALL
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "i am going to leave the PR#74 desision up to you,
+           please implement what you think would be least confusing and most
+           helpfull for the user."
+
+NOT SUPERSEDED, which was checked first. Annotate's `stored_channel_order`
+answers a different question, and conflating them is exactly what would
+confuse:
+
+    stored_channel_order   HOW WAS THIS FILE WRITTEN. A fact about the bytes,
+                           resolved from the sidecar marker or the database.
+                           Three values: rgb / legacy_bgr / auto.
+    display_order          HOW DO I WANT TO LOOK AT IT. A preference, making
+                           no claim about the file. Six values, default rgb.
+
+THE DESIGN DECISION: two parameters, not one control that does both. A single
+"channel order" that sometimes means the format and sometimes means a
+preference is the version a user cannot reason about -- and the PR itself
+names the cost of pretending a preference is a format: "Marking the folder as
+format 2 gets the picture back by asserting something false about the bytes,
+and the next reader believes it."
+
+WHAT LANDED
+
+  * `spacr/crops.py` -- `DISPLAY_ORDERS` (all six), `display_order_indices`
+    and `apply_display_order`. In crops.py rather than in the Qt layer
+    because it is the module that owns channel-order semantics, it is
+    Qt-free, and instruction 89 (colourblind mode) needs the same seam.
+  * `load_crop_image(..., display_order='rgb')` -- the one loader every
+    annotate surface already goes through, so there is nowhere for a second
+    implementation to appear.
+  * FORMAT FIRST, PREFERENCE SECOND, asserted by a test. Reversing them would
+    permute planes still in the wrong slots and compose into an order neither
+    the file nor the user asked for.
+
+DECISIONS WORTH KEEPING
+
+  * The identity returns the SAME OBJECT, so the default costs nothing for
+    the overwhelming majority who never set it.
+  * A malformed order is REFUSED, not defaulted. Silently ignoring a typed
+    order shows a picture the user did not ask for and does not know they are
+    not getting -- which is the original bug in a new place.
+  * A greyscale crop is left alone rather than refused: it has no three slots
+    to permute, which is not an error.
+  * `b, g, r` and ` BGR ` are accepted, because that is what a user types.
+
+22 tests; 222 pass across crops, annotate and the crop-format suites.
+
+STILL TO DO: the Qt control that sets it (a six-item combo beside the
+existing channel-order control) and persisting it per project. The engine is
+done and defaults to a no-op, so the UI can follow without risk.
+
+WHAT TO TELL THE CONTRIBUTOR: the feature is in, implemented against nightly
+rather than merged from a branch that targeted main with 100 unrelated
+commits, and the reasoning above is why it is a second parameter rather than
+a widening of the first.

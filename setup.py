@@ -700,6 +700,30 @@ setup(
         # variants installable. On 3.13 use `spacr[qt,zernike]` and the captum
         # backends. Upstream: frgfm/torch-cam.
         'attribution': ['torchcam>=0.4.0,<1.0'],
+        # `pip install spacr[rapids]` -- GPU UMAP, t-SNE, PCA, DBSCAN and
+        # KMeans through RAPIDS cuML, with the CPU implementation kept as the
+        # default and the fallback.
+        #
+        # AN EXTRA AND NEVER A DEPENDENCY, and the reason is Python: cuml-cu12
+        # declares `requires_python >=3.11` and ships classifiers for 3.11 and
+        # 3.12 ONLY, while spaCR promises 3.9 through 3.14. It also wants
+        # numpy>=2.0 (no cp39 wheels) and scipy>=1.14 (needs 3.10+), so making
+        # it core would drop four of the six interpreters this project claims.
+        # The environment marker below is what keeps `pip install
+        # spacr[rapids]` from producing an unreadable resolver error on an
+        # interpreter where it cannot succeed.
+        #
+        # Instruction 70 concluded "add neither cupy nor cucim/cuml" because
+        # it would add the rapidsai conda channel. That reason has expired --
+        # RAPIDS ships PyPI wheels now -- but the conclusion stands for the
+        # stronger reason above. As an extra it constrains nothing: the base
+        # resolution is untouched on every interpreter.
+        #
+        # NOT in the conda-forge recipe (instruction 59), which an extra makes
+        # automatic.
+        'rapids': [
+            'cuml-cu12>=25.2; python_version >= "3.11" and python_version < "3.13"',
+        ],
         # `pip install spacr[boosting]` — the two gradient-boosting backends
         # reachable through `model_type='lightgbm'` and `model_type='catboost'`
         # (spacr/ml.py:2477,2483 and spacr/hyperparam.py:1855,1866). Both are
