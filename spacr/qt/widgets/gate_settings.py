@@ -27,13 +27,13 @@ downstream of the plot ever sees the sample.
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Dict, Mapping, Tuple
+from typing import Dict, Mapping, Sequence, Tuple
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
-    QFormLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QVBoxLayout,
-    QWidget,
+    QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
+    QFormLayout, QLabel, QLineEdit, QPushButton, QScrollArea, QSpinBox,
+    QTabWidget, QVBoxLayout, QWidget,
 )
 
 from ..theme import SPACING
@@ -157,11 +157,41 @@ class GateEditorSettings:
     cluster_walk_steps: int = 12
 
     # -- 3D ---------------------------------------------------------------
+    #: How many axes are DRAWN: "2D" or "3D".
+    #:
+    #: "xD" used to be a third value here, and that was the mistake. xD is
+    #: not a dimensionality -- it is a statement about WHAT THE AXES ARE
+    #: (components rather than raw measurements), and it is orthogonal to how
+    #: many of them are drawn. Gating PC1 vs PC2 in 2D and PC1/PC2/PC3 in 3D
+    #: are both legitimate, and one exclusive button group could express
+    #: neither: choosing xD silently chose a dimensionality too.
     gate_mode: str = "2D"
+    #: Project the measurements onto components first, and gate on those.
+    #: Independent of :attr:`gate_mode`.
+    xd_projection: bool = False
     #: How xD projects. PCA is always available; the others need a package.
     reduction: str = "pca"
     #: How many components xD produces. Three, so the 3D view has a Z.
     components: int = 3
+    #: Which measurements xD reduces, as ``{kind: [group names]}`` over
+    #: :data:`spacr.column_groups.GROUP_KINDS`.
+    #:
+    #: EMPTY MEANS EVERY NUMERIC COLUMN, which is what xD did before there
+    #: was a picker, so an existing session behaves exactly as it did. It is
+    #: also the setting most worth changing: reducing over all 400 columns
+    #: buries the phenotype, and that set includes identifiers -- feeding a
+    #: plate id to UMAP embeds the plate, which is the batch effect rather
+    #: than the biology.
+    reduction_groups: Mapping[str, Sequence[str]] = None
+    #: Individual columns ticked by hand, ADDED to whatever the groups
+    #: select. The request asks for both, not either.
+    reduction_columns: Sequence[str] = ()
+    #: UMAP only. How much of the data each point is placed against.
+    xd_n_neighbors: int = 15
+    #: UMAP only. How tightly points may pack.
+    xd_min_dist: float = 0.1
+    #: t-SNE only. Clamped to the sample size by the reducer.
+    xd_perplexity: float = 30.0
     #: What a merge does with a primary object that has no children.
     merge_na: str = "keep"
     #: Which object everything else is rolled up onto. Decides what a row of
@@ -173,8 +203,19 @@ class GateEditorSettings:
     merge_overrides: Mapping[str, str] = None
 
     def __post_init__(self) -> None:
+        if str(self.gate_mode).strip().lower() == "xd":
+            # A settings file written while xD was a third mode. It meant
+            # "project, and give me a Z" -- xD produced three components
+            # precisely so the 3D view had one -- so that is what it becomes.
+            object.__setattr__(self, "gate_mode", "3D")
+            object.__setattr__(self, "xd_projection", True)
         object.__setattr__(self, "merge_overrides",
                            dict(self.merge_overrides or {}))
+        object.__setattr__(self, "reduction_groups",
+                           {k: tuple(v) for k, v in
+                            dict(self.reduction_groups or {}).items()})
+        object.__setattr__(self, "reduction_columns",
+                           tuple(self.reduction_columns or ()))
     z_axis: str = ""
     #: Voxels per axis in the 3D workspace.
     voxel_bins: int = 64
@@ -231,6 +272,7 @@ class GateSettingsDialog(QDialog):
         self.tabs.addTab(self._general_tab(), "General")
         self.tabs.addTab(self._two_d_tab(), "2D")
         self.tabs.addTab(self._three_d_tab(columns), "3D")
+        self.tabs.addTab(self._xd_tab(columns), "xD")
 
         buttons = QDialogButtonBox(QDialogButtonBox.Close, self)
         buttons.rejected.connect(self.accept)
@@ -479,20 +521,67 @@ class GateSettingsDialog(QDialog):
         form.addRow("Walk steps", self._walk_steps)
         return page
 
-    def _three_d_tab(self, columns: Tuple[str, ...]) -> QWidget:
-        page = QWidget(self)
-        form = QFormLayout(page)
+    def _xd_tab(self, columns: Tuple[str, ...]) -> QWidget:
+        """Which measurements xD reduces.
 
+        THE SETTING THAT DECIDES WHETHER THE PROJECTION MEANS ANYTHING. The
+        reduction used to run over every numeric column, with no way to
+        choose. A screen's phenotype usually lives in a subset, and reducing
+        over all four hundred buries it; worse, that set includes
+        identifiers, and feeding a plate id to UMAP embeds the plate -- the
+        batch effect rather than the biology.
+
+        THREE KINDS OF GROUP, because a table names a column three ways at
+        once: ``cell_channel_1_mean_intensity`` is a CELL measurement, a
+        CHANNEL 1 measurement and an INTENSITY measurement, and which one is
+        meant depends on the question. The families come from
+        :mod:`spacr.feature_dict`, not from a second taxonomy invented here.
+
+        Nothing ticked means EVERY numeric column, which is what xD did
+        before this existed, so an existing session is unchanged.
+        """
+        from ...column_groups import GROUP_KINDS, group_names, summarise
+
+        page = QWidget(self)
+        outer = QVBoxLayout(page)
+
+        self._group_boxes: Dict[Tuple[str, str], QCheckBox] = {}
+        names = group_names(columns)
+        tabs = QTabWidget(page)
+        for kind in GROUP_KINDS:
+            inner = QWidget(tabs)
+            column = QVBoxLayout(inner)
+            offered = names.get(kind, [])
+            if not offered:
+                # Stated, not an empty box: "no channels in this table" and
+                # "channels exist and none are ticked" are different answers.
+                column.addWidget(QLabel(
+                    f"No {kind} groups in this table.", inner))
+            for name in offered:
+                box = QCheckBox(name, inner)
+                box.setChecked(name in
+                               (self._settings.reduction_groups or {}).get(kind, ()))
+                box.toggled.connect(self._on_group_toggled)
+                self._group_boxes[(kind, name)] = box
+                column.addWidget(box)
+            column.addStretch(1)
+            scroll = QScrollArea(tabs)
+            scroll.setWidget(inner)
+            scroll.setWidgetResizable(True)
+            scroll.viewport().setAutoFillBackground(False)
+            tabs.addTab(scroll, kind.capitalize())
+        outer.addWidget(tabs, 1)
+
+        form = QFormLayout()
         self._reduction = QComboBox(page)
         self._reduction.addItems(("pca", "umap", "tsne"))
         self._reduction.setCurrentText(self._settings.reduction)
         self._reduction.setToolTip(
             "How xD projects many measurements onto few. PCA is always "
             "available and is the only one whose axes have a stated meaning "
-            "— the share of variance each component explains.")
-        self._reduction.currentTextChanged.connect(
-            lambda v: self._change(reduction=v))
-        form.addRow("xD projection", self._reduction)
+            "\u2014 the share of variance each component explains.")
+        self._reduction.currentTextChanged.connect(self._on_reduction_changed)
+        form.addRow("Projection", self._reduction)
 
         self._components = QSpinBox(page)
         self._components.setRange(2, 10)
@@ -500,6 +589,128 @@ class GateSettingsDialog(QDialog):
         self._components.valueChanged.connect(
             lambda v: self._change(components=int(v)))
         form.addRow("Components", self._components)
+
+        # GREYED, NOT REMOVED, when another method is chosen -- INVARIANTS 6,
+        # and the same rule the merged Classify module follows. A control
+        # that vanishes teaches the user nothing about why; a greyed one says
+        # "this belongs to a method you are not using", and the value they
+        # set survives switching away and back.
+        self._n_neighbors = QSpinBox(page)
+        self._n_neighbors.setRange(2, 500)
+        self._n_neighbors.setValue(int(self._settings.xd_n_neighbors))
+        self._n_neighbors.setToolTip(
+            "UMAP only. How much of the data each point is placed against: "
+            "small values keep local structure and fragment the map, large "
+            "ones preserve the global shape and merge populations.")
+        self._n_neighbors.valueChanged.connect(
+            lambda v: self._change(xd_n_neighbors=int(v)))
+        form.addRow("UMAP neighbours", self._n_neighbors)
+
+        self._min_dist = QDoubleSpinBox(page)
+        self._min_dist.setRange(0.0, 1.0)
+        self._min_dist.setSingleStep(0.05)
+        self._min_dist.setValue(float(self._settings.xd_min_dist))
+        self._min_dist.setToolTip(
+            "UMAP only. How tightly points may pack. Lower packs clusters "
+            "harder, which looks cleaner and tells you less about spread.")
+        self._min_dist.valueChanged.connect(
+            lambda v: self._change(xd_min_dist=float(v)))
+        form.addRow("UMAP min distance", self._min_dist)
+
+        self._perplexity = QDoubleSpinBox(page)
+        self._perplexity.setRange(5.0, 200.0)
+        self._perplexity.setValue(float(self._settings.xd_perplexity))
+        self._perplexity.setToolTip(
+            "t-SNE only. Roughly how many neighbours each point is fitted "
+            "against. The reducer CLAMPS it to the sample size, because "
+            "sklearn raises outright when it exceeds it \u2014 so a small "
+            "selection cannot turn this into a failed projection.")
+        self._perplexity.valueChanged.connect(
+            lambda v: self._change(xd_perplexity=float(v)))
+        form.addRow("t-SNE perplexity", self._perplexity)
+        outer.addLayout(form)
+        self._grey_irrelevant_methods()
+
+        self._explicit = QLineEdit(page)
+        self._explicit.setText(", ".join(self._settings.reduction_columns))
+        self._explicit.setPlaceholderText("extra columns, comma separated")
+        self._explicit.setToolTip(
+            "Individual measurements, ADDED to whatever the groups above "
+            "select. Groups and columns add up rather than replacing each "
+            "other.\n\nAn identifier is never offered as part of a group, "
+            "but it can be typed here -- not offered is not the same as "
+            "forbidden.")
+        self._explicit.editingFinished.connect(self._on_explicit_changed)
+        outer.addWidget(self._explicit)
+
+        self._selection_note = QLabel(page)
+        self._selection_note.setWordWrap(True)
+        self._selection_note.setObjectName("MutedNote")
+        outer.addWidget(self._selection_note)
+        self._columns_for_picker = tuple(columns)
+        self._refresh_selection_note()
+        return page
+
+    #: Which controls belong to which projection method. A method with no
+    #: entry has no parameters of its own -- PCA is entirely determined by
+    #: the data -- and that is worth showing rather than hiding, because
+    #: "PCA has nothing to tune" is a fact about PCA.
+    _METHOD_CONTROLS = {
+        "umap": ("_n_neighbors", "_min_dist"),
+        "tsne": ("_perplexity",),
+    }
+
+    def _grey_irrelevant_methods(self) -> None:
+        """Enable only the controls the chosen projection reads."""
+        active = set(self._METHOD_CONTROLS.get(
+            self._reduction.currentText(), ()))
+        for controls in self._METHOD_CONTROLS.values():
+            for name in controls:
+                widget = getattr(self, name, None)
+                if widget is not None:
+                    widget.setEnabled(name in active)
+
+    def _on_reduction_changed(self, value: str) -> None:
+        self._change(reduction=value)
+        self._grey_irrelevant_methods()
+
+    def _picked_groups(self) -> Dict[str, Tuple[str, ...]]:
+        out: Dict[str, list] = {}
+        for (kind, name), box in self._group_boxes.items():
+            if box.isChecked():
+                out.setdefault(kind, []).append(name)
+        return {k: tuple(sorted(v)) for k, v in out.items()}
+
+    def _on_group_toggled(self, _checked: bool) -> None:
+        self._change(reduction_groups=self._picked_groups())
+        self._refresh_selection_note()
+
+    def _on_explicit_changed(self) -> None:
+        typed = tuple(part.strip() for part in self._explicit.text().split(",")
+                      if part.strip())
+        self._change(reduction_columns=typed)
+        self._refresh_selection_note()
+
+    def _refresh_selection_note(self) -> None:
+        """Say how many measurements the tick boxes actually come to.
+
+        A picker that does not say what it selected is one the user has to
+        run to find out about, and running a UMAP is the expensive part.
+        """
+        from ...column_groups import summarise
+
+        note = getattr(self, "_selection_note", None)
+        if note is None:
+            return
+        note.setText(summarise(
+            self._columns_for_picker,
+            self._picked_groups(),
+            explicit=tuple(part.strip() for part in
+                           self._explicit.text().split(",") if part.strip())))
+
+    def _three_d_tab(self, columns: Tuple[str, ...]) -> QWidget:
+        page = QWidget(self)
+        form = QFormLayout(page)
 
         self._merge_primary = QComboBox(page)
         self._merge_primary.addItems(
