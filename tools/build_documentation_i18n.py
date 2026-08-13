@@ -517,7 +517,7 @@ API_TRANSLATION_CONTEXT = {
     "Instantiated ``cellpose.models.CellposeModel``.":
         "An initialized instance of ``cellpose.models.CellposeModel``.",
     "Copyright © 2025 olafsson lab":
-        "Copyright notice for 2025, olafsson lab",
+        "Copyright © 2025, olafsson lab.",
     "Return up to ``n`` image paths from ``path`` — used by the filename-regex preview in the mask handler.":
         "Return at most ``n`` paths to image files found under ``path``. These names support the mask handler's pattern preview.",
     "stale rows deleted by the delete-before-insert.":
@@ -1408,6 +1408,179 @@ def _replace_alternatives_once(
     return "".join(rendered)
 
 
+# Empirically hard blocks from the strict Portuguese repair pass.  These are
+# target-neutral English paraphrases, not target-language answers: they reduce
+# ambiguity and length while retaining every source-side API/RST literal.  The
+# resulting model output still has to pass both contextual and canonical gates.
+API_TRANSLATION_CONTEXT.update({
+    (
+        "``src``/``merged/*.npy`` — spaCR's own merged arrays, which carry the "
+        "image channels *and* the object label planes in one file. Preferred "
+        "because the object mask comes free and exactly aligned, which is what "
+        "makes the pointing game possible at all."
+    ): (
+        "``src``/``merged/*.npy`` contains spaCR's merged arrays. One file "
+        "contains both image channels *and* object-label planes. Prefer it "
+        "because the included object mask is exactly aligned, which enables "
+        "the pointing task."
+    ),
+    (
+        'detector : {"ORB","SIFT"} Feature detector for keypoint matching. '
+        "nfeatures : int Feature budget for detector. max_keypoints : "
+        "Optional[int] Hard cap on kept keypoints after detection (by "
+        "detector’s internal ranking). downsample : float in (0,1] Downsample "
+        "factor for feature/score pass. ransac_thresh_px : float Reprojection "
+        "threshold (pixels) for affine estimation (downsampled space). "
+        "allow_scale : bool If False, constrain to rotation+translation (or "
+        "translation only if allow_rotation=False). allow_rotation : bool If "
+        "False, constrain to translation only. outdir : str Output directory "
+        "for images/csv. opencv_threads : int Limit OpenCV internal threading "
+        "(avoid oversubscription)."
+    ): (
+        'detector : {"ORB","SIFT"} Keypoint detector. nfeatures : int Detector '
+        "feature budget. max_keypoints : Optional[int] Hard cap on keypoints "
+        "kept after detection, using the detector’s ranking. downsample : float "
+        "in (0,1] Factor for feature detection and scoring. "
+        "ransac_thresh_px : float Pixel reprojection threshold for affine "
+        "estimation in downsampled space. allow_scale : bool If False, permit "
+        "rotation and translation but no scaling; if allow_rotation=False, "
+        "permit translation only. allow_rotation : bool If False, permit "
+        "translation only. outdir : str Directory for image and csv output. "
+        "opencv_threads : int OpenCV thread limit used to prevent "
+        "oversubscription."
+    ),
+    (
+        "**Crop names match.** A real crop is "
+        "``<file_name>_<cell_id>.png`` where ``file_name`` is the merged "
+        "stack's ``<plate>_<well>_<field>_<time>`` "
+        "(:func:`spacr.utils._generate_names`) — e.g. "
+        "``plate1_A01_1_1_1.png``. That is exactly what this writes, and "
+        "exactly what ``spacr.utils._map_wells_png`` parses "
+        "plate/row/column/field back out of."
+    ): (
+        "**Image-crop names use the production format.** Each crop is "
+        "``<file_name>_<cell_id>.png``. Its ``file_name`` contains "
+        "``<plate>_<well>_<field>_<time>`` "
+        "(:func:`spacr.utils._generate_names`), for example "
+        "``plate1_A01_1_1_1.png``. This function writes that format, and "
+        "``spacr.utils._map_wells_png`` reads back its four parts: plate, row, "
+        "column, and field."
+    ),
+    (
+        "A spaCR run carries around two hundred keys, so an ungrouped diff of "
+        "two runs that differ in one Cellpose knob and one plate-map column "
+        "reads as an undifferentiated list. Grouping under the same headings "
+        "the settings panel uses makes it answerable at a glance: *the change "
+        "was in Cellpose*."
+    ): (
+        "A spaCR execution has about two hundred setting names. An ungrouped "
+        "comparison of two executions can mix one Cellpose setting with one "
+        "laboratory plate-map column. Group the differences under the "
+        "settings-panel headings so the user can see at once: *the change was "
+        "in Cellpose*."
+    ),
+    "the caught exception, chained onto the raise.": (
+        "the caught exception, attached as the cause of the newly raised "
+        "exception."
+    ),
+    (
+        "1. **A replicate whose fit failed or did not converge counts as a "
+        "non-detection**, not as a missing value. Dropping it would raise the "
+        "reported power by removing exactly the runs where the design was too "
+        "thin to fit — which is the failure mode the analysis is supposed to "
+        "find. 2. **The mean AUROC is reported beside the power**, over the "
+        "replicates that did converge, with the count of those that did not. A "
+        "power of 0/5 with five non-converged fits and a power of 0/5 with five "
+        "converged fits at AUROC 0.52 are different findings."
+    ): (
+        "1. **Count failed or non-converged fits as non-detections.** Do not "
+        "drop them: that would inflate statistical power by removing "
+        "executions whose design was too weak to fit. 2. **Report mean AUROC "
+        "beside statistical power.** Calculate the mean over converged fits "
+        "and also report how many fits failed or did not converge. Thus power "
+        "0/5 with five non-converged fits differs from power 0/5 with five "
+        "converged fits at AUROC 0.52."
+    ),
+    (
+        "1. :func:`spacr.qt.preferences.get_db_browser_editable` must be on — "
+        "it is off by default and lives in Preferences, not on this screen. "
+        "2. The database must have been chosen explicitly in this session "
+        "(``set_database(..., explicit=True)``). 3. The user must tick \"Edit "
+        "mode\" *and* confirm; ticking alone does nothing. 4. The row must be "
+        "addressable by ``rowid`` or a primary key. Without one, the edit is "
+        "refused — an UPDATE matching on column values can hit many rows, "
+        "which on a measurements table is silent mass corruption. The write "
+        "also probes ``COUNT(*)`` for the row address first and rolls back "
+        "unless ``rowcount == 1``. 5. The typed text must be coercible to the "
+        "column's declared type. SQLite will cheerfully store ``'abc'`` in an "
+        "INTEGER column; :func:`coerce_for_column` refuses instead."
+    ): (
+        "Editing is allowed only when all five checks pass. 1. "
+        ":func:`spacr.qt.preferences.get_db_browser_editable` is enabled in "
+        "Preferences; it is off by default and is not on this screen. 2. This "
+        "session explicitly selected the database with "
+        "``set_database(..., explicit=True)``. 3. The user selected \"Edit "
+        "mode\" *and* confirmed it; selection alone does nothing. 4. The row "
+        "has ``rowid`` or a primary-key identifier. Otherwise refuse the edit: "
+        "matching column values could silently update many measurement rows. "
+        "Before writing, probe ``COUNT(*)`` and roll back unless "
+        "``rowcount == 1``. 5. The text converts to the declared column type. "
+        "SQLite accepts ``'abc'`` in an INTEGER column, but "
+        ":func:`coerce_for_column` must refuse it."
+    ),
+    (
+        "1. **Flatten.** Denoise with a 1 px Gaussian, then subtract a heavily "
+        "smoothed copy (sigma = max(32, min(H, W) / 4)) to remove illumination "
+        "gradients. The sigma is deliberately far larger than any plausible "
+        "object so that flattening removes vignetting without eating the "
+        "objects — the opposite trade-off (a tight rolling ball) shrinks what "
+        "it is trying to measure. 2. **Reject noise.** Compare the structural "
+        "amplitude of the flattened plane (p99 - p30) against the *pixel-level* "
+        "noise scale, measured as ``1.4826 * MAD(img - gaussian(img, 1))`` on "
+        "the raw plane. A pure-noise plane scores below 1; a plane with real "
+        "objects scores in the tens. Below ``min_snr`` the field is discarded "
+        "rather than thresholded, because Otsu will happily bisect pure noise "
+        "and hand back a confident-looking number. 3. **Threshold and label.** "
+        "Otsu, fill holes, label, drop components that touch the image border "
+        "(truncated, so their size is a lie) and components that are absurd "
+        "(equivalent diameter below ``min_object_diameter``, or area above "
+        "``max_object_fraction`` of the field). Characteristic size is the "
+        "median equivalent diameter, ``2 * sqrt(area / pi)``. 4. **Cross-check "
+        "by distance transform.** Step 3 has one dominant failure mode: a "
+        "confluent monolayer fuses into a single component, that component "
+        "touches the border and is dropped, and the estimate is then computed "
+        "from whatever debris survived — biased **low**, and silently. So the "
+        "Euclidean distance transform of the (unfilled) foreground is computed "
+        "as well, its local maxima are taken as one seed per object (two "
+        "passes: a coarse pass sets the suppression radius for the refined "
+        "pass), and a watershed on ``-EDT`` splits the fused foreground back "
+        "into objects whose equivalent diameters are measured the same way."
+    ): (
+        "1. **Flatten.** Apply a 1 px Gaussian filter, then subtract a smoother "
+        "copy with sigma = max(32, min(H, W) / 4). This sigma is larger than a "
+        "plausible object, so it removes vignetting without the object "
+        "shrinkage caused by a tight rolling ball. 2. **Reject noise.** Compare "
+        "the flattened plane’s structural amplitude (p99 - p30) with the "
+        "*pixel-level* raw-plane noise estimate "
+        "``1.4826 * MAD(img - gaussian(img, 1))``. Pure noise scores below 1; "
+        "real objects score in the tens. Discard a field below ``min_snr`` "
+        "instead of applying Otsu to pure noise. 3. **Threshold and label.** "
+        "Apply Otsu, fill holes, and label components. Remove border-touching "
+        "components because they are truncated; also remove equivalent "
+        "diameters below ``min_object_diameter`` and areas above "
+        "``max_object_fraction``. Use the median equivalent diameter, "
+        "``2 * sqrt(area / pi)``. 4. **Cross-check by distance transform.** A "
+        "confluent layer can fuse into one border-touching component, which is "
+        "discarded and leaves debris that biases the estimate silently "
+        "**low**. Compute the Euclidean distance transform of the unfilled "
+        "foreground. Use local maxima as object seeds in two passes: a coarse "
+        "pass sets the suppression radius for the refined pass. Watershed on "
+        "``-EDT`` separates the fused foreground before measuring equivalent "
+        "diameters the same way."
+    ),
+})
+
+
 def _api_translation_source(block: str) -> str:
     """Return the deterministic, target-neutral English model input.
 
@@ -1422,7 +1595,10 @@ def _api_translation_source(block: str) -> str:
         return reviewed
 
     prose = _context_prose(source)
-    has_gui_screen = _gui_screen_source(prose)
+    # GUI evidence can itself be a protected dotted path. Inspect the full
+    # source before the protection view blanks it; otherwise a paragraph that
+    # names ``spacr.qt.widgets`` can be misrouted as a scientific screen.
+    has_gui_screen = _gui_screen_source(source)
     has_scientific_screen = bool(
         re.search(_SCIENTIFIC_SCREEN_SOURCE, prose, re.IGNORECASE)
     )
@@ -1930,19 +2106,25 @@ API_TRANSLATION_CONTEXT.update({
         "``-EDT`` splits the fused foreground back into objects whose equivalent "
         "diameters are measured the same way."
     ): (
-        "1. **Flatten.** Apply a 1 px Gaussian filter. Subtract a smoother copy "
-        "with sigma = max(32, min(H, W) / 4) to remove illumination gradients. "
-        "The large sigma removes vignetting without shrinking objects. 2. "
-        "**Reject noise.** Compare the flattened signal with the *pixel-level* "
-        "noise estimate ``1.4826 * MAD(img - gaussian(img, 1))``. Discard a field "
+        "1. **Flatten.** Apply a 1 px Gaussian filter, then subtract a smoother "
+        "copy with sigma = max(32, min(H, W) / 4). This sigma is larger than a "
+        "plausible object, so it removes vignetting without the object shrinkage "
+        "caused by a tight rolling ball. 2. **Reject noise.** Compare the "
+        "flattened plane’s structural amplitude (p99 - p30) with the *pixel-level* "
+        "raw-plane noise estimate ``1.4826 * MAD(img - gaussian(img, 1))``. Pure "
+        "noise scores below 1; real objects score in the tens. Discard a field "
         "below ``min_snr`` instead of applying Otsu to pure noise. 3. **Threshold "
-        "and label.** Apply Otsu, fill holes, and label components. Remove border "
-        "components, diameters below ``min_object_diameter``, and areas above "
-        "``max_object_fraction``. Use the median diameter "
+        "and label.** Apply Otsu, fill holes, and label components. Remove "
+        "border-touching components because they are truncated; also remove "
+        "equivalent diameters below ``min_object_diameter`` and areas above "
+        "``max_object_fraction``. Use the median equivalent diameter, "
         "``2 * sqrt(area / pi)``. 4. **Cross-check by distance transform.** A "
-        "confluent layer can merge and make the estimate silently **low**. Local "
-        "distance maxima provide object seeds; watershed on ``-EDT`` separates "
-        "the merged foreground before measuring the same diameters."
+        "confluent layer can fuse into one border-touching component, which is "
+        "discarded and leaves debris that biases the estimate silently **low**. "
+        "Compute the Euclidean distance transform of the unfilled foreground. "
+        "Use local maxima as object seeds in two passes: a coarse pass sets the "
+        "suppression radius for the refined pass. Watershed on ``-EDT`` separates "
+        "the fused foreground before measuring equivalent diameters the same way."
     ),
     "…which Mask, Measure, Annotate, Classify, the Plate Viewer and the Database Browser all read without knowing it was imported.":
         "Mask, Measure, Annotate, Classify, the Plate Viewer, and the Database "
@@ -1972,7 +2154,7 @@ API_TRANSLATION_CONTEXT.update({
         "layout ``{cell:4, nucleus:5, pathogen:6, organelle:7}`` (four image "
         "channels). Override if your arrays have a different channel count."
     ): (
-        "Dictionary mapping each object type to its mask-slice index. The spaCR "
+        "Dictionary mapping each object type → its mask-slice index. The spaCR "
         "default is ``{cell:4, nucleus:5, pathogen:6, organelle:7}`` for four "
         "image channels. Supply another mapping for arrays with a different "
         "channel count."
@@ -2028,8 +2210,9 @@ API_TRANSLATION_CONTEXT.update({
     ): (
         "**Use keyset paging instead of OFFSET.** Fetch each chunk with "
         "``rowid > <last rowid seen>`` and ``ORDER BY rowid``. "
-        "``LIMIT ? OFFSET ?`` makes SQLite scan every skipped row, so later "
-        'chunks make the "fast" version progressively slower. Small views and '
+        "``LIMIT ? OFFSET ?`` makes SQLite scan every skipped row, so chunk "
+        '500 costs about 500× as much as chunk 1 and the "fast" version gets '
+        "slower. Small views and "
         "composite-key ``WITHOUT ROWID`` tables have no usable row key and use "
         "``OFFSET`` as a fallback."
     ),
@@ -2142,15 +2325,17 @@ API_TRANSLATION_CONTEXT.update({
         "opencv_threads : int Limit OpenCV internal threading (avoid "
         "oversubscription)."
     ): (
-        'detector : {"ORB","SIFT"} Detector used for keypoint matching. '
-        "nfeatures : int Feature limit. max_keypoints : Optional[int] Maximum "
-        "retained keypoints. downsample : float in (0,1] Scale used during "
-        "feature scoring. ransac_thresh_px : float Pixel reprojection threshold "
-        "for affine estimation. allow_scale : bool If False, prohibit scaling; "
-        "when allow_rotation=False, permit translation only. allow_rotation : "
-        "bool If False, permit translation only. outdir : str Directory for "
-        "images and csv output. opencv_threads : int Limit internal OpenCV "
-        "threads to prevent oversubscription."
+        'detector : {"ORB","SIFT"} Keypoint detector. nfeatures : int Detector '
+        "feature budget. max_keypoints : Optional[int] Hard cap on keypoints "
+        "kept after detection, using the detector’s ranking. downsample : float "
+        "in (0,1] Factor for feature detection and scoring. "
+        "ransac_thresh_px : float Pixel reprojection threshold for affine "
+        "estimation in downsampled space. allow_scale : bool If False, permit "
+        "rotation and translation but no scaling; if allow_rotation=False, "
+        "permit translation only. allow_rotation : bool If False, permit "
+        "translation only. outdir : str Directory for image and csv output. "
+        "opencv_threads : int OpenCV thread limit used to prevent "
+        "oversubscription."
     ),
     "Auto-updater — compare local ``spacr`` to PyPI + the nightly branch.":
         "Automatic updater that compares local ``spacr`` with PyPI and the "
@@ -2760,8 +2945,8 @@ API_TRANSLATION_CONTEXT.update({
         "If ``stop_on_error`` is True, the first failure halts the loop with "
         "remaining items left as QUEUED."
     ): (
-        "Each item changes status from QUEUED to RUNNING and then to SUCCESS "
-        "or FAILED. If ``stop_on_error`` is True, the first failure stops the "
+        "Each item's status changes QUEUED → RUNNING → SUCCESS/FAILED. If "
+        "``stop_on_error`` is True, the first failure stops the "
         "loop; all remaining items stay QUEUED."
     ),
     "Fold-to-fold sd for a ``'mean'`` series, else ``None``.":
@@ -3128,7 +3313,8 @@ def _indented_block_is_literal(
     ):
         return True
     if all(re.match(
-        r"^(?:python\s+-m\s+spacr(?:\.\w+)*|spacr(?:-qt)?)\b", line,
+        r"^(?:python\s+-m\s+(?:spacr(?:\.\w+)*|pip\s+install\b)|"
+        r"spacr(?:-qt)?)\b", line,
     ) for line in stripped):
         return True
     if all(re.match(
@@ -3355,6 +3541,14 @@ def translatable_blocks(
             layout.append(("raw", ""))
             index += 1
             continue
+        # A standalone literal-block introducer is pure RST chrome.  Treating
+        # it as a paragraph and then detaching its suffix creates an empty
+        # model-facing block, which can later be reported as a degenerate
+        # translation even though there is no prose to translate.
+        if line.strip() == "::":
+            layout.append(("raw", line))
+            index += 1
+            continue
         # The README language picker is navigation markup, not prose.  Passing
         # all ten RST links through a translation model can reorder or damage
         # their delimiters even when the visible language names are unchanged.
@@ -3423,33 +3617,51 @@ def translatable_blocks(
                     ]
                     if (
                         row_number > 0
-                        and len(nonempty) == 1
+                        and nonempty
+                        and 0 not in nonempty
                         and entries
                         and entries[-1][0] == "row"
                     ):
-                        column = nonempty[0]
+                        # A blank first cell marks a wrapped continuation of
+                        # the preceding simple-table row. Merge every populated
+                        # column; wide comparison tables often wrap several
+                        # cells on the same physical line.
                         previous_cells = entries[-1][1]
-                        position, raw = previous_cells[column]
-                        if position is None:
-                            previous_cells[column] = (
-                                None, f"{raw} {values[column]}".strip()
-                            )
-                        else:
-                            blocks[position] = (
-                                f"{blocks[position]} {values[column]}".strip()
-                            )
+                        for column in nonempty:
+                            position, raw = previous_cells[column]
+                            if position is None:
+                                previous_cells[column] = (
+                                    None, f"{raw} {values[column]}".strip()
+                                )
+                            else:
+                                blocks[position] = (
+                                    f"{blocks[position]} {values[column]}".strip()
+                                )
                         continue
                     cells: list[tuple[int | None, str]] = []
                     for column, value in enumerate(values):
                         value = value.strip()
                         code_key = (
                             (
-                                column == 0
-                                and row_number > 0
+                                row_number > 0
                                 and bool(
-                                    re.search(r"[`/<>*]|\bspacr\b", value)
+                                    (
+                                        column == 0
+                                        and re.search(
+                                            r"[`/<>*]|\bspacr\b", value
+                                        )
+                                    )
                                     or re.fullmatch(
-                                        r"[a-z][a-z0-9_-]*", value
+                                        r"(?:[a-z]+[A-Z][A-Za-z0-9]*|"
+                                        r"[A-Z][A-Za-z0-9]*[a-z][A-Z]"
+                                        r"[A-Za-z0-9]*)",
+                                        value,
+                                    )
+                                    or (
+                                        column == 0
+                                        and re.fullmatch(
+                                            r"[a-z][a-z0-9_-]*", value
+                                        )
                                     )
                                 )
                             )
@@ -3812,6 +4024,22 @@ def translatable_blocks(
                 break
             if _FIELD_RE.match(following):
                 break
+            if following.startswith((" ", "\t")):
+                # Break only when the complete indented run is literal.  Many
+                # docstrings use indentation merely to align explanatory prose;
+                # splitting every such continuation loses its sentence context
+                # and needlessly changes hundreds of stable block identities.
+                indented_run: list[str] = []
+                lookahead = index
+                while (
+                    lookahead < len(lines)
+                    and lines[lookahead].strip()
+                    and lines[lookahead].startswith((" ", "\t"))
+                ):
+                    indented_run.append(lines[lookahead])
+                    lookahead += 1
+                if _indented_block_is_literal(lines[index - 1], indented_run):
+                    break
             paragraph.append(following.strip())
             index += 1
         prose = " ".join(paragraph)
@@ -3841,6 +4069,20 @@ def rebuild_document(layout: Iterable[tuple[str, object]], translated: list[str]
 
     def rendered(position: int) -> str:
         return translated[position] + block_suffixes.get(position, "")
+
+    def paragraph_rendered(position: int) -> str:
+        value = rendered(position)
+        # A model may insert two spaces after a leading code/role literal.
+        # At the top RST level that spelling is a definition list, so a later
+        # parse would detach the literal even though the candidate passed the
+        # literal counter. Canonical definition lists already use the separate
+        # ``translated_prefixed`` layout; ordinary paragraphs normalize this
+        # ambiguous boundary to one space.
+        return re.sub(
+            rf"^((?:``[^`]+``|{_RST_ROLE_PATTERN}))\s{{2,}}(?=\S)",
+            r"\1 ",
+            value,
+        )
 
     lines: list[str] = []
     for kind, payload in layout:
@@ -3938,7 +4180,9 @@ def rebuild_document(layout: Iterable[tuple[str, object]], translated: list[str]
                             ).rstrip()
                         )
         else:
-            lines.append(" ".join(rendered(index) for index in payload))
+            lines.append(
+                " ".join(paragraph_rendered(index) for index in payload)
+            )
     for index in range(1, len(lines)):
         underline = lines[index].strip()
         if (
@@ -3990,7 +4234,13 @@ def _api_block_requires_translation(source: str) -> bool:
     # complete short description (``Deprecated.``), both of which are visible
     # prose. Raw doctests, directives, indented code and type fields never
     # enter this function because ``translatable_blocks`` keeps them literal.
-    return bool(re.search(r"[A-Za-z]{3,}", residual))
+    return bool(
+        re.search(r"[A-Za-z]{3,}", residual)
+        # The preview contract exposes bare yes/no cells. ``no`` is a complete
+        # visible answer even though it is only two letters; quoted/code forms
+        # have already been removed by the protection pass above.
+        or re.search(r"(?<![A-Za-z])no(?![A-Za-z])", residual, re.IGNORECASE)
+    )
 
 
 _TARGET_SCRIPT_PATTERN = {
