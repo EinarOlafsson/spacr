@@ -1,0 +1,233 @@
+================================================================================
+AN "ADVANCED SETTINGS" CATEGORY, ORGANISED BY WHAT A SETTING DOES
+================================================================================
+
+Status:    not started, 2026-08-10.
+Requested: 2026-08-10 — "and actually when i think about it i would like to move several settings from the other object settings categories to a new 'advanced settings' category, move settings like remove background, intensity merge split, min distance, etc. but have all the similar settings here organized into sub and sub-sub sections with sub section headers like object filtration, image preprocessing with sub-sub sections for each object (cell, nuclei, pathogen, organelle)."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Today the settings panel groups by OBJECT: everything about cells together,
+everything about nuclei together. The request is to add a second axis --
+group the advanced settings by WHAT THEY DO, and only then by which object
+they do it to:
+
+    Advanced settings
+      Image preprocessing
+        Cell
+        Nucleus
+        Pathogen
+        Organelle
+      Object filtration
+        Cell
+        Nucleus
+        Pathogen
+        Organelle
+      ...
+
+with the named examples (remove background, intensity merge/split, minimum
+distance) moving out of the per-object categories into it.
+
+The reason this is worth doing: `cell_remove_background` and
+`nucleus_remove_background` do the SAME THING to different objects. Filed
+under two different objects they read as two unrelated knobs; filed under one
+"image preprocessing" heading with an object sub-heading they read as one
+decision applied four times, which is what they are.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+THE PANEL MAY NOT SUPPORT NESTING. Today's category system is FLAT: a
+category maps to a list of keys (`_APP_CATEGORY_SPECS`, `get_categories`,
+`categories_for_app` in `spacr/qt/screens/settings_model.py`) and the screen
+renders one header per category. A sub-sub-section is a third level that
+probably does not exist in the widget. Find out FIRST, and record the answer
+here, because "add three levels of nesting to the settings panel" is a much
+larger job than "move some keys between categories" and the request reads
+like the second.
+
+There is a partial precedent worth reading: `categories_for_app` already
+prefixes merged-module groups with a family name ("Computer Vision — Training
+& Loss"), which is a two-level hierarchy faked with a string prefix. That
+worked, and it also broke every tooltip lookup for those groups until
+2026-08-10, which is the cautionary half of the precedent.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Establish whether the settings panel can render nested sections at all.
+   If it cannot, decide between (a) building it, (b) the prefix trick above
+   with its tooltip consequences understood, or (c) two levels only. Record
+   which and why -- this is the decision the rest depends on.
+
+2. Inventory what would move. Every setting that is (i) shared in FORM
+   across object classes and (ii) something a user does not touch on a first
+   run. `*_remove_background`, `*_intensity_merge`/`*_split`,
+   `*_minimum_distance` are the named ones; there will be more, and the list
+   belongs in this file with a count.
+
+3. Do not break existing settings CSVs. Moving a key between GUI categories
+   must not change its name or its meaning -- the category is presentation.
+   A test should assert that the set of keys a module offers is unchanged by
+   the regroup, because that is the failure that would silently drop a
+   setting from a run.
+
+4. Every category needs a tooltip. `tests/qt/test_category_tooltips.py`
+   enforces that every rendered heading has written help of at least twelve
+   words, and it will fail on each new sub-heading. Write those blurbs as
+   part of the change, not after.
+
+5. Watch the curated-layout registry. A module with a bespoke layout is
+   listed in `_INLINE_LAYOUT_APPS` or `_APP_CATEGORY_SPECS`, and this project
+   has already shipped THREE separate defects from a module being registered
+   without its accompanying table entries (see instruction 47's triage). If
+   this change adds a new layout mechanism, give it a test that fails when
+   the two halves disagree, as `tests/qt/test_inline_layout_registry.py` now
+   does.
+
+6. Coordinate with 72. Organelle is getting the same split ("Organelle" plus
+   "Organelle advanced") and should end up consistent with whatever structure
+   this instruction settles on, not a second parallel scheme.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The count of settings visible by default per object category has gone down
+and the before/after numbers are recorded here; every moved setting is still
+present, still editable and still named the same in a settings CSV; every new
+heading has a written blurb; and a test asserts the regroup did not change
+which keys a module offers.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. Related: 72 (organelle's own split, same shape, do them
+together), 37 (the classify settings overhaul -- the same "too many settings,
+group them by what they do" problem, and its scope note is worth reading
+first), 61 (every setting states its default and unit), 69 (standardise
+common elements across modules).
+
+--------------------------------------------------------------------------------
+2026-08-12 - ITEM 1 ANSWERED, AND ITEM 2 COUNTED
+--------------------------------------------------------------------------------
+
+ITEM 1: THE PANEL CANNOT NEST. Established rather than assumed.
+`SettingsWidgets.build_sections` (spacr/qt/screens/settings_model.py:3917) is
+typed and implemented as
+
+    List[Tuple[str, List[Tuple[str, QWidget]]]]
+
+-- one flat header, then its rows. There is no third element and no recursion
+anywhere in the render path. A sub-sub-section does not exist and cannot be
+expressed without changing that return type and every consumer of it.
+
+DECISION: (b), THE PREFIX TRICK, TWO LEVELS. It is already the house
+precedent -- `settings_model.py:1278` builds "Computer Vision — Training &
+Loss" exactly this way -- and instruction 72 has now shipped the same flat
+shape for organelle ("Organelle" / "Organelle advanced"). Choosing (a),
+building real nesting, would change the panel contract for every module to
+serve one request; choosing a second scheme would leave the tool with two.
+
+THE CAUTIONARY HALF OF THAT PRECEDENT IS REAL and is why item 4 exists: the
+CV prefix broke every tooltip lookup for those groups until 2026-08-10,
+because the tooltip table is keyed on the heading's exact text. Any heading
+this instruction adds needs its blurb written in the same commit, not after.
+
+ITEM 2: THE INVENTORY. 66 settings are candidates, in three families across
+five object classes. Measured from `spacr.settings.categories`, not guessed:
+
+    family                cell  nucleus  pathogen  organelle  cytoplasm  total
+    Image preprocessing      1        1         1          4          -      7
+    Object filtration        8        8         8         10          1     35
+    Intensity handling       6        6         6          6          -     24
+                                                                         -----
+                                                                            66
+
+Object filtration and Intensity handling are the two that pay: eight
+identically-shaped keys per object, filed under four different objects, that
+are one decision applied four times. `cell_intensity_merge` and
+`nucleus_intensity_merge` do the same thing and read as unrelated knobs.
+
+Image preprocessing is LOPSIDED and worth flagging before anyone moves it:
+cell/nucleus/pathogen have one key each (`*_background`) while organelle has
+four (clahe and rolling-ball, with their parameters). That is not a grouping
+problem, it is a capability gap -- organelle can pre-process and the other
+three cannot -- and hiding it behind a shared heading would make three
+objects look like they have settings they do not have.
+
+STILL OPEN: the regroup itself (item 3), the per-heading blurbs (item 4), the
+curated-layout registry check (item 5), and the before/after visible counts.
+
+--------------------------------------------------------------------------------
+2026-08-12 - ITEM 3 DONE. THE NUMBERS.
+--------------------------------------------------------------------------------
+
+    heading      before   after
+    Cell            21       8
+    Nucleus         20       7
+    Pathogen        21       8
+    Organelle        6       3     (was 53 before instruction 72)
+
+    NEW: Object filtration    31
+         Intensity handling   24
+
+THREE HEADINGS, NOT TWELVE, and that is the flat panel showing through. The
+request asks for sub-sections by function with sub-SUB-sections per object.
+Item 1 established that `build_sections` returns one flat header and its
+rows, with no third level, so a sub-sub-section cannot be expressed without
+changing that contract for every module in the tool. Within each family
+heading the keys are therefore ORDERED BY OBJECT, so the four `*_min_size`
+settings sit together and read as the group they are. A test pins that
+ordering: an object's keys must be contiguous.
+
+ORGANELLE FOLDS IN rather than keeping the separate scheme instruction 72
+shipped, per item 6 of this file: one structure, not two.
+
+"IMAGE PREPROCESSING" WAS NOT MOVED, for the reason flagged in the inventory:
+cell/nucleus/pathogen have one key each and organelle has four, so a shared
+heading would make three objects look like they have settings they do not.
+That is a capability gap to close, not a grouping to impose, and it belongs
+in whichever instruction gives the other three objects the preprocessing
+organelle already has.
+
+MEASUREMENTS IS EXEMPT, and this is the interesting one. `cell_min_size` and
+its siblings live there by an EARLIER DELIBERATE DECISION: they are
+measurement filters only measure_crop sets, and filing them under Cell /
+Nucleus / Pathogen gave the Measure module three headings holding one size
+field each and no segmentation. The first version of this regroup pulled
+them out and put those three near-empty headings back by another route. The
+regroup now leaves that category alone, and the family headings skip
+anything an exempt category owns -- without which a key lands in two
+categories, which renders twice in Tk and is silently dropped from the
+second section in Qt.
+
+ITEM 3'S OWN GUARD IS WRITTEN: every key a module offers is still
+categorised somewhere. That is the failure worth excluding -- a settings CSV
+names KEYS, not headings, so a file written before the regroup loads and
+means exactly what it meant, and a key that fell out of every category would
+be silently dropped from the panel while staying in the settings dict.
+
+ITEM 4 DONE: both new headings have curated tooltips, written in the same
+change rather than after, because the tooltip table is keyed on the exact
+heading text and the CV-prefix precedent broke every lookup for its groups
+until someone noticed.
+
+STATUS: items 1, 2, 3, 4 done. Item 5 (the curated-layout registry) is
+satisfied by the existing `test_requested_modules_use_workflow_ordered_
+categories`, which now names both new headings. Item 6 (coordinate with 72)
+is done by folding organelle in.
+
+--------------------------------------------------------------------------------
+2026-08-12 - CLOSED
+--------------------------------------------------------------------------------
+
+All six items are done, as the trailing STATUS note above records. The header
+still said "not started", which is the exact trap the handoff warns about --
+the header is written once and the trailing notes are the state. Filed to
+done/ 2026-08-12 after re-reading the file rather than its header.

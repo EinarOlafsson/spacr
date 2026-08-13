@@ -276,3 +276,30 @@ NOT CLOSED, AND NOT YET COMMENTED ON, for two reasons:
 So the honest state is: a measured improvement for local-disk runs, which is
 most runs, and an open question for theirs. Say that in the comment rather
 than "fixed", and ask for `df -T` again.
+
+--------------------------------------------------------------------------------
+2026-08-12 (later) - #15 COMMENTED, DELIBERATELY NOT CLOSED. AND #74 IS A PR.
+--------------------------------------------------------------------------------
+
+The WAL fix is pushed, so it is real for the reporter now, and the issue
+carries a comment with the measurement (1.037 s against 0.002 s) and with the
+correction to this file's earlier reasoning -- the first explanation had the
+direction backwards and a test refuted it.
+
+NOT CLOSED, on purpose. The fix is skipped on any filesystem not positively
+identified as local, and the reporter's path (`/home/jkellerm/.conda/...`)
+may well be one. Closing an issue with a fix that is DESIGNED not to apply to
+the reporter's setup would be a false claim. The comment asks for `df -T`,
+which is the one thing that settles it. Close it when that comes back local,
+or keep it open and change tack when it comes back NFS.
+
+26 OF 27 GITHUB ISSUES ARE NOW CLOSED. The count moved from 26 because
+`gh issue list` had been hiding one: #74 is a PULL REQUEST, and `gh` filters
+PRs out of the issue list while the REST issues endpoint returns both. Anyone
+auditing "how many are left" with `gh issue list` gets a number that silently
+excludes every PR.
+
+#74 is filed as instruction 87 rather than acted on: it is an outside
+contribution, it targets `main`, it is CONFLICTING, and it carries 100 mostly
+unrelated commits. The problem it describes is real and is the same family as
+the crop-preview colour defect fixed the same day.
