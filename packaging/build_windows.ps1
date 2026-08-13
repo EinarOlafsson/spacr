@@ -1,4 +1,4 @@
-# build_windows.ps1 — produce dist/SpaCR-<version>.exe on Windows 10+
+# build_windows.ps1 — produce dist/spaCR-<version>.exe on Windows 10+
 #
 # Run from the spacr repo root in a "Developer PowerShell" (or plain PS)
 # with a Python 3.9+ interpreter on PATH:
@@ -11,7 +11,7 @@
 #   * spacr installed in a venv (or global)
 #   * pyinstaller >= 6.0
 #
-# Output: dist/SpaCR-<version>.exe (a single-file windowed executable).
+# Output: dist/spaCR-<version>.exe (a single-file windowed executable).
 
 $ErrorActionPreference = "Stop"
 
@@ -46,7 +46,7 @@ if (-not (Test-Path $src)) { Write-Error "PyInstaller output not found at $src" 
 
 # Compress the folder into a versioned zip (for direct download) AND
 # also emit a single-file portable exe when possible.
-$zip = ".\dist\SpaCR-$version-windows.zip"
+$zip = ".\dist\spaCR-$version-windows.zip"
 Compress-Archive -Path "$src\*" -DestinationPath $zip -Force
 Write-Host "==> wrote $zip" -ForegroundColor Green
 
@@ -56,9 +56,9 @@ if ($nsis) {
     Write-Host "==> building NSIS installer" -ForegroundColor Cyan
     $nsisScript = @"
 !include "MUI2.nsh"
-Name "SpaCR"
-OutFile "dist\SpaCR-$version-setup.exe"
-InstallDir "\$PROGRAMFILES64\SpaCR"
+Name "spaCR"
+OutFile "dist\spaCR-$version-setup.exe"
+InstallDir "\$PROGRAMFILES64\spaCR"
 RequestExecutionLevel admin
 
 Page directory
@@ -69,17 +69,17 @@ Section
   SetOutPath "\$INSTDIR"
   File /r "dist\spacr\*"
   WriteUninstaller "\$INSTDIR\Uninstall.exe"
-  CreateShortcut "\$SMPROGRAMS\SpaCR.lnk" "\$INSTDIR\spacr.exe"
+  CreateShortcut "\$SMPROGRAMS\spaCR.lnk" "\$INSTDIR\spacr.exe"
 SectionEnd
 
 Section "Uninstall"
-  Delete "\$SMPROGRAMS\SpaCR.lnk"
+  Delete "\$SMPROGRAMS\spaCR.lnk"
   RMDir /r "\$INSTDIR"
 SectionEnd
 "@
     $nsisScript | Set-Content -Encoding ASCII .\packaging\spacr_installer.nsi
     makensis .\packaging\spacr_installer.nsi
-    Write-Host "==> wrote dist\SpaCR-$version-setup.exe" -ForegroundColor Green
+    Write-Host "==> wrote dist\spaCR-$version-setup.exe" -ForegroundColor Green
 } else {
     Write-Host "    (NSIS not installed; skipping .exe installer)" -ForegroundColor Yellow
 }

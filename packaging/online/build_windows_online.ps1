@@ -41,4 +41,4 @@ try {
     Pop-Location
 }
 
-Write-Host "Built dist\online\SpaCR-$Version-Windows-Online-Setup.exe" -ForegroundColor Green
+Write-Host "Built dist\online\spaCR-$Version-Windows-Online-Setup.exe" -ForegroundColor Green

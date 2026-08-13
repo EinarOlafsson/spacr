@@ -251,7 +251,7 @@ def test_torchmodel_pushes_dropout_rate_into_backbone_and_head(fake_models):
     # every Dropout* module in the backbone was rewritten
     assert m.base_model.drop.p == pytest.approx(0.25)
     assert m.base_model.drop2d.p == pytest.approx(0.25)
-    # ...and the SPACR head got its own dropout, used by forward()
+    # ...and the spaCR head got its own dropout, used by forward()
     assert m.use_dropout is True
     assert isinstance(m.dropout, nn.Dropout)
     assert m.dropout.p == pytest.approx(0.25)

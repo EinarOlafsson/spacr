@@ -189,7 +189,7 @@ def test_unknown_theme_raises_everywhere_it_can_be_named(bad):
     assert not is_valid_theme(bad)
 
 
-@pytest.mark.parametrize("bad", ["neon", "SPACR", "", None])
+@pytest.mark.parametrize("bad", ["neon", "spaCR", "", None])
 def test_unknown_palette_raises_everywhere_it_can_be_named(bad):
     with pytest.raises(ValueError):
         palette_label("blobs", bad)

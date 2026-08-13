@@ -115,7 +115,7 @@ jobs:
           $Version = $VersionMatch.Matches[0].Groups[1].Value
           $Languages = @("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
           foreach ($Language in $Languages) {
-            $DryRunRoot = Join-Path $env:RUNNER_TEMP "SpaCR-dry-$Language"
+            $DryRunRoot = Join-Path $env:RUNNER_TEMP "spaCR-dry-$Language"
             & powershell.exe -NoProfile -ExecutionPolicy Bypass `
               -File .\packaging\online\install_spacr_windows.ps1 `
               -DryRun `
@@ -134,7 +134,7 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          $InstallRoot = Join-Path $env:RUNNER_TEMP "SpaCR"
+          $InstallRoot = Join-Path $env:RUNNER_TEMP "spaCR"
           $Installer = Get-ChildItem "dist\online\*Windows*Online-Setup.exe" |
             Select-Object -First 1
           if (-not $Installer) {
@@ -180,7 +180,7 @@ jobs:
           pkg=$(find dist/online -name '*macOS*Online.pkg' -print -quit)
           test -n "$pkg"
           pkgutil --check-signature "$pkg" || true
-          pkgutil --payload-files "$pkg" | grep 'Applications/SpaCR.app'
+          pkgutil --payload-files "$pkg" | grep 'Applications/spaCR.app'
           bash -n packaging/online/install_spacr_unix.sh
           packaging/online/install_spacr_unix.sh \
             --platform macos \
@@ -193,11 +193,11 @@ jobs:
         run: |
           pkg=$(find dist/online -name '*macOS*Online.pkg' -print -quit)
           sudo installer -verboseR -pkg "$pkg" -target /
-          test -s "/Applications/SpaCR.app/Contents/Resources/SpaCR.icns"
+          test -s "/Applications/spaCR.app/Contents/Resources/spaCR.icns"
           test -L /usr/local/bin/spacr
           SPACR_NO_RELAUNCH=1 \
-            "/Library/Application Support/SpaCR/install-for-user.sh"
-          runtime="$HOME/Library/Application Support/SpaCR"
+            "/Library/Application Support/spaCR/install-for-user.sh"
+          runtime="$HOME/Library/Application Support/spaCR"
           test -s "$runtime/install.log"
           "$runtime/venv/bin/python" -I -c \
             "import numpy as np, spacr, PySide6, torch; \
@@ -256,7 +256,7 @@ jobs:
             echo "Installer files and links are already current."
           else
             version=$(python packaging/release.py version)
-            git commit -m "chore(release): add SpaCR $version installers"
+            git commit -m "chore(release): add spaCR $version installers"
             git push origin "HEAD:$TARGET_BRANCH"
           fi
           echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
