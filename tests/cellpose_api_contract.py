@@ -178,6 +178,13 @@ INSTALLED_CELLPOSE_BAND = _recorded_band_for(INSTALLED_CELLPOSE_VERSION)
 #: Every band this suite knows how to run against, newest last.
 RECORDED_CELLPOSE_BANDS = tuple(sorted(_RECORDED_EVAL_PARAMETERS))
 
+#: The eval parameter LIST of every recorded band, newest first. A double may
+#: declare any one of them -- see `assert_declares_installed_eval_signature`
+#: for why, and for what that deliberately gives up.
+RECORDED_EVAL_PARAMETER_LISTS = tuple(
+    tuple(_RECORDED_EVAL_PARAMETERS[band])
+    for band in sorted(_RECORDED_EVAL_PARAMETERS, reverse=True))
+
 #: ``CellposeModel.__init__`` parameters for the INSTALLED release.
 CELLPOSE_INIT_PARAMETERS = dict(
     _RECORDED_INIT_PARAMETERS.get(INSTALLED_CELLPOSE_BAND)
@@ -204,13 +211,45 @@ SENTINEL_DEFAULTS = {"channel_axis": MISSING_CHANNEL_AXIS}
 #: unpack that is in fact correct — or bless one that is not.
 CELLPOSE_EVAL_RETURN_ARITY = 3
 
-#: ``eval`` keywords Cellpose 4 accepts, warns about, and then does not act on.
-#: Values are the warning the real library logs.
-DEPRECATED_EVAL_ARGUMENTS = {
-    "channels": ("channels deprecated in v4.0.1+. If data contain more than 3 "
-                 "channels, only the first 3 channels will be used"),
-    "rescale": "rescaling deprecated in v4.0.1+",
+#: ``eval`` keywords Cellpose accepts, warns about, and then does not act on.
+#: Values are the warning the real library logs. KEYED BY BAND, because what
+#: is inert in one release is live in the next.
+#:
+#: `rescale` is the one that matters and is absent from (4, 2) ON PURPOSE:
+#: 4.2 READS IT AGAIN::
+#:
+#:     niter_scale = 1 if rescale is None or not resample else rescale
+#:     niter = int(200/niter_scale) if niter is None or niter == 0 else niter
+#:
+#: so `rescale=False` with `resample=True` is `int(200/False)` --
+#: ZeroDivisionError out of Cellpose. spaCR sends None now; see
+#: `spacr.spacr_cellpose.cellpose_rescale`. Listing it as deprecated here
+#: would assert it is a no-op, which is exactly the belief that let the bug
+#: through.
+_RECORDED_DEPRECATED_EVAL_ARGUMENTS = {
+    (4, 0): {
+        "channels": ("channels deprecated in v4.0.1+. If data contain more "
+                     "than 3 channels, only the first 3 channels will be used"),
+        "rescale": "rescaling deprecated in v4.0.1+",
+    },
+    (4, 2): {
+        "channels": ("channels argument is deprecated in v4.0.1+, Cellpose4 "
+                     "takes inputs with arbitrary channel orders"),
+    },
 }
+
+DEPRECATED_EVAL_ARGUMENTS = dict(
+    _RECORDED_DEPRECATED_EVAL_ARGUMENTS.get(INSTALLED_CELLPOSE_BAND)
+    or _RECORDED_DEPRECATED_EVAL_ARGUMENTS[
+        max(_RECORDED_DEPRECATED_EVAL_ARGUMENTS)])
+
+#: Does the installed ``eval`` docstring still carry the Cellpose 3 promise of
+#: ``(masks, flows, styles, diams)``? 4.0 does and is wrong about its own
+#: return; 4.2 corrected it. Recorded rather than asserted unconditionally so
+#: the test can keep warning about the stale promise where it is still there.
+DOCSTRING_PROMISES_FOUR_VALUES = bool(
+    "(masks, flows, styles, diams)"
+    in (_cp_models.CellposeModel.eval.__doc__ or ""))
 
 #: ``__init__`` keywords Cellpose 4 accepts, warns about, and then does not act
 #: on. ``model_type`` is the dangerous one: it is how Cellpose 3 chose weights,
@@ -284,7 +323,32 @@ def assert_declares_installed_eval_signature(func, *, where=""):
 
     assert params, f"{label}: eval() takes no image argument at all."
     declared = {p.name: p.default for p in params[1:]}
+
+    # ANY RECORDED BAND, not only the installed one.
+    #
+    # A double writes its parameter list out as a literal, so it can name one
+    # release's signature and not another's. With 4.0 and 4.2 both supported,
+    # insisting on the installed one would mean nineteen doubles that pass on
+    # whichever cellpose the developer happens to have and fail on the other
+    # -- which is not a contract, it is a coin toss.
+    #
+    # WHAT THIS GIVES UP, stated plainly: a double declaring 4.0's list still
+    # accepts `invert=`, which installed 4.2 rejects. What it does NOT give
+    # up is the guarantee that matters, because spaCR's own call sites are
+    # checked against the INSTALLED signature separately -- see
+    # `test_the_preview_panels_do_pass_the_arguments_cellpose_still_reads`
+    # and `conftest.check_cellpose_eval_call`, which run the real
+    # `transforms.convert_image`. A double can be generous; the product
+    # cannot.
+    #
+    # The band that matches is preferred so the error message names the
+    # closest one rather than an arbitrary one.
     expected = dict(CELLPOSE_EVAL_PARAMETERS)
+    for band in sorted(_RECORDED_EVAL_PARAMETERS, reverse=True):
+        candidate = _RECORDED_EVAL_PARAMETERS[band]
+        if list(declared) == list(candidate):
+            expected = dict(candidate)
+            break
 
     missing = [n for n in expected if n not in declared]
     extra = [n for n in declared if n not in expected]
