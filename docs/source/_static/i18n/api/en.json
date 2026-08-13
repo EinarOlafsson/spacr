@@ -54132,6 +54132,14 @@
       "source_sha256": "d3c409c2c10bd165c16b398240983d30f3318a3980b3839cb860fb18e5151239",
       "text": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` or ``'error'``."
     },
+    "spacr.seg_qc.SegmentationQCFailed": {
+      "source_blocks_sha256": [
+        "2e363bedf3d4ca7fa3eee3ca9084a66fc7e661820c6a707953d42fd8da2114be",
+        "556c1fd97b0965f35cc13ca0a8978a847f173e8a35626aa4c90958f6978e603c"
+      ],
+      "source_sha256": "8fff19f27d29d21a690a0dfacf2c4c2fc851637d6d5b78c91ec955cc476a4e3d",
+      "text": "The plate failed segmentation QC and ``seg_qc='stop'`` was set.\n\nCarries the summary so a caller can report WHICH fields failed and why,\nrather than only that something did."
+    },
     "spacr.seg_qc.diagnose": {
       "source_blocks_sha256": [
         "2c9ba5bb29d07f9c7f4f8d53e1c60b2e6b629d1290d098225adac74dbaa4e322",
