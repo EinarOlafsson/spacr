@@ -124,11 +124,28 @@ def test_takes_an_argument_reads_the_signature():
 
 
 def test_takes_an_argument_assumes_the_common_shape_when_uninspectable():
-    """`print` is a builtin with no readable signature. The fallback must be
-    the shape almost every defaults factory has, not a crash."""
-    with pytest.raises(ValueError):
-        inspect.signature(print)          # the premise of the test
-    assert S._takes_an_argument(print) is True
+    """A builtin with no readable signature must take the fallback, not crash.
+
+    THE CALLABLE IS DISCOVERED, NOT NAMED. This test used to use `print` and
+    assert `inspect.signature(print)` raises -- which was true until CPython
+    3.12 gave `print` a signature, at which point the premise was false, the
+    fallback was never reached, and the test failed while nothing was wrong.
+    Every interpreter keeps SOME uninspectable builtin, but which ones is not
+    a stable fact, so the test finds one rather than betting on a name.
+    """
+    candidates = [min, max, getattr, iter, type, len, hash, dict.update]
+    uninspectable = None
+    for candidate in candidates:
+        try:
+            inspect.signature(candidate)
+        except (ValueError, TypeError):
+            uninspectable = candidate
+            break
+    if uninspectable is None:
+        pytest.skip("this interpreter gives every candidate builtin a "
+                    "signature, so the fallback is unreachable here")
+
+    assert S._takes_an_argument(uninspectable) is True
 
 
 def test_defaults_for_calls_a_zero_arg_factory_without_arguments(
