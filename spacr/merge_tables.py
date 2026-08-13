@@ -683,7 +683,9 @@ class ReductionError(ValueError):
 def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
                       method: str = "pca", components: int = 2,
                       scale: bool = True, min_coverage: float = 0.5,
-                      seed: int = 0) -> pd.DataFrame:
+                      seed: int = 0, n_neighbors: int = 15,
+                      min_dist: float = 0.1,
+                      perplexity: float = 30.0) -> pd.DataFrame:
     """Reduce many measurements to a few, for gating in xD.
 
     Gating in more dimensions than can be drawn means drawing something else:
@@ -700,6 +702,15 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
         is left out. What remains is median-filled rather than row-dropped --
         see the comment in the body, which is the difference between xD
         working on a real table and returning nothing at all.
+    :param n_neighbors: UMAP only. How much of the data each point is placed
+        against: small values keep local structure and fragment the map,
+        large ones preserve the global shape and merge populations. Ignored
+        by PCA and t-SNE, which have no such parameter -- hence the greying
+        in the xD tab rather than a control that silently does nothing.
+    :param min_dist: UMAP only. How tightly points may pack. Ignored elsewhere.
+    :param perplexity: t-SNE only, and CLAMPED to ``(n - 1) / 3``: sklearn
+        raises outright when it exceeds the sample size, which would turn a
+        legitimate setting into a failed projection on a small selection.
     :returns: a frame of components, indexed like ``frame``.
     :raises ReductionError: too few columns, too few rows, nothing numeric, or
         a method whose package is not installed.
@@ -781,12 +792,19 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
                 "UMAP is not installed in this environment; PCA is always "
                 "available") from exc
         reduced = umap.UMAP(n_components=components,
+                            n_neighbors=max(2, min(int(n_neighbors),
+                                                   len(values) - 1)),
+                            min_dist=float(min_dist),
                             random_state=seed).fit_transform(values)
         out = pd.DataFrame(reduced, index=usable.index,
                            columns=[f"UMAP{i + 1}" for i in range(components)])
     else:
         from sklearn.manifold import TSNE
-        reduced = TSNE(n_components=min(components, 3),
+        # sklearn RAISES when perplexity >= n_samples, so a perfectly
+        # reasonable default becomes a failed projection the moment the
+        # selection is small. Clamped rather than passed through.
+        bounded = max(5.0, min(float(perplexity), (len(values) - 1) / 3.0))
+        reduced = TSNE(n_components=min(components, 3), perplexity=bounded,
                        random_state=seed).fit_transform(values)
         out = pd.DataFrame(reduced, index=usable.index,
                            columns=[f"tSNE{i + 1}"
