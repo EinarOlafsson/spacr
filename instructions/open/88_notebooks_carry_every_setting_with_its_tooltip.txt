@@ -1,0 +1,78 @@
+================================================================================
+EVERY NOTEBOOK CARRIES EVERY SETTING, WITH ITS TOOLTIP
+================================================================================
+
+Status:    not started, 2026-08-13.
+Requested: 2026-08-13 - "Add to instructions to make sure that all notebooks
+           contain all settings for the functions (at least the main
+           functions) and classes they use, with tooltips for each setting"
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A notebook is the only route into spaCR that does not go through a settings
+panel, so it is the one place where a setting can be INVISIBLE rather than
+merely badly explained. A user working from a notebook sees the six keys the
+example happened to set and has no way to learn that the function reads
+ninety. They then discover a setting exists by hitting its default the hard
+way -- which is how "spaCR segmented on the wrong channel" becomes a support
+question rather than a choice someone made.
+
+The GUI already solved this: every typed setting has a tooltip, and
+instruction 61's sweep made those tooltips say what the setting DOES, its
+type and its range rather than restating its name. The notebooks were never
+brought along.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. For each shipped notebook, determine which functions and classes it drives
+   and therefore which settings factory applies -- `set_default_*` /
+   `get_*_settings` in `spacr.settings`. That mapping already exists for the
+   GUI and the CLI; use the same one rather than a third.
+
+2. The settings cell lists EVERY key that factory declares, not only the ones
+   the example changes, each with its default and its tooltip as a comment.
+   A key the example does not need is still listed, at its default, so the
+   reader learns it exists.
+
+3. The tooltip text comes from `spacr.settings.tooltips` AT GENERATION TIME.
+   Do not paste it. A pasted tooltip is a copy that goes stale silently, and
+   instruction 61 has already rewritten 454 of them once.
+
+4. Generate rather than hand-edit, and add a test that regenerates and
+   compares. Twelve notebooks hand-maintained against a settings dict that
+   moves every week is a guarantee of drift; the test is what makes the claim
+   "all settings" true tomorrow as well as today.
+
+--------------------------------------------------------------------------------
+DECISIONS THE IMPLEMENTER HAS TO MAKE
+--------------------------------------------------------------------------------
+
+  * WHICH FUNCTIONS COUNT. The request says "at least the main functions".
+    The natural line is the ones the GUI exposes as modules -- mask, measure,
+    classify, umap, and so on -- because those already have a declared
+    settings factory. A helper called once inside a notebook does not.
+
+  * HOW MANY KEYS IS TOO MANY. mask and timelapse declare ~205 settings each
+    (backlog item 12f). Two hundred commented lines is not a usable first
+    cell. The likely answer is the same one the GUI reached: the common keys
+    visible, the rest behind a clearly marked "advanced" block that is still
+    IN the notebook and still carries its tooltips -- present and readable,
+    not hidden behind a link.
+
+  * WHERE THE TOOLTIP GOES. A comment above each key reads well and diffs
+    badly; a trailing comment diffs well and wraps badly at 200 characters.
+    Pick one and apply it everywhere.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+For every shipped notebook: every key its module's settings factory declares
+appears in the notebook, each carries the tooltip that `spacr.settings`
+holds for it right now, and a test regenerates the notebooks and fails if a
+committed one differs -- so a new setting cannot be added without the
+notebooks gaining it too.
