@@ -6375,6 +6375,26 @@ LEGACY_CELLPOSE_MODELS = ('cyto', 'cyto2', 'cyto3', 'cyto_2', 'cyto_3',
 _REPORTED_CELLPOSE_NOTICES = set()
 
 
+def _installed_cellpose_models():
+    """The stock model names the INSTALLED Cellpose advertises.
+
+    ``()`` when Cellpose is not importable or says nothing, which makes
+    every caller fall through to the behaviour that shipped. Read here
+    rather than hard-coded because the list grew between 4.0 and 4.2 and
+    will grow again.
+
+    Only ``MODEL_NAMES`` -- the stock weights. A user-registered checkpoint
+    is already handled by the file branch of
+    :func:`_resolve_cellpose_pretrained`, and is a path rather than a name.
+    """
+    try:
+        return tuple(getattr(cp_models, "MODEL_NAMES", ()) or ())
+    except Exception:
+        # A deferred import that fails must not stop a run choosing a model;
+        # the caller's fallback is the pre-4.2 behaviour.
+        return ()
+
+
 def reset_cellpose_model_reports():
     """Forget which Cellpose model notices have already been printed.
 
@@ -6447,6 +6467,26 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
             f"(the denoise/deblur/upsample checkpoints are pre-SAM). Ignoring it.")
 
     name = str(model_name).strip() if model_name else ''
+
+    # A model the INSTALLED Cellpose actually ships is returned as itself.
+    #
+    # This used to stop at `cpsam`, because Cellpose 4.0 had exactly one stock
+    # model. 4.2 ships four -- cpsam_v2 (its new default), cpdino,
+    # cpdino-vitb, cpsam -- and `settings.cellpose_model_choices` reads that
+    # list from the API, so a dropdown offers them the moment a user upgrades.
+    # Everything below then treated them as UNKNOWN and substituted cpsam:
+    # the menu offered a model the pipeline quietly refused to load, and the
+    # run SUCCEEDED with weights nobody asked for, which is the worst shape
+    # this bug could take.
+    #
+    # Asked of the installed library rather than hard-coded, so a 4.3 that
+    # adds a fifth needs no release here.
+    if name and name in _installed_cellpose_models():
+        if name != CPSAM_MODEL:
+            _report_cellpose_once(
+                ('stock', name, object_type),
+                f"Using Cellpose model {name!r}{clause}.")
+        return name
 
     if name and name not in LEGACY_CELLPOSE_MODELS and name != CPSAM_MODEL:
         # Anything that is not a known model name is meant to be a checkpoint.
