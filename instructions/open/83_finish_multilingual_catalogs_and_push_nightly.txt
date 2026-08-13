@@ -7,6 +7,9 @@ Requested: 2026-08-11 — "push to nightly"
            2026-08-12 — "ok please finish everything. thanks and make sure to
            save anything you learn in terms of how to make the voises sound
            natural as a skill in the repo folder"
+           2026-08-12 — "ok finish what you are doing then make sure what is
+           left is in the instructions. then commit and push waht you have so
+           far."
 Owner:     root Codex session
 
 --------------------------------------------------------------------------------
@@ -53,6 +56,65 @@ issue #15 added two documented public helpers, so the next immutable freeze is
 after the repaired builders are committed, then restart all locales against
 that one quartet.
 
+Interim-push checkpoint, 2026-08-12: the builder/evidence work is committed at
+``3452e67f`` independently of the red generated catalogs. API repair now
+reuses an anonymous legacy cache value only when its key is still the exact
+current model input; every recovery must pass both contextual and canonical
+gates. A value from a different prompt is not silently relabelled as current
+provenance. The document-level syntax audit now compares against the parser's
+canonical rebuilt source, removing the wrapped ``preview_contract`` table
+false positive without weakening any per-block literal check.
+
+Marker restoration now accepts Marian's narrowly provable dropped-``<`` form.
+ASCII word/digit fusion is accepted only when the exact prefix-free protected
+model input records the same adjacency for that exact marker. The restoration
+pass preflights unique, non-overlapping spans; permits target-language marker
+reordering; rejects unknown XML markers and unaccounted numeric marker-like
+tokens; and passes the exact protected input through primary, numeric, chunk,
+and clause paths. Short quoted UI/log values are atomic literal islands in the
+mechanical fragment fallback. The focused localization selection contains 119
+tests and passes. Instruction-77 source work then settled at ``20b5ed52``;
+the refreshed English API inventory is 6,357 records (6,238 canonical plus 119
+exact aliases), including ``cellpose_rescale`` and the public cardinality
+contract ``MergePolicy.how_for``.
+
+The last PT/KO v2 logs are fail-closed evidence from the preceding 6,355-
+record freeze, not final catalogs. PT reused 21,286 blocks, generated 484,
+recovered 34 cache values, decoded 450, relaid 3 symbols, and left 123 sources
+unresolved. Retry acceptance was 237/395 sentence pieces, 5/133 clause
+contexts, and 28/38 fragments. Strict findings were 123 exact/copy/ordinary-
+English blocks, 106 contextual false friends, and 101 context-gate failures.
+The log SHA-256 is ``b921b35c9a77c4a9b267ad9b8c12686eadfb36353b516a8ae21a0a96cf92b875``.
+KO reused 19,344 blocks, generated 2,318, recovered 36 cache values, decoded
+2,282, relaid 13 symbols, and left 182 labels / 156 unique sources unresolved.
+Retry acceptance was 234/703 sentences, 35/348 clauses, and 276/375 fragments.
+Strict findings were 182 exact-English, target-script, and copied-English
+failures plus 84 context-gate failures. Its log SHA-256 is
+``b5c97bcf7efc6165f03fe8cde786d74d7b03ba7df834a289e157aa202bbae2f6``.
+
+Sixty disjoint PT hard-tail candidates are preserved under
+``docs/i18n/reviewed/api/pt`` as three schema-1 evidence files. They match old
+v2 forensic indices 0–59 and pass source hashes, syntax, canonical API, and
+contextual API gates 60/60. Their SHA-256 values are ``3331b081...`` (0–19),
+``7bb1ada2...`` (20–39), and ``5b918fa1...`` (40–59). They have not been
+stamped into a target catalog. The saved-output adjacency replay now accepts
+37 current and 38 compact XML variants (75 total) with no observed losses.
+The one deliberately rejected former current-context hit used a fully stripped
+bare ``x0`` marker, which is indistinguishable from natural coordinate prose;
+release code keeps that ambiguous form fail-closed. The supporting pre-policy
+simulation is ``/tmp/xml-contract-recovery.json`` (SHA-256 ``4d06076b...``).
+These are diagnostic results, not a promise about a fresh run or linguistic
+quality.
+
+The OPUS Korean fallback remains explicitly rejected. Across 36 selected
+sources, M2M had no mechanically valid candidate; OPUS had five, but direct
+review rejected all five as unrelated token salad/hallucination. The other 31
+protected-literal sources lost markers at every rank, and none of the 12 PT-
+overlap sources passed. OPUS also declares CC-BY-4.0 rather than the present
+M2M route's MIT license. No model route or production cache changed. Evidence
+SHA-256 prefixes are sample ``5e3ffbf6``, probe ``7aa77447``, and analysis
+``dd284369``.
+
 --------------------------------------------------------------------------------
 WHY IT MATTERS
 --------------------------------------------------------------------------------
@@ -64,20 +126,29 @@ The branch must be pushed only once the exact generated artifacts and their
 source hashes pass strict audits and release tests.
 
 --------------------------------------------------------------------------------
-WHAT TO DO
+WHAT TO DO NEXT
 --------------------------------------------------------------------------------
 
-1. Finish and regression-test the API/runtime builders, including context
-   grammar, protected RST, accepted-only caching, no-truncation/EOS checks,
-   source-conditioned semantic gates, and OpenCC ``t2s.json`` normalization.
-2. Freeze canonical and builder identities, then regenerate API followed by
-   runtime catalogs for all nine locales. Hold a locale on any nonzero audit.
-3. Run independent copied-English, script, false-friend, syntax, layout, hash,
-   loader, frontend, installer, Sphinx, and release tests against stable files.
-4. Re-audit the shared worktree and commit with explicit path groups. Merge
-   origin/nightly if needed; never rebase, amend, or reset the shared branch.
-5. Push the verified nightly branch once, then inspect its CI without starving
-   the runner queue with repeated pushes.
+1. Before generation, freeze the committed English API manifest and exact
+   extractor count together with the runtime-English and two builder
+   identities. Do not generate against a dirty or moving public-docstring set.
+2. Bind the committed 60 PT candidates to their exact source/context hashes
+   through an explicit accepted-only review path. Review old-v2 indices
+   60–122, then rerun PT against the new freeze. Trust the fresh strict audit,
+   not the old 123-source denominator: marker repair can change the tail.
+3. Resolve Korean's fresh hard tail with target-language review or a separately
+   admitted, licensed model. Do not use the rejected OPUS Korean checkpoint;
+   retain M2M fail-closed until every surviving value is technically correct.
+4. Generate API then runtime, stopping on every nonzero audit: OPUS for
+   pt/es/de/sv/fr and M2M100 for ko/zh_CN/hi/is. Run strict copied-English,
+   target-script, false-friend, syntax, layout, source-hash, OpenCC, loader,
+   frontend, installer, Sphinx, and release checks against stable files.
+5. The nine dirty target API JSONs are stale/partial products of failed runs
+   and are intentionally excluded from this checkpoint; runtime catalogs have
+   not advanced. ``skill/FACTS.md`` is also excluded as stale generated shared-
+   worktree output. Regenerate COVERAGE and FACTS only after all 18 target
+   artifacts pass, then close this instruction and perform the final catalog
+   commit/push sequence.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
