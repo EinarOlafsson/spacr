@@ -1,0 +1,128 @@
+================================================================================
+THE API DOCS ARE NOT A ROADMAP -- REMOVE THE MODULE AUDIT, KEEP THE INSIGHTS
+================================================================================
+
+Status:    not started, 2026-08-12.
+Requested: 2026-08-12 - "in the API there is a section called Module Audit
+           that seems more like a document directed at me than a API
+           document. Unless this is some convention that i am unaware of
+           remove it. not however these insights: [the two lists below]"
+           "is this a normal section of an API"
+
+--------------------------------------------------------------------------------
+THE ANSWER TO THE QUESTION
+--------------------------------------------------------------------------------
+
+No, it is not a convention. API reference documents the public interface --
+modules, classes, signatures, parameters, returns, raises -- so a reader can
+call the thing. `docs/source/module_audit.rst` is an internal engineering
+record from 2026-07-30 plus a set of recommendations addressed to the
+maintainer, and it sits in `index.rst`'s toctree where users read it. A
+reader meets "High-value additions" as a list of features spaCR does not
+have, in the same document that is supposed to tell them what it does.
+
+Its first half -- the cross-cutting guarantees and the module-by-module
+execution map -- is genuinely useful and genuinely NOT API reference. It is
+an architecture note. Moving it out of the published API rather than
+deleting it outright preserves that, and this instruction says where.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Drop `module_audit` from `docs/source/index.rst`'s toctree so it stops
+   being published as API documentation.
+2. Keep the execution map and the cross-cutting guarantees as an internal
+   architecture note, not in the API tree.
+3. Delete the recommendation sections from the page entirely -- they are
+   preserved below, which is where work belongs.
+
+--------------------------------------------------------------------------------
+THE INSIGHTS, PRESERVED (the maintainer's words)
+--------------------------------------------------------------------------------
+
+HIGH-VALUE ADDITIONS
+
+  a. "Add a universal dry-run/resource estimate card: input count, projected
+     output size, RAM/VRAM estimate, and settings/schema problems before
+     Run."
+     NOTE: `dry_run` and `spacr.validate.run_preflight` already exist and
+     already report settings/schema problems. What is NEW here is the
+     RESOURCE half -- projected output size and RAM/VRAM -- and making it one
+     card every module shows. Build on the existing pre-flight; do not add a
+     second one.
+
+  b. "Extend the existing run journal into checkpoint/resume for Mask,
+     Measure, UMAP search, conversion, and report generation at field/batch
+     boundaries."
+     NOTE: this is backlog item #14 restated and sharpened. `RunLedger` and
+     `run_context` already exist and are the place it goes. Measure must also
+     delete-before-insert or a resume duplicates rows.
+
+  c. "Add data provenance hashes for input manifests, model artifacts, and
+     settings so reports can prove exactly which source state produced them."
+     NOTE: `run_journal` already records settings per run and instruction 2
+     built the provenance diff. Hashes are the missing half -- the settings
+     are recorded, the INPUTS are not.
+
+  d. "Add optional QC gates between modules (for example, stop Measure when
+     segmentation failure rate exceeds a chosen threshold)."
+     NOTE: `seg_qc` already computes the failure rate and has modes
+     off/report/flag. The gate is a fourth mode -- stop -- plus the threshold.
+
+  e. "Add a small benchmark command that records throughput and peak
+     RAM/VRAM for representative fields, making worker-count defaults
+     specific to the current machine."
+
+GPU OPPORTUNITIES
+
+  "The best next GPU addition is optional RAPIDS cuML for Image UMAP and its
+   clustering, with the current implementation retained as the deterministic
+   CPU fallback. A second useful target is device='cuda' for supported
+   XGBoost Classify (ML) runs. Selected convolution, texture, and
+   phase-correlation kernels in Measure and Align could use CuPy/OpenCV CUDA,
+   but only after profiling: transfer overhead often exceeds the gain for
+   small fields.
+
+   Barcode mapping, format conversion, SQLite browsing, report assembly, and
+   most grouped statistics are dominated by decompression, filesystem,
+   database, or small-table work and should remain on CPU."
+
+--------------------------------------------------------------------------------
+THIS CONTRADICTS A DECISION ALREADY MADE, AND THE MAINTAINER SHOULD SEE IT
+--------------------------------------------------------------------------------
+
+Instruction 70, DONE, investigated GPU offload on this machine and concluded:
+
+    "DEPENDENCY VERDICT: add neither cupy nor cucim/cuml. cupy is a ~100 MB
+     wheel ... cucim/cudf/cuml would add the rapidsai channel to the install
+     instructions."
+
+with the reasoning that `torch` is already a hard dependency and therefore
+nearly free, while anything needing cupy/cuml is a NEW dependency with a
+CUDA-version coupling -- and instruction 59 is trying to get this package
+onto conda-forge, where every extra pinned CUDA dependency is a packaging
+problem.
+
+So "the best next GPU addition is optional RAPIDS cuML" is the option 70
+specifically ruled out, for a packaging reason that has not changed. The two
+are reconcilable if cuML is a genuinely OPTIONAL extra that conda-forge never
+sees -- `pip install spacr[rapids]`, absent by default, with the CPU path
+still the tested one -- and NOT reconcilable if it becomes a dependency.
+
+The XGBoost `device='cuda'` half has no such conflict: xgboost is already a
+dependency and the flag is free. That part can proceed on its own.
+
+RECOMMENDATION: split this. Do the xgboost `device='cuda'` work under the GPU
+heading; leave cuML filed until the maintainer says whether an optional extra
+is acceptable given 59.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+`module_audit` no longer appears in the published API documentation, the
+Sphinx build is clean without it, and nothing in the docs tree addresses the
+maintainer in the second person about work not yet done. The five additions
+above exist as their own tracked items rather than as prose in a reference
+page.

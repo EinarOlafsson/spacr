@@ -1,0 +1,87 @@
+================================================================================
+PR #74 -- LET A PROJECT CHOOSE WHICH STAIN RENDERS IN WHICH COLOUR
+================================================================================
+
+Status:    not started, 2026-08-12. NEEDS THE MAINTAINER -- see "why this is
+           not merged" below.
+Requested: 2026-08-12 - "there is one extra issue in github issues"
+
+--------------------------------------------------------------------------------
+WHAT IT IS
+--------------------------------------------------------------------------------
+
+An OPEN PULL REQUEST, not an issue, which is why `gh issue list` never showed
+it: `gh` hides PRs from the issue list while the REST issues endpoint returns
+both. It has been open since 2026-07-28.
+
+    #74  annotate: let a project choose which stain renders in which colour
+    author        jak18015          -- an outside contributor, not the maintainer
+    branch        annotate-display-channel-order -> main
+    mergeable     CONFLICTING / DIRTY
+    commits       100
+    fixes         #73 (closed)
+
+THE PROBLEM IT DESCRIBES IS REAL AND IS ALREADY IN THIS REPOSITORY'S HISTORY.
+Commit `341f446` corrected the crop channel order on disk, so `png_dims[0]`
+is now the file's RED channel where cv2's BGR reading had put it in blue.
+That fixed the format and silently mirrored what every pre-existing project
+SEES: a parasite stain that was always red opens in Annotate as blue, nucleus
+in red. The contributor's point about why this is not cosmetic is correct --
+red/green overlap is legible and blue/green is not, so it is the difference
+between judging colocalisation by eye and not.
+
+THE PROPOSED FIX is a display-only permutation, "Display order", defaulting
+to `r,g,b` (identity, a no-op) and running BEFORE normalisation and channel
+filtering, so "Show channels" and "Normalize channels" keep naming the slots
+the user is looking at. It does not touch the writer, the crop format or
+`read_crop_png`. Seven new tests; 254 passing across the annotate suites.
+
+--------------------------------------------------------------------------------
+WHY THIS IS NOT MERGED, AND WHAT IS ACTUALLY BLOCKING IT
+--------------------------------------------------------------------------------
+
+1. IT TARGETS `main`. The standing rule is that work lands on `nightly` and
+   `main` is never pushed to directly.
+2. IT CONFLICTS. GitHub reports CONFLICTING/DIRTY, so it cannot merge as it
+   stands regardless.
+3. IT CARRIES 100 COMMITS, most of them unrelated coverage work ("test: cover
+   ml mid-size functions", "test: cover utils mask/segmentation-metric
+   helpers", ...). Whatever the branch started as, it now contains far more
+   than the feature its description covers, and merging it merges all of it.
+4. IT IS AN OUTSIDE CONTRIBUTION, so accepting it is a maintainer decision
+   about someone else's code and licence, not a technical one.
+
+THE FEATURE IS NOT IN `nightly` -- there is no `display_order` anywhere in
+`spacr/qt/`.
+
+--------------------------------------------------------------------------------
+THE OPTIONS, FOR THE MAINTAINER
+--------------------------------------------------------------------------------
+
+  A. Cherry-pick just the feature onto nightly and close #74 with thanks and
+     an explanation. The change is small, additive and defaults to a no-op;
+     re-implementing it from the description is a few hours and avoids
+     merging 100 unrelated commits.
+  B. Ask the contributor to rebase onto nightly and reduce the branch to the
+     feature.
+  C. Close it as superseded, if the display permutation is not wanted --
+     but the problem it names would then still be unsolved for every project
+     authored before `341f446`.
+
+RELATED, AND WORTH READING TOGETHER: on 2026-08-12 the crop PREVIEW was found
+to draw red and blue mirrored relative to the run (preview (13,128,255)
+against run (200,100,10)) because it fed its RGB control straight to
+`crop_objects_from_array` while the run resolves `png_channel_mapping`. That
+is fixed. It is the same family of defect as #73/#74 -- a channel order
+meaning different things in two places -- and `png_channel_mapping` is now
+the run-side answer. Whether "Display order" should be a separate
+ANNOTATE-side permutation or should read `png_channel_mapping` is the real
+design question in this PR, and it is not one the PR asks.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+#74 is resolved one way or the other with a comment saying why, and a project
+authored before `341f446` can see its stains in the colours it was authored
+for without re-running measurement or lying about the format on disk.

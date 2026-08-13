@@ -143,7 +143,6 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   module_audit
    localization
    setting_animations
    checkpoint_resume
