@@ -49,6 +49,37 @@ gives a second cellpose without touching the working env.
   showed it. Filed as instruction 87. An audit run with `gh issue list`
   silently excludes every PR.
 
+## 1b. A NEW PUBLIC MODULE OBLIGES AN i18n CATALOG REBUILD
+
+Discovered the hard way on 2026-08-13: three new modules (`benchmark`,
+`column_groups`, `gate_library`) turned the **docs** job red with 182
+failures, every one of them `en/spacr.<new module>.<symbol>`.
+
+`tools/build_documentation_i18n.py --audit` requires, for EVERY public
+symbol: an entry in `docs/source/_static/i18n/api/en.json` with matching
+source hashes, AND a non-blank translation in each of the nine language
+catalogs. A new public function is a new symbol, so adding one makes the
+gate red until both exist.
+
+**This is the same shape as the `spacr._SUBMODULES` trap below** -- a new
+file has two registrations, not one, and the failing check is nowhere near
+the change.
+
+The English half is cheap and safe:
+
+    python tools/build_documentation_i18n.py --sources-only
+
+It writes ONLY `en.json` and returns. Done for the three modules above; the
+diff was verified symbol by symbol as 27 added / 0 removed / 4 changed, and
+every one attributable (the 4 are docstrings the spaCR naming sweep touched).
+
+**The nine translations are NOT done and the docs gate is still red for
+them.** That needs a real translation run, which is instruction 83's
+machinery and the concurrent session's files -- all nine were dirty in the
+working tree, so writing them from here would have destroyed work in flight.
+Whoever owns the catalogs next should run the translation pass over the 27
+new symbols. Instruction 82 cannot report green CI until they do.
+
 ## 2. What needs the maintainer
 
 | Need | Unblocks | Note |
