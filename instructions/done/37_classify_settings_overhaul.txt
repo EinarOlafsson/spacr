@@ -1,0 +1,819 @@
+================================================================================
+CLASSIFY: CLASSES AS A DICT, HONEST CROP SOURCES, AND FEWER CATEGORIES
+================================================================================
+
+Status:    partially complete. SCOPE REVISED 2026-08-09 -- the classes dict
+           is replaced by a simpler editor; see the end of this file. The
+           class/folder-name contract landed 2026-08-12; selector redesign
+           remains open.
+Requested: 2026-08-07
+
+Verbatim, because most of this is precise and the paraphrase would lose it:
+
+  "in the Classify module the Classes setting should be a dictionary where the
+  user chooses the class name of the annotations found in the column. so you
+  set the column then the keys of this dict get populated and the user fills
+  in their names.
+
+  in classify, change the settings:
+
+  png_type to path string (this is a string that needs to be in the path of
+  each image)
+
+  file type should be a dropdown of all the possible image filetypes
+
+  file type and png list sem to be the exact same thing. change the logic for
+  file type to be a file extention filter.
+
+  remove the write random annotation column. this should be handled by the
+  classes dikt. if only one lable is present in the annotation column then the
+  other class needs to be a random selection of the non annotated images.
+  annotation column should be able to hold more than one column this means
+  that the classes dict needs to specify value and column the value is from
+  for class naming. make sure that the downstream logic is compatible with
+  hese changes.
+
+  crop source should be a dropdown, with the options pre generated crops and
+  on demand crops, and generate crops.
+
+  if not pregenerated crops then path filtering options and other options
+  related to precut pngs should be grayed out. if on demand crops, then
+  training generates a dataset based on merged, where some arrays hold objects
+  and some hold intensity images. this option should also be able to take
+  coordinates from a databse to generate image crops from, but merged based
+  masks should be the default. channel and mask aray information is necessary
+  here, these channels and coordinate columns need to be specified, so add
+  theses settings and make sure the logic for this works downstream and that
+  the crops are actually generated. (the option to generate bounding box or
+  object crops should be given, only bounding box will be possible with
+  database object generation.)
+
+  size and image size occurs twice, pick image size and discar size.
+
+  the categories for computer vision for this module need to be overhauled and
+  settings need to be organized by wheir category and level. the firs one can
+  be:
+
+  as is but annotation column and location column should be the same and
+  remove the Measurement mode (this is replaced by the gate editor for
+  annotation, which is annotation by measurement). for Metadatamodel the
+  Classes dict just shifts the possible columns to them metadata columns
+  (plate, row, column, field, well) instead of user defined annotation columns
+  and the logic in Classes should remove the need to have location column,
+  positive controll and negative controll settings here.
+
+  the second can be changed to Computer vision data source and its relevant
+  settings: e.g. crop source, size, extract channel (for on demand), object
+  array (for on demand), file type (for pre generated crops), path string (for
+  pregenerated crops)
+
+  for model architecture:
+
+  clicking a model should activate a test if the model is compatible with
+  spacr and the class structure chosen. there should not be a boolean for
+  custom model, if custom model has a path and a model can be loaded from that
+  path, this setting super seeds model type and is the model that is used.
+  Train channels should be in the preveous settings category and so should
+  image size. I dont know what Normalize does here, but we should give several
+  normalization transforms for the images, e.g. the same normalization done by
+  for image net, is the normalization done on the batch or single image level
+  (there should be options for all of these, maybie a dropdown, with a custom
+  option), there should be a settings category called Computer Vision
+  Optimization and Regularization (Use Checkpointing, Dropout, weight decay).
+  all of the settings relevant for training and loss should be moved to a
+  category called Coumputer vision Training, including Epoch, Loss type, etc.
+  augment should be in Dataset. any settings that are not relevant because
+  they are for other settings that are not chosen should be grayed out.
+
+  save to db should be Save Results to DB and should not have its own
+  category.
+
+  for the computer vision add the heatmap from ML and make that category a
+  common category
+
+  Machine Learning Feature Selection and Importance should be in the same
+  category as feature preparation. but the name should be more appropreate.
+  thing through all of the names for the settings categories in this modul and
+  come upo with better and fewer categories."
+
+WHY THE MEASUREMENT BASIS MOVES RATHER THAN DIES (2026-08-07, the user):
+
+  "thats fine to retire the measurements code in classify, im really not
+  removing it conceptually. im moving it to the Gate editor because this
+  module is much better for choosing classes based on measurements as one can
+  use multiple gates (if we just used thresholds like befor the model would
+  just kearn that threshold, gates are morecomplex with moredimentions and i
+  can add multiple gates)"
+
+  Worth keeping in front of whoever does this: a class defined by a single
+  threshold teaches the model that threshold, which is a tautology dressed as
+  a classifier. Gates are multi-dimensional and can be combined, so the class
+  is a region rather than a cut. That is the reason the basis moves, and it is
+  the argument against anyone helpfully restoring a threshold-based mode later.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not investigated in detail. What is already known from the merge work:
+
+  * spacr/classify.py is the merged front end. FAMILY_SETTINGS lists which
+    settings belong to CV and which to ML; that list is what greys the other
+    family out, and it will need editing wherever a setting is renamed here.
+  * spacr/training_basis.py owns dataset_mode -- metadata / annotation /
+    measurement -- and BASIS_SETTINGS drives the same greying for the basis.
+    REMOVING the measurement basis (see item 12) means retiring a value that
+    an existing settings CSV can legitimately contain.
+  * spacr/io.py builds the dataset from class_metadata/metadata_rules,
+    annotation_columns/annotation_values, or measurement_rules.
+  * The channel-mapping work already established the house rule for this kind
+    of setting: a dict with named keys, never a list whose meaning comes from
+    position (INVARIANTS 13). Classes is the same shape of problem.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Two themes run through the whole list.
+
+FIRST, settings that do not say what they mean. `png_type` is a path
+substring. `file_type` and `png_list` appear to be the same thing. `size` and
+`image_size` both exist. `custom_model` is a boolean next to a path that
+already answers the same question. Each one is a place where a user has to
+know a convention rather than read a label, and each is a place where two
+settings can disagree and one silently wins.
+
+SECOND, the class definition is doing too little. A user who has annotated one
+class has to reach for a "write random annotation column" button to get the
+other; a user who annotated across two columns cannot express it at all; and a
+metadata-based model needs location/positive/negative control settings that
+say the same thing the classes already say. A Classes dict that names the
+value AND the column it came from replaces all of that.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+CLASSES
+
+ 1. Classes becomes a DICT, populated from the chosen column(s): set the
+    column, the keys appear, the user names them. Each entry names the VALUE
+    and the COLUMN that value came from, so more than one annotation column
+    can define classes at once.
+ 2. `annotation_column` therefore becomes plural and is the same setting as
+    `location_column` -- one setting, one name.
+ 3. Remove "write random annotation column". When only one label is present,
+    the second class is a random selection of the NON-annotated images, and
+    the Classes dict is what says so.
+ 4. In the metadata basis the same dict offers the metadata columns (plate,
+    row, column, field, well) instead of user-defined annotation columns, and
+    replaces `location_column`, `positive_control` and `negative_control`
+    entirely.
+ 5. Downstream compatibility is the hard half, exactly as it was for the
+    training basis: spacr/io.py reads annotation_columns/annotation_values
+    today. Old settings CSVs must keep working -- translate the old keys into
+    the dict in one place (the normalize_settings pattern), never in each
+    reader.
+
+RENAMES AND DUPLICATES
+
+ 6. `png_type` -> "path string": a substring that must appear in each image's
+    path.
+ 7. `file_type` -> a dropdown of image file types, and its LOGIC becomes a
+    file-extension filter. It and `png_list` currently look identical; decide
+    which survives and retire the other with an alias.
+ 8. `size` and `image_size` are the same thing twice. Keep `image_size`.
+ 9. `save_to_db` -> "Save Results to DB", and it does not get a category of
+    its own.
+
+CROP SOURCE
+
+10. `crop_source` dropdown: PRE-GENERATED CROPS / ON-DEMAND CROPS / GENERATE
+    CROPS.
+11. Anything about pre-cut PNGs -- path filtering, path string, file type --
+    greys out unless pre-generated is chosen (greyed, never removed:
+    INVARIANTS 6).
+12. ON-DEMAND builds the training set from `merged`, where some arrays hold
+    objects and some hold intensity images. It needs new settings, and the
+    downstream logic to match, so that crops are ACTUALLY generated:
+      - which channels are intensity, which array holds the objects;
+      - optionally, coordinates from a database instead of masks -- but
+        merged-based masks are the DEFAULT;
+      - the coordinate columns, when a database is the source;
+      - bounding-box or object crops. Database-sourced objects can only ever
+        be bounding box, so the object option greys out there.
+
+CATEGORIES -- fewer, and named for what they hold
+
+13. First category: as it is, minus the MEASUREMENT basis. Annotation by
+    measurement is what the Gate Editor now does (instruction 31), so the
+    basis retires -- with the alias handling that any retired value needs.
+14. "Computer Vision Data Source": crop source, image size, extract channel
+    (on demand), object array (on demand), file type (pre-generated), path
+    string (pre-generated), train channels.
+15. Model architecture: clicking a model TESTS whether it is compatible with
+    spaCR and with the chosen class structure. No `custom_model` boolean -- a
+    custom model path that loads supersedes `model_type` and is the model
+    used. Train channels and image size move OUT, to item 14.
+16. Normalization: work out what `normalize` currently does, then offer real
+    transforms -- ImageNet's among them -- and let the user say whether
+    normalisation is per batch or per image. A dropdown with a custom option.
+17. New category "Computer Vision Optimization and Regularization": use
+    checkpointing, dropout, weight decay.
+18. New category "Computer Vision Training": epochs, loss type, and
+    everything else about training and loss.
+19. `augment` belongs in Dataset.
+20. Give the CV family the heatmap that ML has, and make that category COMMON
+    to both families.
+21. Merge "Machine Learning Feature Selection and Importance" into the
+    feature-preparation category, under a name that fits the result.
+22. Then go through EVERY category name in the module and reduce them to a
+    smaller, better-named set. This is the item that makes the rest coherent;
+    do it last, when the contents are known.
+23. Throughout: a setting that cannot apply because of another setting's value
+    is GREYED, not hidden and not removed.
+
+--------------------------------------------------------------------------------
+NOTES FOR WHOEVER PICKS THIS UP
+--------------------------------------------------------------------------------
+
+This is large. It splits cleanly into four commits that can each be finished
+and tested on their own:
+
+  A. Classes dict + annotation/location unification + retiring the random
+     annotation column and the measurement basis. (The riskiest: it changes
+     what a run TRAINS ON, so the old-settings translation needs tests that
+     assert an old CSV produces the same dataset as before.)
+  B. Renames and duplicates (items 6-9). Mechanical, but every rename needs an
+     alias and DEAD_SETTINGS has a guard that will refuse a key that still has
+     a reader -- that guard is right; find the reader.
+  C. Crop source and the on-demand generator (items 10-12). The only item here
+     that writes new pipeline code rather than rearranging settings, and the
+     one where "make sure the crops are actually generated" means an
+     end-to-end test, not a unit test.
+  D. Categories (items 13-23).
+
+Do A before D: the categories cannot be finalised until the settings they hold
+have their final names.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * A settings CSV written BEFORE this trains on the same objects afterwards.
+    The test asserts the resulting dataset, not that the keys translated --
+    the failure mode is a silently different training set, which a key-level
+    test would pass straight through.
+  * Setting one annotation column populates the Classes dict with that
+    column's values; setting a second adds its values alongside, each
+    remembering which column it came from.
+  * Annotating one class and leaving the rest blank yields a second class of
+    randomly chosen non-annotated images, with no separate button pressed.
+  * Choosing the metadata basis offers plate/row/column/field/well in the same
+    dict, and location column / positive control / negative control are gone
+    rather than ignored.
+  * Choosing ON-DEMAND crops and running training produces actual crops on
+    disk from `merged` -- checked end to end, because "the crops are actually
+    generated" is the requirement and a unit test on the settings cannot see
+    it. Same for the database-coordinate source, where only bounding-box crops
+    are offered.
+  * Selecting pre-generated crops greys the on-demand settings and vice versa;
+    every greyed control keeps its value (INVARIANTS 6).
+  * A custom model path that loads is the model used, with no boolean set, and
+    `model_type` is visibly superseded rather than silently ignored.
+  * Clicking a model reports whether it is compatible with the chosen class
+    structure, including for a class structure the model cannot serve.
+  * `size`, `png_type` and the duplicate of `file_type`/`png_list` no longer
+    appear anywhere in the UI, and an old CSV containing them still runs.
+  * The category list is shorter than it is today, and every name says what is
+    in it.
+
+--------------------------------------------------------------------------------
+PROGRESS
+--------------------------------------------------------------------------------
+
+2026-08-07, commit 98ae880c -- item 1-5 (Classes) and part of 6/8 done:
+
+  * spacr/classify_classes.py: Classes as a dict of name -> (column, value),
+    with the random complement replacing write_random_annotation_column and
+    metadata mode offering plate/row/column/field/well. 26 tests, Qt-free.
+  * Old settings translate in normalize_settings; the tests assert the
+    OBJECTS SELECTED rather than the keys, because a key-level test would
+    pass a silently different training set straight through.
+  * Aliases: png_type -> path_string, size -> image_size. io.py reads the new
+    names directly (it is called on its own as well as through classify()).
+  * classify() runs both translations.
+
+STILL TO DO: the GUI dict widget that populates keys from the chosen column;
+file_type as an extension filter (item 7); crop source dropdown and ON-DEMAND
+CROP GENERATION (items 10-12, the only part that writes new pipeline code);
+model compatibility test and the custom-model-supersedes rule (item 15);
+normalization transforms (16); and the whole category overhaul (13-23).
+
+NOTE: png_type/size are ALIASES, not dead settings, so they stay in
+`categories` for now. Moving them into DEAD_SETTINGS is part of the category
+work, and test_dead_settings will refuse any key that still has a reader --
+find the reader rather than the guard.
+
+NOTE: tests/test_settings_categories.py has FOUR failures on the clean tree
+(two timelapse, two from cross-file settings-registration leakage,
+INVARIANTS 5). They are not caused by this work; do not read them as
+regressions when doing the category items.
+
+--------------------------------------------------------------------------------
+THE CATEGORY OVERHAUL WAS ATTEMPTED AND REVERTED -- 2026-08-07
+--------------------------------------------------------------------------------
+
+Items 13-23 were attempted in one pass and backed out. Not because the design
+is wrong, but because `categories` is ONE map shared by every module, so
+regrouping Classify moves keys that other panels read, and
+tests/test_settings_categories.py rejected it on nine counts at once. Shipping
+it half-done would have left keys ungrouped ("Other" sections in Qt, pinned to
+the top in Tk) and duplicates silently dropped.
+
+What the next attempt has to handle, all of it found by that test:
+
+  * DUPLICATES. A key may appear in exactly one category. `normalize` is
+    already in "General"; `heatmap_feature` / `grouping` / `min_max` / `cmap`
+    and the feature-selection keys are already in ML/Regression categories.
+    Moving one means REMOVING it from the other in the same edit.
+  * UNDECLARED KEYS. `path_string` and `crop_source` must exist in
+    expected_types and have a default before they can be categorised.
+  * SECTION HINTS. Every category needs an entry in the Qt section-hint map,
+    and every hint must name a real category. Both directions are tested.
+  * MODULE EXPECTATIONS. Two tests name categories by string literal --
+    test_the_model_a_module_runs_is_filed_under_model_training and
+    test_the_cv_dataset_class_keys_are_grouped_with_the_dataset. Renaming
+    "Model Training" or "Training Dataset" means updating those with the
+    reason, not deleting them.
+  * WORKFLOW ORDER. test_requested_modules_use_workflow_ordered_categories
+    pins the ORDER categories appear in per module.
+
+Do it as its own commit, with nothing else in it, and run
+tests/test_settings_categories.py after every individual category rather than
+at the end -- the failures are much easier to read one at a time.
+
+BASELINE: that file has FOUR failures on a clean tree (two timelapse, two from
+cross-file registration leakage). Confirm those four before starting so they
+are not mistaken for damage.
+
+The proposed grouping, which survived review and is worth reusing:
+  Training Classes / Computer Vision Data Source / Computer Vision Model /
+  Computer Vision Training / Computer Vision Optimization and Regularization /
+  Model Evaluation (shared, holds the heatmap and Save Results to DB) /
+  Machine Learning Model and Features (feature prep + importance merged).
+
+--------------------------------------------------------------------------------
+PROGRESS -- 2026-08-07: items 1-11 and 13-23 done
+--------------------------------------------------------------------------------
+
+DONE since the last note (5884e719, 718abf1a, and the model check):
+
+  * The CATEGORY OVERHAUL, properly this time. Training Classes / Computer
+    Vision Data Source / Computer Vision Model / Computer Vision Training /
+    Computer Vision Optimization and Regularization / Model Evaluation
+    (shared, holds Save Results to DB) / Machine Learning Model and Features.
+    All nine of the guard's objections fixed rather than worked around.
+  * png_type, size and write_random_annotation_column are NOT dead settings --
+    each still has a reader, so they are ALIASES. They stop being offered
+    (their defaults are gone) and stay in `categories` so the map stays whole.
+  * spacr/crop_source.py: pre_generated / on_demand / generate, file_type as a
+    real extension filter, on-demand cutting from merged (bounding box or
+    object), coordinates from a database (bounding box only, refused with the
+    reason otherwise). classify() validates before dispatching.
+  * spacr/model_check.py: clicking a model checks it can be loaded, takes this
+    dataset's channels, and produces the right number of classes. A custom
+    path that loads supersedes model_type; no boolean is consulted.
+  * Normalization settings declared: imagenet / dataset / percentile / none /
+    custom, scoped per image / batch / dataset.
+
+STILL OPEN -- two things, both real:
+
+  1. THE ON-DEMAND CROPS ARE NOT YET CUT BY THE DATASET BUILDER. crop_source.py
+     can cut them and is tested doing so; classify() refuses a setup that
+     cannot work. What is missing is the call FROM io.py's dataset builder:
+     today it still reads pre-generated crops whatever crop_source says. Item
+     12's "make sure the crops are actually generated" is therefore NOT met.
+     The wiring point is the dataset-building path in spacr/io.py, and it
+     needs an end-to-end test that asserts crops on disk, not a unit test.
+  2. THE CLASSES DICT HAS NO GUI WIDGET. The model, the translation and the
+     downstream logic are done and tested (spacr/classify_classes.py); what is
+     missing is the panel control that populates keys from the chosen column
+     and lets the user name them. Until then the dict is editable only as
+     text.
+
+--------------------------------------------------------------------------------
+PROGRESS -- 2026-08-07 (final pass of this session), commit 30500970
+--------------------------------------------------------------------------------
+
+DONE since the last note:
+
+  * THE CLASSES EDITOR (spacr/qt/widgets/class_editor.py). Pick a column, its
+    distinct values become rows, the user names them. A second column adds to
+    the table. "Add random rest" is a row. Registered as the widget for the
+    `classes` key in settings_model, so the panel builds it instead of a text
+    box. 18 tests.
+  * location_column / positive_control / negative_control REMOVED from
+    set_default_classify, so the merged module no longer offers them. Classify
+    (ML) alone keeps them; an old CSV still trains on the same wells because
+    normalize_settings turns them into class rules first.
+  * The PANEL grouping merged from nine to six. This is the map the Classify
+    screen actually renders (_CLASSIFY ordering in settings_model.py) --
+    separate from spacr.settings.categories, and the one the user sees. The
+    heatmap moved into the shared evaluation group.
+
+STILL OPEN -- ONE thing, and it is the one that writes pipeline code:
+
+  THE DATASET BUILDER STILL DOES NOT CALL THE ON-DEMAND CUTTER.
+  spacr/crop_source.py can cut crops from merged (bounding box or object,
+  masks or database coordinates) and is tested doing so; classify() refuses a
+  setup that cannot work. What is missing is the call FROM io.py's dataset
+  builder: today it reads pre-generated crops whatever crop_source says, so
+  choosing `on_demand` validates and then trains on pre-cut PNGs.
+
+  Wiring point: the dataset-building path in spacr/io.py (the helpers around
+  `_load_png_table` / the training-dataset builders). It needs an END-TO-END
+  test that asserts crops exist and have the right shape and channel count --
+  a unit test on crop_source cannot see whether the builder called it.
+
+  Everything it needs already exists: crop_source.validate(),
+  crops_from_merged(), crop_at(), and mask_plane_for() which reads the
+  `*_mask_dim` settings the mask step writes.
+
+--------------------------------------------------------------------------------
+A NOTE ON EDITING settings_model.py's CATEGORY_TOOLTIPS
+--------------------------------------------------------------------------------
+
+Do NOT remove entries with a regex. The values are implicitly-concatenated
+multi-line strings, and a pattern that matches the key line leaves the
+continuation lines behind as bare strings inside a dict literal -- a
+SyntaxError several hundred lines away from the edit. It happened three times
+in this session. Match the exact block, or delete by line range after locating
+the next key.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE CLASSES DICT IS OVERCOMPLICATED. THIS SUPERSEDES IT.
+--------------------------------------------------------------------------------
+
+Requested 2026-08-09, and it REPLACES the "Classes setting should be a
+dictionary" design at the top of this file rather than adding to it:
+
+  "in classify the clases dict seems overly complicated. i just need a
+   column to apply the key and value to
+
+   so on field for column (or columns, the user might want to add multiple
+   columns here), and then 2 fields side by side that are for class and
+   value then by the side of that a add button then the user jsut adds
+   classes and what their values are in the column, easy! if there are
+   several columns given and the same value occurs in several columns as is
+   often the case, then a combination column is generated that generates a
+   unique label for each combination of lables from the given columns."
+
+THE EDITOR, concretely:
+
+    Column(s):  [ column picker, multi-select ]
+
+    Class: [____]   Value: [____]   [ Add ]
+
+    then a list of the rows added, each removable.
+
+So the user says "class `infected` is value `1`" and "class `uninfected`
+is value `0`", and that is the whole interaction. No dict to populate, no
+keys appearing when a column is chosen.
+
+THE COMBINATION RULE is the part with real logic in it. When SEVERAL
+columns are given and the same value appears in more than one -- which the
+maintainer says is common -- a combination column is generated, giving each
+distinct COMBINATION of labels its own unique class. Decide and write down:
+
+  * what the generated label looks like (``colA=1|colB=2``, or the class
+    names joined, or an index), because it ends up in the database and in
+    figures;
+  * whether combinations the user never named become a class, are dropped,
+    or are an error. Dropping silently would lose objects with no trace,
+    which is the failure mode this module already has elsewhere;
+  * where the generated column is written, and whether it persists or is
+    recomputed -- a column that appears in measurements.db after a classify
+    run is a schema change and needs to be deliberate.
+
+--------------------------------------------------------------------------------
+2026-08-09 - MERGE THE TWO SETTINGS THAT ASK THE SAME QUESTION
+--------------------------------------------------------------------------------
+
+  "in classify cant Annotation column and Metadata by Type be the same
+   setting, they fill the same function i think. if so merge them into one
+   setting."
+
+CHECK BEFORE MERGING, since "I think" is doing work in that sentence.
+`annotation_column` names a column of `png_list` holding manual calls;
+`metadata_type_by` names the metadata column the training basis splits on
+(normally `columnID`). They are both "which column carries the label", and
+if the merged editor above takes a column picker then it may genuinely be
+one setting -- but they are read by different code paths today
+(`resolve_basis` in spacr/training_basis.py chooses between them). Read
+both paths, then either merge them or record here why they cannot be.
+
+--------------------------------------------------------------------------------
+2026-08-09 - REMOVE SETTINGS THAT NEVER CHANGE
+--------------------------------------------------------------------------------
+
+  "look at all settings, some of them esspecially settings in imaging and
+   cropping are will not be used very often. Take a look at each setting,
+   if the setting dosnt really add much and esspecially settings that will
+   allways be the same, remove them to streamline the modual, too many
+   settings is just confusing."
+
+Method, so this is a judgement made once rather than argued repeatedly:
+
+  1. List every setting the Classify screen offers, by category. Imaging &
+     Cropping first, as named.
+  2. For each, find its default and ask what a user would ever set it TO.
+     A setting whose default is correct for every real run is not a choice,
+     it is a constant with a text box in front of it.
+  3. Removing is not deleting the key: INVARIANTS 6 -- hidden is not
+     absent. A removed setting keeps its value in `resolve_default_settings`
+     and stops being rendered, so old settings CSVs keep working.
+  4. Say in this file which ones went and why. A future reader will ask.
+
+Note instruction 61 measured 700 tooltips and found seven settings that no
+module reads at all; that same sweep is the natural place to check whether
+a Classify setting is inert before deciding it is merely rarely used.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE `classes` ROUND-TRIP, MEASURED. IT IS NOT A DATA-LOSS BUG.
+--------------------------------------------------------------------------------
+
+`tests/qt/test_settings_list_editor.py::test_every_default_round_trips_
+untouched[classify]` has been failing since commit 30500970 turned `classes`
+from `['nc','pc']` into a dict of name -> {column, value}. The triage called
+it "migrate the product default, not the test". Measured before doing that,
+and the picture is more constrained than it looked:
+
+  normalize_settings(['nc','pc'])                  -> class_names ['nc','pc']
+  normalize_settings({'nc': {...}, 'pc': {...}})   -> class_names ['nc','pc']
+
+`class_names` is what `deep_spacr` and the evaluation code actually read, and
+it is IDENTICAL either way. So merely opening the Classify screen and saving
+does not change what gets trained. The failing assertion is about the stored
+SHAPE, not about behaviour.
+
+THREE CONSTRAINTS THAT RULE OUT THE OBVIOUS FIX:
+
+  1. The Tk GUI expects a LIST. `gui_elements.py:5879` does
+     `str(defaults.get('classes', ['nc','pc']))` and `:6183` parses it back
+     with `_parse_list_literal`. spaCR ships both front ends, so changing the
+     default to a dict breaks the Tk path.
+  2. `normalize_settings` translates only `if not isinstance(raw, Mapping)`.
+     A dict default -- including `{}` -- SKIPS the legacy translation, so a
+     default of `{}` would silently mean "no classes" rather than "not set".
+  3. The migration fills `column='?'`, a deliberate "you must fill this in"
+     marker. Shipping that as a default puts a non-column in every fresh
+     settings CSV.
+
+SO THE HONEST FIX IS NOT THE DEFAULT. It is that the panel should not
+REWRITE a setting the user never touched: `collect()` should return the value
+it was given when nothing was edited. That keeps the Tk GUI working, keeps
+the legacy translation reachable, and satisfies the invariant the test is
+actually defending -- opening a screen and saving must not rewrite your
+settings file.
+
+That is a change to the collect path, not a one-line default swap, which is
+why it is still here rather than done. It belongs in this instruction rather
+than 47: 47's scope was "make the suite finish", and this is the classify
+settings design.
+
+NOT A BLOCKER FOR ANYTHING. The test is red, the behaviour is correct, and
+the reason is now written down.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE CLASS SELECTOR, DECIDED. TWO FIELDS, TWO BUBBLES, ONE SHAPE.
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-10 — "I want the class selection in classify to be simplified and standardized between the metadata mode and the annotate mode. i want fields like in class metadata but 2 fields next to each other with class then value class generating a teal bubble and the value generating a green bubble i dont care about the dict i just thought it was a good idea to consolidate the information into one object."
+
+WHAT TO BUILD
+
+  The chip/bubble editor that `class_metadata` already uses, but with TWO
+  fields side by side: CLASS then VALUE. Entering a class name emits a TEAL
+  bubble; entering its value emits a GREEN bubble. Same widget, same gesture,
+  in BOTH training bases -- metadata mode and annotation mode -- so a user
+  learns it once.
+
+  The dict is not the point and was never the requirement: "i dont care about
+  the dict i just thought it was a good idea to consolidate the information
+  into one object." So the storage shape is free to be whatever serves the
+  two-field editor. Do not preserve the current
+  `{name: {column, value, random_complement}}` shape out of loyalty to it --
+  preserve only what the pipeline actually reads.
+
+WHAT THIS SETTLES, and it reverses a recommendation recorded above. The entry
+dated earlier today argued against migrating the `classes` default BECAUSE
+`gui_elements.py:5879` parses it as a list and changing it would break the Tk
+GUI. That reasoning is now void:
+
+    "in the future if there is something that is a change that will break the
+     Tk legacy application, then implement the fix anyway and change the
+     legacy code to accomodate the new code."
+
+So: make the change, then update every Tk reader in the same commit.
+`gui_elements.py:5879` (the entry's initial value) and `:6183`
+(`_parse_list_literal` on the way back) are the two known ones; grep the
+`gui_*` modules for `classes` before assuming they are the only ones.
+
+WHAT MUST STILL HOLD
+
+  * `class_names` is what `deep_spacr` and the evaluation code read. Whatever
+    the editor stores, that list must come out the same, in order.
+  * `normalize_settings` translates the legacy list ONCE and only when the
+    value is not a Mapping -- so if the new shape is a Mapping, the legacy
+    path must be reached some other way or old settings files stop loading.
+    This is the trap that makes a default of `{}` mean "no classes" rather
+    than "not set".
+  * `test_every_default_round_trips_untouched[classify]` is currently RED
+    because opening the screen rewrites the setting. Whatever shape is
+    chosen, the default must round-trip through the panel unchanged -- that
+    invariant is what stops opening a screen and saving from rewriting a
+    user's settings file.
+  * The random-complement row ("everything not claimed, chosen at random")
+    is a real feature of the current editor. Keep it or replace it
+    deliberately; do not lose it in the simplification.
+
+COLOURS: teal and green must come from the palette, not literals, or they
+will not survive a theme change -- and the contrast rules in `theme.py` apply
+to bubble text as much as to anything else.
+
+--------------------------------------------------------------------------------
+2026-08-11 - THE STALE DEFAULT, WITH A TEST NOW POINTING AT IT
+--------------------------------------------------------------------------------
+
+The remaining scope of this instruction has a concrete, reproducible symptom.
+`tests/qt/test_settings_list_editor.py::test_every_default_round_trips_untouched
+[classify]` fails, and it is right to:
+
+    default  (spacr/settings.py:1238)   ['nc', 'pc']
+    collected                           {'nc': {'column': '?', 'value': None},
+                                         'pc': {'column': '?', 'value': None}}
+
+Neither side is wrong on its own. 98ae880c changed `classes` from a list of
+names to a dict of name -> {column, value}, and `ClassEditor.set_value`
+MIGRATES the old shape on purpose: a bare list becomes rows with column '?'
+and no value, so the user sees what still has to be filled in rather than an
+empty table. What did not move with it is the shipped default, which is still
+the list -- and `expected_types["classes"]` still says `list`, and the
+tooltip at settings.py:2758 still opens "(list) - Ordered class names".
+
+WHY IT WAS NOT FIXED IN PASSING. Deciding what `classes` defaults to in the
+new shape is a real decision, not a spelling change. `{'nc': {'column': '?',
+...}}` is what the migration produces, but '?' is a placeholder meaning
+"unset" and shipping it as a DEFAULT states it differently. And the answer
+has to hold at four more sites than the default itself:
+
+    spacr/settings.py     expected_types['classes'] = list
+    spacr/settings.py     the tooltip, which announces the type
+    spacr/validate.py     whatever pre-flight checks the shape
+    spacr/cli.py          --set classes=... parsing
+    the Tk screen         which per the standing rule must be changed to fit
+                          the new code rather than holding it back
+
+MARKED, NOT SILENCED. The test now xfails with the drift printed in the
+reason, so CI is honest instead of noisy, and the day this instruction lands
+it fails as XPASS and says to remove the mark. A red test nobody can act on
+is how the rest of the suite stops being read -- see instruction 43.
+
+--------------------------------------------------------------------------------
+2026-08-12 - THE `classes` SHAPE, SETTLED: ONE KEY WAS CARRYING TWO CONTRACTS
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-12 - "cant we just change the class foder names to
+           class_folder_names if thats all it is?"
+
+That is the answer, and finding out whether it WAS all it is turned out to be
+the useful part. `classes` was carrying two unrelated meanings:
+
+  * the shipped tooltip and the training code -- "Each must exactly match a
+    subfolder under src/train and src/test; a name's position in this list
+    becomes its integer label ... Generate Training Dataset overwrites this
+    with the class names it actually wrote to disk". An ordered list.
+  * since 98ae880c, the Classes editor -- `name -> {column, value}`, which
+    OBJECTS belong to each class.
+
+They are usually the same words, which is exactly why the collision went
+unnoticed, and it is why the default was undecidable: `{}` is wrong for the
+first reading and `['nc','pc']` is wrong for the second.
+
+NOT ONLY A TOOLTIP. Eight sites in `deep_spacr` read `settings['classes']`
+and pass it as `classes=` into `generate_loaders` / `evaluate_predictions` /
+`save_top_class_examples`, all meaning the folder names, and `io.py:6685`
+overwrote the key with the folder listing it had just written -- discarding
+whatever columns and values the user had set.
+
+WHAT LANDED
+
+    classes             {}            the DEFINITIONS. Empty means no class
+                                      is defined yet, which is what an
+                                      untouched editor produces and collects
+                                      back unchanged.
+    class_folder_names  ['nc','pc']   the ordered TRAINING FOLDER names.
+
+`classify_classes.folder_names()` is the single reader, and everything goes
+through it: `deep_spacr._class_folder_names`, `normalize_settings` (which
+now writes `class_folder_names`, and `class_names` beside it for the older
+spelling -- both from the same call, so they cannot disagree), the two
+derivation helpers when naming rules they rebuilt, `io`'s write-back, the Tk
+Generate-Training-Dataset form, the CLI help and the merged-panel group.
+
+THE PRECEDENCE, which took two wrong answers to get right. THE SHAPE OF
+`classes` SAYS WHICH FILE THIS IS:
+
+  * `classes` is a LIST -> pre-split file, and it IS the folder list. It
+    wins, INCLUDING WHEN EMPTY.
+  * `classes` is a dict or absent -> post-split file, `class_folder_names`
+    is the answer.
+
+After dataset generation succeeds, the generated folder names are recorded
+under `class_folder_names` and a legacy list-shaped `classes` entry is removed.
+Otherwise that stale legacy list would win again during the immediate training
+handoff and make a newly generated c1/c2 tree look for the old nc/pc folders.
+An explicitly empty `class_folder_names=[]` remains an explicit request for no
+training folders; absence alone falls back to the names of defined classes.
+
+The first two attempts had `class_folder_names` winning, and both broke real
+behaviour, because THE DEFAULTS FACTORIES INJECT THAT KEY INTO EVERY SETTINGS
+DICT THEY TOUCH. So the new key was always present and always won:
+
+  * `classes=['only']` trained on 2 classes, not 1, and the loss silently
+    resolved to cross-entropy instead of binary_cross_entropy_with_logits.
+  * `classes=[]` -- a caller disabling the run -- stopped raising and trained
+    on ['nc','pc'] instead.
+
+Every settings file in existence would have silently retrained on nc/pc,
+which is the exact opposite of the point. Both cases are now named tests.
+
+TWO MORE THINGS FIXED ON THE WAY
+
+  * `class_rules` refused a list-shaped `classes` with "run normalize_settings
+    first". The shipped defaults reach it HAVING been normalized -- with no
+    basis to derive from, `normalize_settings` deliberately leaves the names
+    alone rather than guessing -- so the message sent the user to do the one
+    thing they had just done, and said nothing about the missing column.
+  * `normalize_settings` tested `isinstance(raw, Mapping)` to decide whether
+    to derive. An empty dict is a Mapping, so the moment the default became
+    `{}` a plate carrying the retired `location_column` / control keys would
+    have skipped derivation and trained on no classes at all, silently.
+    Empty now means undefined whichever shape it is empty in.
+
+`test_every_default_round_trips_untouched[classify]` passes and its xfail
+mark is removed, as its own note asked. That invariant -- opening a screen
+and saving must not rewrite the user's settings file -- is what the stale
+default was breaking.
+
+STILL OPEN IN THIS FILE: the class-selector redesign (the bubble/teal-green
+UI work described above). The shape question that blocked it is answered.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE SELECTOR IS THE TWO-FIELD BUBBLE EDITOR. 37 IS COMPLETE.
+--------------------------------------------------------------------------------
+
+"2 fields next to each other with class then value class generating a teal
+bubble and the value generating a green bubble."
+
+WHAT LANDED. `ClassEditorWidget` grew a CLASS field and a VALUE field side by
+side, and a `ClassChip` that draws the pair as one object: a teal pill for the
+name, a green pill for the value, the source column in muted text, and one
+remove button for the pair. Enter in either field adds the class; the fields
+clear and focus returns to the first, so a second class is two words and a
+keystroke. The bulk path ("Add values" from a column) produces the same chips,
+so there is one object on screen however a class got there.
+
+THE SAME IN BOTH BASES, which was the actual request -- "simplified and
+standardized between the metadata mode and the annotate mode". Only the
+COLUMNS the picker offers differ (plate/row/column/field/well under metadata,
+the table's own annotation columns otherwise). The gesture is identical, so it
+is learned once.
+
+THE RANDOM COMPLEMENT SURVIVES and shows ONE bubble, not two: there is no
+value to put in the green half, so the green half says "the rest, at random"
+instead of inventing one.
+
+COLOURS ARE PALETTE ROLES, `chip_class` and `chip_value`, added to all five
+palettes. Not literals at the call site, and named for what they MEAN rather
+than for the colour, so a retheme can move them. A test asserts the widget
+contains no hex literal at all and that every palette defines both -- a
+missing role is a KeyError at paint time in one theme only, which is the
+worst way to find out.
+
+THE TABLE IS KEPT, HIDDEN. Every existing test and integration reads
+`self.table`, and removing it would be a second change riding on this one. It
+is still the surface that edits a name.
+
+TK UPDATED TO FIT, per the standing rule. `gui_elements`'s comma-separated
+`listy` set still had `classes` in it, which since the class/folder split
+means splitting a DICT on commas into fragments the pipeline then refuses.
+Replaced with `class_folder_names`, which is the list that used to live under
+that name.
+
+31 tests in tests/test_class_editor.py, 81 palette-consumer tests, 136 across
+the class, classify and Tk suites.
+
+STILL OPEN IN THIS FILE: nothing. The shape question was answered 2026-08-12
+and the selector is built.
