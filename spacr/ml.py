@@ -4431,6 +4431,18 @@ def ml_analysis(
         labels for ``control_center``.
     :param batch_control_values: negative/reference control value(s).
     :param batch_min_samples: minimum rows or controls per plate.
+    :param batch_covariate_column: metadata column naming the BIOLOGY the
+        correction must protect -- treatment, cell line, timepoint. Only
+        ``combat`` uses it, and for combat it is not optional: the covariate
+        coefficients are kept while the batch ones are subtracted, so a
+        contrast left out of the design lands in the batch term and is
+        removed along with it. Omitting it is how a real effect gets
+        "corrected" away.
+    :param batch_combat_mean_only: adjust each batch's MEAN and leave its
+        variance alone. Use it when a plate is shifted but not differently
+        scaled, or when a batch has too few rows for a stable variance
+        estimate -- the shrunken scale term is the part that goes wrong on
+        small batches. Default False, which adjusts both.
     :param batch_missing_control: ``error`` or ``skip`` for missing controls.
     :returns: Tuple ``(output, figs)`` where ``output`` is a positional
         tuple of ``(scored_df, permutation_df, feature_importance_df,
