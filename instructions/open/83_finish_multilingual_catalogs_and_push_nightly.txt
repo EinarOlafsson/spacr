@@ -109,12 +109,21 @@ blocks. It stopped red before runtime, as required: reused 21,655 blocks,
 generated 134, admitted 60 reviewed records and one exact cache value, decoded
 73 candidates, relaid 2 symbols, and left 46 exact/copy/ordinary-English
 blocks (42 contextual false-friend hits and 40 contextual-source failures).
-The first 16 blocks of this fresh tail are now preserved in
-``2026-08-12-tail-current-000-015.json`` (SHA-256 ``a09ae523...``); all 16
-pass exact current source/context/hash, syntax, canonical, and contextual
-checks. Thirty Portuguese blocks remain for review, followed by a fresh strict
-run. The nine dirty target API JSONs remain failed-run artifacts and are not
-part of this checkpoint.
+All 46 blocks of this fresh tail are now preserved in three files covering
+indices 0–15, 16–30, and 31–45 (SHA-256 prefixes ``a09ae523``, ``7a3d474b``,
+and ``d53a6e4b``). Every record passes exact current source/context/hash,
+syntax, canonical, and contextual checks. The next strict API invocation
+admitted all 46 reviewed values without model decoding and exited zero:
+``verified API catalogs: languages=1 symbols=6357``. The green Portuguese API
+catalog SHA-256 is ``b7edcf69...`` and its run log is ``e420cc2b...``.
+
+Portuguese runtime then stopped red, as required, and is not promoted. It
+found 263 setting-tooltip, 8 category-help, and 20 UI contextual failures;
+246 of those setting tooltips remained exact English. Its log SHA-256 is
+``05013029...``. The generated ``spacr/qt/i18n_catalogs/pt.py`` is therefore a
+failed-run artifact and must remain excluded until that runtime tail is
+resolved. The other eight dirty target API JSONs likewise remain stale or
+partial and are not part of this checkpoint.
 
 The saved-output adjacency replay now accepts
 37 current and 38 compact XML variants (75 total) with no observed losses.
@@ -151,10 +160,11 @@ WHAT TO DO NEXT
 1. Before generation, freeze the committed English API manifest and exact
    extractor count together with the runtime-English and two builder
    identities. Do not generate against a dirty or moving public-docstring set.
-2. Continue from the fresh Portuguese 46-block tail, not old-v2 indices
-   60–122. Sixteen current blocks are preserved and validated; review the
-   remaining 30, then rerun PT against an immutable 6,357-record freeze. Trust
-   that fresh strict audit before starting Portuguese runtime.
+2. Preserve the now-green Portuguese API catalog. Resolve its runtime tail
+   (263 setting tooltips, 8 category helps, and 20 UI strings failing current
+   contextual gates; 246 tooltip values still exact English), then rerun the
+   runtime builder against the same immutable 6,357-record freeze. Do not
+   promote the current red ``pt.py``.
 3. Resolve Korean's fresh hard tail with target-language review or a separately
    admitted, licensed model. Do not use the rejected OPUS Korean checkpoint;
    retain M2M fail-closed until every surviving value is technically correct.
@@ -162,12 +172,12 @@ WHAT TO DO NEXT
    pt/es/de/sv/fr and M2M100 for ko/zh_CN/hi/is. Run strict copied-English,
    target-script, false-friend, syntax, layout, source-hash, OpenCC, loader,
    frontend, installer, Sphinx, and release checks against stable files.
-5. The nine dirty target API JSONs are stale/partial products of failed runs
-   and are intentionally excluded from this checkpoint; runtime catalogs have
-   not advanced. ``skill/FACTS.md`` is also excluded as stale generated shared-
-   worktree output. Regenerate COVERAGE and FACTS only after all 18 target
-   artifacts pass, then close this instruction and perform the final catalog
-   commit/push sequence.
+5. Portuguese API is the sole green generated target artifact at this
+   checkpoint. The other eight dirty target API JSONs and the red Portuguese
+   runtime catalog are intentionally excluded. ``skill/FACTS.md`` is also
+   excluded as stale generated shared-worktree output. Regenerate COVERAGE and
+   FACTS only after all 18 target artifacts pass, then close this instruction
+   and perform the final catalog commit/push sequence.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
