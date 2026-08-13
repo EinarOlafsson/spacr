@@ -150,3 +150,59 @@ STILL OPEN IN THIS FILE: the Qt picker that presents these groups, the
 tabs (features / hyperparameter), and making xD non-exclusive with 2D/3D.
 The hyperparameter tab has its engine already -- `spacr/hyperparam.py` and
 `HyperparamPanel` -- so that tab is wiring, not new machinery.
+
+--------------------------------------------------------------------------------
+2026-08-13 (later) - TWO DIAGNOSTICS, FROM starplast, AND ONE OF THEM HAD TO BE
+                     CHANGED TO CATCH spaCR's ACTUAL ARTEFACT
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "for 49 and 52 take inspiration from starplast
+           (/mnt/firecuda2/Claude/repo/starplast)"
+
+starplast built the same picker against a different table and learned two
+things worth not re-learning. Both are now in `spacr/merge_tables.py`:
+
+`group_variance_share(frame, {group: columns})`
+    How much of the projected variance each ticked group actually carries. It
+    catches a group named as an input and contributing nothing -- starplast
+    found one at 1.1% -- which nobody notices, because a projection ALWAYS
+    produces a picture. Describes the INPUT matrix, prepared exactly as
+    `reduce_dimensions` prepares it, so it is valid for UMAP and t-SNE too;
+    those have no loadings to inspect but they see this same matrix.
+
+`missingness_leak(components, frame, columns)`
+    Does "was this object measured" predict where it landed?
+
+THE SECOND ONE IS WHERE THE PORT STOPPED BEING A PORT. starplast reports a
+CENTROID GAP -- how far apart the measured and unmeasured objects sit, in map
+radii. Measured on a synthetic spaCR table with twelve pathogen columns and
+35% uninfected cells:
+
+    centroid gap        0.057 radii     <- essentially nothing
+    dispersion ratio    0.105           <- the artefact
+
+THE CENTROID STATISTIC ALONE WOULD HAVE MISSED IT. `reduce_dimensions` fills
+gaps with the COLUMN MEDIAN, deliberately -- dropping the row instead loses
+every measurement the object did have. But a median fill puts the uninfected
+cells in the MIDDLE of the infected ones, not away from them, so the two
+centroids nearly coincide while the uninfected collapse onto a single point
+and keep a tenth of the spread. Displacement is starplast's artefact;
+COLLAPSE is spaCR's, and they need different statistics.
+
+Both are reported, with `severity` the worse of the two, and both artefacts
+are pinned by a test built from constructed coordinates rather than from a
+fitted reducer.
+
+WHY THIS MATTERS AND IS NOT A NICETY: a projection that splits infected from
+uninfected on the FACT of measurement is real, reproducible, and not a
+phenotype. It is exactly the kind of split someone would write up. The
+picker's whole risk is that reducing 400 columns buries the biology, and
+these two say which columns are driving the picture and whether the answer is
+an artefact.
+
+STILL OPEN IN THIS FILE: the Qt picker that presents the groups, the tabs
+(features / hyperparameter), making xD non-exclusive with 2D/3D, and
+surfacing these two diagnostics in that panel. Instruction 31's last item --
+the filter/search tabs -- waits on the hyperparameter tab here.
+
+15 tests; 75 pass across the diagnostics, merge_tables and column_groups.

@@ -796,3 +796,180 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
     # their row and get NaN, so the components can be added to the table
     # without silently dropping rows out from under every other column.
     return out.reindex(frame.index)
+
+
+# ---------------------------------------------------------------------------
+# Diagnostics: is the projection about what the user thinks it is about?
+# ---------------------------------------------------------------------------
+#
+# Both of these come from starplast, which built the same picker for a
+# different table and learned two things worth not re-learning:
+#
+#   * a group can be named as an input and contribute almost nothing --
+#     starplast caught one carrying 1.1% -- and nobody notices, because a
+#     projection always produces a picture;
+#   * a projection can separate objects on WHETHER THEY WERE MEASURED rather
+#     than on what was measured, and that reads as a phenotype.
+#
+# The second matters more in spaCR than it did there. A cell with no pathogen
+# has NaN for every pathogen measurement, and `reduce_dimensions` median-fills
+# rather than dropping the row -- deliberately, because dropping loses every
+# measurement the object DID have. But a median fill puts all the uninfected
+# cells at the same point on those axes, so an embedding can split infected
+# from uninfected on missingness alone. That split is real, reproducible, and
+# not a phenotype.
+
+def group_variance_share(frame: pd.DataFrame,
+                         groups: Dict[str, Sequence[str]], *,
+                         scale: bool = True,
+                         min_coverage: float = 0.5) -> pd.DataFrame:
+    """How much of the projected variance each group of columns carries.
+
+    Answers "I ticked morphology and intensity -- which one is the picture
+    about?". A group contributing 2% is a group the user believes is in the
+    projection and effectively is not.
+
+    Describes the INPUT matrix, prepared exactly as
+    :func:`reduce_dimensions` prepares it, so it is valid for every method
+    rather than only for PCA -- UMAP and t-SNE have no loadings to inspect,
+    but they see this same matrix.
+
+    :param groups: ``{group_name: columns}``. A column named by two groups is
+        counted in both, because it genuinely informs both -- shares
+        therefore need not sum to 1, and the frame says so in ``attrs``.
+    :param scale: standardise first, matching ``reduce_dimensions``. With it
+        off, a measurement whose numbers are larger dominates the share for
+        that reason alone -- which is the same trap the reducer's own
+        ``scale`` exists for.
+    :returns: a frame indexed by group with a ``share`` column and a
+        ``columns`` count, largest share first.
+    """
+    prepared, used = _prepared_matrix(frame, [c for cols in groups.values()
+                                              for c in cols],
+                                      scale=scale, min_coverage=min_coverage)
+    if prepared.empty:
+        return pd.DataFrame(columns=["share", "columns"])
+    variance = prepared.var(axis=0)
+    rows = {}
+    for name, columns in groups.items():
+        present = [c for c in columns if c in used]
+        rows[name] = (float(variance[present].sum()) if present else 0.0,
+                      len(present))
+    total = sum(value for value, _count in rows.values())
+    out = pd.DataFrame(
+        [{"group": name, "share": (value / total if total else 0.0),
+          "columns": count}
+         for name, (value, count) in rows.items()]).set_index("group")
+    out.attrs["overlapping"] = bool(
+        sum(len([c for c in cols if c in used]) for cols in groups.values())
+        > len(used))
+    return out.sort_values("share", ascending=False)
+
+
+def missingness_leak(components: pd.DataFrame, frame: pd.DataFrame,
+                     columns: Sequence[str], *,
+                     min_objects: int = 30) -> pd.DataFrame:
+    """Does "was this object measured" predict where it landed?
+
+    For each column, the objects that HAVE a value and the objects that do
+    not are compared by the distance between their centroids in the
+    projection, expressed in map radii so it is comparable across runs and
+    across methods.
+
+    A gap near 1 means the projection has separated the two groups about as
+    far as the map is wide -- on the fact of measurement, not on a
+    measurement. In spaCR that is usually infected against uninfected, and it
+    is exactly the kind of split a user would otherwise write up.
+
+    :param components: the reducer's output, indexed like ``frame``.
+    :param columns: the columns that went into the projection.
+    :param min_objects: skip a column unless both sides have at least this
+        many objects. A gap computed from four objects is noise, and
+        reporting it would bury the real ones.
+    :returns: one row per checked column, worst ``severity`` first. Empty --
+        WITH ITS COLUMNS -- when nothing was checkable, so a caller can sort
+        it without a KeyError.
+
+    TWO ARTEFACTS, NOT ONE, and this is where spaCR differs from the tool the
+    idea came from. Which one appears depends on how the gap was filled:
+
+    ``centroid_gap``
+        the missing objects sit SOMEWHERE ELSE. Near 1 means the projection
+        has moved them about as far as the map is wide.
+    ``dispersion_ratio``
+        the missing objects COLLAPSE. ``reduce_dimensions`` fills with the
+        column median, so every uninfected cell gets the SAME value on every
+        pathogen column and they land on one point. Near 0 means they have
+        no spread of their own.
+
+    Measured on a synthetic infected/uninfected table with twelve pathogen
+    columns, the median fill produced a centroid gap of 0.06 -- almost
+    nothing -- and a dispersion ratio of 0.11. THE CENTROID STATISTIC ALONE
+    WOULD HAVE MISSED IT, because a median fill puts the missing objects in
+    the middle of the present ones rather than away from them. Both are
+    reported, and ``severity`` is whichever is worse.
+    """
+    empty = pd.DataFrame(columns=["column", "missing_fraction", "centroid_gap",
+                                  "dispersion_ratio", "severity"])
+    axes = components.select_dtypes("number").dropna()
+    if axes.empty or axes.shape[1] < 2:
+        return empty
+    coords = axes.to_numpy(dtype=float)
+    radius = float(np.sqrt((((coords - coords.mean(axis=0)) ** 2).sum(axis=1)).mean()))
+    if not radius:
+        return empty
+
+    rows = []
+    for column in columns:
+        if column not in frame.columns:
+            continue
+        missing = frame.loc[axes.index, column].isna().to_numpy()
+        if missing.sum() < min_objects or (~missing).sum() < min_objects:
+            continue
+        gap = float(np.linalg.norm(
+            coords[missing].mean(axis=0) - coords[~missing].mean(axis=0)))
+        absent, present = _spread(coords[missing]), _spread(coords[~missing])
+        ratio = absent / present if present else 1.0
+        rows.append({"column": column,
+                     "missing_fraction": float(missing.mean()),
+                     "centroid_gap": gap / radius,
+                     "dispersion_ratio": ratio,
+                     "severity": max(gap / radius, 1.0 - min(ratio, 1.0))})
+    if not rows:
+        return empty
+    return pd.DataFrame(rows).sort_values("severity", ascending=False)
+
+
+def _spread(points) -> float:
+    """Root-mean-square distance of ``points`` from their own centroid."""
+    if len(points) == 0:
+        return 0.0
+    return float(np.sqrt((((points - points.mean(axis=0)) ** 2)
+                          .sum(axis=1)).mean()))
+
+
+def _prepared_matrix(frame: pd.DataFrame, columns: Sequence[str], *,
+                     scale: bool, min_coverage: float):
+    """The matrix :func:`reduce_dimensions` would build, and its columns.
+
+    Kept in step with the reducer on purpose: a diagnostic computed on a
+    differently-prepared matrix describes a projection nobody ran.
+    """
+    chosen = list(dict.fromkeys(c for c in columns if c in frame.columns))
+    if len(chosen) < 2:
+        return pd.DataFrame(), []
+    data = frame[chosen].apply(pd.to_numeric, errors="coerce")
+    coverage = data.notna().mean()
+    keep = [c for c in chosen if coverage.get(c, 0.0) >= min_coverage]
+    if len(keep) < 2:
+        return pd.DataFrame(), []
+    data = data[keep]
+    usable = data.fillna(data.median(numeric_only=True)).dropna(axis=1, how="any")
+    usable = usable.loc[data.notna().any(axis=1)]
+    if usable.shape[1] < 2 or len(usable) < 3:
+        return pd.DataFrame(), []
+    if scale:
+        centre = usable.mean(axis=0)
+        spread = usable.std(axis=0).replace(0.0, 1.0)
+        usable = (usable - centre) / spread
+    return usable, list(usable.columns)
