@@ -26,17 +26,19 @@ and reviewed contextual source.
 | 40–59 | `2026-08-12-tail-040-059.json` | `5b918fa17499a83eb53d88216f9b3e70de91b3ab5ca1f2750f76aed9da202068` |
 
 The next fresh strict run recovered all 60 original records and reduced the
-Portuguese hard tail to 46 unique blocks. The first 16 of that current tail
-were reviewed against the 6,357-record corpus and preserved separately:
+Portuguese hard tail to 46 unique blocks. All 46 current-tail blocks were then
+reviewed against the 6,357-record corpus and preserved separately:
 
 | Fresh-tail records | File | SHA-256 |
 |---:|---|---|
 | 0–15 | `2026-08-12-tail-current-000-015.json` | `a09ae523ee90de832c8bf10cfb5640f80a3efe1766ab1cf493fc09e88208431b` |
+| 16–30 | `2026-08-12-tail-current-016-030.json` | `7a3d474b45eca47703cd10294ecf8715f027955bfa482b409dd8543aa95db8e7` |
+| 31–45 | `2026-08-12-tail-current-031-045.json` | `d53a6e4bf530b945b79a56f59cd75d91c5fdc952ee32e63737880c2982a88e52` |
 
-All 16 pass the same source-hash, syntax, canonical, and contextual gates.
-They are evidence inputs only until another fresh strict generator run stamps
-accepted values into the generated catalog.
+All 46 pass the same source-hash, syntax, canonical, and contextual gates.
+The subsequent strict generator run admitted all 46 with zero model decoding
+and verified the complete 6,357-symbol Portuguese API catalog.
 
-The old-v2 indices 60–122 are historical only. The fresh strict audit is now
-authoritative: after the 16 records above, 30 current Portuguese blocks remain
-to review before the next fail-closed generator run.
+The old-v2 indices 60–122 are historical only. The fresh strict audit is
+authoritative and the Portuguese API tail is now closed; runtime localization
+remains a separate release gate.
