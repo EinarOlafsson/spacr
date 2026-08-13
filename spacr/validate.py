@@ -34,6 +34,8 @@ from __future__ import annotations
 import difflib
 import os
 import re
+import shutil
+import sys
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 from .object_roles import SEGMENTED_ROLES
@@ -326,6 +328,10 @@ class _Inventory:
     raw_evidence: str = ""
 
     raw_files: int = 0
+    #: Which of src / src/orig / src/consolidated the raw files were found
+    #: in. Recorded so the resource card can size them without repeating
+    #: the search.
+    raw_dir: str = ""
     fields: Optional[int] = None
     regex_used: str = ""
 
@@ -410,6 +416,7 @@ def _scan_raw_images(src: str, settings: Dict[str, Any], inv: _Inventory) -> Non
         found = [f for f in _listdir(directory) if f.lower().endswith(IMAGE_EXTENSIONS)]
         if found:
             names = found
+            inv.raw_dir = directory
             break
     inv.raw_files = len(names)
     if not names:
@@ -1561,6 +1568,294 @@ def _describe_workload(settings: Dict[str, Any], app: str,
     return ", ".join(parts)
 
 
+# ---------------------------------------------------------------------------
+# The resource half of the dry-run card
+# ---------------------------------------------------------------------------
+#
+# WHY THIS IS SEPARATE FROM describe_plan. The plan answers "what would this
+# do"; every number in it is a count of things that exist. This answers "can
+# this machine finish it", and every number in it is a projection. Mixing
+# them would let a projection be read with the confidence of a count.
+#
+# THE RULE THIS MODULE FOLLOWS THROUGHOUT, AND WHICH MATTERS MOST HERE: a
+# figure that cannot be derived is NAMED AND LEFT OUT, never guessed. A
+# fabricated RAM ceiling that a run then sails past is worse than no card,
+# because the user stopped watching.
+
+#: Directory entries stat'ed when sizing one folder. A plate can hold a
+#: million PNG crops; the card must not read them all to say the merged
+#: arrays are 60 GB.
+_SIZE_BUDGET = 20000
+
+#: Bytes held back from MemAvailable before dividing by the per-worker
+#: figure -- the interpreter, the GUI and the page cache all want some.
+#: Same reserve :mod:`spacr.benchmark` uses, and for the same reason.
+_MEM_RESERVE = 2 * 1024 ** 3
+
+
+def _fmt_bytes(n: Optional[float]) -> str:
+    """``1.4 GB`` for a byte count, ``unknown`` for ``None``."""
+    if n is None:
+        return "unknown"
+    value = float(n)
+    for unit in ("B", "KB", "MB", "GB"):
+        if value < 1024:
+            return f"{value:.0f} {unit}" if unit == "B" else f"{value:.1f} {unit}"
+        value /= 1024
+    return f"{value:.1f} TB"
+
+
+def _dir_bytes(directory: Optional[str],
+               suffixes: Tuple[str, ...] = ()) -> Tuple[int, int, bool]:
+    """Total size of the matching files directly in ``directory``.
+
+    Not recursive: every folder this is asked about holds one file per field
+    and no subtree. Recursing would walk into ``data/`` and its million
+    crops for no gain.
+
+    :returns: ``(total_bytes, files_counted, truncated)``. ``truncated`` says
+        the budget was hit, so the total is a FLOOR -- reported as ``at
+        least``, never as the answer.
+    """
+    names = _listdir(directory)
+    if suffixes:
+        names = [n for n in names if n.lower().endswith(suffixes)]
+    truncated = len(names) > _SIZE_BUDGET
+    total = 0
+    counted = 0
+    for name in sorted(names)[:_SIZE_BUDGET]:
+        try:
+            total += os.path.getsize(os.path.join(str(directory), name))
+            counted += 1
+        except OSError:
+            continue
+    return total, counted, truncated
+
+
+def _array_footprint(directory: Optional[str]) -> Optional[Tuple[Tuple[int, ...], str, int]]:
+    """``(shape, dtype, bytes)`` of one ``.npy`` in ``directory``, or None.
+
+    Memory-mapped, so the header is read and the pixels are not. This is the
+    single most useful number on the card: it is what ONE worker must hold,
+    and it is measured rather than assumed.
+    """
+    names = sorted(f for f in _listdir(directory) if f.endswith(".npy"))
+    if not names:
+        return None
+    import numpy as np  # local: keeps module import free of numpy's cost
+
+    for name in names[:3]:
+        try:
+            arr = np.load(os.path.join(str(directory), name), mmap_mode="r")
+        except (OSError, ValueError, EOFError):
+            continue
+        shape = tuple(int(x) for x in getattr(arr, "shape", ()))
+        if not shape:
+            continue
+        dtype = arr.dtype
+        return shape, str(dtype), int(np.prod(shape) * dtype.itemsize)
+    return None
+
+
+def _free_disk(path: Optional[str]) -> Optional[int]:
+    """Free bytes on the filesystem holding ``path``, walking up if needed."""
+    candidate = os.path.abspath(str(path or ""))
+    for _ in range(6):
+        try:
+            return int(shutil.disk_usage(candidate).free)
+        except OSError:
+            parent = os.path.dirname(candidate)
+            if parent == candidate:
+                return None
+            candidate = parent
+    return None
+
+
+def _gpu_line() -> Optional[str]:
+    """One line naming the CUDA device and its free memory, or None.
+
+    READ OUT OF ``sys.modules``, NEVER IMPORTED. This module's reason to
+    exist is that it stays light enough to run before anything heavy is
+    loaded, and ``test_validate_does_not_import_torch_or_cellpose`` enforces
+    that -- a lazy import inside this function would still be an import, and
+    would still cost seconds on a cluster node that only wanted its settings
+    checked. So the card reports the device when the process already has
+    torch, and says plainly that it did not look when it does not. Silence
+    would read as "no GPU", which is a different answer.
+    """
+    torch = sys.modules.get("torch")
+    if torch is None:
+        return ("not checked — torch is not loaded in this process, and "
+                "importing it to ask would cost more than the answer")
+    try:
+        if not torch.cuda.is_available():
+            return "no CUDA device — segmentation would run on the CPU"
+        index = torch.cuda.current_device()
+        name = torch.cuda.get_device_name(index)
+        free, total = torch.cuda.mem_get_info(index)
+    except Exception:
+        return None
+    return (f"{name}, {_fmt_bytes(free)} free of {_fmt_bytes(total)}. "
+            f"Cellpose tiles, so VRAM follows batch_size and not field size")
+
+
+def describe_resources(settings: Dict[str, Any], app_key: str = "") -> str:
+    """Project what the run would COST, without running it.
+
+    The second half of the dry-run card. :func:`describe_plan` says what
+    would happen; this says whether this machine can see it through, which
+    is the question that actually stops a run at three in the morning.
+
+    :param settings: the settings dict about to be handed to a pipeline.
+    :param app_key: which pipeline, as for :func:`validate_settings`.
+    :returns: the card as a single string, no trailing newline.
+
+    WHAT IS MEASURED, NOT GUESSED: the bytes already on disk, the shape and
+    dtype of one real array, the free memory, and the free space on the
+    volume that would be written to. Every one is read off the machine.
+
+    WHAT IS DERIVED, AND SAID TO BE: memory is reported as a FLOOR --
+    ``n_jobs`` workers each holding one field is the least the run can use,
+    before a single working copy. A floor is defensible and still catches
+    the case that matters, which is eight workers holding a 900 MB field
+    each on a 16 GB laptop. The measured peak is what
+    :func:`spacr.benchmark.benchmark` reports, and this card says so rather
+    than inventing a multiplier for it.
+
+    WHAT IS REFUSED: the size of the PNG crop tree. It is objects times crop
+    modes, and the object count is the thing the run exists to discover. The
+    card names it as unbounded rather than producing a number that would be
+    wrong by an order of magnitude either way.
+    """
+    if not isinstance(settings, dict):
+        return "Resources unavailable: settings is not a dict."
+
+    app = _normalize_app(app_key)
+    srcs = _src_values(settings, app)
+    inventories = [_inventory(src, settings, app) for src in srcs]
+    inv = inventories[0] if inventories else _Inventory()
+
+    rows: List[Tuple[str, str]] = []
+    notes: List[str] = []
+
+    # -- what would be read --------------------------------------------
+    read_bytes = 0
+    read_floor = False
+    for one in inventories:
+        for directory, suffixes in (
+            (one.merged_dir if one.merged_exists else None, (".npy",)),
+            (one.stack_dir, (".npy",)),
+            (one.raw_dir, IMAGE_EXTENSIONS),
+        ):
+            if not directory:
+                continue
+            total, _, truncated = _dir_bytes(directory, suffixes)
+            read_bytes += total
+            read_floor = read_floor or truncated
+    if read_bytes:
+        rows.append(("would read",
+                     ("at least " if read_floor else "") + _fmt_bytes(read_bytes)))
+
+    # -- what one worker must hold -------------------------------------
+    footprint = _array_footprint(
+        inv.merged_dir if inv.merged_exists else inv.stack_dir)
+    per_field: Optional[int] = None
+    if footprint:
+        shape, dtype, nbytes = footprint
+        per_field = nbytes
+        rows.append(("one field",
+                     f"{'×'.join(str(x) for x in shape)} {dtype} "
+                     f"= {_fmt_bytes(nbytes)} in memory"))
+
+    try:
+        from .benchmark import available_memory_bytes
+        available = available_memory_bytes()
+    except Exception:
+        available = 0
+    if available:
+        rows.append(("memory free", _fmt_bytes(available)))
+
+    n_jobs = settings.get("n_jobs")
+    workers = _as_int(n_jobs)
+    if per_field and workers and workers > 0:
+        floor = per_field * workers
+        line = (f"at least {_fmt_bytes(floor)} — {workers} worker(s) × one "
+                f"field each, before any working copy")
+        rows.append(("memory needed", line))
+        if available and floor > max(0, available - _MEM_RESERVE):
+            safe = max(1, int((available - _MEM_RESERVE) // per_field))
+            notes.append(
+                f"n_jobs={workers} does not fit: the floor alone exceeds free "
+                f"memory less a {_fmt_bytes(_MEM_RESERVE)} reserve. "
+                f"{safe} worker(s) would fit the floor; run "
+                f"spacr.benchmark to size it against the real peak.")
+        else:
+            notes.append(
+                "This is a floor, not a peak. spacr.benchmark measures the "
+                "real per-worker figure on this machine.")
+
+    # -- what would be written -----------------------------------------
+    projected: Optional[int] = None
+    fields = sum(one.merged_files or one.fields or 0 for one in inventories)
+    if app == "mask" and per_field and fields:
+        n_objects = len([k for k in CHANNEL_KEYS if settings.get(k) is not None])
+        # merged/ is an uncompressed .npy of the same pixels: a compressed
+        # source shrinks nothing here, and TIFF usually IS compressed, so
+        # this can exceed the input rather than match it.
+        merged = per_field * fields
+        masks = 0
+        if footprint and len(footprint[0]) >= 2:
+            plane = footprint[0][0] * footprint[0][1] * 2  # uint16 labels
+            masks = plane * fields * max(1, n_objects)
+        projected = merged + masks
+        rows.append(("would write",
+                     f"~{_fmt_bytes(projected)} — merged arrays "
+                     f"{_fmt_bytes(merged)} + {max(1, n_objects)} mask "
+                     f"stack(s) {_fmt_bytes(masks)}"))
+        notes.append(
+            "merged/ is uncompressed .npy, so it can be LARGER than a "
+            "compressed TIFF source rather than the same size.")
+    elif app == "measure":
+        crop_mode = settings.get("crop_mode")
+        if settings.get("save_png") and isinstance(crop_mode, (list, tuple)) and crop_mode:
+            notes.append(
+                "The PNG crop tree cannot be projected: it is objects × "
+                f"{len(crop_mode)} crop mode(s), and the object count is "
+                "what this run exists to discover. Watch the free space "
+                "above rather than trusting a total.")
+
+    write_root = inv.src or (str(srcs[0]) if srcs else "")
+    free = _free_disk(write_root) if write_root else None
+    if free is not None:
+        rows.append(("disk free", f"{_fmt_bytes(free)} on {write_root}"))
+        if projected is not None and projected > free:
+            notes.append(
+                f"NOT ENOUGH DISK: the projection above is "
+                f"{_fmt_bytes(projected)} and {_fmt_bytes(free)} is free.")
+
+    gpu = _gpu_line()
+    if gpu and app == "mask":
+        rows.append(("gpu", gpu))
+
+    if not read_bytes and footprint is None:
+        # A "disk free" row on its own is not a projection. Saying nothing
+        # was found is the honest answer; printing a card of zeros would
+        # read as a run that costs nothing.
+        return ("Resources — nothing to project: no readable input was found "
+                "for this source.")
+
+    width = max((len(label) for label, _ in rows if label), default=0)
+    lines = ["Resources — what this run would cost. Measured where it could "
+             "be, named where it could not:", ""]
+    for label, value in rows:
+        lines.append(f"  {label.ljust(width)}  {value}" if label
+                     else f"  {' ' * width}  {value}")
+    for note in notes:
+        lines.append("")
+        lines.append(f"  {note}")
+    return "\n".join(lines)
+
+
 DRY_RUN_TRAILER = "dry_run=True — stopping here. Set dry_run=False to run for real."
 
 
@@ -1584,6 +1879,16 @@ def run_preflight(settings: Dict[str, Any], app_key: str, printer=print,
     printer(format_report(problems, settings, app_key))
     printer("")
     printer(describe_plan(settings, app_key))
+    # The resource card is best-effort: it stats the disk and asks torch
+    # about the GPU, and neither is worth failing a dry run over. A
+    # pre-flight that raises has denied the user the report it exists to
+    # give them.
+    try:
+        printer("")
+        printer(describe_resources(settings, app_key))
+    except Exception as exc:
+        printer("")
+        printer(f"Resources — could not be projected: {exc}")
     if trailer:
         printer("")
         printer(trailer)
