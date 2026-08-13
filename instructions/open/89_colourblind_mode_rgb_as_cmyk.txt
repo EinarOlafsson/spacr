@@ -142,3 +142,50 @@ STILL TO DO: the global preference (this is per-call today), the same
 transform on the other viewers -- live preview, crop preview, Make Masks,
 figures -- which is instruction 69's seam, the on-screen statement of the
 mapping, and the safe outline colours noted above.
+
+--------------------------------------------------------------------------------
+2026-08-13 (later) - FIVE MODES, BECAUSE CMY AND ACCESSIBILITY ARE TWO GOALS
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "there should be seperate modes i guess that
+           accomodate different colorblindness. but as a general rool CMY is
+           how biologists like to show images these days so it is important
+           that images wesspecially in annotate can be shown in this format.
+           and obviously this should not affect the underlying data at all."
+
+THE EARLIER NOTE TREATED THESE AS ONE THING AND THAT WAS THE MISTAKE -- mine,
+not the file's. Measuring CMY against a deuteranope simulation and finding it
+worse than RGB was correct, and the conclusion drawn from it ("so do not ship
+CMY") did not follow. CMY is not an accessibility feature; it is THE
+PUBLISHING CONVENTION, wanted because it is what a figure looks like. Both
+belong, as separate modes:
+
+    rgb          what the camera meant. Default.
+    cmy          the convention. Plane 0 cyan, 1 magenta, 2 yellow.
+    deuteranope  }  one per deficiency, because WHICH PAIR collapses decides
+    protanope    }  the substitution. red-green for the first two, and
+    tritanope    }  blue-yellow for a tritanope, which needs a different
+                    plane moved entirely.
+
+MEASURED, worst confusable pair, 0-255:
+
+    red vs green, deuteranope    rgb  21    cmy  11    deuteranope  146
+    blue vs green, tritanope     rgb  30                tritanope   182
+
+So cmy is offered honestly -- the tooltip says outright that it is the
+publication style and NOT one of the colourblind modes, and a test pins the
+measurement so nobody relabels it later.
+
+ANNOTATE HAS THE CONTROL, which is where the request put the emphasis: a
+"Channel colours" combo beside "Display order", labelled so a user can tell
+which deficiency each mode is for rather than guessing from a name.
+
+NOTHING TOUCHES THE DATA, asserted twice over: the transform is scanned for
+`imwrite` / `save(` / `to_sql`, and every mode is checked not to mutate its
+input array.
+
+27 tests; 666 pass across crops, annotate and the display suites.
+
+STILL TO DO, unchanged: the global preference (per-call today), the same
+transform on the other viewers via instruction 69's seam, the on-screen
+statement of the mapping in exported figures, and the safe outline colours.
