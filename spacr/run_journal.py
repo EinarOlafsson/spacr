@@ -78,6 +78,13 @@ LOG = logging.getLogger("spacr.run_journal")
 MANIFEST_SCHEMA_VERSION = 2
 """Current on-disk reproducibility-manifest schema."""
 
+#: Ceiling on files inventoried under any one setting-derived root. A
+#: source folder can hold a million PNG crops, and the baseline is taken on
+#: EVERY run whether or not hashing was asked for. Hitting it is recorded in
+#: `provenance_warnings` rather than passed over -- a truncated inventory
+#: that says nothing is a manifest claiming completeness it does not have.
+INVENTORY_BUDGET = 200_000
+
 _HASH_ALGORITHM = "sha256"
 _SEED_KEY_PARTS = ("seed", "random_state", "random_seed")
 _OUTPUT_KEY_PARTS = (
@@ -662,12 +669,47 @@ class Run:
         """
         return bool(self.settings.get("hash_inputs", False))
 
+    @staticmethod
+    def _inventory_root(key: str, path: Path, output_only: bool) -> Optional[Path]:
+        """Which directory this candidate's inventory should cover.
+
+        THE BASELINE EXISTS TO ANSWER ONE QUESTION -- which files did this
+        run CREATE -- so the inventory only needs to cover somewhere the run
+        might write.
+
+        ``root = path if path.is_dir() else path.parent`` answered that too
+        generously and cost a directory walk per input file. A setting
+        naming ONE model checkpoint inventoried the whole folder it sits in:
+        measured, ``model_path`` pointing at a file among 20,000 others
+        stat'ed 20,001 paths, of which 20,000 could not possibly change,
+        because ``model_path`` is an input and the run writes nothing beside
+        it. On the machine this was found on, a file candidate under ``/tmp``
+        walked 475,250 paths and took 44 s cold.
+
+        AND IT IS PAID BY EVERY RUN, not only ones that opted into hashing --
+        see the caller's docstring.
+
+        :returns: the directory to walk, or ``None`` when the candidate is a
+            file the run cannot write beside, in which case that one file is
+            the whole inventory.
+        """
+        if path.is_dir():
+            return path
+        if output_only or _is_output_key(key):
+            # An output FILE: the run may well write siblings next to it --
+            # a report beside its figures, a tar beside its manifest -- so
+            # the directory is the honest unit here.
+            return path.parent
+        return None
+
     def _capture_initial_provenance(self) -> None:
         """Discover path-valued inputs and retain a before-run inventory.
 
         The inventory is taken whether or not hashing is on: it is a cheap
         stat() per file and it is what lets the final pass know which files
-        the run CREATED. Only the hashing is skipped.
+        the run CREATED. Only the hashing is skipped. That is exactly why
+        :meth:`_inventory_root` matters -- a walk here is charged to every
+        run there is.
         """
         self.seeds = extract_seeds(self.settings)
         self._path_candidates = _setting_path_candidates(self.settings)
@@ -675,10 +717,16 @@ class Run:
         for key, path, output_only in self._path_candidates:
             if path.exists() and not output_only:
                 self.record_input(path, setting_key=key)
-            root = path if path.is_dir() else path.parent
+            root = self._inventory_root(key, path, output_only)
+            if root is None:
+                signature = _inventory_signature(path)
+                if signature is not None:
+                    self._baseline[str(path)] = signature
+                    seen_files.add(str(path))
+                continue
             if not root.exists():
                 continue
-            for file_path in _iter_files(root, (self.dir, runs_root())):
+            for file_path in self._bounded_walk(root):
                 file_key = str(file_path)
                 if file_key in seen_files:
                     continue
@@ -687,16 +735,48 @@ class Run:
                 if signature is not None:
                     self._baseline[file_key] = signature
 
+    def _bounded_walk(self, root: Path) -> Iterator[Path]:
+        """``_iter_files`` with a ceiling, and a warning when it is hit.
+
+        The backstop for the case :meth:`_inventory_root` cannot rule out: a
+        genuine source folder holding millions of crops. Truncating in
+        silence would make the manifest claim a complete inventory it does
+        not have, so the ceiling is recorded where the manifest carries it.
+        """
+        for count, file_path in enumerate(
+                _iter_files(root, (self.dir, runs_root()))):
+            if count >= INVENTORY_BUDGET:
+                warning = (f"provenance inventory of {root} stopped at "
+                           f"{INVENTORY_BUDGET} files; it is not complete")
+                if warning not in self.provenance_warnings:
+                    self.provenance_warnings.append(warning)
+                    LOG.warning(warning)
+                return
+            yield file_path
+
     def _capture_final_provenance(self) -> None:
         """Hash files created or modified under setting-derived roots."""
         if not self.hashing_enabled():
             return
         seen_files: Set[str] = set()
         for key, path, _output_only in self._path_candidates:
-            root = path if path.is_dir() else path.parent
+            root = self._inventory_root(key, path, _output_only)
+            if root is None:
+                # The same narrowing as the baseline, and it MUST match it:
+                # a file inventoried at the start and re-walked as a whole
+                # directory at the end would report every sibling as an
+                # output this run created.
+                signature = _inventory_signature(path)
+                if (signature is not None
+                        and self._baseline.get(str(path)) != signature):
+                    record = _file_record(path)
+                    if record is not None:
+                        record["setting_keys"] = [key]
+                        self.output_hashes[str(path)] = record
+                continue
             if not root.exists():
                 continue
-            for file_path in _iter_files(root, (self.dir, runs_root())):
+            for file_path in self._bounded_walk(root):
                 file_key = str(file_path)
                 if file_key in seen_files:
                     continue
