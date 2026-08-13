@@ -1,5 +1,16 @@
-Module audit
-============
+Module audit -- 2026-07-30
+==========================
+
+.. note::
+
+   AN INTERNAL ARCHITECTURE RECORD, NOT API DOCUMENTATION. This lived in
+   ``docs/source/`` and was published in the API toctree, where a reader
+   looking for how to call something met an audit addressed to the
+   maintainer instead. Moved here 2026-08-12; see instruction 86.
+
+   Its recommendation sections ("High-value additions", "GPU opportunities")
+   were cut and preserved in ``instructions/open/86_*`` -- work belongs on
+   the instruction list, not in a reference page.
 
 This page records the repository-wide module audit completed on
 2026-07-30. It is intentionally tied to the application registry in
@@ -228,33 +239,3 @@ All 624 other Python sources and tests parse successfully, ``git diff
 declared-dependency, and debug-logging contracts pass. A rendered Sphinx build
 was not attempted because Sphinx is not installed in the spaCR environment;
 the structural AutoAPI contract was run instead.
-
-High-value additions
---------------------
-
-1. Add a universal **dry-run/resource estimate** card: input count, projected
-   output size, RAM/VRAM estimate, and settings/schema problems before Run.
-2. Extend the existing run journal into **checkpoint/resume** for Mask,
-   Measure, UMAP search, conversion, and report generation at field/batch
-   boundaries.
-3. Add **data provenance hashes** for input manifests, model artifacts, and
-   settings so reports can prove exactly which source state produced them.
-4. Add optional **QC gates** between modules (for example, stop Measure when
-   segmentation failure rate exceeds a chosen threshold).
-5. Add a small **benchmark command** that records throughput and peak
-   RAM/VRAM for representative fields, making worker-count defaults specific
-   to the current machine.
-
-GPU opportunities
------------------
-
-The best next GPU addition is optional RAPIDS cuML for Image UMAP and its
-clustering, with the current implementation retained as the deterministic CPU
-fallback. A second useful target is ``device='cuda'`` for supported XGBoost
-Classify (ML) runs. Selected convolution, texture, and phase-correlation
-kernels in Measure and Align could use CuPy/OpenCV CUDA, but only after
-profiling: transfer overhead often exceeds the gain for small fields.
-
-Barcode mapping, format conversion, SQLite browsing, report assembly, and most
-grouped statistics are dominated by decompression, filesystem, database, or
-small-table work and should remain on CPU.
