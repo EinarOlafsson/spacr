@@ -394,3 +394,61 @@ Still open: resolution modes (hexbin/histogram/density) and colour map are
 settings the canvas does not read yet -- the fields and the UI exist, the
 drawing does not. Clustering Walk likewise. Also: filter/search tabs, console
 + AI chat, saveable filter sets, table merging UI, 3D voxel workspace.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE "STILL OPEN" LIST WAS STALE. AUDITED, AND SAVED SETS BUILT.
+--------------------------------------------------------------------------------
+
+The list above says resolution modes (hexbin/histogram/density), the colour
+map and Clustering Walk are still open -- "the fields and the UI exist, the
+drawing does not". CHECKED AGAINST THE CODE, and they are done:
+
+    colour map        widgets/gate_editor.py:359 reads settings.colour_map
+    resolution mode   :360 reads settings.resolution_mode, and :505/:512
+                      branch on hexbin / density
+    the large path    `_draw_density` honours the mode too, with a comment
+                      recording that this is why "viridis does work but not
+                      when there are more than 50000 data points" and why
+                      hexbin appeared to do nothing -- both lived in the
+                      points path
+    Clustering Walk   25 references in the editor
+
+This is the third stale instruction header this session (73 said "not
+started" when all six items were done; 43 said its failures needed a CI run
+when the machine already had the CI cells). READ THE CODE BEFORE BUILDING
+FROM THE LIST -- these files record what was true when someone stopped
+typing, not what is true now.
+
+GENUINELY OPEN, confirmed by grep returning nothing in either editor module:
+
+    filter / search tabs        0 hits
+    console + AI chat           0 hits
+    saveable filter sets        0 hits   <- built below
+    table merging UI            0 hits
+    3D voxel workspace          0 hits   <- belongs to instruction 52
+
+SAVEABLE FILTER SETS ARE BUILT: `spacr/gate_library.py`. The editor could
+already write a strategy to a path and read one back, but only through a file
+chooser, which makes reuse a matter of remembering where you put it. A screen
+gets gated the same way over and over -- "live singlets", "the debris filter
+I always apply" -- and that is a LIBRARY, not a file. A strategy now has a
+NAME and lives at `<project>/gates/<name>.json`.
+
+Qt-free, like `spacr/filters.py`, so it is testable without a display, and a
+test asserts PySide6 is never imported by it.
+
+THE PART THAT NEEDED CARE: a name is not a path. `save(project,
+"../../etc/passwd", ...)` must not write outside the project, and a name with
+a slash is a mistake rather than a subdirectory. `slugify` is that rule and
+every entry point goes through it; a test asserts the resolved path is always
+inside the library directory. Saves are written whole and moved into place,
+so an interrupted save leaves the previous strategy intact rather than a
+truncated file the library still lists.
+
+18 tests. Registered in `spacr._SUBMODULES` in the same commit -- the handoff
+records that forgetting turns every compat-matrix cell red on
+`test_smoke.py::test_lazy_loader_matches_files`, and that it has happened
+twice.
+
+STILL OPEN AFTER THIS: filter/search tabs, console + AI chat, table merging
+UI. The 3D voxel workspace is instruction 52's.
