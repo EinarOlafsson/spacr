@@ -1,0 +1,84 @@
+================================================================================
+LET THE USER CHOOSE THE CROP'S DTYPE AND SCALING
+================================================================================
+
+Status:    not started, 2026-08-13.
+Requested: 2026-08-13 - "i would like the user to be able to choose to keep
+           the origional dtpe or scale the images to either 1-255 (uint8) or
+           between 0 and 1. what do you think, and what is the current code
+           doing, i tried to keep uint16 throughout whenever possible to not
+           loose any information. was this a good call?"
+
+--------------------------------------------------------------------------------
+WHAT THE CODE DOES TODAY, AND WHETHER uint16 WAS RIGHT
+--------------------------------------------------------------------------------
+
+IT WAS THE RIGHT CALL, and the code already does it. Read rather than assumed:
+
+  * `.npy` crops (`save_arrays`) are written with `np.save(region_array)` and
+    keep whatever the merged stack held -- uint16 stays uint16
+    (measure.py:3148).
+  * PNG crops narrow at the boundary through `crops.narrow_to_uint8`, which
+    is documented as "the one and only narrowing rule": it takes the HIGH
+    BYTE of a uint16, a plain linear rescale, rather than clipping.
+  * That function exists because PIL is inconsistent -- it takes the high byte
+    of a 16-bit RGB PNG but CLIPS a 16-bit single-channel one at 255, so the
+    same pixel value survived or saturated depending on how many channels its
+    neighbours had.
+  * `_measure_crop_core` promotes anything that is not uint8/uint16 to uint16
+    before cropping, so the crop path has one shape.
+
+So the structure the request asks for is already the structure: original
+precision preserved wherever it can be, one declared narrowing at the only
+boundary that requires it. Measurements are taken from the full-precision
+array, which is the part that actually matters -- narrowing before measuring
+would throw away eight bits of dynamic range from every intensity feature.
+
+--------------------------------------------------------------------------------
+WHAT IS ACTUALLY MISSING, AND IT IS NOT THE DTYPE
+--------------------------------------------------------------------------------
+
+THE CHOICE IS NOT REALLY uint8 VS uint16 VS FLOAT. Whatever is on disk, the
+training loader converts it: `transforms.ToTensor()` divides by 255 and hands
+the model a float in [0, 1]. So "scale to 0-1" is what already happens at the
+point it matters, and the dtype on disk is a STORAGE decision -- size, and
+what other tools can open -- not a precision decision about training.
+
+THE REAL FINDING IS THE NORMALISATION AFTER IT. deep_spacr.py:133 and :226 use
+
+    transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
+
+which maps [0, 1] to [-1, 1]. Every ImageNet-pretrained torchvision model was
+trained with
+
+    mean=(0.485, 0.456, 0.406)  std=(0.229, 0.224, 0.225)
+
+so spaCR hands pretrained weights inputs distributed differently from the ones
+they were fitted on. A long finetune adapts; a short one, or a frozen
+backbone, pays for it. THIS is the setting with a measurable effect on
+transfer, and it is currently a literal rather than a choice.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+  * `crop_dtype`: `original` (default -- what happens now for .npy),
+    `uint8`, `uint16`. It decides what the crop FILE holds. Say in the tooltip
+    that it does not change training precision, because it does not.
+  * `normalize_input`: `imagenet` (recommended when finetuning a pretrained
+    model), `symmetric` (the current 0.5/0.5), `none`. Default `imagenet`
+    ONLY after measuring both on a real dataset -- changing it silently would
+    move every existing model's scores.
+  * Per-image percentile normalisation already exists in the crop path; state
+    plainly how it interacts, because a crop already stretched to its own
+    range and then normalised by fixed ImageNet statistics is being corrected
+    twice.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A user can say what precision the crops on disk carry and what normalisation
+training applies; the defaults reproduce today's behaviour exactly until
+somebody measures a better one; and the tooltip for each says what it does and
+does not affect, so nobody picks uint16 believing it makes the model better.
