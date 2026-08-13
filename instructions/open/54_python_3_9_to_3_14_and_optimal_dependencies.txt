@@ -329,3 +329,72 @@ STILL OPEN, and the largest piece is unchanged:
      4.0.7; or make the contract range-aware, which the 2026-08-08 note
      forbids for good reasons. Answering it needs cellpose 4.2.1.1 actually
      installed and spaCR's masking path run against it.
+
+--------------------------------------------------------------------------------
+2026-08-12 - THE CEILING IS SETTLED: SUPPORT BOTH, DO NOT SPLIT BY PYTHON
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-12 - "I want spacr to support the most recent version of
+           cellpose, make it happen, if you can figure out how to support both
+           old cellpose with older versions of python and newer versions of
+           cellpose with newer versions of python do that."
+           "also check the cellpose API"
+
+THE PYTHON SPLIT IS NOT AVAILABLE, and the reason is upstream rather than a
+choice: cellpose declares NO `requires_python` at any release, and 4.0.7 and
+4.2.1.1 have byte-identical `requires_dist`. There is no cellpose that needs a
+different interpreter, so an environment marker separating them would invent a
+constraint upstream does not have and would deny 3.9 users a release that
+runs there perfectly well. `cellpose>=4.0.7,<5.0` stays, and spaCR adapts to
+whichever is installed.
+
+THE THREE OPTIONS THIS FILE LISTED ARE ALL SUPERSEDED. It is not cap-at-4.2,
+nor re-record-at-4.2, nor a tolerant range-aware contract. It is ONE EXACT
+TABLE PER RELEASE: `_RECORDED_EVAL_PARAMETERS[(4, 0)]` and `[(4, 2)]`, with
+the installed release required to match its band exactly and an unrecorded
+release failing loudly and naming itself. That keeps the property the
+2026-08-08 note was protecting -- the contract is what caught `channel_axis=3`
+-- while letting one suite serve both.
+
+WHAT THE API ACTUALLY DID, measured on a real 4.2.1.1 install:
+
+    MODEL_NAMES   ['cpsam'] -> ['cpsam_v2','cpdino','cpdino-vitb','cpsam']
+    __init__      pretrained_model 'cpsam' -> 'cpsam_v2'
+    eval          LOST `invert`; `bsize` 256 -> None
+    eval          `rescale` STOPPED BEING IGNORED
+    module        Transformer, cache_CPSAM_model_path -> CPSAM, CPDINO,
+                  get_backbone, cache_model_path
+    convert_image stopped padding to 3 planes; keeps the native count
+
+TWO PRODUCT BUGS, both of which would have landed on a user who upgraded:
+
+  1. `_resolve_cellpose_pretrained` ended at cpsam, correct when 4.0 shipped
+     one stock model. `cellpose_model_choices` reads MODEL_NAMES from the API,
+     so the dropdown offered cpsam_v2 and cpdino the moment cellpose was
+     upgraded -- and picking one logged "Unknown Cellpose model" and segmented
+     with cpsam. THE RUN SUCCEEDED WITH THE WRONG WEIGHTS, which is the worst
+     shape this can take.
+
+  2. `rescale=False` + `resample=True` is `int(200/False)` on 4.2:
+     ZeroDivisionError from inside cellpose. The shipped defaults have both
+     off, so it would have hit whoever changed one setting after upgrading.
+     spaCR sends None now, which is cellpose's own "not set".
+
+AND ONE MISREADING CORRECTED. The note above called the channel-count change
+"a behaviour change in the masking path", i.e. spaCR being broken. It is not:
+4.0 padded every input to three planes and 4.2 keeps the native count, spaCR's
+channel_axis is accepted by both and never raises, and the intermediate count
+never reaches spaCR. Only the assertion was stale.
+
+    input        4.0.7        4.2.1.1
+    (16,16)      (16,16,3)    (16,16,1)
+    (16,16,2)    (16,16,3)    (16,16,2)
+    (16,16,5)    (16,16,3)    (16,16,3) + "only first 3" warning
+
+53 cellpose tests pass on 4.0.7 AND on 4.2.1.1. The conda-forge recipe already
+carried the same pin and needed no change.
+
+STILL OPEN IN THIS FILE: "optimal" is still undefined (newest that passes, or
+oldest that passes -- they imply opposite CI jobs), and the full matrix still
+covers 3.11-3.14 with 3.10 having no suite run. Neither is the ceiling
+question, which is now answered.

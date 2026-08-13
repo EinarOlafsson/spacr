@@ -186,6 +186,26 @@ dependencies = [
     # Declaring a floor nothing verifies is how "it installed and then
     # crashed" reports are made: pip resolves to it happily, the install
     # succeeds, and the failure lands somewhere else entirely.
+    #
+    # THE CEILING, settled 2026-08-12. `<5.0` stays, and the range is now
+    # actually exercised at BOTH ends: 53 cellpose tests pass on 4.0.7 and on
+    # 4.2.1.1. Before that only the floor was, and 4.2 -- which this range has
+    # always admitted -- broke two things that a user upgrading would have hit:
+    #
+    #   * MODEL_NAMES grew from ['cpsam'] to ['cpsam_v2','cpdino',
+    #     'cpdino-vitb','cpsam'], and `_resolve_cellpose_pretrained` stopped at
+    #     cpsam -- so the dropdown offered the new models and the run silently
+    #     segmented with the old weights.
+    #   * `rescale` stopped being ignored, so spaCR's `rescale=False` became
+    #     `int(200/False)` inside cellpose once `resample` was on.
+    #
+    # NOT SPLIT BY PYTHON VERSION, though that was considered: cellpose
+    # declares no `requires_python` at any release, and 4.0.7 and 4.2.1.1 have
+    # byte-identical `requires_dist`. There is no version of cellpose that
+    # needs a different interpreter, so a marker splitting them would invent a
+    # constraint upstream does not have. spaCR adapts to whichever is
+    # installed instead -- see tests/cellpose_api_contract.py, which records
+    # one exact signature per release rather than one tolerant union.
     'cellpose>=4.0.7,<5.0',
     # `segment-anything` removed: PyPI's `segment-anything` has exactly one
     # release (1.0, 2023-04-06) with empty author, homepage and summary —
