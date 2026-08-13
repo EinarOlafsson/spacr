@@ -145,3 +145,26 @@ WHAT TO TELL THE CONTRIBUTOR: the feature is in, implemented against nightly
 rather than merged from a branch that targeted main with 100 unrelated
 commits, and the reasoning above is why it is a second parameter rather than
 a widening of the first.
+
+--------------------------------------------------------------------------------
+2026-08-13 (later) - THE CONTROL IS IN. 87 IS COMPLETE.
+--------------------------------------------------------------------------------
+
+A six-item combo in the Annotate settings dialog, placed as the NEXT ROW
+after "Stored PNG order" on purpose: the two are adjacent because they are
+easy to confuse, and being side by side is what makes the difference legible.
+"Stored PNG order" says how the file was written; "Display order" says how
+you want to look at it, and its tooltip says outright that it changes nothing
+on disk and nothing measured.
+
+The identity is labelled "R  G  B   (unchanged)" so the default reads as a
+no-op rather than as a choice already made.
+
+ONE THING THAT WENT WRONG AND IS WORTH RECORDING: adding the widget to the
+screen's `install_api_tooltips` map BLANKED the tooltip. That map installs
+the API help for a pipeline SETTING, and `display_order` is a view preference
+no pipeline function takes -- so the lookup found nothing and replaced the
+explanation with an empty string. A control with no tooltip is worse than one
+with no map entry. It is out of the map, with a comment saying why.
+
+31 tests; 89 pass across annotate and the display-order suites.
