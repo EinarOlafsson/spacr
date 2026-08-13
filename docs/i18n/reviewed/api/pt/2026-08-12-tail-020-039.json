@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "label": "spacr.crops.extract_crop#1",
+      "source_sha256": "c02de16c6978478a99f7ea27e5041ea2404020f3974c1d69fdaa187c7828ae96",
+      "source": "The returned array is the *pre-write* array: exactly what ``_measure_crop_core`` hands to the writer. Its dtype is the merged array's (``uint16`` for a normal spaCR run) and its channel order is ``spec.channels``. Use :func:`png_view` to get what a consumer reading the written PNG (via :func:`read_crop_png`) would see.",
+      "context": "The returned array is the *pre-write* array: exactly what ``_measure_crop_core`` hands to the writer. Its dtype is the merged array's (``uint16`` for a normal spaCR run) and its image data channel order is ``spec.channels``. Use :func:`png_view` to get what a consumer reading the written PNG (via :func:`read_crop_png`) would see.",
+      "translation": "O array retornado é o array de *pré-gravação*: exatamente o que ``_measure_crop_core`` entrega ao gravador. Seu dtype é o do array mesclado (``uint16`` em uma execução normal do spaCR), e a ordem dos canais dos dados de imagem é ``spec.channels``. Use :func:`png_view` para obter o que veria um consumidor que lesse o PNG gravado (por meio de :func:`read_crop_png`)."
+    },
+    {
+      "label": "spacr.crops.migrate_crop_folder#6",
+      "source_sha256": "5ff6bada71e36a9f3f1db9268b42e69859b8bc3e82009315b529b7c54db57f85",
+      "source": "the folder marker carries a ``migration`` block with a ``done_through`` watermark, advanced *before* the install, so the rule **\"a staging file exists ⇒ the crop beside it is still legacy\"** resolves every file at every point in the sequence. That is what :func:`crop_format_for_png` reads, and it is why a killed migration is still read correctly and can simply be re-run.",
+      "context": "the folder marker carries a ``migration`` block with a ``done_through`` watermark, advanced *before* the install, so the rule **\"a staging file exists ⇒ the extracted image region beside it is still legacy\"** resolves every file at every point in the sequence. That is what :func:`crop_format_for_png` reads, and it is why a killed migration is still read correctly and can simply be executed again.",
+      "translation": "o marcador da pasta contém um bloco ``migration`` com uma marca de progresso ``done_through``, atualizada *antes* da instalação; assim, a regra **\"se existe um arquivo de preparação ⇒ a região de imagem extraída ao lado dele ainda está no formato legado\"** resolve corretamente cada arquivo em todos os pontos da sequência. É isso que :func:`crop_format_for_png` lê; por esse motivo, mesmo uma migração encerrada à força continua sendo interpretada corretamente e pode simplesmente ser executada de novo."
+    },
+    {
+      "label": "spacr.crops.stamp_crop_folder#1",
+      "source_sha256": "7b3fb19d81454b281d00b6b06357258eea476c9caaeb375f53fb52052b0d091f",
+      "source": "Called by the crop writer immediately *before* the first PNG lands, so a run killed part-way through leaves a marked folder holding fewer crops -- never an unmarked folder of format-2 crops, which is the one state that would be silently misread as legacy.",
+      "context": "Called by the extracted-image-region writer immediately *before* the first PNG lands, so a processing session killed part-way through leaves a marked folder holding fewer extracted image regions -- never an unmarked folder of format-2 extracted image regions, which is the one state that would be silently misread as legacy.",
+      "translation": "Chamado pelo gravador de regiões de imagem extraídas imediatamente *antes* da chegada do primeiro PNG; assim, uma sessão de processamento encerrada no meio deixa uma pasta marcada contendo menos regiões extraídas -- nunca uma pasta não marcada com regiões extraídas no formato 2, que é o único estado que seria interpretado silenciosamente, e de forma incorreta, como legado."
+    },
+    {
+      "label": "spacr.crops.stamp_crop_folder#3",
+      "source_sha256": "e00af41e2e01b4a6a360de87821da8ae5c1e5d35416ced24ed83e11d8ddf1f9c",
+      "source": "Writing new crops into a folder that already holds *old* ones is the one case a single folder-level marker cannot describe, so it is called out rather than papered over: the run's own crops are marked, and the message says which files were there first and what to do about them. (Migrating them here instead would mean several measure workers converting the same folder at once, which is exactly the race :func:`migrate_crop_folder`'s single-process design rules out.)",
+      "context": "Writing new extracted image regions into a folder that already holds *old* ones is the one case a single folder-level marker cannot describe, so it is called out rather than papered over: the processing session's own extracted image regions are marked, and the message says which files were there first and what to do about them. (Migrating them here instead would mean several measure workers converting the same folder at once, which is exactly the race :func:`migrate_crop_folder`'s single-process design rules out.)",
+      "translation": "Gravar novas regiões de imagem extraídas em uma pasta que já contém regiões *antigas* é o único caso que um só marcador no nível da pasta não consegue descrever. Por isso, o caso é informado explicitamente, em vez de ser disfarçado: as regiões da própria sessão de processamento são marcadas, e a mensagem indica quais arquivos já estavam presentes e o que fazer com eles. (Migrá-los nesse ponto faria vários processos de medição converterem a mesma pasta ao mesmo tempo, exatamente o conflito de concorrência que o projeto de processo único de :func:`migrate_crop_folder` evita.)"
+    },
+    {
+      "label": "spacr.diameter#6",
+      "source_sha256": "a3768dc9ae04f523c6d7bd7c3473c6b70250a3fb1601c8a36c12f89bcf6fd565",
+      "source": "1. **Flatten.** Denoise with a 1 px Gaussian, then subtract a heavily smoothed copy (sigma = max(32, min(H, W) / 4)) to remove illumination gradients. The sigma is deliberately far larger than any plausible object so that flattening removes vignetting without eating the objects — the opposite trade-off (a tight rolling ball) shrinks what it is trying to measure. 2. **Reject noise.** Compare the structural amplitude of the flattened plane (p99 - p30) against the *pixel-level* noise scale, measured as ``1.4826 * MAD(img - gaussian(img, 1))`` on the raw plane. A pure-noise plane scores below 1; a plane with real objects scores in the tens. Below ``min_snr`` the field is discarded rather than thresholded, because Otsu will happily bisect pure noise and hand back a confident-looking number. 3. **Threshold and label.** Otsu, fill holes, label, drop components that touch the image border (truncated, so their size is a lie) and components that are absurd (equivalent diameter below ``min_object_diameter``, or area above ``max_object_fraction`` of the field). Characteristic size is the median equivalent diameter, ``2 * sqrt(area / pi)``. 4. **Cross-check by distance transform.** Step 3 has one dominant failure mode: a confluent monolayer fuses into a single component, that component touches the border and is dropped, and the estimate is then computed from whatever debris survived — biased **low**, and silently. So the Euclidean distance transform of the (unfilled) foreground is computed as well, its local maxima are taken as one seed per object (two passes: a coarse pass sets the suppression radius for the refined pass), and a watershed on ``-EDT`` splits the fused foreground back into objects whose equivalent diameters are measured the same way.",
+      "context": "1. **Flatten.** Apply a 1 px Gaussian filter, then subtract a smoother copy with sigma = max(32, min(H, W) / 4). This sigma is larger than a plausible object, so it removes vignetting without the object shrinkage caused by a tight rolling ball. 2. **Reject noise.** Compare the flattened plane’s structural amplitude (p99 - p30) with the *pixel-level* raw-plane noise estimate ``1.4826 * MAD(img - gaussian(img, 1))``. Pure noise scores below 1; real objects score in the tens. Discard a field below ``min_snr`` instead of applying Otsu to pure noise. 3. **Threshold and label.** Apply Otsu, fill holes, and label components. Remove border-touching components because they are truncated; also remove equivalent diameters below ``min_object_diameter`` and areas above ``max_object_fraction``. Use the median equivalent diameter, ``2 * sqrt(area / pi)``. 4. **Cross-check by distance transform.** A confluent layer can fuse into one border-touching component, which is discarded and leaves debris that biases the estimate silently **low**. Compute the Euclidean distance transform of the unfilled foreground. Use local maxima as object seeds in two passes: a coarse pass sets the suppression radius for the refined pass. Watershed on ``-EDT`` separates the fused foreground before measuring equivalent diameters the same way.",
+      "translation": "1. **Achate.** Aplique um filtro gaussiano de 1 px e depois subtraia uma cópia mais suavizada, com sigma igual a max(32, o resultado de min(H, W) dividido por 4). Esse sigma é maior que um objeto plausível e, portanto, remove o vinheteamento sem encolher os objetos, como faria uma esfera rolante de raio pequeno. 2. **Rejeite o ruído.** Compare a amplitude estrutural do plano achatado (p99 - p30) com a estimativa de ruído do plano bruto no *nível dos pixels*, ``1.4826 * MAD(img - gaussian(img, 1))``. Ruído puro produz uma pontuação abaixo de 1; objetos reais produzem pontuações na casa das dezenas. Descarte um campo abaixo de ``min_snr`` em vez de aplicar Otsu a ruído puro. 3. **Aplique o limiar e rotule.** Aplique Otsu, preencha os orifícios e rotule os componentes. Remova os componentes que tocam a borda, pois estão truncados; remova também os diâmetros equivalentes abaixo de ``min_object_diameter`` e as áreas acima de ``max_object_fraction``. Use a mediana do diâmetro equivalente, ``2 * sqrt(area / pi)``. 4. **Faça a verificação cruzada pela transformada de distância.** Uma camada confluente pode se fundir em um único componente que toca a borda; esse componente é descartado e deixa detritos que enviesam silenciosamente a estimativa para valores **baixos**. Calcule a transformada de distância euclidiana do primeiro plano não preenchido. Use os máximos locais como sementes dos objetos em duas passagens: uma passagem grosseira define o raio de supressão da passagem refinada. A segmentação por divisor de águas em ``-EDT`` separa novamente o primeiro plano fundido antes de medir os diâmetros equivalentes da mesma forma."
+    },
+    {
+      "label": "spacr.doctor.Context#4",
+      "source_sha256": "0fccf10c6626d0a67b211ce45c3441103674a26342f861cd1f555f40d89e3b4e",
+      "source": "app key the settings file is for (``mask``, ``measure``, ...).",
+      "context": "app structured-data name the settings file is for (``mask``, ``measure``, ...).",
+      "translation": "nome de dados estruturados do aplicativo ao qual se destina o arquivo de configurações (``mask``, ``measure``, ...)."
+    },
+    {
+      "label": "spacr.errors.RunLedger.stamp#0",
+      "source_sha256": "58e99b2c2fea63f87b60e9f18055d6cf7dc51e15f2675af2692216b046543530",
+      "source": "Record this run's verdict *into* the artifact it produced.",
+      "context": "Record this processing session's verdict *into* the artifact it produced.",
+      "translation": "Registre o veredito desta sessão de processamento *dentro* do artefato que ela produziu."
+    },
+    {
+      "label": "spacr.foreign#9",
+      "source_sha256": "ac63e60f3b0ba1c0f3000140dcc30dea9bc958db0d3e611f8158c39285c9cd56",
+      "source": "Their measurements are always written to ``foreign_<object>``. The canonical ``cell`` / ``nucleus`` / ``pathogen`` tables are spaCR's, and :func:`run_import` writes one only when it is empty of anyone else's work — either because the destination is a fresh project (an import-only project needs a ``cell`` table for the rest of spaCR to read, and gets a copy of the foreign rows) or because a previous run of *this* importer wrote it and it has not been added to since.",
+      "context": "Their measurements are always written to ``foreign_<object>``. The canonical ``cell`` / ``nucleus`` / ``pathogen`` tables are spaCR's, and :func:`run_import` writes one only when it is empty of anyone else's work — either because the destination is a fresh project (an import-only project needs a ``cell`` table for the rest of spaCR to read, and gets a copy of the foreign rows) or because a previous processing session of *this* importer wrote it and it has not been added to since.",
+      "translation": "As medições importadas são sempre gravadas em ``foreign_<object>``. As tabelas canônicas ``cell`` / ``nucleus`` / ``pathogen`` pertencem ao spaCR, e :func:`run_import` só grava em uma delas quando ela não contém trabalho de outra origem — seja porque o destino é um projeto novo (um projeto somente de importação precisa de uma tabela ``cell`` para que o restante do spaCR possa lê-lo e recebe uma cópia das linhas estrangeiras), seja porque uma sessão anterior de processamento *deste* importador a gravou e nenhum dado foi acrescentado desde então."
+    },
+    {
+      "label": "spacr.io.crop_rows_from_object_table#5",
+      "source_sha256": "55f88f36602b6793a568a0c4e78ed517d69806b1b47bcfe82705c7867b81249c",
+      "source": "a DataFrame with ``path_name``, ``object_label``, the well keys, ``png_name`` and ``png_path`` (the path the crop *would* have had).",
+      "context": "a DataFrame with ``path_name``, ``object_label``, the microplate sample position keys, ``png_name`` and ``png_path`` (the path the extracted image region *would* have had).",
+      "translation": "um DataFrame com ``path_name``, ``object_label``, as chaves de posição da amostra na microplaca, ``png_name`` e ``png_path`` (o caminho que a região de imagem extraída *teria*)."
+    },
+    {
+      "label": "spacr.io.generate_dataset_from_lists#2",
+      "source_sha256": "823624158ae90975677e4d6ae6f2c0388beceb71e8d347f0e2a0b43d3d237dda",
+      "source": "Each destination class folder is stamped with the crop-format sidecar *before* it is filled: with the current format when the crops were cut here, with the source folder's format when they were copied out of one, and not at all (loudly) when one class mixes the two. Leaving a folder of crops unmarked is what makes it legacy by default, which is the one outcome that silently reverses the channels a model is trained on.",
+      "context": "Each destination class folder is stamped with the image-region format sidecar *before* it is filled: with the current format when the extracted image regions were cut here, with the source folder's format when they were copied out of one, and not at all (loudly) when one class mixes the two. Leaving a folder of extracted image regions unmarked is what makes it legacy by default, which is the one outcome that silently reverses the channels a model is trained on.",
+      "translation": "Cada pasta de classe de destino recebe o arquivo auxiliar do formato das regiões de imagem *antes* de ser preenchida: com o formato atual quando as regiões extraídas foram recortadas nesse local; com o formato da pasta de origem quando foram copiadas de outra pasta; e sem marca alguma, com um aviso explícito, quando uma classe mistura os dois formatos. Deixar sem marca uma pasta de regiões extraídas faz com que ela seja considerada legada por padrão, justamente o resultado que inverte silenciosamente os canais usados para treinar um modelo."
+    },
+    {
+      "label": "spacr.io.mark_crop_output_folder#1",
+      "source_sha256": "e7a348cd6d2703cdd5a8677e48324399c67345fae8e312b6411bdc63ce4fc738",
+      "source": "Called *before* the folder is filled, exactly as :func:`spacr.crops.stamp_crop_folder` is on the measure path, so an interrupted run leaves a marked folder holding fewer crops rather than an unmarked folder of corrected ones -- the one state that is silently misread.",
+      "context": "Called *before* the folder is filled, exactly as :func:`spacr.crops.stamp_crop_folder` is on the measure path, so an interrupted run leaves a marked folder holding fewer extracted image regions rather than an unmarked folder of corrected ones -- the one state that is silently misread.",
+      "translation": "Chamado *antes* de a pasta ser preenchida, exatamente como :func:`spacr.crops.stamp_crop_folder` no caminho de medição; assim, uma sessão interrompida deixa uma pasta marcada contendo menos regiões de imagem extraídas, em vez de uma pasta não marcada com regiões corrigidas -- o único estado que é interpretado silenciosamente de forma incorreta."
+    },
+    {
+      "label": "spacr.layers.Spacing#3",
+      "source_sha256": "1c59948a4c975d2852603eff73c766c4db1d6b8a972dc6787be29bfef3c97d4f",
+      "source": "world coordinate of element 0 along each axis. Defaults to zeros. This is the crop offset — a tile cut out of a mosaic keeps its place in the mosaic by carrying it here.",
+      "context": "world coordinate of element 0 along each axis. Defaults to zeros. This is the extracted image region offset — a tile cut out of a mosaic keeps its place in the mosaic by carrying it here.",
+      "translation": "coordenada no espaço físico do elemento 0 ao longo de cada eixo. O padrão é zero. Este é o deslocamento da região de imagem extraída: um bloco recortado de um mosaico preserva sua posição no mosaico ao registrar aqui esse deslocamento."
+    },
+    {
+      "label": "spacr.lineage.tree_for#7",
+      "source_sha256": "8e4f866d04b55eef6e1c05a12d165a4f59a68f9d8df09f313cc32844f5e40fb7",
+      "source": "when ``root`` is missing from ``frames``, or when a table that is present cannot be named. The forest is built before the search, so a ``nucleus`` table without its field columns raises even when the wanted key belongs to a pathogen. A key that is merely not there is ``None``, not an exception.",
+      "context": "when ``root`` is missing from ``frames``, or when a table that is present cannot be named. The forest is built before the search, so a ``nucleus`` table without its field columns raises even when the wanted structured-data name belongs to a pathogen. A structured-data name that is merely not there is ``None``, not an exception.",
+      "translation": "quando ``root`` está ausente de ``frames`` ou quando não é possível nomear uma tabela presente. A floresta é construída antes da busca; portanto, uma tabela ``nucleus`` sem suas colunas de campo gera uma exceção mesmo quando o nome de dados estruturados procurado pertence a um patógeno. Um nome de dados estruturados que simplesmente não está presente resulta em ``None``, não em uma exceção."
+    },
+    {
+      "label": "spacr.macro.Macro#1",
+      "source_sha256": "0a79e14b07d37fa3c46826ebf5e54d7d58c6da3e4130b57c4f3c3db33ba2bc29",
+      "source": "A chain grows while consecutive runs stay connected — the next module consumes what the previous one produced, on the same project. A run that connects to nothing starts a new :class:`Macro`, because a script that welds two unrelated plates together is not a reproduction of either.",
+      "context": "A chain grows while consecutive runs stay connected — the next module consumes what the previous one produced, on the same project. A processing session that connects to nothing starts a new :class:`Macro`, because a script that welds two unrelated plates together is not a reproduction of either.",
+      "translation": "Uma cadeia cresce enquanto as sessões de processamento consecutivas permanecem conectadas: no mesmo projeto, o módulo seguinte consome o que o anterior produziu. Uma sessão que não se conecta a nada inicia uma nova :class:`Macro`, pois um script que une duas placas sem relação entre si não reproduz nenhuma delas."
+    },
+    {
+      "label": "spacr.macro.explicit_settings#1",
+      "source_sha256": "e9f57a4770f9032b83b9a8304f083ff17c2c889c2cc2838043129b996d500348",
+      "source": "The module's defaults, then the run-control defaults (:func:`spacr.runctx.apply_defaults` — ``random_seed`` above all, since an unpinned seed is the one \"default\" that changes the numbers on its own), then the caller's values on top. Keys are ordered defaults-first so a diff between two macros lines up.",
+      "context": "The module's defaults, then the processing session-control defaults (:func:`spacr.runctx.apply_defaults` — ``random_seed`` above all, since an unpinned seed is the one \"default\" that changes the numbers on its own), then the caller's values on top. Structured-data names are ordered defaults-first so a diff between two macros lines up.",
+      "translation": "Primeiro vêm os valores padrão do módulo; depois, os valores padrão do controle da sessão de processamento (:func:`spacr.runctx.apply_defaults` — sobretudo ``random_seed``, pois uma semente não fixada é o único \"default\" que altera os números por conta própria); por fim, os valores fornecidos pelo chamador prevalecem sobre os anteriores. Os nomes de dados estruturados são ordenados com os padrões primeiro, para que as linhas de uma comparação entre duas macros fiquem alinhadas."
+    },
+    {
+      "label": "spacr.measure.save_and_add_image_to_grid#3",
+      "source_sha256": "a241726998f192a9644c836815e4a5cc13132d1d81c582ba05253082799e91da",
+      "source": "Raises: spacr.crops.CropError: ``png_channels`` has more than three channels. AttributeError: ``grid`` is ``None`` (or has no ``append``) and ``plot`` is true. The PNG has already been written by then. cv2.error: ``img_path`` has no extension cv2 recognises. The folder sidecar has already been written by then.",
+      "context": "Raises: spacr.crops.CropError: ``png_channels`` has more than three image data channels. AttributeError: ``grid`` is ``None`` (or has no ``append``) and ``plot`` is true. The PNG has already been written by then. cv2.error: ``img_path`` has no extension cv2 recognises. The folder sidecar has already been written by then.",
+      "translation": "Exceções geradas: spacr.crops.CropError: ``png_channels`` tem mais de três canais de dados de imagem. AttributeError: ``grid`` é ``None`` (ou não tem ``append``) e ``plot`` é verdadeiro. Nesse ponto, o PNG já foi gravado. cv2.error: ``img_path`` não tem uma extensão reconhecida pelo cv2. Nesse ponto, o arquivo auxiliar da pasta já foi gravado."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#0",
+      "source_sha256": "a1cafc3a9f5b819a7e7e49b46a68d39d798891b4ef469e0a6616cb1fc367056e",
+      "source": "Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.",
+      "context": "Train a classical ML machine-learning classification model (XGBoost / logistic / RF) on per-object features and score every microplate sample position of a screen.",
+      "translation": "Treine um modelo clássico de classificação por aprendizado de máquina (XGBoost / logistic / RF) com características de cada objeto e atribua uma pontuação a cada posição de amostra da microplaca em uma triagem."
+    },
+    {
+      "label": "spacr.ome_zarr#15",
+      "source_sha256": "8b134af1da1fc9ccbfb5b6ccf0ad7bca447f96d27384c2cbb6f8f0d168cfd2fb",
+      "source": "**0.4 is implemented properly** — it is what essentially all real data is in, and it is zarr-format 2. 0.5 (zarr-format 3, metadata under an ``ome`` key in ``zarr.json``) is *tolerated*: its metadata is parsed in full, and its chunks are decoded for the codec chains the standard library can do (``bytes``/``transpose``/``gzip``/``crc32c``). Anything else routes through the same :func:`require_codec` refusal as v2 does. ``.zgroup`` / ``.zarray`` / ``zarr.json`` and the ``zarr_format`` field are read rather than assumed, and an unsupported ``zarr_format`` is refused by number.",
+      "context": "**0.4 is implemented properly** — it is what essentially all real data is in, and it is zarr-format 2. 0.5 (zarr-format 3, metadata under an ``ome`` structured-data name in ``zarr.json``) is *tolerated*: its metadata is parsed in full, and its chunks are decoded for the codec chains the standard library can do (``bytes``/``transpose``/``gzip``/``crc32c``). Anything else routes through the same :func:`require_codec` refusal as v2 does. ``.zgroup`` / ``.zarray`` / ``zarr.json`` and the ``zarr_format`` field are read rather than assumed, and an unsupported ``zarr_format`` is refused by number.",
+      "translation": "**A versão 0.4 está implementada corretamente** — ela é usada por praticamente todos os dados reais e corresponde ao zarr-format 2. A versão 0.5 (zarr-format 3, com metadados sob um nome de dados estruturados ``ome`` em ``zarr.json``) é *tolerada*: seus metadados são analisados por completo, e seus blocos são decodificados para as cadeias de codecs que a biblioteca padrão consegue processar (``bytes``/``transpose``/``gzip``/``crc32c``). Qualquer outro codec segue a mesma recusa por :func:`require_codec` usada pela v2. ``.zgroup`` / ``.zarray`` / ``zarr.json`` e o campo ``zarr_format`` são lidos, não presumidos; um ``zarr_format`` sem suporte é recusado por seu número."
+    },
+    {
+      "label": "spacr.ome_zarr.ZARR_MISSING_MESSAGE#2",
+      "source_sha256": "7fa238a45d957c051a51d28b35606577f1245213806b9752794764cf538707f9",
+      "source": "spaCR reads and writes OME-Zarr metadata, and stored/zlib/gzip/bz2/lzma chunks, without it — the extra is only needed for third-party chunk codecs and for zarr-format 3 features such as sharding.",
+      "context": "spaCR reads and writes OME-Zarr metadata, and stored/zlib/gzip/bz2/lzma chunks, without it — the extra is only needed for third-party chunk codecs and for zarr-format 3 features such as sharding.",
+      "translation": "Sem esse pacote extra, o spaCR lê e grava metadados OME-Zarr e blocos nos formatos stored e zlib, além de gzip, bz2 e lzma — o pacote extra só é necessário para codecs de blocos de terceiros e para recursos do zarr-format 3, como o particionamento."
+    },
+    {
+      "label": "spacr.power_model.prepare_model_data#7",
+      "source_sha256": "1f0b9b2723569a57592215e5ff0d64e6661a4e628f5ac0c266c37042b8b0b595",
+      "source": "if the ``gene x well`` grid is incomplete, ``False`` (the default) raises, because a missing pair is ambiguous — zero reads, or not measured?  ``True`` fills the missing pairs with zeros for every count column.",
+      "context": "if the ``gene x well`` grid is incomplete, ``False`` (the default) raises, because a missing pair is ambiguous — zero reads, or not measured?  ``True`` fills the missing pairs with zeros for every count column.",
+      "translation": "se a grade ``gene x well`` estiver incompleta, ``False`` (o padrão) gera uma exceção, pois a ausência de um par é ambígua — significa zero leituras ou que não houve medição?  ``True`` preenche os pares ausentes com zeros em todas as colunas de contagem."
+    }
+  ]
+}

@@ -16641,6 +16641,17 @@
       "source_sha256": "ced7ec30fee0820505c6f844a83656f1dfb53aea9a839e40e4a08517ad1351d9",
       "text": "How a merge is performed. Every field is a user-facing setting.\n\n:param primary: the object everything is rolled up onto. Decides what a\n    row of the merged table MEANS.\n:param na: what happens to a primary object with no children --\n    ``keep`` leaves NaN, ``zero`` fills with 0, ``drop`` removes the row.\n    Not interchangeable: a cell with no pathogens genuinely has a pathogen\n    COUNT of zero, and genuinely has no pathogen mean intensity at all.\n:param overrides: column -> aggregation, beating the rules. The rules are\n    right most of the time, and a default that is right most of the time\n    is a wrong answer nobody can find the rest of it."
     },
+    "spacr.merge_tables.MergePolicy.how_for": {
+      "source_blocks_sha256": [
+        "ddc3637acd243e8bca4f95b164489f1bb6de703f116ec6be684d99ea0cf49743",
+        "9f5839b6c364a3462129427783325022cb86b7c896751f39e464f28a7df008c5",
+        "82fa84cbd0d7110e8e38dce3d2fdd771ef76af6785bc571eb9be3f36d042ffc7",
+        "1043d508152e73bde545a1b25b80c2c7fe44cbf0b73da6e058ff27592faa0966",
+        "19459686cf933c3ebc4be75242e6500e324aff9b5216dc9bb90e1c642708f181"
+      ],
+      "source_sha256": "bb65f3d345b685d25a8840fb53683bf7044934c0bbd3264ddae9b08ef8f3b514",
+      "text": "Whether ``table`` keeps cells it contributed no rows for.\n\nTHE CARDINALITY IS WHY THIS IS NOT ONE ANSWER. A cell has exactly one\ncytoplasm, and MANY nuclei, pathogens and organelles. The\nmany-per-cell tables are rolled up to one row per cell first (see\n:func:`roll_up`), and ``consolidate_on_cell`` decides what happens to\na cell the roll-up found nothing for:\n\n    consolidate_on_cell=True   the analysis is about cells that HAVE\n                               the child, so the join is inner\n    consolidate_on_cell=False  keep the cell and leave the child's\n                               columns NA\n\nWITH ONE EXCEPTION, which is instruction 77 item (c) in full: an\nUNINFECTED cell is a cell, and in a screen it is usually the control\npopulation. Making pathogen inner silently conditions every result on\ninfection and deletes the comparison group from the denominator --\nmeasured there as object p = 4e-39 against well p = 0.25 on the same\ndata. So pathogen and organelle follow ``keep_uninfected``, which\nexists for exactly this and defaults to keeping them; setting it\nFalse is how a caller deliberately restricts to infected cells.\n\nA one-row-per-cell table keeps whatever :data:`object_roles.JOIN_HOW`\ndeclares, because there is no consolidation to decide about."
+    },
     "spacr.merge_tables.ReductionError": {
       "source_blocks_sha256": [
         "8498e502c22b70949052d190948afefd9e59f70ca0a103f9221f02ef8012f8d2"
@@ -56156,6 +56167,18 @@
       ],
       "source_sha256": "5ebff28fccc397b4c6f863fd2c6c888c6bb42cf99bd8f72ef594b68264c91377",
       "text": "Return the ``channel_axis`` Cellpose 4 accepts for one loaded image.\n\n``cellpose.transforms.convert_image`` — which ``CellposeModel.eval``\ncalls with whatever ``channel_axis`` it was handed — indexes\n``x.shape[channel_axis]`` and rejects a non-``None`` axis outright for a\n2-D input. The two shapes spaCR's loaders produce are therefore both\nillegal under the old hard-coded ``channel_axis=3``:\n\n* ``(H, W, C)`` -> ``IndexError: tuple index out of range`` (there is no\n  axis 3 on a 3-D array; the channel axis is 2, i.e. ``-1``).\n* ``(H, W)``    -> ``ValueError: 2D image provided, but channel_axis is\n  not None``.\n\n``object.py`` already passes ``channel_axis=-1`` because it only ever\nhands Cellpose channels-last stacks. The functions here also serve\ngreyscale images (``_load_*_images_and_labels`` squeezes a single-channel\nload down to 2-D), so the axis has to be chosen per image.\n\n:param stack: One image as loaded by :mod:`spacr.io`, either ``(H, W)``\n    or channels-last ``(H, W, C)``.\n:returns: ``-1`` for a channels-last stack, ``None`` for a 2-D image."
+    },
+    "spacr.spacr_cellpose.cellpose_rescale": {
+      "source_blocks_sha256": [
+        "a14254a1529064f4c8533d3ec3e9757906130649ae14aee13abc475e1a57a5a4",
+        "2e92975c52f9827f058304f35f69b04bda63ba871f2a47c23a7f09aaea2108da",
+        "655b46eaa28ca13d3698e2e59eaf3907ad40c50766b2faa9e971c53f3d806df5",
+        "e863636ae2737647f47502cbef2c4c3eda0357ebd22c397d853c80f957125357",
+        "baa44511091f140896a8b599ae9a26d9c86630a8f0c8d3d4ff29add6d5a84ed2",
+        "3eeceb076088d384eb889036f930ce8aa5371be204fb7b4d5289f77f4f5df724"
+      ],
+      "source_sha256": "288ff48a3b4542f07c261b6adc2f1cc2de9daac0eb7103c7a5bcf54830b9202a",
+      "text": "The ``rescale=`` Cellpose should actually receive. Falsy becomes None.\n\n``rescale`` was DEPRECATED-AND-IGNORED in Cellpose 4.0, so spaCR passing\n``False`` cost nothing and nobody noticed the type was wrong. Cellpose\n4.2 reads it again::\n\n    niter_scale = 1 if rescale is None or not resample else rescale\n    niter = int(200/niter_scale) if niter is None or niter == 0 else niter\n\nWith ``rescale=False`` and ``resample=True`` -- spaCR's shipped rescale\ndefault, and a resample a user is entirely likely to turn on --\n``niter_scale`` becomes ``False`` and the second line reads\n``int(200/False)``: ZeroDivisionError, raised from inside Cellpose, on a\nsettings combination both GUIs offer.\n\n``None`` is Cellpose's own spelling of \"not set\" and takes the\n``niter_scale = 1`` branch, which is what ``False`` was always meant to\nmean here. ``0`` goes the same way, for the same reason.\n\n:param value: whatever the settings carry for ``rescale``.\n:returns: ``None`` for a falsy value, otherwise the value unchanged."
     },
     "spacr.spacr_cellpose.check_cellpose_models": {
       "source_blocks_sha256": [

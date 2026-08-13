@@ -124,6 +124,54 @@ def test_normal_api_generation_translates_current_context_before_hashing(
     assert translated == {"spacr.example": "A frase contextual traduzida."}
 
 
+def test_api_repair_reuses_legacy_cache_only_for_identical_model_input(
+    tmp_path, monkeypatch,
+):
+    import argparse
+    import build_documentation_i18n as builder
+
+    source = "Return the task status."
+    translated = "Retorna o estado da tarefa."
+    model_root = tmp_path / "models"
+    cache_dir = model_root / ".spacr_translation_cache"
+    cache_dir.mkdir(parents=True)
+    (cache_dir / "pt.json").write_text(
+        json.dumps({source: translated}), encoding="utf-8",
+    )
+    api_dir = tmp_path / "api"
+    api_dir.mkdir()
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+    def unexpected_translate(*_args, **_kwargs):
+        raise AssertionError("identical-input legacy cache should avoid decoding")
+
+    monkeypatch.setattr(builder, "_translate_blocks", unexpected_translate)
+    repaired = builder.repair_api_translations(
+        {"spacr.example": source},
+        "pt",
+        model_root,
+        argparse.Namespace(),
+    )
+    assert repaired == {"spacr.example": translated}
+
+    contextual = "Return the software task status."
+    monkeypatch.setitem(builder.API_TRANSLATION_CONTEXT, source, contextual)
+    (cache_dir / "pt.json").write_text(
+        json.dumps({source: translated}), encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        builder,
+        "_translate_blocks",
+        lambda *_args, **_kwargs: {contextual: contextual},
+    )
+    repaired = builder.repair_api_translations(
+        {"spacr.example": source},
+        "pt",
+        model_root,
+        argparse.Namespace(),
+    )
+    assert repaired == {"spacr.example": source}
+
+
 def test_api_translation_source_disambiguates_model_input_and_hashes_it():
     import build_documentation_i18n as builder
 
@@ -660,6 +708,19 @@ def test_preview_contract_table_reassembles_prose_but_hides_code_cells():
     assert _api_block_requires_translation("no — deleteLater")
 
 
+def test_preview_contract_canonical_layout_preserves_document_literals():
+    import build_documentation_i18n as builder
+    from build_i18n_catalogs import _syntax_preserved
+
+    source = builder.public_docstrings()["spacr.qt.widgets.preview_contract"]
+    blocks, layout = builder.translatable_blocks(source)
+    canonical = builder.rebuild_document(layout, blocks)
+    assert canonical != source
+    assert _syntax_preserved(canonical, canonical, check_emphasis=False)
+    assert '"Preview already running."' in canonical
+    assert '"Preview      ' not in canonical
+
+
 def test_canonical_literal_introducers_never_reach_model_blocks():
     from build_documentation_i18n import public_docstrings, translatable_blocks
 
@@ -940,6 +1001,189 @@ def test_numeric_protection_marker_does_not_match_inside_larger_number():
 
     with pytest.raises(ValueError, match="did not preserve 0X0 exactly once"):
         _restore("prefix 10X01 suffix", {"0X0": "**"})
+
+
+def test_xml_markers_restore_after_only_the_opening_angle_is_lost():
+    from build_i18n_catalogs import _restore
+
+    # Marian emits this exact shape for ``*including 0*``: the source zero
+    # touches the shortened marker, while the expected id and closing bracket
+    # remain unambiguous.
+    assert _restore(
+        "x0>Texto 0x1> final x2>",
+        {"<x0>": "**", "<x1>": "*", "<x2>": "**"},
+        protected_text="<x0>Texto 0<x1> final <x2>",
+    ) == "**Texto 0* final **"
+
+
+def test_xml_marker_fuzz_allows_target_order_but_not_ascii_word_suffixes():
+    import pytest
+    from build_i18n_catalogs import _restore
+
+    assert _restore(
+        "x1> texto x0>", {"<x0>": "``a``", "<x1>": "``b``"},
+    ) == "``b`` texto ``a``"
+    with pytest.raises(ValueError, match="exactly once"):
+        _restore("matrix0>", {"<x0>": "``a``"})
+
+
+def test_xml_marker_fuzz_consumes_the_retained_closing_angle():
+    from build_i18n_catalogs import _restore
+
+    assert _restore(
+        "x0>Texto x1>", {"<x0>": "**", "<x1>": "**"},
+    ) == "**Texto **"
+    assert ">" not in _restore("x0>Texto", {"<x0>": "``value``"})
+
+
+def test_marker_fusion_requires_the_exact_source_adjacency_contract():
+    import pytest
+    from build_i18n_catalogs import _restore
+
+    mapping = {"<x1>": "``value``", "<x2>": "!"}
+    assert _restore(
+        "linear dex1> x2>",
+        mapping,
+        protected_text="linear de<x1> <x2>",
+    ) == "linear de``value`` !"
+    with pytest.raises(ValueError, match="did not preserve <x1>"):
+        _restore(
+            "linear dex1> x2>",
+            mapping,
+            protected_text="linear de <x1> <x2>",
+        )
+
+    assert _restore(
+        "incluindo 0x6>",
+        {"<x6>": "*"},
+        protected_text="incluindo 0<x6>",
+    ) == "incluindo 0*"
+    with pytest.raises(ValueError, match="did not preserve <x6>"):
+        _restore(
+            "incluindo 0x6>",
+            {"<x6>": "*"},
+            protected_text="incluindo zero <x6>",
+        )
+
+
+def test_numeric_marker_digit_fusion_uses_the_exact_source_contract():
+    import pytest
+    from build_i18n_catalogs import _restore
+
+    mapping = {"5X5": "**", "6X6": "*"}
+    assert _restore(
+        "5X5incluindo 06X6",
+        mapping,
+        protected_text="5X5including 06X6",
+    ) == "**incluindo 0*"
+    with pytest.raises(ValueError, match="did not preserve 6X6"):
+        _restore("5X5incluindo 06X6", mapping)
+
+
+def test_marker_restore_rejects_unknown_explicit_tokens():
+    import pytest
+    from build_i18n_catalogs import _restore
+
+    with pytest.raises(ValueError, match="invented protection token"):
+        _restore(
+            "x0> texto x9>",
+            {"<x0>": "``value``"},
+            protected_text="<x0>",
+        )
+    assert _restore(
+        "x0> texto x9",
+        {"<x0>": "``value``"},
+        protected_text="<x0>",
+    ) == "``value`` texto x9"
+
+
+def test_fully_stripped_xml_marker_is_never_guessed_from_natural_coordinates():
+    import pytest
+    from build_i18n_catalogs import _restore
+
+    with pytest.raises(ValueError, match="did not preserve <x0>"):
+        _restore(
+            "valor em x0",
+            {"<x0>": "**"},
+            protected_text="<x0> value at x0",
+        )
+    assert _restore(
+        "medido em x 0.825", {}, protected_text="measured at x 0.825"
+    ) == "medido em x 0.825"
+
+
+def test_marker_restore_checks_raw_output_before_inserting_literal_values():
+    from build_i18n_catalogs import _restore
+
+    assert _restore(
+        "<x0>", {"<x0>": "<x9>"}, protected_text="<x0>"
+    ) == "<x9>"
+    assert _restore(
+        "x0>", {"<x0>": "x9>"}, protected_text="<x0>"
+    ) == "x9>"
+
+
+def test_unclaimed_numeric_shapes_must_match_the_protected_source():
+    import pytest
+    from build_i18n_catalogs import _restore
+
+    with pytest.raises(ValueError, match="unprotected numeric"):
+        _restore(
+            "0X0 plus 9X9",
+            {"0X0": "**"},
+            protected_text="0X0 plus",
+        )
+    assert _restore(
+        "0X0 tamanho 9 x 9",
+        {"0X0": "**"},
+        protected_text="0X0 size 9X9",
+    ) == "** tamanho 9 x 9"
+    assert _restore(
+        "imagem 300 x 300", {}, protected_text="image 300 x 300"
+    ) == "imagem 300 x 300"
+
+
+def test_protected_source_contract_must_contain_each_marker_once():
+    import pytest
+    from build_i18n_catalogs import _restore
+
+    with pytest.raises(ValueError, match="protected input did not contain"):
+        _restore("x0>", {"<x0>": "**"}, protected_text="plain text")
+    with pytest.raises(ValueError, match="protected input did not contain"):
+        _restore(
+            "x0>", {"<x0>": "**"}, protected_text="<x0> then <x0>"
+        )
+    with pytest.raises(ValueError, match="exactly once"):
+        _restore(
+            "x0> texto x0>",
+            {"<x0>": "``value``"},
+            protected_text="<x0>",
+        )
+    with pytest.raises(ValueError, match="did not preserve <x1>"):
+        _restore(
+            "x0> texto",
+            {"<x0>": "``a``", "<x1>": "``b``"},
+            protected_text="<x0> then <x1>",
+        )
+
+
+def test_fragment_protection_keeps_short_quotes_as_one_literal_island():
+    from build_i18n_catalogs import _FRAGMENT_PROTECT_RE, _protect
+
+    short = 'means "not looked at"; continue.'
+    protected, mapping = _protect(short, pattern=_FRAGMENT_PROTECT_RE)
+    assert list(mapping.values()) == ['"not looked at"']
+    assert "not looked at" not in protected
+
+    long = 'means "this explanation has five translated words"; continue.'
+    protected, mapping = _protect(long, pattern=_FRAGMENT_PROTECT_RE)
+    assert list(mapping.values()) == ['"', '"']
+    assert "this explanation has five translated words" in protected
+
+    reviewed = 'means "not scored"; continue.'
+    protected, mapping = _protect(reviewed, pattern=_FRAGMENT_PROTECT_RE)
+    assert list(mapping.values()) == ['"', '"']
+    assert "not scored" in protected
 
 
 def test_context_clause_plan_preserves_exact_chrome_and_protected_literals():

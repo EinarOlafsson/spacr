@@ -277,6 +277,13 @@ _FRAGMENT_PROTECT_PATTERNS = (
     re.compile(
         r"\*\*(?:``[^`]+``|`[^`]+`_?|:[A-Za-z]+:`[^`]+`)\*\*"
     ),
+    # A short quoted UI/log value is one literal island.  These complete
+    # patterns must precede the quote-edge fallbacks below: Python chooses the
+    # first alternative at the same offset, and protecting just the two quote
+    # marks would expose the literal's interior to the fragment model.
+    _SHORT_QUOTED_LITERAL_RE,
+    _SINGLE_QUOTED_LITERAL_RE,
+    _TRAILING_SPACE_LITERAL_RE,
     # Keep prose quotation marks as reconstruction chrome.  The ordinary
     # protection pass deliberately lets quoted sentences travel with their
     # context, but the last-resort fragment pass sees only a small span.  M2M
@@ -284,7 +291,10 @@ _FRAGMENT_PROTECT_PATTERNS = (
     # a target angle bracket, invalidating an otherwise usable translation.
     re.compile(r'(?<!\w)["“‘](?=[A-Za-zÀ-ÖØ-öø-ÿ])'),
     re.compile(r'(?<=[A-Za-zÀ-ÖØ-öø-ÿ])["”’](?!\w)'),
-    *_PROTECT_PATTERNS,
+    *(
+        pattern for pattern in _PROTECT_PATTERNS
+        if pattern not in _QUOTE_PROTECT_PATTERNS
+    ),
 )
 _FRAGMENT_PROTECT_RE = re.compile(
     "|".join(
@@ -2687,14 +2697,95 @@ def _protect(
     return protected, dict(zip(markers, values))
 
 
-def _restore(text: str, protected: Mapping[str, str]) -> str:
+def _ascii_adjacent_kind(char: str) -> str | None:
+    """Classify only ambiguous ASCII marker neighbours."""
+    if re.fullmatch(r"[0-9]", char):
+        return "digit"
+    if re.fullmatch(r"[A-Za-z_]", char):
+        return "word"
+    return None
+
+
+def _marker_source_contract(
+    protected_text: str | None, marker: str,
+) -> tuple[str | None, str | None]:
+    """Return the exact marker's source-side ASCII adjacency contract."""
+    if protected_text is None:
+        return None, None
+    occurrences = list(re.finditer(re.escape(marker), protected_text))
+    if len(occurrences) != 1:
+        raise ValueError(
+            f"protected input did not contain {marker} exactly once"
+        )
+    match = occurrences[0]
+    left = protected_text[match.start() - 1] if match.start() else ""
+    right = (
+        protected_text[match.end()] if match.end() < len(protected_text)
+        else ""
+    )
+    return _ascii_adjacent_kind(left), _ascii_adjacent_kind(right)
+
+
+def _restore(
+    text: str,
+    protected: Mapping[str, str],
+    *,
+    protected_text: str | None = None,
+) -> str:
+    """Restore one unique occurrence of every protected marker.
+
+    ``protected_text`` is the exact model input produced by :func:`_protect`.
+    It permits a shortened marker to remain joined to a target word or number
+    only when that same marker had the same kind of source adjacency (on both
+    numeric sides where applicable). This recovers deterministic Marian
+    tokenization damage without globally treating word-like ``x7>`` text as a
+    placeholder.
+    """
     restored = str(text)
+    expected_xml_ids = {
+        re.search(r"\d+", marker).group(0)
+        for marker in protected
+        if marker.startswith("<")
+    }
+    explicit_xml = re.compile(
+        r"<\s*[xX]\s*(\d+)\s*>|[xX]\s*(\d+)\s*>"
+    )
+    for match in explicit_xml.finditer(restored):
+        marker_id = match.group(1) or match.group(2)
+        if marker_id not in expected_xml_ids:
+            raise ValueError(
+                f"translation invented protection token x{marker_id}>: "
+                f"{text!r}"
+            )
+    if re.search(r"Z\s*X\s*Q\s*\d", restored):
+        raise ValueError(f"unrestored protection token: {restored!r}")
+
+    matches: list[tuple[int, int, str, str]] = []
     for marker, value in protected.items():
         digits = re.search(r"\d+", marker).group(0)
+        source_left, source_right = _marker_source_contract(
+            protected_text, marker,
+        )
         if marker.startswith("<"):
+            # Marian commonly preserves the marker number and closing angle
+            # bracket while dropping only the opening ``<``. It can also
+            # attach that shortened marker directly to a preceding source
+            # number (``0<x6>`` -> ``0x6>``). Accept only this narrow form:
+            # the expected number, exactly once, with ``>`` still present.
+            # The ASCII-letter guard prevents ``matrix6>`` from becoming a
+            # false marker match.
+            allowed_left = r"(?<![A-Za-z0-9_])"
+            if source_left == "word":
+                allowed_left = (
+                    r"(?:(?<=[A-Za-z_])|(?<![A-Za-z0-9_]))"
+                )
+            elif source_left == "digit":
+                allowed_left = (
+                    r"(?:(?<=[0-9])|(?<![A-Za-z0-9_]))"
+                )
+            shortened = rf"{allowed_left}[xX]\s*{digits}\s*>"
             fuzzy = (
-                rf"(?:<\s*[xX]\s*{digits}\s*>|"
-                rf"\b[xX]\s*{digits}\b)"
+                rf"(?:<\s*[xX]\s*{digits}\s*>|{shortened})"
             )
         else:
             # Do not use Unicode word boundaries here. Translation models
@@ -2705,14 +2796,67 @@ def _restore(text: str, protected: Mapping[str, str]) -> str:
             # word character and falsely rejects the entire translation.
             # Digit-only guards still keep marker 1 out of 10X01 while
             # allowing ordinary target-language text to touch either edge.
-            fuzzy = rf"(?<!\d){digits}\s*[xX]\s*{digits}(?!\d)"
-        restored, count = re.subn(fuzzy, lambda _match, v=value: v, restored)
-        if count != 1:
+            left_guard = "" if source_left == "digit" else r"(?<![0-9])"
+            right_guard = "" if source_right == "digit" else r"(?![0-9])"
+            fuzzy = (
+                rf"{left_guard}{digits}\s*[xX]\s*{digits}{right_guard}"
+            )
+        marker_matches = list(re.finditer(fuzzy, restored))
+        if len(marker_matches) != 1:
             raise ValueError(
                 f"translation did not preserve {marker} exactly once: {text!r}"
             )
-    if _TOKEN_RE.search(restored) or re.search(r"Z\s*X\s*Q\s*\d", restored):
-        raise ValueError(f"unrestored protection token: {restored!r}")
+        match = marker_matches[0]
+        matches.append((match.start(), match.end(), marker, value))
+
+    # Target grammar may legitimately reorder literals (especially in SOV
+    # languages). Sort the unique output spans rather than imposing English
+    # marker order, reject only an impossible overlap, and replace from right
+    # to left so the preflight offsets remain stable.
+    matches.sort(key=lambda item: (item[0], item[1]))
+    if any(left[1] > right[0] for left, right in zip(matches, matches[1:])):
+        raise ValueError(f"translation overlapped protection tokens: {text!r}")
+
+    # ``N X N`` is also ordinary dimension notation. Preserve any such raw
+    # tokens not claimed as generated markers exactly as the protected model
+    # input did; hallucinated numeric markers must not slip through merely
+    # because their index was not expected.
+    numeric_shape = re.compile(r"(?<!\d)(\d+)\s*[xX]\s*(\d+)(?!\d)")
+
+    def unclaimed_numeric_shapes(
+        value: str, excluded: Iterable[tuple[int, int]],
+    ) -> Counter[str]:
+        spans = tuple(excluded)
+        return Counter(
+            f"{match.group(1)}x{match.group(2)}"
+            for match in numeric_shape.finditer(value)
+            if not any(
+                match.start() < end and start < match.end()
+                for start, end in spans
+            )
+        )
+
+    target_numeric = unclaimed_numeric_shapes(
+        restored, ((start, end) for start, end, _marker, _value in matches),
+    )
+    source_marker_spans: list[tuple[int, int]] = []
+    source_contract_text = protected_text or ""
+    if protected_text is not None:
+        for marker in protected:
+            occurrence = re.search(re.escape(marker), protected_text)
+            if occurrence is not None:
+                source_marker_spans.append(occurrence.span())
+    source_numeric = unclaimed_numeric_shapes(
+        source_contract_text, source_marker_spans,
+    )
+    if target_numeric != source_numeric:
+        raise ValueError(
+            "translation changed unprotected numeric marker/dimension "
+            f"tokens: {text!r}"
+        )
+
+    for start, end, _marker, value in reversed(matches):
+        restored = restored[:start] + value + restored[end:]
     return restored.strip()
 
 
@@ -3482,6 +3626,7 @@ def _translate_batches(
     translated: dict[str, str] = {}
     generated_sources: list[str] = []
     generated_inputs: list[str] = []
+    generated_protected_inputs: list[str] = []
     protection: list[dict[str, str]] = []
     latest_failures: dict[str, frozenset[str]] = {}
 
@@ -3531,6 +3676,7 @@ def _translate_batches(
             protected, mapping = _protect(source)
             generated_sources.append(source)
             generated_inputs.append(prefix + protected)
+            generated_protected_inputs.append(protected)
             protection.append(mapping)
         elif source_cache_key in cache and source not in forced:
             # A rejected checkpoint is not translation input. Remove it and
@@ -3540,21 +3686,29 @@ def _translate_batches(
             protected, mapping = _protect(source)
             generated_sources.append(source)
             generated_inputs.append(prefix + protected)
+            generated_protected_inputs.append(protected)
             protection.append(mapping)
         else:
             protected, mapping = _protect(source)
             generated_sources.append(source)
             generated_inputs.append(prefix + protected)
+            generated_protected_inputs.append(protected)
             protection.append(mapping)
 
     if generated_inputs:
         packed = sorted(
-            zip(generated_sources, generated_inputs, protection),
+            zip(
+                generated_sources,
+                generated_inputs,
+                generated_protected_inputs,
+                protection,
+            ),
             key=lambda item: (len(item[1]), item[0]),
         )
         generated_sources = [item[0] for item in packed]
         generated_inputs = [item[1] for item in packed]
-        protection = [item[2] for item in packed]
+        generated_protected_inputs = [item[2] for item in packed]
+        protection = [item[3] for item in packed]
 
     if not generated_inputs:
         return translated
@@ -3642,9 +3796,13 @@ def _translate_batches(
     oversized_sources: set[str] = set()
     kept_sources: list[str] = []
     kept_inputs: list[str] = []
+    kept_protected_inputs: list[str] = []
     kept_protection: list[dict[str, str]] = []
-    for source, model_input, mapping in zip(
-        generated_sources, generated_inputs, protection,
+    for source, model_input, protected_input, mapping in zip(
+        generated_sources,
+        generated_inputs,
+        generated_protected_inputs,
+        protection,
     ):
         width = len(tokenizer(model_input, add_special_tokens=True)["input_ids"])
         if width > model_input_limit:
@@ -3654,12 +3812,14 @@ def _translate_batches(
         else:
             kept_sources.append(source)
             kept_inputs.append(model_input)
+            kept_protected_inputs.append(protected_input)
             kept_protection.append(mapping)
     all_generated_sources = list(dict.fromkeys([
         *kept_sources, *oversized_sources,
     ]))
     generated_sources = kept_sources
     generated_inputs = kept_inputs
+    generated_protected_inputs = kept_protected_inputs
     protection = kept_protection
 
     def encode_batch(batch: list[str]) -> Mapping[str, object]:
@@ -3706,12 +3866,15 @@ def _translate_batches(
     def select_ranked_candidate(
         source: str,
         mapping: Mapping[str, str],
+        protected_text: str,
         candidates: Iterable[tuple[object, str]],
     ) -> tuple[str | None, frozenset[str]]:
         return _first_valid_ranked_candidate(
             candidates,
             completed=completed,
-            restore=lambda value: _restore(value, mapping),
+            restore=lambda value: _restore(
+                value, mapping, protected_text=protected_text,
+            ),
             evaluate=lambda value: evaluate_raw_candidate(source, value),
         )
 
@@ -3735,7 +3898,10 @@ def _translate_batches(
             index = start + offset
             source = generated_sources[index]
             value, failures = select_ranked_candidate(
-                source, protection[index], candidates,
+                source,
+                protection[index],
+                generated_protected_inputs[index],
+                candidates,
             )
             if value is None:
                 latest_failures[source] = failures
@@ -3770,10 +3936,12 @@ def _translate_batches(
     ]
     if retry_sources and not is_m2m and allow_secondary_repairs:
         retry_inputs: list[str] = []
+        retry_protected_inputs: list[str] = []
         retry_maps: list[dict[str, str]] = []
         for source in retry_sources:
             protected, mapping = _protect(source, marker_style="numeric")
             retry_inputs.append(prefix + protected)
+            retry_protected_inputs.append(protected)
             retry_maps.append(mapping)
         for start in range(0, len(retry_inputs), batch_size):
             batch = retry_inputs[start:start + batch_size]
@@ -3795,7 +3963,10 @@ def _translate_batches(
                 index = start + offset
                 source = retry_sources[index]
                 value, failures = select_ranked_candidate(
-                    source, retry_maps[index], candidates,
+                    source,
+                    retry_maps[index],
+                    retry_protected_inputs[index],
+                    candidates,
                 )
                 if value is None:
                     latest_failures[source] = failures
@@ -3821,6 +3992,7 @@ def _translate_batches(
     )
     if chunk_sources:
         chunk_inputs: list[str] = []
+        chunk_protected_inputs: list[str] = []
         chunk_maps: list[dict[str, str]] = []
         chunk_owners: list[tuple[str, int]] = []
         chunks_by_source: dict[str, list[str]] = {
@@ -3830,6 +4002,7 @@ def _translate_batches(
             for index, chunk in enumerate(chunks):
                 protected, mapping = _protect(chunk, marker_style="numeric")
                 chunk_inputs.append(prefix + protected)
+                chunk_protected_inputs.append(protected)
                 chunk_maps.append(mapping)
                 chunk_owners.append((source, index))
         restored_chunks: dict[str, list[list[str | None]]] = {
@@ -3865,7 +4038,11 @@ def _translate_batches(
                         continue
                     try:
                         restored[rank] = _restore(
-                            value, chunk_maps[start + offset],
+                            value,
+                            chunk_maps[start + offset],
+                            protected_text=(
+                                chunk_protected_inputs[start + offset]
+                            ),
                         )
                     except ValueError:
                         chunk_failures[owner][rank].add("marker_restore")
@@ -3919,13 +4096,16 @@ def _translate_batches(
     )
     clause_plans: dict[str, list[tuple[str, bool]]] = {}
     clause_inputs: list[str] = []
+    clause_protected_inputs: list[str] = []
     clause_maps: list[dict[str, str]] = []
     clause_owners: list[tuple[str, int]] = []
     for source in clause_sources:
         plan = _context_clause_plan(source)
         if not plan:
             continue
-        pending: list[tuple[str, dict[str, str], tuple[str, int]]] = []
+        pending: list[
+            tuple[str, str, dict[str, str], tuple[str, int]]
+        ] = []
         oversized = False
         for index, (piece, translate_piece) in enumerate(plan):
             if not translate_piece:
@@ -3938,12 +4118,13 @@ def _translate_batches(
             if width > model_input_limit:
                 oversized = True
                 break
-            pending.append((model_input, mapping, (source, index)))
+            pending.append((model_input, protected, mapping, (source, index)))
         if oversized or len(pending) < 2:
             continue
         clause_plans[source] = plan
-        for model_input, mapping, owner in pending:
+        for model_input, protected, mapping, owner in pending:
             clause_inputs.append(model_input)
+            clause_protected_inputs.append(protected)
             clause_maps.append(mapping)
             clause_owners.append(owner)
 
@@ -3984,7 +4165,11 @@ def _translate_batches(
                     continue
                 try:
                     restored[rank] = _restore(
-                        value, clause_maps[start + offset],
+                        value,
+                        clause_maps[start + offset],
+                        protected_text=(
+                            clause_protected_inputs[start + offset]
+                        ),
                     )
                 except ValueError:
                     clause_failures[owner][rank].add("marker_restore")
