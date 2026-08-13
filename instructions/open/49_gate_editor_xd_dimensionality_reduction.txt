@@ -96,3 +96,57 @@ reduction runs on the GUI thread. It must not. A UMAP over a screen's
 measurement table is minutes of work, and `spacr/qt/bridge.py` is the
 existing route for that -- see INVARIANTS 4 before connecting anything to
 `QThread.finished`.
+
+--------------------------------------------------------------------------------
+2026-08-13 - AUDITED, AND THE COLUMN CHOICE IS BUILT
+--------------------------------------------------------------------------------
+
+The header says "not started". It is not: `reduce_to_components`
+(qt/screens/gate_editor.py:585) already reduces and gates on the components,
+reading `settings.reduction` and `settings.components`, and
+`merge_tables.REDUCTIONS` offers pca / umap / tsne. The components come back
+as ORDINARY COLUMNS, so every existing gate tool works on them unchanged --
+which was the right design and is worth not re-deciding.
+
+WHAT WAS ACTUALLY MISSING is the middle of the request. The reduction ran
+over `plottable_columns(frame)` -- EVERY numeric column, with no way to
+choose. A screen's phenotype usually lives in a subset, and reducing over all
+400 columns buries it; worse, that set includes identifiers, and feeding a
+plate id to UMAP embeds the plate, which is the batch effect rather than the
+biology.
+
+BUILT: `spacr/column_groups.py`, the Qt-free half of the picker.
+
+    object      cell, nucleus, pathogen, cytoplasm, organelle
+    channel     channel_0, channel_1, ...
+    family      morphology, intensity, texture, correlation, moment
+
+Three kinds because a table names a column three ways at once --
+`cell_channel_1_mean_intensity` is a CELL measurement, a CHANNEL 1
+measurement and an INTENSITY measurement -- and which one a user means
+depends on the question. That is exactly the maintainer's own list: "cell, cor
+channel_1 or intensity measurements ... or morphology measurements".
+
+THE FAMILIES ARE NOT INVENTED HERE. They are
+`feature_dict.FEATURE_FAMILIES`, classified by `feature_dict.parse_column` --
+the dictionary that already documents every column. A second taxonomy would
+be a second thing to keep in step with the measurement code and would
+disagree first in the corners nobody checks.
+
+DECISIONS WORTH KEEPING:
+
+  * `meta` is not offered as a group, and no group selects an identifier --
+    but an identifier can still be ticked by hand. Not offered is not the
+    same as forbidden.
+  * Groups and individual columns ADD UP; the request asks for both, not
+    either.
+  * The result is ordered by the TABLE, not by click order. A UMAP whose axes
+    depend on which checkbox was clicked first is not reproducible.
+  * Channels sort numerically, so channel_2 comes before channel_10.
+
+20 tests, registered in `_SUBMODULES`, no display needed.
+
+STILL OPEN IN THIS FILE: the Qt picker that presents these groups, the
+tabs (features / hyperparameter), and making xD non-exclusive with 2D/3D.
+The hyperparameter tab has its engine already -- `spacr/hyperparam.py` and
+`HyperparamPanel` -- so that tab is wiring, not new machinery.
