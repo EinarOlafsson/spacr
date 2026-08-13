@@ -303,3 +303,46 @@ excludes every PR.
 contribution, it targets `main`, it is CONFLICTING, and it carries 100 mostly
 unrelated commits. The problem it describes is real and is the same family as
 the crop-preview colour defect fixed the same day.
+
+--------------------------------------------------------------------------------
+2026-08-13 - #15 ON A SERVER OR CLUSTER: THE MAINTAINER'S QUESTION ANSWERED
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "are you saying this would work great on a
+           workstation but would break server or cluster runs? If so what can
+           we do for the server run with the same effect?"
+
+YES, WITH ONE CORRECTION: the cluster run is not BROKEN by the fix, it is
+UNCHANGED by it. WAL is skipped on any filesystem not positively identified
+as local, so an NFS / Lustre / GPFS run behaves exactly as before --
+including hanging exactly as before.
+
+WHAT WOULD GIVE A SERVER RUN THE SAME EFFECT, in the order I would do them:
+
+  1. REMOVE THE READ. The real fix, and it helps every filesystem. The
+     contention is reader-blocks-writer, and the reader is pandas:
+     `_append_frame` uses `to_sql(if_exists='append')`, which is
+     check-then-act -- it asks whether the table exists before EVERY append.
+     Create the tables ONCE before the workers start, then INSERT directly,
+     and the per-append read disappears. That also deletes the CREATE race
+     this function's own docstring describes at length (measured there at
+     30 of 30 runs losing rows). No WAL, no filesystem test, no platform
+     assumption.
+
+  2. WRITE LOCAL, MERGE ONCE. Workers write to a per-worker SQLite file in
+     $TMPDIR -- node-local disk on every cluster -- and the parent merges
+     them into the shared measurements.db serially at the end. The shared
+     file then has exactly one writer and no contention at all. The standard
+     HPC pattern, and the most robust answer for a network filesystem, at
+     the cost of temporary disk and a merge step.
+
+  3. ONE WRITER. Workers hand frames to a single writer thread over a queue.
+     Simpler than (2), but gives up the write parallelism (1) keeps.
+
+(1) IS THE ONE TO BUILD: smallest change, no new configuration, and it makes
+the local WAL fix an optimisation rather than the fix. (2) is worth having
+as an opt-in for genuinely network-mounted projects.
+
+WHAT DOES NOT WORK: raising `DB_WRITE_TIMEOUT`. utils.py:2801 records that
+30 s made the whole suite time out, and a longer wait does not remove
+contention -- it hides it until the plate is big enough.
