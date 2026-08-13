@@ -73,7 +73,10 @@ from ...selection import DataFilter, RangeFilter
 
 __all__ = [
     "GateError",
-    "THRESHOLD", "RECTANGLE", "POLYGON", "GATE_KINDS",
+    "THRESHOLD", "RECTANGLE", "POLYGON", "CYLINDER", "PRISM", "COMPOSITE",
+    "COMPOSITE_OPS", "GATE_KINDS", "CylinderGate", "PrismGate",
+    "CompositeGate", "BoxGate", "EllipseGate", "PolygonGate", "RectGate",
+    "ThresholdGate", "Gate",
     "Gate", "ThresholdGate", "RectGate", "PolygonGate",
     "gate_from_dict", "GateClause", "GateStats", "GateSet",
     "points_in_polygon",
@@ -99,10 +102,19 @@ ELLIPSE = "ellipse"
 WAND = "wand"
 #: A box in three measurements -- what a gate is in the volume.
 BOX = "box"
+#: An oval drawn on one plane of the volume and extended along the third.
+CYLINDER = "cylinder"
+#: A polygon drawn on one plane of the volume and extended along the third.
+PRISM = "prism"
+#: Other gates combined: union, intersection or difference.
+COMPOSITE = "composite"
+
+#: How a composite gate combines its operands.
+COMPOSITE_OPS: Tuple[str, ...] = ("union", "intersect", "subtract")
 
 #: Every shape a gate can be, in the order the tool buttons list them.
 GATE_KINDS: Tuple[str, ...] = (THRESHOLD, RECTANGLE, POLYGON, ELLIPSE,
-                              WAND, BOX)
+                              WAND, BOX, CYLINDER, PRISM, COMPOSITE)
 
 
 def _clean_name(name: str) -> str:
@@ -279,6 +291,37 @@ class Gate:
         """
         return ()
 
+    def thresholds(self) -> Dict[str, Tuple[Optional[float], Optional[float]]]:
+        """``{column: (low, high)}`` for every threshold this gate can take.
+
+        NOT :meth:`PolygonGate.bounds`, which is that shape's bounding box
+        and predates this -- hence the different name rather than an
+        override that would have changed what a caller of the old one got
+        back.
+
+        Instruction 52 point 4's read side: "the user should also be able to
+        set thresholds for each individual gate for the measurements they are
+        defined by". Derived from :meth:`range_filters`, so a gate whose shape
+        is not a conjunction of ranges offers only the bounds it really has --
+        a cylinder offers its NORMAL and not its oval, which is exactly the
+        axis the user needs in order to bound its height.
+        """
+        return {clause.column: (clause.low, clause.high)
+                for clause in self.range_filters()}
+
+    def with_threshold(self, column: str, low: Optional[float],
+                    high: Optional[float]) -> "Gate":
+        """Return this gate with ``column`` bounded to ``low``..``high``.
+
+        :raises GateError: when this gate has no bound on ``column``. A gate
+            that silently ignored the edit would leave the panel showing a
+            number the gate does not honour.
+        """
+        raise GateError(
+            f"{self.kind} gate {self.name!r} has no bound on {column!r}; it "
+            f"can be given "
+            + (", ".join(self.thresholds()) or "no thresholds at all"))
+
     def describe(self) -> str:  # pragma: no cover - overridden
         raise NotImplementedError
 
@@ -434,6 +477,13 @@ class ThresholdGate(Gate):
         return {"kind": THRESHOLD, "name": self.name, "parent": self.parent,
                 "column": self.column, "low": self.low, "high": self.high}
 
+    def with_threshold(self, column: str, low: Optional[float],
+                    high: Optional[float]) -> "ThresholdGate":
+        if column != self.column:
+            return super().with_threshold(column, low, high)
+        low, high = _ordered(low, high)
+        return replace(self, low=low, high=high)
+
     def translated(self, dx: float, dy: float) -> "ThresholdGate":
         """``dy`` is ignored: a threshold is a cut on ONE column, so it has
         no second axis to move along."""
@@ -573,6 +623,21 @@ class RectGate(Gate):
                 "x_column": self.x_column, "y_column": self.y_column,
                 "x_low": self.x_low, "x_high": self.x_high,
                 "y_low": self.y_low, "y_high": self.y_high}
+
+    def thresholds(self) -> Dict[str, Tuple[Optional[float], Optional[float]]]:
+        """Both sides, whether or not they are currently set."""
+        return {self.x_column: (self.x_low, self.x_high),
+                self.y_column: (self.y_low, self.y_high)}
+
+    def with_threshold(self, column: str, low: Optional[float],
+                    high: Optional[float]) -> "RectGate":
+        field_of = {self.x_column: ("x_low", "x_high"),
+                    self.y_column: ("y_low", "y_high")}
+        if column not in field_of:
+            return super().with_threshold(column, low, high)
+        low, high = _ordered(low, high)
+        low_name, high_name = field_of[column]
+        return replace(self, **{low_name: low, high_name: high})
 
     def translated(self, dx: float, dy: float) -> "RectGate":
         return replace(self,
@@ -1109,6 +1174,24 @@ class BoxGate(Gate):
                        y_low=_scale_bound(self.y_low, factor, cy),
                        y_high=_scale_bound(self.y_high, factor, cy))
 
+    def thresholds(self) -> Dict[str, Tuple[Optional[float], Optional[float]]]:
+        """All three sides, whether or not they are currently set."""
+        return {self.x_column: (self.x_low, self.x_high),
+                self.y_column: (self.y_low, self.y_high),
+                self.z_column: (self.z_low, self.z_high)}
+
+    def with_threshold(self, column: str, low: Optional[float],
+                    high: Optional[float]) -> "BoxGate":
+        """Any of the three sides, by name."""
+        field_of = {self.x_column: ("x_low", "x_high"),
+                    self.y_column: ("y_low", "y_high"),
+                    self.z_column: ("z_low", "z_high")}
+        if column not in field_of:
+            return super().with_threshold(column, low, high)
+        low, high = _ordered(low, high)
+        low_name, high_name = field_of[column]
+        return replace(self, **{low_name: low, high_name: high})
+
     def to_rect(self) -> "RectGate":
         """The box seen from the front: its x and y, ignoring depth.
 
@@ -1148,6 +1231,472 @@ class BoxGate(Gate):
 # defined further down the file, beside the volume it belongs to, and a
 # forward reference in the dict would be a NameError at import.
 _GATE_CLASSES[BOX] = BoxGate
+
+
+@dataclass(frozen=True)
+class CylinderGate(Gate):
+    """An oval drawn on one plane of the volume, extended along the third.
+
+    Instruction 52's cylinder. The user draws in 2D on the plane they chose
+    -- which is the only place a drag has a well-defined meaning -- and the
+    shape is extended along the axis pointing out of it.
+
+    THE PLANE IS NAMED BY ITS COLUMNS, not by a string. ``u_column`` and
+    ``v_column`` are the two the oval is drawn on and ``axis_column`` is the
+    normal; that says which of XY / XZ / YZ was the anchor without a second
+    field that could disagree with the columns. It also reads the same from
+    every camera angle, which is the principle :class:`BoxGate` states: a
+    shape dragged on a rotated projection has no well-defined extent along
+    the axis pointing at the viewer, so any attempt to read one off invents
+    a number.
+
+    AN UNBOUNDED AXIS IS THE DEFAULT AND THAT IS A DECISION, not an
+    accident. A cylinder with no bound along its normal means exactly what
+    the 2D ellipse on that plane already meant, so drawing one in 3D and
+    drawing one in 2D agree; narrowing it is then an explicit act rather
+    than something the user has to undo.
+    """
+
+    u_column: str = ""
+    v_column: str = ""
+    axis_column: str = ""
+    u_centre: float = 0.0
+    v_centre: float = 0.0
+    u_radius: float = 0.0
+    v_radius: float = 0.0
+    axis_low: Optional[float] = None
+    axis_high: Optional[float] = None
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        for name in ("u_column", "v_column", "axis_column"):
+            value = str(getattr(self, name)).strip()
+            if not value:
+                raise GateError(
+                    f"cylinder gate {self.name!r} has no {name}; a cylinder "
+                    f"is drawn on a plane and extended along the third "
+                    f"measurement")
+            object.__setattr__(self, name, value)
+        if len({self.u_column, self.v_column, self.axis_column}) != 3:
+            raise GateError(
+                f"cylinder gate {self.name!r} names the same measurement "
+                f"twice; the plane and its normal have to be three different "
+                f"measurements")
+        for name in ("u_radius", "v_radius"):
+            if float(getattr(self, name)) < 0:
+                object.__setattr__(self, name, abs(float(getattr(self, name))))
+        low, high = _ordered(self.axis_low, self.axis_high)
+        object.__setattr__(self, "axis_low", low)
+        object.__setattr__(self, "axis_high", high)
+
+    @property
+    def kind(self) -> str:
+        return CYLINDER
+
+    @property
+    def columns(self) -> Tuple[str, ...]:
+        return (self.u_column, self.v_column, self.axis_column)
+
+    def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        what = f"gate {self.name!r}"
+        u = _numeric(frame, self.u_column, what)
+        v = _numeric(frame, self.v_column, what)
+        axis = _numeric(frame, self.axis_column, what)
+        keep = np.isfinite(u) & np.isfinite(v) & np.isfinite(axis)
+        if not self.u_radius or not self.v_radius:
+            # A zero radius is an empty gate, not a division by zero.
+            return np.zeros(len(frame), dtype=bool)
+        with np.errstate(invalid="ignore"):
+            inside = (((u - self.u_centre) / self.u_radius) ** 2
+                      + ((v - self.v_centre) / self.v_radius) ** 2) <= 1.0
+        keep &= inside
+        if self.axis_low is not None:
+            keep &= axis >= self.axis_low
+        if self.axis_high is not None:
+            keep &= axis <= self.axis_high
+        return keep
+
+    def range_filters(self) -> Tuple[RangeFilter, ...]:
+        """Only the normal, and only when it is bounded.
+
+        The oval is not a conjunction of ranges -- the same reason
+        :class:`PolygonGate` returns nothing -- so offering a bounding box
+        for it would quietly include the corners. The axis bound IS a range
+        and is exact, so it is given.
+        """
+        if self.axis_low is None and self.axis_high is None:
+            return ()
+        return (RangeFilter(column=self.axis_column, low=self.axis_low,
+                            high=self.axis_high),)
+
+    def describe(self) -> str:
+        oval = (f"oval on {self.u_column}/{self.v_column} at "
+                f"({self.u_centre:g}, {self.v_centre:g}) "
+                f"± ({self.u_radius:g}, {self.v_radius:g})")
+        if self.axis_low is None and self.axis_high is None:
+            return f"{oval}, any {self.axis_column}"
+        if self.axis_low is None:
+            return f"{oval}, {self.axis_column} ≤ {self.axis_high:g}"
+        if self.axis_high is None:
+            return f"{oval}, {self.axis_column} ≥ {self.axis_low:g}"
+        return (f"{oval}, {self.axis_low:g} ≤ {self.axis_column} "
+                f"≤ {self.axis_high:g}")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {"kind": CYLINDER, "name": self.name, "parent": self.parent,
+                "u_column": self.u_column, "v_column": self.v_column,
+                "axis_column": self.axis_column,
+                "u_centre": self.u_centre, "v_centre": self.v_centre,
+                "u_radius": self.u_radius, "v_radius": self.v_radius,
+                "axis_low": self.axis_low, "axis_high": self.axis_high}
+
+    def translated(self, dx: float, dy: float) -> "CylinderGate":
+        return replace(self, u_centre=self.u_centre + float(dx),
+                       v_centre=self.v_centre + float(dy))
+
+    def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        return (self.u_centre, self.v_centre)
+
+    def scaled(self, factor: float, *,
+               about: Optional[Tuple[float, float]] = None) -> "CylinderGate":
+        _check_factor(factor)
+        cu, cv = about if about is not None else self.centre()
+        return replace(
+            self,
+            u_centre=cu + (self.u_centre - cu) * factor,
+            v_centre=cv + (self.v_centre - cv) * factor,
+            u_radius=self.u_radius * factor,
+            v_radius=self.v_radius * factor)
+
+    def thresholds(self) -> Dict[str, Tuple[Optional[float], Optional[float]]]:
+        """The normal, ALWAYS -- even when it is currently unbounded.
+
+        `range_filters` answers "what does this gate filter on"; an unbounded
+        normal filters on nothing and is rightly absent there. This answers
+        "what can the user set", and an axis they cannot see in the panel is
+        an axis they cannot bound -- which is the whole of point 4.
+        """
+        return {self.axis_column: (self.axis_low, self.axis_high)}
+
+    def with_threshold(self, column: str, low: Optional[float],
+                    high: Optional[float]) -> "Gate":
+        """Bound the NORMAL. The oval/polygon is not a range and is not one.
+
+        This is how the user bounds the cylinder's height, which is what point 4
+        of instruction 52 asks for.
+        """
+        if column != self.axis_column:
+            return super().with_threshold(column, low, high)
+        low, high = _ordered(low, high)
+        return replace(self, axis_low=low, axis_high=high)
+
+    def to_ellipse(self) -> "EllipseGate":
+        """The cylinder seen down its own axis: the oval that was drawn.
+
+        The same service :meth:`BoxGate.to_rect` provides -- the 2D editor's
+        handles, drag and outline all work on this unchanged, and the extent
+        along the normal that a 2D view cannot express is left alone rather
+        than silently reset.
+        """
+        return EllipseGate(name=self.name, parent=self.parent,
+                           x_column=self.u_column, y_column=self.v_column,
+                           x_centre=self.u_centre, y_centre=self.v_centre,
+                           x_radius=self.u_radius, y_radius=self.v_radius)
+
+    @classmethod
+    def from_ellipse(cls, ellipse: "EllipseGate", axis_column: str, *,
+                     axis_low: Optional[float] = None,
+                     axis_high: Optional[float] = None) -> "CylinderGate":
+        """Extrude a drawn oval along ``axis_column``.
+
+        This is what "translated to 3 dims when the gate is generated"
+        means: the drawing stays 2D and reuses the existing geometry, and
+        the third dimension is added at the end.
+        """
+        return cls(name=ellipse.name, parent=ellipse.parent,
+                   u_column=ellipse.x_column, v_column=ellipse.y_column,
+                   axis_column=axis_column,
+                   u_centre=ellipse.x_centre, v_centre=ellipse.y_centre,
+                   u_radius=ellipse.x_radius, v_radius=ellipse.y_radius,
+                   axis_low=axis_low, axis_high=axis_high)
+
+
+@dataclass(frozen=True)
+class PrismGate(Gate):
+    """A polygon drawn on one plane of the volume, extended along the third.
+
+    Instruction 52's prism, and the sibling of :class:`CylinderGate` in
+    every respect -- the plane is named by its columns, the normal is
+    unbounded by default so it agrees with the 2D polygon, and the drawing
+    stays 2D.
+    """
+
+    u_column: str = ""
+    v_column: str = ""
+    axis_column: str = ""
+    vertices: Tuple[Tuple[float, float], ...] = ()
+    axis_low: Optional[float] = None
+    axis_high: Optional[float] = None
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        for name in ("u_column", "v_column", "axis_column"):
+            value = str(getattr(self, name)).strip()
+            if not value:
+                raise GateError(
+                    f"prism gate {self.name!r} has no {name}; a prism is "
+                    f"drawn on a plane and extended along the third "
+                    f"measurement")
+            object.__setattr__(self, name, value)
+        if len({self.u_column, self.v_column, self.axis_column}) != 3:
+            raise GateError(
+                f"prism gate {self.name!r} names the same measurement twice; "
+                f"the plane and its normal have to be three different "
+                f"measurements")
+        vertices = tuple((float(a), float(b)) for a, b in self.vertices)
+        if len(vertices) < 3:
+            raise GateError(
+                f"prism gate {self.name!r} has {len(vertices)} vertices; a "
+                f"polygon needs at least three")
+        object.__setattr__(self, "vertices", vertices)
+        low, high = _ordered(self.axis_low, self.axis_high)
+        object.__setattr__(self, "axis_low", low)
+        object.__setattr__(self, "axis_high", high)
+
+    @property
+    def kind(self) -> str:
+        return PRISM
+
+    @property
+    def columns(self) -> Tuple[str, ...]:
+        return (self.u_column, self.v_column, self.axis_column)
+
+    def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        what = f"gate {self.name!r}"
+        u = _numeric(frame, self.u_column, what)
+        v = _numeric(frame, self.v_column, what)
+        axis = _numeric(frame, self.axis_column, what)
+        keep = points_in_polygon(u, v, self.vertices)
+        keep &= np.isfinite(axis)
+        if self.axis_low is not None:
+            keep &= axis >= self.axis_low
+        if self.axis_high is not None:
+            keep &= axis <= self.axis_high
+        return keep
+
+    def range_filters(self) -> Tuple[RangeFilter, ...]:
+        """The normal only -- see :meth:`CylinderGate.range_filters`."""
+        if self.axis_low is None and self.axis_high is None:
+            return ()
+        return (RangeFilter(column=self.axis_column, low=self.axis_low,
+                            high=self.axis_high),)
+
+    def describe(self) -> str:
+        shape = (f"{len(self.vertices)}-sided polygon on "
+                 f"{self.u_column}/{self.v_column}")
+        if self.axis_low is None and self.axis_high is None:
+            return f"{shape}, any {self.axis_column}"
+        if self.axis_low is None:
+            return f"{shape}, {self.axis_column} ≤ {self.axis_high:g}"
+        if self.axis_high is None:
+            return f"{shape}, {self.axis_column} ≥ {self.axis_low:g}"
+        return (f"{shape}, {self.axis_low:g} ≤ {self.axis_column} "
+                f"≤ {self.axis_high:g}")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {"kind": PRISM, "name": self.name, "parent": self.parent,
+                "u_column": self.u_column, "v_column": self.v_column,
+                "axis_column": self.axis_column,
+                "vertices": [list(v) for v in self.vertices],
+                "axis_low": self.axis_low, "axis_high": self.axis_high}
+
+    def translated(self, dx: float, dy: float) -> "PrismGate":
+        return replace(self, vertices=tuple(
+            (u + float(dx), v + float(dy)) for u, v in self.vertices))
+
+    def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        array = np.asarray(self.vertices, dtype=float)
+        return (float(array[:, 0].mean()), float(array[:, 1].mean()))
+
+    def scaled(self, factor: float, *,
+               about: Optional[Tuple[float, float]] = None) -> "PrismGate":
+        _check_factor(factor)
+        cu, cv = about if about is not None else self.centre()
+        return replace(self, vertices=tuple(
+            (cu + (u - cu) * factor, cv + (v - cv) * factor)
+            for u, v in self.vertices))
+
+    def thresholds(self) -> Dict[str, Tuple[Optional[float], Optional[float]]]:
+        """The normal, always -- see :meth:`CylinderGate.bounds`."""
+        return {self.axis_column: (self.axis_low, self.axis_high)}
+
+    def with_threshold(self, column: str, low: Optional[float],
+                    high: Optional[float]) -> "Gate":
+        """Bound the NORMAL. The oval/polygon is not a range and is not one.
+
+        This is how the user bounds the prism's height, which is what point 4
+        of instruction 52 asks for.
+        """
+        if column != self.axis_column:
+            return super().with_threshold(column, low, high)
+        low, high = _ordered(low, high)
+        return replace(self, axis_low=low, axis_high=high)
+
+    def to_polygon(self) -> "PolygonGate":
+        """The prism seen down its own axis -- see
+        :meth:`CylinderGate.to_ellipse`."""
+        return PolygonGate(name=self.name, parent=self.parent,
+                           x_column=self.u_column, y_column=self.v_column,
+                           vertices=self.vertices)
+
+    @classmethod
+    def from_polygon(cls, polygon: "PolygonGate", axis_column: str, *,
+                     axis_low: Optional[float] = None,
+                     axis_high: Optional[float] = None) -> "PrismGate":
+        """Extrude a drawn polygon along ``axis_column``."""
+        return cls(name=polygon.name, parent=polygon.parent,
+                   u_column=polygon.x_column, v_column=polygon.y_column,
+                   axis_column=axis_column, vertices=polygon.vertices,
+                   axis_low=axis_low, axis_high=axis_high)
+
+
+_GATE_CLASSES[CYLINDER] = CylinderGate
+_GATE_CLASSES[PRISM] = PrismGate
+
+
+@dataclass(frozen=True)
+class CompositeGate(Gate):
+    """Other gates, combined. Instruction 52's point 5.
+
+        "if the user draws another gate on the same 3d graph they should be
+         able to set the new gate as being its own gate, subtracting or
+         add[ing] from/to the other gates in view"
+
+    WHY THIS IS THE FEATURE AND NOT A CONVENIENCE. "The bright, small, round
+    ones" is three measurements at once, and answering it today means gating
+    twice and intersecting the results by hand -- an intersection that exists
+    only in whatever the user did next. A gate that IS "this cylinder minus
+    that box" is a statement someone else can re-run.
+
+    OPERANDS ARE NAMES, NOT COPIES, and that is the whole design decision.
+    Holding copies would make ``mask`` self-contained, which is tidier -- and
+    would mean that adjusting one of the gates being combined left the
+    composite showing the old shape, silently, for as long as nobody looked.
+    One source of truth costs a resolver; two sources cost a wrong answer.
+
+    So :meth:`mask` cannot work alone and says so rather than guessing.
+    :meth:`GateSet.mask` passes the set in.
+
+    NOT THE SAME THING AS ``parent``. A parent is SEQUENTIAL gating -- draw
+    inside what you already kept -- which is always an intersection and
+    always a tree. This is set algebra between siblings, which is neither.
+    Both exist because both are asked for.
+    """
+
+    operation: str = "union"
+    operands: Tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        operation = str(self.operation).strip().lower()
+        if operation not in COMPOSITE_OPS:
+            raise GateError(
+                f"composite gate {self.name!r} has operation "
+                f"{self.operation!r}; it must be one of "
+                f"{', '.join(COMPOSITE_OPS)}")
+        object.__setattr__(self, "operation", operation)
+        operands = tuple(str(o).strip() for o in self.operands if str(o).strip())
+        if len(operands) < 2:
+            raise GateError(
+                f"composite gate {self.name!r} combines {len(operands)} "
+                f"gate(s); combining needs at least two")
+        if self.name in operands:
+            raise GateError(
+                f"composite gate {self.name!r} combines itself")
+        if len(set(operands)) != len(operands):
+            raise GateError(
+                f"composite gate {self.name!r} names the same gate twice; "
+                f"a gate unioned with itself is itself, and subtracted from "
+                f"itself is empty -- neither is likely to be meant")
+        object.__setattr__(self, "operands", operands)
+
+    @property
+    def kind(self) -> str:
+        return COMPOSITE
+
+    @property
+    def columns(self) -> Tuple[str, ...]:
+        """Empty: the columns are its operands', and only the set knows them.
+
+        A composite that guessed would be guessing about gates it cannot
+        see. :meth:`GateSet.columns_for` answers this properly.
+        """
+        return ()
+
+    def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        raise GateError(
+            f"composite gate {self.name!r} combines "
+            f"{', '.join(self.operands)} and cannot be evaluated on its own; "
+            f"ask the gate set for it")
+
+    def mask_with(self, frame: pd.DataFrame,
+                  lookup: Mapping[str, "Gate"]) -> np.ndarray:
+        """Evaluate against a name -> gate mapping.
+
+        :raises GateError: naming any operand the mapping does not hold. A
+            composite whose operand was deleted must not quietly become the
+            union of what is left.
+        """
+        missing = [o for o in self.operands if o not in lookup]
+        if missing:
+            raise GateError(
+                f"composite gate {self.name!r} names "
+                f"{', '.join(missing)}, which no longer exist")
+        masks = [np.asarray(lookup[o], dtype=bool) if isinstance(
+                     lookup[o], np.ndarray) else lookup[o].mask(frame)
+                 for o in self.operands]
+        if self.operation == "union":
+            out = masks[0].copy()
+            for extra in masks[1:]:
+                out |= extra
+            return out
+        if self.operation == "intersect":
+            out = masks[0].copy()
+            for extra in masks[1:]:
+                out &= extra
+            return out
+        # subtract: the FIRST operand minus every other. Order matters, and
+        # it is the order the user listed them in -- A minus B is not B minus
+        # A, and a set that sorted its operands would silently change which.
+        out = masks[0].copy()
+        for extra in masks[1:]:
+            out &= ~extra
+        return out
+
+    def describe(self) -> str:
+        joiner = {"union": " or ", "intersect": " and ",
+                  "subtract": " minus "}[self.operation]
+        return joiner.join(self.operands)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {"kind": COMPOSITE, "name": self.name, "parent": self.parent,
+                "operation": self.operation, "operands": list(self.operands)}
+
+    def translated(self, dx: float, dy: float) -> "CompositeGate":
+        """Unchanged: moving a composite would have to move its operands,
+        and those are other gates with their own users."""
+        return self
+
+    def scaled(self, factor: float, *,
+               about: Optional[Tuple[float, float]] = None) -> "CompositeGate":
+        _check_factor(factor)
+        return self
+
+    def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        return (None, None)
+
+
+_GATE_CLASSES[COMPOSITE] = CompositeGate
 
 
 class WandError(GateError):
@@ -1592,6 +2141,10 @@ def gate_from_dict(payload: Mapping[str, Any]) -> Gate:
     cls = _GATE_CLASSES[kind]
     if kind == POLYGON and "vertices" in data:
         data["vertices"] = tuple(tuple(v) for v in data["vertices"])
+    if kind == PRISM and "vertices" in data:
+        data["vertices"] = tuple(tuple(v) for v in data["vertices"])
+    if kind == COMPOSITE and "operands" in data:
+        data["operands"] = tuple(data["operands"])
     fields = {f for f in cls.__dataclass_fields__}
     unknown = set(data) - fields
     if unknown:
@@ -1845,10 +2398,41 @@ class GateSet:
             the measurement is a mistake worth an exception, not a silently
             empty population.
         """
+        return self._mask_chain(frame, name, ())
+
+    def _mask_chain(self, frame: pd.DataFrame, name: str,
+                    seen: Tuple[str, ...]) -> np.ndarray:
+        """:meth:`mask`, carrying the composites already being evaluated."""
         keep = np.ones(len(frame), dtype=bool)
         for gate in self.path(name):
-            keep &= gate.mask(frame)
+            keep &= self._mask_of(frame, gate, seen)
         return keep
+
+    def _mask_of(self, frame: pd.DataFrame, gate: Gate,
+                 seen: Tuple[str, ...]) -> np.ndarray:
+        """One gate's own mask, resolving a composite's operands.
+
+        :param seen: the composites already being evaluated, so a cycle is a
+            sentence naming the loop rather than a RecursionError.
+        """
+        if not isinstance(gate, CompositeGate):
+            return gate.mask(frame)
+        if gate.name in seen:
+            raise GateError(
+                "composite gates form a loop: "
+                + " -> ".join(seen + (gate.name,)))
+        lookup = {}
+        for operand in gate.operands:
+            if operand not in self:
+                raise GateError(
+                    f"composite gate {gate.name!r} names {operand!r}, which "
+                    f"no longer exists")
+            # Each operand carries its OWN ancestors, because a gate drawn
+            # inside another means the pair, and combining it as though it
+            # were the shape alone would include rows its parent excluded.
+            lookup[operand] = self._mask_chain(
+                frame, operand, seen + (gate.name,))
+        return gate.mask_with(frame, lookup)
 
     def population(self, frame: pd.DataFrame, name: str) -> pd.DataFrame:
         """``frame`` narrowed to the gate and its ancestors."""
