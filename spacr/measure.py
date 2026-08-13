@@ -3145,7 +3145,15 @@ def _measure_crop_core(index, time_ls, file, settings):
                         region_array = data[row_idx.min():row_idx.max()+1, col_idx.min():col_idx.max()+1, :]
                         array_folder = f"{fldr}/region_array/"            
                         os.makedirs(array_folder, exist_ok=True)
-                        np.save(os.path.join(array_folder, img_name), region_array)
+                        # `original` by default, so this stays the bare save it
+                        # has always been -- uint16 in, uint16 out. The setting
+                        # is a STORAGE choice; training precision is decided by
+                        # ToTensor, which divides by 255 whatever is here.
+                        from .normalization import apply_crop_dtype
+                        np.save(os.path.join(array_folder, img_name),
+                                apply_crop_dtype(region_array,
+                                                 settings.get('crop_dtype',
+                                                              'original')))
 
                         grid = save_and_add_image_to_grid(png_channels, img_path, grid, settings['plot'])
 
