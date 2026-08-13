@@ -49,27 +49,55 @@ THE TWO PREMISES, CHECKED
    smaller, and a THREE-channel PNG needs no surgery at all.
 
 --------------------------------------------------------------------------------
-WHY ALPHA SPECIFICALLY IS THE WRONG CONTAINER
+THE CONTAINER QUESTION, TESTED -- AND MY FIRST RECOMMENDATION WAS TOO STRONG
 --------------------------------------------------------------------------------
 
-PNG's fourth channel is not a spare slot -- it MEANS transparency, and every
-reader honours that:
+I first recommended a 4-channel TIFF over an RGBA PNG, on the grounds that
+TIFF has no transparency semantics and that PIL and torchvision's ImageFolder
+would read it. TESTED, AND THAT IS MOSTLY NOT TRUE:
 
-  * Annotate, any image viewer, any figure that embeds the crop will draw the
-    object as a see-through cut-out wherever the mask is 0. A crop whose alpha
-    is a segmentation mask does not look like a crop with extra information;
-    it looks like a broken crop.
-  * `Image.open(path).convert("RGB")` SILENTLY DROPS IT -- verified: (4,4,4)
-    becomes (4,4,3), no warning. spaCR calls `convert('RGB')` in at least five
-    places. So the fourth channel would vanish somewhere downstream with no
-    error, which is this project's most-repeated defect shape.
+    4-channel TIFF   PIL opens it as mode RGBA -- the fourth plane is treated
+                     as alpha exactly as in a PNG, and `convert("RGB")` drops
+                     it just the same
+    5-channel TIFF   PIL returns shape (4, 5, 4) for a (4, 4, 5) array. It
+                     does not fail, it SILENTLY REINTERPRETS THE DIMENSIONS.
+                     tifffile reads it correctly
+    6-channel TIFF   same corruption
 
-RECOMMENDATION: if a fourth channel is wanted, write a 4-CHANNEL TIFF rather
-than an RGBA PNG. TIFF has no transparency semantics, PIL reads it, and
-torchvision's ImageFolder loads it, so nothing about the finetuning story
-changes -- while nothing renders the object as half-invisible and no
-`convert('RGB')` can quietly discard it. spaCR already writes TIFFs
-(`spacr.tiff_io`).
+So TIFF buys nothing over PNG at four channels, and past four PIL cannot be
+trusted at all -- which also kills the "ImageFolder just works" argument,
+because ImageFolder loads through PIL.
+
+WHAT ACTUALLY MATTERS IS THE LOADER, NOT THE CONTAINER. Any path with more
+than three planes needs spaCR to read the file itself -- `tifffile.imread` or
+`np.load` -- and to never call `convert("RGB")` on a crop. That is true of
+RGBA PNG, of 4-channel TIFF and of .npy equally.
+
+--------------------------------------------------------------------------------
+WHICH MEANS THE FEATURE IS SMALLER THAN IT LOOKED
+--------------------------------------------------------------------------------
+
+spaCR ALREADY HAS THE RIGHT CONTAINER. `crop_mode` can write .npy arrays with
+any number of planes, unambiguously, with no alpha semantics and nothing to
+corrupt. The only reason it was not used for this is the belief that it costs
+ImageNet finetuning -- and that belief is wrong, as the premise section above
+records: adapting conv1 keeps every pretrained weight and is five lines.
+
+SO THE WORK IS NOT A NEW FILE FORMAT. It is:
+
+  1. Teach `deep_spacr` to adapt the first convolution when the dataset has
+     more planes than the pretrained model expects -- keep the RGB weights,
+     seed the extra plane(s) from their mean, say so out loud, and record it
+     on the model card so a 4-plane model cannot silently score a 3-plane
+     dataset.
+  2. Let `crop_mode='npy'` (or a new `crop_extra_channel`) carry the mask or a
+     fourth stain, which is a small change once (1) exists.
+  3. Leave the 3-channel PNG exactly as it is and keep it the default. It is
+     the only shape that needs no surgery, and most users never want more.
+
+An RGBA PNG remains a bad idea for the reason that did survive testing: alpha
+MEANS transparency, so Annotate and every external viewer draw the object as
+a see-through cut-out wherever the fourth plane is 0.
 
 --------------------------------------------------------------------------------
 WHAT TO BUILD, IF IT IS BUILT
