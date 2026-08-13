@@ -126,3 +126,50 @@ Sphinx build is clean without it, and nothing in the docs tree addresses the
 maintainer in the second person about work not yet done. The five additions
 above exist as their own tracked items rather than as prose in a reference
 page.
+
+--------------------------------------------------------------------------------
+2026-08-13 - INSIGHT (e), THE BENCHMARK COMMAND, IS BUILT
+--------------------------------------------------------------------------------
+
+`spacr/benchmark.py`. `benchmark(work, items)` runs the real work over a few
+representative units and records throughput, peak RSS and peak VRAM;
+`recommend_workers(measurement)` turns that into a worker count;
+`format_report` prints both as a few lines a user can paste into an issue.
+
+WHY THIS IS WORTH HAVING, stated because the existing defaults look
+reasonable. Every worker default in spaCR is arithmetic on the core count --
+`cpu_count() - 4`, `cpu_count() // 2`, `-1`. Cores are the one thing that is
+never the binding constraint on a measurement run: a field is hundreds of
+megabytes decompressed, so eight workers on a 16-core laptop with 16 GB swap
+long before they saturate the CPU. The number that decides is how much MEMORY
+one worker needs for one field, which is a property of the plate and the
+machine and cannot be derived from `cpu_count()`.
+
+DECISIONS WORTH KEEPING:
+
+  * IT MEASURES, IT DOES NOT TUNE. Nothing here writes a setting, and a test
+    asserts that by scanning the module for `settings[`, `save_settings` and
+    `os.environ[`. A benchmark that silently changed `n_jobs` would make a
+    run's speed depend on when the benchmark last ran.
+  * SERIAL ON PURPOSE. The question is what ONE worker needs; running them in
+    parallel measures the sum and hides the per-worker figure the
+    recommendation divides by.
+  * A WARM-UP ITEM RUNS BUT IS NOT TIMED. The first field pays for imports,
+    the CUDA context and page faults no later field pays again.
+  * `MemAvailable`, NOT total, minus a 2 GiB reserve. Sizing workers against
+    total memory is how a run is OOM-killed at field 900.
+  * VRAM IS `None` WITHOUT CUDA, not 0. "Not measured" and "measured, and it
+    used none" are different answers.
+  * `ru_maxrss` IS KILOBYTES ON LINUX AND BYTES ON macOS. Getting that
+    backwards is a factor of 1024 in a memory budget -- one worker on a large
+    machine, or forty on a small one.
+  * The recommendation carries its evidence (cores, available bytes, the
+    measurement) and its reason, so a number a user disagrees with can be
+    argued with rather than only overridden.
+
+20 tests, Qt-free, registered in `_SUBMODULES`.
+
+STILL OPEN IN 86: insights (a) dry-run resource card, (b) checkpoint/resume,
+(c) provenance hashes, (d) QC gates -- each with its note above about what
+already exists to build on. And the cuML question, which contradicts
+instruction 70 and needs the maintainer.
