@@ -173,3 +173,60 @@ STILL OPEN IN 86: insights (a) dry-run resource card, (b) checkpoint/resume,
 (c) provenance hashes, (d) QC gates -- each with its note above about what
 already exists to build on. And the cuML question, which contradicts
 instruction 70 and needs the maintainer.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE cuML QUESTION, CHECKED PROPERLY
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "For cuML, look into it again, check how compatible
+           rapids is with torch and cuda vs other dependencies, it's possible
+           that it's not even a problem, do a thorough check."
+
+THE MAINTAINER IS RIGHT AND INSTRUCTION 70 IS RIGHT, about different things.
+70's CONCLUSION (do not make it a dependency) holds. 70's stated REASON is
+out of date: it said cuML "would add the rapidsai channel to the install
+instructions", and RAPIDS now ships PyPI wheels -- `cuml-cu12` is on PyPI at
+26.8.0. That objection has expired.
+
+THE REAL BLOCKER IS STRONGER AND DIFFERENT, read off the wheel metadata:
+
+    cuml-cu12 26.8.0
+      requires_python   >=3.11
+      classifiers       Python 3.11, 3.12 ONLY
+      numpy             >=2.0
+      scipy             >=1.14.0
+      cuda-toolkit      ==12.*
+      cudf-cu12         ==26.8.*   (and libcuml, pylibraft, rmm, nvforest,
+                                    all exact-minor pinned)
+
+    spaCR
+      requires-python   >=3.9,<3.15,!=3.14.1
+      numpy             >=1.26.4,<3.0
+      scipy             >=1.12.0,<2.0
+
+AS A HARD DEPENDENCY IT IS IMPOSSIBLE, and not marginally: it would drop
+Python 3.9, 3.10, 3.13 and 3.14 -- four of the six interpreters spaCR
+promises -- because cuML declares 3.11-3.12 only. It would also raise the
+numpy floor to 2.0 (which has no cp39 wheels) and scipy to 1.14 (which needs
+3.10+), so the minimum-dependencies CI job and the 3.9 "installs from wheels"
+cell both go with it.
+
+AS AN OPTIONAL EXTRA IT IS FINE, and this is the maintainer's point. An extra
+does not constrain the base resolution: `pip install spacr` is untouched on
+every interpreter, and `pip install spacr[rapids]` resolves only for someone
+on 3.11/3.12 with CUDA 12 who asked for it. TORCH IS NOT A CONFLICT -- this
+machine runs torch 2.9.1+cu128 and cuML wants cuda-toolkit 12.*, the same
+major.
+
+ONE NUMBER TO NOT MISREAD: the cuml-cu12 wheel is 6 MB. That is not the
+footprint. It pulls libcuml-cu12, cudf-cu12, cupy-cuda12x and the CUDA
+toolkit libraries, which is gigabytes -- so "12 MB" is not an argument for
+making it a dependency either.
+
+RECOMMENDATION, unchanged in substance from the earlier note but now with
+the evidence: ship it as `spacr[rapids]`, keep the CPU path the tested and
+default one, and gate the code on a runtime import that falls back silently.
+The conda-forge recipe (59) must NOT list it, which an extra makes automatic.
+
+The xgboost `device='cuda'` half still has no conflict at all -- xgboost is
+already a dependency and the flag is free.
