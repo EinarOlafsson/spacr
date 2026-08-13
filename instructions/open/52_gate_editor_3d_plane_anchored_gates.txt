@@ -137,3 +137,27 @@ wire, because the settings are already there.
 
 The count to hold this to: `GateEditorSettings` should end this instruction
 with ZERO fields that nothing reads.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE INTERIM FIX THIS FILE ASKED FOR IS DONE
+--------------------------------------------------------------------------------
+
+This file says, of its own four settings:
+
+    "Until this instruction lands, the 3D group should either be hidden or
+     carry a visible 'not yet'."
+
+Carrying the "not yet", not hidden. Hiding them would silently lose a user's
+3D setup the first time they opened the tab -- the values ARE saved,
+reloaded and carried in the settings, and only the DRAWING is missing. So
+`voxel_bins`, `snap_to_axis` and `spin_speed` keep their controls, gain a
+line in their tooltip saying the value is saved but not yet in effect, and
+the tab carries one sentence to the same effect.
+
+That is the whole of the phantom-control defect: a control that turns
+nothing is a promise the application does not keep, which is what instruction
+77's sweep was about. It is now a control that says what it does.
+
+THE INSTRUCTION ITSELF IS STILL OPEN. The volume, the plane-anchored gates
+and the snap-on-release behaviour are not built. What changed is that the
+application no longer claims they are.
