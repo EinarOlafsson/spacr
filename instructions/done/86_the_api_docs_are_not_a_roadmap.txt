@@ -384,3 +384,63 @@ them. The failure path is tested rather than pragma'd.
 827 across the pre-flight-adjacent suites.
 
 STILL OPEN IN 86: only (b), checkpoint/resume.
+
+--------------------------------------------------------------------------------
+2026-08-13 (last) - (b) CHECKPOINT/RESUME WAS ALREADY BUILT. 86 IS DONE.
+--------------------------------------------------------------------------------
+
+The note under insight (b) says "this is backlog item #14 restated and
+sharpened. `RunLedger` and `run_context` already exist and are the place it
+goes. Measure must also delete-before-insert or a resume duplicates rows."
+
+IT IS BUILT, and not in RunLedger -- in two modules of its own, which is the
+better home and is why grepping the ledger found nothing:
+
+    spacr/checkpoint.py   CheckpointStore: one atomic JSON document per
+                          workflow, written to a temporary sibling and
+                          os.replace'd, with a `fingerprint` of the settings
+                          and input identity that a resume is REFUSED against
+                          when it differs. Standard library only, on purpose:
+                          Mask and Measure consult resume state before loading
+                          torch, so this must not make that import heavier.
+    spacr/resume.py       the field-level half -- completed_fields_in_merged,
+                          completed_fields_in_db, plan_measure_resume,
+                          run_already_complete, SettingsComparison, and
+                          clear_field_rows.
+
+WIRED, all four of the five the insight names:
+
+    Mask         core.py passes resume= into the mask writers; io.py:3286
+                 reads completed_fields_in_merged
+    Measure      measure.py:3410 calls plan_measure_resume, deliberately
+                 BEFORE _save_settings_to_db, because that writes the settings
+                 table with if_exists='replace' and would destroy the record
+                 of the run being resumed -- which is what the comparison
+                 reads
+    UMAP search  hyperparam.py:665 opens a CheckpointStore
+    Conversion   convert.py:1833 opens one
+
+THE DELETE-BEFORE-INSERT THE NOTE WARNS ABOUT IS THERE. `clear_field_rows` is
+called from `plan_measure_resume` (resume.py:2147). I first reported it as
+called by nothing; that was a grep that excluded resume.py itself, and the
+claim was wrong. It clears every table for a pending field inside one BEGIN
+IMMEDIATE, keyed on the four identity columns rather than on a name prefix so
+clearing f1 cannot touch f10, and refuses any table not on
+MEASURE_OWNED_TABLES -- measurements.db is shared, and clearing a field out of
+conversion_map would destroy the only record of how the project's files were
+named.
+
+REPORT GENERATION IS THE ONE WITHOUT A CHECKPOINT, AND SHOULD NOT HAVE ONE.
+It reads a finished folder and writes one file; it is minutes at most and
+re-running it overwrites cleanly. A checkpoint there would be machinery
+guarding against a cost that does not exist, and every checkpoint is a second
+thing that can disagree with the data.
+
+176 tests already cover this across test_checkpoint, test_resume and
+test_resume_owned_tables.
+
+SO 86 IS DONE. (a) the dry-run resource card, (b) checkpoint/resume,
+(c) provenance hashes into the report, (d) the QC gate's `stop` mode and
+(e) the benchmark command have all landed, and the Module Audit is out of the
+published API. This file's own "not started" header was wrong about (b) --
+the eighth instruction this week to be wrong about its own state.
