@@ -398,3 +398,11 @@ STILL OPEN IN THIS FILE: "optimal" is still undefined (newest that passes, or
 oldest that passes -- they imply opposite CI jobs), and the full matrix still
 covers 3.11-3.14 with 3.10 having no suite run. Neither is the ceiling
 question, which is now answered.
+
+--------------------------------------------------------------------------------
+2026-08-13 - CLOSED
+--------------------------------------------------------------------------------
+The ceiling question is answered and spaCR runs on cellpose 4.0.7 AND 4.2.1.1
+from one suite, 53 tests passing on each. "Optimal" remains undefined and the
+full matrix still skips 3.10 -- both are recorded in the backlog rather than
+here, because neither is the dependency question this file was opened for.
