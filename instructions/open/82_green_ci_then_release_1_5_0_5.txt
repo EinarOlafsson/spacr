@@ -129,3 +129,30 @@ AND THEN STOP
 Nothing follows this instruction. If new work appears while it is in
 progress, it goes into a NEW instruction file and waits -- it does not get
 folded in ahead of the release.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE VERSION BUMP IS DISCARDED BY THE MAINTAINER
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "discard the version bump."
+
+So STEP 2 of this file is cancelled. The version stays where it is; there is
+no 1.5.0.5 to cut, and nothing downstream should be waiting for one.
+
+STEP 1 -- green CI -- IS NOT DISCARDED, and is worth keeping separate from the
+release it was attached to. A red gate is worth fixing whether or not a
+version follows it, and this file is where its state lives:
+
+    tests          the cellpose failures are fixed; the rest were fixed or
+                   explained under instruction 43
+    docs           STILL RED. 196 sv failures. The catalogs are mid-migration:
+                   five of nine reached schema 2 (de, es, ko, sv, zh_CN) and
+                   fr, hi and is are still schema 1. sv is schema 2 with stale
+                   symbols. None of the nine carries the API symbols added by
+                   benchmark, column_groups, gate_library and gpu_reduce.
+    compat-matrix  not separately assessed since the cellpose work landed
+
+WHAT ACTUALLY CLOSES THE DOCS GATE, in order: finish the schema migration for
+fr / hi / is, then run the translation pass so the new public symbols exist in
+all nine. Both are instruction 83's machinery. Nothing in this file blocks
+them and no release now depends on them.
