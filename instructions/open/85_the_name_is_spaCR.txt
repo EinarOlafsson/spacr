@@ -1,0 +1,69 @@
+================================================================================
+THE NAME IS spaCR
+================================================================================
+
+Status:    not started, 2026-08-12.
+Requested: 2026-08-12 - "add to instructions in the readme all mentions of
+           space should be spaCR, little s capital CR, this includes
+           generated file names like the installers"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+README.rst alone spells it three ways:
+
+    spacr   172
+    spaCR    20
+    SpaCR     8
+
+so the canonical spelling is outnumbered eight to one in the project's own
+front page.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Every PROSE mention of the project becomes `spaCR` -- lower-case s, lower-case
+p, lower-case a, capital C, capital R. That covers the README, the docs, the
+GUI's own text, log lines, window titles, and the names of generated
+artifacts such as the installers.
+
+CODE IDENTIFIERS DO NOT CHANGE, and this is the whole of the care needed
+here. `spacr` is also the package name, and these are not prose:
+
+    import spacr                 the module
+    pip install spacr            the PyPI distribution
+    spacr-qt / spacr / spacr-tk  the console scripts
+    spacr.core, spacr.measure    every dotted path
+    /spacr/... in a URL          github.com/EinarOlafsson/spacr
+
+Rewriting any of those breaks the thing it names. A sweep that replaces the
+string everywhere would take the package down, which is why this is a rule
+about MENTIONS rather than about the seven characters.
+
+--------------------------------------------------------------------------------
+ONE THING THE MAINTAINER MAY WANT TO OVERRULE
+--------------------------------------------------------------------------------
+
+DEBIAN PACKAGE NAMES CANNOT CARRY A CAPITAL. Debian policy 5.6.1 says a
+package name is lower case letters, digits and `-+.` only, and `dpkg` refuses
+anything else -- so `spaCR_1.5.0.5_amd64.deb` will not build or install. The
+.deb keeps its lower-case name, and the change reaches its human-facing
+fields instead (the description, the menu entry, the window title).
+
+macOS and Windows have no such rule, so the .dmg, the .app bundle and the
+.exe can all read spaCR, and the installer UI text can everywhere.
+
+Recorded rather than decided, because "this includes generated file names
+like the installers" is explicit and the .deb is the one place it cannot be
+honoured literally.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A test asserts the spelling, so this cannot drift back: no prose file
+contains `SpaCR`, `SPACR` or a bare `spacr` outside the identifier contexts
+listed above, and the installer artifacts built by packaging/ carry the
+canonical spelling wherever the platform allows it.
