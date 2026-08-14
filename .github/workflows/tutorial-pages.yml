@@ -53,6 +53,10 @@ jobs:
       - name: Verify the current tutorial bundle
         env:
           QT_QPA_PLATFORM: offscreen
+          # This focused file has no plugin fixtures. Disable unrelated
+          # site-wide pytest plugins so pytest-qt cannot require libEGL merely
+          # while collecting four pure release-audit tests.
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
         run: |
           pytest -q release/tests/test_tutorial_release_audit.py
           python release/tools/docs_media_budget.py --report
