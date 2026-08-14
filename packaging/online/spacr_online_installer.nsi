@@ -12,7 +12,7 @@
 !define MUI_UNICON "${SPACR_ICON}"
 
 Name "spaCR"
-OutFile "..\..\dist\online\SpaCR-${VERSION}-Windows-Online-Setup.exe"
+OutFile "..\..\dist\online\spaCR-${VERSION}-Windows-Online-Setup.exe"
 Icon "${SPACR_ICON}"
 InstallDir "$LOCALAPPDATA\SpaCR"
 InstallDirRegKey HKCU "Software\spaCR" "InstallRoot"

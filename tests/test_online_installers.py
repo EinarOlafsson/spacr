@@ -269,6 +269,11 @@ def test_windows_installer_is_per_user_and_registers_uninstall():
     assert 'File /oname=spacr.ico "${SPACR_ICON}"' in nsis
     assert 'Section "Uninstall"' in nsis
     assert 'Section "$(SPACR_NSIS_UNINSTALL)"' not in nsis
+    assert (
+        'OutFile "..\\..\\dist\\online\\spaCR-${VERSION}-Windows-Online-Setup.exe"'
+        in nsis
+    )
+    assert "dist\\online\\SpaCR-${VERSION}" not in nsis
 
 
 def test_installer_locales_cover_every_supported_ui_language():
