@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "spacr.attribution#1",
+      "source_sha256": "fdc88f023e7bd455438c7feb2dd3d98383426ac47a1ec0aa817f5797e371b351",
+      "source": "spaCR already drew Grad-CAM and saliency maps (``spacr.utils.GradCAMGenerator``, ``spacr.utils.SaliencyMapGenerator``, ``spacr.utils.IntegratedGradients``). This module is the library those two were the first entries in: the CAM family (Grad-CAM, Grad-CAM++, Score-CAM, XGrad-CAM, Layer-CAM, Eigen-CAM), the gradient family (saliency, integrated gradients, guided backprop, input×gradient, DeepLIFT, and SmoothGrad wrapped around any of them), the perturbation family (occlusion, feature ablation) and attention rollout for transformer backbones that have no convolution for a CAM to hook.",
+      "context": "spaCR already drew Grad-CAM and saliency maps (``spacr.utils.GradCAMGenerator``, ``spacr.utils.SaliencyMapGenerator``, ``spacr.utils.IntegratedGradients``). This module is the library those two were the first entries in: the CAM family (Grad-CAM, Grad-CAM++, Score-CAM, XGrad-CAM, Layer-CAM, Eigen-CAM), the gradient family (saliency, integrated gradients, guided backprop, input×gradient, DeepLIFT, and SmoothGrad wrapped around any of them), the perturbation family (occlusion, feature ablation) and attention rollout for transformer backbones that have no convolution for a CAM to hook.",
+      "translation": "spaCR 은 이미 Grad-CAM 및 현저성 지도(``spacr.utils.GradCAMGenerator``, ``spacr.utils.SaliencyMapGenerator``, ``spacr.utils.IntegratedGradients``)를 제공했습니다. 이 모듈은 그 두 기능에서 출발한 라이브러리입니다. CAM 계열(Grad-CAM, Grad-CAM++, Score-CAM, XGrad-CAM, Layer-CAM, Eigen-CAM), 그래디언트 계열(현저성, 통합 그래디언트, 유도 역전파, 입력×그래디언트, DeepLIFT, 각 방법을 감싸는 SmoothGrad), 교란 계열(가림, 특징 제거), 그리고 CAM 을 연결할 합성곱이 없는 트랜스포머 백본용 어텐션 롤아웃을 포함합니다."
+    },
+    {
+      "label": "spacr.qt.ai.worker.make_stream_thread#4",
+      "source_sha256": "8c289404ff3690c8a2c06ee7df035ab95d97f8272abb161e0675c8c4b217d163",
+      "source": "``worker.finished -> thread.quit`` is a **DirectConnection**. The QThread object is created here, on the GUI thread, so it is GUI-affine — a queued ``quit()`` is posted to the *GUI* thread's event queue, not to the worker's. Measured: with a queued connection, a GUI thread that goes straight into ``thread.wait()`` (which is exactly what ``ConsolePanel.shutdown`` and every \"drain before closing\" path does) waits out its whole timeout on a worker that has already finished, because the event that would stop the thread is sitting behind the wait. ``QThread::quit`` is explicitly thread-safe, so calling it inline from the worker thread is correct.",
+      "context": "``worker.finished -> thread.quit`` uses a **DirectConnection**. The QThread object is created on the GUI thread. That gives it GUI thread affinity. A queued ``quit()`` goes to the *GUI* event queue rather than the worker queue. The GUI thread immediately enters ``thread.wait()`` during the \"drain before closing\" behavior in ``ConsolePanel.shutdown``. This blocks the event that would stop the worker and waits for the full timeout even though the worker has finished. ``QThread::quit`` is thread-safe, so the worker thread may call it directly.",
+      "translation": "``worker.finished -> thread.quit``은 **DirectConnection**입니다. QThread 객체는 GUI 실행 경로에서 만들어져 GUI 선호도를 가집니다. 대기열의 ``quit()``은 작업자 큐가 아니라 *GUI* 이벤트 큐에 게시됩니다. 대기 연결을 사용하면 ``thread.wait()``에 즉시 들어가는 GUI 실행 경로(``ConsolePanel.shutdown``과 모든 \"drain before closing\" 경로)가 이미 끝난 작업자를 상대로 전체 제한 시간을 기다립니다. 실행 경로를 멈출 이벤트가 wait 뒤에 있기 때문입니다. ``QThread::quit``은 실행 경로에 안전하므로 작업자 실행 경로에서 직접 호출하는 것이 맞습니다."
+    }
+  ]
+}
