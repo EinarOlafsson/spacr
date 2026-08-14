@@ -111,6 +111,73 @@ def test_the_ml_pipeline_still_gets_the_names_it_reads(monkeypatch):
     assert s["test_split"] == 0.25
 
 
+def test_merged_ml_payload_uses_ml_model_not_cv_backbone(monkeypatch):
+    """Regression for GitHub #98's exact conflicting model keys."""
+    seen = {}
+    import spacr.ml as ml
+    monkeypatch.setattr(ml, "generate_ml_scores",
+                        lambda settings: seen.setdefault("settings", settings))
+
+    classify.classify({
+        "classifier_family": "ml",
+        "model_type_ml": "xgboost",
+        "model_type": "maxvit_t",
+    })
+
+    assert seen["settings"]["model_type_ml"] == "xgboost"
+    # The inactive CV selection remains intact for a later family switch.
+    assert seen["settings"]["model_type"] == "maxvit_t"
+
+
+def test_legacy_ml_payload_migrates_model_type(monkeypatch):
+    """Shared-vocabulary ML files used model_type before the controls split."""
+    seen = {}
+    import spacr.ml as ml
+    monkeypatch.setattr(ml, "generate_ml_scores",
+                        lambda settings: seen.setdefault("settings", settings))
+
+    classify.classify({
+        "classifier_family": "ml",
+        "model_type": "random_forest",
+    })
+
+    assert seen["settings"]["model_type_ml"] == "random_forest"
+
+
+def test_unknown_ml_model_is_rejected_before_pipeline_dispatch(monkeypatch):
+    called = False
+    import spacr.ml as ml
+
+    def _must_not_run(_settings):
+        nonlocal called
+        called = True
+
+    monkeypatch.setattr(ml, "generate_ml_scores", _must_not_run)
+    with pytest.raises(ValueError, match="Unsupported model_type_ml.*not-a-model"):
+        classify.classify({
+            "classifier_family": "ml",
+            "model_type_ml": "not-a-model",
+            "model_type": "maxvit_t",
+        })
+    assert not called
+
+
+def test_cv_dispatch_keeps_its_model_when_ml_choice_is_also_present(
+        monkeypatch):
+    seen = {}
+    import spacr.deep_spacr as ds
+    monkeypatch.setattr(ds, "deep_spacr",
+                        lambda settings: seen.setdefault("settings", settings))
+
+    classify.classify({
+        "classifier_family": "cv",
+        "model_type_ml": "xgboost",
+        "model_type": "maxvit_t",
+    })
+
+    assert seen["settings"]["model_type"] == "maxvit_t"
+
+
 def test_the_training_basis_survives_dispatch(monkeypatch):
     seen = {}
     import spacr.deep_spacr as ds

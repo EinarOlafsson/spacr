@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-82 done / 5 open (94%).
+83 done / 4 open (95%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -39,9 +39,6 @@ OPEN
    83  FINISH THE MULTILINGUAL CATALOGS AND PUSH THE VERIFIED BATCH TO NIGHTLY
        [codex -- DO NOT TOUCH]
        83_finish_multilingual_catalogs_and_push_nightly.txt
-
-   96  CLASSIFY (MERGED) SENDS THE CV MODEL TYPE INTO THE ML ANALYSIS
-       96_classify_merged_routes_the_ml_model_type.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -129,3 +126,4 @@ DONE
    93  THE INTENSITY RESCALE FACTOR IS PER FIELD, AND NOTHING RECORDS IT
    94  EVERY TRAIN/TEST SPLIT GROUPS BY WELL
    95  IMAGE UMAP REBUILT THE starplast WAY: TABLE, VIEWER, GRID, WALK, GPU
+   96  CLASSIFY (MERGED) SENDS THE CV MODEL TYPE INTO THE ML ANALYSIS
