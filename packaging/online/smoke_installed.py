@@ -4,7 +4,22 @@ from __future__ import annotations
 import os
 import sqlite3
 import tempfile
+from contextlib import closing
 from pathlib import Path
+
+
+def _read_measure_result(database: Path) -> tuple[tuple[object, ...] | None, int]:
+    """Return the terminal run status and cell count, then release the DB."""
+    # sqlite3.Connection's context manager commits or rolls back but does not
+    # close the handle.  Keeping it open is harmless when unlinking on POSIX,
+    # but Windows refuses to remove measurements.db during temp-dir cleanup.
+    with closing(sqlite3.connect(database)) as connection:
+        status = connection.execute(
+            "SELECT status, n_succeeded, n_failed FROM run_status "
+            "ORDER BY rowid DESC LIMIT 1"
+        ).fetchone()
+        cells = connection.execute("SELECT COUNT(*) FROM cell").fetchone()[0]
+    return status, cells
 
 
 def main() -> int:
@@ -38,12 +53,7 @@ def main() -> int:
         database = layout.src / "measurements" / "measurements.db"
         if not database.is_file():
             raise RuntimeError("measure smoke run produced no measurements.db")
-        with sqlite3.connect(database) as connection:
-            status = connection.execute(
-                "SELECT status, n_succeeded, n_failed FROM run_status "
-                "ORDER BY rowid DESC LIMIT 1"
-            ).fetchone()
-            cells = connection.execute("SELECT COUNT(*) FROM cell").fetchone()[0]
+        status, cells = _read_measure_result(database)
         if status != ("complete", 1, 0) or cells < 1:
             raise RuntimeError(
                 f"measure smoke run incomplete: status={status!r}, cells={cells}"
