@@ -9,7 +9,7 @@ once warned about it.
 
 ``tools/docs_media_budget.py`` now publishes no narration at all: the audio and
 its timing sidecars are served from ``NARRATION_HOST`` instead, which is what
-lets the picker offer all 54 voices rather than the one per language the site
+lets the picker offer all 50 voices rather than the one per language the site
 could afford to carry. This file is the guard on that: it asserts the payload
 stays under budget, that the reduction takes only narration (never a lesson, a
 video, a caption or a language), and that the catalog the site ships still
@@ -235,7 +235,7 @@ def test_the_catalog_offers_every_hosted_voice(real_plan):
 
     While the site served narration the catalog had to be trimmed to what was
     staged, or the picker offered voices whose audio 404'd. The host serves
-    all 54 now, so trimming the catalog to the empty staged narration set would
+    all 50 now, so trimming the catalog to the empty staged narration set would
     hide working voices.
     """
     _published, _dropped, keep = real_plan

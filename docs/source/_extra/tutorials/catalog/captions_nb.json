@@ -1126,19 +1126,40 @@
       "id": "37_batch",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker Batch Runner. Kjør moduler, prosjekter og innstillinger for gjenopprettelig, ubesvart utførelse."
+          "narration": "Batch Runner stapler vilkårlige spaCR moduler og innstillinger i en uovervakte kø. I motsetning til Plate Queue, som bruker en rørledning til mange plater, kan Batch Runner blande moduler, innganger, overrides og avhengigheter. Jobber kjører strengt en etter en så de konkurrerer ikke om en GPU."
         },
         {
-          "narration": "Legg til prosjekter og montere den bestilte modulsekvensen som hvert prosjekt skal kjøre."
+          "narration": "Velg en hovedløs modul og den nøyaktige innstillingsfilen som jobben skal motta. Legg til et beskrivende merknad, valgfrie forutsetningsfunksjonskennere og valgfrie nøkkel-lignende-verdieroverrides. Dette første arbeidet utfører en reell tapfri konvertering av et fire-kanalfelt. Klikk på Legg til jobb."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet velger du forhåndsinnstillinger, avhengigheter, ressursgrenser, gjenoppta atferd, logging og feilpolitikk."
+          "narration": "Jobben mottar den stabile identifikatoren konvertert-1 og kontrolleres umiddelbart. Batch Runner løser modulforstyrrelser, analyserer innstillingsfilen og overrider, validerer veier og verdier, og nekter en ugyldig jobb nå i stedet for å oppdage den under en overnattende run."
         },
         {
-          "narration": "Validerer partiplanen, test en jobb, og deretter kjøre resten av køen over natten eller uten tilsyn."
+          "narration": "Den andre virkelige konverteringsnavn konverterer-1 i After, så den kjører bare hvis det forutsetningen lykkes. Dess plate_naming er lik navn override er lagret over de lagre innstillingene uten å kopiere filen. Hvis konverter-1 mislykkes, er denne jobben merket hoppet i stedet for å kjøre på ufullstendig oppstrøm utgang. Klikk på Legg til jobb."
         },
         {
-          "narration": "Når arbeidsflyten er ferdig, har hver jobb sin egen status, innstillinger snapshot, logger, utganger, og gjenoppførbar kjøre rekord."
+          "narration": "Den tredje reelle omdannelsen har ingen forutsetning og kan fortsatt løpe når en ukjent jobb mislykkes under \"continu-on-error\" -politikken. Legg det til som en uavhengig jobb. Denne leksjonen bruker tre overførte mikroskopfelt kopiert byte-for-byte i isolerte mapper; hver køprosess vil utføre en ekte konvertering."
+        },
+        {
+          "narration": "Tabellen viser nå kjøreorden, stabile jobbidentifikatorer, moduler, etiketter, avhengigheter, ventende status, forløpet tid, og hver jobb egen logg. Velg en rad for å sjekke innstillingene og loggen. Duplikere, fjerne og flytte kontroller bygge og reordne en større natt av arbeid."
+        },
+        {
+          "narration": "Velg den uavhengige tredje jobben og klikk på Flyt opp. Omordning er trygt her fordi den avhengige konverteringen forblir under konverter-1. Hvis en forutsetning flyttes under den avhengig av den, vil det føre til en synlig valideringseffekt og inaktivere løpet."
+        },
+        {
+          "narration": "Klikk Validerer etter å ha redigert eller lastet en kø. Validering rapporterer alle feil og advarsler sammen: manglende innstillinger, ukjente moduler, ugyldige veier eller verdier, dupliserte identifikatorer, senere forutsetninger og avhengighetscykler. Løsningsknappet er fortsatt inaktivert mens det er et blokkeringsproblem."
+        },
+        {
+          "narration": "Alle tre jobber er gyldige. Fortsatt på feil tillater selvstendige jobber å fortsette mens avhengige blir hoppet; Stop i første fall stopper alt senere. Trøskel for påfølgende feil stopper en kø som gjentatte ganger faller av samme systematiske grunn. Sluta vente på at jobben blir ferdig i sikkerhet i stedet for å drepe den midt på skriving."
+        },
+        {
+          "narration": "Klikk på Lagre kø før du forlater den uovervakte. Den lesbare JSON lagrer rekkefølge, avhengigheter, overrides og status. Batch Runner oppdaterer den automatisk etter hver overgang, slik at en gjenstart kan gjenoppta ventende eller ikke-løpende jobber uten å duplisere ferdig arbeid. Lastekjær gjenoppretter samme hovedbok senere."
+        },
+        {
+          "narration": "Når den reviderte køen er lagret, klikk på Kjør kø. Hver jobb starter som sin egen spacr-run-prosess ved hjelp av dette spaCR-miljøet. En segmentering krasj ville avslutte jobben i stedet for grensesnittet eller senere uavhengig arbeid, og standard utgang pluss feil går inn i den jobben egen log."
+        },
+        {
+          "narration": "Alle tre virkelige underprosessjobber fullføres med suksess. Progressbalken når tre av tre, tabellen bevarer hver status og varighet, oppsummingen skiller mellom suksess, feil, hoppe, ikke kjøre og delvis resultater, og den valgte jobben logg inneholder dens nøyaktige kommando og konvertering rapport. Hver bestemmelsessted har fire TIFF og et kart over opprinnelsen; alle kildehascher forblir uendret."
         }
       ]
     },
@@ -1666,22 +1687,25 @@
       "id": "64_gate_editor",
       "scenes": [
         {
-          "narration": "Gate Editor forvandler regioner i et måltall til navngitte, gjenbrukbare befolkningsportaler. Arbeidsrommet holder funksjonsaksene, tegningsverktøy, full datavisning og gatehierarki sammen."
+          "narration": "Gate Editor forvandler regioner i et måltall til navngitte, gjenbrukbare befolkningsportaler. Arbeidsrommet holder funksjonsaksene, tegning verktøy, full datavisning og gate hierarki sammen."
         },
         {
-          "narration": "I 2D, velg X og Y for en spredning, eller la Y tom for et histogram. Velg et tærskel- eller formverktøy og tegne rundt den planlagte befolkningen. Hele skyen forblir synlig mens inkluderte gjenstander fremheves."
+          "narration": "I 2D velger du X og Y for en spredning, eller la Y tom for et histogram. Velg et trøskel eller et formverktøy og tegne rundt den tiltenkte befolkningen. Den fulde skyen er synlig mens de inkluderte objektene er fremhevet."
         },
         {
-          "narration": "Velg 3D- og Z-målinger for å inspisere en roterende volum. Akse-knappene styrer spinnretningen, og Box gate registrerer grenser på alle tre viste målinger."
+          "narration": "Velg 3D- og Z-målinger for å inspisere en roterende volum. Akseknappene styrer spinnretningen, og Box gate registrerer grenser på alle tre viserte målinger."
         },
         {
           "narration": "Velg xD for å projisere de støtteberettigede målingene i hovedkomponenter. Kilde etiketten rapporter forklarte varians, og PC1, PC2 og PC3 blir vanlige aksler for de samme gating verktøy."
         },
         {
-          "narration": "Gaten hierarkien rapporterer objekt antall, prosentandel av sin foreldre, og prosentandel av alle rader. Vælg en portens sjekkbokse for å vise eller skjule den, og velg en port før du tegner når den neste befolkningen skal være gjestet inne i den."
+          "narration": "Gate hierarkiet rapporterer objektet antall, prosent av sin foreldre, og prosent av alle rader. Venn en portens sjekkbokse for å vise eller skjule den, og velg en port før du tegner når den neste befolkningen skal være gjestet inne i den."
         },
         {
-          "narration": "Gi hver befolkning et meningsfylt navn, så spare gate strategien. Last den på en kompatibel tabell for å gjenbruke de samme funksjonsnavnene, grensene og hierarkiet, og verifisere de nye tallene før du fortsetter."
+          "narration": "Gi hver befolkning et meningsfullt navn, så spar gate strategien. Last den på en kompatibel tabell for å gjenbruke de samme funksjonnavnene, grensene og hierarkiet, og verifisere de nye tallene før du fortsetter."
+        },
+        {
+          "narration": "Cluster Walk søker etter en begrenset sekvens av DBSCAN-radier på de viste målingene og rapporterer den valgte radius, befolkningsantallet og ekskluderte brøkdel. Inspisjon av de resulterende portene, deretter annotere eller eksportere bare etter at populasjonene samsvarer med de synlige dataene."
         }
       ]
     },
