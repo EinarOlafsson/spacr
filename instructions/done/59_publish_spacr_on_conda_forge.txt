@@ -2,7 +2,8 @@
 PUBLISH spaCR ON CONDA-FORGE
 ================================================================================
 
-Status:    not started
+Status:    done, 2026-08-14 — submission deliverable complete; external
+           conda-forge review and merge remain outside repository control
 Requested: 2026-08-08 — "get spacr published on conda-forge"
 
 --------------------------------------------------------------------------------
@@ -88,3 +89,32 @@ record the PR link here.
 
 Also note it cannot be finished before instruction 54. Publishing a recipe
 with a wrong floor pins the wrong floor for everyone who installs it.
+
+--------------------------------------------------------------------------------
+COMPLETION EVIDENCE — 2026-08-14
+--------------------------------------------------------------------------------
+
+The recipe submission is open at:
+
+    https://github.com/conda-forge/staged-recipes/pull/34352
+
+The PR sources spaCR from the PyPI sdist, declares a noarch Python build,
+separates host and run dependencies, records the license metadata and
+maintainer, and exercises both imports and command-line entry points. The
+initial linter findings were corrected; conda-forge-admin subsequently
+reported the recipe in excellent condition.
+
+Current checks were re-read from GitHub on 2026-08-14. Every reported check
+is complete and successful:
+
+  * staged-recipes-linter / linter;
+  * staged-recipes aggregate and build-status jobs;
+  * Linux x86-64 build;
+  * macOS x86-64 build;
+  * Windows x86-64 build;
+  * fast-finish and skip checks.
+
+There are no requested changes and no reviewer comments awaiting action. The
+PR is open and ready for the conda-forge volunteer review/merge step. This is
+the precise in-control deliverable defined above; the feedstock and public
+``conda install`` command cannot exist until that external merge occurs.
