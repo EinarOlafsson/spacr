@@ -3648,6 +3648,13 @@ def _has_expected_script(
     *,
     force: bool = False,
 ) -> bool:
+    # Exact reviewed labels may be technical acronyms whose correct localized
+    # spelling is still Latin script (``pca`` -> ``PCA``, ``iou`` -> ``IoU``).
+    # The source-bound review contract is stronger than a generic script
+    # heuristic; generated or cached candidates still require target script.
+    reviewed = _reviewed_translation(str(source), language)
+    if reviewed is not None and str(value) == reviewed:
+        return True
     pattern = {
         "zh_CN": r"[\u3400-\u9fff]",
         "hi": r"[\u0900-\u097f]",

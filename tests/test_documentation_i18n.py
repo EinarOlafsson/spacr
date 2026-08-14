@@ -1007,6 +1007,21 @@ def test_runtime_syntax_gate_accepts_only_exact_reviewed_acronym_normalization()
     assert _syntax_preserved("Export CSVs and PNGs from UMAPs.", "Export CSV-Dateien, PNG-Dateien und UMAPs.")
 
 
+def test_runtime_script_gate_accepts_only_exact_reviewed_acronym():
+    from build_i18n_catalogs import (
+        _translation_candidate_valid,
+        _translation_rejection_reasons,
+    )
+
+    assert _translation_candidate_valid("pca", "PCA", "ko", force=True)
+    assert not _translation_rejection_reasons(
+        "pca", "PCA", "ko", force=True,
+    )
+    assert not _translation_candidate_valid(
+        "unreviewed label", "UNREVIEWED", "ko", force=True,
+    )
+
+
 def test_reviewed_quoted_human_phrases_are_prose_not_api_literals():
     from build_i18n_catalogs import _syntax_preserved
 
