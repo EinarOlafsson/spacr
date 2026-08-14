@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "spacr.train_compare#2",
+      "source_sha256": "0b6e7eefd629e7caa32ea18a59adf2466ba5cc487f17503cc36695b9ae4544f1",
+      "source": "Picking a classifier in spaCR means training it, writing down the number, changing a knob, training it again, and then trying to remember which of the six things you touched is the one that moved the number. The provenance diff (:func:`spacr.run_journal.diff_runs`) answers \"what changed\"; this module answers \"and what did it do to the curves\", on one axis, next to the diff.",
+      "context": "Picking a machine-learning classification model in spaCR means training it, writing down the number, changing a knob, training it again, and then trying to remember which of the six things you touched is the one that moved the number. The provenance diff (:func:`spacr.run_journal.diff_runs`) answers \"what changed\"; this module answers \"and what did it do to the curves\", on one axis, next to the diff.",
+      "translation": "spaCR 에서 머신러닝 분류 모델을 선택한다는 것은 학습하고, 수치를 기록하고, 설정을 바꾸고, 다시 학습한 뒤, 건드린 여섯 항목 중 무엇이 수치를 바꿨는지 기억하는 일입니다. 출처 차이(:func:`spacr.run_journal.diff_runs`)는 \"what changed\"에 답하고, 이 모듈은 같은 축에서 차이 옆에 곡선을 놓아 \"and what did it do to the curves\"에 답합니다."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec#11",
+      "source_sha256": "af30f0d80abfa5b39844f97f279b8b5a335a452c0d560eca7562fdf15e224f6b",
+      "source": "Point-in-polygon is the even–odd ray-casting rule, vectorised. A row whose x or y is missing is **outside every gate** — not \"unknown\", not silently kept. An object with no measurement is not an object inside the region, and letting it through would put objects with no value into a population the user defined by value; the same rule :class:`~spacr.selection.RangeFilter` applies to NaN.",
+      "context": "Point-in-polygon uses the vectorised even–odd ray-casting rule. A row whose x or y is missing is **outside every gate**. Its state is not \"unknown\", and it is not silently kept. An object with no measurement is not inside the region. Letting it through would put objects with no value into a population the user defined by value; the same rule :class:`~spacr.selection.RangeFilter` applies to NaN.",
+      "translation": "점-다각형 판정은 벡터화된 홀짝 광선 투사 규칙을 사용합니다. x 또는 y 값이 없는 행은 **모든 데이터 선택 경계 밖에** 있으며 \"unknown\"으로 두거나 조용히 유지하지 않습니다. 측정값이 없는 객체는 영역 내부 객체가 아닙니다. 이를 통과시키면 값으로 정의한 모집단에 값 없는 객체가 들어갑니다. NaN 에도 :class:`~spacr.selection.RangeFilter`와 같은 규칙을 적용합니다."
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.refresh_model_choices#1",
+      "source_sha256": "238bb55d7ecd15bd4f157440209ec419dab7641d79ea8b778e2ca9327f620bd7",
+      "source": "`spacr.settings.cellpose_model_choices` only reads the API when Cellpose is already imported, because importing it costs ~2.5 s and this panel is built while a page is being laid out. That means the first build usually gets the shipped fallback — so ask again every time the panel is shown. After the first segmentation Cellpose is loaded and a checkpoint the user registered appears here.",
+      "context": "`spacr.settings.cellpose_model_choices` only reads the API when Cellpose is already imported, because importing it costs ~2.5 s and this panel is built while a page is being laid out. That means the first build usually gets the shipped fallback — so ask again every time the panel is shown. After the first segmentation Cellpose is loaded and a checkpoint the user registered appears here.",
+      "translation": "`spacr.settings.cellpose_model_choices`는 Cellpose 를 이미 가져온 경우에만 API 를 읽습니다. 가져오는 데 약 2.5초가 걸리고 이 패널은 페이지 레이아웃 중 생성되기 때문입니다. 따라서 첫 생성은 보통 배포된 대체 목록을 받으므로 패널을 표시할 때마다 다시 확인합니다. 첫 분할 뒤에는 Cellpose 가 로드되어 사용자가 등록한 체크포인트가 여기에 나타납니다."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser#7",
+      "source_sha256": "d89f7eba372b272d352272bfcf5f0fecf9153c8963eafe83d2e9417c9003e30a",
+      "source": "**Off the GUI thread.** Every chunk, count and export goes through :func:`spacr.qt.bridge.make_thread`, the same helper the pipeline screens use, and each worker opens (and closes) its **own** sqlite connection — ``sqlite3`` objects are not shareable across threads. Jobs queue and run **one at a time**; see :meth:`DbBrowserScreen._run_job` for why two ``PipelineWorker``\\ s must not overlap.",
+      "context": "**Background execution.** Each chunk, count, and export runs outside the GUI thread through :func:`spacr.qt.bridge.make_thread`, also used by workflow screens. Each worker opens and closes **a separate** sqlite connection; ``sqlite3`` objects cannot be shared between execution threads. Jobs run **sequentially**. :meth:`DbBrowserScreen._run_job` explains why two ``PipelineWorker``\\ s cannot overlap.",
+      "translation": "**GUI 실행 경로 밖에서 실행합니다.** 각 청크, 개수 계산, 내보내기는 워크플로 화면과 같은 :func:`spacr.qt.bridge.make_thread`를 사용합니다. 각 작업자는 **자체** sqlite 연결을 열고 닫습니다. ``sqlite3`` 객체는 실행 경로 사이에 공유할 수 없습니다. 작업은 **한 번에 하나씩** 대기열에서 실행됩니다. 두 작업이 겹치면 안 되는 이유는 :meth:`DbBrowserScreen._run_job`와 ``PipelineWorker`` 설명을 참조하십시오."
+    },
+    {
+      "label": "spacr.qt.screens.napari_bridge#4",
+      "source_sha256": "bd07bcdd090244e924e958a92c4ad43bfe6bd559ea050a35a33f9270a8c6d3ff",
+      "source": "**It does not run napari's event loop.** spaCR is already a running ``QApplication``; starting a second loop nests them. So the viewer is opened and left open, and the user presses *Take the mask back* when they are done — which is also the friendlier interaction, because it lets them look, edit, take it back, and keep going. :func:`spacr.napari_bridge.run_event_loop` is for scripts, and its docstring says so.",
+      "context": "**It does not run napari's event loop.** spaCR is already a running ``QApplication``; starting a second loop nests them. So the viewer is opened and left open, and the user presses *Take the mask back* when they are done — which is also the friendlier interaction, because it lets them look, edit, take it back, and keep going. :func:`spacr.napari_bridge.run_event_loop` is for scripts, and its docstring says so.",
+      "translation": "**napari 이벤트 루프를 실행하지 않습니다.** spaCR 은 이미 실행 중인 ``QApplication``이므로 두 번째 루프를 시작하면 중첩됩니다. 뷰어를 열어 둔 뒤 사용자가 완료하면 *마스크 가져오기*를 누릅니다. 이렇게 하면 살펴보고, 편집하고, 마스크를 가져온 뒤 계속할 수 있습니다. :func:`spacr.napari_bridge.run_event_loop`는 스크립트용이며 해당 문서 문자열에도 명시되어 있습니다."
+    },
+    {
+      "label": "spacr.qt.dialogs#3",
+      "source_sha256": "f344eaf5caa287fbdfa94c85eb30f2eb1eecae5b3f6014ae9415c3b02e5b38f0",
+      "source": "The tell is which dialogs misbehave. In spaCR, Preferences (``PreferencesDialog(...).exec()``) and Annotate's settings (``_SettingsDialog(...).exec()``) are attached; the UMAP search settings (``UmapSearchSettingsDialog(panel).show()``) and the Mask and crop live preview settings are not. The first two are modal and the rest are modeless -- which is exactly the WM's rule, and nothing to do with how any of them are built.",
+      "context": "The tell is which dialogs misbehave. In spaCR, Preferences (``PreferencesDialog(...).exec()``) and Annotate's settings (``_SettingsDialog(...).exec()``) are attached; the UMAP search settings (``UmapSearchSettingsDialog(panel).show()``) and the Mask and extracted image region live preview settings are not. The first two are modal and the rest are modeless -- which is exactly the WM's rule, and nothing to do with how any of them are built.",
+      "translation": "어떤 대화상자가 잘못 동작하는지가 단서입니다. spaCR 에서는 Preferences(``PreferencesDialog(...).exec()``)와 Annotate 설정(``_SettingsDialog(...).exec()``)이 부모에 연결되어 있습니다. UMAP 검색 설정(``UmapSearchSettingsDialog(panel).show()``), Mask 및 추출 이미지 영역 실시간 미리보기 설정은 연결되지 않습니다. 앞의 둘은 모달이고 나머지는 비모달입니다. 이는 정확히 WM 규칙이며 대화상자 생성 방식과는 관계없습니다."
+    },
+    {
+      "label": "spacr.utils.add_column_to_database#1",
+      "source_sha256": "a10d7e8e848f49eccb114098b63fc30e498fabb76dcb907fa31350537ebbb212",
+      "source": "Parameters: settings (dict): A dictionary containing the following keys: csv_path (str): Path to the CSV file with the data to be added. db_path (str): Path to the SQLite database (or connection string for other databases). table_name (str): The name of the table in the database. update_column (str): The name of the new column in the DataFrame to add to the database. match_column (str): The common column used to match rows.",
+      "context": "Parameters: settings (key-value mapping): A key-value mapping containing the following structured-data names: csv_path (str): Path to the CSV file with the data to be added. db_path (str): Path to the SQLite database (or connection string for other databases). table_name (str): The name of the table in the database. update_column (str): The name of the new column in the DataFrame to add to the database. match_column (str): The common column used to match rows.",
+      "translation": "매개변수: 설정 (키-값 매핑): 다음 식별자를 포함합니다. csv_path (str): 추가할 데이터가 있는 CSV 파일 경로. db_path (str): SQLite 데이터베이스 경로(또는 다른 데이터베이스의 연결 문자열). table_name (str): 데이터베이스 테이블 이름. update_column (str): 데이터베이스에 추가할 DataFrame 의 새 열 이름. match_column (str): 행을 일치시키는 공통 열."
+    },
+    {
+      "label": "spacr.zstack.stitch_planes#1",
+      "source_sha256": "b9251736d0108bcf873ba3f30d52ee9c80b318ec39e24e4a51637dfa4ce3bff3",
+      "source": "Each plane is compared with the plane below it, and the pairing is greedy and **one-to-one**: pairs are considered in descending IoU and a label may take part in at most one link. That is what stops two genuinely different objects that merely happen to overlap the same object in xy from being fused -- only the better match inherits the label, the other starts a new one. Any pair below ``iou_threshold`` is not linked at all.",
+      "context": "Each image layer is compared with the image layer below it, and the pairing is greedy and **one-to-one**: pairs are considered in descending IoU and a label may take part in at most one link. That is what stops two genuinely different objects that merely happen to overlap the same object in xy from being fused -- only the better match inherits the label, the other starts a new one. Any pair below ``iou_threshold`` is not linked at all.",
+      "translation": "각 이미지 레이어를 바로 아래 이미지 레이어와 비교하며, 쌍 연결은 탐욕적이고 **일대일**입니다. IoU 내림차순으로 쌍을 검토하고 하나의 레이블은 최대 한 연결에만 참여합니다. 따라서 xy에서 같은 객체와 겹치는 서로 다른 두 객체가 합쳐지지 않습니다. 더 좋은 일치만 레이블을 물려받고 나머지는 새로 시작합니다. ``iou_threshold``보다 낮은 쌍은 연결하지 않습니다."
+    },
+    {
+      "label": "spacr.qt.ai.issue_report#2",
+      "source_sha256": "13547a15b28a5d4ad0b4ecce236550324886cf1fe15a7cbc7e3c07dea12fcabd",
+      "source": "1. Builds a sanitized report from the current traceback + active app + settings + spacr / python / OS versions + tail of the log file. 2. Shows the exact title and body in an editable preview, with filenames stripped by default. 3. Submits only after the report-specific Send click. An authenticated official ``gh`` session can post through the API; otherwise spaCR opens a pre-filled GitHub form in the browser for the user to submit there.",
+      "context": "1. Builds a sanitized report from the current traceback + active app + settings + spacr / python / OS versions + tail of the log file. 2. Shows the exact title and body in an editable preview, with filenames stripped by default. 3. Submits only after the report-specific Send click. An authenticated official ``gh`` session can post through the API; otherwise spaCR opens a pre-filled GitHub form in the browser for the user to submit there.",
+      "translation": "1. 현재 역추적, 활성 앱, 설정, spacr / python / OS 버전, 로그 파일 끝부분으로 정제된 보고서를 만듭니다. 2. 기본적으로 파일 이름을 제거하고 편집 가능한 미리보기에서 정확한 제목과 본문을 보여 줍니다. 3. 보고서 전용 Send 동작을 선택한 뒤에만 제출합니다. 인증된 공식 ``gh`` 세션은 API 를 통해 게시할 수 있고, 그렇지 않으면 spaCR 이 사용자가 제출할 수 있도록 브라우저에서 미리 채운 GitHub 양식을 엽니다."
+    },
+    {
+      "label": "spacr.qt.menus#2",
+      "source_sha256": "f63a5d06ec159da1b437b01297dc43303ca8724ef1f38391fd5bcc3ce15880d9",
+      "source": "Qt assigns that role automatically by **pattern-matching the action's text**. An action whose text contains ``about``, ``config``, ``options``, ``setup``, ``settings``, ``preferences``, ``quit`` or ``exit`` is claimed, removed from the menu it was added to, and relocated to the application menu — the one named after the running executable, which for spaCR is ``python`` because it runs under the interpreter rather than as a bundled ``.app``.",
+      "context": "Qt assigns that role automatically by **pattern-matching the action's text**. An action whose text contains ``about``, ``config``, ``options``, ``setup``, ``settings``, ``preferences``, ``quit`` or ``exit`` is claimed, removed from the menu it was added to, and relocated to the application menu — the one named after the running executable, which for spaCR is ``python`` because it runs under the interpreter rather than as a bundled ``.app``.",
+      "translation": "Qt 는 **작업 텍스트의 패턴을 일치시켜** 역할을 자동으로 지정합니다. 텍스트에 ``about``, ``config``, ``options``, ``setup``, ``settings``, ``preferences``, ``quit`` 또는 ``exit``이 들어 있는 작업은 원래 메뉴에서 제거되어 애플리케이션 메뉴로 이동합니다. 이 메뉴 이름은 실행 파일을 따르며, spaCR 의 경우 ``python``이고 번들 ``.app``이 아니라 인터프리터에서 실행됩니다."
+    },
+    {
+      "label": "spacr.utils.generate_colors#1",
+      "source_sha256": "d4a478661b664acc76a520412da121372f9f6dd5e954ed97e37c89aa8f92c40b",
+      "source": "how many colors to sample, evenly spaced across the Viridis range ``0.08``-``0.92`` (the extremes are trimmed so the darkest cluster stays visible on black and the lightest on white). Coerced with ``int()`` and floored at ``1``, so ``0`` or a negative still yields a one-entry palette rather than an empty one. Count the clusters you will actually plot: DBSCAN's ``-1`` noise label is not drawn, so including it shifts every real cluster's color.",
+      "context": "how many colors to sample, evenly spaced across the Viridis range ``0.08``-``0.92`` (the extremes are trimmed so the darkest cluster stays visible on black and the lightest on white). Coerced with ``int()`` and floored at ``1``, so ``0`` or a negative still yields a one-entry palette rather than an empty one. Count the clusters you will actually plot: DBSCAN's ``-1`` noise label is not drawn, so including it shifts every real cluster's color.",
+      "translation": "Viridis 범위 ``0.08``-``0.92``에서 균등 간격으로 추출할 색상 수입니다. 검은 배경에서 가장 어두운 군집이, 흰 배경에서 가장 밝은 군집이 보이도록 양 끝을 잘랐습니다. ``int()``로 변환하고 최솟값을 ``1``로 두므로 ``0``이나 음수도 빈 팔레트가 아니라 항목 하나를 만듭니다. 실제로 그릴 군집을 세십시오. DBSCAN 의 ``-1`` 잡음 레이블은 그리지 않으므로 포함하면 모든 실제 군집의 색상이 한 칸씩 밀립니다."
+    },
+    {
+      "label": "spacr.qt.widgets.channel_mapping#2",
+      "source_sha256": "831f97a871efb46141f3a2776e97ce713177334d03ee140bdad7d07356885f6f",
+      "source": "Why three labelled fields rather than one ordered list: the list form (``png_dims``) never said which colour it meant. Position 0 was blue because of how cv2 interprets an array it is handed, which is not something the settings panel could show and not something a user could infer. It got read backwards for eleven days and every crop written in that window has its nuclear stain in the red channel. A field labelled \"R\" cannot be read backwards.",
+      "context": "Why three labelled microscope fields of view rather than one ordered list: the list form (``png_dims``) never said which colour it meant. Position 0 was blue because of how cv2 interprets an array it is handed, which is not something the settings panel could show and not something a user could infer. It got read backwards for eleven days and every extracted image region written in that window has its nuclear stain in the red image data channel. A microscope field of view labelled \"R\" cannot be read backwards.",
+      "translation": "레이블이 붙은 필드 세 개를 순서 목록 하나보다 사용하는 이유는 목록 형식(``png_dims``)이 각 위치의 색상을 말하지 않았기 때문입니다. 위치 0이 파란색이었던 것은 cv2 가 전달된 배열을 해석하는 방식 때문이며 설정 패널에서 표시하거나 사용자가 추론할 수 없었습니다. 11일 동안 거꾸로 읽혀 그 기간에 기록된 모든 추출 이미지 영역의 핵 염색이 빨간 이미지 데이터 채널에 있습니다. \"R\"이라고 표시된 필드는 거꾸로 읽을 수 없습니다."
+    },
+    {
+      "label": "spacr.cli#4",
+      "source_sha256": "279dacbc68e22f201bae4d00fda89eb7a0455af7aa67dc3d619baf9c61a5bb00",
+      "source": "The settings file is the one the GUI writes. Both spaCR CSV layouts are read — ``Key,Value`` (what :func:`spacr.utils.save_settings` emits next to every run) and ``setting_key,setting_value`` (the documented default of :func:`spacr.utils.load_settings`) — plus the ``settings.json`` written into each run-journal folder. So the round trip is: click through the GUI once on a laptop, copy ``<src>/settings/gen_mask_settings.csv`` to the cluster, and ``sbatch`` it unchanged.",
+      "context": "The settings file is the one the GUI writes. Both spaCR CSV layouts are read — ``Key,Value`` (what :func:`spacr.utils.save_settings` emits next to every processing session) and ``setting_key,setting_value`` (the documented default of :func:`spacr.utils.load_settings`) — plus the ``settings.json`` written into each processing-session journal folder. So the round trip is: click through the GUI once on a laptop, copy ``<src>/settings/gen_mask_settings.csv`` to the cluster, and ``sbatch`` it unchanged.",
+      "translation": "설정 파일은 GUI 가 기록한 파일입니다. 두 spaCR CSV 레이아웃을 모두 읽습니다. ``Key,Value``는 :func:`spacr.utils.save_settings`가 각 처리 세션 옆에 내보내는 형식이고, ``setting_key,setting_value``는 :func:`spacr.utils.load_settings`의 문서화된 기본 형식입니다. 각 처리 세션 저널 폴더의 ``settings.json``도 읽습니다. 따라서 노트북에서 GUI 를 한 번 설정하고 ``<src>/settings/gen_mask_settings.csv``를 클러스터로 복사한 뒤 수정 없이 ``sbatch``하면 됩니다."
+    },
+    {
+      "label": "spacr.power_model.scan_parameters#2",
+      "source_sha256": "caaddd5ba419c9c299f816ee984f8812017f22186dc0692869c50cf7f710c631",
+      "source": "**A point that fails is reported as failed.**  A fit that raises lands as ``status=\"failed\"`` with the exception text in ``error``; a fit that runs but does not meet its convergence criterion lands as ``status=\"not_converged\"``.  Both carry ``NaN`` metrics.  This is the whole point: a sweep that backfilled 0.5 for its broken points would plot as a design sitting at chance, and \"this design cannot find its hits\" and \"this fit crashed\" are conclusions with opposite consequences.",
+      "context": "**A point that fails is reported as failed.**  A fit that raises lands as ``status=\"failed\"`` with the exception text in ``error``; a fit that executes but does not meet its convergence criterion lands as ``status=\"not_converged\"``.  Both carry ``NaN`` metrics.  This is the whole point: a sweep that backfilled 0.5 for its broken points would plot as a design sitting at chance, and \"this design cannot find its hits\" and \"this fit crashed\" are conclusions with opposite consequences.",
+      "translation": "**실패한 지점은 실패로 보고합니다.** 예외를 발생시킨 피팅은 ``status=\"failed\"``로 기록하고 예외 텍스트를 ``error``에 넣습니다. 실행됐지만 수렴 기준을 충족하지 못한 피팅은 ``status=\"not_converged\"``로 기록합니다. 둘 다 ``NaN`` 지표를 가집니다. 고장 난 지점에 0.5를 채우면 우연 수준의 설계처럼 그려집니다. \"이 설계는 히트를 찾을 수 없다\"와 \"this fit crashed\"는 결과가 정반대인 결론입니다."
+    },
+    {
+      "label": "spacr.qt.bridge.make_thread#2",
+      "source_sha256": "4e815c9211d6a13df857f380b409ddc4f9287bdf8493c64970c7b27982d06d4b",
+      "source": "Re-chaining it off ``thread.finished`` is NOT a fix and was measured: the worker's thread affinity is still the worker thread, so ``deleteLater`` still defers into a loop that has stopped, and the same race survives (2 crashes in 20 at 800 jobs). A PySide6 object constructed in Python is already owned by Python; adding ``deleteLater`` on top is the second owner. So the worker is simply not scheduled for deletion — the caller's last reference frees it, on the thread that holds it.",
+      "context": "Re-chaining it off ``thread.finished`` is NOT a fix and was measured: the worker's execution-path affinity is still the background execution unit, so ``deleteLater`` still defers into a loop that has stopped, and the same race survives (2 crashes in 20 at 800 jobs). A PySide6 object constructed in Python is already owned by Python; adding ``deleteLater`` on top is the second owner. So the worker is simply not scheduled for deletion — the caller's last reference frees it, on the independent execution path that holds it.",
+      "translation": "``thread.finished``에 다시 연결하는 것은 해결책이 아니며 측정으로 확인했습니다. 작업자의 실행 경로 선호도는 여전히 작업자 실행 경로이므로 ``deleteLater``는 중지된 루프로 계속 연기되고 같은 경쟁 조건이 남습니다(작업 800개에서 20회 중 2회 충돌). Python 에서 만든 PySide6 객체는 이미 Python 이 소유하므로 ``deleteLater``를 더하면 두 번째 소유자가 생깁니다. 따라서 작업자는 삭제 예약을 하지 않습니다. 호출자의 마지막 참조가 작업자를 보유한 실행 경로에서 해제합니다."
+    },
+    {
+      "label": "spacr.filters.rowid_expression#1",
+      "source_sha256": "24bbfbe18d878349f91ac50b4cd0cf793d3a7ff423c9c34785c3ed84c2ec2a98",
+      "source": "**This is not hypothetical.** Every spaCR measurement table has a column called ``rowID`` -- the row of the plate -- and SQLite matches column names case-insensitively, so ``rowid`` in a query means THAT column. It holds 'A'..'P', and ``'A' % 5`` is ``0`` in SQLite, so a sampling clause written the obvious way is true for every row and silently samples nothing. The symptom is a sampling setting that appears to do nothing, which is indistinguishable from the read being slow for another reason.",
+      "context": "**This is not hypothetical.** Every spaCR measurement table has a column called ``rowID`` -- the row of the laboratory microplate -- and SQLite matches column names case-insensitively, so ``rowid`` in a query means THAT column. It holds 'A'..'P', and ``'A' % 5`` is ``0`` in SQLite, so a sampling clause written the obvious way is true for every row and silently samples nothing. The symptom is a sampling setting that appears to do nothing, which is indistinguishable from the read being slow for another reason.",
+      "translation": "**가정이 아닙니다.** 모든 spaCR 측정 테이블에는 플레이트 행을 뜻하는 ``rowID`` 열이 있습니다. SQLite 는 열 이름의 대소문자를 구분하지 않으므로 쿼리의 ``rowid``는 바로 그 열입니다. 이 열에는 'A'..'P' 값이 있고, SQLite 에서 ``'A' % 5``는 ``0``이므로 당연해 보이는 샘플링 절은 모든 행에서 참이 되어 아무것도 샘플링하지 않습니다. 증상은 샘플링 설정이 작동하지 않는 것처럼 보이는 것이며, 다른 이유로 읽기가 느린 경우와 구별할 수 없습니다."
+    },
+    {
+      "label": "spacr.deep_spacr.apply_model_to_tar#4",
+      "source_sha256": "a73a490958021ad0f05fecd6daac4c5755ad1597dbeb16ed82cd6b81aa1ec318",
+      "source": "The returned DataFrame contains at least the columns ``path`` and ``pred``, plus the columns added by ``process_vision_results``. A single-logit head is converted with ``torch.sigmoid``; a multi-logit head with ``torch.softmax``, giving the probability of class 1 for two classes and the winning class's confidence for more. With more than two classes the frame also carries ``predicted_label`` and one ``prob_class_<i>`` column per class, and its ``cv_predictions`` column holds the predicted class index rather than a threshold on ``pred``.",
+      "context": "The returned DataFrame contains at least the columns ``path`` and ``pred``, plus the columns added by ``process_vision_results``. A single-logit head is converted with ``torch.sigmoid``; a multi-logit head with ``torch.softmax``, giving the probability of class 1 for two classes and the winning class's confidence for more. With more than two classes the frame also carries ``predicted_label`` and one ``prob_class_<i>`` column per class, and its ``cv_predictions`` column holds the predicted class index rather than a threshold on ``pred``.",
+      "translation": "반환된 DataFrame 은 최소한 ``path``와 ``pred`` 열, 그리고 ``process_vision_results``가 추가한 열을 포함합니다. 단일 로짓 헤드는 ``torch.sigmoid``로 변환하고 다중 로짓 헤드는 ``torch.softmax``로 변환합니다. 두 클래스에서는 클래스 1의 확률을, 더 많으면 승리한 클래스의 신뢰도를 제공합니다. 클래스가 둘보다 많으면 ``predicted_label``과 클래스별 ``prob_class_<i>`` 열도 포함하며, ``cv_predictions`` 열에는 ``pred`` 임계값이 아니라 예측 클래스 인덱스를 저장합니다."
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model#7",
+      "source_sha256": "31c41a0aad4f87de7289b6c6a157ef88a5157c14b4b8cae80782bf84f061b86f",
+      "source": "**The 1.4826.** For a Gaussian, ``MAD = Phi^-1(0.75) * sigma = 0.6745 * sigma``, so ``sigma = MAD / 0.6745 = 1.4826 * MAD``. Multiplying by :data:`MAD_TO_SIGMA` makes the MAD a *consistent estimator of sigma* under normality, which is what lets the threshold be read on the familiar scale — \"3.5 SD\" — while never being computed from an SD that the outliers could inflate. The constant is the whole reason ``k`` is comparable to a z-score cut-off at all; without it, ``k`` would be in units of \"MADs\" and 3.5 would mean something different for every column.",
+      "context": "**The 1.4826.** For a Gaussian, ``MAD = Phi^-1(0.75) * sigma = 0.6745 * sigma``, so ``sigma = MAD / 0.6745 = 1.4826 * MAD``. Multiplying by :data:`MAD_TO_SIGMA` makes the MAD a *consistent estimator of sigma* under normality, which is what lets the threshold be read on the familiar scale — \"3.5 SD\" — while never being computed from an SD that the outliers could inflate. The constant is the whole reason ``k`` is comparable to a z-score cut-off at all; without it, ``k`` would be in units of \"MADs\" and 3.5 would mean something different for every column.",
+      "translation": "**1.4826의 의미.** 가우시안에서 ``MAD = Phi^-1(0.75) * sigma = 0.6745 * sigma``이므로 ``sigma = MAD / 0.6745 = 1.4826 * MAD``입니다. :data:`MAD_TO_SIGMA`를 곱하면 정규성 아래에서 MAD 가 *sigma의 일관 추정량*이 됩니다. 이상치가 부풀릴 수 있는 SD 로 계산하지 않으면서 임계값을 익숙한 \"3.5 SD\" 척도로 읽을 수 있습니다. 이 상수 때문에 ``k``를 z-점수 경계와 비교할 수 있습니다. 없으면 ``k`` 단위가 \"MADs\"가 되어 열마다 3.5의 의미가 달라집니다."
+    },
+    {
+      "label": "spacr.doctor.check_database#1",
+      "source_sha256": "7091b00bb57353871469a36c146b5fcfba5ab041b10d974b8ea068bfd3406986",
+      "source": "only ``ctx.db`` is read. ``None`` — the usual case — makes the whole check one SKIP row rather than a failure, since most invocations have no project to point at. It must name the SQLite file itself, which spaCR writes to ``<src>/measurements/measurements.db``, not the plate directory; a path that is not a file is a FAIL. The integrity and schema rows open it read-only, but the locking row briefly takes a real write lock, so pointing this at a database a run or an open GUI is currently writing to reports that lock — which is the intended answer, not a false alarm.",
+      "context": "only ``ctx.db`` is read. ``None`` — the usual case — makes the whole check one SKIP row rather than a failure, since most invocations have no project to point at. It must name the SQLite file itself, which spaCR writes to ``<src>/measurements/measurements.db``, not the laboratory microplate directory; a path that is not a file is a FAIL. The integrity and schema rows open it read-only, but the locking row briefly takes a real write lock, so pointing this at a database a processing session or an open GUI is currently writing to reports that lock — which is the intended answer, not a false alarm.",
+      "translation": "``ctx.db``만 읽습니다. 일반적인 ``None`` 값은 대부분의 호출에 지정할 프로젝트가 없으므로 전체 검사를 실패가 아닌 SKIP 행 하나로 만듭니다. 실험실 마이크로플레이트 디렉터리가 아니라 spaCR 이 ``<src>/measurements/measurements.db``에 기록하는 SQLite 파일 자체를 지정해야 하며, 파일이 아닌 경로는 FAIL입니다. 무결성 및 스키마 행은 읽기 전용으로 열지만 잠금 행은 잠시 실제 쓰기 잠금을 얻습니다. 따라서 처리 세션이나 열린 GUI 가 쓰는 중인 데이터베이스를 지정하면 그 잠금을 보고하며, 이는 오경보가 아니라 의도한 결과입니다."
+    },
+    {
+      "label": "spacr.utils.console_safe#1",
+      "source_sha256": "e74457c307d51cfc40b90b5da12fad19304fe36dd522d04e262f98b6ca4d80ca",
+      "source": "Console decoration must never be able to end a run. No Windows codepage encodes spaCR's own output set -- ``▸`` (U+25B8) is absent from cp1252, cp437, cp850, cp932 *and* cp936, and the box-drawing frame is absent from cp1252 -- and neither does any of them encode the domain vocabulary that ends up in settings values, such as the parental strain ``Δku80`` or a ``µm`` voxel size. Printing either to a non-UTF-8 stream raises ``UnicodeEncodeError``, and on Windows that is the normal case the moment stdout is redirected: a batch-queue job, ``spacr-run``, a legacy console.",
+      "context": "Console decoration must never terminate a run. Windows code pages do not encode every spaCR output character. For example, ``▸`` is missing from cp1252, cp437, cp850, cp932 *and* cp936, and cp1252 lacks the frame characters. Settings may also contain ``Δku80`` or ``µm``. Writing these values to a non-UTF-8 stream raises ``UnicodeEncodeError``. On Windows, this commonly occurs when stdout is redirected by a batch job, ``spacr-run``, or a legacy console.",
+      "translation": "콘솔 장식 때문에 처리 세션이 끝나서는 안 됩니다. 어떤 Windows 코드 페이지도 spaCR 출력 문자를 모두 인코딩하지 못합니다. ``▸``(U+25B8)은 cp1252, cp437, cp850, cp932 *및* cp936에 없고 상자 그리기 문자는 cp1252에 없습니다. 설정 값의 ``Δku80`` 또는 ``µm`` 같은 도메인 용어도 인코딩하지 못합니다. 이를 비 UTF-8 스트림에 출력하면 ``UnicodeEncodeError``가 발생합니다. Windows 에서는 배치 작업, ``spacr-run``, 레거시 콘솔처럼 stdout을 리디렉션할 때 흔히 발생합니다."
+    }
+  ]
+}
