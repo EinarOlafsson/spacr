@@ -4383,7 +4383,38 @@ API_SHARED_PHRASE_ALLOWLIST = frozenset({
 # prose in unrelated targets. Lexical normalization removes punctuation, so
 # German ``Event-Loop`` is compared here as ``event loop``.
 API_SHARED_PHRASE_ALLOWLIST_BY_LANGUAGE = {
-    "de": frozenset({"event loop"}),
+    "de": frozenset({
+        "absolute string",
+        "belsley kuh welsch definition",
+        "benjamini hochberg fdr q",
+        "classifier evaluation run history",
+        "copyright c matthew o meara maom orcid",
+        "d agostino pearson test",
+        "denial of service",
+        "distributed jobs classifier evaluation",
+        "drag and drop",
+        "event loop",
+        "essentials all",
+        "evaluation run history",
+        "fuzzy match",
+        "image mask i o",
+        "mann whitney u test",
+        "mask measure timelapse motility",
+        "nasa esa download in",
+        "one shot",
+        "out of fold",
+        "prepare run review",
+        "pre run hook",
+        "pro chatgpt plus pro team google",
+        "run history",
+        "run id",
+        "string hashing",
+        "sigma max min h w",
+        "t h w label stack",
+        "vs code slack linear",
+        "warm page cache ms",
+        "zarr format zarr format",
+    }),
 }
 
 _COPIED_ENGLISH_GRAMMAR_WORDS = frozenset({

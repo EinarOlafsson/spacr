@@ -1,0 +1,237 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.figure_queue.render_pdf_to_image#3",
+      "source_sha256": "2be571d8ceac3bb288337315ccb39a40ab03fa7301027102e0956565a5a0dea1",
+      "source": ":class:`QPdfPageRenderer` in ``MultiThreaded`` mode does the rasterising inside Qt's own C++ thread, which no Python call is standing in — so the GIL is free throughout. This function starts one, then waits on a **nested QEventLoop** on the calling worker thread; ``QEventLoop.exec`` does release the GIL. Same 640 ms render, same pixels (verified equal to the one-shot render), worst GUI-thread gap 1.7 ms.",
+      "context": ":class:`QPdfPageRenderer` in ``MultiThreaded`` mode does the rasterising inside Qt's own C++ independent execution path, which no Python call is standing in — so the GIL is free throughout. This function starts one, then waits on a **nested QEventLoop** on the calling background execution unit; ``QEventLoop.exec`` does release the GIL. Same 640 ms render, same pixels (verified equal to the one-shot render), worst main GUI execution path gap 1.7 ms.",
+      "translation": ":class:`QPdfPageRenderer` rastert im Modus ``MultiThreaded`` innerhalb des eigenen C++-Threads von Qt, in dem kein Python-Aufruf aktiv ist — die GIL bleibt daher durchgehend frei. Diese Funktion startet einen solchen Renderer und wartet anschließend in einer **verschachtelten QEventLoop** im aufrufenden Hintergrundthread; ``QEventLoop.exec`` gibt die GIL frei. Dieselbe Renderzeit von 640 ms, dieselben Pixel (nachweislich identisch mit dem einmaligen Rendering), größte Lücke im GUI-Thread 1.7 ms."
+    },
+    {
+      "label": "spacr.qt.widgets.formula#10",
+      "source_sha256": "ccea3b5213f9448050049fda69b58d9415f83d5159bef622ef7f9b2abaa10697",
+      "source": "Numbers are read as **floats**, always. That is not cosmetic: ``9 ** 9 ** 9`` with Python integers is a multi-second allocation of a number with 300 million digits — a denial of service typed in eleven characters — and with floats it is ``inf`` in a nanosecond. The node count and nesting depth are capped as well (:data:`MAX_NODES`, :data:`MAX_DEPTH`), so a pathological expression is refused at parse time rather than during a redraw.",
+      "context": "Numbers are read as **floats**, always. That is not cosmetic: ``9 ** 9 ** 9`` with Python integers is a multi-second allocation of a number with 300 million digits — a denial of service typed in eleven characters — and with floats it is ``inf`` in a nanosecond. The node count and nesting depth are capped as well (:data:`MAX_NODES`, :data:`MAX_DEPTH`), so a pathological expression is refused at parse time rather than during a redraw.",
+      "translation": "Zahlen werden immer als **floats** gelesen. Das ist nicht kosmetisch: ``9 ** 9 ** 9`` mit Python Integern ist eine mehrsekündige Zuweisung einer Zahl mit 300 Millionen Ziffern — ein Denial of Service in elf Zeichen — und mit Floats ist es ``inf`` in einer Nanosekunde. Die Knotenanzahl und die Verschachtelungstiefe sind ebenfalls begrenzt (:data:`MAX_NODES`, :data:`MAX_DEPTH`), sodass ein pathologischer Ausdruck zur Analysezeit und nicht während eines Neuzeichnens abgelehnt wird."
+    },
+    {
+      "label": "spacr.qt.widgets.formula_editor.FormulaPanel.set_frame#1",
+      "source_sha256": "23fd42c9c3366c005bdfd34fd78edf0ecc4565e71cf18b05feac20b6d60cd4e2",
+      "source": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column simply fails, says which column, and is exactly what the user wants back when they reload the same table.",
+      "context": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column simply fails, says which column, and is exactly what the user wants back when they reload the same table.",
+      "translation": "Vorhandene Formeln werden **beibehalten** und erneut angewendet. Dies ist absichtlich das Gegenteil des Verhaltens des Local Data Filter für seine Klauseln: Eine Filterklausel, die eine fehlende Spalte nennt, schränkt weniger ein als behauptet und darf deshalb nicht beibehalten werden. Eine Formel mit einer fehlenden Spalte schlägt hingegen einfach fehl, nennt die betreffende Spalte und ist genau das, was der Benutzer beim erneuten Laden derselben Tabelle wiederhaben möchte."
+    },
+    {
+      "label": "spacr.qt.widgets.graph_builder#3",
+      "source_sha256": "f7428a734ea2dcdfdb2cf8f3a871a33013927a9c9a699ee5d314ee78f76d1b52",
+      "source": "Everything about *what to draw* lives in :mod:`spacr.qt.widgets.graph_spec`: the spec object, the plot-type inference, the facet grid, the shared scales and the large-data policy. This module is the chrome and the matplotlib calls. The split is not tidiness — small multiples, the gate editor, the feature explorer and the campaign control charts are all \"the graph builder with one more rule\", and they need the engine without inheriting a drag-and-drop panel.",
+      "context": "Everything about *what to draw* lives in :mod:`spacr.qt.widgets.graph_spec`: the spec object, the plot-type inference, the facet grid, the shared scales and the large-data policy. This module is the chrome and the matplotlib calls. The split is not tidiness — small multiples, the data-selection boundary editor, the feature explorer and the campaign control charts are all \"the graph builder with one more rule\", and they need the engine without inheriting a drag-and-drop panel.",
+      "translation": "Alles darüber, *was gezeichnet werden soll*, liegt in :mod:`spacr.qt.widgets.graph_spec`: das Spezifikationsobjekt, die Ableitung des Diagrammtyps, das Facettenraster, die gemeinsamen Skalen und die Richtlinie für große Datenmengen. Dieses Modul enthält die Bedienelemente und die matplotlib-Aufrufe. Die Trennung dient nicht nur der Ordnung — Small Multiples, Gate Editor, Feature Explorer und die Kontrolldiagramme einer Kampagne sind jeweils „der Diagrammgenerator mit einer weiteren Regel“ und benötigen die Engine, ohne ein Drag-and-drop-Bedienfeld zu erben."
+    },
+    {
+      "label": "spacr.qt.widgets.graph_spec#1",
+      "source_sha256": "d95f874e5bb730cf872707783d0923e4bb5d1040276cd0f32e5667799fa6d431",
+      "source": "A JMP-style graph builder is two things that want very much to be one thing: a pile of drag-and-drop chrome, and a small declarative object saying \"``area`` is on x, ``gene`` is on colour, facet by plate down the rows\". This module is the second one, kept deliberately apart from the first.",
+      "context": "A JMP-style graph builder is two things that want very much to be one thing: a pile of drag-and-drop chrome, and a small declarative object saying \"``area`` is on x, ``gene`` is on colour, facet by laboratory microplate down the rows\". This module is the second one, kept deliberately apart from the first.",
+      "translation": "Ein Diagrammgenerator im JMP-Stil besteht aus zwei Teilen, die unbedingt wie einer wirken sollen: einer Menge von Drag-and-drop-Bedienelementen und einem kleinen deklarativen Objekt mit der Aussage „``area`` liegt auf x, ``gene`` bestimmt die Farbe, und die Facetten werden nach Platte zeilenweise angeordnet“. Dieses Modul ist der zweite Teil und wird absichtlich vom ersten getrennt gehalten."
+    },
+    {
+      "label": "spacr.qt.widgets.home#2",
+      "source_sha256": "4aff2d89fae852517baecf191290b43a329ec52e8199d088d234d6e85980f6e4",
+      "source": "1. **The first tab is everything, in the same categories as the rest.** Home is not a summary of the other tabs — it holds every app, at a density that fits one screen, banded by the *same* sections the category tabs use. It used to band them into Prepare / Run / Review instead, a second grouping that existed nowhere else: an app read as \"Prepare\" on the first tab and \"Data\" on the second, and adding a section meant editing two tables that could disagree. There is one table now (:data:`spacr.qt.app.APPS`) and both the bands and the tabs are computed from it, by the *registry*, and handed in — this widget takes ``categories`` and ``bands`` already grouped and does not know what a section means.",
+      "context": "1. **The first tab is everything, in the same categories as the rest.** Home is not a summary of the other tabs — it holds every app, at a density that fits one application view, banded by the *same* sections the category tabs use. It used to band them into Prepare / Run / Review instead, a second grouping that existed nowhere else: an app read as \"Prepare\" on the first tab and \"Data\" on the second, and adding a section meant editing two tables that could disagree. There is one table now (:data:`spacr.qt.app.APPS`) and both the bands and the tabs are computed from it, by the *registry*, and handed in — this widget takes ``categories`` and ``bands`` already grouped and does not know what a section means.",
+      "translation": "1. **Die erste Registerkarte enthält alles, in denselben Kategorien wie die übrigen.** Home ist keine Zusammenfassung der anderen Registerkarten — sie enthält jede Anwendung in einer Dichte, die in eine Ansicht passt, und gliedert sie in die *gleichen* Abschnitte wie die Kategorieregisterkarten. Früher wurden stattdessen Prepare / Run / Review verwendet, eine zweite Gruppierung, die sonst nirgendwo existierte: Eine Anwendung erschien auf der ersten Registerkarte als \"Prepare\" und auf der zweiten als \"Data\"; beim Hinzufügen eines Abschnitts mussten zwei Tabellen geändert werden, die voneinander abweichen konnten. Heute gibt es eine einzige Tabelle (:data:`spacr.qt.app.APPS`). Sowohl die Bänder als auch die Registerkarten werden von der *Registrierung* daraus berechnet und bereits gruppiert übergeben — dieses Widget erhält ``categories`` und ``bands`` und muss nicht wissen, was ein Abschnitt bedeutet."
+    },
+    {
+      "label": "spacr.qt.widgets.home.RecentRunsPanel.read#1",
+      "source_sha256": "35322741fc68a790fb4395dc0e83c4c9d95d7ef9252b4acd45ec05b314f01732",
+      "source": "Split out of :meth:`refresh` so :class:`HomePage` can call it off the GUI thread: it touches no widget, only the run journal. ``recent_runs`` opens and JSON-parses *every* manifest under the runs root before it sorts and truncates — 4 865 of them on this developer's machine, measured at 540 ms — so it is not something the GUI thread should be doing on the way back to Home.",
+      "context": "Split out of :meth:`refresh` so :class:`HomePage` can call it off the main GUI execution path: it touches no widget, only the run journal. ``recent_runs`` opens and JSON-parses *every* manifest under the runs root before it sorts and truncates — 4 865 of them on this developer's machine, measured at 540 ms — so it is not something the main GUI execution path should be doing on the way back to Home.",
+      "translation": "Aus :meth:`refresh` herausgelöst, damit :class:`HomePage` die Methode außerhalb des GUI-Threads aufrufen kann: Sie greift auf kein Widget zu, sondern nur auf das Laufjournal. ``recent_runs`` öffnet und analysiert als JSON *jedes* Manifest im Stammverzeichnis der Läufe, bevor sortiert und gekürzt wird — auf dem Rechner dieses Entwicklers waren es 4 865 Dateien und 540 ms. Diese Arbeit gehört daher nicht auf den GUI-Thread während der Rückkehr zu Home."
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview#3",
+      "source_sha256": "1b411ad01ce9412110203c6f31091c76e7feedd759b92eecc4c202f2a0d06916",
+      "source": "**Units.** The assay converts pixels per frame into physical units with ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` and only when *both* are known; otherwise it reports ``px/frame``. A preview that printed \"velocity 4.2\" while the user was thinking in µm/s would be worse than printing nothing, so the calibration fields start **unset**, every velocity carries its unit, and while the calibration is unknown the panel says so in words instead of quietly borrowing the 1.78 px/µm default.",
+      "context": "**Units.** The assay converts pixels per frame into physical units with ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` and only when *both* are known; otherwise it reports ``px/frame``. A preview that printed \"velocity 4.2\" while the user was thinking in µm/s would be worse than printing nothing, so the calibration fields start **unset**, every velocity carries its unit, and while the calibration is unknown the panel says so in words instead of quietly borrowing the 1.78 px/µm default.",
+      "translation": "**Einheiten.** Der Assay wandelt Pixel pro Einzelbild mit ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` nur dann in physikalische Einheiten um, wenn *beide* Werte bekannt sind; andernfalls meldet er ``px/frame``. Eine Vorschau mit der Ausgabe \"velocity 4.2\", während der Benutzer in µm/s denkt, wäre schlimmer als gar keine Ausgabe. Deshalb beginnen die Kalibrierungsfelder **nicht gesetzt**, jede Geschwindigkeit trägt ihre Einheit, und bei unbekannter Kalibrierung weist das Bedienfeld ausdrücklich darauf hin, statt stillschweigend den Standardwert 1.78 px/µm zu übernehmen."
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.OutlierResult.filtered#2",
+      "source_sha256": "862dd3dc19bab6f6fd5ac3df6046bf0a8b1eb7580714e61cbaf852e298fb774f",
+      "source": "Objects that could not be scored are **kept** — they were not flagged, and dropping them here would delete rows for missingness under the name of outlier removal.",
+      "context": "Objects that could not be scored are **kept** — they were not flagged, and dropping them here would delete rows for missingness under the name of outlier removal.",
+      "translation": "Objekte, die nicht bewertet werden konnten, werden **beibehalten** — sie wurden nicht markiert. Sie hier zu verwerfen, würde fehlende Werte unter dem Namen der Ausreißerentfernung löschen."
+    },
+    {
+      "label": "spacr.qt.widgets.pivot_spec#1",
+      "source_sha256": "2ce90a4fb9541da1c90d8bca8ff56aa11fb0cab8c75d04137d912102d76136bd",
+      "source": "JMP's *Tabulate* is a drag-and-drop pivot: put ``plateID`` down the rows, ``gene`` across the columns, tick *mean* and *sd*, and read the table. It is the thing people reach for before they plot anything, because a number they can copy into a slide is often the whole answer.",
+      "context": "JMP's *Tabulate* is a drag-and-drop pivot: put ``plateID`` down the rows, ``gene`` across the columns, tick *mean* and *sd*, and read the table. It is the thing people reach for before they plot anything, because a number they can copy into a slide is often the whole answer.",
+      "translation": "JMPs *Tabulate* ist eine Drag-and-drop-Pivottabelle: ``plateID`` in die Zeilen, ``gene`` in die Spalten legen, *mean* und *sd* aktivieren und die Tabelle ablesen. Dies wird oft noch vor dem Erstellen eines Diagramms verwendet, weil eine in eine Präsentationsfolie kopierbare Zahl häufig bereits die vollständige Antwort ist."
+    },
+    {
+      "label": "spacr.qt.widgets.pivot_spec#2",
+      "source_sha256": "2c789e90aaf234a6d132a9083630c8f9def6da408ae0b89d0220569b82c1ed2e",
+      "source": "Like :mod:`spacr.qt.widgets.graph_spec`, this half is **pure pandas and numpy with no Qt** — testable without a display, usable from a notebook, and available to whatever screen wants a summary table without inheriting a drag-and-drop panel.",
+      "context": "Like :mod:`spacr.qt.widgets.graph_spec`, this half is **pure pandas and numpy with no Qt** — testable without a display, usable from a notebook, and available to whatever application view wants a summary table without inheriting a drag-and-drop panel.",
+      "translation": "Wie :mod:`spacr.qt.widgets.graph_spec` ist diese Hälfte **pure pandas und numpy ohne Qt** — testbar ohne Anzeige, verwendbar von einem Notebook und verfügbar für jede Anwendungsansicht, die eine Übersichtstabelle wünscht, ohne ein Drag-and-Drop-Bedienfeld zu erben."
+    },
+    {
+      "label": "spacr.qt.widgets.pivot_spec#8",
+      "source_sha256": "f5ae294a2631858e24f035956e87552cc670103232d2f89c878a17cc9be7248f",
+      "source": "The distinction that *is* real is kept: a cell with rows whose value column is entirely NaN reads ``n = 0`` — objects were measured there and none of them produced this measurement. That is a fact worth showing, and it is different from the well not existing.",
+      "context": "The distinction that *is* real is kept: a cell with rows whose value column is entirely NaN reads ``n = 0`` — objects were measured there and none of them produced this measurement. That is a fact worth showing, and it is different from the microplate sample position not existing.",
+      "translation": "Die Unterscheidung, die *wirklich* besteht, bleibt erhalten: Eine Zelle mit Zeilen, deren Wertespalte vollständig NaN ist, zeigt ``n = 0`` — dort wurden Objekte gemessen, aber keines lieferte diesen Messwert. Diese wichtige Tatsache unterscheidet sich davon, dass die betreffende Mikroplattenposition gar nicht existiert."
+    },
+    {
+      "label": "spacr.qt.widgets.power_design#10",
+      "source_sha256": "bed75c095050e57e82a537f77273cedc37c3b22701a7fa14c3f5726817d0bf38",
+      "source": "Every default in :class:`DesignSpec` is the fitted value for the real *T. gondii* screen this simulator was built against, as recorded in ``proposals/SIM_PORT_PLAN.md`` §1 and §10 and in the port's own docstrings: 452 genes at ~4 guides each, spotted into 4 x 384 wells at ~4.6 constructs per well, ~123 cells imaged per well (var ~8000), a MaxViT classifier at 0.80 / 0.12, ~2.5 % of genes true hits, ~3e4 reads per well. That makes the screen open on a working example rather than on filler, and it means the first number a user sees is one they can check against a screen that has actually been run.",
+      "context": "Every default in :class:`DesignSpec` is the fitted value for the real *T. gondii* screening experiment this simulator was built against, as recorded in ``proposals/SIM_PORT_PLAN.md`` §1 and §10 and in the port's own docstrings: 452 genes at ~4 guides each, spotted into 4 x 384 microplate sample positions at ~4.6 constructs per microplate sample position, ~123 cells imaged per microplate sample position (var ~8000), a MaxViT machine-learning classification model at 0.80 / 0.12, ~2.5 % of genes true hits, ~3e4 reads per microplate sample position. That makes the screening experiment open on a working example rather than on filler, and it means the first number a user sees is one they can check against a screening experiment that has actually been run.",
+      "translation": "Jeder Standardwert in :class:`DesignSpec` ist an das reale *T. gondii*-Screeningversuch angepasst, für das dieser Simulator entwickelt wurde. Dies ist in ``proposals/SIM_PORT_PLAN.md`` §1 und §10 sowie in den Docstrings der Portierung dokumentiert: 452 Gene mit jeweils ~4 Guides, verteilt auf 4 x 384 Mikroplattenpositionen mit ~4.6 Konstrukten pro Position, ~123 abgebildete Zellen pro Position (var ~8000), ein MaxViT-Klassifikationsmodell mit 0.80 / 0.12, ~2.5 % echte Treffer unter den Genen und ~3e4 Reads pro Position. Dadurch startet das Screeningversuch mit einem funktionsfähigen Beispiel statt mit Füllwerten, und die erste angezeigte Zahl lässt sich mit einem tatsächlich durchgeführten Experiment vergleichen."
+    },
+    {
+      "label": "spacr.qt.widgets.row_exclusion#3",
+      "source_sha256": "15984737436809b1e7f3727fe823eddee893b6ee3a593f9c63d0b353c5ba9a97",
+      "source": "``distinct_values`` runs one ``SELECT DISTINCT … LIMIT 501`` per ``(database, table)`` pair the chosen column appears in — and the columns a user actually excludes on (``plateID``, ``columnID``, ``rowID``) hold a handful of distinct values across the whole table, so the LIMIT is never reached and SQLite scans every row. Measured on a 200 000-row × 8-table measurements.db with a warm page cache: **196 ms per column**, and the column combo is editable, so ``currentTextChanged`` fires on every keystroke. Eight quick edits froze the window for **894 ms** in one unbroken block; ``set_source`` itself cost 183 ms and a single deliberate column choice 220 ms. Threaded, the same three are 29 ms, 5 ms and 2 ms.",
+      "context": "``distinct_values`` runs one ``SELECT DISTINCT … LIMIT 501`` per ``(database, table)`` pair the chosen column appears in — and the columns a user actually excludes on (``plateID``, ``columnID``, ``rowID``) hold a handful of distinct values across the whole table, so the LIMIT is never reached and SQLite scans every row. Measured on a 200 000-row × 8-table measurements.db with a warm page cache: **196 ms per column**, and the column combo is editable, so ``currentTextChanged`` fires on every keystroke. Eight quick edits froze the window for **894 ms** in one unbroken block; ``set_source`` itself cost 183 ms and a single deliberate column choice 220 ms. With worker execution, the same three are 29 ms, 5 ms and 2 ms.",
+      "translation": "``distinct_values`` führt eine Abfrage ``SELECT DISTINCT … LIMIT 501`` für jedes Paar ``(database, table)`` aus, in dem die ausgewählte Spalte vorkommt. Gerade die Spalten, nach denen Benutzer tatsächlich ausschließen (``plateID``, ``columnID``, ``rowID``), enthalten über die gesamte Tabelle nur wenige verschiedene Werte; das LIMIT wird daher nie erreicht und SQLite durchsucht jede Zeile. Gemessen mit warmem Seitencache auf einer measurements.db mit 200 000 Zeilen × 8 Tabellen: **196 ms pro Spalte**. Außerdem ist die Spaltenauswahl editierbar, sodass ``currentTextChanged`` bei jedem Tastendruck ausgelöst wird. Acht schnelle Änderungen blockierten das Fenster für **894 ms** am Stück; ``set_source`` selbst benötigte 183 ms und eine einzelne bewusste Spaltenauswahl 220 ms. Mit einem Hintergrundthread betragen dieselben drei Werte 29 ms, 5 ms und 2 ms."
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#0",
+      "source_sha256": "bd44674083db81a87f24e621410382fd303537515a1232182a3a127ebe862b28",
+      "source": "Link a (T, H, W) label stack into tracks with the chosen backend.",
+      "context": "Link a (T, H, W) label stack into tracks with the chosen backend.",
+      "translation": "Verknüpfen Sie einen (T, H, W)-Label-Stack in Spuren mit dem gewählten Backend."
+    },
+    {
+      "label": "spacr.regression_qc.condition_number#1",
+      "source_sha256": "4d64c6a74ecf23af0ae62b10c4308a4190ba8a96352b022b3923f2091cd090a7",
+      "source": "Two numbers, because they answer different questions. The *unscaled* condition number is what ``statsmodels`` prints in a summary, and it is dominated by the units of the columns: a predictor measured in cells rather than thousands of cells changes it by 1000 with no change in the science. The *scaled* one (each column normalised to unit length first, the Belsley-Kuh-Welsch definition) is unit-free and is the one whose thresholds — 30, 100, 1000 — mean anything.",
+      "context": "Two numbers, because they answer different questions. The *unscaled* condition number is what ``statsmodels`` prints in a summary, and it is dominated by the units of the columns: a predictor measured in cells rather than thousands of cells changes it by 1000 with no change in the science. The *scaled* one (each column normalised to unit length first, the Belsley-Kuh-Welsch definition) is unit-free and is the one whose thresholds — 30, 100, 1000 — mean anything.",
+      "translation": "Zwei Zahlen, weil sie unterschiedliche Fragen beantworten. Die Bedingungsnummer *unscaled* ist das, was ``statsmodels`` in einer Zusammenfassung ausgibt, und sie wird von den Einheiten der Spalten dominiert: Ein Prädiktor, der in Zellen anstatt in Tausenden von Zellen gemessen wird, ändert sie um 1000 ohne Änderung in der Wissenschaft. Die *scaled* (jede Spalte wird zuerst auf Einheitslänge normalisiert, die Belsley-Kuh-Welsch-Definition) ist einheitsfrei und ist diejenige, deren Schwellenwerte – 30, 100 und 1.000 – irgendetwas bedeuten."
+    },
+    {
+      "label": "spacr.remote_execution.ExecutionProfile#1",
+      "source_sha256": "c571f05ef429b38270e7662cdfd67586bc67acee2ad3230c930a19d3d1e1126f",
+      "source": "``local_root`` and ``remote_root`` describe the same shared or mirrored dataset.  Every absolute string nested in the settings is rewritten when it lies below ``local_root``.  Image datasets are deliberately not copied: accidental recursive transfer of a multi-terabyte plate is worse than a clear pre-flight error.",
+      "context": "``local_root`` and ``remote_root`` describe the same shared or mirrored dataset.  Every absolute string nested in the settings is rewritten when it lies below ``local_root``.  Image datasets are deliberately not copied: accidental recursive transfer of a multi-terabyte plate is worse than a clear pre-flight error.",
+      "translation": "``local_root`` und ``remote_root`` beschreiben denselben freigegebenen oder gespiegelten Datensatz. Jeder absolute String, der in den Einstellungen verschachtelt ist, wird umgeschrieben, wenn er unter ``local_root`` liegt. Bilddatensätze werden bewusst nicht kopiert: eine versehentliche rekursive Übertragung einer Multi-Terabyte-Platte ist schlimmer als ein klarer Pre-Flight-Fehler."
+    },
+    {
+      "label": "spacr.resources.home.versions._generators.common.n_apps#1",
+      "source_sha256": "f510e2bffa09685c5ec229c4ff7927c5e2707c594bdb375030b6561e6e5bf698",
+      "source": "Every \"N apps\" the variants draw or write goes through here. The count used to be typed into two dozen strings as ``29``; the registry then grew Distributed Jobs, Classifier Evaluation and Run History and every one of those strings became a lie that no test could see, because a literal cannot disagree with itself.",
+      "context": "Every \"N apps\" count displayed or written by a variant goes through this function. The count used to be copied into two dozen strings as ``29``. After Distributed Jobs, Classifier Evaluation, and Run History were added, every copied count became wrong without a test noticing, because a literal cannot disagree with itself.",
+      "translation": "Jeder \"N apps\"-Count, der von einer Variante angezeigt oder geschrieben wird, durchläuft diese Funktion. Die Zählung wurde früher in zwei Dutzend Strings als ``29`` kopiert. Nachdem Distributed Jobs, Classifier Evaluation und Run History hinzugefügt wurden, wurde jede kopierte Zählung falsch, ohne dass ein Test dies bemerkte, da ein Literal nicht mit sich selbst nicht übereinstimmen kann."
+    },
+    {
+      "label": "spacr.run_journal.diff_runs#4",
+      "source_sha256": "00d61490bffe10ac0470dee0658f4c1470506e234602cbe5ed37da9591bf52ef",
+      "source": "``env`` diffs ``manifest.json``'s ``env`` snapshot — spaCR version, git hash, python, platform, torch / cellpose / numpy versions — which is usually where an unexplained behaviour change actually lives.",
+      "context": "``env`` diffs ``manifest.json``'s ``env`` snapshot — spaCR version, git hash, python, platform, torch / cellpose / numpy versions — which is usually where an unexplained behaviour change actually lives.",
+      "translation": "``env`` vergleicht den in ``manifest.json`` gespeicherten ``env``-Schnappschuss — spaCR-Version, git-Hash, python, Plattform sowie Versionen von torch / cellpose / numpy —, denn dort liegt gewöhnlich die Ursache einer unerklärlichen Verhaltensänderung."
+    },
+    {
+      "label": "spacr.run_journal.resolve_run_dir#5",
+      "source_sha256": "295c06519a1bb6d2153e0a7af56e096b3500285de350540e3b7b03e6c07a1ee0",
+      "source": "an unambiguous *prefix* of a run-id (``\"2026-07-23_2147\"``), handy from a shell.",
+      "context": "an unambiguous *prefix* of a run-id (``\"2026-07-23_2147\"``), handy from a shell.",
+      "translation": "Ein eindeutiges *prefix* einer Run-ID (``\"2026-07-23_2147\"``), praktisch von einer Shell aus."
+    },
+    {
+      "label": "spacr.runctx#2",
+      "source_sha256": "5f176ea81ee615430f3dd8f2640b17afe533e2fa86d81c8fbb10e2fb25ac9228",
+      "source": "**One run id, on every log line and every output.** A run used to be untraceable. The log said a field failed; the registry said an artifact existed; nothing connected them, so \"show me everything from the run that produced this file\" had no answer. :func:`run_context` mints one id, stamps it onto every :class:`logging.LogRecord` created anywhere in the process, writes a per-run JSONL log that :func:`read_run_log` reads back, and hands the *same* id to :func:`spacr.artifacts.register_run_outputs`. A log line and an output can therefore be joined on ``run_id``, which is the whole point.",
+      "context": "**One processing-session id, on every log line and every output.** A processing session used to be untraceable. The log said a field failed; the registry said an artifact existed; nothing connected them, so \"show me everything from the processing session that produced this file\" had no answer. :func:`run_context` mints one id, stamps it onto every :class:`logging.LogRecord` created anywhere in the process, writes a per processing session JSONL log that :func:`read_run_log` reads back, and hands the *same* id to :func:`spacr.artifacts.register_run_outputs`. A log line and an output can therefore be joined on ``run_id``, which is the whole point.",
+      "translation": "**Eine Lauf-ID auf jeder Protokollzeile und jeder Ausgabe.** Früher ließ sich ein Lauf nicht nachverfolgen. Das Protokoll meldete den Fehler eines Sichtfelds, die Registrierung meldete ein vorhandenes Artefakt, aber nichts verband beides. Die Frage „Zeige mir alles aus dem Lauf, der diese Datei erzeugt hat“ hatte deshalb keine Antwort. :func:`run_context` erzeugt eine ID, stempelt sie auf jeden irgendwo im Prozess erzeugten :class:`logging.LogRecord`, schreibt ein JSONL-Protokoll je Lauf, das :func:`read_run_log` wieder einliest, und übergibt *dieselbe* ID an :func:`spacr.artifacts.register_run_outputs`. Eine Protokollzeile und eine Ausgabe können dadurch über ``run_id`` verknüpft werden; genau das ist der Zweck."
+    },
+    {
+      "label": "spacr.runctx.seed_everything#2",
+      "source_sha256": "bc222908c9345e047f821c651092e2bb4caaa37dcfe63846078c867be1edc9b3",
+      "source": "**What this does not buy you.** A seed makes the *draws* reproducible. It does not make CUDA reductions associative, it does not stop a forked worker pool from sharing one stream, and it cannot re-seed this interpreter's string hashing. Every such limit is named in :attr:`SeedReport.caveats` and in :data:`SEED_CAVEATS`; do not promise a user more than that list allows. In particular, calling this and then reporting \"the run is deterministic\" is wrong on a GPU unless ``deterministic=True`` *and* the model avoids the kernels Torch has no deterministic implementation for.",
+      "context": "**What this does not buy you.** A seed makes the *draws* reproducible. It does not make CUDA reductions associative, it does not stop a forked worker pool from sharing one stream, and it cannot re-seed this interpreter's string hashing. Every such limit is named in :attr:`SeedReport.caveats` and in :data:`SEED_CAVEATS`; do not promise a user more than that list allows. In particular, calling this and then reporting \"the run is deterministic\" is wrong on a GPU unless ``deterministic=True`` *and* the model avoids the kernels Torch has no deterministic implementation for.",
+      "translation": "**Was das dir nicht kauft.** Ein Seed macht die *draws* reproduzierbar. Es macht CUDA-Reduktionen nicht assoziativ, es verhindert nicht, dass ein geforkter Worker-Pool einen Stream teilt, und es kann das String-Hashing dieses Interpreters nicht neu einsetzen. Jede solche Grenze wird in :attr:`SeedReport.caveats` und in :data:`SEED_CAVEATS` benannt; Versprechen Sie einem Benutzer nicht mehr, als diese Liste zulässt. Insbesondere ist es falsch, dies aufzurufen und dann \"the run is deterministic\" auf einem GPU zu melden, es sei denn, ``deterministic=True`` *und* das Modell vermeidet die Kernel, für die Torch keine deterministische Implementierung hat."
+    },
+    {
+      "label": "spacr.schema.canonical_column_name#2",
+      "source_sha256": "ea30f70c29798ee72d4813d2ec7a1b6fd96f25b26abb3a73b7bdf3be997de4de",
+      "source": "This is the *only* implementation. ``spacr.database_schema`` and ``spacr.utils`` re-export this function rather than defining their own.",
+      "context": "This is the *only* implementation. ``spacr.database_schema`` and ``spacr.utils`` re-export this function rather than defining their own.",
+      "translation": "Dies ist die *einzige* Implementierung. ``spacr.database_schema`` und ``spacr.utils`` exportieren diese Funktion erneut, statt jeweils eine eigene zu definieren."
+    },
+    {
+      "label": "spacr.schema.parse_prcfo#1",
+      "source_sha256": "5ee009d50686beaaaa1f6f558bc7c39930d095db9337423b0a98ccfbeb685368",
+      "source": "The object prefix is stripped before the label is re-canonicalised, which is what makes this the inverse of :func:`compose_prcfo` for **every** label rather than only the numeric ones. :func:`object_id` reads an already-prefixed numeric id back out of its prefix (``'o7'`` → ``7`` → ``'o7'``), but it cannot do that for a preserved non-numeric token, so handing it ``'oxy'`` used to yield ``'ooxy'``: the key ``'p_r1_c1_f1_oxy'`` parsed to ``'p_r1_c1_f1_ooxy'``, and parsing that yielded ``'ooooxy'``. A key that grows every time it passes through the parser joins to nothing.",
+      "context": "The object prefix is stripped before the label is re-canonicalised, which is what makes this the inverse of :func:`compose_prcfo` for **every** label rather than only the numeric ones. :func:`object_id` reads an already-prefixed numeric id back out of its prefix (``'o7'`` → ``7`` → ``'o7'``), but it cannot do that for a preserved non-numeric token, so handing it ``'oxy'`` used to yield ``'ooxy'``: the key ``'p_r1_c1_f1_oxy'`` parsed to ``'p_r1_c1_f1_ooxy'``, and parsing that yielded ``'ooooxy'``. A key that grows every time it passes through the parser joins to nothing.",
+      "translation": "Das Objektpräfix wird entfernt, bevor das Label erneut kanonisiert wird. Dadurch ist diese Funktion für **jedes** Label und nicht nur für numerische Labels die Umkehrung von :func:`compose_prcfo`. :func:`object_id` kann eine bereits vorangestellte numerische ID aus ihrem Präfix lesen (``'o7'`` → ``7`` → ``'o7'``), aber nicht entsprechend mit einem beibehaltenen nicht numerischen Token verfahren. Deshalb führte die Übergabe von ``'oxy'`` früher zu ``'ooxy'``: Der Schlüssel ``'p_r1_c1_f1_oxy'`` wurde als ``'p_r1_c1_f1_ooxy'`` analysiert, und dessen erneute Analyse ergab ``'ooooxy'``. Ein Schlüssel, der bei jedem Durchlauf durch den Parser wächst, lässt sich mit nichts verknüpfen."
+    },
+    {
+      "label": "spacr.selection.Selection.from_keys#4",
+      "source_sha256": "e114ba21aa72003c95fac2c0ed7b8ca1dfabd78a23fa014daa8b80945a95ba57",
+      "source": "forwarded to :func:`object_keys`, so it is read **only** when ``keys`` is a frame. Key strings already carry whatever timepoint they were composed with, so passing this with a list or an Index is silently a no-op.",
+      "context": "forwarded to :func:`object_keys`, so it is read **only** when ``keys`` is a frame. Key strings already carry whatever timepoint they were composed with, so passing this with a list or an Index is silently a no-op.",
+      "translation": "wird an :func:`object_keys` weitergereicht und deshalb **nur** gelesen, wenn ``keys`` ein Frame ist. Schlüsselzeichenfolgen enthalten bereits den Zeitpunkt, mit dem sie zusammengesetzt wurden; bei Übergabe zusammen mit einer Liste oder einem Index bewirkt dieser Wert daher stillschweigend nichts."
+    },
+    {
+      "label": "spacr.sim.run_simulation#0",
+      "source_sha256": "1b1ccb8efa965920dd4ca57f9986ab3eb259f0e58e08ef6e5401aed65ebbd4f6",
+      "source": "Run one end-to-end pooled-screen simulation and return every intermediate table.",
+      "context": "Run one end-to-end pooled-screening experiment simulation and return every intermediate table.",
+      "translation": "Eine vollständige Simulation eines gepoolten Screening-Experiments ausführen und jede Zwischentabelle zurückgeben."
+    },
+    {
+      "label": "spacr.spacrops.StitchedMultiAligner#3",
+      "source_sha256": "00dbbe5b2dd4fd97c7758d44b9643c419d945b36e7691fdeb34c0287750fdc4e",
+      "source": "detector : {\"ORB\",\"SIFT\"} Feature detector for keypoint matching. nfeatures : int Feature budget for detector. max_keypoints : Optional[int] Hard cap on kept keypoints after detection (by detector’s internal ranking). downsample : float in (0,1] Downsample factor for feature/score pass. ransac_thresh_px : float Reprojection threshold (pixels) for affine estimation (downsampled space). allow_scale : bool If False, constrain to rotation+translation (or translation only if allow_rotation=False). allow_rotation : bool If False, constrain to translation only. outdir : str Output directory for images/csv. opencv_threads : int Limit OpenCV internal threading (avoid oversubscription).",
+      "context": "detector : {\"ORB\",\"SIFT\"} Keypoint detector. nfeatures : int Detector feature budget. max_keypoints : Optional[int] Hard cap on keypoints kept after detection, using the detector’s ranking. downsample : float in (0,1] Factor for feature detection and scoring. ransac_thresh_px : float Pixel reprojection threshold for affine estimation in downsampled space. allow_scale : bool If False, permit rotation and translation but no scaling; if allow_rotation=False, permit translation only. allow_rotation : bool If False, permit translation only. outdir : str Directory for image and csv output. opencv_threads : int OpenCV thread limit used to prevent oversubscription.",
+      "translation": "detector : {\"ORB\",\"SIFT\"} Merkmalsdetektor für den Abgleich von Schlüsselpunkten. nfeatures : int Merkmalsbudget des Detektors. max_keypoints : Optional[int] Feste Obergrenze für die nach der Erkennung beibehaltenen Schlüsselpunkte (gemäß der internen Rangfolge des Detektors). downsample : float in (0,1] Verkleinerungsfaktor für den Merkmals-/Bewertungsdurchgang. ransac_thresh_px : float Reprojektionsschwelle (Pixel) für die affine Schätzung im verkleinerten Raum. allow_scale : bool Bei False auf Rotation und Translation beschränken (oder nur Translation, falls allow_rotation=False). allow_rotation : bool Bei False auf Translation beschränken. outdir : str Ausgabeverzeichnis für Bilder/csv. opencv_threads : int Interne Threadanzahl von OpenCV begrenzen, um Überbelegung zu vermeiden."
+    },
+    {
+      "label": "spacr.submodules.CellposeLazyDataset#0",
+      "source_sha256": "fad00c8724d8e0c47604d2daa2cb0f0f3ddd9025aea82084fbc47a9fa002fb70",
+      "source": "Lazy image/label dataset for Cellpose training and inference.",
+      "context": "Lazy image/label dataset for Cellpose training and inference.",
+      "translation": "Träge geladener Bild-/Label-Datensatz für Training und Inferenz mit Cellpose."
+    },
+    {
+      "label": "spacr.submodules.analyze_invasion#3",
+      "source_sha256": "7e10c55ac68b2c3968b98fa902427cd000a3e4a06fd95d2cf77aa35abb7014fe",
+      "source": "**invaded / inside** = *absent* from the outside-stain channel.",
+      "context": "**invaded / inside** = *absent* from the outside-stain image data channel.",
+      "translation": "**eingedrungen / innen** = im Kanal der Außenfärbung *nicht vorhanden*."
+    },
+    {
+      "label": "spacr.submodules.analyze_replication#4",
+      "source_sha256": "0a95ad215fc5ea2dc5cfdb3c2ececdb6389631015c69bd68c6b9d0ee16c1ee4f",
+      "source": "Statistics: the two-condition comparison is a Mann-Whitney U test on the doubling index ``log2(n_parasites)``, with a chi-squared omnibus test alongside it. :func:`_replication_compare_conditions` explains why, and why a t-test on the raw counts is the wrong instrument.",
+      "context": "Statistics: the two-condition comparison is a Mann-Whitney U test on the doubling index ``log2(n_parasites)``, with a chi-squared omnibus test alongside it. :func:`_replication_compare_conditions` explains why, and why a t-test on the raw counts is the wrong instrument.",
+      "translation": "Statistik: Der Zwei-Bedingungen-Vergleich ist ein Mann-Whitney U-Test auf dem Verdoppelung-Index ``log2(n_parasites)``, mit einem Chi-Quadrat Omnibus-Test daneben. :func:`_replication_compare_conditions` erklärt warum, und warum ein t-Test auf den Rohzahlen das falsche Instrument ist."
+    },
+    {
+      "label": "spacr.timelapse.automated_motility_assay#0",
+      "source_sha256": "44f4b8359c7c7acb43b0a00ad8e0c0f81927a4818b9edf5623396e6ce93d7ae4",
+      "source": "End-to-end merged-npy pipeline for cell/pathogen motility and infection QC.",
+      "context": "End-to-end merged-npy workflow for cell/pathogen motility and infection QC.",
+      "translation": "Durchgängiger Arbeitsablauf mit zusammengeführten npy-Dateien für Zell-/Pathogenmotilität und Infektions-QC."
+    },
+    {
+      "label": "spacr.timelapse.save_figure#4",
+      "source_sha256": "8f73a162a8c19a4c4c90d0e1f72b838408105fb7b06b6425a10115b37eba08ae",
+      "source": "integer/string suffix embedded in the filename.",
+      "context": "integer/string suffix embedded in the filename.",
+      "translation": "in den Dateinamen eingebettetes Ganzzahl-/Zeichenfolgen-Suffix."
+    },
+    {
+      "label": "spacr.utils.check_normality#1",
+      "source_sha256": "f6200a67b6c7511974946fed82605bb207bb65b10f16c290a1961d10dc12fb69",
+      "source": "This is a *failure to reject* at alpha 0.05, not evidence of normality: the answer is ``True`` whenever the D'Agostino-Pearson test does not find significant skew or kurtosis. Small samples therefore look normal for want of power, and very large ones fail on deviations too small to matter -- which is what decides whether :func:`perform_statistical_tests` sends a feature to ANOVA or to Kruskal-Wallis.",
+      "context": "This is a *failure to reject* at alpha 0.05, not evidence of normality: the answer is ``True`` whenever the D'Agostino-Pearson test does not find significant skew or kurtosis. Small samples therefore look normal for want of power, and very large ones fail on deviations too small to matter -- which is what decides whether :func:`perform_statistical_tests` sends a feature to ANOVA or to Kruskal-Wallis.",
+      "translation": "Dies ist ein *Fehler,* bei Alpha 0,05 abzulehnen, kein Beweis für Normalität: Die Antwort ist ``True``, wenn der D'Agostino-Pearson-Test keine signifikante Verzerrung oder Kurtose findet. Kleine Stichproben sehen daher aus Mangel an Trennschärfe normal aus, und sehr große scheitern an Abweichungen, die zu gering sind, um eine Rolle zu spielen - was entscheidet, ob :func:`perform_statistical_tests` ein Merkmal an ANOVA oder an Kruskal-Wallis sendet."
+    }
+  ]
+}
