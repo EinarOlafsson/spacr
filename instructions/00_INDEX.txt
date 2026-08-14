@@ -1,80 +1,164 @@
 ================================================================================
-WHAT IS LEFT — INDEX
+WHAT IS LEFT -- INDEX
 ================================================================================
 
-Written 2026-08-05. Every file here is one piece of unfinished work, with
-enough context to pick it up cold.
+Regenerated 2026-08-14 by `tools/build_instruction_index.py`, from the files
+themselves. Do not hand-edit: it went nine days stale last time, and an index
+that disagrees with the folder is worse than none, because it is believed.
 
-Each file says the same four things: what the state is, why it matters,
-what to do, and how to know it worked. Where something is NOT worth doing,
-that is said too, with the reason -- a decision not to act is also a
-result, and re-deriving it later costs the same as deriving it once.
+Each file says the same four things: what the state is, why it matters, what
+to do, and how to know it worked. Where something is NOT worth doing, that is
+said too, with the reason -- a decision not to act is also a result, and
+re-deriving it later costs the same as deriving it once.
 
---------------------------------------------------------------------------------
-HOW THIS FOLDER WORKS
---------------------------------------------------------------------------------
+READ instructions/HANDOFF.md FIRST. It carries the traps, what needs the
+maintainer, and the standing rules.
 
-    TEMPLATE.txt    the shape every task file takes
-    open/           tasks not finished. One file per task, written BEFORE the
-                    work starts, kept current WHILE it runs.
-    done/           finished tasks, with what was actually done and how it
-                    was verified.
+THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
+often says 'not started' when it is done -- eight files have been wrong about
+themselves this week.
 
-A task the user asks for gets a file in open/ before any code is touched, and
-moves to done/ when it is finished. That is not bookkeeping: a session that
-runs out of context loses everything that existed only in the conversation.
-`python skill/refresh.py` checks that every file in both folders still has its
-sections and that nothing is in both at once.
-
-The numbered files below (01-08) predate this and stay where they are.
+70 done / 16 open (81%).
 
 --------------------------------------------------------------------------------
-IN ROUGH ORDER OF WHAT IT COSTS A USER
+OPEN
 --------------------------------------------------------------------------------
 
-01_pip_upgrade_is_broken_for_installed_builds.txt
-        SHIP THIS FIRST. Every desktop install at or below 1.5.0.1 cannot
-        update itself, and the fix can only reach them through the update.
-        Includes the one-line manual escape.
+   44  THE INSTALLER ASKS CPU OR GPU, AND SAYS WHAT CPU COSTS
+       [BLOCKED: needs a macOS/Windows host]
+       44_installer_cpu_vs_gpu_choice.txt
 
-02_multi_fov_loader_for_the_timelapse_movie.txt
-        The movie panel takes a list of fields and caps how many. Nothing
-        loads more than one yet. Half a feature that was asked for whole.
+   45  INSTALLER: OPT-IN LOG SHARING, ACCOUNT SIGN-IN, AND THE ISSUE TOGGLE
+       [BLOCKED: needs a macOS/Windows host]
+       45_installer_opt_in_logs_and_accounts.txt
 
-03_five_order_dependent_qt_failures.txt
-        Each passes on its own file and fails in the suite. Not diagnosed.
-        Two isolation leaks of the same family are already closed and named
-        here, which is where to start.
+   47  THE FULL tests/qt RUN HANGS PART-WAY THROUGH
+       [diagnosed: decelerates ~6x, does not hang. ~15 failures unnamed]
+       47_the_qt_suite_hangs_at_about_25_percent.txt
 
-04_font_scale_default_disagrees_with_the_tests.txt
-        DEFAULT_FONT_SCALE is 1.5; the test fixtures pin 1.0. The suite is
-        measuring a configuration no user has.
+   48  OPTIMIZE THE spaCR TUTORIALS
+       [codex -- DO NOT TOUCH]
+       48_optimize_the_tutorials.txt
 
-05_version_bump_and_github_actions.txt
-        Deferred on request. What to run and what to expect.
+   52  3D GATES DRAWN ON A CHOSEN PLANE, COMPOSED WITH EACH OTHER, WITH THRESHOLDS
+       [controls rebuilt 2026-08-13; geometry was already right]
+       52_gate_editor_3d_plane_anchored_gates.txt
 
-06_module_overlap_and_merge_candidates.txt
-        Analysis, measured, no code written. 62 modules, 8-12 mergeable.
-        Explicitly NOT actioned -- it is a product decision.
+   53  THE INSTALLERS MUST ACTUALLY BUILD AND RUN, ON ALL THREE PLATFORMS
+       [BLOCKED: needs makensis + both other OSes]
+       53_the_installers_must_actually_build_and_run.txt
 
-07_known_bugs_not_fixed.txt
-        Found, confirmed, deliberately left. With the reason for each.
+   58  CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
+       [LAST]
+       58_remove_claude_as_a_github_contributor.txt
 
-08_flowview_pipeline_visualisation.txt
-        A specification, not a defect: an optional live node-graph view of
-        a run, with SVG/HTML/JSON export. Written by the maintainer and
-        reproduced in full. Not started. Read the two questions at the top
-        before writing code -- it overlaps `run_journal` and the existing
-        Pipeline Graph screen, and that has to be settled first.
+   59  PUBLISH spaCR ON CONDA-FORGE
+       [BLOCKED: needs the maintainer's accounts]
+       59_publish_spacr_on_conda_forge.txt
+
+   60  EVERY MODULE AT 100% TEST COVERAGE
+       [scoped by the maintainer to mask, utils, measure, deep_spacr]
+       60_every_module_to_100_percent_test_coverage.txt
+
+   76  MORE THAN ONE ORGANELLE: organelle, organelle_1, organelle_2, ...
+       [not started]
+       76_more_than_one_organelle.txt
+
+   81  CLOSE THE GITHUB ISSUES BY FIXING THEM, AND CLOSE THEM AS THE MAINTAINER
+       [BLOCKED: needs the reporter's `df -T` and a stack trace]
+       81_close_the_github_issues.txt
+
+   82  GET EVERY GITHUB TEST GREEN, THEN RELEASE 1.5.0.5 — AND DO NOTHING AFTER
+       [SECOND TO LAST]
+       82_green_ci_then_release_1_5_0_5.txt
+
+   83  FINISH THE MULTILINGUAL CATALOGS AND PUSH THE VERIFIED BATCH TO NIGHTLY
+       [codex -- DO NOT TOUCH]
+       83_finish_multilingual_catalogs_and_push_nightly.txt
+
+   93  THE INTENSITY RESCALE FACTOR IS PER FIELD, AND NOTHING RECORDS IT
+       [filed, not started]
+       93_the_intensity_rescale_factor_is_per_field_and_unrecorded.txt
+
+   94  EVERY TRAIN/TEST SPLIT GROUPS BY WELL
+       [~40% -- ladder built, five sites still ungrouped]
+       94_train_test_splits_must_group_by_well.txt
+
+   95  IMAGE UMAP REBUILT THE starplast WAY: TABLE, VIEWER, GRID, WALK, GPU
+       [model + GPU button built; viewer, grid, walk NOT]
+       95_image_umap_rebuilt_the_starplast_way.txt
 
 --------------------------------------------------------------------------------
-A NOTE ON THE TESTS IN HERE
+DONE
 --------------------------------------------------------------------------------
 
-Several of these were found because a test was wrong rather than the code.
-That happened often enough this week to be worth stating as a habit: when a
-test and the product disagree, find out which one is describing reality
-before changing either. Four separate "fixes" to the black box behind the
-settings column were aimed at the wrong layer because an offscreen render
-kept reporting a clean page for a screen that was black on the user's
-display -- see 03 for why that measurement lies.
+   10  CROP CHANNEL MAPPING: png_dims BECOMES AN EXPLICIT {r,g,b} DICT
+   11  ANNOTATE: AUTO-ANNOTATE BY METADATA, MEASUREMENT, GATE OR UMAP CLUSTER
+   12  ANNOTATE: RUBBER-BAND MULTI-SELECT, AND ANNOTATE/CLEAR PAGE
+   13  ANNOTATE: LINK TO THE DATABASE BROWSER AT png_list
+   14  DATABASE BROWSER: SORT BY CLICKING A COLUMN HEADER
+   15  SEGMENTATION QC: TEXT SITS ON AN OPAQUE BLACK BOX
+   16  SETTINGS WINDOW: DRAGGING IT UN-MAXIMIZES THE MAIN WINDOW
+   17  SURROGATE MODEL: EXPLAIN A CV CLASSIFIER WITH A FEATURE MODEL
+   18  REVIEW: MODERN ATTRIBUTION METHODS AND MODEL COVERAGE
+   19  CLASSIFY: MERGE THE CV AND ML MODULES INTO ONE
+   20  ANCHOR EVERY CHANNEL PROMPT TO COLOUR, NOT LIST POSITION
+   21  ANNOTATE SETTINGS: DROP THE API DOTS
+   22  THE REPRODUCIBILITY HASH SHOULD BE OPT-IN
+   23  macOS: PREFERENCES AND QUIT VANISH, AND THE PYTHON MENU OPENS RECIPES
+   24  A PREFERENCES GEAR BESIDE COPY CONSOLE ON THE MODULE SCREENS
+   25  tests/qt/conftest.py IS LOST WHEN QT AND NON-QT FILES ARE INTERLEAVED
+   26  IMAGE UMAP: FIGURE SETTINGS SHOULD CARRY THE UMAP DISPLAY SETTINGS
+   27  IMAGE UMAP: DRAG TO ENLARGE THE PLOT WITHOUT ENLARGING THE IMAGES
+   28  CLASSIFY (CV): ONE GRAPH THAT GROWS, NOT ONE GRAPH PER EPOCH
+   29  STOP DOES NOT STOP: OFFER SOFT AND HARD, LIKE THE QUIT BUTTON
+   30  CLASSIFY (MERGED): SAY WHICH SETTINGS ARE COMPUTER VISION
+   31  GATE EDITOR: A REDESIGN, NOT A CHANGE
+   32  AURORA THEME: SHARPER RAYS THAT BREATHE
+   33  MENU: DROP 'ALL APPS', ORDER HOME / PREFERENCES / QUIT
+   34  IMAGE UMAP: SEARCH THE WHOLE HYPERPARAMETER SPACE, AND CALL IT WALK
+   35  SHOW SEARCH FIGURES AS THEY ARRIVE, ON A GRID THAT FITS THE CONTAINER
+   36  IMAGE UMAP: ZOOM EVERY PLOT, CLICK EVERY POINT
+   37  CLASSIFY: CLASSES AS A DICT, HONEST CROP SOURCES, AND FEWER CATEGORIES
+   38  DARK MODE: SELECTED COLUMNS IN THE SQL PICKER ARE INVISIBLE
+   39  GATE EDITOR: SETTINGS THAT ACTUALLY APPLY, COLOUR-CODED GATES, MODES, CONSOLE
+   40  A RELATIONSHIPS TABLE, AND FILTERS BUILT ON TOP OF IT
+   41  GATE EDITOR: ADD TABLES TO A WORKING SET, AND MERGE THEM BY WHAT THEY MEASURE
+   42  CALL write_relationships AFTER THE MASK MODULE RUNS
+   43  GET THE GITHUB ACTIONS RUNS GREEN
+   46  FOUR MODULES PAINT surface_alt UNDER THE RIGHT HALF OF A SETTING LABEL
+   49  xD IS DIMENSIONALITY REDUCTION, WITH ITS OWN COLUMN PICKER AND TABS
+   50  SAVE THE GATE EDITOR'S GRAPH AS PDF OR PNG
+   51  THE CONSOLE AND THE AI CHAT BOX ARE TOO SHORT
+   54  spaCR MUST RUN ON PYTHON 3.9 THROUGH 3.14, ON THE RIGHT DEPENDENCY VERSIONS
+   55  A PERFORMANCE SWEEP: NOTHING THAT LOADS BELONGS ON THE GUI THREAD
+   56  THE AUTO-ISSUE BUTTON LEADS TO "PAGE NOT FOUND"
+   57  IMAGE UMAP: DROP THE API LINK DOTS FROM THE SETTINGS
+   61  A TOOLTIP AND DOCUMENTATION SWEEP: SHORT, INFORMATIVE, CORRECTLY REFERENCED
+   62  THE SETTING ANIMATIONS MUST SHOW WHAT THE SETTING ACTUALLY DOES
+   63  MAKE THE API PAGE LOOK PROFESSIONAL, CLEAN AND USEFUL
+   64  THE USER SETS THE PROGRAM'S LANGUAGE
+   65  TRANSLATION COVERAGE: FULL UI, DOCUMENTATION AND INSTALLER SURFACES
+   66  HOME SCREEN: KEEP THE BOTTOM TOOLTIP, DROP THE PER-MODULE POPUP
+   67  IMAGE UMAP: THE RESULTS TABLE IS AMBIGUOUS, AND THE WALK MAY NOT BE WALKING
+   68  GATE EDITOR: RIGHT-CLICK THE GRAPH FOR EVERYTHING YOU CAN DO TO IT
+   69  STANDARDISE EVERY LIVE VIEW AND EVERY HYPERPARAMETER SEARCH
+   70  OFFLOAD THE COMPUTE THAT IS ACTUALLY GPU-SHAPED
+   71  MORE MEASUREMENTS: THE CHEAP ONES, THE OPT-IN ONES, AND LEARNED FEATURES
+   72  ONE "ORGANELLE TYPE" CHOICE SHOULD DRIVE THE REST OF THE ORGANELLE SETTINGS
+   73  AN "ADVANCED SETTINGS" CATEGORY, ORGANISED BY WHAT A SETTING DOES
+   74  LOAD EVERYTHING BEHIND A LOADING SCREEN, THEN SHOW A READY APP
+   75  IMAGE UMAP: THE NORMAL FIGURE VIEW, LIVE SETTINGS, AND A PROPAGATE BUTTON
+   77  THE SETTINGS NOTHING READS, AND THE NUMBERS THAT COME OUT WRONG
+   78  THE LOADING SCREEN BACKGROUND IS TEAL; MAKE IT BLACK OR DARK GREY
+   79  ONE ANCHOR, ONE COPY OF EACH COLUMN, AND THE RIGHT AGGREGATION FOR EACH KIND
+   80  THE REPORTED STATISTIC MUST BE COMPUTED AT THE LEVEL THE SETTING DECLARES
+   84  ANNOTATION MODE OVERWRITES location_column, AND THE USER CANNOT GET OUT
+   84  TURN THE NATURAL NARRATION FINDINGS INTO A REUSABLE REPOSITORY SKILL
+   85  THE NAME IS spaCR
+   86  THE API DOCS ARE NOT A ROADMAP -- REMOVE THE MODULE AUDIT, KEEP THE INSIGHTS
+   87  PR #74 -- LET A PROJECT CHOOSE WHICH STAIN RENDERS IN WHICH COLOUR
+   88  EVERY NOTEBOOK CARRIES EVERY SETTING, WITH ITS TOOLTIP
+   89  A COLOURBLIND MODE FOR EVERY IMAGE SPACR SHOWS
+   90  A FOURTH CHANNEL IN THE CROPS: A MASK, OR ANOTHER STAIN
+   91  LET THE USER CHOOSE THE CROP'S DTYPE AND SCALING
