@@ -2,7 +2,7 @@
 CLASSIFY (MERGED) SENDS THE CV MODEL TYPE INTO THE ML ANALYSIS
 ================================================================================
 
-Status:    not started
+Status:    done, 2026-08-14
 Requested: 2026-08-14 — "hello, there is a new git hub issue make sure to add
            that to the instruction list."
            GitHub issue #98 — "[auto 10434d] [classify_merged] ValueError:
@@ -68,3 +68,31 @@ Do not add ``maxvit_t`` to the classical-ML estimator allowlist and do not
 silently fall back to a default estimator. Either response would hide the
 cross-family routing bug and could train a different model than the user
 selected.
+
+--------------------------------------------------------------------------------
+COMPLETION EVIDENCE — 2026-08-14
+--------------------------------------------------------------------------------
+
+The merged dispatcher now resolves its family before shared-vocabulary
+normalization and captures the ML-owned ``model_type_ml`` value at that
+boundary. A payload containing both ``model_type_ml='xgboost'`` and
+``model_type='maxvit_t'`` sends XGBoost to ``generate_ml_scores`` while
+preserving MaxViT as the inactive CV selection. A short-lived legacy ML
+payload containing only ``model_type`` is migrated deliberately. Unsupported
+ML values are rejected as ``Unsupported model_type_ml`` before database I/O
+or training begins.
+
+Regression coverage exercises the reporter's conflicting-key payload, the
+legacy spelling, an unknown estimator, and the corresponding CV dispatch.
+The real XGBoost analysis path and CV training integration were also run.
+
+Verified locally:
+
+  * 139 merged-dispatch, training-basis, settings-category, and ML-score tests
+    passed;
+  * 64 classifier class-definition, real ML/CV pipeline, and Tk default tests
+    passed;
+  * ``compileall`` and ``git diff --check`` passed.
+
+Fixing commit: this instruction's completion commit. GitHub issue #98 is
+closed against that commit after it is pushed.
