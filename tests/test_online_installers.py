@@ -79,6 +79,33 @@ def test_bootstraps_pin_uv_and_private_python():
         assert "spacr[" in source
 
 
+def test_bootstraps_allow_an_explicit_ci_package_source():
+    unix = _text(UNIX)
+    windows = _text(WINDOWS)
+    workflow = _text(WORKFLOW)
+
+    assert 'PACKAGE_SPEC="${SPACR_PACKAGE_SPEC:-}"' in unix
+    assert '$PackageSpec = $env:SPACR_PACKAGE_SPEC' in windows
+    assert '--package-spec "$GITHUB_WORKSPACE[qt]"' in workflow
+    assert '$env:SPACR_PACKAGE_SPEC = "$((Resolve-Path .).Path)[qt]"' in workflow
+    assert 'SPACR_PACKAGE_SPEC="$GITHUB_WORKSPACE[qt]"' in workflow
+
+
+def test_windows_generated_catalog_is_bom_encoded_before_use():
+    builder = _text(ONLINE / "build_windows_online.ps1")
+    workflow = _text(WORKFLOW)
+
+    for source in (builder, workflow):
+        assert "System.Text.UTF8Encoding($true)" in source
+        assert "installer_messages.ps1" in source
+    assert workflow.index("System.Text.UTF8Encoding($true)") < workflow.index(
+        "Language.Parser]::ParseFile"
+    )
+    assert builder.index("System.Text.UTF8Encoding($true)") < builder.index(
+        "& $MakeNsis"
+    )
+
+
 def test_bootstraps_use_tls_and_detect_acceleration_by_default():
     unix = _text(UNIX)
     windows = _text(WINDOWS)
@@ -581,7 +608,7 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert "PowerShell dry run failed for $Language" in workflow
     assert "spacr/application" in workflow
     for platform in ("Linux", "Windows", "macOS"):
-        assert f"Install and import the released {platform} application" in (
+        assert f"Install and import the checked-out {platform} application" in (
             workflow
         )
     assert workflow.count("timeout-minutes: 30") == 3

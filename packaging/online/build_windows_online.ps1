@@ -30,6 +30,19 @@ python packaging\i18n\render.py
 if ($LASTEXITCODE -ne 0) {
     throw "Installer locale generation failed with exit code $LASTEXITCODE"
 }
+# Windows PowerShell 5.1 interprets scripts without a byte-order mark using
+# the active ANSI code page. Preserve every translated message by making the
+# generated catalog's UTF-8 encoding explicit before parsing or bundling it.
+$CatalogPath = (Resolve-Path "packaging\online\generated\installer_messages.ps1").Path
+$CatalogText = [System.IO.File]::ReadAllText(
+    $CatalogPath,
+    [System.Text.Encoding]::UTF8
+)
+[System.IO.File]::WriteAllText(
+    $CatalogPath,
+    $CatalogText,
+    (New-Object System.Text.UTF8Encoding($true))
+)
 
 Push-Location "packaging\online"
 try {
