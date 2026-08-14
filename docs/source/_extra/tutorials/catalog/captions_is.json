@@ -1126,19 +1126,40 @@
       "id": "37_batch",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Batch Runner. Lögð í röð, verkefni og stillingar til að endurskapa óeftirlit."
+          "narration": "Batch Runner hrífir sjálfgefnar spaCR móðul og stillingar í eina óvörðuðu röð. Ólíkt Plate Queue, sem beitir einum píplínu til margra pláta, getur Batch Runner blandað upp móðulum, innlögum, yfirskiptum og treysti. Starfsgreinarnir eru ein í einu svo þeir keppa ekki um einn GPU."
         },
         {
-          "narration": "Að bæta við verkefnum og setja saman raðfylgjuna fyrir hvern verkefni sem þarf að keyra."
+          "narration": "Veldu höfuðlaus modul og nákvæmlega stillingar skrá sem starf ætti að fá. Bæta yfir lýsandi merking, valfrjálsan skilyrði fyrir starf og valfrjálsan lykil-urð-verðmæti yfirvaldi. Þessi fyrri vinna gerir raunverulega taplaus breytingu á einum fjórkanal sviði. Smelltu á Að bæta við starfi."
         },
         {
-          "narration": "Í aðal uppsetningar svæði veldu fyrirsettingar, háðstæður, auðlindar takmörk, endurreisa hegðun, logging og mislöggu stefnu."
+          "narration": "Starfið fær stöðuginn kennara convert-1 og er strax skoðað. Batch Runner leysir sjálfgefið modul, greinar stillingar skrá og yfirlýsir, staðfestir leiðir og gildi, og neita til ógildan starf núna í stað þess að uppgötva það á yfir nótt run."
         },
         {
-          "narration": "Gakktu úr skugga um skipulagið, prófaðu eitt starf og gerðu eftirfarandi röðina yfir nótt eða óvörðuð."
+          "narration": "Annað raunverulegt umbreytingar nöfn umbreyta-1 í After, svo það fer aðeins ef það forsenda tekst. Plat_naming er jafnt við nafn yfirval er lagður yfir sparaðar stillingar án þess að afrita skráina. Ef konverter-1 bregst er þetta verkefni merkt skiptu frekar en að hlaupa á ófullkomnum uppström útgáfu. Smelltu á Að bæta við starfi."
         },
         {
-          "narration": "Þegar vinnuflökunin er lokið hefur hver starf sitt eigin stöðu, stillingar snjallsmynd, dagskrá, útgöngur og endurtekjanlegur rekstur."
+          "narration": "Þriðja raunverulega umbreyting hefur engin forsenda og getur enn verið framkvæmd þegar ótengd starf fellur í veg fyrir áframhaldandi áfallastefnu. Leggđu ūađ til sem sjálfstætt starf. Í þessari kennslu eru þrjú flutningsmikroskópisvæði sem eru afritað byte-for-byte í einangra möppum. Hver röð fer fram á raunverulega umbreytingu."
+        },
+        {
+          "narration": "Tafurinn sýnir nú rekstraröð, stöðugar starfsskil, módelar, merkingar, háðstæður, ástand, tíma og eigin dagskrá hvers starfs. Veldu röð til að skoða stillingar og skrá. Duplicate, Remove og Move stjórnir byggja upp og skipuleggja aftur stærri nótt vinnunnar."
+        },
+        {
+          "narration": "Veldu sjálfstæða þriðja starf og smelltu á Flytja upp. Endurskipti eru öruggar hér vegna þess að háð umbreyting er undir convert-1. Að færa forsenda undir háðandi myndu koma til sýnilegs staðfestingarskorts og útiloka reksturinn."
+        },
+        {
+          "narration": "Smelltu á Greiðslur eftir að hafa breytt eða hlaðið í röð. Gildistöku tilkynnar öll mistök og viðvörun saman: saknar stillingar, óþekktar móðlar, ógildandi leiðir eða gildi, tvíbreyttir auðkenningar, síðar áætlaðir forsendur og treystihringur. Knappið \"Run\" verður slökkt á meðan einhverjar blokkunarvandamál eru til staðar."
+        },
+        {
+          "narration": "Allir ūeirir eru gildir. Að halda áfram með mislökkun leyfir sjálfstæðum störfum að halda áfram meðan háð fólk er sleppt; Stop í fyrstu mislökkun stöðvar allt síðar. Þrekkinn þrengingarmarki stöðvar röð sem er ítrekað að falla í veg fyrir sama kerfisbundna ástæðu. Hættu að bíða eftir að verkið sé lokið í öruggu stað þess að drepa það á miðju skrifunar."
+        },
+        {
+          "narration": "Smelltu á Spara röðina áður en þú lætur hana vera óvörðuð. Lesanlegur JSON geymir röð, háðstæður, yfirborgun og stöðu. Batch Runner uppfærir það sjálfkrafa eftir hverja breytingu, svo að endurbyrjun getur tekið upp á ókeypis eða ekki-útgerðar störf án þess að endurrita lokið starf. Ladd-líða endurheimtir sama bókhald síðar."
+        },
+        {
+          "narration": "Þegar yfirsjáan röð er vistað skaltu smella á Renntu röð. Hver starf starfar sem eigin rúmþjálfunarferli með þessu spaCR umhverfi. Skemmti á að skipta upp myndu enda þetta starf frekar en viðtöluna eða síðar sjálfstætt starf, og staðlaður útgangur auk mistaka fara inn í sérstaka dagskrá þessarar vinnu."
+        },
+        {
+          "narration": "Allir þrír veraldir í undirvinnslu eru lokið. Framfarastöðinn er þrír af þremur, töfluð geymir hver stöðu og tímabil, samantektin greinar árangur, mislög, skip, ekki hlaupi og hlutfall og dagskrá valsins verkefnis inniheldur nákvæmlega skipun og umbreytingarskýrslu. Hver áfangastaður hefur fjögur TIFF og upprunafræðikort; allir kjarnahashar eru óbreyttir."
         }
       ]
     },
@@ -1666,22 +1687,25 @@
       "id": "64_gate_editor",
       "scenes": [
         {
-          "narration": "Gate Editor breytir svæðum af mælingarborði í nöfn, endurteknar fjölda gates. Vinnusvæðið heldur einkenniasunum, teikningartækjum, fullu gagnaútsýningu og gátastiginu saman."
+          "narration": "Gate Editor breytir svæðum af mælingastafula í nöfn, endurteknar íbúaförur. Vinnustaðurinn heldur einkenniasunum, teikningartækjum, fullri gagnasýningu og gateherarki saman."
         },
         {
-          "narration": "Í 2D veldu X og Y fyrir skera eða láttu Y vera tóm fyrir histogram. Veldu þröskulinn eða formverkið og teikniðu í kringum ætlaða mannfjölda. Fullur skýurinn er enn sýnilegur á meðan innihaldandi hlutir eru áberandi."
+          "narration": "Í 2D veldu X og Y fyrir streyptingu eða láttu Y tóm fyrir histogram. Veldu þröskul eða formverkefni og teikniðu um ætlaða mannfjölda. Fullt skýið er enn sýnilegt á meðan innihaldandi hlutir eru áberandi."
         },
         {
-          "narration": "Veldu 3D og Z mælingar til að skoða snúanlegt magn. Axis-knapparnir stjórna snúningsháttinni og Box-gátin skráir mörkin á öllum þremur sýndu mælingum."
+          "narration": "Veldu 3D og Z mælingar til að skoða snúanlegt magn. Aksaþykkið stjórnar snúningsháttinni og Box gatinn skráir mörkin á öllum þremur sýndu mælingum."
         },
         {
-          "narration": "Veldu xD til að skipta hæfilegum mælingum í helstu þætti. Upplýsingar um uppspretta merkingar lýsa breytingum og PC1, PC2 og PC3 verða venjuleg axlar fyrir sömu gating verkfæri."
+          "narration": "Veldu xD til að sýna fyrirmæli um hæfða mælingar í meginhluta. Upplýsingar um uppspretta merkingar skýruðu frábrigði og PC1, PC2 og PC3 urðu venjuleg axlar fyrir sömu gating verkfæri."
         },
         {
-          "narration": "Gönguherarkið skýrir frá hlutföllum, hlutfalli foreldra og hlutfalli allra raða. Skildu á sniðborðið á gatunni til að sýna hana eða fela hana og veldu gatuna áður en þú teiknar hvenær næsta íbúð ætti að vera í henni."
+          "narration": "Gátarskráin gefur frá sér hlutfallsnúmer, hlutfall móðurins og hlutfall allra röða. Skildu á sniðskjal í gatunni til að sýna eða fela hana og veldu gatuna áður en þú teiknar hvenær næsta íbúð ætti að vera í henni."
         },
         {
-          "narration": "Gefðu hverri íbúi merkisvert nafn og geymdu síðan gatastráfiđ. Hlaða það á samhæfan borð til að nota sömu eiginleika nöfn, mörk og röð, og staðfesta nýja telur áður en áfram."
+          "narration": "Gefðu hverri íbúu merkisvert nafn og geymdu síðan gatastráfiđ. Hlaða það á samhæfan borð til að nota sömu eiginleika nöfn, mörk og röð, og staðfesta nýjar tal áður en áfram."
+        },
+        {
+          "narration": "Cluster Walk leitar eftir meðmörkuðum röð DBSCAN-sjára á sýndu mælingum og skýrir frá valdu sjári, fjölda fólks og útilokaðri brotinu. Skoðaðu niðurstaðan gates, svo athuga eða útflutningur aðeins eftir að íbúðirnar samsvara við sýnilegar gögn."
         }
       ]
     },
