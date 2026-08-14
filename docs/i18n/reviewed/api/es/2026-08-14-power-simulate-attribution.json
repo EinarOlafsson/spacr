@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "label": "spacr.power_simulate#1",
+      "source_sha256": "cbbfe27c27ab330dd5a61351a27278fe05ade979995499767090ccb12c157eef",
+      "source": "Ported from `spaCRPower <https://github.com/maomlab/spaCRPower>`_ (``R/simulate_screen.R``), Copyright (c) 2025 Matthew O'Meara (maom@umich.edu, ORCID 0000-0002-3128-5331), released under the MIT licence:",
+      "context": "Ported from `spaCRPower <https://github.com/maomlab/spaCRPower>`_ (``R/simulate_screen.R``), Copyright (c) 2025 Matthew O'Meara (maom@umich.edu, ORCID 0000-0002-3128-5331), released under the MIT licence:",
+      "translation": "Adaptado de `spaCRPower <https://github.com/maomlab/spaCRPower>`_ (``R/simulate_screen.R``). Derechos de autor (c) 2025 Matthew O'Meara (maom@umich.edu, ORCID 0000-0002-3128-5331), publicado con licencia MIT:"
+    }
+  ]
+}
