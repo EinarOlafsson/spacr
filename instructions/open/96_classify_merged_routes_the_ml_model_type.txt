@@ -1,0 +1,70 @@
+================================================================================
+CLASSIFY (MERGED) SENDS THE CV MODEL TYPE INTO THE ML ANALYSIS
+================================================================================
+
+Status:    not started
+Requested: 2026-08-14 — "hello, there is a new git hub issue make sure to add
+           that to the instruction list."
+           GitHub issue #98 — "[auto 10434d] [classify_merged] ValueError:
+           Unsupported model_type: maxvit_t"
+Owner:     root Codex session
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+GitHub issue #98 reports a reproducible classify_merged failure on spaCR
+1.5.0.4 under macOS/Python 3.10. The submitted settings select the merged ML
+family and contain both ``model_type_ml = 'xgboost'`` and the CV setting
+``model_type = 'maxvit_t'``. The ML path reaches ``ml_analysis`` and raises
+``ValueError: Unsupported model_type: maxvit_t`` instead of selecting the
+requested XGBoost estimator. The issue is open at:
+https://github.com/EinarOlafsson/spacr/issues/98
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The merged classifier exposes CV and classical-ML settings together. A valid
+classical-ML run currently fails merely because the same settings payload also
+contains the CV model choice. Users cannot train the requested ML estimator,
+and the error incorrectly tells them that a valid CV architecture is an
+unsupported ML estimator.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Trace the merged classify dispatch from ``spacr/classify.py`` into
+   ``generate_ml_scores`` and ``ml_analysis`` and identify where the canonical
+   ML model key is lost or shadowed by the CV ``model_type`` key.
+2. Make classifier-family routing explicit: the ML path must consume
+   ``model_type_ml`` (with a deliberate migration rule for legacy ML-only
+   payloads), while the CV path continues to consume ``model_type``.
+3. Add regression coverage for a merged payload containing both conflicting
+   keys, for legacy payloads containing only the old ML spelling, and for an
+   actually unsupported ML estimator. The unsupported case must still fail
+   with an accurate error.
+4. Run the focused classifier tests plus the merged settings/dispatch tests,
+   then close issue #98 only after the reporter's exact payload reaches the
+   XGBoost construction path without beginning an expensive training run.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A regression test using ``classifier_family='ml'``,
+``model_type_ml='xgboost'`` and ``model_type='maxvit_t'`` selects XGBoost and
+does not raise. CV dispatch still selects MaxViT, a legacy ML-only settings
+payload follows the documented migration path, and a truly unknown
+``model_type_ml`` value still raises ``ValueError``. All focused classify and
+settings tests pass, and GitHub issue #98 is closed with the fixing commit.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Do not add ``maxvit_t`` to the classical-ML estimator allowlist and do not
+silently fall back to a default estimator. Either response would hide the
+cross-family routing bug and could train a different model than the user
+selected.
