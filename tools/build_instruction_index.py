@@ -51,7 +51,6 @@ LAST: Dict[str, str] = {"82": "SECOND TO LAST", "58": "LAST"}
 
 #: How far along something is, where the file's own header does not say.
 STAGE: Dict[str, str] = {
-    "47": "diagnosed: decelerates ~6x, does not hang. ~15 failures unnamed",
     "52": "controls rebuilt 2026-08-13; geometry was already right",
     "60": "scoped by the maintainer to mask, utils, measure, deep_spacr",
     "75": "SUPERSEDED by 95 -- can be closed",
