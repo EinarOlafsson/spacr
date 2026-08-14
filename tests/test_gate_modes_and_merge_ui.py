@@ -219,7 +219,7 @@ def _wide(screen, n=300):
 def test_xd_projects_onto_components_and_puts_them_on_the_axes(screen):
     """"xD has a button but further than that no implementation"."""
     _wide(screen)
-    screen.gates.mode_requested.emit("xD")
+    screen.gates.projection_requested.emit(True)
 
     columns = list(screen.gates._frame.columns)
     assert {"PC1", "PC2", "PC3"} <= set(columns)
@@ -231,7 +231,7 @@ def test_xd_projects_onto_components_and_puts_them_on_the_axes(screen):
 def test_the_components_say_how_much_they_explain(screen):
     """"PC1" alone says nothing about whether it is the data or the noise."""
     _wide(screen)
-    screen.gates.mode_requested.emit("xD")
+    screen.gates.projection_requested.emit(True)
     assert "%" in screen._source.text()
 
 
@@ -241,7 +241,7 @@ def test_every_gate_tool_works_on_a_component(screen):
     from spacr.qt.widgets.gate_spec import RectGate
 
     _wide(screen)
-    screen.gates.mode_requested.emit("xD")
+    screen.gates.projection_requested.emit(True)
     frame = screen.gates._frame
     gate = RectGate(name="g", x_column="PC1", y_column="PC2",
                     x_low=-100.0, x_high=100.0, y_low=-100.0, y_high=100.0)
@@ -250,8 +250,8 @@ def test_every_gate_tool_works_on_a_component(screen):
 
 def test_projecting_twice_does_not_stack_component_columns(screen):
     _wide(screen)
-    screen.gates.mode_requested.emit("xD")
-    screen.gates.mode_requested.emit("xD")
+    screen.gates.projection_requested.emit(True)
+    screen.gates.projection_requested.emit(True)
     columns = list(screen.gates._frame.columns)
     assert columns.count("PC1") == 1
 
@@ -343,16 +343,15 @@ def test_the_volume_spins_without_a_tool_armed(screen):
     assert float(ax.azim) != before, "a drag in the volume did not spin it"
 
 
-def test_a_tool_armed_draws_instead_of_spinning(screen):
-    """"if the gate is on None then spin. if the gate is on any of the gating
-    mechanisms then allow drawing of the gates." The tool decides, and the
-    angle does not -- refusing off-square made drawing feel broken at every
-    angle a volume is actually left at.
+def test_draw_mode_draws_instead_of_spinning(screen):
+    """Spin/Draw is the source of truth.  An old 2D tool remains armed while
+    spinning, so tool presence cannot decide what a volume drag means.
     """
     from spacr.qt.widgets.gate_spec import RECTANGLE
 
     canvas = _volume(screen)
     canvas.set_tool(RECTANGLE)
+    canvas.set_drag_mode("draw")
     ax = canvas.axes_at(0, 0)
     azimuth = float(ax.azim)
 
@@ -500,14 +499,16 @@ def test_xd_shows_three_axes_not_two(screen):
     """"xD has three axees in the feilds above called PC1, PC2, PC3 but i
     cannot see the axees on the graph the graph is 2D"."""
     _wide(screen)
-    screen.gates.mode_requested.emit("xD")
+    screen.gates.projection_requested.emit(True)
+    screen.gates.mode_requested.emit("3D")
     ax = screen.gates.canvas.axes_at(0, 0)
     assert hasattr(ax, "zaxis"), "xD drew a flat scatter of two components"
 
 
 def test_xd_can_be_spun_like_3d(screen):
     _wide(screen)
-    screen.gates.mode_requested.emit("xD")
+    screen.gates.projection_requested.emit(True)
+    screen.gates.mode_requested.emit("3D")
     canvas = screen.gates.canvas
     canvas.set_tool("")
     ax = canvas.axes_at(0, 0)

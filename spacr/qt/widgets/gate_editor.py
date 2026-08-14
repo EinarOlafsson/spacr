@@ -243,6 +243,10 @@ class GateCanvas(GraphCanvas):
     #: A wand click could not become a gate. Carries the reason, which always
     #: names the setting or the gesture that would fix it.
     wand_failed = Signal(str)
+    #: The volume is waiting for its second gesture, or cannot read it.
+    #: Keeping this on the canvas lets the panel explain the state without
+    #: making the geometry layer depend on a particular status widget.
+    depth_requested = Signal(str)
 
     def __init__(self, parent=None, *, link=None, source: str = "gate_editor"):
         super().__init__(parent, link=link, source=source)
@@ -309,6 +313,12 @@ class GateCanvas(GraphCanvas):
         self._spin_from = None
         #: Where a draw-in-the-volume drag started, or None.
         self._volume_drag = None
+        #: A 3D shape is two gestures: first its footprint on the selected
+        #: plane, then its depth along that plane's normal.  The first gate is
+        #: held here until the second gesture makes that statement complete.
+        self._pending_volume_gate: Optional[Gate] = None
+        self._pending_volume_axis: str = ""
+        self._depth_drag_from: Optional[Tuple[float, float]] = None
 
     # -- the tool ---------------------------------------------------------
     @property
@@ -625,7 +635,6 @@ class GateCanvas(GraphCanvas):
         self._axes = {}
         ax = self._figure.add_subplot(projection="3d")
         self._apply_spin_speed(ax)
-        self._draw_anchor_aura(ax)
 
         x = pd.to_numeric(frame[spec.x], errors="coerce").to_numpy(float)
         y = pd.to_numeric(frame[spec.y], errors="coerce").to_numpy(float)
@@ -662,6 +671,11 @@ class GateCanvas(GraphCanvas):
         if self._volume_zoom != 1.0:
             self._apply_volume_zoom(ax)
 
+        # AFTER the data and any remembered zoom have established the limits.
+        # Drawing this before scatter left a 0..1 square on measurements whose
+        # real range could be thousands, so the chosen plane was technically
+        # present and visually absent.
+        self._draw_anchor_aura(ax)
         self._draw_volume_gates(ax, frame, palette)
         # Keyed like every other panel, so `panel_axes()` keeps its contract
         # and nothing downstream has to know this one is three-dimensional.
@@ -719,7 +733,7 @@ class GateCanvas(GraphCanvas):
         return True
 
     def volume_axis_map(self):
-        """How screen pixels map to data on the two axes facing the viewer.
+        """How screen pixels map to data on the two axes the user selected.
 
         Returns ``(x_column, y_column, invert)`` where ``invert(dx, dy)`` turns
         a movement in PIXELS into one in data units, or None when the view is
@@ -731,17 +745,22 @@ class GateCanvas(GraphCanvas):
         drag that silently lands in the wrong measurement is worse than one
         that refuses.
 
-        The axis that barely moves on screen is the one pointing at the
-        viewer -- that is what "square-on" means, and it is the axis a drag
-        cannot say anything about.
+        The first implementation chose the two axes that happened to face the
+        camera.  That made the X/Y/Z plane buttons cosmetic: turning the view
+        could make a gate land on a different plane from the blue aura.  The
+        selected plane is now the source of truth.  A genuinely edge-on plane
+        is refused because its two data dimensions collapse to one screen
+        line and no inverse exists.
         """
         ax = self.axes_at(0, 0)
         spec = self._spec
         if ax is None or not hasattr(ax, "get_zlim"):
             return None
         columns = (spec.x, spec.y, self._z_column)
-        if not all(columns):
+        plane = self.anchor_plane()
+        if not all(columns) or plane is None:
             return None
+        first, second, normal = plane
 
         limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
         origin = [lo for lo, _hi in limits]
@@ -769,27 +788,8 @@ class GateCanvas(GraphCanvas):
                 return None
             moves.append(landed - base)
 
-        # The depth axis is whichever moved least on screen -- the one
-        # pointing most nearly at the viewer.
-        #
-        # NO square-on requirement. It used to refuse anything more than a few
-        # degrees off, which made drawing feel broken at every angle a user
-        # actually leaves the volume at: "the mouse needs to be decoupled from
-        # spinning. if the gate is on None then spin. if the gate is on any of
-        # the gating mechanisms then allow drawing." The tool decides, and
-        # nothing else does.
-        #
-        # Off-square the mapping is read in the plane through the middle of
-        # the depth axis, so a drag is exact there and increasingly
-        # approximate towards the front and back faces. That is a real limit
-        # and it is the reason the gate leaves the depth axis UNBOUNDED --
-        # it is honest about the one measurement the gesture cannot pin down.
-        lengths = [float(np.hypot(*m)) for m in moves]
-        depth = int(np.argmin(lengths))
-        if max(lengths) <= 0:
-            return None
-
-        kept = [a for a in range(3) if a != depth]
+        depth = columns.index(normal)
+        kept = [columns.index(first), columns.index(second)]
         matrix = np.column_stack([moves[a] / spans[a] for a in kept])
         if abs(float(np.linalg.det(matrix))) < 1e-9:
             return None
@@ -799,22 +799,57 @@ class GateCanvas(GraphCanvas):
             data = inverse @ np.asarray([dx, dy], dtype=float)
             return float(data[0]), float(data[1])
 
-        return columns[kept[0]], columns[kept[1]], invert, depth
+        return first, second, invert, depth
 
     def screen_to_volume(self, event):
-        """Data coordinates on the two visible axes for a screen point."""
-        mapping = self.volume_axis_map()
+        """Data coordinates on the explicitly selected anchor plane."""
         ax = self.axes_at(0, 0)
+        mapping = self.volume_axis_map()
         if mapping is None or ax is None:
             return None
         first, second, invert, depth = mapping
         limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
         origin = [lo for lo, _hi in limits]
-        # Read at the MIDDLE of the depth axis rather than its near face, so
-        # the error from a tilted view is centred instead of accumulating in
-        # one direction.
+        # Perspective projection is not affine across a plane.  Invert the
+        # actual camera ray and intersect it with the selected face, so the
+        # point under the cursor is exact at every readable camera angle.
+        # The endpoint-based affine inverse below remains as a compatibility
+        # fallback for matplotlib versions whose private projection matrix
+        # moved again.
+        try:
+            from mpl_toolkits.mplot3d import proj3d
+
+            projected = ax.transData.inverted().transform((
+                float(getattr(event, "x", 0) or 0),
+                float(getattr(event, "y", 0) or 0)))
+            matrix = getattr(ax, "M", None)
+            if matrix is None:
+                matrix = ax.get_proj()
+            inverse_matrix = np.linalg.inv(matrix)
+            near = np.asarray(proj3d.inv_transform(
+                projected[0], projected[1], -1.0, inverse_matrix),
+                float).reshape(3)
+            far = np.asarray(proj3d.inv_transform(
+                projected[0], projected[1], 1.0, inverse_matrix),
+                float).reshape(3)
+            direction = far - near
+            if abs(float(direction[depth])) > 1e-12:
+                amount = (float(limits[depth][0]) - near[depth]) \
+                    / direction[depth]
+                point = near + amount * direction
+                columns = (self._spec.x, self._spec.y, self._z_column)
+                kept = [columns.index(first), columns.index(second)]
+                if np.isfinite(point[kept]).all():
+                    return (first, float(point[kept[0]]),
+                            second, float(point[kept[1]]))
+        except Exception:
+            LOG.debug("could not invert the 3D camera ray", exc_info=True)
+
+        # Read on the SAME face as the blue aura.  Using the middle of the
+        # normal axis made the footprint land behind the plane the user had
+        # picked whenever the view was oblique.
         anchor = list(origin)
-        anchor[depth] = (limits[depth][0] + limits[depth][1]) / 2.0
+        anchor[depth] = limits[depth][0]
         base = np.asarray(ax.transData.transform(_project(ax, anchor)),
                           dtype=float)
         dx = float(getattr(event, "x", 0) or 0) - base[0]
@@ -1363,7 +1398,7 @@ class GateCanvas(GraphCanvas):
                 and hasattr(self.axes_at(0, 0), "get_zlim"))
 
     def _volume_press(self, event) -> bool:
-        """Start a spin. Returns True when the event belongs to the volume.
+        """Start the gesture selected by Spin/Draw.
 
         The gate tools must not see it. That is the bug behind "i cant zoom in
         or spin on any of the axees. if i press pollygon and tried to draw a
@@ -1375,11 +1410,17 @@ class GateCanvas(GraphCanvas):
             return False
         if event.inaxes is None:
             return True
-        # A tool armed AND a square-on view means the user is DRAWING, not
-        # spinning. Both conditions matter: without a tool a drag is
-        # navigation, and off-square the depth axis is tilted so a dragged
-        # shape would be a shape in no particular measurement.
-        if self._tool:
+        # The control decides.  Looking at the old 2D tool here made the new
+        # Spin button decorative because a rectangle is armed by default.
+        if self.drag_mode() == "draw":
+            if self.volume_shape() == "polygon":
+                # Click-per-vertex is handled by `_on_press`, not a drag.
+                return False
+            if self._pending_volume_gate is not None:
+                self._depth_drag_from = (
+                    float(getattr(event, "x", 0) or 0),
+                    float(getattr(event, "y", 0) or 0))
+                return True
             corner = self.screen_to_volume(event)
             if corner is not None:
                 self._volume_drag = corner
@@ -1393,6 +1434,18 @@ class GateCanvas(GraphCanvas):
             return False
         if self._volume_drag is not None:
             self._show_volume_drag(event)
+            return True
+        if self._depth_drag_from is not None:
+            bounds = self._depth_bounds_from_drag(self._depth_drag_from, event)
+            if bounds is not None:
+                low, high = bounds
+                if low is None and high is None:
+                    self.depth_requested.emit(
+                        "Full depth selected — release to create the gate.")
+                else:
+                    self.depth_requested.emit(
+                        f"Depth {low:.4g} to {high:.4g} — release to create "
+                        "the gate.")
             return True
         if self._spin_from is None or event.inaxes is None:
             return True
@@ -1421,12 +1474,23 @@ class GateCanvas(GraphCanvas):
     def _volume_release(self, event) -> bool:
         if not self._in_volume():
             return False
+        if self._depth_drag_from is not None:
+            bounds = self._depth_bounds_from_drag(self._depth_drag_from, event)
+            self._depth_drag_from = None
+            if bounds is None:
+                self.depth_requested.emit(
+                    "That depth cannot be read from this angle. Choose Spin, "
+                    "turn the normal axis into view, then choose Draw and "
+                    "drag the depth again.")
+                return True
+            self._finish_volume_depth(bounds)
+            return True
         if self._volume_drag is not None:
             gate = self._gate_from_volume_drag(event)
             self._volume_drag = None
             self._clear_ghost()
             if gate is not None:
-                self.gate_drawn.emit(gate)
+                self._begin_volume_depth(gate)
             else:
                 self.render_now()
             return True
@@ -1569,6 +1633,87 @@ class GateCanvas(GraphCanvas):
         """``(low, high)`` for the next volume gate."""
         return getattr(self, "_pending_depth", (None, None))
 
+    def _begin_volume_depth(self, gate: Gate) -> None:
+        """Hold a footprint until a second drag gives it depth.
+
+        A click (no distance) on the second gesture means full depth.  That
+        keeps the unbounded gate available without making it the only thing a
+        drawing can produce.
+        """
+        plane = self.anchor_plane()
+        if plane is None:
+            self.gate_drawn.emit(gate)
+            return
+        self._pending_volume_gate = gate
+        self._pending_volume_axis = plane[2]
+        self.depth_requested.emit(
+            f"Footprint ready on {plane[0]} / {plane[1]}. Drag once more "
+            f"along {plane[2]} to set its depth; click for full depth.")
+
+    def _depth_bounds_from_drag(self, start, event):
+        """Convert the second gesture into bounds on the plane normal.
+
+        The distance is projected onto the normal axis as it appears on the
+        screen, then expressed as a fraction of that measurement's visible
+        range.  The gesture therefore remains meaningful after spinning and
+        under unequal measurement units.
+        """
+        axis_column = self._pending_volume_axis
+        ax = self.axes_at(0, 0)
+        spec = self._spec
+        columns = (spec.x, spec.y, self._z_column)
+        if (ax is None or not hasattr(ax, "get_zlim")
+                or axis_column not in columns):
+            return None
+        limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
+        axis = columns.index(axis_column)
+        low, high = map(float, limits[axis])
+        span = high - low
+        if not np.isfinite(span) or span == 0:
+            return None
+        centre = [(float(a) + float(b)) / 2.0 for a, b in limits]
+        first = list(centre)
+        second = list(centre)
+        first[axis], second[axis] = low, high
+        try:
+            p0 = np.asarray(ax.transData.transform(_project(ax, first)), float)
+            p1 = np.asarray(ax.transData.transform(_project(ax, second)), float)
+        except Exception:
+            return None
+        normal = p1 - p0
+        length2 = float(normal @ normal)
+        if length2 < 1e-9:
+            return None
+        delta = np.asarray([
+            float(getattr(event, "x", 0) or 0) - float(start[0]),
+            float(getattr(event, "y", 0) or 0) - float(start[1]),
+        ])
+        # A click deliberately asks for the old/full-depth meaning.
+        if float(delta @ delta) < 9.0:
+            return (None, None)
+        fraction = min(1.0, abs(float(delta @ normal) / length2))
+        if fraction >= 0.98:
+            return (None, None)
+        return (low, low + span * fraction)
+
+    def _finish_volume_depth(self, bounds) -> Optional[Gate]:
+        gate = self._pending_volume_gate
+        axis = self._pending_volume_axis
+        if gate is None or not axis:
+            return None
+        low, high = bounds
+        try:
+            gate = gate.with_threshold(axis, low, high)
+        except GateError as exc:
+            self.depth_requested.emit(str(exc))
+            return None
+        self._pending_volume_gate = None
+        self._pending_volume_axis = ""
+        self.set_pending_depth(None, None)
+        self.depth_requested.emit("")
+        self.gate_drawn.emit(gate)
+        return gate
+
     def set_anchor_axis(self, axis: str) -> None:
         """Pick which plane a drag draws on. Chosen, never inferred.
 
@@ -1688,6 +1833,24 @@ class GateCanvas(GraphCanvas):
             setter(centre - half * factor, centre + half * factor)
 
     def _on_press(self, event) -> None:
+        if (self._in_volume() and self.drag_mode() == "draw"
+                and self.volume_shape() == "polygon"):
+            placed = self.screen_to_volume(event)
+            if placed is None:
+                return
+            first, x, second, y = placed
+            plane = (first, second)
+            if self._pending and self._pending_plane != plane:
+                self._pending = []
+            self._pending_plane = plane
+            if (len(self._pending) >= 3
+                    and self._near_first_volume_vertex(event)):
+                self.close_polygon_now()
+                return
+            self._pending.append((x, y))
+            self.polygon_changed.emit(len(self._pending))
+            self._draw_gates()
+            return
         if self._volume_press(event):
             return
         # A press inside an existing gate MOVES it, whatever tool is armed.
@@ -1738,7 +1901,8 @@ class GateCanvas(GraphCanvas):
                 LOG.debug("polygon abandoned: the view turned mid-shape")
                 self._pending = []
             self._pending_plane = plane
-            if len(self._pending) >= 3 and self._near_first_vertex(event, x, y):
+            if (len(self._pending) >= 3
+                    and self._near_first_volume_vertex(event)):
                 self.close_polygon_now()
                 return
             self._pending.append((x, y))
@@ -1814,6 +1978,39 @@ class GateCanvas(GraphCanvas):
             return False
         return ((fx - px) ** 2 + (fy - py) ** 2) ** 0.5 <= self.CLOSE_RADIUS_PX
 
+    def _near_first_volume_vertex(self, event) -> bool:
+        """Whether a volume click closes the polygon under the cursor.
+
+        ``Axes3D.transData`` accepts projected 2D coordinates, not the two
+        measurement values stored in ``_pending``.  Feeding those values to
+        the 2D helper made click-the-first-vertex work only by coincidence.
+        Project the real 3D point on the selected face before measuring the
+        pixel distance.
+        """
+        if not self._pending or not self._pending_plane:
+            return False
+        ax = getattr(event, "inaxes", None)
+        spec = self._spec
+        columns = (spec.x, spec.y, self._z_column)
+        first, second = self._pending_plane
+        normal = next((c for c in columns if c not in (first, second)), "")
+        if ax is None or not normal:
+            return False
+        try:
+            limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
+            point = [0.0, 0.0, 0.0]
+            point[columns.index(first)] = float(self._pending[0][0])
+            point[columns.index(second)] = float(self._pending[0][1])
+            point[columns.index(normal)] = float(
+                limits[columns.index(normal)][0])
+            fx, fy = ax.transData.transform(_project(ax, point))
+            px = float(getattr(event, "x", 0) or 0)
+            py = float(getattr(event, "y", 0) or 0)
+        except Exception:
+            return False
+        return ((fx - px) ** 2 + (fy - py) ** 2) ** 0.5 \
+            <= self.CLOSE_RADIUS_PX
+
     def close_polygon_now(self) -> None:
         """Close the pending polygon.
 
@@ -1822,6 +2019,11 @@ class GateCanvas(GraphCanvas):
         gates -- which is exactly what was reported. This wrapper exists only
         so the click-the-first-vertex path and the Close button share a name.
         """
+        if self._mode in ("3D", "xD") and self._pending_plane:
+            gate = self.close_polygon(emit=False)
+            if gate is not None:
+                self._begin_volume_depth(gate)
+            return
         self.close_polygon()
 
     def _on_scroll(self, event) -> None:
@@ -2023,7 +2225,8 @@ class GateCanvas(GraphCanvas):
             return EllipseGate.from_drag(name, spec.x, spec.y, x0, y0, x1, y1)
         return None
 
-    def close_polygon(self, *, name: str = "(unnamed)") -> Optional[Gate]:
+    def close_polygon(self, *, name: str = "(unnamed)",
+                      emit: bool = True) -> Optional[Gate]:
         """Finish the polygon being clicked out.
 
         :returns: the gate, or ``None`` when fewer than three vertices have
@@ -2049,14 +2252,16 @@ class GateCanvas(GraphCanvas):
             self._pending = []
             self._pending_plane = None
             self.polygon_changed.emit(0)
-            self.gate_drawn.emit(gate)
+            if emit:
+                self.gate_drawn.emit(gate)
             return gate
         gate = PolygonGate(name=name,
                            x_column=spec.x, y_column=spec.y,
                            vertices=tuple(self._pending))
         self._pending = []
         self.polygon_changed.emit(0)
-        self.gate_drawn.emit(gate)
+        if emit:
+            self.gate_drawn.emit(gate)
         return gate
 
 
@@ -2604,6 +2809,15 @@ class GateEditorPanel(QWidget):
         self._xd_button.toggled.connect(self.projection_requested.emit)
         tools.addWidget(self._xd_button)
 
+        # 3D has enough real controls to deserve its own row.  Putting all of
+        # them beside the ordinary tools clipped the status and the final
+        # spin-axis buttons on a normal laptop width -- the controls existed,
+        # but the user could not reach them, which is precisely how the first
+        # implementation of instruction 52 failed.
+        volume_tools = QHBoxLayout()
+        volume_tools.setContentsMargins(0, 0, 0, 0)
+        volume_tools.setSpacing(SPACING["xs"])
+
         # Which axis the volume spins about. Shown only in 3D, because in 2D
         # there is nothing to spin and a dead control is worse than no
         # control.
@@ -2613,7 +2827,7 @@ class GateEditorPanel(QWidget):
         # the next gate would mean. Three planes are visible in the volume;
         # the user picks one and it stays picked.
         self._plane_label = QLabel("plane", self)
-        tools.addWidget(self._plane_label)
+        volume_tools.addWidget(self._plane_label)
         self._plane_buttons: Dict[str, QPushButton] = {}
         plane_group = QButtonGroup(self)
         plane_group.setExclusive(True)
@@ -2630,7 +2844,7 @@ class GateEditorPanel(QWidget):
             fit_to_text(button, padding=14)
             plane_group.addButton(button)
             self._plane_buttons[axis] = button
-            tools.addWidget(button)
+            volume_tools.addWidget(button)
 
         # THE SHAPE IS A DROPDOWN, which is where a user looks for one. The
         # first attempt hid cylinder and prism from the tool picker because
@@ -2646,7 +2860,7 @@ class GateEditorPanel(QWidget):
             "the drawing gesture stays flat and the gate is solid.")
         self._volume_shape.currentIndexChanged.connect(
             lambda _i: self.canvas.set_volume_shape(self.volume_shape()))
-        tools.addWidget(self._volume_shape)
+        volume_tools.addWidget(self._volume_shape)
 
         self._box_gate = QPushButton("From view", self)
         self._box_gate.setToolTip(
@@ -2656,13 +2870,13 @@ class GateEditorPanel(QWidget):
             "make one: draw it on the chosen plane.")
         self._box_gate.clicked.connect(self.gate_from_view)
         fit_to_text(self._box_gate)
-        tools.addWidget(self._box_gate)
+        volume_tools.addWidget(self._box_gate)
 
         # WHAT A DRAG DOES. Spinning and drawing are different gestures and
         # were competing for the same mouse button, so a drag meant whichever
         # the code happened to check first.
         self._drag_label = QLabel("drag", self)
-        tools.addWidget(self._drag_label)
+        volume_tools.addWidget(self._drag_label)
         self._drag_buttons: Dict[str, QPushButton] = {}
         drag_group = QButtonGroup(self)
         drag_group.setExclusive(True)
@@ -2678,10 +2892,10 @@ class GateEditorPanel(QWidget):
             fit_to_text(button, padding=14)
             drag_group.addButton(button)
             self._drag_buttons[mode] = button
-            tools.addWidget(button)
+            volume_tools.addWidget(button)
 
         self._spin_label = QLabel("spin", self)
-        tools.addWidget(self._spin_label)
+        volume_tools.addWidget(self._spin_label)
         self._spin_buttons: Dict[str, QPushButton] = {}
         spin_group = QButtonGroup(self)
         spin_group.setExclusive(True)
@@ -2698,7 +2912,8 @@ class GateEditorPanel(QWidget):
             fit_to_text(button, padding=14)
             spin_group.addButton(button)
             self._spin_buttons[axis] = button
-            tools.addWidget(button)
+            volume_tools.addWidget(button)
+        volume_tools.addStretch(1)
         self.set_spin_controls_visible(False)
 
         # No Apply button. A gate highlights its objects the moment it is
@@ -2710,6 +2925,7 @@ class GateEditorPanel(QWidget):
         self._status.setWordWrap(True)
         tools.addWidget(self._status, 1)
         outer.addLayout(tools)
+        outer.addLayout(volume_tools)
 
         # A SPLITTER, not a QHBoxLayout. The gate list sits between the
         # scatter and the filter column, and in a box layout with a hard
@@ -2723,6 +2939,7 @@ class GateEditorPanel(QWidget):
         self.canvas = GateCanvas(self, link=link, source=source)
         self.canvas.gate_drawn.connect(self._on_gate_drawn)
         self.canvas.wand_failed.connect(self._status.setText)
+        self.canvas.depth_requested.connect(self._status.setText)
         self.canvas.gate_edited.connect(self._on_gate_edited)
         self.canvas.polygon_changed.connect(self._on_polygon_changed)
         self.body.addWidget(self.canvas)
@@ -3099,7 +3316,14 @@ class GateEditorPanel(QWidget):
         button.blockSignals(blocked)
 
     def set_spin_controls_visible(self, visible: bool) -> None:
+        self._plane_label.setVisible(visible)
+        for button in self._plane_buttons.values():
+            button.setVisible(visible)
+        self._volume_shape.setVisible(visible)
         self._box_gate.setVisible(visible)
+        self._drag_label.setVisible(visible)
+        for button in self._drag_buttons.values():
+            button.setVisible(visible)
         self._spin_label.setVisible(visible)
         for button in self._spin_buttons.values():
             button.setVisible(visible)

@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-70 done / 16 open (81%).
+71 done / 15 open (82%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -39,10 +39,6 @@ OPEN
    48  OPTIMIZE THE spaCR TUTORIALS
        [codex -- DO NOT TOUCH]
        48_optimize_the_tutorials.txt
-
-   52  3D GATES DRAWN ON A CHOSEN PLANE, COMPOSED WITH EACH OTHER, WITH THRESHOLDS
-       [controls rebuilt 2026-08-13; geometry was already right]
-       52_gate_editor_3d_plane_anchored_gates.txt
 
    53  THE INSTALLERS MUST ACTUALLY BUILD AND RUN, ON ALL THREE PLATFORMS
        [BLOCKED: needs makensis + both other OSes]
@@ -130,6 +126,7 @@ DONE
    49  xD IS DIMENSIONALITY REDUCTION, WITH ITS OWN COLUMN PICKER AND TABS
    50  SAVE THE GATE EDITOR'S GRAPH AS PDF OR PNG
    51  THE CONSOLE AND THE AI CHAT BOX ARE TOO SHORT
+   52  3D GATES DRAWN ON A CHOSEN PLANE, COMPOSED WITH EACH OTHER, WITH THRESHOLDS
    54  spaCR MUST RUN ON PYTHON 3.9 THROUGH 3.14, ON THE RIGHT DEPENDENCY VERSIONS
    55  A PERFORMANCE SWEEP: NOTHING THAT LOADS BELONGS ON THE GUI THREAD
    56  THE AUTO-ISSUE BUTTON LEADS TO "PAGE NOT FOUND"
