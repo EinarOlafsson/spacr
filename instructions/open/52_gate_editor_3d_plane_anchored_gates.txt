@@ -486,3 +486,41 @@ rewritten: `CylinderGate`, `PrismGate` and `BoxGate` are the right geometry
 and are tested; `thresholds()` / `with_threshold()` edit the depth; and
 `CompositeGate` composes them. The MODEL was not the problem. The interaction
 was, and none of it was tried by hand.
+
+--------------------------------------------------------------------------------
+2026-08-13 (rework) - THE THREE THINGS THAT WERE WRONG ARE REBUILT
+--------------------------------------------------------------------------------
+
+  1. THREE PLANES YOU PICK. `plane  X Y Z` beside the mode buttons; the
+     chosen one carries the aura and SPINNING DOES NOT CHANGE IT.
+     `anchor_plane()` now reads the picked axis and the spec -- both of which
+     exist before anything is drawn -- instead of the camera's elevation and
+     azimuth. Picking Z means "draw on X/Y and extend along Z", which is what
+     the axis labels already say.
+  2. A SHAPE DROPDOWN: Box gate, Oval gate, Circle gate, Polygon gate, where
+     the Box gate button was. The button is still there as "From view",
+     because framing a population by spinning IS a way to make a gate -- but
+     it is no longer the ONLY way, which is what made 3D gating look absent.
+  3. `drag  Spin | Draw`. They were competing for the same mouse button, so a
+     drag meant whichever the code checked first. PICKING A PLANE ARMS
+     DRAWING, because choosing where to draw is choosing to draw and making
+     the user find a second control afterwards is exactly the step that reads
+     as the feature not working.
+
+THE DEPTH IS A SLAB YOU DRAG OUT, at the maintainer's choice over "all the
+way through". `set_pending_depth` / `pending_depth` carry it, every shape
+honours it -- cylinder, prism and box -- and `(None, None)` still means full
+depth, which is what an undragged shape means and what the 2D gate on that
+plane already meant.
+
+A CIRCLE IS ROUND ON THE PLANE, not on screen: both radii take the same drag
+length. On two measurements with different units that is not a round shape to
+look at, and it is still what "circle gate" has to mean -- the alternative is
+a shape whose meaning changes when the axes rescale.
+
+18 new tests; 269 pass across the gate suites.
+
+WHAT I SHOULD HAVE DONE DIFFERENTLY, since the tests were green the first
+time: open the app. 97 passing tests said the geometry was right, and the
+geometry WAS right -- they could not say the controls were unreachable,
+because no test pressed one.
