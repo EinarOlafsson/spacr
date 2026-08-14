@@ -6179,6 +6179,13 @@
       "source_sha256": "0ce9412d2c913492b509d4d04dfe01de9be9fbbbafa6f3e4e525e68571c4eb0c",
       "text": "Return a one-line summary for a log."
     },
+    "spacr.crops.PlaneLayoutConflict": {
+      "source_blocks_sha256": [
+        "4bab3d6ae59d0e781725c623d0be37798bae1bf01fc332a36e039cc14d5577d1"
+      ],
+      "source_sha256": "4bab3d6ae59d0e781725c623d0be37798bae1bf01fc332a36e039cc14d5577d1",
+      "text": "A requested mask plane disagrees with the merged-folder manifest."
+    },
     "spacr.crops.PngCropSource": {
       "source_blocks_sha256": [
         "f3b71efecdb9687ccf547bdae304399a07d0abee08264539355f70f0d09c7cd5",
@@ -6543,6 +6550,22 @@
       ],
       "source_sha256": "c40db9d3b6b4b9e1239b6f191d7a340d3a32e931a17167126bdc0c2787153a9b",
       "text": "Return the crop format recorded in the database, or ``None``.\n\nReads the ``crop_format`` column of ``png_list``: for one ``png_path`` if\ngiven, otherwise the single distinct value covering the whole table (a\ntable holding both formats returns ``None`` -- ambiguous is not an answer).\n\n:param db_path: path to ``measurements.db``.\n:param png_path: restrict to one crop's row.\n:param table: table holding the crops.\n:returns: the format integer, or ``None`` when the column, the table or\n    the database is absent, or the answer is ambiguous."
+    },
+    "spacr.crops.read_merged_plane_layout": {
+      "source_blocks_sha256": [
+        "585b2ceb6b59f756d4cc0d6f2df46aa4436ad85b0b2a2a9ea4c5dd7677eb77ed",
+        "378c7557c63b806fd06a138402417ff5c3eb2adc18bde7b14e9923276b304aad"
+      ],
+      "source_sha256": "ca70ce93866383cd7484276460e87da974c058e6c37c29075703881069ac4440",
+      "text": "Read and validate a merged folder's optional plane-layout manifest.\n\nLegacy folders have no manifest and return ``None``. A present but\nmalformed manifest raises: once metadata exists, silently ignoring it\nwould recreate the exact wrong-plane failure the manifest prevents."
+    },
+    "spacr.crops.reconcile_merged_mask_dims": {
+      "source_blocks_sha256": [
+        "057c99b79c92462cf0e94a7b6ecfdb6449ead70a7144aa49062e0039f81e577c",
+        "51b916dde9a63bac8309e0cfef217b874842759245fa276ae7e1f50f90d4fc82"
+      ],
+      "source_sha256": "ceeef59ad45681484ad7fe0ee82f0b0c1397bc1c7ec56705bc58493a45341642",
+      "text": "Apply a plane manifest and reject explicit conflicting mask indices.\n\nA manifest is authoritative for the folder it accompanies. Defaults are\nreplaced automatically; a non-``None`` value the caller explicitly\nsupplied must agree or the run stops before measuring a wrong plane.\nLegacy folders without a manifest return an unchanged copy."
     },
     "spacr.crops.resolve_crop_source": {
       "source_blocks_sha256": [
@@ -8437,6 +8460,13 @@
       ],
       "source_sha256": "66a279344bf2b6cfb32d93f7b1f2d99ece564a8435533ad3a3ba75fc4c3d7545",
       "text": "CUDA is not merely reported as present but is actually usable.\n\n:param ctx: only ``ctx.probe_gpu`` is read, and only on the path where\n    CUDA already reports at least one device. Left ``True`` (the default,\n    cleared by ``--no-gpu-probe``) the check allocates an 8x8 tensor on\n    ``cuda``, multiplies it and synchronises, which is what catches the\n    driver/runtime mismatch that ``torch.cuda.is_available()`` cheerfully\n    reports as fine. Set it ``False`` on a card that is full or shared:\n    the row then repeats what torch claims, says the probe was skipped,\n    and can therefore pass on a GPU that would fail at the first\n    allocation."
+    },
+    "spacr.doctor.check_installer_backend": {
+      "source_blocks_sha256": [
+        "cec55fd9a6cf6ce9cc472fe8beb048525578a678c9bf708073d83c1508ccef95"
+      ],
+      "source_sha256": "cec55fd9a6cf6ce9cc472fe8beb048525578a678c9bf708073d83c1508ccef95",
+      "text": "Report the accelerator choice recorded by the desktop installer."
     },
     "spacr.doctor.check_optional_extras": {
       "source_blocks_sha256": [
@@ -13723,6 +13753,93 @@
       ],
       "source_sha256": "1afb062870f70e1a20f3ccf4951dff38b361ebbf46bba5b9e1f9bd16bf7ac023",
       "text": "Write an RGB/RGBA array through OpenCV without leaking BGR internally."
+    },
+    "spacr.install_profile": {
+      "source_blocks_sha256": [
+        "5a8f874f6cbe2a575f82705f1a68eaa042921d5e1bd3226d108f894b7b44566e",
+        "3e742ef7bcab7bb414f6d3a5ee7abe71ebdad2c53c639d31cc04741441abb026"
+      ],
+      "source_sha256": "97b3e69a426bdb659d5fc2614c3b5c264a70b407e23ca87c6673353b92fe1ce6",
+      "text": "Read and write the hardware choice made by the desktop installer.\n\nThe online installers live outside the Python environment they create, so\ntheir durable hand-off is a tiny JSON file beside the private ``venv``.  This\nmodule owns the schema and probes the *installed* torch build before writing\nit.  Keeping that probe here means ``spacr-doctor`` reports facts rather than\ntrying to infer an install-time choice from whatever hardware is visible\nlater."
+    },
+    "spacr.install_profile.build_profile": {
+      "source_blocks_sha256": [
+        "dbcf6274e7253d3a84593ae36ebb95b5e105ac9c5e555a348b58dfc01e2dd275"
+      ],
+      "source_sha256": "dbcf6274e7253d3a84593ae36ebb95b5e105ac9c5e555a348b58dfc01e2dd275",
+      "text": "Build a validated profile using the torch installation now on disk."
+    },
+    "spacr.install_profile.default_profile_path": {
+      "source_blocks_sha256": [
+        "72eaa14fa739f9fd9a62e0f64215dd29f8acca89ee5de0de106752fc1618c070"
+      ],
+      "source_sha256": "72eaa14fa739f9fd9a62e0f64215dd29f8acca89ee5de0de106752fc1618c070",
+      "text": "Return the installer profile path for this Python environment."
+    },
+    "spacr.install_profile.read_profile": {
+      "source_blocks_sha256": [
+        "e4b94045b9c7bf64348128c1a63bdc3737f5b08534a33a620fab51a8e32d934d"
+      ],
+      "source_sha256": "e4b94045b9c7bf64348128c1a63bdc3737f5b08534a33a620fab51a8e32d934d",
+      "text": "Return a valid installer profile, or ``None`` when absent/invalid."
+    },
+    "spacr.install_profile.write_profile": {
+      "source_blocks_sha256": [
+        "085535958065e3301be8c2a9c0521b59fc53772f02998338233814d0bad8b539"
+      ],
+      "source_sha256": "085535958065e3301be8c2a9c0521b59fc53772f02998338233814d0bad8b539",
+      "text": "Atomically write and return an installer profile."
+    },
+    "spacr.intensity_rescale": {
+      "source_blocks_sha256": [
+        "3dc4f805dcba2118423c7c31473ae6060c7530a8e3de89b0486e38d1f54f30a5",
+        "fd1f7998a82d63d72e6ba7c5cfd4e28c67426af1a36e9f7c337b173c069b9617"
+      ],
+      "source_sha256": "d4c3b35b21cbf23b0c4560194473b9d1d9a6781f5906902cfecfaa56232d4067",
+      "text": "Auditable intensity scaling for merged measurement fields.\n\nThe measurement worker stores merged arrays as ``uint16`` while label planes\nmust remain integer identities.  This module makes the conversion decision a\nplate-level, serialisable plan so every worker uses the same scale and the\ndecision can be written into ``measurements.db``."
+    },
+    "spacr.intensity_rescale.build_plate_plan": {
+      "source_blocks_sha256": [
+        "6595a63550a8ce403159973678f7feafef46410d94c760fd012168aab202632b",
+        "6a2c5afe1f9b7a20ade9f86e739a0efa6cc915e3583ffc1561ed1183a8f41175"
+      ],
+      "source_sha256": "e1e52c0d45f467254debb3cf71ebfe70124f95aa4f3bcc7665e71f16d4561da6",
+      "text": "Inspect all fields and return a JSON/pickle-safe plate scaling plan.\n\nRaw-valued fields on a plate share ``65535 / plate_max`` when any one of\nthem exceeds the uint16 ceiling.  Normalised floating-point fields retain\ntheir well-defined fixed conversion of ``x65535``.  A file that cannot be\ninspected is left in ``failures`` and its worker will make (and record) a\nper-field fallback decision."
+    },
+    "spacr.intensity_rescale.fallback_record": {
+      "source_blocks_sha256": [
+        "09755aaf88d430a0295bc12453216546d310edd481908c78604d5c2a48e0b39a"
+      ],
+      "source_sha256": "09755aaf88d430a0295bc12453216546d310edd481908c78604d5c2a48e0b39a",
+      "text": "Return the explicitly non-comparable per-field fallback decision."
+    },
+    "spacr.intensity_rescale.mask_planes": {
+      "source_blocks_sha256": [
+        "a309f4073ae79008780f8f816f7b1eafbe89aa26515e36826101a9f343eb6172"
+      ],
+      "source_sha256": "a309f4073ae79008780f8f816f7b1eafbe89aa26515e36826101a9f343eb6172",
+      "text": "Return last-axis planes that contain labels rather than intensities."
+    },
+    "spacr.intensity_rescale.needs_warning": {
+      "source_blocks_sha256": [
+        "75652dcb8bf823cedac6f2b4716c2a2b5defbe582964b581a060be341cfef1bc"
+      ],
+      "source_sha256": "75652dcb8bf823cedac6f2b4716c2a2b5defbe582964b581a060be341cfef1bc",
+      "text": "Whether a conversion factor is neither identity nor fixed [0, 1]."
+    },
+    "spacr.intensity_rescale.resolve_record": {
+      "source_blocks_sha256": [
+        "7d865939881d20dace5c6127b990f785957ddbcf7db4323c48dfbd21a352296d"
+      ],
+      "source_sha256": "7d865939881d20dace5c6127b990f785957ddbcf7db4323c48dfbd21a352296d",
+      "text": "Resolve and verify one worker's record against the precomputed plan."
+    },
+    "spacr.intensity_rescale.signal_max": {
+      "source_blocks_sha256": [
+        "61c8720d17f05e62f89b3ce168fc7360ca5e1ff7400bbd08c69ee55783f9ecd2"
+      ],
+      "source_sha256": "61c8720d17f05e62f89b3ce168fc7360ca5e1ff7400bbd08c69ee55783f9ecd2",
+      "text": "Return the largest finite intensity and whether an intensity plane exists."
     },
     "spacr.io": {
       "source_blocks_sha256": [
@@ -19147,12 +19264,26 @@
       "source_sha256": "cc6dd71081ec2ee2f5e4996b451b96d796d7c6d42772d6c62ff78cf33bf48206",
       "text": "The column in ``table`` that carries the cell it belongs to.\n\n:param table: an object table name.\n:returns: ``'object_label'`` or ``'cell_id'``.\n:raises ValueError: for a table with no declared anchor, naming the ones\n    that have. Guessing produces a join on a coincidence."
     },
+    "spacr.object_roles.enabled_organelle_roles": {
+      "source_blocks_sha256": [
+        "54395d2bb5a0a116f6aca818dcf5606187e1d4e8dbfc1dc2d9c0c1b9388f1a81"
+      ],
+      "source_sha256": "54395d2bb5a0a116f6aca818dcf5606187e1d4e8dbfc1dc2d9c0c1b9388f1a81",
+      "text": "Organelle slots whose ``<role>_channel`` is enabled, in plane order."
+    },
     "spacr.object_roles.is_one_row_per_cell": {
       "source_blocks_sha256": [
         "b29fdc9178fcd1ab4b25e31f0669b6c8ae1bc0d596881a347d7249bd52ad9f4d"
       ],
       "source_sha256": "b29fdc9178fcd1ab4b25e31f0669b6c8ae1bc0d596881a347d7249bd52ad9f4d",
       "text": "True when ``table`` holds one row per cell and needs no roll-up."
+    },
+    "spacr.object_roles.is_organelle": {
+      "source_blocks_sha256": [
+        "4737cc35040ea46d69c9f1dedb3fe26945b9446092b7f1276fe5dc291aa79014"
+      ],
+      "source_sha256": "4737cc35040ea46d69c9f1dedb3fe26945b9446092b7f1276fe5dc291aa79014",
+      "text": "True when ``role`` is one of the closed organelle slots."
     },
     "spacr.object_roles.is_segmented": {
       "source_blocks_sha256": [
@@ -19181,6 +19312,42 @@
       ],
       "source_sha256": "3e75cfdd78bff814c048359f55e02fe2e6f4d31f011f956f604e9c7c851726bb",
       "text": "Return ``roles`` as a tuple, checking each is a real object kind.\n\nFor declaring a module's own ORDER while still being told when a name is\nwrong. The point is that a module keeps its ordering -- which may be a\nplane order or a table order and cannot be centralised -- without also\nkeeping its own private copy of what the names are.\n\n:param roles: object kinds in this module's required order.\n:raises ValueError: if a name is not in :data:`ALL_ROLES`, naming it and\n    listing the valid kinds."
+    },
+    "spacr.object_roles.organelle_index": {
+      "source_blocks_sha256": [
+        "7db5d5efbd482ed3778950d8af2efb3f7070ed7bfee871dd7efda603b7e04862"
+      ],
+      "source_sha256": "7db5d5efbd482ed3778950d8af2efb3f7070ed7bfee871dd7efda603b7e04862",
+      "text": "Return the one-based user-facing index of an organelle slot."
+    },
+    "spacr.object_roles.organelle_label": {
+      "source_blocks_sha256": [
+        "c48801737d231fa83a483390941467627fde350e7a04572be961a2844cecffed"
+      ],
+      "source_sha256": "c48801737d231fa83a483390941467627fde350e7a04572be961a2844cecffed",
+      "text": "Human-readable label for a slot (``Organelle 1``, ``Organelle 2``)."
+    },
+    "spacr.object_roles.organelle_settings_view": {
+      "source_blocks_sha256": [
+        "78a0acde25ea06daf67e0fd6530a0b82c1534cabbd19ce562427313d73cfb8f9",
+        "56c26e42fc1fadd0c9c835c6463b5d1d01ec4f3fde9e82cec6af0f2f183a1b7f"
+      ],
+      "source_sha256": "9d6ea92c48b32e9bf2203fcc266de4f0e9f3dcc4c713b2762c14b50d44d28764",
+      "text": "Return a copy exposing one slot through the legacy ``organelle_*`` API.\n\nThe classical organelle segmenter predates slots and reads roughly forty\n``organelle_*`` keys. Keeping that well-tested implementation and adapting\none settings view at its boundary prevents four copies of the algorithm."
+    },
+    "spacr.object_roles.role_setting": {
+      "source_blocks_sha256": [
+        "d236b10b49862306ab420c4ad559acd4566bf60cebe9a904a9b3f7207baf5af7"
+      ],
+      "source_sha256": "d236b10b49862306ab420c4ad559acd4566bf60cebe9a904a9b3f7207baf5af7",
+      "text": "Return the setting key for ``suffix`` in one segmented role."
+    },
+    "spacr.object_roles.setting_label": {
+      "source_blocks_sha256": [
+        "1251f0f5c8cee70654f926399387e6c4360340eded1ba03bf9fb36ad0c804ea1"
+      ],
+      "source_sha256": "1251f0f5c8cee70654f926399387e6c4360340eded1ba03bf9fb36ad0c804ea1",
+      "text": "Humanise a setting key, giving organelle slots numbered labels."
     },
     "spacr.ome_zarr": {
       "source_blocks_sha256": [
@@ -23589,13 +23756,12 @@
     "spacr.qt.ai.github_auth": {
       "source_blocks_sha256": [
         "4c035fecc16b9767c38e7621213fa7a29a5d8e67952b793df0a8f7ba68fc90ba",
-        "91f04f36a118c3ea6c31b11f2212c88322ec898c7d813879bc4fae388c8a437f",
-        "d29decd03826f65025d2a86a192fce2644ee8321477106599c40bfbd055a5563",
+        "b9272d1bcfb787a32fa360fc1218396840b7b491270ee1cc6cc604b6c774b9d7",
         "df6a8a4f4ff180d19ab0ca6dd5ee5abeb49d29f996d2e3cd6202c76059ed2d03",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665"
       ],
-      "source_sha256": "eb3281a0baff7f90585b27b636a90ed33a3b681fb2a287db58888321c135956e",
-      "text": "GitHub authentication + direct issue creation for spaCR.\n\nLets users file auto-issues WITHOUT a browser round-trip. A token is resolved\nfrom, in order:\n\n1. A Personal Access Token the user stored in spaCR (Settings → GitHub).\n2. The ``GITHUB_TOKEN`` / ``GH_TOKEN`` environment variable.\n3. The GitHub CLI (``gh auth token``), if ``gh`` is installed + logged in.\n\nWhen a token is available, :func:`create_issue` POSTs straight to the GitHub\nREST API and returns the created issue's URL. When none is available the caller\nfalls back to opening the pre-filled ``issues/new`` URL in the browser.\n\nPublic API::\n\n    github_auth.is_authenticated()      -> bool\n    github_auth.auth_source()            -> \"token\" | \"env\" | \"gh\" | None\n    github_auth.get_stored_token()       -> str\n    github_auth.set_stored_token(tok)    -> None\n    github_auth.create_issue(repo, title, body, labels) -> (ok, url_or_error)"
+      "source_sha256": "f2be46322b57c97465481245f032594f14089a5233d26a1127ce56775a0a0d1f",
+      "text": "GitHub authentication + direct issue creation for spaCR.\n\nLets users file approved issues WITHOUT a browser round-trip. A token is\nresolved from the ``GITHUB_TOKEN`` / ``GH_TOKEN`` environment or the GitHub\nCLI (``gh auth token``). spaCR does not capture or persist credentials; the\nofficial CLI owns interactive login and its platform credential store.\n\nWhen a token is available, :func:`create_issue` POSTs straight to the GitHub\nREST API and returns the created issue's URL. When none is available the caller\nfalls back to opening the pre-filled ``issues/new`` URL in the browser.\n\nPublic API::\n\n    github_auth.is_authenticated()      -> bool\n    github_auth.auth_source()            -> \"token\" | \"env\" | \"gh\" | None\n    github_auth.create_issue(repo, title, body, labels) -> (ok, url_or_error)"
     },
     "spacr.qt.ai.github_auth.auth_source": {
       "source_blocks_sha256": [
@@ -23640,10 +23806,10 @@
     },
     "spacr.qt.ai.github_auth.get_stored_token": {
       "source_blocks_sha256": [
-        "86223443492123e8686f774451662783a5c55c927fbb6b2c9cdfa19fb55dd445"
+        "8aff021d41622f91e367c5152840662046c6759cbff04321e2d54e92d1d2d3fc"
       ],
-      "source_sha256": "86223443492123e8686f774451662783a5c55c927fbb6b2c9cdfa19fb55dd445",
-      "text": "Return the user-stored Personal Access Token (or empty string)."
+      "source_sha256": "8aff021d41622f91e367c5152840662046c6759cbff04321e2d54e92d1d2d3fc",
+      "text": "Return a process-only token, after erasing insecure legacy storage."
     },
     "spacr.qt.ai.github_auth.is_authenticated": {
       "source_blocks_sha256": [
@@ -23661,20 +23827,42 @@
     },
     "spacr.qt.ai.github_auth.set_stored_token": {
       "source_blocks_sha256": [
-        "a894c9c1494c07519e5169e58b62b05cfd5903cd9fc7ce2ba034e1b9e3e468de"
+        "68ccc37cdf5cf2dc2336ea05c9673f92fe0e4a1e161fa39fb3ea4ff027219414",
+        "65f2bdf95b119653a27d8c30be22823dbb439fc41102a293f04592a7063806c8"
       ],
-      "source_sha256": "a894c9c1494c07519e5169e58b62b05cfd5903cd9fc7ce2ba034e1b9e3e468de",
-      "text": "Persist (or clear, with '') a Personal Access Token."
+      "source_sha256": "0ad79ef5b8067a6b1f459053b71d98367586f0e3030cf61a98c7237e9617a7a3",
+      "text": "Set a process-only compatibility token; never persist it.\n\nThe GUI no longer exposes this function. It remains for API callers and\noffline transport tests that need to inject a credential for one process.\nInteractive users authenticate with ``gh auth login``."
+    },
+    "spacr.qt.ai.issue_preview": {
+      "source_blocks_sha256": [
+        "acb21392dea5a5eea00528a52f69a6c9fe9f450ffd9c16b95435c3891528e2ef"
+      ],
+      "source_sha256": "acb21392dea5a5eea00528a52f69a6c9fe9f450ffd9c16b95435c3891528e2ef",
+      "text": "Editable, explicitly approved preview for a public GitHub report."
+    },
+    "spacr.qt.ai.issue_preview.IssuePreviewDialog": {
+      "source_blocks_sha256": [
+        "b503009dea72cfdcf301e5682269e5a4aab3a67c37529d658eabb3ee3cbdf55b"
+      ],
+      "source_sha256": "b503009dea72cfdcf301e5682269e5a4aab3a67c37529d658eabb3ee3cbdf55b",
+      "text": "Show the exact public payload and require a Send click."
+    },
+    "spacr.qt.ai.issue_preview.IssuePreviewDialog.approved_report": {
+      "source_blocks_sha256": [
+        "ded7bd8a0cf696c0be9d739c00b56eb3400b71621c2dbe5b53af645ecec80bba"
+      ],
+      "source_sha256": "ded7bd8a0cf696c0be9d739c00b56eb3400b71621c2dbe5b53af645ecec80bba",
+      "text": "Return exactly the currently displayed, editable payload."
     },
     "spacr.qt.ai.issue_report": {
       "source_blocks_sha256": [
         "877a6c61b362da77372a9b3e7f9462c22fcf9b55e07a1baf17a8a1e7c3ef075b",
-        "beda7322b92b2f1ed9254e3211f4d9dc05a6739b54c44f854aa7dff68e6ba119",
-        "aafa603bb262fb04213ab7ec607e2816f5585519244c1519430a6d0656cf0e36",
-        "cd3ca431eae6bfef5c224441b4a82a19d37463bfcecc6c763cf70ab75249f6ae"
+        "9a3d5b37cf4bc0085a54e386bc7f840d12356967fb53bdcda5c24d7d21bd3b1c",
+        "13547a15b28a5d4ad0b4ecce236550324886cf1fe15a7cbc7e3c07dea12fcabd",
+        "5a7bde4580ef24981abcf079a2e018894086007861b1ea4a625ad08329eeff81"
       ],
-      "source_sha256": "f6a0f767841a32eb754bbc268e30af6ad99b2dd269a0714955db27e5b4986c00",
-      "text": "Opt-in error reporting → pre-filled GitHub issue.\n\nWhen the user turns on \"File errors as GitHub issues\" in the AI\nSettings tab, the \"Explain error\" flow gains a second button:\n\"File as GitHub issue\". Clicking it:\n\n1. Builds a sanitized report from the current traceback + active app\n   + settings + spacr / python / OS versions + tail of the log file.\n2. URL-encodes the report into GitHub's `issues/new?title=…&body=…`\n   query params.\n3. Opens the user's default browser at that URL. GitHub uses the\n   user's existing browser session — no token, no OAuth, no server\n   round-trip. The user reviews and clicks Submit themselves.\n\nEverything is deliberately kept client-side and one-click-away from\nposting so users see exactly what leaves their machine before it\ndoes."
+      "source_sha256": "8d52c74e218e60482a3b2f942c883886c1aa2c2e840b77d3162743dd3e282060",
+      "text": "Opt-in error reporting → pre-filled GitHub issue.\n\nWhen the user enables public issue reporting during installation or later in\nPreferences, the error flow gains a \"File as GitHub issue\" action. Clicking\nit:\n\n1. Builds a sanitized report from the current traceback + active app\n   + settings + spacr / python / OS versions + tail of the log file.\n2. Shows the exact title and body in an editable preview, with filenames\n   stripped by default.\n3. Submits only after the report-specific Send click. An authenticated\n   official ``gh`` session can post through the API; otherwise spaCR opens a\n   pre-filled GitHub form in the browser for the user to submit there.\n\nspaCR never stores a durable GitHub token itself. Everything stays client-side\nuntil the explicit preview action, so the user sees exactly what leaves the\nmachine before it does."
     },
     "spacr.qt.ai.issue_report.build_report": {
       "source_blocks_sha256": [
@@ -23690,14 +23878,11 @@
     },
     "spacr.qt.ai.issue_report.file_issue": {
       "source_blocks_sha256": [
-        "0ae19ebb28becd59d8152e14282be2be900032c04e24eefa9f42838b58cee877",
-        "8f972982c23e1146f6371fea842ae56d0e474d4c8ee40d23e2a57711819b8329",
-        "d4ee9c831283fa9815b7d0b05e25d071dca66ec1b44da24ba427639fbd848d45",
-        "99e334cf5f9d466fe63e531d4caa3812fe383fdc1072b7ba6e65b5f21e4704e4",
-        "56460e9db7adfc27c3d710f6831c0fd059343375d0f6c699bf7f5cec8c4ad35e"
+        "bbdb8bfac3f99fa7af2e70739125ad7f88eaaae6db6d231eef7b1b596094fc68",
+        "949794d2b00acf97dc41667350be0ae57e6bcdc6d771fa123cedd854a12f2f57"
       ],
-      "source_sha256": "736792b0d42fec6169dd3caf1094bd3c45ecceda32d4bba63b5500422d7fba43",
-      "text": "End-to-end helper: build report, build URL, open browser, return URL.\n\n:param traceback_text: full traceback text.\n:param active_app: id of the app the user was in.\n:param settings: pipeline settings dict in play.\n:returns: the constructed ``https://github.com/…`` URL — useful for\n    tests and for logging what was opened."
+      "source_sha256": "2d8948976883df14fae9f6ff89ae2ef322ef47d8a396a3122177e0bbc5a3351c",
+      "text": "Legacy end-to-end helper retained for API callers and tests.\n\nThe GUI does not call this directly: it builds the payload, displays an\neditable preview, then passes the approved mapping to\n:func:`submit_report`. Headless callers invoking this function are the\nreport-specific affirmative action themselves."
     },
     "spacr.qt.ai.issue_report.issue_url": {
       "source_blocks_sha256": [
@@ -23766,6 +23951,21 @@
       ],
       "source_sha256": "0de9ec15f60898a1c1d4163ddbab33e4ed7f4bfd8a801efe0f06711bcac30620",
       "text": "Sanitise a full traceback string via :func:`sanitize_path`."
+    },
+    "spacr.qt.ai.issue_report.strip_report_paths": {
+      "source_blocks_sha256": [
+        "7bb7a71776599d2fc07322d00f44e144efe8c435f5bff402f052247bb30f2ed5",
+        "193b55d7bc30a06f531b75b7c0709dfc2559a48f1c7199aa0863925ae8261b69"
+      ],
+      "source_sha256": "d17e651ac1e759920c5cb41362d782d4befc4830841037991adeb88cea164b33",
+      "text": "Remove file/folder names from an already sanitised report.\n\nThe ordinary sanitizer abbreviates the home directory so a traceback is\nstill useful. Public reports default to the stricter form: traceback file\nfields and remaining absolute path-like tokens become ``<PATH>``. The\npreview lets the user restore the useful names before sending."
+    },
+    "spacr.qt.ai.issue_report.submit_report": {
+      "source_blocks_sha256": [
+        "ca5c7baf9b9b61e88a72691cd4478c40057ca143eae4cd4c0f2f7ec35437abeb"
+      ],
+      "source_sha256": "ca5c7baf9b9b61e88a72691cd4478c40057ca143eae4cd4c0f2f7ec35437abeb",
+      "text": "Submit one payload the user has already approved in the preview."
     },
     "spacr.qt.ai.keys": {
       "source_blocks_sha256": [
@@ -27452,7 +27652,7 @@
       "source_blocks_sha256": [
         "131c811a33871bc8692975467caf4cf6e53c89aacc5892f731526d1b2ca8426c",
         "6e500676048b8462117d4dcce8d2d6fda92c34fbe03110712be36d7281a44cc0",
-        "63f9b9fab8c5b3101cbc403c39ac7365a7b9a3c5616ac8043593528614a9e170",
+        "51fdaeb4058726bef7e076922b2e0b0fe362cbb51a49859ed74fddd8fc35b399",
         "cfd6791979e2d7fa82136049f68efd2ed75126f77f447e58c068f1825a53e50f",
         "5b6791939fb470b4fce3c1e293f8d42a135788dc2e4aa38c80574046f3c36a7b",
         "2e3a9de824317959ba228ef1483319668e5afca48bfb9ed68e21ecaf3f526173",
@@ -27460,8 +27660,8 @@
         "3993eceece493f814a376a240a6564a2e3ca13082f94c6080b0865deb241217d",
         "7977109eb14e5eb82cc9376f52db12aa89ef2ef82dc7b6d518411e2f4d69f917"
       ],
-      "source_sha256": "bde32a5d4c47e7d953ea44d800aead8a1c36e6163d60a11937ea3fade1a16c93",
-      "text": "Central icon lookup for the spacr Qt GUI.\n\nTwo sources of icons, both made theme-aware here:\n\n* **qtawesome glyphs** — vector, painted in whatever colour we ask for.\n  Wrapped so callers stay decoupled from Font Awesome glyph names, and\n  degrading to an empty ``QIcon()`` when qtawesome isn't installed so\n  the UI still renders with text-only buttons.\n* **bundled PNGs** in ``spacr/resources/icons`` — flat monochrome\n  artwork baked at a fixed colour.\n\nThe bundled PNGs were *theme-blind*, and it showed: ``convert.png``\n(Format Converter) shipped as solid black with an alpha mask, so on the\nblack home page it rendered as nothing at all. The other twenty-odd were\nsolid white, which is the same bug pointed the other way — invisible on\nthe light theme, nobody had noticed because nobody used it. A third\ntheme made this unavoidable, so :func:`themed_qimage` now re-inks every\nbundled PNG for the active theme. **This is what makes the artwork\nswappable**: seventeen icons were redrawn and reinstalled without a line\nof change here, because nothing in this module knows what any of them\nlook like.\n\n* the artwork's ink polarity is detected from its own alpha-weighted\n  mean luminance, so black-on-transparent and white-on-transparent are\n  both handled without a per-file table;\n* the ink is remapped onto a band running from the theme's foreground\n  down to a ``veil`` colour computed to clear :data:`MIN_ICON_CONTRAST`\n  against the *hardest* surface the icon can land on, so internal shading\n  survives instead of being flattened to a silhouette;\n* genuinely polychrome artwork keeps its hue and is only re-levelled.\n\n:func:`icon_contrast` exposes the measured ratio so the test suite can\nassert visibility numerically rather than checking that a file exists."
+      "source_sha256": "8ac8fdc45bffedb49eebbb147a8017c052883279b2de53cbf6f5d7311a5d62f8",
+      "text": "Central icon lookup for the spacr Qt GUI.\n\nTwo sources of icons, both made theme-aware here:\n\n* **qtawesome glyphs** — vector, painted in whatever colour we ask for.\n  Wrapped so callers stay decoupled from Font Awesome glyph names. When the\n  optional font is unavailable a bundled, theme-aware glyph is returned;\n  toolbar affordances never silently turn into blank buttons.\n* **bundled PNGs** in ``spacr/resources/icons`` — flat monochrome\n  artwork baked at a fixed colour.\n\nThe bundled PNGs were *theme-blind*, and it showed: ``convert.png``\n(Format Converter) shipped as solid black with an alpha mask, so on the\nblack home page it rendered as nothing at all. The other twenty-odd were\nsolid white, which is the same bug pointed the other way — invisible on\nthe light theme, nobody had noticed because nobody used it. A third\ntheme made this unavoidable, so :func:`themed_qimage` now re-inks every\nbundled PNG for the active theme. **This is what makes the artwork\nswappable**: seventeen icons were redrawn and reinstalled without a line\nof change here, because nothing in this module knows what any of them\nlook like.\n\n* the artwork's ink polarity is detected from its own alpha-weighted\n  mean luminance, so black-on-transparent and white-on-transparent are\n  both handled without a per-file table;\n* the ink is remapped onto a band running from the theme's foreground\n  down to a ``veil`` colour computed to clear :data:`MIN_ICON_CONTRAST`\n  against the *hardest* surface the icon can land on, so internal shading\n  survives instead of being flattened to a silhouette;\n* genuinely polychrome artwork keeps its hue and is only re-levelled.\n\n:func:`icon_contrast` exposes the measured ratio so the test suite can\nassert visibility numerically rather than checking that a file exists."
     },
     "spacr.qt.iconset.accent_icon": {
       "source_blocks_sha256": [
@@ -27525,11 +27725,11 @@
     },
     "spacr.qt.iconset.icon": {
       "source_blocks_sha256": [
-        "ac4d39ffa6480c15382a1a972dbdeda2eabaf042188646b2098c0f1ba246bd45",
+        "e572106edab4cdcc200e96aa09c09754bcf1e35fc4d9862c58913835edbf7111",
         "83d2249fc52fe4119a25c1ccfc04ec5ef64a71555bb10015ad4c3c8807f6c229"
       ],
-      "source_sha256": "d2c2edef9c49f867fe4544050dfb88984cb240bb98176c1e01b91ee83e890177",
-      "text": "Return a QIcon for the named glyph, or an empty QIcon fallback.\n\n`name` is a semantic key (e.g. \"open\", \"run\", \"brush\") mapped to a\nFont Awesome glyph. Unknown names fall back to a puzzle piece. The\ndefault fill follows the active theme rather than the dark palette,\nwhich is why a light-theme sidebar no longer draws pale-grey icons\non white."
+      "source_sha256": "e1d0e911a25e5255406fecbb782738631a1624d9c3eb2435efb7aa051ae77fe5",
+      "text": "Return a QIcon for the named glyph, with a bundled fallback.\n\n`name` is a semantic key (e.g. \"open\", \"run\", \"brush\") mapped to a\nFont Awesome glyph. Unknown names fall back to a puzzle piece. The\ndefault fill follows the active theme rather than the dark palette,\nwhich is why a light-theme sidebar no longer draws pale-grey icons\non white."
     },
     "spacr.qt.iconset.icon_cache_dir": {
       "source_blocks_sha256": [
@@ -27901,6 +28101,42 @@
       ],
       "source_sha256": "17ade70bebf575445721a38fc403a644bbb61cb729821a31c48606baf786db2c",
       "text": "One-line count summary of a preview (wells / fields / channels)."
+    },
+    "spacr.qt.install_consent": {
+      "source_blocks_sha256": [
+        "8f552f881eca8b3f78514d13bcee2a74575f7ccfb3542b5a27a5b6837f098ffb"
+      ],
+      "source_sha256": "8f552f881eca8b3f78514d13bcee2a74575f7ccfb3542b5a27a5b6837f098ffb",
+      "text": "Apply privacy and account choices collected by desktop installation."
+    },
+    "spacr.qt.install_consent.InstallerConsentDialog": {
+      "source_blocks_sha256": [
+        "f490da2da5ddfb44408b254d377e3c132df3eb5e1f6b5d10bd96a39162f8637c"
+      ],
+      "source_sha256": "f490da2da5ddfb44408b254d377e3c132df3eb5e1f6b5d10bd96a39162f8637c",
+      "text": "One first-launch page whose three optional choices start off."
+    },
+    "spacr.qt.install_consent.InstallerConsentDialog.choices": {
+      "source_blocks_sha256": [
+        "c6945c69c75b6ce2503d1b190068f689c57e4d162e928879ccd4212df545ee35"
+      ],
+      "source_sha256": "c6945c69c75b6ce2503d1b190068f689c57e4d162e928879ccd4212df545ee35",
+      "text": "Return the three explicit checkbox states."
+    },
+    "spacr.qt.install_consent.apply_choices": {
+      "source_blocks_sha256": [
+        "cf1443de19bf1b442510297590c8808fee26e9a353f8451867d6cbeba7fff8d4"
+      ],
+      "source_sha256": "cf1443de19bf1b442510297590c8808fee26e9a353f8451867d6cbeba7fff8d4",
+      "text": "Persist choices and return whether account setup was requested."
+    },
+    "spacr.qt.install_consent.maybe_show_installer_consent": {
+      "source_blocks_sha256": [
+        "272be964bd2f0c11d835313a8396f2830619319e97b2a014b4251c702525c97b",
+        "75834f8796969e1b52416bb16af6b5114182717796afa6fc31710546e8f45f87"
+      ],
+      "source_sha256": "11a0608dab182de16229a4fb5673641f676a5ea5f38d35faaf85feed738a501e",
+      "text": "Apply installer choices once, asking in-app if no page was shown.\n\n:returns: ``True`` when an installer profile was handled this call."
     },
     "spacr.qt.job_runner": {
       "source_blocks_sha256": [
@@ -29490,6 +29726,14 @@
       "source_sha256": "c9ff21f31892bcd202f38a10cbe9506b64417512f5b72050761d22b355a93840",
       "text": "Whether setting tooltips show their animation WITHOUT being asked.\n\nDefault ``False``: a hover is text only, no GIF is decoded, no frames are\ncached and no timer runs, and the teal **Animation** word in the footer is\nthe invitation to see one — for that setting, once. Turning this on starts\nevery tooltip revealed instead, and the word then folds the one in front\nof the reader away. The meaning is \"stop asking me\", not \"allow\nanimations\".\n\nThe two cannot disagree and neither needs to defer to the other, because\nthey are scoped differently: a press names exactly one setting, so it can\nnever stop this preference reaching the rest. See\n:meth:`spacr.qt.widgets.hover_tooltip.HoverTooltip.animations_shown`.\n\nRead on every tooltip, not once at startup:\n:class:`spacr.qt.widgets.hover_tooltip.HoverTooltip` is a process-wide\nsingleton that outlives the Preferences dialog, so caching this would\nkeep animating until the app was restarted."
     },
+    "spacr.qt.preferences.get_share_diagnostic_logs": {
+      "source_blocks_sha256": [
+        "5662956caffa0e25a15228f7477555de77d347ce031fe6d7839868f45be95fc2",
+        "1c6c7a57749f1f4c8271ffdc17579d56b20487e8daaad13a858d5821ff1efd6a"
+      ],
+      "source_sha256": "d16efd3e20ecba36ad4feba277dacef56d6e22fdaa9e0594f095f0074afdb88a",
+      "text": "Whether report previews may include a redacted recent-log excerpt.\n\nThis never authorises background submission. Every report still stops at\nthe editable preview and needs its own Send click."
+    },
     "spacr.qt.preferences.get_show_alpha": {
       "source_blocks_sha256": [
         "5b83fdfb3378ed0646522240c968b5cd876c7ff0116362074c32345c144445b9"
@@ -29820,6 +30064,13 @@
       ],
       "source_sha256": "66326cd0e77224852daed0ede6995c791f11c78862dfcd65c136f562dd60bf43",
       "text": "Turn the animation inside setting tooltips on or off.\n\nFlushed immediately so the very next hover honours it — see\n:func:`get_setting_animations_enabled` for why nothing caches it."
+    },
+    "spacr.qt.preferences.set_share_diagnostic_logs": {
+      "source_blocks_sha256": [
+        "218facc3c1280eeb00da4b76e4f34f655936ae9888c122e7ea8d30c4aeb1dd6a"
+      ],
+      "source_sha256": "218facc3c1280eeb00da4b76e4f34f655936ae9888c122e7ea8d30c4aeb1dd6a",
+      "text": "Persist the revocable diagnostic-log preview opt-in."
     },
     "spacr.qt.preferences.set_show_alpha": {
       "source_blocks_sha256": [
@@ -59874,11 +60125,11 @@
         "cceb582b5820eb7949772ec0e7d5a1823ded9764b3cf96ae65fba6e20cf3de30",
         "88207d346ace10b8114aabd9ae3e227e85d67a1569ece494fb6f4f13b8800d3c",
         "019d53bc28274c78997131b1520c1aa50aff8caf1d4e651d4a1b25c704b0d01f",
-        "278df5253463c0ac571d0d376eecfcc87e311039bf8d1c6f496728252c79a97a",
+        "f8f112c6c8f608556007cd46b42772a8c3cd4199aec93782241646bcf64ecb5d",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "435c6d4b346d330af6747e1716973dec96b46a6535176d668abcba4d28f517bd",
-      "text": "Insert cropped PNG filepaths and parsed well/object IDs into the measurements DB.\n\n:param img_paths: iterable of PNG paths for cropped objects.\n:param settings: settings dict; ``timelapse`` toggles time_id parsing.\n:param source_folder: experiment root; DB is written to ``measurements/measurements.db``.\n:param crop_mode: one of ``'cell'``, ``'nucleus'``, ``'pathogen'``, ``'cytoplasm'``.\n:returns: None."
+      "source_sha256": "f0ed32ed04965abf758cba3fa1d7bc5a14323b8d72900498b646e3590ccadb9e",
+      "text": "Insert cropped PNG filepaths and parsed well/object IDs into the measurements DB.\n\n:param img_paths: iterable of PNG paths for cropped objects.\n:param settings: settings dict; ``timelapse`` toggles time_id parsing.\n:param source_folder: experiment root; DB is written to ``measurements/measurements.db``.\n:param crop_mode: a registered object role, including any organelle slot.\n:returns: None."
     },
     "spacr.utils.fill_holes_in_mask": {
       "source_blocks_sha256": [
