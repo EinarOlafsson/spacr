@@ -144,6 +144,7 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
     SetErrorLevel $0
     Abort
   ${EndIf}
+  Delete "$INSTDIR\nsis-bootstrap-status.txt"
 
   WriteRegStr HKCU "Software\spaCR" "InstallRoot" "$INSTDIR"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\spaCR" "DisplayName" "spaCR"
@@ -168,7 +169,9 @@ Function LaunchSpaCR
   ExecShell "open" "$INSTDIR\venv\Scripts\pythonw.exe" '"$INSTDIR\launch_spacr.pyw"'
 FunctionEnd
 
-Section "$(SPACR_NSIS_UNINSTALL)"
+; NSIS identifies the uninstaller by this exact sentinel name. Localising it
+; turns it into a normal install section, which then deletes the fresh install.
+Section "Uninstall"
   Delete "$DESKTOP\spaCR.lnk"
   RMDir /r "$SMPROGRAMS\spaCR"
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\spaCR"
