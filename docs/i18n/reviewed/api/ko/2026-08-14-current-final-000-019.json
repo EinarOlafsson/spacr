@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "spacr.io.generate_loaders#13",
+      "source_sha256": "2dc48172631f2b7f940bd59b672a815cf992d561aab65a5841d7c2fed3f7eb1f",
+      "source": "If True, log configuration to stdout.",
+      "context": "If True, log configuration to stdout.",
+      "translation": "True 인 경우 구성을 표준 출력에 기록합니다."
+    },
+    {
+      "label": "spacr.plot.create_venn_diagram#5",
+      "source_sha256": "e312e9fc9f7e5e3e66603f88730d8486880d543c9978eb7af51ed0bf55cbc8e7",
+      "source": "If True, save as PDF; requires ``save_path``.",
+      "context": "If True, save as PDF; requires ``save_path``.",
+      "translation": "True 인 경우 PDF 형식으로 저장하며 ``save_path``가 필요합니다."
+    },
+    {
+      "label": "spacr.utils.annotate_conditions#3",
+      "source_sha256": "d03a6c43fd8fc75178c60b87fa557385b49128ccc96f3bc72b645e63236a45dd",
+      "source": "per-cell-type list-of-lists of row/column identifiers.",
+      "context": "per-cell-type list-of-lists of row/column identifiers.",
+      "translation": "셀 유형별 행/열 식별자 목록의 목록입니다."
+    },
+    {
+      "label": "spacr.gui_elements.AnnotateApp.update_gui_text#0",
+      "source_sha256": "8d93e3a8d39e934739cb57e6d958586c02698c5a0b2f07cfac4cc596ba16da05",
+      "source": "Update the status label with ``text`` and flush the UI.",
+      "context": "Update the status label with ``text`` and flush the UI.",
+      "translation": "상태 레이블을 ``text``로 업데이트한 뒤 UI 화면을 즉시 갱신합니다."
+    },
+    {
+      "label": "spacr.checkpoint.CheckpointStore.artifact_dir#0",
+      "source_sha256": "bcd78091096ed84fbb9d370d20bce52b70f98fb57d73a0eebf8da15d797cb1e6",
+      "source": "Directory holding large artifacts referenced by the JSON.",
+      "context": "Directory holding large artifacts referenced by the JSON.",
+      "translation": "JSON 파일이 참조하는 대용량 아티팩트를 보관하는 디렉터리입니다."
+    },
+    {
+      "label": "spacr.qt.dnd.DropHandler.can_accept#0",
+      "source_sha256": "0034136e6873af6818773fbf2697a1ee88a255bc2b4fd61c81a2df5627b69441",
+      "source": "Return True if ``path`` (folder OR file) is usable as-is.",
+      "context": "Return True if ``path`` (folder OR file) is usable as-is.",
+      "translation": "``path``(폴더 또는 파일)를 수정 없이 사용할 수 있으면 True 를 반환합니다."
+    },
+    {
+      "label": "spacr.run_journal.load_run_settings#0",
+      "source_sha256": "2ce6d33b434901213f0d05b4b20bde93527b242a0903f7049bec031a4e9a65d6",
+      "source": "Read a run's ``settings.json`` (falling back to settings.csv).",
+      "context": "Read a run's ``settings.json`` (falling back to settings.csv).",
+      "translation": "처리 세션의 ``settings.json``을 읽고, 없으면 settings.csv 파일을 사용합니다."
+    },
+    {
+      "label": "spacr.crops.read_crop_png#0",
+      "source_sha256": "b14925e3ffaecb79189a0f24debfd35be8a9ae6197f4b082dc61efcb36a9ae6f",
+      "source": "Read a crop PNG and return it in the corrected order, as 8-bit RGB.",
+      "context": "Read an extracted-image-region PNG and return it in the corrected order, as 8-bit RGB.",
+      "translation": "추출 이미지 영역의 PNG 파일을 읽어 수정된 순서의 8비트 RGB 이미지로 반환합니다."
+    },
+    {
+      "label": "spacr.classifier_evaluation.write_leakage_audit#0",
+      "source_sha256": "101f4c8752816651f946615c900f71c00f71fbc5bee89b9e5c0cef784120f2a5",
+      "source": "Atomically write a leakage report/audit as JSON and return its path.",
+      "context": "Atomically write a leakage report/audit as JSON and return its path.",
+      "translation": "누수 보고서/감사를 JSON 형식으로 원자적으로 기록하고 경로를 반환합니다."
+    },
+    {
+      "label": "spacr.convert.normalise_well#0",
+      "source_sha256": "03960e4861b29b45ca74d5ef262d7dfeccaee6af266a6ee97e590d5850f56465",
+      "source": "Return ``name`` as a canonical well id (``A01``, ``AA48``), or None.",
+      "context": "Return ``name`` as a canonical microplate sample position id (``A01``, ``AA48``), or None.",
+      "translation": "``name``을 표준 마이크로플레이트 시료 위치 식별자(``A01``, ``AA48``)로 반환하며, 해당하지 않으면 None 을 반환합니다."
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout#0",
+      "source_sha256": "33d8128a31b2c5869c0ff7069b2e16d2c12184c6c83beb604326f7944b308ec3",
+      "source": "Lay out a plate before it is acquired, and say what is wrong with it.",
+      "context": "Lay out a plate before it is acquired, and say what is wrong with it.",
+      "translation": "플레이트를 획득하기 전에 레이아웃하고 문제점을 알려 줍니다."
+    },
+    {
+      "label": "spacr.utils.estimate_class_counts#0",
+      "source_sha256": "826209bfe0c3ccc6cfe3ca21e9d3bdbd8fc08a8fb8a0fb754cf1a9dcc23c9977",
+      "source": "Return per-class sample counts as a ``LongTensor`` of length ``num_classes``.",
+      "context": "Return per-class sample counts as a ``LongTensor`` of length ``num_classes``.",
+      "translation": "클래스별 표본 수를 ``LongTensor`` 형식으로 반환하며 길이는 ``num_classes``입니다."
+    },
+    {
+      "label": "spacr.spacrops.spacrStitcher.stitch_pair#0",
+      "source_sha256": "2d423139139b7b5fdad90cb8970d5d649ada45ec3ba54441d886ba2bbff65101",
+      "source": "Estimate the B-to-A affine, score the overlap, and optionally write the stitched pair.",
+      "context": "Estimate the B-to-A affine, score the overlap, and optionally write the stitched pair.",
+      "translation": "B에서 A로의 아핀 변환을 추정하고 겹침을 평가하며, 선택적으로 스티칭된 쌍을 기록합니다."
+    },
+    {
+      "label": "spacr.report.collect_report#8",
+      "source_sha256": "7abc0d22783c71061132372f09132631b5fcee7ef1ffa8f5e8a7ffd8d19835aa",
+      "source": "when ``run_dirs`` is None, scan ``~/.spacr/runs`` for runs whose ``src`` is this folder.",
+      "context": "when ``run_dirs`` is None, scan ``~/.spacr/runs`` for runs whose ``src`` is this folder.",
+      "translation": "``run_dirs``가 None 이면 ``~/.spacr/runs``에서 ``src``가 이 폴더인 처리 세션을 찾습니다."
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#0",
+      "source_sha256": "6c71855a74e9e00dd905a25e974b039b781f85e88d0a24ecd35cfa0a787aa195",
+      "source": "Batch the field stacks through Cellpose, then append the mask channel(s) to the SAME npy files.",
+      "context": "Batch the microscope field of view stacks through Cellpose, then append the mask image data channel(s) to the SAME npy files.",
+      "translation": "현미경 시야 스택을 Cellpose 도구로 일괄 처리한 후 마스크 이미지 데이터 채널을 동일한 npy 파일에 추가합니다."
+    },
+    {
+      "label": "spacr.hyperparam.activation_search#6",
+      "source_sha256": "2d8102582e496bdd3c32c22e777e5d0b917c88746523b953b29a83eeeb045691",
+      "source": "configurations when ``mode='random'``; maximum complete 2-by-2 rounds when adaptive UMAP is enabled.",
+      "context": "configurations when ``mode='random'``; maximum complete 2-by-2 rounds when adaptive UMAP is enabled.",
+      "translation": "``mode='random'``일 때의 구성 수이며, 적응형 UMAP 기능이 활성화되면 완료할 수 있는 최대 2대2 라운드 수입니다."
+    },
+    {
+      "label": "spacr.convert.SourceImage#6",
+      "source_sha256": "b41d2d110abc9dc99397658c4ad0b8741d7fafa5d152c46146db9295fd8d5e1f",
+      "source": "the *source* channel key parsed from the filename (``'C2'``), or None when the channels live inside the file.",
+      "context": "the *source* channel key parsed from the filename (``'C2'``), or None when the channels live inside the file.",
+      "translation": "파일 이름에서 분석한 *원본* 이미지 데이터 채널 식별자(``'C2'``)이며, 이미지 데이터 채널이 파일 내부에 있으면 None 입니다."
+    },
+    {
+      "label": "spacr.omero.WellPosition#5",
+      "source_sha256": "3faa3413cf1a708c70e47097b98fe7baca51c1b79fb7f747794ed97fb94d9237",
+      "source": "the well name, e.g. ``'A01'`` — zero padded to two column digits, which is what spaCR's strict Yokogawa regex requires.",
+      "context": "The well name, for example ``'A01'``. It is zero-padded to two column digits, as required by spaCR's strict Yokogawa filename pattern.",
+      "translation": "마이크로플레이트 시료 위치 이름(예: ``'A01'``)이며, spaCR 의 엄격한 Yokogawa 정규식 요구에 따라 열 번호를 두 자리로 0 채움합니다."
+    },
+    {
+      "label": "spacr.omero#14",
+      "source_sha256": "f3a10d9ee8b44eabd57d58e1d352a139e52c6291ee02cad6a52399d9da5aab92",
+      "source": "the column is zero padded to two digits (``A01``, never ``A1``) because spaCR's strict Yokogawa regex is ``[A-Z]\\d{2}``.",
+      "context": "the column is zero padded to two digits (``A01``, never ``A1``) because spaCR's strict Yokogawa regex is ``[A-Z]\\d{2}``.",
+      "translation": "열 번호를 두 자리로 0 채움합니다(``A01``, ``A1``은 허용하지 않음). 이는 spaCR 의 엄격한 Yokogawa 정규식 ``[A-Z]\\d{2}``이 요구하는 형식입니다."
+    },
+    {
+      "label": "spacr.gui_elements.AnnotateApp.open_deep_spacr_window#1",
+      "source_sha256": "20a4595d7c6ee8f65ea1482240c736e14d719418f1fdfd7ca5f7cdb3effbdb84",
+      "source": "Presents a notebook of tabs (dataset generation, training, inference) whose 'Run' hands the resolved settings dict to ``deep_spacr`` on a background thread.",
+      "context": "Presents a notebook of tabs (dataset generation, training, inference) whose 'Run' hands the resolved settings key-value mapping to ``deep_spacr`` on a background execution unit.",
+      "translation": "데이터 세트 생성, 학습, 추론 탭으로 구성된 노트북을 표시합니다. 'Run' 항목을 선택하면 확정된 설정 키-값 매핑을 백그라운드 실행 단위에서 ``deep_spacr``로 전달합니다."
+    }
+  ]
+}
