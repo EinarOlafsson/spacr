@@ -196,7 +196,7 @@ def test_spacr_is_spelled_down_the_column_one_letter_per_cell():
 
     text = engine.column_text(0)
     assert "spaCR" in text
-    assert "spaCR" not in text and "spacr" not in text
+    assert "spaCR" not in column.tokens and "spacr" not in column.tokens
 
 
 def test_spacr_absent_when_probability_is_zero():

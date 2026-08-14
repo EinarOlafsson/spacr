@@ -11,7 +11,7 @@ from typing import Optional
 
 from PySide6.QtCore import QEvent, QObject, QTimer
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QApplication, QPushButton
+from PySide6.QtWidgets import QApplication, QDialogButtonBox, QPushButton
 
 
 POSITIVE_PREFIXES = ("run", "propagate")
@@ -147,7 +147,8 @@ class _SemanticButtonFilter(QObject):
         # chrome dropped into the app's own type. Stripped here rather than at
         # each call site, because this filter already sees every button in
         # every dialog, including ones built after startup.
-        if not button.icon().isNull():
+        if (isinstance(button.parentWidget(), QDialogButtonBox)
+                and not button.icon().isNull()):
             button.setIcon(QIcon())
 
         role = action_role(button.text())

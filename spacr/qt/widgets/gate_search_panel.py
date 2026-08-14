@@ -33,11 +33,12 @@ from typing import Optional
 
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
-    QCheckBox, QDoubleSpinBox, QFormLayout, QLabel, QPushButton, QSpinBox,
+    QDoubleSpinBox, QFormLayout, QLabel, QPushButton, QSpinBox,
     QVBoxLayout, QWidget,
 )
 
 from ..theme import SPACING
+from .toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.gate_search_panel")
 
@@ -88,7 +89,7 @@ class GateSearchPanel(QWidget):
             lambda v: self._emit(cluster_min_samples=int(v)))
         form.addRow("Minimum neighbours", self._min_samples)
 
-        self._scale = QCheckBox("Scale the measurements first", self)
+        self._scale = Toggle("Scale the measurements first", self)
         self._scale.setToolTip(
             "Standardise each measurement before clustering. Off, whichever "
             "measurement has the larger numbers decides the clusters on its "
@@ -97,7 +98,7 @@ class GateSearchPanel(QWidget):
             lambda v: self._emit(cluster_scale=bool(v)))
         form.addRow("", self._scale)
 
-        self._walk = QCheckBox("Walk the parameters instead", self)
+        self._walk = Toggle("Walk the parameters instead", self)
         self._walk.setToolTip(
             "Search the space rather than taking the two numbers above: try "
             "a range, show each result as it arrives, and let you pick. What "

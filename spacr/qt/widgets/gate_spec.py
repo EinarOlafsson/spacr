@@ -2053,7 +2053,7 @@ def _fit_labels(work, *, method: str, eps: float, min_samples: int):
         # control keeps the meaning it has for DBSCAN -- larger merges. Zero
         # (its own default) would make the setting inert, which is the defect
         # this whole change is about.
-        return HDBSCAN(min_cluster_size=max(2, int(min_samples)),
+        return HDBSCAN(min_cluster_size=max(2, int(min_samples)), copy=False,
                        cluster_selection_epsilon=float(eps)).fit_predict(work)
     raise ClusterError(
         f"unknown clustering method {method!r}; this build has "

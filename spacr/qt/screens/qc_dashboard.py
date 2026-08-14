@@ -239,6 +239,10 @@ class QCDashboardScreen(QWidget):
         self._cards_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         scroll = QScrollArea()
         scroll.setWidget(self._cards_panel)
+        # setWidget() enables autoFillBackground on its child. This panel
+        # already owns a QSS surface, so leaving that flag on paints the same
+        # 30% fill twice (0.7 * 0.7 = 0.49 transmission).
+        self._cards_panel.setAutoFillBackground(False)
         scroll.setWidgetResizable(True)
         # A QScrollArea's viewport auto-fills by default, and what it fills
         # with is the WINDOW colour -- not a surface -- so no page-opacity

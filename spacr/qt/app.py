@@ -1541,7 +1541,14 @@ class MainWindow(QMainWindow):
         try:
             from PySide6.QtCore import QTimer
             from .first_run import maybe_show_tour
-            QTimer.singleShot(800, lambda: maybe_show_tour(self))
+            # Parent the delayed callback to the window. A static singleShot
+            # outlives a window closed during its first 800 ms, then invokes
+            # the tour with a deleted C++ object on the next event-loop spin.
+            self._tour_timer = QTimer(self)
+            self._tour_timer.setSingleShot(True)
+            self._tour_timer.timeout.connect(
+                lambda: maybe_show_tour(self))
+            self._tour_timer.start(800)
         except Exception:
             pass
 

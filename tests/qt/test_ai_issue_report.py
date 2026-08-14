@@ -102,6 +102,7 @@ def test_file_issue_returns_url_without_opening(monkeypatch):
     from spacr.qt.ai import github_auth
 
     called = {}
+    monkeypatch.setenv("SPACR_ALLOW_GITHUB_WRITES", "1")
     # A developer workstation may have a stored PAT, GH_TOKEN, or an
     # authenticated gh CLI. This test exercises the browser fallback and must
     # never turn those ambient credentials into a real GitHub issue.
