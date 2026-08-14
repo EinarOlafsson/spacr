@@ -82,6 +82,38 @@ def test_turning_the_view_does_not_change_the_plane(canvas):
     assert canvas.anchor_plane() == before
 
 
+def test_screen_coordinates_are_inverted_on_the_picked_plane(
+        canvas, monkeypatch):
+    """The aura and the data mapping must have one source of truth.  The
+    first rework drew the picked X plane but still inverted the mouse on the
+    two axes selected by the camera."""
+    import spacr.qt.widgets.gate_editor as editor
+
+    class _Identity:
+        @staticmethod
+        def transform(point):
+            return point
+
+    axes = _Axes3D()
+    axes.get_zlim = axes.get_zlim3d
+    axes.transData = _Identity()
+    axes.get_proj = lambda: object()
+    canvas.axes_at = lambda *_args: axes
+    # A simple oblique projection: X moves both screen dimensions, Y moves
+    # horizontally and Z vertically.  Picking X must still return B/C.
+    monkeypatch.setattr(
+        editor, "_project",
+        lambda _ax, point: (point[1] + 0.3 * point[0],
+                            point[2] + 0.2 * point[0]))
+    canvas.set_anchor_axis("x")
+
+    first, second, _invert, depth = canvas.volume_axis_map()
+    assert (first, second, depth) == ("b", "c", 0)
+
+    event = type("Event", (), {"x": 4.0, "y": 5.0})()
+    assert canvas.screen_to_volume(event) == ("b", 4.0, "c", 5.0)
+
+
 def test_z_is_the_default(canvas):
     assert canvas.anchor_axis() == "z"
 
