@@ -637,6 +637,11 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     macos_job = workflow[workflow.index("  macos:"):workflow.index("  collect:")]
     assert 'find dist/online -name \'*macOS*Online.pkg\'' in macos_job
     assert "packaging/release.py version" not in macos_job
+    collect_job = workflow[workflow.index("  collect:"):]
+    assert "github.event_name == 'workflow_call' && inputs.publish_to_repository" in (
+        collect_job
+    )
+    assert "github.event_name == 'workflow_dispatch' ||" not in collect_job
 
 
 def test_one_click_release_orders_version_pypi_installers_and_github():

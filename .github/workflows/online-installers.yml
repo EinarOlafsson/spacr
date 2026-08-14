@@ -263,8 +263,7 @@ jobs:
   collect:
     name: Store installers and update README
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'workflow_call' && inputs.publish_to_repository)
+      github.event_name == 'workflow_call' && inputs.publish_to_repository
     needs: [linux, windows, macos]
     runs-on: ubuntu-24.04
     outputs:
