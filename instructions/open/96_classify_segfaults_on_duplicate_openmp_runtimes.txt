@@ -1,0 +1,198 @@
+================================================================================
+CLASSIFY SEGFAULTS IN libomp: THREE OpenMP RUNTIMES IN ONE PROCESS
+================================================================================
+
+Status:    in progress — fix built and measured here; awaiting confirmation on
+           the maintainer's own machine (see HOW TO KNOW IT WORKED)
+Requested: 2026-08-14 — "So i just updated spacr, because it's been trying to
+           fix the classification modules for forever now but its broken.
+           again, i just ran it and got this segmentation fault" — followed by
+           a full macOS crash report (python3.10, EXC_BAD_ACCESS / SIGSEGV at
+           KERN_INVALID_ADDRESS 0x580, faulting thread 20).
+Owner:     claude session, 2026-08-14
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The crash is NOT in spaCR code. It is a duplicate-OpenMP-runtime fault, and the
+crash report proves it frame by frame.
+
+  Thread 19 "QThread" — the spaCR worker thread doing the fit:
+
+      QThread::started -> PySide -> Python -> XGBClassifier.fit
+        -> XGQuantileDMatrixCreateFromCallback         [libxgboost.dylib]
+        -> IterativeDMatrix::InitFromCPU               [libxgboost.dylib]
+        -> __kmpc_fork_call / __kmp_join_call          [libomp #459]
+        -> kmp_flag_64::wait                           [libomp #459]
+        -> __kmp_suspend_64                            [libomp #261]  <-- !!
+
+  Thread 20 (took the signal) — an OpenMP worker of that team:
+
+        __kmp_launch_worker -> __kmp_fork_barrier
+          -> kmp_flag_64::wait                         [libomp #459]
+          -> __kmp_suspend_64
+          -> __kmp_suspend_initialize_thread           [libomp #261]  <-- !!
+               SIGSEGV, far = 0x580, "byte read Translation fault"
+
+One OpenMP call chain spans TWO libomp images. #459 hands #261 a
+``kmp_info_t *`` from its own thread table; #261 reads it at a different
+build's struct offsets and dereferences field 0x580 of something else. libomp
+normally refuses to initialise twice and says "OMP: Error #15", but TensorFlow
+sets ``KMP_DUPLICATE_LIB_OK=True`` process-wide (recorded in this repo's own
+tests/test_perf_guard.py:148-149), which turns that guard off and leaves the
+corruption silent.
+
+Reproduced as a *configuration* on this machine — ``import spacr.ml`` alone
+maps exactly the three runtimes from the report:
+
+    .../sklearn/.dylibs/libomp.dylib
+    .../torch/lib/libomp.dylib
+    /opt/homebrew/Cellar/libomp/22.1.5/lib/libomp.dylib
+
+The third arrives because the pip xgboost wheel links ``@rpath/libomp.dylib``
+with ``LC_RPATH = /opt/homebrew/opt/libomp/lib`` (verified with ``otool -l`` on
+both the framework install and ~/Library/Application Support/SpaCR/venv), and
+``spacr/ml.py`` imports ``XGBClassifier`` at module scope.
+
+FIXED, and the fix is not the obvious one. Measured by counting threads parked
+in ``__kmp_launch_worker`` / ``__kmp_fork_barrier`` — the crashing frames —
+after a real ``spacr.ml.ml_analysis`` on a worker thread:
+
+    lever                                        parked threads
+    ------------------------------------------   --------------
+    nothing (current shipped behaviour)                      19
+    XGBClassifier(nthread=1) / (n_jobs=1)                    10   <- useless
+    OMP_NUM_THREADS=1 process-wide                            0   <- too costly
+    single_threaded_openmp region only                       10
+    single_threaded_openmp + guarded joblib                   0   <- shipped
+
+The first attempt at this fix clamped the estimator's ``nthread``. It was
+written, reviewed and about to be committed before being measured, and the
+measurement says it changes NOTHING: 10 threads park either way. ``nthread``
+decides how many threads join a region, not whether the runtime builds a team.
+
+The second attempt clamped the calling thread's OpenMP ICV
+(``omp_set_num_threads(1)`` on every resident runtime, restored on exit). That
+took 19 down to 10 — and the residual 10 were attributed, via ``sample`` and
+the load-address table, to ``/opt/homebrew/.../libomp.dylib``: xgboost's
+runtime, the one that crashed. They come from ``permutation_importance(...,
+n_jobs=-1)``, whose joblib workers are *new threads* that inherit the process
+default (10), not the clamped thread's ICV. Keeping joblib on the calling
+thread takes it to 0.
+
+Shipped:
+
+  * ``spacr/openmp_guard.py`` — new, Qt-free:
+      resident_openmp_runtimes()      dyld / /proc/self/maps probe
+      openmp_runtime_is_duplicated()  the predicate
+      single_threaded_openmp(label)   ContextDecorator; clamps and restores
+      guarded_n_jobs(requested)       for joblib sites inside such a region
+  * ``spacr/ml.py`` — ``@single_threaded_openmp`` on ``generate_ml_scores`` and
+    ``ml_analysis``; ``permutation_importance`` through ``guarded_n_jobs``.
+  * ``spacr/timelapse.py`` — ``@single_threaded_openmp`` on
+    ``_infection_qc_xgboost``.
+  * ``tests/test_openmp_guard.py`` — 26 tests.
+
+The clamp only engages on macOS (where the fault is documented), only when more
+than one runtime is actually mapped, and never on a probe failure.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Classify is dead on macOS for anyone whose xgboost and torch both came from pip
+wheels — the ordinary install. The maintainer has hit it repeatedly across
+several "fixes", because every previous attempt looked for the bug in spaCR's
+Python, and there is none there.
+
+The failure mode is the expensive kind: the crashed process ran 22 minutes
+(launch 10:52:30, crash 11:15:01) before dying, with no traceback, no partial
+results and nothing in the console to say what happened.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Nothing further in the tree. What remains is confirmation on the maintainer's
+machine, and one question only they can answer:
+
+  1. Run classify. The console must carry one ``[openmp_guard]`` block naming
+     the resident runtimes before training starts, and the run must finish.
+  2. If it segfaults ANYWAY, the containment is insufficient and the answer is
+     subprocess isolation — see DELIBERATELY NOT DONE. Attach the new crash
+     report; the frames will say which runtime pair crossed.
+  3. WHICH INTERPRETER RUNS spaCR THERE? The crash was python3.10 under
+     /opt/homebrew. No python3.10 exists on this machine now
+     (``ls /opt/homebrew/Cellar | grep -i python`` is empty, ``mdfind`` finds no
+     cpython-310 site-packages). ``which spacr`` resolves to
+     /Library/Frameworks/Python.framework/Versions/3.13/bin/spacr, and the
+     desktop install under ~/Library/Application Support/SpaCR/venv is
+     python3.12. Neither is the 3.10 that crashed, so the fix has not been
+     verified in the environment that actually failed.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  QT_QPA_PLATFORM=offscreen python -m pytest tests/test_openmp_guard.py -q \
+      -p no:randomly
+
+expected: 26 passed. NOT RUN AS PYTEST — pytest is not installed on any
+interpreter on this machine and WORKFLOW.md forbids installing it unasked. The
+same 34 assertions were executed by a fixture-free stand-in
+(scratchpad/verify_guard.py): all pass. Anyone with pytest should run the real
+file before trusting this line.
+
+The end-to-end measurement, which is the one that matters
+(scratchpad/verify_fix.py, real ml_analysis on a worker thread, three runtimes
+mapped):
+
+    SPACR_OPENMP_GUARD=off  ->  ml_analysis completed: True
+                                threads parked in __kmp_launch_worker: 19
+    guard on                ->  ml_analysis completed: True
+                                threads parked in __kmp_launch_worker: 0
+
+Zero parked workers means the crashing chain cannot be constructed.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+* ``OMP_NUM_THREADS=1`` process-wide at the entry point. Measured to work (0
+  parked) and it pins torch and scikit-learn to one thread for the whole
+  session. Segmentation is the long pole (~20 h per screen on the cluster);
+  paying that to protect a fit measured in minutes is the wrong trade.
+
+* ``KMP_DUPLICATE_LIB_OK=FALSE``. Converts the segfault into libomp's Error #15
+  abort — clearer, still a dead run, and it would abort processes that are
+  currently fine because nothing ever crosses the runtimes.
+
+* Clamping on Linux. The same mixing happens there and spaCR's cluster runs do
+  it daily without this fault; measurement there is CPU-core-bound (~8 h a
+  screen). Reported, not acted on. ``SPACR_OPENMP_GUARD=on`` overrides.
+
+* Guarding ``interpret_vision_model`` (RandomForest + permutation_importance).
+  It touches sklearn's runtime, not xgboost's, and sklearn-alongside-torch is
+  the universal macOS configuration that has never been seen to crash. Clamping
+  it would slow every surrogate-model run to defend against something never
+  observed.
+
+* Running the fit in a subprocess. The only containment that CANNOT fail,
+  because the child never loads torch. Also a real change — feature frames
+  across a pipe, progress and cancellation re-plumbed through ``bridge.py``.
+  Held unless step 2 above says the cheap fix was insufficient.
+
+* Touching the maintainer's installed environment: no reinstall, no
+  ``brew unlink libomp``, no swapping torch's copy for a symlink. WORKFLOW.md is
+  explicit. The machine-level fix (make the process load one OpenMP) is
+  reported to them, not performed.
+
+* Reproducing the SIGSEGV itself. Three attempts, all survived
+  (scratchpad/repro_omp{,2,3}.py), including one with all three runtimes mapped
+  and the fit on a worker thread, three runs. The crashed machine's Homebrew
+  libomp was a different build (491,520 bytes, uuid DB2924C2 in the report)
+  from the one here, and the two happen to interoperate. The stack is
+  conclusive without a reproduction; the fix is verified against the mechanism
+  (no worker team, hence no barrier, hence no cross-image suspend call) rather
+  than against the crash.
