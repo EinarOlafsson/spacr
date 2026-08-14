@@ -4424,6 +4424,16 @@ API_SHARED_PHRASE_ALLOWLIST_BY_LANGUAGE = {
         "urllib botocore tensorflow asyncio",
         "zarr format zarr format",
     }),
+    "fr": frozenset({
+        "align batch convert report",
+        "cp cp cp cp",
+        "extension csv tsv tab xls xlsx",
+        "genes plates fold change",
+        "mann whitney anova kruskal",
+        "prepare run review",
+        "sigma max min h w",
+        "urllib botocore tensorflow asyncio",
+    }),
 }
 
 _COPIED_ENGLISH_GRAMMAR_WORDS = frozenset({

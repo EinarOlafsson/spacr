@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "label": "spacr.align.save_coordinates#4",
+      "source_sha256": "b5618bae51b736b5f639e5618687cb5500abcdfa3438ac1c550b344ef9a70b0a",
+      "source": "Tiles that could never be read are written too, with ``method='unreadable'`` and NULL coordinates — a missing field must be visible in the table, not absent from it.",
+      "context": "Tiles that could never be read are written too, with ``method='unreadable'`` and NULL coordinates — a missing microscope field of view must be visible in the table, not absent from it.",
+      "translation": "Les tuiles qui n’ont jamais pu être lues sont également écrites, avec ``method='unreadable'`` et des coordonnées NULL — un champ de vision microscopique manquant doit être visible dans la table, et non en être omis."
+    },
+    {
+      "label": "spacr.anndata_export.resolve_db_path#3",
+      "source_sha256": "07bfc44d712e01739159479df2ebb090721c7cf72de49a8784641fb0b940cdb4",
+      "source": "an absolute path, which is NOT checked for existence -- an absent file is :func:`spacr.validate.validate_settings`'s report to make, with the path in it, rather than an exception from here.",
+      "context": "an absolute path, which is NOT checked for existence -- an absent file is :func:`spacr.validate.validate_settings`'s report to make, with the path in it, rather than an exception from here.",
+      "translation": "un chemin absolu, dont l’existence n’est PAS vérifiée -- c’est à :func:`spacr.validate.validate_settings` de signaler un fichier manquant, chemin compris, plutôt qu’à cette fonction de lever une exception."
+    },
+    {
+      "label": "spacr.batch_correction.correction_kwargs#4",
+      "source_sha256": "066e2f2885cf8059a7349061584637f9874b42c74ff890bf3d99631c95ebb877",
+      "source": "control values used when ``batch_control_values`` is absent or blank.",
+      "context": "control values used when ``batch_control_values`` is absent or blank.",
+      "translation": "valeurs de contrôle utilisées lorsque ``batch_control_values`` manque ou est vide."
+    },
+    {
+      "label": "spacr.cancellation.installed_token#0",
+      "source_sha256": "96f232c8110c2264c1cd75d3ac6cc21e72a3d462ef0ada866249bef634f64a12",
+      "source": "Install ``token`` for this thread and restore any prior token on exit.",
+      "context": "Install ``token`` for this thread and restore any prior token on exit.",
+      "translation": "Installe ``token`` pour ce chemin d’exécution et restaure tout jeton antérieur à la sortie."
+    },
+    {
+      "label": "spacr.classify.inapplicable_settings#1",
+      "source_sha256": "03cabfffa5d57c3f586d0abfb34bba8b93a5642e0cfb419dea89c7f6b47e101d",
+      "source": "Greyed, never removed: INVARIANTS §6. A key absent from the dict makes the pipeline fall back to its own default, which can differ from the value the module needs and says nothing when it does.",
+      "context": "Greyed, never removed: INVARIANTS §6. A structured-data name absent from the key-value mapping makes the workflow fall back to its own default, which can differ from the value the module needs and says nothing when it does.",
+      "translation": "Grisé, jamais supprimé : INVARIANTS §6. Si un nom de donnée structurée manque dans le mappage clé-valeur, le flux de travail revient à sa propre valeur par défaut, qui peut différer de celle requise par le module, sans aucun avertissement."
+    },
+    {
+      "label": "spacr.classify.resolve_ml_model_type#1",
+      "source_sha256": "3ee3d61ba280348138bbdad83dfd105f7f06e1762174884e98d157e0fd0dca81",
+      "source": "``model_type_ml`` is authoritative in a merged payload.  ``model_type`` is accepted only when the ML-specific key is absent, which migrates the short-lived shared-vocabulary settings files written before the two model controls were separated.  The default matches :func:`spacr.settings.set_default_analyze_screen`.",
+      "context": "``model_type_ml`` is authoritative in a merged payload.  ``model_type`` is accepted only when the ML-specific structured-data name is absent, which migrates the short-lived shared-vocabulary settings files written before the two model controls were separated.  The default matches :func:`spacr.settings.set_default_analyze_screen`.",
+      "translation": "``model_type_ml`` fait autorité dans une charge utile fusionnée. ``model_type`` n’est accepté que lorsque le nom de donnée structurée propre au ML manque, ce qui migre les fichiers de réglages au vocabulaire partagé, utilisés brièvement avant la séparation des deux contrôles de modèle. La valeur par défaut correspond à :func:`spacr.settings.set_default_analyze_screen`."
+    },
+    {
+      "label": "spacr.cli.apply_overrides#2",
+      "source_sha256": "65fa3a6dc6846a66328c42891171e95993a89855763fc6b86829a06d7e784746",
+      "source": "So is an override naming a key spaCR *does* know but nothing reads. Those are worse, because they pass every \"is this a real setting?\" test there is: ``remove_border_pathogens`` is typed, tooltipped and offered by the Pathogen category, and ``spacr-run mask --set remove_border_pathogens=True`` was accepted in silence and did nothing. ``spacr.settings.DEAD_SETTINGS`` names every such key and the spelling that works instead.",
+      "context": "So is an override naming a structured-data name spaCR *does* know but nothing reads. Those are worse, because they pass every \"is this a real setting?\" test there is: ``remove_border_pathogens`` is typed, tooltipped and offered by the Pathogen category, and ``spacr-run mask --set remove_border_pathogens=True`` was accepted in silence and did nothing. ``spacr.settings.DEAD_SETTINGS`` names every such structured-data name and the spelling that works instead.",
+      "translation": "Il en va de même pour une substitution qui nomme un nom de donnée structurée que spaCR *connaît* mais que rien ne lit. Ces cas sont pires, car ils réussissent tous les tests « ce réglage existe-t-il ? » : ``remove_border_pathogens`` est typé, documenté par une infobulle et proposé par la catégorie Pathogen, et ``spacr-run mask --set remove_border_pathogens=True`` était accepté silencieusement sans aucun effet. ``spacr.settings.DEAD_SETTINGS`` répertorie chacun de ces noms de données structurées ainsi que l’orthographe qui fonctionne à la place."
+    },
+    {
+      "label": "spacr.convert.ConversionResult#4",
+      "source_sha256": "0e9f5cd53c9955b4eeda4bdbaf6172c2d6d2bdf6bc9be37fd05fea044b9d891e",
+      "source": "sources skipped without being attempted (an absent optional reader, an unreadable file), as ``(path, reason)``.",
+      "context": "sources skipped without being attempted (an absent optional reader, an unreadable file), as ``(path, reason)``.",
+      "translation": "sources ignorées sans tentative (lecteur facultatif manquant ou fichier illisible), sous la forme ``(path, reason)``."
+    },
+    {
+      "label": "spacr.core.generate_screen_graphs#2",
+      "source_sha256": "9f98731f5a2f1715a60f5cecae5b040a6ed9b0b3989e0c3bff36cb71db36d433",
+      "source": "Config dict with keys ``src`` (path or list of paths), ``tables``, ``cells``, ``controls``, ``controls_loc``, ``graph_type``, ``summary_func``, ``y_axis_start``, ``error_bar_type``, ``theme``, ``representation``, ``nuclei_limit``, ``pathogen_limit``.",
+      "context": "Config key-value mapping with structured-data names ``src`` (path or list of paths), ``tables``, ``cells``, ``controls``, ``controls_loc``, ``graph_type``, ``summary_func``, ``y_axis_start``, ``error_bar_type``, ``theme``, ``representation``, ``nuclei_limit``, ``pathogen_limit``.",
+      "translation": "Mappage clé-valeur de configuration avec les noms de données structurées ``src`` (chemin ou liste de chemins), ``tables``, ``cells``, ``controls``, ``controls_loc``, ``graph_type``, ``summary_func``, ``y_axis_start``, ``error_bar_type``, ``theme``, ``representation``, ``nuclei_limit``, ``pathogen_limit``."
+    },
+    {
+      "label": "spacr.crop_source.inapplicable_settings#1",
+      "source_sha256": "713b8ed3bc9df1e3367418ea6c06bad0fb16c846d55d7903c2dd23c7f1b2a4b8",
+      "source": "Greyed, never removed (INVARIANTS 6): a key absent from the dict makes the pipeline fall back to its own default, which can differ from the value the module needs and says nothing when it does.",
+      "context": "Greyed, never removed (INVARIANTS 6): a structured-data name absent from the key-value mapping makes the workflow fall back to its own default, which can differ from the value the module needs and says nothing when it does.",
+      "translation": "Grisé, jamais supprimé (INVARIANTS 6) : si un nom de donnée structurée manque dans le mappage clé-valeur, le flux de travail revient à sa propre valeur par défaut, qui peut différer de celle requise par le module, sans aucun avertissement."
+    },
+    {
+      "label": "spacr.crops.extract_crop#12",
+      "source_sha256": "c37c1980b833e35a5a20d780a671c887ac7d4e5390d51fe9cc56b5e2be86345e",
+      "source": "``label`` is 0/negative or absent from the plane.",
+      "context": "``label`` is 0/negative or absent from the image layer.",
+      "translation": "``label`` vaut 0, est négatif ou manque dans la couche d’image."
+    },
+    {
+      "label": "spacr.crops.mask_dims_from_settings#2",
+      "source_sha256": "dba07212e61fb5ed8ce67d4c5b3502adceb36b43469b474beef7968a2f9d5cd9",
+      "source": "a ``measure_crop`` settings mapping (a live dict or one read back by :func:`crop_settings_from_db`). Only the ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim`` / ``organelle_mask_dim`` keys are read; a key that is absent, blank, the string ``'none'`` or not an integer is skipped rather than raised on. The fallback is all-or-nothing: a dict naming even one plane returns only the planes it named, so an object type it left out has no entry at all -- it is not filled in from :data:`DEFAULT_MASK_DIMS`.",
+      "context": "a ``measure_crop`` settings mapping (a live key-value mapping or one read back by :func:`crop_settings_from_db`). Only the ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim`` / ``organelle_mask_dim`` structured-data names are read; a structured-data name that is absent, blank, the string ``'none'`` or not an integer is skipped without producing an error on. The fallback is all-or-nothing: a key-value mapping naming even one image layer returns only the image layers it named, so an object type it left out has no entry at all -- it is not filled in from :data:`DEFAULT_MASK_DIMS`.",
+      "translation": "un mappage de réglages ``measure_crop`` (mappage clé-valeur actif ou relu par :func:`crop_settings_from_db`). Seuls les noms de données structurées ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim`` / ``organelle_mask_dim`` sont lus ; un nom manquant, vide, égal à la chaîne ``'none'`` ou qui n’est pas un entier est ignoré sans produire d’erreur. Le repli est tout ou rien : un mappage clé-valeur qui nomme ne serait-ce qu’une couche d’image ne renvoie que les couches nommées. Un type d’objet omis n’a donc aucune entrée -- il n’est pas complété depuis :data:`DEFAULT_MASK_DIMS`."
+    },
+    {
+      "label": "spacr.crops.migrate_crop_folder#5",
+      "source_sha256": "a1dee0160a6f87f7f59b96826b3b98b20f4276e0a19c7bb7ae2789d446635dce",
+      "source": "each file is converted into a durable staging file ``<name>.spacr_v2`` (itself written temp-then-``os.replace``, per ``io._save_array_atomic``) and only then ``os.replace``-d over the original, so the crop at its real name is always a complete PNG -- the old one or the new one;",
+      "context": "each file is converted into a durable staging file ``<name>.spacr_v2`` (itself written temp-then-``os.replace``, per ``io._save_array_atomic``) and only then ``os.replace``-d over the original, so the extracted image region at its real name is always a complete PNG -- the old one or the new one;",
+      "translation": "chaque fichier est converti en fichier intermédiaire durable ``<name>.spacr_v2`` (lui-même écrit dans un fichier temporaire puis remplacé par ``os.replace``, conformément à ``io._save_array_atomic``), puis seulement appliqué avec ``os.replace``-d sur l’original. Ainsi, l’extrait d’image portant son vrai nom est toujours un PNG complet -- l’ancien ou le nouveau ;"
+    },
+    {
+      "label": "spacr.crops.read_crop_folder_marker#1",
+      "source_sha256": "8a5fe7296d0c0357e45c2d9be8936cf0a2944a19143ba5a104ec039fc58deb55",
+      "source": "A sidecar that cannot be parsed is treated as absent -- a corrupt marker must not be *more* trusted than no marker, and no marker means legacy, which is the safe answer.",
+      "context": "A sidecar that cannot be parsed is treated as absent -- a corrupt marker must not be *more* trusted than no marker, and no marker means legacy, which is the safe answer.",
+      "translation": "Un fichier annexe impossible à analyser est traité comme manquant -- un marqueur corrompu ne doit pas être jugé *plus* fiable que l’absence de marqueur ; or l’absence de marqueur signifie format historique, ce qui constitue la réponse sûre."
+    },
+    {
+      "label": "spacr.curation.MaskCuration.subscribe#2",
+      "source_sha256": "c57d0917a96e0275db7fe3ae2682a3095c8ee738e2bdbf7573b6ceeeaaba705b",
+      "source": "called as ``fn(edit)`` with the :class:`CurationEdit` just appended, synchronously, on whichever thread made the edit. Pass a bound method: registration is de-duplicated by equality, and a bound method looked up fresh compares equal to the one already held, so ``subscribe`` twice is a no-op and :meth:`unsubscribe` works — where each fresh lambda is a new object that stacks up and cannot be removed, besides keeping a closed panel alive as a receiver. An exception raised inside ``fn`` is swallowed: the correction has already happened to the data, and one view's failed redraw must not be reported as a failed edit.",
+      "context": "called as ``fn(edit)`` with the :class:`CurationEdit` just appended, synchronously, on whichever thread made the edit. Pass a bound method: registration is de-duplicated by equality, and a bound method looked up fresh compares equal to the one already held, so ``subscribe`` twice is a no-op and :meth:`unsubscribe` works — where each fresh lambda is a new object that stacks up and cannot be removed, besides keeping a closed panel alive as a receiver. An exception thrown inside ``fn`` is swallowed: the correction has already happened to the data, and one view's failed redraw must not be reported as a failed edit.",
+      "translation": "appelée sous la forme ``fn(edit)`` avec l’objet :class:`CurationEdit` qui vient d’être ajouté, de manière synchrone, dans le chemin d’exécution ayant effectué la modification. Passe une méthode liée : l’inscription est dédupliquée par égalité et une nouvelle lecture de la même méthode liée est égale à celle déjà conservée. Ainsi, appeler ``subscribe`` deux fois est sans effet et :meth:`unsubscribe` fonctionne — tandis que chaque nouvelle fonction lambda est un objet distinct qui s’accumule, ne peut pas être retiré et maintient en outre un panneau fermé en vie comme récepteur. Une exception levée dans ``fn`` est absorbée : la correction a déjà été appliquée aux données et l’échec du redessin d’une vue ne doit pas être signalé comme l’échec de la modification."
+    },
+    {
+      "label": "spacr.curation.is_curated#2",
+      "source_sha256": "025900d25ab38dad992143f8233271986064ece791ad580ca77c243e0bfba289",
+      "source": "the artefact itself — the mask or tracks file, not its ledger; the ``.curation.json`` suffix is appended here. Only the sidecar is opened, so the artefact may be absent or unreadable without changing the answer. A sidecar that exists but will not parse answers ``True``: a damaged provenance record is a reason to be suspicious, not grounds for certifying the data as raw.",
+      "context": "the artefact itself — the mask or tracks file, not its ledger; the ``.curation.json`` suffix is appended here. Only the sidecar is opened, so the artefact may be absent or unreadable without changing the answer. A sidecar that exists but will not parse answers ``True``: a damaged provenance record is a reason to be suspicious, not grounds for certifying the data as raw.",
+      "translation": "l’artefact lui-même — le fichier de masques ou de trajectoires, et non son registre ; le suffixe ``.curation.json`` est ajouté ici. Seul le fichier annexe est ouvert : l’artefact peut donc manquer ou être illisible sans changer la réponse. Si le fichier annexe existe mais ne peut pas être analysé, la réponse est ``True`` : un enregistrement de provenance endommagé invite à la prudence, il ne permet pas de certifier que les données sont brutes."
+    },
+    {
+      "label": "spacr.database_concurrency.ConcurrencyProbeResult.ok#0",
+      "source_sha256": "6e95582ba64d28d5417c01acc012aef3fece98ad84a493c8bb6f888de2c34ffe",
+      "source": "True when no thread failed and every committed row exists.",
+      "context": "True when no thread failed and every committed row exists.",
+      "translation": "True lorsqu’aucun chemin d’exécution n’a échoué et que chaque ligne validée existe."
+    },
+    {
+      "label": "spacr.deep_spacr.annotate_filter_vision#2",
+      "source_sha256": "59e6a7480666a73cf113c1f8e21ec415fde76514f7926de2f6bca184bb97b2ca",
+      "source": "Settings dict with ``src`` (path or list of paths); the ``annotate_conditions`` keys ``cells``, ``cell_loc``, ``pathogens``, ``pathogen_loc``, ``treatments`` and ``treatment_loc``; the filter keys ``filter_column`` (``None``, or a name absent from the frame, leaves it unfiltered), ``upper_threshold`` and ``lower_threshold``; and ``remove_train``.",
+      "context": "Settings key-value mapping with ``src`` (path or list of paths); the ``annotate_conditions`` structured-data names ``cells``, ``cell_loc``, ``pathogens``, ``pathogen_loc``, ``treatments`` and ``treatment_loc``; the filter structured-data names ``filter_column`` (``None``, or a name absent from the frame, leaves it unfiltered), ``upper_threshold`` and ``lower_threshold``; and ``remove_train``.",
+      "translation": "Mappage clé-valeur de réglages contenant ``src`` (chemin ou liste de chemins) ; ``annotate_conditions`` avec les noms de données structurées ``cells``, ``cell_loc``, ``pathogens``, ``pathogen_loc``, ``treatments`` et ``treatment_loc`` ; les noms de données structurées de filtrage ``filter_column`` (``None``, ou un nom introuvable dans le cadre, désactive le filtrage), ``upper_threshold`` et ``lower_threshold`` ; ainsi que ``remove_train``."
+    },
+    {
+      "label": "spacr.diameter#6",
+      "source_sha256": "a3768dc9ae04f523c6d7bd7c3473c6b70250a3fb1601c8a36c12f89bcf6fd565",
+      "source": "1. **Flatten.** Denoise with a 1 px Gaussian, then subtract a heavily smoothed copy (sigma = max(32, min(H, W) / 4)) to remove illumination gradients. The sigma is deliberately far larger than any plausible object so that flattening removes vignetting without eating the objects — the opposite trade-off (a tight rolling ball) shrinks what it is trying to measure. 2. **Reject noise.** Compare the structural amplitude of the flattened plane (p99 - p30) against the *pixel-level* noise scale, measured as ``1.4826 * MAD(img - gaussian(img, 1))`` on the raw plane. A pure-noise plane scores below 1; a plane with real objects scores in the tens. Below ``min_snr`` the field is discarded rather than thresholded, because Otsu will happily bisect pure noise and hand back a confident-looking number. 3. **Threshold and label.** Otsu, fill holes, label, drop components that touch the image border (truncated, so their size is a lie) and components that are absurd (equivalent diameter below ``min_object_diameter``, or area above ``max_object_fraction`` of the field). Characteristic size is the median equivalent diameter, ``2 * sqrt(area / pi)``. 4. **Cross-check by distance transform.** Step 3 has one dominant failure mode: a confluent monolayer fuses into a single component, that component touches the border and is dropped, and the estimate is then computed from whatever debris survived — biased **low**, and silently. So the Euclidean distance transform of the (unfilled) foreground is computed as well, its local maxima are taken as one seed per object (two passes: a coarse pass sets the suppression radius for the refined pass), and a watershed on ``-EDT`` splits the fused foreground back into objects whose equivalent diameters are measured the same way.",
+      "context": "1. **Flatten.** Apply a 1 px Gaussian filter, then subtract a smoother copy with sigma = max(32, min(H, W) / 4). This sigma is larger than a plausible object, so it removes vignetting without the object shrinkage caused by a tight rolling ball. 2. **Reject noise.** Compare the flattened plane’s structural amplitude (p99 - p30) with the *pixel-level* raw-plane noise estimate ``1.4826 * MAD(img - gaussian(img, 1))``. Pure noise scores below 1; real objects score in the tens. Discard a field below ``min_snr`` instead of applying Otsu to pure noise. 3. **Threshold and label.** Apply Otsu, fill holes, and label components. Remove border-touching components because they are truncated; also remove equivalent diameters below ``min_object_diameter`` and areas above ``max_object_fraction``. Use the median equivalent diameter, ``2 * sqrt(area / pi)``. 4. **Cross-check by distance transform.** A confluent layer can fuse into one border-touching component, which is discarded and leaves debris that biases the estimate silently **low**. Compute the Euclidean distance transform of the unfilled foreground. Use local maxima as object seeds in two passes: a coarse pass sets the suppression radius for the refined pass. Watershed on ``-EDT`` separates the fused foreground before measuring equivalent diameters the same way.",
+      "translation": "1. **Aplanir.** Applique un filtre gaussien de 1 px, puis soustrait une copie plus lissée avec sigma = max(32, min(H, W) / 4). Ce sigma dépasse la taille d’un objet plausible : il supprime donc le vignettage sans le rétrécissement des objets provoqué par une boule roulante trop étroite. 2. **Rejeter le bruit.** Compare l’amplitude structurelle de la couche aplanie (p99 - p30) à l’estimation du bruit *au niveau des pixels* de la couche brute, ``1.4826 * MAD(img - gaussian(img, 1))``. Le bruit pur obtient un score inférieur à 1 ; de vrais objets donnent des scores de plusieurs dizaines. Écarte un champ de vision sous ``min_snr`` au lieu d’appliquer Otsu au bruit pur. 3. **Seuiller et étiqueter.** Applique Otsu, remplit les trous et étiquette les composantes. Supprime celles qui touchent le bord parce qu’elles sont tronquées ; supprime aussi les diamètres équivalents inférieurs à ``min_object_diameter`` et les aires supérieures à ``max_object_fraction``. Utilise le diamètre équivalent médian, ``2 * sqrt(area / pi)``. 4. **Vérifier par transformée de distance.** Une couche confluente peut fusionner en une composante unique qui touche le bord ; cette composante est supprimée et laisse des débris qui biaisent silencieusement l’estimation **vers le bas**. Calcule la transformée de distance euclidienne du premier plan non rempli. Utilise les maxima locaux comme germes d’objets en deux passes : une passe grossière fixe le rayon de suppression de la passe affinée. Un watershed sur ``-EDT`` sépare le premier plan fusionné avant de mesurer les diamètres équivalents de la même manière."
+    },
+    {
+      "label": "spacr.filters.build_filters_frame#3",
+      "source_sha256": "0e62ffb3f52bdc73fecd3171de5810afacc0df6e66910bd3c51bde197a9c2e68",
+      "source": "Every object table contributes rows, not just the anchor. A gate drawn on nucleus measurements has to merge onto nuclei, and a filters table built only from ``cell`` could not express that. Each object also carries an ``in_<table>`` flag saying which tables it appears in, which is what makes a merge predictable rather than a thing you discover by counting rows.",
+      "context": "Every object table contributes rows, not just the anchor. A data-selection boundary drawn on nucleus measurements has to merge onto nuclei, and a filters table built only from ``cell`` could not express that. Each object also carries an ``in_<table>`` flag saying which tables it appears in, which is what makes a merge predictable rather than a thing you discover by counting rows.",
+      "translation": "Chaque table d’objets fournit des lignes, pas seulement la table d’ancrage. Une frontière de sélection de données tracée sur les mesures des noyaux doit être fusionnée avec les noyaux ; une table de filtres construite uniquement à partir de ``cell`` ne pourrait pas l’exprimer. Chaque objet possède aussi un indicateur ``in_<table>`` qui précise dans quelles tables il apparaît : c’est ce qui rend une fusion prévisible, plutôt qu’une propriété découverte en comptant les lignes."
+    }
+  ]
+}
