@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "spacr.align#1",
+      "source_sha256": "dd88fe256b7e8f14d7a77ea1965aadbf0293f245849347dab6f6a4017edc6f72",
+      "source": "A 10x10 grid of 2048x2048 uint16 fields is a 20480x20480 canvas: 800 MB for one channel, 3.2 GB for four. Nothing in this module ever holds that canvas — or the whole input set — in RAM. That constraint drives every design decision here:",
+      "context": "A 10x10 grid of 2048x2048 uint16 microscope fields of view is a 20480x20480 canvas: 800 MB for one channel, 3.2 GB for four. Nothing in this module ever holds that canvas — or the whole input set — in RAM. That constraint drives every design decision here:",
+      "translation": "一个由 10x10 个 2048x2048 uint16 显微镜视野组成的网格会形成 20480x20480 的画布：单通道占 800 MB，四通道占 3.2 GB。本模块从不把这张画布——也不把整套输入——完整保存在 RAM 中。这里的每一项设计决策都由这一约束决定："
+    },
+    {
+      "label": "spacr.align.Tile#1",
+      "source_sha256": "9c25e3b3059e547656ed96cf316392e0a1fd94d7b487a947ce01a0786e59e003",
+      "source": "A \"site\" is a position on the stage, not a file. When each channel is its own file — the Yokogawa case — the sibling paths live in :attr:`channel_paths` and :attr:`path` is the reference channel's; when the channels are planes of one ``(H, W, C)`` array —  spaCR's ``merged/*.npy`` — :attr:`channel_paths` is empty and :attr:`path` is the only file. Either way there is exactly one :class:`Tile`, and so exactly one :class:`Placement`, per stage position.",
+      "context": "A \"site\" is a position on the stage, not a file. When each image data channel is its own file — the Yokogawa case — the sibling paths live in :attr:`channel_paths` and :attr:`path` is the reference image data channel's; when the image data channels are image layers of one ``(H, W, C)`` array —  spaCR's ``merged/*.npy`` — :attr:`channel_paths` is empty and :attr:`path` is the only file. Either way there is exactly one :class:`Tile`, and so exactly one :class:`Placement`, per stage position.",
+      "translation": "\"site\" 表示载物台上的一个位置，而不是一个文件。若每个图像数据通道各自存于一个文件中——例如 Yokogawa 数据——同一位置的其他通道路径保存在 :attr:`channel_paths` 中，:attr:`path` 则是参考图像数据通道的路径；若各图像数据通道是同一个 ``(H, W, C)`` 数组中的图像层——例如 spaCR 的 ``merged/*.npy``——则 :attr:`channel_paths` 为空，:attr:`path` 是唯一的文件。无论哪种情况，每个载物台位置都恰好对应一个 :class:`Tile`，因而也恰好对应一个 :class:`Placement`。"
+    },
+    {
+      "label": "spacr.anndata_export.ExportResult.counted_shape#1",
+      "source_sha256": "ba6190d8348844478e53978763d2f0621b0ef5f8f9e81552572a567241427733",
+      "source": "That matrix is the post-filter, **pre**-``nan_policy`` one: the NaN were counted before anything was dropped or imputed. A record built by this module states it outright; one built by hand (or by an older spaCR) leaves the two fields at ``0``, and the shape is reconstructed from the drops instead -- ``drop_objects`` is the only policy that removes rows and ``drop_features`` the only one that removes columns, so adding them back recovers what the policy was given.",
+      "context": "That matrix is the post-filter, **pre**-``nan_policy`` one: the NaN were counted before anything was dropped or imputed. A record built by this module states it outright; one built by hand (or by an older spaCR) leaves the two fields at ``0``, and the shape is reconstructed from the drops instead -- ``drop_objects`` is the only policy that removes rows and ``drop_features`` the only one that removes columns, so adding them back recovers what the policy was given.",
+      "translation": "该矩阵是筛选之后、应用 ``nan_policy`` **之前** 的矩阵：在删除或插补任何内容之前就统计了 NaN。由本模块生成的记录会明确写出这一点；手工生成的记录（或旧版 spaCR 生成的记录）会把这两个字段保留为 ``0``，此时便根据删除量重建形状——只有 ``drop_objects`` 策略会删除行，只有 ``drop_features`` 策略会删除列，因此把删除量加回去即可恢复传给该策略的原始形状。"
+    },
+    {
+      "label": "spacr.batch#2",
+      "source_sha256": "a01860ddaaeca4567958361852f63549d868106c0c4d296102d4198d25975f6b",
+      "source": "A queued job **is** a ``spacr-run`` invocation. Nothing here re-implements module dispatch or settings loading: :mod:`spacr.cli` owns the module registry, the settings loader, the ``--set`` coercion and the exit-code contract (0 ok, 1 the module raised, 2 bad arguments or settings), and this module drives it. Likewise a queue is a **ledger of ledgers**: the queue's own verdict is a :class:`spacr.errors.RunLedger`, stamped next to the queue file, and each job's :func:`spacr.errors.read_run_status` stamp is read back so a job that exited 0 having silently skipped 40 fields is reported as *partial* rather than as a success.",
+      "context": "A queued job **is** a ``spacr-run`` invocation. Nothing here re-implements module dispatch or settings loading: :mod:`spacr.cli` owns the module registry, the settings loader, the ``--set`` coercion and the exit-code contract (0 ok, 1 the module raised, 2 bad arguments or settings), and this module drives it. Likewise a software job list is a **ledger of ledgers**: the software job list's own verdict is a :class:`spacr.errors.RunLedger`, stamped next to the software job list file, and each job's :func:`spacr.errors.read_run_status` stamp is read back so a job that exited 0 having silently skipped 40 fields is reported as *partial* rather than as a success.",
+      "translation": "排队的任务**就是**一次 ``spacr-run`` 调用。这里不会重新实现模块分派或设置加载：:mod:`spacr.cli` 负责模块注册表、设置加载器、``--set`` 的类型转换以及退出码约定（0 表示正常，1 表示模块抛出异常，2 表示参数或设置错误），本模块只是驱动它。同样，软件任务列表是一个**账本的账本**：任务列表自身的结论记录在 :class:`spacr.errors.RunLedger` 中并写在任务列表文件旁边；随后还会读回每项任务的 :func:`spacr.errors.read_run_status` 标记。因此，即使某项任务以 0 退出，只要它静默跳过了 40 个视野，也会被报告为*部分完成*而不是成功。"
+    },
+    {
+      "label": "spacr.batch.inprocess_runner#1",
+      "source_sha256": "f395a89baa2049f8c45cbe6afdfcb83d25ecbe929902aed019181cef3137e133",
+      "source": "Same argv, same exit-code contract as :func:`subprocess_runner` — it calls :func:`spacr.cli.main` directly — but with none of the isolation: a segfault here takes the queue with it. Use it only where spawning is not possible (a frozen single-file build), and never from the GUI.",
+      "context": "Same argv, same exit-code contract as :func:`subprocess_runner` — it calls :func:`spacr.cli.main` directly — but with none of the isolation: a segfault here takes the work list with it. Use it only where spawning is not possible (a frozen single-file build), and never from the GUI.",
+      "translation": "其 argv 和退出码约定与 :func:`subprocess_runner` 相同——它会直接调用 :func:`spacr.cli.main`——但完全没有进程隔离：这里发生段错误会连同整个工作列表一起崩溃。仅应在无法创建子进程时使用它（例如冻结的单文件构建），并且绝不能从 GUI 调用。"
+    },
+    {
+      "label": "spacr.column_groups#1",
+      "source_sha256": "f232bacdb2c4a7a0065f36630dd87c7682a44742c2d9eaddc46ebc93d3a641b0",
+      "source": "\"the user should be able to pick the columns that are dimentionally reduced, they should be able to do this through choosing individual columns for dimentional reduction and they should be able to chhose categories based on name lik cell, cor channel_1 or intensity measurements (have channel i thing), or morphology measurements, etc.\"",
+      "context": "\"the user should be able to pick the columns that are dimentionally reduced, they should be able to do this through choosing individual columns for dimentional reduction and they should be able to chhose categories based on name lik cell, cor channel_1 or intensity measurements (have image data channel i thing), or morphology measurements, etc.\"",
+      "translation": "用户应当能够选择参与降维的列：既可以逐列选择，也可以按名称选择类别，例如 cell、channel_1、强度测量（按图像数据通道分组）或形态学测量等。"
+    },
+    {
+      "label": "spacr.convert#1",
+      "source_sha256": "c02d06c5f17e898186cdd8799c066ec4d1f71311c4937e5b62de35ef0f06d136",
+      "source": "This is the standalone version of \"get my images into a shape spaCR can read\". It is deliberately **decoupled from the mask pipeline**: nothing here imports torch, cellpose or :mod:`spacr.core`, so it can be run, tested and previewed on a laptop with no GPU and no segmentation settings in sight.",
+      "context": "This is the standalone version of \"get my images into a shape spaCR can read\". It is deliberately **decoupled from the mask workflow**: nothing here imports torch, cellpose or :mod:`spacr.core`, so it can be executed, tested and previewed on a laptop with no GPU and no segmentation settings in sight.",
+      "translation": "这是“把我的图像转换成 spaCR 能读取的形状”的独立版本。它有意与**掩模工作流解耦**：这里不会导入 torch、cellpose 或 :mod:`spacr.core`，因此即使笔记本电脑没有 GPU，也没有任何分割设置，仍可运行、测试和预览转换过程。"
+    },
+    {
+      "label": "spacr.convert#10",
+      "source_sha256": "fb9322663fa13889ad7f86df38a4398731c3a34f2d202d758a7dbdf258e72613",
+      "source": "**Z that is not silently flattened.** ``convert_to_yokogawa`` max-projects unconditionally in three of its four branches (ND2, LIF, and both the 3-D and 4-D TIFF cases), and says so nowhere in its output. Here the default is :data:`Z_KEEP` — every plane is written with its own ``Z##`` — and choosing to project is an explicit ``z_handling='max'``, announced in the plan and recorded per row in the map file.",
+      "context": "**Z that is not silently flattened.** ``convert_to_yokogawa`` max-projects unconditionally in three of its four branches (ND2, LIF, and both the 3-D and 4-D TIFF cases), and says so nowhere in its output. Here the default is :data:`Z_KEEP` — every image layer is written with its own ``Z##`` — and choosing to project is an explicit ``z_handling='max'``, announced in the plan and recorded per row in the map file.",
+      "translation": "**不会被静默压平的 Z 维度。** ``convert_to_yokogawa`` 在四条分支中的三条会无条件执行最大强度投影（ND2、LIF，以及 3-D 和 4-D TIFF 两种情况），但输出中没有说明。这里默认使用 :data:`Z_KEEP`——每个图像层都用自己的 ``Z##`` 写出；只有显式选择 ``z_handling='max'`` 才会投影，而且该选择会在计划中公布并逐行记录到映射文件中。"
+    },
+    {
+      "label": "spacr.core.preprocess_generate_masks#1",
+      "source_sha256": "916b6066a605d088d46485345d6d0743cc3a0167638407b74cd41f432335ef31",
+      "source": "Given a source folder ``src`` of multi-channel images, this pipeline (1) optionally consolidates inputs from nested folders, (2) renames files to the Yokogawa layout used downstream, (3) preprocesses per-channel arrays, (4) generates masks for cell / nucleus / pathogen / organelle channels via Cellpose (SAM variant), (5) optionally reconciles the cell mask against nuclei + pathogen overlays, and (6) writes overlay plots and a ``gen_mask_settings.csv`` next to the outputs.",
+      "context": "Given a source folder ``src`` of multi-image data channel images, this workflow (1) optionally consolidates inputs from nested folders, (2) renames files to the Yokogawa layout used downstream, (3) preprocesses per-image data channel arrays, (4) generates masks for cell / nucleus / pathogen / organelle image data channels via Cellpose (SAM variant), (5) optionally reconciles the cell mask against nuclei + pathogen overlays, and (6) writes overlay plots and a ``gen_mask_settings.csv`` next to the outputs.",
+      "translation": "给定包含多图像数据通道图像的源文件夹 ``src``，该工作流会：(1) 可选地合并嵌套文件夹中的输入；(2) 将文件重命名为下游使用的 Yokogawa 布局；(3) 逐图像数据通道预处理数组；(4) 通过 Cellpose（SAM 变体）为细胞 / 细胞核 / 病原体 / 细胞器图像数据通道生成掩模；(5) 可选地依据细胞核和病原体叠加结果校正细胞掩模；以及 (6) 写出叠加图，并在输出旁保存 ``gen_mask_settings.csv``。"
+    },
+    {
+      "label": "spacr.crop_source#3",
+      "source_sha256": "4066a318ce7468b501ce0f3a8e13974ec939277d1c37ff4056fac14801ec49b6",
+      "source": "**Why on-demand exists.** Pre-cutting every crop writes a copy of the dataset to disk before a single epoch runs, and every change of crop size or channel selection writes another. Cutting as training runs costs a slice per object and no disk at all.",
+      "context": "**Why on-demand exists.** Pre-cutting every extracted image region writes a copy of the dataset to disk before a single epoch runs, and every change of extracted image region size or channel selection writes another. Cutting as training processing sessions costs a slice per object and no disk at all.",
+      "translation": "**为何采用按需裁剪。** 预先切出每个提取图像区域，会在一次训练轮次尚未开始前就把数据集复制到磁盘；每次更改提取区域大小或通道选择还会再写一份。训练处理会话期间即时裁剪，每个对象只需一次切片操作，而且完全不占用额外磁盘空间。"
+    },
+    {
+      "label": "spacr.crop_source.matches_path#1",
+      "source_sha256": "2a17902227be8ed8baf403dcdea6906b8e5db09cb601e4a9d3e514dfa3ea8e46",
+      "source": "Two independent tests, which is the whole point of splitting them: WHICH OBJECT the crop is of (a substring of its path, e.g. ``cell_png``) and WHAT FORMAT it is in (its extension). One setting could never express \"every nucleus crop, whatever format\" or \"every TIFF, whatever object\".",
+      "context": "Two independent tests, which is the whole point of splitting them: WHICH OBJECT the extracted image region is of (a substring of its path, e.g. ``cell_png``) and WHAT FORMAT it is in (its extension). One setting could never express \"every nucleus extracted image region, whatever format\" or \"every TIFF, whatever object\".",
+      "translation": "这里有两个彼此独立的判断，这正是将它们拆开的意义：提取图像区域属于哪种对象（路径中的子字符串，例如 ``cell_png``），以及它采用哪种格式（文件扩展名）。单个设置无法表达“所有细胞核提取区域，不论格式”或“所有 TIFF，不论对象类型”。"
+    },
+    {
+      "label": "spacr.crops#6",
+      "source_sha256": "4f72275364ca9cedc40b85fab470da7b9ca4dce066ea8ae2c73d3c846e39bf0b",
+      "source": "The intensity channels come first (the subset selected by ``settings['channels']`` at preprocessing time), then one ``uint16`` label-mask plane per segmented object class, always in the order **cell, nucleus, pathogen, organelle** -- each present only if that class was segmented. ``settings['cell_mask_dim']`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim`` / ``organelle_mask_dim`` record the resulting plane indices; spaCR's default four-channel layout is ``{cell: 4, nucleus: 5, pathogen: 6, organelle: 7}`` (:data:`DEFAULT_MASK_DIMS`).",
+      "context": "The intensity image data channels come first (the subset selected by ``settings['channels']`` at preprocessing time), then one ``uint16`` label-mask image layer per segmented object class, always in the order **cell, nucleus, pathogen, organelle** -- each present only if that class was segmented. ``settings['cell_mask_dim']`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim`` / ``organelle_mask_dim`` record the resulting image layer indices; spaCR's default four-image data channel layout is ``{cell: 4, nucleus: 5, pathogen: 6, organelle: 7}`` (:data:`DEFAULT_MASK_DIMS`).",
+      "translation": "强度图像数据通道排在最前面（即预处理时由 ``settings['channels']`` 选择的子集），随后是每个已分割对象类别对应的一个 ``uint16`` 标签掩模图像层，顺序始终为 **细胞、细胞核、病原体、细胞器**——只有实际分割的类别才会出现。``settings['cell_mask_dim']`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim`` / ``organelle_mask_dim`` 记录所得图像层索引；spaCR 默认的四图像数据通道布局为 ``{cell: 4, nucleus: 5, pathogen: 6, organelle: 7}``（:data:`DEFAULT_MASK_DIMS`）。"
+    },
+    {
+      "label": "spacr.crops#9",
+      "source_sha256": "b1d3243a99cddf75dc7ff3e16b1bc749dac092eb084ad946e18e18413fa47b22",
+      "source": ":func:`extract_crop` reproduces the PNG path in ``spacr.measure._measure_crop_core`` step for step: same channel selection (``png_dims``), same region definition (object mask, optionally replaced by its padded bounding box, optionally dilated), same ``_crop_center`` centering/padding, same ``normalize_to_dtype`` percentile normalisation, same dtype. :func:`png_view` turns that array into what a consumer sees after the PNG round trip, and :func:`read_crop_png` reads a crop PNG back into the same thing -- the two are the two halves of one contract, and ``tests/test_crops.py`` asserts they agree.",
+      "context": ":func:`extract_crop` reproduces the PNG path in ``spacr.measure._measure_crop_core`` step for step: same image data channel selection (``png_dims``), same region definition (object mask, optionally replaced by its padded bounding box, optionally dilated), same ``_crop_center`` centering/padding, same ``normalize_to_dtype`` percentile normalisation, same dtype. :func:`png_view` turns that array into what a consumer sees after the PNG round trip, and :func:`read_crop_png` reads an extracted-image-region PNG back into the same thing -- the two are the two halves of one contract, and ``tests/test_crops.py`` asserts they agree.",
+      "translation": ":func:`extract_crop` 会逐步复现 ``spacr.measure._measure_crop_core`` 的 PNG 路径：相同的图像数据通道选择（``png_dims``）、相同的区域定义（对象掩模，可选地替换为带边距的边界框，并可选地膨胀）、相同的 ``_crop_center`` 居中/填充、相同的 ``normalize_to_dtype`` 百分位归一化，以及相同的数据类型。:func:`png_view` 把该数组转换为经过 PNG 往返后使用者会看到的内容；:func:`read_crop_png` 则把提取图像区域 PNG 读回为同样的内容——两者是同一约定的两个方向，``tests/test_crops.py`` 会断言它们一致。"
+    },
+    {
+      "label": "spacr.crops.MergedCropSource.get_array#1",
+      "source_sha256": "0d2a77cc38b9d4e279376bad830b2cdb2aa233d142df3b0fa44b17a7f5d42ef7",
+      "source": "a measurement row; :meth:`spec_for` says which fields it has to carry. What comes back is the *pre-write* array -- the merged file's dtype (``uint16`` on a normal run) and as many channels as the spec selects -- not 8-bit RGB. Use :meth:`get` for something a viewer or a classifier can take.",
+      "context": "a measurement row; :meth:`spec_for` says which microscope fields of view it has to carry. What comes back is the *pre-write* array -- the merged file's dtype (``uint16`` on a normal run) and as many image data channels as the spec selects -- not 8-bit RGB. Use :meth:`get` for something a viewer or a machine-learning classification model can take.",
+      "translation": "一个测量行；:meth:`spec_for` 规定它必须携带哪些显微镜视野。返回的是*写入前*数组——数据类型与合并文件一致（正常运行时为 ``uint16``），图像数据通道数量由规格选择决定——而不是 8 位 RGB。若需要查看器或机器学习分类模型可直接使用的内容，请使用 :meth:`get`。"
+    },
+    {
+      "label": "spacr.crops.MergedField.read_window#6",
+      "source_sha256": "1837f1b5f012fc0aa961b827a2ae604c4b2bd32b30b2a023f10a3d8e226b7f5e",
+      "source": "plane indices in output order -- result channel ``k`` holds plane ``channels[k]``, and repeating an index repeats the plane. Each must satisfy ``0 <= c < C``; negative indices are rejected rather than wrapped, so ``-1`` is an error and not \"the last plane\". An empty sequence yields an ``(h, w, 0)`` array here; :func:`extract_crop` rejects it first.",
+      "context": "image layer indices in output order -- result image data channel ``k`` holds image layer ``channels[k]``, and repeating an index repeats the image layer. Each must satisfy ``0 <= c < C``; negative indices are rejected rather than wrapped, so ``-1`` is an error and not \"the last plane\". An empty sequence yields an ``(h, w, 0)`` array here; :func:`extract_crop` rejects it first.",
+      "translation": "按输出顺序给出图像层索引——结果图像数据通道 ``k`` 保存图像层 ``channels[k]``，重复某个索引就会重复该图像层。每个索引都必须满足 ``0 <= c < C``；负索引会被拒绝而不会环绕，因此 ``-1`` 是错误，并不表示 \"the last plane\"。这里传入空序列会得到 ``(h, w, 0)`` 数组；:func:`extract_crop` 会更早拒绝它。"
+    },
+    {
+      "label": "spacr.crops.apply_display_primaries#2",
+      "source_sha256": "a9b9235cfc2dae08b2b0be70edfa83af5166fa03c7743e0575687658dfca20a2",
+      "source": "NOT an RGB->CMYK conversion. CMYK is a subtractive PRINT model: on a screen it darkens, does not improve separability, and is lossy in a way that changes what the user believes they are seeing. ``cmy`` here is a channel substitution -- each plane keeps its own identity and the result stays additive, so two stains overlapping still brighten.",
+      "context": "NOT an RGB->CMYK conversion. CMYK is a subtractive PRINT model: on a screen it darkens, does not improve separability, and is lossy in a way that changes what the user believes they are seeing. ``cmy`` here is an image data channel substitution -- each image layer keeps its own identity and the result stays additive, so two stains overlapping still brighten.",
+      "translation": "这不是 RGB->CMYK 转换。CMYK 是用于印刷的减色模型：在屏幕上只会使图像变暗，不能提高可分辨性，而且其有损变换会改变用户以为自己看到的内容。这里的 ``cmy`` 是图像数据通道替换——每个图像层仍保留自身身份，结果仍采用加色方式，因此两种染色重叠时仍会变亮。"
+    },
+    {
+      "label": "spacr.crops.extract_crop#1",
+      "source_sha256": "c02de16c6978478a99f7ea27e5041ea2404020f3974c1d69fdaa187c7828ae96",
+      "source": "The returned array is the *pre-write* array: exactly what ``_measure_crop_core`` hands to the writer. Its dtype is the merged array's (``uint16`` for a normal spaCR run) and its channel order is ``spec.channels``. Use :func:`png_view` to get what a consumer reading the written PNG (via :func:`read_crop_png`) would see.",
+      "context": "The returned array is the *pre-write* array: exactly what ``_measure_crop_core`` hands to the writer. Its dtype is the merged array's (``uint16`` for a normal spaCR run) and its image data channel order is ``spec.channels``. Use :func:`png_view` to get what a consumer reading the written PNG (via :func:`read_crop_png`) would see.",
+      "translation": "返回的是*写入前*数组：与 ``_measure_crop_core`` 交给写入器的内容完全相同。其数据类型与合并数组一致（正常 spaCR 运行时为 ``uint16``），图像数据通道顺序为 ``spec.channels``。请使用 :func:`png_view` 获取写入后的呈现结果，即使用者再通过 :func:`read_crop_png` 读取该 PNG 时会看到的内容。"
+    },
+    {
+      "label": "spacr.crops.legacy_png_view#6",
+      "source_sha256": "73d0237ce056254674905d70d73a2aa53e74643d3b78ed1f880584c5f68c8095",
+      "source": "``(H, W, 3)`` uint8 RGB array.",
+      "context": "A three-channel uint8 RGB image array with shape ``(H, W, 3)``.",
+      "translation": "形状为 ``(H, W, 3)`` 的三通道 uint8 RGB 图像数组。"
+    },
+    {
+      "label": "spacr.crops.migrate_crop_folder#2",
+      "source_sha256": "cf51b98b49541dbc469ef2817e4266c6d9cba6f6bf28f8f4083a81c9efb975a4",
+      "source": "``mode='rewrite'`` (the default) rewrites every 3-channel PNG of a **format-2** folder with its channels put back, and marks the folder format 3. A folder that is format 1, format 3 or unmarked is already in declared order, so it is an immediate no-op -- which is the answer for almost every folder that exists.",
+      "context": "``mode='rewrite'`` (the default) rewrites every 3-image data channel PNG of a **format-2** folder with its image data channels put back, and marks the folder format 3. A folder that is format 1, format 3 or unmarked is already in declared order, so it is an immediate no-op -- which is the answer for almost every folder that exists.",
+      "translation": "``mode='rewrite'``（默认值）会重写 **format-2** 文件夹中的每个三图像数据通道 PNG，把图像数据通道恢复到正确位置，并将文件夹标记为格式 3。格式 1、格式 3 或未标记的文件夹本来就采用声明顺序，因此会立即成为无操作——现有文件夹几乎都属于这种情况。"
+    },
+    {
+      "label": "spacr.crops.to_cv2_bgr#1",
+      "source_sha256": "cd0929f1fa99bccf4479b1569284101fbc2f5b957db0f2600b4ce433efdd912a",
+      "source": ":func:`build_png_channels` assembles the crop in **file order** -- red plane first -- while ``cv2.imwrite`` interprets a 3-channel array as BGR. Reversing the channel axis here, once, in the writer, makes cv2's interpretation land the array's red plane in the file's red slot, so the PNG's slots hold the channels ``settings['png_channel_mapping']`` named (format 3). Under :data:`DEFAULT_PNG_CHANNEL_MAPPING` that puts ``png_dims[0]`` in blue, byte-identical to format 1.",
+      "context": ":func:`build_png_channels` assembles the extracted image region in **file order** -- red plane first -- while ``cv2.imwrite`` interprets a 3-image data channel array as BGR. Reversing the image data channel axis here, once, in the writer, makes cv2's interpretation land the array's red plane in the file's red slot, so the PNG's slots hold the image data channels ``settings['png_channel_mapping']`` named (format 3). Under :data:`DEFAULT_PNG_CHANNEL_MAPPING` that puts ``png_dims[0]`` in blue, byte-identical to format 1.",
+      "translation": ":func:`build_png_channels` 按**文件顺序**组装提取图像区域——红色图像层在前——而 ``cv2.imwrite`` 会把三图像数据通道数组解释为 BGR。只在写入器中反转一次图像数据通道轴，就能让 cv2 的解释把数组的红色图像层放入文件的红色槽位，从而使 PNG 各槽位保存 ``settings['png_channel_mapping']`` 指定的图像数据通道（格式 3）。在 :data:`DEFAULT_PNG_CHANNEL_MAPPING` 下，``png_dims[0]`` 会位于蓝色槽位，与格式 1 逐字节相同。"
+    }
+  ]
+}
