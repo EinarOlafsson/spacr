@@ -2,12 +2,10 @@
 OPTIMIZE THE spaCR TUTORIALS
 ================================================================================
 
-Status:    NOT complete, despite what this line used to say. The narration
-           transport, timing, pronunciation and named visuals pass after the
-           second 1.5.0.4 mobile-smooth publication -- that part is done and
-           is what the old status was describing. The AUDIT of the existing
-           lessons is also done, and it is what reopened this: 16 lessons
-           need substantial replacement, and three do not exist yet.
+Status:    in progress — final acceptance and publication of the rebuilt
+           69-lesson, 50-voice release. The old "16 replacements and three
+           missing" finding below is retained as pre-implementation history;
+           those lessons now exist and their source captures have been rebuilt.
 Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see how they are setup?"
            2026-08-08 — "great. now we need to audit these lessons one at a time.
 
@@ -37,6 +35,8 @@ Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see
 
            the largest issue is that i cannot hear any of the voice tracks. i tested it on my phone and hear nothing. I get a popup that says \"Narration is unavailable the GitHub hosted video remains available.\""
            2026-08-10 — "the audio is now available but it is verry hacky when i listen on my phone. i havnt tested a desktop yet. but it should be smooth on my phone. the highlight windows look good! the first one with the pypi spacr box now starts at the right place bit dosnt encasulate all the text assoceated with the releas so it needs to be widened to the right to do this. also i heared that the pronounsiation of Nvidia and CUDA was strange.CPU Nvidia CUDA all sound super wierd thevoice slows down on certain sylables, please find a phonetic reference for these types of words so the video sounds normal. the pronounciation of spacr is fine though."
+           2026-08-13 — "continue where you left of please complete the tutorials task"
+           2026-08-13 — "og go through what is left and dont stop untill it is done.  this is tour goal."
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
@@ -45,7 +45,7 @@ WHAT THE STATE IS
 The editable source is present under
 `/mnt/firecuda2/Claude/toxoplasma_projects/tutorials`. It generates the
 HTML/CSS/JavaScript player, 69 catalogued lessons, posters, silent video,
-53 release-approved narration voices across eight languages with timing JSON,
+50 release-approved narration voices across eight languages with timing JSON,
 and translated
 lesson/caption catalogs. The player synchronizes the separate narration and
 silent video by playback rate and stores theme, progress, language, voice,
