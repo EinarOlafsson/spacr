@@ -688,7 +688,7 @@ Tutorials
 The `interactive spaCR tutorial library
 <https://einarolafsson.github.io/spacr/tutorials/>`_ contains narrated,
 captioned walkthroughs of installation and of each application workflow, in
-eight languages.
+69 lessons with 50 voices across eight languages.
 
 Citing spaCR
 ~~~~~~~~~~~~

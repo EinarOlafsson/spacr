@@ -1126,19 +1126,40 @@
       "id": "37_batch",
       "scenes": [
         {
-          "narration": "Den här handledningen omfattar Batch Runner. Låsmoduler, projekt och inställningar för reproducerbar oövervakad utförelse."
+          "narration": "Batch Runner staplar godtyckliga spaCR-moduler och inställningar i en oövervakad rad. Till skillnad från Plate Queue, som tillämpar en pipeline på många plattor, kan Batch Runner blanda moduler, ingångar, överskott och beroenden. Jobbarna körs en efter en så de konkurrerar inte om en GPU."
         },
         {
-          "narration": "Lägg till projekt och montera den beställda modulsekvensen som varje projekt ska köra."
+          "narration": "Välj en huvudlös modul och den exakta inställningsfilen som jobbet ska få. Lägg till en beskrivande etikett, valbara förutsättningsidentifierare och valbara nyckelvärdesöverträdelser. Detta första jobb gör en verklig förlustfri omvandling av ett fyra kanalsfält. Klicka på Lägg till jobb."
         },
         {
-          "narration": "I huvudkonfigurationsområdet väljer du förinställningar, beroenden, resursbegränsningar, återupptak beteende, loggning och felpolicy."
+          "narration": "Jobben får den stabila identifieringsnummern convert-1 och kontrolleras omedelbart. Batch Runner löser modulens standardfel, analyserar inställningsfilen och överskrider, validerar vägar och värden och vägrar ett ogiltigt jobb nu istället för att upptäcka det under en övernattad körning."
         },
         {
-          "narration": "Validerar batchplanen, testar ett jobb och kör sedan resten av köen över natten eller utan övervakning."
+          "narration": "Den andra riktiga konverteringsnamnen konverterar-1 i After, så den körs endast om det förutsättningen lyckas. Dess plate_naming = namnöverskjutning är lagad över de sparas inställningar utan att kopiera filen. Om konverteringen-1 misslyckas markeras detta jobb som hoppar ut istället för att köras på ofullständig uppströmutgång. Klicka på Lägg till jobb."
         },
         {
-          "narration": "När arbetsflödet är slut har varje jobb sin egen status, inställningar snapshot, loggar, utgångar och återupptäckta körregister."
+          "narration": "Den tredje verkliga omvandlingen har inget förutsättande och kan fortfarande ske när ett oberoende jobb misslyckas enligt politiken för att fortsätta med fel. Lägg till det som ett självständigt jobb. Denna lektion använder tre överförda mikroskopfält kopierade byte-för-byte i isolerade mappar; varje rad process kommer att utföra en äkta konvertering."
+        },
+        {
+          "narration": "Tabellen visar nu körordningen, stabila arbetsidentifierare, moduler, etiketter, beroenden, väntande status, förflutna tid och varje arbetssaks egen logg. Välj en rad för att kontrollera dess inställningar och logg. Duplicate, Remove och Move styrar bildar och omordnar en större natt av arbete."
+        },
+        {
+          "narration": "Välj den oberoende tredje jobbet och klicka på Flytta upp. Omordnande är säkert här eftersom den beroende konverteringen förblir under konverterad-1. Om ett förutsättningsvärde flyttas under dess beroende skulle det leda till ett synligt valideringsfel och inaktivera körningen."
+        },
+        {
+          "narration": "Klicka på Validerera efter att ha redigerat eller laddat en rad. Validering rapporterar varje fel och varning tillsammans: saknade inställningar, okända moduler, ogiltiga vägar eller värden, duplicerade identifieringar, senare förutsättningar och beroendecykler. Längdknappen är fortfarande inaktiverad när det finns ett blockeringsproblem."
+        },
+        {
+          "narration": "Alla tre jobb är giltiga. Att fortsätta med misslyckande tillåter självständiga jobb att fortsätta medan beroende överspringer; att sluta först slutar allt senare. Tröskelvärdet för följdförslag stannar en rad som upprepade gånger misslyckas av samma systematiska skäl. Sluta vänta på att det nuvarande jobbet ska bli klart i säkerhet istället för att döda det mitt i skrivelsen."
+        },
+        {
+          "narration": "Klicka på Spara kö innan du lämnar den oövervakad. Den läsbara JSON lagrar ordning, beroende, överskott och status. Batch Runner uppdaterar den automatiskt efter varje övergång, så att en omstart kan återuppta väntade eller inte körda jobb utan att duplicera färdigställda jobb. Ladd-kåran återställer samma bokbok senare."
+        },
+        {
+          "narration": "När den reviderade köen är spärrad klickar du på Run queue. Varje jobb startas som sin egen process med hjälp av denna spaCR-miljö. Ett segmenteringsbrott skulle avsluta jobbet snarare än gränssnittet eller senare oberoende arbete, och standardutgång plus fel går in i det jobbets separata logg."
+        },
+        {
+          "narration": "Alla tre verkliga underprocessjobb avslutas framgångsrikt. Progressfältet uppnår tre av tre, tabellen bevarar varje status och varaktighet, sammanfattningen skiljer framgång, misslyckande, hoppa, inte körda och partiella resultat, och det valda arbetslögret innehåller dess exakta kommandobrief och konverteringsrapport. Varje destinationsområde har fyra TIFF och en kartan för ursprung; alla källhasher förblir oförändrade."
         }
       ]
     },
@@ -1666,22 +1687,25 @@
       "id": "64_gate_editor",
       "scenes": [
         {
-          "narration": "Gate Editor förvandlar regioner i ett mätbord till namngivna, återanvändbara befolkningsportar. Arbetsplatsen håller funktionsaxerna, ritverktygen, full datavisning och porthierarkiet tillsammans."
+          "narration": "Gate Editor förvandlar områden i ett mätbord till namngivna, återanvändbara befolkningsportar. Arbetsplatsen håller funktionsaxerna, ritverktygen, full datavisning och porthierarkiet tillsammans."
         },
         {
-          "narration": "I 2D, välj X och Y för en scatter, eller lämna Y tom för ett histogram. Välj ett tröskel- eller formverktyg och dra runt den avsedda populationen. Hela molnet är synligt medan de inkluderade objekten lyfts fram."
+          "narration": "I 2D väljer du X och Y för en scatter eller lämnar Y tom för ett histogram. Välj ett tröskel- eller formverktyg och dra runt den avsedda befolkningen. Det är fortfarande möjligt att se hela molnet medan de inkluderade objekten lyfts fram."
         },
         {
-          "narration": "Välj en 3D- och en Z-mätning för att inspektera en roterande volym. Akstknapparna styr spinnriktningen och Boxgate registrerar gränser på alla tre visade mätningar."
+          "narration": "Välj 3D- och Z-mätningar för att kontrollera en roterande volym. Akstknapparna styr spinnriktningen och Boxgate registrerar gränser på alla tre visade mätningar."
         },
         {
-          "narration": "Välj xD för att projicera de stödberättigande mätningarna i huvudkomponenter. Källa etiketten rapporterade förklarade variansen, och PC1, PC2 och PC3 blir vanliga axlar för samma gating verktyg."
+          "narration": "Välj xD för att projicera de stödberättigande mätningarna i huvudkomponenter. Källan på märkningen förklarar variansen, och PC1, PC2 och PC3 blir vanliga axlar för samma gatingverktyg."
         },
         {
-          "narration": "Porthierarkiet rapporterar objektets antal, procent av dess förälder och procent av alla rader. Välj en portens checkbox för att visa eller dölja den, och välj en port innan du ritar när nästa befolkning ska vara inbäddad i den."
+          "narration": "Porthierarkiet rapporterar objektets antal, procent av dess förälder och procent av alla rader. Välj en portens kontrollrutan för att visa eller dölja den och välj en port innan du ritar när nästa befolkning ska bo inuti den."
         },
         {
-          "narration": "Ge varje befolkning ett meningsfullt namn, och spara portstrategin. Läda den på en kompatibel tabell för att återanvända samma funktionsnamn, gränser och hierarki, och verifiera de nya räkningarna innan du fortsätter."
+          "narration": "Ge varje befolkning ett meningsfullt namn, och spara gatestrategin. Läda den på en kompatibel tabell för att återanvända samma funktionnamn, gränser och hierarki, och verifiera de nya räkningarna innan du fortsätter."
+        },
+        {
+          "narration": "Cluster Walk söker efter en begränsad sekvens av DBSCAN-radier på de uppvisade mätningarna och rapporterar den valda radien, befolkningstallet och den uteslutna fraktionen. Kontrollera de resulterande portarna och anteckna eller exportera först efter att de synliga uppgifterna har matchat."
         }
       ]
     },

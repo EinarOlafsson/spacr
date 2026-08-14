@@ -132,8 +132,9 @@ Headless (cluster, server, CI) — no Qt, no display:
 Learn spaCR
 -----------
 
-The `interactive tutorial library <tutorials/>`_ walks through every module
-with narrated, step-by-step lessons. It is also reachable from the GUI:
+The `interactive tutorial library <tutorials/>`_ contains 69 narrated,
+step-by-step lessons covering every module, with 50 voices across eight
+languages. It is also reachable from the GUI:
 **Help → Tutorial (web)**, or the spaCR logo on the classic Tk start screen.
 
 
