@@ -231,3 +231,26 @@ STILL OPEN
     window. That is deliberate for now -- a figure-settings dialog that can
     start a UMAP is a surprising thing to press OK on -- but instruction 69
     may want the "apply and re-run" shape standardised across modules.
+
+--------------------------------------------------------------------------------
+2026-08-14 - CLOSED. SUPERSEDED BY 95 ON THE ONE POINT THAT WAS OPEN.
+--------------------------------------------------------------------------------
+
+All four parts of this instruction were built on 2026-08-12. It stayed open
+only because "no grid at the end" had two readings and neither was excluded by
+anything measurable.
+
+ASKED, AND ANSWERED 2026-08-13: the maintainer meant the CLUSTER MONTAGE, the
+first reading -- and then said the question had been overtaken:
+
+    "i asked for the first option (the cluster montage). but then we built
+     starplast together and that is much much much better."
+
+So the standard scrollable figure viewer this instruction asked for is NOT
+what the module should end on either. Instruction 95 carries the replacement:
+a search table beside a 2D/3D UMAP container, a grid of every map on black, a
+clustering walk, and GPU acceleration.
+
+Nothing here needs undoing -- 95 replaces the viewer this one installed, and
+the other three parts (live-editable settings, the API dots removed, the
+propagate button) stand.
