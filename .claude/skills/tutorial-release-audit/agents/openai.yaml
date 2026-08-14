@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tutorial Release Audit"
+  short_description: "Audit tutorial media, narration, and live playback"
+  default_prompt: "Use $tutorial-release-audit to audit the current tutorial release end to end."
