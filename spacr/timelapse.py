@@ -12,6 +12,7 @@ from IPython.display import display
 # helper below, which would otherwise shadow this import for every call site
 # after it. Every kept figure still goes through the format/DPI preference.
 from .plot import save_figure as save_figure_to_path
+from .openmp_guard import single_threaded_openmp  # duplicate libomp is fatal — see that module
 from IPython.display import Image as ipyimage
 import trackpy as tp
 from skimage.measure import regionprops_table
@@ -6933,6 +6934,7 @@ def _infection_qc_histogram(
 
     return all_df, infection_col
 
+@single_threaded_openmp('XGBoost infection QC')
 def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motility_dir):
     """
     Use an XGBoost classifier to refine infection calling based on per-object features.
