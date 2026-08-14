@@ -86,8 +86,10 @@ WHAT WAS DONE
   poster, and video artifacts.
 - Published the hosted and repository bundles, merged the release to main, and
   deployed only the verified tutorial overlay against the immutable previously
-  published documentation baseline. PRs #96 and #97 added that fail-closed
-  deployment route; Actions run ``31813637887`` built and deployed it green.
+  published documentation baseline. PRs #96 and #97 added the one-time,
+  fail-closed deployment route; Actions run ``31813637887`` built and deployed
+  it green. The manual overlay workflow was then removed, so the standard
+  docs/localization audit remains the only future Pages deployment route.
 
 The reusable quality controls are now part of the repository at
 ``a732988b``: ``.claude/skills/tutorial-release-audit`` records the complete
