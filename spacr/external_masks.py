@@ -51,6 +51,9 @@ _MASK_WORDS = re.compile(
 _OBJECT_PATTERNS = (
     ("nucleus", re.compile(r"(?i)(?:^|[_\-. ])(?:nucleus|nuclei|nuclear|nuc)(?:$|[_\-. ])")),
     ("pathogen", re.compile(r"(?i)(?:^|[_\-. ])(?:pathogen|parasite|bacteria|bacterial)(?:$|[_\-. ])")),
+    ("organelled", re.compile(r"(?i)(?:^|[_\-. ])organelle(?:[_\-. ]?4|d)(?:$|[_\-. ])")),
+    ("organellec", re.compile(r"(?i)(?:^|[_\-. ])organelle(?:[_\-. ]?3|c)(?:$|[_\-. ])")),
+    ("organelleb", re.compile(r"(?i)(?:^|[_\-. ])organelle(?:[_\-. ]?2|b)(?:$|[_\-. ])")),
     ("organelle", re.compile(r"(?i)(?:^|[_\-. ])(?:organelle|organell|mitochondria|mitochondrion)(?:$|[_\-. ])")),
     ("cell", re.compile(r"(?i)(?:^|[_\-. ])(?:cell|cells|wholecell|cytoplasm)(?:$|[_\-. ])")),
 )
@@ -392,10 +395,7 @@ def default_settings(settings: Optional[Mapping[str, Any]] = None
     from .settings import get_measure_crop_settings
 
     resolved = get_measure_crop_settings({})
-    for key in (
-        "src", "cell_mask_dim", "nucleus_mask_dim",
-        "pathogen_mask_dim", "organelle_mask_dim",
-    ):
+    for key in ("src", *(f"{role}_mask_dim" for role in OBJECT_TYPES)):
         resolved.pop(key, None)
     resolved.update({
         "inputs": [],
@@ -630,6 +630,17 @@ def run_external_masks(plan: ExternalMaskPlan,
         merged_paths.append(_save_npy(
             os.path.join(dst, "merged", f"{stem}.npy"), merged))
 
+    plane_layout = {
+        "version": 1,
+        "intensity_channels": list(range(plan.n_channels)),
+        "mask_plane_order": list(plan.object_types),
+        "mask_dims": dict(plan.mask_dims),
+    }
+    with open(os.path.join(dst, "merged", crops.MERGED_LAYOUT_SIDECAR),
+              "w", encoding="utf-8") as handle:
+        json.dump(plane_layout, handle, indent=2, sort_keys=True)
+        handle.write("\n")
+
     manifest = {
         "module": "external_masks",
         "destination": dst,
@@ -671,13 +682,6 @@ def run_external_masks(plan: ExternalMaskPlan,
     requested = [name for name in requested if name in available_crops]
     measure_settings["crop_mode"] = (
         requested or available_crops[:1])
-    if "organelle" in plan.object_types:
-        summaries = list(
-            measure_settings.get("summarize_organelles_by") or [])
-        if "organelle" not in summaries:
-            summaries.append("organelle")
-        measure_settings["summarize_organelles_by"] = summaries
-
     from .measure import measure_crop
     measure_crop(measure_settings)
 

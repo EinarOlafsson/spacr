@@ -89,7 +89,8 @@ __all__ = [
     'FIELD_KEY_COLUMNS', 'TIMEPOINT_KEY_COLUMNS', 'WELL_KEY_COLUMNS',
     'PRC_KEY', 'PRCF_KEY', 'PRCFO_KEY',
     'KEY_PREFIXES', 'OBJECT_PREFIX', 'KEY_SEPARATOR',
-    'OBJECT_TYPES', 'object_type_prefix', 'split_object_id',
+    'ORGANELLE_ROLES', 'SEGMENTED_ROLES', 'DERIVED_ROLES', 'CHILD_ROLES',
+    'ALL_ROLES', 'OBJECT_TYPES', 'object_type_prefix', 'split_object_id',
     'is_object_type',
     'LEGACY_COLUMN_NAMES', 'LEGACY_COLUMN_PATTERNS', 'TIME_COLUMN_ALIASES',
     'canonical_column_name',
@@ -229,8 +230,16 @@ OBJECT_TYPE_KEY = 'object_type'
 #: children are exactly the objects most likely to collide, which is where
 #: object linking is most useful, so four objects opened as three and which
 #: one you got depended on the row order of ``png_list``.
+ORGANELLE_ROLES: Tuple[str, ...] = (
+    'organelle', 'organelleb', 'organellec', 'organelled')
+SEGMENTED_ROLES: Tuple[str, ...] = (
+    'cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES)
+DERIVED_ROLES: Tuple[str, ...] = ('cytoplasm',)
+CHILD_ROLES: Tuple[str, ...] = ('nucleus', 'pathogen', *ORGANELLE_ROLES)
+ALL_ROLES: Tuple[str, ...] = SEGMENTED_ROLES + DERIVED_ROLES
+
 OBJECT_TYPES: Tuple[str, ...] = (
-    'cell', 'cytoplasm', 'nucleus', 'pathogen', 'organelle')
+    'cell', 'cytoplasm', 'nucleus', 'pathogen', *ORGANELLE_ROLES)
 
 #: :data:`OBJECT_TYPES`, longest first. The match must be longest-first
 #: because ``'organelle'`` starts with ``'o'``, which is the untyped prefix:
@@ -242,6 +251,19 @@ _OBJECT_TYPE_MATCH: Tuple[str, ...] = tuple(
 #: What ``prc`` / ``prcf`` / ``prcfo`` are joined on. A plate name containing
 #: this character cannot be round-tripped; :func:`compose_prc` refuses it.
 KEY_SEPARATOR = '_'
+
+# Validate the registry where it is declared. Typed object ids concatenate
+# role and numeric label without a separator, so a digit in a role is
+# ambiguous (``cell1`` + 7 versus ``cell`` + 17), while an underscore would
+# split the surrounding prcfo key. Failing import is preferable to writing
+# identities that cannot round-trip.
+for _registered_role in OBJECT_TYPES:
+    if (not _registered_role or KEY_SEPARATOR in _registered_role
+            or any(character.isdigit() for character in _registered_role)):
+        raise RuntimeError(
+            f'invalid object role {_registered_role!r}: roles must be '
+            f'non-empty, digit-free and contain no {KEY_SEPARATOR!r}')
+del _registered_role
 
 
 #: Every legacy spelling spaCR has written, and the canonical name it means.
@@ -1550,7 +1572,8 @@ def parse_object_stem(name: Any, *, timelapse: bool = False,
 PARENT_OBJECT_TABLES: Tuple[str, ...] = ('cell', 'cytoplasm')
 
 #: Object tables whose rows carry a ``cell_id`` link to their parent cell.
-CHILD_OBJECT_TABLES: Tuple[str, ...] = ('nucleus', 'pathogen', 'organelle')
+CHILD_OBJECT_TABLES: Tuple[str, ...] = (
+    'nucleus', 'pathogen', *ORGANELLE_ROLES)
 
 #: Every per-object measurement table. The same set as :data:`OBJECT_TYPES`,
 #: which is declared further up because :func:`object_id` needs the vocabulary
@@ -1616,12 +1639,8 @@ BOOKKEEPING_KEY_COLUMNS = {
 OWNED_TABLES: Tuple[str, ...] = MEASUREMENT_TABLES + BOOKKEEPING_TABLES
 
 
-#: The four analysis compartments covered by the canonical object-table
-#: contract. ``organelle`` remains an owned child table but is intentionally
-#: outside this first contract: its per-object table is optional and its
-#: stable public output is the per-parent summary family above.
 CANONICAL_OBJECT_TABLES: Tuple[str, ...] = (
-    'cell', 'cytoplasm', 'nucleus', 'pathogen')
+    'cell', 'cytoplasm', 'nucleus', 'pathogen', *ORGANELLE_ROLES)
 
 #: Columns every canonical object table carries, in writer order. Time is
 #: conditional and parent links are table-specific, so both live in the
@@ -1720,6 +1739,8 @@ OBJECT_TABLE_SCHEMAS = MappingProxyType({
     'cytoplasm': ObjectTableSchema('cytoplasm', 'cytoplasm'),
     'nucleus': ObjectTableSchema('nucleus', 'nucleus', 'cell_id'),
     'pathogen': ObjectTableSchema('pathogen', 'pathogen', 'cell_id'),
+    **{role: ObjectTableSchema(role, role, 'cell_id')
+       for role in ORGANELLE_ROLES},
 })
 
 #: Feature-dictionary families that are measurements rather than identity or

@@ -1142,7 +1142,7 @@ PNG_OBJECT_ID_COLUMNS = {
     # so `columns` came out one short of `parts` and filepaths_to_database
     # raised "Columns must be same length as key" -- AFTER the organelle PNGs
     # were on disk but before any of them was registered in png_list.
-    'organelle': 'organelle_id',
+    **{role: f'{role}_id' for role in schema.ORGANELLE_ROLES},
 }
 
 #: Reverse of :data:`PNG_OBJECT_ID_COLUMNS`.
@@ -1230,7 +1230,7 @@ def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
     :param img_paths: iterable of PNG paths for cropped objects.
     :param settings: settings dict; ``timelapse`` toggles time_id parsing.
     :param source_folder: experiment root; DB is written to ``measurements/measurements.db``.
-    :param crop_mode: one of ``'cell'``, ``'nucleus'``, ``'pathogen'``, ``'cytoplasm'``.
+    :param crop_mode: a registered object role, including any organelle slot.
     :returns: None.
     """
     png_df = pd.DataFrame(img_paths, columns=['png_path'])
@@ -2241,7 +2241,9 @@ def _list_endpoint_subdirectories(base_dir):
     endpoint_subdirectories = [path for path in endpoint_subdirectories if os.path.basename(path) != 'figure']
     return endpoint_subdirectories
     
-def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids, source_folder, crop_mode='cell', timelapse=None):
+def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids,
+                    source_folder, crop_mode='cell', timelapse=None,
+                    object_id=None):
     """Build the ``(image_name, folder_path, table_name)`` tuple for a cropped object."""
     non_zero_cell_ids = cell_id[cell_id != 0]
     cell_id_str = "multi" if non_zero_cell_ids.size > 1 else str(non_zero_cell_ids[0]) if non_zero_cell_ids.size == 1 else "none"
@@ -2249,6 +2251,12 @@ def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids, sou
     cell_nucleus_id_str = "multi" if cell_nucleus_ids.size > 1 else str(cell_nucleus_ids[0]) if cell_nucleus_ids.size == 1 else "none"
     cell_pathogen_ids = cell_pathogen_ids[cell_pathogen_ids != 0]
     cell_pathogen_id_str = "multi" if cell_pathogen_ids.size > 1 else str(cell_pathogen_ids[0]) if cell_pathogen_ids.size == 1 else "none"
+    object_ids = np.atleast_1d(object_id)
+    object_ids = object_ids[
+        np.array([value is not None and value != 0 for value in object_ids],
+                 dtype=bool)]
+    object_id_str = ("multi" if object_ids.size > 1 else
+                     str(object_ids[0]) if object_ids.size == 1 else "none")
     fldr = f"{source_folder}/data/"
     img_name = ""
     if crop_mode == 'nucleus':
@@ -2259,8 +2267,17 @@ def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids, sou
         img_name = f"{file_name}_{cell_id_str}_{cell_pathogen_id_str}.png"
         fldr += "single_nucleus/" if cell_nucleus_ids.size == 1 else "multiple_nucleus/" if cell_nucleus_ids.size > 1 else "no_nucleus/"
         fldr += "infected/" if cell_pathogen_ids.size >= 1 else "uninfected/"
-    elif crop_mode == 'cell' or crop_mode == 'cytoplasm' or crop_mode == 'organelle':
+    elif crop_mode in ('cell', 'cytoplasm'):
         img_name = f"{file_name}_{cell_id_str}.png"
+        fldr += "single_nucleus/" if cell_nucleus_ids.size == 1 else "multiple_nucleus/" if cell_nucleus_ids.size > 1 else "no_nucleus/"
+        fldr += "single_pathogen/" if cell_pathogen_ids.size == 1 else "multiple_pathogens/" if cell_pathogen_ids.size > 1 else "uninfected/"
+    elif crop_mode in schema.ORGANELLE_ROLES:
+        # The final token is the CROPPED organelle label, not its parent cell.
+        # png_list stores it in ``<role>_id`` and joins it to that role's
+        # object table. The legacy implementation wrote the cell label here,
+        # so an organelle crop could be keyed to an unrelated organelle that
+        # happened to reuse the same integer label.
+        img_name = f"{file_name}_{object_id_str}.png"
         fldr += "single_nucleus/" if cell_nucleus_ids.size == 1 else "multiple_nucleus/" if cell_nucleus_ids.size > 1 else "no_nucleus/"
         fldr += "single_pathogen/" if cell_pathogen_ids.size == 1 else "multiple_pathogens/" if cell_pathogen_ids.size > 1 else "uninfected/"
     else:
@@ -2273,7 +2290,7 @@ def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids, sou
         # An empty name is never something to hand to a file writer.
         raise ValueError(
             f"_generate_names has no naming rule for crop_mode={crop_mode!r}. "
-            f"Known crop modes: cell, nucleus, pathogen, cytoplasm, organelle.")
+            f"Known crop modes: {', '.join(schema.ALL_ROLES)}.")
     parts = file_name.split('_')
     plate = parts[0]
     well = parts[1] 
@@ -2315,16 +2332,15 @@ def _find_bounding_box(crop_mask, _id, buffer=10):
 #: Tables whose rows are child objects and therefore carry a parent-cell link.
 #: 'organelle' is here because measure._morphological_measurements maps each
 #: organelle to its enclosing cell, exactly as it does for nucleus and pathogen.
-_CHILD_OBJECT_TABLES = ('nucleus', 'pathogen', 'organelle')
+_CHILD_OBJECT_TABLES = schema.CHILD_OBJECT_TABLES
 
 #: Tables whose rows are parent objects summarised over their organelles. The
 #: row IS the parent, so object_label is the only key it needs — the same key
 #: set as 'cell'. Written by measure._summarize_organelles_per_parent.
-_ORGANELLE_SUMMARY_TABLES = ('cell_organelle_summary', 'nucleus_organelle_summary',
-                             'pathogen_organelle_summary', 'cytoplasm_organelle_summary')
+_ORGANELLE_SUMMARY_TABLES = schema.ORGANELLE_SUMMARY_TABLES
 
 #: Tables whose rows are top-level objects with no parent link.
-_PARENT_OBJECT_TABLES = ('cell', 'cytoplasm')
+_PARENT_OBJECT_TABLES = schema.PARENT_OBJECT_TABLES
 
 
 class MeasurementUnitsMismatch(ValueError):
@@ -3300,8 +3316,10 @@ def _pivot_counts_table(db_path):
 #: exactly this sequence and assigns each new raw channel the next dense
 #: position (`seen[ch] = len(mask_channels)`), so the axis is in ROLE order,
 #: deduplicated -- not in ascending channel order.
-MASK_CHANNEL_ROLE_ORDER = ("nucleus_channel", "cell_channel",
-                           "pathogen_channel", "organelle_channel")
+MASK_CHANNEL_ROLE_ORDER = (
+    "nucleus_channel", "cell_channel", "pathogen_channel",
+    *(f"{role}_channel" for role in schema.ORGANELLE_ROLES),
+)
 
 
 def dense_mask_channel_positions(settings):
@@ -3344,10 +3362,14 @@ def _get_cellpose_channels(settings):
     nucleus_ch = settings.get('cellpose_nucleus_channel')
     cell_ch = settings.get('cellpose_cell_channel')
     pathogen_ch = settings.get('cellpose_pathogen_channel')
-    organelle_ch = settings.get('cellpose_organelle_channel')
+    organelle_channels = {
+        role: settings.get(f'cellpose_{role}_channel')
+        for role in schema.ORGANELLE_ROLES
+    }
 
     all_channels = set()
-    for ch in [nucleus_ch, cell_ch, pathogen_ch, organelle_ch]:
+    for ch in [nucleus_ch, cell_ch, pathogen_ch,
+               *organelle_channels.values()]:
         if ch is not None:
             all_channels.add(ch)
 
@@ -3368,8 +3390,9 @@ def _get_cellpose_channels(settings):
     if pathogen_ch is not None:
         cellpose_channels['pathogen'] = [remap[pathogen_ch]]
 
-    if organelle_ch is not None:
-        cellpose_channels['organelle'] = [remap[organelle_ch]]
+    for role, channel in organelle_channels.items():
+        if channel is not None:
+            cellpose_channels[role] = [remap[channel]]
 
     return channels_to_extract, cellpose_channels
     

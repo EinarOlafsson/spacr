@@ -25,6 +25,8 @@ from .errors import RunLedger, raise_if_strict
 from . import artifacts as artifact_status
 from .runctx import run_context
 from .plot import save_figure  # every kept figure goes through the format/DPI preference
+from .object_roles import (ORGANELLE_ROLES, SEGMENTED_ROLES,
+                           enabled_organelle_roles)
 
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
@@ -264,19 +266,15 @@ def preprocess_generate_masks(settings):
                                         exc=e, settings=settings)
                                     return
 
-                        if (
-                            settings['cell_channel'] is None and
-                            settings['nucleus_channel'] is None and
-                            settings['pathogen_channel'] is None and
-                            settings.get('organelle_channel') is None
-                        ):
+                        if all(settings.get(f'{role}_channel') is None
+                               for role in SEGMENTED_ROLES):
                             # Category B: with no object channel there is nothing to
                             # segment, so returning None here is indistinguishable from
                             # a successful run that produced no masks.
-                            print(f'Error: At least one of cell_channel, nucleus_channel, pathogen_channel or organelle_channel must be defined')
+                            print('Error: At least one registered object channel must be defined')
                             raise_if_strict(
-                                'At least one of cell_channel / nucleus_channel / '
-                                'pathogen_channel / organelle_channel must be set; '
+                                'At least one registered *_channel (for example '
+                                'cell_channel or organelle_channel) must be set; '
                                 'no masks can be generated.', settings=settings)
                             return
             
@@ -307,12 +305,12 @@ def preprocess_generate_masks(settings):
                         if settings['preprocess']:
                             settings, src = preprocess_img_data(settings)
 
+                        organelle_roles = enabled_organelle_roles(settings)
                         files_to_process = sum([
                             settings['cell_channel'] is not None,
                             settings['nucleus_channel'] is not None,
                             settings['pathogen_channel'] is not None,
-                            settings.get('organelle_channel') is not None
-                        ])
+                        ]) + len(organelle_roles)
                         files_processed = 0
 
                         if settings['masks']:
@@ -374,19 +372,24 @@ def preprocess_generate_masks(settings):
                                     files_processed += 1
                                     print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'pathogen_mask_gen')
                         
-                            if settings['organelle_channel'] != None:
+                            for organelle_role in organelle_roles:
                                 cancellation_checkpoint()
                                 time_ls=[]
                                 if check_mask_folder(
-                                        src, 'organelle_mask_stack',
+                                        src, f'{organelle_role}_mask_stack',
                                         resume=settings.get('resume', False)):
                                     start = time.time()
-                                    generate_organelle_masks_sam(mask_src, settings, 'organelle')
+                                    generate_organelle_masks_sam(
+                                        mask_src, settings, organelle_role)
                                     stop = time.time()
                                     duration = (stop - start)
                                     time_ls.append(duration)
                                     files_processed += 1
-                                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'organelle_mask_gen')
+                                    print_progress(
+                                        files_processed, files_to_process,
+                                        n_jobs=1, time_ls=time_ls,
+                                        batch_size=None,
+                                        operation_type=f'{organelle_role}_mask_gen')
 
                             if settings['adjust_cells']:
                                 if not settings['timelapse']:
@@ -422,6 +425,9 @@ def preprocess_generate_masks(settings):
                                 settings.get('nucleus_channel'),
                                 settings.get('pathogen_channel'),
                                 settings.get('organelle_channel'),
+                                organelle_chann_dims={
+                                    role: settings.get(f'{role}_channel')
+                                    for role in ORGANELLE_ROLES[1:]},
                                 resume=settings.get('resume', False)
                             )
                 

@@ -26,19 +26,21 @@ it.
 """
 from __future__ import annotations
 
-from typing import Dict, Tuple
+from typing import Any, Dict, Mapping, Tuple
 
-#: Kinds that are SEGMENTED from an image channel -- each has its own mask,
-#: its own ``<role>_channel`` setting and its own detection parameters.
-SEGMENTED_ROLES: Tuple[str, ...] = ("cell", "nucleus", "pathogen", "organelle")
+from .schema import (ALL_ROLES, CHILD_ROLES, DERIVED_ROLES,
+                     ORGANELLE_ROLES, SEGMENTED_ROLES)
 
+#: Organelle slots use letter suffixes internally because object types are
+#: embedded directly in underscore-separated object keys: ``organelle_2``
+#: cannot round-trip through ``prcfo`` and ``organelle2`` is ambiguous with
+#: label 2. The first spelling is the legacy slot; the display/index helpers
+#: below present them as Organelle 1, 2, ... to users.
 #: Kinds that are DERIVED from the segmented ones rather than found in a
 #: channel. ``cytoplasm`` is cell-minus-nucleus-and-the-rest, so it has no
 #: channel, no diameter and no detection method -- which is exactly why
 #: :mod:`spacr.diameter` and :mod:`spacr.validate` leave it out of their own
 #: lists, and why a per-object neighbour measurement is meaningless for it.
-DERIVED_ROLES: Tuple[str, ...] = ("cytoplasm",)
-
 #: The segmented kinds that BELONG TO A CELL -- everything except the cell
 #: itself. Each is many-rows-per-cell and carries its parent's label in a
 #: ``cell_id`` column, which is what makes them roll up the same way.
@@ -48,12 +50,6 @@ DERIVED_ROLES: Tuple[str, ...] = ("cytoplasm",)
 #: FROM BOTH: asking for it returned a frame with no organelle columns and no
 #: message. Naming it once here is what lets a second organelle reach every
 #: reader by being added in one place -- which is the whole of instruction 76.
-CHILD_ROLES: Tuple[str, ...] = ("nucleus", "pathogen", "organelle")
-
-#: Every object kind, segmented and derived.
-ALL_ROLES: Tuple[str, ...] = SEGMENTED_ROLES + DERIVED_ROLES
-
-
 def is_segmented(role: str) -> bool:
     """True when ``role`` is found in a channel rather than derived.
 
@@ -62,6 +58,73 @@ def is_segmented(role: str) -> bool:
         look for a channel setting and an unknown kind simply has none.
     """
     return role in SEGMENTED_ROLES
+
+
+def is_organelle(role: str) -> bool:
+    """True when ``role`` is one of the closed organelle slots."""
+    return str(role) in ORGANELLE_ROLES
+
+
+def organelle_index(role: str) -> int:
+    """Return the one-based user-facing index of an organelle slot."""
+    try:
+        return ORGANELLE_ROLES.index(str(role)) + 1
+    except ValueError as exc:
+        raise ValueError(
+            f"{role!r} is not an organelle role; expected one of "
+            f"{list(ORGANELLE_ROLES)}") from exc
+
+
+def organelle_label(role: str) -> str:
+    """Human-readable label for a slot (``Organelle 1``, ``Organelle 2``)."""
+    return f"Organelle {organelle_index(role)}"
+
+
+def setting_label(key: str) -> str:
+    """Humanise a setting key, giving organelle slots numbered labels."""
+    key = str(key)
+    for role in sorted(ORGANELLE_ROLES, key=len, reverse=True):
+        if key == role or key.startswith(f'{role}_'):
+            suffix = key[len(role):].lstrip('_').replace('_', ' ')
+            return (organelle_label(role) if not suffix else
+                    f'{organelle_label(role)} — {suffix.capitalize()}')
+    return key.replace('_', ' ').strip().capitalize()
+
+
+def role_setting(role: str, suffix: str) -> str:
+    """Return the setting key for ``suffix`` in one segmented role."""
+    role = str(role)
+    if role not in SEGMENTED_ROLES:
+        raise ValueError(f"{role!r} is not a segmented role")
+    return f"{role}_{str(suffix).lstrip('_')}"
+
+
+def enabled_organelle_roles(settings: Mapping[str, Any]) -> Tuple[str, ...]:
+    """Organelle slots whose ``<role>_channel`` is enabled, in plane order."""
+    return tuple(role for role in ORGANELLE_ROLES
+                 if settings.get(role_setting(role, "channel")) is not None)
+
+
+def organelle_settings_view(settings: Mapping[str, Any], role: str) -> Dict[str, Any]:
+    """Return a copy exposing one slot through the legacy ``organelle_*`` API.
+
+    The classical organelle segmenter predates slots and reads roughly forty
+    ``organelle_*`` keys. Keeping that well-tested implementation and adapting
+    one settings view at its boundary prevents four copies of the algorithm.
+    """
+    if role not in ORGANELLE_ROLES:
+        raise ValueError(f"unknown organelle role {role!r}")
+    out = dict(settings)
+    if role == "organelle":
+        return out
+    prefix = f"{role}_"
+    for key, value in settings.items():
+        if str(key).startswith(prefix):
+            out[f"organelle_{str(key)[len(prefix):]}"] = value
+    recorded = settings.get(f"cellpose_{role}_channel")
+    if recorded is not None:
+        out["cellpose_organelle_channel"] = recorded
+    return out
 
 
 def ordered(*roles: str) -> Tuple[str, ...]:
@@ -107,7 +170,7 @@ ANCHOR_COLUMN: Dict[str, str] = {
     "cytoplasm": "object_label",
     "nucleus": "cell_id",
     "pathogen": "cell_id",
-    "organelle": "cell_id",
+    **{role: "cell_id" for role in ORGANELLE_ROLES},
     "png_list": "cell_id",
 }
 
@@ -160,7 +223,7 @@ JOIN_HOW: Dict[str, str] = {
     "cytoplasm": "left",
     "nucleus": "inner",
     "pathogen": "left",
-    "organelle": "left",
+    **{role: "left" for role in ORGANELLE_ROLES},
     "png_list": "inner",
 }
 
@@ -178,6 +241,6 @@ def join_how(table: str, *, keep_uninfected: bool = True) -> str:
     """
     key = str(table).strip().lower()
     how = JOIN_HOW.get(key, "left")
-    if not keep_uninfected and key in ("pathogen", "organelle"):
+    if not keep_uninfected and (key == "pathogen" or key in ORGANELLE_ROLES):
         return "inner"
     return how

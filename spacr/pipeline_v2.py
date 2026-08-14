@@ -612,7 +612,8 @@ def stream_masks_from_stack(
                 for image in selected_images
             ]
             normalization_settings = dict(postprocess_settings)
-            for role in ("cell", "nucleus", "pathogen", "organelle"):
+            from .object_roles import SEGMENTED_ROLES
+            for role in SEGMENTED_ROLES:
                 normalization_settings[f"{role}_channel"] = None
             normalization_settings[f"{object_type}_channel"] = 0
             if object_type == "cell" and selected_images[0].ndim == 3 \

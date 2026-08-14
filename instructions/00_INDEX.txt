@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-74 done / 12 open (86%).
+75 done / 11 open (87%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -55,10 +55,6 @@ OPEN
    60  EVERY MODULE AT 100% TEST COVERAGE
        [scoped by the maintainer to mask, utils, measure, deep_spacr]
        60_every_module_to_100_percent_test_coverage.txt
-
-   76  MORE THAN ONE ORGANELLE: organelle, organelle_1, organelle_2, ...
-       [not started]
-       76_more_than_one_organelle.txt
 
    81  CLOSE THE GITHUB ISSUES BY FIXING THEM, AND CLOSE THEM AS THE MAINTAINER
        [BLOCKED: needs the reporter's `df -T` and a stack trace]
@@ -134,6 +130,7 @@ DONE
    73  AN "ADVANCED SETTINGS" CATEGORY, ORGANISED BY WHAT A SETTING DOES
    74  LOAD EVERYTHING BEHIND A LOADING SCREEN, THEN SHOW A READY APP
    75  IMAGE UMAP: THE NORMAL FIGURE VIEW, LIVE SETTINGS, AND A PROPAGATE BUTTON
+   76  MORE THAN ONE ORGANELLE: organelle, organelle_1, organelle_2, ...
    77  THE SETTINGS NOTHING READS, AND THE NUMBERS THAT COME OUT WRONG
    78  THE LOADING SCREEN BACKGROUND IS TEAL; MAKE IT BLACK OR DARK GREY
    79  ONE ANCHOR, ONE COPY OF EACH COLUMN, AND THE RIGHT AGGREGATION FOR EACH KIND

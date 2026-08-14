@@ -291,7 +291,8 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
     size_dict = set_element_size()
     size_dict['settings_width'] = size_dict['settings_width'] - int(size_dict['settings_width'] * 0.1)
 
-    label_text = label_text.replace('_', ' ').capitalize()
+    from .object_roles import setting_label
+    label_text = setting_label(label_text)
 
     frame.grid_columnconfigure(0, weight=1)
 

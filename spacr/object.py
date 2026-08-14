@@ -1474,12 +1474,14 @@ def generate_organelle_masks_sam(src, settings, object_type):
     from .io import (_check_masks, _create_database, _get_avg_object_size,
                      _save_array_atomic, _save_object_counts_to_database)
     from .settings import _set_organelle_defaults
+    from .object_roles import organelle_settings_view
     from.plot import plot_organelle_output
     from .cancellation import checkpoint as cancellation_checkpoint
 
     gc.collect()
 
-    settings = _set_organelle_defaults(settings)
+    settings = organelle_settings_view(
+        _set_organelle_defaults(settings), object_type)
 
     # This generator has no 4-D path. Say so rather than returning 2-D masks
     # to a user whose settings said 4-D.
@@ -1938,10 +1940,11 @@ def _segment_cellpose_sam(batch, batch_filenames, model, settings, object_type, 
         selected_channels = [settings.get('cell_channel'), settings.get('nucleus_channel')]
     elif object_type == 'pathogen':
         selected_channels = [settings.get('pathogen_channel')]
-    elif object_type == 'organelle':
-        selected_channels = [settings.get('organelle_channel')]
     else:
-        raise ValueError(f"Unsupported object_type: {object_type}")
+        from .object_roles import ORGANELLE_ROLES
+        if object_type not in ORGANELLE_ROLES:
+            raise ValueError(f"Unsupported object_type: {object_type}")
+        selected_channels = [settings.get('organelle_channel')]
 
     selected_channels = [ch for ch in selected_channels if ch is not None]
 

@@ -4,10 +4,45 @@ import inspect
 import logging
 import sys
 import os, ast
+from copy import deepcopy
 from .organelle_types import (DEFAULT_TYPE as DEFAULT_ORGANELLE_TYPE,
                               apply_preset)
+from .object_roles import ORGANELLE_ROLES, organelle_index
 
 LOG = logging.getLogger(__name__)
+
+
+def _organelle_slot_key(key, role):
+    """Translate a primary ``organelle_*`` key to one slot's key."""
+    if not str(key).startswith('organelle_'):
+        raise ValueError(f"not an organelle setting: {key!r}")
+    return f"{role}_{str(key)[len('organelle_'):]}"
+
+
+def _clone_primary_organelle_values(settings):
+    """Default every secondary slot from the primary slot's current values."""
+    primary = [(key, deepcopy(value)) for key, value in settings.items()
+               if str(key).startswith('organelle_')]
+    for role in ORGANELLE_ROLES[1:]:
+        for key, value in primary:
+            settings.setdefault(_organelle_slot_key(key, role),
+                                deepcopy(value))
+    return settings
+
+
+def _clone_organelle_registry(mapping, *, tooltip=False):
+    """Generate secondary-slot entries from one primary settings registry."""
+    primary = [(key, value) for key, value in mapping.items()
+               if str(key).startswith('organelle_')]
+    for role in ORGANELLE_ROLES[1:]:
+        number = organelle_index(role)
+        for key, value in primary:
+            cloned = value
+            if tooltip and isinstance(value, str):
+                cloned = value.replace('organelle_', f'{role}_')
+                cloned = cloned.replace('organelle ', f'organelle {number} ')
+            mapping.setdefault(_organelle_slot_key(key, role), cloned)
+    return mapping
 
 #from wsgiref import types
 
@@ -558,6 +593,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('nucleus_max_intensity_percentile', 100)
     settings.setdefault('pathogen_max_intensity_percentile', 100)
     settings.setdefault('organelle_max_intensity_percentile', 100)
+    _clone_primary_organelle_values(settings)
     # NOTE: `timelapse`, the `timelapse_*` knobs above and `motility_analysis`
     # are deliberately still defaulted here even though the Mask *module* no
     # longer surfaces them in its GUI (they moved to the standalone Timelapse
@@ -1067,6 +1103,9 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('nucleus_min_size',0)
     settings.setdefault('pathogen_min_size',0)
     settings.setdefault('organelle_min_size',0)
+    for _role in ORGANELLE_ROLES[1:]:
+        settings.setdefault(f'{_role}_mask_dim', None)
+        settings.setdefault(f'{_role}_min_size', 0)
     settings.setdefault('cytoplasm_min_size',0)
     settings.setdefault('merge_edge_pathogen_cells', True)
     
@@ -1099,9 +1138,8 @@ def get_measure_crop_settings(settings=None):
     # tell "the user asked for no organelle summary" from "nobody asked".
     #
     # 'cell' is the documented default and is what the mask pipeline already
-    # sets. It writes `cell_organelle_summary` only: the expensive
-    # per-organelle table needs 'organelle' in the value, and "organelle" is
-    # not a substring of "cell", so the raw table stays opt-in.
+    # sets. Raw per-object tables are controlled solely by each slot's
+    # ``*_mask_dim``; this setting controls only the optional parent rollups.
     settings.setdefault('summarize_organelles_by', 'cell')
     return settings
 
@@ -2367,7 +2405,7 @@ expected_types = {
     'organelle_ring_sigma_outer':float,
     'organelle_ring_min_prominence':float, 
     'organelle_ring_fill_method':str,
-    'summarize_organelles_by':str,
+    'summarize_organelles_by':(str, list, type(None)),
     'early_stopping_patience':int,
     'class_balance':str,
     'strict_errors':(bool, type(None)),
@@ -2508,6 +2546,11 @@ expected_types = {
     'nr': int,
     'save_dtype': str,
 }
+
+_clone_organelle_registry(expected_types)
+DYNAMIC_ORGANELLE_SETTINGS = frozenset(
+    key for key in expected_types
+    if any(key.startswith(f'{role}_') for role in ORGANELLE_ROLES[1:]))
 
 #: Settings that are declared -- typed here, tooltipped, offered by a GUI
 #: category -- but that NOTHING in spaCR reads. Setting one is a silent no-op,
@@ -2992,7 +3035,7 @@ tooltips = {
     'organelle_ring_sigma_outer': "(float) - High sigma of the ring Difference-of-Gaussians band-pass, in pixels; it sets the coarse scale that gets subtracted, so keep it around the ring's outer radius. Widen the gap from organelle_ring_sigma_inner to enhance larger rings, narrow it for tight vesicles. Default 3.0; must exceed organelle_ring_sigma_inner.",
     'organelle_ring_min_prominence': "(float) - Shape gate for ring mode: for each filled object spacr computes abs(mean wall intensity minus mean lumen intensity) divided by the object's mean intensity, and deletes anything below this value. Raise it to keep only clearly hollow objects, lower it to also accept partly filled ones. 0 disables the gate. Default 0.1.",
     'organelle_ring_fill_method': "(str) - How detected ring walls become solid objects: 'flood' fills every background component that does not touch the image border - accurate, but leaks through any gap in the wall - while 'convex' takes the convex hull of each wall component, which tolerates broken rings but overshoots concave shapes. Default 'flood'; switch to 'convex' when rings come out unfilled.",
-    'summarize_organelles_by': "(list or None) - Parent compartments to roll organelle measurements up into. Accepts 'cell', 'nucleus', 'pathogen', 'cytoplasm', each writing a <parent>_organelle_summary table of per-parent organelle count, total/mean/std area, area fraction of the parent, mean/std eccentricity and solidity, axis lengths and per-channel mean intensity; include 'organelle' to also save the raw per-organelle table. Default 'cell'; None writes nothing.",
+    'summarize_organelles_by': "(str, list or None) - Parent compartments to roll every enabled organelle slot into. Accepts 'cell', 'nucleus', 'pathogen' and 'cytoplasm'; each writes one <parent>_organelle_summary row per parent with a separate organelle_summary_<slot>_* column family. Raw per-organelle tables are always written when their mask dim is enabled. Default 'cell'; None disables only these rollups.",
     'cell_perimeter_fraction': "(float) - For each touching pair of cell labels, the shared boundary length divided by the smaller object's perimeter; pairs at or above this fraction are merged into one cell. Low values such as 0.1 merge aggressively and can fuse true neighbours, high values only rejoin pieces of the same cell. 0 disables perimeter merging. Default 0.",
     'nucleus_perimeter_fraction': "(float) - Merge two touching nucleus labels when their shared boundary covers at least this fraction of the smaller object's perimeter. Low non-zero values merge aggressively (0.1 joins barely-touching nuclei); high values only fuse objects sharing most of an edge. Range 0-1; 0 (default) disables perimeter merging. Use it when one nucleus is split into fragments.",
     'pathogen_perimeter_fraction': "(float) - Fraction, 0-1, of the SMALLER label's perimeter that two touching pathogen objects must share before they are fused into one. 0, the default, disables perimeter merging; values near 0.1 fuse almost anything that touches, while 0.5-0.8 fuse only objects with a long common border. Use it to repair vacuoles Cellpose cut in two.",
@@ -3121,7 +3164,7 @@ tooltips = {
     'cross_validation': "(bool) - Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
     'cross_validation_folds': "(int) - Number of k-fold splits the vision classifier is trained with in place of the single val_split hold-out. 0 (the default) or 1 keeps today's one random split; 2 or more trains a fresh model per fold, scores each on the fold it never saw, and reports the mean together with the fold-to-fold standard deviation and range - which is the only way to see whether one lucky split was flattering the model. Costs roughly k times the training time. Distinct from 'cross_validation', which is the regression pipeline's own toggle.",
     'cross_validation_enabled': "(bool) - Enable k-fold validation for Classify. If cross_validation_folds is 0 or 1, enabling this uses 5 folds. Use cv_group_by='plate' to hold out whole plates, or 'well'/'field' for within-plate validation without leaking related crops between training and validation. Default False.",
-    'cv_group_by': "(str) - Train/test independence ladder: 'cell', 'field', 'well' (default), or 'plate'. Cell is an ordinary per-object split and can place sibling crops from one well on both sides; field narrows but does not close that leak; well matches the usual experimental assignment unit; plate holds out a complete batch. Whole groups make the requested fraction approximate, so runs report both held-out groups and cells. Legacy 'none'/'off' values remain aliases for 'cell'. Crop identities are parsed from spaCR's plate_well_field_object.png names, and unverifiable grouped designs are refused rather than silently randomized.",
+    'cv_group_by': "(str) - Train/test independence: 'cell', 'field', 'well' (default), or 'plate'. Cell can place sibling crops from one well on both sides; field narrows but does not close that leak; well matches the usual experimental assignment unit; plate holds out a complete batch. Whole groups make the requested fraction approximate, so runs report held-out groups and cells. Legacy 'none'/'off' alias 'cell'. Crop identities come from spaCR's plate_well_field_object.png names; unverifiable grouped designs are refused rather than silently randomized.",
     'classifier_evaluation': "(bool) - Build the Classifier Evaluation workbench bundle from out-of-fold predictions after Classify (CV): sample-level predictions, confusion matrices, reliability curves, calibrated probabilities, per-plate metrics, leakage reports and a manifest. It requires cross_validation_folds >= 2; a single train/validation split cannot produce unbiased out-of-fold diagnostics. Default True. API: spacr.classifier_evaluation.evaluate_predictions.",
     'nested_cv_inner_folds': "(int) - Number of inner grouped folds used inside every outer CV fold. 0 (default) keeps the faster ordinary grouped CV; 2 or more trains one inner model per fold, uses inner validation for early stopping/model selection, ensembles those models, and evaluates only once on the untouched outer fold. Runtime is approximately outer_folds x inner_folds training runs, but the outer score is not reused for tuning. API: spacr.classifier_evaluation.nested_group_folds.",
     'evaluation_calibration': "(str) - Probability calibration written to the evaluation bundle. 'temperature' cross-fits one scalar temperature per held-out fold using all other out-of-fold predictions, so a sample never fits its own calibrator; 'none' retains raw softmax probabilities. Calibration changes reported probabilities, not the saved model weights. Default 'temperature'. API: spacr.classifier_evaluation.cross_calibrate_probabilities.",
@@ -3209,6 +3252,8 @@ tooltips = {
     'volcano': "(str) - Which coefficient table the volcano plot is drawn from: 'gene' (default) plots per-gene coefficients, 'grna' per-gRNA, 'all' the full merged table; any other value skips the plot. Points are coloured by TAGM/LOPIT localisation, and the gene list it returns drives the phenotype and transcription plots. Only takes effect when toxo is True.",
     'x_lim': "(list) - Two-element [min, max] limits on the coefficient (x) axis of the Toxoplasma volcano plot produced by the regression pipeline when toxo mode is on. Narrow it to zoom in on hits clustered near zero, widen it to keep large-effect genes on the plot. Leaving it None falls back to [-0.5, 0.5], not auto-scaling. Default None."
 }
+
+_clone_organelle_registry(tooltips, tooltip=True)
 
 # Keys owned by the standalone Timelapse module (spacr.qt app key 'timelapse').
 # NOTE `timelapse` itself is NOT in this list: it lives in the "General"
@@ -3555,8 +3600,8 @@ _ADVANCED_REGROUP_EXEMPT = ("Measurements",)
 
 #: Object order within each family heading, so the same decision for four
 #: objects reads as one block rather than four scattered rows.
-_ADVANCED_OBJECT_ORDER = ("cell", "nucleus", "pathogen", "cytoplasm",
-                          "organelle")
+_ADVANCED_OBJECT_ORDER = (
+    "cell", "nucleus", "pathogen", "cytoplasm", *ORGANELLE_ROLES)
 
 
 def _advanced_family_members(table, family_suffixes):
@@ -3615,6 +3660,17 @@ def _regroup_advanced(table):
             if v or k in dict(_ADVANCED_FAMILIES)}
 
 
+for _role in ORGANELLE_ROLES[1:]:
+    categories['Organelle'].extend(
+        _organelle_slot_key(key, _role) for key in organelle_basic_settings
+        if key.startswith('organelle_'))
+    categories['Organelle advanced'].extend(
+        _organelle_slot_key(key, _role) for key in organelle_advanced_settings
+        if key.startswith('organelle_'))
+    for _suffix in ('channel', 'mask_dim', 'chann_dim'):
+        _key = f'{_role}_{_suffix}'
+        if _key in expected_types and _key not in categories['General']:
+            categories['General'].append(_key)
 categories = _regroup_advanced(categories)
 
 category_dependencies = {
@@ -3633,8 +3689,9 @@ category_integer_dependencies = {
     # Both organelle categories are gated on the channel, not just the
     # first: splitting the category would otherwise leave "Organelle
     # advanced" showing on a run that does no organelle segmentation at all.
-    ('organelle_channel', 'organelle_mask_dim'): ['Organelle',
-                                                  'Organelle advanced'],
+    tuple(key for role in ORGANELLE_ROLES
+          for key in (f'{role}_channel', f'{role}_mask_dim')): [
+              'Organelle', 'Organelle advanced'],
 }
 
 # Categories shown only when a setting equals a specific value.
@@ -4591,4 +4648,18 @@ def _set_organelle_defaults(settings):
                                  explain=bool(settings.get('verbose'))))
     for key, val in defaults.items():
         settings.setdefault(key, val)
+    # Each secondary slot gets the same defaults and its own independent type
+    # preset. Translate only at this boundary so the preset implementation has
+    # one vocabulary and one set of tests.
+    for role in ORGANELLE_ROLES[1:]:
+        view = {'verbose': settings.get('verbose', False)}
+        prefix = f'{role}_'
+        for key, value in settings.items():
+            if str(key).startswith(prefix):
+                view[f"organelle_{str(key)[len(prefix):]}"] = value
+        view = apply_preset(view, explain=bool(settings.get('verbose')))
+        for key, value in defaults.items():
+            slot_key = _organelle_slot_key(key, role)
+            base_value = view.get(key, value)
+            settings.setdefault(slot_key, deepcopy(base_value))
     return settings

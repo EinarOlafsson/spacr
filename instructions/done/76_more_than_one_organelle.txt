@@ -276,3 +276,55 @@ test and explained in a comment, so nobody tidies it away.
 This is the second claim from that survey to be disproven by checking rather
 than assumed correct. Recorded here for the same reason as the first: an
 instruction that lists a non-bug wastes the next person's afternoon.
+
+--------------------------------------------------------------------------------
+2026-08-14 - COMPLETE: FOUR INDEPENDENT ORGANELLE SLOTS, END TO END
+--------------------------------------------------------------------------------
+
+The closed registry now exposes four stable internal roles:
+
+    organelle, organelleb, organellec, organelled
+
+They display as Organelle 1 through Organelle 4. Letter suffixes are
+deliberate: object type and numeric label are concatenated inside prcfo, so
+an underscore would split the key and a digit would make the type/label
+boundary ambiguous. The schema validates those constraints at import.
+Existing `organelle_*` settings and the `organelle` table remain slot 1,
+unchanged; secondary slots default off.
+
+Each slot has generated (not copied) defaults, types, tooltips, categories,
+Qt/Tk labels and its own biological type preset. The mask pipeline loops the
+enabled slots, passes each through one legacy-compatible scoped settings
+view, writes a distinct `<role>_mask_stack`, and appends all enabled masks to
+merged arrays. A versioned `.spacr_plane_layout.json` sidecar records channel
+and mask order. Measure and on-demand crops consume it; explicit conflicting
+mask dims and resume under a changed layout are refused before a wrong plane
+can be measured.
+
+Measurement is no longer five-positional internally. Every enabled slot gets
+its own morphology, intensity, ring/outside, radial, colocalisation, spatial,
+parent-link, crop and SQLite paths. The database design is N object tables
+(`organelle`, `organelleb`, ...) so existing table meaning and typed object
+keys remain intact. The four existing `<parent>_organelle_summary` tables
+remain one-row-per-parent and widen with a separately namespaced column
+family for every enabled slot; they do not multiply into N tables.
+`summarize_organelles_by` now accepts str/list/None with exact membership and
+controls only rollups. Raw per-object tables are written whenever a slot's
+mask dim is enabled.
+
+Cytoplasm subtracts every slot. Cell culling clears every slot. Region hooks,
+resume ownership, schema contracts, table readers/mergers, feature parsing,
+model feature scopes, PNG IDs, external-mask import and crop readers all use
+the registry. A secondary organelle crop is keyed by its own label rather
+than by the parent cell label.
+
+The dedicated contract (`tests/test_multiple_organelles.py`) covers two-slot
+segmentation layout, plane provenance/conflict and resume refusal, independent
+presets, full real measurement/database output, wide summaries, cytoplasm
+exclusion, feature parsing, merged-table reads, crop IDs and legacy defaults.
+Related database, settings, Qt, external-mask, schema, resume and golden
+pipeline suites also pass. Final focused verification: 610 passed, 1 skipped,
+1 expected xfail in the settings/Qt integration suite; 142 database-contract
+tests; 11 dedicated/orchestration edge tests; and the 865-test measurement,
+schema, settings, crop and golden-pipeline sweep after updating obsolete bug
+guards.

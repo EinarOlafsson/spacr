@@ -50,7 +50,8 @@ LOG = logging.getLogger(__name__)
 # they used to carry three hand-written copies of "ABCDEFGHIJKLMNOP" and
 # range(1, 25), which stop at P24.
 from . import convert as _cv
-from .object_roles import CHILD_ROLES, join_how, ordered
+from .object_roles import CHILD_ROLES, ORGANELLE_ROLES, join_how
+from .crops import MERGED_LAYOUT_SIDECAR
 from .merge_tables import reconcile_duplicates
 
 
@@ -2104,7 +2105,12 @@ def preprocess_img_data(settings):
 
     #mask_channels = [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel'], settings['organelle_channel']]
     
-    mask_channels_raw = [settings.get('nucleus_channel'), settings.get('cell_channel'), settings.get('pathogen_channel'), settings.get('organelle_channel')]
+    from .object_roles import ORGANELLE_ROLES
+    mask_channel_keys = (
+        'nucleus_channel', 'cell_channel', 'pathogen_channel',
+        *(f'{role}_channel' for role in ORGANELLE_ROLES),
+    )
+    mask_channels_raw = [settings.get(key) for key in mask_channel_keys]
     
     # Deduplicate while tracking positions. Coerce to int: channel indices
     # loaded from a settings CSV (or passed from the GUI) can arrive as
@@ -2249,7 +2255,7 @@ def preprocess_img_data(settings):
                               save_dtype=np.float32,
                               settings=settings)
         
-    for key in ['nucleus_channel', 'cell_channel', 'pathogen_channel', 'organelle_channel']:
+    for key in mask_channel_keys:
         ch = settings.get(key)
         if ch is None:
             continue
@@ -3217,7 +3223,10 @@ def _load_array_any(path):
     return np.load(path, allow_pickle=True)
 
 
-def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_dim, pathogen_chann_dim, organelle_chann_dim, resume=False):
+def _load_and_concatenate_arrays(
+        src, channels, cell_chann_dim, nucleus_chann_dim,
+        pathogen_chann_dim, organelle_chann_dim, resume=False,
+        organelle_chann_dims=None):
     """
     Load and concatenate arrays from multiple folders.
 
@@ -3251,18 +3260,21 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
     from .resume import completed_fields_in_merged, format_resume, plan_resume
 
     folder_paths = [os.path.join(src+'/stack')]
+    mask_roles = []
 
-    if cell_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'cell_mask_stack')):
-        folder_paths = folder_paths + [os.path.join(src, 'masks','cell_mask_stack')]
-    
-    if nucleus_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'nucleus_mask_stack')):
-        folder_paths = folder_paths + [os.path.join(src, 'masks','nucleus_mask_stack')]
-    
-    if pathogen_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'pathogen_mask_stack')):
-        folder_paths = folder_paths + [os.path.join(src, 'masks','pathogen_mask_stack')]
-    
-    if organelle_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'organelle_mask_stack')):
-        folder_paths = folder_paths + [os.path.join(src, 'masks','organelle_mask_stack')]
+    def add_mask_folder(role, enabled):
+        folder = os.path.join(src, 'masks', f'{role}_mask_stack')
+        if enabled is not None or os.path.exists(folder):
+            folder_paths.append(folder)
+            mask_roles.append(role)
+
+    add_mask_folder('cell', cell_chann_dim)
+    add_mask_folder('nucleus', nucleus_chann_dim)
+    add_mask_folder('pathogen', pathogen_chann_dim)
+    add_mask_folder('organelle', organelle_chann_dim)
+    extra_dims = dict(organelle_chann_dims or {})
+    for role in ORGANELLE_ROLES[1:]:
+        add_mask_folder(role, extra_dims.get(role))
 
     output_folder = src+'/merged'
     reference_folder = folder_paths[0]
@@ -3272,6 +3284,47 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
     reference_files = os.listdir(reference_folder)
     all_imgs = len(reference_files)
     time_ls = []
+    layout_written = False
+
+    # A resume may skip every array, so validate the existing manifest before
+    # deciding what is complete. Reusing arrays under a different role layout
+    # is worse than redoing work: all planes still exist, but their biological
+    # names have changed and measurement would return plausible wrong values.
+    reference_npy = next(
+        (name for name in reference_files if name.endswith('.npy')), None)
+    if reference_npy is not None:
+        if channels is None:
+            reference_array = np.load(
+                os.path.join(reference_folder, reference_npy), mmap_mode='r')
+            n_intensity_for_layout = int(reference_array.shape[-1])
+        else:
+            n_intensity_for_layout = len(channels)
+        intended_layout = {
+            'version': 1,
+            'intensity_channels': (
+                list(channels) if channels is not None
+                else list(range(n_intensity_for_layout))),
+            'mask_plane_order': list(mask_roles),
+            'mask_dims': {
+                role: n_intensity_for_layout + index
+                for index, role in enumerate(mask_roles)
+            },
+        }
+        manifest_path = os.path.join(output_folder, MERGED_LAYOUT_SIDECAR)
+        if resume and os.path.isfile(manifest_path):
+            try:
+                with open(manifest_path, 'r', encoding='utf-8') as handle:
+                    existing_layout = json.load(handle)
+            except (OSError, json.JSONDecodeError) as exc:
+                raise ValueError(
+                    f'Cannot resume: merged plane layout is unreadable: '
+                    f'{manifest_path}: {exc}') from exc
+            if existing_layout != intended_layout:
+                raise ValueError(
+                    'Cannot resume merged arrays with a different plane '
+                    f'layout. Existing: {existing_layout!r}; requested: '
+                    f'{intended_layout!r}. Start a non-resume merge into a '
+                    'clean destination so every field uses one layout.')
 
     # Opt-in resume: skip fields whose merged stack is already there AND
     # verified complete. Reported before any work starts, so a resume that
@@ -3317,6 +3370,40 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
                     # merged, measured and produced numbers. The two spellings
                     # are identical for 2-D, so the ordinary path is unchanged.
                     concatenated_array = np.take(concatenated_array, channels, axis=-1)
+
+                if not layout_written:
+                    n_intensity = int(concatenated_array.shape[-1])
+                    layout = {
+                        'version': 1,
+                        'intensity_channels': (
+                            list(channels) if channels is not None
+                            else list(range(n_intensity))),
+                        'mask_plane_order': list(mask_roles),
+                        'mask_dims': {
+                            role: n_intensity + index
+                            for index, role in enumerate(mask_roles)
+                        },
+                    }
+                    fd, temporary = tempfile.mkstemp(
+                        prefix='.spacr_plane_layout_', suffix='.json',
+                        dir=output_folder)
+                    try:
+                        with os.fdopen(fd, 'w', encoding='utf-8') as handle:
+                            json.dump(layout, handle, indent=2, sort_keys=True)
+                            handle.write('\n')
+                            handle.flush()
+                            os.fsync(handle.fileno())
+                        os.replace(
+                            temporary,
+                            os.path.join(output_folder,
+                                         MERGED_LAYOUT_SIDECAR))
+                    except BaseException:
+                        try:
+                            os.remove(temporary)
+                        except OSError:
+                            pass
+                        raise
+                    layout_written = True
 
                 # Add the array from the reference folder to 'stack_ls'
                 stack_ls.append(concatenated_array)
@@ -3942,37 +4029,37 @@ def _read_and_merge_data(
 
         pathogen_counts = pathogens.groupby('prcfo')['prcfo'].size().rename('pathogen_prcfo_count')
 
-    if 'organelle' in data_dict:
-        # ORGANELLE WAS ABSENT FROM THIS READER ENTIRELY. There is one
-        # hardcoded block per table above -- cytoplasm, nucleus, pathogen --
-        # and no organelle block, so asking for it read the table, dropped it,
-        # and returned a frame with no organelle columns and no message.
-        #
-        # It is a cell_id-linked child exactly like nucleus and pathogen, so
-        # this block mirrors theirs. Instruction 76 cannot add a SECOND
-        # organelle until the first one arrives here.
-        organelles = data_dict['organelle'].copy()
+    for organelle_role in ORGANELLE_ROLES:
+        if organelle_role not in data_dict:
+            continue
+        organelles = data_dict[organelle_role].copy()
         organelles = organelles.dropna(subset=['cell_id'])
         organelles = organelles.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
         organelles = organelles.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
         organelles = organelles.assign(prcfo=lambda x: x['prcf'] + '_' + x['cell_id'])
-        organelles['organelle_prcfo_count'] = organelles.groupby('prcfo')['prcfo'].transform('count')
+        count_column = f'{organelle_role}_prcfo_count'
+        organelles[count_column] = organelles.groupby('prcfo')['prcfo'].transform('count')
 
-        if all(key not in data_dict for key in ['cell', 'cytoplasm', 'nucleus', 'pathogen']):
+        earlier = ['cell', 'cytoplasm', 'nucleus', 'pathogen'] + list(
+            ORGANELLE_ROLES[:ORGANELLE_ROLES.index(organelle_role)])
+        if all(key not in data_dict for key in earlier):
             merged_df, metadata = _split_object_data(
                 organelles, 'prcfo', 'cell_id')
             metadata_key = 'cell_id'
 
             if verbose:
-                print(f'organelles: {len(organelles)}, organelles grouped: {len(merged_df)}')
+                print(f'{organelle_role}: {len(organelles)}, '
+                      f'{organelle_role} grouped: {len(merged_df)}')
 
         else:
             organelles_g_df, _ = _split_object_data(
                 organelles, 'prcfo', 'cell_id')
-            merged_df = _merge_grouped(merged_df, organelles_g_df, 'organelle')
+            merged_df = _merge_grouped(
+                merged_df, organelles_g_df, organelle_role)
 
             if verbose:
-                print(f'organelles: {len(organelles)}, organelles grouped: {len(organelles_g_df)}')
+                print(f'{organelle_role}: {len(organelles)}, '
+                      f'{organelle_role} grouped: {len(organelles_g_df)}')
 
     if 'png_list' in data_dict:
         from .utils import PNG_CROP_MODE_BY_ID_COLUMN, PNG_OBJECT_ID_COLUMNS, object_label_from_png_id
@@ -4054,7 +4141,10 @@ def _read_and_merge_data(
     if verbose:
         print(f'Generated dataframe with: {len(merged_df.columns)} columns and {len(merged_df)} rows')
 
-    obj_df_ls = [data_dict[table] for table in ['cell', 'cytoplasm', 'nucleus', 'pathogen'] if table in data_dict]
+    object_table_order = [
+        'cell', 'cytoplasm', 'nucleus', 'pathogen', *ORGANELLE_ROLES]
+    obj_df_ls = [data_dict[table] for table in object_table_order
+                 if table in data_dict]
 
     return merged_df, obj_df_ls
 
@@ -4211,13 +4301,15 @@ def parse_gz_files(folder_path):
 #: Object types that can be cut on demand.
 #: Crop order, which differs from the hook order on purpose. Membership is
 #: checked against spacr.object_roles; the order stays here.
-CROP_OBJECT_TYPES = ordered('cell', 'nucleus', 'pathogen', 'cytoplasm', 'organelle')
+CROP_OBJECT_TYPES = (
+    'cell', 'nucleus', 'pathogen', 'cytoplasm', *ORGANELLE_ROLES)
 
 #: ``png_list`` column holding the object id (``'o<N>'``) for each crop mode,
 #: as written by :func:`spacr.utils.filepaths_to_database`.
 PNG_LIST_ID_COLUMNS = {
     'cell': 'cell_id', 'nucleus': 'nucleus_id', 'pathogen': 'pathogen_id',
-    'cytoplasm': 'cytoplasm_id', 'organelle': 'organelle_id',
+    'cytoplasm': 'cytoplasm_id',
+    **{role: f'{role}_id' for role in ORGANELLE_ROLES},
 }
 
 #: Column name used to carry a per-row crop handle through the frames in this

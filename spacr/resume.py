@@ -159,6 +159,7 @@ from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
                     Set, Tuple)
 
 from . import schema
+from .object_roles import ORGANELLE_ROLES
 from .database_concurrency import connect as connect_database, transaction
 from .errors import ConfigurationError, read_run_status
 
@@ -257,7 +258,7 @@ TIME_KEY_COLUMNS = schema.TIME_COLUMN_ALIASES
 #: test rather than silent data loss.
 MEASURE_OWNED_TABLES = frozenset({
     'cell', 'cytoplasm',                       # _PARENT_OBJECT_TABLES
-    'nucleus', 'pathogen', 'organelle',        # _CHILD_OBJECT_TABLES
+    'nucleus', 'pathogen', *ORGANELLE_ROLES,   # _CHILD_OBJECT_TABLES
     'cell_organelle_summary', 'nucleus_organelle_summary',
     'pathogen_organelle_summary', 'cytoplasm_organelle_summary',
     'png_list',                                # filepaths_to_database
@@ -637,8 +638,9 @@ def expected_min_planes(settings: Any) -> Optional[int]:
         if isinstance(value, (list, tuple)):
             indices.extend(int(v) for v in value
                            if isinstance(v, (int, float)) and not isinstance(v, bool))
-    for key in ('cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim',
-                'organelle_mask_dim', 'cytoplasm_mask_dim'):
+    from .schema import SEGMENTED_ROLES
+    for key in (*(f'{role}_mask_dim' for role in SEGMENTED_ROLES),
+                'cytoplasm_mask_dim'):
         value = settings.get(key)
         if isinstance(value, (int, float)) and not isinstance(value, bool):
             indices.append(int(value))

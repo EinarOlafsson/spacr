@@ -110,7 +110,7 @@ from typing import Any, Callable, Mapping, NamedTuple, Optional, Sequence, Tuple
 import numpy as np
 
 from .errors import ConfigurationError
-from .object_roles import ordered
+from .object_roles import ORGANELLE_ROLES
 
 __all__ = [
     'HOOKS_ENV_VAR',
@@ -142,7 +142,8 @@ HOOKS_ENV_VAR = 'SPACR_MEASURE_HOOKS'
 #: ``_measure_crop_core`` applies them.
 #: Hook order. Membership comes from the registry; the ORDER is this
 #: module's own and is kept here deliberately -- see spacr.object_roles.
-OBJECT_TYPES = ordered('cell', 'nucleus', 'pathogen', 'organelle', 'cytoplasm')
+OBJECT_TYPES = (
+    'cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES, 'cytoplasm')
 
 
 class MeasurementHookError(ConfigurationError):
