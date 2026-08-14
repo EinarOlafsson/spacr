@@ -33176,6 +33176,106 @@
         "e7403e847d6287f87db16a36e11214a5c79f8934e4d586b3bc752c29ad83b75d"
       ]
     },
+    "spacr.openmp_guard": {
+      "source_blocks_sha256": [
+        "6bc174c0f419b1b499c1f1d22b3a6883802f4418d5a43eed97bb9d43f45923a2",
+        "1be01fb6d9b8631dbeb58f692feb86d766b14eb1706afe30e48d39b2df662a6a",
+        "65622a14e4e56dabbe975ee7bcfbc387b13d00072d092b8450e9bd778104285e",
+        "0aef224ce9ce3d5fa64d470572fc3307b1471232e69b0b67d51f0d3be6e330ec",
+        "1ee4e9e3d4622d87ae6dbc826644718f0b36632b00c182684a737675616f5a5e",
+        "21f2dcaa6f47cfacb542f1ff16aae70cab9a1f2407e3c8fd4e783725c2831833",
+        "d3ac963d66529d397acd2539d47043a2d4d5d11ed23b7af9b782ed2a86dd3884",
+        "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+        "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+        "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+        "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "48c6f795f15bfd05b87e54c166757d8bb4d794b79e50f08228f8d008e621e570",
+        "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "b692ea1eb8ad535efb7df0b203c28d3dc0675cc7598494c22a61bb24d68388e0",
+        "6f06f723ac830e18e7f0ed9806a80e2fbded6f05dd7f8eaa3822ec3208ce1f2a",
+        "678660daae6df0e52611fcda7e8a380cfe661b06ae6f1167265dfa77033793c3",
+        "3c1dbe54809bc0f5779f41b8613b8816738b02cd0fa4fa9a3e4047482b25ad62"
+      ],
+      "source_sha256": "93fd813a83a70693cf7b1ee0c85b169f2ad20aa35e5efc0bcf8b1b84aadfcc26",
+      "text": "Conter a falha duplicado-OpenMP-runtime que mata classificar em macOS.\n\nUm pip install puts comum três cópias independentes do tempo de execução OpenMP de LLVM em um processo: torch navios ``torch/lib/libomp.dylib``, scikit-learn navios ``sklearn/.dylibs/libomp.dylib``, e a roda xgboost liga ``@rpath/libomp.dylib`` com um rpath em Homebrew, então ele puxa em qualquer ``brew install libomp`` deixou em ``/opt/homebrew/opt/libomp/lib``. ``spacr.ml`` importações ``XGBClassifier`` no escopo do módulo, de modo que cada classificação de execução tem todos os três residentes antes que ele se encaixa uma única linha do próprio grafo.::\n\n    $ python -c \"import spacr.ml; from spacr.openmp_guard import *;                  print(resident_openmp_runtimes())\"\n      .../sklearn/.dylibs/libomp.dylib\n      .../torch/lib/libomp.dylib\n      /opt/homebrew/Cellar/libomp/22.1.5/lib/libomp.dylib\n\nEles não são intercambiáveis. Um relatório de colisão de 2026-08-14 pegou uma cadeia de chamadas OpenMP cruzando duas das imagens::\n\n    __kmp_launch_worker -> __kmp_fork_barrier -> kmp_flag_64::wait  [xgboost's]\n      -> __kmp_suspend_64 -> __kmp_suspend_initialize_thread        [torch's]\n           SIGSEGV, far = 0x580\n\nO tempo de execução do xgboost entregou o tempo de run do torch a ``kmp_info_t *`` de sua própria tabela de caminhos de execução independente; a compilação do torch o leu em suas próprias compensações de struct e o campo desreferenciado 0x580 de outra coisa completamente. O libomp normalmente se recusa a ser inicializado duas vezes e diz isso (\"OMP: Erro # 15\"), mas o TensorFlow define o processo ``KMP_DUPLICATE_LIB_OK=True`` em toda, o que desliga e desliga a corrupção silenciosa.\n\nCada quadro nessa cadeia pertence a uma unidade de execução **background de uma equipe OpenMP**. Mate a equipe e a cadeia não pode existir. O que realmente mata foi medido em vez de presumido, porque a resposta óbvia está errada:\n\n=============================  ========================================================================================\nalavanca                       threads estacionados em ``__kmp_launch_worker`` /  ``__kmp_fork_barrier`` após um ajuste\n=============================  ========================================================================================\nnothing                        10\n``XGBClassifier(nthread=1)``   10\n``XGBClassifier(n_jobs=1)``    10\n``OMP_NUM_THREADS=1``          0\n``omp_set_num_threads(1)`` on\na linha de montagem            0\n=============================  ========================================================================================\n\nAssim, o argumento do próprio caminho de execução independente do estimador não toca no pool ele decide quantos caminhos de execução independentes *join a region*, não se o tempo de execução constrói uma equipe e cercá-lo teria sido uma correção que parecia certa e não protegia nada. ``OMP_NUM_THREADS`` funciona, mas é lido uma vez no init de tempo de operação e pinos torch e scikit-learn para um caminho de executar independente para toda a sessão, que é muito caro processo de pole.\n\n``omp_set_num_threads`` define o caminho de execução independente *calling's* ``nthreads`` ICV. Chamado para o caminho independente de execução que está prestes a se encaixar, ele serializa as regiões paralelas desse caminho independente e deixa todos os outros caminhos de execução independentes sozinhos - medidos: o ``omp_get_max_threads`` do caminho principal de execução lê 10/4/10 antes e depois, inalterado, enquanto o caminho adequado de execução autônoma lê 1/1/1 por todo e nenhum parque de trabalho.\n\nIsso é o que :func:`single_threaded_openmp` faz, e somente quando mais de um tempo de execução é realmente mapeado.\n\nQt-livre pelo projeto — Este é um código de fluxo de trabalho e é executado no cluster também.",
+      "translation_source_blocks_sha256": [
+        "6bc174c0f419b1b499c1f1d22b3a6883802f4418d5a43eed97bb9d43f45923a2",
+        "1be01fb6d9b8631dbeb58f692feb86d766b14eb1706afe30e48d39b2df662a6a",
+        "65622a14e4e56dabbe975ee7bcfbc387b13d00072d092b8450e9bd778104285e",
+        "61c6b5534737d5dfc5699e913176b154e6eeaf0cbc6b9577ed335fc5d9891712",
+        "bc772d5ba9ee2f7115bfe4b85243ff2510a5ab0c80c56e16e20fa945df3cd9d6",
+        "21f2dcaa6f47cfacb542f1ff16aae70cab9a1f2407e3c8fd4e783725c2831833",
+        "d3ac963d66529d397acd2539d47043a2d4d5d11ed23b7af9b782ed2a86dd3884",
+        "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+        "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+        "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+        "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "48c6f795f15bfd05b87e54c166757d8bb4d794b79e50f08228f8d008e621e570",
+        "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "0f688c5b5166b03305b870f209ad0c31839bb20130aab688280fab025e077db4",
+        "d85412e5a4f5786b87aacb1c654d2bc56de32c354549464e59a81ac0dc45975b",
+        "678660daae6df0e52611fcda7e8a380cfe661b06ae6f1167265dfa77033793c3",
+        "16dd4a6baf4e06a34dcfb2508188221fe88d5db2087c75f9779e65527235c177"
+      ]
+    },
+    "spacr.openmp_guard.guarded_n_jobs": {
+      "source_blocks_sha256": [
+        "5da6c2ea356458e18271c883ec3f17c45b8433bead757340593b9f7ae70e3abc",
+        "2f3e1b3ed8b331bf0b87ab22b3fc9214711184ce60b9a2f01d5bdaf8b5c77e57",
+        "955fe4da06ce5e380ca87963c2f0baae34c31b9436ae45169282aea87f8153b8",
+        "8de23c4898d78eb445aa463fc4985f687506d5ff2dca89bbeb6076f9a2f6d642"
+      ],
+      "source_sha256": "4e664bc2437c0f5cb565ec06db230a9b09a29818ce13bbcee7e8c5a9240078dc",
+      "text": "``1`` enquanto a braçadeira estiver em vigor, caso contrário  ``requested`` inalterado.\n\nPara sites de chamadas de joblib *dentro* uma região  :class:`single_threaded_openmp` ``permutation_importance`` acima de tudo, que re-entra no modelo ajustado.\n\nA braçadeira é um caminho de execução por independente ICV, então uma unidade de execução de fundo do joblib começa com o padrão do processo (10 aqui, não 1) e constrói uma equipe que a região deveria evitar. Medido no próprio caminho de executar do repositório ``ml_analysis``: 19 caminhos de execução independentes estacionados em  ``__kmp_launch_worker`` desprotegidos, ainda 10 com apenas a braçalagem da região, e aqueles 10 pertencem ao libomp xgboost do Homebrew.\n\nEsta não é a idéia anterior e errada de apertar o argumento do próprio estimador: isso foi medido para não mudar nada.",
+      "translation_source_blocks_sha256": [
+        "5da6c2ea356458e18271c883ec3f17c45b8433bead757340593b9f7ae70e3abc",
+        "2f3e1b3ed8b331bf0b87ab22b3fc9214711184ce60b9a2f01d5bdaf8b5c77e57",
+        "d760df3b899f42b2824c9b2a0af79fef747321b130757602d13dee953ea112d5",
+        "8de23c4898d78eb445aa463fc4985f687506d5ff2dca89bbeb6076f9a2f6d642"
+      ]
+    },
+    "spacr.openmp_guard.openmp_runtime_is_duplicated": {
+      "source_blocks_sha256": [
+        "8ec06cfa718df04ecf4fe39063a0cea336166c8f095ad236f737f69a892f26a8",
+        "0b235244eb8bb82ed3b55bda4c684f51778b5cb2af106640b9eb39ebbed5b559"
+      ],
+      "source_sha256": "0a3761a7438542738ef3e54b71affc8e81f17a9959888eee067fba112f46c2fd",
+      "text": "True quando este processo tem mais de um OpenMP tempo de execução mapeado.\n\nRelata a condição em todas as plataformas. Se ele é acionado é decisão de :func:`single_threaded_openmp`, não este.",
+      "translation_source_blocks_sha256": [
+        "8ec06cfa718df04ecf4fe39063a0cea336166c8f095ad236f737f69a892f26a8",
+        "0b235244eb8bb82ed3b55bda4c684f51778b5cb2af106640b9eb39ebbed5b559"
+      ]
+    },
+    "spacr.openmp_guard.resident_openmp_runtimes": {
+      "source_blocks_sha256": [
+        "3624ea2fb581b589d2a3f5db10493cd0fcc24bf7bb1bbb14fe1b408fa2bf4b89",
+        "21f8a0e813550539334cce570c47a28d8c8640fd69b4496503e00f56006f8bef",
+        "a8debcb0bf95b36416e4e33def022eca59c9cfd30cc171295eaf2103ebf39977"
+      ],
+      "source_sha256": "b1e6210e938972e55d78316509c8be0d62f579aaa2e08c436e20aa439c3af589",
+      "text": "Arquivos de tempo de execução distintos do OpenMP atualmente mapeados para esse processo.\n\nRetorna caminhos resolvidos, deduplicados e classificados. Duas cópias de uma compilação byte-idêntica em dois caminhos ainda são dois tempos de execução com dois conjuntos de globais, então eles são contados separadamente - mas um link simbólico e seu destino são um arquivo e não são.\n\nRetorna ``[]`` em qualquer plataforma ou falha onde a resposta é desconhecida. Desconhecido deve ser lido como  \"no evidence of trouble\", porque o fallback do chamador é o comportamento que spaCR sempre teve.",
+      "translation_source_blocks_sha256": [
+        "3624ea2fb581b589d2a3f5db10493cd0fcc24bf7bb1bbb14fe1b408fa2bf4b89",
+        "21f8a0e813550539334cce570c47a28d8c8640fd69b4496503e00f56006f8bef",
+        "a8debcb0bf95b36416e4e33def022eca59c9cfd30cc171295eaf2103ebf39977"
+      ]
+    },
+    "spacr.openmp_guard.single_threaded_openmp": {
+      "source_blocks_sha256": [
+        "3a008eb3ce054bf6c8c40672c1f69f8994d55d6ba01a8d3e47119e7eeb122047",
+        "a1627066d1b6d1d753ecd6cd418d1b125be539a73e510dfed83d0ade85b02f67",
+        "5ea12c44fb0c55305c73e2f1ecb875d69e51f5fc8660568a96d9f8edbed6111e",
+        "3aa6da399dc03483cbfc7ae43ce47c0e439265f1e47e2e98f1536fd4ea88ca55"
+      ],
+      "source_sha256": "48d8dd867ec267493b64168e719637dac54156d9ada0e2f7d41cdb94772c4a7b",
+      "text": "Serialize as regiões OpenMP desse thread enquanto vários tempos de execução são mapeados.\n\nUtilizável como um decorador ou um bloco ``with``::\n\n    @single_threaded_openmp(\"classical ML\")\n    def ml_analysis(...):\n        ...\n\nNão faz nada quando um tempo de execução (ou nenhum) é mapeado, quando a plataforma não é aquela em que a falha é documentada ou quando o usuário definiu ``SPACR_OPENMP_GUARD=off``. Restaura o valor anterior de cada tempo de corrida na saída, de modo que o grampo dura exatamente tanto quanto a região que ele envolve.\n\nNunca joga. Uma falha aqui deixa a linha exatamente como era: este protetor protege uma sessão de processamento, não deve ser capaz de terminar uma (INVARIANTS §10).",
+      "translation_source_blocks_sha256": [
+        "3a008eb3ce054bf6c8c40672c1f69f8994d55d6ba01a8d3e47119e7eeb122047",
+        "a1627066d1b6d1d753ecd6cd418d1b125be539a73e510dfed83d0ade85b02f67",
+        "5ea12c44fb0c55305c73e2f1ecb875d69e51f5fc8660568a96d9f8edbed6111e",
+        "379d0ecfa348b2976c54abc3796a1e20cea38f138f73cdbcef7359a00991fc06"
+      ]
+    },
     "spacr.organelle_types": {
       "source_blocks_sha256": [
         "5c1a8d625a8e916c54b33692b96b27891f6e94f1884bcbe0fcc53c2dcb8fd90e",

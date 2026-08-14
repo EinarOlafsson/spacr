@@ -20596,6 +20596,66 @@
       "source_sha256": "2d73dba5ab4f68cacbbdebfcd8a73813f2395f2bc89d95cc9459f1d49e37c92e",
       "text": "Summarise object rows and project them onto key/value pairs.\n\n:func:`summarise_rows` followed by :func:`measurement_pairs`, which is the\ncombination the per-well export always wants.\n\n:param rows: the per-object rows for one well.\n:param columns: restrict the summary to these columns.\n:param kwargs: passed to :func:`measurement_pairs`.\n:returns: a tuple of ``(key, value)`` string pairs."
     },
+    "spacr.openmp_guard": {
+      "source_blocks_sha256": [
+        "6bc174c0f419b1b499c1f1d22b3a6883802f4418d5a43eed97bb9d43f45923a2",
+        "1be01fb6d9b8631dbeb58f692feb86d766b14eb1706afe30e48d39b2df662a6a",
+        "65622a14e4e56dabbe975ee7bcfbc387b13d00072d092b8450e9bd778104285e",
+        "0aef224ce9ce3d5fa64d470572fc3307b1471232e69b0b67d51f0d3be6e330ec",
+        "1ee4e9e3d4622d87ae6dbc826644718f0b36632b00c182684a737675616f5a5e",
+        "21f2dcaa6f47cfacb542f1ff16aae70cab9a1f2407e3c8fd4e783725c2831833",
+        "d3ac963d66529d397acd2539d47043a2d4d5d11ed23b7af9b782ed2a86dd3884",
+        "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+        "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+        "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+        "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "48c6f795f15bfd05b87e54c166757d8bb4d794b79e50f08228f8d008e621e570",
+        "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "b692ea1eb8ad535efb7df0b203c28d3dc0675cc7598494c22a61bb24d68388e0",
+        "6f06f723ac830e18e7f0ed9806a80e2fbded6f05dd7f8eaa3822ec3208ce1f2a",
+        "678660daae6df0e52611fcda7e8a380cfe661b06ae6f1167265dfa77033793c3",
+        "3c1dbe54809bc0f5779f41b8613b8816738b02cd0fa4fa9a3e4047482b25ad62"
+      ],
+      "source_sha256": "93fd813a83a70693cf7b1ee0c85b169f2ad20aa35e5efc0bcf8b1b84aadfcc26",
+      "text": "Contain the duplicate-OpenMP-runtime crash that kills classify on macOS.\n\nAn ordinary pip install puts three independent copies of LLVM's OpenMP runtime\nin one process: torch ships ``torch/lib/libomp.dylib``, scikit-learn ships\n``sklearn/.dylibs/libomp.dylib``, and the xgboost wheel links\n``@rpath/libomp.dylib`` with an rpath into Homebrew, so it pulls in whatever\n``brew install libomp`` left at ``/opt/homebrew/opt/libomp/lib``. ``spacr.ml``\nimports ``XGBClassifier`` at module scope, so every classify run has all three\nresident before it fits a single row. Measured, on this repository's own import\ngraph::\n\n    $ python -c \"import spacr.ml; from spacr.openmp_guard import *;                  print(resident_openmp_runtimes())\"\n      .../sklearn/.dylibs/libomp.dylib\n      .../torch/lib/libomp.dylib\n      /opt/homebrew/Cellar/libomp/22.1.5/lib/libomp.dylib\n\nThey are not interchangeable. A crash report from 2026-08-14 caught one OpenMP\ncall chain crossing two of the images::\n\n    __kmp_launch_worker -> __kmp_fork_barrier -> kmp_flag_64::wait  [xgboost's]\n      -> __kmp_suspend_64 -> __kmp_suspend_initialize_thread        [torch's]\n           SIGSEGV, far = 0x580\n\nxgboost's runtime handed torch's runtime a ``kmp_info_t *`` out of its own\nthread table; torch's build read it at its own struct offsets and dereferenced\nfield 0x580 of something else entirely. libomp normally refuses to be\ninitialised twice and says so (\"OMP: Error #15\"), but TensorFlow sets\n``KMP_DUPLICATE_LIB_OK=True`` process-wide, which turns that guard off and\nleaves the corruption silent.\n\nEvery frame in that chain belongs to a **worker thread of an OpenMP team**. Kill\nthe team and the chain cannot exist. What actually kills it was measured rather\nthan assumed, because the obvious answer is wrong:\n\n===============================  ==========================================\nlever                            threads parked in ``__kmp_launch_worker`` /\n                                 ``__kmp_fork_barrier`` after one fit\n===============================  ==========================================\nnothing                          10\n``XGBClassifier(nthread=1)``     10\n``XGBClassifier(n_jobs=1)``      10\n``OMP_NUM_THREADS=1``             0\n``omp_set_num_threads(1)`` on\nthe fitting thread                0\n===============================  ==========================================\n\nSo the estimator's own thread argument does not touch the pool — it decides how\nmany threads *join a region*, not whether the runtime builds a team — and\nclamping it would have been a fix that looked right and protected nothing.\n``OMP_NUM_THREADS`` works but is read once at runtime init and pins torch and\nscikit-learn to one thread for the whole session, which is far too expensive\nfor a process whose long pole is segmentation.\n\n``omp_set_num_threads`` sets the *calling thread's* ``nthreads`` ICV. Called on\nthe thread that is about to fit, it serializes that thread's parallel regions\nand leaves every other thread alone — measured: the main thread's\n``omp_get_max_threads`` reads 10 / 4 / 10 before and after, unchanged, while the\nfitting thread reads 1 / 1 / 1 throughout and no worker parks anywhere.\n\nThat is what :func:`single_threaded_openmp` does, and only when more than one\nruntime is actually mapped.\n\nQt-free by design — this is pipeline code and runs on the cluster too."
+    },
+    "spacr.openmp_guard.guarded_n_jobs": {
+      "source_blocks_sha256": [
+        "5da6c2ea356458e18271c883ec3f17c45b8433bead757340593b9f7ae70e3abc",
+        "2f3e1b3ed8b331bf0b87ab22b3fc9214711184ce60b9a2f01d5bdaf8b5c77e57",
+        "955fe4da06ce5e380ca87963c2f0baae34c31b9436ae45169282aea87f8153b8",
+        "8de23c4898d78eb445aa463fc4985f687506d5ff2dca89bbeb6076f9a2f6d642"
+      ],
+      "source_sha256": "4e664bc2437c0f5cb565ec06db230a9b09a29818ce13bbcee7e8c5a9240078dc",
+      "text": "``1`` while the clamp is in force, otherwise ``requested`` unchanged.\n\nFor joblib call sites *inside* a :class:`single_threaded_openmp` region —\n``permutation_importance`` above all, which re-enters the fitted model.\n\nThe clamp is a per-thread ICV, so a joblib worker thread starts with the\nprocess default (10 here, not 1) and builds a team the region was supposed\nto prevent. Measured on this repository's own ``ml_analysis``: 19 threads\nparked in ``__kmp_launch_worker`` unguarded, still 10 with only the region\nclamp, and those 10 belong to Homebrew's libomp — xgboost's runtime, the\none that crashed. Keeping joblib on the calling thread keeps the clamp\nmeaningful.\n\nThis is NOT the earlier, wrong idea of clamping the estimator's own thread\nargument: that was measured to change nothing at all."
+    },
+    "spacr.openmp_guard.openmp_runtime_is_duplicated": {
+      "source_blocks_sha256": [
+        "8ec06cfa718df04ecf4fe39063a0cea336166c8f095ad236f737f69a892f26a8",
+        "0b235244eb8bb82ed3b55bda4c684f51778b5cb2af106640b9eb39ebbed5b559"
+      ],
+      "source_sha256": "0a3761a7438542738ef3e54b71affc8e81f17a9959888eee067fba112f46c2fd",
+      "text": "True when this process has more than one OpenMP runtime mapped.\n\nReports the condition on every platform. Whether it is acted on is\n:func:`single_threaded_openmp`'s decision, not this one's."
+    },
+    "spacr.openmp_guard.resident_openmp_runtimes": {
+      "source_blocks_sha256": [
+        "3624ea2fb581b589d2a3f5db10493cd0fcc24bf7bb1bbb14fe1b408fa2bf4b89",
+        "21f8a0e813550539334cce570c47a28d8c8640fd69b4496503e00f56006f8bef",
+        "a8debcb0bf95b36416e4e33def022eca59c9cfd30cc171295eaf2103ebf39977"
+      ],
+      "source_sha256": "b1e6210e938972e55d78316509c8be0d62f579aaa2e08c436e20aa439c3af589",
+      "text": "Distinct OpenMP runtime files currently mapped into this process.\n\nReturns resolved paths, deduplicated and sorted. Two copies of a\nbyte-identical build at two paths are still two runtimes with two sets of\nglobals, so they are counted separately — but a symlink and its target are\none file and are not.\n\nReturns ``[]`` on any platform or failure where the answer is unknown.\nUnknown must read as \"no evidence of trouble\", because the caller's\nfallback is the behaviour spaCR has always had."
+    },
+    "spacr.openmp_guard.single_threaded_openmp": {
+      "source_blocks_sha256": [
+        "3a008eb3ce054bf6c8c40672c1f69f8994d55d6ba01a8d3e47119e7eeb122047",
+        "a1627066d1b6d1d753ecd6cd418d1b125be539a73e510dfed83d0ade85b02f67",
+        "5ea12c44fb0c55305c73e2f1ecb875d69e51f5fc8660568a96d9f8edbed6111e",
+        "3aa6da399dc03483cbfc7ae43ce47c0e439265f1e47e2e98f1536fd4ea88ca55"
+      ],
+      "source_sha256": "48d8dd867ec267493b64168e719637dac54156d9ada0e2f7d41cdb94772c4a7b",
+      "text": "Serialize this thread's OpenMP regions while several runtimes are mapped.\n\nUsable as a decorator or a ``with`` block::\n\n    @single_threaded_openmp(\"classical ML\")\n    def ml_analysis(...):\n        ...\n\nDoes nothing at all when one runtime (or none) is mapped, when the platform\nis not one where the fault is documented, or when the user has set\n``SPACR_OPENMP_GUARD=off``. Restores each runtime's previous value on the\nway out, so the clamp lasts exactly as long as the region it wraps.\n\nNever raises. A failure here leaves the thread exactly as it was: this\nguard protects a run, it must not be able to end one (INVARIANTS §10)."
+    },
     "spacr.organelle_types": {
       "source_blocks_sha256": [
         "5c1a8d625a8e916c54b33692b96b27891f6e94f1884bcbe0fcc53c2dcb8fd90e",
