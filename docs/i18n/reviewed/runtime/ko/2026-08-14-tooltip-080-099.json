@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_model_name",
+      "source_sha256": "7307659e81e742dde575028406dd94492cf222e8eeaa37ccab48a88b8bd0398e",
+      "source": "Cellpose model used when organelled_method='cellpose'. Cellpose 4 provides only 'cpsam'; the pre-SAM names are accepted and mapped to it. Change this only to point at a custom CPSAM-architecture checkpoint. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
+      "translation": "organelled_method='cellpose' 일 때 사용할 Cellpose 모델입니다. Cellpose 4 는 'cpsam' 만 제공하며 SAM 이전 이름도 허용한 뒤 이 값으로 바꿉니다. 사용자 CPSAM 구조 체크포인트를 가리킬 때만 변경하십시오. 모델을 구분하던 세 매개변수 중 diameter 만 계속 작동하고 eval 은 30/diameter 로 크기를 조절합니다. model_type 과 diam_mean 은 'not used in v4.0.1+' 로 기록하고 제거합니다. 기본값 'cpsam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_network_threshold",
+      "source_sha256": "605175b703a935b3f1c17b7e5fa68cfb868c5aea297368fa4dabb5086d61d276",
+      "source": "How the ridge-filter response is binarised: 'otsu' takes one global cut-off from the response histogram, 'adaptive' uses a local threshold (organelled_adaptive_block_size / _offset) and keeps faint filaments in dim regions at the cost of extra background. Only read by organelled_method='ridge'; anything unrecognised silently falls back to otsu. Default 'otsu'.",
+      "translation": "능선 필터 반응을 이진화하는 방법입니다. 'otsu' 는 반응 히스토그램의 전역 절단값 하나를 쓰고, 'adaptive' 는 국소 임계값(organelled_adaptive_block_size / _offset) 을 사용해 어두운 영역의 희미한 필라멘트를 더 보존하지만 배경도 늘립니다. organelled_method='ridge' 에서만 읽으며 알 수 없는 값은 조용히 otsu 로 돌아갑니다. 기본값 'otsu'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_ridge_filter",
+      "source_sha256": "7e4c7cf75147fae31b7ee1ab08d04cff4248c34bc41043a0f879ad52faf003dd",
+      "source": "Which vesselness filter enhances filaments before thresholding: 'frangi' (classic, crisp on well-separated tubules), 'sato' (more tolerant of varying thickness), 'meijering' (tuned for thin neurite-like fibres). All run with black_ridges=False, i.e. bright filaments on a dark background. Default 'frangi'; try 'sato' when frangi drops faint filaments.",
+      "translation": "임계값 처리 전에 필라멘트를 강조할 vesselness 필터입니다. 'frangi' 는 고전적이고 잘 분리된 세관에서 선명하며, 'sato' 는 두께 변화에 더 관대하고, 'meijering' 은 얇은 신경돌기 모양 섬유에 맞춰져 있습니다. 모두 black_ridges=False 로 어두운 배경의 밝은 필라멘트를 처리합니다. 기본값 'frangi' 이며 frangi 가 희미한 필라멘트를 놓치면 'sato' 를 시도하십시오."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_ring_fill_method",
+      "source_sha256": "f8763726750395963f3cdba653570009f829b74e84d8c8ff90a24e92138778b5",
+      "source": "How detected ring walls become solid objects: 'flood' fills every background component that does not touch the image border - accurate, but leaks through any gap in the wall - while 'convex' takes the convex hull of each wall component, which tolerates broken rings but overshoots concave shapes. Default 'flood'; switch to 'convex' when rings come out unfilled.",
+      "translation": "검출된 고리 벽을 단단한 객체로 채우는 방법입니다. 'flood' 는 이미지 경계에 닿지 않는 모든 배경 성분을 채워 정확하지만 벽의 틈으로 샐 수 있습니다. 'convex' 는 각 벽 성분의 볼록 껍질을 사용해 끊긴 고리를 견디지만 오목한 모양을 넘겨 채웁니다. 기본값 'flood' 이며 고리가 채워지지 않으면 'convex' 로 바꾸십시오."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_type",
+      "source_sha256": "bbf07ae2769563160ba49c8259a8f1b61a9108d6fc6b5f6cae2586f828465535",
+      "source": "Pick what kind of organelle 4 this is and spaCR fills the detection settings for it, printing what it chose; anything you set yourself is never overwritten. 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. The name alone does not fix the detector: 'vesicular' and 'spherical' also read organelled_diameter, because a 200 nm vesicle is a dot and a 2 um vacuole is a ring. Default 'custom', which recommends nothing.",
+      "translation": "소기관 4 종류를 고르면 spaCR 이 선택한 값을 출력하며 검출 설정을 채웁니다. 사용자가 직접 지정한 값은 덮어쓰지 않습니다. 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. 이름만으로 검출기가 완전히 정해지지는 않습니다. 'vesicular' 와 'spherical' 은 organelled_diameter 도 읽습니다. 200 nm 소포는 점이지만 2 um 액포는 고리이기 때문입니다. 기본값 'custom' 이며 아무것도 권장하지 않습니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_unet_model_path",
+      "source_sha256": "8194d3bd2b9ff029f9911e69aec6984aca0c492fa457392a5d428a8c4352abdc",
+      "source": "Path to a serialised PyTorch model used when organelled_method='unet'. It must be a torch.load-able whole module, not a state_dict, and take z-scored (B,1,H,W) input returning (B,1,H,W) logits; extra output channels are silently ignored except the first. A missing or invalid path raises before segmentation starts. Default None.",
+      "translation": "organelled_method='unet' 일 때 사용할 직렬화 PyTorch 모델 경로입니다. state_dict 가 아니라 torch.load 로 읽을 수 있는 전체 모듈이어야 하며, z-score 처리된 (B,1,H,W) 입력을 받아 (B,1,H,W) logits 를 반환해야 합니다. 추가 출력 채널은 첫 채널 외에는 조용히 무시합니다. 경로가 없거나 잘못되면 분할 전에 오류를 냅니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "outline_palette",
+      "source_sha256": "fde777a2db4b3d7d9f5d56f59dc598e0587a6d41cd69644328bf158f0bd1251b",
+      "source": "Which colours the overlay figure draws object outlines in. 'default' is cell red, nucleus blue, pathogen green, organelle yellow. 'colourblind' draws vermillion, sky blue, bluish green and yellow from the Okabe-Ito set. The default's worst confusable pair scores 27 of 255 under deuteranope simulation - cell red beside pathogen green is the pair red-green deficiency removes - against 142 for 'colourblind'. Default 'default', so existing figures do not change under you.",
+      "translation": "오버레이 그림에서 객체 윤곽에 쓸 색입니다. 'default' 는 세포 빨강, 핵 파랑, 병원체 초록, 소기관 노랑입니다. 'colourblind' 는 Okabe-Ito 집합의 주홍, 하늘색, 청록, 노랑을 사용합니다. 기본 팔레트에서 제2 색맹 모의실험의 가장 구분하기 어려운 쌍은 255 중 27 점입니다. 세포 빨강과 병원체 초록은 적록 색각 이상에서 사라지는 쌍입니다. 'colourblind' 는 142 점입니다. 기존 그림이 갑자기 바뀌지 않도록 기본값은 'default' 입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "outside_threshold_method",
+      "source_sha256": "4e061f7f36b77e956243d285adc5c3ab72f4ca05e784625312e7ec1c5fcceae2",
+      "source": "How the outside-stain cut is derived from each field's own objects when no fixed value and no control wells are given: 'otsu', 'triangle', 'li', 'yen' or 'mean'. All of them find a split; none of them can tell you a split exists, which is what the bimodality check is for. 'triangle' suits a heavily skewed distribution with a small stained minority, 'otsu' a more balanced one. Default 'otsu'.",
+      "translation": "고정값과 대조 웰이 없을 때 각 필드 객체에서 외부 염색 절단값을 구하는 방법입니다. 'otsu', 'triangle', 'li', 'yen', 'mean' 중 하나입니다. 모두 분할점은 찾지만 분할이 실제로 존재하는지는 판단하지 못하며, 이는 이봉성 검사가 담당합니다. 'triangle' 은 소수의 염색 집단이 있는 심하게 치우친 분포에, 'otsu' 는 더 균형 잡힌 분포에 알맞습니다. 기본값 'otsu'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "path_string",
+      "source_sha256": "c9547344a25fe41d4862e6463d4ba595db29e489fab82ca76153a8aff407383c",
+      "source": "A substring that must appear in a crop's path for it to join the dataset, e.g. 'cell_png' or 'nucleus_png'. It was called png_type, which named a type it never was: this is a path filter and nothing more. The old name still works. Default 'cell_png'.",
+      "translation": "데이터셋에 들어갈 이미지 영역 경로에 반드시 포함될 부분 문자열입니다. 예: 'cell_png' 또는 'nucleus_png'. 이전 이름 png_type 은 실제로 형식이 아닌 것을 형식처럼 불렀습니다. 이 값은 경로 필터일 뿐입니다. 이전 이름도 계속 작동합니다. 기본값 'cell_png'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_intensity_percentile",
+      "source_sha256": "fc3ae1e765a6d1b466a7c32577b07dab4903c091cca3c89ca00d8fbb70e38c44",
+      "source": "Percentile, 0-100, of a pathogen's interior intensity used as the merge reference when pathogen_intensity_threshold_method is 'percentile'. Two touching labels merge only if their shared border is at least this bright inside the dimmer object, so raising it demands a brighter border and merges fewer pairs. Ignored when the method is 'mean'. Default 75.",
+      "translation": "pathogen_intensity_threshold_method 가 'percentile' 일 때 병합 기준으로 쓸 병원체 내부 강도의 0~100 분위수입니다. 접한 두 레이블은 공유 경계가 더 어두운 객체 내부에서 이 밝기 이상일 때만 합쳐집니다. 값을 크게 하면 더 밝은 경계를 요구해 병합 쌍이 줄어듭니다. 방법이 'mean' 이면 무시됩니다. 기본값 75."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_loc",
+      "source_sha256": "c489fab225739697db66ae83b56768b2adc773cc8986c75f1f5d931432f90915",
+      "source": "Well locations of each pathogen condition, one inner list per name in pathogens, read by annotate_filter_vision when labelling vision-model score CSVs. Every entry must be a row or column ID string such as 'c1' or 'r3'; ranges are not expanded and unmatched entries leave those wells NaN. Set it alongside pathogens, or leave both None. Default None.",
+      "translation": "각 병원체 조건의 웰 위치이며 pathogens 의 이름마다 내부 목록 하나를 둡니다. annotate_filter_vision 이 비전 모델 점수 CSVs 에 레이블을 붙일 때 읽습니다. 각 항목은 'c1' 또는 'r3' 같은 행 또는 열 ID 문자열이어야 합니다. 범위는 확장하지 않으며 맞지 않는 항목의 웰은 NaN 으로 남습니다. pathogens 와 함께 설정하거나 둘 다 None 으로 두십시오. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_mask_dim",
+      "source_sha256": "8a0b39ed854a497a9cb4238b617b72bae443042b939c0e0595288ee8df212a5a",
+      "source": "Position along the last axis of each merged/*.npy array where the pathogen label mask sits, one plane after the nucleus mask. With the default four image channels (0-3) that is 6; shift it if you keep a different number of channels. None makes measure_crop skip pathogen measurements, so infection status cannot be scored. Default 6.",
+      "translation": "각 merged/*.npy 배열의 마지막 축에서 병원체 레이블 마스크가 놓인 위치이며 핵 마스크 다음 평면입니다. 기본 이미지 채널 네 개(0~3) 에서는 6 이고 채널 수가 다르면 이동해야 합니다. None 이면 measure_crop 이 병원체 측정을 생략해 감염 상태를 점수화할 수 없습니다. 기본값 6."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_plate_metadata",
+      "source_sha256": "eb5f34deadc750b571a03f66a68976bcd5b12a48014ca6bd6bfc9ad726f1e097",
+      "source": "Well locations of each pathogen condition, one inner list per entry in pathogen_types. Every item must be a row or column ID string such as 'c1' or 'r3'; anything else is silently ignored and those wells stay unannotated. Ranges like 'c2-c11' are not expanded - list each row/column. Do not leave it None while pathogen_types is set: annotation is not skipped, every row is labelled with the first pathogen_types entry. Defaults: None in the plot-from-db settings, [['c1','c2','c3'],['c4','c5','c6']] for recruitment analysis.",
+      "translation": "pathogen_types 의 각 항목에 대응하는 병원체 조건의 웰 위치입니다. 각 항목은 'c1' 또는 'r3' 같은 행 또는 열 ID 문자열이어야 하며 다른 값은 조용히 무시되어 해당 웰에 주석이 붙지 않습니다. 'c2-c11' 같은 범위는 확장하지 않으므로 각 행 또는 열을 나열하십시오. pathogen_types 가 설정된 상태에서 None 으로 두지 마십시오. 주석을 생략하는 대신 모든 행에 pathogen_types 의 첫 항목을 붙입니다. 기본값은 DB 그림 설정에서 None, 모집 분석에서 [['c1','c2','c3'],['c4','c5','c6']] 입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_types",
+      "source_sha256": "6df4ceba56873638b0d777e84fd54fb4288a30faf9276f45bcfdb53457ed1a36",
+      "source": "Names given to each pathogen condition on the plate, e.g. ['wt','ku80']. Element i is written into the pathogen column for every well listed in pathogen_plate_metadata[i] and folded into the combined condition label used for grouping and plotting. Must match pathogen_plate_metadata in length and order; None skips pathogen annotation. Default ['pathogen_1', 'pathogen_2'] for the dataset builders, ['pc'] for the control-based paths, None where types are not used.",
+      "translation": "플레이트의 각 병원체 조건 이름입니다. 예: ['wt','ku80']. 항목 i 는 pathogen_plate_metadata[i] 에 나열된 각 웰의 pathogen 열에 기록되고 그룹화와 그래프에 쓰는 결합 condition 레이블에 포함됩니다. pathogen_plate_metadata 와 길이 및 순서가 같아야 하며 None 은 병원체 주석을 생략합니다. 데이터셋 생성기의 기본값은 ['pathogen_1', 'pathogen_2'], 대조군 기반 경로는 ['pc'], 유형을 쓰지 않는 곳은 None 입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plate",
+      "source_sha256": "5906698aa0de4df889362b43be54d40c18c6443940f02d8e948ba368d9d1df0b",
+      "source": "INERT where the regression settings show it: nothing reads settings['plate'] on that path and it has no default. What people expect from it belongs to plateID, which perform_regression passes to process_scores and process_reads, where it is stamped onto count and score rows that carry no plate of their own. Set plateID instead. Default None.",
+      "translation": "회귀 설정에 표시되는 위치에서는 비활성입니다. 그 경로는 settings['plate'] 를 읽지 않고 기본값도 없습니다. 기대하는 기능은 plateID 에 있습니다. perform_regression 이 process_scores 와 process_reads 에 이를 전달하고 자체 플레이트 값이 없는 계수 및 점수 행에 기록합니다. plateID 를 설정하십시오. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "point_color",
+      "source_sha256": "2a2dc9af7398f0746cdad0060a9ad779bae66adecb50e3168352bb046946e2da",
+      "source": "Point color for static and interactive UMAP plots. Use 'cluster' or 'viridis' for cluster-based Viridis colors, or any Matplotlib color such as '#4cc9f0', 'orange', or 'white' for one fixed color. Default 'cluster'.",
+      "translation": "정적 및 대화형 UMAP 그림의 점 색입니다. 군집별 Viridis 색에는 'cluster' 또는 'viridis' 를 사용하고, 단일 고정색에는 '#4cc9f0', 'orange', 'white' 같은 Matplotlib 색을 사용합니다. 기본값 'cluster'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pos",
+      "source_sha256": "56c6b87768ba64aca338b8117e0780d8f4262d45e07a3a1c80a9e8ee596d8c33",
+      "source": "Column ID marking positive-control wells in the image UMAP. Rows whose columnID equals it are labelled cond='pos', so exclude_conditions can drop them; and when embedding_by_controls is True the rows whose col_to_compare equals it help fit the reducer. Default 'c1' (note: not 'c2').",
+      "translation": "이미지 UMAP 에서 양성 대조 웰을 표시하는 열 ID 입니다. columnID 가 이 값인 행은 cond='pos' 로 표시되어 exclude_conditions 가 제거할 수 있습니다. embedding_by_controls 가 True 이면 col_to_compare 가 이 값인 행이 축소기 적합에 참여합니다. 기본값 'c1' 이며 'c2' 가 아닙니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "positive_control",
+      "source_sha256": "2756812b188101d4307d8ffdf0a5ee28de6f92292b079dee2c93b84912009f16",
+      "source": "Identifier of the positive-control class. In ML screening it is the value in location_column (e.g. 'c2') whose objects are labelled class 1 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '239740') matched against coefficient names to tag them 'pc' in the results and volcano plot. Defaults 'c2' and '239740' respectively.",
+      "translation": "양성 대조 클래스 식별자입니다. ML 스크리닝에서는 location_column 의 값(예: 'c2') 이며 해당 객체를 훈련 클래스 1 로 표시합니다. gRNA 회귀에서는 계수 이름에 맞출 유전자/gRNA ID 부분 문자열(예: '239740') 이며 결과와 화산 그림에 'pc' 태그를 붙입니다. 각 기본값은 'c2' 와 '239740' 입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "queue_diversity",
+      "source_sha256": "57dd66495df63ad5bc227eb23cdb136d831dff442ce6e7b5141debfcb00a03a6",
+      "source": "Which metadata level the annotation queue is spread across before serving. Ranking purely by uncertainty collapses: the hundred most uncertain crops on a real plate routinely come from one or two wells, so the annotator labels the same ambiguity a hundred times and the model learns nothing. Spreading across wells or plates buys coverage at a small cost in per-item informativeness. Default 'well'.",
+      "translation": "어노테이션 작업 목록을 제공하기 전에 어느 메타데이터 수준에 분산할지 정합니다. 불확실성만으로 순위를 매기면 실제 플레이트의 가장 불확실한 이미지 영역 100 개가 한두 웰에 몰리기 쉽습니다. 그러면 같은 모호성을 반복해서 표시해 모델이 배우지 못합니다. 웰이나 플레이트에 분산하면 항목별 정보량을 조금 희생해 더 넓은 범위를 확보합니다. 기본값 'well'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "queue_measure",
+      "source_sha256": "545b4216afeb16f179a2b5a16b880630214df0b94f395eef7dfa1165d961b77d",
+      "source": "How uncertainty is scored for the queue. 'entropy' spreads its attention across every class and is the right default for three or more; 'least_confidence' ranks on how weak the top class is; 'margin' ranks on the gap between the top two. With exactly two classes margin and least_confidence produce the IDENTICAL ranking, including ties - they only diverge at three classes or more. These are uncertainty scores, not calibrated confidences: a softmax is not a probability. Default 'entropy'.",
+      "translation": "작업 목록의 불확실성 점수 방법입니다. 'entropy' 는 모든 클래스에 주의를 나눠 세 클래스 이상에서 적절한 기본값입니다. 'least_confidence' 는 최상위 클래스가 얼마나 약한지, 'margin' 은 상위 두 클래스의 차이를 사용합니다. 정확히 두 클래스에서는 margin 과 least_confidence 가 동률까지 동일한 순위를 만들고 세 클래스 이상에서만 달라집니다. 이는 보정된 신뢰도가 아니라 불확실성 점수이며 softmax 는 확률이 아닙니다. 기본값 'entropy'."
+    }
+  ]
+}

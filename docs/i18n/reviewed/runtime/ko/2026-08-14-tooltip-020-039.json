@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "denoise",
+      "source_sha256": "2da039906c6561f58b045112d3c3b78ef565673fb455327ff008f1f9375c1706",
+      "source": "Legacy denoising toggle for the mask pipeline: no code reads this key, so it has no effect. To actually denoise, set the per-object restore settings (cell_restore_type / nucleus_restore_type / pathogen_restore_type) to 'denoise', which routes segmentation through Cellpose's CellposeDenoiseModel. Default False.",
+      "translation": "마스크 처리 경로의 이전 노이즈 제거 토글입니다. 어떤 코드도 이 키를 읽지 않아 효과가 없습니다. 실제로 노이즈를 제거하려면 객체별 복원 설정 cell_restore_type / nucleus_restore_type / pathogen_restore_type 을 'denoise' 로 지정하십시오. 그러면 분할이 Cellpose 의 CellposeDenoiseModel 을 거칩니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "dependent_variable",
+      "source_sha256": "77cf66911bed70b5d009006312bd6888bbec98dcdbb1ccd07a4d8dc7dd6b5bb9",
+      "source": "Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
+      "translation": "score_data 에서 반응 변수로 모델링할 열 이름입니다. 예를 들어 ML 점수 단계의 'pred'/'predictions' 또는 'pathogen_nucleus_shortest_distance' 같은 측정 특징입니다. agg_type 으로 웰마다 집계한 뒤 선택적으로 변환합니다. 점수 CSV 에 열이 없으면 실행을 중단합니다. 기본값 'pred'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "dry_run",
+      "source_sha256": "3de69269a1c74b108e04df46de3cd80cd2306efaaa565c85e5c3e19cc37056c2",
+      "source": "Validate the settings against the data they point at, print what the run WOULD do, and stop before any compute. Checks that src exists and holds the expected files, that every channel and mask-plane index is inside the number of planes actually present, and that the models, barcode CSVs or measurements.db the run needs are on disk -- each problem printed with a suggested fix, then a plan of what would be segmented, measured and written where. Nothing is written, no model is loaded and the GPU is never touched, so a settings mistake costs seconds instead of a whole run. Default False.",
+      "translation": "설정을 해당 데이터와 대조해 검증하고 실행이 수행할 작업을 출력한 뒤 계산 전에 중지합니다. src 가 존재하고 예상 파일을 포함하는지, 모든 채널과 마스크 평면 인덱스가 실제 평면 수 안에 있는지, 필요한 모델, 바코드 CSV 또는 measurements.db 가 디스크에 있는지 검사합니다. 각 문제에 수정 제안을 출력한 뒤 무엇을 분할하고 측정하며 어디에 쓸지 계획을 보여줍니다. 아무것도 쓰지 않고 모델을 불러오지 않으며 GPU 도 사용하지 않으므로 설정 오류를 전체 실행 대신 몇 초 만에 찾습니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "expected_end",
+      "source_sha256": "532977eddbbb1d45214aec1cf68b7173f3402339123008ba82e8529b44d7589a",
+      "source": "Number of bases sliced out of each read starting at offset_start relative to the target_sequence hit; this window is what the regex is matched against. It must span the whole barcode block (column + gRNA + row) or the regex stops matching and reads are dropped; shorter reads are padded with 'N'. Default 89.",
+      "translation": "target_sequence 가 발견된 위치를 기준으로 offset_start 에서 시작해 각 읽기에서 잘라낼 염기 수입니다. 정규식은 이 구간과 일치시킵니다. 열, gRNA, 행으로 된 전체 바코드 블록을 포함해야 하며, 짧으면 정규식이 맞지 않아 읽기가 버려집니다. 더 짧은 읽기는 'N' 으로 채웁니다. 기본값 89."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "filter_by",
+      "source_sha256": "452089cb9d52d7760368aeb3e2e18a53bf5b1708411f669f00a1b775e68b5126",
+      "source": "Restricts the feature matrix before dimensionality reduction: only columns matching this channel are kept and the other channel_1-channel_4 columns are dropped. Accepts 'channel_0'-'channel_3', an int, a list of channel numbers, or 'morphology' to keep only shape features (area, eccentricity, Zernike moments, ...). None, 'None', 'all', and '*' disable filtering. Default 'channel_0'.",
+      "translation": "차원 축소 전에 특징 행렬을 제한합니다. 이 채널과 일치하는 열만 유지하고 다른 channel_1-channel_4 열은 버립니다. 'channel_0'-'channel_3', 정수, 채널 번호 목록, 또는 면적, 이심률, Zernike 모멘트 같은 모양 특징만 유지하는 'morphology' 를 받습니다. None, 'None', 'all', '*' 는 필터링을 끕니다. 기본값 'channel_0'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "folders",
+      "source_sha256": "bf9c70b2f99388dcdbda8939dbc451048985a0c6080395072f153015a660aa16",
+      "source": "One folder per plate holding the classification CSVs to combine into a single heatmap; each is searched for csv_name. The order given is the order the plates are laid out in. Default None.",
+      "translation": "단일 히트맵으로 결합할 분류 CSV 가 들어 있는 플레이트별 폴더 목록입니다. 각 폴더에서 csv_name 을 찾습니다. 입력 순서가 플레이트 배치 순서입니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "grouping",
+      "source_sha256": "fdca25436f7329267d6e6e2214dc1e8f825d3ee648cfee158d146cae063fbc58",
+      "source": "How per-object values collapse to one number per well in the plate heatmap: 'mean' averages heatmap_feature over the objects in a well, 'sum' totals them, 'count' ignores the feature and colors wells by object count. Use 'count' to spot uneven seeding or dropout, 'mean' for phenotype strength. Default 'mean'; any other value raises ValueError.",
+      "translation": "객체별 값을 플레이트 히트맵의 웰별 한 값으로 줄이는 방법입니다. 'mean' 은 웰의 객체들에 대해 heatmap_feature 를 평균하고, 'sum' 은 합하며, 'count' 는 특징을 무시하고 객체 수로 웰 색을 정합니다. 불균일한 파종이나 탈락을 찾으려면 'count', 표현형 강도에는 'mean' 을 사용하십시오. 기본값 'mean' 이며 다른 값은 ValueError 를 발생시킵니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hinge_threshold",
+      "source_sha256": "b63f443deb2e1b290f82875c1639147b265b483d0c65d7a238c06098e63e76ab",
+      "source": "Response value above which a well counts as positive for the hinge (linear SVM) fit. Leave it None when the response is already binary, in which case the two values it holds become the two classes. spaCR refuses a continuous response with no threshold rather than splitting it at the mean or median, because a cut chosen by the software decides the hypothesis being tested. Read only by regression_type 'hinge'. Default None.",
+      "translation": "hinge(선형 SVM) 적합에서 웰을 양성으로 볼 반응값 하한입니다. 반응이 이미 이진이면 None 으로 두며, 그때 두 값이 두 클래스가 됩니다. spaCR 은 연속 반응에 임계값이 없으면 평균이나 중앙값으로 임의 분할하지 않고 거부합니다. 소프트웨어가 정한 절단값이 검정 가설을 결정하기 때문입니다. regression_type 'hinge' 에서만 읽습니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "infection_intensity_mode",
+      "source_sha256": "8fdb8f40bc4f354a51fe158b921f7775f7430fd7ae2c257eaa6cb91595d99437",
+      "source": "What happens when the QC call disagrees with the mask-based label: 'relabel' overwrites the label and keeps the cell, 'remove' deletes the disagreeing cells outright. Use 'relabel' to preserve sample size, 'remove' when you only want cells whose mask and intensity evidence agree. Unknown values fall back to 'relabel'. Default 'relabel'.",
+      "translation": "QC 판정과 마스크 기반 레이블이 다를 때의 처리입니다. 'relabel' 은 레이블을 덮어쓰고 세포를 유지하며, 'remove' 는 불일치 세포를 삭제합니다. 표본 수를 보존하려면 'relabel', 마스크와 강도 근거가 일치하는 세포만 원하면 'remove' 를 사용하십시오. 알 수 없는 값은 'relabel' 로 돌아갑니다. 기본값 'relabel'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "infection_intensity_qc_scope",
+      "source_sha256": "5acc45ed8a81895ec9f0f8e0f3399d3e8caa1b1377008d018a1c472b35ec7a98",
+      "source": "Whether infection QC is fitted once or per group: 'combined'/'global'/'all' fits one model on everything, 'plate'/'per_plate' one per plateID, 'well'/'per_well' one per plate-well, and 'none'/'off' skips QC; an unrecognised string falls back to combined behaviour with a warning. Per-well fitting absorbs staining and exposure differences but needs enough cells per well; every group still writes its own QC plot, only the QC payload embedded in the summary panel is taken from the first processed group. Default 'per_well'.",
+      "translation": "감염 QC 를 전체에 한 번 적합할지 그룹별로 적합할지 정합니다. 'combined'/'global'/'all' 은 전체에 한 모델, 'plate'/'per_plate' 는 plateID 별, 'well'/'per_well' 은 플레이트-웰별로 적합합니다. 'none'/'off' 는 QC 를 생략하고 알 수 없는 문자열은 경고 후 combined 동작을 사용합니다. 웰별 적합은 염색과 노출 차이를 흡수하지만 웰마다 충분한 세포가 필요합니다. 각 그룹은 자체 QC 그림을 쓰며 요약 패널의 QC 내용만 첫 처리 그룹에서 가져옵니다. 기본값 'per_well'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "infection_pca_method",
+      "source_sha256": "63981c0cdf600938a966861a64a682edf804bdeb9199528e60bc7524dbe8a564",
+      "source": "Records which embedding was actually used ('pca', 'umap' or 't-sne'). The pipeline overwrites it from infection_intensity_strategy while QC runs, so a value typed here is ignored - change infection_intensity_strategy to pick the embedding. Read it back afterwards to see what ran. No default: it is an output, empty until QC has run.",
+      "translation": "실제로 사용한 임베딩을 'pca', 'umap', 't-sne' 중 하나로 기록합니다. QC 실행 중 infection_intensity_strategy 에서 이 값을 덮어쓰므로 여기 입력한 값은 무시됩니다. 임베딩을 고르려면 infection_intensity_strategy 를 바꾸십시오. 실행 뒤 어떤 방법이 쓰였는지 확인하는 출력값입니다. 기본값은 없으며 QC 전에는 비어 있습니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "infection_pca_tsne_perplexity",
+      "source_sha256": "549d08470eec133c41f5172dd18b6e7b4fe8247c82b24b9dd7e342e76520a875",
+      "source": "Fixed t-SNE perplexity used when infection_pca_tsne_search is False, automatically capped at max(5, (n_cells-1)/3). Lower values emphasise local structure and can break one population into several clumps; higher values emphasise global structure and merge them. The learning rate is left at 'auto'. Default 30.0.",
+      "translation": "infection_pca_tsne_search 가 False 일 때 쓸 고정 t-SNE perplexity 이며 max(5, (n_cells-1)/3) 이하로 자동 제한됩니다. 낮은 값은 국소 구조를 강조해 한 집단을 여러 덩어리로 나눌 수 있고, 높은 값은 전역 구조를 강조해 합칠 수 있습니다. 학습률은 'auto' 로 둡니다. 기본값 30.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "infection_pca_tsne_search",
+      "source_sha256": "583284ae66d9b0d143f02b4a39598c0ec86a47d65fbc0312d9329966e7b7ecb2",
+      "source": "Fit t-SNE once per combination of infection_pca_tsne_perplexity_grid and infection_pca_tsne_learning_rate_grid, keeping the run that scores highest on centroid distance times ground-truth separation. False does a single fit at infection_pca_tsne_perplexity with learning_rate 'auto'. Every extra grid point costs a full t-SNE fit. Default True.",
+      "translation": "infection_pca_tsne_perplexity_grid 와 infection_pca_tsne_learning_rate_grid 의 각 조합마다 t-SNE 를 적합하고, 중심 거리와 정답 분리도의 곱이 가장 큰 실행을 유지합니다. False 는 infection_pca_tsne_perplexity 와 learning_rate 'auto' 로 한 번만 적합합니다. 격자점 하나가 늘 때마다 전체 t-SNE 적합이 한 번 추가됩니다. 기본값 True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "infection_xgb_proba_column",
+      "source_sha256": "1b3c1e863c9a68dd83ff52263bf965f5aa507a32eccb76b14bcf7f50c0e8f897",
+      "source": "Column name the track-level ambiguous filter and the QC probability plot look for. If that column is not in the table, BOTH now fall back to discovering it -- the classifier writes 'infection_prob', and until 2026-08-12 the fallback was unreachable, so track-level ambiguous dropping silently never ran on a default configuration. Set it explicitly only to override the discovery. Default 'infection_xgb_proba'.",
+      "translation": "추적 수준 모호성 필터와 QC 확률 그림이 찾을 열 이름입니다. 표에 없으면 이제 둘 다 자동으로 열을 찾습니다. 분류기는 'infection_prob' 을 쓰며 2026-08-12 전에는 대체 경로에 도달할 수 없어 기본 설정에서 추적 수준 모호 항목 제거가 조용히 실행되지 않았습니다. 자동 탐색을 덮어쓸 때만 명시하십시오. 기본값 'infection_xgb_proba'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "input_mean",
+      "source_sha256": "e1be4ed858b6d1c5014f53aa6b1bba573f921365ec3a685841bfd23c54774222",
+      "source": "Per-channel means for input_statistics='custom' or 'dataset', on the 0-1 scale ToTensor produces. One value is broadcast to every channel, which is what a single-stain dataset wants. Compute the dataset ones with spacr.normalization.dataset_statistics rather than guessing. Ignored unless input_statistics asks for them. Default None.",
+      "translation": "input_statistics 가 'custom' 또는 'dataset' 일 때 사용할 채널별 평균이며 ToTensor 가 만드는 0~1 척도입니다. 한 값은 모든 채널에 적용되어 단일 염색 데이터셋에 알맞습니다. 추측하지 말고 spacr.normalization.dataset_statistics 로 데이터셋 값을 계산하십시오. input_statistics 가 요구할 때만 사용됩니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "l1_ratio",
+      "source_sha256": "c65de1e47b95f846333d5770627464c353d27934fb59976c22c97d997f7fe72d",
+      "source": "How the elastic-net penalty is split between L1 and L2: 1.0 is a pure lasso (sparse, picks one gRNA out of a correlated group), 0.0 is a pure ridge (dense, shares the effect across the group), and values between keep some of both. Use 0.5 when correlated gRNAs of the same gene should be selected together rather than arbitrarily. Read only by regression_type 'elasticnet'. Default 0.5.",
+      "translation": "elastic-net 벌점을 L1 과 L2 로 나누는 비율입니다. 1.0 은 순수 lasso 로 희소하며 상관된 gRNA 그룹에서 하나를 고르고, 0.0 은 순수 ridge 로 조밀하며 효과를 그룹에 나눕니다. 중간 값은 두 성질을 섞습니다. 같은 유전자의 상관된 gRNAs 를 임의로 하나만 고르지 않고 함께 선택하려면 0.5 를 사용하십시오. regression_type 'elasticnet' 에서만 읽습니다. 기본값 0.5."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "location_column",
+      "source_sha256": "0a00a1f86958355772629ccac847014c7c4d9ed9384ef156ff32a8f3576b6846",
+      "source": "Metadata column searched for the positive_control and negative_control values when labelling rows for ML training, normally 'columnID' or 'rowID'. Set 'rowID' when your controls run along plate rows instead of columns. It is overwritten with annotation_column whenever that is set. Default 'columnID'.",
+      "translation": "ML 훈련 행을 표시할 때 positive_control 과 negative_control 값을 찾을 메타데이터 열입니다. 보통 'columnID' 또는 'rowID' 입니다. 대조군이 플레이트 열이 아니라 행을 따라 배치되면 'rowID' 를 사용하십시오. annotation_column 이 설정되면 그 값으로 덮어씁니다. 기본값 'columnID'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measurement_rules",
+      "source_sha256": "fefb77e0582a0aea98603232c79ba77f5eed1056ff6ed03167da1b80180df835",
+      "source": "Class definitions by threshold on measured features, shared by Classify (CV) and Classify (ML). Each entry is {'name': <class>, 'where': [{'column': <feature>, 'op': '>'|'>='|'<'|'<='|'=='|'!=', 'value': <number>}, ...]} and the clauses within one rule are ANDed - use more than one, since a single threshold is a gate rather than a class definition. Rows matching no rule stay unlabelled and are dropped, never assigned to a class. Used when dataset_mode is 'measurement'. Default None.",
+      "translation": "Classify (CV) 와 Classify (ML) 가 공유하는 측정 특징 임계값 기반 클래스 정의입니다. 각 항목은 {'name': <class>, 'where': [{'column': <feature>, 'op': '>'|'>='|'<'|'<='|'=='|'!=', 'value': <number>}, ...]} 형식이며 한 규칙 안의 절은 AND 로 결합됩니다. 임계값 하나는 클래스 정의보다 게이트에 가까우므로 여러 조건을 사용하십시오. 어떤 규칙에도 맞지 않는 행은 레이블 없이 버리며 클래스에 임의 배정하지 않습니다. dataset_mode 가 'measurement' 일 때 사용됩니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "metadata_item_1_value",
+      "source_sha256": "431bc73cfba0ca4349b521b7e25edd57a12f9f2d1bf35240cc86a49dce331aa6",
+      "source": "The metadata values selecting the rows that belong to metadata_item_1_name, for example [['c19','c2'],['c3','c4']]. Values that occur in no row contribute no crops, and because the generator reports only the final count a typo here looks like a class that is simply rare. None disables the grouping. Default None.",
+      "translation": "metadata_item_1_name 에 속하는 행을 고를 메타데이터 값입니다. 예: [['c19','c2'],['c3','c4']]. 어떤 행에도 없는 값은 이미지 영역을 만들지 않으며 생성기는 최종 개수만 보고하므로 오타가 단순히 희귀한 클래스처럼 보일 수 있습니다. None 은 그룹화를 끕니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "metadata_type_by",
+      "source_sha256": "b44fed0d4b43344df97e31ef3ae5a05c66c9eee70c43aadc51ba5dd74aa13051",
+      "source": "Which png_list column the class_metadata values are matched against when dataset_mode is 'metadata'. Normally 'columnID' or 'rowID' -- the two well-metadata columns filepaths_to_database writes -- but any png_list column is accepted, including 'condition' once annotate_conditions has added it. If the values in class_metadata do not appear in this column, the class simply gets no crops rather than erroring. Default 'columnID'.",
+      "translation": "dataset_mode 가 'metadata' 일 때 class_metadata 값을 대조할 png_list 열입니다. 보통 filepaths_to_database 가 쓰는 두 웰 메타데이터 열 'columnID' 또는 'rowID' 이지만, annotate_conditions 가 추가한 'condition' 을 포함해 어떤 png_list 열도 허용합니다. class_metadata 값이 이 열에 없으면 오류 대신 그 클래스에 이미지 영역이 생기지 않습니다. 기본값 'columnID'."
+    }
+  ]
+}
