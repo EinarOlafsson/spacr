@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "spacr.qt.app.register_app#12",
+      "source_sha256": "14144a00c94df97da4c34318c1e4858cf55cf7dee80cc38bb13dab83128b0d86",
+      "source": "dotted-or-slashed module path under the generated API docs (\"qt/layer_viewer\"), for the ⓘ link beside the settings. Reaches ``settings_model._APP_API_MODULE``.",
+      "context": "dotted-or-slashed module path under the generated API docs (\"qt/layer_viewer\"), for the ⓘ link beside the settings. Reaches ``settings_model._APP_API_MODULE``.",
+      "translation": "설정 옆 ⓘ 링크에 사용할, 생성된 API 문서 아래의 점 또는 슬래시 형식 모듈 경로(\"qt/layer_viewer\")입니다. ``settings_model._APP_API_MODULE``에 전달됩니다."
+    },
+    {
+      "label": "spacr.sp_stats.perform_normality_tests#5",
+      "source_sha256": "c71fe18cbe6c3662cc26461ebc298d931c810ccd4626bb2544fd870cfe38af31",
+      "source": "Tuple ``(is_normal, results)`` where ``is_normal`` is True when all p-values for the last examined column exceed 0.05 and ``results`` is a list of per-test dicts.",
+      "context": "Tuple ``(is_normal, results)`` where ``is_normal`` is True when all p-values for the last examined column exceed 0.05 and ``results`` is a list of per-test key-value mappings.",
+      "translation": "튜플 ``(is_normal, results)``을 반환합니다. 마지막으로 검사한 열의 모든 p-값이 0.05보다 크면 ``is_normal``은 True 이며, ``results``는 검사별 키-값 매핑의 목록입니다."
+    },
+    {
+      "label": "spacr.spacr_cellpose.cellpose_rescale#1",
+      "source_sha256": "2e92975c52f9827f058304f35f69b04bda63ba871f2a47c23a7f09aaea2108da",
+      "source": "``rescale`` was DEPRECATED-AND-IGNORED in Cellpose 4.0, so spaCR passing ``False`` cost nothing and nobody noticed the type was wrong. Cellpose 4.2 reads it again",
+      "context": "``rescale`` was DEPRECATED-AND-IGNORED in Cellpose 4.0, so spaCR passing ``False`` cost nothing and nobody noticed the type was wrong. Cellpose 4.2 reads it again",
+      "translation": "Cellpose 4.0에서는 ``rescale``을 더 이상 사용하지 않고 무시했으므로 spaCR 이 ``False``를 전달해도 비용이 없었고 아무도 유형 오류를 알아차리지 못했습니다. Cellpose 4.2는 이를 다시 읽습니다."
+    },
+    {
+      "label": "spacr.qt.verbose_logger.log_button_press#1",
+      "source_sha256": "8fc5d50fd46c4431eb0156f72dfe895f5f325f7687301d9277d195fd167e48f0",
+      "source": "Wire this from Qt slot handlers so the console shows exactly which button the user hit, with any relevant context values (e.g. the current settings dict on a Run press).",
+      "context": "Wire this from Qt slot handlers so the console shows exactly which button the user hit, with any relevant context values (e.g. the current settings key-value mapping on a processing session press).",
+      "translation": "Qt 슬롯 처리기에서 이 함수를 연결하면 사용자가 선택한 컨트롤과 관련 컨텍스트 값(예: Run 작업 시 현재 설정 키-값 매핑)이 콘솔에 정확히 표시됩니다."
+    },
+    {
+      "label": "spacr.torch_artifacts.load_model_artifact#3",
+      "source_sha256": "b1b24b4c138ccf404011f0af23c927ab3ae97e37e2eb6c4c6a19b5aa1e960dc6",
+      "source": "forwarded to :func:`torch.load`. The ``cpu`` default lets a GPU-trained checkpoint load on a machine without a GPU; an unrecognised device string raises ``RuntimeError`` from torch.",
+      "context": "forwarded to :func:`torch.load`. The ``cpu`` default lets a GPU-trained checkpoint load on a machine without a GPU; an unrecognised device string throws ``RuntimeError`` from torch.",
+      "translation": "이 값은 :func:`torch.load`에 전달됩니다. 기본값 ``cpu`` 덕분에 GPU 에서 학습한 체크포인트를 GPU 가 없는 컴퓨터에서도 불러올 수 있습니다. 인식할 수 없는 장치 문자열이면 torch 가 ``RuntimeError``를 발생시킵니다."
+    },
+    {
+      "label": "spacr.model_zoo.benchmark#8",
+      "source_sha256": "102e1f39cc76adb1ad402d60d77c0f7d6b28b759b74a2c5c755af6769b21c929",
+      "source": "``fn(images, config) -> masks``; defaults to :func:`spacr.model_compare.segment_with_cellpose`. This is the seam the GUI and the tests use, and the reason no test here loads Cellpose.",
+      "context": "``fn(images, config) -> masks``; defaults to :func:`spacr.model_compare.segment_with_cellpose`. This is the seam the GUI and the tests use, and the reason no test here loads Cellpose.",
+      "translation": "``fn(images, config) -> masks``이며 기본값은 :func:`spacr.model_compare.segment_with_cellpose`입니다. 이는 GUI 화면과 테스트가 사용하는 교체 지점이며, 이 테스트에서 Cellpose 모델을 불러오지 않는 이유입니다."
+    },
+    {
+      "label": "spacr.roi.RoiSet.rois_for#1",
+      "source_sha256": "ba83cbbb5592a7bcedeba9862c530882066dec84954681f5ce2dd1e2be8e5d56",
+      "source": "The field's own entry wins over :data:`ANY_FIELD`; a field entry that is present but empty means \"this field has an ROI and it encloses nothing\", which is not the same as having no entry.",
+      "context": "The field's own entry wins over :data:`ANY_FIELD`; a field entry that is present but empty means \"this field has an ROI and it encloses nothing\", which is not the same as having no entry.",
+      "translation": "해당 현미경 시야의 자체 항목이 :data:`ANY_FIELD`보다 우선합니다. 존재하지만 비어 있는 시야 항목은 \"this field has an ROI and it encloses nothing\"을 뜻하며, 항목 자체가 없는 것과 다릅니다."
+    },
+    {
+      "label": "spacr.active_learning.disagreement#2",
+      "source_sha256": "2d3af9636b1828d7cf821d1ae9ba93a72dbb15189efe87b7cfc0bd60a38c0775",
+      "source": "sequence of M score arrays, each ``(N,)`` or ``(N, C)`` over the SAME N crops in the same order (a 3-D ``(M, N, C)`` array works too). Each member is coerced with :func:`as_probabilities`.",
+      "context": "sequence of M score arrays, each ``(N,)`` or ``(N, C)`` over the SAME N extracted image regions in the same order (a 3-D ``(M, N, C)`` array works too). Each member is coerced with :func:`as_probabilities`.",
+      "translation": "동일한 순서의 동일한 N개 추출 이미지 영역에 대해, 각각 ``(N,)`` 또는 ``(N, C)``인 M개 점수 배열의 시퀀스입니다(3차원 ``(M, N, C)`` 배열도 가능). 각 구성원은 :func:`as_probabilities`로 변환됩니다."
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary#6",
+      "source_sha256": "4b5c4c8132e0bc132147e7bfa1e66e66ee9f57aa476ee77f3d902cec47d693ab",
+      "source": ":func:`install_window_hooks` the two reach-me-from-where-I-am routes: a **Help ▸ Feature Dictionary…** action, and a **\"What is this?\"** item on the context menu of any results table in the app.",
+      "context": ":func:`install_window_hooks` the two reach-me-from-where-I-am routes: a **Help ▸ Feature key-value mapping…** action, and a **\"What is this?\"** item on the context menu of any results table in the app.",
+      "translation": ":func:`install_window_hooks`는 현재 위치에서 접근할 수 있는 두 경로를 설치합니다. **Help ▸ Feature Dictionary…** 작업과, 애플리케이션 결과 테이블의 컨텍스트 메뉴에 있는 **\"What is this?\"** 항목입니다."
+    },
+    {
+      "label": "spacr.schema.split_object_id#2",
+      "source_sha256": "196f35ae836c8f470735f483fd9dcd03bfa0fb94ac1b629fd2ce85114ba3270c",
+      "source": "A type of ``None`` means *not stated*, which is what ``'o'`` has always meant and is exactly what every key written before object types existed carries. It is not \"unknown and therefore probably a cell\".",
+      "context": "A type of ``None`` means *not stated*, which is what ``'o'`` has always meant and is exactly what every key written before object types existed carries. It is not \"unknown and therefore probably a cell\".",
+      "translation": "``None`` 유형은 *명시되지 않음*을 뜻합니다. 이는 ``'o'``가 항상 의미해 온 바이며 객체 유형이 생기기 전에 기록된 모든 키가 가진 값입니다. \"unknown and therefore probably a cell\"이라는 뜻이 아닙니다."
+    },
+    {
+      "label": "spacr.qt.annotate_engine#1",
+      "source_sha256": "70bfc73907c64978124f3ea0eff7dceba2256789f0792473ca165f9ad0581a4c",
+      "source": "The image-processing pipeline (normalize / channel-filter / outline / colored border) and the SQLite-backed page fetch + background save worker are all Tk-free. The Qt screen wraps this with a QWidget UI.",
+      "context": "The image-processing workflow (normalize / image data channel-filter / outline / colored border) and the SQLite-backed page fetch + background save worker are all Tk-free. The Qt application view wraps this with a QWidget UI.",
+      "translation": "이미지 처리 워크플로(정규화 / 이미지 데이터 채널 필터 / 윤곽선 / 색상 테두리)와 SQLite 기반 페이지 조회 및 백그라운드 저장 작업자는 모두 Tk 와 독립적입니다. Qt 애플리케이션 화면은 이를 QWidget UI 로 감쌉니다."
+    },
+    {
+      "label": "spacr.umap_search.walk_recipes#2",
+      "source_sha256": "0573f354a89c4fad028f16c70b99a280594b0f1d18df7506f593a680479e41f3",
+      "source": "how many to return when no explicit grid is given. The default grid walks ``n_neighbors``, which is the parameter that actually changes the shape of a UMAP; ``min_dist`` mostly changes how tightly it packs.",
+      "context": "how many to return when no explicit grid is given. The default grid walks ``n_neighbors``, which is the parameter that actually changes the shape of a UMAP; ``min_dist`` mostly changes how tightly it packs.",
+      "translation": "명시적 그리드가 없을 때 반환할 개수입니다. 기본 그리드는 UMAP 형태를 실제로 바꾸는 매개변수인 ``n_neighbors``를 순회합니다. ``min_dist``는 주로 점들이 얼마나 촘촘하게 배치되는지를 바꿉니다."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#25",
+      "source_sha256": "dffa982cdbe8e318eb3f679f338af4dad8c8af1985a132daccabf5a3a3aba535",
+      "source": "Every result carries the residual standard error, R², and — when the design has replicates — a **lack-of-fit F test against pure error**. That last one is the statistic that answers the question people think R² answers.",
+      "context": "Every result carries the residual standard error, R², and — when the design has replicates — a **lack-of-fit F test against pure error**. That last one is the statistic that answers the question people think R² answers.",
+      "translation": "모든 결과에는 잔차 표준 오차와 R²가 포함되며, 설계에 반복 실험이 있으면 **순수 오차에 대한 적합성 결여 F 검정**도 포함됩니다. 마지막 통계량이 사람들이 R²가 답한다고 생각하는 질문에 실제로 답합니다."
+    },
+    {
+      "label": "spacr.measure.generate_object_dataset#5",
+      "source_sha256": "1c24b322ecf8c53fc4328a5398d04bc6f3f0fa20ed31fa00a33a32606dd88f41",
+      "source": "image channel indices to include, in output order. Three indices → an RGB image; one → greyscale; two → padded to RGB; more than three → kept as an ``.npy`` array (and the first three saved as a PNG preview when ``save_png``).",
+      "context": "image data channel indices to include, in output order. Three indices → an RGB image; one → greyscale; two → padded to RGB; more than three → kept as an ``.npy`` array (and the first three saved as a PNG preview when ``save_png``).",
+      "translation": "출력 순서에 포함할 이미지 데이터 채널 인덱스입니다. 인덱스 3개 → RGB 이미지, 1개 → 회색조, 2개 → RGB 로 패딩, 3개 초과 → ``.npy`` 배열로 유지합니다(``save_png``인 경우 처음 3개를 PNG 미리보기로도 저장)."
+    },
+    {
+      "label": "spacr.deep_spacr.train_model#41",
+      "source_sha256": "7e0452fef6fee9a6a57db29e33220eacd229f876ddd0c3f64cb1972784c33996",
+      "source": "``(model, model_path)`` — the trained model and the best checkpoint, which on a resumed run where no epoch beat the restored best metric is ``resume_checkpoint`` itself, or ``(None, None)`` when ``model_type`` could not be built.",
+      "context": "``(model, model_path)`` — the trained model and the best checkpoint, which on a resumed run where no epoch beat the restored best metric is ``resume_checkpoint`` itself, or ``(None, None)`` when ``model_type`` could not be built.",
+      "translation": "``(model, model_path)`` — 학습된 모델과 최상의 체크포인트입니다. 재개된 처리 세션에서 복원된 최상의 지표를 능가한 에포크가 없으면 체크포인트는 ``resume_checkpoint`` 자체이고, ``(None, None)``은 ``model_type``을 만들 수 없을 때 반환됩니다."
+    },
+    {
+      "label": "spacr.napari_bridge.correct_mask#1",
+      "source_sha256": "b42b9042bdca39283d7c20e44f381150e10a0c5492dd02d1526184d4311736f1",
+      "source": "For a script or a notebook. **Not** for use from inside spaCR's own Qt application with ``block=True`` — see :func:`run_event_loop`; the GUI screen calls :func:`open_in_napari` and :func:`labels_from_viewer` separately, driven by the user.",
+      "context": "For a script or a notebook. **Not** for use from inside spaCR's own Qt application with ``block=True`` — see :func:`run_event_loop`; the GUI application view calls :func:`open_in_napari` and :func:`labels_from_viewer` separately, driven by the user.",
+      "translation": "스크립트나 노트북에서 사용합니다. ``block=True``로 spaCR 자체 Qt 애플리케이션 내부에서 사용하는 용도가 **아닙니다** — :func:`run_event_loop`를 참조하십시오. GUI 애플리케이션 화면에서는 사용자가 :func:`open_in_napari`와 :func:`labels_from_viewer`를 각각 호출합니다."
+    },
+    {
+      "label": "spacr.timelapse.analyze_calcium_oscillations#1",
+      "source_sha256": "b90cd43a8ce8445187fedde8ead2e3504cfd36688289ed196e85f57872ce93fc",
+      "source": "Loads the ``cell`` (and optionally ``pathogen``/``cytoplasm``) tables, filters transient tracks, detects peaks on the chosen intensity trace, and writes the per-peak, per-cell and per-well tables to CSV in a ``results`` folder beside the database.",
+      "context": "Loads the ``cell`` (and optionally ``pathogen``/``cytoplasm``) tables, filters transient tracks, detects peaks on the chosen intensity trace, and writes the per-peak, per-cell and per-microplate sample position tables to CSV in a ``results`` folder beside the database.",
+      "translation": "``cell``(선택적으로 ``pathogen``/``cytoplasm``) 테이블을 불러오고, 일시적 트랙을 필터링하고, 선택한 강도 궤적에서 피크를 검출합니다. 그런 다음 피크별, 셀별, 마이크로플레이트 시료 위치별 테이블을 데이터베이스 옆 ``results`` 폴더의 CSV 파일로 기록합니다."
+    },
+    {
+      "label": "spacr.logging_util.LevelSetFilter#1",
+      "source_sha256": "dbb4dbf3542a22839e700167da886d2e63660bcce4412395b22041e6b3c54556",
+      "source": "``setLevel`` is a *threshold*: enabling DEBUG necessarily enables everything above it. The preference this serves is a set of independent switches, where DEBUG on with INFO off is a legitimate choice, so the gate has to be membership rather than comparison.",
+      "context": "``setLevel`` is a *threshold*: enabling DEBUG necessarily enables everything above it. The preference this serves is a set of independent switches, where DEBUG on with INFO off is a legitimate choice, so the data-selection boundary has to be membership rather than comparison.",
+      "translation": "``setLevel``은 *임계값*입니다. DEBUG 를 활성화하면 반드시 그보다 높은 모든 수준도 활성화됩니다. 이 설정은 INFO 를 끄고 DEBUG 를 켜는 것도 유효한 독립 스위치 집합이므로, 데이터 선택 경계는 비교가 아니라 포함 여부를 검사해야 합니다."
+    },
+    {
+      "label": "spacr.logging_util#6",
+      "source_sha256": "cb03c91ed4db5567cec9ec2ce69b9fd51eb022208019876d2faa67f8611772ee",
+      "source": "Third-party libraries that spam INFO records during a spacr pipeline (torch, cellpose, matplotlib, PIL, urllib3, botocore, tensorflow, asyncio) are pinned to WARNING so the log stays useful. Add more to :data:`QUIET_LOGGERS` if a new dependency starts spamming.",
+      "context": "Third-party libraries that spam INFO records during a spacr workflow (torch, cellpose, matplotlib, PIL, urllib3, botocore, tensorflow, asyncio) are pinned to WARNING so the log stays useful. Add more to :data:`QUIET_LOGGERS` if a new dependency starts spamming.",
+      "translation": "spacr 워크플로에서 INFO 레코드를 과도하게 남기는 외부 라이브러리(torch, cellpose, matplotlib, PIL 같은 라이브러리와 urllib3 및 botocore, 그리고 tensorflow 및 asyncio)는 WARNING 으로 고정하여 로그를 유용하게 유지합니다. 새 종속성이 과도한 로그를 남기기 시작하면 :data:`QUIET_LOGGERS`에 추가하십시오."
+    },
+    {
+      "label": "spacr.plate_qc#2",
+      "source_sha256": "1306dc209266d73c328e421ccfaa95ad5da66702c30e1f3bcc9894132425cefe",
+      "source": "This module answers the question up front. It takes the same long-format per-object frame the rest of spaCR passes around (a ``prc`` identifier plus feature columns), collapses it to one value per well, and then asks three separate questions of the resulting grid:",
+      "context": "This module answers the question up front. It takes the same long-format per-object frame the rest of spaCR passes around (a ``prc`` identifier plus feature columns), collapses it to one value per microplate sample position, and then asks three separate questions of the resulting grid:",
+      "translation": "이 모듈은 질문에 먼저 답합니다. 나머지 spaCR 이 전달하는 동일한 긴 형식의 객체별 프레임(``prc`` 식별자와 특징 열)을 받아 마이크로플레이트 시료 위치당 하나의 값으로 축약한 뒤, 결과 그리드에 세 가지 질문을 각각 적용합니다."
+    }
+  ]
+}
