@@ -2,12 +2,39 @@
 LET THE USER CHOOSE THE CROP'S DTYPE AND SCALING
 ================================================================================
 
-Status:    not started, 2026-08-13.
+Status:    done, 2026-08-13.
 Requested: 2026-08-13 - "i would like the user to be able to choose to keep
            the origional dtpe or scale the images to either 1-255 (uint8) or
            between 0 and 1. what do you think, and what is the current code
            doing, i tried to keep uint16 throughout whenever possible to not
            loose any information. was this a good call?"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Crop storage dtype and model-input normalization are now separate explicit
+contracts. Users can preserve original precision or request uint8/uint16 crop
+storage, while training selects symmetric, ImageNet, or no input statistics;
+defaults preserve the prior behavior and all narrowing uses the single shared
+conversion rule.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Storage precision affects downstream measurement and interoperability, while
+training normalization affects transfer learning. Treating them as one choice
+would either discard measurement information or mislead users into believing a
+larger on-disk dtype automatically improves a model.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+No implementation work remains. Preserve the separation between `crop_dtype`
+and `input_statistics`, and keep conversion behavior and tooltips synchronized
+with their tests.
 
 --------------------------------------------------------------------------------
 WHAT THE CODE DOES TODAY, AND WHETHER uint16 WAS RIGHT

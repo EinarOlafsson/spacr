@@ -16,6 +16,34 @@ Requested: 2026-08-13 - "when images are cropped they are cropped as PNGs and
            scratch right?"
 
 --------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The proposal was investigated and deliberately dropped. A fourth plane is not
+automatically compatible with ImageNet models, PIL gives four-channel images
+alpha semantics, and supporting the full torchvision model zoo would require
+architecture-specific input-layer adaptation for little expected benefit from
+a redundant segmentation-mask plane.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Dropping the feature avoids silent alpha-channel loss, misleading viewer
+behavior, and a large per-model maintenance surface. The investigation also
+records that adapting an input layer can retain pretrained weights, so a
+future genuinely informative fourth stain can be reconsidered without the
+false assumption that it requires training from scratch.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Do not build the mask-as-alpha proposal. Keep three-channel PNG as the default
+and use the existing multi-plane array path when a future, evidence-backed
+fourth-stain workflow justifies explicit model adaptation.
+
+--------------------------------------------------------------------------------
 THE TWO PREMISES, CHECKED
 --------------------------------------------------------------------------------
 

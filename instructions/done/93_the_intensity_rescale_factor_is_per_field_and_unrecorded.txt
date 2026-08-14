@@ -2,10 +2,19 @@
 THE INTENSITY RESCALE FACTOR IS PER FIELD, AND NOTHING RECORDS IT
 ================================================================================
 
-Status:    not started, 2026-08-13. FOUND while answering the dtype question
-           of instruction 91.
+Status:    done, 2026-08-14. Found while answering the dtype question of
+           instruction 91.
 Requested: 2026-08-13 - "the dtype matter for more than training it matters
            for measurements as well."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Measurement now plans one comparable intensity scale per plate before workers
+start, records one auditable rescale row per field, retains the fixed normalized
+float conversion, and explicitly marks any unavoidable per-field fallback as
+non-comparable.
 
 --------------------------------------------------------------------------------
 THE DEFECT

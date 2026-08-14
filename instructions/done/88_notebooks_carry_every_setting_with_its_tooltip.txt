@@ -2,10 +2,19 @@
 EVERY NOTEBOOK CARRIES EVERY SETTING, WITH ITS TOOLTIP
 ================================================================================
 
-Status:    not started, 2026-08-13.
+Status:    done, 2026-08-13.
 Requested: 2026-08-13 - "Add to instructions to make sure that all notebooks
            contain all settings for the functions (at least the main
            functions) and classes they use, with tooltips for each setting"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+All 30 shipped notebooks are generated from the same settings factories,
+signatures, and registered tooltips used by spaCR. A drift test regenerates
+and compares them, so new or changed settings cannot silently disappear from
+the notebook interface.
 
 --------------------------------------------------------------------------------
 WHY IT MATTERS

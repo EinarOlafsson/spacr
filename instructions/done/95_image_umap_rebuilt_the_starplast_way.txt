@@ -2,10 +2,8 @@
 IMAGE UMAP REBUILT THE starplast WAY: TABLE, VIEWER, GRID, WALK, GPU
 ================================================================================
 
-Status:    not started, 2026-08-13. SUPERSEDES the "no grid at the end" half
-           of instruction 75, which asked for the standard figure viewer --
-           the maintainer has since built starplast and wants that shape
-           instead.
+Status:    done, 2026-08-14. Supersedes the "no grid at the end" half of
+           instruction 75.
 Requested: 2026-08-13, verbatim:
 
     "i asked for the first option (the cluster montage). but then we built
@@ -23,12 +21,38 @@ Requested: 2026-08-13, verbatim:
      a grid with all the UMAPs from the table, there should be a clustering
      hearch/ walk i can do in tandem with the UMAP hyperparamiter search or
      after having chosen a UMAP, the module should support 2d and 3D UMAPs,
-     and the module should support GPU acceleration. the option to suppurt GPU
+    and the module should support GPU acceleration. the option to suppurt GPU
      acceleration via cuML should the to the left of the hyperparamiter search
      button and should simply say GPU. if pressed it should activate the GPU
      cuML version, if dependencies are not installed then it should check the
      python version and install if compatible other wise tell the user what
      they need to do."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Image UMAP now has the requested search table beside an interactive 2-D/3-D
+viewer, a black-background all-map grid, exact row-to-embedding selection,
+clustering and clustering walks, and a provenance-aware optional cuML route.
+The generic figure slider and static trial-PNG end state were removed from
+this module.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Each score, embedding, cluster result, and CPU/GPU backend now stays bound to
+one reproducible trial. Users can inspect and compare the actual maps that were
+scored instead of static screenshots or silently recomputed approximations.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+No implementation work remains. Preserve exact Trial identity through table,
+viewer, grid, and clustering paths; never mix CPU and cuML rows without the
+existing provenance warning.
 
 --------------------------------------------------------------------------------
 THE LAYOUT, AS ASKED
