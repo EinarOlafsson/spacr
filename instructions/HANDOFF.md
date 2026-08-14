@@ -1,272 +1,253 @@
-# Handoff — 2026-08-13
+# Handoff — 2026-08-14
 
 Written for whoever picks this up next, human or agent. It records what is
 true right now, what needs the maintainer, and the traps that cost time so
 they cost nobody else any.
 
-Read this, then `instructions/00_INDEX.txt`, then the open instruction you
-are taking. **The trailing notes at the end of each instruction file are the
+Read this, then `instructions/00_INDEX.txt`, then the open instruction you are
+taking. **The trailing notes at the end of each instruction file are the
 current state; the header often says "not started" when it is done.**
+
+Branch `nightly`, 69 done / 17 open (**80%**), everything pushed.
 
 ---
 
-## 0. THE LESSON OF 2026-08-12/13: AUDIT BEFORE YOU BUILD
+## 0. THE FOUR LESSONS. READ THESE BEFORE YOU TOUCH ANYTHING.
 
-Four instruction files were materially wrong about their own state, and each
-would have cost a rebuild of something that already shipped:
+### 0a. Audit before you build — EIGHT files have been wrong about themselves
 
 | file | said | was |
 |---|---|---|
 | 73 | "not started" | all six items done |
-| 43 | failures "need a CI run to see" | every one reproduced locally in seconds |
+| 43 | failures "need a CI run" | every one reproduced locally in seconds |
 | 31 | hexbin / colour map / Walk open | all three shipped |
 | 49 | "not started" | the reduction shipped; only the column CHOICE was missing |
 | 77 | ten findings open | fixed elsewhere, unrecorded |
+| 47 | "hangs at 25%" | does not hang at all — see 3d |
+| 69 | "not started" | all five steps shipped |
+| 86 | (b) checkpoint/resume "not started" | `checkpoint.py` + `resume.py` fully built and wired |
 
-**Read the code before building from any of these files.** The trailing notes
-beat the header, and the code beats both.
+**Read the code before building from any header.** Trailing notes beat the
+header; the code beats both. Twice this week the "missing" thing existed under
+a name nobody grepped for.
 
-**The CI cells are already on this machine.** `spacr12` (Python 3.12, numpy
-2.4.6, scikit-learn 1.9, cellpose 4.2.1.1), `spacr13`, `spacr14` — while the
-default `spacr` env is 3.10 with scikit-learn 1.7.2. Every failure that "did
-not reproduce locally" reproduced in `spacr12` in ten seconds. A throwaway
-`python -m venv --system-site-packages` plus `pip install cellpose==4.2.1.1`
-gives a second cellpose without touching the working env.
+### 0b. GREEN TESTS DO NOT MEAN THE FEATURE WORKS
+
+Instruction 52 was closed on **97 passing tests** and the maintainer opened the
+app and found 3D gating unusable. The geometry was right and fully tested; the
+*controls* were unreachable, and **no test pressed one**.
+
+If an instruction is about something a user touches, open the app:
+
+```bash
+cd /mnt/firecuda2/codex/repo/spacr && spacr
+```
+
+A model-layer test suite is necessary and is not sufficient. Where possible,
+put the model in a Qt-free module (see `spacr/umap_search.py`) so the two can
+be tested apart and the UI test is about the UI.
+
+### 0c. `git commit -F -` WITHOUT PATHS COMMITS THE INDEX
+
+Six consecutive commits carried **tests only**, because they used
+`git commit -q -F - <<'MSG'` with no path arguments while only test files had
+been `git add`ed. The branch shipped tests referencing code that was not
+there. Local pytest passed the whole time, because pytest reads the working
+tree and not HEAD.
+
+**Always pass explicit paths, and always verify:**
+
+```bash
+git commit -F - -- path/one.py path/two.py <<'MSG' ... MSG
+git show --stat HEAD          # <- the check that would have caught it
+```
+
+A green test run is not evidence about what was committed.
+
+### 0d. NEVER `Write` A FILE YOU HAVE NOT READ
+
+`spacr/checkpoint.py` was overwritten with a new module of the same name. It
+already existed, with `CheckpointStore`, atomic writes and signature checking.
+Restored from git, but nothing warned first. `ls spacr/ | grep <name>` before
+creating anything, and prefer `Edit` over `Write` for a path that may exist.
 
 ---
 
-## 1. FIRST: what is true as of the last update
-
-- **Everything is pushed.** `nightly` is in sync with origin.
-- **22 open instructions, 57 done.**
-- Closed 2026-08-12/13: **54** (cellpose 4.0 AND 4.2 from one suite),
-  **43** (the CI-only failures, including a real product bug), **85** (the
-  spaCR spelling), **77**, **73**, **37** (the two-field bubble selector),
-  **55**. Progressed: **31** (saved gate-set library), **49** (column groups),
-  **52** (its own interim "not yet" fix), **81** (#15 answered).
-- **26 of 27 GitHub issues are closed.** #15 is open ON PURPOSE — see below.
-- **#74 is a PULL REQUEST**, not an issue, which is why `gh issue list` never
-  showed it. Filed as instruction 87. An audit run with `gh issue list`
-  silently excludes every PR.
-
-## 1b. A NEW PUBLIC MODULE OBLIGES AN i18n CATALOG REBUILD
-
-`tools/build_documentation_i18n.py --audit` requires, for EVERY public
-symbol: an entry in `docs/source/_static/i18n/api/en.json` with matching
-source hashes, AND a non-blank translation in each of the nine language
-catalogs. A new public function is a new symbol, so adding one makes the
-docs gate red until both exist.
-
-**This is the same shape as the `spacr._SUBMODULES` trap below** -- a new
-file has two registrations, not one, and the failing check is nowhere near
-the change. Three new modules on 2026-08-13 (`benchmark`, `column_groups`,
-`gate_library`) produced 182 `en/...` failures this way.
-
-The English half is cheap and safe, and is DONE for those three:
-
-    python tools/build_documentation_i18n.py --sources-only
-
-It writes ONLY `en.json` and returns. The diff was verified symbol by
-symbol: 27 added, 0 removed, 4 changed, every one attributable.
-
-### The docs gate is red for a DIFFERENT reason, which is not that
-
-Measured, not assumed, because the first reading of this was wrong:
-
-* the docs job was ALREADY failing before any of that work -- run
-  31643958921 on `e98edc26`, a concurrent-session commit;
-* the current failure is **169 `sv` failures and nothing else**, none of
-  which name any new module;
-* its first line is `sv: API manifest schema is not 2`, and every COMMITTED
-  language catalog is `schema=1` with 6101 symbols while the code expects
-  schema 2. The catalogs are mid-migration;
-* the audit appears to stop at the first failing language (`sv` is first),
-  which is why the other eight look clean and are not;
-* the fixed catalogs are sitting UNCOMMITTED in the shared working tree --
-  eight of nine are dirty. CI tests the committed state, which is older.
-
-So: finishing the catalog migration is instruction 83's, and the fix is
-already written and unpushed. THEN the 27 new symbols will surface as the
-next failure, in all nine languages, and need a translation pass.
-
-**Instruction 82 cannot report green CI until both are done.** Do not read a
-red docs job as "the new modules broke it" -- that was checked and it is not
-what it says.
-
-## 2. What needs the maintainer
-
-| Need | Unblocks | Note |
-|---|---|---|
-| **`df -T` from issue #15's reporter** | closing #15 | The WAL fix is measured (1.037 s → 0.002 s) but is DESIGNED not to apply on a network filesystem, and their path may be one. Closing it without this would be a false claim. |
-| **A decision on PR #74** | 87 | Outside contribution, targets `main`, CONFLICTING, 100 mostly unrelated commits. Three options are in the file. |
-| **The cuML question** | 86 | The new GPU insight says "optional RAPIDS cuML"; instruction 70 already concluded "add neither cupy nor cucim/cuml" for a conda-forge reason that has not changed. Reconcilable only as a truly optional extra. |
-| **One reading of "no grid at the end"** | 75 | 75 is BUILT, all four parts; it stays open only for this. |
-| `git config user.name` | 58 | The repo has NO user.name set, so commits fall back to `olafsson`. Fold the history fix into 58. |
-
 ## 1. What needs the maintainer
 
-| Need | Unblocks | Note |
+| # | Question | Cost to answer |
 |---|---|---|
-| **The cellpose ceiling decision** | 54, 82 | `>=4.0.7,<5.0` admits 4.2.1.1, and ten tests fail on it on EVERY Python version. Not a Python-range question. `CellposeModel.__init__`'s default `pretrained_model` drifted. Pick a ceiling. |
-| A push, whenever work accumulates | 82 | the standing rule is: never push without asking |
-| Nothing else | | xvfb is installed, the GPU is free, `gh` is authenticated |
-
-`gh` **is** authenticated (`EinarOlafsson`, scopes `gist, read:org, repo`) and
-all five workflows carry `workflow_dispatch`, so CI runs can be triggered
-with `gh workflow run tests.yml --ref nightly` and read with
-`gh run view <id> --log-failed`. Earlier notes claiming CI is unreachable are
-wrong.
-
-Genuine machine limits that remain: **no macOS, no Windows, no `makensis`**
-(blocks 44, 45, 53), and publishing to PyPI / conda-forge needs the
-maintainer's accounts (59).
+| **81** | The reporter's `df -T` on the path in issue #15's traceback. If it is a local filesystem the shipped WAL fix covers them; if NFS/CIFS/Lustre, WAL is unsafe there and the fix is different. | one comment |
+| **81** | A stack trace, or a repro on a real display, for the remaining native crash. Four inspections and one measurement say it is **not** in any Python path. Guessing would be a change with no evidence. | — |
+| **44/45/53** | A macOS host, a Windows host, and `makensis`. The Linux halves can be done without them. | — |
+| **59** | conda-forge accounts. | — |
+| **93** | Whether a stack whose intensities exceed the 16-bit ceiling should be **refused** rather than silently rescaled. See §4. | a decision |
 
 ---
 
 ## 2. State of the tree
 
-- Branch `nightly`, **in sync with origin**.
-- `docs/source/_extra/tutorials/**`, the i18n catalogs, and
-  `instructions/open/48_*` are **owned by a concurrent codex session**. Do not
-  edit them. 48 carries a hands-off note saying so.
-- 24 open instructions, 52 done.
+* Branch `nightly`, 51 commits on 2026-08-13, all pushed.
+* Working tree carries four files that are **not ours**: `README.rst`,
+  `docs/source/index.rst`, `skill/FACTS.md`, `tests/test_docs_media_budget.py`.
+  These belong to the concurrent codex session (48/83). **Do not commit them.**
+* `instructions/open/48` and `83` are codex's. So are
+  `docs/source/_extra/tutorials/**` and the i18n catalogs.
+* `spacr-nightly` at `/home/olafsson/repo/spacr-nightly` is a **stale**
+  checkout (last commit 2026-07-26). Line numbers quoted from it will not
+  match. The working copy is `/mnt/firecuda2/codex/repo/spacr`.
+
+### The environment
+
+* CI cells are already local conda envs: `spacr12` (3.12, numpy 2.4.6,
+  sklearn 1.9, cellpose 4.2.1.1), `spacr13`, `spacr14`. Default `spacr` is
+  3.10 / sklearn 1.7.2. Failures that "do not reproduce locally" reproduce in
+  `spacr12` in seconds.
+* Qt tests need `xvfb-run -a`. `-p no:randomly` for anything order-sensitive.
+* Max 16 CPU cores, max 4 concurrent subagents.
 
 ---
 
-## 3. Traps. Read this section before touching anything.
+## 3. Traps
 
-**NEVER `git stash` in this repository.** There are pre-existing stashes and
-`git stash pop` restores the wrong one, conflicting a dozen unrelated files.
-Hit twice today. To test "does my change cause this", use a second checkout
-or `git worktree add`, never stash.
+### 3a. A new public module obliges an i18n rebuild
 
-**Verify a claim before acting on it.** Two claims from an automated survey
-were wrong, and acting on one would have introduced a bug:
+Adding a module to `spacr/__init__.py::_SUBMODULES` turns the docs job red
+until `python tools/build_documentation_i18n.py --sources-only` is run (writes
+only `en.json`). Forgetting `_SUBMODULES` itself turns **every** compat-matrix
+cell red on `test_smoke.py::test_lazy_loader_matches_files`. It has happened
+twice.
 
-- "`organelle_min_size` is applied twice" — true, and harmless: the filter
-  is idempotent AND the first pass is load-bearing, because the cytoplasm
-  mask is built from the organelle mask between the two calls. Removing the
-  "duplicate" would silently have carved sub-threshold debris out of a
-  measured area.
-- "the anndata regression is not from the merge work" — it was.
+### 3b. Headless Qt refuses static modals
 
-**Do not trust a list that claims to be exhaustive.** Two live tooltips were
-deleted because `test_every_qt_section_hint_names_a_real_category`'s app list
-omitted `classify_merged`, which renders both. The list is fixed; the lesson
-is not.
+`QMessageBox.information` / `QInputDialog.getText` raise in tests by design —
+`tests/qt/conftest.py` enforces it, because a modal runs its event loop in C++
+and hangs the run. `monkeypatch.setattr(QMessageBox, "information",
+staticmethod(lambda *a, **k: None))`. Patching `exec` does **not** cover it.
 
-**Some failing tests encode old behaviour on purpose.** Several today pinned
-the exact defect being fixed (`settings["location_column"] == "test"`,
-`assert len(out) == 3`, the three-column results shape). **Rewrite them to
-assert the new contract and say why in the test. Never delete, never skip.**
+### 3c. `spacr.settings.tooltips` is NOT complete on import
 
-**Two guards I wrote were too broad and had to be narrowed.** A guard that
-fires where nothing could happen teaches people to disable it. Scope a guard
-to the path that actually does the dangerous thing.
+Six pipelines register their keys from their own module via
+`register_defaults`, which runs on import of that module. Read cold, `dst` and
+`cmap` look undocumented — and a tool that then writes "no description" is not
+missing a sentence, it is writing a **wrong** one. See
+`tools/build_notebook_settings.py::_load_registrations`.
 
-**A NEW MODULE FILE MUST BE REGISTERED IN `spacr._SUBMODULES`.** Adding
-`spacr/foo.py` and nothing else turns every compat-matrix cell red on
-`tests/test_smoke.py::test_lazy_loader_matches_files` — "file present but not
-in _SUBMODULES". This happened TWICE today, with `object_roles.py` and then
-`organelle_types.py`, and a scoped local test run cannot catch it because the
-failing test is nowhere near the change. After adding any module, run:
+Also: `register_defaults` **refuses** to let one module redefine another's
+tooltip. Adding `'dst'` to the core dict breaks `import spacr.sequencing_qc`.
 
-    python -m pytest tests/test_smoke.py::test_lazy_loader_matches_files -q
+### 3d. Instruction 47 does not describe a hang
 
-**CPU/GPU etiquette:** at most 4–8 pytest workers. Qt needs
-`xvfb-run -a python -m pytest …` — offscreen is not a substitute for a real
-X server, which is what finally answered issue #72.
+Two full runs, both under a per-test `--timeout=900` that **never fired**:
 
----
-
-## 4. What was done today, with the numbers
-
-| # | Instruction | State |
+| cap | reached | ended by |
 |---|---|---|
-| 72 | Organelle type drives the settings | **done** — 53 settings → 6 visible |
-| 73 | Advanced settings by function | **done** — Cell 21→8, Nucleus 20→7, Pathogen 21→8 |
-| 74 | Loading screen covers the preload | **done** — 1305 ms vs 1268 ms baseline, no regression |
-| 78 | Splash teal → black | **done** — takes the window's own background |
-| 79 | Merge keys, duplicates, aggregation | **done** |
-| 80 | Statistics at the declared level | **done** |
+| 2 h | 66% | my `timeout`, EXIT=124 |
+| 5 h | 83% | my `timeout`, EXIT=124 |
 
-### The wrong-numbers defects fixed (this is the part that matters)
+Output was still being written a minute before each kill. The suite
+**decelerates**: 33 %/hour over the first two thirds, **5.7 %/hour** over the
+next — about six-fold. Something accumulates between tests (leaked widgets,
+live QThreads, unclosed figures).
 
-1. **Cytoplasm was silently dropped from every merge.** The code asked "does
-   this table carry `cell_id`?" and cytoplasm is keyed `object_label`. Zero
-   cytoplasm columns, no error.
-2. **A nucleus was handed a picture of a different cell.** Crop paths were
-   matched on the label alone, across object types. Half wrong; the half that
-   was right was right by coincidence.
-3. **`level` never touched the statistics** despite a tooltip promising it
-   did. Object p = 4×10⁻³⁹ vs well p = 0.25 on the same data.
-4. **`na='drop'` deleted a cell for having an *unmeasurable* child**, not a
-   missing one. A correlation is NaN whenever a channel is flat.
-5. **`_merge_grouped` joined inner unconditionally**, silently conditioning
-   every result on infection.
-6. **`remove_outliers` trimmed before the statistics**, shrinking SD and
-   inflating *t*.
-7. **A track-level filter never ran on any default configuration** — its
-   discovery fallback was unreachable because the default is a non-empty
-   string naming a column the classifier never writes.
-8. **`crop_source='on_demand'` silently trained on the pre-cut PNGs.** Two
-   vocabularies, no translation, and the error was swallowed unless verbose.
-9. **Annotation mode overwrote `location_column` and left it overwritten**,
-   so a user could not return to metadata mode by changing the mode
-   (issues #91–#93, instruction 83).
-10. **The filtered organelle plane was never written back**, so crops showed
-    debris the measurements had dropped.
+That also explains the file's own contradiction: at a decaying rate, where a
+run *appears* to stall depends on how long you waited.
+
+**Next step is not "find the hanging test".** Log RSS and
+`len(QApplication.allWidgets())` per test and find what climbs. `pytest-xdist
+--dist loadfile` would make it finish by restarting workers, but would **hide**
+the leak — and if those widgets outlive their screens in the app too, it is a
+product defect. ~15 failures appeared in run A and are **unidentified**; `-rf`
+was passed to run B and it was killed before the summary printed.
+
+### 3e. Two corrections I published and had to retract
+
+Both are recorded because being wrong twice in the same way is the risk.
+
+* **`clear_field_rows` is called.** I reported it as dead code and a live
+  duplicate-row bug. The grep excluded `resume.py` itself; it is called from
+  `plan_measure_resume` at `resume.py:2147`. **There is no duplicate-row bug.**
+* **Grouped splitting exists.** I confirmed a report that spaCR never groups
+  train/test splits. True of five sites — and **false as a blanket**:
+  `active_learning.py` has `StratifiedGroupKFold` with a `GroupShuffleSplit`
+  fallback, and `cv_group_by` already defaulted to `'well'`.
+
+Grep the module you are about to accuse, not just its callers.
+
+---
+
+## 4. Findings filed but not fixed
+
+**93 — the intensity rescale factor is per field and unrecorded.**
+`measure._promote_merged_to_uint16` picks `factor = 65535/top` from **that
+field's own maximum** when intensities exceed 65535, and runs once per file. A
+bright field is divided by more than a dim one, so the same object measures
+differently in each. The factor prints only under `verbose` and is never
+stored. The float-on-[0,1] path uses a fixed 65535 and is fine; the dangerous
+path is rare, which is why it would go unnoticed.
+
+**Not yet investigated — a merge warning the maintainer saw in a real run:**
+
+```
+'plateID':  57170 of 65737 objects disagree between cell and pathogen
+'rowID':    57170 …   'columnID': 57170 …   'fieldID': 57170 …
+```
+
+`object_label` disagreeing is expected — a cell and its pathogen have
+different labels. The **identity** columns disagreeing means the merge may be
+pairing rows from different fields. This could be serious and nobody has
+looked.
 
 ---
 
 ## 5. Where each open instruction stands
 
-Percentages are estimates from each file's own trailing notes.
-
-**Close to done**
-- **81** GitHub issues — 96%. #72 closed under real X (600 resizes, 169 tests,
-  no crash). #15 open. #91–#93 fixed but **not closed — waiting on a push** so
-  the fix is real for the reporter.
-- **77** Phantom settings and wrong numbers — 88%. Items a/c/d done.
-- **37** Classify settings overhaul — 85%. crop_source clash fixed; the class
-  selector redesign and the `classes` default drift remain.
-- **43** Failing GitHub tests — 80%. **All 65 reported failures pass locally.**
-  Needs a push to verify in CI.
-- **83** Classify controls and location_column — 75%. Code fixed; closing the
-  issues is what is left.
-
-**Partly built**
-- **31** Gate editor redesign — 70%. Ten specific items; the file lists them.
-- **55** Performance sweep — 65%. xvfb now makes the rest measurable.
-- **54** Python 3.9–3.14 — 60%. CI is readable now; this is unblocked.
-- **47** Qt suite hangs — 50%. xvfb + `--timeout` turns the hang into a
-  traceback.
-- **76** More than one organelle — 45%. Steps 1–3 and the queued measure bugs
-  done. **The real blocker is the plane budget being full at 7.**
-- **60** Coverage sweep — 35%. Nothing blocks it.
-
-**Not started, nothing blocking**
-- **49** gate editor xD, **52** gate editor 3D, **69** live views, **75** UMAP
-  figures. (69 and 75 had agents mid-flight when this was written — check
-  `git log` and `git status` before starting either.)
-
-**Blocked on hardware or accounts**
-- **53** installers build and run, **59** conda-forge, **44** / **45**
-  installer pages.
-
-**Pinned last, by the maintainer**
-- **82** green CI then bump to 1.5.0.5 — gated on the push.
-- **58** strip `Co-Authored-By` from history — must be the very last thing.
+| # | Item | Stage |
+|---|---|---|
+| **52** | 3D plane-anchored gates | **Controls rebuilt today.** Plane picker, shape dropdown, spin/draw, dragged slab. Geometry (Cylinder/Prism/Box/Composite/thresholds) was already right |
+| **95** | Image UMAP, starplast-style | **Model + GPU button built.** The 2D/3D container, the grid-on-black, the clustering walk and removing the figure slider are NOT |
+| **94** | Splits group by well | ~40%. Ladder (cell/field/well/plate) built, `none`→`cell` renamed with aliases. Five sites still ungrouped |
+| **93** | Per-field intensity factor | Filed, not started |
+| **60** | Coverage | Maintainer scoped it to **mask, utils, measure, deep_spacr** only |
+| **76** | More than one organelle | Not started |
+| **47** | Qt suite | Diagnosed (§3d). ~15 failures unnamed |
+| **75** | Image UMAP figures | **Superseded by 95** — can be closed |
+| **81** | GitHub issues | 25 of 26 closed |
+| 44, 45, 53, 59 | Installers, conda-forge | Blocked, §1 |
+| 48, 83 | Tutorials, catalogs | **codex — do not touch** |
+| **82** | Green CI | **SECOND TO LAST.** Version bump discarded by the maintainer |
+| **58** | Strip Claude from history | **LAST.** Includes `git config user.name "Einar Olafsson"` — the repo has none set, so codex commits show `olafsson` |
 
 ---
 
-## 6. Conventions worth keeping
+## 6. Standing rules the maintainer has set
 
-- A feature goes into `instructions/open/NN_slug.txt` **before** it is coded,
-  quoting the maintainer's own words in a `Requested:` line.
-- Commits are authored **Einar Olafsson**, with **no AI attribution**.
-- Measure before claiming. Every fix above has a number or a command behind
-  it, and the two disproven claims are recorded as disproven rather than
-  quietly dropped.
-- A bug found in passing gets fixed or written down, never just narrated.
-- If a change breaks the legacy Tk GUI, ship it and update Tk to fit.
+* A feature goes into `instructions/open/NN_slug.txt` **before** it is coded,
+  quoting the request in a `Requested:` line. Merge overlapping asks into the
+  first task; do not file duplicates.
+* Print the done/left table whenever an item is finished.
+* Commits are authored **Einar Olafsson**, never any AI attribution, and carry
+  no `Co-Authored-By` trailer.
+* Fix bugs and logic that lead to erroneous or misleading results.
+* If a change breaks the legacy Tk GUI, ship it and update Tk to fit.
+* Correct the format going forward and migrate old data, rather than
+  preserving a bug for compatibility.
+* Standing push approval for this run. **82 then 58 are the last two, in that
+  order.**
+
+---
+
+## 7. Conventions worth keeping
+
+* **Say what a number cannot say.** A truncated inventory, a skipped hash, a
+  refused projection — each is stated rather than passed over. An absent
+  fingerprint that reads as an absent difference is a false assurance.
+* **Greyed, not removed** (INVARIANTS 6) for a control another mode does not
+  read. A control that vanishes takes its value with it.
+* **One source of truth.** Two editors of the same setting drift; the
+  `_ClusterSettingsDialog` docstring records what it cost last time.
+* **Refuse rather than fall back silently** where the fallback would be
+  presented as the thing that was asked for — a random split reported as
+  grouped, ImageNet statistics given to a run that asked for its own.
+* **Measure, then decide.** Every palette, threshold and default that changed
+  this week changed on a number recorded in the instruction file.
