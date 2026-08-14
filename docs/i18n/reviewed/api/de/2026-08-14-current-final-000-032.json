@@ -1,0 +1,237 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "label": "spacr.active_learning#3",
+      "source_sha256": "c387209c381e118f57e3c942d47eb47659dd270318aa8c2700c37c482201a44c",
+      "source": "``least_confidence(probs)`` / ``margin(probs)`` / ``entropy(probs)`` Per-row uncertainty scores. Pure numpy — no torch, no database. ``disagreement(prob_sets)`` Spread across an ensemble or a set of MC-dropout passes. ``rank_by_uncertainty(probs, measure=…)`` Row indices, most uncertain first, deterministically tie-broken. ``build_queue(db_path, annotation_column, …)`` The queue itself, read straight out of ``png_list``. ``queue_rows(queue)`` The queue as ``[(png_path, None), …]`` — the shape the Annotate screen already paginates (see :func:`spacr.qt.annotate_engine.fetch_page`). ``format_queue_summary(queue)`` The queue's shape, class balance and caveats, as text. ``probabilities_from_logits(logits)`` / ``as_probabilities(scores)`` Raw-head-output → probability matrix, both head shapes handled. ``predict_probabilities(model, batches)`` Optional live-model bridge; the only function that touches torch.",
+      "context": "``least_confidence(probs)`` / ``margin(probs)`` / ``entropy(probs)`` Per-row uncertainty scores. Pure numpy — no torch, no database. ``disagreement(prob_sets)`` Spread across an ensemble or a set of MC-dropout passes. ``rank_by_uncertainty(probs, measure=…)`` Row indices, most uncertain first, deterministically tie-broken. ``build_queue(db_path, annotation_column, …)`` The annotation work list itself, read straight out of ``png_list``. ``queue_rows(queue)`` The annotation work list as ``[(png_path, None), …]`` — the shape the Annotate application view already paginates (see :func:`spacr.qt.annotate_engine.fetch_page`). ``format_queue_summary(queue)`` The annotation work list's shape, class balance and caveats, as text. ``probabilities_from_logits(logits)`` / ``as_probabilities(scores)`` Raw-head-output → probability matrix, both head shapes handled. ``predict_probabilities(model, batches)`` Optional live-model bridge; the only function that touches torch.",
+      "translation": "``least_confidence(probs)`` / ``margin(probs)`` / ``entropy(probs)`` Unsicherheitswerte pro Zeile. Reines numpy — kein torch, keine Datenbank. ``disagreement(prob_sets)`` Streuung über ein Ensemble oder mehrere MC-Dropout-Durchläufe. ``rank_by_uncertainty(probs, measure=…)`` Zeilenindizes, beginnend mit den unsichersten und mit deterministischer Auflösung von Gleichständen. ``build_queue(db_path, annotation_column, …)`` Die Warteschlange selbst, direkt aus ``png_list`` gelesen. ``queue_rows(queue)`` Die Warteschlange als ``[(png_path, None), …]`` — in der Form, die die Annotate-Ansicht bereits seitenweise darstellt (siehe :func:`spacr.qt.annotate_engine.fetch_page`). ``format_queue_summary(queue)`` Form, Klassenverteilung und Einschränkungen der Warteschlange als Text. ``probabilities_from_logits(logits)`` / ``as_probabilities(scores)`` Rohausgabe des Modells → Wahrscheinlichkeitsmatrix; beide Ausgabeformen werden verarbeitet. ``predict_probabilities(model, batches)`` Optionale Brücke zu einem aktiven Modell; die einzige Funktion, die torch verwendet."
+    },
+    {
+      "label": "spacr.active_learning.predict_probabilities#1",
+      "source_sha256": "584cf48f8483acd6ba9614a6be40306d773c3288be1ee34cbed2f16b47a294d1",
+      "source": "A convenience for scoring crops that are not in the database yet. The queue does **not** need this — :func:`build_queue` works from the ``pred`` column that :func:`spacr.deep_spacr.merge_predictions_into_db` already wrote, which is the normal path.",
+      "context": "A convenience for scoring extracted image regions that are not in the database yet. The work list does **not** need this — :func:`build_queue` works from the ``pred`` column that :func:`spacr.deep_spacr.merge_predictions_into_db` already wrote, which is the normal path.",
+      "translation": "Eine Hilfsfunktion zum Bewerten extrahierter Bildbereiche, die noch nicht in der Datenbank stehen. Die Warteschlange benötigt sie **nicht** — :func:`build_queue` verwendet die Spalte ``pred``, die :func:`spacr.deep_spacr.merge_predictions_into_db` bereits geschrieben hat; dies ist der normale Ablauf."
+    },
+    {
+      "label": "spacr.batch#1",
+      "source_sha256": "b9d2537c20c918db20d3e1d89b72721e85ffe840f08680cb0773062406e94717",
+      "source": "The Plate Queue (:mod:`spacr.qt.plate_queue`) chains *plates* through *one* pipeline with *one* settings dict. This module is the other axis: a queue of arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — which is what a night of plate-scale work actually looks like.",
+      "context": "The Plate-processing list (:mod:`spacr.qt.plate_queue`) chains *plates* through *one* workflow with *one* settings key-value mapping. This module is the other axis: a software job list of arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — which is what a night of plate-scale work actually looks like.",
+      "translation": "Die Plattenwarteschlange (:mod:`spacr.qt.plate_queue`) führt *Platten* mit *einem* Arbeitsablauf und *einer* Einstellungszuordnung nacheinander aus. Dieses Modul bildet die andere Achse: eine Warteschlange beliebiger Aufträge vom Typ ``(module, settings)`` in beliebiger Reihenfolge — ``Mask → Measure → Classify (CV) → Classify (ML)``, anschließend dieselben vier Aufträge mit einem anderen Durchmesser und danach Mask für eine fünfte Platte — genau so sieht eine Nacht mit plattenweiser Verarbeitung tatsächlich aus."
+    },
+    {
+      "label": "spacr.batch.validate_job#2",
+      "source_sha256": "f932ba3f83da3de4374344258fc0f31e62e0947afff79376191430c0dd174faf",
+      "source": "the module resolves, and is not one of the GUI-only apps (:data:`spacr.cli.INTERACTIVE_ONLY`) that has no headless callable;",
+      "context": "the module resolves, and is not one of the GUI-only apps (:data:`spacr.cli.INTERACTIVE_ONLY`) that has no headless callable;",
+      "translation": "das Modul aufgelöst werden kann und nicht zu den grafischen GUI-Anwendungen (:data:`spacr.cli.INTERACTIVE_ONLY`) gehört, für die es keine ohne Oberfläche aufrufbare Funktion gibt;"
+    },
+    {
+      "label": "spacr.cli.Module#10",
+      "source_sha256": "7ba2a7f6c290650925ebdb901388f3050c50dcef08eb7466ee450b510e533eb1",
+      "source": "``\"module:function\"`` of a defaults helper that does **not** live in :mod:`spacr.settings`. Six built-in pipelines keep their own (``foreign``, ``external_masks``, ``convert``, ``illumination``, ``barcode_qc``, ``anndata_export``), as does every plugin app, because their keys are theirs alone; without this the CLI would resolve an empty defaults dict for them, and ``--set`` would then reject every one of their keys as a setting that does not exist.",
+      "context": "``\"module:function\"`` of a defaults helper that does **not** live in :mod:`spacr.settings`. Six built-in workflows keep their own (``foreign``, ``external_masks``, ``convert``, ``illumination``, ``barcode_qc``, ``anndata_export``), as does every plugin app, because their structured-data names are theirs alone; without this the CLI would resolve an empty defaults key-value mapping for them, and ``--set`` would then reject every one of their structured-data names as a setting that does not exist.",
+      "translation": "``\"module:function\"`` einer Hilfsfunktion für Standardwerte, die **nicht** in :mod:`spacr.settings` liegt. Sechs integrierte Arbeitsabläufe verwalten ihre eigenen Werte (``foreign``, ``external_masks``, ``convert``, ``illumination``, ``barcode_qc``, ``anndata_export``); Gleiches gilt für jede Plugin-Anwendung, da deren Schlüssel ausschließlich ihr gehören. Ohne diese Angabe würde die CLI für sie eine leere Zuordnung von Standardwerten ermitteln und ``--set`` anschließend jeden ihrer Schlüssel als nicht vorhandene Einstellung ablehnen."
+    },
+    {
+      "label": "spacr.cli.apply_overrides#2",
+      "source_sha256": "65fa3a6dc6846a66328c42891171e95993a89855763fc6b86829a06d7e784746",
+      "source": "So is an override naming a key spaCR *does* know but nothing reads. Those are worse, because they pass every \"is this a real setting?\" test there is: ``remove_border_pathogens`` is typed, tooltipped and offered by the Pathogen category, and ``spacr-run mask --set remove_border_pathogens=True`` was accepted in silence and did nothing. ``spacr.settings.DEAD_SETTINGS`` names every such key and the spelling that works instead.",
+      "context": "So is an override naming a structured-data name spaCR *does* know but nothing reads. Those are worse, because they pass every \"is this a real setting?\" test there is: ``remove_border_pathogens`` is typed, tooltipped and offered by the Pathogen category, and ``spacr-run mask --set remove_border_pathogens=True`` was accepted in silence and did nothing. ``spacr.settings.DEAD_SETTINGS`` names every such structured-data name and the spelling that works instead.",
+      "translation": "Ebenso unzulässig ist eine Überschreibung, die einen Schlüssel nennt, den spaCR *tatsächlich* kennt, den jedoch nichts ausliest. Solche Fälle sind schlimmer, weil sie jeden Test auf eine „echte Einstellung“ bestehen: ``remove_border_pathogens`` besitzt einen Typ und einen Tooltip und wird in der Kategorie Pathogen angeboten; ``spacr-run mask --set remove_border_pathogens=True`` wurde dennoch stillschweigend akzeptiert, ohne etwas zu bewirken. ``spacr.settings.DEAD_SETTINGS`` nennt jeden solchen Schlüssel und die stattdessen wirksame Schreibweise."
+    },
+    {
+      "label": "spacr.convert.ConversionResult.summary#0",
+      "source_sha256": "58b4ae4ae69c0c2f1dc345deb90b2e86e8b75211ba8f6bf51a2d2ab7c61b5622",
+      "source": "The end-of-run sentence, including *why* things were skipped.",
+      "context": "The end-of-run sentence, including *why* things were skipped.",
+      "translation": "Der Satz am Ende des Laufs, einschließlich des Grundes, *warum* Elemente übersprungen wurden."
+    },
+    {
+      "label": "spacr.crops.extract_crop#1",
+      "source_sha256": "c02de16c6978478a99f7ea27e5041ea2404020f3974c1d69fdaa187c7828ae96",
+      "source": "The returned array is the *pre-write* array: exactly what ``_measure_crop_core`` hands to the writer. Its dtype is the merged array's (``uint16`` for a normal spaCR run) and its channel order is ``spec.channels``. Use :func:`png_view` to get what a consumer reading the written PNG (via :func:`read_crop_png`) would see.",
+      "context": "The returned array is the *pre-write* array: exactly what ``_measure_crop_core`` hands to the writer. Its dtype is the merged array's (``uint16`` for a normal spaCR run) and its image data channel order is ``spec.channels``. Use :func:`png_view` to get what a consumer reading the written PNG (via :func:`read_crop_png`) would see.",
+      "translation": "Das zurückgegebene Array ist das Array *vor dem Schreiben*: genau das, was ``_measure_crop_core`` an den Writer übergibt. Sein dtype entspricht dem des zusammengeführten Arrays (bei einem normalen spaCR-Lauf ``uint16``), und seine Kanalreihenfolge ist ``spec.channels``. Mit :func:`png_view` erhält man die Ansicht, die ein Verbraucher beim Lesen der geschriebenen PNG-Datei (über :func:`read_crop_png`) sehen würde."
+    },
+    {
+      "label": "spacr.crops.migrate_crop_folder#5",
+      "source_sha256": "a1dee0160a6f87f7f59b96826b3b98b20f4276e0a19c7bb7ae2789d446635dce",
+      "source": "each file is converted into a durable staging file ``<name>.spacr_v2`` (itself written temp-then-``os.replace``, per ``io._save_array_atomic``) and only then ``os.replace``-d over the original, so the crop at its real name is always a complete PNG -- the old one or the new one;",
+      "context": "each file is converted into a durable staging file ``<name>.spacr_v2`` (itself written temp-then-``os.replace``, per ``io._save_array_atomic``) and only then ``os.replace``-d over the original, so the extracted image region at its real name is always a complete PNG -- the old one or the new one;",
+      "translation": "Jede Datei wird in eine dauerhafte Staging-Datei ``<name>.spacr_v2`` umgewandelt (selbst zunächst temporär und dann mit ``os.replace`` geschrieben, gemäß ``io._save_array_atomic``) und erst danach mit ``os.replace``-d über das Original gelegt, sodass die extrahierte Bildregion unter ihrem tatsächlichen Namen immer eine vollständige PNG-Datei ist -- entweder die alte oder die neue;"
+    },
+    {
+      "label": "spacr.database_concurrency#1",
+      "source_sha256": "2b28636fccebc02a8565e5f241ea1adfaee4bff9789b54314c1b82c5eddbde7c",
+      "source": "spaCR uses one SQLite database as the meeting point for Measure worker processes, the annotator writer thread, read-only GUI queries, run-status stamps, and schema migrations.  This module provides the rules those paths share:",
+      "context": "spaCR uses one SQLite database as the meeting point for Measure worker processes, the annotator writer independent execution path, read-only GUI queries, run-status stamps, and schema migrations.  This module provides the rules those paths share:",
+      "translation": "spaCR verwendet eine SQLite-Datenbank als gemeinsamen Treffpunkt für Measure-Arbeitsprozesse, den Schreibthread des Annotators, schreibgeschützte GUI-Abfragen, Statusstempel von Läufen und Schemamigrationen. Dieses Modul stellt die Regeln bereit, die all diese Pfade gemeinsam nutzen:"
+    },
+    {
+      "label": "spacr.diameter#6",
+      "source_sha256": "a3768dc9ae04f523c6d7bd7c3473c6b70250a3fb1601c8a36c12f89bcf6fd565",
+      "source": "1. **Flatten.** Denoise with a 1 px Gaussian, then subtract a heavily smoothed copy (sigma = max(32, min(H, W) / 4)) to remove illumination gradients. The sigma is deliberately far larger than any plausible object so that flattening removes vignetting without eating the objects — the opposite trade-off (a tight rolling ball) shrinks what it is trying to measure. 2. **Reject noise.** Compare the structural amplitude of the flattened plane (p99 - p30) against the *pixel-level* noise scale, measured as ``1.4826 * MAD(img - gaussian(img, 1))`` on the raw plane. A pure-noise plane scores below 1; a plane with real objects scores in the tens. Below ``min_snr`` the field is discarded rather than thresholded, because Otsu will happily bisect pure noise and hand back a confident-looking number. 3. **Threshold and label.** Otsu, fill holes, label, drop components that touch the image border (truncated, so their size is a lie) and components that are absurd (equivalent diameter below ``min_object_diameter``, or area above ``max_object_fraction`` of the field). Characteristic size is the median equivalent diameter, ``2 * sqrt(area / pi)``. 4. **Cross-check by distance transform.** Step 3 has one dominant failure mode: a confluent monolayer fuses into a single component, that component touches the border and is dropped, and the estimate is then computed from whatever debris survived — biased **low**, and silently. So the Euclidean distance transform of the (unfilled) foreground is computed as well, its local maxima are taken as one seed per object (two passes: a coarse pass sets the suppression radius for the refined pass), and a watershed on ``-EDT`` splits the fused foreground back into objects whose equivalent diameters are measured the same way.",
+      "context": "1. **Flatten.** Apply a 1 px Gaussian filter, then subtract a smoother copy with sigma = max(32, min(H, W) / 4). This sigma is larger than a plausible object, so it removes vignetting without the object shrinkage caused by a tight rolling ball. 2. **Reject noise.** Compare the flattened plane’s structural amplitude (p99 - p30) with the *pixel-level* raw-plane noise estimate ``1.4826 * MAD(img - gaussian(img, 1))``. Pure noise scores below 1; real objects score in the tens. Discard a field below ``min_snr`` instead of applying Otsu to pure noise. 3. **Threshold and label.** Apply Otsu, fill holes, and label components. Remove border-touching components because they are truncated; also remove equivalent diameters below ``min_object_diameter`` and areas above ``max_object_fraction``. Use the median equivalent diameter, ``2 * sqrt(area / pi)``. 4. **Cross-check by distance transform.** A confluent layer can fuse into one border-touching component, which is discarded and leaves debris that biases the estimate silently **low**. Compute the Euclidean distance transform of the unfilled foreground. Use local maxima as object seeds in two passes: a coarse pass sets the suppression radius for the refined pass. Watershed on ``-EDT`` separates the fused foreground before measuring equivalent diameters the same way.",
+      "translation": "1. **Glätten.** Mit einem Gauß-Filter von 1 px entrauschen und anschließend eine stark geglättete Kopie (sigma = max(32, min(H, W) / 4)) abziehen, um Beleuchtungsgradienten zu entfernen. Sigma ist absichtlich deutlich größer als jedes plausible Objekt, sodass die Glättung Vignettierung entfernt, ohne die Objekte zu verkleinern — im Gegensatz zu einem engen Rolling-Ball-Filter, der das zu messende Objekt schrumpft. 2. **Rauschen verwerfen.** Die strukturelle Amplitude der geglätteten Ebene (p99 - p30) mit der Rauschskala auf *Pixelebene* vergleichen, die auf der Rohdatenebene als ``1.4826 * MAD(img - gaussian(img, 1))`` gemessen wird. Eine Ebene mit reinem Rauschen erreicht einen Wert unter 1; eine Ebene mit echten Objekten liegt im zweistelligen Bereich. Unterhalb von ``min_snr`` wird das Sichtfeld verworfen statt schwellenwertbasiert segmentiert, da Otsu reines Rauschen bereitwillig teilt und eine scheinbar zuverlässige Zahl liefert. 3. **Schwellenwert bilden und beschriften.** Otsu anwenden, Löcher füllen, Komponenten beschriften und Komponenten verwerfen, die den Bildrand berühren (sie sind abgeschnitten, daher ist ihre Größe falsch) oder unplausibel sind (äquivalenter Durchmesser unter ``min_object_diameter`` oder Fläche über ``max_object_fraction`` des Sichtfelds). Die charakteristische Größe ist der Median des äquivalenten Durchmessers, ``2 * sqrt(area / pi)``. 4. **Mit der Distanztransformation gegenprüfen.** Schritt 3 besitzt einen dominanten Fehlermodus: Eine konfluente Monoschicht verschmilzt zu einer einzigen Komponente, diese berührt den Rand und wird verworfen, und die Schätzung wird anschließend aus den verbleibenden Trümmern berechnet — stillschweigend **zu niedrig**. Deshalb wird zusätzlich die euklidische Distanztransformation des ungefüllten Vordergrunds berechnet. Ihre lokalen Maxima dienen als jeweils ein Startpunkt pro Objekt (zwei Durchgänge: Ein grober Durchgang legt den Unterdrückungsradius für den verfeinerten Durchgang fest), und ein Watershed auf ``-EDT`` teilt den verschmolzenen Vordergrund wieder in Objekte, deren äquivalente Durchmesser auf dieselbe Weise gemessen werden."
+    },
+    {
+      "label": "spacr.errors#6",
+      "source_sha256": "d66cd0c96ecb70beb6db469ac5eb5f40b99a5ed9bf5fe1ab4690ebcb580f42ff",
+      "source": ":class:`ConfigurationError` marks the failures that must *not* be survived. A wrong ``src`` path or a missing metadata column is not a per-item problem — continuing past it only produces garbage. :meth:`RunLedger.item` deliberately re-raises it.",
+      "context": ":class:`ConfigurationError` marks the failures that must *not* be survived. A wrong ``src`` path or a missing metadata column is not a per-item problem — continuing past it only produces garbage. :meth:`RunLedger.item` deliberately re-raises it.",
+      "translation": ":class:`ConfigurationError` kennzeichnet Fehler, die *nicht* ignoriert werden dürfen. Ein falscher ``src``-Pfad oder eine fehlende Metadatenspalte ist kein Problem eines einzelnen Elements — eine Fortsetzung würde lediglich unbrauchbare Ergebnisse erzeugen. :meth:`RunLedger.item` löst den Fehler daher absichtlich erneut aus."
+    },
+    {
+      "label": "spacr.errors.RunLedger.summary#0",
+      "source_sha256": "15ec43de887b4a69c8e60ea397497d24148e00ebf180f15613d495d742b63dec",
+      "source": "Render the loud end-of-run block.",
+      "context": "Render the loud end-of-run block.",
+      "translation": "Den deutlich sichtbaren Abschlussblock eines Laufs darstellen."
+    },
+    {
+      "label": "spacr.foreign.ImportPlan#8",
+      "source_sha256": "0741aa30e989b112a67c2c7a4533e3de81f651168ff06ed8674ce204d004cfaa",
+      "source": "non-blocking things the user must see — an uncalibrated column, a low join match rate, a lossy z handling.",
+      "context": "non-blocking things the user must see — an uncalibrated column, a low join match rate, a lossy z handling.",
+      "translation": "nicht blockierende Hinweise, die der Benutzer sehen muss — eine nicht kalibrierte Spalte, eine geringe Trefferquote beim Verknüpfen oder eine verlustbehaftete Behandlung der z-Achse."
+    },
+    {
+      "label": "spacr.foreign.ImportResult.summary#0",
+      "source_sha256": "63761be06eebc630e97a2e9a9b37d9ce1c0a796aaa0eebfb198db26b01cab849",
+      "source": "The end-of-run block: what landed, and everything that did not.",
+      "context": "The end-of-run block: what landed, and everything that did not.",
+      "translation": "Der Abschlussblock eines Laufs: was übernommen wurde und was nicht."
+    },
+    {
+      "label": "spacr.gui_core.main_thread_update_function#4",
+      "source_sha256": "b973ec798a205d13e2320398e76f48809749b4eaeda036b9cdac9e02c73e8105",
+      "source": "figure queue (currently only used for keep-alive purposes).",
+      "context": "figure list (currently only used for keep-alive purposes).",
+      "translation": "Abbildungsliste (derzeit nur verwendet, um Objekte aktiv zu halten)."
+    },
+    {
+      "label": "spacr.gui_utils.display_media_in_plot_frame#0",
+      "source_sha256": "39670f507e504ad0e007c3fb5cfb41bb8b203f0bb720426778457c14fe79d844",
+      "source": "Loop an MP4/AVI/GIF in ``parent_frame``, cover-cropped to fill it.",
+      "context": "Loop an MP4/AVI/GIF in ``parent_frame``, cover-cropped to fill it.",
+      "translation": "Eine MP4-/AVI-/GIF-Datei in ``parent_frame`` in einer Schleife abspielen und sie füllend zuschneiden."
+    },
+    {
+      "label": "spacr.hits.benjamini_hochberg#0",
+      "source_sha256": "68613541f955ea03a035da293be613c7ede40c3e815c25693644efdf1a5ca309",
+      "source": "Benjamini-Hochberg FDR q-values for a vector of p-values.",
+      "context": "Benjamini-Hochberg FDR q-values for a vector of p-values.",
+      "translation": "Benjamini-Hochberg FDR q-Werte für einen Vektor von p-Werten."
+    },
+    {
+      "label": "spacr.io.mark_crop_output_folder#1",
+      "source_sha256": "e7a348cd6d2703cdd5a8677e48324399c67345fae8e312b6411bdc63ce4fc738",
+      "source": "Called *before* the folder is filled, exactly as :func:`spacr.crops.stamp_crop_folder` is on the measure path, so an interrupted run leaves a marked folder holding fewer crops rather than an unmarked folder of corrected ones -- the one state that is silently misread.",
+      "context": "Called *before* the folder is filled, exactly as :func:`spacr.crops.stamp_crop_folder` is on the measure path, so an interrupted run leaves a marked folder holding fewer extracted image regions rather than an unmarked folder of corrected ones -- the one state that is silently misread.",
+      "translation": "Wird *vor* dem Füllen des Ordners aufgerufen, genau wie :func:`spacr.crops.stamp_crop_folder` im Measure-Pfad. Dadurch hinterlässt ein unterbrochener Lauf einen markierten Ordner mit weniger extrahierten Bildbereichen und nicht einen unmarkierten Ordner mit korrigierten Bildbereichen — den einzigen Zustand, der stillschweigend falsch interpretiert wird."
+    },
+    {
+      "label": "spacr.measure.generate_object_dataset#9",
+      "source_sha256": "8019a3109692fe13a24fa7bcd4710c7e747e43b5f73c3b731e72eb2b0c5d2f71",
+      "source": "raw SQL boolean fragment ANDed onto the query, for anything the shortcuts don't cover (e.g. ``\"cell_eccentricity < 0.8\"``).",
+      "context": "raw SQL boolean fragment ANDed onto the query, for anything the shortcuts don't cover (e.g. ``\"cell_eccentricity < 0.8\"``).",
+      "translation": "boolesches SQL-Rohfragment, das für Bedingungen, die von den Kurzformen nicht abgedeckt werden, mit AND an die Abfrage angefügt wird (z. B. ``\"cell_eccentricity < 0.8\"``)."
+    },
+    {
+      "label": "spacr.measure_hooks.apply_region_filter_hooks#2",
+      "source_sha256": "74d467bf4e374cc1228263c791506fba6e866b0667dc075be4c4f42e13c15569",
+      "source": "Each filter sees the same original label set; the keep-masks are AND-ed, so an object survives only if every filter kept it and the outcome does not depend on registration order.",
+      "context": "Each filter sees the same original label set; the keep-masks are AND-ed, so an object survives only if every filter kept it and the outcome does not depend on registration order.",
+      "translation": "Jeder Filter sieht denselben ursprünglichen Beschriftungssatz; die Beibehaltungsmasken werden mit AND verknüpft. Ein Objekt überlebt daher nur, wenn jeder Filter es beibehält, und das Ergebnis hängt nicht von der Registrierungsreihenfolge ab."
+    },
+    {
+      "label": "spacr.napari_bridge.correct_mask#1",
+      "source_sha256": "b42b9042bdca39283d7c20e44f381150e10a0c5492dd02d1526184d4311736f1",
+      "source": "For a script or a notebook. **Not** for use from inside spaCR's own Qt application with ``block=True`` — see :func:`run_event_loop`; the GUI screen calls :func:`open_in_napari` and :func:`labels_from_viewer` separately, driven by the user.",
+      "context": "For a script or a notebook. **Not** for use from inside spaCR's own Qt application with ``block=True`` — see :func:`run_event_loop`; the GUI application view calls :func:`open_in_napari` and :func:`labels_from_viewer` separately, driven by the user.",
+      "translation": "Für ein Skript oder Notebook. **Nicht** zur Verwendung innerhalb der spaCR-eigenen Qt-Anwendung mit ``block=True`` — siehe :func:`run_event_loop`; die GUI-Ansicht ruft :func:`open_in_napari` und :func:`labels_from_viewer` getrennt und durch den Benutzer gesteuert auf."
+    },
+    {
+      "label": "spacr.ome_zarr#15",
+      "source_sha256": "8b134af1da1fc9ccbfb5b6ccf0ad7bca447f96d27384c2cbb6f8f0d168cfd2fb",
+      "source": "**0.4 is implemented properly** — it is what essentially all real data is in, and it is zarr-format 2. 0.5 (zarr-format 3, metadata under an ``ome`` key in ``zarr.json``) is *tolerated*: its metadata is parsed in full, and its chunks are decoded for the codec chains the standard library can do (``bytes``/``transpose``/``gzip``/``crc32c``). Anything else routes through the same :func:`require_codec` refusal as v2 does. ``.zgroup`` / ``.zarray`` / ``zarr.json`` and the ``zarr_format`` field are read rather than assumed, and an unsupported ``zarr_format`` is refused by number.",
+      "context": "**0.4 is implemented properly** — it is what essentially all real data is in, and it is zarr-format 2. 0.5 (zarr-format 3, metadata under an ``ome`` structured-data name in ``zarr.json``) is *tolerated*: its metadata is parsed in full, and its chunks are decoded for the codec chains the standard library can do (``bytes``/``transpose``/``gzip``/``crc32c``). Anything else routes through the same :func:`require_codec` refusal as v2 does. ``.zgroup`` / ``.zarray`` / ``zarr.json`` and the ``zarr_format`` field are read rather than assumed, and an unsupported ``zarr_format`` is refused by number.",
+      "translation": "**0.4 ist vollständig implementiert** — in diesem Format liegen praktisch alle realen Daten vor, und es verwendet zarr-format 2. 0.5 (zarr-format 3, Metadaten unter dem Schlüssel ``ome`` in ``zarr.json``) wird *toleriert*: Seine Metadaten werden vollständig analysiert, und seine Chunks werden für die Codec-Ketten dekodiert, die die Standardbibliothek verarbeiten kann (``bytes``/``transpose``/``gzip``/``crc32c``). Alles andere durchläuft dieselbe Ablehnung durch :func:`require_codec` wie bei v2. ``.zgroup`` / ``.zarray`` / ``zarr.json`` und das Feld ``zarr_format`` werden gelesen statt vorausgesetzt; ein nicht unterstütztes ``zarr_format`` wird anhand seiner Nummer abgelehnt."
+    },
+    {
+      "label": "spacr.organelle_types.OrganelleType#3",
+      "source_sha256": "6fd6a451e926e96610b29c37170f7cbf8aedf87698db96991acf6e1da308f968",
+      "source": "the `organelle_morphology` this maps to, or None when SIZE DECIDES -- see :attr:`size_split`.",
+      "context": "the `organelle_morphology` this maps to, or None when SIZE DECIDES -- see :attr:`size_split`.",
+      "translation": "die `organelle_morphology`, der dies zugeordnet wird, oder None, wenn DIE GRÖSSE ENTSCHEIDET — siehe :attr:`size_split`."
+    },
+    {
+      "label": "spacr.pipeline_v2#4",
+      "source_sha256": "3702d4d4869394fe72204221df40dbc90afdb76f0da2f66f918cb937ad471d87",
+      "source": "Pass 2 — segment stream the plate in batches of N fields, hand each batch to Cellpose, append the mask channels to the SAME stack file. Each batch is written to a scratch NPZ on the way through and deleted again unless ``keep_npz=True``.",
+      "context": "Pass 2 — segment stream the laboratory microplate in batches of N microscope fields of view, hand each batch to Cellpose, append the mask image data channels to the SAME stack file. Each batch is written to a scratch NPZ on the way through and deleted again unless ``keep_npz=True``.",
+      "translation": "Durchgang 2 — die Platte in Stapeln von N Sichtfeldern segmentieren, jeden Stapel an Cellpose übergeben und die Maskenkanäle an DIESELBE Stapeldatei anhängen. Jeder Stapel wird während der Verarbeitung in eine temporäre NPZ-Datei geschrieben und anschließend wieder gelöscht, sofern ``keep_npz=True`` nicht gesetzt ist."
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#0",
+      "source_sha256": "6c71855a74e9e00dd905a25e974b039b781f85e88d0a24ecd35cfa0a787aa195",
+      "source": "Batch the field stacks through Cellpose, then append the mask channel(s) to the SAME npy files.",
+      "context": "Batch the microscope field of view stacks through Cellpose, then append the mask image data channel(s) to the SAME npy files.",
+      "translation": "Die Sichtfeldstapel stapelweise mit Cellpose verarbeiten und anschließend die Maskenkanäle an DIESELBEN npy-Dateien anhängen."
+    },
+    {
+      "label": "spacr.power_simulate#1",
+      "source_sha256": "cbbfe27c27ab330dd5a61351a27278fe05ade979995499767090ccb12c157eef",
+      "source": "Ported from `spaCRPower <https://github.com/maomlab/spaCRPower>`_ (``R/simulate_screen.R``), Copyright (c) 2025 Matthew O'Meara (maom@umich.edu, ORCID 0000-0002-3128-5331), released under the MIT licence:",
+      "context": "Ported from `spaCRPower <https://github.com/maomlab/spaCRPower>`_ (``R/simulate_screen.R``), Copyright (c) 2025 Matthew O'Meara (maom@umich.edu, ORCID 0000-0002-3128-5331), released under the MIT licence:",
+      "translation": "Portiert von `spaCRPower <https://github.com/maomlab/spaCRPower>`_ (``R/simulate_screen.R``), Copyright (c) 2025 Matthew O'Meara (maom@umich.edu, ORCID 0000-0002-3128-5331), veröffentlicht unter der MIT-Lizenz:"
+    },
+    {
+      "label": "spacr.qt.ai.issue_report.file_issue#0",
+      "source_sha256": "bbdb8bfac3f99fa7af2e70739125ad7f88eaaae6db6d231eef7b1b596094fc68",
+      "source": "Legacy end-to-end helper retained for API callers and tests.",
+      "context": "Legacy end-to-end helper retained for API callers and tests.",
+      "translation": "Ältere durchgängige Hilfsfunktion, die für API-Aufrufer und Tests beibehalten wird."
+    },
+    {
+      "label": "spacr.qt.ai.providers#0",
+      "source_sha256": "4b4f4c864a6d6a54405a9db239b604eece859287d4ab76d60f77fcfa52db6998",
+      "source": "Provider abstraction — one class per AI vendor. Each shells out to the vendor's own coding-agent CLI so authentication piggy-backs on the user's chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google account) — no separate API billing.",
+      "context": "Provider abstraction — one class per AI vendor. Each shells out to the vendor's own coding-agent CLI so authentication piggy-backs on the user's chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google account) — no separate API billing.",
+      "translation": "Provider-Abstraktion – eine Klasse pro KI-Anbieter. Die Authentifizierung erfolgt über das Chat-Abonnement des Benutzers (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google-Konto) – keine separate API-Abrechnung."
+    },
+    {
+      "label": "spacr.qt.app.demo_label_for_app#2",
+      "source_sha256": "7f911a9ad1321c855f6118d50638223fb1a88ed20db2e234cc5d098c00262307",
+      "source": "Resolved through :attr:`MainWindow.DEMO_TARGETS` (demo key → target app) rather than a second table, so a demo that is re-pointed at a different app moves its hint with it. The first match wins: two demos land on ``measure`` (Measure and Crop) and the one named after the app is the one it lists first.",
+      "context": "Resolved through :attr:`MainWindow.DEMO_TARGETS` (demo structured-data name → target app) rather than a second table, so a demo that is re-pointed at a different app moves its hint with it. The first match wins: two demos land on ``measure`` (measurement-and-image-region-extraction) and the one named after the app is the one it lists first.",
+      "translation": "Wird über :attr:`MainWindow.DEMO_TARGETS` (Demo-Schlüssel → Zielanwendung) statt über eine zweite Tabelle aufgelöst, sodass der Hinweis eines Demos mitwandert, wenn es auf eine andere Anwendung umgeleitet wird. Die erste Übereinstimmung gewinnt: Zwei Demos führen zu ``measure`` (Measure und Crop), und das nach der Anwendung benannte Demo wird zuerst aufgeführt."
+    },
+    {
+      "label": "spacr.qt.app.register_app#3",
+      "source_sha256": "71bf2d78ce159c4c2c27bbedccdbb3eb25db3869a5531004946a0473b32289dd",
+      "source": "stable app id. Load-bearing — ``bridge``, ``cli``, ``validate``, the drag-and-drop handlers, ``settings_model`` and saved user state all key off it, so it is chosen once and never renamed. Must be unique across built-ins and plugins.",
+      "context": "stable app id. Load-bearing — ``bridge``, ``cli``, ``validate``, the drag-and-drop handlers, ``settings_model`` and saved user state all key off it, so it is chosen once and never renamed. Must be unique across built-ins and plugins.",
+      "translation": "stabile Anwendungs-ID. Sie ist maßgeblich — ``bridge``, ``cli``, ``validate``, die Drag-and-drop-Handler, ``settings_model`` und der gespeicherte Benutzerzustand verwenden sie alle als Schlüssel. Deshalb wird sie einmal gewählt und nie umbenannt. Sie muss über integrierte Anwendungen und Plugins hinweg eindeutig sein."
+    },
+    {
+      "label": "spacr.qt.command_palette#1",
+      "source_sha256": "71f09156db23c682b1ee7b01e21f58fee14f24c5c826f36cead81fc78dbd03fa",
+      "source": "Every navigable app, every preference toggle, every menu action gets registered as a :class:`Command` and the palette lets users jump to it by typing a few characters. Modelled on VS Code / Slack / Linear.",
+      "context": "Register each app, preference switch, and menu action as a :class:`Command`. Users can open an item by typing a few characters in the palette. The design follows VS Code / Slack / Linear.",
+      "translation": "Registrieren Sie jede App, jeden Einstellungsschalter und jede Menüaktion als :class:`Command`. Benutzer können ein Element öffnen, indem sie einige Zeichen in die Palette eingeben. Das Design folgt VS Code / Slack / Linear."
+    },
+    {
+      "label": "spacr.qt.command_palette#9",
+      "source_sha256": "b29e3f1597423bee4271d197da73e23f34b39e2c1d2d035f1f5bad8eb8cae1f0",
+      "source": "Fuzzy match is a plain substring case-insensitive scan — good enough for the ~30 commands the palette will ever hold.",
+      "context": "Fuzzy match is a plain substring case-insensitive scan — good enough for the ~30 commands the palette will ever hold.",
+      "translation": "Fuzzy Match ist ein einfacher Teilzeichenketten-Scan, der Groß- und Kleinschreibung nicht berücksichtigt — gut genug für die ~30 Befehle, die die Palette jemals enthalten wird."
+    }
+  ]
+}

@@ -1,0 +1,237 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "label": "spacr.qt.command_palette.Command#4",
+      "source_sha256": "84945d3491bb41501a2a337aaf611f5f9725f86fb4912eca5b9af7dd3d748d0f",
+      "source": "extra strings the fuzzy match will search alongside the label (e.g. \"mask cellpose\" so typing \"cellpose\" finds the Mask app).",
+      "context": "extra strings the fuzzy match will search alongside the label (e.g. \"mask cellpose\" so typing \"cellpose\" finds the Mask app).",
+      "translation": "Zusätzliche Zeichenfolgen, die der Fuzzy-Match neben dem Label durchsucht (z. \"mask cellpose\", so dass die Eingabe von \"cellpose\" die Mask-App findet)."
+    },
+    {
+      "label": "spacr.qt.dnd.install_for#2",
+      "source_sha256": "caf8ed2b748f012527691c63b9d87194828011eca5c4fe82be72e33025fcbf6c",
+      "source": "Failure is a missing convenience, not a broken screen — a Qt build with no drag-and-drop, or a handler whose import fails, must not stop the screen being constructed. It is logged and the screen goes up without a dropzone.",
+      "context": "Failure is a missing convenience, not a broken application view — a Qt build with no drag-and-drop, or a handler whose import fails, must not stop the application view being constructed. It is logged and the application view goes up without a dropzone.",
+      "translation": "Ein Fehler ist eine fehlende Bequemlichkeit, nicht eine defekte Anwendungsansicht — ein Qt-Build ohne Drag-and-Drop oder ein Handler, dessen Import fehlschlägt, darf nicht verhindern, dass die Ansicht der Anwendung erstellt wird. Es wird protokolliert und die Anwendungsansicht wird ohne Dropzone geöffnet."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SourceDropHandler#1",
+      "source_sha256": "5516204b11aefbe7c4777ad01a3d0c03c1697ac1a52fcac26958739fed398c59",
+      "source": "Every standard :class:`AppScreen` has a ``src`` field. Accepting a real directory here gives newer and less-specialised modules drag-and-drop support automatically instead of requiring a registry edit for every screen. A dropped file is only accepted for known data extensions and is normalised to its containing directory.",
+      "context": "Every standard :class:`AppScreen` has a ``src`` field. Accepting a real directory here gives newer and less-specialised modules drag-and-drop support automatically instead of requiring a registry edit for every application view. A dropped file is only accepted for known data extensions and is normalised to its containing directory.",
+      "translation": "Jedes Standard :class:`AppScreen` hat ein ``src`` Feld. Wenn Sie hier ein echtes Verzeichnis akzeptieren, erhalten neuere und weniger spezialisierte Module automatisch Drag-and-Drop-Unterstützung, anstatt dass für jede Anwendungsansicht eine Registrierungsbearbeitung erforderlich ist. Eine gelöschte Datei wird nur für bekannte Dateierweiterungen akzeptiert und in das Verzeichnis normalisiert, in dem sie sich befindet."
+    },
+    {
+      "label": "spacr.qt.folder_metadata.iter_image_files#1",
+      "source_sha256": "5a6e01fc0bcb990a4a7664e3bce3e11aa66dc5ed0a221b6a153e254324451426",
+      "source": "**Lazy, and that is the whole point.** The drop handlers need two things from a dropped folder — a small probe to guess the layout from, and (only if the guess succeeds) the full file list to plan an extraction. Pulling both off one generator means the tree is traversed once; abandoning the generator after the probe means a folder with no layout to detect is never fully walked at all. The previous shape returned lists, and the same tree was walked three times per drop.",
+      "context": "**File iteration is deferred until needed.** Drag-and-drop handlers need a small layout probe from a dropped folder and, only after a successful probe, the complete file list for extraction planning. Both come from one generator, so the folder tree is traversed once. Abandoning the generator after a failed probe avoids a complete traversal. The previous list-based design traversed the same tree three times for each drop operation.",
+      "translation": "**Die Datei-Iteration wird bis zum Bedarf aufgeschoben.** Drag-and-Drop-Handler benötigen eine kleine Layout-Prüfung aus einem abgelegten Ordner und erst nach einer erfolgreichen Prüfung die vollständige Dateiliste für die Extraktionsplanung. Beide stammen von einem Generator, so dass der Ordnerbaum einmal durchlaufen wird. Das Verlassen des Generators nach einer fehlgeschlagenen Sonde vermeidet eine vollständige Durchquerung. Das vorherige listenbasierte Design durchlief denselben Baum dreimal für jede Drop-Operation."
+    },
+    {
+      "label": "spacr.qt.imagery.solve_image_file#1",
+      "source_sha256": "35ca82f43ed620f7c8eb656ac704148298418b0eebe450d0a6d1c01d6704b3a8",
+      "source": "For pixels that arrive at runtime rather than in the wheel — today that is the optional NASA/ESA download in :func:`spacr.qt.space.download_nasa_background`. :func:`render` cannot help there: that file is handed to the stylesheet directly, at whatever size it arrived, so the solve has to happen to the file.",
+      "context": "For pixels that arrive at runtime rather than in the wheel — today that is the optional NASA/ESA download in :func:`spacr.qt.space.download_nasa_background`. :func:`render` cannot help there: that file is handed to the stylesheet directly, at whatever size it arrived, so the solve has to happen to the file.",
+      "translation": "Für Pixel, die zur Laufzeit ankommen und nicht im Rad — heute ist das der optionale NASA/ESA-Download in :func:`spacr.qt.space.download_nasa_background`. :func:`render` kann hier nicht helfen: diese Datei wird direkt an das Stylesheet übergeben, unabhängig von der Größe, in der sie angekommen ist, also muss die Auflösung an der Datei geschehen."
+    },
+    {
+      "label": "spacr.qt.linked_selection#5",
+      "source_sha256": "c8429fe94632209cf233b8a43ea42edfa81c84a6ac2e0ee3b2ef28b3d361e451",
+      "source": "**Views must disconnect in ``closeEvent``.** This object outlives every screen, and holds plain references to whatever connected to it. A lambda would keep a destroyed page alive as a receiver — the exact leak :class:`spacr.qt.widgets.home.HomePage` documents for the run registry — so connect bound methods and drop them on close.",
+      "context": "**Views must disconnect in ``closeEvent``.** This object outlives every application view, and holds plain references to whatever connected to it. A lambda would keep a destroyed page alive as a receiver — the exact leak :class:`spacr.qt.widgets.home.HomePage` documents for the run registry — so connect bound methods and drop them on close.",
+      "translation": "**Ansichten müssen die Verbindung in ``closeEvent`` trennen.** Dieses Objekt überlebt jede Ansicht und hält einfache Referenzen auf alle verbundenen Empfänger. Ein Lambda würde eine zerstörte Seite als Empfänger am Leben halten — genau das Speicherleck, das :class:`spacr.qt.widgets.home.HomePage` für die Laufregistrierung dokumentiert. Deshalb müssen gebundene Methoden verbunden und beim Schließen wieder entfernt werden."
+    },
+    {
+      "label": "spacr.qt.linked_selection.open_objects#1",
+      "source_sha256": "9cc537f119ebc797ce442ba318a142bd809b01623935663e9a335d3830f07341",
+      "source": "The half of the routing contract a *caller* uses. A scatter plot",
+      "context": "The half of the routing contract a *caller* uses. A scatter plot",
+      "translation": "Die Hälfte des Routing-Vertrags, die ein *Aufrufer* verwendet. Ein Streudiagramm"
+    },
+    {
+      "label": "spacr.qt.mask_engine#1",
+      "source_sha256": "9d618d58fbeffee80b43a75e7c24d3c83366a7a974262ba9303635af7dd2b066",
+      "source": "Mirrors the image + mask I/O and label-mutation helpers from `spacr.gui_elements.ModifyMaskApp`, without touching Tk. The Qt screen above this reads/writes `self.image` and `self.mask` directly and calls these helpers for the non-brush operations (fill / relabel / invert / remove small).",
+      "context": "Mirrors the image + mask I/O and label-mutation helpers from `spacr.gui_elements.ModifyMaskApp`, without touching Tk. The Qt application view above this reads/writes `self.image` and `self.mask` directly and calls these helpers for the non-brush operations (fill / relabel / invert / remove small).",
+      "translation": "Spiegelt die Image + Mask I/O und Label-Mutation Helper von `spacr.gui_elements.ModifyMaskApp`, ohne Tk zu berühren. Die Qt-Anwendungsansicht darüber liest/schreibt `self.image` und `self.mask` direkt und ruft diese Helfer für die Nicht-Pinsel-Operationen (füllen / neu beschriften / invertieren / klein entfernen) auf."
+    },
+    {
+      "label": "spacr.qt.multi_format#7",
+      "source_sha256": "95ace53436365dad3a7c85344b75570b618d4091d13ac4f90c30ebd8bdf37126",
+      "source": "Extract images out into the canonical filename format via :func:`explode_to_folder` (writes real .tif files + a ``filename_map.csv``), or",
+      "context": "Extract images out into the canonical filename format via :func:`explode_to_folder` (writes real .tif files + a ``filename_map.csv``), or",
+      "translation": "Bilder mit :func:`explode_to_folder` in das kanonische Dateinamenformat extrahieren (schreibt echte .tif-Dateien und eine ``filename_map.csv``), oder"
+    },
+    {
+      "label": "spacr.qt.prerun#6",
+      "source_sha256": "735429e35254bebd90cdf07bb9272653b2245e3a2db040ff67631e39ee93d0f2",
+      "source": "The banner **reads** a verdict; it does not compute one.  Opening a plate's masks costs seconds to minutes, and a screen that pays that on every visit is a screen nobody keeps.  So :func:`spacr.seg_qc.read_digest` parses the CSVs the mask run already wrote, dates each one against its mask stack, and reports a card older than its masks as OUT OF DATE rather than believing it.  Only the *Score the masks now* button scores anything, only when pressed, and it does it on a worker thread and writes the card so the next open is cheap again.",
+      "context": "The banner **reads** a verdict; it does not compute one.  Opening a plate's masks costs seconds to minutes, and an application view that pays that on every visit is an application view nobody keeps.  So :func:`spacr.seg_qc.read_digest` parses the CSVs the mask run already wrote, dates each one against its mask stack, and reports a card older than its masks as OUT OF DATE rather than believing it.  Only the *Score the masks now* button scores anything, only when pressed, and it does it on a background execution unit and writes the card so the next open is cheap again.",
+      "translation": "Das Banner **liest** ein Urteil; es berechnet keines. Das Öffnen der Masken einer Platte dauert Sekunden bis Minuten, und eine Ansicht, die diese Kosten bei jedem Besuch verursacht, wird niemand weiterverwenden. Deshalb analysiert :func:`spacr.seg_qc.read_digest` die bereits vom Mask-Lauf geschriebenen CSV-Dateien, vergleicht das Datum jeder Datei mit ihrem Maskenstapel und meldet eine Karte, die älter als ihre Masken ist, als VERALTET, statt ihr zu vertrauen. Nur die Schaltfläche *Masken jetzt bewerten* führt eine Bewertung durch, und zwar ausschließlich nach einem Klick. Sie arbeitet in einem Hintergrundthread und schreibt die Karte, sodass das nächste Öffnen wieder schnell ist."
+    },
+    {
+      "label": "spacr.qt.preview_registry#1",
+      "source_sha256": "26e1dd822c9da721f33b6947857c5736e491a0e154f39b3f0a8b72d12bec47b8",
+      "source": "Four modules have a preview — Mask, Measure, Timelapse, Motility — and each one costs a thirteen-line arm in ``AppScreen._build_runtime_panel``, two attribute names in a null-out block, and a row in a toggle table two hundred lines further down. The fifth would cost the same, which is why there has never been a fifth: the modules that would most obviously benefit from one are the two whose entire job is \"did the mask come out right\" — Cellpose Masks and Plaque Assay — and neither was worth touching the shared screen for.",
+      "context": "Four modules have a preview — Mask, Measure, Timelapse, Motility — and each one costs a thirteen-line arm in ``AppScreen._build_runtime_panel``, two attribute names in a null-out block, and a row in a toggle table two hundred lines further down. The fifth would cost the same, which is why there has never been a fifth: the modules that would most obviously benefit from one are the two whose entire job is \"did the mask come out right\" — Cellpose Masks and Plaque Assay — and neither was worth touching the shared screen for.",
+      "translation": "Vier Module besitzen eine Vorschau — Mask, Measure, Timelapse, Motility — und jedes erfordert einen dreizehnzeiligen Zweig in ``AppScreen._build_runtime_panel``, zwei Attributnamen in einem Block zum Zurücksetzen sowie eine Zeile in einer zweihundert Zeilen später stehenden Schaltertabelle. Ein fünftes Modul würde denselben Aufwand verursachen; deshalb gab es nie eines. Am offensichtlichsten würden gerade die beiden Module profitieren, deren gesamte Aufgabe lautet: „Ist die Maske korrekt erzeugt worden?“ — Cellpose Masks und Plaque Assay —, doch für keines lohnte sich eine Änderung der gemeinsamen Ansicht."
+    },
+    {
+      "label": "spacr.qt.regex_detect#0",
+      "source_sha256": "039ad2cfd5836a5189285c8edf5bf0a5dee9ec35d8854de444642953019460c8",
+      "source": "Filename-metadata regex helpers for drag-and-drop and manual configuration.",
+      "context": "Filename-metadata regex helpers for drag-and-drop and manual configuration.",
+      "translation": "Dateiname-Metadaten Regex-Helfer für Drag-and-Drop und manuelle Konfiguration."
+    },
+    {
+      "label": "spacr.qt.resource_cleanup#1",
+      "source_sha256": "f2c0680e6f3215e3c933f31f9789a721ca25e288b489afca22fc98d9d3b258c1",
+      "source": "Four buttons in Preferences — **clear RAM**, **clear VRAM**, **clear CPU**, **check disk space** — and the two performance modes that press them for you. This module is what they call.",
+      "context": "Four buttons in Preferences — **clear RAM**, **clear VRAM**, **clear CPU**, **check disk space** — and the two performance modes that press them for you. This module is what they call.",
+      "translation": "Vier Schaltflächen in den Einstellungen — **RAM leeren**, **VRAM leeren**, **CPU leeren**, **Speicherplatz prüfen** — sowie die beiden Leistungsmodi, die diese Aktionen automatisch ausführen. Dieses Modul wird von ihnen aufgerufen."
+    },
+    {
+      "label": "spacr.qt.resource_cleanup.register#1",
+      "source_sha256": "e5ad08fffdbd964e0ec5c51015384dc7efa26e064436551f05dc420b33f6d1eb",
+      "source": "Installs the pre-run hook and performs the launch cleanup the mode asks for — once per process, so the test suite calling the launch sequence forty times does not collect forty times.",
+      "context": "Installs the pre-run hook and performs the launch cleanup the mode asks for — once per process, so the test suite calling the launch sequence forty times does not collect forty times.",
+      "translation": "Installiert den Pre-Run-Hook und führt die vom Modus geforderte Startbereinigung durch – einmal pro Prozess, sodass die Testsuite, die die Startsequenz vierzigmal aufruft, nicht vierzig Mal sammelt."
+    },
+    {
+      "label": "spacr.qt.screens.classifier_evaluation#0",
+      "source_sha256": "5cc03935f6dfa2f4b29a28a1741636a5f47b03ce72c057dc61baa0bb6a4f4a02",
+      "source": "Classifier Evaluation workbench for out-of-fold result bundles.",
+      "context": "Machine-learning classification model Evaluation workbench for out-of-fold result bundles.",
+      "translation": "Machine-Learning Klassifikationsmodell Auswertungs-Workbench für out-of-fold Ergebnisbündel."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser#13",
+      "source_sha256": "6392356b6f39665880f8435a9e7793fec8dcc8bd089d39645560368de2d04f5b",
+      "source": "An UPDATE against ``measurements.db`` is unrecoverable, so every guard below has to fail open to *read-only*:",
+      "context": "An UPDATE against ``measurements.db`` is unrecoverable, so every guard below has to fail open to *read-only*:",
+      "translation": "Ein UPDATE von ``measurements.db`` kann nicht rückgängig gemacht werden; deshalb muss jede der folgenden Schutzmaßnahmen im Fehlerfall auf *schreibgeschützt* zurückfallen:"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.WritableDb.connect#1",
+      "source_sha256": "d8f495e1f9fc72d7dea61b6a83ce862ccd34baef3a6379a334c4c525e1df8024",
+      "source": "``isolation_level = None`` hands transaction control back to us, so the BEGIN/COMMIT/ROLLBACK in :meth:`update_cell` are the real ones and do not fight Python's implicit transaction handling (which differs between 3.11 and 3.12+).",
+      "context": "``isolation_level = None`` hands transaction control back to us, so the BEGIN/COMMIT/ROLLBACK in :meth:`update_cell` are the real ones and do not fight Python's implicit transaction handling (which differs between 3.11 and 3.12+).",
+      "translation": "``isolation_level = None`` übergibt uns die Transaktionssteuerung zurück. Dadurch sind die in :meth:`update_cell` verwendeten Befehle BEGIN/COMMIT/ROLLBACK die tatsächlichen Transaktionen und geraten nicht mit der impliziten Transaktionsverwaltung von Python in Konflikt, die sich zwischen 3.11 und 3.12+ unterscheidet."
+    },
+    {
+      "label": "spacr.qt.screens.model_compare#7",
+      "source_sha256": "057ce84a688d70d5c3bb3e479866d9a195e0a772ece09decfab36b5021d2cdc0",
+      "source": "**The preview colours by correspondence, not by label id.** Label 3 in A has nothing to do with label 3 in B, so a shared random palette would invite exactly the wrong comparison. Objects that have a partner in the other mask are drawn in one colour and objects that do not in another, which is the comparison rather than a decoration of it.",
+      "context": "**The preview colours by correspondence, not by label id.** Label 3 in A has nothing to do with label 3 in B, so a shared random palette would invite exactly the wrong comparison. Objects that have a partner in the other mask are drawn in one colour and objects that do not in another, which is the comparison rather than a decoration of it.",
+      "translation": "**Die Farben der Vorschau richten sich nach der Zuordnung, nicht nach der ID eines Labels.** In A bezeichnet Label 3 etwas völlig anderes als Label 3 in B; eine gemeinsame Zufallspalette würde daher genau zum falschen Vergleich verleiten. Objekte mit einem Partner in der anderen Maske werden in einer Farbe gezeichnet, Objekte ohne Partner in einer anderen. Dies bildet den eigentlichen Vergleich ab und ist keine bloße Dekoration."
+    },
+    {
+      "label": "spacr.qt.screens.outliers.register#2",
+      "source_sha256": "3274f5c18a7477eb02bac55d4951fa3b312d7ab69e8b52b3ed5bcbab746523bf",
+      "source": "``SECTION_EXPLORE`` rather than ``SECTION_RESULTS``, and the reasoning is worth writing down because the first instinct is the other one. This screen looks like QC — it is about whether to believe what a run produced — but what it *does* is what the Gate Editor and the Feature Explorer do, and it sits beside them: you pick features, you move a threshold, you watch a distribution answer, and what comes out is a **column** the user then filters or gates on. Results & QC holds the screens that hand back a verdict; this one hands back a question with the evidence attached, and :meth:`~spacr.qt.widgets.outlier_model.OutlierResult.filtered` is the only place a row is ever dropped and it has to be called on purpose.",
+      "context": "``SECTION_EXPLORE`` rather than ``SECTION_RESULTS``, and the reasoning is worth writing down because the first instinct is the other one. This application view looks like QC — it is about whether to believe what a run produced — but what it *does* is what the Data-selection boundary Editor and the Feature Explorer do, and it sits beside them: you pick features, you move a threshold, you watch a distribution answer, and what comes out is a **column** the user then filters or data-selection boundaries on. Results & QC holds the application views that hand back a verdict; this one hands back a question with the evidence attached, and :meth:`~spacr.qt.widgets.outlier_model.OutlierResult.filtered` is the only place a row is ever dropped and it has to be called on purpose.",
+      "translation": "``SECTION_EXPLORE`` statt ``SECTION_RESULTS``; die Begründung sollte festgehalten werden, weil der erste Impuls in die andere Richtung weist. Diese Ansicht sieht wie QC aus — es geht darum, ob den Ergebnissen eines Laufs zu trauen ist —, doch sie *tut* dasselbe wie Gate Editor und Feature Explorer und steht neben ihnen: Der Benutzer wählt Merkmale, verschiebt einen Schwellenwert, beobachtet die Antwort einer Verteilung, und das Ergebnis ist eine **Spalte**, nach der anschließend gefiltert oder ein Gate gesetzt wird. Results & QC enthält Ansichten, die ein Urteil zurückgeben; diese Ansicht liefert eine Frage zusammen mit den zugehörigen Belegen. :meth:`~spacr.qt.widgets.outlier_model.OutlierResult.filtered` ist die einzige Stelle, an der jemals eine Zeile entfernt wird, und sie muss ausdrücklich aufgerufen werden."
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateViewScreen.recompute#3",
+      "source_sha256": "d6d6d33e43b246acec31704f9be79500673ef622ae15cba63f2f1c766684efd4",
+      "source": "That was made safe rather than assumed safe: ``threaded=False`` (which every test in ``test_plate_view.py`` and ``test_plate_view_linked_filter.py`` constructs the screen with) runs the job inline through :meth:`_run_job`, so those callers still get the old meaning exactly. A caller that needs to know the grid is up waits on :meth:`active_jobs`, as ``render_plate``'s callers already do -- ``render_plate`` has returned \"started, not finished\" since the database read was threaded, and this is the same promise.",
+      "context": "That was made safe rather than assumed safe: ``threaded=False`` (which every test in ``test_plate_view.py`` and ``test_plate_view_linked_filter.py`` constructs the screen with) runs the job inline through :meth:`_run_job`, so those callers still get the old meaning exactly. A caller that needs to know the grid is up waits on :meth:`active_jobs`, as ``render_plate``'s callers already do -- ``render_plate`` has returned \"started, not finished\" since the database read was with worker execution, and this is the same promise.",
+      "translation": "Dies wurde abgesichert und nicht lediglich als sicher vorausgesetzt: ``threaded=False`` — damit wird die Ansicht in jedem Test in ``test_plate_view.py`` und ``test_plate_view_linked_filter.py`` erstellt — führt den Auftrag synchron über :meth:`_run_job` aus. Für diese Aufrufer bleibt die bisherige Bedeutung daher exakt erhalten. Ein Aufrufer, der wissen muss, ob das Raster bereitsteht, wartet auf :meth:`active_jobs`, wie es die Aufrufer von ``render_plate`` bereits tun. Seit die Datenbank asynchron gelesen wird, bedeutet die Rückkehr von ``render_plate`` \"gestartet, nicht abgeschlossen\"; hier gilt dasselbe Versprechen."
+    },
+    {
+      "label": "spacr.qt.screens.power#6",
+      "source_sha256": "49fd32c88fa90ed701a360e58ac8cba2be0ccc90633b919619c4b5aa736feb39",
+      "source": "**Off the GUI thread, and the thread actually retires.** A full sweep is minutes. It goes through :func:`spacr.qt.bridge.make_thread`, and every ``thread.finished`` slot is a BOUND METHOD — see :meth:`PowerScreen._retire_finished_jobs` for what a closure does here and why it is not a style preference.",
+      "context": "**Execution model:** a full sweep takes minutes, so it runs outside the GUI thread and the thread must retire. It uses :func:`spacr.qt.bridge.make_thread`, and each ``thread.finished`` slot is a BOUND METHOD. :meth:`PowerScreen._retire_finished_jobs` explains why a closure is incorrect here.",
+      "translation": "**Außerhalb des GUI-Threads, und der Thread wird tatsächlich beendet.** Ein vollständiger Durchlauf dauert Minuten. Er wird über :func:`spacr.qt.bridge.make_thread` ausgeführt, und jeder Slot von ``thread.finished`` ist eine GEBUNDENE METHODE — :meth:`PowerScreen._retire_finished_jobs` zeigt, was eine Closure hier bewirkt und warum dies keine bloße Stilfrage ist."
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.keys_matching#1",
+      "source_sha256": "d5fa2fb516fb22472afc2cc6b1275b54067e8434fff4b4014672bfb25a58177d",
+      "source": "Terms are ANDed and matched as substrings, which is what makes \"cell diameter\" narrow rather than widen — the alternative, OR, turns a second word into a way of getting *more* results, which is the opposite of what typing more means.",
+      "context": "Terms are ANDed and matched as substrings, which is what makes \"cell diameter\" narrow rather than widen — the alternative, OR, turns a second word into a way of getting *more* results, which is the opposite of what typing more means.",
+      "translation": "Begriffe werden mit AND verknüpft und als Teilzeichenfolgen abgeglichen. Deshalb schränkt \"cell diameter\" die Suche ein, statt sie auszuweiten — bei Verwendung von OR als Alternative würde ein zweites Wort zu einem Weg, *mehr* Ergebnisse zu erhalten, also zum Gegenteil dessen, was die Eingabe von mehr Text bedeutet."
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.list_shape_for#2",
+      "source_sha256": "78988cd0da3b7b79b753f0b821ab8507d54fa49791ca1372cdebd4e1ba7e4887",
+      "source": "``src`` and ``file_metadata``, declared ``(str, list)`` -- they are normally one path / one substring, and ``src`` in particular has to stay a ``QLineEdit`` for drag-and-drop, the empty-state banner and the column picker's ``_settings_src_path``;",
+      "context": "``src`` and ``file_metadata``, declared ``(str, list)`` -- they are normally one path / one substring, and ``src`` in particular has to stay a ``QLineEdit`` for drag-and-drop, the empty-state banner and the column picker's ``_settings_src_path``;",
+      "translation": "``src`` und ``file_metadata``, deklariert ``(str, list)`` -- sie sind normalerweise ein Pfad / eine Teilzeichenkette, und ``src`` muss insbesondere ein ``QLineEdit`` für Drag-and-Drop bleiben, das Banner des leeren Zustands und das ``_settings_src_path`` der Spaltenauswahl;"
+    },
+    {
+      "label": "spacr.qt.settings_search#5",
+      "source_sha256": "cc7c769cb0b0b95b34bcdd195da57f0c2ba53ade4df980b7d5191e5229e01860",
+      "source": "**an Essentials / All switch** — the progressive disclosure. Essentials shows the module's inputs plus the handful of decisions :func:`spacr.qt.screens.settings_model.essential_keys` derives from its curated layout, expanded and ready; All restores every heading, collapsed as before. Essentials is the default on a module's first visit and the choice is remembered per module thereafter, so a returning expert never meets the training wheels twice.",
+      "context": "**an Essentials / All switch** — the progressive disclosure. Essentials shows the module's inputs plus the handful of decisions :func:`spacr.qt.screens.settings_model.essential_keys` derives from its curated layout, expanded and ready; All restores every heading, collapsed as before. Essentials is the default on a module's first visit and the choice is remembered per module thereafter, so a returning expert never meets the training wheels twice.",
+      "translation": "**ein Schalter Essentials / All** — die schrittweise Offenlegung. Essentials zeigt die Eingaben des Moduls sowie die wenigen Entscheidungen, die :func:`spacr.qt.screens.settings_model.essential_keys` aus dem kuratierten Layout ableitet; alles ist aufgeklappt und einsatzbereit. All stellt jede Überschrift wieder her, wie zuvor eingeklappt. Beim ersten Besuch eines Moduls ist Essentials voreingestellt; danach wird die Auswahl je Modul gespeichert, sodass ein zurückkehrender Experte die Einführungshilfen nicht zweimal sieht."
+    },
+    {
+      "label": "spacr.qt.theme.font_px#1",
+      "source_sha256": "c3488976009e85e0652d3675936143e6627ec1639da2fe0c8c96156ddda7c380",
+      "source": "The application stylesheet scales :data:`FONT_SIZE` itself (see :func:`stylesheet`), so anything styled by it already tracks Zoom. What does *not* is a widget that sets its own sheet — a per-widget ``setStyleSheet`` beats the application sheet whatever the selector says — or one that paints text with a ``QPainter``. Those surfaces hard-coded a pixel number and so stayed 13 px at 150 %: the tab strips, the Home aside, the hover tooltip, the Live/AI toggles.",
+      "context": "The application stylesheet scales :data:`FONT_SIZE` itself (see :func:`stylesheet`), so anything styled by it already tracks Zoom. What does *not* is a widget that sets its own sheet — a per-widget ``setStyleSheet`` beats the application sheet whatever the selector says — or one that paints text with a ``QPainter``. Those surfaces hard-coded a pixel number and so stayed 13 px at 150 %: the tab strips, the Home aside, the hover tooltip, the Live/AI toggles.",
+      "translation": "Das Anwendungs-Stylesheet skaliert :data:`FONT_SIZE` selbst (siehe :func:`stylesheet`), sodass alles, was dadurch gestaltet wird, bereits dem Zoom folgt. Das gilt *nicht* für ein Widget mit eigenem Stylesheet — ein ``setStyleSheet`` pro Widget hat unabhängig vom Selektor Vorrang vor dem Anwendungs-Stylesheet — oder für ein Widget, das Text mit einem ``QPainter`` zeichnet. Diese Oberflächen verwendeten eine fest eingetragene Pixelzahl und blieben deshalb bei 150 % auf 13 px: die Registerleisten, der Seitenbereich von Home, der Hover-Tooltip sowie die Schalter Live/AI."
+    },
+    {
+      "label": "spacr.qt.theme.page_tabs_qss#1",
+      "source_sha256": "fd021f45ab60bade245174606a8fc3f6cc31f479968898b921864277bbe584ab",
+      "source": "The shipped ``QTabBar``/``QTabWidget::pane`` rules paint ``P[\"surface\"]`` and ``P[\"surface_alt\"]`` — **raw hex**, so a tab strip that is the main content of a screen (Classifier Evaluation, Run History) sat there as a flat opaque slab while the cards beside it thinned with the slider.",
+      "context": "The shipped ``QTabBar``/``QTabWidget::pane`` rules paint ``P[\"surface\"]`` and ``P[\"surface_alt\"]`` — **raw hex**, so a tab strip that is the main content of a screen (machine-learning classification model Evaluation, Run History) sat there as a flat opaque slab while the cards beside it thinned with the slider.",
+      "translation": "Die ausgelieferten Regeln für ``QTabBar``/``QTabWidget::pane`` zeichnen ``P[\"surface\"]`` und ``P[\"surface_alt\"]`` — **unveränderte Hexadezimalwerte**. Eine Registerleiste, die den Hauptinhalt einer Ansicht bildet (Classifier Evaluation, Run History), erschien dadurch als flache, undurchsichtige Fläche, während die danebenliegenden Karten mit dem Schieberegler transparenter wurden."
+    },
+    {
+      "label": "spacr.qt.tutorial.engine.Step#2",
+      "source_sha256": "96a929b85850d02dc565c099c19283c31f02bd70ad0ef3cf2689e9969a9d0dc4",
+      "source": "narration what the narrator says (also becomes the subtitle) action optional callable that mutates the UI. Runs AFTER the cursor animation completes but BEFORE the narration finishes playing. target optional (widget, point-in-widget) the cursor animates to before the action fires. Point is relative to `widget`. Pass a QWidget with point omitted to target its center. `widget` may also be a zero-argument callable returning the widget, for targets that only come into existence once an earlier step has run — see Director._deref. hold_ms extra silence at the end of the step, in ms. Useful to let a UI change settle before the next step begins. highlight optional widget to draw a soft highlight ring around while this step runs. Also accepts a zero-argument callable, same as `target`. dim_background when ``highlight`` resolves, dim the rest of the interface and leave the highlighted widget in a clear spotlight. Disable for overview steps that should keep the whole interface at full brightness. live_capture recapture the app for every frame while this step runs. The default uses a cached screenshot and only refreshes after an action changes the interface. Enable this for genuinely animated app content. show_pointer draw and animate the small magenta point for a scripted click. Passive explanatory steps leave it off, even when they target or highlight a widget.",
+      "context": "narration what the narrator says (also becomes the subtitle) action optional callable that mutates the UI. Runs AFTER the cursor animation completes but BEFORE the narration finishes playing. target optional (widget, point-in-widget) the cursor animates to before the action fires. Point is relative to `widget`. Pass a QWidget with point omitted to target its center. `widget` may also be a zero-argument callable returning the widget, for targets that only come into existence once an earlier step has run — see Director._deref. hold_ms extra silence at the end of the step, in ms. Useful to let a UI change settle before the next step begins. highlight optional widget to draw a soft highlight ring around while this step runs. Also accepts a zero-argument callable, same as `target`. dim_background when ``highlight`` resolves, dim the rest of the interface and leave the highlighted widget in a clear spotlight. Disable for overview steps that should keep the whole interface at full brightness. live_capture recapture the app for every frame while this step runs. The default uses a cached screenshot and only refreshes after an action changes the interface. Enable this for genuinely animated app content. show_pointer draw and animate the small magenta point for a scripted click. Passive explanatory steps leave it off, even when they target or highlight a widget.",
+      "translation": "narration Wortlaut des Sprechers (wird zugleich zum Untertitel). action optionale aufrufbare Funktion, die die UI verändert. Sie wird ausgeführt, NACHDEM die Cursoranimation abgeschlossen ist, aber BEVOR die Wiedergabe der Erzählung endet. target optionales Paar aus (Widget, Punkt im Widget), zu dem der Cursor animiert wird, bevor die Aktion ausgelöst wird. Der Punkt ist relativ zu `widget`. Wird ein QWidget ohne Punkt übergeben, ist dessen Mittelpunkt das Ziel. `widget` darf auch eine aufrufbare Funktion ohne Argumente sein, die das Widget zurückgibt. Dies ist für Ziele vorgesehen, die erst entstehen, nachdem ein früherer Schritt ausgeführt wurde — siehe Director._deref. hold_ms zusätzliche Stille am Ende des Schritts in ms. Damit kann eine Änderung der UI zur Ruhe kommen, bevor der nächste Schritt beginnt. highlight optionales Widget, um das während dieses Schritts ein weicher Hervorhebungsring gezeichnet wird. Wie bei `target` ist auch eine aufrufbare Funktion ohne Argumente zulässig. dim_background dunkelt die übrige Oberfläche ab, sobald ``highlight`` aufgelöst wurde, und lässt das hervorgehobene Widget klar im Rampenlicht. Für Übersichtsschritte deaktivieren, bei denen die gesamte Oberfläche mit voller Helligkeit sichtbar bleiben soll. live_capture erfasst die Anwendung während dieses Schritts für jedes Einzelbild neu. Standardmäßig wird ein zwischengespeicherter Screenshot verwendet und erst aktualisiert, nachdem eine Aktion die Oberfläche verändert hat. Für tatsächlich animierte Anwendungsinhalte aktivieren. show_pointer zeichnet und animiert den kleinen magentafarbenen Punkt für einen skriptgesteuerten Klick. Passive Erklärungsschritte lassen ihn deaktiviert, selbst wenn sie auf ein Widget zielen oder es hervorheben."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.minimumSizeHint#0",
+      "source_sha256": "cc8286bc6d6ec9db57bc85a49922269b1be8ba2ebcdfbb0fe29d65be2e17c055",
+      "source": "Cap how much width this toggle can demand of its row.",
+      "context": "Cap how much width this toggle can demand of its row.",
+      "translation": "Begrenzt, wie viel Breite dieser Schalter innerhalb seiner Zeile beanspruchen darf."
+    },
+    {
+      "label": "spacr.qt.widgets.class_editor#4",
+      "source_sha256": "0f5379dbec7912890d3475a6528865875124cf9c9a056a01f7a60afb5506fb32",
+      "source": "**The random complement.** One row can be \"everything not claimed, chosen at random\", which is what the retired ``write_random_annotation_column`` used to arrange. It is a KIND OF ROW here rather than a button pressed beforehand, because it is a way of defining a class and belongs where the other class definitions are.",
+      "context": "**The random complement.** One row can be \"everything not claimed, chosen at random\", which is what the retired ``write_random_annotation_column`` used to arrange. It is a KIND OF ROW here rather than a button pressed beforehand, because it is a way of defining a class and belongs where the other class definitions are.",
+      "translation": "**Die zufällige Ergänzung.** Eine Zeile kann „alles nicht bereits Zugeordnete, zufällig ausgewählt“ bedeuten; genau dies wurde früher von ``write_random_annotation_column`` eingerichtet. Hier ist es ein ZEILENTYP und keine zuvor betätigte Schaltfläche, denn es definiert eine Klasse und gehört dorthin, wo auch die übrigen Klassendefinitionen stehen."
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel#0",
+      "source_sha256": "08e292bfd05b0ea0e575b2e10624e159b6b6376b293a2ac5c6e3858dcb690a85",
+      "source": "Merged pipeline stdout + AI chat panel.",
+      "context": "Merged workflow stdout + AI chat panel.",
+      "translation": "Zusammengeführtes Bedienfeld für die Standardausgabe des Arbeitsablaufs und den KI-Chat."
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart#14",
+      "source_sha256": "9c546371733d2953f5b99441e0aa2c92b740b94fe899ac9f8a404c22bc4eab30",
+      "source": "The two robust constants are *not* interchangeable and the module refuses to pretend they are. 1.4826 (:data:`MAD_SCALE`) is ``1/Φ⁻¹(0.75)``, the factor that makes the MAD of a normal sample an unbiased estimate of its SD. A moving range is ``|x_i - x_{i-1}|``, the absolute value of a *difference* of two observations, so its scale is ``sqrt(2)·sigma`` and its median is ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma`` (:data:`MEDIAN_MR_CONSTANT`). Multiplying a median moving range by 1.4826 overestimates sigma by exactly ``sqrt(2)`` — 41% wider limits, which is the difference between catching a drift and not. Both constants are computed from ``Φ⁻¹(0.75)`` here for the same reason c4 is computed from the gamma function.",
+      "context": "The two robust constants are *not* interchangeable and the module refuses to pretend they are. 1.4826 (:data:`MAD_SCALE`) is ``1/Φ⁻¹(0.75)``, the factor that makes the MAD of a normal sample an unbiased estimate of its SD. A moving range is ``|x_i - x_{i-1}|``, the absolute value of a *difference* of two observations, so its scale is ``sqrt(2)·sigma`` and its median is ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma`` (:data:`MEDIAN_MR_CONSTANT`). Multiplying a median moving range by 1.4826 overestimates sigma by exactly ``sqrt(2)`` — 41% wider limits, which is the difference between catching a drift and not. Both constants are computed from ``Φ⁻¹(0.75)`` here for the same reason c4 is computed from the gamma function.",
+      "translation": "Die beiden robusten Konstanten sind *nicht* austauschbar, und das Modul gibt nicht vor, dass sie es wären. 1.4826 (:data:`MAD_SCALE`) ist ``1/Φ⁻¹(0.75)``, also der Faktor, durch den der MAD einer normalverteilten Stichprobe zu einer unverzerrten Schätzung ihrer SD wird. Eine gleitende Spannweite ist ``|x_i - x_{i-1}|``, der Absolutwert einer *Differenz* zweier Beobachtungen. Ihre Skala ist deshalb ``sqrt(2)·sigma`` und ihr Median ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma`` (:data:`MEDIAN_MR_CONSTANT`). Wird eine mediane gleitende Spannweite mit 1.4826 multipliziert, wird sigma exakt um ``sqrt(2)`` überschätzt — die Grenzen werden 41% breiter, was darüber entscheiden kann, ob eine Drift erkannt wird. Beide Konstanten werden hier aus ``Φ⁻¹(0.75)`` berechnet, aus demselben Grund, aus dem c4 aus der Gammafunktion berechnet wird."
+    },
+    {
+      "label": "spacr.qt.widgets.empty_state#0",
+      "source_sha256": "99cac3cdd5ba37accbd367a89f9e7074f04b2026e38ad15d02899bbb777d61cc",
+      "source": "EmptyState — reusable big \"nothing here yet\" panel with icon, title, subtitle, and an optional call-to-action button.",
+      "context": "EmptyState — reusable big \"nothing here yet\" panel with icon, title, subtitle, and an optional call-to-action button.",
+      "translation": "EmptyState — ein wiederverwendbares großes Bedienfeld mit der Meldung \"nothing here yet\", einem Symbol, Titel, Untertitel und einer optionalen Schaltfläche als Handlungsaufforderung."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue#3",
+      "source_sha256": "59eb53528fee15a8a34d835d3e2de1cb7e9d924a18ad537b48afcb74cae1c00c",
+      "source": "**Zoomable enlarged view** on the right — a QGraphicsView showing the current figure's full-resolution render. Wheel = zoom, fit-on-load, scales with the container (reuses the live-preview _ZoomView).",
+      "context": "**Zoomable enlarged view** on the right — a QGraphicsView showing the current figure's full-resolution render. Wheel = zoom, fit-on-load, scales with the container (reuses the live-preview _ZoomView).",
+      "translation": "**Zoombare vergrößerte Ansicht** rechts — eine QGraphicsView, die die aktuelle Abbildung in voller Auflösung darstellt. Mausrad = Zoom; beim Laden wird eingepasst; die Ansicht skaliert mit dem Container (verwendet die Live-Vorschau _ZoomView wieder)."
+    }
+  ]
+}
