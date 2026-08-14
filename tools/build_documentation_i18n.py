@@ -70,10 +70,11 @@ REVIEWED_API_DIR = ROOT / "docs" / "i18n" / "reviewed" / "api"
 README_SOURCE = ROOT / "README.rst"
 
 # A cache entry is meaningful only for the exact English text sent to the
-# model.  v7 adds structural RST detachment and target-neutral sense context;
-# v6 checkpoints can contain English fallbacks or translations generated from
-# an ambiguous word and must never be promoted under the new source hash.
-API_BLOCK_CACHE_NAMESPACE = "api-block-v7"
+# model. v8 retains v7's structural RST detachment and target-neutral sense
+# context while invalidating hard-tail checkpoints produced by the former 3B
+# secondary model. A value is never relabelled as 7B output merely because it
+# still passes today's gates.
+API_BLOCK_CACHE_NAMESPACE = "api-block-v8-madlad7b"
 
 LANGUAGE_PICKER_LABELS = {
     "sv": "Språk",
@@ -4302,6 +4303,15 @@ _ENGLISH_RESIDUE_BY_LANGUAGE = {
     }),
 }
 _ENGLISH_RESIDUE_ALLOWLIST = {
+    # These are established German software terms, normally capitalized as
+    # nouns but compared case-insensitively here. Their presence is not an
+    # untranslated fragment; surrounding English grammar and copied phrases
+    # remain subject to the ordinary strict gates.
+    "de": frozenset({
+        "default", "defaults", "event", "events", "idempotent",
+        "loop", "loops", "match", "matches", "string", "strings",
+        "thread", "threads",
+    }),
     # ``thread`` is the standard technical term in Portuguese software prose;
     # forcing a literal expansion produced broken agreement and less useful
     # API documentation.  This exception applies only to the residue detector,
@@ -4368,6 +4378,14 @@ API_SHARED_PHRASE_ALLOWLIST = frozenset({
     "k means discovery",
 })
 
+# Some English-origin software terms have conventional localized spellings.
+# Keep these exceptions language-specific so they cannot hide untranslated
+# prose in unrelated targets. Lexical normalization removes punctuation, so
+# German ``Event-Loop`` is compared here as ``event loop``.
+API_SHARED_PHRASE_ALLOWLIST_BY_LANGUAGE = {
+    "de": frozenset({"event loop"}),
+}
+
 _COPIED_ENGLISH_GRAMMAR_WORDS = frozenset({
     "an", "the", "is", "are", "was", "were", "been", "being", "this",
     "that", "these", "those", "what", "which", "who", "whose", "when",
@@ -4425,7 +4443,12 @@ def _copied_english_phrases(
         if match.size < minimum_words:
             continue
         phrase = " ".join(source_words[match.a:match.a + match.size])
-        if phrase in API_SHARED_PHRASE_ALLOWLIST:
+        if (
+            phrase in API_SHARED_PHRASE_ALLOWLIST
+            or phrase in API_SHARED_PHRASE_ALLOWLIST_BY_LANGUAGE.get(
+                language, ()
+            )
+        ):
             continue
         if (
             match.size < 4
@@ -5043,9 +5066,9 @@ def repair_api_translations(
                 args,
                 force=True,
                 repair_protected=True,
-                # v7 keeps structural RST outside the model input and retains
-                # emphasis in its grammatical context during hard-literal
-                # fallback. Never promote an older ambiguous checkpoint.
+                # The current namespace keeps structural RST outside the model
+                # input, retains emphasis in grammatical context, and binds
+                # hard-tail output to the admitted secondary-model identity.
                 cache_namespace=API_BLOCK_CACHE_NAMESPACE,
                 candidate_validator=api_repair_candidate_valid,
             )
