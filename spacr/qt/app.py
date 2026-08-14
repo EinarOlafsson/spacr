@@ -1541,6 +1541,10 @@ class MainWindow(QMainWindow):
         try:
             from PySide6.QtCore import QTimer
             from .first_run import maybe_show_tour
+            from .install_consent import maybe_show_installer_consent
+            # Installer privacy choices precede the product tour. The native
+            # installers collect them when they have an interactive surface;
+            # an unattended package gets the same all-off page here instead.
             # Parent the delayed callback to the window. A static singleShot
             # outlives a window closed during its first 800 ms, then invokes
             # the tour with a deleted C++ object on the next event-loop spin.
@@ -1548,7 +1552,17 @@ class MainWindow(QMainWindow):
             self._tour_timer.setSingleShot(True)
             self._tour_timer.timeout.connect(
                 lambda: maybe_show_tour(self))
-            self._tour_timer.start(800)
+            self._consent_timer = QTimer(self)
+            self._consent_timer.setSingleShot(True)
+
+            def _finish_installer_onboarding():
+                maybe_show_installer_consent(self)
+                # Start after the modal flow closes, so the tour never opens
+                # behind the consent/provider dialogs' nested event loops.
+                self._tour_timer.start(500)
+
+            self._consent_timer.timeout.connect(_finish_installer_onboarding)
+            self._consent_timer.start(250)
         except Exception:
             pass
 

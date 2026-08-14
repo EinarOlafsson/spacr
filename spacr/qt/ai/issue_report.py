@@ -140,6 +140,21 @@ def sanitize_traceback(tb: str) -> str:
     return sanitize_path(tb or "")
 
 
+def strip_report_paths(text: str) -> str:
+    """Remove file/folder names from an already sanitised report.
+
+    The ordinary sanitizer abbreviates the home directory so a traceback is
+    still useful. Public reports default to the stricter form: traceback file
+    fields and remaining absolute path-like tokens become ``<PATH>``. The
+    preview lets the user restore the useful names before sending.
+    """
+    value = str(text or "")
+    value = re.sub(r'(?m)(\bFile\s+)["\'][^"\']+["\']', r'\1"<PATH>"', value)
+    value = re.sub(r"(?<![\w~])(?:[A-Za-z]:[\\/]|/)[^\s'\"`]+", "<PATH>", value)
+    value = re.sub(r"(?<!\w)~[/\\][^\s'\"`]+", "<PATH>", value)
+    return value
+
+
 #: ``, line 123,`` inside a traceback frame — volatile, stripped before hashing.
 _LINENO_RE = re.compile(r",\s*line\s+\d+\s*,")
 
@@ -379,22 +394,8 @@ def open_issue_in_browser(url: str) -> bool:
         return False
 
 
-def file_issue(
-    traceback_text: str,
-    active_app: str = "",
-    settings: Optional[Dict[str, Any]] = None,
-) -> str:
-    """End-to-end helper: build report, build URL, open browser, return URL.
-
-    :param traceback_text: full traceback text.
-    :param active_app: id of the app the user was in.
-    :param settings: pipeline settings dict in play.
-    :returns: the constructed ``https://github.com/…`` URL — useful for
-        tests and for logging what was opened.
-    """
-    report = build_report(traceback_text, active_app=active_app,
-                            settings=settings)
-
+def submit_report(report: Dict[str, str]) -> str:
+    """Submit one payload the user has already approved in the preview."""
     # NOTHING REACHES THE REAL TRACKER FROM A TEST RUN.
     #
     # spaCR posts whenever a token is resolvable, and on a developer machine
@@ -467,3 +468,26 @@ def file_issue(
     url = issue_url(report["title"], report["body"])
     open_issue_in_browser(url)
     return url
+
+
+def file_issue(
+    traceback_text: str,
+    active_app: str = "",
+    settings: Optional[Dict[str, Any]] = None,
+    *,
+    include_log_tail: bool = True,
+) -> str:
+    """Legacy end-to-end helper retained for API callers and tests.
+
+    The GUI does not call this directly: it builds the payload, displays an
+    editable preview, then passes the approved mapping to
+    :func:`submit_report`. Headless callers invoking this function are the
+    report-specific affirmative action themselves.
+    """
+    report = build_report(
+        traceback_text,
+        active_app=active_app,
+        settings=settings,
+        include_log_tail=include_log_tail,
+    )
+    return submit_report(report)

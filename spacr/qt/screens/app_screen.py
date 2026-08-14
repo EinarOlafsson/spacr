@@ -2282,19 +2282,9 @@ class AppScreen(QWidget):
             enabled = False
         self._btn_file_issue.setVisible(enabled)
         self._btn_file_issue.setEnabled(enabled)
-        # When the user has opted into automatic issue filing, actually file
-        # it — previously this only revealed the button, so nothing was ever
-        # sent unless the user also clicked. Open the pre-filled report now.
-        if enabled:
-            # `_on_file_issue` dispatches and returns; a failure inside the
-            # report itself comes back through `_on_issue_filed`, which prints
-            # the same "[issue] auto-file failed" line. This `except` still
-            # covers the part that stayed synchronous -- reading the widgets.
-            try:
-                self._on_file_issue()
-            except Exception as e:
-                self._console.append_notice(
-                    "[issue] auto-file failed: {detail}\n", detail=e)
+        # Opting in reveals the action; it never submits in response to the
+        # crash itself. Every report stops at an editable public-payload
+        # preview and needs a report-specific Send click.
 
     # ------------------------------------------------------------------
     # AI toggle + provider menu — sits in the actions row (bottom right)
@@ -2492,35 +2482,15 @@ class AppScreen(QWidget):
         if not self._last_error_text:
             return
 
-        # The preference decides whether this happens at all, and whether
-        # the user is asked first. Three states, because "ask me" and "never
-        # ask me" leave out the person who wants a report filed and does not
-        # want to be interrupted -- and the moment someone wants this off is
-        # the moment it has just interrupted them.
-        from ..preferences import (ISSUE_PROMPT_ALWAYS, ISSUE_PROMPT_NEVER,
-                                   get_issue_prompt_mode)
+        # The preview itself is the prompt and the consent boundary. The
+        # legacy mode remains respected so Preferences can revoke reporting.
+        from ..preferences import ISSUE_PROMPT_NEVER, get_issue_prompt_mode
         mode = get_issue_prompt_mode()
         if mode == ISSUE_PROMPT_NEVER:
             self._console.append_notice(
                 "\nNot filing a report: issue reporting is set to 'never' in "
                 "Preferences.\n")
             return
-        if mode != ISSUE_PROMPT_ALWAYS:
-            from PySide6.QtWidgets import QMessageBox
-            box = QMessageBox(self)
-            box.setIcon(QMessageBox.Question)
-            box.setWindowTitle("Report this to the developers?")
-            box.setText("File a GitHub issue for this error?")
-            box.setInformativeText(
-                "The report includes the traceback, the module you were "
-                "running and its settings. It opens a pre-filled issue on "
-                "the public spaCR repository so you can read it before "
-                "posting.\n\nYou can turn this off in Preferences.")
-            box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-            box.setDefaultButton(QMessageBox.No)
-            if box.exec() != QMessageBox.Yes:
-                return
-
         # Best-effort settings snapshot from the current settings model
         # so the issue includes what the user was trying to run.
         settings_snapshot: dict = {}
@@ -2548,9 +2518,23 @@ class AppScreen(QWidget):
                         settings_snapshot[k] = w.text()
         except Exception:
             settings_snapshot = {}
-        from ..ai.issue_report import file_issue
-        traceback_text = self._last_error_text
-        app_key = self.app_key
+        from PySide6.QtWidgets import QDialog
+        from ..ai.issue_preview import IssuePreviewDialog
+        from ..ai.issue_report import build_report, submit_report
+        from ..preferences import get_share_diagnostic_logs
+
+        report = build_report(
+            self._last_error_text,
+            active_app=self.app_key,
+            settings=settings_snapshot,
+            include_log_tail=get_share_diagnostic_logs(),
+        )
+        preview = IssuePreviewDialog(report, self)
+        if preview.exec() != QDialog.Accepted:
+            self._console.append_notice(
+                "[issue] cancelled — nothing was sent.\n")
+            return
+        approved_report = preview.approved_report()
 
         def _file():
             # The failure is carried back as data rather than raised. The
@@ -2559,13 +2543,12 @@ class AppScreen(QWidget):
             # `except` can no longer see it, and a report that silently fails
             # to send is worse than one that fails loudly.
             try:
-                return {"url": file_issue(traceback_text, active_app=app_key,
-                                          settings=settings_snapshot)}
+                return {"url": submit_report(approved_report)}
             except Exception as exc:      # noqa: BLE001 - reported, not hidden
                 return {"error": exc}
 
         self._console.append_notice(
-            "[issue] building the report and reaching GitHub…\n")
+            "[issue] sending the approved report to GitHub…\n")
         self._jobs.submit(_file, self._on_issue_filed)
 
     def _on_issue_filed(self, outcome: dict) -> None:
@@ -2576,8 +2559,7 @@ class AppScreen(QWidget):
                 "[issue] auto-file failed: {detail}\n", detail=error)
             return
         self._console.append_notice(
-            "[issue] opened pre-filled report in your browser — review + "
-            "submit to complete filing.\n{url}...\n",
+            "[issue] report handoff completed.\n{url}...\n",
             url=str((outcome or {}).get("url") or "")[:100],
         )
 

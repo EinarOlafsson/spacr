@@ -450,12 +450,16 @@ def test_filing_an_issue_does_not_freeze_the_window_for_half_a_minute(
     """
     from spacr.qt.screens.app_screen import AppScreen
 
-    def slow_file_issue(tb, active_app="", settings=None):
+    def slow_submit_report(report):
         time.sleep(1.2)          # the network, in one lump
         return "https://github.com/EinarOlafsson/spacr/issues/1"
 
-    monkeypatch.setattr("spacr.qt.ai.issue_report.file_issue",
-                        slow_file_issue)
+    from PySide6.QtWidgets import QDialog
+    from spacr.qt.ai.issue_preview import IssuePreviewDialog
+    monkeypatch.setattr(IssuePreviewDialog, "exec",
+                        lambda _self: QDialog.Accepted)
+    monkeypatch.setattr("spacr.qt.ai.issue_report.submit_report",
+                        slow_submit_report)
 
     screen = AppScreen("mask")
     qtbot.addWidget(screen)
@@ -481,7 +485,7 @@ def test_filing_an_issue_does_not_freeze_the_window_for_half_a_minute(
         f"{dog.worst * 1000:.0f} ms (budget {STALL_BUDGET_S * 1000:.0f} ms)")
     # And it really filed, rather than being responsive by doing nothing.
     text = _console_text(screen._console)
-    assert "opened pre-filled report" in text, text[-400:]
+    assert "report handoff completed" in text, text[-400:]
     assert busy.busy_seen, (
         "the run registry never saw this job — the work went off the GUI "
         "thread without going through make_thread, so nothing can tell the "
@@ -501,7 +505,11 @@ def test_a_failed_issue_report_still_reaches_the_console(qtbot, monkeypatch):
     def boom(*_a, **_k):
         raise RuntimeError("github is down")
 
-    monkeypatch.setattr("spacr.qt.ai.issue_report.file_issue", boom)
+    from PySide6.QtWidgets import QDialog
+    from spacr.qt.ai.issue_preview import IssuePreviewDialog
+    monkeypatch.setattr(IssuePreviewDialog, "exec",
+                        lambda _self: QDialog.Accepted)
+    monkeypatch.setattr("spacr.qt.ai.issue_report.submit_report", boom)
     screen = AppScreen("mask")
     qtbot.addWidget(screen)
     screen._last_error_text = "TB"
