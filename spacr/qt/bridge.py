@@ -1239,6 +1239,43 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
     return None
 
 
+#: Stack for a pipeline worker thread, in bytes.
+#:
+#: A pthread on macOS gets 512 KB by default and Qt does not raise it, so a
+#: QThread starts with ~1/16th of the main thread's 8 MB. The pipeline is the
+#: same code either way, and parts of it want a *lot* of stack: a classify run
+#: died with SIGBUS, "Thread stack size exceeded due to excessive recursion",
+#: in ``___chkstk_darwin`` under OpenBLAS's ``dgetrf_parallel``, reached from
+#: ``np.linalg.inv`` at ``spacr/ml.py`` (the Mahalanobis inverse covariance).
+#: The crash report put that thread's stack at 544 KB. Nothing was recursing —
+#: ``chkstk`` is the probe that discovers the guard page, and the report's
+#: "excessive recursion" wording is a guess macOS makes about any stack
+#: overflow.
+#:
+#: This is address space, not memory: pages commit as they are touched, so a
+#: generous number costs nothing until it is used. 64 MB is the main thread's
+#: 8 MB with room for LAPACK's blocked kernels on a wide feature matrix.
+#: ``SPACR_WORKER_STACK_MB`` overrides it for anyone who needs to.
+WORKER_STACK_BYTES = 64 * 1024 * 1024
+
+
+def _widen_worker_stack(thread: "QThread") -> None:
+    """Give a worker thread a stack the pipeline can actually run in.
+
+    Must be called before ``start()`` — Qt ignores ``setStackSize`` on a
+    running thread. Wrapped: if the platform refuses the size, the thread
+    keeps the default and the run proceeds exactly as it did before, which is
+    the behaviour this replaces (INVARIANTS §10).
+    """
+    try:
+        megabytes = os.environ.get("SPACR_WORKER_STACK_MB", "").strip()
+        size = int(megabytes) * 1024 * 1024 if megabytes else WORKER_STACK_BYTES
+        if size > 0:
+            thread.setStackSize(size)
+    except Exception:
+        pass
+
+
 def make_thread(
     fn: Callable[[Dict[str, Any]], Any],
     settings: Dict[str, Any],
@@ -1292,6 +1329,7 @@ def make_thread(
     :returns: an unstarted ``(QThread, PipelineWorker)`` pair.
     """
     thread = QThread()
+    _widen_worker_stack(thread)
     allocation = apply_worker_budget(settings)
     worker = PipelineWorker(
         fn, settings, worker_count=allocation, app_key=app_key,
