@@ -35,7 +35,7 @@ INDEX = INSTRUCTIONS / "00_INDEX.txt"
 #: Instructions owned by the concurrent codex session. Named here rather than
 #: inferred, because "do not touch this" is not something a file says about
 #: itself and getting it wrong means two sessions editing one file.
-OWNERS: Dict[str, str] = {"48": "codex", "83": "codex"}
+OWNERS: Dict[str, str] = {"83": "codex"}
 
 #: Why an item cannot be worked, when the reason is outside the repository.
 BLOCKED: Dict[str, str] = {
