@@ -13224,6 +13224,10 @@
         "c4622442d415fa7a309bfa7f22090c83bda811bf42124032995f26b08d6b91a2",
         "18132c1e1f2570d027f44235b5473f81c97989c1cfb30d1998581ec27408dca9",
         "bd3869b9ea417827ad96d88d813741e7a829b48a9fba9774b37eecc65e38bfa3",
+        "9a67b994370857a14abdbf31e6f6959d1e31bc51538fa12591846f48cc20a035",
+        "d627dbbde5eb1b94724ea149cf153ccbd089a858ff67ed4885a0efc98f595e2c",
+        "86fd1b66de3da19b60d8ce2c0b747ffaf0069c14c0ceba153979f5842ff3af01",
+        "26b911096016fbaa9d0a682e1089e432768d432637e30a7f4a0fdcdc61a17e68",
         "97c9e6a4d1a2023ef4bfe65a6839537f30d414b7f00099ae30db7921add6a03f",
         "3cd26c57999973732b21d9a25f615b388a27ac5a6abbe70235217077c23a9e7d",
         "6bf26504e44b2ee391ce4ac446b73680e4e95ad099cc4e6e3f0b9a8db9e47e0e",
@@ -13234,8 +13238,8 @@
         "d53e740730a347bbc8ca9f2cd609d38fdfde4f68a174d30b9b710fd0cbe3a4f4",
         "c5eca1e7395baa65409d279eaedb254d6a5752b8126fb7ff6fc2a6f2e219b8c2"
       ],
-      "source_sha256": "a55e6e7e7410af0af52fe541bffb4881cbab497a6365a941225320b27e5cd30c",
-      "text": "Run the right search for a spaCR app. This is what the GUI calls.\n\n* ``umap`` — embeds the measurement features once per configuration and\n  ranks them with a named criterion (see :func:`umap_search`).\n* ``ml_analyze`` — grouped cross-validated search over classical ML\n  hyperparameters (see :func:`cv_search`).\n* ``classify`` — one cross-validated deep-training run per configuration\n  (see :func:`classify_cv_fit_fn`).\n* ``activation`` — one attribution per image per configuration, scored by\n  deletion AUC, insertion AUC, the pointing game and the randomisation\n  sanity check (see :func:`activation_search`).\n\n:param app_key: which app is asking.\n:param settings: that app's settings dict.\n:param space: the :class:`SearchSpace` to search.\n:param criterion: metric name; defaults to the app's first\n  :data:`APP_CRITERIA` entry.\n:param mode: ``'grid'`` or ``'random'``.\n:param n_trials: configurations to evaluate when ``mode='random'``.\n:param adaptive: for UMAP only, run a Walk from one starting point.\n:param walk_parameters: which UMAP parameters the Walk searches; the\n  default is n_neighbors and min_dist. Any subset of\n  :data:`UMAP_WALK_PARAMETERS`.\n:param walk_resolutions: per-axis Walk grid resolution, ``{name: n}``.\n:param walk_steps: per-axis Walk step override, ``{name: size}``.\n:param n_neighbors_step: Walk integer neighborhood increment.\n:param min_dist_step: Walk min_dist increment.\n:param min_improvement: Walk score-gain stopping threshold.\n:param stability_repeats: repeated seeded embeddings per multi-objective\n    UMAP configuration.\n:param objective_weights: weights for neighborhood preservation, stability\n    and cluster structure in multi-objective UMAP mode.\n:param seed: seed for sampling, folds and reducers.\n:param n_folds: cross-validation folds for the supervised apps.\n:param on_trial: progress callback ``(trial, completed, total)``.\n:param should_stop: polled before each trial.\n:param data: pre-loaded :class:`SearchData` (or\n    :class:`ActivationSearchData` for ``'activation'``), skipping the\n    database / model read.\n:param checkpoint_path: UMAP checkpoint path; when omitted the UMAP\n    project path is derived by :func:`umap_checkpoint_path`.\n:param resume: continue a compatible UMAP search checkpoint.\n:returns: the :class:`SearchResult`.\n:raises ValueError: for an unknown ``app_key`` or ``mode``."
+      "source_sha256": "75e3d1ac05629ff45449df3ca3f1d8f489bb5cbcb92a09fc78ad9df0243109c6",
+      "text": "Run the right search for a spaCR app. This is what the GUI calls.\n\n* ``umap`` — embeds the measurement features once per configuration and\n  ranks them with a named criterion (see :func:`umap_search`).\n* ``ml_analyze`` — grouped cross-validated search over classical ML\n  hyperparameters (see :func:`cv_search`).\n* ``classify`` — one cross-validated deep-training run per configuration\n  (see :func:`classify_cv_fit_fn`).\n* ``activation`` — one attribution per image per configuration, scored by\n  deletion AUC, insertion AUC, the pointing game and the randomisation\n  sanity check (see :func:`activation_search`).\n\n:param app_key: which app is asking.\n:param settings: that app's settings dict.\n:param space: the :class:`SearchSpace` to search.\n:param criterion: metric name; defaults to the app's first\n  :data:`APP_CRITERIA` entry.\n:param mode: ``'grid'`` or ``'random'``.\n:param n_trials: configurations to evaluate when ``mode='random'``.\n:param adaptive: for UMAP only, run a Walk from one starting point.\n:param walk_parameters: which UMAP parameters the Walk searches; the\n  default is n_neighbors and min_dist. Any subset of\n  :data:`UMAP_WALK_PARAMETERS`.\n:param walk_resolutions: per-axis Walk grid resolution, ``{name: n}``.\n:param walk_steps: per-axis Walk step override, ``{name: size}``.\n:param n_neighbors_step: Walk integer neighborhood increment.\n:param min_dist_step: Walk min_dist increment.\n:param min_improvement: Walk score-gain stopping threshold.\n:param stability_repeats: repeated seeded embeddings per multi-objective\n    UMAP configuration.\n:param objective_weights: weights for neighborhood preservation, stability\n    and cluster structure in multi-objective UMAP mode.\n:param umap_backend: ``'cpu'`` or the explicitly requested ``'cuml'``.\n:param cluster_during_search: cluster each UMAP trial as it is completed.\n:param cluster_sizes: HDBSCAN scales searched for each UMAP trial.\n:param umap_components: fixed 2-D or 3-D output for UMAP trials.\n:param seed: seed for sampling, folds and reducers.\n:param n_folds: cross-validation folds for the supervised apps.\n:param on_trial: progress callback ``(trial, completed, total)``.\n:param should_stop: polled before each trial.\n:param data: pre-loaded :class:`SearchData` (or\n    :class:`ActivationSearchData` for ``'activation'``), skipping the\n    database / model read.\n:param checkpoint_path: UMAP checkpoint path; when omitted the UMAP\n    project path is derived by :func:`umap_checkpoint_path`.\n:param resume: continue a compatible UMAP search checkpoint.\n:returns: the :class:`SearchResult`.\n:raises ValueError: for an unknown ``app_key`` or ``mode``."
     },
     "spacr.hyperparam.sklearn_cv_fit_fn": {
       "source_blocks_sha256": [
@@ -13302,6 +13306,7 @@
         "c574a35ceffa1c87205cf899ea7ead42bb5252312c9c4432ae895ddfa51a8d25",
         "7cac99980657906bf1c2ded2705ea5b555936c0357972f8d9beb4d839b53547e",
         "affeedf62b9731d5ed715a191fc7579df18d919731f0b96504a00fe14a3795ed",
+        "4fc35116489cba3d310a101672c6c63f334ff7f9049ad0ce252d4bbca8b75a57",
         "5e61608eceb2661d8a1e7cbbea8496ffc4110acd16b46b0e279576347701c966",
         "2153309529d71e9b817659c0c1e5e7faa81c43e3bd0b378e95a5a159075a0b88",
         "affd30ef32d919c10cd686656b83fb55c714ce375e6bf3444522280faad65192",
@@ -13314,6 +13319,9 @@
         "1964d45edf90ab178d17bdbce88d79c23f3936d6a9643ec06257e08b0511c649",
         "7af302d3ce241138c43f705b6125e918e24bf1aa86a7419be21ff8fc36cb026b",
         "dda08ff7346c53a1b7a19a2346ec16d9291e684fde074d501b161f808a1e01d0",
+        "2b3141be145f2c79eb46c5f766e26961c5192397be943f7f97dbcca1d7099cbd",
+        "d0435c5436491a4b47e232ce0fbb9a9275f6e694ae356c113acbf26aa8a3200f",
+        "945a0a012c3ba52d073d31634747165e1f2ce01bad638560f81d53f07fc9fadb",
         "826ef6cbdeb3737570058d793c42f9b420097dfaf215e1a3499173b749aedb37",
         "6bf26504e44b2ee391ce4ac446b73680e4e95ad099cc4e6e3f0b9a8db9e47e0e",
         "c22f287dd22df1af55c5f11e1882795d2624e598e1c4ded7be92ebddce14d28c",
@@ -13322,8 +13330,8 @@
         "18550ee30b0097442bcdb6309f10f06e705ef9e9247217f74866a1cb1efee08b",
         "3952958e220e01f07c1914a835c7454d202aa23161653f676d48b2e14487f053"
       ],
-      "source_sha256": "0afae610e6ccb362b8140c0b6a412b9c907be80f2c1e1628681e9ff0f67ebea0",
-      "text": "Sweep UMAP parameters, scoring each embedding with a named criterion.\n\nThe honest deliverable is the panel of embeddings, not the top row of the\ntable. Every trial keeps its embedding (unless ``keep_embeddings`` is off)\nso the caller can draw small multiples, and every criterion is computed for\nevery trial so the caller can see how the ranking changes when the criterion\ndoes.\n\n:param features: 2-D numeric feature matrix, ``(n_samples, n_features)``.\n:param space: UMAP parameters to sweep (``n_neighbors``, ``min_dist``,\n    ``metric``, ...).\n:param metric: which criterion drives the ranking; one of\n    :data:`UMAP_CRITERIA`.\n:param labels: optional class labels; required for ``'silhouette'``.\n:param seed: ``random_state`` for the reducer, so the sweep reproduces.\n:param neighbourhood_k: neighbourhood size for trustworthiness/continuity.\n:param adaptive: run a Walk -- iterative local optimization from one\n    starting point -- instead of a grid. See :func:`walk_search`.\n:param walk_parameters: which UMAP parameters the Walk searches.\n    Defaults to n_neighbors and min_dist, the two it has always\n    used; any subset of :data:`UMAP_WALK_PARAMETERS` is accepted.\n:param walk_resolutions: per-axis grid resolution, ``{name: n}``.\n    2 is the classic +/-step pair. Missing axes get 2.\n:param walk_steps: per-axis step override, ``{name: size}``.\n:param n_trials: maximum complete Walk rounds; blank or\n    None means 100.\n:param n_neighbors_step: local step along the n_neighbors axis.\n:param min_dist_step: local step along the min_dist axis.\n:param min_improvement: score gain required to continue after a round.\n:param stability_repeats: reproducible UMAP fits per configuration when\n    ``metric='multi_objective'``; must be at least 2.\n:param objective_weights: optional weights for\n    ``neighborhood_preservation``, ``stability`` and\n    ``cluster_structure``. Values are normalized to sum to one.\n:param embed_fn: ``embed_fn(features, params) -> embedding`` override; when\n    omitted, umap-learn is used.\n:param keep_embeddings: store each trial's embedding in its extra metrics.\n:param on_trial: progress callback ``(trial, completed, total)``.\n:param should_stop: polled before each trial.\n:param checkpoint_path: optional atomic checkpoint JSON. Embeddings are\n    stored as adjacent ``.npy`` artifacts after each completed trial.\n:param resume: load a compatible checkpoint. Input features, labels,\n    search space, criterion, seed and material search settings must match.\n:returns: the :class:`SearchResult`. When umap-learn is missing and no\n    ``embed_fn`` was given, this returns an empty result whose notes lead\n    with :data:`UMAP_MISSING_MESSAGE` rather than raising ImportError.\n:raises ValueError: when ``metric`` is not a known criterion, or\n    ``'silhouette'`` is requested without labels."
+      "source_sha256": "fcf1c8b3eee1c3662f606402cb5ea52cecd139e987e0ae82869086b4fbef07e6",
+      "text": "Sweep UMAP parameters, scoring each embedding with a named criterion.\n\nThe honest deliverable is the panel of embeddings, not the top row of the\ntable. Every trial keeps its embedding (unless ``keep_embeddings`` is off)\nso the caller can draw small multiples, and every criterion is computed for\nevery trial so the caller can see how the ranking changes when the criterion\ndoes.\n\n:param features: 2-D numeric feature matrix, ``(n_samples, n_features)``.\n:param space: UMAP parameters to sweep (``n_neighbors``, ``min_dist``,\n    ``metric``, ...).\n:param metric: which criterion drives the ranking; one of\n    :data:`UMAP_CRITERIA`.\n:param labels: optional class labels; required for ``'silhouette'``.\n:param seed: ``random_state`` for the reducer, so the sweep reproduces.\n:param n_components: fixed display dimensionality, 2 or 3. It is retained\n    on every row even when it is not one of the searched axes.\n:param neighbourhood_k: neighbourhood size for trustworthiness/continuity.\n:param adaptive: run a Walk -- iterative local optimization from one\n    starting point -- instead of a grid. See :func:`walk_search`.\n:param walk_parameters: which UMAP parameters the Walk searches.\n    Defaults to n_neighbors and min_dist, the two it has always\n    used; any subset of :data:`UMAP_WALK_PARAMETERS` is accepted.\n:param walk_resolutions: per-axis grid resolution, ``{name: n}``.\n    2 is the classic +/-step pair. Missing axes get 2.\n:param walk_steps: per-axis step override, ``{name: size}``.\n:param n_trials: maximum complete Walk rounds; blank or\n    None means 100.\n:param n_neighbors_step: local step along the n_neighbors axis.\n:param min_dist_step: local step along the min_dist axis.\n:param min_improvement: score gain required to continue after a round.\n:param stability_repeats: reproducible UMAP fits per configuration when\n    ``metric='multi_objective'``; must be at least 2.\n:param objective_weights: optional weights for\n    ``neighborhood_preservation``, ``stability`` and\n    ``cluster_structure``. Values are normalized to sum to one.\n:param embed_fn: ``embed_fn(features, params) -> embedding`` override; when\n    omitted, umap-learn is used.\n:param backend: ``'cpu'`` for umap-learn or ``'cuml'`` for the optional\n    RAPIDS implementation. Every successful trial records the backend that\n    actually drew it because the two libraries make different maps.\n:param cluster_during_search: run the HDBSCAN scale walk against every\n    completed embedding and retain its best labels beside the coordinates.\n:param cluster_sizes: ``min_cluster_size`` values for that walk.\n:param keep_embeddings: store each trial's embedding in its extra metrics.\n:param on_trial: progress callback ``(trial, completed, total)``.\n:param should_stop: polled before each trial.\n:param checkpoint_path: optional atomic checkpoint JSON. Embeddings are\n    stored as adjacent ``.npy`` artifacts after each completed trial.\n:param resume: load a compatible checkpoint. Input features, labels,\n    search space, criterion, seed and material search settings must match.\n:returns: the :class:`SearchResult`. When umap-learn is missing and no\n    ``embed_fn`` was given, this returns an empty result whose notes lead\n    with :data:`UMAP_MISSING_MESSAGE` rather than raising ImportError.\n:raises ValueError: when ``metric`` is not a known criterion, or\n    ``'silhouette'`` is requested without labels."
     },
     "spacr.hyperparam.umap_walk_axes": {
       "source_blocks_sha256": [
@@ -34012,6 +34020,20 @@
       "source_sha256": "27845e6cfed7e82e033d38914b52fb9567cec229a304988eef96368090e03f4f",
       "text": "Stop a running sweep before the widget is torn down.\n\nDestroying a QWidget whose QThread is still running aborts the process,\nwhich is exactly how the headless test suite would die."
     },
+    "spacr.qt.screens.hyperparam.HyperparamPanel.cluster_selected": {
+      "source_blocks_sha256": [
+        "f7c1b566e82fdd8dae884deb4f3fed7c830bdc8308a8fe663ce8c68d473fe59d"
+      ],
+      "source_sha256": "f7c1b566e82fdd8dae884deb4f3fed7c830bdc8308a8fe663ce8c68d473fe59d",
+      "text": "Cluster the selected map once, without changing its coordinates."
+    },
+    "spacr.qt.screens.hyperparam.HyperparamPanel.cluster_walk_sizes": {
+      "source_blocks_sha256": [
+        "8830f32a069349c7b1ef31dc09a80145cbd1266f00eb66d0ec0271a6c0447782"
+      ],
+      "source_sha256": "8830f32a069349c7b1ef31dc09a80145cbd1266f00eb66d0ec0271a6c0447782",
+      "text": "HDBSCAN scales around the visible starting value."
+    },
     "spacr.qt.screens.hyperparam.HyperparamPanel.current_adaptive_space": {
       "source_blocks_sha256": [
         "895c6f276da5676e97779f7aab826ac3bf43d1a6fb9b180bddf549b89b8a882a"
@@ -34043,6 +34065,13 @@
       "source_sha256": "a280c294c2f6c5fc1c8458c14e2ff77051f34b0eeac1fc67972f2f0017b860cc",
       "text": "Open or focus the tabbed search/module settings window."
     },
+    "spacr.qt.screens.hyperparam.HyperparamPanel.open_umap_grid": {
+      "source_blocks_sha256": [
+        "e5a2a1bd14bedfbc1221bb28dabdb5165f82e43ecae40a579435c05fb063046b"
+      ],
+      "source_sha256": "e5a2a1bd14bedfbc1221bb28dabdb5165f82e43ecae40a579435c05fb063046b",
+      "text": "Spawn the black-background wall of every embedding in the table."
+    },
     "spacr.qt.screens.hyperparam.HyperparamPanel.open_walk_axes": {
       "source_blocks_sha256": [
         "487e2ec0b56bab46ffa9b9a4acd10dee77dd258f1f302a76ff429f83ae9b3c74"
@@ -34072,6 +34101,13 @@
       ],
       "source_sha256": "1e0a09bd2040990edd59ac5aa330fba04850fca70795fadf9de63485526e1dde",
       "text": "The configuration on the selected row, or the best one.\n\n:returns: the parameter dict, or None when nothing is selectable."
+    },
+    "spacr.qt.screens.hyperparam.HyperparamPanel.selected_trial": {
+      "source_blocks_sha256": [
+        "493038d48d24b4d805939a484cfe030193d04441938c72bb1d36814cb6019aa2"
+      ],
+      "source_sha256": "493038d48d24b4d805939a484cfe030193d04441938c72bb1d36814cb6019aa2",
+      "text": "The real trial object attached to the selected table row."
     },
     "spacr.qt.screens.hyperparam.HyperparamPanel.set_apply_callback": {
       "source_blocks_sha256": [
@@ -34105,6 +34141,13 @@
       "source_sha256": "c62e4d18afdaefe671b1c3ef448763559f0efbe668893db59ac51c0e6afd03a6",
       "text": "Replace the chosen Walk axes."
     },
+    "spacr.qt.screens.hyperparam.HyperparamPanel.show_trial": {
+      "source_blocks_sha256": [
+        "336ad027a74eccc23b9d611e0a04042b71d3a2e514393acc8adef3ae44f100a8"
+      ],
+      "source_sha256": "336ad027a74eccc23b9d611e0a04042b71d3a2e514393acc8adef3ae44f100a8",
+      "text": "Load one row's stored coordinates into the native 2-D/3-D view."
+    },
     "spacr.qt.screens.hyperparam.HyperparamPanel.stop_search": {
       "source_blocks_sha256": [
         "088fdeff9cd091e0dd83e574e1c5b6cf6a0c81cbe47ec932e00d1d664c7b3ca3"
@@ -34119,6 +34162,13 @@
       ],
       "source_sha256": "12aa97acb199fa9917fedf7c7a5d47fc5fbb151455e26c412b67d86794b67cde",
       "text": "The chosen Walk axes, ``{name: {'start', 'resolution'}}``.\n\nEmpty means the Walk uses the two parameters it always used, which\nis what an untouched panel should do."
+    },
+    "spacr.qt.screens.hyperparam.HyperparamPanel.walk_selected_clusters": {
+      "source_blocks_sha256": [
+        "aac715a1ce1f2ea77c6e6ad40dbee5f85dd40e1169155c84f130f42e2646f263"
+      ],
+      "source_sha256": "aac715a1ce1f2ea77c6e6ad40dbee5f85dd40e1169155c84f130f42e2646f263",
+      "text": "Search HDBSCAN scales on the selected map and display the best."
     },
     "spacr.qt.screens.hyperparam.HyperparamPanel.walk_start_for": {
       "source_blocks_sha256": [
@@ -50490,6 +50540,57 @@
       "source_sha256": "c1619e7ae3f518ba907cb60abfbe96c135b5e4153a0aef0387435d85d62a3874",
       "text": "Push the cheap settings onto the artists ``fig`` already carries.\n\nNothing is re-read and nothing is recomputed, so the points cannot move.\n\nThe original per-cluster face colours are stashed on the collection the\nfirst time a fixed colour is applied. Without that, switching the dot\ncolour to ``red`` and back to ``cluster`` would leave every point red:\nthe per-cluster colours were overwritten and there is nowhere left to\nread them from short of replotting."
     },
+    "spacr.qt.widgets.umap_search_viewer": {
+      "source_blocks_sha256": [
+        "fe809927e0a0e87a0da6340f312cf8c8dbc99deca2857f4d7d396c1f4419771b",
+        "8123de759fcbd2787753c8d4a3e8e44d5f0db9a3b7235cb7f4b913bce6c98c66",
+        "a987265bf19ac227bbf8804ce02196cea2a3aed3b47702b7434e46f8a6232f20"
+      ],
+      "source_sha256": "a87a43d91deacddc2a09f5103c3ddc687566515344bf14a9d1b37bb65ad3a9a8",
+      "text": "Native interactive viewer and gallery for Image UMAP search results.\n\nUnlike the general spaCR figure queue, these widgets hold the coordinate\narrays themselves.  A 3-D map can therefore be spun and recoloured after it\nhas been computed, and clicking a gallery tile opens the exact embedding that\nwas scored rather than a PNG or a stochastic refit.\n\nThe renderer uses Qt's painter only.  It has no OpenGL or pyqtgraph dependency,\nworks in the offscreen test platform, and keeps the RAPIDS extra about compute\nrather than pulling in a second GUI stack."
+    },
+    "spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView": {
+      "source_blocks_sha256": [
+        "472f17bcf1d408dc361c2aaf445a222d4d18c0dcf63f80f9aa46064f09277eeb"
+      ],
+      "source_sha256": "472f17bcf1d408dc361c2aaf445a222d4d18c0dcf63f80f9aa46064f09277eeb",
+      "text": "A black-background 2-D/3-D point view; drag a 3-D map to spin it."
+    },
+    "spacr.qt.widgets.umap_search_viewer.UmapExplorer": {
+      "source_blocks_sha256": [
+        "d4e41e28b7d479823b11472a0f9a98c17515583eb5dd90b9965e8a7f67b4a192"
+      ],
+      "source_sha256": "d4e41e28b7d479823b11472a0f9a98c17515583eb5dd90b9965e8a7f67b4a192",
+      "text": "Small shell around :class:`UmapEmbeddingView` with a reset control."
+    },
+    "spacr.qt.widgets.umap_search_viewer.UmapGalleryDialog": {
+      "source_blocks_sha256": [
+        "883bfde8f49f773e4c1f7f99280b26f58a4ed2016b030328a6a41f3afe288baf"
+      ],
+      "source_sha256": "883bfde8f49f773e4c1f7f99280b26f58a4ed2016b030328a6a41f3afe288baf",
+      "text": "All table embeddings on black, with a click returning the real trial."
+    },
+    "spacr.qt.widgets.umap_search_viewer.colors_for_labels": {
+      "source_blocks_sha256": [
+        "7d65e5bb5c9e2e6b84dd3eb56e74153e54650d93362a9d24ab04acec5c23ca62"
+      ],
+      "source_sha256": "7d65e5bb5c9e2e6b84dd3eb56e74153e54650d93362a9d24ab04acec5c23ca62",
+      "text": "One readable colour per point, with HDBSCAN noise in grey."
+    },
+    "spacr.qt.widgets.umap_search_viewer.project_points": {
+      "source_blocks_sha256": [
+        "58023d06de53801931bb84e4b816d63a4a51961a667e897cef44392b57d42f92"
+      ],
+      "source_sha256": "58023d06de53801931bb84e4b816d63a4a51961a667e897cef44392b57d42f92",
+      "text": "Orthographically project a 2-D/3-D map without distorting its axes."
+    },
+    "spacr.qt.widgets.umap_search_viewer.thumbnail_image": {
+      "source_blocks_sha256": [
+        "2de29f104bfde827f02d9f3d9e4378c8c8e59bee6b49f133b8ad2130bdc8c4e3"
+      ],
+      "source_sha256": "2de29f104bfde827f02d9f3d9e4378c8c8e59bee6b49f133b8ad2130bdc8c4e3",
+      "text": "Deterministic black-background thumbnail used by the all-map grid."
+    },
     "spacr.qt.widgets.usage_bar": {
       "source_blocks_sha256": [
         "d42a8067dbeded9c0a2ec7321441c34f17edaa78c874b5cad3b4bf6c7fd4b8aa"
@@ -58508,6 +58609,21 @@
       "source_sha256": "0e8c87ea6cf9defc63ab1d3456639d681efeb8a28a81f916cda80edde4388d52",
       "text": "The Image UMAP search: a table of recipes, each of which redraws its map.\n\nInstruction 95, taking starplast's shape.\n\n    \"during the search a table is formed with values and scores, i can click\n     each row in this table to spawn a that rows umap (3d umap) and then i can\n     luster that umap\"\n\nTHE ROW IS THE RECIPE, and that is the whole design. starplast's\n``EmbeddingSpec`` is one frozen record that round-trips, so a stored row can\nrebuild EXACTLY the map it scored -- not a map with the same settings, the\nsame map. Anything else and clicking row 7 draws something that is not what\nrow 7's score describes, which nobody would notice.\n\nWHICH BACKEND DREW IT IS PART OF THE RECIPE. cuML's UMAP is not umap-learn's:\nit is a DIFFERENT MAP of the same data, not the same map faster. A table whose\nrows came from both backends is comparing two libraries rather than the\nsettings the search varied, so ``backend`` is a field and not a footnote.\n\nWHAT IS NOT HERE: Qt. This is the model the panel drives, so the search, the\ntable and the recipe are testable without a display -- which is the mistake\ninstruction 52 was reopened for, where the geometry was tested and the\ncontrols were not."
     },
+    "spacr.umap_search.ClusterWalkRow": {
+      "source_blocks_sha256": [
+        "fe3f0e42121c33c05b6b6d49ba7cf379387733b2edad8adcffb92e09d7fe6d90",
+        "f369b420e6cf51dcbb431ec74bdb8e783caefb220c6c5d6ef270fb4024af1525"
+      ],
+      "source_sha256": "325ddebf25505af809e58980579e03198fb8f3220ed988652d891ab18100e882",
+      "text": "One clustering tried against one fixed embedding.\n\nThe coordinates are deliberately not stored here: a clustering walk\nchanges the partition, not the map.  Keeping that distinction explicit\nprevents a cluster button from quietly refitting UMAP and making the row\nthe user selected cease to be the row they are looking at."
+    },
+    "spacr.umap_search.ClusterWalkRow.score": {
+      "source_blocks_sha256": [
+        "4c9ef977464ab68d21dc073b7d5d4483d35788bc8799eb7da4682202d9d3fa68"
+      ],
+      "source_sha256": "4c9ef977464ab68d21dc073b7d5d4483d35788bc8799eb7da4682202d9d3fa68",
+      "text": "Ranking score: separation, discounted by unassigned points."
+    },
     "spacr.umap_search.SearchRow": {
       "source_blocks_sha256": [
         "6ff5dc317f2ec56395fbd4c2676a3a176ecd26d883cb8b388e810a134bb82bdc",
@@ -58575,6 +58691,22 @@
       ],
       "source_sha256": "8f2a68d66020472b0e72a82b59cba7a4da2dca66b71a3c34dd4a2665d74317b0",
       "text": "The short description a table cell shows."
+    },
+    "spacr.umap_search.cluster_embedding": {
+      "source_blocks_sha256": [
+        "8ed0cf9a1e87be56c621e2b439dc72d62f669d902a0ac2eb6b4aab0915747c3c",
+        "acf440df19a208699f19ec86c4e5721e1290b6647a8fe579b25d8f4a4fa976ad"
+      ],
+      "source_sha256": "57d701e1095d562a0def4d49632ca686be641c3c460d5ae136c8265d36ff7d22",
+      "text": "Cluster a fixed 2-D or 3-D embedding with HDBSCAN.\n\nscikit-learn's implementation is used because it is already a spaCR core\ndependency (spaCR requires a version new enough to provide HDBSCAN). No\nDBSCAN substitution is made: changing the algorithm while keeping the\nHDBSCAN label would make the cluster count beside a map false provenance."
+    },
+    "spacr.umap_search.walk_clusters": {
+      "source_blocks_sha256": [
+        "a930cd2663340bfca409d285a1bd4a32b048e1a65fa5b67f83625cb5e26a8286",
+        "14d57ec232a3f14a2fa28a1fed4074f571b25491417d31d7b57e8b5307ca09ad"
+      ],
+      "source_sha256": "7b0c3018cf907d477cc1eb769ed82726efcb67357d86f6d2fbd875aa03c8db28",
+      "text": "Try HDBSCAN scales on one map and return them best-first.\n\nThis is the clustering half of the Starplast-style walk.  It can run for\nevery UMAP trial as that trial arrives, or later against the table row the\nuser chose.  Failed/oversized scales are skipped individually; if no scale\nis meaningful the result is empty rather than a fabricated one-cluster\nwinner."
     },
     "spacr.umap_search.walk_recipes": {
       "source_blocks_sha256": [
