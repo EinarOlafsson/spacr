@@ -1,0 +1,174 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "reduction_method",
+      "source_sha256": "0fae2dc2281b236635124186cd089a40060762e6b8b18b9ee96de0ec2db85be0",
+      "source": "Dimensionality reduction run before clustering and plotting: 'umap' preserves more global structure and can be fitted on controls then applied to all data, 'tsne' emphasises local neighbourhoods and cannot reuse a fitted model. With 'tsne', min_dist is ignored and n_neighbors is used as perplexity. Anything else raises ValueError. Default 'umap'.",
+      "translation": "군집화와 그래프 전에 실행할 차원 축소 방법입니다. 'umap' 은 전역 구조를 더 보존하고 대조군에 적합한 뒤 전체 데이터에 적용할 수 있습니다. 'tsne' 은 국소 이웃을 강조하고 적합된 모델을 재사용할 수 없습니다. 'tsne' 에서는 min_dist 를 무시하고 n_neighbors 를 perplexity 로 사용합니다. 다른 값은 ValueError 를 발생시킵니다. 기본값 'umap'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "regression_type",
+      "source_sha256": "37b8f7ab2f8445f78e599d74b2f95158780303485f1c42146c8ade42c83909a1",
+      "source": "Choose by what the per-well response IS. Continuous: 'ols', 'wls' (weight by cell count), 'rlm'/'huber' (robust), 'quantile'. A FRACTION: 'logit', 'probit', 'beta', 'quasi_binomial' (over-dispersed). Counts: 'poisson'. 'glm' picks the family. 'mixed' adds well or plate as a random effect. Many correlated predictors: 'ridge' shrinks all, 'lasso' zeroes some, 'elasticnet' both, 'horseshoe' shrinks hard but spares large effects. 'hinge' for a separable two-class response. ols on a bounded response predicts values outside it. Default 'ols'.",
+      "translation": "웰별 반응의 성격에 맞춰 선택합니다. 연속값: 'ols', 세포 수로 가중하는 'wls', 강건한 'rlm'/'huber', 'quantile'. 비율: 'logit', 'probit', 'beta', 과산포용 'quasi_binomial'. 계수: 'poisson'. 'glm' 은 분포군을 고릅니다. 'mixed' 는 웰 또는 플레이트를 무작위 효과로 추가합니다. 상관된 예측변수가 많으면 'ridge' 는 모두 축소하고 'lasso' 는 일부를 0 으로 만들며 'elasticnet' 은 둘을 섞고 'horseshoe' 는 강하게 축소하되 큰 효과를 보존합니다. 'hinge' 는 분리 가능한 이진 반응용입니다. 제한된 반응에 ols 를 쓰면 범위 밖 값을 예측합니다. 기본값 'ols'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "resample",
+      "source_sha256": "79e57a720d5541c68768afeec996885b8a9b978c256c165e8efa0fd62370c557",
+      "source": "Passed to Cellpose model.eval: run the mask-tracking dynamics at full image resolution instead of on the downsampled network grid. Enabling it gives smoother, better-fitting object outlines at the cost of time and memory, and helps most when objects differ a lot from the model's training diameter. Default False; the object pipeline sets True for cell/nucleus and False for pathogen.",
+      "translation": "Cellpose model.eval 에 전달되어 축소된 네트워크 격자 대신 전체 이미지 해상도에서 마스크 추적 동역학을 실행합니다. 켜면 시간과 메모리를 더 쓰지만 객체 윤곽이 더 매끄럽고 잘 맞으며 객체 크기가 모델 훈련 지름과 크게 다를 때 특히 유용합니다. 기본값 False. 객체 처리 경로는 cell/nucleus 에 True, pathogen 에 False 를 설정합니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "row_csv",
+      "source_sha256": "9e531bef1c1149e0caa5ab644b95503173a164bf456a6e5dc47c642e58f2b1eb",
+      "source": "CSV mapping row barcodes to well names; it must have 'sequence' and 'name' columns. Reads are matched verbatim with no reverse-complementing, so the sequences must be in the same orientation as the reads - use barecodes_reverse_complement to flip the file if needed. Unmatched reads get NA for rowID. Default: the bundled spacr/resources/data/barcodes_row.csv.",
+      "translation": "행 바코드를 웰 이름에 대응시키는 CSV 로 'sequence' 와 'name' 열이 있어야 합니다. 읽기는 역상보 변환 없이 그대로 비교하므로 서열 방향이 읽기와 같아야 합니다. 필요하면 barecodes_reverse_complement 로 파일을 뒤집으십시오. 맞지 않는 읽기의 rowID 는 NA 가 됩니다. 기본값: 내장 spacr/resources/data/barcodes_row.csv."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_to_db",
+      "source_sha256": "057593e8b74e3ed8514eb6c928bb34abe339657d948b36860e1835dd0d77c738",
+      "source": "After ML screen analysis, write the per-object model scores back into measurements.db as a 'predictions' column on the png_list table, matched on prcfo. Enable when you want to sort, filter or plot objects by score in the GUI; the CSV result files are written either way. Default False.",
+      "translation": "ML 화면 분석 뒤 객체별 모델 점수를 measurements.db 의 png_list 표에 'predictions' 열로 기록하며 prcfo 로 일치시킵니다. GUI 에서 점수로 객체를 정렬, 필터링, 그래프로 보려면 켜십시오. CSV 결과 파일은 어느 쪽이든 기록됩니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "schedule",
+      "source_sha256": "1b4e1179b74d3af8f77aadff073c73576fe61b9e34539cd6eae2d706f51719df",
+      "source": "Learning-rate scheduler used by spacr.deep_spacr.train_model: 'cosine', 'cosine_warm_restarts', 'reduce_lr_on_plateau', 'step_lr', 'exponential', 'linear', or 'none'. Plateau reacts to validation loss; cosine and linear use the epoch budget; warm restarts periodically raise the rate to escape a narrow minimum. API: train_model(schedule=...). Default 'cosine'.",
+      "translation": "spacr.deep_spacr.train_model 이 사용하는 학습률 스케줄러입니다. 'cosine', 'cosine_warm_restarts', 'reduce_lr_on_plateau', 'step_lr', 'exponential', 'linear', 'none' 중 하나입니다. plateau 는 검증 손실에 반응하고 cosine 과 linear 는 epoch 예산을 사용하며 warm restart 는 좁은 최솟값을 벗어나도록 주기적으로 학습률을 크게 합니다. API: train_model(schedule=...). 기본값 'cosine'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "seg_qc",
+      "source_sha256": "67455d542a75285465d57d880326ec81b70e8331e83248219cf72ec8358cd75e",
+      "source": "Segmentation quality control, scored the moment masks are written and long before measure_crop spends hours on them. 'off' skips it; 'report' scores every field, writes qc/segmentation_qc_OBJECT.csv and prints a card naming what is wrong; 'flag' adds a per-field JSON for a downstream step; 'stop' adds a raise when the plate verdict is 'fail', after the scorecard is written so you still get the card. No mode deletes or silently skips a field, and 'stop' never fires on 'warn' - halting on an unsure verdict is how a gate gets switched off. Default 'report'.",
+      "translation": "마스크를 쓸 때 즉시, measure_crop 이 여러 시간을 쓰기 전에 점수화하는 분할 품질 관리입니다. 'off' 는 생략하고, 'report' 는 모든 필드를 점수화해 qc/segmentation_qc_OBJECT.csv 를 쓰고 이상 내용을 설명하는 카드를 출력합니다. 'flag' 는 후속 단계용 필드별 JSON 을 추가하고, 'stop' 은 점수 카드를 쓴 뒤 플레이트 판정이 'fail' 이면 오류를 냅니다. 어떤 모드도 필드를 삭제하거나 조용히 생략하지 않으며 'stop' 은 'warn' 에서 멈추지 않습니다. 불확실한 판정에 중지하면 결과적으로 품질 게이트를 끄게 됩니다. 기본값 'report'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "single_direction",
+      "source_sha256": "65450a9f4100c8f5e00f7953f61a6ce45c4aae28fae1ff4a8b1606e4c48d1bbd",
+      "source": "Which mate to scan when mode is 'single': 'R1' or 'R2'. The chosen file is read as-is with no reverse-complementing, so selecting 'R2' means target_sequence and regex must be written in R2 orientation or nothing will match. Ignored when mode is 'paired'. Default 'R1'.",
+      "translation": "mode 가 'single' 일 때 검사할 mate 이며 'R1' 또는 'R2' 입니다. 선택한 파일은 역상보 변환 없이 그대로 읽습니다. 따라서 'R2' 를 고르면 target_sequence 와 regex 도 R2 방향이어야 하며 그렇지 않으면 아무것도 맞지 않습니다. mode 가 'paired' 이면 무시됩니다. 기본값 'R1'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "stitch_threshold",
+      "source_sha256": "ffd90b5571918bcc2daed4a69a95d2127fd7726a8edc45ed887d609fc15f776d",
+      "source": "Minimum overlap, as an intersection-over-union between 0 and 1, for a label in one plane to be treated as the same object as a label in the plane below when z_segmentation_mode is 'stitch'. Raising it splits objects that drift or change shape between planes into several shorter ones; lowering it fuses neighbouring objects that merely overlap in projection. Matching is one-to-one, so when two objects both overlap the same object below only the better match inherits its label and the other starts a new one. Ignored by the other two modes. Default 0.25.",
+      "translation": "z_segmentation_mode 가 'stitch' 일 때 한 평면의 레이블을 아래 평면의 같은 객체로 볼 최소 겹침이며 0~1 의 intersection-over-union 입니다. 값을 크게 하면 평면 사이에서 이동하거나 모양이 변한 객체를 여러 짧은 객체로 나누고, 작게 하면 투영에서 우연히 겹친 이웃 객체를 합칩니다. 일대일로 일치시키므로 두 객체가 아래의 같은 객체와 겹치면 더 좋은 일치만 레이블을 물려받고 다른 하나는 새 레이블을 시작합니다. 다른 두 모드에서는 무시됩니다. 기본값 0.25."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "summarize_organelles_by",
+      "source_sha256": "cb5d1ffd9a6a5e283b05f61e85b9f40c17edf14e2ca16b8ac2a4918c560b2335",
+      "source": "Parent compartments to roll every enabled organelle slot into. Accepts 'cell', 'nucleus', 'pathogen' and 'cytoplasm'; each writes one <parent>_organelle_summary row per parent with a separate organelle_summary_<slot>_* column family. Raw per-organelle tables are always written when their mask dim is enabled. Default 'cell'; None disables only these rollups.",
+      "translation": "활성화된 모든 소기관 슬롯을 합산할 상위 구획입니다. 'cell', 'nucleus', 'pathogen', 'cytoplasm' 을 허용합니다. 각 상위 객체마다 <parent>_organelle_summary 행 하나와 별도의 organelle_summary_<slot>_* 열 모음을 씁니다. 마스크 차원이 활성화된 소기관의 원시 표는 항상 기록합니다. 기본값 'cell'. None 은 이 합산만 끕니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "t_axis_order",
+      "source_sha256": "e2d6e9df0468ce467308a550a359de192ac4755e1f12e5d15376156e3b1d58d0",
+      "source": "Which of the two leading axes is time and which is z: 'TZYX' for a stack per timepoint, 'ZTYX' for a time series per plane. Real microscopes write both and the array shape cannot tell them apart, so spaCR refuses to guess and stops until you say. Getting it wrong does NOT crash -- it links each object to whatever sits above it in the next z plane and reports that as motion, so the tracks look plausible and the velocities are meaningless. Check it against how the acquisition was set up, not against the output. Default None.",
+      "translation": "앞의 두 축 중 어느 것이 시간이고 어느 것이 z 인지 정합니다. 시간점별 스택은 'TZYX', 평면별 시계열은 'ZTYX' 입니다. 실제 현미경은 둘 다 쓰며 배열 모양만으로 구분할 수 없으므로 spaCR 은 추측하지 않고 입력을 기다립니다. 잘못 설정해도 충돌하지 않습니다. 각 객체를 다음 z 평면에서 바로 위에 있는 객체와 연결하고 이를 움직임으로 보고하므로 추적은 그럴듯하지만 속도는 의미가 없습니다. 출력이 아니라 촬영 설정과 대조하십시오. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "t_link_threshold",
+      "source_sha256": "c8caff47ec041da54962487abefeb584a9887375a97e25186c364d6ef6163b82",
+      "source": "Minimum overlap, as an intersection-over-union between 0 and 1, for an object at one timepoint to be treated as the same object at the next when t_track_backend is 'iou'. Raising it breaks a moving or growing object into several short tracks; lowering it fuses neighbouring objects whose volumes happen to touch. Kept separate from stitch_threshold on purpose, because consecutive z planes and consecutive timepoints do not overlap by anything like the same amount. Matching is one-to-one, so two objects cannot both inherit one identity. Default 0.25.",
+      "translation": "t_track_backend 가 'iou' 일 때 한 시간점의 객체를 다음 시간점의 같은 객체로 볼 최소 겹침이며 0~1 의 intersection-over-union 입니다. 값을 크게 하면 움직이거나 자라는 객체를 여러 짧은 추적으로 나누고, 작게 하면 부피가 우연히 닿은 이웃 객체를 합칩니다. 연속 z 평면과 시간점의 겹침 정도는 크게 다르므로 stitch_threshold 와 의도적으로 분리되어 있습니다. 일대일로 일치시키므로 두 객체가 하나의 식별자를 함께 물려받을 수 없습니다. 기본값 0.25."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "t_project_for_tracking",
+      "source_sha256": "007f51e6c8484cd9664abf41e821c3872566f4f21aa7b6b6d20f09cc9edfa3ac",
+      "source": "Collapse each timepoint's z-stack to one plane before linking, so tracking happens on the projection while segmentation still happened on the volume. Turn it on when the volumetric linking is too slow or you do not trust the anisotropy, and accept the cost: two objects that sit above one another become one object and nothing computed downstream can tell that it happened. It does not enable the backends spaCR cannot drive on volumes, which are refused whatever this is set to. Default False.",
+      "translation": "연결 전에 각 시간점의 z 스택을 한 평면으로 축소합니다. 분할은 부피에서 했지만 추적은 투영에서 수행합니다. 부피 연결이 너무 느리거나 비등방성을 신뢰하지 못할 때 켜되 비용을 받아들여야 합니다. 위아래로 겹친 두 객체가 하나가 되고 후속 계산으로는 이를 알아낼 수 없습니다. spaCR 이 부피에서 구동할 수 없는 백엔드를 활성화하지 않으며 설정값과 관계없이 거부됩니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "target",
+      "source_sha256": "4f47ed353f092a31e24d65f1b992fbb244873b6f060396285fc5aea819040305",
+      "source": "Free-text label for the protein or marker imaged in channel_of_interest, e.g. 'GRA1'. The recruitment run prints it in its banner ('channel:3 = protein') to record what the recruitment ratio is measuring; it feeds no computation, so changing it alters nothing but that log line. Default 'protein'.",
+      "translation": "channel_of_interest 에서 촬영한 단백질 또는 표지자의 자유 텍스트 레이블입니다. 예: 'GRA1'. 모집 실행은 배너에 이를 'channel:3 = protein' 처럼 출력해 모집 비율이 무엇을 측정하는지 기록합니다. 계산에는 쓰지 않으므로 변경해도 로그 한 줄만 달라집니다. 기본값 'protein'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "target_layer",
+      "source_sha256": "dee64f9d73a7f757e5a080b5fc247bf94f82fbdfb45280618f16c92f0c4f4d13",
+      "source": "Dotted attribute path to the convolutional layer whose activations and gradients Grad-CAM hooks, e.g. 'base_model.blocks.3.layers.1.layers.MBconv.layers.conv_b'; utils.recommend_target_layers(model) lists valid names. Later layers give class-specific but coarse maps, earlier ones finer detail. Required for 'gradcam'/'gradcam_pp' - it is auto-filled only when model_type is exactly 'maxvit', and left None it raises. Default None.",
+      "translation": "Grad-CAM 이 활성화와 그래디언트를 연결할 합성곱 층의 점 구분 속성 경로입니다. 예: 'base_model.blocks.3.layers.1.layers.MBconv.layers.conv_b'. utils.recommend_target_layers(model) 는 유효한 이름을 나열합니다. 뒤쪽 층은 클래스 특이적이지만 거친 지도를, 앞쪽 층은 더 세밀한 지도를 만듭니다. 'gradcam'/'gradcam_pp' 에 필수입니다. model_type 이 정확히 'maxvit' 일 때만 자동으로 채우며 None 이면 오류를 냅니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tolerance",
+      "source_sha256": "0eb1e0609cd53905e17cdf9e8374e6486cff98590e6615ee6722f84e54dee72d",
+      "source": "How close a subsampled well mean has to be to the full-well mean before minimum_cell_simulation calls that sample size sufficient, which is what sets min_cell_count when you leave it None. An int is read as a percentage (2 means 2%), a float as a fraction (0.02 means the same); anything else raises ValueError. Tighten it toward 0.01 to demand more cells per well and drop more wells, loosen it to 0.05 to keep sparse wells at the cost of noisier per-well scores. Default 0.02.",
+      "translation": "minimum_cell_simulation 이 표본 수를 충분하다고 판단하려면 하위 표본 웰 평균이 전체 웰 평균에 얼마나 가까워야 하는지 정합니다. min_cell_count 를 None 으로 두면 이 값으로 그 수를 정합니다. int 는 백분율(2 는 2%), float 는 비율(0.02 는 같은 값) 로 읽으며 다른 형식은 ValueError 를 냅니다. 0.01 쪽으로 엄격하게 하면 웰마다 더 많은 세포를 요구해 더 많은 웰을 버리고, 0.05 쪽으로 완화하면 웰별 점수 잡음이 늘지만 드문 웰을 유지합니다. 기본값 0.02."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "trackastra_model",
+      "source_sha256": "05807c6de151158dd326ddad32b58f45929d5ce81af5e5f819c1a28d62db646f",
+      "source": "Which pretrained Trackastra checkpoint links the frames; 'general_2d' is the all-round 2D model and covers most live-cell data without retraining. Only consulted when timelapse_mode='trackastra'. Change it only if you hold a checkpoint trained on imaging that looks unlike yours. Default 'general_2d'.",
+      "translation": "프레임을 연결할 사전 훈련 Trackastra 체크포인트입니다. 'general_2d' 는 범용 2D 모델로 재훈련 없이 대부분의 생세포 데이터에 적용됩니다. timelapse_mode='trackastra' 일 때만 사용합니다. 보유한 체크포인트가 현재 영상과 매우 다른 데이터로 훈련된 경우에만 변경하십시오. 기본값 'general_2d'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tracked_object",
+      "source_sha256": "b4fddf480ab808b7b8eeec29bfdc086d5c3c849886aad5a0d5dad8a66c598b7b",
+      "source": "Which object's feature block ({object}_* columns) the XGBoost infection classifier trains on: 'cell', 'nucleus' or 'pathogen'; anything else falls back to 'cell'. It does not change what is tracked - track geometry and velocity always come from the cell centroids. Default 'cell'.",
+      "translation": "XGBoost 감염 분류기가 훈련할 객체의 특징 블록({object}_* 열) 입니다. 'cell', 'nucleus', 'pathogen' 중 하나이며 다른 값은 'cell' 로 돌아갑니다. 추적 대상을 바꾸지는 않습니다. 추적 기하와 속도는 항상 세포 중심에서 나옵니다. 기본값 'cell'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "treatment_plate_metadata",
+      "source_sha256": "a6649263d7d77611ca18da897ff6f60dbc6dff76d1aba5dbc0ee128d940ab6f7",
+      "source": "Wells that received each entry of treatments, one inner list per treatment in the same order, e.g. [['r1','r2','r3'],['r4','r5','r6']]. Entries must start with 'r' (row) or 'c' (column); anything else is IGNORED and those wells get no treatment label rather than an error. Wells you do not list are still kept -- 'condition' joins whatever cell/pathogen/treatment labels exist, so an unlisted well simply carries fewer. Default None.",
+      "translation": "treatments 의 각 항목을 받은 웰을 같은 순서의 내부 목록으로 지정합니다. 예: [['r1','r2','r3'],['r4','r5','r6']]. 항목은 행이면 'r', 열이면 'c' 로 시작해야 합니다. 다른 값은 무시되어 오류 대신 해당 웰에 처리 레이블이 없습니다. 나열하지 않은 웰도 유지되며 'condition' 은 존재하는 세포, 병원체, 처리 레이블만 결합하므로 레이블 수가 적을 뿐입니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ultrack_contour_sigma",
+      "source_sha256": "d8a0181be4e64cb4c33765545055466368fb1e46430b5188af01c57161248559",
+      "source": "Standard deviation of the Gaussian blur applied while turning the segmentation labels into the contour map Ultrack builds its candidate objects from. Zero keeps the boundaries exactly as Cellpose drew them; one to four softens them so the joint solver is free to redraw boundaries between objects that were merged or split. Only consulted when timelapse_mode='ultrack'. Default 0.0.",
+      "translation": "분할 레이블을 Ultrack 이 후보 객체를 만드는 윤곽 지도로 바꿀 때 적용하는 Gaussian 흐림의 표준편차입니다. 0 은 Cellpose 가 그린 경계를 그대로 유지하고 1~4 는 경계를 부드럽게 해 결합 해법이 잘못 합쳐지거나 나뉜 객체 사이의 경계를 다시 그릴 수 있게 합니다. timelapse_mode='ultrack' 일 때만 사용합니다. 기본값 0.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "value_col",
+      "source_sha256": "ae4fb2a30fdcd84a54095782734576b6518f66bdd43c42d3a25d909200daaa64",
+      "source": "Measurement column compared against threshold to call each object positive. Objects strictly above are annotated 'above' and the rest 'below', and the percentage reported per well is the share of 'above'. Point it at the column the phenotype lives in - a recruitment ratio, a mean intensity - not at a size. Changing it changes what 'positive' means, so two runs with different value_col are not comparable. Default None; must be supplied.",
+      "translation": "각 객체를 양성으로 판정하기 위해 threshold 와 비교할 측정 열입니다. 임계값보다 큰 객체는 'above', 나머지는 'below' 로 표시하고 웰별 보고 비율은 'above' 의 몫입니다. 크기 열이 아니라 모집 비율이나 평균 강도처럼 표현형이 있는 열을 지정하십시오. 값을 바꾸면 'positive' 의 뜻이 달라지므로 value_col 이 다른 두 실행은 비교할 수 없습니다. 기본값 None 이며 반드시 제공해야 합니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "voxel_size_z_um",
+      "source_sha256": "261732c932be440b2c51c8951a52dfdae449f9a35bb522d7df302d90ee722629",
+      "source": "Spacing between consecutive z planes in micrometres, straight off the acquisition settings. Together with voxel_size_xy_um it derives anisotropy, so setting these two is the safer way to get it right, and it is also what converts object volumes from voxel counts into um3. Changing it rescales every physical z quantity and the anisotropy used for segmentation; it has no effect on a 'project' run. Measure uses the pair to report 3-D morphology in micrometres rather than voxels, and records which it used in the measurement_units column. Default None.",
+      "translation": "촬영 설정에서 가져온 연속 z 평면 사이의 마이크로미터 간격입니다. voxel_size_xy_um 과 함께 anisotropy 를 유도하므로 둘을 설정하는 것이 안전하며 객체 부피를 voxel 수에서 um3 으로 변환할 때도 사용합니다. 이 값을 바꾸면 모든 물리적 z 양과 분할 비등방성의 척도가 바뀌지만 'project' 실행에는 영향이 없습니다. Measure 는 두 값을 사용해 3-D 형태를 voxel 대신 마이크로미터로 보고하고 measurement_units 열에 사용 단위를 기록합니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "z_projection",
+      "source_sha256": "e839a2d860b98aed39a346001446c03631f755594684bbd26e4b38caf2d77eeb",
+      "source": "How z is collapsed when z_segmentation_mode is 'project'. 'max' takes the brightest value down the stack and is the usual choice for sparse fluorescent objects; 'mean' averages, which suppresses noise but dilutes anything present in only a few planes; 'sum' preserves total signal so intensity stays proportional to how much of the object was in the stack; 'best_focus' discards every plane but the sharpest one, which beats a projection when only one plane is genuinely in focus and a MIP would smear the out-of-focus haze over it. Ignored by the other two modes. Default 'max'.",
+      "translation": "z_segmentation_mode 가 'project' 일 때 z 를 축소하는 방법입니다. 'max' 는 스택에서 가장 밝은 값을 취해 드문 형광 객체에 보통 적합합니다. 'mean' 은 평균으로 잡음을 줄이지만 몇 평면에만 있는 신호를 희석합니다. 'sum' 은 전체 신호를 보존해 강도가 스택에 포함된 객체 양에 비례하게 합니다. 'best_focus' 는 가장 선명한 평면 외에는 버립니다. 한 평면만 실제 초점에 있고 MIP 가 초점 밖 흐림을 퍼뜨릴 때 투영보다 낫습니다. 다른 두 모드에서는 무시됩니다. 기본값 'max'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "z_segmentation_mode",
+      "source_sha256": "34c59e6fc529d8de8ca910a3458a64c9cfe90c3ef6be226d1b691344f218f949",
+      "source": "How the z dimension is handled. The three modes answer different questions and their masks are not comparable, so the choice is recorded alongside them. 'project' collapses the stack with z_projection and segments one plane -- what spaCR has always effectively done, and the ONLY mode the Measure module can consume. 'stitch' segments each plane in 2-D and links labels down the stack. 'volumetric' segments the 3-D volume directly and needs anisotropy or the voxel sizes. Default 'project'.",
+      "translation": "z 차원을 처리하는 방법입니다. 세 모드는 서로 다른 질문에 답하고 마스크를 서로 비교할 수 없으므로 선택을 함께 기록합니다. 'project' 는 z_projection 으로 스택을 축소해 한 평면을 분할합니다. spaCR 이 전통적으로 수행한 방식이며 Measure 모듈이 사용할 수 있는 유일한 모드입니다. 'stitch' 는 각 평면을 2-D 로 분할하고 스택을 따라 레이블을 연결합니다. 'volumetric' 은 3-D 부피를 직접 분할하며 anisotropy 또는 voxel 크기가 필요합니다. 기본값 'project'."
+    }
+  ]
+}
