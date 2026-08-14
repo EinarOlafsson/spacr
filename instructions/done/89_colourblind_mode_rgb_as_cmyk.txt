@@ -2,10 +2,20 @@
 A COLOURBLIND MODE FOR EVERY IMAGE SPACR SHOWS
 ================================================================================
 
-Status:    not started, 2026-08-13.
+Status:    done, 2026-08-13.
 Requested: 2026-08-13 - "we should have a colorblind mode that applies to
            images being shown, where RGB images are visualized as CMYK
            instead"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The completed implementation uses a measured colour-vision-deficiency-safe
+display transform and outline palette rather than a literal RGB-to-CMYK print
+conversion. It applies only to display surfaces, preserves stored and measured
+data, identifies the active mapping, and leaves the default appearance
+unchanged when disabled.
 
 --------------------------------------------------------------------------------
 WHY IT MATTERS
