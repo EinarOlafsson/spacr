@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cell_loc",
+      "source_sha256": "aa64245af763c7d4a4284918e1b93c4befb73cb4a4a4c58abe6e1c2093813d56",
+      "source": "One list of well identifiers per entry in cells, giving where each host cell line sits on the plate, e.g. [['c1','c2'],['c3']]. Identifiers must start with 'r' for a row or 'c' for a column; anything else is ignored and those wells stay unannotated. Pass None to label every row with the first entry of cells. No default is set: no set_default_* function in settings.py touches this key, and its only reader, annotate_filter_vision, indexes settings['cell_loc'] directly, so it must be present in the dict (explicitly None if you do not want location mapping) or the call raises KeyError.",
+      "translation": "Une liste d’identifiants de puits par entrée de cells, indiquant où se trouve chaque lignée de cellules hôtes sur la plaque, par exemple [['c1','c2'],['c3']]. Les identifiants doivent commencer par 'r' pour une ligne ou 'c' pour une colonne ; toute autre valeur est ignorée et ces puits restent sans annotation. Utilisez None pour étiqueter chaque ligne avec la première entrée de cells. Aucune valeur par défaut n’est définie : aucune fonction set_default_* de settings.py ne modifie cette clé et son unique lecteur, annotate_filter_vision, indexe directement settings['cell_loc']. La clé doit donc être présente dans le dictionnaire (explicitement None si aucune correspondance d’emplacement n’est souhaitée), sinon l’appel déclenche KeyError."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cv_group_by",
+      "source_sha256": "ff80ee44bc17dec739551dcee2460f5d298c281faa14ee5c728d4a390846e85e",
+      "source": "Train/test independence: 'cell', 'field', 'well' (default), or 'plate'. Cell can place sibling crops from one well on both sides; field narrows but does not close that leak; well matches the usual experimental assignment unit; plate holds out a complete batch. Whole groups make the requested fraction approximate, so runs report held-out groups and cells. Legacy 'none'/'off' alias 'cell'. Crop identities come from spaCR's plate_well_field_object.png names; unverifiable grouped designs are refused rather than silently randomized.",
+      "translation": "Indépendance entre entraînement et test : 'cell', 'field', 'well' (par défaut) ou 'plate'. Le niveau cellule peut placer des images sœurs provenant d’un même puits des deux côtés ; le niveau champ réduit cette fuite sans la supprimer ; le niveau puits correspond à l’unité d’affectation expérimentale habituelle ; le niveau plaque réserve un batch complet. Des groupes entiers rendent la fraction demandée approximative, les exécutions indiquent donc les groupes et cellules réservés. Les anciennes valeurs 'none'/'off' sont des alias de 'cell'. L’identité des images provient des noms plate_well_field_object.png de spaCR ; les plans groupés invérifiables sont refusés plutôt que randomisés silencieusement."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "seg_qc",
+      "source_sha256": "67455d542a75285465d57d880326ec81b70e8331e83248219cf72ec8358cd75e",
+      "source": "Segmentation quality control, scored the moment masks are written and long before measure_crop spends hours on them. 'off' skips it; 'report' scores every field, writes qc/segmentation_qc_OBJECT.csv and prints a card naming what is wrong; 'flag' adds a per-field JSON for a downstream step; 'stop' adds a raise when the plate verdict is 'fail', after the scorecard is written so you still get the card. No mode deletes or silently skips a field, and 'stop' never fires on 'warn' - halting on an unsure verdict is how a gate gets switched off. Default 'report'.",
+      "translation": "Contrôle qualité de la segmentation, évalué dès l’écriture des masques et bien avant que measure_crop y consacre des heures. 'off' l’ignore ; 'report' évalue chaque champ, écrit qc/segmentation_qc_OBJECT.csv et affiche une fiche indiquant le problème ; 'flag' ajoute un fichier JSON par champ pour une étape ultérieure ; 'stop' déclenche une exception lorsque le verdict de la plaque est 'fail', après l’écriture de la fiche afin qu’elle reste disponible. Aucun mode ne supprime ni n’ignore silencieusement un champ, et 'stop' ne se déclenche jamais pour 'warn' : arrêter sur un verdict incertain conduirait à désactiver le contrôle. Standard 'report'."
+    }
+  ]
+}
