@@ -190,9 +190,38 @@ DELIBERATELY NOT DONE
 
 * Reproducing the SIGSEGV itself. Three attempts, all survived
   (scratchpad/repro_omp{,2,3}.py), including one with all three runtimes mapped
-  and the fit on a worker thread, three runs. The crashed machine's Homebrew
-  libomp was a different build (491,520 bytes, uuid DB2924C2 in the report)
-  from the one here, and the two happen to interoperate. The stack is
-  conclusive without a reproduction; the fix is verified against the mechanism
-  (no worker team, hence no barrier, hence no cross-image suspend call) rather
-  than against the crash.
+  and the fit on a worker thread, three runs. The fix is verified against the
+  mechanism (no worker team, hence no barrier, hence no cross-image suspend
+  call) rather than against the crash.
+
+  CORRECTION, same day, and it matters. This file and commit dc2daf15 both said
+  the crashed machine's Homebrew libomp was "a different build" from the one
+  used in the repro attempts. That is FALSE. ``dwarfdump --uuid
+  /opt/homebrew/opt/libomp/lib/libomp.dylib`` gives DB2924C2-65F0-3D37-9C5B-
+  3F64C7F475D5 — byte for byte the image in the crash report. The xgboost-side
+  runtime was never the variable.
+
+  The environments differ on the OTHER side of the crossing, torch's bundled
+  libomp:
+
+      env                                     python  xgboost  torch    sklearn
+      --------------------------------------  ------  -------  -------  -------
+      miniconda envs/spacr  (crashed)         3.10.13  2.1.4   2.13.0   1.7.2
+      /Library/Frameworks .../3.13  (repro)   3.13.7   2.1.4   2.10.0   1.8.0
+
+  So the incompatible pair is Homebrew libomp 22.1.5 against **torch 2.13.0's**
+  libomp; torch 2.10.0's interoperates with it. That is why every repro attempt
+  survived, and it means the crash IS very likely reproducible in
+  ``envs/spacr`` — which would let the fix be verified against the fault rather
+  than against the mechanism. NOT DONE because deliberately crashing that
+  interpreter raises a macOS crash dialog the maintainer has already asked
+  about; offered to them instead of performed.
+
+* Where the maintainer actually runs spaCR — ANSWERED, and it is
+  ``/opt/homebrew/Caskroom/miniconda/base/envs/spacr`` (mamba/conda, Python
+  3.10.13). That is the ``/opt/homebrew/*/python3.10`` of the report; Spotlight
+  never found it because ``mdfind`` does not index Caskroom. ``pip show spacr``
+  there reports ``Editable project location: /Users/jkellerm/github/spacr``, so
+  the fix is live in it with no reinstall. Confirmed: ``import spacr.ml`` in
+  that env maps FOUR libomp images (skimage's, sklearn's, torch's, Homebrew's)
+  and ``openmp_runtime_is_duplicated()`` returns True, so the guard engages.
