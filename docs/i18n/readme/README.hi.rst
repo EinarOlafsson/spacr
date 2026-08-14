@@ -120,8 +120,8 @@ Linux पर डाउनलोड किए गए इंस्टॉलर क
 
 .. code-block:: bash
 
-   chmod +x SpaCR-*-Linux-x86_64-Online.run
-   ./SpaCR-*-Linux-x86_64-Online.run
+   chmod +x spaCR-*-Linux-x86_64-Online.run
+   ./spaCR-*-Linux-x86_64-Online.run
 
 macOS पर डाउनलोड की गई ``.pkg`` फ़ाइल खोलें। यदि Gatekeeper वर्तमान बीटा इंस्टॉलर को notarize न होने के कारण रोकता है, तो **सिस्टम सेटिंग्स → गोपनीयता और सुरक्षा** खोलें, spaCR के लिए **फिर भी खोलें** चुनें और पैकेज दोबारा चलाएँ।
 

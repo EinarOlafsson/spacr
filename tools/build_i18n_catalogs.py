@@ -81,8 +81,8 @@ MODEL_SPECS = {
 # entries that still fail every primary whole-sentence, clause, and fragment
 # attempt. Its output receives exactly the same structural and semantic gates;
 # its presence can never turn a failed candidate into an accepted one.
-SECONDARY_MODEL = "google/madlad400-3b-mt"
-SECONDARY_MODEL_FOLDER = "../madlad400-3b-mt"
+SECONDARY_MODEL = "google/madlad400-7b-mt"
+SECONDARY_MODEL_FOLDER = "../madlad400-7b-mt"
 SECONDARY_LICENSE = "Apache-2.0"
 SECONDARY_LANGUAGE_TAGS = {
     "sv": "sv", "de": "de", "es": "es", "zh_CN": "zh",
@@ -195,6 +195,14 @@ _SCIENTIFIC_NOTATION_RE = re.compile(
     r"[κπδΔ]|§\s*\d+|©"
 )
 
+_ORCID_RE = re.compile(
+    # ORCID identifiers are scientific provenance, not prose. A translation
+    # model must never be allowed to rewrite a digit while translating the
+    # surrounding attribution. The final check digit may be ``X``.
+    r"(?<![\w-])\d{4}-\d{4}-\d{4}-\d{3}[\dX](?![\w-])",
+    re.IGNORECASE,
+)
+
 _PROTECT_PATTERNS = (
     re.compile(
         r"^:(?!(?:class|func|mod|meth|attr|data|doc):)"
@@ -260,6 +268,7 @@ _PROTECT_PATTERNS = (
         r"[→←↔⇒↑↓×≤≥±≈−·²³ⓘ▸◀▶]"
     ),
     _SCIENTIFIC_NOTATION_RE,
+    _ORCID_RE,
     re.compile(r"%(?:\d+\$)?[sd]"),
 )
 
@@ -4650,11 +4659,19 @@ def _translate_batches(
         secondary_tokenizer = AutoTokenizer.from_pretrained(
             secondary_path, local_files_only=True,
         )
+        secondary_load_kwargs: dict[str, object] = {
+            "local_files_only": True,
+        }
+        if device == "cuda":
+            # Load the 7B checkpoint directly at inference precision. Loading
+            # fp32 and converting afterwards needlessly doubles peak host
+            # memory and briefly materializes a second 14 GiB parameter copy.
+            secondary_load_kwargs["torch_dtype"] = torch.float16
         secondary_model = AutoModelForSeq2SeqLM.from_pretrained(
-            secondary_path, local_files_only=True,
+            secondary_path, **secondary_load_kwargs,
         )
         if device == "cuda":
-            secondary_model = secondary_model.half().to("cuda")
+            secondary_model = secondary_model.to("cuda")
         secondary_model.eval()
         secondary_tag = SECONDARY_LANGUAGE_TAGS[language]
 
@@ -4680,7 +4697,10 @@ def _translate_batches(
             for source, chunks in secondary_chunks.items()
         }
         secondary_failures: defaultdict[str, set[str]] = defaultdict(set)
-        secondary_batch_size = max(1, min(batch_size, 12))
+        # The 7B checkpoint occupies most of a 24 GiB card in fp16. Two inputs
+        # with four ranked beams leave enough headroom for the encoder states
+        # of the longest admitted chunks without host offload or OOM retries.
+        secondary_batch_size = max(1, min(batch_size, 2))
         for start in range(0, len(secondary_inputs), secondary_batch_size):
             batch = secondary_inputs[start:start + secondary_batch_size]
             encoded = secondary_tokenizer(
@@ -4731,6 +4751,8 @@ def _translate_batches(
             )
 
         secondary_accepted = 0
+        secondary_rejections: Counter[str] = Counter()
+        secondary_rejection_samples: list[tuple[str, str, frozenset[str]]] = []
         for source, chunk_values in secondary_values.items():
             raw_candidates = _rank_aligned_joins(
                 chunk_values,
@@ -4759,6 +4781,7 @@ def _translate_batches(
                         )
 
             candidate = None
+            best_rejected: tuple[str, frozenset[str]] | None = None
             seen: set[str] = set()
             for raw_candidate in raw_candidates:
                 if raw_candidate is None or raw_candidate in seen:
@@ -4771,9 +4794,20 @@ def _translate_batches(
                     candidate = evaluated
                     break
                 secondary_failures[source].update(failures)
+                if (
+                    best_rejected is None
+                    or len(failures) < len(best_rejected[1])
+                ):
+                    best_rejected = (evaluated, failures)
             if candidate is None:
                 translated[source] = source
                 cache.pop(cache_key(source), None)
+                reasons = frozenset(secondary_failures[source])
+                secondary_rejections.update(reasons)
+                if best_rejected is not None and len(secondary_rejection_samples) < 8:
+                    secondary_rejection_samples.append(
+                        (source, best_rejected[0], best_rejected[1])
+                    )
                 continue
             translated[source] = candidate
             checkpoint_candidate(source, candidate)
@@ -4781,9 +4815,15 @@ def _translate_batches(
         checkpoint_cache()
         print(
             f"{language}: MADLAD retry accepted={secondary_accepted}/"
-            f"{len(secondary_sources)}",
+            f"{len(secondary_sources)} rejected={dict(secondary_rejections)}",
             flush=True,
         )
+        for source, candidate, reasons in secondary_rejection_samples:
+            print(
+                f"{language}: MADLAD rejected reasons={sorted(reasons)} "
+                f"source={source[:300]!r} candidate={candidate[:300]!r}",
+                flush=True,
+            )
         del secondary_model
         if device == "cuda":
             torch.cuda.empty_cache()

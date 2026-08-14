@@ -20,6 +20,14 @@ They are not copied into Python function docstrings.
 CC-BY-4.0 model attribution is retained both here and in the generated locale
 metadata.
 
+Entries that remain invalid after the primary model's whole-sentence, clause,
+and protected-fragment passes are retried locally with
+[`google/madlad400-7b-mt`](https://huggingface.co/google/madlad400-7b-mt)
+(Apache-2.0). MADLAD is a secondary candidate generator, not a gate bypass:
+its output must preserve the same literals and pass the same source-freshness,
+target-script, copied-English, and reviewed scientific-sense checks. Generated
+catalog metadata records both the primary and secondary model identities.
+
 Simplified-Chinese model output is normalized with OpenCC's conservative
 Traditional-to-Simplified (`t2s`) configuration after protected code, RST,
 URLs, identifiers, and product names have been isolated. The catalog metadata
