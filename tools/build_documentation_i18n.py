@@ -4071,7 +4071,15 @@ def rebuild_document(layout: Iterable[tuple[str, object]], translated: list[str]
             })
 
     def rendered(position: int) -> str:
-        return translated[position] + block_suffixes.get(position, "")
+        value = translated[position]
+        suffix = block_suffixes.get(position, "")
+        # Marian commonly translates a heading-like ``Usage`` block as
+        # ``Uso:``. The canonical layout already owns the literal introducer
+        # ``::``; appending it without removing that model-added prose colon
+        # creates invalid ``Uso:::`` and makes the code block ordinary text.
+        if suffix == "::":
+            value = value.rstrip().rstrip(":").rstrip()
+        return value + suffix
 
     def paragraph_rendered(position: int) -> str:
         value = rendered(position)
@@ -4328,6 +4336,10 @@ API_SHARED_PHRASE_ALLOWLIST = frozenset({
     "nd czi lif multi page tiff npz",
     "c matthew o meara maom orcid",
     "matthew o meara maom orcid",
+    "spacrpower copyright c matthew o meara",
+    "ported from copyright c matthew o meara maom orcid",
+    "anthropic claude openai google gemini",
+    "zlib gzip bz lzma",
     "claude openai google gemini",
     "pro chatgpt plus pro team",
     "benjamini hochberg fdr q values",

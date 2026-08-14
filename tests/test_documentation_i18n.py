@@ -1628,6 +1628,35 @@ def test_portuguese_exception_and_dictionary_senses_are_reviewed():
     assert not _semantic_false_friends(dictionary_source, dictionary, "pt")
 
 
+def test_spanish_emphasis_and_atomic_write_residue_is_translated():
+    from build_i18n_catalogs import _contextualize
+
+    source = (
+        "It does **not** expose the pre-write file; use temp-then-replace."
+    )
+    translated = _contextualize(
+        "Esto *does* **not** expone el archivo pre-write; use temp-then.",
+        "es",
+        source,
+    )
+
+    assert translated == (
+        "Esto *sí* **no** expone el archivo previa a la escritura; "
+        "use temporal y luego."
+    )
+
+
+def test_literal_block_layout_owns_translated_heading_colons():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    blocks, layout = translatable_blocks("Usage::\n\n    spacr-run --list")
+
+    assert blocks == ["Usage"]
+    assert rebuild_document(layout, ["Uso:"]) == (
+        "Uso::\n\n    spacr-run --list"
+    )
+
+
 def test_rejected_models_use_the_reviewed_permissive_replacement():
     from build_i18n_catalogs import MODEL_SPECS
 
