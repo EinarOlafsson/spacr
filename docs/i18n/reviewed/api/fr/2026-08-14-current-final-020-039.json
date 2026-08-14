@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "label": "spacr.gpu_reduce#3",
+      "source_sha256": "8898197dd6e850575d3350c3945e5c39298eaad357210e247a591d75c3cb3c26",
+      "source": "and nothing else changes. The CPU path stays the default, stays tested, and stays the answer whenever cuML is absent, the interpreter is wrong, there is no CUDA device, or the caller asks for determinism.",
+      "context": "and nothing else changes. The CPU path stays the default, stays tested, and stays the answer whenever cuML is absent, the interpreter is wrong, there is no CUDA device, or the caller asks for determinism.",
+      "translation": "et rien d’autre ne change. Le chemin CPU reste celui par défaut, reste testé et reste la réponse lorsque cuML manque, que l’interpréteur est incorrect, qu’aucun périphérique CUDA n’est disponible ou que l’appelant exige un résultat déterministe."
+    },
+    {
+      "label": "spacr.gui_elements.AnnotateApp.update_settings#1",
+      "source_sha256": "1c0736c19876b83d923c4584bef7e2ce86257fe843e231c8d41bbb15c77cc9ef",
+      "source": "Only keys in the internal ``allowed_attributes`` set are honored; ``None`` values are ignored. Handles cross-cutting side effects (rebuilding the grid when ``image_size`` changes, restarting the writer thread when ``db_path`` changes, resetting pagination when ``src`` changes).",
+      "context": "Only structured-data names in the internal ``allowed_attributes`` set are honored; ``None`` values are ignored. Handles cross-cutting side effects (rebuilding the grid when ``image_size`` changes, restarting the writer thread when ``db_path`` changes, resetting pagination when ``src`` changes).",
+      "translation": "Seuls les noms de données structurées de l’ensemble interne ``allowed_attributes`` sont pris en compte ; les valeurs ``None`` sont ignorées. Gère les effets transversaux : reconstruction de la grille lorsque ``image_size`` change, redémarrage du chemin d’exécution d’écriture lorsque ``db_path`` change et réinitialisation de la pagination lorsque ``src`` change."
+    },
+    {
+      "label": "spacr.hits#8",
+      "source_sha256": "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
+      "source": "Public API",
+      "context": "Public API",
+      "translation": "API publique"
+    },
+    {
+      "label": "spacr.hyperparam.umap_metrics#1",
+      "source_sha256": "a5f9201d8288a2b78f9dad0aa18e0427a5998c45b2ed394e84cdeaf5acbd29aa",
+      "source": "Falls back to :data:`UMAP_METRICS` when umap-learn is absent, because the settings panel has to build on a machine that cannot run UMAP -- a user configuring a run on a laptop and executing it elsewhere is an ordinary thing to do.",
+      "context": "Falls back to :data:`UMAP_METRICS` when umap-learn is absent, because the settings panel has to build on a machine that cannot execute UMAP -- a user configuring a processing session on a laptop and executing it elsewhere is an ordinary thing to do.",
+      "translation": "Revient à :data:`UMAP_METRICS` lorsque umap-learn manque, car le panneau de réglages doit pouvoir être construit sur une machine incapable d’exécuter UMAP -- configurer une session de traitement sur un ordinateur portable puis l’exécuter ailleurs est une pratique ordinaire."
+    },
+    {
+      "label": "spacr.logging_util#6",
+      "source_sha256": "cb03c91ed4db5567cec9ec2ce69b9fd51eb022208019876d2faa67f8611772ee",
+      "source": "Third-party libraries that spam INFO records during a spacr pipeline (torch, cellpose, matplotlib, PIL, urllib3, botocore, tensorflow, asyncio) are pinned to WARNING so the log stays useful. Add more to :data:`QUIET_LOGGERS` if a new dependency starts spamming.",
+      "context": "Third-party libraries that spam INFO records during a spacr workflow (torch, cellpose, matplotlib, PIL, urllib3, botocore, tensorflow, asyncio) are pinned to WARNING so the log stays useful. Add more to :data:`QUIET_LOGGERS` if a new dependency starts spamming.",
+      "translation": "Les bibliothèques tierces qui saturent de messages INFO le journal pendant un flux de travail spacr (torch, cellpose, matplotlib, PIL, urllib3, botocore, tensorflow, asyncio) sont limitées au niveau WARNING afin que le journal reste utile. Ajoute d’autres noms à :data:`QUIET_LOGGERS` si une nouvelle dépendance commence à saturer le journal."
+    },
+    {
+      "label": "spacr.measure.measure_crop#15",
+      "source_sha256": "54ce3a0757995f7f3843bcb35d895d61a46b1b54bbf72cc9837d46da152edb4c",
+      "source": "only in strict mode (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS`` environment variable). The ``normalize``, ``normalize_by``, mask-dimension/min-size and ``channels`` type checks otherwise print a WARNING and return ``None`` without measuring anything.",
+      "context": "only in strict mode (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS`` environment variable). The ``normalize``, ``normalize_by``, mask-dimension/min-size and ``channels`` type checks otherwise print a WARNING and return ``None`` without measuring anything.",
+      "translation": "uniquement en mode strict (``settings['strict_errors']`` ou la variable d’environnement ``SPACR_STRICT_ERRORS``). Sinon, les vérifications de type de ``normalize``, ``normalize_by``, des dimensions et tailles minimales des masques ainsi que de ``channels`` affichent un WARNING et renvoient ``None`` sans effectuer de mesure."
+    },
+    {
+      "label": "spacr.measure_hooks#17",
+      "source_sha256": "c560aafe8c12f7d7b6c465e6eb639351e3422bf517e7a236d94b0153d9074ad5",
+      "source": "A hook that raises, returns ``None``, or returns the wrong shape/dtype gets its exception re-raised as :class:`MeasurementHookError` (a :class:`spacr.errors.ConfigurationError`) naming the hook and the field. It is raised inside ``_measure_crop_core``'s ``try``, so it takes the ordinary per-field failure route: the traceback is printed, the field is recorded on the ``RunLedger`` as a failure, and ``measurements.db`` is stamped incomplete. It is never swallowed into a row of quietly-wrong numbers.",
+      "context": "A hook that raises, returns ``None``, or returns the wrong shape/dtype gets its exception re-raised as :class:`MeasurementHookError` (a :class:`spacr.errors.ConfigurationError`) naming the hook and the field. It is raised inside ``_measure_crop_core``'s ``try``, so it takes the ordinary per-field failure route: the traceback is printed, the field is recorded on the ``RunLedger`` as a failure, and ``measurements.db`` is stamped incomplete. It is never swallowed into a row of quietly-wrong numbers.",
+      "translation": "Si un hook lève une exception, renvoie ``None`` ou renvoie une forme ou un dtype incorrect, son exception est relancée sous la forme :class:`MeasurementHookError` (une :class:`spacr.errors.ConfigurationError`) qui nomme le hook et le champ de vision. Elle est levée à l’intérieur de ``_measure_crop_core``, dans son bloc ``try``, et suit donc le traitement ordinaire des échecs par champ de vision : la trace est affichée, le champ de vision est enregistré comme échec dans ``RunLedger`` et ``measurements.db`` est marqué incomplet. Elle n’est jamais absorbée dans une ligne de nombres silencieusement erronés."
+    },
+    {
+      "label": "spacr.model_zoo.download_bundled_models#1",
+      "source_sha256": "ef1e97061c8191686226b29f5be77d54821345ee1e9bf5c729bd406e1cf3ca43",
+      "source": "Thin, deliberate wrapper over :func:`spacr.utils.download_models` — the downloader spaCR already ships and the one :func:`spacr.submodules.analyze_plaques` depends on. It is *not* reimplemented here, so there is one code path that fills ``resources/models`` and one place to fix when the repo moves.",
+      "context": "Thin, deliberate wrapper over :func:`spacr.utils.download_models` — the downloader spaCR already ships and the one :func:`spacr.submodules.analyze_plaques` depends on. It is *not* reimplemented here, so there is one code path that fills ``resources/models`` and one place to fix when the repo moves.",
+      "translation": "Enveloppe légère et délibérée de :func:`spacr.utils.download_models` — le téléchargeur déjà fourni par spaCR et celui dont dépend :func:`spacr.submodules.analyze_plaques`. Il n’est *pas* réimplémenté ici : un seul chemin de code remplit ``resources/models`` et un seul emplacement devra être corrigé si le dépôt déménage."
+    },
+    {
+      "label": "spacr.pipeline_v2#4",
+      "source_sha256": "3702d4d4869394fe72204221df40dbc90afdb76f0da2f66f918cb937ad471d87",
+      "source": "Pass 2 — segment stream the plate in batches of N fields, hand each batch to Cellpose, append the mask channels to the SAME stack file. Each batch is written to a scratch NPZ on the way through and deleted again unless ``keep_npz=True``.",
+      "context": "Pass 2 — segment stream the laboratory microplate in batches of N microscope fields of view, hand each batch to Cellpose, append the mask image data channels to the SAME stack file. Each batch is written to a scratch NPZ on the way through and deleted again unless ``keep_npz=True``.",
+      "translation": "Passe 2 — segmente en flux la microplaque de laboratoire par lots de N champs de vision microscopiques, confie chaque lot à Cellpose et ajoute les canaux de données d’image des masques au MÊME fichier de pile. Chaque lot est écrit dans un NPZ temporaire au passage, puis supprimé, sauf si ``keep_npz=True``."
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#0",
+      "source_sha256": "6c71855a74e9e00dd905a25e974b039b781f85e88d0a24ecd35cfa0a787aa195",
+      "source": "Batch the field stacks through Cellpose, then append the mask channel(s) to the SAME npy files.",
+      "context": "Batch the microscope field of view stacks through Cellpose, then append the mask image data channel(s) to the SAME npy files.",
+      "translation": "Traite par lots les piles de champs de vision microscopiques avec Cellpose, puis ajoute le ou les canaux de données d’image des masques aux MÊMES fichiers npy."
+    },
+    {
+      "label": "spacr.plate_qc.colour_limits#2",
+      "source_sha256": "425090fd1f216f3b37dfeac1cd62e562ebd3faa762eccc706cdcff443668f986",
+      "source": "Unlike the original, quantiles are computed over the *present* wells only; the original quantiles a grid where every absent well has already been turned into a zero.",
+      "context": "Unlike the original, quantiles are computed over the *present* microplate sample positions only; the original quantiles a grid where every absent well has already been turned into a zero.",
+      "translation": "Contrairement à l’original, les quantiles sont calculés uniquement sur les positions d’échantillon de microplaque *présentes* ; l’original calcule les quantiles sur une grille où chaque position manquante a déjà été remplacée par zéro."
+    },
+    {
+      "label": "spacr.plate_qc.detect_edge_effect#2",
+      "source_sha256": "69df5b4bdcf3087c3b2085b629e82bf82c1e87ce39dfd8e862945de3cbba7b43",
+      "source": "Detection deliberately needs *both* ``p < alpha`` **and** ``|cliffs_delta| >= min_effect``. On 384 wells a p-value on its own flags drifts far below the level at which anyone would act.",
+      "context": "Detection deliberately needs *both* ``p < alpha`` **and** ``|cliffs_delta| >= min_effect``. On 384 microplate sample positions a p-value on its own flags drifts far below the level at which anyone would act.",
+      "translation": "La détection exige délibérément *à la fois* ``p < alpha`` **et** ``|cliffs_delta| >= min_effect``. Sur 384 positions d’échantillon de microplaque, une valeur p seule signale des dérives nettement inférieures au niveau qui justifierait une intervention."
+    },
+    {
+      "label": "spacr.plate_qc.plate_layout#3",
+      "source_sha256": "c5a313ddbcee4dbec2e18375fb58ae8d59a1e75cc0e89ee83e7cf4b89cc6c4af",
+      "source": "**Missing wells stay missing.** ``generate_plate_heatmap`` ends in ``.fillna(0)``, which paints an unpipetted or filtered-out well as a real measurement of zero. Here an absent well is absent.",
+      "context": "**Missing microplate sample positions stay missing.** ``generate_plate_heatmap`` ends in ``.fillna(0)``, which paints an unpipetted or filtered-out well as a real measurement of zero. Here an absent well is absent.",
+      "translation": "**Les positions d’échantillon de microplaque manquantes restent manquantes.** ``generate_plate_heatmap`` se termine par ``.fillna(0)``, ce qui représente une position non pipetée ou exclue par filtrage comme une mesure réelle égale à zéro. Ici, une position manquante le reste."
+    },
+    {
+      "label": "spacr.plot.create_grouped_plot#1",
+      "source_sha256": "53d2c735de6008c72a2b73b46d69a0df323fc09e42db21b3259a4f837a6cf706",
+      "source": "Runs D'Agostino normality per group, chooses the appropriate pairwise test (t-test / Mann-Whitney / ANOVA / Kruskal), adds Tukey HSD post-hoc when appropriate, renders the requested plot type and optionally persists both plot and stats to ``output_dir``.",
+      "context": "Runs D'Agostino normality per group, chooses the appropriate pairwise test (t-test / Mann-Whitney / ANOVA / Kruskal), adds Tukey HSD post-hoc when appropriate, renders the requested plot type and optionally persists both plot and stats to ``output_dir``.",
+      "translation": "Exécute le test de normalité de D’Agostino par groupe, choisit le test par paires approprié (test t / Mann-Whitney / ANOVA / Kruskal), ajoute le test post-hoc HSD de Tukey lorsque nécessaire, produit le type de graphique demandé et peut enregistrer le graphique ainsi que les statistiques dans ``output_dir``."
+    },
+    {
+      "label": "spacr.plot.volcano_plot#1",
+      "source_sha256": "f670193ebc8e29d8e8ed35de0b243b15f257c946b0ca4572f5cf123c83d00227",
+      "source": "Auto-detects file type from extension (.csv, .tsv/.tab, .xls/.xlsx) and applies the requested x/y transforms before drawing.",
+      "context": "Auto-detects file type from extension (.csv, .tsv/.tab, .xls/.xlsx) and applies the requested x/y transforms before drawing.",
+      "translation": "Détecte automatiquement le type de fichier d’après son extension (.csv, .tsv/.tab, .xls/.xlsx) et applique les transformations x/y demandées avant le tracé."
+    },
+    {
+      "label": "spacr.power_simulate.simulate_sequencing_plate#20",
+      "source_sha256": "1c0dcd7898f93ea4f5b43c0f59bc357ed3d6735da1a32445729d266e4d1e8450",
+      "source": "Reads never exceed the requested depth, and a gene absent from a well never gets a read:",
+      "context": "Reads never exceed the requested depth, and a gene absent from a microplate sample position never gets a read:",
+      "translation": "Le nombre de lectures ne dépasse jamais la profondeur demandée et un gène qui manque dans une position d’échantillon de microplaque ne reçoit jamais de lecture :"
+    },
+    {
+      "label": "spacr.qt.ai.issue_report.log_tail#3",
+      "source_sha256": "eec65660a9c2ce482996d1c9aa232d24a6a2033a4eb797d07ae20b06c0b4f404",
+      "source": "sanitised last-N-lines block or ``\"\"`` if the file is absent or unreadable.",
+      "context": "sanitised last-N-lines block or ``\"\"`` if the file is absent or unreadable.",
+      "translation": "bloc assaini des N dernières lignes, ou ``\"\"`` si le fichier manque ou est illisible."
+    },
+    {
+      "label": "spacr.qt.annotate_engine.SaveWorker.busy#0",
+      "source_sha256": "185bdce5faf0d79b9921d2ea85fb5b9109086178fcfbcebebdbf3db76c8bd468",
+      "source": "True while the writer thread is inside a commit.",
+      "context": "True while the writer thread is inside a commit.",
+      "translation": "True pendant que le chemin d’exécution d’écriture se trouve dans une validation."
+    },
+    {
+      "label": "spacr.qt.annotate_engine.label_to_hex#2",
+      "source_sha256": "abbc52b1a4ed6bcd15a5bba378875409c02774a0574807b3d9a6d515c7e66db2",
+      "source": "THE COLOURS DEPEND ON THE THEME, because contrast does. The original palette was tuned against a dark tile and measured 3.5-12.0 against #1e1e1e -- all comfortable. Against a light tile (#f5f5f5) the SAME colours measure 1.28-4.34, with five of the first six below the 3.0 readability floor:",
+      "context": "THE COLOURS DEPEND ON THE THEME, because contrast does. The original palette was tuned against a dark tile and measured 3.5-12.0 against #1e1e1e -- all comfortable. Against a light tile (#f5f5f5) the SAME colours measure 1.28-4.34, with five of the first six below the 3.0 readability floor:",
+      "translation": "LES COULEURS DÉPENDENT DU THÈME, car le contraste en dépend. La palette d’origine a été réglée sur une tuile sombre et mesurait 3.5-12.0 sur #1e1e1e -- toutes les valeurs étaient confortables. Sur une tuile claire (#f5f5f5), les MÊMES couleurs mesurent 1.28-4.34 et cinq des six premières sont sous le seuil de lisibilité de 3.0 :"
+    },
+    {
+      "label": "spacr.qt.app.demo_label_for_app#2",
+      "source_sha256": "7f911a9ad1321c855f6118d50638223fb1a88ed20db2e234cc5d098c00262307",
+      "source": "Resolved through :attr:`MainWindow.DEMO_TARGETS` (demo key → target app) rather than a second table, so a demo that is re-pointed at a different app moves its hint with it. The first match wins: two demos land on ``measure`` (Measure and Crop) and the one named after the app is the one it lists first.",
+      "context": "Resolved through :attr:`MainWindow.DEMO_TARGETS` (demo structured-data name → target app) rather than a second table, so a demo that is re-pointed at a different app moves its hint with it. The first match wins: two demos land on ``measure`` (measurement-and-image-region-extraction) and the one named after the app is the one it lists first.",
+      "translation": "Résolu par :attr:`MainWindow.DEMO_TARGETS` (nom de donnée structurée de la démonstration → application cible) plutôt que par une seconde table ; si une démonstration est redirigée vers une autre application, son indication la suit. La première correspondance l’emporte : deux démonstrations mènent à ``measure`` (mesure et extraction de régions d’image), et celle qui porte le nom de l’application est placée en premier dans la liste."
+    }
+  ]
+}
