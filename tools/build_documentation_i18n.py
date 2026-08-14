@@ -4419,9 +4419,19 @@ API_SHARED_PHRASE_ALLOWLIST_BY_LANGUAGE = {
     # syntax contract deliberately keeps the quoted bytes unchanged, so the
     # copied-English audit must recognize the same three reviewed literals.
     "ko": frozenset({
+        "and what did it do to the curves",
         "c matthew o meara",
+        "cp cp cp cp",
+        "drain before closing",
+        "geometric mean of well reads",
+        "max min h w",
+        "sigma max min h w",
+        "the run is deterministic",
+        "this fit crashed",
         "this field has an and it encloses nothing",
         "unknown and therefore probably a cell",
+        "total reads",
+        "what changed",
         "what is this",
     }),
     "sv": frozenset({
