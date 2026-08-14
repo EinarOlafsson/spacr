@@ -47,6 +47,7 @@ from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, mi
 from xgboost import XGBClassifier
 
 from . import schema
+from .openmp_guard import single_threaded_openmp, guarded_n_jobs  # see spacr/openmp_guard.py — duplicate libomp is fatal
 from .plot import save_figure  # every kept figure goes through the format/DPI preference
 
 LOG = logging.getLogger("spacr.ml")
@@ -4011,6 +4012,7 @@ def _labels_from_measurements(df, settings):
     return out
 
 
+@single_threaded_openmp('classical ML training')
 def generate_ml_scores(settings):
     """Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.
 
@@ -4358,6 +4360,7 @@ def _resolve_controls(df, location_column, negative_control,
     return low, high, True
 
 
+@single_threaded_openmp('classical ML training')
 def ml_analysis(
     df,
     channel_of_interest=3,
@@ -4923,7 +4926,9 @@ def ml_analysis(
     metrics_df['split_group_fraction'] = split_report.group_fraction
     metrics_df['split_cell_fraction'] = split_report.cell_fraction
         
-    perm_importance = permutation_importance(model, X_train, y_train, n_repeats=n_repeats, random_state=random_state, n_jobs=n_jobs)
+    # joblib workers are fresh threads, so they do not inherit the region's
+    # single-thread OpenMP clamp and re-enter the model with a full team.
+    perm_importance = permutation_importance(model, X_train, y_train, n_repeats=n_repeats, random_state=random_state, n_jobs=guarded_n_jobs(n_jobs, 'permutation importance'))
 
     # Create a DataFrame for permutation importances
     permutation_df = pd.DataFrame({
