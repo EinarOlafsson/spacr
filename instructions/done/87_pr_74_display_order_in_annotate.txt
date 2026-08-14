@@ -2,9 +2,34 @@
 PR #74 -- LET A PROJECT CHOOSE WHICH STAIN RENDERS IN WHICH COLOUR
 ================================================================================
 
-Status:    not started, 2026-08-12. NEEDS THE MAINTAINER -- see "why this is
-           not merged" below.
+Status:    done, 2026-08-13.
 Requested: 2026-08-12 - "there is one extra issue in github issues"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+PR #74 could not be merged safely because it targeted main, conflicted, and
+carried 100 unrelated commits. Its valid display-order feature was instead
+implemented directly on nightly, separated from the stored byte-order
+contract, exposed in Annotate, persisted per project, tested, and the PR was
+closed with an explanation.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Stored channel order describes the file; display order describes how a user
+wants to view it. Keeping those concepts separate prevents a visual preference
+from becoming false metadata and lets older projects retain meaningful stain
+colours without rewriting measurements.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+No implementation work remains. Preserve the separate stored-order and
+display-order contracts and their tests when changing crop or Annotate paths.
 
 --------------------------------------------------------------------------------
 WHAT IT IS
