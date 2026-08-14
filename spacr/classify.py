@@ -24,6 +24,15 @@ from typing import Any, Dict, Mapping, Tuple
 #: The two classifier families, in the order the settings panel offers them.
 CLASSIFIER_FAMILIES: Tuple[str, ...] = ("cv", "ml")
 
+# Keep this list beside the family dispatcher: it is the boundary at which a
+# merged settings payload becomes an ML run.  Rejecting a CV backbone here is
+# both cheaper and more accurate than letting it survive database loading and
+# fail deep inside ``ml_analysis``.
+ML_MODEL_TYPES: Tuple[str, ...] = (
+    "xgboost", "lightgbm", "catboost", "random_forest", "extra_trees",
+    "gradient_boosting", "logistic_regression", "svm", "mlp",
+)
+
 #: family -> the app key whose settings and pipeline it uses. The merged
 #: screen is a front end onto these, not a replacement for them.
 FAMILY_APP_KEY: Dict[str, str] = {"cv": "classify", "ml": "ml_analyze"}
@@ -108,6 +117,30 @@ def inapplicable_settings(family: str) -> Tuple[str, ...]:
                  if other != key for k in keys if k not in mine)
 
 
+def resolve_ml_model_type(settings: Mapping[str, Any]) -> str:
+    """Return the classical-ML estimator selected by ``settings``.
+
+    ``model_type_ml`` is authoritative in a merged payload.  ``model_type``
+    is accepted only when the ML-specific key is absent, which migrates the
+    short-lived shared-vocabulary settings files written before the two model
+    controls were separated.  The default matches
+    :func:`spacr.settings.set_default_analyze_screen`.
+
+    :param settings: settings for an ML-family run.
+    :returns: a member of :data:`ML_MODEL_TYPES`.
+    :raises ValueError: when the selected value is not an ML estimator.
+    """
+    selected = settings.get("model_type_ml")
+    if selected in (None, ""):
+        selected = settings.get("model_type", "xgboost")
+    model_type = str(selected).strip().lower()
+    if model_type not in ML_MODEL_TYPES:
+        raise ValueError(
+            f"Unsupported model_type_ml: {selected!r}. Choose one of "
+            f"{list(ML_MODEL_TYPES)}")
+    return model_type
+
+
 def classify(settings: Mapping[str, Any]) -> Any:
     """Run whichever classifier family ``settings`` asks for.
 
@@ -127,8 +160,17 @@ def classify(settings: Mapping[str, Any]) -> Any:
     # Two translations, both idempotent and both in one place: the shared
     # vocabulary (names) and the class definition (what the names select).
     # Anything downstream reads the current shape only.
+    # Resolve family-owned values before shared-vocabulary normalization.
+    # ``training_basis.normalize_settings`` deliberately treats
+    # model_type_ml as a legacy alias for model_type.  A merged payload has
+    # both keys, though, and the CV value wins that generic alias operation.
+    # Capturing the ML value here prevents maxvit_t (or any other CV
+    # backbone) from being sent to the classical estimator pipeline.
+    family = resolve_family(settings)
+    ml_model_type = (
+        resolve_ml_model_type(settings) if family == "ml" else None
+    )
     resolved = dict(normalize_classes(normalize_settings(settings)))
-    family = resolve_family(resolved)
 
     if family == "cv":
         # Refuse a crop source that cannot produce images BEFORE training
@@ -140,11 +182,10 @@ def classify(settings: Mapping[str, Any]) -> Any:
 
     if family == "ml":
         from .ml import generate_ml_scores
-        # generate_ml_scores reads `model_type_ml`, and normalize_settings
-        # renames it to the shared `model_type`. Hand it back under the name
-        # it reads, rather than editing a working pipeline to suit a screen.
-        if "model_type" in resolved:
-            resolved.setdefault("model_type_ml", resolved["model_type"])
+        # The ML pipeline reads only its family-owned spelling.  Assignment,
+        # rather than setdefault, is intentional: ``model_type`` may contain
+        # the simultaneously visible CV choice in a merged settings file.
+        resolved["model_type_ml"] = ml_model_type
         if "test_split" in resolved:
             resolved.setdefault("test_size", resolved["test_split"])
         if "cross_validation_enabled" in resolved:
