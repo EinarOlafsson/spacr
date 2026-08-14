@@ -912,9 +912,128 @@ def _collect_provenance(src: Path, runs: Sequence[Dict[str, Any]],
             lines.append(f"    {name} -> {digest}")
         body.append("</ul>")
 
+    fp_html, fp_lines = _fingerprints(runs)
+    body.extend(fp_html)
+    lines.extend(fp_lines)
+
     section.body_html = "\n".join(body)
     section.text_lines = lines
     return section
+
+
+#: Manifest schema at which :mod:`spacr.run_journal` began recording input
+#: and output tree digests. A manifest older than this did not omit them —
+#: it could not have written them, and saying "not recorded" about it would
+#: read as a choice the run made.
+_FINGERPRINT_SCHEMA = 2
+
+
+def _fingerprints(runs: Sequence[Dict[str, Any]]) -> Tuple[List[str], List[str]]:
+    """Render the digests that let a reader verify the report's inputs.
+
+    :param runs: journalled runs, as :func:`_load_journal_runs` returns them.
+    :returns: ``(html_fragments, text_lines)``.
+
+    WHAT THIS ANSWERS. Everything else in this section is a claim about the
+    run: which pipeline, when, which package versions. None of it identifies
+    the DATA. Two runs of the same code on two plates produce identical
+    provenance sections, and a reader who receives the report cannot tell
+    which plate it describes beyond a folder name that anybody can rename.
+    :mod:`spacr.run_journal` already hashes the inputs, the settings and the
+    changed outputs into ``manifest.json``; until now nothing carried them
+    into the document a collaborator actually reads.
+
+    THREE OUTCOMES, AND THEY MUST NOT LOOK ALIKE. This is the module's
+    "a missing section is stated, never omitted" rule applied to a digest,
+    where getting it wrong is worse than elsewhere: an absent fingerprint
+    that reads as an absent difference is a false assurance.
+
+    * digests present — the report can be verified against the data
+    * ``input_hashing: skipped`` — hashing was off for that run, a choice,
+      and re-running with it on is what a verifiable report needs
+    * a manifest older than schema 2 — the field did not exist yet, so
+      nothing was declined and nothing is missing
+
+    PER RUN, NEVER MERGED, unlike the model hashes above. A tree digest
+    identifies one run's view of the data; combining two would produce a
+    number that matches neither and can be checked against nothing.
+    """
+    if not runs:
+        return [], []
+
+    html: List[str] = []
+    text: List[str] = []
+    rendered: List[Tuple[str, List[Tuple[str, str]]]] = []
+
+    for run in runs:
+        manifest = run.get("manifest") or {}
+        if not isinstance(manifest, dict) or not manifest:
+            continue
+        try:
+            schema = int(manifest.get("schema_version") or 0)
+        except (TypeError, ValueError):
+            schema = 0
+
+        entries: List[Tuple[str, str]] = []
+        settings_digest = manifest.get("settings_sha256")
+        if settings_digest:
+            entries.append(("settings", str(settings_digest)))
+
+        if schema < _FINGERPRINT_SCHEMA:
+            entries.append((
+                "inputs",
+                "not available — this run was journalled before spaCR "
+                "recorded input digests",
+            ))
+        elif str(manifest.get("input_hashing") or "").lower() == "skipped":
+            entries.append((
+                "inputs",
+                "not recorded — input hashing was off for this run. Re-run "
+                "with it on to make the report verifiable against the data.",
+            ))
+        else:
+            perf = manifest.get("performance")
+            perf = perf if isinstance(perf, dict) else {}
+            for label, digest_key, count_key, bytes_key in (
+                ("inputs", "input_tree_sha256", "input_files", "input_bytes"),
+                ("outputs", "output_tree_sha256", "output_files",
+                 "output_bytes"),
+            ):
+                digest = manifest.get(digest_key)
+                if not digest:
+                    continue
+                count = perf.get(count_key)
+                total = perf.get(bytes_key)
+                prefix = ""
+                if count is not None:
+                    prefix = f"{int(count):,} file(s)"
+                    if total:
+                        prefix += f", {_fmt_bytes(total)}"
+                    prefix += " → "
+                entries.append((label, f"{prefix}{digest}"))
+
+        if entries:
+            rendered.append((run["dir"].name, entries))
+
+    if not rendered:
+        return [], []
+
+    html.append(
+        "<p class='muted'>Fingerprints. Each digest is a SHA-256 over the "
+        "files spaCR read or wrote, recorded at run time. A reader who has "
+        "the data can recompute them and prove this report describes it; a "
+        "reader who does not can at least tell two runs apart.</p>")
+    text.append("  fingerprints (sha256, recorded at run time):")
+
+    for run_name, entries in rendered:
+        html.append(f"<p class='muted'><code>{_esc(run_name)}</code></p><dl class='env'>")
+        text.append(f"    {run_name}")
+        for label, value in entries:
+            html.append(f"<dt>{_esc(label)}</dt><dd><code>{_esc(value)}</code></dd>")
+            text.append(f"      {label:<10} {value}")
+        html.append("</dl>")
+
+    return html, text
 
 
 # ---------------------------------------------------------------------------
@@ -1406,7 +1525,9 @@ def _sqlite_table_counts(path: Path, max_tables: int = 40) -> List[Tuple[str, in
     uri = "file:" + _quote(str(path).replace("\\", "/"), safe="/:") + "?mode=ro"
     out: List[Tuple[str, int]] = []
     try:
-        conn = sqlite3.connect(uri, uri=True)
+        from .database_concurrency import connect as _connect_database
+
+        conn = _connect_database(path, readonly=True)
     except sqlite3.Error:
         return out
     try:

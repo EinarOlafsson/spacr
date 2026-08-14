@@ -40,6 +40,7 @@ from ..widgets.class_editor import ClassEditorWidget
 from ..widgets.external_mask_inputs import ExternalMaskInputWidget
 from ..widgets.row_exclusion import RowExclusionEditor
 from ..widgets.toggle import Toggle
+from ...object_roles import ORGANELLE_ROLES, setting_label
 
 
 LOGGER = logging.getLogger(__name__)
@@ -399,7 +400,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "mask": (
         ("Input & Metadata", (
             "src", "cell_channel", "nucleus_channel", "pathogen_channel",
-            "organelle_channel", "channels", "magnification",
+            "organelle_channel",
+            *(f"{role}_channel" for role in ORGANELLE_ROLES[1:]),
+            "channels", "magnification",
             "metadata_type", "custom_regex",
         )),
         ("Workflow & Test Run", (
@@ -415,6 +418,15 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
         ("Organelle Segmentation", ("@Organelle",)),
+        # The advanced half is its own heading rather than being folded into
+        # the one above, so the six settings a biologist recognises are not
+        # buried under forty-eight detection parameters. Instruction 72.
+        ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
+        # Instruction 73: the families that are one decision applied to
+        # several objects, grouped by what they do rather than by which
+        # object they do it to.
+        ("Object Filtration (all objects)", ("@Object filtration",)),
+        ("Intensity Handling (all objects)", ("@Intensity handling",)),
         ("Quality Control", ("@Segmentation QC",)),
         ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
         ("Time Axes & Tracking (Beta)", ("@4D Settings (Beta)",)),
@@ -437,11 +449,20 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input & Experiment", ("src", "experiment")),
         ("Mask & Channel Mapping", (
             "channels", "cell_mask_dim", "nucleus_mask_dim",
-            "pathogen_mask_dim", "organelle_mask_dim", "cytoplasm",
+            "pathogen_mask_dim", "organelle_mask_dim",
+            *(f"{role}_mask_dim" for role in ORGANELLE_ROLES[1:]),
+            "cytoplasm",
             "timelapse", "timelapse_objects",
         )),
         ("Measurement Features", (
             "save_measurements", "calculate_correlation",
+            # Instruction 71's two opt-in measurements. They were added to
+            # the measure defaults and to the shared "Measurements" category
+            # but NOT to this literal list, so the measure panel dropped
+            # them into the trailing "Additional Settings" bucket -- which is
+            # not a heading anyone chose, it is the absence of one. They
+            # extend calculate_correlation, so they sit beside it.
+            "corrected_manders", "spatial_measurements",
             "manders_thresholds", "homogeneity", "homogeneity_distances",
             "radial_dist", "distance_gaussian_sigma",
             # Not a segmentation control -- it decides which organelle summary
@@ -453,6 +474,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cytoplasm_min_size",
             "nucleus_min_size", "pathogen_min_size", "organelle_min_size",
+            *(f"{role}_min_size" for role in ORGANELLE_ROLES[1:]),
             "merge_edge_pathogen_cells",
         )),
         ("Crop Output", (
@@ -474,7 +496,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "timelapse": (
         ("Input & Metadata", (
             "src", "cell_channel", "nucleus_channel", "pathogen_channel",
-            "organelle_channel", "channels", "magnification",
+            "organelle_channel",
+            *(f"{role}_channel" for role in ORGANELLE_ROLES[1:]),
+            "channels", "magnification",
             "metadata_type", "custom_regex",
         )),
         # `timelapse` is not offered here. This module IS the timelapse
@@ -499,6 +523,15 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
         ("Organelle Segmentation", ("@Organelle",)),
+        # The advanced half is its own heading rather than being folded into
+        # the one above, so the six settings a biologist recognises are not
+        # buried under forty-eight detection parameters. Instruction 72.
+        ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
+        # Instruction 73: the families that are one decision applied to
+        # several objects, grouped by what they do rather than by which
+        # object they do it to.
+        ("Object Filtration (all objects)", ("@Object filtration",)),
+        ("Intensity Handling (all objects)", ("@Intensity handling",)),
         ("Quality Control", ("@Segmentation QC",)),
         ("Tracking Setup", (
             "timelapse_objects", "timelapse_frame_limits",
@@ -1173,7 +1206,10 @@ def categories_for_app(
             # column, which is exactly a row of the Classes dict, so three
             # settings saying it a second way were three ways to disagree.
             "Labels & Classes": [
-                "dataset_mode", "classes", "annotation_column",
+                # `classes` is what each class MEANS; `class_folder_names`
+                # is where its crops are written. One key used to be both.
+                "dataset_mode", "classes", "class_folder_names",
+                "annotation_column",
                 "class_metadata", "metadata_type_by",
                 "metadata_item_1_name", "metadata_item_1_value",
                 "metadata_item_2_name", "metadata_item_2_value",
@@ -1386,13 +1422,61 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Tightly packed parasites fusing into one object are the usual "
         "reason to come here.",
     "ORGANELLE":
-        "Everything the organelle mask needs, in the order you set it up: "
-        "shape family and detection method, the background and contrast "
-        "correction applied first, the knobs belonging to the method you "
-        "chose, the size, intensity and border filters applied to what was "
-        "found, and which parent compartment the results are summarised "
-        "into. Expect to spend time here — punctate, tubular and "
-        "ring-shaped organelles each want a different method.",
+        "The six choices you need to segment an organelle: which channel it "
+        "is in, what KIND of organelle it is, how big it is, and the size "
+        "and border filters. Setting the type fills in the detection "
+        "parameters for you and says on the console what it picked — the "
+        "rest are under Organelle advanced, still editable, if you want to "
+        "change any of them.",
+    # The workflow-ordered layouts render these under a longer title, and
+    # the tooltip table is keyed on the heading's EXACT text -- which is the
+    # trap the "Computer Vision — " prefix fell into and why instruction 73
+    # says to write the blurbs in the same change.
+    "OBJECT FILTRATION (ALL OBJECTS)":
+        "Which detected objects are kept, for every object class in one "
+        "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
+        "different objects, so they are one decision applied four times "
+        "rather than four unrelated knobs — the settings are ordered by "
+        "object, so each group reads together. Raise the minimum size to "
+        "drop debris, set a maximum to drop merged clumps, and use the "
+        "border filters when objects cut off by the image edge would bias "
+        "your measurements.",
+    "INTENSITY HANDLING (ALL OBJECTS)":
+        "How object intensity decides splitting, merging and inclusion, for "
+        "every object class in one place. The percentiles set the window "
+        "that intensities are read against; merge and split use intensity "
+        "to join objects the segmentation cut apart or separate ones it ran "
+        "together. Open this when the masks look right but the objects are "
+        "systematically over- or under-segmented.",
+    "OBJECT FILTRATION":
+        "Which detected objects are kept, for every object class in one "
+        "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
+        "different objects, so they are one decision applied four times "
+        "rather than four unrelated knobs — the settings are ordered by "
+        "object, so each group reads together. Raise the minimum size to "
+        "drop debris, set a maximum to drop merged clumps, and use the "
+        "border filters when objects cut off by the image edge would bias "
+        "your measurements.",
+    "INTENSITY HANDLING":
+        "How object intensity decides splitting, merging and inclusion, for "
+        "every object class in one place. The percentiles set the window "
+        "that intensities are read against; merge and split use intensity "
+        "to join objects the segmentation cut apart or separate ones it ran "
+        "together. Open this when the masks look right but the objects are "
+        "systematically over- or under-segmented.",
+    "ORGANELLE ADVANCED":
+        "The forty-eight detection parameters behind the organelle type: "
+        "shape family and method, the background and contrast correction "
+        "applied first, the knobs belonging to the method chosen, and the "
+        "intensity filters applied to what was found. Choosing an organelle "
+        "type sets the ones that matter for it; anything you change here "
+        "wins and is never overwritten. Punctate, tubular and ring-shaped "
+        "organelles each want a different method, which is what the type is "
+        "choosing for you.",
+    "ORGANELLE SEGMENTATION (ADVANCED)":
+        "The forty-eight detection parameters behind the organelle type. "
+        "Choosing a type sets the ones that matter for it; anything you "
+        "change here wins and is never overwritten.",
     "CELLPOSE":
         "How Cellpose itself is run: expected object diameter, probability "
         "and flow thresholds, rescaling and inversion. Reach for these when "
@@ -1470,12 +1554,19 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How the model is fitted: epochs, learning rate, schedule, and which "
         "loss. Open it when training is unstable, stalls, or ignores the "
         "smaller class.",
+    # RESTORED. These two were deleted on 2026-08-12 as unreachable, on the
+    # strength of an app list that did not include `classify_merged` -- which
+    # renders BOTH of them. The list came from
+    # `test_every_qt_section_hint_names_a_real_category`, whose own comment
+    # says it has to be exhaustive rather than representative, and it was
+    # neither. The test now includes classify_merged, so deleting a live
+    # blurb on that evidence again fails instead of shipping.
     "CLASSIFIER":
         "Which family of classifier runs — a computer-vision network trained "
         "on the object images, or a tabular model trained on the measurements "
         "already in the database. This is the top-level choice: it decides "
         "which of the groups below apply.",
-    "MODEL & FEATURES":
+    "MACHINE LEARNING — MODEL & FEATURES":
         "The tabular model and the feature table it learns from — which "
         "estimator, how much of the data is held back, and the pruning that "
         "decides which measured features survive. Open it when the model "
@@ -2239,7 +2330,7 @@ def category_tooltip(
     text = _category_blurb(app_key, title)
     if not text:
         text = f"Settings that control {str(title).lower().strip()}."
-    return _translated_body(text, language)
+    return _translated_body(text, language, category=True)
 
 
 def category_tooltip_is_curated(app_key: str, title: str) -> bool:
@@ -2336,7 +2427,11 @@ def _absorb_registered_api_modules() -> None:
 _absorb_registered_api_modules()
 
 
-def api_docs_url(app_key: str, key: str = "") -> str:
+def api_docs_url(
+    app_key: str,
+    key: str = "",
+    language: Optional[str] = None,
+) -> str:
     """Return the spaCR API URL for an app or shared setting.
 
     Known app keys land on their module page. New or UI-only modules fall
@@ -2377,8 +2472,11 @@ def api_docs_url(app_key: str, key: str = "") -> str:
     else:
         module = _APP_API_MODULE.get(app_key)
     if module:
-        return f"{DOCS_API_BASE}/spacr/{module}/index.html"
-    return f"{DOCS_API_BASE}/index.html"
+        url = f"{DOCS_API_BASE}/spacr/{module}/index.html"
+    else:
+        url = f"{DOCS_API_BASE}/index.html"
+    code = _language_code(language)
+    return f"{url}?lang={code}" if code != "en" else url
 
 
 _TYPE_NAMES = {int: "integer", float: "float", bool: "boolean",
@@ -2415,7 +2513,7 @@ def _type_hint(key: str) -> str:
 
 
 def _humanize(key: str) -> str:
-    return key.replace("_", " ").strip().capitalize() if key else ""
+    return setting_label(key) if key else ""
 
 
 def _strip_type_prefix(text: str) -> str:
@@ -2432,7 +2530,13 @@ def _language_code(language: Optional[str] = None) -> str:
     return normalize_language(language or current_language())
 
 
-def _translated_body(text: str, language: Optional[str] = None) -> str:
+def _translated_body(
+    text: str,
+    language: Optional[str] = None,
+    *,
+    setting_key: str = "",
+    category: bool = False,
+) -> str:
     """Translate setting prose only when a complete translation exists.
 
     The general UI translator deliberately supports conservative word-level
@@ -2448,6 +2552,18 @@ def _translated_body(text: str, language: Optional[str] = None) -> str:
     if code == "en":
         return source
     from ..i18n import _exact_translation, tr
+
+    try:
+        from ..i18n_catalogs import category_help, setting_tooltip
+        translated = (
+            setting_tooltip(setting_key, source, code)
+            if setting_key
+            else category_help(source, code) if category else None
+        )
+        if translated is not None:
+            return translated
+    except (ImportError, AttributeError):
+        pass
 
     return (
         tr(source, code)
@@ -2475,14 +2591,35 @@ def _translated_type_hint(key: str, language: Optional[str] = None) -> str:
     return translated
 
 
-def _translated_setting_name(key: str, language: Optional[str] = None) -> str:
+def _translated_setting_name(
+    key: str,
+    language: Optional[str] = None,
+    app_key: str = "",
+) -> str:
     """Translate a short humanized setting label using the UI term catalog."""
-    from ..i18n import tr
+    from ..i18n import _ROWS, _TERM_ROWS, tr
 
-    return tr(_humanize(key), _language_code(language))
+    source = _humanize(key)
+    code = _language_code(language)
+    # The compact catalog is the hand-reviewed authority for exact terms.
+    # External generated labels extend it, but never override a correction.
+    if source in _ROWS or source in _TERM_ROWS:
+        return tr(source, code)
+    try:
+        from ..i18n_catalogs import setting_label
+        translated = setting_label(key, source, code, app_key)
+        if translated is not None:
+            return translated
+    except (ImportError, AttributeError):
+        pass
+    return tr(source, code)
 
 
-def _api_reference_tooltip(key: str, language: Optional[str] = None) -> str:
+def _api_reference_tooltip(
+    key: str,
+    language: Optional[str] = None,
+    app_key: str = "",
+) -> str:
     """Localized accessible caption for a setting's teal API dot."""
     from ..i18n import tr
 
@@ -2490,7 +2627,7 @@ def _api_reference_tooltip(key: str, language: Optional[str] = None) -> str:
     return tr(
         "Open API reference for {name}",
         code,
-        name=_translated_setting_name(key, code),
+        name=_translated_setting_name(key, code, app_key),
     )
 
 
@@ -2504,9 +2641,9 @@ def format_tooltip(
     from ..i18n import tr
 
     code = _language_code(language)
-    body_source = _translated_body(text, code)
+    body_source = _translated_body(text, code, setting_key=key)
     body = escape(body_source)
-    header = escape(_translated_setting_name(key, code))
+    header = escape(_translated_setting_name(key, code, app_key))
     th = escape(_translated_type_hint(key, code))
     if header and th:
         header = f"<b>{header}</b> <i>({th})</i>"
@@ -2517,7 +2654,7 @@ def format_tooltip(
             body = f"Controls {escape(_humanize(key).lower())}."
         else:
             body = escape(tr("Controls this setting.", code))
-    url = escape(api_docs_url(app_key, key), quote=True)
+    url = escape(api_docs_url(app_key, key, code), quote=True)
     link = (
         f'<a href="{url}">'
         f'{escape(tr("Open spaCR API documentation", code))}</a>'
@@ -2537,17 +2674,17 @@ def plain_tooltip(
     from ..i18n import tr
 
     code = _language_code(language)
-    body = _translated_body(text, code)
+    body = _translated_body(text, code, setting_key=key)
     if not body:
         body = (f"Controls {_humanize(key).lower()}."
                 if code == "en" and key
                 else tr("Controls this setting.", code))
     th = _translated_type_hint(key, code)
-    name = _translated_setting_name(key, code)
+    name = _translated_setting_name(key, code, app_key)
     head = f"{name} ({th})" if (name and th) else name
     parts = [p for p in (head, body) if p]
     summary = " — ".join(parts)
-    url = api_docs_url(app_key, key)
+    url = api_docs_url(app_key, key, code)
     api = tr("API: {url}", code, url=url)
     return f"{summary} — {api}" if summary else api
 
@@ -2669,7 +2806,8 @@ def refresh_api_tooltips(
     Canonical English prose is retained in ``apiTooltipDescriptionSource``;
     only the presentation HTML/plain accessibility chrome is regenerated.
     Field widgets marked ``metadata`` stay quiet because their visible label
-    owns hover help.  API-dot URLs are never rebuilt or translated.
+    owns hover help. API-dot destinations carry the selected documentation
+    language while retaining the same module page.
     """
     if root is None:
         return
@@ -2707,7 +2845,10 @@ def refresh_api_tooltips(
         if role == "metadata":
             widget.setToolTip("")
         elif role == "api-link":
-            caption = _api_reference_tooltip(str(key), code)
+            caption = _api_reference_tooltip(str(key), code, str(app_key))
+            set_url = getattr(widget, "set_url", None)
+            if callable(set_url):
+                set_url(api_docs_url(str(app_key), str(key), code))
             widget.setToolTip(caption)
             widget.setAccessibleName(caption)
             widget.setAccessibleDescription(
@@ -2908,7 +3049,7 @@ def build_setting_link_widget(
 
     api_dot = InfoLink(
         api_docs_url(app_key, key),
-        tooltip=_api_reference_tooltip(key),
+        tooltip=_api_reference_tooltip(key, app_key=app_key),
     )
     api_dot.setObjectName("SettingInfoLink")
     api_dot.setProperty("settingsAppKey", app_key)
@@ -4056,7 +4197,7 @@ class SettingsWidgets:
                 return "Exclude"
             if key == "exclude":
                 return "Exclude features"
-        return key.replace("_", " ").capitalize()
+        return setting_label(key)
 
     def _widget_for(self, kind: str, options: Any, default: Any,
                     key: str) -> Optional[QWidget]:

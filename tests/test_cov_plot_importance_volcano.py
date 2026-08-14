@@ -291,9 +291,16 @@ def _proportion_df():
     return pd.DataFrame(rows)
 
 
-@pytest.mark.parametrize("level", ["well", "plateID"])
+@pytest.mark.parametrize("level", ["well"])
 def test_plot_proportion_stacked_bars_well_level(level):
-    """Well/plate level aggregates per-well proportions and adds SD error bars."""
+    """Well level aggregates per-well proportions and adds SD error bars.
+
+    "plateID" used to be parametrized here too, and it passed because the
+    function grouped BY `prc` -- the well column -- whatever the level said.
+    That is the defect: a plate-level request averaged wells and labelled the
+    result plates. Plate level now groups by `plateID`, so it needs a plate
+    column, and this fixture has none. See test_proportion_bars_level.py.
+    """
     from spacr.plot import plot_proportion_stacked_bars
 
     df = _proportion_df()
@@ -302,9 +309,16 @@ def test_plot_proportion_stacked_bars_well_level(level):
         prc_column="prc", level=level,
     )
 
-    assert list(results_df.columns) == [
-        "chi_squared_stat", "p_value", "degrees_of_freedom"
-    ]
+    # The historical three columns are still the FIRST row and still mean
+    # what they meant -- every published figure came from that number.
+    # Instruction 80 added the columns that say WHICH TEST and WHICH UNIT,
+    # and rows for the level-appropriate test and the mixed model beside it,
+    # because a chi-squared over objects and a t-test over wells answer
+    # different questions and were previously reported as one number.
+    for column in ("chi_squared_stat", "p_value", "degrees_of_freedom",
+                   "test", "unit", "n"):
+        assert column in results_df.columns, column
+    assert results_df.loc[0, "unit"] == "object"
     assert results_df.loc[0, "degrees_of_freedom"] == 1
     assert 0.0 < results_df.loc[0, "p_value"] < 0.05      # groups really differ
     assert results_df.loc[0, "chi_squared_stat"] > 0

@@ -79,6 +79,7 @@ from PySide6.QtWidgets import (
 )
 
 from ... import foreign as fgn
+from ...schema import SEGMENTED_ROLES
 from ..bridge import make_thread
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
@@ -105,7 +106,7 @@ MAP_COLUMNS: Tuple[Tuple[str, str, bool], ...] = (
 )
 
 #: Mask classes, in the order their planes are appended to a merged array.
-OBJECT_CHOICES: Tuple[str, ...] = ("cell", "nucleus", "pathogen", "organelle")
+OBJECT_CHOICES: Tuple[str, ...] = tuple(SEGMENTED_ROLES)
 
 #: What to do about a target that collides with a spaCR name.
 CONFLICT_CHOICES: Tuple[Tuple[str, str], ...] = (

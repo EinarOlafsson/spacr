@@ -155,7 +155,6 @@ def _checkpoint_module(module: nn.Module, function, *args):
     return checkpoint(function, *args, use_reentrant=False,
                       context_fn=contexts)
 from sklearn.metrics import auc, precision_recall_curve
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.cluster import KMeans, DBSCAN
@@ -1143,7 +1142,7 @@ PNG_OBJECT_ID_COLUMNS = {
     # so `columns` came out one short of `parts` and filepaths_to_database
     # raised "Columns must be same length as key" -- AFTER the organelle PNGs
     # were on disk but before any of them was registered in png_list.
-    'organelle': 'organelle_id',
+    **{role: f'{role}_id' for role in schema.ORGANELLE_ROLES},
 }
 
 #: Reverse of :data:`PNG_OBJECT_ID_COLUMNS`.
@@ -1231,7 +1230,7 @@ def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
     :param img_paths: iterable of PNG paths for cropped objects.
     :param settings: settings dict; ``timelapse`` toggles time_id parsing.
     :param source_folder: experiment root; DB is written to ``measurements/measurements.db``.
-    :param crop_mode: one of ``'cell'``, ``'nucleus'``, ``'pathogen'``, ``'cytoplasm'``.
+    :param crop_mode: a registered object role, including any organelle slot.
     :returns: None.
     """
     png_df = pd.DataFrame(img_paths, columns=['png_path'])
@@ -2046,7 +2045,7 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=Non
     # Connect to the SQLite database
     if columns is None:
         columns = ['pathogen', 'treatment', 'host_cells', 'condition', 'prcfo']
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=30)
 
     # Read the existing table into a DataFrame
     try:
@@ -2242,7 +2241,9 @@ def _list_endpoint_subdirectories(base_dir):
     endpoint_subdirectories = [path for path in endpoint_subdirectories if os.path.basename(path) != 'figure']
     return endpoint_subdirectories
     
-def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids, source_folder, crop_mode='cell', timelapse=None):
+def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids,
+                    source_folder, crop_mode='cell', timelapse=None,
+                    object_id=None):
     """Build the ``(image_name, folder_path, table_name)`` tuple for a cropped object."""
     non_zero_cell_ids = cell_id[cell_id != 0]
     cell_id_str = "multi" if non_zero_cell_ids.size > 1 else str(non_zero_cell_ids[0]) if non_zero_cell_ids.size == 1 else "none"
@@ -2250,6 +2251,12 @@ def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids, sou
     cell_nucleus_id_str = "multi" if cell_nucleus_ids.size > 1 else str(cell_nucleus_ids[0]) if cell_nucleus_ids.size == 1 else "none"
     cell_pathogen_ids = cell_pathogen_ids[cell_pathogen_ids != 0]
     cell_pathogen_id_str = "multi" if cell_pathogen_ids.size > 1 else str(cell_pathogen_ids[0]) if cell_pathogen_ids.size == 1 else "none"
+    object_ids = np.atleast_1d(object_id)
+    object_ids = object_ids[
+        np.array([value is not None and value != 0 for value in object_ids],
+                 dtype=bool)]
+    object_id_str = ("multi" if object_ids.size > 1 else
+                     str(object_ids[0]) if object_ids.size == 1 else "none")
     fldr = f"{source_folder}/data/"
     img_name = ""
     if crop_mode == 'nucleus':
@@ -2260,8 +2267,17 @@ def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids, sou
         img_name = f"{file_name}_{cell_id_str}_{cell_pathogen_id_str}.png"
         fldr += "single_nucleus/" if cell_nucleus_ids.size == 1 else "multiple_nucleus/" if cell_nucleus_ids.size > 1 else "no_nucleus/"
         fldr += "infected/" if cell_pathogen_ids.size >= 1 else "uninfected/"
-    elif crop_mode == 'cell' or crop_mode == 'cytoplasm' or crop_mode == 'organelle':
+    elif crop_mode in ('cell', 'cytoplasm'):
         img_name = f"{file_name}_{cell_id_str}.png"
+        fldr += "single_nucleus/" if cell_nucleus_ids.size == 1 else "multiple_nucleus/" if cell_nucleus_ids.size > 1 else "no_nucleus/"
+        fldr += "single_pathogen/" if cell_pathogen_ids.size == 1 else "multiple_pathogens/" if cell_pathogen_ids.size > 1 else "uninfected/"
+    elif crop_mode in schema.ORGANELLE_ROLES:
+        # The final token is the CROPPED organelle label, not its parent cell.
+        # png_list stores it in ``<role>_id`` and joins it to that role's
+        # object table. The legacy implementation wrote the cell label here,
+        # so an organelle crop could be keyed to an unrelated organelle that
+        # happened to reuse the same integer label.
+        img_name = f"{file_name}_{object_id_str}.png"
         fldr += "single_nucleus/" if cell_nucleus_ids.size == 1 else "multiple_nucleus/" if cell_nucleus_ids.size > 1 else "no_nucleus/"
         fldr += "single_pathogen/" if cell_pathogen_ids.size == 1 else "multiple_pathogens/" if cell_pathogen_ids.size > 1 else "uninfected/"
     else:
@@ -2274,7 +2290,7 @@ def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids, sou
         # An empty name is never something to hand to a file writer.
         raise ValueError(
             f"_generate_names has no naming rule for crop_mode={crop_mode!r}. "
-            f"Known crop modes: cell, nucleus, pathogen, cytoplasm, organelle.")
+            f"Known crop modes: {', '.join(schema.ALL_ROLES)}.")
     parts = file_name.split('_')
     plate = parts[0]
     well = parts[1] 
@@ -2316,16 +2332,15 @@ def _find_bounding_box(crop_mask, _id, buffer=10):
 #: Tables whose rows are child objects and therefore carry a parent-cell link.
 #: 'organelle' is here because measure._morphological_measurements maps each
 #: organelle to its enclosing cell, exactly as it does for nucleus and pathogen.
-_CHILD_OBJECT_TABLES = ('nucleus', 'pathogen', 'organelle')
+_CHILD_OBJECT_TABLES = schema.CHILD_OBJECT_TABLES
 
 #: Tables whose rows are parent objects summarised over their organelles. The
 #: row IS the parent, so object_label is the only key it needs — the same key
 #: set as 'cell'. Written by measure._summarize_organelles_per_parent.
-_ORGANELLE_SUMMARY_TABLES = ('cell_organelle_summary', 'nucleus_organelle_summary',
-                             'pathogen_organelle_summary', 'cytoplasm_organelle_summary')
+_ORGANELLE_SUMMARY_TABLES = schema.ORGANELLE_SUMMARY_TABLES
 
 #: Tables whose rows are top-level objects with no parent link.
-_PARENT_OBJECT_TABLES = ('cell', 'cytoplasm')
+_PARENT_OBJECT_TABLES = schema.PARENT_OBJECT_TABLES
 
 
 class MeasurementUnitsMismatch(ValueError):
@@ -2847,25 +2862,96 @@ def _widen_table_for(conn, table, frame):
 DB_APPEND_REPAIRS = 4
 
 
+def _sqlite_identifier(value):
+    """Quote one SQLite identifier without treating data as SQL.
+
+    SQLite accepts double quotes inside an identifier when they are doubled.
+    NUL cannot occur in an SQLite identifier and is rejected explicitly so a
+    malformed frame cannot produce a confusing parser error later.
+    """
+    value = str(value)
+    if '\x00' in value:
+        raise ValueError("SQLite identifiers cannot contain NUL")
+    return '"' + value.replace('"', '""') + '"'
+
+
+def _sqlite_value(value):
+    """Return a sqlite3-compatible scalar with pandas nulls normalised."""
+    if value is None:
+        return None
+    missing = pd.isna(value)
+    if isinstance(missing, (bool, np.bool_)) and bool(missing):
+        return None
+    if isinstance(value, pd.Timedelta):
+        # Match pandas.to_sql: timedelta64 values are stored as nanoseconds.
+        return int(value.value)
+    if isinstance(value, pd.Timestamp):
+        return value.to_pydatetime()
+    if isinstance(value, np.generic):
+        return value.item()
+    return value
+
+
+def _insert_frame(conn, table, frame):
+    """Insert ``frame`` without pandas' per-append table-existence query.
+
+    ``DataFrame.to_sql(if_exists='append')`` performs a ``sqlite_master`` read
+    before every write. On a shared filesystem that read can hold a SHARED
+    lock while another worker is trying to commit, creating the writer
+    starvation reported in issue #15. A parameterised INSERT needs no schema
+    read and keeps values out of the SQL text.
+
+    Table creation and schema repair remain :func:`_append_frame`'s job. The
+    transaction is committed here to retain ``to_sql``'s all-or-error append
+    contract; sqlite rolls it back if ``executemany`` or ``commit`` fails.
+    """
+    if frame.empty:
+        return
+    columns = [str(column) for column in frame.columns]
+    if len(columns) != len(set(columns)):
+        raise ValueError("duplicate names in measurement frame columns")
+    quoted_table = _sqlite_identifier(table)
+    quoted_columns = ', '.join(_sqlite_identifier(col) for col in columns)
+    placeholders = ', '.join('?' for _ in columns)
+    statement = (
+        f'INSERT INTO {quoted_table} ({quoted_columns}) '
+        f'VALUES ({placeholders})'
+    )
+    values_by_column = []
+    for _name, series in frame.items():
+        if series.dtype.kind == 'm':
+            # pandas.to_sql deliberately writes NaT as numpy's iNaT sentinel
+            # for unsupported timedelta columns; preserve that compatibility.
+            values = series.to_numpy(dtype='timedelta64[ns]').view('i8')
+            values_by_column.append(values.astype(object))
+        else:
+            values_by_column.append(
+                np.asarray(
+                    [_sqlite_value(value) for value in series],
+                    dtype=object,
+                )
+            )
+    rows = zip(*values_by_column)
+    try:
+        conn.executemany(statement, rows)
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+
+
 def _append_frame(conn, table, frame):
-    """``to_sql(if_exists='append')`` that survives two concurrent-writer hazards.
+    """Append without a per-write schema read, repairing concurrent hazards.
 
-    ``pandas.DataFrame.to_sql`` is check-then-act: ``SQLTable.create`` asks
-    whether the table exists and issues ``CREATE TABLE`` when it does not.
-    measure_crop runs one worker process per field against a single
-    measurements.db, so on the first fields of a fresh run several workers pass
-    that check together, all issue the CREATE, and every one but the winner
-    gets ``OperationalError: table "cell" already exists``. That is not a lock,
-    so the caller's "report it and continue" branch threw the entire frame --
-    one field's measurements -- away, silently, while the field still counted
-    as a success on the run ledger. Measured with four workers released from a
-    barrier: 30 of 30 runs lost rows.
+    The normal path is a direct parameterised INSERT, avoiding pandas'
+    ``sqlite_master`` existence probe on every field. Only a genuinely absent
+    table uses ``to_sql`` to create its schema, without rows, then retries the
+    direct insert. Several first-field workers can race during that one-time
+    creation; the loser sees ``table already exists`` and retries safely.
 
-    Retrying is the whole fix: on the next pass the table exists, ``create()``
-    is a no-op and the insert proceeds. Nothing is inserted before the CREATE,
-    so there is no half-written frame to undo. The same loop covers the schema
-    widening, which can need a second pass of its own when the worker that won
-    the race created the table from a narrower frame than ours.
+    The same bounded loop covers schema widening when the worker that won the
+    creation race used a narrower frame. A failed INSERT is rolled back before
+    ALTER/retry, so a frame cannot be partly duplicated or silently lost.
 
     :param conn: open sqlite3 connection.
     :param table: destination table.
@@ -2875,13 +2961,22 @@ def _append_frame(conn, table, frame):
     last = None
     for _ in range(DB_APPEND_REPAIRS):
         try:
-            frame.to_sql(table, conn, if_exists='append', index=False)
+            _insert_frame(conn, table, frame)
             return
         except sqlite3.OperationalError as e:
             last = e
-            message = str(e)
-            if 'already exists' in message:
-                continue          # lost the create race; the table is there now
+            message = str(e).lower()
+            if 'no such table' in message:
+                try:
+                    # Schema only. Rows are written exactly once by the direct
+                    # INSERT on the next pass.
+                    frame.iloc[:0].to_sql(
+                        table, conn, if_exists='append', index=False)
+                except sqlite3.OperationalError as create_error:
+                    if 'already exists' not in str(create_error).lower():
+                        raise
+                    last = create_error
+                continue
             # Widen ONLY when the append actually complains about a column.
             # Probing PRAGMA table_info on every write cost a round trip per
             # field per table and is pure waste on the overwhelmingly common
@@ -3269,7 +3364,7 @@ def _pivot_counts_table(db_path):
     def _read_table_to_dataframe(db_path, table_name='object_counts'):
         """Return the given SQLite table as a DataFrame."""
         # Connect to the SQLite database
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_path, timeout=30)
         # Read the entire table into a pandas DataFrame
         query = f"SELECT * FROM {table_name}"
         df = pd.read_sql_query(query, conn)
@@ -3291,20 +3386,70 @@ def _pivot_counts_table(db_path):
     # Pivot the DataFrame to have one row per filename and a column for each object type
     pivoted_df = _pivot_dataframe(df)
     # Reconnect to the SQLite database to overwrite the 'object_counts' table with the pivoted DataFrame
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=30)
     # When overwriting, ensure that you drop the existing table or use if_exists='replace' to overwrite it
     pivoted_df.to_sql('pivoted_counts', conn, if_exists='replace', index=False)
     conn.close()
     
+#: The order the merged stack's channel axis is built in, and the ONLY order
+#: that describes it. `io.preprocess_img_data` walks these four settings in
+#: exactly this sequence and assigns each new raw channel the next dense
+#: position (`seen[ch] = len(mask_channels)`), so the axis is in ROLE order,
+#: deduplicated -- not in ascending channel order.
+MASK_CHANNEL_ROLE_ORDER = (
+    "nucleus_channel", "cell_channel", "pathogen_channel",
+    *(f"{role}_channel" for role in schema.ORGANELLE_ROLES),
+)
+
+
+def dense_mask_channel_positions(settings):
+    """Map each RAW channel index to its position on the merged stack's axis.
+
+    Built the same way `io.preprocess_img_data` builds the stack, because
+    that is the only thing that makes the answer true: walk the roles in
+    :data:`MASK_CHANNEL_ROLE_ORDER` and give each newly seen raw channel the
+    next dense position.
+
+    THE TRAP THIS EXISTS TO CLOSE. Several callers computed the position as
+    ``sorted({nucleus, cell, pathogen, organelle})`` instead, which agrees
+    with role order only when the roles happen to be in ascending channel
+    order. With ``nucleus_channel=2, cell_channel=0, organelle_channel=1``
+    the stack is ``[2, 0, 1]`` -- raw channel 1 sits at position 2 -- while
+    the sorted reading says position 1, which holds the CELL image. Cellpose
+    then segments organelles on the cell plane, silently, and every count and
+    intensity downstream is measured from the wrong masks.
+
+    :param settings: the run settings, holding the raw ``*_channel`` keys.
+    :returns: ``{raw_channel: dense_position}``. Channels that are None or
+        uncoercible are absent, matching the writer's own behaviour.
+    """
+    positions = {}
+    for key in MASK_CHANNEL_ROLE_ORDER:
+        raw = settings.get(key)
+        if raw is None:
+            continue
+        try:
+            raw = int(raw)
+        except (TypeError, ValueError):
+            continue
+        if raw not in positions:
+            positions[raw] = len(positions)
+    return positions
+
+
 def _get_cellpose_channels(settings):
     """Return the channel indices to extract and the per-object-type Cellpose channel remap."""
     nucleus_ch = settings.get('cellpose_nucleus_channel')
     cell_ch = settings.get('cellpose_cell_channel')
     pathogen_ch = settings.get('cellpose_pathogen_channel')
-    organelle_ch = settings.get('cellpose_organelle_channel')
+    organelle_channels = {
+        role: settings.get(f'cellpose_{role}_channel')
+        for role in schema.ORGANELLE_ROLES
+    }
 
     all_channels = set()
-    for ch in [nucleus_ch, cell_ch, pathogen_ch, organelle_ch]:
+    for ch in [nucleus_ch, cell_ch, pathogen_ch,
+               *organelle_channels.values()]:
         if ch is not None:
             all_channels.add(ch)
 
@@ -3325,8 +3470,9 @@ def _get_cellpose_channels(settings):
     if pathogen_ch is not None:
         cellpose_channels['pathogen'] = [remap[pathogen_ch]]
 
-    if organelle_ch is not None:
-        cellpose_channels['organelle'] = [remap[organelle_ch]]
+    for role, channel in organelle_channels.items():
+        if channel is not None:
+            cellpose_channels[role] = [remap[channel]]
 
     return channels_to_extract, cellpose_channels
     
@@ -3459,25 +3605,30 @@ def _split_data(df, group_by, object_type):
     df_numeric = df.select_dtypes(include=np.number)
     df_non_numeric = df.select_dtypes(exclude=np.number)
 
-    # Define keywords for columns to be summed instead of averaged
-    sum_keywords = [
-        'area',
-        'perimeter',
-        'convex_area',
-        'bbox_area',
-        'filled_area',
-        'major_axis_length',
-        'minor_axis_length',
-        'equivalent_diameter'
-    ]
+    # HOW EACH COLUMN COMBINES, from the one place that decides it.
+    #
+    # This used to be a second, independent implementation: a `sum_keywords`
+    # substring match, everything else averaged. It disagreed with
+    # `merge_tables` on three kinds of column, and each disagreement produced
+    # a number rather than an error --
+    #
+    #   `object_label`     averaged. Three pathogens labelled 1, 2 and 3 came
+    #                      back as 2.0: a label for an object that need not
+    #                      exist, indistinguishable from a measurement.
+    #   `count_*`          averaged. Counts add; a cell with 2 and 3 of
+    #                      something has 5 of it, not 2.5.
+    #   `total_*`,         averaged. Something already integrated over an
+    #   `integrated_*`     object is a total, and totals add.
+    #
+    # AREAS SUM, LENGTHS DO NOT, which is the rule those keywords got right:
+    # four pathogens occupy the sum of their areas, but two nuclei each 10
+    # units long are not one nucleus 20 units long. `aggregation_for` holds
+    # that rule now, matching on word boundaries rather than substrings, so
+    # the two readers cannot drift apart again.
+    from .merge_tables import aggregation_for
 
-    # Create a dictionary for custom aggregation
-    agg_dict = {}
-    for column in df_numeric.columns:
-        if any(keyword in column for keyword in sum_keywords):
-            agg_dict[column] = 'sum'
-        else:
-            agg_dict[column] = 'mean'
+    agg_dict = {column: aggregation_for(column)
+                for column in df_numeric.columns}
 
     # Apply custom aggregation
     if len(agg_dict) > 0 and not df_numeric.empty:
@@ -3761,11 +3912,11 @@ class TorchModel(nn.Module):
         multilabel: bool = False,  # kept for external loss/metrics decisions
         image_size: int = 224,     # actual training resolution (ViT/inception need it)
     ):
-        """Build the backbone, strip its head, and attach the SPACR linear classifier.
+        """Build the backbone, strip its head, and attach the spaCR linear classifier.
 
         :param model_name: TorchVision classification model to load.
         :param pretrained: use ImageNet-pretrained weights when available.
-        :param dropout_rate: dropout probability applied to backbone and SPACR head; ``None`` disables.
+        :param dropout_rate: dropout probability applied to backbone and spaCR head; ``None`` disables.
         :param use_checkpoint: enable gradient checkpointing through the backbone.
         :param num_classes: output class count; ``1`` yields a BCE-style binary head.
         :param multilabel: informational flag consumed by external loss/metrics code.
@@ -3803,7 +3954,7 @@ class TorchModel(nn.Module):
         # 5) Infer flattened feature dimension with a dummy forward
         self.num_ftrs = self._infer_feature_dim()
 
-        # 6) Build SPACR head (optional dropout + linear classifier)
+        # 6) Build spaCR head (optional dropout + linear classifier)
         if self.use_dropout:
             self.dropout = nn.Dropout(float(dropout_rate))
         self.spacr_classifier = nn.Linear(self.num_ftrs, self.num_classes)
@@ -3897,7 +4048,7 @@ class TorchModel(nn.Module):
     def _run_backbone_raw(self, x: torch.Tensor) -> torch.Tensor:
         """
         Call the underlying backbone and unwrap common container outputs.
-        Does NOT apply the new SPACR head.
+        Does NOT apply the new spaCR head.
         """
         def forward_fn(t):
             """Run the underlying backbone on ``t`` (used as the checkpoint target)."""
@@ -3939,11 +4090,11 @@ class TorchModel(nn.Module):
         return logits
 
 class TorchModel_v2(nn.Module):
-    """TorchVision backbone with a SPACR linear head (streamlined variant of :class:`TorchModel`).
+    """TorchVision backbone with a spaCR linear head (streamlined variant of :class:`TorchModel`).
 
     :param model_name: TorchVision classification model to load.
     :param pretrained: use ImageNet-pretrained weights when available.
-    :param dropout_rate: dropout probability applied to backbone and SPACR head; ``None`` disables.
+    :param dropout_rate: dropout probability applied to backbone and spaCR head; ``None`` disables.
     :param use_checkpoint: enable gradient checkpointing through the backbone.
     :param num_classes: output class count.
     :param multilabel: informational flag consumed by external loss/metrics code.
@@ -3957,7 +4108,7 @@ class TorchModel_v2(nn.Module):
         num_classes: int = 2,          # arbitrary classes (>=2 => multiclass; 1 => binary head)
         multilabel: bool = False       # kept for external loss/metrics decisions (not used internally)
     ):
-        """Build the backbone, strip its head, and attach the SPACR classifier."""
+        """Build the backbone, strip its head, and attach the spaCR classifier."""
         super().__init__()
         self.model_name = model_name
         self.pretrained = bool(pretrained)
@@ -3984,7 +4135,7 @@ class TorchModel_v2(nn.Module):
         # 4) discover feature dim
         self.num_ftrs = self._infer_feature_dim()
 
-        # 5) add SPACR head
+        # 5) add spaCR head
         self._init_spacr_classifier(dropout_rate)
 
     # --------------------------------------------------------------------- #
@@ -4115,7 +4266,7 @@ class FocalLossWithLogits(nn.Module):
         return loss
     
 class ResNet(nn.Module):
-    """ResNet backbone with a two-layer SPACR binary-classification head.
+    """ResNet backbone with a two-layer spaCR binary-classification head.
 
     :param resnet_type: one of ``'resnet18'``/``'resnet34'``/``'resnet50'``/``'resnet101'``/``'resnet152'``.
     :param dropout_rate: dropout probability before the final linear layer; ``None`` disables.
@@ -5075,7 +5226,8 @@ def build_loss(loss_type: str = "ce",
 
     return loss_fn
 
-def augment_classes(dst, nc, pc, generate=True,move=True):
+def augment_classes(dst, nc, pc, generate=True, move=True,
+                    group_by='well', test_size=0.1):
     """Augment negative and positive class images and split them into train/test folders.
 
     :param dst: destination root; augmented images land under ``aug_nc``/``aug_pc`` and
@@ -5084,6 +5236,9 @@ def augment_classes(dst, nc, pc, generate=True,move=True):
     :param pc: positive-class source image paths.
     :param generate: run augmentation before moving files.
     :param move: split augmented images into train/test folders.
+    :param group_by: source identity held intact across train/test. Default
+        ``'well'``; ``'cell'`` permits sibling objects on both sides.
+    :param test_size: requested test fraction; whole groups make it approximate.
     :returns: None.
     """
     aug_nc = os.path.join(dst,'aug_nc')
@@ -5113,8 +5268,26 @@ def augment_classes(dst, nc, pc, generate=True,move=True):
         aug_nc_list = [os.path.join(aug_nc, file) for file in os.listdir(aug_nc)]
         aug_pc_list = [os.path.join(aug_pc, file) for file in os.listdir(aug_pc)]
 
-        nc_train_data, nc_test_data = train_test_split(aug_nc_list, test_size=0.1, shuffle=True, random_state=_run_random_state(42))
-        pc_train_data, pc_test_data = train_test_split(aug_pc_list, test_size=0.1, shuffle=True, random_state=_run_random_state(42))
+        from .classifier_evaluation import grouped_split, split_group_values
+
+        all_paths = aug_nc_list + aug_pc_list
+        labels = ([0] * len(aug_nc_list)) + ([1] * len(aug_pc_list))
+        level, groups = split_group_values(
+            group_by=group_by, paths=all_paths,
+            table='augmented crop dataset')
+        train_idx, test_idx, split_report = grouped_split(
+            groups, labels, test_size, seed=_run_random_state(42),
+            group_by=level)
+        train_set, test_set = set(train_idx.tolist()), set(test_idx.tolist())
+        nc_train_data = [path for i, path in enumerate(all_paths)
+                         if i in train_set and labels[i] == 0]
+        nc_test_data = [path for i, path in enumerate(all_paths)
+                        if i in test_set and labels[i] == 0]
+        pc_train_data = [path for i, path in enumerate(all_paths)
+                         if i in train_set and labels[i] == 1]
+        pc_test_data = [path for i, path in enumerate(all_paths)
+                        if i in test_set and labels[i] == 1]
+        print(split_report.summary())
 
         i=0
         for path in nc_train_data:
@@ -5501,21 +5674,40 @@ def apply_mask(image, output_value=0):
     return masked_image
     
 def invert_image(image):
-    """Return the intensity-inverted image, using the dtype max as the pivot.
+    """Return the intensity-inverted image, reflected through the dtype range.
 
-    :param image: ndarray with an *integer* dtype. The pivot comes from
-        ``np.iinfo(image.dtype).max``, so a float image raises ``ValueError``
-        rather than inverting -- convert or rescale to an integer dtype first.
-        The pivot is the dtype ceiling, not the image maximum, so a dim ``uint16``
-        image inverts against 65535 and comes back near-white; normalize to the
-        dtype range first if you want a contrast-preserving inversion. A signed
-        dtype overflows and wraps without warning: under ``int8`` a pixel of
-        ``-100`` inverts to ``127 - (-100) = 227``, which wraps to ``-29``.
+    The pivot is ``iinfo.min + iinfo.max``, which is the dtype maximum for
+    every unsigned dtype -- so ``uint8`` and ``uint16`` invert exactly as they
+    always did -- and ``-1`` for a signed one, the same convention
+    :func:`skimage.util.invert` uses. Reflecting through the range instead of
+    subtracting from the ceiling is what keeps a signed image in range: under
+    ``int8``, ``-100`` inverts to ``99`` rather than to ``227``, which used to
+    wrap silently to ``-29``.
+
+    :param image: array with an *integer* dtype. A float or boolean image
+        raises ``ValueError`` rather than inverting -- convert or rescale to an
+        integer dtype first. The pivot is the dtype range, not the image
+        range, so a dim ``uint16`` image inverts against 65535 and comes back
+        near-white; normalize to the dtype range first if you want a
+        contrast-preserving inversion.
+    :returns: the inverted image, in the input dtype. Every value stays in
+        range, so nothing wraps.
+    :raises ValueError: ``image`` does not have an integer dtype.
     """
-    # The maximum value depends on the image dtype (e.g., 255 for uint8)
-    max_value = np.iinfo(image.dtype).max
-    inverted_image = max_value - image
-    return inverted_image
+    image = np.asarray(image)
+    if not np.issubdtype(image.dtype, np.integer):
+        raise ValueError(
+            f"invert_image needs an integer dtype to know what to invert "
+            f"against; got {image.dtype}. Rescale to uint8/uint16 first.")
+    info = np.iinfo(image.dtype)
+    # min + max: the dtype ceiling for an unsigned image (0 + 255), and -1 for
+    # a signed one, so the reflection maps [min, max] onto itself either way.
+    # The pivot always fits the dtype (it IS max when unsigned, -1 when
+    # signed), so subtracting in the image's own dtype is exact -- and avoids
+    # the uint64 promotion to float64 that a Python int operand would cause.
+    pivot = np.asarray(info.min + info.max, dtype=image.dtype)
+    inverted_image = pivot - image
+    return inverted_image.astype(image.dtype, copy=False)
 
 def resize_images_and_labels(images, labels, target_height, target_width, show_example=True):
     """Resize aligned image/label lists to ``target_height`` x ``target_width``.
@@ -6307,6 +6499,26 @@ LEGACY_CELLPOSE_MODELS = ('cyto', 'cyto2', 'cyto3', 'cyto_2', 'cyto_3',
 _REPORTED_CELLPOSE_NOTICES = set()
 
 
+def _installed_cellpose_models():
+    """The stock model names the INSTALLED Cellpose advertises.
+
+    ``()`` when Cellpose is not importable or says nothing, which makes
+    every caller fall through to the behaviour that shipped. Read here
+    rather than hard-coded because the list grew between 4.0 and 4.2 and
+    will grow again.
+
+    Only ``MODEL_NAMES`` -- the stock weights. A user-registered checkpoint
+    is already handled by the file branch of
+    :func:`_resolve_cellpose_pretrained`, and is a path rather than a name.
+    """
+    try:
+        return tuple(getattr(cp_models, "MODEL_NAMES", ()) or ())
+    except Exception:
+        # A deferred import that fails must not stop a run choosing a model;
+        # the caller's fallback is the pre-4.2 behaviour.
+        return ()
+
+
 def reset_cellpose_model_reports():
     """Forget which Cellpose model notices have already been printed.
 
@@ -6379,6 +6591,26 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
             f"(the denoise/deblur/upsample checkpoints are pre-SAM). Ignoring it.")
 
     name = str(model_name).strip() if model_name else ''
+
+    # A model the INSTALLED Cellpose actually ships is returned as itself.
+    #
+    # This used to stop at `cpsam`, because Cellpose 4.0 had exactly one stock
+    # model. 4.2 ships four -- cpsam_v2 (its new default), cpdino,
+    # cpdino-vitb, cpsam -- and `settings.cellpose_model_choices` reads that
+    # list from the API, so a dropdown offers them the moment a user upgrades.
+    # Everything below then treated them as UNKNOWN and substituted cpsam:
+    # the menu offered a model the pipeline quietly refused to load, and the
+    # run SUCCEEDED with weights nobody asked for, which is the worst shape
+    # this bug could take.
+    #
+    # Asked of the installed library rather than hard-coded, so a 4.3 that
+    # adds a fifth needs no release here.
+    if name and name in _installed_cellpose_models():
+        if name != CPSAM_MODEL:
+            _report_cellpose_once(
+                ('stock', name, object_type),
+                f"Using Cellpose model {name!r}{clause}.")
+        return name
 
     if name and name not in LEGACY_CELLPOSE_MODELS and name != CPSAM_MODEL:
         # Anything that is not a known model name is meant to be a checkpoint.
@@ -6454,6 +6686,27 @@ class SelectChannels:
             img[2, :, :] = 0  # Zero out the blue channel
         return img
 
+def _activation_map_to_2d(activation_map):
+    """Return an activation map shaped for ``imshow``.
+
+    The two ``plot_activation_grid`` implementations disagreed about this:
+    the saliency one transposed a leading 3 to channels-last while the
+    Grad-CAM one did nothing, so ``(3, H, W)`` rendered in one and raised
+    ``TypeError`` in the other, and ``(1, H, W)`` raised in both. Same name,
+    same signature, incompatible inputs.
+
+    Accepts ``(H, W)``, ``(1, H, W)`` and ``(3, H, W)``; anything else is
+    handed back untouched so ``imshow`` still raises rather than this
+    silently reshaping a map it does not understand.
+    """
+    if getattr(activation_map, "ndim", 0) == 3:
+        if activation_map.shape[0] == 1:
+            return activation_map[0]
+        if activation_map.shape[0] == 3:
+            return np.transpose(activation_map, (1, 2, 0))
+    return activation_map
+
+
 class SaliencyMapGenerator:
     """Generate saliency maps and predictions for a binary classifier.
 
@@ -6512,7 +6765,36 @@ class SaliencyMapGenerator:
         return saliency, predictions
 
     def plot_activation_grid(self, X, saliency, predictions, overlay=True, normalize=False):
-        """Render a grid overlaying saliency maps on inputs with predicted-class labels."""
+        """Render a grid overlaying saliency maps on inputs with predicted-class labels.
+
+        The grid is always eight columns wide with ``ceil(N / 8)`` rows, and
+        ``axis('off')`` is applied only to the panels that get a sample, so an
+        incomplete last row renders as empty framed boxes. The figure is
+        returned, never shown.
+
+        :param X: batch tensor shaped ``(N, C, H, W)``; ``N`` fixes the grid
+            size, and an empty batch raises ``ValueError`` from ``subplots``.
+            The pixels are read only under ``overlay``, where the sample is
+            permuted to ``(H, W, C)`` -- ``C`` of 1, 3 or 4 renders, ``C`` of 2
+            reaches ``imshow`` as an invalid shape and raises ``TypeError``.
+        :param saliency: torch tensor of at least ``N`` entries. It is indexed
+            and moved to the CPU on every iteration even when ``overlay`` is
+            false, so a numpy array raises ``AttributeError`` either way. Each
+            entry must be ``(H, W)`` or ``(3, H, W)``: only a leading ``3`` is
+            transposed to channels-last, so ``(1, H, W)`` and ``(2, H, W)``
+            raise ``TypeError`` from ``imshow``.
+        :param predictions: sequence supporting ``predictions[i].item()``,
+            whose scalar is stamped in each panel's corner. A plain Python list
+            of ints raises ``AttributeError``.
+        :param overlay: false draws no image at all -- neither the input nor
+            the map -- leaving a grid of bare class labels on empty axes.
+            Default ``True``.
+        :param normalize: percentile-stretch the input image only; the saliency
+            map is always drawn raw. Has no effect unless ``overlay`` is true,
+            and a channel that is flat between its 2nd and 98th percentiles
+            divides by zero and comes out ``NaN``. Default ``False``.
+        :returns: the Matplotlib ``Figure``.
+        """
         N = X.shape[0]
         rows = (N + 7) // 8
         # squeeze=False keeps axs 2-D; without it matplotlib collapses a
@@ -6522,18 +6804,20 @@ class SaliencyMapGenerator:
 
         for i in range(N):
             ax = axs[i // 8, i % 8]
-            saliency_map = saliency[i].cpu().numpy()  # Move to CPU and convert to numpy
+            saliency_map = _activation_map_to_2d(saliency[i].cpu().numpy())
 
-            if saliency_map.shape[0] == 3:  # Channels first, reshape to (H, W, 3)
-                saliency_map = np.transpose(saliency_map, (1, 2, 0))
-
-            # Normalize image channels to 2nd and 98th percentiles
+            # The MAP is always drawn. It used to be inside `if overlay`, so
+            # overlay=False produced a grid of bare class labels on empty
+            # axes -- no input, no map, nothing. overlay now means what its
+            # name says: draw the input UNDER the map, or the map alone.
             if overlay:
                 img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
                 if normalize:
                     img_np = self.percentile_normalize(img_np)
                 ax.imshow(img_np)
                 ax.imshow(saliency_map, cmap='jet', alpha=0.5)
+            else:
+                ax.imshow(saliency_map, cmap='jet')
 
             # Add class label in the top-left corner
             ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
@@ -6657,7 +6941,37 @@ class GradCAMGenerator:
         return torch.from_numpy(np.stack(gradcam_maps)), predictions
 
     def plot_activation_grid(self, X, gradcam, predictions, overlay=True, normalize=False):
-        """Render a grid overlaying Grad-CAM maps on inputs with predicted-class labels."""
+        """Render a grid overlaying Grad-CAM maps on inputs with predicted-class labels.
+
+        The grid is always eight columns wide with ``ceil(N / 8)`` rows, and
+        ``axis('off')`` is applied only to the panels that get a sample, so an
+        incomplete last row renders as empty framed boxes. The figure is
+        returned, never shown.
+
+        :param X: batch tensor shaped ``(N, C, H, W)``; ``N`` fixes the grid
+            size, and an empty batch raises ``ValueError`` from ``subplots``.
+            The pixels are read only under ``overlay``, where the sample is
+            permuted to ``(H, W, C)`` -- ``C`` of 1, 3 or 4 renders, ``C`` of 2
+            raises ``TypeError`` from ``imshow``.
+        :param gradcam: torch tensor of per-sample 2-D maps, i.e. ``(N, H, W)``
+            as returned by :meth:`compute_gradcam_and_predictions`. Unlike
+            :meth:`SaliencyMapGenerator.plot_activation_grid` there is no
+            channels-first transpose here, so an ``(N, 3, H, W)`` stack raises
+            ``TypeError``. It is indexed and moved to the CPU on every
+            iteration even when ``overlay`` is false, so it must be a tensor
+            either way.
+        :param predictions: sequence supporting ``predictions[i].item()``,
+            whose scalar is stamped in each panel's corner. A plain Python list
+            of ints raises ``AttributeError``.
+        :param overlay: false draws no image at all -- neither the input nor
+            the map -- leaving a grid of bare class labels on empty axes.
+            Default ``True``.
+        :param normalize: percentile-stretch the input image only; the Grad-CAM
+            map is always drawn raw. Has no effect unless ``overlay`` is true,
+            and a channel that is flat between its 2nd and 98th percentiles
+            divides by zero and comes out ``NaN``. Default ``False``.
+        :returns: the Matplotlib ``Figure``.
+        """
         N = X.shape[0]
         rows = (N + 7) // 8
         # See SaliencyMapGenerator.plot_activation_grid — squeeze=False is
@@ -6666,15 +6980,18 @@ class GradCAMGenerator:
 
         for i in range(N):
             ax = axs[i // 8, i % 8]
-            gradcam_map = gradcam[i].cpu().numpy()
+            gradcam_map = _activation_map_to_2d(gradcam[i].cpu().numpy())
 
-            # Normalize image channels to 2nd and 98th percentiles
+            # Same contract as the saliency twin: the map always draws, and
+            # overlay decides whether the input is drawn beneath it.
             if overlay:
                 img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
                 if normalize:
                     img_np = self.percentile_normalize(img_np)
                 ax.imshow(img_np)
                 ax.imshow(gradcam_map, cmap='jet', alpha=0.5)
+            else:
+                ax.imshow(gradcam_map, cmap='jet')
 
             #ax.imshow(X[i].permute(1, 2, 0).detach().cpu().numpy())  # Original image
             #ax.imshow(gradcam_map, cmap='jet', alpha=0.5)  # Overlay the gradcam map
@@ -6930,22 +7247,60 @@ def show_cam_on_image(img, mask):
         added to the colormap rather than blended, so a ``[0, 255]`` image
         swamps the heatmap and the result is a near-uniform wash. A 2-D
         grayscale array fails to broadcast against the 3-channel heatmap.
+        An image negative enough that the blend has no positive pixel left
+        raises rather than returning a black frame -- a black attribution map
+        is indistinguishable from "the model looked nowhere", which is a
+        claim this function must never make on the strength of bad input.
     :param mask: ``(H, W)`` activation map in ``[0, 1]``, matching ``img`` in
-        height and width. It is scaled by 255 and cast with ``np.uint8``, which
-        wraps rather than clips -- a value above 1.0 lands at an arbitrary point
-        in the colormap (1.1 wraps to the cold end, 1.5 to the middle, 2.0 back
-        to the hot end), so normalize the CAM before passing it. An all-zero
-        mask does not produce a black overlay: jet maps 0 to a non-zero color,
-        so a zero mask over a zero image renormalizes to a saturated flat field.
+        height and width. Values outside that range are CLIPPED to it, with a
+        :class:`RuntimeWarning`, so an un-normalized CAM saturates at the hot
+        end instead of wrapping the ``np.uint8`` cast: before this was clipped,
+        ``1.1`` landed at the cold end of jet, ``1.5`` in the middle and ``2.0``
+        back at the top, which could render the hottest region of a map as the
+        coldest colour. An all-zero mask does not produce a black overlay: jet
+        maps 0 to a non-zero color, so a zero mask over a zero image
+        renormalizes to a saturated flat field.
+    :raises ValueError: ``img`` or ``mask`` contains NaN or infinity, or the
+        blend has no positive pixel to normalize against.
     """
-    heatmap = cv2.applyColorMap(np.uint8(255 * mask), cv2.COLORMAP_JET)
+    import warnings
+
+    mask = np.asarray(mask, dtype=np.float32)
+    img = np.asarray(img, dtype=np.float32)
+    if not np.isfinite(mask).all():
+        raise ValueError(
+            "the activation map contains NaN or infinity, so it cannot be "
+            "coloured; a CAM that came out non-finite means the attribution "
+            "itself failed and the overlay would hide that")
+    if not np.isfinite(img).all():
+        raise ValueError(
+            "the image contains NaN or infinity, so the overlay cannot be "
+            "normalized")
+    low, high = float(mask.min()), float(mask.max())
+    if low < 0.0 or high > 1.0:
+        # Clipping keeps hot pixels hot. The warning is what makes the
+        # normalization the caller skipped visible.
+        warnings.warn(
+            f"activation map spans [{low:g}, {high:g}]; show_cam_on_image "
+            f"expects [0, 1] and is clipping to it. Normalize the CAM to "
+            f"avoid saturating the colormap.",
+            RuntimeWarning, stacklevel=2)
+    scaled = np.clip(mask, 0.0, 1.0)
+
+    heatmap = cv2.applyColorMap(np.uint8(255 * scaled), cv2.COLORMAP_JET)
     heatmap = np.float32(heatmap) / 255
-    cam = heatmap + np.float32(img)
-    peak = np.max(cam)
-    if peak > 0:
-        cam = cam / peak
-    else:
-        cam.fill(0.0)
+    cam = heatmap + img
+    peak = float(np.max(cam))
+    if not peak > 0:
+        # Unreachable for an image in [0, 1]: jet maps even a zero mask to
+        # BGR (128, 0, 0), so the blend always has a positive pixel. Getting
+        # here means the image was negative enough to cancel the heatmap out.
+        raise ValueError(
+            f"the heatmap blend peaks at {peak:g}, so there is nothing to "
+            f"normalize against; show_cam_on_image needs an image scaled to "
+            f"[0, 1] (this one spans [{float(img.min()):g}, "
+            f"{float(img.max()):g}])")
+    cam = np.clip(cam / peak, 0.0, 1.0)
     return np.uint8(255 * cam)
 
 def recommend_target_layers(model):
@@ -7451,7 +7806,38 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers,
         axis='both', which='major', labelsize=int(figuresize * 0.75))
 
 def plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose):
-    """Overlay sample images from ``image_paths`` on the UMAP embedding in ``ax``."""
+    """Overlay sample images from ``image_paths`` on the UMAP embedding in ``ax``.
+
+    :param ax: axes the thumbnails are added to, as frameless annotation boxes.
+    :param image_paths: paths addressed by the same positional index as
+        ``embedding``, so the two must share a row order; a short list raises
+        ``IndexError``.
+    :param embedding: ``(N, 2)`` array whose selected rows give each thumbnail
+        its data-space position.
+    :param labels: cluster labels aligned with ``embedding``. Read only when
+        ``plot_by_cluster`` is true; ``None`` is accepted otherwise.
+    :param image_nr: with ``plot_by_cluster`` false, the exact number of rows
+        sampled at random from the whole embedding, so a value above ``N``
+        raises ``ValueError`` from ``random.sample``. With it true, a
+        per-cluster cap -- a cluster no larger than this contributes every
+        member, unsampled.
+    :param img_zoom: scale factor handed to ``OffsetImage``. It sizes the
+        thumbnail from the file's own pixel dimensions in display space, so
+        rescaling the axes does not change how big the image is drawn.
+    :param colors: only zipped against ``np.unique(labels)`` to drive the
+        iteration; the color itself is never drawn. Its LENGTH is therefore a
+        silent limit, and because ``np.unique`` includes the ``-1`` noise label
+        a palette sized to the real clusters leaves the last cluster with no
+        images. Unused (``None`` is fine) when ``plot_by_cluster`` is false.
+    :param plot_by_cluster: true samples per cluster and skips label ``-1``;
+        false ignores ``labels`` and ``colors`` entirely and samples globally.
+    :param remove_image_canvas: forwarded to :func:`plot_image`; true masks
+        zero-valued pixels out and restricts the inputs to PIL modes ``L``,
+        ``I`` and ``RGB``.
+    :param verbose: accepted and ignored, here and in the helper it is passed
+        to; any value at all is tolerated.
+    :returns: None.
+    """
     if plot_by_cluster:
         cluster_indices = {label: np.where(labels == label)[0] for label in np.unique(labels) if label != -1}
         plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, cluster_indices, remove_image_canvas, verbose)
@@ -7463,8 +7849,35 @@ def plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, col
             plot_image(ax, x, y, img, img_zoom, remove_image_canvas)
 
 def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, cluster_indices, remove_image_canvas, verbose):
-    """Overlay up to ``image_nr`` images per cluster on the embedding in ``ax``."""
-    for cluster_label, color in zip(np.unique(labels), colors):
+    """Overlay up to ``image_nr`` images per cluster on the embedding in ``ax``.
+
+    :param ax: axes the thumbnails are added to, as frameless annotation boxes.
+    :param image_paths: paths addressed by the indices held in
+        ``cluster_indices``, so they must be in the embedding's row order.
+    :param embedding: ``(N, 2)`` array supplying each thumbnail's position.
+    :param labels: only ``np.unique(labels)`` is used, to decide which clusters
+        to visit; ``-1`` is skipped as noise.
+    :param image_nr: per-cluster cap. A cluster no larger than this contributes
+        all of its members -- no sampling happens.
+    :param img_zoom: scale factor handed to ``OffsetImage``, applied to the
+        file's own pixel dimensions rather than to data units.
+    :param colors: bound by the ``zip`` and then never read, so it contributes
+        no color at all. What it does contribute is a length: ``zip`` stops at
+        the shorter sequence, and since ``np.unique`` counts the ``-1`` noise
+        label a palette sized to the real clusters silently drops the last one.
+    :param cluster_indices: mapping of label to the row indices to draw from.
+        Looked up with ``.get(label, [])``, so a label present in ``labels``
+        but absent here plots nothing instead of raising.
+    :param remove_image_canvas: forwarded to :func:`plot_image`.
+    :param verbose: accepted and ignored; any value at all is tolerated.
+    :returns: None.
+    """
+    # NOT zip(np.unique(labels), colors). The colour was never read, so the
+    # only thing that zip contributed was a LENGTH -- and because np.unique
+    # counts the -1 noise label, a palette sized to the real clusters was one
+    # short and THE LAST CLUSTER WAS SILENTLY NOT PLOTTED. The palette does
+    # not get to decide how many clusters are drawn.
+    for cluster_label in np.unique(labels):
         if cluster_label == -1:
             continue
         indices = cluster_indices.get(cluster_label, [])
@@ -7476,7 +7889,25 @@ def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoo
             plot_image(ax, x, y, img, img_zoom, remove_image_canvas)
 
 def plot_image(ax, x, y, img, img_zoom, remove_image_canvas=True):
-    """Place a zoomed thumbnail of ``img`` at ``(x, y)`` on ``ax``."""
+    """Place a zoomed thumbnail of ``img`` at ``(x, y)`` on ``ax``.
+
+    :param ax: axes the thumbnail is added to, as a frameless annotation box.
+    :param x: data-space x coordinate the thumbnail is anchored at.
+    :param y: data-space y coordinate the thumbnail is anchored at.
+    :param img: PIL image when ``remove_image_canvas`` is true, since
+        ``img.mode`` is read; any array-like otherwise.
+    :param img_zoom: scale factor handed to ``OffsetImage``. It sizes the
+        thumbnail from the source's pixel dimensions in display space, so the
+        drawn size is unchanged by the axis limits.
+    :param remove_image_canvas: true swaps the image for an RGBA array whose
+        alpha channel hides zero-valued pixels, which accepts only PIL modes
+        ``L``, ``I`` and ``RGB`` -- ``RGBA`` and ``P`` raise ``ValueError``, and
+        a numpy array raises ``AttributeError`` because it has no ``mode``. An
+        all-zero ``L`` image divides by its own zero maximum and comes out
+        ``NaN`` rather than raising. False just calls ``np.array``.
+        Default ``True``.
+    :returns: None.
+    """
     # remove_canvas() inspects PIL's ``img.mode``, so it must run BEFORE the
     # array conversion — converting first made remove_image_canvas=True raise
     # AttributeError: 'numpy.ndarray' object has no attribute 'mode'.
@@ -7506,7 +7937,32 @@ def remove_canvas(img):
     return img_data_with_alpha
 
 def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figuresize, black_background, verbose, theme_colors=None):
-    """Plot a grid of example images per cluster label discovered in ``labels``."""
+    """Plot a grid of example images per cluster label discovered in ``labels``.
+
+    :param embedding: accepted and never read -- the panels are built from
+        ``labels`` and ``image_paths`` alone, so ``None`` works.
+    :param labels: cluster labels in the row order of ``image_paths``. ``-1`` is
+        dropped as noise, and if nothing else remains the function prints
+        ``No clusters found.`` and returns ``None`` instead of a figure.
+    :param image_nr: per-cluster cap on how many images are opened. A cluster no
+        larger than this contributes all of its members.
+    :param image_paths: paths addressed positionally by the label array; a list
+        shorter than ``labels`` raises ``IndexError``.
+    :param colors: palette indexed downstream by the cluster LABEL itself rather
+        than by its rank, so the palette has to be long enough to reach the
+        largest label -- labels ``0`` and ``5`` against a two-color palette
+        raise ``IndexError``. Entries need at least three components.
+    :param figuresize: per-cluster panel size in inches, shrunk downstream so
+        the whole row never exceeds 200 inches.
+    :param black_background: picks the white-on-black fallback theme instead of
+        black-on-white; ``theme_colors`` overrides it per role.
+    :param verbose: only ever prints for STRING cluster labels; silent for the
+        integer labels DBSCAN and KMeans produce.
+    :param theme_colors: dict with ``background``/``foreground``/``border``
+        colors. Entries Matplotlib cannot parse are dropped silently and fall
+        back to the ``black_background`` choice. Default ``None``.
+    :returns: the Matplotlib ``Figure``, or ``None`` when every label is ``-1``.
+    """
     unique_labels = np.unique(labels)
     num_clusters = len(unique_labels[unique_labels != -1])
     if num_clusters == 0:
@@ -7530,7 +7986,32 @@ def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figures
     return fig
 
 def plot_grid(cluster_images, colors, figuresize, black_background, verbose, theme_colors=None):
-    """Render one column per cluster of representative images with colored borders and labels."""
+    """Render one column per cluster of representative images with colored borders and labels.
+
+    :param cluster_images: ordered mapping of cluster label to that cluster's
+        list of image arrays; one column per key, and an empty mapping raises
+        ``ValueError`` from ``subplots``.
+    :param colors: consumed two different ways in the same figure. The panel
+        border uses ``colors[label]`` for integer keys, so the palette must
+        reach the largest label, while the legend swatches beside the grid are
+        taken positionally -- with non-contiguous labels the two disagree, and
+        cluster ``3`` gets border ``colors[3]`` beside swatch ``colors[1]``.
+        String keys use the positional index for both. A palette shorter than
+        the mapping raises ``IndexError``, and entries need at least three
+        components.
+    :param figuresize: figure height in inches and the label font size; the
+        width is this times the cluster count. It is shrunk to
+        ``200 / n_clusters`` when that product would exceed 200 inches, which
+        silently caps the font size too.
+    :param black_background: picks the white-on-black fallback theme instead of
+        black-on-white.
+    :param verbose: prints the label and its index for STRING cluster labels
+        only; integer labels never print anything.
+    :param theme_colors: dict with ``background``/``foreground``/``border``
+        colors overriding the ``black_background`` fallback; values Matplotlib
+        cannot parse are ignored. Default ``None``.
+    :returns: the Matplotlib ``Figure``, which is also passed to ``plt.show``.
+    """
     num_clusters = len(cluster_images)
     max_figsize = 200  # Set a maximum figure size
     if figuresize * num_clusters > max_figsize:
@@ -7549,13 +8030,18 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
         image_size = 0.9 / grid_size
         whitespace = (1 - grid_size * image_size) / (grid_size + 1)
 
+        # Both branches WRAP. A string label is positioned, an integer label
+        # indexes the palette directly -- and DBSCAN numbers its clusters
+        # 0..k-1, so a run with more clusters than colours used to die here
+        # with a bare "list index out of range" from colors[cluster_label].
+        # Reusing a colour is a worse figure; crashing is a lost run.
         if isinstance(cluster_label, str):
             idx = list(cluster_images.keys()).index(cluster_label)
-            color = colors[idx]
             if verbose:
                 print(f'Lable: {cluster_label} index: {idx}')
         else:
-            color = colors[cluster_label]
+            idx = int(cluster_label)
+        color = colors[idx % len(colors)] if len(colors) else (0.5, 0.5, 0.5)
 
         axes.add_patch(plt.Rectangle((0, 0), 1, 1, transform=axes.transAxes, color=color[:3]))
         axes.axis('off')
@@ -7595,7 +8081,7 @@ def generate_path_list_from_db(db_path, file_metadata):
     # Connect to the database and retrieve the image paths
     print(f"Reading DataBase: {db_path}")
     try:
-        with sqlite3.connect(db_path) as conn:
+        with sqlite3.connect(db_path, timeout=30) as conn:
             cursor = conn.cursor()
 
             if file_metadata:
@@ -8071,8 +8557,6 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
     df = df[declared_features].copy()
     
     if not channel_of_interest is None:
-        drop_columns = ['channel_1', 'channel_2', 'channel_3', 'channel_4']
-        
         if isinstance(channel_of_interest, list):
             feature_strings = [f"channel_{channel}" for channel in channel_of_interest]
 
@@ -8092,12 +8576,41 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
             feature_strings = [f"channel_{channel_of_interest}"]
 
         if channel_of_interest != 'morphology':
-            # Remove entries from drop_columns that are also in feature_strings
-            drop_columns = [col for col in drop_columns if col not in feature_strings]
+            # ONE rule: keep a column when it NAMES a requested channel (or,
+            # for a free-text filter, contains the requested text); drop it
+            # otherwise.
+            #
+            # There used to be a second, subtractive half: a hard-coded
+            # drop list ['channel_1'..'channel_4'] minus the request, and any
+            # column mentioning a leftover was dropped even if it also named
+            # the requested channel. That half is deleted, not amended, and
+            # the reason it can go is that it was inert everywhere except one
+            # place. A column naming exactly ONE channel is decided identically
+            # by both halves -- if it names the requested channel the drop list
+            # no longer contains that token, and if it names some other channel
+            # the `all(fs not in col)` test already drops it. So the drop list
+            # only ever changed the fate of a column carrying TWO channel
+            # tokens, and the only such family in the schema is
+            # `<object>_channel_<i>_channel_<j>_<stat>`: colocalisation.
+            #
+            # Colocalisation measures the relationship BETWEEN a pair of
+            # channels and therefore belongs to both members of the pair. It
+            # now survives when EITHER member is requested -- exactly the
+            # special case we want, obtained by REMOVING a rule rather than
+            # bolting a `channel_\d+_channel_\d+` exemption onto the drop list.
+            # Asking for channel 1 no longer means "only how channel 1 relates
+            # to channel 0"; it means how channel 1 relates to every channel it
+            # was measured against. Nothing is recomputed: the columns are
+            # already in measurements.db, this is a filter change only.
+            #
+            # Same edit also fixes free-text filters: filter_by='mean_intensity'
+            # used to keep only channel_0's mean_intensity because every other
+            # channel's column tripped the drop list.
+            #
+            # str(col) because column labels are not guaranteed to be str.
+            columns_to_drop = [col for col in df.columns
+                               if all(fs not in str(col) for fs in feature_strings)]
 
-            # Remove columns from the DataFrame that contain any entry from drop_columns in the column name
-            columns_to_drop = [col for col in df.columns if any(drop_col in col for drop_col in drop_columns) or all(fs not in col for fs in feature_strings)]
-        
         df = df.drop(columns=columns_to_drop)
         if verbose:
             print(f"Removed columns: {columns_to_drop}")
@@ -9262,7 +9775,7 @@ def add_column_to_database(settings):
         df[settings['update_column']] = df[settings['update_column']].replace(0, 2)
 
     # Connect to the SQLite database
-    conn = sqlite3.connect(settings['db_path'])
+    conn = sqlite3.connect(settings['db_path'], timeout=30)
     cursor = conn.cursor()
 
     # Get the existing columns in the database table
@@ -9658,18 +10171,30 @@ def delete_intermedeate_files(settings):
         
 def filter_and_save_csv(input_csv, output_csv, column_name, upper_threshold, lower_threshold):
     """
-    Reads a CSV into a DataFrame, filters rows based on a column for values > upper_threshold and < lower_threshold,
-    and saves the filtered DataFrame to a new CSV file.
+    Reads a CSV into a DataFrame, keeps the rows whose column value falls OUTSIDE
+    the two thresholds, and saves the filtered DataFrame to a new CSV file.
+
+    The two tests are combined with OR, not AND, so this is a two-tailed
+    selection that keeps the extremes and discards the middle. Both comparisons
+    are strict, so a value exactly equal to either threshold is dropped, and so
+    is ``NaN``. Passing an ``upper_threshold`` below ``lower_threshold`` makes
+    the two conditions cover the whole line and nothing is filtered out at all.
 
     Parameters:
-        input_csv (str): Path to the input CSV file.
-        output_csv (str): Path to save the filtered CSV file.
-        column_name (str): Column name to apply the filters on.
-        upper_threshold (float): Upper threshold for filtering (values greater than this are retained).
-        lower_threshold (float): Lower threshold for filtering (values less than this are retained).
+        input_csv (str): Path to the input CSV file, read with ``pd.read_csv``.
+        output_csv (str): Path to save the filtered CSV file, written without
+            the index. Its parent directory must already exist -- pandas raises
+            ``OSError`` rather than creating it.
+        column_name (str): Column the two comparisons are applied to. A name
+            that is not in the frame raises ``KeyError``, and a text column
+            raises ``TypeError`` when compared against a numeric threshold.
+        upper_threshold (float): Rows strictly greater than this are retained.
+        lower_threshold (float): Rows strictly less than this are retained too;
+            everything between the two bounds is discarded.
 
     Returns:
-        None
+        None. The filtered frame is written to ``output_csv``, shown with
+        ``display`` for notebook users, and the destination is printed.
     """
     # Read the input CSV file into a DataFrame
     df = pd.read_csv(input_csv)
@@ -9918,16 +10443,43 @@ def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1
     """
     Removes outliers from `value_col` within each group defined by `group_col`.
 
+    Rows are selected, never modified: the original index is preserved and a new
+    frame is returned. A row whose value is ``NaN`` fails the comparison and is
+    always dropped, whichever method is used.
+
     Parameters:
         df (pd.DataFrame): The input DataFrame.
-        group_col (str): Column name to group by.
-        value_col (str): Column containing values to check for outliers.
-        method (str): 'iqr' or 'zscore'.
-        threshold (float): Threshold multiplier for IQR (default 1.5) or z-score.
+        group_col (str): Column name to group by, or a list of column names.
+            Grouping passes ``observed=False``, so unused categories of a
+            Categorical are kept. Rows whose group key is missing are discarded,
+            because pandas drops ``NaN`` group keys and the per-row bound then
+            comes back ``NaN``.
+        value_col (str): Column containing values to check for outliers. A name
+            that is not in the frame raises ``KeyError``.
+        method (str): 'iqr' or 'zscore'. Anything else raises ``ValueError``.
+            The two now agree on tiny groups: a one-row group has an undefined
+            standard deviation, and since one row cannot be an outlier within
+            its own group it is KEPT under both. It used to be dropped by
+            'zscore' and kept by 'iqr'.
+        threshold (float): Multiplier on the IQR (default 1.5), or the z-score
+            cutoff. Must be >= 0; a negative value inverts the keep-band and is
+            refused, because under 'iqr' it silently emptied every group with a
+            nonzero IQR. Note ``0`` under 'zscore' still keeps only rows sitting
+            exactly on the group mean, which is what a zero cutoff means.
+            Under 'zscore' an outlier inflates its own group's standard
+            deviation, so the usual cutoffs keep far more than 'iqr' does on the
+            same data -- that is the statistic, not a defect.
 
     Returns:
         pd.DataFrame: A DataFrame with outliers removed.
     """
+    # A negative threshold inverts the band: under 'iqr' it makes the keep
+    # interval empty, so every group with a nonzero IQR loses ALL its rows and
+    # the caller gets a near-empty frame with no error. Refuse it.
+    if threshold < 0:
+        raise ValueError(
+            f"threshold must be >= 0, not {threshold!r}: a negative value "
+            "inverts the keep-band and silently deletes whole groups.")
     grouped = df.groupby(group_col, observed=False)[value_col]
     if method == 'iqr':
         q1 = grouped.transform(lambda values: values.quantile(0.25))
@@ -9940,7 +10492,13 @@ def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1
     elif method == 'zscore':
         mean = grouped.transform('mean')
         std = grouped.transform('std')
+        # A single-row group has std NaN, and NaN comparisons are False, so
+        # 'zscore' used to DELETE every singleton while 'iqr' kept it (its
+        # quartiles collapse onto the value). One row cannot be an outlier
+        # within its own group under either definition; the two methods now
+        # agree instead of disagreeing on the smallest groups.
         keep = (df[value_col] - mean).abs() <= threshold * std
+        keep = keep | std.isna()
     else:
         raise ValueError("method must be 'iqr' or 'zscore'")
     return df.loc[keep]

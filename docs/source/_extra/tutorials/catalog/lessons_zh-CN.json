@@ -28,59 +28,59 @@
       "id": "01_pypi_github",
       "number": 1,
       "slug": "pypi_github",
-      "title": "皮帕卡基顿,吉图布托肯和康达福格托肯",
+      "title": "PyPI, GitHub, and conda-forge",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "选择包装版本,桌面安装器,开发分支或未来的conda-forge包的官方来源.",
+      "description": "选择官方源头,为包装版本,桌面安装器,开发分支或未来的\"造\"包.",
       "objectives": [
         "确定官方PyPI包和GitHub存储库.",
-        "与nightly分支区分稳定释放.",
-        "了解目前 conda-forge 出版物状况."
+        "区分稳定释放和夜间分支.",
+        "了解目前的\"假冒\"出版物状态."
       ],
-      "prerequisite": "不需要安装.",
+      "prerequisite": "没有需要安装.",
       "scenes": [
         {
-          "narration": "在安装spaCR之前,请了解三个官方分销路线:PyPI用于发布的Python包,GitHub用于源代码和桌面安装器,以及conda-forge一旦其审查的包发布.",
+          "narration": "在安装 spaCR 之前,请选择官方源码. PyPI 提供发布的 Python 包, GitHub 提供源码和桌面安装器,并且当该包发布后, conda-forge 将成为一个选择.",
           "visual": "sources",
           "hold_after": 0.7,
-          "speech_text": "在安装斯佩克尔之前,请了解三个官方分销路线:派皮用于发布的Python包,GitHub用于源代码和桌面安装器,以及conda-forge一旦其审查的包发布."
+          "speech_text": "在安装 斯佩克尔 之前,请选择官方源码. 派皮 提供发布的 Python 包, GitHub 提供源码和桌面安装器,并且当该包发布后, conda-forge 将成为一个选择."
         },
         {
-          "narration": "在 PyPI 的 spaCR 页面上显示了当前的稳定版本和命令 pip install spacr. 释放文件包括Python轮子和源档案.",
+          "narration": "从 spaCR 部分打开 PyPI, GitHub, and conda-forge。 在 PyPI 上,发布标题显示当前的稳定版本和 pip安装 spaCR命令.",
           "visual": "pypi_release",
           "hold_after": 0.7,
-          "speech_text": "在 派皮 的 斯佩克尔 页面上显示了当前的稳定版本和命令 pip install 斯佩克尔. 释放文件包括Python轮子和源档案."
+          "speech_text": "从 斯佩克尔 部分打开 派皮, GitHub, and conda-forge。 在 派皮 上,发布标题显示当前的稳定版本和 pip安装 斯佩克尔命令."
         },
         {
-          "narration": "PyPI还链接到文档,源存储库和问题追踪器. 在更改现有环境之前,请检查所需的Python版本和发布日期.",
+          "narration": "项目链接部分将打开文档,主页,问题跟踪器和源存储库.",
           "visual": "pypi_links",
           "hold_after": 0.7,
-          "speech_text": "派皮还链接到文档,源存储库和问题追踪器. 在更改现有环境之前,请检查所需的Python版本和发布日期."
+          "speech_text": "项目链接部分将打开文档,主页,问题跟踪器和源存储库."
         },
         {
-          "narration": "在 GitHub 上，main 是已发布的源代码分支，nightly 包含仍在测试中的较新更改。仅当您明确需要尚未发布的更改时，才使用 nightly。",
+          "narration": "在 GitHub 上,使用分支选择器来选择源线.主是发布的线;每晚都包含正在测试的新工作.",
           "visual": "github_repo",
           "hold_after": 0.7,
-          "speech_text": "在 GitHub 上，main 是已发布的源代码分支，nightly 包含仍在测试中的较新更改。仅当您明确需要尚未发布的更改时，才使用 nightly。"
+          "speech_text": "在 GitHub 上,使用分支选择器来选择源线.主是发布的线;每晚都包含正在测试的新工作."
         },
         {
-          "narration": "GitHub Releases提供了Windows,macOS和Linux安装器,发布说明,Python包文件和SHA-256检查总数.",
+          "narration": "在 GitHub 版本中,扩展资产下载Windows,macOS或Linux安装器,Python包文件或检查总数列表.",
           "visual": "github_release",
           "hold_after": 0.7,
-          "speech_text": "GitHub Releases提供了Windows,macOS和Linux安装器,发布说明,Python包文件和SHA-256检查总数."
+          "speech_text": "在 GitHub 版本中,扩展资产下载Windows,macOS或Linux安装器,Python包文件或检查总数列表."
         },
         {
-          "narration": "在存储库中准备 conda-forge 配方,但目前还没有在 conda-forge 道上发布任何 spaCR 包装. 现在,创建一个Conda环境,并安装PyPI的spaCR.",
+          "narration": "现在,创建一个Conda环境并从PyPI安装 spaCR;只使用包装发布后使用Conda-forge频道.",
           "visual": "conda_status",
           "hold_after": 0.7,
-          "speech_text": "在存储库中准备 conda-forge 配方,但目前还没有在 conda-forge 道上发布任何 斯佩克尔 包装. 现在,创建一个Conda环境,并安装派皮的斯佩克尔."
+          "speech_text": "现在,创建一个Conda环境并从派皮安装 斯佩克尔;只使用包装发布后使用Conda-forge频道."
         },
         {
-          "narration": "使用PyPI或pip用于Python环境,GitHub Releases用于本地安装器,nightly分支仅用于开发. 下面的教程展示了每个安装路线,而不需要启动应用程序.",
+          "narration": "您需要使用PyPI或Pip在Python环境中,GitHub发布在桌面安装器中,并且只需要在未发布的工作时每晚.",
           "visual": "decision",
           "hold_after": 0.7,
-          "speech_text": "使用派皮或pip用于Python环境,GitHub Releases用于本地安装器,nightly分支仅用于开发. 下面的教程展示了每个安装路线,而不需要启动应用程序."
+          "speech_text": "您需要使用派皮或Pip在Python环境中,GitHub发布在桌面安装器中,并且只需要在未发布的工作时每晚."
         }
       ]
     },
@@ -88,59 +88,59 @@
       "id": "02_conda_install",
       "number": 2,
       "slug": "conda_install",
-      "title": "使用Conda安装",
+      "title": "Installation with Conda",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "创建一个孤立的Python 3.12环境并安装桌面或无头包.",
+      "description": "创建一个孤立的Python 3.12环境,并安装桌面或无头包.",
       "objectives": [
-        "创建和验证一个孤立的spaCR环境.",
+        "建立和验证一个孤立的 spaCR 环境.",
         "选择桌面或无头安装.",
-        "在启动spaCR之前验证安装."
+        "在启动 spaCR 之前验证安装."
       ],
-      "prerequisite": "安装Miniforge,Miniconda,Anaconda或其他与Conda兼容的管理器.",
+      "prerequisite": "安装Miniforge,Miniconda,Anaconda或其他可兼容Conda的管理器.",
       "scenes": [
         {
-          "narration": "康达环境使spaCR及其科学依赖部门与无关项目保持分开. 目前,Python三点十二提供了最广泛的可选包兼容性.",
+          "narration": "使用Conda环境来隔离 spaCR及其科学依赖性.Python三点十二是个例子,因为它目前支持最广泛的可选包.",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "康达环境使斯佩克尔及其科学依赖部门与无关项目保持分开. 目前,Python三点十二提供了最广泛的可选包兼容性."
+          "speech_text": "使用Conda环境来隔离 斯佩克尔及其科学依赖性.Python三点十二是个例子,因为它目前支持最广泛的可选包."
         },
         {
-          "narration": "打开一个支持Conda的终端,并创建一个名为 spacr的环境,",
+          "narration": "从 spaCR 部分打开 Installation with Conda。 打开一个可安装Conda的终端,并创建一个叫做 spaCR的环境,",
           "visual": "create",
           "hold_after": 0.7,
-          "speech_text": "打开一个支持Conda的终端,并创建一个名为 斯佩克尔的环境,"
+          "speech_text": "从 斯佩克尔 部分打开 Installation with Conda。 打开一个可安装Conda的终端,并创建一个叫做 斯佩克尔的环境,"
         },
         {
-          "narration": "激活环境. 在安装任何东西之前,请确认Python属于spacr环境.",
+          "narration": "在安装任何东西之前,请确认Python属于SpaceCr环境.",
           "visual": "activate",
           "hold_after": 0.7,
-          "speech_text": "激活环境. 在安装任何东西之前,请确认Python属于斯佩克尔环境."
+          "speech_text": "在安装任何东西之前,请确认Python属于SpaceCr环境."
         },
         {
-          "narration": "通过活跃的Python解释器升级Pip. 使用python -m pip防止其他管执行器接收包裹.",
+          "narration": "通过活跃的Python解释器升级Pip.使用Python -m pip防止其他执行式Pip接收包.",
           "visual": "upgrade",
           "hold_after": 0.7,
-          "speech_text": "通过活跃的Python解释器升级Pip. 使用python -m pip防止其他管执行器接收包裹."
+          "speech_text": "通过活跃的Python解释器升级Pip.使用Python -m pip防止其他执行式Pip接收包."
         },
         {
-          "narration": "对于桌面应用程序,安装 spacr 与qt额外. 使用无头工作站或服务器的平坦空间包.",
+          "narration": "对于桌面应用程序,安装 spaCR 附加qt. 对于无头工作站或服务器,使用平面 spaCR 包.",
           "visual": "desktop",
           "hold_after": 0.7,
-          "speech_text": "对于桌面应用程序,安装 斯佩克尔 与qt额外. 使用无头工作站或服务器的平坦空间包."
+          "speech_text": "对于桌面应用程序,安装 斯佩克尔 附加qt. 对于无头工作站或服务器,使用平面 斯佩克尔 包."
         },
         {
-          "narration": "首次启动前请运行 spaCR-doctor。诊断工具会检查当前安装、Qt、PyTorch、可选组件和硬件支持，并为每个失败的检查提供修复建议。",
+          "narration": "在首次发射之前运行spaCR-doctor. 它报告了活跃的安装,Qt,PyTorch,可选组件和硬件支持,每次失败检查都会得到建议.",
           "visual": "doctor",
           "hold_after": 0.7,
-          "speech_text": "首次启动前请运行 斯佩克尔-doctor。诊断工具会检查当前安装、Qt、PyTorch、可选组件和硬件支持，并为每个失败的检查提供修复建议。"
+          "speech_text": "在首次发射之前运行斯佩克尔-doctor. 它报告了活跃的安装,Qt,PyTorch,可选组件和硬件支持,每次失败检查都会得到建议."
         },
         {
-          "narration": "conda-forge 软件包尚未发布，因此目前不要运行 conda install -c conda-forge spacr。软件包发布后，spaCR 仓库将提供官方配方和频道的链接。",
-          "visual": "conda_status",
+          "narration": "在 spaCR- 医生通过后,每次运行 spaCR,保持此环境的激活.",
+          "visual": "finish",
           "hold_after": 0.7,
-          "speech_text": "conda-forge 软件包尚未发布，因此目前不要运行 conda install -c conda-forge 斯佩克尔。软件包发布后，斯佩克尔 仓库将提供官方配方和频道的链接。"
+          "speech_text": "在 斯佩克尔- 医生通过后,每次运行 斯佩克尔,保持此环境的激活."
         }
       ]
     },
@@ -148,59 +148,59 @@
       "id": "03_pip_install",
       "number": 3,
       "slug": "pip_install",
-      "title": "采用 pip 的安装",
+      "title": "Installation with pip",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "在没有使用Conda的情况下安装spaCR在标准的虚拟环境中.",
+      "description": "设置 spaCR 在一个标准的虚拟环境中,而不使用Conda.",
       "objectives": [
         "在每个支持的操作系统上创建虚拟环境.",
-        "安装正确的spaCR包装变体.",
-        "在启动应用程序之前检查环境."
+        "安装正确的 spaCR 包变体.",
+        "在启动应用程序之前,检查环境."
       ],
-      "prerequisite": "安装支持的Python版本;建议安装Python 3.12.",
+      "prerequisite": "安装支持的 Python 版本;建议安装 Python 3.12.",
       "scenes": [
         {
-          "narration": "在Windows,macOS和Linux上运行了 pip路线. 始终使用孤立的虚拟环境,而不是修改操作系统的Python安装.",
+          "narration": "运行路线在Windows,macOS和Linux上运行. 始终使用孤立的虚拟环境,而不是修改操作系统的Python安装.",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "在Windows,macOS和Linux上运行了 pip路线. 始终使用孤立的虚拟环境,而不是修改操作系统的Python安装."
+          "speech_text": "运行路线在Windows,macOS和Linux上运行. 始终使用孤立的虚拟环境,而不是修改操作系统的Python安装."
         },
         {
-          "narration": "在macOS或Linux上,使用Python3 point12创建环境,然后从其垃圾桶目录中激活它.",
+          "narration": "从 spaCR 部分打开 Installation with pip。 在macOS或Linux上,使用Python3 point12创建环境,然后从其垃圾桶目录中激活它.",
           "visual": "venv_posix",
           "hold_after": 0.7,
-          "speech_text": "在macOS或Linux上,使用Python3 point12创建环境,然后从其垃圾桶目录中激活它."
+          "speech_text": "从 斯佩克尔 部分打开 Installation with pip。 在macOS或Linux上,使用Python3 point12创建环境,然后从其垃圾桶目录中激活它."
         },
         {
-          "narration": "在Windows上,使用Python启动器创建环境并从Scripts目录中激活它.",
+          "narration": "在Windows上,使用Python启动器创建环境,并从Scripts目录中激活它.",
           "visual": "venv_windows",
           "hold_after": 0.7,
-          "speech_text": "在Windows上,使用Python启动器创建环境并从Scripts目录中激活它."
+          "speech_text": "在Windows上,使用Python启动器创建环境,并从Scripts目录中激活它."
         },
         {
-          "narration": "在活跃环境中升级 pip. 命令python -m pip将安装绑定到你刚刚激活的Python.",
+          "narration": "命令 python -m pip 将安装绑定到你刚刚激活的 Python.",
           "visual": "upgrade",
           "hold_after": 0.7,
-          "speech_text": "在活跃环境中升级 pip. 命令python -m pip将安装绑定到你刚刚激活的Python."
+          "speech_text": "命令 python -m pip 将安装绑定到你刚刚激活的 Python."
         },
         {
-          "narration": "安装无头使用的平面 spacr 包,或者为桌面接口安装的 qt 额外的 spacr.",
+          "narration": "安装无头使用的平坦空间包,或者安装桌面接口的加量空间.",
           "visual": "install",
           "hold_after": 0.7,
-          "speech_text": "安装无头使用的平面 斯佩克尔 包,或者为桌面接口安装的 qt 额外的 斯佩克尔."
+          "speech_text": "安装无头使用的平坦空间包,或者安装桌面接口的加量空间."
         },
         {
-          "narration": "检查进口版本,然后运行spacr-doctor. 在开启实验数据之前,解决任何失败的检查.",
+          "narration": "在开启实验数据之前,检查进口版本,运行spaCR-doctor.",
           "visual": "verify",
           "hold_after": 0.7,
-          "speech_text": "检查进口版本,然后运行斯佩克尔-doctor. 在开启实验数据之前,解决任何失败的检查."
+          "speech_text": "在开启实验数据之前,检查进口版本,运行斯佩克尔-doctor."
         },
         {
-          "narration": "环境现在已经准备好了. 每当使用spaCR时,保持其激活,并在故意更新时使用python -m pip install --upgrade spacr.",
+          "narration": "环境现在准备好了.每当使用 spaCR,都保持它激活,",
           "visual": "finish",
           "hold_after": 0.7,
-          "speech_text": "环境现在已经准备好了. 每当使用斯佩克尔时,保持其激活,并在故意更新时使用python -m pip install --upgrade 斯佩克尔."
+          "speech_text": "环境现在准备好了.每当使用 斯佩克尔,都保持它激活,"
         }
       ]
     },
@@ -208,65 +208,65 @@
       "id": "04_platform_installers",
       "number": 4,
       "slug": "platform_installers",
-      "title": "平台安装器",
+      "title": "Platform installers",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "在Windows,macOS或Linux上安装spaCR,没有现有的Python或Conda安装.",
+      "description": "在Windows,macOS或Linux上安装 spaCR,而没有现有的Python或Conda安装.",
       "objectives": [
         "选择Windows,macOS或Linux的正确安装器.",
         "处理平台安全和加速选择.",
         "如果安装失败,请检查诊断."
       ],
-      "prerequisite": "在官方GitHub版本中下载操作系统安装器.",
+      "prerequisite": "通过GitHub官方版本下载操作系统的安装器.",
       "scenes": [
         {
-          "narration": "轻量级的本土安装器创建了一个私人Python三点十二运行时间,然后下载Qt,PyTorch,spaCR及其科学依赖.",
+          "narration": "轻量级的本土安装器创建了一个私人Python三分十二运行时间,然后下载Qt,PyTorch,spaCR及其科学依赖.",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "轻量级的本土安装器创建了一个私人Python三点十二运行时间,然后下载Qt,PyTorch,斯佩克尔及其科学依赖."
+          "speech_text": "轻量级的本土安装器创建了一个私人Python三分十二运行时间,然后下载Qt,PyTorch,斯佩克尔及其科学依赖."
         },
         {
-          "narration": "仅从最新的spaCR GitHub版本下载安装器. 当您需要验证下载时,将文件与操作系统匹配,并使用已发布的SHA-256文件.",
+          "narration": "从 spaCR 部分打开 Platform installers。 将文件与操作系统匹配,并在需要验证下载时使用已发布的 SHA-256 文件.",
           "visual": "release",
           "hold_after": 0.7,
-          "speech_text": "仅从最新的斯佩克尔 GitHub版本下载安装器. 当您需要验证下载时,将文件与操作系统匹配,并使用已发布的SHA-256文件."
+          "speech_text": "从 斯佩克尔 部分打开 Platform installers。 将文件与操作系统匹配,并在需要验证下载时使用已发布的 SHA-256 文件."
         },
         {
-          "narration": "在Windows 10或11上,打开在线设置可执行的. 移动CPU安装是默认的;NVIDIA加速是可选的安装组件.",
+          "narration": "在Windows十或十一,打开在线设置可执行.便携式CPU安装是默认的;NVIDIA加速是可选的安装组件.",
           "visual": "windows",
           "hold_after": 0.7,
-          "speech_text": "在Windows 10或11上,打开在线设置可执行的. 移动CPU安装是默认的;NVIDIA加速是可选的安装组件."
+          "speech_text": "在Windows十或十一,打开在线设置可执行.便携式CPU安装是默认的;NVIDIA加速是可选的安装组件."
         },
         {
-          "narration": "在 macOS 11 或更新版本上,打开英特尔和果的通用包. 如果Gatekeeper封锁了未经公证的包裹,请使用隐私和安全,打开,然后再运行它.",
+          "narration": "如果Gatekeeper阻止未经公认的包,请使用隐私和安全,打开,然后再运行.",
           "visual": "macos",
           "hold_after": 0.7,
-          "speech_text": "在 macOS 11 或更新版本上,打开英特尔和果的通用包. 如果Gatekeeper封锁了未经公证的包裹,请使用隐私和安全,打开,然后再运行它."
+          "speech_text": "如果Gatekeeper阻止未经公认的包,请使用隐私和安全,打开,然后再运行."
         },
         {
-          "narration": "在64位Linux上,使下载的 .run文件可执行,然后从终端启动. 默认安装使用与CPU兼容的PyTorch.",
+          "narration": "在64位Linux上,让下载的 .run文件可执行,然后从终端启动.默认安装使用CPU兼容的PyTorch.",
           "visual": "linux",
           "hold_after": 0.7,
-          "speech_text": "在64位Linux上,使下载的 .run文件可执行,然后从终端启动. 默认安装使用与CPU兼容的PyTorch."
+          "speech_text": "在64位Linux上,让下载的 .run文件可执行,然后从终端启动.默认安装使用CPU兼容的PyTorch."
         },
         {
-          "narration": "对于 Linux 上支持的 NVIDIA 硬件,请通过--torch-backend auto. 这将在可用时选择加速,而不会使CUDA图书馆默认默认.",
+          "narration": "对于 Linux 上支持的 NVIDIA 硬件,请通过--torch-backend 自动. 这在可用时选择加速,而不会使 CUDA 库默认默认.",
           "visual": "linux_gpu",
           "hold_after": 0.7,
-          "speech_text": "对于 Linux 上支持的 NVIDIA 硬件,请通过--torch-backend auto. 这将在可用时选择加速,而不会使CUDA图书馆默认默认."
+          "speech_text": "对于 Linux 上支持的 NVIDIA 硬件,请通过--torch-backend 自动. 这在可用时选择加速,而不会使 CUDA 库默认默认."
         },
         {
-          "narration": "每个安装器在更换版本之前验证了更换. 一个中断的更新使之前的环境保持完整,并且install.log仍然存在于私人spaCR安装目录中.",
+          "narration": "每个安装器在切换版本之前验证了替换. 暂停更新使之前的环境保持完整, install.log仍然存在于私人 spaCR 安装目录中.",
           "visual": "safety",
           "hold_after": 0.7,
-          "speech_text": "每个安装器在更换版本之前验证了更换. 一个中断的更新使之前的环境保持完整,并且install.log仍然存在于私人斯佩克尔安装目录中."
+          "speech_text": "每个安装器在切换版本之前验证了替换. 暂停更新使之前的环境保持完整, install.log仍然存在于私人 斯佩克尔 安装目录中."
         },
         {
-          "narration": "在安装后,使用操作系统发射器. 不需要单独的Python或Conda设置.",
+          "narration": "安装后,使用操作系统启动器. 没有需要单独的 Python 或 Conda 设置.",
           "visual": "finish",
           "hold_after": 0.7,
-          "speech_text": "在安装后,使用操作系统发射器. 不需要单独的Python或Conda设置."
+          "speech_text": "安装后,使用操作系统启动器. 没有需要单独的 Python 或 Conda 设置."
         }
       ]
     },
@@ -274,47 +274,47 @@
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "首页屏幕和导航",
+      "title": "Home screen and navigation",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "查找模块,检查应用程序状态,并从spaCR首页屏幕进入工作流程.",
+      "description": "找模块,检查应用程序状态,并从 spaCR 首页屏幕进入工作流程.",
       "objectives": [
         "在首页,类别或侧边中找到模块.",
         "阅读系统和模块状态信息.",
-        "打开一个工作流程并确认主动模块."
+        "打开工作流程并确认已活跃的模块."
       ],
-      "prerequisite": "安装和启动spaCR桌面应用程序.",
+      "prerequisite": "安装和启动 spaCR 桌面应用程序.",
       "scenes": [
         {
-          "narration": "Home 屏幕按工作流程整理 spaCR 模块，方便您从图像处理依次进入分析和质量控制。",
+          "narration": "家庭组 spaCR模块按工作流程,以便您可以从图像处理到分析和质量控制.",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "主页 屏幕按工作流程整理 斯佩克尔 模块，方便您从图像处理依次进入分析和质量控制。"
+          "speech_text": "家庭组 斯佩克尔模块按工作流程,以便您可以从图像处理到分析和质量控制."
         },
         {
-          "narration": "使用左侧边栏切换不同部分。需要返回完整的模块库时，请选择 Home。",
+          "narration": "从 spaCR 部分打开 Home screen and navigation。 选择首页,随时您想返回完整的模块库.",
           "visual": "navigation",
           "hold_after": 0.7,
-          "speech_text": "使用左侧边栏切换不同部分。需要返回完整的模块库时，请选择 主页。"
+          "speech_text": "从 斯佩克尔 部分打开 主页 screen and navigation。 选择首页,随时您想返回完整的模块库."
         },
         {
-          "narration": "浏览类别选项卡和工作流程行来查找模块。每张模块卡片会打开一个工作流程，其颜色表示模块处于 Alpha、Beta 还是 Stable 状态。",
+          "narration": "浏览类别图表和工作流行,以找到模块.每个打开一个工作流,其颜色表示模块是否是阿尔法,贝塔或稳定.",
           "visual": "modules",
           "hold_after": 0.7,
-          "speech_text": "浏览类别选项卡和工作流程行来查找模块。每张模块卡片会打开一个工作流程，其颜色表示模块处于 阿尔法、贝塔 还是 稳定 状态。"
+          "speech_text": "浏览类别图表和工作流行,以找到模块.每个打开一个工作流,其颜色表示模块是否是阿尔法,贝塔或稳定."
         },
         {
-          "narration": "右侧面板显示当前的系统资源使用情况、版本动态和模块状态图例。开始资源密集型任务前，请先检查系统使用情况。",
+          "narration": "右侧面显示系统使用情况,发布消息,以及模块状态传说.",
           "visual": "status",
           "hold_after": 0.7,
-          "speech_text": "右侧面板显示当前的系统资源使用情况、版本动态和模块状态图例。开始资源密集型任务前，请先检查系统使用情况。"
+          "speech_text": "右侧面显示系统使用情况,发布消息,以及模块状态传说."
         },
         {
-          "narration": "选择模块卡片以打开其设置屏幕。屏幕顶部的模块名称和说明可确认当前处于哪个工作流程。",
+          "narration": "选择一个模块板,打开设置屏幕.上方的模块名称和描述确认哪个工作流动是活跃的.",
           "visual": "open_module",
           "hold_after": 0.7,
-          "speech_text": "选择模块卡片以打开其设置屏幕。屏幕顶部的模块名称和说明可确认当前处于哪个工作流程。"
+          "speech_text": "选择一个模块板,打开设置屏幕.上方的模块名称和描述确认哪个工作流动是活跃的."
         }
       ]
     },
@@ -322,47 +322,47 @@
       "id": "06_api",
       "number": 6,
       "slug": "api",
-      "title": "Python API 和无头的工作流程",
+      "title": "Python API and headless workflows",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "从Python或一个没有桌面接口的 shell 运行可重复的spaCR管道.",
+      "description": "运行可再生的 spaCR 管道从Python或一个 shell 没有桌面接口.",
       "objectives": [
-        "确认spaCR可用于Python.",
+        "确认 spaCR 已经从Python中可用.",
         "选择和配置一个开放式管道.",
-        "在完全无头跑前验证小试验."
+        "在完全无头跑之前,验证已决策的计划."
       ],
       "prerequisite": "首先完成一个安装教程.",
       "scenes": [
         {
-          "narration": "导入spaCR并打印其版本,以确认活跃的Python环境可以使用该包.",
+          "narration": "导入 spaCR,打印其版本以确认活跃的 Python 环境可以使用该包.",
           "visual": "import",
           "hold_after": 0.7,
-          "speech_text": "导入斯佩克尔并打印其版本,以确认活跃的Python环境可以使用该包."
+          "speech_text": "导入 斯佩克尔,打印其版本以确认活跃的 Python 环境可以使用该包."
         },
         {
-          "narration": "运行 spacr-run,使用列表选项查看可用的管道输入点,包括面具,测量,注释,分类和报告.",
+          "narration": "从 spaCR 部分打开 Python API and headless workflows。 运行 spaCR-run,使用列表选项查看可用的管道输入点,包括掩膜,测量,注释,分类和报告.",
           "visual": "list",
           "hold_after": 0.7,
-          "speech_text": "运行 斯佩克尔-run,使用列表选项查看可用的管道输入点,包括面具,测量,注释,分类和报告."
+          "speech_text": "从 斯佩克尔 部分打开 Python API and headless workflows。 运行 斯佩克尔-run,使用列表选项查看可用的管道输入点,包括掩膜,测量,注释,分类和报告."
         },
         {
-          "narration": "启动一个模块,使用 spacr-run,模块名称和出口设置文件. 在工作开始之前,spaCR验证了路径,道,工人和硬件选项.",
+          "narration": "启动一个模块,使用 spaCR-run,模块名称和出口设置文件. spaCR 在工作开始之前验证路径,道,工作人员和硬件选项.",
           "visual": "settings",
           "hold_after": 0.7,
-          "speech_text": "启动一个模块,使用 斯佩克尔-run,模块名称和出口设置文件. 在工作开始之前,斯佩克尔验证了路径,道,工人和硬件选项."
+          "speech_text": "启动一个模块,使用 斯佩克尔-run,模块名称和出口设置文件. 斯佩克尔 在工作开始之前验证路径,道,工作人员和硬件选项."
         },
         {
-          "narration": "首先添加测试选项来处理一个小代表子集. 在提交完整的未监督运行之前,请查看预览和保存日志.",
-          "visual": "test",
+          "narration": "添加--dry-run 解决设置,打印执行计划,并运行飞行前验证,而不处理数据. 在提交未监督工作之前,解决报告的每个问题.",
+          "visual": "dry_run",
           "hold_after": 0.7,
-          "speech_text": "首先添加测试选项来处理一个小代表子集. 在提交完整的未监督运行之前,请查看预览和保存日志."
+          "speech_text": "添加--dry-run 解决设置,打印执行计划,并运行飞行前验证,而不处理数据. 在提交未监督工作之前,解决报告的每个问题."
         },
         {
-          "narration": "取消试验选项,以完成全运行. 无头的工作将存储与桌面工作流相同的输出,设置,版本记录和日志.",
+          "narration": "只有计划和飞行前检查通过后才能删除 - 干运行.无头的工作将保存与桌面工作流相同的输出,设置,版本记录和日志.",
           "visual": "run",
           "hold_after": 0.7,
-          "speech_text": "取消试验选项,以完成全运行. 无头的工作将存储与桌面工作流相同的输出,设置,版本记录和日志."
+          "speech_text": "只有计划和飞行前检查通过后才能删除 - 干运行.无头的工作将保存与桌面工作流相同的输出,设置,版本记录和日志."
         }
       ]
     },
@@ -370,121 +370,121 @@
       "id": "07_mask",
       "number": 7,
       "slug": "mask",
-      "title": "面具",
+      "title": "Mask",
       "series": 1,
       "app_key": "mask",
       "section": "Core",
-      "description": "配置细分,使用直播预览验证,并创建下游测量面具.",
+      "description": "配置细分,使用直播预览验证,并创建下游测量掩膜.",
       "objectives": [
         "检查源元数据和道映射.",
-        "仅配置图像所需的细分控制.",
-        "使用直播预览在完整运行之前验证面具."
+        "仅配置图像所需的分区控制.",
+        "使用直播预览在完整运行之前验证掩膜."
       ],
       "prerequisite": "使用已知频道身份和文件名元数据的显微镜源.",
       "scenes": [
         {
-          "narration": "此模块左侧显示设置，右侧显示运行控制台。控制台会报告验证结果、进度、警告以及已保存的输出。",
+          "narration": "掩膜将设置置放在左边,运行时间控制台则位于右边.",
           "visual": "01_console",
           "hold_after": 0.7,
-          "speech_text": "此模块左侧显示设置，右侧显示运行控制台。控制台会报告验证结果、进度、警告以及已保存的输出。"
+          "speech_text": "掩膜将设置置放在左边,运行时间控制台则位于右边."
         },
         {
-          "narration": "将源图像文件夹拖入模块。确认检测到的文件名模式和元数据，然后把每个采集通道映射到对应的生物信号。本例的四个通道分别包含细胞核、内质网、脂滴和寄生虫。",
+          "narration": "从 Core 部分打开 Mask。 确认检测到的文件名模式和元数据,然后将每个收获频道映射到其生物信号.在这个例子中,四个频道包含核,内膜网膜,脂滴和寄生虫.",
           "visual": "05_metadata",
           "hold_after": 0.7,
           "focus_key": "metadata_dialog",
-          "speech_text": "将源图像文件夹拖入模块。确认检测到的文件名模式和元数据，然后把每个采集通道映射到对应的生物信号。本例的四个通道分别包含细胞核、内质网、脂滴和寄生虫。"
+          "speech_text": "从 Core 部分打开 Mask。 确认检测到的文件名模式和元数据,然后将每个收获频道映射到其生物信号.在这个例子中,四个频道包含核,内膜网膜,脂滴和寄生虫."
         },
         {
-          "narration": "先使用基本设置，其中包含常规运行所需的控件。仅在需要高级选项时打开全部设置；检查已修改的值，并把可重复使用的配置保存为配方。",
+          "narration": "基本显示了典型运行所需的控制.只需要先进的选项,修改以查看已更改的值,以及保存将重复使用的配置的食谱.",
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "先使用基本设置，其中包含常规运行所需的控件。仅在需要高级选项时打开全部设置；检查已修改的值，并把可重复使用的配置保存为配方。"
+          "speech_text": "基本显示了典型运行所需的控制.只需要先进的选项,修改以查看已更改的值,以及保存将重复使用的配置的食谱."
         },
         {
-          "narration": "配置分割前，请在输入和元数据中核对源文件夹、通道分配、放大倍数和文件名元数据。",
+          "narration": "在配置分区之前,输入和元数据中,验证源文件,道分配,放大和文件名元数据.",
           "visual": "12_category_01_input_metadata",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "配置分割前，请在输入和元数据中核对源文件夹、通道分配、放大倍数和文件名元数据。"
+          "speech_text": "在配置分区之前,输入和元数据中,验证源文件,道分配,放大和文件名元数据."
         },
         {
-          "narration": "在工作流程和测试运行中，选择要分割的对象类型、是否继续已有任务，以及测试所用的代表性视野数量。",
+          "narration": "工作流程和测试运行控制哪些掩膜被创建,是否恢复现有工作,以及测试使用的代表性字段数量.",
           "visual": "12_category_02_workflow_test_run",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "在工作流程和测试运行中，选择要分割的对象类型、是否继续已有任务，以及测试所用的代表性视野数量。"
+          "speech_text": "工作流程和测试运行控制哪些掩膜被创建,是否恢复现有工作,以及测试使用的代表性字段数量."
         },
         {
-          "narration": "细胞、细胞核、病原体和细胞器各自的设置区集中显示相应的模型、通道、主要阈值和对象过滤器。只修改当前图像确实需要调整的设置。",
+          "narration": "细胞,核,病原体和机器人分类每个组组为该隔间的模型,道,核心门和对象过器.只需要改变当前图像的设置.",
           "visual": "12_category_04_cell_segmentation",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "细胞、细胞核、病原体和细胞器各自的设置区集中显示相应的模型、通道、主要阈值和对象过滤器。只修改当前图像确实需要调整的设置。"
+          "speech_text": "细胞,核,病原体和机器人分类每个组组为该隔间的模型,道,核心门和对象过器.只需要改变当前图像的设置."
         },
         {
-          "narration": "启用实时预览，载入一个代表性视野，然后选择要调整的对象。本例预览的是细胞信号。",
+          "narration": "启用Live预览,加载一个代表字段,然后选择您调节的对象.",
           "visual": "25_cell_ready",
           "hold_after": 0.7,
           "focus_key": "canvases",
-          "speech_text": "启用实时预览，载入一个代表性视野，然后选择要调整的对象。本例预览的是细胞信号。"
+          "speech_text": "启用Live预览,加载一个代表字段,然后选择您调节的对象."
         },
         {
-          "narration": "在实时设置中，先确认对象和通道。只有当预览表明确有需要时，才调整直径、流场阈值或细胞概率阈值。",
+          "narration": "在直播设置中,首先确认对象和频道.只需预览给出理由,才能调整直径,流量门或细胞概率.",
           "visual": "26_live_settings",
           "hold_after": 0.7,
           "focus_key": "segmentation",
-          "speech_text": "在实时设置中，先确认对象和通道。只有当预览表明确有需要时，才调整直径、流场阈值或细胞概率阈值。"
+          "speech_text": "在直播设置中,首先确认对象和频道.只需预览给出理由,才能调整直径,流量门或细胞概率."
         },
         {
-          "narration": "启用设置传播，使此处验证过的值应用到完整运行中。",
+          "narration": "启动扩散设置,使您在这里验证的值成为全运行使用的设置.",
           "visual": "26_live_settings",
           "hold_after": 0.7,
           "focus_key": "propagate",
-          "speech_text": "启用设置传播，使此处验证过的值应用到完整运行中。"
+          "speech_text": "启动扩散设置,使您在这里验证的值成为全运行使用的设置."
         },
         {
-          "narration": "运行预览，并将叠加视图与源图像进行比较。轮廓应贴合可见的细胞边界，既不能把相邻细胞连在一起，也不能漏掉清晰的对象。",
+          "narration": "运行预览,检查源旁的覆盖.边界应该遵循可见的细胞,而不连接邻居或缺失清晰的物体.",
           "visual": "27_cell_outlines",
           "hold_after": 0.7,
           "focus_key": "action_and_canvases",
-          "speech_text": "运行预览，并将叠加视图与源图像进行比较。轮廓应贴合可见的细胞边界，既不能把相邻细胞连在一起，也不能漏掉清晰的对象。"
+          "speech_text": "运行预览,检查源旁的覆盖.边界应该遵循可见的细胞,而不连接邻居或缺失清晰的物体."
         },
         {
-          "narration": "切换到流场视图，检查 Cellpose 使用的方向场。不规则的流场模式有助于解释掩膜为何被错误地拆分或合并。",
+          "narration": "转换到流动,检查Cellpose使用的方向场.不规则的流动模式可以帮助解释错误分裂或合并的掩膜.",
           "visual": "28_cell_flows",
           "hold_after": 0.7,
           "focus_key": "action_and_canvases",
-          "speech_text": "切换到流场视图，检查 塞尔波斯 使用的方向场。不规则的流场模式有助于解释掩膜为何被错误地拆分或合并。"
+          "speech_text": "转换到流动,检查塞尔波斯使用的方向场.不规则的流动模式可以帮助解释错误分裂或合并的掩膜."
         },
         {
-          "narration": "掩膜视图仅在黑色背景上显示最终标签。使用它可在不叠加源图像的情况下检查对象覆盖范围和分离情况。",
+          "narration": "掩膜将最后的标签与黑色背景隔离. 使用它检查对象覆盖和分离,而没有下面的源图像.",
           "visual": "29_cell_objects",
           "hold_after": 0.7,
           "focus_key": "action_and_canvases",
-          "speech_text": "掩膜视图仅在黑色背景上显示最终标签。使用它可在不叠加源图像的情况下检查对象覆盖范围和分离情况。"
+          "speech_text": "掩膜将最后的标签与黑色背景隔离. 使用它检查对象覆盖和分离,而没有下面的源图像."
         },
         {
-          "narration": "对象过滤器会立即更新缓存的预览。只把最小面积提高到足以去除明显碎片的程度；合适的阈值取决于图像尺度。",
+          "narration": "对象过器立即更新缓存预览. 提高最小面积仅足以删除明显的碎片;正确的切断取决于图像规模.",
           "visual": "30_cell_size_filter",
           "hold_after": 0.7,
           "focus_key": "min_area",
-          "speech_text": "对象过滤器会立即更新缓存的预览。只把最小面积提高到足以去除明显碎片的程度；合适的阈值取决于图像尺度。"
+          "speech_text": "对象过器立即更新缓存预览. 提高最小面积仅足以删除明显的碎片;正确的切断取决于图像规模."
         },
         {
-          "narration": "将过滤后的叠加视图与原始预览进行比较。有效细胞应当保留；如果它们消失，请降低最小面积。",
+          "narration": "选的覆盖面与原始预览相比较.原始的细胞应该保持;如果它们消失,则减少最小的面积.",
           "visual": "31_cell_filtered",
           "hold_after": 0.7,
           "focus_key": "canvases",
-          "speech_text": "将过滤后的叠加视图与原始预览进行比较。有效细胞应当保留；如果它们消失，请降低最小面积。"
+          "speech_text": "选的覆盖面与原始预览相比较.原始的细胞应该保持;如果它们消失,则减少最小的面积."
         },
         {
-          "narration": "在输出和存储中选择所需的掩膜和中间文件。先运行一个小规模测试；预览和控制台检查均通过后，再处理全部源数据。",
+          "narration": "在输出和存储中选择所需的掩膜和中间文件. 首先执行一个小测试,然后在预览和控制台检查通过后处理完整的源头.",
           "visual": "12_category_12_output_storage",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "在输出和存储中选择所需的掩膜和中间文件。先运行一个小规模测试；预览和控制台检查均通过后，再处理全部源数据。"
+          "speech_text": "在输出和存储中选择所需的掩膜和中间文件. 首先执行一个小测试,然后在预览和控制台检查通过后处理完整的源头."
         }
       ]
     },
@@ -492,87 +492,87 @@
       "id": "08_measure",
       "number": 8,
       "slug": "measure",
-      "title": "测量",
+      "title": "Measure",
       "series": 1,
       "app_key": "measure",
       "section": "Core",
-      "description": "从图像和面具中提取对象级别的功能,然后检查结果的作物图库和数据库输出.",
+      "description": "从图像和掩膜中提取对象级别的功能,然后检查结果的作物图库和数据库输出.",
       "objectives": [
-        "检查图像道和面具平面映射.",
+        "检查图像道和掩膜平面映射.",
         "选择只需要分析的功能家庭,过器和作物.",
         "在写出完整的测量输出之前,在直播预览中验证测试."
       ],
       "prerequisite": "填写Mask,并确认合并项目包含可用图像和标签平面.",
       "scenes": [
         {
-          "narration": "测量左侧的位置设置和右侧的运行时间控制台. 控制台报告源验证,进展,警告和保存的测量输出.",
+          "narration": "测量放置左边设置,右边设置运行时间控制台.控制台报告源验证,进展,警告和保存的测量输出.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "测量左侧的位置设置和右侧的运行时间控制台. 控制台报告源验证,进展,警告和保存的测量输出."
+          "speech_text": "测量放置左边设置,右边设置运行时间控制台.控制台报告源验证,进展,警告和保存的测量输出."
         },
         {
-          "narration": "选择由Mask制作的合并项目文件. 测量直接读取存储的图像,面具和项目元数据.",
+          "narration": "从 Core 部分打开 Measure。 测量直接读取存储的图像,掩膜和项目元数据.",
           "visual": "05_folder",
           "hold_after": 0.7,
           "focus_key": "src",
-          "speech_text": "选择由Mask制作的合并项目文件. 测量直接读取存储的图像,面具和项目元数据."
+          "speech_text": "从 Core 部分打开 Measure。 测量直接读取存储的图像,掩膜和项目元数据."
         },
         {
-          "narration": "首先要从基本知识开始. 使用所有用于先进控制,修改以审计改变的值,以及重复使用相同的测量设置时的配方.",
+          "narration": "开始使用基本知识. 使用所有用于高级控制,修改以审计改变的值,以及重复使用相同的测量设置时的食谱.",
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "首先要从基本知识开始. 使用所有用于先进控制,修改以审计改变的值,以及重复使用相同的测量设置时的配方."
+          "speech_text": "开始使用基本知识. 使用所有用于高级控制,修改以审计改变的值,以及重复使用相同的测量设置时的食谱."
         },
         {
-          "narration": "在面具和道映射中,检查细胞,核,病原体,机器人以及任何衍生的隔离器的图像道和标签平面.",
+          "narration": "在掩膜和道映射中,检查细胞,核,病原体,机器人以及任何衍生的隔离器的图像道和标签平面.",
           "visual": "12_category_02_mask_channel_mapping",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "在面具和道映射中,检查细胞,核,病原体,机器人以及任何衍生的隔离器的图像道和标签平面."
+          "speech_text": "在掩膜和道映射中,检查细胞,核,病原体,机器人以及任何衍生的隔离器的图像道和标签平面."
         },
         {
-          "narration": "测量特征选择分析所需的强度,形态,纹理,定位化和空间总结. 让不使用的特色家庭离开.",
+          "narration": "测量特征选择分析所需的强度,形态,纹理,定位和空间总结.",
           "visual": "12_category_03_measurement_features",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "测量特征选择分析所需的强度,形态,纹理,定位化和空间总结. 让不使用的特色家庭离开."
+          "speech_text": "测量特征选择分析所需的强度,形态,纹理,定位和空间总结."
         },
         {
-          "narration": "对象过删除已知文物,而Crop Output控制是否保存代表对象图像进行注释或分类. 选择试验中的过器和作物规模,而不是复制固定值.",
+          "narration": "对象过删除已知文物,而Crop Output控制是否保存代表对象图像进行注释或分类.选择从实验中过器和产量尺度,而不是复制固定值.",
           "visual": "12_category_05_crop_output",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "对象过删除已知文物,而Crop Output控制是否保存代表对象图像进行注释或分类. 选择试验中的过器和作物规模,而不是复制固定值."
+          "speech_text": "对象过删除已知文物,而Crop Output控制是否保存代表对象图像进行注释或分类.选择从实验中过器和产量尺度,而不是复制固定值."
         },
         {
-          "narration": "预览和诊断定义了一个小的测试样本. 在测量整个实验之前使用它.",
+          "narration": "预览和诊断定义了一个小的测试样本.",
           "visual": "12_category_06_preview_diagnostics",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "预览和诊断定义了一个小的测试样本. 在测量整个实验之前使用它."
+          "speech_text": "预览和诊断定义了一个小的测试样本."
         },
         {
-          "narration": "启用现场预览,并加载完成的合并阵列. 图库组分了真实物体作物,以便您可以查看面具的分配,",
+          "narration": "启用现场预览,然后加载完成的合并阵列. 图库组合了真实对象的作物,以便您可以检查掩膜分配,频道内容和作物框架.",
           "visual": "20_cell_crops",
           "hold_after": 0.7,
           "focus_key": "live_and_grid",
-          "speech_text": "启用现场预览,并加载完成的合并阵列. 图库组分了真实物体作物,以便您可以查看面具的分配,"
+          "speech_text": "启用现场预览,然后加载完成的合并阵列. 图库组合了真实对象的作物,以便您可以检查掩膜分配,频道内容和作物框架."
         },
         {
-          "narration": "换取图库道检查每一个生物信号. 这种显示选择有助于控制质量,并不会限制测量配置的道.",
+          "narration": "换取图像道检查每种生物信号. 这种显示选择有助于控制质量,而不会限制测量配置的道.",
           "visual": "24_er_channel",
           "hold_after": 0.7,
           "focus_key": "grid",
-          "speech_text": "换取图库道检查每一个生物信号. 这种显示选择有助于控制质量,并不会限制测量配置的道."
+          "speech_text": "换取图像道检查每种生物信号. 这种显示选择有助于控制质量,而不会限制测量配置的道."
         },
         {
-          "narration": "检测成功后,运行完整的源头. 测量将在测量点db和任何要求的作物中保存可追踪的对象行,并将项目产品保存起来.",
+          "narration": "测试成功后,运行完整的源.测量将在测量点db中保存可追踪的对象行以及项目输出旁边的任何要求的作物.",
           "visual": "25_outputs",
           "hold_after": 0.7,
           "focus_key": "status",
-          "speech_text": "检测成功后,运行完整的源头. 测量将在测量点db和任何要求的作物中保存可追踪的对象行,并将项目产品保存起来."
+          "speech_text": "测试成功后,运行完整的源.测量将在测量点db中保存可追踪的对象行以及项目输出旁边的任何要求的作物."
         }
       ]
     },
@@ -580,7 +580,7 @@
       "id": "09_annotate",
       "number": 9,
       "slug": "annotate",
-      "title": "报表",
+      "title": "Annotate",
       "series": 1,
       "app_key": "annotate",
       "section": "Core",
@@ -593,25 +593,25 @@
       "prerequisite": "完成对象作物的测量,并决定记录类方案.",
       "scenes": [
         {
-          "narration": "标记优先考虑农作物网. 只有需要数据库消息,保存状态,警告或本地帮助时打开控制台,然后隐藏它,以恢复空间.",
+          "narration": "标记优先考虑产品格.只需要数据库消息时打开控制台,保存状态,警告或本地帮助,然后隐藏它,以恢复空间.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console_and_chat",
-          "speech_text": "标记优先考虑农作物网. 只有需要数据库消息,保存状态,警告或本地帮助时打开控制台,然后隐藏它,以恢复空间."
+          "speech_text": "标记优先考虑产品格.只需要数据库消息时打开控制台,保存状态,警告或本地帮助,然后隐藏它,以恢复空间."
         },
         {
-          "narration": "打开测量项目,选择或创建注释列,并确认预期对象的产量负载. 在标签开始之前,定义每个类的含义.",
+          "narration": "从 Core 部分打开 Annotate。 在标签开始之前,定义每个类的意思.",
           "visual": "05_folder",
           "hold_after": 0.7,
           "focus_key": "grid",
-          "speech_text": "打开测量项目,选择或创建注释列,并确认预期对象的产量负载. 在标签开始之前,定义每个类的含义."
+          "speech_text": "从 Core 部分打开 Annotate。 在标签开始之前,定义每个类的意思."
         },
         {
-          "narration": "设置控制显示的道,产品外观,对象过器和可选的不确定性队列. 对于所有捐款标签的人,保持一致的观点.",
+          "narration": "设置控制显示的频道,产品外观,对象过器和可选的不确定性队列.",
           "visual": "06_settings",
           "hold_after": 0.7,
           "focus_key": "dialog",
-          "speech_text": "设置控制显示的道,产品外观,对象过器和可选的不确定性队列. 对于所有捐款标签的人,保持一致的观点."
+          "speech_text": "设置控制显示的频道,产品外观,对象过器和可选的不确定性队列."
         },
         {
           "narration": "打开键盘参考,以查看重复使用的小组操作:分配类,移动重点,跳过,撤销,保存或推进.",
@@ -621,11 +621,11 @@
           "speech_text": "打开键盘参考,以查看重复使用的小组操作:分配类,移动重点,跳过,撤销,保存或推进."
         },
         {
-          "narration": "标签上设置数字键或鼠标. 类颜色的环证实保存的标签, 焦点进步, 许多物体可以有效地审查.",
+          "narration": "按数键或鼠标分配标签. 类颜色的戒指确认保存的标签,并且重点提升,以便有效地审查许多物体.",
           "visual": "09_keyboard_class_one",
           "hold_after": 0.7,
           "focus_key": "grid",
-          "speech_text": "标签上设置数字键或鼠标. 类颜色的环证实保存的标签, 焦点进步, 许多物体可以有效地审查."
+          "speech_text": "按数键或鼠标分配标签. 类颜色的戒指确认保存的标签,并且重点提升,以便有效地审查许多物体."
         },
         {
           "narration": "使用导航和撤销,以修改最近的选择,而不删除其他保存的工作. 在转移到另一个页面或结束会议之前保存.",
@@ -635,32 +635,32 @@
           "speech_text": "使用导航和撤销,以修改最近的选择,而不删除其他保存的工作. 在转移到另一个页面或结束会议之前保存."
         },
         {
-          "narration": "报表显示标签是否涵盖课程,板块,井,来源和积极学习轮. 在训练前,添加缺失群体的例子.",
+          "narration": "报表显示标签是否涵盖课程,盘子,井,来源和积极学习轮.",
           "visual": "16_coverage",
           "hold_after": 0.7,
           "focus_key": "report",
-          "speech_text": "报表显示标签是否涵盖课程,板块,井,来源和积极学习轮. 在训练前,添加缺失群体的例子."
+          "speech_text": "报表显示标签是否涵盖课程,盘子,井,来源和积极学习轮."
         },
         {
-          "narration": "如果有足够的代表标签,Retrain可以评分剩余的作物,并优先考虑不确定的例子. 作为可选的审查援助,而不是替代覆盖.",
+          "narration": "只有足够的代表标签,Retrain可以评分剩余的作物,并优先考虑不确定的例子.",
           "visual": "21_active_learning",
           "hold_after": 0.7,
           "focus_key": "active_controls",
-          "speech_text": "如果有足够的代表标签,Retrain可以评分剩余的作物,并优先考虑不确定的例子. 作为可选的审查援助,而不是替代覆盖."
+          "speech_text": "只有足够的代表标签,Retrain可以评分剩余的作物,并优先考虑不确定的例子."
         },
         {
-          "narration": "列车简历将图像作物和此注释列发送到视觉分类器. 列车XG将相同的标签发送到基于特征的分类器;两者都在自动启动训练的情况下打开配置的模块.",
+          "narration": "列车CV将图像作物和这个注释列送到视觉分类器.列车XG将相同的标签送到基于特征的分类器;两者都会自动开启配置的模块,而不需要开始训练.",
           "visual": "22_training_handoffs",
           "hold_after": 0.7,
           "focus_key": "training",
-          "speech_text": "列车简历将图像作物和此注释列发送到视觉分类器. 列车XG将相同的标签发送到基于特征的分类器;两者都在自动启动训练的情况下打开配置的模块."
+          "speech_text": "列车CV将图像作物和这个注释列送到视觉分类器.列车XG将相同的标签送到基于特征的分类器;两者都会自动开启配置的模块,而不需要开始训练."
         },
         {
-          "narration": "测量点db中,标注保持不变,对象标识符和来源都不变. 继续,直到对预期模型或质量控制决定的覆盖量足够.",
+          "narration": "标记在测量点db中保持完整,对象标识符和来源.继续进行,直到对预期模型或质量控制决定的覆盖量足够.",
           "visual": "24_saved_result",
           "hold_after": 0.7,
           "focus_key": "status",
-          "speech_text": "测量点db中,标注保持不变,对象标识符和来源都不变. 继续,直到对预期模型或质量控制决定的覆盖量足够."
+          "speech_text": "标记在测量点db中保持完整,对象标识符和来源.继续进行,直到对预期模型或质量控制决定的覆盖量足够."
         }
       ]
     },
@@ -668,7 +668,7 @@
       "id": "10_classify_cv",
       "number": 10,
       "slug": "classify_cv",
-      "title": "类别,计算机视觉",
+      "title": "Classify, computer vision",
       "series": 1,
       "app_key": "classify",
       "section": "Core",
@@ -681,88 +681,88 @@
       "prerequisite": "完整的注释,有文档的类别和预期的板块或井口的代表性覆盖.",
       "scenes": [
         {
-          "narration": "归类简历列车图像模型在注释物体作物上. 控制台报告数据集检查,训练进展,延期的指标,推断,警告和输出路径.",
+          "narration": "编程简历训练图像模型在注释物体作物. 控制台报告数据集检查,训练进展,延期的指标,推断,警告和输出路径.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "归类简历列车图像模型在注释物体作物上. 控制台报告数据集检查,训练进展,延期的指标,推断,警告和输出路径."
+          "speech_text": "编程简历训练图像模型在注释物体作物. 控制台报告数据集检查,训练进展,延期的指标,推断,警告和输出路径."
         },
         {
-          "narration": "板源和工作流量选择测量项目和执行的阶段:构建分区,训练,评估或应用现有检查点.",
+          "narration": "从 Core 部分打开 Classify, computer vision。 板源和工作流量选择测量项目和执行的阶段:构建分区,训练,评估或应用现有检查点.",
           "visual": "12_category_01_plate_sources_workflow",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "板源和工作流量选择测量项目和执行的阶段:构建分区,训练,评估或应用现有检查点."
+          "speech_text": "从 Core 部分打开 Classify, computer vision。 板源和工作流量选择测量项目和执行的阶段:构建分区,训练,评估或应用现有检查点."
         },
         {
-          "narration": "开始使用Essentials,使用 Modified来审计故意的变化,然后只开 All,以控制实验所需的控制. 在设置重复时保存一个配方.",
+          "narration": "开始使用Essentials,使用 Modified来审计故意的变化,然后只打开所有,只用于实验所需的控制.",
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "开始使用Essentials,使用 Modified来审计故意的变化,然后只开 All,以控制实验所需的控制. 在设置重复时保存一个配方."
+          "speech_text": "开始使用Essentials,使用 Modified来审计故意的变化,然后只打开所有,只用于实验所需的控制."
         },
         {
-          "narration": "标签和类选择作为基础真相使用的注释或元数据字段,并将其保存的值映射到文档类名. 在训练之前,请检查地图.",
+          "narration": "标签和类选择作为基础真相使用的注释或元数据字段,并将其保存的值映射到文档类名. 在训练之前,检查该映射.",
           "visual": "12_category_02_labels_classes",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "标签和类选择作为基础真相使用的注释或元数据字段,并将其保存的值映射到文档类名. 在训练之前,请检查地图."
+          "speech_text": "标签和类选择作为基础真相使用的注释或元数据字段,并将其保存的值映射到文档类名. 在训练之前,检查该映射."
         },
         {
-          "narration": "产品和数据集分类选择对象图像,道,平衡和持久分数. 组相关图像由板块或井,所以训练和评估之间无法泄漏.",
-          "visual": "12_category_03_crops_dataset_split",
+          "narration": "图像和剪切选择对象图像,道,平衡和持久分数. 按板块或井底组组相关图像,因此训练和评估之间几乎没有复制的图像可以泄漏.",
+          "visual": "12_category_03_images_cropping",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "产品和数据集分类选择对象图像,道,平衡和持久分数. 组相关图像由板块或井,所以训练和评估之间无法泄漏."
+          "speech_text": "图像和剪切选择对象图像,道,平衡和持久分数. 按板块或井底组组相关图像,因此训练和评估之间几乎没有复制的图像可以泄漏."
         },
         {
-          "narration": "模型架构选择了网络,输入道和尺寸,预训练的重量和图像预期的正常化. 首先要一个合理的基线.",
-          "visual": "12_category_04_model_architecture",
+          "narration": "模型和规律化选择网络,输入道和尺寸,预训练的重量,正常化和规律化,预期图像.从一个合理的基线开始.",
+          "visual": "12_category_04_model_regularization",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "模型架构选择了网络,输入道和尺寸,预训练的重量和图像预期的正常化. 首先要一个合理的基线."
+          "speech_text": "模型和规律化选择网络,输入道和尺寸,预训练的重量,正常化和规律化,预期图像.从一个合理的基线开始."
         },
         {
-          "narration": "优化和损失包含学习速度,增强,批量,时代和早期停止. 根据验证行为,每次改变一小部分控制.",
-          "visual": "12_category_05_optimization_loss",
+          "narration": "训练和损失包含学习速度,增强,批量,时代和早期停止.一次改变少量的控制,并根据验证行为判断它们.",
+          "visual": "12_category_05_training_loss",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "优化和损失包含学习速度,增强,批量,时代和早期停止. 根据验证行为,每次改变一小部分控制."
+          "speech_text": "训练和损失包含学习速度,增强,批量,时代和早期停止.一次改变少量的控制,并根据验证行为判断它们."
         },
         {
-          "narration": "评估工作台增加了集成或嵌套的评估,校准和严格的身份和内容泄漏检查. 保持最终保留的数据与模型选择分开.",
-          "visual": "12_category_07_evaluation_workbench",
+          "narration": "评估和结果增加了集成评估,校准和严格的身份和内容泄漏检查. 保持最终保留的数据与模型选择分开.",
+          "visual": "12_category_06_evaluation_results",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "评估工作台增加了集成或嵌套的评估,校准和严格的身份和内容泄漏检查. 保持最终保留的数据与模型选择分开."
+          "speech_text": "评估和结果增加了集成评估,校准和严格的身份和内容泄漏检查. 保持最终保留的数据与模型选择分开."
         },
         {
-          "narration": "完整数据集和推理应用所选的检查点,编写概率和类调用,并保存代表性高信心的例子进行审查.",
-          "visual": "12_category_08_full_dataset_inference",
+          "narration": "同样的评估和结果部分控制了全数据集推断,保存的概率和类调用,以及代表性示例. 在使用生物预测之前,审查这些输出.",
+          "visual": "12_category_06_evaluation_results",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "完整数据集和推理应用所选的检查点,编写概率和类调用,并保存代表性高信心的例子进行审查."
+          "speech_text": "同样的评估和结果部分控制了全数据集推断,保存的概率和类调用,以及代表性示例. 在使用生物预测之前,审查这些输出."
         },
         {
-          "narration": "启用多个可行的配置需要比较时, 微型工作台运行组合试验,显示每个分数,折叠变化,参数和状态.",
+          "narration": "在几个可行的配置需要比较时,启用Hyperparameter Search. 迷你工作台运行组合试验,显示每个分数,折叠变化,参数和状态.",
           "visual": "23_hyperparameter_search",
           "hold_after": 0.7,
           "focus_key": "results",
-          "speech_text": "启用多个可行的配置需要比较时, 微型工作台运行组合试验,显示每个分数,折叠变化,参数和状态."
+          "speech_text": "在几个可行的配置需要比较时,启用Hyperparameter Search. 迷你工作台运行组合试验,显示每个分数,折叠变化,参数和状态."
         },
         {
-          "narration": "搜索设置定义了一个专注的候选空间,排名指标,组合的折叠和试用预算. 避免广泛的搜索,这些搜索将计算用于实验无法区分的选择.",
+          "narration": "搜索设置定义了一个集中的候选空间,排名指标,组合的折叠和试验预算. 避免广泛的搜索,用于计算的选择实验无法区分.",
           "visual": "24_search_settings",
           "hold_after": 0.7,
           "focus_key": "dialog",
-          "speech_text": "搜索设置定义了一个专注的候选空间,排名指标,组合的折叠和试用预算. 避免广泛的搜索,这些搜索将计算用于实验无法区分的选择."
+          "speech_text": "搜索设置定义了一个集中的候选空间,排名指标,组合的折叠和试验预算. 避免广泛的搜索,用于计算的选择实验无法区分."
         },
         {
-          "narration": "运行首先验证标签和分区,然后训练并评估配置模型. 在广泛应用之前,检查已使用的指标和示例;spaCR存储检查点,预测,设置和运行记录.",
+          "narration": "运行先验证标签和分区,然后训练和评估配置模型. 在广泛应用之前,审查已保留的指标和示例; spaCR存储检查点,预测,设置和运行记录.",
           "visual": "25_run_pipeline",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "运行首先验证标签和分区,然后训练并评估配置模型. 在广泛应用之前,检查已使用的指标和示例;斯佩克尔存储检查点,预测,设置和运行记录."
+          "speech_text": "运行先验证标签和分区,然后训练和评估配置模型. 在广泛应用之前,审查已保留的指标和示例; 斯佩克尔存储检查点,预测,设置和运行记录."
         }
       ]
     },
@@ -770,7 +770,7 @@
       "id": "11_classify_ml",
       "number": 11,
       "slug": "classify_ml",
-      "title": "机器学习",
+      "title": "Classify, machine learning",
       "series": 1,
       "app_key": "ml_analyze",
       "section": "Core",
@@ -783,25 +783,25 @@
       "prerequisite": "完成测量,并提供可靠的标签或控制地图,并提供安全泄漏的组列.",
       "scenes": [
         {
-          "narration": "按对象测量进行经典模型的 ML 训练. 控制台报告数据库加载,功能准备,验证,重要性,预测和错误.",
+          "narration": "类 ML 训练一个经典模型,以每个对象的测量. 控制台报告数据库加载,功能准备,验证,重要性,预测和错误.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "按对象测量进行经典模型的 ML 训练. 控制台报告数据库加载,功能准备,验证,重要性,预测和错误."
+          "speech_text": "类 ML 训练一个经典模型,以每个对象的测量. 控制台报告数据库加载,功能准备,验证,重要性,预测和错误."
         },
         {
-          "narration": "数据与控制选择测量项目,标签领域,正值和负值以及实验组合. 在安装模型之前,请检查该图的生物含义.",
-          "visual": "12_category_01_data_controls",
+          "narration": "从 Core 部分打开 Classify, machine learning。 在安装模型之前,检查该映射的生物含义.",
+          "visual": "12_category_01_labels_classes",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "数据与控制选择测量项目,标签领域,正值和负值以及实验组合. 在安装模型之前,请检查该图的生物含义."
+          "speech_text": "从 Core 部分打开 Classify, machine learning。 在安装模型之前,检查该映射的生物含义."
         },
         {
-          "narration": "开始从\"修改\"中的基本内容和审计变化. 仅为分析需要的控制器打开所有,并保存一次性运行的配方.",
+          "narration": "开始修改的基本内容和审计变化. 仅为控制分析需求打开所有内容,并保存重复运行的配方.",
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "开始从\"修改\"中的基本内容和审计变化. 仅为分析需要的控制器打开所有,并保存一次性运行的配方."
+          "speech_text": "开始修改的基本内容和审计变化. 仅为控制分析需求打开所有内容,并保存重复运行的配方."
         },
         {
           "narration": "特性 准备选择了所需的道,并在训练前删除了排除,无效,变量较低,相关性较高或支持不良的测量.",
@@ -811,25 +811,25 @@
           "speech_text": "特性 准备选择了所需的道,并在训练前删除了排除,无效,变量较低,相关性较高或支持不良的测量."
         },
         {
-          "narration": "电池板和批量纠正可以对其控制进行正常化. 使用保存生物对比的校正,并且可以一致地应用于未来数据.",
+          "narration": "电盘和批量纠正可以将每个电盘与其控制进行正常化. 使用一种保持生物对比的纠正,并且可以一致地应用于未来的数据.",
           "visual": "12_category_03_plate_batch_correction",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "电池板和批量纠正可以对其控制进行正常化. 使用保存生物对比的校正,并且可以一致地应用于未来数据."
+          "speech_text": "电盘和批量纠正可以将每个电盘与其控制进行正常化. 使用一种保持生物对比的纠正,并且可以一致地应用于未来的数据."
         },
         {
-          "narration": "类和验证选出估计器,复杂性,延续分离和交叉验证行为. 按板块或井组相关物体以避免泄漏.",
+          "narration": "类和验证选定估计器,复杂性,持久分离和交叉验证行为.以避免泄漏,按板块或井分类相关物体.",
           "visual": "12_category_04_classifier_validation",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "类和验证选出估计器,复杂性,延续分离和交叉验证行为. 按板块或井组相关物体以避免泄漏."
+          "speech_text": "类和验证选定估计器,复杂性,持久分离和交叉验证行为.以避免泄漏,按板块或井分类相关物体."
         },
         {
-          "narration": "特性选择和重要性 调整最终特性集和估计的测量支持分类器. 只有在未完成的表现之后才可以解释重要.",
+          "narration": "特性选择和重要性 调整最终特性集和估计的测量支持分类器. 仅在保持性能后才可以解释重要性.",
           "visual": "12_category_05_feature_selection_importance",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "特性选择和重要性 调整最终特性集和估计的测量支持分类器. 只有在未完成的表现之后才可以解释重要."
+          "speech_text": "特性选择和重要性 调整最终特性集和估计的测量支持分类器. 仅在保持性能后才可以解释重要性."
         },
         {
           "narration": "输出和数据库控制是否保存或将其写回测量项目中的概率,类调用,模型文件和选定的功能.",
@@ -839,25 +839,25 @@
           "speech_text": "输出和数据库控制是否保存或将其写回测量项目中的概率,类调用,模型文件和选定的功能."
         },
         {
-          "narration": "超参数搜索是一个小型工作台,用于将集中的模型选择组与组合的折叠进行比较. 结果表列出完成的试验,并显示它们的变化.",
+          "narration": "超参数搜索是一个小型工作台,用于将集中的模型选择组与组合的折叠进行比较.结果表排名完成的试验,显示它们的变化.",
           "visual": "23_hyperparameter_search",
           "hold_after": 0.7,
           "focus_key": "results",
-          "speech_text": "超参数搜索是一个小型工作台,用于将集中的模型选择组与组合的折叠进行比较. 结果表列出完成的试验,并显示它们的变化."
+          "speech_text": "超参数搜索是一个小型工作台,用于将集中的模型选择组与组合的折叠进行比较.结果表排名完成的试验,显示它们的变化."
         },
         {
-          "narration": "搜索设置定义候选人值,试用预算,折叠,种子和排名指标. 搜索空间要小到可以解释和复制.",
+          "narration": "搜索设置定义候选人值,试用预算,折叠,种子和排名指标.保持搜索空间足够小,可以解释和复制.",
           "visual": "24_search_settings",
           "hold_after": 0.7,
           "focus_key": "dialog",
-          "speech_text": "搜索设置定义候选人值,试用预算,折叠,种子和排名指标. 搜索空间要小到可以解释和复制."
+          "speech_text": "搜索设置定义候选人值,试用预算,折叠,种子和排名指标.保持搜索空间足够小,可以解释和复制."
         },
         {
-          "narration": "运行验证控制,准备功能,应用任何板块纠正,评估分类器,计算重要性,并保存启用输出. 在生物学的预测使用之前,请审查持久和每盘的行为.",
+          "narration": "运行验证控制,准备功能,应用任何板块纠正,评估分类器,计算重要性,并保存启用输出. 在生物学的预测使用之前,审查持久和每板的行为.",
           "visual": "25_run_pipeline",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "运行验证控制,准备功能,应用任何板块纠正,评估分类器,计算重要性,并保存启用输出. 在生物学的预测使用之前,请审查持久和每盘的行为."
+          "speech_text": "运行验证控制,准备功能,应用任何板块纠正,评估分类器,计算重要性,并保存启用输出. 在生物学的预测使用之前,审查持久和每板的行为."
         }
       ]
     },
@@ -865,7 +865,7 @@
       "id": "12_map_barcodes",
       "number": 12,
       "slug": "map_barcodes",
-      "title": "图条码",
+      "title": "Map Barcodes",
       "series": 1,
       "app_key": "map_barcodes",
       "section": "Core",
@@ -878,60 +878,60 @@
       "prerequisite": "提供符合测序图书馆设计的FASTQ读数和验证的查找表.",
       "scenes": [
         {
-          "narration": "图条码解码序列读取了盘位和指导身份. 控制台报告样本发现,解析器验证,阅读进展,输出路径和故障.",
+          "narration": "图条码解码序列读取盘位和指导身份.控制台报告样本发现,解析器验证,读取进展,输出路径和故障.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "图条码解码序列读取了盘位和指导身份. 控制台报告样本发现,解析器验证,阅读进展,输出路径和故障."
+          "speech_text": "图条码解码序列读取盘位和指导身份.控制台报告样本发现,解析器验证,读取进展,输出路径和故障."
         },
         {
-          "narration": "序列输入选择FASTQ文件,并单独处理是否结合读数或单个读取方向. 在大跑前确认命名模式.",
+          "narration": "从 Core 部分打开 Map Barcodes。 在大运行之前确认命名模式.",
           "visual": "13_category_01_sequencing_input",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "序列输入选择FASTQ文件,并单独处理是否结合读数或单个读取方向. 在大跑前确认命名模式."
+          "speech_text": "从 Core 部分打开 Map Barcodes。 在大运行之前确认命名模式."
         },
         {
-          "narration": "基本包含了第一次运行所需的输入和解析控制. 使用修改来审查图书馆特定的变更,所有用于高级控制,以及重复使用布局的食谱.",
+          "narration": "基本内容包含了第一次运行所需的输入和解析控制. 使用修改来审查图书馆特定的变更,所有用于高级控制,以及可重复使用布局的食谱.",
           "visual": "09_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "基本包含了第一次运行所需的输入和解析控制. 使用修改来审查图书馆特定的变更,所有用于高级控制,以及重复使用布局的食谱."
+          "speech_text": "基本内容包含了第一次运行所需的输入和解析控制. 使用修改来审查图书馆特定的变更,所有用于高级控制,以及可重复使用布局的食谱."
         },
         {
-          "narration": "条码引用指向指南,板列和板列的搜索表. 每个表必须与预期的序列结合一个独特的名称.",
+          "narration": "条码引用指向指南,盘列和盘列的搜索表.每个表必须与预期的序列结合独特的名称.",
           "visual": "13_category_02_barcode_references",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "条码引用指向指南,板列和板列的搜索表. 每个表必须与预期的序列结合一个独特的名称."
+          "speech_text": "条码引用指向指南,盘列和盘列的搜索表.每个表必须与预期的序列结合独特的名称."
         },
         {
-          "narration": "阅读解析会找到已知的,提取条码窗口,并分配名为行,列和指南组. 根据图书馆设计来推导这个模式,并在例读中验证.",
+          "narration": "阅读解析会找到已知,提取条码窗口,并分配命名的行,列和指南组.从图书馆设计中导出这个模式,并在阅读例中验证.",
           "visual": "13_category_03_read_parsing",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "阅读解析会找到已知的,提取条码窗口,并分配名为行,列和指南组. 根据图书馆设计来推导这个模式,并在例读中验证."
+          "speech_text": "阅读解析会找到已知,提取条码窗口,并分配命名的行,列和指南组.从图书馆设计中导出这个模式,并在阅读例中验证."
         },
         {
-          "narration": "运行时间和可靠性设定了零件尺寸,工人和测试模式. 开始用一个小的测试部分; 减少记忆力有限时的部分或工作人员数量.",
+          "narration": "运行时间和可靠性设定了部分大小,工作人员和测试模式. 开始用一个小的测试部分; 减少了部分或工作人员数量,当记忆力受到限制.",
           "visual": "13_category_05_runtime_reliability",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "运行时间和可靠性设定了零件尺寸,工人和测试模式. 开始用一个小的测试部分; 减少记忆力有限时的部分或工作人员数量."
+          "speech_text": "运行时间和可靠性设定了部分大小,工作人员和测试模式. 开始用一个小的测试部分; 减少了部分或工作人员数量,当记忆力受到限制."
         },
         {
-          "narration": "运行验证路径和参考,发现样本,计算读数,并启动分块地图. 停止要求在当前安全点后进行有序的中断.",
+          "narration": "运行验证路径和参考,发现样本,计算读数,并启动分块地图. 停止请求在当前安全点后进行有序的中断.",
           "visual": "20_run",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "运行验证路径和参考,发现样本,计算读数,并启动分块地图. 停止要求在当前安全点后进行有序的中断."
+          "speech_text": "运行验证路径和参考,发现样本,计算读数,并启动分块地图. 停止请求在当前安全点后进行有序的中断."
         },
         {
-          "narration": "观察活动样本,批量数量,相匹配的分数, 在接受完整运行之前,研究错误的地图.",
+          "narration": "在全程运行之前,请检查测测量情况.",
           "visual": "21_running",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "观察活动样本,批量数量,相匹配的分数, 在接受完整运行之前,研究错误的地图."
+          "speech_text": "在全程运行之前,请检查测测量情况."
         },
         {
           "narration": "成功运行编写独特的条码组合,包括行,列,指南和计数,以及质量控制表,设置和表格,使图表可复制.",
@@ -946,7 +946,7 @@
       "id": "13_regression",
       "number": 13,
       "slug": "regression",
-      "title": "退回",
+      "title": "Regression",
       "series": 1,
       "app_key": "regression",
       "section": "Core",
@@ -959,39 +959,39 @@
       "prerequisite": "完成条码映射,并准备具有匹配的板块和井识别器的现象型和指导计数表.",
       "scenes": [
         {
-          "narration": "逆转将现象型分数与序列衍生的指导丰富联系在一起. 控制台报告表格对齐,过,模型诊断,结果和可复制性记录.",
+          "narration": "逆转将现象型分数与序列衍生的指导丰富联系起来.控制台报告表格对齐,过,模型诊断,结果和可再生性记录.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "逆转将现象型分数与序列衍生的指导丰富联系在一起. 控制台报告表格对齐,过,模型诊断,结果和可复制性记录."
+          "speech_text": "逆转将现象型分数与序列衍生的指导丰富联系起来.控制台报告表格对齐,过,模型诊断,结果和可再生性记录."
         },
         {
-          "narration": "输入表选择了现象型分数,测序数量和可选的基因元数据. 在建模之前,确认板块和井口使用匹配的标识符.",
+          "narration": "从 Core 部分打开 Regression。 在建模之前,确认板和井使用匹配的标识符.",
           "visual": "12_category_01_input_tables",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "输入表选择了现象型分数,测序数量和可选的基因元数据. 在建模之前,确认板块和井口使用匹配的标识符."
+          "speech_text": "从 Core 部分打开 Regression。 在建模之前,确认板和井使用匹配的标识符."
         },
         {
-          "narration": "基本面包含了第一款模型所需的控制. 使用修改以审核故意的变化,所有用于先进家庭,以及可重复使用的设计的食谱.",
+          "narration": "基本内容包含了第一款模型所需的控制. 使用修改来审计故意的变化,所有用于先进家庭,以及可重复使用设计的食谱.",
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "基本面包含了第一款模型所需的控制. 使用修改以审核故意的变化,所有用于先进家庭,以及可重复使用的设计的食谱."
+          "speech_text": "基本内容包含了第一款模型所需的控制. 使用修改来审计故意的变化,所有用于先进家庭,以及可重复使用设计的食谱."
         },
         {
-          "narration": "控制和板设计识别了正面,负面和中立控制以及在安装之前排除的任何井或行. 这些选择定义了参考行为.",
+          "narration": "控制和板设计识别了正面,负面和中立控制以及在安装之前排除的任何井或行.这些选择定义了参考行为.",
           "visual": "12_category_02_controls_plate_design",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "控制和板设计识别了正面,负面和中立控制以及在安装之前排除的任何井或行. 这些选择定义了参考行为."
+          "speech_text": "控制和板设计识别了正面,负面和中立控制以及在安装之前排除的任何井或行.这些选择定义了参考行为."
         },
         {
-          "narration": "通过中心化,强大的扩展,参考控制或批量模型,可以消除技术偏移. 只有设计支持时才应对纠正.",
+          "narration": "板块和批量修正可以通过中心化,强大的扩展,参考控制或批量模型来消除技术偏移.",
           "visual": "12_category_03_plate_batch_correction",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "通过中心化,强大的扩展,参考控制或批量模型,可以消除技术偏移. 只有设计支持时才应对纠正."
+          "speech_text": "板块和批量修正可以通过中心化,强大的扩展,参考控制或批量模型来消除技术偏移."
         },
         {
           "narration": "模型和共变选择反应,聚合,转化,回归家族,不确定性估计以及任何合理的行,列或实验共变.",
@@ -1001,25 +1001,25 @@
           "speech_text": "模型和共变选择反应,聚合,转化,回归家族,不确定性估计以及任何合理的行,列或实验共变."
         },
         {
-          "narration": "打电话和异常值设定最低细胞,,指导证据加上可选异常值规则. 根据控制行为和数据质量选择门.",
+          "narration": "按号和异常值设定最小细胞,,指导证据以及可选异常规则.",
           "visual": "12_category_06_hit_calling_outliers",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "打电话和异常值设定最低细胞,,指导证据加上可选异常值规则. 根据控制行为和数据质量选择门."
+          "speech_text": "按号和异常值设定最小细胞,,指导证据以及可选异常规则."
         },
         {
-          "narration": "后退图片配置诊断和火山显示. 图表限制变化表达,而不是安装的系数,所以保持未切断的表格进行解释.",
+          "narration": "逆转图表设置诊断和火山显示器.图表限制了变化表达,而不是适应的系数,所以保持未切断的表格进行解释.",
           "visual": "12_category_07_regression_plots",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "后退图片配置诊断和火山显示. 图表限制变化表达,而不是安装的系数,所以保持未切断的表格进行解释."
+          "speech_text": "逆转图表设置诊断和火山显示器.图表限制了变化表达,而不是适应的系数,所以保持未切断的表格进行解释."
         },
         {
-          "narration": "运行验证了方案和井钥匙,应用了排斥和纠正,汇总了分数,适应了选择的模型,并评估了证据. 在打电话之前,请注意控制和诊断.",
+          "narration": "运行验证了方案和井钥匙,应用排除和纠正,汇总分数,适合选择的模型,并评估证据.",
           "visual": "21_run",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "运行验证了方案和井钥匙,应用了排斥和纠正,汇总了分数,适应了选择的模型,并评估了证据. 在打电话之前,请注意控制和诊断."
+          "speech_text": "运行验证了方案和井钥匙,应用排除和纠正,汇总分数,适合选择的模型,并评估证据."
         },
         {
           "narration": "完成的项目包含一致的回归数据,指导和基因水平系数,不确定性或意义表,诊断数字,保存的设置以及可重启的表格.",
@@ -1034,59 +1034,59 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "制作面具",
+      "title": "Make Masks",
       "series": 1,
       "app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "创建和纠正对质量控制或Cellpose训练对进行互动的细分标签.",
+      "description": "创建和纠正对质量控制或 Cellpose 训练对进行互动的细分标签.",
       "objectives": [
-        "选择适合每个面具错误的编辑工具.",
+        "选择适合每个掩膜错误的编辑工具.",
         "使用对比度和对象过器,而不复制数据集特定值.",
-        "保存经常审查的图像面具对."
+        "保存经常审查的图像掩膜对."
       ],
-      "prerequisite": "准备代表性显微镜图像,并在可用时,将相匹配的面具编写成一个单独的工作副本.",
+      "prerequisite": "准备代表性显微镜图像,并在可用时,将相匹配的掩膜编写成一个单独的工作副本.",
       "scenes": [
         {
-          "narration": "打开一个代表性显微镜图像文件. 配合标签从其面具文件中装载为彩色覆盖,而没有伴侣面具的图像则开始空白.",
+          "narration": "打开一个代表性显微镜图像文件.相匹配的标签从其掩膜文件中装载为彩色覆盖,而没有伴侣掩膜的图像则开始空.",
           "visual": "02_loaded",
           "hold_after": 0.7,
           "focus_key": "canvas",
-          "speech_text": "打开一个代表性显微镜图像文件. 配合标签从其面具文件中装载为彩色覆盖,而没有伴侣面具的图像则开始空白."
+          "speech_text": "打开一个代表性显微镜图像文件.相匹配的标签从其掩膜文件中装载为彩色覆盖,而没有伴侣掩膜的图像则开始空."
         },
         {
-          "narration": "工具卡组画,删除,知情的棒,和放大模式. 选择修复观察到的面具错误的最小操作.",
+          "narration": "从 Segmentation models 部分打开 Make Masks。 选择最小操作来纠正观察到的掩膜错误.",
           "visual": "03_tools",
           "hold_after": 0.7,
           "focus_key": "tools",
-          "speech_text": "工具卡组画,删除,知情的棒,和放大模式. 选择修复观察到的面具错误的最小操作."
+          "speech_text": "从 Segmentation models 部分打开 Make Masks。 选择最小操作来纠正观察到的掩膜错误."
         },
         {
-          "narration": "刷增加前景,具有可调节半径. 使用短线来修复缺失的边界或物体,而不用在邻近的结构上涂料.",
+          "narration": "刷子可以调整半径的前景. 使用短的冲动来修复缺失的边界或物体,而不需要在邻近结构上涂料.",
           "visual": "04_brush",
           "hold_after": 0.7,
           "focus_key": "brush",
-          "speech_text": "刷增加前景,具有可调节半径. 使用短线来修复缺失的边界或物体,而不用在邻近的结构上涂料."
+          "speech_text": "刷子可以调整半径的前景. 使用短的冲动来修复缺失的边界或物体,而不需要在邻近结构上涂料."
         },
         {
-          "narration": "删除仅删除涂装的像素,而删除对象删除一个完整的标签. 如果选定的区域有效,立即取消.",
+          "narration": "删除仅删除绘制的像素,而删除对象则删除一个完整的标签. 如果选定的区域是有效的,则立即取消.",
           "visual": "05_erase",
           "hold_after": 0.7,
           "focus_key": "button",
-          "speech_text": "删除仅删除涂装的像素,而删除对象删除一个完整的标签. 如果选定的区域有效,立即取消."
+          "speech_text": "删除仅删除绘制的像素,而删除对象则删除一个完整的标签. 如果选定的区域是有效的,则立即取消."
         },
         {
-          "narration": "加和减跟踪相连的图像强度. 开始使用保守的宽容和像素限制,然后在继续之前检查选择的区域.",
+          "narration": "加和减跟踪连接的图像强度. 开始使用保守的宽容和像素限制,然后在继续之前检查选择的区域.",
           "visual": "07_wand_add",
           "hold_after": 0.7,
           "focus_key": "wand",
-          "speech_text": "加和减跟踪相连的图像强度. 开始使用保守的宽容和像素限制,然后在继续之前检查选择的区域."
+          "speech_text": "加和减跟踪连接的图像强度. 开始使用保守的宽容和像素限制,然后在继续之前检查选择的区域."
         },
         {
-          "narration": "放大到难以设置的边界,只需要帮助可见度调整显示正常化. 对于对比度控制来说,图像数据或面具几何不会改变,所以选择它们从当前的领域而不是固定的教程百分比.",
+          "narration": "缩小到难度的边界,只需要帮助可见性来调整显示正常化.对比控制不会改变图像数据或掩盖几何,所以选择它们从当前的字段中而不是固定的教程百分比.",
           "visual": "09_zoom",
           "hold_after": 0.7,
           "focus_key": "button",
-          "speech_text": "放大到难以设置的边界,只需要帮助可见度调整显示正常化. 对于对比度控制来说,图像数据或面具几何不会改变,所以选择它们从当前的领域而不是固定的教程百分比."
+          "speech_text": "缩小到难度的边界,只需要帮助可见性来调整显示正常化.对比控制不会改变图像数据或掩盖几何,所以选择它们从当前的字段中而不是固定的教程百分比."
         },
         {
           "narration": "通过缩和对比的独立进行模拟修改,使得与之前的标签进行比较是安全的.",
@@ -1096,25 +1096,25 @@
           "speech_text": "通过缩和对比的独立进行模拟修改,使得与之前的标签进行比较是安全的."
         },
         {
-          "narration": "操作可以填满洞穴,重新标记连接前景,反转标签,或清除面具. 仅使用以图像规模和预期对象大小为基础的门进行区域过.",
+          "narration": "操作可以填满洞穴,重新标记连接前景,逆标签或清除掩膜. 仅使用以图像规模和预期对象大小为理由的门使用面积过.",
           "visual": "12_object_operations",
           "hold_after": 0.7,
           "focus_key": "operations",
-          "speech_text": "操作可以填满洞穴,重新标记连接前景,反转标签,或清除面具. 仅使用以图像规模和预期对象大小为基础的门进行区域过."
+          "speech_text": "操作可以填满洞穴,重新标记连接前景,逆标签或清除掩膜. 仅使用以图像规模和预期对象大小为理由的门使用面积过."
         },
         {
-          "narration": "保存面具将连接的组件重新标记,并将标签图像写在源根下. 系统地通过文件,以便检查每个训练领域.",
+          "narration": "保存掩膜将连接的组件重新标记,并将标签图像写在源源根下.",
           "visual": "14_save",
           "hold_after": 0.7,
           "focus_key": "save",
-          "speech_text": "保存面具将连接的组件重新标记,并将标签图像写在源根下. 系统地通过文件,以便检查每个训练领域."
+          "speech_text": "保存掩膜将连接的组件重新标记,并将标签图像写在源源根下."
         },
         {
-          "narration": "对于没有标签的图像,用刷子或子加上创建物体,清除边界,并为模型训练保存新的图像面具对.",
+          "narration": "对于没有标签的图像,用刷子或子加上创建物体,清除边界,并为模型训练保存新的图像掩膜对.",
           "visual": "16_blank_mask",
           "hold_after": 0.7,
           "focus_key": "brush",
-          "speech_text": "对于没有标签的图像,用刷子或子加上创建物体,清除边界,并为模型训练保存新的图像面具对."
+          "speech_text": "对于没有标签的图像,用刷子或子加上创建物体,清除边界,并为模型训练保存新的图像掩膜对."
         }
       ]
     },
@@ -1122,94 +1122,94 @@
       "id": "15_image_umap",
       "number": 15,
       "slug": "image_umap",
-      "title": "图片 UMAP",
+      "title": "Image UMAP",
       "series": 1,
       "app_key": "umap",
       "section": "Results and quality control",
-      "description": "嵌入两个维度的测量物体,并使用其真正的显微镜作物检查现象类型社区.",
+      "description": "嵌入测量物体在两个维度,并使用其真实显微镜作物检查现象类型的邻居.",
       "objectives": [
-        "选择具有生物学意义的特征和排除.",
-        "搜索一个聚焦参数范围,并扩散审查结果.",
+        "选择具有生物相关性的特征和排除.",
+        "搜索一个聚焦参数范围,并传播一个复习结果.",
         "解释可读的作物覆盖地图和保存的输出."
       ],
-      "prerequisite": "具有有效的对象特征和可访问的收获图像或合并阵列的完整测量.",
+      "prerequisite": "具有有效的对象特征和可访问的产品图像或合并阵列的完整测量.",
       "scenes": [
         {
-          "narration": "图像 UMAP 将高维对象测量值降到二维，并在图中放置显微图像裁剪。控制台会记录数据连接、预处理、降维、聚类和输出过程。",
+          "narration": "图像UMAP将高维对象测量缩小到两个坐标,并将显微镜作物放在地图上.控制台记录了结合,预处理,嵌入,集群和输出.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "图像 优麦普 将高维对象测量值降到二维，并在图中放置显微图像裁剪。控制台会记录数据连接、预处理、降维、聚类和输出过程。"
+          "speech_text": "图像优麦普将高维对象测量缩小到两个坐标,并将显微镜作物放在地图上.控制台记录了结合,预处理,嵌入,集群和输出."
         },
         {
-          "narration": "路径用于选择已经完成测量的项目。图像 UMAP 会找到 measurements.db，并使用现有裁剪图；在支持的情况下，也可以从合并后的图像数组生成裁剪图。",
+          "narration": "从 Results and quality control 部分打开 Image UMAP。 图像UMAP可以找到测量点 db,并使用现有作物图像或在支持时从合并的数组中构建作物.",
           "visual": "12_category_01_paths",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "路径用于选择已经完成测量的项目。图像 优麦普 会找到 测量数据库文件，并使用现有裁剪图；在支持的情况下，也可以从合并后的图像数组生成裁剪图。"
+          "speech_text": "从 Results and quality control 部分打开 Image 优麦普。 图像优麦普可以找到测量点 db,并使用现有作物图像或在支持时从合并的数组中构建作物."
         },
         {
-          "narration": "测量用于选择要连接的对象表和特征类别，应用明确的排除项，并可删除冗余的相关特征。这些选择决定图中点云的形状。",
+          "narration": "测量选择了合并的对象表和特征家族,删除了明确的排斥,并且可以放弃冗余的相关特征.这些选择定义了地图的几何学.",
           "visual": "12_category_02_measurements",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "测量用于选择要连接的对象表和特征类别，应用明确的排除项，并可删除冗余的相关特征。这些选择决定图中点云的形状。"
+          "speech_text": "测量选择了合并的对象表和特征家族,删除了明确的排斥,并且可以放弃冗余的相关特征.这些选择定义了地图的几何学."
         },
         {
-          "narration": "板布局与对照用于排除失败孔、对照孔或不应影响此次探索性投影的元数据组。",
+          "narration": "板布局和控制不包括未能实现的井,控制或元数据组,这些组不应该塑造这种探索性嵌入.",
           "visual": "12_category_03_plate_layout_controls",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "板布局与对照用于排除失败孔、对照孔或不应影响此次探索性投影的元数据组。"
+          "speech_text": "板布局和控制不包括未能实现的井,控制或元数据组,这些组不应该塑造这种探索性嵌入."
         },
         {
-          "narration": "计算机视觉数据源用于决定是否以图像特征补充测量特征，以及裁剪图来自哪里。只有当图像外观与研究问题有关时才使用这些特征。",
+          "narration": "计算机视觉数据源选择图像衍生的功能是否补充测量的功能以及它们的作物来自哪里.只使用它们当图像外观是问题的一部分时.",
           "visual": "12_category_04_computer_vision_data_source",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "计算机视觉数据源用于决定是否以图像特征补充测量特征，以及裁剪图来自哪里。只有当图像外观与研究问题有关时才使用这些特征。"
+          "speech_text": "计算机视觉数据源选择图像衍生的功能是否补充测量的功能以及它们的作物来自哪里.只使用它们当图像外观是问题的一部分时."
         },
         {
-          "narration": "嵌入与聚类用于选择 UMAP 或 t-SNE、邻域行为、距离度量、细胞区室以及可选聚类。请比较可复现的设置，不要把某一种布局当作唯一真相。",
+          "narration": "嵌入和集群选择UMAP或t-SNE,邻居行为,距离指标,隔间和可选集群. 进行可重复设置的比较,不要把一个布局视为基础真相.",
           "visual": "12_category_05_embedding_clustering",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "嵌入与聚类用于选择 优麦普 或 提艾斯恩伊、邻域行为、距离度量、细胞区室以及可选聚类。请比较可复现的设置，不要把某一种布局当作唯一真相。"
+          "speech_text": "嵌入和集群选择优麦普或提艾斯恩伊,邻居行为,距离指标,隔间和可选集群. 进行可重复设置的比较,不要把一个布局视为基础真相."
         },
         {
-          "narration": "UMAP 显示用于控制点的样式、裁剪图的数量和大小、背景以及保存的图。裁剪图只需略大于点，以免遮住嵌入结构；这些显示设置不会改变计算出的坐标。",
+          "narration": "乌马普显示器控制点样式,作物格利夫数量和缩小,背景和保存的图像.保持作物格利夫比点大略微,以便嵌入保持可见;这些显示选项不会改变安装坐标.",
           "visual": "12_category_09_umap_display",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "优麦普 显示用于控制点的样式、裁剪图的数量和大小、背景以及保存的图。裁剪图只需略大于点，以免遮住嵌入结构；这些显示设置不会改变计算出的坐标。"
+          "speech_text": "乌马普显示器控制点样式,作物格利夫数量和缩小,背景和保存的图像.保持作物格利夫比点大略微,以便嵌入保持可见;这些显示选项不会改变安装坐标."
         },
         {
-          "narration": "完整运行之前，先用超参数搜索比较一组精简的 UMAP 设置。并排的小图可以帮助识别不稳定或会掩盖有用结构的布局。",
+          "narration": "在完整运行之前,使用超参数搜索来比较一个集中的UMAP选择.它的小多个结果暴露了不稳定的布局或隐藏有用的结构.",
           "visual": "19_hyperparameter_search",
           "hold_after": 0.7,
           "focus_key": "search_card",
-          "speech_text": "完整运行之前，先用超参数搜索比较一组精简的 优麦普 设置。并排的小图可以帮助识别不稳定或会掩盖有用结构的布局。"
+          "speech_text": "在完整运行之前,使用超参数搜索来比较一个集中的优麦普选择.它的小多个结果暴露了不稳定的布局或隐藏有用的结构."
         },
         {
-          "narration": "选择经过检查的搜索结果，然后点击应用设置。邻居数量、最小距离和距离度量会在完整运行之前复制到图像 UMAP 主表单。",
+          "narration": "选择一个复习的搜索结果,然后选择扩散设置. 这将其邻居大小,最小距离和指标复制到完整运行前的主要图像UMAP表格中.",
           "visual": "20_hyperparameter_apply",
           "hold_after": 0.7,
           "focus_key": "dialog",
-          "speech_text": "选择经过检查的搜索结果，然后点击应用设置。邻居数量、最小距离和距离度量会在完整运行之前复制到图像 优麦普 主表单。"
+          "speech_text": "选择一个复习的搜索结果,然后选择扩散设置. 这将其邻居大小,最小距离和指标复制到完整运行前的主要图像优麦普表格中."
         },
         {
-          "narration": "点击运行后，程序会检查数据库和裁剪图来源，连接并筛选数值特征，对行进行抽样，拟合降维模型和可选聚类，并保存相互对应的结果记录。",
+          "narration": "运行验证数据库和产品源,连接和过数值特征,样本行,适用于减小器和可选集群,然后编写一致的结果记录.",
           "visual": "21_run",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "点击运行后，程序会检查数据库和裁剪图来源，连接并筛选数值特征，对行进行抽样，拟合降维模型和可选聚类，并保存相互对应的结果记录。"
+          "speech_text": "运行验证数据库和产品源,连接和过数值特征,样本行,适用于减小器和可选集群,然后编写一致的结果记录."
         },
         {
-          "narration": "最终地图会保持 UMAP 点云清晰可见，并在代表性位置叠加小型透明显微图像。保存内容包括坐标、聚类标签、图、设置以及可复现性清单。",
+          "narration": "完成的地图使UMAP点云保持可见,并将小透明显微镜作物叠加在代表位置.保存的输出包括坐标,集群标签,图像,设置和可再生性表.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "figures",
-          "speech_text": "最终地图会保持 优麦普 点云清晰可见，并在代表性位置叠加小型透明显微图像。保存内容包括坐标、聚类标签、图、设置以及可复现性清单。"
+          "speech_text": "完成的地图使优麦普点云保持可见,并将小透明显微镜作物叠加在代表位置.保存的输出包括坐标,集群标签,图像,设置和可再生性表."
         }
       ]
     },
@@ -1217,7 +1217,7 @@
       "id": "16_activation",
       "number": 16,
       "slug": "activation",
-      "title": "激活地图",
+      "title": "Activation maps",
       "series": 1,
       "app_key": "activation",
       "section": "Results and quality control",
@@ -1230,25 +1230,25 @@
       "prerequisite": "训练和验证视觉分类器,并保留其精确的产量,道,架构和预处理元数据.",
       "scenes": [
         {
-          "narration": "激活地图询问图像区域对视觉模型的预测有什么影响. 控制台记录了原件加载,归因批量,进展,输出和可复制性信息.",
+          "narration": "激活地图询问图像区域对视觉模型的预测有什么影响.控制台记录文物加载,属性批量,进展,输出和可复制性信息.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "激活地图询问图像区域对视觉模型的预测有什么影响. 控制台记录了原件加载,归因批量,进展,输出和可复制性信息."
+          "speech_text": "激活地图询问图像区域对视觉模型的预测有什么影响.控制台记录文物加载,属性批量,进展,输出和可复制性信息."
         },
         {
-          "narration": "模型和数据选择作物档案,训练有素的文物,建筑,输入大小,对象类型和频道顺序. 必须符合训练,否则所有属性都是无效的.",
+          "narration": "从 Results and quality control 部分打开 Activation maps。 这些必须与训练匹配,否则每个属性都是无效的.",
           "visual": "12_category_01_model_data",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "模型和数据选择作物档案,训练有素的文物,建筑,输入大小,对象类型和频道顺序. 必须符合训练,否则所有属性都是无效的."
+          "speech_text": "从 Results and quality control 部分打开 Activation maps。 这些必须与训练匹配,否则每个属性都是无效的."
         },
         {
-          "narration": "基本内容包含了第一次运行所需的控制. 使用修改为审计变化,所有用于验证和量化控制,以及可重复比较的配方.",
+          "narration": "基本包含了第一次运行所需的控制. 使用修改来审计变化,所有用于验证和量化控制,以及重复比较的食谱.",
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "基本内容包含了第一次运行所需的控制. 使用修改为审计变化,所有用于验证和量化控制,以及可重复比较的配方."
+          "speech_text": "基本包含了第一次运行所需的控制. 使用修改来审计变化,所有用于验证和量化控制,以及重复比较的食谱."
         },
         {
           "narration": "归属方法选择 Grad-CAM,突出度,集成梯度,遮蔽或其他注册方法以及任何兼容的层或样本控制.",
@@ -1258,32 +1258,32 @@
           "speech_text": "归属方法选择 Grad-CAM,突出度,集成梯度,遮蔽或其他注册方法以及任何兼容的层或样本控制."
         },
         {
-          "narration": "属性验证提供删除,插入,基线和模型随机化检查. 图像信息被破坏后,如果图像图像保持不变,视觉上令人愉快的地图将是无用的.",
+          "narration": "属性验证提供删除,插入,基线和模型随机化检查.模型信息被破坏后,如果它保持不变,视觉上令人愉快的地图将是不有用的.",
           "visual": "12_category_03_attribution_validation",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "属性验证提供删除,插入,基线和模型随机化检查. 图像信息被破坏后,如果图像图像保持不变,视觉上令人愉快的地图将是无用的."
+          "speech_text": "属性验证提供删除,插入,基线和模型随机化检查.模型信息被破坏后,如果它保持不变,视觉上令人愉快的地图将是不有用的."
         },
         {
-          "narration": "图显示应用训练兼容的输入预处理,控制叠加和电网. 显示对比变化表达,而不是证明模型学到了有效的生物学.",
+          "narration": "显示图采用训练兼容的输入预处理,控制叠加和电网.显示对比变化呈现,而不是证明模型学到有效的生物学.",
           "visual": "12_category_04_map_display",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "图显示应用训练兼容的输入预处理,控制叠加和电网. 显示对比变化表达,而不是证明模型学到了有效的生物学."
+          "speech_text": "显示图采用训练兼容的输入预处理,控制叠加和电网.显示对比变化呈现,而不是证明模型学到有效的生物学."
         },
         {
-          "narration": "图量化可以比较输入频道与归因强度,并保存这些总结. 只有统计回答一个定义的问题才能启用.",
+          "narration": "图量化可以比较输入频道与归因强度并保存这些总结.只有当统计回答定义问题时才能实现.",
           "visual": "12_category_05_map_quantification",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "图量化可以比较输入频道与归因强度,并保存这些总结. 只有统计回答一个定义的问题才能启用."
+          "speech_text": "图量化可以比较输入频道与归因强度并保存这些总结.只有当统计回答定义问题时才能实现."
         },
         {
-          "narration": "输出和运行时间控制节省地图,顺序,批量和工人. 减小批量量,当加速器内存有限时,并保持确定性排序进行比较.",
-          "visual": "12_category_06_output_runtime",
+          "narration": "超参数搜索比较了一个小,明确的归因方法和验证设置. 按照删除,插入,指标游戏和智能证据,将完成的试验分类在一起;没有单个分数证明解释是生物学上正确的.",
+          "visual": "19_hyperparameter_search",
           "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "输出和运行时间控制节省地图,顺序,批量和工人. 减小批量量,当加速器内存有限时,并保持确定性排序进行比较."
+          "focus_key": "search_card",
+          "speech_text": "超参数搜索比较了一个小,明确的归因方法和验证设置. 按照删除,插入,指标游戏和智能证据,将完成的试验分类在一起;没有单个分数证明解释是生物学上正确的."
         },
         {
           "narration": "运行验证模型和作物,重建预处理训练,计算预测和地图,呈现请求的网格,记录设置.",
@@ -1293,11 +1293,11 @@
           "speech_text": "运行验证模型和作物,重建预处理训练,计算预测和地图,呈现请求的网格,记录设置."
         },
         {
-          "narration": "检查正确,不正确,高信任和低信任的例子,以及验证检查. 仅从经验证的训练有素分类器中得出生物结论.",
+          "narration": "检查正确,不正确,高自信和低自信的例子,以及验证检查.仅从验证的训练有素分类器中得出生物结论.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "检查正确,不正确,高信任和低信任的例子,以及验证检查. 仅从经验证的训练有素分类器中得出生物结论."
+          "speech_text": "检查正确,不正确,高自信和低自信的例子,以及验证检查.仅从验证的训练有素分类器中得出生物结论."
         }
       ]
     },
@@ -1305,7 +1305,7 @@
       "id": "17_timelapse",
       "number": 17,
       "slug": "timelapse",
-      "title": "时间延误",
+      "title": "Timelapse",
       "series": 2,
       "app_key": "timelapse",
       "section": "Core",
@@ -1318,88 +1318,88 @@
       "prerequisite": "准备一个可靠的时间,场面,深度和道识别器和已知框架间隔的时间系列.",
       "scenes": [
         {
-          "narration": "时间周期将每个框架划分,并将选定的物体连接到稳定的轨道. 控制台记录预处理,面具,跟踪尝试,质量控制,电影和可复制文件.",
+          "narration": "时代周期将每个框架进行分段,并将选定的对象连接到稳定的轨道中.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "时间周期将每个框架划分,并将选定的物体连接到稳定的轨道. 控制台记录预处理,面具,跟踪尝试,质量控制,电影和可复制文件."
+          "speech_text": "时代周期将每个框架进行分段,并将选定的对象连接到稳定的轨道中."
         },
         {
-          "narration": "输入和元数据选择图像文件,将收获的道分配给对象类型,并定义如何分析板块,井,字段,时间,深度和道识别符.",
+          "narration": "从 Core 部分打开 Timelapse。 输入和元数据选择图像文件,将收获的道分配给对象类型,并定义如何分析板块,井,字段,时间,深度和道识别符.",
           "visual": "12_category_01_input_metadata",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "输入和元数据选择图像文件,将收获的道分配给对象类型,并定义如何分析板块,井,字段,时间,深度和道识别符."
+          "speech_text": "从 Core 部分打开 Timelapse。 输入和元数据选择图像文件,将收获的道分配给对象类型,并定义如何分析板块,井,字段,时间,深度和道识别符."
         },
         {
-          "narration": "基本内容包含了第一序列所需的控制. 使用修改来审计变化,所有可选轴和后端,以及重复收购设计的食谱.",
+          "narration": "基本包含第一序列所需的控制. 使用修改来审计变化,所有选项轴和后端,以及重复收购设计的食谱.",
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "基本内容包含了第一序列所需的控制. 使用修改来审计变化,所有可选轴和后端,以及重复收购设计的食谱."
+          "speech_text": "基本包含第一序列所需的控制. 使用修改来审计变化,所有选项轴和后端,以及重复收购设计的食谱."
         },
         {
-          "narration": "图像预处理适用于正常化,背景处理,变化和改大小. 通过所有框架使用一个一致的转换,以便预处理不会产生人工运动.",
+          "narration": "图像预处理是正常化,背景处理,变化和改大小的应用.使用一个一致的转换在所有框架中,以便预处理不会产生人工运动.",
           "visual": "12_category_03_image_preprocessing",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "图像预处理适用于正常化,背景处理,变化和改大小. 通过所有框架使用一个一致的转换,以便预处理不会产生人工运动."
+          "speech_text": "图像预处理是正常化,背景处理,变化和改大小的应用.使用一个一致的转换在所有框架中,以便预处理不会产生人工运动."
         },
         {
-          "narration": "设置每个必须掩盖或跟踪的对象的分区部分. 在代表性早期,中期和晚期框架上验证模型,频道,规模和核心过器.",
+          "narration": "配置每个必须掩盖或跟踪的对象的分区分部分. 验证模型,道,尺度和核心过器在代表性早期,中期和晚期框架上.",
           "visual": "12_category_04_cell_segmentation",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "设置每个必须掩盖或跟踪的对象的分区部分. 在代表性早期,中期和晚期框架上验证模型,频道,规模和核心过器."
+          "speech_text": "配置每个必须掩盖或跟踪的对象的分区分部分. 验证模型,道,尺度和核心过器在代表性早期,中期和晚期框架上."
         },
         {
-          "narration": "质量控制检查数量,尺寸,边界,前景覆盖,分区和可接受的场故障. 开始报告模式,以使可疑的框架仍然可见.",
+          "narration": "质量控制检查数量,尺寸,边界,前景覆盖,分区和可接受的场故障.",
           "visual": "12_category_08_quality_control",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "质量控制检查数量,尺寸,边界,前景覆盖,分区和可接受的场故障. 开始报告模式,以使可疑的框架仍然可见."
+          "speech_text": "质量控制检查数量,尺寸,边界,前景覆盖,分区和可接受的场故障."
         },
         {
-          "narration": "追踪设置选择对象类型,框架范围,终身过器和电影速度. 在验证期间保持短线路,以免失败隐藏.",
+          "narration": "追踪设置选择对象类型,框架范围,终身过器和电影速度.",
           "visual": "12_category_09_tracking_setup",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "追踪设置选择对象类型,框架范围,终身过器和电影速度. 在验证期间保持短线路,以免失败隐藏."
+          "speech_text": "追踪设置选择对象类型,框架范围,终身过器和电影速度."
         },
         {
-          "narration": "追踪后台提供了多个链接器, 选择最简单的后端,与运动匹配,并视觉验证其身份.",
+          "narration": "追踪后端提供了多个链接器,不同的移动,间隙,分区和工作者控制. 选择最简单的后端,以匹配运动,并视觉验证其身份.",
           "visual": "12_category_10_tracking_backends",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "追踪后台提供了多个链接器, 选择最简单的后端,与运动匹配,并视觉验证其身份."
+          "speech_text": "追踪后端提供了多个链接器,不同的移动,间隙,分区和工作者控制. 选择最简单的后端,以匹配运动,并视觉验证其身份."
         },
         {
-          "narration": "视觉化和诊断创建了检查细分和跟踪连续性的例子,而输出和存储选择了面具,合并的阵列,电影和保留的中间件.",
+          "narration": "视觉化和诊断创建了检查细分和跟踪连续性的例子,而输出和存储选择了掩膜,合并的阵列,电影和保留的中间件.",
           "visual": "12_category_11_visualization_diagnostics",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "视觉化和诊断创建了检查细分和跟踪连续性的例子,而输出和存储选择了面具,合并的阵列,电影和保留的中间件."
+          "speech_text": "视觉化和诊断创建了检查细分和跟踪连续性的例子,而输出和存储选择了掩膜,合并的阵列,电影和保留的中间件."
         },
         {
-          "narration": "运行时间和可靠性包括测试模式,工人,可复制的顺序,续航,干跑和故障政策. 在扩展到全时间序列之前处理一个代表性的字段.",
-          "visual": "12_category_13_runtime_reliability",
+          "narration": "在完整运行之前,打开一个代表序列的轨道预览. 检查早期,中期和晚期框架,然后在播放调节设置之前检查掩膜,身份,空隙,分区和不可思议的跳跃.",
+          "visual": "19_preview_result",
           "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "运行时间和可靠性包括测试模式,工人,可复制的顺序,续航,干跑和故障政策. 在扩展到全时间序列之前处理一个代表性的字段."
+          "focus_key": "preview",
+          "speech_text": "在完整运行之前,打开一个代表序列的轨道预览. 检查早期,中期和晚期框架,然后在播放调节设置之前检查掩膜,身份,空隙,分区和不可思议的跳跃."
         },
         {
-          "narration": "运行验证文件名称和频道,对象的部分,链接面具,计算质量控制,并编写电影和阵列. 在分析之前检查完成的轨道,查找交换,空隙和不可思议的跳跃.",
+          "narration": "运行验证文件名称和频道,对象的部分,链接掩膜,计算质量控制,并编写电影和阵列. 在分析之前检查完成的轨道,查看交换,空隙和不可思议的跳跃.",
           "visual": "21_run",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "运行验证文件名称和频道,对象的部分,链接面具,计算质量控制,并编写电影和阵列. 在分析之前检查完成的轨道,查找交换,空隙和不可思议的跳跃."
+          "speech_text": "运行验证文件名称和频道,对象的部分,链接掩膜,计算质量控制,并编写电影和阵列. 在分析之前检查完成的轨道,查看交换,空隙和不可思议的跳跃."
         },
         {
-          "narration": "一个成功的项目包含时间索引面具,稳定轨道身份,质量控制记录,电影,合并阵列,保存的设置和可重启的表格.",
+          "narration": "一个成功的项目包含时间索引掩膜,稳定轨道身份,质量控制记录,电影,合并阵列,保存的设置和可重启的表格.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "一个成功的项目包含时间索引面具,稳定轨道身份,质量控制记录,电影,合并阵列,保存的设置和可重启的表格."
+          "speech_text": "一个成功的项目包含时间索引掩膜,稳定轨道身份,质量控制记录,电影,合并阵列,保存的设置和可重启的表格."
         }
       ]
     },
@@ -1407,7 +1407,7 @@
       "id": "18_motility",
       "number": 18,
       "slug": "motility",
-      "title": "动力测试",
+      "title": "Motility assay",
       "series": 2,
       "app_key": "motility",
       "section": "Core",
@@ -1420,60 +1420,60 @@
       "prerequisite": "完成 Timelapse 经过审查的轨道,并了解框架间隔,像素校准,道和感染控制.",
       "scenes": [
         {
-          "narration": "动力测试从跟踪阵列中重建测量,并计算移动,速度,路径长度和直径. 控制台记录了表格,质量检查和数字.",
+          "narration": "动力测试从跟踪阵列中重建测量,计算移动,速度,路径长度和直径.控制台记录衍生表,质量检查和数字.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "动力测试从跟踪阵列中重建测量,并计算移动,速度,路径长度和直径. 控制台记录了表格,质量检查和数字."
+          "speech_text": "动力测试从跟踪阵列中重建测量,计算移动,速度,路径长度和直径.控制台记录衍生表,质量检查和数字."
         },
         {
-          "narration": "物体和通道选择追踪源,移动物体和携带细胞,核和病原体信号的通道. 错误的映射使感染的强度和结果无效.",
+          "narration": "从 Core 部分打开 Motility assay。 错误的映射使感染的强度和结果无效.",
           "visual": "12_category_01_objects_channels",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "物体和通道选择追踪源,移动物体和携带细胞,核和病原体信号的通道. 错误的映射使感染的强度和结果无效."
+          "speech_text": "从 Core 部分打开 Motility assay。 错误的映射使感染的强度和结果无效."
         },
         {
-          "narration": "基本的含有第一次测试所需的控制. 使用修改来审计变化,所有可选分类和嵌入,以及重复收购的食谱.",
+          "narration": "基本内容包含了第一次测试所需的控制. 使用修改来审计变化,所有选项分类器和嵌入,以及重复收购的食谱.",
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "基本的含有第一次测试所需的控制. 使用修改来审计变化,所有可选分类和嵌入,以及重复收购的食谱."
+          "speech_text": "基本内容包含了第一次测试所需的控制. 使用修改来审计变化,所有选项分类器和嵌入,以及重复收购的食谱."
         },
         {
-          "narration": "空间和时间校准提供框架间隔和像素尺度. 检查从获取的元数据,因为错误量度每个物理移动和速度.",
+          "narration": "空间和时间校准提供框架间隔和像素尺度. 检查从获取元数据,因为错误测量每一个物理移动和速度.",
           "visual": "12_category_02_spatial_temporal_calibration",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "空间和时间校准提供框架间隔和像素尺度. 检查从获取的元数据,因为错误量度每个物理移动和速度."
+          "speech_text": "空间和时间校准提供框架间隔和像素尺度. 检查从获取元数据,因为错误测量每一个物理移动和速度."
         },
         {
-          "narration": "运动过消除了不可思议的跳跃,破碎的轨道,以及可选的特征或速度异常值. 检查排除轨迹,以免丢弃真正的快速运动.",
+          "narration": "运动过消除了不可思议的跳跃,破碎的轨道,以及可选的特征或速度异常值.检查排除轨迹,以便不丢弃真正的快速运动.",
           "visual": "12_category_03_motion_filtering",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "运动过消除了不可思议的跳跃,破碎的轨道,以及可选的特征或速度异常值. 检查排除轨迹,以免丢弃真正的快速运动."
+          "speech_text": "运动过消除了不可思议的跳跃,破碎的轨道,以及可选的特征或速度异常值.检查排除轨迹,以便不丢弃真正的快速运动."
         },
         {
-          "narration": "感染分类可以从病原体-面具重叠开始,并可选择地精炼不确定轨迹,以证明强度. 通过控制支持的最简单的规则.",
+          "narration": "感染分类可以从病原体-掩膜重叠开始,并可选择地使用强度证据来精炼不确定轨迹. 使用控制支持的最简单规则.",
           "visual": "12_category_04_infection_classification",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "感染分类可以从病原体-面具重叠开始,并可选择地精炼不确定轨迹,以证明强度. 通过控制支持的最简单的规则."
+          "speech_text": "感染分类可以从病原体-掩膜重叠开始,并可选择地使用强度证据来精炼不确定轨迹. 使用控制支持的最简单规则."
         },
         {
-          "narration": "随着直接面具的不足,可选的XGBoost,集群和嵌入部分提供了替代感染分类器. 验证已知任何标记的轨道规则.",
+          "narration": "随着可选的XGBoost,集群和嵌入部分提供了当直接掩膜不足时的替代感染分类器.",
           "visual": "12_category_05_xgboost_infection_model",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "随着直接面具的不足,可选的XGBoost,集群和嵌入部分提供了替代感染分类器. 验证已知任何标记的轨道规则."
+          "speech_text": "随着可选的XGBoost,集群和嵌入部分提供了当直接掩膜不足时的替代感染分类器."
         },
         {
-          "narration": "动力图和QC选择轨迹,强度,位置,速度和感染板. 图表限制改变表达式,但不是底层测量.",
-          "visual": "12_category_08_motility_plots_qc",
+          "narration": "在完整测试之前打开轨道预览. 边界样本覆盖了实际轨迹,并报告了移动,速度,路径长度,直径,空隙和校准,以便在编写总结图表之前看到破碎的跟踪器或尺度.",
+          "visual": "19_preview_result",
           "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "动力图和QC选择轨迹,强度,位置,速度和感染板. 图表限制改变表达式,但不是底层测量."
+          "focus_key": "preview",
+          "speech_text": "在完整测试之前打开轨道预览. 边界样本覆盖了实际轨迹,并报告了移动,速度,路径长度,直径,空隙和校准,以便在编写总结图表之前看到破碎的跟踪器或尺度."
         },
         {
           "narration": "运行测量框架,滑滑和过轨迹,分配感染状态,计算校准总结和相关性,保存表格和数字.",
@@ -1483,11 +1483,11 @@
           "speech_text": "运行测量框架,滑滑和过轨迹,分配感染状态,计算校准总结和相关性,保存表格和数字."
         },
         {
-          "narration": "审查每框架和每轨表,以及轨迹和质量控制数据. 在比较条件之前,确认轨道连续性,校准单位和组标签.",
+          "narration": "检查每一个框架和每条轨道表,以及轨道和质量控制数据. 在比较条件之前,确认轨道连续性,校准单位和组标签.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "审查每框架和每轨表,以及轨迹和质量控制数据. 在比较条件之前,确认轨道连续性,校准单位和组标签."
+          "speech_text": "检查每一个框架和每条轨道表,以及轨道和质量控制数据. 在比较条件之前,确认轨道连续性,校准单位和组标签."
         }
       ]
     },
@@ -1495,80 +1495,80 @@
       "id": "19_train_cellpose",
       "number": 19,
       "slug": "train_cellpose",
-      "title": "列车",
+      "title": "Train Cellpose",
       "series": 2,
       "app_key": "train_cellpose",
       "section": "Segmentation models",
-      "description": "从审查的图像和实例面具对进行调整,调整一个符合Cellpose或CPSAM的模型.",
+      "description": "从审查的图像和实例掩膜对进行细节调整,使一个与 Cellpose 或 CPSAM 兼容的模型.",
       "objectives": [
         "验证对训练数据,选择一个合理的起始检查点.",
         "配置可复制的几何,预处理和时间表控制.",
         "评估保存的检查点."
       ],
-      "prerequisite": "创建多种独立审查的图像面具对,并为评估保留保留的场地.",
+      "prerequisite": "创建多种独立审查的图像掩膜对,并为评估保留保留的场地.",
       "scenes": [
         {
-          "narration": "列车Cellpose从双双显微镜图像和实例标签面具中配合一个细分模型. 控制台报告数据验证,进展,检查点路径和可复制性记录.",
+          "narration": "列车Cellpose采用了对式显微镜图像和实例标签掩膜的细分模型.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "列车Cellpose从双双显微镜图像和实例标签面具中配合一个细分模型. 控制台报告数据验证,进展,检查点路径和可复制性记录."
+          "speech_text": "列车塞尔波斯采用了对式显微镜图像和实例标签掩膜的细分模型."
         },
         {
-          "narration": "选择包含匹配训练图像和面具的数据集根. 检查标签质量,并保留不用于适应模型的代表字段.",
+          "narration": "从 Segmentation models 部分打开 Train Cellpose。 审查标签质量,并保留不会用于模型的代表字段.",
           "visual": "05_inputs",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "选择包含匹配训练图像和面具的数据集根. 检查标签质量,并保留不用于适应模型的代表字段."
+          "speech_text": "从 Segmentation models 部分打开 Train 塞尔波斯。 审查标签质量,并保留不会用于模型的代表字段."
         },
         {
-          "narration": "基本材料包含了第一次校准所需的控制. 使用修改进行审计的变化,所有用于预处理和运行时间选项,以及重复训练设计的食谱.",
+          "narration": "基本内容包含了第一次校准所需的控制. 使用修改来审计变化,所有用于预处理和运行时间选项,以及重复训练设计的食谱.",
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "基本材料包含了第一次校准所需的控制. 使用修改进行审计的变化,所有用于预处理和运行时间选项,以及重复训练设计的食谱."
+          "speech_text": "基本内容包含了第一次校准所需的控制. 使用修改来审计变化,所有用于预处理和运行时间选项,以及重复训练设计的食谱."
         },
         {
-          "narration": "开始点选择模型家族,预训练的检查点,从零开始进行细节调整或训练,以及输出名称. 精细调节通常需要少于随机开始的复习图像.",
+          "narration": "开始点选择模型家族,预训练的检查点,从零开始进行细调或训练,以及输出名称.",
           "visual": "12_category_01_starting_point",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "开始点选择模型家族,预训练的检查点,从零开始进行细节调整或训练,以及输出名称. 精细调节通常需要少于随机开始的复习图像."
+          "speech_text": "开始点选择模型家族,预训练的检查点,从零开始进行细调或训练,以及输出名称."
         },
         {
-          "narration": "培训计划设定学习速度,规律化,批量,增强和时代. 只有在图像面具对和持续评估后才增加培训.",
+          "narration": "培训计划设定了学习速度,规律化,批量,增强和时代.",
           "visual": "12_category_02_training_schedule",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "培训计划设定学习速度,规律化,批量,增强和时代. 只有在图像面具对和持续评估后才增加培训."
+          "speech_text": "培训计划设定了学习速度,规律化,批量,增强和时代."
         },
         {
-          "narration": "图像几何记录源和目标大小,预期对象规模和重新尺寸. 图像和面具必须保持相同的空间转变,同时保持标签身份.",
+          "narration": "图像几何学记录源和目标大小,预期对象规模和改大小.图像和掩膜必须在保持标签身份时接受相同的空间转换.",
           "visual": "12_category_03_image_geometry",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "图像几何记录源和目标大小,预期对象规模和重新尺寸. 图像和面具必须保持相同的空间转变,同时保持标签身份."
+          "speech_text": "图像几何学记录源和目标大小,预期对象规模和改大小.图像和掩膜必须在保持标签身份时接受相同的空间转换."
         },
         {
-          "narration": "背景和拒绝在训练前进行强度清洁. 只有在模型应用过程中可复制相同的预加工时使用.",
+          "narration": "背景和拒绝使用在训练前可选的强度清洁. 只有在模型应用过程中可复制相同的预加工时使用.",
           "visual": "12_category_04_background_denoising",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "背景和拒绝在训练前进行强度清洁. 只有在模型应用过程中可复制相同的预加工时使用."
+          "speech_text": "背景和拒绝使用在训练前可选的强度清洁. 只有在模型应用过程中可复制相同的预加工时使用."
         },
         {
-          "narration": "运行验证匹配的文件名,预览对合的字段,然后开始训练. 在相信长相相应之前,请检查图像在面具上面的图像.",
+          "narration": "运行验证匹配的文件名,预览对合的字段,然后开始训练. 在信任长相合之前,检查图像在图像掩膜上面的图像.",
           "visual": "21_run",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "运行验证匹配的文件名,预览对合的字段,然后开始训练. 在相信长相相应之前,请检查图像在面具上面的图像."
+          "speech_text": "运行验证匹配的文件名,预览对合的字段,然后开始训练. 在信任长相合之前,检查图像在图像掩膜上面的图像."
         },
         {
-          "narration": "训练后,考生在未经过测试的田野检查点,检查失败,不仅仅是损失. 通过spaCR将检查点,设置,运行表和对阵场的预览存储在一起.",
+          "narration": "训练后,测试候选人检查已被保留的场地,检查失败,不仅是损失. spaCR将检查点,设置,运行表和对阵的场地预览一起保存.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "训练后,考生在未经过测试的田野检查点,检查失败,不仅仅是损失. 通过斯佩克尔将检查点,设置,运行表和对阵场的预览存储在一起."
+          "speech_text": "训练后,测试候选人检查已被保留的场地,检查失败,不仅是损失. 斯佩克尔将检查点,设置,运行表和对阵的场地预览一起保存."
         }
       ]
     },
@@ -1576,80 +1576,80 @@
       "id": "20_cellpose_masks",
       "number": 20,
       "slug": "cellpose_masks",
-      "title": "果膜",
+      "title": "Cellpose Masks",
       "series": 2,
       "app_key": "cellpose_masks",
       "section": "Segmentation models",
-      "description": "应用包装或定制Cellpose模型,检查面具和流量,每场保存一个实例标签面具.",
+      "description": "应用一个包装或定制的 Cellpose 模型,检查掩膜和流量,并保存每个场面一个实例标签掩膜.",
       "objectives": [
         "匹配图像,道,物体规模和检查点.",
         "调整预处理和诊断预测的门.",
-        "保存检查实例面具用于下游工作流."
+        "保存检查实例掩膜用于下游工作流."
       ],
       "prerequisite": "准备代表性显微镜图像,并选择一个以其物体类型,道和规模训练的模型.",
       "scenes": [
         {
-          "narration": "果机罩将包装模型或定制检查点用于显微镜图像. 控制台记录模型分辨率,预处理,进展,诊断和输出路径.",
+          "narration": "机器控制台记录模型的分辨率,预处理,进展,诊断和输出路径.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "果机罩将包装模型或定制检查点用于显微镜图像. 控制台记录模型分辨率,预处理,进展,诊断和输出路径."
+          "speech_text": "机器控制台记录模型的分辨率,预处理,进展,诊断和输出路径."
         },
         {
-          "narration": "输入和道选择图像文件,平面,灰度或逆转行为,以及可选的正常化. 首先检查道;只使用预处理,当代表图像要求.",
+          "narration": "从 Segmentation models 部分打开 Cellpose Masks。 首先验证道;只使用预处理,只有代表图像需要它.",
           "visual": "12_category_01_input_channels",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "输入和道选择图像文件,平面,灰度或逆转行为,以及可选的正常化. 首先检查道;只使用预处理,当代表图像要求."
+          "speech_text": "从 Segmentation models 部分打开 塞尔波斯 Masks。 首先验证道;只使用预处理,只有代表图像需要它."
         },
         {
-          "narration": "基本内容包含了第一次应用所需的控制. 使用修改来审计当前模型和预处理,所有用于几何和运行时间,以及重复推断的食谱.",
+          "narration": "基本包含了第一次应用所需的控制. 使用修改来审计当前模型和预处理,所有用于几何和运行时间,以及重复推断的食谱.",
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "基本内容包含了第一次应用所需的控制. 使用修改来审计当前模型和预处理,所有用于几何和运行时间,以及重复推断的食谱."
+          "speech_text": "基本包含了第一次应用所需的控制. 使用修改来审计当前模型和预处理,所有用于几何和运行时间,以及重复推断的食谱."
         },
         {
-          "narration": "模型选择包装的重量或定制的检查点,并记录预期对象规模. 检查点和道设置应与训练中使用的图像相匹配.",
+          "narration": "模型选择包装的重量或定制的检查点,记录预期对象规模.检查点和道安排应与训练中使用的图像匹配.",
           "visual": "12_category_02_model",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "模型选择包装的重量或定制的检查点,并记录预期对象规模. 检查点和道设置应与训练中使用的图像相匹配."
+          "speech_text": "模型选择包装的重量或定制的检查点,记录预期对象规模.检查点和道安排应与训练中使用的图像匹配."
         },
         {
-          "narration": "检测门控制了概率,流量协议,重新扩展,重新样本和填孔. 只有确认图像,频道,模型和尺度后才可以调整它们.",
+          "narration": "检测门控制概率,流量协议,重新扩展,重新样本和填孔. 仅在确认图像,频道,模型和尺度后调整它们.",
           "visual": "12_category_03_detection_thresholds",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "检测门控制了概率,流量协议,重新扩展,重新样本和填孔. 只有确认图像,频道,模型和尺度后才可以调整它们."
+          "speech_text": "检测门控制概率,流量协议,重新扩展,重新样本和填孔. 仅在确认图像,频道,模型和尺度后调整它们."
         },
         {
-          "narration": "图像几何可以调整测量范围,并恢复面具到原始尺寸. 保持视角比例,保持像素尺度与训练一致.",
+          "narration": "图像几何可以调整字段的尺寸,使掩膜恢复到原始尺寸. 保持视角比例,保持像素尺度与训练一致.",
           "visual": "12_category_04_image_geometry",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "图像几何可以调整测量范围,并恢复面具到原始尺寸. 保持视角比例,保持像素尺度与训练一致."
+          "speech_text": "图像几何可以调整字段的尺寸,使掩膜恢复到原始尺寸. 保持视角比例,保持像素尺度与训练一致."
         },
         {
-          "narration": "输出和运行时间控制节省了面具,批量大小和诊断数据. 加速器内存有限时,减少批量.",
+          "narration": "输出和运行时间控制保存掩膜,批量大小和诊断数据.",
           "visual": "12_category_06_output_runtime",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "输出和运行时间控制节省了面具,批量大小和诊断数据. 加速器内存有限时,减少批量."
+          "speech_text": "输出和运行时间控制保存掩膜,批量大小和诊断数据."
         },
         {
-          "narration": "运行将检查点加载,应用配置的预处理,预测面具和流量,执行选定的清理,并保存每个标签图像.",
+          "narration": "运行将检查点加载,应用配置的预处理,预测掩膜和流量,执行选定的清理,并保存每个标签图像.",
           "visual": "21_run",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "运行将检查点加载,应用配置的预处理,预测面具和流量,执行选定的清理,并保存每个标签图像."
+          "speech_text": "运行将检查点加载,应用配置的预处理,预测掩膜和流量,执行选定的清理,并保存每个标签图像."
         },
         {
-          "narration": "在下游测量之前,检查图表板中的代表原件,面具轮和流量场. 在这些预览中选择正常化和门,而不是复制教程值.",
+          "narration": "在下游测量之前,请检查图表面板中的代表原始,掩膜轮和流量字段.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "figures",
-          "speech_text": "在下游测量之前,检查图表板中的代表原件,面具轮和流量场. 在这些预览中选择正常化和门,而不是复制教程值."
+          "speech_text": "在下游测量之前,请检查图表面板中的代表原始,掩膜轮和流量字段."
         }
       ]
     },
@@ -1657,15 +1657,15 @@
       "id": "21_model_compare",
       "number": 21,
       "slug": "model_compare",
-      "title": "模型比较",
+      "title": "Model Compare",
       "series": 2,
       "app_key": "model_compare",
       "section": "Segmentation models",
-      "description": "在同一表示场合运行两个Cellpose配置,并比较它们的面具,而不假设任何一个是地面真相.",
+      "description": "在同一代表场上运行两个Cellpose配置,并比较它们的掩膜,而不假设任何一个是基础真相.",
       "objectives": [
         "构建一个控制的两个模型比较.",
         "检查每个模型的实际参数.",
-        "解释协议指标,并使用面具."
+        "解释协议指标,并使用掩膜."
       ],
       "prerequisite": "选择两个兼容的模型或配置以及一个代表性的边界图像集.",
       "scenes": [
@@ -1677,53 +1677,53 @@
           "speech_text": "模型相比组合对象数量,前景协议,匹配,碎片化和侧侧叠加,以便在相同的领域评估两个分类候选人."
         },
         {
-          "narration": "选择一个小但代表性的图像文件,并限制交互比较的场数. 举个简单而又难以说明的例子,不要只是清洁的场地.",
+          "narration": "从 Segmentation models 部分打开 Model Compare。 选择一个小但代表性的图像文件,并限制对象进行交互比较.",
           "visual": "02_fields_loaded",
           "hold_after": 0.7,
           "focus_key": "source_controls",
-          "speech_text": "选择一个小但代表性的图像文件,并限制交互比较的场数. 举个简单而又难以说明的例子,不要只是清洁的场地."
+          "speech_text": "从 Segmentation models 部分打开 Model Compare。 选择一个小但代表性的图像文件,并限制对象进行交互比较."
         },
         {
-          "narration": "配置A型号和B型号. 保持道,规模,预处理和共享门相匹配,除非该设置是预期的差异.",
+          "narration": "配置模型A和模型B. 保持道,规模,预处理和共享门相匹配,除非该设置是预期的差异.",
           "visual": "03_models",
           "hold_after": 0.7,
           "focus_key": "model_panels",
-          "speech_text": "配置A型号和B型号. 保持道,规模,预处理和共享门相匹配,除非该设置是预期的差异."
+          "speech_text": "配置模型A和模型B. 保持道,规模,预处理和共享门相匹配,除非该设置是预期的差异."
         },
         {
-          "narration": "根据两个解决配置的每个选定的字段的段落进行比较. 记录了先进的参数,并且报告了不支持的参数,而不是默默地认为有效.",
+          "narration": "根据两个解决配置的每个选项,比较各个选项的段落. 记录高级参数,并报告未支持的参数,而不是默默地将其视为有效.",
           "visual": "04_compare",
           "hold_after": 0.7,
           "focus_key": "model_panels",
-          "speech_text": "根据两个解决配置的每个选定的字段的段落进行比较. 记录了先进的参数,并且报告了不支持的参数,而不是默默地认为有效."
+          "speech_text": "根据两个解决配置的每个选项,比较各个选项的段落. 记录高级参数,并报告未支持的参数,而不是默默地将其视为有效."
         },
         {
-          "narration": "达到每个模型的参数将被尊重的值与被忽视的控制区分开来. 确认相比实际上是不同的.",
+          "narration": "根据每种模型的参数, 值与被忽视的控制区分开来. 确认比较实际上是以预期的方式不同.",
           "visual": "06_parameters",
           "hold_after": 0.7,
           "focus_key": "parameters",
-          "speech_text": "达到每个模型的参数将被尊重的值与被忽视的控制区分开来. 确认相比实际上是不同的."
+          "speech_text": "根据每种模型的参数, 值与被忽视的控制区分开来. 确认比较实际上是以预期的方式不同."
         },
         {
-          "narration": "现场表报告数量,前景协议,匹配的重叠,分离,合并,无匹配的物体以及独立的面具质量检查. 没有一个指标可以捕捉到每一个失败模式.",
+          "narration": "现场表报告数量,前景协议,匹配的重叠,分离,合并,无匹配的对象,以及独立的掩膜质量检查.没有单个指标捕捉到每个故障模式.",
           "visual": "07_metrics",
           "hold_after": 0.7,
           "focus_key": "metrics",
-          "speech_text": "现场表报告数量,前景协议,匹配的重叠,分离,合并,无匹配的物体以及独立的面具质量检查. 没有一个指标可以捕捉到每一个失败模式."
+          "speech_text": "现场表报告数量,前景协议,匹配的重叠,分离,合并,无匹配的对象,以及独立的掩膜质量检查.没有单个指标捕捉到每个故障模式."
         },
         {
-          "narration": "选择一行,检查两个预览. 寻找新的检测,错失,边界变化,分离和合并,然后在代表性领域中重复.",
+          "narration": "选择一行来检查两个预览,寻找新的检测,错失,边界变化,分离和合并,然后在代表性字段中重复.",
           "visual": "08_field_one",
           "hold_after": 0.7,
           "focus_key": "previews",
-          "speech_text": "选择一行,检查两个预览. 寻找新的检测,错失,边界变化,分离和合并,然后在代表性领域中重复."
+          "speech_text": "选择一行来检查两个预览,寻找新的检测,错失,边界变化,分离和合并,然后在代表性字段中重复."
         },
         {
-          "narration": "只有视觉差异和指标改善下游分析中重要错误时才选择模型. 结果均为信息性,并没有显示改善.",
+          "narration": "只有视觉差异和指标改善下游分析中重要错误时才选择模型.",
           "visual": "09_field_two",
           "hold_after": 0.7,
           "focus_key": "previews",
-          "speech_text": "只有视觉差异和指标改善下游分析中重要错误时才选择模型. 结果均为信息性,并没有显示改善."
+          "speech_text": "只有视觉差异和指标改善下游分析中重要错误时才选择模型."
         }
       ]
     },
@@ -1731,7 +1731,7 @@
       "id": "22_model_zoo",
       "number": 22,
       "slug": "model_zoo",
-      "title": "动物园模型",
+      "title": "Model Zoo",
       "series": 2,
       "app_key": "model_zoo",
       "section": "Segmentation models",
@@ -1744,25 +1744,25 @@
       "prerequisite": "准备一些代表性的字段,并了解它们的道,物体类型和近似规模.",
       "scenes": [
         {
-          "narration": "动物园模型列出可从捆绑,本地或公布的目录来源中可使用可重复的模型. 首先,将任务,道,对象规模和预期预先处理匹配.",
+          "narration": "动物园模型列出了可从捆绑,本地或声明的目录来源中可使用的可重复模型. 首先,匹配任务,道,对象规模和预期预先处理.",
           "visual": "01_overview",
           "hold_after": 0.7,
           "focus_key": "catalogue",
-          "speech_text": "动物园模型列出可从捆绑,本地或公布的目录来源中可使用可重复的模型. 首先,将任务,道,对象规模和预期预先处理匹配."
+          "speech_text": "动物园模型列出了可从捆绑,本地或声明的目录来源中可使用的可重复模型. 首先,匹配任务,道,对象规模和预期预先处理."
         },
         {
-          "narration": "选择一个模型文件,扫描它. 产品目录将本地路径和远程元数据保持在一起,同时避免重复输入.",
+          "narration": "从 Segmentation models 部分打开 Model Zoo。 该目录将本地路径和远程元数据保持在一起,同时避免重复输入.",
           "visual": "02_scanned",
           "hold_after": 0.7,
           "focus_key": "scan_controls",
-          "speech_text": "选择一个模型文件,扫描它. 产品目录将本地路径和远程元数据保持在一起,同时避免重复输入."
+          "speech_text": "从 Segmentation models 部分打开 Model Zoo。 该目录将本地路径和远程元数据保持在一起,同时避免重复输入."
         },
         {
-          "narration": "选择一个模型来审查其来源,许可证,检查数量,培训背景和预期几何. 运载成功的模型不适合您的图像.",
+          "narration": "选择一个模型,以检查其来源,许可证,检查数量,训练背景和预期几何.成功加载的模型不会自动适合您的图像.",
           "visual": "03_provenance",
           "hold_after": 0.7,
           "focus_key": "detail",
-          "speech_text": "选择一个模型来审查其来源,许可证,检查数量,培训背景和预期几何. 运载成功的模型不适合您的图像."
+          "speech_text": "选择一个模型,以检查其来源,许可证,检查数量,训练背景和预期几何.成功加载的模型不会自动适合您的图像."
         },
         {
           "narration": "选择一个有限的基准值,包括困难的例子,一个小组代表性字段.",
@@ -1772,18 +1772,18 @@
           "speech_text": "选择一个有限的基准值,包括困难的例子,一个小组代表性字段."
         },
         {
-          "narration": "测试一个安装的模型. 基准指标报告速度,对象数量,质量标志和预览,而不会将这些检查视为基本真相准确性.",
+          "narration": "测试一个安装的模型. 基准报告速度,对象数量,质量标志和预览,而不会把这些检查视为真实.",
           "visual": "05_test",
           "hold_after": 0.7,
           "focus_key": "test",
-          "speech_text": "测试一个安装的模型. 基准指标报告速度,对象数量,质量标志和预览,而不会将这些检查视为基本真相准确性."
+          "speech_text": "测试一个安装的模型. 基准报告速度,对象数量,质量标志和预览,而不会把这些检查视为真实."
         },
         {
-          "narration": "查看表格和面具预览. 在接受或拒绝模型之前,请在图片背景中调查警告.",
+          "narration": "在接受或拒绝模型之前,请一起查看表格和掩膜预览.",
           "visual": "07_benchmark",
           "hold_after": 0.7,
           "focus_key": "benchmark",
-          "speech_text": "查看表格和面具预览. 在接受或拒绝模型之前,请在图片背景中调查警告."
+          "speech_text": "在接受或拒绝模型之前,请一起查看表格和掩膜预览."
         },
         {
           "narration": "选择两个兼容的本地模型,当您需要控制的边对边评估时.",
@@ -1793,11 +1793,11 @@
           "speech_text": "选择两个兼容的本地模型,当您需要控制的边对边评估时."
         },
         {
-          "narration": "模型相比收到两个检查点和相同的场所,因此面具和质量指标的差异可以根据相同的输入来判断.",
+          "narration": "模型相比收到两个检查点和相同的场所,因此掩膜和质量指标的差异可以根据相同的输入来判断.",
           "visual": "10_compare_handoff",
           "hold_after": 0.7,
           "focus_key": "comparison",
-          "speech_text": "模型相比收到两个检查点和相同的场所,因此面具和质量指标的差异可以根据相同的输入来判断."
+          "speech_text": "模型相比收到两个检查点和相同的场所,因此掩膜和质量指标的差异可以根据相同的输入来判断."
         }
       ]
     },
@@ -1805,7 +1805,7 @@
       "id": "23_agreement",
       "number": 23,
       "slug": "agreement",
-      "title": "记者协议",
+      "title": "Annotator Agreement",
       "series": 3,
       "app_key": "agreement",
       "section": "Results and quality control",
@@ -1818,39 +1818,39 @@
       "prerequisite": "创建两个或多个类型列,用于相同的对象.",
       "scenes": [
         {
-          "narration": "标记者协议在没有改变数据库的情况下比较了类别标签列. 通过评论员,注释通票或评论员对模型的检查.",
+          "narration": "标注商协议可以在没有改变数据库的情况下比较类别标签列.",
           "visual": "01_overview",
           "hold_after": 0.7,
           "focus_key": "screen",
-          "speech_text": "标记者协议在没有改变数据库的情况下比较了类别标签列. 通过评论员,注释通票或评论员对模型的检查."
+          "speech_text": "标注商协议可以在没有改变数据库的情况下比较类别标签列."
         },
         {
-          "narration": "打开测量数据库或运行文件. 标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标标标标签标签标标标标",
+          "narration": "从 Results and quality control 部分打开 Annotator Agreement。 spaCR 发现指标和预测列,这些列指相同的对象.",
           "visual": "02_database",
           "hold_after": 0.7,
           "focus_key": "source_controls",
-          "speech_text": "打开测量数据库或运行文件. 标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标签标标标标签标签标标标标"
+          "speech_text": "从 Results and quality control 部分打开 Annotator Agreement。 斯佩克尔 发现指标和预测列,这些列指相同的对象."
         },
         {
-          "narration": "选择至少两个列. 其他列允许对比和多级汇总.",
+          "narration": "选择至少两个列. 额外的列允许对比和多级汇总.",
           "visual": "03_columns",
           "hold_after": 0.7,
           "focus_key": "columns",
-          "speech_text": "选择至少两个列. 其他列允许对比和多级汇总."
+          "speech_text": "选择至少两个列. 额外的列允许对比和多级汇总."
         },
         {
-          "narration": "计算协议将标签对象进行排列. 没有标签的报道是弃权,而不是默默地被计为分歧.",
+          "narration": "计算协议将标签对象排列. 缺失标签被报告为弃权而不是默默计数为分歧.",
           "visual": "04_compute",
           "hold_after": 0.7,
           "focus_key": "compute",
-          "speech_text": "计算协议将标签对象进行排列. 没有标签的报道是弃权,而不是默默地被计为分歧."
+          "speech_text": "计算协议将标签对象排列. 缺失标签被报告为弃权而不是默默计数为分歧."
         },
         {
-          "narration": "读一读原始协议,阶级平衡,弃权和卡帕. 只有一个类型,而不是零协议,可不定义卡帕.",
+          "narration": "阅读原始协议,类平衡,弃权和卡帕.当列中只有一个类时,卡帕可以不定义;这是一个普遍性警告,而不是零协议.",
           "visual": "06_pairwise",
           "hold_after": 0.7,
           "focus_key": "pairwise",
-          "speech_text": "读一读原始协议,阶级平衡,弃权和卡帕. 只有一个类型,而不是零协议,可不定义卡帕."
+          "speech_text": "阅读原始协议,类平衡,弃权和卡帕.当列中只有一个类时,卡帕可以不定义;这是一个普遍性警告,而不是零协议."
         },
         {
           "narration": "使用混矩阵查看哪些类是混的,以及不平衡是否占据总结的主导地位.",
@@ -1867,11 +1867,11 @@
           "speech_text": "异议表确定需要审查的具体物体."
         },
         {
-          "narration": "在改变标签或类定义之前检查代表作物. 总统计数据不能解释评论者为什么不同意.",
+          "narration": "在改变标签或类别定义之前检查代表作物. 综合统计数据不能解释审查者为什么不同意.",
           "visual": "09_crop_one",
           "hold_after": 0.7,
           "focus_key": "crop",
-          "speech_text": "在改变标签或类定义之前检查代表作物. 总统计数据不能解释评论者为什么不同意."
+          "speech_text": "在改变标签或类别定义之前检查代表作物. 综合统计数据不能解释审查者为什么不同意."
         }
       ]
     },
@@ -1879,38 +1879,38 @@
       "id": "24_plaque",
       "number": 24,
       "slug": "plaque",
-      "title": "标签:",
+      "title": "Plaque Assay",
       "series": 3,
       "app_key": "analyze_plaques",
       "section": "Toxoplasma assays",
-      "description": "细分或重复使用膜面具,验证它们,并根据条件概括膜形成.",
+      "description": "细分或重复使用膜掩膜,验证它们,并根据条件概括膜形成.",
       "objectives": [
-        "选择分类和现有面具.",
+        "选择分类和现有掩膜.",
         "预览中调整斑检测.",
         "验证和定位测试输出."
       ],
       "prerequisite": "准备板块图像,控制器,板块元数据和像素校准.",
       "scenes": [
         {
-          "narration": "板块测试测量清除区域的板块图像. 控制台记录了解决设置,进展,警告和输出路径.",
+          "narration": "控制台记录解决设置,进展,警告和输出路径.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "板块测试测量清除区域的板块图像. 控制台记录了解决设置,进展,警告和输出路径."
+          "speech_text": "控制台记录解决设置,进展,警告和输出路径."
         },
         {
-          "narration": "选择板图文件,然后决定是否要分类源图像或重复使用正确命名的标签面具.",
+          "narration": "从 Toxoplasma assays 部分打开 Plaque Assay。 选择板图文件,然后决定是否要分类源图像或重复使用正确命名的标签掩膜.",
           "visual": "05_inputs",
           "hold_after": 0.7,
           "focus_key": "inputs",
-          "speech_text": "选择板图文件,然后决定是否要分类源图像或重复使用正确命名的标签面具."
+          "speech_text": "从 Toxoplasma assays 部分打开 Plaque Assay。 选择板图文件,然后决定是否要分类源图像或重复使用正确命名的标签掩膜."
         },
         {
-          "narration": "基本内容包含了第一次运行所需的控制. 修改的审计是故意的变化,而All则揭示了先进的故障解决控制.",
+          "narration": "修改审计故意改变,而All暴露了先进的故障解决控制.",
           "visual": "06_essentials",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "基本内容包含了第一次运行所需的控制. 修改的审计是故意的变化,而All则揭示了先进的故障解决控制."
+          "speech_text": "修改审计故意改变,而All暴露了先进的故障解决控制."
         },
         {
           "narration": "匹配模型和预期的板块尺度与代表图像,而不是复制教程值.",
@@ -1920,11 +1920,11 @@
           "speech_text": "匹配模型和预期的板块尺度与代表图像,而不是复制教程值."
         },
         {
-          "narration": "检测设置影响候选区域,形状一致性,重新样本和清洁. 通过几个控制和处理井调整它们.",
+          "narration": "检测设置影响候选区域,形状一致性,重新样本和清洁.",
           "visual": "12_category_03_detection_thresholds",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "检测设置影响候选区域,形状一致性,重新样本和清洁. 通过几个控制和处理井调整它们."
+          "speech_text": "检测设置影响候选区域,形状一致性,重新样本和清洁."
         },
         {
           "narration": "只有在预览显示收购需要时,使用背景纠正或告示.",
@@ -1934,18 +1934,18 @@
           "speech_text": "只有在预览显示收购需要时,使用背景纠正或告示."
         },
         {
-          "narration": "运行后检查源,模型,规模和输出行为. 在重新校准分类时,开始使用一个小的验证集.",
+          "narration": "运行后检查源,模型,规模和输出行为. 在重新校准分区时,开始使用一个小的验证集.",
           "visual": "21_run",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "运行后检查源,模型,规模和输出行为. 在重新校准分类时,开始使用一个小的验证集."
+          "speech_text": "运行后检查源,模型,规模和输出行为. 在重新校准分区时,开始使用一个小的验证集."
         },
         {
-          "narration": "在比较条件之前,检查板覆盖和分布. 数据库,总结,统计数据和质量控制数据仍然与运行相关.",
+          "narration": "在比较条件之前检查板块叠加和分布.数据库,摘要,统计数据和质量控制数据仍然与运行相关.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "figures",
-          "speech_text": "在比较条件之前,检查板覆盖和分布. 数据库,总结,统计数据和质量控制数据仍然与运行相关."
+          "speech_text": "在比较条件之前检查板块叠加和分布.数据库,摘要,统计数据和质量控制数据仍然与运行相关."
         }
       ]
     },
@@ -1953,52 +1953,52 @@
       "id": "25_recruitment",
       "number": 25,
       "slug": "recruitment",
-      "title": "招聘",
+      "title": "Recruitment",
       "series": 3,
       "app_key": "recruitment",
       "section": "Toxoplasma assays",
       "description": "量化对寄生虫相关区域的标记的丰富性,相对于宿主细胞背景.",
       "objectives": [
-        "导航道和面具正确.",
+        "导航道和掩膜正确.",
         "选择可防护的物体过器和控制器.",
         "通过图像和发行验证招聘."
       ],
       "prerequisite": "测量相关的隔间,并通过适当的控制准备板块元数据.",
       "scenes": [
         {
-          "narration": "招聘阅读现有测量,并计算与寄生虫相关区域的标志性丰富. 它不再分割图像.",
+          "narration": "招募阅读现有测量,计算与寄生虫相关区域的标志丰富度.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "招聘阅读现有测量,并计算与寄生虫相关区域的标志性丰富. 它不再分割图像."
+          "speech_text": "招募阅读现有测量,计算与寄生虫相关区域的标志丰富度."
         },
         {
-          "narration": "选择包含测量数据库和合并的字段的实验根.",
+          "narration": "从 Toxoplasma assays 部分打开 Recruitment。 选择包含测量数据库和合并的字段的实验根.",
           "visual": "05_inputs",
           "hold_after": 0.7,
           "focus_key": "inputs",
-          "speech_text": "选择包含测量数据库和合并的字段的实验根."
+          "speech_text": "从 Toxoplasma assays 部分打开 Recruitment。 选择包含测量数据库和合并的字段的实验根."
         },
         {
-          "narration": "基本内容包括源源,道映射,过器,板标签和诊断控制. 修改提供了紧的预行审计.",
+          "narration": "基本内容包括源,道映射,过器,板标签和诊断控制.修改提供了紧的预运行审计.",
           "visual": "06_essentials",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "基本内容包括源源,道映射,过器,板标签和诊断控制. 修改提供了紧的预行审计."
+          "speech_text": "基本内容包括源,道映射,过器,板标签和诊断控制.修改提供了紧的预运行审计."
         },
         {
-          "narration": "切记每一个强度,并仔细地掩盖平面,然后选择感兴趣的道. 有效但错误的频道指数仍然可以产生可靠的比例.",
+          "narration": "根据\"\"的指数,每一个度都会产生可观的比例.",
           "visual": "12_category_02_mask_channel_mapping",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "切记每一个强度,并仔细地掩盖平面,然后选择感兴趣的道. 有效但错误的频道指数仍然可以产生可靠的比例."
+          "speech_text": "根据\"\"的指数,每一个度都会产生可观的比例."
         },
         {
-          "narration": "物体过器可以消除不可思议的细胞,核和寄生虫. 选择分布和叠加中的门,而不是固定的教程值.",
+          "narration": "选择从分布和覆盖中选择门,而不是固定教程值.",
           "visual": "12_category_03_object_filtering",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "物体过器可以消除不可思议的细胞,核和寄生虫. 选择分布和叠加中的门,而不是固定的教程值."
+          "speech_text": "选择从分布和覆盖中选择门,而不是固定教程值."
         },
         {
           "narration": "在解释组差异之前,将条件和控制点映射到正确的表格标识符.",
@@ -2015,11 +2015,11 @@
           "speech_text": "运行将测量结合,应用审查的门户,计算招聘,组组井,并产生诊断."
         },
         {
-          "narration": "在信任条件总结之前,检查细分叠加和控制分布. 目标和井级输出保持其源标识.",
+          "narration": "在信任条件总结之前,检查细分叠加和控制分布.对象和良好水平输出保持其源标识符.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "figures",
-          "speech_text": "在信任条件总结之前,检查细分叠加和控制分布. 目标和井级输出保持其源标识."
+          "speech_text": "在信任条件总结之前,检查细分叠加和控制分布.对象和良好水平输出保持其源标识符."
         }
       ]
     },
@@ -2027,7 +2027,7 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion",
-      "title": "侵略试验",
+      "title": "Invasion Assay",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
@@ -2040,18 +2040,18 @@
       "prerequisite": "准备验证的外部对总染色测试,使用控制和寄生虫测量.",
       "scenes": [
         {
-          "narration": "根据两色染色设计测量寄生虫的测量. 控制台记录设置,质量检查和输出.",
+          "narration": "控制台记录设置,质量检查和输出.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "根据两色染色设计测量寄生虫的测量. 控制台记录设置,质量检查和输出."
+          "speech_text": "控制台记录设置,质量检查和输出."
         },
         {
-          "narration": "选择包含寄生虫测量,污染道,控制器和板块元数据的实验.",
+          "narration": "从 Toxoplasma assays 部分打开 Invasion Assay。 选择包含寄生虫测量,污染道,控制器和板块元数据的实验.",
           "visual": "05_inputs",
           "hold_after": 0.7,
           "focus_key": "inputs",
-          "speech_text": "选择包含寄生虫测量,污染道,控制器和板块元数据的实验."
+          "speech_text": "从 Toxoplasma assays 部分打开 Invasion Assay。 选择包含寄生虫测量,污染道,控制器和板块元数据的实验."
         },
         {
           "narration": "基本数据显示了首次分析所需的输入,道映射,门,控制,过和输出.",
@@ -2061,11 +2061,11 @@
           "speech_text": "基本数据显示了首次分析所需的输入,道映射,门,控制,过和输出."
         },
         {
-          "narration": "根据正确的顺序绘制出外部斑点和全部寄生虫斑点. 换它们就会扭转生物解释,而不会造成错误.",
+          "narration": "通过将它们交换,就会扭转生物解释,而不一定会造成错误.",
           "visual": "12_category_02_channels_intensity",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "根据正确的顺序绘制出外部斑点和全部寄生虫斑点. 换它们就会扭转生物解释,而不会造成错误."
+          "speech_text": "通过将它们交换,就会扭转生物解释,而不一定会造成错误."
         },
         {
           "narration": "根据适当的控制,从选择的边界中取出分类门,并检查敏感度.",
@@ -2089,11 +2089,11 @@
           "speech_text": "经过验证斑点映射,控制,对象过器和状态元数据后运行."
         },
         {
-          "narration": "审查附加,入侵和不确定的例子,以及高水平的摘要. 输出结果保留测试设置和源标识符.",
+          "narration": "检查附加,入侵和不确定例子,以及高水平的摘要.出口结果保留测试设置和源标识符.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "figures",
-          "speech_text": "审查附加,入侵和不确定的例子,以及高水平的摘要. 输出结果保留测试设置和源标识符."
+          "speech_text": "检查附加,入侵和不确定例子,以及高水平的摘要.出口结果保留测试设置和源标识符."
         }
       ]
     },
@@ -2101,7 +2101,7 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "复制测试",
+      "title": "Replication Assay",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
@@ -2114,25 +2114,25 @@
       "prerequisite": "测量主机细胞,真空体和寄生虫,使用审查的关系和状态元数据.",
       "scenes": [
         {
-          "narration": "复制测试对现有关系和测量进行了寄生虫数量. 控制台记录设置,过和输出.",
+          "narration": "复制测试通过现有关系和测量来计算每个真空.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "复制测试对现有关系和测量进行了寄生虫数量. 控制台记录设置,过和输出."
+          "speech_text": "复制测试通过现有关系和测量来计算每个真空."
         },
         {
-          "narration": "选择实验根,确认宿主细胞,真空细胞和寄生虫具有稳定的标识符.",
+          "narration": "从 Toxoplasma assays 部分打开 Replication Assay。 选择实验根,确认宿主细胞,真空细胞和寄生虫具有稳定的标识符.",
           "visual": "05_inputs",
           "hold_after": 0.7,
           "focus_key": "inputs",
-          "speech_text": "选择实验根,确认宿主细胞,真空细胞和寄生虫具有稳定的标识符."
+          "speech_text": "从 Toxoplasma assays 部分打开 Replication Assay。 选择实验根,确认宿主细胞,真空细胞和寄生虫具有稳定的标识符."
         },
         {
-          "narration": "基本内容介绍了分配,状态,过,分数和输出控制. 使用 Modified 进行故意的变化审计.",
+          "narration": "基本文件介绍了分配,条件,过,分数和输出控制.使用修改来审计故意的变化.",
           "visual": "06_essentials",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "基本内容介绍了分配,状态,过,分数和输出控制. 使用 Modified 进行故意的变化审计."
+          "speech_text": "基本文件介绍了分配,条件,过,分数和输出控制.使用修改来审计故意的变化."
         },
         {
           "narration": "选择如何将寄生虫分配到真空,以及如何处理模糊或遥远的关系.",
@@ -2163,11 +2163,11 @@
           "speech_text": "检查任务,条件,过器和分数定义后运行."
         },
         {
-          "narration": "检查整个数值范围内的真空器,检查合并或碎片化面具. 保存的分布和统计数据仍然与对象级证据相关.",
+          "narration": "检查整个数值范围内的真空区,并检查合并或碎片化掩膜.保存的分布和统计数据仍然与对象级证据相关.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "figures",
-          "speech_text": "检查整个数值范围内的真空器,检查合并或碎片化面具. 保存的分布和统计数据仍然与对象级证据相关."
+          "speech_text": "检查整个数值范围内的真空区,并检查合并或碎片化掩膜.保存的分布和统计数据仍然与对象级证据相关."
         }
       ]
     },
@@ -2175,7 +2175,7 @@
       "id": "28_training_runs",
       "number": 28,
       "slug": "training_runs",
-      "title": "训练运行",
+      "title": "Training Runs",
       "series": 4,
       "app_key": "train_compare",
       "section": "Results and quality control",
@@ -2195,11 +2195,11 @@
           "speech_text": "训练运行比较了几个合适,而不会将模型选择降低到一个损失值."
         },
         {
-          "narration": "选择包含兼容训练运行的文件或注册表,然后扫描它.",
+          "narration": "从 Results and quality control 部分打开 Training Runs。 选择包含兼容训练运行的文件或注册表,然后扫描它.",
           "visual": "02_source",
           "hold_after": 0.7,
           "focus_key": "source",
-          "speech_text": "选择包含兼容训练运行的文件或注册表,然后扫描它."
+          "speech_text": "从 Results and quality control 部分打开 Training Runs。 选择包含兼容训练运行的文件或注册表,然后扫描它."
         },
         {
           "narration": "在选择候选人之前,审查发现的选项,可用的指标,不完整的记录和警告.",
@@ -2249,7 +2249,7 @@
       "id": "29_report",
       "number": 29,
       "slug": "report",
-      "title": "报告",
+      "title": "Report",
       "series": 4,
       "app_key": "report",
       "section": "Results and quality control",
@@ -2269,11 +2269,11 @@
           "speech_text": "报告组装一个可追踪的项目总结,而不是要求你手动复制数字和设置."
         },
         {
-          "narration": "选择完成的项目或运行文件,扫描可用的证据.",
+          "narration": "从 Results and quality control 部分打开 Report。 选择完成的项目或运行文件,扫描可用的证据.",
           "visual": "02_source",
           "hold_after": 0.7,
           "focus_key": "source",
-          "speech_text": "选择完成的项目或运行文件,扫描可用的证据."
+          "speech_text": "从 Results and quality control 部分打开 Report。 选择完成的项目或运行文件,扫描可用的证据."
         },
         {
           "narration": "在选择报告部分之前,请检查检测到的质量判决和缺失的输入.",
@@ -2316,7 +2316,7 @@
       "id": "30_plate_queue",
       "number": 30,
       "slug": "plate_queue",
-      "title": "盘排队",
+      "title": "Plate Queue",
       "series": 4,
       "app_key": "queue",
       "section": "Data and batch runs",
@@ -2336,11 +2336,11 @@
           "speech_text": "单板队列在多个单板上应用一个验证的工作流程,同时保持每个单板的状态分开."
         },
         {
-          "narration": "加入当前配置的模块或准备的板源到排列中.",
+          "narration": "从 Data and batch runs 部分打开 Plate Queue。 加入当前配置的模块或准备的板源到排列中.",
           "visual": "03_add_current",
           "hold_after": 0.7,
           "focus_key": "add",
-          "speech_text": "加入当前配置的模块或准备的板源到排列中."
+          "speech_text": "从 Data and batch runs 部分打开 Plate Queue。 加入当前配置的模块或准备的板源到排列中."
         },
         {
           "narration": "添加更多的板块,并查看它们的来源,目的地,设置和顺序.",
@@ -2350,11 +2350,11 @@
           "speech_text": "添加更多的板块,并查看它们的来源,目的地,设置和顺序."
         },
         {
-          "narration": "选择员工限制,停止行为,并恢复政策. 排队状态持续,因此中断不会删除计划.",
+          "narration": "选择员工限制,停止行为,并恢复政策. 排队状态是持续的,因此中断不会删除计划.",
           "visual": "06_persistence",
           "hold_after": 0.7,
           "focus_key": "run_controls",
-          "speech_text": "选择员工限制,停止行为,并恢复政策. 排队状态持续,因此中断不会删除计划."
+          "speech_text": "选择员工限制,停止行为,并恢复政策. 排队状态是持续的,因此中断不会删除计划."
         },
         {
           "narration": "在开始剩余的排队之前,在一个有限的盘子或场上测试工作流程.",
@@ -2383,45 +2383,45 @@
       "id": "31_external_masks",
       "number": 31,
       "slug": "external_masks",
-      "title": "外部面具",
+      "title": "External Masks",
       "series": 4,
       "app_key": "external_masks",
       "section": "Data and batch runs",
-      "description": "转换第三方图像和标签面具成一个可测量,可追踪的spaCR项目.",
+      "description": "转换第三方图像和标签掩膜成测量可追踪的 spaCR 项目.",
       "objectives": [
         "准确地绘制外部输入.",
         "在预览中验证进口.",
         "创建一个有源的测量项目."
       ],
-      "prerequisite": "准备源图像,整数标签面具,命名规则和对象类定义.",
+      "prerequisite": "准备源图像,整数标签掩膜,命名规则和对象类定义.",
       "scenes": [
         {
-          "narration": "外部面具进口源图像和外部生成的标签,然后为正常的spaCR测量和注释做准备.",
+          "narration": "外部掩膜进口源图像和外部生成的标签,然后为正常的 spaCR 测量和注释做好项目准备.",
           "visual": "01_overview",
           "hold_after": 0.7,
           "focus_key": "screen",
-          "speech_text": "外部面具进口源图像和外部生成的标签,然后为正常的斯佩克尔测量和注释做准备."
+          "speech_text": "外部掩膜进口源图像和外部生成的标签,然后为正常的 斯佩克尔 测量和注释做好项目准备."
         },
         {
-          "narration": "添加图像和面具源,然后检查spaCR是否检测到预期的角色.",
+          "narration": "从 Data and batch runs 部分打开 External Masks。 添加图像和掩膜源,然后检查 spaCR 检测到预期的角色.",
           "visual": "02_detected",
           "hold_after": 0.7,
           "focus_key": "input_table",
-          "speech_text": "添加图像和面具源,然后检查斯佩克尔是否检测到预期的角色."
+          "speech_text": "从 Data and batch runs 部分打开 External Masks。 添加图像和掩膜源,然后检查 斯佩克尔 检测到预期的角色."
         },
         {
-          "narration": "给每个输入的对象类进行地图. 检查文件名,尺寸和场合对应,而不是依赖于推断任务.",
+          "narration": "根据一个推断任务,检查文件名,尺寸和字段对.",
           "visual": "03_assignment",
           "hold_after": 0.7,
           "focus_key": "input_table",
-          "speech_text": "给每个输入的对象类进行地图. 检查文件名,尺寸和场合对应,而不是依赖于推断任务."
+          "speech_text": "根据一个推断任务,检查文件名,尺寸和字段对."
         },
         {
-          "narration": "输入地图控制道和面具飞机排序,命名和目的地布局.",
+          "narration": "输入地图控制道和掩膜飞机排序,命名和目的地布局.",
           "visual": "04_category_input_mapping",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "输入地图控制道和面具飞机排序,命名和目的地布局."
+          "speech_text": "输入地图控制道和掩膜飞机排序,命名和目的地布局."
         },
         {
           "narration": "测量设置定义了进口后应生产哪些物体和特征.",
@@ -2445,11 +2445,11 @@
           "speech_text": "在写任何东西之前,请检查对配,频道数,对象类,警告和阻止错误."
         },
         {
-          "narration": "运行复核进口. 结果的图像,面具,测量和来源都准备好进行下游注释.",
+          "narration": "运行复习进口. 结果的图像,掩膜,测量和来源准备好用于下游注释.",
           "visual": "18_finished",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "运行复核进口. 结果的图像,面具,测量和来源都准备好进行下游注释."
+          "speech_text": "运行复习进口. 结果的图像,掩膜,测量和来源准备好用于下游注释."
         }
       ]
     },
@@ -2457,7 +2457,7 @@
       "id": "32_align_stitch",
       "number": 32,
       "slug": "align_stitch",
-      "title": "调整和接",
+      "title": "Align and Stitch",
       "series": 4,
       "app_key": "align",
       "section": "Data and batch runs",
@@ -2477,11 +2477,11 @@
           "speech_text": "根据Align和Stitch的规定,注册计划与写作分开,以便首先审查配置和资源估计."
         },
         {
-          "narration": "选择文件和目的地,保持源获取不变.",
+          "narration": "从 Data and batch runs 部分打开 Align and Stitch。 选择文件和目的地,保持源获取不变.",
           "visual": "02_source",
           "hold_after": 0.7,
           "focus_key": "source",
-          "speech_text": "选择文件和目的地,保持源获取不变."
+          "speech_text": "从 Data and batch runs 部分打开 Align and Stitch。 选择文件和目的地,保持源获取不变."
         },
         {
           "narration": "描述网格顺序,重叠,阶段信息和包含有用结构的参考频道.",
@@ -2519,11 +2519,11 @@
           "speech_text": "在执行输出之前,选择弱或孤立的,以了解它们的解决位置."
         },
         {
-          "narration": "只有计划被接受后才写信. 斯帕克兰德托肯保存了摩赛克,转换,坐标和注册报告.",
+          "narration": "只有计划被接受后才写. spaCR 保存了摩赛克,转换,坐标和注册报告.",
           "visual": "10_finished",
           "hold_after": 0.7,
           "focus_key": "report",
-          "speech_text": "只有计划被接受后才写信. 斯帕克兰德托肯保存了摩赛克,转换,坐标和注册报告."
+          "speech_text": "只有计划被接受后才写. 斯佩克尔 保存了摩赛克,转换,坐标和注册报告."
         }
       ]
     },
@@ -2531,7 +2531,7 @@
       "id": "33_plate_viewer",
       "number": 33,
       "slug": "plate_viewer",
-      "title": "盘子视器",
+      "title": "Plate Viewer",
       "series": 4,
       "app_key": "plate_view",
       "section": "Results and quality control",
@@ -2551,11 +2551,11 @@
           "speech_text": "屏幕视图器将对象的测量转化为高温地图,"
         },
         {
-          "narration": "打开测量数据库或运行文件. 只有读取.",
+          "narration": "从 Results and quality control 部分打开 Plate Viewer。 查询源只可读.",
           "visual": "02_database",
           "hold_after": 0.7,
           "focus_key": "source",
-          "speech_text": "打开测量数据库或运行文件. 只有读取."
+          "speech_text": "从 Results and quality control 部分打开 Plate Viewer。 查询源只可读."
         },
         {
           "narration": "选择显示的对象表,数值特征和盘.",
@@ -2565,11 +2565,11 @@
           "speech_text": "选择显示的对象表,数值特征和盘."
         },
         {
-          "narration": "选择聚合,颜色尺度,以及对井的最低证据. 计数是发现细分或种植差异的有用.",
+          "narration": "选择聚合,颜色扩展,以及对井的最低证据.",
           "visual": "04_options",
           "hold_after": 0.7,
           "focus_key": "options",
-          "speech_text": "选择聚合,颜色尺度,以及对井的最低证据. 计数是发现细分或种植差异的有用."
+          "speech_text": "选择聚合,颜色扩展,以及对井的最低证据."
         },
         {
           "narration": "显示图,然后与行,列,环和边诊断相比较.",
@@ -2605,17 +2605,17 @@
       "id": "34_database",
       "number": 34,
       "slug": "database",
-      "title": "数据库浏览器",
+      "title": "Database Browser",
       "series": 4,
       "app_key": "db_browser",
       "section": "Data",
-      "description": "浏览,过和出口spaCR测量数据库,没有命令行.",
+      "description": "浏览,过和出口 spaCR 测量数据库,没有命令行.",
       "objectives": [
         "开放,安全地浏览数据库.",
         "过完整的表格,而不用与预览混.",
         "输出可追踪的子集."
       ],
-      "prerequisite": "设置spaCR SQLite数据库或运行文件.",
+      "prerequisite": "提供 spaCR SQLite 数据库或运行文件.",
       "scenes": [
         {
           "narration": "数据库浏览器在有限的,只能阅读的视图中检查大型spaCR数据库.",
@@ -2625,11 +2625,11 @@
           "speech_text": "数据库浏览器在有限的,只能阅读的视图中检查大型斯佩克尔数据库."
         },
         {
-          "narration": "选择测量数据库或其运行文件,然后打开它.",
+          "narration": "从 Data 部分打开 Database Browser。 选择测量数据库或其运行文件,然后打开它.",
           "visual": "02_open",
           "hold_after": 0.7,
           "focus_key": "source",
-          "speech_text": "选择测量数据库或其运行文件,然后打开它."
+          "speech_text": "从 Data 部分打开 Database Browser。 选择测量数据库或其运行文件,然后打开它."
         },
         {
           "narration": "检查其目的和仅可阅读状态后选择表格.",
@@ -2653,11 +2653,11 @@
           "speech_text": "搜索列以使宽的特征表可读,而不需要改变底层行."
         },
         {
-          "narration": "建立一个结构化过器. 列名称和运算符已验证,值也安全地绑定.",
+          "narration": "建立一个结构化过器.列名和运算符已验证,值也安全地绑定.",
           "visual": "08_filter",
           "hold_after": 0.7,
           "focus_key": "filter",
-          "speech_text": "建立一个结构化过器. 列名称和运算符已验证,值也安全地绑定."
+          "speech_text": "建立一个结构化过器.列名和运算符已验证,值也安全地绑定."
         },
         {
           "narration": "过的数量描述了整个查询,",
@@ -2667,11 +2667,11 @@
           "speech_text": "过的数量描述了整个查询,"
         },
         {
-          "narration": "输出完整的电流过器和可见列选项. 源数据库保持不变.",
+          "narration": "输出完整的当前过器和可见列选项.源数据库保持不变.",
           "visual": "10_export",
           "hold_after": 0.7,
           "focus_key": "export",
-          "speech_text": "输出完整的电流过器和可见列选项. 源数据库保持不变."
+          "speech_text": "输出完整的当前过器和可见列选项.源数据库保持不变."
         }
       ]
     },
@@ -2679,17 +2679,17 @@
       "id": "35_converter",
       "number": 35,
       "slug": "converter",
-      "title": "格式转换器",
+      "title": "Format Converter",
       "series": 4,
       "app_key": "convert",
       "section": "Data",
-      "description": "转换显微镜格式为使用复制的来源地图的spaCR兼容的TIFF名称.",
+      "description": "转换显微镜格式为使用复习的来源地图的 spaCR兼容的 TIFF名称.",
       "objectives": [
         "设置一个意识损失的地图.",
         "验证完整的预览计划.",
         "转换或恢复,而不改变来源."
       ],
-      "prerequisite": "准备支持的显微镜文件,并决定如何将收获尺寸映射到spaCR标识符.",
+      "prerequisite": "准备支持的显微镜文件,并决定如何将收获尺寸映射到 spaCR识别器.",
       "scenes": [
         {
           "narration": "格式转换器使用预览工作流程,所以在文件编写之前,命名和维度映射可见.",
@@ -2699,18 +2699,18 @@
           "speech_text": "格式转换器使用预览工作流程,所以在文件编写之前,命名和维度映射可见."
         },
         {
-          "narration": "选择源文件和另一个目的地.",
+          "narration": "从 Data 部分打开 Format Converter。 选择源文件和另一个目的地.",
           "visual": "02_source",
           "hold_after": 0.7,
           "focus_key": "source",
-          "speech_text": "选择源文件和另一个目的地."
+          "speech_text": "从 Data 部分打开 Format Converter。 选择源文件和另一个目的地."
         },
         {
-          "narration": "描述文件布局,系列,时间,深度,盘名和恢复行为. 投影选择丢弃信息,所以故意选择它们.",
+          "narration": "描述文件布局,系列,时间,深度,盘名和恢复行为.投影选择丢弃信息,因此故意选择它们.",
           "visual": "03_options",
           "hold_after": 0.7,
           "focus_key": "options",
-          "speech_text": "描述文件布局,系列,时间,深度,盘名和恢复行为. 投影选择丢弃信息,所以故意选择它们."
+          "speech_text": "描述文件布局,系列,时间,深度,盘名和恢复行为.投影选择丢弃信息,因此故意选择它们."
         },
         {
           "narration": "预览扫描标题,并构建转换计划,而不需要写图像.",
@@ -2727,11 +2727,11 @@
           "speech_text": "检查每个来源,除了目标板,井,田径,道,时间和深度标识符之外."
         },
         {
-          "narration": "只有在地图正确,碰撞检查通过时才转换. 源源永远不会被更名或更换.",
+          "narration": "只有在地图正确的,碰撞检查通过时才转换.",
           "visual": "06_convert",
           "hold_after": 0.7,
           "focus_key": "convert",
-          "speech_text": "只有在地图正确,碰撞检查通过时才转换. 源源永远不会被更名或更换."
+          "speech_text": "只有在地图正确的,碰撞检查通过时才转换."
         },
         {
           "narration": "结果包括标准化的TIFF和每一个原始文件和标识符的来源地图.",
@@ -2753,38 +2753,38 @@
       "id": "36_import",
       "number": 36,
       "slug": "import",
-      "title": "进口项目",
+      "title": "Import Project",
       "series": 5,
       "app_key": "foreign",
       "section": "Data",
-      "description": "绘制另一家实验室的图像,面具和测量,",
+      "description": "绘制其他实验室的图像,掩膜和测量,",
       "objectives": [
         "显然地绘制出外来数据.",
         "在预览中解决结合,单元和命名冲突.",
         "创建一个标准化的项目,"
       ],
-      "prerequisite": "准备源图像,可选面具,测量,标识符和物理校准.",
+      "prerequisite": "准备源图像,可选掩膜,测量,标识符和物理校准.",
       "scenes": [
         {
-          "narration": "在创建spaCR项目之前,进口项目将推断的地图与审查的决定分开.",
+          "narration": "在创建 spaCR 项目之前,进口项目将推断的映射与审查的决定分开.",
           "visual": "01_overview",
           "hold_after": 0.7,
           "focus_key": "screen",
-          "speech_text": "在创建斯佩克尔项目之前,进口项目将推断的地图与审查的决定分开."
+          "speech_text": "在创建 斯佩克尔 项目之前,进口项目将推断的映射与审查的决定分开."
         },
         {
-          "narration": "选择外部图像和新目的地,保存原始文件.",
+          "narration": "从 Data 部分打开 Import Project。 选择外部图像和新目的地,保存原始文件.",
           "visual": "02_images",
           "hold_after": 0.7,
           "focus_key": "images",
-          "speech_text": "选择外部图像和新目的地,保存原始文件."
+          "speech_text": "从 Data 部分打开 Import Project。 选择外部图像和新目的地,保存原始文件."
         },
         {
-          "narration": "添加每个面具类,并验证每个字段是否具有预期匹配的标签.",
+          "narration": "添加每个掩膜类,并验证每个字段是否具有预期匹配的标签.",
           "visual": "03_masks",
           "hold_after": 0.7,
           "focus_key": "mask_list",
-          "speech_text": "添加每个面具类,并验证每个字段是否具有预期匹配的标签."
+          "speech_text": "添加每个掩膜类,并验证每个字段是否具有预期匹配的标签."
         },
         {
           "narration": "添加测量,校准,识别符和对外列名称的冲突政策.",
@@ -2815,11 +2815,11 @@
           "speech_text": "直接纠正推断的映射,再进行验证,直到计划反映了源实验."
         },
         {
-          "narration": "仅进口复核的计划. 史帕克兰德托肯写出了可信的图像,面具,测量和来源,同时保留了外部标识符.",
+          "narration": "仅输入复核的计划. spaCR 写出可视图像,掩膜,测量和来源,同时保留外部标识符.",
           "visual": "11_import",
           "hold_after": 0.7,
           "focus_key": "import",
-          "speech_text": "仅进口复核的计划. 史帕克兰德托肯写出了可信的图像,面具,测量和来源,同时保留了外部标识符."
+          "speech_text": "仅输入复核的计划. 斯佩克尔 写出可视图像,掩膜,测量和来源,同时保留外部标识符."
         }
       ]
     },
@@ -2827,47 +2827,109 @@
       "id": "37_batch",
       "number": 37,
       "slug": "batch",
-      "title": "批量运行者",
+      "title": "Batch Runner",
       "series": 5,
       "app_key": "batch",
       "section": "Data and batch runs",
-      "description": "排队模块,项目和设置可复制的无监督执行.",
+      "description": "验证,坚持和执行一个有序排列的实 spaCR 模块工作,具有依赖性和单独的日志.",
       "objectives": [
-        "了解什么时候使用\"批量跑者\".",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "添加标签,依赖性和命令行过关的验证模块和设置工作.",
+        "在执行之前,重新排列,验证,保存和重新加载一个未监督的队列.",
+        "单次执行工作,并对每个工作状态和日志进行审计."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "每个无头 spaCR 模块工作都保存了一个 JSON 或 CSV 设置文件.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了\"批跑者\". 排队模块,项目和设置可复制的无监督执行.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了\"批跑者\". 排队模块,项目和设置可复制的无监督执行."
+          "narration": "批量运行器将任意的 spaCR 模块和设置堆叠成一个无监督的队列.与单板队列不同,该队列可以将一个管道应用于许多板块,Batch Runner可以混合模块,输入,重覆和依赖.工作一次严格运行,因此它们不会为一个GPU竞争.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.82,
+          "speech_text": "批量运行器将任意的 斯佩克尔 模块和设置堆叠成一个无监督的队列.与单板队列不同,该队列可以将一个管道应用于许多板块,Batch Runner可以混合模块,输入,重覆和依赖.工作一次严格运行,因此它们不会为一个GPU竞争."
         },
         {
-          "narration": "添加项目,并组装每个项目应运行的顺序模块序列.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "添加项目,并组装每个项目应运行的顺序模块序列."
+          "narration": "从 Data and batch runs 部分打开 Batch Runner。 添加描述标签,可选的先决工作标识符和可选的键等于值过关.此次第一个工作执行一个四通道字段的真实无损转换. 点击添加工作.",
+          "visual": "02_add_first",
+          "focus_key": "editor",
+          "click_key": "add",
+          "hold_after": 0.76,
+          "speech_text": "从 Data and batch runs 部分打开 Batch Runner。 添加描述标签,可选的先决工作标识符和可选的键等于值过关.此次第一个工作执行一个四通道字段的真实无损转换. 点击添加工作."
         },
         {
-          "narration": "在主配置区域中,选择预设,依赖,资源限制,恢复行为,记录和故障政策.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "在主配置区域中,选择预设,依赖,资源限制,恢复行为,记录和故障政策."
+          "narration": "工作收到稳定识别符转换-1,并立即检查.Batch Runner 解决模块默认问题,解析设置文件并重覆,验证路径和值,并拒绝现在无效的工作,而不是在一夜之间运行中发现它.",
+          "visual": "03_first_ready",
+          "focus_key": "table",
+          "hold_after": 0.76,
+          "speech_text": "工作收到稳定识别符转换-1,并立即检查.Batch Runner 解决模块默认问题,解析设置文件并重覆,验证路径和值,并拒绝现在无效的工作,而不是在一夜之间运行中发现它."
         },
         {
-          "narration": "验证批量计划,测试一个工作,然后在一夜或无人监视下运行剩下的队列.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "验证批量计划,测试一个工作,然后在一夜或无人监视下运行剩下的队列."
+          "narration": "后面的第二个实实实转换名称是convert-1,所以它只运行如果该先决条件成功.它的 plate_naming=name override 在保存的设置上被层次地覆盖,而没有复制文件.如果convert-1失败,则该任务标记为跳过而不是运行于不完整的上游输出.点击添加工作.",
+          "visual": "04_add_dependent",
+          "focus_key": "editor",
+          "click_key": "add",
+          "hold_after": 0.82,
+          "speech_text": "后面的第二个实实实转换名称是convert-1,所以它只运行如果该先决条件成功.它的 plate_naming=name override 在保存的设置上被层次地覆盖,而没有复制文件.如果convert-1失败,则该任务标记为跳过而不是运行于不完整的上游输出.点击添加工作."
         },
         {
-          "narration": "当工作流程完成时,每个工作都有自己的状态,设置快照,日志,输出和可重启的运行记录.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "当工作流程完成时,每个工作都有自己的状态,设置快照,日志,输出和可重启的运行记录."
+          "narration": "第三个真实转换没有先决条件,并且在继续错误政策下,如果无关的工作失败时仍然可以运行. 添加它作为独立的工作. 本课程使用三个转移显微镜字段,将字节对字节复制成单独的文件;每个排队过程都会执行真正的转换.",
+          "visual": "05_add_independent",
+          "focus_key": "editor",
+          "click_key": "add",
+          "hold_after": 0.8,
+          "speech_text": "第三个真实转换没有先决条件,并且在继续错误政策下,如果无关的工作失败时仍然可以运行. 添加它作为独立的工作. 本课程使用三个转移显微镜字段,将字节对字节复制成单独的文件;每个排队过程都会执行真正的转换."
+        },
+        {
+          "narration": "现在表显示运行顺序,稳定工作标识符,模块,标签,依赖,待定状态,过期时间,以及每个工作的自己的日志. 选择一列来检查其设置和日志. 复制,删除和移动控制构建和重新排序更大的工作夜晚.",
+          "visual": "06_queue_ready",
+          "focus_key": "table",
+          "hold_after": 0.8,
+          "speech_text": "现在表显示运行顺序,稳定工作标识符,模块,标签,依赖,待定状态,过期时间,以及每个工作的自己的日志. 选择一列来检查其设置和日志. 复制,删除和移动控制构建和重新排序更大的工作夜晚."
+        },
+        {
+          "narration": "选择独立的第三个任务,然后点击移动上升. 在这里重新排序是安全的,因为依赖转换仍然低于convert-1.移动一个前提条件低于依赖的会产生可见的验证错误,并禁运行.",
+          "visual": "07_reorder",
+          "focus_key": "toolbar",
+          "click_key": "move_up",
+          "hold_after": 0.7,
+          "speech_text": "选择独立的第三个任务,然后点击移动上升. 在这里重新排序是安全的,因为依赖转换仍然低于convert-1.移动一个前提条件低于依赖的会产生可见的验证错误,并禁运行."
+        },
+        {
+          "narration": "编辑或加载队列后点击验证.验证将每一个错误和警告都一起报告:缺失设置,未知的模块,无效的路径或值,重复标识符,后来的先决条件和依赖周期.任何阻塞问题存在时,运行按仍然是禁用的.",
+          "visual": "08_validate",
+          "focus_key": "toolbar",
+          "click_key": "validate",
+          "hold_after": 0.74,
+          "speech_text": "编辑或加载队列后点击验证.验证将每一个错误和警告都一起报告:缺失设置,未知的模块,无效的路径或值,重复标识符,后来的先决条件和依赖周期.任何阻塞问题存在时,运行按仍然是禁用的."
+        },
+        {
+          "narration": "继续失败允许独立的工作继续,而依赖者被跳过;停止在第一次失败后停止一切.连续失败的门停止了一排因同样的系统性原因而重复失败的队列.停止等待当前的工作安全完成,而不是在写作中杀死它.",
+          "visual": "09_validated",
+          "focus_key": "run",
+          "hold_after": 0.9,
+          "speech_text": "继续失败允许独立的工作继续,而依赖者被跳过;停止在第一次失败后停止一切.连续失败的门停止了一排因同样的系统性原因而重复失败的队列.停止等待当前的工作安全完成,而不是在写作中杀死它."
+        },
+        {
+          "narration": "在放弃无监督之前点击保存队列.可读的JSON存储序列,依赖性,重置和状态.Batch Runner每次过渡后自动更新,以便重新启动可以恢复未完成的工作.",
+          "visual": "10_save",
+          "focus_key": "toolbar",
+          "click_key": "save",
+          "hold_after": 0.8,
+          "speech_text": "在放弃无监督之前点击保存队列.可读的JSON存储序列,依赖性,重置和状态.Batch Runner每次过渡后自动更新,以便重新启动可以恢复未完成的工作."
+        },
+        {
+          "narration": "随着保存的复习队列,点击运行队列.每个工作将以此 spaCR 环境作为自己的 spaCR-run 过程启动. 分类崩将结束该工作,而不是接口或后来的独立工作,标准输出加错误进入该工作的单独日志.",
+          "visual": "11_run",
+          "focus_key": "run",
+          "click_key": "run_queue",
+          "hold_after": 0.78,
+          "speech_text": "随着保存的复习队列,点击运行队列.每个工作将以此 斯佩克尔 环境作为自己的 斯佩克尔-run 过程启动. 分类崩将结束该工作,而不是接口或后来的独立工作,标准输出加错误进入该工作的单独日志."
+        },
+        {
+          "narration": "所有三个真正的子进程工作都成功完成.进步达到三个,表保存每个状态和持续时间,总结区分成功,失败,跳转,未运行和部分结果,选定的工作日志包含其准确的命令和转换报告.每个目的地包含四个TIFF和来源地图;所有源哈希保持不变.",
+          "visual": "12_result",
+          "focus_key": "summary",
+          "hold_after": 0.92,
+          "speech_text": "所有三个真正的子进程工作都成功完成.进步达到三个,表保存每个状态和持续时间,总结区分成功,失败,跳转,未运行和部分结果,选定的工作日志包含其准确的命令和转换报告.每个目的地包含四个TIFF和来源地图;所有源哈希保持不变."
         }
       ]
     },
@@ -2875,11 +2937,11 @@
       "id": "38_distributed_jobs",
       "number": 38,
       "slug": "distributed_jobs",
-      "title": "分配工作",
+      "title": "Distributed Jobs",
       "series": 5,
       "app_key": "distributed_jobs",
       "section": "Data and batch runs",
-      "description": "在SSH工作站,Slurm集群或云和HPC命令上提交和监测spaCR工作.",
+      "description": "在SSH工作站,Slurm集群或云和HPC命令上提交和监测 spaCR工作.",
       "objectives": [
         "了解使用分布式工作的时间.",
         "配置重要的输入和设置.",
@@ -2888,16 +2950,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这篇教程涵盖了分布式工作. 在SSH工作站,Slurm集群或云和HPC命令上提交和监测spaCR工作.",
+          "narration": "提交和监测SSH工作站,Slurm集群或云和HPC命令上的 spaCR工作.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这篇教程涵盖了分布式工作. 在SSH工作站,Slurm集群或云和HPC命令上提交和监测斯佩克尔工作."
+          "speech_text": "提交和监测SSH工作站,Slurm集群或云和HPC命令上的 斯佩克尔工作."
         },
         {
-          "narration": "配置远程配置文件,连接方法,工作目录,环境和数据路径.",
+          "narration": "从 Data and batch runs 部分打开 Distributed Jobs。 配置远程配置文件,连接方法,工作目录,环境和数据路径.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "配置远程配置文件,连接方法,工作目录,环境和数据路径."
+          "speech_text": "从 Data and batch runs 部分打开 Distributed Jobs。 配置远程配置文件,连接方法,工作目录,环境和数据路径."
         },
         {
           "narration": "在主要配置区域中,定义调度器资源,命令模板,文件同步,凭证和状态调查.",
@@ -2923,7 +2985,7 @@
       "id": "39_classifier_evaluation",
       "number": 39,
       "slug": "classifier_evaluation",
-      "title": "类别评价",
+      "title": "Classifier Evaluation",
       "series": 5,
       "app_key": "classifier_evaluation",
       "section": "Results and quality control",
@@ -2936,16 +2998,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了分类器评估. 审计已完成的预测,嵌入式交叉验证,校准,泄漏和每盘性能.",
+          "narration": "审计的预测,嵌入式交叉验证,校准,泄漏和每盘性能.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了分类器评估. 审计已完成的预测,嵌入式交叉验证,校准,泄漏和每盘性能."
+          "speech_text": "审计的预测,嵌入式交叉验证,校准,泄漏和每盘性能."
         },
         {
-          "narration": "选择基于真相的预测,分类的元数据,板块标识符,概率和模型运行的记录.",
+          "narration": "从 Results and quality control 部分打开 Classifier Evaluation。 选择基于真相的预测,分类的元数据,板块标识符,概率和模型运行的记录.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择基于真相的预测,分类的元数据,板块标识符,概率和模型运行的记录."
+          "speech_text": "从 Results and quality control 部分打开 Classifier Evaluation。 选择基于真相的预测,分类的元数据,板块标识符,概率和模型运行的记录."
         },
         {
           "narration": "在主配置区域,配置类序列,门值,校准容器,组分,启动线不确定性和泄漏检查.",
@@ -2960,10 +3022,10 @@
           "speech_text": "在使用生物结论分类器之前,评估持续和每盘的行为."
         },
         {
-          "narration": "工作流程完成后,spaCR 产生歧视,校准,混乱,泄漏和强度报告.",
+          "narration": "当工作流程完成时, spaCR 产生歧视,校准,混乱,泄漏和强度报告.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "工作流程完成后,斯佩克尔 产生歧视,校准,混乱,泄漏和强度报告."
+          "speech_text": "当工作流程完成时, 斯佩克尔 产生歧视,校准,混乱,泄漏和强度报告."
         }
       ]
     },
@@ -2971,7 +3033,7 @@
       "id": "40_run_history",
       "number": 40,
       "slug": "run_history",
-      "title": "运行历史",
+      "title": "Run History",
       "series": 5,
       "app_key": "run_history",
       "section": "Results and quality control",
@@ -2984,16 +3046,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了运行历史. 查找每个工作的设置,文件,警告,失败和性能.",
+          "narration": "这本教程涵盖了运行历史. 从一个地方搜索每个工作的设置,文件,警告,故障和性能.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了运行历史. 查找每个工作的设置,文件,警告,失败和性能."
+          "speech_text": "这本教程涵盖了运行历史. 从一个地方搜索每个工作的设置,文件,警告,故障和性能."
         },
         {
-          "narration": "打开当前工作空间或选定的项目根的运行登记器.",
+          "narration": "从 Results and quality control 部分打开 Run History。 打开当前工作空间或选定的项目根的运行登记器.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "打开当前工作空间或选定的项目根的运行登记器."
+          "speech_text": "从 Results and quality control 部分打开 Run History。 打开当前工作空间或选定的项目根的运行登记器."
         },
         {
           "narration": "在主要配置区域中,按模块,状态,日期,项目,版本,警告,持续时间或资源使用进行过.",
@@ -3019,7 +3081,7 @@
       "id": "41_classify",
       "number": 41,
       "slug": "classify",
-      "title": "类别",
+      "title": "Classify",
       "series": 5,
       "app_key": "classify_merged",
       "section": "Core",
@@ -3032,22 +3094,22 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了分类. 选择一个分类工作流程,以对图像作物或测量特征进行评估,而不需要在分区间中泄露相关对象.",
+          "narration": "选择一个分类工作流程,以进行图像作物或测量功能,并没有在分区间中泄漏相关对象进行评估.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了分类. 选择一个分类工作流程,以对图像作物或测量特征进行评估,而不需要在分区间中泄露相关对象."
+          "speech_text": "选择一个分类工作流程,以进行图像作物或测量功能,并没有在分区间中泄漏相关对象进行评估."
         },
         {
-          "narration": "选择项目,标签,以及图像或功能工作流程.",
+          "narration": "从 Core 部分打开 Classify。 在选择模型将使用的表示之前,选择项目和标签.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择项目,标签,以及图像或功能工作流程."
+          "speech_text": "从 Core 部分打开 Classify。 在选择模型将使用的表示之前,选择项目和标签."
         },
         {
-          "narration": "在主要配置区域, 审查组分分,类平衡,模型控制以及与您需要做出的决定相匹配的指标.",
+          "narration": "在主要配置区域中,使用Classifier家族作为顶级选择:计算机视觉在对象作物上训练,而机器学习在测量特征上训练.",
           "visual": "settings",
           "hold_after": 0.45,
-          "speech_text": "在主要配置区域, 审查组分分,类平衡,模型控制以及与您需要做出的决定相匹配的指标."
+          "speech_text": "在主要配置区域中,使用Classifier家族作为顶级选择:计算机视觉在对象作物上训练,而机器学习在测量特征上训练."
         },
         {
           "narration": "在承担昂贵的培训之前,进行小组验证;专用的Classify CV和Classify ML课程展示了它们的有限的超参数搜索工作台.",
@@ -3056,10 +3118,10 @@
           "speech_text": "在承担昂贵的培训之前,进行小组验证;专用的Classify CV和Classify ML课程展示了它们的有限的超参数搜索工作台."
         },
         {
-          "narration": "当工作流程完成时,模型,预测,分类记录,指标和设置仍然与运行相关.",
+          "narration": "当工作流程完成时,控制台和运行记录将模型,预测,分类记录,指标和设置链接.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "当工作流程完成时,模型,预测,分类记录,指标和设置仍然与运行相关."
+          "speech_text": "当工作流程完成时,控制台和运行记录将模型,预测,分类记录,指标和设置链接."
         }
       ]
     },
@@ -3067,11 +3129,11 @@
       "id": "42_curate",
       "number": 42,
       "slug": "curate",
-      "title": "监督员",
+      "title": "Curate",
       "series": 5,
       "app_key": "curate",
       "section": "Core",
-      "description": "通过手动进行正确的分区化面具和轨迹,同时保持每次编辑的可审核记录.",
+      "description": "通过手动进行正确的分区化掩膜和轨迹,同时保持每次编辑的可审核记录.",
       "objectives": [
         "了解什么时候使用Curate.",
         "配置重要的输入和设置.",
@@ -3080,16 +3142,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这篇教程涵盖了\"监督者\". 通过手动进行正确的分区化面具和轨迹,同时保持每次编辑的可审核记录.",
+          "narration": "修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这篇教程涵盖了\"监督者\". 通过手动进行正确的分区化面具和轨迹,同时保持每次编辑的可审核记录."
+          "speech_text": "修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者: 修改者"
         },
         {
-          "narration": "打开一个项目,然后选择需要修改的字段,面具类或曲线.",
+          "narration": "从 Core 部分打开 Curate。 打开一个项目,然后选择需要修改的字段,掩膜类或曲线.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "打开一个项目,然后选择需要修改的字段,面具类或曲线."
+          "speech_text": "从 Core 部分打开 Curate。 打开一个项目,然后选择需要修改的字段,掩膜类或曲线."
         },
         {
           "narration": "在主要配置区域中,在更改数据之前,选择编辑工具,标签行为,导航和审查范围.",
@@ -3115,7 +3177,7 @@
       "id": "43_illumination",
       "number": 43,
       "slug": "illumination",
-      "title": "照明",
+      "title": "Illumination",
       "series": 5,
       "app_key": "illumination",
       "section": "Data",
@@ -3128,16 +3190,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了启蒙. 在测量强度特征之前,估计和验证平面场的校正.",
+          "narration": "在测量强度特征之前,估计和验证平面场的校正.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了启蒙. 在测量强度特征之前,估计和验证平面场的校正."
+          "speech_text": "在测量强度特征之前,估计和验证平面场的校正."
         },
         {
-          "narration": "选择需要纠正的代表性合并字段和道.",
+          "narration": "从 Data 部分打开 Illumination。 选择需要纠正的代表性合并字段和道.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择需要纠正的代表性合并字段和道."
+          "speech_text": "从 Data 部分打开 Illumination。 选择需要纠正的代表性合并字段和道."
         },
         {
           "narration": "在主要配置区域,对每个道进行样本取样,平滑,排斥和质量控制的选项进行审查.",
@@ -3163,7 +3225,7 @@
       "id": "44_data_manager",
       "number": 44,
       "slug": "data_manager",
-      "title": "数据管理员",
+      "title": "Data Manager",
       "series": 5,
       "app_key": "data_manager",
       "section": "Data",
@@ -3176,16 +3238,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖数据管理器. 检查项目存储和恢复衍生文件,而不涉及原始收购.",
+          "narration": "检查项目存储和恢复衍生文件,而不涉及原始收购.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖数据管理器. 检查项目存储和恢复衍生文件,而不涉及原始收购."
+          "speech_text": "检查项目存储和恢复衍生文件,而不涉及原始收购."
         },
         {
-          "narration": "选择一个项目或工作空间,让spaCR进行其文物库存.",
+          "narration": "从 Data 部分打开 Data Manager。 选择一个项目或工作空间,让 spaCR 进行其文物库存.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择一个项目或工作空间,让斯佩克尔进行其文物库存."
+          "speech_text": "从 Data 部分打开 Data Manager。 选择一个项目或工作空间,让 斯佩克尔 进行其文物库存."
         },
         {
           "narration": "在主要配置区域,在选择任何东西之前,请检查物件类型,大小,来源,可重建性和依赖性警告.",
@@ -3211,11 +3273,11 @@
       "id": "45_project_browser",
       "number": 45,
       "slug": "project_browser",
-      "title": "项目浏览器",
+      "title": "Project Browser",
       "series": 5,
       "app_key": "project_browser",
       "section": "Data",
-      "description": "查找spaCR项目,并在一个表中查看他们的阶段,规模,最新运行和过时的输出.",
+      "description": "查找 spaCR 项目,并在一个表中查看它们的阶段,大小,最新运行和过时输出.",
       "objectives": [
         "了解何时使用Project Browser.",
         "配置重要的输入和设置.",
@@ -3224,16 +3286,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了Project Browser. 查找spaCR项目,并在一个表中查看他们的阶段,规模,最新运行和过时的输出.",
+          "narration": "查找 spaCR 项目,并在一个表中查看它们的阶段,大小,最新运行和过时输出.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了Project Browser. 查找斯佩克尔项目,并在一个表中查看他们的阶段,规模,最新运行和过时的输出."
+          "speech_text": "查找 斯佩克尔 项目,并在一个表中查看它们的阶段,大小,最新运行和过时输出."
         },
         {
-          "narration": "选择包含你的项目的根,然后扫描它们.",
+          "narration": "从 Data 部分打开 Project Browser。 选择包含你的项目的根,然后扫描它们.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择包含你的项目的根,然后扫描它们."
+          "speech_text": "从 Data 部分打开 Project Browser。 选择包含你的项目的根,然后扫描它们."
         },
         {
           "narration": "在主要配置区域,按阶段,大小,年龄,模块状态或陈旧的文物进行过和排序.",
@@ -3259,11 +3321,11 @@
       "id": "46_napari_bridge",
       "number": 46,
       "slug": "napari_bridge",
-      "title": "纳帕里桥",
+      "title": "Napari Bridge",
       "series": 5,
       "app_key": "napari_bridge",
       "section": "Segmentation models",
-      "description": "检查纳帕里面膜,并将纠正的标签返回spaCR,并确认其来源.",
+      "description": "检查纳帕里面膜,并将纠正的标签返回与来自的 spaCR.",
       "objectives": [
         "了解什么时候使用纳帕里桥.",
         "配置重要的输入和设置.",
@@ -3272,16 +3334,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了纳帕里桥. 检查纳帕里面膜,并将纠正的标签返回spaCR,并确认其来源.",
+          "narration": "这本教程涵盖了Napari Bridge. 检查一个纳帕里掩膜,并将纠正的标签返回spaCR.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了纳帕里桥. 检查纳帕里面膜,并将纠正的标签返回斯佩克尔,并确认其来源."
+          "speech_text": "这本教程涵盖了Napari Bridge. 检查一个纳帕里掩膜,并将纠正的标签返回斯佩克尔."
         },
         {
-          "narration": "选择一个项目,场地,和面具飞机检查.",
+          "narration": "从 Segmentation models 部分打开 Napari Bridge。 选择一个项目,场地,和掩膜飞机检查.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择一个项目,场地,和面具飞机检查."
+          "speech_text": "从 Segmentation models 部分打开 Napari Bridge。 选择一个项目,场地,和掩膜飞机检查."
         },
         {
           "narration": "在主配置区域,确认标签类,源图像层,目的地和重写保护措施.",
@@ -3290,16 +3352,16 @@
           "speech_text": "在主配置区域,确认标签类,源图像层,目的地和重写保护措施."
         },
         {
-          "narration": "在纳帕里编辑标签,将其返回spaCR,并在接受之前审查变更.",
+          "narration": "在纳帕里编辑标签,将它们返回spaCR,并在接受之前审查变更.",
           "visual": "run",
           "hold_after": 0.45,
-          "speech_text": "在纳帕里编辑标签,将其返回斯佩克尔,并在接受之前审查变更."
+          "speech_text": "在纳帕里编辑标签,将它们返回斯佩克尔,并在接受之前审查变更."
         },
         {
-          "narration": "工作流程完成后,修改的面具和编辑记录仍然与原始场合连接.",
+          "narration": "工作流程完成后,修改的掩膜和编辑记录仍然与原始场合连接.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "工作流程完成后,修改的面具和编辑记录仍然与原始场合连接."
+          "speech_text": "工作流程完成后,修改的掩膜和编辑记录仍然与原始场合连接."
         }
       ]
     },
@@ -3307,7 +3369,7 @@
       "id": "47_barcode_qc",
       "number": 47,
       "slug": "barcode_qc",
-      "title": "条码QC",
+      "title": "Barcode QC",
       "series": 5,
       "app_key": "barcode_qc",
       "section": "Results and quality control",
@@ -3320,16 +3382,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了条码QC. 检查地图深度,覆盖范围,碰撞,位置影响,以及基于证据的丰富度门.",
+          "narration": "这本教程涵盖了条码QC. 检查地图深度,覆盖范围,碰撞,位置效应以及基于证据的丰富度门.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了条码QC. 检查地图深度,覆盖范围,碰撞,位置影响,以及基于证据的丰富度门."
+          "speech_text": "这本教程涵盖了条码QC. 检查地图深度,覆盖范围,碰撞,位置效应以及基于证据的丰富度门."
         },
         {
-          "narration": "打开一个完成的条码地图运行,包含板块和图书馆元数据.",
+          "narration": "从 Results and quality control 部分打开 Barcode QC。 打开一个完成的条码地图运行,包含板块和图书馆元数据.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "打开一个完成的条码地图运行,包含板块和图书馆元数据."
+          "speech_text": "从 Results and quality control 部分打开 Barcode QC。 打开一个完成的条码地图运行,包含板块和图书馆元数据."
         },
         {
           "narration": "在主要配置区域,审查预期指导表示,控制,组合和门扫描选项.",
@@ -3355,7 +3417,7 @@
       "id": "48_hit_list",
       "number": 48,
       "slug": "hit_list",
-      "title": "击中列表",
+      "title": "Hit List",
       "series": 5,
       "app_key": "hit_list",
       "section": "Results and quality control",
@@ -3368,16 +3430,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了\"击败列表\". 根据效果大小,不确定性,错误发现率和指导协议,排名和审查屏幕击中.",
+          "narration": "通过效果大小,不确定性,错误发现率和指导协议来排名和审查屏幕击中.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了\"击败列表\". 根据效果大小,不确定性,错误发现率和指导协议,排名和审查屏幕击中."
+          "speech_text": "通过效果大小,不确定性,错误发现率和指导协议来排名和审查屏幕击中."
         },
         {
-          "narration": "选择完成的分析和结果列,定义了屏幕结果.",
+          "narration": "从 Results and quality control 部分打开 Hit List。 选择完成的分析和结果列,定义了屏幕结果.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择完成的分析和结果列,定义了屏幕结果."
+          "speech_text": "从 Results and quality control 部分打开 Hit List。 选择完成的分析和结果列,定义了屏幕结果."
         },
         {
           "narration": "在主配置区域,配置控制,方向,意义,效果大小,注释和协议过器.",
@@ -3403,7 +3465,7 @@
       "id": "49_methods_results",
       "number": 49,
       "slug": "methods_results",
-      "title": "方法和结果",
+      "title": "Methods & Results",
       "series": 5,
       "app_key": "methods_export",
       "section": "Results and quality control",
@@ -3416,16 +3478,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖方法和结果. 根据记录的运行,而不是从内存中重建设置,编写可追踪方法和结果文本.",
+          "narration": "编写可追踪方法和结果文本从记录的运行而不是从内存中重建设置.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖方法和结果. 根据记录的运行,而不是从内存中重建设置,编写可追踪方法和结果文本."
+          "speech_text": "编写可追踪方法和结果文本从记录的运行而不是从内存中重建设置."
         },
         {
-          "narration": "选择应该支持文件的项目和完成的运行.",
+          "narration": "从 Results and quality control 部分打开 Methods & Results。 选择应该支持文件的项目和完成的运行.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择应该支持文件的项目和完成的运行."
+          "speech_text": "从 Results and quality control 部分打开 Methods & Results。 选择应该支持文件的项目和完成的运行."
         },
         {
           "narration": "在主要配置区域中,选择部分,比较,数字,统计数据,引用方式和隐私敏感的字段.",
@@ -3451,7 +3513,7 @@
       "id": "50_run_compare",
       "number": 50,
       "slug": "run_compare",
-      "title": "运行 进行比较",
+      "title": "Run Compare",
       "series": 5,
       "app_key": "run_compare",
       "section": "Results and quality control",
@@ -3464,16 +3526,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了 Run Compare. 设置两个跑步,以了解设置,数值,输出和击中的变化.",
+          "narration": "设置两个运行,并列,以了解设置,数值,输出和击中的变化.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了 Run Compare. 设置两个跑步,以了解设置,数值,输出和击中的变化."
+          "speech_text": "设置两个运行,并列,以了解设置,数值,输出和击中的变化."
         },
         {
-          "narration": "选择两个兼容的运行记录.",
+          "narration": "从 Results and quality control 部分打开 Run Compare。 选择两个兼容的运行记录.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择两个兼容的运行记录."
+          "speech_text": "从 Results and quality control 部分打开 Run Compare。 选择两个兼容的运行记录."
         },
         {
           "narration": "在主要配置区域中,选择哪些设置,文物,数值和结果表应该进行比较.",
@@ -3499,7 +3561,7 @@
       "id": "51_control_charts",
       "number": 51,
       "slug": "control_charts",
-      "title": "控制图表",
+      "title": "Control Charts",
       "series": 5,
       "app_key": "control_chart",
       "section": "Results and quality control",
@@ -3512,16 +3574,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了控制图表. 控制板的跟踪,检测到向标定的基线的漂移.",
+          "narration": "控制图表: 追踪控制在板块之间,检测到向定基线的漂移.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了控制图表. 控制板的跟踪,检测到向标定的基线的漂移."
+          "speech_text": "控制图表: 追踪控制在板块之间,检测到向定基线的漂移."
         },
         {
-          "narration": "选择重复控制测量,以盘列和基线元数据.",
+          "narration": "从 Results and quality control 部分打开 Control Charts。 选择重复控制测量,以盘列和基线元数据.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择重复控制测量,以盘列和基线元数据."
+          "speech_text": "从 Results and quality control 部分打开 Control Charts。 选择重复控制测量,以盘列和基线元数据."
         },
         {
           "narration": "在主配置区域中,定义基线,组分,中心线,限制和警报政策.",
@@ -3547,7 +3609,7 @@
       "id": "52_pipeline_graph",
       "number": 52,
       "slug": "pipeline_graph",
-      "title": "管道图",
+      "title": "Pipeline Graph",
       "series": 5,
       "app_key": "pipeline_graph",
       "section": "Explore",
@@ -3560,16 +3622,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了管道图. 查看哪些文物产生了每个结果,以及哪些下游输出已经过时或缺失.",
+          "narration": "查看哪些文物产生了每个结果,哪些下游输出已经过时或缺失.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了管道图. 查看哪些文物产生了每个结果,以及哪些下游输出已经过时或缺失."
+          "speech_text": "查看哪些文物产生了每个结果,哪些下游输出已经过时或缺失."
         },
         {
-          "narration": "开启spaCR项目或注册运行集.",
+          "narration": "从 Explore 部分打开 Pipeline Graph。 开启一个 spaCR项目或注册的运行收藏.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "开启斯佩克尔项目或注册运行集."
+          "speech_text": "从 Explore 部分打开 Pipeline Graph。 开启一个 斯佩克尔项目或注册的运行收藏."
         },
         {
           "narration": "在主配置区域中,按模块,文物类型,状态或工作流分支过图表.",
@@ -3595,7 +3657,7 @@
       "id": "53_prediction_profiler",
       "number": 53,
       "slug": "prediction_profiler",
-      "title": "预测配置文件",
+      "title": "Prediction Profiler",
       "series": 5,
       "app_key": "profiler",
       "section": "Explore",
@@ -3608,16 +3670,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了预测配置文件. 改变一个模型输入,观察一个适应的预测如何响应.",
+          "narration": "预测预测器 (Prediction Profiler) 如何应对?",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了预测配置文件. 改变一个模型输入,观察一个适应的预测如何响应."
+          "speech_text": "预测预测器 (Prediction Profiler) 如何应对?"
         },
         {
-          "narration": "选择适合的模型,代表的行,以及不同特征.",
+          "narration": "从 Explore 部分打开 Prediction Profiler。 选择适合的模型,代表的行,以及不同特征.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择适合的模型,代表的行,以及不同特征."
+          "speech_text": "从 Explore 部分打开 Prediction Profiler。 选择适合的模型,代表的行,以及不同特征."
         },
         {
           "narration": "在主要配置区域中,在故意保留或采样其他输入时设置可防守的特征范围.",
@@ -3643,7 +3705,7 @@
       "id": "54_qc_dashboard",
       "number": 54,
       "slug": "qc_dashboard",
-      "title": "问答仪表板",
+      "title": "QC Dashboard",
       "series": 5,
       "app_key": "qc_dashboard",
       "section": "Explore",
@@ -3656,16 +3718,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了QC仪表板. 组合分区,单位,泄漏,板块效应和注释检查,并将它们放在一个检查表面上.",
+          "narration": "这本教程涵盖了QC仪表板. 结合分区,单位,泄漏,板块效果和注释检查在一个审查表面.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了QC仪表板. 组合分区,单位,泄漏,板块效应和注释检查,并将它们放在一个检查表面上."
+          "speech_text": "这本教程涵盖了QC仪表板. 结合分区,单位,泄漏,板块效果和注释检查在一个审查表面."
         },
         {
-          "narration": "选择项目,并运行该项目,要概括其质量证明.",
+          "narration": "从 Explore 部分打开 QC Dashboard。 选择项目,并运行该项目,要概括其质量证明.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择项目,并运行该项目,要概括其质量证明."
+          "speech_text": "从 Explore 部分打开 QC Dashboard。 选择项目,并运行该项目,要概括其质量证明."
         },
         {
           "narration": "在主要配置区域,审查可用的检查,其范围和每个判决背后的标准.",
@@ -3691,7 +3753,7 @@
       "id": "55_image_scatter",
       "number": 55,
       "slug": "image_scatter",
-      "title": "图像散布",
+      "title": "Image Scatter",
       "series": 5,
       "app_key": "image_scatter",
       "section": "Explore",
@@ -3704,16 +3766,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了图像散播器. 测量图片,检查任何点背后的图像.",
+          "narration": "图像散射器是这个教程的内容.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了图像散播器. 测量图片,检查任何点背后的图像."
+          "speech_text": "图像散射器是这个教程的内容."
         },
         {
-          "narration": "选择一个测量表,x和y的特征,以及产物或场景图像列.",
+          "narration": "从 Explore 部分打开 Image Scatter。 选择一个测量表,x和y的特征,以及产物或场景图像列.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择一个测量表,x和y的特征,以及产物或场景图像列."
+          "speech_text": "从 Explore 部分打开 Image Scatter。 选择一个测量表,x和y的特征,以及产物或场景图像列."
         },
         {
           "narration": "在主配置区域,配置颜色,组合,过器,样本采集和轴转换,而不隐藏排除行.",
@@ -3739,7 +3801,7 @@
       "id": "56_lineage",
       "number": 56,
       "slug": "lineage",
-      "title": "血统",
+      "title": "Lineage",
       "series": 5,
       "app_key": "lineage",
       "section": "Explore",
@@ -3752,16 +3814,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了血统. 检查细胞,核,病原体和机器人分配等控制关系.",
+          "narration": "检查细胞,核,病原体和机器人分配等控制关系.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了血统. 检查细胞,核,病原体和机器人分配等控制关系."
+          "speech_text": "检查细胞,核,病原体和机器人分配等控制关系."
         },
         {
-          "narration": "开放与关系识别符的测量物体.",
+          "narration": "从 Explore 部分打开 Lineage。 开放与关系识别符的测量物体.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "开放与关系识别符的测量物体."
+          "speech_text": "从 Explore 部分打开 Lineage。 开放与关系识别符的测量物体."
         },
         {
           "narration": "在主配置区域中,选择显示的父母和儿童类,过器,字段和关系属性.",
@@ -3787,11 +3849,11 @@
       "id": "57_layer_viewer",
       "number": 57,
       "slug": "layer_viewer",
-      "title": "层视图器",
+      "title": "Layer Viewer",
       "series": 5,
       "app_key": "layer_viewer",
       "section": "Explore",
-      "description": "检查图像,面具,感兴趣的点和区域,",
+      "description": "检查图像,掩膜,感兴趣的点和区域,",
       "objectives": [
         "了解使用Layer Viewer的时间.",
         "配置重要的输入和设置.",
@@ -3800,16 +3862,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了Layer Viewer. 检查图像,面具,感兴趣的点和区域,",
+          "narration": "检查图像,掩膜,点和感兴趣的区域,作为配合的层.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了Layer Viewer. 检查图像,面具,感兴趣的点和区域,"
+          "speech_text": "检查图像,掩膜,点和感兴趣的区域,作为配合的层."
         },
         {
-          "narration": "打开一个项目或兼容的图像和注释层.",
+          "narration": "从 Explore 部分打开 Layer Viewer。 打开一个项目或兼容的图像和注释层.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "打开一个项目或兼容的图像和注释层."
+          "speech_text": "从 Explore 部分打开 Layer Viewer。 打开一个项目或兼容的图像和注释层."
         },
         {
           "narration": "在主要配置区域中,选择层可见性,道,颜色,度,对比度和导航.",
@@ -3835,7 +3897,7 @@
       "id": "58_graph_builder",
       "number": 58,
       "slug": "graph_builder",
-      "title": "图形构造商",
+      "title": "Graph Builder",
       "series": 5,
       "app_key": "graph_builder",
       "section": "Explore",
@@ -3848,16 +3910,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了图形构造器. 通过将表列分配到视觉角色来构建探索图表.",
+          "narration": "通过将表列分配到视觉角色,构建探索图表.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了图形构造器. 通过将表列分配到视觉角色来构建探索图表."
+          "speech_text": "通过将表列分配到视觉角色,构建探索图表."
         },
         {
-          "narration": "选择一个测量表,将特征拖到x,y,颜色,大小或面部角色上.",
+          "narration": "从 Explore 部分打开 Graph Builder。 选择一个测量表,将特征拖到x,y,颜色,大小或面部角色上.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择一个测量表,将特征拖到x,y,颜色,大小或面部角色上."
+          "speech_text": "从 Explore 部分打开 Graph Builder。 选择一个测量表,将特征拖到x,y,颜色,大小或面部角色上."
         },
         {
           "narration": "在主要配置区域中,选择对问题适当的几何,聚合,过,转换和组合.",
@@ -3883,11 +3945,11 @@
       "id": "59_anndata_export",
       "number": 59,
       "slug": "anndata_export",
-      "title": "产品出口",
+      "title": "AnnData Export",
       "series": 5,
       "app_key": "anndata_export",
       "section": "Explore",
-      "description": "写spaCR测量作为扫描py或scvi工具的AnnData文件.",
+      "description": "写 spaCR 测量作为 scanpy 或 scvi 工具的 AnnData 文件.",
       "objectives": [
         "了解使用 AnnData Export 的时间.",
         "配置重要的输入和设置.",
@@ -3896,16 +3958,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了AnnData出口. 写spaCR测量作为扫描py或scvi工具的AnnData文件.",
+          "narration": "这本教程涵盖AnnData出口. 写 spaCR 测量作为一个AnnData 文件,用于扫描py 或 scvi 工具.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了AnnData出口. 写斯佩克尔测量作为扫描py或scvi工具的AnnData文件."
+          "speech_text": "这本教程涵盖AnnData出口. 写 斯佩克尔 测量作为一个AnnData 文件,用于扫描py 或 scvi 工具."
         },
         {
-          "narration": "选择测量表,对象类型,特征,观察和元数据列.",
+          "narration": "从 Explore 部分打开 AnnData Export。 选择测量表,对象类型,特征,观察和元数据列.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择测量表,对象类型,特征,观察和元数据列."
+          "speech_text": "从 Explore 部分打开 AnnData Export。 选择测量表,对象类型,特征,观察和元数据列."
         },
         {
           "narration": "在主要配置区域,审查连接,缺失值,功能扩展,稀缺存储和稳定标识符.",
@@ -3931,7 +3993,7 @@
       "id": "60_pca",
       "number": 60,
       "slug": "pca",
-      "title": "经过检查",
+      "title": "PCA",
       "series": 5,
       "app_key": "pca",
       "section": "Explore",
@@ -3944,16 +4006,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了PCA. 总结与主要组件相关的测量,并检查它们驱动的特征.",
+          "narration": "总结与主要组件相关的测量,并检查它们驱动的特性.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了PCA. 总结与主要组件相关的测量,并检查它们驱动的特征."
+          "speech_text": "总结与主要组件相关的测量,并检查它们驱动的特性."
         },
         {
-          "narration": "选择一个测量表,数值特征,以及可选的标签或组.",
+          "narration": "从 Explore 部分打开 PCA。 选择一个测量表,数值特征,以及可选的标签或组.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择一个测量表,数值特征,以及可选的标签或组."
+          "speech_text": "从 Explore 部分打开 PCA。 选择一个测量表,数值特征,以及可选的标签或组."
         },
         {
           "narration": "在主配置区域,配置过,缺值处理,扩展,组件和样本取.",
@@ -3979,7 +4041,7 @@
       "id": "61_tabulate",
       "number": 61,
       "slug": "tabulate",
-      "title": "标签表",
+      "title": "Tabulate",
       "series": 5,
       "app_key": "tabulate",
       "section": "Explore",
@@ -3992,16 +4054,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了\"图表\". 转向测量成组合总结,同时保持贡献数量可见.",
+          "narration": "通过向测量,将重点测量组合成总结,同时保持贡献数量可见.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了\"图表\". 转向测量成组合总结,同时保持贡献数量可见."
+          "speech_text": "通过向测量,将重点测量组合成总结,同时保持贡献数量可见."
         },
         {
-          "narration": "选择一个表,并分配组合字段,值列和汇总.",
+          "narration": "从 Explore 部分打开 Tabulate。 选择一个表,并分配组合字段,值列和汇总.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择一个表,并分配组合字段,值列和汇总."
+          "speech_text": "从 Explore 部分打开 Tabulate。 选择一个表,并分配组合字段,值列和汇总."
         },
         {
           "narration": "在主要配置区域,查看过器,缺失值,类别顺序,总数和每个细胞背后的数量.",
@@ -4027,7 +4089,7 @@
       "id": "62_feature_dictionary",
       "number": 62,
       "slug": "feature_dictionary",
-      "title": "标签词典",
+      "title": "Feature Dictionary",
       "series": 5,
       "app_key": "feature_dict",
       "section": "Explore",
@@ -4040,16 +4102,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了特征词典. 找出一个测量特征的名称或概念意味着什么.",
+          "narration": "测量特征的意思是什么?",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了特征词典. 找出一个测量特征的名称或概念意味着什么."
+          "speech_text": "测量特征的意思是什么?"
         },
         {
-          "narration": "搜索一个特征名称,测量家族,物体类型或生物概念.",
+          "narration": "从 Explore 部分打开 Feature Dictionary。 搜索一个特征名称,测量家族,物体类型或生物概念.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "搜索一个特征名称,测量家族,物体类型或生物概念."
+          "speech_text": "从 Explore 部分打开 Feature Dictionary。 搜索一个特征名称,测量家族,物体类型或生物概念."
         },
         {
           "narration": "在主要配置区域中,按区间,道,单位,计算或当前项目中的可用性进行过.",
@@ -4075,7 +4137,7 @@
       "id": "63_small_multiples",
       "number": 63,
       "slug": "small_multiples",
-      "title": "微小的乘法",
+      "title": "Small Multiples",
       "series": 5,
       "app_key": "trellis",
       "section": "Explore",
@@ -4088,16 +4150,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了小乘数. 通过诚实共享轴的网格上组组进行相同的图表比较.",
+          "narration": "通过一个直观共享轴的网格,比较一个相同的图表.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了小乘数. 通过诚实共享轴的网格上组组进行相同的图表比较."
+          "speech_text": "通过一个直观共享轴的网格,比较一个相同的图表."
         },
         {
-          "narration": "选择一个表,图表变量和定义每个面板的字段.",
+          "narration": "从 Explore 部分打开 Small Multiples。 选择一个表,图表变量和定义每个面板的字段.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择一个表,图表变量和定义每个面板的字段."
+          "speech_text": "从 Explore 部分打开 Small Multiples。 选择一个表,图表变量和定义每个面板的字段."
         },
         {
           "narration": "在主配置区域,配置布局,共享或独立的尺度,聚合,过和面板顺序.",
@@ -4123,58 +4185,66 @@
       "id": "64_gate_editor",
       "number": 64,
       "slug": "gate_editor",
-      "title": "门编辑器",
+      "title": "Gate Editor",
       "series": 5,
       "app_key": "gate_editor",
       "section": "Explore",
-      "description": "绘制,检查,嵌套和重复使用2D,3D或降低高维视图的人口门.",
+      "description": "绘制,检查,巢穴,再利用2D,3D或缩小高维图景的人口门.",
       "objectives": [
         "绘制和检查2D人口门.",
         "比较真实3D音量和XD投影模式.",
-        "阅读,嵌套,保存,安全地重复使用一个命名的门级别."
+        "读取,嵌套,保存,安全地重复使用命名的门级别.",
+        "检查一个有边界的集群 在注释或出口之前行走."
       ],
-      "prerequisite": "准备具有数值特征和稳定的对象标识符的测量表.",
+      "prerequisite": "准备一个数值特征和稳定的对象标识符的测量表.",
       "scenes": [
         {
-          "narration": "Gate Editor 将测量表中的区域转换为可命名、可复用的群体门。工作区将特征轴、绘图工具、完整数据视图和门控层级集中显示在一起。",
+          "narration": "门编辑器将测量表的区域转换为命名的可重复使用的人口门.工作空间将功能轴,绘图工具,完整数据视图和门级别保持在一起.",
           "visual": "01_overview",
           "hold_after": 0.7,
-          "speech_text": "门控编辑器 将测量表中的区域转换为可命名、可复用的群体门。工作区将特征轴、绘图工具、完整数据视图和门控层级集中显示在一起。"
+          "speech_text": "门编辑器将测量表的区域转换为命名的可重复使用的人口门.工作空间将功能轴,绘图工具,完整数据视图和门级别保持在一起."
         },
         {
-          "narration": "在 2D 模式下，选择 X 轴和 Y 轴生成散点图；将 Y 轴留空则生成直方图。选择阈值或形状工具，圈出目标群体。门内对象会被突出显示，同时完整点云仍然保留在视图中。",
+          "narration": "从 Explore 部分打开 Gate Editor。 选择一个门或形状工具,并绕着预期的人口绘制.在突出包含的物体时,整个云仍然可见.",
           "visual": "02_two_d_gate",
           "hold_after": 0.7,
           "focus_key": "two_d_workspace",
-          "speech_text": "在 二维 模式下，选择 X 轴和 Y 轴生成散点图；将 Y 轴留空则生成直方图。选择阈值或形状工具，圈出目标群体。门内对象会被突出显示，同时完整点云仍然保留在视图中。"
+          "speech_text": "从 Explore 部分打开 门控编辑器。 选择一个门或形状工具,并绕着预期的人口绘制.在突出包含的物体时,整个云仍然可见."
         },
         {
-          "narration": "选择 3D 模式并指定 Z 轴测量值，即可检查可旋转的三维视图。轴按钮用于控制旋转方向，Box gate 会记录当前显示的三个测量值的边界。",
+          "narration": "选择3D和Z测量来检查可旋转的体积.轴键控制旋转方向,而盒子门记录所有显示的三个测量的边界.",
           "visual": "03_three_d_volume",
           "hold_after": 0.7,
           "focus_key": "three_d_workspace",
-          "speech_text": "选择 三维 模式并指定 Z 轴测量值，即可检查可旋转的三维视图。轴按钮用于控制旋转方向，箱式门 会记录当前显示的三个测量值的边界。"
+          "speech_text": "选择三维和Z测量来检查可旋转的体积.轴键控制旋转方向,而盒子门记录所有显示的三个测量的边界."
         },
         {
-          "narration": "选择 xD 模式，将符合条件的测量值投影到主成分空间。来源标签会显示方差解释率，PC1、PC2 和 PC3 则作为普通坐标轴，可继续使用相同的门控工具。",
+          "narration": "选择xd以将符合条件的测量投影成主要组件.源标签报告解释了差异,PC1,PC2和PC3成为相同的门口工具的普通轴.",
           "visual": "04_xd_projection",
           "hold_after": 0.7,
           "focus_key": "xd_workspace",
-          "speech_text": "选择 艾克斯迪 模式，将符合条件的测量值投影到主成分空间。来源标签会显示方差解释率，主成分一、主成分二 和 主成分三 则作为普通坐标轴，可继续使用相同的门控工具。"
+          "speech_text": "选择xd以将符合条件的测量投影成主要组件.源标签报告解释了差异,主成分一,主成分二和主成分三成为相同的门口工具的普通轴."
         },
         {
-          "narration": "门控层级会显示对象数量、相对于父门的百分比以及相对于全部行的百分比。勾选或取消勾选复选框可显示或隐藏门。如果要将下一个群体嵌套在某个门内，请在绘制前先选中该门。",
+          "narration": "关键字层次表达了对象数量,其母体百分比和所有行的百分比. 选择一个关键字框来显示或隐藏它,然后在绘制下一个人口应该嵌入其中时选择一个关键字.",
           "visual": "05_gate_hierarchy",
           "hold_after": 0.7,
           "focus_key": "gate_tree",
-          "speech_text": "门控层级会显示对象数量、相对于父门的百分比以及相对于全部行的百分比。勾选或取消勾选复选框可显示或隐藏门。如果要将下一个群体嵌套在某个门内，请在绘制前先选中该门。"
+          "speech_text": "关键字层次表达了对象数量,其母体百分比和所有行的百分比. 选择一个关键字框来显示或隐藏它,然后在绘制下一个人口应该嵌入其中时选择一个关键字."
         },
         {
-          "narration": "为每个群体指定清晰的名称，然后保存门控策略。将策略加载到兼容的表格后，可以复用相同的特征名称、边界和层级。继续之前，请核对新的对象数量。",
+          "narration": "给每个人口一个有意义的名称,然后保存门策略. 装载在兼容的表格上,重新使用相同的特征名称,边界和等级,然后在继续之前验证新的数量.",
           "visual": "06_save_reuse",
           "hold_after": 0.7,
           "focus_key": "save_controls",
-          "speech_text": "为每个群体指定清晰的名称，然后保存门控策略。将策略加载到兼容的表格后，可以复用相同的特征名称、边界和层级。继续之前，请核对新的对象数量。"
+          "speech_text": "给每个人口一个有意义的名称,然后保存门策略. 装载在兼容的表格上,重新使用相同的特征名称,边界和等级,然后在继续之前验证新的数量."
+        },
+        {
+          "narration": "集群行程在显示的测量中搜索了DBSCAN射线的有限序列,并报告了选定的射线,人口数量和被排除的分数.检查结果的门口,然后只在人口匹配可见数据后注释或出口.",
+          "visual": "07_cluster_walk",
+          "hold_after": 0.7,
+          "focus_key": "walk_result",
+          "speech_text": "集群行程在显示的测量中搜索了DBSCAN射线的有限序列,并报告了选定的射线,人口数量和被排除的分数.检查结果的门口,然后只在人口匹配可见数据后注释或出口."
         }
       ]
     },
@@ -4182,7 +4252,7 @@
       "id": "65_feature_explorer",
       "number": 65,
       "slug": "feature_explorer",
-      "title": "功能探险器",
+      "title": "Feature Explorer",
       "series": 5,
       "app_key": "feature_explorer",
       "section": "Explore",
@@ -4195,16 +4265,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了功能探险器. 排名的特征是他们如何分离选定的类别,并检查排名背后的证据.",
+          "narration": "根据它们如何分离选定的类别,并检查排名背后的证据.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了功能探险器. 排名的特征是他们如何分离选定的类别,并检查排名背后的证据."
+          "speech_text": "根据它们如何分离选定的类别,并检查排名背后的证据."
         },
         {
-          "narration": "选择表,类列,对比组和候选数值特征.",
+          "narration": "从 Explore 部分打开 Feature Explorer。 选择表,类列,对比组和候选数值特征.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择表,类列,对比组和候选数值特征."
+          "speech_text": "从 Explore 部分打开 Feature Explorer。 选择表,类列,对比组和候选数值特征."
         },
         {
           "narration": "在主要配置区域,审查分数,验证,过,样本取和多次比较控制.",
@@ -4230,7 +4300,7 @@
       "id": "66_outliers",
       "number": 66,
       "slug": "outliers",
-      "title": "异常值",
+      "title": "Outliers",
       "series": 5,
       "app_key": "outliers",
       "section": "Explore",
@@ -4243,16 +4313,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了异常值. 标记不寻常的物体或井,并保持每一行的规则.",
+          "narration": "标记不寻常的物体或井,同时保留每一行.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了异常值. 标记不寻常的物体或井,并保持每一行的规则."
+          "speech_text": "标记不寻常的物体或井,同时保留每一行."
         },
         {
-          "narration": "选择表,分析水平,组合和选项.",
+          "narration": "从 Explore 部分打开 Outliers。 选择表,分析水平,组合和选项.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择表,分析水平,组合和选项."
+          "speech_text": "从 Explore 部分打开 Outliers。 选择表,分析水平,组合和选项."
         },
         {
           "narration": "在主要配置区域中,选择强大的方法,方向,门,缺值处理和参考组.",
@@ -4267,10 +4337,10 @@
           "speech_text": "在接受规则之前,先先查看标记列表,检查它们的测量和图像."
         },
         {
-          "narration": "工作流程结束时,spaCR 写出一个异常的标志和诊断,而不是默默删除观察.",
+          "narration": "当工作流程完成时, spaCR 写出一个异常的标志和诊断,而不是默默删除观察.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "工作流程结束时,斯佩克尔 写出一个异常的标志和诊断,而不是默默删除观察."
+          "speech_text": "当工作流程完成时, 斯佩克尔 写出一个异常的标志和诊断,而不是默默删除观察."
         }
       ]
     },
@@ -4278,7 +4348,7 @@
       "id": "67_experiment_design",
       "number": 67,
       "slug": "experiment_design",
-      "title": "实验设计",
+      "title": "Experiment Design",
       "series": 5,
       "app_key": "experiment_design",
       "section": "Design",
@@ -4291,16 +4361,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了实验设计. 在收购之前,设置条件,控制和复制.",
+          "narration": "在收购之前,设置条件,控制和复制.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了实验设计. 在收购之前,设置条件,控制和复制."
+          "speech_text": "在收购之前,设置条件,控制和复制."
         },
         {
-          "narration": "选择板格式,条件,控制,复制计划和限制.",
+          "narration": "从 Design 部分打开 Experiment Design。 选择板格式,条件,控制,复制计划和限制.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择板格式,条件,控制,复制计划和限制."
+          "speech_text": "从 Design 部分打开 Experiment Design。 选择板格式,条件,控制,复制计划和限制."
         },
         {
           "narration": "在主要配置区域,审查随机化,阻塞,边缘处理,平衡,保留井,和元数据标签.",
@@ -4315,10 +4385,10 @@
           "speech_text": "生成和检查拟议布局,然后修改冲突或失衡."
         },
         {
-          "narration": "工作流程完成后,可将验证的板图和元数据出口,以便获得并随后分析spaCR.",
+          "narration": "工作流程完成后,可将验证的板图和元数据出口用于采购和后续的 spaCR分析.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "工作流程完成后,可将验证的板图和元数据出口,以便获得并随后分析斯佩克尔."
+          "speech_text": "工作流程完成后,可将验证的板图和元数据出口用于采购和后续的 斯佩克尔分析."
         }
       ]
     },
@@ -4326,7 +4396,7 @@
       "id": "68_power_design",
       "number": 68,
       "slug": "power_design",
-      "title": "功率/设计",
+      "title": "Power / Design",
       "series": 5,
       "app_key": "power",
       "section": "Design",
@@ -4339,16 +4409,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了\"权力/设计\". 根据所述假设,需要估计细胞和井来检测到影响.",
+          "narration": "根据所述假设,需要的细胞和井进行估计.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了\"权力/设计\". 根据所述假设,需要估计细胞和井来检测到影响."
+          "speech_text": "根据所述假设,需要的细胞和井进行估计."
         },
         {
-          "narration": "输入结果类型,预期效果,变化性,组合和计划分析.",
+          "narration": "从 Design 部分打开 Power / Design。 输入结果类型,预期效果,变化性,组合和计划分析.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "输入结果类型,预期效果,变化性,组合和计划分析."
+          "speech_text": "从 Design 部分打开 Power / Design。 输入结果类型,预期效果,变化性,组合和计划分析."
         },
         {
           "narration": "在主要配置区域,审查意义,目标功率,集群,磨损和不确定性范围.",
@@ -4374,7 +4444,7 @@
       "id": "69_dose_response",
       "number": 69,
       "slug": "dose_response",
-      "title": "剂量反应",
+      "title": "Dose–Response",
       "series": 5,
       "app_key": "dose_response",
       "section": "Design",
@@ -4387,16 +4457,16 @@
       "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
       "scenes": [
         {
-          "narration": "本教程涵盖了DoseResponse. 报告不确定性,拒绝未支持的EC50估计.",
+          "narration": "本教程涵盖了DoseResponse. 适应剂量-响应曲线,同时报告不确定性,拒绝支持不的EC50估计.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "本教程涵盖了DoseResponse. 报告不确定性,拒绝未支持的EC50估计."
+          "speech_text": "本教程涵盖了DoseResponse. 适应剂量-响应曲线,同时报告不确定性,拒绝支持不的EC50估计."
         },
         {
-          "narration": "选择集中,反应,复制,状态和控制列.",
+          "narration": "从 Design 部分打开 Dose–Response。 选择集中,反应,复制,状态和控制列.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "选择集中,反应,复制,状态和控制列."
+          "speech_text": "从 Design 部分打开 Dose–Response。 选择集中,反应,复制,状态和控制列."
         },
         {
           "narration": "在主要配置区域,审查正常化,方向,边界,权重,组合和最低证据要求.",

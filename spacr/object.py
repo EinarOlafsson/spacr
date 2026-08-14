@@ -716,15 +716,39 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     else:
         beta_mode = None
 
-    if settings.get('cellpose_nucleus_channel') is None and settings.get('nucleus_channel') is not None:
-        settings['cellpose_nucleus_channel'] = settings['nucleus_channel']
-    
-    if settings.get('cellpose_cell_channel') is None and settings.get('cell_channel') is not None:
-        settings['cellpose_cell_channel'] = settings['cell_channel']
-    
-    if settings.get('cellpose_pathogen_channel') is None and settings.get('pathogen_channel') is not None:
-        settings['cellpose_pathogen_channel'] = settings['pathogen_channel']
-        
+    # THE cellpose_* KEYS HOLD DENSE STACK POSITIONS, NOT RAW CHANNELS.
+    # io.preprocess_img_data writes them as `seen[ch]` -- the position on the
+    # merged stack's channel axis, which is built in ROLE order (nucleus,
+    # cell, pathogen, organelle), deduplicated.
+    #
+    # This fallback used to copy the RAW channel across, which is a different
+    # number whenever the roles are not in ascending channel order. It fires
+    # more often than it looks: preprocess_img_data returns early once the
+    # raw images have been moved into src/orig (so on every re-run), and is
+    # skipped entirely when preprocess=False -- both documented workflows.
+    # With nucleus_channel=1 and cell_channel=0 the first run records
+    # nucleus->0, cell->1; the resumed run wrote nucleus->1, cell->0, and
+    # Cellpose segmented nuclei on the cell image and cells on the nucleus
+    # image with no warning.
+    #
+    # `organelle` is filled in too. It never was, so a resumed run with an
+    # organelle had no recorded position at all.
+    from .utils import dense_mask_channel_positions
+
+    _dense = dense_mask_channel_positions(settings)
+    for _role in ('nucleus', 'cell', 'pathogen', 'organelle'):
+        if settings.get(f'cellpose_{_role}_channel') is not None:
+            continue
+        _raw = settings.get(f'{_role}_channel')
+        if _raw is None:
+            continue
+        try:
+            _raw = int(_raw)
+        except (TypeError, ValueError):
+            continue
+        if _raw in _dense:
+            settings[f'cellpose_{_role}_channel'] = _dense[_raw]
+
     channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
     channels = cellpose_channels.get(object_type, [])
     
@@ -1139,14 +1163,24 @@ def generate_cellpose_masks(src, settings, object_type):
     
     model_name = object_settings['model_name']
     
-    if settings.get('cellpose_nucleus_channel') is None and settings.get('nucleus_channel') is not None:
-        settings['cellpose_nucleus_channel'] = settings['nucleus_channel']
+    # The same fallback as generate_cellpose_masks_sam, and the same reason
+    # it has to go through the ROLE-order positions: these keys hold dense
+    # stack positions, not raw channel indices. See the longer note there.
+    from .utils import dense_mask_channel_positions
 
-    if settings.get('cellpose_cell_channel') is None and settings.get('cell_channel') is not None:
-        settings['cellpose_cell_channel'] = settings['cell_channel']
-
-    if settings.get('cellpose_pathogen_channel') is None and settings.get('pathogen_channel') is not None:
-        settings['cellpose_pathogen_channel'] = settings['pathogen_channel']
+    _dense = dense_mask_channel_positions(settings)
+    for _role in ('nucleus', 'cell', 'pathogen', 'organelle'):
+        if settings.get(f'cellpose_{_role}_channel') is not None:
+            continue
+        _raw = settings.get(f'{_role}_channel')
+        if _raw is None:
+            continue
+        try:
+            _raw = int(_raw)
+        except (TypeError, ValueError):
+            continue
+        if _raw in _dense:
+            settings[f'cellpose_{_role}_channel'] = _dense[_raw]
 
     # _get_cellpose_channels takes the settings dict and returns
     # (channels_to_extract, cellpose_channels). It used to be called here with
@@ -1440,12 +1474,14 @@ def generate_organelle_masks_sam(src, settings, object_type):
     from .io import (_check_masks, _create_database, _get_avg_object_size,
                      _save_array_atomic, _save_object_counts_to_database)
     from .settings import _set_organelle_defaults
+    from .object_roles import organelle_settings_view
     from.plot import plot_organelle_output
     from .cancellation import checkpoint as cancellation_checkpoint
 
     gc.collect()
 
-    settings = _set_organelle_defaults(settings)
+    settings = organelle_settings_view(
+        _set_organelle_defaults(settings), object_type)
 
     # This generator has no 4-D path. Say so rather than returning 2-D masks
     # to a user whose settings said 4-D.
@@ -1454,22 +1490,35 @@ def generate_organelle_masks_sam(src, settings, object_type):
     morphology = settings['organelle_morphology']
     method = settings['organelle_method']
 
-    # The merged .npz stack only contains the channels that map to
-    # ENABLED object types, densely re-indexed (see
-    # spacr.utils._get_cellpose_channels). Indexing it with the RAW
-    # organelle_channel (e.g. 3) blows up when fewer than 4 objects
-    # are active — "index 3 is out of bounds for axis 3 with size N".
-    # Remap the organelle channel to its position in the compacted
-    # stack the same way the cell/nucleus/pathogen paths do.
+    # The merged .npz stack only contains the channels that map to ENABLED
+    # object types, densely re-indexed. Indexing it with the RAW
+    # organelle_channel (e.g. 3) blows up when fewer than 4 objects are
+    # active — "index 3 is out of bounds for axis 3 with size N".
+    #
+    # THE REMAP HAS TO MATCH HOW THE STACK WAS BUILT, and this used to
+    # compute `sorted({nucleus, cell, pathogen, organelle})` instead. The
+    # stack is built in ROLE order — io.preprocess_img_data walks nucleus,
+    # cell, pathogen, organelle and assigns `seen[ch] = len(mask_channels)`
+    # — so the two agree only when the roles happen to be in ascending
+    # channel order. With nucleus_channel=2, cell_channel=0,
+    # organelle_channel=1 the axis is [2, 0, 1], so raw channel 1 sits at
+    # position 2, while the sorted reading said position 1 — the CELL plane.
+    # Organelles were segmented on the cell image, on a FIRST run, silently.
+    #
+    # `cellpose_organelle_channel` wins when present because
+    # io.preprocess_img_data records the dense position it actually used. It
+    # is absent on a resumed run, which is why the fallback has to be right
+    # rather than merely present.
+    from .utils import dense_mask_channel_positions
+
     _raw_organelle_channel = settings['organelle_channel']
-    _extract = sorted({c for c in (settings.get('nucleus_channel'),
-                                     settings.get('cell_channel'),
-                                     settings.get('pathogen_channel'),
-                                     settings.get('organelle_channel'))
-                          if c is not None})
-    _remap = {orig: new for new, orig in enumerate(_extract)}
-    organelle_channel = _remap.get(_raw_organelle_channel,
-                                     _raw_organelle_channel)
+    _recorded = settings.get('cellpose_organelle_channel')
+    if _recorded is not None:
+        organelle_channel = int(_recorded)
+    else:
+        _positions = dense_mask_channel_positions(settings)
+        organelle_channel = _positions.get(_raw_organelle_channel,
+                                           _raw_organelle_channel)
 
     _validate_organelle_settings(morphology, method)
 
@@ -1891,10 +1940,11 @@ def _segment_cellpose_sam(batch, batch_filenames, model, settings, object_type, 
         selected_channels = [settings.get('cell_channel'), settings.get('nucleus_channel')]
     elif object_type == 'pathogen':
         selected_channels = [settings.get('pathogen_channel')]
-    elif object_type == 'organelle':
-        selected_channels = [settings.get('organelle_channel')]
     else:
-        raise ValueError(f"Unsupported object_type: {object_type}")
+        from .object_roles import ORGANELLE_ROLES
+        if object_type not in ORGANELLE_ROLES:
+            raise ValueError(f"Unsupported object_type: {object_type}")
+        selected_channels = [settings.get('organelle_channel')]
 
     selected_channels = [ch for ch in selected_channels if ch is not None]
 

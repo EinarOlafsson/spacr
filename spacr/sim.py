@@ -873,7 +873,9 @@ def create_database(db_path):
     """
     conn = None
     try:
-        conn = sqlite3.connect(db_path)
+        from .database_concurrency import connect as _connect_database
+
+        conn = _connect_database(db_path)
         #print(f"SQLite version: {sqlite3.version}")
     except Exception as e:
         print(e)
@@ -979,7 +981,7 @@ def run_and_save(i, settings, time_ls, total_sims):
     :param total_sims: Total simulation count (used for progress display only).
     :returns: Tuple ``(i, sim_time, None)``.
     """
-    #print(f'Runnings simulation with the following paramiters')
+    #print(f'Running simulation with the following parameters')
     #print(settings)
     if settings.get('random_seed'):
         random.seed(42) # sims will be too similar with a fixed seed — opt-in only
@@ -1041,7 +1043,7 @@ def validate_and_adjust_beta_params(sim_params):
         
     return adjusted_params
 
-def generate_paramiters(settings):
+def generate_parameters(settings):
     """Expand a sweep-settings dict into one settings dict per (Cartesian) simulation.
 
     :param settings: Config dict where each swept key holds an iterable of values.
@@ -1095,8 +1097,14 @@ def generate_paramiters(settings):
     #    print(x['positive_mean'])
     return sim_ls
 
+
+#: The old spelling, kept so anything importing it keeps working. The name
+#: was `generate_paramiters` -- reported as a typo in issue #21 -- and a
+#: public function cannot simply be renamed out from under its callers.
+generate_paramiters = generate_parameters
+
 def run_multiple_simulations(settings):
-    """Fan out the sweep from :func:`generate_paramiters` across a process pool.
+    """Fan out the sweep from :func:`generate_parameters` across a process pool.
 
     Uses a ``multiprocessing.Pool`` with ``max_workers`` (or ``cpu_count()-4``)
     workers, prints a progress line, and drives each worker through
@@ -1110,7 +1118,7 @@ def run_multiple_simulations(settings):
     start_time = now.strftime("%y%m%d") # format as a string in 'ddmmyy' format 
     settings['start_time'] = start_time
 
-    sim_ls = generate_paramiters(settings)
+    sim_ls = generate_parameters(settings)
     #print(f'Running {len(sim_ls)} simulations.')
 
     max_workers = settings['max_workers'] or max(1, cpu_count() - 4)
@@ -1172,7 +1180,9 @@ def read_simulations_table(db_path):
     :returns: DataFrame of the ``simulations`` table, or ``None`` on failure.
     """
     # Create a connection object using the connect function
-    conn = sqlite3.connect(db_path)
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db_path)
     
     # Read the 'simulations' table into a pandas DataFrame
     try:

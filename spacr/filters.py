@@ -38,6 +38,8 @@ from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+from .object_roles import ORGANELLE_ROLES
+
 LOG = logging.getLogger("spacr.filters")
 
 #: The table this module owns.
@@ -47,7 +49,7 @@ FILTERS_TABLE = "filters"
 #: requirement: the whole point is that a database with ONLY nuclei, or only
 #: pathogens, or only organelles works exactly as well as the usual one.
 OBJECT_TABLES: Tuple[str, ...] = (
-    "cell", "nucleus", "pathogen", "cytoplasm", "organelle",
+    "cell", "nucleus", "pathogen", "cytoplasm", *ORGANELLE_ROLES,
 )
 
 #: The crop table, joined on the same keys when it exists.
@@ -97,9 +99,16 @@ class FilterError(ValueError):
 # ---------------------------------------------------------------------------
 
 def _connect(db_path: str, *, read_only: bool = True) -> sqlite3.Connection:
-    if read_only:
-        return sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
-    return sqlite3.connect(db_path)
+    """Open the measurements database with a busy timeout.
+
+    Both arms used to be a bare ``sqlite3.connect``, which takes sqlite's 5
+    second default. Measure writes from many worker processes at once and 5
+    seconds is routinely exceeded there, so a reader failed with "database is
+    locked" rather than waiting for the writer (issue #15).
+    """
+    from .database_concurrency import connect as _connect_database
+
+    return _connect_database(db_path, readonly=read_only)
 
 
 def table_names(db_path: str) -> Tuple[str, ...]:
@@ -274,12 +283,13 @@ def key_columns(frame: pd.DataFrame) -> List[str]:
         what :func:`read_identity` returns, having aliased them on the way
         out. Membership is tested exactly and case-sensitively, with no alias
         lookup: a raw ``SELECT *`` from a database that spells them ``plate``
-        and ``row`` contributes none of the well keys. ``object_label`` is not
-        aliased and does come through, so such a frame yields
-        ``["object_label"]`` -- which passes the identity check in
-        :func:`export_gate` and :func:`export_annotation`, and the gate is then
-        merged on the object label alone. Only column names are inspected; no
-        values are touched.
+        and ``row`` contributes none of the well keys, and such a frame yields
+        ``["object_label"]`` alone. That is why nothing merges on the result
+        of this function without putting it through
+        :func:`require_full_identity` first -- an object label is unique only
+        WITHIN a field, so merging on it alone collides objects across plates,
+        wells and fields. Only column names are inspected; no values are
+        touched.
     """
     keys = [c for c in IDENTITY_COLUMNS if c in frame.columns]
     if TIME_COLUMN in frame.columns:
@@ -287,6 +297,34 @@ def key_columns(frame: pd.DataFrame) -> List[str]:
     if OBJECT_COLUMN in frame.columns:
         keys.append(OBJECT_COLUMN)
     return keys
+
+
+def require_full_identity(keys: Sequence[str], what: str) -> None:
+    """Raise unless ``keys`` names every identity column AND the object label.
+
+    The invariant a write-back depends on: ``object_label`` is unique only
+    within one field of one well of one plate, so a merge keyed on anything
+    less than the full identity silently joins one plate's object 7 onto
+    another's. The partial-identity tolerance elsewhere in this module
+    (:func:`identity_columns_of`, :func:`build_filters_frame`) is about
+    READING a database that is missing a column; writing a per-object column
+    back into it is the one operation where a partial key is a wrong answer
+    rather than a reduced one.
+
+    :param keys: what :func:`key_columns` returned for the frame.
+    :param what: names the operation in the error message, e.g. ``"a gate"``.
+    :raises FilterError: any identity column, or the object label, is absent.
+    """
+    missing = [c for c in IDENTITY_COLUMNS if c not in keys]
+    if OBJECT_COLUMN not in keys:
+        missing.append(OBJECT_COLUMN)
+    if missing:
+        raise FilterError(
+            f"this table has no object identity (missing "
+            f"{', '.join(missing)}; {what} needs "
+            f"{', '.join(IDENTITY_COLUMNS)}, {OBJECT_COLUMN} because an "
+            f"object label repeats in every field), so {what} on it cannot be "
+            f"written back to the database")
 
 
 def _png_paths(db_path: str) -> Optional[pd.DataFrame]:
@@ -339,6 +377,93 @@ def _png_paths(db_path: str) -> Optional[pd.DataFrame]:
     frame = frame.dropna(subset=[OBJECT_COLUMN]).copy()
     frame[OBJECT_COLUMN] = frame[OBJECT_COLUMN].astype("int64")
     return frame.drop(columns=["_png_object_id"])
+
+
+def png_crop_type(db_path: str) -> Optional[str]:
+    """WHICH OBJECT the crops in ``png_list`` are pictures of.
+
+    `png_list` names its id column after the object it cropped --
+    ``cell_id``, ``pathogen_id``, ``organelle_id`` -- so the crop mode a run
+    used is recoverable from the schema rather than having to be remembered.
+
+    This is what makes a crop path attachable to the right row. Without it
+    the label is just an integer, and matching integers across object types
+    hands nucleus 2 the crop of CELL 2.
+
+    :returns: ``'cell'``, ``'pathogen'``, ... or None when there is no
+        ``png_list``, no recognised id column, or no crops at all.
+    """
+    if PNG_TABLE not in table_names(db_path):
+        return None
+    from .utils import PNG_CROP_MODE_BY_ID_COLUMN, PNG_OBJECT_ID_COLUMNS
+
+    columns = column_names(db_path, PNG_TABLE)
+    id_column = resolve_column(columns, tuple(PNG_OBJECT_ID_COLUMNS.values()))
+    if id_column is None:
+        return None
+    return PNG_CROP_MODE_BY_ID_COLUMN.get(id_column)
+
+
+def _attach_png_paths(frame: pd.DataFrame, paths: pd.DataFrame,
+                      shared: Sequence[str], crop_type: Optional[str],
+                      *, type_column: str = "object_type",
+                      parent_column: str = "parent_label",
+                      parent_type_column: str = "parent_type") -> pd.DataFrame:
+    """Give each object the crop that is a picture of IT, or none.
+
+    THE DEFECT THIS REPLACES. The merge joined on the identity plus
+    ``object_label`` and nothing else, so a label matched across object
+    types. Measured on two cells with two nuclei each, crops taken of cells:
+
+        object     label   parent   png_path        correct?
+        cell       1       -        cell_1.png      yes
+        cell       2       -        cell_2.png      yes
+        nucleus    1       cell 1   cell_1.png      by coincidence
+        nucleus    2       cell 1   cell_2.png      NO -- its cell is 1
+        nucleus    1       cell 2   cell_1.png      NO -- its cell is 2
+        nucleus    2       cell 2   cell_2.png      by coincidence
+
+    Half the children pointed at a picture of a different cell, and the two
+    that were right were right because their label happened to equal their
+    parent's. Every crop-backed view downstream -- annotation, the classifier,
+    the image grids -- read that column.
+
+    A CHILD'S CROP IS ITS PARENT'S. The crop is a picture of one cell, and
+    the nuclei inside that cell appear in it. So an object of the cropped
+    type is matched on its own label, a child of the cropped type on its
+    PARENT's label, and anything else -- a nucleus in a run cropped by
+    pathogen, where no containment holds -- gets no path at all, because a
+    wrong picture is worse than a missing one.
+    """
+    if crop_type is None or type_column not in frame.columns:
+        # No type axis to reason with. Matching labels blind is what caused
+        # this, so nothing is attached rather than something arbitrary.
+        LOG.info("crop paths not attached: png_list's object type is unknown")
+        return frame
+
+    own = paths.rename(columns={OBJECT_COLUMN: OBJECT_COLUMN})
+    frame = frame.copy()
+    frame["png_path"] = pd.Series([None] * len(frame), index=frame.index,
+                                  dtype=object)
+
+    is_own = frame[type_column].astype(str) == crop_type
+    if is_own.any():
+        direct = frame.loc[is_own, shared].merge(
+            own[shared + ["png_path"]], on=list(shared), how="left")
+        frame.loc[is_own, "png_path"] = direct["png_path"].to_numpy()
+
+    # The child side: join the child's PARENT label onto the crop's label.
+    if parent_column in frame.columns and parent_type_column in frame.columns:
+        is_child = frame[parent_type_column].astype(str) == crop_type
+        if is_child.any():
+            keys = [k for k in shared if k != OBJECT_COLUMN]
+            left = frame.loc[is_child, keys + [parent_column]].rename(
+                columns={parent_column: OBJECT_COLUMN})
+            joined = left.merge(own[shared + ["png_path"]],
+                                on=keys + [OBJECT_COLUMN], how="left")
+            frame.loc[is_child, "png_path"] = joined["png_path"].to_numpy()
+
+    return frame
 
 
 def build_filters_frame(db_path: str) -> pd.DataFrame:
@@ -419,6 +544,16 @@ def build_filters_frame(db_path: str) -> pd.DataFrame:
         if shared:
             paths = paths[shared + ["png_path"]].drop_duplicates(subset=shared)
             out = out.merge(paths, on=shared, how="left")
+            # This frame has no object_type axis -- it is one row per
+            # (field, object_label) with `in_<table>` flags -- so a row that
+            # is NOT of the cropped type must not keep a path matched on the
+            # label alone. `in_cell = 0` with a cell crop attached is exactly
+            # the mismatch `_attach_png_paths` exists to prevent; here the
+            # flag is the type axis.
+            crop_type = png_crop_type(db_path)
+            flag = f"{PRESENT_PREFIX}{crop_type}" if crop_type else None
+            if flag and flag in out.columns:
+                out.loc[out[flag] != 1, "png_path"] = None
         else:
             LOG.info("%s shares no identity columns; no crop paths carried",
                      PNG_TABLE)
@@ -569,7 +704,8 @@ def build_filters_from_relationships(db_path: str) -> pd.DataFrame:
         shared = [k for k in key_columns(frame) if k in paths.columns]
         if shared:
             paths = paths[shared + ["png_path"]].drop_duplicates(subset=shared)
-            frame = frame.merge(paths, on=shared, how="left")
+            frame = _attach_png_paths(frame, paths, shared,
+                                      png_crop_type(db_path))
     return frame
 
 
@@ -628,14 +764,16 @@ def export_gate(db_path: str, frame: pd.DataFrame, inside: np.ndarray,
                 gate_name: str, *, rebuild: bool = False) -> Tuple[str, int]:
     """Write one gate to ``filters`` as a 1/0 column.
 
-    :param frame: the objects the gate was evaluated on. Must carry the
-        identity columns; the measurements are not needed and not read.
+    :param frame: the objects the gate was evaluated on. Must carry the FULL
+        identity (:data:`IDENTITY_COLUMNS` plus ``object_label``, in the
+        canonical spellings -- see :func:`require_full_identity`); the
+        measurements are not needed and not read.
     :param inside: boolean mask over ``frame``, True for objects in the gate.
     :param gate_name: names the column.
     :param rebuild: rebuild the identity table first, discarding gate columns.
     :returns: ``(column name, objects marked)``.
-    :raises FilterError: the frame cannot be identified, or the mask does not
-        match it.
+    :raises FilterError: the frame is missing any part of the object identity,
+        or the mask does not match it.
 
     Objects NOT in ``frame`` get 0, not null. A user who gated on a 20% sample
     and exported it would otherwise get a column that is null for four objects
@@ -651,11 +789,7 @@ def export_gate(db_path: str, frame: pd.DataFrame, inside: np.ndarray,
 
     column = column_name_for(gate_name)
     keys = key_columns(frame)
-    if not keys or OBJECT_COLUMN not in keys:
-        raise FilterError(
-            "this table has no object identity (" + ", ".join(IDENTITY_COLUMNS)
-            + f", {OBJECT_COLUMN}), so a gate on it cannot be written back to "
-            f"the database")
+    require_full_identity(keys, "a gate")
 
     filters = ensure_filters_table(db_path, rebuild=rebuild)
     shared = [k for k in keys if k in filters.columns]
@@ -802,8 +936,10 @@ def export_annotation(db_path: str, frame: pd.DataFrame, labels: pd.Series,
     :param db_path: the measurement database. ``filters`` is built first if it
         is not there yet, and rewritten whole afterwards.
     :param frame: the objects the labels describe. Only its identity columns
-        are read -- the measurements are not needed -- and ``object_label``
-        must be among them.
+        are read -- the measurements are not needed -- and it must carry the
+        FULL identity (:data:`IDENTITY_COLUMNS` plus ``object_label``, in the
+        canonical spellings), because an object label repeats in every field.
+        See :func:`require_full_identity`.
     :param labels: one label per row of ``frame``, taken POSITIONALLY: the
         Series index is discarded, so labels that were reindexed or sorted
         away from the frame's row order would be attached to the wrong
@@ -815,15 +951,12 @@ def export_annotation(db_path: str, frame: pd.DataFrame, labels: pd.Series,
         and replaced. Objects outside ``frame`` are left NULL rather than
         filled, since a multiclass annotation has no zero.
     :returns: ``(column name, objects labelled)``.
-    :raises FilterError: ``frame`` carries no object identity, or shares no
-        object key with the ``filters`` table.
+    :raises FilterError: ``frame`` is missing any part of the object identity,
+        or shares no object key with the ``filters`` table.
     """
     name = column_name_for(column)
     keys = key_columns(frame)
-    if not keys or OBJECT_COLUMN not in keys:
-        raise FilterError(
-            "this table has no object identity, so an annotation on it "
-            "cannot be written back to the database")
+    require_full_identity(keys, "an annotation")
 
     filters = ensure_filters_table(db_path)
     shared = [k for k in keys if k in filters.columns]

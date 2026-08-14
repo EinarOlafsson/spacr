@@ -416,7 +416,8 @@ class TestStage1MaskIngest:
         differ by exactly the number of mask planes. uint16 in both, which
         is the dtype the whole measure path is written against.
         """
-        merged = sorted(os.listdir(os.path.join(project["dst"], "merged")))
+        merged = sorted(name for name in os.listdir(
+            os.path.join(project["dst"], "merged")) if name.endswith('.npy'))
         stacks = sorted(os.listdir(os.path.join(project["dst"], "stack")))
         assert len(merged) == len(stacks) == 12
         assert merged == stacks
@@ -849,12 +850,25 @@ class TestStage3Classify:
                                                               scores):
         """(DERIVED) The crop's histogram *is* the segmentation, in 8 bits.
 
-        In channel 0 exactly ``NUCLEUS_AREA`` pixels hold the nucleus grey
-        level and exactly ``PATHOGEN_AREA`` hold 255; in channel 1 exactly
-        ``CELL_AREA - NUCLEUS_AREA - PATHOGEN_AREA`` hold 255. So the crop
-        the classifier reads carries the same areas the measurement tables
-        report, and a crop pipeline that resized, padded or re-thresholded
-        would change these counts without changing any table.
+        WHICH SLOT HOLDS WHICH SOURCE CHANNEL. ``png_dims=[0, 1]`` is the
+        legacy spelling, and :func:`spacr.crops.png_dims_to_channel_mapping`
+        translates it to ``{'r': None, 'g': 1, 'b': 0}``: entry 0 is BLUE,
+        entry 1 is green, red is the empty plane. That is not an accident of
+        cv2 -- microscope channels arrive in wavelength order, so channel 0
+        is the 405 nuclear stain and belongs in blue, and every crop spaCR
+        wrote before 2026-07-26 is in exactly this layout.
+
+        This test used to read source channel 0 out of the RED slot. That is
+        format 2, which `spacr/crops.py` documents outright as "the format
+        that is wrong": it was written between 2026-07-26 and 2026-08-06,
+        this file landed on 2026-08-03 inside that window, and when 2cab81f7
+        restored the declared mapping the expectation was left behind. The
+        pixels were never wrong; the assertion was.
+
+        So: source channel 0 (nucleus grey and pathogen 255) in BLUE, source
+        channel 1 (cytoplasm 255, pathogen ``PATHOGEN_GREY_CH1``) in GREEN,
+        and RED the zero plane -- because two channels were asked for and
+        the mapping leaves red empty rather than padding at the end.
         """
         from PIL import Image
 
@@ -862,17 +876,17 @@ class TestStage3Classify:
             well_index, label = _crop_key(path)
             image = np.asarray(Image.open(path).convert("RGB"))
             assert image.shape == (PNG_SIDE, PNG_SIDE, 3), path
-            counts0 = dict(zip(*[part.tolist() for part in np.unique(
-                image[:, :, 0], return_counts=True)]))
-            counts1 = dict(zip(*[part.tolist() for part in np.unique(
+            blue = dict(zip(*[part.tolist() for part in np.unique(
+                image[:, :, 2], return_counts=True)]))
+            green = dict(zip(*[part.tolist() for part in np.unique(
                 image[:, :, 1], return_counts=True)]))
             grey = nucleus_grey_level(well_index)
-            assert counts0[grey] == NUCLEUS_AREA[label], path
-            assert counts0[255] == PATHOGEN_AREA[label], path
-            assert counts1[255] == CYTO_LEVEL_PIXELS[label], path
-            assert counts1[PATHOGEN_GREY_CH1] == PATHOGEN_AREA[label], path
-            # Two channels were asked for; the third is zero padding.
-            assert set(np.unique(image[:, :, 2]).tolist()) == {0}, path
+            assert blue[grey] == NUCLEUS_AREA[label], path
+            assert blue[255] == PATHOGEN_AREA[label], path
+            assert green[255] == CYTO_LEVEL_PIXELS[label], path
+            assert green[PATHOGEN_GREY_CH1] == PATHOGEN_AREA[label], path
+            # png_dims named two channels, so the mapping leaves red empty.
+            assert set(np.unique(image[:, :, 0]).tolist()) == {0}, path
 
     @pytest.mark.parametrize("well_index", range(1, 13))
     def test_the_crop_grey_levels_are_the_stretch_of_the_painted_constants(
@@ -885,6 +899,10 @@ class TestStage3Classify:
         (truncating) followed by the high-byte narrowing. They fall
         monotonically because the stretch's upper end rises with the
         pathogen level, which is the invariant beside the twelve values.
+
+        Read out of BLUE, for the reason spelled out in
+        ``test_the_crops_carry_the_object_areas_as_pixel_counts``: source
+        channel 0 is the 405 stain and the declared mapping puts it there.
         """
         from PIL import Image
 
@@ -897,7 +915,7 @@ class TestStage3Classify:
                  if _crop_key(path)[0] == well_index]
         for path in paths:
             image = np.asarray(Image.open(path).convert("RGB"))
-            assert sorted(np.unique(image[:, :, 0]).tolist()) == [
+            assert sorted(np.unique(image[:, :, 2]).tolist()) == [
                 0, expected[well_index - 1], 255], path
 
     def test_the_reference_crop_scores_are_the_sigmoid_of_the_probe(self,
@@ -1251,15 +1269,6 @@ class TestTheStockImporterLosesTheOrganelleSummary:
     every reader treats as a collection.
     """
 
-    @pytest.mark.xfail(strict=True, reason=(
-        "spacr/external_masks.py:661 does list() on summarize_organelles_by, "
-        "whose default (spacr/settings.py:497) is the string 'cell', so "
-        "Measure receives ['c','e','l','l','organelle'] and the "
-        "`if \"cell\" in settings['summarize_organelles_by']` test at "
-        "spacr/measure.py:2396 is False. An external-mask import with "
-        "organelle masks therefore writes no cell_organelle_summary table, "
-        "and run_external_masks' completeness check does not notice because "
-        "it only requires one table per imported object type."))
     def test_a_stock_import_still_summarises_organelles_per_cell(self,
                                                                   stock_import):
         assert "cell_organelle_summary" in stock_import.tables, (
@@ -1294,7 +1303,7 @@ class TestTheStockImporterLosesTheOrganelleSummary:
         assert "pathogen_organelle_summary" in project["result"].tables
 
 
-def test_the_setting_that_causes_it_still_has_the_shape_described():
+def test_summary_setting_is_not_split_into_characters_by_the_importer():
     """Pins the two halves of the bug so the xfail cannot rot.
 
     If either the default stops being a bare string or Measure stops using
@@ -1302,8 +1311,6 @@ def test_the_setting_that_causes_it_still_has_the_shape_described():
     needs re-reading rather than silently flipping.
     """
     import inspect
-    import re
-
     from spacr.settings import get_measure_crop_settings
     import spacr.external_masks as external_masks
     import spacr.measure as measure
@@ -1313,15 +1320,13 @@ def test_the_setting_that_causes_it_still_has_the_shape_described():
     default = get_measure_crop_settings({})["summarize_organelles_by"]
     assert isinstance(default, str) and default == "cell"
     assert "cell" in default                      # substring test: True
-    assert "cell" not in list(default)            # membership test: False
-
-    # Half two: the importer really does list() it...
+    # The importer leaves the value intact; Measure normalises str/list/None
+    # once and then performs exact parent-name membership.
     importer = inspect.getsource(external_masks.run_external_masks)
-    assert re.search(
-        r'list\(\s*measure_settings\.get\("summarize_organelles_by"\)',
-        importer), "external_masks no longer list()s the setting"
+    assert 'list(measure_settings.get("summarize_organelles_by")' not in importer
 
     # ...and Measure really does read it with `in`, which is what makes
     # the difference between the two spellings observable.
     measured = inspect.getsource(measure._measure_crop_core)
-    assert '"cell" in settings[\'summarize_organelles_by\']' in measured
+    assert "requested = settings.get('summarize_organelles_by')" in measured
+    assert "parent_name not in requested" in measured

@@ -49,7 +49,7 @@ jobs:
   build:
     name: Build Sphinx
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v7
@@ -59,6 +59,11 @@ jobs:
         with:
           python-version: "3.10"
           cache: pip
+
+      - name: Install localization system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libopencc1.1 libopencc-data
 
       - name: Install spacr + Sphinx tooling
         run: |
@@ -77,6 +82,13 @@ jobs:
           # sphinx-design — grid / card directives on the landing page
           # sphinx-autoapi — AST-walk API reference generator
           python -m pip install sphinx furo sphinx-design sphinx-autoapi
+
+      - name: Audit localization catalogs
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          python tools/build_documentation_i18n.py --audit
+          python tools/build_i18n_catalogs.py --audit
 
       - name: Build docs
         env:

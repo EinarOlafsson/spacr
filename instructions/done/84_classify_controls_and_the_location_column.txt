@@ -1,0 +1,185 @@
+================================================================================
+ANNOTATION MODE OVERWRITES location_column, AND THE USER CANNOT GET OUT
+================================================================================
+
+Status:    code fixed 2026-08-12; the three issues are not yet closed.
+           RENUMBERED from 83 to 84: a concurrent codex session created its
+           own 83 for the multilingual catalogs at almost the same moment.
+           Two files with one number is how one of them gets lost.
+Requested: 2026-08-12 — "there are some new github issues that relate to
+           classify, add them"
+
+Issues:    #91 [ml_analyze]      ValueError: no rows matched negative_control
+           #92 [classify_merged] ValueError: no rows matched negative_control
+           #93 [ml_analyze]      KeyError: 'cc2d1a_recruitment' not in columns
+
+           All three from one user, one afternoon, one plate. They are not
+           three bugs; they are one defect walked through in sequence, and
+           the third is the user following the advice the second one gave.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The defect has been reproduced and fixed locally, but the three linked issues
+remain open until the verified fix is pushed and available to the reporter.
+
+--------------------------------------------------------------------------------
+WHAT ACTUALLY HAPPENS, VERIFIED IN THE CODE
+--------------------------------------------------------------------------------
+
+STEP 1 -- ANNOTATION MODE HUNTS FOR WELL NAMES INSIDE AN ANNOTATION COLUMN.
+
+`ml.py:4130`, reached when the basis is 'annotation':
+
+    settings['location_column'] = settings['annotation_column']
+
+`location_column` now names the annotation column. `positive_control` and
+`negative_control` are NOT translated with it -- they stay 'c2' and 'c1',
+which are plate COLUMN names. Then `ml.py:4512`:
+
+    df1 = df[_match_control_values(df[location_column], negative_control)]
+
+looks for 'c1' inside a column whose values are 1.0 and 2.0. Nothing matches.
+That is #91 and #92:
+
+    no rows matched negative_control='c1' and positive_control='c2' in
+    column 'cc2d1a_recruitment', so there is nothing to train on.
+      'cc2d1a_recruitment' contains: '1.0', '2.0', 'nan'
+
+The refusal itself is correct and its wording is good -- it names the column,
+lists what is in it, and says what to do. The WIRING behind it is wrong: in
+annotation mode the classes come from the annotation column's own values, and
+positive_control / negative_control are metadata-mode concepts that should
+never have been applied to it.
+
+STEP 2 -- THE ADVICE LEADS INTO A WORSE STATE.
+
+The message says "Set positive_control and negative_control to values that
+appear there". The user did exactly that -- #93 carries
+
+    positive_control = '1.0'
+    negative_control = '2.0'
+
+-- and switched `dataset_mode` to 'metadata'. And #93 still fails, now with
+
+    KeyError: "None of [Index(['cc2d1a_recruitment'])] are in the [columns]"
+
+because of
+
+    location_column = 'cc2d1a_recruitment'
+
+THE ASSIGNMENT AT 4130 MUTATED THE USER'S SETTINGS DICT AND THE MUTATION WAS
+SAVED. `resolve_basis` is correct -- with dataset_mode='metadata' it returns
+'metadata', so 4130 does not run on this pass -- but nothing puts
+`location_column` back. The setting carries the annotation column forever,
+into a mode where that column does not exist in the frame, and the run dies
+at `df[[location_column]]` before any of the newer, better error messages can
+be reached.
+
+So a user who tries annotation mode once cannot return to metadata mode by
+changing `dataset_mode`. They have to know that an invisible write happened
+and undo it by hand.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A setting the user can see in the panel is being rewritten by a run, and the
+rewrite outlives the run. That is the same class as the phantom settings of
+instruction 61 and the silent `crop_source` substitution of instruction 37: a
+value nobody chose deciding what the analysis does.
+
+It is worse here because the two failures point AWAY from the cause. #91 and
+#92 blame the control values; #93 blames a missing column. Neither says "your
+location_column was overwritten by a previous run in a different mode", which
+is the only sentence that would help.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. STOP MUTATING THE CALLER'S SETTINGS. `location_column` is a user-facing
+   setting; annotation mode must derive what it needs into a LOCAL, not write
+   into the dict. Whatever the run needs to remember belongs in the resolved
+   copy, not in the settings the panel shows and saves.
+
+2. IN ANNOTATION MODE THE CLASSES COME FROM THE ANNOTATION COLUMN. Read its
+   distinct values. Two values is the ordinary case and needs no controls
+   named at all; more than two, or values the user has named, is where
+   positive_control / negative_control apply -- and then they must be matched
+   against THAT column's values, not against plate column names.
+
+3. IF A CONTROL VALUE CANNOT BE FOUND, SAY WHERE IT SHOULD HAVE COME FROM.
+   The current message lists the column's contents, which is right, and
+   should also name the mode: in annotation mode "these are annotation
+   values", in metadata mode "these are well identifiers".
+
+4. DETECT THE POISONED STATE AND SAY SO. A settings file whose
+   `location_column` names a column absent from the measurement frame, while
+   an `annotation_column` of the same name exists, is the signature of this
+   bug. Say that sentence rather than raising KeyError from inside pandas.
+
+5. CLOSE #91, #92 AND #93 TOGETHER, in the maintainer's name, with the
+   sequence explained -- a user reading only #93 would otherwise never learn
+   that the cause was two runs earlier.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A settings dict that goes through an annotation-mode run comes back with
+`location_column` UNCHANGED. An annotation column holding 1.0 and 2.0 trains
+without the user naming any controls. Switching `dataset_mode` from
+'annotation' to 'metadata' and running again works, with no manual repair.
+And a settings file already carrying the poisoned value is told what happened
+rather than dying in pandas.
+
+--------------------------------------------------------------------------------
+RELATED
+--------------------------------------------------------------------------------
+
+37 (the classify settings overhaul -- this is the same surface and its
+`classes` work should land consistently), 61 (settings nobody chose deciding
+what runs), 81 (closing the issues).
+
+--------------------------------------------------------------------------------
+2026-08-12 - DONE. #91, #92 AND #93 CLOSED.
+--------------------------------------------------------------------------------
+
+Fixed, pushed, and the three issues closed together with the sequence
+explained -- a reader arriving at #93 alone would otherwise never learn the
+cause was two runs earlier.
+
+(1) THE MUTATION IS GONE. `settings['location_column']` is never written.
+The annotation path derives `_label_column` into a local and passes it to
+`ml_analysis`; the caller's dict comes back exactly as written. A test
+asserts the assignment is absent from the source, with comments stripped
+first, because the fix's own comment quotes the line it removed.
+
+(2) THE CLASSES COME FROM THE COLUMN, under a rule narrowed once already:
+
+      both named controls match  -> untouched (a two-of-five subset is a
+                                    choice, not a mistake)
+      exactly ONE matches        -> untouched, and the refusal names the
+                                    missing one
+      NEITHER matches, 2 classes -> derived, lower negative, higher
+                                    positive, printed on the console
+      NEITHER matches, 3+ or 1   -> not guessed at; the refusal lists what
+                                    is there
+
+    The one-match case was wrong in the first version: it derived, which
+    replaced the control the user got RIGHT along with the one they got
+    wrong and hid the message naming it. Caught by
+    `test_only_the_missing_control_is_named` in the full suite, not by any
+    targeted run.
+
+(3) THE POISONED STATE IS NAMED. A `location_column` absent from the
+measurement table raises a ValueError listing the columns that are there and
+saying the overwrite is the likely cause, rather than a pandas KeyError three
+frames down.
+
+STILL TRUE OF OLD SETTINGS FILES: one written before this may still carry
+the overwritten value. Nothing migrates it -- the run cannot tell a poisoned
+value from a deliberate one -- but the new message says exactly what to set
+it back to.

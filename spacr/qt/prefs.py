@@ -12,7 +12,7 @@ from typing import List
 from PySide6.QtCore import QSettings
 
 ORG = "Olafsson Lab"
-APP = "SpaCR"
+APP = "spaCR"
 
 
 def _s() -> QSettings:

@@ -459,11 +459,11 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   TorchVision backbone with a SPACR linear head (streamlined variant of :class:`TorchModel`).
+   TorchVision backbone with a spaCR linear head (streamlined variant of :class:`TorchModel`).
 
    :param model_name: TorchVision classification model to load.
    :param pretrained: use ImageNet-pretrained weights when available.
-   :param dropout_rate: dropout probability applied to backbone and SPACR head; ``None`` disables.
+   :param dropout_rate: dropout probability applied to backbone and spaCR head; ``None`` disables.
    :param use_checkpoint: enable gradient checkpointing through the backbone.
    :param num_classes: output class count.
    :param multilabel: informational flag consumed by external loss/metrics code.
@@ -543,7 +543,7 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   ResNet backbone with a two-layer SPACR binary-classification head.
+   ResNet backbone with a two-layer spaCR binary-classification head.
 
    :param resnet_type: one of ``'resnet18'``/``'resnet34'``/``'resnet50'``/``'resnet101'``/``'resnet152'``.
    :param dropout_rate: dropout probability before the final linear layer; ``None`` disables.

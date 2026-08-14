@@ -36,12 +36,15 @@ __all__ = [
     "DatabaseConfigurationError",
     "DatabaseHealth",
     "MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS",
+    "WAL_SAFE_FILESYSTEMS",
     "connect",
+    "enable_wal_where_safe",
     "filesystem_type",
     "inspect_database",
     "is_busy_error",
     "run_concurrency_probe",
     "transaction",
+    "wal_is_safe_here",
 ]
 
 
@@ -50,6 +53,19 @@ TRANSACTION_MODES = {"DEFERRED", "IMMEDIATE", "EXCLUSIVE"}
 NETWORK_FILESYSTEMS = {
     "9p", "afs", "cifs", "fuse.sshfs", "gcsfuse", "lustre", "nfs",
     "nfs4", "s3fs", "smbfs",
+}
+
+#: Filesystems on which WAL is known to behave. An ALLOWLIST, not the
+#: complement of :data:`NETWORK_FILESYSTEMS`: "not a type I recognise as
+#: networked" is a weaker claim than "local", and the gap between them is
+#: someone's corrupted database on a cluster nobody here has seen. An
+#: unrecognised type stays on DELETE, which is what shipped.
+#:
+#: exFAT and vfat are deliberately absent: neither has the byte-range locking
+#: WAL's shared-memory index depends on.
+WAL_SAFE_FILESYSTEMS = {
+    "apfs", "btrfs", "ext2", "ext3", "ext4", "f2fs", "hfs", "hfsplus",
+    "jfs", "overlay", "reiserfs", "tmpfs", "xfs", "zfs",
 }
 
 
@@ -324,6 +340,89 @@ def filesystem_type(path: os.PathLike | str) -> Optional[str]:
     return None if best is None else str(best[1])
 
 
+def wal_is_safe_here(path: os.PathLike | str) -> bool:
+    """Is ``path`` on a filesystem where WAL is known to behave?
+
+    ``True`` only for a POSITIVELY IDENTIFIED local filesystem. Anything
+    else -- a network type, an unrecognised type, or a platform where
+    :func:`filesystem_type` cannot tell (it reads ``/proc/mounts``, so macOS
+    and Windows always answer ``None``) -- is ``False``.
+
+    That asymmetry is the point. The cost of a wrong ``False`` is the
+    lock contention this project already survives; the cost of a wrong
+    ``True`` is WAL shared memory on storage that cannot support it, which
+    is a corrupted database.
+    """
+    fs_type = filesystem_type(path)
+    if not fs_type:
+        return False
+    fs_type = fs_type.casefold()
+    if fs_type in NETWORK_FILESYSTEMS:
+        return False
+    return fs_type in WAL_SAFE_FILESYSTEMS
+
+
+def enable_wal_where_safe(path: os.PathLike | str) -> Optional[str]:
+    """Put ``path`` into WAL when the filesystem allows it. Never raises.
+
+    WHY THIS EXISTS (issue #15, "measurements sometimes hangs"). Measure
+    runs one worker per field and every append goes through pandas'
+    ``DataFrame.to_sql``, which issues a ``has_table`` probe -- a READ --
+    before writing. So each worker alternates read, write, read, write
+    against one file.
+
+    Under the shipped rollback journal that combination starves the writer.
+    A reader holds SHARED for the length of its statement, and a writer
+    cannot COMMIT until every SHARED lock is gone, so with enough workers
+    there is almost always someone reading and the committing worker waits
+    out its busy timeout and raises "database is locked" -- usually
+    surfacing on the next process's ``has_table``, which is the statement in
+    the reporter's traceback.
+
+    Measured on this exact shape, a commit attempted while one reader holds
+    an open SELECT:
+
+        journal_mode=delete    writer waited 1.037 s
+        journal_mode=wal       writer waited 0.002 s
+
+    WAL readers do not block a writer at all, which removes the starvation.
+    It does NOT make two WRITERS concurrent -- SQLite still serialises those
+    -- so this fixes the reader-blocks-writer half, which is the half the
+    traceback is in.
+
+    (The first version of this note had the direction backwards, claiming
+    reads were blocked by writes. The test written to prove it measured
+    0.000 s and refuted it: in rollback-journal mode a writer holding
+    RESERVED does not block readers, only its brief EXCLUSIVE commit does.)
+
+    Called once when a database is opened for a run rather than per write:
+    the mode is a property of the FILE and persists, so paying for it per
+    connection would buy nothing.
+
+    :param path: the database to switch. A file that does not exist yet is
+        created by the connection, which is fine -- the mode persists.
+    :returns: the journal mode in force afterwards, or ``None`` when the
+        database could not be opened at all.
+    """
+    if not wal_is_safe_here(path):
+        return None
+    try:
+        connection = connect(path, journal_mode="WAL")
+    except (sqlite3.Error, DatabaseConfigurationError, OSError):
+        # A refusal here is informative, not fatal: SQLite declines WAL on
+        # storage that cannot hold it, which is exactly the outcome the
+        # allowlist is guessing at. Staying on DELETE is the shipped
+        # behaviour, so the run continues as it always did.
+        return None
+    try:
+        return str(connection.execute(
+            "PRAGMA journal_mode").fetchone()[0]).upper()
+    except sqlite3.Error:
+        return None
+    finally:
+        connection.close()
+
+
 @dataclass(frozen=True)
 class DatabaseHealth:
     """Read-only SQLite configuration and integrity snapshot."""
@@ -440,6 +539,35 @@ def run_concurrency_probe(
     An explicit ``path`` must not exist: the probe never adds audit tables to
     scientific data. When omitted, a temporary database is created and
     removed after its metrics are collected.
+
+    :param path: scratch database to create. It must not already exist
+        (:exc:`FileExistsError`); missing parent directories are created, and
+        the file is left on disk afterwards along with any ``-wal`` and
+        ``-shm`` sidecars, so every explicit run needs a fresh path. Omit it
+        to probe a temporary database instead, which is deleted only after a
+        clean finish: a worker that outlives the 30-second join deadline, or
+        a rejected ``journal_mode``, leaves the temporary directory behind.
+    :param writers: concurrent writer threads. Each owns a connection opened
+        with a 50 ms busy timeout and commits one transaction per row, so
+        ``expected_rows`` is ``writers * writes_per_writer``.
+    :param readers: concurrent read-only threads polling ``COUNT(*)`` until
+        the last writer exits. They move only ``reader_queries``, never
+        ``expected_rows``; at least one is required, so a writers-only probe
+        cannot be expressed.
+    :param writes_per_writer: rows each writer inserts, one row per
+        transaction.
+    :param journal_mode: mode applied once by the setup connection and then
+        inherited by every worker connection. Only ``"WAL"`` (the default)
+        and ``"DELETE"`` are accepted, case-insensitively; anything else
+        raises :exc:`DatabaseConfigurationError` from :func:`connect` after
+        the scratch database has already been created. Passing ``None`` skips
+        the PRAGMA, leaving the new database in SQLite's default DELETE mode.
+    :returns: result whose ``journal_mode`` is read back from the finished
+        database rather than echoed from this argument, and whose ``errors``
+        carry per-thread failures instead of raising.
+    :raises ValueError: when ``writers``, ``readers``, or
+        ``writes_per_writer`` is below 1. All three are coerced with
+        :func:`int` first, so ``2.9`` silently becomes 2.
     """
     writers = int(writers)
     readers = int(readers)

@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import ast
 import inspect
+import re
 import textwrap
 from pathlib import Path
 
@@ -48,6 +49,8 @@ from tests.cellpose_api_contract import (
     init_arguments,
     installed_eval_parameters,
     installed_init_parameters,
+    DOCSTRING_PROMISES_FOUR_VALUES,
+    RECORDED_EVAL_PARAMETER_LISTS,
 )
 from tests.conftest import check_cellpose_eval_call
 
@@ -197,10 +200,17 @@ def test_cellpose_eval_returns_three_values():
         f"cellpose {INSTALLED_CELLPOSE_VERSION} CellposeModel.eval returns "
         f"{sorted(set(arities))} values, not {CELLPOSE_EVAL_RETURN_ARITY}"
     )
-    assert "(masks, flows, styles, diams)" in (_installed_eval().__doc__ or ""), (
-        "the stale four-value promise has been corrected upstream -- drop this "
-        "assertion and the warning it justifies in tests/cellpose_api_contract.py"
-    )
+    # The docstring's own claim, checked only where it is still wrong. 4.0
+    # promises `(masks, flows, styles, diams)` and returns three; 4.2
+    # corrected it. Recorded in the contract module rather than asserted
+    # unconditionally, so this keeps warning about the stale promise where it
+    # exists without failing on the release that fixed it.
+    if DOCSTRING_PROMISES_FOUR_VALUES:
+        assert "(masks, flows, styles, diams)" in (
+            _installed_eval().__doc__ or ""), (
+            "DOCSTRING_PROMISES_FOUR_VALUES says this release carries the "
+            "stale four-value promise, and it does not -- re-read the "
+            "recorded bands in tests/cellpose_api_contract.py")
 
 
 # ===========================================================================
@@ -262,13 +272,22 @@ def _eval_doubles():
 
 
 def _declares_full_signature(fn):
-    """``fn`` declares the installed eval parameter list and no ``**kwargs``."""
+    """``fn`` declares SOME recorded eval parameter list, and no ``**kwargs``.
+
+    Any recorded band, not only the installed one -- a double writes its
+    parameters out as a literal and cannot name two releases at once, so
+    requiring the installed list would make nineteen doubles pass or fail on
+    whichever cellpose the developer happens to have. The reasoning, and what
+    it deliberately gives up, is in
+    ``cellpose_api_contract.assert_declares_installed_eval_signature``.
+    """
     args = fn.args
     if args.kwarg is not None or args.vararg is not None:
         return False
     named = [a.arg for a in args.posonlyargs + args.args + args.kwonlyargs
              if a.arg != "self"]
-    return named[1:] == list(CELLPOSE_EVAL_PARAMETERS)
+    return any(named[1:] == list(params)
+               for params in RECORDED_EVAL_PARAMETER_LISTS)
 
 
 def test_the_double_sweep_finds_the_doubles_it_is_supposed_to():
@@ -522,5 +541,14 @@ def test_the_preview_panels_do_pass_the_arguments_cellpose_still_reads():
     for name in ("diameter", "flow_threshold", "cellprob_threshold"):
         assert name in CELLPOSE_EVAL_PARAMETERS
         assert name not in DEPRECATED_EVAL_ARGUMENTS
+    # `diameter` still drives a 30/diameter rescale, which is the substance.
+    # The VARIABLE holding it was renamed between the recorded releases --
+    # 4.0 called it `image_scaling`, 4.2 calls it `rescale` -- so matching one
+    # spelling failed on the other while the behaviour was identical. Both are
+    # accepted; losing the computation entirely still fails, which is the
+    # thing worth knowing.
     source = inspect.getsource(_installed_eval())
-    assert "image_scaling = 30. / diameter" in source
+    assert re.search(r"(image_scaling|rescale)\s*=\s*30\.\s*/\s*diameter",
+                     source), (
+        "cellpose no longer rescales by 30/diameter, so `diameter` may have "
+        "stopped being the one size argument it acts on")

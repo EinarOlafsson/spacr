@@ -11,11 +11,11 @@ OUT_DIR="dist/online"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/spacr-online-pkg.XXXXXX")"
 ROOT="$WORK/root"
 SCRIPTS="$WORK/scripts"
-APP="$ROOT/Applications/SpaCR.app"
-SUPPORT="$ROOT/Library/Application Support/SpaCR"
-OUT="$OUT_DIR/SpaCR-$VERSION-macOS-Universal-Online.pkg"
+APP="$ROOT/Applications/spaCR.app"
+SUPPORT="$ROOT/Library/Application Support/spaCR"
+OUT="$OUT_DIR/spaCR-$VERSION-macOS-Universal-Online.pkg"
 ICON_SOURCE="spacr/resources/icons/app_icon.png"
-ICONSET="$WORK/SpaCR.iconset"
+ICONSET="$WORK/spaCR.iconset"
 trap 'rm -rf "$WORK"' EXIT
 
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$SUPPORT" "$SCRIPTS" "$OUT_DIR"
@@ -32,17 +32,21 @@ for size in 16 32 128 256 512; do
     sips -z "$retina" "$retina" "$ICON_SOURCE" \
         --out "$ICONSET/icon_${size}x${size}@2x.png" >/dev/null
 done
-iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/SpaCR.icns"
+iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/spaCR.icns"
 
-sed "s/@SPACR_VERSION@/$VERSION/g" \
-    packaging/online/install_spacr_unix.sh > "$SUPPORT/install-online.sh"
+python3 packaging/i18n/render.py \
+    --embed-unix packaging/online/install_spacr_unix.sh \
+    --output "$SUPPORT/install-online.sh" \
+    --version "$VERSION"
 chmod 755 "$SUPPORT/install-online.sh"
+cp packaging/online/generated/installer_messages.sh \
+    "$SUPPORT/installer_messages.sh"
 
-cat > "$APP/Contents/MacOS/SpaCR" <<'EOF'
+cat > "$APP/Contents/MacOS/spaCR" <<'EOF'
 #!/bin/sh
-RUNTIME_ROOT="$HOME/Library/Application Support/SpaCR"
+RUNTIME_ROOT="$HOME/Library/Application Support/spaCR"
 PYTHON="$RUNTIME_ROOT/venv/bin/python"
-FIRST_RUN="/Library/Application Support/SpaCR/install-for-user.sh"
+FIRST_RUN="/Library/Application Support/spaCR/install-for-user.sh"
 
 if [ ! -x "$PYTHON" ]; then
     osascript - "$FIRST_RUN" <<'APPLESCRIPT'
@@ -59,7 +63,7 @@ fi
 
 exec "$PYTHON" -m spacr.qt "$@"
 EOF
-chmod 755 "$APP/Contents/MacOS/SpaCR"
+chmod 755 "$APP/Contents/MacOS/spaCR"
 
 cat > "$APP/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -67,8 +71,8 @@ cat > "$APP/Contents/Info.plist" <<EOF
 <plist version="1.0">
 <dict>
   <key>CFBundleDisplayName</key><string>spaCR</string>
-  <key>CFBundleExecutable</key><string>SpaCR</string>
-  <key>CFBundleIconFile</key><string>SpaCR.icns</string>
+  <key>CFBundleExecutable</key><string>spaCR</string>
+  <key>CFBundleIconFile</key><string>spaCR.icns</string>
   <key>CFBundleIdentifier</key><string>com.einarolafsson.spacr</string>
   <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
   <key>CFBundleName</key><string>spaCR</string>
@@ -84,10 +88,11 @@ EOF
 cat > "$SUPPORT/uninstall-spacr.sh" <<'EOF'
 #!/bin/sh
 set -eu
+. "/Library/Application Support/spaCR/installer_messages.sh"
 rm -f /usr/local/bin/spacr
-rm -rf "/Applications/SpaCR.app"
-rm -rf "/Library/Application Support/SpaCR"
-echo "spaCR was removed. User-created data and preferences were left in place."
+rm -rf "/Applications/spaCR.app"
+rm -rf "/Library/Application Support/spaCR"
+spacr_say removed
 EOF
 chmod 755 "$SUPPORT/uninstall-spacr.sh"
 
@@ -95,13 +100,15 @@ cat > "$SUPPORT/install-for-user.sh" <<'EOF'
 #!/bin/sh
 set -eu
 
-RUNTIME_ROOT="${SPACR_USER_INSTALL_ROOT:-$HOME/Library/Application Support/SpaCR}"
-INSTALLER="/Library/Application Support/SpaCR/install-online.sh"
+. "/Library/Application Support/spaCR/installer_messages.sh"
+
+RUNTIME_ROOT="${SPACR_USER_INSTALL_ROOT:-$HOME/Library/Application Support/spaCR}"
+INSTALLER="/Library/Application Support/spaCR/install-online.sh"
 LOCK_DIR="$RUNTIME_ROOT/.installing"
 
 mkdir -p "$RUNTIME_ROOT"
 if ! mkdir "$LOCK_DIR" 2>/dev/null; then
-    echo "A spaCR installation is already running for this user."
+    spacr_say already_running
     exit 0
 fi
 cleanup() {
@@ -116,9 +123,9 @@ trap cleanup EXIT INT TERM
   --no-launch
 
 echo
-echo "spaCR is ready. Opening the application..."
+spacr_say ready_opening
 if [ "${SPACR_NO_RELAUNCH:-0}" != "1" ]; then
-    open -a "/Applications/SpaCR.app"
+    open -a "/Applications/spaCR.app"
 fi
 EOF
 chmod 755 "$SUPPORT/install-for-user.sh"
@@ -127,7 +134,7 @@ cat > "$SCRIPTS/postinstall" <<EOF
 #!/bin/sh
 set -eu
 mkdir -p /usr/local/bin
-ln -sfn "/Applications/SpaCR.app/Contents/MacOS/SpaCR" /usr/local/bin/spacr
+ln -sfn "/Applications/spaCR.app/Contents/MacOS/spaCR" /usr/local/bin/spacr
 exit 0
 EOF
 chmod 755 "$SCRIPTS/postinstall"
@@ -142,7 +149,7 @@ pkgbuild \
     "$OUT"
 
 if [[ -n "${PRODUCTSIGN_IDENTITY:-}" ]]; then
-    SIGNED="$OUT_DIR/SpaCR-$VERSION-macOS-Universal-Online-signed.pkg"
+    SIGNED="$OUT_DIR/spaCR-$VERSION-macOS-Universal-Online-signed.pkg"
     productsign --sign "$PRODUCTSIGN_IDENTITY" "$OUT" "$SIGNED"
     mv "$SIGNED" "$OUT"
 fi

@@ -765,7 +765,11 @@ def _connect(db_path: str) -> sqlite3.Connection:
     path = os.path.abspath(os.path.expanduser(str(db_path).strip()))
     if not os.path.isfile(path):
         raise FileNotFoundError(f"No such database: {path}")
-    con = sqlite3.connect(_read_only_uri(path), uri=True)
+    # Shared helper: 30s busy timeout, not sqlite's 5s default,
+    # which Measure's concurrent writers routinely exceed (#15).
+    from .database_concurrency import connect as _connect_database
+
+    con = _connect_database(path, readonly=True)
     con.execute("PRAGMA query_only = ON")
     return con
 
@@ -1367,7 +1371,11 @@ def annotation_coverage(db_path: str, annotation_column: str = "annotate",
     :param table: crop table (default ``png_list``).
     :param key: row key (default ``png_path``).
     :param image_type: substring filter on the key, matching the Annotate
-        screen's own filter.
+        screen's own filter. **Every count below it, ``n_rows`` included, is
+        over the crops that matched** — a denominator taken from the whole
+        table would put the numerator and the denominator on two different
+        populations. ``n_rows_unfiltered`` keeps the total, and a note says
+        how many were excluded.
     :returns: one row per ``(plateID, rowID, columnID, class)`` that has at
         least one annotation, with ``n`` and ``share`` — plus the whole
         breakdown in ``attrs['spacr_annotation_coverage']``:
@@ -1403,10 +1411,21 @@ def annotation_coverage(db_path: str, annotation_column: str = "annotate",
         con.close()
 
     frame = pd.DataFrame(rows, columns=select)
-    n_rows = len(frame)
+    # The denominator has to describe the SAME population as the numerator.
+    # Counting the rows before the filter printed "12 of 20 crops annotated"
+    # for a filtered population of 12 in which nothing was left to annotate.
+    # build_queue already gets this right; this says it the same way.
+    n_unfiltered = len(frame)
     if image_type:
-        frame = frame[frame[key].astype(str).str.contains(
-            str(image_type), regex=False)]
+        keep = frame[key].astype(str).str.contains(str(image_type), regex=False)
+        n_filtered = int((~keep).sum())
+        frame = frame[keep]
+        if n_filtered:
+            notes.append(
+                f"image_type={image_type!r} excluded {n_filtered} of "
+                f"{n_unfiltered} crops before counting; every number below "
+                f"describes the {len(frame)} that matched.")
+    n_rows = len(frame)
 
     well_cols = [c for c in ("plateID", "rowID", "columnID") if c in frame.columns]
     frame = frame.assign(_well=_well_key(frame, well_cols))
@@ -1445,7 +1464,9 @@ def annotation_coverage(db_path: str, annotation_column: str = "annotate",
         out.attrs["spacr_annotation_coverage"] = {
             "db_path": str(db_path), "table": table,
             "annotation_column": annotation_column,
-            "n_rows": n_rows, "n_annotated": 0, "n_classes": 0,
+            "image_type": image_type,
+            "n_rows": n_rows, "n_rows_unfiltered": int(n_unfiltered),
+            "n_annotated": 0, "n_classes": 0,
             "wells_total": wells_total, "wells_annotated": 0,
             "plates_total": int(frame["_plate"].nunique()) if len(frame) else 0,
             "plates_annotated": 0,
@@ -1515,7 +1536,9 @@ def annotation_coverage(db_path: str, annotation_column: str = "annotate",
     out.attrs["spacr_annotation_coverage"] = {
         "db_path": str(db_path), "table": table,
         "annotation_column": annotation_column,
-        "n_rows": n_rows, "n_annotated": int(n_annotated),
+        "image_type": image_type,
+        "n_rows": n_rows, "n_rows_unfiltered": int(n_unfiltered),
+        "n_annotated": int(n_annotated),
         "n_classes": len(by_class),
         "wells_total": wells_total,
         "wells_annotated": int(labelled["_well"].nunique()),
@@ -1599,6 +1622,14 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
     what its rows are falls back to the untyped one rather than resolving
     nothing.
 
+    **A key whose metadata needed escaping still resolves.**
+    :func:`spacr.selection.object_keys` percent-escapes a component carrying
+    the separator, so a ``fieldID`` of ``'f_1'`` arrives as ``'f%5F1'``. The
+    lookup carries both that spelling and the raw one, because a bare join
+    over the crop table's own columns produces the raw one and the two used
+    to miss each other — silently, so a routed selection opened fewer crops
+    than the user picked and said nothing about the ones it dropped.
+
     :param db_path: path to ``measurements.db``.
     :param keys: object keys, typed or not. A ``png_path``, a ``prcfo`` or a
         ``file_name`` is also accepted, so a caller working from a crop table
@@ -1637,7 +1668,8 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
     finally:
         con.close()
 
-    from .selection import untyped_object_key
+    from .selection import (KEY_ESCAPED_CHARACTERS, escape_key_component,
+                            untyped_object_key)
 
     index = {c: i for i, c in enumerate(select)}
     id_columns = [c for c in PNG_ID_COLUMN_TYPES if c in index]
@@ -1646,6 +1678,26 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
         meta_columns.append("timeID")
 
     by_key: Dict[str, Tuple[str, Optional[int]]] = {}
+    # Keys in the spelling `selection.object_keys` actually emits, kept apart
+    # from the raw ones and consulted FIRST. Both are needed — a key composed
+    # before the escape existed is raw, a routed selection's is escaped — but
+    # they can collide across rows, since one field literally named 'f%5F1'
+    # spells its raw key the way a field named 'f_1' spells its escaped one.
+    # The escaped spelling is the authoritative one, so it wins; a single
+    # extra dict does that without a second pass over the crop table.
+    by_escaped_key: Dict[str, Tuple[str, Optional[int]]] = {}
+
+    def _register(target: Dict[str, Tuple[str, Optional[int]]],
+                  composed: List[str], label: str, object_type: Optional[str],
+                  entry: Tuple[str, Optional[int]]) -> None:
+        # Both spellings, so a caller working from either side resolves. The
+        # untyped one is first-wins on purpose: it is an under-specified
+        # name, and it named one of these crops before the type existed.
+        target.setdefault("_".join(composed + [label]), entry)
+        if object_type is not None:
+            target.setdefault(
+                "_".join(composed + [f"{object_type}{label}"]), entry)
+
     for row in rows:
         path = str(row[index[key]])
         if image_type and str(image_type) not in path:
@@ -1681,14 +1733,18 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
             label = _object_label(prcfo.rsplit("_", 1)[-1])
         if label and all(c in index for c in meta_columns):
             parts = [str(row[index[c]]) for c in meta_columns]
-            # Both spellings, so a caller working from either side resolves.
-            # The untyped one is first-wins on purpose: it is an
-            # under-specified name, and it named one of these crops before
-            # the type existed.
-            by_key.setdefault("_".join(parts + [label]), entry)
-            if object_type is not None:
-                by_key.setdefault(
-                    "_".join(parts + [f"{object_type}{label}"]), entry)
+            _register(by_key, parts, label, object_type, entry)
+            # `selection._compose` percent-escapes a component that would
+            # otherwise smuggle the separator into the key, so a fieldID of
+            # 'f_1' reaches us as 'f%5F1' and a raw join misses it entirely.
+            # The guard keeps the common path — every plate whose ids are the
+            # ordinary ones — at one scan per component and no second key at
+            # all: `png_list` has a row per crop, so this runs millions of
+            # times on a real screen.
+            if any(c in p for p in parts for c in KEY_ESCAPED_CHARACTERS):
+                _register(by_escaped_key,
+                          [escape_key_component(p) for p in parts],
+                          label, object_type, entry)
         file_name = (str(row[index["file_name"]])
                      if "file_name" in index and
                      row[index["file_name"]] is not None else "")
@@ -1696,17 +1752,22 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
             if candidate:
                 by_key.setdefault(candidate, entry)
 
+    def _resolve(name: str) -> Optional[Tuple[str, Optional[int]]]:
+        """The escaped spelling first — it is the one a producer emits today."""
+        found = by_escaped_key.get(name)
+        return by_key.get(name) if found is None else found
+
     out: List[Tuple[str, Optional[int]]] = []
     seen = set()
     for wanted_key in wanted:
-        entry = by_key.get(wanted_key)
+        entry = _resolve(wanted_key)
         if entry is None:
             # A typed key against a crop table that cannot say what its rows
             # are. Dropping the type is the honest fallback: the row has not
             # contradicted the key, it has said nothing.
             reduced = untyped_object_key(wanted_key)
             if reduced != wanted_key:
-                entry = by_key.get(reduced)
+                entry = _resolve(reduced)
         if entry is None or entry[0] in seen:
             continue
         seen.add(entry[0])
@@ -2285,12 +2346,29 @@ def holdout_report(y_true: Any, probs: Any,
     ``accuracy = trace / total``, ``per_class[c] = M[c, c] / M[c, :].sum()``
     — so a reader can recompute the card rather than trust it.
 
-    :param y_true: integer class ids, shape ``(N,)``.
+    **``n`` is the number of rows the matrix actually contains**, and the
+    supports sum to it. A row whose true class the head has no column for is
+    counted as an error rather than dropped: the matrix simply grows to hold
+    it, and the missing column stays empty because the head can never predict
+    that class. Reporting ``n`` over one population and ``accuracy`` over
+    another is the one thing a model card must not do — a three-class
+    held-out set scored by a binary head used to report a perfect score on a
+    set the model got two of three right, and the ``accuracy == trace /
+    total`` invariant still checked out because the row was missing from
+    both sides of it.
+
+    :param y_true: integer class ids, shape ``(N,)``. Negative ids are not
+        classes; they are excluded, counted in ``n_unscored`` and explained
+        in ``notes`` rather than silently folded into the total.
     :param probs: ``(N,)`` positive-class probabilities, or ``(N, C)`` rows.
     :param classes: class names in head order.
-    :returns: ``n``, ``num_classes``, ``classes``, ``accuracy``,
-        ``f1_macro``, ``per_class_accuracy``, ``class_support``,
-        ``predicted_support``, ``confusion_matrix``.
+    :returns: ``n``, ``n_unscored``, ``num_classes``, ``head_classes``,
+        ``classes``, ``accuracy``, ``f1_macro``, ``per_class_accuracy``,
+        ``class_support``, ``predicted_support``, ``confusion_matrix``,
+        ``notes``.
+    :raises ValueError: when there are not as many score rows as labels —
+        the two are not aligned, and every figure below would be a
+        comparison of one object's label with another's prediction.
     """
     y_true = np.asarray(y_true, dtype=int).reshape(-1)
     matrix_in = np.asarray(probs, dtype=float)
@@ -2299,15 +2377,41 @@ def holdout_report(y_true: Any, probs: Any,
     elif matrix_in.ndim == 2 and matrix_in.shape[1] == 1:
         col = matrix_in[:, 0]
         matrix_in = np.column_stack([1.0 - col, col])
-    n_classes = int(matrix_in.shape[1]) if matrix_in.size else \
+    head_classes = int(matrix_in.shape[1]) if matrix_in.size else \
         int(max(2, (y_true.max() + 1) if y_true.size else 2))
     preds = (matrix_in.argmax(axis=1).astype(int) if matrix_in.size
              else np.zeros(0, dtype=int))
+    if len(preds) != len(y_true):
+        raise ValueError(
+            f"{len(y_true)} held-out labels but {len(preds)} rows of scores; "
+            f"they name different objects, so no confusion matrix built from "
+            f"them would mean anything.")
+
+    notes: List[str] = []
+    scorable = y_true >= 0
+    n_unscored = int((~scorable).sum())
+    if n_unscored:
+        notes.append(
+            f"{n_unscored} of {len(y_true)} held-out rows carry a negative "
+            f"class id, which is not a class: they are excluded from every "
+            f"number here, including n.")
+    # The matrix covers every class the TRUTH names, not only the ones the
+    # head can emit. A class outside the head's columns can never be
+    # predicted, so its row is all-error — which is the honest score, and the
+    # reason its column stays empty.
+    truth_classes = (int(y_true[scorable].max()) + 1) if scorable.any() else 0
+    n_classes = int(max(head_classes, truth_classes))
+    if truth_classes > head_classes:
+        notes.append(
+            f"The held-out labels name {truth_classes} classes but the "
+            f"probability matrix has {head_classes} columns, so classes "
+            f"{head_classes}..{truth_classes - 1} can never be predicted and "
+            f"every object in them counts as an error. Score this set with "
+            f"the head it was labelled for.")
 
     matrix = np.zeros((n_classes, n_classes), dtype=np.int64)
     if y_true.size:
-        inside = (y_true >= 0) & (y_true < n_classes)
-        np.add.at(matrix, (y_true[inside], preds[inside]), 1)
+        np.add.at(matrix, (y_true[scorable], preds[scorable]), 1)
     row_sums = matrix.sum(axis=1)
     per_class = np.where(row_sums > 0,
                          np.diag(matrix) / np.maximum(row_sums, 1), 0.0)
@@ -2331,8 +2435,12 @@ def holdout_report(y_true: Any, probs: Any,
              and len(classes) == n_classes
              else [f"class_{i}" for i in range(n_classes)])
     return {
-        "n": int(len(y_true)),
+        # The matrix total, not len(y_true): every figure below is a function
+        # of the matrix, so n has to describe the same rows they do.
+        "n": total,
+        "n_unscored": n_unscored,
         "num_classes": n_classes,
+        "head_classes": int(head_classes),
         "classes": names,
         "accuracy": (float(np.trace(matrix)) / total) if total else float("nan"),
         "f1_macro": f1_macro,
@@ -2340,79 +2448,15 @@ def holdout_report(y_true: Any, probs: Any,
         "class_support": [int(v) for v in row_sums],
         "predicted_support": [int(v) for v in col_sums],
         "confusion_matrix": [[int(v) for v in row] for row in matrix],
+        "notes": notes,
     }
 
 
-#: What ``group_by`` accepts, and the columns each strategy groups over.
-_SPLIT_GROUPS: Dict[str, Tuple[str, ...]] = {
-    "well": ("plateID", "rowID", "columnID"),
-    "plate": ("plateID",),
-    "field": ("plateID", "rowID", "columnID", "fieldID"),
-    "none": (),
-}
-
-
-def _grouped_split(groups: np.ndarray, labels: np.ndarray, holdout: float,
-                   seed: int, notes: List[str]) -> Tuple[np.ndarray, np.ndarray, str]:
-    """Draw a held-out set that does not share a well with the training set.
-
-    The default random split is the reason active-learning accuracy numbers
-    are usually too good: with 190 of 200 labels from one well, a random 20 %
-    holds out objects whose near neighbours are in the training set, and the
-    model is scored on memorising a field of view.
-
-    :returns: ``(train_index, test_index, rule)`` — ``rule`` is the sentence
-        that goes into the model card.
-    """
-    from sklearn.model_selection import (GroupShuffleSplit,
-                                         StratifiedGroupKFold,
-                                         train_test_split)
-
-    n = len(labels)
-    distinct = np.unique(groups) if len(groups) else np.zeros(0)
-    frac = min(max(float(holdout), 0.05), 0.5)
-
-    if len(distinct) < 2:
-        where = distinct[0] if len(distinct) else "(unknown)"
-        notes.append(
-            f"Every label comes from one group ({where}), so a grouped "
-            f"held-out split is impossible. Falling back to a stratified "
-            f"random split of objects, whose accuracy will be optimistic — "
-            f"it measures how well the model memorised this one well, not "
-            f"whether it transfers.")
-        train_idx, test_idx = train_test_split(
-            np.arange(n), test_size=frac, random_state=seed,
-            stratify=labels if len(np.unique(labels)) > 1 else None)
-        return (np.sort(train_idx), np.sort(test_idx),
-                f"stratified random {frac:.0%} of objects — NOT grouped, "
-                f"because all labels came from {where}")
-
-    n_splits = int(max(2, min(round(1.0 / frac), len(distinct))))
-    try:
-        splitter = StratifiedGroupKFold(n_splits=n_splits, shuffle=True,
-                                        random_state=seed)
-        for train_idx, test_idx in splitter.split(np.zeros((n, 1)), labels,
-                                                  groups):
-            if len(np.unique(labels[test_idx])) >= 2:
-                return (np.sort(train_idx), np.sort(test_idx),
-                        f"StratifiedGroupKFold({n_splits}) over "
-                        f"{len(distinct)} groups — no group appears on both "
-                        f"sides")
-        notes.append(
-            "No stratified grouped fold contained more than one class in the "
-            "held-out half; falling back to GroupShuffleSplit, so the "
-            "held-out class balance is whatever the groups happened to give.")
-    except ValueError as exc:
-        notes.append(f"StratifiedGroupKFold could not split these labels "
-                     f"({exc}); falling back to GroupShuffleSplit.")
-
-    splitter = GroupShuffleSplit(n_splits=1, test_size=frac,
-                                 random_state=seed)
-    train_idx, test_idx = next(iter(splitter.split(np.zeros((n, 1)), labels,
-                                                   groups)))
-    return (np.sort(train_idx), np.sort(test_idx),
-            f"GroupShuffleSplit({frac:.0%}) over {len(distinct)} groups — no "
-            f"group appears on both sides")
+from .classifier_evaluation import (
+    SPLIT_LEVELS,
+    grouped_split as _shared_grouped_split,
+    split_group_values as _shared_split_group_values,
+)
 
 
 def round_features(db_path: str, table: str = PNG_TABLE,
@@ -2589,7 +2633,12 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
         that behaves at 20 labels), ``'random_forest'`` or
         ``'gradient_boosting'``.
     :param group_by: ``'well'`` (default), ``'plate'``, ``'field'`` or
-        ``'none'``. What the held-out split refuses to share.
+        ``'none'``. What the held-out split refuses to share. Matched
+        exactly and in lower case; anything else raises, the way an unknown
+        ``diversity=`` does in :func:`build_queue`. When the strategy is
+        ``'none'``, or the crop table has none of the columns it needs, the
+        split is a stratified random one and ``split_rule`` says ``NOT
+        grouped`` — it never claims a grouping it did not perform.
     :param holdout: fraction held out.
     :param seed: makes the split and the fit reproducible.
     :param min_labels: refuse to fit below this many labels.
@@ -2607,9 +2656,10 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
     :param measure: recorded with the round, for the queue that follows.
     :param diversity: likewise.
     :returns: a :class:`RoundResult`.
-    :raises ValueError: below ``min_labels`` labels, or with fewer than two
+    :raises ValueError: below ``min_labels`` labels, with fewer than two
         classes annotated — neither is something to paper over with a model
-        that will produce a confident-looking ranking out of nothing.
+        that will produce a confident-looking ranking out of nothing — or
+        for an unrecognised ``group_by``.
     """
     notes: List[str] = []
 
@@ -2676,19 +2726,13 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
     x = np.nan_to_num(train_matrix.to_numpy(dtype=float), nan=0.0,
                       posinf=0.0, neginf=0.0)
 
-    group_cols = [c for c in _SPLIT_GROUPS.get(str(group_by), ())
-                  if c in crops.columns]
-    if str(group_by) != "none" and not group_cols:
-        notes.append(
-            f"{table} carries none of the columns needed to group by "
-            f"{group_by!r}, so the held-out split is a plain random one and "
-            f"its accuracy is optimistic.")
-    groups = (crops.loc[labelled_mask, group_cols].astype(str)
-              .apply("/".join, axis=1).to_numpy()
-              if group_cols else np.arange(n_labels).astype(str))
-
-    train_idx, test_idx, split_rule = _grouped_split(
-        groups, y, holdout, int(seed), notes)
+    labelled_crops = crops.loc[labelled_mask]
+    group_name, groups = _shared_split_group_values(
+        group_by=group_by, frame=labelled_crops, table=table)
+    train_idx, test_idx, split_provenance = _shared_grouped_split(
+        groups, y, holdout, int(seed), group_by=group_name)
+    split_rule = split_provenance.summary()
+    notes.append(split_rule)
 
     model = _build_round_model(model_type, int(seed), len(class_values))
     model.fit(x[train_idx], y[train_idx])
@@ -2734,7 +2778,8 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
             card_path = _write_round_card(
                 model_path, report, split_rule, round_index,
                 annotation_column, db_path, class_values, matrix.columns,
-                model_type, n_labels, n_new, notes)
+                model_type, n_labels, n_new, notes,
+                table=table, key=key, image_type=image_type)
 
     per_class = {str(name): float(acc) for name, acc in
                  zip(report["classes"], report["per_class_accuracy"])}
@@ -2846,11 +2891,20 @@ def _write_round_card(model_path: str, report: Dict[str, Any],
                       annotation_column: str, db_path: str,
                       class_values: Sequence[Any], feature_columns: Any,
                       model_type: str, n_labels: int, n_new: int,
-                      notes: List[str]) -> str:
-    """Write the model card for one round's model. Never fatal."""
+                      notes: List[str], table: str = PNG_TABLE,
+                      key: str = PNG_KEY,
+                      image_type: Optional[str] = None) -> str:
+    """Write the model card for one round's model. Never fatal.
+
+    The coverage block is read back with the round's own ``table``, ``key``
+    and ``image_type``, so the card describes the crops the round was fitted
+    on rather than everything the database happens to hold.
+    """
     try:
         from .deep_spacr import model_card
-        coverage = annotation_coverage(db_path, annotation_column)
+        coverage = annotation_coverage(db_path, annotation_column,
+                                       table=table, key=key,
+                                       image_type=image_type)
         coverage_meta = dict(
             coverage.attrs.get("spacr_annotation_coverage", {}))
         card, card_path, _artifact = model_card(

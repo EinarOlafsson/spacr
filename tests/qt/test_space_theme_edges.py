@@ -310,16 +310,16 @@ class TestUrlOpener:
 # ---------------------------------------------------------------------------
 
 class TestIconEdges:
-    def test_missing_qtawesome_degrades_to_an_empty_icon(self, monkeypatch,
-                                                         qapp):
+    def test_missing_qtawesome_uses_a_visible_fallback(self, monkeypatch,
+                                                       qapp):
         from spacr.qt import iconset
         monkeypatch.setattr(iconset, "_try_qta", lambda: None)
-        assert iconset.icon("run").isNull()
-        assert iconset.accent_icon("run").isNull()
-        assert iconset.contrast_icon("run").isNull()
+        assert not iconset.icon("run").isNull()
+        assert not iconset.accent_icon("run").isNull()
+        assert not iconset.contrast_icon("run").isNull()
 
-    def test_a_broken_qtawesome_degrades_to_an_empty_icon(self, monkeypatch,
-                                                          qapp):
+    def test_a_broken_qtawesome_uses_a_visible_fallback(self, monkeypatch,
+                                                        qapp):
         from spacr.qt import iconset
 
         class Broken:
@@ -327,7 +327,21 @@ class TestIconEdges:
                 raise RuntimeError("font not found")
 
         monkeypatch.setattr(iconset, "_try_qta", lambda: Broken())
-        assert iconset.icon("run").isNull()
+        assert not iconset.icon("run").isNull()
+
+    def test_a_null_qtawesome_result_uses_a_visible_fallback(self,
+                                                             monkeypatch,
+                                                             qapp):
+        """qtawesome reports some missing-font failures as a null icon."""
+        from PySide6.QtGui import QIcon
+        from spacr.qt import iconset
+
+        class Empty:
+            def icon(self, *args, **kwargs):
+                return QIcon()
+
+        monkeypatch.setattr(iconset, "_try_qta", lambda: Empty())
+        assert not iconset.icon("run").isNull()
 
     def test_try_qta_returns_none_when_the_import_fails(self, monkeypatch):
         import builtins

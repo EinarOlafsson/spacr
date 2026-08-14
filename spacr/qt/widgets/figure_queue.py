@@ -363,6 +363,8 @@ class FigureQueue(QWidget):
         #: :meth:`_request_pdf_refinement`.
         self._pdf_state: Dict[int, Any] = {}
         self._pdf_seq = 0
+        #: Set by the owning screen; see :meth:`set_propagate_callback`.
+        self._propagate_cb = None
         self._build_ui()
 
     # -- construction ------------------------------------------------------
@@ -492,24 +494,57 @@ class FigureQueue(QWidget):
         self._pdf_state.pop(idx, None)
         self._view.set_pixmap(self._display_pixmap(idx, pixmap))
 
+    def set_propagate_callback(self, callback) -> None:
+        """Register ``callback(dict)`` for the settings window's Propagate.
+
+        The same seam the Mask live preview and the UMAP explorer use
+        (``SettingsWidgets.set_value_for_key`` behind an owner method), so a
+        value tuned against a finished figure lands in the settings panel and
+        is saved with the run instead of living in a dialog that is about to
+        close. Optional: a queue built in a test has none, and the button
+        says so rather than doing nothing.
+        """
+        self._propagate_cb = callback
+
+    def refresh_current_figure(self) -> bool:
+        """Re-rasterise the figure on screen after something restyled it.
+
+        Writes through :meth:`_render_figure`, so the PNG (at the preference
+        DPI) and its sibling vector page are both rewritten — the format the
+        user asked for is the format the view and the export agree on.
+
+        :returns: True when the view was updated.
+        """
+        fig = self._figures.get(self._current)
+        png = self._png_paths.get(self._current)
+        if fig is None or not png:
+            return False
+        pixmap = self._render_figure(fig, Path(png))
+        if pixmap is None:
+            return False
+        self._cache_pixmap(self._current, pixmap)
+        # The sibling .pdf was rewritten too, so any crisp render already
+        # cached for this slot is of the OLD styling.
+        self._pdf_state.pop(self._current, None)
+        shown = self._display_pixmap(self._current, pixmap)
+        self._view.set_pixmap(shown)
+        item = self._list.item(self._current)
+        if item is not None and not shown.isNull():
+            item.setIcon(QIcon(shown.scaled(
+                140, 90, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+        return True
+
     def _open_figure_settings(self) -> None:
         """Open the figure-settings dialog for the current figure."""
         fig = self._figures.get(self._current)
         if fig is None:
             return
-        dlg = _FigureSettingsDialog(fig, self)
+        dlg = _FigureSettingsDialog(
+            fig, self,
+            propagate_callback=getattr(self, "_propagate_cb", None),
+            render_callback=self.refresh_current_figure)
         if dlg.exec():
-            # Re-render the restyled figure in place.
-            png = self._png_paths.get(self._current)
-            if png:
-                pm = self._render_figure(fig, Path(png))
-                if pm is not None:
-                    self._cache_pixmap(self._current, pm)
-                    # The sibling .pdf was rewritten too, so any crisp render
-                    # already cached for this slot is of the OLD styling.
-                    self._pdf_state.pop(self._current, None)
-                    self._view.set_pixmap(
-                        self._display_pixmap(self._current, pm))
+            self.refresh_current_figure()
 
     # -- temp dir ----------------------------------------------------------
 
@@ -917,15 +952,36 @@ class FigureQueue(QWidget):
 
 class _FigureSettingsDialog(QDialog):
     """Adjust a figure's background colour, text colour and text size, then
-    re-render. Only offered for vector (PDF) figures."""
+    re-render. Only offered for vector (PDF) figures.
 
-    def __init__(self, fig, parent=None):
+    An Image UMAP figure gets a second half: every Image UMAP setting, live
+    against the figure on screen (instruction 75). The section only appears
+    for a figure that carries ``_spacr_umap_payload`` — the embedding it was
+    drawn from — because without the embedding "live" would mean re-running
+    the reduction, and every point would move.
+
+    NO API DOTS. The three teal dots this dialog used to draw are gone; the
+    same help, with the same ``href``, is on the labels' hover tooltips, and
+    a form whose every row carries a dot reads as a column of dots rather
+    than a column of settings. Same change, same reason, as the Mask live
+    preview, the Annotate settings and the UMAP search dialog before it.
+    """
+
+    def __init__(self, fig, parent=None, propagate_callback=None,
+                 render_callback=None):
         super().__init__(parent)
         self._fig = fig
+        self._propagate_cb = propagate_callback
+        self._render_cb = render_callback
         self.setWindowTitle("Figure settings")
         from PySide6.QtWidgets import (
-            QFormLayout, QDialogButtonBox, QSpinBox, QPushButton as _QPB)
-        form = QFormLayout(self)
+            QFormLayout, QDialogButtonBox, QSpinBox, QPushButton as _QPB,
+            QVBoxLayout as _QVBox, QWidget as _QWidget)
+        outer = _QVBox(self)
+        holder = _QWidget(self)
+        form = QFormLayout(holder)
+        form.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(holder)
 
         try:
             from ..preferences import get_figure_colors, get_figure_text_size
@@ -948,16 +1004,107 @@ class _FigureSettingsDialog(QDialog):
         self._size.setValue(int(_init_size))
         form.addRow("Text size", self._size)
 
+        self._umap_settings = None
+        self._umap_payload = getattr(fig, "_spacr_umap_payload", None)
+        if isinstance(self._umap_payload, dict):
+            self._build_umap_section(outer)
+
         bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self._propagate_btn = _QPB("Propagate settings")
+        self._propagate_btn.setToolTip(
+            "Write these values into the module's settings panel, so the "
+            "next run starts from them and they are saved with it.")
+        self._propagate_btn.clicked.connect(self._propagate)
+        self._propagate_btn.setEnabled(callable(propagate_callback))
+        if not callable(propagate_callback):
+            self._propagate_btn.setToolTip(
+                "Available on a module screen, which is what owns the "
+                "settings panel these values would be written into.")
+        bb.addButton(self._propagate_btn, QDialogButtonBox.ActionRole)
         bb.accepted.connect(self._apply_and_accept)
         bb.rejected.connect(self.reject)
-        form.addRow(bb)
+        outer.addWidget(bb)
         from ..screens.settings_model import install_api_tooltips
         install_api_tooltips(self, "figure", {
             self._bg_btn: "figure_background",
             self._fg_btn: "figure_text_color",
             self._size: "figure_text_size",
+        }, api_dots=False)
+        if self._umap_settings is not None:
+            # Scoped to the section rather than to the dialog: a second sweep
+            # over the whole dialog would re-decorate the three figure
+            # controls under the "umap" app key, and their documentation
+            # lives under "figure".
+            install_api_tooltips(self._umap_settings, "umap", api_dots=False)
+
+    # -- the Image UMAP half -----------------------------------------------
+
+    def _build_umap_section(self, outer) -> None:
+        """Add every Image UMAP setting, live against this figure."""
+        from PySide6.QtWidgets import QScrollArea
+        from .umap_figure_settings import UmapFigureSettings
+
+        values = dict(self._umap_payload.get("settings") or {})
+        self._umap_settings = UmapFigureSettings(values, self)
+        self._umap_settings.settings_changed.connect(self._on_umap_changed)
+        area = QScrollArea(self)
+        area.setWidgetResizable(True)
+        area.setWidget(self._umap_settings)
+        area.setMinimumHeight(320)
+        outer.addWidget(area, 1)
+        self._umap_applied = dict(self._umap_settings.values())
+
+    def _on_umap_changed(self, values: dict) -> None:
+        """Push a changed Image UMAP setting at the figure, now.
+
+        The embedding is read, never recomputed — see
+        :func:`spacr.qt.widgets.umap_figure_settings.redraw_umap_figure`.
+        """
+        from .umap_figure_settings import apply_to_figure
+
+        mode = apply_to_figure(self._fig, self._umap_payload, values,
+                               getattr(self, "_umap_applied", {}))
+        self._umap_applied = dict(values)
+        if mode and callable(self._render_cb):
+            try:
+                self._render_cb()
+            except Exception:
+                LOG.debug("could not re-render the figure", exc_info=True)
+
+    def umap_values(self) -> dict:
+        """Every Image UMAP setting the window holds, or ``{}``."""
+        if self._umap_settings is None:
+            return {}
+        return self._umap_settings.values()
+
+    def _propagate(self) -> None:
+        """Send the current values into the module's settings panel."""
+        if not callable(self._propagate_cb):
+            return
+        values = dict(self.umap_values())
+        values.update({
+            "figure_background": self._bg,
+            "figure_text_color": self._fg,
+            "figure_text_size": int(self._size.value()),
         })
+        try:
+            self._propagate_cb(values)
+        except Exception:
+            LOG.debug("could not propagate the figure settings", exc_info=True)
+
+    def reject(self):
+        """Put the figure back the way the window found it, then close.
+
+        Live apply with no way out is a trap: the user drags a spin box to
+        see what it does and there is no longer an "as it was". Cancel is
+        that way out, and it costs one redraw.
+        """
+        settings = self._umap_settings
+        if settings is not None:
+            initial = settings.initial_values()
+            if initial != getattr(self, "_umap_applied", initial):
+                self._on_umap_changed(initial)
+        super().reject()
 
     def _pick(self, attr, btn):
         from PySide6.QtWidgets import QColorDialog
@@ -977,5 +1124,9 @@ class _FigureSettingsDialog(QDialog):
             set_figure_text_size(size)
         except Exception:
             pass
+        if self._umap_settings is not None:
+            # A value still sitting on the debounce timer is a value the user
+            # typed and would otherwise lose by pressing OK promptly.
+            self._umap_settings.flush()
         FigureQueue._style_figure(self._fig, self._bg, self._fg, size)
         self.accept()

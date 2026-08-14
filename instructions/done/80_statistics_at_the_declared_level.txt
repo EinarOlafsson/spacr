@@ -1,0 +1,146 @@
+================================================================================
+THE REPORTED STATISTIC MUST BE COMPUTED AT THE LEVEL THE SETTING DECLARES
+================================================================================
+
+Status:    not started, 2026-08-11.
+Requested: 2026-08-11 — "for Decision: chi-squared unit of replication do 1
+           and 2", where the options put to the maintainer were:
+
+             1. test the per-well PROPORTIONS -- t-test / Mann-Whitney
+                between conditions, which is what spacrGraph already does
+                elsewhere in spaCR;
+             2. a MIXED MODEL with well as a random effect.
+
+           Both, not one.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+`plot_proportion_stacked_bars` computes its chi-squared at the TOP of the
+function, from `df.groupby([group_column, bin_column]).size()` -- object
+counts -- before the `level` branch is reached. Measured on 1800 objects
+across 3 plates x 3 wells:
+
+    level='object'   chi2 = 0.5794   p = 4.4655e-01
+    level='well'     chi2 = 0.5794   p = 4.4655e-01
+    level='plate'    chi2 = 0.5794   p = 4.4655e-01
+    level='plateID'  chi2 = 0.5794   p = 4.4655e-01
+
+Byte-identical. Meanwhile the `level` tooltip says outright:
+
+    "It changes the figure only - the reported statistics always treat the
+     well as the unit of replication."
+
+The second half is false, and has been for as long as the setting has
+existed.
+
+`tests/test_proportion_bars_level.py::test_the_chi_squared_does_not_follow_
+the_level` PINS the current behaviour so it cannot be forgotten. When this
+instruction lands that test fails and must be REWRITTEN, not deleted.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Objects within a well are not independent: they share a treatment, a
+transfection, an imaging session and a monolayer. A chi-squared over 20,000
+objects with 3 wells per condition answers "are these 20,000 objects drawn
+from the same distribution", which is not the question anyone asked, and its
+p-value is smaller than the experiment supports by orders of magnitude.
+That is pseudo-replication, and it is the single most common way an image
+screen overstates a result.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+BOTH tests, reported side by side, because they answer slightly different
+questions and disagreeing is informative.
+
+1. PER-WELL PROPORTIONS. Compute each well's proportion in each bin, then
+   compare conditions on those proportions: t-test when normal and
+   Mann-Whitney when not, Kruskal-Wallis / ANOVA for more than two groups.
+   spaCR already owns this machinery -- `spacrGraph.perform_statistical_tests`
+   does exactly this shape, including the Levene-driven Welch selection
+   fixed on 2026-08-11 -- so reuse it rather than writing a second copy. N is
+   the number of WELLS, and the results table must say so.
+
+2. MIXED MODEL, well as a random effect. A binomial GLMM on the per-object
+   outcome with `(1 | well)` -- statsmodels' `BinomialBayesMixedGLM` or
+   `GLM` with cluster-robust standard errors by well, both already available
+   in the dependency set. This keeps the object-level information the
+   proportions test throws away while still charging the correct degrees of
+   freedom.
+
+3. THE LEVEL SETTING DRIVES BOTH. `level='well'` means well, `level='plate'`
+   means plate; the random effect and the aggregation unit follow it rather
+   than being hardcoded.
+
+4. REPORT ALL THREE NUMBERS -- the object-level chi-squared that is there
+   now, the level-appropriate test, and the mixed model -- each labelled with
+   its N and its unit. Do not silently replace the old number: every figure
+   already published came from it, and a reader comparing an old result to a
+   new one needs to see why they differ.
+
+5. CORRECT THE TOOLTIP either way. It currently promises something the code
+   does not do.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A synthetic plate where the well-to-well spread is large and the object count
+is huge -- 3 wells per condition, 20,000 objects per condition, class-1
+fraction 0.50 in nc and 0.52 in pc with +/-0.06 well-to-well spread. The
+object chi-squared should be wildly significant and the well-level test
+should not be. If both agree on that data, the well-level test is not
+actually using wells.
+
+--------------------------------------------------------------------------------
+2026-08-11 - DONE
+--------------------------------------------------------------------------------
+
+`spacr/plot.py` now carries `proportions_per_unit`, `proportion_test_by_unit`
+and `proportion_mixed_model`, and `plot_proportion_stacked_bars` returns all
+three numbers in one table, each row labelled with its test, its unit and its
+n.
+
+Measured on the acceptance case from above -- 20,000 objects per condition,
+3 wells per condition, class-1 fraction 0.50 vs 0.52, +/-0.06 well-to-well:
+
+    chi-squared on object counts              n = 39,996 objects  p = 4.17e-39
+    T-test on per-prc proportions             n = 6 wells         p = 2.49e-01
+    binomial GLM, clustered by prc            n = 6 wells         p = 1.33e-01
+
+The object test screams; neither well-level test does. On a real effect
+(0.20 vs 0.80, 8 wells) all three agree at p < 0.05, so the fix is not a
+test that never fires.
+
+(1) PER-UNIT PROPORTIONS, using the selection spaCR already uses: Shapiro
+for normality, then Levene for Student's vs Welch's; Mann-Whitney when not
+normal; ANOVA / Welch's ANOVA / Kruskal-Wallis above two groups. Reuses
+`_welch_anova`. Too few units reports "too few units" and NaN rather than
+inventing a p-value.
+
+(2) MIXED MODEL: binomial GLM on the per-object outcome with standard errors
+clustered on the unit, Wald test across the condition terms. Keeps the
+object-level information the proportions test discards while charging the
+degrees of freedom the design supports. A model that does not fit prints why
+and reports NaN.
+
+(3) THE LEVEL DRIVES BOTH, through `_unit_column`: 'well' resolves to the
+caller's `prc_column`, 'plate' to `plateID`. `level='object'` still gets the
+well-level tests when a well column is present -- pooling objects does not
+make them independent, and the user who never changes the setting is the one
+most likely to report the object p-value.
+
+(4) ALL THREE REPORTED, the historical chi-squared kept as row 0 and labelled
+`unit='object'` rather than replaced.
+
+(5) TOOLTIP CORRECTED in `spacr/settings.py` and
+`spacr/qt/i18n_catalogs/en.py`.
+
+`test_the_chi_squared_does_not_follow_the_level` was rewritten (not deleted)
+as `test_the_object_chi_squared_is_kept_unchanged_at_every_level`, and
+`tests/test_proportion_replication_unit.py` holds the acceptance case.

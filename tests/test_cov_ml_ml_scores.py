@@ -244,8 +244,17 @@ def test_generate_ml_scores_annotation_column_balances_single_class(tmp_path, rn
     settings = _ml_settings(src, annotation_column="test")
     output, _ = generate_ml_scores(settings)
 
-    # annotation column drives the control assignment
-    assert settings["location_column"] == "test"
+    # THE ANNOTATION COLUMN DRIVES THE RUN WITHOUT REWRITING THE SETTINGS.
+    #
+    # This used to assert `settings["location_column"] == "test"` -- i.e. it
+    # pinned the mutation AS the contract. That mutation is issues #91-#93:
+    # `location_column` is a user-facing setting, shown in the panel and
+    # saved with the project, and overwriting it left a user who tried
+    # annotation mode once unable to return to metadata mode by changing the
+    # mode. The column the run trains on is derived into a local now, so the
+    # caller's setting comes back exactly as they wrote it.
+    assert settings["location_column"] == "columnID", (
+        "the caller's location_column was overwritten again")
     assert settings["positive_control"] == "1.0"
     assert settings["negative_control"] == "2.0"
     counts = output[0]["test"].value_counts().to_dict()
@@ -319,7 +328,8 @@ FEATURES = [
 ]
 
 COMMON = dict(channel_of_interest=3, location_column="columnID", n_repeats=1,
-              n_jobs=1, remove_highly_correlated_features=False, test_size=0.25)
+              n_jobs=1, remove_highly_correlated_features=False, test_size=0.25,
+              split_by="cell")
 
 
 def _feature_df(per_class=40, loc_values=("c1", "c2", "c3")):
@@ -444,14 +454,22 @@ def test_ml_analysis_matches_list_controls_numerically(rng):
 
 def test_ml_analysis_duplicate_location_column_matches_nothing(rng):
     """A duplicated location column makes df[location_column] a DataFrame, so
-    all three matching strategies fail and no control rows are found."""
+    all three matching strategies fail and no control rows are found.
+
+    This used to surface as sklearn's "n_samples=0" from inside
+    train_test_split, three frames below anything a user recognises -- the
+    traceback that was auto-filed ten times as issues #79-#90. It is now
+    named where it happens, and the DUPLICATE COLUMN gets its own sentence
+    because the fix is to the table rather than to the control values: no
+    amount of correcting positive_control helps.
+    """
     import spacr.ml as ML
 
     df = _feature_df(per_class=20)
     df["dup"] = df["columnID"]
     df.columns = ["columnID" if c == "dup" else c for c in df.columns]
 
-    with pytest.raises(ValueError, match="n_samples=0"):
+    with pytest.raises(ValueError, match="columns named 'columnID'"):
         ML.ml_analysis(df, positive_control="c2", negative_control="c1",
                        model_type="random_forest", n_estimators=5,
                        verbose=False, **COMMON)

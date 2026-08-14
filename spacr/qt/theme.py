@@ -97,6 +97,11 @@ DARK_PALETTE = {
     "accent_soft": "#1e3550",   # accent-tinted surface (chips, highlights)
     # Status
     "success":     "#3fb950",
+    # The class/value bubbles of the Classify selector. Semantic roles, not
+    # literals at the call site, so they follow the theme -- and named for
+    # what they MEAN rather than for the colour, so a retheme can move them.
+    "chip_class":  "#1fb6ad",   # teal  -- the class name
+    "chip_value":  "#3fb950",   # green -- its value
     "warning":     "#d29922",
     "error":       "#f85149",
     "info":        "#4A9EFF",
@@ -136,6 +141,11 @@ LIGHT_PALETTE = {
     "accent_lo":   "#063d7a",
     "accent_soft": "#dbe8fb",
     "success":     "#0f7030",
+    # The class/value bubbles of the Classify selector. Semantic roles, not
+    # literals at the call site, so they follow the theme -- and named for
+    # what they MEAN rather than for the colour, so a retheme can move them.
+    "chip_class":  "#0a6f6a",   # teal  -- the class name
+    "chip_value":  "#0f7030",   # green -- its value
     "warning":     "#8f4e00",
     "error":       "#b81d1a",
     "info":        "#0a63c4",
@@ -166,6 +176,11 @@ SPACE_PALETTE = {
     "accent_lo":   "#3d8ddb",   # scrim, not on solid #161719
     "accent_soft": "#16304f",
     "success":     "#5fd97a",
+    # The class/value bubbles of the Classify selector. Semantic roles, not
+    # literals at the call site, so they follow the theme -- and named for
+    # what they MEAN rather than for the colour, so a retheme can move them.
+    "chip_class":  "#4fd6ce",   # teal  -- the class name
+    "chip_value":  "#5fd97a",   # green -- its value
     "warning":     "#f0c14b",
     "error":       "#ff7b72",
     "info":        "#6cb6ff",
@@ -204,6 +219,11 @@ CELL_PALETTE = {
     "accent_lo":   "#4fb3cf",
     "accent_soft": "#123742",
     "success":     "#6fe39a",
+    # The class/value bubbles of the Classify selector. Semantic roles, not
+    # literals at the call site, so they follow the theme -- and named for
+    # what they MEAN rather than for the colour, so a retheme can move them.
+    "chip_class":  "#5fe0d8",   # teal  -- the class name
+    "chip_value":  "#6fe39a",   # green -- its value
     "warning":     "#f2ca5c",
     "error":       "#ff8f86",
     "info":        "#8fe3f7",
@@ -241,6 +261,11 @@ GLASS_PALETTE = {
     "accent_lo":   "#579fe0",
     "accent_soft": "#263746",
     "success":     "#78dfa3",
+    # The class/value bubbles of the Classify selector. Semantic roles, not
+    # literals at the call site, so they follow the theme -- and named for
+    # what they MEAN rather than for the colour, so a retheme can move them.
+    "chip_class":  "#6fe0d8",   # teal  -- the class name
+    "chip_value":  "#78dfa3",   # green -- its value
     "warning":     "#f5cf72",
     "error":       "#ff9a95",
     "info":        "#8cc8ff",
@@ -986,6 +1011,97 @@ def field_chrome(theme: str = "dark") -> Dict[str, object]:
     }
 
 
+def _splash_roles(palette: dict) -> dict:
+    """The loading screen's colours, derived from the theme's own surface.
+
+    The splash used to be ``#003737``, sampled from the installer icon. It
+    reads as teal because it is teal -- a very dark cyan-green at hue 180 --
+    and it was the one full-window surface in the application with a colour
+    cast, shown before anything else was on screen.
+
+    It now takes the window's OWN background and foreground, which buys two
+    things at once. The colour is black on the dark theme, as asked. And the
+    splash matches the window that replaces it exactly, so the handover has
+    nothing to flash: a splash one shade off the first painted window is
+    visible precisely at the moment the loading screen exists to hide.
+
+    The ink follows for the same reason it must -- white on the light
+    theme's near-white surface would be invisible -- and inherits the
+    contrast the theme already guarantees for body text.
+
+    The installer ICON keeps its own colour. This is the splash only.
+    """
+    ink = str(palette.get("fg", "#ffffff"))
+    bg = str(palette.get("bg", "#000000"))
+    # The dim weight is SOLVED, not fixed, for the same reason the scrims
+    # are. A fixed alpha does not mean a fixed contrast: dark ink fading
+    # toward a light surface loses contrast faster than white ink fading
+    # toward black gains it, so the 110 that read at 3.04:1 on the dark
+    # theme read at 2.31:1 on the light one -- under the floor, on the
+    # screen that is up while the user has nothing else to look at.
+    dim = splash_dim_alpha(ink, bg)
+    # COMPOSITED TO OPAQUE HEX, not stored as `rgba(...)`. Every palette
+    # value is #rrggbb -- `test_palette_values_are_hex` is the contract --
+    # and these three are only ever painted ON the splash background, so
+    # flattening them against it is exact rather than an approximation. The
+    # widget then draws opaque colours and does no alpha maths at all.
+    return {
+        "splash_bg": bg,
+        "splash_ink": ink,
+        "splash_ink_dim": _composite(ink, bg, dim),
+        "splash_track": _composite(ink, bg, 45),
+        "splash_fill": _composite(ink, bg, 200),
+    }
+
+
+def splash_dim_alpha(ink: str, bg: str, *, target: float = 3.0,
+                     floor: int = 110) -> int:
+    """The lowest alpha at which ``ink`` still reads ``target`` over ``bg``.
+
+    Unlit phases are meant to look unreached, so this searches UP from
+    ``floor`` rather than starting bright: dim enough to read as pending,
+    legible enough to read at all.
+    """
+    for alpha in range(int(floor), 256):
+        if _contrast(_composite(ink, bg, alpha), bg) >= target:
+            return alpha
+    return 255
+
+
+def _composite(fg: str, bg: str, alpha: int) -> str:
+    """``fg`` painted at ``alpha`` over ``bg``, as the painter blends it."""
+    fr, fg_, fb = _channels(fg)
+    br, bg_, bb = _channels(bg)
+    a = max(0, min(255, int(alpha))) / 255.0
+    return "#%02x%02x%02x" % tuple(
+        int(round(f * a + b * (1 - a)))
+        for f, b in ((fr, br), (fg_, bg_), (fb, bb)))
+
+
+def _channels(hex_colour: str):
+    text = str(hex_colour).lstrip("#")
+    if len(text) == 3:
+        text = "".join(c * 2 for c in text)
+    try:
+        return tuple(int(text[i:i + 2], 16) for i in (0, 2, 4))
+    except (ValueError, IndexError):
+        return (255, 255, 255)
+
+
+def _relative_luminance(hex_colour: str) -> float:
+    def channel(value: int) -> float:
+        v = value / 255.0
+        return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+    r, g, b = (channel(c) for c in _channels(hex_colour))
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def _contrast(a: str, b: str) -> float:
+    la, lb = _relative_luminance(a), _relative_luminance(b)
+    hi, lo = max(la, lb), min(la, lb)
+    return (hi + 0.05) / (lo + 0.05)
+
+
 def palette_for(theme: str = "dark") -> dict:
     """Return the palette dict for ``theme``.
 
@@ -999,6 +1115,7 @@ def palette_for(theme: str = "dark") -> dict:
     base = _PALETTES.get(theme, DARK_PALETTE)
     out = dict(base)
     out.update(CONSTANT_ROLES)
+    out.update(_splash_roles(out))
     return out
 
 
@@ -1521,6 +1638,11 @@ CONSTANT_ROLES = {
     "button_accent_hi": "#66B2FF",
     "button_accent_lo": "#2F80D9",
     "button_accent_ink": "#04101c",
+    # NOTE: the loading screen's background and ink are NOT here. They
+    # follow the theme's own `bg` and `fg` -- see `palette_for`. Putting
+    # them here as one fixed colour is what instruction 78 undid: a splash
+    # one shade off the window behind it makes the handover flash, and the
+    # point of the loading screen is that the transition is invisible.
 }
 
 

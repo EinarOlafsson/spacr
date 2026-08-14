@@ -1484,7 +1484,29 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
 
 
 def exponential_decay(x, a, b, c):
-    """Return ``a * exp(-b * x) + c`` for curve fitting."""
+    """Return ``a * exp(-b * x) + c`` for curve fitting.
+
+    The photobleaching model :func:`analyze_calcium_oscillations` fits with
+    ``scipy.optimize.curve_fit``, which reads the three arguments after ``x``
+    as the free parameters to solve for.
+
+    :param x: time points, as a scalar or a NumPy array / pandas Series; a
+        ``Series`` comes back as a ``Series`` on the same index, which is what
+        lets the caller's ``df[measurement] / exponential_decay(...)`` align
+        by label.
+    :param a: amplitude of the decaying term. At ``x == 0`` the result is
+        ``a + c``, not ``a``; ``a == 0`` flattens the curve to the constant ``c``.
+    :param b: decay rate. The sign is not checked -- a negative ``b`` grows
+        instead of decaying, and a large ``-b * x`` overflows to ``inf`` with a
+        ``RuntimeWarning`` rather than raising.
+    :param c: additive offset, and the asymptote as ``x`` grows. Nothing keeps
+        the curve positive, so a fit with ``c < 0`` crosses zero and the
+        caller's division by this curve flips sign across the crossing.
+    :returns: ``numpy.float64`` for scalar ``x``, otherwise the array type of ``x``.
+    :raises TypeError: when ``x`` is a plain list and ``b`` is a float, because
+        ``-b * x`` is then list arithmetic. An integer ``b`` does not raise: it
+        silently returns an empty array for ``b >= 0``.
+    """
     return a * np.exp(-b * x) + c
 
 #: Well-identifier columns every spaCR object table carries, in the spelling
@@ -1784,9 +1806,30 @@ def summarize_per_well(peak_details_df):
         **{col: (col, 'mean') for col in numeric_cols}  # exclude 'amplitude' from averaging if it's numeric
     ).reset_index()
 
-    # Step 3: Calculate summary statistics
+    # Step 3: how many CELLS the well holds.
+    #
+    # FIELD + OBJECT, and it has to be exactly that pair -- both halves are
+    # load-bearing and each one alone is wrong in a different direction.
+    #
+    # `object_number` alone UNDERCOUNTS. It is the label the segmenter
+    # assigned within a FIELD and restarts at 1 in every one, while `well_ID`
+    # is row+column and spans them all, so nunique() returned the size of the
+    # well's largest field. Four fields of ~60 cells is ~240, reported as
+    # ~60, and peaks_per_cell came out four times too high.
+    #
+    # `ID` alone OVERCOUNTS on timelapse data. A timelapse key carries the
+    # timepoint -- plate1_r1_c1_f1_t3_o7 -- so the same tracked cell at t3
+    # and t4 counts as two, and peaks_per_cell comes out too LOW.
+    # `test_a_timelapse_object_key_keeps_its_timepoint_out_of_the_identity`
+    # states the contract: the object key identifies a TRACK.
+    #
+    # field + object is right for both: the field disambiguates the
+    # restarting labels, and the timepoint is left out of the identity.
+    peak_details_df['_field_object'] = (
+        peak_details_df['fieldID'].astype(str) + '_'
+        + peak_details_df['object_number'].astype(str))
     summary_df_2 = peak_details_df.groupby('well_ID').agg(
-        cells_per_well=('object_number', 'nunique'),
+        cells_per_well=('_field_object', 'nunique'),
     ).reset_index()
 
     # Join on well_ID rather than assigning the column positionally: summary_df is
@@ -1828,8 +1871,13 @@ def summarize_per_well_inf_non_inf(peak_details_df):
     numeric_cols = peak_details_df.select_dtypes(include=['number']).columns
 
     # Step 3: Calculate summary statistics
+    # field + object, not object_number and not ID -- see summarize_per_well
+    # for why each alone is wrong in a different direction.
+    peak_details_df['_field_object'] = (
+        peak_details_df['fieldID'].astype(str) + '_'
+        + peak_details_df['object_number'].astype(str))
     summary_df = peak_details_df.groupby(['well_ID', 'infected_status']).agg(
-        cells_per_well=('object_number', 'nunique'),
+        cells_per_well=('_field_object', 'nunique'),
         peaks_per_well=('ID', 'size'),
         **{col: (col, 'mean') for col in numeric_cols}
     ).reset_index()
@@ -1868,7 +1916,7 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
         fit fails, or no cells pass the filters.
     """
     # Load data
-    conn = sqlite3.connect(db_loc)
+    conn = sqlite3.connect(db_loc, timeout=30)
     # Load cell table
     cell_df = pd.read_sql(f"SELECT * FROM {'cell'}", conn)
     
@@ -5684,7 +5732,7 @@ def _save_measurements_and_well_summary(
     os.makedirs(measurements_dir, exist_ok=True)
     db_path = os.path.join(measurements_dir, "measurements.db")
 
-    with sqlite3.connect(db_path) as conn:
+    with sqlite3.connect(db_path, timeout=30) as conn:
         all_df.to_sql(db_table_name, conn, if_exists="replace", index=False)
         print(
             f"[summarise_tracks_from_merged] Saved measurements to "
@@ -6593,7 +6641,7 @@ def _load_measurements_from_db(db_path, db_table_name):
     if not os.path.isfile(db_path):
         return pd.DataFrame()
 
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=30)
     try:
         query = f"SELECT * FROM {db_table_name}"
         df = pd.read_sql_query(query, conn)
@@ -7720,7 +7768,7 @@ def automated_motility_assay(settings):
                 f"measurements from {db_path} (table='{db_table_name}')."
             )
 
-            with sqlite3.connect(db_path) as conn:
+            with sqlite3.connect(db_path, timeout=30) as conn:
                 # If the table does not exist, this will raise and fall back to recompute
                 all_df = pd.read_sql_query(f"SELECT * FROM {db_table_name}", conn)
 
@@ -7995,9 +8043,27 @@ def automated_motility_assay(settings):
         low = settings.get("infection_xgb_ambiguous_low", 0.25)
         high = settings.get("infection_xgb_ambiguous_high", 0.75)
 
-        # Try to locate a probability column created by the QC step
+        # Try to locate a probability column created by the QC step.
+        #
+        # THE FALLBACK BELOW WAS UNREACHABLE. This tested `is None`, and the
+        # setting's default is the non-empty string 'infection_xgb_proba' --
+        # so auto-discovery was always skipped, and the classifier writes
+        # 'infection_prob', so the guard two blocks down never matched
+        # either. The whole track-level ambiguous-track filter silently did
+        # not run on any default configuration: not an error, not a warning,
+        # just an analysis step that never happened.
+        #
+        # Discovery now runs when the column was NOT CHOSEN -- unset, or
+        # left at the shipped default -- and the name is not in the frame.
+        #
+        # Not simply "the column is absent": a user who NAMES a column that
+        # does not exist must be told so, not silently given a different one.
+        # That distinction is the whole reason the default cannot be treated
+        # as a choice; it is what the caller gets for expressing no opinion.
         xgb_proba_col = settings.get("infection_xgb_proba_column", None)
-        if xgb_proba_col is None:
+        _shipped_default = "infection_xgb_proba"
+        _chosen_by_user = xgb_proba_col not in (None, "", _shipped_default)
+        if not _chosen_by_user and xgb_proba_col not in all_df.columns:
             cand_cols = [
                 c
                 for c in all_df.columns

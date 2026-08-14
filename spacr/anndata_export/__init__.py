@@ -64,10 +64,18 @@ for it with *visibility*:
 
 * ``var['n_missing']`` / ``var['frac_missing']`` -- per feature;
 * ``obs['n_missing_features']`` -- per object;
-* ``uns['spacr']['nan']`` -- totals, the policy that was applied, and the
-  ten worst columns by name;
+* ``uns['spacr']['nan']`` -- totals, the policy that was applied, the shape
+  those totals were counted over (``n_objects_counted`` x
+  ``n_features_counted``, i.e. post-filter and pre-policy), and the ten
+  worst columns by name;
 * a printed warning naming those columns and the scanpy calls that will
   fail on them.
+
+Every count in that record -- and :attr:`ExportResult.n_missing` with it --
+is taken on the matrix **as the policy received it**, which for a dropping
+policy is bigger than the one written. ``ExportResult.frac_missing`` divides
+by that same matrix (:attr:`ExportResult.counted_shape`) rather than by the
+written shape, so it stays a fraction.
 
 The alternatives are explicit, and every one of them records what it did:
 
@@ -170,7 +178,7 @@ import os
 import sqlite3
 import sys
 import warnings
-from dataclasses import dataclass
+from dataclasses import dataclass, replace as _dataclass_replace
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
@@ -350,9 +358,21 @@ class ExportResult:
     :param n_infinite: non-finite cells converted to NaN before that count.
     :param dropped_features: feature columns removed by the policy.
     :param dropped_objects: objects removed by the policy.
+    :param n_obs_counted: rows of the matrix ``n_missing`` was counted in --
+        i.e. after ``data_filter``/``selection``/``row_limit`` and *before*
+        the ``nan_policy`` ran. ``0`` on a record that did not record it, in
+        which case :attr:`counted_shape` reconstructs it from the drops.
+    :param n_vars_counted: columns of that same pre-policy matrix.
     :param artifact_id: the :mod:`spacr.artifacts` id, or ``""`` when the
         file was not registered.
     :param warnings: everything the export decided the user must know.
+
+    Three object counts live here and they are three different stages, which
+    is the whole reason they are named apart: :attr:`n_obs_before_filter` is
+    what the database held, :attr:`counted_shape` is what survived the filter
+    and was handed to the NaN policy, and :attr:`n_obs` is what was written.
+    :meth:`describe` attributes each loss to the stage that caused it rather
+    than charging all of them to the filter.
     """
 
     path: str
@@ -366,29 +386,71 @@ class ExportResult:
     n_infinite: int = 0
     dropped_features: Tuple[str, ...] = ()
     dropped_objects: int = 0
+    n_obs_counted: int = 0
+    n_vars_counted: int = 0
     artifact_id: str = ""
     warnings: Tuple[str, ...] = ()
 
     @property
+    def counted_shape(self) -> Tuple[int, int]:
+        """``(rows, columns)`` of the matrix :attr:`n_missing` was counted in.
+
+        That matrix is the post-filter, **pre**-``nan_policy`` one: the NaN
+        were counted before anything was dropped or imputed. A record built
+        by this module states it outright; one built by hand (or by an older
+        spaCR) leaves the two fields at ``0``, and the shape is reconstructed
+        from the drops instead -- ``drop_objects`` is the only policy that
+        removes rows and ``drop_features`` the only one that removes columns,
+        so adding them back recovers what the policy was given.
+        """
+        rows = self.n_obs_counted or (self.n_obs + self.dropped_objects)
+        columns = (self.n_vars_counted
+                   or (self.n_vars + len(self.dropped_features)))
+        return int(rows), int(columns)
+
+    @property
     def frac_missing(self) -> float:
-        """NaN as a fraction of the pre-policy matrix; 0.0 for an empty one."""
-        cells = self.n_obs * self.n_vars
+        """:attr:`n_missing` over the cells of :attr:`counted_shape`.
+
+        Numerator and denominator describe **the same matrix** -- the one the
+        NaN were counted in, before the policy dropped or imputed anything --
+        so this is a fraction and can never exceed 1.0. Dividing the
+        pre-policy count by the post-policy ``n_obs * n_vars`` is what made
+        ``drop_objects`` report 114.3% missing.
+
+        :returns: the fraction, or ``0.0`` for an empty matrix.
+        """
+        rows, columns = self.counted_shape
+        cells = rows * columns
         return (self.n_missing / cells) if cells else 0.0
 
     def describe(self) -> str:
-        """One human paragraph: shape, filtering, missingness, provenance."""
+        """One human paragraph: shape, filtering, missingness, provenance.
+
+        Each count is charged to the stage that caused it: the filter line
+        counts only what the filter removed, and the ``dropped ...`` lines
+        only what the NaN policy removed. Charging the policy's row drops to
+        the filter as well made one loss of four objects read as eight.
+        """
+        counted_obs, counted_vars = self.counted_shape
         lines = [
             f"{self.n_obs} objects x {self.n_vars} features"
             + (f" -> {self.path}" if self.path else " (in memory)")
         ]
-        if self.n_obs_before_filter != self.n_obs:
+        removed_by_filter = self.n_obs_before_filter - counted_obs
+        if removed_by_filter > 0:
             lines.append(
                 f"  filtered from {self.n_obs_before_filter} objects "
-                f"({self.n_obs_before_filter - self.n_obs} removed)")
+                f"({removed_by_filter} removed)")
         if self.n_missing:
+            over = ("" if (counted_obs, counted_vars) == (self.n_obs,
+                                                          self.n_vars)
+                    else f" of the {counted_obs} x {counted_vars} matrix "
+                         f"the policy was given")
             lines.append(
                 f"  {self.n_missing} missing values "
-                f"({self.frac_missing:.1%}), policy {self.nan_policy!r}")
+                f"({self.frac_missing:.1%}{over}), "
+                f"policy {self.nan_policy!r}")
         if self.n_infinite:
             lines.append(
                 f"  {self.n_infinite} non-finite values treated as missing")
@@ -396,9 +458,13 @@ class ExportResult:
             shown = ", ".join(self.dropped_features[:5])
             more = (f" +{len(self.dropped_features) - 5}"
                     if len(self.dropped_features) > 5 else "")
-            lines.append(f"  dropped features: {shown}{more}")
+            lines.append(
+                f"  dropped features (nan_policy {self.nan_policy!r}): "
+                f"{shown}{more}")
         if self.dropped_objects:
-            lines.append(f"  dropped objects: {self.dropped_objects}")
+            lines.append(
+                f"  dropped objects (nan_policy {self.nan_policy!r}): "
+                f"{self.dropped_objects}")
         if self.obsm_keys:
             lines.append(f"  obsm: {', '.join(self.obsm_keys)}")
         if self.artifact_id:
@@ -418,7 +484,7 @@ def _available_tables(db_path: Union[str, os.PathLike]) -> Tuple[str, ...]:
     """
     if not os.path.isfile(os.fspath(db_path)):
         return ()
-    connection = sqlite3.connect(os.fspath(db_path))
+    connection = sqlite3.connect(os.fspath(db_path), timeout=30)
     try:
         return tuple(
             row[0] for row in connection.execute(
@@ -429,7 +495,9 @@ def _available_tables(db_path: Union[str, os.PathLike]) -> Tuple[str, ...]:
 
 
 def _read_frame(db_path: str, tables: Sequence[str],
-                single_table: Optional[str]) -> Tuple[pd.DataFrame, Tuple[str, ...]]:
+                single_table: Optional[str], *,
+                collapse_duplicate_identity: bool = True,
+                ) -> Tuple[pd.DataFrame, Tuple[str, ...]]:
     """Read the object frame this export will describe.
 
     :param db_path: a ``measurements.db``.
@@ -450,7 +518,7 @@ def _read_frame(db_path: str, tables: Sequence[str],
             raise ValueError(
                 f"table {single_table!r} is not in {db_path}. Present: "
                 f"{sorted(present & set(schema.OWNED_TABLES))}.")
-        connection = sqlite3.connect(db_path)
+        connection = sqlite3.connect(db_path, timeout=30)
         try:
             frame = pd.read_sql(f'SELECT * FROM "{single_table}"', connection)
         finally:
@@ -478,7 +546,14 @@ def _read_frame(db_path: str, tables: Sequence[str],
     # and this module must stay importable on a machine that cannot segment.
     from ..io import _read_and_join_tables
 
-    frame = _read_and_join_tables(db_path, list(wanted))
+    # `drop_redundant_identity=False` is documented to KEEP the join's
+    # suffixed identity copies. The reader now collapses agreeing duplicates
+    # by default (instruction 79), which would have made that option a no-op
+    # -- the columns were gone before this module ever saw them. Passed
+    # through so the documented choice is the one that happens.
+    frame = _read_and_join_tables(
+        db_path, list(wanted),
+        collapse_duplicate_identity=collapse_duplicate_identity)
     if frame is None:
         raise ValueError(
             f"could not join {wanted} from {db_path}; the join returned "
@@ -522,7 +597,7 @@ def _attach_png_labels(frame: pd.DataFrame, db_path: str, anchor: str,
     id_column = PNG_OBJECT_ID_COLUMNS.get(anchor)
     if not id_column:
         return frame, []
-    connection = sqlite3.connect(db_path)
+    connection = sqlite3.connect(db_path, timeout=30)
     try:
         png = pd.read_sql('SELECT * FROM "png_list"', connection)
     except Exception:
@@ -856,6 +931,13 @@ def _apply_nan_policy(matrix: np.ndarray, features: List[str],
     report: Dict[str, Any] = {
         "policy": policy,
         "n_missing": int(missing.sum()),
+        # The shape `n_missing` was counted over. Every count in this report
+        # is measured on the matrix as the policy received it, so the shape
+        # of that matrix has to be recorded with them: divide `n_missing` by
+        # the *written* shape instead and a dropping policy reports more than
+        # 100% missing.
+        "n_objects_counted": int(matrix.shape[0]),
+        "n_features_counted": int(matrix.shape[1]),
         "n_features_with_missing": int((missing.any(axis=0)).sum()),
         "n_objects_with_missing": int((missing.any(axis=1)).sum()),
         "imputed": False,
@@ -1199,7 +1281,13 @@ def build_anndata(db_path: Union[str, os.PathLike],
     anndata = require_anndata()
     db_path = os.path.abspath(os.path.expanduser(os.fspath(db_path)))
 
-    frame, read_tables = _read_frame(db_path, tables, single_table)
+    # `drop_redundant_identity=False` is documented to KEEP the join's
+    # suffixed identity copies. The reader collapses agreeing duplicates by
+    # default now (instruction 79), which would have made that option a
+    # no-op -- the columns were gone before this module saw them.
+    frame, read_tables = _read_frame(
+        db_path, tables, single_table,
+        collapse_duplicate_identity=drop_redundant_identity)
     n_before = len(frame)
     joined = single_table is None
     anchor = "cell" if joined else str(single_table)
@@ -1402,6 +1490,8 @@ def build_anndata(db_path: Union[str, os.PathLike],
         n_infinite=n_infinite,
         dropped_features=tuple(nan_report["dropped_features"]),
         dropped_objects=int(nan_report["dropped_objects"]),
+        n_obs_counted=int(nan_report["n_objects_counted"]),
+        n_vars_counted=int(nan_report["n_features_counted"]),
         warnings=tuple(notes),
     )
     if verbose:
@@ -1495,21 +1585,10 @@ def export_anndata(db_path: Union[str, os.PathLike],
         artifact_id = _register(out_path, db_path, project, settings,
                                 result, adata)
 
-    return ExportResult(
-        path=out_path,
-        n_obs=result.n_obs,
-        n_vars=result.n_vars,
-        n_obs_before_filter=result.n_obs_before_filter,
-        obs_columns=result.obs_columns,
-        obsm_keys=result.obsm_keys,
-        nan_policy=result.nan_policy,
-        n_missing=result.n_missing,
-        n_infinite=result.n_infinite,
-        dropped_features=result.dropped_features,
-        dropped_objects=result.dropped_objects,
-        artifact_id=artifact_id,
-        warnings=result.warnings,
-    )
+    # `replace` rather than a field-by-field copy: the copy silently dropped
+    # whichever field was added to ExportResult last, and a count that
+    # arrives as its default is indistinguishable from a real zero.
+    return _dataclass_replace(result, path=out_path, artifact_id=artifact_id)
 
 
 def _project_root(db_path: str,

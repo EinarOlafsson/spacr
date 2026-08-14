@@ -846,3 +846,324 @@ def test_a_declared_sample_does_not_crash_the_preflight(tmp_path):
                                   "x_lim": [-1, 1]}, "classify")
     typed = [p for p in problems if p.setting in ("sample", "x_lim")]
     assert not typed, [str(p) for p in typed]
+
+
+# ---------------------------------------------------------------------------
+# The resource card -- the second half of the dry-run card
+#
+# The property under test everywhere here is HONESTY, not arithmetic. A card
+# that guesses a number the run then blows past is worse than no card,
+# because the user stopped watching. So each test pins either "this figure
+# was measured off the machine" or "this figure was refused and named".
+# ---------------------------------------------------------------------------
+
+def _plate_with_merged(tmp_path, name="plate", fields=6, shape=(64, 64, 4),
+                       dtype="uint16"):
+    import numpy as np
+
+    src = tmp_path / name
+    merged = src / "merged"
+    merged.mkdir(parents=True)
+    for i in range(fields):
+        np.save(merged / f"f{i}.npy", np.zeros(shape, dtype))
+    return src
+
+
+def test_the_card_measures_one_field_rather_than_assuming_it(tmp_path):
+    from spacr.validate import describe_resources
+
+    src = _plate_with_merged(tmp_path, shape=(128, 96, 3), dtype="uint16")
+    card = describe_resources({"src": str(src), "cell_channel": 0,
+                               "n_jobs": 2}, "mask")
+    # Shape and dtype come off the header of a real array, memory-mapped.
+    assert "128×96×3 uint16" in card
+    assert "72.0 KB" in card                     # 128*96*3*2 bytes
+
+
+def test_memory_is_reported_as_a_floor_and_says_so(tmp_path):
+    from spacr.validate import describe_resources
+
+    src = _plate_with_merged(tmp_path)
+    card = describe_resources({"src": str(src), "cell_channel": 0,
+                               "n_jobs": 4}, "mask")
+    assert "at least" in card
+    assert "4 worker(s) × one field each" in card
+    # The floor must never be mistaken for the peak.
+    assert "floor, not a peak" in card
+    assert "spacr.benchmark" in card
+
+
+def test_an_n_jobs_that_cannot_fit_is_called_out_with_one_that_can(tmp_path,
+                                                                  monkeypatch):
+    from spacr import validate as V
+
+    src = _plate_with_merged(tmp_path, shape=(64, 64, 4))
+    # 32 KB per field; pretend the machine has the reserve plus room for two.
+    monkeypatch.setattr("spacr.benchmark.available_memory_bytes",
+                        lambda: V._MEM_RESERVE + 64 * 64 * 4 * 2 * 2)
+    card = V.describe_resources({"src": str(src), "cell_channel": 0,
+                                 "n_jobs": 64}, "mask")
+    assert "does not fit" in card
+    assert "2 worker(s) would fit" in card
+
+
+def test_an_n_jobs_that_fits_is_not_warned_about(tmp_path):
+    from spacr.validate import describe_resources
+
+    src = _plate_with_merged(tmp_path, shape=(32, 32, 2))
+    card = describe_resources({"src": str(src), "cell_channel": 0,
+                               "n_jobs": 2}, "mask")
+    assert "does not fit" not in card
+
+
+def test_the_png_crop_tree_is_refused_rather_than_guessed(tmp_path):
+    from spacr.validate import describe_resources
+
+    src = _plate_with_merged(tmp_path)
+    card = describe_resources({"src": str(src), "cell_mask_dim": 4,
+                               "save_png": True,
+                               "crop_mode": ["cell", "nucleus"],
+                               "n_jobs": 2}, "measure")
+    assert "cannot be projected" in card
+    assert "2 crop mode(s)" in card
+    # ...and no total is offered for it.
+    assert "would write" not in card
+
+
+def test_the_mask_projection_names_its_parts_and_the_npy_trap(tmp_path):
+    from spacr.validate import describe_resources
+
+    src = _plate_with_merged(tmp_path, fields=4, shape=(64, 64, 3))
+    card = describe_resources({"src": str(src), "cell_channel": 0,
+                               "nucleus_channel": 1, "n_jobs": 1}, "mask")
+    assert "would write" in card
+    assert "2 mask stack(s)" in card
+    # The trap: merged/ is uncompressed, so it can be bigger than the input.
+    assert "uncompressed .npy" in card
+
+
+def test_not_enough_disk_is_stated_when_the_projection_exceeds_free_space(
+        tmp_path, monkeypatch):
+    from spacr import validate as V
+
+    src = _plate_with_merged(tmp_path, fields=4, shape=(64, 64, 3))
+    monkeypatch.setattr(V, "_free_disk", lambda path: 1024)
+    card = V.describe_resources({"src": str(src), "cell_channel": 0,
+                                 "n_jobs": 1}, "mask")
+    assert "NOT ENOUGH DISK" in card
+
+
+def test_a_source_with_nothing_readable_says_so_rather_than_printing_zeros(
+        tmp_path):
+    from spacr.validate import describe_resources
+
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    card = describe_resources({"src": str(empty)}, "mask")
+    assert "nothing to project" in card
+    assert "0 B" not in card
+
+
+def test_settings_that_are_not_a_dict_do_not_raise():
+    from spacr.validate import describe_resources
+
+    assert "not a dict" in describe_resources(["src"], "mask")
+
+
+def test_a_truncated_directory_listing_is_reported_as_a_floor(tmp_path,
+                                                              monkeypatch):
+    from spacr import validate as V
+
+    src = _plate_with_merged(tmp_path, fields=4)
+    monkeypatch.setattr(V, "_SIZE_BUDGET", 2)
+    card = V.describe_resources({"src": str(src), "cell_channel": 0}, "mask")
+    assert "at least" in card
+
+
+def test_the_preflight_prints_the_card_after_the_plan(tmp_path):
+    from spacr.validate import run_preflight
+
+    src = _plate_with_merged(tmp_path)
+    out = []
+    run_preflight({"src": str(src), "cell_channel": 0, "n_jobs": 2}, "mask",
+                  printer=out.append)
+    text = "\n".join(out)
+    assert text.index("Plan —") < text.index("Resources —")
+
+
+def test_a_card_that_raises_does_not_take_the_preflight_with_it(tmp_path,
+                                                               monkeypatch):
+    """A pre-flight that raises has denied the user the report it exists for."""
+    from spacr import validate as V
+
+    def boom(settings, app_key=""):
+        raise RuntimeError("the disk went away")
+
+    monkeypatch.setattr(V, "describe_resources", boom)
+    out = []
+    problems = V.run_preflight({"src": str(tmp_path), "cell_channel": 0},
+                               "mask", printer=out.append)
+    text = "\n".join(out)
+    assert "could not be projected: the disk went away" in text
+    assert "Plan —" in text                  # the rest of the report survived
+    assert isinstance(problems, list)
+
+
+def test_the_gpu_line_is_only_offered_where_a_gpu_is_used(tmp_path):
+    from spacr.validate import describe_resources
+
+    src = _plate_with_merged(tmp_path)
+
+    def labels(card):
+        # Rows are two-space indented, then label, then two spaces.
+        return {line[2:].split("  ")[0].strip()
+                for line in card.splitlines() if line.startswith("  ")}
+
+    # Measure runs no model; a VRAM figure there would be noise.
+    assert "gpu" not in labels(describe_resources(
+        {"src": str(src), "cell_mask_dim": 4, "n_jobs": 2}, "measure"))
+    # Mask loads Cellpose, so the device is worth stating.
+    assert "gpu" in labels(describe_resources(
+        {"src": str(src), "cell_channel": 0, "n_jobs": 2}, "mask"))
+
+
+def test_free_disk_walks_up_to_a_filesystem_that_exists(tmp_path):
+    from spacr.validate import _free_disk
+
+    # A path several levels below anything that exists still resolves.
+    assert _free_disk(str(tmp_path / "a" / "b" / "c")) is not None
+
+
+def test_fmt_bytes_says_unknown_rather_than_zero(tmp_path):
+    from spacr.validate import _fmt_bytes
+
+    assert _fmt_bytes(None) == "unknown"
+    assert _fmt_bytes(512) == "512 B"
+    assert _fmt_bytes(1024 ** 4 * 3) == "3.0 TB"
+    assert _fmt_bytes(1024 ** 5) == "1024.0 TB"     # no unit beyond TB
+
+
+def test_without_torch_loaded_the_card_says_it_did_not_look(tmp_path,
+                                                            monkeypatch):
+    """Silence would read as "no GPU", which is a different answer."""
+    import sys as _sys
+
+    from spacr.validate import describe_resources
+
+    monkeypatch.delitem(_sys.modules, "torch", raising=False)
+    card = describe_resources({"src": str(_plate_with_merged(tmp_path)),
+                               "cell_channel": 0, "n_jobs": 1}, "mask")
+    assert "torch is not loaded" in card
+
+
+def test_a_gpu_that_cannot_be_questioned_drops_the_row(tmp_path, monkeypatch):
+    """A torch whose cuda calls raise leaves no row rather than a wrong one."""
+    import sys as _sys
+    import types
+
+    from spacr import validate as V
+
+    fake = types.SimpleNamespace(cuda=types.SimpleNamespace(
+        is_available=lambda: True,
+        current_device=lambda: (_ for _ in ()).throw(RuntimeError("no ctx"))))
+    monkeypatch.setitem(_sys.modules, "torch", fake)
+    assert V._gpu_line() is None
+
+
+def test_a_cpu_only_torch_says_segmentation_runs_on_the_cpu(monkeypatch):
+    import sys as _sys
+    import types
+
+    from spacr import validate as V
+
+    monkeypatch.setitem(_sys.modules, "torch", types.SimpleNamespace(
+        cuda=types.SimpleNamespace(is_available=lambda: False)))
+    assert "would run on the CPU" in V._gpu_line()
+
+
+def test_an_unreadable_npy_is_skipped_rather_than_fatal(tmp_path):
+    from spacr.validate import _array_footprint
+
+    merged = tmp_path / "merged"
+    merged.mkdir()
+    (merged / "broken.npy").write_bytes(b"not an npy at all")
+    assert _array_footprint(str(merged)) is None
+    assert _array_footprint(str(tmp_path / "nothing")) is None
+
+
+def test_a_file_that_vanishes_mid_scan_does_not_break_the_total(tmp_path,
+                                                                monkeypatch):
+    from spacr import validate as V
+
+    src = _plate_with_merged(tmp_path, fields=3)
+    real = os.path.getsize
+
+    def flaky(path):
+        if path.endswith("f1.npy"):
+            raise OSError("gone")
+        return real(path)
+
+    monkeypatch.setattr(os.path, "getsize", flaky)
+    total, counted, truncated = V._dir_bytes(str(src / "merged"), (".npy",))
+    assert counted == 2 and total > 0 and not truncated
+
+
+def test_a_zero_dimensional_array_is_skipped_not_sized(tmp_path):
+    """A 0-d .npy has no shape to report; the next candidate is tried."""
+    import numpy as np
+
+    merged = tmp_path / "merged"
+    merged.mkdir()
+    np.save(merged / "a_scalar.npy", np.array(5))
+    np.save(merged / "b_real.npy", np.zeros((8, 8, 2), "uint8"))
+    from spacr.validate import _array_footprint
+
+    shape, dtype, nbytes = _array_footprint(str(merged))
+    assert shape == (8, 8, 2) and dtype == "uint8" and nbytes == 128
+
+
+def test_a_filesystem_that_never_answers_gives_up_rather_than_looping(
+        monkeypatch, tmp_path):
+    from spacr import validate as V
+
+    def always_fails(path):
+        raise OSError("no such filesystem")
+
+    monkeypatch.setattr(V.shutil, "disk_usage", always_fails)
+    assert V._free_disk(str(tmp_path / "deep" / "er")) is None
+    assert V._free_disk("/") is None          # the walk-up hits the root
+
+
+def test_a_working_cuda_device_is_named_with_its_free_memory(monkeypatch):
+    import sys as _sys
+    import types
+
+    from spacr import validate as V
+
+    monkeypatch.setitem(_sys.modules, "torch", types.SimpleNamespace(
+        cuda=types.SimpleNamespace(
+            is_available=lambda: True,
+            current_device=lambda: 0,
+            get_device_name=lambda i: "Test GPU",
+            mem_get_info=lambda i: (2 * 1024 ** 3, 8 * 1024 ** 3))))
+    line = V._gpu_line()
+    assert "Test GPU" in line and "2.0 GB free of 8.0 GB" in line
+    # The fact that decides whether a VRAM figure is even relevant.
+    assert "VRAM follows batch_size and not field size" in line
+
+
+def test_an_unmeasurable_memory_figure_drops_the_row_rather_than_lying(
+        tmp_path, monkeypatch):
+    from spacr import benchmark as B
+    from spacr.validate import describe_resources
+
+    def boom():
+        raise RuntimeError("/proc/meminfo is not here")
+
+    monkeypatch.setattr(B, "available_memory_bytes", boom)
+    card = describe_resources({"src": str(_plate_with_merged(tmp_path)),
+                               "cell_channel": 0, "n_jobs": 2}, "mask")
+    assert "memory free" not in card
+    # ...and with no free figure there is nothing to compare against.
+    assert "does not fit" not in card
+    assert "one field" in card               # what could be measured survives

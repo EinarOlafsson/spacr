@@ -43,6 +43,338 @@ EVALUATION_FILES = {
 """Stable file names produced by :func:`write_evaluation_bundle`."""
 
 
+# Train/test grouping ladder, from least to most independent.
+SPLIT_LEVELS: Tuple[str, ...] = ("cell", "field", "well", "plate")
+
+_SPLIT_COLUMNS: Dict[str, Tuple[str, ...]] = {
+    "cell": (),
+    "field": ("plateID", "rowID", "columnID", "fieldID"),
+    "well": ("plateID", "rowID", "columnID"),
+    "plate": ("plateID",),
+}
+
+
+@dataclass(frozen=True)
+class SplitReport:
+    """Provenance and realised sizes for one train/test split."""
+
+    group_by: str
+    requested_fraction: float
+    cell_fraction: float
+    group_fraction: float
+    train_cells: int
+    test_cells: int
+    train_groups: int
+    test_groups: int
+    total_groups: int
+    rule: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return JSON-safe split provenance for model cards/settings."""
+        return asdict(self)
+
+    def summary(self) -> str:
+        """Describe both whole-group and object-level holdout costs."""
+        unit = self.group_by if self.group_by != "cell" else "object"
+        return (
+            f"split_by={self.group_by}: held out {self.test_groups} of "
+            f"{self.total_groups} {unit} group(s) ({self.group_fraction:.1%}) "
+            f"and {self.test_cells} of {self.train_cells + self.test_cells} "
+            f"cells ({self.cell_fraction:.1%}); requested "
+            f"{self.requested_fraction:.1%}. {self.rule}"
+        )
+
+
+def normalize_split_level(group_by: Any) -> str:
+    """Return a canonical split level; legacy ``none`` means ``cell``."""
+    if group_by in (None, False, "none", "off"):
+        return "cell"
+    level = str(group_by)
+    if level not in SPLIT_LEVELS:
+        choices = ", ".join(SPLIT_LEVELS)
+        raise ValueError(
+            f"Unknown group_by/cv_group_by split level {group_by!r}; use one of "
+            f"{choices}. Names "
+            "are exact and lower-case. 'none' remains an alias for 'cell'."
+        )
+    return level
+
+
+def split_columns_for(group_by: Any, columns: Sequence[str],
+                      table: str = "data") -> Tuple[str, List[str]]:
+    """Resolve a split level to complete metadata columns or refuse it.
+
+    ``prcfo`` and crop filenames are handled by :func:`split_group_values`;
+    this helper describes the direct-column route used by measurement tables.
+    Partial keys are never accepted because, for example, ``columnID='c1'``
+    is not a well identity across rows and plates.
+    """
+    level = normalize_split_level(group_by)
+    wanted = list(_SPLIT_COLUMNS[level])
+    if not wanted:
+        return level, []
+    missing = [column for column in wanted if column not in columns]
+    if missing:
+        raise ValueError(
+            f"Cannot split {table} by {level}: the complete identity needs "
+            f"{wanted}, but {missing} {'is' if len(missing) == 1 else 'are'} "
+            "missing. Use a frame with acquisition metadata, a valid prcfo, "
+            "or explicitly choose a finer split level such as 'cell'."
+        )
+    return level, wanted
+
+
+def _groups_from_prcfo(values: Sequence[Any], level: str,
+                       table: str) -> np.ndarray:
+    """Parse strict measurement identities from canonical object keys."""
+    from . import schema
+
+    groups: List[str] = []
+    for position, value in enumerate(values):
+        try:
+            identity = schema.parse_prcfo(value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"Cannot split {table} by {level}: prcfo at row {position} "
+                f"is not a valid object identity ({value!r}): {exc}"
+            ) from exc
+        parts = identity.to_dict()
+        wanted = _SPLIT_COLUMNS[level]
+        groups.append("\x1f".join(str(parts[column]) for column in wanted))
+    return np.asarray(groups, dtype=object)
+
+
+def split_group_values(*, group_by: Any = "well",
+                       frame: Optional[pd.DataFrame] = None,
+                       paths: Optional[Sequence[Any]] = None,
+                       table: str = "data") -> Tuple[str, np.ndarray]:
+    """Build one strict group id per row from metadata, ``prcfo``, or paths.
+
+    For grouped levels every identity must be verifiable. Inventing singleton
+    ids for unparseable rows would make a leaking random split look grouped.
+    """
+    level = normalize_split_level(group_by)
+    if frame is None and paths is None:
+        raise ValueError("split_group_values needs a frame or paths")
+    n = len(frame) if frame is not None else len(paths or ())
+    if level == "cell":
+        if frame is not None and "prcfo" in frame.columns:
+            values = frame["prcfo"].astype(str)
+            if frame["prcfo"].isna().any() or values.str.strip().eq("").any():
+                raise ValueError(
+                    f"Cannot split {table} by cell: at least one row has no "
+                    "object identity.")
+            return level, values.to_numpy(dtype=object)
+        if frame is not None and frame.index.name == "prcfo":
+            values = pd.Series(frame.index.astype(str))
+            if values.str.strip().eq("").any():
+                raise ValueError(
+                    f"Cannot split {table} by cell: at least one row has no "
+                    "object identity.")
+            return level, values.to_numpy(dtype=object)
+        if paths is not None:
+            return level, np.asarray(
+                [augmentation_family(path) for path in paths], dtype=object)
+        return level, np.arange(n, dtype=np.int64).astype(object)
+
+    wanted = list(_SPLIT_COLUMNS[level])
+    if frame is not None and all(column in frame.columns for column in wanted):
+        metadata = frame[wanted]
+        missing = metadata.isna() | metadata.astype(str).apply(
+            lambda column: column.str.strip().eq(""))
+        if bool(missing.to_numpy().any()):
+            row, column = np.argwhere(missing.to_numpy())[0]
+            raise ValueError(
+                f"Cannot split {table} by {level}: row {int(row)} has no "
+                f"{wanted[int(column)]} identity. A random fallback would "
+                "report an optimistic score as grouped."
+            )
+        return level, metadata.astype(str).agg("\x1f".join, axis=1).to_numpy()
+
+    if frame is not None:
+        if "prcfo" in frame.columns:
+            return level, _groups_from_prcfo(frame["prcfo"].tolist(), level,
+                                             table)
+        if frame.index.name == "prcfo":
+            return level, _groups_from_prcfo(frame.index.tolist(), level,
+                                             table)
+        if paths is None and "png_path" in frame.columns:
+            paths = frame["png_path"].tolist()
+
+    if paths is not None:
+        groups = []
+        for position, path in enumerate(paths):
+            identity = sample_identity(path)
+            # A crop needs plate, well, field, and object tokens. Accepting a
+            # two-token arbitrary filename as ``plate_well`` invents a well
+            # identity and turns a random split into a grouped-looking one.
+            encoded = augmentation_family(path).split("_")
+            value = identity.get(level, "")
+            if len(encoded) < 4 or not value:
+                raise ValueError(
+                    f"Cannot split {table} by {level}: path at row "
+                    f"{position} ({path!r}) does not encode a {level}. "
+                    "spaCR crop names must encode plate_well_field before "
+                    "the object; choose 'cell' explicitly only if leakage "
+                    "between sibling crops is intended."
+                )
+            groups.append(value)
+        return level, np.asarray(groups, dtype=object)
+
+    missing = [column for column in wanted if frame is None or
+               column not in frame.columns]
+    raise ValueError(
+        f"Cannot split {table} by {level}: missing identity columns {missing}, "
+        "and no valid prcfo or crop path is available. A grouped design is "
+        "therefore unverifiable and will not be replaced by a random split."
+    )
+
+
+def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
+                  seed: int = 0, *, group_by: Any = "well"
+                  ) -> Tuple[np.ndarray, np.ndarray, SplitReport]:
+    """Return a stratified holdout while keeping named groups intact.
+
+    A grouped design is refused when either side cannot contain every class.
+    This is intentionally stricter than silently scoring a model on siblings
+    of its training rows or on a holdout that contains only one class.
+    """
+    from sklearn.model_selection import (GroupShuffleSplit,
+                                         StratifiedGroupKFold,
+                                         train_test_split)
+
+    level = normalize_split_level(group_by)
+    y = np.asarray(labels)
+    group_values = np.asarray(groups, dtype=object)
+    fraction = float(holdout)
+    if not np.isfinite(fraction) or not 0.0 < fraction < 1.0:
+        raise ValueError("holdout must be a finite fraction strictly between 0 and 1")
+    if len(y) != len(group_values):
+        raise ValueError("group-aware splitting requires one group per label")
+    if len(y) < 2:
+        raise ValueError("a train/test split needs at least two labelled cells")
+    classes = np.unique(y)
+
+    indices = np.arange(len(y))
+    distinct = np.unique(group_values.astype(str))
+    protects_groups = level != "cell" or len(distinct) < len(y)
+    if not protects_groups:
+        counts = pd.Series(y).value_counts()
+        if len(counts) > 1 and int(counts.min()) < 2:
+            raise ValueError(
+                "A cell split cannot put every class in both train and test: "
+                f"class counts are {counts.to_dict()}. Add another labelled "
+                "cell in the rare class."
+            )
+        stratify = y if int(counts.min()) >= 2 else None
+        train_idx, test_idx = train_test_split(
+            indices, test_size=fraction, random_state=int(seed),
+            stratify=stratify,
+        )
+        rule = "stratified random split of objects; sibling cells may cross"
+    else:
+        if any(value is None or str(value).strip() == "" for value in group_values):
+            raise ValueError(
+                f"Cannot split by {level}: at least one cell has no group "
+                "identity, so independence cannot be verified."
+            )
+        if len(distinct) < 2:
+            where = distinct[0] if len(distinct) else "unknown"
+            unit = "object" if level == "cell" else level
+            raise ValueError(
+                f"A {unit}-grouped held-out split is impossible: every "
+                f"labelled cell comes from one {unit} ({where}). A random "
+                "cell split would only measure how well the model memorised "
+                f"this {unit}, not whether it transfers."
+            )
+
+        candidates: List[Tuple[np.ndarray, np.ndarray, str]] = []
+        requested_splits = max(
+            2, min(int(round(1.0 / fraction)), len(distinct), 20))
+        # The nearest whole-group fraction may not contain every class. Try a
+        # small ladder down to a half holdout before declaring the design
+        # impossible; 25% over four class-confounded wells, for example, has
+        # no two-class one-well test set but does have an honest two-well one.
+        split_counts = sorted({
+            requested_splits,
+            *range(2, min(5, len(distinct)) + 1),
+        })
+        for n_splits in split_counts:
+            try:
+                splitter = StratifiedGroupKFold(
+                    n_splits=n_splits, shuffle=True, random_state=int(seed))
+                for train, test in splitter.split(indices, y, group_values):
+                    candidates.append((train, test,
+                        f"StratifiedGroupKFold({n_splits}) over "
+                        f"{len(distinct)} {level} groups"))
+            except ValueError:
+                continue
+        # More candidates make uneven group sizes land closer to test_size.
+        splitter = GroupShuffleSplit(
+            n_splits=min(256, max(32, len(distinct) * 4)),
+            test_size=fraction,
+            random_state=int(seed))
+        try:
+            for train, test in splitter.split(indices, y, group_values):
+                candidates.append((train, test,
+                    f"GroupShuffleSplit over {len(distinct)} {level} groups"))
+        except ValueError:
+            pass
+
+        complete = [candidate for candidate in candidates
+                    if set(np.unique(y[candidate[0]])) == set(classes)
+                    and set(np.unique(y[candidate[1]])) == set(classes)]
+        if not complete:
+            per_class = {
+                str(label): int(len(np.unique(group_values[y == label])))
+                for label in classes
+            }
+            raise ValueError(
+                f"A leakage-safe {level}-grouped split cannot put every "
+                "class in both train and test. Independent groups per class: "
+                f"{per_class}. Add independent {level}s, choose a finer "
+                "level, or collect another class-bearing group; a random "
+                "fallback would report memorisation as transfer."
+            )
+
+        target = fraction * len(y)
+        train_idx, test_idx, rule = min(
+            complete,
+            key=lambda candidate: (
+                abs(len(np.unique(group_values[candidate[1]])) /
+                    len(distinct) - fraction),
+                abs(len(candidate[1]) - target),
+            ),
+        )
+        train_groups = set(group_values[train_idx].astype(str))
+        test_groups = set(group_values[test_idx].astype(str))
+        if train_groups & test_groups:  # defensive: sklearn promises this
+            raise RuntimeError(f"{level} groups crossed the train/test boundary")
+
+    train_idx = np.sort(np.asarray(train_idx, dtype=int))
+    test_idx = np.sort(np.asarray(test_idx, dtype=int))
+    total_groups = len(np.unique(group_values.astype(str)))
+    test_groups_n = len(np.unique(group_values[test_idx].astype(str)))
+    if level == "cell" and protects_groups:
+        rule += (
+            "; repeated rows of one object stay together; sibling cells may "
+            "cross")
+    report = SplitReport(
+        group_by=level,
+        requested_fraction=fraction,
+        cell_fraction=len(test_idx) / len(y),
+        group_fraction=test_groups_n / total_groups,
+        train_cells=len(train_idx),
+        test_cells=len(test_idx),
+        train_groups=total_groups - test_groups_n,
+        test_groups=test_groups_n,
+        total_groups=total_groups,
+        rule=rule + ("; no group appears on both sides"
+                     if protects_groups else ""),
+    )
+    return train_idx, test_idx, report
+
+
 class LeakageError(ValueError):
     """Raised when related samples cross a protected split boundary."""
 
@@ -206,16 +538,19 @@ def audit_split_leakage(
 
     :param train_paths: source paths used to fit the model.
     :param validation_paths: paths used only for evaluation.
-    :param group_by: ``none``, ``field``, ``well``, or ``plate``.
+    :param group_by: ``cell``, ``field``, ``well``, or ``plate``. Legacy
+        ``none`` aliases ``cell``.
     :param raise_on_leakage: raise :class:`LeakageError` on a critical overlap.
     :param split_name: optional fold/split label stored in the report.
+    :param hash_content: also compare file CONTENT, so a byte-identical copy
+        under a different name is caught. Costs one read per file.
+    :param require_identity: treat UNVERIFIABLE as critical. A filename that
+        does not encode the requested identity, or a file that cannot be
+        hashed, is otherwise only a warning -- so leaving this False means a
+        clean report can still hide leakage nobody could check for.
     :returns: :class:`LeakageReport`.
     """
-    if group_by not in {"none", "field", "well", "plate"}:
-        raise ValueError(
-            "group_by must be one of ('none', 'field', 'well', 'plate'), "
-            f"not {group_by!r}."
-        )
+    group_by = normalize_split_level(group_by)
     train, train_hash_errors = _identity_sets_with_hashes(
         train_paths, hash_content=hash_content,
     )
@@ -229,14 +564,14 @@ def audit_split_leakage(
     critical_candidates = [
         "exact", "content_sha256", "augmentation_family", "object",
     ]
-    if group_by != "none":
+    if group_by != "cell":
         critical_candidates.append(group_by)
     critical = [
         level for level in dict.fromkeys(critical_candidates)
         if overlap[level]
     ]
     warnings = []
-    if group_by == "none":
+    if group_by == "cell":
         warnings.append(
             "The split is not grouped; shared well/field acquisition context "
             "can inflate performance even when exact objects do not overlap."
@@ -244,11 +579,11 @@ def audit_split_leakage(
     missing_train = sum(
         not sample_identity(path)[group_by]
         for path in train_paths
-    ) if group_by != "none" else 0
+    ) if group_by != "cell" else 0
     missing_val = sum(
         not sample_identity(path)[group_by]
         for path in validation_paths
-    ) if group_by != "none" else 0
+    ) if group_by != "cell" else 0
     unverifiable = {}
     if missing_train or missing_val:
         unverifiable[group_by] = int(missing_train + missing_val)
@@ -336,9 +671,29 @@ def audit_cv_folds(
     sample of pairwise boundaries. Each index must be validation exactly once;
     exact paths, byte-identical content, source/augmentation families and the
     requested plate/well/field group must map to one held-out fold only.
+
+    :param paths: one source path per sample, indexed by the fold indices.
+    :param folds: ``(train_indices, validation_indices)`` per fold. Indices
+        outside ``range(len(paths))`` are reported rather than ignored.
+    :param labels: optional class per path, one value per path. Only used to
+        describe the folds; it does not affect leakage detection.
+    :param group_by: identity level that may not cross a fold boundary --
+        ``none``, ``field``, ``well`` or ``plate``. A well-grouped split
+        permits the same plate on both sides but never the same well.
+    :param hash_content: also compare file CONTENT, so a byte-identical copy
+        under a different name is caught. Costs one read per file.
+    :param require_identity: treat UNVERIFIABLE as critical. A filename that
+        does not encode the requested identity, or a file that cannot be
+        hashed, is otherwise only a warning -- so leaving this False means a
+        clean report can still hide leakage nobody could check for.
+    :param raise_on_leakage: raise :class:`LeakageError` instead of returning
+        a report whose ``passed`` is False.
+    :returns: a :class:`FoldLeakageAudit` carrying the per-level overlap
+        counts, examples, and which levels were critical.
+    :raises ValueError: for an unsupported ``group_by``, or ``labels`` whose
+        length does not match ``paths``.
     """
-    if group_by not in {"none", "field", "well", "plate"}:
-        raise ValueError(f"unsupported group_by {group_by!r}")
+    group_by = normalize_split_level(group_by)
     n_samples = len(paths)
     membership: List[List[int]] = [[] for _ in range(n_samples)]
     warnings: List[str] = []
@@ -393,7 +748,7 @@ def audit_cv_folds(
             if error:
                 hash_errors.append(error)
         values["content_sha256"] = digest
-        if group_by != "none" and not values[group_by]:
+        if group_by != "cell" and not values[group_by]:
             missing_identity += 1
         for level, value in values.items():
             if not value:
@@ -420,7 +775,7 @@ def audit_cv_folds(
     if duplicate:
         critical.append("validation_membership_duplicate")
     protected = ["exact", "content_sha256", "augmentation_family", "object"]
-    if group_by != "none":
+    if group_by != "cell":
         protected.append(group_by)
     critical.extend(level for level in protected if overlaps[level])
 
@@ -506,7 +861,32 @@ def audit_dataset_splits(
     require_identity: bool = True,
     raise_on_leakage: bool = False,
 ) -> LeakageReport:
-    """Audit the permanent ``train/`` versus ``test/`` dataset boundary."""
+    """Audit the permanent ``train/`` versus ``test/`` dataset boundary.
+
+    :param root: dataset directory holding ``train/`` and ``test/``. Both are
+        searched recursively, and only ``.png``, ``.jpg``, ``.jpeg``, ``.tif``,
+        ``.tiff``, ``.bmp`` and ``.npy`` files are collected, so a folder of
+        any other format audits as empty.
+    :param group_by: identity level that may not appear on both sides --
+        ``none``, ``field``, ``well`` or ``plate``. The default ``well`` still
+        permits the same plate in train and test. It is validated only after
+        the images are found, so a bad value over an empty tree reports the
+        missing images instead.
+    :param hash_content: defaults to True here, unlike
+        :func:`audit_split_leakage`, so a byte-identical copy saved under a
+        different name fails the audit -- at the cost of one read per file.
+    :param require_identity: defaults to True here: filenames that do not
+        encode the ``group_by`` level, and files that cannot be hashed, become
+        critical instead of a warning, so an unverifiable split cannot report
+        as clean.
+    :param raise_on_leakage: raise :class:`LeakageError` instead of returning
+        a report whose ``passed`` is False.
+    :raises FileNotFoundError: when either side collects no image -- a missing
+        or unreadable folder is never treated as a passing split.
+    :returns: a :class:`LeakageReport` whose ``split_name`` is always
+        ``train_vs_test``; the ``test/`` side is counted as
+        ``validation_samples``.
+    """
     train_paths = dataset_split_paths(root, "train")
     test_paths = dataset_split_paths(root, "test")
     if not train_paths or not test_paths:
@@ -658,11 +1038,46 @@ def cross_calibrate_probabilities(
 
     This cross-fitting prevents a sample from fitting the calibrator that is
     evaluated on that same sample.
+
+    :param y_true: class INDEX per sample, read only to fit the temperatures.
+        A value outside the probability columns is REFUSED -- it used to make
+        every fold's fit fail, fall back to temperature 1.0, and return
+        uncalibrated probabilities while reporting that calibration ran.
+    :param probabilities: predicted probabilities; a 1-D positive-class vector
+        is expanded to two columns and every row is renormalized, so the
+        result is always a new normalized matrix -- never the object passed
+        in, even when no calibration is applied.
+    :param fold_ids: held-out block per sample; any hashable value works, and
+        each distinct value is calibrated from all the others, so at least two
+        distinct values are required. The returned map is keyed by
+        ``str(fold_id)``.
+    :param method: ``temperature``, or ``none``/``off``/``false`` (also
+        ``None`` and the empty string) to return the normalized probabilities
+        unchanged with an empty temperature map. Case and surrounding
+        whitespace are ignored; anything else is refused rather than skipped.
+    :param warnings_out: list appended in place when a fold cannot be
+        calibrated from the others. The message is printed either way, so
+        leaving this None only discards the machine-readable copy.
+    :raises ValueError: on mismatched lengths, an unrecognized ``method``, or
+        fewer than two distinct ``fold_ids`` when calibrating.
+    :returns: ``(calibrated_probabilities, temperature_by_held_out_fold)``.
     """
     normalized_method = str(method or "none").strip().lower()
     probs = normalize_probabilities(probabilities)
     y = np.asarray(y_true, dtype=int)
     folds = np.asarray(fold_ids)
+    # REFUSE a label the head has no column for. Without this every fold's
+    # fit raised inside its own try/except, each fell back to temperature
+    # 1.0, and the function returned UNCALIBRATED probabilities while
+    # reporting that calibration ran -- visible only as a printed warning a
+    # caller has no reason to be watching.
+    if len(y) and probs.shape[1]:
+        stray = sorted({int(v) for v in y if v < 0 or v >= probs.shape[1]})
+        if stray:
+            raise ValueError(
+                f"y_true contains class indices {stray} outside the "
+                f"{probs.shape[1]} probability columns; calibration would "
+                "silently do nothing.")
     if len(y) != len(probs) or len(folds) != len(y):
         raise ValueError(
             "y_true, probabilities, and fold_ids must have equal length."
@@ -703,6 +1118,15 @@ def cross_calibrate_probabilities(
     return calibrated, temperatures
 
 
+#: Columns of the frame :func:`calibration_table` returns, named here so an
+#: empty result still has them. Without this a table with no rows is shape
+#: (0, 0) and every downstream column access raises KeyError.
+CALIBRATION_COLUMNS = (
+    "class_index", "class_name", "bin", "bin_lower", "bin_upper",
+    "n", "mean_confidence", "observed_frequency", "calibration_gap",
+)
+
+
 def calibration_table(
     y_true: Sequence[int],
     probabilities: Any,
@@ -710,12 +1134,42 @@ def calibration_table(
     classes: Optional[Sequence[str]] = None,
     n_bins: int = 10,
 ) -> pd.DataFrame:
-    """Return per-class reliability bins for calibration plots."""
+    """Return per-class reliability bins for calibration plots.
+
+    :param y_true: class INDEX per sample, compared column by column. A label
+        outside the probability columns is REFUSED: it matches no class, so it
+        used to read ``observed_frequency`` 0.0 everywhere and render as a
+        catastrophically miscalibrated curve rather than an error.
+    :param probabilities: predicted probabilities; a 1-D positive-class vector
+        is expanded to two columns and every row is renormalized.
+    :param classes: display names in column order. An EMPTY sequence falls
+        back to ``class_0 ... class_n``; a non-empty one whose length
+        disagrees with the columns is refused.
+    :param n_bins: equal-width confidence bins over ``[0, 1]``, truncated to
+        an int and floored at 2, so 0, 1 and any negative value all give two
+        bins. The top bin is closed on the right, so confidence 1.0 lands in
+        it rather than falling out of the table.
+    :raises ValueError: when ``y_true`` and ``probabilities`` differ in
+        length, ``classes`` has the wrong length, or a class index falls
+        outside the probability columns.
+    :returns: one row per class and NON-EMPTY bin, so the frame is shorter
+        than ``n_classes * n_bins`` rows. An empty result still carries
+        :data:`CALIBRATION_COLUMNS`, so a column can be indexed on it.
+    """
     y = np.asarray(y_true, dtype=int)
     probs = normalize_probabilities(probabilities)
     if len(y) != len(probs):
         raise ValueError("y_true and probabilities must have equal length.")
     n_classes = probs.shape[1]
+    # A label with no column matches nothing, so every observed_frequency
+    # reads 0.0 and the reliability curve looks catastrophically
+    # miscalibrated rather than wrong. Refuse it.
+    if len(y) and n_classes:
+        stray = sorted({int(v) for v in y if v < 0 or v >= n_classes})
+        if stray:
+            raise ValueError(
+                f"y_true contains class indices {stray} outside the "
+                f"{n_classes} probability columns.")
     names = list(classes or [f"class_{i}" for i in range(n_classes)])
     if len(names) != n_classes:
         raise ValueError("classes and probability columns must have equal length.")
@@ -750,7 +1204,11 @@ def calibration_table(
                     observed[mask].mean() - confidence[mask].mean()
                 ),
             })
-    return pd.DataFrame(rows)
+    # Name the columns even with no rows. `pd.DataFrame([])` is shape (0, 0),
+    # so a caller indexing 'class_name' or 'bin' on an empty result got a
+    # KeyError rather than an empty column -- and an empty table is a
+    # legitimate state (every bin can be empty), not a broken frame.
+    return pd.DataFrame(rows, columns=CALIBRATION_COLUMNS)
 
 
 def _metric_summary(
@@ -814,6 +1272,27 @@ def evaluate_predictions(
 ) -> Dict[str, Any]:
     """Build overall, confusion, calibration, and per-plate evaluation tables.
 
+    :param y_true: true class INDEX per sample, in ``range(n_classes)``. A
+        value outside that range is refused rather than clipped.
+    :param probabilities: ``(n_samples, n_classes)`` predicted probabilities.
+        Its column count defines ``n_classes``.
+    :param sample_paths: one source path per sample, used to derive the
+        per-plate tables. Must be the same length as ``y_true``.
+    :param classes: display names for the columns, in column order. Defaults
+        to ``class_0 ... class_n``; a length that disagrees with the
+        probability columns is refused.
+    :param fold_ids: which held-out fold each sample came from. REQUIRED for
+        temperature calibration and unused otherwise -- the temperature is
+        fitted per held-out fold so no sample is calibrated on itself, which
+        needs at least two distinct folds.
+    :param calibration_method: ``'none'`` (default) or ``'temperature'``.
+        Anything else is refused rather than silently ignored.
+    :param calibration_bins: bin count for the expected-calibration-error
+        estimate. More bins resolve the reliability curve better and make
+        each bin noisier.
+    :raises ValueError: on mismatched lengths, a class index outside the
+        probability columns, an unknown ``calibration_method``, or temperature
+        calibration with fewer than two distinct folds.
     :returns: the evaluation bundle, a dict with six keys:
 
         * ``summary`` — scalar metrics (``n``, accuracy, balanced accuracy,
@@ -965,6 +1444,29 @@ def nested_group_folds(
     """Build nested stratified/grouped outer and inner index partitions.
 
     Inner indexes are returned in the original/global coordinate system.
+
+    :param labels: class label per sample, coerced to int. Only its length and
+        class balance matter -- the folds carry indices, not data.
+    :param outer_splits: outer fold count, coerced with ``int`` (``2.9`` gives
+        2); below 2 is refused.
+    :param inner_splits: inner fold count built inside each outer TRAINING
+        set, so it is bounded by that subset, not by the dataset: three inner
+        folds over four samples fails on the outer training half even though
+        the outer split itself succeeded.
+    :param groups: optional group key per sample (well or plate id) kept whole
+        within a fold at BOTH levels. None gives a plain stratified split that
+        will scatter crops of the same well across folds.
+    :param seed: outer folds use ``seed``; the inner folds of outer fold ``k``
+        use ``seed + k``, so inner partitions differ between outer folds
+        instead of repeating one layout. Must be an int -- a float reaches
+        ``numpy.random.default_rng`` and raises ``TypeError``.
+    :raises ValueError: when either split count is below 2, or when the sample
+        count (or the number of distinct groups) cannot supply that many
+        folds.
+    :returns: one dict per outer fold, with ``outer_fold`` (1-based),
+        ``train``, ``validation`` and ``inner`` -- a list of
+        ``(train, validation)`` index pairs expressed in GLOBAL indices, not
+        as positions inside ``train``.
     """
     from .io import make_cv_folds
 

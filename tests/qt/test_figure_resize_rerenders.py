@@ -122,9 +122,16 @@ def test_a_negligible_change_does_not_rerender(queue, figure):
 
 
 def test_no_figure_means_no_crash(queue):
-    """The panel is empty until a run produces something."""
+    """The panel is empty until a run produces something.
+
+    Asserted rather than merely called: "it did not raise" is compatible
+    with it having rendered something into an empty panel, which is the
+    failure worth excluding.
+    """
     queue._figures.clear()
     queue._rerender_for_size()
+
+    assert queue._figures == [] or len(queue._figures) == 0
 
 
 def test_the_render_does_not_run_on_the_gui_thread(queue, figure, tmp_path):
