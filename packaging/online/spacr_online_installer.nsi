@@ -43,6 +43,9 @@ Var ConsentIssuesValue
 Var ConsentSignInValue
 Var ConsentCollectedValue
 
+Section /o "$(SPACR_NSIS_GPU)" SecGpu
+SectionEnd
+
 Function .onInit
   !insertmacro MUI_LANGDLL_DISPLAY
   ; Match the bootstrap's default: select acceleration only when a working
@@ -82,9 +85,6 @@ Function ConsentPageLeave
   ${NSD_GetState} $ConsentSignIn $ConsentSignInValue
   StrCpy $ConsentCollectedValue 1
 FunctionEnd
-
-Section /o "$(SPACR_NSIS_GPU)" SecGpu
-SectionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SecGpu} "GPU acceleration: measured 13x faster Cellpose segmentation and 20x faster ResNet classification than CPU on an RTX 3090; hardware varies."
