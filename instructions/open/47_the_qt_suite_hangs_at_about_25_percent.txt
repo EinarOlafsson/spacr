@@ -848,3 +848,51 @@ test_onboarding: 11 tests, 12.1 s total, where one test used to take 45.
 
 15 tests in tests/test_run_journal_inventory_scope.py; 174 pass across
 run_journal, report and report coverage.
+
+--------------------------------------------------------------------------------
+2026-08-13 (last) - IT DOES NOT HANG. IT DECELERATES, BY ABOUT SIX TIMES.
+--------------------------------------------------------------------------------
+
+Two full runs today, both under a per-test `--timeout=900` that NEVER FIRED,
+so no single test hung. Both were killed by MY wrapper timeout, not by the
+suite stopping:
+
+    run A   `timeout 7200`  (2 h)   killed at 66%,  EXIT=124
+    run B   `timeout 18000` (5 h)   killed at 83%,  EXIT=124
+
+In both, output was still being written a minute before the kill. This file's
+title is wrong: THE SUITE DOES NOT HANG AT 25%.
+
+WHAT IT DOES IS SLOW DOWN AS IT GOES, and the numbers are the finding:
+
+    0  -> 66%     2.0 h      33.0 % / hour
+    66 -> 83%     3.0 h       5.7 % / hour     <- 5.8x slower
+
+That is not a slow test somewhere near the end; it is a rate that falls
+across the run. Something ACCUMULATES between tests -- leaked QWidgets, live
+QThreads, matplotlib figures never closed, or simply an ever-larger Qt object
+tree -- and every later test pays for everything before it.
+
+WHY THIS EXPLAINS THE OLD REPORT. Earlier runs "reached 66% and stopped,
+both stopped by a 5.5h timeout". At a decaying rate, where a run appears to
+stall depends on how long you waited, not on which test it reached -- which
+is exactly why two different timeouts produced two plausible-looking
+plateaus, and why "hangs at 25%" and "reaches 66%" are both in this file.
+
+THE NEXT STEP IS NO LONGER "FIND THE HANGING TEST". There isn't one. It is:
+
+  1. Measure the accumulation. Run with `-p no:randomly` and log RSS and
+     `len(QApplication.allWidgets())` per test; the leak is whatever climbs
+     monotonically.
+  2. Suspect the fixtures that build a whole `MainWindow` or `AppScreen`. The
+     handoff already records "constructing AppScreen leaves a QThread alive",
+     and a thread per test is exactly this shape.
+  3. `pytest-xdist` with `--dist loadfile` would ALSO make the suite finish,
+     by restarting workers -- but it would hide the leak rather than fix it,
+     and the leak is a product defect if those widgets outlive their screens
+     in the app too. Measure first.
+
+ABOUT 15 FAILURES appeared along the way in run A, at 33%, 38% (ten together)
+and 42%, 51% and 54%. They are unidentified: `-rf` was passed to run B and it
+was killed before the summary printed. Getting that list needs a run that
+finishes, which is why the deceleration is the first thing to fix.
