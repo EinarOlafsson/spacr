@@ -159,11 +159,32 @@ jobs:
             -ArgumentList @("/S", "/D=$InstallRoot") `
             -Wait `
             -PassThru
-          if ($Process.ExitCode -ne 0) {
-            throw "The NSIS installer failed with exit code $($Process.ExitCode)"
-          }
-          if (-not (Test-Path (Join-Path $InstallRoot "install.log"))) {
-            throw "The installer did not preserve install.log"
+          $InstallLog = Join-Path $InstallRoot "install.log"
+          if ($Process.ExitCode -ne 0 -or -not (Test-Path $InstallLog)) {
+            Write-Host "NSIS process exit code: $($Process.ExitCode)"
+            $CandidateRoots = @(
+              $InstallRoot,
+              (Join-Path $env:LOCALAPPDATA "SpaCR")
+            ) | Select-Object -Unique
+            foreach ($CandidateRoot in $CandidateRoots) {
+              Write-Host "Installer candidate root: $CandidateRoot"
+              if (Test-Path $CandidateRoot) {
+                Get-ChildItem $CandidateRoot -Force | Format-Table -AutoSize
+                Get-ChildItem $CandidateRoot `
+                  -Filter "*bootstrap*.txt" `
+                  -Force `
+                  -ErrorAction SilentlyContinue | ForEach-Object {
+                    Write-Host "--- $($_.FullName)"
+                    Get-Content $_.FullName
+                  }
+                $CandidateLog = Join-Path $CandidateRoot "install.log"
+                if (Test-Path $CandidateLog) {
+                  Write-Host "--- $CandidateLog (tail)"
+                  Get-Content $CandidateLog -Tail 100
+                }
+              }
+            }
+            throw "NSIS install failed or did not preserve install.log"
           }
           if (-not (Test-Path (Join-Path $InstallRoot "spacr.ico"))) {
             throw "The installer did not install the spaCR application icon"
