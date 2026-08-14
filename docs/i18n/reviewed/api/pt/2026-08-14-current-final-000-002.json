@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "label": "spacr.benchmark#3",
+      "source_sha256": "fb96c1dd329e54648f223108b0e5298bd0be8188b0a6ca48ce4f8194a4e23b5e",
+      "source": "WHY A DEFAULT NEEDS THIS. spaCR's worker defaults are arithmetic on the core count -- ``cpu_count() - 4``, ``cpu_count() // 2``, ``-1``. Cores are the one thing that is never the binding constraint on a measurement run: a field is hundreds of megabytes decompressed, and eight workers on a 16-core laptop with 16 GB will swap long before they saturate the CPU. The number that matters is how much MEMORY one worker needs for one representative field, and that is a property of the plate and the machine, not of the core count.",
+      "context": "WHY A DEFAULT NEEDS THIS. spaCR's worker defaults are arithmetic on the core count -- ``cpu_count() - 4``, ``cpu_count() // 2``, ``-1``. Cores are the one thing that is never the binding constraint on a measurement run: a microscope field of view is hundreds of megabytes decompressed, and eight workers on a 16-core laptop with 16 GB will swap long before they saturate the CPU. The number that matters is how much MEMORY one worker needs for one representative microscope field of view, and that is a property of the laboratory microplate and the machine, not of the core count.",
+      "translation": "POR QUE UM VALOR PADRÃO PRECISA DISSO. Os padrões de workers do spaCR são cálculos baseados no número de núcleos -- ``cpu_count() - 4``, ``cpu_count() // 2``, ``-1``. O número de núcleos nunca é a restrição determinante em uma execução de medição: um campo de visão microscópico ocupa centenas de megabytes após a descompressão, e oito workers em um laptop de 16 núcleos com 16 GB começarão a usar memória de troca muito antes de saturar a CPU. O número relevante é quanta MEMÓRIA um worker precisa para um campo de visão microscópico representativo; essa é uma propriedade da microplaca de laboratório e da máquina, não do número de núcleos."
+    },
+    {
+      "label": "spacr.gpu_reduce#6",
+      "source_sha256": "335dad36235496c3fdc08c7d912e057a011d94051ff3b8a33e5b52ed432b25ec",
+      "source": "**Determinism is a real difference, not a footnote.** cuML's UMAP is not bit-identical to umap-learn's, and its KMeans and DBSCAN can differ at the boundaries. A figure regenerated on a different machine would move. So the accelerator is OPT-IN per call, reports which backend ran, and any caller that pins a seed for reproducibility should keep the CPU path.",
+      "context": "**Determinism is a real difference, not a footnote.** cuML's UMAP is not bit-identical to umap-learn's, and its KMeans and DBSCAN can differ at the boundaries. A figure regenerated on a different machine would move. So the accelerator is OPT-IN per call, reports which backend ran, and any caller that pins a seed for reproducibility should keep the CPU path.",
+      "translation": "**O determinismo é uma diferença real, não uma nota de rodapé.** O UMAP do cuML não é idêntico bit a bit ao do umap-learn, e os resultados de KMeans e DBSCAN podem divergir nas fronteiras. Uma figura regenerada em outra máquina poderia mudar de posição. Portanto, o acelerador é optativo em cada chamada, informa qual backend foi executado, e qualquer código chamador que fixe uma semente para garantir a reprodutibilidade deve manter o caminho de CPU."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_editor.GateCanvas.set_anchor_axis#1",
+      "source_sha256": "bac234294d0e720836bc4409871fb59586c4a499858d8726d15d7d9c95e6bd42",
+      "source": "The first version of this read the plane off the camera and returned nothing unless the view was square-on, so turning the volume silently changed what the next gate would mean. The user picks a plane and it stays picked.",
+      "context": "The first version of this read the image layer off the camera and returned nothing unless the view was square-on, so turning the volume silently changed what the next data-selection boundary would mean. The user picks an image layer and it stays picked.",
+      "translation": "A primeira versão lia a camada de imagem a partir da câmera e não retornava nada se a visualização não estivesse perfeitamente de frente; assim, girar o volume alterava silenciosamente o significado do próximo limite de seleção de dados. O usuário escolhe uma camada de imagem, e ela permanece selecionada."
+    }
+  ]
+}
