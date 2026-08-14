@@ -4415,6 +4415,15 @@ API_SHARED_PHRASE_ALLOWLIST_BY_LANGUAGE = {
         "warm page cache ms",
         "zarr format zarr format",
     }),
+    # These are exact quoted UI/schema literals in the canonical prose.  The
+    # syntax contract deliberately keeps the quoted bytes unchanged, so the
+    # copied-English audit must recognize the same three reviewed literals.
+    "ko": frozenset({
+        "c matthew o meara",
+        "this field has an and it encloses nothing",
+        "unknown and therefore probably a cell",
+        "what is this",
+    }),
     "sv": frozenset({
         "cp cp cp cp",
         "information houlsby et al",
