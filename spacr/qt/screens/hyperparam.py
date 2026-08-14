@@ -823,9 +823,21 @@ class HyperparamPanel(QWidget):
             "spacr.hyperparam.umap_search(resume=True).")
         run_grid.addWidget(self._resume, 2, 0, 1, 3)
 
+        # GPU sits to the LEFT of the search button and says just "GPU",
+        # as asked. Checkable, because it is a state the next search runs
+        # under and not an action -- and its checked state is the honest
+        # answer to "which backend will draw these rows", which the table
+        # records per row.
+        self._gpu_btn = QPushButton("GPU")
+        self._gpu_btn.setCheckable(True)
+        self._gpu_btn.setObjectName("UmapGpuToggle")
+        self._gpu_btn.clicked.connect(self._on_gpu_clicked)
+        run_grid.addWidget(self._gpu_btn, 3, 0)
+        self._refresh_gpu_button()
+
         self._run_btn = QPushButton("Run search")
         self._run_btn.clicked.connect(self.run_search)
-        run_grid.addWidget(self._run_btn, 3, 0, 1, 2)
+        run_grid.addWidget(self._run_btn, 3, 1)
 
         self._stop_btn = QPushButton("Stop")
         self._stop_btn.setEnabled(False)
@@ -1375,6 +1387,109 @@ class HyperparamPanel(QWidget):
         return SearchSpace(params)
 
     # -- running -----------------------------------------------------------
+
+    # -- GPU ---------------------------------------------------------------
+
+    def gpu_backend(self) -> str:
+        """Which backend the next search will use: ``'cuml'`` or ``'cpu'``.
+
+        Read from the button rather than from what is installed: cuML being
+        importable is not the same as the user having asked for it, and a
+        table whose rows came from both backends compares two libraries as
+        well as the settings it varied.
+        """
+        button = getattr(self, "_gpu_btn", None)
+        return "cuml" if button is not None and button.isChecked() else "cpu"
+
+    def _refresh_gpu_button(self) -> None:
+        """Show what pressing it would do, before it is pressed."""
+        button = getattr(self, "_gpu_btn", None)
+        if button is None:
+            return
+        try:
+            from ...gpu_reduce import describe, install_plan
+            plan = install_plan()
+        except Exception:
+            button.setEnabled(False)
+            button.setToolTip("GPU acceleration is unavailable in this build.")
+            return
+        ready = plan["action"] == "ready"
+        button.setEnabled(True)
+        if not ready:
+            button.setChecked(False)
+        tip = {
+            "ready": "Draw the embeddings with cuML on the GPU.",
+            "install": "cuML is not installed. Press to install it.",
+            "wrong_python": "cuML cannot be installed into this interpreter.",
+            "no_device": "cuML is installed but no CUDA device answered.",
+        }[plan["action"]]
+        # The MEASURED caveat, not a promise: a cuML map is a different map
+        # of the same data, not the same map faster.
+        button.setToolTip(
+            f"{tip}\n\n{plan['message']}\n\nA map drawn by cuML is a "
+            f"DIFFERENT MAP of the same data, not the same map faster, so "
+            f"rows from the two backends are not comparable. Each row records "
+            f"which drew it.")
+
+    def _on_gpu_clicked(self) -> None:
+        """Turn cuML on, offer to install it, or say what is needed."""
+        from PySide6.QtWidgets import QMessageBox
+
+        from ...gpu_reduce import install_command, install_plan
+
+        plan = install_plan()
+        if plan["action"] == "ready":
+            self._set_status(f"GPU: {plan['message']}")
+            return
+        # Not ready, so the toggle must not stay down claiming it is.
+        self._gpu_btn.setChecked(False)
+        if plan["action"] in ("wrong_python", "no_device"):
+            QMessageBox.information(self, "GPU not available", plan["message"])
+            return
+        answer = QMessageBox.question(
+            self, "Install cuML?",
+            plan["message"] + "\n\n" + " ".join(install_command()))
+        if answer != QMessageBox.Yes:
+            return
+        self._install_cuml()
+
+    def _install_cuml(self) -> None:
+        """Run the install, then say to restart. Never claim it is live.
+
+        pip can upgrade numpy and scipy underneath a process that has
+        already imported them -- and this one has, several times over. So
+        the new backend is NOT usable in this session whatever pip reports,
+        and pretending otherwise would produce failures nobody could
+        attribute.
+        """
+        import subprocess
+
+        from PySide6.QtWidgets import QMessageBox
+
+        from ...gpu_reduce import install_command
+
+        self._set_status("Installing cuML — this downloads several "
+                         "gigabytes and will take a while…")
+        try:
+            subprocess.run(install_command(), check=True)
+        except Exception as exc:
+            QMessageBox.warning(
+                self, "Install failed",
+                f"{exc}\n\nRun this yourself to see the full output:\n"
+                + " ".join(install_command()))
+            self._set_status("cuML install failed.")
+            return
+        QMessageBox.information(
+            self, "Restart spaCR",
+            "cuML is installed. RESTART spaCR before using it — pip may "
+            "have upgraded numpy or scipy underneath this process, which "
+            "has already imported them.")
+        self._set_status("cuML installed. Restart spaCR to use it.")
+
+    def _set_status(self, text: str) -> None:
+        label = getattr(self, "_status", None)
+        if label is not None:
+            label.setText(str(text))
 
     def run_search(self) -> bool:
         """Validate the space and start the sweep in the background.

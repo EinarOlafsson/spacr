@@ -111,3 +111,54 @@ the table on black and clicking one loads it; the clustering walk runs during
 the UMAP search or after a map is chosen; the GPU button either turns cuML on,
 installs it and says to restart, or says precisely what interpreter is needed;
 and every table row records which backend drew it.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE MODEL AND THE GPU BUTTON ARE BUILT. THE VIEWER IS NOT.
+--------------------------------------------------------------------------------
+
+BUILT:
+
+  `spacr/umap_search.py`   `UmapRecipe`, `SearchRow`, `SearchTable`,
+                           `walk_recipes`. Qt-free on purpose -- instruction
+                           52 was reopened because its geometry was tested and
+                           its controls were not, so the model is testable
+                           without a display and the panel drives it.
+  `spacr/gpu_reduce.py`    `install_plan()`, `install_command()`,
+                           `python_supported()`, `SUPPORTED_PYTHON`.
+  the GPU button           left of Run search, says just "GPU", checkable.
+
+THE ROW IS THE RECIPE, which is the design starplast's `EmbeddingSpec`
+teaches. A stored row rebuilds EXACTLY the map it scored, not a map with the
+same settings -- otherwise clicking row 7 draws something row 7's score does
+not describe and nobody would notice. The columns are part of it, and so is
+the BACKEND: a cuML map is a different map of the same data, so a table mixing
+backends compares two libraries as well as the settings the search varied.
+`SearchTable.mixed_backends()` says so.
+
+`SearchRow` HOLDS its embedding rather than recomputing on click. Recomputing
+gives a map that merely matches the recipe, and on a non-deterministic backend
+not even that.
+
+THE GPU BUTTON DECIDES BEFORE IT INSTALLS. Four outcomes, four sentences,
+because "it did not work" is the same message for all four and actionable for
+none: ready / install / wrong_python / no_device. On 3.10 it says to make a
+3.11 environment and gives the conda lines, rather than letting pip emit a
+resolver error the user cannot act on. It states the SIZE first (gigabytes of
+CUDA libraries; a download with no progress reads as a hang) and states that
+spaCR must be RESTARTED -- pip can upgrade numpy and scipy underneath a
+process that has already imported them, and this one has. It never claims the
+new backend is live in the current session.
+
+NOT BUILT YET, and this is the honest remainder:
+
+  * THE 2D / 3D UMAP CONTAINER beside the table, replacing the figure grid and
+    the "No search has been run yet" label. Clicking a row draws that row's
+    embedding in it; it spins; it can be clustered.
+  * THE GRID BUTTON that shows every map in the table on BLACK, click one to
+    load it into the container.
+  * THE CLUSTERING WALK running in tandem with the UMAP search, or after a map
+    is chosen.
+  * Removing the default figure-generation slider from this module.
+
+46 tests across the model and the button; 424 pass over the hyperparam, umap
+and search suites.

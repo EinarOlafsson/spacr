@@ -188,8 +188,10 @@ def test_umap_settings_uses_measure_style_tabbed_dialog(panel, qtbot):
         if button.isVisible()
     # "Axes…" opens the Walk's search-space picker. It sits beside the
     # Walk toggle it configures, which the settings dialog adopts along
-    # with the rest of the run controls.
-    } == {"Close", "Run search", "Propagate settings", "Axes…"}
+    # with the rest of the run controls. "GPU" sits to the LEFT of Run
+    # search and turns the cuML backend on for the next search -- it is a
+    # run control too, so the dialog adopts it with the others.
+    } == {"Close", "GPU", "Run search", "Propagate settings", "Axes…"}
     assert dialog._close_btn.icon().isNull()
     assert panel._compact_stop_btn.objectName() == "DangerButton"
     assert panel._compact_stop_btn.property("buttonActionRole") == "negative"
