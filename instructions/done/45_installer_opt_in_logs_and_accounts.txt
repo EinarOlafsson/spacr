@@ -2,7 +2,7 @@
 INSTALLER: OPT-IN LOG SHARING, ACCOUNT SIGN-IN, AND THE ISSUE TOGGLE
 ================================================================================
 
-Status:    not started
+Status:    complete, 2026-08-14
 Requested: 2026-08-08 - "Add to the installation an opt in to save and send
            logs to spacr@gmail.com for developmental purposes. You would
            have to setup an automatic mechanism that sends user logs to this
@@ -186,3 +186,62 @@ A CAVEAT WORTH KEEPING: an opt-in that is easy to click through is not
 consent. The installer window is the right place BECAUSE it is a moment the
 user is already reading and deciding, but the checkbox must not be
 pre-ticked, and "Skip" must be as easy to press as "Agree".
+
+--------------------------------------------------------------------------------
+2026-08-14 - COMPLETE: THREE OFF SWITCHES, EDITABLE PREVIEW, OFFICIAL CREDENTIAL OWNERS
+--------------------------------------------------------------------------------
+
+THE CONSENT SURFACE now exists in all installation paths. Windows has the NSIS
+page; an interactive Linux/macOS bootstrap asks the same three questions; a
+noninteractive package install records all three off and the installed app
+shows the same page on first launch. The choices are:
+
+    include redacted diagnostics in previews     OFF
+    enable the public GitHub report action        OFF
+    open account setup on first launch            OFF
+
+The text says PUBLIC, world-readable, indexed/mirrored, and not reliably
+unpublishable. It also says every choice is optional and revocable in
+Preferences. Skip is the explicit keep-all-off action. The profile is applied
+once to the existing runtime preferences; declining produces the same running
+application as before.
+
+THE REPORT PATH has one consent boundary per report. spaCR builds a sanitized
+payload, strips filenames by default, and displays the exact editable title
+and body. Cancel sends nothing. Only `Send report` hands that approved mapping
+to the asynchronous transport. Diagnostic log lines are absent unless their
+independent preference is on. Secret-shaped values, authorization headers,
+home paths, database paths, and credential-named settings are redacted before
+the preview. Transport failure is reported and never interrupts a scientific
+run.
+
+THE DESTINATION is the public EinarOlafsson/spacr issue tracker. An official
+authenticated `gh` session can create the issue through GitHub's API; otherwise
+spaCR opens the bounded pre-filled browser form. There is no SMTP secret and no
+background telemetry. A test-process write guard prevents a forgotten mock
+from ever filing another public fixture issue.
+
+ACCOUNTS deliberately do not collect credentials inside spaCR. GitHub uses
+`gh auth login`; Claude, GPT/Codex, and Gemini use their vendors' official
+coding-agent CLIs. Those tools own their credential stores, and the provider
+dialog is opened on first launch when requested. spaCR stores no durable PAT,
+API token, password, QSettings credential, settings-CSV credential, or run-
+manifest credential; insecure legacy QSettings PATs are erased when found.
+This replaces the requested installer credential entry with the security-
+correct setup step and avoids a screen that only appears to authenticate.
+
+VERIFICATION:
+
+  * 236 focused profile, consent, preview, GitHub, provider, responsiveness,
+    and installer tests passed in one run. They cover accept/decline, apply
+    once, revocation preferences, edits, default filename stripping, cancel,
+    mocked API/browser success and failure, token redaction, and no durable
+    credential storage.
+  * Native run 31796262489 built and installed on Ubuntu 24.04, Windows 2025,
+    and macOS 15. Each installed package constructed the real consent dialog,
+    asserted all choices off, and asserted the public/unpublishable warning.
+    The stored noninteractive profile also had every consent value false.
+  * No public test issue was created. Arrival is covered through mocked GitHub
+    API/browser transports because posting a permanent indexed fixture would
+    violate the feature's own consent contract. Production submission remains
+    possible only after the editable, report-specific Send action.

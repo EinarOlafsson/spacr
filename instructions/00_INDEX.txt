@@ -18,27 +18,15 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-78 done / 8 open (90%).
+81 done / 5 open (94%).
 
 --------------------------------------------------------------------------------
 OPEN
 --------------------------------------------------------------------------------
 
-   44  THE INSTALLER ASKS CPU OR GPU, AND SAYS WHAT CPU COSTS
-       [BLOCKED: needs a macOS/Windows host]
-       44_installer_cpu_vs_gpu_choice.txt
-
-   45  INSTALLER: OPT-IN LOG SHARING, ACCOUNT SIGN-IN, AND THE ISSUE TOGGLE
-       [BLOCKED: needs a macOS/Windows host]
-       45_installer_opt_in_logs_and_accounts.txt
-
    48  OPTIMIZE THE spaCR TUTORIALS
        [codex -- DO NOT TOUCH]
        48_optimize_the_tutorials.txt
-
-   53  THE INSTALLERS MUST ACTUALLY BUILD AND RUN, ON ALL THREE PLATFORMS
-       [BLOCKED: needs makensis + both other OSes]
-       53_the_installers_must_actually_build_and_run.txt
 
    58  CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
        [LAST]
@@ -94,12 +82,15 @@ DONE
    41  GATE EDITOR: ADD TABLES TO A WORKING SET, AND MERGE THEM BY WHAT THEY MEASURE
    42  CALL write_relationships AFTER THE MASK MODULE RUNS
    43  GET THE GITHUB ACTIONS RUNS GREEN
+   44  THE INSTALLER ASKS CPU OR GPU, AND SAYS WHAT CPU COSTS
+   45  INSTALLER: OPT-IN LOG SHARING, ACCOUNT SIGN-IN, AND THE ISSUE TOGGLE
    46  FOUR MODULES PAINT surface_alt UNDER THE RIGHT HALF OF A SETTING LABEL
    47  THE FULL tests/qt RUN HANGS PART-WAY THROUGH
    49  xD IS DIMENSIONALITY REDUCTION, WITH ITS OWN COLUMN PICKER AND TABS
    50  SAVE THE GATE EDITOR'S GRAPH AS PDF OR PNG
    51  THE CONSOLE AND THE AI CHAT BOX ARE TOO SHORT
    52  3D GATES DRAWN ON A CHOSEN PLANE, COMPOSED WITH EACH OTHER, WITH THRESHOLDS
+   53  THE INSTALLERS MUST ACTUALLY BUILD AND RUN, ON ALL THREE PLATFORMS
    54  spaCR MUST RUN ON PYTHON 3.9 THROUGH 3.14, ON THE RIGHT DEPENDENCY VERSIONS
    55  A PERFORMANCE SWEEP: NOTHING THAT LOADS BELONGS ON THE GUI THREAD
    56  THE AUTO-ISSUE BUTTON LEADS TO "PAGE NOT FOUND"

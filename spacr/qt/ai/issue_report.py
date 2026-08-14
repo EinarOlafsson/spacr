@@ -1,21 +1,21 @@
 """
 Opt-in error reporting → pre-filled GitHub issue.
 
-When the user turns on "File errors as GitHub issues" in the AI
-Settings tab, the "Explain error" flow gains a second button:
-"File as GitHub issue". Clicking it:
+When the user enables public issue reporting during installation or later in
+Preferences, the error flow gains a "File as GitHub issue" action. Clicking
+it:
 
 1. Builds a sanitized report from the current traceback + active app
    + settings + spacr / python / OS versions + tail of the log file.
-2. URL-encodes the report into GitHub's `issues/new?title=…&body=…`
-   query params.
-3. Opens the user's default browser at that URL. GitHub uses the
-   user's existing browser session — no token, no OAuth, no server
-   round-trip. The user reviews and clicks Submit themselves.
+2. Shows the exact title and body in an editable preview, with filenames
+   stripped by default.
+3. Submits only after the report-specific Send click. An authenticated
+   official ``gh`` session can post through the API; otherwise spaCR opens a
+   pre-filled GitHub form in the browser for the user to submit there.
 
-Everything is deliberately kept client-side and one-click-away from
-posting so users see exactly what leaves their machine before it
-does.
+spaCR never stores a durable GitHub token itself. Everything stays client-side
+until the explicit preview action, so the user sees exactly what leaves the
+machine before it does.
 """
 from __future__ import annotations
 
