@@ -1,0 +1,103 @@
+name: deploy verified tutorials
+
+on:
+  workflow_dispatch:
+    inputs:
+      published_docs_sha:
+        description: "Immutable commit currently published outside /tutorials"
+        required: true
+        default: "0ff98be831df608e0491525da085b1e53702cf11"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build published docs with current tutorials
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Check out the current release
+        uses: actions/checkout@v7
+        with:
+          path: release
+
+      - name: Check out the currently published docs source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.published_docs_sha }}
+          path: site
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install localization and documentation dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libopencc1.1 libopencc-data ffmpeg
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            "torch>=2.0" "torchvision"
+          python -m pip install -e "./site[qt,dev]"
+          python -m pip install sphinx furo sphinx-design sphinx-autoapi
+
+      - name: Verify the current tutorial bundle
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          pytest -q release/tests/test_tutorial_release_audit.py
+          python release/tools/docs_media_budget.py --report
+
+      - name: Overlay only the verified tutorial release
+        run: |
+          rm -rf site/docs/source/_extra/tutorials
+          cp -a release/docs/source/_extra/tutorials site/docs/source/_extra/tutorials
+
+      - name: Build and verify the Pages artifact
+        working-directory: site
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          rm -rf docs/_build docs/source/api
+          set +e
+          sphinx-build -E -b html --keep-going \
+            docs/source docs/_build/html 2>&1 | tee /tmp/sphinx.log
+          rc=${PIPESTATUS[0]}
+          set -e
+          echo "sphinx-build exit=$rc"
+          test -f docs/_build/html/index.html
+          test -f docs/_build/html/tutorials/index.html
+          for name in index.html app_v2.js voice_catalog.js lesson_catalog.js; do
+            test "$(sha256sum "docs/_build/html/tutorials/$name" | cut -d' ' -f1)" = \
+                 "$(sha256sum "../release/docs/source/_extra/tutorials/$name" | cut -d' ' -f1)"
+          done
+          touch docs/_build/html/.nojekyll
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/docs/_build/html
+
+  deploy:
+    name: Deploy verified tutorial release
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5
