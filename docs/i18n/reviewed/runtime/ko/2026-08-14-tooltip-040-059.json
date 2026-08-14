@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "min_cell_count",
+      "source_sha256": "8316b99d05502552240adba233e4c577bdef147f59ffeaa47f532a3ddf2b87e3",
+      "source": "Wells with fewer than this many scored objects are dropped before regression. Raising it removes noisy, sparsely imaged wells at the cost of statistical power. Leave None and spaCR simulates the count at which a well's mean score stabilises within tolerance and uses that value. Default None.",
+      "translation": "점수를 낸 객체가 이 수보다 적은 웰은 회귀 전에 제외합니다. 값을 크게 하면 통계 검정력을 희생하는 대신 잡음이 많고 촬영이 드문 웰을 제거합니다. None 으로 두면 spaCR 이 웰 평균 점수가 tolerance 안에서 안정되는 세포 수를 모의실험하고 그 값을 사용합니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "min_dist",
+      "source_sha256": "756ad1eb1ce736a7012959936bf04437514faab1fc45efcf71dc94d45ddde9fd",
+      "source": "UMAP's minimum spacing between points in the 2-D embedding, range 0.0-1.0. Low values (0.0-0.1) let clusters pack tightly and look crisply separated; higher values spread points out and preserve more of the global layout at the cost of visible cluster structure. Ignored when reduction_method is 'tsne'. Default 0.1.",
+      "translation": "2-D UMAP 임베딩에서 점 사이의 최소 간격이며 범위는 0.0~1.0 입니다. 낮은 값(0.0~0.1) 은 군집을 조밀하고 또렷하게 분리하고, 큰 값은 보이는 군집 구조를 희생해 점을 퍼뜨리며 전역 배치를 더 보존합니다. reduction_method 가 'tsne' 이면 무시됩니다. 기본값 0.1."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "min_objects_for_threshold",
+      "source_sha256": "0ee6edebf56e12e711351a61864b73c16a51e32ebcb5905bde299a1046c6701b",
+      "source": "Objects a field must hold before a threshold is derived from it alone; below it the field borrows its well's threshold, then its plate's, and the level actually used is written into automatic_source. Raising it makes thresholds steadier and less local, which is the wrong trade when illumination varies across the field of view. Default 10.",
+      "translation": "한 필드만으로 임계값을 구하려면 필요한 객체 수입니다. 이보다 적으면 웰 임계값을, 이어서 플레이트 임계값을 빌리며 실제 사용 수준을 automatic_source 에 기록합니다. 값을 크게 하면 임계값이 더 안정적이지만 덜 국소적이므로 시야 전체에서 조명이 달라질 때는 부적절합니다. 기본값 10."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mix",
+      "source_sha256": "0c31521483b10f14a0b23746cd19e93cd9b923f11c116fd4f083e40110f6a14d",
+      "source": "Plate column ID whose wells hold a mixed positive/negative population; rows with this columnID are labelled cond='mix' for the image UMAP, so they can be coloured separately or dropped via exclude_conditions. Any column matching none of pos, neg or mix is labelled 'screen'. Default 'c3'.",
+      "translation": "양성과 음성이 섞인 집단이 든 웰의 플레이트 열 ID 입니다. 이 columnID 인 행은 이미지 UMAP 에서 cond='mix' 로 표시되어 별도 색을 쓰거나 exclude_conditions 로 제외할 수 있습니다. pos, neg, mix 어디에도 맞지 않는 열은 'screen' 으로 표시됩니다. 기본값 'c3'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "model_name",
+      "source_sha256": "a834ded6e6dac86d672a5f8d71145038a55d4199232b9483cfba86ccce5feee9",
+      "source": "Cellpose model to segment with. Cellpose 4 ships exactly one, 'cpsam'; the pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') are accepted so old settings files load, but they are mapped to 'cpsam' and reported, because Cellpose resolves them to cpsam silently anyway. Of the three parameters that used to distinguish models, only diameter still does anything under Cellpose 4 (eval rescales the image by 30/diameter); model_type and diam_mean are logged as 'not used in v4.0.1+' and dropped. Leave at 'cpsam' unless you are loading a custom CPSAM checkpoint. Default 'cpsam'.",
+      "translation": "분할에 사용할 Cellpose 모델입니다. Cellpose 4 에는 'cpsam' 하나만 있습니다. 이전 설정 파일을 읽기 위해 SAM 이전 이름 'cyto', 'cyto2', 'cyto3', 'nuclei' 도 허용하지만 모두 'cpsam' 으로 바꾸고 이를 보고합니다. Cellpose 자체도 조용히 cpsam 으로 해석하기 때문입니다. 모델을 구분하던 세 매개변수 중 Cellpose 4 에서 작동하는 것은 diameter 뿐이며 eval 은 30/diameter 로 이미지 크기를 조절합니다. model_type 과 diam_mean 은 'not used in v4.0.1+' 로 기록하고 제거합니다. 사용자 CPSAM 체크포인트를 불러오지 않는 한 'cpsam' 으로 두십시오. 기본값 'cpsam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "n_neighbors",
+      "source_sha256": "d563003732cc87affba264d203077af60f0fa8192610c1feb802a81b1f729aba",
+      "source": "Size of the local neighbourhood UMAP balances against global structure, and the perplexity when reduction_method is 'tsne'. Small values (5-50) sharpen fine local structure; large values give a smoother, more global embedding. A float is read as a fraction of the number of objects, and anything below 2 is clamped to 2. Default 1000.",
+      "translation": "UMAP 이 국소 이웃과 전역 구조 사이에서 균형을 잡을 이웃 크기이며 reduction_method 가 'tsne' 일 때는 perplexity 입니다. 작은 값(5~50) 은 세밀한 국소 구조를 강조하고 큰 값은 더 매끄럽고 전역적인 임베딩을 만듭니다. float 값은 객체 수에 대한 비율로 읽고 2 미만은 2 로 제한합니다. 기본값 1000."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "neg",
+      "source_sha256": "127d2e23c08f4560ff0bde39df8e58e08607c3522bac4b32e3493f30baa16f79",
+      "source": "Column ID marking negative-control wells in the image UMAP. Rows whose columnID equals it are labelled cond='neg', so exclude_conditions can drop them; and when embedding_by_controls is True the rows whose col_to_compare equals it join pos in fitting the reducer. Default 'c2' (note: not 'c1').",
+      "translation": "이미지 UMAP 에서 음성 대조 웰을 표시하는 열 ID 입니다. columnID 가 이 값인 행은 cond='neg' 로 표시되어 exclude_conditions 가 제거할 수 있습니다. embedding_by_controls 가 True 이면 col_to_compare 가 이 값인 행이 pos 와 함께 축소기 적합에 들어갑니다. 기본값 'c2' 이며 'c1' 이 아닙니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "negative_control",
+      "source_sha256": "d4ad22ab908cdd34ab6d58d288b1918e8efcd8444e8105f8ec5578bddeb5be18",
+      "source": "Identifier of the negative-control class. In ML screening it is the value in location_column (e.g. 'c1') whose objects are labelled class 0 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '233460') matched against coefficient names to tag them 'nc' in the results and volcano plot. Defaults 'c1' and '233460' respectively.",
+      "translation": "음성 대조 클래스의 식별자입니다. ML 스크리닝에서는 location_column 의 값(예: 'c1') 이며 해당 객체를 훈련 클래스 0 으로 표시합니다. gRNA 회귀에서는 계수 이름에 맞출 유전자/gRNA ID 부분 문자열(예: '233460') 이며 결과와 화산 그림에서 'nc' 태그를 붙입니다. 각 기본값은 'c1' 과 '233460' 입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "normalization_scope",
+      "source_sha256": "3b5979cbfdc237c0d7c25c243d6e360f2005e8716b846a839d70fcc8f5559858",
+      "source": "Whether normalisation statistics are computed per 'image', per 'batch', or once over the whole 'dataset'. Per-image is the safest default: batch statistics leak information between the objects in a batch, and dataset statistics have to be recomputed whenever the dataset changes. Default 'image'.",
+      "translation": "정규화 통계량을 'image' 마다, 'batch' 마다, 또는 전체 'dataset' 에 한 번 계산할지 정합니다. 이미지별이 가장 안전한 기본값입니다. 배치 통계는 배치 안 객체 사이에 정보를 누출하고 데이터셋 통계는 데이터셋이 바뀔 때마다 다시 계산해야 합니다. 기본값 'image'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_intensity_merge",
+      "source_sha256": "abfa54900cad844be049052e68cf839866cdfa868283ce56661d1ace2ee8004b",
+      "source": "Merge touching nucleus labels when the mean intensity along their shared boundary is at least as high as the dimmer object's own intensity statistic - i.e. there is no dark seam between them, so the split is spurious. Controlled by nucleus_intensity_threshold_method and nucleus_intensity_percentile. Default False; enable when Cellpose over-segments single nuclei.",
+      "translation": "접한 핵 레이블의 공유 경계 평균 강도가 더 어두운 객체 자체의 강도 통계량 이상이면 합칩니다. 즉 어두운 이음새가 없어 분리가 잘못된 경우입니다. nucleus_intensity_threshold_method 와 nucleus_intensity_percentile 로 제어합니다. 기본값 False 이며 Cellpose 가 한 핵을 여러 개로 과분할할 때 켭니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_intensity_percentile",
+      "source_sha256": "26110c2c362dbda2c3698db3da7775f30a9f71260590d609db55d64519c48647",
+      "source": "Percentile of each nucleus's own pixel intensities used as the merge reference when nucleus_intensity_threshold_method is 'percentile'. Higher values (90) demand a very bright shared boundary and merge almost nothing; lower values (50) merge readily. Range 0-100, default 75. Ignored when the method is 'mean'.",
+      "translation": "nucleus_intensity_threshold_method 가 'percentile' 일 때 병합 기준으로 쓸 각 핵 자체 픽셀 강도의 분위수입니다. 큰 값(90) 은 매우 밝은 공유 경계를 요구해 거의 합치지 않고 작은 값(50) 은 쉽게 합칩니다. 범위 0~100, 기본값 75. 방법이 'mean' 이면 무시됩니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_mask_dim",
+      "source_sha256": "3eb6fb6c76dbf347af7f631c0afbccbf5e9c46d9434cf444beb24d36f73a9749",
+      "source": "Position along the last axis of each merged/*.npy array where the nucleus label mask sits, one plane after the cell mask. With the default four image channels (0-3) that is 5; keep a different number of channels and it shifts by the same amount. None makes measure_crop skip nucleus measurements and cell-to-nucleus linking. Default 5.",
+      "translation": "각 merged/*.npy 배열의 마지막 축에서 핵 레이블 마스크가 놓인 위치이며 세포 마스크 다음 평면입니다. 기본 이미지 채널 네 개(0~3) 에서는 5 이고 채널 수가 바뀌면 같은 양만큼 이동합니다. None 이면 measure_crop 이 핵 측정과 세포-핵 연결을 생략합니다. 기본값 5."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_model_name",
+      "source_sha256": "8f2e2aad818187d9f327adb31a0bedc800ed5873a7a73d6dc06919b79d297f6a",
+      "source": "Which weights segment nuclei. 'cpsam' or a path to your own Train Cellpose checkpoint; there is no third option, because Cellpose 4 removed every pre-SAM model. 'nuclei'/'nucleus' from an older settings file is accepted and mapped to 'cpsam'. Set nucleus_diameter rather than expecting a nucleus-specific model - diameter is the parameter Cellpose 4 still acts on. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
+      "translation": "핵 분할 가중치입니다. 'cpsam' 또는 Train Cellpose 로 만든 체크포인트 경로만 가능합니다. Cellpose 4 가 SAM 이전 모델을 모두 제거했기 때문입니다. 이전 설정의 'nuclei'/'nucleus' 는 허용해 'cpsam' 으로 바꿉니다. 핵 전용 모델을 기대하지 말고 nucleus_diameter 를 설정하십시오. Cellpose 4 가 계속 사용하는 매개변수는 diameter 뿐이며 eval 은 30/diameter 로 크기를 조절합니다. model_type 과 diam_mean 은 'not used in v4.0.1+' 로 기록하고 제거합니다. 기본값 'cpsam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "object_type",
+      "source_sha256": "40f917765b3a4b0f5e743cd8faad12fc39c367606471545c7cc25ac87b3c173e",
+      "source": "Which mask decides where an object is when the pointing game scores an attribution map: 'cell', 'nucleus', 'pathogen' or 'cytoplasm'. The pointing game asks only whether the map's single hottest pixel lands inside that mask, so it is cheap and coarse - it says nothing about the rest of the map, and a method can score 1.0 while attributing nonsense everywhere else. Default 'cell'.",
+      "translation": "포인팅 게임이 기여도 지도를 평가할 때 객체 위치를 정할 마스크입니다. 'cell', 'nucleus', 'pathogen', 'cytoplasm' 중 하나입니다. 포인팅 게임은 지도에서 가장 뜨거운 픽셀 하나가 마스크 안에 있는지만 보므로 빠르지만 거칩니다. 지도의 나머지는 말해 주지 않으며 다른 곳이 모두 엉터리여도 1.0 을 받을 수 있습니다. 기본값 'cell'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "optimizer_type",
+      "source_sha256": "f4d3a737f9eb6e8480107790f12a3cf1ba3e2689b6ee286ecfbb4afd4795e41a",
+      "source": "PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the robust fine-tuning default; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.",
+      "translation": "deep_spacr.train_model 이 사용하는 PyTorch 최적화 도구입니다. 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta', 'asgd' 중 하나입니다. AdamW 는 안정적인 미세조정 기본값이고 SGD 는 일반화가 더 좋을 수 있지만 보통 더 많은 epoch 가 필요합니다. amsgrad 는 Adam/AdamW 에만 적용됩니다. API: spacr.deep_spacr.train_model(optimizer_type=...). 기본값 'adamw'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_intensity_percentile",
+      "source_sha256": "97ae1bae6f8af84a8b2388f35c96c176739175411edcb33eb8e019de53f3c463",
+      "source": "Percentile (0-100) of an object's interior intensity used as the merge reference when organelle_intensity_threshold_method='percentile'; ignored for 'mean'. Higher values raise the bar the shared boundary must clear, so fewer pairs merge. Default 75. Currently inert: the organelle mask writer never runs the merge/split stage.",
+      "translation": "organelle_intensity_threshold_method='percentile' 일 때 병합 기준으로 쓸 객체 내부 강도의 0~100 분위수이며 'mean' 일 때는 무시합니다. 값이 크면 공유 경계가 넘어야 할 기준이 커져 합치는 쌍이 줄어듭니다. 기본값 75. 현재는 비활성입니다. 소기관 마스크 기록기가 병합/ 분할 단계를 실행하지 않습니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_intensity_threshold_method",
+      "source_sha256": "c0e16f4e0c02d970b6c4d51b81adbb46e2ffd10f141bff176b17f516b9848a6c",
+      "source": "Reference statistic for organelle_intensity_merge: 'mean' compares the shared-boundary intensity to the mean interior intensity of the dimmer object; 'percentile' compares it to that object's organelle_intensity_percentile value instead. A high percentile makes merging much stricter. Default 'mean'. Currently inert: the organelle mask writer never runs the merge/split stage.",
+      "translation": "organelle_intensity_merge 의 기준 통계량입니다. 'mean' 은 공유 경계 강도를 더 어두운 객체의 평균 내부 강도와 비교하고, 'percentile' 은 그 객체의 organelle_intensity_percentile 값과 비교합니다. 높은 분위수는 병합을 훨씬 엄격하게 합니다. 기본값 'mean'. 현재 비활성으로 소기관 마스크 기록기는 병합/ 분할 단계를 실행하지 않습니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_network_threshold",
+      "source_sha256": "7770b8150c8a37a05be5436318f158574a2d6694dfdf75123a877348f2e5fd6e",
+      "source": "How the ridge-filter response is binarised: 'otsu' takes one global cut-off from the response histogram, 'adaptive' uses a local threshold (organelle_adaptive_block_size / _offset) and keeps faint filaments in dim regions at the cost of extra background. Only read by organelle_method='ridge'; anything unrecognised silently falls back to otsu. Default 'otsu'.",
+      "translation": "능선 필터 반응을 이진화하는 방법입니다. 'otsu' 는 반응 히스토그램에서 전역 절단값 하나를 구하고, 'adaptive' 는 국소 임계값(organelle_adaptive_block_size / _offset) 을 사용해 어두운 영역의 희미한 필라멘트를 더 보존하지만 배경도 늘립니다. organelle_method='ridge' 일 때만 읽으며 알 수 없는 값은 조용히 otsu 로 돌아갑니다. 기본값 'otsu'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_ridge_filter",
+      "source_sha256": "7e4c7cf75147fae31b7ee1ab08d04cff4248c34bc41043a0f879ad52faf003dd",
+      "source": "Which vesselness filter enhances filaments before thresholding: 'frangi' (classic, crisp on well-separated tubules), 'sato' (more tolerant of varying thickness), 'meijering' (tuned for thin neurite-like fibres). All run with black_ridges=False, i.e. bright filaments on a dark background. Default 'frangi'; try 'sato' when frangi drops faint filaments.",
+      "translation": "임계값 처리 전에 필라멘트를 강조할 vesselness 필터입니다. 'frangi' 는 고전적이고 잘 분리된 세관에서 선명하며, 'sato' 는 두께 변화에 더 관대하고, 'meijering' 은 얇은 신경돌기 모양 섬유에 맞춰져 있습니다. 모두 black_ridges=False 로 어두운 배경의 밝은 필라멘트를 처리합니다. 기본값 'frangi' 이며 frangi 가 희미한 필라멘트를 놓치면 'sato' 를 시도하십시오."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_ring_fill_method",
+      "source_sha256": "f8763726750395963f3cdba653570009f829b74e84d8c8ff90a24e92138778b5",
+      "source": "How detected ring walls become solid objects: 'flood' fills every background component that does not touch the image border - accurate, but leaks through any gap in the wall - while 'convex' takes the convex hull of each wall component, which tolerates broken rings but overshoots concave shapes. Default 'flood'; switch to 'convex' when rings come out unfilled.",
+      "translation": "검출된 고리 벽을 단단한 객체로 채우는 방법입니다. 'flood' 는 이미지 경계에 닿지 않는 모든 배경 성분을 채워 정확하지만 벽의 틈으로 샐 수 있습니다. 'convex' 는 각 벽 성분의 볼록 껍질을 사용해 끊긴 고리를 견디지만 오목한 모양을 넘겨 채웁니다. 기본값 'flood' 이며 고리가 채워지지 않으면 'convex' 로 바꾸십시오."
+    }
+  ]
+}

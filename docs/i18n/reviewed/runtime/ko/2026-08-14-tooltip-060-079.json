@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_type",
+      "source_sha256": "a059a64fbd26a9c27bdb70cd559f069f7784b9064ba7ed329b3968c1d2783dc6",
+      "source": "Pick what kind of organelle this is and spaCR fills the detection settings for it, printing what it chose; anything you set yourself is never overwritten. 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. The name alone does not fix the detector: 'vesicular' and 'spherical' also read organelle_diameter, because a 200 nm vesicle is a dot and a 2 um vacuole is a ring. Default 'custom', which recommends nothing.",
+      "translation": "소기관 종류를 고르면 spaCR 이 선택한 값을 출력하며 검출 설정을 채웁니다. 사용자가 직접 지정한 값은 덮어쓰지 않습니다. 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. 이름만으로 검출기가 완전히 정해지지는 않습니다. 'vesicular' 와 'spherical' 은 organelle_diameter 도 읽습니다. 200 nm 소포는 점이지만 2 um 액포는 고리이기 때문입니다. 기본값 'custom' 이며 아무것도 권장하지 않습니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_unet_model_path",
+      "source_sha256": "80813f0a9cff078e1107c20bcc128ef822aae4fd24274f00fb6587b9c75904c9",
+      "source": "Path to a serialised PyTorch model used when organelle_method='unet'. It must be a torch.load-able whole module, not a state_dict, and take z-scored (B,1,H,W) input returning (B,1,H,W) logits; extra output channels are silently ignored except the first. A missing or invalid path raises before segmentation starts. Default None.",
+      "translation": "organelle_method='unet' 일 때 사용할 직렬화 PyTorch 모델 경로입니다. state_dict 가 아니라 torch.load 로 읽을 수 있는 전체 모듈이어야 하며, z-score 처리된 (B,1,H,W) 입력을 받아 (B,1,H,W) logits 를 반환해야 합니다. 추가 출력 채널은 첫 채널 외에는 조용히 무시합니다. 경로가 없거나 잘못되면 분할 전에 오류를 냅니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_intensity_percentile",
+      "source_sha256": "027ab94162f75a03432570277879f5944686a53037b7f716d85adf9fa78a01da",
+      "source": "Percentile (0-100) of an object's interior intensity used as the merge reference when organelleb_intensity_threshold_method='percentile'; ignored for 'mean'. Higher values raise the bar the shared boundary must clear, so fewer pairs merge. Default 75. Currently inert: the organelle 2 mask writer never runs the merge/split stage.",
+      "translation": "organelleb_intensity_threshold_method='percentile' 일 때 병합 기준으로 쓸 객체 내부 강도의 0~100 분위수이며 'mean' 일 때는 무시합니다. 값이 크면 공유 경계가 넘어야 할 기준이 커져 병합 쌍이 줄어듭니다. 기본값 75. 현재 비활성으로 소기관 2 마스크 기록기는 병합/ 분할 단계를 실행하지 않습니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_intensity_threshold_method",
+      "source_sha256": "1a260fafa145a49659fab9ecd8e17f0bea73f1f96940ea9bbeaf9d4b70955b0a",
+      "source": "Reference statistic for organelleb_intensity_merge: 'mean' compares the shared-boundary intensity to the mean interior intensity of the dimmer object; 'percentile' compares it to that object's organelleb_intensity_percentile value instead. A high percentile makes merging much stricter. Default 'mean'. Currently inert: the organelle 2 mask writer never runs the merge/split stage.",
+      "translation": "organelleb_intensity_merge 의 기준 통계량입니다. 'mean' 은 공유 경계 강도를 더 어두운 객체의 평균 내부 강도와 비교하고, 'percentile' 은 그 객체의 organelleb_intensity_percentile 값과 비교합니다. 높은 분위수는 병합을 훨씬 엄격하게 합니다. 기본값 'mean'. 현재 비활성으로 소기관 2 마스크 기록기는 병합/ 분할 단계를 실행하지 않습니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_model_name",
+      "source_sha256": "e55efebe9ec30fa631632e45a4f9c0fc431bdbc560dcbf5daeb12f381b462b45",
+      "source": "Cellpose model used when organelleb_method='cellpose'. Cellpose 4 provides only 'cpsam'; the pre-SAM names are accepted and mapped to it. Change this only to point at a custom CPSAM-architecture checkpoint. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
+      "translation": "organelleb_method='cellpose' 일 때 사용할 Cellpose 모델입니다. Cellpose 4 는 'cpsam' 만 제공하며 SAM 이전 이름도 허용한 뒤 이 값으로 바꿉니다. 사용자 CPSAM 구조 체크포인트를 가리킬 때만 변경하십시오. 모델을 구분하던 세 매개변수 중 diameter 만 계속 작동하고 eval 은 30/diameter 로 크기를 조절합니다. model_type 과 diam_mean 은 'not used in v4.0.1+' 로 기록하고 제거합니다. 기본값 'cpsam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_network_threshold",
+      "source_sha256": "30b8aeaba0c081407b3ba052bf3953f5094af50f79ee68985e32a411b531fe39",
+      "source": "How the ridge-filter response is binarised: 'otsu' takes one global cut-off from the response histogram, 'adaptive' uses a local threshold (organelleb_adaptive_block_size / _offset) and keeps faint filaments in dim regions at the cost of extra background. Only read by organelleb_method='ridge'; anything unrecognised silently falls back to otsu. Default 'otsu'.",
+      "translation": "능선 필터 반응을 이진화하는 방법입니다. 'otsu' 는 반응 히스토그램의 전역 절단값 하나를 쓰고, 'adaptive' 는 국소 임계값(organelleb_adaptive_block_size / _offset) 을 사용해 어두운 영역의 희미한 필라멘트를 더 보존하지만 배경도 늘립니다. organelleb_method='ridge' 에서만 읽으며 알 수 없는 값은 조용히 otsu 로 돌아갑니다. 기본값 'otsu'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_ridge_filter",
+      "source_sha256": "7e4c7cf75147fae31b7ee1ab08d04cff4248c34bc41043a0f879ad52faf003dd",
+      "source": "Which vesselness filter enhances filaments before thresholding: 'frangi' (classic, crisp on well-separated tubules), 'sato' (more tolerant of varying thickness), 'meijering' (tuned for thin neurite-like fibres). All run with black_ridges=False, i.e. bright filaments on a dark background. Default 'frangi'; try 'sato' when frangi drops faint filaments.",
+      "translation": "임계값 처리 전에 필라멘트를 강조할 vesselness 필터입니다. 'frangi' 는 고전적이고 잘 분리된 세관에서 선명하며, 'sato' 는 두께 변화에 더 관대하고, 'meijering' 은 얇은 신경돌기 모양 섬유에 맞춰져 있습니다. 모두 black_ridges=False 로 어두운 배경의 밝은 필라멘트를 처리합니다. 기본값 'frangi' 이며 frangi 가 희미한 필라멘트를 놓치면 'sato' 를 시도하십시오."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_ring_fill_method",
+      "source_sha256": "f8763726750395963f3cdba653570009f829b74e84d8c8ff90a24e92138778b5",
+      "source": "How detected ring walls become solid objects: 'flood' fills every background component that does not touch the image border - accurate, but leaks through any gap in the wall - while 'convex' takes the convex hull of each wall component, which tolerates broken rings but overshoots concave shapes. Default 'flood'; switch to 'convex' when rings come out unfilled.",
+      "translation": "검출된 고리 벽을 단단한 객체로 채우는 방법입니다. 'flood' 는 이미지 경계에 닿지 않는 모든 배경 성분을 채워 정확하지만 벽의 틈으로 샐 수 있습니다. 'convex' 는 각 벽 성분의 볼록 껍질을 사용해 끊긴 고리를 견디지만 오목한 모양을 넘겨 채웁니다. 기본값 'flood' 이며 고리가 채워지지 않으면 'convex' 로 바꾸십시오."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_type",
+      "source_sha256": "ddd75787628ccd8a5caff1785520ccb39fa44f11c95c6013132656672a5d3ece",
+      "source": "Pick what kind of organelle 2 this is and spaCR fills the detection settings for it, printing what it chose; anything you set yourself is never overwritten. 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. The name alone does not fix the detector: 'vesicular' and 'spherical' also read organelleb_diameter, because a 200 nm vesicle is a dot and a 2 um vacuole is a ring. Default 'custom', which recommends nothing.",
+      "translation": "소기관 2 종류를 고르면 spaCR 이 선택한 값을 출력하며 검출 설정을 채웁니다. 사용자가 직접 지정한 값은 덮어쓰지 않습니다. 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. 이름만으로 검출기가 완전히 정해지지는 않습니다. 'vesicular' 와 'spherical' 은 organelleb_diameter 도 읽습니다. 200 nm 소포는 점이지만 2 um 액포는 고리이기 때문입니다. 기본값 'custom' 이며 아무것도 권장하지 않습니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_unet_model_path",
+      "source_sha256": "cd8a4a0ddf5d8c4464faaa0e234145115d1f96f61ee9fc89ec5c74ad5911eaf9",
+      "source": "Path to a serialised PyTorch model used when organelleb_method='unet'. It must be a torch.load-able whole module, not a state_dict, and take z-scored (B,1,H,W) input returning (B,1,H,W) logits; extra output channels are silently ignored except the first. A missing or invalid path raises before segmentation starts. Default None.",
+      "translation": "organelleb_method='unet' 일 때 사용할 직렬화 PyTorch 모델 경로입니다. state_dict 가 아니라 torch.load 로 읽을 수 있는 전체 모듈이어야 하며, z-score 처리된 (B,1,H,W) 입력을 받아 (B,1,H,W) logits 를 반환해야 합니다. 추가 출력 채널은 첫 채널 외에는 조용히 무시합니다. 경로가 없거나 잘못되면 분할 전에 오류를 냅니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_intensity_percentile",
+      "source_sha256": "adc95d7bcd27c9075a693e1179c6820714e32df3d76cec4b46af36535b2e048b",
+      "source": "Percentile (0-100) of an object's interior intensity used as the merge reference when organellec_intensity_threshold_method='percentile'; ignored for 'mean'. Higher values raise the bar the shared boundary must clear, so fewer pairs merge. Default 75. Currently inert: the organelle 3 mask writer never runs the merge/split stage.",
+      "translation": "organellec_intensity_threshold_method='percentile' 일 때 병합 기준으로 쓸 객체 내부 강도의 0~100 분위수이며 'mean' 일 때는 무시합니다. 값이 크면 공유 경계가 넘어야 할 기준이 커져 병합 쌍이 줄어듭니다. 기본값 75. 현재 비활성으로 소기관 3 마스크 기록기는 병합/ 분할 단계를 실행하지 않습니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_intensity_threshold_method",
+      "source_sha256": "550973dff2b13c718bc8f7c22da14e0dd370c901e9dad436129fc16962b285ec",
+      "source": "Reference statistic for organellec_intensity_merge: 'mean' compares the shared-boundary intensity to the mean interior intensity of the dimmer object; 'percentile' compares it to that object's organellec_intensity_percentile value instead. A high percentile makes merging much stricter. Default 'mean'. Currently inert: the organelle 3 mask writer never runs the merge/split stage.",
+      "translation": "organellec_intensity_merge 의 기준 통계량입니다. 'mean' 은 공유 경계 강도를 더 어두운 객체의 평균 내부 강도와 비교하고, 'percentile' 은 그 객체의 organellec_intensity_percentile 값과 비교합니다. 높은 분위수는 병합을 훨씬 엄격하게 합니다. 기본값 'mean'. 현재 비활성으로 소기관 3 마스크 기록기는 병합/ 분할 단계를 실행하지 않습니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_model_name",
+      "source_sha256": "c2f2aeb8f1e87f24cd094d051febe98bb012287d659d30ebb0b1fb83e7c6e1d9",
+      "source": "Cellpose model used when organellec_method='cellpose'. Cellpose 4 provides only 'cpsam'; the pre-SAM names are accepted and mapped to it. Change this only to point at a custom CPSAM-architecture checkpoint. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
+      "translation": "organellec_method='cellpose' 일 때 사용할 Cellpose 모델입니다. Cellpose 4 는 'cpsam' 만 제공하며 SAM 이전 이름도 허용한 뒤 이 값으로 바꿉니다. 사용자 CPSAM 구조 체크포인트를 가리킬 때만 변경하십시오. 모델을 구분하던 세 매개변수 중 diameter 만 계속 작동하고 eval 은 30/diameter 로 크기를 조절합니다. model_type 과 diam_mean 은 'not used in v4.0.1+' 로 기록하고 제거합니다. 기본값 'cpsam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_network_threshold",
+      "source_sha256": "092d42bb23afe2a3eb42026bfb4ca409efa786562fca8ac94034f6da437a68ef",
+      "source": "How the ridge-filter response is binarised: 'otsu' takes one global cut-off from the response histogram, 'adaptive' uses a local threshold (organellec_adaptive_block_size / _offset) and keeps faint filaments in dim regions at the cost of extra background. Only read by organellec_method='ridge'; anything unrecognised silently falls back to otsu. Default 'otsu'.",
+      "translation": "능선 필터 반응을 이진화하는 방법입니다. 'otsu' 는 반응 히스토그램의 전역 절단값 하나를 쓰고, 'adaptive' 는 국소 임계값(organellec_adaptive_block_size / _offset) 을 사용해 어두운 영역의 희미한 필라멘트를 더 보존하지만 배경도 늘립니다. organellec_method='ridge' 에서만 읽으며 알 수 없는 값은 조용히 otsu 로 돌아갑니다. 기본값 'otsu'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_ridge_filter",
+      "source_sha256": "7e4c7cf75147fae31b7ee1ab08d04cff4248c34bc41043a0f879ad52faf003dd",
+      "source": "Which vesselness filter enhances filaments before thresholding: 'frangi' (classic, crisp on well-separated tubules), 'sato' (more tolerant of varying thickness), 'meijering' (tuned for thin neurite-like fibres). All run with black_ridges=False, i.e. bright filaments on a dark background. Default 'frangi'; try 'sato' when frangi drops faint filaments.",
+      "translation": "임계값 처리 전에 필라멘트를 강조할 vesselness 필터입니다. 'frangi' 는 고전적이고 잘 분리된 세관에서 선명하며, 'sato' 는 두께 변화에 더 관대하고, 'meijering' 은 얇은 신경돌기 모양 섬유에 맞춰져 있습니다. 모두 black_ridges=False 로 어두운 배경의 밝은 필라멘트를 처리합니다. 기본값 'frangi' 이며 frangi 가 희미한 필라멘트를 놓치면 'sato' 를 시도하십시오."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_ring_fill_method",
+      "source_sha256": "f8763726750395963f3cdba653570009f829b74e84d8c8ff90a24e92138778b5",
+      "source": "How detected ring walls become solid objects: 'flood' fills every background component that does not touch the image border - accurate, but leaks through any gap in the wall - while 'convex' takes the convex hull of each wall component, which tolerates broken rings but overshoots concave shapes. Default 'flood'; switch to 'convex' when rings come out unfilled.",
+      "translation": "검출된 고리 벽을 단단한 객체로 채우는 방법입니다. 'flood' 는 이미지 경계에 닿지 않는 모든 배경 성분을 채워 정확하지만 벽의 틈으로 샐 수 있습니다. 'convex' 는 각 벽 성분의 볼록 껍질을 사용해 끊긴 고리를 견디지만 오목한 모양을 넘겨 채웁니다. 기본값 'flood' 이며 고리가 채워지지 않으면 'convex' 로 바꾸십시오."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_type",
+      "source_sha256": "bf98eb555b74e5d496c32658ef552c08ee93be1f3b8daaa5dadfa16a49fcc86e",
+      "source": "Pick what kind of organelle 3 this is and spaCR fills the detection settings for it, printing what it chose; anything you set yourself is never overwritten. 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. The name alone does not fix the detector: 'vesicular' and 'spherical' also read organellec_diameter, because a 200 nm vesicle is a dot and a 2 um vacuole is a ring. Default 'custom', which recommends nothing.",
+      "translation": "소기관 3 종류를 고르면 spaCR 이 선택한 값을 출력하며 검출 설정을 채웁니다. 사용자가 직접 지정한 값은 덮어쓰지 않습니다. 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. 이름만으로 검출기가 완전히 정해지지는 않습니다. 'vesicular' 와 'spherical' 은 organellec_diameter 도 읽습니다. 200 nm 소포는 점이지만 2 um 액포는 고리이기 때문입니다. 기본값 'custom' 이며 아무것도 권장하지 않습니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_unet_model_path",
+      "source_sha256": "d9f3f36b6f5ee72dbee550e94312004770570323411e087443b89b1a53627655",
+      "source": "Path to a serialised PyTorch model used when organellec_method='unet'. It must be a torch.load-able whole module, not a state_dict, and take z-scored (B,1,H,W) input returning (B,1,H,W) logits; extra output channels are silently ignored except the first. A missing or invalid path raises before segmentation starts. Default None.",
+      "translation": "organellec_method='unet' 일 때 사용할 직렬화 PyTorch 모델 경로입니다. state_dict 가 아니라 torch.load 로 읽을 수 있는 전체 모듈이어야 하며, z-score 처리된 (B,1,H,W) 입력을 받아 (B,1,H,W) logits 를 반환해야 합니다. 추가 출력 채널은 첫 채널 외에는 조용히 무시합니다. 경로가 없거나 잘못되면 분할 전에 오류를 냅니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_intensity_percentile",
+      "source_sha256": "f1c2a24fa6b3e31e9545f98700b29d0f05b24514ff4b655ecdbcf946cbeb6a69",
+      "source": "Percentile (0-100) of an object's interior intensity used as the merge reference when organelled_intensity_threshold_method='percentile'; ignored for 'mean'. Higher values raise the bar the shared boundary must clear, so fewer pairs merge. Default 75. Currently inert: the organelle 4 mask writer never runs the merge/split stage.",
+      "translation": "organelled_intensity_threshold_method='percentile' 일 때 병합 기준으로 쓸 객체 내부 강도의 0~100 분위수이며 'mean' 일 때는 무시합니다. 값이 크면 공유 경계가 넘어야 할 기준이 커져 병합 쌍이 줄어듭니다. 기본값 75. 현재 비활성으로 소기관 4 마스크 기록기는 병합/ 분할 단계를 실행하지 않습니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_intensity_threshold_method",
+      "source_sha256": "43bf68edbbbf0b80b1744ddf9858965596fd4db026f1d92cdb8570032bba6400",
+      "source": "Reference statistic for organelled_intensity_merge: 'mean' compares the shared-boundary intensity to the mean interior intensity of the dimmer object; 'percentile' compares it to that object's organelled_intensity_percentile value instead. A high percentile makes merging much stricter. Default 'mean'. Currently inert: the organelle 4 mask writer never runs the merge/split stage.",
+      "translation": "organelled_intensity_merge 의 기준 통계량입니다. 'mean' 은 공유 경계 강도를 더 어두운 객체의 평균 내부 강도와 비교하고, 'percentile' 은 그 객체의 organelled_intensity_percentile 값과 비교합니다. 높은 분위수는 병합을 훨씬 엄격하게 합니다. 기본값 'mean'. 현재 비활성으로 소기관 4 마스크 기록기는 병합/ 분할 단계를 실행하지 않습니다."
+    }
+  ]
+}
