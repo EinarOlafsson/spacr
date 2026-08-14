@@ -194,6 +194,22 @@ TOOL_LABELS = {
                "other, chosen in the gates panel",
 }
 
+#: The shapes a drag on the anchor plane can draw, in the order the dropdown
+#: lists them. Each is drawn FLAT on the chosen plane and extended along that
+#: plane's own axis when the gate is made, so the gesture stays 2D and the
+#: gate is solid -- which is what "propagated through the graph" means.
+#:
+#: A DROPDOWN, because that is where a user looks for a shape. The first
+#: attempt at this hid the volume shapes from the tool picker on the grounds
+#: that they are "not drag tools"; that reasoning served the implementation,
+#: and left the control looking as though 3D gating had not been built.
+VOLUME_SHAPES: Tuple[Tuple[str, str], ...] = (
+    ("box", "Box gate"),
+    ("oval", "Oval gate"),
+    ("circle", "Circle gate"),
+    ("polygon", "Polygon gate"),
+)
+
 
 class GateCanvas(GraphCanvas):
     """A :class:`GraphCanvas` you can draw gates on.
@@ -1489,17 +1505,28 @@ class GateCanvas(GraphCanvas):
         depth_column = next(c for c in (spec.x, spec.y, self._z_column)
                             if c not in (first, second))
 
-        # THE TOOL DECIDES THE SHAPE, on the plane the drag happened in.
-        # Instruction 52 asks for a circle, a rectangle and a polygon on the
-        # anchor plane; the first two are drags and are here. All three
-        # extrude along the same depth axis, and all three are UNBOUNDED on
-        # it for the reason in this method's docstring.
-        if self._tool == ELLIPSE:
+        # THE SHAPE DROPDOWN DECIDES, on the plane the user picked. The
+        # depth bound comes from `pending_depth()` -- a slab the user drags
+        # out -- and stays None only when they have not set one, which is the
+        # full-depth case and still means what the 2D gate on that plane
+        # meant.
+        low, high = self.pending_depth()
+        shape = self.volume_shape()
+        if shape in ("oval", "circle"):
+            u_radius, v_radius = abs(x1 - x0) / 2.0, abs(y1 - y0) / 2.0
+            if shape == "circle":
+                # A circle is drawn round on the PLANE, so both radii are the
+                # same drag length. On two measurements with different units
+                # that is not a round shape on screen, and it is still what
+                # "circle gate" has to mean -- the alternative is a shape
+                # whose meaning changes when the axes rescale.
+                u_radius = v_radius = max(u_radius, v_radius)
             return CylinderGate(
                 name="(unnamed)",
                 u_column=first, v_column=second, axis_column=depth_column,
                 u_centre=(x0 + x1) / 2.0, v_centre=(y0 + y1) / 2.0,
-                u_radius=abs(x1 - x0) / 2.0, v_radius=abs(y1 - y0) / 2.0)
+                u_radius=u_radius, v_radius=v_radius,
+                axis_low=low, axis_high=high)
 
         bounds = {first: (min(x0, x1), max(x0, x1)),
                   second: (min(y0, y1), max(y0, y1))}
@@ -1508,6 +1535,14 @@ class GateCanvas(GraphCanvas):
         x_low, x_high = side(spec.x)
         y_low, y_high = side(spec.y)
         z_low, z_high = side(self._z_column)
+        if low is not None or high is not None:
+            # The dragged slab wins over the "unbounded on the axis facing
+            # the viewer" default -- it is the more specific statement, and
+            # the user made it deliberately.
+            bounds[depth_column] = (low, high)
+            x_low, x_high = side(spec.x)
+            y_low, y_high = side(spec.y)
+            z_low, z_high = side(self._z_column)
         return BoxGate(name="(unnamed)",
                        x_column=spec.x, y_column=spec.y,
                        z_column=self._z_column,
@@ -1515,43 +1550,76 @@ class GateCanvas(GraphCanvas):
                        y_low=y_low, y_high=y_high,
                        z_low=z_low, z_high=z_high)
 
+    def set_pending_depth(self, low, high) -> None:
+        """The slab depth the next volume gate is made with.
+
+        Instruction 52, at the maintainer's choice of "a slab you drag out"
+        over "all the way through": the depth is a second gesture after the
+        shape is drawn, so the gate is finite from the start rather than
+        something to narrow afterwards in a panel.
+
+        ``(None, None)`` means full depth, which is what an undragged shape
+        means and what the 2D gate on that plane already meant.
+        """
+        if low is not None and high is not None and low > high:
+            low, high = high, low
+        self._pending_depth = (low, high)
+
+    def pending_depth(self):
+        """``(low, high)`` for the next volume gate."""
+        return getattr(self, "_pending_depth", (None, None))
+
+    def set_anchor_axis(self, axis: str) -> None:
+        """Pick which plane a drag draws on. Chosen, never inferred.
+
+        The first version of this read the plane off the camera and returned
+        nothing unless the view was square-on, so turning the volume silently
+        changed what the next gate would mean. The user picks a plane and it
+        stays picked.
+        """
+        self._anchor_axis = axis if axis in ("x", "y", "z") else "z"
+        self._draw_gates()
+
+    def anchor_axis(self) -> str:
+        return getattr(self, "_anchor_axis", "z")
+
+    def set_drag_mode(self, mode: str) -> None:
+        """``'spin'`` or ``'draw'``. They were competing for one button."""
+        self._drag_mode = mode if mode in ("spin", "draw") else "spin"
+
+    def drag_mode(self) -> str:
+        return getattr(self, "_drag_mode", "spin")
+
+    def set_volume_shape(self, shape: str) -> None:
+        """Which of :data:`VOLUME_SHAPES` a drag draws."""
+        self._volume_shape = str(shape or "box")
+
+    def volume_shape(self) -> str:
+        return getattr(self, "_volume_shape", "box")
+
     def anchor_plane(self) -> Optional[Tuple[str, str, str]]:
-        """``(first, second, normal)`` of the plane a drag would land on.
+        """``(first, second, normal)`` of the plane a drag draws on.
 
-        Instruction 52 point 1 asks for the anchor plane to be VISIBLE before
-        the user commits to drawing. It is already implicit -- a drag on the
-        snapped view is read in the two measurements facing the camera -- but
-        implicit is exactly the problem: the affordance has to say which
-        surface the next shape lands on.
+        READ FROM THE PICKED AXIS, not from the camera. Three planes are
+        visible in the volume; :meth:`set_anchor_axis` says which one is
+        armed, and turning the view does not change it. The normal is the
+        picked axis, and the other two are the plane -- so picking Z means
+        "draw on X/Y and extend along Z", which is what the axis labels on
+        the plot already say.
 
-        :returns: None in 2D, or when the view is not square-on to a face and
-            so has no plane to name.
+        :returns: None only in 2D, where there is no third measurement for a
+            shape to be extended along.
         """
         if self._mode not in ("3D", "xD"):
             return None
-        axes = self.axes_at(0, 0)
         spec = self._spec
-        if axes is None or not (spec.x and spec.y and self._z_column):
+        columns = {"x": spec.x, "y": spec.y, "z": self._z_column}
+        if not all(columns.values()):
             return None
-        try:
-            elevation = float(axes.elev)
-            azimuth = float(axes.azim) % 360
-        except Exception:
-            return None
-        # Square-on only. Off a face there is no plane a drag means, which is
-        # why `snap_to_axis` exists -- saying nothing is better than naming
-        # a plane the user is not looking at.
-        if abs(elevation) > 1e-6 and abs(abs(elevation) - 90.0) > 1e-6:
-            return None
-        if abs(abs(elevation) - 90.0) < 1e-6:
-            return (spec.x, spec.y, self._z_column)
-        if min(abs(azimuth), abs(azimuth - 360)) < 1e-6:
-            return (spec.y, self._z_column, spec.x)
-        if abs(azimuth - 90.0) < 1e-6 or abs(azimuth - 270.0) < 1e-6:
-            return (spec.x, self._z_column, spec.y)
-        if abs(azimuth - 180.0) < 1e-6:
-            return (spec.y, self._z_column, spec.x)
-        return None
+        normal_axis = self.anchor_axis()
+        normal = columns[normal_axis]
+        plane = [columns[a] for a in ("x", "y", "z") if a != normal_axis]
+        return (plane[0], plane[1], normal)
 
     def _draw_anchor_aura(self, ax) -> None:
         """The blue hue on the plane the next shape would land on.
@@ -1966,6 +2034,7 @@ class GateCanvas(GraphCanvas):
         if len(self._pending) < 3 or not (spec.x and spec.y):
             return None
         if self._mode in ("3D", "xD") and self._pending_plane:
+            depth_low, depth_high = self.pending_depth()
             first, second = self._pending_plane
             normal = next((c for c in (spec.x, spec.y, self._z_column)
                            if c not in (first, second)), "")
@@ -1975,7 +2044,8 @@ class GateCanvas(GraphCanvas):
             # anchor plane: they said nothing about depth.
             gate = PrismGate(name=name, u_column=first, v_column=second,
                              axis_column=normal,
-                             vertices=tuple(self._pending))
+                             vertices=tuple(self._pending),
+                             axis_low=depth_low, axis_high=depth_high)
             self._pending = []
             self._pending_plane = None
             self.polygon_changed.emit(0)
@@ -2537,15 +2607,78 @@ class GateEditorPanel(QWidget):
         # Which axis the volume spins about. Shown only in 3D, because in 2D
         # there is nothing to spin and a dead control is worse than no
         # control.
-        self._box_gate = QPushButton("Box gate", self)
+        # WHICH PLANE THE SHAPE LANDS ON, chosen rather than inferred. The
+        # first attempt read the plane off the camera angle and gave up
+        # unless the view happened to be square-on, so rotating changed what
+        # the next gate would mean. Three planes are visible in the volume;
+        # the user picks one and it stays picked.
+        self._plane_label = QLabel("plane", self)
+        tools.addWidget(self._plane_label)
+        self._plane_buttons: Dict[str, QPushButton] = {}
+        plane_group = QButtonGroup(self)
+        plane_group.setExclusive(True)
+        for axis in ("x", "y", "z"):
+            button = QPushButton(axis.upper(), self)
+            button.setCheckable(True)
+            button.setChecked(axis == "z")
+            button.setToolTip(
+                f"Draw on the plane facing {axis.upper()}, and extend the "
+                f"shape along {axis.upper()}. The chosen plane carries a blue "
+                f"aura, and spinning the view does not change it.")
+            button.clicked.connect(
+                lambda _checked=False, a=axis: self._on_plane_picked(a))
+            fit_to_text(button, padding=14)
+            plane_group.addButton(button)
+            self._plane_buttons[axis] = button
+            tools.addWidget(button)
+
+        # THE SHAPE IS A DROPDOWN, which is where a user looks for one. The
+        # first attempt hid cylinder and prism from the tool picker because
+        # they are "not drag tools" -- reasoning that served the
+        # implementation and left the dropdown looking empty of 3D shapes.
+        self._volume_shape = QComboBox(self)
+        self._volume_shape.setObjectName("VolumeShapePicker")
+        for key, label in VOLUME_SHAPES:
+            self._volume_shape.addItem(label, key)
+        self._volume_shape.setToolTip(
+            "What a drag on the chosen plane draws. Every one of these is "
+            "extended along the plane's own axis when the gate is made, so "
+            "the drawing gesture stays flat and the gate is solid.")
+        self._volume_shape.currentIndexChanged.connect(
+            lambda _i: self.canvas.set_volume_shape(self.volume_shape()))
+        tools.addWidget(self._volume_shape)
+
+        self._box_gate = QPushButton("From view", self)
         self._box_gate.setToolTip(
             "Turn what is currently in view into a gate on all three "
-            "measurements. Spin and zoom until a population fills the box, "
-            "then keep it — on a rotated projection the view IS the gesture, "
-            "and a shape dragged on it would have no defined depth.")
+            "measurements — frame a population by spinning and zooming, then "
+            "keep what you framed. The shape dropdown is the other way to "
+            "make one: draw it on the chosen plane.")
         self._box_gate.clicked.connect(self.gate_from_view)
         fit_to_text(self._box_gate)
         tools.addWidget(self._box_gate)
+
+        # WHAT A DRAG DOES. Spinning and drawing are different gestures and
+        # were competing for the same mouse button, so a drag meant whichever
+        # the code happened to check first.
+        self._drag_label = QLabel("drag", self)
+        tools.addWidget(self._drag_label)
+        self._drag_buttons: Dict[str, QPushButton] = {}
+        drag_group = QButtonGroup(self)
+        drag_group.setExclusive(True)
+        for mode, tip in (("spin", "Drag to turn the volume."),
+                          ("draw", "Drag to draw the chosen shape on the "
+                                   "chosen plane.")):
+            button = QPushButton(mode.capitalize(), self)
+            button.setCheckable(True)
+            button.setChecked(mode == "spin")
+            button.setToolTip(tip)
+            button.clicked.connect(
+                lambda _checked=False, m=mode: self._on_drag_mode(m))
+            fit_to_text(button, padding=14)
+            drag_group.addButton(button)
+            self._drag_buttons[mode] = button
+            tools.addWidget(button)
 
         self._spin_label = QLabel("spin", self)
         tools.addWidget(self._spin_label)
@@ -2912,6 +3045,45 @@ class GateEditorPanel(QWidget):
 
     def status(self) -> str:
         return self._status.text()
+
+    def volume_shape(self) -> str:
+        """The shape a drag on the anchor plane would draw."""
+        picker = getattr(self, "_volume_shape", None)
+        return str(picker.currentData()) if picker is not None else "box"
+
+    def anchor_axis(self) -> str:
+        """Which axis the chosen plane faces, and the shape extends along."""
+        for axis, button in getattr(self, "_plane_buttons", {}).items():
+            if button.isChecked():
+                return axis
+        return "z"
+
+    def drag_mode(self) -> str:
+        """``'spin'`` or ``'draw'`` -- what a drag on the volume does."""
+        for mode, button in getattr(self, "_drag_buttons", {}).items():
+            if button.isChecked():
+                return mode
+        return "spin"
+
+    def _on_plane_picked(self, axis: str) -> None:
+        # Tick the button too. Called from its own clicked signal the button
+        # is already checked, but called programmatically -- restoring saved
+        # settings, or a test -- it is not, and the control would then show a
+        # different plane from the one the canvas is armed on.
+        button = getattr(self, "_plane_buttons", {}).get(axis)
+        if button is not None and not button.isChecked():
+            button.setChecked(True)
+        self.canvas.set_anchor_axis(axis)
+        # Picking a plane is choosing where to draw, so it arms drawing too.
+        # Making the user then find a second control to say "and now let me
+        # draw" is the kind of step that reads as the feature not working.
+        button = getattr(self, "_drag_buttons", {}).get("draw")
+        if button is not None and not button.isChecked():
+            button.setChecked(True)
+            self._on_drag_mode("draw")
+
+    def _on_drag_mode(self, mode: str) -> None:
+        self.canvas.set_drag_mode(mode)
 
     def set_projection_active(self, on: bool) -> None:
         """Show the xD button as on or off without re-emitting.
