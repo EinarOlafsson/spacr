@@ -40,6 +40,7 @@ from PySide6.QtWidgets import (
 )
 
 from .toggle import Toggle
+from ...hyperparam import UMAP_METRICS
 
 LOG = logging.getLogger("spacr.qt.umap_figure_settings")
 
@@ -95,10 +96,30 @@ IMAGE_UMAP_FIELDS: Tuple[Field, ...] = (
     Field("black_background", "Black background", "bool", 0, 0,   TIER_REDRAW),
     # -- changes the embedding: next run -----------------------------------
     Field("reduction_method", "Reduction", "choice", 0, 0, TIER_RERUN,
-          ("umap", "tsne")),
+          ("umap", "tsne", "pca", "isomap", "spectral")),
     Field("n_neighbors",     "Neighbours",      "int",   2, 1000000, TIER_RERUN),
     Field("min_dist",        "Minimum distance", "float", 0.0, 1.0, TIER_RERUN),
-    Field("metric",          "Metric",          "text",  0, 0,    TIER_RERUN),
+    Field("tsne_perplexity", "t-SNE perplexity", "float", 0.01, 1000000,
+          TIER_RERUN),
+    Field("tsne_learning_rate", "t-SNE learning rate", "float", 0.01,
+          1000000, TIER_RERUN),
+    Field("tsne_early_exaggeration", "t-SNE early exaggeration", "float",
+          0.01, 1000000, TIER_RERUN),
+    Field("tsne_max_iter", "t-SNE iterations", "int", 250, 10000000,
+          TIER_RERUN),
+    Field("pca_whiten", "PCA whiten", "bool", 0, 0, TIER_RERUN),
+    Field("pca_svd_solver", "PCA solver", "choice", 0, 0, TIER_RERUN,
+          ("auto", "full", "covariance_eigh", "arpack", "randomized")),
+    Field("isomap_n_neighbors", "Isomap neighbours", "int", 2, 1000000,
+          TIER_RERUN),
+    Field("isomap_path_method", "Isomap path method", "choice", 0, 0,
+          TIER_RERUN, ("auto", "FW", "D")),
+    Field("spectral_affinity", "Spectral affinity", "choice", 0, 0,
+          TIER_RERUN, ("nearest_neighbors", "rbf")),
+    Field("spectral_n_neighbors", "Spectral neighbours", "int", 2, 1000000,
+          TIER_RERUN),
+    Field("metric", "Metric", "choice", 0, 0, TIER_RERUN,
+          tuple(UMAP_METRICS)),
     Field("clustering",      "Clustering",      "choice", 0, 0,   TIER_RERUN,
           ("dbscan", "kmeans")),
     Field("eps",             "DBSCAN eps",      "float", 0.0, 1000.0, TIER_RERUN),
@@ -360,11 +381,50 @@ class UmapFigureSettings(QWidget):
                 editor.setProperty("umapSettingTier", field.tier)
                 self._editors[field.key] = editor
                 form.addRow(field.label, editor)
+                editor._spacr_setting_label = form.labelForField(editor)
             root.addLayout(form)
+        reducer = self._editors.get("reduction_method")
+        if isinstance(reducer, QComboBox):
+            reducer.currentTextChanged.connect(self._refresh_reducer_fields)
+        affinity = self._editors.get("spectral_affinity")
+        if isinstance(affinity, QComboBox):
+            affinity.currentTextChanged.connect(self._refresh_reducer_fields)
+        self._refresh_reducer_fields()
         self._applied: Dict[str, Any] = dict(self.values())
         self._initial: Dict[str, Any] = dict(self._applied)
 
     # -- construction ------------------------------------------------------
+
+    def _refresh_reducer_fields(self, *_args) -> None:
+        """Grey reducer settings the selected static-figure recipe ignores."""
+        reducer = self._editors.get("reduction_method")
+        method = reducer.currentText() if isinstance(reducer, QComboBox) \
+            else "umap"
+        families = {
+            "umap": {"n_neighbors", "min_dist"},
+            "tsne": {
+                "tsne_perplexity", "tsne_learning_rate",
+                "tsne_early_exaggeration", "tsne_max_iter",
+            },
+            "pca": {"pca_whiten", "pca_svd_solver"},
+            "isomap": {"isomap_n_neighbors", "isomap_path_method"},
+            "spectral": {"spectral_affinity", "spectral_n_neighbors"},
+        }
+        owned = set().union(*families.values())
+        active = families.get(method, set())
+        for key in owned:
+            editor = self._editors.get(key)
+            if editor is None:
+                continue
+            enabled = key in active
+            if key == "spectral_n_neighbors" and method == "spectral":
+                affinity = self._editors.get("spectral_affinity")
+                enabled = not isinstance(affinity, QComboBox) or \
+                    affinity.currentText() == "nearest_neighbors"
+            editor.setEnabled(enabled)
+            label = getattr(editor, "_spacr_setting_label", None)
+            if label is not None:
+                label.setEnabled(enabled)
 
     @staticmethod
     def _defaults() -> Dict[str, Any]:
@@ -383,6 +443,9 @@ class UmapFigureSettings(QWidget):
             return box
         if field.kind == "choice":
             combo = QComboBox()
+            combo.setSizeAdjustPolicy(
+                QComboBox.AdjustToMinimumContentsLengthWithIcon)
+            combo.setMinimumContentsLength(12)
             combo.addItems(list(field.choices))
             text = str(value or "").strip().lower()
             if text in field.choices:

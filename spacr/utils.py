@@ -158,7 +158,7 @@ from sklearn.metrics import auc, precision_recall_curve
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.cluster import KMeans, DBSCAN
-from sklearn.manifold import TSNE
+from sklearn.manifold import TSNE, Isomap, SpectralEmbedding
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 
@@ -7439,102 +7439,152 @@ def filter_columns(df, filter_by):
     df = df[cols_to_include]
     return df
 
-def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, min_samples, clustering, reduction_method='umap', verbose=False, embedding=None, n_jobs=-1, mode='fit', model=False):
+def reduction_and_clustering(
+        numeric_data, n_neighbors, min_dist, metric, eps, min_samples,
+        clustering, reduction_method='umap', verbose=False, embedding=None,
+        n_jobs=-1, mode='fit', model=False, reducer_options=None,
+        prefer_gpu=False, random_seed=42):
     """Reduce ``numeric_data`` to 2-D and cluster the embedding.
 
-    :param numeric_data: numeric data matrix.
-    :param n_neighbors: UMAP ``n_neighbors`` or t-SNE perplexity (fraction or int).
-    :param min_dist: UMAP ``min_dist``.
-    :param metric: distance metric used by UMAP/DBSCAN.
-    :param eps: DBSCAN ``eps``.
-    :param min_samples: DBSCAN ``min_samples`` or KMeans cluster count.
-    :param clustering: ``'dbscan'`` or ``'kmeans'``.
-    :param reduction_method: ``'umap'`` or ``'tsne'``.
-    :param verbose: print progress.
-    :param embedding: precomputed embedding (skips reducer fit).
-    :param n_jobs: parallel worker count.
-    :param mode: ``'fit'`` to train a new reducer, otherwise transform with ``model``.
-    :param model: existing reducer to reuse when ``mode != 'fit'``.
-    :returns: ``(embedding, labels, reducer)``.
-    :raises ValueError: on unsupported ``reduction_method`` or missing model.
+    Supported reducers are UMAP, t-SNE, PCA, Isomap and Spectral Embedding.
+    ``reducer_options`` carries only method-specific settings; irrelevant
+    options are never forwarded. RAPIDS is opt-in and applies to UMAP, t-SNE
+    and PCA, with the actual backend retained on the fitted reducer.
     """
+    values = np.asarray(numeric_data)
+    options = dict(reducer_options or {})
+    aliases = {
+        't-sne': 'tsne', 't_sne': 'tsne',
+        'spectral_embedding': 'spectral', 'spectral-embedding': 'spectral',
+    }
+    method = aliases.get(
+        str(reduction_method or 'umap').strip().lower(),
+        str(reduction_method or 'umap').strip().lower(),
+    )
+    supported = ('umap', 'tsne', 'pca', 'isomap', 'spectral')
+    if method not in supported:
+        raise ValueError(
+            f"Unsupported reduction method: {reduction_method}. Supported "
+            f"methods are {', '.join(supported)}")
+    gpu_supported = ('umap', 'tsne', 'pca')
+    if prefer_gpu and method not in gpu_supported:
+        raise ValueError(
+            f"GPU acceleration is not available for {method}. Turn GPU off "
+            f"or choose one of {', '.join(gpu_supported)}.")
 
-    if verbose:
-        v = 1
-    else:
-        v = 0
-    
     if isinstance(n_neighbors, float):
-        n_neighbors = int(n_neighbors * len(numeric_data))
+        n_neighbors = int(n_neighbors * len(values))
+    n_neighbors = max(2, int(n_neighbors))
+    seed = _run_random_state(int(random_seed))
 
-    if n_neighbors <= 2:
-        n_neighbors = 2
-    
     if mode == 'fit':
-        if reduction_method == 'umap':
-            reducer = umap.UMAP(n_neighbors=n_neighbors,
-                                n_components=2,
-                                metric=metric,
-                                n_epochs=None,
-                                learning_rate=1.0,
-                                init='spectral',
-                                min_dist=min_dist,
-                                spread=1.0,
-                                set_op_mix_ratio=1.0,
-                                local_connectivity=1,
-                                repulsion_strength=1.0,
-                                negative_sample_rate=5,
-                                transform_queue_size=4.0,
-                                a=None,
-                                b=None,
-                                random_state=_run_random_state(42),
-                                metric_kwds=None,
-                                angular_rp_forest=False,
-                                target_n_neighbors=-1,
-                                target_metric='categorical',
-                                target_metric_kwds=None,
-                                target_weight=0.5,
-                                transform_seed=_run_random_state(42),
-                                n_jobs=n_jobs,
-                                verbose=verbose)
-
-        elif reduction_method == 'tsne':
-            reducer = TSNE(n_components=2,
-                        perplexity=n_neighbors,
-                        early_exaggeration=12.0,
-                        learning_rate=200.0,
-                        # scikit-learn >=1.5 renamed TSNE's ``n_iter`` to
-                        # ``max_iter``; the old name is a hard error on 1.7+.
-                        max_iter=1000,
-                        n_iter_without_progress=300,
-                        min_grad_norm=1e-7,
-                        metric=metric,
-                        init='random',
-                        verbose=v,
-                        random_state=_run_random_state(42),
-                        method='barnes_hut',
-                        angle=0.5,
-                        n_jobs=n_jobs)
-            
+        backend = 'cpu'
+        if method == 'umap':
+            kwargs = dict(
+                n_neighbors=n_neighbors, n_components=2, metric=metric,
+                min_dist=float(min_dist), random_state=seed,
+                transform_seed=seed, n_jobs=n_jobs, verbose=bool(verbose),
+            )
+            from .gpu_reduce import make_reducer
+            reducer, backend = make_reducer(
+                'umap', prefer_gpu=bool(prefer_gpu), **kwargs)
+        elif method == 'tsne':
+            requested_perplexity = float(
+                options.get('perplexity', n_neighbors))
+            if requested_perplexity <= 0 or len(values) < 2:
+                raise ValueError(
+                    "t-SNE perplexity must be greater than 0 and smaller "
+                    f"than the {len(values)} input rows; got "
+                    f"{requested_perplexity}.")
+            # A row limit can leave fewer rows than the saved/default
+            # perplexity. Use the largest valid neighbourhood rather than
+            # failing after data loading; retain the requested setting in the
+            # settings file and report the adjustment in verbose mode.
+            perplexity = min(requested_perplexity, float(len(values) - 1))
+            if verbose and perplexity != requested_perplexity:
+                print(f'Adjusted t-SNE perplexity from '
+                      f'{requested_perplexity:g} to {perplexity:g} for '
+                      f'{len(values)} rows')
+            kwargs = dict(
+                n_components=2, perplexity=perplexity,
+                early_exaggeration=float(
+                    options.get('early_exaggeration', 12.0)),
+                learning_rate=float(options.get('learning_rate', 200.0)),
+                max_iter=int(options.get('max_iter', 1000)), metric=metric,
+                init='random', verbose=int(bool(verbose)), random_state=seed,
+            )
+            # sklearn accepts n_jobs; cuML releases differ, so do not forward
+            # that CPU-only tuning argument to a requested GPU constructor.
+            if not prefer_gpu:
+                kwargs['n_jobs'] = n_jobs
+            from .gpu_reduce import make_reducer
+            reducer, backend = make_reducer(
+                'tsne', prefer_gpu=bool(prefer_gpu), **kwargs)
+        elif method == 'pca':
+            kwargs = dict(
+                n_components=2, whiten=bool(options.get('whiten', False)),
+                svd_solver=str(options.get('svd_solver', 'auto')),
+                random_state=seed,
+            )
+            from .gpu_reduce import make_reducer
+            reducer, backend = make_reducer(
+                'pca', prefer_gpu=bool(prefer_gpu), **kwargs)
+        elif method == 'isomap':
+            graph_neighbors = min(
+                max(1, int(options.get('n_neighbors', n_neighbors))),
+                max(1, len(values) - 1),
+            )
+            reducer = Isomap(
+                n_neighbors=graph_neighbors,
+                n_components=2, metric=metric,
+                path_method=str(options.get('path_method', 'auto')),
+                n_jobs=n_jobs,
+            )
         else:
-            raise ValueError(f"Unsupported reduction method: {reduction_method}. Supported methods are 'umap' and 'tsne'")
-        
-        embedding = reducer.fit_transform(numeric_data)
+            affinity = str(options.get('affinity', 'nearest_neighbors'))
+            kwargs = dict(
+                n_components=2, affinity=affinity, random_state=seed,
+                n_jobs=n_jobs,
+            )
+            if affinity == 'nearest_neighbors':
+                kwargs['n_neighbors'] = min(
+                    max(1, int(options.get('n_neighbors', n_neighbors))),
+                    max(1, len(values) - 1),
+                )
+            reducer = SpectralEmbedding(**kwargs)
+
+        if prefer_gpu and backend != 'cuml':
+            raise RuntimeError(
+                f"GPU was requested for {method}, but cuML could not build "
+                "the reducer. No CPU fallback was run; turn GPU off to use "
+                "the CPU backend.")
+
+        embedding = reducer.fit_transform(values)
+        if hasattr(embedding, 'get'):
+            embedding = embedding.get()
+        embedding = np.asarray(embedding)
+        try:
+            reducer._spacr_backend = backend
+            reducer._spacr_reduction_method = method
+        except Exception:
+            pass
         if verbose:
-            print(f'Trained and fit reducer')
-
+            print(f'Trained and fit reducer: {method} on {backend}')
     else:
-        # `model` defaults to False, not None (and core.py passes False
-        # explicitly), so a plain `is not None` check sent the sentinel into
-        # model.transform() and raised AttributeError on a bool instead of
-        # the intended "provide a model" error.
-        if model is not None and model is not False:
-            embedding = model.transform(numeric_data)
-            reducer = model
-            if verbose:
-                print(f'Fit data to reducer')
-        else:
-            raise ValueError(f"Model is None. Please provide a model for transform.")
+        if model is None or model is False:
+            raise ValueError("Model is None. Please provide a model for transform.")
+        transform = getattr(model, 'transform', None)
+        if not callable(transform):
+            raise ValueError(
+                f"{method} cannot transform new rows after fitting. Turn off "
+                "embedding_by_controls or choose UMAP, PCA, or Isomap.")
+        embedding = transform(values)
+        if hasattr(embedding, 'get'):
+            embedding = embedding.get()
+        embedding = np.asarray(embedding)
+        reducer = model
+        if verbose:
+            print('Fit data to reducer')
 
     if clustering == 'dbscan':
         clustering_model = DBSCAN(eps=eps, min_samples=min_samples, metric=metric, n_jobs=n_jobs)

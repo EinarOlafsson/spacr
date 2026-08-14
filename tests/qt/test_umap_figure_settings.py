@@ -119,6 +119,20 @@ def test_the_window_opens_on_the_settings_the_run_used(dialog):
     assert values["n_neighbors"] == 42
 
 
+def test_static_settings_use_dropdowns_and_grey_inactive_reducers(dialog):
+    from PySide6.QtWidgets import QComboBox
+
+    panel = dialog._umap_settings
+    reducer = panel._editors["reduction_method"]
+    metric = panel._editors["metric"]
+    assert isinstance(reducer, QComboBox)
+    assert isinstance(metric, QComboBox)
+    reducer.setCurrentText("pca")
+    assert panel._editors["pca_svd_solver"].isEnabled()
+    assert not panel._editors["n_neighbors"].isEnabled()
+    assert not panel._editors["tsne_perplexity"].isEnabled()
+
+
 def test_every_offered_setting_is_a_real_image_umap_setting():
     """Or the window edits a key the module will ignore."""
     from spacr.qt.widgets.umap_figure_settings import IMAGE_UMAP_FIELDS
@@ -140,7 +154,11 @@ def test_the_figure_window_offers_every_setting_the_panel_calls_display():
     from spacr.settings import categories
     from spacr.qt.widgets.umap_figure_settings import IMAGE_UMAP_FIELDS
 
-    display = categories_for_app("umap", categories)["UMAP Display"]
+    panel_categories = categories_for_app("umap", categories)
+    display = (
+        panel_categories["Points & Images"]
+        + panel_categories["Canvas & Output"]
+    )
     offered = {f.key for f in IMAGE_UMAP_FIELDS}
     missing = [key for key in display if key not in offered]
     assert not missing, f"the figure window does not offer {missing}"

@@ -955,6 +955,24 @@ def set_default_umap_image_settings(settings=None):
     settings.setdefault('n_neighbors', 1000)
     settings.setdefault('min_dist', 0.1)
     settings.setdefault('metric', 'euclidean')
+    # Reducer-specific controls stay in the settings dict even when another
+    # reducer is selected.  Qt greys the inactive family rather than removing
+    # it, so switching methods preserves the values the user chose.
+    settings.setdefault('tsne_perplexity', 30.0)
+    settings.setdefault('tsne_learning_rate', 200.0)
+    settings.setdefault('tsne_early_exaggeration', 12.0)
+    settings.setdefault('tsne_max_iter', 1000)
+    settings.setdefault('pca_whiten', False)
+    settings.setdefault('pca_svd_solver', 'auto')
+    settings.setdefault('isomap_n_neighbors', 15)
+    settings.setdefault('isomap_path_method', 'auto')
+    settings.setdefault('spectral_affinity', 'nearest_neighbors')
+    settings.setdefault('spectral_n_neighbors', 15)
+    settings.setdefault('random_seed', 42)
+    # This is controlled by the GPU label in the action strip, not duplicated
+    # as a form row.  It is nevertheless a real run setting so notebooks, the
+    # CLI and the run journal all record the selected backend request.
+    settings.setdefault('gpu', False)
     settings.setdefault('eps', 0.9)
     settings.setdefault('min_samples', 100)
     settings.setdefault('filter_by', 'channel_0')
@@ -1991,6 +2009,18 @@ expected_types = {
     "n_neighbors": int,
     "min_dist": float,
     "metric": str,
+    "tsne_perplexity": float,
+    "tsne_learning_rate": float,
+    "tsne_early_exaggeration": float,
+    "tsne_max_iter": int,
+    "pca_whiten": bool,
+    "pca_svd_solver": str,
+    "isomap_n_neighbors": int,
+    "isomap_path_method": str,
+    "spectral_affinity": str,
+    "spectral_n_neighbors": int,
+    "random_seed": int,
+    "gpu": bool,
     "eps": float,
     "min_samples": int,
     "batch_correction": str,
@@ -2792,6 +2822,17 @@ tooltips = {
     "metric": "(str) - Distance metric used both by the reducer (UMAP or t-SNE) and by DBSCAN clustering, e.g. 'euclidean', 'manhattan', 'cosine' or 'correlation'. Correlation-type metrics compare feature profiles regardless of magnitude and often separate phenotypes better than euclidean on scaled data. Default 'euclidean'.",
     "min_cell_count": "(int) - Wells with fewer than this many scored objects are dropped before regression. Raising it removes noisy, sparsely imaged wells at the cost of statistical power. Leave None and spaCR simulates the count at which a well's mean score stabilises within tolerance and uses that value. Default None.",
     "min_dist": "(float) - UMAP's minimum spacing between points in the 2-D embedding, range 0.0-1.0. Low values (0.0-0.1) let clusters pack tightly and look crisply separated; higher values spread points out and preserve more of the global layout at the cost of visible cluster structure. Ignored when reduction_method is 'tsne'. Default 0.1.",
+    "tsne_perplexity": "(float) - t-SNE neighborhood scale. It must be smaller than the number of rows; values around 5-50 are typical. Low values emphasize very local structure and can fragment populations; high values smooth them together. Used only by t-SNE. Default 30.",
+    "tsne_learning_rate": "(float) - t-SNE optimization step size. Too small crowds points into a dense ball; too large can scatter them. Used only by t-SNE. Default 200.",
+    "tsne_early_exaggeration": "(float) - t-SNE's initial attraction multiplier, controlling how much space forms between natural groups early in optimization. Used only by t-SNE. Default 12.",
+    "tsne_max_iter": "(int) - Maximum t-SNE optimization iterations. Increase it when optimization has not stabilized; every increase costs runtime. Used only by t-SNE. Default 1000.",
+    "pca_whiten": "(bool) - Rescale PCA components to unit variance after projection. This can help distance-based clustering but discards relative component magnitude. Used only by PCA. Default False.",
+    "pca_svd_solver": "(str) - PCA decomposition algorithm: auto chooses from the data shape, full is exact, randomized is faster on large matrices, and covariance_eigh suits many rows with relatively few features. Used only by PCA. Default 'auto'.",
+    "isomap_n_neighbors": "(int) - Number of neighbors in Isomap's geodesic graph. Too few can disconnect the graph; too many make the result approach a global linear projection. Used only by Isomap. Default 15.",
+    "isomap_path_method": "(str) - Isomap shortest-path solver: auto chooses, FW uses Floyd-Warshall, and D uses Dijkstra. Used only by Isomap. Default 'auto'.",
+    "spectral_affinity": "(str) - Graph construction for Spectral Embedding: nearest_neighbors builds a sparse local graph; rbf builds a dense radial-basis affinity. Used only by Spectral Embedding. Default 'nearest_neighbors'.",
+    "spectral_n_neighbors": "(int) - Neighbor count for Spectral Embedding when affinity is nearest_neighbors. Ignored for rbf affinity. Default 15.",
+    "gpu": "(bool) - Request RAPIDS acceleration for the main dimensionality reduction and Image UMAP hyperparameter search. Controlled by the GPU toggle beside Hyperparameter search; supported for UMAP, t-SNE and PCA, with the actual backend recorded. Default False.",
     "min_max": "(str) - Color limits for the plate heatmap: 'allq' scales to the 2nd-98th percentile of well values so a handful of extreme wells cannot flatten the rest, 'all' scales to the true min and max. A two-element list is also accepted, where floats are read as quantiles and integers as absolute vmin/vmax. Default 'allq'.",
     "min_samples": "(int) - Meaning depends on 'clustering': for DBSCAN it is how many points must fall within eps for a point to count as a core point, so raising it yields fewer, denser clusters and more noise; for KMeans this same value is reused as n_clusters, the exact number of clusters produced. Lower it (or raise eps) when no clusters are found. Default 100.",
     "mix": "(str) - Plate column ID whose wells hold a mixed positive/negative population; rows with this columnID are labelled cond='mix' for the image UMAP, so they can be coloured separately or dropped via exclude_conditions. Any column matching none of pos, neg or mix is labelled 'screen'. Default 'c3'.",
@@ -3470,7 +3511,7 @@ categories = {
     # one question -- which features the model uses -- so they are one.
     "Machine Learning Model and Features": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "reg_lambda", "reg_alpha", "prune_features", "top_features", "n_repeats", "minimum_cell_count"],
 
-    "Embedding & Clustering": ["reduction_method", "n_neighbors", "min_dist", "metric", "log_data", "embedding_by_controls", "col_to_compare", "resnet_features", "visualize", "clustering", "eps", "min_samples", "remove_cluster_noise", "analyze_clusters"],
+    "Embedding & Clustering": ["reduction_method", "n_neighbors", "min_dist", "metric", "tsne_perplexity", "tsne_learning_rate", "tsne_early_exaggeration", "tsne_max_iter", "pca_whiten", "pca_svd_solver", "isomap_n_neighbors", "isomap_path_method", "spectral_affinity", "spectral_n_neighbors", "log_data", "embedding_by_controls", "col_to_compare", "resnet_features", "visualize", "clustering", "eps", "min_samples", "remove_cluster_noise", "analyze_clusters"],
 
     # The per-model knobs (l1_ratio ... lasso_selection_threshold) sit here
     # beside regression_type because that is the setting that decides whether
@@ -3514,7 +3555,7 @@ categories = {
     # nuclei_limit / pathogen_limit for "Measurements": all three change what
     # the run produces rather than how it is tuned, and hiding them here is
     # what put them at the bottom of the Classify (CV) dataset settings.
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "upscale", "upscale_factor", "consolidate", "denoise"],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "gpu", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "upscale", "upscale_factor", "consolidate", "denoise"],
 
     # Experimental volumetric controls are deliberately split by dimensional
     # contract. `z_axis` lives with 3D because 4D builds on the same z plan;
