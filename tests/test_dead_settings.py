@@ -185,6 +185,11 @@ def _live_tokens():
             tokens |= visitor.tokens
             files += 1
     assert files > 30, f"only scanned {files} modules; the scan is not running"
+    # Secondary organelle settings are generated and read through a
+    # role-scoped view. Their concrete spellings intentionally do not occur as
+    # string literals; the closed runtime registry is the proof that the
+    # dynamic reader covers them.
+    tokens |= set(S.DYNAMIC_ORGANELLE_SETTINGS)
     return tokens - _NAMES_THAT_ARE_NOT_SETTING_READS
 
 

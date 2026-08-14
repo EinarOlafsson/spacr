@@ -482,7 +482,8 @@ def test_every_added_key_is_declared():
     that this process has not imported costs nothing.
     """
     added = set(_all_categorised_keys()) - KEYS_BEFORE_REGROUP
-    undeclared = sorted(added - set(KEYS_ADDED_BY_REGROUP))
+    undeclared = sorted(
+        added - set(KEYS_ADDED_BY_REGROUP) - set(S.DYNAMIC_ORGANELLE_SETTINGS))
     assert not undeclared, (
         "categories gained keys that KEYS_ADDED_BY_REGROUP does not list: "
         f"{undeclared}"
@@ -605,7 +606,9 @@ def test_the_basic_heading_is_short_enough_to_be_the_point():
     A split that left thirty settings under the first heading would satisfy
     every other test here and none of the request.
     """
-    assert len(S.categories["Organelle"]) <= 8, S.categories["Organelle"]
+    from spacr.object_roles import ORGANELLE_ROLES
+    assert len(S.categories["Organelle"]) <= 3 * len(ORGANELLE_ROLES), \
+        S.categories["Organelle"]
     assert S.categories["Organelle"], "the basic heading emptied entirely"
 
 
@@ -647,8 +650,10 @@ def test_the_headings_cover_every_organelle_default():
     advanced half being off the first screen must not mean off the panel.
     """
     defaults = set(S._set_organelle_defaults({}))
-    missing = sorted(defaults - _organelle_homes()
-                     - ORGANELLE_KEYS_KEPT_IN_GENERAL)
+    from spacr.object_roles import ORGANELLE_ROLES
+    general = set(ORGANELLE_KEYS_KEPT_IN_GENERAL) | {
+        f'{role}_channel' for role in ORGANELLE_ROLES[1:]}
+    missing = sorted(defaults - _organelle_homes() - general)
     assert not missing, f"organelle defaults with no place in the panel: {missing}"
 
 
@@ -679,9 +684,11 @@ def test_the_organelle_trigger_reveals_both_organelle_categories():
     showing on a run that does no organelle segmentation at all -- the
     trigger has to reveal everything it gates.
     """
-    assert S.category_integer_dependencies[
-        ("organelle_channel", "organelle_mask_dim")] == [
-            "Organelle", "Organelle advanced"]
+    from spacr.object_roles import ORGANELLE_ROLES
+    trigger = tuple(key for role in ORGANELLE_ROLES
+                    for key in (f"{role}_channel", f"{role}_mask_dim"))
+    assert S.category_integer_dependencies[trigger] == [
+        "Organelle", "Organelle advanced"]
 
 
 def test_organelle_method_no_longer_gates_a_category():

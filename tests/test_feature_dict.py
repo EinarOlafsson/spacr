@@ -458,8 +458,8 @@ def test_feature_families_cover_the_documented_set():
 
 def test_object_types_match_measure_py():
     # measure.py:363  ls = ['cell', 'nucleus', 'pathogen', 'organelle', 'cytoplasm']
-    assert set(OBJECT_TYPES) == {
-        "cell", "nucleus", "pathogen", "organelle", "cytoplasm"}
+    from spacr.object_roles import ALL_ROLES
+    assert set(OBJECT_TYPES) == set(ALL_ROLES)
 
 
 # --------------------------------------------------------------------------

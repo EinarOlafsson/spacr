@@ -39,7 +39,7 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
-from .object_roles import (ANCHOR_COLUMN, anchor_column,
+from .object_roles import (ANCHOR_COLUMN, ORGANELLE_ROLES, anchor_column,
                            is_one_row_per_cell)
 
 LOG = logging.getLogger("spacr.merge_tables")
@@ -110,7 +110,7 @@ OBJECT_COLUMN = "object_label"
 
 #: The tables that can be merged, and the default primary.
 OBJECT_TABLES: Tuple[str, ...] = (
-    "cell", "nucleus", "pathogen", "cytoplasm", "organelle",
+    "cell", "nucleus", "pathogen", "cytoplasm", *ORGANELLE_ROLES,
 )
 DEFAULT_PRIMARY = "cell"
 

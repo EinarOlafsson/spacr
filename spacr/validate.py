@@ -38,7 +38,7 @@ import shutil
 import sys
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple
-from .object_roles import SEGMENTED_ROLES
+from .object_roles import ALL_ROLES, SEGMENTED_ROLES
 
 __all__ = [
     "Problem",
@@ -194,19 +194,11 @@ ALT_SRC_KEYS: Dict[str, str] = {
     "external_masks": "inputs",
 }
 
-CHANNEL_KEYS: Tuple[str, ...] = (
-    "cell_channel",
-    "nucleus_channel",
-    "pathogen_channel",
-    "organelle_channel",
-)
+CHANNEL_KEYS: Tuple[str, ...] = tuple(
+    f"{role}_channel" for role in SEGMENTED_ROLES)
 
-MASK_DIM_KEYS: Tuple[str, ...] = (
-    "cell_mask_dim",
-    "nucleus_mask_dim",
-    "pathogen_mask_dim",
-    "organelle_mask_dim",
-)
+MASK_DIM_KEYS: Tuple[str, ...] = tuple(
+    f"{role}_mask_dim" for role in SEGMENTED_ROLES)
 
 #: Exactly the SEGMENTED roles -- cytoplasm has no channel to validate.
 OBJECT_NAMES = SEGMENTED_ROLES
@@ -1105,18 +1097,22 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
                 f"custom_model points at a path that does not exist: {custom_model}",
                 "Point custom_model at the saved Cellpose model file, or clear it to use the stock model."))
 
-    unet_path = settings.get("organelle_unet_model_path")
-    if settings.get("organelle_method") == "unet":
+    for organelle_role in SEGMENTED_ROLES[3:]:
+        method_key = f"{organelle_role}_method"
+        path_key = f"{organelle_role}_unet_model_path"
+        unet_path = settings.get(path_key)
+        if settings.get(method_key) != "unet":
+            continue
         if not isinstance(unet_path, str) or not unet_path.strip():
             problems.append(Problem(
-                ERROR, "organelle_unet_model_path",
-                "organelle_method='unet' but no organelle_unet_model_path is set.",
-                "Point organelle_unet_model_path at the serialised U-Net, or pick another organelle_method."))
+                ERROR, path_key,
+                f"{method_key}='unet' but no {path_key} is set.",
+                f"Point {path_key} at the serialised U-Net, or pick another {method_key}."))
         elif not os.path.exists(unet_path):
             problems.append(Problem(
-                ERROR, "organelle_unet_model_path",
-                f"organelle U-Net model not found: {unet_path}",
-                "Fix the path, or pick another organelle_method."))
+                ERROR, path_key,
+                f"{organelle_role} U-Net model not found: {unet_path}",
+                f"Fix the path, or pick another {method_key}."))
 
     return problems
 
@@ -1132,8 +1128,8 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
         if all(settings.get(k) is None for k in CHANNEL_KEYS):
             problems.append(Problem(
                 ERROR, "cell_channel",
-                "no segmentation channel is set: cell, nucleus, pathogen and organelle channels are all None.",
-                "Set at least one of cell_channel / nucleus_channel / pathogen_channel / organelle_channel to a channel index."))
+                "no segmentation channel is set: every registered object channel is None.",
+                "Set at least one *_channel setting to an acquisition-channel index."))
         # pathogen_model: the bundled toxo checkpoints were Cellpose-3 and are
         # gone. Anything set here is ignored, so say so rather than validating
         # against a list of models that cannot load.
@@ -1162,7 +1158,7 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                     "Use 'png' to normalize each crop to its own percentiles, or 'fov' to use the whole field."))
         crop_mode = settings.get("crop_mode")
         if isinstance(crop_mode, (list, tuple)):
-            allowed = {"cell", "nucleus", "pathogen", "cytoplasm", "organelle"}
+            allowed = set(ALL_ROLES)
             bad = [m for m in crop_mode if m not in allowed]
             if bad:
                 problems.append(Problem(
@@ -1502,8 +1498,8 @@ def _describe_objects(settings: Dict[str, Any], app: str) -> List[str]:
             model = settings.get("pathogen_model") if name == "pathogen" else None
             if model:
                 detail += f", model {model}"
-            if name == "organelle":
-                detail += f", method {settings.get('organelle_method', 'otsu')}"
+            if name in SEGMENTED_ROLES[3:]:
+                detail += f", method {settings.get(f'{name}_method', 'otsu')}"
             lines.append(detail)
         else:
             dim = settings.get(f"{name}_mask_dim")
