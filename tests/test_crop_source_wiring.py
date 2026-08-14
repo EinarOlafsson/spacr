@@ -619,7 +619,8 @@ def test_a_dataset_that_mixes_formats_is_left_unmarked_and_says_so(project, caps
                              "object_type": "cell"}, name=f"new_{i}.png")
         for i in (1, 2, 3, 4)]
     out = str(tmp_path / "mixed_ds")
-    generate_dataset_from_lists(out, [mixed], ["only"], test_split=0.25)
+    generate_dataset_from_lists(out, [mixed], ["only"], test_split=0.25,
+                                group_by="cell")
     assert "mixes crops of more than one format" in capsys.readouterr().out
     assert crops.read_crop_folder_marker(out) is None
     # ...and every crop still landed.
@@ -637,7 +638,8 @@ def test_a_crop_that_cannot_be_written_does_not_lose_the_rest(tmp_path, capsys):
         good.append(str(p))
     data = good + [str(src / "missing.png")]
     out = str(tmp_path / "ds")
-    generate_dataset_from_lists(out, [data], ["only"], test_split=0.2)
+    generate_dataset_from_lists(out, [data], ["only"], test_split=0.2,
+                                group_by="cell")
     printed = capsys.readouterr().out
     assert "could not be written" in printed
     assert len(glob.glob(os.path.join(out, "*", "*", "*.png"))) == 4
@@ -670,7 +672,8 @@ def test_a_class_that_selected_nothing_is_named_not_a_sklearn_message(tmp_path, 
         good.append(str(p))
     out = str(tmp_path / "ds")
     train, test = generate_dataset_from_lists(out, [good, []], ["full", "empty"],
-                                              test_split=0.25)
+                                              test_split=0.25,
+                                              group_by="cell")
     printed = capsys.readouterr().out
     assert "Class 'empty' selected no crops" in printed
     assert "have no training images" in printed

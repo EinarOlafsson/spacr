@@ -2452,177 +2452,11 @@ def holdout_report(y_true: Any, probs: Any,
     }
 
 
-#: What ``group_by`` accepts, and the columns each strategy groups over.
-#: What a held-out split refuses to share, as a LADDER from the leakiest to
-#: the strictest. Every level is a real choice a design can justify, so all
-#: four are offered rather than one being imposed:
-#:
-#:     cell    each object is its own group, so siblings from one well land
-#:             on both sides. The optimistic end, and named for its UNIT
-#:             rather than called "none" -- "none" reads as the feature
-#:             being switched off, when it is in fact the leaky setting.
-#:     field   two fields of one well still share illumination, seeding and
-#:             edge position, so this narrows the leak without closing it.
-#:     well    the level at which the experiment assigns a condition, and so
-#:             the level at which a held-out set is independent.
-#:     plate   for a design where the batch is the plate.
-#:
-#: ``none``, ``off``, False and None stay accepted as aliases of ``cell``:
-#: they are what shipped, and a settings file written before this rename
-#: must keep meaning what it meant.
-_SPLIT_GROUPS: Dict[str, Tuple[str, ...]] = {
-    "cell": (),
-    "field": ("plateID", "rowID", "columnID", "fieldID"),
-    "well": ("plateID", "rowID", "columnID"),
-    "plate": ("plateID",),
-    "none": (),
-}
-
-#: The ladder in order, for a picker and for the tooltip that explains it.
-SPLIT_LEVELS: Tuple[str, ...] = ("cell", "field", "well", "plate")
-
-
-def _split_columns_for(group_by: Any, columns: Sequence[str], table: str,
-                       notes: List[str]) -> Tuple[str, List[str]]:
-    """Resolve ``group_by`` to concrete, present columns — or refuse it.
-
-    The counterpart of :func:`_group_columns_for`, and it refuses an
-    unrecognised name for the same reason: a lookup that quietly returns "no
-    columns" turns the grouped split this module exists to enforce into a
-    per-object random one, and — because ``_grouped_split`` is then handed a
-    group vector of ``n`` singletons — records it on the learning curve and
-    in the model card as *"no group appears on both sides"*. That is the
-    exact optimistic number, with provenance asserting the opposite.
-
-    Names are matched exactly and in lower case, so ``'Well'`` raises rather
-    than being guessed at: the alternative is a value that silently does
-    something other than what it says.
-
-    :returns: ``(name, present_columns)``. An empty column list means the
-        split cannot be grouped, and the caller must say so in the rule.
-    :raises ValueError: for a strategy that is not in :data:`_SPLIT_GROUPS`.
-    """
-    if group_by in (None, False, "none", "off"):
-        key = "cell"
-    else:
-        key = str(group_by)
-        if key not in _SPLIT_GROUPS:
-            raise ValueError(
-                f"Unknown group_by strategy {group_by!r}; use one of "
-                f"{', '.join(sorted(_SPLIT_GROUPS))}. group_by decides what "
-                f"the held-out split refuses to share, and names are exact "
-                f"and lower-case ('well', not 'Well') — an unrecognised one "
-                f"would fall through to a per-object random split recorded "
-                f"as a grouped one, which is the optimistic number this "
-                f"function exists to prevent.")
-
-    wanted = list(_SPLIT_GROUPS[key])
-    if not wanted:
-        # Reported as 'cell', which is what the user picked and what the
-        # model card should say. Returning 'none' here made the card record
-        # the ABSENCE of a strategy rather than the deliberate choice of the
-        # leakiest one -- and those read very differently to whoever reads
-        # the card next.
-        notes.append(
-            "group_by='cell': the held-out split is a plain stratified "
-            "random split of objects, so crops from the same well sit on "
-            "both sides of it and the accuracy is optimistic — it measures "
-            "how well the model separates these cells, not whether it "
-            "transfers to a well it has not seen. Pass group_by='well' for "
-            "a number that transfers.")
-        return "cell", []
-
-    present = [c for c in wanted if c in columns]
-    if not present:
-        notes.append(
-            f"{table} carries none of the columns ({', '.join(wanted)}) "
-            f"needed to group by {key!r}, so the held-out split is a plain "
-            f"random one and its accuracy is optimistic.")
-        return key, []
-    if len(present) < len(wanted):
-        missing = [c for c in wanted if c not in present]
-        notes.append(
-            f"Grouping by {key!r} fell back to {', '.join(present)} — "
-            f"{', '.join(missing)} not in {table}. The held-out split is "
-            f"coarser than asked for, so it holds out more than a "
-            f"{key} at a time.")
-    return key, present
-
-
-def _grouped_split(groups: np.ndarray, labels: np.ndarray, holdout: float,
-                   seed: int, notes: List[str], *,
-                   ungrouped_reason: Optional[str] = None
-                   ) -> Tuple[np.ndarray, np.ndarray, str]:
-    """Draw a held-out set that does not share a well with the training set.
-
-    The default random split is the reason active-learning accuracy numbers
-    are usually too good: with 190 of 200 labels from one well, a random 20 %
-    holds out objects whose near neighbours are in the training set, and the
-    model is scored on memorising a field of view.
-
-    :param ungrouped_reason: when given, there is nothing to group by and the
-        caller already knows why. The split is then an honest stratified
-        random one and ``rule`` says ``NOT grouped`` — never the reverse.
-        Passing a vector of singleton groups instead would produce the same
-        split under a rule claiming no group crossed the divide, which is
-        true only in the sense that no two objects were ever in one group.
-    :returns: ``(train_index, test_index, rule)`` — ``rule`` is the sentence
-        that goes into the model card.
-    """
-    from sklearn.model_selection import (GroupShuffleSplit,
-                                         StratifiedGroupKFold,
-                                         train_test_split)
-
-    n = len(labels)
-    frac = min(max(float(holdout), 0.05), 0.5)
-    distinct = (np.unique(groups)
-                if len(groups) and ungrouped_reason is None else np.zeros(0))
-
-    reason = ungrouped_reason
-    if reason is None and len(distinct) < 2:
-        where = distinct[0] if len(distinct) else "(unknown)"
-        reason = f"all labels came from {where}"
-        notes.append(
-            f"Every label comes from one group ({where}), so a grouped "
-            f"held-out split is impossible. Falling back to a stratified "
-            f"random split of objects, whose accuracy will be optimistic — "
-            f"it measures how well the model memorised this one well, not "
-            f"whether it transfers.")
-
-    if reason is not None:
-        train_idx, test_idx = train_test_split(
-            np.arange(n), test_size=frac, random_state=seed,
-            stratify=labels if len(np.unique(labels)) > 1 else None)
-        return (np.sort(train_idx), np.sort(test_idx),
-                f"stratified random {frac:.0%} of objects — NOT grouped, "
-                f"because {reason}")
-
-    n_splits = int(max(2, min(round(1.0 / frac), len(distinct))))
-    try:
-        splitter = StratifiedGroupKFold(n_splits=n_splits, shuffle=True,
-                                        random_state=seed)
-        for train_idx, test_idx in splitter.split(np.zeros((n, 1)), labels,
-                                                  groups):
-            if len(np.unique(labels[test_idx])) >= 2:
-                return (np.sort(train_idx), np.sort(test_idx),
-                        f"StratifiedGroupKFold({n_splits}) over "
-                        f"{len(distinct)} groups — no group appears on both "
-                        f"sides")
-        notes.append(
-            "No stratified grouped fold contained more than one class in the "
-            "held-out half; falling back to GroupShuffleSplit, so the "
-            "held-out class balance is whatever the groups happened to give.")
-    except ValueError as exc:
-        notes.append(f"StratifiedGroupKFold could not split these labels "
-                     f"({exc}); falling back to GroupShuffleSplit.")
-
-    splitter = GroupShuffleSplit(n_splits=1, test_size=frac,
-                                 random_state=seed)
-    train_idx, test_idx = next(iter(splitter.split(np.zeros((n, 1)), labels,
-                                                   groups)))
-    return (np.sort(train_idx), np.sort(test_idx),
-            f"GroupShuffleSplit({frac:.0%}) over {len(distinct)} groups — no "
-            f"group appears on both sides")
+from .classifier_evaluation import (
+    SPLIT_LEVELS,
+    grouped_split as _shared_grouped_split,
+    split_group_values as _shared_split_group_values,
+)
 
 
 def round_features(db_path: str, table: str = PNG_TABLE,
@@ -2892,26 +2726,13 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
     x = np.nan_to_num(train_matrix.to_numpy(dtype=float), nan=0.0,
                       posinf=0.0, neginf=0.0)
 
-    group_name, group_cols = _split_columns_for(group_by, crops.columns,
-                                                table, notes)
-    if group_cols:
-        groups = (crops.loc[labelled_mask, group_cols].astype(str)
-                  .apply("/".join, axis=1).to_numpy())
-        ungrouped_reason = None
-    else:
-        # No columns to group over. The split IS a per-object random one, and
-        # it has to be recorded as one: handing _grouped_split a vector of
-        # singletons would draw the same split and write "no group appears on
-        # both sides" into the learning curve and the model card.
-        groups = np.zeros(n_labels, dtype=object)
-        ungrouped_reason = (
-            f"group_by={group_name!r} was asked for" if not columns
-            else f"{table} carries none of the columns needed to group by "
-                 f"{group_name!r}")
-
-    train_idx, test_idx, split_rule = _grouped_split(
-        groups, y, holdout, int(seed), notes,
-        ungrouped_reason=ungrouped_reason)
+    labelled_crops = crops.loc[labelled_mask]
+    group_name, groups = _shared_split_group_values(
+        group_by=group_by, frame=labelled_crops, table=table)
+    train_idx, test_idx, split_provenance = _shared_grouped_split(
+        groups, y, holdout, int(seed), group_by=group_name)
+    split_rule = split_provenance.summary()
+    notes.append(split_rule)
 
     model = _build_round_model(model_type, int(seed), len(class_values))
     model.fit(x[train_idx], y[train_idx])

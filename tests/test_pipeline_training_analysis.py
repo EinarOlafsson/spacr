@@ -98,8 +98,14 @@ def test_ml_analysis_returns_dataframe_and_importances(rng):
         assert isinstance(results_list[i], pd.DataFrame), (
             f"results[{i}] should be a DataFrame, got {type(results_list[i])}"
         )
+    scored = results_list[0]
+    assert scored["data_usage_group_by"].eq("well").all()
+    assert scored["split_group_fraction"].between(0, 1).all()
+    assert scored["split_cell_fraction"].between(0, 1).all()
+    assert results_list[3].spacr_split_report_["group_by"] == "well"
     # metrics_df at index 8 should also be a DataFrame.
     assert isinstance(results_list[8], pd.DataFrame)
+    assert results_list[8]["split_group_by"].eq("well").all()
     # The final entry is the list of feature names actually used.
     assert isinstance(results_list[9], list)
 

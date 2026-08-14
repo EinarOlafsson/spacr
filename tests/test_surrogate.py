@@ -32,6 +32,10 @@ def _frame(n=400, seed=0, driver_strength=1.0):
         "noise_a": rng.normal(0, 1, n),
         "noise_b": rng.normal(0, 1, n),
         "noise_c": rng.normal(0, 1, n),
+        "plateID": ["p1"] * n,
+        "rowID": [f"r{(i // 100) + 1}" for i in range(n)],
+        "columnID": [f"c{(i // 20) + 1}" for i in range(n)],
+        "fieldID": [f"f{(i % 4) + 1}" for i in range(n)],
     })
     logit = driver_strength * (area - 500) / 120
     frame["cv_prediction"] = (logit + rng.normal(0, 0.25, n) > 0).astype(int)
@@ -46,6 +50,8 @@ def test_a_faithful_surrogate_beats_the_baseline_and_finds_the_driver():
     result = surrogate.fit_surrogate(_frame(), verbose=False)
     assert result.is_faithful
     assert result.fidelity > result.baseline
+    assert result.split_report["group_by"] == "well"
+    assert result.split_report["group_fraction"] > 0
     top = result.top(1, by="permutation")["feature"].tolist()
     assert top == ["cell_area"], result.importance
 
@@ -62,7 +68,7 @@ def test_an_unfaithful_surrogate_says_so_in_the_first_lines():
     })
     frame["cv_prediction"] = rng.integers(0, 2, 300)
 
-    result = surrogate.fit_surrogate(frame, verbose=False)
+    result = surrogate.fit_surrogate(frame, split_by="cell", verbose=False)
     assert not result.is_faithful, result.fidelity
     summary = result.summary()
     assert "does NOT reproduce" in summary

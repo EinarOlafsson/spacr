@@ -328,7 +328,8 @@ FEATURES = [
 ]
 
 COMMON = dict(channel_of_interest=3, location_column="columnID", n_repeats=1,
-              n_jobs=1, remove_highly_correlated_features=False, test_size=0.25)
+              n_jobs=1, remove_highly_correlated_features=False, test_size=0.25,
+              split_by="cell")
 
 
 def _feature_df(per_class=40, loc_values=("c1", "c2", "c3")):

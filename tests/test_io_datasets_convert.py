@@ -45,7 +45,8 @@ def test_generate_dataset_from_lists_splits_train_test(tmp_path, rng):
     from spacr.io import generate_dataset_from_lists
     data = _class_dirs(tmp_path / "src", rng, n=10)
     train, test = generate_dataset_from_lists(
-        str(tmp_path / "out"), data, ["nc", "pc"], test_split=0.2)
+        str(tmp_path / "out"), data, ["nc", "pc"], test_split=0.2,
+        group_by="cell")
     assert os.path.isdir(train) and os.path.isdir(test)
     n_train = sum(len(files) for _r, _d, files in os.walk(train))
     n_test = sum(len(files) for _r, _d, files in os.walk(test))

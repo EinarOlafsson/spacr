@@ -155,7 +155,6 @@ def _checkpoint_module(module: nn.Module, function, *args):
     return checkpoint(function, *args, use_reentrant=False,
                       context_fn=contexts)
 from sklearn.metrics import auc, precision_recall_curve
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.cluster import KMeans, DBSCAN
@@ -5124,7 +5123,8 @@ def build_loss(loss_type: str = "ce",
 
     return loss_fn
 
-def augment_classes(dst, nc, pc, generate=True,move=True):
+def augment_classes(dst, nc, pc, generate=True, move=True,
+                    group_by='well', test_size=0.1):
     """Augment negative and positive class images and split them into train/test folders.
 
     :param dst: destination root; augmented images land under ``aug_nc``/``aug_pc`` and
@@ -5133,6 +5133,9 @@ def augment_classes(dst, nc, pc, generate=True,move=True):
     :param pc: positive-class source image paths.
     :param generate: run augmentation before moving files.
     :param move: split augmented images into train/test folders.
+    :param group_by: source identity held intact across train/test. Default
+        ``'well'``; ``'cell'`` permits sibling objects on both sides.
+    :param test_size: requested test fraction; whole groups make it approximate.
     :returns: None.
     """
     aug_nc = os.path.join(dst,'aug_nc')
@@ -5162,8 +5165,26 @@ def augment_classes(dst, nc, pc, generate=True,move=True):
         aug_nc_list = [os.path.join(aug_nc, file) for file in os.listdir(aug_nc)]
         aug_pc_list = [os.path.join(aug_pc, file) for file in os.listdir(aug_pc)]
 
-        nc_train_data, nc_test_data = train_test_split(aug_nc_list, test_size=0.1, shuffle=True, random_state=_run_random_state(42))
-        pc_train_data, pc_test_data = train_test_split(aug_pc_list, test_size=0.1, shuffle=True, random_state=_run_random_state(42))
+        from .classifier_evaluation import grouped_split, split_group_values
+
+        all_paths = aug_nc_list + aug_pc_list
+        labels = ([0] * len(aug_nc_list)) + ([1] * len(aug_pc_list))
+        level, groups = split_group_values(
+            group_by=group_by, paths=all_paths,
+            table='augmented crop dataset')
+        train_idx, test_idx, split_report = grouped_split(
+            groups, labels, test_size, seed=_run_random_state(42),
+            group_by=level)
+        train_set, test_set = set(train_idx.tolist()), set(test_idx.tolist())
+        nc_train_data = [path for i, path in enumerate(all_paths)
+                         if i in train_set and labels[i] == 0]
+        nc_test_data = [path for i, path in enumerate(all_paths)
+                        if i in test_set and labels[i] == 0]
+        pc_train_data = [path for i, path in enumerate(all_paths)
+                         if i in train_set and labels[i] == 1]
+        pc_test_data = [path for i, path in enumerate(all_paths)
+                        if i in test_set and labels[i] == 1]
+        print(split_report.summary())
 
         i=0
         for path in nc_train_data:
