@@ -79,15 +79,19 @@ def test_bootstraps_pin_uv_and_private_python():
         assert "spacr[" in source
 
 
-def test_bootstraps_use_tls_and_portable_pytorch_by_default():
+def test_bootstraps_use_tls_and_detect_acceleration_by_default():
     unix = _text(UNIX)
     windows = _text(WINDOWS)
     assert "https://astral.sh/uv/" in unix
     assert "--proto '=https'" in unix
     assert "--tlsv1.2" in unix
     assert "Tls12" in windows
-    assert 'TORCH_BACKEND="${SPACR_TORCH_BACKEND:-cpu}"' in unix
+    assert 'TORCH_BACKEND="${SPACR_TORCH_BACKEND:-}"' in unix
+    assert "nvidia-smi -L" in unix
+    assert 'DETECTED_ACCELERATOR="apple-silicon"' in unix
     assert '--torch-backend "$TORCH_BACKEND"' in unix
+    assert 'Get-Command "nvidia-smi.exe"' in windows
+    assert '$TorchBackend = "auto"' in windows
     assert '$TorchBackend = "cpu"' in windows
     assert "--torch-backend $TorchBackend" in windows
     assert 'DEFAULT_EXTRAS="qt"' in unix
@@ -135,6 +139,38 @@ def test_install_is_validated_before_the_previous_environment_is_replaced():
         assert "-I" in source[:import_check]
         assert check < activate
         assert import_check < activate
+
+
+def test_bootstraps_persist_the_requested_and_actual_backend_for_doctor():
+    unix = _text(UNIX)
+    windows = _text(WINDOWS)
+    for source in (unix, windows):
+        assert "spacr.install_profile" in source
+        assert "install-profile.json" in source
+        assert "requested" in source
+        assert "detected" in source
+        assert "13x faster Cellpose segmentation" in source
+        assert "20x faster ResNet classification" in source
+    assert "torch.cuda.is_available()" in unix
+    assert "torch.backends.mps.is_available()" in unix
+    assert "torch.cuda.is_available()" in windows
+    assert "MUI_DESCRIPTION_TEXT ${SecGpu}" in _text(NSIS)
+
+
+def test_installer_consent_is_optional_off_by_default_and_persisted():
+    unix = _text(UNIX)
+    windows = _text(WINDOWS)
+    nsis = _text(NSIS)
+    for source in (unix, windows):
+        assert "ShareDiagnostics" in source or "SHARE_DIAGNOSTICS=0" in source
+        assert "ReportIssues" in source or "REPORT_ISSUES=0" in source
+        assert "SignInNow" in source or "SIGN_IN_NOW=0" in source
+        assert "spacr.install_profile" in source
+    assert "Page custom ConsentPage ConsentPageLeave" in nsis
+    assert nsis.count("off by default") >= 3
+    assert "PUBLIC spaCR GitHub repository" in nsis
+    assert "cannot be reliably unpublished" in nsis
+    assert "-ConsentCollected $ConsentCollectedValue" in nsis
 
 
 def test_unix_validation_exercises_torch_numpy_abi():
@@ -195,6 +231,8 @@ def test_windows_installer_is_per_user_and_registers_uninstall():
     assert 'Get-SpacrInstallerMessage "unsafe_root"' in bootstrap
     assert 'Section /o "$(SPACR_NSIS_GPU)"' in nsis
     assert '-TorchBackend "$1"' in nsis
+    assert "nvidia-smi -L" in nsis
+    assert "SectionSetFlags ${SecGpu} ${SF_SELECTED}" in nsis
     assert "app_icon.ico" in nsis
     assert 'File /oname=spacr.ico "${SPACR_ICON}"' in nsis
 
@@ -448,6 +486,8 @@ def test_macos_builder_creates_application_and_pkg_with_uninstall_helper():
 def test_unix_bootstrap_parses_and_dry_run_never_downloads(tmp_path):
     installer = _standalone_unix_installer(tmp_path)
     subprocess.run(["bash", "-n", str(installer)], check=True)
+    env = os.environ.copy()
+    env["SPACR_TORCH_BACKEND"] = "cpu"
     result = subprocess.run(
         [
             "bash",
@@ -465,11 +505,51 @@ def test_unix_bootstrap_parses_and_dry_run_never_downloads(tmp_path):
         check=True,
         capture_output=True,
         text=True,
+        env=env,
     )
     assert "spacr[qt]==9.9.9" in result.stdout
     assert "PyTorch backend: cpu" in result.stdout
     assert "DRY RUN" in result.stdout
     assert not (tmp_path / "spacr").exists()
+
+
+@pytest.mark.parametrize(
+    ("platform_name", "machine", "nvidia_status", "expected"),
+    (
+        ("linux", "x86_64", 0, "auto"),
+        ("linux", "x86_64", 1, "cpu"),
+        ("macos", "arm64", 1, "auto"),
+        ("macos", "x86_64", 1, "cpu"),
+    ),
+)
+def test_unix_backend_default_follows_detected_hardware(
+    tmp_path, platform_name, machine, nvidia_status, expected
+):
+    installer = _standalone_unix_installer(tmp_path)
+    fake_bin = tmp_path / "fake-bin"
+    fake_bin.mkdir()
+    nvidia = fake_bin / "nvidia-smi"
+    nvidia.write_text(
+        f"#!/bin/sh\nexit {nvidia_status}\n", encoding="utf-8"
+    )
+    nvidia.chmod(0o755)
+    uname = fake_bin / "uname"
+    uname.write_text(f"#!/bin/sh\necho {machine}\n", encoding="utf-8")
+    uname.chmod(0o755)
+    env = os.environ.copy()
+    env.pop("SPACR_TORCH_BACKEND", None)
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    result = subprocess.run(
+        [
+            "bash", str(installer), "--platform", platform_name,
+            "--dry-run", "--install-root", str(tmp_path / "spacr"),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    assert f"PyTorch backend: {expected}" in result.stdout
 
 
 def test_release_workflow_builds_all_platforms_with_node24_actions():
@@ -506,6 +586,8 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
         )
     assert workflow.count("timeout-minutes: 30") == 3
     assert workflow.count("assert torch.version.cuda is None") == 3
+    assert workflow.count("smoke_installed.py") == 3
+    assert workflow.count("install-profile.json") >= 3
     assert workflow.count("install.log") >= 3
     assert "sudo installer -verboseR -pkg" in workflow
     assert "Start-Process" in workflow
@@ -538,10 +620,10 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "gh release upload" in workflow
     assert "release-assets/*" in workflow
     assert "SHA256SUMS.txt" in workflow
-    assert 'git config user.name "github-actions[bot]"' in workflow
+    assert 'git config user.name "Einar Olafsson"' in workflow
     assert (
         'git config user.email '
-        '"41898282+github-actions[bot]@users.noreply.github.com"'
+        '"einar.olafsson@gmail.com"'
         in workflow
     )
     assert "needs.bump.outputs.pypi_exists != 'true'" in workflow

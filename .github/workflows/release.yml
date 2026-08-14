@@ -95,8 +95,8 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
           TARGET_BRANCH: ${{ inputs.target_branch }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "Einar Olafsson"
+          git config user.email "einar.olafsson@gmail.com"
           git add setup.py
           if git diff --cached --quiet; then
             echo "setup.py already declares $VERSION; continuing idempotently."
@@ -271,8 +271,8 @@ jobs:
           RELEASE_TAG: ${{ needs.bump.outputs.tag }}
           RELEASE_SHA: ${{ needs.installers.outputs.release_commit }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "Einar Olafsson"
+          git config user.email "einar.olafsson@gmail.com"
           if git rev-parse "refs/tags/$RELEASE_TAG" >/dev/null 2>&1; then
             tagged_sha=$(git rev-list -n 1 "$RELEASE_TAG")
             if [ "$tagged_sha" != "$RELEASE_SHA" ]; then

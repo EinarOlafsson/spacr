@@ -18,7 +18,8 @@ UV_VERSION="0.11.32"
 PYTHON_VERSION="3.12"
 DEFAULT_SPACR_VERSION="@SPACR_VERSION@"
 DEFAULT_EXTRAS="qt"
-TORCH_BACKEND="${SPACR_TORCH_BACKEND:-cpu}"
+TORCH_BACKEND="${SPACR_TORCH_BACKEND:-}"
+DETECTED_ACCELERATOR="unknown"
 LAUNCHER_DIR="${SPACR_LAUNCHER_DIR:-}"
 # SHAP 0.52 leaves these dependencies unbounded and uv can otherwise select
 # 2021 source releases whose metadata admits Python 3.12 but build scripts do
@@ -33,6 +34,10 @@ SKIP_SYSTEM_DEPS=0
 NO_LAUNCH=0
 NO_COMMAND_LAUNCHER=0
 DRY_RUN="${SPACR_INSTALL_DRY_RUN:-0}"
+CONSENT_COLLECTED=0
+SHARE_DIAGNOSTICS=0
+REPORT_ISSUES=0
+SIGN_IN_NOW=0
 
 usage() {
     spacr_say usage
@@ -46,6 +51,10 @@ usage() {
     printf '  --skip-system-deps      %s\n' "$(spacr_say help_skip_system_deps)"
     printf '  --no-launch             %s\n' "$(spacr_say help_no_launch)"
     printf '  --dry-run               %s\n' "$(spacr_say help_dry_run)"
+    printf '  --share-diagnostics     Include redacted logs in report previews.\n'
+    printf '  --report-issues         Show the public GitHub report action.\n'
+    printf '  --sign-in-now           Open account setup on first launch.\n'
+    printf '  --consent-collected     Record that these choices were reviewed.\n'
     printf '  -h, --help              %s\n' "$(spacr_say help_help)"
 }
 
@@ -99,6 +108,22 @@ while (($#)); do
             DRY_RUN=1
             shift
             ;;
+        --share-diagnostics)
+            SHARE_DIAGNOSTICS=1
+            shift
+            ;;
+        --report-issues)
+            REPORT_ISSUES=1
+            shift
+            ;;
+        --sign-in-now)
+            SIGN_IN_NOW=1
+            shift
+            ;;
+        --consent-collected)
+            CONSENT_COLLECTED=1
+            shift
+            ;;
         -h|--help)
             usage
             exit 0
@@ -126,6 +151,28 @@ if [[ "$PLATFORM" != "linux" && "$PLATFORM" != "macos" ]]; then
     exit 2
 fi
 
+# Choose the accelerated wheel only when the machine identifies a supported
+# accelerator. An explicit environment variable or --torch-backend always
+# wins, which keeps unattended and reproducible installs possible.
+if [[ "$PLATFORM" == "linux" ]]; then
+    if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi -L >/dev/null 2>&1; then
+        DETECTED_ACCELERATOR="nvidia"
+    else
+        DETECTED_ACCELERATOR="none"
+    fi
+elif [[ "$(uname -m)" == "arm64" ]]; then
+    DETECTED_ACCELERATOR="apple-silicon"
+else
+    DETECTED_ACCELERATOR="none"
+fi
+if [[ -z "$TORCH_BACKEND" ]]; then
+    if [[ "$DETECTED_ACCELERATOR" == "nvidia" || "$DETECTED_ACCELERATOR" == "apple-silicon" ]]; then
+        TORCH_BACKEND="auto"
+    else
+        TORCH_BACKEND="cpu"
+    fi
+fi
+
 # llvmlite 0.46+ no longer publishes Intel macOS wheels. Without this
 # architecture-specific ceiling uv selects the latest release, attempts a
 # source build, and the otherwise self-contained installer fails looking for
@@ -142,6 +189,30 @@ fi
 if [[ ! "$TORCH_BACKEND" =~ ^[a-z0-9]+$ ]]; then
     spacr_say invalid_backend "$TORCH_BACKEND" >&2
     exit 2
+fi
+
+ask_yes_no() {
+    local prompt="$1"
+    local reply=""
+    printf '%s [y/N] ' "$prompt"
+    IFS= read -r reply || reply=""
+    [[ "$reply" =~ ^[Yy]([Ee][Ss])?$ ]]
+}
+
+# A terminal-launched .run (and the macOS first-user helper) can collect the
+# choices here. Package-manager and CI invocations have no TTY, remain fully
+# non-interactive, and leave all three choices off for the app to ask later.
+if [[ "$CONSENT_COLLECTED" == "0" && -t 0 && "$DRY_RUN" != "1" ]]; then
+    printf '\nspaCR privacy and account setup\n'
+    printf '%s\n' \
+        'Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished.' \
+        'Every report is redacted, shown in an editable preview, and sent only when you press Send for that report.' \
+        'Account setup runs the official GitHub, Claude, Codex (GPT), and Gemini login tools; spaCR never stores their passwords or tokens.' \
+        'All choices are optional, default off, and can be changed later in Preferences.'
+    ask_yes_no 'Include redacted diagnostic logs in report previews?' && SHARE_DIAGNOSTICS=1
+    ask_yes_no 'Enable the public GitHub issue-report action?' && REPORT_ISSUES=1
+    ask_yes_no 'Open GitHub, Claude, GPT/Codex, and Gemini setup on first launch?' && SIGN_IN_NOW=1
+    CONSENT_COLLECTED=1
 fi
 
 if [[ -z "$INSTALL_ROOT" ]]; then
@@ -191,6 +262,7 @@ printf '  %s:    %s\n' "$(spacr_say application)" "$PACKAGE_SPEC"
 printf '  %s: %s\n' "$(spacr_say private_python)" "$PYTHON_VERSION"
 printf '  %s:   %s\n' "$(spacr_say install_root)" "$INSTALL_ROOT"
 printf '  %s: %s\n' "$(spacr_say pytorch_backend)" "$TORCH_BACKEND"
+printf '  GPU benchmark: RTX 3090 measured 13x faster Cellpose segmentation and 20x faster ResNet classification than CPU; hardware varies.\n'
 printf '  %s: %s\n' "$(spacr_say resolver_guards)" "${RESOLVER_GUARDS[*]}"
 
 if [[ "$DRY_RUN" == "1" ]]; then
@@ -275,8 +347,10 @@ spacr_say detailed_log "$INSTALL_LOG"
 install_linux_system_dependencies
 installer_tmp="$(mktemp "${TMPDIR:-/tmp}/spacr-uv-installer.XXXXXX")"
 stage_venv="$INSTALL_ROOT/.venv-staging-$$"
+stage_profile="$INSTALL_ROOT/.install-profile-staging-$$.json"
 cleanup() {
     rm -f "$installer_tmp"
+    rm -f "$stage_profile"
     if [[ -d "$stage_venv" ]]; then
         rm -rf "$stage_venv"
     fi
@@ -319,6 +393,22 @@ spacr_say validating_install
 "$UV_BIN" pip check --python "$stage_python"
 QT_QPA_PLATFORM=offscreen "$stage_python" -I -c \
     "import spacr, PySide6, torch; import numpy as np; assert torch.from_numpy(np.zeros(1, dtype=np.float32)).numel() == 1; print('spaCR', spacr.__version__, '| torch', torch.__version__, '| numpy', np.__version__)"
+if [[ "$TORCH_BACKEND" != "cpu" && "$DETECTED_ACCELERATOR" == "nvidia" ]]; then
+    "$stage_python" -I -c \
+        "import torch; assert torch.cuda.is_available(), 'GPU install selected but CUDA is unavailable'"
+elif [[ "$TORCH_BACKEND" != "cpu" && "$DETECTED_ACCELERATOR" == "apple-silicon" ]]; then
+    "$stage_python" -I -c \
+        "import torch; assert torch.backends.mps.is_available(), 'Apple GPU selected but MPS is unavailable'"
+fi
+
+"$stage_python" -I -m spacr.install_profile \
+    --path "$stage_profile" \
+    --requested "$TORCH_BACKEND" \
+    --detected "$DETECTED_ACCELERATOR" \
+    --consent-collected "$CONSENT_COLLECTED" \
+    --share-diagnostics "$SHARE_DIAGNOSTICS" \
+    --report-issues "$REPORT_ISSUES" \
+    --sign-in-now "$SIGN_IN_NOW"
 
 old_venv="$INSTALL_ROOT/.venv-previous"
 rm -rf "$old_venv"
@@ -327,6 +417,7 @@ if [[ -d "$VENV_DIR" ]]; then
 fi
 mv "$stage_venv" "$VENV_DIR"
 rm -rf "$old_venv"
+mv "$stage_profile" "$INSTALL_ROOT/install-profile.json"
 
 if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then
     mkdir -p "$USER_BIN_DIR"

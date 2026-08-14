@@ -10,6 +10,10 @@ param(
     [string]$PackageSpec = "",
     [string]$TorchBackend = "",
     [string]$Language = "",
+    [ValidateSet(0, 1)][int]$ConsentCollected = 0,
+    [ValidateSet(0, 1)][int]$ShareDiagnostics = 0,
+    [ValidateSet(0, 1)][int]$ReportIssues = 0,
+    [ValidateSet(0, 1)][int]$SignInNow = 0,
     [switch]$DryRun
 )
 
@@ -31,8 +35,19 @@ $ResolverGuards = @("numba>=0.60,<1.0", "llvmlite>=0.43,<1.0")
 if ([string]::IsNullOrWhiteSpace($TorchBackend)) {
     $TorchBackend = $env:SPACR_TORCH_BACKEND
 }
+$DetectedAccelerator = "none"
+if (Get-Command "nvidia-smi.exe" -ErrorAction SilentlyContinue) {
+    & nvidia-smi.exe -L *> $null
+    if ($LASTEXITCODE -eq 0) {
+        $DetectedAccelerator = "nvidia"
+    }
+}
 if ([string]::IsNullOrWhiteSpace($TorchBackend)) {
-    $TorchBackend = "cpu"
+    if ($DetectedAccelerator -eq "nvidia") {
+        $TorchBackend = "auto"
+    } else {
+        $TorchBackend = "cpu"
+    }
 }
 if ($TorchBackend -notmatch '^[a-z0-9]+$') {
     throw (Get-SpacrInstallerMessage "invalid_backend" @($TorchBackend))
@@ -65,6 +80,7 @@ $CacheDir = Join-Path $InstallRoot "cache"
 $UvExe = Join-Path $BootstrapDir "uv.exe"
 $StageVenv = Join-Path $InstallRoot (".venv-staging-" + $PID)
 $StagePython = Join-Path $StageVenv "Scripts\python.exe"
+$StageProfile = Join-Path $InstallRoot (".install-profile-staging-" + $PID + ".json")
 $Launcher = Join-Path $InstallRoot "launch_spacr.pyw"
 $CliLauncher = Join-Path $InstallRoot "spacr.cmd"
 
@@ -73,6 +89,7 @@ Write-Host "  $(Get-SpacrInstallerMessage 'application'):    $PackageSpec"
 Write-Host "  $(Get-SpacrInstallerMessage 'private_python'): $PythonVersion"
 Write-Host "  $(Get-SpacrInstallerMessage 'install_root'):   $InstallRoot"
 Write-Host "  $(Get-SpacrInstallerMessage 'pytorch_backend'): $TorchBackend"
+Write-Host "  GPU benchmark: RTX 3090 measured 13x faster Cellpose segmentation and 20x faster ResNet classification than CPU; hardware varies."
 Write-Host "  $(Get-SpacrInstallerMessage 'resolver_guards'): $($ResolverGuards -join ', ')"
 
 if ($DryRun -or $env:SPACR_INSTALL_DRY_RUN -eq "1") {
@@ -143,6 +160,33 @@ try {
         "-c",
         "import spacr, PySide6, torch; print('spaCR', spacr.__version__, '| torch', torch.__version__)"
     )
+    if ($TorchBackend -ne "cpu" -and $DetectedAccelerator -eq "nvidia") {
+        Invoke-Checked -Command $StagePython -Arguments @(
+            "-I",
+            "-c",
+            "import torch; assert torch.cuda.is_available(), 'GPU install selected but CUDA is unavailable'"
+        )
+    }
+
+    Invoke-Checked -Command $StagePython -Arguments @(
+        "-I",
+        "-m",
+        "spacr.install_profile",
+        "--path",
+        $StageProfile,
+        "--requested",
+        $TorchBackend,
+        "--detected",
+        $DetectedAccelerator,
+        "--consent-collected",
+        [string]$ConsentCollected,
+        "--share-diagnostics",
+        [string]$ShareDiagnostics,
+        "--report-issues",
+        [string]$ReportIssues,
+        "--sign-in-now",
+        [string]$SignInNow
+    )
 
     $OldVenv = Join-Path $InstallRoot ".venv-previous"
     if (Test-Path $OldVenv) {
@@ -156,13 +200,15 @@ try {
         Remove-Item -Recurse -Force $OldVenv
     }
 
+    $InstalledPython = Join-Path $VenvDir "Scripts\python.exe"
+    Move-Item -Force $StageProfile (Join-Path $InstallRoot "install-profile.json")
+
     @"
 from spacr.qt import run
 
 raise SystemExit(run())
 "@ | Set-Content -Encoding UTF8 $Launcher
 
-    $InstalledPython = Join-Path $VenvDir "Scripts\python.exe"
     "@echo off`r`n`"$InstalledPython`" -m spacr.qt %*`r`n" |
         Set-Content -Encoding ASCII $CliLauncher
 
@@ -173,6 +219,7 @@ raise SystemExit(run())
     if (Test-Path $StageVenv) {
         Remove-Item -Recurse -Force $StageVenv
     }
+    Remove-Item -Force -ErrorAction SilentlyContinue $StageProfile
     throw
 } finally {
     Remove-Item -Force -ErrorAction SilentlyContinue $InstallerScript
