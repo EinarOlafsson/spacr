@@ -77,3 +77,43 @@ Two fields of the same plate with different maxima produce intensities on the
 same scale, or the database records the scale each was measured on; a run that
 rescales says so whatever the log level; and a user comparing two wells can
 tell from the artifact alone whether the comparison is valid.
+
+--------------------------------------------------------------------------------
+2026-08-14 - COMPLETE: ONE PLATE SCALE, ONE AUDIT ROW PER FIELD
+--------------------------------------------------------------------------------
+
+`spacr.intensity_rescale` now scans every merged field before the worker pool
+starts, groups raw-valued fields by plate, and computes one factor from the
+largest raw intensity on each plate. The scan covers the complete source even
+on resume, so a resumed field cannot silently acquire a different scale from
+fields already in the database. Normalised floating-point fields retain the
+fixed x65535 conversion. Label planes are rounded but never scaled.
+
+The plan copied into workers is O(number of plates), not O(number of fields):
+workers already have to load their own array and recompute its maximum, so the
+pool receives only plate maxima plus the exceptional filenames. If a file
+could not be scanned, or became brighter between scan and measurement, that
+worker makes a per-field fallback decision and explicitly marks it
+non-comparable.
+
+Every successfully processed field now upserts one row into
+`measurements.db:intensity_rescale`. It records the canonical field keys,
+source file, original dtype and maximum, factor, factor scope, plate maximum,
+target dtype, and `comparable_within_plate`. The `prcf` primary key makes a
+retry idempotent. The table is part of spaCR's schema and measure-resume
+allow-list, so stale provenance is cleared with stale measurements and no
+other module's rows are exposed to resume deletion.
+
+A non-identity/non-normalised factor prints a `WARNING` regardless of
+`verbose`, naming whether it is plate-wide or a non-comparable fallback and
+pointing to the database table. `validate.describe_resources` performs the
+same scan for a measure dry-run and reports values above 65535, the planned
+plate factors, any scan failures, and where the provenance will be stored.
+
+TESTED: two raw fields with different maxima share one factor; different
+plates get independent factors; normalised float data keeps x65535; labels
+retain their identities; malformed pre-pass input falls back explicitly; a
+field changed after the scan cannot reuse an unsafe factor; dry-run reports
+the uint16 overflow before writing; warnings ignore `verbose`; a real measure
+worker writes a queryable provenance row. The focused measurement, resume,
+schema, and validation suites pass: 506 tests.

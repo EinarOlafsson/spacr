@@ -793,6 +793,44 @@ def test_measure_crop_core_measures_a_float_field_instead_of_zeroing_it(
     cols = [r[1] for r in con.execute("PRAGMA table_info(cell)")]
     mean_col = next(c for c in cols if c.endswith("_mean_intensity"))
     means = [r[0] for r in con.execute(f'SELECT "{mean_col}" FROM cell')]
+    provenance = con.execute(
+        "SELECT rescale_factor, rescale_scope, comparable_within_plate "
+        "FROM intensity_rescale").fetchone()
     con.close()
     assert means and all(m and m > 0 for m in means), \
         "a float merged field was measured as black"
+    assert provenance == (65535.0, "fixed_normalized", 1)
+
+
+def test_plate_rescale_warning_and_database_record_ignore_verbose(tmp_path,
+                                                                 capsys):
+    from spacr.intensity_rescale import PLAN_SETTINGS_KEY, build_plate_plan
+    from spacr.measure import _measure_crop_core
+
+    root = tmp_path / "plate1"
+    merged = root / "merged"
+    merged.mkdir(parents=True)
+    (root / "measurements").mkdir()
+    data = merged_uint16().astype(np.uint32)
+    data[..., :4] *= 8
+    name = "plate1_A01_F001.npy"
+    np.save(merged / name, data)
+    settings = _measure_settings(
+        merged, verbose=False, save_png=False, save_arrays=False)
+    settings[PLAN_SETTINGS_KEY] = build_plate_plan(merged, [name], settings)
+
+    index, _, cells, _ = _measure_crop_core(0, [], name, settings)
+    output = capsys.readouterr().out
+    assert index == 0 and np.max(cells) >= 1
+    assert "WARNING:" in output and "plate-wide" in output
+    assert "measurements.db:intensity_rescale" in output
+
+    con = sqlite3.connect(root / "measurements" / "measurements.db")
+    row = con.execute(
+        "SELECT original_intensity_max, rescale_factor, rescale_scope, "
+        "plate_intensity_max, comparable_within_plate FROM intensity_rescale"
+    ).fetchone()
+    con.close()
+    assert row[0] > 65535
+    assert row[1] == pytest.approx(65535 / row[0])
+    assert row[2:] == ("plate", row[0], 1)
