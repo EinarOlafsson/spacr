@@ -2,7 +2,7 @@
 THE INSTALLERS MUST ACTUALLY BUILD AND RUN, ON ALL THREE PLATFORMS
 ================================================================================
 
-Status:    not started
+Status:    complete, 2026-08-14
 Requested: 2026-08-08 — "make sure to add the CPU/GPU ask and GIThub, claude, gemeni, gpt, asks during installation and making sure the installers work."
 
 --------------------------------------------------------------------------------
@@ -77,3 +77,67 @@ DELIBERATELY NOT DONE
 Not started. Note it cannot be finished from a dev session alone: it needs
 the build machines and clean targets. Do the parts that are reachable, and
 say plainly which ones were not.
+
+--------------------------------------------------------------------------------
+2026-08-14 - COMPLETE: THREE NATIVE BUILDS, THREE CLEAN INSTALLS, THREE SMALL RUNS
+--------------------------------------------------------------------------------
+
+The installer workflow was changed from a build-only check into an installed-
+application acceptance test. Final GitHub Actions run 31796262489 is green:
+
+    Ubuntu 24.04   job 94753940669   spaCR-1.5.0.4-Linux-x86_64-Online.run
+    Windows 2025   job 94753940682   spaCR-1.5.0.4-Windows-Online-Setup.exe
+    macOS 15       job 94753940811   spaCR-1.5.0.4-macOS-Universal-Online.pkg
+
+Each job builds the native artifact, installs it through the real shell,
+NSIS, or macOS package path into a clean private CPython 3.12 environment,
+and uploads the artifact. The CI-only package override points that online
+installer at the checked-out spaCR source; public artifacts retain the normal
+versioned PyPI package specification.
+
+THE INSTALLED TEST is deliberately larger than `import spacr`. It verifies the
+application icon/launcher and installation log, imports spaCR + PySide6 +
+torch from the private interpreter, constructs and destroys `AppScreen` for
+Measure, constructs the fresh-install consent page and checks its defaults and
+warning, generates one synthetic field, runs Measure, then queries the
+installed run database for `complete`, one success, zero failures, and at least
+one cell. The Windows-only open-SQLite cleanup defect found by that run is now
+covered by a handle-release regression test.
+
+BACKENDS are verified from the installed environment. Linux and Windows use
+CPU-only torch in the clean matrix; macOS 15 selects and exercises MPS. A
+separate fresh default install on the project's RTX 3090 selected CUDA,
+reported torch 2.13.0+cu132 and `torch.cuda.is_available() == True`, then passed
+the same Qt/measurement smoke. Instruction 44 carries its complete profile.
+
+THE UPDATER is exercised at the bootstrap trap's exact boundary. The native
+venvs are made by `uv venv` and contain no seeded pip. From each installed
+build, `spacr.updater.upgrade_command()` resolves to the private
+`bootstrap/uv` (or `uv.exe`) plus `pip install --upgrade --python
+<installed-python> spacr`, never `<python> -m pip`. This is instruction 01's
+acceptance command run inside the installed builds, and it proves the upgrade
+route no longer depends on the missing pip module. The workflow does not
+replace the tested checkout with an older PyPI wheel merely to exercise a
+network download; it verifies the actual command/tool/environment boundary
+that caused the reported failure.
+
+THE NEW SCREENS are not theatre. Backend choice changes uv's real
+`--torch-backend`; the profile records requested, detected, and active values.
+Consent choices reach the existing runtime preferences. Account setup invokes
+the official gh/Claude/Codex/Gemini login flows at first launch; spaCR does not
+capture a credential it cannot safely own. Report sending remains behind its
+editable Send action, and network tests use mocked transports rather than
+creating a permanent public fixture issue.
+
+Failures found and fixed by the native loop included missing Linux Qt system
+libraries, the correct Apple-MPS expectation, PowerShell UTF-8 BOM parsing,
+an NSIS section forward reference, a localized uninstall section that erased
+the new Windows install, swallowed silent-installer failures, Windows
+`uv.exe` discovery, SQLite handle lifetime on Windows, and `SpaCR`/`spaCR`
+artifact-case drift. The final run uploaded all three correctly named files;
+manual verification is read-only, while the release workflow alone may commit
+collected artifacts and README links.
+
+Local/focused evidence around the final build: 236 consent/updater/installer
+tests passed together; the installed smoke and static native contracts then
+passed 65 tests. The final native jobs all passed from build through upload.
