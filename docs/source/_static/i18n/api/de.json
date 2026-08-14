@@ -6894,6 +6894,24 @@
         "8d00bbb57c10c3e82b5f3d658b205bb83ad3d45bfc189f99f5b85b955692ce31"
       ]
     },
+    "spacr.classify.resolve_ml_model_type": {
+      "source_blocks_sha256": [
+        "4fc18bf87f82879b9e6c3e28196aa150ff69ff38b6ceedb3bf25f0ffcb82ec5f",
+        "3ee3d61ba280348138bbdad83dfd105f7f06e1762174884e98d157e0fd0dca81",
+        "4fe690d20134b7bbe72b7de2b5d6ea7e8b05e54773aa77074636f96932021e69",
+        "dc2d00c4c2e3264d791392b4aafff4ab327c09b31519653d987f8fa9178267f2",
+        "d55288718f2db2f9e51c34d8ef361f1fb62b18fc00734aa59be8b41d39499364"
+      ],
+      "source_sha256": "bb5aa84321ce11d1dae845f202916c2f45512f05cf9f20d95f6542348fe4d0ac",
+      "text": "Gibt den von ``settings`` ausgewählten klassischen-ML-Schätzer zurück.\n\n``model_type_ml`` ist maßgeblich für eine zusammengeführte Nutzlast. ``model_type`` wird nur akzeptiert, wenn der ML-spezifische strukturierte Datenname fehlt, der die kurzlebigen Shared-Vokabel-Einstellungendateien migriert, die vor der Trennung der beiden Modellsteuerungen geschrieben wurden. Der Standard entspricht :func:`spacr.settings.set_default_analyze_screen`.\n\n:param settings: Einstellungen für einen ML-Familienlauf.\n:returns: einem Mitglied von :data:`ML_MODEL_TYPES`.\n:raises ValueError: wenn der ausgewählte Wert kein ML-Schätzer ist.",
+      "translation_source_blocks_sha256": [
+        "4fc18bf87f82879b9e6c3e28196aa150ff69ff38b6ceedb3bf25f0ffcb82ec5f",
+        "7a2a19c85d0614dc00a0e923e13224e8e0ef9a8ccd20ec3b0db2e18956c08d60",
+        "4fe690d20134b7bbe72b7de2b5d6ea7e8b05e54773aa77074636f96932021e69",
+        "dc2d00c4c2e3264d791392b4aafff4ab327c09b31519653d987f8fa9178267f2",
+        "d55288718f2db2f9e51c34d8ef361f1fb62b18fc00734aa59be8b41d39499364"
+      ]
+    },
     "spacr.classify_classes": {
       "source_blocks_sha256": [
         "b5f604275b4b6aa850d2f16a9c14e6a148ca1e468251a56cc4e150ba01bb47b4",
