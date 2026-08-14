@@ -5,10 +5,22 @@ true right now, what needs the maintainer, and the traps that cost time so
 they cost nobody else any.
 
 Read this, then `instructions/00_INDEX.txt`, then the open instruction you are
-taking. **The trailing notes at the end of each instruction file are the
-current state; the header often says "not started" when it is done.**
+taking. The authoritative status is the current ledger and each instruction's
+latest dated record; older sections below are preserved as history.
 
-Branch `nightly`, 69 done / 17 open (**80%**), everything pushed.
+Current checkpoint: branch `nightly`, 82 done / 4 open after instruction 48's
+closure. The complete 69-lesson, 487-scene, 50-voice tutorial release is live
+at `https://einarolafsson.github.io/spacr/tutorials/`; its reusable audit skill,
+scene sampler, live verifier, and tests are committed. Hosted tutorial media is
+at Hugging Face commit `17af9e67b7dbd16c465e7f494091eb830728e161`, and live
+mobile playback passed the full 69.6-second default narration, captions,
+pause/resume, end, and replay contract. Instruction 83 remains independently
+open for the current API/runtime localization catalogs; the tutorial-only
+deployment preserved the prior non-tutorial documentation baseline rather than
+publishing those stale catalogs. The other open records are 58, 59, and 82.
+
+The remainder of this handoff contains historical investigation notes. Its old
+69-done / 17-open count and hands-off ownership table are superseded.
 
 ---
 
