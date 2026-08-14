@@ -4246,6 +4246,17 @@
       "source_sha256": "193b03c5c97fb0544e38d98799a002f6aef26ed76a8cf5674fdafd03396e3fc1",
       "text": "Return the classifier family a settings dict asks for.\n\nDefaults to ``'cv'``, because the merged module's own default settings\nare the CV ones and a dict with no family is most likely a Classify (CV)\nCSV opened in the merged screen.\n\n:param settings: the run settings.\n:returns: ``'cv'`` or ``'ml'``.\n:raises ClassifierFamilyError: an unrecognised family. Guessing would\n    train a different kind of model than the user asked for and report\n    success."
     },
+    "spacr.classify.resolve_ml_model_type": {
+      "source_blocks_sha256": [
+        "4fc18bf87f82879b9e6c3e28196aa150ff69ff38b6ceedb3bf25f0ffcb82ec5f",
+        "3ee3d61ba280348138bbdad83dfd105f7f06e1762174884e98d157e0fd0dca81",
+        "4fe690d20134b7bbe72b7de2b5d6ea7e8b05e54773aa77074636f96932021e69",
+        "dc2d00c4c2e3264d791392b4aafff4ab327c09b31519653d987f8fa9178267f2",
+        "d55288718f2db2f9e51c34d8ef361f1fb62b18fc00734aa59be8b41d39499364"
+      ],
+      "source_sha256": "bb5aa84321ce11d1dae845f202916c2f45512f05cf9f20d95f6542348fe4d0ac",
+      "text": "Return the classical-ML estimator selected by ``settings``.\n\n``model_type_ml`` is authoritative in a merged payload.  ``model_type``\nis accepted only when the ML-specific key is absent, which migrates the\nshort-lived shared-vocabulary settings files written before the two model\ncontrols were separated.  The default matches\n:func:`spacr.settings.set_default_analyze_screen`.\n\n:param settings: settings for an ML-family run.\n:returns: a member of :data:`ML_MODEL_TYPES`.\n:raises ValueError: when the selected value is not an ML estimator."
+    },
     "spacr.classify_classes": {
       "source_blocks_sha256": [
         "b5f604275b4b6aa850d2f16a9c14e6a148ca1e468251a56cc4e150ba01bb47b4",
