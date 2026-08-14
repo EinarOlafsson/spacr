@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 LOG = logging.getLogger("spacr.gpu_reduce")
 
@@ -156,6 +156,80 @@ def _cpu_estimator(name: str, **kwargs):
 
         return KMeans(**kwargs)
     raise ValueError(f"{name!r} is not one of {list(ACCELERATED)}")
+
+
+#: The interpreters ``cuml-cu12`` declares. Not a guess -- read off the wheel
+#: metadata, which carries classifiers for 3.11 and 3.12 ONLY. On anything
+#: else pip produces a resolver error a user cannot act on, so spaCR says
+#: what is needed instead of letting pip say what went wrong.
+SUPPORTED_PYTHON = ((3, 11), (3, 12))
+
+
+def python_supported() -> bool:
+    """Can cuML be installed into the interpreter running this?"""
+    import sys as _sys
+    return _sys.version_info[:2] in SUPPORTED_PYTHON
+
+
+def install_plan() -> Dict[str, Any]:
+    """What pressing GPU should do, decided before anything is installed.
+
+    :returns: ``{action, message}``. ``action`` is one of:
+
+        ``ready``      cuML is importable and a device answered. Turn it on.
+        ``install``    the interpreter can take it. The message says what it
+                       will pull -- GIGABYTES of CUDA libraries, not a small
+                       wheel, and a multi-gigabyte download with no progress
+                       reads as a hang.
+        ``wrong_python`` say exactly what is needed. "Make a 3.11 environment"
+                       is actionable; a pip resolver error is not.
+        ``no_device``  cuML is installed and there is no CUDA device, which
+                       installing more cannot fix.
+
+    NOTHING IS INSTALLED HERE. This function decides and reports; the caller
+    installs, because installing is the part that needs a confirmation and a
+    progress bar, and a function that did both could not be asked "what would
+    happen" without it happening.
+    """
+    import sys as _sys
+
+    version = f"{_sys.version_info.major}.{_sys.version_info.minor}"
+    if rapids_available():
+        return {"action": "ready", "message": describe()}
+    try:
+        import cuml  # noqa: F401
+        return {"action": "no_device",
+                "message": ("cuML is installed but no CUDA device answered. "
+                            "Check the driver with nvidia-smi -- installing "
+                            "again cannot fix a missing device.")}
+    except Exception:
+        pass
+    if not python_supported():
+        wanted = " or ".join(f"{a}.{b}" for a, b in SUPPORTED_PYTHON)
+        return {"action": "wrong_python",
+                "message": (f"cuML supports Python {wanted} only, and this is "
+                            f"{version}. Make a {SUPPORTED_PYTHON[0][0]}."
+                            f"{SUPPORTED_PYTHON[0][1]} environment and "
+                            f"install spaCR there:\n\n"
+                            f"    conda create -n spacr-gpu python="
+                            f"{SUPPORTED_PYTHON[0][0]}."
+                            f"{SUPPORTED_PYTHON[0][1]}\n"
+                            f"    conda activate spacr-gpu\n"
+                            f"    pip install 'spacr[rapids]'")}
+    return {"action": "install",
+            "message": ("Install cuML for GPU UMAP?\n\nThis downloads "
+                        "SEVERAL GIGABYTES of CUDA libraries -- cuml-cu12 "
+                        "pulls libcuml, cudf, cupy and the CUDA runtime. It "
+                        "is not a small wheel and it will take a while.\n\n"
+                        "spaCR must be RESTARTED afterwards: pip can upgrade "
+                        "numpy and scipy underneath a process that has "
+                        "already imported them, and this one has.")}
+
+
+def install_command() -> List[str]:
+    """The command that installs the extra. Separate so it can be shown."""
+    import sys as _sys
+    return [_sys.executable, "-m", "pip", "install", "spacr[rapids]"]
 
 
 def describe() -> str:

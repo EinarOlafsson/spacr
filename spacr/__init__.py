@@ -103,6 +103,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "resume",
     "checkpoint",
     "normalization",
+    "umap_search",
     "cancellation",
     "zstack",
     "report",
