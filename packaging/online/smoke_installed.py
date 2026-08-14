@@ -24,8 +24,9 @@ def _read_measure_result(database: Path) -> tuple[tuple[object, ...] | None, int
 
 def main() -> int:
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
-    from PySide6.QtWidgets import QApplication
+    from PySide6.QtWidgets import QApplication, QLabel
     from spacr.measure import measure_crop
+    from spacr.qt.install_consent import InstallerConsentDialog
     from spacr.qt.screens.app_screen import AppScreen
     from spacr.qt.synthetic import demo_settings, generate_measure_demo
 
@@ -34,6 +35,20 @@ def main() -> int:
     screen.close()
     screen.deleteLater()
     app.processEvents()
+
+    consent = InstallerConsentDialog()
+    if any(consent.choices().values()):
+        raise RuntimeError("fresh-install consent choices did not start off")
+    consent_text = " ".join(
+        label.text() for label in consent.findChildren(QLabel)
+    )
+    consent.close()
+    consent.deleteLater()
+    app.processEvents()
+    if "PUBLIC spaCR GitHub repository" not in consent_text or (
+        "cannot be reliably unpublished" not in consent_text
+    ):
+        raise RuntimeError("fresh-install consent page omitted public-report warning")
 
     with tempfile.TemporaryDirectory(prefix="spacr-installed-smoke-") as tmp:
         layout = generate_measure_demo(
