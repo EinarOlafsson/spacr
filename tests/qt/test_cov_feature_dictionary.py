@@ -17,11 +17,10 @@ subtly wrong, and the gestures that must produce NO answer at all:
   each one exists to keep a failure from costing the user a window, and a
   swallow that swallows the wrong thing is invisible until someone tests it.
 
-Three tests are ``xfail(strict=True)`` and assert the CORRECT behaviour of
-paths that are wrong today — a right-click on a row header answered with a
-column nobody clicked, a reused dialog still answering the previous question,
-and a destroyed dialog taking the live one's cache entry with it. Each carries
-its reproduction in the ``reason``.
+Regression coverage also pins three formerly broken paths: a right-click on a
+row header must not answer with a column nobody clicked, a reused dialog must
+not keep answering the previous question, and a destroyed dialog must not take
+the live replacement's cache entry with it.
 
 Offscreen, offline, no database. No test opens a modal: the context-menu runner
 is replaced with a recorder by an autouse fixture, so no ``QMenu.exec`` can
@@ -99,13 +98,14 @@ def qss_sandbox():
     from spacr.qt import theme as theme_mod
 
     had = fd.OBJECT_NAME in theme_mod.widget_qss_names()
+    register = theme_mod.register_widget_qss
     theme_mod.unregister_widget_qss(fd.OBJECT_NAME)
     try:
         yield theme_mod
     finally:
         theme_mod.unregister_widget_qss(fd.OBJECT_NAME)
         if had:
-            theme_mod.register_widget_qss(fd.OBJECT_NAME, fd._panel_qss)
+            register(fd.OBJECT_NAME, fd._panel_qss)
 
 
 def _texts(menu) -> list[str]:
@@ -361,14 +361,6 @@ def test_a_fresh_search_answers_with_its_best_hit(panel):
     assert panel.current_doc() is None
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: the pinned column is only cleared by clicking another row, never by "
-    "a new search. After a 'What is this?' lookup the dialog is REUSED, so "
-    "typing a new query in it repopulates the list, selects no row (because "
-    "_refresh skips setCurrentRow(0) while _column is set) and leaves both "
-    "the detail pane and current_doc() answering about the previous column. "
-    "The user reads a definition of nucleus_channel_2_percentile_25 under a "
-    "list of texture features."))
 def test_a_new_search_stops_answering_about_the_previous_column(panel):
     """A new question must not be answered with the old question's answer."""
     panel.show_column("nucleus_channel_2_percentile_25")
@@ -604,17 +596,6 @@ def test_a_broken_filter_hook_does_not_cost_the_help_entry(monkeypatch, qtbot):
 # the right-clicks that must stay silent
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: a right-click on the ROW header is answered with a column the user "
-    "never clicked. column_name_at() correctly refuses a vertical header, but "
-    "the event the header did not accept PROPAGATES to the table behind it, "
-    "and the filter's second pass hands the view its own widget coordinates "
-    "to QTableView.indexAt(), which reads VIEWPORT coordinates. The point "
-    "inside the row header is therefore re-read as a point inside the first "
-    "column and the menu offers to explain object_label. The same offset (the "
-    "row header's width) shifts the column near any boundary, so the module's "
-    "one promise — never guess at a column — is broken by the coordinate "
-    "space, not by the resolver."))
 def test_right_clicking_a_row_header_offers_nothing(qtbot, qapp, menus):
     """A vertical header names rows, not columns: there is nothing to explain.
 
@@ -857,13 +838,6 @@ def test_closing_the_dictionary_leaves_nothing_cached(qtbot):
     assert fd._DIALOG is None
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: _forget_dialog ignores WHICH dialog was destroyed and clears the "
-    "cache unconditionally. A dialog whose deleteLater is still pending when "
-    "a replacement is opened therefore forgets the LIVE replacement when it "
-    "finally dies, so the next lookup opens a second window while the first "
-    "is still on screen — the one thing open_feature_dictionary promises not "
-    "to do."))
 def test_an_old_dialog_dying_does_not_forget_the_live_one(qapp):
     """One dictionary window, however the previous one was disposed of."""
     first = fd.open_feature_dictionary(None, "cell_area")

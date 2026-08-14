@@ -300,11 +300,10 @@ def test_every_promoted_module_still_builds_its_screen(app_key, qtbot):
     """A promotion is a promise the module works. The cheapest check that it
     is not a promise about a screen that raises on construction."""
     from spacr.qt.app import MainWindow
-    window = getattr(test_every_promoted_module_still_builds_its_screen,
-                     "_window", None)
-    if window is None:
-        window = MainWindow()
-        qtbot.addWidget(window)
-        test_every_promoted_module_still_builds_its_screen._window = window
+    # qtbot owns a widget for one test and schedules its C++ half for deletion
+    # afterwards. Caching that wrapper across parametrized cases tests a corpse
+    # (and used to retain the whole window tree when deletions were unflushed).
+    window = MainWindow()
+    qtbot.addWidget(window)
     window._on_nav_selected(app_key)
     assert window._screens.get(app_key) is not None

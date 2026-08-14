@@ -1,7 +1,8 @@
 """Semantic Run/Propagate and Stop/Close button behavior."""
 from __future__ import annotations
 
-from PySide6.QtWidgets import QPushButton
+from PySide6.QtGui import QColor, QIcon, QPixmap
+from PySide6.QtWidgets import QDialogButtonBox, QPushButton
 
 from spacr.qt.button_roles import (
     action_role, install_button_roles, set_button_busy,
@@ -31,6 +32,34 @@ def test_buttons_created_after_install_are_tagged(qapp, qtbot):
     assert run.property("buttonActionRole") == "positive"
     assert close.property("buttonActionRole") == "negative"
     assert neutral.property("buttonActionRole") is None
+
+
+def _test_icon():
+    pixmap = QPixmap(8, 8)
+    pixmap.fill(QColor("magenta"))
+    return QIcon(pixmap)
+
+
+def test_semantic_filter_preserves_icons_authored_by_screens(qapp, qtbot):
+    """Only platform-added dialog chrome is stripped, not app toolbar art."""
+    install_button_roles(qapp)
+    button = QPushButton("Run")
+    button.setIcon(_test_icon())
+    qtbot.addWidget(button)
+    button.show()
+    qtbot.wait(1)
+    assert not button.icon().isNull()
+
+
+def test_semantic_filter_strips_platform_dialog_button_icons(qapp, qtbot):
+    install_button_roles(qapp)
+    box = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
+    qtbot.addWidget(box)
+    button = box.button(QDialogButtonBox.StandardButton.Cancel)
+    button.setIcon(_test_icon())
+    box.show()
+    qtbot.wait(1)
+    assert button.icon().isNull()
 
 
 def test_disabled_run_stays_busy_until_reenabled(qapp, qtbot):

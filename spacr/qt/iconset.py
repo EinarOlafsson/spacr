@@ -4,9 +4,9 @@ Central icon lookup for the spacr Qt GUI.
 Two sources of icons, both made theme-aware here:
 
 * **qtawesome glyphs** — vector, painted in whatever colour we ask for.
-  Wrapped so callers stay decoupled from Font Awesome glyph names, and
-  degrading to an empty ``QIcon()`` when qtawesome isn't installed so
-  the UI still renders with text-only buttons.
+  Wrapped so callers stay decoupled from Font Awesome glyph names. When the
+  optional font is unavailable a bundled, theme-aware glyph is returned;
+  toolbar affordances never silently turn into blank buttons.
 * **bundled PNGs** in ``spacr/resources/icons`` — flat monochrome
   artwork baked at a fixed colour.
 
@@ -110,7 +110,7 @@ def _theme_palette(theme: Optional[str]) -> dict:
 
 def icon(name: str, color: Optional[str] = None, size: int = 16,
          theme: Optional[str] = None) -> QIcon:
-    """Return a QIcon for the named glyph, or an empty QIcon fallback.
+    """Return a QIcon for the named glyph, with a bundled fallback.
 
     `name` is a semantic key (e.g. "open", "run", "brush") mapped to a
     Font Awesome glyph. Unknown names fall back to a puzzle piece. The
@@ -120,13 +120,20 @@ def icon(name: str, color: Optional[str] = None, size: int = 16,
     """
     qta = _try_qta()
     if qta is None:
-        return QIcon()
+        return _fallback_icon(name, theme, color=color, size=size)
     glyph = _NAME_TO_GLYPH.get(name, "fa5s.puzzle-piece")
     fill = color or _theme_palette(theme)["fg_muted"]
     try:
-        return qta.icon(glyph, color=fill)
+        resolved = qta.icon(glyph, color=fill)
+        # qtawesome can fail softly: if its application font was unavailable
+        # (or invalidated during a long-lived Qt process), it returns a null
+        # QIcon instead of raising. Treat that exactly like an import/render
+        # failure so newly-created toolbar buttons never become blank.
+        if resolved is not None and not resolved.isNull():
+            return resolved
     except Exception:
-        return QIcon()
+        pass
+    return _fallback_icon(name, theme, color=color, size=size)
 
 
 def accent_icon(name: str, theme: Optional[str] = None) -> QIcon:
@@ -520,6 +527,37 @@ def bundled_icon_path(key: str, override: Optional[str] = None
         if os.path.isfile(path):
             return path
     return None
+
+
+def _fallback_icon(name: str, theme: Optional[str] = None, *,
+                   color: Optional[str] = None, size: int = 16) -> QIcon:
+    """Draw a small visible glyph without fonts, files, or mutable caches.
+
+    This is intentionally self-contained. A transient failed font import must
+    not route the fallback through the image cache that diagnostic tests may
+    also be exercising; that was how toolbar icons still became blank only in
+    the full suite. The rounded diamond is generic but honest and keeps every
+    icon-only button usable.
+    """
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QColor, QPainter, QPen, QPixmap
+
+    side = max(12, int(size or 16))
+    pixmap = QPixmap(side, side)
+    pixmap.fill(Qt.transparent)
+    painter = QPainter(pixmap)
+    try:
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        ink = QColor(color or _theme_palette(theme)["fg_muted"])
+        painter.setPen(QPen(ink, max(1.5, side / 8.0),
+                            Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+        inset = max(2, side // 5)
+        painter.drawRoundedRect(inset, inset, side - 2 * inset,
+                                side - 2 * inset, 2, 2)
+        painter.drawPoint(side // 2, side // 2)
+    finally:
+        painter.end()
+    return QIcon(pixmap)
 
 
 def app_icon(key: str, override: Optional[str] = None,

@@ -896,3 +896,49 @@ ABOUT 15 FAILURES appeared along the way in run A, at 33%, 38% (ten together)
 and 42%, 51% and 54%. They are unidentified: `-rf` was passed to run B and it
 was killed before the summary printed. Getting that list needs a run that
 finishes, which is why the deceleration is the first thing to fix.
+
+--------------------------------------------------------------------------------
+2026-08-14 - COMPLETE: THE ACCUMULATION IS GONE AND THE FULL SUITE FINISHES
+--------------------------------------------------------------------------------
+
+Measured at the same safe boundary between tests, the screen-heavy cohort
+showed the actual accumulator:
+
+    before   157 tests   246 s   63,934 peak retained widgets
+             20,909 widgets still present at the end, ~2.2 GB RSS
+    after    206 tests    73 s    2,169 peak widgets
+             7 widgets between screens
+
+pytest-qt schedules widget destruction with `deleteLater`, but the suite's
+`deferred_deletions_flushed` fixture was opt-in. The deferred deletes were
+therefore never delivered during ordinary tests, leaving thousands of dead
+widgets in QApplication's tree. Every later palette/style event traversed the
+whole retained tree, which produced the sixfold rate collapse.
+
+The fixture is now autouse at the next-test setup boundary. This deliberately
+does not resurrect the unsafe teardown drain documented above: it invokes no
+screen shutdown methods, touches no threads, and deletes nothing unsolicited;
+it only delivers the `DeferredDelete` events pytest-qt itself posted after the
+previous test.
+
+The completed run also exposed and fixed the accumulated-state failures hidden
+behind the slowdown: stale C++ wrappers in parametrized tests, style leakage,
+an over-broad semantic-button filter that erased authored icons, a leaked
+process-wide verbose-logging profiler, context-menu coordinate propagation,
+dialog cache identity, feature-ranking label/null edge cases, and several
+tests whose old assumptions no longer matched current product behavior.
+
+Final acceptance command (item 83's concurrently owned catalog file excluded):
+
+    OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 \
+    QT_QPA_PLATFORM=offscreen pytest tests/qt -q -p no:randomly -n 8 \
+      --dist loadfile --timeout=300 --timeout-method=thread --tb=short \
+      -rfEX --ignore=tests/qt/test_external_i18n_catalogs.py
+
+Result:
+
+    8,388 passed, 39 skipped, 73 warnings in 280.46 s (4m40s)
+
+The suite reaches its summary unattended, throughput stays steady, and no
+strict xfails remain from the six feature-dictionary/ranking defects repaired
+while triaging the formerly hidden failures.

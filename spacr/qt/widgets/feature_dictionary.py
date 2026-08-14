@@ -329,7 +329,15 @@ class FeatureDictionaryPanel(QWidget):
 
     def set_query(self, text: str) -> None:
         """Type ``text`` into the search box and re-run the search."""
-        self._search.setText(str(text or ""))
+        # A search is a new question.  In particular, do not leave a concrete
+        # column supplied by ``show_column`` pinned while the result list is
+        # replaced underneath it.
+        self._column = None
+        text = str(text or "")
+        if text == self._search.text():
+            self._refresh()
+        else:
+            self._search.setText(text)
 
     def show_column(self, column: str) -> None:
         """Explain one concrete column name.
@@ -490,7 +498,9 @@ def open_feature_dictionary(parent: Optional[QWidget] = None,
     global _DIALOG
     if _DIALOG is None:
         _DIALOG = FeatureDictionaryDialog(parent)
-        _DIALOG.destroyed.connect(_forget_dialog)
+        dialog = _DIALOG
+        _DIALOG.destroyed.connect(
+            lambda *_args, closing=dialog: _forget_dialog(closing))
     if column:
         _DIALOG.show_column(column)
     _DIALOG.show()
@@ -499,10 +509,11 @@ def open_feature_dictionary(parent: Optional[QWidget] = None,
     return _DIALOG
 
 
-def _forget_dialog(*_args) -> None:
-    """Drop the cached dialog once Qt has destroyed it."""
+def _forget_dialog(dialog: FeatureDictionaryDialog) -> None:
+    """Drop the cache only when Qt destroyed the dialog it still names."""
     global _DIALOG
-    _DIALOG = None
+    if _DIALOG is dialog:
+        _DIALOG = None
 
 
 def close_feature_dictionary() -> None:
@@ -664,7 +675,14 @@ def column_name_at(widget: QObject, pos) -> Optional[str]:
     model = view.model()
     if model is None:
         return None
-    index = view.indexAt(pos)
+    # QAbstractItemView.indexAt consumes *viewport* coordinates. Context-menu
+    # events delivered to the view itself use view coordinates, which include
+    # the row-header/frame offset and can therefore select a neighbouring
+    # column near a boundary.
+    viewport = view.viewport()
+    local_pos = (viewport.mapFrom(view, pos)
+                 if widget is view else pos)
+    index = view.indexAt(local_pos)
     if not index.isValid():
         return None
     value = model.headerData(index.column(), Qt.Horizontal, Qt.DisplayRole)
@@ -763,6 +781,17 @@ class FeatureHelpFilter(QObject):
                 return False
             if _claims_own_menu(obj):
                 return False
+            # An ignored event from the vertical header propagates to the
+            # table.  Its second delivery must remain a row-header gesture,
+            # rather than being reinterpreted as a click on column zero.
+            view = obj if isinstance(obj, QAbstractItemView) else obj.parent()
+            vertical_header = getattr(view, "verticalHeader", None)
+            if callable(vertical_header):
+                header = vertical_header()
+                if (header is not None
+                        and header.rect().contains(
+                            header.mapFromGlobal(event.globalPos()))):
+                    return False
             column = column_name_at(obj, event.pos())
             if column is None:
                 return False

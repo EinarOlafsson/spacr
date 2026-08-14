@@ -584,15 +584,31 @@ class ExplorerResult:
 # Computing it
 # ---------------------------------------------------------------------------
 
+# Object identity, rather than a user-representable string, distinguishes a
+# missing class label from a real class whose name happens to be empty.
+_UNLABELLED = object()
+
+
+def _labelled(keys: np.ndarray) -> np.ndarray:
+    """Boolean mask for rows with a real class label."""
+    return np.fromiter((key is not _UNLABELLED for key in keys),
+                       dtype=bool, count=len(keys))
+
 def _class_levels(frame: pd.DataFrame, label: str) -> Tuple[np.ndarray,
                                                             Tuple[str, ...]]:
     if label not in frame.columns:
         raise ExplorerError(
             f"there is no column called {label!r} to split by; this table has "
             f"{len(frame.columns)} columns")
-    text = frame[label].astype(str).to_numpy()
-    known = frame[label].notna().to_numpy()
-    levels = tuple(sorted({str(v) for v in frame[label].dropna().unique()}))
+    raw = frame[label]
+    # Convert rows and level names through exactly the same path. Pandas'
+    # vectorised datetime astype omits midnight while str(Timestamp) includes
+    # it, causing a date column not to match its own advertised levels.
+    text = np.asarray([
+        _UNLABELLED if pd.isna(value) else str(value)
+        for value in raw.to_numpy()
+    ], dtype=object)
+    levels = tuple(sorted({key for key in text if key is not _UNLABELLED}))
     if len(levels) < 2:
         raise ExplorerError(
             f"{label!r} has {len(levels)} class(es); there is nothing to "
@@ -602,7 +618,7 @@ def _class_levels(frame: pd.DataFrame, label: str) -> Tuple[np.ndarray,
             f"{label!r} has {len(levels)} classes, more than the "
             f"{MAX_CLASSES} this screen ranks against. Filter to the "
             f"comparison you mean")
-    return np.where(known, text, ""), levels
+    return text, levels
 
 
 def _summaries(values: np.ndarray, keys: np.ndarray,
@@ -670,6 +686,11 @@ def _null_threshold(columns: Dict[str, np.ndarray], keys: np.ndarray,
     if not spec.n_permutations or not columns:
         return None
     rng = np.random.default_rng(spec.seed)
+    # Rows without a class enter no real score, so they cannot enter the null
+    # experiment that calibrates that score either.
+    labelled = _labelled(keys)
+    keys = keys[labelled]
+    columns = {name: values[labelled] for name, values in columns.items()}
     rows = len(keys)
     take = np.arange(rows)
     if rows > NULL_MAX_ROWS:
@@ -730,7 +751,7 @@ def rank_features(frame: pd.DataFrame,
         if np.nanmin(values[finite]) == np.nanmax(values[finite]):
             skipped[feature] = "constant — one value cannot separate anything"
             continue
-        present = finite & (keys != "")
+        present = finite & _labelled(keys)
         counts = {level: int((keys[present] == level).sum()) for level in levels}
         if min(counts.values()) < 1:
             empty = [lv for lv, n in counts.items() if not n]
@@ -781,7 +802,7 @@ def distributions(frame: pd.DataFrame, feature: str, label: str, *,
     the same reason.
     """
     values = pd.to_numeric(frame[feature], errors="coerce").to_numpy(float)
-    keys = frame[label].astype(str).to_numpy()
+    keys, levels = _class_levels(frame, label)
     finite = np.isfinite(values)
     if not finite.any():
         return np.zeros(0), {}
@@ -790,7 +811,7 @@ def distributions(frame: pd.DataFrame, feature: str, label: str, *,
         high = low + (abs(low) * 0.05 or 0.5)
     edges = np.linspace(low, high, max(2, int(bins)) + 1)
     counts = {}
-    for level in sorted({str(v) for v in frame[label].dropna().unique()}):
+    for level in levels:
         picked = values[finite & (keys == level)]
         counts[level] = np.histogram(picked, bins=edges)[0]
     return edges, counts

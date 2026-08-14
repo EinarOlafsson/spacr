@@ -63,7 +63,11 @@ def _isolated_prefs(tmp_path, monkeypatch):
     from PySide6.QtCore import QSettings
     QSettings.setPath(QSettings.NativeFormat, QSettings.UserScope,
                        str(tmp_path))
-    yield
+    try:
+        yield
+    finally:
+        from spacr.qt.verbose_logger import apply_verbose_logging
+        apply_verbose_logging(False)
 
 
 class TestLogCallDecorator:

@@ -422,16 +422,19 @@ def file_issue(
         return (not os.environ.get("PYTEST_CURRENT_TEST")
                 or os.environ.get("SPACR_ALLOW_GITHUB_WRITES") == "1")
 
+    # Refuse before authentication as well as before the write. Merely asking
+    # a developer's credential store is an external action a forgotten test
+    # mock must never reach.
+    if not _writes_are_allowed():
+        return ("refusing to file a GitHub issue from inside a test run; set "
+                "SPACR_ALLOW_GITHUB_WRITES=1 if that is really intended")
+
     # If the user is signed in to GitHub (stored token / env / gh CLI), create
     # the issue directly via the API — no browser needed. Otherwise fall back to
     # opening the pre-filled issues/new URL in the browser.
     try:
         from . import github_auth
         if github_auth.is_authenticated():
-            if not _writes_are_allowed():
-                return ("refusing to file a GitHub issue from inside a test "
-                        "run; set SPACR_ALLOW_GITHUB_WRITES=1 if that is "
-                        "really intended")
             # DEDUPE BY FINGERPRINT FIRST. `_traceback_hash` exists so the
             # same bug hashes the same across runs and machines, and nothing
             # consumed it: one crash produced one issue per occurrence -- ten

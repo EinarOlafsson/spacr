@@ -93,7 +93,13 @@ def _isolated_prefs(tmp_path, monkeypatch):
     from PySide6.QtCore import QSettings
     QSettings.setPath(QSettings.NativeFormat, QSettings.UserScope,
                        str(tmp_path))
-    yield
+    try:
+        yield
+    finally:
+        # Verbose mode installs a process-wide Python profile hook. No test
+        # may leave every later Qt paint/timer function traced in its worker.
+        from spacr.qt.verbose_logger import apply_verbose_logging
+        apply_verbose_logging(False)
 
 
 class TestVerboseLoggerPref:

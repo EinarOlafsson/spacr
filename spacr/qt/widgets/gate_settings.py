@@ -31,7 +31,7 @@ from typing import Dict, Mapping, Sequence, Tuple
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
+    QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
     QFormLayout, QLabel, QLineEdit, QPushButton, QScrollArea, QSpinBox,
     QTabWidget, QVBoxLayout, QWidget,
 )
@@ -545,7 +545,7 @@ class GateSettingsDialog(QDialog):
         page = QWidget(self)
         outer = QVBoxLayout(page)
 
-        self._group_boxes: Dict[Tuple[str, str], QCheckBox] = {}
+        self._group_boxes: Dict[Tuple[str, str], Toggle] = {}
         names = group_names(columns)
         tabs = QTabWidget(page)
         for kind in GROUP_KINDS:
@@ -558,7 +558,7 @@ class GateSettingsDialog(QDialog):
                 column.addWidget(QLabel(
                     f"No {kind} groups in this table.", inner))
             for name in offered:
-                box = QCheckBox(name, inner)
+                box = Toggle(name, inner)
                 box.setChecked(name in
                                (self._settings.reduction_groups or {}).get(kind, ()))
                 box.toggled.connect(self._on_group_toggled)
