@@ -261,6 +261,7 @@ MEASURE_OWNED_TABLES = frozenset({
     'cell_organelle_summary', 'nucleus_organelle_summary',
     'pathogen_organelle_summary', 'cytoplasm_organelle_summary',
     'png_list',                                # filepaths_to_database
+    'intensity_rescale',                       # measure provenance upsert
 })
 
 #: The provenance table :mod:`spacr.foreign` writes: one row per column

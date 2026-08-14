@@ -1824,6 +1824,46 @@ def describe_resources(settings: Dict[str, Any], app_key: str = "") -> str:
                 "what this run exists to discover. Watch the free space "
                 "above rather than trusting a total.")
 
+        # Measurement converts merged signal planes to uint16. Looking only
+        # at one dtype cannot reveal whether values cross the ceiling, so the
+        # preflight performs the same plate scan the real run will use and
+        # says so before any database is opened.
+        try:
+            from .intensity_rescale import build_plate_plan
+
+            for one in inventories:
+                directory = one.merged_dir if one.merged_exists else one.stack_dir
+                if not directory:
+                    continue
+                names = [name for name in _listdir(directory)
+                         if name.endswith('.npy')]
+                plan = build_plate_plan(directory, names, settings)
+                scaled = [record for record in plan['fields'].values()
+                          if record['rescale_scope'] == 'plate']
+                if scaled:
+                    largest = max(float(record['plate_intensity_max'])
+                                  for record in scaled)
+                    factors = sorted({float(record['rescale_factor'])
+                                      for record in scaled})
+                    notes.append(
+                        "INTENSITY PREFLIGHT: merged values exceed the uint16 "
+                        f"ceiling 65535 (largest plate maximum {largest:g}). "
+                        f"The run will use plate-wide factor(s) "
+                        f"{', '.join(f'{value:g}' for value in factors)} and "
+                        "record one row per field in "
+                        "measurements.db:intensity_rescale.")
+                if plan['failures']:
+                    notes.append(
+                        "INTENSITY PREFLIGHT: could not inspect "
+                        f"{len(plan['failures'])} field(s); those fields will "
+                        "be explicitly marked as per-field fallbacks if they "
+                        "can be measured.")
+        except Exception as exc:
+            notes.append(
+                "INTENSITY PREFLIGHT: the plate-wide scan could not be "
+                f"completed ({exc}); workers will record any per-field "
+                "fallback rather than silently mixing scales.")
+
     write_root = inv.src or (str(srcs[0]) if srcs else "")
     free = _free_disk(write_root) if write_root else None
     if free is not None:
