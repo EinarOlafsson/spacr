@@ -426,3 +426,63 @@ EVERY POINT OF THE REQUEST, and where it landed:
 
 97 tests across the five; 731 pass over the gate suites, the xD picker, the
 library, merge_tables and smoke.
+
+================================================================================
+2026-08-13 (REOPENED) - I CLOSED THIS AND IT IS NOT WHAT WAS ASKED FOR
+================================================================================
+
+Requested: 2026-08-13, verbatim:
+
+    "the 3D gating system is absolute shit, and not at all what i asked you to
+     do. i asked for the following: when in 3D mode there are 3 planes that
+     you see, depending on what is chosen (y,x,z ) the gate is drawn on one of
+     these then propegated through the graph, there should be a drop down
+     where Box gate is for Box gate, oval gate, curcular gate, etc. there
+     should other options in tool for spinning and gate drawing."
+
+TESTED BY THE MAINTAINER IN THE ACTUAL APP, which is the test that counted and
+the one I did not run. 97 passing tests and a closed instruction, against a
+feature that does not do the job.
+
+WHERE I WENT WRONG, so the rework does not repeat it:
+
+  1. I TREATED THE ANCHOR PLANE AS SOMETHING TO READ OFF THE CAMERA rather
+     than something the user PICKS. `anchor_plane()` infers the plane from the
+     view angle and returns None unless the view happens to be square-on. The
+     request is the other way round: THREE PLANES ARE VISIBLE, the user
+     chooses one (x, y or z), and that choice is the anchor -- independent of
+     where the camera is.
+  2. THE SHAPE IS A DROPDOWN, NOT A MODE. "there should be a drop down where
+     Box gate is for Box gate, oval gate, circular gate, etc." I hid cylinder
+     and prism from the tool picker entirely, on the reasoning that they are
+     not drag tools. That reasoning served the implementation, not the user:
+     the dropdown is where a user looks for a shape, and an empty dropdown is
+     why the feature reads as missing.
+  3. NO TOOL FOR SPINNING. "there should other options in tool for spinning
+     and gate drawing" -- spinning and drawing are separate MODES the user
+     switches between, and I left rotation as an implicit drag that competes
+     with drawing.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD, THIS TIME
+--------------------------------------------------------------------------------
+
+  * THREE PICKABLE PLANES. In 3D the user selects x, y or z as the anchor --
+    a control, not an inference from the camera. The chosen plane gets the
+    blue aura. Rotating the view must NOT change which plane is anchored.
+  * A SHAPE DROPDOWN where the Box gate control is now: Box, Oval, Circle,
+    Polygon, and whatever else the volume supports. Picking one arms it.
+  * A TOOL SELECTOR for what a drag DOES: spin, or draw. They are different
+    gestures and must not compete for the same mouse button.
+  * THE DEPTH IS DRAGGED OUT, not left unbounded. The maintainer chose "a
+    slab you drag out" over "all the way through": draw on the plane, then a
+    second gesture sets the depth, so the gate is a finite slab from the
+    start rather than something to narrow afterwards in a panel. The
+    unbounded prism/cylinder stays available -- it is what a full-depth drag
+    means -- but it is no longer the only thing a drawing can produce.
+
+WHAT SURVIVES FROM THE FIRST ATTEMPT, and should be reused rather than
+rewritten: `CylinderGate`, `PrismGate` and `BoxGate` are the right geometry
+and are tested; `thresholds()` / `with_threshold()` edit the depth; and
+`CompositeGate` composes them. The MODEL was not the problem. The interaction
+was, and none of it was tried by hand.
