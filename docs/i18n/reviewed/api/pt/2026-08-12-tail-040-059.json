@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "label": "spacr.power_simulate.rbeta_mean_variance#9",
+      "source_sha256": "2d8400b06d35ca6e1af53af006f6be519c9418e2d55b3e182f6497b4961da3a5",
+      "source": "If ``var`` is negative, or if ``var >= mean * (1 - mean)``. That bound is the variance of the Bernoulli with the same mean and is the supremum over *all* distributions on ``[0, 1]``; no beta reaches it. Note this makes ``mean`` of exactly 0 or 1 admissible only with ``var == 0``. Clamping instead of raising would return a distribution with the wrong spread and, for a classifier accuracy, silently change the effect size the whole power analysis is measuring.",
+      "context": "If ``var`` is negative, or if ``var >= mean * (1 - mean)``. That bound is the variance of the Bernoulli with the same mean and is the supremum over *all* distributions on ``[0, 1]``; no beta reaches it. Note this makes ``mean`` of exactly 0 or 1 admissible only with ``var == 0``. Clamping instead of throwing would return a distribution with the wrong spread and, for a machine-learning classification model accuracy, silently change the effect size the whole statistical detection sensitivity analysis is measuring.",
+      "translation": "Se ``var`` for negativa ou se ``var >= mean * (1 - mean)``. Esse limite é a variância da distribuição de Bernoulli com a mesma média e corresponde ao supremo entre *todas* as distribuições em ``[0, 1]``; nenhuma distribuição beta o alcança. Isso faz com que um valor de ``mean`` exatamente igual a 0 ou 1 seja admissível somente quando ``var == 0``. Limitar o valor, em vez de lançar um erro, produziria uma distribuição com dispersão incorreta e, no caso da acurácia de um modelo de classificação por aprendizado de máquina, alteraria silenciosamente o tamanho de efeito medido por toda a análise estatística de sensibilidade de detecção."
+    },
+    {
+      "label": "spacr.power_simulate.simulate_sequencing_plate#15",
+      "source_sha256": "108fbd760e251840169d12202df6ab97d9fae427793cb4aae7afd08739a8dec2",
+      "source": "``n_reads_per_gene_per_well`` is what the analyst sees, i.e. **after** mis-assignment, because that is what the model half must consume for the dilution to be in the answer. ``n_reads_true_per_gene_per_well`` is the same quantity before it, so a test can plant the truth and measure how far the observation moved. With the error rate at zero the two are identical.",
+      "context": "``n_reads_per_gene_per_well`` is what the analyst sees, i.e. **after** mis-assignment, because that is what the model half must consume for the dilution to be in the answer. ``n_reads_true_per_gene_per_well`` is the same quantity before it, so a test can plant the truth and measure how far the observation moved. With the error rate at zero the two are identical.",
+      "translation": "``n_reads_per_gene_per_well`` é o que o analista observa, ou seja, o valor **após** a atribuição incorreta, pois é esse valor que a parte do modelo precisa consumir para que a diluição seja refletida no resultado. ``n_reads_true_per_gene_per_well`` representa a mesma quantidade antes desse erro, permitindo que um teste estabeleça o valor verdadeiro e meça quanto a observação se desviou. Quando a taxa de erro é zero, os dois valores são idênticos."
+    },
+    {
+      "label": "spacr.predictions#10",
+      "source_sha256": "28ce2636824fc008ae64c78056282fee80735ef5e87b3ae0745942d80348bbd9",
+      "source": "the tar handed to the model is built with ``arcname=os.path.basename(img_path)`` (:func:`spacr.utils.add_images_to_tar`), so a run over two source folders whose plates are *both* called ``plate1`` --- which is what happens whenever the plate name comes from the source folder name, see :mod:`spacr.io` ``_rename_and_organize_image_files`` --- puts two different crops in the archive under one member name; and",
+      "context": "the tar handed to the model is built with ``arcname=os.path.basename(img_path)`` (:func:`spacr.utils.add_images_to_tar`), so a processing session over two source folders whose plates are *both* called ``plate1`` --- which is what happens whenever the plate name comes from the source folder name, see :mod:`spacr.io` ``_rename_and_organize_image_files`` --- puts two different extracted image regions in the archive under one member name; and",
+      "translation": "o arquivo tar entregue ao modelo é criado com ``arcname=os.path.basename(img_path)`` (:func:`spacr.utils.add_images_to_tar`); portanto, uma sessão de processamento de duas pastas de origem cujas placas se chamam *ambas* ``plate1`` --- o que acontece sempre que o nome da placa vem do nome da pasta de origem; consulte :mod:`spacr.io` ``_rename_and_organize_image_files`` --- coloca duas regiões de imagem extraídas diferentes no arquivo sob o mesmo nome de membro; e"
+    },
+    {
+      "label": "spacr.qt.ai.issue_report#0",
+      "source_sha256": "877a6c61b362da77372a9b3e7f9462c22fcf9b55e07a1baf17a8a1e7c3ef075b",
+      "source": "Opt-in error reporting → pre-filled GitHub issue.",
+      "context": "Opt-in error reporting → pre-filled GitHub issue.",
+      "translation": "Relato de erros mediante consentimento → issue do GitHub pré-preenchida."
+    },
+    {
+      "label": "spacr.qt.annotate_engine.add_colored_border#1",
+      "source_sha256": "467c33337bcc68ce824d949913af2ad59f367de55157c142a49d598eb5a72016",
+      "source": "Kept for parity with the Tk ``AnnotateApp`` (and for callers that want a bordered image out of the pipeline). The Qt grid does NOT use it: its tiles paint their borders in ``_Thumbnail.paintEvent`` so recolouring one costs a repaint instead of a rebuilt pixmap.",
+      "context": "Kept for parity with the Tk ``AnnotateApp`` (and for callers that want a bordered image out of the workflow). The Qt grid does NOT use it: its tiles paint their borders in ``_Thumbnail.paintEvent`` so recolouring one costs a repaint instead of a rebuilt pixmap.",
+      "translation": "Mantido para oferecer paridade com o ``AnnotateApp`` do Tk (e para os chamadores que desejam obter do fluxo de trabalho uma imagem com borda). A grade do Qt NÃO o utiliza: seus blocos desenham as próprias bordas em ``_Thumbnail.paintEvent``, de modo que recolorir um deles exige apenas uma nova pintura, e não a reconstrução do pixmap."
+    },
+    {
+      "label": "spacr.qt.bridge.prune_job_pairs#2",
+      "source_sha256": "ae203c5f1954fd93f74eef4d3436e1b569cebfb6e29653d8a1b1598347c62828",
+      "source": "The slot is queued onto the GUI thread, so it runs *after* the OS thread has gone. ``make_thread`` also wires ``thread.finished -> thread.deleteLater``, and the same pump that delivers this call flushes that deferred delete first — so ``isRunning()`` raises ``RuntimeError: Internal C++ object already deleted`` from inside a Qt slot. The list comprehension never completes and **every** pair is retained, forever, along with its worker.",
+      "context": "The slot is queued onto the main GUI execution path, so it executes *after* the OS independent execution path has gone. ``make_thread`` also wires ``thread.finished -> thread.deleteLater``, and the same pump that delivers this call flushes that deferred delete first — so ``isRunning()`` raises ``RuntimeError: Internal C++ object already deleted`` from inside a Qt slot. The list comprehension never completes and **every** pair is retained, forever, along with its worker.",
+      "translation": "O slot é enfileirado no caminho principal de execução da GUI e, portanto, é executado *depois* que o caminho de execução independente do sistema operacional já terminou. ``make_thread`` também conecta ``thread.finished -> thread.deleteLater``, e o mesmo ciclo de eventos que entrega esta chamada processa primeiro essa exclusão adiada — assim, ``isRunning()`` lança ``RuntimeError: Internal C++ object already deleted`` dentro de um slot do Qt. A compreensão de lista nunca termina, e **todos** os pares ficam retidos para sempre, junto com seus workers."
+    },
+    {
+      "label": "spacr.qt.crop_thumbs.resolve_crop_path#0",
+      "source_sha256": "bd244d349af7670adca07f5a72f9d4ada7269303543564373021ac9ac033401f",
+      "source": "The crop's path on *this* machine, re-anchored if the dataset moved.",
+      "context": "The extracted image region's path on *this* machine, re-anchored if the dataset moved.",
+      "translation": "O caminho da região de imagem extraída *nesta* máquina, redefinido em relação ao novo local caso o conjunto de dados tenha sido movido."
+    },
+    {
+      "label": "spacr.qt.linked_selection#9",
+      "source_sha256": "9bf0af2487c9f4534de1fe88cc4a8bca03ec66da2e6042fe14949ac5ad55fa53",
+      "source": "Linking answers \"we are all looking at the same population\". It does not answer \"show me *these twelve* crops, in this order, because a model got them wrong\" — that is a jump to another view, not a change of shared state, so it travels as a one-shot :class:`~spacr.selection.ObjectRequest` through :func:`open_objects` instead.",
+      "context": "Linking answers \"we are all looking at the same population\". It does not answer \"show me *these twelve* extracted image regions, in this order, because a model got them wrong\" — that is a jump to another view, not a change of shared state, so it travels as a one-shot :class:`~spacr.selection.ObjectRequest` through :func:`open_objects` instead.",
+      "translation": "A vinculação responde \"todos estamos observando a mesma população\". Ela não responde \"mostre-me *estas doze* regiões de imagem extraídas, nesta ordem, porque um modelo errou ao avaliá-las\" — isso é um salto para outra visualização, não uma alteração do estado compartilhado; portanto, a solicitação é enviada uma única vez como :class:`~spacr.selection.ObjectRequest` por meio de :func:`open_objects`."
+    },
+    {
+      "label": "spacr.qt.linked_selection.LinkedSelection.unregister_object_opener#1",
+      "source_sha256": "53a519422d8b31ca5f8677f7e4add35152644e7ca9c820d6ed1ea61054dcd21d",
+      "source": "With ``fn`` given, removes it only if that is the opener currently registered. A closing screen should always pass its own opener: two Annotate screens opened in a session means the first one's ``closeEvent`` runs *after* the second has registered, and an unconditional withdrawal would leave the live screen unreachable.",
+      "context": "With ``fn`` given, removes it only if that is the opener currently registered. A closing application view should always pass its own opener: two Annotate application views opened in a session means the first one's ``closeEvent`` runs *after* the second has registered, and an unconditional withdrawal would leave the live application view unreachable.",
+      "translation": "Quando ``fn`` é fornecida, ela só é removida se for o abridor registrado no momento. Uma visualização do aplicativo que está sendo fechada deve sempre passar seu próprio abridor: quando duas visualizações do aplicativo Annotate são abertas em uma sessão, o ``closeEvent`` da primeira é executado *depois* do registro da segunda; uma remoção incondicional deixaria inacessível a visualização ainda ativa."
+    },
+    {
+      "label": "spacr.qt.linked_selection.LinkedView#4",
+      "source_sha256": "57012b74ac9d74e7f752976b0a854c15974e8f52fd4cdbdf92ff7e1a097fd009",
+      "source": "**One disconnect.** :meth:`unlink_selection` is idempotent and flag-guarded: Qt does not raise on a disconnect that finds nothing, it prints ``libpyside: Failed to disconnect`` to stderr where no ``except`` can reach it, and a screen closed twice — which Qt does on teardown — would print one every time.",
+      "context": "**One disconnect.** :meth:`unlink_selection` is idempotent and flag-guarded: Qt does not throw on a disconnect that finds nothing, it prints ``libpyside: Failed to disconnect`` to stderr where no ``except`` can reach it, and an application view closed twice — which Qt does on teardown — would print one every time.",
+      "translation": "**Uma única desconexão.** :meth:`unlink_selection` é idempotente e protegida por uma flag: quando uma desconexão não encontra nada, o Qt não lança uma exceção; ele imprime ``libpyside: Failed to disconnect`` em stderr, fora do alcance de qualquer ``except``. Uma visualização do aplicativo fechada duas vezes — como o Qt faz ao desmontá-la — imprimiria essa mensagem em cada ocasião."
+    },
+    {
+      "label": "spacr.qt.linked_selection.LinkedView#5",
+      "source_sha256": "7d6b2227d147d9d052f1fe76b2683d464a1b396b2bf1e0b566b68e74658c7093",
+      "source": "**Bound methods only.** The process-wide link outlives every screen; the slots it holds are bound methods of the view, so Qt severs them when the widget is destroyed even if a ``closeEvent`` is missed.",
+      "context": "**Bound methods only.** The process-wide link outlives every application view; the slots it holds are bound methods of the view, so Qt severs them when the widget is destroyed even if a ``closeEvent`` is missed.",
+      "translation": "**Somente métodos vinculados.** A vinculação que abrange todo o processo dura mais que qualquer visualização do aplicativo; os slots que ela mantém são métodos vinculados da visualização, por isso o Qt os desconecta quando o widget é destruído, mesmo que um ``closeEvent`` não seja processado."
+    },
+    {
+      "label": "spacr.qt.screens.agreement#5",
+      "source_sha256": "ea6e7fb93b9bd18d4cf751c50e88d98f7c8a79f54e8d4a7628d7345c05aa07bd",
+      "source": "**Off the GUI thread.** The report reads the whole ``png_list`` annotation block, so it runs through :func:`spacr.qt.bridge.make_thread` like every other spaCR job. Tests pass ``threaded=False``.",
+      "context": "**Off the main GUI execution path.** The report reads the whole ``png_list`` annotation block, so it executes through :func:`spacr.qt.bridge.make_thread` like every other spaCR job. Tests pass ``threaded=False``.",
+      "translation": "**Fora do caminho principal de execução da GUI.** O relatório lê todo o bloco de anotações de ``png_list`` e, por isso, é executado por meio de :func:`spacr.qt.bridge.make_thread`, como qualquer outra tarefa do spaCR. Os testes passam ``threaded=False``."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.changeEvent#3",
+      "source_sha256": "d6590a199c01c3e6e9e2a55b6a6f35b830c3e60a749ea4ac6e5150dde7696cb3",
+      "source": "Saving Preferences goes through the same call, so this is also where an ambient *preference* change lands on a screen that is already open — including the toggle switching back **on**, which has to build a widget that does not exist yet and so cannot be done by anything walking the live widget tree.",
+      "context": "Saving Preferences goes through the same call, so this is also where an ambient *preference* change lands on an application view that is already open — including the toggle switching back **on**, which has to build a widget that does not exist yet and so cannot be done by anything walking the live widget tree.",
+      "translation": "Salvar as Preferências passa pela mesma chamada, de modo que também é aqui que uma alteração de *preferência* do ambiente chega a uma visualização do aplicativo já aberta — inclusive quando o controle volta a ficar **ativado**, o que exige criar um widget que ainda não existe e, portanto, não pode ser feito por nenhum código que percorra a árvore de widgets ativos."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.uses_ambient_background#2",
+      "source_sha256": "75bfc32c7e4826bb265566ba8f38e6a0bc6dabdb0e617f5a49b667d13163f183",
+      "source": "Written as a rule with a name rather than as an ``else`` on the rain's ``if``: the two backdrops are chosen by *one* decision, and the day a second module earns a themed animation of its own, adding its key to :data:`DNA_RAIN_APPS`-style membership is all that is needed for the ambient one to step aside.",
+      "context": "Written as a rule with a name rather than as an ``else`` on the rain's ``if``: the two backdrops are chosen by *one* decision, and the day a second module earns a themed animation of its own, adding its key to :data:`DNA_RAIN_APPS`-style membership is all that is needed for the ambient one to step aside.",
+      "translation": "Escrita como uma regra nomeada, e não como um ``else`` associado ao ``if`` da chuva: os dois planos de fundo são escolhidos por *uma* única decisão. Quando um segundo módulo receber uma animação temática própria, bastará adicionar sua chave a uma associação semelhante a :data:`DNA_RAIN_APPS` para que o plano de fundo do ambiente ceda o lugar."
+    },
+    {
+      "label": "spacr.qt.screens.batch#1",
+      "source_sha256": "f2fdd5045c550f29a4cd1e3b09d28445abeff55335541a736366d3fd78625fe5",
+      "source": "The Plate Queue chains *plates* through *one* pipeline. This screen is the other axis: arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — built, validated, saved to a file and run unattended.",
+      "context": "The Plate-processing list chains *plates* through *one* workflow. This screen is the other axis: arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — built, validated, saved to a file and run unattended.",
+      "translation": "A lista de processamento de placas encadeia *placas* em *um* único fluxo de trabalho. Esta tela representa o outro eixo: tarefas ``(module, settings)`` arbitrárias em qualquer ordem — ``Mask → Measure → Classify (CV) → Classify (ML)``, depois as mesmas quatro novamente com outro diâmetro e, em seguida, a tarefa Mask de uma quinta placa — são criadas, validadas, salvas em um arquivo e executadas sem supervisão."
+    },
+    {
+      "label": "spacr.qt.screens.control_chart#6",
+      "source_sha256": "52aaca06c2c6991fe7b35429fa2b851d1cfc4e13ed37e909fa5b4a5edbe996d3",
+      "source": ":class:`spacr.qt.job_runner.JobRunner` — the read *and* the chart run off the GUI thread; a campaign table is object rows, and grouping a few hundred thousand of them per redraw is a frozen window;",
+      "context": ":class:`spacr.qt.job_runner.JobRunner` — the read *and* the chart run off the main GUI execution path; a campaign table is object rows, and grouping a few hundred thousand of them per redraw is a frozen window;",
+      "translation": ":class:`spacr.qt.job_runner.JobRunner` — tanto a leitura *quanto* a geração do gráfico são executadas fora do caminho principal de execução da GUI; uma tabela de campanha contém linhas de objetos, e agrupar algumas centenas de milhares delas a cada redesenho congelaria a janela;"
+    },
+    {
+      "label": "spacr.qt.screens.convert#1",
+      "source_sha256": "e00fd509508ef3858fab536efb7b626ac43e3a2e829efdfec7bf0edac88f8dda",
+      "source": "The screen exists because the conversion step is where a screen silently goes wrong. Rename 384 wells' worth of ND2 into ``plate1_A01_T0001F001L01A01Z01C01.tif`` and the filenames stop carrying any trace of where they came from; get the well assignment wrong and nobody finds out until the hit list is being followed up, weeks later. So this screen does two things :func:`spacr.io.convert_to_yokogawa` never did: it shows the source → target table *before* writing, and it emits a map file that turns every converted name back into the original one.",
+      "context": "The screen exists because the conversion step is where a screen silently goes wrong. Rename 384 microplate sample positions' worth of ND2 into ``plate1_A01_T0001F001L01A01Z01C01.tif`` and the filenames stop carrying any trace of where they came from; get the microplate sample position assignment wrong and nobody finds out until the hit list is being followed up, weeks later. So this screen does two things :func:`spacr.io.convert_to_yokogawa` never did: it shows the source → target table *before* writing, and it emits a map file that turns every converted name back into the original one.",
+      "translation": "Esta tela existe porque a etapa de conversão é um ponto em que uma tela pode falhar silenciosamente. Ao renomear os dados ND2 de 384 posições de amostra da microplaca como ``plate1_A01_T0001F001L01A01Z01C01.tif``, os nomes dos arquivos deixam de conter qualquer vestígio de sua origem; se a atribuição das posições de amostra da microplaca estiver errada, ninguém perceberá até que a lista de resultados seja investigada, semanas depois. Por isso, esta tela faz duas coisas que :func:`spacr.io.convert_to_yokogawa` nunca fez: mostra a tabela de origem → destino *antes* da gravação e produz um arquivo de mapeamento que associa cada nome convertido ao nome original."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser#5",
+      "source_sha256": "3016617123d996dc0a88daff1456d3be0f5ab3c8c3a6894a37f58d51d01533b6",
+      "source": "**Keyset paging, not OFFSET.** Each chunk asks for ``rowid > <last rowid seen>`` and ``ORDER BY rowid``. ``LIMIT ? OFFSET ?`` makes SQLite walk (and throw away) every skipped row, so chunk 500 of a 400 k-row table would cost 500× chunk 1 — the \"fast\" version would get slower the further you scrolled. Only tables with no usable key (views, composite-primary-key ``WITHOUT ROWID`` tables) fall back to ``OFFSET``, and those are small by construction.",
+      "context": "**Use keyset paging instead of OFFSET.** Fetch each chunk with ``rowid > <last rowid seen>`` and ``ORDER BY rowid``. ``LIMIT ? OFFSET ?`` makes SQLite scan every skipped row, so chunk 500 costs about 500× as much as chunk 1 and the \"fast\" version gets slower. Small views and composite-key ``WITHOUT ROWID`` tables have no usable row key and use ``OFFSET`` as a fallback.",
+      "translation": "**Use paginação por conjunto de chaves em vez de OFFSET.** Busque cada bloco com ``rowid > <last rowid seen>`` e ``ORDER BY rowid``. ``LIMIT ? OFFSET ?`` faz o SQLite examinar todas as linhas ignoradas; assim, o bloco 500 custa aproximadamente 500× mais que o bloco 1, e a versão \"fast\" (rápida) fica progressivamente mais lenta. Views pequenas e tabelas ``WITHOUT ROWID`` com chave composta não têm uma chave de linha utilizável e recorrem a ``OFFSET`` como alternativa."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser#14",
+      "source_sha256": "a37121c2ccaa4f51c709b917392c74958bad54785a841d587455b83acced42a2",
+      "source": "1. :func:`spacr.qt.preferences.get_db_browser_editable` must be on — it is off by default and lives in Preferences, not on this screen. 2. The database must have been chosen explicitly in this session (``set_database(..., explicit=True)``). 3. The user must tick \"Edit mode\" *and* confirm; ticking alone does nothing. 4. The row must be addressable by ``rowid`` or a primary key. Without one, the edit is refused — an UPDATE matching on column values can hit many rows, which on a measurements table is silent mass corruption. The write also probes ``COUNT(*)`` for the row address first and rolls back unless ``rowcount == 1``. 5. The typed text must be coercible to the column's declared type. SQLite will cheerfully store ``'abc'`` in an INTEGER column; :func:`coerce_for_column` refuses instead.",
+      "context": "Editing is allowed only when all five checks pass. 1. :func:`spacr.qt.preferences.get_db_browser_editable` is enabled in Preferences; it is off by default and is not on this screen. 2. This session explicitly selected the database with ``set_database(..., explicit=True)``. 3. The user selected \"Edit mode\" *and* confirmed it; selection alone does nothing. 4. The row has ``rowid`` or a primary-key identifier. Otherwise refuse the edit: matching column values could silently update many measurement rows. Before writing, probe ``COUNT(*)`` and roll back unless ``rowcount == 1``. 5. The text converts to the declared column type. SQLite accepts ``'abc'`` in an INTEGER column, but :func:`coerce_for_column` must refuse it.",
+      "translation": "A edição só é permitida quando as cinco verificações são aprovadas. 1. :func:`spacr.qt.preferences.get_db_browser_editable` está ativada nas Preferências; ela vem desativada por padrão e não fica neste painel. 2. Nesta sessão, o banco de dados foi selecionado explicitamente com ``set_database(..., explicit=True)``. 3. O usuário selecionou \"Edit mode\" (modo de edição) *e* confirmou; somente selecionar não produz efeito. 4. A linha tem ``rowid`` ou um identificador de chave primária. Caso contrário, recuse a edição: a correspondência por valores de colunas poderia atualizar silenciosamente muitas linhas de medições. Antes de gravar, verifique ``COUNT(*)`` e reverta a transação, a menos que ``rowcount == 1``. 5. O texto pode ser convertido para o tipo declarado da coluna. O SQLite aceita ``'abc'`` em uma coluna INTEGER, mas :func:`coerce_for_column` deve recusá-lo."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.WritableDb.update_cell#2",
+      "source_sha256": "45bad7d8251efcaf79cf474f81084f0dcb9a7aa9cf34b85d634626045e6271a4",
+      "source": "1. ``table`` must be a real table in ``sqlite_master`` — a view has no row to update. 2. ``column`` and every key column must exist in its schema. 3. the row address must match **exactly one** row (probed with ``COUNT(*)`` before anything is written); 4. the UPDATE itself must report ``rowcount == 1``, or the transaction is rolled back.",
+      "context": "1. ``table`` must be a real table in ``sqlite_master`` — a view has no row to update. 2. ``column`` and every identifier column must exist in its schema. 3. the row address must match **exactly one** row (probed with ``COUNT(*)`` before anything is written); 4. the UPDATE itself must report ``rowcount == 1``, or the transaction is rolled back.",
+      "translation": "1. ``table`` deve ser uma tabela real em ``sqlite_master`` — uma view não contém uma linha que possa ser atualizada. 2. ``column`` e todas as colunas identificadoras devem existir no esquema. 3. O endereço da linha deve corresponder a **exatamente uma** linha (isso é verificado com ``COUNT(*)`` antes de qualquer gravação). 4. A própria instrução UPDATE deve informar ``rowcount == 1``; caso contrário, a transação é revertida."
+    }
+  ]
+}

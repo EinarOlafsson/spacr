@@ -75,7 +75,16 @@ def test_create_issue_without_token_fails(monkeypatch):
 
 
 def test_file_issue_uses_api_when_authenticated(monkeypatch):
+    """The API path, with `create_issue` mocked.
+
+    This is precisely the path the in-test write guard blocks, and the guard
+    cannot tell a mocked `create_issue` from the real one -- that is why the
+    escape hatch exists. Set here, on the ONE test that drives the write
+    path deliberately, rather than file-wide: a blanket opt-out would also
+    re-arm every other test in this file against the live API.
+    """
     from spacr.qt.ai import issue_report, github_auth
+    monkeypatch.setenv("SPACR_ALLOW_GITHUB_WRITES", "1")
     github_auth.set_stored_token("ghp_x")
     monkeypatch.setattr(github_auth, "create_issue",
                         lambda *a, **k: (True, "https://github.com/o/r/issues/9"))

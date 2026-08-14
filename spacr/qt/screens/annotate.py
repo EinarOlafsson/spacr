@@ -29,7 +29,7 @@ makes it current, and an arrow key moves it away. There is no second
 "hovered" highlight that could point somewhere else.
 
 Advanced features that are *not* yet ported (marked as TODOs in the UI):
-UMAP window, Deep Spacr training launcher, measurement-threshold
+UMAP window, Deep spaCR training launcher, measurement-threshold
 filtering (the threshold filter can be entered in settings but only
 plain per-page fetch is used at query time in this MVP).
 """
@@ -146,6 +146,20 @@ UNDO_LIMIT = 128
 #: `QThread.wait()` with no argument -- is ULONG_MAX milliseconds, and a
 #: wedged worker then hangs the close forever with the window still on screen.
 CLOSE_DRAIN_MS = 15000
+
+
+def on_dark_theme() -> bool:
+    """Is the app currently showing the dark theme?
+
+    The Annotate grid paints raw colours rather than being QSS-styled, so it
+    resolves this itself -- see :func:`tile_palette`, which does the same for
+    the tile chrome.
+    """
+    try:
+        from ..preferences import resolve_effective_theme
+        return str(resolve_effective_theme()).lower() != "light"
+    except Exception:
+        return True
 
 
 def tile_palette() -> Dict[str, str]:
@@ -627,7 +641,9 @@ def _load_thumb_image_worker(row, src, settings):
             img = load_crop_image(
                 path, db_path=s.db_path,
                 stored_channel_order=getattr(
-                    s, "stored_channel_order", "rgb"))
+                    s, "stored_channel_order", "rgb"),
+                display_order=getattr(s, "display_order", "rgb"),
+                display_primaries=getattr(s, "display_primaries", "rgb"))
         except Exception:
             return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
 
@@ -782,6 +798,70 @@ class _SettingsDialog(QDialog):
             "After decoding, Annotate always uses RGB arrays.")
         form.addRow("Stored PNG order", self._stored_channel_order)
 
+        # Deliberately the NEXT row, and worded to draw the distinction the
+        # one above it is about: that control says how the file was written,
+        # this one says how you want to look at it. Six orders, identity
+        # first, so the default is a no-op.
+        from ...crops import DISPLAY_ORDERS
+
+        self._display_order = QComboBox()
+        for order in DISPLAY_ORDERS:
+            label = "  ".join(order.upper())
+            self._display_order.addItem(
+                f"{label}" + ("   (unchanged)" if order == "rgb" else ""),
+                order)
+        current_display = str(
+            getattr(settings, "display_order", "rgb")).lower()
+        display_index = self._display_order.findData(current_display)
+        self._display_order.setCurrentIndex(max(0, display_index))
+        self._display_order.setToolTip(
+            "Which source channel is drawn in each colour slot. This is a "
+            "VIEW setting and changes nothing on disk and nothing measured "
+            "\u2014 it does not say how the file was written, which is the "
+            "row above. Use it when a project authored before the crop-format "
+            "fix should be seen in the colours it was authored for: B G R "
+            "restores that picture without marking the folder as a format it "
+            "is not.")
+        form.addRow("Display order", self._display_order)
+
+        from ...crops import DISPLAY_PRIMARIES
+
+        self._display_primaries = QComboBox()
+        _PRIMARY_LABELS = {
+            "rgb": "RGB   (as acquired)",
+            "cmy": "CMY   (publication style)",
+            "deuteranope": "Colourblind \u2014 deuteranope (red-green)",
+            "protanope": "Colourblind \u2014 protanope (red-green)",
+            "tritanope": "Colourblind \u2014 tritanope (blue-yellow)",
+        }
+        for mode in DISPLAY_PRIMARIES:
+            self._display_primaries.addItem(_PRIMARY_LABELS[mode], mode)
+        # Unset means "whatever this user needs", not "RGB". The global
+        # colour-vision preference is the default, so somebody who told
+        # Preferences once that they are colour-blind finds Annotate already
+        # correct; choosing a mode here still overrides it for this session.
+        current_primaries = str(
+            getattr(settings, "display_primaries", "") or "").lower()
+        if current_primaries in ("", "rgb"):
+            try:
+                from ..preferences import image_display_primaries
+                current_primaries = image_display_primaries()
+            except Exception:
+                current_primaries = "rgb"
+        primaries_index = self._display_primaries.findData(current_primaries)
+        self._display_primaries.setCurrentIndex(max(0, primaries_index))
+        self._display_primaries.setToolTip(
+            "What colours the channels are drawn in. A VIEW setting: it "
+            "changes nothing on disk and nothing measured.\n\n"
+            "CMY is the publication style most multichannel micrographs use "
+            "now. The three colourblind modes are separate because which "
+            "PAIR of colours collapses depends on the deficiency \u2014 "
+            "red-green for a deuteranope or protanope, blue-yellow for a "
+            "tritanope \u2014 so one setting cannot serve all three. CMY is "
+            "NOT one of them: measured against a red-green deficiency it "
+            "separates the channels less well than plain RGB.")
+        form.addRow("Channel colours", self._display_primaries)
+
         self._norm_channels = QLineEdit(_list_to_csv(settings.normalize_channels))
         self._norm_channels.setPlaceholderText("r, g, b (blank = off)")
         form.addRow("Normalize channels", self._norm_channels)
@@ -930,6 +1010,11 @@ class _SettingsDialog(QDialog):
             self._image_type: "image_type",
             self._channels: "channels",
             self._stored_channel_order: "stored_channel_order",
+            # `_display_order` is deliberately NOT here. This map installs the
+            # API tooltip for a pipeline SETTING, and `display_order` is a
+            # view preference that no pipeline function takes -- listing it
+            # replaced the explanatory tooltip written above with an empty
+            # one, which is worse than having no entry at all.
             self._norm_channels: "normalize_channels",
             self._pct_lo: "lower_percentile",
             self._pct_hi: "upper_percentile",
@@ -966,6 +1051,40 @@ class _SettingsDialog(QDialog):
                                               self._src_edit.text() or os.getcwd())
         if d:
             self._src_edit.setText(d)
+
+    def accept(self):  # noqa: D401 - Qt slot
+        """Refuse OK when the threshold filter cannot be applied as typed.
+
+        "Measurement column(s)" and "Threshold(s)" are two independent
+        free-text line edits, so three columns and two thresholds is a typo
+        away -- and the engine used to `zip` them, silently dropping the
+        third filter and hand-labelling a population the user never asked
+        for.
+
+        `fetch_filtered_paths` now raises on the mismatch, but that runs on a
+        worker thread whose failure signal has no receiver, so the raise
+        alone would be invisible. This is the half the user can act on: they
+        are standing in the dialog with both fields in front of them.
+
+        One threshold for several columns is a documented shorthand and stays
+        allowed; it is only the in-between case that is refused.
+        """
+        from PySide6.QtWidgets import QMessageBox
+
+        measurements = _csv_to_list(self._measurement.text().strip())
+        raw = [p.strip() for p in self._threshold.text().strip().split(",")
+               if p.strip()]
+        if measurements and raw and len(raw) not in (1, len(measurements)):
+            QMessageBox.warning(
+                self, "One threshold per measurement",
+                f"You have given {len(measurements)} measurement column(s) "
+                f"and {len(raw)} threshold(s).\n\nGive one threshold per "
+                f"column, or a single threshold to apply to all of them. "
+                f"Anything in between has no defined pairing, and guessing "
+                f"one would filter on a population you did not ask for.")
+            self._threshold.setFocus()
+            return
+        super().accept()
 
     def collect(self) -> AnnotateSettings:
         """Read every editor and return the updated settings object."""
@@ -2017,7 +2136,7 @@ class AnnotateScreen(QWidget):
             return
         lines = ["Class    Count    Color"]
         for cls, cnt in rows:
-            lines.append(f"{cls:>5}  {cnt:>7}    {label_to_hex(cls) or ''}")
+            lines.append(f"{cls:>5}  {cnt:>7}    {label_to_hex(cls, dark=on_dark_theme()) or ''}")
         QMessageBox.information(self, "Class counts", "\n".join(lines))
 
     # ------------------------------------------------------------------
@@ -2816,8 +2935,15 @@ class AnnotateScreen(QWidget):
         ``label_to_hex`` is the app's one class→colour map (the Class counts
         dialog reads the same function), so the border can never disagree
         with the colour shown anywhere else.
+
+        THE THEME IS PASSED THROUGH. The palette is tuned against a dark
+        tile; on a light one the same colours measured 1.28-4.34 contrast,
+        five of the first six below the readability floor. That is issue #6 --
+        reported as a macOS problem, and really a light-theme one, since
+        macOS defaults to the light appearance far more often than Linux.
         """
-        return label_to_hex(self._current_value(slot)) or resting_border_color()
+        return (label_to_hex(self._current_value(slot), dark=on_dark_theme())
+                or resting_border_color())
 
     def _repaint_slot(self, slot: int) -> None:
         """Sync one tile's chrome with the model. Cheap: no pixmap work.

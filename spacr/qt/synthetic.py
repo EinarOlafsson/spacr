@@ -789,7 +789,7 @@ def generate_classify_demo(
                          field, 1, label, cls))
             i += 1
     db_path = dst / "measurements" / "measurements.db"
-    with sqlite3.connect(db_path) as conn:
+    with sqlite3.connect(db_path, timeout=30) as conn:
         conn.execute(
             'CREATE TABLE IF NOT EXISTS "png_list" ('
             ' png_path TEXT PRIMARY KEY,'

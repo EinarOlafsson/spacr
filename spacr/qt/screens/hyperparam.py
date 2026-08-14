@@ -33,6 +33,7 @@ from typing import (
     Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple,
 )
 
+import numpy as np
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QColor, QIcon, QPalette, QPixmap
 from PySide6.QtWidgets import (
@@ -43,6 +44,7 @@ from PySide6.QtWidgets import (
 )
 from ..widgets.figure_grid import SearchFigureGrid
 from ..widgets.toggle import Toggle
+from ..widgets.umap_search_viewer import UmapExplorer, UmapGalleryDialog
 
 from ...hyperparam import (
     APP_CRITERIA, DEFAULT_SPACES, DEFAULT_UMAP_OBJECTIVE_WEIGHTS,
@@ -451,6 +453,10 @@ class SearchRequest:
     objective_weights: Dict[str, float] = field(
         default_factory=lambda: dict(DEFAULT_UMAP_OBJECTIVE_WEIGHTS)
     )
+    umap_backend: str = "cpu"
+    umap_components: int = 2
+    cluster_during_search: bool = False
+    cluster_sizes: Tuple[int, ...] = (5, 10, 15, 25, 40)
     seed: int = 0
     n_folds: int = 5
     resume: bool = False
@@ -563,7 +569,7 @@ class _SearchWorker(QThread):
         """
         path = ""
         try:
-            if self._figure_dir is not None:
+            if self._request.app_key != "umap" and self._figure_dir is not None:
                 target = self._figure_dir / f"trial_{trial.index:04d}.png"
                 if render_trial_figure(trial, self._metric, str(target)):
                     path = str(target)
@@ -612,6 +618,10 @@ def _default_search_fn(request: SearchRequest, on_trial, should_stop) -> SearchR
         min_improvement=request.min_improvement,
         stability_repeats=request.stability_repeats,
         objective_weights=request.objective_weights,
+        umap_backend=request.umap_backend,
+        umap_components=request.umap_components,
+        cluster_during_search=request.cluster_during_search,
+        cluster_sizes=request.cluster_sizes,
         seed=request.seed, n_folds=request.n_folds,
         on_trial=on_trial, should_stop=should_stop,
         resume=request.resume)
@@ -646,7 +656,10 @@ class HyperparamPanel(QWidget):
     #: soon as one is chosen -- a column headed "score" does not say whether
     #: it holds trustworthiness, a multi-objective blend or something else,
     #: and the user has to guess which number they are ranking on.
-    COLUMNS = ("#", "score", "best so far", "fold sd", "parameters", "status")
+    COLUMNS = (
+        "#", "score", "best so far", "fold sd", "backend", "clusters",
+        "parameters", "status",
+    )
 
     #: Apps that do not cross-validate, so "fold sd" is structurally empty
     #: for them. UMAP fits ONE embedding per trial: there are no folds to
@@ -675,6 +688,8 @@ class HyperparamPanel(QWidget):
         self._adaptive_grid_text: Dict[str, str] = {}
         self._walk_axes: Dict[str, Dict[str, Any]] = {}
         self._settings_dialog: Optional["UmapSearchSettingsDialog"] = None
+        self._gallery_dialog: Optional[UmapGalleryDialog] = None
+        self._displayed_trial: Optional[Trial] = None
         self._build_ui()
 
     # -- construction ------------------------------------------------------
@@ -823,9 +838,21 @@ class HyperparamPanel(QWidget):
             "spacr.hyperparam.umap_search(resume=True).")
         run_grid.addWidget(self._resume, 2, 0, 1, 3)
 
+        # GPU sits to the LEFT of the search button and says just "GPU",
+        # as asked. Checkable, because it is a state the next search runs
+        # under and not an action -- and its checked state is the honest
+        # answer to "which backend will draw these rows", which the table
+        # records per row.
+        self._gpu_btn = QPushButton("GPU")
+        self._gpu_btn.setCheckable(True)
+        self._gpu_btn.setObjectName("UmapGpuToggle")
+        self._gpu_btn.clicked.connect(self._on_gpu_clicked)
+        run_grid.addWidget(self._gpu_btn, 3, 0)
+        self._refresh_gpu_button()
+
         self._run_btn = QPushButton("Run search")
         self._run_btn.clicked.connect(self.run_search)
-        run_grid.addWidget(self._run_btn, 3, 0, 1, 2)
+        run_grid.addWidget(self._run_btn, 3, 1)
 
         self._stop_btn = QPushButton("Stop")
         self._stop_btn.setEnabled(False)
@@ -991,7 +1018,9 @@ class HyperparamPanel(QWidget):
         self._adaptive_controls.setVisible(self.app_key == "umap")
         self._on_adaptive_toggled(False)
 
-        plot_row = QHBoxLayout()
+        self._plot_panel_controls = QWidget(self)
+        plot_row = QHBoxLayout(self._plot_panel_controls)
+        plot_row.setContentsMargins(0, 0, 0, 0)
         plot_label = QLabel("maximum graph panels")
         self._max_panels = QSpinBox()
         self._max_panels.setRange(1, 48)
@@ -1004,13 +1033,20 @@ class HyperparamPanel(QWidget):
         plot_row.addWidget(plot_label)
         plot_row.addWidget(self._max_panels)
         plot_row.addStretch(1)
-        settings_layout.addLayout(plot_row)
+        self._plot_panel_controls.setVisible(self.app_key != "umap")
+        settings_layout.addWidget(self._plot_panel_controls)
 
         # Match Measure Live: keep the card focused on results and put the
         # complete control set behind a settings button in a separate window.
         root.removeWidget(self._settings_panel)
         self._settings_panel.hide()
         compact_actions = QHBoxLayout()
+        self._compact_gpu_btn = QPushButton("GPU")
+        self._compact_gpu_btn.setCheckable(True)
+        self._compact_gpu_btn.setObjectName("UmapGpuToggleCompact")
+        self._compact_gpu_btn.setVisible(self.app_key == "umap")
+        self._compact_gpu_btn.clicked.connect(self._on_gpu_clicked)
+        compact_actions.addWidget(self._compact_gpu_btn)
         self._compact_run_btn = QPushButton("Run search")
         self._compact_run_btn.clicked.connect(self.run_search)
         self._compact_stop_btn = QPushButton("Stop")
@@ -1030,6 +1066,29 @@ class HyperparamPanel(QWidget):
         self._settings_btn.clicked.connect(self.open_settings)
         compact_actions.addWidget(self._compact_run_btn)
         compact_actions.addWidget(self._compact_stop_btn)
+        self._dimensions = QComboBox()
+        self._dimensions.addItems(["2D", "3D"])
+        self._dimensions.setCurrentText("2D")
+        self._dimensions.setVisible(self.app_key == "umap")
+        self._dimensions.setToolTip(
+            "Dimensions retained by every UMAP in the next search. 3D maps "
+            "can be spun in the viewer; 2D maps stay flat.")
+        compact_actions.addWidget(self._dimensions)
+        self._cluster_during = Toggle("Cluster during search")
+        self._cluster_during.setChecked(True)
+        self._cluster_during.setVisible(self.app_key == "umap")
+        self._cluster_during.setToolTip(
+            "Run the HDBSCAN min-cluster-size walk as each UMAP finishes, "
+            "and retain the chosen labels on that exact table row.")
+        compact_actions.addWidget(self._cluster_during)
+        self._grid_btn = QPushButton("Grid")
+        self._grid_btn.setEnabled(False)
+        self._grid_btn.setVisible(self.app_key == "umap")
+        self._grid_btn.setToolTip(
+            "Show every stored UMAP from the table on black backgrounds; "
+            "click a tile to load its exact coordinates here.")
+        self._grid_btn.clicked.connect(self.open_umap_grid)
+        compact_actions.addWidget(self._grid_btn)
         compact_actions.addWidget(self._settings_btn)
         compact_actions.addStretch(1)
         root.insertLayout(0, compact_actions)
@@ -1046,20 +1105,22 @@ class HyperparamPanel(QWidget):
             # invites the reader to wonder what went wrong, when nothing
             # did -- this app simply has no folds.
             self._table.setColumnHidden(self.COLUMNS.index("fold sd"), True)
+        if self.app_key != "umap":
+            self._table.setColumnHidden(self.COLUMNS.index("backend"), True)
+            self._table.setColumnHidden(self.COLUMNS.index("clusters"), True)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setSelectionMode(QAbstractItemView.SingleSelection)
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._table.verticalHeader().setVisible(False)
         self._table.horizontalHeader().setSectionResizeMode(
-            3, QHeaderView.Stretch)
+            self.COLUMNS.index("parameters"), QHeaderView.Stretch)
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
         split.addWidget(self._table)
 
-        # Two views of the same sweep, stacked: the GRID fills a cell at a
-        # time while the search runs, and the summary figure replaces it at
-        # the end. Live steering is the grid's job -- seeing the first few
-        # embeddings is what tells you the range is wrong before the other
-        # fifty run -- and the summary is the deliverable.
+        # UMAP owns an interactive coordinate viewer. The other search apps
+        # still use the generic static figure panel: attribution images and
+        # classifier score curves are figures, while a 3-D UMAP is a map the
+        # user needs to spin, recolour and cluster.
         self._preview_stack = QWidget(self)
         self._preview_stack.setObjectName("SearchPreviewStack")
         make_transparent(self._preview_stack)
@@ -1067,21 +1128,51 @@ class HyperparamPanel(QWidget):
         preview_column.setContentsMargins(0, 0, 0, 0)
         preview_column.setSpacing(0)
 
-        self._figure_grid = SearchFigureGrid(parent=self._preview_stack)
-        self._figure_grid.setVisible(False)
-        self._figure_grid.cell_clicked.connect(self._open_trial_figure)
-        preview_column.addWidget(self._figure_grid, 1)
-
-        self._preview = QLabel("No search has been run yet.")
-        self._preview.setAlignment(Qt.AlignCenter)
-        self._preview.setMinimumWidth(220)
-        self._preview.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self._preview.setWordWrap(True)
-        preview_column.addWidget(self._preview, 1)
+        self._figure_grid = None
+        self._umap_explorer = None
+        if self.app_key == "umap":
+            self._umap_explorer = UmapExplorer(self._preview_stack)
+            preview_column.addWidget(self._umap_explorer, 1)
+            cluster_bar = QHBoxLayout()
+            cluster_bar.addWidget(QLabel("HDBSCAN min cluster size"))
+            self._cluster_size = QSpinBox()
+            self._cluster_size.setRange(2, 100_000)
+            self._cluster_size.setValue(15)
+            cluster_bar.addWidget(self._cluster_size)
+            self._cluster_btn = QPushButton("Cluster this map")
+            self._cluster_btn.setEnabled(False)
+            self._cluster_btn.clicked.connect(self.cluster_selected)
+            cluster_bar.addWidget(self._cluster_btn)
+            self._cluster_walk_btn = QPushButton("Walk clusters")
+            self._cluster_walk_btn.setEnabled(False)
+            self._cluster_walk_btn.setToolTip(
+                "Try several HDBSCAN scales on the selected UMAP, rank them "
+                "by silhouette discounted by noise, and colour the best one.")
+            self._cluster_walk_btn.clicked.connect(self.walk_selected_clusters)
+            cluster_bar.addWidget(self._cluster_walk_btn)
+            cluster_bar.addStretch(1)
+            preview_column.addLayout(cluster_bar)
+            # Compatibility attribute for integrations that looked for the
+            # old label. It is not shown and never receives a static UMAP.
+            self._preview = QLabel("", self._preview_stack)
+            self._preview.hide()
+        else:
+            self._figure_grid = SearchFigureGrid(parent=self._preview_stack)
+            self._figure_grid.setVisible(False)
+            self._figure_grid.cell_clicked.connect(self._open_trial_figure)
+            preview_column.addWidget(self._figure_grid, 1)
+            self._preview = QLabel("No search has been run yet.")
+            self._preview.setAlignment(Qt.AlignCenter)
+            self._preview.setMinimumWidth(220)
+            self._preview.setSizePolicy(
+                QSizePolicy.Expanding, QSizePolicy.Expanding)
+            self._preview.setWordWrap(True)
+            preview_column.addWidget(self._preview, 1)
         split.addWidget(self._preview_stack)
         split.setStretchFactor(0, 3)
         split.setStretchFactor(1, 4)
         root.addWidget(split, 1)
+        self._refresh_gpu_button()
 
         # -- status + caveats
         self._status = QLabel("")
@@ -1376,6 +1467,142 @@ class HyperparamPanel(QWidget):
 
     # -- running -----------------------------------------------------------
 
+    # -- GPU ---------------------------------------------------------------
+
+    def gpu_backend(self) -> str:
+        """Which backend the next search will use: ``'cuml'`` or ``'cpu'``.
+
+        Read from the button rather than from what is installed: cuML being
+        importable is not the same as the user having asked for it, and a
+        table whose rows came from both backends compares two libraries as
+        well as the settings it varied.
+        """
+        buttons = (
+            getattr(self, "_gpu_btn", None),
+            getattr(self, "_compact_gpu_btn", None),
+        )
+        return "cuml" if any(
+            button is not None and button.isChecked() for button in buttons
+        ) else "cpu"
+
+    def _set_gpu_checked(self, checked: bool) -> None:
+        """Keep the compact and settings-window GPU toggles truthful."""
+        for button in (
+            getattr(self, "_gpu_btn", None),
+            getattr(self, "_compact_gpu_btn", None),
+        ):
+            if button is None:
+                continue
+            button.blockSignals(True)
+            button.setChecked(bool(checked))
+            button.blockSignals(False)
+
+    def _refresh_gpu_button(self) -> None:
+        """Show what pressing it would do, before it is pressed."""
+        buttons = [button for button in (
+            getattr(self, "_gpu_btn", None),
+            getattr(self, "_compact_gpu_btn", None),
+        ) if button is not None]
+        if not buttons:
+            return
+        try:
+            from ...gpu_reduce import describe, install_plan
+            plan = install_plan()
+        except Exception:
+            for button in buttons:
+                button.setEnabled(False)
+                button.setToolTip(
+                    "GPU acceleration is unavailable in this build.")
+            return
+        ready = plan["action"] == "ready"
+        if not ready:
+            self._set_gpu_checked(False)
+        tip = {
+            "ready": "Draw the embeddings with cuML on the GPU.",
+            "install": "cuML is not installed. Press to install it.",
+            "wrong_python": "cuML cannot be installed into this interpreter.",
+            "no_device": "cuML is installed but no CUDA device answered.",
+        }[plan["action"]]
+        # The MEASURED caveat, not a promise: a cuML map is a different map
+        # of the same data, not the same map faster.
+        for button in buttons:
+            button.setEnabled(True)
+            button.setToolTip(
+                f"{tip}\n\n{plan['message']}\n\nA map drawn by cuML is a "
+                f"DIFFERENT MAP of the same data, not the same map faster, so "
+                f"rows from the two backends are not comparable. Each row "
+                f"records which drew it.")
+
+    def _on_gpu_clicked(self) -> None:
+        """Turn cuML on, offer to install it, or say what is needed."""
+        from PySide6.QtWidgets import QMessageBox
+
+        from ...gpu_reduce import install_command, install_plan
+
+        plan = install_plan()
+        if plan["action"] == "ready":
+            checked = bool(getattr(self.sender(), "isChecked", lambda: True)())
+            self._set_gpu_checked(checked)
+            self._set_status(f"GPU: {plan['message']}")
+            return
+        # Not ready, so the toggle must not stay down claiming it is.
+        self._set_gpu_checked(False)
+        if plan["action"] in ("wrong_python", "no_device"):
+            QMessageBox.information(self, "GPU not available", plan["message"])
+            return
+        answer = QMessageBox.question(
+            self, "Install cuML?",
+            plan["message"] + "\n\n" + " ".join(install_command()))
+        if answer != QMessageBox.Yes:
+            return
+        self._install_cuml()
+
+    def _install_cuml(self) -> None:
+        """Run the install, then say to restart. Never claim it is live.
+
+        pip can upgrade numpy and scipy underneath a process that has
+        already imported them -- and this one has, several times over. So
+        the new backend is NOT usable in this session whatever pip reports,
+        and pretending otherwise would produce failures nobody could
+        attribute.
+        """
+        import subprocess
+
+        from PySide6.QtWidgets import QMessageBox
+
+        from ...gpu_reduce import install_command
+
+        self._set_status("Installing cuML — this downloads several "
+                         "gigabytes and will take a while…")
+        try:
+            subprocess.run(install_command(), check=True)
+        except Exception as exc:
+            QMessageBox.warning(
+                self, "Install failed",
+                f"{exc}\n\nRun this yourself to see the full output:\n"
+                + " ".join(install_command()))
+            self._set_status("cuML install failed.")
+            return
+        QMessageBox.information(
+            self, "Restart spaCR",
+            "cuML is installed. RESTART spaCR before using it — pip may "
+            "have upgraded numpy or scipy underneath this process, which "
+            "has already imported them.")
+        self._set_status("cuML installed. Restart spaCR to use it.")
+
+    def _set_status(self, text: str) -> None:
+        label = getattr(self, "_status", None)
+        if label is not None:
+            label.setText(str(text))
+
+    def cluster_walk_sizes(self) -> Tuple[int, ...]:
+        """HDBSCAN scales around the visible starting value."""
+        widget = getattr(self, "_cluster_size", None)
+        centre = int(widget.value()) if widget is not None else 15
+        values = [max(2, int(round(centre * factor)))
+                  for factor in (0.35, 0.6, 1.0, 1.7, 2.7)]
+        return tuple(dict.fromkeys(values))
+
     def run_search(self) -> bool:
         """Validate the space and start the sweep in the background.
 
@@ -1446,6 +1673,15 @@ class HyperparamPanel(QWidget):
             min_improvement=improvement,
             stability_repeats=stability_repeats,
             objective_weights=objective_weights,
+            umap_backend=(self.gpu_backend()
+                          if self.app_key == "umap" else "cpu"),
+            umap_components=(
+                3 if self.app_key == "umap"
+                and self._dimensions.currentText() == "3D" else 2),
+            cluster_during_search=(
+                self.app_key == "umap" and self._cluster_during.isChecked()),
+            cluster_sizes=(self.cluster_walk_sizes()
+                           if self.app_key == "umap" else ()),
             seed=int(self._seed.value()),
             n_folds=int(self._n_folds.value()),
             resume=self.app_key == "umap" and self._resume.isChecked(),
@@ -1455,8 +1691,15 @@ class HyperparamPanel(QWidget):
         self._table.setRowCount(0)
         self._apply_btn.setEnabled(False)
         self._notes.setText("")
-        self._preview.setText("Running…")
-        self._preview.setPixmap(QPixmap())
+        if self.app_key == "umap" and self._umap_explorer is not None:
+            self._umap_explorer.view.clear("Running UMAP search…")
+            self._displayed_trial = None
+            self._grid_btn.setEnabled(False)
+            self._cluster_btn.setEnabled(False)
+            self._cluster_walk_btn.setEnabled(False)
+        else:
+            self._preview.setText("Running…")
+            self._preview.setPixmap(QPixmap())
         if self._figure_grid is not None:
             self._figure_grid.clear()
             # Axes from the SPACE, set before the first figure lands, so the
@@ -1601,6 +1844,12 @@ class HyperparamPanel(QWidget):
                       format_params(trial.params),
                       "failed" if trial.error else "ok",
                       trial.params, trial.error, trial)
+        if self.app_key == "umap" and \
+                trial.extra_metrics.get("embedding") is not None:
+            self._grid_btn.setEnabled(True)
+            if self._displayed_trial is None:
+                self._table.selectRow(row)
+                self.show_trial(trial)
         self._status.setText(
             f"{done} of {total} configurations evaluated"
             + (f" — last one failed: {trial.error}" if trial.error else ""))
@@ -1609,12 +1858,18 @@ class HyperparamPanel(QWidget):
         """Rebuild the table in ranked order and draw the preview."""
         if err:
             self._status.setText(f"Search failed: {err}")
-            self._preview.setText("Search failed.")
+            if self.app_key == "umap" and self._umap_explorer is not None:
+                self._umap_explorer.view.clear("Search failed.")
+            else:
+                self._preview.setText("Search failed.")
             return
         if result is None:
             self._status.setText(
                 "Search failed: the worker returned no result.")
-            self._preview.setText("Search failed.")
+            if self.app_key == "umap" and self._umap_explorer is not None:
+                self._umap_explorer.view.clear("Search failed.")
+            else:
+                self._preview.setText("Search failed.")
             return
         self._result = result
         self._rebuild_table(result)
@@ -1653,9 +1908,26 @@ class HyperparamPanel(QWidget):
                                          APP_CRITERIA.get(self.app_key, ()))
         if disagreement:
             summary.append(disagreement)
+        if self.app_key == "umap":
+            backends = sorted({
+                str(trial.extra_metrics.get("backend", "unknown"))
+                for trial in result.successful
+            })
+            if len(backends) > 1:
+                summary.append(
+                    "MIXED BACKENDS — these rows compare different UMAP "
+                    f"implementations ({', '.join(backends)}) as well as "
+                    "different settings; do not rank them as one walk.")
         self._status.setText(" ".join(summary))
-        self._show_summary_instead_of_grid()
-        self._draw_preview(result)
+        if self.app_key == "umap":
+            self._grid_btn.setEnabled(any(
+                trial.extra_metrics.get("embedding") is not None
+                for trial in result.successful))
+            if result.ranked():
+                self.show_trial(result.ranked()[0])
+        else:
+            self._show_summary_instead_of_grid()
+            self._draw_preview(result)
         self.search_finished.emit(result)
 
     # -- table -------------------------------------------------------------
@@ -1678,7 +1950,15 @@ class HyperparamPanel(QWidget):
         the one the table is ranked by: for an Activation sweep the other three
         are the reason the ranking should not be read as a verdict.
         """
-        cells = (rank, score, best, sd, params, error or status)
+        backend = "-"
+        clusters = "-"
+        if trial is not None:
+            backend = str(trial.extra_metrics.get("backend", "-") or "-")
+            count = trial.extra_metrics.get("n_clusters")
+            if count is not None:
+                clusters = str(int(count))
+        cells = (rank, score, best, sd, backend, clusters, params,
+                 error or status)
         detail = format_scores(trial, APP_CRITERIA.get(self.app_key, ())) \
             if trial is not None else ""
         for col, text in enumerate(cells):
@@ -1687,6 +1967,7 @@ class HyperparamPanel(QWidget):
                 item.setData(Qt.UserRole, dict(param_dict))
                 if trial is not None:
                     item.setData(Qt.UserRole + 1, dict(trial.extra_metrics))
+                    item.setData(Qt.UserRole + 2, trial)
             tip = error or detail
             if tip:
                 item.setToolTip(tip)
@@ -1732,8 +2013,23 @@ class HyperparamPanel(QWidget):
         return None
 
     def _on_selection_changed(self) -> None:
-        """Enable Apply only while a real configuration is selected."""
+        """Enable Apply and load the exact UMAP held by the selected row."""
         self._apply_btn.setEnabled(self.selected_params() is not None)
+        if self.app_key != "umap":
+            return
+        trial = self.selected_trial()
+        if trial is not None:
+            self.show_trial(trial)
+
+    def selected_trial(self) -> Optional[Trial]:
+        """The real trial object attached to the selected table row."""
+        model = self._table.selectionModel()
+        rows = model.selectedRows() if model is not None else []
+        if not rows:
+            return None
+        item = self._table.item(rows[0].row(), 0)
+        value = None if item is None else item.data(Qt.UserRole + 2)
+        return value if isinstance(value, Trial) else None
 
     # -- apply -------------------------------------------------------------
 
@@ -1762,6 +2058,157 @@ class HyperparamPanel(QWidget):
             msg += (" Note: this came from a partial sweep — configurations "
                     "that were never evaluated may be better.")
         self._status.setText(msg)
+        return True
+
+    # -- interactive UMAP -------------------------------------------------
+
+    def show_trial(self, trial: Trial) -> bool:
+        """Load one row's stored coordinates into the native 2-D/3-D view."""
+        explorer = getattr(self, "_umap_explorer", None)
+        if explorer is None:
+            return False
+        embedding = trial.extra_metrics.get("embedding")
+        if embedding is None:
+            return False
+        backend = str(trial.extra_metrics.get("backend", "cpu") or "cpu")
+        dimensions = int(trial.extra_metrics.get(
+            "n_components", np.asarray(embedding).shape[1]))
+        score = "" if trial.score is None else f" · {float(trial.score):.4f}"
+        caption = f"{dimensions}D · {format_params(trial.params)}{score}"
+        try:
+            explorer.view.set_embedding(
+                embedding,
+                labels=trial.extra_metrics.get("cluster_labels"),
+                caption=caption,
+                backend=backend,
+            )
+        except (TypeError, ValueError) as exc:
+            self._set_status(f"Could not display this UMAP: {exc}")
+            return False
+        self._displayed_trial = trial
+        self._cluster_btn.setEnabled(True)
+        self._cluster_walk_btn.setEnabled(True)
+        return True
+
+    def _select_trial_row(self, trial: Trial) -> None:
+        for row in range(self._table.rowCount()):
+            item = self._table.item(row, 0)
+            if item is not None and item.data(Qt.UserRole + 2) is trial:
+                self._table.selectRow(row)
+                return
+
+    def open_umap_grid(self) -> Optional[UmapGalleryDialog]:
+        """Spawn the black-background wall of every embedding in the table."""
+        if self.app_key != "umap":
+            return None
+        trials = (self._result.trials if self._result is not None
+                  else list(self._live_trials))
+        available = [trial for trial in trials
+                     if trial.extra_metrics.get("embedding") is not None]
+        if not available:
+            self._set_status("There are no completed UMAPs to show in the grid.")
+            return None
+        dialog = self._gallery_dialog
+        if dialog is None:
+            dialog = UmapGalleryDialog(available, self)
+            dialog.trial_chosen.connect(self._on_gallery_trial)
+            dialog.finished.connect(self._on_gallery_closed)
+            self._gallery_dialog = dialog
+        else:
+            dialog.set_trials(available)
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
+        return dialog
+
+    def _on_gallery_closed(self, *_args) -> None:
+        self._gallery_dialog = None
+
+    def _on_gallery_trial(self, trial: Trial) -> None:
+        if self.show_trial(trial):
+            self._select_trial_row(trial)
+
+    def _update_trial_cluster_cell(self, trial: Trial) -> None:
+        count = trial.extra_metrics.get("n_clusters")
+        for row in range(self._table.rowCount()):
+            item = self._table.item(row, 0)
+            if item is None or item.data(Qt.UserRole + 2) is not trial:
+                continue
+            cell = self._table.item(row, self.COLUMNS.index("clusters"))
+            if cell is not None:
+                cell.setText("-" if count is None else str(int(count)))
+            return
+
+    def cluster_selected(self) -> bool:
+        """Cluster the selected map once, without changing its coordinates."""
+        trial = self._displayed_trial or self.selected_trial()
+        if trial is None or trial.extra_metrics.get("embedding") is None:
+            self._set_status("Select a completed UMAP before clustering it.")
+            return False
+        try:
+            from ...umap_search import cluster_embedding
+            labels = cluster_embedding(
+                trial.extra_metrics["embedding"],
+                min_cluster_size=int(self._cluster_size.value()))
+        except Exception as exc:
+            self._set_status(f"Could not cluster this UMAP: {exc}")
+            return False
+        ids = sorted({int(value) for value in labels if int(value) >= 0})
+        trial.extra_metrics.update({
+            "cluster_labels": labels,
+            "cluster_min_size": int(self._cluster_size.value()),
+            "n_clusters": len(ids),
+            "cluster_noise_fraction": float(np.mean(labels < 0)),
+        })
+        self._umap_explorer.view.set_labels(labels)
+        self._update_trial_cluster_cell(trial)
+        self._set_status(
+            f"Clustered this stored map into {len(ids)} clusters; "
+            f"{float(np.mean(labels < 0)):.1%} of points are HDBSCAN noise.")
+        return True
+
+    def walk_selected_clusters(self) -> bool:
+        """Search HDBSCAN scales on the selected map and display the best."""
+        trial = self._displayed_trial or self.selected_trial()
+        if trial is None or trial.extra_metrics.get("embedding") is None:
+            self._set_status("Select a completed UMAP before walking clusters.")
+            return False
+        try:
+            from ...umap_search import walk_clusters
+            rows = walk_clusters(
+                trial.extra_metrics["embedding"],
+                min_cluster_sizes=self.cluster_walk_sizes())
+        except Exception as exc:
+            self._set_status(f"Could not walk cluster settings: {exc}")
+            return False
+        if not rows:
+            self._set_status("The cluster walk produced no usable partition.")
+            return False
+        chosen = rows[0]
+        trial.extra_metrics.update({
+            "cluster_labels": chosen.labels,
+            "cluster_min_size": chosen.min_cluster_size,
+            "cluster_silhouette": chosen.silhouette,
+            "cluster_score": chosen.score,
+            "n_clusters": chosen.n_clusters,
+            "cluster_noise_fraction": chosen.noise_fraction,
+            "cluster_walk": [
+                {
+                    "min_cluster_size": row.min_cluster_size,
+                    "silhouette": row.silhouette,
+                    "score": row.score,
+                    "n_clusters": row.n_clusters,
+                    "noise_fraction": row.noise_fraction,
+                } for row in rows
+            ],
+        })
+        self._cluster_size.setValue(chosen.min_cluster_size)
+        self._umap_explorer.view.set_labels(chosen.labels)
+        self._update_trial_cluster_cell(trial)
+        self._set_status(
+            f"Cluster walk chose min_cluster_size={chosen.min_cluster_size}: "
+            f"{chosen.n_clusters} clusters, {chosen.noise_fraction:.1%} noise, "
+            f"silhouette {chosen.silhouette:.3f}.")
         return True
 
     # -- preview -----------------------------------------------------------

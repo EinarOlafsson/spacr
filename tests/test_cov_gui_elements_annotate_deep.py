@@ -1,6 +1,6 @@
 """Coverage for ``AnnotateApp.open_deep_spacr_window`` (spacr/gui_elements.py).
 
-The Deep-SPACR window is a Tk ``Toplevel`` full of form widgets whose "Run"
+The Deep-spaCR window is a Tk ``Toplevel`` full of form widgets whose "Run"
 button assembles a settings dict and hands it to ``spacr.deep_spacr.deep_spacr``
 on a daemon thread. These tests
 
@@ -188,13 +188,13 @@ def _form(container):
 
 
 class DeepWindow:
-    """Structural facade over the Deep-SPACR window's widget tree."""
+    """Structural facade over the Deep-spaCR window's widget tree."""
 
     def __init__(self, root):
         tops = [w for w in root.winfo_children()
                 if w.winfo_class() == "Toplevel"
-                and str(w.title()).startswith("Deep SPACR")]
-        assert len(tops) == 1, f"expected 1 Deep SPACR window, got {len(tops)}"
+                and str(w.title()).startswith("Deep spaCR")]
+        assert len(tops) == 1, f"expected 1 Deep spaCR window, got {len(tops)}"
         self.win = tops[0]
         self.notebook = _by_class(self.win, "TNotebook")[0]
         paned = _by_class(self.win, "Panedwindow")[0]
@@ -265,7 +265,7 @@ def _wait_for_worker(app, timeout=15.0):
 
 def test_window_builds_three_tabs_and_action_buttons(deep_app):
     dw = _open(deep_app)
-    assert dw.win.title() == "Deep SPACR — Train"
+    assert dw.win.title() == "Deep spaCR — Train"
     assert dw.tab_texts() == ["Generate training dataset", "Train", "Apply model"]
     # Run/Cancel live on the window, not inside the notebook.
     assert dw.button("Run").winfo_exists()
@@ -280,8 +280,14 @@ def test_window_builds_three_tabs_and_action_buttons(deep_app):
     assert dw.inference["score_threshold"].get() == "0.5"
     # list-valued defaults are rendered with repr(), not stringified elementwise
     assert dw.gen["class_metadata (list-of-lists)"].get() == "[['c1'], ['c2']]"
-    assert dw.gen["classes (list)"].get() == "['nc', 'pc']"
-    assert dw.gen["annotated_classes (list)"].get() == "[1, 2]"
+    # Renamed from "classes (list)" by instruction 37: this control always
+    # meant the training FOLDER names, and `classes` now holds the class
+    # definitions (name -> {column, value}) instead.
+    assert dw.gen["class_folder_names (list)"].get() == "['nc', 'pc']"
+    # These two settings were always inert.  A control that collects a value
+    # no pipeline reads is actively misleading, so neither may reappear.
+    assert "annotated_classes (list)" not in dw.gen
+    assert "custom_measurement (optional)" not in dw.gen
 
 
 def test_cancel_button_destroys_window_without_running(deep_app, fake_deep_spacr):
@@ -392,7 +398,6 @@ def test_run_annotation_mode_multi_selection_builds_class_column(
     dw.gen["sample (rows, optional)"].set("25")
     dw.set_text(dw.gen["tables (csv)"], ",,")          # -> parts empty -> fallback
     dw.set_text(dw.gen["class_metadata (list-of-lists)"], "[[")  # literal_eval fails
-    dw.set_text(dw.gen["custom_measurement (optional)"], "my_meas")
     dw.set_text(dw.gen["file_type / png_type"], "cyto_png")
     dw.set_text(dw.inference["model_path (optional override)"], "/models/m.pth")
     dw.set_text(dw.inference["dataset (apply on this path)"], "/data/apply_here")
@@ -402,7 +407,7 @@ def test_run_annotation_mode_multi_selection_builds_class_column(
 
     dw.run()
     assert dw.win.winfo_exists() == 0, "Run must close the window"
-    assert _wait_for_worker(deep_app) == ["Deep SPACR: preparing…", "Deep SPACR: done."]
+    assert _wait_for_worker(deep_app) == ["Deep spaCR: preparing…", "Deep spaCR: done."]
 
     assert deep_app.ensure_calls == [(["test", "annotate"], "class_column", True)]
     (settings,) = fake_deep_spacr["calls"]
@@ -412,7 +417,8 @@ def test_run_annotation_mode_multi_selection_builds_class_column(
     assert settings["sample"] == 25
     assert settings["tables"] is None            # ",," -> no usable parts
     assert settings["class_metadata"] == [["c1"], ["c2"]]  # literal_eval fallback
-    assert settings["custom_measurement"] == "my_meas"
+    assert "custom_measurement" not in settings
+    assert "annotated_classes" not in settings
     assert settings["file_type"] == "cyto_png" == settings["png_type"]
     assert settings["model_path"] == "/models/m.pth"
     assert settings["dataset"] == "/data/apply_here"
@@ -466,22 +472,22 @@ def test_run_annotation_mode_with_db_columns_off_uses_app_column(
     dw.set_text(dw.gen["tables (csv)"], "cell, nucleus")
     dw.set_text(dw.gen["file_metadata (csv)"], "plateID,rowID")
     dw.set_text(dw.inference["model_path (optional override)"], "")
-    # blanked list-literal fields fall back to the defaults, they do not
-    # become None
-    dw.set_text(dw.gen["classes (list)"], "")
-    dw.set_text(dw.gen["annotated_classes (list)"], "   ")
+    # A blank list-literal field falls back to the default; it does not become
+    # None.  The retired annotated_classes control must not be smuggled back
+    # into the settings payload by that fallback path.
+    dw.set_text(dw.gen["class_folder_names (list)"], "")
     dw.run()
     _wait_for_worker(deep_app)
 
     (settings,) = fake_deep_spacr["calls"]
-    assert settings["classes"] == ["nc", "pc"]
-    assert settings["annotated_classes"] == [1, 2]
+    assert settings["class_folder_names"] == ["nc", "pc"]
+    assert "annotated_classes" not in settings
+    assert "custom_measurement" not in settings
     assert settings["use_db_columns"] is False
     assert settings["annotation_column"] == deep_app.annotation_column
     assert deep_app.ensure_calls == []
     assert settings["tables"] == ["cell", "nucleus"]
     assert settings["file_metadata"] == ["plateID", "rowID"]
-    assert settings["custom_measurement"] is None
     assert settings["sample"] is None
     assert settings["model_path"] == ""       # untouched default, not overridden
 
@@ -612,8 +618,8 @@ def test_run_reports_worker_exception_through_gui_text(deep_app, fake_deep_spacr
     dw.run()
     texts = _wait_for_worker(deep_app)
 
-    assert texts[0] == "Deep SPACR: preparing…"
-    assert texts[1] == "Deep SPACR error: no CUDA for you"
+    assert texts[0] == "Deep spaCR: preparing…"
+    assert texts[1] == "Deep spaCR error: no CUDA for you"
     assert len(fake_deep_spacr["calls"]) == 1
 
 
@@ -637,6 +643,7 @@ def test_defaults_with_list_valued_fields_populate_entries(
         sample=25,
         tables=["cell", "nucleus"],
         file_metadata=["plateID", "rowID"],
+        annotated_classes=[1, 2],
         custom_measurement="cm",
         measurement=["m1", "m2"],
         threshold=0.25,
@@ -649,7 +656,10 @@ def test_defaults_with_list_valued_fields_populate_entries(
     assert dw.gen["sample (rows, optional)"].get() == "25"
     assert dw.gen["tables (csv)"].get() == "cell,nucleus"
     assert dw.gen["file_metadata (csv)"].get() == "plateID,rowID"
-    assert dw.gen["custom_measurement (optional)"].get() == "cm"
+    # Even an obsolete key injected by an old settings file cannot resurrect
+    # either inert control.
+    assert "annotated_classes (list)" not in dw.gen
+    assert "custom_measurement (optional)" not in dw.gen
     assert dw.meas["measurement (csv: columns)"].get() == "m1,m2"
     assert dw.meas["threshold (float or q1..q9)"].get() == "0.25"
     assert dw.basic["train_channels"].get() == "['r', 'g']"
@@ -673,7 +683,7 @@ def test_defaults_with_scalar_fields_and_empty_src(tk_root, png_db, monkeypatch)
     assert dw.gen["sample (rows, optional)"].get() == ""
     assert dw.gen["tables (csv)"].get() == ""
     assert dw.gen["file_metadata (csv)"].get() == "plateID"
-    assert dw.gen["custom_measurement (optional)"].get() == ""
+    assert "custom_measurement (optional)" not in dw.gen
     assert dw.meas["measurement (csv: columns)"].get() == "m1"
     assert dw.basic["train_channels"].get() == "['r','g','b']"
     # empty src -> defaults['src'] ('path') -> dataset entry

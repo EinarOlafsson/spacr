@@ -19,6 +19,15 @@ installer component; Linux users can request accelerator auto-detection with
 CUDA download and works on every supported machine. Apple's standard PyTorch
 wheel retains Metal Performance Shaders (MPS) support.
 
+Installer status, help, errors, and progress are localized for every spaCR UI
+language: English, Swedish, German, Spanish, Simplified Chinese, Portuguese,
+Hindi, Korean, Icelandic, and French. The installer selects the operating
+system's UI locale and falls back to English. Set
+``SPACR_INSTALL_LANGUAGE`` to one of ``en``, ``sv``, ``de``, ``es``,
+``zh_CN``, ``pt``, ``hi``, ``ko``, ``is``, or ``fr`` to override it. Canonical
+locale resources live in ``packaging/i18n``; generated shell, PowerShell, and
+NSIS resources are embedded by the native builders.
+
 Each bootstrap writes ``install.log`` under its private installation root and
 supplies compatible Numba/llvmlite floors. This prevents
 SHAP's unbounded transitive requirements from resolving to obsolete source
@@ -31,9 +40,9 @@ conversion so this incompatibility cannot pass as an import-only success.
 
 | Target | Builder | Release artifact | Default install |
 |---|---|---|---|
-| Windows 10/11 | `online/build_windows_online.ps1` | `SpaCR-<ver>-Windows-Online-Setup.exe` | `%LOCALAPPDATA%\SpaCR` |
-| macOS 11+, Intel/Apple silicon | `online/build_macos_online.sh` | `SpaCR-<ver>-macOS-Universal-Online.pkg` | `/Applications/SpaCR.app` plus a per-user private runtime |
-| Linux x86-64 | `online/build_linux_online.sh` | `SpaCR-<ver>-Linux-x86_64-Online.run` | `~/.local/share/spacr` |
+| Windows 10/11 | `online/build_windows_online.ps1` | `spaCR-<ver>-Windows-Online-Setup.exe` | `%LOCALAPPDATA%\spaCR` |
+| macOS 11+, Intel/Apple silicon | `online/build_macos_online.sh` | `spaCR-<ver>-macOS-Universal-Online.pkg` | `/Applications/spaCR.app` plus a per-user private runtime |
+| Linux x86-64 | `online/build_linux_online.sh` | `spaCR-<ver>-Linux-x86_64-Online.run` | `~/.local/share/spacr` |
 
 `.github/workflows/online-installers.yml` builds all three on native GitHub
 runners, performs a real CPU installation and import check on every operating
@@ -61,7 +70,7 @@ calls the collection command once all three artifacts exist.
 
 ## One-click releases
 
-Run **Actions → release SpaCR → Run workflow**, enter the new version, and
+Run **Actions → release spaCR → Run workflow**, enter the new version, and
 leave the target as `main`. `.github/workflows/release.yml` then:
 
 1. validates and commits the version increment;
@@ -114,9 +123,9 @@ Developer ID and notarization. Windows uses a per-user NSIS installer and does
 not require administrator access.
 
 The macOS package itself performs no network installation in PackageKit's
-time-limited ``postinstall`` process. On first launch, SpaCR opens a Terminal
+time-limited ``postinstall`` process. On first launch, spaCR opens a Terminal
 bootstrap that installs the private runtime under
-``~/Library/Application Support/SpaCR`` and then relaunches the application.
+``~/Library/Application Support/spaCR`` and then relaunches the application.
 Progress and dependency errors remain visible, and slow downloads are not
 terminated by the package installer's script timeout.
 
@@ -140,8 +149,8 @@ installer/executable for each of the three target platforms:
 
 | Target             | Script                    | Output                   |
 |--------------------|---------------------------|--------------------------|
-| Windows 10/11 (x64)| `build_windows.ps1`       | `dist/SpaCR-<ver>.exe`   |
-| macOS 11+ (arm64/x64)| `build_macos.sh`        | `dist/SpaCR-<ver>.dmg`   |
+| Windows 10/11 (x64)| `build_windows.ps1`       | `dist/spaCR-<ver>.exe`   |
+| macOS 11+ (arm64/x64)| `build_macos.sh`        | `dist/spaCR-<ver>.dmg`   |
 | Debian/Ubuntu (x64)| `build_debian.sh`         | `dist/spacr_<ver>_amd64.deb` (installable via `sudo apt install ./spacr_<ver>_amd64.deb`) |
 
 **Common contract**
@@ -159,7 +168,7 @@ metadata / signing differs per platform.
   sklearn, statsmodels, skimage, matplotlib, cv2). The resulting
   `.exe` runs on any Windows 10+ machine.
 
-* macOS: PyInstaller `--windowed` produces a `SpaCR.app` bundle, which
+* macOS: PyInstaller `--windowed` produces a `spaCR.app` bundle, which
   `hdiutil` then packs into a signed (ad-hoc) `.dmg` you can drag into
   `/Applications`. Requires code-signing for distribution outside your
   own Mac — that step is left explicit at the top of the script.

@@ -1,0 +1,944 @@
+================================================================================
+THE FULL tests/qt RUN HANGS PART-WAY THROUGH
+================================================================================
+
+Status:    NO LONGER CRASHING (2026-08-09). Two consecutive runs
+           reached 66% with zero crashes and zero failures, both stopped
+           by a 5.5h timeout on a machine that was not idle.
+Severity:  test-only, but it makes the qt suite unrunnable as a whole,
+           which is how the order-dependent failures in 03 and 46 stay
+           invisible.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+    QT_QPA_PLATFORM=offscreen pytest tests/qt -q -p no:randomly
+
+reaches roughly 25% and stops. The pytest process stays alive and the log
+file stops being written to -- 24 minutes with no output and no exit. Not
+slowness: nothing progresses.
+
+Individual files complete. test_all_module_smoke.py alone finishes in 144s
+(with the four failures of instruction 46). So it is either a later file or
+an interaction between files.
+
+Not caused by the Walk work or the figure grid: figure_grid.py is imported
+by nothing but its own test file, and the hang is at 25%, before it.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A suite that cannot finish is a suite nobody runs whole, and the failures
+it would have caught are exactly the order-dependent ones this project
+already has trouble with: instruction 03's five, and instruction 46's four.
+Those only show up in a full run, so the hang hides the class of bug it is
+most important to see.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Reproduce with `-v` so the last STARTED test is named. The compact `-q`
+   output only shows completed ones, which is why the culprit is still
+   unknown. Note that `-v` did not expand output in one attempt here --
+   check pytest.ini for an addopts that overrides it.
+2. Get a stack rather than a guess: `pip install py-spy` (not currently in
+   the env) and `py-spy dump --pid <pid>` while it is wedged. Do NOT do
+   what I did and `kill -ABRT` it -- with faulthandler not enabled that
+   produced no traceback and destroyed the only live copy of the state.
+   `pip install pytest-timeout` and `--timeout=120 --timeout-method=thread`
+   would also name it, and is cheaper.
+3. The likely families, given this codebase: a QThread that is waited on
+   and never finishes (INVARIANTS 4 -- a closure connected to
+   QThread.finished is discarded, so the job never retires), or a modal
+   dialog opened in a test with no one to close it. `exec()` on any dialog
+   in a headless run blocks for ever.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The full `pytest tests/qt` run reaches its summary line unattended.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE HANG IS FIXED. NOW IT SEGFAULTS, SLIGHTLY FURTHER ON.
+--------------------------------------------------------------------------------
+
+THE HANG: found with pytest's own faulthandler, no extra package needed --
+`-o faulthandler_timeout=180`, which is what I should have used instead of
+SIGABRT the first time.
+
+    test_stop_survives_a_thread_that_refuses_to_be_interrupted
+      -> app_screen.py:2680 _on_stop
+      -> shutdown.py:89 ask_how_to_quit
+
+`_on_stop` asks how to quit before stopping anything, the test predates
+that feature, and it opened a real QMessageBox with nobody to click it. The
+`no_modals` guard had a genuine hole: it patched `QDialog.exec`, and
+QMessageBox OVERRIDES exec, so an instance-level `box.exec()` went straight
+past it. Both `exec` and `exec_` are patched now, and the guard immediately
+caught a second test, which is the evidence the hole was real. Fixed in
+commit 59a2d1a1; test_cov_app_screen.py is 149/149.
+
+THE SEGFAULT, which is now what stops the suite finishing:
+
+    Fatal Python error: Segmentation fault, at 28%
+      File "spacr/qt/screens/app_screen.py", line 2987 in _sample_usage
+      File "spacr/qt/screens/app_screen.py", line 2930 in <lambda>
+      File "spacr/qt/job_runner.py", line 60 in _capture
+      File "spacr/qt/job_runner.py", line 143 in <lambda>
+      File "spacr/qt/bridge.py", line 1018 in run
+
+So it dies inside the RESOURCE USAGE SAMPLER, running on a job-runner
+thread. Two candidates, both worth checking before changing anything:
+
+  * `_sample_usage` touching a QWidget from a non-GUI thread. Qt widgets
+    are not thread-safe and this is the classic way to earn a segfault
+    rather than an exception.
+  * the GPU/NVML query. `pynvml` is already warning it is deprecated in
+    this environment, and it is a C extension -- a bad call there crashes
+    the process rather than raising.
+
+Read `_sample_usage` and ask which objects it touches and which thread owns
+them. INVARIANTS 4 is the neighbouring rule and the same family: the last
+crash of this kind here was an object with two owners, measured at 3
+crashes in 8 runs.
+
+HOW TO KNOW IT WORKED is unchanged: the full `pytest tests/qt` run reaches
+its summary line unattended. It now gets to 28%, up from wedging at 25%.
+
+--------------------------------------------------------------------------------
+2026-08-08, THIRD FIND - AND THE REASON THIS KEPT HAPPENING
+--------------------------------------------------------------------------------
+
+The suite wedged AGAIN, at 35%, past both previous points. Same cause,
+third location -- pytest's faulthandler named it after five minutes:
+
+    dnd_handlers.py:730  _open_regex_editor   ->  dlg.exec()
+    dnd_handlers.py:573  _render_mask_report
+    dnd_handlers.py:420  <lambda>
+
+A QDialog modal, in a drag-and-drop path, in a test file with no modal
+guard. Order-dependent: `tests/qt/test_dnd.py` alone passes in 2.58 s, so
+some earlier test leaves the state that makes the regex editor open.
+
+THE PATTERN, which is the actual finding. Three hangs, three locations,
+one cause:
+
+    25%   _on_stop       -> shutdown.ask_how_to_quit   QMessageBox
+    28%   (segfault, different -- the usage sampler)
+    35%   drag-and-drop  -> dnd_handlers:730           QDialog
+
+Each was fixed by adding a guard to ONE test file, and each fix cost a
+multi-hour run to discover the next. Per-file guards do not scale: the next
+`.exec()` anyone writes hangs the suite again, and finding it costs another
+afternoon.
+
+SO THE GUARD IS GLOBAL NOW. An autouse fixture in `tests/qt/conftest.py`
+makes `QDialog.exec`, `QMessageBox.exec` and their `exec_` spellings RAISE,
+with a message naming the fix. A test that genuinely drives a dialog
+patches it itself, and because monkeypatch in the test body runs after the
+fixture, that patch wins.
+
+Verified: 5 dialog-heavy suites, 0 failures -- test_cov_app_screen,
+test_issue_report_url, test_gates, test_hyperparam_screen,
+test_layout_drops. test_dnd.py passes in 2.58 s.
+
+STILL UNCONFIRMED, and it is the whole point of this instruction: a full
+`pytest tests/qt` run reaching its summary line. It has now been stopped
+three times by three different causes and has never finished. Run it early;
+it takes hours.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE A/B, AND DELETING MY OWN FIX
+--------------------------------------------------------------------------------
+
+Five stopping points had been found and four "fixed", and the suite still
+would not finish. Two of those crashes were in `_drain_job_runners`, the
+fixture I wrote to fix the first one. So rather than guard it a third time,
+I ran the experiment:
+
+    WITH the fixture     segfault at 28% (dead widgets)
+                         segfault at 33% (event loop pumped at teardown)
+                         segfault at 35%
+    WITHOUT it           66%, ZERO crashes, ZERO failures -- and it stopped
+                         only because my own 5.5-hour timeout expired
+
+So it is deleted, and the reasoning is left in `tests/qt/conftest.py` where
+the next person will look.
+
+THREE BUGS CAME OUT OF ONE FIXTURE: a 3000ms-per-runner shutdown budget
+that turned "crashes at 28%" into "still going at 35% after 80 minutes";
+a crash on widgets whose C++ side was already gone; and a crash on LIVE
+ones, because `shutdown()` pumps the event loop, which runs pending
+deleteLater calls on widgets pytest-qt was about to close itself.
+
+THE SHAPE WAS THE PROBLEM, not the details. A teardown fixture that reaches
+across every widget in the application, during Qt teardown, cannot be made
+safe by guarding -- each guard I added revealed the next crash. That is the
+lesson worth keeping.
+
+WHAT SURVIVES, and should: the GLOBAL MODAL GUARD. `QDialog.exec` and
+`QMessageBox.exec` raise in tests unless a test patches them itself. Three
+separate hangs were modals with nobody to answer them, and per-file guards
+had already failed to scale -- each new `.exec()` cost another multi-hour
+run to find.
+
+STILL UNCONFIRMED: a full run reaching its summary line. Best so far is
+66%. The suite is slow enough under load that this needs a quiet machine
+and a longer budget than 5.5 hours, or `-p xdist` if that can be made to
+work with the Qt fixtures.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE CRASHES ARE GONE. WHAT IS LEFT IS WALL CLOCK, AND IT IS
+             NOT THE SUITE'S FAULT.
+--------------------------------------------------------------------------------
+
+Two consecutive full runs, one with the drain fixture removed and one after
+that:
+
+    66%, 0 crashes, 0 failures, killed by a 5.5-hour timeout
+    66%, 0 crashes, 0 failures, killed by a 5.5-hour timeout
+
+Identical stopping point, and neither is a crash -- exit 124 is the timeout
+I set. So every crash and hang catalogued in this file is fixed. What
+remains is that the run does not FIT in 5.5 hours.
+
+AND THE MACHINE IS NOT IDLE. Measured while the second run was going:
+
+    load average 29 on 32 cores
+    5 x tools/render_all_voices.py --languages all --lessons, ~294% CPU
+      each, 53 minutes elapsed
+
+That is the concurrent Codex session generating tutorial voice-overs
+(instruction 48), taking roughly 15 cores. The qt suite has been sharing a
+saturated machine for every run recorded here, so "the suite is slow" is
+not a supported conclusion -- it has never been timed on an idle box.
+
+This also explains a measurement I nearly reported as a regression: a
+startup timing that looked 2x worse was taken at load 33 and was noise.
+
+WHAT TO DO, in order of cost:
+
+  1. Time it once on an IDLE machine. Until then the duration is unknown,
+     not long. Coordinate with whoever is running the tutorials.
+  2. `pip install pytest-xdist` -- NOT currently installed. `-n 8` would
+     cut wall clock roughly eightfold, and the qt fixtures are mostly
+     per-test so it has a fair chance of working. Try it before assuming
+     the suite needs to stay serial; if the session-scoped `qt_theme_applied`
+     fixture fights it, that is worth knowing too.
+  3. Only if both fail, split the suite into halves that can run
+     separately in CI.
+
+HOW TO KNOW IT WORKED is unchanged: one run reaches its summary line. It is
+now a scheduling problem rather than a debugging one.
+
+--------------------------------------------------------------------------------
+2026-08-09 - pytest-xdist INSTALLED, AND IT WORKS ON THE QT SUITE
+--------------------------------------------------------------------------------
+
+Step 2 of WHAT TO DO, done. `pip install pytest-xdist` (3.8.0, with
+execnet 2.1.2). Measured on a five-file qt subset, same machine, same load:
+
+    serial      44 s
+    -n 4        17 s        2.6x, 0 failures
+
+THE QUESTION THIS ANSWERS is not the speed -- it is whether the fixtures
+survive being distributed. This file worried that the session-scoped
+`qt_theme_applied` fixture would fight xdist. It does not: xdist gives each
+worker its OWN session, so a session-scoped fixture runs once per worker
+rather than once, which is exactly what a per-process QApplication needs.
+That is the property that makes a Qt suite parallelisable at all, and it is
+why `-n` works here when it often does not for suites sharing a database.
+
+Used `--dist load` (the default), so tests are handed out as workers free
+up. If an order-dependent failure appears under `-n` that does not appear
+serially, `--dist loadfile` keeps each FILE on one worker and is the first
+thing to try -- that distinction matters here because instructions 03 and 46
+are about order-dependent failures, and xdist changes the order.
+
+A FULL `tests/qt` RUN AT `-n 4` IS IN FLIGHT as this is written, with
+`--timeout=300` so a single hung test names itself instead of stopping the
+run at a wall clock. That run is the actual success criterion for this task
+-- "one run reaches its summary line" -- and its result belongs in the next
+entry here.
+
+Note the machine is NOT idle (load ~18 from the concurrent tutorials
+session), so `-n 4` rather than `-n 8`: the standing constraint is 16 cores
+for this session, and oversubscribing would make the timing meaningless in
+the same way the load-33 measurement was.
+
+--------------------------------------------------------------------------------
+2026-08-10 - IT REACHED ITS SUMMARY LINE. THE TASK'S OWN CRITERION IS MET.
+--------------------------------------------------------------------------------
+
+    started   07:03:54    -n 8, --timeout=300
+    finished  07:45:09    41 minutes, pytest_exit=1
+    result    74 failed, the rest passed, NO hang and NO crash
+
+CORRECTION TO THE MACHINE STATE, made an hour later and worth more than the
+timing. This was FIRST RECORDED as "on an idle machine". It was not. The box
+was idle when the run started and the concurrent tutorials render
+(`render_all_voices.py --threads 16`, instruction 48) restarted at 07:06:09
+-- two minutes in -- and held ~10.6 cores for the remaining 39 minutes.
+Checked with `ps -eo pid,pcpu,etimes,args`, whose ELAPSED column dates the
+start precisely.
+
+"HOW TO KNOW IT WORKED is unchanged: one run reaches its summary line." It
+did. The suite is no longer unrunnable as a whole, which is what this task
+was about; the 74 failures are a NEW and separate work item, not this one.
+
+WHAT ACTUALLY FIXED IT was not a bug fix -- the crashes were already gone
+(see the entries above) -- and it was not an idle machine either, per the
+correction above. It was `-n 8` ALONE. The suite finished in 41 minutes
+while sharing the box with the same ~10-core renderer that was running
+during every serial attempt that never passed 66% in 5.5 hours. That is a
+cleaner result than the one first recorded: parallelism did it, and the
+contention this file kept blaming was never the whole story.
+
+A CORE-BUDGET TRAP worth knowing: `-n 8` does NOT bound the run to 8 cores.
+Load reached 20.6 with a single worker at 649% CPU, because the tests do
+numeric work and torch/numpy spawn threads per process. If a core budget has
+to be respected, set the thread env vars as well:
+
+    OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 -n 8
+
+TWO FAILURES ARE ALREADY UNDERSTOOD, and they share a cause with the bug
+fixed today in `_INLINE_LAYOUT_APPS`: `classify_merged` was registered as a
+module without the table entries that a registered module needs.
+`test_category_tooltips` fails 12 times because that module's categories
+have no tooltips. Verified pre-existing: 12 failures with OR without today's
+change, and they fail serially too, so this is not an xdist artefact.
+
+THE FAILURE LIST is at `<scratchpad>/qt_failures.txt` and the full log at
+`qtidle_keep.log`. Distribution, worst first:
+
+    12  test_category_tooltips        8  test_settings_list_editor
+     8  test_dnd_dropzone             4  test_cov_qt_app
+     3  test_theme_blind_widgets      3  test_qt_worker_teardown
+     3  test_preview_set_sampling     3  test_home_v2
+     3  test_home_layout              2  each x5, 1 each x15
+
+TRIAGE IS UNDERWAY as three-way: real bug / stale test / ordering artefact.
+xdist changes test ORDER, so some of these are the order-dependent failures
+that instructions 03 and 46 are about -- which means the suite finishing has
+made those visible for the first time, exactly as this file predicted.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE 74 TRIAGED. 24 REAL, 43 STALE, 6 ORDERING.
+--------------------------------------------------------------------------------
+
+Per-test verdicts: `instructions/data/47_qt_failure_triage.json`. Each "real"
+call was then handed to a separate agent told to REFUTE it; three were
+downgraded that way and are not counted below.
+
+    real       24      a user would see something wrong
+    stale      43      the test pins behaviour that was deliberately changed
+    ordering    6      passes alone, fails after other tests
+
+THE HEADLINE: 12 OF THE 24 ARE ONE BUG. Commit c41a75b6 (2026-08-06) added
+`"Computer Vision — "` and `"Machine Learning — "` prefixes to
+`classify_merged`'s group titles at `settings_model.py:1270-1295` and did not
+add matching keys to `CATEGORY_TOOLTIPS`, which is keyed on the UNPREFIXED
+names. `category_tooltip` does no prefix stripping, so every lookup misses
+and returns the generic fallback.
+
+  What the user sees, demonstrated on the real widget rather than inferred:
+  hovering the group header in Classify (merged) gives
+
+      COMPUTER VISION — IMAGES & CROPPING — Settings that control computer
+      vision — images & cropping.
+
+  while the SAME group in Classify gives
+
+      IMAGES & CROPPING — Where the training images come from and how they
+      are cut — the crop source, the path and format filters ...
+
+  Six of the module's nine headings fall back this way, and both modules are
+  on the home grid at once, so the inconsistency is reachable without
+  changing any preference.
+
+  This is the THIRD defect from the same root: `classify_merged` was
+  registered as a module without the table entries a registered module
+  needs. The other two were `_INLINE_LAYOUT_APPS` (fixed 2026-08-09) and
+  `CATS_STAGE5` in the home version generator (still open, below). Whatever
+  registers a module should fail loudly when its accompanying tables are
+  missing -- three separate tests found three separate halves of the same
+  omission.
+
+THE OTHER 12 REAL BUGS, one line each:
+
+    preview_controls.ImageSetSampler   one seed for what should be per-set;
+                                       the seed is derived from the wrong
+                                       thing (2 tests, one defect)
+    widget QSS ratchet                 three widgets added since 2026-08-03
+                                       without registering their block
+    classes setting                    half-finished migration from commit
+                                       30500970
+    crops channel mapping              half-finished migration from 2cab81f7
+    home version generator             classify_merged missing from CATS_STAGE5
+    animation_zoom.zoom_frames         erases frames it should keep
+    GateTree                           mark_surface makes a region two panels
+                                       thick
+    i18n                               classify_merged registers display name
+                                       "Classify", colliding with classify
+    ai_toggle_label._refresh_style     zoom does not reach the text (2 tests)
+
+THE 6 ORDERING FAILURES are the order-dependent failures instructions 03 and
+46 are about. They were invisible until the suite could finish, which is
+what this task unlocked -- they are findings, not regressions, and they are
+one fix per shared-state collision rather than one per test.
+
+THE 43 STALE TESTS are the larger number and the cheaper work: each pins
+behaviour that was deliberately changed and was not updated with it. They
+are listed per-test in the JSON with what changed under each.
+
+--------------------------------------------------------------------------------
+2026-08-10 - 20 OF THE 24 REAL BUGS ARE FIXED.
+--------------------------------------------------------------------------------
+
+    classify_merged category tooltips   12 tests, one fix   DONE
+    ai_toggle_label zoom                 2 tests            DONE
+    ImageSetSampler cache key            3 tests            DONE
+    annotate channel-order vocabulary    1 test             DONE
+    i18n "Classify" row                  1 test             DONE
+    home stage bands                     1 test             DONE
+    animation_zoom chrome mask           1 test             DONE
+    GateTree surface fill                1 test             DONE
+    plain QCheckBox ratchet              1 test             DONE
+
+REMAINING REAL: the `classes` setting migration (a half-finished change from
+commit 30500970 that needs the PRODUCT DEFAULT migrated, not the test), plus
+two pre-existing failures found while fixing the others and deliberately not
+touched -- `test_max_sets_control_sits_left_of_the_sets_dropdown` (a widget
+ordering assertion) and `test_no_variant_clips_elides_or_overflows` (variant
+22 splits `alphabetical()` at hardcoded [0:10]/[10:20]/[20:], so its third
+column holds 34 rows at 54 apps).
+
+THE METHOD THAT MADE THIS SAFE, and it is the transferable part. Every fix
+went through three independent agents: one triaged, a second tried to REFUTE
+the "real bug" verdict, and a third proved the fix by running the tests
+itself and comparing against a PRISTINE-HEAD CONTROL -- several built a
+detached git worktree at HEAD to establish which neighbour failures already
+existed. Three "real" verdicts were downgraded at the refutation stage, and
+every remaining-failure claim was backed by a control run rather than
+asserted.
+
+That matters because the obvious shortcut -- edit the test -- was available
+for most of these and would have looked identical in a summary line. The
+`classes` migration is the one left precisely because its honest fix is to
+change a product default, and the tempting fix is to change the test.
+
+A REPORTING GAP FOUND IN PASSING: this repo's pytest configuration suppresses
+the terminal "N passed" summary for some suites, so a run can exit 0 with no
+visible count. Two agents had to parse junitxml to get real numbers. That is
+the same blindness that let the QCheckBox ratchet regress unnoticed -- worth
+fixing on its own.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE ORDERING LEAKS AND THE STALE PINS ARE DONE. 73 OF 74 CLOSED.
+--------------------------------------------------------------------------------
+
+    real      24  ->  1 left   (the `classes` migration, below)
+    stale     43  ->  0
+    ordering   6  ->  0
+
+    827 passed, 1 failed across the eleven affected suites
+
+THE ORDERING SIX WERE THREE LEAKS, each fixed at the source rather than in
+the victim:
+
+  test_field_fade's `prefs_sandbox` snapshotted `theme._WIDGET_QSS` at SETUP,
+  before `load_widget_qss_registrars()` had ever run in the process, when
+  only 19 blocks were registered -- and restored that 19-entry snapshot at
+  teardown. The loader has a `_QSS_REGISTRARS_LOADED` latch, so it never
+  refilled and three tests downstream saw a starved registry.
+
+  test_cov_qt_app's `launch()` reaches `apply_console_levels`, which installs
+  a mutable LevelSetFilter({WARNING, ERROR, CRITICAL}) on verbose_logger's
+  MODULE-GLOBAL forwarder; nothing removed it, so two teardown tests logging
+  at DEBUG saw nothing at all.
+
+  test_spacr_mode left `field_fade._enabled` False in a module cache, so the
+  FieldFade QSS block rendered to the empty string afterwards.
+
+That is the shape to expect from the rest: a fixture that saves and restores
+process-global state, taken at the wrong MOMENT or not restored at all. None
+of them was a bug in the test that failed.
+
+TWO PRODUCT BUGS FOUND WHILE UPDATING "STALE" TESTS, which is the argument
+for not simply rewriting a failing assertion:
+
+  `style_as_danger` inked the danger hover fill with a hard-coded #ffffff.
+  Measured against the real palettes: 2.20:1 on cell, 2.04:1 on glass -- both
+  below AA-large -- on the button that FORCE-QUITS A RUN. theme.py's
+  CONTRAST_RULES already carries ("bg", "error", 4.5) and the application
+  sheet inks `#DangerButton:pressed` with `P["bg"]` for exactly this reason.
+  `bg` measures 6.23:1 (light) to 9.55:1 (glass).
+
+  `HomePage._install_ambient`'s docstring claimed an ordering guarantee that
+  `__init__` no longer depends on -- the same class of stale docstring
+  instruction 63 is fixing.
+
+STILL OPEN, one real bug: `test_every_default_round_trips_untouched[classify]`.
+Commit 30500970 turned `classes` from a list of names into a dict of
+name -> {column, value} and routed it to ClassEditorWidget, but the PRODUCT
+DEFAULT was never migrated. The honest fix changes that default; the tempting
+fix changes the test, which is why it is still here.
+
+A SEPARATE CONFLICT FOUND AND NOT RESOLVED: `test_no_shipped_code_calls_
+qthread_terminate` fails on two `thread.terminate()` calls introduced by
+commit 5cb219f1 ("stop: ask whether to wait or to kill"). A deliberate KILL
+feature collides with a ratchet saying terminate() is never safe here. Both
+positions are defensible -- a kill button that cannot kill is not a kill
+button -- so this needs a decision rather than a patch: either the kill path
+gets a safer mechanism, or the ratchet gets a narrow, documented exemption
+naming those two sites. Verified pre-existing.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE SWEEP AUDITED ITSELF, AND THAT IS WHERE THE VALUE WAS
+--------------------------------------------------------------------------------
+
+The stale/ordering sweep took its eleven suites from 48 failures to 3, but
+the useful output was its SELF-AUDIT: every agent's work was checked by a
+second agent that ran mutation tests against the new assertions. It found
+several of its own edits had produced tests that could no longer fail.
+
+TWO DEAD ASSERTIONS, both now repaired and both mutation-proven in each
+direction:
+
+  `assert not bar.clipped_items()` (twice in test_cov_qt_app) could NEVER
+  fail. `clipped_items()` reads `_elided`, which is only ever set in
+  `resizeEvent`, so a widget that was never shown reports nothing clipped
+  however narrow it is. Proven by mutation: a sidebar column 52 px too narrow
+  for its own text passed all six sidebar tests. One of the two was
+  pre-existing -- the sweep had merely copied it into a second parametrised
+  test. Both now lay the widget out first, and a WIDTH_MAX of 150 makes them
+  fail as they should.
+
+  `test_the_classes_setting_gets_the_class_editor` asserted shape with
+  `all(isinstance(rule, dict) for rule in value.values())`, which is
+  VACUOUSLY TRUE over an empty dict -- an editor that dropped every class
+  passed. It now pins the two default class names.
+
+AND A REAL PRODUCT BUG, found by an agent following the "if the change looks
+accidental the test is right" rule rather than editing the assertion:
+
+  A settings CSV stores `repr(value)`, so `classes` comes back as the TEXT
+  `"['nc', 'pc']"`. `ClassEditorWidget.set_value` handled Mapping and list
+  and nothing else, so the string matched neither arm, fell through to an
+  empty table, and REPORTED SUCCESS: `apply_settings_dict` returned
+  `applied=1` while `collect()['classes']` was `{}`. Because `{}` is a
+  Mapping, `classify_classes.normalize_settings` then skipped its own
+  legacy-translation branch, so nothing downstream recovered them.
+
+  Every other list-shaped key survived that round trip. This was the one that
+  decides WHAT GETS TRAINED, and losing it was silent. Fixed, with the
+  corrupt-string case tolerated rather than raising out of an import.
+
+THE LESSON, which is why the audit stage is worth its cost: a sweep that
+updates failing assertions will, left unchecked, produce a green suite that
+tests less than the red one did. Three of the weakenings here were
+introduced by the very pass that fixed the failures, and none would have been
+visible in a summary line. Mutation testing -- change the product, confirm
+the test screams -- is the only check that catches it.
+
+TWO MORE FINDINGS RECORDED, NOT FIXED:
+
+  `verbose_logger.apply_console_levels()` mutates a process-global forwarder
+  and has NO counterpart that restores or removes the filter. Fine for a GUI
+  that launches once; it means the console gate is unrestorable by design,
+  and the test fixture now has to reach into `_handler.filters` to undo it.
+  A small restore/reset API would let the fixture stop touching privates.
+
+  A flake, not reproducible on demand: constructing `AppScreen` leaves a
+  QThread alive ("QThread: Destroyed while thread '' is still running"), and
+  one run in ~5 segfaulted with a background PipelineWorker importing
+  matplotlib concurrently with pytest-qt's GC on the main thread.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE 15 SURVIVORS TRIAGED. ONE WAS MINE; SEVEN ARE ORDERING.
+--------------------------------------------------------------------------------
+
+74 -> 15 after the fixes above, and the suite now runs in 13 MINUTES at
+`-n 12` (it was 41 at `-n 8`). Triaged with a pristine-worktree control for
+every claim:
+
+    caused by this session   1    fixed
+    pre-existing            14    7 of them order-dependent
+
+THE ONE THAT WAS MINE: deleting `plate_dict` (it was one of five settings
+nothing read) removed the SPECIMEN a localization test used.
+`test_dictionary_type_name_is_localized` had hard-coded it as a convenient
+dict-typed key; with the key gone, `_type_hint` correctly returns "" and the
+translated word never appears. The product is right -- three dict-typed
+settings remain and all three render `(ordbok)` / `(사전)` correctly. Fixed by
+DERIVING a dict-typed key from `expected_types` rather than naming another
+one, so the same rot cannot recur the next time a setting is retired.
+
+SEVEN MORE ORDER-DEPENDENT FAILURES, which is the same class instruction 03
+is about and which only became visible once the suite could finish:
+
+    test_preferences_gear (5)          fail after tests/qt/test_button_roles.py
+    test_preferences_gear_visible (2)  fail after tests/qt/test_preferences.py
+
+Both pass alone. Both were reproduced at HEAD~12, HEAD~35 AND HEAD~40, so
+they predate this session by weeks -- `git log -L` dates the button_roles
+lines to commit 3e11c796 on 2026-08-03.
+
+A TRAP THAT NEARLY INVALIDATED THE CONTROLS, and the reason to write this
+entry at all. spaCR is installed EDITABLE, via a setuptools MetaPathFinder
+pinned to /mnt/firecuda2/codex/repo/spacr. That finder BEATS PYTHONPATH. So
+the obvious control --
+
+    git worktree add /tmp/pristine HEAD~35
+    cd /tmp/pristine && pytest tests/qt/...
+
+-- runs the pristine TESTS against the CURRENT product code, silently, and
+reports "pre-existing" for something you may have just broken. The triage
+agent caught this and worked around it with a shim that strips
+`_EditableFinder` from `sys.meta_path` and puts the worktree at
+`sys.path[0]`, then ASSERTS the resolved path before running anything:
+
+    CONTROL spacr resolved to: /tmp/pristine_gear/spacr/__init__.py
+
+Any future "it is pre-existing" claim made from a worktree in this repo is
+worthless without that check. Corroborate with a `diff` of the implicated
+files between the worktree and HEAD, which is what confirmed it here.
+
+REMAINING 15, none attributable to this session's work: the 7 ordering ones
+above, the `classes` migration (now folded into instruction 37), and the rest
+listed in `instructions/data/47_qt_failure_triage.json`.
+
+--------------------------------------------------------------------------------
+2026-08-12 - THE FIRST RUN AGAINST A REAL X SERVER, AND A FOURTH MODAL HANG
+--------------------------------------------------------------------------------
+
+xvfb is installed now, so this suite can be run against a real display for
+the first time. THE OBVIOUS COMMAND DOES NOT DO IT:
+
+    xvfb-run -a pytest tests/qt            # still offscreen
+
+`tests/qt/conftest.py` does `os.environ.setdefault("QT_QPA_PLATFORM",
+"offscreen")`, so an Xvfb display is started and then ignored. The platform
+has to be asked for:
+
+    QT_QPA_PLATFORM=xcb xvfb-run -a pytest tests/qt -q -p no:randomly \
+        -n 4 --timeout=120 --timeout-method=thread
+
+Both full runs, same machine (load ~17-24 from three concurrent sessions):
+
+    BEFORE   68 failed, 8028 passed, 2 errors, 52m19s, TWELVE workers killed
+    AFTER    51 failed, 8136 passed, 1 error, 48m09s, FOUR workers killed
+
+THE HANGING FILE IS tests/qt/test_make_masks_canvas.py -- six tests, and the
+cause is one line of product code doing exactly what it should:
+
+    make_masks.py:750   _warn()  ->  QMessageBox.warning(self, title, text)
+
+`_warn` opens a modal only when `is_headless()` says a display is attached.
+Under `xcb` a display IS attached, so the branch is correct and the box
+opens -- and an Xvfb screen has no more of a human in front of it than an
+offscreen one, so it never closes. Killed with `--timeout=120
+--timeout-method=thread`, which named it in one 2-minute run:
+
+    test_warn_falls_back_to_status_line_when_headless
+      -> make_masks.py:750 _warn -> QMessageBox.warning
+
+THE GUARD HAD A HOLE, one level down from the 2026-08-08 one. That entry
+found that QMessageBox OVERRIDES `QDialog.exec`, and patched both. But the
+STATIC convenience calls -- `QMessageBox.warning/question/information/
+critical/about`, `QFileDialog.getExistingDirectory/getOpenFileName/...`,
+`QInputDialog.getText/getInt/...`, `QColorDialog.getColor`,
+`QFontDialog.getFont` -- build the dialog and run its event loop entirely
+inside C++. A Python-level `exec` override is never consulted, so every one
+of them sails past the guard exactly as `box.exec()` used to.
+
+`_no_unguarded_modals` now replaces those statics as well. With the guard
+extended and NOTHING else changed, the same file went from six hangs that
+killed their worker to seven fast failures in 9.07 s -- which is the whole
+argument for the fixture, and how all six offenders were enumerated in one
+run instead of one per multi-hour run.
+
+SEVENTEEN test files carry a private copy of that same list as a per-file
+`no_modals` fixture. `test_make_masks_canvas` -- the file that actually hung
+-- is not one of them. The files that remember to write the guard are not
+the files that need it.
+
+THE TESTS WERE FIXED WHERE THEY WERE WRONG, not by loosening them. Two tests
+named `..._when_headless` and four more that assert the status-line fallback
+-- the six that hung -- were getting the headless branch by accident of the
+platform. They now take a `headless` fixture -- the mirror of the `fake_box` fixture that
+was already there for the other branch -- so a test about a branch chooses
+that branch. `test_message_box_would_block_headless` asserted
+`platformName() == "offscreen"`, an environment fact that stopped being true;
+it is rewritten as
+`test_a_message_box_has_nobody_to_answer_it_in_this_suite` and now pins the
+two properties that survive a platform change: the product branches on the
+display it can detect, and no test in this suite is left holding an
+unanswerable modal.
+
+NEW: `tests/qt/test_modal_guard.py` asserts the guard's COVERAGE, one
+parametrised case per blocking call. A missing entry is otherwise invisible
+until it costs somebody a whole run. Each case checks a marker attribute
+before making any call, so a regression fails in milliseconds instead of
+reproducing the hang. Mutation-checked in both directions: with the static
+patching disabled, 18 of its 20 tests fail in 2.86 s.
+
+THE OTHER FOUR WORKER KILLS ARE NOT HANGS -- they are tests slower than the
+120 s timeout, and the reason is worth its own item:
+
+    spacr.run_journal.open_run() TAKES 80 SECONDS.
+
+Measured directly, twice, outside pytest: 78.67 s and 82.26 s per call.
+cProfile puts 178 of 178 s in `_capture_initial_provenance` ->
+`_iter_files`, which walks 836,511 paths and calls `Path.resolve()` on each
+one, then checks it against the exclude list with `any(root in
+resolved.parents ...)` -- an O(files x excludes) walk with a syscall-heavy
+`realpath` inside it (6.2 M `posix.lstat` calls). Three tests pay it three
+times over:
+
+    test_batch_c_home_redesign  TestInsightsDashboard::...populated_journal
+                                223.65 s IN SETUP (_populated_journal opens 3)
+    test_batch_c_home_redesign  TestJournalTotals::test_counts_by_app_key
+                                 79.09 s
+    test_onboarding             ...shows_recent_runs_when_history_present
+                                 78.00 s
+
+That is a PRODUCT cost, not a test cost: every real spaCR run pays 80 s of
+provenance capture before it starts, and it grows with the repository --
+which now carries the tutorial media of instruction 48. Left unfixed here
+because `spacr/run_journal.py` is another session's file today.
+
+STILL UNEXPLAINED, two worker kills that are not slow tests and not modals:
+`test_scrim_solver::TestMakeTransparent::test_tagged_widgets_paint_nothing_
+in_the_opaque_themes` (its whole file runs in 8.35 s alone) and
+`test_space_theme::TestRuntimeSwitch::test_switching_theme_restyles_without_
+leaking_or_raising`. Both smell like the segfault flake already recorded
+above ("constructing AppScreen leaves a QThread alive"), not like a hang.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE THREE NAMED ITEMS RE-MEASURED. TWO ARE GONE, ONE MOVED.
+--------------------------------------------------------------------------------
+
+THE TWO "UNEXPLAINED WORKER KILLS" ARE NOT HANGS. Both run and PASS, alone
+and together, under xvfb:
+
+    test_scrim_solver::TestMakeTransparent::test_tagged_widgets_paint_
+      nothing_in_the_opaque_themes                            7.08 s  PASS
+    test_space_theme::TestRuntimeSwitch::...restyles_without_
+      leaking_or_raising                                      PASS
+
+The file's own guess was right -- they smell like the segfault flake, not a
+hang -- so they are flakes and not a standing defect. 155 tests across
+test_onboarding, test_scrim_solver and test_space_theme pass in 94 s.
+
+`TestJournalTotals::test_counts_by_app_key` IS NO LONGER SLOW: 0.28 s,
+against the 79.09 s recorded here. Nothing in this session touched it, so it
+was either a cold-cache artefact of a full-suite run or was fixed elsewhere.
+
+THE PROVENANCE ATTRIBUTION IS WRONG, and this is the part worth correcting
+because it is stated as a PRODUCT cost -- "every real spaCR run pays 80 s of
+provenance capture before it starts, and it grows with the repository".
+Measured directly:
+
+    _installed_packages()   0.60 s (404 distributions), and it is lru_cached
+    _git_hash()             0.02 s
+    git rev-parse           0.00 s
+    git status --porcelain  0.01 s   (on the 5.7 GB checkout)
+
+Both subprocess calls also carry `timeout=3`, so neither CAN take 80 s. No
+spaCR run pays 80 s of provenance capture. Whatever the 80 s was, it was not
+this, and the conclusion "left unfixed because run_journal.py is another
+session's file" was protecting a file that is not the problem.
+
+WHAT IS ACTUALLY SLOW, and it is one test, not the journal:
+
+    test_onboarding::test_home_page_shows_recent_runs_when_history_present
+                                                             61.74 s
+
+It writes ONE journal entry and then constructs a full `MainWindow()`.
+cProfile puts 364 million function calls behind those 61 s. Instruction 55
+measured MainWindow build at 731 ms after its fixes, so this is three orders
+of magnitude off that and is a DIFFERENT path -- most likely the
+`_PipelinePreloader` 55 handed to instruction 74, running to completion
+inside a test rather than behind the loading screen.
+
+NEXT STEP, for whoever takes it: profile with the preloader stubbed and
+compare. If that is the cause, the fix is a test-time seam rather than a
+product change, because 74 already covers the real launch.
+
+--------------------------------------------------------------------------------
+2026-08-13 (later) - THE 45 s TEST IS FIXED, AND IT WAS NOT MainWindow. IT WAS
+                     A PRODUCT BUG, AND MY OWN CORRECTION ABOVE WAS WRONG
+--------------------------------------------------------------------------------
+
+The note above pointed the next implementer at `_PipelinePreloader` and said
+the fix would be "a test-time seam rather than a product change". BOTH HALVES
+WERE WRONG. Measured, step by step, inside the test body:
+
+    open_run                 44.13 s     <-- all of it
+    import MainWindow         0.00 s
+    MainWindow()              0.72 s
+    findChildren(300)         0.00 s
+
+MainWindow is 0.72 s, in line with instruction 55's 731 ms. The preloader is
+innocent. cProfile put 91 s of cumulative time in
+`Run._capture_initial_provenance` -> `_iter_files`: 474,759 files walked,
+661,531 `Path.resolve()` calls, 6 M lstats.
+
+AND MY EARLIER CORRECTION IN THIS FILE IS ALSO WRONG, which matters more than
+being right the second time. It said:
+
+    "No spaCR run pays 80 s of provenance capture. Whatever the 80 s was, it
+     was not this, and the conclusion 'left unfixed because run_journal.py is
+     another session's file' was protecting a file that is not the problem."
+
+I had measured the ENVIRONMENT SNAPSHOT -- `_installed_packages`, `_git_hash`
+-- and not the INVENTORY WALK, which is the expensive half and is in the same
+function. The original note was right that this is a product cost. It is not
+80 s of package listing; it is an unbounded directory walk.
+
+THE BUG, one line:
+
+    root = path if path.is_dir() else path.parent
+
+A path-valued setting naming a FILE dragged in the whole directory that file
+sits in. `model_path` pointing at one checkpoint among 20,000 stat'ed 20,001
+paths -- of which 20,000 CANNOT CHANGE, because `model_path` is an input and
+the run writes nothing beside it. The test's `src` was `/tmp/x`, which exists
+on this machine as a file, so the root became `/tmp`: 475,250 paths, 44 s
+cold.
+
+AND EVERY RUN PAYS IT. The baseline is deliberately taken whether or not
+hashing was asked for -- it is what tells the final pass which files the run
+created -- so this was not confined to opted-in provenance.
+
+A path that does NOT exist costs nothing: `_setting_path_candidates` drops
+those. So the exposure is exactly "a setting naming an existing file", which
+is `model_path`, `csv`, `db`, `weights` -- ordinary inputs.
+
+THE FIX, `Run._inventory_root`: the baseline exists to answer ONE question --
+which files did this run CREATE -- so it only has to cover somewhere the run
+might write. A directory is walked as before. An OUTPUT file's directory is
+walked, because a run may write siblings beside it (a report beside its
+figures, a tar beside its manifest). An INPUT file is inventoried as itself,
+and nothing else.
+
+The two passes were narrowed TOGETHER, and that is the part that had to be
+right: a final pass walking wider than the baseline would report every
+sibling as a file this run created. Tested from both ends -- neighbours are
+not reported, and a genuinely modified input still is.
+
+A BUDGET AS A BACKSTOP for the case the narrowing cannot rule out, a real
+source folder holding a million crops: `INVENTORY_BUDGET`, recorded in
+`provenance_warnings` when hit, because a truncated inventory that says
+nothing is a manifest claiming completeness it does not have.
+
+MEASURED AFTER:
+
+    input model file among 20,000    20,001 -> 1 baseline entry
+    the folder itself as src         20,001 -> 20,001   (unchanged; correct)
+    an output file                   20,001 -> 20,001   (unchanged; correct)
+    the failing test                 44 s   -> 0.03 s
+
+test_onboarding: 11 tests, 12.1 s total, where one test used to take 45.
+
+15 tests in tests/test_run_journal_inventory_scope.py; 174 pass across
+run_journal, report and report coverage.
+
+--------------------------------------------------------------------------------
+2026-08-13 (last) - IT DOES NOT HANG. IT DECELERATES, BY ABOUT SIX TIMES.
+--------------------------------------------------------------------------------
+
+Two full runs today, both under a per-test `--timeout=900` that NEVER FIRED,
+so no single test hung. Both were killed by MY wrapper timeout, not by the
+suite stopping:
+
+    run A   `timeout 7200`  (2 h)   killed at 66%,  EXIT=124
+    run B   `timeout 18000` (5 h)   killed at 83%,  EXIT=124
+
+In both, output was still being written a minute before the kill. This file's
+title is wrong: THE SUITE DOES NOT HANG AT 25%.
+
+WHAT IT DOES IS SLOW DOWN AS IT GOES, and the numbers are the finding:
+
+    0  -> 66%     2.0 h      33.0 % / hour
+    66 -> 83%     3.0 h       5.7 % / hour     <- 5.8x slower
+
+That is not a slow test somewhere near the end; it is a rate that falls
+across the run. Something ACCUMULATES between tests -- leaked QWidgets, live
+QThreads, matplotlib figures never closed, or simply an ever-larger Qt object
+tree -- and every later test pays for everything before it.
+
+WHY THIS EXPLAINS THE OLD REPORT. Earlier runs "reached 66% and stopped,
+both stopped by a 5.5h timeout". At a decaying rate, where a run appears to
+stall depends on how long you waited, not on which test it reached -- which
+is exactly why two different timeouts produced two plausible-looking
+plateaus, and why "hangs at 25%" and "reaches 66%" are both in this file.
+
+THE NEXT STEP IS NO LONGER "FIND THE HANGING TEST". There isn't one. It is:
+
+  1. Measure the accumulation. Run with `-p no:randomly` and log RSS and
+     `len(QApplication.allWidgets())` per test; the leak is whatever climbs
+     monotonically.
+  2. Suspect the fixtures that build a whole `MainWindow` or `AppScreen`. The
+     handoff already records "constructing AppScreen leaves a QThread alive",
+     and a thread per test is exactly this shape.
+  3. `pytest-xdist` with `--dist loadfile` would ALSO make the suite finish,
+     by restarting workers -- but it would hide the leak rather than fix it,
+     and the leak is a product defect if those widgets outlive their screens
+     in the app too. Measure first.
+
+ABOUT 15 FAILURES appeared along the way in run A, at 33%, 38% (ten together)
+and 42%, 51% and 54%. They are unidentified: `-rf` was passed to run B and it
+was killed before the summary printed. Getting that list needs a run that
+finishes, which is why the deceleration is the first thing to fix.
+
+--------------------------------------------------------------------------------
+2026-08-14 - COMPLETE: THE ACCUMULATION IS GONE AND THE FULL SUITE FINISHES
+--------------------------------------------------------------------------------
+
+Measured at the same safe boundary between tests, the screen-heavy cohort
+showed the actual accumulator:
+
+    before   157 tests   246 s   63,934 peak retained widgets
+             20,909 widgets still present at the end, ~2.2 GB RSS
+    after    206 tests    73 s    2,169 peak widgets
+             7 widgets between screens
+
+pytest-qt schedules widget destruction with `deleteLater`, but the suite's
+`deferred_deletions_flushed` fixture was opt-in. The deferred deletes were
+therefore never delivered during ordinary tests, leaving thousands of dead
+widgets in QApplication's tree. Every later palette/style event traversed the
+whole retained tree, which produced the sixfold rate collapse.
+
+The fixture is now autouse at the next-test setup boundary. This deliberately
+does not resurrect the unsafe teardown drain documented above: it invokes no
+screen shutdown methods, touches no threads, and deletes nothing unsolicited;
+it only delivers the `DeferredDelete` events pytest-qt itself posted after the
+previous test.
+
+The completed run also exposed and fixed the accumulated-state failures hidden
+behind the slowdown: stale C++ wrappers in parametrized tests, style leakage,
+an over-broad semantic-button filter that erased authored icons, a leaked
+process-wide verbose-logging profiler, context-menu coordinate propagation,
+dialog cache identity, feature-ranking label/null edge cases, and several
+tests whose old assumptions no longer matched current product behavior.
+
+Final acceptance command (item 83's concurrently owned catalog file excluded):
+
+    OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 \
+    QT_QPA_PLATFORM=offscreen pytest tests/qt -q -p no:randomly -n 8 \
+      --dist loadfile --timeout=300 --timeout-method=thread --tb=short \
+      -rfEX --ignore=tests/qt/test_external_i18n_catalogs.py
+
+Result:
+
+    8,388 passed, 39 skipped, 73 warnings in 280.46 s (4m40s)
+
+The suite reaches its summary unattended, throughput stays steady, and no
+strict xfails remain from the six feature-dictionary/ranking defects repaired
+while triaging the formerly hidden failures.

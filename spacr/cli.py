@@ -266,7 +266,8 @@ _MODULE_LIST: Tuple[Module, ...] = (
         defaults="deep_spacr_defaults",
         validate_key="classify",
         requires=("src — plate folder with per-object PNGs from the measure module",
-                  "classes — the class names",
+                  "classes — what each class means, or "
+                  "class_folder_names for an existing dataset",
                   "model_path when train=False and apply_model_to_dataset=True"),
         writes=("<src>/datasets/", "<src>/model/*.pth",
                 "predictions merged into measurements.db"),
@@ -301,7 +302,7 @@ _MODULE_LIST: Tuple[Module, ...] = (
         defaults="get_train_test_model_settings",
         validate_key="classify",
         requires=("src — dataset folder laid out as train/<class>/*.png and test/<class>/*.png",
-                  "classes — the class folder names",
+                  "class_folder_names — the class folder names",
                   "train and/or test"),
         writes=("<src>/model/*.pth", "training + evaluation metrics CSVs"),
         note=("Ignores generate_training_dataset and apply_model_to_dataset — "
@@ -517,7 +518,7 @@ _MODULE_LIST: Tuple[Module, ...] = (
         defaults=None,
         validate_key="simulation",
         requires=("max_workers — process-pool size (None means cpu_count - 4)",
-                  "the sweep grid keys read by spacr.sim.generate_paramiters"),
+                  "the sweep grid keys read by spacr.sim.generate_parameters"),
         writes=("one results CSV per simulation under the configured output folder",),
         note=("No set_default_* helper exists for the simulator, so every key must "
               "come from the settings file."),
@@ -1135,29 +1136,11 @@ def apply_overrides(settings: Dict[str, Any], overrides: Sequence[str],
     """
     if not overrides:
         return settings
-    from .settings import DEAD_SETTINGS, expected_types
+    from .settings import expected_types
 
     known = set(settings) | set(expected_types)
     for item in overrides:
         key, text = _split_override(item)
-        if key in DEAD_SETTINGS:
-            replacement = DEAD_SETTINGS[key]
-            if replacement:
-                # The value is deliberately not carried over: a dead key and
-                # its working counterpart rarely take the same value (pick_slice
-                # is a bool, z_projection is 'max'/'mean'/'sum'/'best_focus'),
-                # and suggesting `--set z_projection=True` would trade a silent
-                # no-op for a confident wrong answer.
-                hint = (f"  Set {replacement} instead — that is the key the "
-                        f"pipeline reads; see 'spacr-run --describe "
-                        f"{module.key if module is not None else '<module>'}'.")
-            else:
-                hint = (f"  Drop it: spaCR has no setting that does what "
-                        f"'{key}' claims to do.")
-            raise SettingsError(
-                f"--set {key}={text} names a setting that spaCR declares but "
-                f"reads nowhere, so it would change nothing and the run would "
-                f"still look like it worked.\n{hint}")
         if key not in known:
             close = difflib.get_close_matches(key, sorted(known), n=1, cutoff=0.6)
             hint = f" Did you mean '{close[0]}'?" if close else ""

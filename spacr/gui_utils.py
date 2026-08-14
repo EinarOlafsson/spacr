@@ -291,7 +291,8 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
     size_dict = set_element_size()
     size_dict['settings_width'] = size_dict['settings_width'] - int(size_dict['settings_width'] * 0.1)
 
-    label_text = label_text.replace('_', ' ').capitalize()
+    from .object_roles import setting_label
+    label_text = setting_label(label_text)
 
     frame.grid_columnconfigure(0, weight=1)
 
@@ -400,7 +401,11 @@ def annotate(settings):
     src  = settings['src']
 
     db = os.path.join(src, 'measurements/measurements.db')
-    conn = sqlite3.connect(db)
+    # Shared helper: a 30s busy timeout rather than sqlite's 5s default,
+    # which Measure's concurrent writers routinely exceed (issue #15).
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db, readonly=True)
     c = conn.cursor()
     c.execute('PRAGMA table_info(png_list)')
     cols = c.fetchall()
@@ -433,7 +438,8 @@ def annotate(settings):
                       measurement=settings['measurement'],
                       threshold=settings['threshold'],
                       threshold_direction=settings['threshold_direction'],
-                      normalize_channels=settings['normalize_channels'])
+                      normalize_channels=settings['normalize_channels'],
+                      split_by=settings.get('cv_group_by', 'well'))
     
     app.load_images()
     root.mainloop()
@@ -570,7 +576,11 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     src = settings['src']
 
     db = os.path.join(src, 'measurements/measurements.db')
-    conn = sqlite3.connect(db)
+    # Shared helper: a 30s busy timeout rather than sqlite's 5s default,
+    # which Measure's concurrent writers routinely exceed (issue #15).
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db, readonly=True)
     c = conn.cursor()
     c.execute('PRAGMA table_info(png_list)')
     cols = c.fetchall()
@@ -586,7 +596,7 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     screen_height = root.winfo_screenheight()
     root.geometry(f"{screen_width}x{screen_height}")
 
-    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], annotation_column=settings['annotation_column'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'], threshold_direction=settings['threshold_direction'], normalize_channels=settings['normalize_channels'], outline=settings['outline'], outline_threshold_factor=settings['outline_threshold_factor'], outline_sigma=settings['outline_sigma'])
+    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], annotation_column=settings['annotation_column'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'], threshold_direction=settings['threshold_direction'], normalize_channels=settings['normalize_channels'], outline=settings['outline'], outline_threshold_factor=settings['outline_threshold_factor'], outline_sigma=settings['outline_sigma'], split_by=settings.get('cv_group_by', 'well'))
 
     # Set the canvas background to black
     root.configure(bg='black')

@@ -1330,11 +1330,11 @@ APP_CLI_NOTE = ("Interactive design exploration; "
 #: that language rather than an English one. "Power" is the statistical
 #: term throughout, not electrical power.
 APP_TRANSLATIONS = (
-    "Styrka / design",
+    "Statistisk styrka / design",
     "Teststärke / Design",
     "Potencia / diseño",
     "检验效能 / 设计",
-    "Poder / delineamento",
+    "Potência / delineamento",
     "सांख्यिकीय शक्ति / डिज़ाइन",
     "검정력 / 설계",
     "Tölfræðilegt afl / hönnun",

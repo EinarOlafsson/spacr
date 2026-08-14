@@ -1541,7 +1541,28 @@ class MainWindow(QMainWindow):
         try:
             from PySide6.QtCore import QTimer
             from .first_run import maybe_show_tour
-            QTimer.singleShot(800, lambda: maybe_show_tour(self))
+            from .install_consent import maybe_show_installer_consent
+            # Installer privacy choices precede the product tour. The native
+            # installers collect them when they have an interactive surface;
+            # an unattended package gets the same all-off page here instead.
+            # Parent the delayed callback to the window. A static singleShot
+            # outlives a window closed during its first 800 ms, then invokes
+            # the tour with a deleted C++ object on the next event-loop spin.
+            self._tour_timer = QTimer(self)
+            self._tour_timer.setSingleShot(True)
+            self._tour_timer.timeout.connect(
+                lambda: maybe_show_tour(self))
+            self._consent_timer = QTimer(self)
+            self._consent_timer.setSingleShot(True)
+
+            def _finish_installer_onboarding():
+                maybe_show_installer_consent(self)
+                # Start after the modal flow closes, so the tour never opens
+                # behind the consent/provider dialogs' nested event loops.
+                self._tour_timer.start(500)
+
+            self._consent_timer.timeout.connect(_finish_installer_onboarding)
+            self._consent_timer.start(250)
         except Exception:
             pass
 
@@ -2788,8 +2809,10 @@ def _load_bundled_fonts() -> None:
     multiple times (Qt tracks the file path).
     """
     from PySide6.QtGui import QFontDatabase
-    here = os.path.dirname(os.path.abspath(__file__))
-    fonts_dir = os.path.join(here, "resources", "fonts")
+    package_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    fonts_dir = os.path.join(
+        package_dir, "resources", "font", "open_sans", "static"
+    )
     if not os.path.isdir(fonts_dir):
         return
     for name in os.listdir(fonts_dir):
@@ -2836,6 +2859,8 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # dark defaults on the first launch when nothing is stored yet.
     from .preferences import apply_preferences_to_app
     apply_preferences_to_app(app)
+    from .i18n import install_dialog_translation
+    install_dialog_translation(app)
 
     # Real Python logging → rotating file + Qt signal so ConsolePanel
     # can render records inline. Set it up before the launch breadcrumb and

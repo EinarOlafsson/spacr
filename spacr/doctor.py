@@ -1170,6 +1170,41 @@ def check_optional_extras(ctx: Context) -> Result:
 # 8-10. compute
 # ---------------------------------------------------------------------------
 
+@_register("installer backend")
+def check_installer_backend(ctx: Context) -> Result:
+    """Report the accelerator choice recorded by the desktop installer."""
+    from .install_profile import default_profile_path, read_profile
+
+    path = default_profile_path()
+    profile = read_profile(path)
+    if profile is None:
+        return Result(
+            "installer backend",
+            SKIP,
+            "No desktop-installer profile is present; this is a pip, conda, "
+            "editable, or older installation.",
+            fix=f"Desktop installers record their choice in {path}.",
+        )
+    requested = profile["requested_backend"]
+    active = profile["active_backend"]
+    detected = profile.get("detected_accelerator", "unknown")
+    message = (
+        f"The installer selected {requested}; torch currently uses {active} "
+        f"(accelerator detected at install: {detected})."
+    )
+    if requested == "auto" and active == "cpu" and detected != "none":
+        return Result(
+            "installer backend",
+            WARN,
+            message,
+            fix=(
+                "Run the `gpu` check below, then reinstall with GPU acceleration. "
+                "On the measured RTX 3090 workload, segmentation was 13x and "
+                "classification 20x faster than CPU."
+            ),
+        )
+    return Result("installer backend", PASS, message)
+
 def _import_torch() -> Any:
     """Import torch. Split out so the GPU checks can be tested without one."""
     import torch

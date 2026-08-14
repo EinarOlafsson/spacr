@@ -1126,19 +1126,40 @@
       "id": "37_batch",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker Batch Runner. Læg moduler, projekter og indstillinger i kø for reproducerbar, ubesøgt udførelse."
+          "narration": "Batch Runner stapler vilkårlige spaCR moduler og indstillinger i en uovervågnet kø. I modsætning til Plate Queue, der anvender en pipeline til mange plader, kan Batch Runner blande moduler, indgange, overrides og afhængigheder. Jobberne kører strengt en ad gangen, så de konkurrerer ikke om en GPU."
         },
         {
-          "narration": "Tilføj projekter og montere den bestilte modulsekvens, som hvert projekt skal køre."
+          "narration": "Vælg et hovedløst modul og den nøjagtige indstilling fil, som jobbet skal modtage. Tilføj et beskrivende mærke, valgfrie forudsætningsjob-identifikatorer og valgfrie nøgle-lign-værdi overrides. Dette første job udfører en reel tabfri konvertering af et fire-kanal felt. Klik på Tilføj arbejde."
         },
         {
-          "narration": "I det primære konfigurationsområde skal du vælge forhåndstiltag, afhængigheder, ressourcegrænser, genoptage adfærd, logging og fejlpolitik."
+          "narration": "Jobben modtager stabil identifikator konverteret-1 og kontrolleres straks. Batch Runner løser modulforstyrrelser, analyserer indstillingerne og overrider, validerer stier og værdier og afviser et ugyldigt job nu i stedet for at opdage det under en overnatning."
         },
         {
-          "narration": "Validerer partiplanen, test en opgave, og så kører resten af køen over natten eller uden tilsyn."
+          "narration": "Den anden rigtige konverteringsnavn konverterer-1 i After, så den kører kun hvis den forudsætning lykkes. Dens plate_naming er lig med navneoverrid over lagret de gemte indstillinger uden at kopiere filen. Hvis konverter-1 fejler, markeres denne opgave overgået i stedet for at køre på ufuldstændig opstrøm output. Klik på Tilføj arbejde."
         },
         {
-          "narration": "Når arbejdsprocessen er færdig, har hver opgave sin egen status, indstillinger snapshot, logs, udgivelser og genoptages køre rekord."
+          "narration": "Den tredje reelle omstilling har ingen forudsætning og kan stadig finde sted, når en ikke-relateret stilling mislykkes under politikken om \"fortsæt med fejl\". - Det er selvstændigt arbejde. Denne lektion bruger tre overførte mikroskopiske felter kopieret byte-for-byte i isolerede mapper; hver kø proces vil udføre en ægte konvertering."
+        },
+        {
+          "narration": "Tabellen viser nu køreordenen, stabile job-identifikatorer, moduler, etiketter, afhængigheder, ventende status, forløbet tid og hver enkelt jobs egen log. Vælg en række for at kontrollere dens indstillinger og log. Duplikere, fjerne og flytte kontroller skaber og omordner en større nat arbejde."
+        },
+        {
+          "narration": "Vælg det uafhængige tredje job og klik på Flyt op. Omordning er sikkert her, fordi den afhængige konvertering forbliver under konverteret-1. Hvis man flytter et forudsætningsforhold under dets afhængige, vil det give en synlig valideringsfejl og deaktivere løbet."
+        },
+        {
+          "narration": "Klik på Validerer efter at have redigeret eller lastet en kø. Validering rapporterer alle fejl og advarsler sammen: manglende indstillinger, ukendte moduler, ugyldige stier eller værdier, duplikerede identifikatorer, senere forudsætninger og afhængighedssyklusser. Løb-knappen forbliver deaktiveret, mens der er et blokeringsproblem."
+        },
+        {
+          "narration": "Alle tre job er gyldige. Fortsæt med at fejle giver mulighed for at fortsætte selvstændige job, mens afhængige overgår; Stop i første omgang, fejlen stopper alt senere. Den træk for successive fejl stopper en kø, der gentagne gange fejler af samme systematiske årsag. Stop med at vente på, at det er sikkert, i stedet for at dræbe det midt i skrivelsen."
+        },
+        {
+          "narration": "Klik på Gem køen, før du lader den være ubeskyttet. Den læsbare JSON gemmer rækkefølge, afhængigheder, overrides og status. Batch Runner opdaterer det automatisk efter hver overgang, så en genstart kan genoptage ventende eller ikke-runs jobs uden at duplikere færdig arbejde. Ladekåden genbringer den samme hovedbog senere."
+        },
+        {
+          "narration": "Når den reviderede kø er gemt, klik på Kør kø. Hver opgave starter som sin egen spacr-run-proces ved hjælp af dette spaCR-miljø. En segmenteringskamp ville afslutte det arbejde snarere end grænsefladet eller senere uafhængigt arbejde, og standard output plus fejl går ind i det arbejde's separate log."
+        },
+        {
+          "narration": "Alle tre rigtige underprocessjob er afsluttet med succes. Progress-balken er tre ud af tre, tabellen bevarer hver status og varighed, resuméen skelner mellem succes, fiasko, overskæring, ikke-runs og delvise resultater, og den valgte joblog indeholder dens nøjagtige kommando- og konverteringsrapport. Hver bestemmelsessted indeholder fire TIFF'er og et oprindelseskort; alle kildeshascher forbliver uændrede."
         }
       ]
     },
@@ -1666,22 +1687,25 @@
       "id": "64_gate_editor",
       "scenes": [
         {
-          "narration": "Gate Editor omdanner områder af et målebord til navngivne, genanvendelige befolkningsporte. Arbejdsrummet holder funktionsaxerne, tegning værktøjer, fuld datavisning og gate hierarki sammen."
+          "narration": "Gate Editor omdanner områder af et måltæbel til navngivne, genbrugbare befolkningsporte. Arbejdsområdet holder funktionsaxerne, tegning værktøjer, fuld datavisning og gate hierarki sammen."
         },
         {
-          "narration": "I 2D vælg X og Y for en scatter, eller efterlad Y tom for et histogram. Vælg et tærskelværktøj eller et formværktøj og tegne omkring den tilsigtede befolkning. Den fulde sky forbliver synlig, mens de inkluderede objekter fremhæves."
+          "narration": "I 2D vælger du X og Y til en scatter eller efterlader Y tom til et histogram. Vælg et tærskelværktøj eller et formværktøj og tegne omkring den ønskede befolkning. Den fulde sky forbliver synlig, mens de indbefattede objekter fremhæves."
         },
         {
-          "narration": "Vælg 3D- og Z-målinger for at kontrollere et roterende volumen. Akselknapperne styrer spinnet, og Box gate registrerer grænserne på alle tre visede målinger."
+          "narration": "Vælg 3D- og Z-målinger for at kontrollere et roterende volumen. Akse knapperne styrer spindningsretningen, og Box gate registrerer grænser på alle tre visede målinger."
         },
         {
-          "narration": "Vælg xD for at projektere de støtteberettigede målinger i hovedkomponenter. Kildemærkningens rapporter forklarede variansen, og PC1, PC2 og PC3 blev almindelige akser for de samme gatingværktøjer."
+          "narration": "Vælg xD for at projektere de støtteberettigede målinger i hovedkomponenter. Kildeetiketten rapporterer forklarede variansen, og PC1, PC2 og PC3 bliver almindelige aksler for de samme gating værktøjer."
         },
         {
-          "narration": "Gate-hierarkiet rapporterer objektantallet, procentdelen af dets moderskab og procentdelen af alle rækker. Vælg en portens stikkasse for at vise eller skjule den, og vælg en port før du tegner, hvornår den næste befolkning skal være indlejret i den."
+          "narration": "Gaten hierarki rapporterer objektet antal, procentdel af dens moderskab og procentdel af alle rækker. Vælg en portens krydskasse for at vise eller skjule den, og vælg en port før du tegner, hvornår den næste befolkning skal være indlejret i den."
         },
         {
-          "narration": "Giv hver enkelt befolkning et meningsfuldt navn, så gem portestrategien. Last den på en kompatibel tabel for at genbruge de samme funktionernavne, grænser og hierarki, og verificere de nye tal før du fortsætter."
+          "narration": "Giv hver enkelt befolkning et meningsfuldt navn, så gem porten strategi. Lad den op på en kompatibel tabel for at genbruge de samme funktionernavne, grænser og hierarki, og verificere de nye tal før du fortsætter."
+        },
+        {
+          "narration": "Cluster Walk søger efter en begrænset række DBSCAN-radier på de viste målinger og rapporterer den valgte radius, befolkningsantal og den udelukkede fraktion. Undersøg de resulterende porte, og annotér eller eksporter kun efter at befolkningsgrupperne er i overensstemmelse med de synlige data."
         }
       ]
     },

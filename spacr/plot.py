@@ -205,6 +205,51 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False, **kwargs):
     return destination
 
 
+#: Outline colours for the published overlay figure, per palette.
+#:
+#: ``default`` is what spaCR has always drawn and stays the default: changing
+#: it silently would change every figure a user has already made and every one
+#: their paper's methods section describes.
+#:
+#: IT IS ALSO NOT LEGIBLE TO EVERYONE, and the numbers say how badly. Worst
+#: confusable pair across the four outlines, 0-255, under Brettel-style
+#: simulation -- the pair a reader would have to tell apart and could not:
+#:
+#:     palette        normal  deuteranope  protanope  tritanope
+#:     default          255       27          77         39
+#:     colourblind      148      142         125        134
+#:
+#: 27 is not a small number, it is invisible. cell is drawn RED and pathogen
+#: GREEN, which is the one pair red-green deficiency removes, in the figure
+#: that goes into the paper.
+#:
+#: ``colourblind`` is the four of the Okabe-Ito set that scored best on that
+#: worst-pair measure. It gives up separation under normal vision (148 against
+#: 255) to buy five times as much under every deficiency, which is the right
+#: trade for a figure with more than one reader.
+OUTLINE_PALETTES = {
+    'default': {'cell': 'red', 'nucleus': 'blue',
+                'pathogen': 'green', 'organelle': 'yellow'},
+    'colourblind': {'cell': '#D55E00',        # vermillion
+                    'nucleus': '#56B4E9',     # sky blue
+                    'pathogen': '#009E73',    # bluish green
+                    'organelle': '#F0E442'},  # yellow
+}
+
+
+def outline_palette_colours(palette):
+    """The four outline colours for ``palette``.
+
+    :param palette: a key of :data:`OUTLINE_PALETTES`. Anything unknown --
+        including ``None`` -- falls back to ``default`` rather than raising:
+        a figure drawn in the historic colours is a far smaller problem than
+        a pipeline that stops at the plotting step.
+    :returns: ``{object_name: colour}``.
+    """
+    name = str(palette or 'default').strip().lower()
+    return dict(OUTLINE_PALETTES.get(name, OUTLINE_PALETTES['default']))
+
+
 def plot_image_mask_overlay(
     file,
     channels,
@@ -220,7 +265,8 @@ def plot_image_mask_overlay(
     export_tiffs=False,
     all_on_all=False,
     all_outlines=False,
-    filter_dict=None
+    filter_dict=None,
+    outline_palette='default'
 ):
     """Plot image and mask overlays.
 
@@ -259,6 +305,13 @@ def plot_image_mask_overlay(
         ``'nucleus'``, ``'pathogen'`` or ``'organelle'``, each holding
         ``((min_area, max_area), (min_intensity, max_intensity))``; objects
         outside the limits are dropped before plotting.
+    :param outline_palette: which outline colours to draw, a key of
+        :data:`OUTLINE_PALETTES`. ``'default'`` is what spaCR has always
+        drawn; ``'colourblind'`` is legible under red-green and blue-yellow
+        deficiency, where the default's worst pair scores 27 out of 255 --
+        cell is drawn red and pathogen green, the one pair the commonest
+        deficiency removes. Default ``'default'``, because changing every
+        figure a user has already made would be worse than the defect.
     :returns: The generated matplotlib ``Figure``.
     """
 
@@ -550,11 +603,12 @@ def plot_image_mask_overlay(
     outlines = []
     outline_colors = []
 
+    colours = outline_palette_colours(outline_palette)
     object_specs = [
-        ('cell', cell_channel, 'red'),
-        ('nucleus', nucleus_channel, 'blue'),
-        ('pathogen', pathogen_channel, 'green'),
-        ('organelle', organelle_channel, 'yellow'),
+        ('cell', cell_channel, colours['cell']),
+        ('nucleus', nucleus_channel, colours['nucleus']),
+        ('pathogen', pathogen_channel, colours['pathogen']),
+        ('organelle', organelle_channel, colours['organelle']),
     ]
 
     present_objects = [(name, channel, color) for name, channel, color in object_specs if channel is not None]
@@ -1462,11 +1516,33 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
     
     stack = _remove_outside_objects(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim)
 
-    for i, mask_dim in enumerate(mask_dims):
-        if not filter_min_max is None:
-            min_max = filter_min_max[i]
-        else:
+    # filter_min_max is in ROLE order -- [cell, nucleus, pathogen] -- while
+    # mask_dims is the COMPACTED list of the planes that exist. Indexing one
+    # by the other's position only agrees when every role is enabled.
+    #
+    # With cell_mask_dim=4, nucleus_mask_dim=None, pathogen_mask_dim=6,
+    # mask_dims is [4, 6]: i=0 gave the cell its own range, and i=1 gave the
+    # PATHOGEN the nucleus's range. So on any run with a disabled object, one
+    # object type was size-filtered by another's limits -- objects removed
+    # from the figure that the settings never asked to remove, and objects
+    # kept that they did.
+    _role_index = {}
+    for _position, _dim in enumerate((cell_mask_dim, nucleus_mask_dim,
+                                      pathogen_mask_dim)):
+        if _dim is not None and _dim not in _role_index:
+            _role_index[_dim] = _position
+
+    for mask_dim in mask_dims:
+        if filter_min_max is None:
             min_max = [0, 100000000]
+        else:
+            _position = _role_index.get(mask_dim)
+            if _position is None or _position >= len(filter_min_max):
+                # A plane that is not one of the three named roles has no
+                # declared range. Unfiltered beats borrowing a neighbour's.
+                min_max = [0, 100000000]
+            else:
+                min_max = filter_min_max[_position]
 
         mask = np.take(stack, mask_dim, axis=2)
         props = measure.regionprops_table(mask, properties=['label', 'area'])
@@ -1976,44 +2052,65 @@ def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', thresho
     Plot cropped arrays.
 
     Args:
-        stack (ndarray): The array to be plotted.
-        figuresize (int, optional): The size of the figure. Defaults to 20.
-        cmap (str, optional): The colormap to be used. Defaults to 'inferno'.
-        threshold (int, optional): The threshold for the number of unique intensity values. Defaults to 1000.
+        stack (ndarray): The array to be plotted, 2D (one panel) or 3D with
+            the channels last (one panel per ``stack.shape[2]``). A 1D array
+            matches neither branch and raises ``UnboundLocalError`` on the
+            return rather than being rejected up front.
+        filename (str): Accepted and ignored -- the only reference to it is a
+            commented-out print, so it never reaches the figure or a file.
+        figuresize (int, optional): Both width and height of the figure, in
+            inches; the multi-channel case does not widen it per channel, so
+            panels get thinner as channels are added. Defaults to 10.
+        cmap (str, optional): Name resolved with ``plt.get_cmap`` and used
+            only for the planes treated as intensity images. Defaults to
+            'inferno'.
+        threshold (int, optional): A plane with this many distinct values or
+            fewer is drawn as a label mask with a random colormap and an
+            object count in its title. Defaults to 500.
 
     Returns:
-        None
+        Figure: The figure that was drawn. The 2D case also calls
+        ``plt.show()`` before returning; the multi-channel case does not.
     """
     #start = time.time()
     dim = stack.shape
     
     def plot_single_array(array, ax, title, chosen_cmap):
-        """Render one channel from ``stack`` onto ``ax`` with a colorbar.
+        """Render one channel from ``stack`` onto ``ax``. No colorbar is drawn.
 
         Args:
-            array (ndarray): One 2D plane of ``stack``. Its number of
-                distinct values is what decides whether it is treated as an
-                intensity image or as a label mask.
+            array (ndarray): One 2D plane of ``stack``. Its count of distinct
+                values, not its dtype, is what decides whether it is treated
+                as an intensity image or as a label mask -- so a uint8 plane,
+                which can hold at most 256 distinct values, is always taken
+                for a mask under the default ``threshold`` of 500.
             ax (matplotlib.axes.Axes): Axes drawn on in place; its frame and
-                ticks are switched off, and nothing is returned.
+                ticks are switched off, the title is fixed at size 18, and
+                nothing is returned.
             title (str): Panel title. When the plane is treated as a mask,
-                the number of distinct values is appended as
-                ``", N (obj.)"`` -- one more than the object count, because
-                the background value counts as one of them.
+                the object count is appended as ``", N (obj.)"``. That count
+                is the number of distinct non-zero values, so the background
+                value 0 is never counted, but a negative value is counted as
+                an object.
             chosen_cmap (Colormap): Colormap for the intensity case only.
                 It is discarded when the plane has no more than
                 ``threshold`` unique values (the enclosing function's
-                argument, default ``500``), because a random per-label
-                colormap is generated instead so neighbouring objects stay
+                argument, default ``500``), because a random colormap --
+                black at index 0, one random opaque colour per non-zero
+                label -- is generated instead so neighbouring objects stay
                 distinguishable.
         """
         unique_values = np.unique(array)
         num_unique_values = len(unique_values)
-        
+
         if num_unique_values <= threshold:
+            # The number of distinct values decides mask vs intensity, but the
+            # object count in the title must exclude the background label 0,
+            # otherwise a 3-object mask is annotated "4 (obj.)".
+            num_objects = int(np.count_nonzero(unique_values))
             chosen_cmap = _generate_mask_random_cmap(array)
-            title = f'{title}, {num_unique_values} (obj.)'
-        
+            title = f'{title}, {num_objects} (obj.)'
+
         ax.imshow(array, cmap=chosen_cmap)
         ax.set_title(title, size=18)
         ax.axis('off')
@@ -2117,9 +2214,18 @@ def _display_gif(path):
     Returns:
     None
     """
+    # `format='gif'` is stated rather than sniffed. IPython only learned to
+    # recognise the GIF87a/GIF89a magic bytes in 9.0.0; before that, raw bytes
+    # with no format fall through to 'png' and the animation is emitted with
+    # an `image/png` mime type. IPython 9 needs Python 3.11, so on the 3.9 and
+    # 3.10 ends of the range spaCR claims there is no version of IPython that
+    # would guess right -- setup.py's `IPython>=8.18.1` resolves to exactly
+    # 8.18.1 on 3.9. Saying what the file is costs nothing and is correct on
+    # every version.
     with open(path, 'rb') as file:
-        display(ipyimage(file.read()))
-        
+        display(ipyimage(file.read(), format='gif'))
+
+
 def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize=10):
     """
     Plot recruitment data for different conditions and pathogens.
@@ -3745,6 +3851,53 @@ def _significance_marker(p_value):
         return '*'
     return 'ns'
 
+
+def _welch_anova(grouped_data):
+    """Welch's one-way ANOVA: the >2-group answer when variances differ.
+
+    ``scipy.stats.f_oneway`` assumes equal variance across groups, the same
+    assumption Levene's test exists to check. When Levene rejects it, this is
+    the standard replacement -- it weights each group by ``n / variance`` and
+    corrects the denominator degrees of freedom, so an arm with both a
+    different spread and a different size stops borrowing significance from
+    the others.
+
+    Computed here rather than through pingouin's ``welch_anova`` because that
+    one wants a long-form frame and a formula; this takes the same list of
+    arrays every other branch already built.
+
+    :param grouped_data: one 1-D array-like of values per group.
+    :returns: ``(F, p)``, or ``(nan, nan)`` when fewer than two groups carry
+        the variance the statistic divides by.
+    """
+    from scipy.stats import f
+
+    groups = [np.asarray(values, dtype=float) for values in grouped_data]
+    groups = [values[np.isfinite(values)] for values in groups]
+    groups = [values for values in groups
+              if values.size >= 2 and np.var(values, ddof=1) > 0]
+    k = len(groups)
+    if k < 2:
+        return np.nan, np.nan
+
+    n = np.array([values.size for values in groups], dtype=float)
+    mean = np.array([values.mean() for values in groups])
+    var = np.array([values.var(ddof=1) for values in groups])
+
+    w = n / var
+    w_sum = w.sum()
+    grand = (w * mean).sum() / w_sum
+
+    numerator = (w * (mean - grand) ** 2).sum() / (k - 1)
+    lam = ((1.0 - w / w_sum) ** 2 / (n - 1.0)).sum()
+    denominator = 1.0 + (2.0 * (k - 2.0) / (k ** 2 - 1.0)) * lam
+    statistic = numerator / denominator
+
+    df2 = (k ** 2 - 1.0) / (3.0 * lam)
+    p_value = f.sf(statistic, k - 1, df2)
+    return float(statistic), float(p_value)
+
+
 class spacrGraph:
     """Grouped plot + statistical-test helper for spacr experiment DataFrames.
 
@@ -4008,6 +4161,39 @@ class spacrGraph:
         stat, p_value = levene(*grouped)
         return stat, p_value
 
+    def _equal_variance(self, column, unique_groups, alpha=0.05):
+        """Does Levene's test allow the equal-variance assumption for ``column``?
+
+        PER COLUMN, unlike :meth:`perform_levene_test`, which only ever looks
+        at ``data_column[0]`` while :meth:`perform_statistical_tests` loops
+        over every column. Answering once for the first column and applying it
+        to the rest would trade one wrong assumption for another.
+
+        :param column: the measurement being tested.
+        :param unique_groups: the groups being compared.
+        :param alpha: significance at which unequal variance is accepted.
+        :returns: True when variances may be treated as equal -- including
+            when Levene cannot be computed at all, because the equal-variance
+            test is the historical behaviour and silently switching to Welch's
+            on a degenerate group would change old numbers for no evidence.
+        """
+        grouped = [
+            self.df.loc[self.df[self.grouping_column] == group,
+                        column].dropna()
+            for group in unique_groups
+        ]
+        if (len(grouped) < 2
+                or any(len(values) < 2 for values in grouped)
+                or not any(values.nunique() > 1 for values in grouped)):
+            return True
+        try:
+            _stat, p_value = levene(*grouped)
+        except Exception:
+            return True
+        if not np.isfinite(p_value):
+            return True
+        return bool(p_value >= alpha)
+
     def perform_statistical_tests(self, unique_groups, is_normal):
         """Perform statistical tests separately for each data column.
 
@@ -4052,8 +4238,18 @@ class spacrGraph:
                         stat, p = pg.ttest(grouped_data[0], grouped_data[1], paired=True).iloc[0][['T', 'p-val']]
                         test_name = 'Paired T-test'
                     else:
-                        stat, p = ttest_ind(grouped_data[0], grouped_data[1])
-                        test_name = 'T-test'
+                        # Levene's test used to be computed and thrown away,
+                        # and this line ran Student's t-test regardless
+                        # (scipy's equal_var defaults to True). So the
+                        # assumption was tested, the answer discarded, and the
+                        # test that assumes it run anyway -- which inflates
+                        # significance exactly when the groups differ in
+                        # spread, the common case for a treated arm.
+                        equal_var = self._equal_variance(column, unique_groups)
+                        stat, p = ttest_ind(grouped_data[0], grouped_data[1],
+                                            equal_var=equal_var)
+                        test_name = ('T-test' if equal_var
+                                     else "Welch's T-test")
                 else:
                     if self.paired:
                         # pingouin's wilcoxon statistic column is 'W-val'; 'T'
@@ -4081,16 +4277,25 @@ class spacrGraph:
                                 grouped_data[0], grouped_data[1])
             else:
                 if is_normal:
-                    test_name = 'One-way ANOVA'
                     parametric_testable = (
                         all(len(values) >= 2 for values in grouped_data)
                         and any(values.nunique() > 1
                                 for values in grouped_data)
                     )
                     if parametric_testable:
-                        stat, p = f_oneway(*grouped_data)
+                        # Same correction as the two-group branch: f_oneway is
+                        # the equal-variance ANOVA, so when Levene rejects
+                        # that, use Welch's.
+                        equal_var = self._equal_variance(column, unique_groups)
+                        if equal_var:
+                            stat, p = f_oneway(*grouped_data)
+                            test_name = 'One-way ANOVA'
+                        else:
+                            stat, p = _welch_anova(grouped_data)
+                            test_name = "Welch's ANOVA"
                     else:
                         stat, p = np.nan, np.nan
+                        test_name = 'One-way ANOVA'
                 else:
                     test_name = 'Kruskal-Wallis test'
                     if (any(len(values) == 0 for values in grouped_data)
@@ -4105,7 +4310,22 @@ class spacrGraph:
                 'p-value': p,
                 'Test Name': test_name,
                 'Column': column,
-                'n_object': sum(len(values) for values in grouped_data),
+                # n_object FROM raw_df, n_well from self.df. Both used to come
+                # from `grouped_data`, which is built from self.df -- and
+                # self.df is what `preprocess_data` AGGREGATED. With
+                # representation='well' that made the two columns the same
+                # number: a plate of 4,382 cells in 12 wells reported
+                # n_object = 12.
+                #
+                # The post-hoc rows in the same CSV already did it correctly
+                # (n_object from raw_df, n_well from self.df), so the two row
+                # types disagreed about the same comparison in the same file
+                # -- which is how you get a Methods section citing whichever
+                # was read first.
+                'n_object': sum(
+                    len(self.raw_df[self.raw_df[self.grouping_column] == group]
+                        [column].dropna())
+                    for group in unique_groups),
                 'n_well': sum(
                     len(self.df[self.df[self.grouping_column] == group])
                     for group in unique_groups)})
@@ -4319,16 +4539,55 @@ class spacrGraph:
                 ax.text((x1 + x2) / 2, line_y, significance, ha='center', va='bottom', fontsize=12)
 
         # Optional: Remove outliers for plotting
-        if self.remove_outliers:
-            self.df = self.remove_outliers_from_plot()
-
-        self.df_melted = pd.melt(self.df, id_vars=[self.grouping_column], value_vars=self.data_column,var_name='Data Column', value_name='Value')
-        unique_groups = self.df[self.grouping_column].unique()
+        # THE TRIM IS FOR THE PICTURE, NOT FOR THE TEST, and it used to be
+        # for both. `remove_outliers_from_plot` drops 1.5*IQR points PER
+        # GROUP, and it ran here -- before the normality test, before the
+        # comparison and before the post-hoc, all of which then read the
+        # trimmed frame.
+        #
+        # That inflates significance in the one direction nobody checks.
+        # Removing a group's tails shrinks its standard deviation, so the
+        # t-statistic grows for a difference in means that has not changed.
+        # Worse, trimming PER GROUP removes exactly the points that make two
+        # groups overlap. A caller asking not to have one point stretch the
+        # y-axis was silently also asking for a smaller p-value.
+        #
+        # No shipped caller passes remove_outliers=True, so nothing published
+        # came through here -- but `spacrGraph` is public API and the
+        # parameter is documented, so this is a live trap rather than a
+        # historical one.
+        #
+        # The statistics now run on every point, and only the drawing is
+        # trimmed. The results table says so, because a reader looking at a
+        # trimmed plot beside a p-value has to know which one used what.
+        stats_df = self.df
+        self.df_melted = pd.melt(stats_df, id_vars=[self.grouping_column], value_vars=self.data_column,var_name='Data Column', value_name='Value')
+        unique_groups = stats_df[self.grouping_column].unique()
         is_normal, normality_results = self.perform_normality_tests()
-        levene_stat, levene_p = self.perform_levene_test(unique_groups)
+        # The equal-variance check now happens inside
+        # `perform_statistical_tests`, PER COLUMN, and decides between the
+        # Student and Welch forms. It used to be computed here into
+        # `levene_stat, levene_p` and never read again, while the test that
+        # depends on the assumption ran regardless. `perform_levene_test`
+        # stays as public API for callers that want the statistic itself.
         test_results = self.perform_statistical_tests(unique_groups, is_normal)
         posthoc_results = self.perform_posthoc_tests(is_normal, unique_groups)
         self.results_df = pd.DataFrame(normality_results + test_results + posthoc_results)
+
+        # Now, and only now, trim what gets drawn.
+        if self.remove_outliers:
+            self.df = self.remove_outliers_from_plot()
+            if not self.results_df.empty:
+                self.results_df['outliers_removed_from_plot_only'] = True
+            trimmed = len(stats_df) - len(self.df)
+            if trimmed > 0:
+                print(f"remove_outliers: {trimmed} of {len(stats_df)} points "
+                      f"are hidden from the plot. THE STATISTICS ABOVE USED "
+                      f"ALL {len(stats_df)}.")
+            self.df_melted = pd.melt(
+                self.df, id_vars=[self.grouping_column],
+                value_vars=self.data_column, var_name='Data Column',
+                value_name='Value')
 
         #num_groups = len(self.data_column)*len(self.grouping_column)
         num_groups = len(self.df[self.grouping_column].unique())
@@ -5506,6 +5765,205 @@ def graph_importance(settings):
 
     plt.show()
     
+#: Which column carries the unit of replication for each declared level.
+#: `level` chose the FIGURE and nothing else; it now chooses the denominator
+#: of the test as well, which is the whole point of declaring it.
+REPLICATION_UNIT = {"well": None, "plate": "plateID", "plateid": "plateID"}
+
+
+def _unit_column(level, prc_column):
+    """The column whose distinct values are the independent observations.
+
+    ``well`` resolves to whatever the caller passed as ``prc_column`` -- the
+    well identifier is not always spelled ``prc`` -- and ``plate`` to
+    ``plateID``.
+    """
+    key = str(level or "object").strip().lower()
+    if key == "object":
+        return None
+    return REPLICATION_UNIT.get(key, prc_column) or prc_column
+
+
+def proportions_per_unit(df, group_column, bin_column, unit_column):
+    """Each unit's share of every bin, one row per unit.
+
+    :returns: a frame with ``group_column``, ``unit_column`` and one column
+        per bin holding a proportion in [0, 1]. Units contributing no
+        objects do not appear.
+    """
+    # Deduplicated, because a caller may GROUP BY the unit -- the
+    # replication tables group by `prc`, which is also the well. Passing
+    # 'prc' to groupby twice puts it in the index twice, and `reset_index`
+    # then raises "cannot insert prc, already exists" instead of choosing.
+    keys = list(dict.fromkeys([group_column, unit_column, bin_column]))
+    counts = (df.groupby(keys, observed=True).size()
+              .unstack(fill_value=0))
+    totals = counts.sum(axis=1)
+    proportions = counts.div(totals.where(totals > 0), axis=0)
+    proportions = proportions.dropna(how="all")
+    # `unstack` leaves the bin values as COLUMN names, and a caller's frame
+    # can already carry a column spelled like one of the index levels --
+    # `prc` is both the unit and, in the replication tables, a plain column.
+    # `reset_index` then raises "cannot insert prc, already exists" rather
+    # than choosing, so the clash is removed before it can happen.
+    clashing = [name for name in proportions.index.names
+                if name in proportions.columns]
+    if clashing:
+        proportions = proportions.drop(columns=clashing)
+    return proportions.reset_index()
+
+
+def _compare_groups(samples):
+    """The test spaCR already uses for this shape, chosen the same way.
+
+    Two groups: Shapiro decides normal, then Levene decides Student's or
+    Welch's; non-normal goes to Mann-Whitney. More than two: ANOVA, Welch's
+    ANOVA or Kruskal-Wallis on the same two questions. Returns
+    ``(name, statistic, p)``, or ``(name, nan, nan)`` when there are too few
+    units to test -- which is itself the answer worth printing.
+    """
+    samples = [np.asarray(s, dtype=float) for s in samples]
+    samples = [s[np.isfinite(s)] for s in samples]
+    if len(samples) < 2 or any(len(s) < 2 for s in samples):
+        return "too few units", float("nan"), float("nan")
+
+    normal = True
+    for sample in samples:
+        if len(sample) >= 3 and float(np.ptp(sample)) > 0:
+            try:
+                if shapiro(sample)[1] < 0.05:
+                    normal = False
+            except ValueError:
+                pass
+
+    spread_differs = False
+    if all(float(np.ptp(s)) > 0 for s in samples):
+        try:
+            spread_differs = levene(*samples)[1] < 0.05
+        except ValueError:
+            spread_differs = False
+
+    if len(samples) == 2:
+        if not normal:
+            stat, p = mannwhitneyu(*samples, alternative="two-sided")
+            return "Mann-Whitney U", float(stat), float(p)
+        stat, p = ttest_ind(*samples, equal_var=not spread_differs)
+        return ("Welch's T-test" if spread_differs else "T-test",
+                float(stat), float(p))
+    if not normal:
+        stat, p = kruskal(*samples)
+        return "Kruskal-Wallis", float(stat), float(p)
+    if spread_differs:
+        stat, p = _welch_anova(samples)
+        return "Welch's ANOVA", float(stat), float(p)
+    stat, p = f_oneway(*samples)
+    return "One-way ANOVA", float(stat), float(p)
+
+
+def proportion_test_by_unit(df, group_column, bin_column, unit_column):
+    """Compare conditions on their PER-UNIT proportions, one row per bin.
+
+    The object-level chi-squared asks whether 20,000 objects came from one
+    distribution. Objects in a well share a treatment, a transfection, an
+    imaging session and a monolayer, so that is not the question anyone
+    asked, and its p-value is smaller than the experiment supports by orders
+    of magnitude. This asks the question the design supports: do the WELLS
+    differ, with n = the number of wells.
+    """
+    if unit_column == group_column:
+        # The unit of replication IS the thing being compared, so every
+        # group holds exactly one unit and there is nothing to test across.
+        # Saying so beats returning a p-value computed from one number each.
+        return pd.DataFrame([{
+            "test": f"not applicable: the groups ARE the {unit_column}s",
+            "bin": None,
+            "unit": unit_column,
+            "n": int(df[unit_column].nunique()) if unit_column in df else 0,
+            "n_per_group": "1 each",
+            "statistic": float("nan"),
+            "p_value": float("nan"),
+        }])
+
+    table = proportions_per_unit(df, group_column, bin_column, unit_column)
+    bins = [c for c in table.columns if c not in (group_column, unit_column)]
+    groups = list(dict.fromkeys(table[group_column].tolist()))
+
+    rows = []
+    for bin_value in bins:
+        samples = [table.loc[table[group_column] == g, bin_value].to_numpy()
+                   for g in groups]
+        name, stat, p = _compare_groups(samples)
+        rows.append({
+            "test": f"{name} on per-{unit_column} proportions",
+            "bin": bin_value,
+            "unit": unit_column,
+            "n": int(table[unit_column].nunique()),
+            "n_per_group": ", ".join(f"{g}={len(s)}"
+                                     for g, s in zip(groups, samples)),
+            "statistic": stat,
+            "p_value": p,
+        })
+    return pd.DataFrame(rows)
+
+
+def proportion_mixed_model(df, group_column, bin_column, unit_column):
+    """A binomial GLM on the per-object outcome, standard errors clustered by unit.
+
+    The proportions test throws away how many objects each well contributed;
+    this keeps them while still charging the degrees of freedom the DESIGN
+    supports, by clustering on the unit. Reported beside the other two
+    because when it disagrees with them, the disagreement is the finding.
+    """
+    if unit_column == group_column:
+        return pd.DataFrame([{
+            "test": f"not applicable: the groups ARE the {unit_column}s",
+            "bin": None, "unit": unit_column,
+            "n": int(df[unit_column].nunique()) if unit_column in df else 0,
+            "n_per_group": f"objects={len(df)}",
+            "statistic": float("nan"), "p_value": float("nan"),
+        }])
+
+    bins = list(dict.fromkeys(df[bin_column].dropna().tolist()))
+    groups = list(dict.fromkeys(df[group_column].dropna().tolist()))
+    rows = []
+    for bin_value in bins:
+        outcome = (df[bin_column] == bin_value).astype(float).to_numpy()
+        design = pd.get_dummies(df[group_column].astype(str),
+                                drop_first=True, dtype=float)
+        if design.empty or len(groups) < 2:
+            rows.append({"test": "binomial GLM, clustered by " + unit_column,
+                         "bin": bin_value, "unit": unit_column,
+                         "n": int(df[unit_column].nunique()),
+                         "n_per_group": f"objects={len(df)}",
+                         "statistic": float("nan"), "p_value": float("nan")})
+            continue
+        design = sm.add_constant(design, has_constant="add")
+        try:
+            fit = sm.GLM(outcome, design.to_numpy(),
+                         family=sm.families.Binomial()).fit(
+                cov_type="cluster",
+                cov_kwds={"groups": df[unit_column].astype(str).to_numpy()})
+            terms = [i for i, name in enumerate(design.columns)
+                     if name != "const"]
+            wald = fit.wald_test(np.eye(len(design.columns))[terms],
+                                 scalar=True)
+            statistic, p = float(wald.statistic), float(wald.pvalue)
+        except Exception as error:      # singular, separated, or too few clusters
+            print(f"mixed model for bin {bin_value!r} did not fit: {error}")
+            statistic = p = float("nan")
+        rows.append({
+            "test": f"binomial GLM, standard errors clustered by {unit_column}",
+            "bin": bin_value,
+            "unit": unit_column,
+            "n": int(df[unit_column].nunique()),
+            "n_per_group": f"objects={len(df)}",
+            "statistic": statistic,
+            "p_value": p,
+        })
+    return pd.DataFrame(rows)
+
+
+
 def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_column='prc', level='object', cmap='viridis'):
     """Plot stacked proportion bars per group with chi-squared and pairwise stats.
 
@@ -5535,8 +5993,35 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
     # Perform pairwise comparisons
     pairwise_results = chi_pairwise(raw_counts, verbose=settings.get('verbose', False))
 
-    # Plot based on level setting
-    if level in ['well', 'plateID']:
+    # Plot based on level setting.
+    #
+    # 'plate' USED TO FALL THROUGH HERE. The check read
+    # `level in ['well', 'plateID']`, while the setting's own tooltip offers
+    # 'object', 'well' and 'plate' -- so a user who asked for plate-level bars
+    # got object-level pooling instead: every object in one bar per condition,
+    # no per-plate averaging and no SD whiskers, which is a different figure
+    # answering a different question with nothing to say it had happened.
+    #
+    # An unknown level is now named rather than silently pooled, because
+    # falling back to 'object' is exactly what made the typo invisible.
+    _level = str(level or 'object').strip().lower()
+    _AGGREGATED = {'well': prc_column, 'plate': 'plateID', 'plateid': 'plateID'}
+    if _level not in _AGGREGATED and _level != 'object':
+        raise ValueError(
+            f"level={level!r} is not one of 'object', 'well' or 'plate'. "
+            f"Pooling every object would have answered a different question "
+            f"than the one asked.")
+    if _level in _AGGREGATED:
+        prc_column = _AGGREGATED[_level]
+        if prc_column not in df.columns:
+            # 'plateID' used to group by `prc` -- the WELL column -- so a
+            # plate-level request averaged wells and called them plates. It
+            # now groups by the plate, which means the plate column has to
+            # be present, and naming the missing one beats a bare KeyError
+            # raised from inside a groupby.
+            raise ValueError(
+                f"level={level!r} groups by {prc_column!r}, which this table "
+                f"does not have. Available: {sorted(df.columns)[:12]}")
         well_proportions = (
             df.groupby([group_column, prc_column, bin_column], observed=True)
             .size()
@@ -5552,7 +6037,7 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
         mean_proportions.plot(
             kind='bar', stacked=True, yerr=std_proportions, capsize=5, colormap=cmap, figsize=(12, 8)
         )
-        plt.title('Proportion of Volume Bins by Group (Mean ± SD across wells)')
+        plt.title(f'Proportion of Volume Bins by Group (Mean ± SD across {"plates" if _level != "well" else "wells"})')
     else:
         group_counts = df.groupby([group_column, bin_column], observed=True).size()
         group_totals = group_counts.groupby(
@@ -5570,11 +6055,45 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
     plt.ylim(0, 1)
     fig = plt.gcf()
 
+    # THREE NUMBERS, EACH LABELLED WITH ITS UNIT AND ITS N.
+    #
+    # The chi-squared above is computed over OBJECTS and was the only number
+    # this function reported, at every level -- object, well and plate gave
+    # byte-identical chi2 and p, while the level tooltip promised that "the
+    # reported statistics always treat the well as the unit of replication".
+    # It never did.
+    #
+    # The old number is kept as the first row rather than replaced: every
+    # figure already published came from it, and a reader comparing an old
+    # result with a new one has to be able to see why they differ.
     results_df = pd.DataFrame({
         'chi_squared_stat': [chi2],
         'p_value': [p],
-        'degrees_of_freedom': [dof]
+        'degrees_of_freedom': [dof],
+        'test': ['chi-squared on object counts'],
+        'unit': ['object'],
+        'n': [int(len(df))],
+        'statistic': [float(chi2)],
     })
+
+    # `level='object'` still gets the well-level tests when a well column is
+    # there. Pooling objects does not make them independent, so the honest
+    # denominator is reported whether or not it was asked for.
+    unit_column = _unit_column(level, prc_column) or prc_column
+    if unit_column in df.columns:
+        extra = [proportion_test_by_unit(df, group_column, bin_column,
+                                         unit_column),
+                 proportion_mixed_model(df, group_column, bin_column,
+                                        unit_column)]
+        results_df = pd.concat([results_df] + extra, ignore_index=True)
+        for _, row in pd.concat(extra, ignore_index=True).iterrows():
+            print(f"{row['test']} [bin {row['bin']}, n={row['n']} "
+                  f"{row['unit']}]: p = {row['p_value']:.4e}")
+    else:
+        print(f"no {unit_column!r} column, so only the object-level "
+              f"chi-squared could be computed; objects in one well are not "
+              f"independent and this p-value is smaller than the experiment "
+              f"supports")
 
     return results_df, pairwise_results, fig
     

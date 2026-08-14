@@ -18,6 +18,22 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
+def _allow_writes_because_everything_here_is_mocked(monkeypatch):
+    """`file_issue` refuses to post from a test run unless this is set.
+
+    That backstop exists because `[auto 54a0e8] [mask] Error: boom` (#75)
+    reached the PUBLIC tracker from a fixture's exception -- spaCR posts
+    whenever a token is resolvable and `gh` supplies one on a dev machine.
+
+    Every test in this file replaces `github_auth` wholesale, so nothing here
+    can reach the network; the flag says that deliberately rather than
+    leaving the guard to be discovered as five confusing failures.
+    """
+    monkeypatch.setenv("SPACR_ALLOW_GITHUB_WRITES", "1")
+
+
+
+@pytest.fixture(autouse=True)
 def no_browser(monkeypatch):
     """Hard-fail if any test actually tries to open a browser."""
     opened = []

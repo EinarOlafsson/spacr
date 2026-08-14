@@ -34,6 +34,23 @@ from .torch_artifacts import (
 )
 
 
+def _class_folder_names(settings):
+    """The ordered training-folder names for ``settings``.
+
+    Every ``classes=`` argument in this module means the FOLDER names -- one
+    subfolder per class under ``src/train`` and ``src/test``, position is the
+    integer label. That is no longer what ``settings['classes']`` holds:
+    ``classes`` is the class DEFINITIONS (``name -> {column, value}``) and the
+    folder list is ``class_folder_names``.
+
+    Read through :func:`spacr.classify_classes.folder_names`, which falls back
+    to a list-shaped ``classes`` so a settings file written before the split
+    trains exactly as it did.
+    """
+    from .classify_classes import folder_names
+    return folder_names(settings)
+
+
 def _empty_device_cache() -> None:
     """Release accelerator caches without touching unavailable backends."""
     if torch.cuda.is_available():
@@ -72,7 +89,8 @@ def _unpack_supervised_batch(batch):
             "A supervised data loader must yield at least (images, labels).")
     return batch[0], batch[1]
 
-def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, n_jobs=10):
+def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
+                n_jobs=10, input_statistics='symmetric'):
     """
     Apply a trained PyTorch model to images in a directory.
 
@@ -110,10 +128,19 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
     if normalize:
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.CenterCrop(size=(image_size, image_size)),
-            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
+        # WHICH statistics is now a setting. spaCR has always used 0.5/0.5,
+        # which maps [0,1] to [-1,1]; every ImageNet-pretrained torchvision
+        # model was fitted on 0.485/0.456/0.406 and 0.229/0.224/0.225, so a
+        # finetune under the old default hands pretrained weights inputs
+        # distributed differently from the ones they learned. The default is
+        # unchanged so existing scores do not move under anybody.
+        from .normalization import normalization_stats
+        stats = normalization_stats(input_statistics)
+        steps = [transforms.ToTensor(),
+                 transforms.CenterCrop(size=(image_size, image_size))]
+        if stats is not None:
+            steps.append(transforms.Normalize(mean=stats[0], std=stats[1]))
+        transform = transforms.Compose(steps)
     else:
         transform = transforms.Compose([
             transforms.ToTensor(),
@@ -203,11 +230,24 @@ def apply_model_to_tar(settings=None):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     if settings['normalize']:
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.CenterCrop(size=(settings['image_size'], settings['image_size'])),
-            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
-        ])
+        # See the note on the other transform: which statistics is a setting
+        # now, and the model card records the answer.
+        from .normalization import describe_normalization, normalization_stats
+        mode = settings.get('input_statistics', 'symmetric')
+        stats = normalization_stats(
+            mode, mean=settings.get('input_mean'),
+            std=settings.get('input_std'),
+            channels=len(settings.get('channels') or (0, 1, 2)))
+        steps = [transforms.ToTensor(),
+                 transforms.CenterCrop(size=(settings['image_size'],
+                                             settings['image_size']))]
+        if stats is not None:
+            steps.append(transforms.Normalize(mean=stats[0], std=stats[1]))
+        print(describe_normalization(
+            mode, mean=settings.get('input_mean'),
+            std=settings.get('input_std'),
+            channels=len(settings.get('channels') or (0, 1, 2))))
+        transform = transforms.Compose(steps)
     else:
         transform = transforms.Compose([
             transforms.ToTensor(),
@@ -659,6 +699,23 @@ def test_model_core(model, loader, loader_name, epoch, loss_type):
     """
     Core test loop over ``loader``, compatible with binary & multiclass.
 
+    :param model: PyTorch classifier. Mutated in place: left in ``eval`` mode
+        and moved to CUDA whenever one is visible.
+    :param loader: DataLoader yielding ``(data, target, filenames)`` — a
+        two-item batch raises. The third item is copied into the frame
+        verbatim, so a tensor of ids stays a tensor rather than becoming a
+        path. An empty loader takes the binary branch whatever the head is:
+        ``num_classes`` 2, ``accuracy`` NaN, ``loss`` 0.0 and a
+        ``class_1_probability`` column.
+    :param epoch: Recorded as ``int(epoch)`` and used for nothing else, so
+        ``2.7`` lands as ``2`` and ``None`` raises ``TypeError``.
+    :param loader_name: Accepted and ignored; no line of the body reads it.
+    :param loss_type: Accepted and ignored. The loss is always
+        :func:`spacr.utils.calculate_loss` with ``prefer_focal=True``
+        (gamma 2.0, alpha 1.0), so the reported ``loss`` is a focal loss and
+        is not on the same scale as the train/validation loss that
+        ``loss_type`` selected — for the same logits it read 0.49 where plain
+        cross-entropy read 0.95.
     :returns: the 4-tuple ``(metrics, probs, labels, results_df)``. ``metrics``
         is the summary dict, with ``loss``, ``epoch`` and ``Accuracy`` added.
         ``probs`` is shape ``(N,)`` for a single-logit head and ``(N, C)``
@@ -666,6 +723,9 @@ def test_model_core(model, loader, loader_name, epoch, loss_type):
         holds one row per image with ``filename``, ``true_label``,
         ``predicted_label`` and either ``class_1_probability`` (single-logit
         head) or one ``prob_class_<k>`` column per class.
+        ``predicted_label`` thresholds a single-logit head at 0.5, not at the
+        ``optimal_threshold`` the metrics report.
+    :raises ValueError: when a batch does not unpack into three items.
     """
     from .utils import calculate_loss
 
@@ -741,9 +801,19 @@ def test_model_performance(loaders, model, loader_name_list, epoch, loss_type):
 
     Thin wrapper around :func:`test_model_core`, kept for API compatibility.
 
+    :param loaders: One DataLoader despite the plural name; passed straight
+        through as the ``loader`` of :func:`test_model_core`.
+    :param model: PyTorch classifier; the inner call leaves it in ``eval``
+        mode on the evaluation device.
+    :param loader_name_list: Forwarded to ``test_model_core``, which ignores
+        it — no value of this changes the result.
+    :param epoch: Copied into the summary row as ``int(epoch)``.
+    :param loss_type: Forwarded and likewise ignored; the reported ``loss`` is
+        the focal loss ``test_model_core`` always computes, not this one.
     :returns: ``(summary_metrics_dataframe, per_file_results_dataframe)`` — the
         first is the one-row frame of summary metrics, the second holds one row
-        per image.
+        per image. ``per_class_accuracy`` and ``class_support`` are list-valued
+        cells in that one row, which reach a CSV as their ``repr``.
     """
     data_dict, _, _, results_df = test_model_core(
         model=model,
@@ -899,7 +969,7 @@ def _cross_validate_model(settings, num_classes):
         mode='train',
         image_size=settings['image_size'],
         batch_size=settings['batch_size'],
-        classes=settings['classes'],
+        classes=_class_folder_names(settings),
         n_jobs=settings['n_jobs'],
         pin_memory=settings['pin_memory'],
         normalize=settings['normalize'],
@@ -986,7 +1056,7 @@ def _cross_validate_model(settings, num_classes):
                 'channels': settings.get('train_channels'),
                 'augment': settings.get('augment', False),
             },
-            classes=list(settings.get('classes') or []),
+            classes=_class_folder_names(settings),
         )
 
     def _metrics_for_probabilities(labels, probabilities):
@@ -1226,7 +1296,7 @@ def _cross_validate_model(settings, num_classes):
             oof_labels,
             probabilities,
             oof_paths,
-            classes=settings.get('classes'),
+            classes=_class_folder_names(settings),
             fold_ids=oof_folds,
             calibration_method=calibration_method,
             calibration_bins=settings.get('evaluation_bins', 10),
@@ -1351,9 +1421,12 @@ def train_test_model(settings):
     os.makedirs(dst, exist_ok=True)
     settings['dst'] = dst
 
-    num_classes = len(settings.get('classes', [])) if settings.get('classes') else 0
+    num_classes = len(_class_folder_names(settings))
     if num_classes <= 0:
-        raise ValueError("No classes provided in settings['classes'].")
+        raise ValueError(
+            "No classes provided: neither class_folder_names nor "
+            "classes names any. Training needs one folder name per "
+            "class, in label order.")
 
     # Audit the permanent dataset boundary before a model sees a pixel. This
     # catches renamed byte-identical copies as well as plate/well/object and
@@ -1449,7 +1522,7 @@ def train_test_model(settings):
             mode='train',
             image_size=settings['image_size'],
             batch_size=settings['batch_size'],
-            classes=settings['classes'],
+            classes=_class_folder_names(settings),
             n_jobs=settings['n_jobs'],
             validation_split=settings['val_split'],
             pin_memory=settings['pin_memory'],
@@ -1530,7 +1603,7 @@ def train_test_model(settings):
                 'channels': settings.get('train_channels'),
                 'augment': settings.get('augment', False),
             },
-            classes=list(settings.get('classes') or []),
+            classes=_class_folder_names(settings),
             settings=settings,
             split_rule=(
                 f"{settings['val_split']:.0%} of train/ held out for "
@@ -1555,7 +1628,7 @@ def train_test_model(settings):
             mode='test',
             image_size=settings['image_size'],
             batch_size=settings['batch_size'],
-            classes=settings['classes'],
+            classes=_class_folder_names(settings),
             n_jobs=settings['n_jobs'],
             validation_split=0.0,
             pin_memory=settings['pin_memory'],
@@ -2056,6 +2129,12 @@ def format_model_card(card):
                      f"{held.get('accuracy', float('nan')):.4f} · macro-F1 "
                      f"{held.get('f1_macro', float('nan')):.4f}")
         lines.append('')
+        # Anything held_out_report had to say about WHICH rows those are.
+        # A card whose n and whose accuracy describe different populations is
+        # the failure this block exists to make impossible to miss.
+        for note in held.get('notes') or []:
+            lines.append(f"> {note}")
+            lines.append('')
         names = held.get('classes') or []
         lines.append('| class | accuracy | support |')
         lines.append('| --- | ---: | ---: |')
@@ -2170,7 +2249,26 @@ def model_card(model_path, *, registry=None, project=None, inputs=(),
                run_id='', **card_kwargs):
     """Build, write and register a card for ``model_path`` in one call.
 
-    :returns: ``(card, card_path, artifact_or_None)``.
+    :param model_path: the checkpoint the card describes. Only the path is
+        used: a checkpoint that does not exist still gets a card written
+        beside it (its folder is created) and still registers, but with an
+        empty content fingerprint, so that row is not content-addressed.
+    :param registry: an open :class:`spacr.artifacts.Registry` to store the
+        row in; without one, a registry is opened at ``project``.
+    :param project: project root recorded on the artifact, and where the
+        registry is opened when ``registry`` is None. Defaults to the
+        checkpoint's own folder, which is where an ``artifacts.db`` then
+        appears. It still sets the recorded root when ``registry`` is passed.
+    :param inputs: upstream artifact ids or :class:`spacr.artifacts.Artifact`
+        objects this checkpoint was derived from.
+    :param run_id: the run this came out of, stored on the artifact row.
+    :param card_kwargs: passed to :func:`build_model_card` — ``settings``,
+        ``classes``, ``split_rule``, ``held_out`` and the rest.
+    :returns: ``(card, card_path, artifact_or_None)``. On a successful
+        registration the card is written twice, the second time carrying
+        ``artifact_id``. If the registry cannot be reached the artifact is
+        ``None`` and the card keeps no ``artifact_id``; nothing raises either
+        way, because losing the card must not lose the weights.
     """
     card = build_model_card(model_path, **card_kwargs)
     card_path = write_model_card(model_path, card)
@@ -2442,7 +2540,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                 f"Checkpoint already completed epoch {start_epoch - 1}, but "
                 f"epochs={epochs}. Increase epochs to continue training.")
 
-    accumulated_train_dicts, accumulated_val_dicts, accumulated_test_dicts = [], [], []
+    accumulated_train_dicts, accumulated_val_dicts = [], []
     # Full per-epoch history kept for the live training plot (the accumulators
     # above get consumed/cleared by _save_progress each epoch).
     live_train_hist, live_val_hist = [], []
@@ -2618,10 +2716,6 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         elif accumulated_train_dicts:
             _save_progress(dst, pd.DataFrame(accumulated_train_dicts), None)
             accumulated_train_dicts = []
-        elif accumulated_test_dicts:
-            _save_progress(dst, pd.DataFrame(accumulated_test_dicts), None)
-            accumulated_test_dicts = []
-
         # pass val_dict to _save_model so checkpoint decisions use validation accuracy
         will_stop = (
             early_stopping_patience > 0
@@ -2792,7 +2886,17 @@ def generate_activation_map(settings):
         transforms.CenterCrop(size=(settings['image_size'], settings['image_size'])),
     ]
     if settings['normalize_input']:
-        transform_steps.append(transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))
+        # `normalize_input` stays the on/off it has always been; WHICH
+        # statistics is `input_statistics`, so an existing settings file
+        # keeps its meaning exactly.
+        from .normalization import normalization_stats
+        stats = normalization_stats(
+            settings.get('input_statistics', 'symmetric'),
+            mean=settings.get('input_mean'), std=settings.get('input_std'),
+            channels=len(settings.get('channels') or (0, 1, 2)))
+        if stats is not None:
+            transform_steps.append(
+                transforms.Normalize(mean=stats[0], std=stats[1]))
     transform_steps.append(SelectChannels(settings['channels']))
     transform = transforms.Compose(transform_steps)
 
@@ -3541,7 +3645,7 @@ def deep_spacr(settings=None):
             n_examples = settings.get('n_top_examples', 20)
             save_top_class_examples(
                 df, tar_path, examples_dst, n=n_examples,
-                classes=settings.get('classes'))
+                classes=_class_folder_names(settings))
 
             # -- NEW: merge predictions back into the measurements database --
             # settings['src'] can be a string or list; use the first entry
