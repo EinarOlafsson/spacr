@@ -257,6 +257,9 @@ def test_windows_installer_is_per_user_and_registers_uninstall():
     assert "pythonw.exe" in nsis
     assert 'Get-SpacrInstallerMessage "unsafe_root"' in bootstrap
     assert 'Section /o "$(SPACR_NSIS_GPU)"' in nsis
+    assert nsis.index('Section /o "$(SPACR_NSIS_GPU)"') < nsis.index(
+        "SectionSetFlags ${SecGpu}"
+    )
     assert '-TorchBackend "$1"' in nsis
     assert "nvidia-smi -L" in nsis
     assert "SectionSetFlags ${SecGpu} ${SF_SELECTED}" in nsis
@@ -612,7 +615,8 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
             workflow
         )
     assert workflow.count("timeout-minutes: 30") == 3
-    assert workflow.count("assert torch.version.cuda is None") == 3
+    assert workflow.count("assert torch.version.cuda is None") == 2
+    assert "assert torch.backends.mps.is_available()" in workflow
     assert workflow.count("smoke_installed.py") == 3
     assert workflow.count("install-profile.json") >= 3
     assert workflow.count("install.log") >= 3
