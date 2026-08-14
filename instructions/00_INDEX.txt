@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-77 done / 9 open (89%).
+78 done / 8 open (90%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -47,10 +47,6 @@ OPEN
    59  PUBLISH spaCR ON CONDA-FORGE
        [BLOCKED: needs the maintainer's accounts]
        59_publish_spacr_on_conda_forge.txt
-
-   81  CLOSE THE GITHUB ISSUES BY FIXING THEM, AND CLOSE THEM AS THE MAINTAINER
-       [BLOCKED: needs the reporter's `df -T` and a stack trace]
-       81_close_the_github_issues.txt
 
    82  GET EVERY GITHUB TEST GREEN, THEN RELEASE 1.5.0.5 — AND DO NOTHING AFTER
        [SECOND TO LAST]
@@ -129,6 +125,7 @@ DONE
    78  THE LOADING SCREEN BACKGROUND IS TEAL; MAKE IT BLACK OR DARK GREY
    79  ONE ANCHOR, ONE COPY OF EACH COLUMN, AND THE RIGHT AGGREGATION FOR EACH KIND
    80  THE REPORTED STATISTIC MUST BE COMPUTED AT THE LEVEL THE SETTING DECLARES
+   81  CLOSE THE GITHUB ISSUES BY FIXING THEM, AND CLOSE THEM AS THE MAINTAINER
    84  ANNOTATION MODE OVERWRITES location_column, AND THE USER CANNOT GET OUT
    84  TURN THE NATURAL NARRATION FINDINGS INTO A REUSABLE REPOSITORY SKILL
    85  THE NAME IS spaCR

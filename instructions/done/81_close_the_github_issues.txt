@@ -2,8 +2,8 @@
 CLOSE THE GITHUB ISSUES BY FIXING THEM, AND CLOSE THEM AS THE MAINTAINER
 ================================================================================
 
-Status:    in progress, 2026-08-12. 25 of the original 26 issues are closed;
-           only #15 remains.
+Status:    done, 2026-08-14. All 26 original issues are closed; #15 was fixed
+           across local and shared filesystems in 13c41543.
 Requested: 2026-08-11 — "add to instructions to solve the github bug issues
            and mark them as solved, in my name,"
 
@@ -377,6 +377,31 @@ retry, which is the path with the most moving parts and the one no
 single-frame test exercises.
 
 REVERTED IN FULL. `to_sql` is back and the 8 intermittent-write tests pass.
+
+--------------------------------------------------------------------------------
+2026-08-14 - #15 FIXED ACROSS LOCAL AND SHARED FILESYSTEMS, THEN CLOSED
+--------------------------------------------------------------------------------
+
+The failed direct-insert attempt above identified the right direction but did
+not preserve all three existing repair paths. The replacement in 13c41543
+does. Ordinary appends now issue a parameterised INSERT directly, with no
+`sqlite_master` query. Pandas is used only to create a genuinely absent table,
+with zero rows; the direct INSERT then writes the frame exactly once.
+
+The create race, a narrower winning schema, a lock during INSERT or COMMIT,
+and a failed partial transaction all retain explicit bounded recovery. Scalar,
+null, timestamp, and timedelta storage was compared row-for-row with pandas.
+The regression set also traces the SQL to prove an existing-table append never
+reads `sqlite_master`, reproduces the widen-after-create-race case, and releases
+four processes against one fresh database without losing a field. The focused
+measurement/database run passed 657 tests.
+
+This is the cluster-safe counterpart to the earlier WAL optimisation: it does
+not enable WAL on NFS, Lustre, GPFS, or an unknown filesystem. Instead it
+removes the repeated reader that starved rollback-journal writers there.
+
+Issue #15 was closed as completed with the commit and test evidence. All 26
+issues in the requested inventory are now closed.
 
 WHAT THE NEXT ATTEMPT NEEDS, beyond what this one had:
 
