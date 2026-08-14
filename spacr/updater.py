@@ -148,9 +148,14 @@ def find_uv() -> Optional[str]:
     :returns: an executable path, or ``None`` when this is an ordinary
         pip-managed environment.
     """
-    candidate = Path(sys.prefix).parent / "bootstrap" / "uv"
-    if candidate.is_file() and os.access(candidate, os.X_OK):
-        return str(candidate)
+    bootstrap = Path(sys.prefix).parent / "bootstrap"
+    # The Windows bootstrap writes uv.exe; POSIX installers write uv. Check
+    # both names rather than relying on PATHEXT, because this directory is
+    # deliberately private and is not added to PATH.
+    for name in ("uv.exe", "uv") if os.name == "nt" else ("uv", "uv.exe"):
+        candidate = bootstrap / name
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
     found = shutil.which("uv")
     return found or None
 
