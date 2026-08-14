@@ -28,6 +28,10 @@ requirements:
     - numba >=0.60,<1.0
     - llvmlite >=0.43,<1.0
     - cellpose >=4.0.7,<5.0
+    # cellpose imports this but its conda-forge package currently omits the
+    # runtime dependency. Keep it explicit so mask imports work on a clean
+    # conda installation.
+    - segment-anything >=1.0,<2.0
     - scikit-image >=0.22.0,<0.28
     - scikit-learn >=1.5.0,<2.0
     - scikit-posthocs >=0.10.0,<0.20
@@ -73,12 +77,19 @@ requirements:
     - ipywidgets >=8.1.2,<9.0
     - huggingface_hub >=0.25,<1.0
     - protobuf >=5.28.3
+    # This package exposes spacr-qt, so declare the GUI extra directly instead
+    # of relying on a scientific dependency to choose a Qt binding for us.
+    - pyside6 >=6.6,<7
+    - qtawesome >=1.3,<2
 
 tests:
   - python:
       imports:
         - spacr
-      pip_check: true
+        - spacr.measure
+        - spacr.qt
+        - cellpose
+        - segment_anything
   - script:
       - spacr-run --list
 
