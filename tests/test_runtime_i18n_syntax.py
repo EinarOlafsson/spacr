@@ -44,3 +44,25 @@ def test_swedish_reviewed_tooltips_are_source_bound_and_gate_clean() -> None:
             "sv",
             force=_looks_translatable(source),
         )
+
+
+def test_french_reviewed_tooltips_are_source_bound_and_gate_clean() -> None:
+    from build_i18n_catalogs import (
+        _looks_translatable,
+        _translation_rejection_reasons,
+        canonical_sources,
+        reviewed_runtime_translations,
+    )
+
+    reviewed = reviewed_runtime_translations("fr")
+    sources = canonical_sources()["setting_tooltips"]
+
+    assert len(reviewed) == 3
+    for source, translated in reviewed.items():
+        assert source in sources.values()
+        assert not _translation_rejection_reasons(
+            source,
+            translated,
+            "fr",
+            force=_looks_translatable(source),
+        )
