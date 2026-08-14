@@ -2,10 +2,7 @@
 OPTIMIZE THE spaCR TUTORIALS
 ================================================================================
 
-Status:    in progress — final acceptance and publication of the rebuilt
-           69-lesson, 50-voice release. The old "16 replacements and three
-           missing" finding below is retained as pre-implementation history;
-           those lessons now exist and their source captures have been rebuilt.
+Status:    done, 2026-08-14.
 Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see how they are setup?"
            2026-08-08 — "great. now we need to audit these lessons one at a time.
 
@@ -40,16 +37,57 @@ Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see
            2026-08-14 — "the screens and tests that you have done, I hope you are saving them so they can be applied later next time I order an audit of the tutorials, save them in the package if you have not already done so, as tests, as a skill, or in whatever format you want as long as all this effor you have put in to building quality controlls for the Tutorials can be reapplied."
 
 --------------------------------------------------------------------------------
-CURRENT CLOSEOUT CHECKPOINT — 2026-08-14
+AUTHORITATIVE FINAL RELEASE RECORD — 2026-08-14
 --------------------------------------------------------------------------------
 
-The rebuilt release itself is complete: 69 lessons, 487 purposeful scenes,
-eight narration languages, 50 intentional voices, 3,450 strict-freshness audio
-tracks, and 69 4K masters. Hosted media is published at Hugging Face commit
-``17af9e67b7dbd16c465e7f494091eb830728e161``. The derived Pages bundle was
-committed to nightly at ``de4d0f9940861f1a96b328f0e595e655ba799a3d`` and
-merged to main through PR #95 at
-``6c42b3a84725c89400830a7709f1735ef106744f``.
+The records after this section are retained as implementation history. Their
+old 40/69-lesson audits, 479-scene cuts, 53/54-voice matrices, placeholder
+findings, publication notes, and concurrent-session ownership warnings are
+superseded by this record.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The completed public release has 69 lessons and 487 purposeful scenes: six
+foundations plus one lesson for every current user-facing module. It supports
+eight narration languages and 50 intentional voices (24 English and 26
+localized), yielding 3,450 strict-freshness AAC narration tracks and 69 4K
+silent masters. The Pages bundle is 98.6 MiB, below its 700 MiB budget.
+
+Hosted audio, timings, and 4K masters are published at Hugging Face commit
+``17af9e67b7dbd16c465e7f494091eb830728e161``. The derived bundle was committed
+to nightly at ``de4d0f9940861f1a96b328f0e595e655ba799a3d`` and merged to main
+through PR #95 at ``6c42b3a84725c89400830a7709f1735ef106744f``. The public
+player at ``https://einarolafsson.github.io/spacr/tutorials/`` now serves that
+exact release.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The prior public cut exposed retired voices, included many single-frame
+placeholder lessons, and could offer phone users narration that no longer
+existed. This release binds current lesson content, spotlights, audio, timing,
+captions, video, player behavior, and publication identities into one tested
+surface.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+- Reconciled the lesson inventory with the current module registry and rebuilt
+  every placeholder into a bounded input -> action -> result walkthrough.
+- Corrected current Home/API guidance, Batch, Mask Live Preview, Image UMAP,
+  Activation, Classify CV/ML, Timelapse, Motility, Cellpose Masks, Plaque, and
+  Gate Editor 2D/3D/xD/Walk coverage.
+- Corrected spotlight geometry and technical pronunciation, made narration the
+  stable mobile clock, and regenerated all supported audio, timing, caption,
+  poster, and video artifacts.
+- Published the hosted and repository bundles, merged the release to main, and
+  deployed only the verified tutorial overlay against the immutable previously
+  published documentation baseline. PRs #96 and #97 added that fail-closed
+  deployment route; Actions run ``31813637887`` built and deployed it green.
 
 The reusable quality controls are now part of the repository at
 ``a732988b``: ``.claude/skills/tutorial-release-audit`` records the complete
@@ -61,14 +99,42 @@ behavior, and ``tests/test_tutorial_release_audit.py`` pins the inventory and
 the tools. This avoids committing a second 700+ MiB screenshot archive while
 making the full screen audit repeatable.
 
-Local acceptance is green, including the reusable 390 x 844 browser audit.
-The public Pages site has not advanced because the standard main-only docs
-workflow correctly stopped at instruction 83's stale API/runtime localization
-catalogs before uploading a Pages artifact. Do not bypass that gate. The only
-remaining tutorial closeout sequence is: finish and merge the localization
-batch, rerun the standard main docs workflow, require the live asset hashes and
-mobile browser audit to pass, then move this instruction to done and refresh
-the ledger.
+--------------------------------------------------------------------------------
+VERIFIED
+--------------------------------------------------------------------------------
+
+- Source release verifier: 69 lessons, 8 languages, 50 voices, 3,450 tracks,
+  and 69 4K masters.
+- Strict audio verifier: every track decodes as 24 kHz mono AAC, stays within
+  75 ms of timing, has no dead air, and passes all-language freshness.
+- External tutorial suite: 69 passed. Repository tutorial/media/Qt selection:
+  171 passed. Reusable package audit: 4 passed and the skill validates.
+- Media budget: 98.6 MiB / 700 MiB. Local current Sphinx build: exit 0, 643
+  pages, eight pre-existing warnings. Frozen-public-baseline overlay build:
+  exit 0, one historical warning, and four exact tutorial asset matches.
+- Live hashes match the committed ``index.html``, ``app_v2.js``,
+  ``voice_catalog.js``, and ``lesson_catalog.js``. The live cache keys are
+  ``20260813-69-lessons-final``, ``20260811-50-voices``, and
+  ``20260811-audio-end-park-captions``; retired voices are absent.
+- A 390 x 844 iPhone-style Chrome session loaded hosted narration and captions
+  as Blob URLs, advanced audible narration, paused and resumed both clocks,
+  played the complete 69.6-second default track at natural 1x speed, ended from
+  the narration clock, replayed from zero, and emitted no fallback toast.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Instruction 83 remains open for the independently versioned API/runtime
+localization catalogs. The tutorial-only deploy preserved the previously
+published non-tutorial documentation instead of publishing those stale current
+catalogs. The standard docs workflow will replace the whole site normally once
+instruction 83 is green; that work is not part of this completed tutorial
+release.
+
+--------------------------------------------------------------------------------
+HISTORICAL IMPLEMENTATION RECORDS FOLLOW
+--------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
