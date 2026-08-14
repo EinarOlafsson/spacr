@@ -263,6 +263,8 @@ def test_windows_installer_is_per_user_and_registers_uninstall():
     assert '-TorchBackend "$1"' in nsis
     assert "nvidia-smi -L" in nsis
     assert "SectionSetFlags ${SecGpu} ${SF_SELECTED}" in nsis
+    assert "nsis-bootstrap-status.txt" in nsis
+    assert "SetErrorLevel $0" in nsis
     assert "app_icon.ico" in nsis
     assert 'File /oname=spacr.ico "${SPACR_ICON}"' in nsis
 
