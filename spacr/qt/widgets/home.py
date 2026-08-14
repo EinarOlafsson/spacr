@@ -605,9 +605,16 @@ class RunningBanner(QFrame):
         thread = getattr(handle, "thread", None)
         if thread is None:
             return
+        # PARK a thread that will not stop; never terminate it. terminate()
+        # is pthread_cancel and every thread here runs Python -- cancelled
+        # holding the GIL it freezes the whole process, which is the opposite
+        # of what a force-quit button is for. drain_thread keeps a reference
+        # to a stubborn thread so nothing drops a running QThread, and
+        # returns immediately either way.
         try:
-            thread.terminate()
-            thread.wait(2000)
+            from ..bridge import drain_thread
+            drain_thread(thread, getattr(handle, "worker", None),
+                         timeout_ms=2000)
         except RuntimeError:
             # Already gone: the job finished between the prompt and here,
             # which is the good outcome and not an error.

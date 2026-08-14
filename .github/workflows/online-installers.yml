@@ -46,25 +46,32 @@ jobs:
           installer=$(find dist/online -name '*Linux*x86_64*Online.run' -print -quit)
           test -n "$installer"
           bash -n "$installer"
-          "$installer" \
-            --dry-run \
-            --torch-backend cpu \
-            --launcher-dir "$RUNNER_TEMP/bin" \
-            --skip-system-deps \
-            --no-launch \
-            --install-root "$RUNNER_TEMP/spacr"
-      - name: Install and import the released Linux application
+          for language in en sv de es zh_CN pt hi ko is fr; do
+            SPACR_INSTALL_LANGUAGE="$language" "$installer" \
+              --dry-run \
+              --torch-backend cpu \
+              --launcher-dir "$RUNNER_TEMP/bin" \
+              --skip-system-deps \
+              --no-launch \
+              --install-root "$RUNNER_TEMP/spacr-dry-$language"
+          done
+      - name: Install and import the checked-out Linux application
         run: |
           installer=$(find dist/online -name '*Linux*x86_64*Online.run' -print -quit)
           "$installer" \
+            --package-spec "$GITHUB_WORKSPACE[qt]" \
             --torch-backend cpu \
             --launcher-dir "$RUNNER_TEMP/bin" \
-            --skip-system-deps \
             --no-launch \
             --install-root "$RUNNER_TEMP/spacr"
           test -s "$RUNNER_TEMP/spacr/install.log"
+          test -s "$RUNNER_TEMP/spacr/install-profile.json"
           "$RUNNER_TEMP/spacr/venv/bin/python" -I -c \
-            "import spacr, PySide6, torch; assert torch.version.cuda is None"
+            "import json, pathlib, spacr, PySide6, torch; p=json.loads(pathlib.Path('$RUNNER_TEMP/spacr/install-profile.json').read_text()); assert torch.version.cuda is None; assert p['requested_backend'] == 'cpu'; assert p['active_backend'] == 'cpu'; assert not any(p['consent'].values())"
+          "$RUNNER_TEMP/spacr/venv/bin/python" -I -c \
+            "import pathlib; from spacr.updater import upgrade_command; c=upgrade_command(); assert pathlib.Path(c[0]).resolve() == pathlib.Path('$RUNNER_TEMP/spacr/bootstrap/uv').resolve(); assert c[1:3] == ['pip', 'install']; assert '-m' not in c"
+          "$RUNNER_TEMP/spacr/venv/bin/python" -I \
+            packaging/online/smoke_installed.py
       - uses: actions/upload-artifact@v7
         with:
           name: spacr-online-linux
@@ -88,21 +95,62 @@ jobs:
       - name: Validate PowerShell bootstrap dry run
         shell: powershell
         run: |
+          python .\packaging\i18n\render.py
+          if ($LASTEXITCODE -ne 0) {
+            throw "Installer locale generation failed with exit code $LASTEXITCODE"
+          }
+          $CatalogPath = (Resolve-Path ".\packaging\online\generated\installer_messages.ps1").Path
+          $CatalogText = [System.IO.File]::ReadAllText(
+            $CatalogPath,
+            [System.Text.Encoding]::UTF8
+          )
+          [System.IO.File]::WriteAllText(
+            $CatalogPath,
+            $CatalogText,
+            (New-Object System.Text.UTF8Encoding($true))
+          )
+          $ParserInputs = @(
+            ".\packaging\online\install_spacr_windows.ps1",
+            ".\packaging\online\generated\installer_messages.ps1"
+          )
+          foreach ($ParserInput in $ParserInputs) {
+            $Tokens = $null
+            $ParseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $ParserInput).Path,
+              [ref]$Tokens,
+              [ref]$ParseErrors
+            ) | Out-Null
+            if ($ParseErrors.Count -ne 0) {
+              $ParseErrors | ForEach-Object { Write-Host $_.Message }
+              throw "PowerShell parser rejected $ParserInput"
+            }
+          }
           $VersionMatch = Select-String -Path "setup.py" -Pattern '^VERSION\s*=\s*["'']([^"'']+)'
           $Version = $VersionMatch.Matches[0].Groups[1].Value
-          & .\packaging\online\install_spacr_windows.ps1 `
-            -DryRun `
-            -InstallRoot (Join-Path $env:RUNNER_TEMP "SpaCR") `
-            -Version $Version `
-            -TorchBackend cpu
+          $Languages = @("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
+          foreach ($Language in $Languages) {
+            $DryRunRoot = Join-Path $env:RUNNER_TEMP "spaCR-dry-$Language"
+            & powershell.exe -NoProfile -ExecutionPolicy Bypass `
+              -File .\packaging\online\install_spacr_windows.ps1 `
+              -DryRun `
+              -InstallRoot $DryRunRoot `
+              -Version $Version `
+              -TorchBackend cpu `
+              -Language $Language
+            if ($LASTEXITCODE -ne 0) {
+              throw "PowerShell dry run failed for $Language"
+            }
+          }
       - name: Build small NSIS web installer
         shell: powershell
         run: .\packaging\online\build_windows_online.ps1
-      - name: Install and import the released Windows application
+      - name: Install and import the checked-out Windows application
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          $InstallRoot = Join-Path $env:RUNNER_TEMP "SpaCR"
+          $InstallRoot = Join-Path $env:RUNNER_TEMP "spaCR"
+          $env:SPACR_PACKAGE_SPEC = "$((Resolve-Path .).Path)[qt]"
           $Installer = Get-ChildItem "dist\online\*Windows*Online-Setup.exe" |
             Select-Object -First 1
           if (-not $Installer) {
@@ -113,17 +161,45 @@ jobs:
             -ArgumentList @("/S", "/D=$InstallRoot") `
             -Wait `
             -PassThru
-          if ($Process.ExitCode -ne 0) {
-            throw "The NSIS installer failed with exit code $($Process.ExitCode)"
-          }
-          if (-not (Test-Path (Join-Path $InstallRoot "install.log"))) {
-            throw "The installer did not preserve install.log"
+          $InstallLog = Join-Path $InstallRoot "install.log"
+          if ($Process.ExitCode -ne 0 -or -not (Test-Path $InstallLog)) {
+            Write-Host "NSIS process exit code: $($Process.ExitCode)"
+            $CandidateRoots = @(
+              $InstallRoot,
+              (Join-Path $env:LOCALAPPDATA "SpaCR")
+            ) | Select-Object -Unique
+            foreach ($CandidateRoot in $CandidateRoots) {
+              Write-Host "Installer candidate root: $CandidateRoot"
+              if (Test-Path $CandidateRoot) {
+                Get-ChildItem $CandidateRoot -Force | Format-Table -AutoSize
+                Get-ChildItem $CandidateRoot `
+                  -Filter "*bootstrap*.txt" `
+                  -Force `
+                  -ErrorAction SilentlyContinue | ForEach-Object {
+                    Write-Host "--- $($_.FullName)"
+                    Get-Content $_.FullName
+                  }
+                $CandidateLog = Join-Path $CandidateRoot "install.log"
+                if (Test-Path $CandidateLog) {
+                  Write-Host "--- $CandidateLog (tail)"
+                  Get-Content $CandidateLog -Tail 100
+                }
+              }
+            }
+            throw "NSIS install failed or did not preserve install.log"
           }
           if (-not (Test-Path (Join-Path $InstallRoot "spacr.ico"))) {
             throw "The installer did not install the spaCR application icon"
           }
+          if (-not (Test-Path (Join-Path $InstallRoot "install-profile.json"))) {
+            throw "The installer did not record its backend/consent profile"
+          }
           & (Join-Path $InstallRoot "venv\Scripts\python.exe") -I -c `
-            "import spacr, PySide6, torch; assert torch.version.cuda is None"
+            "import json, pathlib, spacr, PySide6, torch; p=json.loads((pathlib.Path(r'$InstallRoot')/'install-profile.json').read_text()); assert torch.version.cuda is None; assert p['requested_backend'] == 'cpu'; assert p['active_backend'] == 'cpu'; assert not any(p['consent'].values())"
+          & (Join-Path $InstallRoot "venv\Scripts\python.exe") -I -c `
+            "import pathlib; from spacr.updater import upgrade_command; c=upgrade_command(); assert pathlib.Path(c[0]).resolve() == (pathlib.Path(r'$InstallRoot')/'bootstrap'/'uv.exe').resolve(); assert c[1:3] == ['pip', 'install']; assert '-m' not in c"
+          & (Join-Path $InstallRoot "venv\Scripts\python.exe") -I `
+            packaging\online\smoke_installed.py
       - uses: actions/upload-artifact@v7
         with:
           name: spacr-online-windows
@@ -148,7 +224,7 @@ jobs:
           pkg=$(find dist/online -name '*macOS*Online.pkg' -print -quit)
           test -n "$pkg"
           pkgutil --check-signature "$pkg" || true
-          pkgutil --payload-files "$pkg" | grep 'Applications/SpaCR.app'
+          pkgutil --payload-files "$pkg" | grep 'Applications/spaCR.app'
           bash -n packaging/online/install_spacr_unix.sh
           packaging/online/install_spacr_unix.sh \
             --platform macos \
@@ -157,20 +233,27 @@ jobs:
             --launcher-dir "$RUNNER_TEMP/bin" \
             --no-launch \
             --install-root "$RUNNER_TEMP/spacr"
-      - name: Install and import the released macOS application
+      - name: Install and import the checked-out macOS application
         run: |
           pkg=$(find dist/online -name '*macOS*Online.pkg' -print -quit)
           sudo installer -verboseR -pkg "$pkg" -target /
-          test -s "/Applications/SpaCR.app/Contents/Resources/SpaCR.icns"
+          test -s "/Applications/spaCR.app/Contents/Resources/spaCR.icns"
           test -L /usr/local/bin/spacr
           SPACR_NO_RELAUNCH=1 \
-            "/Library/Application Support/SpaCR/install-for-user.sh"
-          runtime="$HOME/Library/Application Support/SpaCR"
+            SPACR_PACKAGE_SPEC="$GITHUB_WORKSPACE[qt]" \
+            "/Library/Application Support/spaCR/install-for-user.sh"
+          runtime="$HOME/Library/Application Support/spaCR"
           test -s "$runtime/install.log"
+          test -s "$runtime/install-profile.json"
           "$runtime/venv/bin/python" -I -c \
             "import numpy as np, spacr, PySide6, torch; \
-             assert torch.version.cuda is None; \
+             assert torch.backends.mps.is_available(); \
              assert torch.from_numpy(np.zeros(1, dtype=np.float32)).numel() == 1"
+          "$runtime/venv/bin/python" -I -c \
+            "import json, pathlib; p=json.loads((pathlib.Path.home()/'Library/Application Support/spaCR/install-profile.json').read_text()); assert p['requested_backend'] == 'auto'; assert p['active_backend'] == 'mps'; assert not any(p['consent'].values())"
+          "$runtime/venv/bin/python" -I -c \
+            "import pathlib; from spacr.updater import upgrade_command; c=upgrade_command(); assert pathlib.Path(c[0]).resolve() == (pathlib.Path.home()/'Library/Application Support/spaCR/bootstrap/uv').resolve(); assert c[1:3] == ['pip', 'install']; assert '-m' not in c"
+          "$runtime/venv/bin/python" -I packaging/online/smoke_installed.py
       - uses: actions/upload-artifact@v7
         with:
           name: spacr-online-macos
@@ -180,8 +263,7 @@ jobs:
   collect:
     name: Store installers and update README
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'workflow_call' && inputs.publish_to_repository)
+      github.event_name == 'workflow_call' && inputs.publish_to_repository
     needs: [linux, windows, macos]
     runs-on: ubuntu-24.04
     outputs:
@@ -208,20 +290,23 @@ jobs:
             --source installers \
             --destination spacr/application \
             --readme README.rst \
+            --localized-readme-dir docs/i18n/readme \
             --branch "$TARGET_BRANCH"
       - name: Commit generated application installers
         id: commit
         env:
           TARGET_BRANCH: ${{ inputs.target_branch || github.ref_name }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.rst spacr/application
+          git config user.name "Einar Olafsson"
+          git config user.email "einar.olafsson@gmail.com"
+          git add README.rst \
+            docs/i18n/readme/README.{sv,de,es,zh_CN,pt,hi,ko,is,fr}.rst \
+            spacr/application
           if git diff --cached --quiet; then
             echo "Installer files and links are already current."
           else
             version=$(python packaging/release.py version)
-            git commit -m "chore(release): add SpaCR $version installers"
+            git commit -m "chore(release): add spaCR $version installers"
             git push origin "HEAD:$TARGET_BRANCH"
           fi
           echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"

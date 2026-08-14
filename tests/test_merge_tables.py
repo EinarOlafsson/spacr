@@ -60,7 +60,10 @@ def _db(tmp_path, tables, name="measurements.db"):
 
 @pytest.mark.parametrize("column, expected", [
     ("area", SUM),
-    ("perimeter", SUM),
+    # A perimeter describes ONE object; four children do not have a
+    # combined one. Maintainer's call, 2026-08-11 -- lengths average,
+    # areas and volumes sum.
+    ("perimeter", MEAN),
     ("integrated_intensity", SUM),
     ("count_pathogen", SUM),
     ("min_intensity", MIN),

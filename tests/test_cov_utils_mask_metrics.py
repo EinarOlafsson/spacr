@@ -130,6 +130,46 @@ def test_invert_image_uses_dtype_max_as_pivot(dtype):
     assert np.array_equal(out, np.array([[max_value, max_value - 1, 0]], dtype=dtype))
 
 
+@pytest.mark.parametrize("dtype", [np.int8, np.int16, np.int32])
+def test_invert_image_does_not_wrap_on_a_signed_dtype(dtype):
+    """``max - image`` overflowed: int8 ``-100`` gave 227, which wrapped to -29.
+
+    Reflecting through the dtype range (``min + max - image``, the convention
+    ``skimage.util.invert`` uses) keeps every value in range, so the darkest
+    pixel becomes the brightest instead of landing somewhere arbitrary.
+    """
+    from spacr.utils import invert_image
+
+    info = np.iinfo(dtype)
+    img = np.array([[info.min, -100, 0, 1, info.max]], dtype=dtype)
+    out = invert_image(img)
+    assert out.dtype == dtype
+    assert np.array_equal(
+        out, np.array([[info.max, 99, -1, -2, info.min]], dtype=dtype))
+    # inverting twice is the identity, which a wrap would break
+    assert np.array_equal(invert_image(out), img)
+
+
+@pytest.mark.parametrize("dtype", [np.uint8, np.uint16, np.uint32, np.uint64,
+                                   np.int8, np.int16, np.int32, np.int64])
+def test_invert_image_maps_the_dtype_range_onto_itself(dtype):
+    from spacr.utils import invert_image
+
+    info = np.iinfo(dtype)
+    img = np.array([info.min, info.max], dtype=dtype)
+    out = invert_image(img)
+    assert out.dtype == dtype
+    assert np.array_equal(out, np.array([info.max, info.min], dtype=dtype))
+
+
+@pytest.mark.parametrize("bad", [np.float32, np.float64, bool])
+def test_invert_image_refuses_a_non_integer_dtype(bad):
+    from spacr.utils import invert_image
+
+    with pytest.raises(ValueError, match="integer dtype"):
+        invert_image(np.zeros((2, 2), dtype=bad))
+
+
 # ---------------------------------------------------------------------------
 # resize_images_and_labels — branch matrix
 # ---------------------------------------------------------------------------

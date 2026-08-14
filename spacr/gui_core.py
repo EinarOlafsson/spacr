@@ -761,6 +761,60 @@ def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var,
     progress_bar = progress_bar_var
     usage_bars = usage_bars_var
 
+def _restore_module_defaults(variables, settings):
+    """Re-assert THIS module's own default over settings_spec's special_cases.
+
+    `convert_settings_dict_for_gui` replaces the caller's declared value with
+    a canned row whenever the key is in its ``special_cases`` table::
+
+        if key in special_cases:
+            variables[key] = special_cases[key]   # the supplied value is dropped
+
+    That table is ONE ROW PER KEY FOR THE WHOLE APP, so it hands Cellpose
+    Masks ``'[0,1,2,3]'`` where `get_identify_masks_finetune_default_settings`
+    declares ``[0, 0]``. Opening the Tk panel and pressing Run without
+    touching anything therefore segmented on four channels when the module's
+    own defaults asked for one.
+
+    Qt already corrects this locally in `SettingsWidgets._make_widget`, whose
+    comment names this same case. Tk never got the equivalent, so it is added
+    here rather than inside `convert_settings_dict_for_gui`: that function's
+    "special cases ignore the supplied value" contract is deliberately pinned
+    by a test, and changing it would reach every other caller.
+
+    The declared default is ADDED to the options, not substituted for them.
+    `create_input_field` falls back to ``options[0]`` for a value it does not
+    recognise, and for ``channels`` that is ``'[0,1,2,3,4,5,6,7,8]'`` -- worse
+    than what it replaced.
+
+    :param variables: ``{key: (widget_kind, options, value)}`` from
+        `convert_settings_dict_for_gui`.
+    :param settings: the module's own defaults, which are the authority here.
+    :returns: a new mapping with each module default restored and offered.
+    """
+    def _same(a, b):
+        # '[0,1,2,3]' and [0, 1, 2, 3] are the same choice written two ways.
+        # Comparing them raw would "restore" a spelling difference and add a
+        # near-duplicate option that differs only in whitespace.
+        return str(a).replace(" ", "") == str(b).replace(" ", "")
+
+    restored = {}
+    for key, spec in variables.items():
+        if key not in settings or not isinstance(spec, tuple) or len(spec) != 3:
+            restored[key] = spec
+            continue
+        kind, options, value = spec
+        declared = settings[key]
+        if _same(declared, value):
+            restored[key] = spec
+            continue
+        if isinstance(options, (list, tuple)) and options:
+            if not any(_same(declared, option) for option in options):
+                options = [str(declared)] + list(options)
+        restored[key] = (kind, options, declared)
+    return restored
+
+
 def import_settings(settings_type='mask'):
     """Prompt for a settings CSV and rebuild the settings panel with its values.
 
@@ -775,7 +829,7 @@ def import_settings(settings_type='mask'):
     global vars_dict, scrollable_frame, button_scrollable_frame
 
     from .gui_utils import convert_settings_dict_for_gui, hide_all_settings, attach_dependency_listeners
-    from .settings import generate_fields, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model
+    from .settings import generate_fields, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, deep_spacr_defaults
     from .settings import set_default_generate_barecode_mapping, set_default_umap_image_settings, get_analyze_recruitment_default_settings
     from .settings import get_default_generate_activation_map_settings, get_analyze_plaque_settings, get_automated_motility_assay_default_settings
     from .settings import categories, category_dependencies, category_group_dependencies
@@ -843,7 +897,16 @@ def import_settings(settings_type='mask'):
     elif settings_type == 'measure':
         settings = get_measure_crop_settings(settings={})
     elif settings_type == 'classify':
-        settings = set_default_train_test_model(settings={})
+        # THE SAME FACTORY THAT BUILT THE PANEL. This used to be
+        # `set_default_train_test_model`, while `setup_settings_panel` builds
+        # Classify from `deep_spacr_defaults` -- and `update_settings_from_csv`
+        # keeps only keys the factory produced. So importing a Classify CSV
+        # rebuilt the panel from a smaller key set and silently dropped
+        # everything outside it: 80 widgets before the import, 46 after, with
+        # apply_model_to_dataset, model_path, generate_training_dataset and
+        # score_threshold among the casualties -- exactly the keys a user
+        # saves a settings CSV to preserve.
+        settings = deep_spacr_defaults(settings={})
     elif settings_type == 'sequencing':
         settings = set_default_generate_barecode_mapping(settings={})
     elif settings_type == 'umap':
@@ -855,11 +918,17 @@ def import_settings(settings_type='mask'):
     elif settings_type == 'analyze_plaques':
         settings = get_analyze_plaque_settings(settings={})
     elif settings_type == 'convert':
-        settings = {}
+        # Same as setup_settings_panel builds it. This was `{}`, so importing
+        # a Convert CSV rebuilt an entirely empty panel and dropped 'src'
+        # along with everything else -- the same defect as 'classify' above,
+        # one line further down.
+        settings = {'src': 'path to images'}
     else:
         raise ValueError(f"Invalid settings type: {settings_type}")
     
     variables = convert_settings_dict_for_gui(settings)
+    # Before the CSV is applied, so a value the CSV supplies still wins.
+    variables = _restore_module_defaults(variables, settings)
     new_settings = update_settings_from_csv(variables, csv_settings)
     vars_dict = generate_fields(new_settings, scrollable_frame)
     vars_dict = hide_all_settings(vars_dict, categories=None)
@@ -934,6 +1003,7 @@ def setup_settings_panel(vertical_container, settings_type='mask', tick_callback
         raise ValueError(f"Invalid settings type: {settings_type}")
 
     variables = convert_settings_dict_for_gui(settings)
+    variables = _restore_module_defaults(variables, settings)
     vars_dict = generate_fields(variables, scrollable_frame, tick_callback=tick_callback)
 
     containers = [settings_frame]
@@ -1183,7 +1253,44 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
     _gpu_poll = {'enabled': True}
 
     def update_usage(ram_bar, vram_bar, gpu_bar, usage_bars, parent_frame):
-        """Poll psutil/GPUtil and refresh the RAM/VRAM/GPU/CPU bars, then reschedule."""
+        """Poll psutil/GPUtil and refresh the RAM/VRAM/GPU/CPU bars, then reschedule.
+
+        Called once synchronously at the end of :func:`setup_usage_panel`, then
+        re-arms itself every ``uppdate_frequency`` ms, which is read from the
+        enclosing scope rather than passed in.
+
+        :param ram_bar: bar whose ``'value'`` item is set to
+            ``psutil.virtual_memory().percent`` on every tick. Written
+            unconditionally and before any guard, so ``None`` raises
+            ``TypeError`` at once; anything supporting item assignment (a plain
+            dict included) is accepted.
+        :param vram_bar: bar for GPU memory use, written only while GPU polling
+            is still enabled and ``GPUtil.getGPUs()`` reported at least one GPU;
+            only GPU 0 is ever read. When the list comes back empty the bar is
+            left untouched (``None`` is then harmless) and polling continues, but
+            a raising ``GPUtil.getGPUs()`` -- including ``GPUtil`` being ``None``
+            after a failed import -- prints one warning and disables GPU polling
+            for the life of the panel, freezing this bar.
+        :param gpu_bar: bar for GPU load, written under exactly the same
+            condition as ``vram_bar``.
+        :param usage_bars: list of every bar the caller built; only
+            ``usage_bars[3:]`` is read, zipped positionally against the per-core
+            CPU percentages. The slice assumes RAM/VRAM/GPU hold the first three
+            slots, so when the VRAM and GPU bars could not be created the list is
+            two entries short and the core bars are off by two: the bar labelled
+            ``C3`` shows core 1, the ``C1`` and ``C2`` bars never move, and the
+            last two cores are never displayed. Fewer than four entries simply
+            means no core bar is updated.
+        :param parent_frame: object used only to re-arm the loop through
+            ``parent_frame.after(...)``; the caller passes the usage panel's own
+            frame, which shadows the module-level ``parent_frame`` global. The
+            reschedule is wrapped in a bare ``except``, so an object with no
+            ``after`` method (``None``) ends the loop silently. That guard does
+            not cover teardown, though: Tk's ``after`` still succeeds on a
+            destroyed widget, and it is the bar writes above that raise
+            ``TclError`` first.
+        :returns: None.
+        """
         # Update RAM usage
         ram_usage = psutil.virtual_memory().percent
         ram_bar['value'] = ram_usage

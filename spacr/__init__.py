@@ -102,6 +102,12 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "external_masks",
     "resume",
     "checkpoint",
+    "normalization",
+    # Plate-wide intensity rescaling provenance and the desktop installer's
+    # hardware/consent hand-off are both public, dependency-light modules.
+    "intensity_rescale",
+    "install_profile",
+    "umap_search",
     "cancellation",
     "zstack",
     "report",
@@ -144,6 +150,18 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "sp_stats",
     "sim",
     "object",
+    # The one registry of what object kinds exist. Eleven modules used to
+    # spell the vocabulary out independently and now derive from this, so it
+    # is imported by nearly everything that touches a mask.
+    "object_roles",
+    # The organelle presets: one cell-biology choice that fills in the
+    # fifty-three organelle settings a user would otherwise have to reason
+    # about. `settings`, `settings_spec` and `measure` all import it, so it
+    # is part of the surface whether or not it is listed here — and
+    # `test_smoke.py::test_lazy_loader_matches_files` is what says so. It
+    # was added without this line, which turned every cell of
+    # `compat-matrix` red on the same assertion.
+    "organelle_types",
     # Image I/O against the two standards a lab is most likely to already be
     # keeping plates in. Both sit behind optional extras, so importing either
     # without its dependency names the `pip install "spacr[...]"` that fixes
@@ -254,7 +272,11 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "classify",
     "classify_classes",
     "crop_source",
+    "benchmark",
+    "column_groups",
     "filters",
+    "gate_library",
+    "gpu_reduce",
     "merge_tables",
     "model_check",
     "surrogate",

@@ -12,6 +12,8 @@ import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
+_PENDING_STYLESHEET = None
+
 # Skipping while this conftest is imported aborts collection of the entire
 # repository on pytest 7, leaving pytest with exit code 5 ("no tests
 # collected").  Ignore only this directory's test modules when an optional Qt
@@ -101,7 +103,7 @@ def _font_scale_starts_at_one():
 
 
 @pytest.fixture(autouse=True)
-def _restore_font_scale():
+def _restore_font_scale(deferred_deletions_flushed):
     """Put the font scale back the way the test found it.
 
     The same shape of leak as ``_restore_app_registry`` below, and it took
@@ -120,13 +122,24 @@ def _restore_font_scale():
     Restored here rather than in each caller, so a file that starts changing
     the scale tomorrow is covered without anyone remembering to.
     """
+    global _PENDING_STYLESHEET
+
     from spacr.qt import preferences
+
+    app = deferred_deletions_flushed
+    # Apply a prior test's saved style only after its deleteLater queue was
+    # drained. Re-styling during teardown dispatches events into widgets that
+    # pytest-qt is in the middle of destroying and caused old suite crashes.
+    if _PENDING_STYLESHEET is not None:
+        app.setStyleSheet(_PENDING_STYLESHEET)
+        _PENDING_STYLESHEET = None
 
     try:
         original = preferences.get_font_scale()
     except Exception:
         yield
         return
+    original_stylesheet = app.styleSheet()
     try:
         yield
     finally:
@@ -134,6 +147,8 @@ def _restore_font_scale():
             preferences.set_font_scale(original)
         except Exception:
             pass
+        if app.styleSheet() != original_stylesheet:
+            _PENDING_STYLESHEET = original_stylesheet
 
 
 @pytest.fixture(autouse=True)
@@ -296,14 +311,15 @@ def _invalidate_field_fade_cache():
             pass
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def deferred_deletions_flushed(qapp):
     """Deliver the ``deleteLater`` calls earlier tests already made.
 
-    Opt-in, and the only fixture here that is: a test needs it when it
-    measures something PER LIVE WIDGET, where a widget the previous test
-    finished with is indistinguishable from one this test is responsible
-    for.
+    This runs at the start of every test.  A test that measures something per
+    live widget may still request the fixture by name to make that dependency
+    explicit, but correctness cannot depend on every future caller remembering
+    to opt in: otherwise thousands of already-closed widgets accumulate and
+    every palette/style event visits all of them.
 
     pytest-qt closes and ``deleteLater()``s the widgets it was given, but
     ``deleteLater`` only posts an event — the object dies on the next spin of
@@ -319,7 +335,8 @@ def deferred_deletions_flushed(qapp):
     deletes nothing on its own initiative — it delivers deletions their
     owners already requested — and it runs at SETUP, when the previous
     test's teardown is complete and pytest-qt is not part-way through
-    closing anything.
+    closing anything.  That phase boundary is what makes the global flush
+    safe while the old teardown cleanup was not.
     """
     from PySide6.QtCore import QEvent
     from PySide6.QtWidgets import QApplication
@@ -429,8 +446,37 @@ def _no_unguarded_modals(monkeypatch):
 
     The message names the fix, because the failure it produces is otherwise
     mystifying to whoever meets it first.
+
+    AND THE STATIC CONVENIENCE CALLS GO WITH IT (added 2026-08-12). Patching
+    `exec` catches only the dialogs Python drives. `QMessageBox.warning(...)`,
+    `QFileDialog.getExistingDirectory(...)`, `QInputDialog.getText(...)` and
+    their siblings BUILD the dialog and run its event loop entirely inside
+    C++, so a Python-level `exec` override is never consulted and the call
+    blocks for ever exactly as before. That is the same hole one level down
+    from the 2026-08-08 one (QMessageBox overriding QDialog.exec), and it is
+    still open: under a REAL X server -- `xvfb-run` with
+    `QT_QPA_PLATFORM=xcb`, which is how this suite can now be run --
+    `MakeMasksScreen._warn` reaches `QMessageBox.warning` and six tests in
+    `test_make_masks_canvas.py` hang until something kills the worker. An
+    Xvfb display is a display as far as Qt is concerned, and there is still
+    nobody to click the button.
+
+    SEVENTEEN test files already carry a private copy of this list as a
+    per-file `no_modals` fixture (test_convert_screen, test_batch_screen,
+    test_report_screen, ...) -- and `test_make_masks_canvas`, the one file
+    that actually hung, was not among them. That is the argument for the
+    global guard in one line: the files that remember to write the fixture
+    are not the files that need it. Those copies are now redundant rather
+    than load-bearing, and are left alone rather than deleted in bulk.
     """
-    from PySide6.QtWidgets import QDialog, QMessageBox
+    from PySide6.QtWidgets import (
+        QColorDialog,
+        QDialog,
+        QFileDialog,
+        QFontDialog,
+        QInputDialog,
+        QMessageBox,
+    )
 
     def _refuse(self, *args, **kwargs):
         raise AssertionError(
@@ -443,3 +489,32 @@ def _no_unguarded_modals(monkeypatch):
     for cls in (QDialog, QMessageBox):
         for name in ("exec", "exec_"):
             monkeypatch.setattr(cls, name, _refuse, raising=False)
+
+    # class -> the static calls on it that build a modal and block in C++.
+    _BLOCKING_STATICS = {
+        QMessageBox: ("about", "aboutQt", "critical", "information",
+                      "question", "warning"),
+        QFileDialog: ("getExistingDirectory", "getOpenFileName",
+                      "getOpenFileNames", "getSaveFileName"),
+        QInputDialog: ("getDouble", "getInt", "getItem", "getMultiLineText",
+                       "getText"),
+        QColorDialog: ("getColor",),
+        QFontDialog: ("getFont",),
+    }
+
+    for cls, names in _BLOCKING_STATICS.items():
+        for name in names:
+            def _refuse_static(*args, _cls=cls, _name=name, **kwargs):
+                raise AssertionError(
+                    f"{_cls.__name__}.{_name}() was called in a headless "
+                    "test. It builds a modal and runs its event loop inside "
+                    "C++, so it never returns here and hangs the run -- "
+                    "patching `exec` does NOT cover it. Stub the call that "
+                    f"opens it, or monkeypatch {_cls.__name__}.{_name} in "
+                    "the test that wants to answer it.")
+
+            # Marked so a test can assert the guard is installed without
+            # having to CALL one of these and risk the hang it prevents.
+            _refuse_static._spacr_modal_guard = True
+            monkeypatch.setattr(cls, name, staticmethod(_refuse_static),
+                                raising=False)

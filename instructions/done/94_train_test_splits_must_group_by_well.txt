@@ -1,0 +1,193 @@
+================================================================================
+EVERY TRAIN/TEST SPLIT GROUPS BY WELL
+================================================================================
+
+Status:    not started, 2026-08-13.
+Requested: 2026-08-13 - "Grouped splitting is not verified by the current
+           code ... XGBoost uses ordinary train_test_split without a groups
+           argument" / "do it on the more rigerous level the well level."
+
+--------------------------------------------------------------------------------
+THE REPORT WAS RIGHT ABOUT THE SITES AND WRONG AS A BLANKET
+--------------------------------------------------------------------------------
+
+Checked against the working copy rather than the July checkout the report
+cited, and both halves matter.
+
+RIGHT: five splits are ungrouped, and the two it names are among them.
+
+    ml.py:4722            train_test_split(X, y, ...)   XGBoost / Classify ML
+    io.py:7061            crop paths into train/ and test/
+    utils.py:5165-5166    augmented NC and PC crop lists
+    gui_elements.py:5483  the in-GUI classifier
+    surrogate.py:319      the surrogate model
+
+WRONG AS A BLANKET: `spacr/active_learning.py` ALREADY does grouped splitting,
+and does it well. `_grouped_split` uses `StratifiedGroupKFold` with a
+`GroupShuffleSplit` fallback; `_split_columns_for` REFUSES an unrecognised
+strategy rather than quietly returning no columns -- because a lookup that
+returns nothing turns a grouped split into a per-object random one AND records
+it in the model card as "no group appears on both sides", which is the
+optimistic number with provenance asserting the opposite. The setting is
+`cv_group_by` and it already defaults to `'well'`.
+
+SO THE WORK IS TO EXTEND THAT MECHANISM, NOT TO WRITE A SECOND ONE. A second
+splitter is a second set of rules about what a well is, and the two would
+disagree first on the plate whose names are unusual.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS, AND WHY WELL RATHER THAN FIELD
+--------------------------------------------------------------------------------
+
+Cells from one well share illumination, focus, seeding density, edge position,
+fixation and batch. Split at random and a test cell's SIBLINGS are in
+training, so the model can score well by recognising the WELL rather than the
+phenotype. The reported accuracy is optimistic by an unknown amount -- unknown
+because nothing in any output shows the leak -- and the feature importances
+point at whatever varies between wells.
+
+FIELD is the weaker grouping and the more comfortable one: it keeps more
+effective sample size, because a well holds several fields. It also leaves the
+leak in place, since two fields of one well share every confound above. WELL
+is the level at which the experiment assigns a condition, so it is the level
+at which a held-out set is independent. That is the maintainer's call and it
+is the right one.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+  1. PROMOTE `active_learning._grouped_split` and `_split_columns_for` to a
+     shared home both classical ML and the crop-list splitters can import.
+     They are private today only because nothing outside that module needed
+     them.
+  2. Route the five sites through it. The measurement frames are indexed by
+     `prcfo` and carry plateID/rowID/columnID, so the well is available; the
+     crop lists carry it in the filename.
+  3. REFUSE, DO NOT FALL BACK SILENTLY. A design with one well per class
+     cannot be split this way, and a random split presented as a grouped one
+     is the exact failure being fixed. active_learning's wording is the model:
+     it says the accuracy "measures how well the model memorised this one
+     well, not whether it transfers".
+  4. SAY WHAT IT COST. Whole wells move, so `test_size` becomes approximate --
+     20% of the WELLS, and whatever fraction of the cells those wells held.
+     The run should report both numbers rather than let a user assume the
+     second.
+  5. RECORD THE SPLIT. `data_usage` already marks each row train/test/not_used
+     in ml.py; it should also record the grouping level, or the column
+     documents a leak rather than ruling one out.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+No well appears on both sides of any split in the package; a design that
+cannot be grouped is refused with a sentence naming why; the reported test
+fraction distinguishes wells from cells; and a model card says which grouping
+produced the score it reports.
+
+--------------------------------------------------------------------------------
+2026-08-13 (later) - A LADDER THE USER PICKS FROM, NOT A LEVEL IMPOSED
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "instead cant we alow the user to choose split level
+           with the options of cell, fieldID, and wellID?"
+
+BETTER THAN HARD-CODING, and the vocabulary was already there: `_SPLIT_GROUPS`
+in active_learning.py had well / field / plate / none, and `cv_group_by`
+already defaulted to `'well'`. So this is exposing a choice that exists rather
+than inventing one, and it is FOUR levels, not three -- `plate` comes free and
+is stricter than well, for a design where the batch is the plate.
+
+    cell    each object its own group. Siblings from one well on both sides.
+    field   narrows the leak; two fields of one well still share illumination,
+            seeding, edge position and fixation, so it does not close it.
+    well    the level at which the experiment assigns a condition, and so the
+            level at which a held-out set is independent.
+    plate   for a design whose batch is the plate.
+
+`none` RENAMED TO `cell`, WITH THE OLD NAME KEPT AS AN ALIAS. "None" reads as
+the feature being switched OFF; it is in fact the leakiest setting on the
+ladder, deliberately chosen. Naming it for its UNIT makes the four readable as
+a ladder and stops a model card recording "no strategy" when what happened was
+a strategy somebody picked. `none`, `off`, False and None all still resolve to
+it, because that is what shipped and a settings file must keep meaning what it
+meant.
+
+THE REPORTED NAME FOLLOWS THE CHOICE. `_split_columns_for` returned `'none'`
+for a `cell` split, so the card recorded the ABSENCE of a strategy rather than
+the deliberate choice of the leakiest one -- and those two read very
+differently to whoever reads the card next.
+
+TESTS THAT PINNED THE OLD SHAPE, updated with their INTENT kept rather than
+their assertion:
+
+  * `test_filter_and_columns_are_one_section_not_two_tabs` asserted there were
+    NO tab widgets at all. That was right when it was written and is wrong
+    now: Filter and SEARCH are tabs, by instruction 31's spec. What must not
+    happen is Filter and COLUMNS being split from each other, so that is what
+    it asserts.
+  * `test_the_gate_list_has_its_own_handle` pinned the splitter pane's CLASS
+    and failed the moment the panel gained tabs, with nothing about the
+    handles having changed. It checks the handle, which is what it is for.
+  * `test_the_side_panel_does_not_paint_the_window_colour` checked the first
+    scroll area found; there are several now, so it checks them all.
+
+STILL TO DO: route the five ungrouped sites through this, expose `split_by` as
+a setting with the ladder and its tooltip, and report the split as wells AND
+cells rather than one number.
+
+--------------------------------------------------------------------------------
+2026-08-14 - COMPLETE: ONE STRICT SPLITTER, FIVE CALLERS, FOUR LEVELS
+--------------------------------------------------------------------------------
+
+The split policy now has one shared home in `spacr.classifier_evaluation`:
+
+    normalize_split_level   cell / field / well / plate; none -> cell
+    split_columns_for       complete metadata keys or a refusal
+    split_group_values      metadata, canonical prcfo, or crop filenames
+    grouped_split           indices plus a durable SplitReport
+
+THE DEFAULT IS WELL AND THE FALLBACK IS GONE. Missing metadata, anonymous crop
+names, one-group designs, one independent well per class, and any design that
+cannot put every class on both sides raise a sentence explaining why a random
+cell split would measure memorisation rather than transfer. A deliberately
+selected cell split remains available and is recorded as `cell`, never as the
+absence of a strategy. Repeated rows/augmentations of the same object remain
+together even at that level.
+
+ALL FIVE SITES NOW USE IT:
+
+  * `ml.ml_analysis` groups the ordinary holdout and its optional CV folds;
+  * `io.generate_dataset_from_lists` groups the permanent disk dataset;
+  * `utils.augment_classes` groups augmentation families globally;
+  * `gui_elements.AnnotateApp.train_and_classify` groups the in-GUI model;
+  * `surrogate.fit_surrogate` groups the fidelity holdout.
+
+Active learning imports the same implementation instead of carrying its own,
+and the ordinary Classify validation loader and hyperparameter folds now share
+the same `cell` alias and strict identity refusal. There is no remaining direct
+`train_test_split` call outside the shared implementation.
+
+THE COST IS VISIBLE. `SplitReport` records requested fraction, realised group
+fraction, realised cell fraction, group/cell counts and the exact rule. The
+generated crop tree writes `.spacr_split.json`; classical ML writes the values
+onto scored rows, into `model_metrics.csv`, and onto the returned estimator;
+the surrogate result carries them; active-learning model cards carry the full
+split-rule summary. Console summaries say, for example, "2 of 4 well groups
+(50%) and 12 of 24 cells (50%); requested 25%" rather than pretending whole
+wells can satisfy every requested decimal.
+
+THE PICKER IS THE FOUR-RUNG LADDER. `cv_group_by` now exposes cell, field, well
+and plate in that order, defaults to well, and its tooltip explains the leak at
+each rung. Legacy `none`, `off`, False and None still deserialize as cell. The
+legacy annotation launcher passes the same setting into its classifier.
+
+TESTED NORMAL AND FAILURE CASES: direct metadata, prcfo with an underscored
+plate id, crop filenames, repeated object rows, augmentation families,
+deterministic cell splits, whole-well fraction expansion, missing/null keys,
+anonymous filenames, one well, one well per class, rare cells, invalid
+fractions and mismatched lengths. The routed ML, active-learning, CV, crop,
+augmentation, surrogate and GUI suites pass (588 focused integration tests;
+117 active-learning/surrogate tests; 433 settings tests; and the three
+end-to-end classical-ML tests).

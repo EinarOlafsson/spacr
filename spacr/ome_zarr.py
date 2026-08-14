@@ -678,14 +678,52 @@ class Axis:
     @classmethod
     def space(cls, name: str, scale: float = 1.0, unit: Optional[str] = None,
               translate: float = 0.0) -> "Axis":
-        """A spatial axis — the kind that goes into a :class:`spacr.layers.Spacing`."""
+        """A spatial axis — the kind that goes into a :class:`spacr.layers.Spacing`.
+
+        :param name: the axis name, stripped. The type is forced to space
+            whatever the name says, so ``Axis.space("t")`` puts a t axis
+            *inside* the spacing; the name-based inference that applies when
+            reading a file does not apply here.
+        :param scale: world size of one element at level 0, and what every
+            pyramid level's ``scale`` is derived from. Zero or non-finite is
+            refused; negative is allowed and reaches the file unchanged. It is
+            the second positional argument here but the fourth on
+            :class:`Axis`, so ``Axis.space("x", "um")`` is a ``float("um")``.
+        :param unit: the NGFF (UDUNITS-2) name, stored verbatim and *not*
+            checked here — ``unit="furlong"`` builds, and only raises once a
+            spacing is made from it, which for :func:`write_ome_zarr` is after
+            the chunks are already on disk. ``None`` (the default) and ``""``
+            both mean pixels and write an axis carrying no ``unit`` key.
+        :param translate: world coordinate of element 0 at level 0; non-finite
+            is refused. Seeds every level's ``translation`` in the written file.
+        :raises OmeZarrError: from :class:`Axis` itself, on a blank name, a
+            zero or non-finite scale, or a non-finite translation.
+        """
         return cls(name=name, type=AXIS_SPACE, unit=unit, scale=scale,
                    translate=translate)
 
     @classmethod
     def time(cls, name: str = "t", scale: float = 1.0,
              unit: Optional[str] = "second", translate: float = 0.0) -> "Axis":
-        """A time axis. Kept out of the spacing; reported beside it."""
+        """A time axis. Kept out of the spacing; reported beside it.
+
+        :param name: defaults to ``"t"``. The type is forced to time whatever
+            the name says, so ``Axis.time("x")`` is an axis called x that
+            :func:`spacing_from_axes` leaves out.
+        :param scale: world time per element at level 0. It never reaches a
+            :class:`spacr.layers.Spacing`, but :func:`write_ome_zarr` still
+            writes it into every level's ``scale`` — unhalved, since only space
+            axes are downsampled. Zero or non-finite is refused.
+        :param unit: defaults to ``"second"``, not to ``None`` as on
+            :meth:`space`. Nothing validates it on the way in or out: reading
+            and writing only check space-axis units, so an untranslatable one
+            round-trips and surfaces only at :meth:`spacr_units`. ``None``
+            writes no ``unit``, which then reads back as pixels.
+        :param translate: world time of element 0 at level 0; non-finite is
+            refused. Written into every level's ``translation``.
+        :raises OmeZarrError: from :class:`Axis` itself, on a blank name, a
+            zero or non-finite scale, or a non-finite translation.
+        """
         return cls(name=name, type=AXIS_TIME, unit=unit, scale=scale,
                    translate=translate)
 

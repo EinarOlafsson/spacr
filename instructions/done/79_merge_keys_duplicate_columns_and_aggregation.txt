@@ -1,0 +1,260 @@
+================================================================================
+ONE ANCHOR, ONE COPY OF EACH COLUMN, AND THE RIGHT AGGREGATION FOR EACH KIND
+================================================================================
+
+Status:    done, 2026-08-11. Supersedes the "drop policy" half of instruction
+           77 (3c), which asked a smaller question. Multi-organelle cytoplasm
+           subtraction remains separately tracked by instruction 76.
+Requested: 2026-08-11 — "here is what i want instead. when i merge tables and
+           two of columns have the same name i want those columns compared if
+           they have the same values when indexed by prcfo i want just one to
+           be kept and when they do not have the same values when indexed on
+           prcfo something is wrong and a warning needs to be thrown to the
+           console or the analasys stopped.
+
+           because i always anchor each table to the cell object nr with the
+           other data so cell object nr and cytoplasm object number is the
+           same as cell (cytoplasm is cell - nucleus - pathogen) and the
+           nucleus, pathogen, organell and png_list all have the cell object
+           number. however the cell object number is not column is not allways
+           called the same thing, in cell and cytoplasm it is called
+           object_label, in nucleus, pathogen, png_list and organelle tables
+           its called cell_id
+
+           the functions that merge these tables need to merge columns with
+           the correct aggregation methods not only here so check spacr.io
+           merging functions (read_db i thing or read_table_from_db).
+
+           cytoplasm should also be able to be cell - nucleus - organelle (and
+           organelle_1,_2, ...)"
+
+           2026-08-11 (on the join type) — "png_list should always be inner,
+           and so should nucleus and for cytoplasm it dosnt batter because it
+           is a tertery object to cell, the important thing is how the columns
+           are agregated and if the user has specified the uninfected should
+           be included. if this function is only for recruitment to the
+           pathogen the n uninfected should always be removed (so inner is
+           fine) otherwise when the user want s to keep uninfected it should
+           be outer i guess, and its important that area measurements are
+           summed and counts are added to each other and summary statistics
+           are averaged or the mean is taken."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The anchor registry, duplicate reconciliation, per-column aggregation policy,
+join policy, and both database-reader integrations are complete and measured
+below. The only adjacent work not included here is numbered multi-organelle
+support, which belongs to instruction 76 and does not keep this task open.
+
+--------------------------------------------------------------------------------
+THE MODEL, STATED ONCE
+--------------------------------------------------------------------------------
+
+EVERY OBJECT TABLE IS ANCHORED TO THE CELL. That is the invariant the whole
+merge rests on, and it is currently nowhere written down:
+
+    cell        the anchor.                       key column: object_label
+    cytoplasm   cell minus its interior objects.  key column: object_label
+    nucleus     belongs to one cell.              key column: cell_id
+    pathogen    belongs to one cell.              key column: cell_id
+    organelle   belongs to one cell.              key column: cell_id
+    png_list    one crop of one cell.             key column: cell_id
+
+So the key is ONE CONCEPT UNDER TWO NAMES. `object_label` in cell and
+cytoplasm, `cell_id` everywhere else. Any merge that does not translate
+between them is joining on a coincidence.
+
+CARDINALITY FOLLOWS FROM THAT. cell and cytoplasm are ONE ROW PER CELL;
+nucleus, pathogen, organelle and png_list are MANY ROWS PER CELL. A merge
+that does not aggregate the many side first fans the cell's own measurements
+out across its children and multiplies every per-cell number by the child
+count.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. NAME THE KEY IN ONE PLACE. A registry -- like `spacr.object_roles` does for
+   the object vocabulary -- saying which column carries the cell anchor for
+   each table, and a function that returns it. Every merge site reads that
+   instead of spelling `object_label` or `cell_id` itself.
+
+2. DUPLICATE COLUMNS ARE COMPARED, NOT SILENTLY PICKED. When two tables being
+   merged carry the same column name:
+     * index both on `prcfo`;
+     * where the values AGREE, keep ONE copy;
+     * where they DISAGREE, that is a real inconsistency -- warn on the
+       console naming the column and showing offending keys, or stop the
+       analysis. Do not let a suffixed `_x`/`_y` pair through, and do not let
+       one silently win.
+   The existing `_merge_grouped` already does something like this for the
+   acquisition-metadata columns (`acquisition_conflict`); this generalises
+   that to every shared column.
+
+3. AGGREGATION IS PER COLUMN KIND, and this is the part that matters more
+   than the join type:
+
+       areas / counts        SUMMED     four pathogens in a cell contribute
+                                        one total pathogen area and a count
+                                        of four.
+       summary statistics    MEAN       intensities, ratios, correlations,
+                                        eccentricity -- averaging is the only
+                                        thing that means anything.
+       identity / metadata   FIRST      plate, row, column, field: identical
+                                        across the group by construction,
+                                        and if they are NOT, see (2).
+
+   Getting this wrong is worse than a wrong join: a summed intensity is not a
+   number that is merely from the wrong rows, it is a number with no meaning.
+
+4. THE JOIN TYPE, now decided:
+       png_list   INNER, always.
+       nucleus    INNER, always.
+       cytoplasm  does not matter -- tertiary to cell, one row per cell.
+       pathogen   INNER when the analysis is recruitment-to-pathogen, where
+                  an uninfected cell is not a unit of analysis. OUTER when
+                  the user asks to KEEP UNINFECTED cells. So this one is a
+                  SETTING, not a constant, and the setting has to reach the
+                  merge.
+
+5. CYTOPLASM IS CELL MINUS EVERY INTERIOR OBJECT, not just nucleus and
+   pathogen: `cell - nucleus - pathogen - organelle - organelle_1 - ...`.
+   This is the same requirement instruction 76 records, and the two should
+   land together.
+
+6. FIX IT WHEREVER IT LIVES, not only in merge_tables. The user named
+   `spacr.io`'s readers specifically -- `_read_and_merge_data`,
+   `_read_and_join_tables`, `_read_db` and whatever else joins these tables.
+   The aggregation rules belong in one place that all of them call.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A synthetic plate where the answer is known by construction: N cells, a known
+number of pathogens per cell with known areas and intensities. After the
+merge, the per-cell pathogen area is the SUM, the per-cell pathogen intensity
+is the MEAN, the pathogen count is the COUNT, and every per-cell measurement
+appears exactly once at its original value -- not multiplied by the child
+count. Then the same plate with a column deliberately made inconsistent
+between two tables, and the run says so instead of picking one.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Every number in a screen comes through this merge. A fan-out multiplies
+per-cell values by the child count; a wrong aggregation replaces a
+measurement with something that is not a measurement of anything. Neither
+raises, both look like data, and the figure downstream is drawn from them.
+
+--------------------------------------------------------------------------------
+2026-08-11 - THE AGGREGATION TABLE IS DECIDED, AND THE FIRST PART IS DONE
+--------------------------------------------------------------------------------
+
+Asked: are `major_axis_length`, `minor_axis_length`, `equivalent_diameter`
+and `perimeter` summed or averaged when several children roll onto one cell?
+Answered: "those measurements should be averages."
+
+DONE. Both readers changed:
+
+    spacr/utils.py         `sum_keywords` -- perimeter, major_axis_length,
+                           minor_axis_length and equivalent_diameter removed;
+                           anything matching `area` stays.
+    spacr/merge_tables.py  the SUM regex split in two: area/volume/convex_area/
+                           filled_area SUM, perimeter/length/width/height/
+                           diameter MEAN.
+
+Measured on the survey's own case -- two nuclei in one cell, areas 10 and 20,
+each with major_axis_length 10.0 and perimeter 4.0:
+
+                          before      after
+    area                    30.0       30.0    (sum, unchanged)
+    major_axis_length       20.0       10.0
+    perimeter                8.0        4.0
+    mean_intensity         150.0      150.0    (mean, unchanged)
+
+THE RULE, STATED SO IT CAN BE APPLIED TO A NEW COLUMN: four objects occupy
+the SUM of their areas -- that is a real quantity of the parent. They have no
+combined LENGTH: two nuclei each 10 units long are not one nucleus 20 units
+long. An axis length, a perimeter and an equivalent diameter describe an
+INDIVIDUAL object, so the parent gets the typical one. Volume adds for the
+same reason area does.
+
+Two tests pinned the old rule and now pin the new one:
+`test_split_data_sums_size_columns_and_means_the_rest` and
+`test_each_measurement_gets_the_aggregation_it_deserves[perimeter]`.
+
+STILL OPEN in this instruction: the anchor-key registry, the duplicate-column
+compare, the pathogen inner/outer setting, organelle support in BOTH io.py
+readers, and cytoplasm subtracting every interior object.
+
+--------------------------------------------------------------------------------
+2026-08-11 - THE ANCHOR, THE DUPLICATES, THE JOIN TYPE AND THE SECOND READER
+--------------------------------------------------------------------------------
+
+(1) THE KEY IS NAMED IN ONE PLACE. `spacr.object_roles` now carries
+`ANCHOR_COLUMN`, `anchor_column()`, `ONE_ROW_PER_CELL` and
+`is_one_row_per_cell()`. cell and cytoplasm anchor on `object_label` and join
+one row to one row; nucleus, pathogen, organelle and png_list anchor on
+`cell_id` and roll up first. An undeclared table raises and names the ones
+that are declared, rather than guessing.
+
+This was not only untidy. `merge_tables` decided whether a table could be
+joined by asking whether it carried `cell_id`, so CYTOPLASM FAILED THE TEST
+and was skipped behind a LOG.info -- the merged frame came back with zero
+cytoplasm columns and no error. Measured, then fixed, then pinned.
+
+(2) DUPLICATES ARE COMPARED. `merge_tables.reconcile_duplicates()` takes the
+merged frame and the suffix, compares each `col`/`col+suffix` pair row by
+row, drops the duplicate where they agree, and reports where they do not --
+`duplicate_column_policy='warn'` prints and keeps the cell table's value,
+`'raise'` stops the run. Two missing values count as agreement, and float
+noise below 1e-9 is not a disagreement.
+
+Scoped to the columns that MUST agree (`MUST_AGREE`: the plate/row/column/
+field identity, prc/prcf/prcfo, object_label, cell_id, the timepoint). A
+cell's `area` and its cytoplasm's `area` are supposed to differ, and
+reporting that as a conflict would bury the real ones under one per measured
+column.
+
+(3) AGGREGATION IS NOW DECIDED IN ONE PLACE, and the second reader calls it.
+`utils.py` held an independent `sum_keywords` substring match that disagreed
+with `merge_tables` on three kinds of column, each producing a number rather
+than an error:
+
+    object_label     averaged -> a label of 2.0 for pathogens 1, 2 and 3
+    count_*          averaged -> 2 and 3 of something became 2.5, not 5
+    total_/integrated_  averaged -> a total that is not a total
+
+Both readers now call `merge_tables.aggregation_for()`, which matches on word
+boundaries rather than substrings. Identity matches FIRST, ahead of every
+other rule, and is carried verbatim.
+
+Also aligned: column prefixing. Measure writes `nucleus_area`, not `area`, so
+the unconditional prefix produced `nucleus_nucleus_area`. A column now has
+one name whichever way it was joined.
+
+(4) THE JOIN TYPE IS A REGISTRY AND A SETTING.
+`object_roles.JOIN_HOW` / `join_how(table, keep_uninfected=)`:
+
+    nucleus     INNER   a cell with no nucleus is debris, not a cell
+    png_list    INNER   a cell with no crop cannot be classified
+    cytoplasm   LEFT    one row per cell; it makes no difference
+    pathogen    LEFT    an uninfected cell is usually the CONTROL population
+    organelle   LEFT    same reasoning
+
+`keep_uninfected=False` turns pathogen and organelle inner and leaves nucleus
+and png_list alone -- a cell with no nucleus is not an uninfected cell.
+`_read_and_join_tables` takes both settings and reads the registry; a test
+fails if a literal `how='left'` reappears beside a merge.
+
+(5) CYTOPLASM already subtracts nucleus, pathogen AND organelle
+(`measure.py`, the interior mask). What remains is `organelle_1`,
+`organelle_2`, ... which needs the multi-organelle model and lands with
+instruction 76.
+
+STILL OPEN in this instruction: only (5)'s multi-organelle half, tracked
+under 76.

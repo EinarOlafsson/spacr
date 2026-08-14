@@ -11,7 +11,7 @@ from typing import Optional
 
 from PySide6.QtCore import QEvent, QObject, QTimer
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QApplication, QPushButton
+from PySide6.QtWidgets import QApplication, QDialogButtonBox, QPushButton
 
 
 POSITIVE_PREFIXES = ("run", "propagate")
@@ -44,7 +44,37 @@ def action_role(text: str) -> Optional[str]:
     return None
 
 
+def alive(button) -> bool:
+    """Is this button's C++ side still there?
+
+    A ``lambda target=button: ...`` connected to a signal keeps the PYTHON
+    wrapper alive while Qt deletes the C++ object under it -- the wrapper has
+    no way to tell Qt to drop the connection, because the connection is not a
+    bound method of a QObject. Touching the wrapper afterwards raises
+
+        RuntimeError: libshiboken: Internal C++ object
+        (PySide6.QtWidgets.QPushButton) already deleted.
+
+    which is what spaCR printed on every launch, once per wired button, for a
+    button the user never pressed. shiboken answers the question directly;
+    the exception is the fallback for a build where it cannot be imported.
+    """
+    if button is None:
+        return False
+    try:
+        from shiboken6 import isValid
+        return bool(isValid(button))
+    except Exception:
+        try:
+            button.objectName()
+            return True
+        except RuntimeError:
+            return False
+
+
 def _repolish(button: QPushButton) -> None:
+    if not alive(button):
+        return
     style = button.style()
     if style is not None:
         style.unpolish(button)
@@ -53,7 +83,14 @@ def _repolish(button: QPushButton) -> None:
 
 
 def set_button_busy(button: QPushButton, busy: bool) -> None:
-    """Show or clear the persistent solid operation state."""
+    """Show or clear the persistent solid operation state.
+
+    A no-op for a button whose C++ side has been deleted -- see :func:`alive`.
+    Returning quietly is right here: the state being set is a VISUAL one on a
+    widget that is gone, so there is nothing to show and nothing was lost.
+    """
+    if not alive(button):
+        return
     busy = bool(busy)
     if button.property("buttonActionBusy") == busy:
         return
@@ -110,7 +147,8 @@ class _SemanticButtonFilter(QObject):
         # chrome dropped into the app's own type. Stripped here rather than at
         # each call site, because this filter already sees every button in
         # every dialog, including ones built after startup.
-        if not button.icon().isNull():
+        if (isinstance(button.parentWidget(), QDialogButtonBox)
+                and not button.icon().isNull()):
             button.setIcon(QIcon())
 
         role = action_role(button.text())

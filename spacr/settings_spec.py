@@ -34,6 +34,9 @@ a third time, to the module itself.
 from __future__ import annotations
 
 import sys
+from .organelle_types import (DEFAULT_TYPE as _ORGANELLE_TYPE_DEFAULT,
+                              TYPE_ORDER as _ORGANELLE_TYPE_ORDER)
+from .schema import ALL_ROLES, ORGANELLE_ROLES
 
 __all__ = ["convert_settings_dict_for_gui"]
 
@@ -114,7 +117,11 @@ def convert_settings_dict_for_gui(settings):
         # was offered here and silently produced no dataset.
         'dataset_mode': ('combo', ['annotation', 'metadata', 'measurement'], 'metadata'),
         'cov_type': ('combo', ['HC0', 'HC1', 'HC2', 'HC3', None], None),
-        'crop_mode': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
+        'crop_mode': ('combo',
+                      [repr([role]) for role in ALL_ROLES]
+                      + [repr(['cell', role]) for role in ALL_ROLES
+                         if role != 'cell'],
+                      "['cell']"),
         'timelapse_mode': ('combo', ['trackastra', 'ultrack', 'trackpy', 'iou', 'btrack'], 'trackastra'),
         'train_mode': ('combo', ['erm', 'irm'], 'erm'),
         'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
@@ -131,9 +138,9 @@ def convert_settings_dict_for_gui(settings):
         # io.CLASS_BALANCE_MODES / io.CV_GROUP_LEVELS — both raise ValueError
         # on anything outside these lists, so free text is not usable here.
         'class_balance': ('combo', ['none', 'weighted_sampler', 'sqrt_weighted_sampler', 'weighted_loss'], 'none'),
-        'cv_group_by': ('combo', ['well', 'field', 'plate', 'none'], 'well'),
+        'cv_group_by': ('combo', ['cell', 'field', 'well', 'plate'], 'well'),
         # spacr.seg_qc.MODES
-        'seg_qc': ('combo', ['off', 'report', 'flag'], 'report'),
+        'seg_qc': ('combo', ['off', 'report', 'flag', 'stop'], 'report'),
         # Three states, not two: None defers to SPACR_STRICT_ERRORS so a
         # cluster can turn it on for a batch without editing every file.
         'strict_errors': ('combo', [None, True, False], None),
@@ -142,6 +149,12 @@ def convert_settings_dict_for_gui(settings):
         'grouping': ('combo', ['mean', 'median'], 'mean'),
         'min_max': ('combo', ['allq', 'all'], 'allq'),
         'transform': ('combo', ['log', 'sqrt', 'square', None], None),
+        # The ONE visible organelle choice (instruction 72). A combo, not a
+        # free-text field: the nine names are a closed set, and
+        # `organelle_types.resolve_type` raises on anything else -- typing it
+        # by hand would turn a typo into a failed run instead of a pick.
+        'organelle_type': ('combo', list(_ORGANELLE_TYPE_ORDER),
+                           _ORGANELLE_TYPE_DEFAULT),
         'organelle_morphology': ('combo', ['spots', 'network', 'irregular', 'ring'], 'spots'),
         'organelle_method': ('combo', ['otsu', 'adaptive', 'log', 'dog', 'ridge', 'hysteresis', 'cellpose', 'unet'], 'otsu'),
         'organelle_model_name': ('combo', cellpose_models,
@@ -152,6 +165,19 @@ def convert_settings_dict_for_gui(settings):
         'summarize_organelles_by': ('combo', ["['cell']","['nucleus']","['pathogen']","['cytoplasm']","['cell', 'nucleus']","['cell', 'pathogen']","['cell', 'cytoplasm']","['cell', 'nucleus', 'pathogen']","['cell', 'nucleus', 'pathogen', 'cytoplasm']",None], None)
 
     }
+
+    # All slot-specific controls use the primary organelle widget contract.
+    # This is generated so a newly registered slot cannot fall back to a
+    # free-text entry for a value whose pipeline vocabulary is closed.
+    primary_widget_keys = tuple(
+        key for key in special_cases if key.startswith('organelle_'))
+    for role in ORGANELLE_ROLES[1:]:
+        for key in primary_widget_keys:
+            slot_key = f"{role}_{key[len('organelle_'):]}"
+            kind, options, default = special_cases[key]
+            special_cases[slot_key] = (
+                kind, list(options) if isinstance(options, list) else options,
+                default)
 
     for key, value in settings.items():
         if key in special_cases:

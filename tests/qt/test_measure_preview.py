@@ -66,13 +66,20 @@ def test_propagation_maps_measure_keys(qtbot, tmp_path):
     p._channels.setText("0,2,4")
     p._crop_size.setValue(200)
     s = p.settings_for_propagation()
-    assert s["png_dims"] == [0, 2, 4]
+    # This used to read `s["png_dims"] == [0, 2, 4]`, and it was green while
+    # the setting did nothing: `resolve_png_channel_mapping` ignores
+    # `png_dims` whenever `png_channel_mapping` is set, and Measure sets one
+    # by default -- so every value this control propagated was discarded by
+    # the run it was tuning. The control now writes the key the run reads,
+    # in the RGB order its label promises.
+    assert s["png_channel_mapping"] == {"r": 0, "g": 2, "b": 4}
+    assert "png_dims" not in s
     assert s["png_size"] == [200, 200]
     assert s["crop_mode"] == ["cell"]
     captured = {}
     p.set_propagate_callback(lambda d: captured.update(d))
     p.propagate_settings()
-    assert captured["png_dims"] == [0, 2, 4]
+    assert captured["png_channel_mapping"] == {"r": 0, "g": 2, "b": 4}
 
 
 def test_settings_dialog_has_pipeline_tabs_and_valid_normalize_contract(qtbot):
