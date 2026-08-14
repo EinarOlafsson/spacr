@@ -1240,7 +1240,11 @@ def _raise_sense_counts(source: str) -> tuple[int, int, int]:
         context = before + match.group(0) + after
         if re.search(r"(?i)\braise or focus\b|\braise\b.{0,50}\b(?:window|screen)\b", context):
             window += 1
-        elif quantitative_after.search(after):
+        elif quantitative_after.search(after) or re.search(
+            r"(?i)(?:power|threshold|value|count|rate|score|number|limit|"
+            r"amount|share|mean|floor|ceiling|contrast|tolerance)\b.{0,45}$",
+            before,
+        ):
             quantitative += 1
         elif (
             cue.search(context)
@@ -1602,6 +1606,88 @@ SOURCE_CONTEXT_REGEX_REPLACEMENTS: Mapping[
         (r"\bwells?\b", r"\bBrunnen\b", "Wells"),
     ),
     "es": (
+        (r"\bnot\b", r"(?i)\bnot\b", "no"),
+        (r"\bdoes\b", r"(?i)\bdoes\b", "sí"),
+        (r"\bpre-write\b", r"(?i)\bpre-write\b", "previa a la escritura"),
+        (r"\btemp-then\b", r"(?i)\btemp-then\b", "temporal y luego"),
+        (r"\bwere worth\b", r"(?i)\bwere\b(?=\s*\*?\s*vale la pena)", "sí"),
+        (r"\bsummary\b", r"(?i)\bsummary\b", "resumen"),
+        (r"\bboth\b", r"(?i)\bboth\b", "ambos"),
+        (r"\band\b", r"(?i)\band\b", "y"),
+        (r"\bevery\b", r"(?i)\bevery\b", "cada"),
+        (r"\bresult\b", r"(?i)\bresult\b", "resultado"),
+        (r"\bbusy\b", r"(?i)\bbusy\b", "ocupada"),
+        (r"\bonly\b", r"(?i)\bonly\b", "solo"),
+        (r"\bbound methods?\b", r"(?i)\bbound method\b", "método enlazado"),
+        (r"\bsame sections?\b", r"(?i)\bsame\b", "mismas"),
+        (r"\bunset\b", r"(?i)\bunset\b", "sin establecer"),
+        (r"\bcaller\b", r"(?i)\bcaller\b", "código llamador"),
+        (r"\bstate\b", r"(?i)\bstate\b", "estado"),
+        (r"\bevent\b", r"(?i)\bevent\b", "evento"),
+        (r"\babsent\b", r"(?i)\babsent\b", "ausente"),
+        (r"\bbecause\b", r"(?i)\bbecause\b", "porque"),
+        (r"\bdefaults?\b", r"(?i)\bdefaults\b", "usa de forma predeterminada"),
+        (r"\bproducing\b", r"(?i)\bproducing\b", "productor"),
+        (r"\bunits?\b", r"(?i)\bunits\b", "Unidades"),
+        (r"\bno-op\b", r"(?i)\bno-op\b", "sin efecto"),
+        (
+            r"\binvaded\s*/\s*inside\b",
+            r"(?i)\binvaded\s*/\s*inside\b",
+            "invadida / dentro",
+        ),
+        (r"\bwrite stack\b", r"(?i)\bwrite stack\b", "Escribir pila"),
+        (r"\brun order\b", r"(?i)\brun order\b", "orden de ejecución"),
+        (
+            r"\bclear RAM\b.*\bcheck disk space\b",
+            r"(?i)\bclear RAM\b", "liberar RAM",
+        ),
+        (
+            r"\bclear RAM\b.*\bcheck disk space\b",
+            r"(?i)\bclear VRAM\b", "liberar VRAM",
+        ),
+        (
+            r"\bclear RAM\b.*\bcheck disk space\b",
+            r"(?i)\bclear CPU\b", "liberar CPU",
+        ),
+        (
+            r"\bclear RAM\b.*\bcheck disk space\b",
+            r"(?i)\bcheck disk space\b", "comprobar espacio en disco",
+        ),
+        (
+            r"\bEssentials\b.*\bAll\b",
+            r"(?i)\ban Essentials / All switch\b",
+            "un selector Esenciales / Todo",
+        ),
+        (
+            r"\bPrepare\s*/\s*Run\s*/\s*Review\b",
+            r"Prepare\s*/\s*Run\s*/\s*Review",
+            "Preparar / Ejecutar / Revisar",
+        ),
+        (
+            r"``False``.*\braises\b",
+            r"(?i)se eleva\s+(``False``)",
+            r"\1 genera una excepción",
+        ),
+        (
+            r"\bfit that raises\b",
+            r"(?i)ajuste que aumenta",
+            "ajuste que genera una excepción",
+        ),
+        (
+            r"\bthis fit crashed\b",
+            r"(?i)\bthis fit crashed\b",
+            "este ajuste falló",
+        ),
+        (
+            r"\bother spelling\b",
+            r"(?i)\bthe other spelling\b",
+            "la otra ortografía",
+        ),
+        (
+            r"\bKeyset paging\b",
+            r"(?i)paginación de conjuntos de teclas",
+            "paginación por clave",
+        ),
         (
             r"\bcrops?\b",
             r"qué objeto cultiva las cargas del anotador",
@@ -1995,6 +2081,86 @@ SOURCE_CONTEXT_REGEX_REPLACEMENTS: Mapping[
     ),
 }
 
+MANUAL_TRANSLATIONS: dict[str, dict[str, str]] = {
+    (
+        "Wells occupied by each entry of cell_types, one inner list per cell "
+        "type in the same order, e.g. [['c2','c3'],['c4']]. Every identifier "
+        "must start with 'c' (column) or 'r' (row); anything else is SILENTLY "
+        "skipped and those wells get no host_cells label. An unlabelled well "
+        "is not lost -- 'condition' joins whichever labels do exist -- so a "
+        "typo here quietly changes what is being compared rather than "
+        "raising. Default None."
+    ): {
+        "es": "Posiciones de la microplaca ocupadas por cada entrada de "
+              "cell_types, una lista interna por tipo de célula en el mismo "
+              "orden, p. ej. [['c2','c3'],['c4']]. Cada identificador debe "
+              "comenzar por 'c' (columna) o 'r' (fila); cualquier otra cosa "
+              "se omite SILENCIOSAMENTE y esas posiciones no reciben una "
+              "etiqueta host_cells. Una posición sin etiqueta no se pierde "
+              "-- 'condition' combina las etiquetas que existan --, por lo "
+              "que un error tipográfico cambia silenciosamente qué se "
+              "compara en vez de generar una excepción. Valor predeterminado: "
+              "None.",
+    },
+    (
+        "gRNA names treated as controls when the mixed-condition fraction is "
+        "computed; every fraction is measured relative to these. A wrong or "
+        "incomplete list shifts every fraction on the plate in the same "
+        "direction rather than raising, so check it against the library. "
+        "Default None."
+    ): {
+        "es": "Nombres de gRNA tratados como controles al calcular la "
+              "fracción de la condición mixta; cada fracción se mide con "
+              "respecto a ellos. Una lista incorrecta o incompleta desplaza "
+              "todas las fracciones de la microplaca en la misma dirección "
+              "en vez de generar una excepción, así que compárela con la "
+              "biblioteca. Valor predeterminado: None.",
+    },
+    (
+        "Train/test independence: 'cell', 'field', 'well' (default), or "
+        "'plate'. Cell can place sibling crops from one well on both sides; "
+        "field narrows but does not close that leak; well matches the usual "
+        "experimental assignment unit; plate holds out a complete batch. "
+        "Whole groups make the requested fraction approximate, so runs report "
+        "held-out groups and cells. Legacy 'none'/'off' alias 'cell'. Crop "
+        "identities come from spaCR's plate_well_field_object.png names; "
+        "unverifiable grouped designs are refused rather than silently "
+        "randomized."
+    ): {
+        "es": "Independencia entre entrenamiento y prueba: 'cell', 'field', "
+              "'well' (valor predeterminado) o 'plate'. 'cell' puede colocar "
+              "recortes hermanos de una misma posición de microplaca en "
+              "ambos conjuntos; 'field' reduce esa fuga, pero no la elimina; "
+              "'well' coincide con la unidad habitual de asignación "
+              "experimental; 'plate' reserva un lote completo. Los grupos "
+              "enteros hacen que la fracción solicitada sea aproximada, por "
+              "lo que las ejecuciones informan de los grupos y las células "
+              "reservados. Los valores heredados 'none'/'off' son alias de "
+              "'cell'. Las identidades de los recortes proceden de los "
+              "nombres plate_well_field_object.png de spaCR; los diseños "
+              "agrupados que no se puedan verificar se rechazan en vez de "
+              "aleatorizarse silenciosamente.",
+    },
+    (
+        "Three-letter code choosing the RGB colours for cell, nucleus and "
+        "pathogen outlines, in that order: 'rgb', 'bgr', 'gbr' or 'rbg'. The "
+        "default 'gbr' draws cells green, nuclei blue and pathogens red. An "
+        "unrecognised string SILENTLY falls back to 'rbg', so a typo changes "
+        "your figure colours rather than raising. Change it when an outline "
+        "clashes with a channel. Default 'gbr'."
+    ): {
+        "es": "Código de tres letras que elige los colores RGB de los "
+              "contornos de célula, núcleo y patógeno, en ese orden: 'rgb', "
+              "'bgr', 'gbr' o 'rbg'. El valor predeterminado 'gbr' dibuja "
+              "las células en verde, los núcleos en azul y los patógenos en "
+              "rojo. Una cadena no reconocida vuelve SILENCIOSAMENTE a "
+              "'rbg', por lo que un error tipográfico cambia los colores de "
+              "la figura en vez de generar una excepción. Cámbielo cuando "
+              "un contorno se confunda con un canal. Valor predeterminado: "
+              "'gbr'.",
+    },
+}
+
 MANUAL_UI: dict[str, dict[str, str]] = {
     "Go to the screen this run belongs to.": {
         "fr": "Accédez à l’écran auquel appartient cette exécution.",
@@ -2319,6 +2485,14 @@ for _object_source, _localized_names in _OBJECT_LABELS.items():
     MANUAL_UI[f"{_object_source} ft"] = {
         language: f"{name} — FT" for language, name in _localized_names.items()
     }
+
+
+def _reviewed_translation(source: str, language: str) -> str | None:
+    """Return exact reviewed prose without adding it to the static UI set."""
+    return (
+        MANUAL_TRANSLATIONS.get(str(source), {}).get(language)
+        or MANUAL_UI.get(str(source), {}).get(language)
+    )
 
 
 def _call_name(node: ast.Call) -> str:
@@ -3012,7 +3186,7 @@ def _context_clause_plan(text: str) -> list[tuple[str, bool]]:
 
 
 def _contextualize(value: str, language: str, source: str = "") -> str:
-    reviewed = MANUAL_UI.get(str(source), {}).get(language)
+    reviewed = _reviewed_translation(str(source), language)
     if reviewed is not None:
         return reviewed
     corrected = str(value)
@@ -3313,7 +3487,7 @@ def _syntax_preserved_or_reviewed(
     """
     if _syntax_preserved(source, value):
         return True
-    reviewed = MANUAL_UI.get(str(source), {}).get(language)
+    reviewed = _reviewed_translation(str(source), language)
     return bool(
         reviewed is not None
         and str(value) == reviewed
@@ -3667,7 +3841,7 @@ def _translate_batches(
     compact = CATALOGS[language]
     for source in strings:
         source_cache_key = cache_key(source)
-        reviewed_value = MANUAL_UI.get(source, {}).get(language)
+        reviewed_value = _reviewed_translation(source, language)
         compact_value = compact.get(source) if source not in forced else None
         if (
             reviewed_value is not None
@@ -4926,13 +5100,13 @@ def audit(sources: Mapping[str, object], languages: Iterable[str]) -> int:
             if _TOKEN_RE.search(value):
                 failures.append(f"{language}/tooltip/{key}: leaked token")
         for key, source in sources["setting_labels"].items():
-            reviewed = MANUAL_UI.get(str(source), {}).get(language)
+            reviewed = _reviewed_translation(str(source), language)
             if reviewed is not None and module.SETTING_LABELS.get(key) != reviewed:
                 failures.append(
                     f"{language}/label/{key}: reviewed translation changed"
                 )
         for source in sources["ui"]:
-            reviewed = MANUAL_UI.get(str(source), {}).get(language)
+            reviewed = _reviewed_translation(str(source), language)
             if reviewed is not None and module.UI.get(source) != reviewed:
                 failures.append(
                     f"{language}/ui/{source!r}: reviewed translation changed"
@@ -5076,10 +5250,52 @@ def main() -> int:
                 forced.update(
                     source
                     for key, source in sources["setting_tooltips"].items()
-                    if current.get(key) == source and _looks_translatable(source)
+                    if (
+                        not isinstance(current.get(key), str)
+                        or (
+                            current.get(key) == source
+                            and _looks_translatable(source)
+                        )
+                        or _contextualize(
+                            str(current.get(key, "")), language, source,
+                        ) != str(current.get(key, ""))
+                        or not _translation_candidate_valid(
+                            source, str(current.get(key, "")), language,
+                        )
+                    )
+                )
+            for table_name, source_name in (
+                ("CATEGORY_HELP", "categories"),
+                ("UI", "ui"),
+            ):
+                current_table = namespace.get(table_name, {})
+                if not isinstance(current_table, dict):
+                    continue
+                source_values = sources[source_name]
+                iterable = (
+                    source_values.values()
+                    if isinstance(source_values, dict)
+                    else source_values
+                )
+                forced.update(
+                    source
+                    for source in iterable
+                    if (
+                        not isinstance(current_table.get(source), str)
+                        or (
+                            current_table.get(source) == source
+                            and _looks_translatable(source)
+                        )
+                        or _contextualize(
+                            str(current_table.get(source, "")), language, source,
+                        ) != str(current_table.get(source, ""))
+                        or not _translation_candidate_valid(
+                            source, str(current_table.get(source, "")), language,
+                        )
+                    )
                 )
             print(
-                f"{language}: exact-English tooltip repairs={len(forced)}",
+                f"{language}: strict runtime repairs={len(forced)}",
                 flush=True,
             )
         translations = _translate_batches(
