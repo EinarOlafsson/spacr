@@ -2234,7 +2234,7 @@ MANUAL_UI: dict[str, dict[str, str]] = {
         "es": "Análisis espacial de fenotipos en cribados CRISPR.",
         "zh_CN": "CRISPR 筛选的空间表型分析。",
         "pt": "Análise espacial de fenótipos em triagens CRISPR.",
-        "hi": "CRISPR स्क्रीन का स्थानिक फीनोटाइप विश्लेषण।",
+        "hi": "CRISPR स्क्रीनिंग का स्थानिक फीनोटाइप विश्लेषण।",
         "ko": "CRISPR 스크린의 공간적 표현형 분석.",
         "is": "Rýmisbundin svipgerðargreining CRISPR-skimana.",
         "fr": "Analyse spatiale des phénotypes des criblages CRISPR.",

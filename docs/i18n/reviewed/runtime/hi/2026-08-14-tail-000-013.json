@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cell_plate_metadata",
+      "source_sha256": "8bec5dd197cc83031e4d363d2482cce0706b417445b35d304dc94564a72bf85e",
+      "source": "Wells occupied by each entry of cell_types, one inner list per cell type in the same order, e.g. [['c2','c3'],['c4']]. Every identifier must start with 'c' (column) or 'r' (row); anything else is SILENTLY skipped and those wells get no host_cells label. An unlabelled well is not lost -- 'condition' joins whichever labels do exist -- so a typo here quietly changes what is being compared rather than raising. Default None.",
+      "translation": "cell_types की हर प्रविष्टि वाले microplate sample positions; हर cell type के लिए उसी क्रम में एक inner list, जैसे [['c2','c3'],['c4']]। हर identifier को column के लिए 'c' या row के लिए 'r' से शुरू होना चाहिए; अन्य मान चुपचाप छोड़ दिए जाते हैं और उन positions को host_cells label नहीं मिलता। बिना label वाला position खोता नहीं है—'condition' मौजूद labels को जोड़ता है—इसलिए यहाँ typo अपवाद उठाने के बजाय चुपचाप तुलना बदल देता है। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "crop_source",
+      "source_sha256": "8fd6947de36859f6facec7ae6a9f6264aa56ffa3442e7135bbc83dceeb4ed6d6",
+      "source": "Where the training images come from. 'pre_generated' uses crops already on disk, filtered by path_string and file_type. 'on_demand' cuts them from merged/*.npy as training runs, using extract_channels and object_array (or coordinate_columns when the objects come from a database). 'generate' writes a full crop set first, then trains on it. The settings that do not apply to the chosen source are greyed. Default 'pre_generated'.",
+      "translation": "Training images का स्रोत। 'pre_generated' disk पर पहले से बने निकाले गए छवि क्षेत्रों को path_string और file_type से filter करता है। 'on_demand' training के दौरान merged/*.npy से extract_channels और object_array (या database objects के लिए coordinate_columns) उपयोग करके उन्हें काटता है। 'generate' पहले पूरा set लिखता है और फिर उस पर train करता है। चुने गए source पर लागू न होने वाली settings grey कर दी जाती हैं। डिफ़ॉल्ट 'pre_generated'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "dry_run",
+      "source_sha256": "3de69269a1c74b108e04df46de3cd80cd2306efaaa565c85e5c3e19cc37056c2",
+      "source": "Validate the settings against the data they point at, print what the run WOULD do, and stop before any compute. Checks that src exists and holds the expected files, that every channel and mask-plane index is inside the number of planes actually present, and that the models, barcode CSVs or measurements.db the run needs are on disk -- each problem printed with a suggested fix, then a plan of what would be segmented, measured and written where. Nothing is written, no model is loaded and the GPU is never touched, so a settings mistake costs seconds instead of a whole run. Default False.",
+      "translation": "Settings को उनके इंगित data से validate करें, run क्या करेगा यह print करें और compute से पहले रुकें। यह जाँचता है कि src मौजूद है और अपेक्षित files रखता है, हर channel और mask-plane index वास्तविक planes की संख्या के भीतर है, तथा आवश्यक models, barcode CSV या measurements.db disk पर हैं। हर समस्या के साथ सुझाया fix और कहाँ क्या segment, measure तथा write होगा इसका plan print होता है। कुछ लिखा नहीं जाता, model load नहीं होता और GPU छुआ नहीं जाता, इसलिए settings mistake की लागत पूरे run के बजाय कुछ seconds रहती है। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "focal_gamma",
+      "source_sha256": "a5e2c5f4ad4e92ed095e334197ad6ba921690986bc8e69badb25d82d5c0c3654",
+      "source": "Focusing exponent in the focal-loss weight (1 - p_t)^gamma, applied only when loss_type is focal. 0 reduces it to plain cross-entropy; raising it (typically 1-5) down-weights crops the model already classifies well and pushes gradient onto hard ones. Default 2.0. Increase when one class dominates and training stalls on easy examples.",
+      "translation": "focal-loss weight (1 - p_t)^gamma का focusing exponent, केवल loss_type focal होने पर लागू। 0 इसे साधारण cross-entropy बना देता है; इसे बढ़ाने पर (आमतौर पर 1–5) model द्वारा पहले से अच्छी तरह classify किए निकाले गए क्षेत्रों का weight घटता है और gradient कठिन examples पर जाता है। डिफ़ॉल्ट 2.0। जब एक class हावी हो और training आसान examples पर रुक जाए तब बढ़ाएँ।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "generate_training_dataset",
+      "source_sha256": "42d4954ae0a8e50ebe4d19fab20726a1e318f3a88ea11545dcfb5d89a1a45420",
+      "source": "Rebuild the train/ and test/ PNG folders from the object crops before training, using the dataset_mode rules (annotation_column labels, metadata rules or measurement rules) and splitting off test_split of the images. Turn it off to reuse an existing split; it is only consulted when train or test is True, and a failed build aborts training. Default True.",
+      "translation": "Training से पहले object crops से train/ और test/ PNG folders फिर बनाएँ; dataset_mode rules (annotation_column labels, metadata rules या measurement rules) उपयोग करें और images का test_split अलग करें। मौजूदा split फिर उपयोग करने के लिए इसे off करें। यह केवल train या test True होने पर देखा जाता है, और build fail होने पर training रुकती है। डिफ़ॉल्ट True।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_size",
+      "source_sha256": "0621faf85074f7e28881f8abe5fc6e5ceb4f67e417646c8482affe52ed24eb5f",
+      "source": "Side length in pixels of the centre crop taken from each object PNG before it reaches the model. Images are cropped, not rescaled, so a larger value zero-pads and a smaller one throws away the object's edges. It is also the resolution the backbone is built at, which matters for ViT/Swin/inception. Match it to the crop size used when the dataset was generated. Default 224.",
+      "translation": "Model तक पहुँचने से पहले हर object PNG से लिए centre crop की side length, pixels में। Images rescale नहीं बल्कि crop होती हैं, इसलिए बड़ा value zero-padding करता है और छोटा value object के edges हटा देता है। Backbone भी इसी resolution पर बनता है, जो ViT/Swin/inception के लिए महत्वपूर्ण है। इसे dataset बनाते समय उपयोग किए crop size से मिलाएँ। डिफ़ॉल्ट 224।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plot_cluster_grids",
+      "source_sha256": "13ef07c73e4b53d356ca5ac9c4d5606c92dcdf4cbeb196e340988529f9c1fa21",
+      "source": "Render a second figure with one color-bordered panel per cluster, each filled with up to image_nr example crops from that cluster, and save it as <METHOD>_grid.pdf when save_figure is on. Switch it on when you want the montage; it is an extra figure emitted after the embedding, so with it on the grid, not the graph, is what the run finishes on. Ignored unless plot_images is True. Default False.",
+      "translation": "हर cluster के लिए color-bordered panel वाली दूसरी figure render करें; हर panel में उस cluster के अधिकतम image_nr example extracted image regions हों। save_figure on होने पर इसे <METHOD>_grid.pdf में save करें। Montage चाहिए तो इसे on करें; embedding के बाद यह अतिरिक्त figure निकलती है, इसलिए इसके on होने पर run graph नहीं बल्कि grid पर समाप्त होता है। plot_images True न हो तो इसे ignore किया जाता है। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "png_size",
+      "source_sha256": "562c3e4b7cb08f5a9edb3058bf176f7a22037b8f3e7d6bb52609e62635244126",
+      "source": "Output crop size as [width, height] in pixels, centred on the object centroid; larger keeps more surroundings, smaller clips large objects. Should match the classifier input size (default [224,224]). With several crop_mode entries pass a list of lists, one size per mode, or a single size is reused for all.",
+      "translation": "Output extracted image region का size [width, height] pixels में, object centroid पर centred। बड़ा size अधिक surroundings रखता है, छोटा बड़े objects काटता है। यह classifier input size से मिलना चाहिए (डिफ़ॉल्ट [224,224])। कई crop_mode entries के लिए हर mode की एक size वाली list of lists दें, अन्यथा एक size सबके लिए फिर उपयोग होगी।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "png_type",
+      "source_sha256": "c3c6539b01296eb76c7fea36c2ffcc3b471dae760adcb2ee5e1f50ad472ce9b6",
+      "source": "Which object crop type is pulled from the png_list table when building the training dataset - a row is kept only if its PNG path contains this substring. Use 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' or 'organelle_png' to train on whole cells, nuclei, parasites, cytoplasm or organelles. It must match a crop_mode that measure_crop actually saved. Default 'cell_png'.",
+      "translation": "Training dataset बनाते समय png_list table से लिया जाने वाला object extracted image region type; row तभी रखी जाती है जब उसके PNG path में यह substring हो। पूरे cells, nuclei, parasites, cytoplasm या organelles पर train करने के लिए क्रमशः 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' या 'organelle_png' उपयोग करें। इसे measure_crop द्वारा वास्तव में save किए crop_mode से match होना चाहिए। डिफ़ॉल्ट 'cell_png'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_figure",
+      "source_sha256": "18d93f4abc7676065413c176f8c5abff7e05e029c834850294dfae65e3bf265d",
+      "source": "Write the embedding, plus the cluster grid when plot_cluster_grids is on, as vector PDFs to <src>/results/<METHOD>_embedding.pdf and <METHOD>_grid.pdf. Enable it when you want the figure for a paper or a record of the run; either way the plots are still displayed on screen. Default False.",
+      "translation": "Embedding और plot_cluster_grids on होने पर cluster grid को vector PDFs के रूप में <src>/results/<METHOD>_embedding.pdf तथा <METHOD>_grid.pdf में लिखें। Paper के लिए figure या run का record चाहिए तो enable करें; दोनों स्थितियों में plots screen पर भी दिखते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "stitch_threshold",
+      "source_sha256": "ffd90b5571918bcc2daed4a69a95d2127fd7726a8edc45ed887d609fc15f776d",
+      "source": "Minimum overlap, as an intersection-over-union between 0 and 1, for a label in one plane to be treated as the same object as a label in the plane below when z_segmentation_mode is 'stitch'. Raising it splits objects that drift or change shape between planes into several shorter ones; lowering it fuses neighbouring objects that merely overlap in projection. Matching is one-to-one, so when two objects both overlap the same object below only the better match inherits its label and the other starts a new one. Ignored by the other two modes. Default 0.25.",
+      "translation": "जब z_segmentation_mode 'stitch' हो, तब एक image layer के label को नीचे वाली layer के उसी object के रूप में मानने के लिए न्यूनतम overlap, 0 और 1 के बीच intersection-over-union। इसे बढ़ाने पर layers के बीच drift या shape बदलने वाले objects कई छोटे objects में split होते हैं; घटाने पर projection में केवल overlap करने वाले neighbouring objects जुड़ते हैं। Matching एक-से-एक है, इसलिए नीचे के उसी object को overlap करने वाले दो objects में केवल बेहतर match उसका label पाता है और दूसरा नया label शुरू करता है। अन्य दो modes में ignore। डिफ़ॉल्ट 0.25।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "summarize_organelles_by",
+      "source_sha256": "cb5d1ffd9a6a5e283b05f61e85b9f40c17edf14e2ca16b8ac2a4918c560b2335",
+      "source": "Parent compartments to roll every enabled organelle slot into. Accepts 'cell', 'nucleus', 'pathogen' and 'cytoplasm'; each writes one <parent>_organelle_summary row per parent with a separate organelle_summary_<slot>_* column family. Raw per-organelle tables are always written when their mask dim is enabled. Default 'cell'; None disables only these rollups.",
+      "translation": "वे parent compartments जिनमें हर enabled organelle slot का rollup करना है। 'cell', 'nucleus', 'pathogen' और 'cytoplasm' स्वीकार होते हैं; हर एक parent के लिए एक <parent>_organelle_summary row और अलग organelle_summary_<slot>_* column family लिखता है। Mask dim enabled होने पर raw per-organelle tables हमेशा लिखी जाती हैं। डिफ़ॉल्ट 'cell'; None केवल इन rollups को बंद करता है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_channels",
+      "source_sha256": "6b4dd190ee09cb6657c690c02f589ed3b730eaf47241ead5a8390b28a5e0c8d0",
+      "source": "Which colour planes of each object crop the classifier sees, chosen from 'r', 'g' and 'b'. Fewer channels means a smaller input tensor and a model that cannot use the dropped stain, so drop a channel only when it carries no signal for your phenotype. The joined letters also become part of the saved model's filename. Default ['r', 'g', 'b'].",
+      "translation": "Classifier हर object extracted image region के कौन-से colour planes देखता है; 'r', 'g' और 'b' में से चुनें। कम channels से input tensor छोटा होता है और model हटाए stain को उपयोग नहीं कर सकता, इसलिए channel केवल तभी हटाएँ जब उसमें phenotype के लिए signal न हो। जुड़े letters saved model के filename का भाग भी बनते हैं। डिफ़ॉल्ट ['r', 'g', 'b']।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "z_projection",
+      "source_sha256": "e839a2d860b98aed39a346001446c03631f755594684bbd26e4b38caf2d77eeb",
+      "source": "How z is collapsed when z_segmentation_mode is 'project'. 'max' takes the brightest value down the stack and is the usual choice for sparse fluorescent objects; 'mean' averages, which suppresses noise but dilutes anything present in only a few planes; 'sum' preserves total signal so intensity stays proportional to how much of the object was in the stack; 'best_focus' discards every plane but the sharpest one, which beats a projection when only one plane is genuinely in focus and a MIP would smear the out-of-focus haze over it. Ignored by the other two modes. Default 'max'.",
+      "translation": "जब z_segmentation_mode 'project' हो तब z collapse करने का तरीका। 'max' stack का brightest value लेता है और sparse fluorescent objects के लिए सामान्य विकल्प है। 'mean' average लेकर noise दबाता है, पर कुछ ही layers में मौजूद object को dilute करता है। 'sum' total signal बचाता है, इसलिए intensity stack में object की मात्रा के proportional रहती है। 'best_focus' सबसे sharp layer छोड़कर बाकी हटाता है; जब केवल एक layer सच में focus हो और MIP out-of-focus haze फैला दे, तब यह projection से बेहतर है। अन्य दो modes में ignore। डिफ़ॉल्ट 'max'।"
+    }
+  ]
+}

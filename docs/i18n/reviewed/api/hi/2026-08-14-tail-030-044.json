@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "label": "spacr.qt.screens.queue.QueueScreen.closeEvent#1",
+      "source_sha256": "86bd7f74c4d370b48d4c4c5403a98347dfe953db4d5599f9e36c2c058bc66089",
+      "source": "``_QueueRunner`` is parented to this widget and executes whole pipelines, so its thread can be hours long. Destroying the screen with it running deletes a live QThread, which Qt answers with ``qFatal(\"QThread: Destroyed while thread is still running\")``. It also does not go through :func:`spacr.qt.bridge.make_thread`, so the process-wide run registry — and therefore ``MainWindow.closeEvent``'s drain — has never been able to see it.",
+      "context": "``_QueueRunner`` is parented to this widget and executes whole workflows, so its independent execution path can be hours long. Destroying the application view with it executing deletes a live QThread, which Qt answers with ``qFatal(\"QThread: Destroyed while thread is still running\")``. It also does not go through :func:`spacr.qt.bridge.make_thread`, so the process-wide run registry — and therefore ``MainWindow.closeEvent``'s drain — has never been able to see it.",
+      "translation": "``_QueueRunner`` इस widget का child है और पूरे workflows चलाता है, इसलिए उसका स्वतंत्र execution path कई hours तक चल सकता है। उसके चलते application view नष्ट करने पर जीवित QThread delete होता है, जिसके उत्तर में Qt ``qFatal(\"QThread: Destroyed while thread is still running\")`` करता है। यह :func:`spacr.qt.bridge.make_thread` से भी नहीं गुजरता, इसलिए पूरे process की execution registry—और फलतः ``MainWindow.closeEvent`` का drain—इसे कभी देख नहीं पाया।"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model#1",
+      "source_sha256": "0f10006e9996a64fffa16b9a3b885da5cfc92907388cad33b48f5f666abc87c6",
+      "source": "The existing spacr GUI expresses settings as `{name: (widget_type, options, default)}` triples via `spacr.gui_utils.convert_settings_dict_for_gui`. Here we consume the same conversion output and materialize each entry as a real Qt widget grouped into logical Section boxes based on `spacr.settings.categories`.",
+      "context": "The existing spacr GUI expresses settings as `{name: (widget_type, options, default)}` triples via `spacr.gui_utils.convert_settings_dict_for_gui`. Here we consume the same conversion output and materialize each entry as a real Qt widget grouped into logical Section boxes based on `spacr.settings.categories`.",
+      "translation": "मौजूदा spacr GUI settings को `{name: (widget_type, options, default)}` triples के रूप में `spacr.gui_utils.convert_settings_dict_for_gui` से व्यक्त करता है। यहाँ हम उसी conversion output को लेते हैं और `spacr.settings.categories` के आधार पर logical Section boxes में grouped वास्तविक Qt widget के रूप में हर entry बनाते हैं।"
+    },
+    {
+      "label": "spacr.qt.verbose_logger#8",
+      "source_sha256": "a7da05709eb21e2fd271534d734b5ecbfe154380331d099efcebd4a5543f16fe",
+      "source": ":class:`_ConsoleRelay` is the fix: a QObject pinned to the GUI thread whose ``line`` signal is connected to its own **bound method**, so Qt queues the delivery whenever the emitting thread is not the GUI thread and the panel only ever touches widgets on the thread that owns them.",
+      "context": "**GUI-thread relay.** :class:`_ConsoleRelay` is a QObject that belongs to the GUI thread. Its ``line`` signal calls one method on that relay. Qt queues a signal emitted from another thread. Therefore the panel accesses widgets only from their owning thread.",
+      "translation": "**GUI-thread relay।** :class:`_ConsoleRelay` GUI thread से संबंधित QObject है। उसका ``line`` signal उसी relay की एक bound method को बुलाता है। दूसरे thread से emit signal को Qt queue करता है। इसलिए panel widgets को केवल उनके owning thread से access करता है।"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker#7",
+      "source_sha256": "aade65e5a0d1e1fb9b9a66205a84762226317d03caa0fbb840eb376a09cdcc4e",
+      "source": "**Read-only.** Opening the picker reads column names and nothing else. The connection is ``file:…?mode=ro`` plus ``PRAGMA query_only = ON`` — the same pair :mod:`spacr.qt.screens.db_browser` and :mod:`spacr.agreement` use — so SQLite itself refuses a write. The dialog never creates a column: it returns a *name*, and the write path that owns creation (``annotate_engine.ensure_annotation_column``, which does it lazily with ``ALTER TABLE``) stays where it is.",
+      "context": "**Read-only.** Opening the picker reads column names and nothing else. The connection is ``file:…?mode=ro`` plus ``PRAGMA query_only = ON`` — the same pair :mod:`spacr.qt.screens.db_browser` and :mod:`spacr.agreement` use — so SQLite itself refuses a write. The dialog never creates a column: it returns a *name*, and the write path that owns creation (``annotate_engine.ensure_annotation_column``, which does it lazily with ``ALTER TABLE``) stays where it is.",
+      "translation": "**केवल-पठन।** picker खोलने पर केवल column names पढ़े जाते हैं। Connection ``file:…?mode=ro`` और ``PRAGMA query_only = ON`` का जोड़ा है—यही जोड़ा :mod:`spacr.qt.screens.db_browser` और :mod:`spacr.agreement` उपयोग करते हैं—इसलिए SQLite स्वयं write अस्वीकार करता है। Dialog कभी column नहीं बनाता: वह एक *name* लौटाता है, और creation की स्वामी लेखन path (``annotate_engine.ensure_annotation_column``, जो ``ALTER TABLE`` से आवश्यकता पर बनाती है) अपनी जगह रहती है।"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart#12",
+      "source_sha256": "0c39fcc1cc19c3c0ce96efaab84e21e1c3391adb3eebcc47280c2d9f79166e5e",
+      "source": "Sigma **of the plotted statistic** is ``sigma_within / sqrt(n)``, and that is what the zones and the rules are stated in. When subgroup sizes differ between plates the limits differ per plate; they are computed per point rather than averaged, and the result says so.",
+      "context": "Sigma **of the plotted statistic** is ``sigma_within / sqrt(n)``, and that is what the zones and the rules are stated in. When subgroup sizes differ between plates the limits differ per plate; they are computed per point rather than averaged, and the result says so.",
+      "translation": "Sigma **चित्रित statistic का** ``sigma_within / sqrt(n)`` है, और zones तथा rules उसी में व्यक्त हैं। जब plates के बीच subgroup sizes अलग हों तो limits भी हर plate के लिए अलग होते हैं; वे average करने के बजाय हर point पर निकाले जाते हैं, और result यह स्पष्ट करता है।"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#25",
+      "source_sha256": "dffa982cdbe8e318eb3f679f338af4dad8c8af1985a132daccabf5a3a3aba535",
+      "source": "Every result carries the residual standard error, R², and — when the design has replicates — a **lack-of-fit F test against pure error**. That last one is the statistic that answers the question people think R² answers.",
+      "context": "Every result carries the residual standard error, R², and — when the design has replicates — a **lack-of-fit F test against pure error**. That last one is the statistic that answers the question people think R² answers.",
+      "translation": "हर result में अवशेष मानक त्रुटि, R² और—जब design में replicates हों—**pure error के विरुद्ध अनुपयुक्तता F परीक्षण** होता है। यही अंतिम statistic उस प्रश्न का उत्तर देता है जिसका उत्तर लोग R² से मिलने की अपेक्षा करते हैं।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.Gate.translated#0",
+      "source_sha256": "477819970196ec8e766d01b3fd8b4c484e5f91cd05d3afe71d90e4b40701a2e7",
+      "source": "Return this gate moved by ``(dx, dy)`` in DATA units.",
+      "context": "Return this data-selection boundary moved by ``(dx, dy)`` in DATA units.",
+      "translation": "इस डेटा-चयन सीमा को DATA units में ``(dx, dy)`` से खिसकाकर लौटाएँ।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.Gate.with_handle#5",
+      "source_sha256": "3496e4c01e34ca9d68616076a530b356fc5996a69d13ff5938c08895143102cf",
+      "source": "a role this gate does not have, which is a bug in the caller rather than something the user did.",
+      "context": "a role this data-selection boundary does not have, which is a bug in the caller rather than something the user did.",
+      "translation": "ऐसी भूमिका जो इस डेटा-चयन सीमा में नहीं है; यह उपयोगकर्ता की गलती नहीं, caller की bug है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.GateSet.load#0",
+      "source_sha256": "aca54c0715dac03078883e1b6f3221386ccfe538f398c701442606b8467d20a0",
+      "source": "Read a gate file written by :meth:`save`.",
+      "context": "Read a data-selection boundary file written by :meth:`save`.",
+      "translation": ":meth:`save` से लिखी डेटा-चयन सीमा फ़ाइल पढ़ें।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.PolygonGate.translated#0",
+      "source_sha256": "477819970196ec8e766d01b3fd8b4c484e5f91cd05d3afe71d90e4b40701a2e7",
+      "source": "Return this gate moved by ``(dx, dy)`` in DATA units.",
+      "context": "Return this data-selection boundary moved by ``(dx, dy)`` in DATA units.",
+      "translation": "इस डेटा-चयन सीमा को DATA units में ``(dx, dy)`` से खिसकाकर लौटाएँ।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.PolygonGate.with_handle#5",
+      "source_sha256": "3496e4c01e34ca9d68616076a530b356fc5996a69d13ff5938c08895143102cf",
+      "source": "a role this gate does not have, which is a bug in the caller rather than something the user did.",
+      "context": "a role this data-selection boundary does not have, which is a bug in the caller rather than something the user did.",
+      "translation": "ऐसी भूमिका जो इस डेटा-चयन सीमा में नहीं है; यह उपयोगकर्ता की गलती नहीं, caller की bug है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.translated#0",
+      "source_sha256": "477819970196ec8e766d01b3fd8b4c484e5f91cd05d3afe71d90e4b40701a2e7",
+      "source": "Return this gate moved by ``(dx, dy)`` in DATA units.",
+      "context": "Return this data-selection boundary moved by ``(dx, dy)`` in DATA units.",
+      "translation": "इस डेटा-चयन सीमा को DATA units में ``(dx, dy)`` से खिसकाकर लौटाएँ।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_handle#5",
+      "source_sha256": "3496e4c01e34ca9d68616076a530b356fc5996a69d13ff5938c08895143102cf",
+      "source": "a role this gate does not have, which is a bug in the caller rather than something the user did.",
+      "context": "a role this data-selection boundary does not have, which is a bug in the caller rather than something the user did.",
+      "translation": "ऐसी भूमिका जो इस डेटा-चयन सीमा में नहीं है; यह उपयोगकर्ता की गलती नहीं, caller की bug है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#5",
+      "source_sha256": "3496e4c01e34ca9d68616076a530b356fc5996a69d13ff5938c08895143102cf",
+      "source": "a role this gate does not have, which is a bug in the caller rather than something the user did.",
+      "context": "a role this data-selection boundary does not have, which is a bug in the caller rather than something the user did.",
+      "translation": "ऐसी भूमिका जो इस डेटा-चयन सीमा में नहीं है; यह उपयोगकर्ता की गलती नहीं, caller की bug है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.gate_from_dict#1",
+      "source_sha256": "f1cbef77189978e9396ef621aba5e12c30c11591d3ee23c3366026212afb52e7",
+      "source": "on an unknown or missing ``kind``, naming what was found — a gate file written by a newer build must fail with a sentence rather than a ``KeyError``.",
+      "context": "on an unknown or missing ``kind``, naming what was found — a data-selection boundary file written by a newer build must fail with a sentence rather than a ``KeyError``.",
+      "translation": "अज्ञात या अनुपस्थित ``kind`` मिलने पर पाए गए मान का नाम बताएँ—नए build से लिखी डेटा-चयन सीमा फ़ाइल को ``KeyError`` के बजाय स्पष्ट sentence के साथ fail होना चाहिए।"
+    }
+  ]
+}
