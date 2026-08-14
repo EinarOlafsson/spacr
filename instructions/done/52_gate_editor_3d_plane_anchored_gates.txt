@@ -524,3 +524,36 @@ WHAT I SHOULD HAVE DONE DIFFERENTLY, since the tests were green the first
 time: open the app. 97 passing tests said the geometry was right, and the
 geometry WAS right -- they could not say the controls were unreachable,
 because no test pressed one.
+
+================================================================================
+2026-08-14 - CLOSED AFTER THE EVENT PATH, NOT JUST THE CONTROLS, WAS TESTED
+================================================================================
+
+The rework still had three gaps that control-level tests could not see:
+
+  * Spin/Draw was displayed, but the mouse handler still looked at the old
+    always-armed 2D tool. Spin could therefore begin a drawing.
+  * The selected plane drove the aura, while mouse inversion still chose the
+    plane from the camera. The blue plane and the resulting gate could differ.
+  * `set_pending_depth` existed, but no user gesture ever called it. The
+    requested second depth gesture was only a programmatic test seam.
+
+The volume interaction is now one state machine. Spin always spins. Draw maps
+the cursor by intersecting the real camera ray with the explicitly selected
+blue face. A footprint is held until a second drag projects onto the plane
+normal and creates a finite slab; a click deliberately chooses full depth.
+Polygon in the volume-shape dropdown now reaches the click-per-vertex path,
+and closing it enters the same depth gesture as boxes, ovals and circles.
+
+The aura is drawn after the data establishes the axis limits, so it fills the
+actual selected face instead of the default 0..1 square. The 3D controls have
+their own row so all of Plane, Shape, From view, Drag and Spin remain reachable
+at 1200 px. A rendered 1200 x 760 panel and a real projected two-gesture drag
+were exercised under Xvfb; the resulting gate carried finite bounds on the
+chosen normal.
+
+Tests now cross the mouse handlers: Spin cannot start a gate, the chosen plane
+is the plane inverted, the dropdown reaches polygon placement, and footprint
+plus depth produces one named finite gate. The complete gate-focused run is
+439 passed, 1 version-specific matplotlib skip, with deprecations promoted to
+errors on the new projection path.
