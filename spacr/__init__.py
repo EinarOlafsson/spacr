@@ -103,6 +103,10 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "resume",
     "checkpoint",
     "normalization",
+    # Plate-wide intensity rescaling provenance and the desktop installer's
+    # hardware/consent hand-off are both public, dependency-light modules.
+    "intensity_rescale",
+    "install_profile",
     "umap_search",
     "cancellation",
     "zstack",
