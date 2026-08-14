@@ -469,42 +469,32 @@ def test_dialog_route_errors_checkbox_defaults_on_and_persists(ai_env, qtbot):
     assert ai_env["settings"].get_route_errors_through_ai() is False
 
 
-def test_dialog_github_token_is_masked_saved_and_cleared(ai_env, qtbot):
+def test_dialog_github_login_uses_official_cli_not_token_storage(ai_env, qtbot):
     from spacr.qt.widgets.ai_chat_panel import _ProvidersDialog
 
     ai_env["providers"] = []
-    ga = ai_env["github_auth"]
     dlg = _ProvidersDialog()
     qtbot.addWidget(dlg)
-    # A PAT must never be shown in the clear.
-    assert dlg._gh_token.echoMode() == QLineEdit.Password
-    assert dlg._gh_token.text() == ""
     assert "Not signed in" in dlg._gh_status.text()
-
-    dlg._gh_token.setText("  ghp_typed_by_user  ")
-    dlg._on_save_github_token()
-    assert ga.get_stored_token() == "ghp_typed_by_user"   # trimmed
-    assert "Signed in via a saved token" in dlg._gh_status.text()
-
-    dlg._on_clear_github_token()
-    assert ga.get_stored_token() == ""
-    assert dlg._gh_token.text() == ""
-    assert "Not signed in" in dlg._gh_status.text()
+    assert not hasattr(dlg, "_gh_token")
+    assert any(
+        field.text() == "gh auth login" for field in dlg.findChildren(QLineEdit)
+    )
 
 
-def test_dialog_prefills_an_already_stored_token(ai_env, qtbot):
+def test_dialog_never_prefills_a_process_token(ai_env, qtbot):
     from spacr.qt.widgets.ai_chat_panel import _ProvidersDialog
 
     ai_env["providers"] = []
     ai_env["github_auth"].set_stored_token("ghp_previously_saved")
     dlg = _ProvidersDialog()
     qtbot.addWidget(dlg)
-    assert dlg._gh_token.text() == "ghp_previously_saved"
+    assert not hasattr(dlg, "_gh_token")
     assert "Signed in" in dlg._gh_status.text()
 
 
 @pytest.mark.parametrize("source,blurb", [
-    ("token", "a saved token"),
+    ("token", "a process-only API token"),
     ("env", "the GITHUB_TOKEN env var"),
     ("gh", "the GitHub CLI"),
     ("something-new", "something-new"),      # unknown source falls back

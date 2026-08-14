@@ -47,6 +47,7 @@ def gh_store(monkeypatch, tmp_path, qt_theme_applied):
         raise FileNotFoundError("gh")
 
     monkeypatch.setattr(github_auth.subprocess, "run", _no_gh)
+    github_auth.set_stored_token("")
     return store
 
 

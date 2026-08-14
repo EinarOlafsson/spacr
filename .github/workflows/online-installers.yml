@@ -65,8 +65,11 @@ jobs:
             --no-launch \
             --install-root "$RUNNER_TEMP/spacr"
           test -s "$RUNNER_TEMP/spacr/install.log"
+          test -s "$RUNNER_TEMP/spacr/install-profile.json"
           "$RUNNER_TEMP/spacr/venv/bin/python" -I -c \
-            "import spacr, PySide6, torch; assert torch.version.cuda is None"
+            "import json, pathlib, spacr, PySide6, torch; p=json.loads(pathlib.Path('$RUNNER_TEMP/spacr/install-profile.json').read_text()); assert torch.version.cuda is None; assert p['requested_backend'] == 'cpu'; assert p['active_backend'] == 'cpu'; assert not any(p['consent'].values())"
+          "$RUNNER_TEMP/spacr/venv/bin/python" -I \
+            packaging/online/smoke_installed.py
       - uses: actions/upload-artifact@v7
         with:
           name: spacr-online-linux
@@ -154,8 +157,13 @@ jobs:
           if (-not (Test-Path (Join-Path $InstallRoot "spacr.ico"))) {
             throw "The installer did not install the spaCR application icon"
           }
+          if (-not (Test-Path (Join-Path $InstallRoot "install-profile.json"))) {
+            throw "The installer did not record its backend/consent profile"
+          }
           & (Join-Path $InstallRoot "venv\Scripts\python.exe") -I -c `
-            "import spacr, PySide6, torch; assert torch.version.cuda is None"
+            "import json, pathlib, spacr, PySide6, torch; p=json.loads((pathlib.Path(r'$InstallRoot')/'install-profile.json').read_text()); assert torch.version.cuda is None; assert p['requested_backend'] == 'cpu'; assert p['active_backend'] == 'cpu'; assert not any(p['consent'].values())"
+          & (Join-Path $InstallRoot "venv\Scripts\python.exe") -I `
+            packaging\online\smoke_installed.py
       - uses: actions/upload-artifact@v7
         with:
           name: spacr-online-windows
@@ -199,10 +207,14 @@ jobs:
             "/Library/Application Support/spaCR/install-for-user.sh"
           runtime="$HOME/Library/Application Support/spaCR"
           test -s "$runtime/install.log"
+          test -s "$runtime/install-profile.json"
           "$runtime/venv/bin/python" -I -c \
             "import numpy as np, spacr, PySide6, torch; \
              assert torch.version.cuda is None; \
              assert torch.from_numpy(np.zeros(1, dtype=np.float32)).numel() == 1"
+          "$runtime/venv/bin/python" -I -c \
+            "import json, pathlib; p=json.loads((pathlib.Path.home()/'Library/Application Support/spaCR/install-profile.json').read_text()); assert p['requested_backend'] == 'cpu'; assert p['active_backend'] in {'cpu', 'mps'}; assert not any(p['consent'].values())"
+          "$runtime/venv/bin/python" -I packaging/online/smoke_installed.py
       - uses: actions/upload-artifact@v7
         with:
           name: spacr-online-macos
@@ -247,8 +259,8 @@ jobs:
         env:
           TARGET_BRANCH: ${{ inputs.target_branch || github.ref_name }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "Einar Olafsson"
+          git config user.email "einar.olafsson@gmail.com"
           git add README.rst \
             docs/i18n/readme/README.{sv,de,es,zh_CN,pt,hi,ko,is,fr}.rst \
             spacr/application

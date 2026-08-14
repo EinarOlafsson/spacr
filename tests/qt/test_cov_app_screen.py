@@ -1229,45 +1229,29 @@ class TestErrorRouting:
         scr._on_pipeline_error("STILL-VISIBLE")
         assert "STILL-VISIBLE" in _console_text(scr._console)
 
-    def test_opt_in_auto_files_the_issue_and_reveals_the_button(
+    def test_opt_in_reveals_button_but_never_auto_submits_on_crash(
             self, qtbot, monkeypatch):
         monkeypatch.setattr("spacr.qt.ai.settings.get_auto_file_issues",
                             lambda: True)
         monkeypatch.setattr(
             "spacr.qt.ai.settings.get_route_errors_through_ai", lambda: False)
-        seen = {}
-
-        def _file_issue(tb, active_app="", settings=None):
-            seen["tb"] = tb
-            seen["app"] = active_app
-            seen["settings"] = settings
-            return "https://github.com/EinarOlafsson/spacr/issues/new?x=" + "y" * 200
-
-        monkeypatch.setattr("spacr.qt.ai.issue_report.file_issue", _file_issue)
+        submitted = []
+        monkeypatch.setattr(
+            "spacr.qt.ai.issue_report.submit_report",
+            lambda report: submitted.append(report),
+        )
         scr = _make_screen(qtbot, "mask")
         scr._settings_model._widgets["src"].setText("/data/for_issue")
         scr._settings_model._widgets["batch_size"].setValue(11)
         scr._settings_model._widgets["denoise"].setChecked(True)
         scr._on_pipeline_error("BOOM-TB")
-        # The button is revealed synchronously; the report is filed on a
-        # worker, so everything below it waits for the job.
+        # Consent reveals an action. A crash is never itself permission to
+        # publish anything.
         assert scr._btn_file_issue.isEnabled()
-        _settle(qtbot, scr)
-        assert seen["tb"] == "BOOM-TB"
-        assert seen["app"] == "mask"
-        # The snapshot carries the user's actual settings, typed.
-        assert seen["settings"]["src"] == "/data/for_issue"
-        assert seen["settings"]["batch_size"] == 11
-        assert seen["settings"]["denoise"] is True
-        assert seen["settings"]["metadata_type"] == \
-            scr._settings_model._widgets["metadata_type"].currentText()
-        text = _console_text(scr._console)
-        assert "[issue] opened pre-filled report" in text
-        # The URL is truncated to 100 chars in the console line.
-        assert "y" * 101 not in text
+        assert submitted == []
 
-    def test_auto_file_failure_is_reported_not_swallowed(self, qtbot,
-                                                        monkeypatch):
+    def test_approved_report_failure_is_reported_not_swallowed(
+            self, qtbot, monkeypatch):
         monkeypatch.setattr("spacr.qt.ai.settings.get_auto_file_issues",
                             lambda: True)
         monkeypatch.setattr(
@@ -1276,13 +1260,14 @@ class TestErrorRouting:
         def _boom(*a, **k):
             raise RuntimeError("github down")
 
-        monkeypatch.setattr("spacr.qt.ai.issue_report.file_issue", _boom)
+        from PySide6.QtWidgets import QDialog
+        from spacr.qt.ai.issue_preview import IssuePreviewDialog
+        monkeypatch.setattr(IssuePreviewDialog, "exec",
+                            lambda _self: QDialog.Accepted)
+        monkeypatch.setattr("spacr.qt.ai.issue_report.submit_report", _boom)
         scr = _make_screen(qtbot, "mask")
         scr._on_pipeline_error("TB")
-        # The failure now happens on the worker, so it comes back through the
-        # completion handler rather than out of the `except` around the call.
-        # It must still reach the console: an auto-filed report that silently
-        # fails to send is worse than one that fails loudly.
+        scr._on_file_issue()
         _settle(qtbot, scr)
         assert "[issue] auto-file failed: github down" in _console_text(
             scr._console)
@@ -1302,8 +1287,7 @@ class TestErrorRouting:
     def test_file_issue_snapshot_failure_still_files_the_issue(self, qtbot,
                                                                monkeypatch):
         seen = {}
-        monkeypatch.setattr("spacr.qt.ai.issue_report.file_issue",
-                            _recording_file_issue(seen))
+        self._approve_and_capture(monkeypatch, seen)
         scr = _make_screen(qtbot, "mask")
         scr._last_error_text = "TB"
 
@@ -1315,14 +1299,13 @@ class TestErrorRouting:
         scr._on_file_issue()
         _settle(qtbot, scr)
         assert seen["settings"] == {}
-        assert "[issue] opened pre-filled report" in _console_text(
+        assert "[issue] report handoff completed" in _console_text(
             scr._console)
 
     def test_issue_snapshot_skips_widget_types_it_cannot_read(self, qtbot,
                                                               monkeypatch):
         seen = {}
-        monkeypatch.setattr("spacr.qt.ai.issue_report.file_issue",
-                            _recording_file_issue(seen))
+        self._approve_and_capture(monkeypatch, seen)
         scr = _make_screen(qtbot, "mask")
         scr._last_error_text = "TB"
         box = QCheckBox()
@@ -1343,14 +1326,31 @@ class TestErrorRouting:
     def test_file_issue_survives_an_unreadable_settings_model(self, qtbot,
                                                               monkeypatch):
         seen = {}
-        monkeypatch.setattr("spacr.qt.ai.issue_report.file_issue",
-                            _recording_file_issue(seen))
+        self._approve_and_capture(monkeypatch, seen)
         scr = _make_screen(qtbot, "mask")
         scr._last_error_text = "TB"
         scr._settings_model = None
         scr._on_file_issue()
         _settle(qtbot, scr)
         assert seen["settings"] == {}
+
+    @staticmethod
+    def _approve_and_capture(monkeypatch, seen):
+        from PySide6.QtWidgets import QDialog
+        from spacr.qt.ai.issue_preview import IssuePreviewDialog
+
+        def _build(tb, active_app="", settings=None, include_log_tail=True):
+            seen.update(tb=tb, app=active_app, settings=settings,
+                        include_log_tail=include_log_tail)
+            return {"title": "t", "body": "b", "fingerprint": "f"}
+
+        monkeypatch.setattr("spacr.qt.ai.issue_report.build_report", _build)
+        monkeypatch.setattr(IssuePreviewDialog, "exec",
+                            lambda _self: QDialog.Accepted)
+        monkeypatch.setattr(
+            "spacr.qt.ai.issue_report.submit_report",
+            lambda _report: "https://github.com/EinarOlafsson/spacr/issues/1",
+        )
 
     def test_explain_error_opens_the_flow_and_emits_for_mainwindow(
             self, qtbot):

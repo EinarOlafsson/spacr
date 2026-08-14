@@ -124,7 +124,7 @@ def test_providers_dialog_has_settings_tab(qtbot, qt_theme_applied):
     assert "Settings" in labels
     for widget in (
             dlg._speed_combo, dlg._auto_issue_chk, dlg._route_errors_chk,
-            dlg._gh_token, dlg._prompt_edit):
+            dlg._prompt_edit):
         label = getattr(widget, "_spacr_setting_label", None)
         if label is not None:
             assert widget.toolTip() == ""

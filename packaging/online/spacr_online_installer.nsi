@@ -1,6 +1,7 @@
 !include "MUI2.nsh"
 !include "LogicLib.nsh"
 !include "Sections.nsh"
+!include "nsDialogs.nsh"
 
 !ifndef VERSION
   !define VERSION "0.0.0"
@@ -27,18 +28,67 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_COMPONENTS
+Page custom ConsentPage ConsentPageLeave
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
 !include "generated\installer_messages.nsh"
 
+Var ConsentShare
+Var ConsentIssues
+Var ConsentSignIn
+Var ConsentShareValue
+Var ConsentIssuesValue
+Var ConsentSignInValue
+Var ConsentCollectedValue
+
 Function .onInit
   !insertmacro MUI_LANGDLL_DISPLAY
+  ; Match the bootstrap's default: select acceleration only when a working
+  ; NVIDIA driver identifies a card. The user can still untick the component.
+  nsExec::ExecToStack 'cmd.exe /D /C nvidia-smi -L'
+  Pop $0
+  Pop $1
+  ${If} $0 == 0
+    SectionSetFlags ${SecGpu} ${SF_SELECTED}
+  ${EndIf}
+  StrCpy $ConsentShareValue 0
+  StrCpy $ConsentIssuesValue 0
+  StrCpy $ConsentSignInValue 0
+  StrCpy $ConsentCollectedValue 0
+FunctionEnd
+
+Function ConsentPage
+  nsDialogs::Create 1018
+  Pop $0
+  ${If} $0 == error
+    Abort
+  ${EndIf}
+  ${NSD_CreateLabel} 0 0 100% 58u "Privacy and optional account setup$\r$\n$\r$\nCrash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. Every report is redacted, shown in an editable preview, and sent only when you press Send for that report. These choices are optional and revocable in Preferences."
+  Pop $0
+  ${NSD_CreateCheckbox} 0 66u 100% 12u "Include redacted diagnostic logs in report previews (off by default)"
+  Pop $ConsentShare
+  ${NSD_CreateCheckbox} 0 84u 100% 12u "Enable the public GitHub issue-report action (off by default)"
+  Pop $ConsentIssues
+  ${NSD_CreateCheckbox} 0 102u 100% 22u "Set up GitHub, Claude, GPT/Codex, and Gemini on first launch; official CLIs own credentials (off by default)"
+  Pop $ConsentSignIn
+  nsDialogs::Show
+FunctionEnd
+
+Function ConsentPageLeave
+  ${NSD_GetState} $ConsentShare $ConsentShareValue
+  ${NSD_GetState} $ConsentIssues $ConsentIssuesValue
+  ${NSD_GetState} $ConsentSignIn $ConsentSignInValue
+  StrCpy $ConsentCollectedValue 1
 FunctionEnd
 
 Section /o "$(SPACR_NSIS_GPU)" SecGpu
 SectionEnd
+
+!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecGpu} "GPU acceleration: measured 13x faster Cellpose segmentation and 20x faster ResNet classification than CPU on an RTX 3090; hardware varies."
+!insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   SectionIn RO
@@ -79,7 +129,7 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   ${EndIf}
 
   DetailPrint "$(SPACR_NSIS_DOWNLOADING)"
-  nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$TEMP\spaCR-online-installer\install_spacr_windows.ps1" -InstallRoot "$INSTDIR" -Version "${VERSION}" -TorchBackend "$1" -Language "$3"'
+  nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$TEMP\spaCR-online-installer\install_spacr_windows.ps1" -InstallRoot "$INSTDIR" -Version "${VERSION}" -TorchBackend "$1" -Language "$3" -ConsentCollected $ConsentCollectedValue -ShareDiagnostics $ConsentShareValue -ReportIssues $ConsentIssuesValue -SignInNow $ConsentSignInValue'
   Pop $0
   ${If} $0 != 0
     MessageBox MB_ICONSTOP "$(SPACR_NSIS_FAILED)"
