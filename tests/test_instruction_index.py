@@ -60,10 +60,16 @@ def test_the_counts_are_the_real_counts():
     assert f"{n_done} done / {n_open} open" in text
 
 
-def test_codex_owned_files_are_marked_do_not_touch():
+def test_codex_owned_open_files_are_marked_do_not_touch():
     """Two sessions editing one file is how work gets lost."""
+    tool = _tool()
     text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
-    for number in ("48", "83"):
+    open_numbers = {
+        path.name.split("_", 1)[0]
+        for path in (INSTRUCTIONS / "open").glob("*.txt")
+    }
+    assert set(tool.OWNERS) <= open_numbers
+    for number in tool.OWNERS:
         block = [b for b in text.split("\n\n") if b.strip().startswith(number)]
         assert block, f"instruction {number} is not in the index"
         assert "DO NOT TOUCH" in block[0], number
