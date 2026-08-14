@@ -104,7 +104,9 @@ def test_switching_mode_reaches_the_canvas(panel):
 # ---------------------------------------------------------------------------
 
 class _Event:
-    pass
+    inaxes = object()
+    x = 10.0
+    y = 20.0
 
 
 def _drag(canvas, shape, start, end):
@@ -173,3 +175,65 @@ def test_a_dragged_depth_reaches_a_prism(panel, monkeypatch):
     gate = canvas.close_polygon(name="p")
     assert isinstance(gate, PrismGate)
     assert (gate.axis_low, gate.axis_high) == (1.0, 4.0)
+
+
+# ---------------------------------------------------------------------------
+# The controls drive the real mouse state machine
+# ---------------------------------------------------------------------------
+
+def test_spin_mode_cannot_start_a_drawing(panel, monkeypatch):
+    """The old handler looked only at the always-armed 2D rectangle tool,
+    which made the Spin button decorative despite all control tests passing."""
+    canvas = panel.canvas
+    monkeypatch.setattr(canvas, "_in_volume", lambda: True)
+    monkeypatch.setattr(
+        canvas, "screen_to_volume", lambda _event: ("a", 1.0, "b", 2.0))
+    canvas.set_drag_mode("spin")
+
+    assert canvas._volume_press(_Event())
+    assert canvas._volume_drag is None
+    assert canvas._spin_from == (10.0, 20.0)
+
+
+def test_shape_then_depth_are_two_real_mouse_gestures(panel, monkeypatch):
+    """No test in the first rework crossed the event handlers.  A setter for
+    pending depth is not the requested second gesture."""
+    canvas = panel.canvas
+    panel.set_namer(lambda: "volume gate")
+    monkeypatch.setattr(canvas, "_in_volume", lambda: True)
+    canvas.set_drag_mode("draw")
+    canvas.set_volume_shape("oval")
+    points = iter((("a", 1.0, "b", 2.0), ("a", 5.0, "b", 8.0)))
+    monkeypatch.setattr(canvas, "screen_to_volume", lambda _event: next(points))
+    drawn = []
+    canvas.gate_drawn.connect(drawn.append)
+
+    assert canvas._volume_press(_Event())
+    assert canvas._volume_release(_Event())
+    assert drawn == []
+    assert isinstance(canvas._pending_volume_gate, CylinderGate)
+    assert "Drag once more" in panel.status()
+
+    assert canvas._volume_press(_Event())
+    monkeypatch.setattr(
+        canvas, "_depth_bounds_from_drag", lambda _start, _event: (2.0, 7.0))
+    assert canvas._volume_release(_Event())
+    assert len(drawn) == 1
+    assert (drawn[0].axis_low, drawn[0].axis_high) == (2.0, 7.0)
+    assert canvas._pending_volume_gate is None
+
+
+def test_polygon_dropdown_reaches_the_click_gesture(panel, monkeypatch):
+    """Selecting Polygon in the new dropdown used to leave the old 2D
+    rectangle armed, so a drag made a box and the polygon choice did nothing."""
+    canvas = panel.canvas
+    monkeypatch.setattr(canvas, "_in_volume", lambda: True)
+    monkeypatch.setattr(
+        canvas, "screen_to_volume", lambda _event: ("a", 3.0, "b", 4.0))
+    panel._volume_shape.setCurrentIndex(panel._volume_shape.findData("polygon"))
+    panel._on_drag_mode("draw")
+
+    canvas._on_press(_Event())
+    assert canvas.pending_vertices() == ((3.0, 4.0),)
+    assert canvas._pending_plane == ("a", "b")
+    assert canvas._volume_drag is None
