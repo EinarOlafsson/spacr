@@ -723,6 +723,7 @@ setup(
         # automatic.
         'rapids': [
             'cuml-cu12>=25.2; python_version >= "3.11" and python_version < "3.13"',
+            'cupy-cuda12x>=13.0; python_version >= "3.11" and python_version < "3.13"',
         ],
         # `pip install spacr[boosting]` — the two gradient-boosting backends
         # reachable through `model_type='lightgbm'` and `model_type='catboost'`
