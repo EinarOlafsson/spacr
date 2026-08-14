@@ -208,7 +208,6 @@ looked.
 | **95** | Image UMAP, starplast-style | **Model + GPU button built.** The 2D/3D container, the grid-on-black, the clustering walk and removing the figure slider are NOT |
 | **94** | Splits group by well | ~40%. Ladder (cell/field/well/plate) built, `none`→`cell` renamed with aliases. Five sites still ungrouped |
 | **93** | Per-field intensity factor | Filed, not started |
-| **60** | Coverage | Maintainer scoped it to **mask, utils, measure, deep_spacr** only |
 | **76** | More than one organelle | Not started |
 | **47** | Qt suite | Diagnosed (§3d). ~15 failures unnamed |
 | **75** | Image UMAP figures | **Superseded by 95** — can be closed |

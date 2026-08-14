@@ -231,3 +231,60 @@ place to spend a week.
 MEASURE IT THE SAME WAY EVERY TIME, or the number means nothing -- add
 `--cov=spacr` and then subtract these four files, rather than passing a
 narrower `--cov` target, so the baseline JSON stays comparable.
+
+--------------------------------------------------------------------------------
+2026-08-14 - COMPLETE FOR THE MAINTAINER-DEFINED FOUR-MODULE SCOPE
+--------------------------------------------------------------------------------
+
+The maintainer subsequently narrowed this instruction to the four execution
+modules recorded in HANDOFF.md and the generated index: `spacr/core.py` (the
+Mask module's public pipeline), `spacr/utils.py`, `spacr/measure.py`, and
+`spacr/deep_spacr.py`. That explicit scope supersedes the original package-wide
+wording above; the four legacy Tk-only files remain excluded as previously
+decided.
+
+THE MEASURED STARTING POINT, over the broad unattended suite plus focused
+module suites, was 473 uncovered statements:
+
+    spacr/core.py          575 statements      4 missing
+    spacr/utils.py        4656 statements    227 missing
+    spacr/measure.py      1673 statements    140 missing
+    spacr/deep_spacr.py   1697 statements    102 missing
+
+THE CURRENT RESULT, assembled only from current-source coverage shards (old
+line mappings were deliberately discarded after source cleanup), is:
+
+    spacr/core.py          575 statements      0 missing   100%
+    spacr/utils.py        4656 statements      0 missing   100%
+    spacr/measure.py      1662 statements      0 missing   100%
+    spacr/deep_spacr.py   1694 statements      0 missing   100%
+    -----------------------------------------------------------------
+    scoped total         8587 statements      0 missing   100%
+
+No `# pragma: no cover` exclusions were added. The sweep added 112 focused
+tests in three item-specific files plus four UMAP edge tests in the existing
+graph suite. The final item-level regression run was 151 passed; the deep
+module regression set was 290 passed, the current-source measurement set was
+700 passed, and the earlier core/utils focused set was 63 passed.
+
+THE TESTS FOUND REAL FAILURES rather than merely increasing a percentage:
+
+  * `save_arrays=True, save_png=False` referenced PNG-only locals in a worker,
+    returned the integer failure sentinel, and could still look successful to
+    a weak caller. Arrays now save independently and the regression asserts an
+    ndarray success result.
+  * Plotting a volumetric measurement field attempted to construct a zero-row
+    Matplotlib grid. Empty grids are now skipped.
+  * Three measurement tails and one deep-training progress branch were proved
+    unreachable from their invariants and removed instead of excluded from
+    coverage.
+
+Normal and defensive cases now include malformed loader batches, binary and
+multiclass inference, crop-format metadata, metric-library failures, model-card
+registry failures, knowledge-distillation and fusion validation, nested-CV
+inner failures and label drift, checkpoint resume/fine-tune guards, all
+scheduler families, TensorBoard failure recovery, registered attribution
+methods, volumetric measurement plotting, array-only crops, UMAP row alignment,
+and NaN/missing crop metadata.
+
+This completes instruction 60 in its maintainer-defined scope.

@@ -642,15 +642,15 @@ def _calculate_zernike(mask, df, degree=8):
         zernike_moment = zernike_moments(region.image, radius, degree=degree)
         zernike_features.append(zernike_moment.tolist())
 
-    if zernike_features:
-        feature_length = len(zernike_features[0])
-        for feature in zernike_features:
-            if len(feature) != feature_length:
-                raise ValueError("All Zernike moments must be of the same length")
+    # ``regions`` was checked non-empty above and one vector is appended for
+    # every region, so this list cannot be empty here.
+    feature_length = len(zernike_features[0])
+    for feature in zernike_features:
+        if len(feature) != feature_length:
+            raise ValueError("All Zernike moments must be of the same length")
 
-        zernike_df = pd.DataFrame(zernike_features, columns=[f'zernike_{i}' for i in range(feature_length)])
-        return pd.concat([df.reset_index(drop=True), zernike_df], axis=1)
-    return df
+    zernike_df = pd.DataFrame(zernike_features, columns=[f'zernike_{i}' for i in range(feature_length)])
+    return pd.concat([df.reset_index(drop=True), zernike_df], axis=1)
 
 
 def _load_zernike_moments():
@@ -1738,9 +1738,8 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None):
         """NaN-safe Gini coefficient of an intensity array."""
         # Compute Gini coefficient (nan safe)
         array = np.abs(array[~np.isnan(array)])
+        # Called only for the non-empty intensity branch below.
         n = array.size
-        if n == 0:
-            return np.nan
         array = np.sort(array)
         index = np.arange(1, n + 1)
         return (np.sum((2 * index - n - 1) * array)) / (n * np.sum(array)) if np.sum(array) else np.nan
@@ -2904,8 +2903,6 @@ def _measure_crop_core(index, time_ls, file, settings):
                     if settings.get(f'{organelle_role}_mask_dim') is not None:
                         interior |= (current_mask != 0)
                 cytoplasm_mask = np.where(interior, 0, cell_mask)
-            else:
-                cytoplasm_mask = np.zeros_like(cell_mask)
         else:
             cytoplasm_mask = np.zeros_like(cell_mask)
 
@@ -3243,10 +3240,9 @@ def _measure_crop_core(index, time_ls, file, settings):
                         # volume is not a length. Unreachable for a 3-D
                         # field today (the whole crop block is refused
                         # above), but wrong is wrong.
-                        if region.ndim == 3:
-                            approximate_diameter = np.cbrt(region_area)
-                        else:
-                            approximate_diameter = np.sqrt(region_area)
+                        # Volumetric fields are refused before entering the crop
+                        # block, so every region here is 2-D.
+                        approximate_diameter = np.sqrt(region_area)
                         dialate_png_px = int(approximate_diameter * dialate_png_ratio)
                         # scipy reads iterations=0 as "repeat until nothing
                         # changes", NOT as "do nothing", so a radius that
@@ -3318,11 +3314,10 @@ def _measure_crop_core(index, time_ls, file, settings):
                                                  settings.get('crop_dtype',
                                                               'original')))
 
-                        grid = save_and_add_image_to_grid(png_channels, img_path, grid, settings['plot'])
-
-                        img_paths.append(img_path)
-                        if len(img_paths) == len(objects_in_image):
-                            filepaths_to_database(img_paths, settings, source_folder, crop_mode)
+                        # Region arrays are independent of PNG output. In
+                        # particular, save_arrays=True/save_png=False must not
+                        # reference the PNG-only locals ``png_channels`` and
+                        # ``img_path`` or register a .npy path in ``png_list``.
 
         cells = np.unique(cell_mask)
     except Exception as e:
@@ -3342,7 +3337,10 @@ def _measure_crop_core(index, time_ls, file, settings):
     duration = end-start
     time_ls.append(duration)
     average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-    if settings['plot']:
+    # A volumetric field deliberately skips every 2-D crop plot, leaving the
+    # grid empty. Matplotlib cannot build a zero-row subplot grid, so there is
+    # simply no ``__pngs`` figure in that case.
+    if settings['plot'] and grid:
         fig = img_list_to_grid(grid)
         figs[f'{file_name}__pngs'] = fig
     return index, average_time, cells, figs
