@@ -568,12 +568,10 @@ class TestGroupedFolds:
         val = np.concatenate([v for _, v in folds])
         assert sorted(val.tolist()) == list(range(len(labels)))
 
-    def test_ungrouped_folds_carry_a_loud_warning(self, wells):
+    def test_missing_default_groups_are_refused(self, wells):
         labels, _groups, _ = wells
-        _folds, warnings = build_folds(labels, 3, seed=0)
-        joined = " ".join(warnings)
-        assert "ungrouped" in joined
-        assert "optimistic" in joined
+        with pytest.raises(ValueError, match="No group ids.*random fallback"):
+            build_folds(labels, 3, seed=0)
 
     def test_group_by_none_says_scores_are_inflated(self, wells):
         labels, groups, _ = wells
@@ -602,15 +600,12 @@ class TestGroupedFolds:
                         exclude=list(range(len(labels))))
         assert "Every sample was excluded" in str(e.value)
 
-    def test_filenames_too_short_for_the_level_are_counted(self):
-        """A crop filename that cannot carry a well becomes its own group, and
-        the caller is told how many did — silently degrading here would mean
-        every crop is its own 'well' and the grouping does nothing."""
+    def test_filenames_too_short_for_the_level_are_refused(self):
+        """Anonymous files cannot become fake singleton wells."""
         labels = np.array([0, 1] * 15)
         names = [f"lone{i}.png" for i in range(30)]
-        _folds, warnings = build_folds(labels, 3, filenames=names, seed=0)
-        assert any("did not carry a 'well' level" in w for w in warnings)
-        assert any("became their own group" in w for w in warnings)
+        with pytest.raises(ValueError, match="does not encode a well"):
+            build_folds(labels, 3, filenames=names, seed=0)
 
     def test_out_of_range_test_indices_are_refused(self, wells):
         labels, groups, _ = wells

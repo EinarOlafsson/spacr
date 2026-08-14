@@ -436,31 +436,19 @@ def test_a_round_that_cannot_write_its_card_keeps_the_model(project):
     assert any("card could not be written" in n for n in result.notes)
 
 
-def test_a_grouped_split_holds_out_whole_wells_when_no_fold_is_stratified(
+def test_a_grouped_split_expands_when_the_requested_fold_has_one_class(
         tmp_path):
-    """Class perfectly confounded with well: the split must still not leak.
-
-    Two wells are all class 0 and two are all class 1, so no stratified
-    grouped fold can contain both classes. The fallback has to keep the
-    grouping — a well on both sides of the split is exactly the leak that
-    makes active-learning accuracies look wonderful — and it has to say
-    that the held-out class balance is now whatever the groups gave.
-    """
+    """Two wells per class permit an honest 50%, not the requested 25%."""
     project = _make_project(
         tmp_path, per_well=6,
         class_of=lambda i, well, obj: 0 if well < 2 else 1)
 
-    result = al.retrain_round(project["db"], "annotate", group_by="well",
-                              holdout=0.25, save_model=False,
-                              write_card=False, round_index=0)
-
-    assert "GroupShuffleSplit" in result.split_rule
-    assert "no group appears on both sides" in result.split_rule
-    assert any("held-out class balance" in n for n in result.notes)
-    # One whole well was held out, and a well here is one class only.
-    support = result.report["class_support"]
-    assert sorted(support) == [0, 6], support
-    assert result.report["n"] == 6
+    result = al.retrain_round(
+        project["db"], "annotate", group_by="well", holdout=0.25,
+        save_model=False, write_card=False, round_index=0)
+    assert "2 of 4 well group(s) (50.0%)" in result.split_rule
+    assert "12 of 24 cells (50.0%)" in result.split_rule
+    assert set(result.report["class_support"]) == {6}
 
 
 # ---------------------------------------------------------------------------
@@ -964,18 +952,13 @@ def test_group_by_none_records_a_random_split_as_a_random_one(project):
     result = al.retrain_round(project["db"], "annotate", group_by="none",
                               save_model=False, write_card=False,
                               round_index=0)
-    assert "NOT grouped" in result.split_rule
-    assert "no group appears on both sides" not in result.split_rule
-    # 'none' is still accepted, and now reports itself as the level it IS
-    # -- 'cell' -- because a model card should record the deliberate choice
-    # of the leakiest level, not the absence of a strategy.
-    assert any("group_by='cell'" in note and "optimistic" in note
-               for note in result.notes)
+    assert "split_by=cell" in result.split_rule
+    assert "sibling cells may cross" in result.split_rule
     curve = al.learning_curve(project["db"], "annotate")
-    assert "NOT grouped" in curve["split_rule"].iloc[-1]
+    assert "split_by=cell" in curve["split_rule"].iloc[-1]
 
 
-def test_a_group_by_the_crop_table_cannot_honour_is_not_called_grouped(
+def test_a_group_by_the_crop_table_cannot_honour_is_refused(
         tmp_path):
     """A recognised strategy with none of its columns is still not grouped.
 
@@ -995,14 +978,10 @@ def test_a_group_by_the_crop_table_cannot_honour_is_not_called_grouped(
         index=[f"/crops/cell_png/{i}.png" for i in range(24)])
     features.index.name = "png_path"
 
-    result = al.retrain_round(db, "annotate", features=features,
-                              group_by="well", save_model=False,
-                              write_card=False, round_index=0)
-
-    assert "NOT grouped" in result.split_rule
-    assert "no group appears on both sides" not in result.split_rule
-    assert any("none of the columns" in note and "plateID" in note
-               for note in result.notes)
+    with pytest.raises(ValueError, match="Cannot split png_list by well"):
+        al.retrain_round(db, "annotate", features=features,
+                         group_by="well", save_model=False,
+                         write_card=False, round_index=0)
 
 
 def test_holdout_report_scores_every_row_it_says_it_scored():

@@ -279,15 +279,10 @@ def test_group_id_rejects_an_unknown_level():
         IO._png_group_id("plate1_A01_2_1.png", "row")
 
 
-def test_unparseable_names_become_their_own_group_and_are_reported(capsys):
+def test_unparseable_names_are_refused_not_invented_as_groups(capsys):
     names = ["plate1_A01_1_1.png", "plate1_A01_1_2.png", "weird.png"]
-    ids, unparsed = IO._cv_group_ids(names, "well")
-    assert unparsed == 1
-    assert ids[0] == ids[1] == "plate1_A01"
-    assert ids[2] == "weird"
-    out = capsys.readouterr().out
-    assert "do not encode a well" in out
-    assert "independence is not enforced" in out
+    with pytest.raises(ValueError, match="weird.png.*does not encode a well"):
+        IO._cv_group_ids(names, "well")
 
 
 def test_group_by_none_returns_no_groups():

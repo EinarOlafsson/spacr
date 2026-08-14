@@ -136,3 +136,58 @@ their assertion:
 STILL TO DO: route the five ungrouped sites through this, expose `split_by` as
 a setting with the ladder and its tooltip, and report the split as wells AND
 cells rather than one number.
+
+--------------------------------------------------------------------------------
+2026-08-14 - COMPLETE: ONE STRICT SPLITTER, FIVE CALLERS, FOUR LEVELS
+--------------------------------------------------------------------------------
+
+The split policy now has one shared home in `spacr.classifier_evaluation`:
+
+    normalize_split_level   cell / field / well / plate; none -> cell
+    split_columns_for       complete metadata keys or a refusal
+    split_group_values      metadata, canonical prcfo, or crop filenames
+    grouped_split           indices plus a durable SplitReport
+
+THE DEFAULT IS WELL AND THE FALLBACK IS GONE. Missing metadata, anonymous crop
+names, one-group designs, one independent well per class, and any design that
+cannot put every class on both sides raise a sentence explaining why a random
+cell split would measure memorisation rather than transfer. A deliberately
+selected cell split remains available and is recorded as `cell`, never as the
+absence of a strategy. Repeated rows/augmentations of the same object remain
+together even at that level.
+
+ALL FIVE SITES NOW USE IT:
+
+  * `ml.ml_analysis` groups the ordinary holdout and its optional CV folds;
+  * `io.generate_dataset_from_lists` groups the permanent disk dataset;
+  * `utils.augment_classes` groups augmentation families globally;
+  * `gui_elements.AnnotateApp.train_and_classify` groups the in-GUI model;
+  * `surrogate.fit_surrogate` groups the fidelity holdout.
+
+Active learning imports the same implementation instead of carrying its own,
+and the ordinary Classify validation loader and hyperparameter folds now share
+the same `cell` alias and strict identity refusal. There is no remaining direct
+`train_test_split` call outside the shared implementation.
+
+THE COST IS VISIBLE. `SplitReport` records requested fraction, realised group
+fraction, realised cell fraction, group/cell counts and the exact rule. The
+generated crop tree writes `.spacr_split.json`; classical ML writes the values
+onto scored rows, into `model_metrics.csv`, and onto the returned estimator;
+the surrogate result carries them; active-learning model cards carry the full
+split-rule summary. Console summaries say, for example, "2 of 4 well groups
+(50%) and 12 of 24 cells (50%); requested 25%" rather than pretending whole
+wells can satisfy every requested decimal.
+
+THE PICKER IS THE FOUR-RUNG LADDER. `cv_group_by` now exposes cell, field, well
+and plate in that order, defaults to well, and its tooltip explains the leak at
+each rung. Legacy `none`, `off`, False and None still deserialize as cell. The
+legacy annotation launcher passes the same setting into its classifier.
+
+TESTED NORMAL AND FAILURE CASES: direct metadata, prcfo with an underscored
+plate id, crop filenames, repeated object rows, augmentation families,
+deterministic cell splits, whole-well fraction expansion, missing/null keys,
+anonymous filenames, one well, one well per class, rare cells, invalid
+fractions and mismatched lengths. The routed ML, active-learning, CV, crop,
+augmentation, surrogate and GUI suites pass (588 focused integration tests;
+117 active-learning/surrogate tests; 433 settings tests; and the three
+end-to-end classical-ML tests).

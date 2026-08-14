@@ -91,7 +91,8 @@ def test_augment_classes_moves_augmented_images_into_train_test(tmp_path):
     nc_names = _fill(os.path.join(dst, "aug_nc"), 20, "nc")
     pc_names = _fill(os.path.join(dst, "aug_pc"), 10, "pc")
 
-    augment_classes(dst, nc=["x"] * 20, pc=["y"] * 10, generate=False, move=True)
+    augment_classes(dst, nc=["x"] * 20, pc=["y"] * 10, generate=False,
+                    move=True, group_by="cell")
 
     aug = os.path.join(dst, "aug")
     train_nc = sorted(os.listdir(os.path.join(aug, "train", "nc")))
@@ -116,7 +117,8 @@ def test_augment_classes_summary_line_labels_are_correct(tmp_path, capsys):
     _fill(os.path.join(dst, "aug_nc"), 20, "nc")
     _fill(os.path.join(dst, "aug_pc"), 10, "pc")
 
-    augment_classes(dst, nc=["x"] * 20, pc=["y"] * 10, generate=False, move=True)
+    augment_classes(dst, nc=["x"] * 20, pc=["y"] * 10, generate=False,
+                    move=True, group_by="cell")
 
     out = capsys.readouterr().out
     # train nc=18, train pc=9, test nc=2, test pc=1

@@ -144,6 +144,9 @@ def _app(db_path, **overrides):
     app.measurement = None
     app.threshold = None
     app.threshold_direction = "higher"
+    # These DB/UI tests use anonymous filenames. Acquisition-aware split
+    # behavior is covered separately, so opt into the explicit cell alias.
+    app.split_by = "cell"
     app.pending_updates = {}
     app.images = {}
     app.labels = []

@@ -133,7 +133,7 @@ def convert_settings_dict_for_gui(settings):
         # io.CLASS_BALANCE_MODES / io.CV_GROUP_LEVELS — both raise ValueError
         # on anything outside these lists, so free text is not usable here.
         'class_balance': ('combo', ['none', 'weighted_sampler', 'sqrt_weighted_sampler', 'weighted_loss'], 'none'),
-        'cv_group_by': ('combo', ['well', 'field', 'plate', 'none'], 'well'),
+        'cv_group_by': ('combo', ['cell', 'field', 'well', 'plate'], 'well'),
         # spacr.seg_qc.MODES
         'seg_qc': ('combo', ['off', 'report', 'flag', 'stop'], 'report'),
         # Three states, not two: None defers to SPACR_STRICT_ERRORS so a

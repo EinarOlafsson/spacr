@@ -286,6 +286,7 @@ def test_ml_analysis_random_forest():
         df, channel_of_interest=3, location_column="columnID",
         positive_control="c2", negative_control="c1",
         model_type="random_forest", n_repeats=2, test_size=0.25,
+        split_by="cell",
         remove_highly_correlated_features=False, n_jobs=1)
     scored_df = output[0]
     assert "prediction_probability" in scored_df.columns or len(output) >= 8
@@ -299,6 +300,7 @@ def test_ml_analysis_bad_model_type():
             df, channel_of_interest=3, location_column="columnID",
             positive_control="c2", negative_control="c1",
             model_type="bogus", n_repeats=1,
+            split_by="cell",
             remove_highly_correlated_features=False, n_jobs=1)
 
 
@@ -308,6 +310,7 @@ def test_ml_analysis_cross_validation():
         df, channel_of_interest=3, location_column="columnID",
         positive_control="c2", negative_control="c1",
         model_type="random_forest", n_repeats=2, cross_validation=True,
+        split_by="cell",
         remove_highly_correlated_features=False, n_jobs=1)
     assert output[0] is not None
 
@@ -320,6 +323,7 @@ def test_ml_analysis_logistic_regression():
         df, channel_of_interest=3, location_column="columnID",
         positive_control="c2", negative_control="c1",
         model_type="logistic_regression", n_repeats=2, test_size=0.25,
+        split_by="cell",
         remove_highly_correlated_features=False, n_jobs=1)
     assert output[2].empty       # empty feature_importance_df for LR
     assert figs[1] is None       # no feature-importance figure
@@ -333,6 +337,7 @@ def test_ml_analysis_gradient_boosting():
         df, channel_of_interest=3, location_column="columnID",
         positive_control="c2", negative_control="c1",
         model_type="gradient_boosting", n_repeats=2, test_size=0.25,
+        split_by="cell",
         n_estimators=20,
         remove_highly_correlated_features=False, n_jobs=1)
     assert output[0] is not None

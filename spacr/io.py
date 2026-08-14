@@ -30,7 +30,6 @@ from torchvision.transforms import ToTensor
 import seaborn as sns 
 from nd2reader import ND2Reader
 from torchvision import transforms
-from sklearn.model_selection import train_test_split
 
 # Backward-compatible injection point used by tests and advanced callers.
 # ``None`` means "load the optional reader on first CZI conversion".
@@ -5178,7 +5177,7 @@ def _write_crop_tar(items, tar_name, settings=None):
 CLASS_BALANCE_MODES = ('none', 'weighted_sampler', 'sqrt_weighted_sampler', 'weighted_loss')
 
 #: Accepted values for the ``cv_group_by`` setting.
-CV_GROUP_LEVELS = ('none', 'field', 'well', 'plate')
+CV_GROUP_LEVELS = ('cell', 'field', 'well', 'plate')
 
 #: max/min class-count ratio at or above which the data is called skewed.
 IMBALANCE_RATIO_WARN = 1.5
@@ -5772,7 +5771,8 @@ def report_cv_folds(labels, folds, classes=None, groups=None, group_by='none',
     if (table['n_val'] == 0).any():
         bad = table.loc[table['n_val'] == 0, 'fold'].tolist()
         warnings_out.append(f"fold(s) {bad} have an empty validation set")
-    if groups is None or group_by == 'none':
+    from .classifier_evaluation import normalize_split_level
+    if groups is None or normalize_split_level(group_by) == 'cell':
         warnings_out.append(
             "folds are NOT group-aware: crops from the same well or field can "
             "land on both sides of a fold, which leaks and inflates every "
@@ -5867,37 +5867,28 @@ def _classification_transform(image_size, channel_idx, normalize):
 def _cv_group_ids(filenames, group_by, verbose=True):
     """Derive per-sample group ids at the requested plate/well/field level.
 
-    Filenames that do not carry the level fall back to their own basename, so
-    they simply behave as an ungrouped sample rather than being silently
-    lumped together with unrelated crops. The count of such files is reported,
-    because it is exactly the number of crops whose independence is unproven.
+    Every grouped filename must carry a verifiable identity. Anonymous names
+    are refused rather than converted to singleton pseudo-groups, which would
+    make an ordinary random split look leakage-safe.
 
     :param filenames: image paths.
     :param group_by: one of ``CV_GROUP_LEVELS``.
     :param verbose: print the grouping summary.
-    :returns: ``(group_ids, n_unparsed)`` — ``(None, 0)`` when ``group_by='none'``.
+    :returns: ``(group_ids, 0)`` — ``(None, 0)`` for ``cell``/legacy ``none``.
     :raises ValueError: if ``group_by`` is not a supported level.
     """
-    if group_by not in CV_GROUP_LEVELS:
-        raise ValueError(f"cv_group_by {group_by!r} is not one of {CV_GROUP_LEVELS}")
-    if group_by == 'none':
+    from .classifier_evaluation import normalize_split_level, split_group_values
+
+    level = normalize_split_level(group_by)
+    if level == 'cell':
         return None, 0
-    ids, unparsed = [], 0
-    for p in filenames:
-        gid = _png_group_id(p, group_by)
-        if gid is None:
-            unparsed += 1
-            gid = os.path.splitext(os.path.basename(str(p)))[0]
-        ids.append(gid)
+    _level, values = split_group_values(
+        group_by=level, paths=filenames, table='classification dataset')
+    ids = values.tolist()
     if verbose:
-        print(f"Grouping folds by {group_by}: {len(set(ids))} distinct "
-              f"{group_by}(s) across {len(ids)} crops")
-        if unparsed:
-            print(f"  WARNING: {unparsed} filename(s) do not encode a "
-                  f"{group_by} (expected <plate>_<well>_<field>_..._<object>.png); "
-                  f"each is treated as its own group, so their independence is "
-                  f"not enforced")
-    return ids, unparsed
+        print(f"Grouping folds by {level}: {len(set(ids))} distinct "
+              f"{level}(s) across {len(ids)} crops")
+    return ids, 0
 
 
 def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=32,
@@ -6074,26 +6065,20 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
     use_persistent = num_workers > 0
 
     if validation_split > 0 and mode == 'train':
-        if group_by != 'none':
-            filenames = dataset_filenames(data)
-            groups, _unparsed = _cv_group_ids(
-                filenames, group_by, verbose=True,
-            )
-            train_idx, val_idx = make_validation_holdout(
-                dataset_labels(data),
-                validation_split,
-                groups,
-                seed=seed,
-            )
-            train_dataset = Subset(data, list(train_idx))
-            val_dataset = Subset(data, list(val_idx))
-            train_size, val_size = len(train_idx), len(val_idx)
-        else:
-            train_size = int((1 - validation_split) * len(data))
-            val_size = len(data) - train_size
-            generator = torch.Generator().manual_seed(int(seed))
-            train_dataset, val_dataset = random_split(
-                data, [train_size, val_size], generator=generator)
+        from .classifier_evaluation import (grouped_split,
+                                             normalize_split_level)
+        level = normalize_split_level(group_by)
+        filenames = dataset_filenames(data)
+        groups, _unparsed = _cv_group_ids(filenames, level, verbose=True)
+        if groups is None:
+            groups = np.arange(len(data), dtype=object)
+        train_idx, val_idx, split_report = grouped_split(
+            groups, dataset_labels(data), validation_split, seed=seed,
+            group_by=level)
+        print(split_report.summary())
+        train_dataset = Subset(data, list(train_idx))
+        val_dataset = Subset(data, list(val_idx))
+        train_size, val_size = len(train_idx), len(val_idx)
         if not augment:
             print(f'Train data:{train_size}, Validation data:{val_size}')
         generator = torch.Generator().manual_seed(int(seed))
@@ -6951,10 +6936,10 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
         Default ``0.1``.
     :param db_path: optional ``measurements.db`` consulted for the crop format
         of a source folder that carries no sidecar.
-    :param random_seed: Reproducible per-class train/test split seed.
+    :param random_seed: Reproducible global train/test split seed.
     :param group_by: acquisition identity kept intact across the permanent
-        train/test boundary. Default ``well``. ``none`` uses independent
-        per-class splitting for legacy callers.
+        train/test boundary. Default ``well``. ``cell`` is the leakiest
+        per-object choice; legacy ``none`` aliases it.
     :returns: ``(train_dir, test_dir)`` tuple of the top-level split paths.
     :raises ValueError: if ``len(class_data) != len(classes)``.
     """
@@ -6986,31 +6971,28 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
         mark_crop_output_folder(dst, fmt=fmt, classes=list(map(str, classes)),
                                 split='train/test')
 
+    from .classifier_evaluation import grouped_split, split_group_values
+
     grouped_splits = None
-    if group_by != 'none':
+    split_report = None
+    if class_data:
         flat_items = []
         flat_labels = []
-        flat_groups = []
         for class_index, data in enumerate(class_data):
-            for item_index, item in enumerate(data):
-                name = (
-                    item.name if isinstance(item, LazyCropPNG)
-                    else os.path.basename(str(item))
-                )
-                group = _png_group_id(name, group_by)
-                if group is None:
-                    # Keep unknown items independent while preserving the
-                    # original filename for the later strict audit to flag.
-                    group = f"unparsed:{class_index}:{item_index}:{name}"
+            for item in data:
                 flat_items.append(item)
                 flat_labels.append(class_index)
-                flat_groups.append(group)
         if flat_items:
-            train_indices, test_indices = make_validation_holdout(
-                flat_labels,
-                test_split,
-                flat_groups,
-                seed=random_seed,
+            names = [
+                item.name if isinstance(item, LazyCropPNG) else str(item)
+                for item in flat_items
+            ]
+            level, flat_groups = split_group_values(
+                group_by=group_by, paths=names,
+                table='generated training dataset')
+            train_indices, test_indices, split_report = grouped_split(
+                flat_groups, flat_labels, test_split, seed=random_seed,
+                group_by=level,
             )
             train_index_set = set(map(int, train_indices))
             test_index_set = set(map(int, test_indices))
@@ -7037,6 +7019,11 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
                         f"independent {group_by}s, lower test_split, or choose "
                         "a finer grouping level."
                     )
+            print(split_report.summary())
+            os.makedirs(dst, exist_ok=True)
+            with open(os.path.join(dst, '.spacr_split.json'), 'w') as handle:
+                json.dump(split_report.to_dict(), handle, indent=2,
+                          sort_keys=True)
 
     for class_index, (cls, data) in enumerate(zip(classes, class_data)):
         # Create directories
@@ -7055,12 +7042,9 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
             # list still matches the tree, and let the summary below flag it.
             print(f"Class {cls!r} selected no crops; its folders are empty.")
             continue
-        if grouped_splits is not None:
-            train_data, test_data = grouped_splits[class_index]
-        else:
-            train_data, test_data = train_test_split(
-                data, test_size=test_split, shuffle=True,
-                random_state=int(random_seed))
+        if grouped_splits is None:
+            raise RuntimeError("dataset split provenance was not constructed")
+        train_data, test_data = grouped_splits[class_index]
 
         # Write train files
         for item in train_data:

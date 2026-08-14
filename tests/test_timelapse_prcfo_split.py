@@ -144,6 +144,7 @@ def _fit(frame):
                        model_type='logistic_regression', n_jobs=1,
                        remove_low_variance_features=False,
                        remove_highly_correlated_features=False,
+                       split_by='cell',
                        verbose=False)
 
 
