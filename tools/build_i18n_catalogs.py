@@ -33,6 +33,7 @@ from contextlib import contextmanager
 import ctypes
 import ctypes.util
 import fcntl
+from functools import lru_cache
 import hashlib
 import json
 import os
@@ -56,6 +57,7 @@ if str(ROOT) in sys.path:
     sys.path.remove(str(ROOT))
 sys.path.insert(0, str(ROOT))
 CATALOG_DIR = ROOT / "spacr" / "qt" / "i18n_catalogs"
+REVIEWED_RUNTIME_DIR = ROOT / "docs" / "i18n" / "reviewed" / "runtime"
 
 MODEL_SPECS = {
     "sv": ("Helsinki-NLP/opus-mt-en-sv", "en-sv", "Apache-2.0", ""),
@@ -229,7 +231,14 @@ _PROTECT_PATTERNS = (
     # them even when an old docstring omitted inline-code markup; otherwise a
     # model can turn ``measurements.db`` into a natural-language phrase or
     # translate one component of ``spacr.settings.descriptions``.
-    re.compile(r"(?<!\w)[A-Za-z_]\w*(?:\.[A-Za-z_]\w+)+(?!\w)"),
+    # Swedish ``t.ex.`` ("for example") is prose, not a dotted Python name.
+    # Excluding this exact abbreviation prevents valid Swedish translations
+    # from inventing an apparent identifier while every real dotted token
+    # remains protected byte-for-byte.
+    re.compile(
+        r"(?<!\w)(?!(?:t|T)\.ex(?:\.|\b))"
+        r"[A-Za-z_]\w*(?:\.[A-Za-z_]\w+)+(?!\w)"
+    ),
     re.compile(r"(?<![\w#])#[0-9A-Fa-f]{3,8}(?![0-9A-Fa-f])"),
     re.compile(r"https?://\S+"),
     # Inline installation commands are executable text even when a docstring
@@ -2461,6 +2470,8 @@ MANUAL_UI: dict[str, dict[str, str]] = {
     },
 }
 
+_REVIEWED_RUNTIME_LOADING: set[str] = set()
+
 # Cellpose exposes the same two abbreviated thresholds for four object types.
 # Keep the established CP/FT names intact and localize the object name; asking
 # a general translation model to infer these abbreviations produced labels
@@ -2498,10 +2509,13 @@ for _object_source, _localized_names in _OBJECT_LABELS.items():
 
 def _reviewed_translation(source: str, language: str) -> str | None:
     """Return exact reviewed prose without adding it to the static UI set."""
-    return (
+    static = (
         MANUAL_TRANSLATIONS.get(str(source), {}).get(language)
         or MANUAL_UI.get(str(source), {}).get(language)
     )
+    if static is not None or language in _REVIEWED_RUNTIME_LOADING:
+        return static
+    return reviewed_runtime_translations(language).get(str(source))
 
 
 def _call_name(node: ast.Call) -> str:
@@ -2722,6 +2736,88 @@ def canonical_sources() -> dict[str, object]:
         "installer": dict(sorted(installer.items())),
         "module_summaries": dict(sorted(module_summaries.items())),
     }
+
+
+@lru_cache(maxsize=None)
+def reviewed_runtime_translations(language: str) -> dict[str, str]:
+    """Return exact, source-bound runtime translations from review evidence.
+
+    Review files are inputs to the ordinary candidate gates, not catalogs and
+    not an audit allowlist.  Each record is bound to one current source table,
+    key, source hash, and target language.  Source drift or a target that no
+    longer passes the current syntax, semantic, script, and exact-copy gates
+    is therefore a hard error.
+    """
+    directory = REVIEWED_RUNTIME_DIR / language
+    if not directory.is_dir():
+        return {}
+    sources = canonical_sources()
+    reviewed: dict[str, str] = {}
+    expected_fields = {
+        "table", "key", "source_sha256", "source", "translation",
+    }
+    _REVIEWED_RUNTIME_LOADING.add(language)
+    try:
+        for path in sorted(directory.glob("*.json")):
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError) as exc:
+                raise ValueError(
+                    f"invalid reviewed runtime evidence {path}"
+                ) from exc
+            if payload.get("schema") != 1 or payload.get("language") != language:
+                raise ValueError(
+                    f"invalid reviewed runtime evidence header: {path}"
+                )
+            records = payload.get("records")
+            if not isinstance(records, list):
+                raise ValueError(
+                    f"invalid reviewed runtime record list: {path}"
+                )
+            for record in records:
+                if not isinstance(record, Mapping) or set(record) != expected_fields:
+                    raise ValueError(f"invalid reviewed runtime record: {path}")
+                table_name = str(record["table"])
+                key = str(record["key"])
+                table = sources.get(table_name)
+                if isinstance(table, Mapping):
+                    current_source = table.get(key)
+                elif isinstance(table, (tuple, list, set, frozenset)):
+                    current_source = key if key in table else None
+                else:
+                    current_source = None
+                source = str(record["source"])
+                target = str(record["translation"])
+                if current_source != source:
+                    raise ValueError(
+                        f"stale reviewed runtime source {table_name}/{key}: {path}"
+                    )
+                if record["source_sha256"] != hashlib.sha256(
+                    source.encode("utf-8")
+                ).hexdigest():
+                    raise ValueError(
+                        f"stale reviewed runtime hash {table_name}/{key}: {path}"
+                    )
+                if _contextualize(target, language, source) != target:
+                    raise ValueError(
+                        f"non-idempotent reviewed runtime target "
+                        f"{table_name}/{key}: {path}"
+                    )
+                if _translation_rejection_reasons(
+                    source, target, language, force=_looks_translatable(source),
+                ):
+                    raise ValueError(
+                        f"rejected reviewed runtime target "
+                        f"{table_name}/{key}: {path}"
+                    )
+                previous = reviewed.setdefault(source, target)
+                if previous != target:
+                    raise ValueError(
+                        f"conflicting reviewed runtime targets for {source!r}"
+                    )
+    finally:
+        _REVIEWED_RUNTIME_LOADING.discard(language)
+    return reviewed
 
 
 def _render_assignment(name: str, value: object) -> str:
