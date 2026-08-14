@@ -136,8 +136,10 @@ def _cuml_estimator(name: str, **kwargs):
 
 def _cpu_estimator(name: str, **kwargs):
     if name == "umap":
-        import umap
-
+        # The package-level ``umap`` import eagerly reaches parametric UMAP
+        # and TensorFlow. spaCR's lazy proxy loads only ``umap.umap_``, which
+        # is the CPU implementation this reducer actually needs.
+        from .utils import umap
         return umap.UMAP(**kwargs)
     if name == "tsne":
         from sklearn.manifold import TSNE

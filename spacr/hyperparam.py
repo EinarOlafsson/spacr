@@ -2149,6 +2149,7 @@ def umap_search(features,
                 metric: str = "trustworthiness",
                 labels=None,
                 seed: int = 0,
+                n_components: int = 2,
                 neighbourhood_k: int = 15,
                 adaptive: bool = False,
                 n_trials: Optional[int] = 100,
@@ -2161,6 +2162,9 @@ def umap_search(features,
                 stability_repeats: int = 3,
                 objective_weights: Optional[Mapping[str, Any]] = None,
                 embed_fn: Optional[Callable[[Any, Dict[str, Any]], Any]] = None,
+                backend: str = "cpu",
+                cluster_during_search: bool = False,
+                cluster_sizes: Sequence[int] = (5, 10, 15, 25, 40),
                 keep_embeddings: bool = True,
                 on_trial: Optional[Callable[[Trial, int, int], None]] = None,
                 should_stop: Optional[Callable[[], bool]] = None,
@@ -2182,6 +2186,8 @@ def umap_search(features,
         :data:`UMAP_CRITERIA`.
     :param labels: optional class labels; required for ``'silhouette'``.
     :param seed: ``random_state`` for the reducer, so the sweep reproduces.
+    :param n_components: fixed display dimensionality, 2 or 3. It is retained
+        on every row even when it is not one of the searched axes.
     :param neighbourhood_k: neighbourhood size for trustworthiness/continuity.
     :param adaptive: run a Walk -- iterative local optimization from one
         starting point -- instead of a grid. See :func:`walk_search`.
@@ -2203,6 +2209,12 @@ def umap_search(features,
         ``cluster_structure``. Values are normalized to sum to one.
     :param embed_fn: ``embed_fn(features, params) -> embedding`` override; when
         omitted, umap-learn is used.
+    :param backend: ``'cpu'`` for umap-learn or ``'cuml'`` for the optional
+        RAPIDS implementation. Every successful trial records the backend that
+        actually drew it because the two libraries make different maps.
+    :param cluster_during_search: run the HDBSCAN scale walk against every
+        completed embedding and retain its best labels beside the coordinates.
+    :param cluster_sizes: ``min_cluster_size`` values for that walk.
     :param keep_embeddings: store each trial's embedding in its extra metrics.
     :param on_trial: progress callback ``(trial, completed, total)``.
     :param should_stop: polled before each trial.
@@ -2222,6 +2234,12 @@ def umap_search(features,
             f"{sorted(UMAP_CRITERIA)} — each rewards a different property, so "
             f"the choice changes the answer."
         )
+    try:
+        n_components = int(n_components)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("UMAP n_components must be 2 or 3.") from exc
+    if n_components not in (2, 3):
+        raise ValueError("UMAP n_components must be 2 or 3.")
     if metric == "silhouette" and labels is None:
         raise ValueError(
             "The 'silhouette' criterion scores how well the embedding "
@@ -2280,7 +2298,10 @@ def umap_search(features,
         space = SearchSpace(bounded_params)
     implicit_neighbors = min(15, maximum_neighbors)
 
-    if embed_fn is None:
+    requested_backend = str(backend or "cpu").strip().lower()
+    if requested_backend not in ("cpu", "cuml"):
+        raise ValueError("UMAP backend must be 'cpu' or 'cuml'.")
+    if embed_fn is None and requested_backend == "cpu":
         available, message = umap_available()
         if not available:
             return SearchResult(
@@ -2291,13 +2312,48 @@ def umap_search(features,
         def embed_fn(feats, params, _seed=seed):  # noqa: F811
             """Default embedder — umap-learn with a pinned random_state."""
             return _default_umap_embed(feats, params, _seed)
+    elif embed_fn is None:
+        from .gpu_reduce import rapids_available
+        if not rapids_available():
+            raise RuntimeError(
+                "GPU UMAP was requested, but cuML and a working CUDA device "
+                "are not available in this process. Restart spaCR after "
+                "installing spacr[rapids], or turn GPU off.")
+
+        def embed_fn(feats, params, _seed=seed):  # noqa: F811
+            """cuML embedder; no silent CPU downgrade for a checked GPU run."""
+            import numpy as np
+            from .gpu_reduce import make_reducer
+            kwargs = dict(params)
+            kwargs.setdefault("n_components", 2)
+            kwargs.setdefault("random_state", _seed)
+            reducer, actual = make_reducer(
+                "umap", prefer_gpu=True, **kwargs)
+            if actual != "cuml":
+                raise RuntimeError(
+                    "cuML failed to construct the requested UMAP; the GPU "
+                    "run was stopped instead of mixing CPU and GPU rows.")
+            value = reducer.fit_transform(feats)
+            if hasattr(value, "get"):
+                value = value.get()
+            return np.asarray(value)
+    elif requested_backend == "cpu":
+        # An injected embedder is neither umap-learn nor cuML. Naming it CPU
+        # would be false provenance in saved checkpoints and table rows.
+        requested_backend = "custom"
 
     notes = [
         UMAP_NO_GROUND_TRUTH,
         f"Criterion '{metric}': {UMAP_CRITERIA[metric]}",
         "Every criterion was computed for every trial, so you can re-rank the "
         "table by a different one and see whether the winner survives.",
+        f"Embedding backend: {requested_backend}. A cuML UMAP is a different "
+        "map of the same data, not the same map faster.",
     ]
+    if cluster_during_search:
+        notes.append(
+            "Each completed embedding also ran an HDBSCAN clustering walk; "
+            "the retained labels and cluster score belong to that exact map.")
     if metric == "multi_objective":
         weights_text = ", ".join(
             f"{name}={normalized_objective_weights[name]:.3g}"
@@ -2333,12 +2389,16 @@ def umap_search(features,
             },
             "metric": metric,
             "seed": int(seed),
+            "n_components": n_components,
             "neighbourhood_k": int(neighbourhood_k),
             "adaptive": bool(adaptive),
             "n_neighbors_step": int(n_neighbors_step),
             "min_dist_step": float(min_dist_step),
             "min_improvement": float(min_improvement),
             "embed_fn": embed_identity,
+            "backend": requested_backend,
+            "cluster_during_search": bool(cluster_during_search),
+            "cluster_sizes": [int(value) for value in cluster_sizes],
         }
         if metric == "multi_objective":
             checkpoint_signature["multi_objective"] = {
@@ -2359,6 +2419,7 @@ def umap_search(features,
         # safe for a small dataset too, without adding an unsearched table
         # column to Trial.params.
         fit_params.setdefault("n_neighbors", implicit_neighbors)
+        fit_params.setdefault("n_components", n_components)
         repeat_count = (
             stability_repeats if metric == "multi_objective" else 1
         )
@@ -2389,6 +2450,37 @@ def umap_search(features,
             )
         extra = dict(scores)
         extra["criterion"] = metric
+        extra["backend"] = requested_backend
+        extra["n_components"] = int(fit_params.get("n_components", n_components))
+        if cluster_during_search:
+            try:
+                from .umap_search import walk_clusters
+                cluster_walk = walk_clusters(
+                    embedding, min_cluster_sizes=cluster_sizes)
+                if cluster_walk:
+                    chosen = cluster_walk[0]
+                    extra.update({
+                        "cluster_labels": chosen.labels,
+                        "cluster_min_size": chosen.min_cluster_size,
+                        "cluster_silhouette": chosen.silhouette,
+                        "cluster_score": chosen.score,
+                        "n_clusters": chosen.n_clusters,
+                        "cluster_noise_fraction": chosen.noise_fraction,
+                        "cluster_walk": [
+                            {
+                                "min_cluster_size": row.min_cluster_size,
+                                "silhouette": row.silhouette,
+                                "score": row.score,
+                                "n_clusters": row.n_clusters,
+                                "noise_fraction": row.noise_fraction,
+                            }
+                            for row in cluster_walk
+                        ],
+                    })
+            except Exception as exc:
+                # Clustering is an optional second analysis of a valid map.
+                # Its failure must stay on that row, not erase the embedding.
+                extra["cluster_error"] = f"{type(exc).__name__}: {exc}"
         if keep_embeddings:
             extra["embedding"] = embedding
         return scores[metric], extra
@@ -3592,6 +3684,10 @@ def run_search_for_app(app_key: str,
                        objective_weights: Optional[
                            Mapping[str, Any]
                        ] = None,
+                       umap_backend: str = "cpu",
+                       cluster_during_search: bool = False,
+                       cluster_sizes: Sequence[int] = (5, 10, 15, 25, 40),
+                       umap_components: int = 2,
                        seed: int = 0,
                        n_folds: int = 5,
                        on_trial: Optional[Callable[[Trial, int, int], None]] = None,
@@ -3632,6 +3728,10 @@ def run_search_for_app(app_key: str,
         UMAP configuration.
     :param objective_weights: weights for neighborhood preservation, stability
         and cluster structure in multi-objective UMAP mode.
+    :param umap_backend: ``'cpu'`` or the explicitly requested ``'cuml'``.
+    :param cluster_during_search: cluster each UMAP trial as it is completed.
+    :param cluster_sizes: HDBSCAN scales searched for each UMAP trial.
+    :param umap_components: fixed 2-D or 3-D output for UMAP trials.
     :param seed: seed for sampling, folds and reducers.
     :param n_folds: cross-validation folds for the supervised apps.
     :param on_trial: progress callback ``(trial, completed, total)``.
@@ -3699,7 +3799,8 @@ def run_search_for_app(app_key: str,
         search_checkpoint = checkpoint_path or umap_checkpoint_path(settings)
         result = umap_search(
             data.features, space, metric=criterion, labels=data.labels,
-            seed=seed, adaptive=adaptive, n_trials=n_trials,
+            seed=seed, n_components=umap_components,
+            adaptive=adaptive, n_trials=n_trials,
             n_neighbors_step=n_neighbors_step,
             min_dist_step=min_dist_step,
             min_improvement=min_improvement,
@@ -3708,6 +3809,9 @@ def run_search_for_app(app_key: str,
             walk_steps=walk_steps,
             stability_repeats=stability_repeats,
             objective_weights=objective_weights,
+            backend=umap_backend,
+            cluster_during_search=cluster_during_search,
+            cluster_sizes=cluster_sizes,
             on_trial=on_trial, should_stop=should_stop,
             checkpoint_path=search_checkpoint, resume=resume)
         result.notes = list(data.notes) + list(result.notes)
