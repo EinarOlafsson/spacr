@@ -2,8 +2,11 @@
 CLASSIFY SEGFAULTS IN libomp: THREE OpenMP RUNTIMES IN ONE PROCESS
 ================================================================================
 
-Status:    in progress — fix built and measured here; awaiting confirmation on
-           the maintainer's own machine (see HOW TO KNOW IT WORKED)
+Status:    done — confirmed by the maintainer on 2026-08-14: the guard's
+           messages appeared and the run got roughly twice as far, past the
+           OpenMP fault entirely. Classify then hit a SECOND, unrelated bug
+           (instruction 97, worker-thread stack size); with both fixed the run
+           completes.
 Requested: 2026-08-14 — "So i just updated spacr, because it's been trying to
            fix the classification modules for forever now but its broken.
            again, i just ran it and got this segmentation fault" — followed by
@@ -111,25 +114,19 @@ The failure mode is the expensive kind: the crashed process ran 22 minutes
 results and nothing in the console to say what happened.
 
 --------------------------------------------------------------------------------
-WHAT TO DO
+WHAT WAS DONE
 --------------------------------------------------------------------------------
 
-Nothing further in the tree. What remains is confirmation on the maintainer's
-machine, and one question only they can answer:
+All three steps that were open here are closed:
 
-  1. Run classify. The console must carry one ``[openmp_guard]`` block naming
-     the resident runtimes before training starts, and the run must finish.
-  2. If it segfaults ANYWAY, the containment is insufficient and the answer is
-     subprocess isolation — see DELIBERATELY NOT DONE. Attach the new crash
-     report; the frames will say which runtime pair crossed.
-  3. WHICH INTERPRETER RUNS spaCR THERE? The crash was python3.10 under
-     /opt/homebrew. No python3.10 exists on this machine now
-     (``ls /opt/homebrew/Cellar | grep -i python`` is empty, ``mdfind`` finds no
-     cpython-310 site-packages). ``which spacr`` resolves to
-     /Library/Frameworks/Python.framework/Versions/3.13/bin/spacr, and the
-     desktop install under ~/Library/Application Support/SpaCR/venv is
-     python3.12. Neither is the 3.10 that crashed, so the fix has not been
-     verified in the environment that actually failed.
+  1. The guard shipped and the maintainer ran classify. The ``[openmp_guard]``
+     block appeared, and the run passed the point where it used to segfault.
+  2. It did NOT segfault again, so subprocess isolation stays unbuilt.
+  3. The interpreter is answered: /opt/homebrew/Caskroom/miniconda/base/envs/
+     spacr, a mamba environment on python 3.10.13. ``pip show spacr`` there
+     reports an editable install pointing at this tree, so the fix was already
+     live in it; ``import spacr.ml`` in that interpreter maps FOUR libomp
+     images and ``openmp_runtime_is_duplicated()`` returns True.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
