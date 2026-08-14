@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "spacr.seg_qc#12",
+      "source_sha256": "b915cab41558df9ed726647078401b8c68b2764f416730addcb55ba1e311b78f",
+      "source": "``empty / near-empty fields`` Zero objects is a failure. Fewer than ``seg_qc_min_objects`` (10) is a warning and suppresses the per-field robust statistics, because below ten objects a MAD is one object's opinion — the same threshold at which diameter.py collapses its confidence two levels. If the *plate* median is also below that floor (a low-MOI pathogen channel, say), empty fields are demoted to a warning: that is a property of the assay, not of the field.",
+      "context": "``empty / near-empty fields`` Zero objects is a failure. Fewer than ``seg_qc_min_objects`` (10) is a warning and suppresses the per-microscope field of view robust statistics, because below ten objects a MAD is one object's opinion — the same threshold at which diameter.py collapses its confidence two levels. If the *laboratory microplate* median is also below that floor (a low-MOI pathogen channel, say), empty microscope fields of view are demoted to a warning: that is a property of the assay, not of the microscope field of view.",
+      "translation": "``empty / near-empty fields``：对象数为零表示失败。对象少于 ``seg_qc_min_objects``（10）时给出警告，并禁止逐显微镜视野的稳健统计，因为对象不足十个时，MAD 只代表单个对象的意见——diameter.py 也会在同一阈值把置信度降低两级。若*微孔板*中位数也低于该下限（例如低 MOI 病原体通道），则空显微镜视野会降级为警告：这是实验本身的属性，而不是单个视野的问题。"
+    },
+    {
+      "label": "spacr.seg_qc.run_segmentation_qc#7",
+      "source_sha256": "c7ecf069d2453863ab8b42afd5c2ae329da03e9b47b347cfa3bbc4fbcc1e8e3a",
+      "source": "True prints the full card, False prints the one-line verdict. The verdict is always printed: a plate that failed QC must not be able to fail quietly.",
+      "context": "True prints the full card, False prints the one-line verdict. The verdict is always printed: a plate that failed QC must not be able to fail quietly.",
+      "translation": "True 打印完整卡片，False 打印单行结论。结论始终会打印：QC 失败的微孔板不能静默失败。"
+    },
+    {
+      "label": "spacr.sequencing_qc.library_depth#2",
+      "source_sha256": "2a7159b00163362a5d6c2afe625c591f077e2ea0465b1b76ff0c2afca2f6464c",
+      "source": "the library as designed — names from the gRNA reference. Supplying it is what turns \"we saw 4,900 guides\" into \"2% of the library was never seen\", which is the number that says whether the screen has the coverage it was powered for.",
+      "context": "the library as designed — names from the gRNA reference. Supplying it is what turns \"we saw 4,900 guides\" into \"2% of the library was never seen\", which is the number that says whether the screening experiment has the coverage it was powered for.",
+      "translation": "按设计定义的文库——名称来自 gRNA 参考。提供它后，“观察到 4,900 条向导”才能转换为“文库中有 2% 从未被观察到”；后一数值说明筛选实验是否达到了功效设计所需的覆盖度。"
+    },
+    {
+      "label": "spacr.settings.get_timelapse_settings#1",
+      "source_sha256": "1e5bdd67958f2947e370ba925b6721367cca758ca376df9c9061f61a912c3494",
+      "source": "The Timelapse module is mask generation run over a time series: the same preprocessing + Cellpose segmentation as the Mask module, followed by frame-to-frame linking of the objects named in ``timelapse_objects`` and per-channel movie export. It therefore takes the full ``set_default_settings_preprocess_generate_masks`` dict with ``timelapse`` forced on — the flag is what the module *is*, not something to configure.",
+      "context": "The Timelapse module is mask generation run over a time series: the same preprocessing + Cellpose segmentation as the Mask module, followed by frame-to-frame linking of the objects named in ``timelapse_objects`` and per-image data channel movie export. It therefore takes the full ``set_default_settings_preprocess_generate_masks`` key-value mapping with ``timelapse`` forced on — the flag is what the module *is*, not something to configure.",
+      "translation": "Timelapse 模块是在时间序列上运行的掩模生成：先执行与 Mask 模块相同的预处理和 Cellpose 分割，再逐帧关联 ``timelapse_objects`` 指定的对象，并逐图像数据通道导出影片。因此，它接收完整的 ``set_default_settings_preprocess_generate_masks`` 键值映射，并强制开启 ``timelapse``——该标志定义了模块*本身*，而不是供用户配置的选项。"
+    },
+    {
+      "label": "spacr.spacrops.FOVAlignAndCropper.run#1",
+      "source_sha256": "732fa1ca8b379780605ef0edc12ee68b4ffe0f3ea94b206e63aa8ccf173605c3",
+      "source": "Uses the nuclei channel for alignment and writes one ``.npy`` per FOV containing the FOV channels plus mosaic channels warped into the FOV frame.",
+      "context": "Uses the nuclei channel for alignment and writes one ``.npy`` per FOV (microscope field of view) containing the FOV (microscope field of view) channels plus mosaic channels warped into the FOV (microscope field of view) frame.",
+      "translation": "使用细胞核通道进行对齐，并为每个 FOV（显微镜视野）写出一个 ``.npy``；其中包含该 FOV（显微镜视野）的各通道，以及变换到该 FOV（显微镜视野）坐标框架的马赛克通道。"
+    },
+    {
+      "label": "spacr.spacrops.FOVAlignAndCropper.run#5",
+      "source_sha256": "ee86cedb91cdc9f6eb81b5ff8197c3994ee0e59f611da23eb0448f99aa3c1cba",
+      "source": "nuclei channel index in each FOV. Default ``0``.",
+      "context": "nuclei channel index in each FOV (microscope field of view). Default ``0``.",
+      "translation": "每个 FOV（显微镜视野）中的细胞核通道索引。默认值为 ``0``。"
+    },
+    {
+      "label": "spacr.spacrops.spacrStitcher.build_multichannel_mosaic_from_manifest#5",
+      "source_sha256": "c7338195a301f111ae9322b593e22262aeaaac6e0a094f93c80cb16825ce96b5",
+      "source": "optional preview PNG of channel 0; no preview is written when ``None``.",
+      "context": "optional preview PNG of image data channel 0; no preview is written when ``None``.",
+      "translation": "图像数据通道 0 的可选预览 PNG；当值为 ``None`` 时不写预览。"
+    },
+    {
+      "label": "spacr.submodules.analyze_invasion#4",
+      "source_sha256": "48cd7e0f755a71eedd238c9718c91f39b93091e5b52d644514c954065603b181",
+      "source": "Read that asymmetry carefully, because the whole design follows from it. \"Inside\" is defined by an absence, and absence is the unreliable direction. Poor antibody penetration, a focal plane off the parasite's equator, photobleaching, a low-expressing parasite — every one of them removes outside signal from a parasite that is genuinely outside, and every one of them therefore *inflates* invasion efficiency. Nothing plausible pushes the error the other way. The threshold on the outside channel is the single number the assay rests on, so it is derived from the data, reported per field in ``fields``, cross-checked against a control-derived cut when one exists, and bracketed by a sensitivity pair that says how much of the answer is the threshold.",
+      "context": "Read that asymmetry carefully, because the whole design follows from it. \"Inside\" is defined by an absence, and absence is the unreliable direction. Poor antibody penetration, a focal image layer off the parasite's equator, photobleaching, a low-expressing parasite — every one of them removes outside signal from a parasite that is genuinely outside, and every one of them therefore *inflates* invasion efficiency. Nothing plausible pushes the error the other way. The threshold on the outside image data channel is the single number the assay rests on, so it is derived from the data, reported per microscope field of view in ``fields``, cross-checked against a control-derived cut when one exists, and bracketed by a sensitivity pair that says how much of the answer is the threshold.",
+      "translation": "请仔细理解这种不对称性，因为整个设计都由此而来。\"Inside\" 由信号缺失来定义，而缺失是最不可靠的方向。抗体渗透不足、焦平面偏离寄生虫赤道、光漂白、低表达寄生虫——每一种情况都会从真正位于外部的寄生虫上去除外部信号，因此都会*夸大*侵袭效率。没有合理误差会把结果推向相反方向。整个实验依赖外部图像数据通道上的一个阈值，因此该阈值由数据推导，按显微镜视野记录在 ``fields`` 中；若有来自对照的截断值，则与之交叉检查；同时还用一对敏感性结果界定范围，以说明答案中有多少取决于该阈值。"
+    },
+    {
+      "label": "spacr.tiff_io.write_tiff#1",
+      "source_sha256": "96b356b869eb432841b66b52fd34f248548f9394ca4552a448fa2782e645b84c",
+      "source": "spaCR arrays are scientific intensity planes or label masks, including arrays whose leading dimension happens to contain three or four planes. Tifffile historically guessed RGB for those shapes and is changing that guess. Declaring ``minisblack`` prevents channel/z/time stacks from being mislabeled as color, while ``contig`` makes the planar choice explicit.",
+      "context": "spaCR arrays are scientific intensity image layers or label masks, including arrays whose leading dimension happens to contain three or four image layers. Tifffile historically guessed RGB for those shapes and is changing that guess. Declaring ``minisblack`` prevents image data channel/z/time stacks from being mislabeled as color, while ``contig`` makes the planar choice explicit.",
+      "translation": "spaCR 数组是科学强度图像层或标签掩模，其中也包括首维恰好含三个或四个图像层的数组。Tifffile 过去会把这些形状猜作 RGB，而且这种猜测规则正在变化。显式声明 ``minisblack`` 可防止图像数据通道/z/时间堆栈被错误标为彩色；``contig`` 则明确指定平面存储方式。"
+    },
+    {
+      "label": "spacr.utils.SaliencyMapGenerator.plot_activation_grid#3",
+      "source_sha256": "5cafd5967a4aa0369241ade46431c0d4ff14a80ccee0d6e8c8144b518450224a",
+      "source": "torch tensor of at least ``N`` entries. It is indexed and moved to the CPU on every iteration even when ``overlay`` is false, so a numpy array raises ``AttributeError`` either way. Each entry must be ``(H, W)`` or ``(3, H, W)``: only a leading ``3`` is transposed to channels-last, so ``(1, H, W)`` and ``(2, H, W)`` raise ``TypeError`` from ``imshow``.",
+      "context": "torch tensor of at least ``N`` entries. It is indexed and moved to the CPU on every iteration even when ``overlay`` is false, so a numpy array raises ``AttributeError`` either way. Each entry must be ``(H, W)`` or ``(3, H, W)``: only a leading ``3`` is transposed to image-channel-last, so ``(1, H, W)`` and ``(2, H, W)`` raise ``TypeError`` from ``imshow``.",
+      "translation": "至少包含 ``N`` 个条目的 torch 张量。即使 ``overlay`` 为 false，每次迭代也会为它建立索引并移动到 CPU，因此 numpy 数组无论如何都会抛出 ``AttributeError``。每个条目必须为 ``(H, W)`` 或 ``(3, H, W)``：只有首维为 ``3`` 时才转置为图像通道在末尾，所以 ``(1, H, W)`` 和 ``(2, H, W)`` 会抛出 ``TypeError``，该异常来自 ``imshow``。"
+    },
+    {
+      "label": "spacr.utils.augment_image#2",
+      "source_sha256": "0bff6179898cb5bca78006c2cb0bd54ca8c400cadb91b3afbfdcffe888c0b840",
+      "source": "a PIL image or a numpy array. Arrays are used as-is; PIL images are converted first. A 2-D grayscale input is expanded to 3 channels via ``cv2.cvtColor``, so every result is RGB even when the input was not -- channel count is not preserved. The rotations go through ``cv2``, which expects ``uint8`` or another OpenCV-supported dtype; the final ``Image.fromarray`` likewise rejects the float or 16-bit arrays typical of raw microscopy, so convert to 8-bit before calling. Because 90-degree rotations swap height and width, a non-square input yields images of two different shapes in the same list.",
+      "context": "a PIL image or a numpy array. Arrays are used as-is; PIL images are converted first. A 2-D grayscale input is expanded to 3 image data channels via ``cv2.cvtColor``, so every result is RGB even when the input was not -- image data channel count is not preserved. The rotations go through ``cv2``, which expects ``uint8`` or another OpenCV-supported dtype; the final ``Image.fromarray`` likewise rejects the float or 16-bit arrays typical of raw microscopy, so convert to 8-bit before calling. Because 90-degree rotations swap height and width, a non-square input yields images of two different shapes in the same list.",
+      "translation": "输入可以是 PIL 图像或 numpy 数组。数组直接使用，PIL 图像则先转换。二维灰度输入通过 ``cv2.cvtColor`` 扩展为三个图像数据通道，因此无论输入如何，每个结果都是 RGB——不会保留图像数据通道数量。旋转经由 ``cv2`` 完成，它要求 ``uint8`` 或 OpenCV 支持的其他数据类型；最终的 ``Image.fromarray`` 同样拒绝原始显微图像常见的浮点或 16 位数组，因此调用前应转换为 8 位。由于 90 度旋转会交换高度和宽度，非正方形输入会在同一列表中产生两种不同形状的图像。"
+    },
+    {
+      "label": "spacr.utils.console_safe#1",
+      "source_sha256": "e74457c307d51cfc40b90b5da12fad19304fe36dd522d04e262f98b6ca4d80ca",
+      "source": "Console decoration must never be able to end a run. No Windows codepage encodes spaCR's own output set -- ``▸`` (U+25B8) is absent from cp1252, cp437, cp850, cp932 *and* cp936, and the box-drawing frame is absent from cp1252 -- and neither does any of them encode the domain vocabulary that ends up in settings values, such as the parental strain ``Δku80`` or a ``µm`` voxel size. Printing either to a non-UTF-8 stream raises ``UnicodeEncodeError``, and on Windows that is the normal case the moment stdout is redirected: a batch-queue job, ``spacr-run``, a legacy console.",
+      "context": "Console decoration must never terminate a run. Windows code pages do not encode every spaCR output character. For example, ``▸`` is missing from cp1252, cp437, cp850, cp932 *and* cp936, and cp1252 lacks the frame characters. Settings may also contain ``Δku80`` or ``µm``. Writing these values to a non-UTF-8 stream raises ``UnicodeEncodeError``. On Windows, this commonly occurs when stdout is redirected by a batch job, ``spacr-run``, or a legacy console.",
+      "translation": "控制台装饰绝不能终止运行。Windows 代码页无法编码 spaCR 的全部输出字符。例如，``▸`` 不存在于 cp1252 代码页、cp437 代码页、cp850 代码页、cp932 代码页*以及* cp936 代码页中，cp1252 也缺少框线字符。设置还可能包含 ``Δku80`` 或 ``µm``。把这些值写入非 UTF-8 流会抛出 ``UnicodeEncodeError``。在 Windows 上，当批处理任务、``spacr-run`` 或旧式控制台重定向 stdout 时，这种情况很常见。"
+    },
+    {
+      "label": "spacr.utils.dense_mask_channel_positions#2",
+      "source_sha256": "fe01a191e2f509c6dca5ca2a5be5dbc74d62be33a3b71bd0c11d723f897298b7",
+      "source": "THE TRAP THIS EXISTS TO CLOSE. Several callers computed the position as ``sorted({nucleus, cell, pathogen, organelle})`` instead, which agrees with role order only when the roles happen to be in ascending channel order. With ``nucleus_channel=2, cell_channel=0, organelle_channel=1`` the stack is ``[2, 0, 1]`` -- raw channel 1 sits at position 2 -- while the sorted reading says position 1, which holds the CELL image. Cellpose then segments organelles on the cell plane, silently, and every count and intensity downstream is measured from the wrong masks.",
+      "context": "THE TRAP THIS EXISTS TO CLOSE. Several callers computed the position as ``sorted({nucleus, cell, pathogen, organelle})`` instead, which agrees with role order only when the roles happen to be in ascending image data channel order. With ``nucleus_channel=2, cell_channel=0, organelle_channel=1`` the stack is ``[2, 0, 1]`` -- raw image data channel 1 sits at position 2 -- while the sorted reading says position 1, which holds the CELL image. Cellpose then segments organelles on the cell image layer, silently, and every count and intensity downstream is measured from the wrong masks.",
+      "translation": "本函数用于堵住一个陷阱。多个调用方曾改用 ``sorted({nucleus, cell, pathogen, organelle})`` 计算位置；只有当各角色恰好按图像数据通道升序排列时，该结果才与角色顺序一致。对于 ``nucleus_channel=2, cell_channel=0, organelle_channel=1``，堆栈为 ``[2, 0, 1]``——原始图像数据通道 1 位于位置 2——而排序后的读法却给出位置 1，那里保存的是细胞图像。Cellpose 随后会静默地在细胞图像层上分割细胞器，所有下游计数和强度也都会从错误掩模测量。"
+    },
+    {
+      "label": "spacr.utils.load_image#2",
+      "source_sha256": "54654856a607589f4f381b6fc98c8171a18417d73a883047d2f18f4614a01c18",
+      "source": "path to any file PIL can open. It is forced through ``convert('RGB')``, so a 16-bit or float microscopy TIFF is downcast to 8-bit and a single-channel image is replicated across three channels rather than rejected -- the dynamic range of a raw scientific image is lost here, so rescale to 8-bit yourself if that matters. Aspect ratio is not preserved: ``Resize((224, 224))`` takes both dimensions, so non-square crops are stretched, not letterboxed. Returns a ``(1, 3, 224, 224)`` tensor with the batch axis already added, so it can be fed to a model directly but must be concatenated, not stacked, to batch several images.",
+      "context": "path to any file PIL can open. It is forced through ``convert('RGB')``, so a 16-bit or float microscopy TIFF is downcast to 8-bit and a single-image data channel image is replicated across three image data channels rather than rejected -- the dynamic range of a raw scientific image is lost here, so rescale to 8-bit yourself if that matters. Aspect ratio is not preserved: ``Resize((224, 224))`` takes both dimensions, so non-square extracted image regions are stretched, not letterboxed. Returns a ``(1, 3, 224, 224)`` tensor with the batch axis already added, so it can be fed to a model directly but must be concatenated, not stacked, to batch several images.",
+      "translation": "可以是 PIL 能打开的任意文件路径。文件会强制经过 ``convert('RGB')``，因此 16 位或浮点显微 TIFF 会降为 8 位，单图像数据通道图像也会复制到三个图像数据通道而不是被拒绝——原始科学图像的动态范围会在这里丢失；若这很重要，请自行缩放到 8 位。不会保持纵横比：``Resize((224, 224))`` 同时指定两个维度，所以非正方形提取图像区域会被拉伸，而不是加边框。返回的 ``(1, 3, 224, 224)`` 张量已经带有批次轴，可直接输入模型；若要批处理多张图像，应进行拼接而不是堆叠。"
+    },
+    {
+      "label": "spacr.utils.plot_image#6",
+      "source_sha256": "5b3e70113cbb2d8db3de5e100d9966c3f61a7c2db1bd8c0457d3614d78a79522",
+      "source": "true swaps the image for an RGBA array whose alpha channel hides zero-valued pixels, which accepts only PIL modes ``L``, ``I`` and ``RGB`` -- ``RGBA`` and ``P`` raise ``ValueError``, and a numpy array raises ``AttributeError`` because it has no ``mode``. An all-zero ``L`` image divides by its own zero maximum and comes out ``NaN`` rather than raising. False just calls ``np.array``. Default ``True``.",
+      "context": "true swaps the image for an RGBA array whose alpha image data channel hides zero-valued pixels, which accepts only PIL modes ``L``, ``I`` and ``RGB`` -- ``RGBA`` and ``P`` throw ``ValueError``, and a numpy array throws ``AttributeError`` because it has no ``mode``. An all-zero ``L`` image divides by its own zero maximum and comes out ``NaN`` rather than throwing. False just calls ``np.array``. Default ``True``.",
+      "translation": "true 会把图像替换为 RGBA 数组，其 alpha 图像数据通道隐藏零值像素；该路径只接受 PIL 模式 ``L``、``I`` 和 ``RGB``——``RGBA`` 与 ``P`` 会抛出 ``ValueError``，numpy 数组则会抛出 ``AttributeError``，因为它没有 ``mode``。全零 ``L`` 图像会除以自身为零的最大值，得到 ``NaN`` 而不是抛出异常。False 只调用 ``np.array``。默认值为 ``True``。"
+    }
+  ]
+}

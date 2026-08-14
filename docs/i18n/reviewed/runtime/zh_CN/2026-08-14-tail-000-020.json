@@ -1,0 +1,153 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "alpha",
+      "source_sha256": "0f590a8d2a89634204f364d2aa3498e105efccc5c5dd996ada0246bedf52fe2c",
+      "source": "Regularisation strength for the penalised models only: the L1 penalty for 'lasso', the L2 penalty for 'ridge', the combined penalty for 'elasticnet' and the inverse margin for 'hinge'. Larger values shrink more coefficients toward zero; set it to 'auto' or None to choose it by 5-fold cross-validation, which is usually what you want because the default 1 shrinks a fraction-scale design to nothing. Every other regression type refuses a non-default alpha rather than ignoring it, and it is no longer the quantile - see the quantile setting. Default 1.",
+      "translation": "仅用于惩罚模型的正则化强度：'lasso' 的 L1 惩罚、'ridge' 的 L2 惩罚、'elasticnet' 的组合惩罚，以及 'hinge' 的逆间隔。值越大，越多系数会向零收缩；设为 'auto' 或 None 可通过 5 折交叉验证选择，这通常是合适的做法，因为默认值 1 会把分数尺度的设计压缩到没有信号。其他所有回归类型都会拒绝非默认 alpha，而不是忽略它；alpha 也不再表示分位数，请参见 quantile 设置。默认值为 1。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "barcode_coordinates",
+      "source_sha256": "3668db9d4c3209437d75ad94a9740ce3ae9c7ed5308e08e0a54cd8f96dbdaab0",
+      "source": "Intended to give the start/stop offsets of each barcode inside the read, but nothing reads settings['barcode_coordinates']. The pipeline slices the read from target_sequence, offset_start and the per-barcode lengths instead. Kept only so old settings CSVs still load. No default is set: no set_default_* function fills this key, so it is absent unless an old settings CSV supplies it.",
+      "translation": "原本用于给出读段中每个条形码的起止偏移量，但没有代码读取 settings['barcode_coordinates']。流水线实际根据 target_sequence、offset_start 和各条形码长度切分读段。保留此项只是为了让旧设置 CSV 仍可加载。它没有默认值：没有 set_default_* 函数填充此键，因此除非旧设置 CSV 提供它，否则该键不存在。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "barcode_mapping",
+      "source_sha256": "ab06a04ab47e716a5ff2715f46954997f99d49a27cadfadd4cf06a9a17d41b49",
+      "source": "Inert: declared here but read by nothing in spaCR. The barcode-mapping pipeline takes its references from the separate grna_csv, row_csv and column_csv path settings, which sequencing.generate_barecode_mapping actually loads. Kept only so old settings CSVs still load. No default is set: no set_default_* function fills this key, so it is absent unless an old settings CSV supplies it.",
+      "translation": "当前不起作用：此处虽有声明，但 spaCR 中没有代码读取它。条形码映射流水线使用独立的 grna_csv、row_csv 和 column_csv 路径设置作为参考，sequencing.generate_barecode_mapping 实际加载的也是这些设置。保留此项只是为了让旧设置 CSV 仍可加载。它没有默认值：没有 set_default_* 函数填充此键，因此除非旧设置 CSV 提供它，否则该键不存在。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "barcodes",
+      "source_sha256": "4c3125b0f047a36722c65324a73341a7ceadd869f97ffbd9d0fe80610e96b1b4",
+      "source": "Path to a CSV of screen/plate barcodes for the legacy barcode-mapping helper. Nothing in the current code reads this key: get_map_barcodes_default_settings, the only place it is defined, is never called by any pipeline, so setting it has no effect. The live equivalents consumed by generate_barecode_mapping are row_csv, column_csv and grna_csv.",
+      "translation": "旧版条形码映射辅助函数所用的筛选实验/微孔板条形码 CSV 路径。当前代码没有读取此键：定义它的唯一位置 get_map_barcodes_default_settings 从未被任何流水线调用，因此设置它不会产生效果。generate_barecode_mapping 当前使用的对应设置是 row_csv、column_csv 和 grna_csv。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "batch_size",
+      "source_sha256": "da607e4b43da5977785e46e54e9deb4050d9398c313eea7c9bf2d1be7966d99d",
+      "source": "How many images are held and processed together in one pass: field stacks during normalization and Cellpose segmentation, crops per step during classifier training and activation maps. Raising it speeds runs up but increases RAM/VRAM roughly linearly; lower it on out-of-memory errors. Defaults: 50 for mask generation, 64 for training.",
+      "translation": "一次处理中同时保留和处理的图像数量：包括归一化与 Cellpose 分割时的显微镜视野堆栈，以及分类器训练和激活图计算时每一步的提取图像区域。增大该值可加快运行，但 RAM/VRAM 用量会近似线性增加；出现内存不足错误时应调低。默认值：生成掩模时为 50，训练时为 64。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_chann_dim",
+      "source_sha256": "9886441f4ebb5b4be4fc46bd75986aa1611b3cef88814edcd4a9e37d13df89ec",
+      "source": "Recruitment analysis only (analyze_recruitment): the image-channel index paired with the cell mask when drawing outline overlays, and the switch that enables the cell filters - set an integer and cell_size_range, cell_intensity_range and target_intensity_min are applied; leave it None and cells are not filtered at all. Default 3.",
+      "translation": "仅用于募集分析（analyze_recruitment）：绘制轮廓叠加图时与细胞掩模配对的图像数据通道索引，同时也是启用细胞过滤器的开关。设为整数时会应用 cell_size_range、cell_intensity_range 和 target_intensity_min；设为 None 时完全不过滤细胞。默认值为 3。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_channel",
+      "source_sha256": "35e77e98f217ed372aae2d216196766756bbae82207de3a35f420eb552ea883f",
+      "source": "Zero-indexed raw acquisition channel that Cellpose segments into cell masks; it also selects which channel the cell_background, cell_Signal_to_noise and remove_background_cell settings are applied to during preprocessing. Set to None and no cell masks, cell table or cell crops are produced. At least one of cell/nucleus/pathogen/organelle_channel must be an integer or the run aborts. Default None.",
+      "translation": "Cellpose 用于分割细胞掩模的从零开始编号的原始采集图像数据通道；预处理期间，cell_background、cell_Signal_to_noise 和 remove_background_cell 设置也会应用到此图像数据通道。设为 None 时不会生成细胞掩模、细胞表或细胞提取图像区域。cell/nucleus/pathogen/organelle_channel 中至少有一个必须是整数，否则运行会中止。默认值为 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_intensity_merge",
+      "source_sha256": "afb59997c5e768bd16f218bc4ad8518111a352f4467025cecbe7838a4c7d8963",
+      "source": "Merge touching cell labels when the mean intensity along their shared boundary is at least as high as the interior intensity of the dimmer of the two, meaning there is no real membrane edge between them. Use it to repair cells Cellpose cut in half. The comparison statistic is set by cell_intensity_threshold_method. Default False.",
+      "translation": "当相邻细胞标签共享边界的平均强度不低于两者中较暗对象的内部强度时合并它们；这表示两者之间没有真正的细胞膜边缘。可用此项修复被 Cellpose 错误切成两半的细胞。比较统计量由 cell_intensity_threshold_method 设置。默认值为 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_loc",
+      "source_sha256": "aa64245af763c7d4a4284918e1b93c4befb73cb4a4a4c58abe6e1c2093813d56",
+      "source": "One list of well identifiers per entry in cells, giving where each host cell line sits on the plate, e.g. [['c1','c2'],['c3']]. Identifiers must start with 'r' for a row or 'c' for a column; anything else is ignored and those wells stay unannotated. Pass None to label every row with the first entry of cells. No default is set: no set_default_* function in settings.py touches this key, and its only reader, annotate_filter_vision, indexes settings['cell_loc'] directly, so it must be present in the dict (explicitly None if you do not want location mapping) or the call raises KeyError.",
+      "translation": "cells 中每个条目对应一个微孔标识符列表，用于说明各宿主细胞系位于微孔板上的位置，例如 [['c1','c2'],['c3']]。标识符必须以表示行的 'r' 或表示列的 'c' 开头；其他值会被忽略，对应微孔不会添加注释。传入 None 会使用 cells 的第一个条目标记每一行。此项没有默认值：settings.py 中没有 set_default_* 函数处理此键，而唯一读取它的 annotate_filter_vision 会直接索引 settings['cell_loc']，所以字典中必须存在该键（若不需要位置映射，应显式设为 None），否则调用会抛出 KeyError。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_model_name",
+      "source_sha256": "cf46d76c44becdc4c9b7e4f2e5fd196782d5504ab708392dcda22d563943a70d",
+      "source": "Which weights segment cells. Cellpose 4 ships exactly one stock model, 'cpsam', so the only other meaningful value is a path to a checkpoint you trained in Train Cellpose, loaded as pretrained_model. The pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') are accepted so old settings load, but all resolve to cpsam -- naming one does not get you that model, it no longer exists. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
+      "translation": "用于分割细胞的权重。Cellpose 4 只随附一个标准模型 'cpsam'，因此除此之外唯一有意义的值是你在 Train Cellpose 中训练的检查点路径，它会作为 pretrained_model 加载。为兼容旧设置，仍接受 SAM 之前的名称（'cyto'、'cyto2'、'cyto3'、'nuclei'），但它们都会解析为 cpsam；指定这些名称并不会获得原模型，因为原模型已不存在。过去用于区分模型的三个参数中，只有 diameter 仍生效（eval 按 30/diameter 缩放）；model_type 和 diam_mean 会记录为 'not used in v4.0.1+' 后被丢弃。默认值为 'cpsam'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_types",
+      "source_sha256": "0e492a9791016485f993f749dd1833acb2942798fa299b6d9606b11ebd302aaa",
+      "source": "Names of the host cell lines in the experiment, e.g. ['HeLa']. Each name is written into the host_cells column and folded into the combined condition label used for grouping and plotting; the list is positionally paired with cell_plate_metadata, which says which wells hold each one. Default ['HeLa'].",
+      "translation": "实验中的宿主细胞系名称，例如 ['HeLa']。每个名称都会写入 host_cells 列，并纳入用于分组和绘图的组合条件标签；此列表按位置与 cell_plate_metadata 配对，后者说明各细胞系所在的微孔。默认值为 ['HeLa']。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "channels",
+      "source_sha256": "79bd22aad87e245307d5a029097098f857e3ca4479aa0b0b4c59164c23e3a905",
+      "source": "Zero-indexed image channels kept in merged/*.npy and measured by measure_crop; each entry produces its own <object>_channel_<n>_* intensity columns. The list length fixes where masks land, so cell/nucleus/pathogen_mask_dim must shift if you change it. Preprocessing silently resets it to range(n) when it does not match the number of channel folders found. Default [0,1,2,3].",
+      "translation": "保留在 merged/*.npy 中并由 measure_crop 测量的从零开始编号的图像数据通道；每个条目都会产生各自的 <object>_channel_<n>_* 强度列。列表长度决定掩模所在位置，因此更改它时必须相应移动 cell/nucleus/pathogen_mask_dim。若列表与检测到的图像数据通道文件夹数量不一致，预处理会静默地将其重置为 range(n)。默认值为 [0,1,2,3]。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "compression",
+      "source_sha256": "4b0d7231cc42d8757ad42eed502ec5bb5a314b2927e5df6174dc7e2e76c1c898",
+      "source": "Legacy and currently inert: nothing in spaCR reads this key. The two preprocessing defaults set it to 'lzw' and the GUI offers lzw/zlib/none, but the live segmentation path writes masks as uint16 .npy via np.save, so no mask TIFF is ever produced and changing this setting changes nothing. The only functions that take a compression argument, io.save_object_mask and mask_io.save_mask (which hardcodes 'lzw'), are never called from anywhere in the package, and the sequencing HDF5 writer uses comp_type/comp_level instead. Leave it at its 'lzw' default.",
+      "translation": "旧版且当前不起作用：spaCR 中没有代码读取此键。两个预处理默认设置将其设为 'lzw'，GUI 提供 lzw/zlib/none，但当前分割路径通过 np.save 将掩模写为 uint16 .npy，因此不会产生掩模 TIFF，更改此设置也不会产生任何影响。仅有的两个接受 compression 参数的函数 io.save_object_mask 和 mask_io.save_mask（后者硬编码为 'lzw'）在包内从未被调用；测序 HDF5 写入器则改用 comp_type/comp_level。请保留默认值 'lzw'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "control_sgrnas",
+      "source_sha256": "f71352dc4eb3fabb845ed087a5343d68618c8d99a34ce16f5cc905ba6c5418e8",
+      "source": "gRNA names treated as controls when the mixed-condition fraction is computed; every fraction is measured relative to these. A wrong or incomplete list shifts every fraction on the plate in the same direction rather than raising, so check it against the library. Default None.",
+      "translation": "计算混合条件比例时视为对照的 gRNA 名称；每个比例都相对于这些对照计算。错误或不完整的列表不会抛出异常，而是会使微孔板上的所有比例向同一方向偏移，因此请对照文库核验。默认值为 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "correlate",
+      "source_sha256": "fafca6c74c5f325bb95eefe07a8ec4c374fd1b43ebbb731d75dc6cdf52924a04",
+      "source": "Intended to add pairwise correlations between selected measurements to the analysis output, but nothing reads settings['correlate']. Channel/activation correlations are controlled by the separate 'correlation' setting in the activation-map path. Kept only so old settings CSVs still load. No default is set: no set_default_* function fills this key, so it is absent unless an old settings CSV supplies it.",
+      "translation": "原本用于把所选测量值之间的成对相关性加入分析输出，但没有代码读取 settings['correlate']。图像数据通道/激活相关性由激活图路径中的独立 'correlation' 设置控制。保留此项只是为了让旧设置 CSV 仍可加载。它没有默认值：没有 set_default_* 函数填充此键，因此除非旧设置 CSV 提供它，否则该键不存在。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "correlation",
+      "source_sha256": "fbf3d18f27dfc46d4bd47c87804f095173c18eda2eabc7009d0c7f75c107d041",
+      "source": "Correlate every input channel against every activation-map channel per image and write the result to the <cam_type>_correlations table: a Pearson coefficient plus Manders M1/M2 at each manders_thresholds percentile (15, 50, 75 by default). Use it to quantify which stain the model attends to instead of eyeballing heatmaps; it needs save=True to reach the database. Default True.",
+      "translation": "针对每张图像，将每个输入图像数据通道与每个激活图图像数据通道相关联，并把结果写入 <cam_type>_correlations 表：包括 Pearson 系数，以及在 manders_thresholds 的各分位数处计算的 Manders M1/M2（默认分位数为 15、50、75）。可用它定量判断模型关注哪种染色，而不是凭肉眼查看热图；必须设置 save=True，结果才会写入数据库。默认值为 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "count_data",
+      "source_sha256": "9baf95cd1d61fb58e1d1e146fb0efa84ce2fc7fd444eb1a70ef61de2401fa72c",
+      "source": "CSV(s) of per-well gRNA read counts from the sequencing step (unique_combinations.csv); each must contain grna, count, rowID and columnID columns or the run raises ValueError. These are the regression's independent variable. Pass one path per plate, position-aligned with plates_count; results are written under the first file's folder. Default 'list of paths', a placeholder that must be replaced; the barcode QC module defaults this key to 'path to unique_combinations.csv'.",
+      "translation": "测序步骤产生的逐微孔 gRNA 读数计数 CSV（unique_combinations.csv）；每个文件都必须包含 grna、count、rowID 和 columnID 列，否则运行会抛出 ValueError。这些数据是回归的自变量。每个微孔板传入一个路径，并按位置与 plates_count 对齐；结果写入第一个文件所在的文件夹。默认值 'list of paths' 是必须替换的占位符；条形码 QC 模块把此键的默认值设为 'path to unique_combinations.csv'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "crop_mode",
+      "source_sha256": "038a163474ddd490d5e0c1d36793c9196d51199982196cb5642bc970067ee680",
+      "source": "Which mask each PNG crop is centred on: any of 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. One crop set is written per entry into <mode>_png/ folders, so ['cell','nucleus'] doubles the images written and the rows added to png_list. A single png_size such as [224,224] is broadcast to every mode, and so are dialate_pngs and dialate_png_ratios - pass a list only when the modes need different values. A list shorter than crop_mode reuses its last entry for the rest and says so. Default ['cell'].",
+      "translation": "每个 PNG 提取图像区域以哪种掩模为中心：可选 'cell'、'nucleus'、'pathogen'、'cytoplasm' 或 'organelle'。每个条目都会把一组提取图像区域写入 <mode>_png/ 文件夹，因此 ['cell','nucleus'] 会使写入的图像数量和加入 png_list 的行数翻倍。像 [224,224] 这样的单个 png_size 会广播到所有模式，dialate_pngs 和 dialate_png_ratios 也是如此；只有各模式需要不同值时才传入列表。若列表短于 crop_mode，其最后一个条目会用于其余模式，并会报告这一行为。默认值为 ['cell']。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cv_group_by",
+      "source_sha256": "ff80ee44bc17dec739551dcee2460f5d298c281faa14ee5c728d4a390846e85e",
+      "source": "Train/test independence: 'cell', 'field', 'well' (default), or 'plate'. Cell can place sibling crops from one well on both sides; field narrows but does not close that leak; well matches the usual experimental assignment unit; plate holds out a complete batch. Whole groups make the requested fraction approximate, so runs report held-out groups and cells. Legacy 'none'/'off' alias 'cell'. Crop identities come from spaCR's plate_well_field_object.png names; unverifiable grouped designs are refused rather than silently randomized.",
+      "translation": "训练/测试独立性：可选 'cell'、'field'、'well'（默认）或 'plate'。cell 可能把同一微孔的同源提取图像区域分到两侧；field 会缩小但不能消除这种泄漏；well 符合通常的实验分配单位；plate 则留出完整批次。由于使用完整分组，请求的比例只能近似满足，因此运行会报告留出的分组和细胞。旧值 'none'/'off' 是 'cell' 的别名。提取图像区域身份来自 spaCR 的 plate_well_field_object.png 文件名；无法验证的分组设计会被拒绝，而不会静默随机化。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "denoise",
+      "source_sha256": "2da039906c6561f58b045112d3c3b78ef565673fb455327ff008f1f9375c1706",
+      "source": "Legacy denoising toggle for the mask pipeline: no code reads this key, so it has no effect. To actually denoise, set the per-object restore settings (cell_restore_type / nucleus_restore_type / pathogen_restore_type) to 'denoise', which routes segmentation through Cellpose's CellposeDenoiseModel. Default False.",
+      "translation": "掩模流水线的旧版去噪开关：没有代码读取此键，因此它不起作用。若要真正去噪，请把各对象的恢复设置（cell_restore_type / nucleus_restore_type / pathogen_restore_type）设为 'denoise'，这样分割会经过 Cellpose 的 CellposeDenoiseModel。默认值为 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "dependent_variable",
+      "source_sha256": "77cf66911bed70b5d009006312bd6888bbec98dcdbb1ccd07a4d8dc7dd6b5bb9",
+      "source": "Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
+      "translation": "score_data 中作为响应变量建模的列名，例如机器学习评分步骤产生的 'pred'/'predictions'，或 'pathogen_nucleus_shortest_distance' 等测量特征。该列按 agg_type 逐微孔聚合，之后可选择进行变换。如果评分 CSV 中缺少该列，运行会中止。默认值为 'pred'。"
+    }
+  ]
+}
