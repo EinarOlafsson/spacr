@@ -1,0 +1,118 @@
+================================================================================
+CLASSIFY DIES WITH SIGBUS: A QThread GETS 512 KB OF STACK, LAPACK WANTS MORE
+================================================================================
+
+Status:    done — reproduced and fixed in the environment that crashed
+Requested: 2026-08-14 — "we got farther this time, i saw the [openmp_guard]
+           messages at the top so that was working, and now i hit this error
+           after it ran about 2x longer than before when segmentation
+           faulting" — with a macOS crash report, SIGBUS / KERN_PROTECTION_
+           FAILURE, "Thread stack size exceeded due to excessive recursion".
+Owner:     claude session, 2026-08-14
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Second, unrelated defect, uncovered because instruction 96's OpenMP guard let
+the run get roughly twice as far. Nothing here is shared with 96 beyond the
+symptom "classify crashes".
+
+Faulting thread 19, "QThread":
+
+    ___chkstk_darwin                                  [libsystem_pthread]
+      <- dgetrf_parallel                              [libopenblas64_]
+      <- dgesv_64_                                    [libopenblas64_]
+      <- inv<double>                                  [numpy _umath_linalg]
+      <- ufunc_generic_fastcall  ...  QThread::started
+
+and the report's own region map says why:
+
+    STACK GUARD   349984000-349988000  [ 16K] ---/rwx  stack guard for thread 19
+    Stack         349988000-349a10000  [544K] rw-/rwx  thread 19
+
+544 KB. A pthread on macOS defaults to 512 KB and Qt does not raise it, so a
+QThread runs the pipeline in 1/16th of the main thread's 8 MB. That is why the
+identical code is fine from the CLI and from the cluster and dies only in the
+GUI.
+
+NOTHING WAS RECURSING. ``___chkstk_darwin`` is the stack probe — it is the
+function that *discovers* the guard page, not a symptom of depth — and macOS
+prints "excessive recursion" for any stack overflow. Reading that line
+literally would send the next person looking for a runaway function in
+``ml.py``, and there isn't one.
+
+The Python side is ``spacr/ml.py:5059``::
+
+    inv_cov_matrix = np.linalg.inv(cov_matrix)
+
+the inverse covariance for the Mahalanobis similarity columns. ``cov_matrix``
+is features x features, so on a real screen it is large, and OpenBLAS's blocked
+parallel LU wants a stack buffer proportional to the blocking.
+
+REPRODUCED AND FIXED, in the interpreter that actually crashed
+(/opt/homebrew/Caskroom/miniconda/base/envs/spacr, python 3.10.13), with
+``np.linalg.inv`` on a 1200x1200 covariance on a real QThread
+(scratchpad/verify_stack.py):
+
+    default stack   ->  exit 138  (128 + 10 = SIGBUS)
+    64 MB stack     ->  exit 0, "ok, inv[0,0]=3105.94"
+
+Shipped: ``spacr/qt/bridge.py`` gains ``WORKER_STACK_BYTES`` (64 MB) and
+``_widen_worker_stack``, called from ``make_thread`` before the caller can
+start the thread — Qt ignores ``setStackSize`` once a thread is running, so the
+ordering is load-bearing and is tested. ``SPACR_WORKER_STACK_MB`` overrides.
+A platform that refuses the size leaves the old behaviour and the run proceeds
+(INVARIANTS §10).
+
+64 MB is address space, not memory: stack pages commit when touched. The one
+QThread instantiation in the tree is this one, so there is no second site.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Every GUI run of anything that inverts a wide matrix was one screen-size away
+from a SIGBUS with no traceback, and the failure is silent and late — this one
+came 3.5 minutes into a run. It also mimics a spaCR bug closely enough to send
+several sessions hunting in the wrong file, which is what the "excessive
+recursion" wording is for.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Done. Confirmation on the maintainer's machine is the remaining step: run
+classify again and see it past the similarity columns.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  QT_QPA_PLATFORM=offscreen python -m pytest tests/qt/test_worker_stack_size.py \
+      -q -p no:randomly
+
+expected: 10 passed. NOT RUN AS PYTEST — no interpreter on this machine has
+pytest and WORKFLOW.md forbids installing it unasked. The same ten assertions
+were executed by a fixture-free stand-in against the real ``QThread`` and the
+real ``bridge.make_thread``: all pass. The load-bearing one is
+``make_thread widens before start``.
+
+The measurement that matters is the before/after above: SIGBUS, then exit 0.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+* Making ``ml.py`` avoid the large inverse (pinv, a Cholesky solve, chunking).
+  The inverse is correct and cheap; the stack was the bug. Changing the
+  numerics to dodge a thread-configuration fault would leave every other
+  LAPACK call in the GUI still one screen away from the same crash.
+
+* Raising the stack for Qt's own pooled threads. They run Qt's work, not the
+  pipeline, and none of them appears under a BLAS frame in any report seen.
+
+* Guessing at the exact minimum. 64 MB was chosen to be obviously enough
+  rather than measured to be barely enough; the cost of being generous is
+  address space, and the cost of being tight is this crash again on a wider
+  feature matrix.
