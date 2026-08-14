@@ -269,6 +269,10 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     # superseded pair is how a user sets one and wonders why the other
     # wins.
     "classify": {"png_type"},
+    # One action-strip GPU toggle drives both the main reducer and the search.
+    # The setting remains in _defaults and therefore in collect(); only the
+    # duplicate form control is hidden.
+    "umap": {"gpu"},
 }
 
 _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
@@ -289,6 +293,16 @@ _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
 # unrelated ``mode`` fields into sequencing controls.
 _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
     "umap": {
+        "reduction_method": ["umap", "tsne", "pca", "isomap", "spectral"],
+        # Replaced with the installed UMAP metric inventory in _widget_for.
+        "metric": ["euclidean"],
+        "pca_svd_solver": [
+            "auto", "full", "covariance_eigh", "arpack", "randomized",
+        ],
+        "isomap_path_method": ["auto", "FW", "D"],
+        "spectral_affinity": ["nearest_neighbors", "rbf"],
+        "clustering": ["dbscan", "kmeans"],
+        "crop_source": ["auto", "png", "merged"],
         "batch_correction": [
             "none", "control_center", "robust_zscore", "center", "zscore",
             # combat is last because it is the only one that needs an
@@ -344,6 +358,40 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
 }
 
 
+# Settings read by exactly one Image UMAP reducer.  The controls remain in the
+# form so switching methods preserves their values; only the inactive families
+# are greyed.  Shared controls (random_seed and, where applicable, metric) are
+# handled separately in _refresh_umap_reducer_enablement.
+_UMAP_REDUCER_SETTINGS: Dict[str, set] = {
+    "umap": {"n_neighbors", "min_dist"},
+    "tsne": {
+        "tsne_perplexity", "tsne_learning_rate",
+        "tsne_early_exaggeration", "tsne_max_iter",
+    },
+    "pca": {"pca_whiten", "pca_svd_solver"},
+    "isomap": {"isomap_n_neighbors", "isomap_path_method"},
+    "spectral": {"spectral_affinity", "spectral_n_neighbors"},
+}
+
+_UMAP_TOOLTIP_OVERRIDES = {
+    "reduction_method": (
+        "Dimensionality reducer run before clustering and plotting. UMAP "
+        "balances local and global structure; t-SNE emphasizes local "
+        "neighborhoods; PCA is a fast linear baseline; Isomap preserves "
+        "geodesic distances; Spectral Embedding follows a neighborhood "
+        "graph. Inactive reducer controls stay visible but greyed."
+    ),
+    "metric": (
+        "Distance metric used by UMAP, t-SNE, Isomap and DBSCAN. The "
+        "dropdown contains every metric accepted by the installed UMAP "
+        "implementation; PCA and Spectral Embedding ignore it."
+    ),
+    "n_neighbors": (
+        "UMAP neighborhood size. Small values sharpen local structure; "
+        "large values give a smoother global embedding. Used only by UMAP."
+    ),
+}
+
 #: Every setting owned by SOME training basis. Re-enabling is restricted to
 #: these, so `refresh_training_basis_enablement` cannot switch a control back
 #: on that something else disabled for its own reasons.
@@ -359,6 +407,47 @@ except Exception:      # pragma: no cover - keeps the GUI importable
 # dictionaries remain unchanged — this controls only the order and grouping in
 # Qt, just like the Classify (CV) regroup below.
 _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
+    "umap": (
+        ("Input Data", (
+            "src", "tables", "crop_source", "filter_by", "row_limit",
+            "exclude", "exclude_rows", "remove_highly_correlated",
+            "log_data", "resnet_features", "visualize",
+        )),
+        ("Dimensionality Reduction", (
+            "reduction_method", "random_seed", "metric",
+        )),
+        ("UMAP", ("n_neighbors", "min_dist")),
+        ("t-SNE", (
+            "tsne_perplexity", "tsne_learning_rate",
+            "tsne_early_exaggeration", "tsne_max_iter",
+        )),
+        ("PCA", ("pca_whiten", "pca_svd_solver")),
+        ("Isomap", ("isomap_n_neighbors", "isomap_path_method")),
+        ("Spectral Embedding", (
+            "spectral_affinity", "spectral_n_neighbors",
+        )),
+        ("Clustering", (
+            "clustering", "eps", "min_samples", "remove_cluster_noise",
+            "analyze_clusters", "color_by",
+        )),
+        ("Plate & Batch Correction", (
+            "batch_correction", "batch_column", "batch_control_column",
+            "batch_control_values", "batch_covariate_column",
+            "batch_combat_mean_only", "batch_min_samples",
+            "batch_missing_control",
+        )),
+        ("Points & Images", (
+            "dot_size", "point_color", "point_alpha", "outline_width",
+            "img_zoom", "image_nr", "plot_images", "remove_image_canvas",
+            "plot_points", "plot_outlines", "smooth_lines",
+            "plot_by_cluster", "plot_cluster_grids",
+        )),
+        ("Canvas & Output", (
+            "figuresize", "umap_canvas_width", "umap_sidebar_width",
+            "black_background", "save_figure",
+        )),
+        ("Runtime", ("n_jobs", "verbose")),
+    ),
     "ml_analyze": (
         # Category names shared with Classify (CV) wherever the two do the
         # same job -- "Labels & Classes", "Classifier & Validation",
@@ -1582,12 +1671,25 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "DBSCAN/KMeans parameters with their noise handling. Change these "
         "when the embedding is one undifferentiated blob, or shatters into "
         "dozens of tiny clusters.",
-    "UMAP DISPLAY":
-        "How the embedding is drawn, in both the static figure and the "
-        "interactive explorer: point size, colour and opacity, cluster "
-        "outlines, how many thumbnails are sampled, canvas and sidebar "
-        "widths, and figure saving. Presentation only — none of it moves a "
-        "point.",
+    "DIMENSIONALITY REDUCTION":
+        "Choose the reducer and the shared random seed and distance metric. "
+        "The method-specific groups below grey themselves automatically.",
+    "UMAP":
+        "UMAP-only neighbourhood and minimum-distance controls. These values "
+        "are retained but greyed whenever another reducer is selected.",
+    "T-SNE":
+        "t-SNE-only neighbourhood scale and optimisation controls.",
+    "PCA":
+        "PCA-only whitening and decomposition-solver controls.",
+    "ISOMAP":
+        "Isomap-only graph-neighbourhood and shortest-path controls.",
+    "SPECTRAL EMBEDDING":
+        "Spectral-only affinity graph and neighbourhood controls.",
+    "POINTS & IMAGES":
+        "How points, outlines and image thumbnails are rendered. These "
+        "presentation controls never refit or move the embedding.",
+    "CANVAS & OUTPUT":
+        "Canvas dimensions, background and figure-saving controls.",
     "ACTIVATION MAPS":
         "Attribution settings for a trained image model — which method, "
         "which layer is hooked, how the map is overlaid, and the "
@@ -2753,6 +2855,9 @@ def _apply_greyed_note(control, note: str) -> None:
     base = control.property("apiTooltipHtml") or control.toolTip()
     control.setProperty(_BASIS_NOTE_PROPERTY, True)
     control.setToolTip(f"{base}<br><i>{note}</i>" if base else note)
+    label = getattr(control, "_spacr_setting_label", None)
+    if label is not None:
+        label.setEnabled(False)
 
 
 def _clear_greyed_note(control) -> None:
@@ -2763,6 +2868,9 @@ def _clear_greyed_note(control) -> None:
     restored = control.property("apiTooltipHtml")
     if restored:
         control.setToolTip(restored)
+    label = getattr(control, "_spacr_setting_label", None)
+    if label is not None:
+        label.setEnabled(control.isEnabled())
 
 
 def attach_api_tooltip(
@@ -3977,6 +4085,10 @@ class SettingsWidgets:
         self._defaults = resolve_default_settings(app_key)
         self._widgets: Dict[str, QWidget] = {}
         self._tooltips = get_tooltips()
+        if app_key == "umap":
+            # These app-scoped descriptions supersede legacy shared strings
+            # without invalidating source-bound reviewed translation evidence.
+            self._tooltips.update(_UMAP_TOOLTIP_OVERRIDES)
         try:
             from spacr.plugins import get_app
             plugin_app = get_app(app_key)
@@ -4047,7 +4159,17 @@ class SettingsWidgets:
                     signal.connect(self._on_training_basis_changed)
                     break
 
+        reducer_widget = self._widgets.get("reduction_method")
+        if self.app_key == "umap" and isinstance(reducer_widget, QComboBox):
+            reducer_widget.currentTextChanged.connect(
+                self._on_umap_reducer_changed)
+        affinity_widget = self._widgets.get("spectral_affinity")
+        if self.app_key == "umap" and isinstance(affinity_widget, QComboBox):
+            affinity_widget.currentTextChanged.connect(
+                self._on_umap_reducer_changed)
+
         self._refresh_contextual_widgets()
+        self._refresh_umap_reducer_enablement()
 
         # Bucket into sections.
         cats = categories_for_app(self.app_key, get_categories())
@@ -4235,6 +4357,15 @@ class SettingsWidgets:
         if key in app_options:
             kind = "combo"
             options = app_options[key]
+        if self.app_key == "umap" and key == "metric":
+            # One closed alphabet rather than a text field that accepts a
+            # typo and fails after the reducer starts.  Importing the constant
+            # does not import umap-learn (and therefore does not put a model
+            # load on the GUI thread); the runtime validator still consults
+            # the installed package.
+            from spacr.hyperparam import UMAP_METRICS
+            kind = "combo"
+            options = list(UMAP_METRICS)
         if self.app_key == "map_barcodes" and key == "regex":
             return BarcodeRegexWidget(
                 value=self._defaults.get(key, default),
@@ -4290,6 +4421,12 @@ class SettingsWidgets:
             return w
         if kind == "combo":
             w = QComboBox()
+            # Long inventories (notably UMAP's complete metric list) must not
+            # become the minimum width of the whole settings sidebar. The
+            # popup still shows every option; the closed control elides.
+            w.setSizeAdjustPolicy(
+                QComboBox.AdjustToMinimumContentsLengthWithIcon)
+            w.setMinimumContentsLength(12)
             for opt in (options or []):
                 w.addItem("None" if opt is None else str(opt),
                           userData=opt)
@@ -4474,7 +4611,65 @@ class SettingsWidgets:
             return False
         if key in {"src", "tables"}:
             self._refresh_contextual_widgets()
+        if key in {"reduction_method", "spectral_affinity"}:
+            self._refresh_umap_reducer_enablement()
         return True
+
+    def set_hidden_value(self, key: str, value: Any) -> bool:
+        """Update a deliberately hidden run setting.
+
+        Some values have a dedicated control outside the form.  Image UMAP's
+        action-strip GPU toggle is one: duplicating it as a form checkbox would
+        create two sources of truth.  Hidden does not mean absent (invariant
+        6), so the value lives in ``_defaults`` and still reaches collect().
+        """
+        if key not in self._defaults or key not in _APP_HIDDEN_KEYS.get(
+                self.app_key, set()):
+            return False
+        self._defaults[key] = value
+        return True
+
+    def _on_umap_reducer_changed(self, *_args) -> None:
+        """Re-grey method-specific Image UMAP controls immediately."""
+        self._refresh_umap_reducer_enablement()
+
+    def _refresh_umap_reducer_enablement(self) -> None:
+        """Enable only the settings the selected reducer actually reads."""
+        if self.app_key != "umap":
+            return
+        selector = self._widgets.get("reduction_method")
+        if selector is None:
+            return
+        method = str(self._read_widget(selector) or "umap").strip().lower()
+        if method not in _UMAP_REDUCER_SETTINGS:
+            return
+        owned = set().union(*_UMAP_REDUCER_SETTINGS.values())
+        active = _UMAP_REDUCER_SETTINGS[method]
+        note = f"Used only when dimensionality reduction is {method}."
+        for key in owned:
+            control = self._widgets.get(key)
+            if control is None:
+                continue
+            enabled = key in active
+            if key == "spectral_n_neighbors" and method == "spectral":
+                affinity = self._widgets.get("spectral_affinity")
+                enabled = str(
+                    self._read_widget(affinity) if affinity is not None
+                    else "nearest_neighbors"
+                ) == "nearest_neighbors"
+            control.setEnabled(enabled)
+            if enabled:
+                _clear_greyed_note(control)
+            else:
+                _apply_greyed_note(control, note)
+
+        metric = self._widgets.get("metric")
+        if metric is not None:
+            # The projection may ignore this setting, but DBSCAN always reads
+            # it. Keep the shared metric editable instead of greying a control
+            # that can still change the result.
+            metric.setEnabled(True)
+            _clear_greyed_note(metric)
 
     def _refresh_classifier_family_enablement(self) -> None:
         """Grey the settings the OTHER classifier family reads.

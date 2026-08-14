@@ -115,7 +115,7 @@ def test_umap_settings_uses_measure_style_tabbed_dialog(panel, qtbot):
              for i in range(dialog._tabs.count())]
     assert names[0] == "Search"
     assert {
-        "Embedding & Clustering", "Plot", "Advanced", "UMAP Display",
+        "Data", "Reducer", "Clustering", "Appearance", "Batch", "Runtime",
     }.issubset(names)
     # The titled group lives inside a padded page, rather than being mounted
     # directly into the tab pane where its title notch collides with the first
@@ -172,14 +172,10 @@ def test_umap_settings_uses_measure_style_tabbed_dialog(panel, qtbot):
         assert "href=" in label.toolTip()
         assert getattr(label, "_spacr_api_dot", None) is None
 
-    # Omitted categories are removed, not merely hidden: their
-    # RowExclusionEditor owned the stray "+ Add exclusion" overlay.
-    assert "exclude_rows" not in dialog._module_model._widgets
-    from PySide6.QtWidgets import QAbstractButton, QPushButton
-    assert not any(
-        "add exclusion" in button.text().lower()
-        for button in dialog.findChildren(QAbstractButton)
-    )
+    # Data preparation now has an explicit tab rather than being omitted; its
+    # compound exclusion editor is parented into that tab, not left floating.
+    assert "exclude_rows" in dialog._module_model._widgets
+    from PySide6.QtWidgets import QPushButton
     assert panel._run_btn.isHidden()
     assert panel._stop_btn.isHidden()
     assert panel._apply_btn.isHidden()
@@ -188,10 +184,9 @@ def test_umap_settings_uses_measure_style_tabbed_dialog(panel, qtbot):
         if button.isVisible()
     # "Axes…" opens the Walk's search-space picker. It sits beside the
     # Walk toggle it configures, which the settings dialog adopts along
-    # with the rest of the run controls. "GPU" sits to the LEFT of Run
-    # search and turns the cuML backend on for the next search -- it is a
-    # run control too, so the dialog adopts it with the others.
-    } == {"Close", "GPU", "Run search", "Propagate settings", "Axes…"}
+    # with the rest of the run controls. GPU is now the one shared action-strip
+    # toggle on the host screen, so it is intentionally not duplicated here.
+    } == {"Close", "Run search", "Propagate settings", "Axes…"}
     assert dialog._close_btn.icon().isNull()
     assert panel._compact_stop_btn.objectName() == "DangerButton"
     assert panel._compact_stop_btn.property("buttonActionRole") == "negative"
@@ -389,13 +384,12 @@ class TestConstruction:
         items = [panel._criterion.itemText(i)
                  for i in range(panel._criterion.count())]
         assert items == [
-            "trustworthiness", "continuity", "silhouette",
-            "multi_objective",
+            "multi_objective", "trustworthiness", "continuity",
+            "silhouette",
         ]
 
     def test_multi_objective_controls_explain_and_enable_together(self, panel):
-        assert not panel._multi_objective_controls.isEnabled()
-        panel._criterion.setCurrentText("multi_objective")
+        assert panel._criterion.currentText() == "multi_objective"
         assert panel._multi_objective_controls.isEnabled()
         assert "Pareto front" in panel._criterion_help.text()
         assert panel._stability_repeats.value() == 3
@@ -650,7 +644,7 @@ class TestRunningASearch:
         panel.set_search_fn(scripted_search([0.9, 0.5, 0.7, 0.6]))
         with qtbot.waitSignal(panel.search_finished, timeout=5000):
             panel.run_search()
-        assert "Best trustworthiness=0.9000" in panel._status.text()
+        assert "Best multi_objective=0.9000" in panel._status.text()
         assert "spread over 4 trials" in panel._status.text()
 
     def test_the_within_noise_flag_reaches_the_status_line(self, panel, qtbot):

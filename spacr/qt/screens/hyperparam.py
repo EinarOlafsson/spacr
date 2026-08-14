@@ -641,6 +641,35 @@ def _parse_walk_start(name: str, text: Any) -> Any:
     return values[0]
 
 
+class _NumericTableItem(QTableWidgetItem):
+    """Keep formatted display text while sorting by its numeric value."""
+
+    def __init__(self, text: str, number: float):
+        super().__init__(str(text))
+        self._number = float(number)
+
+    def __lt__(self, other) -> bool:
+        if isinstance(other, _NumericTableItem):
+            return self._number < other._number
+        return super().__lt__(other)
+
+
+class _FixedChoiceCombo(QComboBox):
+    """A non-editable dropdown with the former field's tiny testable API."""
+
+    def text(self) -> str:
+        return self.currentText()
+
+    def setText(self, text: str) -> None:
+        value = str(text)
+        if not value:
+            self.setCurrentIndex(-1)
+            return
+        index = self.findText(value)
+        if index >= 0:
+            self.setCurrentIndex(index)
+
+
 class HyperparamPanel(QWidget):
     """Search-space controls, a live results table and a small-multiples panel.
 
@@ -657,8 +686,8 @@ class HyperparamPanel(QWidget):
     #: it holds trustworthiness, a multi-objective blend or something else,
     #: and the user has to guess which number they are ranking on.
     COLUMNS = (
-        "#", "score", "best so far", "fold sd", "backend", "clusters",
-        "parameters", "status",
+        "#", "score", "best so far", "fold sd", "neighbors", "min dist",
+        "backend", "clusters", "parameters", "status",
     )
 
     #: Apps that do not cross-validate, so "fold sd" is structurally empty
@@ -684,12 +713,13 @@ class HyperparamPanel(QWidget):
         self._settings_provider: Optional[
             Callable[[], Dict[str, Any]]
         ] = None
-        self._value_edits: Dict[str, QLineEdit] = {}
+        self._value_edits: Dict[str, QWidget] = {}
         self._adaptive_grid_text: Dict[str, str] = {}
         self._walk_axes: Dict[str, Dict[str, Any]] = {}
         self._settings_dialog: Optional["UmapSearchSettingsDialog"] = None
         self._gallery_dialog: Optional[UmapGalleryDialog] = None
         self._displayed_trial: Optional[Trial] = None
+        self._gpu_enabled = False
         self._build_ui()
 
     # -- construction ------------------------------------------------------
@@ -727,11 +757,23 @@ class HyperparamPanel(QWidget):
             lab.setToolTip(
                 f"Comma-separated {kind} values to try for '{key}'. Leave "
                 f"empty to keep '{key}' out of the search.")
-            edit = QLineEdit()
-            edit.setPlaceholderText(f"comma-separated {kind} values")
-            preset = defaults.get(key)
-            if preset:
-                edit.setText(", ".join(str(v) for v in preset))
+            if self.app_key == "umap" and key == "metric":
+                edit = _FixedChoiceCombo()
+                edit.setSizeAdjustPolicy(
+                    QComboBox.AdjustToMinimumContentsLengthWithIcon)
+                edit.setMinimumContentsLength(12)
+                edit.addItems(umap_metrics())
+                edit.setCurrentText("euclidean")
+                lab.setToolTip(
+                    "Distance metric used by UMAP and compatible clustering. "
+                    "Choose one of the metrics supported by the installed "
+                    "UMAP implementation.")
+            else:
+                edit = QLineEdit()
+                edit.setPlaceholderText(f"comma-separated {kind} values")
+                preset = defaults.get(key)
+                if preset:
+                    edit.setText(", ".join(str(v) for v in preset))
             edit.setToolTip(lab.toolTip())
             grid.addWidget(lab, r, 0)
             grid.addWidget(edit, r, 1)
@@ -838,21 +880,9 @@ class HyperparamPanel(QWidget):
             "spacr.hyperparam.umap_search(resume=True).")
         run_grid.addWidget(self._resume, 2, 0, 1, 3)
 
-        # GPU sits to the LEFT of the search button and says just "GPU",
-        # as asked. Checkable, because it is a state the next search runs
-        # under and not an action -- and its checked state is the honest
-        # answer to "which backend will draw these rows", which the table
-        # records per row.
-        self._gpu_btn = QPushButton("GPU")
-        self._gpu_btn.setCheckable(True)
-        self._gpu_btn.setObjectName("UmapGpuToggle")
-        self._gpu_btn.clicked.connect(self._on_gpu_clicked)
-        run_grid.addWidget(self._gpu_btn, 3, 0)
-        self._refresh_gpu_button()
-
         self._run_btn = QPushButton("Run search")
         self._run_btn.clicked.connect(self.run_search)
-        run_grid.addWidget(self._run_btn, 3, 1)
+        run_grid.addWidget(self._run_btn, 3, 0, 1, 2)
 
         self._stop_btn = QPushButton("Stop")
         self._stop_btn.setEnabled(False)
@@ -1041,12 +1071,6 @@ class HyperparamPanel(QWidget):
         root.removeWidget(self._settings_panel)
         self._settings_panel.hide()
         compact_actions = QHBoxLayout()
-        self._compact_gpu_btn = QPushButton("GPU")
-        self._compact_gpu_btn.setCheckable(True)
-        self._compact_gpu_btn.setObjectName("UmapGpuToggleCompact")
-        self._compact_gpu_btn.setVisible(self.app_key == "umap")
-        self._compact_gpu_btn.clicked.connect(self._on_gpu_clicked)
-        compact_actions.addWidget(self._compact_gpu_btn)
         self._compact_run_btn = QPushButton("Run search")
         self._compact_run_btn.clicked.connect(self.run_search)
         self._compact_stop_btn = QPushButton("Stop")
@@ -1106,11 +1130,16 @@ class HyperparamPanel(QWidget):
             # did -- this app simply has no folds.
             self._table.setColumnHidden(self.COLUMNS.index("fold sd"), True)
         if self.app_key != "umap":
+            self._table.setColumnHidden(self.COLUMNS.index("neighbors"), True)
+            self._table.setColumnHidden(self.COLUMNS.index("min dist"), True)
             self._table.setColumnHidden(self.COLUMNS.index("backend"), True)
             self._table.setColumnHidden(self.COLUMNS.index("clusters"), True)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setSelectionMode(QAbstractItemView.SingleSelection)
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self._table.setSortingEnabled(True)
+        self._table.sortByColumn(
+            self.COLUMNS.index("#"), Qt.AscendingOrder)
         self._table.verticalHeader().setVisible(False)
         self._table.horizontalHeader().setSectionResizeMode(
             self.COLUMNS.index("parameters"), QHeaderView.Stretch)
@@ -1172,7 +1201,6 @@ class HyperparamPanel(QWidget):
         split.setStretchFactor(0, 3)
         split.setStretchFactor(1, 4)
         root.addWidget(split, 1)
-        self._refresh_gpu_button()
 
         # -- status + caveats
         self._status = QLabel("")
@@ -1276,11 +1304,34 @@ class HyperparamPanel(QWidget):
         self._settings = dict(settings or {})
         for key, _label, _kind in APP_PARAMS[self.app_key]:
             edit = self._value_edits[key]
-            if edit.text().strip():
+            if isinstance(edit, QComboBox):
+                value = self._settings.get(key)
+                if value is not None:
+                    self._set_control_text(edit, str(value))
+                continue
+            if self._control_text(edit).strip():
                 continue
             value = self._settings.get(key)
             if value is not None:
-                edit.setText(str(value))
+                self._set_control_text(edit, str(value))
+
+    @staticmethod
+    def _control_text(control: QWidget) -> str:
+        """Read either a free-list field or a fixed-choice combo."""
+        if isinstance(control, QComboBox):
+            return str(control.currentText())
+        return str(control.text()) if isinstance(control, QLineEdit) else ""
+
+    @staticmethod
+    def _set_control_text(control: QWidget, text: str) -> None:
+        """Set either kind of search-space control without inventing choices."""
+        if isinstance(control, QComboBox):
+            index = control.findText(str(text))
+            if index >= 0:
+                control.setCurrentIndex(index)
+            return
+        if isinstance(control, QLineEdit):
+            control.setText(str(text))
 
     def _on_adaptive_toggled(self, checked: bool) -> None:
         """Switch the UMAP fields between grid lists and one local centre."""
@@ -1305,20 +1356,20 @@ class HyperparamPanel(QWidget):
             if not checked and self._adaptive_grid_text:
                 for key, text in self._adaptive_grid_text.items():
                     if key in self._value_edits:
-                        self._value_edits[key].setText(text)
+                        self._set_control_text(self._value_edits[key], text)
             return
         for key in ("n_neighbors", "min_dist"):
             edit = self._value_edits.get(key)
             if edit is None:
                 continue
-            text = edit.text().strip()
+            text = self._control_text(edit).strip()
             if "," in text:
                 self._adaptive_grid_text[key] = text
                 value = self._settings.get(key)
                 if value is None:
                     defaults = DEFAULT_SPACES.get("umap", {}).get(key, ())
                     value = defaults[0] if defaults else ""
-                edit.setText(str(value))
+                self._set_control_text(edit, str(value))
 
     def current_adaptive_space(self) -> SearchSpace:
         """Return one UMAP starting centre, using settings defaults if blank."""
@@ -1328,7 +1379,7 @@ class HyperparamPanel(QWidget):
         kinds = {"n_neighbors": "int", "min_dist": "float", "metric": "str"}
         for key in ("n_neighbors", "min_dist", "metric"):
             edit = self._value_edits[key]
-            text = edit.text().strip()
+            text = self._control_text(edit).strip()
             if not text:
                 value = self._settings.get(key, defaults[key])
             else:
@@ -1345,7 +1396,7 @@ class HyperparamPanel(QWidget):
     def adaptive_parameters(self) -> Tuple[int, int, float, float]:
         """Parse adaptive increments, rounds and convergence threshold."""
         def _number(edit, default, cast, label):
-            text = edit.text().strip()
+            text = self._control_text(edit).strip()
             if not text:
                 return default
             try:
@@ -1405,7 +1456,7 @@ class HyperparamPanel(QWidget):
         """
         edit = self._value_edits.get(name)
         if edit is not None:
-            text = edit.text().strip()
+            text = self._control_text(edit).strip()
             if text and "," not in text:
                 return text
         value = self._settings.get(name)
@@ -1431,7 +1482,8 @@ class HyperparamPanel(QWidget):
         """
         params: Dict[str, List[Any]] = {}
         for key, label, kind in APP_PARAMS[self.app_key]:
-            values = parse_values(self._value_edits[key].text(), kind, label)
+            values = parse_values(
+                self._control_text(self._value_edits[key]), kind, label)
             if values:
                 params[key] = values
         walking = (self.app_key == "umap"
@@ -1470,92 +1522,44 @@ class HyperparamPanel(QWidget):
     # -- GPU ---------------------------------------------------------------
 
     def gpu_backend(self) -> str:
-        """Which backend the next search will use: ``'cuml'`` or ``'cpu'``.
-
-        Read from the button rather than from what is installed: cuML being
-        importable is not the same as the user having asked for it, and a
-        table whose rows came from both backends compares two libraries as
-        well as the settings it varied.
-        """
-        buttons = (
-            getattr(self, "_gpu_btn", None),
-            getattr(self, "_compact_gpu_btn", None),
-        )
-        return "cuml" if any(
-            button is not None and button.isChecked() for button in buttons
-        ) else "cpu"
+        """Which backend the next search will use: ``'cuml'`` or ``'cpu'``."""
+        return "cuml" if self._gpu_enabled else "cpu"
 
     def _set_gpu_checked(self, checked: bool) -> None:
-        """Keep the compact and settings-window GPU toggles truthful."""
-        for button in (
-            getattr(self, "_gpu_btn", None),
-            getattr(self, "_compact_gpu_btn", None),
-        ):
-            if button is None:
-                continue
-            button.blockSignals(True)
-            button.setChecked(bool(checked))
-            button.blockSignals(False)
+        """Set the shared action-strip GPU state without probing/installing."""
+        self._gpu_enabled = bool(checked)
 
-    def _refresh_gpu_button(self) -> None:
-        """Show what pressing it would do, before it is pressed."""
-        buttons = [button for button in (
-            getattr(self, "_gpu_btn", None),
-            getattr(self, "_compact_gpu_btn", None),
-        ) if button is not None]
-        if not buttons:
-            return
-        try:
-            from ...gpu_reduce import describe, install_plan
-            plan = install_plan()
-        except Exception:
-            for button in buttons:
-                button.setEnabled(False)
-                button.setToolTip(
-                    "GPU acceleration is unavailable in this build.")
-            return
-        ready = plan["action"] == "ready"
-        if not ready:
-            self._set_gpu_checked(False)
-        tip = {
-            "ready": "Draw the embeddings with cuML on the GPU.",
-            "install": "cuML is not installed. Press to install it.",
-            "wrong_python": "cuML cannot be installed into this interpreter.",
-            "no_device": "cuML is installed but no CUDA device answered.",
-        }[plan["action"]]
-        # The MEASURED caveat, not a promise: a cuML map is a different map
-        # of the same data, not the same map faster.
-        for button in buttons:
-            button.setEnabled(True)
-            button.setToolTip(
-                f"{tip}\n\n{plan['message']}\n\nA map drawn by cuML is a "
-                f"DIFFERENT MAP of the same data, not the same map faster, so "
-                f"rows from the two backends are not comparable. Each row "
-                f"records which drew it.")
+    def request_gpu_enabled(self, checked: bool) -> bool:
+        """Apply the shared GPU toggle, or explain why it cannot turn on.
 
-    def _on_gpu_clicked(self) -> None:
-        """Turn cuML on, offer to install it, or say what is needed."""
+        The caller uses the returned state to keep the action-strip label and
+        the hidden main-run setting synchronized with this search panel.
+        """
+        if not checked:
+            self._gpu_enabled = False
+            self._set_status("GPU acceleration is off; CPU reducers will run.")
+            return False
         from PySide6.QtWidgets import QMessageBox
 
         from ...gpu_reduce import install_command, install_plan
 
         plan = install_plan()
         if plan["action"] == "ready":
-            checked = bool(getattr(self.sender(), "isChecked", lambda: True)())
-            self._set_gpu_checked(checked)
+            self._gpu_enabled = True
             self._set_status(f"GPU: {plan['message']}")
-            return
+            return True
         # Not ready, so the toggle must not stay down claiming it is.
-        self._set_gpu_checked(False)
+        self._gpu_enabled = False
         if plan["action"] in ("wrong_python", "no_device"):
             QMessageBox.information(self, "GPU not available", plan["message"])
-            return
+            return False
         answer = QMessageBox.question(
             self, "Install cuML?",
             plan["message"] + "\n\n" + " ".join(install_command()))
         if answer != QMessageBox.Yes:
-            return
+            return False
         self._install_cuml()
+        return False
 
     def _install_cuml(self) -> None:
         """Run the install, then say to restart. Never claim it is live.
@@ -1834,6 +1838,8 @@ class HyperparamPanel(QWidget):
                 self._figure_grid.add_figure(png_path, dict(trial.params))
             except Exception:
                 LOG.debug("could not place the trial figure", exc_info=True)
+        sorting = self._table.isSortingEnabled()
+        self._table.setSortingEnabled(False)
         row = self._table.rowCount()
         self._table.insertRow(row)
         self._set_row(row, str(trial.index + 1),
@@ -1844,6 +1850,7 @@ class HyperparamPanel(QWidget):
                       format_params(trial.params),
                       "failed" if trial.error else "ok",
                       trial.params, trial.error, trial)
+        self._table.setSortingEnabled(sorting)
         if self.app_key == "umap" and \
                 trial.extra_metrics.get("embedding") is not None:
             self._grid_btn.setEnabled(True)
@@ -1957,12 +1964,30 @@ class HyperparamPanel(QWidget):
             count = trial.extra_metrics.get("n_clusters")
             if count is not None:
                 clusters = str(int(count))
-        cells = (rank, score, best, sd, backend, clusters, params,
-                 error or status)
+        neighbours = param_dict.get("n_neighbors", "-")
+        min_dist = param_dict.get("min_dist", "-")
+        cells = (rank, score, best, sd, str(neighbours), str(min_dist),
+                 backend, clusters, params, error or status)
         detail = format_scores(trial, APP_CRITERIA.get(self.app_key, ())) \
             if trial is not None else ""
         for col, text in enumerate(cells):
+            numeric_columns = {
+                self.COLUMNS.index("#"), self.COLUMNS.index("score"),
+                self.COLUMNS.index("best so far"),
+                self.COLUMNS.index("fold sd"),
+                self.COLUMNS.index("neighbors"),
+                self.COLUMNS.index("min dist"),
+                self.COLUMNS.index("clusters"),
+            }
             item = QTableWidgetItem(text)
+            if col in numeric_columns:
+                try:
+                    item = _NumericTableItem(text, float(text))
+                except (TypeError, ValueError):
+                    if col == self.COLUMNS.index("#"):
+                        # Ranked failures have no rank and belong after every
+                        # successful trial in the default ascending view.
+                        item = _NumericTableItem(text, float("inf"))
             if col == 0:
                 item.setData(Qt.UserRole, dict(param_dict))
                 if trial is not None:
@@ -1975,6 +2000,8 @@ class HyperparamPanel(QWidget):
 
     def _rebuild_table(self, result: SearchResult) -> None:
         """Redraw the table best-first, failures last."""
+        sorting = self._table.isSortingEnabled()
+        self._table.setSortingEnabled(False)
         self._table.setRowCount(0)
         pareto_ids = {id(trial) for trial in result.pareto_front()}
         for rank, trial in enumerate(result.ranked(), start=1):
@@ -1992,6 +2019,7 @@ class HyperparamPanel(QWidget):
             self._table.insertRow(row)
             self._set_row(row, "-", "-", "-", "-", format_params(trial.params),
                           "failed", trial.params, trial.error, trial)
+        self._table.setSortingEnabled(sorting)
         if self._table.rowCount():
             self._table.selectRow(0)
 
@@ -2553,41 +2581,63 @@ class UmapSearchSettingsDialog(QDialog):
         self.resize(820, 760)
 
     def _build_umap_tabs(self) -> None:
-        """Materialize every UMAP module category as its own settings tab."""
+        """Group the UMAP module controls into a small, task-shaped tab set."""
         from .settings_model import SettingsWidgets
 
         self._module_model = SettingsWidgets("umap", parent=self)
         sections = self._module_model.build_sections()
         for key, value in self._panel._settings.items():
             self._module_model.set_value_for_key(key, value)
-        relevant = {
-            "Embedding & Clustering", "Plot", "Advanced", "UMAP Display",
-        }
-        for title, rows in sections:
-            if title not in relevant:
-                continue
-            category_keys = [
-                key for key, widget in self._module_model._widgets.items()
-                if any(widget is row_widget for _label, row_widget in rows)
-            ]
-            self._module_keys.update(category_keys)
+
+        by_title = {title: rows for title, rows in sections}
+        tab_groups = (
+            ("Data", ("Input Data",)),
+            ("Reducer", (
+                "Dimensionality Reduction", "UMAP", "t-SNE", "PCA",
+                "Isomap", "Spectral Embedding",
+            )),
+            ("Clustering", ("Clustering",)),
+            ("Appearance", ("Points & Images", "Canvas & Output")),
+            ("Batch", ("Plate & Batch Correction",)),
+            ("Runtime", ("Runtime",)),
+        )
+        for tab_title, section_titles in tab_groups:
             page = QWidget()
             page.setObjectName("UmapSettingsPage")
-            form = QFormLayout(page)
-            form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
-            for label, widget in rows:
-                form.addRow(label, widget)
+            page_layout = QVBoxLayout(page)
+            page_layout.setContentsMargins(12, 12, 12, 12)
+            page_layout.setSpacing(10)
+            added = False
+            for section_title in section_titles:
+                rows = by_title.get(section_title, ())
+                if not rows:
+                    continue
+                group = QGroupBox(section_title, page)
+                form = QFormLayout(group)
+                form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+                for label, widget in rows:
+                    form.addRow(label, widget)
+                page_layout.addWidget(group)
+                added = True
+                category_keys = [
+                    key for key, widget in self._module_model._widgets.items()
+                    if any(widget is row_widget
+                           for _label, row_widget in rows)
+                ]
+                self._module_keys.update(category_keys)
+            if not added:
+                page.deleteLater()
+                continue
+            page_layout.addStretch(1)
             scroll = QScrollArea()
             scroll.setWidgetResizable(True)
             scroll.setFrameShape(QScrollArea.NoFrame)
             scroll.setWidget(page)
-            self._tabs.addTab(scroll, title)
+            self._tabs.addTab(scroll, tab_title)
         # SettingsWidgets materializes every UMAP category with ``self`` as
-        # the initial parent. This popup intentionally shows only the four
-        # graph/embedding categories above. Remove controls from omitted
-        # categories entirely: merely hiding RowExclusionEditor left its
-        # "+ Add exclusion" child eligible for a transient paint at (0, 0),
-        # which is the clipped "Ad…sion" text reported over the Search tab.
+        # the initial parent. Remove anything not represented above entirely:
+        # merely hiding a compound control can leave a child eligible for a
+        # transient paint at (0, 0).
         for key, widget in list(self._module_model._widgets.items()):
             if key not in self._module_keys:
                 widget.hide()
@@ -2611,7 +2661,8 @@ class UmapSearchSettingsDialog(QDialog):
         for key, _label, kind in APP_PARAMS[self._panel.app_key]:
             try:
                 parsed = parse_values(
-                    self._panel._value_edits[key].text(), kind, key)
+                    self._panel._control_text(
+                        self._panel._value_edits[key]), kind, key)
             except ValueError:
                 parsed = []
             if len(parsed) == 1:

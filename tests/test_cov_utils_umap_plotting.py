@@ -336,7 +336,7 @@ def test_reduction_and_clustering_umap_fit_uses_requested_neighbors():
 def test_reduction_and_clustering_rejects_unknown_reduction_method():
     from spacr.utils import reduction_and_clustering
 
-    with pytest.raises(ValueError, match="Unsupported reduction method: pca"):
+    with pytest.raises(ValueError, match="Unsupported reduction method: bogus"):
         reduction_and_clustering(
             np.zeros((6, 3)),
             n_neighbors=3,
@@ -345,7 +345,7 @@ def test_reduction_and_clustering_rejects_unknown_reduction_method():
             eps=0.5,
             min_samples=2,
             clustering="dbscan",
-            reduction_method="pca",
+            reduction_method="bogus",
         )
 
 

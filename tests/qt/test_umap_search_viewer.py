@@ -8,8 +8,8 @@ from PySide6.QtCore import QPoint, Qt
 from spacr.hyperparam import SearchResult, Trial
 from spacr.qt.screens.hyperparam import HyperparamPanel
 from spacr.qt.widgets.umap_search_viewer import (
-    BACKGROUND, UmapEmbeddingView, UmapGalleryDialog, project_points,
-    thumbnail_image,
+    BACKGROUND, UmapEmbeddingView, UmapGalleryDialog, axis_frame,
+    project_points, thumbnail_image,
 )
 
 
@@ -39,6 +39,16 @@ def test_projection_preserves_aspect_ratio_in_a_rectangular_view():
     assert np.ptp(points[:, 0]) == pytest.approx(np.ptp(points[:, 1]))
 
 
+@pytest.mark.parametrize("dimensions", [2, 3])
+def test_axis_frame_has_one_labelled_axis_per_embedding_dimension(dimensions):
+    frame = axis_frame(_embedding(dimensions), 640, 480,
+                       yaw=0.2, pitch=-0.1)
+    assert frame["dimensions"] == dimensions
+    assert len(frame["axes"]) == dimensions
+    assert [axis[2] for axis in frame["axes"]] == [
+        f"Dimension {index}" for index in range(1, dimensions + 1)]
+
+
 def test_thumbnail_has_the_required_black_background(qapp):
     image = thumbnail_image(_embedding(3), size=120)
     corner = image.pixelColor(0, 0)
@@ -61,6 +71,22 @@ def test_viewer_refuses_a_cluster_label_count_from_another_map(qtbot):
     qtbot.addWidget(view)
     with pytest.raises(ValueError, match="one value per UMAP point"):
         view.set_embedding(_embedding(2), labels=np.zeros(4))
+
+
+def test_appearance_changes_rendering_without_refitting_coordinates(qtbot):
+    view = UmapEmbeddingView()
+    qtbot.addWidget(view)
+    view.set_embedding(_embedding(2))
+    before = view.coordinates
+    view.set_appearance({
+        "marker": "diamond", "size": 7.5, "alpha": 0.45,
+        "cmap": "viridis",
+    })
+    assert view.appearance == {
+        "marker": "diamond", "size": 7.5, "alpha": 0.45,
+        "cmap": "viridis",
+    }
+    assert np.array_equal(view.coordinates, before)
 
 
 def test_dragging_a_3d_view_changes_its_camera(qtbot):
@@ -185,6 +211,24 @@ def test_table_names_backend_and_cluster_count_per_row(
         0, panel.COLUMNS.index("backend")).text() == "cuml"
     assert panel._table.item(
         0, panel.COLUMNS.index("clusters")).text() == "4"
+
+
+def test_umap_parameter_columns_sort_numerically(qtbot, qt_theme_applied):
+    panel = HyperparamPanel("umap")
+    qtbot.addWidget(panel)
+    first, second = _trial(0), _trial(1)
+    first.params.update(n_neighbors=100, min_dist=0.5)
+    second.params.update(n_neighbors=9, min_dist=0.05)
+    panel._rebuild_table(SearchResult(
+        trials=[first, second], best=first, metric="trustworthiness"))
+    panel._table.sortItems(
+        panel.COLUMNS.index("neighbors"), Qt.AscendingOrder)
+    assert [panel._table.item(row, panel.COLUMNS.index("neighbors")).text()
+            for row in range(2)] == ["9", "100"]
+    panel._table.sortItems(
+        panel.COLUMNS.index("min dist"), Qt.DescendingOrder)
+    assert [panel._table.item(row, panel.COLUMNS.index("min dist")).text()
+            for row in range(2)] == ["0.5", "0.05"]
 
 
 def test_umap_hides_the_old_max_panels_figure_control(

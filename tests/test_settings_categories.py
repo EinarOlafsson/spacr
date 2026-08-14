@@ -194,6 +194,11 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # Image UMAP's reducer families and the one shared GPU execution switch.
+    "gpu", "tsne_perplexity", "tsne_learning_rate",
+    "tsne_early_exaggeration", "tsne_max_iter", "pca_whiten",
+    "pca_svd_solver", "isomap_n_neighbors", "isomap_path_method",
+    "spectral_affinity", "spectral_n_neighbors",
     # The one visible choice instruction 72 adds in front of the other 53.
     "organelle_type",
     # Instruction 71's two opt-in measurements. Both were added to the

@@ -1164,6 +1164,12 @@ class AppScreen(QWidget):
         scroll.setObjectName(SETTINGS_PANEL_NAME)
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
+        if self.app_key == "umap":
+            # The action strip now carries GPU, search, interactive and AI
+            # toggles. Never satisfy their combined width by crushing the
+            # reducer settings into an unreadable sliver; the top-level window
+            # may grow, while the splitter remains user-resizable.
+            scroll.setMinimumWidth(280)
         # A QScrollArea's viewport auto-fills by default, and what it fills
         # with is the WINDOW colour -- not a surface -- so no opacity setting
         # can reach it and the settings column reads as an opaque slab over
@@ -1255,6 +1261,12 @@ class AppScreen(QWidget):
                         # the input field itself is left alone so
                         # focus / edit interactions aren't disturbed.
                         widget.setToolTip("")
+                        # SettingsWidgets may already have disabled an
+                        # algorithm-specific field before this visual label
+                        # exists. Bind them now and mirror the state; later
+                        # reducer switches update both through the same link.
+                        widget._spacr_setting_label = lbl_widget
+                        lbl_widget.setEnabled(widget.isEnabled())
                         self._hint_map[lbl_widget] = hint
                         self._html_tip_map[lbl_widget] = html
                         lbl_widget.installEventFilter(self)
@@ -1888,6 +1900,24 @@ class AppScreen(QWidget):
                     self._lp_switch = self._preview_switch
                 self._on_preview_switch(False)
 
+        # Image UMAP has one GPU switch for both its main run and its search.
+        # It deliberately lives in the action strip instead of being repeated
+        # in the settings form, and precedes Hyperparameter search as requested.
+        self._gpu_switch = None
+        if self.app_key == "umap" and getattr(
+                self, "_hyperparam", None) is not None:
+            self._gpu_switch = AiToggleLabel(
+                text="GPU",
+                tooltip=(
+                    "Use the GPU for both the main dimensionality-reduction "
+                    "run and Hyperparameter search. When ON (blue), spaCR "
+                    "requires a working RAPIDS cuML backend. CPU and GPU "
+                    "reducers can produce a DIFFERENT MAP, so compare rows "
+                    "only within one backend."),
+            )
+            self._gpu_switch.toggled.connect(self._on_umap_gpu_switch)
+            row.addWidget(self._gpu_switch)
+
         # Same slot, same behaviour, for the apps that have a hyperparameter
         # search instead of a live preview.
         if getattr(self, "_hyperparam", None) is not None:
@@ -2354,6 +2384,21 @@ class AppScreen(QWidget):
             model = getattr(self, "_settings_model", None)
             if model is not None:
                 self._hyperparam.apply_settings(model.collect())
+
+    def _on_umap_gpu_switch(self, on: bool) -> None:
+        """Keep one truthful GPU state across the main and search pipelines."""
+        panel = getattr(self, "_hyperparam", None)
+        model = getattr(self, "_settings_model", None)
+        if panel is None or self.app_key != "umap":
+            return
+        enabled = bool(panel.request_gpu_enabled(bool(on)))
+        if model is not None:
+            model.set_hidden_value("gpu", enabled)
+        switch = getattr(self, "_gpu_switch", None)
+        if switch is not None and switch.isChecked() != enabled:
+            switch.blockSignals(True)
+            switch.setChecked(enabled)
+            switch.blockSignals(False)
 
 
     def _on_static_figure_clicked(self) -> None:

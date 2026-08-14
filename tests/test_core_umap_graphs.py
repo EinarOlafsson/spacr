@@ -140,6 +140,41 @@ def test_generate_image_umap_tsne_and_row_limit(umap_src):
     assert out is not None
 
 
+@pytest.mark.parametrize("method", ["pca", "isomap", "spectral"])
+def test_generate_image_umap_runs_each_additional_reducer(umap_src, method):
+    from spacr.core import generate_image_umap
+    fig = generate_image_umap(_umap_settings(
+        umap_src, reduction_method=method, clustering="kmeans"),
+        return_fig=True)
+    payload = fig._spacr_umap_payload
+    assert payload["embedding"].shape == (N_OBJ, 2)
+    assert payload["reduction_method"] == method
+    assert payload["backend"] == "cpu"
+
+
+def test_main_image_umap_forwards_gpu_and_method_options(umap_src,
+                                                         monkeypatch):
+    from types import SimpleNamespace
+    from spacr import utils
+    from spacr.core import generate_image_umap
+
+    seen = []
+
+    def reducer(data, *_args, **kwargs):
+        seen.append(kwargs)
+        return (np.asarray(data)[:, :2], np.zeros(len(data), dtype=int),
+                SimpleNamespace(_spacr_backend="cuml"))
+
+    monkeypatch.setattr(utils, "reduction_and_clustering", reducer)
+    fig = generate_image_umap(_umap_settings(
+        umap_src, reduction_method="pca", pca_whiten=True,
+        pca_svd_solver="full", gpu=True), return_fig=True)
+    assert seen[0]["prefer_gpu"] is True
+    assert seen[0]["reducer_options"] == {
+        "whiten": True, "svd_solver": "full"}
+    assert fig._spacr_umap_payload["backend"] == "cuml"
+
+
 def test_generate_image_umap_embedding_by_controls(umap_src):
     pytest.importorskip("umap")
     from spacr.core import generate_image_umap
