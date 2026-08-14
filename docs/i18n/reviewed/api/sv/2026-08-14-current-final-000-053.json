@@ -1,0 +1,384 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "label": "spacr.active_learning#3",
+      "source_sha256": "c387209c381e118f57e3c942d47eb47659dd270318aa8c2700c37c482201a44c",
+      "source": "``least_confidence(probs)`` / ``margin(probs)`` / ``entropy(probs)`` Per-row uncertainty scores. Pure numpy — no torch, no database. ``disagreement(prob_sets)`` Spread across an ensemble or a set of MC-dropout passes. ``rank_by_uncertainty(probs, measure=…)`` Row indices, most uncertain first, deterministically tie-broken. ``build_queue(db_path, annotation_column, …)`` The queue itself, read straight out of ``png_list``. ``queue_rows(queue)`` The queue as ``[(png_path, None), …]`` — the shape the Annotate screen already paginates (see :func:`spacr.qt.annotate_engine.fetch_page`). ``format_queue_summary(queue)`` The queue's shape, class balance and caveats, as text. ``probabilities_from_logits(logits)`` / ``as_probabilities(scores)`` Raw-head-output → probability matrix, both head shapes handled. ``predict_probabilities(model, batches)`` Optional live-model bridge; the only function that touches torch.",
+      "context": "``least_confidence(probs)`` / ``margin(probs)`` / ``entropy(probs)`` Per-row uncertainty scores. Pure numpy — no torch, no database. ``disagreement(prob_sets)`` Spread across an ensemble or a set of MC-dropout passes. ``rank_by_uncertainty(probs, measure=…)`` Row indices, most uncertain first, deterministically tie-broken. ``build_queue(db_path, annotation_column, …)`` The annotation work list itself, read straight out of ``png_list``. ``queue_rows(queue)`` The annotation work list as ``[(png_path, None), …]`` — the shape the Annotate application view already paginates (see :func:`spacr.qt.annotate_engine.fetch_page`). ``format_queue_summary(queue)`` The annotation work list's shape, class balance and caveats, as text. ``probabilities_from_logits(logits)`` / ``as_probabilities(scores)`` Raw-head-output → probability matrix, both head shapes handled. ``predict_probabilities(model, batches)`` Optional live-model bridge; the only function that touches torch.",
+      "translation": "``least_confidence(probs)`` / ``margin(probs)`` / ``entropy(probs)`` Osäkerhetspoäng per rad. Ren numpy — ingen torch, ingen databas. ``disagreement(prob_sets)`` Spridning över en ensemble eller en uppsättning MC-dropout-körningar. ``rank_by_uncertainty(probs, measure=…)`` Radindex, de mest osäkra först, med deterministisk upplösning av lika värden. ``build_queue(db_path, annotation_column, …)`` Själva kön, läst direkt från ``png_list``. ``queue_rows(queue)`` Kön som ``[(png_path, None), …]`` — den form som Annotate-vyn redan sidindelar (se :func:`spacr.qt.annotate_engine.fetch_page`). ``format_queue_summary(queue)`` Köns form, klassbalans och förbehåll som text. ``probabilities_from_logits(logits)`` / ``as_probabilities(scores)`` Rå huvudutdata → sannolikhetsmatris; båda huvudformerna hanteras. ``predict_probabilities(model, batches)`` Valfri brygga till en aktiv modell; den enda funktionen som använder torch."
+    },
+    {
+      "label": "spacr.active_learning.build_queue#14",
+      "source_sha256": "f15db61fc6d0e7de57b3e95a93282aada90fe0bb8dd16569612f01e1666af3ae",
+      "source": "substring filter on ``png_path`` — matches the Annotate screen's own ``image_type`` filter (e.g. ``'cell'``).",
+      "context": "substring filter on ``png_path`` — matches the Annotate application view's own ``image_type`` filter (e.g. ``'cell'``).",
+      "translation": "delsträngsfilter på ``png_path`` — matchar Annotera-applikationsvyns eget ``image_type``-filter (till exempel ``'cell'``)."
+    },
+    {
+      "label": "spacr.active_learning.disagreement#4",
+      "source_sha256": "b215a358a79ee30650b2fe18db67a8b6ff47d70d80db87177447c662f1f2eca0",
+      "source": "``'bald'`` — mutual information ``H(mean p) − mean H(p)`` (Houlsby et al., 2011). 0 when the members agree, regardless of how uncertain they jointly are — so unlike ``entropy`` it does not fire on crops that are simply ambiguous.",
+      "context": "``'bald'`` — mutual information ``H(mean p) − mean H(p)`` (Houlsby et al., 2011). 0 when the members agree, regardless of how uncertain they jointly are — so unlike ``entropy`` it does not fire on extracted image regions that are simply ambiguous.",
+      "translation": "``'bald'`` — enligt Houlsby et al. (2011), den ömsesidiga informationen ``H(mean p) − mean H(p)``. 0 när medlemmarna är överens, oavsett hur osäker de gemensamt är — så till skillnad från ``entropy`` det inte skjuter på extraherade bild regioner som är helt enkelt tvetydigt."
+    },
+    {
+      "label": "spacr.active_learning.predict_probabilities#1",
+      "source_sha256": "584cf48f8483acd6ba9614a6be40306d773c3288be1ee34cbed2f16b47a294d1",
+      "source": "A convenience for scoring crops that are not in the database yet. The queue does **not** need this — :func:`build_queue` works from the ``pred`` column that :func:`spacr.deep_spacr.merge_predictions_into_db` already wrote, which is the normal path.",
+      "context": "A convenience for scoring extracted image regions that are not in the database yet. The work list does **not** need this — :func:`build_queue` works from the ``pred`` column that :func:`spacr.deep_spacr.merge_predictions_into_db` already wrote, which is the normal path.",
+      "translation": "En hjälpfunktion för att poängsätta bildutsnitt som ännu inte finns i databasen. Kön behöver **inte** detta — :func:`build_queue` arbetar från kolumnen ``pred`` som :func:`spacr.deep_spacr.merge_predictions_into_db` redan har skrivit, vilket är den normala vägen."
+    },
+    {
+      "label": "spacr.agreement.agreement_report#6",
+      "source_sha256": "86886f27c75c14f3e683a8be3abc6c491a4c49849fae09a7bba2657b751d092d",
+      "source": "extra values to treat as abstentions, e.g. ``(0,)`` for legacy databases where 0 meant \"not looked at\".",
+      "context": "extra values to treat as abstentions, e.g. ``(0,)`` for legacy databases where 0 meant \"not looked at\".",
+      "translation": "extra värden som ska behandlas som nedlagda röster, till exempel ``(0,)`` för äldre databaser där 0 betydde \"not looked at\"."
+    },
+    {
+      "label": "spacr.agreement.kappa_detail#5",
+      "source_sha256": "5e16bdea0acf889db247e72299505b7607035c033af457fc79282a2fac205fcb",
+      "source": "extra values that count as abstentions, e.g. ``(0,)`` for legacy databases where 0 meant \"not looked at\".",
+      "context": "extra values that count as abstentions, e.g. ``(0,)`` for legacy databases where 0 meant \"not looked at\".",
+      "translation": "extra värden som räknas som nedlagda röster, till exempel ``(0,)`` för äldre databaser där 0 betydde \"not looked at\"."
+    },
+    {
+      "label": "spacr.align.Tile#5",
+      "source_sha256": "cfcd5b78129853f7a76d8e9681d0d9e05d3de29c6751ca004835beea2c930c11",
+      "source": "well token parsed from the filename, e.g. ``'B07'``.",
+      "context": "well token parsed from the filename, e.g. ``'B07'``.",
+      "translation": "well-token tolkad från filnamnet, till exempel ``'B07'``."
+    },
+    {
+      "label": "spacr.artifacts.Artifact#3",
+      "source_sha256": "83aefb15c3bc4d462733b11f968883c67e1cf2722aacd99ac82a26f6a81d0ed2",
+      "source": "a :mod:`spacr.ports` kind, e.g. ``\"measurements-db\"``.",
+      "context": "a :mod:`spacr.ports` kind, e.g. ``\"measurements-db\"``.",
+      "translation": "en :mod:`spacr.ports` sort, till exempel ``\"measurements-db\"``."
+    },
+    {
+      "label": "spacr.artifacts.Artifact#4",
+      "source_sha256": "c9494dfab5e821abafbbb3affde9be99ab99eacf8fde3fcb3fa713b1b0ed95a1",
+      "source": "the producing module's port role, e.g. ``\"merged\"``.",
+      "context": "the producing module's port role, e.g. ``\"merged\"``.",
+      "translation": "den producerande modulens portroll, till exempel ``\"merged\"``."
+    },
+    {
+      "label": "spacr.artifacts.Artifact#6",
+      "source_sha256": "dead3a35d7cedca044b7b95a190bd150f3d8f2aeca6ff12d585b5a6f301cd89a",
+      "source": "producing module key, e.g. ``\"mask\"``.",
+      "context": "producing module key, e.g. ``\"mask\"``.",
+      "translation": "framställning av modulnyckel, till exempel ``\"mask\"``."
+    },
+    {
+      "label": "spacr.artifacts.Registry.by_kind#1",
+      "source_sha256": "9b2380368249480e8546d0ea325b4130e3857476a0bf6a857ac00254345fb653",
+      "source": "a :mod:`spacr.ports` kind, e.g. ``\"merged-arrays\"``.",
+      "context": "a :mod:`spacr.ports` kind, e.g. ``\"merged-arrays\"``.",
+      "translation": "en :mod:`spacr.ports` sort, till exempel ``\"merged-arrays\"``."
+    },
+    {
+      "label": "spacr.attribution.resolve_layer#2",
+      "source_sha256": "09c30c8d053a9d30110ba0c80afc3f6fcf60f7e4b508bf24fde779f3957f23bf",
+      "source": "dotted module path, e.g. ``'features.2'``.",
+      "context": "dotted module path, e.g. ``'features.2'``.",
+      "translation": "prickad modulbana, till exempel ``'features.2'``."
+    },
+    {
+      "label": "spacr.cancellation.CancellationToken#0",
+      "source_sha256": "58843df07ddc286e1dac10d3a35f7be56b16d4b148913c21e340f282c0c5a66a",
+      "source": "Thread-safe, idempotent cancellation request shared with one worker.",
+      "context": "Safe across execution paths, idempotent cancellation request shared with one worker.",
+      "translation": "Säker över exekveringsvägar, upprepningssäker annullering begäran delas med en worker-processer."
+    },
+    {
+      "label": "spacr.chaining.Binding#2",
+      "source_sha256": "3b5a842f527a9f1211adbd8a454179ec19e90b7d28800691e9890792e12f7418",
+      "source": "the port's role within that module, e.g. ``\"merged\"``.",
+      "context": "the port's role within that module, e.g. ``\"merged\"``.",
+      "translation": "portens roll inom den modulen, till exempel ``\"merged\"``."
+    },
+    {
+      "label": "spacr.chaining.Binding#3",
+      "source_sha256": "7191789a8a400ac860caac9109c372a9804ebbc305fbb064ec51056e7b984915",
+      "source": "the settings key it fills, e.g. ``\"src\"``.",
+      "context": "the setting name it fills, e.g. ``\"src\"``.",
+      "translation": "inställningsnamnet som den fyller, till exempel ``\"src\"``."
+    },
+    {
+      "label": "spacr.chaining.ChainedInput#4",
+      "source_sha256": "7976dd91df4c29a8e1f707902df78811106dca351e14460ebb49a778eba5fddc",
+      "source": "the :mod:`spacr.ports` kind, e.g. ``\"merged-arrays\"``.",
+      "context": "the :mod:`spacr.ports` kind, e.g. ``\"merged-arrays\"``.",
+      "translation": "av typen :mod:`spacr.ports`, till exempel ``\"merged-arrays\"``."
+    },
+    {
+      "label": "spacr.chaining.PinStore.pin#3",
+      "source_sha256": "c358ad9182295a4a666d5f8d638794d4cb14357e5c398178f076417c53d98826",
+      "source": "settings key, e.g. ``\"src\"``.",
+      "context": "setting name, e.g. ``\"src\"``.",
+      "translation": "inställningsnamn, till exempel ``\"src\"``."
+    },
+    {
+      "label": "spacr.checkpoint.CheckpointStore#2",
+      "source_sha256": "02d96b91d6f41db2a7e733b3fb509c3e66a70fe21e3da25080fd07d958078890",
+      "source": "stable workflow identifier, e.g. ``\"umap_search\"``.",
+      "context": "stable workflow identifier, e.g. ``\"umap_search\"``.",
+      "translation": "stabil arbetsflödesidentifierare, till exempel ``\"umap_search\"``."
+    },
+    {
+      "label": "spacr.classifier_evaluation.cross_calibrate_probabilities#0",
+      "source_sha256": "95110e63166cf285d6b8cbcfdb82b8a484b237f56933bb9904c4e2cdefbdf455",
+      "source": "Calibrate each held-out fold using every *other* out-of-fold prediction.",
+      "context": "Calibrate each held-out fold using every *other* out-of-fold prediction.",
+      "translation": "Kalibrera varje undanhållen vik med hjälp av varje *other* utanför vikningen förutsägelse."
+    },
+    {
+      "label": "spacr.cli.Module#10",
+      "source_sha256": "7ba2a7f6c290650925ebdb901388f3050c50dcef08eb7466ee450b510e533eb1",
+      "source": "``\"module:function\"`` of a defaults helper that does **not** live in :mod:`spacr.settings`. Six built-in pipelines keep their own (``foreign``, ``external_masks``, ``convert``, ``illumination``, ``barcode_qc``, ``anndata_export``), as does every plugin app, because their keys are theirs alone; without this the CLI would resolve an empty defaults dict for them, and ``--set`` would then reject every one of their keys as a setting that does not exist.",
+      "context": "``\"module:function\"`` of a defaults helper that does **not** live in :mod:`spacr.settings`. Six built-in workflows keep their own (``foreign``, ``external_masks``, ``convert``, ``illumination``, ``barcode_qc``, ``anndata_export``), as does every plugin app, because their structured-data names are theirs alone; without this the CLI would resolve an empty defaults key-value mapping for them, and ``--set`` would then reject every one of their structured-data names as a setting that does not exist.",
+      "translation": "``\"module:function\"`` av en standardhjälpare som gör **inte** live i :mod:`spacr.settings`. Sex inbyggda arbetsflöden behålla sina egna (``foreign``, ``external_masks``, ``convert``, ``illumination``, ``barcode_qc``, ``anndata_export``), liksom varje plugin app, eftersom deras strukturerade data namn är deras ensam; Utan detta skulle CLI lösa en tom standardnyckel-värde-mappning för dem, och ``--set`` skulle då avvisa var och en av deras strukturerade datanamn som en inställning som inte existerar."
+    },
+    {
+      "label": "spacr.cli.apply_overrides#2",
+      "source_sha256": "65fa3a6dc6846a66328c42891171e95993a89855763fc6b86829a06d7e784746",
+      "source": "So is an override naming a key spaCR *does* know but nothing reads. Those are worse, because they pass every \"is this a real setting?\" test there is: ``remove_border_pathogens`` is typed, tooltipped and offered by the Pathogen category, and ``spacr-run mask --set remove_border_pathogens=True`` was accepted in silence and did nothing. ``spacr.settings.DEAD_SETTINGS`` names every such key and the spelling that works instead.",
+      "context": "So is an override naming a structured-data name spaCR *does* know but nothing reads. Those are worse, because they pass every \"is this a real setting?\" test there is: ``remove_border_pathogens`` is typed, tooltipped and offered by the Pathogen category, and ``spacr-run mask --set remove_border_pathogens=True`` was accepted in silence and did nothing. ``spacr.settings.DEAD_SETTINGS`` names every such structured-data name and the spelling that works instead.",
+      "translation": "Så är en åsidosättning som heter en strukturerad-data namn spaCR *faktiskt* vet men ingenting läser. Dessa är värre, eftersom de passerar varje \"är detta en riktig inställning?\" test som finns: ``remove_border_pathogens`` skrivs, tooltipped och erbjuds av kategorin Pathogen, och ``spacr-run mask --set remove_border_pathogens=True`` accepterades i tystnad och gjorde ingenting. ``spacr.settings.DEAD_SETTINGS`` namnger alla sådana strukturerade datanamn och stavningen som fungerar i stället."
+    },
+    {
+      "label": "spacr.confusion#3",
+      "source_sha256": "9f17529101728531e935683c2165d60e21d2975b0aa433c877cfba9e39218296",
+      "source": "**A cell is a set of objects.** :func:`cell_rows` is the whole primitive: the rows of the out-of-fold prediction table whose true class is *this* and whose predicted class is *that*. Everything else here is a way of ordering, splitting or counting that set.",
+      "context": "**A cell is a set of objects.** :func:`cell_rows` is the whole primitive: the rows of the out-of-fold prediction table whose true class is *this* and whose predicted class is *that*. Everything else here is a way of ordering, splitting or counting that set.",
+      "translation": "**En cell är en uppsättning av objekt.** :func:`cell_rows` är hela primitiven: raderna i den utanför vikningen förutsägelse tabell vars sanna klass är *denna* och vars förutspådda klassen är *that*. Allt annat här är ett sätt att ordna, dela eller räkna den uppsättningen."
+    },
+    {
+      "label": "spacr.convert.SourceImage.ext#0",
+      "source_sha256": "5eb2a29ae7d8a6b9e82735579f78f7dfd970baf89ece7637e13db17a935d2724",
+      "source": "Lower-case extension, e.g. ``'.nd2'``.",
+      "context": "Lower-case extension, e.g. ``'.nd2'``.",
+      "translation": "Förlängning med gemener, till exempel ``'.nd2'``."
+    },
+    {
+      "label": "spacr.convert.normalise_well#2",
+      "source_sha256": "394b136a1f47964067dd75e87ff17329f108e5b3cc44bda55595e8ac34c7221e",
+      "source": "This used to be a private ``^([A-Pa-p])[ _\\-]?(\\d{1,2})$`` with an extra ``1 <= column <= 24`` check, so ``Q01`` (row 17) and ``A25`` (column 25) — both perfectly good wells of the 1536-plate the heatmap already draws — came back None and were *renamed* to the next free synthetic address. :func:`spacr.schema.parse_well` is now the parser, and :func:`spacr.schema.plate_format_for` decides whether the position it produced is a well that exists.",
+      "context": "This used to be a private ``^([A-Pa-p])[ _\\-]?(\\d{1,2})$`` with an extra ``1 <= column <= 24`` check, so ``Q01`` (row 17) and ``A25`` (column 25) — both perfectly good microplate sample positions of the 1536-laboratory microplate the heatmap already draws — came back None and were *renamed* to the next free synthetic address. :func:`spacr.schema.parse_well` is now the parser, and :func:`spacr.schema.plate_format_for` decides whether the position it produced is a microplate sample position that exists.",
+      "translation": "Detta brukade vara en privat ``^([A-Pa-p])[ _\\-]?(\\d{1,2})$`` med en extra ``1 <= column <= 24`` kontroll, så ``Q01`` (rad 17) och ``A25`` (kolumn 25) — båda fullt giltiga mikroplatta prov positioner av 1536-laboratorium mikroplattan värmekartan redan drar — kom tillbaka None och fick *nya namn* till nästa fria syntetiska adress. :func:`spacr.schema.parse_well` är nu parsern, och :func:`spacr.schema.plate_format_for` avgör om positionen den producerade är en mikroplatta prov position som existerar."
+    },
+    {
+      "label": "spacr.convert.normalise_well#4",
+      "source_sha256": "0970a800ee2e97fa8179a9b7b11b27e19cc70b4e440ea1cf8b69cea2a9a0b545",
+      "source": "restrict to one plate format, e.g. ``384``. The default accepts any address that exists on *some* standard plate, which is to say up to 1536.",
+      "context": "restrict to one laboratory microplate format, e.g. ``384``. The default accepts any address that exists on *some* standard laboratory microplate, which is to say up to 1536.",
+      "translation": "begränsa till ett laboratorium mikroplatta format, till exempel ``384``. Standardinställningen accepterar alla adresser som finns på *some* standardlaboratorium mikroplatta, det vill säga upp till 1536."
+    },
+    {
+      "label": "spacr.convert.target_name#3",
+      "source_sha256": "d1bb4f1124caba4dfd4cd71788a135faa7fa6c2a9fd414ffa7915f5bc66a0a9b",
+      "source": "canonical well id, e.g. ``A01``.",
+      "context": "canonical microplate sample position id, e.g. ``A01``.",
+      "translation": "kanonisk mikroplatta prov position id, till exempel ``A01``."
+    },
+    {
+      "label": "spacr.crashreport.collect#3",
+      "source_sha256": "8cbe3b3a7c6de941820e5865cf68ade16eb1a303559c1279876d45ea3fba756f",
+      "source": "project database, e.g. ``plate1/measurements/measurements.db``. Adds the doctor's database checks and the run-status stamps.",
+      "context": "project database, e.g. ``plate1/measurements/measurements.db``. Adds the doctor's database checks and the processing-session status stamps.",
+      "translation": "projektdatabas, till exempel ``plate1/measurements/measurements.db``. Lägger till läkarens databaskontroller och stämplar för behandlingssessionsstatus."
+    },
+    {
+      "label": "spacr.crop_source.matches_path#1",
+      "source_sha256": "2a17902227be8ed8baf403dcdea6906b8e5db09cb601e4a9d3e514dfa3ea8e46",
+      "source": "Two independent tests, which is the whole point of splitting them: WHICH OBJECT the crop is of (a substring of its path, e.g. ``cell_png``) and WHAT FORMAT it is in (its extension). One setting could never express \"every nucleus crop, whatever format\" or \"every TIFF, whatever object\".",
+      "context": "Two independent tests, which is the whole point of splitting them: WHICH OBJECT the extracted image region is of (a substring of its path, e.g. ``cell_png``) and WHAT FORMAT it is in (its extension). One setting could never express \"every nucleus extracted image region, whatever format\" or \"every TIFF, whatever object\".",
+      "translation": "Två oberoende tester, vilket är hela poängen med att dela upp dem: VILKET OBJEKT den extraherade bildregionen tillhör (en delsträng av dess sökväg, till exempel ``cell_png``) och VILKET FORMAT den är i (dess filändelse). En inställning skulle aldrig kunna uttrycka \"varje kärna extraherade bildregion, oavsett format\" eller \"var TIFF, vilket objekt\"."
+    },
+    {
+      "label": "spacr.crops.CropSpec#10",
+      "source_sha256": "6f4fa949891d1868d99d37c01f10d6e19b9205591b98989f074e036f3adc6ab1",
+      "source": "optional pre-computed ``(y0, y1, x0, x1)`` half-open bounding box (skimage ``regionprops`` convention) for this label, e.g. read from a database column. When given, the mask plane is never scanned to find the object, only the window is read.",
+      "context": "optional pre-computed ``(y0, y1, x0, x1)`` half-open bounding box (skimage ``regionprops`` convention) for this label, e.g. read from a database column. When given, the mask image layer is never scanned to find the object, only the window is read.",
+      "translation": "valfri förberäknad ``(y0, y1, x0, x1)`` halvöppen begränsningsram (skimage ``regionprops``-konvention) för denna etikett, till exempel läsa från en databaskolumn. När det anges skannas aldrig maskbilden för att hitta objektet, endast fönstret läses."
+    },
+    {
+      "label": "spacr.crops.migrate_crop_folder#5",
+      "source_sha256": "a1dee0160a6f87f7f59b96826b3b98b20f4276e0a19c7bb7ae2789d446635dce",
+      "source": "each file is converted into a durable staging file ``<name>.spacr_v2`` (itself written temp-then-``os.replace``, per ``io._save_array_atomic``) and only then ``os.replace``-d over the original, so the crop at its real name is always a complete PNG -- the old one or the new one;",
+      "context": "each file is converted into a durable staging file ``<name>.spacr_v2`` (itself written temp-then-``os.replace``, per ``io._save_array_atomic``) and only then ``os.replace``-d over the original, so the extracted image region at its real name is always a complete PNG -- the old one or the new one;",
+      "translation": "varje fil konverteras till en hållbar mellanlagringsfil ``<name>.spacr_v2`` (själv skriven temporärt-och-sedan-``os.replace``, enligt ``io._save_array_atomic``) och först därefter ``os.replace``-d över originalet, så den extraherade bildregionen vid dess riktiga namn är alltid en komplett PNG -- den gamla eller den nya;"
+    },
+    {
+      "label": "spacr.crops.to_cv2_bgr#1",
+      "source_sha256": "cd0929f1fa99bccf4479b1569284101fbc2f5b957db0f2600b4ce433efdd912a",
+      "source": ":func:`build_png_channels` assembles the crop in **file order** -- red plane first -- while ``cv2.imwrite`` interprets a 3-channel array as BGR. Reversing the channel axis here, once, in the writer, makes cv2's interpretation land the array's red plane in the file's red slot, so the PNG's slots hold the channels ``settings['png_channel_mapping']`` named (format 3). Under :data:`DEFAULT_PNG_CHANNEL_MAPPING` that puts ``png_dims[0]`` in blue, byte-identical to format 1.",
+      "context": ":func:`build_png_channels` assembles the extracted image region in **file order** -- red plane first -- while ``cv2.imwrite`` interprets a 3-image data channel array as BGR. Reversing the image data channel axis here, once, in the writer, makes cv2's interpretation land the array's red plane in the file's red slot, so the PNG's slots hold the image data channels ``settings['png_channel_mapping']`` named (format 3). Under :data:`DEFAULT_PNG_CHANNEL_MAPPING` that puts ``png_dims[0]`` in blue, byte-identical to format 1.",
+      "translation": ":func:`build_png_channels` sätter ihop den extraherade bildregionen i **filordning** -- röd bildyta först -- medan ``cv2.imwrite`` tolkar en 3-bilds datakanalmatris som BGR. Omvänd bilddatakanalens axel här, en gång, i författaren, gör att cv2: s tolkning landar arrayens röda plan i filens röda plats, så att PNG: s platser håller bilddatakanalerna ``settings['png_channel_mapping']`` namngivna (format 3). Enligt :data:`DEFAULT_PNG_CHANNEL_MAPPING` som sätter ``png_dims[0]`` i blått, byte-identiskt till format 1."
+    },
+    {
+      "label": "spacr.deep_spacr.train_test_model#16",
+      "source_sha256": "3d20050de2db98c2206ab586f32006e858f82ebc04f656ff311edd6534448b4f",
+      "source": "See Also: :func:`spacr.deep_spacr.deep_spacr` — full end-to-end training + activation-map pipeline. :func:`spacr.io.generate_dataset` — build the ``train/``/``test/`` folder tree.",
+      "context": "See Also: :func:`spacr.deep_spacr.deep_spacr` — full end-to-end training + activation-map workflow. :func:`spacr.io.generate_dataset` — build the ``train/``/``test/`` folder tree.",
+      "translation": "Se även: :func:`spacr.deep_spacr.deep_spacr` — fullständig från början till slut-utbildning + aktivering-karta arbetsflöde. :func:`spacr.io.generate_dataset` — bygg mappträdet ``train/``/``test/``."
+    },
+    {
+      "label": "spacr.diameter#6",
+      "source_sha256": "a3768dc9ae04f523c6d7bd7c3473c6b70250a3fb1601c8a36c12f89bcf6fd565",
+      "source": "1. **Flatten.** Denoise with a 1 px Gaussian, then subtract a heavily smoothed copy (sigma = max(32, min(H, W) / 4)) to remove illumination gradients. The sigma is deliberately far larger than any plausible object so that flattening removes vignetting without eating the objects — the opposite trade-off (a tight rolling ball) shrinks what it is trying to measure. 2. **Reject noise.** Compare the structural amplitude of the flattened plane (p99 - p30) against the *pixel-level* noise scale, measured as ``1.4826 * MAD(img - gaussian(img, 1))`` on the raw plane. A pure-noise plane scores below 1; a plane with real objects scores in the tens. Below ``min_snr`` the field is discarded rather than thresholded, because Otsu will happily bisect pure noise and hand back a confident-looking number. 3. **Threshold and label.** Otsu, fill holes, label, drop components that touch the image border (truncated, so their size is a lie) and components that are absurd (equivalent diameter below ``min_object_diameter``, or area above ``max_object_fraction`` of the field). Characteristic size is the median equivalent diameter, ``2 * sqrt(area / pi)``. 4. **Cross-check by distance transform.** Step 3 has one dominant failure mode: a confluent monolayer fuses into a single component, that component touches the border and is dropped, and the estimate is then computed from whatever debris survived — biased **low**, and silently. So the Euclidean distance transform of the (unfilled) foreground is computed as well, its local maxima are taken as one seed per object (two passes: a coarse pass sets the suppression radius for the refined pass), and a watershed on ``-EDT`` splits the fused foreground back into objects whose equivalent diameters are measured the same way.",
+      "context": "1. **Flatten.** Apply a 1 px Gaussian filter, then subtract a smoother copy with sigma = max(32, min(H, W) / 4). This sigma is larger than a plausible object, so it removes vignetting without the object shrinkage caused by a tight rolling ball. 2. **Reject noise.** Compare the flattened plane’s structural amplitude (p99 - p30) with the *pixel-level* raw-plane noise estimate ``1.4826 * MAD(img - gaussian(img, 1))``. Pure noise scores below 1; real objects score in the tens. Discard a field below ``min_snr`` instead of applying Otsu to pure noise. 3. **Threshold and label.** Apply Otsu, fill holes, and label components. Remove border-touching components because they are truncated; also remove equivalent diameters below ``min_object_diameter`` and areas above ``max_object_fraction``. Use the median equivalent diameter, ``2 * sqrt(area / pi)``. 4. **Cross-check by distance transform.** A confluent layer can fuse into one border-touching component, which is discarded and leaves debris that biases the estimate silently **low**. Compute the Euclidean distance transform of the unfilled foreground. Use local maxima as object seeds in two passes: a coarse pass sets the suppression radius for the refined pass. Watershed on ``-EDT`` separates the fused foreground before measuring equivalent diameters the same way.",
+      "translation": "1. **Platta ut.** Brusreducera med en Gaussisk filtrering på 1 px och subtrahera sedan en kraftigt utjämnad kopia (sigma = max(32, min(H, W) / 4)) för att ta bort belysningsgradienter. Sigma är avsiktligt mycket större än något rimligt objekt, så utjämningen tar bort vinjettering utan att äta upp objekten — den motsatta avvägningen (en snäv rullande boll) krymper det som ska mätas. 2. **Avvisa brus.** Jämför den utplattade bildytans strukturella amplitud (p99 - p30) med brusnivån på *pixelnivå*, mätt som ``1.4826 * MAD(img - gaussian(img, 1))`` på den råa bildytan. En bildyta med rent brus får ett värde under 1; en bildyta med verkliga objekt får värden i tiotal. Under ``min_snr`` förkastas fältet i stället för att trösklas, eftersom Otsu gärna delar rent brus och returnerar ett till synes säkert tal. 3. **Tröskla och märk.** Använd Otsu, fyll hål, märk komponenter och ta bort komponenter som vidrör bildkanten (de är avskurna, så deras storlek är missvisande) eller är orimliga (ekvivalent diameter under ``min_object_diameter`` eller area över ``max_object_fraction`` av fältet). Den karakteristiska storleken är medianen av den ekvivalenta diametern, ``2 * sqrt(area / pi)``. 4. **Kontrollera med avståndstransform.** Steg 3 har ett dominerande felläge: ett sammanflytande monolager blir en enda komponent, komponenten vidrör kanten och tas bort, och uppskattningen beräknas sedan från det skräp som återstår — tyst förskjuten **nedåt**. Därför beräknas även den euklidiska avståndstransformen av den ofyllda förgrunden. Dess lokala maxima används som ett frö per objekt (två pass: ett grovt pass anger undertryckningsradien för det förfinade passet), och watershed på ``-EDT`` delar den sammanfogade förgrunden i objekt vars ekvivalenta diametrar mäts på samma sätt."
+    },
+    {
+      "label": "spacr.errors.RunLedger#2",
+      "source_sha256": "89cdfe1393f342c9488bd056e7796d4ae24f61c68746592f46ce2d5f9892ee8f",
+      "source": "run name, shown in the summary block and stored in the artifact stamp. Use the pipeline stage, e.g. ``'measure_crop'``.",
+      "context": "run name, shown in the summary block and stored in the artifact stamp. Use the workflow stage, e.g. ``'measure_crop'``.",
+      "translation": "körningsnamn, som visas i sammanfattningsblocket och lagras i artefaktstämpeln. Använd arbetsflödesstadiet, till exempel ``'measure_crop'``."
+    },
+    {
+      "label": "spacr.errors.read_run_status#6",
+      "source_sha256": "06db9f693938902c89a449618f428488095241cf7879b398b9659aeae66f2420",
+      "source": "path of a spaCR output — e.g. ``measurements.db``.",
+      "context": "path of a spaCR output — e.g. ``measurements.db``.",
+      "translation": "sökväg till en spaCR-utgång — till exempel ``measurements.db``."
+    },
+    {
+      "label": "spacr.filters.require_full_identity#3",
+      "source_sha256": "625990e7ccf0acbfe47c84f34e3ec46201d10d6e5fc0049927840f6e0b72fc87",
+      "source": "names the operation in the error message, e.g. ``\"a gate\"``.",
+      "context": "names the operation in the error message, e.g. ``\"a gate\"``.",
+      "translation": "namn på åtgärden i felmeddelandet, till exempel ``\"a gate\"``."
+    },
+    {
+      "label": "spacr.foreign.ColumnMap#5",
+      "source_sha256": "263b79b0b0c6e70851b8026a77ec395d6d8ffaf57915c8fae25b8f735c14adca",
+      "source": "the unit their values are in, e.g. ``'um^2'``. Required for any non-identity, non-literal transform: converting without knowing what you are converting *from* is guessing.",
+      "context": "the unit their values are in, e.g. ``'um^2'``. Required for any non-identity, non-literal transform: converting without knowing what you are converting *from* is guessing.",
+      "translation": "vilken enhet deras värden är i, till exempel ``'um^2'``. Krävs för varje icke-identitet, icke bokstavlig omvandling: konvertera utan att veta vad du konverterar *from* är att gissa."
+    },
+    {
+      "label": "spacr.gui_core.setup_plot_section#3",
+      "source_sha256": "6e553f5cba48bb3430b9152c865f91cfdaa51caeedc58cec234a97d64aae49c8",
+      "source": "current module id; used to short-circuit the slider for modules (e.g. ``'map_barcodes'``) that don't need it.",
+      "context": "current module id; used to short-circuit the slider for modules (e.g. ``'map_barcodes'``) that don't need it.",
+      "translation": "aktuellt modul-id; används för att kortsluta skjutreglaget för moduler (till exempel ``'map_barcodes'``) som inte behöver det."
+    },
+    {
+      "label": "spacr.gui_elements.save_figure_as_format#2",
+      "source_sha256": "141a0973e4f2bca8b720cc8c90897096601090ad40c40a2ae1cad277912b50c6",
+      "source": "extension used both as default filter and ``fig.savefig`` format (e.g. ``'png'``, ``'pdf'``, ``'svg'``).",
+      "context": "extension used both as default filter and ``fig.savefig`` format (e.g. ``'png'``, ``'pdf'``, ``'svg'``).",
+      "translation": "tillägg som används både som standardfilter och ``fig.savefig``-format (till exempel ``'png'``, ``'pdf'``, ``'svg'``)."
+    },
+    {
+      "label": "spacr.gui_elements.spacrFont#1",
+      "source_sha256": "2d4ed065dfacfb1ab42613e0aa883c2f625a94071396b4ae4b12e59b940e2a18",
+      "source": "font family name (e.g. ``'OpenSans'``).",
+      "context": "font family name (e.g. ``'OpenSans'``).",
+      "translation": "namn på teckensnittsfamilj (till exempel ``'OpenSans'``)."
+    },
+    {
+      "label": "spacr.gui_elements.spacrFont#2",
+      "source_sha256": "879326a30fecf49030a24e07341da42bca3aa9e8b7ccd2f7a8f12642f19cce55",
+      "source": "font style variant (e.g. ``'Regular'``, ``'Bold'``).",
+      "context": "font style variant (e.g. ``'Regular'``, ``'Bold'``).",
+      "translation": "teckensnittsstilvariant (till exempel ``'Regular'``, ``'Bold'``)."
+    },
+    {
+      "label": "spacr.gui_utils.download_dataset#3",
+      "source_sha256": "fe0b51cdda30f1315042111588d0bb5b63821495d2f65cdd25e8022b7037cec3",
+      "source": "HF dataset repo id (e.g. ``'einarolafsson/toxo_mito'``).",
+      "context": "HF dataset repo id (e.g. ``'einarolafsson/toxo_mito'``).",
+      "translation": "HF-datasetets repo-id (till exempel ``'einarolafsson/toxo_mito'``)."
+    },
+    {
+      "label": "spacr.hyperparam#4",
+      "source_sha256": "0c6fb20198b9d6d20613482ae144cfad0e31954ee55622c77238d2800220427f",
+      "source": "**Selecting on the test split leaks.** :func:`cv_search` scores every trial on cross-validation folds, never on test, and refuses to run if a caller hands it folds that touch the held-out test indices. It defaults to *grouped* folds (``group_by='well'``) and reuses :func:`spacr.io.make_cv_folds` — crops from one well share focus, illumination and seeding density, so an ungrouped search picks the model that memorised wells and reports a beautiful, meaningless score.",
+      "context": "**Selecting on the test split leaks.** :func:`cv_search` scores every trial on cross-validation folds, never on test, and refuses to execute if a caller hands it folds that touch the held-out test indices. It defaults to *grouped* folds (``group_by='well'``) and reuses :func:`spacr.io.make_cv_folds` — extracted image regions from one microplate sample position share focus, illumination and seeding density, so an ungrouped search picks the model that memorised microplate sample positions and reports a beautiful, meaningless score.",
+      "translation": "**Välja på testuppdelningen läcker.** :func:`cv_search` poängsätter varje försök på korsvalideringsvikningar, aldrig på test, och vägrar att utföra om anroparen ger den vikningar som rör de hållna ut testindex. Det är standard till *grupperade* vikningar (``group_by='well'``) och återanvänder :func:`spacr.io.make_cv_folds` - extraherade bildregioner från en mikroplatta provposition delar fokus, belysning och sådddensitet, så en ogrupperad sökning plockar modellen som memorerade mikroplatta prov positioner och rapporterar en vacker, en meningslös poäng."
+    },
+    {
+      "label": "spacr.io.generate_loaders#11",
+      "source_sha256": "bf889acf80d5e7c451f40db7efab937d2591b6ec2a163d43e23e77ec7da613fc",
+      "source": "Subset of RGB channels to keep, e.g. ``['r', 'g']``.",
+      "context": "Subset of RGB image data channels to keep, e.g. ``['r', 'g']``.",
+      "translation": "Delmängd av RGB bilddatakanaler att behålla, till exempel ``['r', 'g']``."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset#5",
+      "source_sha256": "39de9db9f25ed972138e8e16dff096a6f2820f7dca88be6655984f453c88fe35",
+      "source": "If a column has only one annotated value (e.g., only '1's), we add a '<column>_random' class using unannotated rows for that column (same size as positives).",
+      "context": "If a column has only one annotated value (e.g., only '1's), we add a '<column>_random' class using unannotated rows for that column (same size as positives).",
+      "translation": "Om en kolumn bara har ett annoterat värde (till exempel bara '1:or'), lägger vi till en '<column>_random'-klass med oannoterade rader för den kolumnen (samma storlek som positiva tal)."
+    },
+    {
+      "label": "spacr.io.save_object_mask#2",
+      "source_sha256": "09cecd2c9d46ac43d18fd66b13bf05d04a46a8a2c5665a80b227112151c2fe15",
+      "source": "destination folder (e.g. ``masks/cell_mask_stack``).",
+      "context": "destination folder (e.g. ``masks/cell_mask_stack``).",
+      "translation": "målmapp (till exempel ``masks/cell_mask_stack``)."
+    },
+    {
+      "label": "spacr.logging_util#6",
+      "source_sha256": "cb03c91ed4db5567cec9ec2ce69b9fd51eb022208019876d2faa67f8611772ee",
+      "source": "Third-party libraries that spam INFO records during a spacr pipeline (torch, cellpose, matplotlib, PIL, urllib3, botocore, tensorflow, asyncio) are pinned to WARNING so the log stays useful. Add more to :data:`QUIET_LOGGERS` if a new dependency starts spamming.",
+      "context": "Third-party libraries that spam INFO records during a spacr workflow (torch, cellpose, matplotlib, PIL, urllib3, botocore, tensorflow, asyncio) are pinned to WARNING so the log stays useful. Add more to :data:`QUIET_LOGGERS` if a new dependency starts spamming.",
+      "translation": "Tredjepartsbibliotek som spammar INFO-poster under ett spacr-arbetsflöde (torch, cellpose, matplotlib, PIL, urllib3, botocore, tensorflow, asyncio) fästs till WARNING så att loggen förblir användbar. Lägg till mer till :data:`QUIET_LOGGERS` om ett nytt beroende börjar spamma."
+    },
+    {
+      "label": "spacr.measure.generate_object_dataset#1",
+      "source_sha256": "0c2c1fa333ffca1c15adddde065c7d7d03fe5feacbb53518eae672c758a8b12b",
+      "source": "spaCR's ``merged/`` arrays store the image channels first and then one integer label-mask slice per object class (cell, nucleus, pathogen, organelle). The measurements database records, for every object, its integer ``object_label``, the merged ``.npy`` it came from (``path_name``), its well/field metadata, and its features (e.g. ``cell_area``). This function queries that database for the objects you want, then for each hit slices the object out of its array using ``object_label`` and the class mask, assembles the channels you ask for into an image, and saves a PNG.",
+      "context": "spaCR's ``merged/`` arrays store the image data channels first and then one integer label-mask slice per object class (cell, nucleus, pathogen, organelle). The measurements database records, for every object, its integer ``object_label``, the merged ``.npy`` it came from (``path_name``), its well/microscope field of view metadata, and its features (e.g. ``cell_area``). This function queries that database for the objects you want, then for each hit slices the object out of its array using ``object_label`` and the class mask, assembles the image data channels you ask for into an image, and saves a PNG.",
+      "translation": "spaCR:s ``merged/``-matriser lagrar bilddatakanalerna först och sedan en heltalsetikett-maskskiva per objektklass (cell, kärna, patogen, organell). Mätningsdatabasen registrerar, för varje objekt, dess heltal ``object_label``, den sammanslagna ``.npy`` den kom ifrån (``path_name``), dess brunn/mikroskop synfält metadata, och dess egenskaper (till exempel ``cell_area``). Denna funktion frågar databasen efter de objekt du vill ha, sedan för varje träff skär objektet ur dess array med hjälp av ``object_label`` och klassmasken, monterar bilddatakanalerna du frågar efter till en bild och sparar en PNG."
+    },
+    {
+      "label": "spacr.measure.generate_object_dataset#9",
+      "source_sha256": "8019a3109692fe13a24fa7bcd4710c7e747e43b5f73c3b731e72eb2b0c5d2f71",
+      "source": "raw SQL boolean fragment ANDed onto the query, for anything the shortcuts don't cover (e.g. ``\"cell_eccentricity < 0.8\"``).",
+      "context": "raw SQL boolean fragment ANDed onto the query, for anything the shortcuts don't cover (e.g. ``\"cell_eccentricity < 0.8\"``).",
+      "translation": "rått booleskt SQL-fragment som kombineras med frågan via AND, för allt som genvägarna inte täcker (till exempel ``\"cell_eccentricity < 0.8\"``)."
+    },
+    {
+      "label": "spacr.measure_hooks.PreprocessingContext#1",
+      "source_sha256": "cac05f6745ea775f7fe46aebb4f88fec51a1b3c5aaa664f1a91a606bf000d200",
+      "source": "the field's ``.npy`` stem, e.g. ``plate1_A01_F001``. A plate-wide illumination model keys its per-well gain off this.",
+      "context": "the microscope field of view's ``.npy`` stem, e.g. ``plate1_A01_F001``. A laboratory microplate-wide illumination model indexes its per-well gain using this.",
+      "translation": "mikroskopets synfälts ``.npy``-stam, till exempel ``plate1_A01_F001``. En laboratorium microplate-wide belysningmodell indexerar dess per-brunnförstärkning som använder detta."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#6",
+      "source_sha256": "9d28261bdaab34a143c88fcc3f0c17589cb3115ac9b615ebc10aa48dc7aa6487",
+      "source": "``positive_control`` / ``negative_control`` — well IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
+      "context": "``positive_control`` / ``negative_control`` — microplate sample position IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
+      "translation": "``positive_control`` / ``negative_control`` – provpositions-ID för mikroplattor (till exempel ``'c2'`` / ``'c1'``) används som träningsetiketter."
+    },
+    {
+      "label": "spacr.ml.perform_regression#5",
+      "source_sha256": "3cbffd9106250bf7242c43be6937774faea6df19246cd2e6cc2099d35186cb49",
+      "source": "``dependent_variable`` — column of ``score_data`` to regress (e.g. ``'pred'``, ``'recruitment'``, ``'pathogen_nucleus_shortest_distance'``).",
+      "context": "``dependent_variable`` — column of ``score_data`` to regress (e.g. ``'pred'``, ``'recruitment'``, ``'pathogen_nucleus_shortest_distance'``).",
+      "translation": "``dependent_variable`` — kolumn med ``score_data`` att regressera (till exempel ``'pred'``, ``'recruitment'``, ``'pathogen_nucleus_shortest_distance'``)."
+    },
+    {
+      "label": "spacr.napari_bridge.layer_specs#1",
+      "source_sha256": "f3ce7cd0defd3771afe65b7887bff9a7c10e2b54748f70b8ab3bc5d08b7690c3",
+      "source": "Separated from the call that adds them so the *contents* of the handoff — which array, under which name, at which scale, with no axis reordering — can be asserted with no napari installed. Each dict carries a ``\"kind\"`` naming the ``add_*`` method it belongs to; everything else is keyword arguments for it.",
+      "context": "Separated from the call that adds them so the *contents* of the handoff — which array, under which name, at which scale, with no axis reordering — can be asserted with no napari installed. Each key-value mapping carries a ``\"kind\"`` naming the ``add_*`` method it belongs to; everything else is keyword arguments for it.",
+      "translation": "Separat från samtalet som lägger till dem så att överlämningens *innehåll* — vilken matris, med vilket namn, på vilken skala, med ingen axel ombeställning — kan hävdas med någon napari installerat. Varje nyckel-värde-mappning bär en ``\"kind\"`` som namnger ``add_*``-metoden den tillhör; allt annat är nyckelord argument för det."
+    },
+    {
+      "label": "spacr.object.merge_split_filter_masks#4",
+      "source_sha256": "43d842108a4f46744240de0ae683e8c51fa93844791f34754b6fb3a76f3abbdb",
+      "source": "Dict of pipeline settings; per-object-type suffixes control which operations run (e.g. ``<type>_perimeter_fraction``, ``<type>_intensity_merge``, ``<type>_min_area``).",
+      "context": "Key-value mapping of workflow settings; per-object-type suffixes control which operations run (e.g. ``<type>_perimeter_fraction``, ``<type>_intensity_merge``, ``<type>_min_area``).",
+      "translation": "Nyckel-värde mappning av arbetsflödesinställningar; per-objekt-typ suffix styr vilka operationer som körs (till exempel ``<type>_perimeter_fraction``, ``<type>_intensity_merge``, ``<type>_min_area``)."
+    }
+  ]
+}

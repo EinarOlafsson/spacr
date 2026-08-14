@@ -1,0 +1,384 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "label": "spacr.object_roles.is_segmented#1",
+      "source_sha256": "c912d2c02d72a133e1b6d97d3c3112ba5df8151fe05274aa25ab8ad8bad06ad7",
+      "source": "object kind, e.g. ``\"nucleus\"``. Unknown names are False rather than an error, because callers use this to decide whether to look for a channel setting and an unknown kind simply has none.",
+      "context": "object kind, e.g. ``\"nucleus\"``. Unknown names are False rather than an error, because callers use this to decide whether to look for a channel setting and an unknown kind simply has none.",
+      "translation": "objekttyp, till exempel ``\"nucleus\"``. Okända namn är False snarare än ett fel, eftersom anropare använder detta för att avgöra om de ska leta efter en kanalinställning och en okänd typ helt enkelt inte har någon."
+    },
+    {
+      "label": "spacr.ome_zarr#11",
+      "source_sha256": "3f925d0a6b9e23114027fcf96551e4f0cb8f3f4beba283edbdabbca274b9a5ca",
+      "source": "**2. Units are translated through an explicit table, and an unknown one is refused.** :data:`NGFF_UNIT_TO_SPACR` is the mapping, written out. A unit that is not in it raises :class:`OmeZarrError`. It would be one line to default to ``\"px\"`` instead, and that one line is how a 0.65 µm pixel becomes a 0.65 px pixel and every downstream area comes out wrong by a factor of 10^6 — in a column named ``cell_area`` that still looks entirely reasonable. The error distinguishes the two cases that need different fixes: a unit NGFF has never heard of (the file is wrong), and a legal NGFF unit spaCR has no short token for (convert it, e.g. to ``micrometer``).",
+      "context": "**2. Units are translated through an explicit table, and an unknown one is refused.** :data:`NGFF_UNIT_TO_SPACR` is the mapping, written out. A unit that is not in it throws :class:`OmeZarrError`. It would be one line to default to ``\"px\"`` instead, and that one line is how a 0.65 µm pixel becomes a 0.65 px pixel and every downstream area comes out wrong by a factor of 10^6 — in a column named ``cell_area`` that still looks entirely reasonable. The error distinguishes the two cases that need different fixes: a unit NGFF has never heard of (the file is wrong), and a legal NGFF unit spaCR has no short token for (convert it, e.g. to ``micrometer``).",
+      "translation": "**2. Enheter översätts genom en explicit tabell, och en okänd vägras.** :data:`NGFF_UNIT_TO_SPACR` är mappningen, skriven ut. En enhet som inte är i den kastar :class:`OmeZarrError`. Det skulle vara en linje till standard till ``\"px\"`` i stället, och att en rad är hur en 0,65 µm pixel blir en 2,6 px pixel och varje nedströms område kommer ut fel med en faktor på 10 ^ 6 — i en kolumn som heter ``cell_area`` som fortfarande ser helt rimligt. Felet skiljer mellan två fall som behöver olika rättningar: en enhet som NGFF aldrig har hört talas om (filen är fel), och en laglig NGFF-enhet spaCR som inte har någon kort symbol för (konvertera den, till exempel till ``micrometer``)."
+    },
+    {
+      "label": "spacr.ome_zarr#15",
+      "source_sha256": "8b134af1da1fc9ccbfb5b6ccf0ad7bca447f96d27384c2cbb6f8f0d168cfd2fb",
+      "source": "**0.4 is implemented properly** — it is what essentially all real data is in, and it is zarr-format 2. 0.5 (zarr-format 3, metadata under an ``ome`` key in ``zarr.json``) is *tolerated*: its metadata is parsed in full, and its chunks are decoded for the codec chains the standard library can do (``bytes``/``transpose``/``gzip``/``crc32c``). Anything else routes through the same :func:`require_codec` refusal as v2 does. ``.zgroup`` / ``.zarray`` / ``zarr.json`` and the ``zarr_format`` field are read rather than assumed, and an unsupported ``zarr_format`` is refused by number.",
+      "context": "**0.4 is implemented properly** — it is what essentially all real data is in, and it is zarr-format 2. 0.5 (zarr-format 3, metadata under an ``ome`` structured-data name in ``zarr.json``) is *tolerated*: its metadata is parsed in full, and its chunks are decoded for the codec chains the standard library can do (``bytes``/``transpose``/``gzip``/``crc32c``). Anything else routes through the same :func:`require_codec` refusal as v2 does. ``.zgroup`` / ``.zarray`` / ``zarr.json`` and the ``zarr_format`` field are read rather than assumed, and an unsupported ``zarr_format`` is refused by number.",
+      "translation": "**0.4 är korrekt implementerat** — det är formatet för i stort sett alla verkliga data och använder zarr-format 2. 0.5 (zarr-format 3, med metadata lagrade under nyckeln ``ome`` i ``zarr.json``) *tolereras*: dess metadata tolkas fullständigt och dess block avkodas för de kodekkedjor som standardbiblioteket kan hantera (``bytes``/``transpose``/``gzip``/``crc32c``). Allt annat går genom samma vägran i :func:`require_codec` som v2. ``.zgroup`` / ``.zarray`` / ``zarr.json`` och fältet ``zarr_format`` läses i stället för att antas, och ett ``zarr_format`` som inte stöds avvisas med sitt nummer."
+    },
+    {
+      "label": "spacr.ome_zarr.Level#2",
+      "source_sha256": "c07420ec87c5c675073c8daec0d04ce48d4a503b9d4324a4149b0c99814e54e0",
+      "source": "the dataset path inside the group, e.g. ``\"0\"``.",
+      "context": "the dataset path inside the group, e.g. ``\"0\"``.",
+      "translation": "sökvägen till datamängden i gruppen, till exempel ``\"0\"``."
+    },
+    {
+      "label": "spacr.ome_zarr.Level#5",
+      "source_sha256": "8d57407354ff2fe036b2a84140d05a9984ab4874e88448dca9388c1145c8e15d",
+      "source": "the numpy dtype string as stored, e.g. ``\"<u2\"``. Kept as written, byte order included.",
+      "context": "the numpy dtype string as stored, e.g. ``\"<u2\"``. Kept as written, byte order included.",
+      "translation": "numpy dtype-strängen som den är lagrad, till exempel ``\"<u2\"``. Behålls som skrivna, byteordning inkluderad."
+    },
+    {
+      "label": "spacr.ome_zarr.OmeZarrImage.axis_names#0",
+      "source_sha256": "4fb5e39a3f0ca87202fb81148242a5fc725bb3ee0ff971d1ad8f9c50bfdb7ade",
+      "source": "Axis names in array order, e.g. ``(\"t\", \"c\", \"z\", \"y\", \"x\")``.",
+      "context": "Axis names in array order, e.g. ``(\"t\", \"c\", \"z\", \"y\", \"x\")``.",
+      "translation": "Axelnamn i matrisordning, till exempel ``(\"t\", \"c\", \"z\", \"y\", \"x\")``."
+    },
+    {
+      "label": "spacr.ome_zarr.spacr_unit_to_ngff#1",
+      "source_sha256": "2a340dc0d605bb16715d54a498cb8945ee1e803a98baf076701c8f680f0a8bec",
+      "source": "the spaCR token, e.g. ``\"um\"`` or ``\"px\"``.",
+      "context": "the spaCR token, e.g. ``\"um\"`` or ``\"px\"``.",
+      "translation": "spaCR-token, till exempel ``\"um\"`` eller ``\"px\"``."
+    },
+    {
+      "label": "spacr.omero.PlanePlan#4",
+      "source_sha256": "7a23d68b0e9343e2740f6342c12d0be91cbe06f54b3986e921e973a8f161c310",
+      "source": "the well name, e.g. ``'A01'``.",
+      "context": "the microplate sample position name, e.g. ``'A01'``.",
+      "translation": "mikroplattans provpositionsnamn, till exempel ``'A01'``."
+    },
+    {
+      "label": "spacr.omero.export_tag_annotation#1",
+      "source_sha256": "78899d770929880338831e9529e3d3648d6756741abdfed02a9ada9d25a1f5ad",
+      "source": "See :func:`plan_tag` for why a tag is never edited in place: it is a shared object, and renaming it would relabel every other object carrying it. This is idempotent for an unchanged verdict and additive (with a report) for a changed one, and it never unlinks or deletes.",
+      "context": "See :func:`plan_tag` for why a tag is never edited in place: it is a shared object, and renaming it would relabel every other object carrying it. This is idempotent for an unchanged verdict and additive (with a report) for a changed one, and it never unlinks or deletes.",
+      "translation": "Se :func:`plan_tag` för varför en tagg aldrig redigeras på plats: den är ett delat objekt, och att byta namn på den skulle ommärka alla andra objekt som bär den. Detta är upprepningssäker för en oförändrad dom och additiv (med en rapport) för en ändrad, och det avlänkar eller raderar aldrig."
+    },
+    {
+      "label": "spacr.omero.missing_omero_message#1",
+      "source_sha256": "e891c7fa56dbed6941af1a7c02f6a2c785aa9b1600b4fa9857818625b9194370",
+      "source": "the top-level module that could not be imported, e.g. ``'omero'`` or ``'Ice'``.",
+      "context": "the top-level module that could not be imported, e.g. ``'omero'`` or ``'Ice'``.",
+      "translation": "modulen på högsta nivån som inte kunde importeras, till exempel ``'omero'`` eller ``'Ice'``."
+    },
+    {
+      "label": "spacr.omero.omero_indices#2",
+      "source_sha256": "00922777e01ea7f5ec146505291e798ba908d676422c0d2b90802821fefe5675",
+      "source": "a well name (``'A01'``, ``'aa1'``, ``'AF48'``) or a spaCR ``(rowID, columnID)`` pair already joined, e.g. ``'r1_c1'`` is *not* accepted — pass the well name.",
+      "context": "a microplate sample position name (``'A01'``, ``'aa1'``, ``'AF48'``) or a spaCR ``(rowID, columnID)`` pair already joined, e.g. ``'r1_c1'`` is *not* accepted — pass the microplate sample position name.",
+      "translation": "ett mikroplattprovpositionsnamn (``'A01'``, ``'aa1'``, ``'AF48'``) eller ett spaCR ``(rowID, columnID)``-par som redan är sammanfogat, till exempel ``'r1_c1'`` är *inte* accepterat – skicka namnet på mikroplattans provposition."
+    },
+    {
+      "label": "spacr.omero.plan_tag#3",
+      "source_sha256": "86865c3636b26cebb55e8af432a34cf7f9df3c4a23f2bfb64670f7226f7837af",
+      "source": "the identical verdict is already linked -> :data:`ACTION_UNCHANGED`, nothing is written and the export is idempotent;",
+      "context": "the identical verdict is already linked -> :data:`ACTION_UNCHANGED`, nothing is written and the export is idempotent;",
+      "translation": "den identiska domen är redan länkad -> :data:`ACTION_UNCHANGED`, ingenting skrivs och exporten är upprepningssäker;"
+    },
+    {
+      "label": "spacr.omero.plane_filename#3",
+      "source_sha256": "4488dce958264a9eabc7de7d156bc77c53388a0b63ba780392bd9cecc8f00b40",
+      "source": "canonical well id, e.g. ``'A01'``.",
+      "context": "canonical microplate sample position id, e.g. ``'A01'``.",
+      "translation": "kanonisk mikroplatta prov position id, till exempel ``'A01'``."
+    },
+    {
+      "label": "spacr.pipeline_graph.Node#18",
+      "source_sha256": "2f676885591f879b3a8bfc740f50e5720c2663b577a5bde973c091f1bb47f998",
+      "source": "the matching machine codes, e.g. ``\"upstream-newer\"``.",
+      "context": "the matching machine codes, e.g. ``\"upstream-newer\"``.",
+      "translation": "matchande maskinkoder, till exempel ``\"upstream-newer\"``."
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#7",
+      "source_sha256": "d5a1ac80dceb2da05694d37fc60468aff2c4187d20b5abf256f14fa9d3d7e637",
+      "source": "the intermediate batch is compressed to an NPZ under ``npz_dir`` on every batch regardless; this flag only decides whether that file and the scratch folder survive the run.",
+      "context": "the intermediate batch is compressed to an NPZ under ``npz_dir`` on every batch regardless; this flag only decides whether that file and the scratch folder survive the processing session.",
+      "translation": "den mellanliggande satsen komprimeras till en NPZ i ``npz_dir`` för varje sats oavsett, den här flaggan bestämmer bara om filen och arbetsmappen överlever bearbetningssessionen."
+    },
+    {
+      "label": "spacr.plate_qc.well_id#0",
+      "source_sha256": "9ee8deb886c019a053db32ca363828c74a9d3f488218eb391c5b07ddbf6c74ba",
+      "source": "Return the canonical well name, e.g. ``(3, 7)`` → ``'C07'``.",
+      "context": "Return the canonical microplate sample position name, e.g. ``(3, 7)`` → ``'C07'``.",
+      "translation": "Returnera det kanoniska namnet på mikroplattans provposition, till exempel ``(3, 7)`` → ``'C07'``."
+    },
+    {
+      "label": "spacr.plot.create_grouped_plot#1",
+      "source_sha256": "53d2c735de6008c72a2b73b46d69a0df323fc09e42db21b3259a4f837a6cf706",
+      "source": "Runs D'Agostino normality per group, chooses the appropriate pairwise test (t-test / Mann-Whitney / ANOVA / Kruskal), adds Tukey HSD post-hoc when appropriate, renders the requested plot type and optionally persists both plot and stats to ``output_dir``.",
+      "context": "Runs D'Agostino normality per group, chooses the appropriate pairwise test (t-test / Mann-Whitney / ANOVA / Kruskal), adds Tukey HSD post-hoc when appropriate, renders the requested plot type and optionally persists both plot and stats to ``output_dir``.",
+      "translation": "Kör D'Agostino normalitet per grupp, väljer lämplig parvis test (t-test / Mann-Whitney / ANOVA / Kruskal), lägger Tukey HSD post-hoc när det är lämpligt, gör den begärda plot typ och eventuellt kvarstår både tomt och statistik till ``output_dir``."
+    },
+    {
+      "label": "spacr.plot.spacrGraph#1",
+      "source_sha256": "71a91c1394f8d354cd6bb30e8bae05a037f562cd74dde1d7468ad27b5c5161d6",
+      "source": "Wraps preprocessing (aggregation by object / well / plate), normality and variance testing, group-wise pairwise stats, and plot rendering (bar / jitter / box / violin / jitter_box / jitter_bar / line / line_std) in a single object whose output can optionally be persisted alongside a CSV of stats.",
+      "context": "Wraps preprocessing (aggregation by object / microplate sample position / laboratory microplate), normality and variance testing, group-wise pairwise stats, and plot rendering (bar / jitter / box / violin / jitter_box / jitter_bar / line / line_std) in a single object whose output can optionally be persisted alongside a CSV of stats.",
+      "translation": "Omfattar förbehandling (aggregering av objekt / mikroplattans provposition / laboratoriemikroplatta), normalitets- och variansprovning, gruppvis parvis statistik, och diagramritning (stapel / punktförskjutning / låda / violin / jitter_box / jitter_bar / linje / line_std) i ett enda objekt vars utgång kan eventuellt kvarstå tillsammans med en CSV av statistik."
+    },
+    {
+      "label": "spacr.plot.visualize_cellpose_masks#1",
+      "source_sha256": "91e2327728ac8c7a269d26fd7ab054231772f6f54817f108a63f48f3ed653849",
+      "source": "Handy for sanity-checking the masks produced by :func:`spacr.core.preprocess_generate_masks` (e.g. compare the cell, nucleus and pathogen masks of the same field, or two runs against each other). Each mask is rendered with a random-color palette so neighbouring objects stay distinguishable.",
+      "context": "Handy for sanity-checking the masks produced by :func:`spacr.core.preprocess_generate_masks` (e.g. compare the cell, nucleus and pathogen masks of the same microscope field of view, or two runs against each other). Each mask is rendered with a random-color palette so neighbouring objects stay distinguishable.",
+      "translation": "Praktiskt för att kontrollera de masker som produceras av :func:`spacr.core.preprocess_generate_masks` (till exempel jämföra cell, kärna och patogen masker av samma mikroskop synfält, eller två körningar mot varandra). Varje mask renderas med en slumpmässig färgpalett så att intilliggande objekt förblir urskiljbara."
+    },
+    {
+      "label": "spacr.ports.Port#1",
+      "source_sha256": "cc2cc552c50730186765d52dabb86b9f5c2c8fe54ba9321174dd6d37ac0d97b0",
+      "source": "the vocabulary term, e.g. :data:`MERGED_ARRAYS`. Ports match across modules by kind, which is what makes auto-chaining possible.",
+      "context": "the vocabulary term, e.g. :data:`MERGED_ARRAYS`. Ports match across modules by kind, which is what makes auto-chaining possible.",
+      "translation": "ordförrådets term, till exempel :data:`MERGED_ARRAYS`. Portar matchar över moduler efter typ, vilket är vad som gör auto-chaining möjligt."
+    },
+    {
+      "label": "spacr.projects.ProjectSummary#8",
+      "source_sha256": "f9533d353660fb602acf54543f975532d5b1e408c0f65bcb69b59dbb64b7fb26",
+      "source": "every byte under the root, from :func:`spacr.data_manager.scan_project`.",
+      "context": "every byte under the root, from :func:`spacr.data_manager.scan_project`.",
+      "translation": "varje byte i rotkatalogen, från :func:`spacr.data_manager.scan_project`."
+    },
+    {
+      "label": "spacr.projects.StaleArtifact#8",
+      "source_sha256": "1698bb758b7cdbf5e0eff15f077245348708c723b15b56be3f932cbefbef70cf",
+      "source": "the machine cause codes, e.g. ``\"upstream-newer\"``.",
+      "context": "the machine cause codes, e.g. ``\"upstream-newer\"``.",
+      "translation": "maskinens orsakskoder, till exempel ``\"upstream-newer\"``."
+    },
+    {
+      "label": "spacr.qt.ai.issue_report.file_issue#0",
+      "source_sha256": "bbdb8bfac3f99fa7af2e70739125ad7f88eaaae6db6d231eef7b1b596094fc68",
+      "source": "Legacy end-to-end helper retained for API callers and tests.",
+      "context": "Legacy end-to-end helper retained for API callers and tests.",
+      "translation": "Äldre från början till slut-hjälpare behålls för API-anropare och tester."
+    },
+    {
+      "label": "spacr.qt.ai.providers#0",
+      "source_sha256": "4b4f4c864a6d6a54405a9db239b604eece859287d4ab76d60f77fcfa52db6998",
+      "source": "Provider abstraction — one class per AI vendor. Each shells out to the vendor's own coding-agent CLI so authentication piggy-backs on the user's chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google account) — no separate API billing.",
+      "context": "Provider abstraction — one class per AI vendor. Each shells out to the vendor's own coding-agent CLI so authentication piggy-backs on the user's chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google account) — no separate API billing.",
+      "translation": "Providerabstraktion – en klass per AI-leverantör. Varje skal ut till leverantörens egen kodning-agent CLI så autentisering piggy-backs på användarens chatt prenumeration (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google-konto) — ingen separat API fakturering."
+    },
+    {
+      "label": "spacr.qt.ai.settings#3",
+      "source_sha256": "4febb54dcb3f9f43a31b81c460d185c6afbc19865ec18485267d2224fcf60c6b",
+      "source": "``system_prompt`` — the spaCR-aware persona string. Users can edit it in the Settings tab of the Providers dialog to change how the assistant frames answers (e.g. shorter, or with a different emphasis). :func:`reset_system_prompt` restores the default.",
+      "context": "``system_prompt`` — the spaCR-aware persona string. Users can edit it in the Settings tab of the Providers dialog to change how the assistant frames answers (e.g. shorter, or with a different emphasis). :func:`reset_system_prompt` restores the default.",
+      "translation": "``system_prompt`` — den spaCR-medvetna persona-strängen. Användare kan redigera den på fliken Inställningar i dialogrutan Leverantörer för att ändra hur assistenten ramar in svar (till exempel kortare, eller med en annan betoning). :func:`reset_system_prompt` återställer standardinställningen."
+    },
+    {
+      "label": "spacr.qt.command_palette#9",
+      "source_sha256": "b29e3f1597423bee4271d197da73e23f34b39e2c1d2d035f1f5bad8eb8cae1f0",
+      "source": "Fuzzy match is a plain substring case-insensitive scan — good enough for the ~30 commands the palette will ever hold.",
+      "context": "Fuzzy match is a plain substring case-insensitive scan — good enough for the ~30 commands the palette will ever hold.",
+      "translation": "Fuzzy-matchning är en vanlig delsträngs- skiftlägesokänslig sökning — tillräckligt bra för ~30 kommandon paletten någonsin kommer att hålla."
+    },
+    {
+      "label": "spacr.qt.command_palette.Command#4",
+      "source_sha256": "84945d3491bb41501a2a337aaf611f5f9725f86fb4912eca5b9af7dd3d748d0f",
+      "source": "extra strings the fuzzy match will search alongside the label (e.g. \"mask cellpose\" so typing \"cellpose\" finds the Mask app).",
+      "context": "extra strings the fuzzy match will search alongside the label (e.g. \"mask cellpose\" so typing \"cellpose\" finds the Mask app).",
+      "translation": "extra strängar som den fuzzy matchningen kommer att söka efter tillsammans med etiketten (till exempel \"mask cellpose\" så att skriva \"cellpose\" hittar Mask app)."
+    },
+    {
+      "label": "spacr.qt.dnd.choose_one_dialog#4",
+      "source_sha256": "818b21673e6243192518aca64a05871eae97e99fc74ab96acd8dde8f3a50568e",
+      "source": "what is being asked, e.g. \"Which one should be loaded?\"",
+      "context": "what is being asked, e.g. \"Which one should be loaded?\"",
+      "translation": "vad som efterfrågas, till exempel \"Vilken ska laddas?\""
+    },
+    {
+      "label": "spacr.qt.dnd.install_dropzone#1",
+      "source_sha256": "609c17ccf9e9d59a98e3d35d0583f406e36503cfc764c5f6998c51020c9ad8e5",
+      "source": "Typically called from ``AppScreen.__init__``: ``target`` is ``self`` and ``screen`` is also ``self``. Splitting them lets non-AppScreen widgets install a dropzone that acts on a different owner (e.g. a specific input row).",
+      "context": "Typically called from ``AppScreen.__init__``: ``target`` is ``self`` and ``screen`` is also ``self``. Splitting them lets non-AppScreen widgets install a dropzone that acts on a different owner (e.g. a specific input row).",
+      "translation": "Vanligtvis kallas från ``AppScreen.__init__``: ``target`` är ``self`` och ``screen`` är också ``self``. Dela dem låter icke-AppScreen widgets installera en dropzone som verkar på en annan ägare (till exempel en specifik indatarad)."
+    },
+    {
+      "label": "spacr.qt.dnd.install_for#4",
+      "source_sha256": "94b15f9fb13447a1bbde76f4c608b9eccdae17981c396853426977a9c335e326",
+      "source": "the registered app key, e.g. ``\"graph_builder\"``.",
+      "context": "the registered app key, e.g. ``\"graph_builder\"``.",
+      "translation": "den registrerade appnyckeln, till exempel ``\"graph_builder\"``."
+    },
+    {
+      "label": "spacr.qt.folder_metadata.FolderTemplate#3",
+      "source_sha256": "48e73a3c3419426eedd4f6fb894a1ab4e8fa000db9826d701a245f9d26899231",
+      "source": "True if the LEAF filename carries the channel id (e.g. ``ch1.tif``).",
+      "context": "True if the LEAF filename carries the channel id (e.g. ``ch1.tif``).",
+      "translation": "True om LEAF-filnamnet innehåller kanalens id (till exempel ``ch1.tif``)."
+    },
+    {
+      "label": "spacr.qt.imagery#7",
+      "source_sha256": "62638c40d14eb7365bfd31f4d2db4d3ad0c5628798985727dd4e09dd7eb64d9f",
+      "source": "each screen size is rendered **once** and cached as JPEG under ``~/.spacr/backgrounds``; and",
+      "context": "each screen size is rendered **once** and cached as JPEG under ``~/.spacr/backgrounds``; and",
+      "translation": "varje skärmstorlek renderas **en gång** och cachelagras som JPEG i ``~/.spacr/backgrounds``; och"
+    },
+    {
+      "label": "spacr.qt.job_runner.JobRunner.cancel#1",
+      "source_sha256": "a2aab2bffad2798812e71df24837c5ea964aaef1afae3351cf4195e8da257197",
+      "source": "The threads are asked to stop and are then left to retire themselves; they are *not* joined, because joining on the GUI thread is the freeze this class exists to remove. Their results are dropped on arrival by the generation check, so nothing reaches a handler that may be about to be destroyed.",
+      "context": "The independent execution paths are asked to stop and are then left to retire themselves; they are *not* joined, because joining on the main GUI execution path is the freeze this class exists to remove. Their results are dropped on arrival by the generation check, so nothing reaches a handler that may be about to be destroyed.",
+      "translation": "De oberoende exekveringsvägarna uppmanas att stoppa och lämnas sedan att pensionera sig själva; de är *inte* sammanfogade, eftersom sammanfogning på den huvudsakliga GUI exekveringsvägen är den frysning som denna klass existerar för att ta bort. Deras resultat släpps vid ankomsten av generationskontrollen, så ingenting når en hanterare som kan vara på väg att förstöras."
+    },
+    {
+      "label": "spacr.qt.mask_engine.erase_object_at#0",
+      "source_sha256": "0d5eef0841d1b4c95432d14389e98be571a94fb6c44382a09feb14c2d488256a",
+      "source": "Zero out the object under (x, y). No-op if no object there.",
+      "context": "Zero out the object under (x, y). No-op if no object there.",
+      "translation": "Nollställ objektet vid (x, y). Ingen åtgärd om inget objekt finns."
+    },
+    {
+      "label": "spacr.qt.preferences.set_ambient_animation#2",
+      "source_sha256": "0c96947447357b0d7714d00cff950968fc960d6a2c893afcefb8540739bd03be",
+      "source": "Picking None does **not** disturb the stored theme's palette, so switching back later restores exactly the animation that was there.",
+      "context": "Picking None does **not** disturb the stored theme's palette, so switching back later restores exactly the animation that was there.",
+      "translation": "Att välja None gör att **inte** stör det lagrade temats palett, så att byta tillbaka senare återställer exakt den animering som fanns där."
+    },
+    {
+      "label": "spacr.qt.resource_cleanup#1",
+      "source_sha256": "f2c0680e6f3215e3c933f31f9789a721ca25e288b489afca22fc98d9d3b258c1",
+      "source": "Four buttons in Preferences — **clear RAM**, **clear VRAM**, **clear CPU**, **check disk space** — and the two performance modes that press them for you. This module is what they call.",
+      "context": "Four buttons in Preferences — **clear RAM**, **clear VRAM**, **clear CPU**, **check disk space** — and the two performance modes that press them for you. This module is what they call.",
+      "translation": "Fyra knappar i Inställningar — **rensa RAM**, **rensa VRAM**, **rensa CPU**, **kontrollera diskutrymme** — och de två prestandalägen som trycker på dem för dig. Denna modul är vad de kallar."
+    },
+    {
+      "label": "spacr.qt.run#1",
+      "source_sha256": "0b9c9c5217abb532b449c8d976e24e1e1678889237588642fc0aba196734e032",
+      "source": "Args: argv: Optional CLI arguments. The first positional element, if present, opens directly into that app screen key (e.g. `spacr-qt mask`).",
+      "context": "Args: argv: Optional CLI arguments. The first positional element, if present, opens directly into that app application view key (e.g. `spacr-qt mask`).",
+      "translation": "Args: argv: Valfria CLI-argument. Det första positionella elementet, om sådant finns, öppnas direkt i appens visningsnyckel (till exempel `spacr-qt mask`)."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.ModuleHeader#4",
+      "source_sha256": "0d9bc2a9601dd2b6c5b6ffe2f02ef36b52f6f9a3f29527dab209be36d1a8d45b",
+      "source": "the **instruction** under the name, one muted line saying what to do on this page.",
+      "context": "the **instruction** under the name, one muted line saying what to do on this page.",
+      "translation": "**instruktionen** under namnet, en tyst rad som säger vad du ska göra på den här sidan."
+    },
+    {
+      "label": "spacr.qt.screens.classifier_evaluation#0",
+      "source_sha256": "5cc03935f6dfa2f4b29a28a1741636a5f47b03ce72c057dc61baa0bb6a4f4a02",
+      "source": "Classifier Evaluation workbench for out-of-fold result bundles.",
+      "context": "Machine-learning classification model Evaluation workbench for out-of-fold result bundles.",
+      "translation": "Klassificeringsmodell för maskininlärning Utvärderingsverktyg för utanför vikningen-resultatbuntar."
+    },
+    {
+      "label": "spacr.qt.screens.hyperparam.parse_values#1",
+      "source_sha256": "f1ae64135a1a05ad8113bacb666fdbb3b36cf8156eb281e62020be2be5ed7601",
+      "source": "the raw field contents, e.g. ``\"5, 15, 50\"``.",
+      "context": "the raw field contents, e.g. ``\"5, 15, 50\"``.",
+      "translation": "det råa fältinnehållet, till exempel ``\"5, 15, 50\"``."
+    },
+    {
+      "label": "spacr.qt.screens.project_browser#5",
+      "source_sha256": "2aefb4219d26dff0c9900f9d98713f98a63c40ea87c7707434da3b7f0a01ec18",
+      "source": "**The scan never blocks the window.** Walking a plate folder is tens of thousands of ``stat`` calls, and doing it on the GUI thread is a frozen application for however long the filesystem takes. Everything goes through :class:`spacr.qt.job_runner.JobRunner`, whose completion handlers here are **bound methods** — read that module's docstring for what a closure connected to ``thread.finished`` costs. The background activity spinner follows the run registry on its own, so nothing here has to drive it.",
+      "context": "**The scan never blocks the window.** Walking a plate folder is tens of thousands of ``stat`` calls, and doing it on the main GUI execution path is a frozen application for however long the filesystem takes. Everything goes through :class:`spacr.qt.job_runner.JobRunner`, whose completion handlers here are **bound methods** — read that module's docstring for what a closure connected to ``thread.finished`` costs. The background activity spinner follows the processing session registry on its own, so nothing here has to drive it.",
+      "translation": "**Skanningen blockerar aldrig fönstret.** Att gå igenom en plattmapp är tiotusentals ``stat``-anrop, och att göra det på den huvudsakliga GUI-körningsvägen är en frusen applikation så länge filsystemet tar. Allt går genom :class:`spacr.qt.job_runner.JobRunner`, vars slutförande hanterare här är **bundna metoder** — läs den modulen docstring för vad en stängning ansluten till ``thread.finished`` kostar. Bakgrundsaktiviteten spinner följer behandlingssessionsregistret på egen hand, så inget här behöver driva det."
+    },
+    {
+      "label": "spacr.qt.settings_diff.setting_category#1",
+      "source_sha256": "8d24893b0c0451a93dc053781de8cfca3c0c0930ea563f5ac88b3ad8502e2c28",
+      "source": "a settings key, e.g. ``\"cell_diameter\"``.",
+      "context": "a setting name, e.g. ``\"cell_diameter\"``.",
+      "translation": "ett inställningsnamn, till exempel ``\"cell_diameter\"``."
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar#0",
+      "source_sha256": "3f5acd9116b1de17f89bce83675535df50a2d81adcefaa70e5521b42283895a8",
+      "source": "Search box, Modified filter, Essentials/All switch, and a count line.",
+      "context": "Search field, Modified filter, Essentials/All switch, and result count.",
+      "translation": "Sökfält, ändrat filter, växling mellan Grundläggande/Alla och resultaträkning."
+    },
+    {
+      "label": "spacr.qt.space#13",
+      "source_sha256": "982d5146ac4f5f252f82b4d9ff09a5552dde03c7a4725c9388aa388d40e899ee",
+      "source": ":mod:`spacr.qt.imagery` has always run every photographic master through :func:`spacr.qt.imagery.solve_dim` against :func:`spacr.qt.imagery.exposure_target` — the brightest a bare window background may be before white text on it drops under WCAG AA. The generated sky never went through it, and it showed: measured at 1440x900, the brightest text-line-sized region of the ``galaxy`` sky was 0.4879 against a 0.0586 limit (8.3x over), ``sun`` 0.8201 (14.0x) and ``stars`` 0.5041 (8.6x). Bare white text over that measured 1.20-1.96:1 where 4.5:1 is required — the \"AI\" toggle in the title bar sat on the sun's halo. :func:`render` now solves it, and :func:`legibility` reports the same measured dict :func:`spacr.qt.imagery.legibility` returns for a photograph.",
+      "context": ":mod:`spacr.qt.imagery` has always run every photographic master through :func:`spacr.qt.imagery.solve_dim` against :func:`spacr.qt.imagery.exposure_target` — the brightest a bare window background may be before white text on it drops under WCAG AA. The generated sky never went through it, and it showed: measured at 1440x900, the brightest text-line-sized region of the ``galaxy`` sky was 0.4879 against a 0.0586 limit (8.3x over), ``sun`` 0.8201 (14.0x) and ``stars`` 0.5041 (8.6x). Bare white text over that measured 1.20-1.96:1 where 4.5:1 is required — the \"AI\" toggle in the title bar sat on the sun's halo. :func:`render` now solves it, and :func:`legibility` reports the same measured key-value mapping :func:`spacr.qt.imagery.legibility` returns for a photograph.",
+      "translation": ":mod:`spacr.qt.imagery` har alltid kört varje fotografiskt original genom :func:`spacr.qt.imagery.solve_dim` mot :func:`spacr.qt.imagery.exposure_target` — den högsta ljusstyrkan en bar fönsterbakgrund får ha innan vit text understiger WCAG AA. Den genererade himlen gick aldrig genom detta, vilket syntes: vid 1440x900 mättes den ljusaste regionen i textradhöjd i himlen ``galaxy`` till 0.4879 mot gränsen 0.0586 (8.3x över), ``sun`` till 0.8201 (14.0x) och ``stars`` till 0.5041 (8.6x). Bar vit text över dessa områden gav 1.20-1.96:1 där 4.5:1 krävs — reglaget \"AI\" i titelraden låg på solens halo. :func:`render` löser nu detta, och :func:`legibility` rapporterar samma uppmätta nyckel-värde-mappning som :func:`spacr.qt.imagery.legibility` returnerar för ett fotografi."
+    },
+    {
+      "label": "spacr.qt.synthetic#7",
+      "source_sha256": "320ccab98da3358b63ad31a79a98865e07a265cb6c9abb4afcccfc863abcba5c",
+      "source": "Settings CSVs are written in the two-column ``Key,Value`` format, the first of the header pairs `spacr.qt.screens.app_screen.AppScreen ._load_settings_csv` tries, so the \"Import settings…\" button restores every value into the form. Reading one straight from Python means naming the columns — ``load_settings(path, setting_key=\"Key\", setting_value=\"Value\")`` — because `spacr.utils.load_settings` *defaults* to the other spelling (``setting_key``/``setting_value``, what `spacr.io.save_settings_to_db` writes) and raises rather than guessing.",
+      "context": "Settings CSVs are written in the two-column ``Key,Value`` format, the first of the header pairs `spacr.qt.screens.app_screen.AppScreen ._load_settings_csv` tries, so the \"Import settings…\" button restores every value into the form. Reading one straight from Python means naming the columns — ``load_settings(path, setting_key=\"Key\", setting_value=\"Value\")`` — because `spacr.utils.load_settings` *defaults* to the other spelling (``setting_key``/``setting_value``, what `spacr.io.save_settings_to_db` writes) and raises rather than guessing.",
+      "translation": "Inställnings-CSV-filer skrivs i tvåkolumnsformatet ``Key,Value``, det första av rubrikparen försöker `spacr.qt.screens.app_screen.AppScreen ._load_settings_csv`, så knappen \"Import settings…\" återställer varje värde till formuläret. Att läsa en direkt från Python innebär att namnge kolumnerna — ``load_settings(path, setting_key=\"Key\", setting_value=\"Value\")`` — eftersom `spacr.utils.load_settings` *som standard använder* den andra stavningen (``setting_key``/``setting_value``, vad `spacr.io.save_settings_to_db` skriver) och höjer istället för att gissa."
+    },
+    {
+      "label": "spacr.qt.theme.palette_for#1",
+      "source_sha256": "60d56f7a808cfde345719d6215f5124de5ec0c36438f7cbfcb64f4e354d41f0e",
+      "source": "``theme`` is one of :data:`THEMES`; anything else (including ``\"system\"``, which the caller is expected to have resolved) falls back to the dark palette. The returned dict always carries every theme-invariant key from :data:`CONSTANT_ROLES` so callers can hit e.g. ``palette_for(t)[\"button_accent\"]`` and know the value is the same across themes.",
+      "context": "``theme`` is one of :data:`THEMES`; anything else (including ``\"system\"``, which the caller is expected to have resolved) falls back to the dark palette. The returned key-value mapping always carries every theme-invariant structured-data name from :data:`CONSTANT_ROLES` so callers can hit e.g. ``palette_for(t)[\"button_accent\"]`` and know the value is the same across themes.",
+      "translation": "``theme`` är en av :data:`THEMES`; allt annat (inklusive ``\"system\"``, som anroparen förväntas ha löst) faller tillbaka till den mörka paletten. Den returnerade nyckel-värde mappningen bär alltid varje tema-invariant strukturerad-data namn från :data:`CONSTANT_ROLES` så att anropare kan träffa till exempel ``palette_for(t)[\"button_accent\"]`` och vet att värdet är detsamma i alla teman."
+    },
+    {
+      "label": "spacr.qt.tutorial.engine#2",
+      "source_sha256": "9e4fcda7a23c67f193054e37680fb9f0bb17a561b9020096d46ffe5265db86c2",
+      "source": "1. Synthesize each Step's narration through Piper → WAV, know duration 2. Spin up the MainWindow (on real DISPLAY or under Xvfb) at 1920x1080 3. Walk through the Steps, capturing a clean screenshot only when a scripted action changes the UI. Build 30 fps video frames from those cached keyframes while a circular focus marker animates to the target and a spotlight dims everything except the highlighted widget. A step can opt into live capture when the app itself is genuinely animated. 4. Concatenate all step WAVs → one audio track 5. `ffmpeg -framerate 30 -i frames/%06d.png -i audio.wav ... out.mp4` 6. Emit matching .srt sidecar",
+      "context": "1. Synthesize each Step's narration through Piper → WAV, know duration 2. Spin up the MainWindow (on real DISPLAY or under Xvfb) at 1920x1080 3. Walk through the Steps, capturing a clean screenshot only when a scripted action changes the UI. Build 30 fps video frames from those cached keyframes while a circular focus marker animates to the target and a spotlight dims everything except the highlighted widget. A step can opt into live capture when the app itself is genuinely animated. 4. Concatenate all step WAVs → one audio track 5. `ffmpeg -framerate 30 -i frames/%06d.png -i audio.wav ... out.mp4` 6. Emit matching .srt sidecar",
+      "translation": "1. Syntetisera varje stegs berättarröst med Piper → WAV och fastställ längden 2. Starta MainWindow (på en verklig DISPLAY eller med Xvfb) i 1920x1080 3. Gå igenom stegen och ta en ren skärmbild endast när en skriptad åtgärd ändrar UI. Bygg videobildrutor med 30 fps från de cachade nyckelbilderna medan en cirkulär fokusmarkör animeras mot målet och en strålkastare tonar ned allt utom den markerade komponenten. Ett steg kan välja direktinspelning när själva appen verkligen är animerad. 4. Sammanfoga alla WAV-filer för stegen → ett ljudspår 5. `ffmpeg -framerate 30 -i frames/%06d.png -i audio.wav ... out.mp4` 6. Skapa en matchande .srt-sidofil"
+    },
+    {
+      "label": "spacr.qt.verbose_logger#2",
+      "source_sha256": "3cb971139ac08ddadbc5b8c20fced6032dd6b608a268d5e2b0d71a7fcde7cbb7",
+      "source": "The handler is a lazy module-level singleton so multiple :func:`apply_verbose_logging` calls (e.g. every time the Preferences dialog is saved) don't stack up handlers or leak references. Turning verbose off leaves the handler attached but silent — cheaper than tearing it down and rebuilding it, and safer for cases where a log record fires mid-toggle.",
+      "context": "The handler is a lazy module-level singleton so multiple :func:`apply_verbose_logging` calls (e.g. every time the Preferences dialog is saved) don't stack up handlers or leak references. Turning verbose off leaves the handler attached but silent — cheaper than tearing it down and rebuilding it, and safer for cases where a log record fires mid-toggle.",
+      "translation": "Hanteraren är en lat singleton på modulnivå så flera :func:`apply_verbose_logging`-anrop (till exempel varje gång dialogrutan Inställningar sparas) inte stapla upp hanterare eller läcka referenser. Att stänga av verbose lämnar hanteraren ansluten men tyst — billigare än att riva ner den och bygga om den, och säkrare för fall där en loggpost utlöses mitt i växlingen."
+    },
+    {
+      "label": "spacr.qt.verbose_logger.log_button_press#1",
+      "source_sha256": "8fc5d50fd46c4431eb0156f72dfe895f5f325f7687301d9277d195fd167e48f0",
+      "source": "Wire this from Qt slot handlers so the console shows exactly which button the user hit, with any relevant context values (e.g. the current settings dict on a Run press).",
+      "context": "Wire this from Qt slot handlers so the console shows exactly which button the user hit, with any relevant context values (e.g. the current settings key-value mapping on a processing session press).",
+      "translation": "Tråd detta från Qt slot hanterare så att konsolen visar exakt vilken knapp användaren slog, med alla relevanta kontextvärden (till exempel de aktuella inställningarnas nyckel-värde-mappning under en bearbetningssession tryck)."
+    },
+    {
+      "label": "spacr.qt.widgets.ambient#5",
+      "source_sha256": "53164f80eb49c0a0393380b4344213886193dfcecd29c659ebebc155a713088f",
+      "source": "``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``ripple`` Concentric rings expanding out of three fixed sources and fading as they grow, like rain on water. Soft-edged, so it never reads as line work. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`. ``bokeh`` Out-of-focus points of light, the way a fluorescence field looks off the focal plane: an aperture image is a *disc with a bright rim*, not a Gaussian smudge, and the ones further out of focus are larger and flatter. ``cells`` Cells drifting through the field, turning as they go — a soft body, a slightly brighter membrane where the edge is seen nearly edge-on, and a distinctly brighter nucleus set off centre.",
+      "context": "``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``ripple`` Concentric rings expanding out of three fixed sources and fading as they grow, like rain on water. Soft-edged, so it never reads as line work. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`. ``bokeh`` Out-of-focus points of light, the way a fluorescence field looks off the focal image layer: an aperture image is a *disc with a bright rim*, not a Gaussian smudge, and the ones further out of focus are larger and flatter. ``cells`` Cells drifting through the field, turning as they go — a soft body, a slightly brighter membrane where the edge is seen nearly edge-on, and a distinctly brighter nucleus set off centre.",
+      "translation": "``aurora`` Tre överlappande gardiner av lodräta strålar som veckas längs sin egen längd. Vecken är vandrande vågor — flera överlagrade frekvenser längs bågen — med ljusstyrkeökningar enligt ett separat schema, en skarp nedre kant, en diffus ovansida och norrskenets verkliga lodräta färgordning: grönt genom kroppen, rött högt upp och en violett frans undertill. ``ripple`` Koncentriska ringar som växer från tre fasta källor och bleknar medan de växer, som regn på vatten. Kanterna är mjuka så att de aldrig ser ut som linjeteckningar. ``drift`` Ett långsamt stjärnfält i tre parallaxlager: små, svaga och långsamma stjärnor bakom; större, ljusare och snabbare framför. Det enda skarpa temat. Det rör sig uppåt, nedåt eller åt alla håll — se :data:`DRIFT_DIRECTIONS`. ``bokeh`` Oskärpepunkter av ljus, så som ett fluorescensfält ser ut utanför fokusplanet: en bländarbild är en *skiva med ljus kant*, inte en Gaussisk fläck, och punkter längre ur fokus är större och plattare. ``cells`` Celler driver genom fältet och vrider sig på vägen — en mjuk kropp, ett något ljusare membran där kanten ses nästan från sidan och en tydligt ljusare kärna placerad utanför mitten."
+    },
+    {
+      "label": "spacr.qt.widgets.class_editor.ClassEditorWidget.set_basis#1",
+      "source_sha256": "fba5de1491752ca23e97658046f1d6086782cdca98fde7604ebd32d9b1abb56a",
+      "source": "Under metadata these become plate / row / column / field / well, which is what replaces location_column plus the two control settings.",
+      "context": "Under metadata these become laboratory microplate / row / column / microscope field of view / microplate sample position, which is what replaces location_column plus the two control settings.",
+      "translation": "Med metadata blir dessa laboratoriemikroplatta / rad / kolumn / mikroskopiskt synfält / mikroplattans provposition, vilket är vad som ersätter location_column plus de två kontrollinställningarna."
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker#7",
+      "source_sha256": "aade65e5a0d1e1fb9b9a66205a84762226317d03caa0fbb840eb376a09cdcc4e",
+      "source": "**Read-only.** Opening the picker reads column names and nothing else. The connection is ``file:…?mode=ro`` plus ``PRAGMA query_only = ON`` — the same pair :mod:`spacr.qt.screens.db_browser` and :mod:`spacr.agreement` use — so SQLite itself refuses a write. The dialog never creates a column: it returns a *name*, and the write path that owns creation (``annotate_engine.ensure_annotation_column``, which does it lazily with ``ALTER TABLE``) stays where it is.",
+      "context": "**Read-only.** Opening the picker reads column names and nothing else. The connection is ``file:…?mode=ro`` plus ``PRAGMA query_only = ON`` — the same pair :mod:`spacr.qt.screens.db_browser` and :mod:`spacr.agreement` use — so SQLite itself refuses a write. The dialog never creates a column: it returns a *name*, and the write path that owns creation (``annotate_engine.ensure_annotation_column``, which does it lazily with ``ALTER TABLE``) stays where it is.",
+      "translation": "**Skrivskyddad.** När väljaren öppnas läses kolumnnamn och inget annat. Anslutningen är ``file:…?mode=ro`` plus ``PRAGMA query_only = ON`` — samma par :mod:`spacr.qt.screens.db_browser` och :mod:`spacr.agreement` användning — så SQLite själv vägrar en skrivning. Dialogrutan skapar aldrig en kolumn: den returnerar en *name*, och skrivvägen som äger skapandet (``annotate_engine.ensure_annotation_column``, som gör det lat med ``ALTER TABLE``) stannar där den är."
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.ColumnPickerDialog#7",
+      "source_sha256": "aa8d9f4db150d0760a7cdbed1669ef33baaa8c647968353849d4899ff7aa2513",
+      "source": "table to preselect (e.g. ``png_list`` for annotations).",
+      "context": "table to preselect (e.g. ``png_list`` for annotations).",
+      "translation": "tabell som ska förinställas (till exempel ``png_list`` för anteckningar)."
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.append_stdout#0",
+      "source_sha256": "aa8125fb8e78237a10dad01f03bdfbf2c439de1e1c593081ff34e82a75817a75",
+      "source": "Append pipeline output as blue text under a 'spaCR output' banner.",
+      "context": "Append workflow output as blue text under a 'spaCR output' banner.",
+      "translation": "Lägg till arbetsflödesutdata som blå text nedanför en 'spaCR output'-banner."
+    }
+  ]
+}

@@ -1,0 +1,384 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.console_panel.get_split_state#1",
+      "source_sha256": "63ecf3f0da3628ce1b0cd71afe418afc9d80549a14c64db44d8cdf53422e203e",
+      "source": "the screen's app key, e.g. ``\"mask\"``.",
+      "context": "the screen's app key, e.g. ``\"mask\"``.",
+      "translation": "skärmens appknapp, till exempel ``\"mask\"``."
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart#14",
+      "source_sha256": "9c546371733d2953f5b99441e0aa2c92b740b94fe899ac9f8a404c22bc4eab30",
+      "source": "The two robust constants are *not* interchangeable and the module refuses to pretend they are. 1.4826 (:data:`MAD_SCALE`) is ``1/Φ⁻¹(0.75)``, the factor that makes the MAD of a normal sample an unbiased estimate of its SD. A moving range is ``|x_i - x_{i-1}|``, the absolute value of a *difference* of two observations, so its scale is ``sqrt(2)·sigma`` and its median is ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma`` (:data:`MEDIAN_MR_CONSTANT`). Multiplying a median moving range by 1.4826 overestimates sigma by exactly ``sqrt(2)`` — 41% wider limits, which is the difference between catching a drift and not. Both constants are computed from ``Φ⁻¹(0.75)`` here for the same reason c4 is computed from the gamma function.",
+      "context": "The two robust constants are *not* interchangeable and the module refuses to pretend they are. 1.4826 (:data:`MAD_SCALE`) is ``1/Φ⁻¹(0.75)``, the factor that makes the MAD of a normal sample an unbiased estimate of its SD. A moving range is ``|x_i - x_{i-1}|``, the absolute value of a *difference* of two observations, so its scale is ``sqrt(2)·sigma`` and its median is ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma`` (:data:`MEDIAN_MR_CONSTANT`). Multiplying a median moving range by 1.4826 overestimates sigma by exactly ``sqrt(2)`` — 41% wider limits, which is the difference between catching a drift and not. Both constants are computed from ``Φ⁻¹(0.75)`` here for the same reason c4 is computed from the gamma function.",
+      "translation": "De två robusta konstanter är *inte* utbytbara och modulen vägrar att låtsas att de är. 1,4826 (:data:`MAD_SCALE`) är ``1/Φ⁻¹(0.75)``, faktorn som gör MAD för ett normalt urval till en opartisk uppskattning av dess SD. Ett glidande intervall är ``|x_i - x_{i-1}|``, det absoluta värdet av en *difference* av två observationer, så dess skala är ``sqrt(2)·sigma`` och dess median är ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma`` (:data:`MEDIAN_MR_CONSTANT`). Multiplicera en median rörlig räckvidd med 1.4826 överskattar sigma med exakt ``sqrt(2)`` — 41% bredare gränser, vilket är skillnaden mellan att fånga en drift och inte. Båda konstanterna beräknas från ``Φ⁻¹(0.75)`` här av samma anledning som c4 beräknades från gammafunktionen."
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain_settings.DnaSettingsButton#1",
+      "source_sha256": "7461341bd583f5ee91d056c827f433ce7af3ba168bbfadd4bd1c3f132ff912ea",
+      "source": "Built from :class:`AiToggleLabel` rather than styled to look like one, so it is the AI toggle's twin by construction: same object name, same QSS, same off-white/on-accent behaviour under a live theme switch.",
+      "context": "Built from :class:`AiToggleLabel` rather than styled to look like one, so it is the AI toggle's twin by construction: same object name, same QSS, same off-white/on-accent behaviour under a live theme switch.",
+      "translation": "Byggd från :class:`AiToggleLabel` snarare än utformad för att se ut som en, så det är AI-växlingens tvilling genom konstruktion: samma objektnamn, samma QSS, samma benvitt av / accentfärg på beteende under en levande tema switch."
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank#5",
+      "source_sha256": "74246021811dcd449b7ee286954b1cbe4c958e09b468a4ebaaafa6d3637fec62",
+      "source": "1. **It is rank-based**, so it is invariant under any monotone transform of the feature. Half a spaCR measurement table is log-normal-ish — areas, integrated intensities, ratios spanning three orders of magnitude — and whether ``cell_area`` or ``log(cell_area)`` was measured must not change which feature comes top. It does change Cohen's d. 2. **It assumes nothing about the distributions**: not normality, not equal variance, not even symmetry. The alternatives assume at least one of those, and a segmented-object feature satisfies none of them. 3. **It is bounded and unit-free**, so four hundred features measured in px², in counts and in dimensionless ratios are comparable on one axis. That is what ranking *requires*, and it is exactly why an effect size in the feature's own units cannot do the job.",
+      "context": "1. **It is rank-based**, so it is invariant under any monotone transform of the feature. Half a spaCR measurement table is log-normal-ish — areas, integrated intensities, ratios spanning three orders of magnitude — and whether ``cell_area`` or ``log(cell_area)`` was measured must not change which feature comes top. It does change Cohen's d. 2. **It assumes nothing about the distributions**: not normality, not equal variance, not even symmetry. The alternatives assume at least one of those, and a segmented-object feature satisfies none of them. 3. **It is bounded and unit-free**, so four hundred features measured in px², in counts and in dimensionless ratios are comparable on one axis. That is what ranking *requires*, and it is exactly why an effect size in the feature's own units cannot do the job.",
+      "translation": "1. **Det är rangbaserat**, så resultatet är oförändrat vid varje monoton transformation av egenskapen. Hälften av kolumnerna i en spaCR-mättabell är ungefär lognormalfördelade — areor, integrerade intensiteter och kvoter över tre storleksordningar — och om ``cell_area`` eller ``log(cell_area)`` mäts får inte ändra vilken egenskap som hamnar överst. Det ändrar Cohens d. 2. **Det gör inga antaganden om fördelningarna**: inte normalitet, lika varians eller ens symmetri. Alternativen antar minst en av dessa egenskaper, och en egenskap hos ett segmenterat objekt uppfyller ingen av dem. 3. **Det är begränsat och enhetslöst**, så fyrahundra egenskaper mätta i px², antal och dimensionslösa kvoter kan jämföras på samma axel. Det är vad rangordning *kräver*, och precis därför kan en effektstorlek i egenskapens egen enhet inte användas."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue#3",
+      "source_sha256": "59eb53528fee15a8a34d835d3e2de1cb7e9d924a18ad537b48afcb74cae1c00c",
+      "source": "**Zoomable enlarged view** on the right — a QGraphicsView showing the current figure's full-resolution render. Wheel = zoom, fit-on-load, scales with the container (reuses the live-preview _ZoomView).",
+      "context": "**Zoomable enlarged view** on the right — a QGraphicsView showing the current figure's full-resolution render. Wheel = zoom, fit-on-load, scales with the container (reuses the live-preview _ZoomView).",
+      "translation": "**Zoombar förstorad vy** till höger — en QGraphicsView som visar den aktuella figurens fullupplösta rendering. Hjul = zoom, anpassning vid inläsning, skalor med behållaren (återanvänder live-förhandsgranskning _ZoomView)."
+    },
+    {
+      "label": "spacr.qt.widgets.formula_editor.FormulaPanel.set_frame#1",
+      "source_sha256": "23fd42c9c3366c005bdfd34fd78edf0ecc4565e71cf18b05feac20b6d60cd4e2",
+      "source": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column simply fails, says which column, and is exactly what the user wants back when they reload the same table.",
+      "context": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column simply fails, says which column, and is exactly what the user wants back when they reload the same table.",
+      "translation": "Befintliga formler **behålls** och tillämpas på nytt. Det är motsatsen till vad den Lokala Data Filter gör med sina klausuler, avsiktligt: en filtersats som namnger en saknad kolumn begränsar med mindre än vad den hävdar och är farlig att behålla, medan en formel som namnger en saknad kolumn helt enkelt misslyckas, säger vilken kolumn, och är exakt vad användaren vill ha tillbaka när de laddar om samma tabell."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec#2",
+      "source_sha256": "9143a999a403d983ffaba92ec1648182d1be306fc58b17066624ad832dd0b6b2",
+      "source": "it can be **re-applied to another dataset** — the next plate, the re-run, the replicate — and still mean the same thing;",
+      "context": "it can be **re-applied to another dataset** — the next plate, the re-run, the replicate — and still mean the same thing;",
+      "translation": "det kan vara **tillämpas på nytt till en annan dataset** — nästa platta, omkörningen, replikera — och fortfarande innebära samma sak;"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.GateClause#2",
+      "source_sha256": "160dfc6da22274d5ce79c1a64adb469a3c747bd2fd413123079238cb95aaf02f",
+      "source": "One clause for the whole chain rather than one per gate: two gates on the same column (``area ≥ 100`` and its child ``area ≤ 500``) would otherwise replace each other under ``DataFilter.add``'s replace-by-column rule and silently widen the population.",
+      "context": "One clause for the whole chain rather than one per data-selection boundary: two data-selection boundaries on the same column (``area ≥ 100`` and its child ``area ≤ 500``) would otherwise replace each other under ``DataFilter.add``'s replace-by-column rule and silently widen the population.",
+      "translation": "En sats för hela kedjan i stället för en per data-urval gräns: två data urval gränser på samma kolumn (``area ≥ 100`` och dess barn ``area ≤ 500``) skulle annars ersätta varandra i ``DataFilter.add``: s ersätt-med-kolumn regel och tyst bredda befolkning."
+    },
+    {
+      "label": "spacr.qt.widgets.home.HomePage.refresh#1",
+      "source_sha256": "8d022bf95a200a22af5f77bb516baeb7a720d830f0252c28693051b85762d924",
+      "source": "The two run-journal panels are read on a worker thread. Together ``recent_runs`` + ``journal_totals`` walk every manifest under the runs root twice — 774 ms on a machine with 4 865 journalled runs, measured, and it grows with the journal — and this used to run inline on every single return to Home, which is the most-travelled navigation in the application.",
+      "context": "The two processing-session journal panels are read on a background execution unit. Together ``recent_runs`` + ``journal_totals`` walk every manifest under the processing-session root twice — 774 ms on a machine with 4 865 journalled runs, measured, and it grows with the journal — and this used to execute inline on every single return to Home, which is the most-travelled navigation in the application.",
+      "translation": "De två journalpanelerna för bearbetningssessioner läses på en bakgrundsexekveringsenhet. Tillsammans går ``recent_runs`` + ``journal_totals`` igenom varje manifest i bearbetningssessionernas rotkatalog två gånger — 774 ms på en maskin med 4 865 journalförda körningar, avpassade, och den växer med journalen – och detta brukade utföras inline vid varje enskild återkomst till Hemmet, som är den mest resande navigering i ansökan."
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview#3",
+      "source_sha256": "1b411ad01ce9412110203c6f31091c76e7feedd759b92eecc4c202f2a0d06916",
+      "source": "**Units.** The assay converts pixels per frame into physical units with ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` and only when *both* are known; otherwise it reports ``px/frame``. A preview that printed \"velocity 4.2\" while the user was thinking in µm/s would be worse than printing nothing, so the calibration fields start **unset**, every velocity carries its unit, and while the calibration is unknown the panel says so in words instead of quietly borrowing the 1.78 px/µm default.",
+      "context": "**Units.** The assay converts pixels per frame into physical units with ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` and only when *both* are known; otherwise it reports ``px/frame``. A preview that printed \"velocity 4.2\" while the user was thinking in µm/s would be worse than printing nothing, so the calibration fields start **unset**, every velocity carries its unit, and while the calibration is unknown the panel says so in words instead of quietly borrowing the 1.78 px/µm default.",
+      "translation": "**Units.** Analysen omvandlar pixlar per bildruta till fysiska enheter med ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` och endast när *båda* är kända; annars rapporterar den ``px/frame``. En förhandsgranskning som skrev ut \"velocity 4.2\" medan användaren tänkte i µm/s skulle vara värre än att skriva ut ingenting, så att kalibreringsfälten börjar med **inte angivna**, varje hastighet bär sin enhet, och medan kalibreringen är okänd säger panelen det i ord istället för att tyst låna 1,78 px / µm-standarden."
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model#7",
+      "source_sha256": "31c41a0aad4f87de7289b6c6a157ef88a5157c14b4b8cae80782bf84f061b86f",
+      "source": "**The 1.4826.** For a Gaussian, ``MAD = Phi^-1(0.75) * sigma = 0.6745 * sigma``, so ``sigma = MAD / 0.6745 = 1.4826 * MAD``. Multiplying by :data:`MAD_TO_SIGMA` makes the MAD a *consistent estimator of sigma* under normality, which is what lets the threshold be read on the familiar scale — \"3.5 SD\" — while never being computed from an SD that the outliers could inflate. The constant is the whole reason ``k`` is comparable to a z-score cut-off at all; without it, ``k`` would be in units of \"MADs\" and 3.5 would mean something different for every column.",
+      "context": "**The 1.4826.** For a Gaussian, ``MAD = Phi^-1(0.75) * sigma = 0.6745 * sigma``, so ``sigma = MAD / 0.6745 = 1.4826 * MAD``. Multiplying by :data:`MAD_TO_SIGMA` makes the MAD a *consistent estimator of sigma* under normality, which is what lets the threshold be read on the familiar scale — \"3.5 SD\" — while never being computed from an SD that the outliers could inflate. The constant is the whole reason ``k`` is comparable to a z-score cut-off at all; without it, ``k`` would be in units of \"MADs\" and 3.5 would mean something different for every column.",
+      "translation": "**Den 1.4826.** För en Gaussisk, ``MAD = Phi^-1(0.75) * sigma = 0.6745 * sigma``, så ``sigma = MAD / 0.6745 = 1.4826 * MAD``. Multiplikation med :data:`MAD_TO_SIGMA` gör MAD till en *konsistent skattning av sigma* vid normalfördelning, vilket gör att tröskelvärdet kan läsas på den välbekanta skalan – \"3,5 SD\" – samtidigt som det aldrig beräknas från en SD som avvikande värden kan blåsa upp. Konstanten är hela anledningen till att ``k`` är jämförbart med en z-poängsgräns alls; utan det, skulle ``k`` vara i enheter av \"MADs\" och 3,5 skulle betyda något annat för varje kolumn."
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.OutlierResult.filtered#2",
+      "source_sha256": "862dd3dc19bab6f6fd5ac3df6046bf0a8b1eb7580714e61cbaf852e298fb774f",
+      "source": "Objects that could not be scored are **kept** — they were not flagged, and dropping them here would delete rows for missingness under the name of outlier removal.",
+      "context": "Objects that could not be scored are **kept** — they were not flagged, and dropping them here would delete rows for missingness under the name of outlier removal.",
+      "translation": "Objekt som inte kunde bedömas är **behålls** — de var inte flaggade, och att släppa dem här skulle ta bort rader för saknade värden under namnet avvikelse borttagning."
+    },
+    {
+      "label": "spacr.qt.widgets.pivot_builder#5",
+      "source_sha256": "2dd489a98445af4facbc303dfeb84bfa015da117e75ae8da7aa8910148ca4fa4",
+      "source": "**Every cell prints its n**, under the statistics, whether or not ``n`` was ticked. An aggregate over 4 objects and one over 4 000 are three digits either way, and the only thing that tells them apart is the number this panel refuses to hide. Cells at or below :data:`~spacr.qt.widgets.pivot_spec.LOW_N` are drawn muted, so a table can be scanned for \"which of these am I allowed to believe\".",
+      "context": "**Every cell prints its n**, under the statistics, whether or not ``n`` was ticked. An aggregate over 4 objects and one over 4 000 are three digits either way, and the only thing that tells them apart is the number this panel refuses to hide. Cells at or below :data:`~spacr.qt.widgets.pivot_spec.LOW_N` are drawn muted, so a table can be scanned for \"which of these am I allowed to believe\".",
+      "translation": "**Varje cell skriver ut sitt n**, nedanför statistiken, oavsett om ``n`` var markerad eller inte. Ett aggregat över 4 objekt och ett över 5 000 är tre siffror åt båda hållen, och det enda som skiljer dem åt är siffran som denna panel vägrar att dölja. Celler vid eller under :data:`~spacr.qt.widgets.pivot_spec.LOW_N` ritas nedtonade, så en tabell kan skannas för \"vilka av dessa får jag tro på\"."
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSet.label#0",
+      "source_sha256": "2f8255c2e7a367fdf3930f7c9abffb3a4e61a3d310d677044003bc48f1ee40c3",
+      "source": "Short human label for the dropdown, e.g. ``A01 f003 (4ch)``.",
+      "context": "Short user-facing label for the dropdown, e.g. ``A01 f003 (4ch)``.",
+      "translation": "Kort användarvänlig etikett för rullgardinsmenyn, till exempel ``A01 f003 (4ch)``."
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.adopt#0",
+      "source_sha256": "1159c7a83709d0d2ae0c0dc03e4600d825efd11f3a71d0f4cee2026f73fdecb4",
+      "source": "Install an enumeration produced elsewhere — e.g. on a worker thread.",
+      "context": "Install an enumeration produced elsewhere — e.g. on a background execution unit.",
+      "translation": "Installera en uppräkning som producerats någon annanstans — till exempel på en bakgrundsexekveringsenhet."
+    },
+    {
+      "label": "spacr.qt.widgets.row_exclusion#3",
+      "source_sha256": "15984737436809b1e7f3727fe823eddee893b6ee3a593f9c63d0b353c5ba9a97",
+      "source": "``distinct_values`` runs one ``SELECT DISTINCT … LIMIT 501`` per ``(database, table)`` pair the chosen column appears in — and the columns a user actually excludes on (``plateID``, ``columnID``, ``rowID``) hold a handful of distinct values across the whole table, so the LIMIT is never reached and SQLite scans every row. Measured on a 200 000-row × 8-table measurements.db with a warm page cache: **196 ms per column**, and the column combo is editable, so ``currentTextChanged`` fires on every keystroke. Eight quick edits froze the window for **894 ms** in one unbroken block; ``set_source`` itself cost 183 ms and a single deliberate column choice 220 ms. Threaded, the same three are 29 ms, 5 ms and 2 ms.",
+      "context": "``distinct_values`` runs one ``SELECT DISTINCT … LIMIT 501`` per ``(database, table)`` pair the chosen column appears in — and the columns a user actually excludes on (``plateID``, ``columnID``, ``rowID``) hold a handful of distinct values across the whole table, so the LIMIT is never reached and SQLite scans every row. Measured on a 200 000-row × 8-table measurements.db with a warm page cache: **196 ms per column**, and the column combo is editable, so ``currentTextChanged`` fires on every keystroke. Eight quick edits froze the window for **894 ms** in one unbroken block; ``set_source`` itself cost 183 ms and a single deliberate column choice 220 ms. With worker execution, the same three are 29 ms, 5 ms and 2 ms.",
+      "translation": "``distinct_values`` kör en ``SELECT DISTINCT … LIMIT 501`` för varje par ``(database, table)`` där den valda kolumnen förekommer — och kolumnerna som en användare faktiskt utesluter efter (``plateID``, ``columnID``, ``rowID``) innehåller bara ett fåtal distinkta värden i hela tabellen, så LIMIT nås aldrig och SQLite läser varje rad. Mätt på en measurements.db med 200 000 rader × 8 tabeller och varm sidcache: **196 ms per kolumn**. Kolumnkombinationsrutan är redigerbar, så ``currentTextChanged`` utlöses vid varje tangenttryckning. Åtta snabba redigeringar frös fönstret i **894 ms** i ett obrutet block; ``set_source`` kostade 183 ms och ett enskilt avsiktligt kolumnval 220 ms. Med trådad körning tar samma tre operationer 29 ms, 5 ms och 2 ms."
+    },
+    {
+      "label": "spacr.qt.widgets.row_exclusion.RowExclusionEditor#5",
+      "source_sha256": "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc",
+      "source": "how long a column edit waits before it is read. ``0`` reads on the next event-loop turn without coalescing.",
+      "context": "how long a column edit waits before it is read. ``0`` reads on the next event-loop turn without coalescing.",
+      "translation": "hur länge en kolumnredigering väntar innan den läses. ``0`` läser på nästa händelseslinga tur utan sammanslagning."
+    },
+    {
+      "label": "spacr.qt.widgets.tile.HTile#3",
+      "source_sha256": "e88f2e2342df8b7de233d2fddb7b0e7351e5e899ec5cf14347d336b5f921fb90",
+      "source": "single-line subtitle (e.g. app tagline).",
+      "context": "single-line subtitle (e.g. app tagline).",
+      "translation": "enradig undertext (till exempel app tagline)."
+    },
+    {
+      "label": "spacr.qt.widgets.usage_bar.UsageBar#1",
+      "source_sha256": "a678db1d8e3c60645deb76fd4c7a4b9ab43d9642b652cde9a0858501e9810bcb",
+      "source": "text shown to the left of the bar (e.g. \"RAM\", \"GPU\").",
+      "context": "text shown to the left of the bar (e.g. \"RAM\", \"GPU\").",
+      "translation": "texten som visas till vänster om stapeln (till exempel \"RAM\", \"GPU\")."
+    },
+    {
+      "label": "spacr.regression_qc.QCPanelResult#4",
+      "source_sha256": "3dbda26d790439bd8a48b47399be685e28be1cd916be97d1341ddab67304c462",
+      "source": "``'written'`` (drawn, nothing missing), ``'partial'`` (drawn, but with a stated limitation — e.g. a coefficient plot with no confidence intervals), ``'skipped'`` (not computable, see ``reason``) or ``'failed'`` (raised unexpectedly, see ``reason``).",
+      "context": "``'written'`` (drawn, nothing missing), ``'partial'`` (drawn, but with a stated limitation — e.g. a coefficient plot with no confidence intervals), ``'skipped'`` (not computable, see ``reason``) or ``'failed'`` (raised unexpectedly, see ``reason``).",
+      "translation": "``'written'`` (ritad, inget saknas), ``'partial'`` (ritad, men med en angiven begränsning — till exempel ett koefficientdiagram utan konfidensintervall), ``'skipped'`` (kan inte beräknas, se ``reason``) eller ``'failed'`` (ett oväntat undantag utlöstes, se ``reason``)."
+    },
+    {
+      "label": "spacr.resources.home.versions._generators.parts.kbd#0",
+      "source_sha256": "7675bf62653de4141980bcc74f6983bb8fa65f04ce882a27a2e827d38a0b9400",
+      "source": "A keycap chip, e.g. ``Ctrl+1``.",
+      "context": "A keycap chip, e.g. ``Ctrl+1``.",
+      "translation": "Ett tangentbordschip, till exempel ``Ctrl+1``."
+    },
+    {
+      "label": "spacr.resume.completed_fields_in_db#5",
+      "source_sha256": "05fdedd96f5492622067a0107bec8c8ab52247f7cccafc83b3c8d6458a6b09d7",
+      "source": "candidate field stems (e.g. from ``merged/``). When given, the return value is the subset of these that are complete — which is what a caller filtering a file list wants. When None, ``prcf`` strings assembled from the rows themselves are returned.",
+      "context": "candidate field stems (e.g. from ``merged/``). When given, the return value is the subset of these that are complete — which is what a caller filtering a file list wants. When None, ``prcf`` strings assembled from the rows themselves are returned.",
+      "translation": "kandidatfältsstammar (till exempel från ``merged/``). När det ges, returvärdet är en delmängd av dessa som är komplett — vilket är vad en anropare filtrering av en lista med filer vill ha. När None, ``prcf`` strängar monteras från raderna själva returneras."
+    },
+    {
+      "label": "spacr.resume.field_identity#5",
+      "source_sha256": "9f3ce2d938a86ae61b30eede5c3d57ad89cf7a35bddb25848ca26814481397a4",
+      "source": "dict with ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` (and ``timeID`` when ``timelapse``). Values match what ``_merge_and_save_to_database`` wrote, e.g. ``{'plateID': 'plate1', 'rowID': 'r1', 'columnID': 'c1', 'fieldID': 'f3'}``.",
+      "context": "key-value mapping with ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` (and ``timeID`` when ``timelapse``). Values match what ``_merge_and_save_to_database`` wrote, e.g. ``{'plateID': 'plate1', 'rowID': 'r1', 'columnID': 'c1', 'fieldID': 'f3'}``.",
+      "translation": "nyckel-värde mappning med ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` (och ``timeID`` när ``timelapse``). Värden matchar vad ``_merge_and_save_to_database`` skrev, till exempel ``{'plateID': 'plate1', 'rowID': 'r1', 'columnID': 'c1', 'fieldID': 'f3'}``."
+    },
+    {
+      "label": "spacr.resume.run_already_complete#4",
+      "source_sha256": "6b679923fdb459d85fab1965bb8b21d380eaa9cfca4bf9f049680706b766477c",
+      "source": "only consider stamps from this ledger, e.g. ``'measure_crop'``. None considers the most recent stamp of any stage.",
+      "context": "only consider stamps from this ledger, e.g. ``'measure_crop'``. None considers the most recent stamp of any stage.",
+      "translation": "endast beakta stämplar från denna huvudbok, till exempel ``'measure_crop'``. None beaktar den senaste stämpeln i varje steg."
+    },
+    {
+      "label": "spacr.roi.RoiSet#1",
+      "source_sha256": "72952cf8742d7b7efc90a49d105ab62b3c7b4ff449ec1156fca63b00def41065",
+      "source": "``{field name: (RegionOfInterest, ...)}``. The field name is the ``.npy`` stem the pipeline uses, e.g. ``plate1_A01_F001``; :data:`ANY_FIELD` (``'*'``) is the fallback for every field with no entry of its own. Several ROIs on one field are a UNION — drawing a second polygon adds to what is measured.",
+      "context": "``{field name: (RegionOfInterest, ...)}``. The field name is the ``.npy`` stem the workflow uses, e.g. ``plate1_A01_F001``; :data:`ANY_FIELD` (``'*'``) is the fallback for every field with no entry of its own. Several ROIs on one field are a UNION — drawing a second polygon adds to what is measured.",
+      "translation": "``{field name: (RegionOfInterest, ...)}``. Fältnamnet är den ``.npy``-stam som arbetsflödet använder, till exempel ``plate1_A01_F001``; :data:`ANY_FIELD` (``'*'``) är reservvärdet för varje fält som inte har någon egen post. Flera ROIs på ett fält är en UNION — ritning av en andra polygon lägger till vad som mäts."
+    },
+    {
+      "label": "spacr.run_compare.Finding#1",
+      "source_sha256": "627ec0dfa46dc90305d680708b444b9d2ab2ec0ae824092d218d1dc4bae7adde",
+      "source": "machine-readable, e.g. ``\"version-changed\"``.",
+      "context": "machine-readable, e.g. ``\"version-changed\"``.",
+      "translation": "maskinläsbar, till exempel ``\"version-changed\"``."
+    },
+    {
+      "label": "spacr.run_journal.resolve_run_dir#4",
+      "source_sha256": "2d39e610cd7bf806ca4a626fce4a316e09945f6c7ccf8c16485f49e2e7cfc588",
+      "source": "a run-id — the folder basename, e.g. ``\"2026-07-23_214737_b66bae6b__mask\"`` — resolved under :func:`runs_root`,",
+      "context": "a processing-session id — the folder basename, e.g. ``\"2026-07-23_214737_b66bae6b__mask\"`` — resolved under :func:`runs_root`,",
+      "translation": "ett id för bearbetningssessionen — mappens basnamn, till exempel ``\"2026-07-23_214737_b66bae6b__mask\"`` — löst under :func:`runs_root`,"
+    },
+    {
+      "label": "spacr.runctx#2",
+      "source_sha256": "5f176ea81ee615430f3dd8f2640b17afe533e2fa86d81c8fbb10e2fb25ac9228",
+      "source": "**One run id, on every log line and every output.** A run used to be untraceable. The log said a field failed; the registry said an artifact existed; nothing connected them, so \"show me everything from the run that produced this file\" had no answer. :func:`run_context` mints one id, stamps it onto every :class:`logging.LogRecord` created anywhere in the process, writes a per-run JSONL log that :func:`read_run_log` reads back, and hands the *same* id to :func:`spacr.artifacts.register_run_outputs`. A log line and an output can therefore be joined on ``run_id``, which is the whole point.",
+      "context": "**One processing-session id, on every log line and every output.** A processing session used to be untraceable. The log said a field failed; the registry said an artifact existed; nothing connected them, so \"show me everything from the processing session that produced this file\" had no answer. :func:`run_context` mints one id, stamps it onto every :class:`logging.LogRecord` created anywhere in the process, writes a per processing session JSONL log that :func:`read_run_log` reads back, and hands the *same* id to :func:`spacr.artifacts.register_run_outputs`. A log line and an output can therefore be joined on ``run_id``, which is the whole point.",
+      "translation": "**Ett behandlingssessions-id, på varje loggrad och varje utdata.** En behandlingssession brukade vara ospårbar. Loggen sa att ett fält misslyckades; registret sa att en artefakt fanns; ingenting kopplade ihop dem, så \"visa mig allt från bearbetningssessionen som producerade den här filen\" hade inget svar. :func:`run_context` präglar ett id, stämplar det på varje :class:`logging.LogRecord` som skapas någonstans i processen, skriver en JSONL-logg per bearbetningssession som :func:`read_run_log` läser tillbaka och överlämnar *samma*-id till :func:`spacr.artifacts.register_run_outputs`. En logglinje och en utgång kan därför sammanfogas på ``run_id``, vilket är hela poängen."
+    },
+    {
+      "label": "spacr.runctx.RunContext.register_outputs#4",
+      "source_sha256": "040323645f85f123c3d2263224caed3a86be1e26e69da77d0def6676dd8da9b8",
+      "source": "passed through, e.g. ``roots=[...]``, ``status=``.",
+      "context": "passed through, e.g. ``roots=[...]``, ``status=``.",
+      "translation": "passerade igenom, till exempel ``roots=[...]``, ``status=``."
+    },
+    {
+      "label": "spacr.schema.coerce_model_feature_types#7",
+      "source_sha256": "a5e83868f0d3a264bffa3fc1203c33bfde620d677a6b6b0c9e5a93c3943e40b4",
+      "source": "widen what counts as a feature to unrecognised columns — but an unrecognised column is then *skipped* rather than repaired, so this only ever converts fewer columns. It reaches ``DERIVED_MODEL_FEATURES`` as well: with it set, a text or all-NULL ``recruitment`` stays ``object`` and is then silently dropped by :func:`model_feature_columns` instead of being read as numbers.",
+      "context": "widen what counts as a feature to unrecognised columns — but an unrecognised column is then *skipped* rather than repaired, so this only ever converts fewer columns. It reaches ``DERIVED_MODEL_FEATURES`` as well: with it set, a text or all-NULL ``recruitment`` stays ``object`` and is then silently dropped by :func:`model_feature_columns` instead of being read as numbers.",
+      "translation": "utvidga vad som räknas som en funktion till okända kolumner — men en okänd kolumn är då *överhoppad* snarare än repareras, så detta bara någonsin omvandlar färre Det når ``DERIVED_MODEL_FEATURES`` också: med det inställt, en text eller enbart NULL ``recruitment`` förblir ``object`` och sedan tyst tappas av :func:`model_feature_columns` i stället för att läsas som siffror."
+    },
+    {
+      "label": "spacr.schema.object_id#2",
+      "source_sha256": "fb1268796870eb989b091296fed46876ca04e23269bd84e355babc09e343f5a5",
+      "source": "An already-composed id round-trips, with or without a type (``object_id('nucleus7') == 'nucleus7'``), so this is idempotent and safe to apply to a value that has already been through it.",
+      "context": "An already-composed id round-trips, with or without a type (``object_id('nucleus7') == 'nucleus7'``), so this is idempotent and safe to apply to a value that has already been through it.",
+      "translation": "En redan sammansatt id kan tur-och-retur-konverteras, med eller utan en typ (``object_id('nucleus7') == 'nucleus7'``), så funktionen är upprepningssäker och säkert att tillämpa på ett värde som redan har varit igenom det."
+    },
+    {
+      "label": "spacr.schema.strip_prefix#1",
+      "source_sha256": "ce9e7b2e9f1ba0efeae0a6030f9567242cb9dfb92b39094b3dd59344ecb81b52",
+      "source": "the id, e.g. ``'r12'``.",
+      "context": "the id, e.g. ``'r12'``.",
+      "translation": "id, till exempel ``'r12'``."
+    },
+    {
+      "label": "spacr.schema.strip_prefix#2",
+      "source_sha256": "5d0e4e1f74987b09290d69b1a418382d738150b7154cb8785b6061b8249b6e09",
+      "source": "the single-letter prefix, e.g. ``'r'``.",
+      "context": "the single-letter prefix, e.g. ``'r'``.",
+      "translation": "prefixet med en bokstav, till exempel ``'r'``."
+    },
+    {
+      "label": "spacr.seg_qc#9",
+      "source_sha256": "f3a930e281429677d25bc3a0403db5e0230cb62800bc2f3a769a5d37a40a6abb",
+      "source": "``over-segmentation`` (shattered objects) Two signatures. Absolutely: at least ``seg_qc_tiny_fraction`` (0.30) of the field's objects are under ``seg_qc_min_diameter`` (5 px) across — spaCR's diameter estimator already discards components below 4 px as debris, and nothing 5 px across survives a crop-and-measure as an object. Relative to the plate: the field holds ``seg_qc_size_ratio``-fold more objects than the plate median at ``1/seg_qc_size_ratio`` of its median diameter. That knob defaults to 1.4 = sqrt(2) on purpose — two objects welded into one have sqrt(2) times the equivalent diameter of one, and one object split in two has 1/sqrt(2) of it, so 1.4 is the fused-pair / split-in-half signature itself rather than an arbitrary tolerance.",
+      "context": "``over-segmentation`` (shattered objects) Two signatures. Absolutely: at least ``seg_qc_tiny_fraction`` (0.30) of the microscope field of view's objects are under ``seg_qc_min_diameter`` (5 px) across — spaCR's diameter estimator already discards components below 4 px as debris, and nothing 5 px across survives an image-region extraction-and-measurement operation as an object. Relative to the laboratory microplate: the microscope field of view holds ``seg_qc_size_ratio``-fold more objects than the laboratory microplate median at ``1/seg_qc_size_ratio`` of its median diameter. That knob defaults to 1.4 = sqrt(2) on purpose — two objects welded into one have sqrt(2) times the equivalent diameter of one, and one object split in two has 1/sqrt(2) of it, so 1.4 is the fused-pair / split-in-half signature itself rather than an arbitrary tolerance.",
+      "translation": "``over-segmentation`` (splittrade objekt) Två kännetecken. Absolut: minst ``seg_qc_tiny_fraction`` (0.30) av fältets objekt är smalare än ``seg_qc_min_diameter`` (5 px) — spaCR:s diameteruppskattare förkastar redan komponenter som är mindre än 4 px som skräp, och inget som är 5 px brett överlever en utskärnings- och mätningsoperation som ett objekt. Relativt plattan: fältet innehåller ``seg_qc_size_ratio`` gånger fler objekt än plattans median vid ``1/seg_qc_size_ratio`` av dess mediandiameter. Parametern är avsiktligt 1.4 = sqrt(2) som standard — två objekt som svetsas samman har sqrt(2) gånger diametern hos ett objekt, och ett objekt som delas i två får 1/sqrt(2) av diametern, så 1.4 är själva kännetecknet för ett sammanfogat par eller en halvering, inte en godtycklig tolerans."
+    },
+    {
+      "label": "spacr.seg_qc.FieldQC#4",
+      "source_sha256": "8b525033afe99ad997b174ea57ca05bb3604c450ddfda8b14a47fd2c1afe9e2c",
+      "source": "the named defects, e.g. ``['under_segmented', 'high_border_fraction']``. Empty means clean.",
+      "context": "the named defects, e.g. ``['under_segmented', 'high_border_fraction']``. Empty means clean.",
+      "translation": "de angivna bristerna, till exempel ``['under_segmented', 'high_border_fraction']``. Tomt betyder rent."
+    },
+    {
+      "label": "spacr.seg_qc.run_segmentation_qc#6",
+      "source_sha256": "1f51152b67f2edc8266efbb7e8f00948ef85aa5f11c1a8ce914fa48361f9dee4",
+      "source": "overrides for :data:`QC_DEFAULTS`, e.g. from :func:`thresholds_from_settings`.",
+      "context": "overrides for :data:`QC_DEFAULTS`, e.g. from :func:`thresholds_from_settings`.",
+      "translation": "åsidosättningar för :data:`QC_DEFAULTS`, till exempel från :func:`thresholds_from_settings`."
+    },
+    {
+      "label": "spacr.selection#11",
+      "source_sha256": "b911e85efabaf19556a4e7ed71e46b337097b97c1a23308f58e094b7034ca07e",
+      "source": "**A request** (:class:`ObjectRequest`) is neither: it is one act of routing. \"Open exactly these twelve objects, because they are the cells this model called infected and the annotator called uninfected.\" A filter and a selection are *state* that every view reads; a request is an *event* that travels once, from the view that made it to the view that can show it. It carries the reason with it, because a view showing twelve crops out of ninety thousand has to be able to say why those twelve — otherwise they read as the whole dataset.",
+      "context": "**A request** (:class:`ObjectRequest`) is neither: it is one act of routing. \"Open exactly these twelve objects, because they are the cells this model called infected and the annotator called uninfected.\" A filter and a selection are *state* that every view reads; a request is an *event* that travels once, from the view that made it to the view that can show it. It carries the reason with it, because a view showing twelve extracted image regions out of ninety thousand has to be able to say why those twelve — otherwise they read as the whole dataset.",
+      "translation": "**En begäran** (:class:`ObjectRequest`) är varken eller: det är en handling av routing. \"Öppna exakt dessa tolv objekt, eftersom de är de celler som denna modell kallade infekterade och annotatorn kallade oinfekterade\" Ett filter och ett urval är *tillstånd* som varje vy läser; en begäran är en *händelse* som färdas en gång, från vyn som gjorde det till den vy som kan visa den. Det bär anledningen med sig, eftersom en vy som visar tolv extraherade bild regioner av nittio tusen måste kunna säga varför dessa tolv — annars läser de som hela datamängden."
+    },
+    {
+      "label": "spacr.sequencing.save_qc_df_to_csv#2",
+      "source_sha256": "56709b224e14eab065eb0ef6777f5578a6bbbef259575f1efc7f92ed2553b78c",
+      "source": "numeric QC metrics (e.g. missing counts, total reads).",
+      "context": "numeric QC metrics (e.g. missing counts, total reads).",
+      "translation": "numeriska QC-mätvärden (till exempel saknade räkningar, totalt antal läsningar)."
+    },
+    {
+      "label": "spacr.settings.generate_fields_lazy#4",
+      "source_sha256": "e908daf89680e5a4c5d136ac1332c7697433cc6307d401c02bbdc9d7314902ec",
+      "source": "optional callable invoked after each field is added (e.g. to advance a progress bar).",
+      "context": "optional callable invoked after each field is added (e.g. to advance a progress bar).",
+      "translation": "optional callable anropas efter att varje fält har lagts till (till exempel för att flytta fram en förloppsindikator)."
+    },
+    {
+      "label": "spacr.settings.normalize_cellpose_model_name#3",
+      "source_sha256": "5dc6745afa7325c121badbdf5fd49cf42a6d12b228a2d0a36ca0cd08a382e0a8",
+      "source": "the stored setting, e.g. 'cyto2' or '/models/my_cells.pth'.",
+      "context": "the stored setting, e.g. 'cyto2' or '/models/my_cells.pth'.",
+      "translation": "den sparade inställningen, till exempel 'cyto2' eller '/modeller/my_cells.pth'."
+    },
+    {
+      "label": "spacr.submodules.CellposeLazyDataset#0",
+      "source_sha256": "fad00c8724d8e0c47604d2daa2cb0f0f3ddd9025aea82084fbc47a9fa002fb70",
+      "source": "Lazy image/label dataset for Cellpose training and inference.",
+      "context": "Lazy image/label dataset for Cellpose training and inference.",
+      "translation": "Behovsladdad bild- och etikettdatauppsättning för Cellpose träning och inferens."
+    },
+    {
+      "label": "spacr.submodules.analyze_replication#4",
+      "source_sha256": "0a95ad215fc5ea2dc5cfdb3c2ececdb6389631015c69bd68c6b9d0ee16c1ee4f",
+      "source": "Statistics: the two-condition comparison is a Mann-Whitney U test on the doubling index ``log2(n_parasites)``, with a chi-squared omnibus test alongside it. :func:`_replication_compare_conditions` explains why, and why a t-test on the raw counts is the wrong instrument.",
+      "context": "Statistics: the two-condition comparison is a Mann-Whitney U test on the doubling index ``log2(n_parasites)``, with a chi-squared omnibus test alongside it. :func:`_replication_compare_conditions` explains why, and why a t-test on the raw counts is the wrong instrument.",
+      "translation": "Statistik: jämförelsen av två villkor är ett Mann–Whitneys U-test på fördubbling index ``log2(n_parasites)``, med en chi-kvadrat omnibus test tillsammans med det. :func:`_replication_compare_conditions` förklarar varför, och varför ett t-test på de råa räkningarna är fel instrument."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model#1",
+      "source_sha256": "1e270697c9e063031c20a3dc79ca63c1bfccc02ac594d906ffa1eb168ba6d692",
+      "source": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by channel so you can answer \"is my classifier looking at the pathogen or at the cell?\".",
+      "context": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by image data channel so you can answer \"is my machine-learning classification model looking at the pathogen or at the cell?\".",
+      "translation": "Förbinder per-objekt CNN förutsägelser (``score_column``) med morfologi + intensitetsmätningar från :func:`spacr.measure.measure_crop`, utökar cross-compartment funktionsförhållanden (till exempel ``nucleus_cell_area``), kör sedan slumpmässig skogsfunktionsvikt, permutationsvikt och (valfritt) SHAP på de översta funktionerna. Den grupperar också betydelse per fack och per bilddatakanal så att du kan svara på frågan ”tittar min maskininlärningsbaserade klassificeringsmodell på patogenen eller på cellen?”."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model#4",
+      "source_sha256": "26e573cf3d4d0cb51d58b8d7e5eac8be60e6f184bafc66c0093aa37a25e153d8",
+      "source": "``tables`` — DB tables to merge, e.g. ``['cell','nucleus','pathogen','cytoplasm']``.",
+      "context": "``tables`` — DB tables to merge, e.g. ``['cell','nucleus','pathogen','cytoplasm']``.",
+      "translation": "``tables`` — DB tabeller att slå samman, till exempel ``['cell','nucleus','pathogen','cytoplasm']``."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model#5",
+      "source_sha256": "f7f3b5283fb4f5e741a6a6c85bb5752f17b7eeba9648b1e67352a524c59d5948",
+      "source": "``channels`` — intensity channels included in the feature space (e.g. ``[0,1,2,3]``).",
+      "context": "``channels`` — intensity image data channels included in the feature space (e.g. ``[0,1,2,3]``).",
+      "translation": "``channels`` — datakanaler för intensitetsbilder som ingår i funktionsutrymmet (till exempel ``[0,1,2,3]``)."
+    },
+    {
+      "label": "spacr.timelapse.automated_motility_assay#0",
+      "source_sha256": "44f4b8359c7c7acb43b0a00ad8e0c0f81927a4818b9edf5623396e6ce93d7ae4",
+      "source": "End-to-end merged-npy pipeline for cell/pathogen motility and infection QC.",
+      "context": "End-to-end merged-npy workflow for cell/pathogen motility and infection QC.",
+      "translation": "Från början till slut sammanslagna-npy arbetsflöde för cell / patogen rörlighet och infektion QC."
+    },
+    {
+      "label": "spacr.training_basis#4",
+      "source_sha256": "680fdd8caedd458a766f5473648dc5d598ee2809aa6e2bbd5a23d409af602abf",
+      "source": "**Backward compatibility is the whole difficulty.** A settings CSV written before this exists in every user's project folder, and INVARIANTS §6 is the trap: a key *absent* from the dict means the pipeline falls back to its own default, which can differ from the GUI's, and nothing says so. Every rename here is therefore an alias, not a replacement — :func:`normalize_settings` translates the old name and the old *implicit* basis into the new explicit one, and a run from an old CSV does exactly what it did before.",
+      "context": "**Backward compatibility is the whole difficulty.** A settings CSV written before this exists in every user's project folder, and INVARIANTS §6 is the trap: a structured-data name *absent* from the key-value mapping means the workflow falls back to its own default, which can differ from the GUI's, and nothing says so. Every rename here is therefore an alias, not a replacement — :func:`normalize_settings` translates the old name and the old *implicit* basis into the new explicit one, and a processing session from an old CSV does exactly what it did before.",
+      "translation": "**Bakåtkompatibilitet är hela svårigheten.** En inställning CSV skriven innan detta finns i varje användares projektmapp, och INVARIANTS §6 är fällan: ett strukturerat datanamn *saknas* från nyckel-värde-mappningen innebär att arbetsflödet faller tillbaka till sin egen standard, som kan skilja sig från GUI:orna, och ingenting säger det. Varje byte av namn här är därför ett alias, inte en ersättning – :func:`normalize_settings` översätter det gamla namnet och den gamla *underförstådda*-basen till den nya explicita, och en bearbetningssession från en gammal CSV gör exakt vad den gjorde tidigare."
+    },
+    {
+      "label": "spacr.utils.GradCAMGenerator#3",
+      "source_sha256": "e8c290e38628fd0056483edc4eb677bcef5c2e636654d3bf71103d253d3713d5",
+      "source": "variant identifier, e.g. ``'gradcam'``.",
+      "context": "variant identifier, e.g. ``'gradcam'``.",
+      "translation": "variantidentifierare, till exempel ``'gradcam'``."
+    },
+    {
+      "label": "spacr.utils.calculate_shortest_distance#0",
+      "source_sha256": "23ee28bb8af9c7782f56d234a66786df3a5f037e5666bb5157b626b19bf601b8",
+      "source": "Calculate the shortest edge-to-edge distance between two objects (e.g., pathogen and nucleus).",
+      "context": "Calculate the shortest edge-to-edge distance between two objects (e.g., pathogen and nucleus).",
+      "translation": "Beräkna det kortaste avståndet från kant till kant mellan två objekt (till exempel patogen och kärna)."
+    },
+    {
+      "label": "spacr.utils.calculate_shortest_distance#3",
+      "source_sha256": "1f8b560b7db662257b0bde682f963b472628968312064372317b4554e536a178",
+      "source": "object1: String, name of the first object (e.g., \"pathogen\")",
+      "context": "object1: String, name of the first object (e.g., \"pathogen\")",
+      "translation": "objekt1: Sträng, namn på det första objektet (till exempel \"pathogen\")"
+    },
+    {
+      "label": "spacr.utils.calculate_shortest_distance#4",
+      "source_sha256": "9a8cae9b26758f3f33cd4df88d99e0efa2622693419de7f4b680171e92b2bc7b",
+      "source": "object2: String, name of the second object (e.g., \"nucleus\")",
+      "context": "object2: String, name of the second object (e.g., \"nucleus\")",
+      "translation": "objekt2: Sträng, namn på det andra objektet (till exempel \"nucleus\")"
+    },
+    {
+      "label": "spacr.utils.console_safe#1",
+      "source_sha256": "e74457c307d51cfc40b90b5da12fad19304fe36dd522d04e262f98b6ca4d80ca",
+      "source": "Console decoration must never be able to end a run. No Windows codepage encodes spaCR's own output set -- ``▸`` (U+25B8) is absent from cp1252, cp437, cp850, cp932 *and* cp936, and the box-drawing frame is absent from cp1252 -- and neither does any of them encode the domain vocabulary that ends up in settings values, such as the parental strain ``Δku80`` or a ``µm`` voxel size. Printing either to a non-UTF-8 stream raises ``UnicodeEncodeError``, and on Windows that is the normal case the moment stdout is redirected: a batch-queue job, ``spacr-run``, a legacy console.",
+      "context": "Console decoration must never terminate a run. Windows code pages do not encode every spaCR output character. For example, ``▸`` is missing from cp1252, cp437, cp850, cp932 *and* cp936, and cp1252 lacks the frame characters. Settings may also contain ``Δku80`` or ``µm``. Writing these values to a non-UTF-8 stream raises ``UnicodeEncodeError``. On Windows, this commonly occurs when stdout is redirected by a batch job, ``spacr-run``, or a legacy console.",
+      "translation": "Konsoldekoration får aldrig avsluta en körning. Ingen Windows-kodsida kan koda spaCR:s egen utdatauppsättning — ``▸`` (U+25B8) saknas i cp1252, cp437, cp850, cp932 *och* cp936, och cp1252 saknar även ramtecknen — och ingen av dem kan heller koda domänord som förekommer i inställningsvärden, exempelvis moderstammen ``Δku80`` eller en voxelstorlek i ``µm``. Att skriva något av detta till en ström som inte är UTF-8 utlöser ``UnicodeEncodeError``. I Windows är detta normalt så snart stdout omdirigeras: ett jobb i en batchkö, ``spacr-run`` eller en äldre konsol."
+    },
+    {
+      "label": "spacr.utils.plot_clusters#2",
+      "source_sha256": "e11882d535ffd098394cdc488b60f825db23551bce9157b542650a5778fa0a51",
+      "source": "``(N, 2)`` array of 2-D points (e.g. UMAP output).",
+      "context": "``(N, 2)`` array of 2-D points (e.g. UMAP output).",
+      "translation": "``(N, 2)`` matris av 2-D punkter (till exempel UMAP utgång)."
+    },
+    {
+      "label": "spacr.zstack.ZStackResult#7",
+      "source_sha256": "07737433d08a7f6697b5c8dd4c8e8cf94abba9a37033e655fa6789ee6acb928b",
+      "source": "Human-readable remarks worth surfacing to the user, e.g. that anisotropy was supplied but the chosen mode ignores it.",
+      "context": "Easy-to-read remarks worth surfacing to the user, e.g. that anisotropy was supplied but the chosen mode ignores it.",
+      "translation": "Lättlästa anmärkningar som är värda att lyfta fram för användaren, till exempel att anisotropi tillhandahölls men det valda läget ignorerar det."
+    }
+  ]
+}
