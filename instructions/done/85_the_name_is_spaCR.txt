@@ -2,7 +2,7 @@
 THE NAME IS spaCR
 ================================================================================
 
-Status:    not started, 2026-08-12.
+Status:    done, 2026-08-13.
 Requested: 2026-08-12 - "add to instructions in the readme all mentions of
            space should be spaCR, little s capital CR, this includes
            generated file names like the installers"
@@ -21,6 +21,14 @@ rewrite its own evidence the next time the sweep runs):
     Spa.Cr     8   -- all of them installer names
 
 so the canonical spelling was outnumbered in the project's own front page.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Consistent human-facing naming prevents user confusion and broken release
+links, while preserving the lower-case package, command, import, and URL
+identifiers that software tooling requires.
 
 --------------------------------------------------------------------------------
 WHAT TO DO
