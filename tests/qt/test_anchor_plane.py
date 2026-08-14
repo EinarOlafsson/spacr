@@ -61,39 +61,44 @@ def _at(canvas, elev, azim):
 # Naming the plane
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("elev,azim,expected", [
-    (90.0, 0.0, ("a", "b", "c")),      # looking down the z axis
-    (0.0, 0.0, ("b", "c", "a")),       # looking along x
-    (0.0, 90.0, ("a", "c", "b")),      # looking along y
-    (0.0, 180.0, ("b", "c", "a")),
-    (0.0, 270.0, ("a", "c", "b")),
+@pytest.mark.parametrize("axis,expected", [
+    ("z", ("a", "b", "c")),      # pick Z -> draw on X/Y, extend along Z
+    ("x", ("b", "c", "a")),
+    ("y", ("a", "c", "b")),
 ])
-def test_a_square_on_view_names_its_plane(canvas, elev, azim, expected):
-    _at(canvas, elev, azim)
+def test_the_picked_axis_names_the_plane(canvas, axis, expected):
+    """Chosen, not inferred. The first version read the plane off the camera
+    and gave up unless the view was square-on, so turning the volume changed
+    what the next gate would mean."""
+    canvas.set_anchor_axis(axis)
     assert canvas.anchor_plane() == expected
 
 
-def test_an_angled_view_names_no_plane(canvas):
-    """Off a face there is no plane a drag means, which is why snap_to_axis
-    exists. Saying nothing beats naming a plane nobody is looking at."""
-    _at(canvas, 23.0, 47.0)
-    assert canvas.anchor_plane() is None
+def test_turning_the_view_does_not_change_the_plane(canvas):
+    """The whole point of picking one."""
+    canvas.set_anchor_axis("x")
+    before = canvas.anchor_plane()
+    _at(canvas, 37.0, 214.0)          # an angle nothing is square-on to
+    assert canvas.anchor_plane() == before
+
+
+def test_z_is_the_default(canvas):
+    assert canvas.anchor_axis() == "z"
+
+
+def test_an_unknown_axis_falls_back_to_z(canvas):
+    canvas.set_anchor_axis("w")
+    assert canvas.anchor_axis() == "z"
 
 
 def test_there_is_no_anchor_plane_in_2d(canvas):
-    _at(canvas, 0.0, 0.0)
+    """No third measurement for a shape to be extended along."""
     canvas._mode = "2D"
     assert canvas.anchor_plane() is None
 
 
 def test_a_view_with_no_z_column_names_nothing(canvas):
-    _at(canvas, 0.0, 0.0)
     canvas._z_column = ""
-    assert canvas.anchor_plane() is None
-
-
-def test_no_axes_is_not_a_crash(canvas):
-    canvas.axes_at = lambda *a, **k: None
     assert canvas.anchor_plane() is None
 
 
@@ -103,6 +108,7 @@ def test_no_axes_is_not_a_crash(canvas):
 
 def test_the_aura_is_drawn_on_the_anchor_plane(canvas):
     axes = _at(canvas, 90.0, 0.0)
+    canvas.set_anchor_axis("z")
     canvas._draw_anchor_aura(axes)
     assert axes.added, "no aura drawn"
 
@@ -111,6 +117,7 @@ def test_it_is_a_filled_quad_and_not_an_edge(canvas):
     """Point 1 asks for it to be visible from any camera angle, and an edge
     disappears the moment it points at the viewer."""
     axes = _at(canvas, 90.0, 0.0)
+    canvas.set_anchor_axis("z")
     canvas._draw_anchor_aura(axes)
     quad = axes.added[0]
     assert quad.get_paths() or True             # it is a Poly3DCollection
@@ -119,6 +126,7 @@ def test_it_is_a_filled_quad_and_not_an_edge(canvas):
 
 def test_the_quad_lies_flat_on_the_normal(canvas):
     axes = _at(canvas, 90.0, 0.0)
+    canvas.set_anchor_axis("z")
     canvas._draw_anchor_aura(axes)
     corners = np.asarray(axes.added[0]._vec[:3].T if hasattr(
         axes.added[0], "_vec") else [[0, 0, 0]])
@@ -131,8 +139,9 @@ def test_the_quad_lies_flat_on_the_normal(canvas):
     assert len({round(v[2], 6) for v in verts}) == 1
 
 
-def test_no_aura_when_there_is_no_plane(canvas):
+def test_no_aura_in_2d_where_there_is_no_plane(canvas):
     axes = _at(canvas, 23.0, 47.0)
+    canvas._mode = "2D"
     canvas._draw_anchor_aura(axes)
     assert not axes.added
 
@@ -140,6 +149,7 @@ def test_no_aura_when_there_is_no_plane(canvas):
 def test_a_matplotlib_that_cannot_draw_it_does_not_break_the_view(canvas,
                                                                   monkeypatch):
     axes = _at(canvas, 90.0, 0.0)
+    canvas.set_anchor_axis("z")
 
     def boom(_artist):
         raise RuntimeError("no 3d collections here")
@@ -157,7 +167,11 @@ class _Event:
 
 
 def _drag(canvas, tool, start, end):
+    # The SHAPE now comes from the dropdown, not from the 2D tool picker --
+    # that is instruction 52's "there should be a drop down where Box gate
+    # is". The 2D tool is still set, because the polygon gesture reads it.
     canvas._tool = tool
+    canvas.set_volume_shape({ELLIPSE: "oval", RECTANGLE: "box"}.get(tool, "box"))
     canvas._volume_drag = start
     canvas.screen_to_volume = lambda _event: end
     return canvas._gate_from_volume_drag(_Event())
