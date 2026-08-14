@@ -156,7 +156,9 @@ def mobile_browser_audit(url: str, *, timeout: int, screenshot: Path) -> dict:
             audioSrc:a.src,videoSrc:v.currentSrc||v.src,
             viewport:[innerWidth,innerHeight],mobileAgent:/iPhone/.test(navigator.userAgent)};
         """)
-        driver.execute_script("return document.querySelector('#tutorial-video').play()")
+        driver.execute_script(
+            "void document.querySelector('#tutorial-video').play().catch(()=>{})"
+        )
         wait.until(lambda d: d.execute_script(
             "const a=document.querySelector('#narration-audio');"
             "return !a.paused&&a.currentTime>0.05"
@@ -174,11 +176,11 @@ def mobile_browser_audit(url: str, *, timeout: int, screenshot: Path) -> dict:
           const v=document.querySelector('#tutorial-video'),a=document.querySelector('#narration-audio');
           return {videoPaused:v.paused,audioPaused:a.paused,audioTime:a.currentTime};
         """)
-        driver.execute_script("""
+        wait.until(lambda d: d.execute_script("""
           const v=document.querySelector('#tutorial-video'),a=document.querySelector('#narration-audio');
-          a.currentTime=Math.max(0,a.duration-0.35);v.currentTime=Math.max(0,v.duration-0.35);
-          return v.play();
-        """)
+          if (a.paused && !a.ended) void v.play().catch(()=>{});
+          return !a.paused && a.currentTime>arguments[0]+0.05;
+        """, paused["audioTime"]))
         wait.until(lambda d: d.execute_script(
             "return document.querySelector('#narration-audio').ended"
         ))
@@ -187,7 +189,9 @@ def mobile_browser_audit(url: str, *, timeout: int, screenshot: Path) -> dict:
           return {videoPaused:v.paused,audioEnded:a.ended,audioTime:a.currentTime,
             audioDuration:a.duration};
         """)
-        driver.execute_script("return document.querySelector('#tutorial-video').play()")
+        driver.execute_script(
+            "void document.querySelector('#tutorial-video').play().catch(()=>{})"
+        )
         wait.until(lambda d: d.execute_script(
             "const a=document.querySelector('#narration-audio');return !a.paused&&a.currentTime<3"
         ))
