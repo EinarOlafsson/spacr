@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "label": "spacr.power_simulate#3",
+      "source_sha256": "2e234c090e1cfd1bf737b8f17a05229ed2aa698fda82d239daf1a275740fd843",
+      "source": "A pooled Toxoplasma CRISPR screen has three noisy layers stacked on top of each other — which genotypes landed in which well, how many of a well's cells the microscope saw and how well the classifier called them, and how many reads each genotype got out of the amplicon pool. The question a screener has to answer *before* spending the microscope time is \"with this library, this many wells, this many cells per well and a classifier at 0.80/0.12, would I actually find a hit?\". That is a power analysis, and it is only answerable by simulation because no layer is analytically tractable once the other two are stacked on it.",
+      "context": "A pooled Toxoplasma CRISPR screening experiment has three noisy layers stacked on top of each other — which genotypes landed in which well, how many of a well's cells the microscope saw and how well the machine-learning classification model called them, and how many reads each genotype got out of the amplicon pool. The question a screener has to answer *before* spending the microscope time is \"with this library, this many microplate sample positions, this many cells per well and a machine-learning classification model at 0.80/0.12, would I actually find a hit?\". That is a statistical detection sensitivity analysis, and it is only answerable by simulation because no layer is analytically tractable once the other two are stacked on it.",
+      "translation": "साझा Toxoplasma CRISPR screening experiment में शोर की तीन परतें एक-दूसरे पर चढ़ी हैं—कौन-से genotype किस microplate sample position में पहुँचे, microscope ने किसी well के कितने cells देखे और ML वर्गीकरण मॉडल ने उन्हें कितनी अच्छी तरह पहचाना, तथा amplicon pool से हर genotype को कितने reads मिले। microscope समय खर्च करने से *पहले* screener को यह पूछना है: \"इस library, इतने microplate sample positions, प्रति well इतने cells और 0.80/0.12 वाले ML वर्गीकरण मॉडल के साथ क्या मुझे वास्तव में कोई hit मिलेगा?\"। यह सांख्यिकीय पहचान-संवेदनशीलता विश्लेषण है और इसका उत्तर simulation से ही मिल सकता है, क्योंकि बाकी दो परतें जोड़ने के बाद कोई भी परत analytically tractable नहीं रहती।"
+    },
+    {
+      "label": "spacr.qt.ai.worker.make_stream_thread#4",
+      "source_sha256": "8c289404ff3690c8a2c06ee7df035ab95d97f8272abb161e0675c8c4b217d163",
+      "source": "``worker.finished -> thread.quit`` is a **DirectConnection**. The QThread object is created here, on the GUI thread, so it is GUI-affine — a queued ``quit()`` is posted to the *GUI* thread's event queue, not to the worker's. Measured: with a queued connection, a GUI thread that goes straight into ``thread.wait()`` (which is exactly what ``ConsolePanel.shutdown`` and every \"drain before closing\" path does) waits out its whole timeout on a worker that has already finished, because the event that would stop the thread is sitting behind the wait. ``QThread::quit`` is explicitly thread-safe, so calling it inline from the worker thread is correct.",
+      "context": "``worker.finished -> thread.quit`` uses a **DirectConnection**. The QThread object is created on the GUI thread. That gives it GUI thread affinity. A queued ``quit()`` goes to the *GUI* event queue rather than the worker queue. The GUI thread immediately enters ``thread.wait()`` during the \"drain before closing\" behavior in ``ConsolePanel.shutdown``. This blocks the event that would stop the worker and waits for the full timeout even though the worker has finished. ``QThread::quit`` is thread-safe, so the worker thread may call it directly.",
+      "translation": "``worker.finished -> thread.quit`` एक **DirectConnection** उपयोग करता है। QThread object GUI thread पर बनता है, इसलिए उसकी affinity GUI thread से होती है। queued ``quit()`` worker queue के बजाय *GUI* event की queue में जाता है। GUI thread ``thread.wait()`` में प्रवेश करता है, जैसा ``ConsolePanel.shutdown`` के \"drain before closing\" व्यवहार में होता है। इससे worker रोकने वाला event block हो जाता है और worker पूरा हो जाने पर भी पूरा timeout लगता है। ``QThread::quit`` thread-safe है, इसलिए worker thread उसे सीधे बुला सकता है।"
+    },
+    {
+      "label": "spacr.qt.bridge.PauseGate#4",
+      "source_sha256": "08ae1d187fc7be2eca86a207dcb15bb5bbcf60c4db4ce3f14c5c6c856637c895",
+      "source": "Only the second is honest, and it cannot be bolted on from outside: a gate can be *set* from the GUI thread, but if nothing ever *reads* it the button does nothing. Pause therefore remains disabled until an entry point opts in via :func:`pausable`. Stop is a separate contract: :mod:`spacr.cancellation` is polled by shipped workflows at durable boundaries and never claims to suspend an in-progress write.",
+      "context": "Only the second is honest, and it cannot be bolted on from outside: a data-selection boundary can be *set* from the main GUI execution path, but if nothing ever *reads* it the button does nothing. Pause therefore remains disabled until an entry point opts in via :func:`pausable`. Stop is a separate contract: :mod:`spacr.cancellation` is polled by shipped workflows at durable boundaries and never claims to suspend an in-progress write.",
+      "translation": "केवल दूसरा विकल्प ईमानदार है और उसे बाहर से जोड़ा नहीं जा सकता: pause संकेत को GUI thread से *set* किया जा सकता है, लेकिन यदि कोई उसे *reads* ही नहीं करता तो button कुछ नहीं करता। इसलिए pause तब तक disabled रहता है जब तक कोई entry point :func:`pausable` से opt in न करे। Stop एक अलग contract है: :mod:`spacr.cancellation` को shipped workflows टिकाऊ boundaries पर poll करते हैं और वह किसी चल रहे write को suspend करने का दावा नहीं करता।"
+    },
+    {
+      "label": "spacr.qt.job_runner#4",
+      "source_sha256": "ac37321b9f04137a4597d4e18330ab830fea36eeb139043632d2250406ce1db6",
+      "source": "``QThread.finished`` must be connected to a **bound method of a GUI-thread QObject**, never a closure. PySide6 makes the QThread itself the receiver for a closure, and :func:`spacr.qt.bridge.make_thread` connects ``thread.finished -> thread.deleteLater`` first. Slots run in connection order, so the DeferredDelete is posted ahead of the closure's metacall and Qt discards queued events for a destroyed receiver: the job is never retired and ``active_jobs()`` never returns to zero.",
+      "context": "**QObject receiver requirement.** Connect ``QThread.finished`` to a method on a QObject that belongs to the GUI thread. A closure is unsafe. PySide6 assigns the QThread itself as a closure's receiver. :func:`spacr.qt.bridge.make_thread` first connects ``thread.finished -> thread.deleteLater``. Slots execute in connection order. DeferredDelete is therefore posted before the closure callback. Qt discards the queued callback after destroying its receiver. The job then remains active and ``active_jobs()`` never reaches zero.",
+      "translation": "**QObject receiver की आवश्यकता।** ``QThread.finished`` को GUI thread से संबंधित QObject की method से जोड़ें; closure सुरक्षित नहीं है। PySide6 QThread को ही closure का receiver बना देता है। :func:`spacr.qt.bridge.make_thread` पहले ``thread.finished -> thread.deleteLater`` जोड़ता है। Slots connection order में चलते हैं, इसलिए DeferredDelete closure callback से पहले post होता है। receiver नष्ट होने के बाद Qt queued callback छोड़ देता है। तब job active रहती है और ``active_jobs()`` कभी zero तक नहीं पहुँचता।"
+    },
+    {
+      "label": "spacr.qt.prerun#6",
+      "source_sha256": "735429e35254bebd90cdf07bb9272653b2245e3a2db040ff67631e39ee93d0f2",
+      "source": "The banner **reads** a verdict; it does not compute one.  Opening a plate's masks costs seconds to minutes, and a screen that pays that on every visit is a screen nobody keeps.  So :func:`spacr.seg_qc.read_digest` parses the CSVs the mask run already wrote, dates each one against its mask stack, and reports a card older than its masks as OUT OF DATE rather than believing it.  Only the *Score the masks now* button scores anything, only when pressed, and it does it on a worker thread and writes the card so the next open is cheap again.",
+      "context": "The banner **reads** a verdict; it does not compute one.  Opening a plate's masks costs seconds to minutes, and an application view that pays that on every visit is an application view nobody keeps.  So :func:`spacr.seg_qc.read_digest` parses the CSVs the mask run already wrote, dates each one against its mask stack, and reports a card older than its masks as OUT OF DATE rather than believing it.  Only the *Score the masks now* button scores anything, only when pressed, and it does it on a background execution unit and writes the card so the next open is cheap again.",
+      "translation": "banner verdict को **पढ़ता** है; उसे निकालता नहीं। किसी plate के masks खोलने में seconds से minutes लगते हैं, और हर बार आने पर यह लागत चुकाने वाला application view कोई उपयोग नहीं करेगा। इसलिए :func:`spacr.seg_qc.read_digest` masks बनाने वाले निष्पादन द्वारा पहले से लिखे CSV पढ़ता है, हर फ़ाइल का दिनांक उसके mask stack से मिलाता है, और masks से पुरानी card को मानने के बजाय पुराना बताता है। केवल *अभी masks को score करें* button, और वह भी दबाने पर, score निकालता है; यह background execution unit पर काम करके card लिखता है ताकि अगली बार खोलना फिर सस्ता रहे।"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.open_object_request#4",
+      "source_sha256": "a88800a9359bfbe2a29704904688ef3d1ae193d22919ee32ebbf2caafabf632c",
+      "source": "this screen, so the caller can raise or focus it.",
+      "context": "this screen, so the caller can raise or focus it.",
+      "translation": "यह screen, ताकि caller उसे ऊपर ला सके या उस पर focus कर सके।"
+    },
+    {
+      "label": "spacr.qt.screens.batch#6",
+      "source_sha256": "ce901ce11bc5b11854aa885178951c2de8b9089b2bd22c3279d9cfb96eeca7b9",
+      "source": "**The run happens off the GUI thread, and its completion handler comes back onto it.** ``PipelineWorker.finished`` is emitted *in the worker thread*; every widget-mutating receiver therefore uses an explicit queued connection to a bound method of this GUI-thread widget.",
+      "context": "The run uses a worker. **Execution model:** completion returns to the GUI thread. ``PipelineWorker.finished`` is emitted *inside the worker thread*; therefore each receiver that changes a widget uses an explicit queued connection to a bound method of this GUI-thread widget.",
+      "translation": "run worker पर चलता है। **Execution model:** पूरा होने का signal GUI thread पर लौटता है। ``PipelineWorker.finished`` *worker thread के भीतर* emit होता है; इसलिए widget बदलने वाला हर receiver इस GUI-thread widget की bound method के लिए explicit queued connection उपयोग करता है।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser#7",
+      "source_sha256": "d89f7eba372b272d352272bfcf5f0fecf9153c8963eafe83d2e9417c9003e30a",
+      "source": "**Off the GUI thread.** Every chunk, count and export goes through :func:`spacr.qt.bridge.make_thread`, the same helper the pipeline screens use, and each worker opens (and closes) its **own** sqlite connection — ``sqlite3`` objects are not shareable across threads. Jobs queue and run **one at a time**; see :meth:`DbBrowserScreen._run_job` for why two ``PipelineWorker``\\ s must not overlap.",
+      "context": "**Background execution.** Each chunk, count, and export runs outside the GUI thread through :func:`spacr.qt.bridge.make_thread`, also used by workflow screens. Each worker opens and closes **a separate** sqlite connection; ``sqlite3`` objects cannot be shared between execution threads. Jobs run **sequentially**. :meth:`DbBrowserScreen._run_job` explains why two ``PipelineWorker``\\ s cannot overlap.",
+      "translation": "**Background execution.** हर chunk, count और export GUI thread से बाहर :func:`spacr.qt.bridge.make_thread` के माध्यम से चलता है; workflow screens भी यही helper उपयोग करते हैं। हर worker अपना **अलग** sqlite connection खोलता और बंद करता है; ``sqlite3`` objects execution threads के बीच साझा नहीं किए जा सकते। Jobs **क्रम से एक-एक करके** चलते हैं। :meth:`DbBrowserScreen._run_job` बताता है कि दो ``PipelineWorker``\\ s overlap क्यों नहीं कर सकते।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser#9",
+      "source_sha256": "e68e47881045dae63873a4a8fba190b94efeca836d2b1edc923fbbf0b7fa6ca7",
+      "source": "**Read-only by default, structurally.** Browsing connections are opened with the ``file:…?mode=ro`` URI *and* ``PRAGMA query_only = ON``. A write is rejected by SQLite itself, not by a check we could forget. Editing is a separate, opt-in path (see below) with its own connection.",
+      "context": "**Read-only by default, structurally.** Browsing connections are opened with the ``file:…?mode=ro`` URI *and* ``PRAGMA query_only = ON``. A write is rejected by SQLite itself, not by a check we could forget. Editing is a separate, opt-in path (see below) with its own connection.",
+      "translation": "**संरचनात्मक रूप से डिफ़ॉल्ट केवल-पठन।** browsing connections ``file:…?mode=ro`` URI *और* ``PRAGMA query_only = ON`` के साथ खुलते हैं। Write को SQLite स्वयं अस्वीकार करता है, किसी भूल सकने योग्य check पर निर्भर नहीं करता। Editing अलग opt-in path है (नीचे देखें), जिसका अपना connection है।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser#13",
+      "source_sha256": "6392356b6f39665880f8435a9e7793fec8dcc8bd089d39645560368de2d04f5b",
+      "source": "An UPDATE against ``measurements.db`` is unrecoverable, so every guard below has to fail open to *read-only*:",
+      "context": "An UPDATE against ``measurements.db`` is unrecoverable, so every guard below has to fail open to *read-only*:",
+      "translation": "``measurements.db`` के विरुद्ध UPDATE वापस नहीं लिया जा सकता, इसलिए नीचे का हर guard विफल होने पर *केवल-पठन* अवस्था में खुलना चाहिए:"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser#14",
+      "source_sha256": "a37121c2ccaa4f51c709b917392c74958bad54785a841d587455b83acced42a2",
+      "source": "1. :func:`spacr.qt.preferences.get_db_browser_editable` must be on — it is off by default and lives in Preferences, not on this screen. 2. The database must have been chosen explicitly in this session (``set_database(..., explicit=True)``). 3. The user must tick \"Edit mode\" *and* confirm; ticking alone does nothing. 4. The row must be addressable by ``rowid`` or a primary key. Without one, the edit is refused — an UPDATE matching on column values can hit many rows, which on a measurements table is silent mass corruption. The write also probes ``COUNT(*)`` for the row address first and rolls back unless ``rowcount == 1``. 5. The typed text must be coercible to the column's declared type. SQLite will cheerfully store ``'abc'`` in an INTEGER column; :func:`coerce_for_column` refuses instead.",
+      "context": "Editing is allowed only when all five checks pass. 1. :func:`spacr.qt.preferences.get_db_browser_editable` is enabled in Preferences; it is off by default and is not on this screen. 2. This session explicitly selected the database with ``set_database(..., explicit=True)``. 3. The user selected \"Edit mode\" *and* confirmed it; selection alone does nothing. 4. The row has ``rowid`` or a primary-key identifier. Otherwise refuse the edit: matching column values could silently update many measurement rows. Before writing, probe ``COUNT(*)`` and roll back unless ``rowcount == 1``. 5. The text converts to the declared column type. SQLite accepts ``'abc'`` in an INTEGER column, but :func:`coerce_for_column` must refuse it.",
+      "translation": "Editing केवल सभी पाँच checks के सफल होने पर अनुमत है। 1. :func:`spacr.qt.preferences.get_db_browser_editable` Preferences में enabled हो; यह डिफ़ॉल्ट रूप से off है और इस screen पर नहीं है। 2. इस session ने ``set_database(..., explicit=True)`` से database को स्पष्ट रूप से चुना हो। 3. उपयोगकर्ता ने \"Edit mode\" चुना *और* पुष्टि की हो; केवल चुनने से कुछ नहीं होता। 4. row में ``rowid`` या primary-key identifier हो। अन्यथा edit अस्वीकार करें: column values से match करने वाला UPDATE अनेक measurement rows को चुपचाप बदल सकता है। लिखने से पहले ``COUNT(*)`` जाँचें और ``rowcount == 1`` न होने पर rollback करें। 5. text को घोषित column type में बदला जा सके। SQLite INTEGER column में ``'abc'`` स्वीकार कर लेता है, लेकिन :func:`coerce_for_column` को इसे अस्वीकार करना चाहिए।"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.is_headless#2",
+      "source_sha256": "578b870f2c8294483c7d7162d4ca00cf313706f6e7b20310e496459017500714",
+      "source": "Sibling screens (align / batch / convert / report / plate_view / …) solve this by never opening a modal at all — see their ``_set_status`` docstrings, which cite this screen as the case that actually hung. That is not sufficient here because \"Clear mask\" genuinely needs a yes/no answer, so this screen keeps the modal when — and only when — there is somebody able to answer it.",
+      "context": "The align / batch / convert / report / plate_view screens never open a modal dialog; their ``_set_status`` documentation refers to the earlier hang in this screen. Here, however, \"Clear mask\" requires a yes-or-no response. Therefore this screen opens the dialog only when a person can answer it.",
+      "translation": "align screen, batch screen, convert screen, report screen और plate_view screen कभी modal dialog नहीं खोलते; उनके ``_set_status`` documentation में इस screen पर हुई पुरानी hang का उल्लेख है। लेकिन यहाँ \"Clear mask\" को हाँ या नहीं का उत्तर चाहिए। इसलिए यह screen dialog केवल तभी खोलता है जब कोई व्यक्ति उत्तर दे सके।"
+    },
+    {
+      "label": "spacr.qt.screens.power#1",
+      "source_sha256": "f891ade99b982bb50a7bb8a10edbb2944a3d73cc114092c4ce96c7ca2fb323de",
+      "source": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screen you know the truth for, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the hits you planted. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
+      "context": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screening experiment you know the truth for, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the hits you planted. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
+      "translation": "spaCRPower port आने के बाद से science tree में है: :mod:`spacr.power_simulate` ऐसा screening experiment बनाता है जिसकी सच्चाई ज्ञात होती है, और :mod:`spacr.power_model` उस पर horseshoe-Poisson model fit करके जाँचता है कि fit ने लगाए गए hits कितने अच्छे से पाए। जो कभी नहीं था वह surface है जहाँ screener अपना वास्तविक प्रश्न पूछ सके; वह प्रश्न \"well_abundance_factor_mu = 4.6 वाले design का AUROC क्या है\" नहीं, बल्कि"
+    },
+    {
+      "label": "spacr.qt.screens.power#4",
+      "source_sha256": "ac096c7f87af03a9e1e8f7b1914723766382231fb5784914d0516daff1f970b8",
+      "source": "**The screen computes no statistics of its own.** Every number on it comes out of :func:`spacr.power_model.scan_parameters`; the only arithmetic here is counting how many replicates cleared the user's threshold. The translation from \"genes, plates, fold-change\" to simulator keyword arguments lives in one function, :func:`spacr.qt.widgets.power_design.simulator_kwargs`, so a run started here and the same run typed at a Python prompt are the same call. The test suite asserts that byte for byte on a fixed seed.",
+      "context": "**The screen computes no statistics of its own.** Every number on it comes out of :func:`spacr.power_model.scan_parameters`; the only arithmetic here is counting how many replicates cleared the user's threshold. The translation from \"genes, plates, fold-change\" to simulator keyword arguments lives in one function, :func:`spacr.qt.widgets.power_design.simulator_kwargs`, so a run started here and the same run typed at a Python prompt are the same call. The test suite asserts that byte for byte on a fixed seed.",
+      "translation": "**यह screen स्वयं कोई statistics नहीं निकालता।** हर number :func:`spacr.power_model.scan_parameters` से आता है; यहाँ केवल यह गिना जाता है कि कितने replicates ने उपयोगकर्ता का threshold पार किया। \"genes, plates और fold-change\" को simulator keyword arguments में बदलना एक function :func:`spacr.qt.widgets.power_design.simulator_kwargs` में है, इसलिए यहाँ शुरू किया गया run और Python prompt पर लिखा वही run समान call हैं। Test suite fixed seed पर इसे byte-for-byte जाँचता है।"
+    },
+    {
+      "label": "spacr.qt.screens.power#6",
+      "source_sha256": "49fd32c88fa90ed701a360e58ac8cba2be0ccc90633b919619c4b5aa736feb39",
+      "source": "**Off the GUI thread, and the thread actually retires.** A full sweep is minutes. It goes through :func:`spacr.qt.bridge.make_thread`, and every ``thread.finished`` slot is a BOUND METHOD — see :meth:`PowerScreen._retire_finished_jobs` for what a closure does here and why it is not a style preference.",
+      "context": "**Execution model:** a full sweep takes minutes, so it runs outside the GUI thread and the thread must retire. It uses :func:`spacr.qt.bridge.make_thread`, and each ``thread.finished`` slot is a BOUND METHOD. :meth:`PowerScreen._retire_finished_jobs` explains why a closure is incorrect here.",
+      "translation": "**Execution model:** पूरा sweep कई minutes लेता है, इसलिए GUI thread से बाहर चलता है और thread को retire होना चाहिए। यह :func:`spacr.qt.bridge.make_thread` उपयोग करता है, और हर ``thread.finished`` slot एक BOUND METHOD है। :meth:`PowerScreen._retire_finished_jobs` बताता है कि closure यहाँ गलत क्यों है।"
+    }
+  ]
+}
