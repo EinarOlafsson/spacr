@@ -82,8 +82,9 @@ recursion" wording is for.
 WHAT TO DO
 --------------------------------------------------------------------------------
 
-Done. Confirmation on the maintainer's machine is the remaining step: run
-classify again and see it past the similarity columns.
+Done and confirmed: the maintainer reran classify on 2026-08-14 and it
+completed. With instruction 96's OpenMP guard and this stack fix together,
+classify (ML) in annotation mode runs to the end on macOS.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
