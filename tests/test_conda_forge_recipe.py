@@ -26,6 +26,16 @@ CONDA_NAMES = {
     "huggingface-hub": "huggingface_hub",
 }
 
+# The conda package is an application distribution, not only setup.py's core
+# library wheel. These are deliberate conda-only runtime additions: Cellpose's
+# recipe currently omits its SAM import, while spaCR's Qt extra cannot be
+# selected through conda package extras.
+CONDA_APPLICATION_DEPENDENCIES = {
+    "segment-anything",
+    "pyside6",
+    "qtawesome",
+}
+
 
 def _normalise(name: str) -> str:
     return re.sub(r"[-_.]+", "-", name).lower()
@@ -58,7 +68,7 @@ def test_conda_recipe_covers_every_core_dependency():
         _normalise(CONDA_NAMES.get(name, name))
         for name in _core_dependency_names()
     }
-    assert conda_names == expected
+    assert conda_names == expected | CONDA_APPLICATION_DEPENDENCIES
 
 
 def test_conda_recipe_is_noarch_and_uses_a_verified_tag_archive():
@@ -69,6 +79,26 @@ def test_conda_recipe_is_noarch_and_uses_a_verified_tag_archive():
     assert "archive/refs/tags/v${{ version }}.tar.gz" in recipe["source"]["url"]
     assert re.fullmatch(r"[0-9a-f]{64}", recipe["source"]["sha256"])
     assert recipe["extra"]["recipe-maintainers"] == ["EinarOlafsson"]
+
+
+def test_conda_recipe_exercises_heavy_and_desktop_imports_without_pip_metadata():
+    """The SAM conda package imports but has no dist-info for ``pip check``."""
+    recipe = yaml.safe_load(RECIPE.read_text(encoding="utf-8"))
+    python_imports = {
+        name
+        for test in recipe["tests"]
+        for name in test.get("python", {}).get("imports", [])
+    }
+    scripts = [
+        command
+        for test in recipe["tests"]
+        for command in test.get("script", [])
+    ]
+    assert {"spacr.measure", "spacr.qt", "cellpose", "segment_anything"} <= (
+        python_imports
+    )
+    assert "spacr-run --list" in scripts
+    assert "pip check" not in RECIPE.read_text(encoding="utf-8")
 
 
 def test_conda_recipe_preserves_the_license_of_its_tagged_source():
