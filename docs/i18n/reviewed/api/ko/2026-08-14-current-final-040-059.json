@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "spacr.confusion.ConfusionCell.build#1",
+      "source_sha256": "99faed31fda84fcbb3c0d9f8af0f0c8ff004814b788a2acd1733ee2372fcdcdf",
+      "source": "where \"sure\" starts. Defaults to :func:`confidence_threshold` of ``n_classes``, or of the number of distinct classes in ``predictions`` when that is not given.",
+      "context": "where \"sure\" starts. Defaults to :func:`confidence_threshold` of ``n_classes``, or of the number of distinct classes in ``predictions`` when that is not given.",
+      "translation": "\"sure\"로 판정하기 시작하는 지점입니다. 기본값은 :func:`confidence_threshold`에 ``n_classes``를 적용한 값이며, 값이 없으면 ``predictions``에 있는 서로 다른 클래스 수를 사용합니다."
+    },
+    {
+      "label": "spacr.plot.plot_plates#1",
+      "source_sha256": "c928b0936f2c90a7765252945da92a94f507a6f6f266590c37b5f708da58a02f",
+      "source": "Splits ``df`` by the plate token in the ``prc`` identifier (``plateID_rowID_columnID``), aggregates ``variable`` per well according to ``grouping``, and lays the plates out four-per-row on a single figure. Optionally writes the figure to ``<dst>/plate_heatmap_<n>.pdf``.",
+      "context": "Splits ``df`` by the laboratory microplate token in the ``prc`` identifier (``plateID_rowID_columnID``), aggregates ``variable`` per microplate sample position according to ``grouping``, and lays the laboratory microplates out four-per-row on a single figure. Optionally writes the figure to ``<dst>/plate_heatmap_<n>.pdf``.",
+      "translation": "``df``를 ``prc`` 식별자(``plateID_rowID_columnID``)의 실험실 마이크로플레이트 토큰으로 나누고, 시료 위치별 ``variable`` 값을 ``grouping``에 따라 집계한 뒤, 한 그림에 마이크로플레이트를 행마다 네 개씩 배치합니다. 선택적으로 그림을 ``<dst>/plate_heatmap_<n>.pdf``에 기록합니다."
+    },
+    {
+      "label": "spacr.attribution.attention_rollout#2",
+      "source_sha256": "ef78e780de0fe04d75ee53db81d783da2844becea101c4d69a2f17bd09090655",
+      "source": "It reads spaCR's :class:`torch.nn.MultiheadAttention` blocks, which return their attention weights from ``forward``. Backbones whose attention is a fused kernel (timm's ViT via ``scaled_dot_product_attention``) expose no weights, and this raises rather than inventing a map.",
+      "context": "It reads spaCR's :class:`torch.nn.MultiheadAttention` blocks, which return their attention weights from ``forward``. Backbones whose attention is a fused kernel (timm's ViT via ``scaled_dot_product_attention``) expose no weights, and this raises rather than inventing a map.",
+      "translation": "spaCR 의 :class:`torch.nn.MultiheadAttention` 블록을 읽습니다. 이 블록은 ``forward``에서 어텐션 가중치를 반환합니다. 어텐션이 융합 커널(timm의 ViT 모델에서 ``scaled_dot_product_attention`` 사용)인 백본은 가중치를 노출하지 않으므로, 지도를 만들어 내지 않고 예외를 발생시킵니다."
+    },
+    {
+      "label": "spacr.qt.verbose_logger#8",
+      "source_sha256": "a7da05709eb21e2fd271534d734b5ecbfe154380331d099efcebd4a5543f16fe",
+      "source": ":class:`_ConsoleRelay` is the fix: a QObject pinned to the GUI thread whose ``line`` signal is connected to its own **bound method**, so Qt queues the delivery whenever the emitting thread is not the GUI thread and the panel only ever touches widgets on the thread that owns them.",
+      "context": "**GUI-thread relay.** :class:`_ConsoleRelay` is a QObject that belongs to the GUI thread. Its ``line`` signal calls one method on that relay. Qt queues a signal emitted from another thread. Therefore the panel accesses widgets only from their owning thread.",
+      "translation": ":class:`_ConsoleRelay`가 해결책입니다. GUI 실행 경로에 고정된 QObject 이고, ``line`` 신호가 자신의 **바인딩된 메서드**에 연결됩니다. 따라서 방출하는 실행 경로가 GUI 실행 경로가 아니면 Qt 가 전달을 대기열에 넣고, 패널은 위젯 소유 실행 경로에서만 위젯에 접근합니다."
+    },
+    {
+      "label": "spacr.crop_source.matches_path#1",
+      "source_sha256": "2a17902227be8ed8baf403dcdea6906b8e5db09cb601e4a9d3e514dfa3ea8e46",
+      "source": "Two independent tests, which is the whole point of splitting them: WHICH OBJECT the crop is of (a substring of its path, e.g. ``cell_png``) and WHAT FORMAT it is in (its extension). One setting could never express \"every nucleus crop, whatever format\" or \"every TIFF, whatever object\".",
+      "context": "Two independent tests, which is the whole point of splitting them: WHICH OBJECT the extracted image region is of (a substring of its path, e.g. ``cell_png``) and WHAT FORMAT it is in (its extension). One setting could never express \"every nucleus extracted image region, whatever format\" or \"every TIFF, whatever object\".",
+      "translation": "두 가지 독립된 검사를 분리하는 것이 핵심입니다. 추출 이미지 영역이 어떤 객체인지(경로의 하위 문자열, 예: ``cell_png``)와 어떤 형식인지(확장자)를 각각 검사합니다. 하나의 설정으로는 \"형식과 관계없이 모든 핵 추출 이미지 영역\" 또는 \"객체와 관계없이 모든 TIFF 파일\"을 표현할 수 없습니다."
+    },
+    {
+      "label": "spacr.resume.field_identity#6",
+      "source_sha256": "ebd045804422562a37eed3d186c92dd08768e9d8a79a26bdf5d074894c759cc5",
+      "source": "when the name has too few underscore-separated parts to identify a field, or when the well cannot be read. Guessing here would produce a delete key that matches the wrong rows. (:class:`spacr.schema.SchemaError` *is* a ``ValueError``, so callers guarding on ``ValueError`` keep working.)",
+      "context": "when the name has too few underscore-separated parts to identify a microscope field of view, or when the microplate sample position cannot be read. Guessing here would produce a delete structured-data name that matches the wrong rows. (:class:`spacr.schema.SchemaError` *is* a ``ValueError``, so callers guarding on ``ValueError`` keep working.)",
+      "translation": "이름의 밑줄로 구분된 부분이 너무 적어 현미경 시야를 식별할 수 없거나 마이크로플레이트 시료 위치를 읽을 수 없을 때입니다. 여기서 추측하면 잘못된 행과 일치하는 삭제 식별자가 생성됩니다. (:class:`spacr.schema.SchemaError`는 *실제로* ``ValueError``이므로 ``ValueError``를 처리하는 호출자는 계속 작동합니다.)"
+    },
+    {
+      "label": "spacr.zstack.segment_3d#3",
+      "source_sha256": "e794dffa780a93e0b15d2d6095a6b630e082c6234f37f083d38d8339da01294d",
+      "source": ":data:`MODE_STITCH` -- ``segment_fn(volume, stitch=True)``; the result may be per-plane labels, which are then linked by :func:`stitch_planes`. Anisotropy is *not* passed, because neither this code nor Cellpose uses it without ``do_3D``; supplying it is recorded as a no-op in ``notes``.",
+      "context": ":data:`MODE_STITCH` -- ``segment_fn(volume, stitch=True)``; the result may be per-image-layer labels, which are then linked by :func:`stitch_planes`. Anisotropy is *not* passed, because neither this code nor Cellpose uses it without ``do_3D``; supplying it is recorded as a no-op in ``notes``.",
+      "translation": ":data:`MODE_STITCH` -- ``segment_fn(volume, stitch=True)``를 사용합니다. 결과는 이미지 레이어별 레이블일 수 있으며 :func:`stitch_planes`가 이를 연결합니다. 이 코드와 Cellpose 모두 ``do_3D`` 없이는 비등방성을 사용하지 않으므로 비등방성 값은 *전달하지 않습니다*. 값이 제공되면 ``notes``에 아무 효과가 없다고 기록합니다."
+    },
+    {
+      "label": "spacr.pipeline_v2.run_v2#6",
+      "source_sha256": "2ab279bc9c2b748944c112738c202749c779b8ac3a29984732ef7188b50662e7",
+      "source": "despite the name this never reaches Cellpose's ``channels=`` argument; it selects C-axis indices from the assembled stack, taken modulo the channel count (7 with C=4 becomes 3) and de-duplicated in order. The default ``(0, 0)`` collapses to one plane, and an empty sequence falls back to plane 0.",
+      "context": "despite the name this never reaches Cellpose's ``channels=`` argument; it selects C-axis indices from the assembled stack, taken modulo the image data channel count (7 with C=4 becomes 3) and de-duplicated in order. The default ``(0, 0)`` collapses to one image layer, and an empty sequence falls back to image layer 0.",
+      "translation": "이름과 달리 Cellpose 의 ``channels=`` 인수에는 전달되지 않습니다. 조립된 스택에서 C축 인덱스를 선택하고 이미지 데이터 채널 수로 나눈 나머지를 사용하며(C=4일 때 7은 3), 순서를 유지해 중복을 제거합니다. 기본값 ``(0, 0)``은 이미지 레이어 하나로 축약되고, 빈 시퀀스는 이미지 레이어 0을 사용합니다."
+    },
+    {
+      "label": "spacr.timelapse.analyze_calcium_oscillations#13",
+      "source_sha256": "c739181fa0e801f5c4f677d5977553cf8189fe9b86e4627d2896d46117d72a65",
+      "source": "tuple ``(result_df, peak_details_df, fig)`` -- the photobleach-corrected per-cell traces, the per-peak details and the summary matplotlib Figure. The per-well summaries are only written to CSV. Returns ``None`` when the database has no time axis, the decay fit fails, or no cells pass the filters.",
+      "context": "tuple ``(result_df, peak_details_df, fig)`` -- the photobleach-corrected per-cell traces, the per-peak details and the summary matplotlib Figure. The per-microplate sample position summaries are only written to CSV. Returns ``None`` when the database has no time axis, the decay fit fails, or no cells pass the filters.",
+      "translation": "튜플 ``(result_df, peak_details_df, fig)``를 반환합니다. 광표백을 보정한 셀별 궤적, 피크별 세부 정보, 요약 matplotlib Figure 입니다. 마이크로플레이트 시료 위치별 요약은 CSV 에만 기록됩니다. 데이터베이스에 시간축이 없거나 감쇠 피팅이 실패하거나 필터를 통과한 셀이 없으면 ``None``을 반환합니다."
+    },
+    {
+      "label": "spacr.roi.RoiSet#1",
+      "source_sha256": "72952cf8742d7b7efc90a49d105ab62b3c7b4ff449ec1156fca63b00def41065",
+      "source": "``{field name: (RegionOfInterest, ...)}``. The field name is the ``.npy`` stem the pipeline uses, e.g. ``plate1_A01_F001``; :data:`ANY_FIELD` (``'*'``) is the fallback for every field with no entry of its own. Several ROIs on one field are a UNION — drawing a second polygon adds to what is measured.",
+      "context": "``{field name: (RegionOfInterest, ...)}``. The field name is the ``.npy`` stem the workflow uses, e.g. ``plate1_A01_F001``; :data:`ANY_FIELD` (``'*'``) is the fallback for every field with no entry of its own. Several ROIs on one field are a UNION — drawing a second polygon adds to what is measured.",
+      "translation": "``{field name: (RegionOfInterest, ...)}`` 형식입니다. 시야 이름은 워크플로가 사용하는 ``.npy`` 파일의 어간(예: ``plate1_A01_F001``)입니다. :data:`ANY_FIELD`(``'*'``)는 자체 항목이 없는 모든 시야의 대체값입니다. 한 시야의 여러 ROIs 는 합집합이며, 두 번째 다각형을 그리면 측정 영역에 추가됩니다."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#26",
+      "source_sha256": "c506d395a36465c8892c47e4a0b8f47d6254ff0d1b5da1156e2c0dc0083cd2e6",
+      "source": "R² on a sigmoid is nearly useless. Any monotone curve through a well-sampled dose–response scores above 0.95, because the total sum of squares is dominated by the difference between the two plateaus and *any* S-shaped line captures that. :meth:`DoseResponseResult.caveats` says so next to the number, every time.",
+      "context": "R² on a sigmoid is nearly useless. Any monotone curve through a microplate sample position-sampled dose–response scores above 0.95, because the total sum of squares is dominated by the difference between the two plateaus and *any* S-shaped line captures that. :meth:`DoseResponseResult.caveats` says so next to the number, every time.",
+      "translation": "시그모이드의 R²는 거의 쓸모가 없습니다. 충분히 표본화된 용량-반응을 지나는 단조 곡선은 거의 모두 0.95를 넘습니다. 총제곱합이 두 평탄부의 차이에 지배되고 *어떤* S자 곡선도 이를 포착하기 때문입니다. :meth:`DoseResponseResult.caveats`는 매번 수치 옆에서 이 사실을 설명합니다."
+    },
+    {
+      "label": "spacr.qt.widgets.class_editor#4",
+      "source_sha256": "0f5379dbec7912890d3475a6528865875124cf9c9a056a01f7a60afb5506fb32",
+      "source": "**The random complement.** One row can be \"everything not claimed, chosen at random\", which is what the retired ``write_random_annotation_column`` used to arrange. It is a KIND OF ROW here rather than a button pressed beforehand, because it is a way of defining a class and belongs where the other class definitions are.",
+      "context": "**The random complement.** One row can be \"everything not claimed, chosen at random\", which is what the retired ``write_random_annotation_column`` used to arrange. It is a KIND OF ROW here rather than a button pressed beforehand, because it is a way of defining a class and belongs where the other class definitions are.",
+      "translation": "**무작위 여집합.** 한 행을 \"어떤 클래스에도 포함되지 않은 항목 중 무작위로 선택\"으로 정의할 수 있습니다. 폐기된 ``write_random_annotation_column``이 하던 일입니다. 여기서는 미리 누르는 버튼이 아니라 행의 종류입니다. 클래스를 정의하는 방법이므로 다른 클래스 정의와 함께 있어야 합니다."
+    },
+    {
+      "label": "spacr.convert.assign_wells#3",
+      "source_sha256": "663806a9fc48ed9378b61c2f7e7fed201fc98707c0283c774a4a19c4d33f3924",
+      "source": "All three are deterministic — the same folder names always produce the same wells — and step 3 is only *reversible* because the map file records ``source_well`` next to ``well``. Which is the point: after conversion ``plate1_A01`` means nothing without the map, so :func:`plan` also reports every synthetic assignment by name.",
+      "context": "All three are deterministic — the same folder names always produce the same microplate sample positions — and step 3 is only *reversible* because the map file records ``source_well`` next to ``well``. Which is the point: after conversion ``plate1_A01`` means nothing without the map, so :func:`plan` also reports every synthetic assignment by name.",
+      "translation": "세 방법은 모두 결정적이므로 같은 폴더 이름은 항상 같은 마이크로플레이트 시료 위치를 만듭니다. 3단계가 *되돌릴 수 있는* 이유는 매핑 파일이 ``source_well``을 ``well`` 옆에 기록하기 때문입니다. 변환 후 ``plate1_A01``은 매핑 없이는 의미가 없으므로 :func:`plan`도 모든 합성 할당을 이름으로 보고합니다."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue#5",
+      "source_sha256": "e91099b8a3a329181ac0bb574bcf72c0182f31943ee77b073a46ba1dc83a41d1",
+      "source": "**RAM cap + temp spill** — the 100 most-recent figures keep their full-resolution QPixmap in RAM. When figure #101 arrives, figure #1's pixmap is dropped from RAM (its PNG stays on disk in a temp dir); #102 evicts #2, and so on — a 100-wide sliding window. Navigating back to an evicted figure reloads it from its temp PNG on demand.",
+      "context": "**RAM cap + temp spill** — the 100 most-recent figures keep their full-resolution QPixmap in RAM. When figure #101 arrives, figure #1's pixmap is dropped from RAM (its PNG stays on disk in a temp dir); #102 evicts #2, and so on — a 100-wide sliding window. Navigating back to an evicted figure reloads it from its temp PNG on demand.",
+      "translation": "**RAM 제한과 임시 저장소 넘김** — 가장 최근 그림 100개는 전체 해상도 QPixmap 을 RAM 에 유지합니다. 그림 #101이 추가되면 그림 #1의 픽스맵을 RAM 에서 제거하지만 PNG 파일은 임시 디렉터리에 남깁니다. #102는 #2를 제거하는 식으로 폭 100의 이동 창을 유지합니다. 제거된 그림으로 돌아가면 임시 PNG 파일에서 필요할 때 다시 읽습니다."
+    },
+    {
+      "label": "spacr.sequencing.map_sequences_to_names#1",
+      "source_sha256": "ef8adf87a8db5c13aec9cfc66b4389b4090594becbbd9971d6e3270874eb3a20",
+      "source": "Used inside the spacr sequencing pipeline to translate the row, column, and gRNA barcodes extracted from paired-end reads into their human-readable labels. Only the CSV's ``sequence`` column is reverse-complemented when ``rc=True``; the input ``sequences`` are matched verbatim, so callers should orient reads consistently beforehand.",
+      "context": "Used inside the spacr sequencing workflow to translate the row, column, and gRNA barcodes extracted from paired-end reads into their easy-to-read labels. Only the CSV's ``sequence`` column is reverse-complemented when ``rc=True``; the input ``sequences`` are matched verbatim, so callers should orient reads consistently beforehand.",
+      "translation": "spacr 시퀀싱 워크플로에서 사용하며, 페어드엔드 리드에서 추출한 행, 열, gRNA 바코드를 읽기 쉬운 레이블로 변환합니다. CSV 의 ``sequence`` 열은 ``rc=True``일 때만 역상보 서열로 바꿉니다. 입력 ``sequences``는 그대로 일치시키므로 호출자는 사전에 리드 방향을 일관되게 맞춰야 합니다."
+    },
+    {
+      "label": "spacr.power_model#2",
+      "source_sha256": "41d39e72d3400f0c2c0db3caf073b668f281c8528dae89fcf9403dd9c89918eb",
+      "source": "spaCRPower — Copyright (c) Matthew O'Meara. Released under the MIT licence.  Ported to Python for spaCR; the statistical model (Poisson regression on log10 read-fraction with a horseshoe prior on the per-gene coefficients, scored by AUROC / average precision against ground-truth hit status) is his.  Errors in the translation are ours.",
+      "context": "spaCRPower — Copyright (c) Matthew O'Meara. Released under the MIT licence.  Ported to Python for spaCR; the statistical model (Poisson regression on log10 read-fraction with a horseshoe prior on the per-gene coefficients, scored by AUROC / average precision against ground-truth hit status) is his.  Errors in the translation are ours.",
+      "translation": "spaCRPower — 저작권 (c) Matthew O'Meara. MIT 라이선스로 배포됩니다. spaCR 을 위해 Python 으로 이식했으며, 통계 모델(유전자별 계수에 말굽 사전분포를 둔 log10 리드 비율의 푸아송 회귀를 실제 히트 상태에 대한 AUROC / 평균 정밀도로 평가)은 그의 작업입니다. 번역 오류는 우리 책임입니다."
+    },
+    {
+      "label": "spacr.qt.annotate_engine.load_crop_image#5",
+      "source_sha256": "fd59200420ba68919683e702d431d4e66b947b6726baee87e8964592d6952f1d",
+      "source": "stored_channel_order   HOW WAS THIS FILE WRITTEN. A fact about the bytes, resolved from the sidecar marker or the database. Getting it wrong shows the wrong stain, so 'auto' is the right answer almost always. display_order          HOW DO I WANT TO LOOK AT IT. A preference, making no claim about the file. Defaults to 'rgb', the identity.",
+      "context": "stored_channel_order   HOW WAS THIS FILE WRITTEN. A fact about the bytes, resolved from the sidecar marker or the database. Getting it wrong shows the wrong stain, so 'auto' is the right answer almost always. display_order          HOW DO I WANT TO LOOK AT IT. A preference, making no claim about the file. Defaults to 'rgb', the identity.",
+      "translation": "stored_channel_order   이 파일이 어떻게 기록되었는지를 나타냅니다. 사이드카 마커나 데이터베이스에서 확인한 바이트에 대한 사실입니다. 잘못 지정하면 잘못된 염색이 보이므로 거의 항상 'auto' 값이 올바릅니다. display_order          파일에 대해 주장하지 않고 표시 방식을 정하는 환경설정입니다. 기본값은 항등 순서인 'rgb' 값입니다."
+    },
+    {
+      "label": "spacr.qt.widgets.activity_spinner#15",
+      "source_sha256": "156fb8faa652f188f4799a70124994e8c65cc4b6643d399b3205bbcd20c29279",
+      "source": "The clock runs on the *work*, not on the job. A second job starting while the timer is pending does not restart it: the timer is armed on the idle-to-busy edge only, so two seconds of continuous background activity shows the spinner even if no single job lasted that long. Going idle disarms it, and the next burst of work starts a fresh two seconds.",
+      "context": "The clock executes on the *work*, not on the job. A second job starting while the timer is pending does not restart it: the timer is armed on the idle-to-busy edge only, so two seconds of continuous background activity shows the spinner even if no single job lasted that long. Going idle disarms it, and the next burst of work starts a fresh two seconds.",
+      "translation": "시계는 작업이 아니라 *전체 활동*을 기준으로 흐릅니다. 타이머 대기 중 두 번째 작업이 시작되어도 다시 시작하지 않습니다. 유휴 상태에서 바쁜 상태로 바뀔 때만 타이머를 설정하므로, 개별 작업이 2초보다 짧아도 백그라운드 활동이 2초 동안 계속되면 스피너가 표시됩니다. 유휴 상태가 되면 해제되고 다음 활동은 새 2초를 시작합니다."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.TableDropHandler#1",
+      "source_sha256": "1115e27a570f9bb4dc5dc981a815769b378a75c7ad848cbf819a2d7ebb4ee49e",
+      "source": "Drop the project and it finds ``measurements/measurements.db``; drop the database and it uses it; drop a CSV and it reads that. When the database holds more than one table the table is *asked* rather than taken — ``load_path`` picks the first one silently, which is fine for a file dialog where the user chose the file and wrong for a drop where they chose a folder.",
+      "context": "Drop the project and it finds ``measurements/measurements.db``; drop the database and it uses it; drop a CSV and it reads that. When the database holds more than one table the table is *asked* rather than taken — ``load_path`` picks the first one silently, which is fine for a file dialog where the user chose the file and wrong for a drop where they chose a folder.",
+      "translation": "프로젝트를 드롭하면 ``measurements/measurements.db``를 찾고, 데이터베이스를 드롭하면 그대로 사용하며, CSV 파일을 드롭하면 읽습니다. 데이터베이스에 테이블이 여러 개면 임의로 고르지 않고 사용자에게 *묻습니다*. ``load_path``는 첫 테이블을 조용히 선택하므로 사용자가 파일을 고른 파일 대화상자에는 적절하지만 폴더를 고른 드롭에는 잘못된 동작입니다."
+    },
+    {
+      "label": "spacr.io.generate_dataset#1",
+      "source_sha256": "8e9e41ecb517db9dd98177e786bb4956de023c4ee8cd704faad633d08935ece6",
+      "source": "Selects PNG paths (via the ``png_list`` table plus optional ``file_metadata`` filter) from each source's measurements database, optionally random-subsamples, then bundles the images in parallel into a dated tar under the first source's ``datasets/`` folder. Use this to produce the ``tar_path`` consumed by :func:`spacr.deep_spacr.deep_spacr` / ``apply_model_to_tar``.",
+      "context": "Selects PNG paths (via the ``png_list`` table plus optional ``file_metadata`` filter) from each source's measurements database, optionally random-subsamples, then bundles the images in parallel into a dated tar under the first source's ``datasets/`` folder. Use this to produce the ``tar_path`` consumed by :func:`spacr.deep_spacr.deep_spacr` / ``apply_model_to_tar``.",
+      "translation": "각 소스의 측정 데이터베이스에서 PNG 경로를 선택합니다(``png_list`` 테이블과 선택적 ``file_metadata`` 필터 사용). 선택적으로 무작위 하위 표본을 뽑은 뒤 이미지를 병렬로 묶어 첫 소스의 ``datasets/`` 폴더 아래 날짜가 붙은 tar 파일과 ``tar_path``를 만듭니다. 이는 :func:`spacr.deep_spacr.deep_spacr` / ``apply_model_to_tar``에서 사용합니다."
+    }
+  ]
+}
