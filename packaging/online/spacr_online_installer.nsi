@@ -128,11 +128,20 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
     StrCpy $3 "fr"
   ${EndIf}
 
+  ; Keep a tiny wrapper-level trace even when PowerShell fails before its own
+  ; transcript starts. This makes silent enterprise/CI installs diagnosable.
+  FileOpen $4 "$INSTDIR\nsis-bootstrap-status.txt" w
+  FileWrite $4 "starting backend=$1 language=$3 consent=$ConsentCollectedValue$\r$\n"
+  FileClose $4
   DetailPrint "$(SPACR_NSIS_DOWNLOADING)"
   nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$TEMP\spaCR-online-installer\install_spacr_windows.ps1" -InstallRoot "$INSTDIR" -Version "${VERSION}" -TorchBackend "$1" -Language "$3" -ConsentCollected $ConsentCollectedValue -ShareDiagnostics $ConsentShareValue -ReportIssues $ConsentIssuesValue -SignInNow $ConsentSignInValue'
   Pop $0
+  FileOpen $4 "$INSTDIR\nsis-bootstrap-status.txt" a
+  FileWrite $4 "exit=$0$\r$\n"
+  FileClose $4
   ${If} $0 != 0
     MessageBox MB_ICONSTOP "$(SPACR_NSIS_FAILED)"
+    SetErrorLevel $0
     Abort
   ${EndIf}
 
