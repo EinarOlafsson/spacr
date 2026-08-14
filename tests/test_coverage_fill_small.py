@@ -60,6 +60,24 @@ class TestVersion:
 # ---------------------------------------------------------------------------
 
 class TestUpdater:
+    @pytest.mark.parametrize("executable_name", ["uv", "uv.exe"])
+    def test_find_uv_recognises_every_installer_executable(
+            self, executable_name, monkeypatch, tmp_path):
+        from spacr import updater as U
+
+        install_root = tmp_path / "spaCR"
+        prefix = install_root / "venv"
+        bootstrap = install_root / "bootstrap"
+        bootstrap.mkdir(parents=True)
+        executable = bootstrap / executable_name
+        executable.write_bytes(b"uv")
+        executable.chmod(0o755)
+
+        monkeypatch.setattr(U.sys, "prefix", str(prefix))
+        monkeypatch.setattr(U.shutil, "which", lambda _name: None)
+
+        assert U.find_uv() == str(executable)
+
     def test_installed_version_falls_back_to_nightly(self, monkeypatch):
         # spacr raises, spacr-nightly resolves (lines 107-112).
         import importlib.metadata as M

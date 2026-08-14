@@ -284,7 +284,23 @@ SETTING_KEYS: Dict[str, str] = {
 
 #: the mode setting itself, and what it may be set to.
 MODE_SETTING = "seg_qc"
-MODES: Tuple[str, ...] = ("off", "report", "flag")
+MODES: Tuple[str, ...] = ("off", "report", "flag", "stop")
+
+#: The exception `stop` raises. Its own class so a caller can tell "the plate
+#: failed QC" from "the run broke", which a bare RuntimeError cannot.
+
+
+
+class SegmentationQCFailed(RuntimeError):
+    """The plate failed segmentation QC and ``seg_qc='stop'`` was set.
+
+    Carries the summary so a caller can report WHICH fields failed and why,
+    rather than only that something did.
+    """
+
+    def __init__(self, message: str, summary: Optional[Dict[str, Any]] = None):
+        super().__init__(message)
+        self.summary = dict(summary or {})
 
 
 # ---------------------------------------------------------------------------
@@ -389,6 +405,8 @@ def qc_mode(settings: Mapping[str, Any]) -> str:
         return "off"
     if text in ("flag", "flags"):
         return "flag"
+    if text in ("stop", "gate", "halt"):
+        return "stop"
     return "report"
 
 
@@ -1124,7 +1142,8 @@ def run_segmentation_qc(
     :returns: ``{'mode', 'object_type', 'field_qcs', 'summary', 'csv_path',
         'flags'}``, or None when ``mode`` is ``'off'``.
     """
-    if str(mode).strip().lower() not in ("report", "flag"):
+    mode = str(mode).strip().lower()
+    if mode not in ("report", "flag", "stop"):
         return None
 
     th = dict(thresholds or {})
@@ -1136,7 +1155,7 @@ def run_segmentation_qc(
     flags_path = None
     if dst and field_qcs:
         csv_path = write_scorecard(field_qcs, dst, object_type)
-        if mode == "flag":
+        if mode in ("flag", "stop"):
             flags_path = os.path.join(dst, "qc", f"segmentation_qc_{object_type}_flags.json")
             with open(flags_path, "w", encoding="utf-8") as handle:
                 json.dump(
@@ -1163,7 +1182,7 @@ def run_segmentation_qc(
             + (f" [{csv_path}]" if csv_path else "")
         )
 
-    return {
+    result = {
         "mode": mode,
         "object_type": object_type,
         "field_qcs": field_qcs,
@@ -1172,6 +1191,24 @@ def run_segmentation_qc(
         "flags_path": flags_path,
         "flags": flags,
     }
+
+    # THE GATE. Raised LAST, after the scorecard and the flags are on disk and
+    # the verdict has been printed, so stopping the run costs none of the
+    # evidence for why -- a gate that stops before it writes the card leaves
+    # the user with a failure and nothing to read.
+    #
+    # Only on `fail`. A `warn` plate is one the thresholds are unsure about,
+    # and halting a plate on an unsure verdict trains people to turn the gate
+    # off, which is worse than not having it.
+    if mode == "stop" and summary.get("verdict") == "fail":
+        raise SegmentationQCFailed(
+            f"Segmentation QC ({object_type}) FAILED and seg_qc='stop': "
+            f"{summary.get('message', 'the plate did not pass')}"
+            + (f" The scorecard is at {csv_path}." if csv_path else "")
+            + " Set seg_qc='report' to run anyway.",
+            summary=summary,
+        )
+    return result
 
 
 # ===========================================================================
@@ -2137,10 +2174,35 @@ def read_scorecard(path: str) -> Tuple[List["FieldQC"], str]:
         does not invent one.
     """
     reserved = {"field", "object_type", "n_objects", "severity", "flags", "note"}
+    #: A card without these is not a card. Checked against the HEADER, because
+    #: every field below has a default and a row of defaults reads as a clean
+    #: verdict -- `severity` alone falls back to "ok", which is the invented
+    #: verdict this function exists to refuse.
+    required = {"field", "n_objects"}
     out: List["FieldQC"] = []
     try:
         with open(path, newline="", encoding="utf-8", errors="replace") as handle:
-            for row in csv.DictReader(handle):
+            reader = csv.DictReader(handle)
+            header = list(reader.fieldnames or [])
+
+            # THE NUL CHECK HAS TO LOOK AT THE HEADER, and this is why.
+            # CPython's csv module used to raise `_csv.Error: line contains
+            # NUL`, so a corrupted card was caught by the `except csv.Error`
+            # below and reported as unreadable. PYTHON 3.12 STOPPED RAISING:
+            # it parses the NUL straight through into a FIELD NAME. The check
+            # here only ever looked at `row.values()`, so a NUL in the header
+            # became a key it could not see, every real column went missing,
+            # every default applied, and a damaged scorecard came back "ok"
+            # on exactly the interpreters this project targets.
+            if any("\x00" in str(name) for name in header):
+                return [], f"{os.path.basename(path)} is not CSV (NUL byte)"
+            missing = sorted(required - set(header))
+            if header and missing:
+                return [], (f"{os.path.basename(path)} has no "
+                            f"{', '.join(missing)} column, so it carries no "
+                            f"verdict to read")
+
+            for row in reader:
                 if any("\x00" in str(v) for v in row.values() if v is not None):
                     return [], f"{os.path.basename(path)} is not CSV (NUL byte)"
                 metrics: Dict[str, float] = {}

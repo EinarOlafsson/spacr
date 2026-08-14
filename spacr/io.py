@@ -1,6 +1,6 @@
 """Image, dataset, and SQLite input/output helpers used across spaCR."""
 
-import os, re, json, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, glob, queue, threading, tifffile, czifile, atexit, readlif, tempfile, logging
+import os, re, json, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, glob, queue, threading, tifffile, czifile, atexit, readlif, tempfile, logging, warnings
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps
@@ -30,7 +30,6 @@ from torchvision.transforms import ToTensor
 import seaborn as sns 
 from nd2reader import ND2Reader
 from torchvision import transforms
-from sklearn.model_selection import train_test_split
 
 # Backward-compatible injection point used by tests and advanced callers.
 # ``None`` means "load the optional reader on first CZI conversion".
@@ -51,6 +50,9 @@ LOG = logging.getLogger(__name__)
 # they used to carry three hand-written copies of "ABCDEFGHIJKLMNOP" and
 # range(1, 25), which stop at P24.
 from . import convert as _cv
+from .object_roles import CHILD_ROLES, ORGANELLE_ROLES, join_how
+from .crops import MERGED_LAYOUT_SIDECAR
+from .merge_tables import reconcile_duplicates
 
 
 def _load_pylibczi():
@@ -250,11 +252,23 @@ def _load_images_and_labels(image_files, label_files, invert=False):
     from cellpose import io as cellpose_io
     from .utils import invert_image
     
+    # THE NAMES ARE BUILT BESIDE THE PIXELS, one append each, never
+    # separately. They used to be `sorted(basename(f) for f in image_files)`
+    # while `images` was filled in the CALLER's order, and the caller shuffles:
+    # `spacr_cellpose.py:169` and `:296` do `random.shuffle(all_image_files)`
+    # before calling here. `identify_masks_finetune` then writes each mask as
+    # `os.path.join(dst, image_names[file_index])` over `enumerate(images)`, so
+    # every mask landed under a DIFFERENT image's filename -- a whole plate of
+    # segmentations silently attributed to the wrong wells.
+    #
+    # Sorting was only half of it. Each loop below `continue`s past a file that
+    # will not read, which shortened `images` while the precomputed name list
+    # kept every entry, so one unreadable file misnamed every mask after it
+    # even when the input was already in order.
     images = []
     labels = []
-
-    image_names = sorted([os.path.basename(f) for f in image_files]) if image_files else []
-    label_names = sorted([os.path.basename(f) for f in label_files]) if label_files else []
+    image_names = []
+    label_names = []
 
     if image_files and label_files:
         for img_file, lbl_file in zip(image_files, label_files):
@@ -274,6 +288,8 @@ def _load_images_and_labels(image_files, label_files, invert=False):
 
             images.append(image)
             labels.append(label)
+            image_names.append(os.path.basename(img_file))
+            label_names.append(os.path.basename(lbl_file))
 
     elif image_files:
         for img_file in image_files:
@@ -286,6 +302,7 @@ def _load_images_and_labels(image_files, label_files, invert=False):
             if image.max() > 1:
                 image = image / image.max()
             images.append(image)
+            image_names.append(os.path.basename(img_file))
 
     elif label_files:
         for lbl_file in label_files:
@@ -294,6 +311,7 @@ def _load_images_and_labels(image_files, label_files, invert=False):
                 print(f"WARNING: Could not load label: {lbl_file}")
                 continue
             labels.append(label)
+            label_names.append(os.path.basename(lbl_file))
 
     image_dir = os.path.dirname(image_files[0]) if image_files else None
     label_dir = os.path.dirname(label_files[0]) if label_files else None
@@ -2087,7 +2105,12 @@ def preprocess_img_data(settings):
 
     #mask_channels = [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel'], settings['organelle_channel']]
     
-    mask_channels_raw = [settings.get('nucleus_channel'), settings.get('cell_channel'), settings.get('pathogen_channel'), settings.get('organelle_channel')]
+    from .object_roles import ORGANELLE_ROLES
+    mask_channel_keys = (
+        'nucleus_channel', 'cell_channel', 'pathogen_channel',
+        *(f'{role}_channel' for role in ORGANELLE_ROLES),
+    )
+    mask_channels_raw = [settings.get(key) for key in mask_channel_keys]
     
     # Deduplicate while tracking positions. Coerce to int: channel indices
     # loaded from a settings CSV (or passed from the GUI) can arrive as
@@ -2232,7 +2255,7 @@ def preprocess_img_data(settings):
                               save_dtype=np.float32,
                               settings=settings)
         
-    for key in ['nucleus_channel', 'cell_channel', 'pathogen_channel', 'organelle_channel']:
+    for key in mask_channel_keys:
         ch = settings.get(key)
         if ch is None:
             continue
@@ -2543,9 +2566,42 @@ def _report_fan_out(left, merged, join_cols, left_name='cell',
     )
 
 
-def _read_and_join_tables(db_path, table_names=None):
+def _read_and_join_tables(db_path, table_names=None,
+                          duplicate_column_policy='warn',
+                          keep_uninfected=True,
+                          collapse_duplicate_identity=True,
+                          require_crops=True):
     """
     Reads and joins tables from a SQLite database.
+
+    **A column that arrives from two tables is compared, not duplicated.**
+    Cell and cytoplasm are both keyed to the same object, so a join hands
+    back ``plateID`` and ``plateID_cytoplasm``, ``prcf`` and
+    ``prcf_cytoplasm``, and so on. Where the pair agrees, one copy is kept.
+    Where it disagrees the two tables describe different objects under the
+    same identity, which no analysis should quietly average over:
+    ``duplicate_column_policy='warn'`` prints and keeps the cell table's
+    value, ``'raise'`` stops the run. ``collapse_duplicate_identity=False``
+    turns the whole comparison off and keeps both copies -- for a caller
+    that has its OWN reason to want the suffixed columns, which
+    :mod:`spacr.anndata_export` does: its ``drop_redundant_identity=False``
+    is documented to keep them, and a collapse here would have made that
+    option a no-op.
+
+    ``require_crops=False`` is for a caller whose analysis does not need a
+    picture: a UMAP of MEASUREMENTS is still valid for an object whose crop
+    never wrote, and dropping it silently shrinks the embedding. The default
+    keeps the inner join, because the callers that do need a crop -- the
+    classifier, the annotator, the image grids -- are the majority and
+    carrying an unusable row into them is what that join prevents.
+
+    **Which cells survive a join is a decision, not a default.** A cell with
+    no nucleus is debris, and a cell with no crop cannot be classified, so
+    both of those joins are inner. A cell with no PATHOGEN is an uninfected
+    cell -- usually the control population -- so that join keeps it, and
+    ``keep_uninfected=False`` is how an analysis restricts itself to infected
+    cells deliberately rather than by accident. See
+    :func:`spacr.object_roles.join_how`.
 
     ``png_list`` is joined to the object tables on plate / row / column / field
     **and on the timepoint when both sides carry one**. Without the timepoint
@@ -2594,7 +2650,9 @@ def _read_and_join_tables(db_path, table_names=None):
                         _time_column)
     ensure_database_schema(db_path)
 
-    conn = sqlite3.connect(db_path)
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db_path)
     dataframes = {}
     for table_name in table_names:
         try:
@@ -2674,20 +2732,39 @@ def _read_and_join_tables(db_path, table_names=None):
                     f"to every frame's object. Re-run the missing step with the "
                     f"same 'timelapse' setting."
                 )
+            _before_png = len(dataframes['cell'])
             merged = _merge_with_cardinality(
                 dataframes['cell'],
                 png_list_df,
                 on=join_cols,
-                how='left',
+                how=(join_how('png_list', keep_uninfected=keep_uninfected)
+                     if require_crops else 'left'),
                 validate='one_to_one',
                 left_name='cell',
                 right_name='png_list',
             )
+            # THE INNER JOIN'S LOSS IS SAID OUT LOUD. png_list joins inner --
+            # a cell with no attributable crop cannot be classified,
+            # annotated or displayed -- but "your population just shrank" is
+            # not something a reader should have to infer from a row count.
+            # Crops whose id is 'omulti'/'onone'/'error' are dropped during
+            # the id migration above, which reports itself; the CELLS they
+            # would have matched disappear here, which did not.
+            _lost_png = _before_png - len(merged)
+            if _lost_png > 0:
+                print(f"png_list: {_lost_png} of {_before_png} measured "
+                      f"cell(s) have no crop that can be matched to them and "
+                      f"are not in the joined table. They were measured; "
+                      f"they simply cannot be shown or classified.")
             dataframes['cell'] = merged
         else:
             print("Cell table not found in database tables.")
             return png_list_df
-    for entity in ['nucleus', 'pathogen']:
+    # From the registry, not a literal: ORGANELLE was missing from both
+    # of these loops, so asking for it returned a frame with no
+    # organelle columns and no message. Naming the child roles once is
+    # what lets a second organelle reach every reader (instruction 76).
+    for entity in CHILD_ROLES:
         if entity in dataframes:
             if 'cell_id' not in dataframes[entity].columns:
                 # A child table measured with cell_mask_dim=None has no parent
@@ -2718,25 +2795,37 @@ def _read_and_join_tables(db_path, table_names=None):
             joined_df,
             dataframes['cytoplasm'],
             on=['object_label', 'prcf'],
-            how='left',
+            how=join_how('cytoplasm', keep_uninfected=keep_uninfected),
             suffixes=('', '_cytoplasm'),
             validate='one_to_one',
             left_name='cell',
             right_name='cytoplasm',
         )
-    for entity in ['nucleus', 'pathogen']:
+        if collapse_duplicate_identity:
+            joined_df = reconcile_duplicates(
+                joined_df, '_cytoplasm', left_name='cell',
+                right_name='cytoplasm', on_conflict=duplicate_column_policy)
+    # From the registry, not a literal: ORGANELLE was missing from both
+    # of these loops, so asking for it returned a frame with no
+    # organelle columns and no message. Naming the child roles once is
+    # what lets a second organelle reach every reader (instruction 76).
+    for entity in CHILD_ROLES:
         if entity in dataframes:
             joined_df = _merge_with_cardinality(
                 joined_df,
                 dataframes[entity],
                 left_on=['object_label', 'prcf'],
                 right_index=True,
-                how='left',
+                how=join_how(entity, keep_uninfected=keep_uninfected),
                 suffixes=('', f'_{entity}'),
                 validate='one_to_one',
                 left_name='cell',
                 right_name=f'aggregated {entity}',
             )
+            if collapse_duplicate_identity:
+                joined_df = reconcile_duplicates(
+                    joined_df, f'_{entity}', left_name='cell',
+                    right_name=entity, on_conflict=duplicate_column_policy)
     return joined_df
     
 #: Table holding the settings of the run that wrote the database **last**.
@@ -2993,7 +3082,9 @@ def _save_object_counts_to_database(arrays, object_type, file_names, db_path, ad
         records.append((file_name, count_type, object_count))
 
     # Connect to the database
-    conn = sqlite3.connect(db_path)
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db_path)
     try:
         from .database_schema import migrate_connection
         migrate_connection(conn, path=os.path.abspath(db_path))
@@ -3028,7 +3119,9 @@ def _create_database(db_path):
     rather than being silently opened with older code.
     """
     try:
-        conn = sqlite3.connect(db_path)
+        from .database_concurrency import connect as _connect_database
+
+        conn = _connect_database(db_path)
     except sqlite3.Error as error:
         # Preserve the historical helper contract: an unusable destination is
         # reported to the caller's console without taking down a processing
@@ -3130,7 +3223,10 @@ def _load_array_any(path):
     return np.load(path, allow_pickle=True)
 
 
-def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_dim, pathogen_chann_dim, organelle_chann_dim, resume=False):
+def _load_and_concatenate_arrays(
+        src, channels, cell_chann_dim, nucleus_chann_dim,
+        pathogen_chann_dim, organelle_chann_dim, resume=False,
+        organelle_chann_dims=None):
     """
     Load and concatenate arrays from multiple folders.
 
@@ -3164,18 +3260,21 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
     from .resume import completed_fields_in_merged, format_resume, plan_resume
 
     folder_paths = [os.path.join(src+'/stack')]
+    mask_roles = []
 
-    if cell_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'cell_mask_stack')):
-        folder_paths = folder_paths + [os.path.join(src, 'masks','cell_mask_stack')]
-    
-    if nucleus_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'nucleus_mask_stack')):
-        folder_paths = folder_paths + [os.path.join(src, 'masks','nucleus_mask_stack')]
-    
-    if pathogen_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'pathogen_mask_stack')):
-        folder_paths = folder_paths + [os.path.join(src, 'masks','pathogen_mask_stack')]
-    
-    if organelle_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'organelle_mask_stack')):
-        folder_paths = folder_paths + [os.path.join(src, 'masks','organelle_mask_stack')]
+    def add_mask_folder(role, enabled):
+        folder = os.path.join(src, 'masks', f'{role}_mask_stack')
+        if enabled is not None or os.path.exists(folder):
+            folder_paths.append(folder)
+            mask_roles.append(role)
+
+    add_mask_folder('cell', cell_chann_dim)
+    add_mask_folder('nucleus', nucleus_chann_dim)
+    add_mask_folder('pathogen', pathogen_chann_dim)
+    add_mask_folder('organelle', organelle_chann_dim)
+    extra_dims = dict(organelle_chann_dims or {})
+    for role in ORGANELLE_ROLES[1:]:
+        add_mask_folder(role, extra_dims.get(role))
 
     output_folder = src+'/merged'
     reference_folder = folder_paths[0]
@@ -3185,6 +3284,47 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
     reference_files = os.listdir(reference_folder)
     all_imgs = len(reference_files)
     time_ls = []
+    layout_written = False
+
+    # A resume may skip every array, so validate the existing manifest before
+    # deciding what is complete. Reusing arrays under a different role layout
+    # is worse than redoing work: all planes still exist, but their biological
+    # names have changed and measurement would return plausible wrong values.
+    reference_npy = next(
+        (name for name in reference_files if name.endswith('.npy')), None)
+    if reference_npy is not None:
+        if channels is None:
+            reference_array = np.load(
+                os.path.join(reference_folder, reference_npy), mmap_mode='r')
+            n_intensity_for_layout = int(reference_array.shape[-1])
+        else:
+            n_intensity_for_layout = len(channels)
+        intended_layout = {
+            'version': 1,
+            'intensity_channels': (
+                list(channels) if channels is not None
+                else list(range(n_intensity_for_layout))),
+            'mask_plane_order': list(mask_roles),
+            'mask_dims': {
+                role: n_intensity_for_layout + index
+                for index, role in enumerate(mask_roles)
+            },
+        }
+        manifest_path = os.path.join(output_folder, MERGED_LAYOUT_SIDECAR)
+        if resume and os.path.isfile(manifest_path):
+            try:
+                with open(manifest_path, 'r', encoding='utf-8') as handle:
+                    existing_layout = json.load(handle)
+            except (OSError, json.JSONDecodeError) as exc:
+                raise ValueError(
+                    f'Cannot resume: merged plane layout is unreadable: '
+                    f'{manifest_path}: {exc}') from exc
+            if existing_layout != intended_layout:
+                raise ValueError(
+                    'Cannot resume merged arrays with a different plane '
+                    f'layout. Existing: {existing_layout!r}; requested: '
+                    f'{intended_layout!r}. Start a non-resume merge into a '
+                    'clean destination so every field uses one layout.')
 
     # Opt-in resume: skip fields whose merged stack is already there AND
     # verified complete. Reported before any work starts, so a resume that
@@ -3230,6 +3370,40 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
                     # merged, measured and produced numbers. The two spellings
                     # are identical for 2-D, so the ordinary path is unchanged.
                     concatenated_array = np.take(concatenated_array, channels, axis=-1)
+
+                if not layout_written:
+                    n_intensity = int(concatenated_array.shape[-1])
+                    layout = {
+                        'version': 1,
+                        'intensity_channels': (
+                            list(channels) if channels is not None
+                            else list(range(n_intensity))),
+                        'mask_plane_order': list(mask_roles),
+                        'mask_dims': {
+                            role: n_intensity + index
+                            for index, role in enumerate(mask_roles)
+                        },
+                    }
+                    fd, temporary = tempfile.mkstemp(
+                        prefix='.spacr_plane_layout_', suffix='.json',
+                        dir=output_folder)
+                    try:
+                        with os.fdopen(fd, 'w', encoding='utf-8') as handle:
+                            json.dump(layout, handle, indent=2, sort_keys=True)
+                            handle.write('\n')
+                            handle.flush()
+                            os.fsync(handle.fileno())
+                        os.replace(
+                            temporary,
+                            os.path.join(output_folder,
+                                         MERGED_LAYOUT_SIDECAR))
+                    except BaseException:
+                        try:
+                            os.remove(temporary)
+                        except OSError:
+                            pass
+                        raise
+                    layout_written = True
 
                 # Add the array from the reference folder to 'stack_ls'
                 stack_ls.append(concatenated_array)
@@ -3539,7 +3713,7 @@ def _read_db(db_loc, tables):
     dfs = []
     chunksize = 100_000  # internal safety setting; adjust if needed
 
-    with sqlite3.connect(db_loc) as conn:
+    with sqlite3.connect(db_loc, timeout=30) as conn:
         # Optional but useful: fail early if a table name is wrong
         existing_tables = {
             row[0]
@@ -3585,7 +3759,8 @@ def _read_db(db_loc, tables):
 
 def _read_and_merge_data(
         locs, tables, verbose=False, nuclei_limit=10, pathogen_limit=10,
-        change_plate=False, acquisition_conflict="raise"):
+        change_plate=False, acquisition_conflict="raise",
+        keep_uninfected=True):
     """Read object tables and merge their measurements by parent object.
 
     Shared acquisition-stamp values are coalesced when one table is missing a
@@ -3622,8 +3797,41 @@ def _read_and_merge_data(
     metadata_key = 'object_label'
     shared_metadata_columns = set(MEASUREMENT_STAMP_COLUMNS)
 
-    def _merge_grouped(left, right):
-        """Merge grouped tables while keeping only one copy of shared acquisition metadata."""
+    def _merge_grouped(left, right, right_name="grouped object data"):
+        """Merge grouped tables while keeping only one copy of shared acquisition metadata.
+
+        THE JOIN TYPE NOW COMES FROM THE REGISTRY. It used to be inner
+        unconditionally -- pandas' default, since no ``how=`` was passed --
+        and this docstring said the choice was "deliberately left alone"
+        because the decision had not been made. It has since: `object_roles.
+        join_how` records it and `_read_and_join_tables` already reads it, so
+        the two readers of the same tables were disagreeing about which
+        objects exist.
+
+            nucleus     INNER   a cell with no nucleus is debris
+            png_list    INNER   a cell with no crop cannot be classified
+            cytoplasm   LEFT    one row per cell; it makes no difference
+            pathogen    LEFT    an UNINFECTED cell is usually the control
+            organelle   LEFT    same reasoning
+
+        Inner for pathogen was the consequential one: it silently conditioned
+        every result on infection, deleting the control population from the
+        denominator without a word.
+
+        A ``right_name`` the registry does not know keeps the historical
+        inner join rather than being guessed at -- the metadata and stamp
+        merges go through here too, and they are not object tables.
+
+        What is NOT defensible is doing it in silence, which is what this
+        used to do. The discontinuity is brutal: on a 100-cell plate where
+        NO crop carries a usable object id, png_list drops out before the
+        join and all 100 cells survive; where exactly ONE does, the merge
+        keeps that one and deletes the other 99. Nothing printed either way,
+        and every shipped caller passes verbose=False.
+
+        So the shortfall is reported, named by table. This is the mirror of
+        `_report_fan_out` for the shrinking direction.
+        """
         if left.empty:
             return right.copy()
         if right.empty:
@@ -3667,15 +3875,29 @@ def _read_and_merge_data(
                     left.loc[fill_index, col] = right.loc[fill_index, col]
 
         right = right.drop(columns=shared)
-        return _merge_with_cardinality(
+        before = len(left)
+        from .object_roles import JOIN_HOW
+        how = (join_how(right_name, keep_uninfected=keep_uninfected)
+               if str(right_name).strip().lower() in JOIN_HOW else "inner")
+        result = _merge_with_cardinality(
             left,
             right,
             left_index=True,
             right_index=True,
+            how=how,
             validate="one_to_one",
             left_name="grouped object data",
-            right_name="grouped object data",
+            right_name=right_name,
         )
+        lost = before - len(result)
+        if lost > 0:
+            print(
+                f"{lost} of {before} objects have no row in {right_name} and "
+                f"were removed from the merged data. If {right_name} is "
+                f"expected to cover every object, that is a gap in the "
+                f"database rather than a filter."
+            )
+        return result
 
     def _split_object_data(frame, group_by, object_type):
         """Group object data while retaining its complete provenance stamp."""
@@ -3740,7 +3962,7 @@ def _read_and_merge_data(
         else:
             cytoplasms_g_df, _ = _split_object_data(
                 cytoplasms, 'prcfo', 'object_label')
-            merged_df = _merge_grouped(merged_df, cytoplasms_g_df)
+            merged_df = _merge_grouped(merged_df, cytoplasms_g_df, 'cytoplasm')
 
             if verbose:
                 print(f'cytoplasms: {len(cytoplasms)}, cytoplasms grouped: {len(cytoplasms_g_df)}')
@@ -3770,7 +3992,7 @@ def _read_and_merge_data(
         else:
             nucleus_g_df, _ = _split_object_data(
                 nucleus, 'prcfo', 'cell_id')
-            merged_df = _merge_grouped(merged_df, nucleus_g_df)
+            merged_df = _merge_grouped(merged_df, nucleus_g_df, 'nucleus')
 
             if verbose:
                 print(f'nucleus: {len(nucleus)}, nucleus grouped: {len(nucleus_g_df)}')
@@ -3800,12 +4022,44 @@ def _read_and_merge_data(
         else:
             pathogens_g_df, _ = _split_object_data(
                 pathogens, 'prcfo', 'cell_id')
-            merged_df = _merge_grouped(merged_df, pathogens_g_df)
+            merged_df = _merge_grouped(merged_df, pathogens_g_df, 'pathogen')
 
             if verbose:
                 print(f'pathogens: {len(pathogens)}, pathogens grouped: {len(pathogens_g_df)}')
 
         pathogen_counts = pathogens.groupby('prcfo')['prcfo'].size().rename('pathogen_prcfo_count')
+
+    for organelle_role in ORGANELLE_ROLES:
+        if organelle_role not in data_dict:
+            continue
+        organelles = data_dict[organelle_role].copy()
+        organelles = organelles.dropna(subset=['cell_id'])
+        organelles = organelles.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
+        organelles = organelles.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
+        organelles = organelles.assign(prcfo=lambda x: x['prcf'] + '_' + x['cell_id'])
+        count_column = f'{organelle_role}_prcfo_count'
+        organelles[count_column] = organelles.groupby('prcfo')['prcfo'].transform('count')
+
+        earlier = ['cell', 'cytoplasm', 'nucleus', 'pathogen'] + list(
+            ORGANELLE_ROLES[:ORGANELLE_ROLES.index(organelle_role)])
+        if all(key not in data_dict for key in earlier):
+            merged_df, metadata = _split_object_data(
+                organelles, 'prcfo', 'cell_id')
+            metadata_key = 'cell_id'
+
+            if verbose:
+                print(f'{organelle_role}: {len(organelles)}, '
+                      f'{organelle_role} grouped: {len(merged_df)}')
+
+        else:
+            organelles_g_df, _ = _split_object_data(
+                organelles, 'prcfo', 'cell_id')
+            merged_df = _merge_grouped(
+                merged_df, organelles_g_df, organelle_role)
+
+            if verbose:
+                print(f'{organelle_role}: {len(organelles)}, '
+                      f'{organelle_role} grouped: {len(organelles_g_df)}')
 
     if 'png_list' in data_dict:
         from .utils import PNG_CROP_MODE_BY_ID_COLUMN, PNG_OBJECT_ID_COLUMNS, object_label_from_png_id
@@ -3842,11 +4096,31 @@ def _read_and_merge_data(
             print(f'png_list: {len(png_list)}, png_list grouped: {len(png_list_g_df_numeric)}')
             print(f"Added png_list columns: {png_list_g_df_numeric.columns}, {png_list_g_df_non_numeric.columns}")
 
-        merged_df = _merge_grouped(merged_df, png_list_g_df_numeric)
-        merged_df = _merge_grouped(merged_df, png_list_g_df_non_numeric)
+        merged_df = _merge_grouped(merged_df, png_list_g_df_numeric, 'png_list')
+        merged_df = _merge_grouped(merged_df, png_list_g_df_non_numeric, 'png_list')
 
     metadata = metadata.assign(prc=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'])
-    cells_well = metadata.groupby('prc')[metadata_key].nunique().reset_index(name='cells_per_well')
+
+    # `prcfo` -- the per-OBJECT key -- has to exist before the well count,
+    # because the count is of objects and `metadata_key` alone does not
+    # identify one. `object_label` is assigned by the segmenter per FIELD and
+    # restarts at 1 in each, so `nunique()` over a well counted distinct LABEL
+    # VALUES: a 9-field well holding 360 cells reported roughly 40, the size
+    # of its largest field.
+    #
+    # That number is not cosmetic. `cells_per_well` is documented as the
+    # minimum a well must contribute and is used to drop under-populated
+    # wells, so a threshold of 100 discarded every well on a plate that
+    # averaged 360 cells -- and the wells it kept were the ones with the most
+    # crowded single field, which is the opposite of the intent.
+    if 'prcf' in metadata.columns:
+        metadata = metadata.assign(prcfo=lambda x: x['prcf'] + '_' + x[metadata_key])
+    else:
+        metadata = metadata.assign(
+            prcfo=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'] + '_' + x['fieldID'] + '_' + x[metadata_key]
+        )
+
+    cells_well = metadata.groupby('prc')['prcfo'].nunique().reset_index(name='cells_per_well')
     metadata = _merge_with_cardinality(
         metadata,
         cells_well,
@@ -3855,13 +4129,6 @@ def _read_and_merge_data(
         left_name='object metadata',
         right_name='well counts',
     )
-
-    if 'prcf' in metadata.columns:
-        metadata = metadata.assign(prcfo=lambda x: x['prcf'] + '_' + x[metadata_key])
-    else:
-        metadata = metadata.assign(
-            prcfo=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'] + '_' + x['fieldID'] + '_' + x[metadata_key]
-        )
 
     metadata.set_index('prcfo', inplace=True)
 
@@ -3874,7 +4141,10 @@ def _read_and_merge_data(
     if verbose:
         print(f'Generated dataframe with: {len(merged_df.columns)} columns and {len(merged_df)} rows')
 
-    obj_df_ls = [data_dict[table] for table in ['cell', 'cytoplasm', 'nucleus', 'pathogen'] if table in data_dict]
+    object_table_order = [
+        'cell', 'cytoplasm', 'nucleus', 'pathogen', *ORGANELLE_ROLES]
+    obj_df_ls = [data_dict[table] for table in object_table_order
+                 if table in data_dict]
 
     return merged_df, obj_df_ls
 
@@ -4029,13 +4299,17 @@ def parse_gz_files(folder_path):
 # ===========================================================================
 
 #: Object types that can be cut on demand.
-CROP_OBJECT_TYPES = ('cell', 'nucleus', 'pathogen', 'cytoplasm', 'organelle')
+#: Crop order, which differs from the hook order on purpose. Membership is
+#: checked against spacr.object_roles; the order stays here.
+CROP_OBJECT_TYPES = (
+    'cell', 'nucleus', 'pathogen', 'cytoplasm', *ORGANELLE_ROLES)
 
 #: ``png_list`` column holding the object id (``'o<N>'``) for each crop mode,
 #: as written by :func:`spacr.utils.filepaths_to_database`.
 PNG_LIST_ID_COLUMNS = {
     'cell': 'cell_id', 'nucleus': 'nucleus_id', 'pathogen': 'pathogen_id',
-    'cytoplasm': 'cytoplasm_id', 'organelle': 'organelle_id',
+    'cytoplasm': 'cytoplasm_id',
+    **{role: f'{role}_id' for role in ORGANELLE_ROLES},
 }
 
 #: Column name used to carry a per-row crop handle through the frames in this
@@ -4094,6 +4368,38 @@ def _crop_shape_overrides(settings):
     return out
 
 
+#: The two vocabularies for the same idea, and the map between them.
+#:
+#: `spacr.settings` writes the USER-FACING words -- 'pre_generated' means the
+#: PNGs already cut to disk, 'on_demand' means cut them now from the merged
+#: stacks. `crops.resolve_crop_source` speaks in terms of the SOURCE it will
+#: build: 'png' or 'merged'. Nothing translated between them, so
+#: `crop_source='on_demand'` -- which the Classify screen validates and
+#: accepts -- reached `resolve_crop_source`, raised CropError, was swallowed,
+#: and the run trained on pre-cut PNGs instead. The user's explicit choice
+#: was ignored in silence.
+CROP_SOURCE_ALIASES = {
+    'pre_generated': 'png',
+    'generate': 'png',
+    'png': 'png',
+    'on_demand': 'merged',
+    'merged': 'merged',
+    'auto': 'auto',
+}
+
+
+def _canonical_crop_source(choice):
+    """The word `crops.resolve_crop_source` understands.
+
+    An unrecognised value is passed through UNCHANGED rather than coerced to
+    'auto', so `resolve_crop_source` raises on it and names it. Quietly
+    substituting a default is how the original defect behaved.
+    """
+    if not choice:
+        return 'auto'
+    return CROP_SOURCE_ALIASES.get(str(choice).strip().lower(), str(choice))
+
+
 def open_crop_source(settings, src=None, object_type=None, verbose=True):
     """Return the :class:`spacr.crops.CropSource` a run should read crops from.
 
@@ -4122,7 +4428,7 @@ def open_crop_source(settings, src=None, object_type=None, verbose=True):
 
     if isinstance(settings, dict):
         request = _crop_shape_overrides(settings)
-        choice = settings.get('crop_source') or 'auto'
+        choice = _canonical_crop_source(settings.get('crop_source'))
         if src is None:
             src = settings.get('src')
     else:
@@ -4139,8 +4445,13 @@ def open_crop_source(settings, src=None, object_type=None, verbose=True):
     try:
         source = crops.resolve_crop_source(request, object_type=object_type)
     except crops.CropError as exc:
-        if verbose:
-            print(f"crop_source={choice!r}: {exc}")
+        # LOUD, NOT SILENT. This printed only under `verbose`, and every
+        # shipped caller passes verbose=False, so an unusable crop_source
+        # returned None without a word -- and the caller then fell back to
+        # the pre-generated PNGs. A user who asked for on-demand crops got a
+        # classifier trained on different data than they requested, with
+        # nothing in the log to say so.
+        print(f"crop_source={choice!r}: {exc}")
         return None
     if verbose:
         print(f"Crop source: {source.describe()}")
@@ -4333,7 +4644,9 @@ def _merged_field_paths(db_path, object_type='cell'):
     order = [object_type] + [t for t in ('cell', 'cytoplasm', 'nucleus',
                                          'pathogen', 'organelle')
                              if t != object_type]
-    conn = sqlite3.connect(db_path)
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db_path)
     try:
         for table in order:
             try:
@@ -4454,7 +4767,9 @@ def crop_rows_from_object_table(db_path, object_type='cell', verbose=True):
         return pd.DataFrame()
     select = ('object_label, plateID, rowID, columnID, fieldID, prcf, '
               'file_name, path_name')
-    conn = sqlite3.connect(db_path)
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db_path)
     try:
         try:
             df = pd.read_sql(f'SELECT {select} FROM "{object_type}"', conn)
@@ -4831,7 +5146,9 @@ def _dataset_crop_refs(db_path, source, settings, object_type, verbose=True):
     file_metadata = settings.get('file_metadata')
     png_df = None
     if os.path.isfile(db_path):
-        conn = sqlite3.connect(db_path)
+        from .database_concurrency import connect as _connect_database
+
+        conn = _connect_database(db_path)
         try:
             png_df = pd.read_sql('SELECT * FROM png_list', conn)
         except Exception:
@@ -4952,7 +5269,7 @@ def _write_crop_tar(items, tar_name, settings=None):
 CLASS_BALANCE_MODES = ('none', 'weighted_sampler', 'sqrt_weighted_sampler', 'weighted_loss')
 
 #: Accepted values for the ``cv_group_by`` setting.
-CV_GROUP_LEVELS = ('none', 'field', 'well', 'plate')
+CV_GROUP_LEVELS = ('cell', 'field', 'well', 'plate')
 
 #: max/min class-count ratio at or above which the data is called skewed.
 IMBALANCE_RATIO_WARN = 1.5
@@ -5270,7 +5587,12 @@ def make_cv_folds(labels, n_splits, groups=None, seed=0):
     :param labels: integer labels, one per sample.
     :param n_splits: number of folds, must be >= 2.
     :param groups: optional group id per sample (same length as ``labels``).
-    :param seed: seed for the deterministic shuffle.
+    :param seed: seed for the shuffle. Both branches use it: ungrouped, it
+        shuffles each class and picks the starting fold; grouped, it orders
+        groups of equal size and breaks ties between folds the greedy pass
+        rates equally, so re-running with a different seed gives a different
+        — and equally stratified — partition. Where only one partition is
+        feasible (as many groups as folds, say) no seed can change it.
     :returns: list of ``(train_idx, val_idx)`` numpy integer arrays.
     :raises ValueError: if ``n_splits`` < 2, if ``groups`` is the wrong
         length, or if there are fewer samples/groups than folds.
@@ -5315,21 +5637,32 @@ def make_cv_folds(labels, n_splits, groups=None, seed=0):
         for g in uniq:
             for c in labels[members[g]]:
                 hist[g][c] += 1.0
-        order = sorted(uniq, key=lambda g: (-hist[g].sum(), str(g)))
+        # Largest group first — the big blocks have to land while the folds
+        # are still empty enough to take them — but shuffle before the (stable)
+        # sort so equally large groups arrive in a seed-dependent order. Sorting
+        # on the group name instead, as this used to, made the grouped branch
+        # ignore ``seed`` entirely and hand back one fixed partition.
+        order = sorted(rng.permutation(uniq), key=lambda g: -hist[g].sum())
 
         class_totals = np.bincount(labels, minlength=n_classes).astype(float)
         class_totals[class_totals == 0] = 1.0
         fold_class = np.zeros((k, n_classes), dtype=float)
         fold_size = np.zeros(k, dtype=float)
         for g in order:
+            # Folds the cost cannot separate are genuinely interchangeable, so
+            # let the seed choose between them rather than always fold 0.
+            fold_rank = rng.permutation(k)
             best_f, best_cost = None, None
             for f in range(k):
                 fold_class[f] += hist[g]
                 # Spread of each class across folds, as a fraction of that
-                # class's total; lower is a more even stratification.
-                cost = float(np.mean(np.std(fold_class / class_totals, axis=0)))
+                # class's total; lower is a more even stratification. Rounded
+                # so that folds differing only by float summation order tie
+                # honestly and the seed, not the noise, separates them.
+                cost = round(
+                    float(np.mean(np.std(fold_class / class_totals, axis=0))), 12)
                 fold_class[f] -= hist[g]
-                key = (cost, fold_size[f], f)
+                key = (cost, fold_size[f], int(fold_rank[f]))
                 if best_cost is None or key < best_cost:
                     best_cost, best_f = key, f
             fold_class[best_f] += hist[g]
@@ -5364,21 +5697,29 @@ def make_validation_holdout(labels, validation_fraction, groups, seed=0):
         lot. Over eight equal groups, 0.05 holds out 0.125 (no finer split is
         available) and 0.7 holds out 0.5 (the two-fold floor); with one
         dominant group — 70 of 100 samples across four groups — those same two
-        requests instead hold out 0.10 and 0.70.
+        requests instead hold out 0.10 and 0.70. A miss that big is no longer
+        silent: whenever the realised share is further than
+        ``max(0.01, 0.1 * validation_fraction)`` from the requested one, a
+        ``UserWarning`` names both numbers and why they differ.
     :param groups: Group id per sample — well, field, or whatever
         ``cv_group_by`` names — and required, not optional, because the point
         of this function is that a group never straddles the split. Needs the
         same length as ``labels`` and at least two distinct values.
-    :param seed: Seed handed to :func:`make_cv_folds`, which touches its RNG
-        only in the ungrouped branch, for the per-class shuffle and starting
-        offset. ``groups`` is mandatory here, so that branch is never reached
-        and the value changes nothing: the grouped assignment is a
-        deterministic greedy pass, and every seed returns the same holdout for
-        the same labels and groups.
+    :param seed: Seed handed to :func:`make_cv_folds` and used again to pick
+        between candidate folds it rates equally. It really does move the
+        split: the grouped pass orders equally large groups and breaks ties
+        between equally good folds by this seed, so a second seed gives a
+        second, equally stratified holdout. It used to be dead — the grouped
+        branch was a fixed greedy pass — so every seed returned the same
+        holdout and a "robust across seeds" check was really one split tried
+        repeatedly. Where the groups admit only one partition (two groups over
+        two folds, say) no seed can move it.
     :returns: One ``(train_idx, val_idx)`` pair of numpy integer arrays.
     :raises ValueError: if ``validation_fraction`` is outside ``(0, 1)``, if
         ``groups`` is missing or the wrong length, or if fewer than two
         distinct groups are present.
+    :warns UserWarning: if whole-group quantisation makes the realised holdout
+        share miss ``validation_fraction`` by more than the tolerance above.
     """
     labels = np.asarray([int(value) for value in labels])
     fraction = float(validation_fraction)
@@ -5425,7 +5766,42 @@ def make_validation_holdout(labels, validation_fraction, groups, seed=0):
         ))) if len(total_distribution) else 0.0
         return size_cost + class_cost, len(validation)
 
-    return min(candidates, key=score)
+    # Folds the score cannot separate are interchangeable holdouts, so the seed
+    # picks between them instead of the first one always winning.
+    tie_break = np.random.default_rng(seed).permutation(len(candidates))
+    train_idx, val_idx = min(
+        enumerate(candidates),
+        key=lambda item: score(item[1]) + (int(tie_break[item[0]]),),
+    )[1]
+
+    realised = len(val_idx) / max(len(labels), 1)
+    tolerance = max(0.01, 0.1 * fraction)
+    if abs(realised - fraction) > tolerance:
+        if requested_folds > distinct:
+            reason = (
+                f"only {distinct} distinct group(s) are available, so the split "
+                f"could not go finer than {n_splits} folds"
+            )
+        elif fraction > 0.5:
+            reason = (
+                "a holdout larger than half the data would need fewer than two "
+                "folds, so the split floors at 2 and holds out about half"
+            )
+        else:
+            reason = (
+                "the holdout is one whole fold and groups are never split, so "
+                "the share is quantised to whole groups"
+            )
+        warnings.warn(
+            f"validation_fraction={fraction:.4g} was requested but "
+            f"{len(val_idx)} of {len(labels)} samples "
+            f"({realised:.4g}) were held out: {reason}. Group at a finer "
+            f"cv_group_by level for more groups to choose from, or ask for "
+            f"{realised:.4g} so the setting matches what you get.",
+            UserWarning,
+            stacklevel=2,
+        )
+    return train_idx, val_idx
 
 
 def summarize_cv_folds(labels, folds, classes=None, groups=None):
@@ -5487,7 +5863,8 @@ def report_cv_folds(labels, folds, classes=None, groups=None, group_by='none',
     if (table['n_val'] == 0).any():
         bad = table.loc[table['n_val'] == 0, 'fold'].tolist()
         warnings_out.append(f"fold(s) {bad} have an empty validation set")
-    if groups is None or group_by == 'none':
+    from .classifier_evaluation import normalize_split_level
+    if groups is None or normalize_split_level(group_by) == 'cell':
         warnings_out.append(
             "folds are NOT group-aware: crops from the same well or field can "
             "land on both sides of a fold, which leaks and inflates every "
@@ -5582,37 +5959,28 @@ def _classification_transform(image_size, channel_idx, normalize):
 def _cv_group_ids(filenames, group_by, verbose=True):
     """Derive per-sample group ids at the requested plate/well/field level.
 
-    Filenames that do not carry the level fall back to their own basename, so
-    they simply behave as an ungrouped sample rather than being silently
-    lumped together with unrelated crops. The count of such files is reported,
-    because it is exactly the number of crops whose independence is unproven.
+    Every grouped filename must carry a verifiable identity. Anonymous names
+    are refused rather than converted to singleton pseudo-groups, which would
+    make an ordinary random split look leakage-safe.
 
     :param filenames: image paths.
     :param group_by: one of ``CV_GROUP_LEVELS``.
     :param verbose: print the grouping summary.
-    :returns: ``(group_ids, n_unparsed)`` — ``(None, 0)`` when ``group_by='none'``.
+    :returns: ``(group_ids, 0)`` — ``(None, 0)`` for ``cell``/legacy ``none``.
     :raises ValueError: if ``group_by`` is not a supported level.
     """
-    if group_by not in CV_GROUP_LEVELS:
-        raise ValueError(f"cv_group_by {group_by!r} is not one of {CV_GROUP_LEVELS}")
-    if group_by == 'none':
+    from .classifier_evaluation import normalize_split_level, split_group_values
+
+    level = normalize_split_level(group_by)
+    if level == 'cell':
         return None, 0
-    ids, unparsed = [], 0
-    for p in filenames:
-        gid = _png_group_id(p, group_by)
-        if gid is None:
-            unparsed += 1
-            gid = os.path.splitext(os.path.basename(str(p)))[0]
-        ids.append(gid)
+    _level, values = split_group_values(
+        group_by=level, paths=filenames, table='classification dataset')
+    ids = values.tolist()
     if verbose:
-        print(f"Grouping folds by {group_by}: {len(set(ids))} distinct "
-              f"{group_by}(s) across {len(ids)} crops")
-        if unparsed:
-            print(f"  WARNING: {unparsed} filename(s) do not encode a "
-                  f"{group_by} (expected <plate>_<well>_<field>_..._<object>.png); "
-                  f"each is treated as its own group, so their independence is "
-                  f"not enforced")
-    return ids, unparsed
+        print(f"Grouping folds by {level}: {len(set(ids))} distinct "
+              f"{level}(s) across {len(ids)} crops")
+    return ids, 0
 
 
 def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=32,
@@ -5789,26 +6157,20 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
     use_persistent = num_workers > 0
 
     if validation_split > 0 and mode == 'train':
-        if group_by != 'none':
-            filenames = dataset_filenames(data)
-            groups, _unparsed = _cv_group_ids(
-                filenames, group_by, verbose=True,
-            )
-            train_idx, val_idx = make_validation_holdout(
-                dataset_labels(data),
-                validation_split,
-                groups,
-                seed=seed,
-            )
-            train_dataset = Subset(data, list(train_idx))
-            val_dataset = Subset(data, list(val_idx))
-            train_size, val_size = len(train_idx), len(val_idx)
-        else:
-            train_size = int((1 - validation_split) * len(data))
-            val_size = len(data) - train_size
-            generator = torch.Generator().manual_seed(int(seed))
-            train_dataset, val_dataset = random_split(
-                data, [train_size, val_size], generator=generator)
+        from .classifier_evaluation import (grouped_split,
+                                             normalize_split_level)
+        level = normalize_split_level(group_by)
+        filenames = dataset_filenames(data)
+        groups, _unparsed = _cv_group_ids(filenames, level, verbose=True)
+        if groups is None:
+            groups = np.arange(len(data), dtype=object)
+        train_idx, val_idx, split_report = grouped_split(
+            groups, dataset_labels(data), validation_split, seed=seed,
+            group_by=level)
+        print(split_report.summary())
+        train_dataset = Subset(data, list(train_idx))
+        val_dataset = Subset(data, list(val_idx))
+        train_size, val_size = len(train_idx), len(val_idx)
         if not augment:
             print(f'Train data:{train_size}, Validation data:{val_size}')
         generator = torch.Generator().manual_seed(int(seed))
@@ -5924,8 +6286,10 @@ def generate_training_dataset(settings):
           ``write_random_annotation_column``.
         - measurement mode: ``measurement_rules``.
 
-        The resulting ``classes`` and ``nr_classes`` are written back into the
-        dict for downstream training.
+        The resulting ``class_folder_names`` and ``nr_classes`` are written
+        back into the dict for downstream training. A pre-split list-shaped
+        ``classes`` entry is retired only after those folders are written;
+        dict-shaped class definitions remain untouched.
     :returns: ``(train_class_dir, test_class_dir)`` — the ``train/`` and
         ``test/`` roots written under ``<src>/datasets/training``
         (``training_all`` when several sources are combined), suffixed to stay
@@ -6396,8 +6760,13 @@ def generate_training_dataset(settings):
         group_by=settings.get('cv_group_by', 'well'),
     )
 
-    # expose actual disk classes for downstream training
-    settings['classes'] = final_names
+    # Expose the actual disk classes for downstream training. This is
+    # `class_folder_names`, NOT `classes`: what went to disk is a set of
+    # FOLDER names, while `classes` is the definition of what each class
+    # MEANS (name -> {column, value}). Overwriting the definitions with the
+    # folder listing discarded the columns and values the user had set.
+    from .classify_classes import _record_generated_folder_names
+    _record_generated_folder_names(settings, final_names)
     settings['nr_classes'] = len(final_names)
     
     try:
@@ -6456,7 +6825,7 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
 
     # Connect to the database and retrieve the image paths and annotations
     print(f'Reading DataBase: {db_path}')
-    with sqlite3.connect(db_path) as conn:
+    with sqlite3.connect(db_path, timeout=30) as conn:
         cursor = conn.cursor()
         # Retrieve all paths and annotations from the database
         query = f"SELECT png_path, {annotation_column} FROM png_list"
@@ -6530,7 +6899,7 @@ def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='t
 
     # Connect to the database and retrieve the image paths and annotations
     print(f'Reading DataBase: {db_path}')
-    with sqlite3.connect(db_path) as conn:
+    with sqlite3.connect(db_path, timeout=30) as conn:
         cursor = conn.cursor()
         # Retrieve all paths and annotations from the database
         query = f"SELECT png_path, {annotation_column}, rowID, columnID FROM png_list"
@@ -6659,10 +7028,10 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
         Default ``0.1``.
     :param db_path: optional ``measurements.db`` consulted for the crop format
         of a source folder that carries no sidecar.
-    :param random_seed: Reproducible per-class train/test split seed.
+    :param random_seed: Reproducible global train/test split seed.
     :param group_by: acquisition identity kept intact across the permanent
-        train/test boundary. Default ``well``. ``none`` uses independent
-        per-class splitting for legacy callers.
+        train/test boundary. Default ``well``. ``cell`` is the leakiest
+        per-object choice; legacy ``none`` aliases it.
     :returns: ``(train_dir, test_dir)`` tuple of the top-level split paths.
     :raises ValueError: if ``len(class_data) != len(classes)``.
     """
@@ -6694,31 +7063,28 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
         mark_crop_output_folder(dst, fmt=fmt, classes=list(map(str, classes)),
                                 split='train/test')
 
+    from .classifier_evaluation import grouped_split, split_group_values
+
     grouped_splits = None
-    if group_by != 'none':
+    split_report = None
+    if class_data:
         flat_items = []
         flat_labels = []
-        flat_groups = []
         for class_index, data in enumerate(class_data):
-            for item_index, item in enumerate(data):
-                name = (
-                    item.name if isinstance(item, LazyCropPNG)
-                    else os.path.basename(str(item))
-                )
-                group = _png_group_id(name, group_by)
-                if group is None:
-                    # Keep unknown items independent while preserving the
-                    # original filename for the later strict audit to flag.
-                    group = f"unparsed:{class_index}:{item_index}:{name}"
+            for item in data:
                 flat_items.append(item)
                 flat_labels.append(class_index)
-                flat_groups.append(group)
         if flat_items:
-            train_indices, test_indices = make_validation_holdout(
-                flat_labels,
-                test_split,
-                flat_groups,
-                seed=random_seed,
+            names = [
+                item.name if isinstance(item, LazyCropPNG) else str(item)
+                for item in flat_items
+            ]
+            level, flat_groups = split_group_values(
+                group_by=group_by, paths=names,
+                table='generated training dataset')
+            train_indices, test_indices, split_report = grouped_split(
+                flat_groups, flat_labels, test_split, seed=random_seed,
+                group_by=level,
             )
             train_index_set = set(map(int, train_indices))
             test_index_set = set(map(int, test_indices))
@@ -6745,6 +7111,11 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
                         f"independent {group_by}s, lower test_split, or choose "
                         "a finer grouping level."
                     )
+            print(split_report.summary())
+            os.makedirs(dst, exist_ok=True)
+            with open(os.path.join(dst, '.spacr_split.json'), 'w') as handle:
+                json.dump(split_report.to_dict(), handle, indent=2,
+                          sort_keys=True)
 
     for class_index, (cls, data) in enumerate(zip(classes, class_data)):
         # Create directories
@@ -6763,12 +7134,9 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
             # list still matches the tree, and let the summary below flag it.
             print(f"Class {cls!r} selected no crops; its folders are empty.")
             continue
-        if grouped_splits is not None:
-            train_data, test_data = grouped_splits[class_index]
-        else:
-            train_data, test_data = train_test_split(
-                data, test_size=test_split, shuffle=True,
-                random_state=int(random_seed))
+        if grouped_splits is None:
+            raise RuntimeError("dataset split provenance was not constructed")
+        train_data, test_data = grouped_splits[class_index]
 
         # Write train files
         for item in train_data:
@@ -7401,18 +7769,39 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
         else:
             sampled_pairs = pairs.copy()
             if augment_data:
+                # EXACTLY `needed` augmented pairs, so every folder reaches
+                # target_size and the "balanced" split is balanced.
+                #
+                # This used to zip `pairs` (length dataset_len) against
+                # `aug_methods * (dataset_len // len(aug_methods))` -- a list
+                # truncated to a multiple of five -- inside a loop that ran
+                # `needed // 5` times. So the number added depended on
+                # dataset_len rather than on `needed`, and was correct only
+                # for 5 <= dataset_len <= 9. Measured on folders of 12, 20
+                # and 29 pairs against a target of 29:
+                #
+                #     12 -> 44 pairs   (32 added where 17 were needed)
+                #     20 -> 44 pairs   (24 added where 9 were needed)
+                #     29 -> 29 pairs
+                #
+                # The smallest folder ended up the LARGEST. Below five pairs
+                # the multiplier is 0, the augmentation list is empty and the
+                # zip yields nothing, so that folder stayed short instead.
                 needed = target_size - dataset_len
                 aug_methods = get_augmentations()
-                full_loops = needed // len(aug_methods)
-                extra = needed % len(aug_methods)
 
-                for _ in range(full_loops):
-                    for (img_path, msk_path), aug in zip(pairs, aug_methods * (dataset_len // len(aug_methods))):
-                        sampled_pairs.append((img_path, msk_path, aug))
-                if extra > 0:
-                    subset = random.sample(pairs * ((extra // len(aug_methods)) + 1), extra)
-                    for (img_path, msk_path), aug in zip(subset, aug_methods[:extra]):
-                        sampled_pairs.append((img_path, msk_path, aug))
+                # Every distinct (pair, augmentation) combination, so a pair
+                # is re-augmented a different way before any one combination
+                # repeats.
+                combos = [(img_path, msk_path, aug)
+                          for aug in aug_methods
+                          for (img_path, msk_path) in pairs]
+                pool = []
+                while len(pool) < needed:
+                    round_ = combos[:]
+                    random.shuffle(round_)
+                    pool.extend(round_)
+                sampled_pairs.extend(pool[:needed])
 
         # Add "no augmentation" tag to original files
         augmented_sampled = [

@@ -1,0 +1,418 @@
+================================================================================
+CLOSE THE GITHUB ISSUES BY FIXING THEM, AND CLOSE THEM AS THE MAINTAINER
+================================================================================
+
+Status:    done, 2026-08-14. All 26 original issues are closed; #15 was fixed
+           across local and shared filesystems in 13c41543.
+Requested: 2026-08-11 — "add to instructions to solve the github bug issues
+           and mark them as solved, in my name,"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The original inventory contained 26 issues. The work recorded below has closed
+25 of them with fixes, tests, duplicate handling, or a measured not-reproduced
+resolution where that was the truthful outcome. The only remaining issue is
+#15, measurements sometimes hanging at completion with "database is locked".
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+An unresolved database lock can leave a completed-looking analysis unable to
+finish or release its resources. Closing the wrong issue without evidence is
+also user-visible damage, so the remaining issue needs the same fix-plus-test
+standard as the 25 already handled.
+
+--------------------------------------------------------------------------------
+ATTRIBUTION, FIRST, BECAUSE IT GOVERNS EVERY ACTION IN THIS FILE
+--------------------------------------------------------------------------------
+
+"in my name" — the maintainer is the author of this work. So:
+
+  * NO "Generated with Claude", no Co-Authored-By trailer, no AI attribution
+    in a commit message, an issue comment, or a closing note. This matches
+    the standing rule already in force for commits.
+  * A closing comment says WHAT WAS WRONG and WHAT FIXED IT, with the commit
+    SHA. It does not say who or what wrote it.
+  * Write in the register the repository already uses. An issue comment is
+    read by users, so it names the symptom they saw, not the internals.
+
+CLOSING AN ISSUE IS PUBLIC AND OUTWARD-FACING. Close an issue only when the
+fix is committed AND a test covers it. "I believe this is fixed" is not a
+reason to close; it is a reason to comment.
+
+--------------------------------------------------------------------------------
+THE INVENTORY
+--------------------------------------------------------------------------------
+
+TEN FILINGS OF ONE BUG — fingerprint 500e6c, ml_analyze
+-------------------------------------------------------
+  #79   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #80   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #81   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #84   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #85   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #86   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #87   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #88   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #89   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+  #90   2026-08-11  [auto 500e6c] [ml_analyze] ValueError: With n_samples=0, test_size=0.2 and train_size=None, the 
+
+OTHER AUTO-FILED
+----------------
+  #75   2026-07-29  [auto 54a0e8] [mask] Error: boom
+  #82   2026-08-11  [auto e5d682] [ml_analyze] ValueError: Found array with 0 sample(s) (shape=(0, 64)) while a mini
+
+REAL, REPORTED BY HAND
+----------------------
+  #4    2026-05-20  #enhancement Quickly return to the last annotated image in manual annotation
+  #6    2026-05-20  #bug OS X labels in annotation are low contrast
+  #7    2026-05-20  #enhancement Pass operator-based keywords for image type in Annotations
+  #13   2026-06-02  #bug Creation of masks folder when re-masking an existing dataset
+  #15   2026-06-05  #bug measurements sometimes hangs from completion
+  #19   2026-06-05  [Feature Request] Introduce Active Learning / Interactive Training to Classify Module to Reduce 
+  #20   2026-06-16  [Bug] Training warnings
+  #21   2026-07-09  [Bug] spacr-ml typos
+  #72   2026-07-28  annotate: residual segfault on window-resize during page reload (same signature as #71, cause no
+  #73   2026-07-28  341f446 mirrors the displayed channel order of every pre-existing crop folder
+  #76   2026-07-29  use_checkpoint=True silently freezes the backbone — only the classifier head trains
+  #77   2026-07-29  _save_model never persists the best checkpoint on real (non-toy) datasets
+  #78   2026-07-29  F1(macro) always prints as nan for binary classification
+  #83   2026-08-11  Extra performance mode still continuously printing to console
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. THE ml_analyze CRASH (#79-#82, #84-#90) IS ONE BUG. `ml_analysis` reaches
+   `train_test_split` with an EMPTY frame:
+
+       ml.py:4346  train_test_split(X, y, test_size=0.2, ...)
+       ValueError: With n_samples=0 ... the resulting train set will be empty
+
+   Find why X is empty rather than guarding the split. A guard turns a crash
+   into a silent no-result, which is worse.
+
+   A STRONG HYPOTHESIS, NOT A DIAGNOSIS: instruction 77 measured
+   `_read_and_merge_data` joining INNER through all five object tables, where
+   ONE missing crop row deletes 99 of 100 cells. An empty X is what the end
+   of that looks like. Test it before believing it — two findings in 77 were
+   confidently wrong.
+
+   Fix once, close all ten, each referencing the same commit. Nine of them
+   are duplicates and should say so.
+
+2. THE AUTO-FILER MUST DEDUPLICATE. Ten issues carry the SAME fingerprint,
+   which is what a fingerprint is for. It should find the open issue with
+   that fingerprint and add a comment (or a reaction, or a count) rather than
+   opening another. Ten filings of one crash will bury the issues that matter,
+   and this is a defect in the feature instruction 56 delivered.
+
+3. #75 "[auto 54a0e8] [mask] Error: boom" IS A TEST ARTIFACT that reached the
+   real tracker. Close it, and make sure the issue-filing tests cannot post
+   to the live repository — that is a second defect in the same feature.
+
+4. THE THREE ML BUGS FROM 2026-07-29 (#76, #77, #78) are the same class this
+   repository has been clearing all day — a run that looks like it worked:
+
+       #76  use_checkpoint=True silently freezes the backbone, so only the
+            classifier head trains. Every reported accuracy from such a run
+            is from a frozen network.
+       #77  _save_model never persists the best checkpoint on real
+            (non-toy) datasets, so the model kept is not the model chosen.
+       #78  F1(macro) always prints as nan for binary classification.
+
+   Take these before the older feature requests: each one silently
+   invalidates a result.
+
+5. WORK THE REST OLDEST-FIRST once the above are done. Several are small
+   (#6 low-contrast labels on OS X, #4 return to the last annotated image),
+   and #19 (active learning in Classify) is a feature, not a bug — it does
+   not belong in this instruction and should get its own if it is wanted.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Every closed issue has: a commit that fixes it, a test that fails without
+that commit, and a closing comment naming both — written as the maintainer,
+with no AI attribution anywhere in it.
+
+The auto-filer, run twice on the same traceback, produces ONE issue.
+
+--------------------------------------------------------------------------------
+2026-08-12 - #72 (ANNOTATE SEGFAULT ON RESIZE): NOT REPRODUCED, NOT CLOSED
+--------------------------------------------------------------------------------
+
+Investigated, not fixed, and deliberately NOT marked solved. What is known:
+
+RULED OUT BY INSPECTION, each recorded so it is not re-audited:
+
+  1. A widget painting from a freed numpy buffer. Every `QImage(...)` built
+     from an array in `spacr/qt/**` calls `.copy()` before the array can be
+     collected -- checked all nine sites (space.py:1002, iconset.py:450,
+     live_preview.py:517, model_compare.py:872, model_zoo.py:948,
+     measure_preview.py:988, animation_zoom.py:484, make_masks.py:221,
+     umap_explorer.py:813). This is the classic cause and it is absent.
+
+  2. A stale slot index walking off `_thumbs` after a rebuild.
+     `_set_slot_image` and `_repaint_slot` both bounds-check against the
+     CURRENT list, and `_rebuild_grid` resizes `_thumb_pixmaps` and
+     `_raw_thumb_images` with it.
+
+  3. A worker handler running on the worker thread -- the failure mode this
+     project has hit before. `JobRunner.submit` relays `worker.finished`
+     through a Signal whose receiver is a bound method of a GUI-thread
+     object, and the module says so at the connection.
+
+  4. Re-entrant resize (stack exhaustion presents as SIGSEGV).
+     `_compute_grid_dims` only READS viewport geometry and writes to the
+     settings dataclass; it mutates no widget, so `resizeEvent` cannot
+     recurse through it. `_rebuild_grid` is reached from the 150 ms debounce
+     timer, not from inside the resize event.
+
+NOT REPRODUCED. `tests/qt/test_annotate_resize_crash.py` drives the real
+AnnotateScreen against a real source and hammers it: a 21-step resize drag, a
+rebuild started while a page load is in flight, a close landing on a pending
+reload. Six tests, all pass, no crash. Run under QT_QPA_PLATFORM=offscreen,
+which is the limit of what this machine can do -- there is no X server and no
+xvfb here, so the real windowing and compositing path is NOT exercised, and
+that is where a windowed segfault would live.
+
+The tests are kept regardless: they pin the ordering invariants whose
+violation would produce exactly this class of crash -- the debounce
+collapsing a drag into at most two reloads, the three slot arrays staying the
+same length as the grid, and `_hover_slot` being dropped when its widget is.
+
+TO CLOSE THIS, one of: a stack trace from the reporter's crash, or a run on a
+machine with a real display. Guessing a fix for a native crash that four
+inspections and one measurement say is not in the Python paths would be a
+change with no evidence behind it.
+
+--------------------------------------------------------------------------------
+2026-08-12 - #72 CLOSED. 25 OF 26. XVFB IS WHAT MADE IT ANSWERABLE.
+--------------------------------------------------------------------------------
+
+The maintainer installed xvfb, so the real-display run this file recorded as
+impossible became possible, and the answer changed from "cannot verify" to
+"cannot reproduce, with evidence".
+
+WHAT WAS RUN, under a real X server rather than QT_QPA_PLATFORM=offscreen:
+
+  * 600 programmatic resizes of a loaded AnnotateScreen with
+    PYTHONFAULTHANDLER=1, cycling width 360-1260 and height 300-900 every
+    3 ms while a page load was in flight. Survived; clean exit 0.
+  * The annotate Qt suite under Xvfb: 169 passed.
+  * The maintainer's own manual attempt on a real desktop: no crash.
+
+Together with the four causes ruled out by inspection (recorded in the
+earlier note and repeated in the closing comment so the issue is
+self-contained), that is enough to close it. MOST LIKELY ALREADY FIXED by
+the resize debounce: a drag used to start one QThread -- and one inner pool
+of native image workers -- per geometry event, and overlapping native calls
+during a resize is exactly the shape this crash had.
+
+Closed as "not planned" rather than "completed", because no commit in this
+session is the fix and claiming one would be false. The closing comment
+names the artefact that would reopen it usefully: a faulthandler log, or a
+gdb backtrace if nothing is printed.
+
+REMAINING: #15 only (measurements hangs, "database is locked").
+
+--------------------------------------------------------------------------------
+2026-08-12 (later) - #15 HAS A FIX, AND THE FIRST EXPLANATION OF IT WAS WRONG
+--------------------------------------------------------------------------------
+
+Candidate 2 from the diagnostic comment ("the measurement writer does not go
+through database_concurrency.connect") IS ALREADY DONE:
+`_append_to_measurements_db` calls `connect(db_path, timeout=DB_WRITE_TIMEOUT)`
+at utils.py:2943. Nothing to do there.
+
+Candidate 1 -- WAL where the filesystem allows it -- is now implemented, and
+working out WHY it helps corrected the diagnostic comment's own reasoning.
+
+THE COMMENT SAID, and I repeated it: "under WAL a reader does not block a
+writer, which is most of this problem", with the failing has_table probe as a
+READ that was being blocked by writers. The test written to prove that
+measured 0.000 s and refuted it. In rollback-journal mode a writer holding
+RESERVED does NOT block readers; only its brief EXCLUSIVE commit does.
+
+THE DIRECTION IS THE OTHER WAY, and it is worse for this workload. A reader
+holds SHARED for the length of its statement, and a writer cannot COMMIT
+until every SHARED lock is gone. Measure runs one worker per field, and
+to_sql issues has_table (a read) before every append -- so each worker
+alternates read, write, read, write, someone is always reading, and the
+committing worker waits out its busy timeout. Measured, a commit attempted
+while one reader holds an open SELECT:
+
+    journal_mode=delete    writer waited 1.037 s
+    journal_mode=wal       writer waited 0.002 s
+
+That is writer starvation by a stream of readers, and "database is locked"
+surfaces on whichever has_table loses the race -- which is exactly the
+statement in the reporter's traceback.
+
+WHAT SHIPPED: `database_concurrency.enable_wal_where_safe`, called once per
+source folder from `measure_crop` before any worker starts. The safety bar is
+a POSITIVELY IDENTIFIED local filesystem -- `WAL_SAFE_FILESYSTEMS` is an
+allowlist, not the complement of `NETWORK_FILESYSTEMS`, because "not a type I
+recognise as networked" is a weaker claim than "local" and the gap between
+them is a corrupted database on a cluster. Network types, unrecognised types,
+and platforms where `filesystem_type` cannot tell (it reads /proc/mounts, so
+macOS and Windows always answer None) all keep the shipped DELETE behaviour.
+Never raises.
+
+NOT CLOSED, AND NOT YET COMMENTED ON, for two reasons:
+
+  1. It is unpushed, so it is not real for the reporter yet.
+  2. It fixes the reader-blocks-writer half. It does NOT make two writers
+     concurrent -- SQLite still serialises those -- and the reporter's path
+     (`/home/jkellerm/.conda/...`) may well be a network filesystem, in which
+     case this changes NOTHING for them and the `df -T` the diagnostic asked
+     for is still the next thing needed.
+
+So the honest state is: a measured improvement for local-disk runs, which is
+most runs, and an open question for theirs. Say that in the comment rather
+than "fixed", and ask for `df -T` again.
+
+--------------------------------------------------------------------------------
+2026-08-12 (later) - #15 COMMENTED, DELIBERATELY NOT CLOSED. AND #74 IS A PR.
+--------------------------------------------------------------------------------
+
+The WAL fix is pushed, so it is real for the reporter now, and the issue
+carries a comment with the measurement (1.037 s against 0.002 s) and with the
+correction to this file's earlier reasoning -- the first explanation had the
+direction backwards and a test refuted it.
+
+NOT CLOSED, on purpose. The fix is skipped on any filesystem not positively
+identified as local, and the reporter's path (`/home/jkellerm/.conda/...`)
+may well be one. Closing an issue with a fix that is DESIGNED not to apply to
+the reporter's setup would be a false claim. The comment asks for `df -T`,
+which is the one thing that settles it. Close it when that comes back local,
+or keep it open and change tack when it comes back NFS.
+
+26 OF 27 GITHUB ISSUES ARE NOW CLOSED. The count moved from 26 because
+`gh issue list` had been hiding one: #74 is a PULL REQUEST, and `gh` filters
+PRs out of the issue list while the REST issues endpoint returns both. Anyone
+auditing "how many are left" with `gh issue list` gets a number that silently
+excludes every PR.
+
+#74 is filed as instruction 87 rather than acted on: it is an outside
+contribution, it targets `main`, it is CONFLICTING, and it carries 100 mostly
+unrelated commits. The problem it describes is real and is the same family as
+the crop-preview colour defect fixed the same day.
+
+--------------------------------------------------------------------------------
+2026-08-13 - #15 ON A SERVER OR CLUSTER: THE MAINTAINER'S QUESTION ANSWERED
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "are you saying this would work great on a
+           workstation but would break server or cluster runs? If so what can
+           we do for the server run with the same effect?"
+
+YES, WITH ONE CORRECTION: the cluster run is not BROKEN by the fix, it is
+UNCHANGED by it. WAL is skipped on any filesystem not positively identified
+as local, so an NFS / Lustre / GPFS run behaves exactly as before --
+including hanging exactly as before.
+
+WHAT WOULD GIVE A SERVER RUN THE SAME EFFECT, in the order I would do them:
+
+  1. REMOVE THE READ. The real fix, and it helps every filesystem. The
+     contention is reader-blocks-writer, and the reader is pandas:
+     `_append_frame` uses `to_sql(if_exists='append')`, which is
+     check-then-act -- it asks whether the table exists before EVERY append.
+     Create the tables ONCE before the workers start, then INSERT directly,
+     and the per-append read disappears. That also deletes the CREATE race
+     this function's own docstring describes at length (measured there at
+     30 of 30 runs losing rows). No WAL, no filesystem test, no platform
+     assumption.
+
+  2. WRITE LOCAL, MERGE ONCE. Workers write to a per-worker SQLite file in
+     $TMPDIR -- node-local disk on every cluster -- and the parent merges
+     them into the shared measurements.db serially at the end. The shared
+     file then has exactly one writer and no contention at all. The standard
+     HPC pattern, and the most robust answer for a network filesystem, at
+     the cost of temporary disk and a merge step.
+
+  3. ONE WRITER. Workers hand frames to a single writer thread over a queue.
+     Simpler than (2), but gives up the write parallelism (1) keeps.
+
+(1) IS THE ONE TO BUILD: smallest change, no new configuration, and it makes
+the local WAL fix an optimisation rather than the fix. (2) is worth having
+as an opt-in for genuinely network-mounted projects.
+
+WHAT DOES NOT WORK: raising `DB_WRITE_TIMEOUT`. utils.py:2801 records that
+30 s made the whole suite time out, and a longer wait does not remove
+contention -- it hides it until the plate is big enough.
+
+--------------------------------------------------------------------------------
+2026-08-13 - OPTION (1) WAS IMPLEMENTED, BROKE THE SAFETY NET, AND WAS BACKED OUT
+--------------------------------------------------------------------------------
+
+Written down because the next person will otherwise reach for it first, as I
+did, and it is not as simple as "swap to_sql for INSERT".
+
+WHAT WAS BUILT: `_insert_frame`, a plain `executemany` INSERT replacing
+`frame.to_sql(if_exists='append')` inside `_append_frame`, plus `_sql_values`
+to convert numpy scalars and NaN the way to_sql did. Eleven tests passed,
+INCLUDING an equivalence test that wrote the same frame both ways into two
+databases and compared them row for row, and a trace-callback test proving
+no `sqlite_master` read remained.
+
+IT STILL LOST A ROW. The wider regression failed 10 tests, among them the two
+that exist for exactly this:
+
+    test_append_frame_widens_after_losing_the_create_race_to_a_narrower_frame
+        expected {1: None, 2: 17.0}, got {1: None}
+    test_four_processes_writing_a_fresh_db_lose_no_fields
+    test_measure_crop_completes_in_a_spawn_pool
+
+So the equivalence test was necessary and NOT sufficient: it proved the happy
+path writes identical bytes, and said nothing about the three repair paths
+`_append_frame` wraps around it -- the CREATE race, the widen-and-retry, and
+what each does to rows already in flight. The row went missing on the widen
+retry, which is the path with the most moving parts and the one no
+single-frame test exercises.
+
+REVERTED IN FULL. `to_sql` is back and the 8 intermittent-write tests pass.
+
+--------------------------------------------------------------------------------
+2026-08-14 - #15 FIXED ACROSS LOCAL AND SHARED FILESYSTEMS, THEN CLOSED
+--------------------------------------------------------------------------------
+
+The failed direct-insert attempt above identified the right direction but did
+not preserve all three existing repair paths. The replacement in 13c41543
+does. Ordinary appends now issue a parameterised INSERT directly, with no
+`sqlite_master` query. Pandas is used only to create a genuinely absent table,
+with zero rows; the direct INSERT then writes the frame exactly once.
+
+The create race, a narrower winning schema, a lock during INSERT or COMMIT,
+and a failed partial transaction all retain explicit bounded recovery. Scalar,
+null, timestamp, and timedelta storage was compared row-for-row with pandas.
+The regression set also traces the SQL to prove an existing-table append never
+reads `sqlite_master`, reproduces the widen-after-create-race case, and releases
+four processes against one fresh database without losing a field. The focused
+measurement/database run passed 657 tests.
+
+This is the cluster-safe counterpart to the earlier WAL optimisation: it does
+not enable WAL on NFS, Lustre, GPFS, or an unknown filesystem. Instead it
+removes the repeated reader that starved rollback-journal writers there.
+
+Issue #15 was closed as completed with the commit and test evidence. All 26
+issues in the requested inventory are now closed.
+
+WHAT THE NEXT ATTEMPT NEEDS, beyond what this one had:
+
+  * the widen path tested FIRST, not the happy path -- write a narrow frame,
+    then a wider one, from two connections, and assert every row of both;
+  * `head(0).to_sql(if_exists='fail')` is the wrong create: losing the race
+    raises ValueError, not OperationalError, so the caller's retry does not
+    catch it. Create with `if_exists='append'`, or catch both;
+  * a decision about executemany and partial application under a mid-batch
+    error, which is the likeliest place the row went.
+
+THE ANALYSIS BEHIND IT IS STILL RIGHT and is worth someone's time: the read
+IS the contention, and removing it is the only fix that reaches a cluster.
+This records that the obvious implementation is not the correct one.

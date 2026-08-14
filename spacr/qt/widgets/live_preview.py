@@ -44,7 +44,7 @@ import os
 import random
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -62,6 +62,10 @@ from .preview_controls import (
     FlatComboBox, FlatSpinBox, ImageSetSampler, apply_sample_to_combo,
     channel_view, enumerate_image_sets, populate_channel_combo,
     sample_image_sets, sample_seed, selected_channel,
+)
+from .preview_contract import (
+    PREVIEW_CANCEL_TEXT, PREVIEW_RUN_TEXT, PREVIEW_RUNNING_MESSAGE,
+    LivePreviewContract, preview_cellpose_model, preview_failure_message,
 )
 from .toggle import Toggle
 from ..job_runner import JobRunner
@@ -385,7 +389,45 @@ def _random_outline_palette(
 _AUTO_COLOUR_RNG = random.Random()
 
 
-def random_outline_colour(rng: Optional[random.Random] = None
+def safe_outline_palette() -> Optional[List[Tuple[int, int, int]]]:
+    """Colours ``auto`` may draw from, or ``None`` when any colour will do.
+
+    A random hue is right for a sighted user and exactly wrong for a
+    colour-blind one: uniform over the circle, it will sooner or later hand
+    two adjacent compartments a pair that user cannot tell apart, and the
+    outlines are the one thing on the screen whose whole job is to be told
+    apart. When a colour-vision mode is set, ``auto`` draws from the
+    Okabe-Ito set instead -- eight colours chosen to stay distinct under all
+    three deficiencies.
+
+    :returns: RGB triples, or ``None`` when the preference is ``off``.
+    """
+    try:
+        from ..preferences import (color_blind_categorical_palette,
+                                   get_color_blind_mode)
+        if get_color_blind_mode() == "off":
+            return None
+        hexes = color_blind_categorical_palette()
+    except Exception:
+        # No QSettings, no Qt, or a preferences module that moved: a random
+        # colour is the historic behaviour and is never worse than crashing
+        # the renderer over a palette.
+        return None
+    out: List[Tuple[int, int, int]] = []
+    for value in hexes:
+        text = str(value).lstrip("#")
+        if len(text) != 6:
+            continue
+        try:
+            out.append((int(text[0:2], 16), int(text[2:4], 16),
+                        int(text[4:6], 16)))
+        except ValueError:
+            continue
+    return out or None
+
+
+def random_outline_colour(rng: Optional[random.Random] = None,
+                          palette: Optional[Sequence[Tuple[int, int, int]]] = None
                           ) -> Tuple[int, int, int]:
     """Return one vivid random RGB triple for the ``auto`` outline mode.
 
@@ -394,9 +436,13 @@ def random_outline_colour(rng: Optional[random.Random] = None
     RGB would regularly produce muddy near-grey outlines nobody can see.
 
     :param rng: optional generator, for reproducible tests.
+    :param palette: draw from these instead of the hue circle. This is how
+        :func:`safe_outline_palette` reaches the ``auto`` mode.
     :returns: ``(r, g, b)`` in 0..255.
     """
     source = rng if rng is not None else _AUTO_COLOUR_RNG
+    if palette:
+        return tuple(source.choice(list(palette)))
     hue = source.random()
     saturation = 0.70 + 0.30 * source.random()
     value = 0.85 + 0.15 * source.random()
@@ -414,7 +460,8 @@ def overlay_masks(image: np.ndarray,
                     hi_pct: float = 98.0,
                     random_outline: bool = False,
                     outline_colors: Optional[
-                        Dict[str, Tuple[int, int, int]]] = None) -> np.ndarray:
+                        Dict[str, Tuple[int, int, int]]] = None,
+                    primaries: str = "rgb") -> np.ndarray:
     """Return an RGB uint8 view of ``image`` with every mask's boundary
     drawn in the object's colour (or ``outline_rgb`` when supplied).
 
@@ -434,6 +481,15 @@ def overlay_masks(image: np.ndarray,
         mode reaches the renderer: it holds one random colour per
         compartment for the current run. Falls back to
         :data:`OBJECT_COLORS` for anything it does not name.
+    :param primaries: one of :data:`spacr.crops.DISPLAY_PRIMARIES`. Applied
+        to the IMAGE ONLY, before a single outline is drawn.
+
+    WHY THE ORDER MATTERS, and it is the whole reason this parameter is here
+    rather than in :func:`numpy_to_qpixmap`. The primaries are a
+    channel-to-colour mapping and only channels belong in it. An outline is
+    not a channel -- it is a colour the user chose, or a categorical label
+    -- so putting it through the same matrix would answer a request for a
+    red outline with a yellow one. Recolour the image, then draw on top.
     """
     base = _to_uint8(image, normalise=normalise,
                         lo_pct=lo_pct, hi_pct=hi_pct)
@@ -441,6 +497,9 @@ def overlay_masks(image: np.ndarray,
         rgb = np.stack([base, base, base], axis=-1)
     else:
         rgb = base[..., :3].copy()
+    if str(primaries or "rgb").lower() != "rgb":
+        from ...crops import apply_display_primaries
+        rgb = np.ascontiguousarray(apply_display_primaries(rgb, primaries))
     outline_thickness = max(1, min(5, int(outline_thickness)))
     for obj_type, mask in masks.items():
         if mask is None:
@@ -677,25 +736,11 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     applied per-object-type after the model returns, using the
     ``postprocess_settings`` dict on the request.
     """
-    from cellpose import models as cp_models
-    try:
-        import torch
-        gpu = torch.cuda.is_available()
-    except Exception:
-        gpu = False
-
-    # `model_type=` is accepted-and-IGNORED by Cellpose 4 -- it logs "not
-    # used in v4.0.1+" and drops it, leaving pretrained_model at its 'cpsam'
-    # default. So picking any other model here silently segmented with cpsam,
-    # including a checkpoint the user had just trained in spaCR's own Train
-    # Cellpose module. `_resolve_cellpose_pretrained` is what the pipeline
-    # uses: it maps the legacy pre-SAM names to cpsam and says so once, and
-    # returns a path unchanged when the name is a fine-tuned checkpoint.
-    from spacr.utils import _resolve_cellpose_pretrained
-    model = cp_models.CellposeModel(
-        gpu=gpu,
-        pretrained_model=_resolve_cellpose_pretrained(req.model),
-        device=None)
+    # ONE constructor for every live view — see
+    # `preview_contract.preview_cellpose_model` for why `model_type=` may
+    # never appear here. The Timelapse preview calls the same helper, so the
+    # next Cellpose API change is one fix rather than two.
+    model = preview_cellpose_model(req.model)
 
     out: Dict[str, np.ndarray] = {}
     flows_out: Dict[str, np.ndarray] = {}
@@ -1022,10 +1067,18 @@ def _model_menu():
     return menu or _FALLBACK_MODELS
 
 
-class LivePreviewPanel(QWidget):
-    """Interactive segmentation preview — Mask app only."""
+class LivePreviewPanel(LivePreviewContract, QWidget):
+    """Interactive segmentation preview — Mask app only.
+
+    The reference implementation of
+    :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`: the
+    other three live views wear the same run button, the same cancel
+    button and the same words as this one.
+    """
 
     preview_ready = Signal(object)   # {object_type: mask}
+
+    PREVIEW_SOURCE_HINT = "Load an image first."
 
     def __init__(self, parent=None, *, threaded: bool = True):
         super().__init__(parent)
@@ -1371,8 +1424,18 @@ class LivePreviewPanel(QWidget):
 
         # Action row — Run + Live settings + status
         act = QHBoxLayout()
-        self._run_btn = QPushButton("Run preview", self)
+        self._run_btn = QPushButton(PREVIEW_RUN_TEXT, self)
         self._run_btn.clicked.connect(self.run_preview)
+        # Cancel sits beside Run in every live view, disabled until a pass
+        # is in flight. Before the shared contract only this panel could be
+        # cancelled at all, and only from Python.
+        self._cancel_btn = QPushButton(PREVIEW_CANCEL_TEXT, self)
+        self._cancel_btn.setToolTip(
+            "Abandon the preview in flight. Cellpose cannot be interrupted, "
+            "so the pass finishes in the background and its result is "
+            "dropped.")
+        self._cancel_btn.setEnabled(False)
+        self._cancel_btn.clicked.connect(self.cancel_preview)
         self._live_settings_btn = QPushButton("Live settings…", self)
         self._live_settings_btn.clicked.connect(self.open_live_settings)
         # What the right-hand canvas shows: outline overlay, the raw label
@@ -1387,6 +1450,7 @@ class LivePreviewPanel(QWidget):
             lambda *_: self._refresh_canvases())
         self._status = QLabel("", self)
         act.addWidget(self._run_btn)
+        act.addWidget(self._cancel_btn)
         act.addWidget(self._live_settings_btn)
         act.addWidget(QLabel("View:", self))
         act.addWidget(self._view_mode)
@@ -2052,9 +2116,36 @@ class LivePreviewPanel(QWidget):
         the main settings panel (wired by the AppScreen)."""
         self._propagate_cb = cb
 
+    #: The three segmentation settings, as ``(panel name, Mask suffix)``.
+    #:
+    #: The panel has ONE diameter / flow / probability triple and an object
+    #: selector, while Mask declares all three per compartment
+    #: (``cell_diameter``, ``nucleus_FT``, ...). Which compartment the
+    #: triple means is therefore decided by the selector, and this table is
+    #: the whole of the translation — used in BOTH directions so the two
+    #: cannot drift apart again.
+    #:
+    #: The bare panel names are real settings for the modules that reach
+    #: this panel through :mod:`spacr.qt.preview_registry`
+    #: (``cellpose_masks``, ``analyze_plaques``), which have one object type
+    #: and call it ``diameter``. Those keep working: a native name present
+    #: in the dict wins over the compartment alias.
+    _SEGMENTATION_ALIASES: Tuple[Tuple[str, str], ...] = (
+        ("diameter", "diameter"),
+        ("flow_threshold", "FT"),
+        ("CP_prob", "CP_prob"),
+    )
+
     def settings_for_propagation(self) -> dict:
         """Map the live-preview widget values to main-panel settings keys."""
         model = self._model_box.currentText()
+        # The tuned value belongs to the compartment being segmented. With
+        # "nucleus" selected the panel runs Cellpose on the nucleus, so
+        # writing the result to `cell_diameter` left `nucleus_diameter`
+        # untouched and the run used neither the tuned number nor the one on
+        # screen. "cell" is the default selection, so the ordinary case is
+        # unchanged.
+        primary = self._primary_object()
         out = {
             "model_name": model,
             "cell_channel": int(self._cell_channel.value()),
@@ -2064,9 +2155,9 @@ class LivePreviewPanel(QWidget):
             # instead of being lost when the dialog closes.
             "pathogen_channel": int(self._pathogen_channel.value()),
             "organelle_channel": int(self._organelle_channel.value()),
-            "cell_diameter": float(self._diameter.value()),
-            "cell_FT": float(self._flow.value()),
-            "cell_CP_prob": float(self._prob.value()),
+            f"{primary}_diameter": float(self._diameter.value()),
+            f"{primary}_FT": float(self._flow.value()),
+            f"{primary}_CP_prob": float(self._prob.value()),
             "normalize": bool(self._normalise_check.isChecked()),
             "lower_percentile": float(self._lo_pct.value()),
         }
@@ -2087,26 +2178,62 @@ class LivePreviewPanel(QWidget):
                 LOG.debug("propagate_settings failed", exc_info=True)
 
     def apply_settings(self, settings: dict):
-        """Copy relevant values from a Mask-app ``settings`` dict, and
-        cache the whole dict for the Pre / Post routes to read from."""
-        self._settings = dict(settings)
-        try:
-            if "diameter" in settings:
-                self._diameter.setValue(float(settings["diameter"]))
-            if "flow_threshold" in settings:
-                self._flow.setValue(float(settings["flow_threshold"]))
-            if "CP_prob" in settings:
-                self._prob.setValue(float(settings["CP_prob"]))
-            if "cell_channel" in settings and settings["cell_channel"] is not None:
-                self._cell_channel.setValue(int(settings["cell_channel"]))
-            if "nucleus_channel" in settings and settings["nucleus_channel"] is not None:
-                self._nucleus_channel.setValue(int(settings["nucleus_channel"]))
-            if "model_name" in settings:
-                idx = self._model_box.findText(str(settings["model_name"]))
-                if idx >= 0:
-                    self._model_box.setCurrentIndex(idx)
-        except Exception:
-            LOG.debug("apply_settings failed", exc_info=True)
+        """Seed the panel from a module's settings, and cache the whole dict
+        for the Pre / Post routes to read from.
+
+        This is the inverse of :meth:`settings_for_propagation` and is
+        tested as one — the defect it was written for is that the two spoke
+        different vocabularies. The panel emitted ``cell_diameter`` and read
+        back ``diameter``, which Mask does not declare, so a Mask screen
+        seeded here kept the panel's own hardcoded 30 px, 0.4 flow and 0.0
+        probability while ``cell_channel`` and ``nucleus_channel`` DID land
+        — the preview visibly changed and looked seeded, having silently
+        dropped exactly the three settings it is opened to check.
+
+        Every field is copied independently. A single unusable value used to
+        abort the whole copy through the shared ``except``, so one junk
+        diameter also cost the flow threshold, the channels and the model.
+        """
+        settings = dict(settings or {})
+        self._settings = settings
+        primary = self._primary_object()
+
+        def _seed(widget, keys, cast):
+            """Write the first present, usable value of ``keys``."""
+            for key in keys:
+                if key not in settings or settings[key] is None:
+                    continue
+                try:
+                    widget.setValue(cast(settings[key]))
+                except Exception:
+                    LOG.debug("apply_settings: %r is not usable for %r",
+                              settings[key], key, exc_info=True)
+                return
+
+        for native, suffix in self._SEGMENTATION_ALIASES:
+            widget = {"diameter": self._diameter,
+                      "flow_threshold": self._flow,
+                      "CP_prob": self._prob}[native]
+            _seed(widget, (native, f"{primary}_{suffix}"), float)
+
+        # Pathogen and organelle are propagated OUT of this panel, so they
+        # are read back in as well: a round trip that drops two of its four
+        # channels is how the panel came to disagree with the run.
+        for comp in COMPARTMENTS:
+            _seed(getattr(self, f"_{comp}_channel"), (f"{comp}_channel",), int)
+
+        _seed(self._lo_pct, ("lower_percentile",), float)
+        if settings.get("normalize") is not None:
+            try:
+                # Mask declares a bool; the crop-preview vocabulary allows a
+                # [lo, hi] percentile pair, which is equally "normalise on".
+                self._normalise_check.setChecked(bool(settings["normalize"]))
+            except Exception:
+                LOG.debug("apply_settings: bad normalize", exc_info=True)
+        if settings.get("model_name") is not None:
+            idx = self._model_box.findText(str(settings["model_name"]))
+            if idx >= 0:
+                self._model_box.setCurrentIndex(idx)
 
     def current_params(self) -> dict:
         """Snapshot for tests + external callers."""
@@ -2127,33 +2254,23 @@ class LivePreviewPanel(QWidget):
             "fov": self._fov_box.currentText(),
         }
 
-    def cancel_preview(self) -> bool:
-        """Abandon the preview run in flight, if there is one.
-
-        Cellpose exposes no interrupt, so the thread is left to run itself
-        out; bumping the run token is what makes its answer land as a no-op
-        (:meth:`_on_worker_done` drops results carrying a stale token).
-
-        :returns: True when a running worker was abandoned.
-        """
-        self._run_token += 1
-        if self._worker is not None and self._worker.isRunning():
-            self._status.setText("Preview cancelled.")
-            self._run_btn.setEnabled(True)
-            return True
-        return False
+    def _preview_blocked_reason(self) -> str:
+        """Why this panel cannot segment right now, or ``""``."""
+        if self._image is None:
+            return self.PREVIEW_SOURCE_HINT
+        return ""
 
     def run_preview(self):
-        if self._image is None:
-            self._status.setText("Load an image first.")
-            return
-        if self._worker is not None and self._worker.isRunning():
-            self._status.setText("Preview already running.")
+        """Segment the loaded image off the GUI thread.
+
+        The guard, the refusals and the busy state are the shared ones —
+        see :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`.
+        """
+        if not self.begin_preview():
             return
         self._release_worker()
         req = self._build_request()
-        self._run_btn.setEnabled(False)
-        self._status.setText("Running preview…")
+        self._status.setText(PREVIEW_RUNNING_MESSAGE)
         worker = _PreviewWorker(req, self, token=self._run_token)
         worker.finished_masks.connect(self._on_worker_done)
         worker.flows_ready.connect(self._on_flows_ready)
@@ -2189,12 +2306,12 @@ class LivePreviewPanel(QWidget):
     def _on_worker_finished(self) -> None:
         """Relay for the worker thread's own ``finished`` signal.
 
-        A bound method on purpose (see :meth:`run_preview`). Re-enabling Run
-        here as well as in :meth:`_on_worker_done` is what keeps the button
-        usable after a run whose result was discarded as stale, or a worker
-        that died without emitting a result at all.
+        A bound method on purpose (see :meth:`run_preview`). Returning the
+        buttons to the idle state here as well as in :meth:`_on_worker_done`
+        is what keeps them usable after a run whose result was discarded as
+        stale, or a worker that died without emitting a result at all.
         """
-        self._run_btn.setEnabled(True)
+        self.set_preview_busy(False)
 
     # -- internals ---------------------------------------------------------
 
@@ -2405,7 +2522,21 @@ class LivePreviewPanel(QWidget):
         every cell preview green no matter what — the setting looked stuck.
         It now means a random colour, re-rolled once per preview run so the
         outline stays put while the user tunes thickness or normalisation.
+
+        UNDER A COLOUR-VISION MODE the colours are DEALT, not drawn: one
+        compartment per palette entry, without replacement. Drawing
+        independently from a safe palette is not enough -- eight safe
+        colours still collide by chance, and two compartments sharing one is
+        the exact failure the safe palette exists to prevent.
         """
+        palette = safe_outline_palette()
+        if palette:
+            order = list(palette)
+            _AUTO_COLOUR_RNG.shuffle(order)
+            self._auto_outline_colours = {
+                comp: order[i % len(order)]
+                for i, comp in enumerate(COMPARTMENTS)}
+            return
         self._auto_outline_colours = {
             comp: random_outline_colour() for comp in COMPARTMENTS}
 
@@ -2413,7 +2544,7 @@ class LivePreviewPanel(QWidget):
         """The current random ``auto`` colour for one compartment."""
         colour = self._auto_outline_colours.get(obj_type)
         if colour is None:
-            colour = random_outline_colour()
+            colour = random_outline_colour(palette=safe_outline_palette())
             self._auto_outline_colours[obj_type] = colour
         return colour
 
@@ -2459,7 +2590,8 @@ class LivePreviewPanel(QWidget):
                 random_outline=(
                     self._outline_colour.currentText() == "color (random)"
                 ),
-                outline_colors=self._auto_outline_map())
+                outline_colors=self._auto_outline_map(),
+                primaries=self.display_primaries())
             self._mask_view.set_pixmap(numpy_to_qpixmap(overlay))
         else:
             self._mask_view.set_pixmap(src_pix)
@@ -2619,9 +2751,9 @@ class LivePreviewPanel(QWidget):
             LOG.debug("dropping stale preview result (token %s, now %s)",
                       token, self._run_token)
             return
-        self._run_btn.setEnabled(True)
+        self.set_preview_busy(False)
         if err:
-            self._status.setText(f"Preview failed: {err}")
+            self._status.setText(preview_failure_message(err))
             self.preview_ready.emit(None)
             return
         if masks is None or not masks or self._image is None:
@@ -2719,7 +2851,8 @@ class LivePreviewPanel(QWidget):
                 random_outline=(
                     self._outline_colour.currentText() == "color (random)"
                 ),
-                outline_colors=self._auto_outline_map())
+                outline_colors=self._auto_outline_map(),
+                primaries=self.display_primaries())
             self._mask_view.set_pixmap(numpy_to_qpixmap(overlay))
         else:
             self._mask_view.set_pixmap(src_pix)

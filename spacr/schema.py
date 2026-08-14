@@ -89,7 +89,8 @@ __all__ = [
     'FIELD_KEY_COLUMNS', 'TIMEPOINT_KEY_COLUMNS', 'WELL_KEY_COLUMNS',
     'PRC_KEY', 'PRCF_KEY', 'PRCFO_KEY',
     'KEY_PREFIXES', 'OBJECT_PREFIX', 'KEY_SEPARATOR',
-    'OBJECT_TYPES', 'object_type_prefix', 'split_object_id',
+    'ORGANELLE_ROLES', 'SEGMENTED_ROLES', 'DERIVED_ROLES', 'CHILD_ROLES',
+    'ALL_ROLES', 'OBJECT_TYPES', 'object_type_prefix', 'split_object_id',
     'is_object_type',
     'LEGACY_COLUMN_NAMES', 'LEGACY_COLUMN_PATTERNS', 'TIME_COLUMN_ALIASES',
     'canonical_column_name',
@@ -110,7 +111,8 @@ __all__ = [
     'PLATE_FORMATS', 'plate_format_for', 'is_within_plate_format',
     # tables
     'PARENT_OBJECT_TABLES', 'CHILD_OBJECT_TABLES', 'OBJECT_TABLES',
-    'ORGANELLE_SUMMARY_TABLES', 'CROP_TABLES', 'MEASUREMENT_TABLES',
+    'ORGANELLE_SUMMARY_TABLES', 'CROP_TABLES', 'FIELD_PROVENANCE_TABLES',
+    'MEASUREMENT_TABLES',
     'BOOKKEEPING_TABLES', 'OWNED_TABLES', 'table_key_columns',
     'CANONICAL_OBJECT_TABLES', 'OBJECT_TABLE_REQUIRED_COLUMNS',
     'OBJECT_TABLE_OPTIONAL_COLUMNS', 'ObjectTableSchema',
@@ -228,8 +230,16 @@ OBJECT_TYPE_KEY = 'object_type'
 #: children are exactly the objects most likely to collide, which is where
 #: object linking is most useful, so four objects opened as three and which
 #: one you got depended on the row order of ``png_list``.
+ORGANELLE_ROLES: Tuple[str, ...] = (
+    'organelle', 'organelleb', 'organellec', 'organelled')
+SEGMENTED_ROLES: Tuple[str, ...] = (
+    'cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES)
+DERIVED_ROLES: Tuple[str, ...] = ('cytoplasm',)
+CHILD_ROLES: Tuple[str, ...] = ('nucleus', 'pathogen', *ORGANELLE_ROLES)
+ALL_ROLES: Tuple[str, ...] = SEGMENTED_ROLES + DERIVED_ROLES
+
 OBJECT_TYPES: Tuple[str, ...] = (
-    'cell', 'cytoplasm', 'nucleus', 'pathogen', 'organelle')
+    'cell', 'cytoplasm', 'nucleus', 'pathogen', *ORGANELLE_ROLES)
 
 #: :data:`OBJECT_TYPES`, longest first. The match must be longest-first
 #: because ``'organelle'`` starts with ``'o'``, which is the untyped prefix:
@@ -241,6 +251,19 @@ _OBJECT_TYPE_MATCH: Tuple[str, ...] = tuple(
 #: What ``prc`` / ``prcf`` / ``prcfo`` are joined on. A plate name containing
 #: this character cannot be round-tripped; :func:`compose_prc` refuses it.
 KEY_SEPARATOR = '_'
+
+# Validate the registry where it is declared. Typed object ids concatenate
+# role and numeric label without a separator, so a digit in a role is
+# ambiguous (``cell1`` + 7 versus ``cell`` + 17), while an underscore would
+# split the surrounding prcfo key. Failing import is preferable to writing
+# identities that cannot round-trip.
+for _registered_role in OBJECT_TYPES:
+    if (not _registered_role or KEY_SEPARATOR in _registered_role
+            or any(character.isdigit() for character in _registered_role)):
+        raise RuntimeError(
+            f'invalid object role {_registered_role!r}: roles must be '
+            f'non-empty, digit-free and contain no {KEY_SEPARATOR!r}')
+del _registered_role
 
 
 #: Every legacy spelling spaCR has written, and the canonical name it means.
@@ -1549,7 +1572,8 @@ def parse_object_stem(name: Any, *, timelapse: bool = False,
 PARENT_OBJECT_TABLES: Tuple[str, ...] = ('cell', 'cytoplasm')
 
 #: Object tables whose rows carry a ``cell_id`` link to their parent cell.
-CHILD_OBJECT_TABLES: Tuple[str, ...] = ('nucleus', 'pathogen', 'organelle')
+CHILD_OBJECT_TABLES: Tuple[str, ...] = (
+    'nucleus', 'pathogen', *ORGANELLE_ROLES)
 
 #: Every per-object measurement table. The same set as :data:`OBJECT_TYPES`,
 #: which is declared further up because :func:`object_id` needs the vocabulary
@@ -1568,10 +1592,15 @@ ORGANELLE_SUMMARY_TABLES: Tuple[str, ...] = (
 #: Tables recording crop PNGs on disk. Keyed on ``prcfo``, not on a label.
 CROP_TABLES: Tuple[str, ...] = ('png_list',)
 
+#: One row per measured field describing transformations applied before its
+#: object measurements were computed. These are field-keyed, not object-keyed.
+FIELD_PROVENANCE_TABLES: Tuple[str, ...] = ('intensity_rescale',)
+
 #: Everything written into ``measurements/measurements.db`` that carries a
 #: field identity.
 MEASUREMENT_TABLES: Tuple[str, ...] = (
-    OBJECT_TABLES + ORGANELLE_SUMMARY_TABLES + CROP_TABLES)
+    OBJECT_TABLES + ORGANELLE_SUMMARY_TABLES + CROP_TABLES
+    + FIELD_PROVENANCE_TABLES)
 
 #: Tables spaCR owns that are *not* keyed on a field: the settings snapshot,
 #: the per-file object tallies, and the two append-only run journals.
@@ -1610,12 +1639,8 @@ BOOKKEEPING_KEY_COLUMNS = {
 OWNED_TABLES: Tuple[str, ...] = MEASUREMENT_TABLES + BOOKKEEPING_TABLES
 
 
-#: The four analysis compartments covered by the canonical object-table
-#: contract. ``organelle`` remains an owned child table but is intentionally
-#: outside this first contract: its per-object table is optional and its
-#: stable public output is the per-parent summary family above.
 CANONICAL_OBJECT_TABLES: Tuple[str, ...] = (
-    'cell', 'cytoplasm', 'nucleus', 'pathogen')
+    'cell', 'cytoplasm', 'nucleus', 'pathogen', *ORGANELLE_ROLES)
 
 #: Columns every canonical object table carries, in writer order. Time is
 #: conditional and parent links are table-specific, so both live in the
@@ -1714,6 +1739,8 @@ OBJECT_TABLE_SCHEMAS = MappingProxyType({
     'cytoplasm': ObjectTableSchema('cytoplasm', 'cytoplasm'),
     'nucleus': ObjectTableSchema('nucleus', 'nucleus', 'cell_id'),
     'pathogen': ObjectTableSchema('pathogen', 'pathogen', 'cell_id'),
+    **{role: ObjectTableSchema(role, role, 'cell_id')
+       for role in ORGANELLE_ROLES},
 })
 
 #: Feature-dictionary families that are measurements rather than identity or
@@ -1863,6 +1890,21 @@ def coerce_model_feature_types(
     The input frame is returned unchanged when no conversion is needed. A
     shallow copy is made on the first conversion, so callers do not have their
     source data mutated and wide database joins do not get copied needlessly.
+
+    :param frame: the measurements frame. Anything else — a Series
+        included — raises :class:`ModelFeatureSchemaError`, not ``TypeError``.
+    :param extra_features: names to treat as declared features whatever the
+        feature dictionary makes of them. The only way to get an unrecognised
+        text column repaired, and it opts that column into the error above too.
+    :param exclude: names to leave alone entirely — never repaired, never
+        reported. Tested first, so it overrides ``extra_features``. It is
+        iterated, so a bare string excludes its letters and hence nothing.
+    :param allow_unknown: widen what counts as a feature to unrecognised
+        columns — but an unrecognised column is then *skipped* rather than
+        repaired, so this only ever converts fewer columns. It reaches
+        ``DERIVED_MODEL_FEATURES`` as well: with it set, a text or all-NULL
+        ``recruitment`` stays ``object`` and is then silently dropped by
+        :func:`model_feature_columns` instead of being read as numbers.
     """
     import pandas as pd
     from pandas.api.types import is_bool_dtype, is_numeric_dtype
@@ -1959,6 +2001,20 @@ def model_feature_columns(
     is unusable. Refusing the first one and stopping made a user fix them one
     whole run at a time.
 
+    :param frame: the frame to select from; anything else (a Series included)
+        raises :class:`ModelFeatureSchemaError` rather than ``TypeError``.
+    :param extra_features: names to declare as features whatever the feature
+        dictionary makes of them. It cannot promote an identity or provenance
+        column — those are dropped before it is consulted — but it does turn a
+        non-numeric column from a silent omission into the error below.
+    :param exclude: names dropped before any check, so it overrides
+        ``extra_features`` and is the escape hatch the error message points at.
+        Iterated, so passing one bare column *name* excludes its letters only.
+    :param allow_unknown: also accept unrecognised columns, but only those
+        already of a numeric dtype: an unrecognised non-numeric one is skipped
+        instead of reported. It reaches ``DERIVED_MODEL_FEATURES`` as well, so
+        a ``recruitment`` column read back as text vanishes from the selection
+        rather than raising.
     :raises ModelFeatureSchemaError: if a declared feature is non-numeric.
     """
     import pandas as pd
@@ -2041,6 +2097,8 @@ def table_key_columns(table: str, *, timelapse: bool = False) -> Tuple[str, ...]
     if table in BOOKKEEPING_TABLES:
         return BOOKKEEPING_KEY_COLUMNS[table]
     base = TIMEPOINT_KEY_COLUMNS if timelapse else FIELD_KEY_COLUMNS
+    if table in FIELD_PROVENANCE_TABLES:
+        return base
     if table in CROP_TABLES:
         return base + (PRCFO_KEY,)
     return base + (OBJECT_LABEL_KEY,)

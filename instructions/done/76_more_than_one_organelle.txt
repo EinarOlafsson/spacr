@@ -1,0 +1,330 @@
+================================================================================
+MORE THAN ONE ORGANELLE: organelle, organelle_1, organelle_2, ...
+================================================================================
+
+Status:    not started, 2026-08-11.
+Requested: 2026-08-11 — "Add to instructions to add support for detecting organelle multiple times so I can have organelle, organelle_1, organelle_2, etc."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The object-type vocabulary is a FIXED FIVE, written out as a literal in many
+places rather than derived from one list. Found by grep, non-exhaustive:
+
+    spacr/measure_hooks.py:142   OBJECT_TYPES = ('cell','nucleus','pathogen',
+                                                 'organelle','cytoplasm')
+    spacr/feature_dict.py:1875   _ZERNIKE_OBJECTS  = (... 'organelle')
+    spacr/feature_dict.py:1880   _SUMMARY_PARENTS  = ('cell','nucleus',
+                                                      'pathogen','cytoplasm')
+    spacr/pipeline_v2.py:613     for role in ("cell","nucleus","pathogen",
+                                              "organelle")
+    spacr/ml.py:4072             tables = ['cell','nucleus','pathogen',
+                                           'cytoplasm']
+    spacr/settings.py:1290       settings.setdefault('tables', [...])
+
+and every `<object>_*` SETTING is spelled out four or five times over --
+`organelle_channel`, `organelle_diameter`, `organelle_method`,
+`organelle_morphology`, `organelle_min_area`, and so on, each declared,
+typed, tooltipped and categorised individually.
+
+So "add organelle_1" is not adding a channel. It is making the object-type
+vocabulary DYNAMIC, and the reason to say so up front is that a half-done
+version -- one that adds the masks but not the settings, or the settings but
+not the feature_dict entries -- produces columns that silently vanish from
+every model matrix (see the four prerequisites in instruction 71).
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Organelle is already the most diverse object class in the tool (instruction
+72), and one organelle channel forces a choice a biologist should not have to
+make: a cell stained for mitochondria AND lysosomes AND lipid droplets can
+currently measure one of them per run. Running three times gives three
+databases that have to be joined by hand on object identity -- which is
+exactly the join the measurements database exists to have already done.
+
+The colocalization, neighbour and per-parent summary families all become
+much more useful once two organelle classes coexist in one row: "how far is
+each lysosome from the nearest mitochondrion" is a question this schema
+almost supports today.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. FIND THE FULL LIST FIRST. Grep for every literal spelling of the five
+   object types and every `organelle_` setting, and put the count in this
+   file before writing code. The greps above are a starting point, not the
+   answer -- `spacr/qt/` was deliberately not searched because a concurrent
+   session owns it, and the Tk GUI has its own copies.
+
+2. DECIDE THE NAMING, and record it here. `organelle` then `organelle_1`
+   reads oddly -- the first has no index and the second starts at 1. Either
+   `organelle_1, organelle_2` with `organelle` as an alias for
+   `organelle_1`, or `organelle` then `organelle_2`. Whichever, EXISTING
+   DATABASES AND SETTINGS CSVs MUST KEEP WORKING: today's `organelle_channel`
+   has to go on meaning the first organelle, and today's `organelle` table
+   has to go on being readable.
+
+3. DERIVE, DO NOT DUPLICATE. One function should answer "what object types
+   does this run have", and everything else should call it. The current
+   literals are the reason this is a large change rather than a small one;
+   leaving them in place and adding a sixth literal everywhere makes the next
+   one worse again.
+
+4. THE SETTINGS CANNOT BE COPIED N TIMES BY HAND. Instruction 61 closed "no
+   stated default" at zero and there are guard tests on the settings table;
+   twenty hand-written `organelle_2_*` entries will drift from the
+   `organelle_*` ones within a release. Generate them, or make the settings
+   layer index-aware, and give the generator a test.
+
+5. COORDINATE WITH 72 AND 73. 72 gives each organelle a TYPE that presets its
+   detection settings -- and a per-instance type is exactly what makes
+   multiple organelles worth having (mitochondria as Tubular, lysosomes as
+   Vesicular, in one run). 73 is moving settings into an advanced category
+   with per-object sub-sections, and those sub-sections would now be
+   per-instance. All three want the same underlying change; do 76 first or
+   they will each invent their own indexing.
+
+6. THE DATABASE. Decide whether N organelles are N tables or one table with
+   an `organelle_index` column. One table is likely right -- it keeps joins
+   uniform and does not multiply the schema -- but it changes what
+   `object_type` means in the key columns, which `selection` and
+   `anndata_export` both rely on.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A run can segment and measure two or more organelle classes into one
+database, each with its own channel, diameter and detection settings; every
+per-object family (intensity, morphology, colocalization, neighbours) is
+produced for each of them; an existing settings CSV and an existing
+measurements.db still load and still mean what they meant; and no object type
+is spelled as a literal in more than one place.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. Related: 72 (organelle type presets -- a per-instance type is
+the point of this), 73 (advanced settings sub-sections, which become
+per-instance), 71 (the four prerequisites any new column must clear, and the
+neighbour family that gets much more useful with two organelle classes), 37
+(the same "settings are spelled out per object" problem in classify).
+
+--------------------------------------------------------------------------------
+2026-08-11 - STEP 1 DONE: ~450 SITES INVENTORIED. FULL PLAN IN instructions/data/
+--------------------------------------------------------------------------------
+
+`instructions/data/76_migration_plan.txt` carries the migration plan, the
+per-file counts and the file:line lists. Roughly 355 mechanical / 95
+judgement across the package, EXCLUDING `spacr/qt/**` (a concurrent session
+owns it -- it is unsearched, not zero: `qt/widgets/live_preview.py:111` alone
+holds another copy of the vocabulary).
+
+THE HEADLINE, and it makes the job smaller than the count suggests: there is
+no single source of the object vocabulary. There are ELEVEN competing
+"canonical" constants, each spelled out independently --
+
+    OBJECT_TYPES        measure_hooks.py:142, feature_dict.py:98, schema.py:231
+    OBJECT_TABLES       schema.py:1554, filters.py:49, merge_tables.py:96
+    CROP_OBJECT_TYPES   io.py:4032
+    CROP_MODES          measure.py:2462
+    OBJECT_TYPES        crops.py:146, diameter.py:129
+    OBJECT_NAMES        validate.py:208
+
+Only two derive from another. COLLAPSING THESE ONTO ONE ROLE REGISTRY IS
+MECHANICAL AND FIXES ~40 DOWNSTREAM SITES FOR FREE -- do it first, as its own
+change, before anything about a second organelle.
+
+FIVE THINGS THAT ARE JUDGEMENTS, NOT EDITS:
+
+  1. `<parent>_organelle_summary` is a table-NAME family. With three
+     organelles 4 tables become 12, every existing database has the old
+     names, and feature_dict parses those names with a regex (2255/2262) and
+     rebuilds them with an f-string (2418).
+  2. THE PLANE BUDGET IS FULL. `crops.py:141` puts organelle at plane 7, the
+     last, and `io.py:3133` takes the four mask dims POSITIONALLY. Each extra
+     organelle is another plane.
+  3. `_morphological_measurements` and `_intensity_measurements` are
+     5-positional in AND 5-positional out (`measure.py:1132`, `:1485`,
+     unpacked at `:2839`/`:2841`). The single largest refactor.
+  4. `summarize_organelles_by` is a PARENT list in which "organelle" is a
+     magic member meaning "also write the raw table". With N organelles it
+     needs a second axis.
+  5. CYTOPLASM IS "CELL MINUS EVERYTHING ELSE" (`measure.py:2743`,
+     `crops.py:542`). It must subtract EVERY organelle role, or lipid
+     droplets get measured as cytoplasm.
+
+TWO TRAPS TO KNOW BEFORE STARTING:
+
+  `schema.py:239` sorts `_OBJECT_TYPE_MATCH` longest-first BECAUSE
+  'organelle' starts with 'o', the untyped-object prefix. Naming a second one
+  `organelle_1` adds a second hazard on the same line: 'organelle' is itself
+  a prefix of 'organelle_1', so the ordering becomes load-bearing twice over.
+
+  `schema.py:1617` CANONICAL_OBJECT_TABLES deliberately EXCLUDES organelle,
+  and `schema.py:1712` OBJECT_TABLE_SCHEMAS has no organelle entry. Bringing
+  organelle INTO the object-table contract is a prerequisite, not a
+  side-effect.
+
+A DEFECT FOUND WHILE COUNTING, AND GUARDED TODAY: forty organelle defaults
+are written TWICE -- `set_default_settings_preprocess_generate_masks`
+(settings.py:467-518) and `_set_organelle_defaults` (:4411-4468), which
+`object.py:1448` and `core.py:207` call. They agree exactly today and NOTHING
+ENFORCED THAT. Two hand-written copies of forty values drift silently,
+because a run takes whichever factory it went through and never compares
+them: the same plate measured two ways, with no error and nothing in the log.
+`tests/test_organelle_defaults_agree.py` now fails on any divergence.
+
+That test is a holding pattern, not the fix. Deleting the duplication is step
+one of this instruction's settings work, and the test should be deleted with
+it.
+
+NOTE THE NEAR-MISS in writing that guard: an unscoped scan for
+`setdefault('organelle_*')` also catches `get_measure_crop_settings`, where
+`organelle_min_size` deliberately defaults to 0 against the mask pipeline's
+10. That is a real difference between two PIPELINES, not a drift between two
+COPIES, and comparing them would have made the guard fail on correct code --
+which is how a guard gets deleted instead of heeded.
+
+--------------------------------------------------------------------------------
+2026-08-11 - STEP 2 DONE: THE REGISTRY EXISTS. AND ONE ALARM STOOD DOWN.
+--------------------------------------------------------------------------------
+
+`spacr/object_roles.py` now holds the membership (commit 5626a99b), split
+into SEGMENTED_ROLES (found in a channel, own mask and detection settings)
+and DERIVED_ROLES (cytoplasm). Eleven modules had spelled the vocabulary out
+independently; membership is now single-source.
+
+ORDER IS DELIBERATELY STILL LOCAL. The eleven agreed on membership and
+DISAGREED ON ORDER -- three orderings of the same five names. The
+merged-array plane order, the object-table order and the crop order are each
+load-bearing where they live, so each module keeps its own and passes it
+through `ordered()`, which validates the names without touching the
+sequence. Unifying them would have been a behaviour change dressed as a
+cleanup, and the snapshot below is what would have caught it.
+
+PROVED BEHAVIOUR-FREE, not assumed: all eleven tuples were captured from a
+running import before the change and every one is byte-identical after.
+`tests/test_object_roles.py` freezes each, so a future reorder fails loudly.
+
+A SIDE BENEFIT WORTH KEEPING: the SEGMENTED/DERIVED split explains something
+this file had listed as an inconsistency. `diameter` and `validate` omit
+cytoplasm not by oversight but because it has no channel to validate and no
+diameter to measure. Both now say `SEGMENTED_ROLES`, and a test pins it so
+nobody "fixes the inconsistency" by adding cytoplasm back.
+
+ALARM STOOD DOWN -- judgement 5 is NOT a present bug. The inventory warned
+that cytoplasm is "cell minus everything else" and must subtract every
+organelle role. Checked both paths:
+
+    measure.py:2748-2755   interior |= organelle_mask != 0, guarded by
+                           settings.get('organelle_mask_dim') is not None
+    crops.py:542           for other in ("nucleus", "pathogen", "organelle")
+
+Today's single organelle IS subtracted correctly. This becomes a defect only
+when a second one exists and the loop still names one -- which is what makes
+it a judgement for this instruction rather than a bug for 07. Do not chase it
+as a current defect.
+
+REMAINING JUDGEMENTS, unchanged: the plane budget being full at 7, the
+`<parent>_organelle_summary` table-name family, the 5-positional measurement
+signatures, and `summarize_organelles_by`'s magic "organelle" member.
+
+--------------------------------------------------------------------------------
+2026-08-12 - THE THREE QUEUED measure.py BUGS: TWO REAL, ONE DISPROVEN
+--------------------------------------------------------------------------------
+
+(i) THE ORGANELLE PLANE WAS NEVER WRITTEN BACK. Cell, nucleus and pathogen
+each get `data[..., <role>_mask_dim] = <role>_mask` after filtering; organelle
+did not, though its mask IS modified at the read -- `_filter_object` drops
+everything under `organelle_min_size` there. So the array kept the UNFILTERED
+organelle plane while the measurements used the filtered one.
+
+The comment above that block states the invariant it exists for: "the PNG
+crops and region arrays cover the same objects the measurements do".
+Organelle sat outside that guarantee, so a crop could show debris the
+measurement table had already dropped. Fixed, and a test now requires all
+four roles to be written back.
+
+(ii) `settings['cytoplasm_mask_dim']` RAISED KeyError, and not because the
+value was None -- THE KEY NEVER EXISTED. It is in neither the measure
+defaults nor `expected_types`, because the cytoplasm mask is DERIVED (cell
+minus its interior objects) and appended as a new plane rather than read from
+one. Every user who put "cytoplasm" in `summarize_organelles_by` hit it. The
+gate is now `settings['cytoplasm']`, which is the boolean that actually
+exists.
+
+(iii) `organelle_min_size` APPLIED TWICE -- DISPROVEN, and removing the
+"duplicate" would have introduced a real bug.
+
+`_filter_object` is idempotent: measured on a mask with 9-, 25- and 100-pixel
+objects at three thresholds, one pass and two give byte-identical results. So
+"applied twice" costs a pass and changes nothing.
+
+More importantly THE FIRST PASS IS LOAD-BEARING. The cytoplasm mask is built
+as "cell minus every interior object" FROM the organelle mask, between the
+two filter calls. Filtering only at the later site would carve sub-threshold
+organelle debris out of the cytoplasm -- a silent change to a measured area.
+The ordering (filter, build cytoplasm, filter again) is now asserted by a
+test and explained in a comment, so nobody tidies it away.
+
+This is the second claim from that survey to be disproven by checking rather
+than assumed correct. Recorded here for the same reason as the first: an
+instruction that lists a non-bug wastes the next person's afternoon.
+
+--------------------------------------------------------------------------------
+2026-08-14 - COMPLETE: FOUR INDEPENDENT ORGANELLE SLOTS, END TO END
+--------------------------------------------------------------------------------
+
+The closed registry now exposes four stable internal roles:
+
+    organelle, organelleb, organellec, organelled
+
+They display as Organelle 1 through Organelle 4. Letter suffixes are
+deliberate: object type and numeric label are concatenated inside prcfo, so
+an underscore would split the key and a digit would make the type/label
+boundary ambiguous. The schema validates those constraints at import.
+Existing `organelle_*` settings and the `organelle` table remain slot 1,
+unchanged; secondary slots default off.
+
+Each slot has generated (not copied) defaults, types, tooltips, categories,
+Qt/Tk labels and its own biological type preset. The mask pipeline loops the
+enabled slots, passes each through one legacy-compatible scoped settings
+view, writes a distinct `<role>_mask_stack`, and appends all enabled masks to
+merged arrays. A versioned `.spacr_plane_layout.json` sidecar records channel
+and mask order. Measure and on-demand crops consume it; explicit conflicting
+mask dims and resume under a changed layout are refused before a wrong plane
+can be measured.
+
+Measurement is no longer five-positional internally. Every enabled slot gets
+its own morphology, intensity, ring/outside, radial, colocalisation, spatial,
+parent-link, crop and SQLite paths. The database design is N object tables
+(`organelle`, `organelleb`, ...) so existing table meaning and typed object
+keys remain intact. The four existing `<parent>_organelle_summary` tables
+remain one-row-per-parent and widen with a separately namespaced column
+family for every enabled slot; they do not multiply into N tables.
+`summarize_organelles_by` now accepts str/list/None with exact membership and
+controls only rollups. Raw per-object tables are written whenever a slot's
+mask dim is enabled.
+
+Cytoplasm subtracts every slot. Cell culling clears every slot. Region hooks,
+resume ownership, schema contracts, table readers/mergers, feature parsing,
+model feature scopes, PNG IDs, external-mask import and crop readers all use
+the registry. A secondary organelle crop is keyed by its own label rather
+than by the parent cell label.
+
+The dedicated contract (`tests/test_multiple_organelles.py`) covers two-slot
+segmentation layout, plane provenance/conflict and resume refusal, independent
+presets, full real measurement/database output, wide summaries, cytoplasm
+exclusion, feature parsing, merged-table reads, crop IDs and legacy defaults.
+Related database, settings, Qt, external-mask, schema, resume and golden
+pipeline suites also pass. Final focused verification: 610 passed, 1 skipped,
+1 expected xfail in the settings/Qt integration suite; 142 database-contract
+tests; 11 dedicated/orchestration edge tests; and the 865-test measurement,
+schema, settings, crop and golden-pipeline sweep after updating obsolete bug
+guards.

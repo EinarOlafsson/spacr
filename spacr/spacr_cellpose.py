@@ -18,6 +18,32 @@ from skimage.transform import resize as resizescikit
 
 from .tiff_io import write_tiff
 
+def cellpose_rescale(value):
+    """The ``rescale=`` Cellpose should actually receive. Falsy becomes None.
+
+    ``rescale`` was DEPRECATED-AND-IGNORED in Cellpose 4.0, so spaCR passing
+    ``False`` cost nothing and nobody noticed the type was wrong. Cellpose
+    4.2 reads it again::
+
+        niter_scale = 1 if rescale is None or not resample else rescale
+        niter = int(200/niter_scale) if niter is None or niter == 0 else niter
+
+    With ``rescale=False`` and ``resample=True`` -- spaCR's shipped rescale
+    default, and a resample a user is entirely likely to turn on --
+    ``niter_scale`` becomes ``False`` and the second line reads
+    ``int(200/False)``: ZeroDivisionError, raised from inside Cellpose, on a
+    settings combination both GUIs offer.
+
+    ``None`` is Cellpose's own spelling of "not set" and takes the
+    ``niter_scale = 1`` branch, which is what ``False`` was always meant to
+    mean here. ``0`` goes the same way, for the same reason.
+
+    :param value: whatever the settings carry for ``rescale``.
+    :returns: ``None`` for a falsy value, otherwise the value unchanged.
+    """
+    return None if not value else value
+
+
 def cellpose_channel_axis(stack):
     """Return the ``channel_axis`` Cellpose 4 accepts for one loaded image.
 
@@ -211,7 +237,7 @@ def identify_masks_finetune(settings):
                          diameter=settings['diameter'],
                          flow_threshold=settings['flow_threshold'],
                          cellprob_threshold=settings['CP_prob'],
-                         rescale=settings['rescale'],
+                         rescale=cellpose_rescale(settings['rescale']),
                          resample=settings['resample'],
                          progress=True)
 
@@ -321,7 +347,7 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
                          diameter=diameter,
                          flow_threshold=flow_threshold,
                          cellprob_threshold=cellprob_threshold,
-                         rescale=False,
+                         rescale=None,
                          resample=False,
                          progress=False)
 

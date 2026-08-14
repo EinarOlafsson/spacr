@@ -1126,19 +1126,40 @@
       "id": "37_batch",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Batch Runner. Module, Projekte und Einstellungen für reproduzierbare unbeaufsichtigte Ausführung in der Warteschlange."
+          "narration": "Batch Runner stapelt willkürliche spaCR-Module und -Einstellungen in eine unbeaufsichtigte Warteschlange. Im Gegensatz zu Plate Queue, die eine Pipeline auf viele Platten anwendet, kann Batch Runner Module, Eingaben, Überschreitungen und Abhängigkeiten mischen. Jobs laufen streng eins nach dem anderen, also konkurrieren sie nicht um eine GPU."
         },
         {
-          "narration": "Fügen Sie Projekte hinzu und montieren Sie die angeordneten Modulsequenzen, die jedes Projekt ausführen soll."
+          "narration": "Wählen Sie ein Headless-Modul und die genaue Einstellungsdatei, die der Job erhalten sollte. Fügen Sie ein beschreibendes Etikett, optionelle Stellenanforderungen und optionelle Schlüssel-Gleich-Wert-Überschriften hinzu. Dieser erste Job führt eine echte Verlustfreie Umwandlung eines vierkanalen Feldes durch. Klicken Sie auf \"Arbeit hinzufügen\"."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich Voreinstellungen, Abhängigkeiten, Ressourcenlimits, Wiederholungsverhalten, Logging und Ausfallrichtlinien aus."
+          "narration": "Der Job erhält den stabilen Identifikator convert-1 und wird sofort überprüft. Batch Runner löst Modulvorfälle, analysiert die Einstellungsdatei und überträgt, validiert Wege und Werte und weigert einen ungültigen Job jetzt, anstatt ihn während eines Übernachtungsuntergangs zu entdecken."
         },
         {
-          "narration": "Validieren Sie den Chargeplan, testen Sie einen Job und führen Sie dann die übrigen Warteschlangen über Nacht oder ohne Aufsicht durch."
+          "narration": "Die zweite echte Konversionsname konvertiert-1 in After, so dass es nur läuft, wenn diese Voraussetzung erfolgreich ist. Seine plate_naming = Name-Override wird über die gespeicherten Einstellungen überlagert, ohne die Datei zu kopieren. Wenn Converter-1 fehlschlägt, wird dieser Job als übersprungen gekennzeichnet, anstatt auf unvollständiger Upstream-Ausgabe zu laufen. Klicken Sie auf \"Arbeit hinzufügen\"."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, hat jeder Job seinen eigenen Status, Einstellungs-Snapshot, Logs, Ausgänge und wiederverlässigen Laufregister."
+          "narration": "Die dritte echte Umstellung hat keine Voraussetzung und kann immer noch laufen, wenn ein unabhängiger Job im Rahmen der Politik der Weiterführung gegen Fehler versagt. Fügen Sie es als unabhängigen Job hinzu. Diese Lektion verwendet drei übertragene Mikroskopiefelder, die von Byte zu Byte in isolierte Ordner kopiert werden; jeder in der Schlange verarbeiteten Prozess führt eine echte Konvertierung durch."
+        },
+        {
+          "narration": "Die Tabelle zeigt nun die Lauffolge, stabile Stellenanzeigen, Module, Etiketten, Abhängigkeiten, noch auf dem Laufenden, vergangene Zeit und das eigene Protokoll jedes Jobs. Wählen Sie eine Zeile aus, um die Einstellungen und das Protokoll zu überprüfen. Die Kontrollen Duplizieren, Entfernen und Bewegen erstellen und umordnen eine größere Arbeitsnacht."
+        },
+        {
+          "narration": "Wählen Sie die unabhängige dritte Stelle aus und klicken Sie auf \"Aufwärts\". Hier ist die Neuanordnung sicher, weil die abhängige Konvertierung unter dem Konvertierung-1-Wert bleibt. Wenn eine Voraussetzung unter ihrem Abhängigen bewegt wird, entsteht ein sichtbarer Validierungsfehler und der Lauf wird deaktiviert."
+        },
+        {
+          "narration": "Klicken Sie auf Validieren, nachdem Sie eine Schlange bearbeitet oder geladen haben. Die Validierung meldet jeden Fehler und jede Warnung zusammen: fehlende Einstellungen, unbekannte Module, ungültige Wege oder Werte, Duplikat-Identifikatoren, spätere Voraussetzungen und Abhängigkeitszyklen. Die Auslaufknopf bleibt deaktiviert, solange ein Blockproblem besteht."
+        },
+        {
+          "narration": "Alle drei Jobs sind gültig. Weiter auf dem Scheitern erlaubt unabhängige Jobs fortzusetzen, während Abhängige übersprungen werden; Halt am ersten Scheitern hält alles später. Die Grenze für die Folgeversagen hält eine Warteschlange, die aus demselben systematischen Grund wiederholt versagt. Hör auf, auf den aktuellen Job zu warten, um sicher zu sein, anstatt ihn zu schreiben."
+        },
+        {
+          "narration": "Klicken Sie auf Speichern der Warteschlange, bevor Sie sie unbeaufsichtigt lassen. Das lesbare JSON speichert Ordnung, Abhängigkeiten, Überschriften und Status. Batch Runner aktualisiert es nach jedem Übergang automatisch, so dass ein Neustart laufende oder nicht ausgeführte Aufgaben ohne Duplizierung der abgeschlossenen Arbeit wieder aufnehmen kann. Die Ladekarte stellt später das gleiche Ledger wieder her."
+        },
+        {
+          "narration": "Wenn die überprüfte Warteschlange gespeichert ist, klicken Sie auf Lauf-Warteschlange. Jeder Job startet als eigener Spacr-run-Prozess mit dieser spaCR-Umgebung. Ein Segmentierungskrash würde diesen Job eher beenden als die Schnittstelle oder später unabhängige Arbeit, und Standard-Ausgabe plus Fehler gehen in das separate Protokoll dieses Jobs."
+        },
+        {
+          "narration": "Alle drei wirklichen Subprozess-Jobs sind erfolgreich abgeschlossen. Die Progressleiste erreicht drei von drei, die Tabelle bewahrt jeden Status und die Dauer, die Zusammenfassung unterscheidet Erfolg, Misserfolg, Übersprung, Nicht-Run und teilweise Ergebnisse, und das Protokoll des ausgewählten Jobs enthält seinen genauen Befehl- und Konversionsbericht. Jedes Ziel enthält vier TIFFs und eine Herkunftskarte; alle Quell-Hashes bleiben unverändert."
         }
       ]
     },
@@ -1669,19 +1690,22 @@
           "narration": "Gate Editor verwandelt Regionen einer Messtabelle in benannte, wiederverwendbare Population-Tore. Der Arbeitsbereich hält die Feature-Achsen, Zeichnungswerkzeuge, die vollständige Datenansicht und die Gate-Hierarchie zusammen."
         },
         {
-          "narration": "In 2D wählen Sie X und Y für einen Scatter, oder lassen Sie Y leer für ein Histogramm. Wählen Sie ein Schwellenwert oder ein Formwerkzeug aus und ziehen Sie um die beabsichtigte Bevölkerung herum. Die vollständige Wolke bleibt sichtbar, während eingeschlossene Objekte hervorgehoben werden."
+          "narration": "Wählen Sie in 2D X und Y für einen Scatter oder lassen Sie Y leer für ein Histogramm. Wählen Sie ein Schwellenwert oder ein Formenwerkzeug aus und ziehen Sie die beabsichtigte Population um. Die volle Wolke bleibt sichtbar, während die eingeschlossenen Objekte hervorgehoben werden."
         },
         {
-          "narration": "Wählen Sie eine 3D- und eine Z-Messung, um ein drehbares Volumen zu untersuchen. Die Achsenknöpfe steuern die Drehrichtung, und das Box-Gate registriert die Grenzen auf allen drei angezeigten Messungen."
+          "narration": "Wählen Sie eine 3D- und eine Z-Messung, um ein drehbares Volumen zu untersuchen. Die Achsenknopfen steuern die Drehrichtung und das Box-Gate registriert die Grenzen auf allen drei angezeigten Messungen."
         },
         {
-          "narration": "Wählen Sie xD, um die berechtigten Messungen in Hauptkomponenten zu projizieren. Die Quelllabelberichte erklärten die Varianz, und PC1, PC2 und PC3 wurden zu gewöhnlichen Achsen für die gleichen Schließwerkzeuge."
+          "narration": "Wählen Sie xD, um die berechtigten Messungen in Hauptkomponenten zu projizieren. Die Quelllabelberichte erklärten die Variante, und PC1, PC2 und PC3 wurden zu gewöhnlichen Achsen für die gleichen Schließwerkzeuge."
         },
         {
-          "narration": "Die Gate-Hierarchie berichtet über die Anzahl der Objekte, den Prozentsatz ihrer Eltern und den Prozentsatz aller Zeilen. Wählen Sie das Kontrollkästchen eines Tores aus, um es zu zeigen oder zu verbergen, und wählen Sie ein Tor aus, bevor Sie zeichnen, wann die nächste Bevölkerung darin eingebettet werden soll."
+          "narration": "Die Gate-Hierarchie berichtet die Anzahl der Objekte, den Prozentsatz ihrer Eltern und den Prozentsatz aller Zeilen. Wählen Sie das Kontrollkästchen eines Tores aus, um es zu zeigen oder zu verbergen, und wählen Sie ein Tor aus, bevor Sie zeichnen, wann die nächste Bevölkerung darin eingebettet werden soll."
         },
         {
-          "narration": "Geben Sie jeder Bevölkerung einen bedeutenden Namen, dann speichern Sie die Gate-Strategie. Laden Sie es auf eine kompatible Tabelle, um die gleichen Funktionsnamen, Grenzen und Hierarchie erneut zu verwenden, und überprüfen Sie die neuen Zahlen, bevor Sie weitermachen."
+          "narration": "Geben Sie jeder Bevölkerung einen bedeutenden Namen, dann speichern Sie die Gate-Strategie. Laden Sie es auf eine kompatible Tabelle, um die gleichen Merkmalnamen, Grenzen und Hierarchie wieder zu verwenden und die neuen Zahlen zu überprüfen, bevor Sie weitermachen."
+        },
+        {
+          "narration": "Cluster Walk sucht auf den angezeigten Messungen eine begrenzte Sequenz von DBSCAN-Radien und berichtet über den ausgewählten Radius, die Bevölkerungszahl und den ausgeschlossenen Bruchteil. Inspektieren Sie die daraus resultierenden Toren, notieren Sie dann oder exportieren Sie nur, nachdem die Populationen mit den sichtbaren Daten übereinstimmen."
         }
       ]
     },

@@ -6,7 +6,7 @@ failing about 5 runs in 20: four synthetic fields go in, one deliberately
 corrupt, and on a bad run only TWO of the three good fields came back out of
 ``measurements.db`` — while the run ledger still counted three successes.
 
-The cause is a check-then-act race inside ``pandas.DataFrame.to_sql``.
+The first cause was a check-then-act race inside ``pandas.DataFrame.to_sql``.
 ``SQLTable.create`` asks whether the table exists and issues ``CREATE TABLE``
 when it does not; there is no lock across the two steps. measure_crop runs one
 worker PROCESS per field against one SQLite file, so on the first fields of a
@@ -20,9 +20,10 @@ printed one line and returned — dropping that field's entire measurement
 frame, silently, while the field still reported success. Four writers released
 from a barrier lost rows in 30 of 30 trials.
 
-These tests pin the recovery deterministically: no timing, no repeat counts.
-Each drives the exact failure sqlite raises when a writer loses that race.
-Everything runs offline on CPU in well under a second.
+Issue #15 exposed the second cause: pandas repeated the same table-existence
+read before every append. A stream of worker reads can prevent a writer from
+committing on rollback-journal network filesystems. The writer now inserts
+directly after the one-time creation. These tests pin both recoveries.
 """
 from __future__ import annotations
 
@@ -30,6 +31,7 @@ import multiprocessing as mp
 import os
 import sqlite3
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -37,6 +39,7 @@ from spacr.utils import (
     DB_APPEND_REPAIRS,
     _append_frame,
     _append_to_measurements_db,
+    _insert_frame,
     _widen_table_for,
 )
 
@@ -204,6 +207,59 @@ def test_append_frame_widens_after_losing_the_create_race_to_a_narrower_frame(
     finally:
         conn.close()
     assert got == {1: None, 2: 17.0}       # the old row is NULL, the new one landed
+
+
+def test_existing_table_append_never_reads_sqlite_master(tmp_path):
+    """The shared-filesystem fix: ordinary appends contain no schema read."""
+    path = _fresh_db(tmp_path)
+    conn = sqlite3.connect(path)
+    try:
+        pd.DataFrame({'object_label': [1], 'value': [0.5]}).to_sql(
+            'cell', conn, if_exists='append', index=False)
+        statements = []
+        conn.set_trace_callback(statements.append)
+        _append_frame(
+            conn,
+            'cell',
+            pd.DataFrame({'object_label': [2], 'value': [1.5]}),
+        )
+    finally:
+        conn.close()
+
+    sql = '\n'.join(statements).lower()
+    assert 'sqlite_master' not in sql
+    assert 'insert into "cell"' in sql
+    assert _rows(path, 'cell') == 2
+
+
+def test_direct_insert_matches_pandas_scalar_and_null_encoding(tmp_path):
+    """Direct insertion retains the value semantics of the removed path."""
+    path = _fresh_db(tmp_path)
+    frame = pd.DataFrame({
+        'integer': pd.Series([1, None], dtype='Int64'),
+        'floating': [np.float32(2.5), np.nan],
+        'boolean': pd.Series([True, None], dtype='boolean'),
+        'text': ['alpha', None],
+        'timestamp': [pd.Timestamp('2026-08-14T12:30:00'), pd.NaT],
+        'duration': [pd.Timedelta(seconds=2), pd.NaT],
+    })
+    direct = sqlite3.connect(path)
+    reference = sqlite3.connect(':memory:')
+    try:
+        frame.iloc[:0].to_sql('values_table', direct, index=False)
+        _insert_frame(direct, 'values_table', frame)
+        frame.to_sql('values_table', reference, index=False)
+        direct_rows = direct.execute(
+            'SELECT * FROM values_table ORDER BY integer IS NULL'
+        ).fetchall()
+        reference_rows = reference.execute(
+            'SELECT * FROM values_table ORDER BY integer IS NULL'
+        ).fetchall()
+    finally:
+        direct.close()
+        reference.close()
+
+    assert direct_rows == reference_rows
 
 
 def test_widen_table_for_tolerates_a_concurrent_writer_adding_the_same_column(tmp_path):

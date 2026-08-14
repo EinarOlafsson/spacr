@@ -1,11 +1,9 @@
 """GitHub authentication + direct issue creation for spaCR.
 
-Lets users file auto-issues WITHOUT a browser round-trip. A token is resolved
-from, in order:
-
-1. A Personal Access Token the user stored in spaCR (Settings → GitHub).
-2. The ``GITHUB_TOKEN`` / ``GH_TOKEN`` environment variable.
-3. The GitHub CLI (``gh auth token``), if ``gh`` is installed + logged in.
+Lets users file approved issues WITHOUT a browser round-trip. A token is
+resolved from the ``GITHUB_TOKEN`` / ``GH_TOKEN`` environment or the GitHub
+CLI (``gh auth token``). spaCR does not capture or persist credentials; the
+official CLI owns interactive login and its platform credential store.
 
 When a token is available, :func:`create_issue` POSTs straight to the GitHub
 REST API and returns the created issue's URL. When none is available the caller
@@ -15,8 +13,6 @@ Public API::
 
     github_auth.is_authenticated()      -> bool
     github_auth.auth_source()            -> "token" | "env" | "gh" | None
-    github_auth.get_stored_token()       -> str
-    github_auth.set_stored_token(tok)    -> None
     github_auth.create_issue(repo, title, body, labels) -> (ok, url_or_error)
 """
 from __future__ import annotations
@@ -25,6 +21,7 @@ import json
 import os
 import re
 import subprocess
+import urllib.parse
 import urllib.request
 from typing import List, Optional, Tuple
 
@@ -33,6 +30,7 @@ from PySide6.QtCore import QSettings
 _ORG = "spacr"
 _APP = "qt"
 _KEY_TOKEN = "github/pat"
+_EPHEMERAL_TOKEN = ""
 
 
 def _settings() -> QSettings:
@@ -44,17 +42,25 @@ def _settings() -> QSettings:
 # ---------------------------------------------------------------------------
 
 def get_stored_token() -> str:
-    """Return the user-stored Personal Access Token (or empty string)."""
-    return str(_settings().value(_KEY_TOKEN, "") or "")
+    """Return a process-only token, after erasing insecure legacy storage."""
+    settings = _settings()
+    if settings.contains(_KEY_TOKEN):
+        settings.remove(_KEY_TOKEN)
+        settings.sync()
+    return _EPHEMERAL_TOKEN
 
 
 def set_stored_token(token: str) -> None:
-    """Persist (or clear, with '') a Personal Access Token."""
+    """Set a process-only compatibility token; never persist it.
+
+    The GUI no longer exposes this function. It remains for API callers and
+    offline transport tests that need to inject a credential for one process.
+    Interactive users authenticate with ``gh auth login``.
+    """
+    global _EPHEMERAL_TOKEN
     token = (token or "").strip()
-    if token:
-        _settings().setValue(_KEY_TOKEN, token)
-    else:
-        _settings().remove(_KEY_TOKEN)
+    _EPHEMERAL_TOKEN = token
+    _settings().remove(_KEY_TOKEN)
 
 
 def _env_token() -> str:
@@ -79,6 +85,8 @@ def _gh_cli_token() -> str:
 
 def resolve_token() -> Tuple[str, Optional[str]]:
     """Return ``(token, source)`` — source is 'token' | 'env' | 'gh' | None."""
+    # Calling this also erases a token left by an older spaCR build. The
+    # process-only value exists for API injection, never installer/UI login.
     tok = get_stored_token()
     if tok:
         return tok, "token"
@@ -130,6 +138,105 @@ def _scrub(message: str, token: str) -> str:
             if form and form in message:
                 message = message.replace(form, REDACTED)
     return _BEARER_RE.sub(lambda m: m.group(1) + REDACTED, message)
+
+
+def _refuse_writes_under_test() -> Optional[str]:
+    """Return a reason to refuse, or None when writing is allowed.
+
+    spaCR's issue reporter posts to the REAL tracker whenever a token is
+    resolvable, and on a developer machine the ``gh`` CLI supplies one. So any
+    test that reaches a write path without mocking files a live issue --
+    which is how ``[auto 54a0e8] [mask] Error: boom`` (#75) arrived on the
+    public tracker from a test fixture.
+
+    Mocking is the caller's job and most of the suite does it; this is the
+    backstop for the ones that forget, because the cost of forgetting is
+    public and cannot be undone by fixing the test afterwards.
+
+    ``SPACR_ALLOW_GITHUB_WRITES=1`` re-enables writing for a test that is
+    genuinely exercising the network path against a scratch repository.
+    """
+    import os
+
+    if os.environ.get("SPACR_ALLOW_GITHUB_WRITES") == "1":
+        return None
+    if "PYTEST_CURRENT_TEST" in os.environ:
+        return ("refusing to write to GitHub from inside a test run; set "
+                "SPACR_ALLOW_GITHUB_WRITES=1 if that is really intended")
+    return None
+
+
+def find_issue_by_fingerprint(repo: str, fingerprint: str
+                              ) -> Tuple[bool, Optional[dict]]:
+    """Find an OPEN issue whose body carries ``fingerprint``.
+
+    The fingerprint is the whole point of `_traceback_hash`: the same bug
+    hashes the same across runs and machines. Without this lookup nothing
+    consumes it, and one crash becomes one issue per occurrence -- ten of
+    them in a single day on 2026-08-11 (#79-#81, #84-#90), which buries the
+    reports that matter.
+
+    :param repo: ``owner/name`` slug.
+    :param fingerprint: the short hash from the report body.
+    :returns: ``(True, issue_dict)`` when one is found, ``(True, None)`` when
+        the search ran and found nothing, ``(False, None)`` when it could not
+        run. The three are distinct because "no match" means CREATE and
+        "could not search" means fall back rather than risk losing the report.
+    """
+    token, _src = resolve_token()
+    if not token:
+        return False, None
+
+    query = urllib.parse.quote(
+        f'repo:{repo} is:issue is:open in:body "{fingerprint}"')
+    req = urllib.request.Request(
+        f"https://api.github.com/search/issues?q={query}&per_page=1",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "spacr",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            info = json.loads(resp.read().decode("utf-8"))
+        items = info.get("items") or []
+        return True, (items[0] if items else None)
+    except Exception:
+        return False, None
+
+
+def comment_on_issue(repo: str, number: int, body: str) -> Tuple[bool, str]:
+    """Add a comment to an existing issue.
+
+    :param repo: ``owner/name`` slug.
+    :param number: the issue number.
+    :param body: markdown comment body.
+    :returns: ``(True, comment_html_url)`` on success, else ``(False, error)``.
+    """
+    token, _src = resolve_token()
+    if not token:
+        return False, "Not signed in to GitHub (no token available)."
+
+    data = json.dumps({"body": body}).encode("utf-8")
+    req = urllib.request.Request(
+        f"https://api.github.com/repos/{repo}/issues/{number}/comments",
+        data=data, method="POST",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "spacr",
+            "Content-Type": "application/json",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            info = json.loads(resp.read().decode("utf-8"))
+            return True, info.get("html_url", "")
+    except Exception as exc:
+        return False, _scrub(str(exc), token)
 
 
 def create_issue(repo: str, title: str, body: str,

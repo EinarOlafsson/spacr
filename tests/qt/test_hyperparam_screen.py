@@ -188,8 +188,10 @@ def test_umap_settings_uses_measure_style_tabbed_dialog(panel, qtbot):
         if button.isVisible()
     # "Axes…" opens the Walk's search-space picker. It sits beside the
     # Walk toggle it configures, which the settings dialog adopts along
-    # with the rest of the run controls.
-    } == {"Close", "Run search", "Propagate settings", "Axes…"}
+    # with the rest of the run controls. "GPU" sits to the LEFT of Run
+    # search and turns the cuML backend on for the next search -- it is a
+    # run control too, so the dialog adopts it with the others.
+    } == {"Close", "GPU", "Run search", "Propagate settings", "Axes…"}
     assert dialog._close_btn.icon().isNull()
     assert panel._compact_stop_btn.objectName() == "DangerButton"
     assert panel._compact_stop_btn.property("buttonActionRole") == "negative"
@@ -668,13 +670,15 @@ class TestRunningASearch:
             panel.run_search()
         assert "• scripted" in panel._notes.text()
 
-    def test_a_preview_image_is_drawn(self, panel, qtbot):
+    def test_umap_uses_the_native_viewer_not_a_static_preview(self, panel,
+                                                              qtbot):
         self._prep(panel)
         panel.set_search_fn(scripted_search([0.9, 0.5, 0.7, 0.6]))
         with qtbot.waitSignal(panel.search_finished, timeout=5000):
             panel.run_search()
-        pm = panel._preview.pixmap()
-        assert pm is not None and not pm.isNull()
+        assert panel._umap_explorer is not None
+        assert panel._preview.isHidden()
+        assert panel._figure_grid is None
 
     def test_a_second_run_clears_the_previous_table(self, panel, qtbot):
         self._prep(panel)

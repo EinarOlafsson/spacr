@@ -324,7 +324,8 @@ def test_plot_cropped_arrays_2d_label_image_gets_random_object_cmap():
     assert isinstance(fig, plt.Figure)
     assert len(fig.axes) == 1
     ax = fig.axes[0]
-    assert ax.get_title() == "Channel one, 3 (obj.)"  # 0, 1, 2
+    # 2 objects (labels 1 and 2); background 0 is not an object
+    assert ax.get_title() == "Channel one, 2 (obj.)"
     assert ax.axison is False
     assert len(ax.images) == 1
     np.testing.assert_array_equal(np.asarray(ax.images[0].get_array()), arr)
@@ -358,19 +359,52 @@ def test_plot_cropped_arrays_3d_makes_one_axis_per_channel():
 
     stack = np.zeros((8, 8, 3), dtype=np.uint16)
     stack[:, :, 0] = np.arange(64).reshape(8, 8)      # 64 unique -> label cmap
-    stack[2:5, 2:5, 1] = 1                            # 2 unique  -> label cmap
+    stack[2:5, 2:5, 1] = 1                            # 2 unique  -> label cmap, 1 obj
     stack[:, :, 2] = np.arange(64).reshape(8, 8) * 9  # 64 unique
 
     fig = _plot_cropped_arrays(stack, "field_3.npy", figuresize=4, threshold=10)
 
     assert len(fig.axes) == 3
     assert [ax.get_title() for ax in fig.axes] == [
-        "C. 0", "C. 1, 2 (obj.)", "C. 2",
+        "C. 0", "C. 1, 1 (obj.)", "C. 2",
     ]
     np.testing.assert_array_equal(
         np.asarray(fig.axes[1].images[0].get_array()), stack[:, :, 1]
     )
     assert all(ax.axison is False for ax in fig.axes)
+
+
+def test_plot_cropped_arrays_object_count_excludes_background():
+    """The "(obj.)" count is the number of labels, not of distinct values.
+
+    Regression: the title used to print ``len(np.unique(array))``, so the
+    background value 0 was counted as an object and every mask panel read one
+    too high -- an all-background mask claimed "1 (obj.)".
+    """
+    from spacr.plot import _plot_cropped_arrays
+
+    three = np.zeros((16, 16), dtype=np.uint8)
+    three[1:4, 1:4] = 1
+    three[6:9, 6:9] = 2
+    three[11:14, 11:14] = 3
+    assert _plot_cropped_arrays(three, "three.npy", figuresize=2).axes[0].get_title() \
+        == "Channel one, 3 (obj.)"
+
+    empty = np.zeros((8, 8), dtype=np.uint8)
+    assert _plot_cropped_arrays(empty, "empty.npy", figuresize=2).axes[0].get_title() \
+        == "Channel one, 0 (obj.)"
+
+    # No background pixel at all: the single label is still one object.
+    full = np.ones((8, 8), dtype=np.uint8)
+    assert _plot_cropped_arrays(full, "full.npy", figuresize=2).axes[0].get_title() \
+        == "Channel one, 1 (obj.)"
+
+    # Non-contiguous labels are counted as they are, not as max(label).
+    sparse = np.zeros((8, 8), dtype=np.uint16)
+    sparse[1:3, 1:3] = 7
+    sparse[5:7, 5:7] = 91
+    assert _plot_cropped_arrays(sparse, "sparse.npy", figuresize=2).axes[0].get_title() \
+        == "Channel one, 2 (obj.)"
 
 
 def test_plot_cropped_arrays_single_channel_stack():
@@ -573,6 +607,48 @@ def test_display_gif_hands_the_raw_bytes_to_an_ipython_image(tmp_path, monkeypat
     assert isinstance(shown[0], ipyimage)
     assert shown[0].data == gif.read_bytes()
     assert shown[0].format == "gif"
+
+
+def test_display_gif_states_the_format_rather_than_leaving_it_to_ipython(
+        tmp_path, monkeypatch):
+    """The format must be PASSED, not inferred from the bytes.
+
+    `test_display_gif_hands_the_raw_bytes_to_an_ipython_image` above reads
+    `.format` off the constructed Image, which is green on IPython 9 whether
+    or not spaCR says anything: 9.0.0 was the release that learned to
+    recognise the GIF87a/GIF89a magic bytes. On IPython 8 the same call
+    yields `format == 'png'` and the animation goes out with an `image/png`
+    mime type -- and IPython 9 requires Python 3.11, so on the 3.9 and 3.10
+    ends of the range spaCR claims, 8.x is the only IPython there is. That is
+    how this reached CI as a 3.9-only failure.
+
+    Asserting on the keyword instead of on the sniffed result is what makes
+    the check independent of the installed IPython.
+    """
+    import spacr.plot
+    from spacr.plot import _display_gif
+
+    gif = tmp_path / "movie.gif"
+    _write_tiny_gif(gif)
+
+    calls = []
+
+    def _record(data, *args, **kwargs):
+        calls.append((data, args, kwargs))
+        return object()
+
+    monkeypatch.setattr(spacr.plot, "ipyimage", _record)
+    monkeypatch.setattr(spacr.plot, "display", lambda obj: None)
+
+    _display_gif(str(gif))
+
+    assert len(calls) == 1
+    data, args, kwargs = calls[0]
+    assert data == gif.read_bytes()
+    assert kwargs.get("format") == "gif", (
+        "spacr.plot._display_gif left the image format for IPython to guess; "
+        "IPython < 9 guesses 'png' for GIF bytes, and IPython < 9 is the only "
+        "IPython available on the Python 3.9/3.10 cells of the matrix")
 
 
 def test_display_gif_missing_file_raises(tmp_path, monkeypatch):

@@ -1,0 +1,158 @@
+================================================================================
+GET EVERY GITHUB TEST GREEN, THEN RELEASE 1.5.0.5 — AND DO NOTHING AFTER
+================================================================================
+
+Status:    not started, 2026-08-11. SCHEDULED LAST, in two steps, in order.
+Requested: 2026-08-11 — "all to instructions make sure Github test are all
+           passing, then update to 1.5.0.5 these should be the last 2 things
+           you do"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+This final release task has not started. The working tree is still carrying
+the current batch of changes, localization catalogs are being rebuilt, and a
+history rewrite is scheduled before the authoritative CI run. The declared
+package version is currently 1.5.0.4; 1.5.0.5 must not be cut until every
+prerequisite below is complete and CI is green on the final history.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A tag made before the history rewrite would point at a discarded commit, and a
+release made while tests or localization audits are red would publish known
+defects. This is deliberately the final gate for the batch.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+ORDERING, INCLUDING THE ONE CONFLICT
+--------------------------------------------------------------------------------
+
+Two instructions now claim to be last:
+
+  58  the history rewrite (strip the Co-Authored-By trailers), APPROVED and
+      "the FINAL task in this folder, after every other instruction".
+  82  this one -- green CI, then the version bump.
+
+They cannot both be last, and the order matters rather than being a
+formality: 58 REWRITES EVERY COMMIT and force-pushes. That invalidates every
+CI run on the branch, because the commits those runs describe stop existing.
+Bumping the version and going green BEFORE the rewrite would mean the release
+tag points at a SHA that the rewrite then discards.
+
+So the sequence is:
+
+    ... every other instruction ...
+    58   history rewrite, force-push
+    82.1 make CI green on the rewritten history
+    82.2 bump to 1.5.0.5
+
+If that is not what was wanted, this is the paragraph to change. It is
+recorded here rather than decided silently because a release tag on a
+discarded SHA is not something a later commit can repair.
+
+--------------------------------------------------------------------------------
+STEP 1 — EVERY GITHUB TEST PASSING
+--------------------------------------------------------------------------------
+
+WHAT THE STATE IS. The full local non-Qt suite stands at 15,122 passed and 26
+failed as of 2026-08-11. Every one of those 26 is attributed:
+
+  * 12 are PRE-EXISTING -- they fail identically at a3114172, before this
+    session. Seven in test_settings_categories (naming 'highlight', 'offset'
+    and 'infection_xgb_proba'), plus test_zstack, test_regression_types,
+    test_object_tstack_wiring, test_settings_tooltip_quality and
+    test_test_suite_hygiene.
+  * the rest are XDIST ORDER ARTIFACTS -- they pass in isolation on current
+    code and passed at base. test_no_tensorflow_guard is the clearest: it
+    manipulates sys.modules, so a parallel worker's import defeats it.
+
+Neither group is a reason to ship, and the two need different work:
+
+  1. THE PRE-EXISTING TWELVE are real. `test_no_previously_categorised_key_is_lost`
+     has been red since before this session and names two settings that fell
+     out of the category map. Fix them, or record each with a reason.
+  2. THE ORDER ARTIFACTS are instruction 47's territory. A test that passes
+     alone and fails in the suite is leaking global state, and the fix is to
+     the leak, not to the test. Do not paper over these with `-p no:randomly`
+     or by pinning an execution order.
+
+THE WORKFLOWS. tests.yml runs six marker suites across 3.9-3.14;
+compat-matrix.yml runs the install grid. compat-matrix was fully green on
+2026-08-11 including the two cells added that day. tests.yml has an
+Integration job that is green and a Release gate that requires zero
+unexpected failures.
+
+DO NOT push repeatedly while chasing this. Each push cancels the in-flight
+run (`cancel-in-progress: true`), and a run of pushes starves the runner pool
+for hours -- that is written into compat-matrix.yml's own concurrency note,
+and it happened repeatedly on 2026-08-11.
+
+--------------------------------------------------------------------------------
+STEP 2 — 1.5.0.5
+--------------------------------------------------------------------------------
+
+Current version: 1.5.0.3. The bump is to 1.5.0.5, which SKIPS 1.5.0.4 --
+that number was used for the tutorial media publications (see instruction
+48), so it is spoken for.
+
+The standing rule is that the version is bumped PERIODICALLY after a batch of
+work, never per-commit, and by the smallest increment. This is that bump.
+
+Change it wherever it is declared -- setup.py is the source, but check for
+copies in the docs, the installers and the citation file -- and confirm
+`spacr.__version__` reports it from a fresh install rather than only from the
+editable tree.
+
+Do this ONLY when step 1 is genuinely green. A version bump onto known-red CI
+produces a release whose first result cannot be read, which is instruction
+43's whole argument.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The rewritten final branch has one uncancelled GitHub Actions run in which
+every required job and release gate passes. A clean detached worktree reports
+1.5.0.5 consistently from the package, installers, documentation, and release
+metadata, and the published tag and assets point at that tested commit.
+
+--------------------------------------------------------------------------------
+AND THEN STOP
+--------------------------------------------------------------------------------
+
+Nothing follows this instruction. If new work appears while it is in
+progress, it goes into a NEW instruction file and waits -- it does not get
+folded in ahead of the release.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE VERSION BUMP IS DISCARDED BY THE MAINTAINER
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "discard the version bump."
+
+So STEP 2 of this file is cancelled. The version stays where it is; there is
+no 1.5.0.5 to cut, and nothing downstream should be waiting for one.
+
+STEP 1 -- green CI -- IS NOT DISCARDED, and is worth keeping separate from the
+release it was attached to. A red gate is worth fixing whether or not a
+version follows it, and this file is where its state lives:
+
+    tests          the cellpose failures are fixed; the rest were fixed or
+                   explained under instruction 43
+    docs           STILL RED. 196 sv failures. The catalogs are mid-migration:
+                   five of nine reached schema 2 (de, es, ko, sv, zh_CN) and
+                   fr, hi and is are still schema 1. sv is schema 2 with stale
+                   symbols. None of the nine carries the API symbols added by
+                   benchmark, column_groups, gate_library and gpu_reduce.
+    compat-matrix  not separately assessed since the cellpose work landed
+
+WHAT ACTUALLY CLOSES THE DOCS GATE, in order: finish the schema migration for
+fr / hi / is, then run the translation pass so the new public symbols exist in
+all nine. Both are instruction 83's machinery. Nothing in this file blocks
+them and no release now depends on them.

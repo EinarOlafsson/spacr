@@ -63,6 +63,10 @@ from .preview_controls import (
     ImageSetSampler, apply_sample_to_combo, populate_channel_combo,
     selected_channel, sibling_sources,
 )
+from .preview_contract import (
+    PREVIEW_CANCEL_TEXT, PREVIEW_RUN_TEXT, LivePreviewContract,
+    preview_cellpose_model, preview_failure_message,
+)
 from .toggle import Toggle
 from ..job_runner import JobRunner
 
@@ -322,26 +326,10 @@ def segment_frame(image: np.ndarray, params: Dict[str, Any]) -> np.ndarray:
     counting stub to prove that tuning a *tracking* setting never reaches
     segmentation.
     """
-    from cellpose import models as cp_models
-    try:
-        import torch
-        gpu = bool(torch.cuda.is_available())
-    except Exception:
-        gpu = False
-
-    model_name = str(params.get("model", "cpsam"))
-    # `model_type=` is accepted-and-IGNORED by Cellpose 4 -- it logs "not
-    # used in v4.0.1+" and drops it, leaving pretrained_model at its 'cpsam'
-    # default. So picking any other model here silently segmented with cpsam,
-    # including a checkpoint the user had just trained in spaCR's own Train
-    # Cellpose module. `_resolve_cellpose_pretrained` is what the pipeline
-    # uses: it maps the legacy pre-SAM names to cpsam and says so once, and
-    # returns a path unchanged when the name is a fine-tuned checkpoint.
-    from spacr.utils import _resolve_cellpose_pretrained
-    model = cp_models.CellposeModel(
-        gpu=gpu,
-        pretrained_model=_resolve_cellpose_pretrained(model_name),
-        device=None)
+    # ONE constructor for every live view — see
+    # `preview_contract.preview_cellpose_model` for why `model_type=` may
+    # never appear here. The Mask preview calls the same helper.
+    model = preview_cellpose_model(str(params.get("model", "cpsam")))
 
     plane = frame_channel(image, int(params.get("channel", 0)))
     if params.get("normalise", True):
@@ -907,16 +895,20 @@ def open_sequence_payload(path, max_frames: int = 12,
     return out
 
 
-class TimelapsePreviewPanel(QWidget):
+class TimelapsePreviewPanel(LivePreviewContract, QWidget):
     """Interactive tracking preview — Timelapse module.
 
-    Same contract as :class:`~spacr.qt.widgets.live_preview.LivePreviewPanel`:
-    a standalone ``QWidget``, a ``QThread`` worker that emits results over
-    signals, :meth:`set_propagate_callback` to push tuned values back into
-    the main settings panel, and a ``build_*_card`` factory.
+    Same contract as :class:`~spacr.qt.widgets.live_preview.LivePreviewPanel`,
+    and now literally the same code for the shared half: a standalone
+    ``QWidget``, a ``QThread`` worker that emits results over signals,
+    :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract` for the
+    run/cancel/status protocol, :meth:`set_propagate_callback` to push tuned
+    values back into the main settings panel, and a ``build_*_card`` factory.
     """
 
     preview_ready = Signal(object)   # TrackStats, or None on failure
+
+    PREVIEW_SOURCE_HINT = "Load a sequence first."
 
     def __init__(self, parent=None, *, threaded: bool = True):
         super().__init__(parent)
@@ -938,6 +930,14 @@ class TimelapsePreviewPanel(QWidget):
         self._stats: Optional[TrackStats] = None
         self._mask_cache: Dict[tuple, np.ndarray] = {}
         self._worker: Optional[_TimelapseWorker] = None
+        # A worker whose result has landed but whose QThread may still be
+        # unwinding. Held until ``finished`` so it is never collected mid-run.
+        self._retired_worker: Optional[_TimelapseWorker] = None
+        # Bumped whenever the pass in flight is superseded (a new sequence,
+        # an explicit cancel). A worker's result is only adopted while the
+        # token it carries still matches — see LivePreviewContract.
+        self._run_token = 0
+        self._pending_token = 0
         self._pending_signature: Optional[tuple] = None
         self._propagate_cb = None
         self._settings: Dict[str, Any] = {}
@@ -1132,8 +1132,15 @@ class TimelapsePreviewPanel(QWidget):
         self._channel.valueChanged.connect(self._sync_channel_combo_from_spin)
 
         act = QHBoxLayout()
-        self._run_btn = QPushButton("Run preview", self)
+        self._run_btn = QPushButton(PREVIEW_RUN_TEXT, self)
         self._run_btn.clicked.connect(self.run_preview)
+        # Same control, same place, same words as the Mask live preview.
+        self._cancel_btn = QPushButton(PREVIEW_CANCEL_TEXT, self)
+        self._cancel_btn.setToolTip(
+            "Abandon the pass in flight. Cellpose cannot be interrupted, so "
+            "it finishes in the background and its result is dropped.")
+        self._cancel_btn.setEnabled(False)
+        self._cancel_btn.clicked.connect(self.cancel_preview)
         self._relink_btn = QPushButton("Re-link", self)
         self._relink_btn.setToolTip(
             "Re-run only the tracker on the cached per-frame masks.")
@@ -1147,6 +1154,7 @@ class TimelapsePreviewPanel(QWidget):
         self._propagate_btn.toggled.connect(self._on_propagate_toggled)
         self._status = QLabel("", self)
         act.addWidget(self._run_btn)
+        act.addWidget(self._cancel_btn)
         act.addWidget(self._relink_btn)
         act.addWidget(self._propagate_btn)
         act.addWidget(self._status, 1)
@@ -1593,24 +1601,30 @@ class TimelapsePreviewPanel(QWidget):
             return
         self._apply_tracks(self._raw_tracks, note="Re-scored (cached tracks)")
 
-    def _start(self, allow_segmentation: bool) -> None:
-        if self._sequence is None and self._mask_sequence is None:
-            self._status.setText("Load a sequence first.")
-            return
-        if self._worker is not None and self._worker.isRunning():
-            self._status.setText("Preview already running.")
-            return
+    def _preview_blocked_reason(self) -> str:
+        """Why this panel cannot track right now, or ``""``.
 
-        mode = self._mode_box.currentText()
-        ok, why = backend_available(mode)
-        if not ok:
-            self._status.setText(why)
-            self.preview_ready.emit(None)
+        Two reasons, both of which the user can act on: nothing is loaded,
+        or the tracker they picked is not installed.
+        """
+        if self._sequence is None and self._mask_sequence is None:
+            return self.PREVIEW_SOURCE_HINT
+        ok, why = backend_available(self._mode_box.currentText())
+        return "" if ok else str(why)
+
+    def _start(self, allow_segmentation: bool) -> None:
+        blocked = self.preview_blocked_reason()
+        if not self.begin_preview():
+            # A missing tracking backend is a *result* as well as a refusal:
+            # the panel's listeners are told the preview produced nothing.
+            if blocked and blocked != self.PREVIEW_SOURCE_HINT:
+                self.preview_ready.emit(None)
             return
 
         sig = self._segmentation_signature()
         cached = self._mask_cache.get(sig)
         if cached is None and not allow_segmentation:
+            self.set_preview_busy(False)
             self._status.setText(
                 "No cached masks for these segmentation settings — "
                 "hit Run preview.")
@@ -1624,27 +1638,87 @@ class TimelapsePreviewPanel(QWidget):
             seg=self._seg_params(),
             track=self._track_params(),
         )
-        self._run_btn.setEnabled(False)
         self._relink_btn.setEnabled(False)
-        self._status.setText(
-            "Re-linking cached masks…" if cached is not None
-            else "Segmenting frames, then linking…")
+        if cached is not None:
+            note = "Re-linking cached masks…"
+        elif req.mask_sequence is not None:
+            # It says what it is about to do. Loaded label images are read,
+            # not segmented, and claiming otherwise made a fast pass look
+            # like a Cellpose run that had hung.
+            note = "Reading the label images, then linking…"
+        else:
+            note = "Segmenting frames, then linking…"
+        self._status.setText(note)
+        self._release_worker()
         worker = _TimelapseWorker(req, self)
+        # The generation this pass belongs to. Cancelling bumps the panel's
+        # token, and a result whose token no longer matches is dropped.
+        worker.preview_token_value = self.preview_token()
+        self._pending_token = worker.preview_token_value
         # Bound method, not a closure: PySide6 delivers a plain-callable
         # connection on the *worker* thread, which would put every widget
         # touch below on the wrong thread.
         worker.finished_result.connect(self._on_worker_done)
-        worker.finished.connect(worker.deleteLater)
+        # NOT worker.deleteLater — that hands Qt a second owner for an object
+        # Python already holds, and the two race (the measured account is in
+        # spacr.qt.bridge.make_thread). The Mask preview was fixed away from
+        # this pattern; keeping it here left a running QThread owned by
+        # nobody when the user closed the screen mid-pass, because the result
+        # slot dropped the panel's own reference before the thread had exited.
+        worker.finished.connect(self._on_worker_finished)
         self._worker = worker
         worker.start()
 
+    def _release_worker(self) -> None:
+        """Free a worker whose thread has already exited.
+
+        Parented to the panel, so C++ owns it and it would otherwise hold a
+        whole mask stack until the panel itself died. Unparenting hands
+        ownership back to Python. Mirrors ``LivePreviewPanel._release_worker``.
+        """
+        old = self._retired_worker
+        self._retired_worker = None
+        if old is None:
+            return
+        try:
+            old.wait()
+            old.setParent(None)
+        except RuntimeError:
+            LOG.debug("worker already deleted", exc_info=True)
+
+    def _result_token(self):
+        """The generation the result now landing belongs to."""
+        worker = self.sender()
+        token = getattr(worker, "preview_token_value", None)
+        return getattr(self, "_pending_token", 0) if token is None else token
+
+    def _on_worker_finished(self) -> None:
+        """Relay for the worker thread's own ``finished`` signal.
+
+        A bound method on purpose (see :meth:`_start`). Returning the
+        buttons to the idle state here as well as in :meth:`_on_worker_done`
+        keeps them usable after a pass whose result was dropped as stale,
+        and this is the first moment at which the QThread may be freed.
+        """
+        self.set_preview_busy(False)
+        self._relink_btn.setEnabled(True)
+        self._release_worker()
+
     def _on_worker_done(self, result, err: str) -> None:
         """Adopt a finished pass. Runs on the GUI thread (queued signal)."""
-        self._run_btn.setEnabled(True)
+        if self.preview_stale(self._result_token()):
+            LOG.debug("dropping a superseded timelapse preview result")
+            return
+        # The pass is over as far as the panel is concerned, so a new one may
+        # start; the reference is kept until ``QThread.finished`` because a
+        # QThread collected while it is still unwinding aborts the process.
+        if self._worker is not None:
+            self._retired_worker = self._worker
+            self._worker = None
+        self.set_preview_busy(False)
         self._relink_btn.setEnabled(True)
-        self._worker = None
         if err:
-            self._status.setText(f"Preview failed: {err}")
+            self._status.setText(preview_failure_message(err))
             self.preview_ready.emit(None)
             return
         if not result:
@@ -1827,12 +1901,14 @@ class TimelapsePreviewPanel(QWidget):
         # Cancel the load before waiting on the segmentation worker: leaving
         # the screen mid-open must not leave a QThread behind either.
         self.shutdown()
-        worker = self._worker
-        if worker is not None:
-            try:
-                worker.wait(5000)
-            except RuntimeError:
-                LOG.debug("worker already deleted", exc_info=True)
+        # Both of them: the pass in flight, and the one whose result has
+        # landed while its thread was still unwinding.
+        for worker in (self._worker, getattr(self, "_retired_worker", None)):
+            if worker is not None:
+                try:
+                    worker.wait(5000)
+                except RuntimeError:
+                    LOG.debug("worker already deleted", exc_info=True)
         super().closeEvent(event)
 
     # -- the model list is live ------------------------------------------

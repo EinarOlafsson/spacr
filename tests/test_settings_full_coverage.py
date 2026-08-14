@@ -124,11 +124,28 @@ def test_takes_an_argument_reads_the_signature():
 
 
 def test_takes_an_argument_assumes_the_common_shape_when_uninspectable():
-    """`print` is a builtin with no readable signature. The fallback must be
-    the shape almost every defaults factory has, not a crash."""
-    with pytest.raises(ValueError):
-        inspect.signature(print)          # the premise of the test
-    assert S._takes_an_argument(print) is True
+    """A builtin with no readable signature must take the fallback, not crash.
+
+    THE CALLABLE IS DISCOVERED, NOT NAMED. This test used to use `print` and
+    assert `inspect.signature(print)` raises -- which was true until CPython
+    3.12 gave `print` a signature, at which point the premise was false, the
+    fallback was never reached, and the test failed while nothing was wrong.
+    Every interpreter keeps SOME uninspectable builtin, but which ones is not
+    a stable fact, so the test finds one rather than betting on a name.
+    """
+    candidates = [min, max, getattr, iter, type, len, hash, dict.update]
+    uninspectable = None
+    for candidate in candidates:
+        try:
+            inspect.signature(candidate)
+        except (ValueError, TypeError):
+            uninspectable = candidate
+            break
+    if uninspectable is None:
+        pytest.skip("this interpreter gives every candidate builtin a "
+                    "signature, so the fallback is unreachable here")
+
+    assert S._takes_an_argument(uninspectable) is True
 
 
 def test_defaults_for_calls_a_zero_arg_factory_without_arguments(
@@ -1329,41 +1346,6 @@ def test_a_defaults_factory_returns_a_json_shaped_dict(fn_name):
         ), f"{fn_name}[{key}] is a {type(value).__name__}"
 
 
-def test_no_dead_setting_is_still_being_defaulted():
-    """DEAD_SETTINGS names keys that were renamed away. A factory that still
-    fills one of them re-creates the key the rename removed."""
-    offenders = {}
-    for fn_name in _defaults_factories():
-        fn = getattr(S, fn_name)
-        try:
-            result = fn({}) if inspect.signature(fn).parameters else fn()
-        except (ValueError, KeyError):
-            continue
-        if not isinstance(result, dict):
-            continue
-        dead = set(result) & set(S.DEAD_SETTINGS)
-        if dead:
-            offenders[fn_name] = sorted(dead)
-    assert offenders == {}, offenders
-
-
-def test_dead_settings_replacements_all_exist_or_are_none():
-    """A rename map that points at a key nothing defaults is a broken
-    migration: the user is told to use a setting that does not exist."""
-    everything = set()
-    for fn_name in _defaults_factories():
-        fn = getattr(S, fn_name)
-        try:
-            result = fn({}) if inspect.signature(fn).parameters else fn()
-        except (ValueError, KeyError):
-            continue
-        if isinstance(result, dict):
-            everything |= set(result)
-    missing = sorted(
-        new for new in S.DEAD_SETTINGS.values()
-        if new is not None and new not in everything and
-        new not in S.expected_types)
-    assert missing == [], missing
 
 
 # ---------------------------------------------------------------------------

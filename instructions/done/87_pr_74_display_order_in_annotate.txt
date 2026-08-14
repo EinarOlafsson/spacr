@@ -1,0 +1,170 @@
+================================================================================
+PR #74 -- LET A PROJECT CHOOSE WHICH STAIN RENDERS IN WHICH COLOUR
+================================================================================
+
+Status:    not started, 2026-08-12. NEEDS THE MAINTAINER -- see "why this is
+           not merged" below.
+Requested: 2026-08-12 - "there is one extra issue in github issues"
+
+--------------------------------------------------------------------------------
+WHAT IT IS
+--------------------------------------------------------------------------------
+
+An OPEN PULL REQUEST, not an issue, which is why `gh issue list` never showed
+it: `gh` hides PRs from the issue list while the REST issues endpoint returns
+both. It has been open since 2026-07-28.
+
+    #74  annotate: let a project choose which stain renders in which colour
+    author        jak18015          -- an outside contributor, not the maintainer
+    branch        annotate-display-channel-order -> main
+    mergeable     CONFLICTING / DIRTY
+    commits       100
+    fixes         #73 (closed)
+
+THE PROBLEM IT DESCRIBES IS REAL AND IS ALREADY IN THIS REPOSITORY'S HISTORY.
+Commit `341f446` corrected the crop channel order on disk, so `png_dims[0]`
+is now the file's RED channel where cv2's BGR reading had put it in blue.
+That fixed the format and silently mirrored what every pre-existing project
+SEES: a parasite stain that was always red opens in Annotate as blue, nucleus
+in red. The contributor's point about why this is not cosmetic is correct --
+red/green overlap is legible and blue/green is not, so it is the difference
+between judging colocalisation by eye and not.
+
+THE PROPOSED FIX is a display-only permutation, "Display order", defaulting
+to `r,g,b` (identity, a no-op) and running BEFORE normalisation and channel
+filtering, so "Show channels" and "Normalize channels" keep naming the slots
+the user is looking at. It does not touch the writer, the crop format or
+`read_crop_png`. Seven new tests; 254 passing across the annotate suites.
+
+--------------------------------------------------------------------------------
+WHY THIS IS NOT MERGED, AND WHAT IS ACTUALLY BLOCKING IT
+--------------------------------------------------------------------------------
+
+1. IT TARGETS `main`. The standing rule is that work lands on `nightly` and
+   `main` is never pushed to directly.
+2. IT CONFLICTS. GitHub reports CONFLICTING/DIRTY, so it cannot merge as it
+   stands regardless.
+3. IT CARRIES 100 COMMITS, most of them unrelated coverage work ("test: cover
+   ml mid-size functions", "test: cover utils mask/segmentation-metric
+   helpers", ...). Whatever the branch started as, it now contains far more
+   than the feature its description covers, and merging it merges all of it.
+4. IT IS AN OUTSIDE CONTRIBUTION, so accepting it is a maintainer decision
+   about someone else's code and licence, not a technical one.
+
+THE FEATURE IS NOT IN `nightly` -- there is no `display_order` anywhere in
+`spacr/qt/`.
+
+--------------------------------------------------------------------------------
+THE OPTIONS, FOR THE MAINTAINER
+--------------------------------------------------------------------------------
+
+  A. Cherry-pick just the feature onto nightly and close #74 with thanks and
+     an explanation. The change is small, additive and defaults to a no-op;
+     re-implementing it from the description is a few hours and avoids
+     merging 100 unrelated commits.
+  B. Ask the contributor to rebase onto nightly and reduce the branch to the
+     feature.
+  C. Close it as superseded, if the display permutation is not wanted --
+     but the problem it names would then still be unsolved for every project
+     authored before `341f446`.
+
+RELATED, AND WORTH READING TOGETHER: on 2026-08-12 the crop PREVIEW was found
+to draw red and blue mirrored relative to the run (preview (13,128,255)
+against run (200,100,10)) because it fed its RGB control straight to
+`crop_objects_from_array` while the run resolves `png_channel_mapping`. That
+is fixed. It is the same family of defect as #73/#74 -- a channel order
+meaning different things in two places -- and `png_channel_mapping` is now
+the run-side answer. Whether "Display order" should be a separate
+ANNOTATE-side permutation or should read `png_channel_mapping` is the real
+design question in this PR, and it is not one the PR asks.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+#74 is resolved one way or the other with a comment saying why, and a project
+authored before `341f446` can see its stains in the colours it was authored
+for without re-running measurement or lying about the format on disk.
+
+--------------------------------------------------------------------------------
+2026-08-13 - IMPLEMENTED. THE MAINTAINER LEFT THE DESIGN TO ME; HERE IS THE CALL
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "i am going to leave the PR#74 desision up to you,
+           please implement what you think would be least confusing and most
+           helpfull for the user."
+
+NOT SUPERSEDED, which was checked first. Annotate's `stored_channel_order`
+answers a different question, and conflating them is exactly what would
+confuse:
+
+    stored_channel_order   HOW WAS THIS FILE WRITTEN. A fact about the bytes,
+                           resolved from the sidecar marker or the database.
+                           Three values: rgb / legacy_bgr / auto.
+    display_order          HOW DO I WANT TO LOOK AT IT. A preference, making
+                           no claim about the file. Six values, default rgb.
+
+THE DESIGN DECISION: two parameters, not one control that does both. A single
+"channel order" that sometimes means the format and sometimes means a
+preference is the version a user cannot reason about -- and the PR itself
+names the cost of pretending a preference is a format: "Marking the folder as
+format 2 gets the picture back by asserting something false about the bytes,
+and the next reader believes it."
+
+WHAT LANDED
+
+  * `spacr/crops.py` -- `DISPLAY_ORDERS` (all six), `display_order_indices`
+    and `apply_display_order`. In crops.py rather than in the Qt layer
+    because it is the module that owns channel-order semantics, it is
+    Qt-free, and instruction 89 (colourblind mode) needs the same seam.
+  * `load_crop_image(..., display_order='rgb')` -- the one loader every
+    annotate surface already goes through, so there is nowhere for a second
+    implementation to appear.
+  * FORMAT FIRST, PREFERENCE SECOND, asserted by a test. Reversing them would
+    permute planes still in the wrong slots and compose into an order neither
+    the file nor the user asked for.
+
+DECISIONS WORTH KEEPING
+
+  * The identity returns the SAME OBJECT, so the default costs nothing for
+    the overwhelming majority who never set it.
+  * A malformed order is REFUSED, not defaulted. Silently ignoring a typed
+    order shows a picture the user did not ask for and does not know they are
+    not getting -- which is the original bug in a new place.
+  * A greyscale crop is left alone rather than refused: it has no three slots
+    to permute, which is not an error.
+  * `b, g, r` and ` BGR ` are accepted, because that is what a user types.
+
+22 tests; 222 pass across crops, annotate and the crop-format suites.
+
+STILL TO DO: the Qt control that sets it (a six-item combo beside the
+existing channel-order control) and persisting it per project. The engine is
+done and defaults to a no-op, so the UI can follow without risk.
+
+WHAT TO TELL THE CONTRIBUTOR: the feature is in, implemented against nightly
+rather than merged from a branch that targeted main with 100 unrelated
+commits, and the reasoning above is why it is a second parameter rather than
+a widening of the first.
+
+--------------------------------------------------------------------------------
+2026-08-13 (later) - THE CONTROL IS IN. 87 IS COMPLETE.
+--------------------------------------------------------------------------------
+
+A six-item combo in the Annotate settings dialog, placed as the NEXT ROW
+after "Stored PNG order" on purpose: the two are adjacent because they are
+easy to confuse, and being side by side is what makes the difference legible.
+"Stored PNG order" says how the file was written; "Display order" says how
+you want to look at it, and its tooltip says outright that it changes nothing
+on disk and nothing measured.
+
+The identity is labelled "R  G  B   (unchanged)" so the default reads as a
+no-op rather than as a choice already made.
+
+ONE THING THAT WENT WRONG AND IS WORTH RECORDING: adding the widget to the
+screen's `install_api_tooltips` map BLANKED the tooltip. That map installs
+the API help for a pipeline SETTING, and `display_order` is a view preference
+no pipeline function takes -- so the lookup found nothing and replaced the
+explanation with an empty string. A control with no tooltip is worse than one
+with no map entry. It is out of the map, with a comment saying why.
+
+31 tests; 89 pass across annotate and the display-order suites.

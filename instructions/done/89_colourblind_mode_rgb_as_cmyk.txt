@@ -1,0 +1,328 @@
+================================================================================
+A COLOURBLIND MODE FOR EVERY IMAGE SPACR SHOWS
+================================================================================
+
+Status:    not started, 2026-08-13.
+Requested: 2026-08-13 - "we should have a colorblind mode that applies to
+           images being shown, where RGB images are visualized as CMYK
+           instead"
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Red/green is the commonest colour-vision deficiency and it is exactly the
+pair fluorescence microscopy uses most: a red stain and a green stain
+overlaid, judged by eye for colocalisation. For a deuteranope or protanope
+that judgement is not harder, it is unavailable -- the two channels are the
+same colour and the overlap is invisible.
+
+This is the same family as PR #74 and issue #73, which are about a channel
+landing in the wrong colour. Here the colour is right and the EYE cannot
+separate it.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED FOR, AND THE ONE THING TO SETTLE FIRST
+--------------------------------------------------------------------------------
+
+"RGB images are visualized as CMYK instead." The intent is clear -- swap the
+primaries for a set that separates under red/green deficiency. CMY is a good
+choice: cyan / magenta / yellow stay distinguishable where red / green do
+not, and magenta-green is the standard accessible substitution for red-green
+in microscopy figures.
+
+WHAT NEEDS DECIDING is what the mapping IS, because "RGB as CMYK" has two
+readings and they look different:
+
+  a. CHANNEL SUBSTITUTION -- draw channel 0 in cyan, 1 in magenta, 2 in
+     yellow, additively. Simple, reversible, and each channel keeps its own
+     identity. This is what most "colourblind-friendly" microscopy figures
+     do.
+  b. A REAL RGB->CMYK COLOUR CONVERSION -- convert the composite through the
+     subtractive model. This is a print transform; on a screen it mostly
+     darkens and does not improve separability, and it is lossy in a way
+     that would change what a user thinks they are seeing.
+
+(a) is almost certainly what is wanted and (b) is almost certainly not, but
+the request says CMYK, so ASK before building if there is any doubt.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+* A DISPLAY TRANSFORM, NEVER A DATA ONE. It applies where an image is drawn
+  and nowhere else. It must not touch what is written to disk, what is
+  measured, or what a model is trained on -- a crop saved in colourblind
+  colours would silently become the training set.
+
+* ONE PLACE, NOT NINE. Every viewer must get it: the Live Preview, the crop
+  preview, Annotate, Make Masks, the plate/figure views and the saved
+  figures. Instruction 69 is standardising exactly these surfaces on one
+  contract; this belongs behind that seam rather than pasted into each. If
+  69 has not landed, put it in the one function that turns an array into a
+  QPixmap and route everything through it.
+
+* A GLOBAL PREFERENCE, not a per-screen toggle. A user who needs this needs
+  it everywhere, every session. It belongs beside the theme in preferences.
+
+* PALETTE ROLES, not literals, for the same reason the class-editor bubbles
+  use them -- see `chip_class` / `chip_value` in `spacr/qt/theme.py`.
+
+* SAY SO ON SCREEN. When the mode is on, the viewer states which channel is
+  drawn in which colour. A figure exported in these colours must carry it
+  too, or a reader of the PDF has no way to know the mapping is not the
+  usual one.
+
+--------------------------------------------------------------------------------
+WORTH DOING AT THE SAME TIME
+--------------------------------------------------------------------------------
+
+The outline colours (`OUTLINE_COLOURS` in `spacr/qt/widgets/live_preview.py`)
+are green / magenta / yellow / cyan / white / red, and `auto` draws a random
+colour per compartment. Random is fine for the sighted case and is exactly
+wrong here: it can draw two adjacent compartments in a pair the user cannot
+tell apart. Under colourblind mode `auto` should draw from a safe set.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+With the mode on, every surface that draws an image draws it in the
+substituted primaries; nothing on disk changes; a test simulates deuteranope
+and protanope vision over a two-channel overlay and asserts the two channels
+remain distinguishable where they did not before; and the mapping is stated
+on screen and in any exported figure.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE ENGINE IS BUILT, AND CMY WAS MEASURED WORSE THAN DOING NOTHING
+--------------------------------------------------------------------------------
+
+The file above says the mapping needs deciding and names CMY as "almost
+certainly what is wanted". IT WAS IMPLEMENTED AND IT IS WRONG, which is worth
+recording in full because it is a plausible idea that fails for a reason that
+is not obvious.
+
+Cyan and magenta separate along the RED-GREEN axis, and that is the axis the
+deficiency removes. Simulated with a Brettel-style deuteranope transform, a
+red stain against a green one:
+
+    drawn as RGB     21.2 apart
+    drawn as CMY     10.6 apart      <- HALF. The "colourblind mode" would
+                                        have made the two stains harder to
+                                        tell apart than leaving them alone.
+
+WHAT SHIPS INSTEAD changes exactly one channel: RED IS DRAWN AS YELLOW, green
+and blue stay where a user already expects them. Chosen by scoring every
+triple of primaries under normal, deuteranope and protanope simulation and
+taking the worst pair in each:
+
+    red / green / blue        283 normal,  21 deuter,  60 protan
+    green / blue / yellow     200 normal, 146 deuter, 159 protan
+
+21 is not a small number, it is invisible -- to a deuteranope a red stain and
+a green stain are ONE COLOUR, which is the whole complaint. Changing only red
+is the smallest edit that fixes it.
+
+BUILT: `crops.apply_display_primaries` and `DISPLAY_PRIMARIES`, beside
+`apply_display_order` from instruction 87, and both reached through the one
+loader every annotate surface uses. Order first, primaries second -- the
+order decides which plane fills a slot, the primaries what colour the slot is
+drawn in, so recolouring first would paint planes about to move.
+
+A DISPLAY TRANSFORM AND NOTHING ELSE, asserted by a test that scans the
+function for `imwrite`, `save(`, `to_sql` and `open(`: a crop saved in
+colourblind colours would silently become the training set.
+
+16 tests, and the ones that matter carry the SIMULATION rather than the
+mapping -- they assert the two stains get more separable, not that a
+particular matrix was used, so a better mapping can replace this one without
+rewriting the tests.
+
+STILL TO DO: the global preference (this is per-call today), the same
+transform on the other viewers -- live preview, crop preview, Make Masks,
+figures -- which is instruction 69's seam, the on-screen statement of the
+mapping, and the safe outline colours noted above.
+
+--------------------------------------------------------------------------------
+2026-08-13 (later) - FIVE MODES, BECAUSE CMY AND ACCESSIBILITY ARE TWO GOALS
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "there should be seperate modes i guess that
+           accomodate different colorblindness. but as a general rool CMY is
+           how biologists like to show images these days so it is important
+           that images wesspecially in annotate can be shown in this format.
+           and obviously this should not affect the underlying data at all."
+
+THE EARLIER NOTE TREATED THESE AS ONE THING AND THAT WAS THE MISTAKE -- mine,
+not the file's. Measuring CMY against a deuteranope simulation and finding it
+worse than RGB was correct, and the conclusion drawn from it ("so do not ship
+CMY") did not follow. CMY is not an accessibility feature; it is THE
+PUBLISHING CONVENTION, wanted because it is what a figure looks like. Both
+belong, as separate modes:
+
+    rgb          what the camera meant. Default.
+    cmy          the convention. Plane 0 cyan, 1 magenta, 2 yellow.
+    deuteranope  }  one per deficiency, because WHICH PAIR collapses decides
+    protanope    }  the substitution. red-green for the first two, and
+    tritanope    }  blue-yellow for a tritanope, which needs a different
+                    plane moved entirely.
+
+MEASURED, worst confusable pair, 0-255:
+
+    red vs green, deuteranope    rgb  21    cmy  11    deuteranope  146
+    blue vs green, tritanope     rgb  30                tritanope   182
+
+So cmy is offered honestly -- the tooltip says outright that it is the
+publication style and NOT one of the colourblind modes, and a test pins the
+measurement so nobody relabels it later.
+
+ANNOTATE HAS THE CONTROL, which is where the request put the emphasis: a
+"Channel colours" combo beside "Display order", labelled so a user can tell
+which deficiency each mode is for rather than guessing from a name.
+
+NOTHING TOUCHES THE DATA, asserted twice over: the transform is scanned for
+`imwrite` / `save(` / `to_sql`, and every mode is checked not to mutate its
+input array.
+
+27 tests; 666 pass across crops, annotate and the display suites.
+
+STILL TO DO, unchanged: the global preference (per-call today), the same
+transform on the other viewers via instruction 69's seam, the on-screen
+statement of the mapping in exported figures, and the safe outline colours.
+
+--------------------------------------------------------------------------------
+2026-08-13 (later still) - THE GLOBAL HALF. THE PREFERENCE ALREADY EXISTED AND
+                           NOTHING READ IT
+--------------------------------------------------------------------------------
+
+The four items left above are done. The finding worth recording is that the
+GLOBAL PREFERENCE this file asked for was already built:
+
+    preferences.get_color_blind_mode()          off | deuteranopia |
+                                                protanopia | tritanopia
+    preferences.color_blind_categorical_palette()   Okabe-Ito, safe under all
+                                                    three
+
+and outside preferences.py the mode had exactly ONE reader -- the plate-view
+heatmap colour map -- and the categorical palette had NONE. A whole
+accessibility preference a user could set and then watch do nothing to any
+image on the screen.
+
+TWO VOCABULARIES, KEPT ON PURPOSE. The preference names a CONDITION, because
+that is what a user knows about themselves and picks in Preferences: "I have
+deuteranopia". `crops.DISPLAY_PRIMARIES` names a RENDERING: "draw this for a
+deuteranope". They are one fact seen from its two ends. Renaming either would
+break stored settings for nothing, so `_CB_MODE_TO_PRIMARIES` writes the
+bridge down once instead of it being guessed at each call site.
+
+`cmy` is deliberately unreachable from that map. It is the publishing
+convention and measured WORSE than plain RGB under deuteranope simulation, so
+it must be something somebody chooses, never a consequence of their vision.
+
+WHERE IT NOW REACHES: the mask overlay (`overlay_masks(primaries=...)`), the
+Measure crop grid (`_crop_pixmap`), and Annotate, whose combo now STARTS from
+the preference instead of hard "rgb" -- a user who told spaCR once should not
+tell it again per screen. Picking a mode in Annotate still overrides it, which
+is what a figure being prepared for publication needs.
+
+THE ORDER INSIDE overlay_masks IS THE POINT, and is why the parameter is
+there rather than on `numpy_to_qpixmap`. Primaries are a channel-to-colour
+mapping and ONLY CHANNELS BELONG IN IT. An outline is not a channel -- it is a
+colour the user chose -- so running it through the same matrix would answer a
+request for a red outline with a yellow one. Recolour the image, then draw on
+top.
+
+SAFE OUTLINE COLOURS, the item this file flagged as worth doing at the same
+time. `auto` drew a uniform random hue, which is right for a sighted user and
+exactly wrong here. It now draws from the Okabe-Ito set -- and DEALS it,
+without replacement, one compartment per entry. Drawing independently from a
+safe palette is not enough: eight safe colours still collide by chance, and
+two compartments sharing one is the precise failure the palette exists to
+prevent.
+
+SAYING SO ON SCREEN is in `LivePreviewContract.set_preview_status`, not at
+each call site, so no panel and no code path can recolour an image without
+saying which mapping it used. When the preference is off -- which it is for
+almost everybody -- nothing changes at all.
+
+Every fallback is "draw the untransformed image", never "fail to draw": no
+QSettings, no Qt, a preferences module that raises, a malformed palette entry
+and a palette with nothing usable in it are each tested and each land on plain
+RGB.
+
+20 tests in tests/qt/test_display_primaries_global.py; 209 pass across mask
+outline colour, crop preview colours, the preview contract, live preview,
+measure preview and annotate.
+
+STILL OPEN: exported FIGURES do not carry the mapping yet -- a PDF in
+substituted colours has no way to tell its reader the mapping is not the usual
+one. That is the figure pipeline rather than a viewer, and it is the last
+piece of this instruction.
+
+--------------------------------------------------------------------------------
+2026-08-13 (last) - THE EXPORTED FIGURE. THE BLANKET TRANSFORM WOULD HAVE BEEN
+                    WRONG, AND THE REAL DEFECT WAS SOMEWHERE ELSE
+--------------------------------------------------------------------------------
+
+The note above said "a figure exported in these colours must carry the
+mapping too". TESTED FIRST, and the premise does not hold two ways over.
+
+1. NO EXPORTED FIGURE IS DRAWN IN SUBSTITUTED PRIMARIES. The transform is a
+   viewer transform; nothing in the pipeline calls it. So there was never a
+   mapping to stamp.
+
+2. APPLYING IT TO A FIGURE WOULD BE A BUG, not the missing feature. The
+   matrix is built for CHANNEL planes, and a saved figure is a composited
+   raster with axes, labels and a legend already drawn into it. Measured on
+   the deuteranope matrix:
+
+       white      (255,255,255) -> (255,255,255)   fine
+       black      (0,0,0)       -> (0,0,0)         fine
+       axis grey  (80,80,80)    -> (80,160,80)     GREEN
+       mid grey   (128,128,128) -> (128,255,128)   GREEN
+
+   Every grey label and tick in the figure turns green. And the overlay
+   figure draws each channel as GREYSCALE (`np.dstack([normalized] * 3)`)
+   with coloured outlines on top, so there are no stain planes to substitute
+   in the first place.
+
+THE REAL DEFECT WAS THE OUTLINE COLOURS, which is what this file's "worth
+doing at the same time" section flagged for the live preview -- and it is
+worse in the figure, because the figure is the thing that goes into a paper.
+`plot_image_mask_overlay` hard-coded:
+
+    cell red, nucleus blue, pathogen green, organelle yellow
+
+CELL RED BESIDE PATHOGEN GREEN IS THE ONE PAIR RED-GREEN DEFICIENCY REMOVES,
+and there was no way to change it. Worst confusable pair across the four
+outlines, 0-255, Brettel-style simulation:
+
+    palette        normal  deuteranope  protanope  tritanope
+    default          255       27          77         39
+    colourblind      148      142         125        134
+
+27 is not a small number, it is invisible. `colourblind` is the four of the
+Okabe-Ito set that scored best on that worst-pair measure, chosen by scoring
+every 4-subset rather than by picking pretty ones. It gives up separation
+under normal vision -- 148 against 255 -- to buy five times as much under
+every deficiency, which is the right trade for a figure with more than one
+reader.
+
+DEFAULT UNCHANGED, deliberately: switching it silently would change every
+figure a user has already made and every methods section describing them. It
+arrives as an ordinary setting, `outline_palette`, because the pipeline
+cannot read QSettings -- the GUI reads the preference and passes it down, the
+same architecture rule the run journal follows.
+
+A REAL BUG FOUND ON THE WAY. `submodules.py` called
+`plot_image_mask_overlay(..., normalize=True)`. There is no such parameter:
+every call raised TypeError, the bare `except Exception` two lines down
+swallowed it, and that branch has been printing "Failed to plot images with
+outlines" instead of drawing a single overlay. It wanted percentile
+normalisation, which is `percentiles`. Fixed.
+
+13 tests, and the ones that matter carry the SIMULATION rather than the
+palette -- a better palette can replace this one by beating the numbers
+instead of by argument. 588 pass across settings, plot, smoke and validate.
+
+89 IS DONE.

@@ -1747,12 +1747,12 @@ def _mask_screen(qtbot):
     return screen
 
 
-def test_walking_the_big_folder_inline_is_slow_enough_to_matter(big_folder):
+def test_the_former_three_inline_walks_are_slow_enough_to_matter(big_folder):
     """Guard against the fixture shrinking until the budget proves nothing.
 
-    If one walk of this folder were already inside the budget, the test below
-    would pass with the threading removed. It is not: this measures around
-    1 000 ms, and the drop used to do it three times.
+    The old drop performed this walk three times. Measure that former cost,
+    not one cached walk: on a fast filesystem one pass can fit inside the
+    budget while all three still freeze the GUI for well over it.
     """
     from spacr.qt.folder_metadata import iter_image_files
 
@@ -1760,8 +1760,10 @@ def test_walking_the_big_folder_inline_is_slow_enough_to_matter(big_folder):
     found = sum(1 for _ in iter_image_files(big_folder))
     elapsed = time.perf_counter() - start
     assert found >= _BIG_WELLS * _BIG_FIELDS * _BIG_CHANS
-    assert elapsed > DROP_STALL_BUDGET_S, (
-        f"walking the fixture took only {elapsed * 1000:.0f} ms, which is "
+    former_inline_cost = elapsed * 3
+    assert former_inline_cost > DROP_STALL_BUDGET_S, (
+        f"three walks of the fixture take only "
+        f"{former_inline_cost * 1000:.0f} ms, which is "
         f"inside the {DROP_STALL_BUDGET_S * 1000:.0f} ms budget — the "
         "responsiveness test above it no longer proves anything. Grow "
         "_BIG_WELLS/_BIG_FIELDS/_BIG_CHANS until this passes again.")

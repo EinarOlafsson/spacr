@@ -268,7 +268,32 @@ def process_chunk(chunk_data):
         return sequence, quality
 
     def paired_find_sequence_in_chunk_reads(r1_chunk, r2_chunk, target_sequence, offset_start, expected_end, regex):
-        """Return consensus reads and their parsed row/column/gRNA barcodes for paired-end chunks."""
+        """Return consensus reads and their parsed row/column/gRNA barcodes for paired-end chunks.
+
+        :param r1_chunk: four-line FASTQ record strings for R1.
+        :param r2_chunk: the matching R2 records, paired with ``r1_chunk`` by
+            position only -- headers are never compared.
+        :param target_sequence: anchor located with ``str.find`` (first
+            occurrence). R2 is reverse-complemented before the search, so write
+            the anchor in R1 orientation. A pair missing the anchor in either
+            mate is dropped without a row, so the QC ``total_reads`` counts
+            matched pairs rather than input pairs.
+        :param offset_start: bases from the anchor to the window start. A
+            resulting start below zero is clamped to the read start, not
+            rejected, so an over-negative offset quietly shifts the window.
+        :param expected_end: window *length*, not an end coordinate. A window
+            cut short by the read end is right-padded with ``N`` (quality
+            ``!``) to exactly this length, so the length check always passes
+            and a truncated read can still match with ``N`` inside a barcode --
+            which then maps to NA and drops out of the per-well counts.
+        :param regex: pattern string applied with ``re.match``: anchored at the
+            window start, but bases past the last group are ignored, so an
+            oversized ``expected_end`` only adds padding.
+        :returns: ``(consensus_sequences, columns, grnas, rows)``, one entry per
+            matched pair. A chunk with no matches prints a warning and retries
+            the last window reverse-complemented as an orientation hint.
+        :raises ValueError: when the two chunks hold different read counts.
+        """
         consensus_sequences, columns, grnas, rows = [], [], [], []
         consensus_seq = None
         if len(r1_chunk) != len(r2_chunk):
@@ -339,7 +364,29 @@ def process_chunk(chunk_data):
         return consensus_sequences, columns, grnas, rows
     
     def single_find_sequence_in_chunk_reads(r1_chunk, target_sequence, offset_start, expected_end, regex):
-        """Return R1 windows and their parsed row/column/gRNA barcodes for single-end chunks."""
+        """Return R1 windows and their parsed row/column/gRNA barcodes for single-end chunks.
+
+        No consensus is computed here: the R1 window is used as-is, so read
+        quality never influences the base calls the way it does for pairs.
+
+        :param r1_chunk: four-line FASTQ record strings for R1.
+        :param target_sequence: anchor located with ``str.find`` (first
+            occurrence). A read without it is dropped without a row, so the QC
+            ``total_reads`` counts matched reads rather than input reads.
+        :param offset_start: bases from the anchor to the window start. A
+            resulting start below zero is clamped to the read start, not
+            rejected.
+        :param expected_end: window *length*, not an end coordinate. A window
+            cut short by the read end is right-padded with ``N`` (quality
+            ``!``) to exactly this length, so a truncated read can still match
+            with ``N`` inside a barcode -- which then maps to NA and drops out
+            of the per-well counts.
+        :param regex: pattern string applied with ``re.match``: anchored at the
+            window start, but bases past the last group are ignored.
+        :returns: ``(consensus_sequences, columns, grnas, rows)``, one entry per
+            matched read. A chunk with no matches prints a warning and retries
+            the last window reverse-complemented as an orientation hint.
+        """
 
         consensus_sequences, columns, grnas, rows = [], [], [], []
         consensus_seq = None
@@ -975,7 +1022,32 @@ def graph_sequencing_stats(settings):
     from .utils import correct_metadata_column_names, correct_metadata
 
     def find_and_visualize_fraction_threshold(df, target_unique_count=5, log_x=False, log_y=False, dst=None):
-        """Return the fraction threshold whose per-well unique gRNA mean is closest to ``target_unique_count``."""
+        """Return the fraction threshold whose per-well unique gRNA mean is closest to ``target_unique_count``.
+
+        The sweep plot's view is clamped to x in [0, 0.1] and y in [0, 20], so a
+        returned threshold above 0.1 has its marker line drawn off the visible
+        axes even though the value itself is correct.
+
+        :param df: one row per gRNA per well, with ``fraction`` plus
+            ``plateID``, ``rowID`` and ``columnID``; any missing column raises
+            ``KeyError``.
+        :param target_unique_count: mean unique gRNAs per well to aim for. The
+            answer is only the nearest point of a fixed 1000-step grid spanning
+            0.001 to 0.99, so an unreachable target silently saturates at one
+            end of that grid instead of reporting that it was not met. ``None``
+            or a string raises from the subtraction.
+        :param log_x: log-scale the plot's x axis. The hard-coded
+            ``xlim(0, 0.1)`` applied afterwards is then rejected by matplotlib
+            as a non-positive limit on a log axis, so the view autoscales.
+        :param log_y: the same for the y axis and ``ylim(0, 20)``.
+        :param dst: when set, writes ``<dst>/results/fraction_threshold.pdf``,
+            creating the directories; ``None`` only shows the figure. The sole
+            caller always passes a path, so the default is unreachable there.
+        :returns: the chosen threshold as a ``numpy.float64``. A threshold that
+            empties the table yields NaN rather than 0, so a table whose
+            fractions are all below 0.001 makes every sweep point NaN and the
+            fallback returns 0.99 -- a value that then discards every read.
+        """
 
         def _line_plot(df, x, y, log_x, log_y):
             # No "are x and y in df.columns?" guard: this is a closure with one

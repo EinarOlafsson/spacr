@@ -2273,7 +2273,7 @@ Module Contents
 
    .. py:method:: open_deep_spacr_window()
 
-      Open the Deep-SPACR train/apply configuration window.
+      Open the Deep-spaCR train/apply configuration window.
 
       Presents a notebook of tabs (dataset generation, training, inference)
       whose 'Run' hands the resolved settings dict to ``deep_spacr`` on a

@@ -37,7 +37,6 @@ from patsy import dmatrices
 
 from sklearn.model_selection import StratifiedKFold
 from sklearn.feature_selection import SelectKBest, f_classif
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.inspection import permutation_importance
@@ -290,7 +289,31 @@ def perform_mixed_model(y, X, groups, alpha=None):
     return MixedLM(y, X, groups=groups).fit()
 
 def create_volcano_filename(csv_path, regression_type, alpha, dst):
-    """Create and return the volcano plot filename based on regression type and alpha."""
+    """Build the path this run's volcano plot will be saved to.
+
+    Path construction only: nothing is read, written or created, and the
+    ``.pdf`` in the name is not binding - :func:`spacr.plot.save_figure`
+    rewrites the extension to whichever format the figure preference selected.
+
+    :param csv_path: Source CSV. Only its basename with the last extension
+        stripped becomes the ``<name>_volcano_plot.pdf`` stem, and only its
+        directory is used, when ``dst`` is falsy. The file is never opened, so
+        a path that does not exist is fine; a bare filename yields a bare
+        relative result rather than a path under the working directory.
+    :param regression_type: Prefixed to the filename, unless it is exactly
+        ``'quantile'`` - then ``alpha`` is prefixed instead. ``None`` is
+        stamped literally, giving ``None_...``: :func:`regression` calls this
+        before :func:`check_distribution` resolves the auto-selected model, so
+        an auto run's plot is never named for the model it actually fitted.
+    :param alpha: Read only on the ``'quantile'`` branch; accepted and ignored
+        for every other type, whatever its value. :func:`regression` passes
+        the ``quantile`` setting here, not the penalty, so two quantiles of
+        one screen cannot overwrite each other.
+    :param dst: Output directory. Any falsy value, ``None`` and ``''`` alike,
+        falls back to the directory of ``csv_path``. It is not created here.
+    :returns: The joined path, which :func:`regression` hands to
+        :func:`spacr.plot.volcano_plot` as ``save_path``.
+    """
     volcano_filename = os.path.splitext(os.path.basename(csv_path))[0] + '_volcano_plot.pdf'
     volcano_filename = f"{regression_type}_{volcano_filename}" if regression_type != 'quantile' else f"{alpha}_{volcano_filename}"
 
@@ -4092,6 +4115,11 @@ def generate_ml_scores(settings):
     from .training_basis import resolve_basis
     _basis = resolve_basis(settings)
 
+    #: The column the annotation path trains against. None on the metadata
+    #: path, where the caller's own `location_column` is the answer. Declared
+    #: here so every branch below has it defined.
+    _label_column = None
+
     if _basis == 'measurement':
         settings = _labels_from_measurements(df, settings)
         _basis = 'annotation'      # the rules wrote a column; read it back
@@ -4103,7 +4131,20 @@ def generate_ml_scores(settings):
                 "column of png_list. Nothing else in these settings says "
                 "which labels to train on.")
 
-        settings['location_column'] = settings['annotation_column']
+        # DERIVED, NOT WRITTEN BACK. This used to be
+        #     settings['location_column'] = settings['annotation_column']
+        # and that assignment mutated the CALLER'S settings dict -- a
+        # user-facing value, shown in the panel and saved with the project.
+        #
+        # The mutation outlived the run. A user who tried annotation mode
+        # once and then switched dataset_mode back to 'metadata' still had
+        # `location_column` naming their annotation column, which is not in
+        # the measurement frame, so the next run died at `df[[location_
+        # column]]` with a pandas KeyError that pointed nowhere near the
+        # cause. They could not get out by changing the mode; they had to
+        # know an invisible write had happened and undo it by hand.
+        # (Issues #91, #92, #93 -- one defect, walked through in sequence.)
+        _label_column = settings['annotation_column']
 
         # Repair-on-read, the same contract utils.rename_columns_in_db has:
         # a database written before the prediction columns were namespaced
@@ -4167,7 +4208,8 @@ def generate_ml_scores(settings):
     from .batch_correction import correction_kwargs
     batch_kwargs = correction_kwargs(
         settings,
-        default_control_column=settings.get('location_column'),
+        default_control_column=(_label_column
+                                or settings.get('location_column')),
         default_control_values=settings.get('negative_control'),
     )
     # Added here rather than in `correction_kwargs` — see the note at its
@@ -4177,9 +4219,13 @@ def generate_ml_scores(settings):
         'batch_covariate_column')
     batch_kwargs['batch_combat_mean_only'] = bool(
         settings.get('batch_combat_mean_only', False))
+    # `_label_column` is set only on the annotation path and is what that
+    # path trains against; metadata runs use the caller's own setting. Either
+    # way `settings['location_column']` is left exactly as the user wrote it.
+    _training_column = _label_column or settings['location_column']
     output, figs = ml_analysis(df,
                                settings['channel_of_interest'],
-                               settings['location_column'],
+                               _training_column,
                                settings['positive_control'],
                                settings['negative_control'],
                                settings['exclude'],
@@ -4197,6 +4243,7 @@ def generate_ml_scores(settings):
                                settings['prune_features'],
                                settings['cross_validation'],
                                settings['verbose'],
+                               split_by=settings.get('cv_group_by', 'well'),
                                **batch_kwargs)
     
     shap_fig = shap_analysis(output[3], output[4], output[5])
@@ -4259,6 +4306,58 @@ def generate_ml_scores(settings):
 
     return [output, plate_heatmap]
 
+def _resolve_controls(df, location_column, negative_control,
+                      positive_control, matches):
+    """The control values to match, and whether they had to be derived.
+
+    :param matches: ``(series, control) -> boolean mask``. Passed in rather
+        than imported because the matcher is defined inside `ml_analysis`;
+        taking it as an argument keeps this function module-level and
+        testable on its own.
+    :returns: ``(negative, positive, derived)``. ``derived`` is True when the
+        named controls matched nothing and the column's own two classes were
+        used instead.
+
+    THE CASE THIS EXISTS FOR: annotation mode points `location_column` at the
+    annotation column, whose values are class labels, while the control
+    settings still hold plate column names from the metadata path. Neither
+    matches, and the user is told to "set positive_control and
+    negative_control to values that appear there" -- for a column that
+    already says, unambiguously, what its two classes are.
+
+    Nothing is derived when the named controls DO match: an explicit choice
+    is always honoured, including a deliberate two-of-five subset.
+    """
+    if location_column not in df.columns:
+        return negative_control, positive_control, False
+    column = df[location_column]
+    if isinstance(column, pd.DataFrame):
+        return negative_control, positive_control, False
+
+    # NEITHER may match before anything is derived. If ONE does, the user
+    # has a real partial match -- 'c1' present and 'c2' mistyped, say -- and
+    # deriving would silently replace the control they got RIGHT along with
+    # the one they got wrong. The refusal downstream names only the missing
+    # one, which is the useful message; overriding both would hide it.
+    any_found = (matches(column, negative_control).any()
+                 or matches(column, positive_control).any())
+    if any_found:
+        return negative_control, positive_control, False
+
+    present = sorted(v for v in column.dropna().unique())
+    if len(present) != 2:
+        # Three or more classes, or one: the user has to say which two, and
+        # the refusal below will list what is there.
+        return negative_control, positive_control, False
+
+    low, high = present
+    print(f"{location_column!r} holds exactly two classes, {low!r} and "
+          f"{high!r}, and neither {negative_control!r} nor "
+          f"{positive_control!r} appears in it. Training on the column's own "
+          f"classes: negative={low!r}, positive={high!r}.")
+    return low, high, True
+
+
 def ml_analysis(
     df,
     channel_of_interest=3,
@@ -4281,6 +4380,7 @@ def ml_analysis(
     cross_validation=False,
     verbose=False,
     *,
+    split_by='well',
     batch_correction='none',
     batch_column='plateID',
     batch_control_column=None,
@@ -4325,6 +4425,9 @@ def ml_analysis(
     :param prune_features: If True, apply ``SelectKBest`` before training.
     :param cross_validation: If True, run 5-fold stratified CV.
     :param verbose: Log progress details.
+    :param split_by: Independent acquisition unit for train/test splitting:
+        ``'cell'``, ``'field'``, ``'well'`` (default), or ``'plate'``.
+        Legacy ``'none'`` is an alias for ``'cell'``.
     :param batch_correction: plate correction method from
         :mod:`spacr.batch_correction`.
     :param batch_column: metadata column identifying plates/batches.
@@ -4332,6 +4435,18 @@ def ml_analysis(
         labels for ``control_center``.
     :param batch_control_values: negative/reference control value(s).
     :param batch_min_samples: minimum rows or controls per plate.
+    :param batch_covariate_column: metadata column naming the BIOLOGY the
+        correction must protect -- treatment, cell line, timepoint. Only
+        ``combat`` uses it, and for combat it is not optional: the covariate
+        coefficients are kept while the batch ones are subtracted, so a
+        contrast left out of the design lands in the batch term and is
+        removed along with it. Omitting it is how a real effect gets
+        "corrected" away.
+    :param batch_combat_mean_only: adjust each batch's MEAN and leave its
+        variance alone. Use it when a plate is shifted but not differently
+        scaled, or when a batch has too few rows for a stable variance
+        estimate -- the shrunken scale term is the part that goes wrong on
+        small batches. Default False, which adjusts both.
     :param batch_missing_control: ``error`` or ``skip`` for missing controls.
     :returns: Tuple ``(output, figs)`` where ``output`` is a positional
         tuple of ``(scored_df, permutation_df, feature_importance_df,
@@ -4419,6 +4534,32 @@ def ml_analysis(
         df = df.drop(columns=['cells_per_well'])
 
     correction_metadata = df.copy()
+    # THE POISONED-SETTINGS SIGNATURE, NAMED RATHER THAN RAISED THROUGH.
+    # `df[[name]]` on a missing column raises a pandas KeyError from three
+    # frames down that says only "None of [Index([...])] are in the
+    # [columns]" -- issue #93. It points at the column and not at the reason
+    # the column is being asked for, which was an annotation-mode run that
+    # overwrote `location_column` and left it overwritten.
+    if location_column not in df.columns:
+        available = ", ".join(repr(c) for c in list(df.columns)[:12])
+        if len(df.columns) > 12:
+            available += f", ... ({len(df.columns)} columns)"
+        # The hint is unconditional because the cause is: any missing
+        # location_column reaching here is either a typo or the overwrite,
+        # and naming the overwrite costs a sentence while a user who cannot
+        # find it loses an afternoon. Phrased as a possibility, not a
+        # diagnosis, because a typo deserves the column list either way.
+        raise ValueError(
+            f"location_column={location_column!r} is not a column of the "
+            f"measurement table, so there is nothing to group the controls "
+            f"by.\n  The table has: {available}"
+            f"\n  If you have run this module in annotation mode, that is "
+            f"the likely cause: versions before 1.5.0.5 wrote "
+            f"annotation_column into location_column and never put it back, "
+            f"so a later metadata run looked for an annotation column in the "
+            f"measurement table. Set location_column back to your well "
+            f"column ('columnID' or 'rowID').")
+
     df_metadata = df[[location_column]].copy()
 
     df, features = filter_dataframe_features(df, channel_of_interest, exclude, remove_low_variance_features, remove_highly_correlated_features, verbose)
@@ -4454,6 +4595,10 @@ def ml_analysis(
         print(f'Features: {features}')
         
     df = pd.concat([df, df_metadata[location_column]], axis=1)
+    # The merged measurement index is the canonical object identity. Keep it
+    # beside the filtered features now so duplicate indexes in annotation
+    # mode remain positionally aligned instead of being multiplied by .loc.
+    df['prcfo'] = df.index.astype(str)
     
     #if verbose:
     #    print(df[location_column].dtype)
@@ -4485,6 +4630,21 @@ def ml_analysis(
     #if verbose:
     #    print(f'Positive control: {positive_control}, samples: {len(df2)}')
         
+    # THE CONTROLS MUST BE VALUES OF THE COLUMN BEING MATCHED. In annotation
+    # mode `location_column` is the ANNOTATION column, whose values are the
+    # class labels -- 1.0 and 2.0, say -- while positive_control and
+    # negative_control default to plate column names like 'c1' and 'c2'.
+    # Applying one to the other finds nothing, which is issues #91 and #92.
+    #
+    # When the named controls appear nowhere in the column but it holds
+    # exactly TWO classes, those two ARE the classes: the lower value is the
+    # negative and the higher the positive. That is the ordinary annotation
+    # case and it should not require the user to restate what the column
+    # already says.
+    negative_control, positive_control, _derived_classes = _resolve_controls(
+        df, location_column, negative_control, positive_control,
+        _match_control_values)
+
     df1 = df[_match_control_values(df[location_column], negative_control)].copy()
     if verbose:
         print(f'Negative control: {negative_control}, samples: {len(df1)}')
@@ -4504,6 +4664,51 @@ def ml_analysis(
     if verbose:
         print(f'Found {len(df1)} samples for {negative_control} and {len(df2)} samples for {positive_control}. Total: {len(combined_df)}')
     
+    # REFUSE HERE, NAMING WHAT IS ACTUALLY IN THE COLUMN.
+    #
+    # When neither control matches, df1 and df2 are both empty, combined_df is
+    # empty, and the failure surfaces as
+    #
+    #     ValueError: With n_samples=0, test_size=0.2 and train_size=None,
+    #     the resulting train set will be empty
+    #
+    # from inside sklearn's train_test_split, three frames below anything a
+    # user recognises. That traceback was auto-filed to the spaCR tracker TEN
+    # TIMES in one day (issues #79-#90) and names neither the setting that is
+    # wrong nor the value it should have had.
+    #
+    # The verbose branch above would have said "samples: 0", but verbose is
+    # False on every shipped path.
+    if df1.empty or df2.empty:
+        column = df[location_column]
+        if isinstance(column, pd.DataFrame):
+            # TWO COLUMNS OF THAT NAME. `df[name]` is then a DataFrame, every
+            # matching strategy in `_match_control_values` fails against it,
+            # and no control is ever found. Worth its own sentence: the fix
+            # is to the TABLE, not to the control values, and no amount of
+            # correcting positive_control will help.
+            raise ValueError(
+                f"the measurement table has {column.shape[1]} columns named "
+                f"{location_column!r}, so the controls cannot be matched "
+                f"against it. Drop or rename the duplicate before running "
+                f"the analysis.")
+        present = column.astype(str).str.strip().unique().tolist()
+        shown = ", ".join(repr(v) for v in sorted(present)[:15])
+        if len(present) > 15:
+            shown += f", ... ({len(present)} distinct values)"
+        missing = []
+        if df1.empty:
+            missing.append(f"negative_control={negative_control!r}")
+        if df2.empty:
+            missing.append(f"positive_control={positive_control!r}")
+        raise ValueError(
+            f"no rows matched {' and '.join(missing)} in column "
+            f"{location_column!r}, so there is nothing to train on.\n"
+            f"  {location_column!r} contains: {shown}\n"
+            f"  Set positive_control and negative_control to values that "
+            f"appear there, or set location_column to the column that holds "
+            f"your controls.")
+
     X = combined_df[features]
     y = combined_df['target']
     
@@ -4521,14 +4726,29 @@ def ml_analysis(
         after_pruning = len(X.columns)
         print(f"Removed {before_pruning - after_pruning} features using SelectKBest")
 
-    # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
+    # Split on an actual experimental unit. The index is the canonical prcfo
+    # in merged measurement frames, even when filtering removed its component
+    # metadata columns from X.
+    from .classifier_evaluation import grouped_split, split_group_values
+    split_frame = combined_df[['prcfo']].reset_index(drop=True)
+    split_level, split_groups = split_group_values(
+        group_by=split_by, frame=split_frame, table='ML control measurements')
+    train_index, test_index, split_report = grouped_split(
+        split_groups, y.to_numpy(), test_size, seed=random_state,
+        group_by=split_level)
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+    print(split_report.summary())
 
     # Add data usage labels
     combined_df['data_usage'] = 'train'
     combined_df.loc[X_test.index, 'data_usage'] = 'test'
     df['data_usage'] = 'not_used'
     df.loc[combined_df.index, 'data_usage'] = combined_df['data_usage']
+    df['data_usage_group_by'] = split_report.group_by
+    df['split_requested_fraction'] = split_report.requested_fraction
+    df['split_cell_fraction'] = split_report.cell_fraction
+    df['split_group_fraction'] = split_report.group_fraction
     
     # Initialize the model based on model_type
     if model_type == 'random_forest':
@@ -4581,14 +4801,34 @@ def ml_analysis(
     else:
         raise ValueError(f"Unsupported model_type: {model_type}")
 
+    # Estimators returned here can be persisted with joblib/pickle. Keeping the
+    # report on the object makes grouping provenance travel with such a model
+    # rather than existing only in stdout or the scored CSV.
+    model.spacr_split_report_ = split_report.to_dict()
+
     # Perform k-fold cross-validation
     if cross_validation:
-        
-        # Cross-validation setup
-        kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=random_state)
+        from .io import make_cv_folds
+
+        distinct_groups = len(np.unique(split_groups))
+        n_folds = min(5, distinct_groups)
+        if n_folds < 2:
+            raise ValueError(
+                f"cross-validation by {split_level} needs at least two "
+                f"independent groups; found {distinct_groups}")
+        folds = make_cv_folds(
+            y.to_numpy(), n_folds, groups=split_groups,
+            seed=random_state)
+        expected_classes = set(np.unique(y))
         fold_metrics = []
 
-        for fold_idx, (train_index, test_index) in enumerate(kfold.split(X, y), start=1):
+        for fold_idx, (train_index, test_index) in enumerate(folds, start=1):
+            if (set(np.unique(y.iloc[train_index])) != expected_classes or
+                    set(np.unique(y.iloc[test_index])) != expected_classes):
+                raise ValueError(
+                    f"{split_level}-grouped CV fold {fold_idx} cannot put "
+                    "every class in both train and test. Add independent "
+                    f"class-bearing {split_level}s or choose a finer split.")
             X_train, X_test = X.iloc[train_index], X.iloc[test_index]
             y_train, y_test = y.iloc[train_index], y.iloc[test_index]
 
@@ -4675,6 +4915,13 @@ def ml_analysis(
         report_dict = classification_report(
             y_test, predictions_test, output_dict=True, zero_division=0)
         metrics_df = pd.DataFrame(report_dict).transpose()
+
+    # ``model_metrics.csv`` is the classical model's durable card. Repeat the
+    # scalar provenance on its rows so it survives CSV and remains filterable.
+    metrics_df['split_group_by'] = split_report.group_by
+    metrics_df['split_requested_fraction'] = split_report.requested_fraction
+    metrics_df['split_group_fraction'] = split_report.group_fraction
+    metrics_df['split_cell_fraction'] = split_report.cell_fraction
         
     perm_importance = permutation_importance(model, X_train, y_train, n_repeats=n_repeats, random_state=random_state, n_jobs=n_jobs)
 

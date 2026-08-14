@@ -50,7 +50,9 @@ class TestThePanelSide:
 
     @pytest.fixture
     def panel(self, qt_theme_applied, qtbot):
-        widget = HyperparamPanel("umap")
+        # UMAP now owns an interactive point explorer. Generic searches keep
+        # the streaming static-figure grid covered by this contract.
+        widget = HyperparamPanel("activation")
         qtbot.addWidget(widget)
         widget.apply_settings({"n_neighbors": 15, "min_dist": 0.1,
                                "metric": "euclidean"})

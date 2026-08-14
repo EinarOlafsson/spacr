@@ -37,6 +37,7 @@ class _FakeThread:
         self.running = running
         self.interrupted = False
         self.terminated = False
+        self.quit_requested = False
 
     def isRunning(self):
         return self.running
@@ -47,6 +48,13 @@ class _FakeThread:
     def terminate(self):
         self.terminated = True
         self.running = False
+
+    def quit(self):
+        self.quit_requested = True
+
+    def wait(self, _timeout):
+        self.running = False
+        return True
 
 
 class _FakeWorker:
@@ -123,27 +131,29 @@ def test_a_cooperative_stop_starts_a_watcher(screen, monkeypatch):
     assert getattr(screen, "_stop_watcher", None) is not None
 
 
-def test_force_terminates_the_thread(screen, monkeypatch):
+def test_force_drains_without_terminating_the_thread(screen, monkeypatch):
     from spacr.qt.shutdown import FORCE
 
     thread, worker = _arm(screen, monkeypatch, FORCE)
     screen._on_stop()
 
-    assert thread.terminated is True
+    assert thread.quit_requested is True
+    assert thread.terminated is False
     # ...and the worker was asked first regardless, so one that IS still
     # checking gets the chance to stop on its own terms in the moment
     # before its thread is taken away.
     assert worker.cancelled, "force must still request cancellation first"
 
 
-def test_force_is_reached_through_the_watcher_too(screen, monkeypatch):
+def test_force_drain_is_reached_through_the_watcher_too(screen, monkeypatch):
     """The escalation path, not just the first prompt."""
     from spacr.qt.shutdown import GRACEFUL
 
     thread, _worker = _arm(screen, monkeypatch, GRACEFUL)
     screen._on_stop()
     screen._force_stop()
-    assert thread.terminated is True
+    assert thread.quit_requested is True
+    assert thread.terminated is False
 
 
 def test_stop_with_nothing_running_does_nothing(screen, monkeypatch):

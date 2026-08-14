@@ -1,0 +1,408 @@
+================================================================================
+spaCR MUST RUN ON PYTHON 3.9 THROUGH 3.14, ON THE RIGHT DEPENDENCY VERSIONS
+================================================================================
+
+Status:    the cellpose floor is SETTLED (2026-08-08). The Python-range
+           half and the remaining floors are open.
+Requested: 2026-08-08 — "make sure spacr works on python 3.9-3.14 and that the optimal dependency versions are allways used."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The `compat-matrix` workflow already tests a spread: Linux x86-64 on 3.12,
+3.13 and 3.14, Linux ARM64 and Windows and macOS on 3.11, plus two
+"installs from wheels only" jobs on 3.13 and 3.14, and a "Minimum
+dependencies" job on 3.9. As of this session every job passes except macOS,
+which is still being confirmed.
+
+So the ENDS of the range are the thin part: 3.9 is covered only by the
+minimum-dependencies job, and 3.10 is not in the matrix at all.
+
+The minimum-dependencies job is also where a real disagreement shows.
+`tests/test_cellpose_api_contract.py` records cellpose's signature and
+asserts the INSTALLED one matches. It passes on 4.0.7 and fails on 4.0.1 --
+the declared minimum -- because `use_bfloat16` and the `resample` default
+differ between them. That is not a bug in either; it is the floor being
+declared lower than the code actually supports, and it is unresolved.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A user on a cluster does not choose their Python. If 3.9 or 3.10 is broken
+they cannot run spaCR at all, and the failure arrives as an import error
+with no indication that the version is the problem.
+
+"Optimal versions" is the other half and the subtler one. A floor that is
+declared too low is worse than one declared too high: pip will happily
+resolve to it, the install succeeds, and the failure comes later and
+somewhere else -- exactly the cellpose case above, where the recorded API
+and the minimum version disagree about what a function takes.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Add 3.9 and 3.10 to the full matrix rather than leaving 3.9 to the
+   minimum-deps job alone. If either cannot be supported, say so in
+   `setup.py`'s `python_requires` and in the README, and stop claiming it.
+2. Settle the cellpose floor. Either raise the declared minimum to the
+   version whose signature is recorded, or make the contract tolerate the
+   supported range. Do not "fix" it by loosening the assertion until the
+   floor question is answered -- the contract is what caught the drift.
+3. Audit every declared dependency for a floor that is a guess. The test
+   `tests/test_declared_dependencies_match_imports.py` proves each import
+   is DECLARED; nothing yet proves the declared version actually works.
+4. Decide what "optimal" means and write it down: newest that passes, or
+   oldest that passes? They imply opposite CI jobs. The matrix currently
+   tests both ends without saying which one users get.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+`compat-matrix` green on 3.9 through 3.14, with the minimum-dependency job
+green on the SAME declared floors a fresh `pip install spacr` resolves.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. One thing to check before adding jobs: whether the scientific
+stack (torch, cellpose, umap-learn) publishes wheels for 3.9 and 3.14 on
+every platform in the matrix. Where it does not, the honest answer is to
+narrow the claimed range, not to add a job that can never go green.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE CELLPOSE FLOOR IS DECIDED
+--------------------------------------------------------------------------------
+
+`cellpose>=4.0,<5.0` became `cellpose>=4.0.7,<5.0`.
+
+The disagreement was real and the resolution is the one this file argued
+for: a floor that is declared but never verified is worse than one declared
+too high. `>=4.0` resolved to 4.0.1 in the minimum-dependencies CI job,
+where `CellposeModel.__init__` has no `use_bfloat16` and `eval`'s
+`resample` defaults differently, so `test_cellpose_api_contract.py` --
+which records the installed signature and asserts a match -- failed about
+22 tests against an API spaCR has never been developed against.
+
+Raising the floor rather than loosening the contract, deliberately. The
+contract is what CAUGHT the drift; making it tolerant of a version range
+would have kept the CI green and left users free to install 4.0.1, where
+the mismatch is real and would surface as a runtime failure somewhere less
+obvious. Note `use_bfloat16` is not passed anywhere in spaCR -- the
+argument for the higher floor is not that we need the parameter, it is that
+we do not test the version that lacks it.
+
+STILL OPEN in this instruction:
+
+  * 3.9 and 3.10 are not in the full matrix -- 3.9 only via the
+    minimum-deps job, 3.10 not at all.
+  * every OTHER dependency floor is still a guess, and nothing verifies
+    them. The import-declaration test proves each import is declared; it
+    says nothing about the version.
+  * "optimal" still needs defining: newest that passes, or oldest that
+    passes? They imply opposite CI jobs.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE CLAIMED RANGE IS NOW ACTUALLY EXERCISED
+--------------------------------------------------------------------------------
+
+The claim was already right, which is worth stating because it was the
+first thing I suspected:
+
+    pyproject.toml:  requires-python = ">=3.9,<3.15,!=3.14.1"
+
+So 3.9 through 3.14 is exactly what spaCR promises. The gap was COVERAGE,
+not the declaration.
+
+The "installs, from wheels only" job -- which asks only whether pip accepts
+spaCR and whether the graph resolves without a compiler -- ran on
+["3.13", "3.14"]. It now runs on
+
+    ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+
+the whole claimed range. That job is cheap, so six interpreters cost
+little, and it is the check that matches the claim most directly: a
+`requires-python` floor nobody exercises is the same defect as the cellpose
+one settled above -- pip resolves it happily and the failure lands on a
+user rather than on CI.
+
+WHAT THIS DOES NOT DO. It proves pip ACCEPTS spaCR and resolves to wheels
+on each interpreter. It does not run the test suite there; the full matrix
+still covers 3.11 through 3.14 only, and 3.10 has no suite run at all.
+Widening the full matrix is a heavier change and is still open.
+
+EXPECT THIS TO GO RED FIRST, and treat that as the result rather than a
+setback: the scientific stack may not publish wheels for 3.9 or 3.10 on
+every platform. Where it does not, the honest answer is to narrow
+`requires-python` and say so in the README -- not to delete the job. That
+decision is what this task is for.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE CELLPOSE FLOOR WAS NEVER THE QUESTION. THE CONSTRAINT WAS WRONG.
+--------------------------------------------------------------------------------
+
+This file recorded the cellpose disagreement as an open question: what IS
+the real minimum? It was already answered in setup.py and had been for some
+time:
+
+    setup.py                                cellpose>=4.0.7,<5.0
+    .github/constraints/minimum-py39.txt    cellpose==4.0.1
+
+The constraints file pinned BELOW the declared floor, so the "Minimum
+dependencies" job installed a version the package says it does not support.
+Its own comment explained the choice -- "4.0.1 is the first published
+release in the required 4.x line" -- which was true when written and
+stopped being the point when the floor was raised to 4.0.7.
+
+Raised to 4.0.7. Checked every other pin in that file against setup.py:
+NO other violations.
+
+`tests/test_minimum_constraints_match_setup.py` now asserts it, because
+this is a bad failure to debug from the outside -- the tests look broken,
+the code is fine, and the answer lives in a file nobody reads.
+
+WHAT REMAINS OF THIS INSTRUCTION is the actual Python-range question: 3.10
+is still absent from the matrix and 3.9 is covered only by this one job.
+That is unchanged.
+
+--------------------------------------------------------------------------------
+2026-08-11 - 3.9 AND 3.10 ARE GREEN. THE PREDICTION IN THIS FILE WAS WRONG.
+--------------------------------------------------------------------------------
+
+The note above said to EXPECT THE WIDENED JOB TO GO RED FIRST, on the theory
+that the scientific stack might not publish wheels for 3.9 or 3.10. Checked
+the actual runs. It did not:
+
+    3.9  installs, from wheels only    success
+    3.10 installs, from wheels only    success
+    3.11 .. 3.14                       success
+
+All six interpreters spaCR claims resolve to wheels with no compiler. The
+honest conclusion is the one the file said to draw if the job went green:
+`requires-python = ">=3.9,<3.15,!=3.14.1"` is a claim spaCR can keep, and
+nothing needs narrowing. That question is CLOSED.
+
+TWO THINGS THAT LOOKED LIKE FINDINGS AND WERE NOT, recorded so the next
+person does not spend the same hour:
+
+  * Every one of the 51 declared floors has a release inside its declared
+    range that supports every claimed interpreter -- checked against PyPI
+    metadata directly, not inferred. No floor is declared above what its
+    package can deliver on 3.9.
+
+  * A stricter local check with `--only-binary=:all:` DOES fail, on trackpy,
+    on every Python including 3.12. That is not a 3.9 problem and not a
+    defect: trackpy has shipped sdist-only since 0.5.0, as have
+    matplotlib-venn and GPUtil, and the workflow already documents all three
+    as pure-Python exceptions. `--only-binary=:all:` is the wrong proxy for
+    "needs no compiler"; a pure-Python sdist needs none. The job's own
+    formulation is the correct one.
+
+WHAT IS ACTUALLY LEFT, now that the range question is settled:
+
+  1. The FULL SUITE still runs on 3.11-3.14 only; 3.9 and 3.10 are covered
+     by install-and-import, not by tests. That is a smaller gap than this
+     file has been claiming -- "does it install" was the open question and
+     is now answered -- but it is still a gap.
+  2. "Optimal" is STILL undefined, and this is now the largest open piece.
+     The PyPI audit shows the two readings genuinely diverge: on 3.9 the
+     newest resolvable IPython is 8.18.1, on 3.11+ it is 9.16.1; matplotlib
+     3.9.4 versus 3.11.1; llvmlite 0.43 versus 0.48. So "newest that passes"
+     is not one version set, it is one per interpreter, and a lockfile
+     claiming otherwise would be wrong on 3.9. Decide and write it down.
+
+--------------------------------------------------------------------------------
+2026-08-11 - AND A REGRESSION I CAUSED, FOUND BY LOOKING AT THIS
+--------------------------------------------------------------------------------
+
+Reading the matrix to answer the above showed all six cells failing on the
+same step, control included. That is the signature of one broken test, not a
+platform problem, and it was mine: `spacr/object_roles.py` (instruction 76)
+was not registered in `spacr._SUBMODULES`, and `test_smoke.py::
+test_lazy_loader_matches_files` asserts every `spacr/*.py` is reachable
+through the lazy loader. Fixed in 00feb743.
+
+Worth keeping for the method rather than the bug: I verified that commit
+against a scoped test selection, and a NEW FILE is precisely the failure a
+scoped selection cannot see. Adding a module means running the smoke suite.
+
+--------------------------------------------------------------------------------
+2026-08-12 - THE MATRIX WAS RED FOR ONE REASON, AND THE FLOORS WERE STILL GUESSES
+--------------------------------------------------------------------------------
+
+Read the runs rather than the file. compat-matrix 31612651755: EIGHT cells
+red -- 3.9, 3.10, 3.12 (control), 3.13, 3.14, Linux ARM64, Windows, macOS --
+every one of them on the same step and the same assertion:
+
+    tests/test_smoke.py::test_lazy_loader_matches_files
+    AssertionError: file present but not in _SUBMODULES: {'organelle_types'}
+
+That is the SECOND time this file has recorded exactly this failure (see
+2026-08-11, `object_roles.py`), for the same reason: a new `spacr/*.py`
+shipped without a line in `_SUBMODULES`. Registered. The deciding step is now
+410 passed locally, and nothing else in it fails on any cell. The three
+Python-range questions this file has carried are, separately, all CLOSED --
+tests.yml already runs the full suite on 3.9 through 3.14 and compat-matrix
+carries blocking 3.9 and 3.10 cells.
+
+THE FLOORS WERE THE REAL FINDING. "every OTHER dependency floor is still a
+guess, and nothing verifies them" was the item left open above. Two of them
+were wrong, and the min-deps job -- the only job that installs the declared
+floors -- had been failing 16 tests on them that no other job failed:
+
+  statsmodels>=0.13.0 -> >=0.14.0. The old comment justified 0.13 by
+  `othermod.betareg.BetaModel`, which is the FIRST API spaCR needed, not the
+  last. Three APIs in use arrive in 0.14.0: `links.Identity` (0.13 spells the
+  Power links lowercase, so it is AttributeError, not a deprecation),
+  `BetaResults.get_influence`, and perfect separation becoming a WARNING
+  instead of an exception in `GLM._fit_irls`. Note `links.Logit` and
+  `links.Log` -- also used -- do predate it, which is why nothing noticed.
+
+  shap>=0.45.0 -> >=0.47.0. `spacr/sim.py` calls
+  `shap.summary_plot(..., rng=...)`; `summary_plot` IS
+  `plots._beeswarm.summary_legacy`, which grew `rng` in 0.47.0. On 0.45/0.46
+  it is a TypeError, and neither has a `**kwargs` to swallow it.
+
+Both were MEASURED, not inferred: an isolated venv on the rest of the minimum
+profile (numpy 1.26.4, pandas 2.2.1, scipy 1.12.0, patsy 0.5.6), each API run
+on the release below the new floor and on the floor itself. Both floors
+publish cp39 wheels, so the 3.9 claim is untouched.
+
+`tests/test_dependency_floors_have_the_api.py` is the answer to "nothing
+verifies them". Each row records an API, the release that introduced it,
+where spaCR calls it, and asserts three things: the call site still exists,
+setup.py admits nothing below that release, and the INSTALLED release still
+provides it -- the last being the mirror-image drift the cellpose contract
+catches.
+
+THREE MORE THINGS THE FLOOR AUDIT TURNED UP, all of them 3.9-only:
+
+  * `tests/test_declared_dependencies_match_imports.py` -- the file this
+    instruction cites as proof that every import is declared -- could not RUN
+    on 3.9. It used `sys.stdlib_module_names`, which is 3.10+, so all four of
+    its tests died with AttributeError on the 3.9 cell and in the min-deps
+    job. The census proving no import is undeclared was dead on precisely the
+    interpreter where a resolver hands the user a different package set.
+    Given a fallback that enumerates the interpreter's own stdlib.
+
+  * `spacr/plot.py::_display_gif` left the image format for IPython to guess.
+    IPython only recognises the GIF magic bytes from 9.0.0, and IPython 9
+    needs Python 3.11 -- so on 3.9 and 3.10 there is NO IPython that guesses
+    right, and a GIF went out with an `image/png` mime type. Now stated.
+
+  * a `pd.DataFrame` subclass in the test suite overrode `_constructor` and
+    not `_constructor_from_mgr`, which DeprecationWarns on pandas 2.2 (the
+    declared floor) and nowhere else. A hygiene rule in
+    `test_test_suite_hygiene.py` now bans the shape.
+
+AND ONE DRIFT IN THE OTHER DIRECTION, WHICH THIS FILE CAUSED: the conda-forge
+recipe still said `cellpose >=4.0`. It was never updated when the floor was
+raised to 4.0.7 on 2026-08-08, because `test_conda_forge_recipe.py` only
+compared NAMES. A conda user would have resolved to exactly the release the
+PyPI package refuses. Recipe synced; the test now compares floors too.
+
+STILL OPEN, and the largest piece is unchanged:
+
+  1. "Optimal" is STILL undefined. Nothing here settles it. The audit above
+     only sharpens the point: a floor is now verified to be a version that
+     WORKS, which is the "oldest that passes" reading, while every non-min
+     job resolves newest. Both are tested; neither is declared.
+
+  2. THE CEILING is now the live version question, not the floor.
+     `cellpose>=4.0.7,<5.0` admits 4.2.1.1, and on 4.2.1.1 ten tests fail on
+     EVERY "Fast / Newest compatible" cell (3.9 through 3.14 alike -- it is
+     not a Python question). The drift is real and not cosmetic:
+     `CellposeModel.__init__` default `pretrained_model` 'cpsam' -> 'cpsam_v2';
+     `eval` lost `invert` and changed `bsize` 256 -> None; the deprecation
+     guards spaCR's contract reads are gone; and
+     `test_real_cellpose_accepts_the_chosen_axis` fails on channel COUNT
+     ((16,16,1) where 3 is expected), which is a behaviour change in the
+     masking path rather than a signature record.
+
+     Deliberately not decided here, because the three options are not
+     equivalent and the evidence to choose is not in hand: cap at `<4.2` and
+     deny users 4.2; re-record the contract at 4.2 and break min-deps at
+     4.0.7; or make the contract range-aware, which the 2026-08-08 note
+     forbids for good reasons. Answering it needs cellpose 4.2.1.1 actually
+     installed and spaCR's masking path run against it.
+
+--------------------------------------------------------------------------------
+2026-08-12 - THE CEILING IS SETTLED: SUPPORT BOTH, DO NOT SPLIT BY PYTHON
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-12 - "I want spacr to support the most recent version of
+           cellpose, make it happen, if you can figure out how to support both
+           old cellpose with older versions of python and newer versions of
+           cellpose with newer versions of python do that."
+           "also check the cellpose API"
+
+THE PYTHON SPLIT IS NOT AVAILABLE, and the reason is upstream rather than a
+choice: cellpose declares NO `requires_python` at any release, and 4.0.7 and
+4.2.1.1 have byte-identical `requires_dist`. There is no cellpose that needs a
+different interpreter, so an environment marker separating them would invent a
+constraint upstream does not have and would deny 3.9 users a release that
+runs there perfectly well. `cellpose>=4.0.7,<5.0` stays, and spaCR adapts to
+whichever is installed.
+
+THE THREE OPTIONS THIS FILE LISTED ARE ALL SUPERSEDED. It is not cap-at-4.2,
+nor re-record-at-4.2, nor a tolerant range-aware contract. It is ONE EXACT
+TABLE PER RELEASE: `_RECORDED_EVAL_PARAMETERS[(4, 0)]` and `[(4, 2)]`, with
+the installed release required to match its band exactly and an unrecorded
+release failing loudly and naming itself. That keeps the property the
+2026-08-08 note was protecting -- the contract is what caught `channel_axis=3`
+-- while letting one suite serve both.
+
+WHAT THE API ACTUALLY DID, measured on a real 4.2.1.1 install:
+
+    MODEL_NAMES   ['cpsam'] -> ['cpsam_v2','cpdino','cpdino-vitb','cpsam']
+    __init__      pretrained_model 'cpsam' -> 'cpsam_v2'
+    eval          LOST `invert`; `bsize` 256 -> None
+    eval          `rescale` STOPPED BEING IGNORED
+    module        Transformer, cache_CPSAM_model_path -> CPSAM, CPDINO,
+                  get_backbone, cache_model_path
+    convert_image stopped padding to 3 planes; keeps the native count
+
+TWO PRODUCT BUGS, both of which would have landed on a user who upgraded:
+
+  1. `_resolve_cellpose_pretrained` ended at cpsam, correct when 4.0 shipped
+     one stock model. `cellpose_model_choices` reads MODEL_NAMES from the API,
+     so the dropdown offered cpsam_v2 and cpdino the moment cellpose was
+     upgraded -- and picking one logged "Unknown Cellpose model" and segmented
+     with cpsam. THE RUN SUCCEEDED WITH THE WRONG WEIGHTS, which is the worst
+     shape this can take.
+
+  2. `rescale=False` + `resample=True` is `int(200/False)` on 4.2:
+     ZeroDivisionError from inside cellpose. The shipped defaults have both
+     off, so it would have hit whoever changed one setting after upgrading.
+     spaCR sends None now, which is cellpose's own "not set".
+
+AND ONE MISREADING CORRECTED. The note above called the channel-count change
+"a behaviour change in the masking path", i.e. spaCR being broken. It is not:
+4.0 padded every input to three planes and 4.2 keeps the native count, spaCR's
+channel_axis is accepted by both and never raises, and the intermediate count
+never reaches spaCR. Only the assertion was stale.
+
+    input        4.0.7        4.2.1.1
+    (16,16)      (16,16,3)    (16,16,1)
+    (16,16,2)    (16,16,3)    (16,16,2)
+    (16,16,5)    (16,16,3)    (16,16,3) + "only first 3" warning
+
+53 cellpose tests pass on 4.0.7 AND on 4.2.1.1. The conda-forge recipe already
+carried the same pin and needed no change.
+
+STILL OPEN IN THIS FILE: "optimal" is still undefined (newest that passes, or
+oldest that passes -- they imply opposite CI jobs), and the full matrix still
+covers 3.11-3.14 with 3.10 having no suite run. Neither is the ceiling
+question, which is now answered.
+
+--------------------------------------------------------------------------------
+2026-08-13 - CLOSED
+--------------------------------------------------------------------------------
+The ceiling question is answered and spaCR runs on cellpose 4.0.7 AND 4.2.1.1
+from one suite, 53 tests passing on each. "Optimal" remains undefined and the
+full matrix still skips 3.10 -- both are recorded in the backlog rather than
+here, because neither is the dependency question this file was opened for.

@@ -310,10 +310,21 @@ def test_eval_receives_every_spacr_parameter_for_this_object_type(
     assert kw["batch_size"] == 8
     assert kw["normalize"] is False
     assert kw["channel_axis"] == -1
-    # nucleus is the only object at channel 1, remapped to index 0 of the
-    # compacted two-channel stack... the cell channel 0 is also extracted, so
-    # nucleus lands at 1.
-    assert kw["channels"] == [1]
+    # THE STACK IS IN ROLE ORDER, so nucleus lands at 0, not 1.
+    #
+    # This asserted [1] and its own comment argued itself into that number
+    # mid-sentence. The merged stack's channel axis is built by walking
+    # nucleus, cell, pathogen, organelle and giving each newly seen raw
+    # channel the next dense position -- NOT by sorting the raw indices. With
+    # nucleus_channel=1 and cell_channel=0 the axis is [1, 0], so the nucleus
+    # is at position 0 and the cell at 1.
+    #
+    # test_cov_io_preprocess_entry.py:277-280 asserts exactly that for this
+    # same layout -- "order of first appearance: nucleus(1) then cell(0)",
+    # cellpose_nucleus_channel == 0 -- so the two tests disagreed with each
+    # other and this was the one that matched the resume-path bug rather than
+    # the writer.
+    assert kw["channels"] == [0]
     # _get_diam(20, 'nucleus') == int(0.75 * 20 + 45) == 60
     assert kw["diameter"] == 60
     assert kw["flow_threshold"] == 0.7
@@ -482,8 +493,12 @@ def test_verbose_prints_the_channel_map_and_the_settings_table(
     assert all(isinstance(v, str) for v in df["setting_value"])
 
     out = capsys.readouterr().out
-    # cell=0 and nucleus=1 are both extracted, so the remap is the identity
-    assert "{'nucleus': [1], 'cell': [0, 1]}" in out, \
+    # ROLE ORDER, not sorted: nucleus_channel=1 is seen first so it takes
+    # dense position 0, and cell_channel=0 takes 1. The remap is therefore
+    # NOT the identity, which is what the old expectation assumed. See
+    # test_cov_io_preprocess_entry.py:277-280, which asserts the same
+    # positions for the same layout on the writing side.
+    assert "{'nucleus': [0], 'cell': [1, 0]}" in out, \
         "the resolved channel map must be printed"
     assert "'diameter': 60" in out, "the object settings must be printed"
 

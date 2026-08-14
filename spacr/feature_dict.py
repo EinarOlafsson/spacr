@@ -48,6 +48,7 @@ from typing import Any, Iterable
 import pandas as pd
 
 from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
+from .object_roles import ORGANELLE_ROLES
 
 __all__ = [
     "CHANNEL_NONE",
@@ -96,12 +97,8 @@ __all__ = [
 #: and :func:`spacr.measure._intensity_measurements` (measure.py:363), and they
 #: are also the object-table names in ``measurements.db``.
 OBJECT_TYPES: tuple[str, ...] = (
-    "cell",
-    "nucleus",
-    "pathogen",
-    "organelle",
-    "cytoplasm",
-)
+    "cell", "nucleus", "pathogen", *ORGANELLE_ROLES, "cytoplasm")
+_OBJECT_TYPE_MATCH = tuple(sorted(OBJECT_TYPES, key=len, reverse=True))
 
 #: A feature no channel enters — measured from the label mask alone.
 CHANNEL_NONE = "none"
@@ -1869,10 +1866,10 @@ _ALL_OBJECTS = OBJECT_TYPES
 #: The three the periphery / outside / radial blocks are guarded to.
 #: measure.py:1207, :1213 (`if ls[j] in (...)`) and the radial block at
 #: measure.py:1240-1256, which appends to dfs[1], dfs[2] and dfs[3] only.
-_RING_OBJECTS = ("nucleus", "pathogen", "organelle")
+_RING_OBJECTS = ("nucleus", "pathogen", *ORGANELLE_ROLES)
 #: Zernike is computed for the four masks `_morphological_measurements`
 #: calls `_calculate_zernike` on — cytoplasm is measured but never gets it.
-_ZERNIKE_OBJECTS = ("cell", "nucleus", "pathogen", "organelle")
+_ZERNIKE_OBJECTS = ("cell", "nucleus", "pathogen", *ORGANELLE_ROLES)
 #: `_measure_intensity_distance`'s frame is appended to `cell_dfs` alone.
 _CELL_ONLY = ("cell",)
 #: `_summarize_organelles_per_parent` is called once per parent, and the
@@ -2247,13 +2244,17 @@ def concept_of(word: str) -> str | None:
 # --------------------------------------------------------------------------
 
 _CHANNEL_RE = re.compile(r"^channel_(\d+)_")
+_OBJECT_ALTERNATION = "|".join(re.escape(role) for role in _OBJECT_TYPE_MATCH)
+_ORGANELLE_ALTERNATION = "|".join(
+    re.escape(role) for role in sorted(ORGANELLE_ROLES, key=len, reverse=True))
 _DOUBLE_PREFIX_BLUR_RE = re.compile(
-    r"^(?P<obj>cell|nucleus|pathogen|organelle|cytoplasm)_channel_(?P<ch>\d+)_blur$"
+    rf"^(?P<obj>{_OBJECT_ALTERNATION})_channel_(?P<ch>\d+)_blur$"
 )
 _PLAIN_BLUR_RE = re.compile(r"^blur$")
 _RAD_DIST_RE = re.compile(r"^rad_dist_channel_(?P<c>\d+)_bin_(?P<b>\d+)$")
 _ORG_SUMMARY_CH_RE = re.compile(
-    r"^organelle_summary_organelle_channel_(?P<c>\d+)_(?P<stat>mean|std)"
+    rf"^organelle_summary_(?P<org>{_ORGANELLE_ALTERNATION})_channel_"
+    r"(?P<c>\d+)_(?P<stat>mean|std)"
     r"_intensity_per_(?P<parent>cell|nucleus|pathogen|cytoplasm)$"
 )
 #: The pre-migration spelling of the family above, which abbreviated the
@@ -2422,12 +2423,23 @@ def _parse_organelle_summary(name: str, measurement_units: str | None = None
             name,
             KNOWN_PROPERTIES[key],
             key=key,
-            object_type="organelle",
+            object_type=m.groupdict().get("org") or "organelle",
             channel=int(m.group("c")),
             object_type_2=m.group("parent"),
             params={"c": m.group("c"), "parent": m.group("parent")},
             measurement_units=measurement_units,
         )
+    for role in sorted(ORGANELLE_ROLES, key=len, reverse=True):
+        prefix = f'organelle_summary_{role}_'
+        if not name.startswith(prefix):
+            continue
+        canonical = 'organelle_summary_organelle_' + name[len(prefix):]
+        info = KNOWN_PROPERTIES.get(canonical)
+        if info is not None:
+            return _entry(
+                name, info, key=canonical, object_type=role,
+                measurement_units=measurement_units)
+        break
     info = KNOWN_PROPERTIES.get(name)
     if info is not None:
         return _entry(name, info, key=name, object_type="organelle",
@@ -2492,7 +2504,7 @@ def parse_column(name: str, measurement_units: str | None = None
     # 3. object prefix (measure.py:225 and measure.py:395)
     object_type: str | None = None
     rest = name
-    for obj in OBJECT_TYPES:
+    for obj in _OBJECT_TYPE_MATCH:
         if name.startswith(obj + "_"):
             object_type = obj
             rest = name[len(obj) + 1:]
@@ -2579,7 +2591,7 @@ def parse_column(name: str, measurement_units: str | None = None
 
     # 8. a pandas merge suffix appended when object tables are joined
     #    (spacr.io._read_and_join_tables uses suffixes=('', '_<entity>')).
-    for obj in OBJECT_TYPES:
+    for obj in _OBJECT_TYPE_MATCH:
         if rest.endswith("_" + obj):
             trimmed = rest[: -(len(obj) + 1)]
             resolved = _lookup_stat(trimmed)
@@ -3098,7 +3110,9 @@ def _table_columns(db_path: str | Path, table: str | None = None
     if not path.is_file():
         raise FileNotFoundError(f"database not found: {path}")
 
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as conn:
+    from .database_concurrency import connect as _connect_database
+
+    with _connect_database(path, readonly=True) as conn:
         names = [
             row[0]
             for row in conn.execute(
@@ -3140,7 +3154,9 @@ def _table_measurement_units(db_path: str | Path, table: str,
     path = Path(db_path)
     quoted = _quoted(table)
     try:
-        with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as conn:
+        from .database_concurrency import connect as _connect_database
+
+        with _connect_database(path, readonly=True) as conn:
             if "measurement_units" not in columns:
                 row = conn.execute(
                     f"SELECT 1 FROM {quoted} LIMIT 1").fetchone()

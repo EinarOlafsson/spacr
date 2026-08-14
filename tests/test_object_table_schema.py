@@ -1,4 +1,4 @@
-"""Enforceable canonical schemas for the four analysis object tables."""
+"""Enforceable canonical schemas for every analysis object table."""
 
 from __future__ import annotations
 
@@ -40,11 +40,11 @@ def _frame(table, *, timelapse=False, parent_link=True, stamped=False):
     return pd.DataFrame(data)
 
 
-def test_all_four_analysis_tables_have_declarative_schemas():
+def test_all_analysis_tables_have_declarative_schemas():
     assert schema.CANONICAL_OBJECT_TABLES == (
-        "cell", "cytoplasm", "nucleus", "pathogen")
-    assert tuple(schema.OBJECT_TABLE_SCHEMAS) == (
-        "cell", "cytoplasm", "nucleus", "pathogen")
+        "cell", "cytoplasm", "nucleus", "pathogen",
+        *schema.ORGANELLE_ROLES)
+    assert tuple(schema.OBJECT_TABLE_SCHEMAS) == schema.CANONICAL_OBJECT_TABLES
 
     for table, contract in schema.OBJECT_TABLE_SCHEMAS.items():
         assert contract.table == table
@@ -55,8 +55,8 @@ def test_all_four_analysis_tables_have_declarative_schemas():
 
     assert schema.OBJECT_TABLE_SCHEMAS["cell"].parent_column is None
     assert schema.OBJECT_TABLE_SCHEMAS["cytoplasm"].parent_column is None
-    assert schema.OBJECT_TABLE_SCHEMAS["nucleus"].parent_column == "cell_id"
-    assert schema.OBJECT_TABLE_SCHEMAS["pathogen"].parent_column == "cell_id"
+    for table in ("nucleus", "pathogen", *schema.ORGANELLE_ROLES):
+        assert schema.OBJECT_TABLE_SCHEMAS[table].parent_column == "cell_id"
     with pytest.raises(TypeError):
         schema.OBJECT_TABLE_SCHEMAS["other"] = object()
 
@@ -218,7 +218,7 @@ def test_unknown_tables_receive_an_actionable_error():
     with pytest.raises(
             schema.ObjectTableSchemaError,
             match=r"no canonical object-table schema.*cell.*pathogen"):
-        schema.object_table_schema("organelle")
+        schema.object_table_schema("not_a_spacr_object")
 
 
 def test_measurement_writer_enforces_the_schema_before_sqlite(tmp_path):

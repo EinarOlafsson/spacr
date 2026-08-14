@@ -209,6 +209,7 @@ class ModuleHeader(QWidget):
                 info = InfoLink(api_docs_url(app_key),
                                 tooltip=str(description), parent=self)
                 info.setObjectName("ModuleInfoLink")
+                info.setProperty("moduleApiAppKey", app_key)
                 intro_row.addWidget(info)
                 self.info_link = info
             row.addLayout(intro_row)
@@ -1535,6 +1536,15 @@ class AppScreen(QWidget):
         self._figures_card = Card(title="Figures")
         self._figure_queue = FigureQueue(parent=self._figures_card)
         self._figures_card.body_layout.addWidget(self._figure_queue, 1)
+        # "Figure settings…" on the NON-LIVE figure holds every Image UMAP
+        # setting, live against the figure on screen (instruction 75), and a
+        # Propagate button. Propagate means the same thing here as everywhere
+        # else in the app: write the values into THIS module's settings
+        # panel, which is what the next Run reads and what is saved with the
+        # run. Wired for every module, not just UMAP -- the figure colours
+        # and text size propagate the same way.
+        self._figure_queue.set_propagate_callback(
+            self._propagate_live_settings)
         self._umap_explorer = None
         self._umap_payload_ready = False
         if self.app_key == "umap":
@@ -1892,10 +1902,17 @@ class AppScreen(QWidget):
         # It starts off so ordinary runs retain the familiar static figure.
         # Turning it on before or after a run switches the same payload to the
         # click / image-preview / lasso / database-annotation interface.
+        #
+        # It says "Interactive", not "Live". A LIVE view re-renders a module's
+        # own output from the current settings before a run — Mask, Timelapse,
+        # Measure and Motility, all four of which now share one contract
+        # (spacr.qt.widgets.preview_contract). This explorer is not one of
+        # those: it makes an already-computed embedding clickable, and no
+        # setting changes what it draws. One word for one thing.
         self._interactive_switch = None
         if self.app_key == "umap" and self._umap_explorer is not None:
             self._interactive_switch = AiToggleLabel(
-                text="Live",
+                text="Interactive",
                 tooltip=(
                     "Toggle the interactive image UMAP. When ON (blue), "
                     "click a point to preview its image, draw around a "
@@ -2265,19 +2282,9 @@ class AppScreen(QWidget):
             enabled = False
         self._btn_file_issue.setVisible(enabled)
         self._btn_file_issue.setEnabled(enabled)
-        # When the user has opted into automatic issue filing, actually file
-        # it — previously this only revealed the button, so nothing was ever
-        # sent unless the user also clicked. Open the pre-filled report now.
-        if enabled:
-            # `_on_file_issue` dispatches and returns; a failure inside the
-            # report itself comes back through `_on_issue_filed`, which prints
-            # the same "[issue] auto-file failed" line. This `except` still
-            # covers the part that stayed synchronous -- reading the widgets.
-            try:
-                self._on_file_issue()
-            except Exception as e:
-                self._console.append_notice(
-                    "[issue] auto-file failed: {detail}\n", detail=e)
+        # Opting in reveals the action; it never submits in response to the
+        # crash itself. Every report stops at an editable public-payload
+        # preview and needs a report-specific Send click.
 
     # ------------------------------------------------------------------
     # AI toggle + provider menu — sits in the actions row (bottom right)
@@ -2290,11 +2297,50 @@ class AppScreen(QWidget):
         card.setVisible(on)
 
     def _on_preview_switch(self, on: bool) -> None:
-        """Show or hide this module's runtime preview card."""
+        """Show or hide this module's runtime preview card.
+
+        Opening it also seeds the panel from the form, once. Before that,
+        this screen wired only the push direction — ``set_propagate_callback``
+        — so all four previews ran at their own hardcoded defaults. A user
+        set ``cell_FT``, opened Live preview to check the segmentation, and
+        the preview segmented at 0.4 regardless: the preview is consulted to
+        make a decision, which is the worst place for it to disagree with
+        the run.
+
+        On FIRST show rather than at construction, mirroring what
+        ``_PreviewHost.prime`` documents for the previews attached through
+        :mod:`spacr.qt.preview_registry` — ``collect()`` is a pass over every
+        widget on the screen, and a preview nobody opens should cost nothing.
+        Once, not on every open, or re-opening the card would silently
+        discard whatever the user had just tuned inside it.
+        """
         attr = getattr(self, "_preview_card_attr", "")
         card = getattr(self, attr, None) if attr else None
-        if card is not None:
-            card.setVisible(on)
+        if card is None:
+            return
+        if on and not getattr(self, "_preview_primed", False):
+            self._preview_primed = True
+            self._prime_preview()
+        card.setVisible(on)
+
+    def _prime_preview(self) -> None:
+        """Push the current settings into this screen's preview panel.
+
+        Never raises: a preview that cannot be seeded is still worth showing,
+        and the alternative is a module whose Live switch takes the window
+        down.
+        """
+        attr = getattr(self, "_preview_card_attr", "")
+        panel = getattr(self, attr[:-len("_card")], None) if attr else None
+        model = getattr(self, "_settings_model", None)
+        apply_settings = getattr(panel, "apply_settings", None)
+        if model is None or not callable(apply_settings):
+            return
+        try:
+            apply_settings(model.collect())
+        except Exception:
+            LOG.debug("could not seed the %s preview", self.app_key,
+                      exc_info=True)
 
     def _on_hyperparam_switch(self, on: bool) -> None:
         """Show/hide the Hyperparameter search card when its toggle flips."""
@@ -2329,7 +2375,7 @@ class AppScreen(QWidget):
         try:
             self._console.append_notice(
                 "\nInteractive mode is on — click any point to preview its "
-                "image. Turn it off with the Live toggle.\n")
+                "image. Turn it off with the Interactive toggle.\n")
         except Exception:
             LOG.debug("could not announce interactive mode", exc_info=True)
 
@@ -2436,35 +2482,15 @@ class AppScreen(QWidget):
         if not self._last_error_text:
             return
 
-        # The preference decides whether this happens at all, and whether
-        # the user is asked first. Three states, because "ask me" and "never
-        # ask me" leave out the person who wants a report filed and does not
-        # want to be interrupted -- and the moment someone wants this off is
-        # the moment it has just interrupted them.
-        from ..preferences import (ISSUE_PROMPT_ALWAYS, ISSUE_PROMPT_NEVER,
-                                   get_issue_prompt_mode)
+        # The preview itself is the prompt and the consent boundary. The
+        # legacy mode remains respected so Preferences can revoke reporting.
+        from ..preferences import ISSUE_PROMPT_NEVER, get_issue_prompt_mode
         mode = get_issue_prompt_mode()
         if mode == ISSUE_PROMPT_NEVER:
             self._console.append_notice(
                 "\nNot filing a report: issue reporting is set to 'never' in "
                 "Preferences.\n")
             return
-        if mode != ISSUE_PROMPT_ALWAYS:
-            from PySide6.QtWidgets import QMessageBox
-            box = QMessageBox(self)
-            box.setIcon(QMessageBox.Question)
-            box.setWindowTitle("Report this to the developers?")
-            box.setText("File a GitHub issue for this error?")
-            box.setInformativeText(
-                "The report includes the traceback, the module you were "
-                "running and its settings. It opens a pre-filled issue on "
-                "the public spaCR repository so you can read it before "
-                "posting.\n\nYou can turn this off in Preferences.")
-            box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-            box.setDefaultButton(QMessageBox.No)
-            if box.exec() != QMessageBox.Yes:
-                return
-
         # Best-effort settings snapshot from the current settings model
         # so the issue includes what the user was trying to run.
         settings_snapshot: dict = {}
@@ -2492,9 +2518,23 @@ class AppScreen(QWidget):
                         settings_snapshot[k] = w.text()
         except Exception:
             settings_snapshot = {}
-        from ..ai.issue_report import file_issue
-        traceback_text = self._last_error_text
-        app_key = self.app_key
+        from PySide6.QtWidgets import QDialog
+        from ..ai.issue_preview import IssuePreviewDialog
+        from ..ai.issue_report import build_report, submit_report
+        from ..preferences import get_share_diagnostic_logs
+
+        report = build_report(
+            self._last_error_text,
+            active_app=self.app_key,
+            settings=settings_snapshot,
+            include_log_tail=get_share_diagnostic_logs(),
+        )
+        preview = IssuePreviewDialog(report, self)
+        if preview.exec() != QDialog.Accepted:
+            self._console.append_notice(
+                "[issue] cancelled — nothing was sent.\n")
+            return
+        approved_report = preview.approved_report()
 
         def _file():
             # The failure is carried back as data rather than raised. The
@@ -2503,13 +2543,12 @@ class AppScreen(QWidget):
             # `except` can no longer see it, and a report that silently fails
             # to send is worse than one that fails loudly.
             try:
-                return {"url": file_issue(traceback_text, active_app=app_key,
-                                          settings=settings_snapshot)}
+                return {"url": submit_report(approved_report)}
             except Exception as exc:      # noqa: BLE001 - reported, not hidden
                 return {"error": exc}
 
         self._console.append_notice(
-            "[issue] building the report and reaching GitHub…\n")
+            "[issue] sending the approved report to GitHub…\n")
         self._jobs.submit(_file, self._on_issue_filed)
 
     def _on_issue_filed(self, outcome: dict) -> None:
@@ -2520,8 +2559,7 @@ class AppScreen(QWidget):
                 "[issue] auto-file failed: {detail}\n", detail=error)
             return
         self._console.append_notice(
-            "[issue] opened pre-filled report in your browser — review + "
-            "submit to complete filing.\n{url}...\n",
+            "[issue] report handoff completed.\n{url}...\n",
             url=str((outcome or {}).get("url") or "")[:100],
         )
 
@@ -2802,29 +2840,51 @@ class AppScreen(QWidget):
             pass
 
     def _force_stop(self) -> None:
-        """Take the thread away from the worker.
+        """Give the window back, whether or not the worker cooperates.
 
         Never reached without the user having been shown what it costs. The
-        cooperative request goes first regardless, so a worker that IS still
-        checking gets the chance to stop on its own terms in the moment
-        before its thread is terminated.
+        cooperative request goes first, so a worker that IS still checking
+        stops on its own terms.
+
+        A worker that is NOT checking -- one inside a long C call in torch or
+        cellpose, which is the case this button exists for -- is PARKED by
+        :func:`spacr.qt.bridge.drain_thread` rather than terminated. Parking
+        keeps a reference so nothing drops a running QThread, lets the call
+        finish in the background, and returns the window immediately.
+
+        THIS USED TO CALL ``thread.terminate()``, and that was worse than the
+        problem it solved. ``terminate()`` is ``pthread_cancel``, and every
+        thread here runs Python: cancelled while holding the GIL, the whole
+        process stops making progress with every thread still alive -- so
+        "kill" produced a permanently frozen application rather than a
+        returned one -- and cancelled inside a Qt or PySide internal it
+        corrupts the heap and the process dies later somewhere unrelated.
+        Both were live symptoms in this project, which is why
+        ``tests/qt/test_qt_worker_teardown.py`` refuses the call outright.
         """
         import logging
 
         logging.getLogger(__name__).warning(
             "Force-stopping %s at the user's request", self.app_key)
         self._request_cooperative_stop()
-        self._console.append_notice(
-            "\nForce-stopping. Anything being written right now is left "
-            "half-written.\n")
         thread = self._thread
         if thread is None:
             return
-        try:
-            thread.terminate()
-        except Exception:
-            logging.getLogger(__name__).exception(
-                "could not terminate the %s thread", self.app_key)
+        from ..bridge import drain_thread
+        stopped = drain_thread(thread, getattr(self, "_worker", None),
+                               timeout_ms=2000)
+        if stopped:
+            self._console.append_notice(
+                "\nStopped. Anything being written at that moment is left "
+                "half-written.\n")
+        else:
+            # Parked: the window is usable now, and the run is still out
+            # there. Say so -- a user who is told "stopped" and then sees the
+            # file grow has been lied to.
+            self._console.append_notice(
+                "\nStopped waiting. The step would not interrupt -- it is "
+                "still finishing in the background and may keep writing for "
+                "a while. The window is yours again.\n")
 
     def _on_import_settings(self):
         from PySide6.QtWidgets import QFileDialog

@@ -1,0 +1,87 @@
+================================================================================
+THE NAME IS spaCR
+================================================================================
+
+Status:    not started, 2026-08-12.
+Requested: 2026-08-12 - "add to instructions in the readme all mentions of
+           space should be spaCR, little s capital CR, this includes
+           generated file names like the installers"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+README.rst alone spelled it three ways (counts taken 2026-08-12, before
+the sweep; the wrong spellings are written with a dot so this file does not
+rewrite its own evidence the next time the sweep runs):
+
+    spacr    172   -- almost all of them `pip install spacr`, `import spacr`,
+                      `cd spacr` and dotted paths, which are correct
+    spa.CR    20   -- the canonical one
+    Spa.Cr     8   -- all of them installer names
+
+so the canonical spelling was outnumbered in the project's own front page.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Every PROSE mention of the project becomes `spaCR` -- lower-case s, lower-case
+p, lower-case a, capital C, capital R. That covers the README, the docs, the
+GUI's own text, log lines, window titles, and the names of generated
+artifacts such as the installers.
+
+CODE IDENTIFIERS DO NOT CHANGE, and this is the whole of the care needed
+here. `spacr` is also the package name, and these are not prose:
+
+    import spacr                 the module
+    pip install spacr            the PyPI distribution
+    spacr-qt / spacr / spacr-tk  the console scripts
+    spacr.core, spacr.measure    every dotted path
+    /spacr/... in a URL          github.com/EinarOlafsson/spacr
+
+Rewriting any of those breaks the thing it names. A sweep that replaces the
+string everywhere would take the package down, which is why this is a rule
+about MENTIONS rather than about the seven characters.
+
+--------------------------------------------------------------------------------
+ONE THING THE MAINTAINER MAY WANT TO OVERRULE
+--------------------------------------------------------------------------------
+
+DEBIAN PACKAGE NAMES CANNOT CARRY A CAPITAL. Debian policy 5.6.1 says a
+package name is lower case letters, digits and `-+.` only, and `dpkg` refuses
+anything else -- so `spaCR_1.5.0.5_amd64.deb` will not build or install. The
+.deb keeps its lower-case name, and the change reaches its human-facing
+fields instead (the description, the menu entry, the window title).
+
+macOS and Windows have no such rule, so the .dmg, the .app bundle and the
+.exe can all read spaCR, and the installer UI text can everywhere.
+
+Recorded rather than decided, because "this includes generated file names
+like the installers" is explicit and the .deb is the one place it cannot be
+honoured literally.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A test asserts the spelling, so this cannot drift back: no prose file
+carries a mis-cased spelling outside the identifier contexts listed above,
+and the installer artifacts built by packaging/ carry the canonical spelling
+wherever the platform allows it.
+
+THE ONE THING LEFT FOR THE 1.5.0.5 RELEASE. README's three download links
+point at the assets PUBLISHED under v1.5.0.4, which are named
+`SpaCR-1.5.0.4-...` on GitHub. Renaming them in the README makes the front
+page 404 -- the sweep did exactly that and it was reverted. The link TEXT now
+reads spaCR; the URLs keep the filenames that exist. Instruction 82 builds
+1.5.0.5 with the corrected artifact names, and updates those three URLs then.
+
+--------------------------------------------------------------------------------
+2026-08-13 - CLOSED
+--------------------------------------------------------------------------------
+134 mis-cased mentions corrected across 33 files, with the four identifier
+classes deliberately spared and each separately asserted. The README download
+URLs still carry the published `SpaCR-1.5.0.4-*` asset names because those
+files exist under that name on GitHub; they change when a release next builds
+artifacts under the corrected name.

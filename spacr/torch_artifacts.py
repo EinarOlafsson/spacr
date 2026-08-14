@@ -111,7 +111,41 @@ def make_model_artifact(
     include_rng: bool = True,
     artifact_role: str = "model",
 ) -> dict[str, Any]:
-    """Build the canonical serializable spaCR PyTorch artifact."""
+    """Build the canonical serializable spaCR PyTorch artifact.
+
+    Everything needed to REBUILD the model, not only to load its weights:
+    :func:`model_configuration` records the architecture so
+    :func:`build_model_from_configuration` can reconstruct it without the
+    caller remembering what it was.
+
+    :param model: the module to serialise. Its ``state_dict`` and its
+        configuration are both captured.
+    :param optimizer: optimiser whose state to store, so training can RESUME
+        rather than restart. Silently stored as ``None`` if it has no
+        ``state_dict``, which is what makes a plain object safe to pass.
+    :param scheduler: learning-rate scheduler, same contract as ``optimizer``.
+    :param epoch: epoch this artifact was written at. ``None`` records 0.
+    :param metrics: whatever the caller measured, stored verbatim. Not
+        interpreted, so the keys are the caller's own.
+    :param best_metric: the best value seen so far, for checkpoint selection
+        on resume. ``None`` means "no best recorded", which is not the same
+        as zero.
+    :param epochs_without_improvement: early-stopping counter, carried so a
+        resumed run does not forget how close it was to stopping.
+    :param preprocessing: the transform the inputs were prepared with.
+        Without it a loaded model can be fed differently-normalised images
+        and will simply be wrong rather than fail.
+    :param classes: class names in OUTPUT-COLUMN order. The order is the
+        contract -- a reordered list silently relabels every prediction.
+    :param channels: input channel names, in channel order, same contract.
+    :param include_rng: capture Python/NumPy/torch RNG state, so a resumed
+        run continues the same stream. Turn it off for a smaller artifact
+        when exact resumption does not matter.
+    :param artifact_role: what this file IS -- ``model`` for a trained
+        model, another role for a companion artifact -- recorded so a loader
+        can tell them apart.
+    :returns: the artifact dict, ready for :func:`atomic_torch_save`.
+    """
     optimizer_state = (
         optimizer.state_dict()
         if optimizer is not None and hasattr(optimizer, "state_dict")
@@ -189,6 +223,26 @@ def load_model_artifact(
 
     The returned metadata dict always contains ``legacy``. Current artifacts
     retain their optimizer/scheduler/RNG state so callers can resume training.
+
+    :param path: checkpoint to read. Unpickled with ``weights_only=False``,
+        so only files you trust are safe to pass.
+    :param map_location: forwarded to :func:`torch.load`. The ``cpu`` default
+        lets a GPU-trained checkpoint load on a machine without a GPU; an
+        unrecognised device string raises ``RuntimeError`` from torch.
+    :param model: ``None`` rebuilds the architecture from the recorded
+        config -- a legacy bare state dict records none, so ``maxvit_t`` is
+        assumed silently. A module passed here is loaded IN PLACE and
+        returned as the same object; for legacy full-module files it is
+        ignored and the file's own module comes back.
+    :param strict: forwarded to ``load_state_dict``; ``True`` raises
+        ``RuntimeError`` on any key mismatch, ``False`` tolerates missing and
+        unexpected keys so a mismatched architecture loads quietly with parts
+        still randomly initialised. Also ignored for legacy full-module files.
+    :raises ValueError: the file is neither a module nor a checkpoint
+        mapping, its ``artifact_version`` is not the supported one, no state
+        dictionary was found, or the config names no architecture and no
+        ``model`` was supplied.
+    :returns: ``(model, metadata)``.
     """
     raw = torch.load(os.fspath(path), map_location=map_location,
                      weights_only=False)
@@ -256,7 +310,23 @@ def restore_training_state(
     scheduler=None,
     restore_random_generators: bool = True,
 ) -> dict[str, Any]:
-    """Restore optimizer/scheduler/RNG state and return training metadata."""
+    """Restore optimizer/scheduler/RNG state and return training metadata.
+
+    :param payload: the metadata dict returned by
+        :func:`load_model_artifact`. Must be a mapping -- ``None`` raises
+        ``AttributeError``.
+    :param optimizer: applied only when the payload also carries an
+        ``optimizer_state_dict``; otherwise silently skipped. Restoring it
+        overwrites the live optimiser settings, learning rate included, with
+        the checkpoint's.
+    :param scheduler: same contract, restoring ``last_epoch`` and with it the
+        position in the schedule.
+    :param restore_random_generators: reseeds the PROCESS-WIDE Python, NumPy
+        and torch generators, not just this model's. A no-op for artifacts
+        written with ``include_rng=False``.
+    :returns: a copy of the payload's ``training_state``; ``{}`` when it is
+        absent, as it is for legacy full-module checkpoints.
+    """
     optimizer_state = payload.get("optimizer_state_dict")
     if optimizer is not None and optimizer_state is not None:
         optimizer.load_state_dict(optimizer_state)

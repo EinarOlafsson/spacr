@@ -162,7 +162,46 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: Keys added to the map by the regroup. They were previously offered by a
 #: module but had no category, so they rendered ungrouped. Extending this set
 #: is fine; it exists so that "the union grew" is always a deliberate act.
+#: Settings RETIRED on 2026-08-11, at the maintainer's instruction to
+#: "remove dead settings entirely". They used to live in a ``DEAD_SETTINGS``
+#: registry that kept them declared so an old CSV could be told what to use
+#: instead; that registry is gone and so are they. Named here, once, so a key
+#: legitimately dropping out of the category map is distinguishable from one
+#: that fell out by accident -- which is the whole point of this file.
+KEYS_RETIRED = frozenset({
+    "all_to_mip", "barecode_length_1", "barecode_length_2",
+    "class_1_threshold", "custom_measurement", "gene_weights_csv",
+    "metadata_types", "nc", "nc_loc", "nucleus_loc", "pc", "pc_loc",
+    "pick_slice", "postprocess_cell_masks", "postprocess_nucleus_masks",
+    "postprocess_organelle_masks", "postprocess_pathogen_masks",
+    "redunction_method", "remove_border_cells", "remove_border_nuclei",
+    "remove_border_organelles", "remove_border_pathogens",
+    "signal_direction", "skip_mode", "use_sam_cell", "use_sam_nucleus",
+    "use_sam_pathogen",
+    # Retired 2026-08-12. Verified dead before being named here: neither is
+    # produced by any set_default_*/get_*_settings helper, neither is in
+    # expected_types, and a grep of spacr/ finds no reader of either -- Tk
+    # included. They were falling out of the category map with nothing to
+    # say whether that was deliberate, which is the exact ambiguity this set
+    # exists to remove.
+    "highlight", "offset",
+    # A GHOST, not a setting: `infection_xgb_proba` was in the Motility
+    # Advanced category list, but the setting is `infection_xgb_proba_column`
+    # -- whose DEFAULT VALUE is the string 'infection_xgb_proba'. The value
+    # had been pasted into the category list beside the key it belongs to.
+    "infection_xgb_proba",
+})
+
+
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # The one visible choice instruction 72 adds in front of the other 53.
+    "organelle_type",
+    # Instruction 71's two opt-in measurements. Both were added to the
+    # measure defaults and to NO group, so they fell into the trailing
+    # "Other" bucket -- which is not a heading anyone chose, it is the
+    # absence of one. They now sit in Measurements beside
+    # calculate_correlation, which is what they extend.
+    "corrected_manders", "spatial_measurements",
     # The Classify overhaul: a crop source that says where images come from,
     # the on-demand settings it reveals, the path filter that replaced
     # png_type, and real normalisation choices.
@@ -170,6 +209,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "coordinate_columns", "crop_shape", "normalization",
     "normalization_scope",
     "balance_to_smallest",
+    # The filesystem-facing class folder names are deliberately separate
+    # from the semantic `classes` rules and belong beside them in the UI.
+    "class_folder_names",
     # The declared channel mapping that replaced png_dims (INVARIANTS 13).
     "png_channel_mapping",
     # The measurement training basis, shared by Classify (CV) and (ML).
@@ -301,8 +343,17 @@ KEYS_ADDED_BY_REGROUP = frozenset({
 #: are legacy keys kept so old settings CSVs still load (several say so in
 #: their own tooltip). Nothing may be added here -- a new entry means a
 #: category is advertising a setting that does not exist.
+#: Keys that are CATEGORISED but have no default -- ghosts the panel still
+#: offers. `highlight` and `offset` left this set on 2026-08-12: they are not
+#: ghosts any more, they are RETIRED (see KEYS_RETIRED), which is a different
+#: thing. A ghost is still on screen; a retired key is not.
 LEGACY_KEYS_WITHOUT_A_DEFAULT = frozenset({
-    "highlight", "nucleus_loc", "offset", "other", "plate", "signal_direction",
+    # `highlight`, `offset`, `nucleus_loc` and `signal_direction` left this
+    # set on 2026-08-12. They are not ghosts any more, they are RETIRED (see
+    # KEYS_RETIRED), which is a different thing: a ghost is still on screen
+    # and still wants a default one day, a retired key is gone. All four were
+    # verified uncategorised before being moved.
+    "other", "plate",
 })
 
 #: ``settings_type`` -> defaults factory, mirroring both dispatchers:
@@ -405,7 +456,7 @@ def test_no_previously_categorised_key_is_lost():
     """
     lost = sorted(KEYS_BEFORE_REGROUP
                   - set(_all_categorised_keys())
-                  - set(S.DEAD_SETTINGS))
+                  - KEYS_RETIRED)
     assert not lost, (
         f"{len(lost)} setting(s) fell out of spacr.settings.categories and are "
         f"no longer grouped in the settings panel: {lost}. If a key was "
@@ -431,7 +482,8 @@ def test_every_added_key_is_declared():
     that this process has not imported costs nothing.
     """
     added = set(_all_categorised_keys()) - KEYS_BEFORE_REGROUP
-    undeclared = sorted(added - set(KEYS_ADDED_BY_REGROUP))
+    undeclared = sorted(
+        added - set(KEYS_ADDED_BY_REGROUP) - set(S.DYNAMIC_ORGANELLE_SETTINGS))
     assert not undeclared, (
         "categories gained keys that KEYS_ADDED_BY_REGROUP does not list: "
         f"{undeclared}"
@@ -469,7 +521,15 @@ def test_no_category_name_is_declared_twice():
         f"category name(s) typed twice in the dict literal: {duplicated}. The "
         "later entry silently replaces the earlier one and its settings vanish."
     )
-    assert set(declared) == set(S.categories)
+    # Categories a module CONTRIBUTED at import are not in the literal and
+    # must not be expected there. Power/Design registers "Power analysis"
+    # through `register_defaults`, so this comparison was order-dependent:
+    # it passed alone and failed after any test that imported that screen.
+    # Two more sources of live categories that are not in the literal:
+    # modules registering through `register_defaults`, and instruction 73's
+    # regroup, which creates its family headings from the keys it moves.
+    derived = S.REGISTERED_CATEGORIES | {n for n, _ in S._ADVANCED_FAMILIES}
+    assert set(declared) == set(S.categories) - derived
 
 
 # ---------------------------------------------------------------------------
@@ -511,31 +571,89 @@ def test_every_setting_a_module_offers_has_a_category(app_key):
 
 
 # ---------------------------------------------------------------------------
-# 5. The organelle settings live under one heading
+# 5. The organelle settings live under TWO headings, basic and advanced
 # ---------------------------------------------------------------------------
+# There used to be exactly one, holding FIFTY-THREE settings: the most
+# over-configured object class in the tool, and a biologist who knew they were
+# imaging lysosomes had to scroll past organelle_ridge_sigmas to find the
+# channel. Instruction 72 split it -- six basic, forty-eight advanced.
+#
+# `test_exactly_one_organelle_category` pinned the old shape and is rewritten,
+# not deleted. What it was really protecting is protected below and more
+# strictly: every organelle key must be in exactly ONE of the two, and no key
+# may fall out of both, which is the failure the original was aimed at.
 
-def test_exactly_one_organelle_category():
+ORGANELLE_CATEGORIES = ("Organelle", "Organelle advanced")
+
+
+def test_the_organelle_headings_are_the_two_expected_ones():
     organelle_cats = [c for c in S.categories if "organelle" in c.lower()]
-    assert organelle_cats == ["Organelle"], (
-        f"expected a single 'Organelle' heading, found {organelle_cats}"
+    assert organelle_cats == list(ORGANELLE_CATEGORIES), (
+        f"expected {list(ORGANELLE_CATEGORIES)}, found {organelle_cats}"
     )
 
 
-def test_the_organelle_category_holds_every_organelle_key():
-    organelle = set(S.categories["Organelle"])
+def test_no_organelle_key_is_in_both_headings():
+    basic = set(S.categories["Organelle"])
+    advanced = set(S.categories["Organelle advanced"])
+    both = sorted(basic & advanced)
+    assert not both, f"listed under both headings, so Tk renders it twice: {both}"
+
+
+def test_the_basic_heading_is_short_enough_to_be_the_point():
+    """The deliverable is a NUMBER: 53 settings became 6 visible by default.
+
+    A split that left thirty settings under the first heading would satisfy
+    every other test here and none of the request.
+    """
+    from spacr.object_roles import ORGANELLE_ROLES
+    assert len(S.categories["Organelle"]) <= 3 * len(ORGANELLE_ROLES), \
+        S.categories["Organelle"]
+    assert S.categories["Organelle"], "the basic heading emptied entirely"
+
+
+def test_the_one_visible_choice_is_in_the_basic_heading():
+    assert "organelle_type" in S.categories["Organelle"]
+
+
+#: Headings instruction 73 pulls the shared families into. An organelle key
+#: may legitimately live here instead of under an Organelle heading -- the
+#: whole point of that regroup is that `organelle_min_size` and
+#: `cell_min_size` are one decision, not two.
+ADVANCED_FAMILY_HEADINGS = ("Object filtration", "Intensity handling")
+
+
+def _organelle_homes():
+    homes = set(S.categories["Organelle"]) | set(
+        S.categories["Organelle advanced"])
+    for heading in ADVANCED_FAMILY_HEADINGS:
+        homes |= set(S.categories.get(heading, ()))
+    return homes
+
+
+def test_the_two_headings_hold_every_organelle_key():
+    organelle = _organelle_homes()
     stray = sorted(k for k in _all_categorised_keys()
                    if k.startswith("organelle_")
                    and k not in organelle
                    and k not in ORGANELLE_KEYS_KEPT_IN_GENERAL)
-    assert not stray, f"organelle settings filed outside 'Organelle': {stray}"
+    assert not stray, f"organelle settings filed outside every heading: {stray}"
     assert ORGANELLE_KEYS_KEPT_IN_GENERAL <= set(S.categories["General"])
 
 
-def test_the_organelle_category_covers_every_organelle_default():
-    """Every key ``_set_organelle_defaults`` fills is offered under the heading."""
+def test_the_headings_cover_every_organelle_default():
+    """Every key ``_set_organelle_defaults`` fills is offered somewhere.
+
+    MOVED, NOT HIDDEN. A setting that leaves the panel while staying in the
+    settings dict is how a run gets a value nobody can see -- this project
+    has eleven phantom settings from exactly that (instruction 61) -- so the
+    advanced half being off the first screen must not mean off the panel.
+    """
     defaults = set(S._set_organelle_defaults({}))
-    missing = sorted(defaults - set(S.categories["Organelle"])
-                     - ORGANELLE_KEYS_KEPT_IN_GENERAL)
+    from spacr.object_roles import ORGANELLE_ROLES
+    general = set(ORGANELLE_KEYS_KEPT_IN_GENERAL) | {
+        f'{role}_channel' for role in ORGANELLE_ROLES[1:]}
+    missing = sorted(defaults - _organelle_homes() - general)
     assert not missing, f"organelle defaults with no place in the panel: {missing}"
 
 
@@ -559,9 +677,18 @@ def test_every_dependency_map_names_a_real_category():
     )
 
 
-def test_the_organelle_trigger_reveals_the_merged_category():
-    assert S.category_integer_dependencies[
-        ("organelle_channel", "organelle_mask_dim")] == ["Organelle"]
+def test_the_organelle_trigger_reveals_both_organelle_categories():
+    """BOTH, not just the first.
+
+    Splitting the category would otherwise leave "Organelle advanced"
+    showing on a run that does no organelle segmentation at all -- the
+    trigger has to reveal everything it gates.
+    """
+    from spacr.object_roles import ORGANELLE_ROLES
+    trigger = tuple(key for role in ORGANELLE_ROLES
+                    for key in (f"{role}_channel", f"{role}_mask_dim"))
+    assert S.category_integer_dependencies[trigger] == [
+        "Organelle", "Organelle advanced"]
 
 
 def test_organelle_method_no_longer_gates_a_category():
@@ -710,7 +837,10 @@ def test_every_qt_section_hint_names_a_real_category():
     for app_key in (
         "measure", "external_masks", "map_barcodes", "umap", "ml_analyze", "mask",
         "timelapse", "motility", "regression", "activation", "replication",
-        "classify", "train_cellpose", "cellpose_masks", "cellpose_all",
+        # `classify_merged` was MISSING, and its absence cost two live
+        # tooltips: they were deleted as unreachable on 2026-08-12 because
+        # no app in this list rendered them. It renders both.
+        "classify", "classify_merged", "train_cellpose", "cellpose_masks",
         "analyze_plaques", "recruitment", "invasion",
         # Curated layouts of their own whose headings exist nowhere else.
         # Barcode QC and Illumination register settings that are in no
@@ -791,6 +921,9 @@ def _rendered_sections(app_key):
             "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
             "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
+            "Organelle Segmentation (advanced)",
+            "Object Filtration (all objects)",
+            "Intensity Handling (all objects)",
             "Quality Control", "Volumetric Processing (Beta)",
             "Time Axes & Tracking (Beta)", "Visualization & Diagnostics",
             "Output & Storage", "Runtime & Reliability",
@@ -805,6 +938,9 @@ def _rendered_sections(app_key):
             "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
             "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
+            "Organelle Segmentation (advanced)",
+            "Object Filtration (all objects)",
+            "Intensity Handling (all objects)",
             "Quality Control", "Tracking Setup", "Tracking Backends",
             "Visualization & Diagnostics", "Output & Storage",
             "Runtime & Reliability",
@@ -917,3 +1053,79 @@ def test_the_measure_module_shows_no_segmentation_headings():
     measurements = set(S.categories["Measurements"])
     assert {"cell_min_size", "nucleus_min_size", "pathogen_min_size",
             "cytoplasm_min_size", "merge_edge_pathogen_cells"} <= measurements
+
+
+# ---------------------------------------------------------------------------
+# 12. The regroup is presentation only (instruction 73, item 3)
+# ---------------------------------------------------------------------------
+# "Moving a key between GUI categories must not change its name or its
+# meaning -- the category is presentation. A test should assert that the set
+# of keys a module offers is unchanged by the regroup, because that is the
+# failure that would silently drop a setting from a run."
+
+def test_the_regroup_does_not_change_which_keys_a_module_offers():
+    """Every key a module offers is still categorised somewhere.
+
+    This is the failure worth excluding: a settings CSV names KEYS, not
+    headings, so a file written before the regroup must load and mean
+    exactly what it meant. A key that fell out of every category during the
+    move would be silently dropped from the panel while remaining in the
+    settings dict -- the phantom-setting failure mode this project already
+    has eleven of.
+    """
+    categorised = set(_all_categorised_keys())
+    for app_key in GUI_MODULE_DEFAULTS:
+        offered = set(_defaults_for(app_key))
+        lost = sorted(offered - categorised - ORGANELLE_KEYS_KEPT_IN_GENERAL)
+        assert not lost, f"{app_key!r} offers uncategorised settings: {lost}"
+
+
+def test_the_regrouped_families_hold_only_keys_that_existed_before():
+    """The regroup MOVES keys; it must not invent them."""
+    known = set(S.expected_types) | _every_default_key()
+    for heading in ADVANCED_FAMILY_HEADINGS:
+        for key in S.categories.get(heading, ()):
+            assert key in known, (heading, key)
+
+
+def test_a_family_heading_groups_by_object_so_it_reads_as_one_decision():
+    """`cell_min_size` and `nucleus_min_size` are one decision applied twice.
+
+    Ordering by object is what makes that visible in a FLAT panel, which is
+    the only kind this settings screen has -- `build_sections` returns one
+    header and its rows, with no third level to nest a per-object
+    sub-section under.
+    """
+    members = S.categories["Object filtration"]
+    seen_objects = []
+    for key in members:
+        obj = key.split("_", 1)[0]
+        if obj not in seen_objects:
+            seen_objects.append(obj)
+    # Each object's keys must be contiguous: an object may not reappear
+    # after another one has started.
+    order = [key.split("_", 1)[0] for key in members]
+    collapsed = [o for i, o in enumerate(order) if i == 0 or order[i - 1] != o]
+    assert collapsed == seen_objects, collapsed
+
+
+def test_the_per_object_headings_actually_shrank():
+    """The deliverable is a NUMBER, and it is recorded in instruction 73."""
+    assert len(S.categories["Cell"]) <= 10
+    assert len(S.categories["Nucleus"]) <= 10
+    assert len(S.categories["Pathogen"]) <= 10
+
+
+def test_measurements_keeps_the_sizes_an_earlier_decision_gave_it():
+    """Not everything shared should move.
+
+    The per-object minimum sizes are measurement filters that only
+    measure_crop sets. Pulling them into a shared filtration heading would
+    put Measure's three near-empty segmentation headings back by another
+    route, which is exactly what filing them under Measurements fixed.
+    """
+    measurements = set(S.categories["Measurements"])
+    assert {"cell_min_size", "nucleus_min_size", "pathogen_min_size",
+            "cytoplasm_min_size"} <= measurements
+    for heading in ADVANCED_FAMILY_HEADINGS:
+        assert not (set(S.categories.get(heading, ())) & measurements), heading
