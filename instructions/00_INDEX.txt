@@ -18,15 +18,11 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-81 done / 5 open (94%).
+82 done / 4 open (95%).
 
 --------------------------------------------------------------------------------
 OPEN
 --------------------------------------------------------------------------------
-
-   48  OPTIMIZE THE spaCR TUTORIALS
-       [codex -- DO NOT TOUCH]
-       48_optimize_the_tutorials.txt
 
    58  CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
        [LAST]
@@ -86,6 +82,7 @@ DONE
    45  INSTALLER: OPT-IN LOG SHARING, ACCOUNT SIGN-IN, AND THE ISSUE TOGGLE
    46  FOUR MODULES PAINT surface_alt UNDER THE RIGHT HALF OF A SETTING LABEL
    47  THE FULL tests/qt RUN HANGS PART-WAY THROUGH
+   48  OPTIMIZE THE spaCR TUTORIALS
    49  xD IS DIMENSIONALITY REDUCTION, WITH ITS OWN COLUMN PICKER AND TABS
    50  SAVE THE GATE EDITOR'S GRAPH AS PDF OR PNG
    51  THE CONSOLE AND THE AI CHAT BOX ARE TOO SHORT
