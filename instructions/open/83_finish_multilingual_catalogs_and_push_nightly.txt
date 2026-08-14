@@ -10,6 +10,7 @@ Requested: 2026-08-11 — "push to nightly"
            2026-08-12 — "ok finish what you are doing then make sure what is
            left is in the instructions. then commit and push waht you have so
            far."
+           2026-08-14 — "please work on 83"
 Owner:     root Codex session
 
 --------------------------------------------------------------------------------
@@ -143,6 +144,29 @@ M2M route's MIT license. No model route or production cache changed. Evidence
 SHA-256 prefixes are sample ``5e3ffbf6``, probe ``7aa77447``, and analysis
 ``dd284369``.
 
+2026-08-14 active checkpoint: the source freeze is now 6,522 API symbols
+(6,403 canonical plus 119 exact aliases). Portuguese, German, Spanish,
+Swedish, and French API catalogs all pass the strict audit at that exact
+freeze; all five runtime catalogs also pass together with 862 settings, 163
+categories, 1,409 UI strings, and 54 modules per locale. The completed work is
+pushed through ``cf28e24c``. The focused parser/extractor suite passes 122
+tests. Swedish and French include the five public ``openmp_guard`` contracts;
+the sole French model rejection is preserved as exact source-bound reviewed
+evidence rather than being allowlisted.
+
+Korean API regeneration against 6,522 stopped fail-closed after reusing 21,357
+blocks and processing 817. It recovered 146 cache candidates, decoded 671 new
+candidates, and relaid 196 symbols. Sentence retry accepted 26/260, clause
+retry 4/138, fragment retry 86/168, and MADLAD retry 51/144. The strict tail is
+118 label occurrences collapsing to 92 unique source/context strings: all 118
+are exact English and copied-English failures, and 51 also fail the contextual
+source gate. The red ``ko.json`` is intentionally uncommitted. Its log is
+``/tmp/spacr-ko-api-6522.log`` (SHA-256 ``78560a1d...``) and the exact unique
+tail is ``/tmp/spacr-ko-api-6522-tail.json`` (``6cd2f3b7...``). A secondary
+drafting experiment admitted only four of 92 automatically and is not review
+evidence; no weak draft has been promoted. Korean runtime, Simplified Chinese,
+Hindi, and Icelandic remain unfinished.
+
 --------------------------------------------------------------------------------
 WHY IT MATTERS
 --------------------------------------------------------------------------------
@@ -157,27 +181,24 @@ source hashes pass strict audits and release tests.
 WHAT TO DO NEXT
 --------------------------------------------------------------------------------
 
-1. Before generation, freeze the committed English API manifest and exact
-   extractor count together with the runtime-English and two builder
-   identities. Do not generate against a dirty or moving public-docstring set.
-2. Preserve the now-green Portuguese API catalog. Resolve its runtime tail
-   (263 setting tooltips, 8 category helps, and 20 UI strings failing current
-   contextual gates; 246 tooltip values still exact English), then rerun the
-   runtime builder against the same immutable 6,357-record freeze. Do not
-   promote the current red ``pt.py``.
-3. Resolve Korean's fresh hard tail with target-language review or a separately
-   admitted, licensed model. Do not use the rejected OPUS Korean checkpoint;
-   retain M2M fail-closed until every surviving value is technically correct.
-4. Generate API then runtime, stopping on every nonzero audit: OPUS for
-   pt/es/de/sv/fr and M2M100 for ko/zh_CN/hi/is. Run strict copied-English,
-   target-script, false-friend, syntax, layout, source-hash, OpenCC, loader,
-   frontend, installer, Sphinx, and release checks against stable files.
-5. Portuguese API is the sole green generated target artifact at this
-   checkpoint. The other eight dirty target API JSONs and the red Portuguese
-   runtime catalog are intentionally excluded. ``skill/FACTS.md`` is also
-   excluded as stale generated shared-worktree output. Regenerate COVERAGE and
-   FACTS only after all 18 target artifacts pass, then close this instruction
-   and perform the final catalog commit/push sequence.
+1. Resolve the exact Korean API tail through source/context/hash-bound Korean
+   review evidence. Rerun the accepted-only repair and require a zero strict
+   audit at 6,522; do not commit the current red ``ko.json`` and do not use the
+   rejected OPUS Korean checkpoint.
+2. Regenerate and strictly audit Korean runtime. Its interrupted first attempt
+   wrote no catalog; restart from the accepted cache only after Korean API is
+   green. Reject exact-English cache values before contextualization.
+3. Generate API then runtime for Simplified Chinese, Hindi, and Icelandic,
+   serially and fail-closed. Simplified Chinese additionally requires exact
+   OpenCC t2s provenance and fixed-point normalization. Preserve every hard
+   tail as reviewed, source-bound evidence rather than loosening gates.
+4. Re-run combined API and runtime audits for all nine locales, copied-English,
+   target-script, false-friend, syntax/layout/source-hash checks, loader and
+   frontend tests, coverage generation, Sphinx, and the release selection.
+5. Only after all 18 generated artifacts are green, write COVERAGE, move this
+   instruction to done, refresh FACTS/HANDOFF from the stable ledger, commit
+   the final coherent batch with explicit paths, push nightly, and verify the
+   required checks for the pushed SHA.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
