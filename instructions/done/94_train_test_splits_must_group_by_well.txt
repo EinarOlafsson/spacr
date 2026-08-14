@@ -2,10 +2,20 @@
 EVERY TRAIN/TEST SPLIT GROUPS BY WELL
 ================================================================================
 
-Status:    not started, 2026-08-13.
+Status:    done, 2026-08-14.
 Requested: 2026-08-13 - "Grouped splitting is not verified by the current
            code ... XGBoost uses ordinary train_test_split without a groups
            argument" / "do it on the more rigerous level the well level."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Every training/test split now uses one strict shared splitter with explicit
+cell, field, well, and plate levels; well is the default. All five formerly
+ungrouped callers and active learning use it, impossible grouped designs are
+refused rather than silently randomized, and durable reports record realized
+group and cell fractions.
 
 --------------------------------------------------------------------------------
 THE REPORT WAS RIGHT ABOUT THE SITES AND WRONG AS A BLANKET
