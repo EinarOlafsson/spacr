@@ -2,12 +2,29 @@
 THE API DOCS ARE NOT A ROADMAP -- REMOVE THE MODULE AUDIT, KEEP THE INSIGHTS
 ================================================================================
 
-Status:    not started, 2026-08-12.
+Status:    done, 2026-08-13.
 Requested: 2026-08-12 - "in the API there is a section called Module Audit
            that seems more like a document directed at me than a API
            document. Unless this is some convention that i am unaware of
            remove it. not however these insights: [the two lists below]"
            "is this a normal section of an API"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The published API had included an internal module audit containing roadmap
+recommendations directed at the maintainer. The page was removed from the
+public toctree, while its useful architecture findings and follow-up work were
+preserved in the task ledger.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+API reference must describe callable, shipped behavior. Mixing an internal
+roadmap into that surface makes proposed features look available and obscures
+the contracts users actually need.
 
 --------------------------------------------------------------------------------
 THE ANSWER TO THE QUESTION
