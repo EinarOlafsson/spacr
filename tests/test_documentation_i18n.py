@@ -262,6 +262,18 @@ def test_reviewed_runtime_records_are_exact_bound_accepted_only_evidence(
     with pytest.raises(ValueError, match="stale reviewed runtime hash"):
         builder.reviewed_runtime_translations("sv")
 
+
+def test_reviewed_hindi_tagline_uses_scientific_screening_sense():
+    import build_i18n_catalogs as builder
+
+    source = "Spatial phenotype analysis of CRISPR screens."
+    target = builder._reviewed_translation(source, "hi")
+
+    assert target == "CRISPR स्क्रीनिंग का स्थानिक फीनोटाइप विश्लेषण।"
+    assert builder._translation_candidate_valid(
+        source, target, "hi", force=True,
+    )
+
     evidence["records"][0]["source_sha256"] = hashlib.sha256(
         source.encode()
     ).hexdigest()

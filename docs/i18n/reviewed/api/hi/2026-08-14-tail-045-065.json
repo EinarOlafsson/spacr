@@ -1,0 +1,153 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.loading_screen#2",
+      "source_sha256": "fb0ae0ecdd78fdf0ba9734ce9c0e879ed3feac2620c56d2f4803ff52c9f1e24a",
+      "source": "Those imports have to run on the MAIN thread -- doing them on a worker races Qt's own GPU initialisation and segfaults, which is recorded above :class:`spacr.qt.app._PipelinePreloader`. So the event loop *will* be blocked for seconds. The only question is whether the user is looking at a window that appears interactive while it happens.",
+      "context": "Those imports have to execute on the Main execution path -- doing them on a worker races Qt's own GPU initialisation and segfaults, which is recorded above :class:`spacr.qt.app._PipelinePreloader`. So the event loop *will* be blocked for seconds. The only question is whether the user is looking at a window that appears interactive while it happens.",
+      "translation": "इन imports को मुख्य execution path पर चलना ही चाहिए—worker पर चलाने से Qt के अपने GPU initialization के साथ race होकर segfault होता है, जैसा :class:`spacr.qt.app._PipelinePreloader` के ऊपर दर्ज है। इसलिए event का loop कुछ seconds के लिए *block होगा*। प्रश्न केवल यह है कि उस समय उपयोगकर्ता ऐसी window देख रहा है या नहीं जो interactive लगती है।"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.MeasurePreviewPanel#1",
+      "source_sha256": "48131e8a6f7384e1f7a4404de10925e80c53f14817203d995dc7956cc0c14e84",
+      "source": "A live view like the other three, and since the shared contract (:class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`) it wears their vocabulary: the same **Run preview** button, the same **Cancel** beside it, and a sentence on the status line whenever it cannot preview. It used to be alone in every one of those columns — its button said \"Refresh crops\", nothing could be cancelled, and a press with no array loaded did nothing and said nothing.",
+      "context": "A live view like the other three, and since the shared contract (:class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`) it wears their vocabulary: the same **Run preview** button, the same **Cancel** beside it, and a sentence on the status line whenever it cannot preview. It used to be alone in every one of those columns — its button said \"Refresh crops\", nothing could be cancelled, and a press with no array loaded did nothing and said nothing.",
+      "translation": "यह अन्य तीन की तरह live view है और shared contract (:class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`) के बाद उन्हीं की शब्दावली अपनाता है: वही **preview चलाएँ** button, उसके पास वही **रद्द करें**, और preview संभव न होने पर status line पर एक sentence। पहले वह इन सभी बातों में अकेला था—उसका button \"Refresh crops\" कहता था, कुछ cancel नहीं किया जा सकता था, और array load न होने पर press करने से न कुछ होता था न संदेश मिलता था।"
+    },
+    {
+      "label": "spacr.qt.widgets.pca_view.PCAPanel#2",
+      "source_sha256": "cdc099da5a12a18812c705aa60dd9b7d820092c285092e1137f42cc31dfa251b",
+      "source": "run the decomposition on a worker thread. **Defaults to False**, and the default is the interesting part -- see :meth:`recompute`. ``PCAScreen`` passes its own ``threaded`` through, so the application gets the threaded panel and a panel built directly keeps returning its result from the call.",
+      "context": "Whether decomposition runs on a worker thread. **The default is False**; see :meth:`recompute` for the reason. ``PCAScreen`` forwards its own ``threaded`` value. Thus the application uses a threaded panel, while a directly constructed panel returns its result synchronously.",
+      "translation": "decomposition worker execution path पर चलाना है या नहीं। **डिफ़ॉल्ट False है**; कारण के लिए :meth:`recompute` देखें। ``PCAScreen`` अपना ``threaded`` value आगे भेजता है। इसलिए application threaded panel उपयोग करता है, जबकि सीधे बनाया panel call से synchronously result लौटाता है।"
+    },
+    {
+      "label": "spacr.qt.widgets.power_design#3",
+      "source_sha256": "72861db4745e7d6b4c3c5eb9c161d97eb12cf2735531d48e03e3e4a3d619b043",
+      "source": ":class:`DesignSpec` — the experiment as a screener describes it (genes, guides, wells, plates, effect size, prevalence, depth), plus the real-screen values for everything the screener does not want to name.",
+      "context": ":class:`DesignSpec` — the experiment as a screener describes it (genes, guides, microplate sample positions, laboratory microplates, effect size, prevalence, depth), plus the real-screening experiment values for everything the screener does not want to name.",
+      "translation": ":class:`DesignSpec`—experiment जैसा screener उसे वर्णित करता है (genes और guides, microplate के sample positions, laboratory वाली microplates, effect का size, prevalence और depth), साथ में वास्तविक screening experiment के वे values जिनका नाम screener नहीं देना चाहता।"
+    },
+    {
+      "label": "spacr.qt.widgets.power_design#12",
+      "source_sha256": "b5bd48778ab3d25302248c875bbf09dbfc74631766c7b419c40e5f53747330b4",
+      "source": "A power analysis needs a yes/no per simulated screen before it can report a percentage. The model does not emit a yes/no — it emits a *ranking* of genes, scored by AUROC and average precision. So the screen asks the user for the bar (``detection_auroc``, default 0.80) and reports the fraction of simulated screens that clear it. Two things about that fraction are load-bearing:",
+      "context": "A statistical detection sensitivity analysis needs a yes/no per simulated screening experiment before it can report a percentage. The model does not emit a yes/no — it emits a *ranking* of genes, scored by AUROC and average precision. So the screening experiment asks the user for the bar (``detection_auroc``, default 0.80) and reports the fraction of simulated screening experiments that clear it. Two things about that fraction are load-bearing:",
+      "translation": "percentage बताने से पहले सांख्यिकीय पहचान-संवेदनशीलता विश्लेषण को हर simulated screening experiment के लिए हाँ या नहीं चाहिए। Model हाँ या नहीं नहीं देता—वह AUROC और average precision से scored genes की *ranking* देता है। इसलिए screening experiment उपयोगकर्ता से सीमा (``detection_auroc``, डिफ़ॉल्ट 0.80) पूछता है और उसे पार करने वाले simulated screening experiments का fraction बताता है। उस fraction की दो बातें अत्यंत आवश्यक हैं:"
+    },
+    {
+      "label": "spacr.report#23",
+      "source_sha256": "dd9250f8b5538c83ab3a686352e53e676049b517785839891836f6c6a061b35e",
+      "source": "The PDF is composed with :class:`matplotlib.backends.backend_pdf.PdfPages` — a monospace transcription of the same content plus one page per embedded figure. spaCR has no HTML-to-PDF engine among its dependencies and this module refuses to add one, so the PDF is a faithful *summary*, not a rendering of the HTML. Send the HTML when you can.",
+      "context": "The PDF is composed with :class:`matplotlib.backends.backend_pdf.PdfPages` — a monospace transcription of the same content plus one page per embedded figure. spaCR has no HTML-to-PDF engine among its dependencies and this module refuses to add one, so the PDF is a faithful *summary*, not a rendering of the HTML. Send the HTML when you can.",
+      "translation": "PDF :class:`matplotlib.backends.backend_pdf.PdfPages` से बनाया जाता है—समान content की monospace प्रति और हर embedded figure के लिए एक page। spaCR की dependencies में HTML से PDF बनाने वाला engine नहीं है और यह module कोई जोड़ने से मना करता है, इसलिए PDF HTML का rendering नहीं बल्कि विश्वसनीय *सारांश* है। संभव हो तो HTML भेजें।"
+    },
+    {
+      "label": "spacr.resume.ResumeRefused#1",
+      "source_sha256": "9d2f023fa725788f4fd9d61f32cbd4c5da8959c9c85f03e0eb6beb34aedfa33a",
+      "source": "Raised when the fields already on disk were produced under settings that differ materially from the current ones. This is a :class:`~spacr.errors.ConfigurationError` on purpose: it is a setup mistake, not a per-field failure, and continuing past it would append apples to oranges in a single table with nothing to mark the seam.",
+      "context": "Exception used when the fields already on disk were produced under settings that differ materially from the current ones. This is a :class:`~spacr.errors.ConfigurationError` on purpose: it is a setup mistake, not a per-field failure, and continuing past it would append apples to oranges in a single table with nothing to mark the seam.",
+      "translation": "यह exception तब उपयोग होता है जब disk पर मौजूद दृश्य-क्षेत्र ऐसी settings से बने हों जो वर्तमान settings से महत्वपूर्ण रूप से अलग हैं। यह जानबूझकर :class:`~spacr.errors.ConfigurationError` है: यह setup mistake है, per-field failure नहीं; इसे पार करके जारी रखने पर एक ही table में असंगत data जुड़ जाएगा और सीमा चिन्हित करने के लिए कुछ नहीं होगा।"
+    },
+    {
+      "label": "spacr.run_journal.journal_totals#1",
+      "source_sha256": "034cfdf20bb6aa329743dc2393b97cace1f319967d8ccba5eca664393173b067",
+      "source": "Powers the Home-screen insights dashboard: ``total_runs`` (all manifests seen), ``mask_runs`` / ``measure_runs`` / ``classify_runs`` (per-app tallies), and ``models_recorded`` (distinct model hashes ever recorded, across runs of every app — not only mask runs). Returns zeros when no journal exists yet.",
+      "context": "Powers the Home-application view insights dashboard: ``total_runs`` (all manifests seen), ``mask_runs`` / ``measure_runs`` / ``classify_runs`` (per-app tallies), and ``models_recorded`` (distinct model hashes ever recorded, across runs of every app — not only mask runs). Returns zeros when no journal exists yet.",
+      "translation": "Home application view के insights dashboard को data देता है: ``total_runs`` (देखे गए सभी manifests), ``mask_runs`` / ``measure_runs`` / ``classify_runs`` (हर app के अलग counts), और ``models_recorded`` (सभी apps के executions में दर्ज अलग model hashes, केवल mask वाले executions नहीं)। Journal अभी न होने पर zeros लौटाता है।"
+    },
+    {
+      "label": "spacr.run_journal.recent_runs#2",
+      "source_sha256": "db1a41a9e431850c8324c3d9e40ded89e3c253be7ce94399d2607ff3b4b86568",
+      "source": "Each entry is a dict with keys ``dir`` (Path), ``app_key`` (str), ``status`` (str), ``start_utc`` (ISO str), ``elapsed_s`` (float), and the raw ``manifest`` (dict, best-effort).",
+      "context": "Each dictionary contains ``dir`` (Path), ``app_key`` (str), ``status`` (str), ``start_utc`` (ISO str), ``elapsed_s`` (float), and the raw ``manifest`` dictionary when available.",
+      "translation": "हर dictionary में ``dir`` (Path प्रकार), ``app_key`` (str प्रकार), ``status`` (str प्रकार), ``start_utc`` (ISO वाला str), ``elapsed_s`` (float प्रकार), और उपलब्ध होने पर raw ``manifest`` dictionary होती है।"
+    },
+    {
+      "label": "spacr.run_journal.resolve_run_dir#5",
+      "source_sha256": "295c06519a1bb6d2153e0a7af56e096b3500285de350540e3b7b03e6c07a1ee0",
+      "source": "an unambiguous *prefix* of a run-id (``\"2026-07-23_2147\"``), handy from a shell.",
+      "context": "an unambiguous *prefix* of a run-id (``\"2026-07-23_2147\"``), handy from a shell.",
+      "translation": "निष्पादन आईडी का स्पष्ट *prefix* (``\"2026-07-23_2147\"``), जो shell से उपयोगी है।"
+    },
+    {
+      "label": "spacr.seg_qc#14",
+      "source_sha256": "ef0151378bd279b136747664e783e079836572f853be04f37397ae5a2c939ae6",
+      "source": "``FieldQC`` One field's verdict: counts, flags, the numbers behind them, severity. ``score_field(mask, object_type, **thresholds)`` Score one label image, with no plate context. ``score_masks(source, object_type, ...)`` Score a folder of ``.npy`` masks, a 3-D stack or a list of 2-D masks, then add the plate-relative flags. ``summarize_qc(field_qcs)`` Plate-level rollup: verdict, counts per severity, the failing field names. ``format_scorecard(field_qcs)`` The printable card. ``write_scorecard(field_qcs, dst, object_type)`` ``<dst>/qc/segmentation_qc_<object_type>.csv``, one row per field. ``run_segmentation_qc(...)`` What :mod:`spacr.object` calls: score, write, print, honour ``seg_qc``. ``thresholds_from_settings(settings)`` Pull the ``seg_qc_*`` knobs out of a settings dict.",
+      "context": "``FieldQC`` One microscope field of view's verdict: counts, flags, the numbers behind them, severity. ``score_field(mask, object_type, **thresholds)`` Score one label image, with no laboratory microplate context. ``score_masks(source, object_type, ...)`` Score a folder of ``.npy`` masks, a 3-D stack or a list of 2-D masks, then add the laboratory microplate-relative flags. ``summarize_qc(field_qcs)`` Laboratory microplate-level rollup: verdict, counts per severity, the failing microscope field of view names. ``format_scorecard(field_qcs)`` The printable card. ``write_scorecard(field_qcs, dst, object_type)`` ``<dst>/qc/segmentation_qc_<object_type>.csv``, one row per microscope field of view. ``run_segmentation_qc(...)`` What :mod:`spacr.object` calls: score, write, print, honour ``seg_qc``. ``thresholds_from_settings(settings)`` Pull the ``seg_qc_*`` knobs out of a settings key-value mapping.",
+      "translation": "``FieldQC`` एक सूक्ष्मदर्शी दृश्य-क्षेत्र का verdict: counts, flags, उनके पीछे के numbers और severity। ``score_field(mask, object_type, **thresholds)`` laboratory microplate context के बिना एक label image score करता है। ``score_masks(source, object_type, ...)`` ``.npy`` masks के folder, 3-D stack या 2-D masks की list को score करके laboratory microplate से संबंधित flags जोड़ता है। ``summarize_qc(field_qcs)`` laboratory microplate-level summary देता है: verdict, हर severity के counts और fail हुए दृश्य-क्षेत्रों के names। ``format_scorecard(field_qcs)`` printable card देता है। ``write_scorecard(field_qcs, dst, object_type)`` हर दृश्य-क्षेत्र की एक row वाला ``<dst>/qc/segmentation_qc_<object_type>.csv`` लिखता है। ``run_segmentation_qc(...)`` वही है जिसे :mod:`spacr.object` बुलाता है: score करता, लिखता, print करता और ``seg_qc`` का पालन। ``thresholds_from_settings(settings)`` settings की key-value mapping से ``seg_qc_*`` controls निकालता है।"
+    },
+    {
+      "label": "spacr.sequencing.generate_barecode_mapping#1",
+      "source_sha256": "f046ddb399b6a106114e04c2d09db0a9cd2b8ee79366dd127ad282e54c273333",
+      "source": "Discovers R1/R2 files per sample under ``src``, extracts the row, column, and gRNA barcodes from each read via the configured regex and offset window, translates them to names via three barcode lookup CSVs (see :func:`map_sequences_to_names`), and writes per-sample ``annotated_reads.h5`` (optional), ``unique_combinations.csv`` (the per-well gRNA counts) and ``qc.csv``. Paired vs single-end and R1/R2 orientation are chosen from ``settings['mode']`` and ``single_direction``.",
+      "context": "Discovers R1/R2 files per sample under ``src``, extracts the row, column, and gRNA barcodes from each read via the configured regex and offset window, translates them to names via three barcode lookup CSVs (see :func:`map_sequences_to_names`), and writes per-sample ``annotated_reads.h5`` (optional), ``unique_combinations.csv`` (the per-microplate sample position gRNA counts) and ``qc.csv``. Paired vs single-end and R1/R2 orientation are chosen from ``settings['mode']`` and ``single_direction``.",
+      "translation": "``src`` के अंतर्गत हर sample की R1/R2 files खोजता है, configured regex और offset window से प्रत्येक read के row, column और gRNA barcodes निकालता है, तीन barcode lookup CSV के माध्यम से उन्हें names में बदलता है (:func:`map_sequences_to_names` देखें), और हर sample के लिए ``annotated_reads.h5`` (वैकल्पिक), ``unique_combinations.csv`` (हर microplate sample position के gRNA counts) तथा ``qc.csv`` लिखता है। Paired या single-end और R1/R2 orientation को ``settings['mode']`` तथा ``single_direction`` से चुना जाता है।"
+    },
+    {
+      "label": "spacr.spacrops.StitchedMultiAligner#3",
+      "source_sha256": "00dbbe5b2dd4fd97c7758d44b9643c419d945b36e7691fdeb34c0287750fdc4e",
+      "source": "detector : {\"ORB\",\"SIFT\"} Feature detector for keypoint matching. nfeatures : int Feature budget for detector. max_keypoints : Optional[int] Hard cap on kept keypoints after detection (by detector’s internal ranking). downsample : float in (0,1] Downsample factor for feature/score pass. ransac_thresh_px : float Reprojection threshold (pixels) for affine estimation (downsampled space). allow_scale : bool If False, constrain to rotation+translation (or translation only if allow_rotation=False). allow_rotation : bool If False, constrain to translation only. outdir : str Output directory for images/csv. opencv_threads : int Limit OpenCV internal threading (avoid oversubscription).",
+      "context": "detector : {\"ORB\",\"SIFT\"} Keypoint detector. nfeatures : int Detector feature budget. max_keypoints : Optional[int] Hard cap on keypoints kept after detection, using the detector’s ranking. downsample : float in (0,1] Factor for feature detection and scoring. ransac_thresh_px : float Pixel reprojection threshold for affine estimation in downsampled space. allow_scale : bool If False, permit rotation and translation but no scaling; if allow_rotation=False, permit translation only. allow_rotation : bool If False, permit translation only. outdir : str Directory for image and csv output. opencv_threads : int OpenCV thread limit used to prevent oversubscription.",
+      "translation": "detector : {\"ORB\",\"SIFT\"} मुख्य-बिंदु संसूचक। nfeatures : पूर्णांक संसूचक की विशेषता सीमा। max_keypoints : Optional[int] detection के बाद संसूचक की internal ranking से रखे मुख्य-बिंदुओं की hard cap। downsample : float in (0,1] विशेषता पहचान और scoring का factor। ransac_thresh_px : float downsampled space में affine estimation का pixel reprojection threshold। allow_scale : bool False होने पर scaling के बिना rotation और translation की अनुमति; if allow_rotation=False हो तो केवल translation। allow_rotation : bool False होने पर केवल translation। outdir : str images और csv की output directory। opencv_threads : int oversubscription रोकने के लिए OpenCV thread limit।"
+    },
+    {
+      "label": "spacr.spacrops.align_image_to_stitch#13",
+      "source_sha256": "a87788c47690557e524da199c7f353c22ee40a7b34ec977877269489fce182ee",
+      "source": "accepted for call compatibility and NOT used. The ``*__qc_outlines.png`` overlays are written by :class:`spacrStitcher`, which gates them on its own ``save_qc``; :class:`FOVAlignAndCropper` has no such argument and draws no overlays, so there is nothing here for this to switch on. Use ``save_qc`` on the stitching step instead.",
+      "context": "accepted for call compatibility and NOT used. The ``*__qc_outlines.png`` overlays are written by :class:`spacrStitcher`, which data-selection boundaries them on its own ``save_qc``; :class:`FOVAlignAndCropper` has no such argument and draws no overlays, so there is nothing here for this to switch on. Use ``save_qc`` on the stitching step instead.",
+      "translation": "call compatibility के लिए स्वीकार किया जाता है और उपयोग नहीं होता। ``*__qc_outlines.png`` overlays :class:`spacrStitcher` लिखता है, जो अपने ``save_qc`` से उन्हें नियंत्रित करता है; :class:`FOVAlignAndCropper` में ऐसा argument नहीं है और वह overlays नहीं बनाता, इसलिए यहाँ चालू करने के लिए कुछ नहीं। इसके बजाय stitching step पर ``save_qc`` उपयोग करें।"
+    },
+    {
+      "label": "spacr.spacrops.spacrStitcher.render_mosaic_from_csv#1",
+      "source_sha256": "166d036880d99ede7585fea0a6294267675d04e68c3d23fc77114a4afb074917",
+      "source": "Pass ``out_tif=None`` together with an ``out_csv`` to run in manifest-only mode (transforms are computed and written but no image is rendered).",
+      "context": "Pass ``out_tif=None`` together with an ``out_csv`` to run in manifest-only mode (transforms are computed and written but no image is rendered).",
+      "translation": "केवल manifest mode में चलाने के लिए ``out_tif=None`` के साथ ``out_csv`` दें; transforms निकाले और लिखे जाते हैं, लेकिन image render नहीं होती।"
+    },
+    {
+      "label": "spacr.submodules.analyze_replication#11",
+      "source_sha256": "e69239fa60b793cb9337127d607becded455cd0cc107d29d798056aadd832f7e",
+      "source": "``max_parasites_per_vacuole`` — largest named power-of-two bucket.",
+      "context": "``max_parasites_per_vacuole`` — largest named power-of-two bucket.",
+      "translation": "``max_parasites_per_vacuole``—नामित buckets में दो की सबसे बड़ी घात।"
+    },
+    {
+      "label": "spacr.timelapse.exponential_decay#4",
+      "source_sha256": "8c07eed1f47d7952d39d4159cbc68a475c3c2cff46f796c77094b853096fc111",
+      "source": "decay rate. The sign is not checked -- a negative ``b`` grows instead of decaying, and a large ``-b * x`` overflows to ``inf`` with a ``RuntimeWarning`` rather than raising.",
+      "context": "decay rate. The sign is not checked -- a negative ``b`` grows instead of decaying, and a large ``-b * x`` overflows to ``inf`` with a ``RuntimeWarning`` rather than throwing.",
+      "translation": "decay rate। Sign जाँचा नहीं जाता -- negative ``b`` decay के बजाय गुणित होता जाता है, और बड़ा ``-b * x`` ``inf`` तक overflow करके अपवाद के बजाय ``RuntimeWarning`` देता है।"
+    },
+    {
+      "label": "spacr.utils.GradCAMGenerator.percentile_normalize#0",
+      "source_sha256": "544aa931a19983996b07dc5f8d25a59ef8e4c6f3fe092aeb8d7fe4351a367e46",
+      "source": "Per-channel percentile-normalize ``img`` into ``[0, 1]``.",
+      "context": "Per-channel percentile-normalize ``img`` into ``[0, 1]``.",
+      "translation": "हर छवि-डेटा चैनल पर percentile normalization करके ``img`` को ``[0, 1]`` में लाएँ।"
+    },
+    {
+      "label": "spacr.utils.SaliencyMapGenerator.percentile_normalize#0",
+      "source_sha256": "544aa931a19983996b07dc5f8d25a59ef8e4c6f3fe092aeb8d7fe4351a367e46",
+      "source": "Per-channel percentile-normalize ``img`` into ``[0, 1]``.",
+      "context": "Per-channel percentile-normalize ``img`` into ``[0, 1]``.",
+      "translation": "हर छवि-डेटा चैनल पर percentile normalization करके ``img`` को ``[0, 1]`` में लाएँ।"
+    },
+    {
+      "label": "spacr.utils.console_safe#1",
+      "source_sha256": "e74457c307d51cfc40b90b5da12fad19304fe36dd522d04e262f98b6ca4d80ca",
+      "source": "Console decoration must never be able to end a run. No Windows codepage encodes spaCR's own output set -- ``▸`` (U+25B8) is absent from cp1252, cp437, cp850, cp932 *and* cp936, and the box-drawing frame is absent from cp1252 -- and neither does any of them encode the domain vocabulary that ends up in settings values, such as the parental strain ``Δku80`` or a ``µm`` voxel size. Printing either to a non-UTF-8 stream raises ``UnicodeEncodeError``, and on Windows that is the normal case the moment stdout is redirected: a batch-queue job, ``spacr-run``, a legacy console.",
+      "context": "Console decoration must never terminate a run. Windows code pages do not encode every spaCR output character. For example, ``▸`` is missing from cp1252, cp437, cp850, cp932 *and* cp936, and cp1252 lacks the frame characters. Settings may also contain ``Δku80`` or ``µm``. Writing these values to a non-UTF-8 stream raises ``UnicodeEncodeError``. On Windows, this commonly occurs when stdout is redirected by a batch job, ``spacr-run``, or a legacy console.",
+      "translation": "Console decoration कभी run समाप्त नहीं कर सकती। Windows code pages spaCR के सभी output characters encode नहीं करते। उदाहरण के लिए ``▸`` cp1252 में नहीं, cp437 में नहीं, cp850 में नहीं, cp932 में नहीं *और* cp936 में नहीं है; cp1252 में frame characters भी नहीं हैं। Settings में ``Δku80`` या ``µm`` भी हो सकते हैं। इन values को non-UTF-8 stream में लिखने पर ``UnicodeEncodeError`` होता है। Windows में stdout को batch job, ``spacr-run`` या legacy console redirect करे तो यह आम है।"
+    },
+    {
+      "label": "spacr.zstack.stitch_planes#1",
+      "source_sha256": "b9251736d0108bcf873ba3f30d52ee9c80b318ec39e24e4a51637dfa4ce3bff3",
+      "source": "Each plane is compared with the plane below it, and the pairing is greedy and **one-to-one**: pairs are considered in descending IoU and a label may take part in at most one link. That is what stops two genuinely different objects that merely happen to overlap the same object in xy from being fused -- only the better match inherits the label, the other starts a new one. Any pair below ``iou_threshold`` is not linked at all.",
+      "context": "Each image layer is compared with the image layer below it, and the pairing is greedy and **one-to-one**: pairs are considered in descending IoU and a label may take part in at most one link. That is what stops two genuinely different objects that merely happen to overlap the same object in xy from being fused -- only the better match inherits the label, the other starts a new one. Any pair below ``iou_threshold`` is not linked at all.",
+      "translation": "हर image layer की तुलना उसके नीचे वाली layer से होती है और pairing greedy तथा **एक-से-एक** है: pairs descending IoU में लिए जाते हैं और कोई label अधिकतम एक link में भाग ले सकता है। इससे xy में उसी object को overlap करने वाली दो वास्तव में अलग objects जुड़ती नहीं हैं—बेहतर match ही label पाता है, दूसरा नया label शुरू करता है। ``iou_threshold`` से नीचे का कोई pair बिल्कुल link नहीं होता।"
+    }
+  ]
+}
