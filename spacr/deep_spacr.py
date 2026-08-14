@@ -2540,7 +2540,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                 f"Checkpoint already completed epoch {start_epoch - 1}, but "
                 f"epochs={epochs}. Increase epochs to continue training.")
 
-    accumulated_train_dicts, accumulated_val_dicts, accumulated_test_dicts = [], [], []
+    accumulated_train_dicts, accumulated_val_dicts = [], []
     # Full per-epoch history kept for the live training plot (the accumulators
     # above get consumed/cleared by _save_progress each epoch).
     live_train_hist, live_val_hist = [], []
@@ -2716,10 +2716,6 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         elif accumulated_train_dicts:
             _save_progress(dst, pd.DataFrame(accumulated_train_dicts), None)
             accumulated_train_dicts = []
-        elif accumulated_test_dicts:
-            _save_progress(dst, pd.DataFrame(accumulated_test_dicts), None)
-            accumulated_test_dicts = []
-
         # pass val_dict to _save_model so checkpoint decisions use validation accuracy
         will_stop = (
             early_stopping_patience > 0
