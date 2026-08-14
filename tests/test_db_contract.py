@@ -63,10 +63,9 @@ from spacr.database_schema import (CURRENT_SCHEMA_VERSION,
 # building a project the way spaCR builds one
 # ---------------------------------------------------------------------------
 
-#: Object tables the writers fill here. ``organelle`` is owned but optional
-#: and has no canonical contract, so it is exercised separately where it
-#: matters rather than assumed present.
-BUILT_OBJECT_TABLES = ('cell', 'cytoplasm', 'nucleus', 'pathogen')
+#: Every canonical table is exercised through the same real writer. Optional
+#: in a particular run does not mean optional in the database contract.
+BUILT_OBJECT_TABLES = schema.CANONICAL_OBJECT_TABLES
 
 N_OBJECTS = 3
 

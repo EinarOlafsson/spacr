@@ -1,0 +1,90 @@
+================================================================================
+TRANSLATION COVERAGE: FULL UI, DOCUMENTATION AND INSTALLER SURFACES
+================================================================================
+
+Status:    done, 2026-08-11.
+Requested: 2026-08-08 - "the user sets the default language of the programme."
+Requested: 2026-08-10 - "there are several translations of spacr, these seem moslty to be acurate however not all text is translated such as  the tooltips , or the dockstrings. please make sure that as much text as possible is tranlated for each language. when that is complete please do one more sweep and correct any translation errory you find, or sometimes the translation may be correct but the context is wrong and there was another word that was also correct and the wrong word was origionally chosen. thanks. if possible it would be great if the API and docstrings were translated but these translations should live in seperate files and not be inserted in the functions themselvs like the english dockstrings are."
+Requested: 2026-08-10 - "pleas e also translate the github page. and have the installers available in all supported languages"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The original 267-entry chrome-only catalogue translated about 4% of the
+strings on a representative Mask screen. The new source-derived catalogues
+cover 3,011 current runtime entries in every non-English language: 697 setting
+labels, 697 authored setting tooltips, 159 category explanations, 1,369 static
+or dynamic UI phrases and 54 module summaries.
+
+English function docstrings remain in the Python source. Nine separate
+symbol-keyed API catalogues under docs/source/_static/i18n/api each cover all
+6,101 current public docstrings and carry the SHA-256 of the corresponding
+English source. The two docstrings changed concurrently during finalization
+use exact English fallback text because the local models produced technically
+unsafe mixed-language drafts; all other source-current entries remain in the
+external language catalogues.
+
+README translations and language navigation exist for Swedish, German,
+Spanish, Simplified Chinese, Portuguese, Hindi, Korean, Icelandic and French.
+All ten installer locales contain the exact same 57 keys. Windows, macOS and
+Linux builders generate their platform resources from those JSON files,
+select the operating-system locale and fall back to English.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Changing the language now changes the working surface rather than only its
+menus. Scientific text is more dangerous when mistranslated than when it is
+left in English, so format fields, identifiers, code literals, URLs and option
+values are immutable and low-confidence changed API prose falls back safely.
+The terminology sweep explicitly corrects software and microscopy senses of
+screen, run, crop, mask, flow, plate, well, cell, guide, hit and gate.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+* Added external generated runtime catalogues and wired them into widget-tree
+  retranslation, settings, authored tooltips, accessible text and module help.
+* Added reviewed domain-term and source-conditioned false-friend corrections,
+  including regression tests for known errors such as French l'criblage.
+* Added separate translated API/docstring JSON, a documentation language
+  selector and freshness/structure audits; no translated prose was inserted
+  into Python functions.
+* Added nine translated GitHub README pages, language navigation, model/license
+  attribution and reviewed translations for the prominent overview text and
+  headings.
+* Added ten installer locale files and a renderer for shell, PowerShell and
+  NSIS resources. Every native builder regenerates and embeds those resources.
+* Added a reproducible coverage report at docs/i18n/COVERAGE.md and kept
+  generated installer intermediates out of version control.
+* Made API generation incremental: a current source hash preserves reviewed
+  text and only new or changed symbols are sent to a model.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Passing release checks as of 2026-08-11:
+
+    runtime audit       9 languages; 697 settings; 159 categories;
+                        1,369 UI phrases; 54 modules
+    installer audit     10 languages x 57 strings
+    API audit           9 languages x 6,101 source-current symbols
+    focused pytest      47 passed
+    JavaScript syntax   node --check docs/source/_static/api_i18n.js
+    documentation       full Sphinx HTML build succeeded; one unrelated
+                        existing AutoAPI ambiguity for deep_spacr.sequence
+    diff hygiene        git diff --check
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Raw worker output, logs, tracebacks, user paths, database values, annotations,
+measurements, predictions and saved scientific results remain canonical data
+and are not translated. A new public docstring may temporarily use English
+fallback until a technically sound translation is available; its source hash
+makes that state explicit and prevents stale prose from being displayed.

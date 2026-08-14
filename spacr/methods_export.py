@@ -131,7 +131,7 @@ def _walk(value: Any) -> Iterable[Any]:
         yield value
 
 
-#: Digest keys whose values are prose SPACR generated from the numbers
+#: Digest keys whose values are prose spaCR generated from the numbers
 #: elsewhere in the digest, rather than text the run recorded. They are
 #: excluded from :func:`digest_strings` on purpose: if quoting a caveat
 #: verbatim were enough to license the figures inside it, the number check

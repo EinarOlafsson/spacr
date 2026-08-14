@@ -730,6 +730,29 @@ class Canvas:
         layer.shape)`` comes back at its native resolution and alignment, which
         is what a shapes-to-mask conversion needs (see
         :meth:`ShapesLayer.mask`).
+
+        :param spacing: the grid to sample. Origin, step and :attr:`units` are
+            all taken from it, so the canvas reports the layer's world units
+            instead of the ``"px"`` a bare :class:`Canvas` defaults to. Pixel
+            ``(0, 0)`` is centred exactly on element 0 — no half-step inset,
+            unlike :meth:`covering`.
+        :param shape: the layer's whole array shape, in the spacing's axis
+            order. It is indexed by each plane axis's position in
+            ``spacing.axes``, not by 0 and 1, so a three-axis spacing wants
+            three entries even though only two are read; a two-entry shape
+            against a 3-D spacing raises :exc:`IndexError`. Entries for axes
+            outside the plane are ignored, non-integers are truncated, and a
+            zero or negative in-plane size raises :exc:`LayerError`.
+        :param axes: which two spacing axes rows and columns run along. Any
+            pair the spacing names is allowed, in any order — ``("x", "y")``
+            transposes the result. An axis the spacing does not have, or the
+            same axis twice, raises :exc:`LayerError`.
+        :param depth: world coordinate for the axes outside the plane.
+            Defaults to empty, which pins them at world ``0`` rather than at
+            the spacing's own origin: for a stack whose ``z`` translate is
+            10.0 the default canvas sits off the volume entirely and layers
+            render blank, so pass ``depth={"z": 10.0}`` to land on plane 0.
+            Entries naming an in-plane axis are kept but never consulted.
         """
         r = spacing.axis_index(axes[0])
         c = spacing.axis_index(axes[1])

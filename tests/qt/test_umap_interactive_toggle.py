@@ -34,7 +34,12 @@ def test_umap_has_interactive_toggle_immediately_beside_ai(
 
     toggle = screen._interactive_switch
     assert toggle is not None
-    assert toggle.text() == "Live"
+    # NOT "Live". "Live" is reserved for the four preview panels that
+    # re-render a module's own output from the current settings before a
+    # run; this explorer makes an already-computed embedding clickable and
+    # no setting changes what it draws. See
+    # spacr.qt.widgets.preview_contract for the decision.
+    assert toggle.text() == "Interactive"
     assert toggle.isChecked() is False
     assert "click a point" in toggle.toolTip().lower()
 

@@ -2,7 +2,7 @@
  *
  * Font stack unified with the desktop app: Open Sans Light for
  * body copy, Regular for hover / links, SemiBold for headings.
- * Same TTFs the Qt app bundles at spacr/qt/resources/fonts/.
+ * Same TTFs the Qt app bundles at spacr/resources/font/open_sans/.
  */
 
 /* ---------- Bundled Open Sans (self-hosted, no CDN) ---------- */
@@ -119,4 +119,38 @@ div.highlight { border-radius: 6px; }
 div.highlight pre {
     padding: 0.9em 1em;
     font-family: var(--font-stack--monospace);
+}
+
+/* API translations are loaded on demand from symbol-keyed external files. */
+.spacr-api-language {
+  align-items: center;
+  display: flex;
+  font-size: 0.875rem;
+  gap: 0.55rem;
+  justify-content: flex-end;
+  margin: 0 0 1rem;
+}
+
+.spacr-api-language select {
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-background-border);
+  border-radius: 0.35rem;
+  color: var(--color-foreground-primary);
+  padding: 0.3rem 0.45rem;
+}
+
+.spacr-api-translation {
+  background: var(--color-admonition-background);
+  border-inline-start: 3px solid var(--color-brand-primary);
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.spacr-api-translation__label {
+  color: var(--color-brand-content);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
 }

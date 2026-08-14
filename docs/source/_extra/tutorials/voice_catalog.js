@@ -9,13 +9,9 @@ window.SPACR_VOICE_CATALOG = Object.freeze([
     locale: "en",
     voices: [
       { id: "af_heart", name: "Heart", variant: "American female", engineCode: "a" },
-      { id: "af_alloy", name: "Alloy", variant: "American female", engineCode: "a" },
       { id: "af_aoede", name: "Aoede", variant: "American female", engineCode: "a" },
       { id: "af_bella", name: "Bella", variant: "American female", engineCode: "a" },
       { id: "af_jessica", name: "Jessica", variant: "American female", engineCode: "a" },
-      { id: "af_kore", name: "Kore", variant: "American female", engineCode: "a" },
-      { id: "af_nicole", name: "Nicole", variant: "American female", engineCode: "a" },
-      { id: "af_nova", name: "Nova", variant: "American female", engineCode: "a" },
       { id: "af_river", name: "River", variant: "American female", engineCode: "a" },
       { id: "af_sarah", name: "Sarah", variant: "American female", engineCode: "a" },
       { id: "af_sky", name: "Sky", variant: "American female", engineCode: "a" },

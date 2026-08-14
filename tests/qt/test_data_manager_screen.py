@@ -174,12 +174,24 @@ def test_executing_the_plan_deletes_exactly_it_and_rescans(screen, project):
     screen.plan_prune()
     plan = screen.plan
     planned, _ = plan.file_list()
-    before = du(project)
+    before_files = {
+        os.path.join(folder, name)
+        for folder, _dirs, names in os.walk(project)
+        for name in names
+    }
 
     assert screen.execute_prune(plan) is True
     for path in planned:
         assert not os.path.exists(path)
-    assert du(project) == before - plan.total_bytes
+    after_files = {
+        os.path.join(folder, name)
+        for folder, _dirs, names in os.walk(project)
+        for name in names
+    }
+    assert before_files - after_files == set(planned)
+    # Marking the registry rows is deliberately committed before deletion and
+    # may allocate a new SQLite page. The exact net byte delta is therefore
+    # not ``plan.total_bytes`` even though exactly the planned files went.
     # The originals are untouched.
     assert du(os.path.join(project, "orig")) > 0
     # And the screen re-measured itself.

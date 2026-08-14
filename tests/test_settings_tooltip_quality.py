@@ -26,12 +26,15 @@ from spacr.settings import descriptions, expected_types, tooltips
 # could not establish the truth (dead knobs with no consumer, or claims the
 # grader could not verify). Shrinking this list is good; growing it needs a
 # reason.
+#: Settings whose tooltip is thin and known to be so.
+#:
+#: The entries that were "verified dead: declared in settings.py but read by
+#: nothing" have since been DELETED rather than tolerated -- the maintainer
+#: asked for dead settings removed entirely, not documented. A name left here
+#: after its setting is gone makes this list lie about what it is waiving,
+#: which is what `test_known_thin_list_contains_no_stale_entries` catches.
 KNOWN_THIN = {
-    # verified dead: declared in settings.py but read by nothing
-    "remove_border_cells", "remove_border_pathogens",
-    "signal_direction", "offset", "nc", "pc", "nc_loc", "pc_loc",
-    "backgrounds", "normalize_plots", "organelle_chann_dim",
-    "class_1_threshold", "infection_xgb_proba", "visualize",
+    "backgrounds", "normalize_plots", "organelle_chann_dim", "visualize",
     "from_scratch", "width_height",
     # audit could not confirm behaviour to the grader's standard
     "pathogen_model", "train", "train_channels", "rescale",

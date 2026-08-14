@@ -1,4 +1,4 @@
-SpaCR lightweight installers
+spaCR lightweight installers
 ============================
 
 Current version: ``1.5.0.4``

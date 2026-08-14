@@ -1,0 +1,142 @@
+================================================================================
+THE INSTALLER ASKS CPU OR GPU, AND SAYS WHAT CPU COSTS
+================================================================================
+
+Status:    complete, 2026-08-14
+Requested: 2026-08-08 - "add to installation, a section where the user
+           chooses CPU vs GPU version and explain that not using the GPU
+           version is very slow for segmentation and classification tasks."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Not investigated. The installers are:
+
+    packaging/build_debian.sh
+    packaging/build_macos.sh
+    packaging/build_windows.ps1
+    packaging/spacr_launcher.py
+    packaging/online/            (the bootstrap the .deb runs)
+
+They build the environment with `uv venv` (see instruction 01), so whatever
+torch wheel gets installed is chosen there. Find out what it currently
+installs and whether it is CUDA or CPU today -- that decides whether this is
+a new choice or an existing default being made visible.
+
+macOS has no CUDA. On Apple silicon the equivalent is MPS, and offering a
+"GPU" build that cannot use one would be worse than not asking.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Cellpose segmentation and Torch classification are the two things spaCR
+spends its time on, and both are one to two orders of magnitude slower on
+CPU. A user who installs the CPU build without being told will conclude
+that spaCR is slow rather than that they installed the wrong one -- and
+that conclusion is invisible to us.
+
+The number matters more than the adjective. MEASURE one field of
+segmentation on both and put the real figure in the installer text, rather
+than the word "slow".
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Find what the installers currently pull for torch, and on which
+   platforms. Report before changing.
+2. Add the choice. Default to GPU where a GPU is DETECTED and to CPU where
+   it is not -- a user with no NVIDIA card should not be offered a CUDA
+   build as the default and then have it fail.
+3. Detect rather than ask where you can: `nvidia-smi` on Linux/Windows,
+   `platform.machine()` for Apple silicon. Ask only what detection cannot
+   answer.
+4. The explanation goes NEXT TO the choice, not in a README. One or two
+   sentences with a measured ratio in them.
+5. Record which was chosen somewhere the app can read, so
+   `spacr.doctor` can say "this is the CPU build" when a user asks why a
+   run is slow. That is the same fault reaching the user a second time,
+   and the second time we can answer it.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+On a machine with an NVIDIA card, the installer defaults to GPU, and after
+installing `python -c "import torch; print(torch.cuda.is_available())"`
+prints True. On a machine without one it defaults to CPU, installs without
+error, and the app starts.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet.
+
+--------------------------------------------------------------------------------
+2026-08-08 - RESTATED, WITH THE VERIFICATION ATTACHED
+--------------------------------------------------------------------------------
+
+"make sure to add the CPU/GPU ask and GIThub, claude, gemeni, gpt, asks
+during installation and making sure the installers work."
+
+The last clause is the one that turns this from a screen into a feature:
+adding a page to an installer that nobody has built and run is not done.
+Instruction 53 owns that verification and covers all three platforms; this
+task is not finished until 53 confirms the CPU/GPU page appears in a real
+built installer and that the choice it records actually changes which
+wheels get installed.
+
+--------------------------------------------------------------------------------
+2026-08-14 - COMPLETE: DETECTION, REAL WHEELS, A DURABLE PROFILE, AND MEASURED COPY
+--------------------------------------------------------------------------------
+
+THE STARTING STATE was an implicit pip decision. Both online bootstraps asked
+uv to install spaCR and its dependencies without naming a PyTorch backend,
+showed no acceleration choice, and retained no record of what was requested or
+what torch could actually use. The app therefore could not distinguish a CPU
+install from a broken GPU install later.
+
+WHAT SHIPPED:
+
+  * Linux and Windows probe a working `nvidia-smi -L`; NVIDIA defaults to
+    uv's `--torch-backend auto`, and a host without NVIDIA defaults to `cpu`.
+    Apple silicon is detected separately and uses the ordinary macOS torch
+    wheel, whose MPS backend is then verified. Every path has an explicit
+    override.
+  * The explanation is beside the choice in the shell, PowerShell, and NSIS
+    installers: on the project's RTX 3090 benchmark, Cellpose segmentation
+    was 13.1859x and ResNet-18 classification 20.206x faster than CPU. The UI
+    rounds those to 13x and 20x and says hardware varies.
+  * Installation fails before activation if a selected detected GPU cannot be
+    used. `install-profile.json`, written atomically beside the private venv,
+    records requested backend, detected hardware, active backend, torch build,
+    platform, and the three consent choices. `spacr-doctor` reads it and calls
+    out a requested/active mismatch rather than guessing from current hardware.
+
+THE NVIDIA ACCEPTANCE CASE WAS RUN FOR REAL, not mocked. On this RTX 3090 host
+(driver 580.173.02), a fresh Linux installer with no backend override selected
+`auto`, installed torch 2.13.0+cu132, and recorded:
+
+    requested_backend       auto
+    detected_accelerator    nvidia
+    active_backend          cuda
+    cuda_available          true
+
+The private installed interpreter returned
+`torch.cuda.is_available() == True`, named `NVIDIA GeForce RTX 3090`, built an
+installed Qt module screen, and completed the one-field measurement smoke run.
+The isolated temporary installation was removed afterwards.
+
+THE OTHER PLATFORM CASES are in GitHub Actions run 31796262489. Ubuntu 24.04
+and Windows 2025 installed CPU-only torch and recorded CPU; macOS 15 detected
+and exercised MPS. All three clean installed interpreters imported spaCR,
+PySide6, and torch, built a module screen, rendered the fresh-consent page,
+and completed one field. Jobs 94753940669, 94753940682, and 94753940811 all
+passed and retained the native installer artifacts.
+
+Regression evidence: 236 focused acceleration/consent/reporting/installer
+tests passed together, followed by the installed consent/measurement smoke and
+installer contracts (65 passed). Instruction 53 records the native matrix.

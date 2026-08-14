@@ -194,8 +194,13 @@ def test_endodyogeny_bins_volumes_and_runs_chi_squared(endo_src):
                           observed=True).size().unstack(fill_value=0)
     chi2, p, dof, _ = chi2_contingency(counts)
     res = out["chi_squared"]
-    assert list(res.columns) == ["chi_squared_stat", "p_value",
-                                 "degrees_of_freedom"]
+    # The historical three columns are row 0 and still mean what they meant.
+    # Instruction 80 added the columns naming the test and its unit, and rows
+    # for the level-appropriate test and the clustered model beside it.
+    for column in ("chi_squared_stat", "p_value", "degrees_of_freedom",
+                   "test", "unit", "n"):
+        assert column in res.columns, column
+    assert res.loc[0, "unit"] == "object"
     assert res["chi_squared_stat"].iloc[0] == pytest.approx(chi2)
     assert res["p_value"].iloc[0] == pytest.approx(p)
     assert int(res["degrees_of_freedom"].iloc[0]) == dof == 3
@@ -408,8 +413,23 @@ def test_endodyogeny_plate_level_uses_the_same_raw_counts(endo_src):
     plt.close("all")
     plate_level = analyze_endodyogeny(_settings(endo_src, level="plate"))
 
-    pd.testing.assert_frame_equal(object_level["chi_squared"],
-                                  plate_level["chi_squared"])
+    # THE OBJECT CHI-SQUARED IS THE SAME NUMBER AT EITHER LEVEL -- that is
+    # what this test is named for, and it still holds. The whole FRAMES are
+    # no longer equal, and must not be: instruction 80 added rows for the
+    # level-appropriate test, and `level` chooses their unit of replication.
+    # At 'object' the unit falls back to the well and those rows carry real
+    # p-values; at 'plate' with a single plate there are too few units to
+    # compare and they are NaN, which is the honest answer rather than a
+    # p-value computed from one number per group.
+    for column in ("chi_squared_stat", "p_value", "degrees_of_freedom"):
+        assert (object_level["chi_squared"].loc[0, column]
+                == pytest.approx(plate_level["chi_squared"].loc[0, column],
+                                 nan_ok=True)), column
+    assert object_level["chi_squared"].loc[0, "unit"] == "object"
+    assert plate_level["chi_squared"].loc[0, "unit"] == "object"
+
+    units = set(plate_level["chi_squared"]["unit"].astype(str)) - {"object"}
+    assert units == {"plateID"}, units
     assert len(plate_level["data"]) == len(object_level["data"])
 
 

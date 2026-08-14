@@ -102,7 +102,7 @@ def load_scatter_frame(db_path: str, table: str,
     """
     if not db_path or not os.path.isfile(db_path):
         raise FileNotFoundError(f"no measurements database at {db_path!r}")
-    connection = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    connection = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=30)
     try:
         frame = pd.read_sql_query(
             f'SELECT * FROM "{str(table)}" LIMIT {int(limit)}', connection)
@@ -119,7 +119,7 @@ def list_tables(db_path: str) -> List[str]:
     """Every table in ``db_path``, sorted. Worker-thread safe."""
     if not db_path or not os.path.isfile(db_path):
         return []
-    connection = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    connection = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=30)
     try:
         rows = connection.execute(
             "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"

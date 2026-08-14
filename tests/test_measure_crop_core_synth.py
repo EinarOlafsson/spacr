@@ -128,6 +128,7 @@ def test_measure_crop_core_save_arrays(tmp_path, synth_masks_multi, rng):
     settings = _settings_for(merged, save_arrays=True, save_png=False)
     index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
     assert index == 0
+    assert isinstance(cells, np.ndarray), "the worker must not return its failure sentinel"
     arrays = list(tmp_path.rglob("region_array/*.npy"))
     assert arrays, "expected saved region arrays"
 

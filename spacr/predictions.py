@@ -595,7 +595,7 @@ def migrate_prediction_columns(db_path, table: str = PNG_TABLE,
         return []
 
     repaired: List[Tuple[str, str, int]] = []
-    con = sqlite3.connect(str(db_path))
+    con = sqlite3.connect(str(db_path), timeout=30)
     con.isolation_level = None
     try:
         cur = con.cursor()
@@ -692,7 +692,7 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
 
     repaired = migrate_prediction_columns(db_path, table=table, verbose=False)
 
-    con = sqlite3.connect(db_path)
+    con = sqlite3.connect(db_path, timeout=30)
     # Explicit transaction control: ALTER TABLE would otherwise autocommit and
     # an interrupted merge would leave a column added but no rows scored.
     con.isolation_level = None

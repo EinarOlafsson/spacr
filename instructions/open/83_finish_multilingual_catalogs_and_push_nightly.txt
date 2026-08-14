@@ -1,0 +1,198 @@
+================================================================================
+FINISH THE MULTILINGUAL CATALOGS AND PUSH THE VERIFIED BATCH TO NIGHTLY
+================================================================================
+
+Status:    in progress, 2026-08-12.
+Requested: 2026-08-11 — "push to nightly"
+           2026-08-12 — "ok please finish everything. thanks and make sure to
+           save anything you learn in terms of how to make the voises sound
+           natural as a skill in the repo folder"
+           2026-08-12 — "ok finish what you are doing then make sure what is
+           left is in the instructions. then commit and push waht you have so
+           far."
+Owner:     root Codex session
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+English narration, tutorial publication, frontend localization, API extraction,
+and installer hardening are implemented and independently checked. The release
+is still blocked by generated API and runtime catalogs: all nine target locales
+must be rebuilt against the final parser, semantic, cache, OpenCC, and source-
+hash contracts. Initial Korean and Simplified Chinese API passes exposed
+structural ``::`` loss, context-free technical false friends, copied English,
+Chinese model-corpus contamination, and silent truncation. The builders have
+been redesigned, but their final corpus tests and identity freeze still need to
+pass before generation resumes. Nothing in this task is publishable yet.
+
+2026-08-12 checkpoint: builder hardening is committed at ``9b354204``. The
+final source work expanded the English API inventory to 6,351 records (6,232
+canonical and 119 exact aliases): 29 reviewed public bodies from the shared
+live-preview contract committed at ``c127c421``. The Image UMAP settings change
+at ``66610343`` also changed the runtime-English source contract, so runtime
+catalog work is deliberately held until the two in-flight API jobs finish and
+the English runtime manifest is rebuilt once. Portuguese and Korean API repair
+are running on the final 6,351-record corpus on CUDA; both primary passes are
+complete and their strict sentence/protected-text repair and audits remain in
+flight. OPUS then continues through Spanish/German/Swedish/French, while
+M2M100 continues through Simplified Chinese/Hindi/Icelandic. Each locale stops
+before runtime or advancement on any nonzero audit. The repository narration
+skill requested alongside this task is complete separately as instruction 84
+and commit ``d13d07bd``; ``quick_validate.py`` passes.
+
+Later 2026-08-12 checkpoint: the first Portuguese strict pass stopped red,
+as required, with 180 exact-English blocks rather than advancing to runtime.
+The forensic audit showed no cache-propagation bug. It found six standalone
+``::`` markers incorrectly treated as empty prose, seven target reparse shifts
+after Marian dropped unprotected scientific notation, wrapped simple-table
+cells and five indented ``pip install`` commands reaching the model, one GUI
+screen context selected from a literal-stripped view, and unused valid
+alternatives among the four beams already searched. Those parser/protection
+and conservative ranked-candidate repairs are now under focused test; no gate
+has been loosened and no failed locale has advanced. Concurrent WAL work for
+issue #15 added two documented public helpers, so the next immutable freeze is
+6,355 API records, not the earlier 6,353. Refresh both English manifests only
+after the repaired builders are committed, then restart all locales against
+that one quartet.
+
+Interim-push checkpoint, 2026-08-12: the builder/evidence work is committed at
+``3452e67f`` independently of the red generated catalogs. API repair now
+reuses an anonymous legacy cache value only when its key is still the exact
+current model input; every recovery must pass both contextual and canonical
+gates. A value from a different prompt is not silently relabelled as current
+provenance. The document-level syntax audit now compares against the parser's
+canonical rebuilt source, removing the wrapped ``preview_contract`` table
+false positive without weakening any per-block literal check.
+
+Marker restoration now accepts Marian's narrowly provable dropped-``<`` form.
+ASCII word/digit fusion is accepted only when the exact prefix-free protected
+model input records the same adjacency for that exact marker. The restoration
+pass preflights unique, non-overlapping spans; permits target-language marker
+reordering; rejects unknown XML markers and unaccounted numeric marker-like
+tokens; and passes the exact protected input through primary, numeric, chunk,
+and clause paths. Short quoted UI/log values are atomic literal islands in the
+mechanical fragment fallback. The focused localization selection contains 119
+tests and passes. Instruction-77 source work then settled at ``20b5ed52``;
+the refreshed English API inventory is 6,357 records (6,238 canonical plus 119
+exact aliases), including ``cellpose_rescale`` and the public cardinality
+contract ``MergePolicy.how_for``.
+
+The last PT/KO v2 logs are fail-closed evidence from the preceding 6,355-
+record freeze, not final catalogs. PT reused 21,286 blocks, generated 484,
+recovered 34 cache values, decoded 450, relaid 3 symbols, and left 123 sources
+unresolved. Retry acceptance was 237/395 sentence pieces, 5/133 clause
+contexts, and 28/38 fragments. Strict findings were 123 exact/copy/ordinary-
+English blocks, 106 contextual false friends, and 101 context-gate failures.
+The log SHA-256 is ``b921b35c9a77c4a9b267ad9b8c12686eadfb36353b516a8ae21a0a96cf92b875``.
+KO reused 19,344 blocks, generated 2,318, recovered 36 cache values, decoded
+2,282, relaid 13 symbols, and left 182 labels / 156 unique sources unresolved.
+Retry acceptance was 234/703 sentences, 35/348 clauses, and 276/375 fragments.
+Strict findings were 182 exact-English, target-script, and copied-English
+failures plus 84 context-gate failures. Its log SHA-256 is
+``b5c97bcf7efc6165f03fe8cde786d74d7b03ba7df834a289e157aa202bbae2f6``.
+
+Sixty disjoint PT hard-tail candidates are preserved under
+``docs/i18n/reviewed/api/pt`` as three schema-1 evidence files. They match old
+v2 forensic indices 0–59 and pass source hashes, syntax, canonical API, and
+contextual API gates 60/60. Their SHA-256 values are ``3331b081...`` (0–19),
+``7bb1ada2...`` (20–39), and ``5b918fa1...`` (40–59). They have not been
+stamped into a target catalog. Commit ``b942a6c3`` adds the accepted-only
+review loader: a record is usable only when its exact label, block index,
+canonical source, source hash, reviewed context, syntax, canonical gate, and
+contextual gate still match the current corpus. Anonymous output from another
+prompt is never promoted as reviewed evidence.
+
+A fresh Portuguese strict pass against the 6,357-record corpus then recovered
+all 60 original reviews and reduced the unresolved tail from 123 to 46 unique
+blocks. It stopped red before runtime, as required: reused 21,655 blocks,
+generated 134, admitted 60 reviewed records and one exact cache value, decoded
+73 candidates, relaid 2 symbols, and left 46 exact/copy/ordinary-English
+blocks (42 contextual false-friend hits and 40 contextual-source failures).
+All 46 blocks of this fresh tail are now preserved in three files covering
+indices 0–15, 16–30, and 31–45 (SHA-256 prefixes ``a09ae523``, ``7a3d474b``,
+and ``d53a6e4b``). Every record passes exact current source/context/hash,
+syntax, canonical, and contextual checks. The next strict API invocation
+admitted all 46 reviewed values without model decoding and exited zero:
+``verified API catalogs: languages=1 symbols=6357``. The green Portuguese API
+catalog SHA-256 is ``b7edcf69...`` and its run log is ``e420cc2b...``.
+
+Portuguese runtime then stopped red, as required, and is not promoted. It
+found 263 setting-tooltip, 8 category-help, and 20 UI contextual failures;
+246 of those setting tooltips remained exact English. Its log SHA-256 is
+``05013029...``. The generated ``spacr/qt/i18n_catalogs/pt.py`` is therefore a
+failed-run artifact and must remain excluded until that runtime tail is
+resolved. The other eight dirty target API JSONs likewise remain stale or
+partial and are not part of this checkpoint.
+
+The saved-output adjacency replay now accepts
+37 current and 38 compact XML variants (75 total) with no observed losses.
+The one deliberately rejected former current-context hit used a fully stripped
+bare ``x0`` marker, which is indistinguishable from natural coordinate prose;
+release code keeps that ambiguous form fail-closed. The supporting pre-policy
+simulation is ``/tmp/xml-contract-recovery.json`` (SHA-256 ``4d06076b...``).
+These are diagnostic results, not a promise about a fresh run or linguistic
+quality.
+
+The OPUS Korean fallback remains explicitly rejected. Across 36 selected
+sources, M2M had no mechanically valid candidate; OPUS had five, but direct
+review rejected all five as unrelated token salad/hallucination. The other 31
+protected-literal sources lost markers at every rank, and none of the 12 PT-
+overlap sources passed. OPUS also declares CC-BY-4.0 rather than the present
+M2M route's MIT license. No model route or production cache changed. Evidence
+SHA-256 prefixes are sample ``5e3ffbf6``, probe ``7aa77447``, and analysis
+``dd284369``.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The runtime loader correctly rejects stale catalogs and falls back to English,
+so claiming multilingual support before regeneration would be false. Loosening
+the gates would instead activate corrupted literals and technically wrong prose.
+The branch must be pushed only once the exact generated artifacts and their
+source hashes pass strict audits and release tests.
+
+--------------------------------------------------------------------------------
+WHAT TO DO NEXT
+--------------------------------------------------------------------------------
+
+1. Before generation, freeze the committed English API manifest and exact
+   extractor count together with the runtime-English and two builder
+   identities. Do not generate against a dirty or moving public-docstring set.
+2. Preserve the now-green Portuguese API catalog. Resolve its runtime tail
+   (263 setting tooltips, 8 category helps, and 20 UI strings failing current
+   contextual gates; 246 tooltip values still exact English), then rerun the
+   runtime builder against the same immutable 6,357-record freeze. Do not
+   promote the current red ``pt.py``.
+3. Resolve Korean's fresh hard tail with target-language review or a separately
+   admitted, licensed model. Do not use the rejected OPUS Korean checkpoint;
+   retain M2M fail-closed until every surviving value is technically correct.
+4. Generate API then runtime, stopping on every nonzero audit: OPUS for
+   pt/es/de/sv/fr and M2M100 for ko/zh_CN/hi/is. Run strict copied-English,
+   target-script, false-friend, syntax, layout, source-hash, OpenCC, loader,
+   frontend, installer, Sphinx, and release checks against stable files.
+5. Portuguese API is the sole green generated target artifact at this
+   checkpoint. The other eight dirty target API JSONs and the red Portuguese
+   runtime catalog are intentionally excluded. ``skill/FACTS.md`` is also
+   excluded as stale generated shared-worktree output. Regenerate COVERAGE and
+   FACTS only after all 18 target artifacts pass, then close this instruction
+   and perform the final catalog commit/push sequence.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Both localization audit commands exit zero for every locale; each API catalog
+is schema 2 with the exact canonical/alias set and each runtime catalog carries
+all current SOURCE_HASHES. Focused and release tests, a clean Sphinx build, and
+fresh-process language switching pass. The explicit commits contain only the
+intended paths, origin/nightly contains them, and required GitHub checks pass.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Do not bypass translation-model safety checks, use the noncommercial NLLB
+model, loosen zero thresholds, or stamp fresh hashes onto old text. Do not make
+the 1.5.0.5 tag here; instruction 82 owns the final green-CI release sequence.

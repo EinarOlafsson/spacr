@@ -305,16 +305,15 @@ def test_a_round_holds_out_by_well_rather_than_at_random(screen):
     assert set(result.per_class) == {"1", "2"}
 
 
-def test_a_round_says_so_when_a_grouped_split_is_impossible(screen):
-    """All labels from one well: the accuracy is optimistic and must say so."""
+def test_a_round_refuses_when_a_grouped_split_is_impossible(screen):
+    """All labels from one well cannot yield an independent accuracy."""
     paths = [r["png_path"] for r in screen["rows"]]
     labels = {paths[i]: (1 if i % 2 == 0 else 2) for i in range(10)}
     label(screen["db"], labels)
-    result = al.retrain_round(screen["db"], "annotate",
-                              features=screen["features"], seed=0,
-                              save_model=False)
-    assert "NOT grouped" in result.split_rule
-    assert any("optimistic" in note for note in result.notes)
+    with pytest.raises(ValueError, match="one well.*memorised"):
+        al.retrain_round(screen["db"], "annotate",
+                         features=screen["features"], seed=0,
+                         save_model=False)
 
 
 def test_a_round_refuses_to_fit_on_too_few_labels(screen):

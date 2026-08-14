@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# build_macos.sh — produce dist/SpaCR-<version>.dmg on macOS 11+
+# build_macos.sh — produce dist/spaCR-<version>.dmg on macOS 11+
 #
 # Run from the spacr repo root:
 #
@@ -41,7 +41,7 @@ python3 -m pip install -e .
 echo "==> running PyInstaller"
 pyinstaller --noconfirm --clean packaging/spacr.spec
 
-APP="dist/SpaCR.app"
+APP="dist/spaCR.app"
 if [[ ! -d "$APP" ]]; then
     echo "PyInstaller did not produce $APP" >&2
     exit 1
@@ -56,9 +56,9 @@ DMG_DIR=$(mktemp -d)
 cp -R "$APP" "$DMG_DIR/"
 ln -s /Applications "$DMG_DIR/Applications"
 
-DMG="dist/SpaCR-$VERSION.dmg"
+DMG="dist/spaCR-$VERSION.dmg"
 echo "==> creating $DMG"
-hdiutil create -fs HFS+ -volname "SpaCR $VERSION" \
+hdiutil create -fs HFS+ -volname "spaCR $VERSION" \
     -srcfolder "$DMG_DIR" -ov -format UDZO \
     "$DMG"
 

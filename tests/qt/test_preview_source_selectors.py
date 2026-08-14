@@ -431,14 +431,20 @@ def test_measure_channel_dropdown_changes_the_rendered_crops(qtbot, tmp_path):
 
 def test_measure_channel_dropdown_never_rewrites_the_run_settings(qtbot,
                                                                   tmp_path):
-    """It is a view control: png_dims for a real run must not move."""
+    """It is a view control: the run's crop colouring must not move.
+
+    Asserted on ``png_channel_mapping`` rather than the ``png_dims`` this
+    test named before, because that is now the key the panel propagates and
+    the one the run reads -- the intent, that looking at one channel must
+    not re-colour the crops a run will write, is unchanged.
+    """
     path = _measure_array(tmp_path / "plate1_A01_f1.npy")
     panel = _measure(qtbot)
     panel._mask_dim.setValue(4)
     panel.load_array(path)
-    before = panel.settings_for_propagation()["png_dims"]
+    before = panel.settings_for_propagation()["png_channel_mapping"]
     panel._channel_box.setCurrentText("Ch 3")
-    assert panel.settings_for_propagation()["png_dims"] == before
+    assert panel.settings_for_propagation()["png_channel_mapping"] == before
 
 
 # ---------------------------------------------------------------------------

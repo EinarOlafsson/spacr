@@ -1,0 +1,80 @@
+================================================================================
+TURN THE NATURAL NARRATION FINDINGS INTO A REUSABLE REPOSITORY SKILL
+================================================================================
+
+Status:    done, 2026-08-12.
+Requested: 2026-08-12 — "ok please finish everything. thanks and make sure to
+           save anything you learn in terms of how to make the voises sound
+           natural as a skill in the repo folder"
+Owner:     root Codex session
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The tutorial work established measured pronunciation, trimming, cadence,
+fingerprint, acoustic-QA, and release rules, but those lessons are dispersed
+across code, tests, and instruction 48. There is not yet a focused reusable
+skill in the repository that teaches another agent how to produce and verify
+natural English tutorial narration.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Without a reusable workflow, a later narration change can repeat the exact
+failures already found: split technical names, clipped word endings, unnatural
+scene-by-scene speed changes, long model-internal pauses, or structurally valid
+audio that still sounds wrong. The measurements are more valuable than a list
+of preferred spellings because they generalize to new voices and vocabulary.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Use the repository's skill-creator workflow to initialize a focused skill
+   under ``.claude/skills/`` with valid metadata and a concise trigger.
+2. Put the operating workflow in SKILL.md and detailed measured contracts,
+   pronunciation guidance, acoustic gates, and failure diagnosis in references.
+3. Link to repository tools instead of copying implementation, and distinguish
+   caption spelling from synthesis-only pronunciation.
+4. Validate the skill package, forward-test it with a fresh agent on realistic
+   pronunciation/cadence cases, and incorporate any ambiguity the test exposes.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The skill validator exits zero, metadata and default prompt are valid, and a
+fresh agent can use only the skill plus a realistic narration request to choose
+the correct pronunciation/cadence workflow, required acoustic measurements,
+and release gates without inventing waveform edits or voice-specific guesses.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Do not store generated audio, models, or voice tensors in the skill. Do not
+hard-code one voice's speed as universal; the skill must require measurement
+per voice while preserving the shared linguistic and release contracts.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+Created ``.claude/skills/natural-voice-narration`` through the skill-creator
+initializer. Its concise workflow routes detailed measured behavior into two
+references: the naturalness contract and diagnostics/release QA. It covers
+display versus synthesis text, evidence-based cohesive technical tokens,
+sentence-sized rendering, conservative contiguous edge trimming, uniform
+per-voice speed, pause and ending diagnosis, retirement of pathological voices,
+fingerprints, atomic artifacts, full-matrix acoustic gates, and narration-led
+mobile playback.
+
+The skill package validator passed. A fresh-agent forward test on wrong
+technical terms, clipped endings, uneven cadence, and random half-second pauses
+also passed and correctly refused waveform surgery and per-scene speed changes.
+That test exposed two ambiguities, now fixed: agents must not invent an absent
+phoneme form without engine/dialect evidence, and the eight-second dead-air
+threshold is explicitly only a gross-corruption gate, never an allowance for
+shorter unnatural pauses.

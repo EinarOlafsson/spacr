@@ -6,7 +6,7 @@ Status:    not started. Under investigation 2026-08-10; findings go here.
 Requested: 2026-08-10 — "Cupy is the GPU accelerated numpy and there are other GPU translations of python packages. Are there any aspects of any modules e.g. measure, annotate, image UMAP that could be accelerated and therefore made smoother and faster by offloading some compute to the GPU?"
 
 --------------------------------------------------------------------------------
-WHAT IS ALREADY TRUE
+WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
 Measured on the development machine, 2026-08-10:

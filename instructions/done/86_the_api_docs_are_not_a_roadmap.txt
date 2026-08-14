@@ -1,0 +1,446 @@
+================================================================================
+THE API DOCS ARE NOT A ROADMAP -- REMOVE THE MODULE AUDIT, KEEP THE INSIGHTS
+================================================================================
+
+Status:    not started, 2026-08-12.
+Requested: 2026-08-12 - "in the API there is a section called Module Audit
+           that seems more like a document directed at me than a API
+           document. Unless this is some convention that i am unaware of
+           remove it. not however these insights: [the two lists below]"
+           "is this a normal section of an API"
+
+--------------------------------------------------------------------------------
+THE ANSWER TO THE QUESTION
+--------------------------------------------------------------------------------
+
+No, it is not a convention. API reference documents the public interface --
+modules, classes, signatures, parameters, returns, raises -- so a reader can
+call the thing. `docs/source/module_audit.rst` is an internal engineering
+record from 2026-07-30 plus a set of recommendations addressed to the
+maintainer, and it sits in `index.rst`'s toctree where users read it. A
+reader meets "High-value additions" as a list of features spaCR does not
+have, in the same document that is supposed to tell them what it does.
+
+Its first half -- the cross-cutting guarantees and the module-by-module
+execution map -- is genuinely useful and genuinely NOT API reference. It is
+an architecture note. Moving it out of the published API rather than
+deleting it outright preserves that, and this instruction says where.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Drop `module_audit` from `docs/source/index.rst`'s toctree so it stops
+   being published as API documentation.
+2. Keep the execution map and the cross-cutting guarantees as an internal
+   architecture note, not in the API tree.
+3. Delete the recommendation sections from the page entirely -- they are
+   preserved below, which is where work belongs.
+
+--------------------------------------------------------------------------------
+THE INSIGHTS, PRESERVED (the maintainer's words)
+--------------------------------------------------------------------------------
+
+HIGH-VALUE ADDITIONS
+
+  a. "Add a universal dry-run/resource estimate card: input count, projected
+     output size, RAM/VRAM estimate, and settings/schema problems before
+     Run."
+     NOTE: `dry_run` and `spacr.validate.run_preflight` already exist and
+     already report settings/schema problems. What is NEW here is the
+     RESOURCE half -- projected output size and RAM/VRAM -- and making it one
+     card every module shows. Build on the existing pre-flight; do not add a
+     second one.
+
+  b. "Extend the existing run journal into checkpoint/resume for Mask,
+     Measure, UMAP search, conversion, and report generation at field/batch
+     boundaries."
+     NOTE: this is backlog item #14 restated and sharpened. `RunLedger` and
+     `run_context` already exist and are the place it goes. Measure must also
+     delete-before-insert or a resume duplicates rows.
+
+  c. "Add data provenance hashes for input manifests, model artifacts, and
+     settings so reports can prove exactly which source state produced them."
+     NOTE: `run_journal` already records settings per run and instruction 2
+     built the provenance diff. Hashes are the missing half -- the settings
+     are recorded, the INPUTS are not.
+
+  d. "Add optional QC gates between modules (for example, stop Measure when
+     segmentation failure rate exceeds a chosen threshold)."
+     NOTE: `seg_qc` already computes the failure rate and has modes
+     off/report/flag. The gate is a fourth mode -- stop -- plus the threshold.
+
+  e. "Add a small benchmark command that records throughput and peak
+     RAM/VRAM for representative fields, making worker-count defaults
+     specific to the current machine."
+
+GPU OPPORTUNITIES
+
+  "The best next GPU addition is optional RAPIDS cuML for Image UMAP and its
+   clustering, with the current implementation retained as the deterministic
+   CPU fallback. A second useful target is device='cuda' for supported
+   XGBoost Classify (ML) runs. Selected convolution, texture, and
+   phase-correlation kernels in Measure and Align could use CuPy/OpenCV CUDA,
+   but only after profiling: transfer overhead often exceeds the gain for
+   small fields.
+
+   Barcode mapping, format conversion, SQLite browsing, report assembly, and
+   most grouped statistics are dominated by decompression, filesystem,
+   database, or small-table work and should remain on CPU."
+
+--------------------------------------------------------------------------------
+THIS CONTRADICTS A DECISION ALREADY MADE, AND THE MAINTAINER SHOULD SEE IT
+--------------------------------------------------------------------------------
+
+Instruction 70, DONE, investigated GPU offload on this machine and concluded:
+
+    "DEPENDENCY VERDICT: add neither cupy nor cucim/cuml. cupy is a ~100 MB
+     wheel ... cucim/cudf/cuml would add the rapidsai channel to the install
+     instructions."
+
+with the reasoning that `torch` is already a hard dependency and therefore
+nearly free, while anything needing cupy/cuml is a NEW dependency with a
+CUDA-version coupling -- and instruction 59 is trying to get this package
+onto conda-forge, where every extra pinned CUDA dependency is a packaging
+problem.
+
+So "the best next GPU addition is optional RAPIDS cuML" is the option 70
+specifically ruled out, for a packaging reason that has not changed. The two
+are reconcilable if cuML is a genuinely OPTIONAL extra that conda-forge never
+sees -- `pip install spacr[rapids]`, absent by default, with the CPU path
+still the tested one -- and NOT reconcilable if it becomes a dependency.
+
+The XGBoost `device='cuda'` half has no such conflict: xgboost is already a
+dependency and the flag is free. That part can proceed on its own.
+
+RECOMMENDATION: split this. Do the xgboost `device='cuda'` work under the GPU
+heading; leave cuML filed until the maintainer says whether an optional extra
+is acceptable given 59.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+`module_audit` no longer appears in the published API documentation, the
+Sphinx build is clean without it, and nothing in the docs tree addresses the
+maintainer in the second person about work not yet done. The five additions
+above exist as their own tracked items rather than as prose in a reference
+page.
+
+--------------------------------------------------------------------------------
+2026-08-13 - INSIGHT (e), THE BENCHMARK COMMAND, IS BUILT
+--------------------------------------------------------------------------------
+
+`spacr/benchmark.py`. `benchmark(work, items)` runs the real work over a few
+representative units and records throughput, peak RSS and peak VRAM;
+`recommend_workers(measurement)` turns that into a worker count;
+`format_report` prints both as a few lines a user can paste into an issue.
+
+WHY THIS IS WORTH HAVING, stated because the existing defaults look
+reasonable. Every worker default in spaCR is arithmetic on the core count --
+`cpu_count() - 4`, `cpu_count() // 2`, `-1`. Cores are the one thing that is
+never the binding constraint on a measurement run: a field is hundreds of
+megabytes decompressed, so eight workers on a 16-core laptop with 16 GB swap
+long before they saturate the CPU. The number that decides is how much MEMORY
+one worker needs for one field, which is a property of the plate and the
+machine and cannot be derived from `cpu_count()`.
+
+DECISIONS WORTH KEEPING:
+
+  * IT MEASURES, IT DOES NOT TUNE. Nothing here writes a setting, and a test
+    asserts that by scanning the module for `settings[`, `save_settings` and
+    `os.environ[`. A benchmark that silently changed `n_jobs` would make a
+    run's speed depend on when the benchmark last ran.
+  * SERIAL ON PURPOSE. The question is what ONE worker needs; running them in
+    parallel measures the sum and hides the per-worker figure the
+    recommendation divides by.
+  * A WARM-UP ITEM RUNS BUT IS NOT TIMED. The first field pays for imports,
+    the CUDA context and page faults no later field pays again.
+  * `MemAvailable`, NOT total, minus a 2 GiB reserve. Sizing workers against
+    total memory is how a run is OOM-killed at field 900.
+  * VRAM IS `None` WITHOUT CUDA, not 0. "Not measured" and "measured, and it
+    used none" are different answers.
+  * `ru_maxrss` IS KILOBYTES ON LINUX AND BYTES ON macOS. Getting that
+    backwards is a factor of 1024 in a memory budget -- one worker on a large
+    machine, or forty on a small one.
+  * The recommendation carries its evidence (cores, available bytes, the
+    measurement) and its reason, so a number a user disagrees with can be
+    argued with rather than only overridden.
+
+20 tests, Qt-free, registered in `_SUBMODULES`.
+
+STILL OPEN IN 86: insights (a) dry-run resource card, (b) checkpoint/resume,
+(c) provenance hashes, (d) QC gates -- each with its note above about what
+already exists to build on. And the cuML question, which contradicts
+instruction 70 and needs the maintainer.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE cuML QUESTION, CHECKED PROPERLY
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "For cuML, look into it again, check how compatible
+           rapids is with torch and cuda vs other dependencies, it's possible
+           that it's not even a problem, do a thorough check."
+
+THE MAINTAINER IS RIGHT AND INSTRUCTION 70 IS RIGHT, about different things.
+70's CONCLUSION (do not make it a dependency) holds. 70's stated REASON is
+out of date: it said cuML "would add the rapidsai channel to the install
+instructions", and RAPIDS now ships PyPI wheels -- `cuml-cu12` is on PyPI at
+26.8.0. That objection has expired.
+
+THE REAL BLOCKER IS STRONGER AND DIFFERENT, read off the wheel metadata:
+
+    cuml-cu12 26.8.0
+      requires_python   >=3.11
+      classifiers       Python 3.11, 3.12 ONLY
+      numpy             >=2.0
+      scipy             >=1.14.0
+      cuda-toolkit      ==12.*
+      cudf-cu12         ==26.8.*   (and libcuml, pylibraft, rmm, nvforest,
+                                    all exact-minor pinned)
+
+    spaCR
+      requires-python   >=3.9,<3.15,!=3.14.1
+      numpy             >=1.26.4,<3.0
+      scipy             >=1.12.0,<2.0
+
+AS A HARD DEPENDENCY IT IS IMPOSSIBLE, and not marginally: it would drop
+Python 3.9, 3.10, 3.13 and 3.14 -- four of the six interpreters spaCR
+promises -- because cuML declares 3.11-3.12 only. It would also raise the
+numpy floor to 2.0 (which has no cp39 wheels) and scipy to 1.14 (which needs
+3.10+), so the minimum-dependencies CI job and the 3.9 "installs from wheels"
+cell both go with it.
+
+AS AN OPTIONAL EXTRA IT IS FINE, and this is the maintainer's point. An extra
+does not constrain the base resolution: `pip install spacr` is untouched on
+every interpreter, and `pip install spacr[rapids]` resolves only for someone
+on 3.11/3.12 with CUDA 12 who asked for it. TORCH IS NOT A CONFLICT -- this
+machine runs torch 2.9.1+cu128 and cuML wants cuda-toolkit 12.*, the same
+major.
+
+ONE NUMBER TO NOT MISREAD: the cuml-cu12 wheel is 6 MB. That is not the
+footprint. It pulls libcuml-cu12, cudf-cu12, cupy-cuda12x and the CUDA
+toolkit libraries, which is gigabytes -- so "12 MB" is not an argument for
+making it a dependency either.
+
+RECOMMENDATION, unchanged in substance from the earlier note but now with
+the evidence: ship it as `spacr[rapids]`, keep the CPU path the tested and
+default one, and gate the code on a runtime import that falls back silently.
+The conda-forge recipe (59) must NOT list it, which an extra makes automatic.
+
+The xgboost `device='cuda'` half still has no conflict at all -- xgboost is
+already a dependency and the flag is free.
+
+--------------------------------------------------------------------------------
+2026-08-13 - EVERY EXTRA MUST BE REACHABLE FROM THE INSTALLERS
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "by the way all the extra options need to be
+           available via the installers as well add this to the instructions"
+
+So an optional extra is not finished when `pip install spacr[rapids]` works.
+The .exe, the .pkg and the .run are how most users arrive, and an extra only
+a pip user can reach is an extra most users do not have.
+
+WHAT THIS MEANS CONCRETELY, and it lands on instructions 44, 45 and 53:
+
+  * The online installers already resolve dependencies at install time
+    (`packaging/online/install_spacr_*.{ps1,sh}`), so they are the natural
+    place: the extra becomes a CHOICE on the way through, not a second
+    installation afterwards.
+  * The choice must state its cost and its constraint. `rapids` pulls
+    gigabytes of CUDA libraries and REQUIRES Python 3.11 or 3.12 -- an
+    installer that offers it on 3.13 produces a resolver error the user
+    cannot read. Offer it only where it can succeed, and say why when it
+    cannot.
+  * DEFAULT OFF, always. An extra that installs itself is a dependency
+    wearing a different hat, and the whole reason `rapids` is an extra is
+    that it must not reach anyone who did not ask.
+  * The same applies to `attribution` (torchcam) and any extra added later,
+    so this is a rule about the installer's shape rather than about rapids.
+
+44 already covers the CPU-vs-GPU choice at install time; this is the same
+dialog gaining a row per extra rather than a new mechanism.
+
+--------------------------------------------------------------------------------
+2026-08-13 - (c) PROVENANCE HASHES AND (d) QC GATES ARE DONE. THE NOTE ON (c)
+             WAS WRONG ABOUT ITS OWN STATE
+--------------------------------------------------------------------------------
+
+(d) IS DONE. `seg_qc.MODES` gained `stop`, `SegmentationQCFailed` carries the
+summary, and the gate raises LAST so the scorecard is written before the run
+stops. Shipped earlier today.
+
+(c) THE NOTE ABOVE SAYS "the settings are recorded, the INPUTS are not". THAT
+IS FALSE, and it is the sixth instruction file this week to be wrong about
+what already exists. `run_journal` hashes all of it:
+
+    settings_sha256       full SHA-256 of settings.json
+    input_hashes          per-file sha256 + size + mtime for every file under
+                          every path-valued setting
+    input_tree_sha256     a digest over that whole map
+    output_hashes         only files whose (size, mtime) CHANGED during the
+                          run, so an output is distinguished from an input
+                          that happened to sit in the same folder
+    output_tree_sha256
+    model_hashes          checkpoints, already surfaced in the report
+    input_hashing         "on" or "skipped", stated rather than implied
+
+THE MISSING HALF WAS THE LAST MILE, and it is exactly the half the insight
+named: "so REPORTS can prove which source state produced them". The manifest
+had the digests; `spacr/report.py` -- the one artefact a collaborator
+actually receives -- carried only the model hashes. Two runs of the same code
+on two different plates produced byte-identical provenance sections.
+
+BUILT: `report._fingerprints`, rendered into the provenance section.
+
+THE DESIGN POINT WORTH KEEPING. There are THREE outcomes and they must not
+look alike, because an absent fingerprint that reads as an absent difference
+is a FALSE ASSURANCE -- worse than printing nothing:
+
+    digests present        the report can be verified against the data
+    input_hashing skipped  a CHOICE the run made; say so, and say that
+                           re-running with it on is what makes the report
+                           verifiable
+    schema_version < 2     the field did not exist yet, so nothing was
+                           declined and nothing is missing
+
+That is this module's own "a missing section is stated, never omitted" rule
+applied to a digest, where the cost of getting it wrong is highest.
+
+PER RUN, NEVER MERGED, unlike the model hashes directly above it in the same
+section. A tree digest identifies ONE run's view of the data; combining two
+produces a number that matches neither and can be checked against nothing.
+
+When hashing was skipped the tree digests are suppressed rather than printed
+as stale -- printing them would assert a verification that did not happen.
+
+6 tests, one per branch plus the two-run and no-run cases; 159 pass across
+report, report coverage and run_journal.
+
+STILL OPEN IN 86: (a) the dry-run RESOURCE card and (b) checkpoint/resume.
+
+--------------------------------------------------------------------------------
+2026-08-13 - (a) THE DRY-RUN RESOURCE CARD IS BUILT
+--------------------------------------------------------------------------------
+
+`validate.describe_resources`, printed by `run_preflight` right after
+`describe_plan`. Built ON the existing pre-flight as the note above required,
+not beside it -- there is still one card.
+
+WHY IT IS A SECOND FUNCTION AND NOT MORE ROWS IN describe_plan. The plan
+answers "what would this do", and every number in it is a COUNT of something
+that exists. The card answers "can this machine finish it", and every number
+in it is a PROJECTION. Merged, a projection would be read with the confidence
+of a count.
+
+THE RULE, WHICH IS THE WHOLE DESIGN: a figure that cannot be derived is NAMED
+AND LEFT OUT, never guessed. A fabricated ceiling that a run then sails past
+is worse than no card at all, because the user stopped watching.
+
+  MEASURED, off this machine        bytes on disk; the shape and dtype of one
+                                    real .npy, read memory-mapped so the
+                                    header is read and the pixels are not;
+                                    MemAvailable; free space on the volume
+                                    that would be written to
+  DERIVED, AND SAID TO BE           memory is a FLOOR -- n_jobs workers each
+                                    holding one field, before a single
+                                    working copy. A floor is defensible and
+                                    still catches the case that matters,
+                                    which is eight workers holding a 900 MB
+                                    field each on a 16 GB laptop. The card
+                                    points at `spacr.benchmark` for the
+                                    measured peak rather than inventing a
+                                    multiplier for it
+  REFUSED, AND NAMED                the PNG crop tree. It is objects x crop
+                                    modes and the object count is what the
+                                    run exists to discover, so a number there
+                                    would be wrong by an order of magnitude
+                                    in either direction
+
+WHEN n_jobs DOES NOT FIT the card says so and names one that would, computed
+from the per-field figure against MemAvailable less a 2 GiB reserve -- the
+same reserve `benchmark` uses, and for the same reason.
+
+THE TRAP IT STATES OUT LOUD: merged/ is uncompressed .npy, so it can be
+LARGER than a compressed TIFF source rather than the same size. That is the
+disk projection people get wrong.
+
+TORCH IS READ OUT OF `sys.modules`, NEVER IMPORTED. This module's reason to
+exist is that it stays light enough to run before anything heavy is loaded,
+and `test_validate_does_not_import_torch_or_cellpose` enforces it -- a lazy
+import inside the function would still be an import, and would still cost
+seconds on a cluster node that only wanted its settings checked. So the card
+reports the device when the process already has torch and says plainly that
+it did not look when it does not, because SILENCE WOULD READ AS "no GPU",
+which is a different answer. The GPU row appears for `mask` only; measure
+loads no model and a VRAM figure there is noise.
+
+The card is best-effort inside `run_preflight`: it stats the disk, and a
+pre-flight that raises has denied the user the report it exists to give
+them. The failure path is tested rather than pragma'd.
+
+24 tests. Every line of the new code is covered; 103 pass in test_validate,
+827 across the pre-flight-adjacent suites.
+
+STILL OPEN IN 86: only (b), checkpoint/resume.
+
+--------------------------------------------------------------------------------
+2026-08-13 (last) - (b) CHECKPOINT/RESUME WAS ALREADY BUILT. 86 IS DONE.
+--------------------------------------------------------------------------------
+
+The note under insight (b) says "this is backlog item #14 restated and
+sharpened. `RunLedger` and `run_context` already exist and are the place it
+goes. Measure must also delete-before-insert or a resume duplicates rows."
+
+IT IS BUILT, and not in RunLedger -- in two modules of its own, which is the
+better home and is why grepping the ledger found nothing:
+
+    spacr/checkpoint.py   CheckpointStore: one atomic JSON document per
+                          workflow, written to a temporary sibling and
+                          os.replace'd, with a `fingerprint` of the settings
+                          and input identity that a resume is REFUSED against
+                          when it differs. Standard library only, on purpose:
+                          Mask and Measure consult resume state before loading
+                          torch, so this must not make that import heavier.
+    spacr/resume.py       the field-level half -- completed_fields_in_merged,
+                          completed_fields_in_db, plan_measure_resume,
+                          run_already_complete, SettingsComparison, and
+                          clear_field_rows.
+
+WIRED, all four of the five the insight names:
+
+    Mask         core.py passes resume= into the mask writers; io.py:3286
+                 reads completed_fields_in_merged
+    Measure      measure.py:3410 calls plan_measure_resume, deliberately
+                 BEFORE _save_settings_to_db, because that writes the settings
+                 table with if_exists='replace' and would destroy the record
+                 of the run being resumed -- which is what the comparison
+                 reads
+    UMAP search  hyperparam.py:665 opens a CheckpointStore
+    Conversion   convert.py:1833 opens one
+
+THE DELETE-BEFORE-INSERT THE NOTE WARNS ABOUT IS THERE. `clear_field_rows` is
+called from `plan_measure_resume` (resume.py:2147). I first reported it as
+called by nothing; that was a grep that excluded resume.py itself, and the
+claim was wrong. It clears every table for a pending field inside one BEGIN
+IMMEDIATE, keyed on the four identity columns rather than on a name prefix so
+clearing f1 cannot touch f10, and refuses any table not on
+MEASURE_OWNED_TABLES -- measurements.db is shared, and clearing a field out of
+conversion_map would destroy the only record of how the project's files were
+named.
+
+REPORT GENERATION IS THE ONE WITHOUT A CHECKPOINT, AND SHOULD NOT HAVE ONE.
+It reads a finished folder and writes one file; it is minutes at most and
+re-running it overwrites cleanly. A checkpoint there would be machinery
+guarding against a cost that does not exist, and every checkpoint is a second
+thing that can disagree with the data.
+
+176 tests already cover this across test_checkpoint, test_resume and
+test_resume_owned_tables.
+
+SO 86 IS DONE. (a) the dry-run resource card, (b) checkpoint/resume,
+(c) provenance hashes into the report, (d) the QC gate's `stop` mode and
+(e) the benchmark command have all landed, and the Module Audit is out of the
+published API. This file's own "not started" header was wrong about (b) --
+the eighth instruction this week to be wrong about its own state.

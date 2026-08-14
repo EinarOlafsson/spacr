@@ -1,0 +1,544 @@
+================================================================================
+GATE EDITOR: A REDESIGN, NOT A CHANGE
+================================================================================
+
+Status:    IN PROGRESS - DBSCAN + move model + panel merge landed.
+           GATE CREATION IS BROKEN (see 2026-08-07 below), which is
+           why none of the editing behaviour was visible.
+Requested: 2026-08-06, verbatim:
+
+  "the user should be able to:
+   - right click on each axis to define the axis cutoffs, logarithmize the
+     axis and other transforms
+   - choose the granularity of the data shown, (many datapoint vs few)
+   - choose the cmap used to visualize the data
+   - the gate should be a polygon drawn by clicking the left mouse or a
+     square / rectangle by pulling with the held mouse. for the polygon,
+     clicking the start should close the polygon and highlight either the
+     area chosen or the datapoints (mode chosen by the user). there should
+     also be a magic wand tool as well as a clustering tool using DB browse.
+     after the gate is made the user should be able to click and move to
+     move the gate and click and pull to expand the gate.
+   - if more than 2 axes is possible that would be great
+   - the panels to the left are not very useful and they look like elements
+     are overlapping. put filter and columns into one section
+   - if you have any other ideas to make this more useful please add them.
+     for the annotation of clusters or columns, these should be saveable to
+     any database table in a new column specified by the user.
+   - for the clustering the user should be able to click a cluster settings
+     and cluster button. the user should also be able to generate a umap or
+     PCA or TSNE in this module based on conditions or selected columns."
+
+--------------------------------------------------------------------------------
+ONE THING TO CONFIRM BEFORE WRITING CODE
+--------------------------------------------------------------------------------
+
+"a clustering tool using DB browse" almost certainly means **DBSCAN** -
+density-based clustering, which is the standard way to turn a dense blob on
+a scatter into a gate. It is NOT the spaCR Database Browser, which browses
+tables and has nothing to do with clustering. ASK. Building the wrong one is
+a week.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Surveyed 2026-08-06. More exists than the request implies, and the plan
+should extend it rather than restart:
+
+  spacr/qt/widgets/gate_spec.py   (794 lines) - ThresholdGate, RectGate,
+      PolygonGate, GateClause, GateStats, gate_from_dict. The maths and the
+      serialisation are done and are good. `GateClause` duck-types onto
+      spacr.selection.DataFilter, so gates already compose with the rest of
+      the filtering.
+  spacr/qt/widgets/gate_editor.py (605 lines) - GateCanvas (tool modes,
+      pending vertices, gate_from_drag for rectangles, close_polygon for
+      polygons), GateTree (the hierarchy), GateEditorPanel.
+  spacr/qt/screens/gate_editor.py (342 lines) - the screen: source label,
+      table picker, save/load gates, X and Y axis pickers.
+
+So rectangle-drag and polygon-click ALREADY EXIST. What does not:
+  * editing a gate after it is drawn (move / resize) - this is the biggest
+    single gap and probably the most-felt;
+  * axis transforms and cutoffs;
+  * granularity, cmap, highlight mode;
+  * magic wand, DBSCAN;
+  * more than two axes;
+  * saving cluster/column labels to an arbitrary table + column;
+  * generating UMAP / PCA / t-SNE in the module.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Gating is how a screen becomes a population, and every downstream number
+depends on the population being the one the user meant. A gate you cannot
+adjust after drawing is a gate you redraw from scratch, and a scatter you
+cannot transform is one where the interesting structure sits in the bottom
+2% of a linear axis.
+
+--------------------------------------------------------------------------------
+WHAT TO DO - PHASES, IN THIS ORDER
+--------------------------------------------------------------------------------
+
+Do NOT attempt this as one change. Each phase below is independently
+useful and independently shippable, and the ordering is by
+(value / risk), not by the order the request lists them.
+
+PHASE 1 - make the existing gates editable and legible
+  1. Move a gate: click inside, drag. Resize: grab a handle.
+     RectGate is easy; PolygonGate needs per-vertex handles. Both already
+     serialise, so persistence is free.
+  2. Highlight mode: shade the AREA or recolour the POINTS, user's choice.
+  3. Consolidate the left panel - "filter" and "columns" into one section,
+     and fix the overlap. Check the layout for a missing stretch or a fixed
+     height; overlapping widgets are usually one of those two.
+
+PHASE 2 - make the plot readable
+  4. Right-click an axis -> context menu: cutoffs (min/max), log / symlog /
+     sqrt / none. Store the transform WITH the axis, and make gates
+     transform-aware: a gate drawn on a log axis and re-read on a linear one
+     must select the same objects, or gates silently change meaning. That is
+     the trap in this phase and it is worth a test of its own.
+  5. Granularity: subsample for drawing only. NEVER let the drawn sample
+     decide the gate's contents - the gate must always be evaluated against
+     the full frame, or the population depends on the zoom level.
+  6. cmap picker. Reuse the existing figure/cmap settings rather than adding
+     a second colour system.
+
+PHASE 3 - selection tools
+  7. Magic wand: pick a point, grow to a density/percentile threshold. Show
+     the threshold and let it be adjusted - a wand whose sensitivity is
+     hidden is a wand nobody trusts.
+  8. DBSCAN (confirm first, see above): eps + min_samples in a "cluster
+     settings" dialog, a "Cluster" button, clusters become gates or labels.
+
+PHASE 4 - dimensionality reduction in-module
+  9. UMAP / PCA / t-SNE on selected columns or a condition subset, feeding
+     the same canvas. spacr.core.generate_image_umap and the Image UMAP
+     module already do UMAP - call them; do not write a second embedding
+     path that can drift.
+
+PHASE 5 - more than two axes
+  10. The honest options are a scatter-plot MATRIX (all pairs, gate on any
+      panel) or a parallel-coordinates view. A 3-D scatter is the obvious
+      idea and the worst one: gating in a rotated 3-D projection is
+      imprecise and hard to reproduce. Recommend the matrix.
+
+CROSS-CUTTING - saving labels
+  11. "Saveable to any database table in a new column specified by the
+      user." Generalise the write that annotate/UMAP already do: pick table,
+      pick/create column, write. It must go through ONE writer -
+      measurements.db has a documented concurrency hazard - and it must
+      refuse to overwrite an existing column without saying so.
+
+--------------------------------------------------------------------------------
+OTHER IDEAS, SINCE THEY WERE ASKED FOR
+--------------------------------------------------------------------------------
+
+  * Show n and % at every gate, of parent and of total. GateStats already
+    computes exactly this and nothing displays it. 90% of a parent that is
+    2% of the plate is 1.8% of the objects, and that is the number people
+    get wrong.
+  * Back-gating: show where a gated population falls on the OTHER axes.
+    This is the single most useful thing in flow software and it is cheap
+    once gates are transform-aware.
+  * A gate is already a DataFilter clause - so a gate should be usable as a
+    Classify training basis (dataset_mode 'measurement') without export.
+    That closes a loop the merged Classify module opened.
+  * Quadrant gates: one click, four populations. Common and trivial.
+  * Show the gate's definition as text, and let it be edited as text. A gate
+    that can only be drawn cannot be reproduced in a methods section.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Per phase. Phase 1: draw a rectangle, drag it, and the population count
+changes; reload the saved gates and it is where you left it. Phase 2: switch
+an axis to log and the SAME objects stay selected. Phase 3: DBSCAN on a
+known two-blob synthetic finds two clusters. Phase 5: gate on one panel of
+the matrix and the others show the selection.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing started. This was recorded rather than begun because it is a
+redesign across three files and roughly ten independent features, and
+starting it with too little room would have produced a half-migrated editor
+that is worse than the current one - the gate maths in gate_spec.py is
+sound, and a partial rewrite is the one way to lose it.
+
+--------------------------------------------------------------------------------
+2026-08-07 - THE FULL SPEC, AND A BLOCKER
+--------------------------------------------------------------------------------
+
+BLOCKER, REPORTED FIRST: "I dont see any of the behaviour I asked for" and
+"because it is impossible to generate a gate i cant test this section".
+
+GATE CREATION IS BROKEN. Everything built so far -- DBSCAN clustering, the
+move model, the canvas drag handler -- operates on gates that exist, so none
+of it is reachable. FIX THIS BEFORE ANYTHING ELSE. Specifically:
+
+  * POLYGON: clicking the FIRST point a second time must close the gate.
+    Today closing is a separate "Close polygon" button, which is not what
+    anyone tries.
+  * DRAG: a click-and-drag must draw a RECTANGLE by default, with no tool
+    selection needed.
+  * Once closed, a gate is draggable. That part is written and tested; it
+    simply has nothing to act on.
+
+SHAPES beyond the rectangle: ovals, circles, and others, chosen by the user.
+
+DATA DISPLAY
+  * cmap choice for the scatter.
+  * RESOLUTION: from every individual point through to binned density, so a
+    million-row table is not a million artists. This is the same idea as the
+    "granularity" already in phase 2 -- one setting, and the gate is ALWAYS
+    evaluated against the full frame however coarsely it is drawn.
+
+CLUSTERING
+  * A clustering algorithm option with a hyperparameter search, including a
+    WALK -- the same directional search described for Image UMAP in
+    instruction 34, and it must carry the SAME NAME in both modules.
+
+LAYOUT, as reported
+  * The middle section (the one with "delete gate" at the bottom) OVERLAPS
+    the filter section. The filter section itself "looks fine, and adding
+    new filters does work live".
+  * Filter sets and values should be SAVEABLE, exactly as gates already are.
+  * The console and the AI chat box belong at the BOTTOM of that section.
+  * Filter and Hyperparameter-search become TABS, the active one blue like
+    the app's buttons, sitting above the console.
+  * Graph, filter and search containers all resizable in width and height.
+
+DIMENSIONALITY - the largest piece
+  * Three exclusive modes, as buttons where the two axis pickers are now:
+      2D  - two axis fields (today's behaviour)
+      3D  - three axis fields, and the gate becomes a 3D voxel gate
+      xD  - two axis fields by default, each fed by a dimensionality
+            reduction over a list of columns
+  * xD reduction methods: PCA, UMAP, t-SNE, and others. Each with its own
+    hyperparameters, and a search/Walk toggle. Irrelevant parameters are
+    GREYED when another method is chosen -- the same rule the merged
+    Classify module already follows (INVARIANTS 6: greyed, not removed).
+
+SETTINGS PANEL - three tabs
+    1. General   - data resolution, cmap, which tables, what to merge on.
+    2. 3D        - greyed unless 3D is active.
+    3. xD        - greyed unless xD is active: how many axes (2 or 3), the
+                   reduction method dropdown, its hyperparameters, and the
+                   search/Walk toggle which reveals the search region.
+
+TABLE MERGING
+  * Combine cell, cytoplasm, nucleus, pathogen, organelle, png_list and any
+    other table the user names.
+  * DEFAULT merge key: the plate/row/column/field/object label (the cell
+    object). That is what nearly every real case wants, so it is the
+    default rather than a choice the user has to make first -- but it stays
+    editable in the settings panel.
+  * spacr.io._read_and_join_tables already does exactly this join and knows
+    the traps (cell_id anchoring, the timelapse key mismatch). CALL IT.
+
+3D WORKSPACE
+  * Click and drag spins the plot on both axes.
+  * The spin SNAPS to axis-aligned views: it rotates along the axes, not
+    between them, and settles with two axes facing the user, one vertical
+    and one horizontal.
+  * With a face toward the user, the gate is edited on that face. A 3D gate
+    therefore starts as a 2D shape and is then extruded along the third
+    axis.
+  * Shapes in 3D: polygons, cylinders, cubes, and so on -- the extrusions of
+    the 2D shapes above.
+
+--------------------------------------------------------------------------------
+REVISED ORDER
+--------------------------------------------------------------------------------
+
+  0. FIX GATE CREATION. Nothing else is reachable until this works.
+  1. Shapes (rect default, oval/circle), then resize handles and highlight
+     mode -- the rest of the original phase 1.
+  2. Layout: the overlap, filter/search tabs, console + AI at the bottom,
+     resizable containers, saveable filter sets.
+  3. Data display: cmap, resolution/binning.
+  4. 2D/3D/xD mode buttons and the three-tab settings panel, with table
+     merging through _read_and_join_tables.
+  5. Clustering search + Walk (shared with instruction 34).
+  6. The 3D workspace, which is the biggest and should be last: it needs
+     everything above to exist first.
+
+--------------------------------------------------------------------------------
+2026-08-07 (second report) - GATES ARE PER-AXIS-PAIR AND MUST NOT AUTO-ZOOM
+--------------------------------------------------------------------------------
+
+  "now when i apply the gate it zooms in to the gated region. this is not
+   the behaviour i want. I dont want the auto zoom and i want to be able to
+   drag the gate around. I want to be able to go to a set new axes and make
+   a new gate and choose which gates are active. when i go back to a set of
+   axes where i drew a gate that gate if active should be visible to me."
+
+FOUR THINGS, and the first one explains the second.
+
+1. NO AUTO-ZOOM ON APPLY. Diagnosed: `graph_builder._render` computes the
+   axis limits with `scales_for(data.frame, ...)`, and `data.frame` is the
+   FILTERED frame. Applying a gate as a filter therefore rescales the axes
+   to the rows that survived, which reads as zooming into the gate. The
+   limits must come from the UNFILTERED table so the view does not move
+   when a filter is applied.
+
+2. DRAGGING A GATE. The handler exists and is tested. It was probably
+   unusable because of (1): the gate is redrawn at the same DATA
+   coordinates, but the axes have moved under it, so it appears somewhere
+   else or fills the plot. Fix (1) first, then re-check.
+
+3. GATES ARE PER-AXIS-PAIR. `_draw_gates` currently outlines EVERY gate on
+   whatever axes are showing, which is wrong in both directions: a gate
+   drawn on area/intensity is meaningless on a different pair, and a gate
+   drawn on the current pair must reappear when the user comes back to it.
+   Draw a gate only when its `columns` match the current x/y.
+
+4. ACTIVE/INACTIVE IS A NEW CONCEPT. Today `active` means "the selected
+   gate, i.e. the parent for the next one". What is being asked for is
+   ENABLED: a per-gate toggle deciding whether it is drawn and whether it
+   contributes to the filter. Add it as a field on Gate (defaulting to
+   True, so every saved gate keeps working) with a checkbox in GateTree.
+   Do not overload the existing `active`.
+
+ORDER: (1) is a one-line change with a real blast radius -- graph_builder
+is shared -- so it goes first and alone. Then (3), then (4), then re-check
+(2).
+
+
+--- 2026-08-07: the core loop is done (commits d23ebe4a, 4b805e15) ---
+
+User narrowed the target: "pick x and y axes / draw a gate on the graph / be
+prompted to name the gate but never zoom into the gated data / be able now to
+select this gate in the gate panel section and toggle it on and off. this is
+all we are trying to acieve now."
+
+All four now hold, with tests.
+
+The zoom had TWO causes and fixing the first did not fix the symptom:
+  1. Apply published a FILTER (removes rows) -> fixed, publishes a SELECTION.
+  2. `GateCanvas.population()` returned the ACTIVE gate's population, and
+     `render_now` plots what it returns. This was the real one. Selecting or
+     drawing a gate replotted only its objects; deleting was the only thing
+     that cleared the active name, hence "the only way to get back to the
+     main figure is to delete a gate".
+Anyone reverting either half brings the zoom back on its own.
+
+`_active` now means ONLY "parent of the next gate drawn". It must never again
+be allowed to decide what is plotted.
+
+Toggle: the tick lives in the tree, the canvas is told. Unticking hides the
+outline and the highlight and does nothing else -- not a delete, and not a
+filter on the rows.
+
+Still open from the original spec: resize handles on gates; filter/search
+tabs; console + AI chat; saveable filter sets; cmap + data binning; 2D/3D/xD
+modes; table merging on plate/row/column/field/object; clustering Walk; the
+3D voxel workspace.
+
+--- 2026-08-07 (later): move/resize done (commit 6d8b2003) ---
+
+Ghost placeholder follows the mouse; edit commits on release. Anchor points
+(corners + sides) on all four gate kinds, geometry in gate_spec via
+handles()/with_handle() -- pure, no Qt, testable without a canvas.
+
+Two bugs found while doing it:
+  * EllipseGate had NO branch in `_outline`. An oval was previewed during the
+    drag and vanished once created. Outline/ghost/preview now share one
+    geometry function so this cannot recur silently.
+  * Gates nested themselves. A new gate took parent=active, and drawing
+    selects, so gate2 nested in gate1 and gate3 in gate2 -- and since
+    GateSet.mask ANDs the ancestor path, those gates were not the shapes
+    drawn. Drawn gates are top-level now.
+
+NEXT, as directed: the settings panel. "starting with the 2D and general
+section then moove on to the 3D section / 3D gating". The full spec is in the
+original instruction text above -- three tabs, cmap, data resolution/binning,
+2D/3D/xD modes, table merging on plate/row/column/field/object, clustering
+hyperparameter Walk, filter/search tabs, console + AI chat, saveable filter
+sets, and the 3D voxel workspace with axis-snapping spin.
+
+Still open after that: resize handles exist but gates have no rotate; console
++ AI chat; saveable filter sets; table merging; 3D workspace.
+
+--- 2026-08-07 (later still): filters export, settings tabs, wand (1b4019c1) ---
+
+DONE
+  * spacr/filters.py -- the `filters` table. Gate name -> column, 1/0.
+    Bootstrap per spec: tables present -> anchor (cell, else nucleus /
+    pathogen / cytoplasm / organelle) -> object numbers from EVERY object
+    table -> png_list paths. Qt-free, 37 tests.
+  * Export gates button. Applies each gate to the FULL table regardless of
+    sampling, reading only the columns the gate needs.
+  * Settings window, tabs General / 2D / 3D. Live-applied; only
+    sample_fraction and max_points trigger a re-read.
+  * Sampling (the lag fix). Systematic on the row id.
+  * Magic wand tool: click -> region grow (neighbour tolerance + max distance
+    from click) -> convex hull -> PolygonGate.
+
+TRAP, for anyone touching sampling: SQLite resolves `rowid` to a USER column
+called rowID when the table has one -- and every spaCR table does. 'A' % 5 is
+0, so the clause was true for every row and sampling silently did nothing.
+Use filters.rowid_expression() to pick an unshadowed alias. The unit tests
+missed it because the fixture had no rowID column; it has one now.
+
+NEXT: the 3D section / 3D gating. Settings for it already exist in the 3D tab
+(gate_mode, z_axis, voxel_bins, snap_to_axis, spin_speed) and are read by
+nothing yet.
+
+Still open: resolution modes (hexbin/histogram/density) and colour map are
+settings the canvas does not read yet -- the fields and the UI exist, the
+drawing does not. Clustering Walk likewise. Also: filter/search tabs, console
++ AI chat, saveable filter sets, table merging UI, 3D voxel workspace.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE "STILL OPEN" LIST WAS STALE. AUDITED, AND SAVED SETS BUILT.
+--------------------------------------------------------------------------------
+
+The list above says resolution modes (hexbin/histogram/density), the colour
+map and Clustering Walk are still open -- "the fields and the UI exist, the
+drawing does not". CHECKED AGAINST THE CODE, and they are done:
+
+    colour map        widgets/gate_editor.py:359 reads settings.colour_map
+    resolution mode   :360 reads settings.resolution_mode, and :505/:512
+                      branch on hexbin / density
+    the large path    `_draw_density` honours the mode too, with a comment
+                      recording that this is why "viridis does work but not
+                      when there are more than 50000 data points" and why
+                      hexbin appeared to do nothing -- both lived in the
+                      points path
+    Clustering Walk   25 references in the editor
+
+This is the third stale instruction header this session (73 said "not
+started" when all six items were done; 43 said its failures needed a CI run
+when the machine already had the CI cells). READ THE CODE BEFORE BUILDING
+FROM THE LIST -- these files record what was true when someone stopped
+typing, not what is true now.
+
+GENUINELY OPEN, confirmed by grep returning nothing in either editor module:
+
+    filter / search tabs        0 hits
+    console + AI chat           0 hits
+    saveable filter sets        0 hits   <- built below
+    table merging UI            0 hits
+    3D voxel workspace          0 hits   <- belongs to instruction 52
+
+SAVEABLE FILTER SETS ARE BUILT: `spacr/gate_library.py`. The editor could
+already write a strategy to a path and read one back, but only through a file
+chooser, which makes reuse a matter of remembering where you put it. A screen
+gets gated the same way over and over -- "live singlets", "the debris filter
+I always apply" -- and that is a LIBRARY, not a file. A strategy now has a
+NAME and lives at `<project>/gates/<name>.json`.
+
+Qt-free, like `spacr/filters.py`, so it is testable without a display, and a
+test asserts PySide6 is never imported by it.
+
+THE PART THAT NEEDED CARE: a name is not a path. `save(project,
+"../../etc/passwd", ...)` must not write outside the project, and a name with
+a slash is a mistake rather than a subdirectory. `slugify` is that rule and
+every entry point goes through it; a test asserts the resolved path is always
+inside the library directory. Saves are written whole and moved into place,
+so an interrupted save leaves the previous strategy intact rather than a
+truncated file the library still lists.
+
+18 tests. Registered in `spacr._SUBMODULES` in the same commit -- the handoff
+records that forgetting turns every compat-matrix cell red on
+`test_smoke.py::test_lazy_loader_matches_files`, and that it has happened
+twice.
+
+STILL OPEN AFTER THIS: filter/search tabs, console + AI chat, table merging
+UI. The 3D voxel workspace is instruction 52's.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE "STILL OPEN AFTER THIS" LIST WAS ALSO STALE. TWO OF ITS THREE
+             ITEMS ARE BUILT. ONE IS LEFT AND IT BELONGS TO 49.
+--------------------------------------------------------------------------------
+
+The note directly above ends "STILL OPEN AFTER THIS: filter/search tabs,
+console + AI chat, table merging UI". Checked against the code, same day:
+
+CONSOLE + AI CHAT IS BUILT. `spacr/qt/widgets/gate_console.py::GateConsole`,
+constructed in `screens/gate_editor.py` and given its own pane in the body
+splitter, tooltip "Ask a question about the table you are gating without
+leaving the screen." It is collapsed by default with a recorded reason: the
+console carries a width floor, so a NON-collapsible splitter would force 320
+px onto every screen, and the state the user actually met was "open but too
+narrow to read". `tests/qt/test_gate_console_sizing.py` covers it.
+
+TABLE MERGING IS BUILT, and it is the spec's version rather than a lesser
+one. A working set of tables, each a removable `TableChip`; adding or
+removing one re-reads and re-merges off the GUI thread through
+`_reload_working_set`; the join goes through `merge_tables.MergePolicy`,
+which carries the cell-anchored default key, `consolidate_on_cell`,
+`keep_uninfected` and per-table join direction. One table is read straight
+rather than merged with itself, with the reason recorded: self-merging only
+renames columns and would make every gate saved in a single-table session
+stop matching.
+
+FILTER / SEARCH TABS IS THE ONE GENUINELY LEFT, AND IT CANNOT BE BUILT YET.
+The spec is "Filter and Hyperparameter-search become TABS, the active one
+blue like the app's buttons, sitting above the console." There is no
+hyperparameter search on this screen -- grep returns nothing -- because the
+search this screen needs is the xD reduction search, which is INSTRUCTION
+49's. A tab bar over one tab is not the feature; building it before 49 would
+be building the furniture for a room with nothing in it.
+
+Note also that Filter and Columns were deliberately NOT made tabs, and the
+reason is in the code: they were two tabs inside a 340 px `QTabWidget`, which
+is what read as "elements overlapping", and they are the same job -- both
+narrow what the scatter shows -- so hiding one behind the other meant neither
+could be checked while using the other. That is not the pair the spec means.
+
+SO: 31 is blocked on 49 for its last item, and nothing else. This is the
+FOURTH stale list in this file's own history (resolution modes, colour map
+and Clustering Walk were the previous three, all shipped while listed open).
+
+--------------------------------------------------------------------------------
+2026-08-13 (last) - DONE. THE FILTER / SEARCH TABS.
+--------------------------------------------------------------------------------
+
+The last item, and it needed instruction 49 first: the second tab had nothing
+to hold until there was a search to put in it.
+
+WHY IT WAS WORTH MOVING AND NOT JUST REARRANGING. A search is a thing you
+ITERATE on -- change a parameter, look at the plot, change it again. It lived
+in `_ClusterSettingsDialog`, a MODAL, so *looking* meant closing the dialog,
+and changing anything meant reopening it. Every loop cost two clicks and the
+loss of the previous view. Beside the filter it is one click away and the
+scatter stays on screen while the numbers move.
+
+`spacr/qt/widgets/gate_search_panel.py`, in a `QTabWidget` named
+`GateSidePanel` so `theme.page_tabs_qss` paints the selected tab in the
+accent -- "the active one blue like the app's buttons" -- with the console
+still below it.
+
+FILTER AND COLUMNS ARE NOT THE PAIR THAT BECOMES TABS, and that is worth
+restating because this file's own list makes it look as though they are. They
+were deliberately merged into ONE page earlier in this instruction: they are
+the same job -- both narrow what the scatter shows -- so hiding one behind the
+other meant neither could be checked while using the other. SEARCH is a
+different job, which is what makes it a different tab.
+
+ONE SOURCE OF TRUTH, AND THE FILE ALREADY RECORDS WHY. The modal's docstring
+carries the bug from when it did not have one: it opened on hardcoded 0.30/10
+while Gate Settings offered 0.5/20, so values the user set were discarded and
+the two disagreed about the defaults as well. So the panel and the dialog are
+two editors of the same five numbers on `GateEditorSettings`, and
+`run_cluster` has ONE body -- `_ClusterRun` names the parameters once,
+gathered from the dialog when the button asked and from the settings when the
+tab did not.
+
+THE TAB DOES NOT ASK AGAIN. `run_cluster(ask=False)`: the tab IS the parameter
+editor, and opening the dialog from it would be asking twice for the same
+numbers. The Cluster… button still asks.
+
+Walk steps is greyed while the walk is off rather than removed (INVARIANTS 6),
+the button says which of the two it will do, and the note says what the
+numbers above mean in each mode -- with a walk they are the starting point,
+not the answer, which is not obvious from a checkbox.
+
+16 tests; 541 pass across the gate suites, the xD picker and smoke.

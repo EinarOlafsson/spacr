@@ -44,10 +44,85 @@ STRAP_PHASES = (
 #: Rendered form, for callers that want the whole sentence.
 STRAP_LINE = "  →  ".join(STRAP_PHASES)
 
-#: Taken from the installer icon (spacr/resources/icons/app_icon.ico), whose
-#: dominant colour is exactly this. Sampled rather than guessed so the
-#: loading screen and the thing the user double-clicked are the same colour.
-INSTALLER_GREEN = "#003737"
+def _role(name: str, fallback: str) -> str:
+    """A palette role, or ``fallback`` if the theme module cannot be reached.
+
+    The loading screen is the FIRST thing painted, sometimes before the
+    theme has been resolved and always before anything else could report a
+    problem. A palette lookup that raises here would replace the splash with
+    a traceback, so every lookup carries the literal it replaced.
+    """
+    try:
+        from ..theme import palette_for
+        value = palette_for().get(name)
+        return str(value) if value else fallback
+    except Exception:          # pragma: no cover - the splash must not fail
+        return fallback
+
+
+#: Alias kept for readability at the one call site that names a colour
+#: rather than painting with it.
+splash_role = _role
+
+
+def _rgba(spec: str, fallback: "QColor") -> "QColor":
+    """``rgba(r, g, b, a)`` or ``#rrggbb`` as a :class:`QColor`."""
+    text = str(spec).strip()
+    if text.lower().startswith("rgba(") and text.endswith(")"):
+        parts = [p.strip() for p in text[5:-1].split(",")]
+        try:
+            values = [int(float(p)) for p in parts]
+        except ValueError:
+            return fallback
+        if len(values) == 4:
+            return QColor(*values)
+        if len(values) == 3:
+            return QColor(*values, 255)
+        return fallback
+    colour = QColor(text)
+    return colour if colour.isValid() else fallback
+
+
+def _role_color(name: str, fallback: str = "#000000") -> "QColor":
+    return _rgba(_role(name, fallback), QColor(fallback))
+
+
+def _role_brush(name: str) -> "QColor":
+    return _role_color(name, "#FFFFFF")
+
+
+def _ink(alpha: int) -> "QColor":
+    """The splash's text colour at ``alpha``.
+
+    Kept for callers that want a weight the palette does not name. The
+    paint path no longer uses it: `splash_ink` and `splash_ink_dim` are
+    already flattened against the background, so a phase is drawn with an
+    opaque colour and no alpha maths.
+    """
+    colour = QColor(_role("splash_ink", "#FFFFFF"))
+    if not colour.isValid():
+        colour = QColor(255, 255, 255)
+    colour.setAlpha(max(0, min(255, int(alpha))))
+    return colour
+
+
+#: The full-window cover's background, taken from the theme's own window
+#: background (`splash_bg`, derived in :func:`spacr.qt.theme.palette_for`).
+#:
+#: It used to be ``#003737``, sampled from the installer icon, and it read
+#: as teal because it IS teal -- a very dark cyan-green at hue 180. That
+#: made the first thing the application shows the one full-window surface
+#: with a colour cast. It is now the window's own background: black on the
+#: dark theme, and identical to the window that replaces it, so the handover
+#: has nothing to flash.
+#:
+#: The name changed with the colour. `INSTALLER_GREEN` described neither.
+SPLASH_BACKGROUND = splash_role("splash_bg", "#000000")
+
+#: Deprecated alias. It was never green after this change and was not
+#: accurately named before it; kept only so an existing importer does not
+#: break on upgrade.
+INSTALLER_GREEN = SPLASH_BACKGROUND
 
 #: The mark, in white, as it appears on the installer icon.
 LOGO_FILE = "logo_spacr.png"
@@ -129,7 +204,7 @@ class LoadingScreen(QWidget):
         painter = QPainter(self)
         try:
             painter.setRenderHint(QPainter.Antialiasing, True)
-            painter.fillRect(self.rect(), QColor(INSTALLER_GREEN))
+            painter.fillRect(self.rect(), QColor(_role_color("splash_bg")))
 
             side = scaled_px(140)
             gap = scaled_px(28)
@@ -161,13 +236,14 @@ class LoadingScreen(QWidget):
             tx = x + side + gap
             baseline = y + metrics.ascent() / 2.0 - metrics.descent() / 2.0
             for index, phase in enumerate(phases):
-                painter.setPen(QColor(255, 255, 255,
-                                      255 if index < lit else 90))
+                painter.setPen(_role_color(
+                    "splash_ink" if index < lit else "splash_ink_dim"))
                 painter.drawText(int(tx), int(baseline), phase)
                 tx += widths[index]
                 if index < len(phases) - 1:
-                    painter.setPen(QColor(255, 255, 255,
-                                          255 if index + 1 < lit else 70))
+                    painter.setPen(_role_color(
+                        "splash_ink" if index + 1 < lit
+                        else "splash_ink_dim"))
                     painter.drawText(int(tx), int(baseline), "  →  ")
                     tx += arrow_w
 
@@ -178,9 +254,9 @@ class LoadingScreen(QWidget):
             rule_w = text_w
             rule_x = x + side + gap
             painter.setPen(Qt.NoPen)
-            painter.setBrush(QColor(255, 255, 255, 45))
+            painter.setBrush(_role_brush("splash_track"))
             painter.drawRect(QRectF(rule_x, rule_y, rule_w, 2.0))
-            painter.setBrush(QColor(255, 255, 255, 200))
+            painter.setBrush(_role_brush("splash_fill"))
             painter.drawRect(
                 QRectF(rule_x, rule_y, rule_w * self.fraction(), 2.0))
         finally:

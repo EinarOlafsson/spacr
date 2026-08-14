@@ -356,8 +356,13 @@ def test_pairs_skip_unloadable_image(tmp_path, capsys, monkeypatch):
     assert len(images) == 1 and len(labels) == 1
     assert images[0].shape == (16, 16)
     assert labels[0].max() == 3
-    assert image_names == ["bad_img.tif", "ok.tif"]
-    assert label_names == ["bad_img.tif", "ok.tif"]
+    # The dropped pair takes its NAME with it. This used to assert
+    # ["bad_img.tif", "ok.tif"] -- the sorted list of every file offered,
+    # including the one that did not load -- so names[0] named an image that
+    # is not images[0]. See test_cellpose_mask_filenames.py.
+    assert image_names == ["ok.tif"]
+    assert label_names == ["ok.tif"]
+    assert len(image_names) == len(images)
     assert "Could not load image" in capsys.readouterr().out
 
 
@@ -435,8 +440,16 @@ def test_labels_only_skip_unloadable(tmp_path, capsys, monkeypatch):
         [], lfiles)
 
     assert images == [] and image_names == []
-    assert label_names == ["a.tif", "bad_lbl.tif", "z.tif"]
-    assert len(labels) == 2
+    # NAMES FOLLOW THE PIXELS. This used to assert
+    # ["a.tif", "bad_lbl.tif", "z.tif"] -- sorted, and keeping the file that
+    # did not load. Both halves were the defect: the caller shuffles its file
+    # list (spacr_cellpose.py:169, :296) while the names came back sorted, and
+    # the skipped file kept its name while `labels` got shorter, so every
+    # entry after it was misnamed. identify_masks_finetune writes each mask as
+    # dst/names[i], so a mask landed under another image's filename.
+    assert label_names == ["z.tif", "a.tif"], (
+        "names must be in the order given, minus what did not load")
+    assert len(labels) == len(label_names) == 2
     assert labels[0].max() == 3 and labels[1].max() == 2
     assert labels[0].dtype == np.uint16
     assert "Could not load label" in capsys.readouterr().out
