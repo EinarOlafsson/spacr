@@ -158,6 +158,7 @@ _KEY_LANGUAGE    = "prefs/language"
 _KEY_FONT_SCALE  = "prefs/font_scale"
 _KEY_CB_MODE     = "prefs/color_blind_mode"
 _KEY_VERBOSE_LOG = "prefs/verbose_logging"
+_KEY_SHARE_DIAGNOSTICS = "privacy/share_diagnostic_logs"
 # Stored as level names ("INFO,WARNING,ERROR") rather than numbers: QSettings
 # round-trips strings predictably across platforms, and a settings file a
 # human might open says what it means.
@@ -1824,6 +1825,20 @@ def set_verbose_logging(on: bool) -> None:
     _settings().setValue(_KEY_VERBOSE_LOG, bool(on))
 
 
+def get_share_diagnostic_logs() -> bool:
+    """Whether report previews may include a redacted recent-log excerpt.
+
+    This never authorises background submission. Every report still stops at
+    the editable preview and needs its own Send click.
+    """
+    return _as_bool(_settings().value(_KEY_SHARE_DIAGNOSTICS, False), False)
+
+
+def set_share_diagnostic_logs(on: bool) -> None:
+    """Persist the revocable diagnostic-log preview opt-in."""
+    _settings().setValue(_KEY_SHARE_DIAGNOSTICS, bool(on))
+
+
 # ---------------------------------------------------------------------------
 # Database Browser — editing is opt-in
 # ---------------------------------------------------------------------------
@@ -2686,6 +2701,18 @@ class PreferencesDialog:
         verbose_check.setChecked(get_verbose_logging())
         modules.addRow(tr("Diagnostics"), verbose_check)
 
+        share_diagnostics_check = Toggle(
+            tr("Include redacted log excerpts in issue previews")
+        )
+        share_diagnostics_check.setToolTip(
+            "Off by default. When enabled, the editable public-GitHub report "
+            "preview includes recent log lines after paths and credentials "
+            "are redacted. Nothing is submitted until you press Send on that "
+            "specific report."
+        )
+        share_diagnostics_check.setChecked(get_share_diagnostic_logs())
+        modules.addRow(tr("Report logs"), share_diagnostics_check)
+
         # Database Browser — off by default. The browser opens
         # measurements.db with mode=ro; this is the only switch that lets
         # it open a read-write connection at all, and even then the user
@@ -3001,6 +3028,8 @@ class PreferencesDialog:
                 field_fade_check.setChecked(get_field_fade_enabled())
                 hash_check.setChecked(get_hash_inputs())
                 verbose_check.setChecked(get_verbose_logging())
+                share_diagnostics_check.setChecked(
+                    get_share_diagnostic_logs())
                 db_edit_check.setChecked(get_db_browser_editable())
                 alpha_check.setChecked(get_show_alpha())
                 beta_check.setChecked(get_show_beta())
@@ -3042,6 +3071,7 @@ class PreferencesDialog:
             set_hash_inputs(hash_check.isChecked())
             set_color_blind_mode(cb_combo.currentData())
             set_verbose_logging(verbose_check.isChecked())
+            set_share_diagnostic_logs(share_diagnostics_check.isChecked())
             # set_log_levels re-clamps rather than trusting the dialog: the
             # console switch is disabled when its file switch is off, but a
             # disabled QCheckBox still reports whatever it was last set to.

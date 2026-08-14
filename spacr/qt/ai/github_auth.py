@@ -1,11 +1,9 @@
 """GitHub authentication + direct issue creation for spaCR.
 
-Lets users file auto-issues WITHOUT a browser round-trip. A token is resolved
-from, in order:
-
-1. A Personal Access Token the user stored in spaCR (Settings → GitHub).
-2. The ``GITHUB_TOKEN`` / ``GH_TOKEN`` environment variable.
-3. The GitHub CLI (``gh auth token``), if ``gh`` is installed + logged in.
+Lets users file approved issues WITHOUT a browser round-trip. A token is
+resolved from the ``GITHUB_TOKEN`` / ``GH_TOKEN`` environment or the GitHub
+CLI (``gh auth token``). spaCR does not capture or persist credentials; the
+official CLI owns interactive login and its platform credential store.
 
 When a token is available, :func:`create_issue` POSTs straight to the GitHub
 REST API and returns the created issue's URL. When none is available the caller
@@ -15,8 +13,6 @@ Public API::
 
     github_auth.is_authenticated()      -> bool
     github_auth.auth_source()            -> "token" | "env" | "gh" | None
-    github_auth.get_stored_token()       -> str
-    github_auth.set_stored_token(tok)    -> None
     github_auth.create_issue(repo, title, body, labels) -> (ok, url_or_error)
 """
 from __future__ import annotations
@@ -34,6 +30,7 @@ from PySide6.QtCore import QSettings
 _ORG = "spacr"
 _APP = "qt"
 _KEY_TOKEN = "github/pat"
+_EPHEMERAL_TOKEN = ""
 
 
 def _settings() -> QSettings:
@@ -45,17 +42,25 @@ def _settings() -> QSettings:
 # ---------------------------------------------------------------------------
 
 def get_stored_token() -> str:
-    """Return the user-stored Personal Access Token (or empty string)."""
-    return str(_settings().value(_KEY_TOKEN, "") or "")
+    """Return a process-only token, after erasing insecure legacy storage."""
+    settings = _settings()
+    if settings.contains(_KEY_TOKEN):
+        settings.remove(_KEY_TOKEN)
+        settings.sync()
+    return _EPHEMERAL_TOKEN
 
 
 def set_stored_token(token: str) -> None:
-    """Persist (or clear, with '') a Personal Access Token."""
+    """Set a process-only compatibility token; never persist it.
+
+    The GUI no longer exposes this function. It remains for API callers and
+    offline transport tests that need to inject a credential for one process.
+    Interactive users authenticate with ``gh auth login``.
+    """
+    global _EPHEMERAL_TOKEN
     token = (token or "").strip()
-    if token:
-        _settings().setValue(_KEY_TOKEN, token)
-    else:
-        _settings().remove(_KEY_TOKEN)
+    _EPHEMERAL_TOKEN = token
+    _settings().remove(_KEY_TOKEN)
 
 
 def _env_token() -> str:
@@ -80,6 +85,8 @@ def _gh_cli_token() -> str:
 
 def resolve_token() -> Tuple[str, Optional[str]]:
     """Return ``(token, source)`` — source is 'token' | 'env' | 'gh' | None."""
+    # Calling this also erases a token left by an older spaCR build. The
+    # process-only value exists for API injection, never installer/UI login.
     tok = get_stored_token()
     if tok:
         return tok, "token"
