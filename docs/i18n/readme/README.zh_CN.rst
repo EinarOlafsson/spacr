@@ -120,8 +120,8 @@ spaCR 支持 Python **3.9 至 3.14** （torchvision 不支持的 Python 3.14.1 �
 
 .. code-block:: bash
 
-   chmod +x SpaCR-*-Linux-x86_64-Online.run
-   ./SpaCR-*-Linux-x86_64-Online.run
+   chmod +x spaCR-*-Linux-x86_64-Online.run
+   ./spaCR-*-Linux-x86_64-Online.run
 
 在 macOS 上，打开已下载的 ``.pkg`` 文件。如果当前测试版安装程序因未公证而被 Gatekeeper 阻止，请打开 **系统设置 → 隐私与安全性**，为 spaCR 选择 **仍要打开**，然后再次运行该安装包。
 

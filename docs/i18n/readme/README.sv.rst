@@ -120,8 +120,8 @@ På Linux, gör det nedladdade installationsprogrammet körbart innan det öppna
 
 .. code-block:: bash
 
-   chmod +x SpaCR-*-Linux-x86_64-Online.run
-   ./SpaCR-*-Linux-x86_64-Online.run
+   chmod +x spaCR-*-Linux-x86_64-Online.run
+   ./spaCR-*-Linux-x86_64-Online.run
 
 På macOS öppnar du den hämtade ``.pkg``-filen. Om Gatekeeper blockerar det aktuella betainstallationsprogrammet för att det inte är notariserat, öppnar du **Systeminställningar → Integritet och säkerhet**, väljer **Öppna ändå** för spaCR och kör sedan paketet igen.
 

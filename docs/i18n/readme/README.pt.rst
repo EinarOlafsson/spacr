@@ -120,8 +120,8 @@ No Linux, torne o instalador baixado executável antes de abri-lo:
 
 .. code-block:: bash
 
-   chmod +x SpaCR-*-Linux-x86_64-Online.run
-   ./SpaCR-*-Linux-x86_64-Online.run
+   chmod +x spaCR-*-Linux-x86_64-Online.run
+   ./spaCR-*-Linux-x86_64-Online.run
 
 No macOS, abra o arquivo ``.pkg`` baixado. Se o Gatekeeper bloquear o instalador beta atual por ele não estar notarizado, abra **Ajustes do Sistema → Privacidade e Segurança**, escolha **Abrir Mesmo Assim** para o spaCR e execute o pacote novamente.
 

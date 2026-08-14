@@ -448,10 +448,10 @@ def test_api_translation_source_preserves_reviewed_corpus_grammar():
         assert builder._api_translation_source(source) == expected
 
 
-def test_v7_cache_namespace_cannot_reuse_v6_source_fallback():
+def test_madlad7b_cache_namespace_cannot_reuse_older_source_fallback():
     import build_documentation_i18n as builder
 
-    assert builder.API_BLOCK_CACHE_NAMESPACE == "api-block-v7"
+    assert builder.API_BLOCK_CACHE_NAMESPACE == "api-block-v8-madlad7b"
     old_key = "api-block-v6\0Read the image plane."
     new_context = builder._api_translation_source("Read the image plane.")
     new_key = f"{builder.API_BLOCK_CACHE_NAMESPACE}\0{new_context}"
@@ -1666,6 +1666,18 @@ def test_rejected_models_use_the_reviewed_permissive_replacement():
         assert license_name == "MIT"
 
 
+def test_secondary_model_is_permissive_and_publicly_attributed():
+    from build_i18n_catalogs import SECONDARY_LICENSE, SECONDARY_MODEL
+
+    attribution = (
+        ROOT / "docs" / "i18n" / "TRANSLATION_MODELS.md"
+    ).read_text(encoding="utf-8")
+    assert SECONDARY_MODEL == "google/madlad400-7b-mt"
+    assert SECONDARY_LICENSE == "Apache-2.0"
+    assert SECONDARY_MODEL in attribution
+    assert SECONDARY_LICENSE in attribution
+
+
 def test_generation_loop_detection_rejects_repeated_labels():
     from build_i18n_catalogs import _looks_degenerate
 
@@ -1888,6 +1900,23 @@ def test_api_source_discovery_excludes_untracked_backup_icons():
     assert not any("backup_icons" in key for key in public_docstrings())
 
 
+def test_orcid_is_a_protected_translation_contract():
+    from build_i18n_catalogs import _protect, _syntax_preserved
+
+    source = "Copyright Matthew O'Meara (ORCID 0000-0002-3128-5331)."
+    protected, literals = _protect(source)
+    assert "0000-0002-3128-5331" not in protected
+    assert "0000-0002-3128-5331" in literals.values()
+    assert _syntax_preserved(
+        source,
+        "Copyright Matthew O'Meara (ORCID 0000-0002-3128-5331).",
+    )
+    assert not _syntax_preserved(
+        source,
+        "Copyright Matthew O'Meara (ORCID 0003-0012-3128-5331).",
+    )
+
+
 def test_api_copy_gate_catches_partial_english_in_every_target_script():
     from build_documentation_i18n import _copied_english_phrases
     from build_i18n_catalogs import MODEL_SPECS
@@ -1925,6 +1954,22 @@ def test_api_copy_gate_catches_partial_english_in_every_target_script():
             f"Explique o {phrase} claramente.",
             "pt",
         )
+
+
+def test_german_software_loanwords_do_not_hide_english_fragments():
+    from build_documentation_i18n import (
+        _copied_english_phrases,
+        _has_english_residue,
+    )
+
+    source = "The thread returns a string after the event loop."
+    german = "Der Thread gibt nach dem Event-Loop einen String zurück."
+    assert not _has_english_residue(source, german, "de")
+    assert not _copied_english_phrases(source, german, "de")
+
+    partial = "Der Thread returns a string after the Event-Loop."
+    assert _has_english_residue(source, partial, "de")
+    assert _copied_english_phrases(source, partial, "de")
 
 
 def test_portuguese_residue_gate_distinguishes_for_homograph_from_english():
