@@ -16,18 +16,18 @@ them checkable by reading widget structure alone:
 4. **The dock obeys the preference**: revealed on hover, locked open as
    a real column, or not there at all.
 
-On ``QTest.mouseMove``: setting ``WA_UnderMouse`` by hand does *not*
-produce a ``:hover`` — ``QAbstractButton`` tracks its own hover flag
-from the enter/leave events the platform delivers, so the pointer has to
-really be moved. That is the only route that exercises the rule the app
-actually ships.
+On hover synthesis: setting ``WA_UnderMouse`` by hand does *not* produce a
+``:hover`` — ``QAbstractButton`` tracks its own hover flag from enter/leave
+events. The test first moves the pointer normally, then sends the same real Qt
+enter event when parallel offscreen workers race over the process-global
+synthetic cursor.
 """
 from __future__ import annotations
 
 import pytest
 
-from PySide6.QtCore import QPoint
-from PySide6.QtGui import QColor
+from PySide6.QtCore import QPoint, QPointF
+from PySide6.QtGui import QColor, QEnterEvent
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QLabel
 
@@ -115,6 +115,19 @@ def _hover(qtbot, tile) -> None:
     qtbot.wait(1)
     QTest.mouseMove(tile, QPoint(tile.width() // 2, 6))
     qtbot.wait(1)
+    if not tile.underMouse():
+        # Xdist's offscreen QApplication processes share one platform cursor:
+        # another worker can move it between QTest.mouseMove and this check.
+        # Delivering QEnterEvent exercises QAbstractButton's actual hover
+        # state machine (unlike forcing WA_UnderMouse) without that global
+        # race, and is exactly what the platform plugin would have delivered.
+        local = QPointF(tile.width() / 2, 6)
+        window_pos = QPointF(tile.mapTo(tile.window(), local.toPoint()))
+        screen_pos = QPointF(tile.mapToGlobal(local.toPoint()))
+        from PySide6.QtWidgets import QApplication
+        QApplication.sendEvent(
+            tile, QEnterEvent(local, window_pos, screen_pos))
+        QApplication.processEvents()
     assert tile.underMouse(), (
         f"the synthetic pointer never reached {tile.text_label} — "
         "something else in this process is holding the mouse, and the "

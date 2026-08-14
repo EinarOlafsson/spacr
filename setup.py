@@ -95,6 +95,37 @@ with open("README.rst", "r", encoding="utf-8") as fh:
 # behind `if system == "Windows"`, so it carries the marker), and
 # catboost/lightgbm, which are alternative model backends behind a
 # `model_type=` string and live in the `boosting` extra — see the note there.
+#
+# ---------------------------------------------------------------------------
+# WHAT A VERSION BOUND IN THIS LIST MEANS. Settled 2026-08-11, because
+# "always use the optimal dependency versions" has two readings that imply
+# opposite CI jobs, and the list was being edited under both.
+#
+# The lower bound is the OLDEST VERSION CI ACTUALLY INSTALLS AND TESTS. It is
+# not a guess at the oldest that might work, and raising it is cheap. This is
+# the rule the cellpose floor was settled by: `>=4.0` was resolving to 4.0.1
+# in CI, whose `CellposeModel` signature spaCR has never been developed
+# against, so the floor moved to 4.0.7 rather than the contract test being
+# loosened. A floor nobody installs is worse than one declared too high --
+# pip resolves it happily and the failure lands on a user.
+# `.github/constraints/minimum-py39.txt` is the file that makes the floor
+# real, and `tests/test_minimum_constraints_match_setup.py` keeps the two
+# from drifting apart again.
+#
+# The upper bound is a MAJOR VERSION SPaCR HAS NOT SEEN. It exists so a
+# breaking release cannot arrive silently between a user's `pip install` and
+# their first run, and it is meant to be raised deliberately after testing --
+# not left to rot. Where a package has no upper bound here that is a
+# considered choice, not an oversight: tifffile, lxml, fastremap, tqdm and
+# protobuf have not broken us across a major.
+#
+# So a normal `pip install spacr` resolves to the NEWEST version in each
+# range, and that is what "optimal" means for a user. It deliberately does
+# NOT mean a lockfile. The reason is measured rather than assumed: on Python
+# 3.9 the newest resolvable IPython is 8.18.1 while on 3.11+ it is 9.16.1,
+# and matplotlib is 3.9.4 versus 3.11.1. Across the six interpreters spaCR
+# supports there is no single newest-that-works set, so any file claiming one
+# would be wrong on 3.9 the day it was written.
 # ---------------------------------------------------------------------------
 dependencies = [
     # -----------------------------------------------------------------------
@@ -155,6 +186,26 @@ dependencies = [
     # Declaring a floor nothing verifies is how "it installed and then
     # crashed" reports are made: pip resolves to it happily, the install
     # succeeds, and the failure lands somewhere else entirely.
+    #
+    # THE CEILING, settled 2026-08-12. `<5.0` stays, and the range is now
+    # actually exercised at BOTH ends: 53 cellpose tests pass on 4.0.7 and on
+    # 4.2.1.1. Before that only the floor was, and 4.2 -- which this range has
+    # always admitted -- broke two things that a user upgrading would have hit:
+    #
+    #   * MODEL_NAMES grew from ['cpsam'] to ['cpsam_v2','cpdino',
+    #     'cpdino-vitb','cpsam'], and `_resolve_cellpose_pretrained` stopped at
+    #     cpsam -- so the dropdown offered the new models and the run silently
+    #     segmented with the old weights.
+    #   * `rescale` stopped being ignored, so spaCR's `rescale=False` became
+    #     `int(200/False)` inside cellpose once `resample` was on.
+    #
+    # NOT SPLIT BY PYTHON VERSION, though that was considered: cellpose
+    # declares no `requires_python` at any release, and 4.0.7 and 4.2.1.1 have
+    # byte-identical `requires_dist`. There is no version of cellpose that
+    # needs a different interpreter, so a marker splitting them would invent a
+    # constraint upstream does not have. spaCR adapts to whichever is
+    # installed instead -- see tests/cellpose_api_contract.py, which records
+    # one exact signature per release rather than one tolerant union.
     'cellpose>=4.0.7,<5.0',
     # `segment-anything` removed: PyPI's `segment-anything` has exactly one
     # release (1.0, 2023-04-06) with empty author, homepage and summary —
@@ -192,16 +243,48 @@ dependencies = [
     # spacr/ml.py imports and constructs ``Logit``. Keep the existing 0.15
     # boundary until the complete statistical suite has been qualified
     # against that release; the warning cleanup itself does not claim broader
-    # dependency compatibility. The floor is the release that introduced
-    # ``statsmodels.othermod.betareg.BetaModel``, imported by spacr/ml.py.
-    'statsmodels>=0.13.0,<0.15',
+    # dependency compatibility.
+    #
+    # Floor RAISED from 0.13.0, which was a guess and was wrong. The comment
+    # here justified 0.13 by ``statsmodels.othermod.betareg.BetaModel`` — the
+    # first API spaCR needed, not the LAST. Three later APIs are used and
+    # none of them exists before 0.14.0, which is why the min-deps job
+    # (pinned at 0.13.5) failed 16 tests no other job failed:
+    #
+    #   * ``links.Identity``  — spacr/ml.py:1142,1154. Before 0.14.0 the
+    #     CamelCase link classes did not exist for the Power subclasses;
+    #     0.13 spells it ``links.identity``, so this is AttributeError, not
+    #     a deprecation. (``Logit`` and ``Log``, also used, DO predate it —
+    #     which is exactly why the gap went unnoticed.)
+    #   * ``BetaResults.get_influence`` — spacr/regression_qc.py:1480 asks
+    #     the fitted model for its own leverage. Added to
+    #     ``othermod/betareg.py`` in 0.14.0; absent in 0.13.x, where the
+    #     `getattr` guard there silently falls back to the design matrix and
+    #     a beta fit is standardised by the wrong hat diagonal.
+    #   * perfect separation in ``GLM._fit_irls`` RAISES
+    #     ``PerfectSeparationError`` in 0.13 and only WARNS
+    #     (``PerfectSeparationWarning``) from 0.14.0 on. spaCR's binomial
+    #     backends rely on the fit returning.
+    #
+    # 0.14.0 publishes cp39 manylinux wheels, so the floor stays reachable
+    # on the oldest interpreter spaCR claims.
+    'statsmodels>=0.14.0,<0.15',
     # ADDED. `from patsy import dmatrices` at spacr/ml.py:33 is module scope
     # and unguarded, so `import spacr.ml` needs it. It was arriving only
     # because statsmodels declares it; statsmodels 0.15 is expected to finish
     # the move to its own formula engine, and the line above already admits
     # 0.14.x, so this was one upstream release away from breaking.
     'patsy>=0.5.6,<2.0',
-    'shap>=0.45.0,<1.0',
+    # Floor RAISED from 0.45.0, which was a guess. spacr/sim.py:1541 calls
+    # `shap.summary_plot(..., rng=np.random.default_rng(42))` — the seed that
+    # makes the beeswarm's jitter reproducible. `summary_plot` IS
+    # `shap.plots._beeswarm.summary_legacy`, and that function grew `rng`
+    # in 0.47.0: checked the signature at the 0.45.0, 0.46.0 and 0.47.0 tags,
+    # and neither of the first two takes it or a `**kwargs` that would
+    # swallow it. On 0.45 the call is `TypeError: summary_legacy() got an
+    # unexpected keyword argument 'rng'`, which is what the min-deps job hit.
+    # 0.47.0 publishes cp39 wheels, so the floor stays reachable on 3.9.
+    'shap>=0.47.0,<1.0',
     'torch>=2.0,<3.0',
     # PyTorch's official SummaryWriter backend. Vision training writes
     # loss/accuracy/F1/LR events to each run folder for an interactive
@@ -617,6 +700,31 @@ setup(
         # variants installable. On 3.13 use `spacr[qt,zernike]` and the captum
         # backends. Upstream: frgfm/torch-cam.
         'attribution': ['torchcam>=0.4.0,<1.0'],
+        # `pip install spacr[rapids]` -- GPU UMAP, t-SNE, PCA, DBSCAN and
+        # KMeans through RAPIDS cuML, with the CPU implementation kept as the
+        # default and the fallback.
+        #
+        # AN EXTRA AND NEVER A DEPENDENCY, and the reason is Python: cuml-cu12
+        # declares `requires_python >=3.11` and ships classifiers for 3.11 and
+        # 3.12 ONLY, while spaCR promises 3.9 through 3.14. It also wants
+        # numpy>=2.0 (no cp39 wheels) and scipy>=1.14 (needs 3.10+), so making
+        # it core would drop four of the six interpreters this project claims.
+        # The environment marker below is what keeps `pip install
+        # spacr[rapids]` from producing an unreadable resolver error on an
+        # interpreter where it cannot succeed.
+        #
+        # Instruction 70 concluded "add neither cupy nor cucim/cuml" because
+        # it would add the rapidsai conda channel. That reason has expired --
+        # RAPIDS ships PyPI wheels now -- but the conclusion stands for the
+        # stronger reason above. As an extra it constrains nothing: the base
+        # resolution is untouched on every interpreter.
+        #
+        # NOT in the conda-forge recipe (instruction 59), which an extra makes
+        # automatic.
+        'rapids': [
+            'cuml-cu12>=25.2; python_version >= "3.11" and python_version < "3.13"',
+            'cupy-cuda12x>=13.0; python_version >= "3.11" and python_version < "3.13"',
+        ],
         # `pip install spacr[boosting]` — the two gradient-boosting backends
         # reachable through `model_type='lightgbm'` and `model_type='catboost'`
         # (spacr/ml.py:2477,2483 and spacr/hyperparam.py:1855,1866). Both are

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -30,8 +31,42 @@ def _make_png_dataset(root, rng, n_train=6, n_test=3, size=64):
                 arr = rng.integers(0, 256, size=(size, size, 3), dtype=np.uint8)
                 if cls == "nc":
                     arr = (arr // 3).astype(np.uint8)   # separable signal
-                Image.fromarray(arr).save(out / f"{cls}_{i:03d}.png")
+                # Keep whole wells on one side of every split.  Reusing
+                # nc_000/pc_000 under train/ and test/ made the leakage audit
+                # correctly reject the fixture before a GPU ever saw a pixel.
+                well_row = "A" if split == "train" else "B"
+                well = f"{well_row}{i + 1:02d}"
+                field = "f1" if cls == "nc" else "f2"
+                name = f"plate1_{well}_{field}_o{i + 1}.png"
+                Image.fromarray(arr).save(out / name)
     return str(root)
+
+
+def test_synthetic_gpu_dataset_has_leakage_safe_identities(tmp_path, rng):
+    """The GPU fixture itself must pass the gate exercised before training."""
+    from spacr.classifier_evaluation import audit_dataset_splits, sample_identity
+
+    src = Path(_make_png_dataset(tmp_path, rng))
+    audit = audit_dataset_splits(
+        src,
+        group_by="well",
+        hash_content=True,
+        require_identity=True,
+        raise_on_leakage=True,
+    )
+    train_wells = {
+        sample_identity(path)["well"]
+        for path in (src / "train").rglob("*.png")
+    }
+    test_wells = {
+        sample_identity(path)["well"]
+        for path in (src / "test").rglob("*.png")
+    }
+
+    assert audit.passed
+    assert audit.overlap_counts["well"] == 0
+    assert len(train_wells) == 6 and len(test_wells) == 3
+    assert train_wells.isdisjoint(test_wells)
 
 
 def _needs_gpu():

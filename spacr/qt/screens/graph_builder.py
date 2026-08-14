@@ -60,7 +60,7 @@ _PREFERRED_TABLES = ("object", "cell", "nucleus", "pathogen", "cytoplasm",
 
 def table_names(path: str) -> List[str]:
     """Every user table in the SQLite file at ``path``, in a useful order."""
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as db:
+    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
         rows = db.execute(
             "SELECT name FROM sqlite_master WHERE type='table' "
             "AND name NOT LIKE 'sqlite_%' ORDER BY name").fetchall()
@@ -84,7 +84,7 @@ def read_table(path: str, table: Optional[str] = None,
     query = f'SELECT * FROM "{name}"'
     if limit:
         query += f" LIMIT {int(limit)}"
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as db:
+    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
         return pd.read_sql_query(query, db)
 
 

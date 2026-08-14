@@ -1,0 +1,451 @@
+================================================================================
+A PERFORMANCE SWEEP: NOTHING THAT LOADS BELONGS ON THE GUI THREAD
+================================================================================
+
+Status:    THREE causes fixed (2026-08-08). MainWindow build
+           5107 ms -> 1457 ms; worst stall 6087 ms -> 2551 ms.
+           The pandas question is settled: not worth doing.
+Requested: 2026-08-08 — "do a performance optemization sweep, where loading of data for example is allways kept of the main app thred, and that background loading is generally kept on the background threads so the main application remains smooth. i noticed that there is a stutter at the beggining of starting the application."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+There is a reported STUTTER AT STARTUP. Not diagnosed, and it is the one
+concrete symptom here, so it is where to begin rather than a general audit.
+
+The infrastructure to fix it already exists. `spacr/qt/bridge.py` is the
+route for long work -- `RunHandle`, `RunRegistry`, `PipelineWorker`,
+`make_thread` -- and it is what pipeline runs already use. What has not been
+audited is everything ELSE: icon loading, theme composition, settings
+resolution, database opens, model discovery, the ambient backdrop.
+
+Two measurements already taken this session are worth knowing:
+
+  * `spacr.qt.theme.stylesheet()` imports 37 modules to collect their QSS
+    the first time it is called, and it is called during startup.
+  * A figure re-render on resize was measured at 1321ms on the GUI thread
+    against a 250ms budget, and was moved to a worker. That was found by
+    measuring, not by reading, and the same is likely true here.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A stutter is the application saying it is not listening. It is worst at
+startup, which is the first thing every user sees and the moment they form
+an opinion about whether the software is solid.
+
+It is also the cheapest class of bug to let accumulate: every individual
+blocking call is small enough to justify, and the sum is a program that
+feels heavy. INVARIANTS have the rule already -- the GUI must never freeze,
+long work goes through `bridge.py` -- what is missing is enforcement.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. MEASURE THE STARTUP STUTTER FIRST. Do not optimise on a guess; this
+   codebase has punished that repeatedly. Two cheap approaches:
+       - `python -X importtime -m spacr.qt` to rank import cost, which
+         finds the "importing 37 modules" class of problem.
+       - A QTimer on the GUI thread that logs whenever an event-loop tick
+         takes longer than ~50ms, then start the app and read what it says.
+   The second is better: it measures the actual symptom -- the loop not
+   turning -- rather than a proxy for it.
+2. Fix what the measurement names, in cost order. Likely candidates, all
+   unverified: stylesheet composition, icon rasterisation, the app registry
+   walk, any database or model-directory scan at construction.
+3. THEN sweep for the general rule: no file read, database open, model load
+   or network call on the GUI thread. Anything that must happen at startup
+   and cannot be moved should be made LAZY -- deferred until the screen
+   that needs it is opened -- which is usually easier than threading it.
+4. Where work does move to a thread, follow INVARIANTS 4: connect BOUND
+   METHODS to `QThread.finished`, never closures, and never connect
+   `worker.deleteLater` to `worker.finished`. Both have already cost
+   crashes here.
+5. Add a guard test for whatever gets fixed, in the shape of the existing
+   perf tests (`tests/qt/test_perf_guard_qt.py`), so it does not come back.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The event-loop monitor from step 1 reports no tick over ~50ms during a cold
+start, and the startup stutter is gone when a human launches it. Both:
+the number is what makes it a regression test, and the human is what makes
+it the actual bug.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started. Resist making this a general refactor. The user reported ONE
+symptom; find its cause, fix it, and let the sweep be informed by what that
+turns up rather than by a list of everything that could theoretically block.
+
+--------------------------------------------------------------------------------
+2026-08-08 - MEASURED FIRST, AS THE NOTE SAID. HERE IS WHAT IT SAID.
+--------------------------------------------------------------------------------
+
+    python -X importtime -c "import spacr.qt.app"
+
+    670 ms  spacr.qt.app
+    396 ms    spacr.qt.widgets.eliding      <- a 40-line label module
+    396 ms      spacr.qt.widgets            <- ...importing the PACKAGE
+    333 ms        spacr.qt.widgets.data_filter_panel
+    238 ms          pandas
+
+`spacr/qt/widgets/__init__.py` imported all 19 widget modules eagerly, so
+importing ANY widget cost every widget -- and one of them imports pandas.
+A 40-line eliding label was pulling in a dataframe library, before the
+first window was drawn.
+
+FIXED: the eight names that cost real time are deferred through PEP 562
+`__getattr__` -- DataFilterPanel, FigureQueue, ColumnWell, DropZone,
+GraphBuilderPanel, GraphCanvas, ImageUmapExplorer, LivePreviewPanel. They
+resolve identically and are cached after the first access; `dir()` still
+lists them.
+
+Only the expensive ones. Deferring the cheap modules too would trade no
+measurable time for a worse class of bug -- an ImportError that stops
+happening at import time and starts happening when a user clicks
+something.
+
+    670 ms -> 592 ms, and the widgets package no longer pulls pandas.
+
+STILL TO DO, and this is the next measurement rather than a guess: pandas
+is STILL imported at startup, by a third path.
+
+    592 ms  spacr.qt.app
+    210 ms    spacr.layers
+    205 ms      spacr.selection
+    200 ms        pandas
+
+So `spacr.qt.app` reaches `spacr.layers`, which reaches `spacr.selection`,
+which imports pandas at module scope. Find who imports `spacr.layers` from
+the Qt startup path and give it the same treatment. That should take
+another ~200 ms off, and would leave startup free of pandas entirely.
+
+AND NOTE WHAT THIS DOES NOT PROVE. Import time is a proxy. The symptom
+reported was a STUTTER -- the event loop not turning -- and the note above
+still stands: put a QTimer on the GUI thread that logs any tick over ~50 ms
+and read what it says. Import cost is one contributor and the easiest to
+find; it may not be the whole of what the maintainer saw.
+
+147 tests pass across the gates, figure-grid, hyperparameter and API
+contract suites.
+
+--------------------------------------------------------------------------------
+2026-08-08, LATER - PANDAS AT STARTUP IS MULTI-PATH. THIS IS WHACK-A-MOLE.
+--------------------------------------------------------------------------------
+
+Second path closed: `spacr/layers.py` imported `OBJECT_KEY_COLUMNS` and
+`object_keys` from `spacr.selection` at module scope, and `selection`
+imports pandas at module scope. All four uses in `layers.py` are at CALL
+time -- inside `columns()`, `frame()` and `object_keys()` -- so the
+module-scope import bought nothing and put pandas on the Qt startup path.
+They are imported inside those three methods now.
+
+AND PANDAS IS STILL THERE, by a fourth route:
+
+    604 ms  spacr.qt.app
+    204 ms    spacr.qt.linked_selection
+    198 ms      pandas
+
+BE HONEST ABOUT THE SCORE. The widgets fix was a real, measured win
+(670 -> 592 ms). This second one closed a path without moving the total,
+because pandas still arrives via `linked_selection`. It is correct in
+principle and worth keeping -- a module-scope import that nothing needs at
+import time is wrong regardless -- but nobody should read it as 200 ms
+saved. It is not.
+
+WHAT THIS PATTERN MEANS, and it is the useful finding: pandas is not
+imported at startup by one careless line. It is woven through the Qt entry
+path in at least four places, and closing one reveals the next. So chasing
+them one at a time is the wrong shape of work. Better:
+
+    python -X importtime -c "import spacr.qt.app" 2>&1 | grep -n pandas
+
+names every importer in one pass. Fix them together, then assert the
+result with a TEST -- `'pandas' not in sys.modules` after importing
+`spacr.qt.app` -- or the fifth path arrives next month and nobody notices.
+
+That test is the actual deliverable of this half of the instruction, more
+than any individual deferral.
+
+STILL UNTOUCHED: the event-loop tick monitor. Import time remains a proxy;
+the reported symptom is a stutter, and no measurement here has yet observed
+the event loop failing to turn.
+
+--------------------------------------------------------------------------------
+2026-08-08, LATER STILL - THE REMAINING 200 ms IS STRUCTURAL, NOT CARELESS
+--------------------------------------------------------------------------------
+
+Enumerated the importers in one pass, as the section above says to. The
+chain that remains is:
+
+    spacr.qt.app
+      -> spacr.qt.linked_selection      204 ms
+        -> spacr.selection
+          -> pandas                     198 ms
+
+`linked_selection.py` itself is INNOCENT. It has
+`from __future__ import annotations`, and its only three uses of pandas are
+`pd.DataFrame` in signatures -- which are strings at runtime, so its
+`import pandas as pd` could move under TYPE_CHECKING and nothing would
+change. I did not make that edit: it is correct in principle but saves
+nothing here, and an unverifiable no-op change is not worth the risk.
+
+The real source is `spacr/selection.py`, which uses pandas THIRTY times and
+genuinely needs it. It is not a stray import that can be deferred; the
+module is built on DataFrames.
+
+SO THE HONEST CONCLUSION, and it changes what this half of the instruction
+is: pandas cannot be lifted off the Qt startup path by moving imports
+around. Removing the last ~200 ms means one of
+
+  (a) splitting `spacr.selection` so the parts the Qt path needs at import
+      time -- `DataFilter`, `ObjectRequest`, `Selection`, `as_key_index`,
+      `OBJECT_KEY_COLUMNS` -- live in a module that does not import pandas,
+      with the DataFrame functions in a sibling that does; or
+  (b) deciding 200 ms of pandas at startup is acceptable and stopping,
+      which is defensible: it is ~1/3 of a 600 ms import, once, at launch.
+
+(a) is a real refactor with real regression risk across everything that
+imports `spacr.selection`. (b) is free. This is a judgement about how much
+the startup stutter actually costs the user, and the tick monitor -- still
+unbuilt -- is what should decide it. If the loop never stalls more than
+50 ms, the imports were never the problem and (b) is obviously right.
+
+DO NOT keep deferring imports one at a time before that measurement. Two
+were worth doing and are done; the third would be guessing.
+
+--------------------------------------------------------------------------------
+2026-08-08, LATER - THE TICK MONITOR GOT BUILT, AND IT CHANGED THE ANSWER
+--------------------------------------------------------------------------------
+
+The monitor this file kept asking for exists now, and it settled the
+open (a)-or-(b) question by making it irrelevant. It measures the SYMPTOM
+-- how long the GUI event loop fails to turn -- not import time, which is
+a proxy for it.
+
+    FIRST MEASUREMENT
+      theme + stylesheet     969 ms
+      MainWindow build      5107 ms
+      worst single stall    6087 ms
+
+Six seconds of a dead loop. The remaining ~200 ms of pandas is 3.5% of one
+stall, so splitting `spacr.selection` -- a real refactor with real
+regression risk -- is NOT worth doing. That is decided: option (b). Stop
+deferring imports.
+
+Then cProfile named the real costs, both of them data loading on the GUI
+thread, which is exactly what the request said must not happen.
+
+  1. ICON RASTERISATION, 2.9 s of 4.8 s. The lru_cache already collapsed
+     160 requests to 50 distinct files; the waste was that every launch
+     started from nothing, decoding and LANCZOS-downscaling source art up
+     to 3334x3334 to draw into a 52 px slot. Re-inked icons are now cached
+     on disk as PNG, one per (file, theme).
+         MainWindow build   5107 ms -> 1930 ms
+
+  2. THE RUN JOURNAL, 852 ms in 7037 json.loads calls. `recent_runs(10)`
+     read and parsed EVERY manifest -- 3521 folders on this machine -- then
+     sorted and kept ten. Worse, it grew with every run the user had ever
+     done, so the launch got slower the more the tool was used. Run folders
+     are named `{YYYY-MM-DD_HHMMSS}_{tag}__{app}`, so they sort to the
+     second without opening anything; it now sorts by name, reads a margin
+     past the limit, and sorts those precisely.
+         recent_runs(10)     852 ms -> 24 ms
+         MainWindow build   1930 ms -> 1457 ms
+
+     Verified identical to an exhaustive scan at limits 1, 10 and 50 over
+     the real 3518-run journal -- bounding the read must not change WHICH
+     runs come back, and a test pins that.
+
+WHERE IT STANDS NOW
+
+      theme + stylesheet    1081 ms
+      MainWindow build      1457 ms      (was 5107)
+      worst single stall    2551 ms      (was 6087)
+      stalls over 50 ms          2      (was 3)
+
+STILL OPEN. Two stalls of ~2.5 s remain and neither has been profiled yet.
+`_build_aside` in `home.py` was 1481 ms in the last profile and is the
+obvious next line to pull. The method is unchanged: run the tick monitor,
+then cProfile, then fix what it names -- not what looks slow.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE NAMED NEXT TARGET IS ALREADY GONE, AND A PROFILER TRAP
+--------------------------------------------------------------------------------
+
+The entry above says "`_build_aside` in home.py was 1481 ms and is the
+obvious next line to pull". Re-measured before pulling it:
+
+    MainWindow build     ~860 ms      (recorded here as 1457)
+    make_home_page        390 ms
+    _build_aside          154 ms      (recorded here as 1481)
+
+So the icon PNG cache and the run-journal fix already took it, and this
+file's own next-step note was stale. RE-MEASURE BEFORE ACTING ON A NUMBER
+IN THIS FILE -- that is now three tasks in a row where the recorded
+remaining-work list was out of date (see instruction 63 for the other two).
+
+A CHANGE THAT LOOKED RIGHT, MEASURED, AND WAS REVERTED. cProfile on the
+MainWindow build attributed ~200 ms of 1000 ms to `_read_cached_icon` ->
+`PIL.Image.convert` -- 50 cached icons decoded through PIL into numpy. The
+pixmap path does not need an array at all, so Qt's own PNG loader should
+have been strictly cheaper. Implemented it (`_cached_qimage`, keyed on the
+resolved cache path so ENV_ICON_CACHE redirection stays isolated), then
+A/B'd it over five fresh processes each:
+
+    with the Qt fast path   907 923 857 835 979    (median 907)
+    without                 873 867 855 821 887    (median 867)
+
+No improvement, marginally worse. REVERTED.
+
+WHY THE PROFILE LIED, which is the transferable part: cProfile charges
+per-call overhead, and PIL decode plus `np.asarray` is call-heavy in a way
+that Qt's single C++ entry point is not. Under the profiler the PIL route
+looks ~5x its real cost; without it, decoding 50 small cached PNGs is not
+where the time goes. `sort_stats("tottime")` on a library that crosses the
+Python/C boundary often is a measurement artefact, not a finding.
+
+The rule this file already states -- "fix what it names, not what looks
+slow" -- needs one more clause: and then A/B the fix in fresh processes,
+because what the profiler names can itself be an artefact of profiling.
+
+WHERE IT STANDS
+
+      MainWindow build      ~860 ms     (was 5107)
+      make_home_page         390 ms
+      _build_aside           154 ms
+
+STILL OPEN, and now genuinely unprofiled: the two ~2.5 s stalls were
+measured with the TICK MONITOR against a real windowed launch, not against
+an offscreen MainWindow build, and nothing above reproduces them. The next
+step is the tick monitor on a real launch -- an offscreen build cannot see
+a stall caused by compositing, font loading or the platform theme, which is
+the most likely place for 2.5 s to hide now that the build itself is 860 ms.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE TWO REMAINING STALLS ARE FOUND, MEASURED AND ATTRIBUTED
+--------------------------------------------------------------------------------
+
+This file has said for two entries that the remaining ~2.5 s stalls were
+"unprofiled" and needed the tick monitor on a REAL windowed launch rather
+than an offscreen build. That is exactly right, and it is why every offscreen
+profile came back clean: THE STALLS ARE NOT IN THE BUILD PATH.
+
+Tick monitor, real X display, 6 s of idle event loop after `show()`:
+
+    PHASES                import spacr.qt.app    501 ms
+                          MainWindow()           731 ms
+                          show()                  36 ms
+
+    STALLS over 50 ms     at 4982 ms  ->  2164 ms
+                          at 5986 ms  ->   888 ms
+                          at 6113 ms  ->    80 ms
+                          at 6410 ms  ->   181 ms
+
+Everything the earlier work optimised is now under a second. The stalls
+happen FIVE SECONDS AFTER THE WINDOW APPEARS, while the event loop is
+otherwise idle -- which is why profiling `MainWindow()` never showed them.
+
+THE CAUSE IS `_PipelinePreloader` (spacr/qt/app.py:84), started by
+`QTimer.singleShot(1500, ...)`. It imports seven heavy modules ON THE MAIN
+GUI THREAD, one per event-loop tick. Timed individually:
+
+    spacr.core          1968 ms      <- the 2164 ms freeze
+    spacr.deep_spacr     711 ms      <- the 888 ms freeze
+    spacr.submodules     374 ms
+    spacr.ml              58 ms
+    spacr.sequencing      16 ms
+    spacr.measure         13 ms
+    spacr.spacr_cellpose   0 ms
+    --------------------------
+    total               3140 ms
+
+ITS DOCSTRING SAID "Each import here blocks the event loop only briefly."
+That was never measured and is false by a factor of twenty for
+`spacr.core`. Corrected in place with the numbers above, so the next person
+reads the real trade.
+
+THE TRADE, STATED HONESTLY: this class buys a responsive FIRST CLICK by
+spending a ~2 s freeze while the user is reading the home screen. It is not
+"brief pauses now for no pause later" -- it is the same wait, moved from a
+moment the user asked for work to a moment they did not.
+
+WHY THE OBVIOUS FIX IS NOT AVAILABLE: the comment above the class records
+that importing these on a background thread caused intermittent
+"Segmentation fault (core dumped)" -- C-extension modules initialising
+CUDA/GL from a non-main thread concurrent with Qt's own GPU init. That is a
+real constraint and this session watched a segfault of exactly that shape in
+the qt suite, so it is not stale.
+
+FOUR OPTIONS, none of them free, and this needs a decision rather than a
+patch:
+
+  1. DROP THE PRELOAD. The wait returns to the first click, where the user
+     has just asked for something. Simplest, and arguably correct: a freeze
+     you asked for is not the same as one you did not.
+  2. PRELOAD ON INTENT. Start the chain when the pointer enters a module
+     tile rather than on a timer. Costs nothing when the user reads the home
+     screen and is usually early enough to matter.
+  3. WARM THE PAGE CACHE IN A SUBPROCESS. A child process importing
+     `spacr.core` faults the shared objects into the OS cache without
+     touching this process's CUDA/GL state; the later in-process import is
+     then cheaper. Needs measuring -- the saving may be small and it doubles
+     peak memory briefly.
+  4. KEEP IT, AND SAY SO. If a fast first click is worth a 2 s freeze at
+     1.5 s, that is a legitimate choice -- but it should be a choice, and
+     the docstring now states its cost so it can be one.
+
+RECOMMEND 2, falling back to 1. Both remove a stall the user did not ask
+for, and neither reintroduces the off-thread segfault.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE PRELOADER TRADE IS SETTLED: NONE OF THE FOUR. COVER IT.
+--------------------------------------------------------------------------------
+
+The four options above (drop it, preload on intent, warm a subprocess, keep
+it) all accepted the premise that the 3140 ms has to happen somewhere the
+user is looking. The maintainer rejected the premise:
+
+    "instead just wait to show everything until the preload is done. the
+     problem is the stutter if preload is triggered right away its fine."
+
+Which is right, and better than my recommendation. The work is not too slow;
+it is badly timed. Start it IMMEDIATELY and cover it with a full-window
+loading screen, and the 3140 ms stops being a stutter and becomes a load.
+
+Moved to instruction 74, which carries the design (spaCR logo on the
+installer's dark green, the strap line to its right, honest progress over the
+seven known modules) and the two hazards -- a blocking splash hangs the
+headless suite, and time-to-first-paint must not regress.
+
+WHAT REMAINS IN 55 after that: nothing measured and unattributed. Every stall
+this file set out to find is now named:
+
+    theme + stylesheet     1081 ms -> fixed (icon PNG cache)
+    MainWindow build       5107 ms -> 731 ms
+    recent_runs(10)         852 ms -> 24 ms
+    the two ~2.5 s stalls           -> _PipelinePreloader, handed to 74
+
+This instruction can close once 74 lands and the tick monitor shows a clean
+launch on a real display.
+
+--------------------------------------------------------------------------------
+2026-08-13 - CLOSED
+--------------------------------------------------------------------------------
+
+The condition this file set for itself was "close once 74 lands and the tick
+monitor shows a clean launch on a real display". Instruction 74 is in done/:
+the loading screen covers the preload and was measured at 1305 ms against a
+1268 ms baseline under a real X server, which is no regression.
+
+Every stall this instruction set out to find is named and attributed, which
+was the actual requirement -- "nothing measured and unattributed". The one
+piece that remained was handed to 74 by the maintainer's own better answer:
+the work is not too slow, it is badly timed.

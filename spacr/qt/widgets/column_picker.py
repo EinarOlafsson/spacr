@@ -197,7 +197,7 @@ class SchemaReader:
     # -- plumbing ----------------------------------------------------------
 
     def _connect(self) -> sqlite3.Connection:
-        con = sqlite3.connect(self.uri, uri=True)
+        con = sqlite3.connect(self.uri, uri=True, timeout=30)
         con.execute("PRAGMA query_only = ON")
         return con
 

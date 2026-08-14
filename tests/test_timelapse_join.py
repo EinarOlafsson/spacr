@@ -271,11 +271,19 @@ def test_non_timelapse_join_is_byte_identical_to_the_old_implementation(tmp_path
 
 
 def test_non_timelapse_join_with_fewer_crops_than_cells_is_not_a_fan_out(tmp_path):
-    """Crops are allowed to be a strict subset of the measured objects.
+    """Crops may be a strict subset of the measured objects, and the join
+    keeps the objects that HAVE one.
 
-    ``len(result) > len(png_list)`` is therefore NOT the fan-out condition —
-    this database trips it while being perfectly healthy. The condition that
-    holds is ``len(result) == len(cell)``.
+    ``len(result) > len(png_list)`` is not the fan-out condition and never
+    was -- a fan-out multiplies rows, and the check for it is that no cell
+    appears twice.
+
+    The retention half changed on 2026-08-11 (instruction 79, item 4): the
+    png_list join is INNER, always. A cell with no crop cannot be classified,
+    annotated or displayed, so carrying it forward handed the classification
+    stage rows it could only drop later -- after the cell counts had already
+    been reported. Restricting here is what makes the reported n the n that
+    was analysed.
     """
     db = _build(tmp_path, times=(None,), crops=False)
     # One crop for one of the four cells, as if save_png had been off for the
@@ -286,8 +294,13 @@ def test_non_timelapse_join_with_fewer_crops_than_cells_is_not_a_fan_out(tmp_pat
     out = _read_and_join_tables(db, table_names=['cell', 'png_list'])
 
     assert len(_table(db, 'png_list')) == 1
-    assert len(out) == 4                       # every cell survives
-    assert out['png_path'].notna().sum() == 1  # only one of them has a crop
+    assert len(_table(db, 'cell')) == 4
+    # Inner: the three cells with no crop do not reach the analysis.
+    assert len(out) == 1
+    assert out['png_path'].notna().all()
+    # The property this test is named for: one crop in, one row out, no cell
+    # counted twice.
+    assert not out['object_label'].duplicated().any()
 
 
 # ---------------------------------------------------------------------------

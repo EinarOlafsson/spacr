@@ -3399,7 +3399,7 @@ class AnnotateApp:
     :param object_size: ``(min_px, max_px)`` connected-component filter; 0 disables.
     """
 
-    def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', percentiles=(1, 99), measurement=None, threshold=None, threshold_direction = "higher", normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1, edge_thickness=1, edge_transparency=100, edge_image=False, object_size=(0,0)):
+    def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', percentiles=(1, 99), measurement=None, threshold=None, threshold_direction = "higher", normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1, edge_thickness=1, edge_transparency=100, edge_image=False, object_size=(0,0), split_by='well'):
         """Build the annotation UI, start the DB worker, and load the first page."""
         self.root = root
         self.db_path = db_path
@@ -3443,6 +3443,7 @@ class AnnotateApp:
         self.edge_transparency = edge_transparency
         self.edge_image = edge_image
         self.object_size = tuple(object_size) if object_size else (0, 0)
+        self.split_by = split_by
         
         style_out = set_dark_style(ttk.Style())
         self.font_loader = style_out['font_loader']
@@ -5407,7 +5408,6 @@ class AnnotateApp:
         """
         import sqlite3
         import pandas as pd
-        from sklearn.model_selection import train_test_split
         from sklearn.metrics import classification_report, confusion_matrix
         from xgboost import XGBClassifier
 
@@ -5480,10 +5480,17 @@ class AnnotateApp:
         X_data = annotated_df[feature_cols].fillna(0).values
         y_data = annotated_df['manual_annotation'].values
 
-        X_train, X_test, y_train, y_test = train_test_split(
-            X_data, y_data, test_size=0.1, random_state=42
-        )
+        from .classifier_evaluation import grouped_split, split_group_values
+        split_level, split_groups = split_group_values(
+            group_by=getattr(self, 'split_by', 'well'), frame=annotated_df,
+            table='annotation classifier')
+        train_idx, test_idx, split_report = grouped_split(
+            split_groups, y_data, 0.1, seed=42, group_by=split_level)
+        X_train, X_test = X_data[train_idx], X_data[test_idx]
+        y_train, y_test = y_data[train_idx], y_data[test_idx]
+        print(split_report.summary())
         model = XGBClassifier(use_label_encoder=False, eval_metric='logloss')
+        model.spacr_split_report_ = split_report.to_dict()
         model.fit(X_train, y_train)
 
         preds = model.predict(X_test)
@@ -5589,8 +5596,14 @@ class AnnotateApp:
             pass
 
         # lists (comma-separated) for known list keys
+        # `classes` is NOT here any more: it holds name -> {column, value}
+        # since instruction 37, and splitting a dict on commas produced a list
+        # of fragments that the pipeline then refused. `class_folder_names` is
+        # the list that used to live under that name -- the training subfolder
+        # names -- and it takes its place. Tk updated to fit the new code, per
+        # the standing rule.
         listy = {
-            "classes", "class_metadata", "train_channels",
+            "class_folder_names", "class_metadata", "train_channels",
             "tables", "file_metadata"
         }
         if key in listy or ("," in s):
@@ -5726,7 +5739,7 @@ class AnnotateApp:
         return effective
 
     def open_deep_spacr_window(self):
-        """Open the Deep-SPACR train/apply configuration window.
+        """Open the Deep-spaCR train/apply configuration window.
 
         Presents a notebook of tabs (dataset generation, training, inference)
         whose 'Run' hands the resolved settings dict to ``deep_spacr`` on a
@@ -5752,7 +5765,7 @@ class AnnotateApp:
 
         # ---- window -----------------------------------------------------------
         win = tk.Toplevel(self.root)
-        win.title("Deep SPACR — Train")
+        win.title("Deep spaCR — Train")
         win.configure(bg=bg)
         win.geometry("1120x760")
 
@@ -5875,9 +5888,13 @@ class AnnotateApp:
         class_metadata_entry.insert(0, str(defaults.get('class_metadata', [['c1'],['c2']])))
         _row(gen_form, r, "class_metadata (list-of-lists)", class_metadata_entry); r += 1
 
+        # The FOLDER names this dataset will write, not the class
+        # definitions -- `classes` now holds name -> {column, value}.
+        # Updated here to fit the new code, per the standing rule.
         classes_entry = tk.Entry(gen_form)
-        classes_entry.insert(0, str(defaults.get('classes', ['nc','pc'])))
-        _row(gen_form, r, "classes (list)", classes_entry); r += 1
+        classes_entry.insert(0, str(defaults.get(
+            'class_folder_names', ['nc','pc'])))
+        _row(gen_form, r, "class_folder_names (list)", classes_entry); r += 1
 
         ch_interest_sp = ttk.Spinbox(gen_form, from_=1, to=5, increment=1)
         ch_interest_sp.set(int(defaults.get('channel_of_interest', 3)))
@@ -6180,7 +6197,8 @@ class AnnotateApp:
             settings['file_metadata'] = _parse_csv_list(file_metadata_entry.get(), None)
             settings['metadata_type_by'] = metadata_type_by_cbx.get().strip()
             settings['class_metadata'] = _parse_list_literal(class_metadata_entry.get(), defaults.get('class_metadata'))
-            settings['classes'] = _parse_list_literal(classes_entry.get(), defaults.get('classes'))
+            settings['class_folder_names'] = _parse_list_literal(
+                classes_entry.get(), defaults.get('class_folder_names'))
             settings['channel_of_interest'] = int(float(ch_interest_sp.get()))
             settings['balance_to_smallest'] = bool(balance_var.get())
 
@@ -6289,14 +6307,14 @@ class AnnotateApp:
 
             def _worker():
                 try:
-                    self.update_gui_text("Deep SPACR: preparing…")
+                    self.update_gui_text("Deep spaCR: preparing…")
                     from spacr.deep_spacr import deep_spacr
                     deep_spacr(settings)
-                    self.update_gui_text("Deep SPACR: done.")
+                    self.update_gui_text("Deep spaCR: done.")
                 except Exception as e:
                     import traceback
                     traceback.print_exc()
-                    self.update_gui_text(f"Deep SPACR error: {e}")
+                    self.update_gui_text(f"Deep spaCR error: {e}")
 
             threading.Thread(target=_worker, daemon=True).start()
 

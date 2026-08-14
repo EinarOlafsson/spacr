@@ -1,0 +1,158 @@
+### 1. THE COUNT
+
+~450 sites in package code (excluding `spacr/qt/**` and `tests/**`), from the five survey slices (208 vocabulary + 67 settings + 63 database + 79 measure-mask + 27 features = 444 claimed; the ~450 figure includes sites named in survey prose but not counted). Roughly 355 mechanical / 95 judgement.
+
+Caveat that matters more than the total: only 147 of those have an individual file:line in the returned arrays. The rest are described as blocks (`settings.py:467-518` = 43 keys, `settings.py:2344-2386` = 43, etc.). The complete deduped list does not exist yet and is step 0.
+
+By file (M = mechanical, J = judgement, post-spot-check):
+
+    settings.py          289  (276 M / 13 J)   467-576, 1069-1111, 2344-2476,
+                                               2582-2600, 3034-3271, 3330-3374,
+                                               3535-3554, 3585, 4411-4468, 839
+    feature_dict.py       26  (12 M / 14 J)    98, 970-1240, 1804-1880, 2009-2136,
+                                               2250-2263, 2402-2438, 2495, 2582,
+                                               2703-2805
+    schema.py             18  ( 8 M / 10 J)    217, 231, 239, 304, 637, 673, 697,
+                                               1549, 1552, 1561, 1610, 1617, 1661,
+                                               1680, 1697, 1712, 2290, 2307
+    measure.py            17  ( 3 M / 14 J)    884, 898, 1104, 1132, 1301, 1355,
+                                               1374, 1485, 1545, 2462, 2735, 2801,
+                                               2825, 2852, 2859-2881, 3024, 3893
+    io.py                 15  ( 7 M /  8 J)    1464, 2090, 2235, 2590, 3133, 3168,
+                                               3877, 4032, 4036, 4066, 4333, 4372,
+                                               4472, 4475, 6011
+    crops.py              11  ( 8 M /  3 J)    138, 141, 146, 506, 536, 542, 564,
+                                               640, 892, 2480, 2920
+    core.py                9  ( 5 M /  4 J)    37, 100, 207, 252, 295, 344, 366,
+                                               391, 444
+    selection.py           7  ( 0 M /  7 J)    138, 170, 233, 268, 296, 354, 537
+    object.py              6  ( 2 M /  4 J)    1416, 1448, 1454, 1464, 1543, 1620
+    validate.py            6  ( 4 M /  2 J)    198, 205, 208, 734, 902, 1533
+    utils.py               5  ( 3 M /  2 J)    1137, 2319, 2324, 8756, 8880
+    resume.py              5  ( 1 M /  4 J)    258, 640, 1014, 1060, 1210
+    measure_hooks.py       4  ( 2 M /  2 J)    142, 210, 239, 652
+    database_schema.py     4  ( 2 M /  2 J)    52, 131, 184, 282
+    anndata_export/__init__ 4 ( 1 M /  3 J)    300, 529, 539, 859, 1163
+    settings_spec.py       3  ( 1 M /  2 J)    117, 124, 145
+    gui_elements.py        3  ( 3 M )          3781, 3927, 5422
+    submodules.py          4  ( 4 M )
+    external_masks.py      2  ( 1 M /  1 J)    44, 673
+    plot.py                2  ( 2 M )          3481, 3503
+    one each (all M)       9                   ml.py:4072, pipeline_v2.py:613,
+                                               filters.py:49, merge_tables.py:96,
+                                               diameter.py:129, gui.py:64,
+                                               lineage.py:111, doctor.py:1715,
+                                               seg_qc.py:1079, layers.py:1411
+
+Two things about this table you must not trust at face value.
+
+First, the M/J split is soft. The 13 spot-checks reclassified 9 judgement calls to mechanical — a 69% overcount rate. If that rate holds across the unchecked ones the true judgement count is nearer 30 than 95. Only four spot-checked sites survived as genuine decisions: `settings.py:1111` (summarize_organelles_by str-vs-list), `schema.py:637` and `schema.py:673` (the key-token alphabet), and the organelle axis of `schema.py:1561`. Add the two that were never spot-checked but plainly are decisions: the 5-positional measure core (`measure.py:1132`, `:1485`) and the mask-plane layout (`crops.py:138-141`, `io.py:3168-3178`).
+
+Second, the two surveys contradict each other on `schema.py:1561`. Resolution: the *parent* axis is mechanical (it varies over cell/nucleus/pathogen/cytoplasm, and `feature_dict.py:1880` `_SUMMARY_PARENTS` is already an order-identical copy); the *organelle* axis is the judgement. Both spot-checks are right about their own half.
+
+And `settings.py`'s 276 mechanical sites are one loop, not 276 edits. The honest shape of the work is: one registry, one loop over settings, one de-positionalising refactor of `measure.py`, and about 40 one-line derivations.
+
+### 2. THE NAMING DECISION
+
+Recommend: **one slot string per organelle, used everywhere, digit-free and separator-free.**
+
+    ORGANELLE_SLOTS = ("organelle", "organelleb", "organellec", "organelled")
+
+That one string is the settings key prefix, the object type token, the table name, the feature-column prefix, the mask-stack folder name and the `png_list` id column stem. This extends the existing three-way identity at `schema.py:1661-1663` and `:1702-1704` (table name == object type == column prefix) to four rather than inventing a fifth namespace and a mapping between them. A mapping table would become the twelfth competing copy of the vocabulary, which is the disease being cured.
+
+Human-readable names are metadata only: `organelleb_name = "lysosome"`, recorded in the settings table, used in GUI labels, plot titles and QC headings, never in a key, a column or a table name.
+
+`organelle_1` / `organelle_2` cannot be the key token, and this is proven, not stylistic:
+
+- `organelle_1` contains `KEY_SEPARATOR`. `compose_prcfo` yields `p1_r1_c1_f2_organelle_17`; `parse_prcfo` (`schema.py:1432-1444`) splits on `_`, pops `17`, and raises "is not a prcfo". `selection._split_key` (`selection.py:354-375`) rpartitions and finds an all-digit tail, so the key parses as an *untyped* object 17 in a field that does not exist — silently, in both halves.
+- `organelle1` contains a digit. With longest-first matching (`schema.py:238`), `organelle141` reads back as type `organelle1` label `41`, so the round-trip proof in `object_id` (`schema.py:790-802`) refuses to key any plain organelle whose label starts with 1 — labels 1, 10-19, 100-199 become unwritable. The parametrised round-trip test `tests/test_schema.py:882-889` uses label 41, which passes for `organelle1`, so this edit goes green in CI and fails on the user's data.
+
+Letter suffixes read badly. `organelleb_channel_0_mean_intensity` is ugly. Accept it: the alternative is either a two-namespace mapping or a per-run user-named vocabulary, and the latter makes `OWNED_TABLES` (`schema.py:1610`), `MEASURE_OWNED_TABLES` (`resume.py:258`) and `table_key_columns` (`schema.py:2066`) run-dependent — and the first two fail *silently* (see §5). Keep the vocabulary closed, hand-written and pin-tested; buy the ugliness.
+
+Cost to an existing settings CSV: **zero.** Slot 1 keeps every key name it has. `organelle_channel`, `organelle_method`, all 58 keys stay typed (`settings.py:2344`), tooltipped (`:3034`), categorised (`:3330`, `:3351`), defaulted (`:467`, `:4415`) and read. No `DEAD_SETTINGS` entries, no tooltip rewrites, `KEYS_BEFORE_REGROUP` (`tests/test_settings_categories.py:397`) untouched. Renaming to `organelle_1_*` instead would cost ~55 `DEAD_SETTINGS` entries each needing a rewritten tooltip (`test_dead_settings.py:255`) and a parametrised validate test (`:291`) — and if you skip that, `utils.load_settings` passes the old key straight through, `organelle_1_channel` takes its `None` default, and the run produces no organelle masks and exits 0. `validate._check_unknown_keys` scores 0.944 on difflib, above the 0.85 cutoff, so it does say "did you mean" — as a WARNING, so `spacr-run` starts anyway.
+
+Cost to an existing measurements.db: **zero.** New tables and new columns only. `CURRENT_SCHEMA_VERSION` stays 1 (`database_schema.py:52`), no `MIGRATIONS` entry (`:184`), no backfill, no `DatabaseSchemaTooNewError` (`:282`). The existing `organelle` table simply means slot 1. Every stored prcfo key composes byte-for-byte. `_rename_legacy_columns` (`database_schema.py:131`) walks `sqlite_master`, so new tables are canonicalised for free; `_widen_table_for` (`utils.py:2808`) already handles the widened summary tables.
+
+One test changes deliberately either way: `tests/test_settings_categories.py:517` `test_exactly_one_organelle_category` asserts exactly one heading whose name contains "organelle". Any second heading breaks it. That is a real decision to take, not a test to route around.
+
+### 3. THE DATABASE DECISION
+
+**N tables for per-object measurements. Wide columns for per-parent summaries.** Not one table with an `organelle_index` column.
+
+Per-object, N tables, because the index column breaks data that already exists:
+
+- Two organelle masks are labelled from 1 independently. One table plus an index means mitochondrion 3 and lysosome 3 in the same field carry the identical `(plateID,rowID,columnID,fieldID,object_label)`. `selection.object_keys` (`selection.py:296`) knows nothing of an index, so they collapse to one key — the exact "two identities, one key" failure the type-in-key work at `selection.py:44-82` was done to end. `anndata_export._build_obs` (`anndata_export/__init__.py:859-873`) raises `DuplicateObjectKeys` on every export, and it only raises because that one guard exists; everywhere else the collapse is silent.
+- `io._read_and_join_tables` (`io.py:2705-2712`) rolls children up by grouping on `['cell_id','prcf']` and *means every numeric column*. Suffixing (`:2735`) is per table, so it cannot separate them. Mitochondria and lysosomes would be averaged into one `organelle_area` per cell, silently.
+- `png_list` has exactly one `organelle_id` text column (`utils.py:1137-1147`, `io.py:4036`).
+- `schema.validate_object_table_frame` (`schema.py:2290-2301`) enforces one row per object key, making the design illegal the moment organelle enters `CANONICAL_OBJECT_TABLES`.
+- Existing rows would need backfilling, forcing `CURRENT_SCHEMA_VERSION` 1→2, which makes every already-installed older spaCR refuse the file outright (`database_schema.py:282-288`). It is the only design that makes an existing database unopenable.
+
+N tables costs breadth, not depth: ~20 literal lists become one derivation, and nothing on disk moves.
+
+Per-parent summaries are the opposite case, because the summary row *is the parent*, not the organelle. Keep the four table names (`schema.py:1561`) and one row per parent; widen the columns: `organelle_summary_organelleb_count` alongside `organelle_summary_organelle_count`. This keeps `tests/test_db_contract.py:726` (one row per parent, `object_label` is the whole object key) passing untouched, keeps `OWNED_TABLES` a closed literal, keeps `resume` and `doctor` unchanged, and keeps slot 1's columns byte-identical so the legacy rewrite anchored on `^organelle_summary_organelle_ch<d>_` (`schema.py:316-325`) still fires. The alternative — 4×N table names — buys nothing and multiplies the owned-table problem.
+
+Parameterisation point: the outer prefix `organelle_summary_` stays literal, only the inner token varies. `_parse_organelle_summary`'s gate (`feature_dict.py:2405`) is then unchanged; only the hardcoded `object_type="organelle"` at `:2425/:2433/:2437` becomes the parsed inner token, and the 15 curated keys at `feature_dict.py:1106-1240` become parameterised on `<org>`.
+
+Do not emit slot-2+ summary columns in the pre-migration `ch<d>` spelling — the migration regex at `schema.py:316-325` will not match them and they will never be canonicalised.
+
+### 4. THE ORDER OF WORK
+
+Step 0 — no code. Produce the complete deduped file:line list (only 147 of ~450 exist today), and settle the `DEAD_SETTINGS` deadlock. `test_dead_settings.py:215` demands every declared-but-unreferenced key join the registry; `:232` forbids a key a defaults factory produces from joining; `:322` says the mask module's stock defaults must pre-flight clean. `_LiveTokens.visit_Constant` (`:149`) harvests identifiers only from literal string constants, so a reader written `settings[f'{slot}_min_size']` emits `organelle` and `_min_size`, never `organelleb_min_size`. No ordering of the work satisfies all three. This blocks the generated route and the hand-written route identically and must be answered before a single settings line is edited.
+
+Step 1 — one role registry in `spacr/schema.py`. Collapse the eleven competing constants (`measure_hooks.py:142`, `feature_dict.py:98`, `schema.py:231`, `schema.py:1554`, `crops.py:146`, `io.py:4032`, `measure.py:2462`, `filters.py:49`, `merge_tables.py:96`, `diameter.py:129`, `validate.py:208`) onto one list; everything else derives. Vocabulary is still the fixed five, so behaviour is unchanged and `tests/test_schema.py:844`, `test_feature_dict.py:461`, `test_resume_owned_tables.py:415` become the guard that no copy drifts.
+
+Step 2 — derive the closed consumers while the vocabulary is still five. `OWNED_TABLES` (`schema.py:1610`), `MEASURE_OWNED_TABLES` (`resume.py:258`), `table_key_columns` (`schema.py:2066`), the three literal alternations `feature_dict.py:2250/2255/2263`, the scope tuples `feature_dict.py:1868-1880`, and the parent axis of `ORGANELLE_SUMMARY_TABLES` (`schema.py:1561`, `utils.py:2324`, `resume.py:261`). Add longest-first ordering to `feature_dict.py:2495` and `:2582`, copying `schema.py:238-239`. Green throughout.
+
+Step 3 — promote organelle into the object-table contract. Add it to `CANONICAL_OBJECT_TABLES` (`schema.py:1617`) and `OBJECT_TABLE_SCHEMAS` (`schema.py:1712`), and fix the omissions that already exist: `io.py:2590`, `io.py:3877`, `io.py:6011`, `ml.py:4072`, `settings.py:1290`. The organelle table is written today and never joined by the read-back or training-dataset paths. Do this while there is still one organelle so the failures are interpretable. Prerequisite, not a side effect.
+
+Step 4 — de-positionalise the measure core. `_morphological_measurements` (`measure.py:1132`, 5 in / 5 out at `:1353`), `_intensity_measurements` (`:1485`, `:1546`, `:1645`, accumulator indices `:1608`, `:1618`), the hand-built parallel lists at `:1546-1547`, the unpack sites `:2839/:2841`; `io._load_and_concatenate_arrays` (`io.py:3133`) positional 4-arity → list of (role, folder); `crops.py:138-146` plane order derived. Still one organelle at the end; every existing `merged/*.npy` still loads because the five-role plane order is unchanged.
+
+**Step 4 is the step that cannot be half-done — specifically the mask-plane layout.** `crops.py:138` `MASK_PLANE_ORDER`, `crops.py:141` `DEFAULT_MASK_DIMS = {cell:4, nucleus:5, pathogen:6, organelle:7}`, `io.py:3168-3178` (the append order *is* the plane order), `measure.py:3893`, `crops.py:2920`, `io.py:4066` `CROP_SHAPE_KEYS`, `validate.py:734`, and the prose at `settings.py:2747` and `:3059`. Plane index is an on-disk convention in a headerless `.npy`. If half the producers derive it and half still assume 7, nothing raises — the run measures the wrong plane and writes plausible numbers. All plane-index producers and consumers land in one commit, and the merged array gains a sidecar recording its plane order so a stale reader can fail loudly instead of quietly.
+
+Step 5 — settings slots. One `_ORGANELLE_SPEC` table, five generated views (`setdefault`, `expected_types`, `tooltips`, `categories`, `settings_spec` combos), deleting the duplicate 40-key block at `settings.py:4415-4468` that shadows `:467-518`. One tooltip template per suffix with a `{organelle}` placeholder, budgeted against the 600-char ceiling (`test_tooltip_length_and_shape.py:45`) with the longest slot label substituted — the longest existing organelle tooltip is already 599 chars. At the end slots 2+ are declared and off (`<slot>_channel is None`); a CSV that never mentions them behaves identically.
+
+Step 6 — turn them on. `core.py:344` becomes a loop over live slots; `object.generate_organelle_masks_sam` (`object.py:1416`) takes a name-scoped settings view (it already takes `object_type`); N mask folders, N planes, N tables, widened summary columns, N `png_list` id columns (`utils.py:1137`, `io.py:4036`); cytoplasm subtracts *every* organelle role (`crops.py:542`, `measure.py:2743-2752`).
+
+Step 7 — Tk (`gui_elements.py:3781/3927/5422`, `gui.py:64`; `gui_core.py:147` follows automatically) and, by its owner, `spacr/qt/**`.
+
+Step 8 — the three bugs found in passing, queued not narrated: `measure.py:2877` `settings['cytoplasm_mask_dim']` is a KeyError with no `setdefault` anywhere, which fails the whole field after the cell/nucleus/pathogen writes committed; `measure.py:2825-2830` never writes the organelle plane back to `data`, so culls apply to the DB and PNGs but not the `region_array` sliced at `:3066`, contradicting the comment at `:2794-2797`; `measure.py:2737` and `:2771` apply `organelle_min_size` twice.
+
+### 5. WHAT WOULD SILENTLY GO WRONG
+
+Ranked by how quietly it corrupts.
+
+Plane-index drift. `merged/*.npy` has no header. A reader still holding `{organelle:7}` while the writer has moved on measures a different channel and writes a full, well-formed table of wrong numbers. No exception, no warning, no missing column. `crops.py:141`, `io.py:3177`, `measure.py:3893`, `io.py:4066`.
+
+Resume row duplication. `MEASURE_OWNED_TABLES` (`resume.py:258-264`) is a hand-written frozenset of ten names; `discover_field_tables`' `owned_only` filter (`resume.py:1014`) drops anything absent from it, so `clear_field_rows` never clears the new organelle tables and a re-measured field *appends a second copy of every row*. `resume.py:253-257` documents this exact failure mode as the known cost of the allow-list. Same shape for `schema.OWNED_TABLES` (`schema.py:1610`) via `doctor.py:1715`, which reports the table as "not one of spaCR's tables".
+
+Feature mis-attribution. `parse_column` breaks on the first `startswith(obj + "_")` at `feature_dict.py:2495`, so `organelle_2_channel_0_mean_intensity` today returns `object_type='organelle'`, `channel=None`, `family='unknown'` — it does not merely fail, it *claims* to be organelle 1, so panels and exports group slot 2's columns under slot 1. Verified against the installed package.
+
+Scope lies. Even after the roster is widened and matching is longest-first, `parse_column(...).object_types` comes back from the literal tuples at `feature_dict.py:1868-1880` omitting the new slot. The parse succeeds; the metadata describing where the feature exists is wrong. `_RING_OBJECTS` (`:1872`), `_ZERNIKE_OBJECTS` (`:1875`).
+
+The substring gate. `measure.py:2852` tests `"organelle" in settings['summarize_organelles_by']`, a character substring test on a `str` (`settings.py:2386` types it `str`). Any value containing the word enables the raw table; any slot token containing `organelle` as a substring makes it worse. `tests/test_settings.py:176` pins the current behaviour. This must become exact membership before slots exist. Note the live fork: `settings.py:1108-1110` and `schema.py:1613-1617` argue for keeping `'cell'` and str; `qt/synthetic.py:624-630` specifies widening to a list defaulting `['cell','organelle']`; and `external_masks.py:673-679` already builds the list form that `expected_types` forbids.
+
+A renamed settings key. Covered in §2: unknown keys pass through `utils.load_settings`, the new key takes `None`, no masks are made, the run succeeds, and the only signal is a WARNING from `validate._check_unknown_keys` on a job that has already claimed a GPU-week.
+
+Already-omitted joins, multiplied. `io.py:2590`, `io.py:3877` and `io.py:6011` list the tables to read back and *already* leave organelle out. Data is measured, written, and never read. N slots make it N times worse and step 3 exists to fix it first.
+
+Cytoplasm absorbing organelles. `crops.py:542` subtracts only `('nucleus','pathogen','organelle')`. Miss one slot and lipid droplets are counted as cytoplasm, in a table that looks entirely normal.
+
+No cull cascade. `utils._exclude_objects` (`utils.py:6092`) has no organelle argument, so culling a cell drops its nuclei, pathogens and cytoplasm but leaves its organelles as orphan rows. `measure_hooks.py:210` says this is intended for one organelle; with N it needs an explicit decision, not inheritance.
+
+Inert generated settings. `postprocess_organelle_masks` today has a default, a type, a tooltip and a GUI widget, and does nothing — `generate_organelle_masks_sam` (`object.py:1416-1687`) never calls `merge_split_filter_masks`, as `settings.py:3105-3110` admits in prose. Generating that key for four slots produces four inert knobs. Decide whether it moves to the `None` bucket at `settings.py:2602-2605` before multiplying it.
+
+Silent loss of the token guarantees. `object_type_prefix` (`schema.py:664-681`) checks emptiness and vocabulary membership only; the no-separator and no-digit rules its docstring promises (`:637`) have no code behind them and hold today only because the five hard-coded names happen to satisfy them. If the vocabulary ever opens, all three guarantees vanish at once with nothing raising. Add the checks at registration time in step 1 regardless of which naming scheme wins.
+
+### 6. WHAT WAS NOT SEARCHED
+
+`spacr/qt/**` — 189 `.py` files, owned by a concurrent session. **Not zero.** Known from incidental greps, not from reading: `qt/widgets/live_preview.py:111` holds a twelfth independent `OBJECT_TYPES`, and it carries a synthetic member the other eleven lack (`"cell + nucleus"`); `:1169` has a comment implying per-role UI branching; `:794` composes `f'{obj}_remove_border_objects'`. Bare hit counts: `qt/i18n_catalogs/{en,fr,sv,ko,pt,es,hi,de,is,zh_CN}.py` at 146-209 each (~1730 total, mostly setting labels and tooltips naming `organelle_*` keys); `qt/synthetic.py` 32 (including `:624-630`, which already specifies the `summarize_organelles_by` change); `qt/widgets/measure_preview.py` 16; `qt/screens/settings_model.py` 11; `qt/widgets/feature_dictionary.py` 2; `qt/screens/app_screen.py` 2; `qt/widgets/gate_settings.py` 1; `qt/screens/foreign.py` 1; plus `qt/screens/db_browser.py:2060`. Expect 60-100 vocabulary sites plus ~1700 translation strings.
+
+Three dependencies land in that tree and will fail tests outside it: `SECTION_HINTS` in `qt/screens/app_screen.py` needs one entry per new settings heading or `tests/test_settings_categories.py:691` fails; the per-app category spec in `qt/screens/settings_model.py` must place every new mask default exactly once or `:841` and `:862` fail with an "Other" section; and `tests/test_tooltip_length_and_shape.py` imports its entire tooltip table from `spacr.qt.screens.settings_model.get_tooltips`, so that guard's real input lives in the unsearched tree. The qt owner must run this same survey before step 1 lands, because step 1's whole point is that no twelfth copy survives.
+
+`tests/**` — ~184 files carrying vocabulary literals; `tests/qt/**` not opened at all. The pin tests that must change with the code, and therefore must be read before step 1: `test_schema.py:844`, `:882-889`, `:1270-1271`; `test_feature_dict.py:461`; `test_feature_dict_search.py:401`; `test_resume_owned_tables.py:415`; `test_db_contract.py:726`; `test_settings_categories.py:334/397/417/445/479/502/517/524/534/595/691/841/862`; `test_dead_settings.py:149/215/232/241/255/291/322`; `test_settings.py:176`; `test_settings_tooltip_quality.py:65/71/117/137/147/173/206`; `test_tooltip_length_and_shape.py:45/55/67/74`; `test_coverage_fill_settings.py:65`. Two of these (`test_settings_tooltip_quality.py:71` and `:117`) parse the *source* literal with `ast` to catch shadowed duplicate keys — generated keys are invisible to them, so those guards silently stop covering the organelle family the moment step 5 lands. The generator needs its own duplicate check.
+
+Not line-inventoried by any slice, only spot-referenced: `object.py`, `plot.py`, `submodules.py`, `gui_elements.py`, `gui.py`, `ml.py`, `pipeline_v2.py`, `filters.py`, `merge_tables.py`, `diameter.py`, `doctor.py`, `lineage.py`, `layers.py`, `seg_qc.py`, `external_masks.py`. Their counts above come from other slices' incidental mentions and are floors, not totals.
+
+Outside code: `tools/generate_setting_animations.py` (54 hits), `spacr/resources/setting_animations/manifest.json`, `spacr/resources/data/lopit.csv`, `spacr/resources/data/toxoplasma_metadata.csv`.
+
+One non-file unknown: whether any production `measurements.db` in use has a populated `organelle` table. The zero-cost claim in §2 depends on the existing table meaning "slot 1", which is only true if nobody has been using `organelle` for something else.

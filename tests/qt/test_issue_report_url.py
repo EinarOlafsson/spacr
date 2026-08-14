@@ -168,6 +168,18 @@ class TestThePromptPathHonoursThePreference:
 
     def test_with_no_error_captured_nothing_happens_at_all(self, screen,
                                                            monkeypatch):
+        """"Nothing happens" is the claim, so it is what gets asserted.
+
+        Calling and not raising would also pass if a blank report had been
+        filed, which is the outcome this guards against.
+        """
+        opened = []
+        monkeypatch.setattr(
+            "spacr.qt.ai.issue_report.build_report",
+            lambda *a, **k: opened.append("built"))
         self._no_dialogs(monkeypatch)
         screen._last_error_text = ""
         screen._on_file_issue()
+
+        assert opened == []
+        assert screen._last_error_text == ""

@@ -1004,7 +1004,7 @@ def test_the_report_leaks_no_pyplot_figures(tmp_path):
     model, X, y, meta = _ols_case(n=96, seed=73)
     rq.regression_qc_report(model, X, y, str(tmp_path), metadata=meta,
                             regression_type="ols", verbose=False)
-    assert plt.get_fignums() == before == []
+    assert plt.get_fignums() == before
 
 
 def test_a_broken_panel_is_reported_not_swallowed_and_not_fatal(tmp_path, monkeypatch):

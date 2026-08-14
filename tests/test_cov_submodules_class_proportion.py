@@ -192,8 +192,21 @@ def test_real_db_run_returns_annotated_data_and_chi_squared(tmp_path):
     assert set(np.unique(df["test"])) <= {0.0, 1.0, 2.0}
 
     chi = out["chi_squared"]
-    assert list(chi.columns) == ["chi_squared_stat", "p_value", "degrees_of_freedom"]
-    assert len(chi) == 1
+    # The historical three columns are still there and still row 0.
+    # Instruction 80 added the columns naming the test and its unit, plus
+    # rows for the level-appropriate test and the mixed model: a chi-squared
+    # over objects and a t-test over wells answer different questions and
+    # were previously reported as one number with one n.
+    for column in ("chi_squared_stat", "p_value", "degrees_of_freedom",
+                   "test", "unit", "n"):
+        assert column in chi.columns, column
+    assert chi.loc[0, "unit"] == "object"
+    # One row per test now, not one row total: the object chi-squared, then
+    # the per-unit proportion test and the clustered model, one of each per
+    # bin. The object row must still be first, because every published
+    # figure came from it.
+    assert len(chi) >= 1
+    assert chi.loc[0, "test"] == "chi-squared on object counts"
     # 3 conditions x 3 classes -> (3-1)*(3-1) = 4 degrees of freedom, and the
     # deliberately skewed class mix must come out significant.
     assert int(chi["degrees_of_freedom"].iloc[0]) == 4
@@ -449,3 +462,51 @@ def test_multi_src_list_produces_one_location_per_source(tmp_path, monkeypatch):
     assert (src_a / "results" / "analyze_class_proportion"
             / "class_chi_squared_results.csv").is_file()
     assert not (src_b / "results").exists()
+
+
+# ===========================================================================
+# the fill is a CHOICE, so it has to be visible
+# ===========================================================================
+
+def test_the_nan_fill_reports_how_many_it_filled(tmp_path, monkeypatch,
+                                                 capsys):
+    """The fill above is right for a classifier column and wrong for an
+    annotation column, and the code cannot tell which it was given.
+
+    Filling a classifier's uncalled objects with the negative class is
+    correct. Filling an ANNOTATION column's NaNs is not: annotate 500 of
+    40,000 cells and the other 39,500 become a class-0 majority that decides
+    the chi-squared on its own, with nothing on screen to say so.
+
+    So the count is printed. This does not change any number -- it makes the
+    one case where the number is wrong announce itself.
+    """
+    from spacr.submodules import analyze_class_proportion
+
+    df = _fake_merged_frame()
+    n_missing = int((df["test"] == 2.0).sum())
+    assert n_missing > 0
+    df.loc[df["test"] == 2.0, "test"] = np.nan
+
+    _install_fake_merge(monkeypatch, df)
+    analyze_class_proportion(_settings(tmp_path))
+
+    printed = capsys.readouterr().out
+    assert f"{n_missing} of {len(df)} objects have no value" in printed
+    assert "counted as class 0" in printed
+    assert "annotation rather than a classifier call" in printed, (
+        "the message does not tell the user which situation they are in")
+
+
+def test_nothing_is_printed_when_every_object_has_a_class(tmp_path,
+                                                          monkeypatch, capsys):
+    """A warning that fires on a clean run is a warning nobody reads."""
+    from spacr.submodules import analyze_class_proportion
+
+    df = _fake_merged_frame()
+    assert not df["test"].isna().any()
+
+    _install_fake_merge(monkeypatch, df)
+    analyze_class_proportion(_settings(tmp_path))
+
+    assert "have no value in" not in capsys.readouterr().out

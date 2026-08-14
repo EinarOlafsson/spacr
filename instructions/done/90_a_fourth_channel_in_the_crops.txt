@@ -1,0 +1,174 @@
+================================================================================
+A FOURTH CHANNEL IN THE CROPS: A MASK, OR ANOTHER STAIN
+================================================================================
+
+Status:    DROPPED 2026-08-13 by the maintainer. Kept for the reasoning,
+           which is worth not re-deriving. Do not build this.
+Requested: 2026-08-13 - "when images are cropped they are cropped as PNGs and
+           PNGs have 3 channels. but there is an extra alpha channel i could
+           allow the user to fill with either a mask or a fourth intensity
+           channel. what do you think? the reason for using PNGs is that image
+           net trained models are compatible with PNGs for finetuning, i
+           presume they would still be compatible if the images had the alpha
+           channel filled? there is a crop to array (npy array) option in
+           measure crop but with this option you cannot finetune image net
+           models and you have to change the inpoty layer and change from
+           scratch right?"
+
+--------------------------------------------------------------------------------
+THE TWO PREMISES, CHECKED
+--------------------------------------------------------------------------------
+
+1. "I presume they would still be compatible if the alpha channel is filled?"
+
+   NO, not automatically. A pretrained ImageNet model's first convolution is
+   shaped for three input planes -- measured on torchvision's resnet50:
+
+       m.conv1.weight.shape == (64, 3, 7, 7)
+
+   A four-channel input needs (64, 4, 7, 7), and the pretrained tensor does
+   not have it. Handing a 4-channel batch to an unmodified model raises.
+
+2. "you have to change the input layer and change from scratch right?"
+
+   NO -- and this is the useful correction. Changing the first layer does NOT
+   mean training from scratch. The standard adaptation keeps every pretrained
+   weight and seeds the new plane from the mean of the existing three:
+
+       new = nn.Conv2d(4, 64, 7, 2, 3, bias=False)
+       new.weight.data[:, :3] = old.weight.data
+       new.weight.data[:, 3:] = old.weight.data.mean(dim=1, keepdim=True)
+
+   Everything after conv1 is untouched, so the transfer benefit is essentially
+   all retained. Five lines, not a retrain.
+
+   WHICH MEANS THE .npy PATH IS NOT DISADVANTAGED THE WAY THE QUESTION
+   ASSUMES. Both a 4-channel PNG and a 4-channel array need the same first
+   layer adapted, and neither needs from-scratch training. PNG's real
+   advantages over .npy are different ones: it opens in any viewer, it is
+   smaller, and a THREE-channel PNG needs no surgery at all.
+
+--------------------------------------------------------------------------------
+THE CONTAINER QUESTION, TESTED -- AND MY FIRST RECOMMENDATION WAS TOO STRONG
+--------------------------------------------------------------------------------
+
+I first recommended a 4-channel TIFF over an RGBA PNG, on the grounds that
+TIFF has no transparency semantics and that PIL and torchvision's ImageFolder
+would read it. TESTED, AND THAT IS MOSTLY NOT TRUE:
+
+    4-channel TIFF   PIL opens it as mode RGBA -- the fourth plane is treated
+                     as alpha exactly as in a PNG, and `convert("RGB")` drops
+                     it just the same
+    5-channel TIFF   PIL returns shape (4, 5, 4) for a (4, 4, 5) array. It
+                     does not fail, it SILENTLY REINTERPRETS THE DIMENSIONS.
+                     tifffile reads it correctly
+    6-channel TIFF   same corruption
+
+So TIFF buys nothing over PNG at four channels, and past four PIL cannot be
+trusted at all -- which also kills the "ImageFolder just works" argument,
+because ImageFolder loads through PIL.
+
+WHAT ACTUALLY MATTERS IS THE LOADER, NOT THE CONTAINER. Any path with more
+than three planes needs spaCR to read the file itself -- `tifffile.imread` or
+`np.load` -- and to never call `convert("RGB")` on a crop. That is true of
+RGBA PNG, of 4-channel TIFF and of .npy equally.
+
+--------------------------------------------------------------------------------
+WHICH MEANS THE FEATURE IS SMALLER THAN IT LOOKED
+--------------------------------------------------------------------------------
+
+spaCR ALREADY HAS THE RIGHT CONTAINER. `crop_mode` can write .npy arrays with
+any number of planes, unambiguously, with no alpha semantics and nothing to
+corrupt. The only reason it was not used for this is the belief that it costs
+ImageNet finetuning -- and that belief is wrong, as the premise section above
+records: adapting conv1 keeps every pretrained weight and is five lines.
+
+SO THE WORK IS NOT A NEW FILE FORMAT. It is:
+
+  1. Teach `deep_spacr` to adapt the first convolution when the dataset has
+     more planes than the pretrained model expects -- keep the RGB weights,
+     seed the extra plane(s) from their mean, say so out loud, and record it
+     on the model card so a 4-plane model cannot silently score a 3-plane
+     dataset.
+  2. Let `crop_mode='npy'` (or a new `crop_extra_channel`) carry the mask or a
+     fourth stain, which is a small change once (1) exists.
+  3. Leave the 3-channel PNG exactly as it is and keep it the default. It is
+     the only shape that needs no surgery, and most users never want more.
+
+An RGBA PNG remains a bad idea for the reason that did survive testing: alpha
+MEANS transparency, so Annotate and every external viewer draw the object as
+a see-through cut-out wherever the fourth plane is 0.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD, IF IT IS BUILT
+--------------------------------------------------------------------------------
+
+  * A `crop_extra_channel` setting: off (default), a mask, or a named
+    intensity channel. Off must stay the default -- a 3-channel PNG is the
+    only shape that needs no model surgery, and most users never want more.
+  * The 4th plane written into a 4-channel TIFF beside the PNG path, not into
+    PNG alpha.
+  * `spacr.deep_spacr` learns the first-layer adaptation above, applied when
+    the dataset has four planes and the model is pretrained. It must SAY it is
+    adapting, and record it on the model card -- a model trained on four
+    planes cannot score a three-plane dataset, and the failure otherwise
+    arrives as a shape error much later.
+  * A test that a 4-plane dataset finetunes from pretrained weights and beats
+    a from-scratch baseline, because that is the claim the feature rests on.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A user can put the segmentation mask, or a fourth stain, alongside the three
+image channels; a pretrained model finetunes on it without being retrained
+from scratch; no viewer draws the object as transparent; and no
+`convert('RGB')` anywhere in spaCR can silently discard the extra plane.
+
+
+--------------------------------------------------------------------------------
+2026-08-13 - DROPPED, AND THE TWO REASONS THAT DECIDED IT
+--------------------------------------------------------------------------------
+
+Requested: 2026-08-13 - "this is more challenging than it sounds because you
+           need to do this for every single model available through torch."
+           "is this a feature you think should be added? wont the mask jsut
+           allways be dropped?" ... "it sounds like we should just DROP the A
+           addition adie to RGB"
+
+AGREED, AND BOTH OBJECTIONS ARE RIGHT.
+
+1. THE SURGERY IS PER-ARCHITECTURE, NOT ONE FUNCTION. The five-line adaptation
+   in the section above is for a ResNet's `conv1`. spaCR offers the whole
+   torchvision zoo, and the first layer is somewhere different in each:
+   `features[0][0]` in EfficientNet, `features.conv0` in DenseNet,
+   `conv_proj` in a ViT, a patch-embedding projection in MaxViT, and so on.
+   That is a per-model table to write, keep correct across torchvision
+   releases, and test -- for a feature few runs would use.
+
+2. THE MASK PROBABLY CONTRIBUTES NOTHING, and this is the stronger reason.
+   Nothing "drops" the plane mechanically -- gradients do flow -- but a
+   channel only earns its place if it carries information the network cannot
+   already get. A segmentation mask does not: the object's boundary is
+   visible in the image the network is already looking at, AND spaCR already
+   masks the background out of the crop by default, so the mask is very
+   nearly the alpha of what is already there. Seeding its weights from the
+   mean of the RGB planes also starts it as "another copy of the image",
+   which is a poor prior for a binary mask. The expected gain is small and
+   the cost is a per-architecture table.
+
+A FOURTH STAIN IS A DIFFERENT CASE and the reasoning above does not condemn
+it: that is genuinely new information. A user who needs it can already write
+`.npy` crops with as many planes as they like -- what they would then need is
+the conv1 adaptation, which is exactly the cost this decision declines to pay.
+If it ever becomes worth paying, pay it for a fourth STAIN and not for a mask.
+
+WHAT SURVIVES FROM THIS FILE, and is worth keeping even though the feature is
+dropped:
+
+  * a pretrained model is NOT automatically compatible with a 4-plane input;
+  * but adapting it is NOT a retrain, so ".npy means training from scratch"
+    is false and should not be repeated;
+  * PIL treats a 4-channel TIFF as RGBA and silently reinterprets a 5-channel
+    one's dimensions, so no image container is a free path past three planes;
+  * `convert('RGB')` silently drops a fourth plane, in five places in spaCR.

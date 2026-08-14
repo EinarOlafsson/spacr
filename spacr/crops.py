@@ -78,9 +78,34 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
+try:
+    # Normal package import: schema is the dependency-light role registry.
+    from .schema import ALL_ROLES, ORGANELLE_ROLES, SEGMENTED_ROLES
+except ImportError:  # pragma: no cover - exercised by the standalone probe
+    # ``tests/test_crops.py`` loads this file directly, without a package, to
+    # prove the thumbnail path does not pull in spacr (and therefore torch).
+    # Load the same standalone schema source under a private module name; do
+    # not duplicate the role vocabulary just to satisfy that import mode.
+    import importlib.util as _importlib_util
+    import sys as _sys
+
+    _schema_path = os.path.join(os.path.dirname(__file__), 'schema.py')
+    _schema_spec = _importlib_util.spec_from_file_location(
+        '_spacr_crops_schema', _schema_path)
+    _schema_module = _importlib_util.module_from_spec(_schema_spec)
+    _sys.modules[_schema_spec.name] = _schema_module
+    _schema_spec.loader.exec_module(_schema_module)
+    ALL_ROLES = _schema_module.ALL_ROLES
+    ORGANELLE_ROLES = _schema_module.ORGANELLE_ROLES
+    SEGMENTED_ROLES = _schema_module.SEGMENTED_ROLES
+
 __all__ = [
     "MASK_PLANE_ORDER",
     "DEFAULT_MASK_DIMS",
+    "MERGED_LAYOUT_SIDECAR",
+    "PlaneLayoutConflict",
+    "read_merged_plane_layout",
+    "reconcile_merged_mask_dims",
     "CropError",
     "MergedFileMissing",
     "CorruptMergedFile",
@@ -135,15 +160,19 @@ __all__ = [
 
 #: Order in which mask planes are appended to a merged array by
 #: :func:`spacr.io._load_and_concatenate_arrays`.
-MASK_PLANE_ORDER: Tuple[str, ...] = ("cell", "nucleus", "pathogen", "organelle")
+MASK_PLANE_ORDER: Tuple[str, ...] = (
+    "cell", "nucleus", "pathogen", *ORGANELLE_ROLES)
 
 #: spaCR's default plane indices for a four-intensity-channel merged array.
 DEFAULT_MASK_DIMS: Dict[str, int] = {
-    "cell": 4, "nucleus": 5, "pathogen": 6, "organelle": 7,
+    role: 4 + index for index, role in enumerate(MASK_PLANE_ORDER)
 }
 
+#: Self-describing mask-plane layout written next to ``merged/*.npy``.
+MERGED_LAYOUT_SIDECAR = ".spacr_plane_layout.json"
+
 #: Object types that have their own plane on disk, plus the derived one.
-OBJECT_TYPES: Tuple[str, ...] = MASK_PLANE_ORDER + ("cytoplasm",)
+OBJECT_TYPES: Tuple[str, ...] = tuple(ALL_ROLES)
 
 
 # ---------------------------------------------------------------------------
@@ -168,6 +197,98 @@ class MaskPlaneMissing(CropError):
 
 class LabelMissing(CropError):
     """The requested object label is not present in the mask plane."""
+
+
+class PlaneLayoutConflict(CropError):
+    """A requested mask plane disagrees with the merged-folder manifest."""
+
+
+def read_merged_plane_layout(path: str) -> Optional[Dict[str, Any]]:
+    """Read and validate a merged folder's optional plane-layout manifest.
+
+    Legacy folders have no manifest and return ``None``. A present but
+    malformed manifest raises: once metadata exists, silently ignoring it
+    would recreate the exact wrong-plane failure the manifest prevents.
+    """
+    folder = os.path.dirname(path) if str(path).endswith('.npy') else path
+    manifest = os.path.join(os.fspath(folder), MERGED_LAYOUT_SIDECAR)
+    if not os.path.exists(manifest):
+        return None
+    try:
+        with open(manifest, 'r', encoding='utf-8') as handle:
+            layout = json.load(handle)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise CorruptMergedFile(
+            f"cannot read merged plane layout {manifest}: {exc}") from exc
+    if not isinstance(layout, dict) or layout.get('version') != 1:
+        raise CorruptMergedFile(
+            f"unsupported merged plane layout in {manifest}: expected "
+            "an object with version 1")
+    order = layout.get('mask_plane_order')
+    raw_dims = layout.get('mask_dims')
+    channels = layout.get('intensity_channels')
+    if not isinstance(order, list) or not isinstance(raw_dims, dict) or not isinstance(channels, list):
+        raise CorruptMergedFile(
+            f"invalid merged plane layout in {manifest}: expected "
+            "intensity_channels list, mask_plane_order list and mask_dims object")
+    if len(order) != len(set(order)) or any(
+            role not in SEGMENTED_ROLES for role in order):
+        raise CorruptMergedFile(
+            f"invalid mask_plane_order in {manifest}: {order!r}")
+    dims: Dict[str, int] = {}
+    for role in order:
+        value = raw_dims.get(role)
+        if isinstance(value, bool):
+            raise CorruptMergedFile(
+                f"invalid mask dim for {role!r} in {manifest}: {value!r}")
+        try:
+            dims[role] = int(value)
+        except (TypeError, ValueError) as exc:
+            raise CorruptMergedFile(
+                f"invalid mask dim for {role!r} in {manifest}: {value!r}") from exc
+    expected = {
+        role: len(channels) + index for index, role in enumerate(order)}
+    if dims != expected or set(raw_dims) != set(order):
+        raise CorruptMergedFile(
+            f"inconsistent mask dims in {manifest}: got {raw_dims!r}, "
+            f"expected {expected!r} from its channel count and order")
+    return {**layout, 'mask_dims': dims}
+
+
+def reconcile_merged_mask_dims(
+        settings: Mapping[str, Any], merged_folder: str,
+        *, explicit_keys: Iterable[str] = ()) -> Dict[str, Any]:
+    """Apply a plane manifest and reject explicit conflicting mask indices.
+
+    A manifest is authoritative for the folder it accompanies. Defaults are
+    replaced automatically; a non-``None`` value the caller explicitly
+    supplied must agree or the run stops before measuring a wrong plane.
+    Legacy folders without a manifest return an unchanged copy.
+    """
+    out = dict(settings)
+    layout = read_merged_plane_layout(merged_folder)
+    if layout is None:
+        return out
+    explicit = set(explicit_keys)
+    dims = layout['mask_dims']
+    for role in SEGMENTED_ROLES:
+        key = f'{role}_mask_dim'
+        requested = settings.get(key)
+        expected = dims.get(role)
+        if key in explicit and requested is not None:
+            try:
+                requested_dim = int(requested)
+            except (TypeError, ValueError) as exc:
+                raise PlaneLayoutConflict(
+                    f"{key}={requested!r} is not a plane index") from exc
+            if requested_dim != expected:
+                raise PlaneLayoutConflict(
+                    f"{key}={requested_dim} conflicts with "
+                    f"{os.path.join(merged_folder, MERGED_LAYOUT_SIDECAR)}, "
+                    f"which records {expected!r}. Refusing to measure a "
+                    "possibly wrong image plane.")
+        out[key] = expected
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -457,7 +578,11 @@ class MergedField:
 
     def __init__(self, path: str, array=None, mask_dims: Optional[Mapping[str, int]] = None):
         self.path = os.fspath(path)
-        self.mask_dims = dict(mask_dims) if mask_dims else dict(DEFAULT_MASK_DIMS)
+        if mask_dims is None:
+            layout = read_merged_plane_layout(self.path)
+            mask_dims = (layout or {}).get('mask_dims')
+        self.mask_dims = (dict(mask_dims) if mask_dims
+                          else dict(DEFAULT_MASK_DIMS))
         if array is None:
             array = _load_mmap(self.path)
         if getattr(array, "ndim", None) != 3:
@@ -539,7 +664,7 @@ class MergedField:
             return self._derived["cytoplasm"]
         cell = np.asarray(self.array[:, :, self.mask_dim("cell")])
         interior = np.zeros(cell.shape, dtype=bool)
-        for other in ("nucleus", "pathogen", "organelle"):
+        for other in ("nucleus", "pathogen", *ORGANELLE_ROLES):
             if self.mask_dims.get(other) is None:
                 continue
             try:
@@ -702,7 +827,11 @@ def open_merged_field(path: str, mask_dims: Optional[Mapping[str, int]] = None,
     :raises MergedFileMissing: the file does not exist.
     :raises CorruptMergedFile: the file is not a readable 3-D ``.npy``.
     """
-    dims = dict(mask_dims) if mask_dims else dict(DEFAULT_MASK_DIMS)
+    if mask_dims is None:
+        layout = read_merged_plane_layout(path)
+        mask_dims = (layout or {}).get('mask_dims')
+    dims = (dict(mask_dims) if mask_dims
+            else dict(DEFAULT_MASK_DIMS))
     if not use_cache:
         return MergedField(path, mask_dims=dims)
     key = _cache_key(path)
@@ -2409,7 +2538,9 @@ def crop_settings_from_db(db_path: str) -> Dict[str, Any]:
     """
     if not os.path.isfile(db_path):
         raise MergedFileMissing(f"measurements database not found: {db_path}")
-    conn = sqlite3.connect(db_path)
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db_path)
     try:
         rows = conn.execute(
             "SELECT setting_key, setting_value FROM settings").fetchall()
@@ -2937,3 +3068,156 @@ def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+#: The six ways three colour slots can be filled from three source planes.
+#: A DISPLAY choice, not a statement about the file -- see
+#: :func:`apply_display_order`.
+DISPLAY_ORDERS: Tuple[str, ...] = ("rgb", "rbg", "grb", "gbr", "brg", "bgr")
+
+#: The identity, and the default everywhere. Named so call sites read as
+#: "no permutation" rather than as a magic string.
+DISPLAY_ORDER_IDENTITY = "rgb"
+
+
+def display_order_indices(order: str) -> Tuple[int, int, int]:
+    """``'bgr'`` -> ``(2, 1, 0)``: which SOURCE plane each slot draws from.
+
+    :param order: three letters from r/g/b, each used once.
+    :returns: source index for the red, green and blue slots.
+    :raises CropError: anything that is not a permutation of rgb. Refused
+        rather than defaulted, because silently ignoring a typed order shows
+        the user a picture they did not ask for and did not know they were
+        not getting.
+    """
+    text = str(order or "").strip().lower().replace(",", "").replace(" ", "")
+    if sorted(text) != ["b", "g", "r"]:
+        raise CropError(
+            f"display order {order!r} must use r, g and b exactly once; "
+            f"the six valid orders are {list(DISPLAY_ORDERS)}")
+    return tuple("rgb".index(letter) for letter in text)  # type: ignore[return-value]
+
+
+def apply_display_order(image, order: str = DISPLAY_ORDER_IDENTITY):
+    """Permute an RGB image's channels for DISPLAY only.
+
+    THIS IS NOT THE CROP FORMAT, and keeping the two apart is the whole point
+    of having a separate function. ``read_crop_png`` answers "how was this
+    file written" -- a fact about the bytes, resolved from a sidecar marker or
+    the database, and getting it wrong means showing the wrong stain.
+    ``apply_display_order`` answers "how do I want to look at it" -- a
+    preference, with no claim about the file at all.
+
+    That distinction is why a project authored before the crop-format fix can
+    get its original picture back WITHOUT marking the folder as a format it is
+    not. Marking it would work, and would then lie to every later reader.
+
+    :param image: ``(H, W, 3)`` array, already in the corrected format.
+    :param order: one of :data:`DISPLAY_ORDERS`. The default is the identity
+        and returns the array unchanged, so this costs nothing for the
+        overwhelming majority who never set it.
+    :returns: the permuted array, or ``image`` itself for the identity.
+    :raises CropError: an order that is not a permutation of rgb.
+    """
+    indices = display_order_indices(order)
+    if indices == (0, 1, 2):
+        return image
+    array = np.asarray(image)
+    if array.ndim != 3 or array.shape[2] < 3:
+        # A greyscale or two-plane crop has no three slots to permute. Left
+        # alone rather than refused: the order is a display preference and a
+        # single-channel image is not wrong, it simply has nothing to reorder.
+        return image
+    return array[:, :, list(indices)]
+
+
+#: How a three-channel image is coloured on screen. TWO DIFFERENT GOALS live
+#: here and they are deliberately separate modes rather than one "colourblind"
+#: switch:
+#:
+#:   rgb          what the camera meant. The default.
+#:   cmy          THE PUBLISHING CONVENTION. Cyan / magenta / yellow is how
+#:                biologists show multichannel micrographs now, and users want
+#:                it because it is what a figure looks like -- not primarily
+#:                for accessibility. Offered on its own merits.
+#:   deuteranope  }  ACCESSIBILITY. One per deficiency, because the deficiency
+#:   protanope    }  decides which pair collapses and therefore which
+#:   tritanope    }  substitution helps. A single "colourblind" mode cannot be
+#:                   right for all three.
+DISPLAY_PRIMARIES: Tuple[str, ...] = (
+    "rgb", "cmy", "deuteranope", "protanope", "tritanope")
+
+#: source plane -> the RGB it is drawn in, per mode. Each row is one plane.
+#:
+#: CMY IS NOT AN ACCESSIBILITY MODE, and the numbers say so. Simulated against
+#: a Brettel-style deuteranope transform, a red stain beside a green one is
+#: 21.2 apart drawn as RGB and 10.6 apart drawn as CMY -- cyan and magenta
+#: separate along the very axis the deficiency removes. It is here because it
+#: is the convention, and the accessibility modes are here because they work.
+#:
+#: The per-deficiency mappings were chosen by scoring every triple of
+#: primaries under normal, deuteranope, protanope and tritanope simulation and
+#: taking the WORST pair in each -- the pair a user would confuse:
+#:
+#:     red/green/blue        283 normal,  21 deuter,  60 protan
+#:     green/blue/yellow     200 normal, 146 deuter, 159 protan
+#:
+#: 21 is not a small number, it is invisible: to a deuteranope a red stain and
+#: a green stain are ONE COLOUR, which is the whole complaint.
+_PRIMARY_MATRICES = {
+    # plane 0 -> cyan, 1 -> magenta, 2 -> yellow. Halved because each plane
+    # lands in two slots; clipping instead would turn every bright overlap
+    # into flat white and hide the colocalisation the figure is about.
+    "cmy": (np.array([[0.0, 1.0, 1.0],
+                      [1.0, 0.0, 1.0],
+                      [1.0, 1.0, 0.0]], dtype=np.float32), 2.0),
+    # Red and green collapse: move RED to yellow and leave the other two.
+    "deuteranope": (np.array([[1.0, 1.0, 0.0],
+                              [0.0, 1.0, 0.0],
+                              [0.0, 0.0, 1.0]], dtype=np.float32), 1.0),
+    "protanope": (np.array([[1.0, 1.0, 0.0],
+                            [0.0, 1.0, 0.0],
+                            [0.0, 0.0, 1.0]], dtype=np.float32), 1.0),
+    # Blue and yellow collapse instead, so blue is the plane that must move --
+    # to magenta, which keeps it clear of both green and red.
+    "tritanope": (np.array([[1.0, 0.0, 0.0],
+                            [0.0, 1.0, 0.0],
+                            [1.0, 0.0, 1.0]], dtype=np.float32), 1.0),
+}
+
+
+def apply_display_primaries(image, primaries: str = "rgb"):
+    """Redraw an RGB image in ``primaries``. A DISPLAY transform only.
+
+    See :data:`DISPLAY_PRIMARIES` for the modes and why ``cmy`` is offered as
+    a publishing convention rather than as an accessibility mode.
+
+    NOT an RGB->CMYK conversion. CMYK is a subtractive PRINT model: on a
+    screen it darkens, does not improve separability, and is lossy in a way
+    that changes what the user believes they are seeing. ``cmy`` here is a
+    channel substitution -- each plane keeps its own identity and the result
+    stays additive, so two stains overlapping still brighten.
+
+    :param image: ``(H, W, 3)`` array.
+    :param primaries: one of :data:`DISPLAY_PRIMARIES`.
+    :returns: the redrawn array, or ``image`` itself for ``'rgb'``.
+    :raises CropError: an unknown mode, named rather than ignored.
+    """
+    name = str(primaries or "rgb").strip().lower()
+    if name not in DISPLAY_PRIMARIES:
+        raise CropError(
+            f"display primaries {primaries!r} must be one of "
+            f"{list(DISPLAY_PRIMARIES)}")
+    if name == "rgb":
+        return image
+    array = np.asarray(image)
+    if array.ndim != 3 or array.shape[2] < 3:
+        return image
+
+    matrix, divisor = _PRIMARY_MATRICES[name]
+    original = array.dtype
+    mixed = array[:, :, :3].astype(np.float32) @ matrix / divisor
+    if np.issubdtype(original, np.integer):
+        info = np.iinfo(original)
+        return np.clip(mixed, info.min, info.max).astype(original)
+    return mixed.astype(original)

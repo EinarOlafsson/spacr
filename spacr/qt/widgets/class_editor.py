@@ -31,8 +31,9 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence
 import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QHBoxLayout, QHeaderView, QLabel, QLineEdit,
-    QPushButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget,
+    QCheckBox, QComboBox, QFrame, QHBoxLayout, QHeaderView, QLabel,
+    QLineEdit, QPushButton, QScrollArea, QTreeWidget, QTreeWidgetItem,
+    QVBoxLayout, QWidget,
 )
 
 from ...classify_classes import (
@@ -69,6 +70,73 @@ def _class_editor_qss(palette, opacity=None) -> str:
 
 
 register_widget_qss(QSS_NAME, _class_editor_qss, replace=True)
+
+
+class ClassChip(QWidget):
+    """One class, as the two bubbles the maintainer asked for.
+
+    "class then value class generating a teal bubble and the value generating
+    a green bubble ... i just thought it was a good idea to consolidate the
+    information into one object."
+
+    So the two halves are one object on screen: a TEAL pill carrying the class
+    name and a GREEN pill carrying the value it selects, side by side with a
+    single remove button for the pair. A class that selects nothing -- the
+    random complement -- shows only the teal half, because there is no value
+    to put in the green one.
+
+    The colours are palette ROLES (`chip_class`, `chip_value`), not literals.
+    A hard-coded teal survives exactly until someone switches to the light
+    theme, where it fails contrast against a white surface.
+    """
+
+    removed = Signal(int)
+
+    def __init__(self, index: int, rule: "ClassRule", palette, parent=None):
+        super().__init__(parent)
+        self.setObjectName("ClassChip")
+        self._index = int(index)
+
+        row = QHBoxLayout(self)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(SPACING["xs"])
+
+        self.name_pill = QLabel(str(rule.name), self)
+        self.name_pill.setObjectName("ClassChipName")
+        self.name_pill.setStyleSheet(
+            f"background:{palette['chip_class']}; color:{palette['bg']};"
+            f"border-radius:8px; padding:2px 8px;")
+        row.addWidget(self.name_pill)
+
+        if rule.random_complement:
+            text = "the rest, at random"
+        elif rule.value is None:
+            text = "\u2014"
+        else:
+            text = _key(rule.value)
+        self.value_pill = QLabel(text, self)
+        self.value_pill.setObjectName("ClassChipValue")
+        self.value_pill.setStyleSheet(
+            f"background:{palette['chip_value']}; color:{palette['bg']};"
+            f"border-radius:8px; padding:2px 8px;")
+        row.addWidget(self.value_pill)
+
+        if rule.column:
+            source = QLabel(f"({rule.column})", self)
+            source.setObjectName("ClassChipSource")
+            source.setStyleSheet(f"color:{palette['fg_muted']};")
+            row.addWidget(source)
+
+        self._close = QPushButton("\u00d7", self)
+        self._close.setObjectName("ClassChipRemove")
+        self._close.setFixedWidth(20)
+        self._close.setToolTip(f"Remove the class {rule.name!r}")
+        self._close.clicked.connect(self._on_removed)
+        row.addWidget(self._close)
+        row.addStretch(1)
+
+    def _on_removed(self) -> None:
+        self.removed.emit(self._index)
 
 
 class ClassEditorWidget(QWidget):
@@ -110,7 +178,47 @@ class ClassEditorWidget(QWidget):
         picker.addWidget(self._add)
         outer.addLayout(picker)
 
+        # TWO FIELDS, SIDE BY SIDE -- the gesture the maintainer asked for:
+        # "2 fields next to each other with class then value". Typing a class
+        # and its value and pressing Enter in either field adds one chip, so
+        # the whole interaction is two words and a keystroke, and it is the
+        # SAME in metadata mode and annotation mode. Only the columns the
+        # picker above offers differ between the two bases.
+        entry = QHBoxLayout()
+        entry.setContentsMargins(0, 0, 0, 0)
+        entry.setSpacing(SPACING["xs"])
+        self.class_field = QLineEdit(self)
+        self.class_field.setPlaceholderText("Class")
+        self.class_field.setToolTip(
+            "The name of the class. It becomes the teal bubble, and it is the "
+            "name that appears in every figure and results table afterwards.")
+        self.class_field.returnPressed.connect(self.add_typed_class)
+        entry.addWidget(self.class_field, 1)
+        self.value_field = QLineEdit(self)
+        self.value_field.setPlaceholderText("Value")
+        self.value_field.setToolTip(
+            "The value in the chosen column that makes an object a member of "
+            "this class. It becomes the green bubble.")
+        self.value_field.returnPressed.connect(self.add_typed_class)
+        entry.addWidget(self.value_field, 1)
+        self._add_typed = QPushButton("Add", self)
+        self._add_typed.clicked.connect(self.add_typed_class)
+        entry.addWidget(self._add_typed)
+        outer.addLayout(entry)
+
+        # The bubbles themselves.
+        self.chips_host = QWidget(self)
+        self.chips_host.setObjectName("ClassChips")
+        self._chips_layout = QVBoxLayout(self.chips_host)
+        self._chips_layout.setContentsMargins(0, 0, 0, 0)
+        self._chips_layout.setSpacing(SPACING["xs"])
+        outer.addWidget(self.chips_host)
+
+        # The table stays, hidden, as the accessible/edit-a-name surface and
+        # because every existing test and integration reads `self.table`.
+        # Removing it would be a second change riding on this one.
         self.table = QTreeWidget(self)
+        self.table.setVisible(False)
         self.table.setObjectName("ClassTable")
         self.table.setColumnCount(3)
         self.table.setHeaderLabels(["Class name", "Value", "From column"])
@@ -259,6 +367,48 @@ class ClassEditorWidget(QWidget):
         self._say(f"added {added} value(s) from {column}"
                   if added else f"{column} adds nothing new")
 
+    def add_typed_class(self) -> None:
+        """Add one class from the two fields. The chip appears; the fields clear.
+
+        A class with no name is refused rather than added blank -- `ClassRule`
+        raises on it anyway, and the message a user needs is which field is
+        empty, not a traceback.
+        """
+        name = self.class_field.text().strip()
+        value = self.value_field.text().strip()
+        if not name:
+            self._say("give the class a name first")
+            return
+        column = self.column.currentText().strip()
+        if not column:
+            self._say("choose the column the value comes from")
+            return
+        if not value:
+            self._say(f"give {name!r} a value in {column!r}, or use "
+                      f"'Add random rest' for the objects nothing else claims")
+            return
+        if any((r.column, _key(r.value)) == (column, _key(value))
+               for r in self._rules):
+            self._say(f"{column}={value} is already a class")
+            return
+        try:
+            self._rules.append(
+                ClassRule(name=name, column=column, value=value))
+        except ClassDefinitionError as exc:
+            self._say(str(exc))
+            return
+        self.class_field.clear()
+        self.value_field.clear()
+        self.class_field.setFocus()
+        self._rebuild()
+        self._say(f"added {name}")
+
+    def remove_at(self, index: int) -> None:
+        """Remove the class a chip's \u00d7 belongs to."""
+        if 0 <= int(index) < len(self._rules):
+            del self._rules[int(index)]
+            self._rebuild()
+
     def add_random_complement(self) -> None:
         if any(r.random_complement for r in self._rules):
             self._say("there is already a random-rest class; two classes both "
@@ -278,6 +428,7 @@ class ClassEditorWidget(QWidget):
 
     # -- plumbing ----------------------------------------------------------
     def _rebuild(self) -> None:
+        self._rebuild_chips()
         self.table.blockSignals(True)
         self.table.clear()
         for rule in self._rules:
@@ -314,6 +465,27 @@ class ClassEditorWidget(QWidget):
             name=name, column=rule.column, value=rule.value,
             random_complement=rule.random_complement)
         self._emit()
+
+    def _rebuild_chips(self) -> None:
+        """Redraw the bubbles from `self._rules`.
+
+        Cleared and rebuilt rather than diffed: the list is a handful of
+        classes, and a diff here would be the second place the order lives.
+        """
+        from ..theme import active_palette
+
+        while self._chips_layout.count():
+            item = self._chips_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.setParent(None)
+                widget.deleteLater()
+
+        palette = active_palette()
+        for index, rule in enumerate(self._rules):
+            chip = ClassChip(index, rule, palette, self.chips_host)
+            chip.removed.connect(self.remove_at)
+            self._chips_layout.addWidget(chip)
 
     def _emit(self) -> None:
         self.value_changed.emit(self.value())

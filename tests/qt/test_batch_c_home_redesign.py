@@ -21,8 +21,10 @@ def _populated_journal(tmp_path, monkeypatch):
     """Journal with three completed mask runs."""
     from spacr import run_journal as rj
     monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
+    source = tmp_path / "source"
+    source.mkdir()
     for _ in range(3):
-        with rj.open_run("mask", {"src": "/tmp/x"}):
+        with rj.open_run("mask", {"src": str(source)}):
             pass
     yield tmp_path
 
@@ -41,11 +43,13 @@ class TestJournalTotals:
 
     def test_counts_by_app_key(self, _empty_journal):
         from spacr import run_journal as rj
-        with rj.open_run("mask", {"src": "/tmp/x"}):
+        source = _empty_journal / "source"
+        source.mkdir()
+        with rj.open_run("mask", {"src": str(source)}):
             pass
-        with rj.open_run("measure", {"src": "/tmp/y"}):
+        with rj.open_run("measure", {"src": str(source)}):
             pass
-        with rj.open_run("measure", {"src": "/tmp/z"}):
+        with rj.open_run("measure", {"src": str(source)}):
             pass
         t = rj.journal_totals()
         assert t["total_runs"] == 3

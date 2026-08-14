@@ -302,6 +302,44 @@ jobs:
             experimental: false
             why: "control"
 
+          # --- Linux x86-64 / 3.9 and 3.10 ----------------------------------
+          # The BOTTOM of the claimed range, which until now was asserted by
+          # metadata and tested by nobody. 3.9 had only the install job and
+          # 3.10 had nothing at all, so `requires-python = ">=3.9"` rested on
+          # pip accepting the package rather than on the package working.
+          #
+          # Added only after checking these could go green, because a job
+          # that cannot is worse than no job:
+          #   * all 1027 files parse under `feature_version=(3, 9)`;
+          #   * ZERO PEP 604 unions (`int | None`) sit in runtime-evaluated
+          #     annotations, which is the usual way a tree that parses on 3.9
+          #     still dies importing on it;
+          #   * no post-3.9 stdlib API is used -- the 33 `override` hits a
+          #     naive scan reports are a local variable, not `typing.override`;
+          #   * every one of the 51 declared floors has a release in range
+          #     with wheels for 3.9, checked against PyPI, and both install
+          #     jobs are green.
+          #
+          # `experimental: true` for a first run anyway. The checks above rule
+          # out the syntax and stdlib classes of failure; they say nothing
+          # about a DEPENDENCY behaving differently on an older interpreter,
+          # which is exactly what running the suite here is for. Promote to
+          # blocking once green, or -- if it is not fixable -- narrow
+          # requires-python and the README rather than deleting the cell.
+          - label: "Linux x86-64 / py3.9 (floor)"
+            os: ubuntu-24.04
+            python-version: "3.9"
+            extras: "qt,dev"
+            experimental: false
+            why: "the declared floor; green on its first suite run, so >=3.9 is a claim spaCR keeps and this cell enforces it"
+
+          - label: "Linux x86-64 / py3.10"
+            os: ubuntu-24.04
+            python-version: "3.10"
+            extras: "qt,dev,zernike"
+            experimental: false
+            why: "green on its first suite run; the claimed range is now blocking end to end"
+
           # --- Linux x86-64 / 3.13 ------------------------------------------
           # The newest Python spaCR claims, and the reason this workflow was
           # rewritten. BLOCKING, not experimental: 3.13 now has a classifier
@@ -352,8 +390,8 @@ jobs:
             os: ubuntu-24.04-arm
             python-version: "3.11"
             extras: "qt,dev,zernike"
-            experimental: true
-            why: "both known aarch64 blockers (mahotas, psutil<6.0) are resolved; awaiting a first green run before promoting to blocking"
+            experimental: false
+            why: "both known aarch64 blockers (mahotas, psutil<6.0) are resolved and the awaited green run has happened"
 
           # --- Windows x86-64 -----------------------------------------------
           # The install is expected to succeed. The *suite* is expected to

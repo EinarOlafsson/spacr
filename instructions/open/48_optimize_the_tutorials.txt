@@ -2,8 +2,10 @@
 OPTIMIZE THE spaCR TUTORIALS
 ================================================================================
 
-Status:    complete after the second 1.5.0.4 mobile-smooth publication; the
-           narration transport, timing, pronunciation, and named visuals pass
+Status:    in progress — final acceptance and publication of the rebuilt
+           69-lesson, 50-voice release. The old "16 replacements and three
+           missing" finding below is retained as pre-implementation history;
+           those lessons now exist and their source captures have been rebuilt.
 Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see how they are setup?"
            2026-08-08 — "great. now we need to audit these lessons one at a time.
 
@@ -33,6 +35,8 @@ Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see
 
            the largest issue is that i cannot hear any of the voice tracks. i tested it on my phone and hear nothing. I get a popup that says \"Narration is unavailable the GitHub hosted video remains available.\""
            2026-08-10 — "the audio is now available but it is verry hacky when i listen on my phone. i havnt tested a desktop yet. but it should be smooth on my phone. the highlight windows look good! the first one with the pypi spacr box now starts at the right place bit dosnt encasulate all the text assoceated with the releas so it needs to be widened to the right to do this. also i heared that the pronounsiation of Nvidia and CUDA was strange.CPU Nvidia CUDA all sound super wierd thevoice slows down on certain sylables, please find a phonetic reference for these types of words so the video sounds normal. the pronounciation of spacr is fine though."
+           2026-08-13 — "continue where you left of please complete the tutorials task"
+           2026-08-13 — "og go through what is left and dont stop untill it is done.  this is tour goal."
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
@@ -41,7 +45,8 @@ WHAT THE STATE IS
 The editable source is present under
 `/mnt/firecuda2/Claude/toxoplasma_projects/tutorials`. It generates the
 HTML/CSS/JavaScript player, 69 catalogued lessons, posters, silent video,
-54 narration voices across eight languages with timing JSON, and translated
+50 release-approved narration voices across eight languages with timing JSON,
+and translated
 lesson/caption catalogs. The player synchronizes the separate narration and
 silent video by playback rate and stores theme, progress, language, voice,
 quality, and caption preferences in localStorage.
@@ -57,7 +62,7 @@ aborted whenever the lesson or voice changes.
 
 Sphinx does not copy the complete production library. The current media policy
 stages the player, posters, captions, and 1440p silent videos, with no narration
-duplicated into GitHub Pages. All 54 voices, their timing sidecars, and the 4K
+duplicated into GitHub Pages. All 53 supported voices, their timing sidecars, and the 4K
 masters are served from Hugging Face. `.github/workflows/docs.yml` builds on
 main and nightly but deploys GitHub Pages only from main.
 
@@ -1856,3 +1861,154 @@ Definition of done
   at -5 dBTP with 0.7/0.5 limiter fallbacks when the decoded AAC still exceeds
   the ceiling. Require a complete zero-change peak pass plus the codec,
   duration, and dead-air verifier before publication.
+
+--------------------------------------------------------------------------------
+2026-08-11 - THE GATE EDITOR BLOCKER IS FIXED. THE STATUS LINE WAS WRONG.
+--------------------------------------------------------------------------------
+
+TWO CORRECTIONS TO THIS FILE, the second larger than the first.
+
+The status line said "complete". The body of this same file ends with 16
+lessons needing substantial replacement and three that do not exist at all
+(Classify, Gate Editor, and the Image UMAP replacement). What was complete
+was the audio and visual pass, which is what that line was really about.
+Corrected above, because a status that contradicts its own body is how a
+task gets skipped.
+
+The Gate Editor section listed a "product mismatch to resolve before
+recording", and it was right:
+
+    "Gate Settings exposes clustering method, eps, minimum samples,
+     scaling, Walk, and Walk steps. The current Cluster button instead
+     opens a separate dialog with its own fixed starting values and
+     directly calls DBSCAN; it does not read the saved clustering
+     settings or execute Walk."
+
+Confirmed exactly, and worse than described. Counting readers outside
+`gate_settings.py`:
+
+    cluster_eps            0        cluster_walk          0
+    cluster_min_samples    0        cluster_walk_steps    0
+    cluster_scale          0
+
+All five were phantom. The first three were not just unread -- the dialog
+opened on 0.30 and 10 while Gate Settings offered and saved 0.5 and 20, so
+the two disagreed about the defaults as well. eps is the parameter that
+decides how many populations DBSCAN finds, so a user who deliberately set
+0.5 got an answer computed at 0.30, with nothing anywhere saying their value
+had been dropped. That is a wrong result, not a missing feature.
+
+FIXED, and the two halves were fixed differently on purpose:
+
+  * eps, min samples and scaling now SEED the cluster dialog from the saved
+    settings. The dialog stays a per-run override -- Gate Settings remains
+    the source of truth -- and `GateEditorSettings()` is the single place
+    each default is written.
+
+  * Walk is IMPLEMENTED rather than removed. The standing instruction is to
+    delete settings nothing uses, and these two qualified; but this file
+    asks for Walk by name as the thing the lesson should demonstrate, so
+    deleting them would have removed a requested feature to satisfy a
+    cleanup. `cluster_walk_candidates` sweeps eps geometrically around the
+    chosen value, scores each radius by silhouette over the clustered
+    points, and `best_cluster_candidate` picks the best that did not discard
+    more than half the objects.
+
+    The noise ceiling is the part that matters. Silhouette alone is
+    maximised by a radius that keeps a handful of tight points and calls
+    everything else debris -- it scores near 1.0 and answers no question.
+
+    Both are PURE FUNCTIONS in `gate_spec.py`, not dialog methods, so the
+    search is testable: a modal `exec()` never returns under the offscreen
+    platform, which is how this would otherwise have gone untested again.
+
+    A walk that finds nothing defensible says so and CLUSTERS NOTHING. It
+    does not quietly fall back to the typed eps, which would present an
+    unsearched radius as if the search had endorsed it.
+
+WHAT THIS UNBLOCKS: the Gate Editor lesson can now demonstrate Walk as the
+mini-search this file wanted -- compare candidate cluster gates visually
+rather than prescribe one eps/min-samples pair.
+
+STILL OPEN, and it is most of the instruction: the 16 replacement lessons,
+the three missing ones, and the acceptance gates at the end of this file.
+
+--------------------------------------------------------------------------------
+2026-08-11 - AUTHORITATIVE ENGLISH NARRATION CONTRACT (SUPERSEDES OLD AUDIO NOTES)
+--------------------------------------------------------------------------------
+
+The user reported that classifier, PyPI, assay, and preprocessing still sounded
+wrong; some word endings seemed cut off; and cadence sometimes sounded rushed
+or unnatural. Earlier sections of this file describe the previous renderer and
+are retained as history, but their "pie pee" and waveform-shortening advice is
+obsolete. PyPI's official pronunciation is "pie pea eye". Synthesis now uses
+one cohesive `pie-P-I` token and never shortens, splices, or time-compresses a
+rendered vowel.
+
+English pronunciation is a synthesis-only layer. Captions keep their written
+spelling. US and UK voices receive dialect-appropriate forms for assay,
+classify/classifier, preprocessing, and other audited technical terms. CPU and
+NVIDIA remain cohesive dictionary tokens; CUDA is one `koo-duh` token. The
+lexicon also covers GitHub, Qt, Conda/conda-forge, t-SNE, napari, Slurm,
+macOS, PyTorch, XGBoost, Cellpose, and actual catalog words missing from the
+phonemizer. A full US/UK catalog pass must produce no unknown or empty tokens.
+
+Narration is rendered sentence by sentence. Model-generated edge silence is
+trimmed only as one contiguous slice, retaining 100 ms before first activity
+and 180 ms after last activity; active speech is never cut or cross-faded.
+Sentences within a scene have a 400 ms audible gap, and scene transitions target
+730-800 ms. Each voice uses one measured, uniform base speed. The experimental
+word-WPM scene profile is retained as audit data but disabled: an independent
+phone-rate pass showed that scene-level speed changes increased acoustic
+variation, dragged syllables in short-word scenes, and shortened technical-word
+endings. `af_nicole` is retired from the player because its very long internal
+pauses cannot be repaired with a natural scalar speed. The
+supported release matrix is therefore 53 voices across eight languages: 27
+English and 26 localized voices, or 3,657 lesson/voice tracks.
+
+Each render fingerprint binds the exact narration plan, language code,
+pronunciation and cadence source, effective speed, model config and weights,
+voice tensor, library/tool versions, CPU/GPU device, FFmpeg identity, and
+mastering settings. Inputs are frozen at process start and a source change
+during a render or verification aborts the run. Media and timing sidecars are
+written through non-publishable `.part` files and atomically replaced only
+after decode, peak, byte-count, and SHA-256 validation.
+
+The release verifier must strictly decode all 3,657 supported AAC tracks,
+reject decoder warnings as well as nonzero exits, compare decoded samples with
+sidecars, require per-scene activity, and bind current English media to exact
+catalog scenes, sentence timings, fingerprints, hashes, and byte counts. For
+this English-only rebuild, the publication gate is:
+
+    python tools/verify_audio_release.py --workers 16 --freshness-languages en
+
+The player treats narration as the 1x master clock and adjusts only the silent
+video. It parks the video on its final frame without pausing narration, lets a
+native Pause control pause both clocks, and resets both clocks on replay.
+English captions use the exact sentence intervals from the timing sidecar;
+legacy/localized captions retain a safe fallback. The browser and renderer
+sentence splitters must agree on all catalog scenes, including `.run`,
+`install.log`, and UI labels such as "Model B."
+
+This section records the implementation contract, not publication success.
+Before marking it complete, force-render all 27 supported English voices,
+rerender all 69 timing-dependent silent masters from the final `af_heart`
+timings, pass the strict release verifiers and listening checks, upload exact
+artifacts to Hugging Face, publish the derived GitHub Pages bundle, and verify
+smooth playback, pause/end/replay, pronunciation, and captions in a phone-sized
+browser against the live URLs.
+
+--------------------------------------------------------------------------------
+2026-08-12 - OWNED BY A CONCURRENT CODEX SESSION. DO NOT EDIT.
+--------------------------------------------------------------------------------
+
+The maintainer has assigned the tutorials to a separate codex session:
+"the tutorials are handled by codex so dont touch them."
+
+This file and everything under docs/source/_extra/tutorials/ are therefore
+OFF LIMITS to any other session, including for incidental fixes. Two sessions
+editing the same media tree and the same narration scripts would produce
+conflicts in files that are large, binary and expensive to re-render.
+
+If a defect in the tutorials is found while working on something else, record
+it HERE as a note and leave it. Do not fix it.

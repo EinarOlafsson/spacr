@@ -1,0 +1,232 @@
+================================================================================
+IMAGE UMAP REBUILT THE starplast WAY: TABLE, VIEWER, GRID, WALK, GPU
+================================================================================
+
+Status:    not started, 2026-08-13. SUPERSEDES the "no grid at the end" half
+           of instruction 75, which asked for the standard figure viewer --
+           the maintainer has since built starplast and wants that shape
+           instead.
+Requested: 2026-08-13, verbatim:
+
+    "i asked for the first option (the cluster montage). but then we built
+     starplast together and that is much much much better. there during the
+     search a table is formed with values and scores, i can click each row in
+     this table to spawn a that rows umap (3d umap) and then i can luster that
+     umap. i should also be able to press abutton to spawn a grid showing all
+     umaps with black backgrounds then cklick a umap to loade it into the umap
+     window. i should be able to install a cuML version of spacr that is
+     restricted to python 3.11 - 3.12 but can generate UMAPS on the GPU (just
+     like i can in starplast). so i dont want the old grid at the end, i dont
+     want the default spacr Figure generation slider, i want a 2D, 3D UMAP
+     container (where it says "No search has been run yet") to the left of
+     that is where the table should live, there should be a button that spawns
+     a grid with all the UMAPs from the table, there should be a clustering
+     hearch/ walk i can do in tandem with the UMAP hyperparamiter search or
+     after having chosen a UMAP, the module should support 2d and 3D UMAPs,
+     and the module should support GPU acceleration. the option to suppurt GPU
+     acceleration via cuML should the to the left of the hyperparamiter search
+     button and should simply say GPU. if pressed it should activate the GPU
+     cuML version, if dependencies are not installed then it should check the
+     python version and install if compatible other wise tell the user what
+     they need to do."
+
+--------------------------------------------------------------------------------
+THE LAYOUT, AS ASKED
+--------------------------------------------------------------------------------
+
+    +-------------------+--------------------------------------+
+    |  SEARCH TABLE     |   UMAP CONTAINER (2D / 3D)           |
+    |  one row per      |   "No search has been run yet"       |
+    |  trial, with its  |   until a row is clicked             |
+    |  values and score |                                      |
+    |                   |   click a row  -> that row's UMAP     |
+    |  [ Grid ]         |   then cluster THAT umap             |
+    +-------------------+--------------------------------------+
+    [ GPU ] [ Hyperparameter search ]   <- GPU sits to the LEFT
+
+  * NOT the old cluster-montage grid at the end.
+  * NOT the default spaCR figure-generation slider. This module gets its own
+    viewer, because the thing being viewed is interactive -- a 3D embedding
+    you spin and cluster -- and a PNG in a slider cannot be either.
+  * The GRID button spawns every UMAP from the table at once, on BLACK
+    backgrounds; clicking one loads it into the container.
+
+--------------------------------------------------------------------------------
+WHAT TO TAKE FROM starplast, AND WHAT NOT TO
+--------------------------------------------------------------------------------
+
+`/mnt/firecuda2/Claude/repo/starplast` is the reference, and the parts worth
+copying are named rather than "make it like starplast":
+
+    starplast/gpu.py          `available()`, `enabled()`, `describe()`,
+                              `worth_it()`, `umap_class()`. It already ranks
+                              three backends, carries the MEASURED size
+                              threshold below which the copy to the device
+                              costs more than it saves, and states that a
+                              cuML map is a DIFFERENT MAP of the same data
+                              rather than the same map faster.
+    starplast/embedding.py    `EmbeddingSpec` -- the whole recipe as one
+                              frozen record that round-trips, so a table row
+                              IS a spec and clicking it can rebuild exactly
+                              that map.
+    starplast/tuning.py       the walk.
+    starplast/clustering.py   HDBSCAN on the embedding.
+
+spaCR already has `spacr/gpu_reduce.py`, written for instruction 86 and never
+used. It should become the spaCR half of starplast's gpu.py rather than a
+second answer.
+
+--------------------------------------------------------------------------------
+THE GPU BUTTON, AND THE PART THAT NEEDS CARE
+--------------------------------------------------------------------------------
+
+Pressing GPU when cuML is absent should CHECK THE INTERPRETER FIRST and then
+either install or explain:
+
+    3.11 / 3.12   install `spacr[rapids]` and say what it will pull -- it is
+                  gigabytes of CUDA libraries, not a small wheel, and a
+                  progress-free multi-gigabyte download reads as a hang.
+    anything else say exactly what is needed: cuML declares 3.11-3.12 ONLY,
+                  so on 3.10 or 3.13 the answer is "make a 3.11 environment",
+                  not a resolver error the user cannot read.
+
+INSTALLING INTO THE RUNNING INTERPRETER FROM A GUI BUTTON IS THE RISK. pip can
+upgrade numpy/scipy under a process that has already imported them, and the
+session then behaves unpredictably until it is restarted. So: install, then
+tell the user to restart spaCR, and do not pretend the new backend is live in
+the current process.
+
+AND SAY IT IS A DIFFERENT MAP. cuML's UMAP is not umap-learn's. A row computed
+on the GPU and a row computed on the CPU are not comparable, so the table must
+record WHICH backend produced each row -- otherwise a walk whose rows came
+from both is comparing the two libraries rather than the settings.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A search fills a table; clicking a row draws that row's 2D or 3D UMAP in the
+container beside it; that map can be clustered; one button shows every map in
+the table on black and clicking one loads it; the clustering walk runs during
+the UMAP search or after a map is chosen; the GPU button either turns cuML on,
+installs it and says to restart, or says precisely what interpreter is needed;
+and every table row records which backend drew it.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE MODEL AND THE GPU BUTTON ARE BUILT. THE VIEWER IS NOT.
+--------------------------------------------------------------------------------
+
+BUILT:
+
+  `spacr/umap_search.py`   `UmapRecipe`, `SearchRow`, `SearchTable`,
+                           `walk_recipes`. Qt-free on purpose -- instruction
+                           52 was reopened because its geometry was tested and
+                           its controls were not, so the model is testable
+                           without a display and the panel drives it.
+  `spacr/gpu_reduce.py`    `install_plan()`, `install_command()`,
+                           `python_supported()`, `SUPPORTED_PYTHON`.
+  the GPU button           left of Run search, says just "GPU", checkable.
+
+THE ROW IS THE RECIPE, which is the design starplast's `EmbeddingSpec`
+teaches. A stored row rebuilds EXACTLY the map it scored, not a map with the
+same settings -- otherwise clicking row 7 draws something row 7's score does
+not describe and nobody would notice. The columns are part of it, and so is
+the BACKEND: a cuML map is a different map of the same data, so a table mixing
+backends compares two libraries as well as the settings the search varied.
+`SearchTable.mixed_backends()` says so.
+
+`SearchRow` HOLDS its embedding rather than recomputing on click. Recomputing
+gives a map that merely matches the recipe, and on a non-deterministic backend
+not even that.
+
+THE GPU BUTTON DECIDES BEFORE IT INSTALLS. Four outcomes, four sentences,
+because "it did not work" is the same message for all four and actionable for
+none: ready / install / wrong_python / no_device. On 3.10 it says to make a
+3.11 environment and gives the conda lines, rather than letting pip emit a
+resolver error the user cannot act on. It states the SIZE first (gigabytes of
+CUDA libraries; a download with no progress reads as a hang) and states that
+spaCR must be RESTARTED -- pip can upgrade numpy and scipy underneath a
+process that has already imported them, and this one has. It never claims the
+new backend is live in the current session.
+
+NOT BUILT YET, and this is the honest remainder:
+
+  * THE 2D / 3D UMAP CONTAINER beside the table, replacing the figure grid and
+    the "No search has been run yet" label. Clicking a row draws that row's
+    embedding in it; it spins; it can be clustered.
+  * THE GRID BUTTON that shows every map in the table on BLACK, click one to
+    load it into the container.
+  * THE CLUSTERING WALK running in tandem with the UMAP search, or after a map
+    is chosen.
+  * Removing the default figure-generation slider from this module.
+
+46 tests across the model and the button; 424 pass over the hyperparam, umap
+and search suites.
+
+--------------------------------------------------------------------------------
+2026-08-14 - COMPLETE
+--------------------------------------------------------------------------------
+
+THE VIEWER IS BUILT, and the old static end state is no longer the Image UMAP
+search's end state:
+
+  * `spacr/qt/widgets/umap_search_viewer.py` is a native Qt, black-background
+    coordinate renderer. It accepts 2-D and 3-D arrays, preserves aspect ratio,
+    spins a 3-D map by dragging, zooms with the wheel, and recolours the same
+    coordinates with cluster labels. It deliberately has no pyqtgraph/OpenGL
+    dependency: spaCR removed that unused second GUI stack, and QPainter keeps
+    this usable and testable on the offscreen platform.
+  * the table is on the LEFT of that viewer. Every row holds the real `Trial`,
+    whose `extra_metrics['embedding']` is the exact ndarray that was scored.
+    Selecting a row hands that same object to the viewer; it never refits UMAP.
+    Dedicated `backend` and `clusters` columns make both provenance and the
+    current partition visible rather than burying either in a tooltip.
+  * `Grid` opens every retained table map together, all on black. Each tile
+    holds its originating Trial; clicking a tile loads that exact trial into
+    the main 2-D/3-D container and selects its table row.
+  * `Cluster this map` runs HDBSCAN on the selected embedding without moving a
+    point. `Walk clusters` tries a bounded set of `min_cluster_size` values,
+    ranks separation discounted by HDBSCAN noise, retains every score, and
+    colours the selected partition. `Cluster during search` runs that same
+    walk as each UMAP finishes, so both requested workflows exist.
+  * the dimensions chooser makes 2-D and 3-D explicit. 2-D remains the default
+    for compatibility with existing runs; choosing 3-D records three
+    components on every row and produces a map that spins.
+  * Image UMAP no longer creates per-trial PNGs, mounts `SearchFigureGrid`,
+    draws the finished Matplotlib small-multiples summary, or exposes the
+    `maximum graph panels`/figure-generation control. The generic figure path
+    remains intact for Activation and classifier searches, where the result
+    really is a figure rather than an interactive coordinate set.
+
+THE GPU BUTTON NOW RUNS THE GPU. `SearchRequest` carries `umap_backend`, and
+`run_search_for_app` routes a checked GPU run through
+`gpu_reduce.make_reducer('umap', prefer_gpu=True)`. A requested GPU run refuses
+to mix in CPU rows if cuML construction fails. CuPy/cuDF outputs are copied
+back explicitly for scoring and viewing. Every successful trial, checkpoint
+signature, visible table row and viewer caption records `cpu`, `cuml`, or
+`custom`; a mixed-backend result gets an explicit warning that its rows are
+not one comparable walk. The compact `GPU` control is immediately LEFT of
+`Run search`, and is kept in sync with the settings-window copy. The already
+built ready/install/wrong-Python/no-device decision and restart warning remain
+the only installation path.
+
+STARPLAST'S useful contracts were carried across: coordinates travel with the
+row; the gallery holds the map rather than screenshots alone; the clustering
+walk partitions a fixed embedding; and the backend is recipe provenance. Its
+PyQt6/pyqtgraph/OpenGL stack was not copied into this PySide6 application.
+
+TESTED:
+
+  * 576 related UMAP, hyperparameter, gallery, annotation-explorer, GPU-plan,
+    model-regression, validation and end-to-end tests pass. The real end-to-end
+    test runs two successive adaptive searches from a measurements database
+    and checks every retained embedding.
+  * New normal/edge coverage includes 2-D and 3-D projection, aspect ratio,
+    black gallery pixels, dragging a 3-D camera, exact Trial identity through
+    row and gallery clicks, label-length refusal, HDBSCAN on both dimensions,
+    invalid/NaN coordinates, impossible cluster scales, during-search and
+    after-selection walks, table provenance, GPU argument forwarding, cuML
+    output conversion, unavailable GPU refusal, and no silent mixed backend.
+  * Source catalogs were regenerated (`settings=694`, `categories=163`,
+    `ui=1409`; English API manifest `symbols=6481`), compileall and
+    `git diff --check` pass.

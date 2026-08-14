@@ -1,0 +1,155 @@
+================================================================================
+EVERY NOTEBOOK CARRIES EVERY SETTING, WITH ITS TOOLTIP
+================================================================================
+
+Status:    not started, 2026-08-13.
+Requested: 2026-08-13 - "Add to instructions to make sure that all notebooks
+           contain all settings for the functions (at least the main
+           functions) and classes they use, with tooltips for each setting"
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A notebook is the only route into spaCR that does not go through a settings
+panel, so it is the one place where a setting can be INVISIBLE rather than
+merely badly explained. A user working from a notebook sees the six keys the
+example happened to set and has no way to learn that the function reads
+ninety. They then discover a setting exists by hitting its default the hard
+way -- which is how "spaCR segmented on the wrong channel" becomes a support
+question rather than a choice someone made.
+
+The GUI already solved this: every typed setting has a tooltip, and
+instruction 61's sweep made those tooltips say what the setting DOES, its
+type and its range rather than restating its name. The notebooks were never
+brought along.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. For each shipped notebook, determine which functions and classes it drives
+   and therefore which settings factory applies -- `set_default_*` /
+   `get_*_settings` in `spacr.settings`. That mapping already exists for the
+   GUI and the CLI; use the same one rather than a third.
+
+2. The settings cell lists EVERY key that factory declares, not only the ones
+   the example changes, each with its default and its tooltip as a comment.
+   A key the example does not need is still listed, at its default, so the
+   reader learns it exists.
+
+3. The tooltip text comes from `spacr.settings.tooltips` AT GENERATION TIME.
+   Do not paste it. A pasted tooltip is a copy that goes stale silently, and
+   instruction 61 has already rewritten 454 of them once.
+
+4. Generate rather than hand-edit, and add a test that regenerates and
+   compares. Twelve notebooks hand-maintained against a settings dict that
+   moves every week is a guarantee of drift; the test is what makes the claim
+   "all settings" true tomorrow as well as today.
+
+--------------------------------------------------------------------------------
+DECISIONS THE IMPLEMENTER HAS TO MAKE
+--------------------------------------------------------------------------------
+
+  * WHICH FUNCTIONS COUNT. The request says "at least the main functions".
+    The natural line is the ones the GUI exposes as modules -- mask, measure,
+    classify, umap, and so on -- because those already have a declared
+    settings factory. A helper called once inside a notebook does not.
+
+  * HOW MANY KEYS IS TOO MANY. mask and timelapse declare ~205 settings each
+    (backlog item 12f). Two hundred commented lines is not a usable first
+    cell. The likely answer is the same one the GUI reached: the common keys
+    visible, the rest behind a clearly marked "advanced" block that is still
+    IN the notebook and still carries its tooltips -- present and readable,
+    not hidden behind a link.
+
+  * WHERE THE TOOLTIP GOES. A comment above each key reads well and diffs
+    badly; a trailing comment diffs well and wraps badly at 200 characters.
+    Pick one and apply it everywhere.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+For every shipped notebook: every key its module's settings factory declares
+appears in the notebook, each carries the tooltip that `spacr.settings`
+holds for it right now, and a test regenerates the notebooks and fails if a
+committed one differs -- so a new setting cannot be added without the
+notebooks gaining it too.
+
+--------------------------------------------------------------------------------
+2026-08-13 - DONE. A GENERATOR, A DRIFT TEST, AND 20 SETTINGS THAT HAD NO
+             DESCRIPTION ANYWHERE IN THE PACKAGE
+--------------------------------------------------------------------------------
+
+`tools/build_notebook_settings.py`, `tests/test_notebook_settings.py`, and all
+30 shipped notebooks regenerated.
+
+THE STARTING STATE WAS HALF-DONE AND UNDEFENDED. 14 of the 30 notebooks
+already carried a settings block; 16 did not; and NOTHING regenerated any of
+them. Hand-made blocks against a settings dict that moves every week is
+exactly the drift rule 4 predicted, and instruction 61 has already rewritten
+454 tooltips once.
+
+THREE SHAPES, BECAUSE spaCR HAS THREE, decided per FUNCTION and not per
+notebook. This is the answer to "WHICH FUNCTIONS COUNT":
+
+    factory     19  the function takes a settings dict and a helper declares
+                    its keys. Keys and defaults from calling that helper on
+                    {}, tooltip from spacr.settings.tooltips
+    signature    9  ordinary keyword arguments -- ml_analysis has 28,
+                    custom_volcano_plot 9. inspect.signature, and the
+                    tooltip is the function's own :param line
+    source       4  takes a settings dict and NOTHING DECLARES ITS KEYS: it
+                    reads settings.get('x', default) inline. Recovered by
+                    walking the AST, and the cell SAYS SO -- a list read out
+                    of a function body is a weaker claim than one read off a
+                    declaration, and printing them identically would hide
+                    that. Those four should grow real factories.
+
+THE REGISTRY IS THE AUTHORITY, per rule 1: `spacr.cli.MODULES` already pairs
+every entry point with its defaults helper for the GUI and the CLI. Using it
+instead of a name-convention guess is what took `deep_spacr` from 11 keys
+(scraped from its body) to its real 81, and `generate_barecode_mapping` from
+11 to 17.
+
+A TRAP WORTH RECORDING: `spacr.settings.tooltips` IS NOT COMPLETE ON IMPORT.
+Six pipelines own their keys and merge them in from their own module via
+`register_defaults`, which runs only when that module is imported. Read cold,
+`dst` and `cmap` look undocumented -- and the generator would then have
+written "no description" into a notebook for a key that has a perfectly good
+one. That is not a missing sentence, it is a WRONG one. The generator now
+imports every pipeline module first.
+
+THE COMMENTED-OUT CALL WAS A SECOND PASTE. Eight notebooks carried a line
+restating the whole signature by hand, which a renamed parameter would have
+left silently wrong. They are now `func(**settings)` / `func(settings)`, so
+the generated dict IS the call's arguments rather than decoration beside
+them -- and a test asserts the dict is passed to something.
+
+20 SETTINGS HAD NO DESCRIPTION ANYWHERE, found because the test demanded one
+per key. This is a GUI defect as much as a notebook one: those settings show
+a blank tooltip in the settings panel too. Fixed at the source --
+`batch_covariate_column` and `batch_combat_mean_only` gained `:param` lines
+in `ml_analysis` (28 params, 26 documented), and 17 keys across
+`analyze_percent_positive`, `interpret_vision_model` and
+`generate_score_heatmap` gained real tooltips.
+
+AND TWO THAT PREDATE TODAY: `seg_qc` (870 chars) and `classes` (658) were
+over the 600-character archive limit and `test_no_tooltip_is_an_archive` was
+red on a clean tree. Trimmed, so that suite is green for the first time.
+
+DECISIONS, with the reasons:
+
+  * FLAT AND ALPHABETICAL, not common-plus-advanced. The file suggested a
+    split; the 14 shipped blocks are flat and alphabetical and nobody has
+    objected, and a notebook is not a form -- two dicts would be two things
+    to merge before calling, which is worse than one long cell to scroll.
+  * COMMENT ABOVE THE KEY, wrapped at 68 columns. The file asked for one or
+    the other. Trailing comments would be 200 characters wide in a cell that
+    is half a screen; wrapped above diffs one line per changed line of text.
+  * A DEFAULT THAT DOES NOT ROUND-TRIP is written as None with a note naming
+    its type, never as a repr that would not parse. Tested.
+
+124 tests; 639 pass across notebooks, settings, validate, cli and dead
+settings.

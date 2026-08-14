@@ -26,7 +26,6 @@ _BUILTIN_APP_KEYS = (
     "batch",
     "distributed_jobs",
     "db_browser",
-    "make_masks",
     "train_cellpose",
     "cellpose_masks",
     "model_compare",
@@ -68,7 +67,6 @@ MODULE_SUMMARIES_OTHER: dict[str, dict[str, str]] = {
         "batch": "Colocar quaisquer módulos, placas e configurações em fila e executá-los durante a noite",
         "distributed_jobs": "Enviar e monitorar execuções do spaCR em estações de trabalho SSH, Slurm ou comandos de nuvem/HPC",
         "db_browser": "Navegar e exportar measurements.db sem usar a CLI sqlite3",
-        "make_masks": "Realizar o ajuste fino de modelos Cellpose para o seu conjunto de dados",
         "train_cellpose": "Treinar modelos Cellpose personalizados",
         "cellpose_masks": "Gerar máscaras com Cellpose",
         "model_compare": "Executar dois modelos Cellpose nos mesmos campos: comparar máscaras lado a lado e diferenças na contagem de objetos e no ARI",
@@ -104,7 +102,6 @@ MODULE_SUMMARIES_OTHER: dict[str, dict[str, str]] = {
         "batch": "Setja hvaða einingar, plötur og stillingar sem er í biðröð og keyra þær yfir nótt",
         "distributed_jobs": "Senda inn og fylgjast með spaCR-keyrslum á SSH-vinnustöðvum, Slurm eða með skýja-/HPC-skipunum",
         "db_browser": "Skoða og flytja út measurements.db án sqlite3 CLI",
-        "make_masks": "Fínstilla Cellpose-líkön fyrir gagnasafnið þitt",
         "train_cellpose": "Þjálfa sérsniðin Cellpose-líkön",
         "cellpose_masks": "Búa til grímur með Cellpose",
         "model_compare": "Keyra tvö Cellpose-líkön á sömu myndsviðum: bera saman grímur hlið við hlið og mun á hlutafjölda og ARI",
@@ -140,7 +137,6 @@ MODULE_SUMMARIES_OTHER: dict[str, dict[str, str]] = {
         "batch": "Mettre en file d'attente les modules, plaques et paramètres souhaités et les exécuter pendant la nuit",
         "distributed_jobs": "Soumettre et surveiller des exécutions spaCR sur des stations de travail SSH, Slurm ou au moyen de commandes cloud/HPC",
         "db_browser": "Parcourir et exporter measurements.db sans utiliser la CLI sqlite3",
-        "make_masks": "Affiner des modèles Cellpose pour votre jeu de données",
         "train_cellpose": "Entraîner des modèles Cellpose personnalisés",
         "cellpose_masks": "Générer des masques avec Cellpose",
         "model_compare": "Exécuter deux modèles Cellpose sur les mêmes champs : comparer les masques côte à côte ainsi que les écarts de nombre d'objets et d'ARI",
@@ -165,13 +161,13 @@ def validate_module_summaries_other() -> None:
     """Raise :class:`AssertionError` if this parallel catalog is incomplete."""
     expected_languages = {"pt", "is", "fr"}
     assert set(MODULE_SUMMARIES_OTHER) == expected_languages
-    assert len(_BUILTIN_APP_KEYS) == len(set(_BUILTIN_APP_KEYS)) == 34
+    assert len(_BUILTIN_APP_KEYS) == len(set(_BUILTIN_APP_KEYS)) == 33
 
     expected_keys = set(_BUILTIN_APP_KEYS)
     key_sets = {frozenset(summaries) for summaries in MODULE_SUMMARIES_OTHER.values()}
     assert key_sets == {frozenset(expected_keys)}
     for language_code, summaries in MODULE_SUMMARIES_OTHER.items():
-        assert len(summaries) == 34, language_code
+        assert len(summaries) == 33, language_code
         assert all(isinstance(text, str) and text.strip() for text in summaries.values())
         assert all("http://" not in text and "https://" not in text for text in summaries.values())
 

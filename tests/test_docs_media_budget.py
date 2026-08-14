@@ -9,7 +9,7 @@ once warned about it.
 
 ``tools/docs_media_budget.py`` now publishes no narration at all: the audio and
 its timing sidecars are served from ``NARRATION_HOST`` instead, which is what
-lets the picker offer all 54 voices rather than the one per language the site
+lets the picker offer all 50 voices rather than the one per language the site
 could afford to carry. This file is the guard on that: it asserts the payload
 stays under budget, that the reduction takes only narration (never a lesson, a
 video, a caption or a language), and that the catalog the site ships still
@@ -210,6 +210,10 @@ def test_narration_is_the_stable_mobile_clock():
     narration from those updates is heard as skipped, repeated, or stretched
     syllables. Narration therefore drives the silent visual master; only an
     explicit seek/load boundary may move the audio clock.
+
+    Pin the current cache key too: the 2026-08-11 player keeps narration in
+    charge through visual EOF and derives caption cues from measured sentence
+    timings, so phones must not reuse the superseded mobile-smooth asset.
     """
     player = (_LIBRARY / "tutorials" / "app_v2.js").read_text(
         encoding="utf-8")
@@ -220,8 +224,9 @@ def test_narration_is_the_stable_mobile_clock():
     assert "function seekNarrationToVideo()" in player
     assert "function syncAudio(" not in player
     assert "elements.audio.playbackRate = userPlaybackRate" not in player
-    assert 'app_v2.js?v=20260810-mobile-smooth' in (
-        _LIBRARY / "tutorials" / "index.html").read_text(encoding="utf-8")
+    index = (_LIBRARY / "tutorials" / "index.html").read_text(encoding="utf-8")
+    assert 'app_v2.js?v=20260811-audio-end-park-captions' in index
+    assert "20260810-mobile-smooth" not in index
 
 
 @requires_library
@@ -230,7 +235,7 @@ def test_the_catalog_offers_every_hosted_voice(real_plan):
 
     While the site served narration the catalog had to be trimmed to what was
     staged, or the picker offered voices whose audio 404'd. The host serves
-    all 54 now, so trimming the catalog to the empty staged narration set would
+    all 50 now, so trimming the catalog to the empty staged narration set would
     hide working voices.
     """
     _published, _dropped, keep = real_plan

@@ -73,6 +73,17 @@ def test_every_default_round_trips_untouched(qapp, app_key):
                 and round(value, 6) == round(got, 6):
             continue
         drift[key] = (value, got)
+    # `classes` used to be xfailed here. It drifted because the default was
+    # still the pre-98ae880c list while the editor produced the dict shape,
+    # so opening the screen rewrote the setting -- and opening a screen and
+    # saving must never rewrite a user's settings file.
+    #
+    # Instruction 37 settled it by separating the two meanings that were
+    # sharing the key: `classes` is the DEFINITIONS (name -> {column,
+    # value}, default {} -- nothing defined yet, which the editor renders as
+    # an empty table and collects back unchanged), and the ordered TRAINING
+    # FOLDER names moved to `class_folder_names`. The mark is removed rather
+    # than loosened, as its own note asked.
     assert not drift, drift
 
 
@@ -147,9 +158,25 @@ def test_the_classes_setting_gets_the_class_editor(qapp):
     # return {} left the earlier version of this test green.
     value = widget.get_value()
     assert isinstance(value, dict)
+    # This used to read `list(value) == ["nc", "pc"]`, from the days when
+    # `classes` defaulted to those two names. Instruction 37 split the key:
+    # the NAMES are `class_folder_names` and `classes` now defaults to {} --
+    # no class is DEFINED until the user picks a column and names its
+    # values. So the default table is legitimately empty, and the content
+    # has to be pinned on a table that has content.
+    assert value == {}, "no class is defined until the user defines one"
+
+    widget.set_value({"nc": {"column": "columnID", "value": "c1"},
+                      "pc": {"column": "columnID", "value": "c3"}})
+    value = widget.get_value()
     assert list(value) == ["nc", "pc"], (
-        "the two default classes must survive routing to ClassEditorWidget")
+        "the classes must survive routing to ClassEditorWidget")
     assert all(isinstance(rule, dict) for rule in value.values())
+    # PIN THE CONTENT, not just the shape: `all(...)` over an empty dict is
+    # vacuously true, so an editor that silently dropped every class would
+    # have passed the shape check. Mutation-proven -- forcing get_value() to
+    # return {} left the earlier version of this test green.
+    assert value["pc"] == {"column": "columnID", "value": "c3"}
 
 
 @pytest.mark.parametrize(("app_key", "key", "expected"), [

@@ -1,21 +1,21 @@
 """
 Opt-in error reporting → pre-filled GitHub issue.
 
-When the user turns on "File errors as GitHub issues" in the AI
-Settings tab, the "Explain error" flow gains a second button:
-"File as GitHub issue". Clicking it:
+When the user enables public issue reporting during installation or later in
+Preferences, the error flow gains a "File as GitHub issue" action. Clicking
+it:
 
 1. Builds a sanitized report from the current traceback + active app
    + settings + spacr / python / OS versions + tail of the log file.
-2. URL-encodes the report into GitHub's `issues/new?title=…&body=…`
-   query params.
-3. Opens the user's default browser at that URL. GitHub uses the
-   user's existing browser session — no token, no OAuth, no server
-   round-trip. The user reviews and clicks Submit themselves.
+2. Shows the exact title and body in an editable preview, with filenames
+   stripped by default.
+3. Submits only after the report-specific Send click. An authenticated
+   official ``gh`` session can post through the API; otherwise spaCR opens a
+   pre-filled GitHub form in the browser for the user to submit there.
 
-Everything is deliberately kept client-side and one-click-away from
-posting so users see exactly what leaves their machine before it
-does.
+spaCR never stores a durable GitHub token itself. Everything stays client-side
+until the explicit preview action, so the user sees exactly what leaves the
+machine before it does.
 """
 from __future__ import annotations
 
@@ -140,6 +140,21 @@ def sanitize_traceback(tb: str) -> str:
     return sanitize_path(tb or "")
 
 
+def strip_report_paths(text: str) -> str:
+    """Remove file/folder names from an already sanitised report.
+
+    The ordinary sanitizer abbreviates the home directory so a traceback is
+    still useful. Public reports default to the stricter form: traceback file
+    fields and remaining absolute path-like tokens become ``<PATH>``. The
+    preview lets the user restore the useful names before sending.
+    """
+    value = str(text or "")
+    value = re.sub(r'(?m)(\bFile\s+)["\'][^"\']+["\']', r'\1"<PATH>"', value)
+    value = re.sub(r"(?<![\w~])(?:[A-Za-z]:[\\/]|/)[^\s'\"`]+", "<PATH>", value)
+    value = re.sub(r"(?<!\w)~[/\\][^\s'\"`]+", "<PATH>", value)
+    return value
+
+
 #: ``, line 123,`` inside a traceback frame — volatile, stripped before hashing.
 _LINENO_RE = re.compile(r",\s*line\s+\d+\s*,")
 
@@ -249,7 +264,8 @@ def build_report(
     :param settings: the pipeline settings dict in play, if any.
         Sanitised before inclusion.
     :param include_log_tail: also attach the last N log lines.
-    :returns: dict with keys ``title`` and ``body`` ready to be
+    :returns: dict with keys ``title``, ``body`` and ``fingerprint``,
+        ready to be
         URL-encoded onto ``issues/new``.
     """
     tb_clean = sanitize_traceback(traceback_text)
@@ -303,7 +319,11 @@ def build_report(
             body_parts.append("```")
             body_parts.append("</details>")
 
-    return {"title": title, "body": "\n".join(body_parts)}
+    # `fingerprint` is returned, not just embedded in the body, so the
+    # caller can look for an existing issue carrying it before opening a
+    # new one. Without that the hash was written and never read.
+    return {"title": title, "body": "\n".join(body_parts),
+            "fingerprint": tb_hash}
 
 
 # ---------------------------------------------------------------------------
@@ -374,27 +394,71 @@ def open_issue_in_browser(url: str) -> bool:
         return False
 
 
-def file_issue(
-    traceback_text: str,
-    active_app: str = "",
-    settings: Optional[Dict[str, Any]] = None,
-) -> str:
-    """End-to-end helper: build report, build URL, open browser, return URL.
+def submit_report(report: Dict[str, str]) -> str:
+    """Submit one payload the user has already approved in the preview."""
+    # NOTHING REACHES THE REAL TRACKER FROM A TEST RUN.
+    #
+    # spaCR posts whenever a token is resolvable, and on a developer machine
+    # the `gh` CLI supplies one -- so a test that reaches this helper without
+    # mocking files a live issue. That is how `[auto 54a0e8] [mask] Error:
+    # boom` (#75) arrived on the public tracker from a fixture's exception.
+    #
+    # The guard sits HERE rather than on github_auth.create_issue, which the
+    # offline suite exercises deliberately with a mocked urllib to check its
+    # error handling. This is the end-to-end helper the application calls;
+    # blocking it costs the tests nothing and closes the hole.
+    import os
+    # THE GUARD SITS ON THE WRITING PATH, NOT ON THE FUNCTION. It used to
+    # refuse here, before the authentication check, which also blocked the
+    # BROWSER FALLBACK -- a path that builds a URL string and opens it, and
+    # cannot create anything on GitHub. That broke
+    # `test_file_issue_returns_url_without_opening`, which exercises exactly
+    # that fallback with the opener stubbed and `is_authenticated` forced
+    # False: no write was possible and the guard refused anyway.
+    #
+    # A guard that fires where nothing could happen teaches people to
+    # disable it, so it now fires only where an issue would really be
+    # created.
+    def _writes_are_allowed() -> bool:
+        return (not os.environ.get("PYTEST_CURRENT_TEST")
+                or os.environ.get("SPACR_ALLOW_GITHUB_WRITES") == "1")
 
-    :param traceback_text: full traceback text.
-    :param active_app: id of the app the user was in.
-    :param settings: pipeline settings dict in play.
-    :returns: the constructed ``https://github.com/…`` URL — useful for
-        tests and for logging what was opened.
-    """
-    report = build_report(traceback_text, active_app=active_app,
-                            settings=settings)
+    # Refuse before authentication as well as before the write. Merely asking
+    # a developer's credential store is an external action a forgotten test
+    # mock must never reach.
+    if not _writes_are_allowed():
+        return ("refusing to file a GitHub issue from inside a test run; set "
+                "SPACR_ALLOW_GITHUB_WRITES=1 if that is really intended")
+
     # If the user is signed in to GitHub (stored token / env / gh CLI), create
     # the issue directly via the API — no browser needed. Otherwise fall back to
     # opening the pre-filled issues/new URL in the browser.
     try:
         from . import github_auth
         if github_auth.is_authenticated():
+            # DEDUPE BY FINGERPRINT FIRST. `_traceback_hash` exists so the
+            # same bug hashes the same across runs and machines, and nothing
+            # consumed it: one crash produced one issue per occurrence -- ten
+            # in a single day on 2026-08-11 (#79-#81, #84-#90), which buries
+            # the reports that matter.
+            #
+            # A hit gets a COMMENT rather than a new issue, because the
+            # second occurrence is still information: it says the bug is
+            # reproducible and carries that run's environment.
+            #
+            # `searched` is distinguished from "found nothing" deliberately.
+            # If the search could not run we still file, because losing a
+            # crash report is worse than filing a duplicate.
+            searched, existing = github_auth.find_issue_by_fingerprint(
+                REPO, report["fingerprint"])
+            if searched and existing:
+                number = existing.get("number")
+                url = existing.get("html_url", "")
+                ok, _ = github_auth.comment_on_issue(
+                    REPO, number,
+                    "Seen again.\n\n" + report["body"])
+                if ok:
+                    return url
             ok, result = github_auth.create_issue(
                 REPO, report["title"], report["body"], labels=[ISSUE_LABEL])
             if ok and result:
@@ -404,3 +468,26 @@ def file_issue(
     url = issue_url(report["title"], report["body"])
     open_issue_in_browser(url)
     return url
+
+
+def file_issue(
+    traceback_text: str,
+    active_app: str = "",
+    settings: Optional[Dict[str, Any]] = None,
+    *,
+    include_log_tail: bool = True,
+) -> str:
+    """Legacy end-to-end helper retained for API callers and tests.
+
+    The GUI does not call this directly: it builds the payload, displays an
+    editable preview, then passes the approved mapping to
+    :func:`submit_report`. Headless callers invoking this function are the
+    report-specific affirmative action themselves.
+    """
+    report = build_report(
+        traceback_text,
+        active_app=active_app,
+        settings=settings,
+        include_log_tail=include_log_tail,
+    )
+    return submit_report(report)

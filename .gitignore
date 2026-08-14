@@ -162,11 +162,18 @@ spacr.log
 spacr_tutorial_doc.ipynb
 tutorial.ipynb
 tutorial_colab.ipynb
+/packaging/online/generated/
 
 #do not include docs
 /docs/*
 !/docs/source/
+!/docs/i18n/
+!/docs/i18n/**
 /docs/source/*
+!/docs/source/_static/
+!/docs/source/_static/api_i18n.js
+!/docs/source/_static/i18n/
+!/docs/source/_static/i18n/**
 !/docs/source/module_audit.rst
 !/docs/source/localization.rst
 !/docs/source/setting_animations.rst

@@ -25,6 +25,8 @@ from .errors import RunLedger, raise_if_strict
 from . import artifacts as artifact_status
 from .runctx import run_context
 from .plot import save_figure  # every kept figure goes through the format/DPI preference
+from .object_roles import (ORGANELLE_ROLES, SEGMENTED_ROLES,
+                           enabled_organelle_roles)
 
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
@@ -129,6 +131,25 @@ def preprocess_generate_masks(settings):
     # real CellVoyager data. Enable v2 explicitly with
     # pipeline_style='v2'. See spacr.pipeline_v2 for design notes.
     if settings.get('pipeline_style', 'v1') == 'v2':
+        # THE DEFAULTS, BEFORE ANYTHING READS THE DICT. This branch returns
+        # at the end, and `set_default_settings_preprocess_generate_masks` is
+        # only called further down inside the per-source loop -- which v2
+        # never reaches. So every `settings.get(key, fallback)` below was
+        # answering with its own inline fallback rather than the declared
+        # default.
+        #
+        # One of them changes segmentation: `cell_FT` is declared 1.0 and the
+        # fallback here was 0.4, and it goes straight to
+        # `model.eval(flow_threshold=...)`. Cellpose's remove_bad_flow_masks
+        # drops a mask whose flow error exceeds the threshold, so on a field
+        # with per-object flow errors {0.0, 0.12, 0.30, 0.75} the v1 pipeline
+        # keeps four cells and this branch kept three -- same plate, same
+        # settings dict, same weights.
+        #
+        # Both helpers are setdefault-only and idempotent, so the later call
+        # on the v1 path is unaffected.
+        settings = set_default_settings_preprocess_generate_masks(settings)
+        settings = _set_organelle_defaults(settings)
         from .pipeline_v2 import run_v2
         from ._v1_v2_bridge import (
             v2_channels_from_settings, report_disk_savings,
@@ -245,19 +266,15 @@ def preprocess_generate_masks(settings):
                                         exc=e, settings=settings)
                                     return
 
-                        if (
-                            settings['cell_channel'] is None and
-                            settings['nucleus_channel'] is None and
-                            settings['pathogen_channel'] is None and
-                            settings.get('organelle_channel') is None
-                        ):
+                        if all(settings.get(f'{role}_channel') is None
+                               for role in SEGMENTED_ROLES):
                             # Category B: with no object channel there is nothing to
                             # segment, so returning None here is indistinguishable from
                             # a successful run that produced no masks.
-                            print(f'Error: At least one of cell_channel, nucleus_channel, pathogen_channel or organelle_channel must be defined')
+                            print('Error: At least one registered object channel must be defined')
                             raise_if_strict(
-                                'At least one of cell_channel / nucleus_channel / '
-                                'pathogen_channel / organelle_channel must be set; '
+                                'At least one registered *_channel (for example '
+                                'cell_channel or organelle_channel) must be set; '
                                 'no masks can be generated.', settings=settings)
                             return
             
@@ -288,16 +305,30 @@ def preprocess_generate_masks(settings):
                         if settings['preprocess']:
                             settings, src = preprocess_img_data(settings)
 
+                        organelle_roles = enabled_organelle_roles(settings)
                         files_to_process = sum([
                             settings['cell_channel'] is not None,
                             settings['nucleus_channel'] is not None,
                             settings['pathogen_channel'] is not None,
-                            settings.get('organelle_channel') is not None
-                        ])
+                        ]) + len(organelle_roles)
                         files_processed = 0
 
                         if settings['masks']:
                             mask_src = os.path.join(src, 'masks')
+                            # CREATE IT IF IT IS NOT THERE.
+                            #
+                            # Only preprocess_img_data makes this folder, and
+                            # `preprocess` is exactly the box a user unticks
+                            # when re-masking a plate that has already been
+                            # measured. Delete masks/ first -- which is what
+                            # re-masking means -- and the run died on a
+                            # missing directory that it was about to fill
+                            # anyway (issue #13). The reported workaround was
+                            # to mkdir it by hand.
+                            #
+                            # exist_ok, so the normal path where preprocessing
+                            # just made it is unaffected.
+                            os.makedirs(mask_src, exist_ok=True)
                 
                             if settings['cell_channel'] != None:
                                 cancellation_checkpoint()
@@ -341,19 +372,24 @@ def preprocess_generate_masks(settings):
                                     files_processed += 1
                                     print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'pathogen_mask_gen')
                         
-                            if settings['organelle_channel'] != None:
+                            for organelle_role in organelle_roles:
                                 cancellation_checkpoint()
                                 time_ls=[]
                                 if check_mask_folder(
-                                        src, 'organelle_mask_stack',
+                                        src, f'{organelle_role}_mask_stack',
                                         resume=settings.get('resume', False)):
                                     start = time.time()
-                                    generate_organelle_masks_sam(mask_src, settings, 'organelle')
+                                    generate_organelle_masks_sam(
+                                        mask_src, settings, organelle_role)
                                     stop = time.time()
                                     duration = (stop - start)
                                     time_ls.append(duration)
                                     files_processed += 1
-                                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'organelle_mask_gen')
+                                    print_progress(
+                                        files_processed, files_to_process,
+                                        n_jobs=1, time_ls=time_ls,
+                                        batch_size=None,
+                                        operation_type=f'{organelle_role}_mask_gen')
 
                             if settings['adjust_cells']:
                                 if not settings['timelapse']:
@@ -389,6 +425,9 @@ def preprocess_generate_masks(settings):
                                 settings.get('nucleus_channel'),
                                 settings.get('pathogen_channel'),
                                 settings.get('organelle_channel'),
+                                organelle_chann_dims={
+                                    role: settings.get(f'{role}_channel')
+                                    for role in ORGANELLE_ROLES[1:]},
                                 resume=settings.get('resume', False)
                             )
                 
@@ -445,7 +484,10 @@ def preprocess_generate_masks(settings):
                                                     figuresize=10,
                                                     percentiles=(1,99),
                                                     thickness=3,
-                                                    save_pdf=True
+                                                    save_pdf=True,
+                                                    outline_palette=settings.get(
+                                                        'outline_palette',
+                                                        'default')
                                                 )
                                                 stop = time.time()
                                                 duration = stop-start
@@ -603,7 +645,9 @@ def _validate_umap_source_db(db_path, tables, require_png_list=True):
             "Run the Measure module on this source folder (with save_png "
             "enabled) before embedding it.")
 
-    conn = _sqlite3.connect(db_path)
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db_path)
     try:
         present = {row[0] for row in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
@@ -735,7 +779,13 @@ def generate_image_umap(settings=None, return_fig=False):
         # join fail with a bare KeyError three modules away.
         _validate_umap_source_db(db_path, tables,
                                  require_png_list=not on_demand)
-        df = _read_and_join_tables(db_path, table_names=tables)
+        # require_crops=False: this embeds MEASUREMENTS. An object whose crop
+        # never wrote has valid measurements and belongs in the embedding --
+        # it simply has no thumbnail to show when its point is hovered.
+        # Letting the png_list inner join drop it would silently shrink the
+        # embedding, which is a wrong number rather than a missing picture.
+        df = _read_and_join_tables(db_path, table_names=tables,
+                                   require_crops=False)
         # Keep the exact update identities before correct_paths re-anchors
         # png_path for display on this machine. These columns are removed
         # before the result CSV/DataFrame leaves this function.
@@ -959,6 +1009,12 @@ def generate_image_umap(settings=None, return_fig=False):
         'embedding': np.asarray(embedding),
         'labels': cluster_labels,
         'records': records,
+        # What the STATIC figure was coloured by, which is not always the
+        # cluster label: `color_by` swaps in a metadata column. Carried
+        # separately from `labels` so a redraw of the finished figure
+        # reproduces the colours the run actually drew, while the explorer
+        # keeps clustering on the algorithmic labels.
+        'plot_labels': np.asarray(plot_labels),
         'display': {
             'point_size': settings['dot_size'],
             'point_color': settings['point_color'],
@@ -967,6 +1023,14 @@ def generate_image_umap(settings=None, return_fig=False):
             'canvas_width': settings['umap_canvas_width'],
             'sidebar_width': settings['umap_sidebar_width'],
         },
+        # The settings this embedding was produced with. The Qt figure
+        # settings window opens on these, so every Image UMAP knob it offers
+        # starts at the value the run used rather than at a package default
+        # the user never chose. Underscore-prefixed keys are internal
+        # plumbing (`_plot_theme`) and are not settings anyone edits.
+        'settings': {key: value for key, value in settings.items()
+                     if not str(key).startswith('_')},
+        'theme_colors': settings.get('_plot_theme'),
     }
 
     # Plot the embedding
@@ -1174,8 +1238,8 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
             param['method'] = 'kmeans'
             clustering_params.append(param)
 
-    print('Testing paramiters:', reduction_params)
-    print('Testing clustering paramiters:', clustering_params)
+    print('Testing parameters:', reduction_params)
+    print('Testing clustering parameters:', clustering_params)
 
     # Calculate the grid size
     grid_rows = len(reduction_params)

@@ -322,10 +322,16 @@ def test_split_data_reports_missing_well_columns_and_reuses_existing_prcf(capsys
 
     assert "prcft" not in numeric.columns and "prcft" not in non_numeric.columns
     assert numeric.index.tolist() == ["p1_r1_c1_f1", "p1_r2_c1_f1"]
-    # area is summed, object_label averaged
+    # area is summed; object_label is CARRIED, not averaged. It used to be
+    # averaged -- objects 1 and 2 rolled up to 1.5, a label for an object
+    # that does not exist, sitting in a numeric column indistinguishable from
+    # a measurement. `aggregation_for` matches identity ahead of every other
+    # rule now, so the label arrives verbatim and the count is what says how
+    # many objects went into the row.
     assert numeric.loc["p1_r1_c1_f1", "cell_area"] == 300.0
     assert numeric.loc["p1_r2_c1_f1", "cell_area"] == 700.0
-    assert numeric.loc["p1_r1_c1_f1", "object_label"] == 1.5
+    assert numeric.loc["p1_r1_c1_f1", "object_label"] == 1
+    assert numeric.loc["p1_r2_c1_f1", "object_label"] == 3
     assert non_numeric.loc["p1_r1_c1_f1", "prcfo"] == "p1_r1_c1_f1_1"
     # the caller's frame must not be mutated
     assert "prcfo" not in df.columns
@@ -417,9 +423,15 @@ def test_split_data_sums_size_columns_and_means_the_rest():
 
     assert numeric.shape[0] == 1
     key = "p1_r1_c1_f1_1_1"
+    # AREAS SUM, LENGTHS AVERAGE (maintainer's call, 2026-08-11). Four
+    # objects rolled onto one parent occupy the sum of their areas -- a real
+    # quantity of the parent. They have no combined perimeter or diameter:
+    # those describe an INDIVIDUAL object, so the parent gets the typical
+    # one. perimeter and equivalent_diameter were summed here and are now
+    # averaged, which is why the expected values changed from 4.0 and 8.0.
     assert numeric.loc[key, "cell_area"] == 10.0                 # summed
-    assert numeric.loc[key, "cell_perimeter"] == 4.0             # summed
-    assert numeric.loc[key, "cell_equivalent_diameter"] == 8.0   # summed
+    assert numeric.loc[key, "cell_perimeter"] == 1.0             # averaged
+    assert numeric.loc[key, "cell_equivalent_diameter"] == 2.0   # averaged
     assert numeric.loc[key, "cell_channel_0_mean_intensity"] == 25.0  # averaged
     # timeID was present, so prcft got built and lands on the non-numeric side
     assert non_numeric.loc[key, "prcft"] == "p1_r1_c1_f1_1"
