@@ -330,7 +330,7 @@
       "objectives": [
         "Confirm that spaCR is available from Python.",
         "Choose and configure a spacr-run pipeline.",
-        "Validate a small test before a full headless run."
+        "Validate the resolved plan before a full headless run."
       ],
       "prerequisite": "Complete one installation tutorial first.",
       "scenes": [
@@ -353,16 +353,16 @@
           "speech_text": "Start a module with spacer run, the module name, and an exported settings file. spacer validates paths, channels, workers, and hardware options before work begins."
         },
         {
-          "narration": "Add the test option to process a small representative subset first. Review the preview and saved log before submitting a full unattended run.",
-          "visual": "test",
+          "narration": "Add --dry-run to resolve settings, print the execution plan, and run pre-flight validation without processing data. Fix every reported problem before submitting unattended work.",
+          "visual": "dry_run",
           "hold_after": 0.7,
-          "speech_text": "Add the test option to process a small representative subset first. Review the preview and saved log before submitting a full unattended run."
+          "speech_text": "Add --dry-run to resolve settings, print the execution plan, and run pre-flight validation without processing data. Fix every reported problem before submitting unattended work."
         },
         {
-          "narration": "Remove the test option for the full run. Headless jobs save the same outputs, settings, version record, and logs as the desktop workflow.",
+          "narration": "Remove --dry-run only after the plan and pre-flight checks pass. Headless jobs save the same outputs, settings, version record, and logs as the desktop workflow.",
           "visual": "run",
           "hold_after": 0.7,
-          "speech_text": "Remove the test option for the full run. Headless jobs save the same outputs, settings, version record, and logs as the desktop workflow."
+          "speech_text": "Remove --dry-run only after the plan and pre-flight checks pass. Headless jobs save the same outputs, settings, version record, and logs as the desktop workflow."
         }
       ]
     },
@@ -709,39 +709,39 @@
           "speech_text": "Labels and Classes selects the annotation or metadata field used as ground truth and maps its saved values to documented class names. Verify that mapping before training."
         },
         {
-          "narration": "Crops and Dataset Split chooses the object images, channels, balancing, and held-out fraction. Group related images by plate or well so near-duplicates cannot leak between training and evaluation.",
-          "visual": "12_category_03_crops_dataset_split",
+          "narration": "Images and Cropping chooses the object images, channels, balancing, and held-out fraction. Group related images by plate or well so near-duplicates cannot leak between training and evaluation.",
+          "visual": "12_category_03_images_cropping",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Crops and Dataset Split chooses the object images, channels, balancing, and held-out fraction. Group related images by plate or well so near-duplicates cannot leak between training and evaluation."
+          "speech_text": "Images and Cropping chooses the object images, channels, balancing, and held-out fraction. Group related images by plate or well so near-duplicates cannot leak between training and evaluation."
         },
         {
-          "narration": "Model Architecture selects the network, input channels and size, pretrained weights, and normalization expected by the images. Begin with one reasonable baseline.",
-          "visual": "12_category_04_model_architecture",
+          "narration": "Model and Regularization selects the network, input channels and size, pretrained weights, normalization, and regularization expected by the images. Begin with one reasonable baseline.",
+          "visual": "12_category_04_model_regularization",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Model Architecture selects the network, input channels and size, pre-trained weights, and normalization expected by the images. Begin with one reasonable baseline."
+          "speech_text": "Model and Regularization selects the network, input channels and size, pre-trained weights, normalization, and regularization expected by the images. Begin with one reasonable baseline."
         },
         {
-          "narration": "Optimization and Loss contains learning rate, augmentation, batches, epochs, and early stopping. Change a small number of controls at a time and judge them on validation behavior.",
-          "visual": "12_category_05_optimization_loss",
+          "narration": "Training and Loss contains learning rate, augmentation, batches, epochs, and early stopping. Change a small number of controls at a time and judge them on validation behavior.",
+          "visual": "12_category_05_training_loss",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Optimization and Loss contains learning rate, augmentation, batches, epochs, and early stopping. Change a small number of controls at a time and judge them on validation behavior."
+          "speech_text": "Training and Loss contains learning rate, augmentation, batches, epochs, and early stopping. Change a small number of controls at a time and judge them on validation behavior."
         },
         {
-          "narration": "Evaluation Workbench adds grouped or nested evaluation, calibration, and strict identity and content-leakage checks. Keep the final held-out data separate from model selection.",
-          "visual": "12_category_07_evaluation_workbench",
+          "narration": "Evaluation and Results adds grouped evaluation, calibration, and strict identity and content-leakage checks. Keep final held-out data separate from model selection.",
+          "visual": "12_category_06_evaluation_results",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Evaluation Workbench adds grouped or nested evaluation, calibration, and strict identity and content-leakage checks. Keep the final held-out data separate from model selection."
+          "speech_text": "Evaluation and Results adds grouped evaluation, calibration, and strict identity and content-leakage checks. Keep final held-out data separate from model selection."
         },
         {
-          "narration": "Full Dataset and Inference applies the chosen checkpoint, writes probabilities and class calls, and saves representative high-confidence examples for review.",
-          "visual": "12_category_08_full_dataset_inference",
+          "narration": "The same Evaluation and Results section controls full-dataset inference, saved probabilities and class calls, and representative examples. Review those outputs before using predictions biologically.",
+          "visual": "12_category_06_evaluation_results",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Full Dataset and Inference applies the chosen checkpoint, writes probabilities and class calls, and saves representative high-confidence examples for review."
+          "speech_text": "The same Evaluation and Results section controls full-dataset inference, saved probabilities and class calls, and representative examples. Review those outputs before using predictions biologically."
         },
         {
           "narration": "Enable Hyperparameter Search when several plausible configurations need comparison. The mini workbench runs grouped trials and displays each score, fold variation, parameters, and status.",
@@ -790,11 +790,11 @@
           "speech_text": "[Classify](/klˈæsəfI/) ML trains a classical model on per-object measurements. The console reports database loading, feature preparation, validation, importance, predictions, and errors."
         },
         {
-          "narration": "Data and Controls selects the measurement project, label field, positive and negative values, and experimental grouping. Verify the biological meaning of that mapping before fitting a model.",
-          "visual": "12_category_01_data_controls",
+          "narration": "Labels and Classes selects the measurement project, label field, positive and negative values, and experimental grouping. Verify the biological meaning of that mapping before fitting a model.",
+          "visual": "12_category_01_labels_classes",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Data and Controls selects the measurement project, label field, positive and negative values, and experimental grouping. Verify the biological meaning of that mapping before fitting a model."
+          "speech_text": "Labels and Classes selects the measurement project, label field, positive and negative values, and experimental grouping. Verify the biological meaning of that mapping before fitting a model."
         },
         {
           "narration": "Start with Essentials and audit changes in Modified. Open All only for controls the analysis needs, and save a Recipe for repeated runs.",
@@ -1279,11 +1279,11 @@
           "speech_text": "Map Quantification can compare input channels with attribution intensity and save those summaries. Enable it only when the statistic answers a defined question."
         },
         {
-          "narration": "Output and Runtime controls saved maps, order, batches, and workers. Reduce batch size when accelerator memory is limited and keep deterministic ordering for comparisons.",
-          "visual": "12_category_06_output_runtime",
+          "narration": "Hyperparameter Search compares a small, explicit set of attribution methods and validation settings. Rank the completed trials with deletion, insertion, pointing-game, and sanity evidence together; no single score proves that an explanation is biologically correct.",
+          "visual": "19_hyperparameter_search",
           "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Output and Runtime controls saved maps, order, batches, and workers. Reduce batch size when accelerator memory is limited and keep deterministic ordering for comparisons."
+          "focus_key": "search_card",
+          "speech_text": "hyper-parameter Search compares a small, explicit set of attribution methods and validation settings. Rank the completed trials with deletion, insertion, pointing-game, and sanity evidence together; no single score proves that an explanation is biologically correct."
         },
         {
           "narration": "Run validates the model and crops, recreates training preprocessing, computes predictions and maps, renders requested grids, and records the settings.",
@@ -1381,11 +1381,11 @@
           "speech_text": "Visualization and Diagnostics creates examples for checking segmentation and track continuity, while Output and Storage selects masks, merged arrays, movies, and retained intermediates."
         },
         {
-          "narration": "Runtime and Reliability includes test mode, workers, reproducible order, resume, dry run, and failure policy. Process one representative field before scaling to the full time series.",
-          "visual": "12_category_13_runtime_reliability",
+          "narration": "Open Track Preview on one representative sequence before the full run. Inspect early, middle, and late frames together, then check masks, identities, gaps, divisions, and implausible jumps before propagating the tuned settings.",
+          "visual": "19_preview_result",
           "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Runtime and Reliability includes test mode, workers, reproducible order, resume, dry run, and failure policy. Process one representative field before scaling to the full time series."
+          "focus_key": "preview",
+          "speech_text": "Open Track Preview on one representative sequence before the full run. Inspect early, middle, and late frames together, then check masks, identities, gaps, divisions, and implausible jumps before propagating the tuned settings."
         },
         {
           "narration": "Run validates filenames and channels, segments requested objects, links masks, calculates quality control, and writes movies and arrays. Inspect completed tracks for swaps, gaps, and implausible jumps before analysis.",
@@ -1469,11 +1469,11 @@
           "speech_text": "The optional [XGBoost](/ˌɛksʤˌibˈust/), clustering, and embedding sections provide alternative infection [classifiers](/klˈæsəfIəɹz/) when direct masks are insufficient. Validate any learned rule on held-out labeled tracks."
         },
         {
-          "narration": "Motility Plots and QC selects trajectory, intensity, position, velocity, and infection panels. Plot limits change presentation but not underlying measurements.",
-          "visual": "12_category_08_motility_plots_qc",
+          "narration": "Open Track Preview before the full assay. The bounded sample overlays real trajectories and reports displacement, velocity, path length, straightness, gaps, and calibration so a broken tracker or scale is visible before summary plots are written.",
+          "visual": "19_preview_result",
           "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Motility Plots and QC selects trajectory, intensity, position, velocity, and infection panels. Plot limits change presentation but not underlying measurements."
+          "focus_key": "preview",
+          "speech_text": "Open Track Preview before the full [assay](/ˈæsA/). The bounded sample overlays real trajectories and reports displacement, velocity, path length, straightness, gaps, and calibration so a broken tracker or scale is visible before summary plots are written."
         },
         {
           "narration": "Run measures frames, smooths and filters tracks, assigns infection status, computes calibrated summaries and correlations, and saves tables and figures.",
@@ -2831,43 +2831,105 @@
       "series": 5,
       "app_key": "batch",
       "section": "Data and batch runs",
-      "description": "Queue modules, projects, and settings for reproducible unattended execution.",
+      "description": "Validate, persist, and execute an ordered queue of real spaCR module jobs with dependencies and separate logs.",
       "objectives": [
-        "Understand when to use Batch Runner.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Add validated module-and-settings jobs with labels, dependencies, and command-line overrides.",
+        "Reorder, validate, save, and reload an unattended queue before execution.",
+        "Run jobs one at a time in isolated processes and audit per-job status and logs."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "One saved JSON or CSV settings file for each headless spaCR module job.",
       "scenes": [
         {
-          "narration": "This tutorial covers Batch Runner. Queue modules, projects, and settings for reproducible unattended execution.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers Batch Runner. Queue modules, projects, and settings for reproducible unattended execution."
+          "narration": "Batch Runner stacks arbitrary spaCR modules and settings into one unattended queue. Unlike Plate Queue, which applies one pipeline to many plates, Batch Runner can mix modules, inputs, overrides, and dependencies. Jobs run strictly one at a time so they do not compete for one GPU.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.82,
+          "speech_text": "Batch Runner stacks arbitrary spacer modules and settings into one unattended queue. Unlike Plate Queue, which applies one pipeline to many plates, Batch Runner can mix modules, inputs, overrides, and dependencies. Jobs run strictly one at a time so they do not compete for one G P U."
         },
         {
-          "narration": "Add projects and assemble the ordered module sequence each project should run.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Add projects and assemble the ordered module sequence each project should run."
+          "narration": "Choose a headless module and the exact settings file that job should receive. Add a descriptive label, optional prerequisite job identifiers, and optional key-equals-value overrides. This first job performs a real lossless conversion of one four-channel field. Click Add job.",
+          "visual": "02_add_first",
+          "focus_key": "editor",
+          "click_key": "add",
+          "hold_after": 0.76,
+          "speech_text": "Choose a headless module and the exact settings file that job should receive. Add a descriptive label, optional prerequisite job identifiers, and optional key equals value overrides. This first job performs a real lossless conversion of one four channel field. Click Add job."
         },
         {
-          "narration": "In the main configuration area, choose presets, dependencies, resource limits, resume behavior, logging, and failure policy.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, choose presets, dependencies, resource limits, resume behavior, logging, and failure policy."
+          "narration": "The job receives the stable identifier convert-1 and is checked immediately. Batch Runner resolves module defaults, parses the settings file and overrides, validates paths and values, and refuses an invalid job now instead of discovering it during an overnight run.",
+          "visual": "03_first_ready",
+          "focus_key": "table",
+          "hold_after": 0.76,
+          "speech_text": "The job receives the stable identifier convert one and is checked immediately. Batch Runner resolves module defaults, parses the settings file and overrides, validates paths and values, and refuses an invalid job now instead of discovering it during an overnight run."
         },
         {
-          "narration": "Validate the batch plan, test one job, and then run the remaining queue overnight or unattended.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Validate the batch plan, test one job, and then run the remaining queue overnight or unattended."
+          "narration": "The second real conversion names convert-1 in After, so it runs only if that prerequisite succeeds. Its plate_naming equals name override is layered over the saved settings without copying the file. If convert-1 fails, this job is marked skipped rather than running on incomplete upstream output. Click Add job.",
+          "visual": "04_add_dependent",
+          "focus_key": "editor",
+          "click_key": "add",
+          "hold_after": 0.82,
+          "speech_text": "The second real conversion names convert one in After, so it runs only if that prerequisite succeeds. Its plate naming equals name override is layered over the saved settings without copying the file. If convert one fails, this job is marked skipped rather than running on incomplete upstream output. Click Add job."
         },
         {
-          "narration": "When the workflow finishes, every job has its own status, settings snapshot, logs, outputs, and resumable run record.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, every job has its own status, settings snapshot, logs, outputs, and resumable run record."
+          "narration": "The third real conversion has no prerequisite and can still run when an unrelated job fails under continue-on-error policy. Add it as an independent job. This lesson uses three transferred microscopy fields copied byte-for-byte into isolated folders; every queued process will perform a genuine conversion.",
+          "visual": "05_add_independent",
+          "focus_key": "editor",
+          "click_key": "add",
+          "hold_after": 0.8,
+          "speech_text": "The third real conversion has no prerequisite and can still run when an unrelated job fails under continue on error policy. Add it as an independent job. This lesson uses three transferred microscopy fields copied byte for byte into isolated folders; every queued process will perform a genuine conversion."
+        },
+        {
+          "narration": "The table now shows run order, stable job identifiers, modules, labels, dependencies, pending status, elapsed time, and each job's own log. Select a row to inspect its settings and log. Duplicate, Remove, and Move controls build and reorder a larger night of work.",
+          "visual": "06_queue_ready",
+          "focus_key": "table",
+          "hold_after": 0.8,
+          "speech_text": "The table now shows run order, stable job identifiers, modules, labels, dependencies, pending status, elapsed time, and each job's own log. Select a row to inspect its settings and log. Duplicate, Remove, and Move controls build and reorder a larger night of work."
+        },
+        {
+          "narration": "Select the independent third job and click Move up. Reordering is safe here because the dependent conversion remains below convert-1. Moving a prerequisite below its dependent would produce a visible validation error and disable the run.",
+          "visual": "07_reorder",
+          "focus_key": "toolbar",
+          "click_key": "move_up",
+          "hold_after": 0.7,
+          "speech_text": "Select the independent third job and click Move up. Reordering is safe here because the dependent conversion remains below convert one. Moving a prerequisite below its dependent would produce a visible validation error and disable the run."
+        },
+        {
+          "narration": "Click Validate after editing or loading a queue. Validation reports every error and warning together: missing settings, unknown modules, invalid paths or values, duplicate identifiers, later prerequisites, and dependency cycles. The run button remains disabled while any blocking problem exists.",
+          "visual": "08_validate",
+          "focus_key": "toolbar",
+          "click_key": "validate",
+          "hold_after": 0.74,
+          "speech_text": "Click Validate after editing or loading a queue. Validation reports every error and warning together: missing settings, unknown modules, invalid paths or values, duplicate identifiers, later prerequisites, and dependency cycles. The run button remains disabled while any blocking problem exists."
+        },
+        {
+          "narration": "All three jobs are valid. Continue on failure permits independent jobs to proceed while dependents are skipped; Stop at first failure halts everything later. The consecutive-failure threshold stops a queue that is repeatedly failing for the same systematic reason. Stop waits for the current job to finish safely rather than killing it mid-write.",
+          "visual": "09_validated",
+          "focus_key": "run",
+          "hold_after": 0.9,
+          "speech_text": "All three jobs are valid. Continue on failure permits independent jobs to proceed while dependents are skipped; Stop at first failure halts everything later. The consecutive failure threshold stops a queue that is repeatedly failing for the same systematic reason. Stop waits for the current job to finish safely rather than killing it mid write."
+        },
+        {
+          "narration": "Click Save queue before leaving it unattended. The readable JSON stores order, dependencies, overrides, and status. Batch Runner updates it atomically after every transition, so a restart can resume pending or not-run jobs without duplicating completed work. Load queue restores the same ledger later.",
+          "visual": "10_save",
+          "focus_key": "toolbar",
+          "click_key": "save",
+          "hold_after": 0.8,
+          "speech_text": "Click Save queue before leaving it unattended. The readable J S O N stores order, dependencies, overrides, and status. Batch Runner updates it atomically after every transition, so a restart can resume pending or not run jobs without duplicating completed work. Load queue restores the same ledger later."
+        },
+        {
+          "narration": "With the reviewed queue saved, click Run queue. Each job launches as its own spacr-run process using this spaCR environment. A segmentation crash would end that job rather than the interface or later independent work, and standard output plus errors go into that job's separate log.",
+          "visual": "11_run",
+          "focus_key": "run",
+          "click_key": "run_queue",
+          "hold_after": 0.78,
+          "speech_text": "With the reviewed queue saved, click Run queue. Each job launches as its own spacer run process using this spacer environment. A segmentation crash would end that job rather than the interface or later independent work, and standard output plus errors go into that job's separate log."
+        },
+        {
+          "narration": "All three real subprocess jobs finish successfully. The progress bar reaches three of three, the table preserves each status and duration, the summary distinguishes success, failure, skip, not-run, and partial outcomes, and the selected job's log contains its exact command and conversion report. Each destination holds four TIFFs and a provenance map; all source hashes remain unchanged.",
+          "visual": "12_result",
+          "focus_key": "summary",
+          "hold_after": 0.92,
+          "speech_text": "All three real subprocess jobs finish successfully. The progress bar reaches three of three, the table preserves each status and duration, the summary distinguishes success, failure, skip, not run, and partial outcomes, and the selected job's log contains its exact command and conversion report. Each destination holds four T I F F files and a provenance map; all source hashes remain unchanged."
         }
       ]
     },
@@ -4131,7 +4193,8 @@
       "objectives": [
         "Draw and inspect a population gate in 2D.",
         "Compare the real 3D volume and xD projection modes.",
-        "Read, nest, save, and safely reuse a named gate hierarchy."
+        "Read, nest, save, and safely reuse a named gate hierarchy.",
+        "Verify a bounded cluster Walk before annotation or export."
       ],
       "prerequisite": "Prepare a measurement table with numeric features and stable object identifiers.",
       "scenes": [
@@ -4175,6 +4238,13 @@
           "hold_after": 0.7,
           "focus_key": "save_controls",
           "speech_text": "Give each population a meaningful name, then save the gate strategy. Load it on a compatible table to reuse the same feature names, boundaries, and hierarchy, and verify the new counts before continuing."
+        },
+        {
+          "narration": "Cluster Walk searches a bounded sequence of DBSCAN radii on the displayed measurements and reports the selected radius, population count, and excluded fraction. Inspect the resulting gates, then annotate or export only after the populations match the visible data.",
+          "visual": "07_cluster_walk",
+          "hold_after": 0.7,
+          "focus_key": "walk_result",
+          "speech_text": "Cluster Walk searches a bounded sequence of D B scan radii on the displayed measurements and reports the selected radius, population count, and excluded fraction. Inspect the resulting gates, then annotate or export only after the populations match the visible data."
         }
       ]
     },
