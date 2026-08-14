@@ -18,8 +18,8 @@ real measurement table hits and a four-column fixture never does:
 * the **subsample** the label-shuffling null falls back to on a big table;
 * rows with **no class label**, which must not enter a score.
 
-The last one is where three real defects live; they are pinned as strict
-xfails at the bottom with their reproductions, not fixed here.
+The final regressions cover three once-subtle label defects: unlabelled rows in
+the null model, date-valued classes, and a real class named by an empty string.
 
 No Qt, no files, no network — ``feature_rank`` is pure numpy and pandas. The
 import still needs PySide6 because the column classifier it shares with the
@@ -654,14 +654,9 @@ def test_an_object_with_no_class_enters_no_score(measured):
 
 
 # ---------------------------------------------------------------------------
-# Pinned defects. Each of these asserts the behaviour the module documents;
-# each fails today for the reason in its docstring. Strict, so whoever fixes
-# one is told to unpin it.
+# Label regressions. Each asserts the behaviour documented by the module.
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: unlabelled rows are shuffled into the null "
-                          "even though they enter no score")
 def test_rows_that_enter_no_score_must_not_move_the_null_threshold():
     """The null has to be a null of the ranking it is calibrating.
 
@@ -700,9 +695,6 @@ def test_rows_that_enter_no_score_must_not_move_the_null_threshold():
     assert [s.feature for s in with_empty_rows.above_null()] == ["real"]
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: a date-only datetime label stringifies two "
-                          "different ways, so no object matches its own class")
 def test_a_date_column_can_be_used_as_the_class_column():
     """``candidate_labels`` offers an acquisition date, and it cannot be used.
 
@@ -732,9 +724,6 @@ def test_a_date_column_can_be_used_as_the_class_column():
     assert sorted(score.n_by_class.values()) == [2, 2]
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: '' is the internal 'no class' sentinel, so a "
-                          "class genuinely named '' loses all its objects")
 def test_a_class_whose_name_is_the_empty_string_is_still_a_class():
     """The sentinel for "no label" collides with a real label.
 
