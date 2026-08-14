@@ -66,6 +66,13 @@ from .measure_hooks import (
     warn_if_hooks_will_not_reach_workers,
 )
 from .object_roles import ordered
+from .intensity_rescale import (
+    PLAN_SETTINGS_KEY,
+    build_plate_plan,
+    mask_planes as _intensity_mask_planes,
+    needs_warning as _intensity_scale_needs_warning,
+    resolve_record as _resolve_intensity_rescale_record,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -2567,22 +2574,10 @@ MASK_DIM_KEYS = ('cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim',
 
 def _merged_mask_planes(data, settings):
     """Return the set of plane indices of ``data`` that hold labels, not signal."""
-    n_planes = int(data.shape[-1])
-    planes = set()
-    for key in MASK_DIM_KEYS:
-        dim = settings.get(key)
-        if dim is None:
-            continue
-        try:
-            dim = int(dim)
-        except (TypeError, ValueError):
-            continue
-        if 0 <= dim < n_planes:
-            planes.add(dim)
-    return planes
+    return _intensity_mask_planes(data, settings)
 
 
-def _promote_merged_to_uint16(data, settings):
+def _promote_merged_to_uint16(data, settings, *, rescale_factor=None):
     """Bring a merged array that is neither ``uint8`` nor ``uint16`` into the
     measure pipeline's working dtype, **without flattening it**.
 
@@ -2620,7 +2615,13 @@ def _promote_merged_to_uint16(data, settings):
         if not np.isfinite(top):
             top = float(np.nanmax(signal[np.isfinite(signal)])) \
                 if np.isfinite(signal).any() else 0.0
-        if top > 0:
+        if rescale_factor is not None:
+            factor = float(rescale_factor)
+            if not np.isfinite(factor) or factor <= 0:
+                raise ValueError(
+                    f"intensity rescale factor must be finite and positive, "
+                    f"got {rescale_factor!r}")
+        elif top > 0:
             if np.issubdtype(arr.dtype, np.floating) and top <= 1.0:
                 factor = 65535.0
             elif top > 65535.0:
@@ -2634,6 +2635,71 @@ def _promote_merged_to_uint16(data, settings):
             values = values * factor
         out[..., plane] = np.rint(np.clip(values, 0, 65535)).astype(np.uint16)
     return out, factor
+
+
+def _write_intensity_rescale_record(source_folder, file_name, settings,
+                                    record):
+    """Upsert one field's intensity-scale provenance into measurements.db."""
+    from . import schema
+    from .database_concurrency import connect, transaction
+
+    field = schema.parse_field_stem(
+        file_name, timelapse=bool(settings.get('timelapse', False)))
+    values = {
+        **field.to_dict(include_prcf=True),
+        'timeID': field.timeID,
+        'file_name': file_name,
+        'path_name': os.path.join(settings['src'], file_name + '.npy'),
+        'original_dtype': record.get('original_dtype'),
+        'original_intensity_max': record.get('original_intensity_max'),
+        'rescale_factor': float(record['rescale_factor']),
+        'rescale_scope': record['rescale_scope'],
+        'plate_intensity_max': record.get('plate_intensity_max'),
+        'comparable_within_plate': int(
+            bool(record.get('comparable_within_plate', False))),
+        'target_dtype': 'uint16',
+    }
+    columns = (
+        'plateID', 'rowID', 'columnID', 'fieldID', 'timeID', 'prc', 'prcf',
+        'file_name', 'path_name', 'original_dtype', 'original_intensity_max',
+        'rescale_factor', 'rescale_scope', 'plate_intensity_max',
+        'comparable_within_plate', 'target_dtype',
+    )
+    db_path = os.path.join(source_folder, 'measurements', 'measurements.db')
+    conn = connect(db_path, timeout=30)
+    try:
+        with transaction(conn, attempts=8, busy_timeout=30):
+            conn.execute(
+                '''CREATE TABLE IF NOT EXISTS intensity_rescale (
+                       plateID TEXT NOT NULL,
+                       rowID TEXT NOT NULL,
+                       columnID TEXT NOT NULL,
+                       fieldID TEXT NOT NULL,
+                       timeID TEXT,
+                       prc TEXT NOT NULL,
+                       prcf TEXT PRIMARY KEY,
+                       file_name TEXT NOT NULL,
+                       path_name TEXT NOT NULL,
+                       original_dtype TEXT NOT NULL,
+                       original_intensity_max REAL NOT NULL,
+                       rescale_factor REAL NOT NULL,
+                       rescale_scope TEXT NOT NULL,
+                       plate_intensity_max REAL,
+                       comparable_within_plate INTEGER NOT NULL,
+                       target_dtype TEXT NOT NULL
+                   )''')
+            placeholders = ', '.join('?' for _ in columns)
+            quoted = ', '.join(f'"{column}"' for column in columns)
+            updates = ', '.join(
+                f'"{column}" = excluded."{column}"'
+                for column in columns if column != 'prcf')
+            conn.execute(
+                f'INSERT INTO intensity_rescale ({quoted}) '
+                f'VALUES ({placeholders}) ON CONFLICT(prcf) DO UPDATE SET '
+                f'{updates}',
+                tuple(values[column] for column in columns))
+    finally:
+        conn.close()
 
 
 #@log_function_call
@@ -2673,10 +2739,30 @@ def _measure_crop_core(index, time_ls, file, settings):
 
         file_name = os.path.splitext(file)[0]
         data = np.load(os.path.join(settings['src'], file))
+        data_type_before = data.dtype
+        rescale_record = _resolve_intensity_rescale_record(
+            data, file, settings)
+        factor = float(rescale_record['rescale_factor'])
+        if _intensity_scale_needs_warning(factor):
+            if rescale_record['rescale_scope'] == 'plate':
+                detail = (
+                    f"plate-wide from maximum "
+                    f"{rescale_record['plate_intensity_max']:g}; all raw-valued "
+                    f"fields on this plate use the same factor")
+            else:
+                detail = (
+                    "per-field fallback; this field is NOT comparable to "
+                    "other fields on the plate")
+            # Deliberately independent of verbose: this conversion changes the
+            # unit represented by one stored intensity count.
+            print(f"WARNING: {file_name} intensity values require x{factor:g} "
+                  f"rescaling to uint16 ({detail}). The decision is recorded "
+                  f"in measurements.db:intensity_rescale.")
+
         data_type = data.dtype
-        if data_type not in ['uint8','uint16']:
-            data_type_before = data_type
-            data, factor = _promote_merged_to_uint16(data, settings)
+        if data_type not in ['uint8','uint16'] or not np.isclose(factor, 1.0):
+            data, factor = _promote_merged_to_uint16(
+                data, settings, rescale_factor=factor)
             data_type = data.dtype
             if settings['verbose']:
                 scale = '' if factor == 1.0 else f' (intensity x{factor:g})'
@@ -2957,6 +3043,13 @@ def _measure_crop_core(index, time_ls, file, settings):
                         org_per_cytoplasm = _summarize_organelles_per_parent(organelle_mask, cytoplasm_mask, channel_arrays, parent_name='cytoplasm', spacing=spacing)
                         org_per_cytoplasm.columns = [f'organelle_summary_{col}' if col != 'label' else col for col in org_per_cytoplasm.columns]
                         _merge_and_save_to_database(org_per_cytoplasm, pd.DataFrame(), 'cytoplasm_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
+
+        # This is written after every requested measurement table has landed,
+        # so a worker that fails before producing measurements cannot leave a
+        # provenance row that makes the field look complete. The primary-key
+        # upsert keeps retries idempotent.
+        _write_intensity_rescale_record(
+            source_folder, file_name, settings, rescale_record)
 
         if volumetric and (settings['save_png'] or settings['save_arrays'] or settings['plot']):
             # Refused, not approximated. Every step of the crop path is
@@ -3420,6 +3513,30 @@ def measure_crop(settings):
                 _save_settings_to_db(settings)
 
                 files = [f for f in os.listdir(settings['src']) if f.endswith('.npy')]
+                # Scan the complete plate, not merely the fields left after a
+                # resume filter. Otherwise a resumed field could receive a
+                # different factor from fields already present in the same
+                # database. The plan is plain data and is copied into every
+                # worker with the settings.
+                _full_rescale_plan = build_plate_plan(
+                    settings['src'], files, settings)
+                # Do not pickle one per-field metadata record with every pool
+                # task. Workers recompute their own maximum from the array
+                # they already loaded; they need only the O(number of plates)
+                # maxima and the exceptional filenames.
+                settings[PLAN_SETTINGS_KEY] = {
+                    'version': _full_rescale_plan['version'],
+                    'plates': _full_rescale_plan['plates'],
+                    'failures': _full_rescale_plan['failures'],
+                }
+                for failed_file, reason in sorted(
+                        settings[PLAN_SETTINGS_KEY]['failures'].items()):
+                    print(
+                        f"WARNING: could not pre-scan {failed_file} for a "
+                        f"plate-wide intensity scale ({reason}). If the field "
+                        f"can be loaded by its worker, it will use a per-field "
+                        f"fallback and measurements.db:intensity_rescale will "
+                        f"mark it non-comparable.")
                 if resume_plan is not None:
                     files = resume_plan.filter_files(files)
                 n_jobs = settings['n_jobs']

@@ -415,7 +415,8 @@ class TestMeasureOwnedTables:
                                  _ORGANELLE_SUMMARY_TABLES,
                                  _PARENT_OBJECT_TABLES)
         expected = (set(_PARENT_OBJECT_TABLES) | set(_CHILD_OBJECT_TABLES)
-                    | set(_ORGANELLE_SUMMARY_TABLES) | {'png_list'})
+                    | set(_ORGANELLE_SUMMARY_TABLES)
+                    | {'png_list', 'intensity_rescale'})
         assert MEASURE_OWNED_TABLES == expected
 
     def test_no_other_module_owns_a_name_on_the_allow_list(self):

@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-73 done / 13 open (84%).
+74 done / 12 open (86%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -71,10 +71,6 @@ OPEN
    83  FINISH THE MULTILINGUAL CATALOGS AND PUSH THE VERIFIED BATCH TO NIGHTLY
        [codex -- DO NOT TOUCH]
        83_finish_multilingual_catalogs_and_push_nightly.txt
-
-   93  THE INTENSITY RESCALE FACTOR IS PER FIELD, AND NOTHING RECORDS IT
-       [filed, not started]
-       93_the_intensity_rescale_factor_is_per_field_and_unrecorded.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -151,5 +147,6 @@ DONE
    89  A COLOURBLIND MODE FOR EVERY IMAGE SPACR SHOWS
    90  A FOURTH CHANNEL IN THE CROPS: A MASK, OR ANOTHER STAIN
    91  LET THE USER CHOOSE THE CROP'S DTYPE AND SCALING
+   93  THE INTENSITY RESCALE FACTOR IS PER FIELD, AND NOTHING RECORDS IT
    94  EVERY TRAIN/TEST SPLIT GROUPS BY WELL
    95  IMAGE UMAP REBUILT THE starplast WAY: TABLE, VIEWER, GRID, WALK, GPU

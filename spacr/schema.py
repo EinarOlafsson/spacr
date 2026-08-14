@@ -110,7 +110,8 @@ __all__ = [
     'PLATE_FORMATS', 'plate_format_for', 'is_within_plate_format',
     # tables
     'PARENT_OBJECT_TABLES', 'CHILD_OBJECT_TABLES', 'OBJECT_TABLES',
-    'ORGANELLE_SUMMARY_TABLES', 'CROP_TABLES', 'MEASUREMENT_TABLES',
+    'ORGANELLE_SUMMARY_TABLES', 'CROP_TABLES', 'FIELD_PROVENANCE_TABLES',
+    'MEASUREMENT_TABLES',
     'BOOKKEEPING_TABLES', 'OWNED_TABLES', 'table_key_columns',
     'CANONICAL_OBJECT_TABLES', 'OBJECT_TABLE_REQUIRED_COLUMNS',
     'OBJECT_TABLE_OPTIONAL_COLUMNS', 'ObjectTableSchema',
@@ -1568,10 +1569,15 @@ ORGANELLE_SUMMARY_TABLES: Tuple[str, ...] = (
 #: Tables recording crop PNGs on disk. Keyed on ``prcfo``, not on a label.
 CROP_TABLES: Tuple[str, ...] = ('png_list',)
 
+#: One row per measured field describing transformations applied before its
+#: object measurements were computed. These are field-keyed, not object-keyed.
+FIELD_PROVENANCE_TABLES: Tuple[str, ...] = ('intensity_rescale',)
+
 #: Everything written into ``measurements/measurements.db`` that carries a
 #: field identity.
 MEASUREMENT_TABLES: Tuple[str, ...] = (
-    OBJECT_TABLES + ORGANELLE_SUMMARY_TABLES + CROP_TABLES)
+    OBJECT_TABLES + ORGANELLE_SUMMARY_TABLES + CROP_TABLES
+    + FIELD_PROVENANCE_TABLES)
 
 #: Tables spaCR owns that are *not* keyed on a field: the settings snapshot,
 #: the per-file object tallies, and the two append-only run journals.
@@ -2070,6 +2076,8 @@ def table_key_columns(table: str, *, timelapse: bool = False) -> Tuple[str, ...]
     if table in BOOKKEEPING_TABLES:
         return BOOKKEEPING_KEY_COLUMNS[table]
     base = TIMEPOINT_KEY_COLUMNS if timelapse else FIELD_KEY_COLUMNS
+    if table in FIELD_PROVENANCE_TABLES:
+        return base
     if table in CROP_TABLES:
         return base + (PRCFO_KEY,)
     return base + (OBJECT_LABEL_KEY,)
