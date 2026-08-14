@@ -188,6 +188,43 @@ pip. `spacr/updater.py :: find_uv()` finds the bootstrapped tool at
 `sys.executable -m pip` in an installed build will fail. See
 `instructions/01`.
 
+## 12b. Three OpenMP runtimes share a macOS spaCR process, and mixing them is fatal
+
+`import spacr.ml` maps **three** independent copies of LLVM's OpenMP: torch
+ships one, scikit-learn ships one, and the pip xgboost wheel links
+`@rpath/libomp.dylib` with an rpath into Homebrew, so `spacr/ml.py`'s
+module-scope `from xgboost import XGBClassifier` pulls in a third.
+
+A crash report (2026-08-14) caught one OpenMP call chain crossing two of them —
+xgboost's barrier code calling torch's `__kmp_suspend_initialize_thread`,
+SIGSEGV reading 0x580 — after 22 minutes of classify. It is silent rather than
+libomp's usual "OMP: Error #15" because TensorFlow sets
+`KMP_DUPLICATE_LIB_OK=True` process-wide.
+
+**The estimator's own thread argument does not defend against this.** Measured,
+counting threads parked in `__kmp_launch_worker` / `__kmp_fork_barrier` after
+one `ml_analysis`:
+
+| lever | parked |
+|---|---|
+| nothing | 19 |
+| `XGBClassifier(nthread=1)` or `(n_jobs=1)` | 19 → **10**, unchanged by the flag |
+| `omp_set_num_threads(1)` on the fitting thread | 10 |
+| that, plus `permutation_importance(n_jobs=1)` | **0** |
+
+`nthread` decides how many threads join a region, not whether the runtime
+builds a team. The first version of the fix clamped it and would have shipped a
+guard that protected nothing.
+
+The residual 10 were attributed with `sample` to Homebrew's image — xgboost's
+runtime — and come from joblib workers, which are **new threads** and inherit
+the process default rather than the clamped thread's ICV. `omp_set_num_threads`
+is a per-thread ICV; anything that spawns threads inside the guarded region
+escapes it.
+
+`spacr/openmp_guard.py` owns this. A new joblib/`n_jobs` call site inside a
+`single_threaded_openmp` region must go through `guarded_n_jobs`.
+
 ## 13. Channel order is declared, never inferred from list position
 
 A setting that names channels in a list carries an unstated convention about
