@@ -201,7 +201,7 @@ ACTIVATION_CRITERIA: Dict[str, str] = {
 #: Criteria each app's search can rank by, first entry being the default.
 APP_CRITERIA: Dict[str, List[str]] = {
     "umap": [
-        "trustworthiness", "continuity", "silhouette", "multi_objective",
+        "multi_objective", "trustworthiness", "continuity", "silhouette",
     ],
     "classify": ["accuracy", "prauc", "loss"],
     "ml_analyze": ["accuracy", "roc_auc", "f1"],

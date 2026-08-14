@@ -125,19 +125,63 @@ def test_reduction_and_clustering_tsne_kmeans():
 
 
 def test_reduction_and_clustering_rejects_unknown_method():
-    """Only umap/tsne are implemented — anything else must raise clearly."""
+    """Unknown reducers fail with the complete supported-method inventory."""
     from spacr.utils import reduction_and_clustering
     with pytest.raises(ValueError, match="Unsupported reduction method"):
         reduction_and_clustering(
             _numeric(), n_neighbors=5, min_dist=0.1, metric="euclidean",
             eps=0.9, min_samples=3, clustering="kmeans",
-            reduction_method="pca", verbose=False, n_jobs=1)
+            reduction_method="not-a-reducer", verbose=False, n_jobs=1)
 
 
 def test_reduction_method_tooltip_matches_implementation():
-    """The settings tooltip must not advertise unsupported methods."""
-    from spacr.settings import tooltips
-    assert "pca" not in tooltips["reduction_method"].lower()
+    """The settings tooltip advertises the implemented reducer families."""
+    from spacr.qt.screens.settings_model import SettingsWidgets
+    description = SettingsWidgets("umap")._tooltips[
+        "reduction_method"].lower()
+    assert all(name in description for name in (
+        "umap", "t-sne", "pca", "isomap", "spectral"))
+
+
+@pytest.mark.parametrize("method, options", [
+    ("pca", {"whiten": False, "svd_solver": "auto"}),
+    ("isomap", {"n_neighbors": 5, "path_method": "auto"}),
+    ("spectral", {"affinity": "nearest_neighbors", "n_neighbors": 5}),
+])
+def test_additional_reducers_produce_clusterable_2d_embeddings(
+        method, options):
+    from spacr.utils import reduction_and_clustering
+    embedding, labels, reducer = reduction_and_clustering(
+        _numeric(), n_neighbors=5, min_dist=0.1, metric="euclidean",
+        eps=0.9, min_samples=3, clustering="kmeans",
+        reduction_method=method, reducer_options=options,
+        verbose=False, n_jobs=1)
+    assert embedding.shape == (60, 2)
+    assert labels.shape == (60,)
+    assert reducer._spacr_reduction_method == method
+
+
+def test_requested_gpu_never_silently_falls_back_to_cpu(monkeypatch):
+    from spacr import gpu_reduce
+    from spacr.utils import reduction_and_clustering
+
+    monkeypatch.setattr(
+        gpu_reduce, "make_reducer", lambda *_a, **_k: (object(), "cpu"))
+    with pytest.raises(RuntimeError, match="No CPU fallback"):
+        reduction_and_clustering(
+            _numeric(), n_neighbors=5, min_dist=0.1, metric="euclidean",
+            eps=0.9, min_samples=3, clustering="kmeans",
+            reduction_method="pca", prefer_gpu=True)
+
+
+def test_requested_gpu_rejects_cpu_only_reducer():
+    from spacr.utils import reduction_and_clustering
+
+    with pytest.raises(ValueError, match="not available for isomap"):
+        reduction_and_clustering(
+            _numeric(), n_neighbors=5, min_dist=0.1, metric="euclidean",
+            eps=0.9, min_samples=3, clustering="kmeans",
+            reduction_method="isomap", prefer_gpu=True)
 
 
 def test_search_reduction_and_clustering():

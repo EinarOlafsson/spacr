@@ -691,7 +691,7 @@ def _validate_umap_source_db(db_path, tables, require_png_list=True):
 
 
 def generate_image_umap(settings=None, return_fig=False):
-    """Generate a UMAP or tSNE embedding of per-object features and plot it.
+    """Reduce per-object features and plot the resulting 2-D embedding.
 
     Reads measurements from the SQLite backend(s), applies preprocessing and
     dimensionality reduction, clusters the embedding, and renders scatter/grid
@@ -710,7 +710,7 @@ def generate_image_umap(settings=None, return_fig=False):
     :param settings: Configuration dict; canonicalized via
         :func:`spacr.settings.set_default_umap_image_settings`. Common keys:
         ``src``, ``tables``, ``row_limit``, ``clustering``,
-        ``reduction_method`` (``'UMAP'`` or ``'tSNE'``),
+        ``reduction_method`` (UMAP, t-SNE, PCA, Isomap or Spectral),
         ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``,
         ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.
     :param return_fig: When True, return the Matplotlib figure instead of the
@@ -733,6 +733,33 @@ def generate_image_umap(settings=None, return_fig=False):
     from .settings import set_default_umap_image_settings
     from .batch_correction import correction_kwargs
     settings = set_default_umap_image_settings(settings)
+
+    reduction_method = str(settings.get('reduction_method', 'umap')).lower()
+    reducer_options = {
+        'tsne': {
+            'perplexity': settings['tsne_perplexity'],
+            'learning_rate': settings['tsne_learning_rate'],
+            'early_exaggeration': settings['tsne_early_exaggeration'],
+            'max_iter': settings['tsne_max_iter'],
+        },
+        'pca': {
+            'whiten': settings['pca_whiten'],
+            'svd_solver': settings['pca_svd_solver'],
+        },
+        'isomap': {
+            'n_neighbors': settings['isomap_n_neighbors'],
+            'path_method': settings['isomap_path_method'],
+        },
+        'spectral': {
+            'affinity': settings['spectral_affinity'],
+            'n_neighbors': settings['spectral_n_neighbors'],
+        },
+    }.get(reduction_method, {})
+    reducer_runtime = {
+        'reducer_options': reducer_options,
+        'prefer_gpu': bool(settings.get('gpu', False)),
+        'random_seed': int(settings.get('random_seed', 42)),
+    }
 
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]
@@ -892,7 +919,7 @@ def generate_image_umap(settings=None, return_fig=False):
         control_numeric_data = control_numeric_data_df.values
 
         # Train the reducer on control data
-        _, _, reducer = reduction_and_clustering(control_numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'], mode='fit', model=False)
+        _, _, reducer = reduction_and_clustering(control_numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'], mode='fit', model=False, **reducer_runtime)
         
         # Apply the trained reducer to the entire dataset
         numeric_data = preprocess_data(
@@ -908,7 +935,7 @@ def generate_image_umap(settings=None, return_fig=False):
                 default_control_values=settings.get('neg'),
             ),
         )
-        embedding, labels, _ = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'], mode=None, model=reducer)
+        embedding, labels, reducer = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'], mode=None, model=reducer, **reducer_runtime)
 
     else:
         if settings['resnet_features']:
@@ -937,7 +964,7 @@ def generate_image_umap(settings=None, return_fig=False):
                     default_control_values=settings.get('neg'),
                 ),
             )
-            embedding, labels, _ = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'])
+            embedding, labels, reducer = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'], **reducer_runtime)
     
     clusters_found = (
         len(labels) > 0 and np.any(np.asarray(labels) != -1)
@@ -1008,6 +1035,8 @@ def generate_image_umap(settings=None, return_fig=False):
     interactive_payload = {
         'embedding': np.asarray(embedding),
         'labels': cluster_labels,
+        'reduction_method': reduction_method,
+        'backend': str(getattr(reducer, '_spacr_backend', 'cpu')),
         'records': records,
         # What the STATIC figure was coloured by, which is not always the
         # cluster label: `color_by` swaps in a metadata column. Carried
