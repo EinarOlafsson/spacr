@@ -267,6 +267,8 @@ def test_windows_installer_is_per_user_and_registers_uninstall():
     assert "SetErrorLevel $0" in nsis
     assert "app_icon.ico" in nsis
     assert 'File /oname=spacr.ico "${SPACR_ICON}"' in nsis
+    assert 'Section "Uninstall"' in nsis
+    assert 'Section "$(SPACR_NSIS_UNINSTALL)"' not in nsis
 
 
 def test_installer_locales_cover_every_supported_ui_language():
@@ -620,6 +622,9 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert workflow.count("assert torch.version.cuda is None") == 2
     assert "assert torch.backends.mps.is_available()" in workflow
     assert workflow.count("smoke_installed.py") == 3
+    assert workflow.count("from spacr.updater import upgrade_command") == 3
+    assert "bootstrap/uv').resolve()" in workflow
+    assert "'bootstrap'/'uv.exe'" in workflow
     assert workflow.count("install-profile.json") >= 3
     assert workflow.count("install.log") >= 3
     assert "sudo installer -verboseR -pkg" in workflow
