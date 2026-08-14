@@ -54,6 +54,9 @@ if ($TorchBackend -notmatch '^[a-z0-9]+$') {
 }
 
 if ([string]::IsNullOrWhiteSpace($PackageSpec)) {
+    $PackageSpec = $env:SPACR_PACKAGE_SPEC
+}
+if ([string]::IsNullOrWhiteSpace($PackageSpec)) {
     if ([string]::IsNullOrWhiteSpace($Version)) {
         $PackageSpec = "spacr[$DefaultExtras]"
     } else {

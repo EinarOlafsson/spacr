@@ -55,10 +55,11 @@ jobs:
               --no-launch \
               --install-root "$RUNNER_TEMP/spacr-dry-$language"
           done
-      - name: Install and import the released Linux application
+      - name: Install and import the checked-out Linux application
         run: |
           installer=$(find dist/online -name '*Linux*x86_64*Online.run' -print -quit)
           "$installer" \
+            --package-spec "$GITHUB_WORKSPACE[qt]" \
             --torch-backend cpu \
             --launcher-dir "$RUNNER_TEMP/bin" \
             --skip-system-deps \
@@ -97,6 +98,16 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             throw "Installer locale generation failed with exit code $LASTEXITCODE"
           }
+          $CatalogPath = (Resolve-Path ".\packaging\online\generated\installer_messages.ps1").Path
+          $CatalogText = [System.IO.File]::ReadAllText(
+            $CatalogPath,
+            [System.Text.Encoding]::UTF8
+          )
+          [System.IO.File]::WriteAllText(
+            $CatalogPath,
+            $CatalogText,
+            (New-Object System.Text.UTF8Encoding($true))
+          )
           $ParserInputs = @(
             ".\packaging\online\install_spacr_windows.ps1",
             ".\packaging\online\generated\installer_messages.ps1"
@@ -133,11 +144,12 @@ jobs:
       - name: Build small NSIS web installer
         shell: powershell
         run: .\packaging\online\build_windows_online.ps1
-      - name: Install and import the released Windows application
+      - name: Install and import the checked-out Windows application
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
           $InstallRoot = Join-Path $env:RUNNER_TEMP "spaCR"
+          $env:SPACR_PACKAGE_SPEC = "$((Resolve-Path .).Path)[qt]"
           $Installer = Get-ChildItem "dist\online\*Windows*Online-Setup.exe" |
             Select-Object -First 1
           if (-not $Installer) {
@@ -197,13 +209,14 @@ jobs:
             --launcher-dir "$RUNNER_TEMP/bin" \
             --no-launch \
             --install-root "$RUNNER_TEMP/spacr"
-      - name: Install and import the released macOS application
+      - name: Install and import the checked-out macOS application
         run: |
           pkg=$(find dist/online -name '*macOS*Online.pkg' -print -quit)
           sudo installer -verboseR -pkg "$pkg" -target /
           test -s "/Applications/spaCR.app/Contents/Resources/spaCR.icns"
           test -L /usr/local/bin/spacr
           SPACR_NO_RELAUNCH=1 \
+            SPACR_PACKAGE_SPEC="$GITHUB_WORKSPACE[qt]" \
             "/Library/Application Support/spaCR/install-for-user.sh"
           runtime="$HOME/Library/Application Support/spaCR"
           test -s "$runtime/install.log"
