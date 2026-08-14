@@ -17,10 +17,7 @@ from . import schema
 
 UINT16_MAX = float(np.iinfo(np.uint16).max)
 PLAN_SETTINGS_KEY = "_intensity_rescale_plan"
-MASK_DIM_KEYS = (
-    "cell_mask_dim", "nucleus_mask_dim", "pathogen_mask_dim",
-    "organelle_mask_dim",
-)
+MASK_DIM_KEYS = tuple(f"{role}_mask_dim" for role in schema.SEGMENTED_ROLES)
 
 
 def mask_planes(data: np.ndarray, settings: Mapping[str, Any]) -> set[int]:

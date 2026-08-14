@@ -36,6 +36,7 @@ from __future__ import annotations
 import sys
 from .organelle_types import (DEFAULT_TYPE as _ORGANELLE_TYPE_DEFAULT,
                               TYPE_ORDER as _ORGANELLE_TYPE_ORDER)
+from .schema import ALL_ROLES, ORGANELLE_ROLES
 
 __all__ = ["convert_settings_dict_for_gui"]
 
@@ -116,7 +117,11 @@ def convert_settings_dict_for_gui(settings):
         # was offered here and silently produced no dataset.
         'dataset_mode': ('combo', ['annotation', 'metadata', 'measurement'], 'metadata'),
         'cov_type': ('combo', ['HC0', 'HC1', 'HC2', 'HC3', None], None),
-        'crop_mode': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
+        'crop_mode': ('combo',
+                      [repr([role]) for role in ALL_ROLES]
+                      + [repr(['cell', role]) for role in ALL_ROLES
+                         if role != 'cell'],
+                      "['cell']"),
         'timelapse_mode': ('combo', ['trackastra', 'ultrack', 'trackpy', 'iou', 'btrack'], 'trackastra'),
         'train_mode': ('combo', ['erm', 'irm'], 'erm'),
         'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
@@ -160,6 +165,19 @@ def convert_settings_dict_for_gui(settings):
         'summarize_organelles_by': ('combo', ["['cell']","['nucleus']","['pathogen']","['cytoplasm']","['cell', 'nucleus']","['cell', 'pathogen']","['cell', 'cytoplasm']","['cell', 'nucleus', 'pathogen']","['cell', 'nucleus', 'pathogen', 'cytoplasm']",None], None)
 
     }
+
+    # All slot-specific controls use the primary organelle widget contract.
+    # This is generated so a newly registered slot cannot fall back to a
+    # free-text entry for a value whose pipeline vocabulary is closed.
+    primary_widget_keys = tuple(
+        key for key in special_cases if key.startswith('organelle_'))
+    for role in ORGANELLE_ROLES[1:]:
+        for key in primary_widget_keys:
+            slot_key = f"{role}_{key[len('organelle_'):]}"
+            kind, options, default = special_cases[key]
+            special_cases[slot_key] = (
+                kind, list(options) if isinstance(options, list) else options,
+                default)
 
     for key, value in settings.items():
         if key in special_cases:

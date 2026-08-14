@@ -23,8 +23,11 @@ from math import ceil, sqrt
 # spacr.crops imports nothing from spacr and nothing heavy, so this costs the
 # measure path nothing.
 from .crops import (
+    DEFAULT_MASK_DIMS,
     build_png_channels,
     narrow_to_uint8,
+    reconcile_merged_mask_dims,
+    read_merged_plane_layout,
     resolve_png_channel_mapping,
     stamp_crop_folder,
     to_cv2_bgr,
@@ -65,7 +68,8 @@ from .measure_hooks import (
     unregister_region_filter_hook,
     warn_if_hooks_will_not_reach_workers,
 )
-from .object_roles import ordered
+from .object_roles import (ORGANELLE_ROLES, SEGMENTED_ROLES,
+                           organelle_settings_view)
 from .intensity_rescale import (
     PLAN_SETTINGS_KEY,
     build_plate_plan,
@@ -1179,7 +1183,10 @@ def _morphology_of_organelle_type(settings):
     return preset.morphology_for(settings.get('organelle_diameter'))
 
 
-def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, settings, zernike=None, degree=8):
+def _morphological_measurements(
+        cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
+        cytoplasm_mask, settings, zernike=None, degree=8,
+        extra_organelle_masks=None):
     """Return morphology + Zernike DataFrames for cells, nuclei, pathogens, organelles, cytoplasm.
 
     :param cell_mask: Label mask of cells.
@@ -1348,38 +1355,37 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
         prop_ls.append(pd.DataFrame())
         ls.append('pathogen')
 
-    if settings.get('organelle_mask_dim') is not None:
-        organelle_props = _props(organelle_mask)
+    organelle_masks = {'organelle': organelle_mask}
+    organelle_masks.update(dict(extra_organelle_masks or {}))
+    for organelle_role, current_organelle_mask in organelle_masks.items():
+        role_settings = organelle_settings_view(settings, organelle_role)
+        if settings.get(f'{organelle_role}_mask_dim') is not None:
+            organelle_props = _props(current_organelle_mask)
         # Gated, unlike cell/nucleus/pathogen: a single connected network per
         # cell has no population of separable neighbours to count. See
         # _spatial_organelle_eligible (and instruction 72's organelle_type).
-        if spatial_on and _spatial_organelle_eligible(settings):
-            organelle_props = _with_spatial(organelle_props, organelle_mask)
-        if len(organelle_props) > 0 and zernike:
-            organelle_props = _calculate_zernike(organelle_mask, organelle_props, degree=degree)
-        if len(organelle_props) > 0:
-            # Map each organelle to its parent cell
-            if settings['cell_mask_dim'] is not None:
-                organelle_to_cell = _map_child_to_parent(organelle_mask, cell_mask, child_name='organelle', parent_name='cell')
-                # one_to_one here, unlike the nucleus/pathogen joins above, and
-                # the difference is in the mapper rather than the biology:
-                # _map_child_to_parent resolves each organelle to its single
-                # maximum-overlap parent, so it emits exactly one row per
-                # organelle label. Both sides are therefore keyed uniquely and
-                # a duplicate on either would mean the mapper itself is broken.
+            if spatial_on and _spatial_organelle_eligible(role_settings):
+                organelle_props = _with_spatial(
+                    organelle_props, current_organelle_mask)
+            if len(organelle_props) > 0 and zernike:
+                organelle_props = _calculate_zernike(
+                    current_organelle_mask, organelle_props, degree=degree)
+            if len(organelle_props) > 0 and settings['cell_mask_dim'] is not None:
+                organelle_to_cell = _map_child_to_parent(
+                    current_organelle_mask, cell_mask,
+                    child_name=organelle_role, parent_name='cell')
                 organelle_props = pd.merge(
                     organelle_props,
                     organelle_to_cell,
                     left_on='label',
-                    right_on='organelle',
+                    right_on=organelle_role,
                     how='left',
                     validate='one_to_one',
                 )
-        prop_ls.append(organelle_props)
-        ls.append('organelle')
-    else:
-        prop_ls.append(pd.DataFrame())
-        ls.append('organelle')
+            prop_ls.append(organelle_props)
+        else:
+            prop_ls.append(pd.DataFrame())
+        ls.append(organelle_role)
 
     if settings['cytoplasm']:
         # NEVER _with_spatial. The cytoplasm mask is built at measure.py:2662 as
@@ -1400,7 +1406,7 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
         df = df.rename(columns={col: 'label' for col in df.columns if 'label' in col})
         df_ls.append(df)
  
-    return df_ls[0], df_ls[1], df_ls[2], df_ls[3], df_ls[4]
+    return tuple(df_ls)
 
 def _map_child_to_parent(child_mask, parent_mask, child_name='organelle', parent_name='cell'):
     """Map each child label to its maximum-overlap parent label."""
@@ -1532,7 +1538,10 @@ def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays
 
     return pd.DataFrame(summary_rows)
 
-def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, channel_arrays, settings, sizes=None, periphery=True, outside=True):
+def _intensity_measurements(
+        cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
+        cytoplasm_mask, channel_arrays, settings, sizes=None, periphery=True,
+        outside=True, extra_organelle_masks=None):
     """Return per-channel intensity DataFrames for cells, nuclei, pathogens, organelles, cytoplasm.
 
     Computes extended regionprops plus optional homogeneity, periphery, outside,
@@ -1591,10 +1600,12 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
     # 'nucleus_channel_0_periphery_5_percentile' for the same statistic.
     # utils.rename_columns_in_db migrates the old spelling on first read.
     col_lables = ['region_label', 'mean', 'percentile_5', 'percentile_10', 'percentile_25', 'percentile_50', 'percentile_75', 'percentile_85', 'percentile_95']
-    cell_dfs, nucleus_dfs, pathogen_dfs, organelle_dfs, cytoplasm_dfs = [], [], [], [], []
-    ls = ['cell', 'nucleus', 'pathogen', 'organelle', 'cytoplasm']
-    labels = [cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask]
-    dfs = [cell_dfs, nucleus_dfs, pathogen_dfs, organelle_dfs, cytoplasm_dfs]
+    organelle_masks = {'organelle': organelle_mask}
+    organelle_masks.update(dict(extra_organelle_masks or {}))
+    ls = ['cell', 'nucleus', 'pathogen', *organelle_masks, 'cytoplasm']
+    labels = [cell_mask, nucleus_mask, pathogen_mask,
+              *organelle_masks.values(), cytoplasm_mask]
+    dfs = [[] for _ in ls]
     
     for i in range(0, channel_arrays.shape[-1]):
         channel = channel_arrays[..., i]
@@ -1612,12 +1623,12 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
                 mask_intensity_df = pd.concat([mask_intensity_df.reset_index(drop=True), homogeneity_df], axis=1)
 
             if periphery:
-                if ls[j] in ('nucleus', 'pathogen', 'organelle'):
+                if ls[j] in ('nucleus', 'pathogen', *ORGANELLE_ROLES):
                     periphery_intensity_stats = _periphery_intensity(label, channel)
                     mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(periphery_intensity_stats, columns=[f'periphery_{stat}' for stat in col_lables])], axis=1)
 
             if outside:
-                if ls[j] in ('nucleus', 'pathogen', 'organelle'):
+                if ls[j] in ('nucleus', 'pathogen', *ORGANELLE_ROLES):
                     outside_intensity_stats = _outside_intensity(label, channel, spacing=spacing)
                     mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(outside_intensity_stats, columns=[f'outside_{stat}' for stat in col_lables])], axis=1)
 
@@ -1639,7 +1650,7 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
             if settings['cell_mask_dim'] is not None:
                 if settings['nucleus_mask_dim'] is not None or settings['pathogen_mask_dim'] is not None:
                     intensity_distance_df = _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_arrays, settings)
-                    cell_dfs.append(intensity_distance_df)
+                    dfs[0].append(intensity_distance_df)
     
     if radial_dist:
         if np.max(nucleus_mask) != 0:
@@ -1652,10 +1663,13 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
             pathogen_df = _create_dataframe(pathogen_radial_distributions, 'pathogen')
             dfs[2].append(pathogen_df)
 
-        if np.max(organelle_mask) != 0:
-            organelle_radial_distributions = _calculate_radial_distribution(cell_mask, organelle_mask, channel_arrays, num_bins=6, spacing=spacing)
-            organelle_rad_df = _create_dataframe(organelle_radial_distributions, 'organelle')
-            dfs[3].append(organelle_rad_df)
+        for offset, (role, current_mask) in enumerate(
+                organelle_masks.items(), start=3):
+            if np.max(current_mask) != 0:
+                distributions = _calculate_radial_distribution(
+                    cell_mask, current_mask, channel_arrays,
+                    num_bins=6, spacing=spacing)
+                dfs[offset].append(_create_dataframe(distributions, role))
 
     # The parent-cell link must exist whether or not radial_dist ran. It used
     # to arrive ONLY as a side effect of _create_dataframe, so with
@@ -1665,7 +1679,10 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
     # frame's copy so exactly one frame supplies it (two would collide as
     # cell_id_x / cell_id_y in the morphology/intensity merge).
     if settings.get('cell_mask_dim') is not None and np.max(cell_mask) != 0:
-        for idx, child_mask in ((1, nucleus_mask), (2, pathogen_mask), (3, organelle_mask)):
+        child_masks = [(1, nucleus_mask), (2, pathogen_mask)] + [
+            (index, mask) for index, mask in enumerate(
+                organelle_masks.values(), start=3)]
+        for idx, child_mask in child_masks:
             if np.max(child_mask) == 0:
                 continue
             for existing in dfs[idx]:
@@ -1692,11 +1709,7 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
                         coloc_df.columns = [f'{ls[m]}_channel_{i}_channel_{j}_{col}' for col in coloc_df.columns]
                         dfs[m].append(coloc_df)
     
-    return (pd.concat(cell_dfs, axis=1), 
-            pd.concat(nucleus_dfs, axis=1), 
-            pd.concat(pathogen_dfs, axis=1), 
-            pd.concat(organelle_dfs, axis=1),
-            pd.concat(cytoplasm_dfs, axis=1))
+    return tuple(pd.concat(frames, axis=1) for frames in dfs)
     
 def _create_dataframe(radial_distributions, object_type):
         """Convert a ``{(cell, obj, ch): bins}`` mapping into a per-object DataFrame."""
@@ -2511,7 +2524,8 @@ def img_list_to_grid(grid, titles=None):
 #: crop_mode entries that name a mask _measure_crop_core knows how to crop.
 #: Crop modes, in the order the measure pipeline writes them. Membership is
 #: checked against spacr.object_roles; the order stays here.
-CROP_MODES = ordered('cell', 'nucleus', 'pathogen', 'cytoplasm', 'organelle')
+CROP_MODES = (
+    'cell', 'nucleus', 'pathogen', 'cytoplasm', *ORGANELLE_ROLES)
 
 
 def _per_crop_mode(value, n_modes, name):
@@ -2568,8 +2582,7 @@ def _per_crop_mode(value, n_modes, name):
 
 #: ``settings`` keys naming a label plane of the merged array. A plane named
 #: by one of these holds object IDENTITIES; every other plane holds intensity.
-MASK_DIM_KEYS = ('cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim',
-                 'organelle_mask_dim')
+MASK_DIM_KEYS = tuple(f'{role}_mask_dim' for role in SEGMENTED_ROLES)
 
 
 def _merged_mask_planes(data, settings):
@@ -2863,12 +2876,20 @@ def _measure_crop_core(index, time_ls, file, settings):
         else:
             pathogen_mask = np.zeros_like(data[..., 0])
 
-        if settings.get('organelle_mask_dim') is not None:
-            organelle_mask = data[..., settings['organelle_mask_dim']].astype(data_type)
-            if settings.get('organelle_min_size') and settings['organelle_min_size'] != 0:
-                organelle_mask = _filter_object(organelle_mask, settings['organelle_min_size'])
-        else:
-            organelle_mask = np.zeros_like(data[..., 0])
+        organelle_masks = {}
+        for organelle_role in ORGANELLE_ROLES:
+            dim = settings.get(f'{organelle_role}_mask_dim')
+            if dim is not None:
+                current_mask = data[..., dim].astype(data_type)
+                minimum = settings.get(f'{organelle_role}_min_size')
+                if minimum:
+                    current_mask = _filter_object(current_mask, minimum)
+            else:
+                current_mask = np.zeros_like(data[..., 0])
+            organelle_masks[organelle_role] = current_mask
+        organelle_mask = organelle_masks['organelle']
+        extra_organelle_masks = {
+            role: organelle_masks[role] for role in ORGANELLE_ROLES[1:]}
 
         # Create cytoplasm mask
         if settings['cytoplasm']:
@@ -2879,8 +2900,9 @@ def _measure_crop_core(index, time_ls, file, settings):
                     interior |= (nucleus_mask != 0)
                 if settings['pathogen_mask_dim'] is not None:
                     interior |= (pathogen_mask != 0)
-                if settings.get('organelle_mask_dim') is not None:
-                    interior |= (organelle_mask != 0)
+                for organelle_role, current_mask in organelle_masks.items():
+                    if settings.get(f'{organelle_role}_mask_dim') is not None:
+                        interior |= (current_mask != 0)
                 cytoplasm_mask = np.where(interior, 0, cell_mask)
             else:
                 cytoplasm_mask = np.zeros_like(cell_mask)
@@ -2899,8 +2921,11 @@ def _measure_crop_core(index, time_ls, file, settings):
         if settings['cytoplasm_min_size'] is not None and settings['cytoplasm_min_size'] != 0:
             cytoplasm_mask = _filter_object(cytoplasm_mask, settings['cytoplasm_min_size'])
         
-        if settings.get('organelle_min_size') and settings['organelle_min_size'] != 0:
-            organelle_mask = _filter_object(organelle_mask, settings['organelle_min_size'])
+        for organelle_role, current_mask in organelle_masks.items():
+            minimum = settings.get(f'{organelle_role}_min_size')
+            if minimum:
+                organelle_masks[organelle_role] = _filter_object(
+                    current_mask, minimum)
             # YES, THIS RUNS TWICE, AND BOTH ARE WANTED. The organelle mask
             # is already filtered where it is read, ~35 lines up, and that
             # early pass is LOAD-BEARING: the cytoplasm mask is built as
@@ -2914,6 +2939,9 @@ def _measure_crop_core(index, time_ls, file, settings):
             # siblings, where someone looking for "where are the size
             # filters" will find it. Removing either one is a behaviour
             # change; removing the FIRST is a silent one.
+        organelle_mask = organelle_masks['organelle']
+        extra_organelle_masks = {
+            role: organelle_masks[role] for role in ORGANELLE_ROLES[1:]}
 
         # REGION-FILTER EXTENSION POINT. Registered filters are handed the
         # label ids of each object type (and, only if they ask, the centroids)
@@ -2942,7 +2970,7 @@ def _measure_crop_core(index, time_ls, file, settings):
         if region_filter_hooks():
             _region_masks = {
                 'cell': cell_mask, 'nucleus': nucleus_mask,
-                'pathogen': pathogen_mask, 'organelle': organelle_mask,
+                'pathogen': pathogen_mask, **organelle_masks,
                 'cytoplasm': cytoplasm_mask,
             }
             for _object_type in list(_region_masks):
@@ -2959,11 +2987,25 @@ def _measure_crop_core(index, time_ls, file, settings):
             cell_mask = _region_masks['cell']
             nucleus_mask = _region_masks['nucleus']
             pathogen_mask = _region_masks['pathogen']
-            organelle_mask = _region_masks['organelle']
+            organelle_masks = {
+                role: _region_masks[role] for role in ORGANELLE_ROLES}
+            organelle_mask = organelle_masks['organelle']
+            extra_organelle_masks = {
+                role: organelle_masks[role] for role in ORGANELLE_ROLES[1:]}
             cytoplasm_mask = _region_masks['cytoplasm']
 
         if settings['cell_mask_dim'] is not None and settings['nucleus_mask_dim'] is not None and settings['pathogen_mask_dim'] is not None:
             cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask = _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uninfected=settings['uninfected'])
+            # Child tables must not keep objects whose parent cell was culled.
+            # The legacy helper knows only nucleus/pathogen/cytoplasm; apply
+            # its same pixel-level rule to every registered organelle slot.
+            for organelle_role, current_mask in organelle_masks.items():
+                organelle_masks[organelle_role] = (
+                    current_mask * (cell_mask > 0))
+            organelle_mask = organelle_masks['organelle']
+            extra_organelle_masks = {
+                role: organelle_masks[role]
+                for role in ORGANELLE_ROLES[1:]}
             data[..., settings['cell_mask_dim']] = cell_mask.astype(data_type)
 
         if settings['nucleus_mask_dim'] is not None:
@@ -2980,8 +3022,10 @@ def _measure_crop_core(index, time_ls, file, settings):
         # exist for: "the PNG crops and region arrays cover the same objects
         # the measurements do". Organelle was outside that guarantee, so a
         # crop could show debris the measurement table had already dropped.
-        if settings.get('organelle_mask_dim') is not None:
-            data[..., settings['organelle_mask_dim']] = organelle_mask.astype(data_type)
+        for organelle_role, current_mask in organelle_masks.items():
+            dim = settings.get(f'{organelle_role}_mask_dim')
+            if dim is not None:
+                data[..., dim] = current_mask.astype(data_type)
         if settings['cytoplasm']:
             data = np.concatenate((data, cytoplasm_mask[..., np.newaxis]), axis=-1)
 
@@ -2992,57 +3036,85 @@ def _measure_crop_core(index, time_ls, file, settings):
 
 
         if settings['save_measurements']:
-            cell_df, nucleus_df, pathogen_df, organelle_df, cytoplasm_df = _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, settings)
+            role_order = [
+                'cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES,
+                'cytoplasm']
+            morphology = dict(zip(
+                role_order,
+                _morphological_measurements(
+                    cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
+                    cytoplasm_mask, settings,
+                    extra_organelle_masks=extra_organelle_masks)))
+            intensities = dict(zip(
+                role_order,
+                _intensity_measurements(
+                    cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
+                    cytoplasm_mask, channel_arrays, settings,
+                    sizes=[1, 2, 3, 4, 5], periphery=True, outside=True,
+                    extra_organelle_masks=extra_organelle_masks)))
 
-            cell_intensity_df, nucleus_intensity_df, pathogen_intensity_df, organelle_intensity_df, cytoplasm_intensity_df = _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, channel_arrays, settings, sizes=[1, 2, 3, 4, 5], periphery=True, outside=True)
-                
-            if settings['cell_mask_dim'] is not None:
-                _ = _merge_and_save_to_database(cell_df, cell_intensity_df, 'cell', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
-            if settings['nucleus_mask_dim'] is not None:
-                _ = _merge_and_save_to_database(nucleus_df, nucleus_intensity_df, 'nucleus', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
+            enabled = {
+                'cell': settings['cell_mask_dim'] is not None,
+                'nucleus': settings['nucleus_mask_dim'] is not None,
+                'pathogen': settings['pathogen_mask_dim'] is not None,
+                'cytoplasm': bool(settings['cytoplasm']),
+                **{role: settings.get(f'{role}_mask_dim') is not None
+                   for role in ORGANELLE_ROLES},
+            }
+            for role in role_order:
+                if enabled[role]:
+                    _merge_and_save_to_database(
+                        morphology[role], intensities[role], role,
+                        source_folder, file_name, settings['experiment'],
+                        settings['timelapse'], stamp=units_stamp)
 
-            if settings['pathogen_mask_dim'] is not None:
-                _ = _merge_and_save_to_database(pathogen_df, pathogen_intensity_df, 'pathogen', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
-
-            if settings.get('summarize_organelles_by') is not None:
-                if "organelle" in settings['summarize_organelles_by']:
-                    if settings.get('organelle_mask_dim') is not None:
-                        _ = _merge_and_save_to_database(organelle_df, organelle_intensity_df, 'organelle', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
-
-            if settings['cytoplasm']:
-                _merge_and_save_to_database(cytoplasm_df, cytoplasm_intensity_df, 'cytoplasm', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
-
-            if settings.get('summarize_organelles_by') is not None:
-                if "cell" in settings['summarize_organelles_by']:
-                    if settings.get('organelle_mask_dim') is not None and np.max(organelle_mask) > 0:
-                        if settings['cell_mask_dim'] is not None:
-                            org_per_cell = _summarize_organelles_per_parent(organelle_mask, cell_mask, channel_arrays, parent_name='cell', spacing=spacing)
-                            org_per_cell.columns = [f'organelle_summary_{col}' if col != 'label' else col for col in org_per_cell.columns]
-                            _merge_and_save_to_database(org_per_cell, pd.DataFrame(), 'cell_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
-                if "nucleus" in settings['summarize_organelles_by']:
-                    if settings['nucleus_mask_dim'] is not None:
-                        org_per_nucleus = _summarize_organelles_per_parent(organelle_mask, nucleus_mask, channel_arrays, parent_name='nucleus', spacing=spacing)
-                        org_per_nucleus.columns = [f'organelle_summary_{col}' if col != 'label' else col for col in org_per_nucleus.columns]
-                        _merge_and_save_to_database(org_per_nucleus, pd.DataFrame(), 'nucleus_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
-                if "pathogen" in settings['summarize_organelles_by']:
-                    if settings['pathogen_mask_dim'] is not None:
-                        org_per_pathogen = _summarize_organelles_per_parent(organelle_mask, pathogen_mask, channel_arrays, parent_name='pathogen', spacing=spacing)
-                        org_per_pathogen.columns = [f'organelle_summary_{col}' if col != 'label' else col for col in org_per_pathogen.columns]
-                        _merge_and_save_to_database(org_per_pathogen, pd.DataFrame(), 'pathogen_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
-                if "cytoplasm" in settings['summarize_organelles_by']:
-                    # `cytoplasm` IS A BOOLEAN, NOT A DIM. There is no
-                    # `cytoplasm_mask_dim` setting -- it is in neither the
-                    # measure defaults nor expected_types -- because the
-                    # cytoplasm mask is DERIVED (cell minus its interior
-                    # objects) and appended as a new plane rather than read
-                    # from one. So this line raised KeyError, not because
-                    # the value was None but because the key never existed,
-                    # for every user who asked to summarise organelles by
-                    # cytoplasm.
-                    if settings['cytoplasm']:
-                        org_per_cytoplasm = _summarize_organelles_per_parent(organelle_mask, cytoplasm_mask, channel_arrays, parent_name='cytoplasm', spacing=spacing)
-                        org_per_cytoplasm.columns = [f'organelle_summary_{col}' if col != 'label' else col for col in org_per_cytoplasm.columns]
-                        _merge_and_save_to_database(org_per_cytoplasm, pd.DataFrame(), 'cytoplasm_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
+            requested = settings.get('summarize_organelles_by')
+            if isinstance(requested, str):
+                requested = {requested}
+            elif requested is None:
+                requested = set()
+            else:
+                requested = set(requested)
+            parent_masks = {
+                'cell': cell_mask, 'nucleus': nucleus_mask,
+                'pathogen': pathogen_mask, 'cytoplasm': cytoplasm_mask,
+            }
+            parent_enabled = {
+                'cell': settings['cell_mask_dim'] is not None,
+                'nucleus': settings['nucleus_mask_dim'] is not None,
+                'pathogen': settings['pathogen_mask_dim'] is not None,
+                'cytoplasm': bool(settings['cytoplasm']),
+            }
+            for parent_name, parent_mask in parent_masks.items():
+                if parent_name not in requested or not parent_enabled[parent_name]:
+                    continue
+                summary_frames = []
+                for role, current_mask in organelle_masks.items():
+                    if not enabled[role]:
+                        continue
+                    frame = _summarize_organelles_per_parent(
+                        current_mask, parent_mask, channel_arrays,
+                        parent_name=parent_name, spacing=spacing)
+                    frame = frame.rename(columns={
+                        column: (
+                            f'organelle_summary_{role}_'
+                            f'{column[len("organelle_"):]}'
+                            if column.startswith('organelle_') else column)
+                        for column in frame.columns
+                    })
+                    summary_frames.append(frame)
+                if not summary_frames:
+                    continue
+                combined = summary_frames[0]
+                for frame in summary_frames[1:]:
+                    combined = combined.merge(
+                        frame, on='label', how='outer',
+                        validate='one_to_one')
+                _merge_and_save_to_database(
+                    combined, pd.DataFrame(),
+                    f'{parent_name}_organelle_summary', source_folder,
+                    file_name, settings['experiment'],
+                    settings['timelapse'], stamp=units_stamp)
 
         # This is written after every requested measurement table has landed,
         # so a worker that fails before producing measurements cannot leave a
@@ -3114,24 +3186,17 @@ def _measure_crop_core(index, time_ls, file, settings):
 
                 width, height = size_ls[crop_idx]
 
-                if crop_mode == 'cell':
-                    crop_mask = cell_mask.copy()
-                    dialate_png = dialate_pngs[crop_idx]
-                    dialate_png_ratio = dialate_png_ratios[crop_idx]
-
-                elif crop_mode == 'nucleus':
-                    crop_mask = nucleus_mask.copy()
-                    dialate_png = dialate_pngs[crop_idx]
-                    dialate_png_ratio = dialate_png_ratios[crop_idx]
-                elif crop_mode == 'pathogen':
-                    crop_mask = pathogen_mask.copy()
-                    dialate_png = dialate_pngs[crop_idx]
-                    dialate_png_ratio = dialate_png_ratios[crop_idx]
-                elif crop_mode == 'organelle':
-                    crop_mask = organelle_mask.copy()
-                    dialate_png = dialate_pngs[crop_idx]
-                    dialate_png_ratio = dialate_png_ratios[crop_idx]
-                else:  # cytoplasm -- dilation is forced off, see below.
+                crop_masks = {
+                    'cell': cell_mask,
+                    'nucleus': nucleus_mask,
+                    'pathogen': pathogen_mask,
+                    **organelle_masks,
+                    'cytoplasm': cytoplasm_mask,
+                }
+                crop_mask = crop_masks[crop_mode].copy()
+                dialate_png = dialate_pngs[crop_idx]
+                dialate_png_ratio = dialate_png_ratios[crop_idx]
+                if crop_mode == 'cytoplasm':
                     crop_mask = cytoplasm_mask.copy()
                     # Dilating a cytoplasm ring grows it into the nucleus
                     # it is defined as excluding, so the crop would no
@@ -3157,7 +3222,12 @@ def _measure_crop_core(index, time_ls, file, settings):
                     if settings['use_bounding_box']:
                         region = _find_bounding_box(crop_mask, _id, buffer=10)
 
-                    img_name, fldr, table_name = _generate_names(file_name=file_name, cell_id = region_cell_ids, cell_nucleus_ids=region_nucleus_ids, cell_pathogen_ids=region_pathogen_ids, source_folder=source_folder, crop_mode=crop_mode, timelapse=settings['timelapse'])
+                    img_name, fldr, table_name = _generate_names(
+                        file_name=file_name, cell_id=region_cell_ids,
+                        cell_nucleus_ids=region_nucleus_ids,
+                        cell_pathogen_ids=region_pathogen_ids,
+                        source_folder=source_folder, crop_mode=crop_mode,
+                        timelapse=settings['timelapse'], object_id=_id)
 
                     if dialate_png:
                         # count_nonzero, not np.sum: when use_bounding_box is
@@ -3364,13 +3434,15 @@ def measure_crop(settings):
     if not isinstance(settings['src'], (str, list)):
         raise ValueError('src must be a string or a list of strings')
     
+    settings = dict(settings)
     settings['src'] = normalize_src_path(settings['src'])
     
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]
 
     if isinstance(settings['src'], list):
-        source_folders = settings['src']
+        source_folders = list(settings['src'])
+        base_settings = dict(settings)
         
         # One run for the whole invocation: one id on every log line and
         # every artifact it registers, one seed reaching numpy / random /
@@ -3380,12 +3452,12 @@ def measure_crop(settings):
             for source_folder in source_folders:
                 cancellation_checkpoint()
                 print(f'Processing folder: {source_folder}')
-            
+                # Defaults and a previous source folder must not leak into the
+                # next one. In particular each merged folder may carry a
+                # different authoritative plane-layout manifest.
+                settings = dict(base_settings)
                 source_folder = format_path_for_system(source_folder)
                 settings['src'] = source_folder
-
-                settings = get_measure_crop_settings(settings)
-                settings = measure_test_mode(settings)
 
                 src_fldr = settings['src']
             
@@ -3394,6 +3466,14 @@ def measure_crop(settings):
                     src_fldr = os.path.join(src_fldr, 'merged')
                     settings['src'] = src_fldr
                     print(f"Changed source folder to: {src_fldr}")
+
+                explicit_mask_keys = {
+                    f'{role}_mask_dim' for role in SEGMENTED_ROLES
+                    if f'{role}_mask_dim' in settings}
+                settings = reconcile_merged_mask_dims(
+                    settings, src_fldr, explicit_keys=explicit_mask_keys)
+                settings = get_measure_crop_settings(settings)
+                settings = measure_test_mode(settings)
 
                 # Issue #15, "measurements sometimes hangs from completion".
                 # This run is about to start one worker per field, and every
@@ -3456,9 +3536,8 @@ def measure_crop(settings):
                         print(f'timelapse object:{tlo}, cells will be relabeled to nucleus labels to track cells.')
 
                 int_setting_keys = [
-                    'cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim',
-                    'organelle_mask_dim', 'cell_min_size', 'nucleus_min_size',
-                    'pathogen_min_size', 'organelle_min_size',
+                    *(f'{role}_mask_dim' for role in SEGMENTED_ROLES),
+                    *(f'{role}_min_size' for role in SEGMENTED_ROLES),
                     'cytoplasm_min_size',
                 ]
             
@@ -4116,7 +4195,8 @@ def generate_object_dataset(
         raise FileNotFoundError(f"measurements database not found: {db_path}")
 
     if mask_dims is None:
-        mask_dims = {'cell': 4, 'nucleus': 5, 'pathogen': 6, 'organelle': 7}
+        layout = read_merged_plane_layout(os.path.join(root, 'merged'))
+        mask_dims = dict((layout or {}).get('mask_dims') or DEFAULT_MASK_DIMS)
     if object_type not in mask_dims:
         raise ValueError(
             f"no mask slice known for object_type={object_type!r}; "

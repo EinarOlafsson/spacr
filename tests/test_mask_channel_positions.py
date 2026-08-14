@@ -75,18 +75,16 @@ def test_the_role_order_matches_what_the_writer_walks():
     The two are the same fact written twice; the alternative is discovering
     the disagreement as mis-segmented plates.
     """
+    from spacr.object_roles import ORGANELLE_ROLES
     assert MASK_CHANNEL_ROLE_ORDER == (
         "nucleus_channel", "cell_channel", "pathogen_channel",
-        "organelle_channel")
+        *(f"{role}_channel" for role in ORGANELLE_ROLES))
 
     import inspect
     from spacr import io
     source = inspect.getsource(io.preprocess_img_data)
-    marker = ("mask_channels_raw = [settings.get('nucleus_channel'), "
-              "settings.get('cell_channel'), "
-              "settings.get('pathogen_channel'), "
-              "settings.get('organelle_channel')]")
-    assert marker in source, (
+    assert "mask_channels_raw = [settings.get(key) for key in mask_channel_keys]" in source
+    assert "*(f'{role}_channel' for role in ORGANELLE_ROLES)" in source, (
         "preprocess_img_data no longer builds the channel list in the order "
         "MASK_CHANNEL_ROLE_ORDER claims; one of the two moved")
 

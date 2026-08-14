@@ -416,7 +416,8 @@ class TestStage1MaskIngest:
         differ by exactly the number of mask planes. uint16 in both, which
         is the dtype the whole measure path is written against.
         """
-        merged = sorted(os.listdir(os.path.join(project["dst"], "merged")))
+        merged = sorted(name for name in os.listdir(
+            os.path.join(project["dst"], "merged")) if name.endswith('.npy'))
         stacks = sorted(os.listdir(os.path.join(project["dst"], "stack")))
         assert len(merged) == len(stacks) == 12
         assert merged == stacks
@@ -1268,15 +1269,6 @@ class TestTheStockImporterLosesTheOrganelleSummary:
     every reader treats as a collection.
     """
 
-    @pytest.mark.xfail(strict=True, reason=(
-        "spacr/external_masks.py:661 does list() on summarize_organelles_by, "
-        "whose default (spacr/settings.py:497) is the string 'cell', so "
-        "Measure receives ['c','e','l','l','organelle'] and the "
-        "`if \"cell\" in settings['summarize_organelles_by']` test at "
-        "spacr/measure.py:2396 is False. An external-mask import with "
-        "organelle masks therefore writes no cell_organelle_summary table, "
-        "and run_external_masks' completeness check does not notice because "
-        "it only requires one table per imported object type."))
     def test_a_stock_import_still_summarises_organelles_per_cell(self,
                                                                   stock_import):
         assert "cell_organelle_summary" in stock_import.tables, (
@@ -1311,7 +1303,7 @@ class TestTheStockImporterLosesTheOrganelleSummary:
         assert "pathogen_organelle_summary" in project["result"].tables
 
 
-def test_the_setting_that_causes_it_still_has_the_shape_described():
+def test_summary_setting_is_not_split_into_characters_by_the_importer():
     """Pins the two halves of the bug so the xfail cannot rot.
 
     If either the default stops being a bare string or Measure stops using
@@ -1319,8 +1311,6 @@ def test_the_setting_that_causes_it_still_has_the_shape_described():
     needs re-reading rather than silently flipping.
     """
     import inspect
-    import re
-
     from spacr.settings import get_measure_crop_settings
     import spacr.external_masks as external_masks
     import spacr.measure as measure
@@ -1330,15 +1320,13 @@ def test_the_setting_that_causes_it_still_has_the_shape_described():
     default = get_measure_crop_settings({})["summarize_organelles_by"]
     assert isinstance(default, str) and default == "cell"
     assert "cell" in default                      # substring test: True
-    assert "cell" not in list(default)            # membership test: False
-
-    # Half two: the importer really does list() it...
+    # The importer leaves the value intact; Measure normalises str/list/None
+    # once and then performs exact parent-name membership.
     importer = inspect.getsource(external_masks.run_external_masks)
-    assert re.search(
-        r'list\(\s*measure_settings\.get\("summarize_organelles_by"\)',
-        importer), "external_masks no longer list()s the setting"
+    assert 'list(measure_settings.get("summarize_organelles_by")' not in importer
 
     # ...and Measure really does read it with `in`, which is what makes
     # the difference between the two spellings observable.
     measured = inspect.getsource(measure._measure_crop_core)
-    assert '"cell" in settings[\'summarize_organelles_by\']' in measured
+    assert "requested = settings.get('summarize_organelles_by')" in measured
+    assert "parent_name not in requested" in measured
