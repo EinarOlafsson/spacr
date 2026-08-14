@@ -1971,6 +1971,24 @@ def test_german_software_loanwords_do_not_hide_english_fragments():
     assert _has_english_residue(source, partial, "de")
     assert _copied_english_phrases(source, partial, "de")
 
+    accepted_terms = {
+        "Use drag and drop with a fuzzy match.":
+            "Drag-and-drop mit einem Fuzzy Match verwenden.",
+        "The denial of service is prevented by a hard cap.":
+            "Der Denial of Service wird durch eine harte Obergrenze verhindert.",
+        "Apply the Mann-Whitney U test and D'Agostino-Pearson test.":
+            "Mann-Whitney-U-Test und D'Agostino-Pearson-Test anwenden.",
+    }
+    for term_source, term_target in accepted_terms.items():
+        assert not _copied_english_phrases(term_source, term_target, "de")
+
+    # Technical terminology is not permission to retain nearby prose.
+    assert _copied_english_phrases(
+        "Use drag and drop when the caller chooses a file.",
+        "Drag-and-drop verwenden when the caller chooses a file.",
+        "de",
+    )
+
 
 def test_portuguese_residue_gate_distinguishes_for_homograph_from_english():
     from build_documentation_i18n import _has_english_residue
