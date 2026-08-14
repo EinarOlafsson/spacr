@@ -2889,8 +2889,8 @@ def build_folds(labels,
         ``filenames``.
     :param filenames: crop filenames from which group ids are parsed when
         ``groups`` is not given.
-    :param group_by: grouping level — ``'well'`` (default), ``'field'``,
-        ``'plate'`` or ``'none'``.
+    :param group_by: grouping level — ``'cell'``, ``'field'``, ``'well'``
+        (default), or ``'plate'``. Legacy ``'none'`` aliases ``'cell'``.
     :param seed: RNG seed, so the folds reproduce.
     :param exclude: indices to keep out of every fold — the held-out test split.
     :returns: ``(folds, warnings)`` where ``folds`` is a list of
@@ -2898,6 +2898,9 @@ def build_folds(labels,
     :raises ValueError: when ``n_folds`` < 2 or every sample was excluded.
     """
     import numpy as np
+    from .classifier_evaluation import normalize_split_level
+
+    group_level = normalize_split_level(group_by)
 
     n_folds = int(n_folds)
     if n_folds < 2:
@@ -2926,28 +2929,27 @@ def build_folds(labels,
 
     warnings: List[str] = []
     grp = None
-    if groups is not None:
+    if group_level != "cell" and groups is not None:
         grp = np.asarray(list(groups))[pool]
-    elif filenames is not None and group_by != "none":
+    elif filenames is not None and group_level != "cell":
         from .io import _cv_group_ids
         ids, n_unparsed = _cv_group_ids(
-            [str(filenames[i]) for i in pool], group_by, verbose=False)
+            [str(filenames[i]) for i in pool], group_level, verbose=False)
         grp = np.asarray(ids) if ids is not None else None
         if n_unparsed:
             warnings.append(
                 f"{n_unparsed} filenames did not carry a "
-                f"'{group_by}' level and became their own group."
+                f"'{group_level}' level and became their own group."
             )
-    if grp is None and group_by != "none":
-        warnings.append(
-            f"No group ids were available (pass `groups=` or `filenames=`), so "
-            f"the folds are ungrouped despite group_by='{group_by}'. Crops "
-            f"from one well can now straddle a split and every score below is "
-            f"optimistic."
+    if grp is None and group_level != "cell":
+        raise ValueError(
+            f"No group ids were available for group_by='{group_level}'. Pass "
+            "`groups=` or `filenames=`; a random fallback would make related "
+            "crops cross folds and report an optimistic search score."
         )
-    if group_by == "none":
+    if group_level == "cell":
         warnings.append(
-            "group_by='none': folds are a plain stratified split. Object crops "
+            "group_by='cell': folds are a plain stratified split. Object crops "
             "from the same well will straddle folds, which inflates scores."
         )
 
@@ -3038,11 +3040,13 @@ def cv_search(fit_fn: Callable[[Dict[str, Any], Any, Any], Any],
                 f"did well on that exact data."
             )
 
-    grouped = groups is not None or (filenames is not None
-                                     and group_by != "none")
+    from .classifier_evaluation import normalize_split_level
+    group_level = normalize_split_level(group_by)
+    grouped = group_level != "cell" and (
+        groups is not None or filenames is not None)
     notes.insert(0, (
         f"Scored on {len(folds)} "
-        f"{'grouped (group_by=' + repr(group_by) + ')' if grouped else 'ungrouped'} "
+        f"{'grouped (group_by=' + repr(group_level) + ')' if grouped else 'ungrouped'} "
         f"cross-validation folds, seed {seed}. "
         f"{len(test_set)} test samples were excluded from every fold, so no "
         f"configuration was selected using test data."

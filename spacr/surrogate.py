@@ -98,6 +98,7 @@ class SurrogateResult:
     importance: pd.DataFrame
     n_objects: int
     class_counts: Dict[Any, int] = field(default_factory=dict)
+    split_report: Dict[str, Any] = field(default_factory=dict)
     warnings: List[str] = field(default_factory=list)
 
     @property
@@ -138,6 +139,12 @@ class SurrogateResult:
             f"baseline (majority): {self.baseline:.3f}",
             f"surrogate fidelity : {self.fidelity:.3f}",
         ]
+        if self.split_report:
+            lines.append(
+                "held-out split     : "
+                f"{self.split_report.get('group_by')} grouped; "
+                f"{self.split_report.get('group_fraction', 0):.1%} groups / "
+                f"{self.split_report.get('cell_fraction', 0):.1%} cells")
         if not self.is_faithful:
             lines += [
                 "",
@@ -260,6 +267,7 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
                   n_estimators: int = 300, random_seed: int = 0,
                   n_repeats: int = 5, shap_max_samples: int = 500,
                   exclude: Optional[Sequence[str]] = None,
+                  split_by: str = "well",
                   verbose: bool = True) -> SurrogateResult:
     """Fit a surrogate to ``frame['cv_prediction']`` and rank the features.
 
@@ -272,13 +280,14 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
     :param shap_max_samples: SHAP is O(rows); this caps the explained sample
         and the cap is REPORTED rather than applied silently.
     :param exclude: extra feature columns to drop.
+    :param split_by: acquisition unit held intact between surrogate fitting
+        and fidelity measurement. Default ``'well'``.
     :param verbose: print the summary when done.
     :returns: a :class:`SurrogateResult`.
     :raises SurrogateError: too few objects or classes to fit anything.
     """
     from sklearn.ensemble import RandomForestClassifier
     from sklearn.inspection import permutation_importance
-    from sklearn.model_selection import train_test_split
 
     if "cv_prediction" not in frame.columns:
         raise SurrogateError("frame has no cv_prediction column")
@@ -315,9 +324,18 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
     x = data[features]
     baseline = float(max(counts.values()) / len(data))
 
-    stratify = y if min(counts.values()) >= 2 else None
-    x_train, x_test, y_train, y_test = train_test_split(
-        x, y, test_size=test_size, random_state=random_seed, stratify=stratify)
+    from .classifier_evaluation import grouped_split, split_group_values
+    split_frame = frame.loc[data.index].copy()
+    try:
+        split_level, groups = split_group_values(
+            group_by=split_by, frame=split_frame, table="surrogate frame")
+        train_idx, test_idx, split_report = grouped_split(
+            groups, y.to_numpy(), test_size, seed=random_seed,
+            group_by=split_level)
+    except ValueError as exc:
+        raise SurrogateError(str(exc)) from exc
+    x_train, x_test = x.iloc[train_idx], x.iloc[test_idx]
+    y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
 
     model = RandomForestClassifier(
         n_estimators=n_estimators, random_state=random_seed, n_jobs=-1)
@@ -341,7 +359,8 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
 
     result = SurrogateResult(
         fidelity=fidelity, baseline=baseline, importance=importance,
-        n_objects=int(len(data)), class_counts=counts, warnings=warnings)
+        n_objects=int(len(data)), class_counts=counts,
+        split_report=split_report.to_dict(), warnings=warnings)
     if verbose:
         print(result.summary())
     return result

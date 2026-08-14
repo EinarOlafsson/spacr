@@ -3399,7 +3399,7 @@ class AnnotateApp:
     :param object_size: ``(min_px, max_px)`` connected-component filter; 0 disables.
     """
 
-    def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', percentiles=(1, 99), measurement=None, threshold=None, threshold_direction = "higher", normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1, edge_thickness=1, edge_transparency=100, edge_image=False, object_size=(0,0)):
+    def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', percentiles=(1, 99), measurement=None, threshold=None, threshold_direction = "higher", normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1, edge_thickness=1, edge_transparency=100, edge_image=False, object_size=(0,0), split_by='well'):
         """Build the annotation UI, start the DB worker, and load the first page."""
         self.root = root
         self.db_path = db_path
@@ -3443,6 +3443,7 @@ class AnnotateApp:
         self.edge_transparency = edge_transparency
         self.edge_image = edge_image
         self.object_size = tuple(object_size) if object_size else (0, 0)
+        self.split_by = split_by
         
         style_out = set_dark_style(ttk.Style())
         self.font_loader = style_out['font_loader']
@@ -5407,7 +5408,6 @@ class AnnotateApp:
         """
         import sqlite3
         import pandas as pd
-        from sklearn.model_selection import train_test_split
         from sklearn.metrics import classification_report, confusion_matrix
         from xgboost import XGBClassifier
 
@@ -5480,10 +5480,17 @@ class AnnotateApp:
         X_data = annotated_df[feature_cols].fillna(0).values
         y_data = annotated_df['manual_annotation'].values
 
-        X_train, X_test, y_train, y_test = train_test_split(
-            X_data, y_data, test_size=0.1, random_state=42
-        )
+        from .classifier_evaluation import grouped_split, split_group_values
+        split_level, split_groups = split_group_values(
+            group_by=getattr(self, 'split_by', 'well'), frame=annotated_df,
+            table='annotation classifier')
+        train_idx, test_idx, split_report = grouped_split(
+            split_groups, y_data, 0.1, seed=42, group_by=split_level)
+        X_train, X_test = X_data[train_idx], X_data[test_idx]
+        y_train, y_test = y_data[train_idx], y_data[test_idx]
+        print(split_report.summary())
         model = XGBClassifier(use_label_encoder=False, eval_metric='logloss')
+        model.spacr_split_report_ = split_report.to_dict()
         model.fit(X_train, y_train)
 
         preds = model.predict(X_test)

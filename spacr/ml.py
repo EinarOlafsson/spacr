@@ -37,7 +37,6 @@ from patsy import dmatrices
 
 from sklearn.model_selection import StratifiedKFold
 from sklearn.feature_selection import SelectKBest, f_classif
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.inspection import permutation_importance
@@ -4244,6 +4243,7 @@ def generate_ml_scores(settings):
                                settings['prune_features'],
                                settings['cross_validation'],
                                settings['verbose'],
+                               split_by=settings.get('cv_group_by', 'well'),
                                **batch_kwargs)
     
     shap_fig = shap_analysis(output[3], output[4], output[5])
@@ -4380,6 +4380,7 @@ def ml_analysis(
     cross_validation=False,
     verbose=False,
     *,
+    split_by='well',
     batch_correction='none',
     batch_column='plateID',
     batch_control_column=None,
@@ -4424,6 +4425,9 @@ def ml_analysis(
     :param prune_features: If True, apply ``SelectKBest`` before training.
     :param cross_validation: If True, run 5-fold stratified CV.
     :param verbose: Log progress details.
+    :param split_by: Independent acquisition unit for train/test splitting:
+        ``'cell'``, ``'field'``, ``'well'`` (default), or ``'plate'``.
+        Legacy ``'none'`` is an alias for ``'cell'``.
     :param batch_correction: plate correction method from
         :mod:`spacr.batch_correction`.
     :param batch_column: metadata column identifying plates/batches.
@@ -4591,6 +4595,10 @@ def ml_analysis(
         print(f'Features: {features}')
         
     df = pd.concat([df, df_metadata[location_column]], axis=1)
+    # The merged measurement index is the canonical object identity. Keep it
+    # beside the filtered features now so duplicate indexes in annotation
+    # mode remain positionally aligned instead of being multiplied by .loc.
+    df['prcfo'] = df.index.astype(str)
     
     #if verbose:
     #    print(df[location_column].dtype)
@@ -4718,14 +4726,29 @@ def ml_analysis(
         after_pruning = len(X.columns)
         print(f"Removed {before_pruning - after_pruning} features using SelectKBest")
 
-    # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
+    # Split on an actual experimental unit. The index is the canonical prcfo
+    # in merged measurement frames, even when filtering removed its component
+    # metadata columns from X.
+    from .classifier_evaluation import grouped_split, split_group_values
+    split_frame = combined_df[['prcfo']].reset_index(drop=True)
+    split_level, split_groups = split_group_values(
+        group_by=split_by, frame=split_frame, table='ML control measurements')
+    train_index, test_index, split_report = grouped_split(
+        split_groups, y.to_numpy(), test_size, seed=random_state,
+        group_by=split_level)
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+    print(split_report.summary())
 
     # Add data usage labels
     combined_df['data_usage'] = 'train'
     combined_df.loc[X_test.index, 'data_usage'] = 'test'
     df['data_usage'] = 'not_used'
     df.loc[combined_df.index, 'data_usage'] = combined_df['data_usage']
+    df['data_usage_group_by'] = split_report.group_by
+    df['split_requested_fraction'] = split_report.requested_fraction
+    df['split_cell_fraction'] = split_report.cell_fraction
+    df['split_group_fraction'] = split_report.group_fraction
     
     # Initialize the model based on model_type
     if model_type == 'random_forest':
@@ -4778,14 +4801,34 @@ def ml_analysis(
     else:
         raise ValueError(f"Unsupported model_type: {model_type}")
 
+    # Estimators returned here can be persisted with joblib/pickle. Keeping the
+    # report on the object makes grouping provenance travel with such a model
+    # rather than existing only in stdout or the scored CSV.
+    model.spacr_split_report_ = split_report.to_dict()
+
     # Perform k-fold cross-validation
     if cross_validation:
-        
-        # Cross-validation setup
-        kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=random_state)
+        from .io import make_cv_folds
+
+        distinct_groups = len(np.unique(split_groups))
+        n_folds = min(5, distinct_groups)
+        if n_folds < 2:
+            raise ValueError(
+                f"cross-validation by {split_level} needs at least two "
+                f"independent groups; found {distinct_groups}")
+        folds = make_cv_folds(
+            y.to_numpy(), n_folds, groups=split_groups,
+            seed=random_state)
+        expected_classes = set(np.unique(y))
         fold_metrics = []
 
-        for fold_idx, (train_index, test_index) in enumerate(kfold.split(X, y), start=1):
+        for fold_idx, (train_index, test_index) in enumerate(folds, start=1):
+            if (set(np.unique(y.iloc[train_index])) != expected_classes or
+                    set(np.unique(y.iloc[test_index])) != expected_classes):
+                raise ValueError(
+                    f"{split_level}-grouped CV fold {fold_idx} cannot put "
+                    "every class in both train and test. Add independent "
+                    f"class-bearing {split_level}s or choose a finer split.")
             X_train, X_test = X.iloc[train_index], X.iloc[test_index]
             y_train, y_test = y.iloc[train_index], y.iloc[test_index]
 
@@ -4872,6 +4915,13 @@ def ml_analysis(
         report_dict = classification_report(
             y_test, predictions_test, output_dict=True, zero_division=0)
         metrics_df = pd.DataFrame(report_dict).transpose()
+
+    # ``model_metrics.csv`` is the classical model's durable card. Repeat the
+    # scalar provenance on its rows so it survives CSV and remains filterable.
+    metrics_df['split_group_by'] = split_report.group_by
+    metrics_df['split_requested_fraction'] = split_report.requested_fraction
+    metrics_df['split_group_fraction'] = split_report.group_fraction
+    metrics_df['split_cell_fraction'] = split_report.cell_fraction
         
     perm_importance = permutation_importance(model, X_train, y_train, n_repeats=n_repeats, random_state=random_state, n_jobs=n_jobs)
 
