@@ -235,6 +235,58 @@ def test_generate_image_umap_log_data_and_correlation_filter(umap_src):
     assert out is not None
 
 
+def test_generate_image_umap_prints_row_exclusion_note(umap_src, capsys):
+    pytest.importorskip("umap")
+    from spacr.core import generate_image_umap
+    out = generate_image_umap(_umap_settings(
+        umap_src, exclude_rows={"columnID": ["c1"]}, verbose=True))
+    assert out is not None
+    assert "Excluded" in capsys.readouterr().out
+
+
+def test_generate_image_umap_rejects_misaligned_cluster_labels(
+        umap_src, monkeypatch):
+    from spacr import core
+    from spacr import utils
+
+    def misaligned(data, *_args, **_kwargs):
+        n = len(data)
+        return np.zeros((n, 2)), np.zeros(max(0, n - 1), dtype=int), None
+
+    monkeypatch.setattr(utils, "reduction_and_clustering", misaligned)
+    with pytest.raises(ValueError, match="lost alignment"):
+        core.generate_image_umap(_umap_settings(umap_src))
+
+
+def test_generate_image_umap_without_crop_column_keeps_embedding(
+        tmp_path, monkeypatch, capsys):
+    """A measurement-only source has a payload record with no DB/crop path."""
+    from spacr import core
+    from spacr import io as sio
+    from spacr import utils
+
+    frame = pd.DataFrame({
+        "columnID": ["c1", "c2"],
+        "cell_area": [10.0, 20.0],
+        "prcfo": ["p_r_c1_f_o1", "p_r_c2_f_o2"],
+    })
+    monkeypatch.setattr(utils, "get_db_paths", lambda _src: [np.nan])
+    monkeypatch.setattr(core, "_validate_umap_source_db", lambda *_a, **_k: None)
+    monkeypatch.setattr(sio, "_read_and_join_tables",
+                        lambda *_a, **_k: frame.copy())
+    monkeypatch.setattr(utils, "correct_paths", lambda df, _src: (df, []))
+    monkeypatch.setattr(sio, "open_crop_source", lambda *_a, **_k: None)
+    monkeypatch.setattr(
+        utils, "reduction_and_clustering",
+        lambda data, *_a, **_k: (np.zeros((len(data), 2)),
+                                  np.zeros(len(data), dtype=int), None))
+    settings = _umap_settings(str(tmp_path), plot_images=True)
+    fig = core.generate_image_umap(settings, return_fig=True)
+    assert fig._spacr_umap_payload["records"][0]["db_path"] is None
+    assert fig._spacr_umap_payload["records"][0]["image"] is None
+    assert "plotting points only" in capsys.readouterr().out
+
+
 def test_generate_screen_graphs_writes_results(umap_src):
     """generate_screen_graphs merges the DB, computes the recruitment metric
     and writes a figure + CSV per source into results/."""
@@ -319,6 +371,18 @@ def test_reducer_search_row_limit_and_exclude(umap_src):
         dbscan_params=[{"eps": 0.5, "min_samples": 3}],
         kmeans_params=None, save=False, show=False)
     assert out is None or out is not None
+
+
+def test_reducer_search_prints_row_exclusion_note(umap_src, capsys):
+    pytest.importorskip("umap")
+    from spacr.core import reducer_hyperparameter_search
+    reducer_hyperparameter_search(
+        settings=_umap_settings(
+            umap_src, exclude_rows={"columnID": ["c1"]}, verbose=True),
+        reduction_params=[{"n_neighbors": 5}],
+        dbscan_params=[{"eps": 0.5, "min_samples": 3}],
+        kmeans_params=None, save=False, show=False)
+    assert "Excluded" in capsys.readouterr().out
 
 
 # ---------------------------------------------------------------------------
