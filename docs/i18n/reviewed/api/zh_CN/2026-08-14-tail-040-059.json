@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "spacr.measure.save_and_add_image_to_grid#1",
+      "source_sha256": "70912825318eafc893936c969b6171edcd73259231428d753a218b0d31220261",
+      "source": "Args: png_channels (ndarray): The crop in file order -- red plane first -- as :func:`spacr.crops.build_png_channels` assembles it. Written without narrowing, so a ``uint16`` crop becomes a 16-bit PNG; a float crop is silently written as 8-bit by cv2. Four or more channels raise rather than losing one to an alpha plane. img_path (str): Where the PNG goes. Its parent folder is stamped with the format sidecar and **must already exist** -- the caller in ``_measure_crop_core`` creates it. If it does not, the stamp fails with a printed warning, ``cv2.imwrite`` returns False, and the call returns normally having written nothing at all. A bare filename with no directory part stamps the current working directory. grid (list): Anything with ``append``; read only when ``plot`` is true, and appended to in place, so the return value is the object that was passed in. ``None`` passes through untouched while ``plot`` is false. plot (bool): Truthiness, not identity, decides. False (the default) leaves ``grid`` completely untouched -- the PNG is still written -- which is why an ordinary run ends with an empty grid. True appends the crop for :func:`img_list_to_grid`: a crop of exactly dtype ``uint16`` is appended as a high-byte narrowed ``uint8`` copy, every other dtype is appended unchanged, and a ``uint8`` crop is appended by reference, so a caller that reuses its buffer mutates what is already in the grid.",
+      "context": "Args: png_channels (ndarray): The extracted image region in file order -- red image layer first -- as :func:`spacr.crops.build_png_channels` assembles it. Written without narrowing, so a ``uint16`` extracted image region becomes a 16-bit PNG; a float extracted image region is silently written as 8-bit by cv2. Four or more image data channels raise rather than losing one to an alpha image layer. img_path (str): Where the PNG goes. Its parent folder is stamped with the format sidecar and **must already exist** -- the caller in ``_measure_crop_core`` creates it. If it does not, the stamp fails with a printed warning, ``cv2.imwrite`` returns False, and the call returns normally having written nothing at all. A bare filename with no directory part stamps the current working directory. grid (list): Anything with ``append``; read only when ``plot`` is true, and appended to in place, so the return value is the object that was passed in. ``None`` passes through untouched while ``plot`` is false. plot (bool): Truthiness, not identity, decides. False (the default) leaves ``grid`` completely untouched -- the PNG is still written -- which is why an ordinary run ends with an empty grid. True appends the extracted image region for :func:`img_list_to_grid`: an extracted image region of exactly dtype ``uint16`` is appended as a high-byte narrowed ``uint8`` copy, every other dtype is appended unchanged, and a ``uint8`` extracted image region is appended by reference, so a caller that reuses its buffer mutates what is already in the grid.",
+      "translation": "参数：png_channels (ndarray)：按文件顺序排列的提取图像区域——红色图像层在前——与 :func:`spacr.crops.build_png_channels` 的组装结果相同。写入时不缩窄数据，因此 ``uint16`` 提取区域会成为 16 位 PNG；浮点提取区域则被 cv2 静默写成 8 位。图像数据通道达到四个或更多时会抛出错误，而不会把其中一个误作 alpha 图像层而丢失。img_path (str)：PNG 的目标位置。其父文件夹会写入格式附属标记，并且**必须已经存在**——``_measure_crop_core`` 中的调用方负责创建它。若不存在，写标记时会打印警告并失败，``cv2.imwrite`` 返回 False，而调用会正常返回但不写出任何内容。若仅给出不带目录部分的文件名，则标记当前工作目录。grid (list)：任何具有 ``append`` 的对象；仅在 ``plot`` 为真时读取，并在原对象上追加，因此返回值就是传入的对象。``None`` 在 ``plot`` 为假时原样传递。plot (bool)：依据真值而不是对象身份判断。False（默认值）使 ``grid`` 完全不变——PNG 仍会写入——所以普通运行结束时网格为空。True 会为 :func:`img_list_to_grid` 追加提取图像区域：数据类型恰为 ``uint16`` 的区域会取高字节并缩窄为 ``uint8`` 副本后追加；其他数据类型原样追加；``uint8`` 区域则按引用追加，因此调用方若复用缓冲区，会改变网格中已经存在的内容。"
+    },
+    {
+      "label": "spacr.measure.save_and_add_image_to_grid#8",
+      "source_sha256": "75d1b74664b8f056395fdae46210573f773328cb66588b311775c8d685283dd6",
+      "source": "Crops are still ``uint16``, so these are 16-bit PNGs and no intensity is discarded at write time. The narrowing to 8 bit happens once, on read, in :func:`spacr.crops.narrow_to_uint8`, which always takes the HIGH BYTE (``// 256``) — replacing PIL's two incompatible rules (high byte for an RGB PNG, a *clip* at 255 for a single-channel one, which returned solid white for any crop brighter than that).",
+      "context": "Extracted image regions are still ``uint16``, so these are 16-bit PNGs and no intensity is discarded at write time. The narrowing to 8 bit happens once, on read, in :func:`spacr.crops.narrow_to_uint8`, which always takes the HIGH BYTE (``// 256``) — replacing PIL's two incompatible rules (high byte for an RGB PNG, a *clip* at 255 for a single-image data channel one, which returned solid white for any extracted image region brighter than that).",
+      "translation": "提取图像区域仍为 ``uint16``，所以这些文件是 16 位 PNG，写入时不会丢弃任何强度信息。缩窄到 8 位只在读取时进行一次，位置在 :func:`spacr.crops.narrow_to_uint8`；它始终取高字节（``// 256``）。这替代了 PIL 两种互不一致的规则：RGB PNG 取高字节，而单图像数据通道图像会在 255 处*截断*，使亮度超过该值的提取区域变成纯白。"
+    },
+    {
+      "label": "spacr.measure_hooks#2",
+      "source_sha256": "feee686e96267b0b60b7f9ce5e0d3c43b0f69c4b78dc7328a654872d65c5f083",
+      "source": "**illumination / flat-field correction** — a per-channel multiplicative gain estimated across a plate, applied to the intensity channels before any feature is computed;",
+      "context": "**illumination / flat-microscope field of view correction** — a per-image data channel multiplicative gain estimated across a laboratory microplate, applied to the intensity image data channels before any feature is computed;",
+      "translation": "**照明 / 平场校正**——根据整块微孔板估计每个图像数据通道的乘性增益，并在计算任何特征之前应用于强度图像数据通道；"
+    },
+    {
+      "label": "spacr.measure_hooks#12",
+      "source_sha256": "9cd5336985093612a0a5299b6ec6cee061bc8d78d7b4589fced147b11416bcf9",
+      "source": "Every hook is registered with an integer ``priority`` (default ``0``) and runs in ascending ``(priority, registration order)``. Ties keep registration order, so the rule is fully deterministic. The two kinds then *combine* differently:",
+      "context": "Every hook is registered with an integer ``priority`` (default ``0``) and runs in ascending ``(priority, registration order)``. Ties keep registration order, so the rule is fully deterministic. The two kinds then *combine* differently:",
+      "translation": "每个钩子注册时都有整数 ``priority``（默认为 ``0``），并按 ``(priority, registration order)`` 升序运行。优先级相同者保持注册顺序，因此规则完全确定。随后两种钩子以不同方式*组合*："
+    },
+    {
+      "label": "spacr.ml.interpret_vision_model#1",
+      "source_sha256": "d36376d87588cccca12cb40f2050eaac8299f4c768c58e14a29fc00a59a7851e",
+      "source": "Merges per-object measurements from ``measurements.db`` with a CSV of predicted scores, runs any combination of RF feature importance, permutation importance and SHAP over the top features, then aggregates SHAP contributions into compartment and channel radar plots so you can see which region (cell / nucleus / pathogen / cytoplasm) and which fluorescence channel drives the model.",
+      "context": "Merges per-object measurements from ``measurements.db`` with a CSV of predicted scores, runs any combination of RF feature importance, permutation importance and SHAP over the top features, then aggregates SHAP contributions into compartment and image data channel radar plots so you can see which region (cell / nucleus / pathogen / cytoplasm) and which fluorescence image data channel drives the model.",
+      "translation": "把 ``measurements.db`` 中的逐对象测量值与预测得分 CSV 合并，对排名靠前的特征运行 RF 特征重要性、置换重要性和 SHAP 的任意组合，再把 SHAP 贡献汇总为区室和图像数据通道雷达图，以显示哪个区域（细胞 / 细胞核 / 病原体 / 细胞质）以及哪个荧光图像数据通道驱动模型。"
+    },
+    {
+      "label": "spacr.model_compare.load_fields#4",
+      "source_sha256": "6a13443a7836017f9415eab7ad33ace0a583794c89b04e43aa79cc53d331e419",
+      "source": "index into the last axis for a multi-channel field; None keeps the array as it is.",
+      "context": "index into the last axis for a multi-image data channel microscope field of view; None keeps the array as it is.",
+      "translation": "多图像数据通道显微镜视野最后一个轴的索引；None 表示保持数组原样。"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks#0",
+      "source_sha256": "06bccef977116f5e475dca6b9493bfcd2bc35ffefe4cd0ae1d428c0654d33fcd",
+      "source": "Segment one object channel across all ``.npz`` batches under ``src`` using a chosen Cellpose model.",
+      "context": "Segment one object image data channel across all ``.npz`` batches under ``src`` using a chosen Cellpose model.",
+      "translation": "对所有 ``.npz`` 批次中位于 ``src`` 下的一个对象图像数据通道进行分割，并使用所选 Cellpose 模型。"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#0",
+      "source_sha256": "0b7ffdbdf6731edb022b8e88c07b33c5fcb96b3443178f5c338469f4b1430a18",
+      "source": "Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.",
+      "context": "Segment one object image data channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.",
+      "translation": "对所有 ``.npz`` 批次中位于 ``src`` 下的一个对象图像数据通道进行分割，并使用 Cellpose-SAM。"
+    },
+    {
+      "label": "spacr.ome_zarr#2",
+      "source_sha256": "900d6a40e110bdc7336217dabd65f870c7810120cebace3b7646403580a7c4d7",
+      "source": "**Chunked.** The array is stored as a grid of independently compressed blocks, so a 100 GB plate is readable a tile at a time. Nothing here ever reads an array to answer a question about it: :func:`read_ome_zarr` opens a handful of small JSON files and returns the levels, their shapes, their voxel sizes and their chunk grids without touching a single chunk, and :meth:`OmeZarrImage.read` with a ``region=`` decodes only the chunks that region intersects. Every byte of chunk data in the pure-Python path passes through one function, :func:`_read_chunk_bytes`, precisely so that \"it is lazy\" is a countable claim rather than a sentence in a docstring — ``tests/test_ome_zarr.py`` counts its calls.",
+      "context": "**Chunked storage.** Independently compressed blocks make a 100 GB plate readable one tile at a time. Metadata queries do not load array data. :func:`read_ome_zarr` reads small JSON files and reports levels, shapes, voxel sizes, and chunk grids without reading a chunk. :meth:`OmeZarrImage.read` with ``region=`` decodes only intersecting chunks. In the pure-Python path, all chunk bytes pass through :func:`_read_chunk_bytes`. Therefore ``tests/test_ome_zarr.py`` can count calls and verify lazy loading directly.",
+      "translation": "**分块存储。** 数组保存为彼此独立压缩的数据块网格，因此 100 GB 的微孔板可以逐图块读取。这里绝不会为了回答元数据问题而读取数组：:func:`read_ome_zarr` 只打开少量小型 JSON 文件，返回层级、形状、体素大小和分块网格，不接触任何数据块；:meth:`OmeZarrImage.read` 在带有 ``region=`` 时，也只解码与该区域相交的数据块。纯 Python 路径中的每个分块数据字节都经过 :func:`_read_chunk_bytes`，正因如此，“采用惰性读取”是可计数的断言，而不只是文档字符串中的一句话——``tests/test_ome_zarr.py`` 会统计调用次数。"
+    },
+    {
+      "label": "spacr.ome_zarr.Level#1",
+      "source_sha256": "ac8c76024fd603fb7392aa55f8fc7e85d7d3676cd493c8dff8f5af77459a62af",
+      "source": "Everything here comes out of one small JSON file. Building the whole pyramid's worth of these costs a handful of stats and no chunk reads, which is what makes \"list the levels and their shapes\" free on a 100 GB plate.",
+      "context": "Everything here comes out of one small JSON file. Building the whole pyramid's worth of these costs a handful of stats and no chunk reads, which is what makes \"list the levels and their shapes\" free on a 100 GB plate.",
+      "translation": "这里的所有信息都来自一个很小的 JSON 文件。构建整座金字塔的这些层级只需读取少量文件状态，不会读取任何数据块，因此即使微孔板有 100 GB，列出层级及其形状也几乎没有开销。"
+    },
+    {
+      "label": "spacr.ome_zarr.write_ome_zarr#21",
+      "source_sha256": "8c673daadd90f7eef36f270fb549bff7d129ea67163ffab8f9c49a806f904f74",
+      "source": "hex RGB per channel; defaults to :data:`DEFAULT_CHANNEL_COLORS`.",
+      "context": "hex RGB per image data channel; defaults to :data:`DEFAULT_CHANNEL_COLORS`.",
+      "translation": "每个图像数据通道使用十六进制 RGB；默认为 :data:`DEFAULT_CHANNEL_COLORS`。"
+    },
+    {
+      "label": "spacr.omero#19",
+      "source_sha256": "00bbc706386616c94acd8241df36cd0049d21679ce73f16e0f6209c739cf6205",
+      "source": "``omero_import.csv`` one row per plane: the target filename, the OMERO image id and name, the spaCR keys (``plateID``/``rowID``/``columnID``/``fieldID``/``prc``), the channel index and its OMERO name, ``z``/``t``, the pixel size and its unit, and where the well came from (see ``well_source`` below). ``omero_import.json`` one object per import: server host and port, container kind/id/name, plate token, counts, channel names, pixel size, the spaCR version and a UTC timestamp.",
+      "context": "``omero_import.csv`` one row for each image layer: the target filename, the OMERO image id and name, the spaCR structured-data names (``plateID``/``rowID``/``columnID``/``fieldID``/``prc``), the image data channel index and its OMERO name, ``z``/``t``, the pixel size and its unit, and where the microplate sample position came from (see ``well_source`` below). ``omero_import.json`` one object per import: server host and port, container kind/id/name, laboratory microplate token, counts, image data channel names, pixel size, the spaCR version and a UTC timestamp.",
+      "translation": "``omero_import.csv`` 为每个图像层保存一行：目标文件名、OMERO 图像标识符和名称、spaCR 结构化数据名称（``plateID``/``rowID``/``columnID``/``fieldID``/``prc``）、图像数据通道索引及其 OMERO 名称、``z``/``t``、像素大小及单位，以及微孔板样本位置的来源（见下文的 ``well_source``）。``omero_import.json`` 为每次导入保存一个对象：服务器主机和端口、容器种类/标识符/名称、微孔板标记、计数、图像数据通道名称、像素大小、spaCR 版本和 UTC 时间戳。"
+    },
+    {
+      "label": "spacr.omero.measurement_pairs#2",
+      "source_sha256": "9cf9ee1c1a7e53ea22d0109223708d60028772bbfc405e634d44995b4e7448c0",
+      "source": "**Why there is a cap.** A spaCR object table has 300-600 columns. A MapAnnotation with 400 entries renders in OMERO.web as a 400-row scrolling table in a 300 px panel, which nobody reads and which makes the panel useless for the annotations that *were* worth showing. So the annotation is a *summary*, capped at ``max_pairs`` (:data:`MAX_MAP_PAIRS` = 50 by default) and ordered so the useful keys are the ones that survive: ``priority`` keys first in the order given, then the row's own order. When anything is cut, the last pair is :data:`TRUNCATION_KEY`, saying how many were dropped and that the full table is the CSV attached under :data:`NS_FILE`. The full table is never *only* in the annotation.",
+      "context": "**Why there is a cap.** A spaCR object table has 300-600 columns. A MapAnnotation with 400 entries renders in OMERO.web as a 400-row scrolling table in a 300 px panel, which nobody reads and which makes the panel useless for the annotations that *were* worth showing. So the annotation is a *summary*, capped at ``max_pairs`` (:data:`MAX_MAP_PAIRS` = 50 by default) and ordered so the useful structured-data names are the ones that survive: ``priority`` structured-data names first in the order given, then the row's own order. When anything is cut, the last pair is :data:`TRUNCATION_KEY`, saying how many were dropped and that the full table is the CSV attached under :data:`NS_FILE`. The full table is never *only* in the annotation.",
+      "translation": "**为何设置上限。** spaCR 对象表有 300-600 列。含 400 个条目的 MapAnnotation 在 OMERO.web 中会显示成位于 300 px 面板内、需要滚动的 400 行表格；无人会阅读它，而且会让真正*值得*显示的注释也无法使用。因此注释只是*摘要*，最多保留 ``max_pairs`` 项（:data:`MAX_MAP_PAIRS` 默认等于 50），并通过排序保留有用的结构化数据名称：先按给定顺序放置 ``priority`` 结构化数据名称，再保持行本身的顺序。若有内容被截断，最后一对为 :data:`TRUNCATION_KEY`，说明删除了多少项，并指出完整表格位于附加到 :data:`NS_FILE` 的 CSV 中。完整表格绝不会*仅仅*存在于注释里。"
+    },
+    {
+      "label": "spacr.pipeline_v2.run_v2#3",
+      "source_sha256": "7e802fd4b82242d663a6cf19587aa6e38e1ff18c5c7ddfe5e7ae4d4f2f0a7543",
+      "source": "channel numbers as parsed from the filename (``C01`` gives 1), not C-axis positions. The default ``(0, 1, 2, 3)`` therefore misfits stock CellVoyager/Yokogawa names: channel 0 never exists, so plane 0 is all zeros, and ``C04`` is dropped. Pass ``(1, 2, 3, 4)`` for those layouts.",
+      "context": "image data channel numbers as parsed from the filename (``C01`` gives 1), not C-axis positions. The default ``(0, 1, 2, 3)`` therefore misfits stock CellVoyager/Yokogawa names: image data channel 0 never exists, so image layer 0 is all zeros, and ``C04`` is dropped. Pass ``(1, 2, 3, 4)`` for those layouts.",
+      "translation": "使用从文件名解析的图像数据通道编号（``C01`` 得到 1），而不是 C 轴位置。因此默认值 ``(0, 1, 2, 3)`` 不适用于标准 CellVoyager/Yokogawa 命名：图像数据通道 0 不存在，所以图像层 0 全为零，并且 ``C04`` 会被丢弃。对于这些布局，请传入 ``(1, 2, 3, 4)``。"
+    },
+    {
+      "label": "spacr.pipeline_v2.run_v2#6",
+      "source_sha256": "2ab279bc9c2b748944c112738c202749c779b8ac3a29984732ef7188b50662e7",
+      "source": "despite the name this never reaches Cellpose's ``channels=`` argument; it selects C-axis indices from the assembled stack, taken modulo the channel count (7 with C=4 becomes 3) and de-duplicated in order. The default ``(0, 0)`` collapses to one plane, and an empty sequence falls back to plane 0.",
+      "context": "despite the name this never reaches Cellpose's ``channels=`` argument; it selects C-axis indices from the assembled stack, taken modulo the image data channel count (7 with C=4 becomes 3) and de-duplicated in order. The default ``(0, 0)`` collapses to one image layer, and an empty sequence falls back to image layer 0.",
+      "translation": "尽管名称如此，该值从不会传入 Cellpose 的 ``channels=`` 参数；它从已组装堆栈中选择 C 轴索引，对图像数据通道数量取模（C=4 时 7 变为 3），并按原顺序去重。默认值 ``(0, 0)`` 会合并为一个图像层，空序列则回退到图像层 0。"
+    },
+    {
+      "label": "spacr.pipeline_v2.run_v2#10",
+      "source_sha256": "c0862127b2e028ae635a4f84970f7294d7e4c4b86375de94c03e39237cd03445",
+      "source": "required when ``metadata_type=\"custom\"``, else ``ValueError``. It must supply the named groups (``plateID``, ``wellID``, ``fieldID``, ``chanID``, ``timeID``, ``sliceID``); any group it omits silently defaults, so a regex without ``chanID`` makes every image channel 1 and therefore its own single-plane field.",
+      "context": "required when ``metadata_type=\"custom\"``, else ``ValueError``. It must supply the named groups (``plateID``, ``wellID``, ``fieldID``, ``chanID``, ``timeID``, ``sliceID``); any group it omits silently defaults, so a regex without ``chanID`` makes every image data channel 1 and therefore its own single-image layer microscope field of view.",
+      "translation": "当 ``metadata_type=\"custom\"`` 时必须提供，否则抛出 ``ValueError``。它必须提供命名组（``plateID``、``wellID``、``fieldID``、``chanID``、``timeID``、``sliceID``）；任何省略的组都会静默使用默认值，因此缺少 ``chanID`` 的正则表达式会把每个图像数据通道都设为 1，进而各自形成单图像层显微镜视野。"
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#0",
+      "source_sha256": "6c71855a74e9e00dd905a25e974b039b781f85e88d0a24ecd35cfa0a787aa195",
+      "source": "Batch the field stacks through Cellpose, then append the mask channel(s) to the SAME npy files.",
+      "context": "Batch the microscope field of view stacks through Cellpose, then append the mask image data channel(s) to the SAME npy files.",
+      "translation": "把显微镜视野堆栈分批交给 Cellpose，然后将掩模图像数据通道追加到同一批 npy 文件。"
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#3",
+      "source_sha256": "c317e98b10f030cb637e567195d501607ce21e12f6b952afb2d363ca2597aef7",
+      "source": "C-axis indices selected out of each assembled stack before it is handed to Cellpose — taken modulo the channel count and de-duplicated in order. It is NOT forwarded as Cellpose's ``channels=`` argument; ``[0, 0]`` therefore yields a single plane, not a grayscale pair.",
+      "context": "C-axis indices selected out of each assembled stack before it is handed to Cellpose — taken modulo the image data channel count and de-duplicated in order. It is NOT forwarded as Cellpose's ``channels=`` argument; ``[0, 0]`` therefore yields a single image layer, not a grayscale pair.",
+      "translation": "在把每个已组装堆栈交给 Cellpose 之前，从中选择 C 轴索引——对图像数据通道数量取模，并按原顺序去重。该值不会作为 Cellpose 的 ``channels=`` 参数传递；因此 ``[0, 0]`` 得到的是单个图像层，而不是一对灰度层。"
+    },
+    {
+      "label": "spacr.plot.plot_cellpose4_output#0",
+      "source_sha256": "bf476e9c301130186186a870f20d5483b11d9ea69d6820bd423336ef36c1eadc",
+      "source": "Display per-channel images, label mask and flow field for Cellpose v4 outputs.",
+      "context": "Display per-image data channel images, label mask and flow microscope field of view for Cellpose v4 outputs.",
+      "translation": "显示 Cellpose v4 输出的逐图像数据通道图像、标签掩模和光流场。"
+    },
+    {
+      "label": "spacr.plot.spacrGraph#1",
+      "source_sha256": "71a91c1394f8d354cd6bb30e8bae05a037f562cd74dde1d7468ad27b5c5161d6",
+      "source": "Wraps preprocessing (aggregation by object / well / plate), normality and variance testing, group-wise pairwise stats, and plot rendering (bar / jitter / box / violin / jitter_box / jitter_bar / line / line_std) in a single object whose output can optionally be persisted alongside a CSV of stats.",
+      "context": "Wraps preprocessing (aggregation by object / microplate sample position / laboratory microplate), normality and variance testing, group-wise pairwise stats, and plot rendering (bar / jitter / box / violin / jitter_box / jitter_bar / line / line_std) in a single object whose output can optionally be persisted alongside a CSV of stats.",
+      "translation": "用一个对象封装预处理（按对象 / 微孔板样本位置 / 微孔板汇总）、正态性与方差检验、分组两两统计，以及绘图渲染（条形 / 抖动 / 箱线 / 小提琴 / jitter_box / jitter_bar / 折线 / line_std）；其输出还可选择持久化，并同时保存统计结果 CSV。"
+    }
+  ]
+}
